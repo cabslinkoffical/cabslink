@@ -155,7 +155,7 @@ function HomePage() {
       {/* BOOKING WIDGET */}
       <section className="relative z-20">
         <div className="container-x">
-          <div className="-translate-y-10 md:-translate-y-16">
+          <div className="-translate-y-24 md:-translate-y-40">
             <BookingWidget />
           </div>
         </div>
