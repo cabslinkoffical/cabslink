@@ -169,12 +169,13 @@ function HomePage() {
       <section className="-mt-4 md:-mt-6">
         <div className="container-x">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-px rounded-2xl overflow-hidden border border-border bg-border">
-            {stats.map(s => (
-              <div key={s.label} className="bg-[var(--surface)] p-5 md:p-7 text-center">
+            {stats.map((s, i) => (
+              <Reveal key={s.label} delay={i * 80} className="bg-[var(--surface)] p-5 md:p-7 text-center">
                 <p className="font-display text-3xl md:text-4xl font-bold text-[var(--gold)]">{s.value}</p>
                 <p className="mt-1 text-[11px] md:text-xs uppercase tracking-[0.14em] text-muted-foreground">{s.label}</p>
-              </div>
+              </Reveal>
             ))}
+
           </div>
         </div>
       </section>
