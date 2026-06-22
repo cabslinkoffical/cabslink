@@ -7,8 +7,10 @@ import {
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { BookingWidget } from "@/components/site/BookingWidget";
 import { SectionHeader } from "@/components/site/PageHero";
+import { Reveal } from "@/components/site/Reveal";
 import { Button } from "@/components/ui/button";
 import { SITE } from "@/lib/site";
+
 import heroImg from "@/assets/hero.jpg";
 import chauffeurImg from "@/assets/chauffeur.jpg";
 import edinburghImg from "@/assets/edinburgh.jpg";
