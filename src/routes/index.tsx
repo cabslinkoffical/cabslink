@@ -96,16 +96,16 @@ function HomePage() {
 
         <div className="container-x relative z-10 pt-12 md:pt-20 pb-8">
           <div className="text-center max-w-4xl mx-auto">
-            <p className="inline-flex items-center gap-2 text-[11px] md:text-xs uppercase tracking-[0.28em] text-[var(--gold)] font-semibold mb-5 px-3 py-1.5 rounded-full border border-[var(--gold)]/30 bg-[var(--gold)]/5">
+            <p className="animate-fade-up inline-flex items-center gap-2 text-[11px] md:text-xs uppercase tracking-[0.28em] text-[var(--gold)] font-semibold mb-5 px-3 py-1.5 rounded-full border border-[var(--gold)]/30 bg-[var(--gold)]/5">
               <Sparkles className="size-3" /> UK's Trusted Chauffeur Company
             </p>
-            <h1 className="font-display font-bold text-white text-[2.25rem] sm:text-5xl md:text-7xl lg:text-[5.25rem] leading-[1.03] tracking-tight">
+            <h1 className="animate-fade-up font-display font-bold text-white text-[2.25rem] sm:text-5xl md:text-7xl lg:text-[5.25rem] leading-[1.03] tracking-tight" style={{ animationDelay: "120ms" }}>
               Premium UK Chauffeur <br className="hidden md:block" /> & <span className="text-[var(--gold)]">Airport Transfers</span>
             </h1>
-            <p className="mt-5 md:mt-6 max-w-2xl mx-auto text-sm sm:text-base md:text-lg text-white/70">
+            <p className="animate-fade-up mt-5 md:mt-6 max-w-2xl mx-auto text-sm sm:text-base md:text-lg text-white/70" style={{ animationDelay: "240ms" }}>
               Travel in our signature Mercedes-Benz V-Class with vetted chauffeurs, flight tracking, meet &amp; greet and fixed fares — across Edinburgh, London and the entire UK.
             </p>
-            <div className="mt-7 flex flex-wrap justify-center gap-3">
+            <div className="animate-fade-up mt-7 flex flex-wrap justify-center gap-3" style={{ animationDelay: "360ms" }}>
               <Button asChild variant="slash">
                 <Link to="/book">Book a Ride <ArrowRight className="size-4" /></Link>
               </Button>
@@ -115,7 +115,7 @@ function HomePage() {
             </div>
 
             {/* Trust strip */}
-            <div className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2 text-[11px] sm:text-xs text-white/60">
+            <div className="animate-fade-up mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2 text-[11px] sm:text-xs text-white/60" style={{ animationDelay: "480ms" }}>
               <span className="inline-flex items-center gap-1.5"><ShieldCheck className="size-3.5 text-[var(--gold)]" /> Fully licensed & insured</span>
               <span className="inline-flex items-center gap-1.5"><Plane className="size-3.5 text-[var(--gold)]" /> Flight tracked</span>
               <span className="inline-flex items-center gap-1.5"><Clock3 className="size-3.5 text-[var(--gold)]" /> 24/7 support</span>
@@ -126,22 +126,23 @@ function HomePage() {
           {/* Car centerpiece */}
           <div className="relative mt-8 md:mt-12">
             <div className="relative mx-auto max-w-5xl">
-              <div className="absolute inset-x-0 bottom-0 h-2/3 bg-[radial-gradient(ellipse_at_center,color-mix(in_oklab,var(--gold)_25%,transparent),transparent_70%)] blur-2xl" aria-hidden />
+              <div className="absolute inset-x-0 bottom-0 h-2/3 bg-[radial-gradient(ellipse_at_center,color-mix(in_oklab,var(--gold)_25%,transparent),transparent_70%)] blur-2xl animate-pulse" aria-hidden />
               <img
                 src={vClassImg}
                 alt="Mercedes-Benz V-Class chauffeur vehicle"
                 width={1600}
                 height={1000}
-                className="relative w-full object-contain drop-shadow-[0_40px_60px_rgba(0,0,0,0.45)]"
+                className="relative w-full object-contain drop-shadow-[0_40px_60px_rgba(0,0,0,0.45)] animate-float animate-fade-soft"
+                style={{ animationDelay: "0ms, 200ms" }}
               />
             </div>
 
             {/* Desktop-only floating cards (avoid clipping the car on mobile) */}
-            <div className="hidden md:block absolute right-6 lg:right-10 top-6 lg:top-10 w-[200px] rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-5 text-center">
+            <div className="animate-fade-up hidden md:block absolute right-6 lg:right-10 top-6 lg:top-10 w-[200px] rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-5 text-center" style={{ animationDelay: "700ms" }}>
               <p className="font-display text-4xl lg:text-5xl font-bold text-[var(--gold)]">50k+</p>
               <p className="mt-2 text-[10px] uppercase tracking-[0.18em] text-white/80">Journeys delivered</p>
             </div>
-            <div className="hidden md:block absolute left-6 lg:left-10 bottom-10 w-[200px] rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-5">
+            <div className="animate-fade-up hidden md:block absolute left-6 lg:left-10 bottom-10 w-[200px] rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-5" style={{ animationDelay: "850ms" }}>
               <div className="flex items-center gap-1 text-[var(--gold)]">
                 {[...Array(5)].map((_, i) => <Star key={i} className="size-3.5 fill-current" />)}
               </div>
@@ -149,6 +150,7 @@ function HomePage() {
               <p className="mt-1 text-[10px] uppercase tracking-[0.18em] text-white/70">Customer rating</p>
             </div>
           </div>
+
         </div>
 
         <div className="taxi-stripe h-2 w-full" aria-hidden />
