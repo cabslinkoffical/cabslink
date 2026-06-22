@@ -313,8 +313,8 @@ function HomePage() {
         <div className="container-x">
           <SectionHeader eyebrow="Loved by our passengers" title="Trusted by frequent flyers, executives & event teams" center />
           <div className="mt-12 grid gap-5 md:grid-cols-3">
-            {testimonials.map(t => (
-              <figure key={t.name} className="rounded-2xl border border-border bg-card p-7 flex flex-col">
+            {testimonials.map((t, i) => (
+              <Reveal key={t.name} delay={i * 120} as="figure" className="rounded-2xl border border-border bg-card p-7 flex flex-col hover:border-[var(--gold)]/50 hover:-translate-y-1 hover:shadow-[var(--shadow-elegant)] transition-all duration-300">
                 <div className="flex items-center gap-1 text-[var(--gold)]">
                   {[...Array(5)].map((_, i) => <Star key={i} className="size-4 fill-current" />)}
                 </div>
@@ -323,8 +323,9 @@ function HomePage() {
                   <p className="font-semibold text-sm">{t.name}</p>
                   <p className="text-xs text-muted-foreground">{t.role}</p>
                 </figcaption>
-              </figure>
+              </Reveal>
             ))}
+
           </div>
         </div>
       </section>
