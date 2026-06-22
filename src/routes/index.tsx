@@ -12,7 +12,7 @@ import { SITE } from "@/lib/site";
 import heroImg from "@/assets/hero.jpg";
 import chauffeurImg from "@/assets/chauffeur.jpg";
 import edinburghImg from "@/assets/edinburgh.jpg";
-import vClassImg from "@/assets/v-class.jpg";
+import vClassImg from "@/assets/v-class.png";
 import vClassInteriorImg from "@/assets/v-class-interior.jpg";
 import airportImg from "@/assets/airport.jpg";
 import corporateImg from "@/assets/corporate.jpg";
@@ -130,8 +130,7 @@ function HomePage() {
                 alt="Mercedes-Benz V-Class chauffeur vehicle"
                 width={1600}
                 height={1000}
-                className="relative w-full object-contain drop-shadow-[0_40px_60px_rgba(0,0,0,0.6)]"
-                style={{ maskImage: "linear-gradient(to bottom, black 85%, transparent)" }}
+                className="relative w-full object-contain drop-shadow-[0_40px_60px_rgba(0,0,0,0.45)]"
               />
             </div>
 
