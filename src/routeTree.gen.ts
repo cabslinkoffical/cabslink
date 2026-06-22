@@ -13,7 +13,11 @@ import { Route as VipTransfersRouteImport } from './routes/vip-transfers'
 import { Route as ToursRouteImport } from './routes/tours'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as FleetRouteImport } from './routes/fleet'
+import { Route as DriveWithUsRouteImport } from './routes/drive-with-us'
 import { Route as CorporateTravelRouteImport } from './routes/corporate-travel'
+import { Route as CorporateBookingRouteImport } from './routes/corporate-booking'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as BookRouteImport } from './routes/book'
 import { Route as AirportTransfersRouteImport } from './routes/airport-transfers'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
@@ -38,9 +42,29 @@ const FleetRoute = FleetRouteImport.update({
   path: '/fleet',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DriveWithUsRoute = DriveWithUsRouteImport.update({
+  id: '/drive-with-us',
+  path: '/drive-with-us',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CorporateTravelRoute = CorporateTravelRouteImport.update({
   id: '/corporate-travel',
   path: '/corporate-travel',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CorporateBookingRoute = CorporateBookingRouteImport.update({
+  id: '/corporate-booking',
+  path: '/corporate-booking',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BookRoute = BookRouteImport.update({
+  id: '/book',
+  path: '/book',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AirportTransfersRoute = AirportTransfersRouteImport.update({
@@ -63,7 +87,11 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/airport-transfers': typeof AirportTransfersRoute
+  '/book': typeof BookRoute
+  '/contact': typeof ContactRoute
+  '/corporate-booking': typeof CorporateBookingRoute
   '/corporate-travel': typeof CorporateTravelRoute
+  '/drive-with-us': typeof DriveWithUsRoute
   '/fleet': typeof FleetRoute
   '/services': typeof ServicesRoute
   '/tours': typeof ToursRoute
@@ -73,7 +101,11 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/airport-transfers': typeof AirportTransfersRoute
+  '/book': typeof BookRoute
+  '/contact': typeof ContactRoute
+  '/corporate-booking': typeof CorporateBookingRoute
   '/corporate-travel': typeof CorporateTravelRoute
+  '/drive-with-us': typeof DriveWithUsRoute
   '/fleet': typeof FleetRoute
   '/services': typeof ServicesRoute
   '/tours': typeof ToursRoute
@@ -84,7 +116,11 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/airport-transfers': typeof AirportTransfersRoute
+  '/book': typeof BookRoute
+  '/contact': typeof ContactRoute
+  '/corporate-booking': typeof CorporateBookingRoute
   '/corporate-travel': typeof CorporateTravelRoute
+  '/drive-with-us': typeof DriveWithUsRoute
   '/fleet': typeof FleetRoute
   '/services': typeof ServicesRoute
   '/tours': typeof ToursRoute
@@ -96,7 +132,11 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/airport-transfers'
+    | '/book'
+    | '/contact'
+    | '/corporate-booking'
     | '/corporate-travel'
+    | '/drive-with-us'
     | '/fleet'
     | '/services'
     | '/tours'
@@ -106,7 +146,11 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/airport-transfers'
+    | '/book'
+    | '/contact'
+    | '/corporate-booking'
     | '/corporate-travel'
+    | '/drive-with-us'
     | '/fleet'
     | '/services'
     | '/tours'
@@ -116,7 +160,11 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/airport-transfers'
+    | '/book'
+    | '/contact'
+    | '/corporate-booking'
     | '/corporate-travel'
+    | '/drive-with-us'
     | '/fleet'
     | '/services'
     | '/tours'
@@ -127,7 +175,11 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AirportTransfersRoute: typeof AirportTransfersRoute
+  BookRoute: typeof BookRoute
+  ContactRoute: typeof ContactRoute
+  CorporateBookingRoute: typeof CorporateBookingRoute
   CorporateTravelRoute: typeof CorporateTravelRoute
+  DriveWithUsRoute: typeof DriveWithUsRoute
   FleetRoute: typeof FleetRoute
   ServicesRoute: typeof ServicesRoute
   ToursRoute: typeof ToursRoute
@@ -164,11 +216,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FleetRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/drive-with-us': {
+      id: '/drive-with-us'
+      path: '/drive-with-us'
+      fullPath: '/drive-with-us'
+      preLoaderRoute: typeof DriveWithUsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/corporate-travel': {
       id: '/corporate-travel'
       path: '/corporate-travel'
       fullPath: '/corporate-travel'
       preLoaderRoute: typeof CorporateTravelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/corporate-booking': {
+      id: '/corporate-booking'
+      path: '/corporate-booking'
+      fullPath: '/corporate-booking'
+      preLoaderRoute: typeof CorporateBookingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/book': {
+      id: '/book'
+      path: '/book'
+      fullPath: '/book'
+      preLoaderRoute: typeof BookRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/airport-transfers': {
@@ -199,7 +279,11 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AirportTransfersRoute: AirportTransfersRoute,
+  BookRoute: BookRoute,
+  ContactRoute: ContactRoute,
+  CorporateBookingRoute: CorporateBookingRoute,
   CorporateTravelRoute: CorporateTravelRoute,
+  DriveWithUsRoute: DriveWithUsRoute,
   FleetRoute: FleetRoute,
   ServicesRoute: ServicesRoute,
   ToursRoute: ToursRoute,
