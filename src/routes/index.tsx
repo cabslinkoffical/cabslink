@@ -11,6 +11,7 @@ import { SITE } from "@/lib/site";
 import heroImg from "@/assets/hero.jpg";
 import chauffeurImg from "@/assets/chauffeur.jpg";
 import edinburghImg from "@/assets/edinburgh.jpg";
+import vClassImg from "@/assets/v-class.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
