@@ -7,8 +7,10 @@ import {
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { BookingWidget } from "@/components/site/BookingWidget";
 import { SectionHeader } from "@/components/site/PageHero";
+import { Reveal } from "@/components/site/Reveal";
 import { Button } from "@/components/ui/button";
 import { SITE } from "@/lib/site";
+
 import heroImg from "@/assets/hero.jpg";
 import chauffeurImg from "@/assets/chauffeur.jpg";
 import edinburghImg from "@/assets/edinburgh.jpg";
@@ -94,16 +96,16 @@ function HomePage() {
 
         <div className="container-x relative z-10 pt-12 md:pt-20 pb-8">
           <div className="text-center max-w-4xl mx-auto">
-            <p className="inline-flex items-center gap-2 text-[11px] md:text-xs uppercase tracking-[0.28em] text-[var(--gold)] font-semibold mb-5 px-3 py-1.5 rounded-full border border-[var(--gold)]/30 bg-[var(--gold)]/5">
+            <p className="animate-fade-up inline-flex items-center gap-2 text-[11px] md:text-xs uppercase tracking-[0.28em] text-[var(--gold)] font-semibold mb-5 px-3 py-1.5 rounded-full border border-[var(--gold)]/30 bg-[var(--gold)]/5">
               <Sparkles className="size-3" /> UK's Trusted Chauffeur Company
             </p>
-            <h1 className="font-display font-bold text-white text-[2.25rem] sm:text-5xl md:text-7xl lg:text-[5.25rem] leading-[1.03] tracking-tight">
+            <h1 className="animate-fade-up font-display font-bold text-white text-[2.25rem] sm:text-5xl md:text-7xl lg:text-[5.25rem] leading-[1.03] tracking-tight" style={{ animationDelay: "120ms" }}>
               Premium UK Chauffeur <br className="hidden md:block" /> & <span className="text-[var(--gold)]">Airport Transfers</span>
             </h1>
-            <p className="mt-5 md:mt-6 max-w-2xl mx-auto text-sm sm:text-base md:text-lg text-white/70">
+            <p className="animate-fade-up mt-5 md:mt-6 max-w-2xl mx-auto text-sm sm:text-base md:text-lg text-white/70" style={{ animationDelay: "240ms" }}>
               Travel in our signature Mercedes-Benz V-Class with vetted chauffeurs, flight tracking, meet &amp; greet and fixed fares — across Edinburgh, London and the entire UK.
             </p>
-            <div className="mt-7 flex flex-wrap justify-center gap-3">
+            <div className="animate-fade-up mt-7 flex flex-wrap justify-center gap-3" style={{ animationDelay: "360ms" }}>
               <Button asChild variant="slash">
                 <Link to="/book">Book a Ride <ArrowRight className="size-4" /></Link>
               </Button>
@@ -113,7 +115,7 @@ function HomePage() {
             </div>
 
             {/* Trust strip */}
-            <div className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2 text-[11px] sm:text-xs text-white/60">
+            <div className="animate-fade-up mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2 text-[11px] sm:text-xs text-white/60" style={{ animationDelay: "480ms" }}>
               <span className="inline-flex items-center gap-1.5"><ShieldCheck className="size-3.5 text-[var(--gold)]" /> Fully licensed & insured</span>
               <span className="inline-flex items-center gap-1.5"><Plane className="size-3.5 text-[var(--gold)]" /> Flight tracked</span>
               <span className="inline-flex items-center gap-1.5"><Clock3 className="size-3.5 text-[var(--gold)]" /> 24/7 support</span>
@@ -124,22 +126,23 @@ function HomePage() {
           {/* Car centerpiece */}
           <div className="relative mt-8 md:mt-12">
             <div className="relative mx-auto max-w-5xl">
-              <div className="absolute inset-x-0 bottom-0 h-2/3 bg-[radial-gradient(ellipse_at_center,color-mix(in_oklab,var(--gold)_25%,transparent),transparent_70%)] blur-2xl" aria-hidden />
+              <div className="absolute inset-x-0 bottom-0 h-2/3 bg-[radial-gradient(ellipse_at_center,color-mix(in_oklab,var(--gold)_25%,transparent),transparent_70%)] blur-2xl animate-pulse" aria-hidden />
               <img
                 src={vClassImg}
                 alt="Mercedes-Benz V-Class chauffeur vehicle"
                 width={1600}
                 height={1000}
-                className="relative w-full object-contain drop-shadow-[0_40px_60px_rgba(0,0,0,0.45)]"
+                className="relative w-full object-contain drop-shadow-[0_40px_60px_rgba(0,0,0,0.45)] animate-float animate-fade-soft"
+                style={{ animationDelay: "0ms, 200ms" }}
               />
             </div>
 
             {/* Desktop-only floating cards (avoid clipping the car on mobile) */}
-            <div className="hidden md:block absolute right-6 lg:right-10 top-6 lg:top-10 w-[200px] rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-5 text-center">
+            <div className="animate-fade-up hidden md:block absolute right-6 lg:right-10 top-6 lg:top-10 w-[200px] rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-5 text-center" style={{ animationDelay: "700ms" }}>
               <p className="font-display text-4xl lg:text-5xl font-bold text-[var(--gold)]">50k+</p>
               <p className="mt-2 text-[10px] uppercase tracking-[0.18em] text-white/80">Journeys delivered</p>
             </div>
-            <div className="hidden md:block absolute left-6 lg:left-10 bottom-10 w-[200px] rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-5">
+            <div className="animate-fade-up hidden md:block absolute left-6 lg:left-10 bottom-10 w-[200px] rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-5" style={{ animationDelay: "850ms" }}>
               <div className="flex items-center gap-1 text-[var(--gold)]">
                 {[...Array(5)].map((_, i) => <Star key={i} className="size-3.5 fill-current" />)}
               </div>
@@ -147,6 +150,7 @@ function HomePage() {
               <p className="mt-1 text-[10px] uppercase tracking-[0.18em] text-white/70">Customer rating</p>
             </div>
           </div>
+
         </div>
 
         <div className="taxi-stripe h-2 w-full" aria-hidden />
@@ -165,12 +169,13 @@ function HomePage() {
       <section className="-mt-4 md:-mt-6">
         <div className="container-x">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-px rounded-2xl overflow-hidden border border-border bg-border">
-            {stats.map(s => (
-              <div key={s.label} className="bg-[var(--surface)] p-5 md:p-7 text-center">
+            {stats.map((s, i) => (
+              <Reveal key={s.label} delay={i * 80} className="bg-[var(--surface)] p-5 md:p-7 text-center">
                 <p className="font-display text-3xl md:text-4xl font-bold text-[var(--gold)]">{s.value}</p>
                 <p className="mt-1 text-[11px] md:text-xs uppercase tracking-[0.14em] text-muted-foreground">{s.label}</p>
-              </div>
+              </Reveal>
             ))}
+
           </div>
         </div>
       </section>
@@ -181,15 +186,16 @@ function HomePage() {
           <SectionHeader eyebrow="How it works" title="Three steps to a premium ride" subtitle="From quote to chauffeur at your door — built to feel effortless." center />
           <div className="mt-12 grid gap-5 md:grid-cols-3">
             {steps.map((s, i) => (
-              <div key={s.title} className="relative rounded-2xl border border-border bg-card p-7 hover:border-[var(--gold)]/50 transition">
+              <Reveal key={s.title} delay={i * 120} className="relative rounded-2xl border border-border bg-card p-7 hover:border-[var(--gold)]/50 hover:-translate-y-1 hover:shadow-[var(--shadow-elegant)] transition-all duration-300">
                 <span className="absolute top-5 right-5 font-display text-5xl font-bold text-foreground/[0.06]">0{i + 1}</span>
                 <div className="grid size-12 place-items-center rounded-xl bg-[var(--gold)]/15 text-[var(--gold)]">
                   <s.icon className="size-5" />
                 </div>
                 <h3 className="mt-5 font-display text-xl font-semibold">{s.title}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
-              </div>
+              </Reveal>
             ))}
+
           </div>
         </div>
       </section>
@@ -202,31 +208,33 @@ function HomePage() {
             <Button asChild variant="outline" className="rounded-full self-start"><Link to="/services">All services <ArrowRight className="size-4" /></Link></Button>
           </div>
           <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {services.map(s => (
-              <Link
-                key={s.title}
-                to={s.to}
-                className="group relative overflow-hidden rounded-2xl border border-border bg-card aspect-[4/5] flex flex-col justify-end hover:border-[var(--gold)]/50 transition"
-              >
-                <img
-                  src={s.img}
-                  alt={s.title}
-                  loading="lazy"
-                  className="absolute inset-0 size-full object-cover transition duration-700 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/55 to-black/10" />
-                <div className="absolute top-5 left-5 grid size-11 place-items-center rounded-xl bg-[var(--gold)] text-[var(--gold-foreground)] shadow-[var(--shadow-glow)]">
-                  <s.icon className="size-5" />
-                </div>
-                <div className="relative p-6 text-white">
-                  <h3 className="font-display text-2xl font-semibold">{s.title}</h3>
-                  <p className="mt-2 text-sm text-white/75">{s.desc}</p>
-                  <p className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-[var(--gold)] group-hover:gap-2 transition-all">
-                    Learn more <ArrowRight className="size-4" />
-                  </p>
-                </div>
-              </Link>
+            {services.map((s, i) => (
+              <Reveal key={s.title} delay={(i % 3) * 100}>
+                <Link
+                  to={s.to}
+                  className="group relative overflow-hidden rounded-2xl border border-border bg-card aspect-[4/5] flex flex-col justify-end hover:border-[var(--gold)]/50 hover:-translate-y-1 hover:shadow-[var(--shadow-elegant)] transition-all duration-500"
+                >
+                  <img
+                    src={s.img}
+                    alt={s.title}
+                    loading="lazy"
+                    className="absolute inset-0 size-full object-cover transition duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/55 to-black/10 transition-opacity duration-500 group-hover:from-black/90" />
+                  <div className="absolute top-5 left-5 grid size-11 place-items-center rounded-xl bg-[var(--gold)] text-[var(--gold-foreground)] shadow-[var(--shadow-glow)] transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
+                    <s.icon className="size-5" />
+                  </div>
+                  <div className="relative p-6 text-white">
+                    <h3 className="font-display text-2xl font-semibold">{s.title}</h3>
+                    <p className="mt-2 text-sm text-white/75">{s.desc}</p>
+                    <p className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-[var(--gold)] group-hover:gap-3 transition-all duration-300">
+                      Learn more <ArrowRight className="size-4" />
+                    </p>
+                  </div>
+                </Link>
+              </Reveal>
             ))}
+
           </div>
         </div>
       </section>
@@ -265,15 +273,16 @@ function HomePage() {
         <div className="container-x">
           <SectionHeader eyebrow="Included as standard" title="Every Cabslink ride, by default" center />
           <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {features.map(f => (
-              <div key={f.title} className="flex gap-4 rounded-2xl bg-card border border-border p-6 hover:border-[var(--gold)]/40 transition">
+            {features.map((f, i) => (
+              <Reveal key={f.title} delay={(i % 3) * 100} className="flex gap-4 rounded-2xl bg-card border border-border p-6 hover:border-[var(--gold)]/40 hover:-translate-y-1 hover:shadow-[var(--shadow-elegant)] transition-all duration-300">
                 <div className="grid size-11 shrink-0 place-items-center rounded-xl bg-[var(--gold)]/15 text-[var(--gold)]"><f.icon className="size-5" /></div>
                 <div className="min-w-0">
                   <h3 className="font-semibold">{f.title}</h3>
                   <p className="mt-1 text-sm text-muted-foreground">{f.desc}</p>
                 </div>
-              </div>
+              </Reveal>
             ))}
+
           </div>
         </div>
       </section>
@@ -286,14 +295,15 @@ function HomePage() {
             <Button asChild variant="outline" className="rounded-full self-start"><Link to="/fleet">View full fleet <ArrowRight className="size-4" /></Link></Button>
           </div>
           <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
-            {fleet.map(f => (
-              <div key={f.name} className="rounded-2xl border border-border bg-card p-6 hover:border-[var(--gold)]/50 hover:-translate-y-1 hover:shadow-[var(--shadow-elegant)] transition">
-                <Car className="size-8 text-[var(--gold)]" />
+            {fleet.map((f, i) => (
+              <Reveal key={f.name} delay={i * 80} className="group rounded-2xl border border-border bg-card p-6 hover:border-[var(--gold)]/50 hover:-translate-y-1 hover:shadow-[var(--shadow-elegant)] transition-all duration-300">
+                <Car className="size-8 text-[var(--gold)] transition-transform duration-500 group-hover:-translate-x-1" />
                 <h3 className="mt-4 font-display text-lg font-semibold leading-tight">{f.name}</h3>
                 <p className="mt-1 text-[11px] uppercase tracking-wider text-[var(--gold)]">{f.note}</p>
                 <p className="mt-3 text-sm text-muted-foreground">{f.desc}</p>
-              </div>
+              </Reveal>
             ))}
+
           </div>
         </div>
       </section>
@@ -303,8 +313,8 @@ function HomePage() {
         <div className="container-x">
           <SectionHeader eyebrow="Loved by our passengers" title="Trusted by frequent flyers, executives & event teams" center />
           <div className="mt-12 grid gap-5 md:grid-cols-3">
-            {testimonials.map(t => (
-              <figure key={t.name} className="rounded-2xl border border-border bg-card p-7 flex flex-col">
+            {testimonials.map((t, i) => (
+              <Reveal key={t.name} delay={i * 120} as="figure" className="rounded-2xl border border-border bg-card p-7 flex flex-col hover:border-[var(--gold)]/50 hover:-translate-y-1 hover:shadow-[var(--shadow-elegant)] transition-all duration-300">
                 <div className="flex items-center gap-1 text-[var(--gold)]">
                   {[...Array(5)].map((_, i) => <Star key={i} className="size-4 fill-current" />)}
                 </div>
@@ -313,8 +323,9 @@ function HomePage() {
                   <p className="font-semibold text-sm">{t.name}</p>
                   <p className="text-xs text-muted-foreground">{t.role}</p>
                 </figcaption>
-              </figure>
+              </Reveal>
             ))}
+
           </div>
         </div>
       </section>
