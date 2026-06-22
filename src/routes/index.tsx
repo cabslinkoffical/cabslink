@@ -208,31 +208,33 @@ function HomePage() {
             <Button asChild variant="outline" className="rounded-full self-start"><Link to="/services">All services <ArrowRight className="size-4" /></Link></Button>
           </div>
           <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {services.map(s => (
-              <Link
-                key={s.title}
-                to={s.to}
-                className="group relative overflow-hidden rounded-2xl border border-border bg-card aspect-[4/5] flex flex-col justify-end hover:border-[var(--gold)]/50 transition"
-              >
-                <img
-                  src={s.img}
-                  alt={s.title}
-                  loading="lazy"
-                  className="absolute inset-0 size-full object-cover transition duration-700 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/55 to-black/10" />
-                <div className="absolute top-5 left-5 grid size-11 place-items-center rounded-xl bg-[var(--gold)] text-[var(--gold-foreground)] shadow-[var(--shadow-glow)]">
-                  <s.icon className="size-5" />
-                </div>
-                <div className="relative p-6 text-white">
-                  <h3 className="font-display text-2xl font-semibold">{s.title}</h3>
-                  <p className="mt-2 text-sm text-white/75">{s.desc}</p>
-                  <p className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-[var(--gold)] group-hover:gap-2 transition-all">
-                    Learn more <ArrowRight className="size-4" />
-                  </p>
-                </div>
-              </Link>
+            {services.map((s, i) => (
+              <Reveal key={s.title} delay={(i % 3) * 100}>
+                <Link
+                  to={s.to}
+                  className="group relative overflow-hidden rounded-2xl border border-border bg-card aspect-[4/5] flex flex-col justify-end hover:border-[var(--gold)]/50 hover:-translate-y-1 hover:shadow-[var(--shadow-elegant)] transition-all duration-500"
+                >
+                  <img
+                    src={s.img}
+                    alt={s.title}
+                    loading="lazy"
+                    className="absolute inset-0 size-full object-cover transition duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/55 to-black/10 transition-opacity duration-500 group-hover:from-black/90" />
+                  <div className="absolute top-5 left-5 grid size-11 place-items-center rounded-xl bg-[var(--gold)] text-[var(--gold-foreground)] shadow-[var(--shadow-glow)] transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
+                    <s.icon className="size-5" />
+                  </div>
+                  <div className="relative p-6 text-white">
+                    <h3 className="font-display text-2xl font-semibold">{s.title}</h3>
+                    <p className="mt-2 text-sm text-white/75">{s.desc}</p>
+                    <p className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-[var(--gold)] group-hover:gap-3 transition-all duration-300">
+                      Learn more <ArrowRight className="size-4" />
+                    </p>
+                  </div>
+                </Link>
+              </Reveal>
             ))}
+
           </div>
         </div>
       </section>
