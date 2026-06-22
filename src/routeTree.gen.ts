@@ -9,8 +9,50 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VipTransfersRouteImport } from './routes/vip-transfers'
+import { Route as ToursRouteImport } from './routes/tours'
+import { Route as ServicesRouteImport } from './routes/services'
+import { Route as FleetRouteImport } from './routes/fleet'
+import { Route as CorporateTravelRouteImport } from './routes/corporate-travel'
+import { Route as AirportTransfersRouteImport } from './routes/airport-transfers'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 
+const VipTransfersRoute = VipTransfersRouteImport.update({
+  id: '/vip-transfers',
+  path: '/vip-transfers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ToursRoute = ToursRouteImport.update({
+  id: '/tours',
+  path: '/tours',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ServicesRoute = ServicesRouteImport.update({
+  id: '/services',
+  path: '/services',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FleetRoute = FleetRouteImport.update({
+  id: '/fleet',
+  path: '/fleet',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CorporateTravelRoute = CorporateTravelRouteImport.update({
+  id: '/corporate-travel',
+  path: '/corporate-travel',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AirportTransfersRoute = AirportTransfersRouteImport.update({
+  id: '/airport-transfers',
+  path: '/airport-transfers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -19,28 +61,130 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/airport-transfers': typeof AirportTransfersRoute
+  '/corporate-travel': typeof CorporateTravelRoute
+  '/fleet': typeof FleetRoute
+  '/services': typeof ServicesRoute
+  '/tours': typeof ToursRoute
+  '/vip-transfers': typeof VipTransfersRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/airport-transfers': typeof AirportTransfersRoute
+  '/corporate-travel': typeof CorporateTravelRoute
+  '/fleet': typeof FleetRoute
+  '/services': typeof ServicesRoute
+  '/tours': typeof ToursRoute
+  '/vip-transfers': typeof VipTransfersRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/airport-transfers': typeof AirportTransfersRoute
+  '/corporate-travel': typeof CorporateTravelRoute
+  '/fleet': typeof FleetRoute
+  '/services': typeof ServicesRoute
+  '/tours': typeof ToursRoute
+  '/vip-transfers': typeof VipTransfersRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/airport-transfers'
+    | '/corporate-travel'
+    | '/fleet'
+    | '/services'
+    | '/tours'
+    | '/vip-transfers'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/about'
+    | '/airport-transfers'
+    | '/corporate-travel'
+    | '/fleet'
+    | '/services'
+    | '/tours'
+    | '/vip-transfers'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/airport-transfers'
+    | '/corporate-travel'
+    | '/fleet'
+    | '/services'
+    | '/tours'
+    | '/vip-transfers'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
+  AirportTransfersRoute: typeof AirportTransfersRoute
+  CorporateTravelRoute: typeof CorporateTravelRoute
+  FleetRoute: typeof FleetRoute
+  ServicesRoute: typeof ServicesRoute
+  ToursRoute: typeof ToursRoute
+  VipTransfersRoute: typeof VipTransfersRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/vip-transfers': {
+      id: '/vip-transfers'
+      path: '/vip-transfers'
+      fullPath: '/vip-transfers'
+      preLoaderRoute: typeof VipTransfersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tours': {
+      id: '/tours'
+      path: '/tours'
+      fullPath: '/tours'
+      preLoaderRoute: typeof ToursRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/services': {
+      id: '/services'
+      path: '/services'
+      fullPath: '/services'
+      preLoaderRoute: typeof ServicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fleet': {
+      id: '/fleet'
+      path: '/fleet'
+      fullPath: '/fleet'
+      preLoaderRoute: typeof FleetRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/corporate-travel': {
+      id: '/corporate-travel'
+      path: '/corporate-travel'
+      fullPath: '/corporate-travel'
+      preLoaderRoute: typeof CorporateTravelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/airport-transfers': {
+      id: '/airport-transfers'
+      path: '/airport-transfers'
+      fullPath: '/airport-transfers'
+      preLoaderRoute: typeof AirportTransfersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -53,6 +197,13 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
+  AirportTransfersRoute: AirportTransfersRoute,
+  CorporateTravelRoute: CorporateTravelRoute,
+  FleetRoute: FleetRoute,
+  ServicesRoute: ServicesRoute,
+  ToursRoute: ToursRoute,
+  VipTransfersRoute: VipTransfersRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
