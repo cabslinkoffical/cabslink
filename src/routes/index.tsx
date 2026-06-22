@@ -67,8 +67,7 @@ function HomePage() {
       <section className="relative overflow-hidden isolate">
         <div className="absolute inset-0 z-0">
           <img src={heroImg} alt="Luxury chauffeur car at UK airport at dusk" width={1920} height={1280} className="size-full object-cover" />
-          <div className="absolute inset-0 bg-[var(--navy)]/85" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[var(--navy)] via-[var(--navy)]/80 to-transparent" />
+          <div className="absolute inset-0" style={{background:"linear-gradient(90deg, var(--navy) 0%, color-mix(in oklab, var(--navy) 88%, transparent) 60%, color-mix(in oklab, var(--navy) 70%, transparent) 100%)"}} />
         </div>
         <div className="container-x relative z-10 py-16 md:py-28 grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           <div className="text-white">
