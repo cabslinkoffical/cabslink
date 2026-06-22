@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VipTransfersRouteImport } from './routes/vip-transfers'
 import { Route as ToursRouteImport } from './routes/tours'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as FleetRouteImport } from './routes/fleet'
 import { Route as DriveWithUsRouteImport } from './routes/drive-with-us'
@@ -30,6 +31,11 @@ const VipTransfersRoute = VipTransfersRouteImport.update({
 const ToursRoute = ToursRouteImport.update({
   id: '/tours',
   path: '/tours',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ServicesRoute = ServicesRouteImport.update({
@@ -94,6 +100,7 @@ export interface FileRoutesByFullPath {
   '/drive-with-us': typeof DriveWithUsRoute
   '/fleet': typeof FleetRoute
   '/services': typeof ServicesRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/tours': typeof ToursRoute
   '/vip-transfers': typeof VipTransfersRoute
 }
@@ -108,6 +115,7 @@ export interface FileRoutesByTo {
   '/drive-with-us': typeof DriveWithUsRoute
   '/fleet': typeof FleetRoute
   '/services': typeof ServicesRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/tours': typeof ToursRoute
   '/vip-transfers': typeof VipTransfersRoute
 }
@@ -123,6 +131,7 @@ export interface FileRoutesById {
   '/drive-with-us': typeof DriveWithUsRoute
   '/fleet': typeof FleetRoute
   '/services': typeof ServicesRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/tours': typeof ToursRoute
   '/vip-transfers': typeof VipTransfersRoute
 }
@@ -139,6 +148,7 @@ export interface FileRouteTypes {
     | '/drive-with-us'
     | '/fleet'
     | '/services'
+    | '/sitemap.xml'
     | '/tours'
     | '/vip-transfers'
   fileRoutesByTo: FileRoutesByTo
@@ -153,6 +163,7 @@ export interface FileRouteTypes {
     | '/drive-with-us'
     | '/fleet'
     | '/services'
+    | '/sitemap.xml'
     | '/tours'
     | '/vip-transfers'
   id:
@@ -167,6 +178,7 @@ export interface FileRouteTypes {
     | '/drive-with-us'
     | '/fleet'
     | '/services'
+    | '/sitemap.xml'
     | '/tours'
     | '/vip-transfers'
   fileRoutesById: FileRoutesById
@@ -182,6 +194,7 @@ export interface RootRouteChildren {
   DriveWithUsRoute: typeof DriveWithUsRoute
   FleetRoute: typeof FleetRoute
   ServicesRoute: typeof ServicesRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ToursRoute: typeof ToursRoute
   VipTransfersRoute: typeof VipTransfersRoute
 }
@@ -200,6 +213,13 @@ declare module '@tanstack/react-router' {
       path: '/tours'
       fullPath: '/tours'
       preLoaderRoute: typeof ToursRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/services': {
@@ -286,6 +306,7 @@ const rootRouteChildren: RootRouteChildren = {
   DriveWithUsRoute: DriveWithUsRoute,
   FleetRoute: FleetRoute,
   ServicesRoute: ServicesRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   ToursRoute: ToursRoute,
   VipTransfersRoute: VipTransfersRoute,
 }
