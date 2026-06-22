@@ -39,7 +39,7 @@ export function BookingWidget({ compact = false }: { compact?: boolean }) {
   return (
     <form
       onSubmit={submit}
-      className={`relative overflow-hidden rounded-2xl border border-white/10 bg-[var(--card)]/95 backdrop-blur-xl text-foreground ${compact ? "p-4 md:p-5" : "p-5 md:p-7 shadow-[var(--shadow-elegant)]"}`}
+      className={`relative overflow-hidden rounded-2xl border border-border bg-card text-card-foreground ${compact ? "p-4 md:p-5" : "p-5 md:p-7 shadow-[var(--shadow-elegant)]"}`}
     >
       {/* gold accent bar */}
       <span aria-hidden className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-[var(--gold)] via-[var(--gold)]/60 to-transparent" />
@@ -51,13 +51,13 @@ export function BookingWidget({ compact = false }: { compact?: boolean }) {
             <ShieldCheck className="size-3.5 text-[var(--gold)]" /> Fixed fare · Free wait · No hidden fees
           </p>
         </div>
-        <div className="inline-flex rounded-full border border-white/10 bg-[var(--navy)]/50 p-1 text-xs font-semibold">
+        <div className="inline-flex rounded-full border border-border bg-[var(--surface)] p-1 text-xs font-semibold">
           {tabs.map(t => (
             <button
               type="button"
               key={t.id}
               onClick={() => setTrip(t.id)}
-              className={`px-3.5 py-1.5 rounded-full transition uppercase tracking-wider ${trip === t.id ? "bg-[var(--gold)] text-[var(--gold-foreground)]" : "text-white/70 hover:text-white"}`}
+              className={`px-3.5 py-1.5 rounded-full transition uppercase tracking-wider ${trip === t.id ? "bg-[var(--gold)] text-[var(--gold-foreground)]" : "text-foreground/60 hover:text-foreground"}`}
             >
               {t.label}
             </button>

@@ -183,7 +183,7 @@ function HomePage() {
           <div className="mt-12 grid gap-5 md:grid-cols-3">
             {steps.map((s, i) => (
               <div key={s.title} className="relative rounded-2xl border border-border bg-card p-7 hover:border-[var(--gold)]/50 transition">
-                <span className="absolute top-5 right-5 font-display text-5xl font-bold text-white/5">0{i + 1}</span>
+                <span className="absolute top-5 right-5 font-display text-5xl font-bold text-foreground/[0.06]">0{i + 1}</span>
                 <div className="grid size-12 place-items-center rounded-xl bg-[var(--gold)]/15 text-[var(--gold)]">
                   <s.icon className="size-5" />
                 </div>
