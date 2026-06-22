@@ -20,7 +20,7 @@ export function Header() {
   useEffect(() => { setOpen(false); }, [pathname]);
 
   return (
-    <header className={`sticky top-0 z-50 transition-all ${scrolled ? "bg-background/85 backdrop-blur-md shadow-sm border-b border-border/60" : "bg-background/40 backdrop-blur-sm"}`}>
+    <header className={`sticky top-0 z-50 transition-all ${scrolled ? "bg-[var(--navy)]/90 backdrop-blur-md border-b border-white/5" : "bg-[var(--navy)]/60 backdrop-blur-sm"}`}>
       <div className="container-x flex h-16 items-center justify-between md:h-20">
         <Logo />
         <nav className="hidden lg:flex items-center gap-1">
@@ -28,42 +28,42 @@ export function Header() {
             <Link
               key={item.to}
               to={item.to}
-              className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground rounded-md transition"
-              activeProps={{ className: "text-foreground" }}
+              className="px-4 py-2 text-sm font-semibold uppercase tracking-wider text-white/70 hover:text-[var(--gold)] rounded-md transition"
+              activeProps={{ className: "text-[var(--gold)]" }}
               activeOptions={{ exact: item.to === "/" }}
             >
               {item.label}
             </Link>
           ))}
         </nav>
-        <div className="hidden md:flex items-center gap-3">
-          <a href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`} className="flex items-center gap-2 text-sm font-medium text-foreground/80 hover:text-[var(--gold)]">
+        <div className="hidden md:flex items-center gap-4">
+          <a href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`} className="flex items-center gap-2 text-sm font-semibold text-white/80 hover:text-[var(--gold)]">
             <Phone className="size-4" /> {SITE.phoneUK}
           </a>
-          <Button asChild variant="gold">
-            <Link to="/book">Book Now</Link>
+          <Button asChild variant="slash">
+            <Link to="/book">Book a Ride</Link>
           </Button>
         </div>
         <button
           aria-label="Menu"
           onClick={() => setOpen(v => !v)}
-          className="lg:hidden grid place-items-center size-10 rounded-md border border-border"
+          className="lg:hidden grid place-items-center size-10 rounded-md border border-white/15 text-white"
         >
           {open ? <X className="size-5" /> : <Menu className="size-5" />}
         </button>
       </div>
       {open && (
-        <div className="lg:hidden border-t border-border bg-background">
+        <div className="lg:hidden border-t border-white/10 bg-[var(--navy)]">
           <div className="container-x py-4 flex flex-col gap-1">
             {NAV.map(item => (
-              <Link key={item.to} to={item.to} className="py-2.5 text-base font-medium">
+              <Link key={item.to} to={item.to} className="py-2.5 text-base font-semibold uppercase tracking-wider text-white/80">
                 {item.label}
               </Link>
             ))}
-            <Button asChild variant="gold" className="mt-3">
-              <Link to="/book">Book Now</Link>
+            <Button asChild variant="slash" className="mt-3 self-start">
+              <Link to="/book">Book a Ride</Link>
             </Button>
-            <a href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`} className="mt-2 text-center text-sm text-muted-foreground">
+            <a href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`} className="mt-2 text-center text-sm text-white/70">
               Call {SITE.phoneUK}
             </a>
           </div>
