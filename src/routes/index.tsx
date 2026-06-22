@@ -53,10 +53,10 @@ const features = [
 ];
 
 const fleet = [
+  { name: "Mercedes V-Class", desc: "Up to 7 passengers · 7 luggage", note: "Our signature ride" },
+  { name: "Executive Saloon", desc: "Up to 4 passengers · 3 luggage", note: "Business class" },
   { name: "Saloon", desc: "Up to 4 passengers · 2 luggage", note: "Everyday comfort" },
-  { name: "Executive", desc: "Up to 4 passengers · 3 luggage", note: "Business class" },
   { name: "SUV", desc: "Up to 6 passengers · 4 luggage", note: "Space & style" },
-  { name: "MPV", desc: "Up to 7 passengers · 6 luggage", note: "Family travel" },
   { name: "Minibus", desc: "Up to 16 passengers · 16 luggage", note: "Groups & tours" },
 ];
 
