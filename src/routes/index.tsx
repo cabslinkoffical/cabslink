@@ -295,14 +295,15 @@ function HomePage() {
             <Button asChild variant="outline" className="rounded-full self-start"><Link to="/fleet">View full fleet <ArrowRight className="size-4" /></Link></Button>
           </div>
           <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
-            {fleet.map(f => (
-              <div key={f.name} className="rounded-2xl border border-border bg-card p-6 hover:border-[var(--gold)]/50 hover:-translate-y-1 hover:shadow-[var(--shadow-elegant)] transition">
-                <Car className="size-8 text-[var(--gold)]" />
+            {fleet.map((f, i) => (
+              <Reveal key={f.name} delay={i * 80} className="group rounded-2xl border border-border bg-card p-6 hover:border-[var(--gold)]/50 hover:-translate-y-1 hover:shadow-[var(--shadow-elegant)] transition-all duration-300">
+                <Car className="size-8 text-[var(--gold)] transition-transform duration-500 group-hover:-translate-x-1" />
                 <h3 className="mt-4 font-display text-lg font-semibold leading-tight">{f.name}</h3>
                 <p className="mt-1 text-[11px] uppercase tracking-wider text-[var(--gold)]">{f.note}</p>
                 <p className="mt-3 text-sm text-muted-foreground">{f.desc}</p>
-              </div>
+              </Reveal>
             ))}
+
           </div>
         </div>
       </section>
