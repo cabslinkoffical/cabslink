@@ -26,7 +26,7 @@ export function Footer() {
     <footer className="bg-[var(--navy)] text-[var(--navy-foreground)] mt-20">
       <div className="container-x py-16 grid gap-12 md:grid-cols-2 lg:grid-cols-4">
         <div>
-          <Logo light />
+          <Logo />
           <p className="mt-4 text-sm text-white/70 max-w-xs">
             Premium UK airport transfers and chauffeur services — punctual,
             professional and effortlessly comfortable, around the clock.
