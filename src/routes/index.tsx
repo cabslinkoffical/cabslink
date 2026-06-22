@@ -67,7 +67,8 @@ function HomePage() {
       <section className="relative overflow-hidden isolate">
         <div className="absolute inset-0 z-0">
           <img src={heroImg} alt="Luxury chauffeur car at UK airport at dusk" width={1920} height={1280} className="size-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[var(--navy)]/95 via-[var(--navy)]/80 to-[var(--navy)]/50" />
+          <div className="absolute inset-0 bg-[var(--navy)]/85" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[var(--navy)] via-[var(--navy)]/80 to-transparent" />
         </div>
         <div className="container-x relative z-10 py-16 md:py-28 grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           <div className="text-white">
