@@ -64,51 +64,86 @@ const fleet = [
 function HomePage() {
   return (
     <SiteLayout>
-      {/* HERO */}
-      <section className="relative overflow-hidden isolate">
-        <div className="absolute inset-0 z-0">
-          <img src={heroImg} alt="Mercedes-Benz V-Class chauffeur car at UK airport terminal at dusk" width={1920} height={1280} className="size-full object-cover" />
-          <div className="absolute inset-0" style={{background:"linear-gradient(90deg, var(--navy) 0%, color-mix(in oklab, var(--navy) 88%, transparent) 60%, color-mix(in oklab, var(--navy) 70%, transparent) 100%)"}} />
+      {/* HERO — Taxix-style centered headline + V-Class centerpiece */}
+      <section className="relative overflow-hidden isolate hero-gradient">
+        {/* Background image (subtle) */}
+        <div className="absolute inset-0 z-0 opacity-25">
+          <img src={heroImg} alt="" aria-hidden width={1920} height={1280} className="size-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[var(--navy)] via-transparent to-[var(--navy)]" />
         </div>
-        <div className="container-x relative z-10 py-16 md:py-28 grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-          <div className="text-white">
-            <p className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-[var(--gold)] mb-5">
-              <Star className="size-3 fill-current" /> {SITE.tagline}
+
+        {/* Giant brand wordmark watermark */}
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 top-[42%] z-0 flex justify-center select-none">
+          <span className="font-display font-bold tracking-[-0.04em] text-[18vw] leading-none text-white/[0.04]">CABSLINK</span>
+        </div>
+
+        <div className="container-x relative z-10 pt-14 md:pt-20 pb-0">
+          {/* eyebrow + headline */}
+          <div className="text-center max-w-4xl mx-auto">
+            <p className="inline-flex items-center gap-2 text-xs md:text-sm uppercase tracking-[0.3em] text-[var(--gold)] font-semibold mb-5">
+              <Star className="size-3 fill-current" /> UK's trusted chauffeur company
             </p>
-            <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-semibold leading-[1.02]">
-              Premium UK Airport <span className="text-[var(--gold)]">Transfers</span> & Chauffeur Services
+            <h1 className="font-display font-bold text-white text-4xl sm:text-5xl md:text-7xl lg:text-[5.5rem] leading-[1.02] tracking-tight">
+              Securely Book Your <span className="text-[var(--gold)]">Chauffeur</span><br className="hidden sm:block" /> From Any Location
             </h1>
-            <p className="mt-6 max-w-xl text-base md:text-lg text-white/80">
-              Experience the best of the UK with Cabslink. Reliable, on-time arrivals,
-              effortless booking and a team dedicated to making every journey calm,
-              professional and refined — around the clock.
+            <p className="mt-6 max-w-2xl mx-auto text-base md:text-lg text-white/70">
+              Premium UK airport transfers in our signature Mercedes-Benz V-Class.
+              Flight-tracked, meet &amp; greet, fixed fares — around the clock.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Button asChild variant="hero">
-                <Link to="/book">Book Your Ride <ArrowRight className="size-4" /></Link>
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
+              <Button asChild variant="slash">
+                <Link to="/book">Book a Ride <ArrowRight className="size-4" /></Link>
               </Button>
               <Button asChild variant="heroGhost">
-                <Link to="/contact">Contact Us</Link>
+                <Link to="/services">Our Services</Link>
               </Button>
             </div>
-            <div className="mt-10 grid grid-cols-3 gap-6 max-w-md">
-              {[
-                { k: "10+", v: "Years on the road" },
-                { k: "50k+", v: "Journeys delivered" },
-                { k: "24/7", v: "Always available" },
-              ].map(s => (
-                <div key={s.v}>
-                  <p className="font-display text-3xl text-[var(--gold)]">{s.k}</p>
-                  <p className="text-xs text-white/70 mt-1">{s.v}</p>
-                </div>
-              ))}
+          </div>
+
+          {/* Car centerpiece + floating stat card */}
+          <div className="relative mt-10 md:mt-14">
+            <div className="relative mx-auto max-w-5xl">
+              <div className="absolute inset-x-0 bottom-0 h-2/3 bg-[radial-gradient(ellipse_at_center,color-mix(in_oklab,var(--gold)_28%,transparent),transparent_70%)] blur-2xl" aria-hidden />
+              <img
+                src={vClassImg}
+                alt="Mercedes-Benz V-Class chauffeur vehicle"
+                width={1600}
+                height={1000}
+                className="relative w-full object-contain drop-shadow-[0_40px_60px_rgba(0,0,0,0.6)]"
+                style={{ maskImage: "linear-gradient(to bottom, black 85%, transparent)" }}
+              />
+            </div>
+
+            {/* Floating stat card */}
+            <div className="absolute right-4 md:right-10 top-4 md:top-10 w-[150px] md:w-[200px] rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-5 text-center">
+              <p className="font-display text-4xl md:text-5xl font-bold text-[var(--gold)]">50k+</p>
+              <p className="mt-2 text-[10px] md:text-xs uppercase tracking-[0.18em] text-white/80">Journeys delivered for happy passengers</p>
+            </div>
+
+            {/* Floating left card */}
+            <div className="hidden md:block absolute left-4 md:left-10 bottom-10 w-[200px] rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-5">
+              <div className="flex items-center gap-1 text-[var(--gold)]">
+                {[...Array(5)].map((_, i) => <Star key={i} className="size-3.5 fill-current" />)}
+              </div>
+              <p className="mt-2 font-display text-2xl font-bold">4.9/5</p>
+              <p className="mt-1 text-[10px] uppercase tracking-[0.18em] text-white/70">Average customer rating</p>
             </div>
           </div>
-          <div className="lg:pl-6">
+        </div>
+
+        {/* Taxi stripe divider */}
+        <div className="taxi-stripe h-2 w-full" aria-hidden />
+      </section>
+
+      {/* BOOKING WIDGET */}
+      <section className="relative -mt-2 z-20">
+        <div className="container-x">
+          <div className="rounded-3xl border border-border bg-card p-4 md:p-6 shadow-[var(--shadow-elegant)] -translate-y-10 md:-translate-y-16">
             <BookingWidget />
           </div>
         </div>
       </section>
+
 
       {/* BENEFITS */}
       <section className="section-y">
