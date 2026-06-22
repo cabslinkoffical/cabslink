@@ -1,15 +1,17 @@
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Calendar, Clock, MapPin, Users, Briefcase, Plane, Car, ArrowRight } from "lucide-react";
+import { Calendar, Clock, MapPin, Users, Briefcase, Plane, Car, ArrowRight, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 import { VEHICLE_TYPES } from "@/lib/site";
+
+type Trip = "oneway" | "return" | "hourly";
 
 export function BookingWidget({ compact = false }: { compact?: boolean }) {
   const navigate = useNavigate();
+  const [trip, setTrip] = useState<Trip>("oneway");
   const [pickup, setPickup] = useState("");
   const [dropoff, setDropoff] = useState("");
   const [date, setDate] = useState("");
@@ -18,30 +20,52 @@ export function BookingWidget({ compact = false }: { compact?: boolean }) {
   const [luggage, setLuggage] = useState("0");
   const [vehicle, setVehicle] = useState("Saloon");
   const [flight, setFlight] = useState("");
-  const [returnJourney, setReturnJourney] = useState(false);
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     const params = new URLSearchParams({
       pickup, dropoff, date, time, passengers, luggage,
-      vehicle, flight, ret: returnJourney ? "1" : "0",
+      vehicle, flight, ret: trip === "return" ? "1" : "0",
     });
     navigate({ to: "/book", search: { q: params.toString() } as never });
   };
 
+  const tabs: { id: Trip; label: string }[] = [
+    { id: "oneway", label: "One Way" },
+    { id: "return", label: "Return" },
+    { id: "hourly", label: "Hourly" },
+  ];
+
   return (
-    <form onSubmit={submit} className={`glass-card rounded-3xl p-5 md:p-7 text-foreground ${compact ? "" : "shadow-[var(--shadow-elegant)]"}`}>
-      <div className="flex items-center justify-between mb-5">
-        <div>
-          <h3 className="font-display text-xl md:text-2xl font-semibold">Get an Instant Quote</h3>
-          <p className="text-xs text-muted-foreground">Book in under 60 seconds · No hidden fees</p>
+    <form
+      onSubmit={submit}
+      className={`relative overflow-hidden rounded-2xl border border-white/10 bg-[var(--card)]/95 backdrop-blur-xl text-foreground ${compact ? "p-4 md:p-5" : "p-5 md:p-7 shadow-[var(--shadow-elegant)]"}`}
+    >
+      {/* gold accent bar */}
+      <span aria-hidden className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-[var(--gold)] via-[var(--gold)]/60 to-transparent" />
+
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
+        <div className="min-w-0">
+          <h3 className="font-display text-lg md:text-2xl font-bold leading-tight">Book Your Premium Ride</h3>
+          <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1.5">
+            <ShieldCheck className="size-3.5 text-[var(--gold)]" /> Fixed fare · Free wait · No hidden fees
+          </p>
         </div>
-        <span className="hidden md:inline-flex items-center gap-1 text-xs px-3 py-1 rounded-full bg-[var(--gold)]/15 text-[var(--gold)]">
-          <Plane className="size-3" /> Flight tracked
-        </span>
+        <div className="inline-flex rounded-full border border-white/10 bg-[var(--navy)]/50 p-1 text-xs font-semibold">
+          {tabs.map(t => (
+            <button
+              type="button"
+              key={t.id}
+              onClick={() => setTrip(t.id)}
+              className={`px-3.5 py-1.5 rounded-full transition uppercase tracking-wider ${trip === t.id ? "bg-[var(--gold)] text-[var(--gold-foreground)]" : "text-white/70 hover:text-white"}`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-3.5 md:grid-cols-2">
         <Field label="Pickup Location" icon={<MapPin className="size-4" />}>
           <Input required value={pickup} onChange={e => setPickup(e.target.value)} placeholder="Edinburgh Airport (EDI)" />
         </Field>
@@ -87,13 +111,12 @@ export function BookingWidget({ compact = false }: { compact?: boolean }) {
         </Field>
       </div>
 
-      <div className="mt-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <Label className="flex items-center gap-3 cursor-pointer">
-          <Switch checked={returnJourney} onCheckedChange={setReturnJourney} />
-          <span className="text-sm">Add return journey</span>
-        </Label>
-        <Button type="submit" variant="gold" size="lg" className="rounded-full">
-          Get Quote / Book Now <ArrowRight className="size-4" />
+      <div className="mt-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <p className="text-[11px] text-muted-foreground flex items-center gap-1.5">
+          <Plane className="size-3.5 text-[var(--gold)]" /> Flights tracked automatically · 60 min free wait on airport pickups
+        </p>
+        <Button type="submit" variant="gold" size="lg" className="rounded-full w-full sm:w-auto">
+          Get Instant Quote <ArrowRight className="size-4" />
         </Button>
       </div>
     </form>
@@ -103,7 +126,7 @@ export function BookingWidget({ compact = false }: { compact?: boolean }) {
 function Field({ label, icon, children }: { label: string; icon: React.ReactNode; children: React.ReactNode }) {
   return (
     <div>
-      <Label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5 mb-1.5">
+      <Label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5 mb-1.5">
         {icon} {label}
       </Label>
       {children}
