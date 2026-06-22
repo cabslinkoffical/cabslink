@@ -43,7 +43,7 @@ function ServicesPage() {
         <div className="container-x grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {all.map(s => (
             <Link key={s.title} to={s.to} className="group rounded-2xl border border-border bg-card p-7 hover:shadow-[var(--shadow-elegant)] hover:-translate-y-1 transition">
-              <div className="grid size-12 place-items-center rounded-xl bg-[var(--navy)] text-[var(--gold)]"><s.icon className="size-5" /></div>
+              <div className="grid size-12 place-items-center rounded-xl bg-[var(--gold)]/15 text-[var(--gold)]"><s.icon className="size-5" /></div>
               <h3 className="mt-5 font-display text-2xl font-semibold">{s.title}</h3>
               <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
               <p className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-[var(--gold)] group-hover:gap-2 transition-all">Learn more <ArrowRight className="size-4" /></p>
