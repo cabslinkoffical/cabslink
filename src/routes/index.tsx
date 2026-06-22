@@ -273,15 +273,16 @@ function HomePage() {
         <div className="container-x">
           <SectionHeader eyebrow="Included as standard" title="Every Cabslink ride, by default" center />
           <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {features.map(f => (
-              <div key={f.title} className="flex gap-4 rounded-2xl bg-card border border-border p-6 hover:border-[var(--gold)]/40 transition">
+            {features.map((f, i) => (
+              <Reveal key={f.title} delay={(i % 3) * 100} className="flex gap-4 rounded-2xl bg-card border border-border p-6 hover:border-[var(--gold)]/40 hover:-translate-y-1 hover:shadow-[var(--shadow-elegant)] transition-all duration-300">
                 <div className="grid size-11 shrink-0 place-items-center rounded-xl bg-[var(--gold)]/15 text-[var(--gold)]"><f.icon className="size-5" /></div>
                 <div className="min-w-0">
                   <h3 className="font-semibold">{f.title}</h3>
                   <p className="mt-1 text-sm text-muted-foreground">{f.desc}</p>
                 </div>
-              </div>
+              </Reveal>
             ))}
+
           </div>
         </div>
       </section>
