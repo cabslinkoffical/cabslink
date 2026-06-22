@@ -64,12 +64,12 @@ function HomePage() {
   return (
     <SiteLayout>
       {/* HERO */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 -z-10">
+      <section className="relative overflow-hidden isolate">
+        <div className="absolute inset-0 z-0">
           <img src={heroImg} alt="Luxury chauffeur car at UK airport at dusk" width={1920} height={1280} className="size-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[var(--navy)]/95 via-[var(--navy)]/75 to-[var(--navy)]/40" />
+          <div className="absolute inset-0" style={{background:"linear-gradient(90deg, var(--navy) 0%, color-mix(in oklab, var(--navy) 88%, transparent) 60%, color-mix(in oklab, var(--navy) 70%, transparent) 100%)"}} />
         </div>
-        <div className="container-x py-16 md:py-28 grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+        <div className="container-x relative z-10 py-16 md:py-28 grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           <div className="text-white">
             <p className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-[var(--gold)] mb-5">
               <Star className="size-3 fill-current" /> {SITE.tagline}
