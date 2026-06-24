@@ -7,6 +7,26 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { VEHICLE_TYPES } from "@/lib/site";
 
+import eclassAsset from "@/assets/fleet/eclass.png.asset.json";
+import sclassAsset from "@/assets/fleet/sclass.png.asset.json";
+import vclassAsset from "@/assets/fleet/vclass.png.asset.json";
+import rangeRoverAsset from "@/assets/fleet/rangerover.png.asset.json";
+import rollsAsset from "@/assets/fleet/rolls.png.asset.json";
+import minibusAsset from "@/assets/fleet/minibus.png.asset.json";
+import coasterAsset from "@/assets/fleet/coaster.png.asset.json";
+import coachAsset from "@/assets/fleet/coach.png.asset.json";
+
+const VEHICLE_IMAGES: Record<string, string> = {
+  "Mercedes-Benz E-Class": eclassAsset.url,
+  "Mercedes-Benz S-Class": sclassAsset.url,
+  "Mercedes-Benz V-Class": vclassAsset.url,
+  "Range Rover": rangeRoverAsset.url,
+  "Rolls-Royce Bentley": rollsAsset.url,
+  "Mini Bus (16-seater)": minibusAsset.url,
+  "Coaster Bus (24-seater)": coasterAsset.url,
+  "Coach Bus (55-seater)": coachAsset.url,
+};
+
 type Trip = "oneway" | "return" | "hourly";
 
 export function BookingWidget({ compact = false }: { compact?: boolean }) {
@@ -18,7 +38,7 @@ export function BookingWidget({ compact = false }: { compact?: boolean }) {
   const [time, setTime] = useState("");
   const [passengers, setPassengers] = useState("1");
   const [luggage, setLuggage] = useState("0");
-  const [vehicle, setVehicle] = useState("Saloon");
+  const [vehicle, setVehicle] = useState("Mercedes-Benz V-Class");
   const [flight, setFlight] = useState("");
 
   const submit = (e: React.FormEvent) => {
