@@ -24,10 +24,12 @@ export const NAV = [
 ] as const;
 
 export const VEHICLE_TYPES = [
-  "Saloon",
-  "Executive",
-  "SUV",
-  "MPV",
-  "Minibus",
-  "VIP Chauffeur",
+  "Mercedes-Benz E-Class",
+  "Mercedes-Benz S-Class",
+  "Mercedes-Benz V-Class",
+  "Range Rover",
+  "Rolls-Royce Bentley",
+  "Mini Bus (16-seater)",
+  "Coaster Bus (24-seater)",
+  "Coach Bus (55-seater)",
 ] as const;
