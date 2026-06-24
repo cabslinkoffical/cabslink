@@ -131,6 +131,21 @@ export function BookingWidget({ compact = false }: { compact?: boolean }) {
         </Field>
       </div>
 
+      {/* Selected vehicle preview */}
+      <div className="mt-5 relative overflow-hidden rounded-xl border border-border bg-[var(--surface)] h-32 md:h-40 flex items-center justify-between gap-4 px-5">
+        <div className="relative z-10 min-w-0">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--gold)]">Your selected vehicle</p>
+          <p key={`name-${vehicle}`} className="mt-1 font-display text-base md:text-xl font-semibold truncate animate-fade-up">{vehicle}</p>
+        </div>
+        <img
+          key={vehicle}
+          src={VEHICLE_IMAGES[vehicle]}
+          alt={vehicle}
+          className="relative z-10 h-full w-auto max-w-[60%] object-contain animate-drive-in"
+        />
+        <span aria-hidden className="pointer-events-none absolute inset-x-6 bottom-3 h-px bg-gradient-to-r from-transparent via-foreground/15 to-transparent" />
+      </div>
+
       <div className="mt-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <p className="text-[11px] text-muted-foreground flex items-center gap-1.5">
           <Plane className="size-3.5 text-[var(--gold)]" /> Flights tracked automatically · 60 min free wait on airport pickups
