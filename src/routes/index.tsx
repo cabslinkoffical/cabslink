@@ -125,7 +125,7 @@ function HomePage() {
 
           {/* Car centerpiece */}
           <div className="relative mt-8 md:mt-12">
-            <div className="relative mx-auto max-w-5xl">
+            <div className="relative mx-auto max-w-2xl md:max-w-3xl">
               <div className="absolute inset-x-0 bottom-0 h-2/3 bg-[radial-gradient(ellipse_at_center,color-mix(in_oklab,var(--gold)_25%,transparent),transparent_70%)] blur-2xl animate-pulse" aria-hidden />
               <img
                 src={vClassImg}
