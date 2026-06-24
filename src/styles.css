@@ -172,12 +172,18 @@
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
 }
+@keyframes drive-in-left {
+  0%   { opacity: 0; transform: translateX(-120%) scale(0.92); filter: blur(4px); }
+  60%  { opacity: 1; filter: blur(0); }
+  100% { opacity: 1; transform: translateX(0) scale(1); filter: blur(0); }
+}
 
 @utility animate-float      { animation: float-y 6s ease-in-out infinite; }
 @utility animate-fade-up    { animation: fade-up .8s cubic-bezier(.2,.7,.2,1) both; }
 @utility animate-fade-soft  { animation: fade-in-soft 1s ease-out both; }
 @utility animate-pulse-ring { animation: pulse-ring 2.4s ease-out infinite; }
 @utility animate-marquee    { animation: marquee-x 28s linear infinite; }
+@utility animate-drive-in   { animation: drive-in-left .7s cubic-bezier(.2,.7,.2,1) both; }
 
 /* Scroll-reveal — toggled by IntersectionObserver via data-reveal */
 [data-reveal] {
