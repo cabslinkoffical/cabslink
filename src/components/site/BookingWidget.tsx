@@ -7,6 +7,26 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { VEHICLE_TYPES } from "@/lib/site";
 
+import eclassAsset from "@/assets/fleet/eclass.png.asset.json";
+import sclassAsset from "@/assets/fleet/sclass.png.asset.json";
+import vclassAsset from "@/assets/fleet/vclass.png.asset.json";
+import rangeRoverAsset from "@/assets/fleet/rangerover.png.asset.json";
+import rollsAsset from "@/assets/fleet/rolls.png.asset.json";
+import minibusAsset from "@/assets/fleet/minibus.png.asset.json";
+import coasterAsset from "@/assets/fleet/coaster.png.asset.json";
+import coachAsset from "@/assets/fleet/coach.png.asset.json";
+
+const VEHICLE_IMAGES: Record<string, string> = {
+  "Mercedes-Benz E-Class": eclassAsset.url,
+  "Mercedes-Benz S-Class": sclassAsset.url,
+  "Mercedes-Benz V-Class": vclassAsset.url,
+  "Range Rover": rangeRoverAsset.url,
+  "Rolls-Royce Bentley": rollsAsset.url,
+  "Mini Bus (16-seater)": minibusAsset.url,
+  "Coaster Bus (24-seater)": coasterAsset.url,
+  "Coach Bus (55-seater)": coachAsset.url,
+};
+
 type Trip = "oneway" | "return" | "hourly";
 
 export function BookingWidget({ compact = false }: { compact?: boolean }) {
@@ -18,7 +38,7 @@ export function BookingWidget({ compact = false }: { compact?: boolean }) {
   const [time, setTime] = useState("");
   const [passengers, setPassengers] = useState("1");
   const [luggage, setLuggage] = useState("0");
-  const [vehicle, setVehicle] = useState("Saloon");
+  const [vehicle, setVehicle] = useState("Mercedes-Benz V-Class");
   const [flight, setFlight] = useState("");
 
   const submit = (e: React.FormEvent) => {
@@ -109,6 +129,21 @@ export function BookingWidget({ compact = false }: { compact?: boolean }) {
         <Field label="Flight Number (optional)" icon={<Plane className="size-4" />}>
           <Input value={flight} onChange={e => setFlight(e.target.value)} placeholder="e.g. BA1234" />
         </Field>
+      </div>
+
+      {/* Selected vehicle preview */}
+      <div className="mt-5 relative overflow-hidden rounded-xl border border-border bg-[var(--surface)] h-32 md:h-40 flex items-center justify-between gap-4 px-5">
+        <div className="relative z-10 min-w-0">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--gold)]">Your selected vehicle</p>
+          <p key={`name-${vehicle}`} className="mt-1 font-display text-base md:text-xl font-semibold truncate animate-fade-up">{vehicle}</p>
+        </div>
+        <img
+          key={vehicle}
+          src={VEHICLE_IMAGES[vehicle]}
+          alt={vehicle}
+          className="relative z-10 h-full w-auto max-w-[60%] object-contain animate-drive-in"
+        />
+        <span aria-hidden className="pointer-events-none absolute inset-x-6 bottom-3 h-px bg-gradient-to-r from-transparent via-foreground/15 to-transparent" />
       </div>
 
       <div className="mt-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
