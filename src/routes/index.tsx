@@ -124,32 +124,33 @@ function HomePage() {
           </div>
 
           {/* Car centerpiece */}
-          <div className="relative mt-8 md:mt-12">
-            <div className="relative mx-auto max-w-2xl md:max-w-3xl">
-              <div className="absolute inset-x-0 bottom-0 h-2/3 bg-[radial-gradient(ellipse_at_center,color-mix(in_oklab,var(--gold)_25%,transparent),transparent_70%)] blur-2xl animate-pulse" aria-hidden />
+          <div className="relative mt-6 md:mt-8">
+            <div className="relative mx-auto max-w-xl md:max-w-2xl">
+              <div className="absolute inset-x-0 bottom-0 h-2/3 bg-[radial-gradient(ellipse_at_center,color-mix(in_oklab,var(--gold)_22%,transparent),transparent_70%)] blur-2xl animate-pulse" aria-hidden />
               <img
                 src={vClassImg}
                 alt="Mercedes-Benz V-Class chauffeur vehicle"
                 width={1600}
                 height={1000}
-                className="relative w-full object-contain drop-shadow-[0_40px_60px_rgba(0,0,0,0.45)] animate-float animate-fade-soft"
+                className="relative w-full object-contain drop-shadow-[0_30px_50px_rgba(0,0,0,0.45)] animate-float animate-fade-soft"
                 style={{ animationDelay: "0ms, 200ms" }}
               />
             </div>
 
-            {/* Desktop-only floating cards (avoid clipping the car on mobile) */}
-            <div className="animate-fade-up hidden md:block absolute right-6 lg:right-10 top-6 lg:top-10 w-[200px] rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-5 text-center" style={{ animationDelay: "700ms" }}>
-              <p className="font-display text-4xl lg:text-5xl font-bold text-[var(--gold)]">50k+</p>
-              <p className="mt-2 text-[10px] uppercase tracking-[0.18em] text-white/80">Journeys delivered</p>
+            {/* Desktop-only floating cards */}
+            <div className="animate-fade-up hidden lg:block absolute right-0 xl:right-8 top-4 w-[180px] rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-4 text-center" style={{ animationDelay: "700ms" }}>
+              <p className="font-display text-3xl xl:text-4xl font-bold text-[var(--gold)]">50k+</p>
+              <p className="mt-1 text-[10px] uppercase tracking-[0.18em] text-white/80">Journeys delivered</p>
             </div>
-            <div className="animate-fade-up hidden md:block absolute left-6 lg:left-10 bottom-10 w-[200px] rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-5" style={{ animationDelay: "850ms" }}>
+            <div className="animate-fade-up hidden lg:block absolute left-0 xl:left-8 top-1/2 -translate-y-1/2 w-[180px] rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-4" style={{ animationDelay: "850ms" }}>
               <div className="flex items-center gap-1 text-[var(--gold)]">
                 {[...Array(5)].map((_, i) => <Star key={i} className="size-3.5 fill-current" />)}
               </div>
-              <p className="mt-2 font-display text-2xl font-bold">4.9/5</p>
-              <p className="mt-1 text-[10px] uppercase tracking-[0.18em] text-white/70">Customer rating</p>
+              <p className="mt-1 font-display text-2xl font-bold text-white">4.9/5</p>
+              <p className="mt-0.5 text-[10px] uppercase tracking-[0.18em] text-white/70">Customer rating</p>
             </div>
           </div>
+
 
         </div>
 
