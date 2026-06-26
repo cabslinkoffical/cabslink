@@ -84,7 +84,7 @@ function Page() {
             </thead>
             <tbody className="divide-y divide-border">
               {rows.map((row: any) => (
-                <>
+                <Fragment key={row.id}>
                   <tr key={row.id} className="hover:bg-muted/30 cursor-pointer" onClick={() => setExpanded(expanded === row.id ? null : row.id)}>
                     <td className="pl-3">{expanded === row.id ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}</td>
                     <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">{new Date(row.created_at).toLocaleString()}</td>
