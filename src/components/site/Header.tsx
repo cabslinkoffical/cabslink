@@ -53,7 +53,7 @@ export function Header() {
           <a href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`} className="flex items-center gap-2 text-sm font-semibold text-foreground/80 hover:text-[var(--gold)]">
             <Phone className="size-4" /> {SITE.phoneUK}
           </a>
-          {hasSession ? (
+          {isAdmin ? (
             <Link to="/admin" className="flex items-center gap-1.5 text-sm font-semibold text-[var(--gold)] hover:opacity-80">
               <ShieldCheck className="size-4" /> Admin
             </Link>
