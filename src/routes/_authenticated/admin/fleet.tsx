@@ -12,7 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Plus, Edit, Trash2, Upload, Loader2, X, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, Check, Car, Gauge, Settings2 } from "lucide-react";
+import { Plus, Edit, Trash2, Upload, Loader2, X, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, Check, Car, Gauge, Settings2, ChevronDown, Users, Briefcase, Clock, MapPin } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
 import { supabase } from "@/integrations/supabase/client";
