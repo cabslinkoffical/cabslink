@@ -2,8 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { placesAutocomplete, type PlaceSuggestion } from "@/lib/places.functions";
 import { Input } from "@/components/ui/input";
-import { MapPin } from "lucide-react";
+import { MapPin, Building2, Plane } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+type Mode = "all" | "areas" | "addresses";
 
 type Props = {
   value: string;
@@ -12,7 +14,24 @@ type Props = {
   required?: boolean;
   className?: string;
   iconClassName?: string;
+  mode?: Mode;
 };
+
+// Popular UK pickup/dropoff areas shown as quick chips on focus
+const POPULAR_AREAS: { label: string; value: string; airport?: boolean }[] = [
+  { label: "Heathrow", value: "Heathrow Airport (LHR), London, UK", airport: true },
+  { label: "Gatwick", value: "Gatwick Airport (LGW), UK", airport: true },
+  { label: "Stansted", value: "Stansted Airport (STN), UK", airport: true },
+  { label: "Luton", value: "Luton Airport (LTN), UK", airport: true },
+  { label: "London City", value: "London City Airport (LCY), UK", airport: true },
+  { label: "Central London", value: "Central London, UK" },
+  { label: "Manchester", value: "Manchester, UK" },
+  { label: "Birmingham", value: "Birmingham, UK" },
+  { label: "Liverpool", value: "Liverpool, UK" },
+  { label: "Leeds", value: "Leeds, UK" },
+  { label: "Bristol", value: "Bristol, UK" },
+  { label: "Edinburgh", value: "Edinburgh, UK" },
+];
 
 export function AddressAutocomplete({
   value,
@@ -21,6 +40,7 @@ export function AddressAutocomplete({
   required,
   className,
   iconClassName,
+  mode = "all",
 }: Props) {
   const fetchSuggestions = useServerFn(placesAutocomplete);
   const [suggestions, setSuggestions] = useState<PlaceSuggestion[]>([]);
@@ -38,7 +58,7 @@ export function AddressAutocomplete({
     const t = setTimeout(async () => {
       try {
         const res = await fetchSuggestions({
-          data: { input: term, sessionToken: sessionRef.current },
+          data: { input: term, sessionToken: sessionRef.current, mode },
         });
         setSuggestions(res.suggestions);
       } catch {
@@ -46,7 +66,7 @@ export function AddressAutocomplete({
       }
     }, 200);
     return () => clearTimeout(t);
-  }, [value, fetchSuggestions]);
+  }, [value, fetchSuggestions, mode]);
 
   useEffect(() => {
     const onDoc = (e: MouseEvent) => {
@@ -61,6 +81,8 @@ export function AddressAutocomplete({
     setOpen(false);
     sessionRef.current = crypto.randomUUID();
   };
+
+  const showChips = open && value.trim().length < 2;
 
   return (
     <div ref={wrapRef} className="relative">
@@ -78,7 +100,7 @@ export function AddressAutocomplete({
           setOpen(true);
           setActive(0);
         }}
-        onFocus={() => suggestions.length && setOpen(true)}
+        onFocus={() => setOpen(true)}
         onKeyDown={(e) => {
           if (!open || !suggestions.length) return;
           if (e.key === "ArrowDown") {
@@ -101,40 +123,93 @@ export function AddressAutocomplete({
           className,
         )}
       />
-      {open && suggestions.length > 0 && (
+
+      {showChips && (
+        <div className="absolute z-50 left-0 right-0 top-full mt-2 rounded-xl border border-border bg-card shadow-xl overflow-hidden">
+          <div className="px-4 pt-3 pb-1.5 text-[10px] uppercase tracking-[0.18em] text-foreground/50 font-bold">
+            Popular UK areas & airports
+          </div>
+          <div className="flex flex-wrap gap-1.5 p-3 pt-2">
+            {POPULAR_AREAS.map((a) => (
+              <button
+                key={a.label}
+                type="button"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  onChange(a.value);
+                  setOpen(false);
+                }}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-[var(--surface)] hover:bg-[var(--gold)]/15 hover:text-[var(--gold)] text-xs font-semibold text-foreground/75 transition-colors"
+              >
+                {a.airport ? <Plane className="w-3 h-3" /> : <Building2 className="w-3 h-3" />}
+                {a.label}
+              </button>
+            ))}
+          </div>
+          <div className="px-4 py-1.5 text-[10px] uppercase tracking-[0.18em] text-foreground/40 border-t border-border bg-[var(--surface)]/40">
+            Start typing for UK address & locality search
+          </div>
+        </div>
+      )}
+
+      {open && !showChips && suggestions.length > 0 && (
         <div className="absolute z-50 left-0 right-0 top-full mt-2 rounded-xl border border-border bg-card shadow-xl overflow-hidden">
           <ul className="max-h-72 overflow-auto py-1">
-            {suggestions.map((s, i) => (
-              <li key={s.placeId}>
-                <button
-                  type="button"
-                  onMouseEnter={() => setActive(i)}
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    pick(s);
-                  }}
-                  className={cn(
-                    "w-full text-left px-4 py-2.5 flex items-start gap-3 transition-colors",
-                    i === active ? "bg-[var(--surface)]" : "hover:bg-[var(--surface)]/70",
-                  )}
-                >
-                  <MapPin className="w-4 h-4 mt-0.5 text-[var(--gold)] shrink-0" />
-                  <span className="flex-1 min-w-0">
-                    <span className="block text-sm font-semibold text-foreground truncate">
-                      {s.primary}
-                    </span>
-                    {s.secondary && (
-                      <span className="block text-xs text-muted-foreground truncate">
-                        {s.secondary}
-                      </span>
+            {suggestions.map((s, i) => {
+              const Icon = s.kind === "area" ? Building2 : MapPin;
+              return (
+                <li key={s.placeId}>
+                  <button
+                    type="button"
+                    onMouseEnter={() => setActive(i)}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      pick(s);
+                    }}
+                    className={cn(
+                      "w-full text-left px-4 py-2.5 flex items-start gap-3 transition-colors",
+                      i === active ? "bg-[var(--surface)]" : "hover:bg-[var(--surface)]/70",
                     )}
-                  </span>
-                </button>
-              </li>
-            ))}
+                  >
+                    <span
+                      className={cn(
+                        "mt-0.5 shrink-0 w-7 h-7 rounded-full flex items-center justify-center",
+                        s.kind === "area"
+                          ? "bg-[var(--gold)]/15 text-[var(--gold)]"
+                          : "bg-[var(--surface)] text-foreground/60",
+                      )}
+                    >
+                      <Icon className="w-3.5 h-3.5" />
+                    </span>
+                    <span className="flex-1 min-w-0">
+                      <span className="flex items-center gap-2">
+                        <span className="block text-sm font-semibold text-foreground truncate">
+                          {s.primary}
+                        </span>
+                        <span
+                          className={cn(
+                            "text-[9px] uppercase tracking-[0.15em] font-bold px-1.5 py-0.5 rounded",
+                            s.kind === "area"
+                              ? "bg-[var(--gold)]/15 text-[var(--gold)]"
+                              : "bg-foreground/5 text-foreground/50",
+                          )}
+                        >
+                          {s.kind === "area" ? "Area" : "Address"}
+                        </span>
+                      </span>
+                      {s.secondary && (
+                        <span className="block text-xs text-muted-foreground truncate">
+                          {s.secondary}
+                        </span>
+                      )}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
           </ul>
           <div className="px-4 py-1.5 text-[10px] uppercase tracking-[0.18em] text-foreground/40 border-t border-border bg-[var(--surface)]/40">
-            UK addresses · powered by Google
+            UK addresses & areas · powered by Google
           </div>
         </div>
       )}
