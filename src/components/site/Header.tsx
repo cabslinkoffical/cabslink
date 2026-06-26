@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Menu, X, Phone } from "lucide-react";
+import { Menu, X, Phone, ShieldCheck } from "lucide-react";
 import { Logo } from "./Logo";
 import { NAV, SITE } from "@/lib/site";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 
 export function Header() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [hasSession, setHasSession] = useState(false);
   const pathname = useRouterState({ select: s => s.location.pathname });
 
   useEffect(() => {
@@ -18,6 +20,12 @@ export function Header() {
   }, []);
 
   useEffect(() => { setOpen(false); }, [pathname]);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setHasSession(!!data.session));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => setHasSession(!!session));
+    return () => sub.subscription.unsubscribe();
+  }, []);
 
   return (
     <header className={`sticky top-0 z-50 transition-all ${scrolled ? "bg-background/95 backdrop-blur-md border-b border-border shadow-sm" : "bg-background/80 backdrop-blur-sm"}`}>
@@ -40,6 +48,11 @@ export function Header() {
           <a href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`} className="flex items-center gap-2 text-sm font-semibold text-foreground/80 hover:text-[var(--gold)]">
             <Phone className="size-4" /> {SITE.phoneUK}
           </a>
+          {hasSession ? (
+            <Link to="/admin" className="flex items-center gap-1.5 text-sm font-semibold text-[var(--gold)] hover:opacity-80">
+              <ShieldCheck className="size-4" /> Admin
+            </Link>
+          ) : null}
           <Button asChild variant="slash">
             <Link to="/book">Book a Ride</Link>
           </Button>
