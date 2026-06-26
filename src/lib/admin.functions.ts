@@ -11,7 +11,9 @@ async function assertAdmin(ctx: { supabase: any; userId: string }) {
   if (!data) throw new Error("Forbidden: admin access required");
 }
 
-// --- Identity ---
+// =================================================================
+// Identity
+// =================================================================
 export const isAdmin = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -22,74 +24,121 @@ export const isAdmin = createServerFn({ method: "GET" })
     return { isAdmin: !!data, userId: context.userId };
   });
 
-// --- Dashboard ---
+// =================================================================
+// Dashboard
+// =================================================================
 export const getDashboardStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
-    const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    const since30 = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
+    const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0);
 
-    const [bookingsRes, messagesRes, vehiclesRes, recentBookingsRes] = await Promise.all([
-      context.supabase.from("bookings").select("id, status, vehicle_type, created_at, pickup_date"),
-      context.supabase.from("contact_messages").select("id, status, created_at"),
+    const [bookingsRes, messagesRes, vehiclesRes, driversRes, paymentsRes, recentRes] = await Promise.all([
+      context.supabase.from("bookings").select("id, status, vehicle_type, pickup_address, dropoff_address, created_at, pickup_date, price, payment_status, deleted_at"),
+      context.supabase.from("contact_messages").select("id, status"),
       context.supabase.from("vehicles").select("id, active"),
-      context.supabase.from("bookings").select("id, customer_name, pickup_date, status, vehicle_type").gte("created_at", since).order("created_at", { ascending: false }).limit(10),
+      context.supabase.from("drivers").select("id, status"),
+      context.supabase.from("payments").select("id, amount, status, created_at, paid_at"),
+      context.supabase.from("bookings").select("id, customer_name, pickup_date, status, vehicle_type, booking_ref, price").is("deleted_at", null).order("created_at", { ascending: false }).limit(8),
     ]);
 
     const bookings = bookingsRes.data ?? [];
-    const messages = messagesRes.data ?? [];
-    const vehicles = vehiclesRes.data ?? [];
+    const live = bookings.filter((b: any) => !b.deleted_at);
+    const payments = paymentsRes.data ?? [];
 
+    const totalRevenue = payments.filter((p: any) => p.status === "paid").reduce((s: number, p: any) => s + Number(p.amount || 0), 0);
+    const todayRevenue = payments.filter((p: any) => p.status === "paid" && p.paid_at && new Date(p.paid_at) >= todayStart).reduce((s: number, p: any) => s + Number(p.amount || 0), 0);
+    const monthRevenue = payments.filter((p: any) => p.status === "paid" && p.paid_at && new Date(p.paid_at) >= monthStart).reduce((s: number, p: any) => s + Number(p.amount || 0), 0);
+    const pendingPayments = payments.filter((p: any) => p.status === "unpaid" || p.status === "partial").reduce((s: number, p: any) => s + Number(p.amount || 0), 0);
+
+    const newToday = live.filter((b: any) => new Date(b.created_at) >= todayStart).length;
+
+    // Monthly revenue (last 6 months)
+    const monthly: { month: string; revenue: number }[] = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(); d.setMonth(d.getMonth() - i); d.setDate(1); d.setHours(0, 0, 0, 0);
+      const next = new Date(d); next.setMonth(next.getMonth() + 1);
+      const sum = payments.filter((p: any) => p.status === "paid" && p.paid_at && new Date(p.paid_at) >= d && new Date(p.paid_at) < next).reduce((s: number, p: any) => s + Number(p.amount || 0), 0);
+      monthly.push({ month: d.toLocaleString("en", { month: "short" }), revenue: sum });
+    }
+
+    // Last 30 days bookings trend
     const byDay = new Map<string, number>();
     for (let i = 29; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
+      const d = new Date(); d.setDate(d.getDate() - i);
       byDay.set(d.toISOString().slice(0, 10), 0);
     }
-    for (const b of bookings) {
+    for (const b of live) {
       const key = (b.created_at as string).slice(0, 10);
       if (byDay.has(key)) byDay.set(key, (byDay.get(key) ?? 0) + 1);
     }
 
     const byVehicle = new Map<string, number>();
-    for (const b of bookings) {
+    const byPickup = new Map<string, number>();
+    const byDropoff = new Map<string, number>();
+    for (const b of live) {
       byVehicle.set(b.vehicle_type, (byVehicle.get(b.vehicle_type) ?? 0) + 1);
+      byPickup.set(b.pickup_address, (byPickup.get(b.pickup_address) ?? 0) + 1);
+      byDropoff.set(b.dropoff_address, (byDropoff.get(b.dropoff_address) ?? 0) + 1);
     }
 
     const byStatus: Record<string, number> = {};
-    for (const b of bookings) byStatus[b.status] = (byStatus[b.status] ?? 0) + 1;
+    for (const b of live) byStatus[b.status] = (byStatus[b.status] ?? 0) + 1;
+
+    // Customers (unique by email from bookings)
+    const customers = new Set(live.map((b: any) => (b.email ?? "").toLowerCase()).filter(Boolean));
 
     return {
       totals: {
-        bookings: bookings.length,
-        pendingBookings: bookings.filter(b => b.status === "new" || b.status === "confirmed").length,
-        completedBookings: bookings.filter(b => b.status === "completed").length,
-        messages: messages.length,
-        unreadMessages: messages.filter(m => m.status === "new").length,
-        vehiclesTotal: vehicles.length,
-        vehiclesActive: vehicles.filter(v => v.active).length,
+        bookings: live.length,
+        upcoming: live.filter((b: any) => ["new", "confirmed", "assigned", "pending_allocation"].includes(b.status) && b.pickup_date >= new Date().toISOString().slice(0, 10)).length,
+        completed: live.filter((b: any) => b.status === "completed").length,
+        cancelled: live.filter((b: any) => b.status === "cancelled").length,
+        pendingAllocation: live.filter((b: any) => b.status === "new" || b.status === "pending_allocation").length,
+        allocated: live.filter((b: any) => b.status === "assigned" || b.status === "confirmed").length,
+        inProgress: live.filter((b: any) => b.status === "in_progress" || b.status === "on_way").length,
+        bidding: live.filter((b: any) => b.status === "bidding").length,
+        deleted: bookings.filter((b: any) => b.deleted_at).length,
+        newToday,
+        totalRevenue, todayRevenue, monthRevenue, pendingPayments,
+        vehiclesTotal: vehiclesRes.data?.length ?? 0,
+        vehiclesActive: (vehiclesRes.data ?? []).filter((v: any) => v.active).length,
+        driversActive: (driversRes.data ?? []).filter((d: any) => d.status === "active").length,
+        customersActive: customers.size,
+        unreadMessages: (messagesRes.data ?? []).filter((m: any) => m.status === "new").length,
       },
       byStatus,
       seriesDaily: Array.from(byDay.entries()).map(([date, count]) => ({ date, count })),
+      monthly,
       byVehicle: Array.from(byVehicle.entries()).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count),
-      recentBookings: recentBookingsRes.data ?? [],
+      topPickups: Array.from(byPickup.entries()).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count).slice(0, 5),
+      topDropoffs: Array.from(byDropoff.entries()).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count).slice(0, 5),
+      recentBookings: recentRes.data ?? [],
     };
   });
 
-// --- Bookings ---
+// =================================================================
+// Bookings
+// =================================================================
 export const listBookings = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
     const { data, error } = await context.supabase
       .from("bookings")
-      .select("*")
+      .select("*, driver:drivers(id, full_name)")
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
     return data ?? [];
   });
 
-const bookingStatusSchema = z.enum(["new", "confirmed", "assigned", "on_way", "completed", "cancelled"]);
+const bookingStatusSchema = z.enum([
+  "new", "confirmed", "assigned", "on_way", "completed", "cancelled",
+  "pending_allocation", "in_progress", "bidding",
+]);
+const paymentStatusSchema = z.enum(["unpaid", "paid", "refunded", "partial", "failed"]);
 
 export const updateBooking = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -98,13 +147,29 @@ export const updateBooking = createServerFn({ method: "POST" })
       id: z.string().uuid(),
       patch: z.object({
         status: bookingStatusSchema.optional(),
+        payment_status: paymentStatusSchema.optional(),
+        driver_id: z.string().uuid().nullable().optional(),
+        price: z.number().nullable().optional(),
+        admin_notes: z.string().nullable().optional(),
         notes: z.string().nullable().optional(),
       }),
     }).parse(input)
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    const { error } = await context.supabase.from("bookings").update(data.patch).eq("id", data.id);
+    const patch: any = { ...data.patch };
+    if (patch.status === "assigned" && patch.driver_id) patch.assigned_at = new Date().toISOString();
+    const { error } = await context.supabase.from("bookings").update(patch).eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const softDeleteBooking = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid(), restore: z.boolean().optional() }).parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { error } = await context.supabase.from("bookings").update({ deleted_at: data.restore ? null : new Date().toISOString() }).eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -119,27 +184,21 @@ export const deleteBooking = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-// --- Messages ---
+// =================================================================
+// Messages (kept for completeness)
+// =================================================================
 export const listMessages = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
-    const { data, error } = await context.supabase
-      .from("contact_messages")
-      .select("*")
-      .order("created_at", { ascending: false });
+    const { data, error } = await context.supabase.from("contact_messages").select("*").order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
     return data ?? [];
   });
 
 export const updateMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
-    z.object({
-      id: z.string().uuid(),
-      status: z.enum(["new", "read", "resolved"]),
-    }).parse(input)
-  )
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid(), status: z.enum(["new", "read", "resolved"]) }).parse(i))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { error } = await context.supabase.from("contact_messages").update({ status: data.status }).eq("id", data.id);
@@ -149,7 +208,7 @@ export const updateMessage = createServerFn({ method: "POST" })
 
 export const deleteMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { error } = await context.supabase.from("contact_messages").delete().eq("id", data.id);
@@ -157,15 +216,14 @@ export const deleteMessage = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-// --- Vehicles ---
+// =================================================================
+// Vehicles
+// =================================================================
 export const listVehiclesAdmin = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
-    const { data, error } = await context.supabase
-      .from("vehicles")
-      .select("*")
-      .order("display_order", { ascending: true });
+    const { data, error } = await context.supabase.from("vehicles").select("*").order("display_order", { ascending: true });
     if (error) throw new Error(error.message);
     return data ?? [];
   });
@@ -174,11 +232,17 @@ const vehicleSchema = z.object({
   id: z.string().uuid().optional(),
   name: z.string().min(1).max(120),
   category: z.string().min(1).max(80),
-  image_url: z.string().url().max(500),
+  tbms_id: z.string().nullable().optional(),
+  vehicle_class: z.enum(["economy", "business", "first", "executive_v", "executive_van_8", "green"]).nullable().optional(),
+  image_url: z.string().url().max(1000),
   description: z.string().max(2000).default(""),
   passengers: z.number().int().min(1).max(99),
   luggage: z.number().int().min(0).max(99),
   hand_luggage: z.number().int().min(0).max(99),
+  base_fare: z.number().nullable().optional(),
+  per_mile_rate: z.number().nullable().optional(),
+  waiting_charge: z.number().nullable().optional(),
+  meet_greet_enabled: z.boolean().default(false),
   price_per_hour: z.number().nullable().optional(),
   display_order: z.number().int().default(0),
   featured: z.boolean().default(false),
@@ -187,7 +251,7 @@ const vehicleSchema = z.object({
 
 export const upsertVehicle = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => vehicleSchema.parse(input))
+  .inputValidator((i: unknown) => vehicleSchema.parse(i))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     if (data.id) {
@@ -203,7 +267,7 @@ export const upsertVehicle = createServerFn({ method: "POST" })
 
 export const deleteVehicle = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { error } = await context.supabase.from("vehicles").delete().eq("id", data.id);
@@ -211,7 +275,326 @@ export const deleteVehicle = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-// --- Users & roles ---
+// =================================================================
+// Addresses
+// =================================================================
+export const listAddresses = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { data, error } = await context.supabase.from("addresses").select("*").order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+const addressSchema = z.object({
+  id: z.string().uuid().optional(),
+  name: z.string().min(1).max(200),
+  comparable_value: z.string().max(200).nullable().optional(),
+  pickup_charge: z.number().min(0).default(0),
+  dropoff_charge: z.number().min(0).default(0),
+  notes: z.string().max(1000).nullable().optional(),
+  active: z.boolean().default(true),
+});
+
+export const upsertAddress = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => addressSchema.parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    if (data.id) {
+      const { id, ...patch } = data;
+      const { error } = await context.supabase.from("addresses").update(patch).eq("id", id);
+      if (error) throw new Error(error.message);
+    } else {
+      const { error } = await context.supabase.from("addresses").insert(data);
+      if (error) throw new Error(error.message);
+    }
+    return { ok: true };
+  });
+
+export const deleteAddress = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { error } = await context.supabase.from("addresses").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+// =================================================================
+// Banned addresses
+// =================================================================
+export const listBannedAddresses = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { data, error } = await context.supabase.from("banned_addresses").select("*").order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+const bannedSchema = z.object({
+  id: z.string().uuid().optional(),
+  address: z.string().min(1).max(500),
+  reason: z.string().max(500).nullable().optional(),
+  admin_notes: z.string().max(1000).nullable().optional(),
+  active: z.boolean().default(true),
+});
+
+export const upsertBannedAddress = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => bannedSchema.parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    if (data.id) {
+      const { id, ...patch } = data;
+      const { error } = await context.supabase.from("banned_addresses").update(patch).eq("id", id);
+      if (error) throw new Error(error.message);
+    } else {
+      const { error } = await context.supabase.from("banned_addresses").insert({ ...data, created_by: context.userId });
+      if (error) throw new Error(error.message);
+    }
+    return { ok: true };
+  });
+
+export const deleteBannedAddress = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { error } = await context.supabase.from("banned_addresses").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+// =================================================================
+// Drivers
+// =================================================================
+export const listDrivers = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { data, error } = await context.supabase.from("drivers").select("*, vehicle:vehicles(id, name)").order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+const driverSchema = z.object({
+  id: z.string().uuid().optional(),
+  full_name: z.string().min(1).max(200),
+  email: z.string().email().nullable().optional().or(z.literal("")),
+  phone: z.string().max(40).nullable().optional(),
+  address: z.string().max(500).nullable().optional(),
+  license_number: z.string().max(100).nullable().optional(),
+  assigned_vehicle_id: z.string().uuid().nullable().optional(),
+  status: z.enum(["active", "inactive", "suspended"]).default("active"),
+  available: z.boolean().default(true),
+  photo_url: z.string().url().max(1000).nullable().optional().or(z.literal("")),
+  notes: z.string().max(2000).nullable().optional(),
+});
+
+export const upsertDriver = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => driverSchema.parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const payload: any = { ...data };
+    if (payload.email === "") payload.email = null;
+    if (payload.photo_url === "") payload.photo_url = null;
+    if (data.id) {
+      const { id, ...patch } = payload;
+      const { error } = await context.supabase.from("drivers").update(patch).eq("id", id);
+      if (error) throw new Error(error.message);
+    } else {
+      const { error } = await context.supabase.from("drivers").insert(payload);
+      if (error) throw new Error(error.message);
+    }
+    return { ok: true };
+  });
+
+export const deleteDriver = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { error } = await context.supabase.from("drivers").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+// =================================================================
+// Customers (derived from bookings)
+// =================================================================
+export const listCustomers = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { data, error } = await context.supabase.from("bookings").select("customer_name, email, phone, price, pickup_date, status, created_at").is("deleted_at", null);
+    if (error) throw new Error(error.message);
+    const map = new Map<string, any>();
+    for (const b of data ?? []) {
+      const key = (b.email ?? "").toLowerCase();
+      if (!key) continue;
+      const existing = map.get(key) ?? { name: b.customer_name, email: b.email, phone: b.phone, bookings: 0, spend: 0, last: b.pickup_date, lastCreated: b.created_at };
+      existing.bookings += 1;
+      existing.spend += Number(b.price || 0);
+      if (b.pickup_date > existing.last) existing.last = b.pickup_date;
+      if (new Date(b.created_at) > new Date(existing.lastCreated)) existing.lastCreated = b.created_at;
+      map.set(key, existing);
+    }
+    return Array.from(map.values()).sort((a, b) => new Date(b.lastCreated).getTime() - new Date(a.lastCreated).getTime());
+  });
+
+// =================================================================
+// Payments
+// =================================================================
+export const listPayments = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { data, error } = await context.supabase.from("payments").select("*, booking:bookings(id, booking_ref, customer_name)").order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+const paymentSchema = z.object({
+  id: z.string().uuid().optional(),
+  booking_id: z.string().uuid().nullable().optional(),
+  amount: z.number().min(0),
+  currency: z.string().default("GBP"),
+  method: z.string().max(80).nullable().optional(),
+  status: paymentStatusSchema.default("unpaid"),
+  reference: z.string().max(200).nullable().optional(),
+  notes: z.string().max(1000).nullable().optional(),
+});
+
+export const upsertPayment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => paymentSchema.parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const payload: any = { ...data };
+    if (payload.status === "paid" && !payload.paid_at) payload.paid_at = new Date().toISOString();
+    if (data.id) {
+      const { id, ...patch } = payload;
+      const { error } = await context.supabase.from("payments").update(patch).eq("id", id);
+      if (error) throw new Error(error.message);
+    } else {
+      const { error } = await context.supabase.from("payments").insert(payload);
+      if (error) throw new Error(error.message);
+    }
+    return { ok: true };
+  });
+
+export const deletePayment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { error } = await context.supabase.from("payments").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+// =================================================================
+// Coupons
+// =================================================================
+export const listCoupons = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { data, error } = await context.supabase.from("coupons").select("*").order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+const couponSchema = z.object({
+  id: z.string().uuid().optional(),
+  code: z.string().min(2).max(40),
+  discount_type: z.enum(["fixed", "percentage"]).default("percentage"),
+  discount_value: z.number().min(0),
+  min_booking_amount: z.number().min(0).default(0),
+  usage_limit: z.number().int().min(0).nullable().optional(),
+  starts_at: z.string().nullable().optional(),
+  expires_at: z.string().nullable().optional(),
+  active: z.boolean().default(true),
+  notes: z.string().max(500).nullable().optional(),
+});
+
+export const upsertCoupon = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => couponSchema.parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const payload: any = { ...data, code: data.code.toUpperCase() };
+    if (data.id) {
+      const { id, ...patch } = payload;
+      const { error } = await context.supabase.from("coupons").update(patch).eq("id", id);
+      if (error) throw new Error(error.message);
+    } else {
+      const { error } = await context.supabase.from("coupons").insert(payload);
+      if (error) throw new Error(error.message);
+    }
+    return { ok: true };
+  });
+
+export const deleteCoupon = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { error } = await context.supabase.from("coupons").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+// =================================================================
+// Settings
+// =================================================================
+export const getSettings = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { data, error } = await context.supabase.from("site_settings").select("*").eq("id", 1).maybeSingle();
+    if (error) throw new Error(error.message);
+    return data;
+  });
+
+const settingsSchema = z.object({
+  company_name: z.string().min(1).max(120),
+  logo_url: z.string().nullable().optional(),
+  favicon_url: z.string().nullable().optional(),
+  primary_color: z.string().max(20),
+  contact_email: z.string().nullable().optional(),
+  contact_phone: z.string().nullable().optional(),
+  whatsapp_number: z.string().nullable().optional(),
+  business_address: z.string().nullable().optional(),
+  currency: z.string().max(10),
+  timezone: z.string().max(60),
+  tax_percentage: z.number().min(0).max(100),
+  cancellation_policy: z.string().nullable().optional(),
+  maintenance_mode: z.boolean(),
+  smtp_host: z.string().nullable().optional(),
+  smtp_port: z.number().int().nullable().optional(),
+  smtp_user: z.string().nullable().optional(),
+  google_maps_api_key: z.string().nullable().optional(),
+});
+
+export const updateSettings = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => settingsSchema.parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { error } = await context.supabase.from("site_settings").update(data).eq("id", 1);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+// =================================================================
+// Users & roles
+// =================================================================
 export const listUsersWithRoles = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -238,20 +621,13 @@ export const listUsersWithRoles = createServerFn({ method: "GET" })
 
 export const setUserAdmin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
-    z.object({ userId: z.string().uuid(), admin: z.boolean() }).parse(input)
-  )
+  .inputValidator((i: unknown) => z.object({ userId: z.string().uuid(), admin: z.boolean() }).parse(i))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    if (data.userId === context.userId && !data.admin) {
-      throw new Error("You cannot remove your own admin role.");
-    }
+    if (data.userId === context.userId && !data.admin) throw new Error("You cannot remove your own admin role.");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     if (data.admin) {
-      const { error } = await supabaseAdmin.from("user_roles").upsert(
-        { user_id: data.userId, role: "admin" },
-        { onConflict: "user_id,role" }
-      );
+      const { error } = await supabaseAdmin.from("user_roles").upsert({ user_id: data.userId, role: "admin" }, { onConflict: "user_id,role" });
       if (error) throw new Error(error.message);
     } else {
       const { error } = await supabaseAdmin.from("user_roles").delete().eq("user_id", data.userId).eq("role", "admin");
@@ -262,7 +638,7 @@ export const setUserAdmin = createServerFn({ method: "POST" })
 
 export const deleteUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ userId: z.string().uuid() }).parse(input))
+  .inputValidator((i: unknown) => z.object({ userId: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     if (data.userId === context.userId) throw new Error("You cannot delete your own account here.");
