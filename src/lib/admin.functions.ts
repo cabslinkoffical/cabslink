@@ -647,3 +647,389 @@ export const deleteUser = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+// =================================================================
+// Phase 2: Pricing rules
+// =================================================================
+export const listPricingRules = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { data, error } = await context.supabase.from("pricing_rules").select("*, vehicle:vehicles(id, name)").order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+const pricingSchema = z.object({
+  id: z.string().uuid().optional(),
+  from_address: z.string().min(1).max(300),
+  to_address: z.string().min(1).max(300),
+  vehicle_id: z.string().uuid().nullable().optional(),
+  price: z.number().min(0),
+  currency: z.string().max(10).default("GBP"),
+  valid_from: z.string().nullable().optional(),
+  valid_to: z.string().nullable().optional(),
+  notes: z.string().max(1000).nullable().optional(),
+  active: z.boolean().default(true),
+});
+
+export const upsertPricingRule = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => pricingSchema.parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const payload: any = { ...data, valid_from: data.valid_from || null, valid_to: data.valid_to || null };
+    if (data.id) {
+      const { id, ...patch } = payload;
+      const { error } = await context.supabase.from("pricing_rules").update(patch).eq("id", id);
+      if (error) throw new Error(error.message);
+    } else {
+      const { error } = await context.supabase.from("pricing_rules").insert(payload);
+      if (error) throw new Error(error.message);
+    }
+    return { ok: true };
+  });
+
+export const deletePricingRule = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { error } = await context.supabase.from("pricing_rules").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+// =================================================================
+// Phase 2: Hourly rates
+// =================================================================
+export const listHourlyRates = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { data, error } = await context.supabase.from("hourly_rates").select("*, vehicle:vehicles(id, name)").order("min_hours", { ascending: true });
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+const hourlySchema = z.object({
+  id: z.string().uuid().optional(),
+  vehicle_id: z.string().uuid().nullable().optional(),
+  min_hours: z.number().int().min(1).max(72),
+  max_hours: z.number().int().min(1).max(168),
+  price_per_hour: z.number().min(0),
+  currency: z.string().max(10).default("GBP"),
+  active: z.boolean().default(true),
+});
+
+export const upsertHourlyRate = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => hourlySchema.parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    if (data.id) {
+      const { id, ...patch } = data;
+      const { error } = await context.supabase.from("hourly_rates").update(patch).eq("id", id);
+      if (error) throw new Error(error.message);
+    } else {
+      const { error } = await context.supabase.from("hourly_rates").insert(data);
+      if (error) throw new Error(error.message);
+    }
+    return { ok: true };
+  });
+
+export const deleteHourlyRate = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { error } = await context.supabase.from("hourly_rates").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+// =================================================================
+// Phase 2: Surcharges
+// =================================================================
+export const listSurcharges = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { data, error } = await context.supabase.from("surcharges").select("*, vehicle:vehicles(id, name)").order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+const surchargeSchema = z.object({
+  id: z.string().uuid().optional(),
+  name: z.string().min(1).max(120),
+  charge_type: z.enum(["fixed", "percent"]).default("fixed"),
+  amount: z.number().min(0),
+  applies_to: z.enum(["all", "vehicle", "time_window", "date_range"]).default("all"),
+  vehicle_id: z.string().uuid().nullable().optional(),
+  starts_at: z.string().nullable().optional(),
+  ends_at: z.string().nullable().optional(),
+  days_of_week: z.array(z.number().int().min(0).max(6)).nullable().optional(),
+  time_from: z.string().nullable().optional(),
+  time_to: z.string().nullable().optional(),
+  notes: z.string().max(1000).nullable().optional(),
+  active: z.boolean().default(true),
+});
+
+export const upsertSurcharge = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => surchargeSchema.parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const payload: any = { ...data, starts_at: data.starts_at || null, ends_at: data.ends_at || null, time_from: data.time_from || null, time_to: data.time_to || null };
+    if (data.id) {
+      const { id, ...patch } = payload;
+      const { error } = await context.supabase.from("surcharges").update(patch).eq("id", id);
+      if (error) throw new Error(error.message);
+    } else {
+      const { error } = await context.supabase.from("surcharges").insert(payload);
+      if (error) throw new Error(error.message);
+    }
+    return { ok: true };
+  });
+
+export const deleteSurcharge = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { error } = await context.supabase.from("surcharges").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+// =================================================================
+// Phase 2: Content blocks
+// =================================================================
+export const listContentBlocks = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { data, error } = await context.supabase.from("content_blocks").select("*").order("key", { ascending: true });
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+const contentSchema = z.object({
+  id: z.string().uuid().optional(),
+  key: z.string().min(1).max(120).regex(/^[a-z0-9_]+$/),
+  title: z.string().max(200).nullable().optional(),
+  body: z.string().max(10000).nullable().optional(),
+  image_url: z.string().url().max(1000).nullable().optional().or(z.literal("")),
+});
+
+export const upsertContentBlock = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => contentSchema.parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const payload: any = { ...data, image_url: data.image_url || null, updated_by: context.userId };
+    if (data.id) {
+      const { id, ...patch } = payload;
+      const { error } = await context.supabase.from("content_blocks").update(patch).eq("id", id);
+      if (error) throw new Error(error.message);
+    } else {
+      const { error } = await context.supabase.from("content_blocks").insert(payload);
+      if (error) throw new Error(error.message);
+    }
+    return { ok: true };
+  });
+
+export const deleteContentBlock = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { error } = await context.supabase.from("content_blocks").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+// =================================================================
+// Phase 2: Notification templates + log
+// =================================================================
+export const listNotificationTemplates = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { data, error } = await context.supabase.from("notification_templates").select("*").order("name", { ascending: true });
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+const templateSchema = z.object({
+  id: z.string().uuid().optional(),
+  key: z.string().min(1).max(120).regex(/^[a-z0-9_]+$/),
+  name: z.string().min(1).max(200),
+  channel: z.enum(["email", "sms"]).default("email"),
+  subject: z.string().max(300).nullable().optional(),
+  body: z.string().min(1).max(10000),
+  variables: z.array(z.string()).default([]),
+  active: z.boolean().default(true),
+});
+
+export const upsertNotificationTemplate = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => templateSchema.parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    if (data.id) {
+      const { id, ...patch } = data;
+      const { error } = await context.supabase.from("notification_templates").update(patch).eq("id", id);
+      if (error) throw new Error(error.message);
+    } else {
+      const { error } = await context.supabase.from("notification_templates").insert(data);
+      if (error) throw new Error(error.message);
+    }
+    return { ok: true };
+  });
+
+export const deleteNotificationTemplate = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { error } = await context.supabase.from("notification_templates").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const listNotificationLog = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { data, error } = await context.supabase.from("notification_log").select("*").order("created_at", { ascending: false }).limit(500);
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+export const sendTestNotification = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ templateKey: z.string().min(1), recipient: z.string().min(3).max(200) }).parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { data: tpl, error: tErr } = await context.supabase.from("notification_templates").select("*").eq("key", data.templateKey).maybeSingle();
+    if (tErr) throw new Error(tErr.message);
+    if (!tpl) throw new Error("Template not found");
+    const { error } = await context.supabase.from("notification_log").insert({
+      template_key: tpl.key,
+      channel: tpl.channel,
+      recipient: data.recipient,
+      subject: tpl.subject,
+      body: tpl.body,
+      status: "pending",
+      payload: { test: true, queued_by: context.userId },
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true, note: "Queued. Delivery requires an email/SMS provider connector." };
+  });
+
+// =================================================================
+// Phase 2: Reports
+// =================================================================
+const reportInput = z.object({
+  from: z.string(),
+  to: z.string(),
+  granularity: z.enum(["day", "week", "month"]).default("day"),
+});
+
+export const getReports = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => reportInput.parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const fromD = new Date(data.from);
+    const toD = new Date(data.to);
+    const [bRes, pRes] = await Promise.all([
+      context.supabase.from("bookings").select("id, status, vehicle_type, pickup_address, dropoff_address, price, created_at, pickup_date").is("deleted_at", null).gte("created_at", fromD.toISOString()).lte("created_at", toD.toISOString()),
+      context.supabase.from("payments").select("amount, status, paid_at, created_at").eq("status", "paid").gte("created_at", fromD.toISOString()).lte("created_at", toD.toISOString()),
+    ]);
+    const bookings = bRes.data ?? [];
+    const payments = pRes.data ?? [];
+
+    function bucket(dateStr: string) {
+      const d = new Date(dateStr);
+      if (data.granularity === "month") return d.toISOString().slice(0, 7);
+      if (data.granularity === "week") {
+        const tmp = new Date(d);
+        const day = tmp.getUTCDay();
+        const diff = (day + 6) % 7;
+        tmp.setUTCDate(tmp.getUTCDate() - diff);
+        return tmp.toISOString().slice(0, 10);
+      }
+      return d.toISOString().slice(0, 10);
+    }
+
+    const revMap = new Map<string, number>();
+    for (const p of payments) {
+      const k = bucket(p.paid_at ?? p.created_at);
+      revMap.set(k, (revMap.get(k) ?? 0) + Number(p.amount || 0));
+    }
+    const bookMap = new Map<string, { date: string; total: number; completed: number; cancelled: number }>();
+    for (const b of bookings) {
+      const k = bucket(b.created_at);
+      const e = bookMap.get(k) ?? { date: k, total: 0, completed: 0, cancelled: 0 };
+      e.total += 1;
+      if (b.status === "completed") e.completed += 1;
+      if (b.status === "cancelled") e.cancelled += 1;
+      bookMap.set(k, e);
+    }
+
+    const vehicleMap = new Map<string, number>();
+    const routeMap = new Map<string, number>();
+    for (const b of bookings) {
+      vehicleMap.set(b.vehicle_type, (vehicleMap.get(b.vehicle_type) ?? 0) + 1);
+      const r = `${b.pickup_address} → ${b.dropoff_address}`;
+      routeMap.set(r, (routeMap.get(r) ?? 0) + 1);
+    }
+
+    const totalRev = payments.reduce((s, p) => s + Number(p.amount || 0), 0);
+    const completed = bookings.filter(b => b.status === "completed").length;
+    const cancelled = bookings.filter(b => b.status === "cancelled").length;
+    const avgFare = bookings.length ? bookings.reduce((s, b) => s + Number(b.price || 0), 0) / bookings.length : 0;
+
+    return {
+      kpi: {
+        revenue: totalRev,
+        bookings: bookings.length,
+        completed,
+        cancelled,
+        cancellationRate: bookings.length ? cancelled / bookings.length : 0,
+        avgFare,
+      },
+      revenueSeries: Array.from(revMap.entries()).map(([date, revenue]) => ({ date, revenue })).sort((a, b) => a.date.localeCompare(b.date)),
+      bookingsSeries: Array.from(bookMap.values()).sort((a, b) => a.date.localeCompare(b.date)),
+      topVehicles: Array.from(vehicleMap.entries()).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count).slice(0, 5),
+      topRoutes: Array.from(routeMap.entries()).map(([route, count]) => ({ route, count })).sort((a, b) => b.count - a.count).slice(0, 10),
+    };
+  });
+
+// =================================================================
+// Phase 2: Activity logs
+// =================================================================
+export const listActivityLogs = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({
+    entity: z.string().optional(),
+    search: z.string().optional(),
+    from: z.string().optional(),
+    to: z.string().optional(),
+    limit: z.number().int().min(1).max(500).default(200),
+  }).parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    let q = context.supabase.from("activity_logs").select("*").order("created_at", { ascending: false }).limit(data.limit);
+    if (data.entity) q = q.eq("entity", data.entity);
+    if (data.from) q = q.gte("created_at", data.from);
+    if (data.to) q = q.lte("created_at", data.to);
+    if (data.search) q = q.or(`actor_email.ilike.%${data.search}%,entity_id.ilike.%${data.search}%,action.ilike.%${data.search}%`);
+    const { data: rows, error } = await q;
+    if (error) throw new Error(error.message);
+    return rows ?? [];
+  });
+
