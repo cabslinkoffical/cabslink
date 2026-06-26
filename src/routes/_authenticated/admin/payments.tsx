@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useSuspenseQuery, useMutation, useQueryClient, queryOptions } from "@tanstack/react-query";
+import { useSuspenseQuery, useMutation, useQueryClient, queryOptions, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { listPayments, upsertPayment, deletePayment, listBookings } from "@/lib/admin.functions";
 import { useState, useMemo } from "react";
@@ -33,7 +33,7 @@ function Page() {
   const del = useServerFn(deletePayment);
   const [form, setForm] = useState<any>(null);
   const [tab, setTab] = useState("all");
-  const { data: bookings = [] } = useSuspenseQuery(bOpts);
+  const { data: bookings = [] } = useQuery(bOpts);
 
   const filtered = useMemo(() => {
     if (tab === "all") return payments;
