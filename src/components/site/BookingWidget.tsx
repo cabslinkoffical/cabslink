@@ -100,13 +100,11 @@ export function BookingWidget() {
 
           <LabeledField label="Pickup Location">
             <FieldShell>
-              <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--gold)]" />
-              <Input
+              <AddressAutocomplete
                 required
                 value={pickup}
-                onChange={(e) => setPickup(e.target.value)}
-                placeholder="Enter airport or address"
-                className="border-0 shadow-none bg-transparent pl-12 h-[52px] text-sm focus-visible:ring-0"
+                onChange={setPickup}
+                placeholder="Enter UK airport, postcode or address"
               />
             </FieldShell>
           </LabeledField>
@@ -114,14 +112,14 @@ export function BookingWidget() {
           {tab === "quote" ? (
             <LabeledField label="Dropoff Destination">
               <FieldShell>
-                <Flag className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--gold)]" />
-                <Input
+                <AddressAutocomplete
                   required
                   value={dropoff}
-                  onChange={(e) => setDropoff(e.target.value)}
-                  placeholder="Enter destination"
-                  className="border-0 shadow-none bg-transparent pl-12 h-[52px] text-sm focus-visible:ring-0"
+                  onChange={setDropoff}
+                  placeholder="Enter UK destination"
+                  iconClassName="hidden"
                 />
+                <Flag className="absolute left-4 top-[26px] -translate-y-1/2 w-5 h-5 text-[var(--gold)] pointer-events-none" />
               </FieldShell>
             </LabeledField>
           ) : (
