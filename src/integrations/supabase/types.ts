@@ -88,6 +88,7 @@ export type Database = {
           message: string
           name: string
           phone: string | null
+          status: Database["public"]["Enums"]["message_status"]
           subject: string | null
         }
         Insert: {
@@ -97,6 +98,7 @@ export type Database = {
           message: string
           name: string
           phone?: string | null
+          status?: Database["public"]["Enums"]["message_status"]
           subject?: string | null
         }
         Update: {
@@ -106,6 +108,7 @@ export type Database = {
           message?: string
           name?: string
           phone?: string | null
+          status?: Database["public"]["Enums"]["message_status"]
           subject?: string | null
         }
         Relationships: []
@@ -131,6 +134,57 @@ export type Database = {
         }
         Relationships: []
       }
+      vehicles: {
+        Row: {
+          active: boolean
+          category: string
+          created_at: string
+          description: string
+          display_order: number
+          featured: boolean
+          hand_luggage: number
+          id: string
+          image_url: string
+          luggage: number
+          name: string
+          passengers: number
+          price_per_hour: number | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          category?: string
+          created_at?: string
+          description?: string
+          display_order?: number
+          featured?: boolean
+          hand_luggage?: number
+          id?: string
+          image_url: string
+          luggage?: number
+          name: string
+          passengers?: number
+          price_per_hour?: number | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          category?: string
+          created_at?: string
+          description?: string
+          display_order?: number
+          featured?: boolean
+          hand_luggage?: number
+          id?: string
+          image_url?: string
+          luggage?: number
+          name?: string
+          passengers?: number
+          price_per_hour?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -153,6 +207,7 @@ export type Database = {
         | "on_way"
         | "completed"
         | "cancelled"
+      message_status: "new" | "read" | "resolved"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -289,6 +344,7 @@ export const Constants = {
         "completed",
         "cancelled",
       ],
+      message_status: ["new", "read", "resolved"],
     },
   },
 } as const
