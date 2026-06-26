@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 export function Header() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [hasSession, setHasSession] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const pathname = useRouterState({ select: s => s.location.pathname });
 
   useEffect(() => {
@@ -22,8 +22,13 @@ export function Header() {
   useEffect(() => { setOpen(false); }, [pathname]);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setHasSession(!!data.session));
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => setHasSession(!!session));
+    const check = async (userId: string | undefined) => {
+      if (!userId) { setIsAdmin(false); return; }
+      const { data } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
+      setIsAdmin(!!data);
+    };
+    supabase.auth.getSession().then(({ data }) => check(data.session?.user.id));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => check(session?.user.id));
     return () => sub.subscription.unsubscribe();
   }, []);
 
@@ -48,7 +53,7 @@ export function Header() {
           <a href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`} className="flex items-center gap-2 text-sm font-semibold text-foreground/80 hover:text-[var(--gold)]">
             <Phone className="size-4" /> {SITE.phoneUK}
           </a>
-          {hasSession ? (
+          {isAdmin ? (
             <Link to="/admin" className="flex items-center gap-1.5 text-sm font-semibold text-[var(--gold)] hover:opacity-80">
               <ShieldCheck className="size-4" /> Admin
             </Link>
