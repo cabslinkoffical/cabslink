@@ -44,6 +44,28 @@ function FleetPage() {
   const upsert = useServerFn(upsertVehicle);
   const del = useServerFn(deleteVehicle);
   const [form, setForm] = useState<any>(null);
+  const [uploading, setUploading] = useState(false);
+
+  async function handleImageUpload(file: File) {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) { toast.error("Please select an image file"); return; }
+    if (file.size > 5 * 1024 * 1024) { toast.error("Image must be under 5MB"); return; }
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop() ?? "jpg";
+      const path = `${crypto.randomUUID()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("vehicle-images").upload(path, file, { contentType: file.type, upsert: false });
+      if (upErr) throw upErr;
+      const { data, error: urlErr } = await supabase.storage.from("vehicle-images").createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
+      if (urlErr) throw urlErr;
+      setForm((f: any) => ({ ...f, image_url: data.signedUrl }));
+      toast.success("Image uploaded");
+    } catch (e: any) {
+      toast.error(e.message ?? "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  }
 
   const save = useMutation({
     mutationFn: (v: any) => upsert({ data: v }),
