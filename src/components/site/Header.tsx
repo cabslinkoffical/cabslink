@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 export function Header() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [hasSession, setHasSession] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const pathname = useRouterState({ select: s => s.location.pathname });
 
   useEffect(() => {
