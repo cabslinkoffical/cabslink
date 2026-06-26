@@ -136,107 +136,170 @@ function MileagePricePage() {
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Form column */}
           <div className="lg:col-span-2 space-y-6">
+            {/* Vehicle selector */}
             <Card>
-              <div>
-                <Label>Vehicle class / fleet</Label>
-                <Select value={form.vehicle_id} onValueChange={(v) => setForm({ ...form, vehicle_id: v })}>
-                  <SelectTrigger className="h-11"><SelectValue placeholder="Select a vehicle…" /></SelectTrigger>
-                  <SelectContent>
-                    {vehicles.map((v: any) => (
-                      <SelectItem key={v.id} value={v.id}>
-                        {v.name} — {v.category}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {form.vehicle_id && (
-                <>
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <NumField
-                      label="Minimum / base price (£)"
-                      value={form.base_price}
-                      step={0.01}
-                      onChange={(v) => setForm({ ...form, base_price: v })}
-                    />
-                    <NumField
-                      label="Via stop price (£ per stop)"
-                      value={form.via_price}
-                      step={0.01}
-                      onChange={(v) => setForm({ ...form, via_price: v })}
-                    />
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <Switch
-                      checked={form.vehicle_add_price_enabled}
-                      onCheckedChange={(v) => setForm({ ...form, vehicle_add_price_enabled: v })}
-                    />
-                    <Label className="cursor-pointer">Add vehicle add-price surcharge</Label>
-                  </div>
-
-                  <div className="grid sm:grid-cols-4 gap-3">
-                    <div>
-                      <Label>From time</Label>
-                      <Input
-                        type="time"
-                        value={form.time_extra_from}
-                        onChange={(e) => setForm({ ...form, time_extra_from: e.target.value })}
-                      />
-                    </div>
-                    <div>
-                      <Label>To time</Label>
-                      <Input
-                        type="time"
-                        value={form.time_extra_to}
-                        onChange={(e) => setForm({ ...form, time_extra_to: e.target.value })}
-                      />
-                    </div>
-                    <NumField
-                      label="Extra amount"
-                      value={form.time_extra_amount}
-                      step={0.01}
-                      onChange={(v) => setForm({ ...form, time_extra_amount: v })}
-                    />
-                    <div>
-                      <Label>Extra type</Label>
-                      <Select
-                        value={form.time_extra_type}
-                        onValueChange={(v) => setForm({ ...form, time_extra_type: v as any })}
-                      >
-                        <SelectTrigger><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="fixed">Fixed £</SelectItem>
-                          <SelectItem value="percent">Percent %</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex-1">
+                  <Label className="text-xs uppercase tracking-wider text-muted-foreground">Vehicle / Fleet Class</Label>
+                  <Select value={form.vehicle_id} onValueChange={(v) => setForm({ ...form, vehicle_id: v })}>
+                    <SelectTrigger className="h-11 mt-1.5">
+                      <SelectValue placeholder="Select a vehicle to edit its pricing…" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {vehicles.map((v: any) => (
+                        <SelectItem key={v.id} value={v.id}>
+                          {v.name} — {v.category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                {form.vehicle_id && (
+                  <div className="flex items-center gap-2 pt-5">
                     <Switch checked={form.status} onCheckedChange={(v) => setForm({ ...form, status: v })} />
-                    <Label className="cursor-pointer">Active (quoted on the website)</Label>
+                    <Label className="cursor-pointer text-sm">Active</Label>
                   </div>
-                </>
-              )}
+                )}
+              </div>
             </Card>
 
             {form.vehicle_id && (
               <Card>
-                <div className="flex items-center justify-between">
-                  <h2 className="font-semibold">Mileage tiers</h2>
+                {/* Header bar */}
+                <div className="-mx-5 -mt-5 px-5 py-3 border-b border-border bg-[var(--surface)]/60 rounded-t-xl">
+                  <h2 className="text-sm font-bold">Mileage Price</h2>
+                </div>
+
+                {/* Minimum Price */}
+                <div>
+                  <Label className="text-sm font-semibold">Minimum Price</Label>
+                  <div className="relative mt-1.5">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">£</span>
+                    <Input
+                      type="number"
+                      step={0.01}
+                      value={form.base_price}
+                      onChange={(e) => setForm({ ...form, base_price: Number(e.target.value || 0) })}
+                      className="pl-7 h-11"
+                    />
+                  </div>
+                </div>
+
+                {/* Tier table */}
+                <div className="space-y-2">
+                  <div className="grid grid-cols-12 gap-3 px-1 text-sm font-bold text-foreground">
+                    <div className="col-span-2"></div>
+                    <div className="col-span-5 text-center">Mileage</div>
+                    <div className="col-span-5 text-center">Cost Per mile (£)</div>
+                  </div>
+
+                  {form.tiers.map((t, i) => (
+                    <div key={i} className="grid grid-cols-12 gap-3 items-center">
+                      <div className="col-span-2 flex items-center gap-1">
+                        <span className="text-sm font-semibold text-foreground/80">Next</span>
+                        <div className="flex flex-col -ml-0.5">
+                          <button
+                            type="button"
+                            aria-label="Move up"
+                            onClick={() => {
+                              const tiers = [...form.tiers];
+                              const j = i - 1;
+                              if (j < 0) return;
+                              [tiers[i], tiers[j]] = [tiers[j], tiers[i]];
+                              tiers.forEach((x, k) => (x.sort_order = k + 1));
+                              setForm({ ...form, tiers });
+                            }}
+                            className="text-muted-foreground hover:text-foreground"
+                          >
+                            <ArrowUp className="size-3" />
+                          </button>
+                          <button
+                            type="button"
+                            aria-label="Move down"
+                            onClick={() => {
+                              const tiers = [...form.tiers];
+                              const j = i + 1;
+                              if (j >= tiers.length) return;
+                              [tiers[i], tiers[j]] = [tiers[j], tiers[i]];
+                              tiers.forEach((x, k) => (x.sort_order = k + 1));
+                              setForm({ ...form, tiers });
+                            }}
+                            className="text-muted-foreground hover:text-foreground"
+                          >
+                            <ArrowDown className="size-3" />
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="col-span-5">
+                        <div className="flex border border-border rounded-md overflow-hidden bg-background">
+                          <Input
+                            type="number"
+                            step={0.01}
+                            value={t.miles}
+                            onChange={(e) => {
+                              const tiers = [...form.tiers];
+                              const miles = Number(e.target.value || 0);
+                              tiers[i] = { ...t, miles, tier_name: `Next ${miles} miles` };
+                              setForm({ ...form, tiers });
+                            }}
+                            className="border-0 rounded-none h-11 focus-visible:ring-0"
+                          />
+                          <span className="flex items-center px-3 bg-[var(--surface)] text-sm text-muted-foreground border-l border-border">
+                            miles
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="col-span-4">
+                        <div className="flex border border-border rounded-md overflow-hidden bg-background">
+                          <span className="flex items-center px-3 bg-[var(--surface)] text-sm text-muted-foreground border-r border-border">
+                            £
+                          </span>
+                          <Input
+                            type="number"
+                            step={0.0001}
+                            value={t.cost_per_mile}
+                            onChange={(e) => {
+                              const tiers = [...form.tiers];
+                              tiers[i] = { ...t, cost_per_mile: Number(e.target.value || 0) };
+                              setForm({ ...form, tiers });
+                            }}
+                            className="border-0 rounded-none h-11 focus-visible:ring-0"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="col-span-1 flex justify-end">
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="ghost"
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          onClick={() => {
+                            const tiers = form.tiers.filter((_, k) => k !== i);
+                            tiers.forEach((x, k) => (x.sort_order = k + 1));
+                            setForm({ ...form, tiers });
+                          }}
+                        >
+                          <Trash2 className="size-3.5" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+
                   <Button
                     type="button"
                     size="sm"
                     variant="outline"
+                    className="gap-1.5 mt-2"
                     onClick={() =>
                       setForm({
                         ...form,
                         tiers: [
                           ...form.tiers,
                           {
-                            tier_name: `Next ${10} miles`,
+                            tier_name: "Next 10 miles",
                             miles: 10,
                             cost_per_mile: 2,
                             sort_order: form.tiers.length + 1,
@@ -245,81 +308,146 @@ function MileagePricePage() {
                       })
                     }
                   >
-                    <Plus className="size-3.5" /> Add tier
+                    <Plus className="size-3.5" /> Add mileage tier
                   </Button>
                 </div>
 
-                <div className="space-y-2">
-                  <div className="grid grid-cols-12 gap-2 text-[11px] uppercase tracking-wider text-muted-foreground font-semibold px-1">
-                    <div className="col-span-5">Tier name</div>
-                    <div className="col-span-2">Next miles</div>
-                    <div className="col-span-2">Cost / mile</div>
-                    <div className="col-span-1">Order</div>
-                    <div className="col-span-2 text-right">Actions</div>
+                {/* Via Prices row */}
+                <div className="grid grid-cols-12 gap-3 items-center pt-4 border-t border-border">
+                  <Label className="col-span-3 text-sm font-bold">Via Prices:</Label>
+                  <Label className="col-span-4 text-sm font-bold text-right">Cost Per mile (£):</Label>
+                  <div className="col-span-5">
+                    <div className="flex border border-border rounded-md overflow-hidden bg-background">
+                      <span className="flex items-center px-3 bg-[var(--surface)] text-sm text-muted-foreground border-r border-border">
+                        £
+                      </span>
+                      <Input
+                        type="number"
+                        step={0.01}
+                        value={form.via_price}
+                        onChange={(e) => setForm({ ...form, via_price: Number(e.target.value || 0) })}
+                        className="border-0 rounded-none h-11 focus-visible:ring-0"
+                      />
+                    </div>
                   </div>
-                  {form.tiers.map((t, i) => (
-                    <TierRow
-                      key={i}
-                      tier={t}
-                      onChange={(next) => {
-                        const tiers = [...form.tiers];
-                        tiers[i] = next;
-                        setForm({ ...form, tiers });
-                      }}
-                      onMove={(dir) => {
-                        const tiers = [...form.tiers];
-                        const j = i + dir;
-                        if (j < 0 || j >= tiers.length) return;
-                        [tiers[i], tiers[j]] = [tiers[j], tiers[i]];
-                        tiers.forEach((x, k) => (x.sort_order = k + 1));
-                        setForm({ ...form, tiers });
-                      }}
-                      onRemove={() => {
-                        const tiers = form.tiers.filter((_, k) => k !== i);
-                        tiers.forEach((x, k) => (x.sort_order = k + 1));
-                        setForm({ ...form, tiers });
-                      }}
+                </div>
+
+                {/* Vehicle Add Price row */}
+                <div className="grid grid-cols-12 gap-3 items-end pt-4 border-t border-border">
+                  <div className="col-span-3">
+                    <Label className="block text-sm font-bold mb-2">Vehicle Add Price</Label>
+                    <input
+                      type="checkbox"
+                      checked={form.vehicle_add_price_enabled}
+                      onChange={(e) => setForm({ ...form, vehicle_add_price_enabled: e.target.checked })}
+                      className="size-5 accent-[var(--gold)] cursor-pointer"
                     />
-                  ))}
+                  </div>
+                  <div className="col-span-2">
+                    <Label className="text-xs text-muted-foreground">From Time</Label>
+                    <Input
+                      type="time"
+                      value={form.time_extra_from}
+                      onChange={(e) => setForm({ ...form, time_extra_from: e.target.value })}
+                      className="h-11 mt-1"
+                      disabled={!form.vehicle_add_price_enabled}
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <Label className="text-xs text-muted-foreground">To Time</Label>
+                    <Input
+                      type="time"
+                      value={form.time_extra_to}
+                      onChange={(e) => setForm({ ...form, time_extra_to: e.target.value })}
+                      className="h-11 mt-1"
+                      disabled={!form.vehicle_add_price_enabled}
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <Label className="text-xs text-muted-foreground">Amount</Label>
+                    <Input
+                      type="number"
+                      step={0.01}
+                      value={form.time_extra_amount}
+                      onChange={(e) => setForm({ ...form, time_extra_amount: Number(e.target.value || 0) })}
+                      className="h-11 mt-1"
+                      disabled={!form.vehicle_add_price_enabled}
+                    />
+                  </div>
+                  <div className="col-span-3 flex gap-2">
+                    <label className={`flex-1 flex items-center justify-center gap-2 h-11 mt-1 border rounded-md cursor-pointer transition ${form.time_extra_type === "fixed" ? "border-[var(--gold)] bg-[var(--gold)]/10 text-foreground" : "border-border bg-background text-muted-foreground"}`}>
+                      <input
+                        type="radio"
+                        name="extra_type"
+                        checked={form.time_extra_type === "fixed"}
+                        onChange={() => setForm({ ...form, time_extra_type: "fixed" })}
+                        className="accent-[var(--gold)]"
+                        disabled={!form.vehicle_add_price_enabled}
+                      />
+                      <span className="text-sm font-semibold">£</span>
+                    </label>
+                    <label className={`flex-1 flex items-center justify-center gap-2 h-11 mt-1 border rounded-md cursor-pointer transition ${form.time_extra_type === "percent" ? "border-[var(--gold)] bg-[var(--gold)]/10 text-foreground" : "border-border bg-background text-muted-foreground"}`}>
+                      <input
+                        type="radio"
+                        name="extra_type"
+                        checked={form.time_extra_type === "percent"}
+                        onChange={() => setForm({ ...form, time_extra_type: "percent" })}
+                        className="accent-[var(--gold)]"
+                        disabled={!form.vehicle_add_price_enabled}
+                      />
+                      <span className="text-sm font-semibold">%</span>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-border">
+                  <Button
+                    onClick={() => save.mutate(form)}
+                    disabled={save.isPending}
+                    className="gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    <Save className="size-4" /> {save.isPending ? "Saving…" : "Submit"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setForm({ ...EMPTY, vehicle_id: form.vehicle_id })}
+                    className="gap-2 border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700"
+                  >
+                    <RotateCcw className="size-4" /> Reset
+                  </Button>
+
+                  {form.id && (
+                    <div className="flex items-center gap-2 ml-auto">
+                      <Select value={duplicateTarget} onValueChange={setDuplicateTarget}>
+                        <SelectTrigger className="w-[220px] h-10">
+                          <SelectValue placeholder="Copy to vehicle…" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {vehicles
+                            .filter((v: any) => v.id !== form.vehicle_id)
+                            .map((v: any) => (
+                              <SelectItem key={v.id} value={v.id}>{v.name}</SelectItem>
+                            ))}
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        disabled={!duplicateTarget || dup.isPending}
+                        onClick={() => dup.mutate(duplicateTarget)}
+                        className="gap-2"
+                      >
+                        <CopyIcon className="size-4" /> Duplicate
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </Card>
             )}
-
-            {form.vehicle_id && (
-              <div className="flex flex-wrap gap-3">
-                <Button onClick={() => save.mutate(form)} disabled={save.isPending} className="gap-2">
-                  <Save className="size-4" /> {save.isPending ? "Saving…" : "Save"}
-                </Button>
-                <Button type="button" variant="outline" onClick={() => setForm({ ...EMPTY, vehicle_id: form.vehicle_id })} className="gap-2">
-                  <RotateCcw className="size-4" /> Reset
-                </Button>
-
-                {form.id && (
-                  <div className="flex items-center gap-2 ml-auto">
-                    <Select value={duplicateTarget} onValueChange={setDuplicateTarget}>
-                      <SelectTrigger className="w-[220px]"><SelectValue placeholder="Copy to vehicle…" /></SelectTrigger>
-                      <SelectContent>
-                        {vehicles
-                          .filter((v: any) => v.id !== form.vehicle_id)
-                          .map((v: any) => (
-                            <SelectItem key={v.id} value={v.id}>{v.name}</SelectItem>
-                          ))}
-                      </SelectContent>
-                    </Select>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      disabled={!duplicateTarget || dup.isPending}
-                      onClick={() => dup.mutate(duplicateTarget)}
-                      className="gap-2"
-                    >
-                      <CopyIcon className="size-4" /> Duplicate
-                    </Button>
-                  </div>
-                )}
-              </div>
-            )}
           </div>
+
 
           {/* Test column */}
           <div>
