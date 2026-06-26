@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_logs: {
+        Row: {
+          action: string
+          actor_email: string | null
+          actor_id: string | null
+          created_at: string
+          diff: Json | null
+          entity: string
+          entity_id: string | null
+          id: string
+        }
+        Insert: {
+          action: string
+          actor_email?: string | null
+          actor_id?: string | null
+          created_at?: string
+          diff?: Json | null
+          entity: string
+          entity_id?: string | null
+          id?: string
+        }
+        Update: {
+          action?: string
+          actor_email?: string | null
+          actor_id?: string | null
+          created_at?: string
+          diff?: Json | null
+          entity?: string
+          entity_id?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
       addresses: {
         Row: {
           active: boolean
@@ -211,6 +244,39 @@ export type Database = {
         }
         Relationships: []
       }
+      content_blocks: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          image_url: string | null
+          key: string
+          title: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          key: string
+          title?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          key?: string
+          title?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       coupons: {
         Row: {
           active: boolean
@@ -318,6 +384,131 @@ export type Database = {
           },
         ]
       }
+      hourly_rates: {
+        Row: {
+          active: boolean
+          created_at: string
+          currency: string
+          id: string
+          max_hours: number
+          min_hours: number
+          price_per_hour: number
+          updated_at: string
+          vehicle_id: string | null
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          currency?: string
+          id?: string
+          max_hours?: number
+          min_hours?: number
+          price_per_hour: number
+          updated_at?: string
+          vehicle_id?: string | null
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          currency?: string
+          id?: string
+          max_hours?: number
+          min_hours?: number
+          price_per_hour?: number
+          updated_at?: string
+          vehicle_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hourly_rates_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_log: {
+        Row: {
+          body: string | null
+          channel: string
+          created_at: string
+          error: string | null
+          id: string
+          payload: Json | null
+          recipient: string
+          sent_at: string | null
+          status: string
+          subject: string | null
+          template_key: string | null
+        }
+        Insert: {
+          body?: string | null
+          channel: string
+          created_at?: string
+          error?: string | null
+          id?: string
+          payload?: Json | null
+          recipient: string
+          sent_at?: string | null
+          status?: string
+          subject?: string | null
+          template_key?: string | null
+        }
+        Update: {
+          body?: string | null
+          channel?: string
+          created_at?: string
+          error?: string | null
+          id?: string
+          payload?: Json | null
+          recipient?: string
+          sent_at?: string | null
+          status?: string
+          subject?: string | null
+          template_key?: string | null
+        }
+        Relationships: []
+      }
+      notification_templates: {
+        Row: {
+          active: boolean
+          body: string
+          channel: string
+          created_at: string
+          id: string
+          key: string
+          name: string
+          subject: string | null
+          updated_at: string
+          variables: string[] | null
+        }
+        Insert: {
+          active?: boolean
+          body: string
+          channel?: string
+          created_at?: string
+          id?: string
+          key: string
+          name: string
+          subject?: string | null
+          updated_at?: string
+          variables?: string[] | null
+        }
+        Update: {
+          active?: boolean
+          body?: string
+          channel?: string
+          created_at?: string
+          id?: string
+          key?: string
+          name?: string
+          subject?: string | null
+          updated_at?: string
+          variables?: string[] | null
+        }
+        Relationships: []
+      }
       payments: {
         Row: {
           amount: number
@@ -364,6 +555,59 @@ export type Database = {
             columns: ["booking_id"]
             isOneToOne: false
             referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pricing_rules: {
+        Row: {
+          active: boolean
+          created_at: string
+          currency: string
+          from_address: string
+          id: string
+          notes: string | null
+          price: number
+          to_address: string
+          updated_at: string
+          valid_from: string | null
+          valid_to: string | null
+          vehicle_id: string | null
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          currency?: string
+          from_address: string
+          id?: string
+          notes?: string | null
+          price: number
+          to_address: string
+          updated_at?: string
+          valid_from?: string | null
+          valid_to?: string | null
+          vehicle_id?: string | null
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          currency?: string
+          from_address?: string
+          id?: string
+          notes?: string | null
+          price?: number
+          to_address?: string
+          updated_at?: string
+          valid_from?: string | null
+          valid_to?: string | null
+          vehicle_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pricing_rules_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
             referencedColumns: ["id"]
           },
         ]
@@ -436,6 +680,68 @@ export type Database = {
           whatsapp_number?: string | null
         }
         Relationships: []
+      }
+      surcharges: {
+        Row: {
+          active: boolean
+          amount: number
+          applies_to: string
+          charge_type: string
+          created_at: string
+          days_of_week: number[] | null
+          ends_at: string | null
+          id: string
+          name: string
+          notes: string | null
+          starts_at: string | null
+          time_from: string | null
+          time_to: string | null
+          updated_at: string
+          vehicle_id: string | null
+        }
+        Insert: {
+          active?: boolean
+          amount: number
+          applies_to?: string
+          charge_type?: string
+          created_at?: string
+          days_of_week?: number[] | null
+          ends_at?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          starts_at?: string | null
+          time_from?: string | null
+          time_to?: string | null
+          updated_at?: string
+          vehicle_id?: string | null
+        }
+        Update: {
+          active?: boolean
+          amount?: number
+          applies_to?: string
+          charge_type?: string
+          created_at?: string
+          days_of_week?: number[] | null
+          ends_at?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          starts_at?: string | null
+          time_from?: string | null
+          time_to?: string | null
+          updated_at?: string
+          vehicle_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "surcharges_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
