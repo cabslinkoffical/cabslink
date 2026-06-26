@@ -58,7 +58,7 @@ export function BookingWidget() {
   const tabIdle = "bg-transparent text-foreground/55 hover:bg-white/60";
 
   return (
-    <div className="w-full max-w-2xl mx-auto bg-card rounded-3xl shadow-[var(--shadow-elegant)] overflow-hidden border border-border">
+    <div className="w-full max-w-5xl mx-auto bg-card rounded-3xl shadow-[var(--shadow-elegant)] overflow-hidden border border-border">
       {/* Tabs */}
       <div className="flex bg-[var(--surface)] p-2 gap-2">
         <button
