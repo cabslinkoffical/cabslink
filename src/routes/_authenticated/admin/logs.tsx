@@ -85,7 +85,7 @@ function Page() {
             <tbody className="divide-y divide-border">
               {rows.map((row: any) => (
                 <Fragment key={row.id}>
-                  <tr key={row.id} className="hover:bg-muted/30 cursor-pointer" onClick={() => setExpanded(expanded === row.id ? null : row.id)}>
+                  <tr className="hover:bg-muted/30 cursor-pointer" onClick={() => setExpanded(expanded === row.id ? null : row.id)}>
                     <td className="pl-3">{expanded === row.id ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}</td>
                     <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">{new Date(row.created_at).toLocaleString()}</td>
                     <td className="px-4 py-3">{row.actor_email ?? <span className="text-muted-foreground">system</span>}</td>
@@ -94,13 +94,13 @@ function Page() {
                     <td className="px-4 py-3 text-xs text-muted-foreground font-mono">{row.entity_id?.slice(0, 8)}…</td>
                   </tr>
                   {expanded === row.id && (
-                    <tr key={`${row.id}-d`} className="bg-muted/20">
+                    <tr className="bg-muted/20">
                       <td colSpan={6} className="px-4 py-3">
                         <pre className="text-[11px] font-mono whitespace-pre-wrap break-all max-h-80 overflow-auto bg-background border border-border rounded-md p-3">{JSON.stringify(row.diff, null, 2)}</pre>
                       </td>
                     </tr>
                   )}
-                </>
+                </Fragment>
               ))}
             </tbody>
           </table>
