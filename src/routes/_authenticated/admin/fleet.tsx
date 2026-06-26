@@ -184,54 +184,19 @@ function FleetPage() {
       {vehicles.length === 0 ? (
         <EmptyState title="No vehicles yet" hint="Add your first vehicle to start accepting bookings." action={<Button onClick={openNew}><Plus className="size-4 mr-1" /> Add vehicle</Button>} />
       ) : (
-        <div className="border border-border rounded-xl bg-card overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">
-              <tr>
-                <th className="text-left px-4 py-3">#</th>
-                <th className="text-left px-4 py-3">Image</th>
-                <th className="text-left px-4 py-3">Name</th>
-                <th className="text-left px-4 py-3">TBMS</th>
-                <th className="text-left px-4 py-3">Class</th>
-                <th className="text-left px-4 py-3">Seats</th>
-                <th className="text-left px-4 py-3">Luggage</th>
-                <th className="text-left px-4 py-3">Base</th>
-                <th className="text-left px-4 py-3">Per mile</th>
-                <th className="text-left px-4 py-3">Status</th>
-                <th className="text-right px-4 py-3">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {vehicles.map((v: any, i: number) => (
-                <tr key={v.id} className="hover:bg-muted/30">
-                  <td className="px-4 py-3 text-muted-foreground">{i + 1}</td>
-                  <td className="px-4 py-3"><img src={v.image_url} alt="" className="size-12 object-cover rounded" /></td>
-                  <td className="px-4 py-3 font-medium">{v.name}</td>
-                  <td className="px-4 py-3 font-mono text-xs">{v.tbms_id ?? "—"}</td>
-                  <td className="px-4 py-3 capitalize">{v.vehicle_class?.replace(/_/g, " ") ?? v.category}</td>
-                  <td className="px-4 py-3">{v.passengers}</td>
-                  <td className="px-4 py-3">{v.luggage}+{v.hand_luggage}</td>
-                  <td className="px-4 py-3">{v.base_fare != null ? `£${v.base_fare}` : "—"}</td>
-                  <td className="px-4 py-3">{v.per_mile_rate != null ? `£${v.per_mile_rate}` : "—"}</td>
-                  <td className="px-4 py-3"><StatusBadge status={v.active ? "active" : "inactive"} /></td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="flex justify-end gap-1">
-                      <Button size="icon" variant="ghost" onClick={() => openEdit(v)}><Edit className="size-4" /></Button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild><Button size="icon" variant="ghost"><Trash2 className="size-4 text-red-600" /></Button></AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader><AlertDialogTitle>Delete vehicle?</AlertDialogTitle><AlertDialogDescription>{v.name} will be removed permanently.</AlertDialogDescription></AlertDialogHeader>
-                          <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => remove.mutate(v.id)} className="bg-red-600">Delete</AlertDialogAction></AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="grid gap-3">
+          {vehicles.map((v: any) => (
+            <VehicleCard
+              key={v.id}
+              v={v}
+              profile={allProfiles.find((p) => p.vehicle_id === v.id)}
+              onEdit={() => openEdit(v)}
+              onDelete={() => remove.mutate(v.id)}
+            />
+          ))}
         </div>
       )}
+
 
       <Dialog open={!!form} onOpenChange={(o) => !o && close()}>
         <DialogContent className="max-w-3xl max-h-[92vh] overflow-y-auto">
