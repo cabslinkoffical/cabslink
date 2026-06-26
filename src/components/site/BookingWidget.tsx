@@ -61,7 +61,7 @@ export function BookingWidget({ compact = false }: { compact?: boolean }) {
           className={`flex-1 px-5 py-3 text-sm font-bold uppercase tracking-wider rounded-t-lg transition ${
             tab === "quote"
               ? "bg-[var(--gold)] text-[var(--gold-foreground)]"
-              : "bg-foreground/10 text-foreground/70 hover:bg-foreground/15"
+              : "bg-[var(--navy)]/85 text-white/80 hover:bg-[var(--navy)]"
           }`}
         >
           Get Quick Quote
@@ -72,7 +72,8 @@ export function BookingWidget({ compact = false }: { compact?: boolean }) {
           className={`flex-1 px-5 py-3 text-sm font-bold uppercase tracking-wider rounded-t-lg transition ${
             tab === "hourly"
               ? "bg-[var(--gold)] text-[var(--gold-foreground)]"
-              : "bg-foreground/10 text-foreground/70 hover:bg-foreground/15"
+              : "bg-[var(--navy)]/85 text-white/80 hover:bg-[var(--navy)]"
+
           }`}
         >
           Hourly Rate
@@ -266,10 +267,11 @@ export function BookingWidget({ compact = false }: { compact?: boolean }) {
 
         <Button
           type="submit"
-          className="w-full h-14 rounded-lg text-base font-bold uppercase tracking-[0.18em] bg-gradient-to-r from-[var(--gold)] via-[var(--gold)] to-[var(--navy)] hover:opacity-95 text-white shadow-[var(--shadow-elegant)]"
+          className="w-full h-14 rounded-lg text-base font-bold uppercase tracking-[0.18em] bg-[var(--gold)] hover:brightness-110 text-[var(--gold-foreground)] shadow-[var(--shadow-glow)]"
         >
           Quote & Book <ArrowRight className="size-4 ml-1" />
         </Button>
+
       </form>
     </div>
   );
