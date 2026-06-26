@@ -6,7 +6,7 @@ const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_maps";
 const acInput = z.object({
   input: z.string().trim().min(2).max(200),
   sessionToken: z.string().trim().max(200).optional(),
-  mode: z.enum(["all", "areas", "addresses"]).optional().default("all"),
+  mode: z.enum(["all", "areas", "addresses"]).optional(),
 });
 
 export type PlaceSuggestion = {
