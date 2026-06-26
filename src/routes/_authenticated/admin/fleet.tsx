@@ -11,9 +11,10 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { Plus, Edit, Trash2, Upload, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
+import { supabase } from "@/integrations/supabase/client";
 
 const opts = queryOptions({ queryKey: ["admin", "vehicles"], queryFn: () => listVehiclesAdmin() });
 export const Route = createFileRoute("/_authenticated/admin/fleet")({
@@ -43,6 +44,28 @@ function FleetPage() {
   const upsert = useServerFn(upsertVehicle);
   const del = useServerFn(deleteVehicle);
   const [form, setForm] = useState<any>(null);
+  const [uploading, setUploading] = useState(false);
+
+  async function handleImageUpload(file: File) {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) { toast.error("Please select an image file"); return; }
+    if (file.size > 5 * 1024 * 1024) { toast.error("Image must be under 5MB"); return; }
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop() ?? "jpg";
+      const path = `${crypto.randomUUID()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("vehicle-images").upload(path, file, { contentType: file.type, upsert: false });
+      if (upErr) throw upErr;
+      const { data, error: urlErr } = await supabase.storage.from("vehicle-images").createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
+      if (urlErr) throw urlErr;
+      setForm((f: any) => ({ ...f, image_url: data.signedUrl }));
+      toast.success("Image uploaded");
+    } catch (e: any) {
+      toast.error(e.message ?? "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  }
 
   const save = useMutation({
     mutationFn: (v: any) => upsert({ data: v }),
@@ -127,7 +150,22 @@ function FleetPage() {
                 </Select>
               </Field>
               <Field label="Category (legacy)"><Input value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} /></Field>
-              <Field label="Image URL *" full><Input value={form.image_url} onChange={e => setForm({ ...form, image_url: e.target.value })} placeholder="https://…" />{form.image_url && <img src={form.image_url} alt="" className="mt-2 h-24 object-cover rounded" />}</Field>
+              <Field label="Vehicle image *" full>
+                {form.image_url ? (
+                  <div className="relative inline-block">
+                    <img src={form.image_url} alt="" className="h-32 object-cover rounded border border-border" />
+                    <Button type="button" size="icon" variant="destructive" className="absolute -top-2 -right-2 size-6 rounded-full" onClick={() => setForm({ ...form, image_url: "" })}>
+                      <X className="size-3" />
+                    </Button>
+                  </div>
+                ) : (
+                  <label className="flex flex-col items-center justify-center gap-2 h-32 border-2 border-dashed border-border rounded-lg cursor-pointer hover:bg-muted/30 transition-colors">
+                    {uploading ? <Loader2 className="size-6 animate-spin text-muted-foreground" /> : <Upload className="size-6 text-muted-foreground" />}
+                    <span className="text-sm text-muted-foreground">{uploading ? "Uploading…" : "Click to upload image (max 5MB)"}</span>
+                    <input type="file" accept="image/*" className="hidden" disabled={uploading} onChange={e => { const f = e.target.files?.[0]; if (f) handleImageUpload(f); e.target.value = ""; }} />
+                  </label>
+                )}
+              </Field>
               <Field label="Description (use • for bullets)" full><Textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} rows={3} /></Field>
               <Field label="Passengers"><Input type="number" value={form.passengers} onChange={e => setForm({ ...form, passengers: Number(e.target.value) })} /></Field>
               <Field label="Luggage"><Input type="number" value={form.luggage} onChange={e => setForm({ ...form, luggage: Number(e.target.value) })} /></Field>
