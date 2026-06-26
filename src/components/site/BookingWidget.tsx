@@ -144,22 +144,22 @@ export function BookingWidget() {
             {stops.map((s, i) => (
               <LabeledField key={i} label={`Stop ${i + 1}`}>
                 <FieldShell>
-                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--gold)]/70" />
-                  <Input
+                  <AddressAutocomplete
                     value={s}
-                    onChange={(e) => {
+                    onChange={(v) => {
                       const next = [...stops];
-                      next[i] = e.target.value;
+                      next[i] = v;
                       setStops(next);
                     }}
-                    placeholder="Additional stop address"
-                    className="border-0 shadow-none bg-transparent pl-12 pr-12 h-[52px] text-sm focus-visible:ring-0"
+                    placeholder="Additional UK stop address"
+                    iconClassName="text-[var(--gold)]/70"
+                    className="pr-12"
                   />
                   <button
                     type="button"
                     aria-label="Remove stop"
                     onClick={() => setStops(stops.filter((_, idx) => idx !== i))}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-[var(--surface)] hover:bg-foreground/10 flex items-center justify-center text-foreground/60"
+                    className="absolute right-3 top-[26px] -translate-y-1/2 w-7 h-7 rounded-full bg-[var(--surface)] hover:bg-foreground/10 flex items-center justify-center text-foreground/60 z-10"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
