@@ -35,38 +35,40 @@ export const Route = createFileRoute("/_authenticated/admin")({
 
 const NAV: SidebarEntry[] = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
+  { to: "/admin/bookings", label: "Bookings", icon: CalendarCheck },
   {
-    label: "Bookings", icon: CalendarCheck, items: [
-      { to: "/admin/bookings", label: "All Bookings", icon: CalendarCheck, exact: true },
-      { to: "/admin/bookings?tab=upcoming", label: "Upcoming", icon: CalendarCheck },
-      { to: "/admin/bookings?tab=pending", label: "Pending Allocation", icon: Clock },
-      { to: "/admin/bookings?tab=allocated", label: "Allocated", icon: UserCog },
-      { to: "/admin/bookings?tab=in_progress", label: "In Progress", icon: Car },
-      { to: "/admin/bookings?tab=completed", label: "Completed", icon: CalendarCheck },
-      { to: "/admin/bookings?tab=cancelled", label: "Cancelled", icon: Ban },
-      { to: "/admin/bookings?tab=bidding", label: "Bidding", icon: Tag },
-      { to: "/admin/bookings?tab=deleted", label: "Deleted", icon: X },
+    label: "Fleet & Pricing", icon: Car, items: [
+      { to: "/admin/fleet", label: "Vehicles", icon: Car },
+      { to: "/admin/pricing", label: "Route Pricing", icon: Tag },
+      { to: "/admin/hourly-rate", label: "Hourly Rates", icon: Clock },
+      { to: "/admin/surcharges", label: "Surcharges", icon: Percent },
+      { to: "/admin/coupons", label: "Coupons", icon: Ticket },
     ],
   },
-  { to: "/admin/addresses", label: "Addresses", icon: MapPin },
-  { to: "/admin/banned-addresses", label: "Ban Addresses", icon: Ban },
-  { to: "/admin/fleet", label: "Vehicles", icon: Car },
-  { to: "/admin/pricing", label: "Pricing", icon: Tag },
-  { to: "/admin/mileage-price", label: "Mileage Price", icon: Tag },
-  { to: "/admin/hourly-rate", label: "Hourly Rate", icon: Clock },
-  { to: "/admin/surcharges", label: "Surcharges", icon: Percent },
-
-  { to: "/admin/drivers", label: "Drivers", icon: UserCog },
-  { to: "/admin/customers", label: "Customers", icon: Users },
+  {
+    label: "People", icon: Users, items: [
+      { to: "/admin/drivers", label: "Drivers", icon: UserCog },
+      { to: "/admin/customers", label: "Customers", icon: Users },
+      { to: "/admin/users", label: "Admin Users", icon: Shield },
+    ],
+  },
+  {
+    label: "Locations", icon: MapPin, items: [
+      { to: "/admin/addresses", label: "Addresses", icon: MapPin },
+      { to: "/admin/banned-addresses", label: "Banned Addresses", icon: Ban },
+    ],
+  },
+  {
+    label: "Communication", icon: Inbox, items: [
+      { to: "/admin/messages", label: "Messages", icon: Inbox },
+      { to: "/admin/notifications", label: "Notifications", icon: Bell },
+      { to: "/admin/content", label: "Website Content", icon: FileText },
+    ],
+  },
   { to: "/admin/payments", label: "Payments", icon: CreditCard },
-  { to: "/admin/coupons", label: "Coupons", icon: Ticket },
-  { to: "/admin/content", label: "Website Content", icon: FileText },
-  { to: "/admin/messages", label: "Messages", icon: Inbox },
-  { to: "/admin/notifications", label: "Notifications", icon: Bell },
   { to: "/admin/reports", label: "Reports", icon: BarChart3 },
-  { to: "/admin/users", label: "Admin Users", icon: Shield },
-  { to: "/admin/settings", label: "Settings", icon: SettingsIcon },
   { to: "/admin/logs", label: "Activity Logs", icon: History },
+  { to: "/admin/settings", label: "Settings", icon: SettingsIcon },
 ];
 
 function AdminLayout() {
