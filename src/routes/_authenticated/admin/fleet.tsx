@@ -454,3 +454,109 @@ function ExtrasStep({ pricing, setPricing }: { pricing: typeof emptyPricing; set
     </div>
   );
 }
+
+function VehicleCard({ v, profile, onEdit, onDelete }: { v: any; profile: any; onEdit: () => void; onDelete: () => void }) {
+  const [open, setOpen] = useState(false);
+  const tiers = profile?.tiers ?? [];
+  const hasTimeExtra = profile?.vehicle_add_price_enabled && profile?.time_extra_from && profile?.time_extra_to;
+  return (
+    <div className="border border-border rounded-xl bg-card overflow-hidden">
+      <div className="flex items-center gap-4 p-4">
+        <img src={v.image_url} alt={v.name} className="size-16 sm:size-20 object-cover rounded-lg bg-muted shrink-0" />
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h3 className="font-semibold truncate">{v.name}</h3>
+            <StatusBadge status={v.active ? "active" : "inactive"} />
+            {v.featured && <span className="text-[10px] uppercase tracking-wider bg-amber-500/15 text-amber-700 dark:text-amber-400 px-1.5 py-0.5 rounded">Featured</span>}
+          </div>
+          <div className="text-xs text-muted-foreground mt-0.5 capitalize">
+            {v.vehicle_class?.replace(/_/g, " ") ?? v.category}
+            {v.tbms_id && <span className="font-mono ml-2">· TBMS {v.tbms_id}</span>}
+          </div>
+          <div className="flex items-center gap-4 text-xs text-muted-foreground mt-1.5">
+            <span className="inline-flex items-center gap-1"><Users className="size-3.5" /> {v.passengers}</span>
+            <span className="inline-flex items-center gap-1"><Briefcase className="size-3.5" /> {v.luggage}+{v.hand_luggage}</span>
+            {profile && <span className="inline-flex items-center gap-1 text-foreground/70">From £{Number(profile.base_price).toFixed(2)}</span>}
+            <span className="inline-flex items-center gap-1">{tiers.length} mileage {tiers.length === 1 ? "tier" : "tiers"}</span>
+          </div>
+        </div>
+        <div className="flex items-center gap-1 shrink-0">
+          <Button size="sm" variant="ghost" onClick={() => setOpen(o => !o)} className="gap-1">
+            <ChevronDown className={`size-4 transition-transform ${open ? "rotate-180" : ""}`} />
+            <span className="hidden sm:inline">{open ? "Hide" : "Details"}</span>
+          </Button>
+          <Button size="icon" variant="ghost" onClick={onEdit}><Edit className="size-4" /></Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild><Button size="icon" variant="ghost"><Trash2 className="size-4 text-red-600" /></Button></AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader><AlertDialogTitle>Delete vehicle?</AlertDialogTitle><AlertDialogDescription>{v.name} will be removed permanently.</AlertDialogDescription></AlertDialogHeader>
+              <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={onDelete} className="bg-red-600">Delete</AlertDialogAction></AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+      </div>
+
+      {open && (
+        <div className="border-t border-border bg-muted/20 p-4 grid md:grid-cols-2 gap-4">
+          <div>
+            <div className="text-xs uppercase tracking-wider font-semibold text-muted-foreground mb-2 flex items-center gap-1.5"><Gauge className="size-3.5" /> Mileage Pricing</div>
+            {profile ? (
+              <div className="rounded-lg border border-border bg-background overflow-hidden">
+                <div className="flex justify-between px-3 py-2 text-xs bg-muted/40">
+                  <span className="text-muted-foreground">Minimum price</span>
+                  <span className="font-semibold">£{Number(profile.base_price).toFixed(2)}</span>
+                </div>
+                {tiers.length ? (
+                  <table className="w-full text-sm">
+                    <tbody className="divide-y divide-border">
+                      {tiers.map((t: any) => (
+                        <tr key={t.id ?? t.sort_order}>
+                          <td className="px-3 py-2 text-muted-foreground">{t.tier_name}</td>
+                          <td className="px-3 py-2 text-right">{t.miles} mi</td>
+                          <td className="px-3 py-2 text-right font-medium">£{Number(t.cost_per_mile).toFixed(2)}/mi</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <div className="px-3 py-3 text-xs text-muted-foreground">No tiers configured.</div>
+                )}
+              </div>
+            ) : (
+              <div className="text-xs text-muted-foreground italic">No pricing profile yet — click edit to set tiers.</div>
+            )}
+          </div>
+
+          <div className="space-y-3">
+            <div>
+              <div className="text-xs uppercase tracking-wider font-semibold text-muted-foreground mb-2 flex items-center gap-1.5"><Settings2 className="size-3.5" /> Extras</div>
+              <div className="rounded-lg border border-border bg-background divide-y divide-border text-sm">
+                <Row icon={<MapPin className="size-3.5" />} label="Via stop price" value={profile ? `£${Number(profile.via_price).toFixed(2)}/mi` : "—"} />
+                <Row icon={<Clock className="size-3.5" />} label="Time surcharge" value={hasTimeExtra ? `${profile.time_extra_from}–${profile.time_extra_to} · ${profile.time_extra_type === "percent" ? `${profile.time_extra_amount}%` : `£${Number(profile.time_extra_amount).toFixed(2)}`}` : "Disabled"} />
+                <Row label="Meet & Greet" value={v.meet_greet_enabled ? "Enabled" : "Disabled"} />
+                <Row label="Price per hour" value={v.price_per_hour != null ? `£${Number(v.price_per_hour).toFixed(2)}` : "—"} />
+                <Row label="Waiting charge" value={v.waiting_charge != null ? `£${Number(v.waiting_charge).toFixed(2)}/hr` : "—"} />
+              </div>
+            </div>
+            {v.description && (
+              <div>
+                <div className="text-xs uppercase tracking-wider font-semibold text-muted-foreground mb-2">Description</div>
+                <p className="text-sm text-muted-foreground whitespace-pre-line">{v.description}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Row({ icon, label, value }: { icon?: React.ReactNode; label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between px-3 py-2">
+      <span className="text-muted-foreground inline-flex items-center gap-1.5">{icon}{label}</span>
+      <span className="font-medium">{value}</span>
+    </div>
+  );
+}
+
