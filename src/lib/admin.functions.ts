@@ -258,11 +258,12 @@ export const upsertVehicle = createServerFn({ method: "POST" })
       const { id, ...patch } = data;
       const { error } = await context.supabase.from("vehicles").update(patch).eq("id", id);
       if (error) throw new Error(error.message);
+      return { ok: true, id };
     } else {
-      const { error } = await context.supabase.from("vehicles").insert(data);
+      const { data: row, error } = await context.supabase.from("vehicles").insert(data).select("id").single();
       if (error) throw new Error(error.message);
+      return { ok: true, id: (row as any).id as string };
     }
-    return { ok: true };
   });
 
 export const deleteVehicle = createServerFn({ method: "POST" })
