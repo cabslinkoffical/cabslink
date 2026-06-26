@@ -612,6 +612,65 @@ export type Database = {
           },
         ]
       }
+      quote_calculations: {
+        Row: {
+          base_price: number
+          calculation_breakdown: Json | null
+          created_at: string
+          customer_id: string | null
+          discount_price: number
+          distance_miles: number
+          dropoff_address: string
+          final_price: number
+          id: string
+          mileage_price: number
+          pickup_address: string
+          surcharge_price: number
+          tax_price: number
+          vehicle_id: string | null
+        }
+        Insert: {
+          base_price?: number
+          calculation_breakdown?: Json | null
+          created_at?: string
+          customer_id?: string | null
+          discount_price?: number
+          distance_miles: number
+          dropoff_address: string
+          final_price?: number
+          id?: string
+          mileage_price?: number
+          pickup_address: string
+          surcharge_price?: number
+          tax_price?: number
+          vehicle_id?: string | null
+        }
+        Update: {
+          base_price?: number
+          calculation_breakdown?: Json | null
+          created_at?: string
+          customer_id?: string | null
+          discount_price?: number
+          distance_miles?: number
+          dropoff_address?: string
+          final_price?: number
+          id?: string
+          mileage_price?: number
+          pickup_address?: string
+          surcharge_price?: number
+          tax_price?: number
+          vehicle_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_calculations_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       site_settings: {
         Row: {
           business_address: string | null
@@ -763,6 +822,100 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      vehicle_mileage_tiers: {
+        Row: {
+          cost_per_mile: number
+          created_at: string
+          id: string
+          miles: number
+          pricing_profile_id: string
+          sort_order: number
+          tier_name: string
+          updated_at: string
+        }
+        Insert: {
+          cost_per_mile: number
+          created_at?: string
+          id?: string
+          miles: number
+          pricing_profile_id: string
+          sort_order?: number
+          tier_name: string
+          updated_at?: string
+        }
+        Update: {
+          cost_per_mile?: number
+          created_at?: string
+          id?: string
+          miles?: number
+          pricing_profile_id?: string
+          sort_order?: number
+          tier_name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_mileage_tiers_pricing_profile_id_fkey"
+            columns: ["pricing_profile_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_pricing_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vehicle_pricing_profiles: {
+        Row: {
+          base_price: number
+          created_at: string
+          id: string
+          status: boolean
+          time_extra_amount: number
+          time_extra_from: string | null
+          time_extra_to: string | null
+          time_extra_type: string
+          updated_at: string
+          vehicle_add_price_enabled: boolean
+          vehicle_id: string
+          via_price: number
+        }
+        Insert: {
+          base_price?: number
+          created_at?: string
+          id?: string
+          status?: boolean
+          time_extra_amount?: number
+          time_extra_from?: string | null
+          time_extra_to?: string | null
+          time_extra_type?: string
+          updated_at?: string
+          vehicle_add_price_enabled?: boolean
+          vehicle_id: string
+          via_price?: number
+        }
+        Update: {
+          base_price?: number
+          created_at?: string
+          id?: string
+          status?: boolean
+          time_extra_amount?: number
+          time_extra_from?: string | null
+          time_extra_to?: string | null
+          time_extra_type?: string
+          updated_at?: string
+          vehicle_add_price_enabled?: boolean
+          vehicle_id?: string
+          via_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_pricing_profiles_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: true
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       vehicles: {
         Row: {
