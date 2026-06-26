@@ -4,6 +4,7 @@ import { MapPin, Flag, Plus, ArrowLeftRight, X, Minus, ArrowRight } from "lucide
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AddressAutocomplete } from "@/components/site/AddressAutocomplete";
 
 type Tab = "quote" | "hourly";
 
