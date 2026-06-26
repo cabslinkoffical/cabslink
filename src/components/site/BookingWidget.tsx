@@ -1,170 +1,295 @@
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Calendar, Clock, MapPin, Users, Briefcase, Plane, Car, ArrowRight, ShieldCheck } from "lucide-react";
+import { MapPin, Flag, Calendar, Clock, Users, Briefcase, Plus, Route as RouteIcon, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { VEHICLE_TYPES } from "@/lib/site";
 
-import eclassAsset from "@/assets/fleet/eclass.png.asset.json";
-import sclassAsset from "@/assets/fleet/sclass.png.asset.json";
-import vclassAsset from "@/assets/fleet/vclass.png.asset.json";
-import rangeRoverAsset from "@/assets/fleet/rangerover.png.asset.json";
-import rollsAsset from "@/assets/fleet/rolls.png.asset.json";
-import minibusAsset from "@/assets/fleet/minibus.png.asset.json";
-import coasterAsset from "@/assets/fleet/coaster.png.asset.json";
-import coachAsset from "@/assets/fleet/coach.png.asset.json";
+type Tab = "quote" | "hourly";
 
-const VEHICLE_IMAGES: Record<string, string> = {
-  "Mercedes-Benz E-Class": eclassAsset.url,
-  "Mercedes-Benz S-Class": sclassAsset.url,
-  "Mercedes-Benz V-Class": vclassAsset.url,
-  "Range Rover": rangeRoverAsset.url,
-  "Rolls-Royce Bentley": rollsAsset.url,
-  "Mini Bus (16-seater)": minibusAsset.url,
-  "Coaster Bus (24-seater)": coasterAsset.url,
-  "Coach Bus (55-seater)": coachAsset.url,
-};
-
-type Trip = "oneway" | "return" | "hourly";
+const HOURS = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0"));
+const MINS = ["00", "05", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55"];
+const DURATIONS = ["2", "3", "4", "5", "6", "8", "10", "12"];
 
 export function BookingWidget({ compact = false }: { compact?: boolean }) {
   const navigate = useNavigate();
-  const [trip, setTrip] = useState<Trip>("oneway");
+  const [tab, setTab] = useState<Tab>("quote");
+  const today = new Date().toISOString().slice(0, 10);
+  const now = new Date();
+
   const [pickup, setPickup] = useState("");
   const [dropoff, setDropoff] = useState("");
-  const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
+  const [stops, setStops] = useState<string[]>([]);
+  const [date, setDate] = useState(today);
+  const [hour, setHour] = useState(String(now.getHours()).padStart(2, "0"));
+  const [minute, setMinute] = useState("00");
   const [passengers, setPassengers] = useState("1");
   const [luggage, setLuggage] = useState("0");
-  const [vehicle, setVehicle] = useState("Mercedes-Benz V-Class");
-  const [flight, setFlight] = useState("");
+  const [showReturn, setShowReturn] = useState(false);
+  const [returnDate, setReturnDate] = useState(today);
+  const [returnHour, setReturnHour] = useState("12");
+  const [returnMin, setReturnMin] = useState("00");
+  const [duration, setDuration] = useState("3");
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     const params = new URLSearchParams({
-      pickup, dropoff, date, time, passengers, luggage,
-      vehicle, flight, ret: trip === "return" ? "1" : "0",
+      pickup,
+      dropoff: tab === "hourly" ? "" : dropoff,
+      date,
+      time: `${hour}:${minute}`,
+      passengers,
+      luggage,
+      vehicle: "Mercedes-Benz V-Class",
+      flight: "",
+      ret: showReturn ? "1" : "0",
+      mode: tab,
+      ...(tab === "hourly" ? { duration } : {}),
+      ...(showReturn ? { rdate: returnDate, rtime: `${returnHour}:${returnMin}` } : {}),
+      ...(stops.length ? { stops: stops.join("|") } : {}),
     });
     navigate({ to: "/book", search: { q: params.toString() } as never });
   };
 
-  const tabs: { id: Trip; label: string }[] = [
-    { id: "oneway", label: "One Way" },
-    { id: "return", label: "Return" },
-    { id: "hourly", label: "Hourly" },
-  ];
-
   return (
-    <form
-      onSubmit={submit}
-      className={`relative overflow-hidden rounded-2xl border border-border bg-card text-card-foreground ${compact ? "p-4 md:p-5" : "p-5 md:p-7 shadow-[var(--shadow-elegant)]"}`}
-    >
-      {/* gold accent bar */}
-      <span aria-hidden className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-[var(--gold)] via-[var(--gold)]/60 to-transparent" />
+    <div className={`w-full ${compact ? "" : ""}`}>
+      {/* Tabs */}
+      <div className="flex gap-0">
+        <button
+          type="button"
+          onClick={() => setTab("quote")}
+          className={`flex-1 px-5 py-3 text-sm font-bold uppercase tracking-wider rounded-t-lg transition ${
+            tab === "quote"
+              ? "bg-[var(--gold)] text-[var(--gold-foreground)]"
+              : "bg-foreground/10 text-foreground/70 hover:bg-foreground/15"
+          }`}
+        >
+          Get Quick Quote
+        </button>
+        <button
+          type="button"
+          onClick={() => setTab("hourly")}
+          className={`flex-1 px-5 py-3 text-sm font-bold uppercase tracking-wider rounded-t-lg transition ${
+            tab === "hourly"
+              ? "bg-[var(--gold)] text-[var(--gold-foreground)]"
+              : "bg-foreground/10 text-foreground/70 hover:bg-foreground/15"
+          }`}
+        >
+          Hourly Rate
+        </button>
+      </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
-        <div className="min-w-0">
-          <h3 className="font-display text-lg md:text-2xl font-bold leading-tight">Book Your Premium Ride</h3>
-          <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1.5">
-            <ShieldCheck className="size-3.5 text-[var(--gold)]" /> Fixed fare · Free wait · No hidden fees
-          </p>
+      <form
+        onSubmit={submit}
+        className="bg-card text-card-foreground rounded-b-lg rounded-tr-lg p-5 md:p-6 shadow-[var(--shadow-elegant)] space-y-3.5"
+      >
+        <div className="flex items-center gap-2 pb-1">
+          <RouteIcon className="size-5 text-[var(--gold)]" />
+          <h3 className="font-display text-lg font-bold text-foreground/80">
+            {tab === "hourly" ? "Hourly Booking" : "Outbound Journey"}
+          </h3>
         </div>
-        <div className="inline-flex rounded-full border border-border bg-[var(--surface)] p-1 text-xs font-semibold">
-          {tabs.map(t => (
+
+        <IconField icon={<MapPin className="size-5" />}>
+          <Input
+            required
+            value={pickup}
+            onChange={(e) => setPickup(e.target.value)}
+            placeholder="Enter Pickup Airport, Location or Postcode"
+            className="border-0 shadow-none h-12 text-sm focus-visible:ring-0"
+          />
+        </IconField>
+
+        {stops.map((s, i) => (
+          <IconField key={i} icon={<MapPin className="size-5" />}>
+            <Input
+              value={s}
+              onChange={(e) => {
+                const next = [...stops];
+                next[i] = e.target.value;
+                setStops(next);
+              }}
+              placeholder={`Stop ${i + 1}`}
+              className="border-0 shadow-none h-12 text-sm focus-visible:ring-0"
+            />
             <button
               type="button"
-              key={t.id}
-              onClick={() => setTrip(t.id)}
-              className={`px-3.5 py-1.5 rounded-full transition uppercase tracking-wider ${trip === t.id ? "bg-[var(--gold)] text-[var(--gold-foreground)]" : "text-foreground/60 hover:text-foreground"}`}
+              onClick={() => setStops(stops.filter((_, idx) => idx !== i))}
+              className="px-3 text-xs text-muted-foreground hover:text-foreground"
             >
-              {t.label}
+              Remove
             </button>
-          ))}
+          </IconField>
+        ))}
+
+        {tab === "quote" && (
+          <IconField icon={<Flag className="size-5" />}>
+            <Input
+              required
+              value={dropoff}
+              onChange={(e) => setDropoff(e.target.value)}
+              placeholder="Enter Dropoff Airport, Location or Postcode"
+              className="border-0 shadow-none h-12 text-sm focus-visible:ring-0"
+            />
+          </IconField>
+        )}
+
+        <IconField icon={<Calendar className="size-5" />}>
+          <Input
+            required
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className="border-0 shadow-none h-12 text-sm focus-visible:ring-0"
+          />
+        </IconField>
+
+        <IconField icon={<Clock className="size-5" />}>
+          <div className="flex-1 flex items-center gap-2 px-3">
+            <Select value={hour} onValueChange={setHour}>
+              <SelectTrigger className="flex-1 border-0 shadow-none h-12 focus:ring-0">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {HOURS.map((h) => <SelectItem key={h} value={h}>{h}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <span className="text-foreground/40 font-bold">:</span>
+            <Select value={minute} onValueChange={setMinute}>
+              <SelectTrigger className="flex-1 border-0 shadow-none h-12 focus:ring-0">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {MINS.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+        </IconField>
+
+        {tab === "hourly" && (
+          <div>
+            <Label icon={<Clock className="size-4" />}>Duration (hours)</Label>
+            <Select value={duration} onValueChange={setDuration}>
+              <SelectTrigger className="h-12"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {DURATIONS.map((d) => <SelectItem key={d} value={d}>{d} hours</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+
+        <div className="grid grid-cols-2 gap-3 pt-1">
+          <div>
+            <Label icon={<Users className="size-4" />}>Passengers</Label>
+            <Select value={passengers} onValueChange={setPassengers}>
+              <SelectTrigger className="h-12"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {Array.from({ length: 16 }).map((_, i) => (
+                  <SelectItem key={i} value={String(i + 1)}>
+                    {i + 1} {i === 0 ? "Passenger" : "Passengers"}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label icon={<Briefcase className="size-4" />}>Luggages</Label>
+            <Select value={luggage} onValueChange={setLuggage}>
+              <SelectTrigger className="h-12"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {Array.from({ length: 11 }).map((_, i) => (
+                  <SelectItem key={i} value={String(i)}>
+                    {i} {i === 1 ? "Luggage" : "Luggages"}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
-      </div>
 
-      <div className="grid gap-3.5 md:grid-cols-2">
-        <Field label="Pickup Location" icon={<MapPin className="size-4" />}>
-          <Input required value={pickup} onChange={e => setPickup(e.target.value)} placeholder="Edinburgh Airport (EDI)" />
-        </Field>
-        <Field label="Drop-off Location" icon={<MapPin className="size-4" />}>
-          <Input required value={dropoff} onChange={e => setDropoff(e.target.value)} placeholder="City centre / hotel / postcode" />
-        </Field>
-        <Field label="Pickup Date" icon={<Calendar className="size-4" />}>
-          <Input required type="date" value={date} onChange={e => setDate(e.target.value)} />
-        </Field>
-        <Field label="Pickup Time" icon={<Clock className="size-4" />}>
-          <Input required type="time" value={time} onChange={e => setTime(e.target.value)} />
-        </Field>
-        <Field label="Passengers" icon={<Users className="size-4" />}>
-          <Select value={passengers} onValueChange={setPassengers}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {Array.from({ length: 16 }).map((_, i) => (
-                <SelectItem key={i} value={String(i + 1)}>{i + 1} {i === 0 ? "Passenger" : "Passengers"}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </Field>
-        <Field label="Luggage" icon={<Briefcase className="size-4" />}>
-          <Select value={luggage} onValueChange={setLuggage}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {Array.from({ length: 11 }).map((_, i) => (
-                <SelectItem key={i} value={String(i)}>{i} {i === 1 ? "Bag" : "Bags"}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </Field>
-        <Field label="Vehicle Type" icon={<Car className="size-4" />}>
-          <Select value={vehicle} onValueChange={setVehicle}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {VEHICLE_TYPES.map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </Field>
-        <Field label="Flight Number (optional)" icon={<Plane className="size-4" />}>
-          <Input value={flight} onChange={e => setFlight(e.target.value)} placeholder="e.g. BA1234" />
-        </Field>
-      </div>
+        {showReturn && (
+          <div className="rounded-lg border border-border bg-[var(--surface)] p-3 space-y-3">
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-bold uppercase tracking-wider text-[var(--gold)]">Return Journey</p>
+              <button
+                type="button"
+                onClick={() => setShowReturn(false)}
+                className="text-xs text-muted-foreground hover:text-foreground"
+              >
+                Remove
+              </button>
+            </div>
+            <IconField icon={<Calendar className="size-5" />}>
+              <Input
+                type="date"
+                value={returnDate}
+                onChange={(e) => setReturnDate(e.target.value)}
+                className="border-0 shadow-none h-12 text-sm focus-visible:ring-0"
+              />
+            </IconField>
+            <IconField icon={<Clock className="size-5" />}>
+              <div className="flex-1 flex items-center gap-2 px-3">
+                <Select value={returnHour} onValueChange={setReturnHour}>
+                  <SelectTrigger className="flex-1 border-0 shadow-none h-12 focus:ring-0"><SelectValue /></SelectTrigger>
+                  <SelectContent>{HOURS.map((h) => <SelectItem key={h} value={h}>{h}</SelectItem>)}</SelectContent>
+                </Select>
+                <span className="text-foreground/40 font-bold">:</span>
+                <Select value={returnMin} onValueChange={setReturnMin}>
+                  <SelectTrigger className="flex-1 border-0 shadow-none h-12 focus:ring-0"><SelectValue /></SelectTrigger>
+                  <SelectContent>{MINS.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+            </IconField>
+          </div>
+        )}
 
-      {/* Selected vehicle preview */}
-      <div className="mt-5 relative overflow-hidden rounded-xl border border-border bg-[var(--surface)] h-32 md:h-40 flex items-center justify-between gap-4 px-5">
-        <div className="relative z-10 min-w-0">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--gold)]">Your selected vehicle</p>
-          <p key={`name-${vehicle}`} className="mt-1 font-display text-base md:text-xl font-semibold truncate animate-fade-up">{vehicle}</p>
-        </div>
-        <img
-          key={vehicle}
-          src={VEHICLE_IMAGES[vehicle]}
-          alt={vehicle}
-          className="relative z-10 h-full w-auto max-w-[60%] object-contain animate-drive-in"
-        />
-        <span aria-hidden className="pointer-events-none absolute inset-x-6 bottom-3 h-px bg-gradient-to-r from-transparent via-foreground/15 to-transparent" />
-      </div>
+        {tab === "quote" && (
+          <div className="flex flex-wrap gap-2 pt-1">
+            <button
+              type="button"
+              onClick={() => setStops([...stops, ""])}
+              className="inline-flex items-center gap-1.5 rounded-full border border-[var(--gold)]/40 bg-[var(--gold)]/5 text-[var(--gold)] hover:bg-[var(--gold)]/10 px-4 py-2 text-xs font-semibold transition"
+            >
+              <Plus className="size-3.5" /> Add Stop
+            </button>
+            {!showReturn && (
+              <button
+                type="button"
+                onClick={() => setShowReturn(true)}
+                className="inline-flex items-center gap-1.5 rounded-full border border-[var(--gold)]/40 bg-[var(--gold)]/5 text-[var(--gold)] hover:bg-[var(--gold)]/10 px-4 py-2 text-xs font-semibold transition"
+              >
+                <Plus className="size-3.5" /> Add Return Journey
+              </button>
+            )}
+          </div>
+        )}
 
-      <div className="mt-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <p className="text-[11px] text-muted-foreground flex items-center gap-1.5">
-          <Plane className="size-3.5 text-[var(--gold)]" /> Flights tracked automatically · 60 min free wait on airport pickups
-        </p>
-        <Button type="submit" variant="gold" size="lg" className="rounded-full w-full sm:w-auto">
-          Get Instant Quote <ArrowRight className="size-4" />
+        <Button
+          type="submit"
+          className="w-full h-14 rounded-lg text-base font-bold uppercase tracking-[0.18em] bg-gradient-to-r from-[var(--gold)] via-[var(--gold)] to-[var(--navy)] hover:opacity-95 text-white shadow-[var(--shadow-elegant)]"
+        >
+          Quote & Book <ArrowRight className="size-4 ml-1" />
         </Button>
-      </div>
-    </form>
+      </form>
+    </div>
   );
 }
 
-function Field({ label, icon, children }: { label: string; icon: React.ReactNode; children: React.ReactNode }) {
+function IconField({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div>
-      <Label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5 mb-1.5">
-        {icon} {label}
-      </Label>
-      {children}
+    <div className="flex items-stretch rounded-lg border border-border bg-background overflow-hidden focus-within:border-[var(--gold)] transition">
+      <div className="flex items-center justify-center w-12 bg-[var(--gold)] text-[var(--gold-foreground)] shrink-0">
+        {icon}
+      </div>
+      <div className="flex-1 flex items-center">{children}</div>
     </div>
+  );
+}
+
+function Label({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <p className="text-xs font-semibold uppercase tracking-wider text-[var(--gold)] mb-1.5 flex items-center gap-1.5">
+      {icon} {children}
+    </p>
   );
 }
