@@ -19,13 +19,13 @@ export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminLayout,
 });
 
-const NAV = [
+const NAV: { to: string; label: string; icon: typeof LayoutDashboard; exact?: boolean }[] = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { to: "/admin/bookings", label: "Bookings", icon: CalendarCheck },
   { to: "/admin/messages", label: "Messages", icon: Inbox },
   { to: "/admin/fleet", label: "Fleet", icon: Car },
   { to: "/admin/users", label: "Users", icon: Users },
-] as const;
+];
 
 function AdminLayout() {
   const router = useRouter();
