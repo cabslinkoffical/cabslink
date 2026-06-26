@@ -46,10 +46,11 @@ async function estimateDistanceMiles(pickup: string, dropoff: string): Promise<n
             "X-Goog-FieldMask": "originIndex,destinationIndex,distanceMeters,duration,condition",
           },
           body: JSON.stringify({
-            origins: [{ waypoint: { address: pickup } }],
+            origins: [{ waypoint: { address: pickup }, routeModifiers: { avoidFerries: false } }],
             destinations: [{ waypoint: { address: dropoff } }],
             travelMode: "DRIVE",
             routingPreference: "TRAFFIC_AWARE",
+            regionCode: "GB",
           }),
         },
       );

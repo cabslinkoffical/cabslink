@@ -4,6 +4,7 @@ import { MapPin, Flag, Plus, ArrowLeftRight, X, Minus, ArrowRight } from "lucide
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AddressAutocomplete } from "@/components/site/AddressAutocomplete";
 
 type Tab = "quote" | "hourly";
 
@@ -57,7 +58,7 @@ export function BookingWidget() {
   const tabIdle = "bg-transparent text-foreground/55 hover:bg-white/60";
 
   return (
-    <div className="w-full max-w-2xl mx-auto bg-card rounded-3xl shadow-[var(--shadow-elegant)] overflow-hidden border border-border">
+    <div className="w-full max-w-5xl mx-auto bg-card rounded-3xl shadow-[var(--shadow-elegant)] overflow-hidden border border-border">
       {/* Tabs */}
       <div className="flex bg-[var(--surface)] p-2 gap-2">
         <button
@@ -99,13 +100,11 @@ export function BookingWidget() {
 
           <LabeledField label="Pickup Location">
             <FieldShell>
-              <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--gold)]" />
-              <Input
+              <AddressAutocomplete
                 required
                 value={pickup}
-                onChange={(e) => setPickup(e.target.value)}
-                placeholder="Enter airport or address"
-                className="border-0 shadow-none bg-transparent pl-12 h-[52px] text-sm focus-visible:ring-0"
+                onChange={setPickup}
+                placeholder="Enter UK airport, postcode or address"
               />
             </FieldShell>
           </LabeledField>
@@ -113,14 +112,14 @@ export function BookingWidget() {
           {tab === "quote" ? (
             <LabeledField label="Dropoff Destination">
               <FieldShell>
-                <Flag className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--gold)]" />
-                <Input
+                <AddressAutocomplete
                   required
                   value={dropoff}
-                  onChange={(e) => setDropoff(e.target.value)}
-                  placeholder="Enter destination"
-                  className="border-0 shadow-none bg-transparent pl-12 h-[52px] text-sm focus-visible:ring-0"
+                  onChange={setDropoff}
+                  placeholder="Enter UK destination"
+                  iconClassName="hidden"
                 />
+                <Flag className="absolute left-4 top-[26px] -translate-y-1/2 w-5 h-5 text-[var(--gold)] pointer-events-none" />
               </FieldShell>
             </LabeledField>
           ) : (
@@ -145,22 +144,22 @@ export function BookingWidget() {
             {stops.map((s, i) => (
               <LabeledField key={i} label={`Stop ${i + 1}`}>
                 <FieldShell>
-                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--gold)]/70" />
-                  <Input
+                  <AddressAutocomplete
                     value={s}
-                    onChange={(e) => {
+                    onChange={(v) => {
                       const next = [...stops];
-                      next[i] = e.target.value;
+                      next[i] = v;
                       setStops(next);
                     }}
-                    placeholder="Additional stop address"
-                    className="border-0 shadow-none bg-transparent pl-12 pr-12 h-[52px] text-sm focus-visible:ring-0"
+                    placeholder="Additional UK stop address"
+                    iconClassName="text-[var(--gold)]/70"
+                    className="pr-12"
                   />
                   <button
                     type="button"
                     aria-label="Remove stop"
                     onClick={() => setStops(stops.filter((_, idx) => idx !== i))}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-[var(--surface)] hover:bg-foreground/10 flex items-center justify-center text-foreground/60"
+                    className="absolute right-3 top-[26px] -translate-y-1/2 w-7 h-7 rounded-full bg-[var(--surface)] hover:bg-foreground/10 flex items-center justify-center text-foreground/60 z-10"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
