@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { MapPin, Flag, Calendar, Clock, Users, Briefcase, Plus, Route as RouteIcon, ArrowRight } from "lucide-react";
+import { MapPin, Flag, Plus, ArrowLeftRight, X, Minus, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -8,10 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 type Tab = "quote" | "hourly";
 
 const HOURS = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0"));
-const MINS = ["00", "05", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55"];
+const MINS = ["00", "15", "30", "45"];
 const DURATIONS = ["2", "3", "4", "5", "6", "8", "10", "12"];
 
-export function BookingWidget({ compact = false }: { compact?: boolean }) {
+export function BookingWidget() {
   const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>("quote");
   const today = new Date().toISOString().slice(0, 10);
@@ -23,8 +23,8 @@ export function BookingWidget({ compact = false }: { compact?: boolean }) {
   const [date, setDate] = useState(today);
   const [hour, setHour] = useState(String(now.getHours()).padStart(2, "0"));
   const [minute, setMinute] = useState("00");
-  const [passengers, setPassengers] = useState("1");
-  const [luggage, setLuggage] = useState("0");
+  const [passengers, setPassengers] = useState(1);
+  const [luggage, setLuggage] = useState(0);
   const [showReturn, setShowReturn] = useState(false);
   const [returnDate, setReturnDate] = useState(today);
   const [returnHour, setReturnHour] = useState("12");
@@ -38,8 +38,8 @@ export function BookingWidget({ compact = false }: { compact?: boolean }) {
       dropoff: tab === "hourly" ? "" : dropoff,
       date,
       time: `${hour}:${minute}`,
-      passengers,
-      luggage,
+      passengers: String(passengers),
+      luggage: String(luggage),
       vehicle: "Mercedes-Benz V-Class",
       flight: "",
       ret: showReturn ? "1" : "0",
@@ -51,247 +51,324 @@ export function BookingWidget({ compact = false }: { compact?: boolean }) {
     navigate({ to: "/book", search: { q: params.toString() } as never });
   };
 
+  const tabBase =
+    "flex-1 py-4 px-5 rounded-2xl text-left transition-all cursor-pointer";
+  const tabActive = "bg-[var(--navy)] text-[var(--gold)] shadow-[var(--shadow-elegant)]";
+  const tabIdle = "bg-transparent text-foreground/55 hover:bg-white/60";
+
   return (
-    <div className={`w-full ${compact ? "" : ""}`}>
+    <div className="w-full max-w-2xl mx-auto bg-card rounded-3xl shadow-[var(--shadow-elegant)] overflow-hidden border border-border">
       {/* Tabs */}
-      <div className="flex gap-0">
+      <div className="flex bg-[var(--surface)] p-2 gap-2">
         <button
           type="button"
           onClick={() => setTab("quote")}
-          className={`flex-1 px-5 py-3 text-sm font-bold uppercase tracking-wider rounded-t-lg transition ${
-            tab === "quote"
-              ? "bg-[var(--gold)] text-[var(--gold-foreground)]"
-              : "bg-[var(--navy)]/85 text-white/80 hover:bg-[var(--navy)]"
-          }`}
+          className={`${tabBase} ${tab === "quote" ? tabActive : tabIdle}`}
         >
-          Get Quick Quote
+          <span className="block text-[10px] uppercase tracking-[0.2em] font-bold opacity-70 mb-0.5">
+            Service Type
+          </span>
+          <span className="block text-base md:text-lg font-bold leading-tight font-display">
+            Quick Quote
+          </span>
         </button>
         <button
           type="button"
           onClick={() => setTab("hourly")}
-          className={`flex-1 px-5 py-3 text-sm font-bold uppercase tracking-wider rounded-t-lg transition ${
-            tab === "hourly"
-              ? "bg-[var(--gold)] text-[var(--gold-foreground)]"
-              : "bg-[var(--navy)]/85 text-white/80 hover:bg-[var(--navy)]"
-
-          }`}
+          className={`${tabBase} ${tab === "hourly" ? tabActive : tabIdle}`}
         >
-          Hourly Rate
+          <span className="block text-[10px] uppercase tracking-[0.2em] font-bold opacity-70 mb-0.5">
+            Service Type
+          </span>
+          <span className="block text-base md:text-lg font-bold leading-tight font-display">
+            Hourly Rate
+          </span>
         </button>
       </div>
 
-      <form
-        onSubmit={submit}
-        className="bg-card text-card-foreground rounded-b-lg rounded-tr-lg p-5 md:p-6 shadow-[var(--shadow-elegant)] space-y-3.5"
-      >
-        <div className="flex items-center gap-2 pb-1">
-          <RouteIcon className="size-5 text-[var(--gold)]" />
-          <h3 className="font-display text-lg font-bold text-foreground/80">
-            {tab === "hourly" ? "Hourly Booking" : "Outbound Journey"}
-          </h3>
-        </div>
-
-        <IconField icon={<MapPin className="size-5" />}>
-          <Input
-            required
-            value={pickup}
-            onChange={(e) => setPickup(e.target.value)}
-            placeholder="Enter Pickup Airport, Location or Postcode"
-            className="border-0 shadow-none h-12 text-sm focus-visible:ring-0"
-          />
-        </IconField>
-
-        {stops.map((s, i) => (
-          <IconField key={i} icon={<MapPin className="size-5" />}>
-            <Input
-              value={s}
-              onChange={(e) => {
-                const next = [...stops];
-                next[i] = e.target.value;
-                setStops(next);
-              }}
-              placeholder={`Stop ${i + 1}`}
-              className="border-0 shadow-none h-12 text-sm focus-visible:ring-0"
-            />
-            <button
-              type="button"
-              onClick={() => setStops(stops.filter((_, idx) => idx !== i))}
-              className="px-3 text-xs text-muted-foreground hover:text-foreground"
-            >
-              Remove
-            </button>
-          </IconField>
-        ))}
-
-        {tab === "quote" && (
-          <IconField icon={<Flag className="size-5" />}>
-            <Input
-              required
-              value={dropoff}
-              onChange={(e) => setDropoff(e.target.value)}
-              placeholder="Enter Dropoff Airport, Location or Postcode"
-              className="border-0 shadow-none h-12 text-sm focus-visible:ring-0"
-            />
-          </IconField>
-        )}
-
-        <IconField icon={<Calendar className="size-5" />}>
-          <Input
-            required
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="border-0 shadow-none h-12 text-sm focus-visible:ring-0"
-          />
-        </IconField>
-
-        <IconField icon={<Clock className="size-5" />}>
-          <div className="flex-1 flex items-center gap-2 px-3">
-            <Select value={hour} onValueChange={setHour}>
-              <SelectTrigger className="flex-1 border-0 shadow-none h-12 focus:ring-0">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {HOURS.map((h) => <SelectItem key={h} value={h}>{h}</SelectItem>)}
-              </SelectContent>
-            </Select>
-            <span className="text-foreground/40 font-bold">:</span>
-            <Select value={minute} onValueChange={setMinute}>
-              <SelectTrigger className="flex-1 border-0 shadow-none h-12 focus:ring-0">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {MINS.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
-        </IconField>
-
-        {tab === "hourly" && (
-          <div>
-            <Label icon={<Clock className="size-4" />}>Duration (hours)</Label>
-            <Select value={duration} onValueChange={setDuration}>
-              <SelectTrigger className="h-12"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {DURATIONS.map((d) => <SelectItem key={d} value={d}>{d} hours</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
-
-        <div className="grid grid-cols-2 gap-3 pt-1">
-          <div>
-            <Label icon={<Users className="size-4" />}>Passengers</Label>
-            <Select value={passengers} onValueChange={setPassengers}>
-              <SelectTrigger className="h-12"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {Array.from({ length: 16 }).map((_, i) => (
-                  <SelectItem key={i} value={String(i + 1)}>
-                    {i + 1} {i === 0 ? "Passenger" : "Passengers"}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label icon={<Briefcase className="size-4" />}>Luggages</Label>
-            <Select value={luggage} onValueChange={setLuggage}>
-              <SelectTrigger className="h-12"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {Array.from({ length: 11 }).map((_, i) => (
-                  <SelectItem key={i} value={String(i)}>
-                    {i} {i === 1 ? "Luggage" : "Luggages"}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        {showReturn && (
-          <div className="rounded-lg border border-border bg-[var(--surface)] p-3 space-y-3">
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-bold uppercase tracking-wider text-[var(--gold)]">Return Journey</p>
-              <button
-                type="button"
-                onClick={() => setShowReturn(false)}
-                className="text-xs text-muted-foreground hover:text-foreground"
-              >
-                Remove
-              </button>
-            </div>
-            <IconField icon={<Calendar className="size-5" />}>
-              <Input
-                type="date"
-                value={returnDate}
-                onChange={(e) => setReturnDate(e.target.value)}
-                className="border-0 shadow-none h-12 text-sm focus-visible:ring-0"
-              />
-            </IconField>
-            <IconField icon={<Clock className="size-5" />}>
-              <div className="flex-1 flex items-center gap-2 px-3">
-                <Select value={returnHour} onValueChange={setReturnHour}>
-                  <SelectTrigger className="flex-1 border-0 shadow-none h-12 focus:ring-0"><SelectValue /></SelectTrigger>
-                  <SelectContent>{HOURS.map((h) => <SelectItem key={h} value={h}>{h}</SelectItem>)}</SelectContent>
-                </Select>
-                <span className="text-foreground/40 font-bold">:</span>
-                <Select value={returnMin} onValueChange={setReturnMin}>
-                  <SelectTrigger className="flex-1 border-0 shadow-none h-12 focus:ring-0"><SelectValue /></SelectTrigger>
-                  <SelectContent>{MINS.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}</SelectContent>
-                </Select>
+      <form onSubmit={submit} className="p-6 md:p-8 space-y-7">
+        {/* Locations */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 relative">
+          {tab === "quote" && (
+            <div className="hidden md:flex absolute left-1/2 top-[60%] -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none">
+              <div className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center shadow-sm">
+                <ArrowLeftRight className="w-4 h-4 text-[var(--gold)]" />
               </div>
-            </IconField>
+            </div>
+          )}
+
+          <LabeledField label="Pickup Location">
+            <FieldShell>
+              <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--gold)]" />
+              <Input
+                required
+                value={pickup}
+                onChange={(e) => setPickup(e.target.value)}
+                placeholder="Enter airport or address"
+                className="border-0 shadow-none bg-transparent pl-12 h-[52px] text-sm focus-visible:ring-0"
+              />
+            </FieldShell>
+          </LabeledField>
+
+          {tab === "quote" ? (
+            <LabeledField label="Dropoff Destination">
+              <FieldShell>
+                <Flag className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--gold)]" />
+                <Input
+                  required
+                  value={dropoff}
+                  onChange={(e) => setDropoff(e.target.value)}
+                  placeholder="Enter destination"
+                  className="border-0 shadow-none bg-transparent pl-12 h-[52px] text-sm focus-visible:ring-0"
+                />
+              </FieldShell>
+            </LabeledField>
+          ) : (
+            <LabeledField label="Duration">
+              <Select value={duration} onValueChange={setDuration}>
+                <SelectTrigger className="h-[52px] rounded-xl bg-background border-border px-4">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {DURATIONS.map((d) => (
+                    <SelectItem key={d} value={d}>{d} hours</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </LabeledField>
+          )}
+        </div>
+
+        {/* Stops */}
+        {stops.length > 0 && (
+          <div className="space-y-3">
+            {stops.map((s, i) => (
+              <LabeledField key={i} label={`Stop ${i + 1}`}>
+                <FieldShell>
+                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--gold)]/70" />
+                  <Input
+                    value={s}
+                    onChange={(e) => {
+                      const next = [...stops];
+                      next[i] = e.target.value;
+                      setStops(next);
+                    }}
+                    placeholder="Additional stop address"
+                    className="border-0 shadow-none bg-transparent pl-12 pr-12 h-[52px] text-sm focus-visible:ring-0"
+                  />
+                  <button
+                    type="button"
+                    aria-label="Remove stop"
+                    onClick={() => setStops(stops.filter((_, idx) => idx !== i))}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-[var(--surface)] hover:bg-foreground/10 flex items-center justify-center text-foreground/60"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </FieldShell>
+              </LabeledField>
+            ))}
           </div>
         )}
 
+        {/* Pills */}
         {tab === "quote" && (
-          <div className="flex flex-wrap gap-2 pt-1">
-            <button
-              type="button"
-              onClick={() => setStops([...stops, ""])}
-              className="inline-flex items-center gap-1.5 rounded-full border border-[var(--gold)]/40 bg-[var(--gold)]/5 text-[var(--gold)] hover:bg-[var(--gold)]/10 px-4 py-2 text-xs font-semibold transition"
-            >
-              <Plus className="size-3.5" /> Add Stop
-            </button>
+          <div className="flex flex-wrap gap-3">
+            <PillButton onClick={() => setStops([...stops, ""])}>Add a Stop</PillButton>
             {!showReturn && (
-              <button
-                type="button"
-                onClick={() => setShowReturn(true)}
-                className="inline-flex items-center gap-1.5 rounded-full border border-[var(--gold)]/40 bg-[var(--gold)]/5 text-[var(--gold)] hover:bg-[var(--gold)]/10 px-4 py-2 text-xs font-semibold transition"
-              >
-                <Plus className="size-3.5" /> Add Return Journey
-              </button>
+              <PillButton onClick={() => setShowReturn(true)}>Add Return Journey</PillButton>
             )}
           </div>
         )}
 
-        <Button
-          type="submit"
-          className="w-full h-14 rounded-lg text-base font-bold uppercase tracking-[0.18em] bg-[var(--gold)] hover:brightness-110 text-[var(--gold-foreground)] shadow-[var(--shadow-glow)]"
-        >
-          Quote & Book <ArrowRight className="size-4 ml-1" />
-        </Button>
+        {/* Details grid */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <LabeledField label="Date">
+            <Input
+              required
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="h-[52px] rounded-xl bg-background border-border text-sm font-semibold focus-visible:ring-0 focus-visible:border-[var(--gold)]"
+            />
+          </LabeledField>
 
+          <LabeledField label="Time">
+            <div className="flex items-center gap-2 h-[52px] rounded-xl bg-background border border-border px-3">
+              <Select value={hour} onValueChange={setHour}>
+                <SelectTrigger className="flex-1 border-0 shadow-none h-10 focus:ring-0 px-1 font-semibold">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {HOURS.map((h) => <SelectItem key={h} value={h}>{h}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <span className="text-foreground/30 font-bold">:</span>
+              <Select value={minute} onValueChange={setMinute}>
+                <SelectTrigger className="flex-1 border-0 shadow-none h-10 focus:ring-0 px-1 font-semibold">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {MINS.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+          </LabeledField>
+
+          <LabeledField label="Passengers">
+            <Stepper
+              value={passengers}
+              min={1}
+              max={16}
+              onChange={setPassengers}
+            />
+          </LabeledField>
+
+          <LabeledField label="Luggage">
+            <Stepper
+              value={luggage}
+              min={0}
+              max={10}
+              onChange={setLuggage}
+            />
+          </LabeledField>
+        </div>
+
+        {/* Return */}
+        {showReturn && (
+          <div className="rounded-2xl border border-border bg-[var(--surface)] p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--gold)]">
+                Return Journey
+              </p>
+              <button
+                type="button"
+                onClick={() => setShowReturn(false)}
+                className="text-xs text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
+              >
+                <X className="w-3.5 h-3.5" /> Remove
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <LabeledField label="Date">
+                <Input
+                  type="date"
+                  value={returnDate}
+                  onChange={(e) => setReturnDate(e.target.value)}
+                  className="h-[52px] rounded-xl bg-background border-border text-sm font-semibold focus-visible:ring-0 focus-visible:border-[var(--gold)]"
+                />
+              </LabeledField>
+              <LabeledField label="Time">
+                <div className="flex items-center gap-2 h-[52px] rounded-xl bg-background border border-border px-3">
+                  <Select value={returnHour} onValueChange={setReturnHour}>
+                    <SelectTrigger className="flex-1 border-0 shadow-none h-10 focus:ring-0 px-1 font-semibold">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>{HOURS.map((h) => <SelectItem key={h} value={h}>{h}</SelectItem>)}</SelectContent>
+                  </Select>
+                  <span className="text-foreground/30 font-bold">:</span>
+                  <Select value={returnMin} onValueChange={setReturnMin}>
+                    <SelectTrigger className="flex-1 border-0 shadow-none h-10 focus:ring-0 px-1 font-semibold">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>{MINS.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}</SelectContent>
+                  </Select>
+                </div>
+              </LabeledField>
+            </div>
+          </div>
+        )}
+
+        {/* Footer */}
+        <div className="pt-2 flex flex-col md:flex-row items-center justify-between gap-5">
+          <div className="flex items-center gap-5 text-foreground/45 text-xs">
+            <div className="flex items-center gap-1.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-[var(--gold)]" />
+              <span className="font-medium">Fixed pricing</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-[var(--gold)]" />
+              <span className="font-medium">Wait time included</span>
+            </div>
+          </div>
+
+          <Button
+            type="submit"
+            className="group w-full md:w-auto px-10 py-6 h-auto bg-[var(--navy)] text-[var(--gold)] rounded-2xl font-display font-bold uppercase tracking-[0.2em] text-sm hover:-translate-y-0.5 hover:bg-[var(--navy)] transition-all shadow-xl shadow-[var(--navy)]/20"
+          >
+            Check Availability
+            <ArrowRight className="size-4 ml-2 transition-transform group-hover:translate-x-0.5" />
+          </Button>
+        </div>
       </form>
     </div>
   );
 }
 
-function IconField({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) {
+function LabeledField({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex items-stretch rounded-lg border border-border bg-background overflow-hidden focus-within:border-[var(--gold)] transition">
-      <div className="flex items-center justify-center w-12 bg-[var(--gold)] text-[var(--gold-foreground)] shrink-0">
-        {icon}
-      </div>
-      <div className="flex-1 flex items-center">{children}</div>
+    <div className="space-y-1.5">
+      <label className="block text-[10px] uppercase tracking-[0.2em] font-bold text-foreground/50 ml-1">
+        {label}
+      </label>
+      {children}
     </div>
   );
 }
 
-function Label({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) {
+function FieldShell({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-xs font-semibold uppercase tracking-wider text-[var(--gold)] mb-1.5 flex items-center gap-1.5">
-      {icon} {children}
-    </p>
+    <div className="relative rounded-xl bg-background border border-border focus-within:border-[var(--gold)] transition-colors">
+      {children}
+    </div>
+  );
+}
+
+function PillButton({ onClick, children }: { onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="group flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-card text-xs font-bold text-foreground/70 hover:border-[var(--gold)] hover:text-foreground transition-all"
+    >
+      <span className="w-4 h-4 rounded-full bg-[var(--gold)]/15 text-[var(--gold)] flex items-center justify-center group-hover:bg-[var(--gold)] group-hover:text-[var(--gold-foreground)] transition-colors">
+        <Plus className="w-2.5 h-2.5" strokeWidth={3} />
+      </span>
+      {children}
+    </button>
+  );
+}
+
+function Stepper({
+  value,
+  min,
+  max,
+  onChange,
+}: { value: number; min: number; max: number; onChange: (v: number) => void }) {
+  const dec = () => onChange(Math.max(min, value - 1));
+  const inc = () => onChange(Math.min(max, value + 1));
+  return (
+    <div className="flex items-center justify-between bg-background border border-border h-[52px] px-3 rounded-xl">
+      <span className="text-sm font-bold text-foreground tabular-nums">{value}</span>
+      <div className="flex gap-1.5">
+        <button
+          type="button"
+          onClick={dec}
+          aria-label="Decrease"
+          disabled={value <= min}
+          className="w-7 h-7 rounded-md bg-[var(--surface)] text-foreground/70 hover:bg-foreground/10 disabled:opacity-40 flex items-center justify-center transition-colors"
+        >
+          <Minus className="w-3 h-3" />
+        </button>
+        <button
+          type="button"
+          onClick={inc}
+          aria-label="Increase"
+          disabled={value >= max}
+          className="w-7 h-7 rounded-md bg-[var(--navy)] text-[var(--gold)] hover:brightness-110 disabled:opacity-40 flex items-center justify-center transition"
+        >
+          <Plus className="w-3 h-3" />
+        </button>
+      </div>
+    </div>
   );
 }
