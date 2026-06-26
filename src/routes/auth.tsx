@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/site/Logo";
+import { Toaster } from "@/components/ui/sonner";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -59,6 +60,7 @@ function AuthPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[var(--navy)] px-4 py-16">
+      <Toaster richColors position="top-center" />
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-6"><Logo /></div>
         <div className="rounded-2xl border border-border/60 bg-card/95 backdrop-blur p-8 shadow-2xl">
