@@ -1,19 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery, useMutation, useQueryClient, queryOptions } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
 import { listVehiclesAdmin, upsertVehicle, deleteVehicle } from "@/lib/admin.functions";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Pencil, Trash2, Plus, Star } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Plus, Edit, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
 
 const opts = queryOptions({ queryKey: ["admin", "vehicles"], queryFn: () => listVehiclesAdmin() });
-
 export const Route = createFileRoute("/_authenticated/admin/fleet")({
   loader: ({ context }) => context.queryClient.ensureQueryData(opts),
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
@@ -21,109 +23,128 @@ export const Route = createFileRoute("/_authenticated/admin/fleet")({
   component: FleetPage,
 });
 
-type Vehicle = {
-  id?: string;
-  name: string;
-  category: string;
-  image_url: string;
-  description: string;
-  passengers: number;
-  luggage: number;
-  hand_luggage: number;
-  price_per_hour: number | null;
-  display_order: number;
-  featured: boolean;
-  active: boolean;
-};
+const CLASSES = [
+  { v: "economy", l: "Economy Class" }, { v: "business", l: "Business Class" },
+  { v: "first", l: "First Class" }, { v: "executive_v", l: "Executive V Class" },
+  { v: "executive_van_8", l: "Executive Van 8 Seater" }, { v: "green", l: "Green Class" },
+];
 
-const blank: Vehicle = {
-  name: "", category: "Executive", image_url: "", description: "",
-  passengers: 4, luggage: 2, hand_luggage: 2, price_per_hour: null,
+const empty = {
+  id: undefined as string | undefined, name: "", category: "Executive", tbms_id: "", vehicle_class: "business",
+  image_url: "", description: "", passengers: 4, luggage: 2, hand_luggage: 2,
+  base_fare: null as number | null, per_mile_rate: null as number | null, waiting_charge: null as number | null,
+  meet_greet_enabled: false, price_per_hour: null as number | null,
   display_order: 0, featured: false, active: true,
 };
 
 function FleetPage() {
-  const { data } = useSuspenseQuery(opts);
+  const { data: vehicles } = useSuspenseQuery(opts);
   const qc = useQueryClient();
+  const upsert = useServerFn(upsertVehicle);
+  const del = useServerFn(deleteVehicle);
+  const [form, setForm] = useState<any>(null);
+
   const save = useMutation({
-    mutationFn: useServerFn(upsertVehicle),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin", "vehicles"] }); qc.invalidateQueries({ queryKey: ["public", "vehicles"] }); toast.success("Saved"); setEditing(null); },
+    mutationFn: (v: any) => upsert({ data: v }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin", "vehicles"] }); toast.success("Vehicle saved"); setForm(null); },
     onError: (e: any) => toast.error(e.message),
   });
-  const del = useMutation({
-    mutationFn: useServerFn(deleteVehicle),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin", "vehicles"] }); qc.invalidateQueries({ queryKey: ["public", "vehicles"] }); toast.success("Deleted"); },
+  const remove = useMutation({
+    mutationFn: (id: string) => del({ data: { id } }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin", "vehicles"] }); toast.success("Vehicle deleted"); },
     onError: (e: any) => toast.error(e.message),
   });
-  const [editing, setEditing] = useState<Vehicle | null>(null);
 
   return (
-    <div className="p-6 md:p-8 space-y-5">
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div>
-          <h1 className="font-display text-3xl font-semibold">Fleet</h1>
-          <p className="text-sm text-muted-foreground">{data.length} vehicles · {data.filter((v: any) => v.active).length} active</p>
+    <div className="p-6 md:p-8 space-y-6">
+      <PageHeader title="Vehicles & Mileage" description="Manage your fleet, vehicle classes, and pricing rules.">
+        <Button onClick={() => setForm({ ...empty })}><Plus className="size-4 mr-1" /> Add vehicle</Button>
+      </PageHeader>
+
+      {vehicles.length === 0 ? (
+        <EmptyState title="No vehicles yet" hint="Add your first vehicle to start accepting bookings." action={<Button onClick={() => setForm({ ...empty })}><Plus className="size-4 mr-1" /> Add vehicle</Button>} />
+      ) : (
+        <div className="border border-border rounded-xl bg-card overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">
+              <tr>
+                <th className="text-left px-4 py-3">#</th>
+                <th className="text-left px-4 py-3">Image</th>
+                <th className="text-left px-4 py-3">Name</th>
+                <th className="text-left px-4 py-3">TBMS</th>
+                <th className="text-left px-4 py-3">Class</th>
+                <th className="text-left px-4 py-3">Seats</th>
+                <th className="text-left px-4 py-3">Luggage</th>
+                <th className="text-left px-4 py-3">Base</th>
+                <th className="text-left px-4 py-3">Per mile</th>
+                <th className="text-left px-4 py-3">Status</th>
+                <th className="text-right px-4 py-3">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {vehicles.map((v: any, i: number) => (
+                <tr key={v.id} className="hover:bg-muted/30">
+                  <td className="px-4 py-3 text-muted-foreground">{i + 1}</td>
+                  <td className="px-4 py-3"><img src={v.image_url} alt="" className="size-12 object-cover rounded" /></td>
+                  <td className="px-4 py-3 font-medium">{v.name}</td>
+                  <td className="px-4 py-3 font-mono text-xs">{v.tbms_id ?? "—"}</td>
+                  <td className="px-4 py-3 capitalize">{v.vehicle_class?.replace(/_/g, " ") ?? v.category}</td>
+                  <td className="px-4 py-3">{v.passengers}</td>
+                  <td className="px-4 py-3">{v.luggage}+{v.hand_luggage}</td>
+                  <td className="px-4 py-3">{v.base_fare != null ? `£${v.base_fare}` : "—"}</td>
+                  <td className="px-4 py-3">{v.per_mile_rate != null ? `£${v.per_mile_rate}` : "—"}</td>
+                  <td className="px-4 py-3"><StatusBadge status={v.active ? "active" : "inactive"} /></td>
+                  <td className="px-4 py-3 text-right">
+                    <div className="flex justify-end gap-1">
+                      <Button size="icon" variant="ghost" onClick={() => setForm({ ...empty, ...v })}><Edit className="size-4" /></Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild><Button size="icon" variant="ghost"><Trash2 className="size-4 text-red-600" /></Button></AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader><AlertDialogTitle>Delete vehicle?</AlertDialogTitle><AlertDialogDescription>{v.name} will be removed permanently.</AlertDialogDescription></AlertDialogHeader>
+                          <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => remove.mutate(v.id)} className="bg-red-600">Delete</AlertDialogAction></AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-        <Button variant="gold" className="rounded-full" onClick={() => setEditing({ ...blank, display_order: data.length + 1 })}>
-          <Plus className="size-4" /> Add vehicle
-        </Button>
-      </div>
+      )}
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {data.map((v: any) => (
-          <div key={v.id} className={`rounded-2xl border bg-card overflow-hidden flex flex-col ${v.featured ? "border-[var(--gold)]" : "border-border"} ${!v.active ? "opacity-60" : ""}`}>
-            <div className="relative aspect-[4/3] bg-[var(--surface)] flex items-center justify-center p-3">
-              <img src={v.image_url} alt={v.name} className="size-full object-contain" />
-              {v.featured && <span className="absolute top-2 left-2 inline-flex items-center gap-1 rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] px-2 py-0.5 text-[10px] font-semibold"><Star className="size-3 fill-current" />Featured</span>}
-              {!v.active && <span className="absolute top-2 right-2 rounded-full bg-destructive text-destructive-foreground px-2 py-0.5 text-[10px] font-semibold">Hidden</span>}
+      <Dialog open={!!form} onOpenChange={o => !o && setForm(null)}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader><DialogTitle>{form?.id ? "Edit vehicle" : "Add new vehicle"}</DialogTitle></DialogHeader>
+          {form && (
+            <div className="grid sm:grid-cols-2 gap-4">
+              <Field label="Vehicle name *"><Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} /></Field>
+              <Field label="TBMS ID"><Input value={form.tbms_id ?? ""} onChange={e => setForm({ ...form, tbms_id: e.target.value })} /></Field>
+              <Field label="Vehicle class">
+                <Select value={form.vehicle_class ?? "business"} onValueChange={v => setForm({ ...form, vehicle_class: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>{CLASSES.map(c => <SelectItem key={c.v} value={c.v}>{c.l}</SelectItem>)}</SelectContent>
+                </Select>
+              </Field>
+              <Field label="Category (legacy)"><Input value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} /></Field>
+              <Field label="Image URL *" full><Input value={form.image_url} onChange={e => setForm({ ...form, image_url: e.target.value })} placeholder="https://…" />{form.image_url && <img src={form.image_url} alt="" className="mt-2 h-24 object-cover rounded" />}</Field>
+              <Field label="Description (use • for bullets)" full><Textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} rows={3} /></Field>
+              <Field label="Passengers"><Input type="number" value={form.passengers} onChange={e => setForm({ ...form, passengers: Number(e.target.value) })} /></Field>
+              <Field label="Luggage"><Input type="number" value={form.luggage} onChange={e => setForm({ ...form, luggage: Number(e.target.value) })} /></Field>
+              <Field label="Hand luggage"><Input type="number" value={form.hand_luggage} onChange={e => setForm({ ...form, hand_luggage: Number(e.target.value) })} /></Field>
+              <Field label="Base fare (£)"><Input type="number" step="0.01" value={form.base_fare ?? ""} onChange={e => setForm({ ...form, base_fare: e.target.value === "" ? null : Number(e.target.value) })} /></Field>
+              <Field label="Per mile (£)"><Input type="number" step="0.01" value={form.per_mile_rate ?? ""} onChange={e => setForm({ ...form, per_mile_rate: e.target.value === "" ? null : Number(e.target.value) })} /></Field>
+              <Field label="Waiting charge (£/hr)"><Input type="number" step="0.01" value={form.waiting_charge ?? ""} onChange={e => setForm({ ...form, waiting_charge: e.target.value === "" ? null : Number(e.target.value) })} /></Field>
+              <Field label="Price per hour (£)"><Input type="number" step="0.01" value={form.price_per_hour ?? ""} onChange={e => setForm({ ...form, price_per_hour: e.target.value === "" ? null : Number(e.target.value) })} /></Field>
+              <Field label="Display order"><Input type="number" value={form.display_order} onChange={e => setForm({ ...form, display_order: Number(e.target.value) })} /></Field>
+              <div className="flex items-center gap-3 pt-6"><Switch checked={form.meet_greet_enabled} onCheckedChange={v => setForm({ ...form, meet_greet_enabled: v })} /><Label>Meet & Greet</Label></div>
+              <div className="flex items-center gap-3 pt-6"><Switch checked={form.featured} onCheckedChange={v => setForm({ ...form, featured: v })} /><Label>Featured</Label></div>
+              <div className="flex items-center gap-3 pt-6"><Switch checked={form.active} onCheckedChange={v => setForm({ ...form, active: v })} /><Label>Active</Label></div>
+              <div className="sm:col-span-2 flex justify-end gap-2 pt-2">
+                <Button variant="outline" onClick={() => setForm(null)}>Cancel</Button>
+                <Button onClick={() => save.mutate(form)} disabled={save.isPending}>Save</Button>
+              </div>
             </div>
-            <div className="p-4 flex flex-col flex-1">
-              <p className="text-[10px] uppercase tracking-wider text-[var(--gold)]">{v.category}</p>
-              <h3 className="font-display text-lg font-semibold">{v.name}</h3>
-              <p className="text-xs text-muted-foreground mt-1 line-clamp-2 flex-1">{v.description}</p>
-              <div className="flex gap-3 mt-3 text-xs text-muted-foreground">
-                <span>{v.passengers} pax</span>
-                <span>{v.luggage} bags</span>
-                <span>#{v.display_order}</span>
-              </div>
-              <div className="flex gap-2 mt-3">
-                <Button size="sm" variant="outline" className="flex-1 rounded-full" onClick={() => setEditing(v)}><Pencil className="size-3.5" /> Edit</Button>
-                <Button size="sm" variant="ghost" className="text-destructive" onClick={() => confirm(`Delete ${v.name}?`) && del.mutate({ data: { id: v.id } })}><Trash2 className="size-4" /></Button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader><DialogTitle>{editing?.id ? "Edit vehicle" : "Add vehicle"}</DialogTitle></DialogHeader>
-          {editing && (
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                save.mutate({ data: editing as any });
-              }}
-              className="grid sm:grid-cols-2 gap-4"
-            >
-              <Field label="Name" className="sm:col-span-2"><Input required value={editing.name} onChange={e => setEditing({ ...editing, name: e.target.value })} /></Field>
-              <Field label="Category"><Input required value={editing.category} onChange={e => setEditing({ ...editing, category: e.target.value })} /></Field>
-              <Field label="Image URL"><Input required type="url" value={editing.image_url} onChange={e => setEditing({ ...editing, image_url: e.target.value })} /></Field>
-              <Field label="Description" className="sm:col-span-2"><Textarea rows={3} value={editing.description} onChange={e => setEditing({ ...editing, description: e.target.value })} /></Field>
-              <Field label="Passengers"><Input type="number" min={1} value={editing.passengers} onChange={e => setEditing({ ...editing, passengers: +e.target.value })} /></Field>
-              <Field label="Luggage"><Input type="number" min={0} value={editing.luggage} onChange={e => setEditing({ ...editing, luggage: +e.target.value })} /></Field>
-              <Field label="Hand luggage"><Input type="number" min={0} value={editing.hand_luggage} onChange={e => setEditing({ ...editing, hand_luggage: +e.target.value })} /></Field>
-              <Field label="Display order"><Input type="number" value={editing.display_order} onChange={e => setEditing({ ...editing, display_order: +e.target.value })} /></Field>
-              <Field label="Price / hour (optional)"><Input type="number" step="0.01" value={editing.price_per_hour ?? ""} onChange={e => setEditing({ ...editing, price_per_hour: e.target.value ? +e.target.value : null })} /></Field>
-              <div className="sm:col-span-2 flex gap-6">
-                <label className="flex items-center gap-2 text-sm"><Switch checked={editing.featured} onCheckedChange={(v) => setEditing({ ...editing, featured: v })} /> Featured</label>
-                <label className="flex items-center gap-2 text-sm"><Switch checked={editing.active} onCheckedChange={(v) => setEditing({ ...editing, active: v })} /> Active</label>
-              </div>
-              <DialogFooter className="sm:col-span-2">
-                <Button type="button" variant="ghost" onClick={() => setEditing(null)}>Cancel</Button>
-                <Button type="submit" variant="gold" disabled={save.isPending}>{save.isPending ? "Saving…" : "Save"}</Button>
-              </DialogFooter>
-            </form>
           )}
         </DialogContent>
       </Dialog>
@@ -131,11 +152,6 @@ function FleetPage() {
   );
 }
 
-function Field({ label, children, className = "" }: { label: string; children: React.ReactNode; className?: string }) {
-  return (
-    <div className={`space-y-1.5 ${className}`}>
-      <Label className="text-xs uppercase tracking-wider text-muted-foreground">{label}</Label>
-      {children}
-    </div>
-  );
+function Field({ label, children, full }: { label: string; children: React.ReactNode; full?: boolean }) {
+  return <div className={full ? "sm:col-span-2" : ""}><Label className="mb-1.5 block">{label}</Label>{children}</div>;
 }
