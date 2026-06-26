@@ -27,9 +27,16 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
+import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin/settings'
+import { Route as AuthenticatedAdminPaymentsRouteImport } from './routes/_authenticated/admin/payments'
 import { Route as AuthenticatedAdminMessagesRouteImport } from './routes/_authenticated/admin/messages'
 import { Route as AuthenticatedAdminFleetRouteImport } from './routes/_authenticated/admin/fleet'
+import { Route as AuthenticatedAdminDriversRouteImport } from './routes/_authenticated/admin/drivers'
+import { Route as AuthenticatedAdminCustomersRouteImport } from './routes/_authenticated/admin/customers'
+import { Route as AuthenticatedAdminCouponsRouteImport } from './routes/_authenticated/admin/coupons'
 import { Route as AuthenticatedAdminBookingsRouteImport } from './routes/_authenticated/admin/bookings'
+import { Route as AuthenticatedAdminBannedAddressesRouteImport } from './routes/_authenticated/admin/banned-addresses'
+import { Route as AuthenticatedAdminAddressesRouteImport } from './routes/_authenticated/admin/addresses'
 
 const VipTransfersRoute = VipTransfersRouteImport.update({
   id: '/vip-transfers',
@@ -120,6 +127,18 @@ const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
   path: '/users',
   getParentRoute: () => AuthenticatedAdminRouteRoute,
 } as any)
+const AuthenticatedAdminSettingsRoute =
+  AuthenticatedAdminSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminPaymentsRoute =
+  AuthenticatedAdminPaymentsRouteImport.update({
+    id: '/payments',
+    path: '/payments',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminMessagesRoute =
   AuthenticatedAdminMessagesRouteImport.update({
     id: '/messages',
@@ -131,10 +150,40 @@ const AuthenticatedAdminFleetRoute = AuthenticatedAdminFleetRouteImport.update({
   path: '/fleet',
   getParentRoute: () => AuthenticatedAdminRouteRoute,
 } as any)
+const AuthenticatedAdminDriversRoute =
+  AuthenticatedAdminDriversRouteImport.update({
+    id: '/drivers',
+    path: '/drivers',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminCustomersRoute =
+  AuthenticatedAdminCustomersRouteImport.update({
+    id: '/customers',
+    path: '/customers',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminCouponsRoute =
+  AuthenticatedAdminCouponsRouteImport.update({
+    id: '/coupons',
+    path: '/coupons',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminBookingsRoute =
   AuthenticatedAdminBookingsRouteImport.update({
     id: '/bookings',
     path: '/bookings',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminBannedAddressesRoute =
+  AuthenticatedAdminBannedAddressesRouteImport.update({
+    id: '/banned-addresses',
+    path: '/banned-addresses',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminAddressesRoute =
+  AuthenticatedAdminAddressesRouteImport.update({
+    id: '/addresses',
+    path: '/addresses',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 
@@ -154,9 +203,16 @@ export interface FileRoutesByFullPath {
   '/tours': typeof ToursRoute
   '/vip-transfers': typeof VipTransfersRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/admin/addresses': typeof AuthenticatedAdminAddressesRoute
+  '/admin/banned-addresses': typeof AuthenticatedAdminBannedAddressesRoute
   '/admin/bookings': typeof AuthenticatedAdminBookingsRoute
+  '/admin/coupons': typeof AuthenticatedAdminCouponsRoute
+  '/admin/customers': typeof AuthenticatedAdminCustomersRoute
+  '/admin/drivers': typeof AuthenticatedAdminDriversRoute
   '/admin/fleet': typeof AuthenticatedAdminFleetRoute
   '/admin/messages': typeof AuthenticatedAdminMessagesRoute
+  '/admin/payments': typeof AuthenticatedAdminPaymentsRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
 }
@@ -175,9 +231,16 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/tours': typeof ToursRoute
   '/vip-transfers': typeof VipTransfersRoute
+  '/admin/addresses': typeof AuthenticatedAdminAddressesRoute
+  '/admin/banned-addresses': typeof AuthenticatedAdminBannedAddressesRoute
   '/admin/bookings': typeof AuthenticatedAdminBookingsRoute
+  '/admin/coupons': typeof AuthenticatedAdminCouponsRoute
+  '/admin/customers': typeof AuthenticatedAdminCustomersRoute
+  '/admin/drivers': typeof AuthenticatedAdminDriversRoute
   '/admin/fleet': typeof AuthenticatedAdminFleetRoute
   '/admin/messages': typeof AuthenticatedAdminMessagesRoute
+  '/admin/payments': typeof AuthenticatedAdminPaymentsRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
 }
@@ -199,9 +262,16 @@ export interface FileRoutesById {
   '/tours': typeof ToursRoute
   '/vip-transfers': typeof VipTransfersRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/_authenticated/admin/addresses': typeof AuthenticatedAdminAddressesRoute
+  '/_authenticated/admin/banned-addresses': typeof AuthenticatedAdminBannedAddressesRoute
   '/_authenticated/admin/bookings': typeof AuthenticatedAdminBookingsRoute
+  '/_authenticated/admin/coupons': typeof AuthenticatedAdminCouponsRoute
+  '/_authenticated/admin/customers': typeof AuthenticatedAdminCustomersRoute
+  '/_authenticated/admin/drivers': typeof AuthenticatedAdminDriversRoute
   '/_authenticated/admin/fleet': typeof AuthenticatedAdminFleetRoute
   '/_authenticated/admin/messages': typeof AuthenticatedAdminMessagesRoute
+  '/_authenticated/admin/payments': typeof AuthenticatedAdminPaymentsRoute
+  '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
 }
@@ -223,9 +293,16 @@ export interface FileRouteTypes {
     | '/tours'
     | '/vip-transfers'
     | '/admin'
+    | '/admin/addresses'
+    | '/admin/banned-addresses'
     | '/admin/bookings'
+    | '/admin/coupons'
+    | '/admin/customers'
+    | '/admin/drivers'
     | '/admin/fleet'
     | '/admin/messages'
+    | '/admin/payments'
+    | '/admin/settings'
     | '/admin/users'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
@@ -244,9 +321,16 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/tours'
     | '/vip-transfers'
+    | '/admin/addresses'
+    | '/admin/banned-addresses'
     | '/admin/bookings'
+    | '/admin/coupons'
+    | '/admin/customers'
+    | '/admin/drivers'
     | '/admin/fleet'
     | '/admin/messages'
+    | '/admin/payments'
+    | '/admin/settings'
     | '/admin/users'
     | '/admin'
   id:
@@ -267,9 +351,16 @@ export interface FileRouteTypes {
     | '/tours'
     | '/vip-transfers'
     | '/_authenticated/admin'
+    | '/_authenticated/admin/addresses'
+    | '/_authenticated/admin/banned-addresses'
     | '/_authenticated/admin/bookings'
+    | '/_authenticated/admin/coupons'
+    | '/_authenticated/admin/customers'
+    | '/_authenticated/admin/drivers'
     | '/_authenticated/admin/fleet'
     | '/_authenticated/admin/messages'
+    | '/_authenticated/admin/payments'
+    | '/_authenticated/admin/settings'
     | '/_authenticated/admin/users'
     | '/_authenticated/admin/'
   fileRoutesById: FileRoutesById
@@ -420,6 +511,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/settings': {
+      id: '/_authenticated/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/payments': {
+      id: '/_authenticated/admin/payments'
+      path: '/payments'
+      fullPath: '/admin/payments'
+      preLoaderRoute: typeof AuthenticatedAdminPaymentsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/messages': {
       id: '/_authenticated/admin/messages'
       path: '/messages'
@@ -434,6 +539,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminFleetRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/drivers': {
+      id: '/_authenticated/admin/drivers'
+      path: '/drivers'
+      fullPath: '/admin/drivers'
+      preLoaderRoute: typeof AuthenticatedAdminDriversRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/customers': {
+      id: '/_authenticated/admin/customers'
+      path: '/customers'
+      fullPath: '/admin/customers'
+      preLoaderRoute: typeof AuthenticatedAdminCustomersRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/coupons': {
+      id: '/_authenticated/admin/coupons'
+      path: '/coupons'
+      fullPath: '/admin/coupons'
+      preLoaderRoute: typeof AuthenticatedAdminCouponsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/bookings': {
       id: '/_authenticated/admin/bookings'
       path: '/bookings'
@@ -441,22 +567,51 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminBookingsRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/banned-addresses': {
+      id: '/_authenticated/admin/banned-addresses'
+      path: '/banned-addresses'
+      fullPath: '/admin/banned-addresses'
+      preLoaderRoute: typeof AuthenticatedAdminBannedAddressesRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/addresses': {
+      id: '/_authenticated/admin/addresses'
+      path: '/addresses'
+      fullPath: '/admin/addresses'
+      preLoaderRoute: typeof AuthenticatedAdminAddressesRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
   }
 }
 
 interface AuthenticatedAdminRouteRouteChildren {
+  AuthenticatedAdminAddressesRoute: typeof AuthenticatedAdminAddressesRoute
+  AuthenticatedAdminBannedAddressesRoute: typeof AuthenticatedAdminBannedAddressesRoute
   AuthenticatedAdminBookingsRoute: typeof AuthenticatedAdminBookingsRoute
+  AuthenticatedAdminCouponsRoute: typeof AuthenticatedAdminCouponsRoute
+  AuthenticatedAdminCustomersRoute: typeof AuthenticatedAdminCustomersRoute
+  AuthenticatedAdminDriversRoute: typeof AuthenticatedAdminDriversRoute
   AuthenticatedAdminFleetRoute: typeof AuthenticatedAdminFleetRoute
   AuthenticatedAdminMessagesRoute: typeof AuthenticatedAdminMessagesRoute
+  AuthenticatedAdminPaymentsRoute: typeof AuthenticatedAdminPaymentsRoute
+  AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
 const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
   {
+    AuthenticatedAdminAddressesRoute: AuthenticatedAdminAddressesRoute,
+    AuthenticatedAdminBannedAddressesRoute:
+      AuthenticatedAdminBannedAddressesRoute,
     AuthenticatedAdminBookingsRoute: AuthenticatedAdminBookingsRoute,
+    AuthenticatedAdminCouponsRoute: AuthenticatedAdminCouponsRoute,
+    AuthenticatedAdminCustomersRoute: AuthenticatedAdminCustomersRoute,
+    AuthenticatedAdminDriversRoute: AuthenticatedAdminDriversRoute,
     AuthenticatedAdminFleetRoute: AuthenticatedAdminFleetRoute,
     AuthenticatedAdminMessagesRoute: AuthenticatedAdminMessagesRoute,
+    AuthenticatedAdminPaymentsRoute: AuthenticatedAdminPaymentsRoute,
+    AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
     AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   }
