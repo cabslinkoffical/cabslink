@@ -50,7 +50,7 @@ function AdminLayout() {
             return (
               <Link
                 key={item.to}
-                to={item.to}
+                to={item.to as any}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition ${
                   active
                     ? "bg-[var(--gold)] text-[var(--gold-foreground)]"
@@ -83,7 +83,7 @@ function AdminLayout() {
           {NAV.map(item => {
             const active = item.exact ? pathname === item.to : pathname.startsWith(item.to);
             return (
-              <Link key={item.to} to={item.to} className={`flex items-center gap-1.5 px-4 py-3 text-xs font-medium whitespace-nowrap border-b-2 ${active ? "border-[var(--gold)] text-[var(--gold)]" : "border-transparent text-foreground/70"}`}>
+              <Link key={item.to} to={item.to as any} className={`flex items-center gap-1.5 px-4 py-3 text-xs font-medium whitespace-nowrap border-b-2 ${active ? "border-[var(--gold)] text-[var(--gold)]" : "border-transparent text-foreground/70"}`}>
                 <item.icon className="size-3.5" />{item.label}
               </Link>
             );
