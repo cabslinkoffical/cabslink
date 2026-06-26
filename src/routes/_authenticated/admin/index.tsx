@@ -1,16 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { getDashboardStats } from "@/lib/admin.functions";
-import { CalendarCheck, Inbox, Car, Clock, CheckCircle2, TrendingUp } from "lucide-react";
+import {
+  CalendarCheck, Car, Clock, CheckCircle2, Ban, UserCog, Users,
+  CreditCard, TrendingUp, Wallet, AlertCircle, Activity, Tag, X, MapPin,
+} from "lucide-react";
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
-  BarChart, Bar, Cell,
+  BarChart, Bar, Cell, PieChart, Pie,
 } from "recharts";
+import { StatCard, PageHeader, StatusBadge } from "@/components/admin/ui";
 
-const statsOpts = queryOptions({
-  queryKey: ["admin", "stats"],
-  queryFn: () => getDashboardStats(),
-});
+const statsOpts = queryOptions({ queryKey: ["admin", "stats"], queryFn: () => getDashboardStats() });
 
 export const Route = createFileRoute("/_authenticated/admin/")({
   loader: ({ context }) => context.queryClient.ensureQueryData(statsOpts),
@@ -20,115 +21,161 @@ export const Route = createFileRoute("/_authenticated/admin/")({
 });
 
 const STATUS_COLORS: Record<string, string> = {
-  new: "#f59e0b",
-  confirmed: "#3b82f6",
-  assigned: "#8b5cf6",
-  on_way: "#06b6d4",
-  completed: "#10b981",
-  cancelled: "#ef4444",
+  new: "#f59e0b", pending_allocation: "#f59e0b",
+  confirmed: "#3b82f6", assigned: "#8b5cf6",
+  on_way: "#06b6d4", in_progress: "#06b6d4",
+  completed: "#10b981", cancelled: "#ef4444", bidding: "#d946ef",
 };
+
+function fmt(n: number) {
+  return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP", maximumFractionDigits: 0 }).format(n);
+}
 
 function Dashboard() {
   const { data } = useSuspenseQuery(statsOpts);
-  const { totals, seriesDaily, byVehicle, byStatus, recentBookings } = data;
+  const { totals, seriesDaily, monthly, byVehicle, byStatus, topPickups, topDropoffs, recentBookings } = data;
 
   const kpis = [
-    { label: "Total bookings", value: totals.bookings, icon: CalendarCheck, accent: "text-[var(--gold)]" },
-    { label: "Pending", value: totals.pendingBookings, icon: Clock, accent: "text-amber-500" },
-    { label: "Completed", value: totals.completedBookings, icon: CheckCircle2, accent: "text-emerald-500" },
-    { label: "Unread messages", value: totals.unreadMessages, icon: Inbox, accent: "text-sky-500" },
-    { label: "Active vehicles", value: `${totals.vehiclesActive}/${totals.vehiclesTotal}`, icon: Car, accent: "text-fuchsia-500" },
-    { label: "Last 30d trend", value: seriesDaily.reduce((s, d) => s + d.count, 0), icon: TrendingUp, accent: "text-[var(--gold)]" },
+    { label: "Total Cars", value: totals.vehiclesTotal, icon: Car, accent: "text-blue-600" },
+    { label: "Total Bookings", value: totals.bookings, icon: CalendarCheck, accent: "text-primary" },
+    { label: "Upcoming", value: totals.upcoming, icon: Clock, accent: "text-amber-600" },
+    { label: "Completed", value: totals.completed, icon: CheckCircle2, accent: "text-emerald-600" },
+    { label: "Cancelled", value: totals.cancelled, icon: Ban, accent: "text-red-600" },
+    { label: "Pending Allocation", value: totals.pendingAllocation, icon: AlertCircle, accent: "text-orange-600" },
+    { label: "Allocated", value: totals.allocated, icon: UserCog, accent: "text-violet-600" },
+    { label: "In Progress", value: totals.inProgress, icon: Activity, accent: "text-cyan-600" },
+    { label: "Bidding", value: totals.bidding, icon: Tag, accent: "text-fuchsia-600" },
+    { label: "Deleted", value: totals.deleted, icon: X, accent: "text-slate-500" },
+    { label: "Total Revenue", value: fmt(totals.totalRevenue), icon: Wallet, accent: "text-emerald-600" },
+    { label: "Today's Revenue", value: fmt(totals.todayRevenue), icon: TrendingUp, accent: "text-emerald-600" },
+    { label: "Monthly Revenue", value: fmt(totals.monthRevenue), icon: TrendingUp, accent: "text-emerald-600" },
+    { label: "Pending Payments", value: fmt(totals.pendingPayments), icon: CreditCard, accent: "text-amber-600" },
+    { label: "Active Drivers", value: totals.driversActive, icon: UserCog, accent: "text-blue-600" },
+    { label: "Active Customers", value: totals.customersActive, icon: Users, accent: "text-blue-600" },
+    { label: "New Bookings Today", value: totals.newToday, icon: CalendarCheck, accent: "text-primary" },
   ];
+
+  const pieData = Object.entries(byStatus).map(([name, value]) => ({ name: name.replace(/_/g, " "), value, fill: STATUS_COLORS[name] ?? "#94a3b8" }));
 
   return (
     <div className="p-6 md:p-8 space-y-6">
-      <div>
-        <h1 className="font-display text-3xl font-semibold">Dashboard</h1>
-        <p className="text-sm text-muted-foreground">Overview of bookings, messages and fleet activity.</p>
-      </div>
+      <PageHeader title="Dashboard" description="Real-time overview of CabsLink operations." />
 
-      <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
-        {kpis.map(k => (
-          <div key={k.label} className="rounded-xl border border-border bg-card p-4">
-            <div className="flex items-center justify-between">
-              <span className="text-xs uppercase tracking-wider text-muted-foreground">{k.label}</span>
-              <k.icon className={`size-4 ${k.accent}`} />
-            </div>
-            <div className="mt-2 font-display text-2xl font-semibold">{k.value}</div>
-          </div>
-        ))}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+        {kpis.map(k => <StatCard key={k.label} {...k} />)}
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 rounded-xl border border-border bg-card p-5">
-          <h2 className="font-semibold mb-4">Bookings — last 30 days</h2>
+          <h2 className="font-semibold mb-1">Bookings — last 30 days</h2>
+          <p className="text-xs text-muted-foreground mb-4">Daily booking creation trend.</p>
           <div className="h-64">
             <ResponsiveContainer>
               <LineChart data={seriesDaily}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis dataKey="date" tick={{ fontSize: 10 }} tickFormatter={d => d.slice(5)} />
                 <YAxis allowDecimals={false} tick={{ fontSize: 10 }} />
-                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} />
-                <Line type="monotone" dataKey="count" stroke="var(--gold)" strokeWidth={2} dot={false} />
+                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }} />
+                <Line type="monotone" dataKey="count" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         <div className="rounded-xl border border-border bg-card p-5">
-          <h2 className="font-semibold mb-4">By status</h2>
-          <ul className="space-y-2">
-            {Object.entries(byStatus).map(([s, n]) => (
-              <li key={s} className="flex items-center justify-between text-sm">
-                <span className="flex items-center gap-2">
-                  <span className="inline-block size-2.5 rounded-full" style={{ background: STATUS_COLORS[s] ?? "#888" }} />
-                  <span className="capitalize">{s.replace("_", " ")}</span>
-                </span>
-                <span className="font-semibold">{n}</span>
-              </li>
+          <h2 className="font-semibold mb-4">Booking Status</h2>
+          <div className="h-64">
+            <ResponsiveContainer>
+              <PieChart>
+                <Pie data={pieData} dataKey="value" nameKey="name" innerRadius={50} outerRadius={85} paddingAngle={2}>
+                  {pieData.map((d, i) => <Cell key={i} fill={d.fill} />)}
+                </Pie>
+                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="grid grid-cols-2 gap-1 mt-2">
+            {pieData.map(d => (
+              <div key={d.name} className="flex items-center gap-1.5 text-[11px]">
+                <span className="size-2 rounded-full" style={{ background: d.fill }} />
+                <span className="capitalize truncate">{d.name}</span>
+                <span className="ml-auto font-medium">{d.value}</span>
+              </div>
             ))}
-            {Object.keys(byStatus).length === 0 && <li className="text-sm text-muted-foreground">No bookings yet.</li>}
-          </ul>
+          </div>
         </div>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">
         <div className="rounded-xl border border-border bg-card p-5">
-          <h2 className="font-semibold mb-4">Top vehicles booked</h2>
-          <div className="h-64">
+          <h2 className="font-semibold mb-4">Revenue — last 6 months</h2>
+          <div className="h-56">
             <ResponsiveContainer>
-              <BarChart data={byVehicle.slice(0, 6)} layout="vertical" margin={{ left: 60 }}>
+              <BarChart data={monthly}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis type="number" allowDecimals={false} tick={{ fontSize: 10 }} />
-                <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={140} />
-                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} />
-                <Bar dataKey="count" radius={[0, 6, 6, 0]}>
-                  {byVehicle.map((_, i) => (<Cell key={i} fill="var(--gold)" />))}
-                </Bar>
+                <XAxis dataKey="month" tick={{ fontSize: 11 }} />
+                <YAxis tick={{ fontSize: 11 }} />
+                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }} formatter={(v: any) => fmt(Number(v))} />
+                <Bar dataKey="revenue" radius={[6, 6, 0, 0]} fill="hsl(var(--primary))" />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         <div className="rounded-xl border border-border bg-card p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold">Recent bookings</h2>
-            <Link to="/admin/bookings" className="text-xs text-[var(--gold)] hover:underline">View all →</Link>
+          <h2 className="font-semibold mb-4">Most Booked Vehicles</h2>
+          <div className="h-56">
+            <ResponsiveContainer>
+              <BarChart data={byVehicle.slice(0, 6)} layout="vertical" margin={{ left: 80 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis type="number" allowDecimals={false} tick={{ fontSize: 10 }} />
+                <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={140} />
+                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }} />
+                <Bar dataKey="count" radius={[0, 6, 6, 0]} fill="hsl(var(--primary))" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid lg:grid-cols-3 gap-6">
+        <ListCard title="Top Pickup Locations" icon={MapPin} items={topPickups} />
+        <ListCard title="Top Dropoff Locations" icon={MapPin} items={topDropoffs} />
+        <div className="rounded-xl border border-border bg-card p-5">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-semibold">Recent Bookings</h2>
+            <Link to="/admin/bookings" className="text-xs text-primary hover:underline">View all →</Link>
           </div>
           <div className="divide-y divide-border">
-            {recentBookings.length === 0 && <p className="text-sm text-muted-foreground">No bookings yet.</p>}
+            {recentBookings.length === 0 && <p className="text-sm text-muted-foreground py-4">No bookings yet.</p>}
             {recentBookings.map((b: any) => (
-              <div key={b.id} className="py-3 flex items-center justify-between gap-3">
+              <div key={b.id} className="py-2.5 flex items-center justify-between gap-2">
                 <div className="min-w-0">
-                  <p className="font-medium truncate">{b.customer_name}</p>
-                  <p className="text-xs text-muted-foreground truncate">{b.vehicle_type} · {b.pickup_date}</p>
+                  <p className="text-sm font-medium truncate">{b.customer_name}</p>
+                  <p className="text-[11px] text-muted-foreground truncate">{b.booking_ref} · {b.vehicle_type}</p>
                 </div>
-                <span className="text-xs px-2 py-1 rounded-full capitalize" style={{ background: (STATUS_COLORS[b.status] ?? "#888") + "20", color: STATUS_COLORS[b.status] ?? "#888" }}>{b.status.replace("_", " ")}</span>
+                <StatusBadge status={b.status} />
               </div>
             ))}
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function ListCard({ title, icon: Icon, items }: { title: string; icon: any; items: { name: string; count: number }[] }) {
+  return (
+    <div className="rounded-xl border border-border bg-card p-5">
+      <h2 className="font-semibold mb-3 flex items-center gap-2"><Icon className="size-4 text-primary" /> {title}</h2>
+      <div className="space-y-2">
+        {items.length === 0 && <p className="text-sm text-muted-foreground">No data yet.</p>}
+        {items.map(item => (
+          <div key={item.name} className="flex items-center justify-between gap-2 text-sm">
+            <span className="truncate flex-1">{item.name}</span>
+            <span className="text-xs font-semibold text-primary tabular-nums">{item.count}</span>
+          </div>
+        ))}
       </div>
     </div>
   );

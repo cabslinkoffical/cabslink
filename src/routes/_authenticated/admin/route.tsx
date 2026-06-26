@@ -1,11 +1,24 @@
 import { createFileRoute, Link, Outlet, redirect, useRouter, useRouterState } from "@tanstack/react-router";
 import { isAdmin } from "@/lib/admin.functions";
 import { supabase } from "@/integrations/supabase/client";
-import { LayoutDashboard, CalendarCheck, Inbox, Car, Users, LogOut, ExternalLink } from "lucide-react";
+import {
+  LayoutDashboard, CalendarCheck, MapPin, Ban, Car, Tag, Clock, Percent, UserCog, Users,
+  CreditCard, Ticket, FileText, Bell, BarChart3, Shield, Settings as SettingsIcon, History,
+  LogOut, ExternalLink, Search, Bell as BellIcon, Sun, Moon, Menu, X, Inbox,
+} from "lucide-react";
+import { SidebarNav, type SidebarEntry } from "@/components/admin/SidebarNav";
+import { Breadcrumbs } from "@/components/admin/Breadcrumbs";
 import { Logo } from "@/components/site/Logo";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
+import { useEffect, useState } from "react";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
+  DropdownMenuSeparator, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   beforeLoad: async () => {
@@ -20,17 +33,66 @@ export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminLayout,
 });
 
-const NAV: { to: string; label: string; icon: typeof LayoutDashboard; exact?: boolean }[] = [
+const NAV: SidebarEntry[] = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { to: "/admin/bookings", label: "Bookings", icon: CalendarCheck },
+  {
+    label: "Bookings", icon: CalendarCheck, items: [
+      { to: "/admin/bookings", label: "All Bookings", icon: CalendarCheck, exact: true },
+      { to: "/admin/bookings?tab=upcoming", label: "Upcoming", icon: CalendarCheck },
+      { to: "/admin/bookings?tab=pending", label: "Pending Allocation", icon: Clock },
+      { to: "/admin/bookings?tab=allocated", label: "Allocated", icon: UserCog },
+      { to: "/admin/bookings?tab=in_progress", label: "In Progress", icon: Car },
+      { to: "/admin/bookings?tab=completed", label: "Completed", icon: CalendarCheck },
+      { to: "/admin/bookings?tab=cancelled", label: "Cancelled", icon: Ban },
+      { to: "/admin/bookings?tab=bidding", label: "Bidding", icon: Tag },
+      { to: "/admin/bookings?tab=deleted", label: "Deleted", icon: X },
+    ],
+  },
+  { to: "/admin/addresses", label: "Addresses", icon: MapPin },
+  { to: "/admin/banned-addresses", label: "Ban Addresses", icon: Ban },
+  { to: "/admin/fleet", label: "Vehicles", icon: Car },
+  { to: "/admin/pricing", label: "Pricing", icon: Tag },
+  { to: "/admin/hourly-rate", label: "Hourly Rate", icon: Clock },
+  { to: "/admin/surcharges", label: "Surcharges", icon: Percent },
+  { to: "/admin/drivers", label: "Drivers", icon: UserCog },
+  { to: "/admin/customers", label: "Customers", icon: Users },
+  { to: "/admin/payments", label: "Payments", icon: CreditCard },
+  { to: "/admin/coupons", label: "Coupons", icon: Ticket },
+  { to: "/admin/content", label: "Website Content", icon: FileText },
   { to: "/admin/messages", label: "Messages", icon: Inbox },
-  { to: "/admin/fleet", label: "Fleet", icon: Car },
-  { to: "/admin/users", label: "Users", icon: Users },
+  { to: "/admin/notifications", label: "Notifications", icon: Bell },
+  { to: "/admin/reports", label: "Reports", icon: BarChart3 },
+  { to: "/admin/users", label: "Admin Users", icon: Shield },
+  { to: "/admin/settings", label: "Settings", icon: SettingsIcon },
+  { to: "/admin/logs", label: "Activity Logs", icon: History },
 ];
 
 function AdminLayout() {
   const router = useRouter();
   const pathname = useRouterState({ select: s => s.location.pathname });
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [dark, setDark] = useState(false);
+  const [email, setEmail] = useState<string>("");
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? ""));
+  }, []);
+
+  useEffect(() => { setMobileOpen(false); }, [pathname]);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("admin-theme");
+    const isDark = stored === "dark";
+    setDark(isDark);
+    document.documentElement.classList.toggle("dark", isDark);
+  }, []);
+
+  function toggleTheme() {
+    const next = !dark;
+    setDark(next);
+    document.documentElement.classList.toggle("dark", next);
+    localStorage.setItem("admin-theme", next ? "dark" : "light");
+  }
 
   async function signOut() {
     await supabase.auth.signOut();
@@ -39,57 +101,67 @@ function AdminLayout() {
   }
 
   return (
-    <div className="min-h-screen flex bg-[var(--surface)]">
-      <aside className="hidden md:flex w-64 flex-col bg-[var(--navy)] text-white border-r border-white/5">
-        <div className="px-6 py-5 border-b border-white/10">
+    <div className="min-h-screen flex bg-muted/30">
+      {/* Sidebar */}
+      <aside
+        className={`fixed inset-y-0 left-0 z-40 w-64 bg-slate-900 text-white flex flex-col border-r border-slate-800 transition-transform md:translate-x-0 ${
+          mobileOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <div className="px-5 py-4 border-b border-slate-800 flex items-center justify-between">
           <Logo />
-          <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--gold)] mt-2">Admin Panel</p>
+          <button className="md:hidden text-slate-400" onClick={() => setMobileOpen(false)}>
+            <X className="size-5" />
+          </button>
         </div>
-        <nav className="flex-1 p-3 space-y-1">
-          {NAV.map(item => {
-            const active = item.exact ? pathname === item.to : pathname.startsWith(item.to);
-            return (
-              <Link
-                key={item.to}
-                to={item.to as any}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition ${
-                  active
-                    ? "bg-[var(--gold)] text-[var(--gold-foreground)]"
-                    : "text-white/80 hover:bg-white/5 hover:text-white"
-                }`}
-              >
-                <item.icon className="size-4" /> {item.label}
-              </Link>
-            );
-          })}
-        </nav>
-        <div className="p-3 border-t border-white/10 space-y-1">
-          <Link to="/" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-white/60 hover:text-white">
+        <SidebarNav entries={NAV} />
+        <div className="p-3 border-t border-slate-800 space-y-1">
+          <Link to="/" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:text-white">
             <ExternalLink className="size-3.5" /> View website
           </Link>
-          <button onClick={signOut} className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/5 hover:text-white">
+          <button onClick={signOut} className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm text-slate-300 hover:bg-white/5 hover:text-white">
             <LogOut className="size-4" /> Sign out
           </button>
         </div>
       </aside>
 
-      <div className="flex-1 flex flex-col min-w-0">
-        <header className="md:hidden flex items-center justify-between bg-[var(--navy)] text-white px-4 py-3 border-b border-white/10">
-          <Logo />
-          <Button size="sm" variant="ghost" onClick={signOut} className="text-white hover:text-[var(--gold)]">
-            <LogOut className="size-4" />
+      {mobileOpen && <div className="fixed inset-0 bg-black/50 z-30 md:hidden" onClick={() => setMobileOpen(false)} />}
+
+      {/* Main */}
+      <div className="flex-1 flex flex-col min-w-0 md:ml-64">
+        <header className="sticky top-0 z-20 bg-card border-b border-border h-14 flex items-center px-4 gap-3">
+          <button className="md:hidden p-2 -ml-2 text-foreground" onClick={() => setMobileOpen(true)}>
+            <Menu className="size-5" />
+          </button>
+          <Breadcrumbs />
+          <div className="flex-1" />
+          <div className="hidden lg:flex relative">
+            <Search className="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <Input placeholder="Search…" className="pl-9 w-64 h-9 bg-muted/40" />
+          </div>
+          <Button variant="ghost" size="icon" onClick={toggleTheme} className="text-muted-foreground">
+            {dark ? <Sun className="size-4" /> : <Moon className="size-4" />}
           </Button>
+          <Button variant="ghost" size="icon" className="text-muted-foreground relative">
+            <BellIcon className="size-4" />
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-muted">
+                <Avatar className="size-8"><AvatarFallback className="bg-primary text-primary-foreground text-xs">{email[0]?.toUpperCase() ?? "A"}</AvatarFallback></Avatar>
+                <span className="hidden sm:block text-sm font-medium max-w-[140px] truncate">{email || "Admin"}</span>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel>Signed in as<br/><span className="text-xs font-normal text-muted-foreground">{email}</span></DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => router.navigate({ to: "/admin/settings" as any })}>Settings</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.navigate({ to: "/" })}>View website</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={signOut} className="text-red-600">Sign out</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </header>
-        <nav className="md:hidden flex overflow-x-auto bg-card border-b border-border">
-          {NAV.map(item => {
-            const active = item.exact ? pathname === item.to : pathname.startsWith(item.to);
-            return (
-              <Link key={item.to} to={item.to as any} className={`flex items-center gap-1.5 px-4 py-3 text-xs font-medium whitespace-nowrap border-b-2 ${active ? "border-[var(--gold)] text-[var(--gold)]" : "border-transparent text-foreground/70"}`}>
-                <item.icon className="size-3.5" />{item.label}
-              </Link>
-            );
-          })}
-        </nav>
         <main className="flex-1 overflow-x-hidden">
           <Outlet />
         </main>
