@@ -1,0 +1,443 @@
+import { createServerFn } from "@tanstack/react-start";
+import { createClient } from "@supabase/supabase-js";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { z } from "zod";
+import {
+  runPricingEngine,
+  stubDistanceMiles,
+  type PricingProfile,
+  type QuoteResult,
+} from "@/lib/pricing";
+
+// -------------------------------------------------------------------
+// Public client for anonymous quote reads
+// -------------------------------------------------------------------
+function publicClient() {
+  return createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_PUBLISHABLE_KEY!, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+}
+
+async function assertAdmin(ctx: { supabase: any; userId: string }) {
+  const { data, error } = await ctx.supabase.rpc("has_role", {
+    _user_id: ctx.userId,
+    _role: "admin",
+  });
+  if (error) throw new Error("Authorization check failed");
+  if (!data) throw new Error("Forbidden: admin access required");
+}
+
+// -------------------------------------------------------------------
+// Distance estimation (Google Maps if connector configured, else stub)
+// -------------------------------------------------------------------
+async function estimateDistanceMiles(pickup: string, dropoff: string): Promise<number> {
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  const lovableKey = process.env.LOVABLE_API_KEY;
+  if (apiKey && lovableKey) {
+    try {
+      const res = await fetch(
+        "https://connector-gateway.lovable.dev/google_maps/routes/distanceMatrix/v2:computeRouteMatrix",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${lovableKey}`,
+            "X-Connection-Api-Key": apiKey,
+            "Content-Type": "application/json",
+            "X-Goog-FieldMask": "originIndex,destinationIndex,distanceMeters,duration,condition",
+          },
+          body: JSON.stringify({
+            origins: [{ waypoint: { address: pickup } }],
+            destinations: [{ waypoint: { address: dropoff } }],
+            travelMode: "DRIVE",
+            routingPreference: "TRAFFIC_AWARE",
+          }),
+        },
+      );
+      if (res.ok) {
+        const rows = (await res.json()) as Array<{ distanceMeters?: number; condition?: string }>;
+        const first = Array.isArray(rows) ? rows[0] : null;
+        if (first?.condition === "ROUTE_EXISTS" && first.distanceMeters) {
+          return Math.round((first.distanceMeters / 1609.34) * 100) / 100;
+        }
+      }
+    } catch {
+      // fall through to stub
+    }
+  }
+  return stubDistanceMiles(pickup, dropoff);
+}
+
+// -------------------------------------------------------------------
+// Load all active pricing profiles + tiers + vehicle meta
+// -------------------------------------------------------------------
+type LoadedProfile = PricingProfile & {
+  vehicle: {
+    id: string;
+    name: string;
+    category: string;
+    image_url: string;
+    passengers: number;
+    luggage: number;
+    hand_luggage: number;
+  };
+};
+
+async function loadActiveProfiles(client: ReturnType<typeof publicClient>): Promise<LoadedProfile[]> {
+  const { data: profiles, error: pErr } = await client
+    .from("vehicle_pricing_profiles" as any)
+    .select("*")
+    .eq("status", true);
+  if (pErr) throw new Error(pErr.message);
+
+  const ids = (profiles ?? []).map((p: any) => p.id);
+  const { data: tiers, error: tErr } = await client
+    .from("vehicle_mileage_tiers" as any)
+    .select("*")
+    .in("pricing_profile_id", ids.length ? ids : ["00000000-0000-0000-0000-000000000000"])
+    .order("sort_order", { ascending: true });
+  if (tErr) throw new Error(tErr.message);
+
+  const vehicleIds = (profiles ?? []).map((p: any) => p.vehicle_id);
+  const { data: vehicles, error: vErr } = await client
+    .from("vehicles")
+    .select("id, name, category, image_url, passengers, luggage, hand_luggage, active, display_order")
+    .in("id", vehicleIds.length ? vehicleIds : ["00000000-0000-0000-0000-000000000000"]);
+  if (vErr) throw new Error(vErr.message);
+
+  const tiersByProfile = new Map<string, any[]>();
+  for (const t of tiers ?? []) {
+    const list = tiersByProfile.get((t as any).pricing_profile_id) ?? [];
+    list.push(t);
+    tiersByProfile.set((t as any).pricing_profile_id, list);
+  }
+  const vehicleById = new Map((vehicles ?? []).map((v: any) => [v.id, v]));
+
+  return (profiles ?? [])
+    .map((p: any) => {
+      const v: any = vehicleById.get(p.vehicle_id);
+      if (!v || !v.active) return null;
+      return {
+        ...p,
+        tiers: (tiersByProfile.get(p.id) ?? []).map((t: any) => ({
+          id: t.id,
+          tier_name: t.tier_name,
+          miles: Number(t.miles),
+          cost_per_mile: Number(t.cost_per_mile),
+          sort_order: t.sort_order,
+        })),
+        vehicle: {
+          id: v.id,
+          name: v.name,
+          category: v.category,
+          image_url: v.image_url,
+          passengers: v.passengers,
+          luggage: v.luggage,
+          hand_luggage: v.hand_luggage,
+        },
+      } as LoadedProfile;
+    })
+    .filter(Boolean) as LoadedProfile[];
+}
+
+// -------------------------------------------------------------------
+// Public: calculate quotes for all vehicles
+// -------------------------------------------------------------------
+const quoteInput = z.object({
+  pickup: z.string().trim().min(2).max(255),
+  dropoff: z.string().trim().min(2).max(255),
+  pickupDate: z.string().optional().default(""),
+  pickupTime: z.string().optional().default(""),
+  viaStops: z.number().int().min(0).max(10).optional().default(0),
+  passengers: z.number().int().min(1).max(60).optional().default(1),
+  luggage: z.number().int().min(0).max(60).optional().default(0),
+});
+
+export type QuoteCard = {
+  vehicleId: string;
+  name: string;
+  category: string;
+  imageUrl: string;
+  passengers: number;
+  luggage: number;
+  handLuggage: number;
+  distanceMiles: number;
+  finalPrice: number;
+  breakdown: QuoteResult["breakdown"];
+  pricing: QuoteResult;
+};
+
+export const calculateQuotes = createServerFn({ method: "POST" })
+  .inputValidator((data: z.infer<typeof quoteInput>) => quoteInput.parse(data))
+  .handler(async ({ data }) => {
+    const client = publicClient();
+
+    // 1) Check fixed-route pricing first
+    const { data: fixed } = await client
+      .from("pricing_rules")
+      .select("vehicle_id, price")
+      .eq("active", true)
+      .ilike("from_address", `%${data.pickup}%`)
+      .ilike("to_address", `%${data.dropoff}%`);
+    const fixedByVehicle = new Map<string, number>();
+    for (const r of fixed ?? []) {
+      if ((r as any).vehicle_id) fixedByVehicle.set((r as any).vehicle_id, Number((r as any).price));
+    }
+
+    // 2) Distance + profiles
+    const distanceMiles = await estimateDistanceMiles(data.pickup, data.dropoff);
+    const profiles = await loadActiveProfiles(client);
+
+    // 3) Run engine per vehicle
+    const cards: QuoteCard[] = profiles
+      .filter((p) => p.vehicle.passengers >= data.passengers && p.vehicle.luggage >= data.luggage)
+      .map((p) => {
+        const result = runPricingEngine(p, {
+          distanceMiles,
+          viaStops: data.viaStops,
+          pickupTime: data.pickupTime || undefined,
+        });
+        const final = fixedByVehicle.get(p.vehicle.id) ?? result.finalPrice;
+        return {
+          vehicleId: p.vehicle.id,
+          name: p.vehicle.name,
+          category: p.vehicle.category,
+          imageUrl: p.vehicle.image_url,
+          passengers: p.vehicle.passengers,
+          luggage: p.vehicle.luggage,
+          handLuggage: p.vehicle.hand_luggage,
+          distanceMiles,
+          finalPrice: Math.round(final * 100) / 100,
+          breakdown: result.breakdown,
+          pricing: result,
+        };
+      })
+      .sort((a, b) => a.finalPrice - b.finalPrice);
+
+    return { distanceMiles, quotes: cards };
+  });
+
+// -------------------------------------------------------------------
+// Admin: list profiles + tiers for editing
+// -------------------------------------------------------------------
+export const adminListPricingProfiles = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { data: vehicles } = await context.supabase
+      .from("vehicles")
+      .select("id, name, category, image_url, passengers, luggage, hand_luggage, active, display_order")
+      .order("display_order", { ascending: true })
+      .order("name", { ascending: true });
+
+    const { data: profiles } = await context.supabase
+      .from("vehicle_pricing_profiles" as any)
+      .select("*");
+
+    const ids = (profiles ?? []).map((p: any) => p.id);
+    const { data: tiers } = await context.supabase
+      .from("vehicle_mileage_tiers" as any)
+      .select("*")
+      .in("pricing_profile_id", ids.length ? ids : ["00000000-0000-0000-0000-000000000000"])
+      .order("sort_order", { ascending: true });
+
+    const byProfile = new Map<string, any[]>();
+    for (const t of tiers ?? []) {
+      const list = byProfile.get((t as any).pricing_profile_id) ?? [];
+      list.push(t);
+      byProfile.set((t as any).pricing_profile_id, list);
+    }
+
+    return {
+      vehicles: vehicles ?? [],
+      profiles: (profiles ?? []).map((p: any) => ({ ...p, tiers: byProfile.get(p.id) ?? [] })),
+    };
+  });
+
+// -------------------------------------------------------------------
+// Admin: save profile + tiers (upsert + replace tiers)
+// -------------------------------------------------------------------
+const saveInput = z.object({
+  id: z.string().uuid().nullable().optional(),
+  vehicle_id: z.string().uuid(),
+  base_price: z.coerce.number().min(0).max(100000),
+  via_price: z.coerce.number().min(0).max(100000),
+  vehicle_add_price_enabled: z.boolean(),
+  time_extra_from: z.string().nullable().optional(),
+  time_extra_to: z.string().nullable().optional(),
+  time_extra_amount: z.coerce.number().min(0).max(100000),
+  time_extra_type: z.enum(["fixed", "percent"]),
+  status: z.boolean(),
+  tiers: z
+    .array(
+      z.object({
+        tier_name: z.string().trim().min(1).max(80),
+        miles: z.coerce.number().min(0).max(99999),
+        cost_per_mile: z.coerce.number().min(0).max(100000),
+        sort_order: z.coerce.number().int().min(0).max(999),
+      }),
+    )
+    .min(1)
+    .max(20),
+});
+
+export const adminSavePricingProfile = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: z.infer<typeof saveInput>) => saveInput.parse(data))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { tiers, id, ...row } = data as any;
+
+    const payload = {
+      ...row,
+      time_extra_from: row.time_extra_from || null,
+      time_extra_to: row.time_extra_to || null,
+    };
+
+    let profileId = id as string | null | undefined;
+    if (profileId) {
+      const { error } = await context.supabase
+        .from("vehicle_pricing_profiles" as any)
+        .update(payload)
+        .eq("id", profileId);
+      if (error) throw new Error(error.message);
+    } else {
+      const { data: inserted, error } = await context.supabase
+        .from("vehicle_pricing_profiles" as any)
+        .upsert(payload, { onConflict: "vehicle_id" })
+        .select("id")
+        .single();
+      if (error) throw new Error(error.message);
+      profileId = (inserted as any).id;
+    }
+
+    // Replace tiers
+    await context.supabase
+      .from("vehicle_mileage_tiers" as any)
+      .delete()
+      .eq("pricing_profile_id", profileId);
+
+    const tierRows = (tiers as any[]).map((t, i) => ({
+      pricing_profile_id: profileId,
+      tier_name: t.tier_name,
+      miles: t.miles,
+      cost_per_mile: t.cost_per_mile,
+      sort_order: t.sort_order ?? i + 1,
+    }));
+    const { error: tErr } = await context.supabase
+      .from("vehicle_mileage_tiers" as any)
+      .insert(tierRows);
+    if (tErr) throw new Error(tErr.message);
+
+    return { ok: true, id: profileId };
+  });
+
+// -------------------------------------------------------------------
+// Admin: duplicate a profile to another vehicle
+// -------------------------------------------------------------------
+const duplicateInput = z.object({
+  source_profile_id: z.string().uuid(),
+  target_vehicle_id: z.string().uuid(),
+});
+
+export const adminDuplicatePricingProfile = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: z.infer<typeof duplicateInput>) => duplicateInput.parse(data))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { data: src, error: sErr } = await context.supabase
+      .from("vehicle_pricing_profiles" as any)
+      .select("*")
+      .eq("id", data.source_profile_id)
+      .single();
+    if (sErr || !src) throw new Error(sErr?.message ?? "Source profile not found");
+
+    const { data: srcTiers } = await context.supabase
+      .from("vehicle_mileage_tiers" as any)
+      .select("*")
+      .eq("pricing_profile_id", data.source_profile_id)
+      .order("sort_order");
+
+    const { data: newProfile, error: iErr } = await context.supabase
+      .from("vehicle_pricing_profiles" as any)
+      .upsert(
+        {
+          vehicle_id: data.target_vehicle_id,
+          base_price: (src as any).base_price,
+          via_price: (src as any).via_price,
+          vehicle_add_price_enabled: (src as any).vehicle_add_price_enabled,
+          time_extra_from: (src as any).time_extra_from,
+          time_extra_to: (src as any).time_extra_to,
+          time_extra_amount: (src as any).time_extra_amount,
+          time_extra_type: (src as any).time_extra_type,
+          status: (src as any).status,
+        },
+        { onConflict: "vehicle_id" },
+      )
+      .select("id")
+      .single();
+    if (iErr || !newProfile) throw new Error(iErr?.message ?? "Could not create profile");
+
+    await context.supabase
+      .from("vehicle_mileage_tiers" as any)
+      .delete()
+      .eq("pricing_profile_id", (newProfile as any).id);
+
+    if (srcTiers && srcTiers.length) {
+      await context.supabase.from("vehicle_mileage_tiers" as any).insert(
+        srcTiers.map((t: any) => ({
+          pricing_profile_id: (newProfile as any).id,
+          tier_name: t.tier_name,
+          miles: t.miles,
+          cost_per_mile: t.cost_per_mile,
+          sort_order: t.sort_order,
+        })),
+      );
+    }
+    return { ok: true, id: (newProfile as any).id };
+  });
+
+// -------------------------------------------------------------------
+// Admin: test calculator (no DB write)
+// -------------------------------------------------------------------
+const testInput = z.object({
+  vehicle_id: z.string().uuid(),
+  distance_miles: z.coerce.number().min(0).max(99999),
+  pickup_time: z.string().optional().default(""),
+  via_stops: z.coerce.number().int().min(0).max(20).optional().default(0),
+});
+
+export const adminTestQuote = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: z.infer<typeof testInput>) => testInput.parse(data))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { data: profile, error } = await context.supabase
+      .from("vehicle_pricing_profiles" as any)
+      .select("*")
+      .eq("vehicle_id", data.vehicle_id)
+      .single();
+    if (error || !profile) throw new Error("No pricing profile for this vehicle yet.");
+    const { data: tiers } = await context.supabase
+      .from("vehicle_mileage_tiers" as any)
+      .select("*")
+      .eq("pricing_profile_id", (profile as any).id)
+      .order("sort_order");
+
+    const result = runPricingEngine(
+      {
+        ...(profile as any),
+        tiers: (tiers ?? []).map((t: any) => ({
+          tier_name: t.tier_name,
+          miles: Number(t.miles),
+          cost_per_mile: Number(t.cost_per_mile),
+          sort_order: t.sort_order,
+        })),
+      } as PricingProfile,
+      {
+        distanceMiles: data.distance_miles,
+        viaStops: data.via_stops,
+        pickupTime: data.pickup_time || undefined,
+      },
+    );
+    return result;
+  });

@@ -52,8 +52,10 @@ const NAV: SidebarEntry[] = [
   { to: "/admin/banned-addresses", label: "Ban Addresses", icon: Ban },
   { to: "/admin/fleet", label: "Vehicles", icon: Car },
   { to: "/admin/pricing", label: "Pricing", icon: Tag },
+  { to: "/admin/mileage-price", label: "Mileage Price", icon: Tag },
   { to: "/admin/hourly-rate", label: "Hourly Rate", icon: Clock },
   { to: "/admin/surcharges", label: "Surcharges", icon: Percent },
+
   { to: "/admin/drivers", label: "Drivers", icon: UserCog },
   { to: "/admin/customers", label: "Customers", icon: Users },
   { to: "/admin/payments", label: "Payments", icon: CreditCard },
