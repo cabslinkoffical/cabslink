@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { LayoutDashboard, CalendarCheck, Inbox, Car, Users, LogOut, ExternalLink } from "lucide-react";
 import { Logo } from "@/components/site/Logo";
 import { Button } from "@/components/ui/button";
+import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -93,6 +94,7 @@ function AdminLayout() {
           <Outlet />
         </main>
       </div>
+      <Toaster richColors position="top-right" />
     </div>
   );
 }
