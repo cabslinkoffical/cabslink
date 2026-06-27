@@ -33,6 +33,7 @@ import { Route as AuthenticatedAdminReportsRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminPricingRouteImport } from './routes/_authenticated/admin/pricing'
 import { Route as AuthenticatedAdminPaymentsRouteImport } from './routes/_authenticated/admin/payments'
 import { Route as AuthenticatedAdminNotificationsRouteImport } from './routes/_authenticated/admin/notifications'
+import { Route as AuthenticatedAdminMileagePricingRouteImport } from './routes/_authenticated/admin/mileage-pricing'
 import { Route as AuthenticatedAdminMessagesRouteImport } from './routes/_authenticated/admin/messages'
 import { Route as AuthenticatedAdminLogsRouteImport } from './routes/_authenticated/admin/logs'
 import { Route as AuthenticatedAdminHourlyRateRouteImport } from './routes/_authenticated/admin/hourly-rate'
@@ -170,6 +171,12 @@ const AuthenticatedAdminNotificationsRoute =
     path: '/notifications',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminMileagePricingRoute =
+  AuthenticatedAdminMileagePricingRouteImport.update({
+    id: '/mileage-pricing',
+    path: '/mileage-pricing',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminMessagesRoute =
   AuthenticatedAdminMessagesRouteImport.update({
     id: '/messages',
@@ -262,6 +269,7 @@ export interface FileRoutesByFullPath {
   '/admin/hourly-rate': typeof AuthenticatedAdminHourlyRateRoute
   '/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/admin/messages': typeof AuthenticatedAdminMessagesRoute
+  '/admin/mileage-pricing': typeof AuthenticatedAdminMileagePricingRoute
   '/admin/notifications': typeof AuthenticatedAdminNotificationsRoute
   '/admin/payments': typeof AuthenticatedAdminPaymentsRoute
   '/admin/pricing': typeof AuthenticatedAdminPricingRoute
@@ -297,6 +305,7 @@ export interface FileRoutesByTo {
   '/admin/hourly-rate': typeof AuthenticatedAdminHourlyRateRoute
   '/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/admin/messages': typeof AuthenticatedAdminMessagesRoute
+  '/admin/mileage-pricing': typeof AuthenticatedAdminMileagePricingRoute
   '/admin/notifications': typeof AuthenticatedAdminNotificationsRoute
   '/admin/payments': typeof AuthenticatedAdminPaymentsRoute
   '/admin/pricing': typeof AuthenticatedAdminPricingRoute
@@ -335,6 +344,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/hourly-rate': typeof AuthenticatedAdminHourlyRateRoute
   '/_authenticated/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/_authenticated/admin/messages': typeof AuthenticatedAdminMessagesRoute
+  '/_authenticated/admin/mileage-pricing': typeof AuthenticatedAdminMileagePricingRoute
   '/_authenticated/admin/notifications': typeof AuthenticatedAdminNotificationsRoute
   '/_authenticated/admin/payments': typeof AuthenticatedAdminPaymentsRoute
   '/_authenticated/admin/pricing': typeof AuthenticatedAdminPricingRoute
@@ -373,6 +383,7 @@ export interface FileRouteTypes {
     | '/admin/hourly-rate'
     | '/admin/logs'
     | '/admin/messages'
+    | '/admin/mileage-pricing'
     | '/admin/notifications'
     | '/admin/payments'
     | '/admin/pricing'
@@ -408,6 +419,7 @@ export interface FileRouteTypes {
     | '/admin/hourly-rate'
     | '/admin/logs'
     | '/admin/messages'
+    | '/admin/mileage-pricing'
     | '/admin/notifications'
     | '/admin/payments'
     | '/admin/pricing'
@@ -445,6 +457,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/hourly-rate'
     | '/_authenticated/admin/logs'
     | '/_authenticated/admin/messages'
+    | '/_authenticated/admin/mileage-pricing'
     | '/_authenticated/admin/notifications'
     | '/_authenticated/admin/payments'
     | '/_authenticated/admin/pricing'
@@ -643,6 +656,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminNotificationsRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/mileage-pricing': {
+      id: '/_authenticated/admin/mileage-pricing'
+      path: '/mileage-pricing'
+      fullPath: '/admin/mileage-pricing'
+      preLoaderRoute: typeof AuthenticatedAdminMileagePricingRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/messages': {
       id: '/_authenticated/admin/messages'
       path: '/messages'
@@ -735,6 +755,7 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminHourlyRateRoute: typeof AuthenticatedAdminHourlyRateRoute
   AuthenticatedAdminLogsRoute: typeof AuthenticatedAdminLogsRoute
   AuthenticatedAdminMessagesRoute: typeof AuthenticatedAdminMessagesRoute
+  AuthenticatedAdminMileagePricingRoute: typeof AuthenticatedAdminMileagePricingRoute
   AuthenticatedAdminNotificationsRoute: typeof AuthenticatedAdminNotificationsRoute
   AuthenticatedAdminPaymentsRoute: typeof AuthenticatedAdminPaymentsRoute
   AuthenticatedAdminPricingRoute: typeof AuthenticatedAdminPricingRoute
@@ -759,6 +780,8 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminHourlyRateRoute: AuthenticatedAdminHourlyRateRoute,
     AuthenticatedAdminLogsRoute: AuthenticatedAdminLogsRoute,
     AuthenticatedAdminMessagesRoute: AuthenticatedAdminMessagesRoute,
+    AuthenticatedAdminMileagePricingRoute:
+      AuthenticatedAdminMileagePricingRoute,
     AuthenticatedAdminNotificationsRoute: AuthenticatedAdminNotificationsRoute,
     AuthenticatedAdminPaymentsRoute: AuthenticatedAdminPaymentsRoute,
     AuthenticatedAdminPricingRoute: AuthenticatedAdminPricingRoute,
