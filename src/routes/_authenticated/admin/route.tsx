@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   LayoutDashboard, CalendarCheck, MapPin, Ban, Car, Tag, Clock, Percent, UserCog, Users,
   CreditCard, Ticket, FileText, Bell, BarChart3, Shield, Settings as SettingsIcon, History,
-  LogOut, ExternalLink, Search, Bell as BellIcon, Sun, Moon, Menu, X, Inbox,
+  LogOut, ExternalLink, Search, Bell as BellIcon, Sun, Moon, Menu, X, Inbox, Gauge,
 } from "lucide-react";
 import { SidebarNav, type SidebarEntry } from "@/components/admin/SidebarNav";
 import { Breadcrumbs } from "@/components/admin/Breadcrumbs";
@@ -39,6 +39,7 @@ const NAV: SidebarEntry[] = [
   {
     label: "Fleet & Pricing", icon: Car, items: [
       { to: "/admin/fleet", label: "Vehicles", icon: Car },
+      { to: "/admin/mileage-pricing", label: "Mileage Pricing", icon: Gauge },
       { to: "/admin/pricing", label: "Route Pricing", icon: Tag },
       { to: "/admin/hourly-rate", label: "Hourly Rates", icon: Clock },
       { to: "/admin/surcharges", label: "Surcharges", icon: Percent },

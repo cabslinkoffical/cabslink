@@ -1,9 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, useMutation, useQueryClient, useQuery, queryOptions } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { listVehiclesAdmin, upsertVehicle, deleteVehicle } from "@/lib/admin.functions";
-import { adminListPricingProfiles, adminSavePricingProfile } from "@/lib/pricing.functions";
-import { useState, useEffect, useMemo } from "react";
+import { adminListPricingProfiles } from "@/lib/pricing.functions";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,7 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Plus, Edit, Trash2, Upload, Loader2, X, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, Check, Car, Gauge, Settings2, ChevronDown, Users, Briefcase, Clock, MapPin } from "lucide-react";
+import { Plus, Edit, Trash2, Upload, Loader2, X, ChevronDown, Users, Briefcase, Clock, MapPin, Gauge, Settings2 } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
 import { supabase } from "@/integrations/supabase/client";
@@ -31,8 +31,6 @@ const CLASSES = [
   { v: "executive_van_8", l: "Executive Van 8 Seater" }, { v: "green", l: "Green Class" },
 ];
 
-type Tier = { tier_name: string; miles: number; cost_per_mile: number; sort_order: number };
-
 const emptyVehicle = {
   id: undefined as string | undefined, name: "", category: "Executive", tbms_id: "", vehicle_class: "business",
   image_url: "", description: "", passengers: 4, luggage: 2, hand_luggage: 2,
@@ -41,77 +39,23 @@ const emptyVehicle = {
   display_order: 0, featured: false, active: true,
 };
 
-const emptyPricing = {
-  id: null as string | null,
-  base_price: 35,
-  via_price: 10,
-  vehicle_add_price_enabled: false,
-  time_extra_from: "",
-  time_extra_to: "",
-  time_extra_amount: 0,
-  time_extra_type: "fixed" as "fixed" | "percent",
-  status: true,
-  tiers: [
-    { tier_name: "Next 10 miles", miles: 10, cost_per_mile: 0.01, sort_order: 1 },
-    { tier_name: "Next 20 miles", miles: 20, cost_per_mile: 3.5, sort_order: 2 },
-    { tier_name: "Next 40 miles", miles: 40, cost_per_mile: 2.2, sort_order: 3 },
-  ] as Tier[],
-};
-
-const STEPS = [
-  { key: "details", label: "Vehicle Details", icon: Car },
-  { key: "mileage", label: "Mileage Pricing", icon: Gauge },
-  { key: "extras", label: "Extras & Status", icon: Settings2 },
-];
-
 function FleetPage() {
   const { data: vehicles } = useSuspenseQuery(opts);
   const qc = useQueryClient();
   const upsert = useServerFn(upsertVehicle);
   const del = useServerFn(deleteVehicle);
-  const savePricingFn = useServerFn(adminSavePricingProfile);
   const listPricingFn = useServerFn(adminListPricingProfiles);
 
   const pricingQ = useQuery({ queryKey: ["pricing-profiles"], queryFn: () => listPricingFn() });
   const allProfiles: any[] = pricingQ.data?.profiles ?? [];
 
   const [form, setForm] = useState<any>(null);
-  const [pricing, setPricing] = useState<typeof emptyPricing>(emptyPricing);
-  const [step, setStep] = useState(0);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  // When opening edit, hydrate pricing
-  useEffect(() => {
-    if (!form) return;
-    if (form.id) {
-      const existing = allProfiles.find((p) => p.vehicle_id === form.id);
-      if (existing) {
-        setPricing({
-          id: existing.id,
-          base_price: Number(existing.base_price),
-          via_price: Number(existing.via_price),
-          vehicle_add_price_enabled: !!existing.vehicle_add_price_enabled,
-          time_extra_from: existing.time_extra_from ?? "",
-          time_extra_to: existing.time_extra_to ?? "",
-          time_extra_amount: Number(existing.time_extra_amount),
-          time_extra_type: existing.time_extra_type,
-          status: !!existing.status,
-          tiers: (existing.tiers ?? []).map((t: any) => ({
-            tier_name: t.tier_name, miles: Number(t.miles),
-            cost_per_mile: Number(t.cost_per_mile), sort_order: t.sort_order,
-          })),
-        });
-        return;
-      }
-    }
-    setPricing(emptyPricing);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form?.id, pricingQ.data]);
-
-  function openNew() { setForm({ ...emptyVehicle }); setPricing(emptyPricing); setStep(0); }
-  function openEdit(v: any) { setForm({ ...emptyVehicle, ...v }); setStep(0); }
-  function close() { setForm(null); setStep(0); }
+  function openNew() { setForm({ ...emptyVehicle }); }
+  function openEdit(v: any) { setForm({ ...emptyVehicle, ...v }); }
+  function close() { setForm(null); }
 
   async function handleImageUpload(file: File) {
     if (!file) return;
@@ -138,37 +82,14 @@ function FleetPage() {
     onError: (e: any) => toast.error(e.message),
   });
 
-  async function finalSave() {
-    if (!form?.name?.trim()) { toast.error("Vehicle name is required"); setStep(0); return; }
-    if (!form?.image_url) { toast.error("Vehicle image is required"); setStep(0); return; }
-    if (!pricing.tiers.length) { toast.error("Add at least one mileage tier"); setStep(1); return; }
+  async function save() {
+    if (!form?.name?.trim()) { toast.error("Vehicle name is required"); return; }
+    if (!form?.image_url) { toast.error("Vehicle image is required"); return; }
     setSaving(true);
     try {
-      const res: any = await upsert({ data: form });
-      const vehicleId = res?.id ?? form.id;
-      if (vehicleId) {
-        await savePricingFn({
-          data: {
-            id: pricing.id,
-            vehicle_id: vehicleId,
-            base_price: pricing.base_price,
-            via_price: pricing.via_price,
-            vehicle_add_price_enabled: pricing.vehicle_add_price_enabled,
-            time_extra_from: pricing.time_extra_from || null,
-            time_extra_to: pricing.time_extra_to || null,
-            time_extra_amount: pricing.time_extra_amount,
-            time_extra_type: pricing.time_extra_type,
-            status: pricing.status,
-            tiers: pricing.tiers.map((t, i) => ({
-              tier_name: t.tier_name || `Next ${t.miles} miles`,
-              miles: t.miles, cost_per_mile: t.cost_per_mile, sort_order: i + 1,
-            })),
-          } as any,
-        });
-      }
+      await upsert({ data: form });
       qc.invalidateQueries({ queryKey: ["admin", "vehicles"] });
-      qc.invalidateQueries({ queryKey: ["pricing-profiles"] });
-      toast.success("Vehicle saved with mileage pricing");
+      toast.success(form.id ? "Vehicle updated" : "Vehicle added");
       close();
     } catch (e: any) {
       toast.error(e.message ?? "Save failed");
@@ -177,8 +98,11 @@ function FleetPage() {
 
   return (
     <div className="p-6 md:p-8 space-y-6">
-      <PageHeader title="Vehicles & Mileage" description="Manage your fleet, classes, and tiered mileage pricing.">
-        <Button onClick={openNew}><Plus className="size-4 mr-1" /> Add vehicle</Button>
+      <PageHeader title="Vehicles" description="Manage your fleet details. Mileage pricing is set in Pricing → Mileage Pricing.">
+        <div className="flex gap-2">
+          <Button variant="outline" asChild><Link to="/admin/mileage-pricing"><Gauge className="size-4 mr-1" /> Mileage pricing</Link></Button>
+          <Button onClick={openNew}><Plus className="size-4 mr-1" /> Add vehicle</Button>
+        </div>
       </PageHeader>
 
       {vehicles.length === 0 ? (
@@ -197,38 +121,13 @@ function FleetPage() {
         </div>
       )}
 
-
       <Dialog open={!!form} onOpenChange={(o) => !o && close()}>
         <DialogContent className="max-w-3xl max-h-[92vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{form?.id ? "Edit vehicle" : "Add new vehicle"}</DialogTitle>
           </DialogHeader>
 
-          {/* Stepper header */}
-          <div className="flex items-center justify-between gap-2 py-2">
-            {STEPS.map((s, i) => {
-              const Icon = s.icon;
-              const active = i === step;
-              const done = i < step;
-              return (
-                <div key={s.key} className="flex items-center flex-1">
-                  <button
-                    type="button"
-                    onClick={() => setStep(i)}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${active ? "bg-primary text-primary-foreground" : done ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}
-                  >
-                    <span className={`size-6 rounded-full flex items-center justify-center text-xs ${active ? "bg-primary-foreground/20" : done ? "bg-primary text-primary-foreground" : "bg-background"}`}>
-                      {done ? <Check className="size-3.5" /> : <Icon className="size-3.5" />}
-                    </span>
-                    <span className="hidden sm:inline">{s.label}</span>
-                  </button>
-                  {i < STEPS.length - 1 && <div className={`flex-1 h-px mx-2 ${done ? "bg-primary" : "bg-border"}`} />}
-                </div>
-              );
-            })}
-          </div>
-
-          {form && step === 0 && (
+          {form && (
             <div className="grid sm:grid-cols-2 gap-4">
               <Field label="Vehicle name *"><Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} /></Field>
               <Field label="TBMS ID"><Input value={form.tbms_id ?? ""} onChange={e => setForm({ ...form, tbms_id: e.target.value })} /></Field>
@@ -264,30 +163,16 @@ function FleetPage() {
               <div className="flex items-center gap-3 pt-6"><Switch checked={form.featured} onCheckedChange={v => setForm({ ...form, featured: v })} /><Label>Featured</Label></div>
               <div className="flex items-center gap-3 pt-6"><Switch checked={form.active} onCheckedChange={v => setForm({ ...form, active: v })} /><Label>Active</Label></div>
               <p className="sm:col-span-2 text-xs text-muted-foreground bg-muted/30 border border-border rounded-md px-3 py-2">
-                Pricing (base fare, per-mile, waiting, hourly) is managed in <strong>Pricing → Routes</strong>. Use the Mileage step for fallback tiered pricing.
+                Pricing is managed separately: <strong>Pricing → Routes</strong> for fixed fares, <strong>Pricing → Mileage Pricing</strong> for per-vehicle tiered rates.
               </p>
             </div>
           )}
 
-          {form && step === 1 && (
-            <MileageStep pricing={pricing} setPricing={setPricing} />
-          )}
-
-          {form && step === 2 && (
-            <ExtrasStep pricing={pricing} setPricing={setPricing} />
-          )}
-
-          {/* Footer nav */}
-          <div className="flex items-center justify-between pt-4 border-t border-border mt-2">
+          <div className="flex items-center justify-end gap-2 pt-4 border-t border-border mt-2">
             <Button variant="outline" onClick={close} disabled={saving}>Cancel</Button>
-            <div className="flex gap-2">
-              {step > 0 && <Button variant="outline" onClick={() => setStep(step - 1)} disabled={saving}><ChevronLeft className="size-4 mr-1" /> Back</Button>}
-              {step < STEPS.length - 1 ? (
-                <Button onClick={() => setStep(step + 1)}>Next <ChevronRight className="size-4 ml-1" /></Button>
-              ) : (
-                <Button onClick={finalSave} disabled={saving}>{saving ? <><Loader2 className="size-4 mr-1 animate-spin" /> Saving…</> : "Save vehicle"}</Button>
-              )}
-            </div>
+            <Button onClick={save} disabled={saving}>
+              {saving ? <><Loader2 className="size-4 mr-1 animate-spin" /> Saving…</> : "Save vehicle"}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -297,161 +182,6 @@ function FleetPage() {
 
 function Field({ label, children, full }: { label: string; children: React.ReactNode; full?: boolean }) {
   return <div className={full ? "sm:col-span-2" : ""}><Label className="mb-1.5 block">{label}</Label>{children}</div>;
-}
-
-function MileageStep({ pricing, setPricing }: { pricing: typeof emptyPricing; setPricing: (p: typeof emptyPricing) => void }) {
-  const totalMiles = useMemo(() => pricing.tiers.reduce((s, t) => s + (Number(t.miles) || 0), 0), [pricing.tiers]);
-  function move(i: number, dir: -1 | 1) {
-    const tiers = [...pricing.tiers];
-    const j = i + dir;
-    if (j < 0 || j >= tiers.length) return;
-    [tiers[i], tiers[j]] = [tiers[j], tiers[i]];
-    tiers.forEach((x, k) => (x.sort_order = k + 1));
-    setPricing({ ...pricing, tiers });
-  }
-  return (
-    <div className="space-y-4">
-      <div>
-        <Label className="text-sm font-semibold">Minimum Price (£)</Label>
-        <div className="relative mt-1.5">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">£</span>
-          <Input type="number" step={0.01} value={pricing.base_price}
-            onChange={e => setPricing({ ...pricing, base_price: Number(e.target.value || 0) })} className="pl-7 h-11" />
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <div className="grid grid-cols-12 gap-3 px-1 text-xs uppercase tracking-wider font-bold text-muted-foreground">
-          <div className="col-span-2" />
-          <div className="col-span-5 text-center">Mileage</div>
-          <div className="col-span-4 text-center">Cost Per mile (£)</div>
-          <div className="col-span-1" />
-        </div>
-
-        {pricing.tiers.map((t, i) => (
-          <div key={i} className="grid grid-cols-12 gap-3 items-center">
-            <div className="col-span-2 flex items-center gap-1">
-              <span className="text-sm font-semibold text-foreground/80">Next</span>
-              <div className="flex flex-col -ml-0.5">
-                <button type="button" onClick={() => move(i, -1)} className="text-muted-foreground hover:text-foreground"><ArrowUp className="size-3" /></button>
-                <button type="button" onClick={() => move(i, 1)} className="text-muted-foreground hover:text-foreground"><ArrowDown className="size-3" /></button>
-              </div>
-            </div>
-            <div className="col-span-5">
-              <div className="flex border border-border rounded-md overflow-hidden bg-background">
-                <Input type="number" step={0.01} value={t.miles}
-                  onChange={e => {
-                    const tiers = [...pricing.tiers];
-                    const miles = Number(e.target.value || 0);
-                    tiers[i] = { ...t, miles, tier_name: `Next ${miles} miles` };
-                    setPricing({ ...pricing, tiers });
-                  }}
-                  className="border-0 rounded-none h-11 focus-visible:ring-0" />
-                <span className="flex items-center px-3 bg-muted text-sm text-muted-foreground border-l border-border">miles</span>
-              </div>
-            </div>
-            <div className="col-span-4">
-              <div className="flex border border-border rounded-md overflow-hidden bg-background">
-                <span className="flex items-center px-3 bg-muted text-sm text-muted-foreground border-r border-border">£</span>
-                <Input type="number" step={0.0001} value={t.cost_per_mile}
-                  onChange={e => {
-                    const tiers = [...pricing.tiers];
-                    tiers[i] = { ...t, cost_per_mile: Number(e.target.value || 0) };
-                    setPricing({ ...pricing, tiers });
-                  }}
-                  className="border-0 rounded-none h-11 focus-visible:ring-0" />
-              </div>
-            </div>
-            <div className="col-span-1 flex justify-end">
-              <Button type="button" size="icon" variant="ghost" className="text-red-600 hover:text-red-700"
-                onClick={() => {
-                  const tiers = pricing.tiers.filter((_, k) => k !== i);
-                  tiers.forEach((x, k) => (x.sort_order = k + 1));
-                  setPricing({ ...pricing, tiers });
-                }}>
-                <Trash2 className="size-3.5" />
-              </Button>
-            </div>
-          </div>
-        ))}
-
-        <div className="flex items-center justify-between pt-2">
-          <Button type="button" size="sm" variant="outline" className="gap-1.5"
-            onClick={() => setPricing({
-              ...pricing,
-              tiers: [...pricing.tiers, { tier_name: "Next 10 miles", miles: 10, cost_per_mile: 2, sort_order: pricing.tiers.length + 1 }],
-            })}>
-            <Plus className="size-3.5" /> Add mileage tier
-          </Button>
-          <span className="text-xs text-muted-foreground">{pricing.tiers.length} tiers · {totalMiles} miles total</span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ExtrasStep({ pricing, setPricing }: { pricing: typeof emptyPricing; setPricing: (p: typeof emptyPricing) => void }) {
-  return (
-    <div className="space-y-5">
-      <div className="grid sm:grid-cols-2 gap-4">
-        <div>
-          <Label className="text-sm font-semibold">Via Stop Price (£/mile)</Label>
-          <div className="flex border border-border rounded-md overflow-hidden bg-background mt-1.5">
-            <span className="flex items-center px-3 bg-muted text-sm text-muted-foreground border-r border-border">£</span>
-            <Input type="number" step={0.01} value={pricing.via_price}
-              onChange={e => setPricing({ ...pricing, via_price: Number(e.target.value || 0) })}
-              className="border-0 rounded-none h-11 focus-visible:ring-0" />
-          </div>
-        </div>
-        <div className="flex items-end gap-3">
-          <Switch checked={pricing.status} onCheckedChange={v => setPricing({ ...pricing, status: v })} />
-          <Label>Pricing profile active</Label>
-        </div>
-      </div>
-
-      <div className="border border-border rounded-lg p-4 space-y-4">
-        <div className="flex items-center gap-3">
-          <input type="checkbox" checked={pricing.vehicle_add_price_enabled}
-            onChange={e => setPricing({ ...pricing, vehicle_add_price_enabled: e.target.checked })}
-            className="size-5 cursor-pointer" />
-          <Label className="font-semibold">Time-based extra charge</Label>
-        </div>
-        <div className="grid sm:grid-cols-4 gap-3">
-          <div>
-            <Label className="text-xs text-muted-foreground">From</Label>
-            <Input type="time" value={pricing.time_extra_from}
-              onChange={e => setPricing({ ...pricing, time_extra_from: e.target.value })}
-              className="h-11 mt-1" disabled={!pricing.vehicle_add_price_enabled} />
-          </div>
-          <div>
-            <Label className="text-xs text-muted-foreground">To</Label>
-            <Input type="time" value={pricing.time_extra_to}
-              onChange={e => setPricing({ ...pricing, time_extra_to: e.target.value })}
-              className="h-11 mt-1" disabled={!pricing.vehicle_add_price_enabled} />
-          </div>
-          <div>
-            <Label className="text-xs text-muted-foreground">Amount</Label>
-            <Input type="number" step={0.01} value={pricing.time_extra_amount}
-              onChange={e => setPricing({ ...pricing, time_extra_amount: Number(e.target.value || 0) })}
-              className="h-11 mt-1" disabled={!pricing.vehicle_add_price_enabled} />
-          </div>
-          <div>
-            <Label className="text-xs text-muted-foreground">Type</Label>
-            <div className="flex gap-2 mt-1">
-              {(["fixed", "percent"] as const).map(t => (
-                <label key={t} className={`flex-1 flex items-center justify-center h-11 border rounded-md cursor-pointer transition ${pricing.time_extra_type === t ? "border-primary bg-primary/10" : "border-border bg-background text-muted-foreground"}`}>
-                  <input type="radio" name="extra_type" checked={pricing.time_extra_type === t}
-                    onChange={() => setPricing({ ...pricing, time_extra_type: t })}
-                    className="sr-only" disabled={!pricing.vehicle_add_price_enabled} />
-                  <span className="text-sm font-semibold">{t === "fixed" ? "£" : "%"}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
 }
 
 function VehicleCard({ v, profile, onEdit, onDelete }: { v: any; profile: any; onEdit: () => void; onDelete: () => void }) {
@@ -475,8 +205,11 @@ function VehicleCard({ v, profile, onEdit, onDelete }: { v: any; profile: any; o
           <div className="flex items-center gap-4 text-xs text-muted-foreground mt-1.5">
             <span className="inline-flex items-center gap-1"><Users className="size-3.5" /> {v.passengers}</span>
             <span className="inline-flex items-center gap-1"><Briefcase className="size-3.5" /> {v.luggage}+{v.hand_luggage}</span>
-            {profile && <span className="inline-flex items-center gap-1 text-foreground/70">From £{Number(profile.base_price).toFixed(2)}</span>}
-            <span className="inline-flex items-center gap-1">{tiers.length} mileage {tiers.length === 1 ? "tier" : "tiers"}</span>
+            {profile ? (
+              <span className="inline-flex items-center gap-1 text-foreground/70">From £{Number(profile.base_price).toFixed(2)} · {tiers.length} {tiers.length === 1 ? "tier" : "tiers"}</span>
+            ) : (
+              <span className="text-amber-600">No mileage pricing</span>
+            )}
           </div>
         </div>
         <div className="flex items-center gap-1 shrink-0">
@@ -522,8 +255,11 @@ function VehicleCard({ v, profile, onEdit, onDelete }: { v: any; profile: any; o
                 )}
               </div>
             ) : (
-              <div className="text-xs text-muted-foreground italic">No pricing profile yet — click edit to set tiers.</div>
+              <div className="text-xs text-muted-foreground italic">No pricing profile yet.</div>
             )}
+            <Button size="sm" variant="outline" asChild className="mt-2">
+              <Link to="/admin/mileage-pricing">Manage mileage pricing</Link>
+            </Button>
           </div>
 
           <div className="space-y-3">
@@ -533,8 +269,6 @@ function VehicleCard({ v, profile, onEdit, onDelete }: { v: any; profile: any; o
                 <Row icon={<MapPin className="size-3.5" />} label="Via stop price" value={profile ? `£${Number(profile.via_price).toFixed(2)}/mi` : "—"} />
                 <Row icon={<Clock className="size-3.5" />} label="Time surcharge" value={hasTimeExtra ? `${profile.time_extra_from}–${profile.time_extra_to} · ${profile.time_extra_type === "percent" ? `${profile.time_extra_amount}%` : `£${Number(profile.time_extra_amount).toFixed(2)}`}` : "Disabled"} />
                 <Row label="Meet & Greet" value={v.meet_greet_enabled ? "Enabled" : "Disabled"} />
-                <Row label="Price per hour" value={v.price_per_hour != null ? `£${Number(v.price_per_hour).toFixed(2)}` : "—"} />
-                <Row label="Waiting charge" value={v.waiting_charge != null ? `£${Number(v.waiting_charge).toFixed(2)}/hr` : "—"} />
               </div>
             </div>
             {v.description && (
@@ -558,4 +292,3 @@ function Row({ icon, label, value }: { icon?: React.ReactNode; label: string; va
     </div>
   );
 }
-
