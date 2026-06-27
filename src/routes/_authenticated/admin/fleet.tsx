@@ -259,14 +259,13 @@ function FleetPage() {
               <Field label="Passengers"><Input type="number" value={form.passengers} onChange={e => setForm({ ...form, passengers: Number(e.target.value) })} /></Field>
               <Field label="Luggage"><Input type="number" value={form.luggage} onChange={e => setForm({ ...form, luggage: Number(e.target.value) })} /></Field>
               <Field label="Hand luggage"><Input type="number" value={form.hand_luggage} onChange={e => setForm({ ...form, hand_luggage: Number(e.target.value) })} /></Field>
-              <Field label="Base fare (£)"><Input type="number" step="0.01" value={form.base_fare ?? ""} onChange={e => setForm({ ...form, base_fare: e.target.value === "" ? null : Number(e.target.value) })} /></Field>
-              <Field label="Per mile (£)"><Input type="number" step="0.01" value={form.per_mile_rate ?? ""} onChange={e => setForm({ ...form, per_mile_rate: e.target.value === "" ? null : Number(e.target.value) })} /></Field>
-              <Field label="Waiting charge (£/hr)"><Input type="number" step="0.01" value={form.waiting_charge ?? ""} onChange={e => setForm({ ...form, waiting_charge: e.target.value === "" ? null : Number(e.target.value) })} /></Field>
-              <Field label="Price per hour (£)"><Input type="number" step="0.01" value={form.price_per_hour ?? ""} onChange={e => setForm({ ...form, price_per_hour: e.target.value === "" ? null : Number(e.target.value) })} /></Field>
               <Field label="Display order"><Input type="number" value={form.display_order} onChange={e => setForm({ ...form, display_order: Number(e.target.value) })} /></Field>
               <div className="flex items-center gap-3 pt-6"><Switch checked={form.meet_greet_enabled} onCheckedChange={v => setForm({ ...form, meet_greet_enabled: v })} /><Label>Meet & Greet</Label></div>
               <div className="flex items-center gap-3 pt-6"><Switch checked={form.featured} onCheckedChange={v => setForm({ ...form, featured: v })} /><Label>Featured</Label></div>
               <div className="flex items-center gap-3 pt-6"><Switch checked={form.active} onCheckedChange={v => setForm({ ...form, active: v })} /><Label>Active</Label></div>
+              <p className="sm:col-span-2 text-xs text-muted-foreground bg-muted/30 border border-border rounded-md px-3 py-2">
+                Pricing (base fare, per-mile, waiting, hourly) is managed in <strong>Pricing → Routes</strong>. Use the Mileage step for fallback tiered pricing.
+              </p>
             </div>
           )}
 
