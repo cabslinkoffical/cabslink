@@ -2,6 +2,8 @@ import { createStart, createMiddleware } from "@tanstack/react-start";
 
 import { renderErrorPage } from "./lib/error-page";
 import { attachSupabaseAuth } from "@/integrations/supabase/auth-attacher";
+// Ensure server functions are registered at startup (workaround for TanStack dev server-fn registry)
+import "@/lib/places.functions";
 
 const errorMiddleware = createMiddleware().server(async ({ next }) => {
   try {

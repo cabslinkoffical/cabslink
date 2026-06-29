@@ -41,8 +41,8 @@ function classify(types: string[] | undefined): "area" | "address" {
  * Returns areas/localities and addresses; can be narrowed with `mode`.
  */
 export const placesAutocomplete = createServerFn({ method: "POST" })
-  .validator((data: z.infer<typeof acInput>) => acInput.parse(data))
-  .handler(async ({ data }): Promise<{ suggestions: PlaceSuggestion[] }> => {
+  .inputValidator((data: z.infer<typeof acInput>) => acInput.parse(data))
+  .handler(async ({ data }) => {
     const apiKey = process.env.GOOGLE_MAPS_API_KEY;
     const lovableKey = process.env.LOVABLE_API_KEY;
     if (!apiKey || !lovableKey) return { suggestions: [] };
