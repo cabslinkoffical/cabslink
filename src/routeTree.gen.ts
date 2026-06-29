@@ -24,6 +24,7 @@ import { Route as AirportTransfersRouteImport } from './routes/airport-transfers
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiPlacesAutocompleteRouteImport } from './routes/api/places-autocomplete'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
@@ -118,6 +119,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPlacesAutocompleteRoute = ApiPlacesAutocompleteRouteImport.update({
+  id: '/api/places-autocomplete',
+  path: '/api/places-autocomplete',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
@@ -258,6 +264,7 @@ export interface FileRoutesByFullPath {
   '/tours': typeof ToursRoute
   '/vip-transfers': typeof VipTransfersRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/api/places-autocomplete': typeof ApiPlacesAutocompleteRoute
   '/admin/addresses': typeof AuthenticatedAdminAddressesRoute
   '/admin/banned-addresses': typeof AuthenticatedAdminBannedAddressesRoute
   '/admin/bookings': typeof AuthenticatedAdminBookingsRoute
@@ -294,6 +301,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/tours': typeof ToursRoute
   '/vip-transfers': typeof VipTransfersRoute
+  '/api/places-autocomplete': typeof ApiPlacesAutocompleteRoute
   '/admin/addresses': typeof AuthenticatedAdminAddressesRoute
   '/admin/banned-addresses': typeof AuthenticatedAdminBannedAddressesRoute
   '/admin/bookings': typeof AuthenticatedAdminBookingsRoute
@@ -333,6 +341,7 @@ export interface FileRoutesById {
   '/tours': typeof ToursRoute
   '/vip-transfers': typeof VipTransfersRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/api/places-autocomplete': typeof ApiPlacesAutocompleteRoute
   '/_authenticated/admin/addresses': typeof AuthenticatedAdminAddressesRoute
   '/_authenticated/admin/banned-addresses': typeof AuthenticatedAdminBannedAddressesRoute
   '/_authenticated/admin/bookings': typeof AuthenticatedAdminBookingsRoute
@@ -372,6 +381,7 @@ export interface FileRouteTypes {
     | '/tours'
     | '/vip-transfers'
     | '/admin'
+    | '/api/places-autocomplete'
     | '/admin/addresses'
     | '/admin/banned-addresses'
     | '/admin/bookings'
@@ -408,6 +418,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/tours'
     | '/vip-transfers'
+    | '/api/places-autocomplete'
     | '/admin/addresses'
     | '/admin/banned-addresses'
     | '/admin/bookings'
@@ -446,6 +457,7 @@ export interface FileRouteTypes {
     | '/tours'
     | '/vip-transfers'
     | '/_authenticated/admin'
+    | '/api/places-autocomplete'
     | '/_authenticated/admin/addresses'
     | '/_authenticated/admin/banned-addresses'
     | '/_authenticated/admin/bookings'
@@ -484,6 +496,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ToursRoute: typeof ToursRoute
   VipTransfersRoute: typeof VipTransfersRoute
+  ApiPlacesAutocompleteRoute: typeof ApiPlacesAutocompleteRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -591,6 +604,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/places-autocomplete': {
+      id: '/api/places-autocomplete'
+      path: '/api/places-autocomplete'
+      fullPath: '/api/places-autocomplete'
+      preLoaderRoute: typeof ApiPlacesAutocompleteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin': {
@@ -824,17 +844,8 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   ToursRoute: ToursRoute,
   VipTransfersRoute: VipTransfersRoute,
+  ApiPlacesAutocompleteRoute: ApiPlacesAutocompleteRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
