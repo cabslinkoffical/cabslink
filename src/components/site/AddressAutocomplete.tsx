@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
-import { placesAutocomplete, type PlaceSuggestion } from "@/lib/places.functions";
+import type { PlaceSuggestion } from "@/routes/api/places-autocomplete";
 import { Input } from "@/components/ui/input";
 import { MapPin, Building2, Plane } from "lucide-react";
 import { cn } from "@/lib/utils";
