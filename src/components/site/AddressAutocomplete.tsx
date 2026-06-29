@@ -41,7 +41,6 @@ export function AddressAutocomplete({
   iconClassName,
   mode = "all",
 }: Props) {
-  const fetchSuggestions = useServerFn(placesAutocomplete);
   const [suggestions, setSuggestions] = useState<PlaceSuggestion[]>([]);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
@@ -54,18 +53,30 @@ export function AddressAutocomplete({
       setSuggestions([]);
       return;
     }
+    const controller = new AbortController();
     const t = setTimeout(async () => {
       try {
-        const res = await fetchSuggestions({
-          data: { input: term, sessionToken: sessionRef.current, mode },
+        const res = await fetch("/api/places-autocomplete", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ input: term, sessionToken: sessionRef.current, mode }),
+          signal: controller.signal,
         });
-        setSuggestions(res.suggestions);
+        if (!res.ok) {
+          setSuggestions([]);
+          return;
+        }
+        const json = (await res.json()) as { suggestions: PlaceSuggestion[] };
+        setSuggestions(json.suggestions ?? []);
       } catch {
         setSuggestions([]);
       }
     }, 200);
-    return () => clearTimeout(t);
-  }, [value, fetchSuggestions, mode]);
+    return () => {
+      controller.abort();
+      clearTimeout(t);
+    };
+  }, [value, mode]);
 
   useEffect(() => {
     const onDoc = (e: MouseEvent) => {
