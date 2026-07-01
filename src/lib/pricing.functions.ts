@@ -91,19 +91,24 @@ async function loadActiveProfiles(client: ReturnType<typeof publicClient>): Prom
   if (pErr) throw new Error(pErr.message);
 
   const ids = (profiles ?? []).map((p: any) => p.id);
-  const { data: tiers, error: tErr } = await client
-    .from("vehicle_mileage_tiers" as any)
-    .select("*")
-    .in("pricing_profile_id", ids.length ? ids : ["00000000-0000-0000-0000-000000000000"])
-    .order("sort_order", { ascending: true });
-  if (tErr) throw new Error(tErr.message);
-
   const vehicleIds = (profiles ?? []).map((p: any) => p.vehicle_id);
-  const { data: vehicles, error: vErr } = await client
-    .from("vehicles")
-    .select("id, name, category, image_url, passengers, luggage, hand_luggage, active, display_order")
-    .in("id", vehicleIds.length ? vehicleIds : ["00000000-0000-0000-0000-000000000000"]);
-  if (vErr) throw new Error(vErr.message);
+
+  // Tiers + vehicles are independent — fetch in parallel.
+  const [tiersRes, vehiclesRes] = await Promise.all([
+    client
+      .from("vehicle_mileage_tiers" as any)
+      .select("*")
+      .in("pricing_profile_id", ids.length ? ids : ["00000000-0000-0000-0000-000000000000"])
+      .order("sort_order", { ascending: true }),
+    client
+      .from("vehicles")
+      .select("id, name, category, image_url, passengers, luggage, hand_luggage, active, display_order")
+      .in("id", vehicleIds.length ? vehicleIds : ["00000000-0000-0000-0000-000000000000"]),
+  ]);
+  if (tiersRes.error) throw new Error(tiersRes.error.message);
+  if (vehiclesRes.error) throw new Error(vehiclesRes.error.message);
+  const tiers = tiersRes.data;
+  const vehicles = vehiclesRes.data;
 
   const tiersByProfile = new Map<string, any[]>();
   for (const t of tiers ?? []) {
@@ -140,6 +145,7 @@ async function loadActiveProfiles(client: ReturnType<typeof publicClient>): Prom
     .filter(Boolean) as LoadedProfile[];
 }
 
+
 // -------------------------------------------------------------------
 // Public: calculate quotes for all vehicles
 // -------------------------------------------------------------------
@@ -172,23 +178,26 @@ export const calculateQuotes = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const client = publicClient();
 
-    // 1) Check fixed-route pricing first
-    const { data: fixed } = await client
-      .from("pricing_rules")
-      .select("vehicle_id, price")
-      .eq("active", true)
-      .ilike("from_address", `%${data.pickup}%`)
-      .ilike("to_address", `%${data.dropoff}%`);
+    // Run the three independent lookups in parallel: fixed-route prices,
+    // distance estimate (external HTTP), and pricing profiles (3 DB queries).
+    const [fixed, distanceMiles, profiles] = await Promise.all([
+      client
+        .from("pricing_rules")
+        .select("vehicle_id, price")
+        .eq("active", true)
+        .ilike("from_address", `%${data.pickup}%`)
+        .ilike("to_address", `%${data.dropoff}%`)
+        .then((r) => r.data ?? []),
+      estimateDistanceMiles(data.pickup, data.dropoff),
+      loadActiveProfiles(client),
+    ]);
+
     const fixedByVehicle = new Map<string, number>();
-    for (const r of fixed ?? []) {
+    for (const r of fixed) {
       if ((r as any).vehicle_id) fixedByVehicle.set((r as any).vehicle_id, Number((r as any).price));
     }
 
-    // 2) Distance + profiles
-    const distanceMiles = await estimateDistanceMiles(data.pickup, data.dropoff);
-    const profiles = await loadActiveProfiles(client);
-
-    // 3) Run engine per vehicle
+    // Run engine per vehicle
     const cards: QuoteCard[] = profiles
       .filter((p) => p.vehicle.passengers >= data.passengers && p.vehicle.luggage >= data.luggage)
       .map((p) => {
@@ -216,6 +225,7 @@ export const calculateQuotes = createServerFn({ method: "POST" })
 
     return { distanceMiles, quotes: cards };
   });
+
 
 // -------------------------------------------------------------------
 // Admin: list profiles + tiers for editing
