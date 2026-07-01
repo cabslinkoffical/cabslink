@@ -56,7 +56,7 @@ export function BookingWidget() {
       pickup,
       dropoff: tab === "hourly" ? "" : dropoff,
       date,
-      time: `${hour}:${minute}`,
+      time,
       passengers: String(passengers),
       luggage: String(luggage),
       vehicle: "Mercedes-Benz V-Class",
@@ -64,7 +64,7 @@ export function BookingWidget() {
       ret: showReturn ? "1" : "0",
       mode: tab,
       ...(tab === "hourly" ? { duration } : {}),
-      ...(showReturn ? { rdate: returnDate, rtime: `${returnHour}:${returnMin}` } : {}),
+      ...(showReturn ? { rdate: returnDate, rtime: returnTime } : {}),
       ...(stops.length ? { stops: stops.join("|") } : {}),
     });
     navigate({ to: "/book", search: { q: params.toString() } as never });
