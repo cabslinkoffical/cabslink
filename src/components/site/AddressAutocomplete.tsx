@@ -77,7 +77,7 @@ export function AddressAutocomplete({
     sessionRef.current = crypto.randomUUID();
   };
 
-  const showChips = open && value.trim().length < 2;
+  // Popular-areas chips removed per user request.
 
   return (
     <div ref={wrapRef} className="relative">
@@ -120,7 +120,7 @@ export function AddressAutocomplete({
       />
 
 
-      {open && !showChips && suggestions.length > 0 && (
+      {open && suggestions.length > 0 && (
         <div className="absolute z-50 left-0 right-0 top-full mt-2 rounded-xl border border-border bg-card shadow-xl overflow-hidden">
           <ul className="max-h-72 overflow-auto py-1">
             {suggestions.map((s, i) => {
