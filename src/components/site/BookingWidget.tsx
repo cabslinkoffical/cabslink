@@ -210,26 +210,9 @@ export function BookingWidget() {
           </LabeledField>
 
           <LabeledField label="Time">
-            <div className="flex items-center gap-2 h-[52px] rounded-xl bg-background border border-border px-3">
-              <Select value={hour} onValueChange={setHour}>
-                <SelectTrigger className="flex-1 border-0 shadow-none h-10 focus:ring-0 px-1 font-semibold">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {HOURS.map((h) => <SelectItem key={h} value={h}>{h}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              <span className="text-foreground/30 font-bold">:</span>
-              <Select value={minute} onValueChange={setMinute}>
-                <SelectTrigger className="flex-1 border-0 shadow-none h-10 focus:ring-0 px-1 font-semibold">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {MINS.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
+            <TimePicker12 value={time} onChange={setTime} />
           </LabeledField>
+
 
           <LabeledField label="Passengers">
             <Stepper
@@ -275,22 +258,9 @@ export function BookingWidget() {
                 />
               </LabeledField>
               <LabeledField label="Time">
-                <div className="flex items-center gap-2 h-[52px] rounded-xl bg-background border border-border px-3">
-                  <Select value={returnHour} onValueChange={setReturnHour}>
-                    <SelectTrigger className="flex-1 border-0 shadow-none h-10 focus:ring-0 px-1 font-semibold">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>{HOURS.map((h) => <SelectItem key={h} value={h}>{h}</SelectItem>)}</SelectContent>
-                  </Select>
-                  <span className="text-foreground/30 font-bold">:</span>
-                  <Select value={returnMin} onValueChange={setReturnMin}>
-                    <SelectTrigger className="flex-1 border-0 shadow-none h-10 focus:ring-0 px-1 font-semibold">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>{MINS.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}</SelectContent>
-                  </Select>
-                </div>
+                <TimePicker12 value={returnTime} onChange={setReturnTime} />
               </LabeledField>
+
             </div>
           </div>
         )}
