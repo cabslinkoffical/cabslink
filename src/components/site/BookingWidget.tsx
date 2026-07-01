@@ -8,9 +8,26 @@ import { AddressAutocomplete } from "@/components/site/AddressAutocomplete";
 
 type Tab = "quote" | "hourly";
 
-const HOURS = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0"));
+const HOURS_12 = Array.from({ length: 12 }, (_, i) => String(i + 1));
 const MINS = ["00", "15", "30", "45"];
 const DURATIONS = ["2", "3", "4", "5", "6", "8", "10", "12"];
+
+// Convert 24h "HH:MM" ↔ 12h parts
+function to12(t: string): { h: string; m: string; p: "AM" | "PM" } {
+  const [hRaw, mRaw] = (t || "12:00").split(":");
+  let h = parseInt(hRaw, 10);
+  const m = (mRaw ?? "00").padStart(2, "0");
+  const p: "AM" | "PM" = h >= 12 ? "PM" : "AM";
+  h = h % 12;
+  if (h === 0) h = 12;
+  return { h: String(h), m, p };
+}
+function to24(h: string, m: string, p: "AM" | "PM"): string {
+  let hn = parseInt(h, 10) % 12;
+  if (p === "PM") hn += 12;
+  return `${String(hn).padStart(2, "0")}:${m}`;
+}
+
 
 export function BookingWidget() {
   const navigate = useNavigate();
@@ -22,15 +39,16 @@ export function BookingWidget() {
   const [dropoff, setDropoff] = useState("");
   const [stops, setStops] = useState<string[]>([]);
   const [date, setDate] = useState(today);
-  const [hour, setHour] = useState(String(now.getHours()).padStart(2, "0"));
-  const [minute, setMinute] = useState("00");
+  const roundedMin = String(Math.round(now.getMinutes() / 15) * 15 % 60).padStart(2, "0");
+  const initHour = to12(`${String(now.getHours()).padStart(2, "0")}:${roundedMin}`);
+  const [time, setTime] = useState<string>(to24(initHour.h, initHour.m, initHour.p));
   const [passengers, setPassengers] = useState(1);
   const [luggage, setLuggage] = useState(0);
   const [showReturn, setShowReturn] = useState(false);
   const [returnDate, setReturnDate] = useState(today);
-  const [returnHour, setReturnHour] = useState("12");
-  const [returnMin, setReturnMin] = useState("00");
+  const [returnTime, setReturnTime] = useState<string>("12:00");
   const [duration, setDuration] = useState("3");
+
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,7 +56,7 @@ export function BookingWidget() {
       pickup,
       dropoff: tab === "hourly" ? "" : dropoff,
       date,
-      time: `${hour}:${minute}`,
+      time,
       passengers: String(passengers),
       luggage: String(luggage),
       vehicle: "Mercedes-Benz V-Class",
@@ -46,7 +64,7 @@ export function BookingWidget() {
       ret: showReturn ? "1" : "0",
       mode: tab,
       ...(tab === "hourly" ? { duration } : {}),
-      ...(showReturn ? { rdate: returnDate, rtime: `${returnHour}:${returnMin}` } : {}),
+      ...(showReturn ? { rdate: returnDate, rtime: returnTime } : {}),
       ...(stops.length ? { stops: stops.join("|") } : {}),
     });
     navigate({ to: "/book", search: { q: params.toString() } as never });
@@ -192,26 +210,9 @@ export function BookingWidget() {
           </LabeledField>
 
           <LabeledField label="Time">
-            <div className="flex items-center gap-2 h-[52px] rounded-xl bg-background border border-border px-3">
-              <Select value={hour} onValueChange={setHour}>
-                <SelectTrigger className="flex-1 border-0 shadow-none h-10 focus:ring-0 px-1 font-semibold">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {HOURS.map((h) => <SelectItem key={h} value={h}>{h}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              <span className="text-foreground/30 font-bold">:</span>
-              <Select value={minute} onValueChange={setMinute}>
-                <SelectTrigger className="flex-1 border-0 shadow-none h-10 focus:ring-0 px-1 font-semibold">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {MINS.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
+            <TimePicker12 value={time} onChange={setTime} />
           </LabeledField>
+
 
           <LabeledField label="Passengers">
             <Stepper
@@ -257,22 +258,9 @@ export function BookingWidget() {
                 />
               </LabeledField>
               <LabeledField label="Time">
-                <div className="flex items-center gap-2 h-[52px] rounded-xl bg-background border border-border px-3">
-                  <Select value={returnHour} onValueChange={setReturnHour}>
-                    <SelectTrigger className="flex-1 border-0 shadow-none h-10 focus:ring-0 px-1 font-semibold">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>{HOURS.map((h) => <SelectItem key={h} value={h}>{h}</SelectItem>)}</SelectContent>
-                  </Select>
-                  <span className="text-foreground/30 font-bold">:</span>
-                  <Select value={returnMin} onValueChange={setReturnMin}>
-                    <SelectTrigger className="flex-1 border-0 shadow-none h-10 focus:ring-0 px-1 font-semibold">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>{MINS.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}</SelectContent>
-                  </Select>
-                </div>
+                <TimePicker12 value={returnTime} onChange={setReturnTime} />
               </LabeledField>
+
             </div>
           </div>
         )}
@@ -371,3 +359,48 @@ function Stepper({
     </div>
   );
 }
+
+function TimePicker12({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const { h, m, p } = to12(value);
+  const setH = (nh: string) => onChange(to24(nh, m, p));
+  const setM = (nm: string) => onChange(to24(h, nm, p));
+  const setP = (np: "AM" | "PM") => onChange(to24(h, m, np));
+  return (
+    <div className="flex items-center gap-1.5 h-[52px] rounded-xl bg-background border border-border px-2">
+      <Select value={h} onValueChange={setH}>
+        <SelectTrigger className="w-[64px] border-0 shadow-none h-10 focus:ring-0 px-2 font-semibold tabular-nums">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {HOURS_12.map((x) => <SelectItem key={x} value={x}>{x}</SelectItem>)}
+        </SelectContent>
+      </Select>
+      <span className="text-foreground/30 font-bold">:</span>
+      <Select value={m} onValueChange={setM}>
+        <SelectTrigger className="w-[64px] border-0 shadow-none h-10 focus:ring-0 px-2 font-semibold tabular-nums">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {MINS.map((x) => <SelectItem key={x} value={x}>{x}</SelectItem>)}
+        </SelectContent>
+      </Select>
+      <div className="ml-auto flex rounded-lg bg-[var(--surface)] p-0.5">
+        {(["AM", "PM"] as const).map((opt) => (
+          <button
+            key={opt}
+            type="button"
+            onClick={() => setP(opt)}
+            className={`px-2.5 py-1 rounded-md text-[11px] font-bold tracking-wide transition-colors ${
+              p === opt
+                ? "bg-[var(--navy)] text-[var(--gold)] shadow-sm"
+                : "text-foreground/60 hover:text-foreground"
+            }`}
+          >
+            {opt}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
