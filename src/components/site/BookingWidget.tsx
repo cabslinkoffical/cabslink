@@ -8,9 +8,26 @@ import { AddressAutocomplete } from "@/components/site/AddressAutocomplete";
 
 type Tab = "quote" | "hourly";
 
-const HOURS = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0"));
+const HOURS_12 = Array.from({ length: 12 }, (_, i) => String(i + 1));
 const MINS = ["00", "15", "30", "45"];
 const DURATIONS = ["2", "3", "4", "5", "6", "8", "10", "12"];
+
+// Convert 24h "HH:MM" ↔ 12h parts
+function to12(t: string): { h: string; m: string; p: "AM" | "PM" } {
+  const [hRaw, mRaw] = (t || "12:00").split(":");
+  let h = parseInt(hRaw, 10);
+  const m = (mRaw ?? "00").padStart(2, "0");
+  const p: "AM" | "PM" = h >= 12 ? "PM" : "AM";
+  h = h % 12;
+  if (h === 0) h = 12;
+  return { h: String(h), m, p };
+}
+function to24(h: string, m: string, p: "AM" | "PM"): string {
+  let hn = parseInt(h, 10) % 12;
+  if (p === "PM") hn += 12;
+  return `${String(hn).padStart(2, "0")}:${m}`;
+}
+
 
 export function BookingWidget() {
   const navigate = useNavigate();
@@ -22,15 +39,16 @@ export function BookingWidget() {
   const [dropoff, setDropoff] = useState("");
   const [stops, setStops] = useState<string[]>([]);
   const [date, setDate] = useState(today);
-  const [hour, setHour] = useState(String(now.getHours()).padStart(2, "0"));
-  const [minute, setMinute] = useState("00");
+  const roundedMin = String(Math.round(now.getMinutes() / 15) * 15 % 60).padStart(2, "0");
+  const initHour = to12(`${String(now.getHours()).padStart(2, "0")}:${roundedMin}`);
+  const [time, setTime] = useState<string>(to24(initHour.h, initHour.m, initHour.p));
   const [passengers, setPassengers] = useState(1);
   const [luggage, setLuggage] = useState(0);
   const [showReturn, setShowReturn] = useState(false);
   const [returnDate, setReturnDate] = useState(today);
-  const [returnHour, setReturnHour] = useState("12");
-  const [returnMin, setReturnMin] = useState("00");
+  const [returnTime, setReturnTime] = useState<string>("12:00");
   const [duration, setDuration] = useState("3");
+
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
