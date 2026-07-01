@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { PlaceSuggestion } from "@/routes/api/places-autocomplete";
 import { Input } from "@/components/ui/input";
-import { MapPin, Building2, Plane } from "lucide-react";
+import { MapPin, Building2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Mode = "all" | "areas" | "addresses";
@@ -16,21 +16,6 @@ type Props = {
   mode?: Mode;
 };
 
-// Popular UK pickup/dropoff areas shown as quick chips on focus
-const POPULAR_AREAS: { label: string; value: string; airport?: boolean }[] = [
-  { label: "Heathrow", value: "Heathrow Airport (LHR), London, UK", airport: true },
-  { label: "Gatwick", value: "Gatwick Airport (LGW), UK", airport: true },
-  { label: "Stansted", value: "Stansted Airport (STN), UK", airport: true },
-  { label: "Luton", value: "Luton Airport (LTN), UK", airport: true },
-  { label: "London City", value: "London City Airport (LCY), UK", airport: true },
-  { label: "Central London", value: "Central London, UK" },
-  { label: "Manchester", value: "Manchester, UK" },
-  { label: "Birmingham", value: "Birmingham, UK" },
-  { label: "Liverpool", value: "Liverpool, UK" },
-  { label: "Leeds", value: "Leeds, UK" },
-  { label: "Bristol", value: "Bristol, UK" },
-  { label: "Edinburgh", value: "Edinburgh, UK" },
-];
 
 export function AddressAutocomplete({
   value,
@@ -134,33 +119,6 @@ export function AddressAutocomplete({
         )}
       />
 
-      {showChips && (
-        <div className="absolute z-50 left-0 right-0 top-full mt-2 rounded-xl border border-border bg-card shadow-xl overflow-hidden">
-          <div className="px-4 pt-3 pb-1.5 text-[10px] uppercase tracking-[0.18em] text-foreground/50 font-bold">
-            Popular UK areas & airports
-          </div>
-          <div className="flex flex-wrap gap-1.5 p-3 pt-2">
-            {POPULAR_AREAS.map((a) => (
-              <button
-                key={a.label}
-                type="button"
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  onChange(a.value);
-                  setOpen(false);
-                }}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-[var(--surface)] hover:bg-[var(--gold)]/15 hover:text-[var(--gold)] text-xs font-semibold text-foreground/75 transition-colors"
-              >
-                {a.airport ? <Plane className="w-3 h-3" /> : <Building2 className="w-3 h-3" />}
-                {a.label}
-              </button>
-            ))}
-          </div>
-          <div className="px-4 py-1.5 text-[10px] uppercase tracking-[0.18em] text-foreground/40 border-t border-border bg-[var(--surface)]/40">
-            Start typing for UK address & locality search
-          </div>
-        </div>
-      )}
 
       {open && !showChips && suggestions.length > 0 && (
         <div className="absolute z-50 left-0 right-0 top-full mt-2 rounded-xl border border-border bg-card shadow-xl overflow-hidden">
