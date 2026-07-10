@@ -144,7 +144,77 @@ function BookPage() {
           </div>
         </div>
       </section>
+      <EditTripDialog open={editOpen} onOpenChange={setEditOpen} initial={pre} onSave={applyEdit} />
     </SiteLayout>
+  );
+}
+
+// =================================================================
+// Edit Trip dialog
+// =================================================================
+function EditTripDialog({
+  open, onOpenChange, initial, onSave,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  initial: Prefill;
+  onSave: (next: Prefill) => void;
+}) {
+  const [form, setForm] = useState<Prefill>(initial);
+  // Reset local state whenever dialog re-opens
+  useMemo(() => { if (open) setForm(initial); }, [open, initial]);
+  const set = <K extends keyof Prefill>(k: K, v: Prefill[K]) => setForm((f) => ({ ...f, [k]: v }));
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Edit your trip</DialogTitle>
+          <DialogDescription>Update pickup, dropoff, date, time or passengers and we'll refresh your quote.</DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-2">
+          <div className="grid gap-1.5">
+            <Label htmlFor="edit-pickup">Pickup</Label>
+            <Input id="edit-pickup" value={form.pickup} onChange={(e) => set("pickup", e.target.value)} placeholder="e.g. Edinburgh Airport" />
+          </div>
+          <div className="grid gap-1.5">
+            <Label htmlFor="edit-dropoff">Dropoff</Label>
+            <Input id="edit-dropoff" value={form.dropoff} onChange={(e) => set("dropoff", e.target.value)} placeholder="e.g. Glasgow" />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="grid gap-1.5">
+              <Label htmlFor="edit-date">Date</Label>
+              <Input id="edit-date" type="date" value={form.date} onChange={(e) => set("date", e.target.value)} />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="edit-time">Time</Label>
+              <Input id="edit-time" type="time" value={form.time} onChange={(e) => set("time", e.target.value)} />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="grid gap-1.5">
+              <Label htmlFor="edit-pax">Passengers</Label>
+              <Input id="edit-pax" type="number" min={1} max={60} value={form.passengers}
+                onChange={(e) => set("passengers", Math.max(1, Number(e.target.value) || 1))} />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="edit-lug">Luggage</Label>
+              <Input id="edit-lug" type="number" min={0} max={60} value={form.luggage}
+                onChange={(e) => set("luggage", Math.max(0, Number(e.target.value) || 0))} />
+            </div>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button
+            onClick={() => onSave(form)}
+            disabled={!form.pickup.trim() || !form.dropoff.trim() || !form.date || !form.time}
+          >
+            Update quote
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
