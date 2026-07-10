@@ -470,7 +470,8 @@ function Toggle({ label, checked, onChange }: { label: string; checked: boolean;
 // =================================================================
 // Step 3 — Payment placeholder
 // =================================================================
-function PaymentStep({ card, onBack }: { card: QuoteCard; onBack: () => void }) {
+function PaymentStep({ card, qty, onBack }: { card: QuoteCard; qty: number; onBack: () => void }) {
+  const total = card.finalPrice * qty;
   return (
     <div className="bg-card rounded-2xl border border-border shadow-sm p-8 text-center">
       <CheckCircle2 className="size-12 text-[var(--gold)] mx-auto" />
@@ -479,9 +480,12 @@ function PaymentStep({ card, onBack }: { card: QuoteCard; onBack: () => void }) 
         We'll confirm shortly by email. Online payment will be enabled once a payment provider is connected.
       </p>
       <div className="mt-6 inline-block bg-[var(--surface)] rounded-xl border border-border px-6 py-4">
-        <p className="text-xs uppercase tracking-widest text-muted-foreground font-bold">Total to pay</p>
-        <p className="font-display text-3xl font-bold mt-1">£{card.finalPrice.toFixed(2)}</p>
+        <p className="text-xs uppercase tracking-widest text-muted-foreground font-bold">
+          Total to pay {qty > 1 ? `(${qty} × ${card.name})` : ""}
+        </p>
+        <p className="font-display text-3xl font-bold mt-1">£{total.toFixed(2)}</p>
       </div>
+
       <div className="mt-8 flex flex-wrap justify-center gap-3">
         <Button variant="outline" onClick={onBack} className="gap-2">
           <ArrowLeft className="size-4" /> Back
