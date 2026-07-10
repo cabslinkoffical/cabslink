@@ -672,33 +672,45 @@ export const listPricingRules = createServerFn({ method: "GET" })
     return data ?? [];
   });
 
-const pricingSchema = z.object({
-  id: z.string().uuid().optional(),
-  from_address: z.string().min(1).max(300),
-  to_address: z.string().min(1).max(300),
-  from_place_id: z.string().trim().min(1).max(300).nullable().optional(),
-  to_place_id: z.string().trim().min(1).max(300).nullable().optional(),
-  from_place_label: z.string().max(500).nullable().optional(),
-  to_place_label: z.string().max(500).nullable().optional(),
-  bidirectional: z.boolean().default(false),
-  vehicle_id: z.string().uuid().nullable().optional(),
-  price: z.number().min(0),
-  currency: z.string().max(10).default("GBP"),
-  valid_from: z.string().nullable().optional(),
-  valid_to: z.string().nullable().optional(),
-  notes: z.string().max(1000).nullable().optional(),
-  active: z.boolean().default(true),
-});
+const pricingSchema = z
+  .object({
+    id: z.string().uuid().optional(),
+    from_address: z.string().min(1).max(300),
+    to_address: z.string().min(1).max(300),
+    from_place_id: z.string().trim().min(1).max(300).nullable().optional(),
+    to_place_id: z.string().trim().min(1).max(300).nullable().optional(),
+    from_place_label: z.string().max(500).nullable().optional(),
+    to_place_label: z.string().max(500).nullable().optional(),
+    bidirectional: z.boolean().default(false),
+    vehicle_id: z.string().uuid().nullable().optional(),
+    price: z.coerce.number().min(0).max(100000),
+    currency: z.string().max(10).default("GBP"),
+    valid_from: z.string().nullable().optional(),
+    valid_to: z.string().nullable().optional(),
+    notes: z.string().max(1000).nullable().optional(),
+    active: z.boolean().default(true),
+  })
+  .superRefine((v, ctx) => {
+    if (!v.active) return;
+    if (!v.from_place_id) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["from_place_id"], message: "Pickup Place ID is required for active rules" });
+    }
+    if (!v.to_place_id) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["to_place_id"], message: "Destination Place ID is required for active rules" });
+    }
+    if (!v.vehicle_id) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["vehicle_id"], message: "Vehicle is required for active rules" });
+    }
+    if (!(Number(v.price) > 0)) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["price"], message: "Fixed price must be > 0" });
+    }
+  });
 
 export const upsertPricingRule = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => pricingSchema.parse(i))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    // Guard: an active fixed-price rule must have both origin & destination Place IDs.
-    if (data.active && (!data.from_place_id || !data.to_place_id)) {
-      throw new Error("Active pricing rules require both origin and destination locations selected from the suggestions.");
-    }
     const payload: any = {
       ...data,
       valid_from: data.valid_from || null,
@@ -711,13 +723,20 @@ export const upsertPricingRule = createServerFn({ method: "POST" })
     if (data.id) {
       const { id, ...patch } = payload;
       const { error } = await context.supabase.from("pricing_rules").update(patch).eq("id", id);
-      if (error) throw new Error(error.message);
+      if (error) throw new Error(mapPricingRuleError(error));
     } else {
       const { error } = await context.supabase.from("pricing_rules").insert(payload);
-      if (error) throw new Error(error.message);
+      if (error) throw new Error(mapPricingRuleError(error));
     }
     return { ok: true };
   });
+
+function mapPricingRuleError(err: any): string {
+  const code = err?.code;
+  const msg = err?.message ?? "Failed to save pricing rule";
+  if (code === "23505") return "A conflicting active fixed-price rule already exists for this vehicle and route.";
+  return msg;
+}
 
 export const deletePricingRule = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
