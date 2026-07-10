@@ -228,6 +228,93 @@ export const calculateQuotes = createServerFn({ method: "POST" })
 
 
 // -------------------------------------------------------------------
+// Public: create booking with server-authoritative price
+// -------------------------------------------------------------------
+const createBookingInput = z.object({
+  vehicleId: z.string().uuid(),
+  pickup: z.string().trim().min(2).max(500),
+  dropoff: z.string().trim().min(2).max(500),
+  pickupDate: z.string().trim().min(1).max(20),
+  pickupTime: z.string().trim().min(1).max(10),
+  passengers: z.number().int().min(1).max(20),
+  luggage: z.number().int().min(0).max(20),
+  viaStops: z.number().int().min(0).max(10).optional().default(0),
+  customer_name: z.string().trim().min(1).max(120),
+  email: z.string().trim().email().max(255),
+  phone: z.string().trim().min(5).max(30),
+  flight_number: z.string().trim().max(20).optional().nullable(),
+  notes: z.string().trim().max(1000).optional().nullable(),
+  child_seat: z.boolean().optional().default(false),
+  meet_greet: z.boolean().optional().default(false),
+  return_journey: z.boolean().optional().default(false),
+});
+
+export const createBooking = createServerFn({ method: "POST" })
+  .inputValidator((data: z.infer<typeof createBookingInput>) => createBookingInput.parse(data))
+  .handler(async ({ data }) => {
+    const client = publicClient();
+
+    const [fixed, distanceMiles, profiles] = await Promise.all([
+      client
+        .from("pricing_rules")
+        .select("vehicle_id, price")
+        .eq("active", true)
+        .ilike("from_address", `%${data.pickup}%`)
+        .ilike("to_address", `%${data.dropoff}%`)
+        .then((r) => r.data ?? []),
+      estimateDistanceMiles(data.pickup, data.dropoff),
+      loadActiveProfiles(client),
+    ]);
+
+    const profile = profiles.find((p) => p.vehicle.id === data.vehicleId);
+    if (!profile) throw new Error("Selected vehicle is unavailable.");
+    if (profile.vehicle.passengers < data.passengers || profile.vehicle.luggage < data.luggage) {
+      throw new Error("Selected vehicle cannot fit the requested passengers/luggage.");
+    }
+
+    const fixedByVehicle = new Map<string, number>();
+    for (const r of fixed) {
+      if ((r as any).vehicle_id) fixedByVehicle.set((r as any).vehicle_id, Number((r as any).price));
+    }
+    const engine = runPricingEngine(profile, {
+      distanceMiles,
+      viaStops: data.viaStops,
+      pickupTime: data.pickupTime || undefined,
+    });
+    const authoritativePrice =
+      fixedByVehicle.get(profile.vehicle.id) ?? engine.finalPrice;
+    const price = Math.round(authoritativePrice * 100) / 100;
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: inserted, error } = await supabaseAdmin
+      .from("bookings")
+      .insert({
+        customer_name: data.customer_name,
+        email: data.email,
+        phone: data.phone,
+        pickup_address: data.pickup,
+        dropoff_address: data.dropoff,
+        pickup_date: data.pickupDate,
+        pickup_time: data.pickupTime,
+        flight_number: data.flight_number || null,
+        passengers: data.passengers,
+        luggage: data.luggage,
+        vehicle_type: profile.vehicle.name,
+        child_seat: !!data.child_seat,
+        meet_greet: !!data.meet_greet,
+        return_journey: !!data.return_journey,
+        notes: data.notes || null,
+        price,
+        status: "new",
+      })
+      .select("id, price")
+      .single();
+    if (error) throw new Error(error.message);
+    return { id: (inserted as any).id, price };
+  });
+
+
+// -------------------------------------------------------------------
 // Admin: list profiles + tiers for editing
 // -------------------------------------------------------------------
 export const adminListPricingProfiles = createServerFn({ method: "GET" })
