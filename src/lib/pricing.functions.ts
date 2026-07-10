@@ -334,15 +334,20 @@ export const createBooking = createServerFn({ method: "POST" })
 
     if (insertRes.error) {
       // Unique-violation on idempotency_key → race with a concurrent submit.
-      // Return the existing booking instead of surfacing an error.
+      // Return the existing booking only if its stored request hash matches.
       if ((insertRes.error as any).code === "23505") {
         const again = await supabaseAdmin
           .from("bookings")
-          .select("id, price")
+          .select("id, price, idempotency_request_hash")
           .eq("idempotency_key", data.idempotencyKey)
           .maybeSingle();
         if (again.data) {
-          return { id: (again.data as any).id, price: Number((again.data as any).price) };
+          const storedHash = (again.data as any).idempotency_request_hash as string | null;
+          if (storedHash && storedHash === requestHash) {
+            return { id: (again.data as any).id, price: Number((again.data as any).price) };
+          }
+          try { setResponseStatus(409); } catch {}
+          throw new Error("This booking request conflicts with an earlier submission. Please refresh and try again.");
         }
       }
       console.error("createBooking insert failed", insertRes.error);
