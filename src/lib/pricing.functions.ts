@@ -52,6 +52,7 @@ async function estimateDistanceMiles(pickup: string, dropoff: string): Promise<n
             routingPreference: "TRAFFIC_AWARE",
             regionCode: "GB",
           }),
+          signal: AbortSignal.timeout(3500),
         },
       );
       if (res.ok) {
