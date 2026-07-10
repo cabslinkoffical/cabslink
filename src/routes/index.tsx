@@ -487,24 +487,71 @@ function HomePage() {
         </div>
       </section>
 
-      {/* CONTACT CTA */}
+      {/* FINAL CTA — reference-style soft block */}
       <section className="section-y">
-        <div className="container-x grid md:grid-cols-3 gap-5">
-          {[
-            { icon: Phone, title: "Call us 24/7", lines: [SITE.phoneUK, SITE.phoneUS], href: `tel:${SITE.phoneUK.replace(/\s/g,"")}` },
-            { icon: MapPin, title: "Visit our office", lines: [SITE.address], href: "/contact" },
-            { icon: Clock3, title: "Always available", lines: ["365 days a year, 24/7 dispatch and support"], href: "/contact" },
-          ].map(c => (
-            <a key={c.title} href={c.href} className="group relative rounded-2xl border border-border bg-card p-8 hover:border-[var(--gold)]/50 hover:-translate-y-1.5 hover:shadow-[var(--shadow-elegant)] transition-all duration-300 overflow-hidden">
-              <div aria-hidden className="absolute -top-8 -right-8 size-24 rounded-full bg-[var(--gold)]/0 group-hover:bg-[var(--gold)]/15 blur-2xl transition-all duration-500" />
-              <div className="relative grid size-12 place-items-center rounded-xl bg-[var(--gold)]/10 border border-[var(--gold)]/20 text-[var(--gold)] group-hover:scale-110 transition-transform">
-                <c.icon className="size-6" />
+        <div className="container-x">
+          <div className="relative overflow-hidden rounded-3xl border border-[var(--gold)]/25 bg-[color-mix(in_oklab,var(--gold)_10%,var(--background))] p-10 md:p-16">
+            <div aria-hidden className="pointer-events-none absolute -top-24 -right-16 size-[420px] rounded-full bg-[radial-gradient(circle_at_center,color-mix(in_oklab,var(--gold)_28%,transparent),transparent_70%)] blur-3xl" />
+            <div aria-hidden className="pointer-events-none absolute -bottom-24 -left-16 size-[320px] rounded-full bg-[radial-gradient(circle_at_center,color-mix(in_oklab,var(--navy)_10%,transparent),transparent_70%)] blur-3xl" />
+
+            <div className="relative grid gap-10 lg:grid-cols-2 items-center">
+              <div>
+                <div className="inline-flex items-center gap-3 mb-4">
+                  <span className="h-px w-8 bg-[var(--gold)]" aria-hidden />
+                  <p className="text-[11px] uppercase tracking-[0.32em] text-[var(--gold)] font-semibold">Ready when you are</p>
+                </div>
+                <h3 className="font-display text-3xl md:text-5xl font-semibold leading-[1.05] text-[var(--navy)]">
+                  Your Ride,{" "}
+                  <span
+                    className="bg-clip-text text-transparent"
+                    style={{ backgroundImage: "linear-gradient(180deg, #f0c548 0%, #dfaf26 55%, #b38a1d 100%)" }}
+                  >
+                    One Tap Away.
+                  </span>
+                </h3>
+                <p className="mt-4 max-w-md text-muted-foreground leading-relaxed">
+                  Book, track and enjoy a seamless chauffeur experience across the UK. Available 24/7 — no surge, no surprises.
+                </p>
+                <div className="mt-8 flex flex-wrap items-center gap-4">
+                  <Button asChild variant="slash">
+                    <a href="#booking">Book a Ride <ArrowRight className="size-4" /></a>
+                  </Button>
+                  <a
+                    href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}
+                    className="group inline-flex items-center gap-3 text-[var(--navy)] hover:text-[var(--gold)] transition-colors"
+                  >
+                    <span className="grid place-items-center size-11 rounded-full border border-[var(--navy)]/20 group-hover:border-[var(--gold)] transition-colors">
+                      <Phone className="size-4" />
+                    </span>
+                    <span className="text-sm">
+                      <span className="block text-[10px] uppercase tracking-[0.24em] text-muted-foreground">24/7 Reservations</span>
+                      <span className="font-medium">{SITE.phoneUK}</span>
+                    </span>
+                  </a>
+                </div>
               </div>
-              <h4 className="relative mt-5 font-display text-2xl">{c.title}</h4>
-              {c.lines.map(l => <p key={l} className="relative text-sm text-muted-foreground mt-1">{l}</p>)}
-              <p className="relative mt-4 inline-flex items-center gap-1 text-sm font-semibold text-[var(--gold)] opacity-0 group-hover:opacity-100 group-hover:gap-3 transition-all duration-300">Get in touch <ArrowRight className="size-4" /></p>
-            </a>
-          ))}
+
+              <div className="grid grid-cols-3 gap-3 sm:gap-5">
+                {[
+                  { icon: Phone, title: "Call us 24/7", body: SITE.phoneUK, href: `tel:${SITE.phoneUK.replace(/\s/g, "")}` },
+                  { icon: MapPin, title: "Visit our office", body: SITE.address, href: "/contact" },
+                  { icon: Clock3, title: "Always available", body: "365 days a year", href: "/contact" },
+                ].map((c) => (
+                  <a
+                    key={c.title}
+                    href={c.href}
+                    className="group relative flex flex-col rounded-2xl border border-border bg-card p-4 md:p-5 hover:border-[var(--gold)]/60 hover:-translate-y-1 hover:shadow-[var(--shadow-elegant)] transition-all duration-300"
+                  >
+                    <div className="grid size-10 place-items-center rounded-xl bg-[var(--gold)]/12 border border-[var(--gold)]/25 text-[var(--gold)] group-hover:scale-110 transition-transform">
+                      <c.icon className="size-5" />
+                    </div>
+                    <p className="mt-3 font-semibold text-sm leading-tight">{c.title}</p>
+                    <p className="mt-1 text-xs text-muted-foreground leading-snug line-clamp-2">{c.body}</p>
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </section>
     </SiteLayout>
