@@ -83,9 +83,9 @@ const testimonials = [
 function HomePage() {
   return (
     <SiteLayout>
-      {/* HERO — cinematic editorial */}
-      <section className="relative overflow-hidden isolate bg-[var(--navy)] min-h-[92vh] flex items-center">
-        {/* Full-bleed cinematic background */}
+      {/* HERO — cinematic editorial (v3) */}
+      <section className="relative overflow-hidden isolate bg-[var(--navy)] min-h-[92vh] flex items-center group/hero">
+        {/* Background image */}
         <div className="absolute inset-0 z-0">
           <img
             src={heroImg}
@@ -93,106 +93,114 @@ function HomePage() {
             aria-hidden
             width={1920}
             height={1280}
-            className="size-full object-cover object-center scale-105 animate-fade-soft"
+            className="size-full object-cover object-center opacity-60 transition-transform duration-[1400ms] ease-out group-hover/hero:scale-105 animate-fade-soft"
           />
-          <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-[var(--navy)] via-[var(--navy)]/85 to-[var(--navy)]/30" />
-          <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[var(--navy)] via-transparent to-[var(--navy)]/40" />
-          <div aria-hidden className="absolute inset-0 opacity-[0.15] mix-blend-overlay [background-image:radial-gradient(rgba(255,255,255,0.4)_1px,transparent_1px)] [background-size:3px_3px]" />
+          {/* Cinematic gradient overlays */}
+          <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-[var(--navy)] via-[var(--navy)]/80 to-transparent" />
+          <div aria-hidden className="absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,color-mix(in_oklab,var(--gold)_10%,transparent),transparent_55%)]" />
+          <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[var(--navy)] via-transparent to-transparent" />
         </div>
 
-        {/* Ambient gold glow */}
-        <div aria-hidden className="pointer-events-none absolute -top-40 -left-40 size-[600px] rounded-full bg-[radial-gradient(circle_at_center,color-mix(in_oklab,var(--gold)_30%,transparent),transparent_70%)] blur-3xl opacity-50" />
-        <div aria-hidden className="pointer-events-none absolute bottom-0 right-0 size-[500px] rounded-full bg-[radial-gradient(circle_at_center,color-mix(in_oklab,var(--gold)_18%,transparent),transparent_70%)] blur-3xl opacity-40" />
+        {/* Inner navy frame (desktop only) */}
+        <div aria-hidden className="pointer-events-none absolute inset-0 z-10 hidden xl:block border-[28px] border-[var(--navy)]" />
 
-        <div className="container-x relative z-10 pt-24 pb-40 md:pt-28 md:pb-56">
-          <div className="max-w-2xl">
-            <div className="animate-fade-up inline-flex items-center gap-3 mb-7">
-              <span className="h-px w-10 bg-[var(--gold)]" aria-hidden />
-              <p className="inline-flex items-center gap-2 text-[10px] md:text-[11px] uppercase tracking-[0.4em] text-[var(--gold)] font-semibold">
-                <Sparkles className="size-3" /> UK's Trusted Chauffeur Company
-              </p>
+        {/* Skewed edge panel */}
+        <div aria-hidden className="pointer-events-none absolute top-0 right-0 h-full w-1/3 z-10 border-l border-white/5 -skew-x-[15deg] translate-x-32" />
+
+        {/* Soft gold nebula bottom-right */}
+        <div aria-hidden className="pointer-events-none absolute bottom-0 right-0 h-1/2 w-1/2 z-10 rounded-full bg-gradient-to-tl from-[color-mix(in_oklab,var(--gold)_18%,transparent)] to-transparent blur-3xl translate-y-1/2 translate-x-1/4" />
+
+        {/* Content */}
+        <div className="container-x relative z-20 pt-24 md:pt-28 pb-40 md:pb-56">
+          <div className="max-w-4xl space-y-10">
+            {/* Eyebrow with drawing line */}
+            <div className="flex items-center gap-4 overflow-hidden">
+              <span
+                aria-hidden
+                className="h-px w-12 bg-[var(--gold)] -translate-x-full"
+                style={{ animation: "slideRight 900ms cubic-bezier(.2,.7,.2,1) 100ms forwards" }}
+              />
+              <span
+                className="text-[var(--gold)] text-[11px] font-semibold uppercase tracking-[0.4em] opacity-0"
+                style={{ animation: "fadeInUp 900ms cubic-bezier(.2,.7,.2,1) 500ms forwards" }}
+              >
+                Private Chauffeur Excellence
+              </span>
             </div>
 
+            {/* Headline — gilded */}
             <h1
-              className="animate-fade-up font-display font-bold text-white text-[2.5rem] sm:text-6xl md:text-7xl lg:text-[5.5rem] leading-[1.02] tracking-[-0.03em]"
-              style={{ animationDelay: "120ms" }}
+              className="font-display font-bold text-white leading-[0.9] tracking-[-0.035em] text-[3.25rem] sm:text-7xl md:text-8xl lg:text-[7rem] xl:text-[7.5rem] opacity-0"
+              style={{ animation: "fadeInUp 1s cubic-bezier(.2,.7,.2,1) 300ms forwards" }}
             >
               Arrive in
               <br />
-              <span className="italic font-light text-white/90">quiet</span>{" "}
-              <span className="relative inline-block text-[var(--gold)]">
-                luxury
-                <svg
-                  aria-hidden
-                  className="absolute -bottom-3 left-0 w-full h-3 text-[var(--gold)]/70"
-                  viewBox="0 0 300 12"
-                  preserveAspectRatio="none"
+              <span className="relative inline-block">
+                <span
+                  className="relative z-10 bg-clip-text text-transparent"
+                  style={{
+                    backgroundImage:
+                      "linear-gradient(180deg, #f7e4a1 0%, #dfaf26 55%, #b38a1d 100%)",
+                  }}
                 >
-                  <path d="M2 8 Q 75 2, 150 6 T 298 5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                </svg>
+                  quiet luxury.
+                </span>
+                <span
+                  aria-hidden
+                  className="absolute -bottom-2 left-0 w-full h-1 bg-[color-mix(in_oklab,var(--gold)_45%,transparent)] blur-md"
+                />
               </span>
-              .
             </h1>
 
+            {/* Subhead */}
             <p
-              className="animate-fade-up mt-8 max-w-xl text-base md:text-lg text-white/70 leading-relaxed"
-              style={{ animationDelay: "240ms" }}
+              className="text-white/70 text-lg md:text-xl max-w-xl leading-relaxed opacity-0"
+              style={{ animation: "fadeInUp 1s cubic-bezier(.2,.7,.2,1) 600ms forwards" }}
             >
-              Chauffeur-driven Mercedes-Benz V-Class across Edinburgh, London and the entire UK — flight tracked, meet &amp; greet, fixed fares. No surge, no surprises.
+              A seamless transition from the runway to the city. Discreet, punctual and refined chauffeur service across Edinburgh, London and the entire UK.
             </p>
 
+            {/* CTAs + proof */}
             <div
-              className="animate-fade-up mt-10 flex flex-wrap items-center gap-4"
-              style={{ animationDelay: "360ms" }}
+              className="flex flex-wrap items-center gap-8 md:gap-10 opacity-0"
+              style={{ animation: "fadeInUp 1s cubic-bezier(.2,.7,.2,1) 900ms forwards" }}
             >
               <Button asChild variant="slash">
-                <a href="#booking">Book a Ride <ArrowRight className="size-4" /></a>
+                <a href="#booking">Book Your Transfer <ArrowRight className="size-4" /></a>
               </Button>
+
               <a
                 href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}
-                className="group inline-flex items-center gap-3 text-white/90 hover:text-[var(--gold)] transition-colors"
+                className="group/tel flex flex-col"
               >
-                <span className="grid place-items-center size-11 rounded-full border border-white/25 group-hover:border-[var(--gold)] transition-colors">
-                  <Phone className="size-4" />
+                <span className="text-[10px] font-bold uppercase tracking-[0.28em] text-[var(--gold)]/70 group-hover/tel:text-[var(--gold)] transition-colors">
+                  Direct Line
                 </span>
-                <span className="text-sm">
-                  <span className="block text-[10px] uppercase tracking-[0.24em] text-white/50">24/7 Reservations</span>
-                  <span className="font-medium">{SITE.phoneUK}</span>
+                <span className="text-white font-medium text-lg group-hover/tel:text-[var(--gold)] transition-colors">
+                  {SITE.phoneUK}
                 </span>
               </a>
-            </div>
 
-            <div
-              className="animate-fade-up mt-12 flex flex-wrap items-center gap-6 pt-8 border-t border-white/10"
-              style={{ animationDelay: "480ms" }}
-            >
-              <div>
-                <div className="flex items-center gap-1 text-[var(--gold)]">
-                  {[...Array(5)].map((_, i) => <Star key={i} className="size-4 fill-current" />)}
+              <span aria-hidden className="hidden md:block h-10 w-px bg-white/10" />
+
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-0.5 text-[var(--gold)]">
+                  {[...Array(5)].map((_, i) => <Star key={i} className="size-3.5 fill-current" />)}
                 </div>
-                <p className="mt-1.5 text-xs text-white/60">4.9 · 2,400+ reviews</p>
-              </div>
-              <span aria-hidden className="h-10 w-px bg-white/15" />
-              <div>
-                <p className="font-display text-2xl font-bold text-white leading-none">50k+</p>
-                <p className="mt-1.5 text-xs text-white/60">Journeys delivered</p>
-              </div>
-              <span aria-hidden className="hidden sm:block h-10 w-px bg-white/15" />
-              <div className="hidden sm:block">
-                <p className="font-display text-2xl font-bold text-white leading-none">24/7</p>
-                <p className="mt-1.5 text-xs text-white/60">Live dispatch</p>
+                <span className="text-white/50 text-[10px] uppercase font-bold tracking-[0.2em]">
+                  4.9 / 5 · 2,400+ reviews
+                </span>
               </div>
             </div>
           </div>
         </div>
 
-        <div aria-hidden className="hidden md:flex absolute right-8 top-1/2 -translate-y-1/2 z-10 flex-col items-center gap-3 text-white/40 text-[10px] uppercase tracking-[0.32em] [writing-mode:vertical-rl]">
-          <span>Scroll</span>
-          <span className="h-16 w-px bg-gradient-to-b from-[var(--gold)] to-transparent" />
-        </div>
+        {/* Bottom mask so booking widget overlaps cleanly */}
+        <div aria-hidden className="pointer-events-none absolute bottom-0 left-0 right-0 h-24 z-10 bg-gradient-to-t from-[var(--navy)] to-transparent" />
 
-        <div className="taxi-stripe h-2 w-full absolute bottom-0 left-0 right-0" aria-hidden />
+        <div className="taxi-stripe h-2 w-full absolute bottom-0 left-0 right-0 z-20" aria-hidden />
       </section>
+
 
       {/* BOOKING WIDGET — unchanged position & logic */}
       <section id="booking" className="relative z-20 scroll-mt-24">
