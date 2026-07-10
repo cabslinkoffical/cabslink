@@ -14,14 +14,12 @@ function walk(dir: string, out: string[] = []): string[] {
 }
 
 /**
- * Build-time guard: server-only credential NAMES and (when known) VALUES must
- * never appear in the generated browser bundles. Runs `vite build` once and
- * greps the client asset directory. Longer timeout because it triggers a full
- * production build.
+ * Build-time guard: server-only credential NAMES must never appear in the
+ * generated browser bundles. Any injected FORBIDDEN_VALUES must also be
+ * absent. We build fresh in a scanning-only mode: dummy secrets injected as
+ * env vars are treated as sentinel values. If a real secret happens to be
+ * present in the environment we scan for it too, without ever printing it.
  */
-
-// The build emits client assets under `.output/public/` for the Cloudflare
-// worker target. Any of these substrings appearing there is a leak.
 const FORBIDDEN_NAMES = [
   "GOOGLE_MAPS_API_KEY",
   "LOVABLE_API_KEY",
@@ -29,11 +27,14 @@ const FORBIDDEN_NAMES = [
   "X-Connection-Api-Key",
 ];
 
-const FORBIDDEN_VALUES = [
-  process.env.GOOGLE_MAPS_API_KEY,
-  process.env.LOVABLE_API_KEY,
-  process.env.SUPABASE_SERVICE_ROLE_KEY,
-].filter((v): v is string => typeof v === "string" && v.length >= 12);
+// Deterministic dummy values used to make value-scanning meaningful even when
+// no real secrets exist in the CI env. The build below is invoked with these
+// as env vars so any accidental client leak would embed them.
+const DUMMY_SECRETS: Record<string, string> = {
+  GOOGLE_MAPS_API_KEY: "DUMMY_GMAPS_KEY__" + "a".repeat(24),
+  LOVABLE_API_KEY: "DUMMY_LOVABLE_KEY__" + "b".repeat(24),
+  SUPABASE_SERVICE_ROLE_KEY: "DUMMY_SR_KEY__" + "c".repeat(24),
+};
 
 const CLIENT_DIRS = [".output/public", "dist/client", "dist"];
 
@@ -43,19 +44,34 @@ function findClientDir(): string | null {
 }
 
 beforeAll(() => {
-  if (!findClientDir()) {
-    execSync("bun run build", { stdio: "inherit", timeout: 300_000 });
-  }
-}, 320_000);
+  // Always run a build with dummy secrets injected so value-scanning is
+  // meaningful. Skips rebuild only if a build already exists AND we ran with
+  // BUNDLE_SCAN_SKIP_BUILD=1 (used for local dev iteration).
+  if (findClientDir() && process.env.BUNDLE_SCAN_SKIP_BUILD === "1") return;
+  execSync("bun run build", {
+    stdio: "inherit",
+    timeout: 420_000,
+    env: { ...process.env, ...DUMMY_SECRETS },
+  });
+}, 480_000);
 
 describe("browser bundle secret scan", () => {
-  it("does not embed server-only credential names or values", () => {
+  it("build output exists and does not embed server-only credential names or values", () => {
     const dir = findClientDir();
-    expect(dir, "client build output not found").not.toBeNull();
+    expect(dir, "client build output not found — production build must succeed first").not.toBeNull();
 
     const allowedExt = /\.(js|mjs|cjs|map|html|css|json|txt)$/;
     const files = walk(dir!).filter((f) => allowedExt.test(f));
-    expect(files.length).toBeGreaterThan(0);
+    // A trivial no-build scan must not pass: require real bundle content.
+    expect(files.length, "no client bundle files scanned").toBeGreaterThan(0);
+    const totalBytes = files.reduce((s, f) => s + statSync(f).size, 0);
+    expect(totalBytes, "client bundle is suspiciously small").toBeGreaterThan(10_000);
+
+    const realValues = Object.entries(DUMMY_SECRETS)
+      .map(([k]) => process.env[k])
+      .filter((v): v is string => typeof v === "string" && v.length >= 16 && !v.startsWith("DUMMY_"));
+
+    const scanValues = [...Object.values(DUMMY_SECRETS), ...realValues];
 
     const leaks: string[] = [];
     for (const f of files) {
@@ -63,7 +79,7 @@ describe("browser bundle secret scan", () => {
       for (const name of FORBIDDEN_NAMES) {
         if (contents.includes(name)) leaks.push(`${f}: name ${name}`);
       }
-      for (const val of FORBIDDEN_VALUES) {
+      for (const val of scanValues) {
         if (contents.includes(val)) leaks.push(`${f}: value <redacted>`);
       }
     }

@@ -665,6 +665,11 @@ const pricingSchema = z.object({
   id: z.string().uuid().optional(),
   from_address: z.string().min(1).max(300),
   to_address: z.string().min(1).max(300),
+  from_place_id: z.string().trim().min(1).max(300).nullable().optional(),
+  to_place_id: z.string().trim().min(1).max(300).nullable().optional(),
+  from_place_label: z.string().max(500).nullable().optional(),
+  to_place_label: z.string().max(500).nullable().optional(),
+  bidirectional: z.boolean().default(false),
   vehicle_id: z.string().uuid().nullable().optional(),
   price: z.number().min(0),
   currency: z.string().max(10).default("GBP"),
@@ -679,7 +684,15 @@ export const upsertPricingRule = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => pricingSchema.parse(i))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    const payload: any = { ...data, valid_from: data.valid_from || null, valid_to: data.valid_to || null };
+    const payload: any = {
+      ...data,
+      valid_from: data.valid_from || null,
+      valid_to: data.valid_to || null,
+      from_place_id: data.from_place_id || null,
+      to_place_id: data.to_place_id || null,
+      from_place_label: data.from_place_label || null,
+      to_place_label: data.to_place_label || null,
+    };
     if (data.id) {
       const { id, ...patch } = payload;
       const { error } = await context.supabase.from("pricing_rules").update(patch).eq("id", id);
