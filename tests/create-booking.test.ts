@@ -34,13 +34,21 @@ vi.mock("@/lib/pricing-helpers.server", () => ({
   loadFixedPriceForRoute: async () => [],
 }));
 
-// --- Mock supabaseAdmin insert flow ---
+// --- Mock notifications.server so we don't try to send emails / touch logs ---
+const notifyCalls = { received: 0, admin: 0 };
+vi.mock("@/lib/notifications.server", () => ({
+  notifyBookingReceived: vi.fn(async () => { notifyCalls.received += 1; }),
+  notifyAdminNewBooking: vi.fn(async () => { notifyCalls.admin += 1; }),
+}));
+
+// --- Mock supabaseAdmin insert flow + rpc for booking-ref generation ---
 const store = {
-  existing: null as null | { id: string; price: number; idempotency_request_hash: string | null },
+  existing: null as null | { id: string; price: number; idempotency_request_hash: string | null; booking_ref?: string },
   insertError: null as any,
   insertReturn: null as any,
-  raceExisting: null as null | { id: string; price: number; idempotency_request_hash: string | null },
+  raceExisting: null as null | { id: string; price: number; idempotency_request_hash: string | null; booking_ref?: string },
   inserts: [] as any[],
+  refCounter: 0,
 };
 vi.mock("@/integrations/supabase/client.server", () => {
   const from = () => ({
@@ -55,18 +63,25 @@ vi.mock("@/integrations/supabase/client.server", () => {
         select: () => ({
           single: async () => {
             if (store.insertError) {
-              // On unique-violation the follow-up lookup returns raceExisting.
               store.existing = store.raceExisting;
               return { data: null, error: store.insertError };
             }
-            return { data: store.insertReturn ?? { id: "booking-1", price: payload.price }, error: null };
+            return { data: store.insertReturn ?? { id: "booking-1", price: payload.price, booking_ref: payload.booking_ref }, error: null };
           },
         }),
       };
     },
   });
-  return { supabaseAdmin: { from } };
+  const rpc = async (name: string) => {
+    if (name === "generate_booking_ref") {
+      store.refCounter += 1;
+      return { data: `CL-260710-TEST${store.refCounter}`, error: null };
+    }
+    return { data: null, error: null };
+  };
+  return { supabaseAdmin: { from, rpc } };
 });
+
 
 import { createBooking } from "@/lib/pricing.functions";
 import * as helpers from "@/lib/pricing-helpers.server";
