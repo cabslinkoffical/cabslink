@@ -1,36 +1,46 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
-import { BadgeCheck, CalendarDays, Car, Clock, MapPin, Phone, Mail, ShieldCheck, User, Users, Briefcase, Info } from "lucide-react";
+import { BadgeCheck, CalendarDays, Car, Clock, MapPin, Phone, Mail, ShieldCheck, User, Users, Briefcase, Info, Copy, Printer } from "lucide-react";
+import { useState } from "react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { getBookingByToken } from "@/lib/booking.functions";
 import { paymentNextStepMessage, statusLabel, type BookingStatus, type PaymentMode } from "@/lib/booking-lifecycle";
 import { SITE } from "@/lib/site";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/booking/$token")({
   head: () => ({
     meta: [
       { title: `Booking confirmation — ${SITE.name}` },
       { name: "description", content: "View your booking details." },
-      { name: "robots", content: "noindex, nofollow" },
+      { name: "robots", content: "noindex, nofollow, noarchive" },
+      { name: "referrer", content: "no-referrer" },
     ],
   }),
   component: ConfirmationPage,
-  notFoundComponent: () => (
+  notFoundComponent: () => <ExpiredPage />,
+});
+
+function ExpiredPage() {
+  return (
     <SiteLayout>
       <section className="section-y">
         <div className="container-x max-w-2xl text-center">
           <h1 className="font-display text-3xl font-bold">Confirmation link unavailable</h1>
           <p className="mt-3 text-muted-foreground">
-            This link is invalid or has expired. Please contact us and quote your booking reference.
+            This booking confirmation link is invalid or has expired. Please contact {SITE.name} and provide your booking reference.
           </p>
-          <div className="mt-6"><Button asChild><Link to="/">Back to home</Link></Button></div>
+          <div className="mt-6 flex flex-wrap justify-center gap-3">
+            <Button asChild variant="outline"><Link to="/">Back to home</Link></Button>
+            <Button asChild><a href={`tel:${SITE.phoneUK}`}>Call {SITE.phoneUK}</a></Button>
+          </div>
         </div>
       </section>
     </SiteLayout>
-  ),
-});
+  );
+}
 
 function ConfirmationPage() {
   const { token } = Route.useParams();
@@ -54,25 +64,23 @@ function ConfirmationPage() {
 
   if (q.isError || !q.data) {
     if (typeof window !== "undefined") notFound({ throw: false });
-    return (
-      <SiteLayout>
-        <section className="section-y">
-          <div className="container-x max-w-2xl text-center">
-            <h1 className="font-display text-3xl font-bold">Confirmation link unavailable</h1>
-            <p className="mt-3 text-muted-foreground">
-              {(q.error as Error | null)?.message ?? "This link is invalid or has expired."}
-            </p>
-            <div className="mt-6"><Button asChild><Link to="/">Back to home</Link></Button></div>
-          </div>
-        </section>
-      </SiteLayout>
-    );
+    return <ExpiredPage />;
   }
 
   const b = q.data;
-  const paymentMode: PaymentMode = "manual"; // Phase 2A: online payments not wired
+  const paymentMode: PaymentMode = "manual"; // Online payment not connected yet.
   const nextStep = paymentNextStepMessage(paymentMode, b.status as BookingStatus);
   const heading = b.status === "confirmed" ? "Booking confirmed" : "Booking request received";
+
+  const copyRef = async () => {
+    try {
+      await navigator.clipboard.writeText(b.bookingRef);
+      toast.success("Reference copied");
+    } catch {
+      toast.error("Could not copy — please write it down");
+    }
+  };
+  const printPage = () => { try { window.print(); } catch { /* ignore */ } };
 
   return (
     <SiteLayout>
@@ -81,15 +89,23 @@ function ConfirmationPage() {
           <div className="rounded-3xl border border-border bg-card p-8 md:p-10 shadow-[var(--shadow-elegant)]">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>
-                <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-[var(--gold)]">Cabslink · Your Journey</p>
+                <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-[var(--gold)]">{SITE.name} · Your Journey</p>
                 <h1 className="mt-2 font-display text-3xl md:text-4xl font-bold">{heading}</h1>
                 <p className="mt-2 text-sm text-muted-foreground max-w-lg">{nextStep}</p>
               </div>
-              <div className="rounded-2xl border border-[var(--gold)]/40 bg-[color-mix(in_oklab,var(--gold)_10%,transparent)] px-5 py-3 text-center">
-                <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground">Reference</p>
-                <p className="font-mono text-lg font-bold tracking-wider">{b.bookingRef}</p>
+              <div className="rounded-2xl border-2 border-[var(--gold)]/50 bg-[color-mix(in_oklab,var(--gold)_10%,transparent)] px-5 py-4 text-center">
+                <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground">Booking reference</p>
+                <p className="font-mono text-xl font-bold tracking-wider mt-1">{b.bookingRef}</p>
                 <p className="mt-1 text-[10px] uppercase tracking-[0.2em] text-[var(--gold)]">{statusLabel(b.status)}</p>
+                <div className="mt-3 flex gap-2 justify-center print:hidden">
+                  <Button size="sm" variant="outline" onClick={copyRef} className="h-7 gap-1 text-xs"><Copy className="size-3" /> Copy</Button>
+                  <Button size="sm" variant="outline" onClick={printPage} className="h-7 gap-1 text-xs"><Printer className="size-3" /> Print</Button>
+                </div>
               </div>
+            </div>
+
+            <div className="mt-6 rounded-xl bg-[color-mix(in_oklab,var(--gold)_6%,transparent)] border border-[var(--gold)]/30 p-4 text-sm text-muted-foreground">
+              <strong className="text-foreground">Please save this reference.</strong> You may need it when contacting us about this booking.
             </div>
 
             <div className="mt-8 grid gap-4 md:grid-cols-2">
@@ -118,7 +134,7 @@ function ConfirmationPage() {
                 <p className="font-display text-2xl font-bold">
                   {b.price != null ? `£${b.price.toFixed(2)}` : "—"}
                 </p>
-                <p className="mt-1 text-[11px] text-muted-foreground">Payment status: {statusLabel(b.paymentStatus as any)}</p>
+                <p className="mt-1 text-[11px] text-muted-foreground">Payment status: {b.paymentStatus ?? "unpaid"} · manual arrangement</p>
               </div>
               <BadgeCheck className="size-8 text-[var(--gold)]" />
             </div>
@@ -137,8 +153,8 @@ function ConfirmationPage() {
               </p>
             </div>
 
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Button asChild variant="outline"><Link to="/">Back to home</Link></Button>
+            <div className="mt-8 flex flex-wrap gap-3 print:hidden">
+              <Button asChild variant="outline" rel="noreferrer"><Link to="/">Back to home</Link></Button>
               <Button asChild className="ml-auto"><a href={`tel:${SITE.phoneUK}`}>Call us</a></Button>
             </div>
           </div>
@@ -178,3 +194,6 @@ function Chip({ children }: { children: React.ReactNode }) {
     </span>
   );
 }
+
+// Also drop `useState` unused import warning — the print state is inline.
+void useState;
