@@ -327,34 +327,41 @@ function DetailsStep({
   const [returnJourney, setReturnJourney] = useState(pre.ret);
   const [loading, setLoading] = useState(false);
 
+  const bookFn = useServerFn(createBooking);
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const fd = Object.fromEntries(new FormData(e.currentTarget));
     const parsed = detailsSchema.safeParse(fd);
     if (!parsed.success) { toast.error("Please fill in name, email and phone."); return; }
     setLoading(true);
-    const { error } = await supabase.from("bookings").insert({
-      customer_name: parsed.data.customer_name,
-      email: parsed.data.email,
-      phone: parsed.data.phone,
-      pickup_address: pre.pickup,
-      dropoff_address: pre.dropoff,
-      pickup_date: pre.date,
-      pickup_time: pre.time,
-      flight_number: parsed.data.flight_number || null,
-      passengers: pre.passengers,
-      luggage: pre.luggage,
-      vehicle_type: card.name,
-      child_seat: childSeat,
-      meet_greet: meetGreet,
-      return_journey: returnJourney,
-      notes: parsed.data.notes || null,
-      price: card.finalPrice,
-    });
-    setLoading(false);
-    if (error) { toast.error("Couldn't save booking. Try again or call us."); return; }
-    toast.success("Booking captured — choose payment next.");
-    onContinue();
+    try {
+      await bookFn({
+        data: {
+          vehicleId: card.vehicleId,
+          pickup: pre.pickup,
+          dropoff: pre.dropoff,
+          pickupDate: pre.date,
+          pickupTime: pre.time,
+          passengers: pre.passengers,
+          luggage: pre.luggage,
+          viaStops: pre.stops.length,
+          customer_name: parsed.data.customer_name,
+          email: parsed.data.email,
+          phone: parsed.data.phone,
+          flight_number: parsed.data.flight_number || null,
+          notes: parsed.data.notes || null,
+          child_seat: childSeat,
+          meet_greet: meetGreet,
+          return_journey: returnJourney,
+        },
+      });
+      toast.success("Booking captured — choose payment next.");
+      onContinue();
+    } catch (err) {
+      toast.error("Couldn't save booking. Try again or call us.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
