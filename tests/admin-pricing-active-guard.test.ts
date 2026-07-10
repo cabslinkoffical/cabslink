@@ -30,10 +30,11 @@ import { upsertPricingRule } from "@/lib/admin.functions";
 
 beforeEach(() => { captured.length = 0; });
 
-describe("upsertPricingRule — legacy activation guard", () => {
+describe("upsertPricingRule — activation guard", () => {
   const base = {
     from_address: "Legacy from",
     to_address: "Legacy to",
+    vehicle_id: "11111111-1111-1111-1111-111111111111",
     price: 100,
     currency: "GBP",
     bidirectional: false,
@@ -41,21 +42,33 @@ describe("upsertPricingRule — legacy activation guard", () => {
   };
 
   it("rejects saving an active rule without both Place IDs", async () => {
-    await expect(upsertPricingRule({ data: { ...base, from_place_id: null, to_place_id: null } })).rejects.toThrow(/require both origin and destination/i);
-    await expect(upsertPricingRule({ data: { ...base, from_place_id: "ChIJ_a", to_place_id: null } })).rejects.toThrow(/require both/i);
-    await expect(upsertPricingRule({ data: { ...base, from_place_id: null, to_place_id: "ChIJ_b" } })).rejects.toThrow(/require both/i);
+    await expect(upsertPricingRule({ data: { ...base, from_place_id: null, to_place_id: null } })).rejects.toThrow(/place id/i);
+    await expect(upsertPricingRule({ data: { ...base, from_place_id: "ChIJ_a", to_place_id: null } })).rejects.toThrow(/destination place id/i);
+    await expect(upsertPricingRule({ data: { ...base, from_place_id: null, to_place_id: "ChIJ_b" } })).rejects.toThrow(/pickup place id/i);
     expect(captured).toHaveLength(0);
+  });
+
+  it("rejects saving an active rule without a vehicle", async () => {
+    await expect(
+      upsertPricingRule({ data: { ...base, vehicle_id: null, from_place_id: "ChIJ_a", to_place_id: "ChIJ_b" } }),
+    ).rejects.toThrow(/vehicle is required/i);
+  });
+
+  it("rejects saving an active rule with price = 0", async () => {
+    await expect(
+      upsertPricingRule({ data: { ...base, price: 0, from_place_id: "ChIJ_a", to_place_id: "ChIJ_b" } }),
+    ).rejects.toThrow(/fixed price must be > 0/i);
   });
 
   it("allows saving an inactive legacy rule (editing/deactivation permitted)", async () => {
     await expect(
-      upsertPricingRule({ data: { ...base, active: false, from_place_id: null, to_place_id: null } }),
+      upsertPricingRule({ data: { ...base, active: false, vehicle_id: null, from_place_id: null, to_place_id: null } }),
     ).resolves.toEqual({ ok: true });
     expect(captured).toHaveLength(1);
     expect(captured[0].p.active).toBe(false);
   });
 
-  it("allows saving an active rule with both valid Place IDs", async () => {
+  it("allows saving an active rule with both valid Place IDs and a vehicle", async () => {
     await expect(
       upsertPricingRule({ data: { ...base, from_place_id: "ChIJ_a", to_place_id: "ChIJ_b" } }),
     ).resolves.toEqual({ ok: true });
