@@ -9,7 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Trash2, ArrowUp, ArrowDown, Loader2, Gauge, Settings2 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Plus, Trash2, ArrowUp, ArrowDown, Loader2, Gauge, Settings2, Copy } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
 
@@ -142,9 +143,17 @@ function Page() {
                     <td className="px-4 py-3 text-center">{p?.tiers?.length ?? 0}</td>
                     <td className="px-4 py-3">{p ? <StatusBadge status={p.status ? "active" : "inactive"} /> : <span className="text-xs text-muted-foreground">Not set</span>}</td>
                     <td className="px-4 py-3 text-right">
-                      <Button size="sm" variant={p ? "outline" : "default"} onClick={() => setActiveVehicle(v)}>
-                        {p ? "Edit pricing" : "Set pricing"}
-                      </Button>
+                      <div className="flex justify-end gap-2">
+                        <DuplicateButton
+                          vehicleId={v.id}
+                          vehicleName={v.name}
+                          profiles={profiles}
+                          onDone={() => qc.invalidateQueries({ queryKey: ["pricing-profiles"] })}
+                        />
+                        <Button size="sm" variant={p ? "outline" : "default"} onClick={() => setActiveVehicle(v)}>
+                          {p ? "Edit pricing" : "Set pricing"}
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 );
