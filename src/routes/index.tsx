@@ -107,6 +107,32 @@ function HomePage() {
   const [active, setActive] = useState(0);
   const [dir, setDir] = useState<1 | -1>(1);
   const [paused, setPaused] = useState(false);
+  const [dbVehicles, setDbVehicles] = useState<typeof fallbackHeroVehicles | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    supabase
+      .from("vehicles")
+      .select("id, name, category, image_url, passengers")
+      .eq("active", true)
+      .order("display_order", { ascending: true })
+      .then(({ data }) => {
+        if (cancelled || !data || data.length === 0) return;
+        const mapped = data
+          .filter((v: any) => v.image_url)
+          .map((v: any) => ({
+            key: v.id as string,
+            name: v.name as string,
+            tag: `${v.category ?? "Vehicle"} · ${v.passengers ?? 0} seats`,
+            img: v.image_url as string,
+            seats: v.passengers ?? 0,
+          }));
+        if (mapped.length > 0) setDbVehicles(mapped);
+      });
+    return () => { cancelled = true; };
+  }, []);
+
+  const heroVehicles = useMemo(() => dbVehicles ?? fallbackHeroVehicles, [dbVehicles]);
 
   useEffect(() => {
     if (paused) return;
@@ -115,14 +141,18 @@ function HomePage() {
       setActive((i) => (i + 1) % heroVehicles.length);
     }, 5000);
     return () => clearInterval(id);
-  }, [paused]);
+  }, [paused, heroVehicles.length]);
+
+  useEffect(() => {
+    if (active >= heroVehicles.length) setActive(0);
+  }, [heroVehicles.length, active]);
 
   const go = (next: number) => {
     setDir(next > active || (active === heroVehicles.length - 1 && next === 0) ? 1 : -1);
     setActive((next + heroVehicles.length) % heroVehicles.length);
   };
 
-  const current = heroVehicles[active];
+  const current = heroVehicles[active] ?? heroVehicles[0];
 
   return (
     <SiteLayout>
