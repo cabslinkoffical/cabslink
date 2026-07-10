@@ -222,14 +222,20 @@ function MileageEditor({ pricing, setPricing }: { pricing: typeof emptyPricing; 
           <div className="col-span-1" />
         </div>
 
-        {pricing.tiers.map((t, i) => (
+        {pricing.tiers.map((t, i) => {
+          const prevSum = pricing.tiers.slice(0, i).reduce((s, x) => s + (Number(x.miles) || 0), 0);
+          const isLast = i === pricing.tiers.length - 1;
+          const rangeLabel = isLast
+            ? `${prevSum}+ mi`
+            : `${prevSum}–${prevSum + (Number(t.miles) || 0)} mi`;
+          return (
           <div key={i} className="grid grid-cols-12 gap-3 items-center">
             <div className="col-span-2 flex items-center gap-1">
-              <span className="text-sm font-semibold text-foreground/80">Next</span>
               <div className="flex flex-col -ml-0.5">
                 <button type="button" onClick={() => move(i, -1)} className="text-muted-foreground hover:text-foreground"><ArrowUp className="size-3" /></button>
                 <button type="button" onClick={() => move(i, 1)} className="text-muted-foreground hover:text-foreground"><ArrowDown className="size-3" /></button>
               </div>
+              <span className="text-xs font-medium text-muted-foreground tabular-nums">{rangeLabel}</span>
             </div>
             <div className="col-span-5">
               <div className="flex border border-border rounded-md overflow-hidden bg-background">
