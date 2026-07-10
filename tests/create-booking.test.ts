@@ -34,13 +34,21 @@ vi.mock("@/lib/pricing-helpers.server", () => ({
   loadFixedPriceForRoute: async () => [],
 }));
 
-// --- Mock supabaseAdmin insert flow ---
+// --- Mock notifications.server so we don't try to send emails / touch logs ---
+const notifyCalls = { received: 0, admin: 0 };
+vi.mock("@/lib/notifications.server", () => ({
+  notifyBookingReceived: vi.fn(async () => { notifyCalls.received += 1; }),
+  notifyAdminNewBooking: vi.fn(async () => { notifyCalls.admin += 1; }),
+}));
+
+// --- Mock supabaseAdmin insert flow + rpc for booking-ref generation ---
 const store = {
-  existing: null as null | { id: string; price: number; idempotency_request_hash: string | null },
+  existing: null as null | { id: string; price: number; idempotency_request_hash: string | null; booking_ref?: string },
   insertError: null as any,
   insertReturn: null as any,
-  raceExisting: null as null | { id: string; price: number; idempotency_request_hash: string | null },
+  raceExisting: null as null | { id: string; price: number; idempotency_request_hash: string | null; booking_ref?: string },
   inserts: [] as any[],
+  refCounter: 0,
 };
 vi.mock("@/integrations/supabase/client.server", () => {
   const from = () => ({
@@ -55,18 +63,25 @@ vi.mock("@/integrations/supabase/client.server", () => {
         select: () => ({
           single: async () => {
             if (store.insertError) {
-              // On unique-violation the follow-up lookup returns raceExisting.
               store.existing = store.raceExisting;
               return { data: null, error: store.insertError };
             }
-            return { data: store.insertReturn ?? { id: "booking-1", price: payload.price }, error: null };
+            return { data: store.insertReturn ?? { id: "booking-1", price: payload.price, booking_ref: payload.booking_ref }, error: null };
           },
         }),
       };
     },
   });
-  return { supabaseAdmin: { from } };
+  const rpc = async (name: string) => {
+    if (name === "generate_booking_ref") {
+      store.refCounter += 1;
+      return { data: `CL-260710-TEST${store.refCounter}`, error: null };
+    }
+    return { data: null, error: null };
+  };
+  return { supabaseAdmin: { from, rpc } };
 });
+
 
 import { createBooking } from "@/lib/pricing.functions";
 import * as helpers from "@/lib/pricing-helpers.server";
@@ -101,31 +116,58 @@ beforeEach(() => {
   store.insertReturn = null;
   store.raceExisting = null;
   store.inserts = [];
+  store.refCounter = 0;
+  notifyCalls.received = 0;
+  notifyCalls.admin = 0;
   _resetAllLimits();
   (helpers.realDistanceMiles as any).mockClear?.();
   (helpers.realDistanceMiles as any).mockImplementation?.(async () => ({ miles: 20, minutes: 30 }));
 });
 
 describe("createBooking — integration", () => {
-  it("first request inserts one booking with server-computed price and distance", async () => {
+  it("first request inserts one booking with server-computed price, distance and booking_ref", async () => {
     const res = await createBooking({ data: validPayload });
     expect(store.inserts).toHaveLength(1);
     expect(res.id).toBe("booking-1");
+    expect(res.ref).toMatch(/^CL-\d{6}-/);
+    expect(typeof res.token).toBe("string");
+    expect((res.token as string)).toMatch(/^[0-9a-f]{64}$/);
     // 20 mi * £1/mi + £10 base = £30
     expect(store.inserts[0].price).toBe(30);
     expect(store.inserts[0].distance_miles).toBe(20);
     expect(store.inserts[0].idempotency_key).toBe(validPayload.idempotencyKey);
     expect(store.inserts[0].idempotency_request_hash).toMatch(/^[0-9a-f]{64}$/);
+    // Booking reference must come from server (RPC), not the input payload.
+    expect(store.inserts[0].booking_ref).toBe(res.ref);
+    // Confirmation token hash is stored; raw token is NOT stored.
+    expect(store.inserts[0].confirmation_token_hash).toMatch(/^[0-9a-f]{64}$/);
+    expect(store.inserts[0].confirmation_token_hash).not.toBe(res.token);
+    // Notifications fire best-effort after successful insert.
+    expect(notifyCalls.received).toBe(1);
+    expect(notifyCalls.admin).toBe(1);
   });
 
-  it("same idempotency key + same payload returns the existing booking", async () => {
+  it("ignores a frontend-supplied booking_ref — server issues its own", async () => {
+    const spiked: any = { ...validPayload, booking_ref: "CL-000000-HACK", bookingRef: "CL-000000-HACK" };
+    const res = await createBooking({ data: spiked });
+    expect(res.ref).not.toBe("CL-000000-HACK");
+    expect(store.inserts[0].booking_ref).toBe(res.ref);
+  });
+
+  it("same idempotency key + same payload returns the existing booking (no duplicate insert, no new token)", async () => {
     const first = await createBooking({ data: validPayload });
-    // Simulate DB row already present from an earlier run.
-    store.existing = { id: first.id, price: 30, idempotency_request_hash: store.inserts[0].idempotency_request_hash };
+    store.existing = { id: first.id, price: 30, idempotency_request_hash: store.inserts[0].idempotency_request_hash, booking_ref: first.ref };
+    notifyCalls.received = 0;
+    notifyCalls.admin = 0;
     const again = await createBooking({ data: validPayload });
-    expect(again).toEqual({ id: first.id, price: 30 });
-    // No second insert attempted.
+    expect(again.id).toBe(first.id);
+    expect(again.price).toBe(30);
+    expect(again.ref).toBe(first.ref);
+    expect(again.token).toBeNull();
     expect(store.inserts).toHaveLength(1);
+    // Duplicate submissions do not re-fire notifications.
+    expect(notifyCalls.received).toBe(0);
+    expect(notifyCalls.admin).toBe(0);
   });
 
   it("same idempotency key + different payload is rejected as conflict", async () => {
@@ -138,24 +180,24 @@ describe("createBooking — integration", () => {
   });
 
   it("DB unique-violation race returns the existing booking only when hash matches", async () => {
-    // Compute expected hash by doing one successful call then reusing it.
     await createBooking({ data: validPayload });
     const goodHash = store.inserts[0].idempotency_request_hash;
     store.inserts = [];
 
-    // Next attempt: no `existing` at first check, but insert races.
     store.existing = null;
     store.insertError = { code: "23505" };
-    store.raceExisting = { id: "booking-race", price: 30, idempotency_request_hash: goodHash };
+    store.raceExisting = { id: "booking-race", price: 30, idempotency_request_hash: goodHash, booking_ref: "CL-260710-RACE" };
     const res = await createBooking({ data: validPayload });
-    expect(res).toEqual({ id: "booking-race", price: 30 });
+    expect(res.id).toBe("booking-race");
+    expect(res.price).toBe(30);
+    expect(res.token).toBeNull();
 
-    // Same race but a DIFFERENT stored hash → conflict.
     store.existing = null;
     store.insertError = { code: "23505" };
     store.raceExisting = { id: "booking-other", price: 999, idempotency_request_hash: "deadbeef".repeat(8) };
     await expect(createBooking({ data: validPayload })).rejects.toThrow(/conflicts with an earlier submission/i);
   });
+
 
   it("Google route failure prevents insertion", async () => {
     (helpers.realDistanceMiles as any).mockImplementation(async () => { throw new Error("Distance calculation is temporarily unavailable. Please try again."); });
@@ -186,4 +228,14 @@ describe("createBooking — integration", () => {
     ).rejects.toThrow(/too many booking attempts/i);
     expect(store.inserts.length).toBe(before);
   });
+
+  it("notification failure does not roll back the successful booking insert", async () => {
+    const notif = await import("@/lib/notifications.server");
+    (notif.notifyBookingReceived as any).mockImplementationOnce(async () => { throw new Error("smtp down"); });
+    (notif.notifyAdminNewBooking as any).mockImplementationOnce(async () => { throw new Error("smtp down"); });
+    const res = await createBooking({ data: validPayload });
+    expect(res.id).toBe("booking-1");
+    expect(store.inserts).toHaveLength(1);
+  });
 });
+

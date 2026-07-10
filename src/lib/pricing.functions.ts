@@ -250,17 +250,23 @@ export const createBooking = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const existing = await supabaseAdmin
       .from("bookings")
-      .select("id, price, idempotency_request_hash")
+      .select("id, price, booking_ref, idempotency_request_hash")
       .eq("idempotency_key", data.idempotencyKey)
       .maybeSingle();
     if (existing.data) {
       const storedHash = (existing.data as any).idempotency_request_hash as string | null;
       if (storedHash && storedHash === requestHash) {
-        return { id: (existing.data as any).id, price: Number((existing.data as any).price) };
+        return {
+          id: (existing.data as any).id,
+          price: Number((existing.data as any).price),
+          ref: (existing.data as any).booking_ref as string,
+          token: null as string | null,
+        };
       }
       try { setResponseStatus(409); } catch {}
       throw new Error("This booking request conflicts with an earlier submission. Please refresh and try again.");
     }
+
 
     // Authoritative price recompute — client-supplied price/distance ignored.
     let auth: AuthoritativeQuote;
@@ -301,6 +307,18 @@ export const createBooking = createServerFn({ method: "POST" })
       ? `Vehicles: ${qty} × ${profile.vehicle.name}${data.notes ? `\n\n${data.notes}` : ""}`
       : data.notes || null;
 
+    // Server-issued booking reference + confirmation token (client cannot supply)
+    const [{ newConfirmationToken }, refRpc] = await Promise.all([
+      import("@/lib/booking-confirmation.server"),
+      supabaseAdmin.rpc("generate_booking_ref"),
+    ]);
+    if ((refRpc as any).error) {
+      console.error("generate_booking_ref failed", (refRpc as any).error);
+      throw new Error("Couldn't save your booking. Please try again.");
+    }
+    const bookingRef = (refRpc as any).data as string;
+    const { token: confirmationToken, hash: confirmationHash, expiresAt: confirmationExpires } = newConfirmationToken();
+
     const insertPayload = {
       customer_name: data.customer_name,
       email: data.email,
@@ -324,12 +342,15 @@ export const createBooking = createServerFn({ method: "POST" })
       idempotency_key: data.idempotencyKey,
       idempotency_request_hash: requestHash,
       status: "new",
+      booking_ref: bookingRef,
+      confirmation_token_hash: confirmationHash,
+      confirmation_token_expires_at: confirmationExpires,
     };
 
     const insertRes = await supabaseAdmin
       .from("bookings")
       .insert(insertPayload as any)
-      .select("id, price")
+      .select("id, price, booking_ref")
       .single();
 
     if (insertRes.error) {
@@ -338,13 +359,21 @@ export const createBooking = createServerFn({ method: "POST" })
       if ((insertRes.error as any).code === "23505") {
         const again = await supabaseAdmin
           .from("bookings")
-          .select("id, price, idempotency_request_hash")
+          .select("id, price, booking_ref, idempotency_request_hash")
           .eq("idempotency_key", data.idempotencyKey)
           .maybeSingle();
         if (again.data) {
           const storedHash = (again.data as any).idempotency_request_hash as string | null;
           if (storedHash && storedHash === requestHash) {
-            return { id: (again.data as any).id, price: Number((again.data as any).price) };
+            // Confirmation token is NOT re-issued on replay; the original
+            // customer already received one. Return without a token so the
+            // client falls back to a generic "already submitted" flow.
+            return {
+              id: (again.data as any).id,
+              price: Number((again.data as any).price),
+              ref: (again.data as any).booking_ref,
+              token: null as string | null,
+            };
           }
           try { setResponseStatus(409); } catch {}
           throw new Error("This booking request conflicts with an earlier submission. Please refresh and try again.");
@@ -354,8 +383,46 @@ export const createBooking = createServerFn({ method: "POST" })
       throw new Error("Couldn't save your booking. Please try again.");
     }
 
-    return { id: (insertRes.data as any).id, price };
+    const insertedId = (insertRes.data as any).id as string;
+
+    // Best-effort notifications — never throw to the caller, never roll back.
+    try {
+      const { notifyBookingReceived, notifyAdminNewBooking } = await import("@/lib/notifications.server");
+      const ctx = {
+        bookingRef,
+        status: "new" as const,
+        paymentMode: "manual" as const,
+        customerName: data.customer_name,
+        customerEmail: data.email,
+        customerPhone: data.phone,
+        pickupAddress: data.pickupLabel,
+        dropoffAddress: data.destinationLabel,
+        pickupDate: data.pickupDate,
+        pickupTime: data.pickupTime,
+        vehicleType: insertPayload.vehicle_type,
+        passengers: data.passengers,
+        luggage: data.luggage,
+        flightNumber: data.flight_number ?? null,
+        meetGreet: !!data.meet_greet,
+        childSeat: !!data.child_seat,
+        returnJourney: !!data.return_journey,
+        distanceMiles: auth.distanceMiles,
+        price,
+        notes: data.notes ?? null,
+      };
+      // Fire in parallel; failures are logged inside notify* helpers.
+      await Promise.allSettled([
+        notifyBookingReceived(ctx, insertedId),
+        notifyAdminNewBooking(ctx, insertedId),
+      ]);
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error("post-booking notifications failed", err);
+    }
+
+    return { id: insertedId, price, ref: bookingRef, token: confirmationToken };
   });
+
 
 // -------------------------------------------------------------------
 // Admin: list profiles + tiers for editing

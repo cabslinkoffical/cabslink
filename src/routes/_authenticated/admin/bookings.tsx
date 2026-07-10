@@ -2,6 +2,8 @@ import { createFileRoute, useSearch } from "@tanstack/react-router";
 import { useSuspenseQuery, useMutation, useQueryClient, queryOptions, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { listBookings, updateBooking, softDeleteBooking, deleteBooking, listDrivers } from "@/lib/admin.functions";
+import { setBookingStatusFn, listBookingNotifications, retryBookingNotification } from "@/lib/booking.functions";
+import { STATUS_META, statusLabel, type BookingStatus } from "@/lib/booking-lifecycle";
 import { useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -11,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Trash2, RotateCcw, Eye, Plus } from "lucide-react";
+import { Search, Trash2, RotateCcw, Eye, RefreshCw, MailCheck, MailX, MailWarning } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
 
@@ -29,12 +31,11 @@ export const Route = createFileRoute("/_authenticated/admin/bookings")({
 const TABS = [
   { id: "all", label: "All" },
   { id: "upcoming", label: "Upcoming" },
-  { id: "pending", label: "Pending Allocation" },
+  { id: "pending", label: "Pending" },
   { id: "allocated", label: "Allocated" },
   { id: "in_progress", label: "In Progress" },
   { id: "completed", label: "Completed" },
   { id: "cancelled", label: "Cancelled" },
-  { id: "bidding", label: "Bidding" },
   { id: "deleted", label: "Deleted" },
 ];
 
@@ -44,13 +45,12 @@ function matchTab(b: any, tab: string) {
   if (b.deleted_at) return false;
   switch (tab) {
     case "all": return true;
-    case "upcoming": return b.pickup_date >= today && !["completed", "cancelled"].includes(b.status);
-    case "pending": return b.status === "new" || b.status === "pending_allocation";
-    case "allocated": return b.status === "assigned" || b.status === "confirmed";
-    case "in_progress": return b.status === "in_progress" || b.status === "on_way";
+    case "upcoming": return b.pickup_date >= today && !["completed", "cancelled", "rejected"].includes(b.status);
+    case "pending": return ["new", "pending_allocation", "awaiting_payment"].includes(b.status);
+    case "allocated": return ["assigned", "confirmed"].includes(b.status);
+    case "in_progress": return ["in_progress", "on_way", "driver_en_route", "passenger_on_board"].includes(b.status);
     case "completed": return b.status === "completed";
-    case "cancelled": return b.status === "cancelled";
-    case "bidding": return b.status === "bidding";
+    case "cancelled": return ["cancelled", "rejected"].includes(b.status);
     default: return true;
   }
 }
@@ -61,10 +61,12 @@ function BookingsPage() {
   const { data: drivers = [] } = useQuery(driverOpts);
   const qc = useQueryClient();
   const update = useServerFn(updateBooking);
+  const setStatus = useServerFn(setBookingStatusFn);
   const softDel = useServerFn(softDeleteBooking);
   const hardDel = useServerFn(deleteBooking);
   const [search, setSearch] = useState("");
   const [editing, setEditing] = useState<any | null>(null);
+  const [reason, setReason] = useState("");
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
@@ -73,9 +75,18 @@ function BookingsPage() {
     ));
   }, [bookings, tab, search]);
 
-  const mut = useMutation({
+  const patchMut = useMutation({
     mutationFn: (vars: any) => update({ data: vars }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin", "bookings"] }); qc.invalidateQueries({ queryKey: ["admin", "stats"] }); toast.success("Booking updated"); setEditing(null); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin", "bookings"] }); qc.invalidateQueries({ queryKey: ["admin", "stats"] }); toast.success("Booking updated"); setEditing(null); setReason(""); },
+    onError: (e: any) => toast.error(e.message),
+  });
+  const statusMut = useMutation({
+    mutationFn: (vars: { id: string; status: BookingStatus; reason?: string | null }) => setStatus({ data: vars }),
+    onSuccess: (res: any) => {
+      qc.invalidateQueries({ queryKey: ["admin", "bookings"] });
+      qc.invalidateQueries({ queryKey: ["admin", "booking-notifications", editing?.id] });
+      toast.success(res?.changed ? "Status updated" : "Status unchanged");
+    },
     onError: (e: any) => toast.error(e.message),
   });
   const delMut = useMutation({
@@ -89,9 +100,15 @@ function BookingsPage() {
     onError: (e: any) => toast.error(e.message),
   });
 
+  const originalStatus = editing?.status as BookingStatus | undefined;
+  const stagedStatus = editing?._staged_status as BookingStatus | undefined;
+  const effectiveStatus = stagedStatus ?? originalStatus;
+  const needsReason = !!effectiveStatus && ["cancelled", "rejected"].includes(effectiveStatus);
+  const statusChanged = stagedStatus && stagedStatus !== originalStatus;
+
   return (
     <div className="p-6 md:p-8 space-y-6">
-      <PageHeader title="Bookings" description="Manage all bookings, assignments, and payment status." />
+      <PageHeader title="Bookings" description="Manage bookings, assignments, and notifications." />
 
       <Tabs value={tab} className="w-full">
         <TabsList className="w-full justify-start overflow-x-auto h-auto p-1">
@@ -147,10 +164,10 @@ function BookingsPage() {
                     <td className="px-4 py-3 whitespace-nowrap text-xs">{b.driver?.full_name ?? <span className="text-muted-foreground">—</span>}</td>
                     <td className="px-4 py-3 whitespace-nowrap">{b.price ? `£${Number(b.price).toFixed(2)}` : "—"}</td>
                     <td className="px-4 py-3"><StatusBadge status={b.payment_status} /></td>
-                    <td className="px-4 py-3"><StatusBadge status={b.status} /></td>
+                    <td className="px-4 py-3"><StatusBadge status={statusLabel(b.status)} /></td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-1">
-                        <Button size="icon" variant="ghost" onClick={() => setEditing(b)} title="View / edit"><Eye className="size-4" /></Button>
+                        <Button size="icon" variant="ghost" onClick={() => { setEditing(b); setReason(""); }} title="View / edit"><Eye className="size-4" /></Button>
                         {b.deleted_at ? (
                           <Button size="icon" variant="ghost" onClick={() => delMut.mutate({ id: b.id, restore: true })} title="Restore"><RotateCcw className="size-4" /></Button>
                         ) : (
@@ -183,7 +200,7 @@ function BookingsPage() {
         </div>
       )}
 
-      <Sheet open={!!editing} onOpenChange={o => !o && setEditing(null)}>
+      <Sheet open={!!editing} onOpenChange={o => !o && (setEditing(null), setReason(""))}>
         <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
           {editing && (
             <>
@@ -193,28 +210,48 @@ function BookingsPage() {
               </SheetHeader>
               <div className="space-y-4 mt-6 text-sm">
                 <div className="grid grid-cols-2 gap-3">
-                  <Info label="Pickup" value={`${editing.pickup_address}`} />
-                  <Info label="Dropoff" value={`${editing.dropoff_address}`} />
+                  <Info label="Pickup" value={editing.pickup_address} />
+                  <Info label="Dropoff" value={editing.dropoff_address} />
                   <Info label="Date" value={editing.pickup_date} />
                   <Info label="Time" value={editing.pickup_time} />
                   <Info label="Vehicle" value={editing.vehicle_type} />
                   <Info label="Passengers / Luggage" value={`${editing.passengers} / ${editing.luggage}`} />
+                  {editing.distance_miles != null && <Info label="Distance (mi)" value={Number(editing.distance_miles).toFixed(1)} />}
                   {editing.flight_number && <Info label="Flight" value={editing.flight_number} />}
                   <Info label="Meet & Greet" value={editing.meet_greet ? "Yes" : "No"} />
+                  <Info label="Child seat" value={editing.child_seat ? "Yes" : "No"} />
+                  {editing.cancellation_reason && <Info label="Cancellation reason" value={editing.cancellation_reason} />}
                 </div>
 
                 <div className="border-t border-border pt-4 space-y-3">
                   <div>
                     <Label>Status</Label>
-                    <Select value={editing.status} onValueChange={v => setEditing({ ...editing, status: v })}>
+                    <Select value={effectiveStatus ?? "new"} onValueChange={v => setEditing({ ...editing, _staged_status: v })}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
-                        {["new", "pending_allocation", "confirmed", "assigned", "in_progress", "on_way", "completed", "cancelled", "bidding"].map(s => (
-                          <SelectItem key={s} value={s} className="capitalize">{s.replace(/_/g, " ")}</SelectItem>
-                        ))}
+                        {(Object.keys(STATUS_META) as BookingStatus[])
+                          .filter(s => STATUS_META[s].adminSelectable)
+                          .map(s => <SelectItem key={s} value={s} className="capitalize">{STATUS_META[s].label}</SelectItem>)}
                       </SelectContent>
                     </Select>
+                    {needsReason && (
+                      <div className="mt-2">
+                        <Label className="text-xs">Reason (required — visible to customer)</Label>
+                        <Textarea value={reason} onChange={e => setReason(e.target.value)} rows={2} maxLength={1000} />
+                      </div>
+                    )}
+                    {statusChanged && (
+                      <Button
+                        size="sm"
+                        className="mt-2"
+                        disabled={statusMut.isPending || (needsReason && !reason.trim())}
+                        onClick={() => statusMut.mutate({ id: editing.id, status: stagedStatus!, reason: reason || null })}
+                      >
+                        Apply status change
+                      </Button>
+                    )}
                   </div>
+
                   <div>
                     <Label>Payment status</Label>
                     <Select value={editing.payment_status} onValueChange={v => setEditing({ ...editing, payment_status: v })}>
@@ -235,25 +272,23 @@ function BookingsPage() {
                     </Select>
                   </div>
                   <div>
-                    <Label>Price (£)</Label>
-                    <Input type="number" step="0.01" value={editing.price ?? ""} onChange={e => setEditing({ ...editing, price: e.target.value === "" ? null : Number(e.target.value) })} />
-                  </div>
-                  <div>
                     <Label>Admin notes</Label>
                     <Textarea value={editing.admin_notes ?? ""} onChange={e => setEditing({ ...editing, admin_notes: e.target.value })} rows={3} />
                   </div>
                   {editing.notes && <Info label="Customer notes" value={editing.notes} />}
                 </div>
 
+                <NotificationsPanel bookingId={editing.id} />
+
                 <div className="flex justify-end gap-2 pt-2">
-                  <Button variant="outline" onClick={() => setEditing(null)}>Cancel</Button>
+                  <Button variant="outline" onClick={() => { setEditing(null); setReason(""); }}>Close</Button>
                   <Button
-                    disabled={mut.isPending}
-                    onClick={() => mut.mutate({ id: editing.id, patch: {
-                      status: editing.status, payment_status: editing.payment_status,
-                      driver_id: editing.driver_id, price: editing.price, admin_notes: editing.admin_notes,
+                    disabled={patchMut.isPending}
+                    onClick={() => patchMut.mutate({ id: editing.id, patch: {
+                      payment_status: editing.payment_status,
+                      driver_id: editing.driver_id, admin_notes: editing.admin_notes,
                     } })}
-                  >Save changes</Button>
+                  >Save other changes</Button>
                 </div>
               </div>
             </>
@@ -269,6 +304,52 @@ function Info({ label, value }: { label: string; value: string }) {
     <div>
       <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{label}</div>
       <div className="font-medium text-sm">{value}</div>
+    </div>
+  );
+}
+
+function NotificationsPanel({ bookingId }: { bookingId: string }) {
+  const listFn = useServerFn(listBookingNotifications);
+  const retryFn = useServerFn(retryBookingNotification);
+  const qc = useQueryClient();
+  const q = useQuery({
+    queryKey: ["admin", "booking-notifications", bookingId],
+    queryFn: () => listFn({ data: { bookingId } }),
+  });
+  const retry = useMutation({
+    mutationFn: (logId: string) => retryFn({ data: { logId } }),
+    onSuccess: (res: any) => {
+      qc.invalidateQueries({ queryKey: ["admin", "booking-notifications", bookingId] });
+      toast.success(res?.alreadySent ? "Already sent" : (res?.ok ? "Retry sent" : "Retry failed"));
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+  return (
+    <div className="border-t border-border pt-4">
+      <div className="flex items-center justify-between mb-3">
+        <Label>Notifications</Label>
+        <span className="text-xs text-muted-foreground">{q.data?.length ?? 0} entries</span>
+      </div>
+      {q.isLoading && <div className="text-xs text-muted-foreground">Loading…</div>}
+      {q.data?.length === 0 && <div className="text-xs text-muted-foreground">No notifications recorded.</div>}
+      <ul className="space-y-2">
+        {q.data?.map((n: any) => (
+          <li key={n.id} className="flex items-start gap-2 text-xs border border-border rounded-md p-2">
+            {n.status === "sent" ? <MailCheck className="size-4 text-emerald-600 mt-0.5" />
+              : n.status === "failed" ? <MailX className="size-4 text-red-600 mt-0.5" />
+              : <MailWarning className="size-4 text-amber-600 mt-0.5" />}
+            <div className="flex-1 min-w-0">
+              <div className="font-medium truncate">{n.notification_type} · {n.recipient_category}</div>
+              <div className="text-muted-foreground truncate">{n.recipient} · {n.status} · attempt {n.attempt_count}{n.error_category ? ` · ${n.error_category}` : ""}</div>
+            </div>
+            {n.status !== "sent" && (
+              <Button size="sm" variant="outline" disabled={retry.isPending} onClick={() => retry.mutate(n.id)} className="gap-1">
+                <RefreshCw className="size-3" /> Retry
+              </Button>
+            )}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
