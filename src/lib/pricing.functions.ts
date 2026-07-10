@@ -247,7 +247,12 @@ export const createBooking = createServerFn({ method: "POST" })
 
     // Idempotency: return existing booking ONLY if the request fingerprint
     // matches. A mismatched replay is refused with a generic conflict.
+    // On matching replay we RE-DERIVE the deterministic confirmation token
+    // from (id, booking_ref) so a customer whose first response was lost
+    // still receives a working confirmation URL — without ever creating a
+    // second booking or a duplicate notification.
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { deriveConfirmationToken } = await import("@/lib/booking-confirmation.server");
     const existing = await supabaseAdmin
       .from("bookings")
       .select("id, price, booking_ref, idempotency_request_hash")
@@ -256,11 +261,19 @@ export const createBooking = createServerFn({ method: "POST" })
     if (existing.data) {
       const storedHash = (existing.data as any).idempotency_request_hash as string | null;
       if (storedHash && storedHash === requestHash) {
+        const eid = (existing.data as any).id as string;
+        const eref = (existing.data as any).booking_ref as string;
+        let recoveredToken: string | null = null;
+        try {
+          recoveredToken = deriveConfirmationToken(eid, eref).token;
+        } catch {
+          recoveredToken = null;
+        }
         return {
-          id: (existing.data as any).id,
+          id: eid,
           price: Number((existing.data as any).price),
-          ref: (existing.data as any).booking_ref as string,
-          token: null as string | null,
+          ref: eref,
+          token: recoveredToken,
         };
       }
       try { setResponseStatus(409); } catch {}
@@ -307,17 +320,16 @@ export const createBooking = createServerFn({ method: "POST" })
       ? `Vehicles: ${qty} × ${profile.vehicle.name}${data.notes ? `\n\n${data.notes}` : ""}`
       : data.notes || null;
 
-    // Server-issued booking reference + confirmation token (client cannot supply)
-    const [{ newConfirmationToken }, refRpc] = await Promise.all([
-      import("@/lib/booking-confirmation.server"),
-      supabaseAdmin.rpc("generate_booking_ref"),
-    ]);
-    if ((refRpc as any).error) {
-      console.error("generate_booking_ref failed", (refRpc as any).error);
+    // Server-issued booking reference (client cannot supply one).
+    const refRpc: any = await supabaseAdmin.rpc("generate_booking_ref");
+    if (refRpc.error) {
+      console.error("generate_booking_ref failed", refRpc.error);
       throw new Error("Couldn't save your booking. Please try again.");
     }
-    const bookingRef = (refRpc as any).data as string;
-    const { token: confirmationToken, hash: confirmationHash, expiresAt: confirmationExpires } = newConfirmationToken();
+    const bookingRef = refRpc.data as string;
+
+    const CONFIRMATION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+    const confirmationExpires = new Date(Date.now() + CONFIRMATION_TTL_MS).toISOString();
 
     const insertPayload = {
       customer_name: data.customer_name,
@@ -343,8 +355,8 @@ export const createBooking = createServerFn({ method: "POST" })
       idempotency_request_hash: requestHash,
       status: "new",
       booking_ref: bookingRef,
-      confirmation_token_hash: confirmationHash,
       confirmation_token_expires_at: confirmationExpires,
+      // confirmation_token_hash set immediately after we know the row id
     };
 
     const insertRes = await supabaseAdmin
@@ -365,14 +377,15 @@ export const createBooking = createServerFn({ method: "POST" })
         if (again.data) {
           const storedHash = (again.data as any).idempotency_request_hash as string | null;
           if (storedHash && storedHash === requestHash) {
-            // Confirmation token is NOT re-issued on replay; the original
-            // customer already received one. Return without a token so the
-            // client falls back to a generic "already submitted" flow.
+            const raceId = (again.data as any).id as string;
+            const raceRef = (again.data as any).booking_ref as string;
+            let recoveredToken: string | null = null;
+            try { recoveredToken = deriveConfirmationToken(raceId, raceRef).token; } catch { recoveredToken = null; }
             return {
-              id: (again.data as any).id,
+              id: raceId,
               price: Number((again.data as any).price),
-              ref: (again.data as any).booking_ref,
-              token: null as string | null,
+              ref: raceRef,
+              token: recoveredToken,
             };
           }
           try { setResponseStatus(409); } catch {}
@@ -384,6 +397,24 @@ export const createBooking = createServerFn({ method: "POST" })
     }
 
     const insertedId = (insertRes.data as any).id as string;
+
+    // Derive the deterministic confirmation token now that we have the id.
+    // Missing BOOKING_TOKEN_SECRET must not break booking creation — log and
+    // proceed with a null token; admins can still contact the customer.
+    let confirmationToken: string | null = null;
+    let confirmationHash: string | null = null;
+    try {
+      const derived = deriveConfirmationToken(insertedId, bookingRef);
+      confirmationToken = derived.token;
+      confirmationHash = derived.hash;
+      await supabaseAdmin
+        .from("bookings")
+        .update({ confirmation_token_hash: confirmationHash } as any)
+        .eq("id", insertedId);
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error("confirmation token derivation failed", err);
+    }
 
     // Best-effort notifications — never throw to the caller, never roll back.
     try {
@@ -410,7 +441,6 @@ export const createBooking = createServerFn({ method: "POST" })
         price,
         notes: data.notes ?? null,
       };
-      // Fire in parallel; failures are logged inside notify* helpers.
       await Promise.allSettled([
         notifyBookingReceived(ctx, insertedId),
         notifyAdminNewBooking(ctx, insertedId),
