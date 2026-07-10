@@ -191,8 +191,9 @@ function SidebarRow({ icon, label, value }: { icon: React.ReactNode; label: stri
 // =================================================================
 // Step 1 — Vehicle selection
 // =================================================================
-function VehicleStep({ pre, onSelect }: { pre: Prefill; onSelect: (card: QuoteCard) => void }) {
+function VehicleStep({ pre, onSelect }: { pre: Prefill; onSelect: (card: QuoteCard, qty: number) => void }) {
   const quoteFn = useServerFn(calculateQuotes);
+  const [qtyMap, setQtyMap] = useState<Record<string, number>>({});
   const { data, isLoading, error } = useQuery({
     queryKey: ["quotes", pre.pickup, pre.dropoff, pre.passengers, pre.luggage, pre.time, pre.stops.length],
     queryFn: () =>
@@ -234,13 +235,24 @@ function VehicleStep({ pre, onSelect }: { pre: Prefill; onSelect: (card: QuoteCa
             No vehicles match these passenger / luggage requirements.
           </div>
         )}
-        {data?.quotes.map((q, i) => (
-          <VehicleCard key={q.vehicleId} card={q} best={i === 0} onSelect={() => onSelect(q)} />
-        ))}
+        {data?.quotes.map((q, i) => {
+          const qty = qtyMap[q.vehicleId] ?? 1;
+          return (
+            <VehicleCard
+              key={q.vehicleId}
+              card={q}
+              best={i === 0}
+              qty={qty}
+              onQtyChange={(n) => setQtyMap((m) => ({ ...m, [q.vehicleId]: n }))}
+              onSelect={() => onSelect(q, qty)}
+            />
+          );
+        })}
       </div>
     </div>
   );
 }
+
 
 function VehicleCard({ card, best, onSelect }: { card: QuoteCard; best: boolean; onSelect: () => void }) {
   return (
