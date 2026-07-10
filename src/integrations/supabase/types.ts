@@ -54,10 +54,13 @@ export type Database = {
           created_at: string
           dropoff_charge: number
           id: string
+          label: string | null
           name: string
           notes: string | null
           pickup_charge: number
+          place_id: string | null
           updated_at: string
+          updated_by: string | null
         }
         Insert: {
           active?: boolean
@@ -65,10 +68,13 @@ export type Database = {
           created_at?: string
           dropoff_charge?: number
           id?: string
+          label?: string | null
           name: string
           notes?: string | null
           pickup_charge?: number
+          place_id?: string | null
           updated_at?: string
+          updated_by?: string | null
         }
         Update: {
           active?: boolean
@@ -76,10 +82,13 @@ export type Database = {
           created_at?: string
           dropoff_charge?: number
           id?: string
+          label?: string | null
           name?: string
           notes?: string | null
           pickup_charge?: number
+          place_id?: string | null
           updated_at?: string
+          updated_by?: string | null
         }
         Relationships: []
       }
@@ -174,6 +183,7 @@ export type Database = {
           dropoff_address: string
           dropoff_place_id: string | null
           email: string
+          engine_version: string | null
           flight_number: string | null
           id: string
           idempotency_key: string | null
@@ -217,6 +227,7 @@ export type Database = {
           dropoff_address: string
           dropoff_place_id?: string | null
           email: string
+          engine_version?: string | null
           flight_number?: string | null
           id?: string
           idempotency_key?: string | null
@@ -260,6 +271,7 @@ export type Database = {
           dropoff_address?: string
           dropoff_place_id?: string | null
           email?: string
+          engine_version?: string | null
           flight_number?: string | null
           id?: string
           idempotency_key?: string | null
@@ -785,13 +797,25 @@ export type Database = {
           discount_price: number
           distance_miles: number
           dropoff_address: string
+          dropoff_surcharge: number | null
+          engine_version: string | null
           final_price: number
+          fixed_price_amount: number | null
+          fixed_price_applied: boolean | null
           id: string
           mileage_price: number
           pickup_address: string
+          pickup_surcharge: number | null
+          profile_id: string | null
+          snapshot: Json | null
           surcharge_price: number
           tax_price: number
+          tax_rate: number | null
+          time_extra: number | null
+          vehicle_count: number | null
           vehicle_id: string | null
+          via_price: number | null
+          via_stops: number | null
         }
         Insert: {
           base_price?: number
@@ -801,13 +825,25 @@ export type Database = {
           discount_price?: number
           distance_miles: number
           dropoff_address: string
+          dropoff_surcharge?: number | null
+          engine_version?: string | null
           final_price?: number
+          fixed_price_amount?: number | null
+          fixed_price_applied?: boolean | null
           id?: string
           mileage_price?: number
           pickup_address: string
+          pickup_surcharge?: number | null
+          profile_id?: string | null
+          snapshot?: Json | null
           surcharge_price?: number
           tax_price?: number
+          tax_rate?: number | null
+          time_extra?: number | null
+          vehicle_count?: number | null
           vehicle_id?: string | null
+          via_price?: number | null
+          via_stops?: number | null
         }
         Update: {
           base_price?: number
@@ -817,13 +853,25 @@ export type Database = {
           discount_price?: number
           distance_miles?: number
           dropoff_address?: string
+          dropoff_surcharge?: number | null
+          engine_version?: string | null
           final_price?: number
+          fixed_price_amount?: number | null
+          fixed_price_applied?: boolean | null
           id?: string
           mileage_price?: number
           pickup_address?: string
+          pickup_surcharge?: number | null
+          profile_id?: string | null
+          snapshot?: Json | null
           surcharge_price?: number
           tax_price?: number
+          tax_rate?: number | null
+          time_extra?: number | null
+          vehicle_count?: number | null
           vehicle_id?: string | null
+          via_price?: number | null
+          via_stops?: number | null
         }
         Relationships: [
           {
@@ -843,6 +891,7 @@ export type Database = {
           contact_email: string | null
           contact_phone: string | null
           currency: string
+          currency_symbol: string
           default_booking_status: Database["public"]["Enums"]["booking_status"]
           favicon_url: string | null
           google_maps_api_key: string | null
@@ -854,6 +903,8 @@ export type Database = {
           smtp_host: string | null
           smtp_port: number | null
           smtp_user: string | null
+          tax_enabled: boolean
+          tax_label: string
           tax_percentage: number
           timezone: string
           updated_at: string
@@ -866,6 +917,7 @@ export type Database = {
           contact_email?: string | null
           contact_phone?: string | null
           currency?: string
+          currency_symbol?: string
           default_booking_status?: Database["public"]["Enums"]["booking_status"]
           favicon_url?: string | null
           google_maps_api_key?: string | null
@@ -877,6 +929,8 @@ export type Database = {
           smtp_host?: string | null
           smtp_port?: number | null
           smtp_user?: string | null
+          tax_enabled?: boolean
+          tax_label?: string
           tax_percentage?: number
           timezone?: string
           updated_at?: string
@@ -889,6 +943,7 @@ export type Database = {
           contact_email?: string | null
           contact_phone?: string | null
           currency?: string
+          currency_symbol?: string
           default_booking_status?: Database["public"]["Enums"]["booking_status"]
           favicon_url?: string | null
           google_maps_api_key?: string | null
@@ -900,6 +955,8 @@ export type Database = {
           smtp_host?: string | null
           smtp_port?: number | null
           smtp_user?: string | null
+          tax_enabled?: boolean
+          tax_label?: string
           tax_percentage?: number
           timezone?: string
           updated_at?: string

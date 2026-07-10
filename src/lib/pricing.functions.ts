@@ -4,6 +4,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 import {
   runPricingEngine,
+  ENGINE_VERSION,
   type PricingProfile,
   type QuoteResult,
 } from "@/lib/pricing";
@@ -14,8 +15,12 @@ import {
   loadActiveProfiles,
   loadAreaSurcharges,
   loadFixedPriceForRoute,
+  loadQuoteSettings,
+  computeVehicleQuote,
   type LoadedProfile,
   type AreaSurcharge,
+  type QuoteSettings,
+  type PricingSnapshot,
 } from "@/lib/pricing-helpers.server";
 import { placeIdSchema, placeLabelSchema } from "@/lib/place-id";
 import { checkLimit } from "@/lib/rate-limit.server";
@@ -42,15 +47,20 @@ type AuthoritativeQuote = {
   profiles: LoadedProfile[];
   fixedByVehicle: Map<string, number>;
   fixedAny: number | null;
+  settings: QuoteSettings;
 };
 
 async function computeAuthoritative(inp: AuthoritativeInput): Promise<AuthoritativeQuote> {
   const client = publicClient();
-  const [distance, profiles, areaSurcharges, fixed] = await Promise.all([
+  const [distance, profiles, areaSurcharges, fixed, settings] = await Promise.all([
     realDistanceMiles(inp.pickupPlaceId, inp.destinationPlaceId, inp.stops.map((s) => s.placeId)),
     loadActiveProfiles(client),
-    loadAreaSurcharges(client, inp.pickupLabel, inp.destinationLabel),
+    loadAreaSurcharges(client, inp.pickupLabel, inp.destinationLabel, {
+      pickupPlaceId: inp.pickupPlaceId,
+      dropoffPlaceId: inp.destinationPlaceId,
+    }),
     loadFixedPriceForRoute(client, inp.pickupPlaceId, inp.destinationPlaceId),
+    loadQuoteSettings(client),
   ]);
 
   const fixedByVehicle = new Map<string, number>();
@@ -66,6 +76,7 @@ async function computeAuthoritative(inp: AuthoritativeInput): Promise<Authoritat
     profiles,
     fixedByVehicle,
     fixedAny,
+    settings,
   };
 }
 
@@ -110,6 +121,8 @@ export type QuoteCard = {
   finalPrice: number;
   breakdown: QuoteResult["breakdown"];
   pricing: QuoteResult;
+  snapshot: PricingSnapshot;
+  fixedPriceApplied: boolean;
 };
 
 export const calculateQuotes = createServerFn({ method: "POST" })
@@ -139,19 +152,20 @@ export const calculateQuotes = createServerFn({ method: "POST" })
       throw mapRouteError(err);
     }
 
-    const areaTotal = auth.areaSurcharges.reduce((s: number, a: AreaSurcharge) => s + a.amount, 0);
-
     const cards: QuoteCard[] = auth.profiles
       .filter((p: LoadedProfile) => p.vehicle.passengers >= data.passengers && p.vehicle.luggage >= data.luggage)
       .map((p: LoadedProfile) => {
-        const result = runPricingEngine(p, {
+        const fixed = auth.fixedByVehicle.get(p.vehicle.id) ?? auth.fixedAny;
+        const q = computeVehicleQuote({
+          profile: p,
           distanceMiles: auth.distanceMiles,
           viaStops: data.stops.length,
-          pickupTime: data.pickupTime || undefined,
-          surcharges: auth.areaSurcharges,
+          pickupTime: data.pickupTime,
+          areaSurcharges: auth.areaSurcharges,
+          fixedPrice: fixed ?? null,
+          settings: auth.settings,
+          vehicleCount: 1,
         });
-        const fixed = auth.fixedByVehicle.get(p.vehicle.id) ?? auth.fixedAny;
-        const final = fixed != null ? fixed + areaTotal : result.finalPrice;
         return {
           vehicleId: p.vehicle.id,
           name: p.vehicle.name,
@@ -161,9 +175,11 @@ export const calculateQuotes = createServerFn({ method: "POST" })
           luggage: p.vehicle.luggage,
           handLuggage: p.vehicle.hand_luggage,
           distanceMiles: auth.distanceMiles,
-          finalPrice: Math.round(final * 100) / 100,
-          breakdown: result.breakdown,
-          pricing: result,
+          finalPrice: q.finalTotal,
+          breakdown: q.breakdown,
+          pricing: q.engine,
+          snapshot: q.snapshot,
+          fixedPriceApplied: q.fixedPriceApplied,
         };
       })
       .sort((a: QuoteCard, b: QuoteCard) => a.finalPrice - b.finalPrice);
@@ -305,16 +321,20 @@ export const createBooking = createServerFn({ method: "POST" })
       throw new Error("Selected vehicles cannot fit the requested passengers/luggage.");
     }
 
-    const areaTotal = auth.areaSurcharges.reduce((s: number, a: AreaSurcharge) => s + a.amount, 0);
-    const engine = runPricingEngine(profile, {
+    const fixed = auth.fixedByVehicle.get(profile.vehicle.id) ?? auth.fixedAny;
+    const q = computeVehicleQuote({
+      profile,
       distanceMiles: auth.distanceMiles,
       viaStops: data.stops.length,
-      pickupTime: data.pickupTime || undefined,
-      surcharges: auth.areaSurcharges,
+      pickupTime: data.pickupTime,
+      areaSurcharges: auth.areaSurcharges,
+      fixedPrice: fixed ?? null,
+      settings: auth.settings,
+      vehicleCount: qty,
     });
-    const fixed = auth.fixedByVehicle.get(profile.vehicle.id) ?? auth.fixedAny;
-    const perVehicle = fixed != null ? fixed + areaTotal : engine.finalPrice;
-    const price = Math.round(perVehicle * qty * 100) / 100;
+    const price = q.finalTotal;
+    const pricingSnapshot = q.snapshot;
+    const pricingProfileIdSnapshot = q.profileId;
 
     const notesWithQty = qty > 1
       ? `Vehicles: ${qty} × ${profile.vehicle.name}${data.notes ? `\n\n${data.notes}` : ""}`
@@ -337,22 +357,6 @@ export const createBooking = createServerFn({ method: "POST" })
       hand_luggage: profile.vehicle.hand_luggage,
       vehicle_count: qty,
     };
-    const pricingProfileIdSnapshot =
-      (profile as any).id ?? (profile as any).profile?.id ?? null;
-    const pricingSnapshot = {
-      engine_version: 1,
-      distance_miles: auth.distanceMiles,
-      duration_minutes: auth.durationMinutes,
-      per_vehicle_price: Math.round(perVehicle * 100) / 100,
-      vehicle_count: qty,
-      total_price: price,
-      area_surcharges: auth.areaSurcharges,
-      area_surcharges_total: Math.round(areaTotal * 100) / 100,
-      fixed_price_applied: fixed != null,
-      fixed_price_value: fixed ?? null,
-      breakdown: engine.breakdown,
-      pricing_profile_id: pricingProfileIdSnapshot,
-    };
 
     const insertPayload = {
       customer_name: data.customer_name,
@@ -373,6 +377,7 @@ export const createBooking = createServerFn({ method: "POST" })
       vehicle_capacity_snapshot: capacitySnapshot,
       pricing_profile_id_snapshot: pricingProfileIdSnapshot,
       pricing_snapshot: pricingSnapshot,
+      engine_version: ENGINE_VERSION,
       child_seat: !!data.child_seat,
       meet_greet: !!data.meet_greet,
       return_journey: !!data.return_journey,
@@ -522,29 +527,45 @@ export const adminListPricingProfiles = createServerFn({ method: "GET" })
 // -------------------------------------------------------------------
 // Admin: save profile + tiers (upsert + replace tiers)
 // -------------------------------------------------------------------
-const saveInput = z.object({
-  id: z.string().uuid().nullable().optional(),
-  vehicle_id: z.string().uuid(),
-  base_price: z.coerce.number().min(0).max(100000),
-  via_price: z.coerce.number().min(0).max(100000),
-  vehicle_add_price_enabled: z.boolean(),
-  time_extra_from: z.string().nullable().optional(),
-  time_extra_to: z.string().nullable().optional(),
-  time_extra_amount: z.coerce.number().min(0).max(100000),
-  time_extra_type: z.enum(["fixed", "percent"]),
-  status: z.boolean(),
-  tiers: z
-    .array(
-      z.object({
-        tier_name: z.string().trim().min(1).max(80),
-        miles: z.coerce.number().min(0).max(99999),
-        cost_per_mile: z.coerce.number().min(0).max(100000),
-        sort_order: z.coerce.number().int().min(0).max(999),
-      }),
-    )
-    .min(1)
-    .max(20),
-});
+const saveInput = z
+  .object({
+    id: z.string().uuid().nullable().optional(),
+    vehicle_id: z.string().uuid("Vehicle is required"),
+    base_price: z.coerce.number().min(0, "Base price must be ≥ 0").max(100000),
+    via_price: z.coerce.number().min(0, "Via price must be ≥ 0").max(100000),
+    vehicle_add_price_enabled: z.boolean(),
+    time_extra_from: z.string().nullable().optional(),
+    time_extra_to: z.string().nullable().optional(),
+    time_extra_amount: z.coerce.number().min(0).max(100000),
+    time_extra_type: z.enum(["fixed", "percent"]),
+    status: z.boolean(),
+    tiers: z
+      .array(
+        z.object({
+          tier_name: z.string().trim().min(1).max(80),
+          miles: z.coerce.number().gt(0, "Tier miles must be > 0").max(99999),
+          cost_per_mile: z.coerce.number().min(0, "Cost per mile must be ≥ 0").max(100000),
+          sort_order: z.coerce.number().int().min(0).max(999),
+        }),
+      )
+      .min(1, "At least one mileage tier is required")
+      .max(20),
+  })
+  .refine(
+    (v) => new Set(v.tiers.map((t) => t.sort_order)).size === v.tiers.length,
+    { message: "Tier sort_order values must be unique", path: ["tiers"] },
+  )
+  .refine(
+    (v) => {
+      if (!v.status) return true;
+      const topMiles = Math.max(0, ...v.tiers.map((t) => Number(t.miles) || 0));
+      return topMiles >= 500;
+    },
+    {
+      message: "Active profile's largest tier must cover long journeys (≥ 500 miles)",
+      path: ["tiers"],
+    },
+  );
 
 export const adminSavePricingProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -706,3 +727,88 @@ export const adminTestQuote = createServerFn({ method: "POST" })
     );
     return result;
   });
+
+// -------------------------------------------------------------------
+// Admin: full end-to-end quote preview (runs the REAL production
+// pricing pipeline, no math duplicated). Requires Place IDs so
+// fixed-route rules can be matched exactly. When distanceMiles is
+// omitted, computes via Google Routes API.
+// -------------------------------------------------------------------
+const previewInput = z.object({
+  pickupPlaceId: placeIdSchema,
+  pickupLabel: placeLabelSchema,
+  destinationPlaceId: placeIdSchema,
+  destinationLabel: placeLabelSchema,
+  distanceMiles: z.coerce.number().min(0).max(99999).optional(),
+  vehicleId: z.string().uuid(),
+  vehicleCount: z.coerce.number().int().min(1).max(20).default(1),
+  viaStops: z.coerce.number().int().min(0).max(10).default(0),
+  pickupDate: z.string().max(20).optional().default(""),
+  pickupTime: z.string().max(10).optional().default(""),
+  discountAmount: z.coerce.number().min(0).max(100000).optional().default(0),
+});
+
+export const adminPreviewQuote = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: z.infer<typeof previewInput>) => previewInput.parse(data))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const client = publicClient();
+
+    // Distance: prefer explicit override, else call routes API.
+    let distanceMiles = data.distanceMiles ?? 0;
+    let durationMinutes = 0;
+    if (data.distanceMiles == null) {
+      try {
+        const r = await realDistanceMiles(data.pickupPlaceId, data.destinationPlaceId, []);
+        distanceMiles = r.miles;
+        durationMinutes = r.minutes;
+      } catch (err) {
+        throw mapRouteError(err);
+      }
+    }
+
+    const [profiles, areaSurcharges, fixed, settings] = await Promise.all([
+      loadActiveProfiles(client),
+      loadAreaSurcharges(client, data.pickupLabel, data.destinationLabel, {
+        pickupPlaceId: data.pickupPlaceId,
+        dropoffPlaceId: data.destinationPlaceId,
+      }),
+      loadFixedPriceForRoute(client, data.pickupPlaceId, data.destinationPlaceId),
+      loadQuoteSettings(client),
+    ]);
+
+    const profile = profiles.find((p) => p.vehicle.id === data.vehicleId);
+    if (!profile) {
+      throw new Error("Selected vehicle has no active pricing profile.");
+    }
+    const fixedByVehicle = new Map<string, number>();
+    let fixedAny: number | null = null;
+    for (const r of fixed) {
+      if (r.vehicle_id) fixedByVehicle.set(r.vehicle_id, r.price);
+      else if (fixedAny === null) fixedAny = r.price;
+    }
+    const fixedPrice = fixedByVehicle.get(profile.vehicle.id) ?? fixedAny;
+
+    const q = computeVehicleQuote({
+      profile,
+      distanceMiles,
+      viaStops: data.viaStops,
+      pickupTime: data.pickupTime,
+      areaSurcharges,
+      fixedPrice: fixedPrice ?? null,
+      discountAmount: data.discountAmount,
+      settings,
+      vehicleCount: data.vehicleCount,
+    });
+
+    return {
+      distanceMiles,
+      durationMinutes,
+      snapshot: q.snapshot,
+      breakdown: q.breakdown,
+      engine: q.engine,
+      settings,
+    };
+  });
+
