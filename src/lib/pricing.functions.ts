@@ -271,8 +271,9 @@ export const createBooking = createServerFn({ method: "POST" })
 
     const profile = profiles.find((p) => p.vehicle.id === data.vehicleId);
     if (!profile) throw new Error("Selected vehicle is unavailable.");
-    if (profile.vehicle.passengers < data.passengers || profile.vehicle.luggage < data.luggage) {
-      throw new Error("Selected vehicle cannot fit the requested passengers/luggage.");
+    const qty = Math.max(1, data.vehicleCount ?? 1);
+    if (profile.vehicle.passengers * qty < data.passengers || profile.vehicle.luggage * qty < data.luggage) {
+      throw new Error("Selected vehicles cannot fit the requested passengers/luggage.");
     }
 
     const fixedByVehicle = new Map<string, number>();
@@ -284,9 +285,12 @@ export const createBooking = createServerFn({ method: "POST" })
       viaStops: data.viaStops,
       pickupTime: data.pickupTime || undefined,
     });
-    const authoritativePrice =
+    const perVehicle =
       fixedByVehicle.get(profile.vehicle.id) ?? engine.finalPrice;
-    const price = Math.round(authoritativePrice * 100) / 100;
+    const price = Math.round(perVehicle * qty * 100) / 100;
+    const notesWithQty = qty > 1
+      ? `Vehicles: ${qty} × ${profile.vehicle.name}${data.notes ? `\n\n${data.notes}` : ""}`
+      : data.notes || null;
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: inserted, error } = await supabaseAdmin
@@ -302,17 +306,18 @@ export const createBooking = createServerFn({ method: "POST" })
         flight_number: data.flight_number || null,
         passengers: data.passengers,
         luggage: data.luggage,
-        vehicle_type: profile.vehicle.name,
+        vehicle_type: qty > 1 ? `${qty} × ${profile.vehicle.name}` : profile.vehicle.name,
         child_seat: !!data.child_seat,
         meet_greet: !!data.meet_greet,
         return_journey: !!data.return_journey,
-        notes: data.notes || null,
+        notes: notesWithQty,
         price,
         status: "new",
       })
       .select("id, price")
       .single();
     if (error) throw new Error(error.message);
+
     return { id: (inserted as any).id, price };
   });
 
