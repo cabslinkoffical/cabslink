@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import {
-  createRouter, createRootRoute, createRoute, RouterProvider, createMemoryHistory, Outlet,
+  createRouter, RouterProvider, createMemoryHistory,
 } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React from "react";
@@ -29,16 +29,21 @@ vi.mock("@/lib/pricing.functions", () => ({
 
 vi.mock("@tanstack/react-start", () => ({ useServerFn: (fn: any) => fn }));
 
-import { Route as BookRoute } from "@/routes/book";
+// SiteLayout depends on Header/Footer that pull in more of the app.
+// A trivial passthrough keeps the router-focused test small.
+vi.mock("@/components/site/SiteLayout", async () => {
+  const R = await import("react");
+  return { SiteLayout: ({ children }: any) => R.createElement("div", null, children) };
+});
+
+import { routeTree } from "@/routeTree.gen";
 
 function renderAt(url: string) {
-  const rootRoute = createRootRoute({ component: () => <Outlet /> });
-  const route = (BookRoute as any).update({ getParentRoute: () => rootRoute });
-  const routeTree = rootRoute.addChildren([route]);
   const router = createRouter({
     routeTree,
     history: createMemoryHistory({ initialEntries: [url] }),
     defaultPendingMs: 0,
+    context: { queryClient: new QueryClient() } as any,
   });
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
@@ -53,15 +58,14 @@ beforeEach(() => calcMock.mockReset());
 describe("/book — missing-location state (router-aware)", () => {
   it("does not call calculateQuotes and shows the empty-state when no Place IDs", async () => {
     renderAt("/book");
-    // Empty-state text (see book.tsx)
-    await screen.findByText(/Enter your journey|journey first|choose your locations/i);
+    await screen.findByText(/Enter your journey first/i);
     expect(calcMock).not.toHaveBeenCalled();
     expect(screen.queryByText(/Calculating quotes/i)).toBeNull();
   });
 
   it("shows empty-state when a label is present but Place ID missing (incomplete free text)", async () => {
     renderAt("/book?q=" + encodeURIComponent("pickupLabel=Somewhere&dropoffLabel=Elsewhere"));
-    await screen.findByText(/Enter your journey|journey first|choose your locations/i);
+    await screen.findByText(/Enter your journey first/i);
     expect(calcMock).not.toHaveBeenCalled();
   });
 
@@ -71,7 +75,7 @@ describe("/book — missing-location state (router-aware)", () => {
       dropoffPlaceId: "ChIJ_same", dropoffLabel: "Same",
     }).toString();
     renderAt(`/book?q=${encodeURIComponent(q)}`);
-    await screen.findByText(/Enter your journey|journey first|choose your locations/i);
+    await screen.findByText(/Enter your journey first/i);
     expect(calcMock).not.toHaveBeenCalled();
   });
 });
