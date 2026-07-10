@@ -211,27 +211,32 @@ function VehicleStep({ pre, onSelect }: { pre: Prefill; onSelect: (card: QuoteCa
   });
 
   return (
-    <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
-      <div className="px-5 md:px-6 py-4 border-b border-border bg-[var(--surface)]">
-        <h2 className="font-display font-bold">Book Your Ride: {pre.ret ? "Return" : "One Way"}</h2>
+    <div>
+      <div className="mb-5 flex items-end justify-between flex-wrap gap-2">
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)]">Step 01 — Boarding Pass</p>
+          <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground mt-1">
+            Book Your Ride · {pre.ret ? "Return" : "One Way"}
+          </h2>
+        </div>
         {data && (
-          <p className="text-xs text-muted-foreground mt-0.5">
+          <p className="text-xs text-muted-foreground">
             Estimated distance <span className="font-bold text-foreground">{data.distanceMiles.toFixed(1)} miles</span>
           </p>
         )}
       </div>
 
-      <div className="divide-y divide-border">
+      <div className="space-y-6">
         {isLoading && (
-          <div className="p-8 text-center text-muted-foreground text-sm">Calculating quotes…</div>
+          <div className="bg-card rounded-2xl border border-border p-10 text-center text-muted-foreground text-sm">Calculating quotes…</div>
         )}
         {error && (
-          <div className="p-8 text-center text-sm text-destructive">
+          <div className="bg-card rounded-2xl border border-border p-10 text-center text-sm text-destructive">
             Couldn't load quotes. {(error as Error).message}
           </div>
         )}
         {data?.quotes.length === 0 && (
-          <div className="p-8 text-center text-sm text-muted-foreground">
+          <div className="bg-card rounded-2xl border border-border p-10 text-center text-sm text-muted-foreground">
             No vehicles match these passenger / luggage requirements.
           </div>
         )}
@@ -261,78 +266,121 @@ function VehicleCard({
   onQtyChange: (n: number) => void; onSelect: () => void;
 }) {
   const total = card.finalPrice * qty;
+  const serial = card.vehicleId.slice(0, 8).toUpperCase();
   return (
-    <div className="p-5 md:p-6 grid md:grid-cols-[1fr_1.1fr_240px] gap-5 md:gap-6 items-center hover:bg-[var(--surface)]/40 transition">
-      {/* image + name */}
-      <div>
-        {best && (
-          <div className="inline-flex items-center gap-1.5 bg-[var(--gold)] text-[var(--gold-foreground)] text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-md mb-2">
-            <Award className="size-3" /> Best Value
-          </div>
-        )}
-        <h3 className="font-display text-xl font-bold uppercase tracking-tight text-foreground">
-          {card.name}
-        </h3>
-        <span className="inline-flex items-center gap-1 mt-1 text-[10px] font-bold uppercase tracking-widest bg-[var(--gold)]/15 text-[var(--gold)] px-2 py-1 rounded">
-          <BadgeCheck className="size-3" /> Private Transfer
-        </span>
-        <div className="flex gap-0.5 mt-2 text-[var(--gold)]">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Star key={i} className="size-3.5 fill-current" />
-          ))}
+    <div
+      className={`relative flex flex-col md:flex-row bg-card rounded-2xl shadow-[0_10px_40px_-20px_rgba(14,24,44,0.25)] border transition-all duration-500 hover:shadow-[0_20px_60px_-20px_rgba(223,175,38,0.35)] ${
+        best ? "border-[var(--gold)]/60" : "border-border"
+      }`}
+    >
+      {/* Best value ribbon */}
+      {best && (
+        <div className="absolute -top-3 left-6 z-10 inline-flex items-center gap-1.5 bg-[var(--gold)] text-[var(--gold-foreground)] text-[10px] font-bold uppercase tracking-[0.2em] px-3 py-1.5 rounded-md shadow-md">
+          <Award className="size-3" /> Best Value
         </div>
-        <img
-          src={card.imageUrl}
-          alt={card.name}
-          className="mt-3 w-full max-w-[240px] aspect-[3/2] object-contain"
-          loading="lazy"
-        />
+      )}
+
+      {/* LEFT — vehicle info */}
+      <div className="flex-1 p-6 md:p-8 flex flex-col md:flex-row gap-6 md:gap-8">
+        <div className="w-full md:w-56 flex-shrink-0 flex items-center justify-center bg-[var(--surface)] rounded-xl p-3">
+          <img
+            src={card.imageUrl}
+            alt={card.name}
+            className="w-full aspect-[3/2] object-contain"
+            loading="lazy"
+          />
+        </div>
+
+        <div className="flex-1 flex flex-col justify-between min-w-0">
+          <div>
+            <div className="flex justify-between items-start gap-3">
+              <div>
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--gold)]">
+                  <BadgeCheck className="size-3" /> Private Transfer
+                </span>
+                <h3 className="mt-1.5 font-display text-2xl font-bold uppercase tracking-tight text-foreground">
+                  {card.name}
+                </h3>
+              </div>
+              <div className="flex gap-0.5 text-[var(--gold)] shrink-0 pt-1">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star key={i} className="size-3.5 fill-current" />
+                ))}
+              </div>
+            </div>
+
+            <ul className="mt-5 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+              <Feature icon={<Users className="size-4" />}>{card.passengers * qty} Passengers</Feature>
+              <Feature icon={<Briefcase className="size-4" />}>{card.luggage * qty} Luggage</Feature>
+              <Feature icon={<Luggage className="size-4" />}>{card.handLuggage * qty} Hand Luggage</Feature>
+              <Feature icon={<BadgeCheck className="size-4" />}>Meet &amp; Greet</Feature>
+              <Feature icon={<Clock className="size-4" />}>Free Waiting</Feature>
+              <Feature icon={<DoorOpen className="size-4" />}>Door to Door</Feature>
+              <Feature icon={<UserCheck className="size-4" />}>Pro Driver</Feature>
+            </ul>
+          </div>
+
+          <p className="mt-5 text-[9px] font-mono uppercase tracking-[0.3em] text-muted-foreground/70">
+            No. {serial} · Cabslink Pass
+          </p>
+        </div>
       </div>
 
-      {/* features */}
-      <ul className="space-y-1.5 text-sm">
-        <Feature icon={<Users className="size-4" />}>{card.passengers * qty} Passengers</Feature>
-        <Feature icon={<Briefcase className="size-4" />}>{card.luggage * qty} Luggage</Feature>
-        <Feature icon={<Luggage className="size-4" />}>{card.handLuggage * qty} Hand Luggage</Feature>
-        <Feature icon={<BadgeCheck className="size-4" />}>Meet &amp; Greet Available</Feature>
-        <Feature icon={<Clock className="size-4" />}>Free Waiting Time</Feature>
-        <Feature icon={<DoorOpen className="size-4" />}>Door to Door</Feature>
-        <Feature icon={<UserCheck className="size-4" />}>Experienced Driver</Feature>
-      </ul>
+      {/* PERFORATION — notches + dashed line, cut against page surface */}
+      <div className="relative hidden md:flex flex-col items-center justify-center px-1">
+        <div className="absolute -top-3 w-6 h-6 rounded-full bg-[var(--surface)]"></div>
+        <div className="h-[calc(100%-2rem)] w-px border-l-2 border-dashed border-[var(--gold)]/40"></div>
+        <div className="absolute -bottom-3 w-6 h-6 rounded-full bg-[var(--surface)]"></div>
+      </div>
+      {/* Mobile perforation — horizontal */}
+      <div className="relative md:hidden flex items-center justify-center py-1">
+        <div className="absolute -left-3 w-6 h-6 rounded-full bg-[var(--surface)]"></div>
+        <div className="w-[calc(100%-2rem)] h-px border-t-2 border-dashed border-[var(--gold)]/40"></div>
+        <div className="absolute -right-3 w-6 h-6 rounded-full bg-[var(--surface)]"></div>
+      </div>
 
-      {/* price */}
-      <div className="text-right md:border-l md:pl-6 border-border">
-        <div className="mb-3 text-left">
-          <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Vehicles</Label>
-          <Select value={String(qty)} onValueChange={(v) => onQtyChange(Number(v))}>
-            <SelectTrigger className="mt-1 h-10 border-[var(--gold)]/50">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {[1, 2, 3, 4, 5].map((n) => (
-                <SelectItem key={n} value={String(n)}>{n} x Vehicle Select</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+      {/* RIGHT — price stub */}
+      <div className="w-full md:w-72 bg-gradient-to-br from-[var(--gold)]/10 via-[var(--surface)] to-[var(--gold)]/5 md:rounded-r-2xl rounded-b-2xl md:rounded-b-none p-6 md:p-8 flex flex-col justify-between items-center text-center">
+        <div>
+          <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground font-bold">All Inclusive</p>
+          <div className="mt-2 flex items-baseline justify-center gap-0.5 text-foreground">
+            <span className="text-xl font-display font-bold text-[var(--gold)]">£</span>
+            <span className="text-4xl md:text-5xl font-display font-bold tabular-nums tracking-tight">
+              {total.toFixed(2)}
+            </span>
+          </div>
+          {qty > 1 && (
+            <p className="text-[11px] text-muted-foreground mt-1">
+              {qty} × £{card.finalPrice.toFixed(2)}
+            </p>
+          )}
+          <div className="mt-3 text-[11px] text-muted-foreground space-y-1">
+            <p className="flex items-center justify-center gap-1.5"><ShieldCheck className="size-3 text-[var(--gold)]" /> No hidden cost</p>
+            <p className="flex items-center justify-center gap-1.5"><Clock className="size-3 text-[var(--gold)]" /> Free cancellation</p>
+          </div>
         </div>
-        <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">Total Price</p>
-        <div className="mt-1">
-          <span className="text-2xl font-display font-bold align-top mr-0.5">£</span>
-          <span className="text-4xl font-display font-bold tabular-nums">{total.toFixed(2)}</span>
+
+        <div className="w-full mt-5 space-y-3">
+          <div className="w-full">
+            <Label className="text-[9px] font-bold uppercase tracking-[0.25em] text-muted-foreground">Vehicles</Label>
+            <Select value={String(qty)} onValueChange={(v) => onQtyChange(Number(v))}>
+              <SelectTrigger className="mt-1 h-10 border-[var(--gold)]/50 bg-card">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <SelectItem key={n} value={String(n)}>{n} × Vehicle</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <Button
+            onClick={onSelect}
+            className="w-full h-12 rounded-lg bg-[var(--navy)] hover:bg-[var(--gold)] text-[var(--navy-foreground)] hover:text-[var(--gold-foreground)] font-bold uppercase tracking-[0.2em] text-[11px] transition-all shadow-md"
+          >
+            Book Now
+          </Button>
         </div>
-        {qty > 1 && (
-          <p className="text-[11px] text-muted-foreground mt-0.5">
-            {qty} × £{card.finalPrice.toFixed(2)}
-          </p>
-        )}
-        <div className="text-[11px] text-muted-foreground mt-1 space-y-0.5">
-          <p className="flex items-center justify-end gap-1"><ShieldCheck className="size-3 text-[var(--gold)]" /> No hidden cost</p>
-          <p className="flex items-center justify-end gap-1"><Clock className="size-3 text-[var(--gold)]" /> Free cancellation</p>
-        </div>
-        <p className="text-[10px] text-[var(--gold)] mt-1.5 underline">All prices include fees and tolls</p>
-        <Button onClick={onSelect} className="mt-3 w-full h-11 rounded-lg bg-[var(--gold)] hover:brightness-110 text-[var(--gold-foreground)] font-bold tracking-wider">
-          Book Now £ {total.toFixed(2)}
-        </Button>
       </div>
     </div>
   );
@@ -341,9 +389,9 @@ function VehicleCard({
 
 function Feature({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) {
   return (
-    <li className="flex items-center gap-2 text-foreground/80">
-      <span className="text-[var(--gold)]">{icon}</span>
-      {children}
+    <li className="flex items-center gap-2 text-foreground/75 text-[13px]">
+      <span className="text-[var(--gold)] shrink-0">{icon}</span>
+      <span className="truncate">{children}</span>
     </li>
   );
 }
