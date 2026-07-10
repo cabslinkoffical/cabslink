@@ -228,4 +228,15 @@ describe("createBooking — integration", () => {
     ).rejects.toThrow(/too many booking attempts/i);
     expect(store.inserts.length).toBe(before);
   });
+
+  it("notification failure does not roll back the successful booking insert", async () => {
+    const notif = await import("@/lib/notifications.server");
+    (notif.notifyBookingReceived as any).mockImplementationOnce(async () => { throw new Error("smtp down"); });
+    (notif.notifyAdminNewBooking as any).mockImplementationOnce(async () => { throw new Error("smtp down"); });
+    const res = await createBooking({ data: validPayload });
+    expect(res.id).toBe("booking-1");
+    expect(store.inserts).toHaveLength(1);
+  });
+});
+
 });
