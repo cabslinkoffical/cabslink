@@ -15,11 +15,16 @@ import heroImg from "@/assets/hero.jpg";
 import vClassSideImg from "@/assets/v-class-side.png";
 import chauffeurImg from "@/assets/chauffeur.jpg";
 import edinburghImg from "@/assets/edinburgh.jpg";
-import vClassImg from "@/assets/v-class.png";
 import vClassInteriorImg from "@/assets/v-class-interior.jpg";
 import airportImg from "@/assets/airport.jpg";
 import corporateImg from "@/assets/corporate.jpg";
 import fleetSuvImg from "@/assets/fleet-suv.jpg";
+
+import sclassAsset from "@/assets/fleet/sclass.png.asset.json";
+import eclassAsset from "@/assets/fleet/eclass.png.asset.json";
+import vclassAsset from "@/assets/fleet/vclass.png.asset.json";
+import rangeroverAsset from "@/assets/fleet/rangerover.png.asset.json";
+import minibusAsset from "@/assets/fleet/minibus.png.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
