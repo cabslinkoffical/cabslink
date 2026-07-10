@@ -73,11 +73,11 @@ const features = [
 ];
 
 const fleet = [
-  { name: "Mercedes V-Class", desc: "Up to 7 passengers · 7 luggage", note: "Signature ride" },
-  { name: "Executive Saloon", desc: "Up to 4 passengers · 3 luggage", note: "Business class" },
-  { name: "Saloon", desc: "Up to 4 passengers · 2 luggage", note: "Everyday comfort" },
-  { name: "SUV", desc: "Up to 6 passengers · 4 luggage", note: "Space & style" },
-  { name: "Minibus", desc: "Up to 16 passengers · 16 luggage", note: "Groups & tours" },
+  { name: "Mercedes-Benz S-Class", note: "Signature", img: sclassAsset.url, passengers: 3, luggage: 3, transmission: "Automatic", fuel: "Petrol" },
+  { name: "Mercedes-Benz E-Class", note: "Executive", img: eclassAsset.url, passengers: 3, luggage: 3, transmission: "Automatic", fuel: "Diesel" },
+  { name: "Mercedes-Benz V-Class", note: "First class", img: vclassAsset.url, passengers: 7, luggage: 7, transmission: "Automatic", fuel: "Diesel" },
+  { name: "Range Rover Autobiography", note: "Premium SUV", img: rangeroverAsset.url, passengers: 4, luggage: 4, transmission: "Automatic", fuel: "Petrol" },
+  { name: "Executive Minibus", note: "Groups", img: minibusAsset.url, passengers: 16, luggage: 16, transmission: "Automatic", fuel: "Diesel" },
 ];
 
 const testimonials = [
