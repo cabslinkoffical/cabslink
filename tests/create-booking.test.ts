@@ -144,6 +144,22 @@ describe("createBooking — integration", () => {
     expect(notifyCalls.admin).toBe(1);
   });
 
+  it("writes vehicle + pricing snapshot columns onto the booking row", async () => {
+    await createBooking({ data: validPayload });
+    const row = store.inserts[0];
+    expect(row.vehicle_id).toBe("22222222-2222-2222-2222-222222222222");
+    expect(row.vehicle_name_snapshot).toBe("Executive");
+    expect(row.vehicle_capacity_snapshot).toMatchObject({
+      passengers: 4, luggage: 4, hand_luggage: 4, vehicle_count: 1,
+    });
+    expect(row.pricing_snapshot).toBeTruthy();
+    expect(row.pricing_snapshot.engine_version).toBe(1);
+    expect(row.pricing_snapshot.total_price).toBe(30);
+    expect(row.pricing_snapshot.distance_miles).toBe(20);
+    expect(row.pricing_snapshot.vehicle_count).toBe(1);
+    expect(row.pricing_snapshot.fixed_price_applied).toBe(false);
+    expect(Array.isArray(row.pricing_snapshot.breakdown)).toBe(true);
+
   it("ignores a frontend-supplied booking_ref — server issues its own", async () => {
     const spiked: any = { ...validPayload, booking_ref: "CL-000000-HACK", bookingRef: "CL-000000-HACK" };
     const res = await createBooking({ data: spiked });
