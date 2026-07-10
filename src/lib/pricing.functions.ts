@@ -207,7 +207,7 @@ export const calculateQuotes = createServerFn({ method: "POST" })
       .filter((p) => p.vehicle.passengers >= data.passengers && p.vehicle.luggage >= data.luggage)
       .map((p) => {
         const result = runPricingEngine(p, {
-          distanceMiles,
+          distanceMiles: distanceMiles.miles,
           viaStops: data.viaStops,
           pickupTime: data.pickupTime || undefined,
         });
@@ -220,7 +220,7 @@ export const calculateQuotes = createServerFn({ method: "POST" })
           passengers: p.vehicle.passengers,
           luggage: p.vehicle.luggage,
           handLuggage: p.vehicle.hand_luggage,
-          distanceMiles,
+          distanceMiles: distanceMiles.miles,
           finalPrice: Math.round(final * 100) / 100,
           breakdown: result.breakdown,
           pricing: result,
@@ -228,7 +228,7 @@ export const calculateQuotes = createServerFn({ method: "POST" })
       })
       .sort((a, b) => a.finalPrice - b.finalPrice);
 
-    return { distanceMiles, quotes: cards };
+    return { distanceMiles: distanceMiles.miles, durationMinutes: distanceMiles.minutes, quotes: cards };
   });
 
 
