@@ -121,6 +121,9 @@ export function LocationAutocomplete({ label, placeholder, value, onChange, mode
                 {s.secondary && <div className="text-xs text-muted-foreground">{s.secondary}</div>}
               </li>
             ))}
+            <li className="border-t px-3 py-1.5 text-[10px] text-muted-foreground text-right">
+              Powered by Google
+            </li>
           </ul>
         )}
       </div>
