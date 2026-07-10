@@ -44,10 +44,10 @@ function findClientDir(): string | null {
 }
 
 beforeAll(() => {
-  // Always run a build with dummy secrets injected so value-scanning is
-  // meaningful. Skips rebuild only if a build already exists AND we ran with
-  // BUNDLE_SCAN_SKIP_BUILD=1 (used for local dev iteration).
-  if (findClientDir() && process.env.BUNDLE_SCAN_SKIP_BUILD === "1") return;
+  // Always clean and rebuild so we never scan a stale bundle from a
+  // previous unrelated build. Injects deterministic dummy secrets so the
+  // value-scan is meaningful even if the CI env is missing real ones.
+  execSync("rm -rf .output dist", { stdio: "inherit" });
   execSync("bun run build", {
     stdio: "inherit",
     timeout: 420_000,
