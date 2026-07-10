@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { SITE } from "@/lib/site";
 
 import heroImg from "@/assets/hero.jpg";
+import vClassSideImg from "@/assets/v-class-side.png";
 import chauffeurImg from "@/assets/chauffeur.jpg";
 import edinburghImg from "@/assets/edinburgh.jpg";
 import vClassImg from "@/assets/v-class.png";
@@ -83,150 +84,123 @@ const testimonials = [
 function HomePage() {
   return (
     <SiteLayout>
-      {/* HERO — cinematic editorial (v3) */}
-      <section className="relative overflow-hidden isolate bg-[var(--navy)] min-h-[92vh] flex items-center group/hero">
-        {/* Background image */}
-        <div className="absolute inset-0 z-0">
-          <img
-            src={heroImg}
-            alt=""
-            aria-hidden
-            width={1920}
-            height={1280}
-            className="size-full object-cover object-center opacity-60 transition-transform duration-[1400ms] ease-out group-hover/hero:scale-105 animate-fade-soft"
-          />
-          {/* Cinematic gradient overlays */}
-          <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-[var(--navy)] via-[var(--navy)]/80 to-transparent" />
-          <div aria-hidden className="absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,color-mix(in_oklab,var(--gold)_10%,transparent),transparent_55%)]" />
-          <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[var(--navy)] via-transparent to-transparent" />
-        </div>
+      {/* HERO — light editorial, Luxride-inspired */}
+      <section className="relative overflow-hidden bg-[var(--background)]">
+        {/* Soft ambient tint */}
+        <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,color-mix(in_oklab,var(--gold)_10%,transparent),transparent_55%)]" />
+        <div aria-hidden className="pointer-events-none absolute -top-24 -left-24 size-[520px] rounded-full bg-[radial-gradient(circle_at_center,color-mix(in_oklab,var(--gold)_18%,transparent),transparent_70%)] blur-3xl opacity-60" />
+        <div aria-hidden className="pointer-events-none absolute -top-16 -right-24 size-[440px] rounded-full bg-[radial-gradient(circle_at_center,color-mix(in_oklab,var(--navy)_10%,transparent),transparent_70%)] blur-3xl opacity-40" />
 
-        {/* Inner navy frame (desktop only) */}
-        <div aria-hidden className="pointer-events-none absolute inset-0 z-10 hidden xl:block border-[28px] border-[var(--navy)]" />
-
-        {/* Skewed edge panel */}
-        <div aria-hidden className="pointer-events-none absolute top-0 right-0 h-full w-1/3 z-10 border-l border-white/5 -skew-x-[15deg] translate-x-32" />
-
-        {/* Soft gold nebula bottom-right */}
-        <div aria-hidden className="pointer-events-none absolute bottom-0 right-0 h-1/2 w-1/2 z-10 rounded-full bg-gradient-to-tl from-[color-mix(in_oklab,var(--gold)_18%,transparent)] to-transparent blur-3xl translate-y-1/2 translate-x-1/4" />
-
-        {/* Content */}
-        <div className="container-x relative z-20 pt-24 md:pt-28 pb-40 md:pb-56">
-          <div className="max-w-4xl space-y-10">
-            {/* Eyebrow with drawing line */}
-            <div className="flex items-center gap-4 overflow-hidden">
-              <span
-                aria-hidden
-                className="h-px w-12 bg-[var(--gold)] -translate-x-full"
-                style={{ animation: "slideRight 900ms cubic-bezier(.2,.7,.2,1) 100ms forwards" }}
-              />
-              <span
-                className="text-[var(--gold)] text-[11px] font-semibold uppercase tracking-[0.4em] opacity-0"
-                style={{ animation: "fadeInUp 900ms cubic-bezier(.2,.7,.2,1) 500ms forwards" }}
-              >
-                Private Chauffeur Excellence
-              </span>
-            </div>
-
-            {/* Headline — gilded */}
-            <h1
-              className="font-display font-bold text-white leading-[0.9] tracking-[-0.035em] text-[3.25rem] sm:text-7xl md:text-8xl lg:text-[7rem] xl:text-[7.5rem] opacity-0"
-              style={{ animation: "fadeInUp 1s cubic-bezier(.2,.7,.2,1) 300ms forwards" }}
-            >
-              Arrive in
-              <br />
-              <span className="relative inline-block">
-                <span
-                  className="relative z-10 bg-clip-text text-transparent"
-                  style={{
-                    backgroundImage:
-                      "linear-gradient(180deg, #f7e4a1 0%, #dfaf26 55%, #b38a1d 100%)",
-                  }}
-                >
-                  quiet luxury.
-                </span>
-                <span
-                  aria-hidden
-                  className="absolute -bottom-2 left-0 w-full h-1 bg-[color-mix(in_oklab,var(--gold)_45%,transparent)] blur-md"
-                />
-              </span>
-            </h1>
-
-            {/* Subhead */}
-            <p
-              className="text-white/70 text-lg md:text-xl max-w-xl leading-relaxed opacity-0"
-              style={{ animation: "fadeInUp 1s cubic-bezier(.2,.7,.2,1) 600ms forwards" }}
-            >
-              A seamless transition from the runway to the city. Discreet, punctual and refined chauffeur service across Edinburgh, London and the entire UK.
-            </p>
-
-            {/* CTAs + proof */}
+        <div className="container-x relative pt-16 md:pt-24 pb-4">
+          {/* Eyebrow */}
+          <div className="flex justify-center">
             <div
-              className="flex flex-wrap items-center gap-8 md:gap-10 opacity-0"
-              style={{ animation: "fadeInUp 1s cubic-bezier(.2,.7,.2,1) 900ms forwards" }}
+              className="inline-flex items-center gap-3 rounded-full border border-[var(--gold)]/40 bg-[color-mix(in_oklab,var(--gold)_8%,transparent)] px-4 py-1.5 opacity-0"
+              style={{ animation: "fadeInUp 700ms cubic-bezier(.2,.7,.2,1) 100ms forwards" }}
             >
-              <Button asChild variant="slash">
-                <a href="#booking">Book Your Transfer <ArrowRight className="size-4" /></a>
-              </Button>
-
-              <a
-                href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}
-                className="group/tel flex flex-col"
-              >
-                <span className="text-[10px] font-bold uppercase tracking-[0.28em] text-[var(--gold)]/70 group-hover/tel:text-[var(--gold)] transition-colors">
-                  Direct Line
-                </span>
-                <span className="text-white font-medium text-lg group-hover/tel:text-[var(--gold)] transition-colors">
-                  {SITE.phoneUK}
-                </span>
-              </a>
-
-              <span aria-hidden className="hidden md:block h-10 w-px bg-white/10" />
-
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-0.5 text-[var(--gold)]">
-                  {[...Array(5)].map((_, i) => <Star key={i} className="size-3.5 fill-current" />)}
-                </div>
-                <span className="text-white/50 text-[10px] uppercase font-bold tracking-[0.2em]">
-                  4.9 / 5 · 2,400+ reviews
-                </span>
-              </div>
+              <Sparkles className="size-3.5 text-[var(--gold)]" />
+              <span className="text-[10px] md:text-[11px] font-semibold uppercase tracking-[0.32em] text-[var(--navy)]">
+                UK's Trusted Chauffeur Company
+              </span>
             </div>
           </div>
-        </div>
 
-        {/* Bottom mask so booking widget overlaps cleanly */}
-        <div aria-hidden className="pointer-events-none absolute bottom-0 left-0 right-0 h-24 z-10 bg-gradient-to-t from-[var(--navy)] to-transparent" />
+          {/* Headline */}
+          <h1
+            className="mt-8 text-center font-display font-bold text-[var(--navy)] leading-[0.95] tracking-[-0.035em] text-[2.75rem] sm:text-6xl md:text-7xl lg:text-[6rem] opacity-0"
+            style={{ animation: "fadeInUp 800ms cubic-bezier(.2,.7,.2,1) 200ms forwards" }}
+          >
+            The Premium UK{" "}
+            <span
+              className="bg-clip-text text-transparent"
+              style={{
+                backgroundImage:
+                  "linear-gradient(180deg, #f0c548 0%, #dfaf26 55%, #b38a1d 100%)",
+              }}
+            >
+              Chauffeur
+            </span>{" "}
+            Service
+          </h1>
 
-        <div className="taxi-stripe h-2 w-full absolute bottom-0 left-0 right-0 z-20" aria-hidden />
-      </section>
+          {/* Subtitle */}
+          <p
+            className="mx-auto mt-6 max-w-2xl text-center text-base md:text-lg text-muted-foreground opacity-0"
+            style={{ animation: "fadeInUp 800ms cubic-bezier(.2,.7,.2,1) 380ms forwards" }}
+          >
+            From airport transfers to executive travel — we craft every journey with care. Fixed fares, flight tracking, and Mercedes-Benz comfort across the UK.
+          </p>
 
-
-      {/* BOOKING WIDGET — unchanged position & logic */}
-      <section id="booking" className="relative z-20 scroll-mt-24">
-        <div className="container-x">
-          <div className="-translate-y-24 md:-translate-y-40">
-            <BookingWidget />
+          {/* Inline stats bullets */}
+          <div
+            className="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-[var(--navy)] opacity-0"
+            style={{ animation: "fadeInUp 800ms cubic-bezier(.2,.7,.2,1) 560ms forwards" }}
+          >
+            {[
+              { label: "50k+ Journeys Delivered" },
+              { label: "24/7 Live Dispatch" },
+              { label: "4.9 / 5 Rated" },
+              { label: "Fully Licensed & Insured" },
+            ].map((s, i, arr) => (
+              <span key={s.label} className="inline-flex items-center gap-3">
+                <span className="inline-flex items-center gap-2">
+                  <span aria-hidden className="size-1.5 rounded-full bg-[var(--gold)]" />
+                  <span className="font-medium">{s.label}</span>
+                </span>
+                {i < arr.length - 1 && (
+                  <span aria-hidden className="hidden md:inline-block h-3 w-px bg-[var(--navy)]/15" />
+                )}
+              </span>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* STATS STRIP */}
-      <section className="-mt-4 md:-mt-6">
-        <div className="container-x">
-          <div className="relative rounded-2xl overflow-hidden border border-border bg-card shadow-[0_10px_40px_-20px_rgba(14,24,44,0.25)]">
-            <div aria-hidden className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--gold)]/60 to-transparent" />
-            <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-y md:divide-y-0 divide-border">
-              {stats.map((s, i) => (
-                <Reveal key={s.label} delay={i * 80} className="p-6 md:p-8 text-center group">
-                  <p className="font-display text-3xl md:text-4xl font-bold text-[var(--gold)] transition-transform duration-300 group-hover:scale-110">{s.value}</p>
-                  <p className="mt-2 text-[11px] md:text-xs uppercase tracking-[0.18em] text-muted-foreground">{s.label}</p>
-                </Reveal>
-              ))}
-            </div>
+      {/* BOOKING WIDGET — sits directly under hero, on light bg */}
+      <section id="booking" className="relative z-20 scroll-mt-24 bg-[var(--background)]">
+        <div className="container-x pt-10 md:pt-12">
+          <BookingWidget />
+        </div>
+      </section>
+
+      {/* SHOWCASE — V-Class over giant watermark */}
+      <section className="relative overflow-hidden bg-[var(--background)] pt-16 md:pt-24 pb-8 md:pb-4">
+        <div className="container-x relative">
+          {/* Giant watermark */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-center select-none"
+          >
+            <span
+              className="font-display font-bold leading-none tracking-[-0.06em] text-[20vw] md:text-[18vw]"
+              style={{
+                color: "transparent",
+                WebkitTextStroke: "1px color-mix(in oklab, var(--navy) 8%, transparent)",
+                backgroundImage:
+                  "linear-gradient(180deg, color-mix(in oklab, var(--gold) 12%, transparent), transparent 80%)",
+                WebkitBackgroundClip: "text",
+                backgroundClip: "text",
+              }}
+            >
+              CABSLINK
+            </span>
+          </div>
+
+          {/* Car */}
+          <div className="relative mx-auto max-w-5xl">
+            <div aria-hidden className="absolute inset-x-10 -bottom-2 h-8 rounded-[50%] bg-black/25 blur-2xl" />
+            <img
+              src={vClassSideImg}
+              alt="Mercedes-Benz V-Class chauffeur vehicle — side profile"
+              width={1920}
+              height={1024}
+              className="relative w-full object-contain animate-fade-soft drop-shadow-[0_30px_40px_rgba(14,24,44,0.25)]"
+            />
           </div>
         </div>
       </section>
+
+
 
       {/* HOW IT WORKS */}
       <section className="section-y">
