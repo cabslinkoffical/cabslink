@@ -387,25 +387,39 @@ function HomePage() {
         </div>
       </section>
 
-      {/* TESTIMONIALS */}
-      <section className="section-y bg-[var(--surface)] relative overflow-hidden">
-        <div aria-hidden className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-px bg-gradient-to-r from-transparent via-[var(--gold)]/30 to-transparent" />
+      {/* TESTIMONIALS — centered single-focus (reference-style) */}
+      <section className="section-y bg-[var(--background)] relative overflow-hidden">
         <div className="container-x relative">
-          <SectionHeader eyebrow="Loved by our passengers" title="Trusted by frequent flyers, executives & event teams" center />
-          <div className="mt-12 grid gap-5 md:grid-cols-3">
+          <SectionHeader
+            eyebrow="Testimonials"
+            title="What Our Clients"
+            titleAccent="Say"
+            subtitle="Delivering comfort, safety and elegance to every journey."
+            center
+          />
+          <div className="mt-14 grid gap-6 md:grid-cols-3">
             {testimonials.map((t, i) => (
-              <Reveal key={t.name} delay={i * 120} as="figure" className="relative rounded-2xl border border-border bg-card p-8 flex flex-col hover:border-[var(--gold)]/50 hover:-translate-y-1.5 hover:shadow-[var(--shadow-elegant)] transition-all duration-300 overflow-hidden">
-                <Quote aria-hidden className="absolute -top-2 -right-2 size-24 text-[var(--gold)]/[0.08]" />
-                <div className="relative flex items-center gap-1 text-[var(--gold)]">
+              <Reveal
+                key={t.name}
+                delay={i * 120}
+                as="figure"
+                className="relative rounded-3xl border border-border bg-card p-8 pt-14 text-center flex flex-col items-center hover:border-[var(--gold)]/50 hover:-translate-y-1.5 hover:shadow-[var(--shadow-elegant)] transition-all duration-300"
+              >
+                <span className="absolute -top-6 left-1/2 -translate-x-1/2 grid size-12 place-items-center rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] shadow-[var(--shadow-glow)]">
+                  <Quote className="size-5" />
+                </span>
+                <div className="flex items-center gap-1 text-[var(--gold)]">
                   {[...Array(5)].map((_, i) => <Star key={i} className="size-4 fill-current" />)}
                 </div>
-                <blockquote className="relative mt-4 text-sm md:text-base leading-relaxed text-foreground/90 flex-1">"{t.quote}"</blockquote>
-                <figcaption className="relative mt-6 pt-5 border-t border-border flex items-center gap-3">
-                  <div className="grid size-10 place-items-center rounded-full bg-[var(--gold)]/15 text-[var(--gold)] font-display font-bold">{t.name.charAt(0)}</div>
-                  <div>
-                    <p className="font-semibold text-sm">{t.name}</p>
-                    <p className="text-xs text-muted-foreground">{t.role}</p>
+                <blockquote className="mt-5 text-sm md:text-base leading-relaxed text-foreground/85 flex-1">
+                  "{t.quote}"
+                </blockquote>
+                <figcaption className="mt-6 pt-5 border-t border-border w-full">
+                  <div className="mx-auto grid size-12 place-items-center rounded-full bg-[var(--gold)]/15 text-[var(--gold)] font-display font-bold text-lg">
+                    {t.name.charAt(0)}
                   </div>
+                  <p className="mt-3 font-semibold text-sm">{t.name}</p>
+                  <p className="text-xs text-muted-foreground">{t.role}</p>
                 </figcaption>
               </Reveal>
             ))}
