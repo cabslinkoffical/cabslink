@@ -1,9 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor, act } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
 
-// Mock useServerFn to invoke functions directly.
 vi.mock("@tanstack/react-start", () => ({
   useServerFn: (fn: unknown) => fn,
 }));
@@ -13,24 +12,21 @@ vi.mock("@/lib/places.functions", () => ({
   placesAutocomplete: (args: unknown) => autocompleteMock(args),
 }));
 
-import { LocationAutocomplete, type SelectedPlace } from "@/components/site/LocationAutocomplete";
+import { PlaceAutocomplete, type SelectedPlace } from "@/components/site/PlaceAutocomplete";
 
 function Harness({ onChange }: { onChange: (p: SelectedPlace | null) => void }) {
   const [value, setValue] = React.useState<SelectedPlace | null>(null);
   return (
-    <LocationAutocomplete
-      label="Pickup"
+    <PlaceAutocomplete
       value={value}
       onChange={(p) => { setValue(p); onChange(p); }}
     />
   );
 }
 
-beforeEach(() => {
-  autocompleteMock.mockReset();
-});
+beforeEach(() => { autocompleteMock.mockReset(); });
 
-describe("LocationAutocomplete — editing invalidates selection", () => {
+describe("PlaceAutocomplete — editing invalidates selection", () => {
   it("clears the stored Place ID as soon as the user edits after selecting", async () => {
     autocompleteMock.mockResolvedValue({
       suggestions: [
@@ -48,9 +44,7 @@ describe("LocationAutocomplete — editing invalidates selection", () => {
     await user.click(option);
 
     await waitFor(() => {
-      expect(onChange).toHaveBeenCalledWith(
-        expect.objectContaining({ placeId: "ChIJ_edin" })
-      );
+      expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ placeId: "ChIJ_edin" }));
     });
     onChange.mockClear();
 

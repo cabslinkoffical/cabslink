@@ -1,9 +1,10 @@
 import { useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { LocationAutocomplete, type SelectedPlace } from "./LocationAutocomplete";
+import { PlaceAutocomplete, type SelectedPlace } from "./PlaceAutocomplete";
 import { calculateRouteDistance, type RouteDistanceResult } from "@/lib/route-distance.functions";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 import { ArrowUpDown, Loader2, Route, RefreshCw } from "lucide-react";
 
 function formatDuration(seconds: number) {
@@ -15,7 +16,6 @@ function formatDuration(seconds: number) {
   return m ? `${h} h ${m} min` : `${h} h`;
 }
 
-// Recoverable server errors that should surface a Retry action.
 function isRetryable(msg: string) {
   return /temporarily unavailable|timed out|too many requests/i.test(msg);
 }
@@ -32,15 +32,9 @@ export function DistanceCalculator() {
   const ready = !!pickup?.placeId && !!dest?.placeId;
   const sameLocation = ready && pickup!.placeId === dest!.placeId;
 
-  function updatePickup(p: SelectedPlace | null) {
-    setPickup(p); setResult(null); setError(null);
-  }
-  function updateDest(p: SelectedPlace | null) {
-    setDest(p); setResult(null); setError(null);
-  }
-  function swap() {
-    setPickup(dest); setDest(pickup); setResult(null); setError(null);
-  }
+  function updatePickup(p: SelectedPlace | null) { setPickup(p); setResult(null); setError(null); }
+  function updateDest(p: SelectedPlace | null) { setDest(p); setResult(null); setError(null); }
+  function swap() { setPickup(dest); setDest(pickup); setResult(null); setError(null); }
 
   async function calculate() {
     if (!ready || loading || inflight.current || sameLocation) return;
@@ -60,45 +54,52 @@ export function DistanceCalculator() {
   return (
     <Card className="p-5 md:p-7 space-y-5">
       <div className="space-y-4">
-        <LocationAutocomplete
-          label="Pickup location"
-          placeholder="Enter pickup location"
-          value={pickup}
-          onChange={updatePickup}
-        />
+        <div>
+          <Label htmlFor="dc-pickup" className="text-sm font-medium">Pickup location</Label>
+          <div className="mt-1.5">
+            <PlaceAutocomplete
+              id="dc-pickup"
+              value={pickup}
+              onChange={updatePickup}
+              placeholder="Enter pickup location"
+              inputClassName="pl-9"
+              iconClassName="left-3"
+              hideAttribution
+            />
+          </div>
+        </div>
         <div className="flex justify-center">
           <Button type="button" variant="outline" size="icon" onClick={swap} aria-label="Swap locations">
             <ArrowUpDown className="h-4 w-4" />
           </Button>
         </div>
-        <LocationAutocomplete
-          label="Destination location"
-          placeholder="Enter destination location"
-          value={dest}
-          onChange={updateDest}
-        />
+        <div>
+          <Label htmlFor="dc-dest" className="text-sm font-medium">Destination location</Label>
+          <div className="mt-1.5">
+            <PlaceAutocomplete
+              id="dc-dest"
+              value={dest}
+              onChange={updateDest}
+              placeholder="Enter destination location"
+              inputClassName="pl-9"
+              iconClassName="left-3"
+              hideAttribution
+            />
+          </div>
+        </div>
       </div>
 
-      <Button
-        className="w-full"
-        size="lg"
-        disabled={!ready || loading || sameLocation}
-        onClick={calculate}
-        aria-busy={loading}
-      >
+      <Button className="w-full" size="lg" disabled={!ready || loading || sameLocation} onClick={calculate} aria-busy={loading}>
         {loading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Calculating route...</>) : "Calculate distance"}
       </Button>
 
       {sameLocation && (
-        <p className="text-xs text-destructive text-center">
-          Pickup and destination cannot be the same location.
-        </p>
+        <p className="text-xs text-destructive text-center">Pickup and destination cannot be the same location.</p>
       )}
       {!ready && (pickup || dest) && !sameLocation && (
-        <p className="text-xs text-muted-foreground text-center">
-          Please select both locations from the suggestions.
-        </p>
+        <p className="text-xs text-muted-foreground text-center">Please select both locations from the suggestions.</p>
       )}
+      <p className="text-[10px] text-muted-foreground text-right">Powered by Google</p>
 
       {error && (
         <div className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive flex items-start justify-between gap-3">

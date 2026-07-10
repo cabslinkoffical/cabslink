@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { toast } from "sonner";
 import { Mail, Phone, MapPin, Clock, ArrowRight } from "lucide-react";
@@ -9,8 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { supabase } from "@/integrations/supabase/client";
 import { SITE } from "@/lib/site";
+import { submitContactMessage } from "@/lib/contact.functions";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -35,24 +36,42 @@ const schema = z.object({
 
 function ContactPage() {
   const [loading, setLoading] = useState(false);
+  const inflight = useRef(false);
+  const submit = useServerFn(submitContactMessage);
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const data = Object.fromEntries(new FormData(e.currentTarget));
-    const parsed = schema.safeParse(data);
+    if (inflight.current) return;
+    const fd = new FormData(e.currentTarget);
+    // Honeypot: any bot filling this hidden field is silently rejected.
+    if ((fd.get("website") ?? "").toString().trim() !== "") {
+      toast.success("Message sent — we'll respond shortly.");
+      (e.currentTarget as HTMLFormElement).reset();
+      return;
+    }
+    const parsed = schema.safeParse(Object.fromEntries(fd));
     if (!parsed.success) { toast.error("Please fill out the required fields."); return; }
+    inflight.current = true;
     setLoading(true);
-    const { error } = await supabase.from("contact_messages").insert({
-      name: parsed.data.name,
-      email: parsed.data.email,
-      phone: parsed.data.phone || null,
-      subject: parsed.data.subject || null,
-      message: parsed.data.message,
-    });
-    setLoading(false);
-    if (error) { toast.error("Could not send. Please try again."); return; }
-    toast.success("Message sent — we'll respond shortly.");
-    e.currentTarget.reset();
+    try {
+      await submit({
+        data: {
+          name: parsed.data.name,
+          email: parsed.data.email,
+          phone: parsed.data.phone || null,
+          subject: parsed.data.subject || null,
+          message: parsed.data.message,
+          website: "",
+        },
+      });
+      toast.success("Message sent — we'll respond shortly.");
+      (e.currentTarget as HTMLFormElement).reset();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not send. Please try again.");
+    } finally {
+      setLoading(false);
+      inflight.current = false;
+    }
   };
 
   return (
@@ -81,8 +100,13 @@ function ContactPage() {
               </div>
             ))}
           </div>
-          <form onSubmit={onSubmit} className="lg:col-span-3 rounded-3xl border border-border bg-card p-6 md:p-8 shadow-sm">
+          <form onSubmit={onSubmit} className="lg:col-span-3 rounded-3xl border border-border bg-card p-6 md:p-8 shadow-sm" noValidate>
             <h3 className="font-display text-2xl font-semibold">Send us a message</h3>
+            {/* Honeypot: must remain empty; hidden from users, tempting to bots. */}
+            <div className="absolute -left-[9999px]" aria-hidden="true">
+              <label htmlFor="website">Website</label>
+              <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" />
+            </div>
             <div className="mt-6 grid gap-4">
               <div className="grid sm:grid-cols-2 gap-4">
                 <div><Label>Name</Label><Input name="name" required maxLength={100} className="mt-1.5" /></div>
