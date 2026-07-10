@@ -164,35 +164,99 @@ function Stepper({ step }: { step: Step }) {
 // =================================================================
 // Sidebar
 // =================================================================
-function Sidebar({ pre, onEdit }: { pre: Prefill; onEdit: () => void }) {
+function Sidebar({
+  pre, onEdit, route,
+}: {
+  pre: Prefill; onEdit: () => void;
+  route: { miles: number; minutes: number } | null;
+}) {
   return (
-    <aside className="space-y-4">
-      <div className="bg-card rounded-2xl border border-border p-5 shadow-sm">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-display font-bold flex items-center gap-2">
-            <MapPin className="size-4 text-[var(--gold)]" /> Your Transfer
-          </h3>
-          <button onClick={onEdit} className="text-muted-foreground hover:text-foreground">
-            <Edit3 className="size-4" />
+    <aside className="space-y-4 lg:sticky lg:top-24">
+      {/* Trip card with journey timeline */}
+      <div className="relative bg-card rounded-2xl border border-border p-6 shadow-[0_10px_40px_-20px_rgba(14,24,44,0.25)] overflow-hidden">
+        <div className="absolute -top-16 -right-16 size-40 rounded-full bg-[var(--gold)]/10 blur-2xl" aria-hidden />
+        <div className="relative flex items-center justify-between mb-5">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)]">Your Journey</p>
+            <h3 className="font-display font-bold text-lg text-foreground mt-0.5">Trip Summary</h3>
+          </div>
+          <button
+            onClick={onEdit}
+            className="size-8 rounded-full border border-border text-muted-foreground hover:text-[var(--gold)] hover:border-[var(--gold)]/40 flex items-center justify-center transition"
+            aria-label="Edit trip"
+          >
+            <Edit3 className="size-3.5" />
           </button>
         </div>
-        <div className="space-y-4">
-          <SidebarRow icon={<MapPin className="size-4" />} label="Pickup" value={pre.pickup || "—"} />
-          <SidebarRow icon={<Flag className="size-4" />} label="Dropoff" value={pre.dropoff || "—"} />
-          <SidebarRow
-            icon={<CalendarDays className="size-4" />}
-            label="Date & Time"
-            value={pre.date && pre.time ? `${pre.date} ${pre.time}` : "—"}
-          />
+
+        {/* Timeline */}
+        <div className="relative pl-6">
+          <div className="absolute left-[9px] top-3 bottom-3 border-l-2 border-dashed border-[var(--gold)]/40" />
+          <div className="relative">
+            <div className="absolute -left-6 top-1.5 size-4 rounded-full bg-[var(--gold)] ring-4 ring-[var(--gold)]/20" />
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Pickup</p>
+            <p className="text-sm font-semibold text-foreground leading-snug mt-0.5">{pre.pickup || "—"}</p>
+          </div>
+          <div className="relative mt-6">
+            <div className="absolute -left-6 top-1.5 size-4 rounded-full border-2 border-[var(--gold)] bg-card" />
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Dropoff</p>
+            <p className="text-sm font-semibold text-foreground leading-snug mt-0.5">{pre.dropoff || "—"}</p>
+          </div>
+        </div>
+
+        {/* Distance & time stats */}
+        {route && (
+          <div className="relative mt-5 grid grid-cols-2 gap-2">
+            <div className="bg-[var(--surface)] rounded-xl p-3 border border-border/60">
+              <div className="flex items-center gap-1.5 text-[var(--gold)]">
+                <MapPin className="size-3.5" />
+                <span className="text-[9px] font-bold uppercase tracking-[0.2em]">Distance</span>
+              </div>
+              <p className="mt-1 font-display text-xl font-bold text-foreground tabular-nums leading-none">
+                {route.miles.toFixed(1)}<span className="text-xs font-semibold text-muted-foreground ml-1">mi</span>
+              </p>
+            </div>
+            <div className="bg-[var(--surface)] rounded-xl p-3 border border-border/60">
+              <div className="flex items-center gap-1.5 text-[var(--gold)]">
+                <Clock className="size-3.5" />
+                <span className="text-[9px] font-bold uppercase tracking-[0.2em]">Duration</span>
+              </div>
+              <p className="mt-1 font-display text-xl font-bold text-foreground tabular-nums leading-none">
+                {route.minutes}<span className="text-xs font-semibold text-muted-foreground ml-1">min</span>
+              </p>
+            </div>
+            <p className="col-span-2 text-[10px] text-muted-foreground flex items-start gap-1.5 mt-1">
+              <BadgeCheck className="size-3 mt-0.5 text-[var(--gold)] shrink-0" />
+              Calculated with real-time traffic &amp; optimized routing.
+            </p>
+          </div>
+        )}
+
+        {/* Date & time strip */}
+        <div className="relative mt-5 pt-4 border-t border-border grid grid-cols-2 gap-3">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-1">
+              <CalendarDays className="size-3 text-[var(--gold)]" /> Date
+            </p>
+            <p className="text-sm font-semibold text-foreground mt-0.5">{pre.date || "—"}</p>
+          </div>
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-1">
+              <Clock className="size-3 text-[var(--gold)]" /> Time
+            </p>
+            <p className="text-sm font-semibold text-foreground mt-0.5">{pre.time || "—"}</p>
+          </div>
         </div>
       </div>
 
-      <div className="bg-card rounded-2xl border border-border p-5 shadow-sm space-y-3">
+      {/* Trust card */}
+      <div className="bg-card rounded-2xl border border-border p-5 shadow-sm space-y-2.5">
+        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)] mb-1">Why Cabslink</p>
         {[
           "10,000+ passengers transferred",
           "Instant confirmation",
           "All-inclusive pricing",
-          "Secure payment by credit / debit card",
+          "Secure card payments",
         ].map((t) => (
           <div key={t} className="flex gap-2 text-sm">
             <CheckCircle2 className="size-4 text-[var(--gold)] mt-0.5 shrink-0" />
