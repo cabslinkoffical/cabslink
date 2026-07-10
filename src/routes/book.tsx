@@ -372,8 +372,8 @@ function VehicleCard({
       )}
 
       {/* LEFT — vehicle info */}
-      <div className="flex-1 p-6 md:p-8 flex flex-col md:flex-row gap-6 md:gap-8">
-        <div className="w-full md:w-56 flex-shrink-0 flex items-center justify-center bg-[var(--surface)] rounded-xl p-3">
+      <div className="flex-1 min-w-0 p-5 md:p-6 flex flex-col md:flex-row gap-5 md:gap-6">
+        <div className="w-full md:w-44 lg:w-48 flex-shrink-0 flex items-center justify-center bg-[var(--surface)] rounded-xl p-3">
           <img
             src={card.imageUrl}
             alt={card.name}
@@ -382,32 +382,32 @@ function VehicleCard({
           />
         </div>
 
-        <div className="flex-1 flex flex-col justify-between min-w-0">
+        <div className="flex-1 min-w-0 flex flex-col justify-between">
           <div>
             <div className="flex justify-between items-start gap-3">
-              <div>
-                <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--gold)]">
+              <div className="min-w-0 flex-1">
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--gold)]">
                   <BadgeCheck className="size-3" /> Private Transfer
                 </span>
-                <h3 className="mt-1.5 font-display text-2xl font-bold uppercase tracking-tight text-foreground">
+                <h3 className="mt-1.5 font-display text-lg md:text-xl font-bold uppercase tracking-tight text-foreground leading-tight break-words">
                   {card.name}
                 </h3>
               </div>
               <div className="flex gap-0.5 text-[var(--gold)] shrink-0 pt-1">
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} className="size-3.5 fill-current" />
+                  <Star key={i} className="size-3 fill-current" />
                 ))}
               </div>
             </div>
 
-            <ul className="mt-5 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-              <Feature icon={<Users className="size-4" />}>{card.passengers * qty} Passengers</Feature>
-              <Feature icon={<Briefcase className="size-4" />}>{card.luggage * qty} Luggage</Feature>
-              <Feature icon={<Luggage className="size-4" />}>{card.handLuggage * qty} Hand Luggage</Feature>
-              <Feature icon={<BadgeCheck className="size-4" />}>Meet &amp; Greet</Feature>
-              <Feature icon={<Clock className="size-4" />}>Free Waiting</Feature>
-              <Feature icon={<DoorOpen className="size-4" />}>Door to Door</Feature>
-              <Feature icon={<UserCheck className="size-4" />}>Pro Driver</Feature>
+            <ul className="mt-4 grid grid-cols-2 gap-x-3 gap-y-1.5 text-[13px]">
+              <Feature icon={<Users className="size-3.5" />}>{card.passengers * qty} Passengers</Feature>
+              <Feature icon={<Briefcase className="size-3.5" />}>{card.luggage * qty} Luggage</Feature>
+              <Feature icon={<Luggage className="size-3.5" />}>{card.handLuggage * qty} Hand Bag</Feature>
+              <Feature icon={<BadgeCheck className="size-3.5" />}>Meet &amp; Greet</Feature>
+              <Feature icon={<Clock className="size-3.5" />}>Free Waiting</Feature>
+              <Feature icon={<DoorOpen className="size-3.5" />}>Door to Door</Feature>
+              <Feature icon={<UserCheck className="size-3.5" />}>Pro Driver</Feature>
             </ul>
           </div>
 
