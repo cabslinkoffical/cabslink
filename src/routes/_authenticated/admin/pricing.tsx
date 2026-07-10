@@ -225,10 +225,26 @@ function Page() {
               <div><Label>Valid from</Label><Input type="date" value={form.valid_from} onChange={e => setForm({ ...form, valid_from: e.target.value })} /></div>
               <div><Label>Valid to</Label><Input type="date" value={form.valid_to} onChange={e => setForm({ ...form, valid_to: e.target.value })} /></div>
               <div className="col-span-2"><Label>Notes</Label><Textarea value={form.notes ?? ""} onChange={e => setForm({ ...form, notes: e.target.value })} rows={2} /></div>
-              <div className="col-span-2 flex items-center gap-2"><Switch checked={form.active} onCheckedChange={v => setForm({ ...form, active: v })} /><Label>Active</Label></div>
-              {!canSave && (
+              <div className="col-span-2 flex items-center gap-2">
+                <Switch
+                  checked={form.active}
+                  disabled={!form.from_place_id || !form.to_place_id}
+                  onCheckedChange={v => setForm({ ...form, active: v })}
+                />
+                <Label>Active</Label>
+              </div>
+              {(!form.from_place_id || !form.to_place_id) && (
+                <div className="col-span-2 flex items-start gap-2 text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded p-2">
+                  <AlertTriangle className="size-4 shrink-0 mt-0.5" />
+                  <span>
+                    Incomplete rule — this rule cannot affect customer quotes until both origin and
+                    destination are re-selected from the suggestions. It cannot be activated in its current state.
+                  </span>
+                </div>
+              )}
+              {!canSave && form.from_place_id && form.to_place_id && (
                 <p className="col-span-2 text-xs text-amber-700">
-                  Select both locations from the suggestions and set a positive price.
+                  Set a positive price to save.
                 </p>
               )}
               <div className="col-span-2 flex justify-end gap-2">
