@@ -1,5 +1,8 @@
 import { useState, useMemo } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
+} from "@/components/ui/dialog";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
@@ -56,9 +59,30 @@ type Step = "vehicle" | "details" | "payment";
 function BookPage() {
   const { q } = Route.useSearch();
   const pre = readPrefill(q);
+  const navigate = useNavigate({ from: "/book" });
   const [step, setStep] = useState<Step>("vehicle");
   const [chosen, setChosen] = useState<QuoteCard | null>(null);
   const [qty, setQty] = useState<number>(1);
+  const [editOpen, setEditOpen] = useState(false);
+
+  const applyEdit = (next: Prefill) => {
+    const p = new URLSearchParams();
+    p.set("pickup", next.pickup);
+    p.set("dropoff", next.dropoff);
+    p.set("date", next.date);
+    p.set("time", next.time);
+    p.set("passengers", String(next.passengers));
+    p.set("luggage", String(next.luggage));
+    p.set("mode", next.mode);
+    if (next.stops.length) p.set("stops", next.stops.join("|"));
+    if (next.ret) {
+      p.set("ret", "1");
+      if (next.rdate) p.set("rdate", next.rdate);
+      if (next.rtime) p.set("rtime", next.rtime);
+    }
+    navigate({ search: { q: p.toString() }, replace: true });
+    setEditOpen(false);
+  };
 
   const quoteFn = useServerFn(calculateQuotes);
   const quoteQuery = useQuery({
@@ -91,7 +115,7 @@ function BookPage() {
           <div className="mt-8 grid lg:grid-cols-[340px_1fr] gap-6 items-start">
             <Sidebar
               pre={pre}
-              onEdit={() => setStep("vehicle")}
+              onEdit={() => setEditOpen(true)}
               route={quoteQuery.data ? { miles: quoteQuery.data.distanceMiles, minutes: quoteQuery.data.durationMinutes } : null}
             />
             <div className="min-w-0">
@@ -120,7 +144,77 @@ function BookPage() {
           </div>
         </div>
       </section>
+      <EditTripDialog open={editOpen} onOpenChange={setEditOpen} initial={pre} onSave={applyEdit} />
     </SiteLayout>
+  );
+}
+
+// =================================================================
+// Edit Trip dialog
+// =================================================================
+function EditTripDialog({
+  open, onOpenChange, initial, onSave,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  initial: Prefill;
+  onSave: (next: Prefill) => void;
+}) {
+  const [form, setForm] = useState<Prefill>(initial);
+  // Reset local state whenever dialog re-opens
+  useMemo(() => { if (open) setForm(initial); }, [open, initial]);
+  const set = <K extends keyof Prefill>(k: K, v: Prefill[K]) => setForm((f) => ({ ...f, [k]: v }));
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Edit your trip</DialogTitle>
+          <DialogDescription>Update pickup, dropoff, date, time or passengers and we'll refresh your quote.</DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-2">
+          <div className="grid gap-1.5">
+            <Label htmlFor="edit-pickup">Pickup</Label>
+            <Input id="edit-pickup" value={form.pickup} onChange={(e) => set("pickup", e.target.value)} placeholder="e.g. Edinburgh Airport" />
+          </div>
+          <div className="grid gap-1.5">
+            <Label htmlFor="edit-dropoff">Dropoff</Label>
+            <Input id="edit-dropoff" value={form.dropoff} onChange={(e) => set("dropoff", e.target.value)} placeholder="e.g. Glasgow" />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="grid gap-1.5">
+              <Label htmlFor="edit-date">Date</Label>
+              <Input id="edit-date" type="date" value={form.date} onChange={(e) => set("date", e.target.value)} />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="edit-time">Time</Label>
+              <Input id="edit-time" type="time" value={form.time} onChange={(e) => set("time", e.target.value)} />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="grid gap-1.5">
+              <Label htmlFor="edit-pax">Passengers</Label>
+              <Input id="edit-pax" type="number" min={1} max={60} value={form.passengers}
+                onChange={(e) => set("passengers", Math.max(1, Number(e.target.value) || 1))} />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="edit-lug">Luggage</Label>
+              <Input id="edit-lug" type="number" min={0} max={60} value={form.luggage}
+                onChange={(e) => set("luggage", Math.max(0, Number(e.target.value) || 0))} />
+            </div>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button
+            onClick={() => onSave(form)}
+            disabled={!form.pickup.trim() || !form.dropoff.trim() || !form.date || !form.time}
+          >
+            Update quote
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
