@@ -9,6 +9,14 @@ export function validatePlaceIds(pickup: string, destination: string): void {
 }
 
 // ---------- Rate limiter (sliding window, per-IP, in-memory) ----------
+//
+// NOTE: This limiter — and the cache below — live in memory scoped to a single
+// Worker instance. Cloudflare may run multiple isolates concurrently, and each
+// resets state on cold start, so the effective per-IP limit is an upper bound
+// per isolate rather than a global guarantee. This is sufficient defense-in-
+// depth for current traffic. If production load grows, migrate both stores to
+// distributed storage (Cloudflare KV, Durable Objects, or Upstash Redis) so
+// limits and cache entries are shared across isolates.
 
 export const RATE_LIMIT_PER_MINUTE = 20;
 const WINDOW_MS = 60_000;
