@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { SITE } from "@/lib/site";
 
 import heroImg from "@/assets/hero.jpg";
+import vClassSideImg from "@/assets/v-class-side.png";
 import chauffeurImg from "@/assets/chauffeur.jpg";
 import edinburghImg from "@/assets/edinburgh.jpg";
 import vClassImg from "@/assets/v-class.png";
