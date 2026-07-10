@@ -285,57 +285,37 @@ function SidebarRow({ icon, label, value }: { icon: React.ReactNode; label: stri
 // =================================================================
 // Step 1 — Vehicle selection
 // =================================================================
-function VehicleStep({ pre, onSelect }: { pre: Prefill; onSelect: (card: QuoteCard, qty: number) => void }) {
-  const quoteFn = useServerFn(calculateQuotes);
+function VehicleStep({
+  pre, data, isLoading, error, onSelect,
+}: {
+  pre: Prefill;
+  data: Awaited<ReturnType<typeof calculateQuotes>> | undefined;
+  isLoading: boolean;
+  error: Error | null;
+  onSelect: (card: QuoteCard, qty: number) => void;
+}) {
   const [qtyMap, setQtyMap] = useState<Record<string, number>>({});
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["quotes", pre.pickup, pre.dropoff, pre.passengers, pre.luggage, pre.time, pre.stops.length],
-    queryFn: () =>
-      quoteFn({
-        data: {
-          pickup: pre.pickup || "Glasgow, UK",
-          dropoff: pre.dropoff || "Edinburgh Airport",
-          pickupDate: pre.date,
-          pickupTime: pre.time,
-          passengers: pre.passengers,
-          luggage: pre.luggage,
-          viaStops: pre.stops.length,
-        } as any,
-      }),
-  });
 
   return (
     <div>
-      <div className="mb-5 flex items-end justify-between flex-wrap gap-2">
+      <div className="mb-6 flex items-end justify-between flex-wrap gap-3">
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)]">Step 01 — Boarding Pass</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)]">Step 01 — Choose Your Ride</p>
           <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground mt-1">
             Book Your Ride · {pre.ret ? "Return" : "One Way"}
           </h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Every fare is all-inclusive — no surge, no hidden fees.
+          </p>
         </div>
         {data && (
-          <div className="w-full mt-2 bg-card border border-border rounded-xl px-4 py-3 shadow-sm">
-            <div className="flex flex-wrap items-center gap-x-8 gap-y-2">
-              <div className="flex items-center gap-2">
-                <MapPin className="size-4 text-[var(--gold)]" />
-                <span className="font-display font-bold text-base text-foreground tabular-nums">
-                  {data.distanceMiles.toFixed(1)} Miles
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Clock className="size-4 text-[var(--gold)]" />
-                <span className="font-display font-bold text-base text-foreground tabular-nums">
-                  {data.durationMinutes} minutes
-                </span>
-              </div>
-            </div>
-            <p className="mt-1.5 text-[11px] text-muted-foreground flex items-start gap-1.5">
-              <BadgeCheck className="size-3 mt-0.5 text-[var(--gold)] shrink-0" />
-              Distance and time calculated using real-time traffic data and optimized routing algorithms.
-            </p>
+          <div className="inline-flex items-center gap-2 bg-[var(--navy)] text-[var(--navy-foreground)] rounded-full px-4 py-2 text-xs font-bold uppercase tracking-widest">
+            <BadgeCheck className="size-3.5 text-[var(--gold)]" />
+            {data.quotes.length} vehicles available
           </div>
         )}
       </div>
+
 
       <div className="space-y-6">
         {isLoading && (
