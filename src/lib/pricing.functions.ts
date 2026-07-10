@@ -233,12 +233,13 @@ export const calculateQuotes = createServerFn({ method: "POST" })
 // -------------------------------------------------------------------
 const createBookingInput = z.object({
   vehicleId: z.string().uuid(),
+  vehicleCount: z.number().int().min(1).max(20).optional().default(1),
   pickup: z.string().trim().min(2).max(500),
   dropoff: z.string().trim().min(2).max(500),
   pickupDate: z.string().trim().min(1).max(20),
   pickupTime: z.string().trim().min(1).max(10),
-  passengers: z.number().int().min(1).max(20),
-  luggage: z.number().int().min(0).max(20),
+  passengers: z.number().int().min(1).max(200),
+  luggage: z.number().int().min(0).max(200),
   viaStops: z.number().int().min(0).max(10).optional().default(0),
   customer_name: z.string().trim().min(1).max(120),
   email: z.string().trim().email().max(255),
@@ -249,6 +250,7 @@ const createBookingInput = z.object({
   meet_greet: z.boolean().optional().default(false),
   return_journey: z.boolean().optional().default(false),
 });
+
 
 export const createBooking = createServerFn({ method: "POST" })
   .inputValidator((data: z.infer<typeof createBookingInput>) => createBookingInput.parse(data))
