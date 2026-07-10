@@ -239,4 +239,3 @@ describe("createBooking — integration", () => {
   });
 });
 
-});
