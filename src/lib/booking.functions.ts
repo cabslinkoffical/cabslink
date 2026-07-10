@@ -223,7 +223,7 @@ export const setBookingStatusFn = createServerFn({ method: "POST" })
             price: booking.price,
             notes: booking.notes,
             cancellationReason: booking.cancellation_reason,
-          }, data.id, booking.status);
+          }, data.id, booking.status, row?.transition_id ?? null);
         }
       } catch (err) {
         // eslint-disable-next-line no-console
