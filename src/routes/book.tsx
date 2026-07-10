@@ -115,7 +115,7 @@ function BookPage() {
           <div className="mt-8 grid lg:grid-cols-[340px_1fr] gap-6 items-start">
             <Sidebar
               pre={pre}
-              onEdit={() => setStep("vehicle")}
+              onEdit={() => setEditOpen(true)}
               route={quoteQuery.data ? { miles: quoteQuery.data.distanceMiles, minutes: quoteQuery.data.durationMinutes } : null}
             />
             <div className="min-w-0">
