@@ -290,10 +290,12 @@ export const listAddresses = createServerFn({ method: "GET" })
 
 const addressSchema = z.object({
   id: z.string().uuid().optional(),
-  name: z.string().min(1).max(200),
+  name: z.string().trim().min(1).max(200),
+  label: z.string().trim().max(200).nullable().optional(),
+  place_id: z.string().trim().max(300).nullable().optional(),
   comparable_value: z.string().max(200).nullable().optional(),
-  pickup_charge: z.number().min(0).default(0),
-  dropoff_charge: z.number().min(0).default(0),
+  pickup_charge: z.coerce.number().min(0).max(100000).default(0),
+  dropoff_charge: z.coerce.number().min(0).max(100000).default(0),
   notes: z.string().max(1000).nullable().optional(),
   active: z.boolean().default(true),
 });
@@ -303,12 +305,18 @@ export const upsertAddress = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => addressSchema.parse(i))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
+    const payload: any = {
+      ...data,
+      place_id: (data.place_id && data.place_id.trim()) || null,
+      label: (data.label && data.label.trim()) || null,
+      updated_by: context.userId,
+    };
     if (data.id) {
-      const { id, ...patch } = data;
+      const { id, ...patch } = payload;
       const { error } = await context.supabase.from("addresses").update(patch).eq("id", id);
       if (error) throw new Error(error.message);
     } else {
-      const { error } = await context.supabase.from("addresses").insert(data);
+      const { error } = await context.supabase.from("addresses").insert(payload);
       if (error) throw new Error(error.message);
     }
     return { ok: true };
