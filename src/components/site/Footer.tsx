@@ -43,7 +43,11 @@ export function Footer() {
           <h4 className="text-sm font-semibold uppercase tracking-wider text-[var(--gold)]">Quick Links</h4>
           <ul className="mt-5 space-y-3 text-sm text-white/75">
             {links.map(l => (
-              <li key={l.to}><Link to={l.to} className="hover:text-[var(--gold)]">{l.label}</Link></li>
+              <li key={l.to}>{l.to.includes("#") ? (
+                <a href={l.to} className="hover:text-[var(--gold)]">{l.label}</a>
+              ) : (
+                <Link to={l.to} className="hover:text-[var(--gold)]">{l.label}</Link>
+              )}</li>
             ))}
           </ul>
         </div>
