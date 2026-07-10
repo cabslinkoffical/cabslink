@@ -18,7 +18,7 @@ const links = [
   { to: "/services", label: "Services" },
   { to: "/corporate-booking", label: "Corporate Booking" },
   { to: "/contact", label: "Contact" },
-  { to: "/book", label: "Book Now" },
+  { to: "/#booking", label: "Book Now" },
 ];
 
 export function Footer() {
