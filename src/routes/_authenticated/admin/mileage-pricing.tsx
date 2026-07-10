@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery, useQuery, useMutation, useQueryClient, queryOptions } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { listVehiclesAdmin } from "@/lib/admin.functions";
-import { adminListPricingProfiles, adminSavePricingProfile } from "@/lib/pricing.functions";
+import { adminListPricingProfiles, adminSavePricingProfile, adminDuplicatePricingProfile } from "@/lib/pricing.functions";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
