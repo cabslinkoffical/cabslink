@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { LocationAutocomplete, type SelectedPlace } from "./LocationAutocomplete";
 import { calculateRouteDistance, type RouteDistanceResult } from "@/lib/route-distance.functions";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowUpDown, Loader2, Route } from "lucide-react";
+import { ArrowUpDown, Loader2, Route, RefreshCw } from "lucide-react";
 
 function formatDuration(seconds: number) {
   if (!seconds) return "";
@@ -15,6 +15,11 @@ function formatDuration(seconds: number) {
   return m ? `${h} h ${m} min` : `${h} h`;
 }
 
+// Recoverable server errors that should surface a Retry action.
+function isRetryable(msg: string) {
+  return /temporarily unavailable|timed out|too many requests/i.test(msg);
+}
+
 export function DistanceCalculator() {
   const [pickup, setPickup] = useState<SelectedPlace | null>(null);
   const [dest, setDest] = useState<SelectedPlace | null>(null);
@@ -22,8 +27,10 @@ export function DistanceCalculator() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const call = useServerFn(calculateRouteDistance);
+  const inflight = useRef(false);
 
   const ready = !!pickup?.placeId && !!dest?.placeId;
+  const sameLocation = ready && pickup!.placeId === dest!.placeId;
 
   function updatePickup(p: SelectedPlace | null) {
     setPickup(p); setResult(null); setError(null);
@@ -36,7 +43,8 @@ export function DistanceCalculator() {
   }
 
   async function calculate() {
-    if (!ready || loading) return;
+    if (!ready || loading || inflight.current || sameLocation) return;
+    inflight.current = true;
     setLoading(true); setError(null); setResult(null);
     try {
       const r = await call({ data: { pickupPlaceId: pickup!.placeId, destinationPlaceId: dest!.placeId } });
@@ -45,6 +53,7 @@ export function DistanceCalculator() {
       setError(e instanceof Error ? e.message : "Distance calculation is temporarily unavailable. Please try again.");
     } finally {
       setLoading(false);
+      inflight.current = false;
     }
   }
 
@@ -70,19 +79,35 @@ export function DistanceCalculator() {
         />
       </div>
 
-      <Button className="w-full" size="lg" disabled={!ready || loading} onClick={calculate}>
+      <Button
+        className="w-full"
+        size="lg"
+        disabled={!ready || loading || sameLocation}
+        onClick={calculate}
+        aria-busy={loading}
+      >
         {loading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Calculating route...</>) : "Calculate distance"}
       </Button>
 
-      {!ready && (pickup || dest) && (
+      {sameLocation && (
+        <p className="text-xs text-destructive text-center">
+          Pickup and destination cannot be the same location.
+        </p>
+      )}
+      {!ready && (pickup || dest) && !sameLocation && (
         <p className="text-xs text-muted-foreground text-center">
           Please select both locations from the suggestions.
         </p>
       )}
 
       {error && (
-        <div className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
-          {error}
+        <div className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive flex items-start justify-between gap-3">
+          <span>{error}</span>
+          {isRetryable(error) && (
+            <Button size="sm" variant="outline" onClick={calculate} disabled={loading}>
+              <RefreshCw className="h-3.5 w-3.5 mr-1" /> Retry
+            </Button>
+          )}
         </div>
       )}
 
