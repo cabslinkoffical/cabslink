@@ -83,111 +83,115 @@ const testimonials = [
 function HomePage() {
   return (
     <SiteLayout>
-      {/* HERO */}
-      <section className="relative overflow-hidden isolate hero-gradient">
-        {/* Background image */}
-        <div className="absolute inset-0 z-0 opacity-25">
-          <img src={heroImg} alt="" aria-hidden width={1920} height={1280} className="size-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-b from-[var(--navy)] via-[var(--navy)]/70 to-[var(--navy)]" />
+      {/* HERO — cinematic editorial */}
+      <section className="relative overflow-hidden isolate bg-[var(--navy)] min-h-[92vh] flex items-center">
+        {/* Full-bleed cinematic background */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src={heroImg}
+            alt=""
+            aria-hidden
+            width={1920}
+            height={1280}
+            className="size-full object-cover object-center scale-105 animate-fade-soft"
+          />
+          <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-[var(--navy)] via-[var(--navy)]/85 to-[var(--navy)]/30" />
+          <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[var(--navy)] via-transparent to-[var(--navy)]/40" />
+          <div aria-hidden className="absolute inset-0 opacity-[0.15] mix-blend-overlay [background-image:radial-gradient(rgba(255,255,255,0.4)_1px,transparent_1px)] [background-size:3px_3px]" />
         </div>
 
-        {/* Ambient gold orbs */}
-        <div aria-hidden className="pointer-events-none absolute -top-32 -left-32 size-[520px] rounded-full bg-[radial-gradient(circle_at_center,color-mix(in_oklab,var(--gold)_35%,transparent),transparent_70%)] blur-3xl opacity-40" />
-        <div aria-hidden className="pointer-events-none absolute -top-24 -right-24 size-[420px] rounded-full bg-[radial-gradient(circle_at_center,color-mix(in_oklab,var(--gold)_25%,transparent),transparent_70%)] blur-3xl opacity-30" />
+        {/* Ambient gold glow */}
+        <div aria-hidden className="pointer-events-none absolute -top-40 -left-40 size-[600px] rounded-full bg-[radial-gradient(circle_at_center,color-mix(in_oklab,var(--gold)_30%,transparent),transparent_70%)] blur-3xl opacity-50" />
+        <div aria-hidden className="pointer-events-none absolute bottom-0 right-0 size-[500px] rounded-full bg-[radial-gradient(circle_at_center,color-mix(in_oklab,var(--gold)_18%,transparent),transparent_70%)] blur-3xl opacity-40" />
 
-        {/* Fine grid overlay */}
-        <div aria-hidden className="pointer-events-none absolute inset-0 z-0 opacity-[0.06] [background-image:linear-gradient(to_right,white_1px,transparent_1px),linear-gradient(to_bottom,white_1px,transparent_1px)] [background-size:64px_64px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_75%)]" />
-
-        {/* Giant watermark word */}
-        <div aria-hidden className="pointer-events-none absolute inset-x-0 top-[44%] z-0 hidden sm:flex justify-center select-none">
-          <span className="font-display font-bold tracking-[-0.04em] text-[18vw] leading-none text-white/[0.04]">CABSLINK</span>
-        </div>
-
-        <div className="container-x relative z-10 pt-12 md:pt-20 pb-8">
-          <div className="text-center max-w-4xl mx-auto">
-            {/* Refined eyebrow badge */}
-            <div className="animate-fade-up inline-flex items-center gap-3 mb-6">
-              <span className="h-px w-8 bg-gradient-to-r from-transparent to-[var(--gold)]/60" aria-hidden />
-              <p className="inline-flex items-center gap-2 text-[11px] md:text-xs uppercase tracking-[0.32em] text-[var(--gold)] font-semibold px-4 py-2 rounded-full border border-[var(--gold)]/40 bg-[var(--gold)]/[0.08] backdrop-blur-sm shadow-[0_0_30px_-8px_color-mix(in_oklab,var(--gold)_60%,transparent)]">
+        <div className="container-x relative z-10 pt-24 pb-40 md:pt-28 md:pb-56">
+          <div className="max-w-2xl">
+            <div className="animate-fade-up inline-flex items-center gap-3 mb-7">
+              <span className="h-px w-10 bg-[var(--gold)]" aria-hidden />
+              <p className="inline-flex items-center gap-2 text-[10px] md:text-[11px] uppercase tracking-[0.4em] text-[var(--gold)] font-semibold">
                 <Sparkles className="size-3" /> UK's Trusted Chauffeur Company
               </p>
-              <span className="h-px w-8 bg-gradient-to-l from-transparent to-[var(--gold)]/60" aria-hidden />
             </div>
 
-            <h1 className="animate-fade-up font-display font-bold text-white text-[2.25rem] sm:text-5xl md:text-7xl lg:text-[5.25rem] leading-[1.03] tracking-tight" style={{ animationDelay: "120ms" }}>
-              Premium UK Chauffeur <br className="hidden md:block" /> &amp;{" "}
+            <h1
+              className="animate-fade-up font-display font-bold text-white text-[2.5rem] sm:text-6xl md:text-7xl lg:text-[5.5rem] leading-[1.02] tracking-[-0.03em]"
+              style={{ animationDelay: "120ms" }}
+            >
+              Arrive in
+              <br />
+              <span className="italic font-light text-white/90">quiet</span>{" "}
               <span className="relative inline-block text-[var(--gold)]">
-                Airport Transfers
-                <span aria-hidden className="absolute -bottom-2 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-[var(--gold)] to-transparent opacity-70" />
+                luxury
+                <svg
+                  aria-hidden
+                  className="absolute -bottom-3 left-0 w-full h-3 text-[var(--gold)]/70"
+                  viewBox="0 0 300 12"
+                  preserveAspectRatio="none"
+                >
+                  <path d="M2 8 Q 75 2, 150 6 T 298 5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
               </span>
+              .
             </h1>
-            <p className="animate-fade-up mt-6 md:mt-7 max-w-2xl mx-auto text-sm sm:text-base md:text-lg text-white/75 leading-relaxed" style={{ animationDelay: "240ms" }}>
-              Travel in our signature Mercedes-Benz V-Class with vetted chauffeurs, flight tracking, meet &amp; greet and fixed fares — across Edinburgh, London and the entire UK.
+
+            <p
+              className="animate-fade-up mt-8 max-w-xl text-base md:text-lg text-white/70 leading-relaxed"
+              style={{ animationDelay: "240ms" }}
+            >
+              Chauffeur-driven Mercedes-Benz V-Class across Edinburgh, London and the entire UK — flight tracked, meet &amp; greet, fixed fares. No surge, no surprises.
             </p>
-            <div className="animate-fade-up mt-8 flex flex-wrap justify-center gap-3" style={{ animationDelay: "360ms" }}>
+
+            <div
+              className="animate-fade-up mt-10 flex flex-wrap items-center gap-4"
+              style={{ animationDelay: "360ms" }}
+            >
               <Button asChild variant="slash">
                 <a href="#booking">Book a Ride <ArrowRight className="size-4" /></a>
               </Button>
-              <Button asChild variant="heroGhost">
-                <a href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}><Phone className="size-4" /> {SITE.phoneUK}</a>
-              </Button>
-            </div>
-
-            {/* Trust strip — pill separators */}
-            <div className="animate-fade-up mt-10 flex flex-wrap justify-center items-center gap-x-5 gap-y-3 text-[11px] sm:text-xs text-white/70" style={{ animationDelay: "480ms" }}>
-              {[
-                { icon: ShieldCheck, label: "Fully licensed & insured" },
-                { icon: Plane, label: "Flight tracked" },
-                { icon: Clock3, label: "24/7 support" },
-                { icon: Star, label: "4.9 / 5 rated" },
-              ].map((t, i, arr) => (
-                <span key={t.label} className="inline-flex items-center gap-3">
-                  <span className="inline-flex items-center gap-1.5">
-                    <t.icon className={`size-3.5 text-[var(--gold)] ${t.label.includes("rated") ? "fill-current" : ""}`} />
-                    {t.label}
-                  </span>
-                  {i < arr.length - 1 && <span aria-hidden className="hidden sm:inline-block size-1 rounded-full bg-[var(--gold)]/60" />}
+              <a
+                href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}
+                className="group inline-flex items-center gap-3 text-white/90 hover:text-[var(--gold)] transition-colors"
+              >
+                <span className="grid place-items-center size-11 rounded-full border border-white/25 group-hover:border-[var(--gold)] transition-colors">
+                  <Phone className="size-4" />
                 </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Car centerpiece */}
-          <div className="relative mt-8 md:mt-10">
-            <div className="relative mx-auto max-w-xl md:max-w-2xl">
-              {/* Layered glow */}
-              <div className="absolute inset-x-0 bottom-0 h-2/3 bg-[radial-gradient(ellipse_at_center,color-mix(in_oklab,var(--gold)_28%,transparent),transparent_70%)] blur-2xl animate-pulse" aria-hidden />
-              <div className="absolute inset-x-8 bottom-2 h-6 rounded-[50%] bg-black/50 blur-2xl" aria-hidden />
-              <img
-                src={vClassImg}
-                alt="Mercedes-Benz V-Class chauffeur vehicle"
-                width={1600}
-                height={1000}
-                className="relative w-full object-contain drop-shadow-[0_40px_60px_rgba(0,0,0,0.55)] animate-float animate-fade-soft"
-                style={{ animationDelay: "0ms, 200ms" }}
-              />
+                <span className="text-sm">
+                  <span className="block text-[10px] uppercase tracking-[0.24em] text-white/50">24/7 Reservations</span>
+                  <span className="font-medium">{SITE.phoneUK}</span>
+                </span>
+              </a>
             </div>
 
-            {/* Desktop-only floating cards — refined glass */}
-            <div className="animate-fade-up hidden lg:block absolute right-0 xl:right-8 top-4 w-[190px] rounded-2xl border border-white/15 bg-white/[0.07] backdrop-blur-xl p-5 text-center shadow-[0_20px_60px_-20px_rgba(0,0,0,0.6)]" style={{ animationDelay: "700ms" }}>
-              <div className="mx-auto mb-2 grid size-9 place-items-center rounded-full bg-[var(--gold)]/15 border border-[var(--gold)]/30">
-                <Users className="size-4 text-[var(--gold)]" />
+            <div
+              className="animate-fade-up mt-12 flex flex-wrap items-center gap-6 pt-8 border-t border-white/10"
+              style={{ animationDelay: "480ms" }}
+            >
+              <div>
+                <div className="flex items-center gap-1 text-[var(--gold)]">
+                  {[...Array(5)].map((_, i) => <Star key={i} className="size-4 fill-current" />)}
+                </div>
+                <p className="mt-1.5 text-xs text-white/60">4.9 · 2,400+ reviews</p>
               </div>
-              <p className="font-display text-3xl xl:text-4xl font-bold text-[var(--gold)] leading-none">50k+</p>
-              <p className="mt-2 text-[10px] uppercase tracking-[0.22em] text-white/80">Journeys delivered</p>
-            </div>
-            <div className="animate-fade-up hidden lg:block absolute left-0 xl:left-8 top-1/2 -translate-y-1/2 w-[190px] rounded-2xl border border-white/15 bg-white/[0.07] backdrop-blur-xl p-5 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.6)]" style={{ animationDelay: "850ms" }}>
-              <div className="flex items-center gap-1 text-[var(--gold)]">
-                {[...Array(5)].map((_, i) => <Star key={i} className="size-3.5 fill-current" />)}
+              <span aria-hidden className="h-10 w-px bg-white/15" />
+              <div>
+                <p className="font-display text-2xl font-bold text-white leading-none">50k+</p>
+                <p className="mt-1.5 text-xs text-white/60">Journeys delivered</p>
               </div>
-              <p className="mt-2 font-display text-2xl font-bold text-white leading-none">4.9/5</p>
-              <p className="mt-2 text-[10px] uppercase tracking-[0.22em] text-white/70">Customer rating</p>
-              <p className="mt-2 text-[10px] text-white/50">From 2,400+ reviews</p>
+              <span aria-hidden className="hidden sm:block h-10 w-px bg-white/15" />
+              <div className="hidden sm:block">
+                <p className="font-display text-2xl font-bold text-white leading-none">24/7</p>
+                <p className="mt-1.5 text-xs text-white/60">Live dispatch</p>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="taxi-stripe h-2 w-full" aria-hidden />
+        <div aria-hidden className="hidden md:flex absolute right-8 top-1/2 -translate-y-1/2 z-10 flex-col items-center gap-3 text-white/40 text-[10px] uppercase tracking-[0.32em] [writing-mode:vertical-rl]">
+          <span>Scroll</span>
+          <span className="h-16 w-px bg-gradient-to-b from-[var(--gold)] to-transparent" />
+        </div>
+
+        <div className="taxi-stripe h-2 w-full absolute bottom-0 left-0 right-0" aria-hidden />
       </section>
 
       {/* BOOKING WIDGET — unchanged position & logic */}
