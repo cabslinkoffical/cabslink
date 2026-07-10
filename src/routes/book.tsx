@@ -176,11 +176,21 @@ function EditTripDialog({
         <div className="grid gap-4 py-2">
           <div className="grid gap-1.5">
             <Label htmlFor="edit-pickup">Pickup</Label>
-            <Input id="edit-pickup" value={form.pickup} onChange={(e) => set("pickup", e.target.value)} placeholder="e.g. Edinburgh Airport" />
+            <AddressAutocomplete
+              value={form.pickup}
+              onChange={(v) => set("pickup", v)}
+              placeholder="Enter UK airport, postcode or address"
+              required
+            />
           </div>
           <div className="grid gap-1.5">
             <Label htmlFor="edit-dropoff">Dropoff</Label>
-            <Input id="edit-dropoff" value={form.dropoff} onChange={(e) => set("dropoff", e.target.value)} placeholder="e.g. Glasgow" />
+            <AddressAutocomplete
+              value={form.dropoff}
+              onChange={(v) => set("dropoff", v)}
+              placeholder="Enter UK destination"
+              required
+            />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="grid gap-1.5">
