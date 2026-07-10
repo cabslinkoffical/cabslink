@@ -48,25 +48,24 @@ function Page() {
           <table className="w-full text-sm">
             <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">
               <tr>
+                <th className="text-left px-4 py-3 w-20">Sr #</th>
                 <th className="text-left px-4 py-3">Vehicle</th>
-                <th className="text-left px-4 py-3">Hours range</th>
-                <th className="text-right px-4 py-3">Rate / hour</th>
-                <th className="text-left px-4 py-3">Status</th>
-                <th className="text-right px-4 py-3">Actions</th>
+                <th className="text-left px-4 py-3">Hourly Price</th>
+                <th className="text-right px-4 py-3 w-32">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {data.map((r: any) => (
-                <tr key={r.id} className="hover:bg-muted/30">
-                  <td className="px-4 py-3">{r.vehicle?.name ?? "Any"}</td>
-                  <td className="px-4 py-3">{r.min_hours}h – {r.max_hours}h</td>
-                  <td className="px-4 py-3 text-right font-semibold">{r.currency} {Number(r.price_per_hour).toFixed(2)}</td>
-                  <td className="px-4 py-3"><StatusBadge status={r.active ? "active" : "inactive"} /></td>
+              {data.map((r: any, i: number) => (
+                <tr key={r.id} className={i % 2 === 0 ? "bg-muted/20 hover:bg-muted/40" : "hover:bg-muted/30"}>
+                  <td className="px-4 py-3 text-primary font-medium">{i + 1}</td>
+                  <td className="px-4 py-3">{r.vehicle?.name ?? "Any vehicle"}</td>
+                  <td className="px-4 py-3">{Number(r.price_per_hour).toFixed(0)}</td>
                   <td className="px-4 py-3 text-right">
-                    <div className="flex justify-end gap-1">
-                      <Button size="icon" variant="ghost" onClick={() => setForm({ ...empty, ...r })}><Edit className="size-4" /></Button>
+                    <div className="flex justify-end items-center gap-2">
+                      <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setForm({ ...empty, ...r })}><Edit className="size-4 text-primary" /></Button>
+                      <span className="text-border">|</span>
                       <AlertDialog>
-                        <AlertDialogTrigger asChild><Button size="icon" variant="ghost"><Trash2 className="size-4 text-red-600" /></Button></AlertDialogTrigger>
+                        <AlertDialogTrigger asChild><Button size="icon" variant="ghost" className="h-8 w-8"><Trash2 className="size-4 text-red-600" /></Button></AlertDialogTrigger>
                         <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Delete tier?</AlertDialogTitle></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => remove.mutate(r.id)} className="bg-red-600">Delete</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
                       </AlertDialog>
                     </div>
