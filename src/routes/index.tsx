@@ -32,7 +32,7 @@ import rollsAsset from "@/assets/fleet/rolls.png.asset.json";
 import coachAsset from "@/assets/fleet/coach.png.asset.json";
 import coasterAsset from "@/assets/fleet/coaster.png.asset.json";
 
-const heroVehicles = [
+const fallbackHeroVehicles = [
   { key: "vclass", name: "Mercedes V-Class", tag: "First-class · 7 seats", img: vclassAsset.url, seats: 7 },
   { key: "sclass", name: "Mercedes S-Class", tag: "Flagship saloon · 3 seats", img: sclassAsset.url, seats: 3 },
   { key: "eclass", name: "Mercedes E-Class", tag: "Executive · 3 seats", img: eclassAsset.url, seats: 3 },
