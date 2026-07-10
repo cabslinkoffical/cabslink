@@ -53,7 +53,8 @@ describe("browser bundle secret scan", () => {
     const dir = findClientDir();
     expect(dir, "client build output not found").not.toBeNull();
 
-    const files = globSync(join(dir!, "**/*.{js,mjs,cjs,map,html,css,json,txt}"));
+    const allowedExt = /\.(js|mjs|cjs|map|html|css|json|txt)$/;
+    const files = walk(dir!).filter((f) => allowedExt.test(f));
     expect(files.length).toBeGreaterThan(0);
 
     const leaks: string[] = [];
