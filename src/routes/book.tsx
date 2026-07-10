@@ -403,9 +403,9 @@ function Sidebar({ pre, onEdit, route }: {
         <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)] mb-1">Why Cabslink</p>
         {[
           "10,000+ passengers transferred",
-          "Instant confirmation",
-          "All-inclusive pricing",
-          "Secure card payments",
+          "Team confirms availability quickly",
+          "All-inclusive fixed pricing",
+          "Pay by card or on account after we confirm",
         ].map((t) => (
           <div key={t} className="flex gap-2 text-sm">
             <CheckCircle2 className="size-4 text-[var(--gold)] mt-0.5 shrink-0" />
@@ -416,6 +416,7 @@ function Sidebar({ pre, onEdit, route }: {
     </aside>
   );
 }
+
 
 function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
   pre: Prefill;
