@@ -118,6 +118,7 @@ export function BookingWidget() {
           <LabeledField label="Pickup Location">
             <FieldShell>
               <PlaceAutocomplete
+                id="widget-pickup"
                 value={pickup}
                 onChange={setPickup}
                 placeholder="Enter UK airport, postcode or address"
@@ -131,6 +132,7 @@ export function BookingWidget() {
             <LabeledField label="Dropoff Destination">
               <FieldShell>
                 <PlaceAutocomplete
+                  id="widget-dropoff"
                   value={dropoff}
                   onChange={setDropoff}
                   placeholder="Enter UK destination"
