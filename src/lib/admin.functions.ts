@@ -684,6 +684,10 @@ export const upsertPricingRule = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => pricingSchema.parse(i))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
+    // Guard: an active fixed-price rule must have both origin & destination Place IDs.
+    if (data.active && (!data.from_place_id || !data.to_place_id)) {
+      throw new Error("Active pricing rules require both origin and destination locations selected from the suggestions.");
+    }
     const payload: any = {
       ...data,
       valid_from: data.valid_from || null,
