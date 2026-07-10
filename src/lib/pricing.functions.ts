@@ -150,6 +150,53 @@ async function loadActiveProfiles(client: ReturnType<typeof publicClient>): Prom
     .filter(Boolean) as LoadedProfile[];
 }
 
+// -------------------------------------------------------------------
+// Area pickup / dropoff surcharges (from `addresses` table)
+// -------------------------------------------------------------------
+type AreaSurcharge = { label: string; amount: number };
+async function loadAreaSurcharges(
+  client: ReturnType<typeof publicClient>,
+  pickup: string,
+  dropoff: string,
+): Promise<AreaSurcharge[]> {
+  const { data } = await client
+    .from("addresses")
+    .select("name, comparable_value, pickup_charge, dropoff_charge")
+    .eq("active", true);
+  const rows = data ?? [];
+  const p = pickup.toLowerCase();
+  const d = dropoff.toLowerCase();
+  const matchFor = (text: string) => {
+    let best: { label: string; charge: number; len: number } | null = null;
+    for (const r of rows as any[]) {
+      const keys = [r.name, r.comparable_value].filter(Boolean) as string[];
+      for (const k of keys) {
+        const kl = k.toLowerCase();
+        if (kl && text.includes(kl)) {
+          if (!best || kl.length > best.len) {
+            best = { label: r.name as string, charge: 0, len: kl.length };
+          }
+        }
+      }
+    }
+    return best;
+  };
+  const out: AreaSurcharge[] = [];
+  const pm = matchFor(p);
+  if (pm) {
+    const row = (rows as any[]).find((r) => r.name === pm.label);
+    const amt = Number(row?.pickup_charge) || 0;
+    if (amt > 0) out.push({ label: `Pickup area: ${pm.label}`, amount: amt });
+  }
+  const dm = matchFor(d);
+  if (dm) {
+    const row = (rows as any[]).find((r) => r.name === dm.label);
+    const amt = Number(row?.dropoff_charge) || 0;
+    if (amt > 0) out.push({ label: `Dropoff area: ${dm.label}`, amount: amt });
+  }
+  return out;
+}
+
 
 // -------------------------------------------------------------------
 // Public: calculate quotes for all vehicles
