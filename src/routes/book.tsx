@@ -590,8 +590,8 @@ const detailsSchema = z.object({
   notes: z.string().trim().max(1000).optional().or(z.literal("")),
 });
 
-function DetailsStep({ pre, card, qty, onBack, onContinue }:
-  { pre: Prefill; card: QuoteCard; qty: number; onBack: () => void; onContinue: () => void }) {
+function DetailsStep({ pre, card, qty, onBack, onSuccess }:
+  { pre: Prefill; card: QuoteCard; qty: number; onBack: () => void; onSuccess: (token: string | null) => void }) {
   const [meetGreet, setMeetGreet] = useState(true);
   const [childSeat, setChildSeat] = useState(false);
   const [returnJourney, setReturnJourney] = useState(pre.ret);
@@ -612,7 +612,7 @@ function DetailsStep({ pre, card, qty, onBack, onContinue }:
     inflight.current = true;
     setLoading(true);
     try {
-      await bookFn({
+      const res = await bookFn({
         data: {
           idempotencyKey: idempotencyKey.current,
           vehicleId: card.vehicleId,
@@ -636,10 +636,9 @@ function DetailsStep({ pre, card, qty, onBack, onContinue }:
           return_journey: returnJourney,
         },
       });
-      toast.success("Booking captured — choose payment next.");
-      // Fresh key for next attempt
+      toast.success("Booking request received.");
       idempotencyKey.current = crypto.randomUUID();
-      onContinue();
+      onSuccess((res as any)?.token ?? null);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Couldn't save booking. Try again or call us.");
     } finally {
@@ -676,12 +675,17 @@ function DetailsStep({ pre, card, qty, onBack, onContinue }:
         <Textarea name="notes" rows={4} maxLength={1000} placeholder="Anything our chauffeur should know" />
       </Field>
 
+      <p className="text-xs text-muted-foreground">
+        Submitting sends your journey to our team. Our office will confirm availability and payment
+        arrangements. Online card payments are not enabled at this time.
+      </p>
+
       <div className="flex flex-wrap gap-3">
         <Button type="button" variant="outline" onClick={onBack} className="gap-2">
           <ArrowLeft className="size-4" /> Back
         </Button>
         <Button type="submit" disabled={loading} className="ml-auto bg-[var(--gold)] text-[var(--gold-foreground)] hover:brightness-110 font-bold tracking-wider px-8">
-          {loading ? "Saving…" : <>Continue to payment <ArrowRight className="size-4 ml-1" /></>}
+          {loading ? "Sending…" : <>Submit booking request <ArrowRight className="size-4 ml-1" /></>}
         </Button>
       </div>
     </form>
@@ -708,30 +712,33 @@ function Toggle({ label, checked, onChange }: { label: string; checked: boolean;
   );
 }
 
-function PaymentStep({ card, qty, onBack }: { card: QuoteCard; qty: number; onBack: () => void }) {
+/** Fallback shown only when the confirmation token could not be issued
+ *  (e.g. duplicate submission returned an existing booking without a token). */
+function AlreadySubmittedStep({ card, qty, onBack }: { card: QuoteCard; qty: number; onBack: () => void }) {
   const total = card.finalPrice * qty;
   return (
     <div className="bg-card rounded-2xl border border-border shadow-sm p-8 text-center">
       <CheckCircle2 className="size-12 text-[var(--gold)] mx-auto" />
-      <h2 className="mt-3 font-display text-2xl font-bold">Booking captured</h2>
-      <p className="mt-2 text-muted-foreground">
-        We'll confirm shortly by email. Online payment will be enabled once a payment provider is connected.
+      <h2 className="mt-3 font-display text-2xl font-bold">Booking request received</h2>
+      <p className="mt-2 text-muted-foreground max-w-md mx-auto">
+        Our team will confirm availability and payment arrangements by email or phone. Please check
+        your inbox for a confirmation email with your booking reference.
       </p>
       <div className="mt-6 inline-block bg-[var(--surface)] rounded-xl border border-border px-6 py-4">
         <p className="text-xs uppercase tracking-widest text-muted-foreground font-bold">
-          Total to pay {qty > 1 ? `(${qty} × ${card.name})` : ""}
+          Estimated fare {qty > 1 ? `(${qty} × ${card.name})` : ""}
         </p>
         <p className="font-display text-3xl font-bold mt-1">£{total.toFixed(2)}</p>
       </div>
-
       <div className="mt-8 flex flex-wrap justify-center gap-3">
         <Button variant="outline" onClick={onBack} className="gap-2">
           <ArrowLeft className="size-4" /> Back
         </Button>
         <Button asChild className="bg-[var(--navy)] text-[var(--gold)] hover:bg-[var(--navy)] gap-2">
-          <Link to="/">Done <CreditCard className="size-4" /></Link>
+          <Link to="/">Done</Link>
         </Button>
       </div>
     </div>
   );
 }
+
