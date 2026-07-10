@@ -49,14 +49,15 @@ vi.mock("@/components/site/SiteLayout", async () => {
 
 import { routeTree } from "@/routeTree.gen";
 
-function renderAt(url: string) {
+async function renderAt(url: string) {
+  const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   const router = createRouter({
     routeTree,
     history: createMemoryHistory({ initialEntries: [url] }),
     defaultPendingMs: 0,
-    context: { queryClient: new QueryClient() } as any,
+    context: { queryClient: qc } as any,
   });
-  const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  await router.load();
   return render(
     <QueryClientProvider client={qc}>
       <RouterProvider router={router as any} />
