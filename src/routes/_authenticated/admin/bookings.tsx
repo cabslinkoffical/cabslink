@@ -320,7 +320,10 @@ function NotificationsPanel({ bookingId }: { bookingId: string }) {
     mutationFn: (logId: string) => retryFn({ data: { logId } }),
     onSuccess: (res: any) => {
       qc.invalidateQueries({ queryKey: ["admin", "booking-notifications", bookingId] });
-      toast.success(res?.alreadySent ? "Already sent" : (res?.ok ? "Retry sent" : "Retry failed"));
+      if (res?.providerConfigured === false) toast.warning("Email provider not configured — nothing was sent.");
+      else if (res?.alreadySent) toast.info("Already sent");
+      else if (res?.ok) toast.success("Retry sent");
+      else toast.error("Retry failed");
     },
     onError: (e: any) => toast.error(e.message),
   });
