@@ -30,7 +30,7 @@ async function assertAdmin(ctx: { supabase: any; userId: string }) {
 // -------------------------------------------------------------------
 // Distance estimation (Google Maps if connector configured, else stub)
 // -------------------------------------------------------------------
-async function estimateDistanceMiles(pickup: string, dropoff: string): Promise<number> {
+async function estimateDistanceMiles(pickup: string, dropoff: string): Promise<{ miles: number; minutes: number }> {
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
   const lovableKey = process.env.LOVABLE_API_KEY;
   if (apiKey && lovableKey) {
@@ -56,17 +56,21 @@ async function estimateDistanceMiles(pickup: string, dropoff: string): Promise<n
         },
       );
       if (res.ok) {
-        const rows = (await res.json()) as Array<{ distanceMeters?: number; condition?: string }>;
+        const rows = (await res.json()) as Array<{ distanceMeters?: number; duration?: string; condition?: string }>;
         const first = Array.isArray(rows) ? rows[0] : null;
         if (first?.condition === "ROUTE_EXISTS" && first.distanceMeters) {
-          return Math.round((first.distanceMeters / 1609.34) * 100) / 100;
+          const miles = Math.round((first.distanceMeters / 1609.34) * 100) / 100;
+          const secs = first.duration ? parseInt(String(first.duration).replace(/[^\d]/g, ""), 10) || 0 : 0;
+          const minutes = secs > 0 ? Math.round(secs / 60) : Math.round((miles / 35) * 60);
+          return { miles, minutes };
         }
       }
     } catch {
       // fall through to stub
     }
   }
-  return stubDistanceMiles(pickup, dropoff);
+  const miles = stubDistanceMiles(pickup, dropoff);
+  return { miles, minutes: Math.max(5, Math.round((miles / 35) * 60)) };
 }
 
 // -------------------------------------------------------------------
@@ -203,7 +207,7 @@ export const calculateQuotes = createServerFn({ method: "POST" })
       .filter((p) => p.vehicle.passengers >= data.passengers && p.vehicle.luggage >= data.luggage)
       .map((p) => {
         const result = runPricingEngine(p, {
-          distanceMiles,
+          distanceMiles: distanceMiles.miles,
           viaStops: data.viaStops,
           pickupTime: data.pickupTime || undefined,
         });
@@ -216,7 +220,7 @@ export const calculateQuotes = createServerFn({ method: "POST" })
           passengers: p.vehicle.passengers,
           luggage: p.vehicle.luggage,
           handLuggage: p.vehicle.hand_luggage,
-          distanceMiles,
+          distanceMiles: distanceMiles.miles,
           finalPrice: Math.round(final * 100) / 100,
           breakdown: result.breakdown,
           pricing: result,
@@ -224,7 +228,7 @@ export const calculateQuotes = createServerFn({ method: "POST" })
       })
       .sort((a, b) => a.finalPrice - b.finalPrice);
 
-    return { distanceMiles, quotes: cards };
+    return { distanceMiles: distanceMiles.miles, durationMinutes: distanceMiles.minutes, quotes: cards };
   });
 
 
@@ -281,7 +285,7 @@ export const createBooking = createServerFn({ method: "POST" })
       if ((r as any).vehicle_id) fixedByVehicle.set((r as any).vehicle_id, Number((r as any).price));
     }
     const engine = runPricingEngine(profile, {
-      distanceMiles,
+      distanceMiles: distanceMiles.miles,
       viaStops: data.viaStops,
       pickupTime: data.pickupTime || undefined,
     });

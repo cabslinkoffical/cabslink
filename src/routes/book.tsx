@@ -220,9 +220,26 @@ function VehicleStep({ pre, onSelect }: { pre: Prefill; onSelect: (card: QuoteCa
           </h2>
         </div>
         {data && (
-          <p className="text-xs text-muted-foreground">
-            Estimated distance <span className="font-bold text-foreground">{data.distanceMiles.toFixed(1)} miles</span>
-          </p>
+          <div className="w-full mt-2 bg-card border border-border rounded-xl px-4 py-3 shadow-sm">
+            <div className="flex flex-wrap items-center gap-x-8 gap-y-2">
+              <div className="flex items-center gap-2">
+                <MapPin className="size-4 text-[var(--gold)]" />
+                <span className="font-display font-bold text-base text-foreground tabular-nums">
+                  {data.distanceMiles.toFixed(1)} Miles
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Clock className="size-4 text-[var(--gold)]" />
+                <span className="font-display font-bold text-base text-foreground tabular-nums">
+                  {data.durationMinutes} minutes
+                </span>
+              </div>
+            </div>
+            <p className="mt-1.5 text-[11px] text-muted-foreground flex items-start gap-1.5">
+              <BadgeCheck className="size-3 mt-0.5 text-[var(--gold)] shrink-0" />
+              Distance and time calculated using real-time traffic data and optimized routing algorithms.
+            </p>
+          </div>
         )}
       </div>
 
