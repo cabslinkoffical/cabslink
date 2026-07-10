@@ -67,21 +67,15 @@ function timeInWindow(time: string, from: string | null, to: string | null) {
   const f = fh * 60 + fm;
   const e = th * 60 + tm;
   if (f <= e) return t >= f && t <= e;
-  // overnight window (e.g. 22:00 → 06:00)
   return t >= f || t <= e;
 }
 
-/**
- * Run the pricing engine for a single vehicle profile.
- */
 export function runPricingEngine(profile: PricingProfile, opts: QuoteOptions): QuoteResult {
   const breakdown: BreakdownLine[] = [];
 
-  // 1) Base price
   const basePrice = Number(profile.base_price) || 0;
   breakdown.push({ kind: "base", label: "Base price", amount: round2(basePrice) });
 
-  // 2) Tiered mileage
   const tiers = [...(profile.tiers ?? [])].sort((a, b) => a.sort_order - b.sort_order);
   let remaining = Math.max(0, Number(opts.distanceMiles) || 0);
   let mileagePrice = 0;
@@ -103,14 +97,12 @@ export function runPricingEngine(profile: PricingProfile, opts: QuoteOptions): Q
   }
   mileagePrice = round2(mileagePrice);
 
-  // 3) Via stops
   const stops = Math.max(0, opts.viaStops ?? 0);
   const viaPrice = round2(stops * (Number(profile.via_price) || 0));
   if (stops > 0 && viaPrice > 0) {
     breakdown.push({ kind: "via", label: `${stops} via stop(s)`, count: stops, amount: viaPrice });
   }
 
-  // 4) Time-based extra
   let timeExtraPrice = 0;
   if (
     opts.pickupTime &&
@@ -129,7 +121,6 @@ export function runPricingEngine(profile: PricingProfile, opts: QuoteOptions): Q
     });
   }
 
-  // 5) External surcharges (date, address, airport, meet-and-greet, etc.)
   let surchargePrice = 0;
   for (const s of opts.surcharges ?? []) {
     surchargePrice += Number(s.amount) || 0;
@@ -137,13 +128,11 @@ export function runPricingEngine(profile: PricingProfile, opts: QuoteOptions): Q
   }
   surchargePrice = round2(surchargePrice);
 
-  // 6) Discount
   const discountPrice = round2(Math.max(0, opts.discountAmount ?? 0));
   if (discountPrice > 0) {
     breakdown.push({ kind: "discount", label: "Discount", amount: -discountPrice });
   }
 
-  // 7) Tax
   const subtotal = round2(
     basePrice + mileagePrice + viaPrice + timeExtraPrice + surchargePrice - discountPrice,
   );
@@ -167,18 +156,4 @@ export function runPricingEngine(profile: PricingProfile, opts: QuoteOptions): Q
     finalPrice,
     breakdown,
   };
-}
-
-/**
- * Deterministic distance stub when no Google Maps connector is linked.
- * Replace with a Routes API call when the connector is configured.
- */
-export function stubDistanceMiles(pickup: string, dropoff: string): number {
-  const norm = (s: string) => s.trim().toLowerCase();
-  if (norm(pickup) === norm(dropoff)) return 0;
-  const seed = `${norm(pickup)}|${norm(dropoff)}`;
-  let h = 0;
-  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) | 0;
-  const r = Math.abs(h) % 700; // 0..699
-  return round2(8 + r / 10); // 8 .. 78 miles
 }

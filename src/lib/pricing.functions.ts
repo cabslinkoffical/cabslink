@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getRequestIP, setResponseStatus } from "@tanstack/react-start/server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 import {
@@ -9,26 +10,93 @@ import {
 import {
   publicClient,
   assertAdmin,
-  estimateDistanceMiles,
+  realDistanceMiles,
   loadActiveProfiles,
   loadAreaSurcharges,
+  loadFixedPriceForRoute,
+  type LoadedProfile,
+  type AreaSurcharge,
 } from "@/lib/pricing-helpers.server";
-
-
-
+import { placeIdSchema, placeLabelSchema } from "@/lib/place-id";
+import { checkLimit } from "@/lib/rate-limit.server";
+import { RouteTimeoutError, RouteNotFoundError, RouteUnavailableError } from "@/lib/route-distance.server";
 
 // -------------------------------------------------------------------
-// Public: calculate quotes for all vehicles
+// Shared: authoritative quote computation (server-only, Place-ID input)
 // -------------------------------------------------------------------
-const quoteInput = z.object({
-  pickup: z.string().trim().min(2).max(255),
-  dropoff: z.string().trim().min(2).max(255),
-  pickupDate: z.string().optional().default(""),
-  pickupTime: z.string().optional().default(""),
-  viaStops: z.number().int().min(0).max(10).optional().default(0),
-  passengers: z.number().int().min(1).max(60).optional().default(1),
-  luggage: z.number().int().min(0).max(60).optional().default(0),
-});
+type AuthoritativeInput = {
+  pickupPlaceId: string;
+  pickupLabel: string;
+  destinationPlaceId: string;
+  destinationLabel: string;
+  stops: Array<{ placeId: string; label: string }>;
+  pickupTime: string;
+  passengers: number;
+  luggage: number;
+};
+
+type AuthoritativeQuote = {
+  distanceMiles: number;
+  durationMinutes: number;
+  areaSurcharges: AreaSurcharge[];
+  profiles: LoadedProfile[];
+  fixedByVehicle: Map<string, number>;
+  fixedAny: number | null;
+};
+
+async function computeAuthoritative(inp: AuthoritativeInput): Promise<AuthoritativeQuote> {
+  const client = publicClient();
+  const [distance, profiles, areaSurcharges, fixed] = await Promise.all([
+    realDistanceMiles(inp.pickupPlaceId, inp.destinationPlaceId, inp.stops.map((s) => s.placeId)),
+    loadActiveProfiles(client),
+    loadAreaSurcharges(client, inp.pickupLabel, inp.destinationLabel),
+    loadFixedPriceForRoute(client, inp.pickupPlaceId, inp.destinationPlaceId),
+  ]);
+
+  const fixedByVehicle = new Map<string, number>();
+  let fixedAny: number | null = null;
+  for (const r of fixed) {
+    if (r.vehicle_id) fixedByVehicle.set(r.vehicle_id, r.price);
+    else if (fixedAny === null) fixedAny = r.price;
+  }
+  return {
+    distanceMiles: distance.miles,
+    durationMinutes: distance.minutes,
+    areaSurcharges,
+    profiles,
+    fixedByVehicle,
+    fixedAny,
+  };
+}
+
+function mapRouteError(err: unknown): Error {
+  if (err instanceof RouteTimeoutError) return new Error(err.message);
+  if (err instanceof RouteNotFoundError) return new Error(err.message);
+  if (err instanceof RouteUnavailableError) return new Error(err.message);
+  return err instanceof Error ? err : new Error("Something went wrong. Please try again.");
+}
+
+// -------------------------------------------------------------------
+// Public: calculate quotes for all vehicles (Place-ID required)
+// -------------------------------------------------------------------
+const stopSchema = z.object({ placeId: placeIdSchema, label: placeLabelSchema });
+
+const quoteInput = z
+  .object({
+    pickupPlaceId: placeIdSchema,
+    pickupLabel: placeLabelSchema,
+    destinationPlaceId: placeIdSchema,
+    destinationLabel: placeLabelSchema,
+    stops: z.array(stopSchema).max(10).optional().default([]),
+    pickupDate: z.string().optional().default(""),
+    pickupTime: z.string().optional().default(""),
+    passengers: z.number().int().min(1).max(60).optional().default(1),
+    luggage: z.number().int().min(0).max(60).optional().default(0),
+  })
+  .refine((v) => v.pickupPlaceId !== v.destinationPlaceId, {
+    message: "Pickup and destination cannot be the same location.",
+    path: ["destinationPlaceId"],
+  });
 
 export type QuoteCard = {
   vehicleId: string;
@@ -47,40 +115,43 @@ export type QuoteCard = {
 export const calculateQuotes = createServerFn({ method: "POST" })
   .inputValidator((data: z.infer<typeof quoteInput>) => quoteInput.parse(data))
   .handler(async ({ data }) => {
-    const client = publicClient();
-
-    const [fixed, distanceMiles, profiles, areaSurcharges] = await Promise.all([
-      client
-        .from("pricing_rules")
-        .select("vehicle_id, price")
-        .eq("active", true)
-        .ilike("from_address", `%${data.pickup}%`)
-        .ilike("to_address", `%${data.dropoff}%`)
-        .then((r) => r.data ?? []),
-      estimateDistanceMiles(data.pickup, data.dropoff),
-      loadActiveProfiles(client),
-      loadAreaSurcharges(client, data.pickup, data.dropoff),
-    ]);
-
-    const fixedByVehicle = new Map<string, number>();
-    for (const r of fixed) {
-      if ((r as any).vehicle_id) fixedByVehicle.set((r as any).vehicle_id, Number((r as any).price));
+    // Light per-IP quote rate limit (defense-in-depth against scraping).
+    let ip = "unknown";
+    try { ip = getRequestIP({ xForwardedFor: true }) ?? "unknown"; } catch {}
+    if (!checkLimit({ name: "quote", windowMs: 60_000, max: 30 }, ip).ok) {
+      try { setResponseStatus(429); } catch {}
+      throw new Error("You've made too many requests. Please wait a moment and try again.");
     }
 
-    const areaTotal = areaSurcharges.reduce((s, a) => s + a.amount, 0);
+    let auth: AuthoritativeQuote;
+    try {
+      auth = await computeAuthoritative({
+        pickupPlaceId: data.pickupPlaceId,
+        pickupLabel: data.pickupLabel,
+        destinationPlaceId: data.destinationPlaceId,
+        destinationLabel: data.destinationLabel,
+        stops: data.stops,
+        pickupTime: data.pickupTime,
+        passengers: data.passengers,
+        luggage: data.luggage,
+      });
+    } catch (err) {
+      throw mapRouteError(err);
+    }
 
-    // Run engine per vehicle
-    const cards: QuoteCard[] = profiles
-      .filter((p) => p.vehicle.passengers >= data.passengers && p.vehicle.luggage >= data.luggage)
-      .map((p) => {
+    const areaTotal = auth.areaSurcharges.reduce((s: number, a: AreaSurcharge) => s + a.amount, 0);
+
+    const cards: QuoteCard[] = auth.profiles
+      .filter((p: LoadedProfile) => p.vehicle.passengers >= data.passengers && p.vehicle.luggage >= data.luggage)
+      .map((p: LoadedProfile) => {
         const result = runPricingEngine(p, {
-          distanceMiles: distanceMiles.miles,
-          viaStops: data.viaStops,
+          distanceMiles: auth.distanceMiles,
+          viaStops: data.stops.length,
           pickupTime: data.pickupTime || undefined,
-          surcharges: areaSurcharges,
+          surcharges: auth.areaSurcharges,
         });
-        const base = fixedByVehicle.get(p.vehicle.id);
-        const final = base != null ? base + areaTotal : result.finalPrice;
+        const fixed = auth.fixedByVehicle.get(p.vehicle.id) ?? auth.fixedAny;
+        const final = fixed != null ? fixed + areaTotal : result.finalPrice;
         return {
           vehicleId: p.vehicle.id,
           name: p.vehicle.name,
@@ -89,114 +160,170 @@ export const calculateQuotes = createServerFn({ method: "POST" })
           passengers: p.vehicle.passengers,
           luggage: p.vehicle.luggage,
           handLuggage: p.vehicle.hand_luggage,
-          distanceMiles: distanceMiles.miles,
+          distanceMiles: auth.distanceMiles,
           finalPrice: Math.round(final * 100) / 100,
           breakdown: result.breakdown,
           pricing: result,
         };
       })
-      .sort((a, b) => a.finalPrice - b.finalPrice);
+      .sort((a: QuoteCard, b: QuoteCard) => a.finalPrice - b.finalPrice);
 
-    return { distanceMiles: distanceMiles.miles, durationMinutes: distanceMiles.minutes, quotes: cards };
+    return {
+      distanceMiles: auth.distanceMiles,
+      durationMinutes: auth.durationMinutes,
+      quotes: cards,
+    };
   });
-
 
 // -------------------------------------------------------------------
 // Public: create booking with server-authoritative price
 // -------------------------------------------------------------------
-const createBookingInput = z.object({
-  vehicleId: z.string().uuid(),
-  vehicleCount: z.number().int().min(1).max(20).optional().default(1),
-  pickup: z.string().trim().min(2).max(500),
-  dropoff: z.string().trim().min(2).max(500),
-  pickupDate: z.string().trim().min(1).max(20),
-  pickupTime: z.string().trim().min(1).max(10),
-  passengers: z.number().int().min(1).max(200),
-  luggage: z.number().int().min(0).max(200),
-  viaStops: z.number().int().min(0).max(10).optional().default(0),
-  customer_name: z.string().trim().min(1).max(120),
-  email: z.string().trim().email().max(255),
-  phone: z.string().trim().min(5).max(30),
-  flight_number: z.string().trim().max(20).optional().nullable(),
-  notes: z.string().trim().max(1000).optional().nullable(),
-  child_seat: z.boolean().optional().default(false),
-  meet_greet: z.boolean().optional().default(false),
-  return_journey: z.boolean().optional().default(false),
-});
+const uuidV4 = z
+  .string()
+  .trim()
+  .regex(
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+    "Invalid idempotency key",
+  );
 
+const createBookingInput = z
+  .object({
+    idempotencyKey: uuidV4,
+    vehicleId: z.string().uuid(),
+    vehicleCount: z.number().int().min(1).max(20).optional().default(1),
+    pickupPlaceId: placeIdSchema,
+    pickupLabel: placeLabelSchema,
+    destinationPlaceId: placeIdSchema,
+    destinationLabel: placeLabelSchema,
+    stops: z.array(stopSchema).max(10).optional().default([]),
+    pickupDate: z.string().trim().min(1).max(20),
+    pickupTime: z.string().trim().min(1).max(10),
+    passengers: z.number().int().min(1).max(200),
+    luggage: z.number().int().min(0).max(200),
+    customer_name: z.string().trim().min(1).max(120),
+    email: z.string().trim().email().max(255),
+    phone: z.string().trim().min(5).max(30),
+    flight_number: z.string().trim().max(20).optional().nullable(),
+    notes: z.string().trim().max(1000).optional().nullable(),
+    child_seat: z.boolean().optional().default(false),
+    meet_greet: z.boolean().optional().default(false),
+    return_journey: z.boolean().optional().default(false),
+  })
+  .refine((v) => v.pickupPlaceId !== v.destinationPlaceId, {
+    message: "Pickup and destination cannot be the same location.",
+    path: ["destinationPlaceId"],
+  });
 
 export const createBooking = createServerFn({ method: "POST" })
   .inputValidator((data: z.infer<typeof createBookingInput>) => createBookingInput.parse(data))
   .handler(async ({ data }) => {
-    const client = publicClient();
+    // Per-IP sliding-window rate limit: 10 attempts / 10 min.
+    let ip = "unknown";
+    try { ip = getRequestIP({ xForwardedFor: true }) ?? "unknown"; } catch {}
+    if (!checkLimit({ name: "createBooking", windowMs: 10 * 60_000, max: 10 }, ip).ok) {
+      try { setResponseStatus(429); } catch {}
+      throw new Error("You've made too many booking attempts. Please wait a few minutes and try again.");
+    }
 
-    const [fixed, distanceMiles, profiles, areaSurcharges] = await Promise.all([
-      client
-        .from("pricing_rules")
-        .select("vehicle_id, price")
-        .eq("active", true)
-        .ilike("from_address", `%${data.pickup}%`)
-        .ilike("to_address", `%${data.dropoff}%`)
-        .then((r) => r.data ?? []),
-      estimateDistanceMiles(data.pickup, data.dropoff),
-      loadActiveProfiles(client),
-      loadAreaSurcharges(client, data.pickup, data.dropoff),
-    ]);
+    // Idempotency: return existing booking if we've already stored this key.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const existing = await supabaseAdmin
+      .from("bookings")
+      .select("id, price")
+      .eq("idempotency_key", data.idempotencyKey)
+      .maybeSingle();
+    if (existing.data) {
+      return { id: (existing.data as any).id, price: Number((existing.data as any).price) };
+    }
 
-    const profile = profiles.find((p) => p.vehicle.id === data.vehicleId);
+    // Authoritative price recompute — client-supplied price/distance ignored.
+    let auth: AuthoritativeQuote;
+    try {
+      auth = await computeAuthoritative({
+        pickupPlaceId: data.pickupPlaceId,
+        pickupLabel: data.pickupLabel,
+        destinationPlaceId: data.destinationPlaceId,
+        destinationLabel: data.destinationLabel,
+        stops: data.stops,
+        pickupTime: data.pickupTime,
+        passengers: data.passengers,
+        luggage: data.luggage,
+      });
+    } catch (err) {
+      throw mapRouteError(err);
+    }
+
+    const profile = auth.profiles.find((p: LoadedProfile) => p.vehicle.id === data.vehicleId);
     if (!profile) throw new Error("Selected vehicle is unavailable.");
     const qty = Math.max(1, data.vehicleCount ?? 1);
     if (profile.vehicle.passengers * qty < data.passengers || profile.vehicle.luggage * qty < data.luggage) {
       throw new Error("Selected vehicles cannot fit the requested passengers/luggage.");
     }
 
-    const fixedByVehicle = new Map<string, number>();
-    for (const r of fixed) {
-      if ((r as any).vehicle_id) fixedByVehicle.set((r as any).vehicle_id, Number((r as any).price));
-    }
-    const areaTotal = areaSurcharges.reduce((s, a) => s + a.amount, 0);
+    const areaTotal = auth.areaSurcharges.reduce((s: number, a: AreaSurcharge) => s + a.amount, 0);
     const engine = runPricingEngine(profile, {
-      distanceMiles: distanceMiles.miles,
-      viaStops: data.viaStops,
+      distanceMiles: auth.distanceMiles,
+      viaStops: data.stops.length,
       pickupTime: data.pickupTime || undefined,
-      surcharges: areaSurcharges,
+      surcharges: auth.areaSurcharges,
     });
-    const fixedBase = fixedByVehicle.get(profile.vehicle.id);
-    const perVehicle = fixedBase != null ? fixedBase + areaTotal : engine.finalPrice;
+    const fixed = auth.fixedByVehicle.get(profile.vehicle.id) ?? auth.fixedAny;
+    const perVehicle = fixed != null ? fixed + areaTotal : engine.finalPrice;
     const price = Math.round(perVehicle * qty * 100) / 100;
+
     const notesWithQty = qty > 1
       ? `Vehicles: ${qty} × ${profile.vehicle.name}${data.notes ? `\n\n${data.notes}` : ""}`
       : data.notes || null;
 
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: inserted, error } = await supabaseAdmin
+    const insertPayload = {
+      customer_name: data.customer_name,
+      email: data.email,
+      phone: data.phone,
+      pickup_address: data.pickupLabel,
+      dropoff_address: data.destinationLabel,
+      pickup_place_id: data.pickupPlaceId,
+      dropoff_place_id: data.destinationPlaceId,
+      pickup_date: data.pickupDate,
+      pickup_time: data.pickupTime,
+      flight_number: data.flight_number || null,
+      passengers: data.passengers,
+      luggage: data.luggage,
+      vehicle_type: qty > 1 ? `${qty} × ${profile.vehicle.name}` : profile.vehicle.name,
+      child_seat: !!data.child_seat,
+      meet_greet: !!data.meet_greet,
+      return_journey: !!data.return_journey,
+      notes: notesWithQty,
+      price,
+      distance_miles: auth.distanceMiles,
+      idempotency_key: data.idempotencyKey,
+      status: "new",
+    };
+
+    const insertRes = await supabaseAdmin
       .from("bookings")
-      .insert({
-        customer_name: data.customer_name,
-        email: data.email,
-        phone: data.phone,
-        pickup_address: data.pickup,
-        dropoff_address: data.dropoff,
-        pickup_date: data.pickupDate,
-        pickup_time: data.pickupTime,
-        flight_number: data.flight_number || null,
-        passengers: data.passengers,
-        luggage: data.luggage,
-        vehicle_type: qty > 1 ? `${qty} × ${profile.vehicle.name}` : profile.vehicle.name,
-        child_seat: !!data.child_seat,
-        meet_greet: !!data.meet_greet,
-        return_journey: !!data.return_journey,
-        notes: notesWithQty,
-        price,
-        status: "new",
-      })
+      .insert(insertPayload as any)
       .select("id, price")
       .single();
-    if (error) throw new Error(error.message);
 
-    return { id: (inserted as any).id, price };
+    if (insertRes.error) {
+      // Unique-violation on idempotency_key → race with a concurrent submit.
+      // Return the existing booking instead of surfacing an error.
+      if ((insertRes.error as any).code === "23505") {
+        const again = await supabaseAdmin
+          .from("bookings")
+          .select("id, price")
+          .eq("idempotency_key", data.idempotencyKey)
+          .maybeSingle();
+        if (again.data) {
+          return { id: (again.data as any).id, price: Number((again.data as any).price) };
+        }
+      }
+      console.error("createBooking insert failed", insertRes.error);
+      throw new Error("Couldn't save your booking. Please try again.");
+    }
+
+    return { id: (insertRes.data as any).id, price };
   });
-
 
 // -------------------------------------------------------------------
 // Admin: list profiles + tiers for editing
@@ -292,7 +419,6 @@ export const adminSavePricingProfile = createServerFn({ method: "POST" })
       profileId = (inserted as any).id;
     }
 
-    // Replace tiers
     await context.supabase
       .from("vehicle_mileage_tiers" as any)
       .delete()

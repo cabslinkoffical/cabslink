@@ -125,11 +125,14 @@ export type Database = {
           created_at: string
           customer_name: string
           deleted_at: string | null
+          distance_miles: number | null
           driver_id: string | null
           dropoff_address: string
+          dropoff_place_id: string | null
           email: string
           flight_number: string | null
           id: string
+          idempotency_key: string | null
           luggage: number
           meet_greet: boolean
           notes: string | null
@@ -138,6 +141,7 @@ export type Database = {
           phone: string
           pickup_address: string
           pickup_date: string
+          pickup_place_id: string | null
           pickup_time: string
           price: number | null
           return_journey: boolean
@@ -153,11 +157,14 @@ export type Database = {
           created_at?: string
           customer_name: string
           deleted_at?: string | null
+          distance_miles?: number | null
           driver_id?: string | null
           dropoff_address: string
+          dropoff_place_id?: string | null
           email: string
           flight_number?: string | null
           id?: string
+          idempotency_key?: string | null
           luggage?: number
           meet_greet?: boolean
           notes?: string | null
@@ -166,6 +173,7 @@ export type Database = {
           phone: string
           pickup_address: string
           pickup_date: string
+          pickup_place_id?: string | null
           pickup_time: string
           price?: number | null
           return_journey?: boolean
@@ -181,11 +189,14 @@ export type Database = {
           created_at?: string
           customer_name?: string
           deleted_at?: string | null
+          distance_miles?: number | null
           driver_id?: string | null
           dropoff_address?: string
+          dropoff_place_id?: string | null
           email?: string
           flight_number?: string | null
           id?: string
+          idempotency_key?: string | null
           luggage?: number
           meet_greet?: boolean
           notes?: string | null
@@ -194,6 +205,7 @@ export type Database = {
           phone?: string
           pickup_address?: string
           pickup_date?: string
+          pickup_place_id?: string | null
           pickup_time?: string
           price?: number | null
           return_journey?: boolean
@@ -562,13 +574,18 @@ export type Database = {
       pricing_rules: {
         Row: {
           active: boolean
+          bidirectional: boolean
           created_at: string
           currency: string
           from_address: string
+          from_place_id: string | null
+          from_place_label: string | null
           id: string
           notes: string | null
           price: number
           to_address: string
+          to_place_id: string | null
+          to_place_label: string | null
           updated_at: string
           valid_from: string | null
           valid_to: string | null
@@ -576,13 +593,18 @@ export type Database = {
         }
         Insert: {
           active?: boolean
+          bidirectional?: boolean
           created_at?: string
           currency?: string
           from_address: string
+          from_place_id?: string | null
+          from_place_label?: string | null
           id?: string
           notes?: string | null
           price: number
           to_address: string
+          to_place_id?: string | null
+          to_place_label?: string | null
           updated_at?: string
           valid_from?: string | null
           valid_to?: string | null
@@ -590,13 +612,18 @@ export type Database = {
         }
         Update: {
           active?: boolean
+          bidirectional?: boolean
           created_at?: string
           currency?: string
           from_address?: string
+          from_place_id?: string | null
+          from_place_label?: string | null
           id?: string
           notes?: string | null
           price?: number
           to_address?: string
+          to_place_id?: string | null
+          to_place_label?: string | null
           updated_at?: string
           valid_from?: string | null
           valid_to?: string | null
