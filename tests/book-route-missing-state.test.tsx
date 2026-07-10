@@ -69,7 +69,7 @@ beforeEach(() => calcMock.mockReset());
 
 describe("/book — missing-location state (router-aware)", () => {
   it("does not call calculateQuotes and shows the empty-state when no Place IDs", async () => {
-    renderAt("/book");
+    await renderAt("/book");
     await screen.findByText(/Enter your journey first/i);
     expect(calcMock).not.toHaveBeenCalled();
     expect(screen.queryByText(/Calculating quotes/i)).toBeNull();
@@ -86,7 +86,7 @@ describe("/book — missing-location state (router-aware)", () => {
       pickupPlaceId: "ChIJ_same", pickupLabel: "Same",
       dropoffPlaceId: "ChIJ_same", dropoffLabel: "Same",
     }).toString();
-    renderAt(`/book?q=${encodeURIComponent(q)}`);
+    await renderAt(`/book?q=${encodeURIComponent(q)}`);
     await screen.findByText(/Enter your journey first/i);
     expect(calcMock).not.toHaveBeenCalled();
   });
