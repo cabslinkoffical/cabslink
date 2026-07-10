@@ -60,17 +60,47 @@ function BookPage() {
   const [chosen, setChosen] = useState<QuoteCard | null>(null);
   const [qty, setQty] = useState<number>(1);
 
+  const quoteFn = useServerFn(calculateQuotes);
+  const quoteQuery = useQuery({
+    queryKey: ["quotes", pre.pickup, pre.dropoff, pre.passengers, pre.luggage, pre.time, pre.stops.length],
+    queryFn: () =>
+      quoteFn({
+        data: {
+          pickup: pre.pickup || "Glasgow, UK",
+          dropoff: pre.dropoff || "Edinburgh Airport",
+          pickupDate: pre.date,
+          pickupTime: pre.time,
+          passengers: pre.passengers,
+          luggage: pre.luggage,
+          viaStops: pre.stops.length,
+        } as any,
+      }),
+  });
+
   return (
     <SiteLayout>
-      <section className="bg-[var(--surface)] py-8 md:py-12 min-h-[80vh]">
-        <div className="container-x">
+      <section className="relative bg-[var(--surface)] py-10 md:py-14 min-h-[80vh] overflow-hidden">
+        {/* soft ambient background */}
+        <div className="absolute inset-0 pointer-events-none opacity-60" aria-hidden>
+          <div className="absolute -top-24 -left-24 size-96 rounded-full bg-[var(--gold)]/10 blur-3xl" />
+          <div className="absolute -bottom-32 -right-24 size-[28rem] rounded-full bg-[var(--navy)]/5 blur-3xl" />
+        </div>
+
+        <div className="container-x relative">
           <Stepper step={step} />
-          <div className="mt-6 grid lg:grid-cols-[320px_1fr] gap-6 items-start">
-            <Sidebar pre={pre} onEdit={() => setStep("vehicle")} />
+          <div className="mt-8 grid lg:grid-cols-[340px_1fr] gap-6 items-start">
+            <Sidebar
+              pre={pre}
+              onEdit={() => setStep("vehicle")}
+              route={quoteQuery.data ? { miles: quoteQuery.data.distanceMiles, minutes: quoteQuery.data.durationMinutes } : null}
+            />
             <div>
               {step === "vehicle" && (
                 <VehicleStep
                   pre={pre}
+                  data={quoteQuery.data}
+                  isLoading={quoteQuery.isLoading}
+                  error={quoteQuery.error as Error | null}
                   onSelect={(card, quantity) => { setChosen(card); setQty(quantity); setStep("details"); }}
                 />
               )}
