@@ -107,7 +107,7 @@ function encodePrefill(pre: Prefill): string {
   return p.toString();
 }
 
-type Step = "vehicle" | "details" | "payment";
+type Step = "vehicle" | "details" | "review";
 
 function BookPage() {
   const { q } = Route.useSearch();
@@ -188,10 +188,13 @@ function BookPage() {
                   {step === "details" && chosen && (
                     <DetailsStep pre={pre} card={chosen} qty={qty}
                       onBack={() => setStep("vehicle")}
-                      onContinue={() => setStep("payment")} />
+                      onSuccess={(token) => {
+                        if (token) navigate({ to: "/booking/$token", params: { token } });
+                        else setStep("review");
+                      }} />
                   )}
-                  {step === "payment" && chosen && (
-                    <PaymentStep card={chosen} qty={qty} onBack={() => setStep("details")} />
+                  {step === "review" && chosen && (
+                    <AlreadySubmittedStep card={chosen} qty={qty} onBack={() => setStep("details")} />
                   )}
                 </div>
               </div>
@@ -203,6 +206,7 @@ function BookPage() {
     </SiteLayout>
   );
 }
+
 
 function EmptyJourneyState({ onEdit }: { onEdit: () => void }) {
   return (
