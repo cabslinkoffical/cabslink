@@ -33,7 +33,11 @@ vi.mock("@tanstack/react-start", () => {
     inputValidator: (v: any) => chain({ ...state, validator: v }),
     handler: (h: any) => async (args: any) => h({ data: args?.data, context: {} }),
   });
-  return { useServerFn: (fn: any) => fn, createServerFn: (_o?: any) => chain() };
+  return {
+    useServerFn: (fn: any) => fn,
+    createServerFn: (_o?: any) => chain(),
+    createMiddleware: (_o?: any) => ({ server: () => ({}), client: () => ({}) }),
+  };
 });
 
 // SiteLayout depends on Header/Footer that pull in more of the app.
