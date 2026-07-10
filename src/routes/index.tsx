@@ -233,7 +233,7 @@ function HomePage() {
         <div aria-hidden className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-px bg-gradient-to-r from-transparent via-[var(--gold)]/30 to-transparent" />
         <div className="container-x relative">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-            <SectionHeader eyebrow="Our Services" title="A complete chauffeur & transfer service" subtitle="From airport pickups to multi-day private tours — one trusted standard, every journey." />
+            <SectionHeader eyebrow="Our Services" title="A Complete Chauffeur" titleAccent="Service" subtitle="From airport pickups to multi-day private tours — one trusted standard, every journey." />
             <Button asChild variant="outline" className="rounded-full self-start"><Link to="/services">All services <ArrowRight className="size-4" /></Link></Button>
           </div>
           <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
