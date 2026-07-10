@@ -233,12 +233,13 @@ export const calculateQuotes = createServerFn({ method: "POST" })
 // -------------------------------------------------------------------
 const createBookingInput = z.object({
   vehicleId: z.string().uuid(),
+  vehicleCount: z.number().int().min(1).max(20).optional().default(1),
   pickup: z.string().trim().min(2).max(500),
   dropoff: z.string().trim().min(2).max(500),
   pickupDate: z.string().trim().min(1).max(20),
   pickupTime: z.string().trim().min(1).max(10),
-  passengers: z.number().int().min(1).max(20),
-  luggage: z.number().int().min(0).max(20),
+  passengers: z.number().int().min(1).max(200),
+  luggage: z.number().int().min(0).max(200),
   viaStops: z.number().int().min(0).max(10).optional().default(0),
   customer_name: z.string().trim().min(1).max(120),
   email: z.string().trim().email().max(255),
@@ -249,6 +250,7 @@ const createBookingInput = z.object({
   meet_greet: z.boolean().optional().default(false),
   return_journey: z.boolean().optional().default(false),
 });
+
 
 export const createBooking = createServerFn({ method: "POST" })
   .inputValidator((data: z.infer<typeof createBookingInput>) => createBookingInput.parse(data))
@@ -269,8 +271,9 @@ export const createBooking = createServerFn({ method: "POST" })
 
     const profile = profiles.find((p) => p.vehicle.id === data.vehicleId);
     if (!profile) throw new Error("Selected vehicle is unavailable.");
-    if (profile.vehicle.passengers < data.passengers || profile.vehicle.luggage < data.luggage) {
-      throw new Error("Selected vehicle cannot fit the requested passengers/luggage.");
+    const qty = Math.max(1, data.vehicleCount ?? 1);
+    if (profile.vehicle.passengers * qty < data.passengers || profile.vehicle.luggage * qty < data.luggage) {
+      throw new Error("Selected vehicles cannot fit the requested passengers/luggage.");
     }
 
     const fixedByVehicle = new Map<string, number>();
@@ -282,9 +285,12 @@ export const createBooking = createServerFn({ method: "POST" })
       viaStops: data.viaStops,
       pickupTime: data.pickupTime || undefined,
     });
-    const authoritativePrice =
+    const perVehicle =
       fixedByVehicle.get(profile.vehicle.id) ?? engine.finalPrice;
-    const price = Math.round(authoritativePrice * 100) / 100;
+    const price = Math.round(perVehicle * qty * 100) / 100;
+    const notesWithQty = qty > 1
+      ? `Vehicles: ${qty} × ${profile.vehicle.name}${data.notes ? `\n\n${data.notes}` : ""}`
+      : data.notes || null;
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: inserted, error } = await supabaseAdmin
@@ -300,17 +306,18 @@ export const createBooking = createServerFn({ method: "POST" })
         flight_number: data.flight_number || null,
         passengers: data.passengers,
         luggage: data.luggage,
-        vehicle_type: profile.vehicle.name,
+        vehicle_type: qty > 1 ? `${qty} × ${profile.vehicle.name}` : profile.vehicle.name,
         child_seat: !!data.child_seat,
         meet_greet: !!data.meet_greet,
         return_journey: !!data.return_journey,
-        notes: data.notes || null,
+        notes: notesWithQty,
         price,
         status: "new",
       })
       .select("id, price")
       .single();
     if (error) throw new Error(error.message);
+
     return { id: (inserted as any).id, price };
   });
 

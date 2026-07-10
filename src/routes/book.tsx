@@ -58,6 +58,7 @@ function BookPage() {
   const pre = readPrefill(q);
   const [step, setStep] = useState<Step>("vehicle");
   const [chosen, setChosen] = useState<QuoteCard | null>(null);
+  const [qty, setQty] = useState<number>(1);
 
   return (
     <SiteLayout>
@@ -70,19 +71,20 @@ function BookPage() {
               {step === "vehicle" && (
                 <VehicleStep
                   pre={pre}
-                  onSelect={(card) => { setChosen(card); setStep("details"); }}
+                  onSelect={(card, quantity) => { setChosen(card); setQty(quantity); setStep("details"); }}
                 />
               )}
               {step === "details" && chosen && (
                 <DetailsStep
                   pre={pre}
                   card={chosen}
+                  qty={qty}
                   onBack={() => setStep("vehicle")}
                   onContinue={() => setStep("payment")}
                 />
               )}
               {step === "payment" && chosen && (
-                <PaymentStep card={chosen} onBack={() => setStep("details")} />
+                <PaymentStep card={chosen} qty={qty} onBack={() => setStep("details")} />
               )}
             </div>
           </div>
@@ -91,6 +93,7 @@ function BookPage() {
     </SiteLayout>
   );
 }
+
 
 // =================================================================
 // Stepper
@@ -188,8 +191,9 @@ function SidebarRow({ icon, label, value }: { icon: React.ReactNode; label: stri
 // =================================================================
 // Step 1 — Vehicle selection
 // =================================================================
-function VehicleStep({ pre, onSelect }: { pre: Prefill; onSelect: (card: QuoteCard) => void }) {
+function VehicleStep({ pre, onSelect }: { pre: Prefill; onSelect: (card: QuoteCard, qty: number) => void }) {
   const quoteFn = useServerFn(calculateQuotes);
+  const [qtyMap, setQtyMap] = useState<Record<string, number>>({});
   const { data, isLoading, error } = useQuery({
     queryKey: ["quotes", pre.pickup, pre.dropoff, pre.passengers, pre.luggage, pre.time, pre.stops.length],
     queryFn: () =>
@@ -231,17 +235,34 @@ function VehicleStep({ pre, onSelect }: { pre: Prefill; onSelect: (card: QuoteCa
             No vehicles match these passenger / luggage requirements.
           </div>
         )}
-        {data?.quotes.map((q, i) => (
-          <VehicleCard key={q.vehicleId} card={q} best={i === 0} onSelect={() => onSelect(q)} />
-        ))}
+        {data?.quotes.map((q, i) => {
+          const qty = qtyMap[q.vehicleId] ?? 1;
+          return (
+            <VehicleCard
+              key={q.vehicleId}
+              card={q}
+              best={i === 0}
+              qty={qty}
+              onQtyChange={(n) => setQtyMap((m) => ({ ...m, [q.vehicleId]: n }))}
+              onSelect={() => onSelect(q, qty)}
+            />
+          );
+        })}
       </div>
     </div>
   );
 }
 
-function VehicleCard({ card, best, onSelect }: { card: QuoteCard; best: boolean; onSelect: () => void }) {
+
+function VehicleCard({
+  card, best, qty, onQtyChange, onSelect,
+}: {
+  card: QuoteCard; best: boolean; qty: number;
+  onQtyChange: (n: number) => void; onSelect: () => void;
+}) {
+  const total = card.finalPrice * qty;
   return (
-    <div className="p-5 md:p-6 grid md:grid-cols-[1fr_1.1fr_220px] gap-5 md:gap-6 items-center hover:bg-[var(--surface)]/40 transition">
+    <div className="p-5 md:p-6 grid md:grid-cols-[1fr_1.1fr_240px] gap-5 md:gap-6 items-center hover:bg-[var(--surface)]/40 transition">
       {/* image + name */}
       <div>
         {best && (
@@ -270,9 +291,9 @@ function VehicleCard({ card, best, onSelect }: { card: QuoteCard; best: boolean;
 
       {/* features */}
       <ul className="space-y-1.5 text-sm">
-        <Feature icon={<Users className="size-4" />}>{card.passengers} Passengers</Feature>
-        <Feature icon={<Briefcase className="size-4" />}>{card.luggage} Luggage</Feature>
-        <Feature icon={<Luggage className="size-4" />}>{card.handLuggage} Hand Luggage</Feature>
+        <Feature icon={<Users className="size-4" />}>{card.passengers * qty} Passengers</Feature>
+        <Feature icon={<Briefcase className="size-4" />}>{card.luggage * qty} Luggage</Feature>
+        <Feature icon={<Luggage className="size-4" />}>{card.handLuggage * qty} Hand Luggage</Feature>
         <Feature icon={<BadgeCheck className="size-4" />}>Meet &amp; Greet Available</Feature>
         <Feature icon={<Clock className="size-4" />}>Free Waiting Time</Feature>
         <Feature icon={<DoorOpen className="size-4" />}>Door to Door</Feature>
@@ -281,23 +302,42 @@ function VehicleCard({ card, best, onSelect }: { card: QuoteCard; best: boolean;
 
       {/* price */}
       <div className="text-right md:border-l md:pl-6 border-border">
+        <div className="mb-3 text-left">
+          <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Vehicles</Label>
+          <Select value={String(qty)} onValueChange={(v) => onQtyChange(Number(v))}>
+            <SelectTrigger className="mt-1 h-10 border-[var(--gold)]/50">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {[1, 2, 3, 4, 5].map((n) => (
+                <SelectItem key={n} value={String(n)}>{n} x Vehicle Select</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">Total Price</p>
         <div className="mt-1">
           <span className="text-2xl font-display font-bold align-top mr-0.5">£</span>
-          <span className="text-4xl font-display font-bold tabular-nums">{card.finalPrice.toFixed(2)}</span>
+          <span className="text-4xl font-display font-bold tabular-nums">{total.toFixed(2)}</span>
         </div>
+        {qty > 1 && (
+          <p className="text-[11px] text-muted-foreground mt-0.5">
+            {qty} × £{card.finalPrice.toFixed(2)}
+          </p>
+        )}
         <div className="text-[11px] text-muted-foreground mt-1 space-y-0.5">
           <p className="flex items-center justify-end gap-1"><ShieldCheck className="size-3 text-[var(--gold)]" /> No hidden cost</p>
           <p className="flex items-center justify-end gap-1"><Clock className="size-3 text-[var(--gold)]" /> Free cancellation</p>
         </div>
         <p className="text-[10px] text-[var(--gold)] mt-1.5 underline">All prices include fees and tolls</p>
         <Button onClick={onSelect} className="mt-3 w-full h-11 rounded-lg bg-[var(--gold)] hover:brightness-110 text-[var(--gold-foreground)] font-bold tracking-wider">
-          Book Now £ {card.finalPrice.toFixed(2)}
+          Book Now £ {total.toFixed(2)}
         </Button>
       </div>
     </div>
   );
 }
+
 
 function Feature({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) {
   return (
@@ -320,12 +360,13 @@ const detailsSchema = z.object({
 });
 
 function DetailsStep({
-  pre, card, onBack, onContinue,
-}: { pre: Prefill; card: QuoteCard; onBack: () => void; onContinue: () => void }) {
+  pre, card, qty, onBack, onContinue,
+}: { pre: Prefill; card: QuoteCard; qty: number; onBack: () => void; onContinue: () => void }) {
   const [meetGreet, setMeetGreet] = useState(true);
   const [childSeat, setChildSeat] = useState(false);
   const [returnJourney, setReturnJourney] = useState(pre.ret);
   const [loading, setLoading] = useState(false);
+  const total = card.finalPrice * qty;
 
   const bookFn = useServerFn(createBooking);
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -338,6 +379,7 @@ function DetailsStep({
       await bookFn({
         data: {
           vehicleId: card.vehicleId,
+          vehicleCount: qty,
           pickup: pre.pickup,
           dropoff: pre.dropoff,
           pickupDate: pre.date,
@@ -370,10 +412,11 @@ function DetailsStep({
         <img src={card.imageUrl} alt="" className="w-16 h-12 object-contain" />
         <div className="flex-1">
           <p className="text-xs uppercase tracking-wider text-muted-foreground font-bold">Selected vehicle</p>
-          <p className="font-display font-bold">{card.name}</p>
+          <p className="font-display font-bold">{qty > 1 ? `${qty} × ${card.name}` : card.name}</p>
         </div>
-        <p className="font-display font-bold text-2xl">£{card.finalPrice.toFixed(2)}</p>
+        <p className="font-display font-bold text-2xl">£{total.toFixed(2)}</p>
       </div>
+
 
       <div className="grid sm:grid-cols-2 gap-4">
         <Field label="Full name" icon={<User className="size-4" />}><Input name="customer_name" required maxLength={100} /></Field>
@@ -427,7 +470,8 @@ function Toggle({ label, checked, onChange }: { label: string; checked: boolean;
 // =================================================================
 // Step 3 — Payment placeholder
 // =================================================================
-function PaymentStep({ card, onBack }: { card: QuoteCard; onBack: () => void }) {
+function PaymentStep({ card, qty, onBack }: { card: QuoteCard; qty: number; onBack: () => void }) {
+  const total = card.finalPrice * qty;
   return (
     <div className="bg-card rounded-2xl border border-border shadow-sm p-8 text-center">
       <CheckCircle2 className="size-12 text-[var(--gold)] mx-auto" />
@@ -436,9 +480,12 @@ function PaymentStep({ card, onBack }: { card: QuoteCard; onBack: () => void }) 
         We'll confirm shortly by email. Online payment will be enabled once a payment provider is connected.
       </p>
       <div className="mt-6 inline-block bg-[var(--surface)] rounded-xl border border-border px-6 py-4">
-        <p className="text-xs uppercase tracking-widest text-muted-foreground font-bold">Total to pay</p>
-        <p className="font-display text-3xl font-bold mt-1">£{card.finalPrice.toFixed(2)}</p>
+        <p className="text-xs uppercase tracking-widest text-muted-foreground font-bold">
+          Total to pay {qty > 1 ? `(${qty} × ${card.name})` : ""}
+        </p>
+        <p className="font-display text-3xl font-bold mt-1">£{total.toFixed(2)}</p>
       </div>
+
       <div className="mt-8 flex flex-wrap justify-center gap-3">
         <Button variant="outline" onClick={onBack} className="gap-2">
           <ArrowLeft className="size-4" /> Back
