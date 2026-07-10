@@ -325,25 +325,64 @@ function HomePage() {
         </div>
       </section>
 
-      {/* FLEET */}
+      {/* FLEET — reference-style image cards */}
       <section className="section-y">
         <div className="container-x">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-            <SectionHeader eyebrow="Our Fleet" title="A vehicle for every journey" subtitle="A modern, fully-insured fleet maintained to the highest standards." />
-            <Button asChild variant="outline" className="rounded-full self-start"><Link to="/fleet">View full fleet <ArrowRight className="size-4" /></Link></Button>
-          </div>
-          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
-            {fleet.map((f, i) => (
-              <Reveal key={f.name} delay={i * 80} className="group relative rounded-2xl border border-border bg-card p-6 hover:border-[var(--gold)]/60 hover:-translate-y-1.5 hover:shadow-[var(--shadow-elegant)] transition-all duration-300 overflow-hidden">
-                <div aria-hidden className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-[var(--gold)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="grid size-12 place-items-center rounded-xl bg-[var(--gold)]/10 border border-[var(--gold)]/20 text-[var(--gold)] group-hover:bg-[var(--gold)]/20 transition-colors">
-                  <Car className="size-6" />
+          <SectionHeader
+            eyebrow="Our Fleet"
+            title="Our Premium"
+            titleAccent="Fleet"
+            subtitle="Explore our modern, chauffeur-driven fleet available across the UK."
+            center
+          />
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {fleet.slice(0, 3).map((f, i) => (
+              <Reveal
+                key={f.name}
+                delay={i * 100}
+                className="group relative rounded-3xl border border-border bg-card p-6 hover:border-[var(--gold)]/60 hover:-translate-y-1.5 hover:shadow-[var(--shadow-elegant)] transition-all duration-300"
+              >
+                <span className="absolute top-5 right-5 z-10 inline-flex items-center gap-1.5 rounded-full bg-[var(--gold)]/12 border border-[var(--gold)]/30 text-[var(--gold)] text-[10px] font-semibold uppercase tracking-[0.16em] px-3 py-1">
+                  <Gem className="size-3" /> {f.note}
+                </span>
+                <div className="relative aspect-[16/10] flex items-center justify-center overflow-hidden">
+                  <img
+                    src={f.img}
+                    alt={f.name}
+                    loading="lazy"
+                    width={1200}
+                    height={750}
+                    className="max-h-full w-auto object-contain transition-transform duration-500 group-hover:scale-105"
+                  />
                 </div>
-                <span className="mt-4 inline-block px-2.5 py-1 rounded-full text-[10px] uppercase tracking-wider text-[var(--gold)] bg-[var(--gold)]/10 border border-[var(--gold)]/20 font-semibold">{f.note}</span>
-                <h3 className="mt-3 font-display text-lg font-semibold leading-tight">{f.name}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{f.desc}</p>
+                <div className="mt-4 pt-5 border-t border-border">
+                  <h3 className="font-display text-xl font-semibold">{f.name}</h3>
+                  <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2.5 text-sm">
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Users className="size-4 text-[var(--gold)]" />
+                      <span>Passengers <span className="text-foreground font-medium">{f.passengers}</span></span>
+                    </div>
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Briefcase className="size-4 text-[var(--gold)]" />
+                      <span>Luggage <span className="text-foreground font-medium">{f.luggage}</span></span>
+                    </div>
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Car className="size-4 text-[var(--gold)]" />
+                      <span className="truncate">{f.transmission}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <ShieldCheck className="size-4 text-[var(--gold)]" />
+                      <span>{f.fuel}</span>
+                    </div>
+                  </dl>
+                </div>
               </Reveal>
             ))}
+          </div>
+          <div className="mt-10 flex justify-center">
+            <Button asChild variant="outline" className="rounded-full">
+              <Link to="/fleet">View full fleet <ArrowRight className="size-4" /></Link>
+            </Button>
           </div>
         </div>
       </section>
