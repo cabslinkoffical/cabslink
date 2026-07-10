@@ -273,7 +273,8 @@ function MileageEditor({ pricing, setPricing }: { pricing: typeof emptyPricing; 
               </Button>
             </div>
           </div>
-        ))}
+          );
+        })}
 
         <div className="flex items-center justify-between pt-2">
           <Button type="button" size="sm" variant="outline" className="gap-1.5"
