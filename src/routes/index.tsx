@@ -107,7 +107,7 @@ function HomePage() {
             </p>
             <div className="animate-fade-up mt-7 flex flex-wrap justify-center gap-3" style={{ animationDelay: "360ms" }}>
               <Button asChild variant="slash">
-                <Link to="/book">Book a Ride <ArrowRight className="size-4" /></Link>
+                <a href="#booking">Book a Ride <ArrowRight className="size-4" /></a>
               </Button>
               <Button asChild variant="heroGhost">
                 <a href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}><Phone className="size-4" /> {SITE.phoneUK}</a>
@@ -158,7 +158,7 @@ function HomePage() {
       </section>
 
       {/* BOOKING WIDGET */}
-      <section className="relative z-20">
+      <section id="booking" className="relative z-20 scroll-mt-24">
         <div className="container-x">
           <div className="-translate-y-24 md:-translate-y-40">
             <BookingWidget />

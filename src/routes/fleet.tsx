@@ -140,7 +140,7 @@ function FleetPage() {
               ))}
             </ul>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Button asChild variant="gold" className="rounded-full"><Link to="/book">Book the V-Class <ArrowRight className="size-4" /></Link></Button>
+              <Button asChild variant="gold" className="rounded-full"><a href="/#booking">Book the V-Class <ArrowRight className="size-4" /></a></Button>
               <Button asChild variant="outline" className="rounded-full"><Link to="/contact">Talk to our team</Link></Button>
             </div>
           </Reveal>
@@ -172,7 +172,7 @@ function FleetPage() {
                       <span className="flex items-center gap-1.5" title="Large luggage"><Briefcase className="size-4 text-[var(--gold)]" />{f.lug}</span>
                       <span className="flex items-center gap-1.5" title="Hand luggage"><Luggage className="size-4 text-[var(--gold)]" />{f.hand}</span>
                     </div>
-                    <Button asChild variant="outline" className="mt-5 w-full rounded-full"><Link to="/book">Book this vehicle <ArrowRight className="size-4" /></Link></Button>
+                    <Button asChild variant="outline" className="mt-5 w-full rounded-full"><a href="/#booking">Book this vehicle <ArrowRight className="size-4" /></a></Button>
                   </div>
                 </div>
               </Reveal>
@@ -191,7 +191,7 @@ function FleetPage() {
               expert advice, immediate assistance and flexible scheduling, with reliable comfort and top-notch service.
             </p>
             <div className="mt-7 flex flex-wrap gap-3 justify-center">
-              <Button asChild variant="gold" className="rounded-full"><Link to="/book">Book online</Link></Button>
+              <Button asChild variant="gold" className="rounded-full"><a href="/#booking">Book online</a></Button>
               <Button asChild variant="outline" className="rounded-full bg-transparent text-white border-white/40 hover:bg-white/10"><Link to="/contact">Contact us</Link></Button>
             </div>
           </div>

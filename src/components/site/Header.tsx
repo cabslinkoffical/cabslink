@@ -59,7 +59,7 @@ export function Header() {
             </Link>
           ) : null}
           <Button asChild variant="slash">
-            <Link to="/book">Book a Ride</Link>
+            <a href="/#booking">Book a Ride</a>
           </Button>
         </div>
         <button
@@ -79,7 +79,7 @@ export function Header() {
               </Link>
             ))}
             <Button asChild variant="slash" className="mt-3 self-start">
-              <Link to="/book">Book a Ride</Link>
+              <a href="/#booking">Book a Ride</a>
             </Button>
             <a href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`} className="mt-2 text-center text-sm text-foreground/70">
               Call {SITE.phoneUK}
