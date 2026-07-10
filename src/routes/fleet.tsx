@@ -191,7 +191,7 @@ function FleetPage() {
               expert advice, immediate assistance and flexible scheduling, with reliable comfort and top-notch service.
             </p>
             <div className="mt-7 flex flex-wrap gap-3 justify-center">
-              <Button asChild variant="gold" className="rounded-full"><Link to="/book">Book online</Link></Button>
+              <Button asChild variant="gold" className="rounded-full"><a href="/#booking">Book online</a></Button>
               <Button asChild variant="outline" className="rounded-full bg-transparent text-white border-white/40 hover:bg-white/10"><Link to="/contact">Contact us</Link></Button>
             </div>
           </div>
