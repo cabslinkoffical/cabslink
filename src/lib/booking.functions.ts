@@ -126,7 +126,7 @@ export const setBookingStatusFn = createServerFn({ method: "POST" })
       _booking_id: data.id,
       _new_status: newStatus,
       _actor_id: context.userId,
-      _reason: data.reason ?? null,
+      _reason: data.reason ?? undefined,
       _override: !!data.override,
     });
     if (rpc.error) throw new Error(rpc.error.message);
