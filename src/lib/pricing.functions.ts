@@ -250,17 +250,23 @@ export const createBooking = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const existing = await supabaseAdmin
       .from("bookings")
-      .select("id, price, idempotency_request_hash")
+      .select("id, price, booking_ref, idempotency_request_hash")
       .eq("idempotency_key", data.idempotencyKey)
       .maybeSingle();
     if (existing.data) {
       const storedHash = (existing.data as any).idempotency_request_hash as string | null;
       if (storedHash && storedHash === requestHash) {
-        return { id: (existing.data as any).id, price: Number((existing.data as any).price) };
+        return {
+          id: (existing.data as any).id,
+          price: Number((existing.data as any).price),
+          ref: (existing.data as any).booking_ref as string,
+          token: null as string | null,
+        };
       }
       try { setResponseStatus(409); } catch {}
       throw new Error("This booking request conflicts with an earlier submission. Please refresh and try again.");
     }
+
 
     // Authoritative price recompute — client-supplied price/distance ignored.
     let auth: AuthoritativeQuote;
