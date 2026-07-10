@@ -331,6 +331,29 @@ export const createBooking = createServerFn({ method: "POST" })
     const CONFIRMATION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
     const confirmationExpires = new Date(Date.now() + CONFIRMATION_TTL_MS).toISOString();
 
+    const capacitySnapshot = {
+      passengers: profile.vehicle.passengers,
+      luggage: profile.vehicle.luggage,
+      hand_luggage: profile.vehicle.hand_luggage,
+      vehicle_count: qty,
+    };
+    const pricingProfileIdSnapshot =
+      (profile as any).id ?? (profile as any).profile?.id ?? null;
+    const pricingSnapshot = {
+      engine_version: 1,
+      distance_miles: auth.distanceMiles,
+      duration_minutes: auth.durationMinutes,
+      per_vehicle_price: Math.round(perVehicle * 100) / 100,
+      vehicle_count: qty,
+      total_price: price,
+      area_surcharges: auth.areaSurcharges,
+      area_surcharges_total: Math.round(areaTotal * 100) / 100,
+      fixed_price_applied: fixed != null,
+      fixed_price_value: fixed ?? null,
+      breakdown: engine.breakdown,
+      pricing_profile_id: pricingProfileIdSnapshot,
+    };
+
     const insertPayload = {
       customer_name: data.customer_name,
       email: data.email,
@@ -345,6 +368,11 @@ export const createBooking = createServerFn({ method: "POST" })
       passengers: data.passengers,
       luggage: data.luggage,
       vehicle_type: qty > 1 ? `${qty} × ${profile.vehicle.name}` : profile.vehicle.name,
+      vehicle_id: profile.vehicle.id,
+      vehicle_name_snapshot: profile.vehicle.name,
+      vehicle_capacity_snapshot: capacitySnapshot,
+      pricing_profile_id_snapshot: pricingProfileIdSnapshot,
+      pricing_snapshot: pricingSnapshot,
       child_seat: !!data.child_seat,
       meet_greet: !!data.meet_greet,
       return_journey: !!data.return_journey,
