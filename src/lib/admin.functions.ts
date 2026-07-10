@@ -290,10 +290,12 @@ export const listAddresses = createServerFn({ method: "GET" })
 
 const addressSchema = z.object({
   id: z.string().uuid().optional(),
-  name: z.string().min(1).max(200),
+  name: z.string().trim().min(1).max(200),
+  label: z.string().trim().max(200).nullable().optional(),
+  place_id: z.string().trim().max(300).nullable().optional(),
   comparable_value: z.string().max(200).nullable().optional(),
-  pickup_charge: z.number().min(0).default(0),
-  dropoff_charge: z.number().min(0).default(0),
+  pickup_charge: z.coerce.number().min(0).max(100000).default(0),
+  dropoff_charge: z.coerce.number().min(0).max(100000).default(0),
   notes: z.string().max(1000).nullable().optional(),
   active: z.boolean().default(true),
 });
@@ -303,12 +305,18 @@ export const upsertAddress = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => addressSchema.parse(i))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
+    const payload: any = {
+      ...data,
+      place_id: (data.place_id && data.place_id.trim()) || null,
+      label: (data.label && data.label.trim()) || null,
+      updated_by: context.userId,
+    };
     if (data.id) {
-      const { id, ...patch } = data;
+      const { id, ...patch } = payload;
       const { error } = await context.supabase.from("addresses").update(patch).eq("id", id);
       if (error) throw new Error(error.message);
     } else {
-      const { error } = await context.supabase.from("addresses").insert(data);
+      const { error } = await context.supabase.from("addresses").insert(payload);
       if (error) throw new Error(error.message);
     }
     return { ok: true };
@@ -573,8 +581,11 @@ const settingsSchema = z.object({
   whatsapp_number: z.string().nullable().optional(),
   business_address: z.string().nullable().optional(),
   currency: z.string().max(10),
+  currency_symbol: z.string().max(6).default("£"),
   timezone: z.string().max(60),
-  tax_percentage: z.number().min(0).max(100),
+  tax_enabled: z.boolean().default(false),
+  tax_percentage: z.coerce.number().min(0).max(100),
+  tax_label: z.string().max(40).default("VAT"),
   cancellation_policy: z.string().nullable().optional(),
   maintenance_mode: z.boolean(),
   smtp_host: z.string().nullable().optional(),
@@ -661,33 +672,45 @@ export const listPricingRules = createServerFn({ method: "GET" })
     return data ?? [];
   });
 
-const pricingSchema = z.object({
-  id: z.string().uuid().optional(),
-  from_address: z.string().min(1).max(300),
-  to_address: z.string().min(1).max(300),
-  from_place_id: z.string().trim().min(1).max(300).nullable().optional(),
-  to_place_id: z.string().trim().min(1).max(300).nullable().optional(),
-  from_place_label: z.string().max(500).nullable().optional(),
-  to_place_label: z.string().max(500).nullable().optional(),
-  bidirectional: z.boolean().default(false),
-  vehicle_id: z.string().uuid().nullable().optional(),
-  price: z.number().min(0),
-  currency: z.string().max(10).default("GBP"),
-  valid_from: z.string().nullable().optional(),
-  valid_to: z.string().nullable().optional(),
-  notes: z.string().max(1000).nullable().optional(),
-  active: z.boolean().default(true),
-});
+const pricingSchema = z
+  .object({
+    id: z.string().uuid().optional(),
+    from_address: z.string().min(1).max(300),
+    to_address: z.string().min(1).max(300),
+    from_place_id: z.string().trim().min(1).max(300).nullable().optional(),
+    to_place_id: z.string().trim().min(1).max(300).nullable().optional(),
+    from_place_label: z.string().max(500).nullable().optional(),
+    to_place_label: z.string().max(500).nullable().optional(),
+    bidirectional: z.boolean().default(false),
+    vehicle_id: z.string().uuid().nullable().optional(),
+    price: z.coerce.number().min(0).max(100000),
+    currency: z.string().max(10).default("GBP"),
+    valid_from: z.string().nullable().optional(),
+    valid_to: z.string().nullable().optional(),
+    notes: z.string().max(1000).nullable().optional(),
+    active: z.boolean().default(true),
+  })
+  .superRefine((v, ctx) => {
+    if (!v.active) return;
+    if (!v.from_place_id) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["from_place_id"], message: "Pickup Place ID is required for active rules" });
+    }
+    if (!v.to_place_id) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["to_place_id"], message: "Destination Place ID is required for active rules" });
+    }
+    if (!v.vehicle_id) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["vehicle_id"], message: "Vehicle is required for active rules" });
+    }
+    if (!(Number(v.price) > 0)) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["price"], message: "Fixed price must be > 0" });
+    }
+  });
 
 export const upsertPricingRule = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => pricingSchema.parse(i))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    // Guard: an active fixed-price rule must have both origin & destination Place IDs.
-    if (data.active && (!data.from_place_id || !data.to_place_id)) {
-      throw new Error("Active pricing rules require both origin and destination locations selected from the suggestions.");
-    }
     const payload: any = {
       ...data,
       valid_from: data.valid_from || null,
@@ -700,13 +723,20 @@ export const upsertPricingRule = createServerFn({ method: "POST" })
     if (data.id) {
       const { id, ...patch } = payload;
       const { error } = await context.supabase.from("pricing_rules").update(patch).eq("id", id);
-      if (error) throw new Error(error.message);
+      if (error) throw new Error(mapPricingRuleError(error));
     } else {
       const { error } = await context.supabase.from("pricing_rules").insert(payload);
-      if (error) throw new Error(error.message);
+      if (error) throw new Error(mapPricingRuleError(error));
     }
     return { ok: true };
   });
+
+function mapPricingRuleError(err: any): string {
+  const code = err?.code;
+  const msg = err?.message ?? "Failed to save pricing rule";
+  if (code === "23505") return "A conflicting active fixed-price rule already exists for this vehicle and route.";
+  return msg;
+}
 
 export const deletePricingRule = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

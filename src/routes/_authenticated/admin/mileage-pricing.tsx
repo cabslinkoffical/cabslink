@@ -2,14 +2,15 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery, useQuery, useMutation, useQueryClient, queryOptions } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { listVehiclesAdmin } from "@/lib/admin.functions";
-import { adminListPricingProfiles, adminSavePricingProfile } from "@/lib/pricing.functions";
+import { adminListPricingProfiles, adminSavePricingProfile, adminDuplicatePricingProfile } from "@/lib/pricing.functions";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Trash2, ArrowUp, ArrowDown, Loader2, Gauge, Settings2 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Plus, Trash2, ArrowUp, ArrowDown, Loader2, Gauge, Settings2, Copy } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
 
@@ -142,9 +143,17 @@ function Page() {
                     <td className="px-4 py-3 text-center">{p?.tiers?.length ?? 0}</td>
                     <td className="px-4 py-3">{p ? <StatusBadge status={p.status ? "active" : "inactive"} /> : <span className="text-xs text-muted-foreground">Not set</span>}</td>
                     <td className="px-4 py-3 text-right">
-                      <Button size="sm" variant={p ? "outline" : "default"} onClick={() => setActiveVehicle(v)}>
-                        {p ? "Edit pricing" : "Set pricing"}
-                      </Button>
+                      <div className="flex justify-end gap-2">
+                        <DuplicateButton
+                          vehicleId={v.id}
+                          vehicleName={v.name}
+                          profiles={profiles}
+                          onDone={() => qc.invalidateQueries({ queryKey: ["pricing-profiles"] })}
+                        />
+                        <Button size="sm" variant={p ? "outline" : "default"} onClick={() => setActiveVehicle(v)}>
+                          {p ? "Edit pricing" : "Set pricing"}
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -213,14 +222,20 @@ function MileageEditor({ pricing, setPricing }: { pricing: typeof emptyPricing; 
           <div className="col-span-1" />
         </div>
 
-        {pricing.tiers.map((t, i) => (
+        {pricing.tiers.map((t, i) => {
+          const prevSum = pricing.tiers.slice(0, i).reduce((s, x) => s + (Number(x.miles) || 0), 0);
+          const isLast = i === pricing.tiers.length - 1;
+          const rangeLabel = isLast
+            ? `${prevSum}+ mi`
+            : `${prevSum}–${prevSum + (Number(t.miles) || 0)} mi`;
+          return (
           <div key={i} className="grid grid-cols-12 gap-3 items-center">
             <div className="col-span-2 flex items-center gap-1">
-              <span className="text-sm font-semibold text-foreground/80">Next</span>
               <div className="flex flex-col -ml-0.5">
                 <button type="button" onClick={() => move(i, -1)} className="text-muted-foreground hover:text-foreground"><ArrowUp className="size-3" /></button>
                 <button type="button" onClick={() => move(i, 1)} className="text-muted-foreground hover:text-foreground"><ArrowDown className="size-3" /></button>
               </div>
+              <span className="text-xs font-medium text-muted-foreground tabular-nums">{rangeLabel}</span>
             </div>
             <div className="col-span-5">
               <div className="flex border border-border rounded-md overflow-hidden bg-background">
@@ -258,7 +273,8 @@ function MileageEditor({ pricing, setPricing }: { pricing: typeof emptyPricing; 
               </Button>
             </div>
           </div>
-        ))}
+          );
+        })}
 
         <div className="flex items-center justify-between pt-2">
           <Button type="button" size="sm" variant="outline" className="gap-1.5"
@@ -336,5 +352,64 @@ function ExtrasEditor({ pricing, setPricing }: { pricing: typeof emptyPricing; s
         </div>
       </div>
     </div>
+  );
+}
+
+function DuplicateButton({
+  vehicleId, vehicleName, profiles, onDone,
+}: {
+  vehicleId: string;
+  vehicleName: string;
+  profiles: any[];
+  onDone: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [sourceProfileId, setSourceProfileId] = useState<string>("");
+  const dupFn = useServerFn(adminDuplicatePricingProfile);
+  const candidates = profiles.filter((p) => p.vehicle_id !== vehicleId);
+  if (candidates.length === 0) return null;
+
+  return (
+    <>
+      <Button size="sm" variant="ghost" title="Duplicate pricing from another vehicle" onClick={() => setOpen(true)}>
+        <Copy className="size-3.5 mr-1" /> Copy from…
+      </Button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>Copy pricing to {vehicleName}</DialogTitle></DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Source pricing profile</Label>
+              <Select value={sourceProfileId} onValueChange={setSourceProfileId}>
+                <SelectTrigger className="mt-1.5"><SelectValue placeholder="Select a source profile" /></SelectTrigger>
+                <SelectContent>
+                  {candidates.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      Vehicle profile · £{Number(p.base_price).toFixed(2)} base · {(p.tiers ?? []).length} tiers
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+              <Button
+                disabled={!sourceProfileId}
+                onClick={async () => {
+                  try {
+                    await dupFn({ data: { source_profile_id: sourceProfileId, target_vehicle_id: vehicleId } });
+                    toast.success("Pricing duplicated");
+                    setOpen(false);
+                    onDone();
+                  } catch (e: any) {
+                    toast.error(e.message ?? "Duplication failed");
+                  }
+                }}
+              >Copy pricing</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

@@ -22,7 +22,17 @@ export const Route = createFileRoute("/_authenticated/admin/addresses")({
   component: AddressesPage,
 });
 
-const empty = { id: undefined as string | undefined, name: "", comparable_value: "", pickup_charge: 0, dropoff_charge: 0, notes: "", active: true };
+const empty = {
+  id: undefined as string | undefined,
+  name: "",
+  label: "",
+  place_id: "",
+  comparable_value: "",
+  pickup_charge: 0,
+  dropoff_charge: 0,
+  notes: "",
+  active: true,
+};
 
 function AddressesPage() {
   const { data: addresses } = useSuspenseQuery(opts);
@@ -109,8 +119,10 @@ function AddressesPage() {
           <DialogHeader><DialogTitle>{form?.id ? "Edit address" : "Add address"}</DialogTitle></DialogHeader>
           {form && (
             <div className="space-y-4">
-              <div><Label>Address *</Label><Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} /></div>
-              <div><Label>Comparable / search value</Label><Input value={form.comparable_value ?? ""} onChange={e => setForm({ ...form, comparable_value: e.target.value })} /></div>
+              <div><Label>Address name / full text *</Label><Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} /></div>
+              <div><Label>Short label</Label><Input value={form.label ?? ""} onChange={e => setForm({ ...form, label: e.target.value })} placeholder="e.g. Heathrow T5" /></div>
+              <div><Label>Google Place ID</Label><Input value={form.place_id ?? ""} onChange={e => setForm({ ...form, place_id: e.target.value })} placeholder="ChIJ…" /></div>
+              <div><Label>Comparable / search value</Label><Input value={form.comparable_value ?? ""} onChange={e => setForm({ ...form, comparable_value: e.target.value })} placeholder="Fallback text match (e.g. 'heathrow')" /></div>
               <div className="grid grid-cols-2 gap-3">
                 <div><Label>Pickup charge (£)</Label><Input type="number" step="0.01" value={form.pickup_charge} onChange={e => setForm({ ...form, pickup_charge: Number(e.target.value) })} /></div>
                 <div><Label>Dropoff charge (£)</Label><Input type="number" step="0.01" value={form.dropoff_charge} onChange={e => setForm({ ...form, dropoff_charge: Number(e.target.value) })} /></div>

@@ -1,171 +1,143 @@
-## Phase 1 — Secure & Correct Quote / Booking Flow
+# Pricing System Hardening Plan
 
-This plan is scoped to Phase 1 only. No design changes, no payment work, no admin/SEO redesign, no touching `/distance`'s working behaviour beyond extracting shared code.
+Keeps `src/lib/pricing.ts` as the single pricing engine. All calculation stays server-side via `pricing.functions.ts` / `pricing-helpers.server.ts`. No new formula, no client-side math, no fake UI numbers.
 
----
-
-### 1. Remove all fake-distance fallbacks
-
-Files touched: `src/lib/pricing-helpers.server.ts`, `src/lib/pricing.ts`, `src/lib/pricing.functions.ts`.
-
-- Delete `stubDistanceMiles` and every hash/random/estimate path.
-- Quote engine must call the real Google Routes helper. On failure (network, timeout, no route, upstream 4xx/5xx) it returns a typed `{ ok: false, error: "route_unavailable" | "route_not_found" | "route_timeout" | "rate_limited" }`.
-- `/book` UI shows friendly retry message; addresses/vehicle preserved; Retry button re-invokes.
-- `createBooking` refuses to insert if the fresh authoritative quote fails.
-
-### 2. One hardened autocomplete component
-
-New: `src/components/site/PlaceAutocomplete.tsx` — based on the tested `LocationAutocomplete`, exposing:
-
-```ts
-export type SelectedPlace = { placeId: string; label: string };
-type Props = {
-  value: SelectedPlace | null;
-  onChange: (v: SelectedPlace | null) => void;
-  placeholder?: string;
-  required?: boolean;
-  id?: string;
-};
-```
-
-Behaviour: UK-only (`includedRegionCodes: ["gb"]`), 300 ms debounce, min 2 chars, AbortController + monotonic seq, dedup normalized queries, edit-invalidates-placeId, ARIA combobox, keyboard nav, single "Powered by Google" attribution (skipped if the parent renders one).
-
-Migrations:
-- `BookingWidget` → replaces `AddressAutocomplete` for pickup, dropoff, and each stop.
-- `/book` "Edit trip" dialog → same.
-- `/distance` `DistanceCalculator` → migrated from `LocationAutocomplete` to the shared component.
-- Admin pricing-rule form → uses it to pick `from_place_id` / `to_place_id`.
-
-Old files deleted **after** every usage compiles: `src/components/site/AddressAutocomplete.tsx`, `src/components/site/LocationAutocomplete.tsx`.
-
-### 3. Carry Place IDs end-to-end
-
-`BookingWidget` submits a URL search containing:
-`pickupPlaceId`, `pickupLabel`, `dropoffPlaceId`, `dropoffLabel`, `stops` (array of `{placeId,label}` JSON-encoded), plus existing date/time/pax/luggage/return.
-
-`/book`:
-- Zod-parses the search params.
-- If pickup or dropoff placeId missing/invalid → renders an "Enter your journey first" panel with a link back to `/#booking`. No quote call.
-- Changing either location clears the loaded quote and the selected vehicle; refetch is required.
-
-### 4. Server-side validators
-
-Shared Zod schema in `src/lib/place-id.ts`:
-
-```ts
-export const placeIdSchema = z.string()
-  .trim()
-  .min(1)
-  .max(255)
-  .regex(/^[A-Za-z0-9_-]+$/, "invalid place id");
-```
-
-Applied in `calculateQuotes` and `createBooking` inputValidators:
-- pickup + dropoff placeIds required and distinct.
-- Optional stops[] each validated independently.
-- Any body field named `distanceMiles`, `price*`, `mileageRate`, `fixedPrice`, `discount`, `surcharge`, `tax` on the client payload is **ignored** — server always recomputes from Place IDs.
-- `createBooking` re-runs the authoritative quote server-side; the client-supplied total is compared and rejected if it differs from the server total (tolerance £0.01).
-
-### 5. Shared route-distance helper
-
-Extract from `src/lib/route-distance.functions.ts` a pure helper `computeRoute({ originPlaceId, destinationPlaceId, waypointPlaceIds? })` in `src/lib/route-distance.server.ts` returning `{ distanceMeters, distanceMiles, durationSeconds }` or throwing typed errors (`RouteTimeoutError`, `RouteNotFoundError`, `RouteUpstreamError`).
-
-- 10 s AbortController timeout.
-- FieldMask `routes.distanceMeters,routes.duration`.
-- Success cache: 10 min in-memory (already present, per-Worker comment retained).
-- Failures not cached (except 60 s negative cache for 429 to avoid hammering).
-
-Both `/distance`'s server fn and the new quote engine call this helper.
-
-### 6. Fixed-price rule — exact Place-ID matching
-
-Migration `add_place_ids_to_pricing_rules`:
-
-```sql
-ALTER TABLE public.pricing_rules
-  ADD COLUMN from_place_id text,
-  ADD COLUMN to_place_id text,
-  ADD COLUMN from_place_label text,
-  ADD COLUMN to_place_label text,
-  ADD COLUMN bidirectional boolean NOT NULL DEFAULT false;
-
-CREATE INDEX pricing_rules_place_pair_idx
-  ON public.pricing_rules (from_place_id, to_place_id)
-  WHERE from_place_id IS NOT NULL AND to_place_id IS NOT NULL;
-```
-
-- No data deleted. Existing rows keep their legacy text fields.
-- Server matches ONLY on `(from_place_id, to_place_id)` exact pair (plus reverse when `bidirectional = true`).
-- Rows without both Place IDs are **never** matched at runtime — they show a "Requires location re-selection" pill in the admin list.
-- Admin form uses `PlaceAutocomplete` to populate `from_place_*` / `to_place_*`.
-
-### 7. Protect `createBooking`
-
-- Sliding-window rate limit: **10 attempts / 10 min / IP** (in-memory, per-Worker; comment noting future distributed store). Friendly HTTP 429 message.
-- `bookings.idempotency_key text unique` column via additive migration; server validates key shape (UUIDv4) and returns the existing row on repeat.
-- Frontend generates one UUID per booking attempt (kept in ref) — reused for retries, regenerated only on a fresh form.
-- All state-changing validation via Zod; internal errors logged server-side, client sees generic message.
-- Insert only after server quote succeeds.
-
-### 8. Autocomplete endpoint hardening
-
-- Remove `src/routes/api/places-autocomplete.ts` (unprotected HTTP route) — replace with a single hardened `placesAutocomplete` `createServerFn` in `src/lib/places.functions.ts`.
-- Enforce: min 2 / max 100 chars, UK region, 8 s timeout, 60 s cache of identical normalized queries, per-IP sliding limit (60/min).
-- Update the `PlaceAutocomplete` component to call the server fn.
-
-### 9. Contact form protection
-
-- Zod schema (already partially present) + `website` honeypot field (must be empty).
-- Per-IP sliding limit: 5 submits / 10 min.
-- Duplicate submit blocked by client `inflight` ref + server hash of `(email, message)` in last 5 min.
-- Generic error surface.
-
-### 10. Bundle-scan test correctness
-
-`tests/bundle-scan.test.ts`:
-- Runs `bun run build` (production client) into a temp `dist/` before scanning, OR fails hard with a clear message if the dir is absent.
-- Injects deterministic dummy secret values via env just for the build, then asserts neither the credential **names** nor the dummy **values** appear in any `dist/client/**/*.{js,css,html}` file. Real secret values are never printed.
-
-### 11. Tests to add
-
-All under `tests/`:
-
-- `booking-widget-requires-place-ids.test.tsx`
-- `booking-widget-free-text-blocks-submit.test.tsx`
-- `place-autocomplete-edit-invalidates.test.tsx`
-- `booking-widget-stale-response.test.tsx`
-- `book-route-empty-state.test.tsx`
-- `quote-route-failure-no-dummy.test.ts`
-- `booking-route-failure-no-insert.test.ts`
-- `quote-ignores-client-distance.test.ts`
-- `quote-ignores-client-price.test.ts`
-- `fixed-price-place-id-exact.test.ts`
-- `fixed-price-label-injection.test.ts`
-- `quote-rejects-identical-places.test.ts`
-- `create-booking-double-click.test.ts`
-- `create-booking-idempotency-replay.test.ts`
-- `create-booking-rate-limit.test.ts`
-- `places-autocomplete-rate-limit.test.ts`
-- `contact-rate-limit-honeypot.test.ts`
-- `bundle-scan-requires-build.test.ts` (meta-test for #10)
-- Existing `bundle-scan.test.ts` upgraded to enforce dummy-value absence.
-
-### 12. Preservation guarantees
-
-- No changes to admin auth, admin booking list, mobile layouts, marketing design, `/distance` UX or its 4 existing test files.
-- All migrations are additive (`ADD COLUMN` / `CREATE INDEX` only). No drops.
-- Old `AddressAutocomplete` / `LocationAutocomplete` deleted only after every import migrates.
-
-### 13. Verification report
-
-Final message will list: files changed, migration filenames, deleted files, Place-ID data flow, confirmations for fake-distance removal & free-text rule removal, rate-limit config, idempotency behaviour, test names, `vitest` count + result, `bun run build` result, and any remaining known issues (e.g. per-Worker in-memory limiter is not distributed).
+## Scope
+In this phase: mileage tiers, fixed routes, address surcharges, tax & currency, admin quote preview, quote snapshot, automated tests.
+Deferred (marked "I'll add later" in code + admin UI): coupons runtime, hourly mode, waiting time, return journey, payment provider, reports.
 
 ---
 
-### Technical notes
+## Task 1 — Mileage Pricing (admin + engine guardrails)
 
-- Rate limiter + cache stay in `route-distance.server.ts`-style modules with the existing per-Worker comment; a shared `src/lib/rate-limit.server.ts` will house the sliding-window primitive used by bookings / contact / autocomplete.
-- Idempotency key column requires an additive migration; PostgREST GRANTs re-issued in the same migration.
-- The `AddressAutocomplete` component currently used by `BookingWidget` will be removed; if any admin route imports it, it is migrated in the same batch.
+**DB migration** — add sanity constraints:
+- `vehicle_pricing_profiles`: unique `(vehicle_id)` where `status = true` (one active profile per vehicle).
+- `vehicle_mileage_tiers`: CHECK `miles > 0`, CHECK `cost_per_mile >= 0`, unique `(pricing_profile_id, sort_order)`.
+- Validation trigger `pricing_profile_requires_tier_when_active`: active profile must have ≥1 tier and the highest-sort tier must have `miles >= 500` (covers long journeys).
 
-Please confirm and I will proceed.
+**Server (`admin.functions.ts`)** — `upsertPricingProfile` runs a Zod schema:
+- vehicle_id required; base_price ≥ 0; via_price ≥ 0
+- tiers: each miles > 0, cost_per_mile ≥ 0, unique sort_order
+- if `status=true`: tiers array non-empty and last tier miles ≥ 500
+Rejects invalid saves with structured error, no partial writes.
+
+**Engine safety (`pricing-helpers.server.ts`)** — when loading a quote for an active vehicle:
+- If no active pricing profile exists → filter that vehicle out of quote results with reason `no_pricing_profile`; log a warning.
+- Never fall back to a hidden default rate.
+
+**Admin UI (`/admin/pricing`)**:
+- Range labels rendered from cumulative miles (`0–10 mi`, `10–30 mi`, `30+ mi`).
+- Add / remove / reorder tiers (drag handle + up/down buttons; renumbers `sort_order`).
+- "Duplicate profile" action — pick source vehicle → copies profile + tiers to target vehicle.
+- Inline field errors + top-of-form error summary from server validation.
+- "Preview" panel calls the real backend preview endpoint (see Task 5), not local math.
+
+## Task 2 — Fixed Route Pricing
+
+**DB migration**:
+- Partial unique index preventing duplicate active rules on `(vehicle_id, from_place_id, to_place_id)` where `active`.
+- Trigger `pricing_rule_bidirectional_conflict`: if `bidirectional`, block another active rule (in either direction, either bidirectional flag) on the same vehicle + place-id pair.
+- Already-present trigger enforces place IDs when active.
+
+**Server**:
+- `upsertPricingRule` Zod: vehicle_id required, `from_place_id`/`to_place_id` required when active, `price > 0`.
+- `pricing-helpers.server.ts` fixed-route lookup: match `(vehicle_id, pickup_place_id, dropoff_place_id)` OR bidirectional reversed. On hit, replace base + mileage with `fixed_price`; area surcharges, via, time extra, discount, tax still apply. Set snapshot flag `fixed_price_applied = true`.
+
+**Admin UI** — validation errors surfaced; bidirectional badge; conflict prevention message.
+
+## Task 3 — Address Surcharges
+
+**DB migration** — extend `addresses`:
+- `place_id text` (indexed), `label text`, `updated_by uuid`.
+- Keep `comparable_value`, `pickup_charge`, `dropoff_charge`, `notes`, `active`.
+
+**Server** — surcharge lookup already applied after mileage/fixed price in `pricing-helpers.server.ts`; extend the matcher to prefer `place_id` exact match, fall back to `comparable_value` text match. Both charges land as separate breakdown lines: `pickup_surcharge`, `dropoff_surcharge`.
+
+**Admin UI (`/admin/addresses`)** — CRUD form with all fields, Place ID autocomplete (Google Places), active toggle, notes.
+
+## Task 4 — Tax & Currency Settings
+
+**DB migration** — extend `site_settings`:
+- `tax_enabled bool default false`
+- `tax_label text default 'VAT'`
+- `currency_symbol text default '£'`
+(existing: `currency`, `tax_percentage`.)
+
+**Server** — `pricing-helpers.server.ts` loads settings once per quote; passes `taxRate = tax_enabled ? tax_percentage/100 : 0` into engine. Tax is applied to subtotal **before** the vehicle_count multiplier (engine already does subtotal → tax → `finalPrice`; the outer wrapper multiplies by `vehicle_count`).
+
+**Admin UI (`/admin/settings`)** — Tax section (enable toggle, rate %, label) + Currency section (code + symbol).
+
+## Task 5 — Quote Preview Tool
+
+**Server** — new authenticated admin server fn `previewQuote(input)`:
+- Inputs: pickup_place_id, dropoff_place_id, distance_miles, vehicle_id, vehicle_count, via_stops, pickup_date, pickup_time.
+- Calls the same `calculateQuoteForVehicle(...)` used by the public booking flow — no duplicated math.
+- Returns full breakdown + snapshot object (identical shape to Task 6).
+
+**Admin UI (`/admin/pricing/preview`)** — form + result panel showing:
+`fixed_price_applied`, base, mileage tier lines, via, time_extra, pickup_surcharge, dropoff_surcharge, discount, tax_rate, tax_amount, vehicle_count, final_total, plus raw JSON snapshot.
+
+## Task 6 — Quote / Booking Snapshot
+
+**DB migration** — extend `quote_calculations` and `bookings.pricing_snapshot` JSONB with a fixed schema:
+```
+{
+  engine_version: "2026.07.1",
+  vehicle_id, profile_id,
+  distance_miles,
+  base_price,
+  mileage_tiers: [{ tier_name, miles, rate, amount }],
+  mileage_total,
+  fixed_price_applied: bool,
+  fixed_price_amount: number|null,
+  pickup_surcharge, dropoff_surcharge,
+  via_stops, via_price,
+  time_extra,
+  discount,
+  tax_rate, tax_amount,
+  vehicle_count,
+  final_total,
+  timestamp
+}
+```
+Add columns to `quote_calculations`: `engine_version`, `profile_id`, `fixed_price_applied`, `fixed_price_amount`, `pickup_surcharge`, `dropoff_surcharge`, `via_stops`, `via_price`, `time_extra`, `tax_rate`, `vehicle_count`, `snapshot jsonb`.
+
+**Server** — `pricing-helpers.server.ts` builds this snapshot in one place; both `calculateQuotes` and `createBooking` persist it. Engine version constant lives in `pricing.ts`.
+
+## Task 7 — Automated Tests
+
+Extend `tests/` (Vitest) covering the engine + helper pipeline with a fake Supabase context:
+
+1. Progressive mileage 42 mi → `10×3 + 20×2.5 + 12×2 = 104`.
+2. Fixed route override — matched rule replaces base+mileage; mileage lines absent.
+3. Fixed route + surcharges — pickup/dropoff surcharge lines still added on top of fixed price.
+4. Time extra — pickup time inside window adds correct amount (fixed and percent variants).
+5. Tax 20 % — `taxAmount === round2(subtotal × 0.2)` and `finalPrice === subtotal + taxAmount`.
+6. Vehicle count 2 → outer wrapper multiplies tax-inclusive total by 2.
+7. Rounding — every line item and total pass `round2(x) === x`.
+
+## Deferred (stubbed in admin, not wired to engine)
+Coupons runtime, hourly mode, waiting time, return journey, payment provider, reports — leave existing UI, add `// TODO(pricing-phase-2): wire when engine supports it` note. No fake numbers surfaced.
+
+---
+
+## Technical Details
+
+**Files touched**
+- `src/lib/pricing.ts` — export `ENGINE_VERSION`, add snapshot builder helper (pure).
+- `src/lib/pricing-helpers.server.ts` — profile guard, fixed-route matcher with bidirectional, address surcharge by place_id, settings loader, snapshot builder, `vehicle_count` wrapper.
+- `src/lib/pricing.functions.ts` — plumb snapshot into `calculateQuotes`; add `previewQuote` (admin, `has_role('admin')` check).
+- `src/lib/admin.functions.ts` — Zod validation on `upsertPricingProfile`, `upsertPricingRule`, `upsertAddress`, `updateSiteSettings`; new `duplicatePricingProfile`.
+- `src/routes/_authenticated/admin/pricing.tsx` — tier reorder, ranges, duplicate, preview panel.
+- `src/routes/_authenticated/admin/pricing-rules.tsx` — validation surfacing.
+- `src/routes/_authenticated/admin/addresses.tsx` — new fields incl. Place ID.
+- `src/routes/_authenticated/admin/settings.tsx` — Tax + Currency sections.
+- `src/routes/_authenticated/admin/pricing/preview.tsx` — new route.
+- `tests/pricing-engine.test.ts` — 7 scenarios.
+
+**Migrations** (one migration per task, ordered): profile+tier constraints → pricing_rules uniqueness/trigger → addresses columns → site_settings columns → quote_calculations snapshot columns.
+
+**Non-negotiable rules**
+- No math in components. UI reads server results only.
+- One engine (`runPricingEngine`) — preview, quotes, and booking creation all funnel through it.
+- Every snapshot is written whenever a price is calculated or a booking is created.

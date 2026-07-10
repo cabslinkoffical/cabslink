@@ -1,7 +1,12 @@
 /**
  * Tiered mileage pricing engine — pure, isomorphic.
  * Same code runs on the server (quote calc) and in the admin "Test pricing" UI.
+ *
+ * Bump ENGINE_VERSION when the pricing formula changes so historical
+ * snapshots can be interpreted correctly.
  */
+
+export const ENGINE_VERSION = "2026.07.1" as const;
 
 export type PricingTier = {
   id?: string;

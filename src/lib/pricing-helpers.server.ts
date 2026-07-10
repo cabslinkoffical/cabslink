@@ -1,6 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
-import { type PricingProfile } from "@/lib/pricing";
+import { ENGINE_VERSION, runPricingEngine, type PricingProfile, type QuoteResult } from "@/lib/pricing";
 import { computeRoute } from "@/lib/route-distance.server";
+
+const round2 = (n: number) => Math.round(n * 100) / 100;
 
 // -------------------------------------------------------------------
 // Public client for anonymous quote reads
@@ -38,6 +40,35 @@ export async function realDistanceMiles(
     ? Math.round(r.durationSeconds / 60)
     : Math.max(5, Math.round((r.distanceMiles / 35) * 60));
   return { miles: r.distanceMiles, minutes };
+}
+
+// -------------------------------------------------------------------
+// Load site tax + currency settings (Task 4)
+// -------------------------------------------------------------------
+export type QuoteSettings = {
+  taxRate: number;      // 0..1
+  taxEnabled: boolean;
+  taxLabel: string;
+  currency: string;
+  currencySymbol: string;
+};
+
+export async function loadQuoteSettings(client: ReturnType<typeof publicClient>): Promise<QuoteSettings> {
+  const { data } = await client
+    .from("site_settings")
+    .select("tax_enabled, tax_percentage, tax_label, currency, currency_symbol")
+    .eq("id", 1)
+    .maybeSingle();
+  const row: any = data ?? {};
+  const enabled = !!row.tax_enabled;
+  const pct = Math.max(0, Math.min(100, Number(row.tax_percentage) || 0));
+  return {
+    taxEnabled: enabled,
+    taxRate: enabled ? pct / 100 : 0,
+    taxLabel: (row.tax_label as string) || "VAT",
+    currency: (row.currency as string) || "GBP",
+    currencySymbol: (row.currency_symbol as string) || "£",
+  };
 }
 
 // -------------------------------------------------------------------
@@ -117,58 +148,64 @@ export async function loadActiveProfiles(client: ReturnType<typeof publicClient>
 }
 
 // -------------------------------------------------------------------
-// Area pickup / dropoff surcharges (from `addresses` table)
-// Matches against LABELS (informational only — labels come from the
-// server-side computed quote, not from arbitrary client text).
+// Area pickup / dropoff surcharges (Task 3)
+// Prefer exact Place-ID match; fall back to comparable_value substring
+// against the LABEL text. Returns pickup + dropoff amounts as SEPARATE
+// entries so the snapshot / breakdown can present them individually.
 // -------------------------------------------------------------------
-export type AreaSurcharge = { label: string; amount: number };
+export type AreaSurcharge = { label: string; amount: number; side: "pickup" | "dropoff" };
+
 export async function loadAreaSurcharges(
   client: ReturnType<typeof publicClient>,
-  pickup: string,
-  dropoff: string,
+  pickupLabel: string,
+  dropoffLabel: string,
+  opts?: { pickupPlaceId?: string | null; dropoffPlaceId?: string | null },
 ): Promise<AreaSurcharge[]> {
   const { data } = await client
     .from("addresses")
-    .select("name, comparable_value, pickup_charge, dropoff_charge")
+    .select("name, comparable_value, pickup_charge, dropoff_charge, place_id, label, active")
     .eq("active", true);
-  const rows = data ?? [];
-  const p = pickup.toLowerCase();
-  const d = dropoff.toLowerCase();
-  const matchFor = (text: string) => {
-    let best: { label: string; charge: number; len: number } | null = null;
-    for (const r of rows as any[]) {
-      const keys = [r.name, r.comparable_value].filter(Boolean) as string[];
+  const rows = (data ?? []) as any[];
+
+  const p = (pickupLabel ?? "").toLowerCase();
+  const d = (dropoffLabel ?? "").toLowerCase();
+  const pPid = opts?.pickupPlaceId ?? null;
+  const dPid = opts?.dropoffPlaceId ?? null;
+
+  function pickRow(text: string, placeId: string | null) {
+    if (placeId) {
+      const exact = rows.find((r) => r.place_id && r.place_id === placeId);
+      if (exact) return { row: exact, label: (exact.label || exact.name) as string };
+    }
+    let best: { row: any; label: string; len: number } | null = null;
+    for (const r of rows) {
+      const keys = [r.comparable_value, r.label, r.name].filter(Boolean) as string[];
       for (const k of keys) {
         const kl = k.toLowerCase();
-        if (kl && text.includes(kl)) {
-          if (!best || kl.length > best.len) {
-            best = { label: r.name as string, charge: 0, len: kl.length };
-          }
+        if (kl && text.includes(kl) && (!best || kl.length > best.len)) {
+          best = { row: r, label: (r.label || r.name) as string, len: kl.length };
         }
       }
     }
-    return best;
-  };
-  const out: AreaSurcharge[] = [];
-  const pm = matchFor(p);
-  if (pm) {
-    const row = (rows as any[]).find((r) => r.name === pm.label);
-    const amt = Number(row?.pickup_charge) || 0;
-    if (amt > 0) out.push({ label: `Pickup area: ${pm.label}`, amount: amt });
+    return best ? { row: best.row, label: best.label } : null;
   }
-  const dm = matchFor(d);
+
+  const out: AreaSurcharge[] = [];
+  const pm = pickRow(p, pPid);
+  if (pm) {
+    const amt = Number(pm.row.pickup_charge) || 0;
+    if (amt > 0) out.push({ side: "pickup", label: `Pickup area: ${pm.label}`, amount: round2(amt) });
+  }
+  const dm = pickRow(d, dPid);
   if (dm) {
-    const row = (rows as any[]).find((r) => r.name === dm.label);
-    const amt = Number(row?.dropoff_charge) || 0;
-    if (amt > 0) out.push({ label: `Dropoff area: ${dm.label}`, amount: amt });
+    const amt = Number(dm.row.dropoff_charge) || 0;
+    if (amt > 0) out.push({ side: "dropoff", label: `Dropoff area: ${dm.label}`, amount: round2(amt) });
   }
   return out;
 }
 
 // -------------------------------------------------------------------
-// Fixed-price matching by exact Place-ID pair.
-// Rows without both from_place_id and to_place_id are IGNORED (legacy
-// free-text rows must be re-selected via the admin UI before matching).
+// Fixed-price matching by exact Place-ID pair (with bidirectional support).
 // -------------------------------------------------------------------
 export async function loadFixedPriceForRoute(
   client: ReturnType<typeof publicClient>,
@@ -189,4 +226,137 @@ export async function loadFixedPriceForRoute(
     return forward || reverse;
   });
   return matches.map((r) => ({ vehicle_id: r.vehicle_id ?? null, price: Number(r.price) }));
+}
+
+// -------------------------------------------------------------------
+// Compute a single vehicle's authoritative quote (engine + fixed-price
+// override + tax + vehicle count) and build a stable snapshot.
+// This is THE canonical entry point — calculateQuotes, createBooking,
+// and previewQuote all funnel through it. No math elsewhere.
+// -------------------------------------------------------------------
+export type PricingSnapshot = {
+  engine_version: string;
+  vehicle_id: string;
+  profile_id: string | null;
+  distance_miles: number;
+  base_price: number;
+  mileage_tiers: Array<{ tier_name: string; miles: number; rate: number; amount: number }>;
+  mileage_total: number;
+  fixed_price_applied: boolean;
+  fixed_price_amount: number | null;
+  pickup_surcharge: number;
+  dropoff_surcharge: number;
+  via_stops: number;
+  via_price: number;
+  time_extra: number;
+  discount: number;
+  tax_rate: number;
+  tax_amount: number;
+  subtotal: number;
+  per_vehicle_total: number;
+  vehicle_count: number;
+  final_total: number;
+  currency: string;
+  currency_symbol: string;
+  timestamp: string;
+};
+
+export type ComputedVehicleQuote = {
+  vehicleId: string;
+  profileId: string | null;
+  perVehicleTotal: number;
+  finalTotal: number;
+  breakdown: QuoteResult["breakdown"];
+  engine: QuoteResult;
+  snapshot: PricingSnapshot;
+  fixedPriceApplied: boolean;
+  fixedPriceAmount: number | null;
+};
+
+export function computeVehicleQuote(args: {
+  profile: LoadedProfile;
+  distanceMiles: number;
+  viaStops: number;
+  pickupTime?: string;
+  areaSurcharges: AreaSurcharge[];
+  fixedPrice: number | null;
+  discountAmount?: number;
+  settings: QuoteSettings;
+  vehicleCount?: number;
+}): ComputedVehicleQuote {
+  const {
+    profile, distanceMiles, viaStops, pickupTime,
+    areaSurcharges, fixedPrice, discountAmount = 0, settings, vehicleCount = 1,
+  } = args;
+
+  const pickup = areaSurcharges.find((a) => a.side === "pickup")?.amount ?? 0;
+  const dropoff = areaSurcharges.find((a) => a.side === "dropoff")?.amount ?? 0;
+
+  // Feed the pricing engine. When fixed price applies, base+mileage are
+  // replaced by a synthetic profile that has fixed_price as base and no tiers.
+  const fixedApplied = fixedPrice != null;
+  const engineProfile: PricingProfile = fixedApplied
+    ? { ...profile, base_price: fixedPrice!, tiers: [] }
+    : profile;
+
+  const engine = runPricingEngine(engineProfile, {
+    distanceMiles,
+    viaStops,
+    pickupTime: pickupTime || undefined,
+    surcharges: areaSurcharges.map((a) => ({ label: a.label, amount: a.amount })),
+    discountAmount,
+    taxRate: settings.taxRate,
+  });
+
+  const qty = Math.max(1, vehicleCount);
+  const perVehicleTotal = engine.finalPrice;
+  const finalTotal = round2(perVehicleTotal * qty);
+
+  const mileageLines = engine.breakdown
+    .filter((b) => b.kind === "mileage")
+    .map((b: any) => ({
+      tier_name: b.label as string,
+      miles: b.miles as number,
+      rate: b.rate as number,
+      amount: b.amount as number,
+    }));
+
+  const snapshot: PricingSnapshot = {
+    engine_version: ENGINE_VERSION,
+    vehicle_id: profile.vehicle.id,
+    profile_id: ((profile as any).id as string) ?? null,
+    distance_miles: round2(distanceMiles),
+    base_price: engine.basePrice,
+    mileage_tiers: mileageLines,
+    mileage_total: engine.mileagePrice,
+    fixed_price_applied: fixedApplied,
+    fixed_price_amount: fixedApplied ? round2(fixedPrice!) : null,
+    pickup_surcharge: round2(pickup),
+    dropoff_surcharge: round2(dropoff),
+    via_stops: viaStops,
+    via_price: engine.viaPrice,
+    time_extra: engine.timeExtraPrice,
+    discount: engine.discountPrice,
+    tax_rate: settings.taxRate,
+    tax_amount: engine.taxPrice,
+    subtotal: engine.subtotal,
+    per_vehicle_total: round2(perVehicleTotal),
+    vehicle_count: qty,
+    final_total: finalTotal,
+    currency: settings.currency,
+    currency_symbol: settings.currencySymbol,
+    timestamp: new Date().toISOString(),
+  };
+
+  return {
+    vehicleId: profile.vehicle.id,
+    profileId: ((profile as any).id as string) ?? null,
+    perVehicleTotal: round2(perVehicleTotal),
+    finalTotal,
+    breakdown: engine.breakdown,
+    engine,
+    snapshot,
+    fixedPriceApplied: fixedApplied,
+    fixedPriceAmount: fixedApplied ? round2(fixedPrice!) : null,
+  };
 }
