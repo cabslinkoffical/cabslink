@@ -322,6 +322,7 @@ export const createBooking = createServerFn({ method: "POST" })
       price,
       distance_miles: auth.distanceMiles,
       idempotency_key: data.idempotencyKey,
+      idempotency_request_hash: requestHash,
       status: "new",
     };
 
