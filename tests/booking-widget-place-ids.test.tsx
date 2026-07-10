@@ -39,12 +39,11 @@ import { BookingWidget } from "@/components/site/BookingWidget";
 beforeEach(() => navigateMock.mockReset());
 
 describe("BookingWidget — Place-ID gating", () => {
-  it("blocks submit and shows a friendly error when no places are selected", async () => {
-    const user = userEvent.setup();
+  it("keeps Get-a-Quote disabled and blocks submit when no places are selected", async () => {
     render(<BookingWidget />);
-    await user.click(screen.getByRole("button", { name: /Get a Quote/i }));
+    const submit = screen.getByRole("button", { name: /Get a Quote/i });
+    expect(submit).toBeDisabled();
     expect(navigateMock).not.toHaveBeenCalled();
-    expect(await screen.findByText(/select pickup and destination/i)).toBeInTheDocument();
   });
 
   it("submits with pickupPlaceId/destinationPlaceId query params when both selected", async () => {
@@ -62,13 +61,13 @@ describe("BookingWidget — Place-ID gating", () => {
     expect(params.get("dropoffLabel")).toBe("B");
   });
 
-  it("blocks submit when pickup and destination are identical", async () => {
+  it("keeps Get-a-Quote disabled when pickup and destination are identical", async () => {
     const user = userEvent.setup();
     render(<BookingWidget />);
     await user.click(screen.getByTestId("widget-pickup-pick-a"));
     await user.click(screen.getByTestId("widget-dropoff-pick-a"));
-    await user.click(screen.getByRole("button", { name: /Get a Quote/i }));
+    const submit = screen.getByRole("button", { name: /Get a Quote/i });
+    expect(submit).toBeDisabled();
     expect(navigateMock).not.toHaveBeenCalled();
-    expect(await screen.findByText(/cannot be the same location/i)).toBeInTheDocument();
   });
 });
