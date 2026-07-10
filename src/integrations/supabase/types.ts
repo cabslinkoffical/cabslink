@@ -121,7 +121,10 @@ export type Database = {
           admin_notes: string | null
           assigned_at: string | null
           booking_ref: string | null
+          cancellation_reason: string | null
           child_seat: boolean
+          confirmation_token_expires_at: string | null
+          confirmation_token_hash: string | null
           created_at: string
           customer_name: string
           deleted_at: string | null
@@ -154,7 +157,10 @@ export type Database = {
           admin_notes?: string | null
           assigned_at?: string | null
           booking_ref?: string | null
+          cancellation_reason?: string | null
           child_seat?: boolean
+          confirmation_token_expires_at?: string | null
+          confirmation_token_hash?: string | null
           created_at?: string
           customer_name: string
           deleted_at?: string | null
@@ -187,7 +193,10 @@ export type Database = {
           admin_notes?: string | null
           assigned_at?: string | null
           booking_ref?: string | null
+          cancellation_reason?: string | null
           child_seat?: boolean
+          confirmation_token_expires_at?: string | null
+          confirmation_token_hash?: string | null
           created_at?: string
           customer_name?: string
           deleted_at?: string | null
@@ -445,45 +454,74 @@ export type Database = {
       }
       notification_log: {
         Row: {
+          attempt_count: number
           body: string | null
+          booking_id: string | null
           channel: string
           created_at: string
           error: string | null
+          error_category: string | null
           id: string
+          last_attempt_at: string | null
+          notification_type: string | null
           payload: Json | null
+          provider_message_id: string | null
           recipient: string
+          recipient_category: string | null
           sent_at: string | null
           status: string
           subject: string | null
           template_key: string | null
         }
         Insert: {
+          attempt_count?: number
           body?: string | null
+          booking_id?: string | null
           channel: string
           created_at?: string
           error?: string | null
+          error_category?: string | null
           id?: string
+          last_attempt_at?: string | null
+          notification_type?: string | null
           payload?: Json | null
+          provider_message_id?: string | null
           recipient: string
+          recipient_category?: string | null
           sent_at?: string | null
           status?: string
           subject?: string | null
           template_key?: string | null
         }
         Update: {
+          attempt_count?: number
           body?: string | null
+          booking_id?: string | null
           channel?: string
           created_at?: string
           error?: string | null
+          error_category?: string | null
           id?: string
+          last_attempt_at?: string | null
+          notification_type?: string | null
           payload?: Json | null
+          provider_message_id?: string | null
           recipient?: string
+          recipient_category?: string | null
           sent_at?: string | null
           status?: string
           subject?: string | null
           template_key?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "notification_log_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notification_templates: {
         Row: {
@@ -703,6 +741,7 @@ export type Database = {
       }
       site_settings: {
         Row: {
+          admin_notification_email: string | null
           business_address: string | null
           cancellation_policy: string | null
           company_name: string
@@ -715,6 +754,7 @@ export type Database = {
           id: number
           logo_url: string | null
           maintenance_mode: boolean
+          payment_mode: string
           primary_color: string
           smtp_host: string | null
           smtp_port: number | null
@@ -725,6 +765,7 @@ export type Database = {
           whatsapp_number: string | null
         }
         Insert: {
+          admin_notification_email?: string | null
           business_address?: string | null
           cancellation_policy?: string | null
           company_name?: string
@@ -737,6 +778,7 @@ export type Database = {
           id?: number
           logo_url?: string | null
           maintenance_mode?: boolean
+          payment_mode?: string
           primary_color?: string
           smtp_host?: string | null
           smtp_port?: number | null
@@ -747,6 +789,7 @@ export type Database = {
           whatsapp_number?: string | null
         }
         Update: {
+          admin_notification_email?: string | null
           business_address?: string | null
           cancellation_policy?: string | null
           company_name?: string
@@ -759,6 +802,7 @@ export type Database = {
           id?: number
           logo_url?: string | null
           maintenance_mode?: boolean
+          payment_mode?: string
           primary_color?: string
           smtp_host?: string | null
           smtp_port?: number | null
@@ -1021,12 +1065,54 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_booking_ref: { Args: never; Returns: string }
+      get_booking_by_confirmation_hash: {
+        Args: { _hash: string }
+        Returns: {
+          booking_ref: string
+          child_seat: boolean
+          created_at: string
+          customer_name: string
+          distance_miles: number
+          dropoff_address: string
+          email: string
+          flight_number: string
+          luggage: number
+          meet_greet: boolean
+          notes: string
+          passengers: number
+          payment_status: Database["public"]["Enums"]["payment_status"]
+          phone: string
+          pickup_address: string
+          pickup_date: string
+          pickup_time: string
+          price: number
+          return_journey: boolean
+          status: Database["public"]["Enums"]["booking_status"]
+          vehicle_type: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      set_booking_status: {
+        Args: {
+          _actor_id: string
+          _booking_id: string
+          _new_status: Database["public"]["Enums"]["booking_status"]
+          _override?: boolean
+          _reason?: string
+        }
+        Returns: {
+          changed: boolean
+          id: string
+          previous_status: Database["public"]["Enums"]["booking_status"]
+          status: Database["public"]["Enums"]["booking_status"]
+        }[]
       }
     }
     Enums: {
@@ -1041,6 +1127,10 @@ export type Database = {
         | "pending_allocation"
         | "in_progress"
         | "bidding"
+        | "awaiting_payment"
+        | "driver_en_route"
+        | "passenger_on_board"
+        | "rejected"
       discount_type: "fixed" | "percentage"
       driver_status: "active" | "inactive" | "suspended"
       message_status: "new" | "read" | "resolved"
@@ -1190,6 +1280,10 @@ export const Constants = {
         "pending_allocation",
         "in_progress",
         "bidding",
+        "awaiting_payment",
+        "driver_en_route",
+        "passenger_on_board",
+        "rejected",
       ],
       discount_type: ["fixed", "percentage"],
       driver_status: ["active", "inactive", "suspended"],
