@@ -721,8 +721,8 @@ function AlreadySubmittedStep({ card, qty, onBack }: { card: QuoteCard; qty: num
       <CheckCircle2 className="size-12 text-[var(--gold)] mx-auto" />
       <h2 className="mt-3 font-display text-2xl font-bold">Booking request received</h2>
       <p className="mt-2 text-muted-foreground max-w-md mx-auto">
-        Our team will confirm availability and payment arrangements by email or phone. Please check
-        your inbox for a confirmation email with your booking reference.
+        Please save your booking reference. Our team will contact you to confirm the booking and
+        payment arrangements.
       </p>
       <div className="mt-6 inline-block bg-[var(--surface)] rounded-xl border border-border px-6 py-4">
         <p className="text-xs uppercase tracking-widest text-muted-foreground font-bold">
