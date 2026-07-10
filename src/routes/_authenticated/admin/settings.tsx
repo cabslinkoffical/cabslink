@@ -82,9 +82,23 @@ function Page() {
 
         <TabsContent value="finance" className="space-y-4 mt-4">
           <Card>
-            <Row label="Currency"><Input value={form.currency ?? ""} onChange={e => set("currency", e.target.value)} /></Row>
+            <Row label="Currency code">
+              <Input placeholder="GBP" value={form.currency ?? ""} onChange={e => set("currency", e.target.value)} />
+            </Row>
+            <Row label="Currency symbol">
+              <Input placeholder="£" maxLength={6} value={form.currency_symbol ?? ""} onChange={e => set("currency_symbol", e.target.value)} />
+            </Row>
             <Row label="Timezone"><Input value={form.timezone ?? ""} onChange={e => set("timezone", e.target.value)} /></Row>
-            <Row label="Tax / VAT %"><Input type="number" step="0.01" value={form.tax_percentage ?? 0} onChange={e => set("tax_percentage", e.target.value)} /></Row>
+            <Row label="Tax enabled">
+              <div className="flex items-center gap-2">
+                <Switch checked={!!form.tax_enabled} onCheckedChange={v => set("tax_enabled", v)} />
+                <span className="text-sm text-muted-foreground">When ON, tax is added to every quote and booking.</span>
+              </div>
+            </Row>
+            <Row label="Tax label">
+              <Input placeholder="VAT" maxLength={40} value={form.tax_label ?? ""} onChange={e => set("tax_label", e.target.value)} />
+            </Row>
+            <Row label="Tax rate %"><Input type="number" step="0.01" value={form.tax_percentage ?? 0} onChange={e => set("tax_percentage", e.target.value)} /></Row>
             <Row label="Cancellation policy"><Textarea rows={3} value={form.cancellation_policy ?? ""} onChange={e => set("cancellation_policy", e.target.value)} /></Row>
           </Card>
         </TabsContent>
