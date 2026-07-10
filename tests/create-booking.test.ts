@@ -163,12 +163,12 @@ describe("createBooking — integration", () => {
       passengers: 4, luggage: 4, hand_luggage: 4, vehicle_count: 1,
     });
     expect(row.pricing_snapshot).toBeTruthy();
-    expect(row.pricing_snapshot.engine_version).toBe(1);
-    expect(row.pricing_snapshot.total_price).toBe(30);
+    expect(typeof row.pricing_snapshot.engine_version).toBe("string");
+    expect(row.pricing_snapshot.final_total).toBe(30);
     expect(row.pricing_snapshot.distance_miles).toBe(20);
     expect(row.pricing_snapshot.vehicle_count).toBe(1);
     expect(row.pricing_snapshot.fixed_price_applied).toBe(false);
-    expect(Array.isArray(row.pricing_snapshot.breakdown)).toBe(true);
+    expect(Array.isArray(row.pricing_snapshot.mileage_tiers)).toBe(true);
   });
 
 
