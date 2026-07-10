@@ -1,11 +1,27 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getRequestIP, setResponseStatus } from "@tanstack/react-start/server";
 import { z } from "zod";
+import {
+  validatePlaceIds,
+  rateLimitHit,
+  cacheGet,
+  cacheSet,
+  RATE_LIMIT_PER_MINUTE,
+} from "./route-distance.server";
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_maps";
 
+// Place IDs are ASCII, contain no whitespace or control chars.
+const placeIdSchema = z
+  .string()
+  .trim()
+  .min(1, "Please select a location from the suggestions.")
+  .max(300, "Invalid location identifier.")
+  .refine((v) => !/[\s\x00-\x1f\x7f]/.test(v), "Invalid location identifier.");
+
 const input = z.object({
-  pickupPlaceId: z.string().trim().min(1).max(300),
-  destinationPlaceId: z.string().trim().min(1).max(300),
+  pickupPlaceId: placeIdSchema,
+  destinationPlaceId: placeIdSchema,
 });
 
 export type RouteDistanceResult = {
@@ -14,14 +30,34 @@ export type RouteDistanceResult = {
   durationSeconds: number;
 };
 
-/**
- * Compute driving distance & duration between two Google Place IDs using
- * the Routes API (computeRoutes) via the Lovable Google Maps connector gateway.
- * Server-only: the connector API key never reaches the browser.
- */
 export const calculateRouteDistance = createServerFn({ method: "POST" })
-  .inputValidator((data: z.infer<typeof input>) => input.parse(data))
+  .inputValidator((data: z.infer<typeof input>) => {
+    const parsed = input.parse(data);
+    validatePlaceIds(parsed.pickupPlaceId, parsed.destinationPlaceId);
+    return parsed;
+  })
   .handler(async ({ data }): Promise<RouteDistanceResult> => {
+    // Rate limit by IP (best-effort; in-memory per worker instance).
+    let ip = "unknown";
+    try {
+      ip = getRequestIP({ xForwardedFor: true }) ?? "unknown";
+    } catch {
+      /* not in request context (e.g. tests) */
+    }
+    if (!rateLimitHit(ip)) {
+      try {
+        setResponseStatus(429);
+      } catch {
+        /* ignore outside request */
+      }
+      throw new Error("You've made too many requests. Please wait a moment and try again.");
+    }
+
+    // Cache
+    const cacheKey = `${data.pickupPlaceId}|${data.destinationPlaceId}`;
+    const cached = cacheGet(cacheKey);
+    if (cached) return cached;
+
     const apiKey = process.env.GOOGLE_MAPS_API_KEY;
     const lovableKey = process.env.LOVABLE_API_KEY;
     if (!apiKey || !lovableKey) {
@@ -77,8 +113,13 @@ export const calculateRouteDistance = createServerFn({ method: "POST" })
 
     const distanceMeters = route.distanceMeters;
     const distanceMiles = Math.round((distanceMeters / 1609.344) * 100) / 100;
-    // duration is a protobuf duration string like "3120s"
-    const durationSeconds = route.duration ? parseInt(String(route.duration).replace(/[^\d]/g, ""), 10) || 0 : 0;
+    const durationSeconds = route.duration
+      ? parseInt(String(route.duration).replace(/[^\d]/g, ""), 10) || 0
+      : 0;
 
-    return { distanceMeters, distanceMiles, durationSeconds };
+    const result: RouteDistanceResult = { distanceMeters, distanceMiles, durationSeconds };
+    cacheSet(cacheKey, result);
+    return result;
   });
+
+export { RATE_LIMIT_PER_MINUTE };
