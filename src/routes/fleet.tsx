@@ -140,7 +140,7 @@ function FleetPage() {
               ))}
             </ul>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Button asChild variant="gold" className="rounded-full"><Link to="/book">Book the V-Class <ArrowRight className="size-4" /></Link></Button>
+              <Button asChild variant="gold" className="rounded-full"><a href="/#booking">Book the V-Class <ArrowRight className="size-4" /></a></Button>
               <Button asChild variant="outline" className="rounded-full"><Link to="/contact">Talk to our team</Link></Button>
             </div>
           </Reveal>
