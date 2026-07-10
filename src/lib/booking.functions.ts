@@ -6,7 +6,7 @@ import { z } from "zod";
 import { hashConfirmationToken, isConfirmationTokenShape } from "@/lib/booking-confirmation.server";
 import { notifyStatusChange, retryNotificationById } from "@/lib/notifications.server";
 import { checkLimit } from "@/lib/rate-limit.server";
-import { getRequestIP } from "@tanstack/react-start/server";
+import { getRequestIP, setResponseHeader } from "@tanstack/react-start/server";
 import { BOOKING_STATUSES, STATUS_META, type BookingStatus } from "@/lib/booking-lifecycle";
 
 async function assertAdmin(ctx: { supabase: any; userId: string }) {
@@ -15,16 +15,30 @@ async function assertAdmin(ctx: { supabase: any; userId: string }) {
   if (!data) throw new Error("Forbidden: admin access required");
 }
 
+/** Response headers applied to every confirmation-token lookup. */
+function applyConfirmationHeaders() {
+  try {
+    setResponseHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+    setResponseHeader("Referrer-Policy", "no-referrer");
+    setResponseHeader("X-Robots-Tag", "noindex, nofollow, noarchive");
+  } catch { /* headers not available in some contexts */ }
+}
+
 // ---------------- Public: get booking by confirmation token ----------------
 export const getBookingByToken = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) =>
     z.object({ token: z.string().trim().min(1).max(200) }).parse(input),
   )
   .handler(async ({ data }) => {
+    applyConfirmationHeaders();
+
+    // Generic message reused for every failure — never leak whether the
+    // token was malformed, expired, or unknown.
+    const GENERIC = "This booking confirmation link is invalid or has expired. Please contact Cabslink and provide your booking reference.";
+
     if (!isConfirmationTokenShape(data.token)) {
-      throw new Error("Invalid confirmation link.");
+      throw new Error(GENERIC);
     }
-    // Basic per-IP rate-limit on token lookups to prevent enumeration attempts.
     let ip = "unknown";
     try { ip = getRequestIP({ xForwardedFor: true }) ?? "unknown"; } catch {}
     if (!checkLimit({ name: "confirmationLookup", windowMs: 60_000, max: 30 }, ip).ok) {
@@ -34,9 +48,8 @@ export const getBookingByToken = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const res: any = await supabaseAdmin.rpc("get_booking_by_confirmation_hash", { _hash: hash });
     const row = Array.isArray(res?.data) ? res.data[0] : res?.data;
-    if (!row) throw new Error("This confirmation link is invalid or has expired.");
-    // Return only the customer-safe projection defined by the RPC (no ids,
-    // no place ids, no idempotency hashes, no tokens).
+    if (!row) throw new Error(GENERIC);
+    // Customer-safe projection: no ids, place ids, hashes, tokens, or admin fields.
     return {
       bookingRef: row.booking_ref,
       status: row.status,
@@ -70,7 +83,7 @@ export const listBookingNotifications = createServerFn({ method: "GET" })
     await assertAdmin(context);
     const { data: rows, error } = await context.supabase
       .from("notification_log")
-      .select("id, booking_id, channel, recipient, subject, status, notification_type, recipient_category, attempt_count, last_attempt_at, sent_at, error_category, created_at")
+      .select("id, booking_id, channel, recipient, subject, status, notification_type, recipient_category, event_key, attempt_count, last_attempt_at, sent_at, error_category, created_at")
       .eq("booking_id", data.bookingId)
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
@@ -83,22 +96,70 @@ export const retryBookingNotification = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => z.object({ logId: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    // Per-admin sliding-window: 30 retries / 5 min max.
     if (!checkLimit({ name: "retryNotification", windowMs: 5 * 60_000, max: 30 }, context.userId).ok) {
       throw new Error("Too many retries. Please wait a moment and try again.");
     }
     const res = await retryNotificationById(data.logId);
-    // Activity log
     try {
       await context.supabase.from("activity_logs").insert({
         actor_id: context.userId,
-        action: "notification_retry",
+        action: res.providerConfigured ? "notification_retry" : "notification_retry_blocked",
         entity: "notification_log",
         entity_id: data.logId,
-        diff: { ok: res.ok, alreadySent: res.alreadySent },
+        diff: { ok: res.ok, alreadySent: res.alreadySent, providerConfigured: res.providerConfigured },
       });
-    } catch {}
+    } catch { /* activity log is best-effort */ }
     return res;
+  });
+
+// ---------------- Admin: private notification recipient ----------------
+export const getAdminNotificationRecipient = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const res: any = await context.supabase
+      .from("private_settings")
+      .select("value")
+      .eq("key", "admin_notification_email")
+      .maybeSingle();
+    return { email: (res?.data?.value as string | null) ?? null };
+  });
+
+export const setAdminNotificationRecipient = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({ email: z.string().trim().email().max(254).nullable() }).parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const value = data.email ? data.email.trim().toLowerCase() : null;
+    const existing: any = await context.supabase
+      .from("private_settings")
+      .select("id")
+      .eq("key", "admin_notification_email")
+      .maybeSingle();
+    if (existing?.data?.id) {
+      const upd = await context.supabase
+        .from("private_settings")
+        .update({ value })
+        .eq("id", existing.data.id);
+      if (upd.error) throw new Error(upd.error.message);
+    } else {
+      const ins = await context.supabase
+        .from("private_settings")
+        .insert({ key: "admin_notification_email", value } as any);
+      if (ins.error) throw new Error(ins.error.message);
+    }
+    try {
+      await context.supabase.from("activity_logs").insert({
+        actor_id: context.userId,
+        action: "admin_notification_email_changed",
+        entity: "private_settings",
+        entity_id: "admin_notification_email",
+        diff: { has_value: !!value },
+      });
+    } catch { /* best-effort */ }
+    return { ok: true };
   });
 
 // ---------------- Admin: controlled status transition ----------------
@@ -132,8 +193,8 @@ export const setBookingStatusFn = createServerFn({ method: "POST" })
     if (rpc.error) throw new Error(rpc.error.message);
     const row = Array.isArray(rpc.data) ? rpc.data[0] : rpc.data;
 
-    // If the status genuinely changed and the target notifies the customer,
-    // fire the email best-effort.
+    // Only fire the customer notification when the status actually changed
+    // AND the target notifies the customer. Same-status saves create no event.
     if (row?.changed && meta.notifyCustomer) {
       try {
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
