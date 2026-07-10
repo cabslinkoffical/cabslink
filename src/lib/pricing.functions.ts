@@ -285,7 +285,7 @@ export const createBooking = createServerFn({ method: "POST" })
       if ((r as any).vehicle_id) fixedByVehicle.set((r as any).vehicle_id, Number((r as any).price));
     }
     const engine = runPricingEngine(profile, {
-      distanceMiles,
+      distanceMiles: distanceMiles.miles,
       viaStops: data.viaStops,
       pickupTime: data.pickupTime || undefined,
     });
