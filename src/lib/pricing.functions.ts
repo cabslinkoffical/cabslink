@@ -225,15 +225,41 @@ export const createBooking = createServerFn({ method: "POST" })
       throw new Error("You've made too many booking attempts. Please wait a few minutes and try again.");
     }
 
-    // Idempotency: return existing booking if we've already stored this key.
+    // Compute canonical request fingerprint (authoritative inputs only —
+    // never client-supplied price or distance).
+    const { bookingRequestHash } = await import("@/lib/booking-fingerprint");
+    const requestHash = await bookingRequestHash({
+      pickupPlaceId: data.pickupPlaceId,
+      destinationPlaceId: data.destinationPlaceId,
+      stops: data.stops,
+      pickupDate: data.pickupDate,
+      pickupTime: data.pickupTime,
+      vehicleId: data.vehicleId,
+      vehicleCount: data.vehicleCount ?? 1,
+      passengers: data.passengers,
+      luggage: data.luggage,
+      email: data.email,
+      phone: data.phone,
+      returnJourney: !!data.return_journey,
+      meetGreet: !!data.meet_greet,
+      childSeat: !!data.child_seat,
+    });
+
+    // Idempotency: return existing booking ONLY if the request fingerprint
+    // matches. A mismatched replay is refused with a generic conflict.
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const existing = await supabaseAdmin
       .from("bookings")
-      .select("id, price")
+      .select("id, price, idempotency_request_hash")
       .eq("idempotency_key", data.idempotencyKey)
       .maybeSingle();
     if (existing.data) {
-      return { id: (existing.data as any).id, price: Number((existing.data as any).price) };
+      const storedHash = (existing.data as any).idempotency_request_hash as string | null;
+      if (storedHash && storedHash === requestHash) {
+        return { id: (existing.data as any).id, price: Number((existing.data as any).price) };
+      }
+      try { setResponseStatus(409); } catch {}
+      throw new Error("This booking request conflicts with an earlier submission. Please refresh and try again.");
     }
 
     // Authoritative price recompute — client-supplied price/distance ignored.
@@ -296,6 +322,7 @@ export const createBooking = createServerFn({ method: "POST" })
       price,
       distance_miles: auth.distanceMiles,
       idempotency_key: data.idempotencyKey,
+      idempotency_request_hash: requestHash,
       status: "new",
     };
 
@@ -307,15 +334,20 @@ export const createBooking = createServerFn({ method: "POST" })
 
     if (insertRes.error) {
       // Unique-violation on idempotency_key → race with a concurrent submit.
-      // Return the existing booking instead of surfacing an error.
+      // Return the existing booking only if its stored request hash matches.
       if ((insertRes.error as any).code === "23505") {
         const again = await supabaseAdmin
           .from("bookings")
-          .select("id, price")
+          .select("id, price, idempotency_request_hash")
           .eq("idempotency_key", data.idempotencyKey)
           .maybeSingle();
         if (again.data) {
-          return { id: (again.data as any).id, price: Number((again.data as any).price) };
+          const storedHash = (again.data as any).idempotency_request_hash as string | null;
+          if (storedHash && storedHash === requestHash) {
+            return { id: (again.data as any).id, price: Number((again.data as any).price) };
+          }
+          try { setResponseStatus(409); } catch {}
+          throw new Error("This booking request conflicts with an earlier submission. Please refresh and try again.");
         }
       }
       console.error("createBooking insert failed", insertRes.error);

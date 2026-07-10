@@ -133,6 +133,7 @@ export type Database = {
           flight_number: string | null
           id: string
           idempotency_key: string | null
+          idempotency_request_hash: string | null
           luggage: number
           meet_greet: boolean
           notes: string | null
@@ -165,6 +166,7 @@ export type Database = {
           flight_number?: string | null
           id?: string
           idempotency_key?: string | null
+          idempotency_request_hash?: string | null
           luggage?: number
           meet_greet?: boolean
           notes?: string | null
@@ -197,6 +199,7 @@ export type Database = {
           flight_number?: string | null
           id?: string
           idempotency_key?: string | null
+          idempotency_request_hash?: string | null
           luggage?: number
           meet_greet?: boolean
           notes?: string | null

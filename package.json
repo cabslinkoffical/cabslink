@@ -9,8 +9,11 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "test": "vitest run",
+    "test:bundle-scan": "rm -rf .output dist && GOOGLE_MAPS_API_KEY=DUMMY_GMAPS_KEY__aaaaaaaaaaaaaaaaaaaaaaaa LOVABLE_API_KEY=DUMMY_LOVABLE_KEY__bbbbbbbbbbbbbbbbbbbbbbbb SUPABASE_SERVICE_ROLE_KEY=DUMMY_SR_KEY__cccccccccccccccccccccccc vitest run tests/bundle-scan.test.ts"
   },
+
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-accordion": "^1.2.12",
