@@ -15,6 +15,7 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as FleetRouteImport } from './routes/fleet'
 import { Route as DriveWithUsRouteImport } from './routes/drive-with-us'
+import { Route as DistanceRouteImport } from './routes/distance'
 import { Route as CorporateTravelRouteImport } from './routes/corporate-travel'
 import { Route as CorporateBookingRouteImport } from './routes/corporate-booking'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -75,6 +76,11 @@ const FleetRoute = FleetRouteImport.update({
 const DriveWithUsRoute = DriveWithUsRouteImport.update({
   id: '/drive-with-us',
   path: '/drive-with-us',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DistanceRoute = DistanceRouteImport.update({
+  id: '/distance',
+  path: '/distance',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CorporateTravelRoute = CorporateTravelRouteImport.update({
@@ -257,6 +263,7 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/corporate-booking': typeof CorporateBookingRoute
   '/corporate-travel': typeof CorporateTravelRoute
+  '/distance': typeof DistanceRoute
   '/drive-with-us': typeof DriveWithUsRoute
   '/fleet': typeof FleetRoute
   '/services': typeof ServicesRoute
@@ -295,6 +302,7 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/corporate-booking': typeof CorporateBookingRoute
   '/corporate-travel': typeof CorporateTravelRoute
+  '/distance': typeof DistanceRoute
   '/drive-with-us': typeof DriveWithUsRoute
   '/fleet': typeof FleetRoute
   '/services': typeof ServicesRoute
@@ -334,6 +342,7 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/corporate-booking': typeof CorporateBookingRoute
   '/corporate-travel': typeof CorporateTravelRoute
+  '/distance': typeof DistanceRoute
   '/drive-with-us': typeof DriveWithUsRoute
   '/fleet': typeof FleetRoute
   '/services': typeof ServicesRoute
@@ -374,6 +383,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/corporate-booking'
     | '/corporate-travel'
+    | '/distance'
     | '/drive-with-us'
     | '/fleet'
     | '/services'
@@ -412,6 +422,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/corporate-booking'
     | '/corporate-travel'
+    | '/distance'
     | '/drive-with-us'
     | '/fleet'
     | '/services'
@@ -450,6 +461,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/corporate-booking'
     | '/corporate-travel'
+    | '/distance'
     | '/drive-with-us'
     | '/fleet'
     | '/services'
@@ -490,6 +502,7 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   CorporateBookingRoute: typeof CorporateBookingRoute
   CorporateTravelRoute: typeof CorporateTravelRoute
+  DistanceRoute: typeof DistanceRoute
   DriveWithUsRoute: typeof DriveWithUsRoute
   FleetRoute: typeof FleetRoute
   ServicesRoute: typeof ServicesRoute
@@ -541,6 +554,13 @@ declare module '@tanstack/react-router' {
       path: '/drive-with-us'
       fullPath: '/drive-with-us'
       preLoaderRoute: typeof DriveWithUsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/distance': {
+      id: '/distance'
+      path: '/distance'
+      fullPath: '/distance'
+      preLoaderRoute: typeof DistanceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/corporate-travel': {
@@ -838,6 +858,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   CorporateBookingRoute: CorporateBookingRoute,
   CorporateTravelRoute: CorporateTravelRoute,
+  DistanceRoute: DistanceRoute,
   DriveWithUsRoute: DriveWithUsRoute,
   FleetRoute: FleetRoute,
   ServicesRoute: ServicesRoute,
