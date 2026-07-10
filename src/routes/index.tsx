@@ -283,42 +283,6 @@ function HomePage() {
                   />
                 </div>
 
-                {/* Prev / next */}
-                <div className="absolute inset-y-0 left-0 flex items-center">
-                  <button
-                    type="button"
-                    aria-label="Previous vehicle"
-                    onClick={() => go(active - 1)}
-                    className="grid size-10 md:size-11 place-items-center rounded-full bg-[var(--background)]/90 border border-[var(--navy)]/10 text-[var(--navy)] shadow-[var(--shadow-elegant)] hover:bg-[var(--gold)] hover:text-[var(--gold-foreground)] hover:border-[var(--gold)] transition"
-                  >
-                    <ChevronLeft className="size-5" />
-                  </button>
-                </div>
-                <div className="absolute inset-y-0 right-0 flex items-center">
-                  <button
-                    type="button"
-                    aria-label="Next vehicle"
-                    onClick={() => go(active + 1)}
-                    className="grid size-10 md:size-11 place-items-center rounded-full bg-[var(--background)]/90 border border-[var(--navy)]/10 text-[var(--navy)] shadow-[var(--shadow-elegant)] hover:bg-[var(--gold)] hover:text-[var(--gold-foreground)] hover:border-[var(--gold)] transition"
-                  >
-                    <ChevronRight className="size-5" />
-                  </button>
-                </div>
-
-                {/* Floating spec chip — reflects active vehicle */}
-                <div
-                  key={`chip-${current.key}`}
-                  className="hidden md:flex absolute top-6 right-2 lg:right-6 items-center gap-3 rounded-2xl border border-[var(--gold)]/30 bg-[var(--background)]/90 backdrop-blur-md px-4 py-3 shadow-[var(--shadow-elegant)]"
-                  style={{ animation: "fadeInUp 600ms cubic-bezier(.2,.7,.2,1) both" }}
-                >
-                  <div className="grid size-9 place-items-center rounded-xl bg-[var(--gold)]/15 text-[var(--gold)]">
-                    <Gem className="size-4" />
-                  </div>
-                  <div className="text-xs">
-                    <div className="font-display font-semibold text-[var(--navy)]">{current.name}</div>
-                    <div className="text-muted-foreground">{current.tag}</div>
-                  </div>
-                </div>
 
                 {/* Floating live chip */}
                 <div className="hidden md:flex absolute bottom-10 left-0 lg:left-4 items-center gap-3 rounded-2xl border border-[var(--navy)]/10 bg-[var(--background)]/85 backdrop-blur-md px-4 py-3 shadow-[var(--shadow-elegant)]">
