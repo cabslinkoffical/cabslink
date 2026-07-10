@@ -25,14 +25,24 @@ const PROFILE = {
   time_extra_from: null, time_extra_to: null, time_extra_amount: 0, time_extra_type: "fixed",
   status: true, tiers: [{ tier_name: "flat", miles: 9999, cost_per_mile: 1, sort_order: 1 }],
 };
-vi.mock("@/lib/pricing-helpers.server", () => ({
-  publicClient: () => ({}),
-  assertAdmin: async () => {},
-  realDistanceMiles: vi.fn(async () => ({ miles: 20, minutes: 30 })),
-  loadActiveProfiles: async () => [PROFILE],
-  loadAreaSurcharges: async () => [],
-  loadFixedPriceForRoute: async () => [],
-}));
+vi.mock("@/lib/pricing-helpers.server", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/pricing-helpers.server")>(
+    "@/lib/pricing-helpers.server",
+  );
+  return {
+    ...actual,
+    publicClient: () => ({}),
+    assertAdmin: async () => {},
+    realDistanceMiles: vi.fn(async () => ({ miles: 20, minutes: 30 })),
+    loadActiveProfiles: async () => [PROFILE],
+    loadAreaSurcharges: async () => [],
+    loadFixedPriceForRoute: async () => [],
+    loadQuoteSettings: async () => ({
+      taxEnabled: false, taxRate: 0, taxLabel: "VAT",
+      currency: "GBP", currencySymbol: "£",
+    }),
+  };
+});
 
 // --- Mock notifications.server so we don't try to send emails / touch logs ---
 const notifyCalls = { received: 0, admin: 0 };
