@@ -46,7 +46,7 @@ function AirportPage() {
                 </li>
               ))}
             </ul>
-            <Button asChild variant="gold" className="mt-8 rounded-full"><Link to="/book">Book your transfer <ArrowRight className="size-4" /></Link></Button>
+            <Button asChild variant="gold" className="mt-8 rounded-full"><a href="/#booking">Book your transfer <ArrowRight className="size-4" /></a></Button>
           </div>
           <BookingWidget />
         </div>
