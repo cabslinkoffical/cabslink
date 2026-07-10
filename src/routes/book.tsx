@@ -305,8 +305,9 @@ function Stepper({ step }: { step: Step }) {
   const items: { id: Step; label: string }[] = [
     { id: "vehicle", label: "Vehicle" },
     { id: "details", label: "Details" },
-    { id: "payment", label: "Payment" },
+    { id: "review", label: "Review" },
   ];
+
   const idx = items.findIndex((x) => x.id === step);
   return (
     <div className="flex items-center justify-center gap-3 md:gap-4">
