@@ -1,8 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import {
   ArrowRight, Plane, ShieldCheck, Clock3, Star, CalendarCheck, Phone, MapPin,
   Briefcase, Users, Award, BadgePoundSterling, Headset, Car, Building2, GraduationCap, Gem,
-  Route as RouteIcon, CheckCircle2, Sparkles, MessageSquare, CreditCard, Quote
+  Route as RouteIcon, CheckCircle2, Sparkles, MessageSquare, CreditCard, Quote,
+  ChevronLeft, ChevronRight
 } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { BookingWidget } from "@/components/site/BookingWidget";
@@ -25,6 +27,20 @@ import eclassAsset from "@/assets/fleet/eclass.png.asset.json";
 import vclassAsset from "@/assets/fleet/vclass.png.asset.json";
 import rangeroverAsset from "@/assets/fleet/rangerover.png.asset.json";
 import minibusAsset from "@/assets/fleet/minibus.png.asset.json";
+import rollsAsset from "@/assets/fleet/rolls.png.asset.json";
+import coachAsset from "@/assets/fleet/coach.png.asset.json";
+import coasterAsset from "@/assets/fleet/coaster.png.asset.json";
+
+const heroVehicles = [
+  { key: "vclass", name: "Mercedes V-Class", tag: "First-class · 7 seats", img: vclassAsset.url, seats: 7 },
+  { key: "sclass", name: "Mercedes S-Class", tag: "Flagship saloon · 3 seats", img: sclassAsset.url, seats: 3 },
+  { key: "eclass", name: "Mercedes E-Class", tag: "Executive · 3 seats", img: eclassAsset.url, seats: 3 },
+  { key: "rangerover", name: "Range Rover", tag: "Luxury SUV · 4 seats", img: rangeroverAsset.url, seats: 4 },
+  { key: "rolls", name: "Rolls-Royce Bentley", tag: "Ultra-luxury · 3 seats", img: rollsAsset.url, seats: 3 },
+  { key: "minibus", name: "Executive Minibus", tag: "Groups · 16 seats", img: minibusAsset.url, seats: 16 },
+  { key: "coaster", name: "Coaster Bus", tag: "Mid-group · 24 seats", img: coasterAsset.url, seats: 24 },
+  { key: "coach", name: "Coach Bus", tag: "Large group · 55 seats", img: coachAsset.url, seats: 55 },
+];
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -87,6 +103,26 @@ const testimonials = [
 ];
 
 function HomePage() {
+  const [active, setActive] = useState(0);
+  const [dir, setDir] = useState<1 | -1>(1);
+  const [paused, setPaused] = useState(false);
+
+  useEffect(() => {
+    if (paused) return;
+    const id = setInterval(() => {
+      setDir(1);
+      setActive((i) => (i + 1) % heroVehicles.length);
+    }, 5000);
+    return () => clearInterval(id);
+  }, [paused]);
+
+  const go = (next: number) => {
+    setDir(next > active || (active === heroVehicles.length - 1 && next === 0) ? 1 : -1);
+    setActive((next + heroVehicles.length) % heroVehicles.length);
+  };
+
+  const current = heroVehicles[active];
+
   return (
     <SiteLayout>
       {/* HERO — unified: copy + vehicle + booking widget */}
@@ -193,11 +229,13 @@ function HomePage() {
               </div>
             </div>
 
-            {/* RIGHT — vehicle */}
+            {/* RIGHT — vehicle carousel */}
             <div className="lg:col-span-6 relative">
               <div
                 className="relative opacity-0"
                 style={{ animation: "fadeInUp 900ms cubic-bezier(.2,.7,.2,1) 300ms forwards" }}
+                onMouseEnter={() => setPaused(true)}
+                onMouseLeave={() => setPaused(false)}
               >
                 {/* Backdrop CABSLINK watermark */}
                 <div aria-hidden className="pointer-events-none absolute inset-0 flex items-center justify-center select-none">
@@ -230,22 +268,55 @@ function HomePage() {
                 {/* Ground shadow */}
                 <div aria-hidden className="absolute inset-x-8 bottom-2 h-8 rounded-[50%] bg-black/30 blur-2xl" />
 
-                <img
-                  src={vClassSideImg}
-                  alt="Mercedes-Benz V-Class chauffeur vehicle — side profile"
-                  width={1920}
-                  height={1024}
-                  className="relative w-full object-contain drop-shadow-[0_35px_45px_rgba(14,24,44,0.28)]"
-                />
+                {/* Sliding vehicle stage */}
+                <div className="relative aspect-[16/10] overflow-hidden">
+                  <img
+                    key={current.key}
+                    src={current.img}
+                    alt={`${current.name} — chauffeur vehicle`}
+                    width={1920}
+                    height={1024}
+                    className="absolute inset-0 m-auto w-[92%] h-full object-contain drop-shadow-[0_35px_45px_rgba(14,24,44,0.28)]"
+                    style={{
+                      animation: `${dir === 1 ? "vehicleSlideInR" : "vehicleSlideInL"} 850ms cubic-bezier(.2,.7,.2,1) both`,
+                    }}
+                  />
+                </div>
 
-                {/* Floating spec chip */}
-                <div className="hidden md:flex absolute top-6 right-2 lg:right-6 items-center gap-3 rounded-2xl border border-[var(--gold)]/30 bg-[var(--background)]/85 backdrop-blur-md px-4 py-3 shadow-[var(--shadow-elegant)]">
+                {/* Prev / next */}
+                <div className="absolute inset-y-0 left-0 flex items-center">
+                  <button
+                    type="button"
+                    aria-label="Previous vehicle"
+                    onClick={() => go(active - 1)}
+                    className="grid size-10 md:size-11 place-items-center rounded-full bg-[var(--background)]/90 border border-[var(--navy)]/10 text-[var(--navy)] shadow-[var(--shadow-elegant)] hover:bg-[var(--gold)] hover:text-[var(--gold-foreground)] hover:border-[var(--gold)] transition"
+                  >
+                    <ChevronLeft className="size-5" />
+                  </button>
+                </div>
+                <div className="absolute inset-y-0 right-0 flex items-center">
+                  <button
+                    type="button"
+                    aria-label="Next vehicle"
+                    onClick={() => go(active + 1)}
+                    className="grid size-10 md:size-11 place-items-center rounded-full bg-[var(--background)]/90 border border-[var(--navy)]/10 text-[var(--navy)] shadow-[var(--shadow-elegant)] hover:bg-[var(--gold)] hover:text-[var(--gold-foreground)] hover:border-[var(--gold)] transition"
+                  >
+                    <ChevronRight className="size-5" />
+                  </button>
+                </div>
+
+                {/* Floating spec chip — reflects active vehicle */}
+                <div
+                  key={`chip-${current.key}`}
+                  className="hidden md:flex absolute top-6 right-2 lg:right-6 items-center gap-3 rounded-2xl border border-[var(--gold)]/30 bg-[var(--background)]/90 backdrop-blur-md px-4 py-3 shadow-[var(--shadow-elegant)]"
+                  style={{ animation: "fadeInUp 600ms cubic-bezier(.2,.7,.2,1) both" }}
+                >
                   <div className="grid size-9 place-items-center rounded-xl bg-[var(--gold)]/15 text-[var(--gold)]">
                     <Gem className="size-4" />
                   </div>
                   <div className="text-xs">
-                    <div className="font-display font-semibold text-[var(--navy)]">Mercedes V-Class</div>
-                    <div className="text-muted-foreground">First-class comfort · 7 seats</div>
+                    <div className="font-display font-semibold text-[var(--navy)]">{current.name}</div>
+                    <div className="text-muted-foreground">{current.tag}</div>
                   </div>
                 </div>
 
@@ -259,6 +330,46 @@ function HomePage() {
                     <div className="font-semibold text-[var(--navy)]">Live dispatch</div>
                     <div className="text-muted-foreground">Chauffeur available now</div>
                   </div>
+                </div>
+              </div>
+
+              {/* Vehicle selector strip */}
+              <div className="mt-6 relative">
+                <div className="flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  {heroVehicles.map((v, i) => {
+                    const isActive = i === active;
+                    return (
+                      <button
+                        key={v.key}
+                        type="button"
+                        onClick={() => go(i)}
+                        className={`group shrink-0 flex items-center gap-3 rounded-2xl border px-3 py-2 transition-all ${
+                          isActive
+                            ? "border-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_12%,var(--background))] shadow-[var(--shadow-elegant)]"
+                            : "border-[var(--navy)]/10 bg-[var(--background)]/70 hover:border-[var(--gold)]/50 hover:-translate-y-0.5"
+                        }`}
+                      >
+                        <div className="w-14 h-9 shrink-0 grid place-items-center overflow-hidden">
+                          <img src={v.img} alt="" loading="lazy" className="max-h-full w-auto object-contain" />
+                        </div>
+                        <div className="text-left pr-1">
+                          <div className={`text-[11px] font-semibold leading-tight ${isActive ? "text-[var(--navy)]" : "text-[var(--navy)]/80"}`}>
+                            {v.name}
+                          </div>
+                          <div className="text-[10px] text-muted-foreground leading-tight">{v.seats} seats</div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+                {/* Progress dots */}
+                <div className="mt-3 flex items-center gap-1.5">
+                  {heroVehicles.map((_, i) => (
+                    <span
+                      key={i}
+                      className={`h-1 rounded-full transition-all ${i === active ? "w-8 bg-[var(--gold)]" : "w-3 bg-[var(--navy)]/15"}`}
+                    />
+                  ))}
                 </div>
               </div>
             </div>
