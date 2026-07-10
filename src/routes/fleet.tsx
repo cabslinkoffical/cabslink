@@ -172,7 +172,7 @@ function FleetPage() {
                       <span className="flex items-center gap-1.5" title="Large luggage"><Briefcase className="size-4 text-[var(--gold)]" />{f.lug}</span>
                       <span className="flex items-center gap-1.5" title="Hand luggage"><Luggage className="size-4 text-[var(--gold)]" />{f.hand}</span>
                     </div>
-                    <Button asChild variant="outline" className="mt-5 w-full rounded-full"><Link to="/book">Book this vehicle <ArrowRight className="size-4" /></Link></Button>
+                    <Button asChild variant="outline" className="mt-5 w-full rounded-full"><a href="/#booking">Book this vehicle <ArrowRight className="size-4" /></a></Button>
                   </div>
                 </div>
               </Reveal>
