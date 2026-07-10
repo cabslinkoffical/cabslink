@@ -461,6 +461,7 @@ export type Database = {
           created_at: string
           error: string | null
           error_category: string | null
+          event_key: string | null
           id: string
           last_attempt_at: string | null
           notification_type: string | null
@@ -481,6 +482,7 @@ export type Database = {
           created_at?: string
           error?: string | null
           error_category?: string | null
+          event_key?: string | null
           id?: string
           last_attempt_at?: string | null
           notification_type?: string | null
@@ -501,6 +503,7 @@ export type Database = {
           created_at?: string
           error?: string | null
           error_category?: string | null
+          event_key?: string | null
           id?: string
           last_attempt_at?: string | null
           notification_type?: string | null
@@ -680,6 +683,30 @@ export type Database = {
           },
         ]
       }
+      private_settings: {
+        Row: {
+          created_at: string
+          id: string
+          key: string
+          updated_at: string
+          value: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          key: string
+          updated_at?: string
+          value?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          key?: string
+          updated_at?: string
+          value?: string | null
+        }
+        Relationships: []
+      }
       quote_calculations: {
         Row: {
           base_price: number
@@ -741,7 +768,6 @@ export type Database = {
       }
       site_settings: {
         Row: {
-          admin_notification_email: string | null
           business_address: string | null
           cancellation_policy: string | null
           company_name: string
@@ -765,7 +791,6 @@ export type Database = {
           whatsapp_number: string | null
         }
         Insert: {
-          admin_notification_email?: string | null
           business_address?: string | null
           cancellation_policy?: string | null
           company_name?: string
@@ -789,7 +814,6 @@ export type Database = {
           whatsapp_number?: string | null
         }
         Update: {
-          admin_notification_email?: string | null
           business_address?: string | null
           cancellation_policy?: string | null
           company_name?: string

@@ -139,9 +139,6 @@ describe("createBooking — integration", () => {
     expect(store.inserts[0].idempotency_request_hash).toMatch(/^[0-9a-f]{64}$/);
     // Booking reference must come from server (RPC), not the input payload.
     expect(store.inserts[0].booking_ref).toBe(res.ref);
-    // Confirmation token hash is stored; raw token is NOT stored.
-    expect(store.inserts[0].confirmation_token_hash).toMatch(/^[0-9a-f]{64}$/);
-    expect(store.inserts[0].confirmation_token_hash).not.toBe(res.token);
     // Notifications fire best-effort after successful insert.
     expect(notifyCalls.received).toBe(1);
     expect(notifyCalls.admin).toBe(1);
@@ -154,7 +151,7 @@ describe("createBooking — integration", () => {
     expect(store.inserts[0].booking_ref).toBe(res.ref);
   });
 
-  it("same idempotency key + same payload returns the existing booking (no duplicate insert, no new token)", async () => {
+  it("same idempotency key + same payload recovers the confirmation access (no duplicate insert, no new notifications)", async () => {
     const first = await createBooking({ data: validPayload });
     store.existing = { id: first.id, price: 30, idempotency_request_hash: store.inserts[0].idempotency_request_hash, booking_ref: first.ref };
     notifyCalls.received = 0;
@@ -163,7 +160,9 @@ describe("createBooking — integration", () => {
     expect(again.id).toBe(first.id);
     expect(again.price).toBe(30);
     expect(again.ref).toBe(first.ref);
-    expect(again.token).toBeNull();
+    // Deterministic HMAC token: same booking → same token, so a lost first
+    // response can still deliver a usable confirmation URL.
+    expect(again.token).toBe(first.token);
     expect(store.inserts).toHaveLength(1);
     // Duplicate submissions do not re-fire notifications.
     expect(notifyCalls.received).toBe(0);
@@ -179,7 +178,7 @@ describe("createBooking — integration", () => {
     expect(store.inserts).toHaveLength(1);
   });
 
-  it("DB unique-violation race returns the existing booking only when hash matches", async () => {
+  it("DB unique-violation race returns the existing booking with a recovered token when hash matches", async () => {
     await createBooking({ data: validPayload });
     const goodHash = store.inserts[0].idempotency_request_hash;
     store.inserts = [];
@@ -190,13 +189,14 @@ describe("createBooking — integration", () => {
     const res = await createBooking({ data: validPayload });
     expect(res.id).toBe("booking-race");
     expect(res.price).toBe(30);
-    expect(res.token).toBeNull();
+    expect(res.token).toMatch(/^[0-9a-f]{64}$/); // recovered, not null
 
     store.existing = null;
     store.insertError = { code: "23505" };
     store.raceExisting = { id: "booking-other", price: 999, idempotency_request_hash: "deadbeef".repeat(8) };
     await expect(createBooking({ data: validPayload })).rejects.toThrow(/conflicts with an earlier submission/i);
   });
+
 
 
   it("Google route failure prevents insertion", async () => {

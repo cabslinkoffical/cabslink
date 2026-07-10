@@ -1,10 +1,13 @@
-// Provider-agnostic email adapter. The concrete provider (Resend, SendGrid,
-// SES, etc.) is wired in later — call sites never talk to a provider SDK
-// directly. During Phase 2A we ship a `log` adapter that records the send
-// in notification_log without contacting an external service.
+// Provider-agnostic email adapter. Provider selection lives here so no
+// call-site talks to a concrete provider (Resend / SendGrid / SES) SDK
+// directly. Wiring a real provider later is a single change: implement
+// `EmailAdapter`, register the branch in `getEmailAdapter()`, and set the
+// required environment variables (see EMAIL_PROVIDER_ENV_VARS).
 //
-// Swapping providers is a single change here: implement `EmailAdapter` and
-// return it from `getEmailAdapter()`.
+// Until a provider is configured, `NotConfiguredAdapter` is used. It NEVER
+// claims a send succeeded, NEVER invents a provider message id, and always
+// reports `config_missing` so notification records store `not_configured`
+// (not `sent`, not `failed`).
 
 export type EmailSendInput = {
   to: string;
@@ -14,10 +17,6 @@ export type EmailSendInput = {
   replyTo?: string;
 };
 
-export type EmailSendResult =
-  | { ok: true; providerMessageId: string | null }
-  | { ok: false; errorCategory: EmailErrorCategory; providerMessageId?: null };
-
 export type EmailErrorCategory =
   | "invalid_recipient"
   | "rate_limited"
@@ -25,18 +24,34 @@ export type EmailErrorCategory =
   | "config_missing"
   | "unknown";
 
+export type EmailSendResult =
+  | { ok: true; providerMessageId: string | null }
+  | { ok: false; errorCategory: EmailErrorCategory; providerMessageId?: null };
+
 export interface EmailAdapter {
   readonly name: string;
+  /** True when a real external provider is wired up. `NotConfigured` returns false. */
+  readonly configured: boolean;
   send(input: EmailSendInput): Promise<EmailSendResult>;
 }
 
-/** Stub adapter — succeeds locally, records nothing to any external service. */
-class LogAdapter implements EmailAdapter {
-  readonly name = "log";
-  async send(input: EmailSendInput): Promise<EmailSendResult> {
-    // eslint-disable-next-line no-console -- server-side only; body is not logged
-    console.info(`[email:log] to=<redacted> subject=${JSON.stringify(input.subject)}`);
-    return { ok: true, providerMessageId: null };
+/** Environment variables required to switch to a real provider later. */
+export const EMAIL_PROVIDER_ENV_VARS = {
+  provider: "EMAIL_PROVIDER",            // e.g. "resend"
+  resendApiKey: "RESEND_API_KEY",        // Resend API key (server-only)
+  fromAddress: "EMAIL_FROM_ADDRESS",     // e.g. bookings@cabslink.co.uk
+  fromName: "EMAIL_FROM_NAME",           // display name shown as From
+} as const;
+
+/**
+ * Stub adapter used while no email provider is connected.
+ * NEVER pretends to send. NEVER returns a provider id.
+ */
+class NotConfiguredAdapter implements EmailAdapter {
+  readonly name = "not_configured";
+  readonly configured = false;
+  async send(_input: EmailSendInput): Promise<EmailSendResult> {
+    return { ok: false, errorCategory: "config_missing", providerMessageId: null };
   }
 }
 
@@ -45,8 +60,10 @@ let cached: EmailAdapter | null = null;
 /** Returns the configured email adapter. Provider selection happens here. */
 export function getEmailAdapter(): EmailAdapter {
   if (cached) return cached;
-  // Future: switch on process.env.EMAIL_PROVIDER ("resend"|"sendgrid"|...)
-  cached = new LogAdapter();
+  // Future: when process.env[EMAIL_PROVIDER_ENV_VARS.provider] === "resend"
+  // and process.env[EMAIL_PROVIDER_ENV_VARS.resendApiKey] is present,
+  // return a ResendAdapter. Until then, use the not-configured stub.
+  cached = new NotConfiguredAdapter();
   return cached;
 }
 
