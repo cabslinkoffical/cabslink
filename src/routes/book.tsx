@@ -58,6 +58,7 @@ function BookPage() {
   const pre = readPrefill(q);
   const [step, setStep] = useState<Step>("vehicle");
   const [chosen, setChosen] = useState<QuoteCard | null>(null);
+  const [qty, setQty] = useState<number>(1);
 
   return (
     <SiteLayout>
@@ -70,19 +71,20 @@ function BookPage() {
               {step === "vehicle" && (
                 <VehicleStep
                   pre={pre}
-                  onSelect={(card) => { setChosen(card); setStep("details"); }}
+                  onSelect={(card, quantity) => { setChosen(card); setQty(quantity); setStep("details"); }}
                 />
               )}
               {step === "details" && chosen && (
                 <DetailsStep
                   pre={pre}
                   card={chosen}
+                  qty={qty}
                   onBack={() => setStep("vehicle")}
                   onContinue={() => setStep("payment")}
                 />
               )}
               {step === "payment" && chosen && (
-                <PaymentStep card={chosen} onBack={() => setStep("details")} />
+                <PaymentStep card={chosen} qty={qty} onBack={() => setStep("details")} />
               )}
             </div>
           </div>
@@ -91,6 +93,7 @@ function BookPage() {
     </SiteLayout>
   );
 }
+
 
 // =================================================================
 // Stepper
