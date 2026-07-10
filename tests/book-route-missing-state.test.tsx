@@ -27,7 +27,14 @@ vi.mock("@/lib/pricing.functions", () => ({
   createBooking: vi.fn(),
 }));
 
-vi.mock("@tanstack/react-start", () => ({ useServerFn: (fn: any) => fn }));
+vi.mock("@tanstack/react-start", () => {
+  const chain = (state: any = {}) => ({
+    middleware: (_m: any) => chain(state),
+    inputValidator: (v: any) => chain({ ...state, validator: v }),
+    handler: (h: any) => async (args: any) => h({ data: args?.data, context: {} }),
+  });
+  return { useServerFn: (fn: any) => fn, createServerFn: (_o?: any) => chain() };
+});
 
 // SiteLayout depends on Header/Footer that pull in more of the app.
 // A trivial passthrough keeps the router-focused test small.
