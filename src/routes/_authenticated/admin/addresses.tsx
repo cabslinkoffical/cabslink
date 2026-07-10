@@ -22,7 +22,17 @@ export const Route = createFileRoute("/_authenticated/admin/addresses")({
   component: AddressesPage,
 });
 
-const empty = { id: undefined as string | undefined, name: "", comparable_value: "", pickup_charge: 0, dropoff_charge: 0, notes: "", active: true };
+const empty = {
+  id: undefined as string | undefined,
+  name: "",
+  label: "",
+  place_id: "",
+  comparable_value: "",
+  pickup_charge: 0,
+  dropoff_charge: 0,
+  notes: "",
+  active: true,
+};
 
 function AddressesPage() {
   const { data: addresses } = useSuspenseQuery(opts);
