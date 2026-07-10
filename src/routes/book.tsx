@@ -59,9 +59,30 @@ type Step = "vehicle" | "details" | "payment";
 function BookPage() {
   const { q } = Route.useSearch();
   const pre = readPrefill(q);
+  const navigate = useNavigate({ from: "/book" });
   const [step, setStep] = useState<Step>("vehicle");
   const [chosen, setChosen] = useState<QuoteCard | null>(null);
   const [qty, setQty] = useState<number>(1);
+  const [editOpen, setEditOpen] = useState(false);
+
+  const applyEdit = (next: Prefill) => {
+    const p = new URLSearchParams();
+    p.set("pickup", next.pickup);
+    p.set("dropoff", next.dropoff);
+    p.set("date", next.date);
+    p.set("time", next.time);
+    p.set("passengers", String(next.passengers));
+    p.set("luggage", String(next.luggage));
+    p.set("mode", next.mode);
+    if (next.stops.length) p.set("stops", next.stops.join("|"));
+    if (next.ret) {
+      p.set("ret", "1");
+      if (next.rdate) p.set("rdate", next.rdate);
+      if (next.rtime) p.set("rtime", next.rtime);
+    }
+    navigate({ search: { q: p.toString() }, replace: true });
+    setEditOpen(false);
+  };
 
   const quoteFn = useServerFn(calculateQuotes);
   const quoteQuery = useQuery({
