@@ -94,7 +94,7 @@ function BookPage() {
               onEdit={() => setStep("vehicle")}
               route={quoteQuery.data ? { miles: quoteQuery.data.distanceMiles, minutes: quoteQuery.data.durationMinutes } : null}
             />
-            <div>
+            <div className="min-w-0">
               {step === "vehicle" && (
                 <VehicleStep
                   pre={pre}
