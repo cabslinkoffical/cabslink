@@ -159,6 +159,9 @@ describe("createBooking — integration", () => {
     expect(row.pricing_snapshot.vehicle_count).toBe(1);
     expect(row.pricing_snapshot.fixed_price_applied).toBe(false);
     expect(Array.isArray(row.pricing_snapshot.breakdown)).toBe(true);
+  });
+
+
 
   it("ignores a frontend-supplied booking_ref — server issues its own", async () => {
     const spiked: any = { ...validPayload, booking_ref: "CL-000000-HACK", bookingRef: "CL-000000-HACK" };
