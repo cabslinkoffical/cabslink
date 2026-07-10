@@ -360,12 +360,13 @@ const detailsSchema = z.object({
 });
 
 function DetailsStep({
-  pre, card, onBack, onContinue,
-}: { pre: Prefill; card: QuoteCard; onBack: () => void; onContinue: () => void }) {
+  pre, card, qty, onBack, onContinue,
+}: { pre: Prefill; card: QuoteCard; qty: number; onBack: () => void; onContinue: () => void }) {
   const [meetGreet, setMeetGreet] = useState(true);
   const [childSeat, setChildSeat] = useState(false);
   const [returnJourney, setReturnJourney] = useState(pre.ret);
   const [loading, setLoading] = useState(false);
+  const total = card.finalPrice * qty;
 
   const bookFn = useServerFn(createBooking);
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -378,6 +379,7 @@ function DetailsStep({
       await bookFn({
         data: {
           vehicleId: card.vehicleId,
+          vehicleCount: qty,
           pickup: pre.pickup,
           dropoff: pre.dropoff,
           pickupDate: pre.date,
@@ -410,10 +412,11 @@ function DetailsStep({
         <img src={card.imageUrl} alt="" className="w-16 h-12 object-contain" />
         <div className="flex-1">
           <p className="text-xs uppercase tracking-wider text-muted-foreground font-bold">Selected vehicle</p>
-          <p className="font-display font-bold">{card.name}</p>
+          <p className="font-display font-bold">{qty > 1 ? `${qty} × ${card.name}` : card.name}</p>
         </div>
-        <p className="font-display font-bold text-2xl">£{card.finalPrice.toFixed(2)}</p>
+        <p className="font-display font-bold text-2xl">£{total.toFixed(2)}</p>
       </div>
+
 
       <div className="grid sm:grid-cols-2 gap-4">
         <Field label="Full name" icon={<User className="size-4" />}><Input name="customer_name" required maxLength={100} /></Field>
