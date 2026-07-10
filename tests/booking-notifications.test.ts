@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   customerReceivedEmail,
   adminNewBookingEmail,
@@ -7,6 +7,7 @@ import {
   safeSubject,
   type BookingEmailContext,
 } from "@/lib/email/templates.server";
+import { getEmailAdapter, _setEmailAdapterForTests, type EmailAdapter } from "@/lib/email/adapter.server";
 
 const baseCtx: BookingEmailContext = {
   bookingRef: "CL-260710-A7K4",
@@ -59,6 +60,16 @@ describe("email templates", () => {
     expect(html).toContain("07700900123");
   });
 
+  it("status-change emails render for every prepared operational status", () => {
+    for (const s of ["confirmed", "assigned", "driver_en_route", "completed", "cancelled", "rejected"] as const) {
+      const { html, text, subject } = statusChangeEmail({ ...baseCtx, status: s, cancellationReason: "Reason X" });
+      expect(subject).toMatch(/Booking/i);
+      expect(html.length).toBeGreaterThan(200);
+      expect(text.length).toBeGreaterThan(60);
+      expect(html).not.toContain("<script>");
+    }
+  });
+
   it("status-change email includes cancellation reason when provided", () => {
     const { html, text } = statusChangeEmail({ ...baseCtx, status: "cancelled", cancellationReason: "Driver unavailable" });
     expect(html).toContain("Driver unavailable");
@@ -75,5 +86,31 @@ describe("email templates", () => {
   it("safeSubject strips CR/LF and truncates", () => {
     expect(safeSubject("Hello\r\nBcc: attacker@example.com")).not.toMatch(/[\r\n]/);
     expect(safeSubject("x".repeat(300)).length).toBeLessThanOrEqual(120);
+  });
+});
+
+describe("email adapter — not-configured state", () => {
+  beforeEach(() => _setEmailAdapterForTests(null));
+
+  it("default adapter reports not configured and never claims success", async () => {
+    const a = getEmailAdapter();
+    expect(a.configured).toBe(false);
+    const res = await a.send({ to: "x@example.com", subject: "s", html: "<p>h</p>", text: "t" });
+    expect(res.ok).toBe(false);
+    if (!res.ok) expect(res.errorCategory).toBe("config_missing");
+    // Must NOT invent a provider id.
+    expect((res as any).providerMessageId ?? null).toBeNull();
+  });
+
+  it("test injection allows a configured adapter", async () => {
+    const spy = vi.fn(async () => ({ ok: true as const, providerMessageId: "msg_1" }));
+    const fake: EmailAdapter = { name: "test", configured: true, send: spy };
+    _setEmailAdapterForTests(fake);
+    const a = getEmailAdapter();
+    expect(a.configured).toBe(true);
+    const res = await a.send({ to: "x@example.com", subject: "s", html: "<p>h</p>", text: "t" });
+    expect(res.ok).toBe(true);
+    if (res.ok) expect(res.providerMessageId).toBe("msg_1");
+    _setEmailAdapterForTests(null);
   });
 });
