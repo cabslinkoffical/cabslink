@@ -431,12 +431,12 @@ function VehicleCard({
       </div>
 
       {/* RIGHT — price stub */}
-      <div className="w-full md:w-72 bg-gradient-to-br from-[var(--gold)]/10 via-[var(--surface)] to-[var(--gold)]/5 md:rounded-r-2xl rounded-b-2xl md:rounded-b-none p-6 md:p-8 flex flex-col justify-between items-center text-center">
+      <div className="w-full md:w-60 lg:w-64 shrink-0 bg-gradient-to-br from-[var(--gold)]/10 via-[var(--surface)] to-[var(--gold)]/5 md:rounded-r-2xl rounded-b-2xl md:rounded-b-none p-5 md:p-6 flex flex-col justify-between items-center text-center">
         <div>
-          <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground font-bold">All Inclusive</p>
+          <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground font-bold">All Inclusive</p>
           <div className="mt-2 flex items-baseline justify-center gap-0.5 text-foreground">
-            <span className="text-xl font-display font-bold text-[var(--gold)]">£</span>
-            <span className="text-4xl md:text-5xl font-display font-bold tabular-nums tracking-tight">
+            <span className="text-lg font-display font-bold text-[var(--gold)]">£</span>
+            <span className="text-3xl md:text-4xl font-display font-bold tabular-nums tracking-tight">
               {total.toFixed(2)}
             </span>
           </div>
