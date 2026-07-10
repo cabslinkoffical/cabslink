@@ -254,9 +254,15 @@ function VehicleStep({ pre, onSelect }: { pre: Prefill; onSelect: (card: QuoteCa
 }
 
 
-function VehicleCard({ card, best, onSelect }: { card: QuoteCard; best: boolean; onSelect: () => void }) {
+function VehicleCard({
+  card, best, qty, onQtyChange, onSelect,
+}: {
+  card: QuoteCard; best: boolean; qty: number;
+  onQtyChange: (n: number) => void; onSelect: () => void;
+}) {
+  const total = card.finalPrice * qty;
   return (
-    <div className="p-5 md:p-6 grid md:grid-cols-[1fr_1.1fr_220px] gap-5 md:gap-6 items-center hover:bg-[var(--surface)]/40 transition">
+    <div className="p-5 md:p-6 grid md:grid-cols-[1fr_1.1fr_240px] gap-5 md:gap-6 items-center hover:bg-[var(--surface)]/40 transition">
       {/* image + name */}
       <div>
         {best && (
@@ -285,9 +291,9 @@ function VehicleCard({ card, best, onSelect }: { card: QuoteCard; best: boolean;
 
       {/* features */}
       <ul className="space-y-1.5 text-sm">
-        <Feature icon={<Users className="size-4" />}>{card.passengers} Passengers</Feature>
-        <Feature icon={<Briefcase className="size-4" />}>{card.luggage} Luggage</Feature>
-        <Feature icon={<Luggage className="size-4" />}>{card.handLuggage} Hand Luggage</Feature>
+        <Feature icon={<Users className="size-4" />}>{card.passengers * qty} Passengers</Feature>
+        <Feature icon={<Briefcase className="size-4" />}>{card.luggage * qty} Luggage</Feature>
+        <Feature icon={<Luggage className="size-4" />}>{card.handLuggage * qty} Hand Luggage</Feature>
         <Feature icon={<BadgeCheck className="size-4" />}>Meet &amp; Greet Available</Feature>
         <Feature icon={<Clock className="size-4" />}>Free Waiting Time</Feature>
         <Feature icon={<DoorOpen className="size-4" />}>Door to Door</Feature>
@@ -296,23 +302,42 @@ function VehicleCard({ card, best, onSelect }: { card: QuoteCard; best: boolean;
 
       {/* price */}
       <div className="text-right md:border-l md:pl-6 border-border">
+        <div className="mb-3 text-left">
+          <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Vehicles</Label>
+          <Select value={String(qty)} onValueChange={(v) => onQtyChange(Number(v))}>
+            <SelectTrigger className="mt-1 h-10 border-[var(--gold)]/50">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {[1, 2, 3, 4, 5].map((n) => (
+                <SelectItem key={n} value={String(n)}>{n} x Vehicle Select</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">Total Price</p>
         <div className="mt-1">
           <span className="text-2xl font-display font-bold align-top mr-0.5">£</span>
-          <span className="text-4xl font-display font-bold tabular-nums">{card.finalPrice.toFixed(2)}</span>
+          <span className="text-4xl font-display font-bold tabular-nums">{total.toFixed(2)}</span>
         </div>
+        {qty > 1 && (
+          <p className="text-[11px] text-muted-foreground mt-0.5">
+            {qty} × £{card.finalPrice.toFixed(2)}
+          </p>
+        )}
         <div className="text-[11px] text-muted-foreground mt-1 space-y-0.5">
           <p className="flex items-center justify-end gap-1"><ShieldCheck className="size-3 text-[var(--gold)]" /> No hidden cost</p>
           <p className="flex items-center justify-end gap-1"><Clock className="size-3 text-[var(--gold)]" /> Free cancellation</p>
         </div>
         <p className="text-[10px] text-[var(--gold)] mt-1.5 underline">All prices include fees and tolls</p>
         <Button onClick={onSelect} className="mt-3 w-full h-11 rounded-lg bg-[var(--gold)] hover:brightness-110 text-[var(--gold-foreground)] font-bold tracking-wider">
-          Book Now £ {card.finalPrice.toFixed(2)}
+          Book Now £ {total.toFixed(2)}
         </Button>
       </div>
     </div>
   );
 }
+
 
 function Feature({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) {
   return (
