@@ -230,9 +230,7 @@ export const calculateQuotes = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const client = publicClient();
 
-    // Run the three independent lookups in parallel: fixed-route prices,
-    // distance estimate (external HTTP), and pricing profiles (3 DB queries).
-    const [fixed, distanceMiles, profiles] = await Promise.all([
+    const [fixed, distanceMiles, profiles, areaSurcharges] = await Promise.all([
       client
         .from("pricing_rules")
         .select("vehicle_id, price")
@@ -242,12 +240,15 @@ export const calculateQuotes = createServerFn({ method: "POST" })
         .then((r) => r.data ?? []),
       estimateDistanceMiles(data.pickup, data.dropoff),
       loadActiveProfiles(client),
+      loadAreaSurcharges(client, data.pickup, data.dropoff),
     ]);
 
     const fixedByVehicle = new Map<string, number>();
     for (const r of fixed) {
       if ((r as any).vehicle_id) fixedByVehicle.set((r as any).vehicle_id, Number((r as any).price));
     }
+
+    const areaTotal = areaSurcharges.reduce((s, a) => s + a.amount, 0);
 
     // Run engine per vehicle
     const cards: QuoteCard[] = profiles
@@ -257,8 +258,10 @@ export const calculateQuotes = createServerFn({ method: "POST" })
           distanceMiles: distanceMiles.miles,
           viaStops: data.viaStops,
           pickupTime: data.pickupTime || undefined,
+          surcharges: areaSurcharges,
         });
-        const final = fixedByVehicle.get(p.vehicle.id) ?? result.finalPrice;
+        const base = fixedByVehicle.get(p.vehicle.id);
+        const final = base != null ? base + areaTotal : result.finalPrice;
         return {
           vehicleId: p.vehicle.id,
           name: p.vehicle.name,
