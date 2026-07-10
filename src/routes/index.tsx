@@ -229,11 +229,13 @@ function HomePage() {
               </div>
             </div>
 
-            {/* RIGHT — vehicle */}
+            {/* RIGHT — vehicle carousel */}
             <div className="lg:col-span-6 relative">
               <div
                 className="relative opacity-0"
                 style={{ animation: "fadeInUp 900ms cubic-bezier(.2,.7,.2,1) 300ms forwards" }}
+                onMouseEnter={() => setPaused(true)}
+                onMouseLeave={() => setPaused(false)}
               >
                 {/* Backdrop CABSLINK watermark */}
                 <div aria-hidden className="pointer-events-none absolute inset-0 flex items-center justify-center select-none">
@@ -266,22 +268,55 @@ function HomePage() {
                 {/* Ground shadow */}
                 <div aria-hidden className="absolute inset-x-8 bottom-2 h-8 rounded-[50%] bg-black/30 blur-2xl" />
 
-                <img
-                  src={vClassSideImg}
-                  alt="Mercedes-Benz V-Class chauffeur vehicle — side profile"
-                  width={1920}
-                  height={1024}
-                  className="relative w-full object-contain drop-shadow-[0_35px_45px_rgba(14,24,44,0.28)]"
-                />
+                {/* Sliding vehicle stage */}
+                <div className="relative aspect-[16/10] overflow-hidden">
+                  <img
+                    key={current.key}
+                    src={current.img}
+                    alt={`${current.name} — chauffeur vehicle`}
+                    width={1920}
+                    height={1024}
+                    className="absolute inset-0 m-auto w-[92%] h-full object-contain drop-shadow-[0_35px_45px_rgba(14,24,44,0.28)]"
+                    style={{
+                      animation: `${dir === 1 ? "vehicleSlideInR" : "vehicleSlideInL"} 850ms cubic-bezier(.2,.7,.2,1) both`,
+                    }}
+                  />
+                </div>
 
-                {/* Floating spec chip */}
-                <div className="hidden md:flex absolute top-6 right-2 lg:right-6 items-center gap-3 rounded-2xl border border-[var(--gold)]/30 bg-[var(--background)]/85 backdrop-blur-md px-4 py-3 shadow-[var(--shadow-elegant)]">
+                {/* Prev / next */}
+                <div className="absolute inset-y-0 left-0 flex items-center">
+                  <button
+                    type="button"
+                    aria-label="Previous vehicle"
+                    onClick={() => go(active - 1)}
+                    className="grid size-10 md:size-11 place-items-center rounded-full bg-[var(--background)]/90 border border-[var(--navy)]/10 text-[var(--navy)] shadow-[var(--shadow-elegant)] hover:bg-[var(--gold)] hover:text-[var(--gold-foreground)] hover:border-[var(--gold)] transition"
+                  >
+                    <ChevronLeft className="size-5" />
+                  </button>
+                </div>
+                <div className="absolute inset-y-0 right-0 flex items-center">
+                  <button
+                    type="button"
+                    aria-label="Next vehicle"
+                    onClick={() => go(active + 1)}
+                    className="grid size-10 md:size-11 place-items-center rounded-full bg-[var(--background)]/90 border border-[var(--navy)]/10 text-[var(--navy)] shadow-[var(--shadow-elegant)] hover:bg-[var(--gold)] hover:text-[var(--gold-foreground)] hover:border-[var(--gold)] transition"
+                  >
+                    <ChevronRight className="size-5" />
+                  </button>
+                </div>
+
+                {/* Floating spec chip — reflects active vehicle */}
+                <div
+                  key={`chip-${current.key}`}
+                  className="hidden md:flex absolute top-6 right-2 lg:right-6 items-center gap-3 rounded-2xl border border-[var(--gold)]/30 bg-[var(--background)]/90 backdrop-blur-md px-4 py-3 shadow-[var(--shadow-elegant)]"
+                  style={{ animation: "fadeInUp 600ms cubic-bezier(.2,.7,.2,1) both" }}
+                >
                   <div className="grid size-9 place-items-center rounded-xl bg-[var(--gold)]/15 text-[var(--gold)]">
                     <Gem className="size-4" />
                   </div>
                   <div className="text-xs">
-                    <div className="font-display font-semibold text-[var(--navy)]">Mercedes V-Class</div>
-                    <div className="text-muted-foreground">First-class comfort · 7 seats</div>
+                    <div className="font-display font-semibold text-[var(--navy)]">{current.name}</div>
+                    <div className="text-muted-foreground">{current.tag}</div>
                   </div>
                 </div>
 
@@ -295,6 +330,46 @@ function HomePage() {
                     <div className="font-semibold text-[var(--navy)]">Live dispatch</div>
                     <div className="text-muted-foreground">Chauffeur available now</div>
                   </div>
+                </div>
+              </div>
+
+              {/* Vehicle selector strip */}
+              <div className="mt-6 relative">
+                <div className="flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  {heroVehicles.map((v, i) => {
+                    const isActive = i === active;
+                    return (
+                      <button
+                        key={v.key}
+                        type="button"
+                        onClick={() => go(i)}
+                        className={`group shrink-0 flex items-center gap-3 rounded-2xl border px-3 py-2 transition-all ${
+                          isActive
+                            ? "border-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_12%,var(--background))] shadow-[var(--shadow-elegant)]"
+                            : "border-[var(--navy)]/10 bg-[var(--background)]/70 hover:border-[var(--gold)]/50 hover:-translate-y-0.5"
+                        }`}
+                      >
+                        <div className="w-14 h-9 shrink-0 grid place-items-center overflow-hidden">
+                          <img src={v.img} alt="" loading="lazy" className="max-h-full w-auto object-contain" />
+                        </div>
+                        <div className="text-left pr-1">
+                          <div className={`text-[11px] font-semibold leading-tight ${isActive ? "text-[var(--navy)]" : "text-[var(--navy)]/80"}`}>
+                            {v.name}
+                          </div>
+                          <div className="text-[10px] text-muted-foreground leading-tight">{v.seats} seats</div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+                {/* Progress dots */}
+                <div className="mt-3 flex items-center gap-1.5">
+                  {heroVehicles.map((_, i) => (
+                    <span
+                      key={i}
+                      className={`h-1 rounded-full transition-all ${i === active ? "w-8 bg-[var(--gold)]" : "w-3 bg-[var(--navy)]/15"}`}
+                    />
+                  ))}
                 </div>
               </div>
             </div>
