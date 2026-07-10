@@ -283,13 +283,19 @@ export async function notifyStatusChange(
   ctx: BookingEmailContext,
   bookingId: string,
   status: BookingStatus,
+  transitionId: string | null,
 ) {
-  const eventKey = `customer_status_${status}`;
+  // Include transition id so repeated legitimate transitions to the same
+  // status (e.g. confirmed→assigned→confirmed→assigned) each create a fresh
+  // event, while retries of the SAME transition reuse the existing log row.
+  const eventKey = transitionId
+    ? `customer_status_${status}:${transitionId}`
+    : `customer_status_${status}`;
   const email = statusChangeEmail(ctx);
   const res = await sendAndLog({
     bookingId,
     eventKey,
-    notificationType: eventKey,
+    notificationType: `customer_status_${status}`,
     recipientCategory: "customer",
     recipient: ctx.customerEmail,
     subject: email.subject,

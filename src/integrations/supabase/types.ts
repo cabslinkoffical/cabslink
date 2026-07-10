@@ -116,6 +116,47 @@ export type Database = {
         }
         Relationships: []
       }
+      booking_status_transitions: {
+        Row: {
+          actor_id: string | null
+          booking_id: string
+          created_at: string
+          from_status: Database["public"]["Enums"]["booking_status"] | null
+          id: string
+          override: boolean
+          reason: string | null
+          to_status: Database["public"]["Enums"]["booking_status"]
+        }
+        Insert: {
+          actor_id?: string | null
+          booking_id: string
+          created_at?: string
+          from_status?: Database["public"]["Enums"]["booking_status"] | null
+          id?: string
+          override?: boolean
+          reason?: string | null
+          to_status: Database["public"]["Enums"]["booking_status"]
+        }
+        Update: {
+          actor_id?: string | null
+          booking_id?: string
+          created_at?: string
+          from_status?: Database["public"]["Enums"]["booking_status"] | null
+          id?: string
+          override?: boolean
+          reason?: string | null
+          to_status?: Database["public"]["Enums"]["booking_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_status_transitions_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookings: {
         Row: {
           admin_notes: string | null
@@ -148,9 +189,16 @@ export type Database = {
           pickup_place_id: string | null
           pickup_time: string
           price: number | null
+          pricing_profile_id_snapshot: string | null
+          pricing_snapshot: Json | null
+          quote_expires_at: string | null
+          quote_id: string | null
           return_journey: boolean
           status: Database["public"]["Enums"]["booking_status"]
           updated_at: string
+          vehicle_capacity_snapshot: Json | null
+          vehicle_id: string | null
+          vehicle_name_snapshot: string | null
           vehicle_type: string
         }
         Insert: {
@@ -184,9 +232,16 @@ export type Database = {
           pickup_place_id?: string | null
           pickup_time: string
           price?: number | null
+          pricing_profile_id_snapshot?: string | null
+          pricing_snapshot?: Json | null
+          quote_expires_at?: string | null
+          quote_id?: string | null
           return_journey?: boolean
           status?: Database["public"]["Enums"]["booking_status"]
           updated_at?: string
+          vehicle_capacity_snapshot?: Json | null
+          vehicle_id?: string | null
+          vehicle_name_snapshot?: string | null
           vehicle_type: string
         }
         Update: {
@@ -220,9 +275,16 @@ export type Database = {
           pickup_place_id?: string | null
           pickup_time?: string
           price?: number | null
+          pricing_profile_id_snapshot?: string | null
+          pricing_snapshot?: Json | null
+          quote_expires_at?: string | null
+          quote_id?: string | null
           return_journey?: boolean
           status?: Database["public"]["Enums"]["booking_status"]
           updated_at?: string
+          vehicle_capacity_snapshot?: Json | null
+          vehicle_id?: string | null
+          vehicle_name_snapshot?: string | null
           vehicle_type?: string
         }
         Relationships: [
@@ -231,6 +293,13 @@ export type Database = {
             columns: ["driver_id"]
             isOneToOne: false
             referencedRelation: "drivers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
             referencedColumns: ["id"]
           },
         ]
@@ -1024,15 +1093,19 @@ export type Database = {
           description: string
           display_order: number
           featured: boolean
+          features: Json
           hand_luggage: number
           id: string
           image_url: string
           luggage: number
           meet_greet_enabled: boolean
           name: string
+          needs_review: boolean
           passengers: number
           per_mile_rate: number | null
           price_per_hour: number | null
+          short_description: string | null
+          slug: string | null
           tbms_id: string | null
           updated_at: string
           vehicle_class: Database["public"]["Enums"]["vehicle_class"] | null
@@ -1046,15 +1119,19 @@ export type Database = {
           description?: string
           display_order?: number
           featured?: boolean
+          features?: Json
           hand_luggage?: number
           id?: string
           image_url: string
           luggage?: number
           meet_greet_enabled?: boolean
           name: string
+          needs_review?: boolean
           passengers?: number
           per_mile_rate?: number | null
           price_per_hour?: number | null
+          short_description?: string | null
+          slug?: string | null
           tbms_id?: string | null
           updated_at?: string
           vehicle_class?: Database["public"]["Enums"]["vehicle_class"] | null
@@ -1068,15 +1145,19 @@ export type Database = {
           description?: string
           display_order?: number
           featured?: boolean
+          features?: Json
           hand_luggage?: number
           id?: string
           image_url?: string
           luggage?: number
           meet_greet_enabled?: boolean
           name?: string
+          needs_review?: boolean
           passengers?: number
           per_mile_rate?: number | null
           price_per_hour?: number | null
+          short_description?: string | null
+          slug?: string | null
           tbms_id?: string | null
           updated_at?: string
           vehicle_class?: Database["public"]["Enums"]["vehicle_class"] | null
@@ -1136,6 +1217,7 @@ export type Database = {
           id: string
           previous_status: Database["public"]["Enums"]["booking_status"]
           status: Database["public"]["Enums"]["booking_status"]
+          transition_id: string
         }[]
       }
     }
