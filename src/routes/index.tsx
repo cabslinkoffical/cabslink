@@ -210,7 +210,7 @@ function HomePage() {
       {/* HOW IT WORKS */}
       <section className="section-y">
         <div className="container-x">
-          <SectionHeader eyebrow="How it works" title="Three steps to a premium ride" subtitle="From quote to chauffeur at your door — built to feel effortless." center />
+          <SectionHeader eyebrow="How it works" title="Three Steps To A Premium" titleAccent="Ride" subtitle="From quote to chauffeur at your door — built to feel effortless." center />
           <div className="mt-14 relative grid gap-6 md:grid-cols-3">
             {/* Connector line */}
             <div aria-hidden className="hidden md:block absolute top-16 left-[16.67%] right-[16.67%] h-px bg-gradient-to-r from-transparent via-[var(--gold)]/40 to-transparent" />
