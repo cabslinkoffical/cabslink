@@ -354,3 +354,62 @@ function ExtrasEditor({ pricing, setPricing }: { pricing: typeof emptyPricing; s
     </div>
   );
 }
+
+function DuplicateButton({
+  vehicleId, vehicleName, profiles, onDone,
+}: {
+  vehicleId: string;
+  vehicleName: string;
+  profiles: any[];
+  onDone: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [sourceProfileId, setSourceProfileId] = useState<string>("");
+  const dupFn = useServerFn(adminDuplicatePricingProfile);
+  const candidates = profiles.filter((p) => p.vehicle_id !== vehicleId);
+  if (candidates.length === 0) return null;
+
+  return (
+    <>
+      <Button size="sm" variant="ghost" title="Duplicate pricing from another vehicle" onClick={() => setOpen(true)}>
+        <Copy className="size-3.5 mr-1" /> Copy from…
+      </Button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>Copy pricing to {vehicleName}</DialogTitle></DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Source pricing profile</Label>
+              <Select value={sourceProfileId} onValueChange={setSourceProfileId}>
+                <SelectTrigger className="mt-1.5"><SelectValue placeholder="Select a source profile" /></SelectTrigger>
+                <SelectContent>
+                  {candidates.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      Vehicle profile · £{Number(p.base_price).toFixed(2)} base · {(p.tiers ?? []).length} tiers
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+              <Button
+                disabled={!sourceProfileId}
+                onClick={async () => {
+                  try {
+                    await dupFn({ data: { source_profile_id: sourceProfileId, target_vehicle_id: vehicleId } });
+                    toast.success("Pricing duplicated");
+                    setOpen(false);
+                    onDone();
+                  } catch (e: any) {
+                    toast.error(e.message ?? "Duplication failed");
+                  }
+                }}
+              >Copy pricing</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
