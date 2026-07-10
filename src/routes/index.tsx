@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import {
   ArrowRight, Plane, ShieldCheck, Clock3, Star, CalendarCheck, Phone, MapPin,
   Briefcase, Users, Award, BadgePoundSterling, Headset, Car, Building2, GraduationCap, Gem,
@@ -31,7 +32,7 @@ import rollsAsset from "@/assets/fleet/rolls.png.asset.json";
 import coachAsset from "@/assets/fleet/coach.png.asset.json";
 import coasterAsset from "@/assets/fleet/coaster.png.asset.json";
 
-const heroVehicles = [
+const fallbackHeroVehicles = [
   { key: "vclass", name: "Mercedes V-Class", tag: "First-class · 7 seats", img: vclassAsset.url, seats: 7 },
   { key: "sclass", name: "Mercedes S-Class", tag: "Flagship saloon · 3 seats", img: sclassAsset.url, seats: 3 },
   { key: "eclass", name: "Mercedes E-Class", tag: "Executive · 3 seats", img: eclassAsset.url, seats: 3 },
@@ -106,6 +107,32 @@ function HomePage() {
   const [active, setActive] = useState(0);
   const [dir, setDir] = useState<1 | -1>(1);
   const [paused, setPaused] = useState(false);
+  const [dbVehicles, setDbVehicles] = useState<typeof fallbackHeroVehicles | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    supabase
+      .from("vehicles")
+      .select("id, name, category, image_url, passengers")
+      .eq("active", true)
+      .order("display_order", { ascending: true })
+      .then(({ data }) => {
+        if (cancelled || !data || data.length === 0) return;
+        const mapped = data
+          .filter((v: any) => v.image_url)
+          .map((v: any) => ({
+            key: v.id as string,
+            name: v.name as string,
+            tag: `${v.category ?? "Vehicle"} · ${v.passengers ?? 0} seats`,
+            img: v.image_url as string,
+            seats: v.passengers ?? 0,
+          }));
+        if (mapped.length > 0) setDbVehicles(mapped);
+      });
+    return () => { cancelled = true; };
+  }, []);
+
+  const heroVehicles = useMemo(() => dbVehicles ?? fallbackHeroVehicles, [dbVehicles]);
 
   useEffect(() => {
     if (paused) return;
@@ -114,14 +141,18 @@ function HomePage() {
       setActive((i) => (i + 1) % heroVehicles.length);
     }, 5000);
     return () => clearInterval(id);
-  }, [paused]);
+  }, [paused, heroVehicles.length]);
+
+  useEffect(() => {
+    if (active >= heroVehicles.length) setActive(0);
+  }, [heroVehicles.length, active]);
 
   const go = (next: number) => {
     setDir(next > active || (active === heroVehicles.length - 1 && next === 0) ? 1 : -1);
     setActive((next + heroVehicles.length) % heroVehicles.length);
   };
 
-  const current = heroVehicles[active];
+  const current = heroVehicles[active] ?? heroVehicles[0];
 
   return (
     <SiteLayout>
