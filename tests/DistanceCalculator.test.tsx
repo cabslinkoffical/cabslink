@@ -10,8 +10,8 @@ vi.mock("@tanstack/react-start", () => ({
 
 // Mock LocationAutocomplete with a tiny controllable stub so we can drive
 // DistanceCalculator's business logic without going through Places.
-vi.mock("@/components/site/LocationAutocomplete", () => {
-  const React = require("react");
+vi.mock("@/components/site/LocationAutocomplete", async () => {
+  const React = await import("react");
   function LocationAutocomplete(props: {
     label: string;
     value: SelectedPlace | null;
