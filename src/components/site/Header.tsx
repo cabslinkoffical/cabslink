@@ -59,7 +59,7 @@ export function Header() {
             </Link>
           ) : null}
           <Button asChild variant="slash">
-            <Link to="/book">Book a Ride</Link>
+            <a href="/#booking">Book a Ride</a>
           </Button>
         </div>
         <button
