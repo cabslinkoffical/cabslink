@@ -103,6 +103,26 @@ const testimonials = [
 ];
 
 function HomePage() {
+  const [active, setActive] = useState(0);
+  const [dir, setDir] = useState<1 | -1>(1);
+  const [paused, setPaused] = useState(false);
+
+  useEffect(() => {
+    if (paused) return;
+    const id = setInterval(() => {
+      setDir(1);
+      setActive((i) => (i + 1) % heroVehicles.length);
+    }, 5000);
+    return () => clearInterval(id);
+  }, [paused]);
+
+  const go = (next: number) => {
+    setDir(next > active || (active === heroVehicles.length - 1 && next === 0) ? 1 : -1);
+    setActive((next + heroVehicles.length) % heroVehicles.length);
+  };
+
+  const current = heroVehicles[active];
+
   return (
     <SiteLayout>
       {/* HERO — unified: copy + vehicle + booking widget */}
