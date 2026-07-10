@@ -311,7 +311,7 @@ export const createBooking = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const client = publicClient();
 
-    const [fixed, distanceMiles, profiles] = await Promise.all([
+    const [fixed, distanceMiles, profiles, areaSurcharges] = await Promise.all([
       client
         .from("pricing_rules")
         .select("vehicle_id, price")
@@ -321,6 +321,7 @@ export const createBooking = createServerFn({ method: "POST" })
         .then((r) => r.data ?? []),
       estimateDistanceMiles(data.pickup, data.dropoff),
       loadActiveProfiles(client),
+      loadAreaSurcharges(client, data.pickup, data.dropoff),
     ]);
 
     const profile = profiles.find((p) => p.vehicle.id === data.vehicleId);
@@ -334,13 +335,15 @@ export const createBooking = createServerFn({ method: "POST" })
     for (const r of fixed) {
       if ((r as any).vehicle_id) fixedByVehicle.set((r as any).vehicle_id, Number((r as any).price));
     }
+    const areaTotal = areaSurcharges.reduce((s, a) => s + a.amount, 0);
     const engine = runPricingEngine(profile, {
       distanceMiles: distanceMiles.miles,
       viaStops: data.viaStops,
       pickupTime: data.pickupTime || undefined,
+      surcharges: areaSurcharges,
     });
-    const perVehicle =
-      fixedByVehicle.get(profile.vehicle.id) ?? engine.finalPrice;
+    const fixedBase = fixedByVehicle.get(profile.vehicle.id);
+    const perVehicle = fixedBase != null ? fixedBase + areaTotal : engine.finalPrice;
     const price = Math.round(perVehicle * qty * 100) / 100;
     const notesWithQty = qty > 1
       ? `Vehicles: ${qty} × ${profile.vehicle.name}${data.notes ? `\n\n${data.notes}` : ""}`
