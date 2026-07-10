@@ -76,7 +76,7 @@ describe("/book — missing-location state (router-aware)", () => {
   });
 
   it("shows empty-state when a label is present but Place ID missing (incomplete free text)", async () => {
-    renderAt("/book?q=" + encodeURIComponent("pickupLabel=Somewhere&dropoffLabel=Elsewhere"));
+    await renderAt("/book?q=" + encodeURIComponent("pickupLabel=Somewhere&dropoffLabel=Elsewhere"));
     await screen.findByText(/Enter your journey first/i);
     expect(calcMock).not.toHaveBeenCalled();
   });
