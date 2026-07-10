@@ -185,6 +185,16 @@
   60%  { opacity: 1; filter: blur(0); }
   100% { opacity: 1; transform: translateX(0) scale(1); filter: blur(0); }
 }
+@keyframes vehicleSlideInR {
+  0%   { opacity: 0; transform: translateX(-115%) scale(0.94); filter: blur(6px); }
+  55%  { opacity: 1; filter: blur(0); }
+  100% { opacity: 1; transform: translateX(0) scale(1); filter: blur(0); }
+}
+@keyframes vehicleSlideInL {
+  0%   { opacity: 0; transform: translateX(115%) scale(0.94); filter: blur(6px); }
+  55%  { opacity: 1; filter: blur(0); }
+  100% { opacity: 1; transform: translateX(0) scale(1); filter: blur(0); }
+}
 
 @utility animate-float      { animation: float-y 6s ease-in-out infinite; }
 @utility animate-fade-up    { animation: fade-up .8s cubic-bezier(.2,.7,.2,1) both; }
