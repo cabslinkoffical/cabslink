@@ -1,8 +1,17 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { execSync } from "node:child_process";
-import { readFileSync, existsSync, statSync } from "node:fs";
+import { readFileSync, existsSync, statSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import { globSync } from "node:fs";
+
+function walk(dir: string, out: string[] = []): string[] {
+  for (const name of readdirSync(dir)) {
+    const p = join(dir, name);
+    const s = statSync(p);
+    if (s.isDirectory()) walk(p, out);
+    else out.push(p);
+  }
+  return out;
+}
 
 /**
  * Build-time guard: server-only credential NAMES and (when known) VALUES must
