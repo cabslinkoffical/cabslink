@@ -1,8 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import {
   ArrowRight, Plane, ShieldCheck, Clock3, Star, CalendarCheck, Phone, MapPin,
   Briefcase, Users, Award, BadgePoundSterling, Headset, Car, Building2, GraduationCap, Gem,
-  Route as RouteIcon, CheckCircle2, Sparkles, MessageSquare, CreditCard, Quote
+  Route as RouteIcon, CheckCircle2, Sparkles, MessageSquare, CreditCard, Quote,
+  ChevronLeft, ChevronRight
 } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { BookingWidget } from "@/components/site/BookingWidget";
@@ -25,6 +27,20 @@ import eclassAsset from "@/assets/fleet/eclass.png.asset.json";
 import vclassAsset from "@/assets/fleet/vclass.png.asset.json";
 import rangeroverAsset from "@/assets/fleet/rangerover.png.asset.json";
 import minibusAsset from "@/assets/fleet/minibus.png.asset.json";
+import rollsAsset from "@/assets/fleet/rolls.png.asset.json";
+import coachAsset from "@/assets/fleet/coach.png.asset.json";
+import coasterAsset from "@/assets/fleet/coaster.png.asset.json";
+
+const heroVehicles = [
+  { key: "vclass", name: "Mercedes V-Class", tag: "First-class · 7 seats", img: vclassAsset.url, seats: 7 },
+  { key: "sclass", name: "Mercedes S-Class", tag: "Flagship saloon · 3 seats", img: sclassAsset.url, seats: 3 },
+  { key: "eclass", name: "Mercedes E-Class", tag: "Executive · 3 seats", img: eclassAsset.url, seats: 3 },
+  { key: "rangerover", name: "Range Rover", tag: "Luxury SUV · 4 seats", img: rangeroverAsset.url, seats: 4 },
+  { key: "rolls", name: "Rolls-Royce Bentley", tag: "Ultra-luxury · 3 seats", img: rollsAsset.url, seats: 3 },
+  { key: "minibus", name: "Executive Minibus", tag: "Groups · 16 seats", img: minibusAsset.url, seats: 16 },
+  { key: "coaster", name: "Coaster Bus", tag: "Mid-group · 24 seats", img: coasterAsset.url, seats: 24 },
+  { key: "coach", name: "Coach Bus", tag: "Large group · 55 seats", img: coachAsset.url, seats: 55 },
+];
 
 export const Route = createFileRoute("/")({
   head: () => ({
