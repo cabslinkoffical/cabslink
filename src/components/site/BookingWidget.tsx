@@ -282,7 +282,7 @@ export function BookingWidget() {
             type="submit"
             className="group w-full md:w-auto px-10 py-6 h-auto bg-[var(--navy)] text-[var(--gold)] rounded-2xl font-display font-bold uppercase tracking-[0.2em] text-sm hover:-translate-y-0.5 hover:bg-[var(--navy)] transition-all shadow-xl shadow-[var(--navy)]/20"
           >
-            Book a Ride or Get a Quote
+            Get a Quote
             <ArrowRight className="size-4 ml-2 transition-transform group-hover:translate-x-0.5" />
           </Button>
         </div>
