@@ -364,33 +364,35 @@ function StepperCard({
   onChange: (v: number) => void;
 }) {
   return (
-    <div className="flex items-center gap-2.5 px-3 h-[60px] rounded-2xl border border-border bg-background">
-      <div className="w-8 h-8 rounded-full bg-[var(--surface)] shrink-0 flex items-center justify-center">
-        {icon}
+    <div className="rounded-2xl border border-border bg-background px-3 py-2">
+      <div className="flex items-center gap-2 min-w-0">
+        <div className="w-7 h-7 rounded-full bg-[var(--surface)] shrink-0 flex items-center justify-center">
+          {icon}
+        </div>
+        <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-foreground/45 truncate">{label}</div>
       </div>
-      <div className="min-w-0 flex-1">
-        <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-foreground/45">{label}</div>
-        <div className="text-base font-bold tabular-nums leading-tight">{value}</div>
-      </div>
-      <div className="flex flex-col gap-1 shrink-0">
-        <button
-          type="button"
-          onClick={() => onChange(Math.min(max, value + 1))}
-          disabled={value >= max}
-          aria-label="Increase"
-          className="w-6 h-6 rounded-md bg-[var(--navy)] text-[var(--gold)] disabled:opacity-40 flex items-center justify-center"
-        >
-          <Plus className="w-3 h-3" strokeWidth={3} />
-        </button>
-        <button
-          type="button"
-          onClick={() => onChange(Math.max(min, value - 1))}
-          disabled={value <= min}
-          aria-label="Decrease"
-          className="w-6 h-6 rounded-md bg-[var(--surface)] text-foreground/70 disabled:opacity-40 flex items-center justify-center"
-        >
-          <Minus className="w-3 h-3" strokeWidth={3} />
-        </button>
+      <div className="flex items-center justify-between mt-1">
+        <span className="text-lg font-bold tabular-nums leading-none">{value}</span>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <button
+            type="button"
+            onClick={() => onChange(Math.max(min, value - 1))}
+            disabled={value <= min}
+            aria-label="Decrease"
+            className="w-7 h-7 rounded-full bg-[var(--surface)] text-foreground/70 disabled:opacity-40 flex items-center justify-center"
+          >
+            <Minus className="w-3 h-3" strokeWidth={3} />
+          </button>
+          <button
+            type="button"
+            onClick={() => onChange(Math.min(max, value + 1))}
+            disabled={value >= max}
+            aria-label="Increase"
+            className="w-7 h-7 rounded-full bg-[var(--navy)] text-[var(--gold)] disabled:opacity-40 flex items-center justify-center"
+          >
+            <Plus className="w-3 h-3" strokeWidth={3} />
+          </button>
+        </div>
       </div>
     </div>
   );
