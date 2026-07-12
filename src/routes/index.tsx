@@ -727,7 +727,7 @@ function HomePage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-3 sm:gap-5">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-5">
                 {[
                   { icon: Phone, title: "Call us 24/7", body: SITE.phoneUK, href: `tel:${SITE.phoneUK.replace(/\s/g, "")}` },
                   { icon: MapPin, title: "Visit our office", body: SITE.address, href: "/contact" },
@@ -736,13 +736,15 @@ function HomePage() {
                   <a
                     key={c.title}
                     href={c.href}
-                    className="group relative flex flex-col rounded-2xl border border-border bg-card p-4 md:p-5 hover:border-[var(--gold)]/60 hover:-translate-y-1 hover:shadow-[var(--shadow-elegant)] transition-all duration-300"
+                    className="group relative flex items-center gap-4 rounded-2xl border border-border bg-card p-4 sm:flex-col sm:items-start sm:gap-0 sm:p-5 hover:border-[var(--gold)]/60 hover:-translate-y-1 hover:shadow-[var(--shadow-elegant)] transition-all duration-300"
                   >
-                    <div className="grid size-10 place-items-center rounded-xl bg-[var(--gold)]/12 border border-[var(--gold)]/25 text-[var(--gold)] group-hover:scale-110 transition-transform">
+                    <div className="grid size-11 shrink-0 place-items-center rounded-xl bg-[var(--gold)]/12 border border-[var(--gold)]/25 text-[var(--gold)] group-hover:scale-110 transition-transform">
                       <c.icon className="size-5" />
                     </div>
-                    <p className="mt-3 font-semibold text-sm leading-tight">{c.title}</p>
-                    <p className="mt-1 text-xs text-muted-foreground leading-snug line-clamp-2">{c.body}</p>
+                    <div className="min-w-0 flex-1 sm:mt-3 sm:flex-none">
+                      <p className="font-semibold text-sm leading-tight">{c.title}</p>
+                      <p className="mt-1 text-xs text-muted-foreground leading-snug line-clamp-2 break-words">{c.body}</p>
+                    </div>
                   </a>
                 ))}
               </div>
