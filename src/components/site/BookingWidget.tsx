@@ -121,7 +121,7 @@ export function BookingWidget() {
                 id="widget-pickup"
                 value={pickup}
                 onChange={setPickup}
-                placeholder="Enter UK airport, postcode or address"
+                placeholder="Airport, postcode or address"
                 inputClassName="border-0 shadow-none bg-transparent focus-visible:ring-0"
                 required
               />
