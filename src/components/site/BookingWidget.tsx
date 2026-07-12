@@ -121,7 +121,7 @@ export function BookingWidget() {
                 id="widget-pickup"
                 value={pickup}
                 onChange={setPickup}
-                placeholder="Enter UK airport, postcode or address"
+                placeholder="Airport, postcode or address"
                 inputClassName="border-0 shadow-none bg-transparent focus-visible:ring-0"
                 required
               />
@@ -205,7 +205,7 @@ export function BookingWidget() {
         </div>
 
         {showReturn && (
-          <div className="rounded-2xl border border-border bg-[var(--surface)] p-5 space-y-4">
+          <div className="rounded-2xl border border-border bg-[var(--surface)] p-3 sm:p-5 space-y-4">
             <div className="flex items-center justify-between">
               <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--gold)]">Return Journey</p>
               <button type="button" onClick={() => setShowReturn(false)} className="text-xs text-muted-foreground hover:text-foreground inline-flex items-center gap-1">
@@ -307,20 +307,20 @@ function TimePicker12({ value, onChange }: { value: string; onChange: (v: string
   const setM = (nm: string) => onChange(to24(h, nm, p));
   const setP = (np: "AM" | "PM") => onChange(to24(h, m, np));
   return (
-    <div className="flex items-center gap-1 h-[52px] rounded-xl bg-background border border-border px-1.5 min-w-0">
+    <div className="flex items-center gap-0.5 sm:gap-1 h-[52px] rounded-xl bg-background border border-border px-1 sm:px-1.5 min-w-0">
       <Select value={h} onValueChange={setH}>
-        <SelectTrigger className="w-[52px] sm:w-[64px] border-0 shadow-none h-10 focus:ring-0 px-1.5 font-semibold tabular-nums"><SelectValue /></SelectTrigger>
+        <SelectTrigger className="w-[38px] sm:w-[60px] border-0 shadow-none h-10 focus:ring-0 px-1 font-semibold tabular-nums text-sm shrink-0 [&>svg]:hidden sm:[&>svg]:inline"><SelectValue /></SelectTrigger>
         <SelectContent>{HOURS_12.map((x) => <SelectItem key={x} value={x}>{x}</SelectItem>)}</SelectContent>
       </Select>
-      <span className="text-foreground/30 font-bold">:</span>
+      <span className="text-foreground/30 font-bold text-xs shrink-0">:</span>
       <Select value={m} onValueChange={setM}>
-        <SelectTrigger className="w-[52px] sm:w-[64px] border-0 shadow-none h-10 focus:ring-0 px-1.5 font-semibold tabular-nums"><SelectValue /></SelectTrigger>
+        <SelectTrigger className="w-[38px] sm:w-[60px] border-0 shadow-none h-10 focus:ring-0 px-1 font-semibold tabular-nums text-sm shrink-0 [&>svg]:hidden sm:[&>svg]:inline"><SelectValue /></SelectTrigger>
         <SelectContent>{MINS.map((x) => <SelectItem key={x} value={x}>{x}</SelectItem>)}</SelectContent>
       </Select>
-      <div className="ml-auto flex rounded-lg bg-[var(--surface)] p-0.5 shrink-0">
+      <div className="ml-auto flex flex-col rounded-md bg-[var(--surface)] p-0.5 shrink-0 sm:flex-row sm:rounded-lg">
         {(["AM", "PM"] as const).map((opt) => (
           <button key={opt} type="button" onClick={() => setP(opt)}
-            className={`px-2 py-1 rounded-md text-[10px] sm:text-[11px] font-bold tracking-wide transition-colors ${p === opt ? "bg-[var(--navy)] text-[var(--gold)] shadow-sm" : "text-foreground/60 hover:text-foreground"}`}>
+            className={`px-1.5 sm:px-2 leading-none py-[3px] sm:py-1 rounded-sm sm:rounded-md text-[9px] sm:text-[11px] font-bold tracking-wide transition-colors ${p === opt ? "bg-[var(--navy)] text-[var(--gold)] shadow-sm" : "text-foreground/60 hover:text-foreground"}`}>
             {opt}
           </button>
         ))}
