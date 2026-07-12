@@ -137,7 +137,7 @@ export function BookingWidget() {
                   onChange={setDropoff}
                   placeholder="Enter UK destination"
                   iconClassName="hidden"
-                  inputClassName="border-0 shadow-none bg-transparent pl-4 focus-visible:ring-0"
+                  inputClassName="border-0 shadow-none bg-transparent pl-11 focus-visible:ring-0"
                   required
                 />
                 <Flag className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--gold)] pointer-events-none z-10" />
