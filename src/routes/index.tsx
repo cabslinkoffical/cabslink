@@ -521,8 +521,8 @@ function HomePage() {
         </div>
       </section>
 
-      {/* FLEET — reference-style image cards */}
-      <section className="section-y">
+      {/* FLEET — mobile-first snap carousel, desktop grid */}
+      <section className="section-y overflow-hidden">
         <div className="container-x">
           <SectionHeader
             eyebrow="Our Fleet"
@@ -531,7 +531,53 @@ function HomePage() {
             subtitle="Explore our modern, chauffeur-driven fleet available across the UK."
             center
           />
-          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+
+          {/* Mobile: horizontal snap cards */}
+          <div className="mt-8 -mx-5 sm:hidden">
+            <div className="flex gap-4 overflow-x-auto px-5 pb-6 snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {fleet.map((f, i) => (
+                <Reveal
+                  key={f.name}
+                  delay={i * 80}
+                  className="group relative shrink-0 w-[78vw] max-w-[320px] snap-start rounded-3xl border border-border bg-card p-4 active:scale-[0.98] transition-transform"
+                >
+                  <span className="absolute top-3 right-3 z-10 inline-flex items-center gap-1 rounded-full bg-[var(--gold)]/12 border border-[var(--gold)]/30 text-[var(--gold)] text-[9px] font-semibold uppercase tracking-[0.14em] px-2 py-0.5">
+                    <Gem className="size-2.5" /> {f.note}
+                  </span>
+                  <div className="relative aspect-[16/10] flex items-center justify-center overflow-hidden rounded-2xl bg-[var(--surface)]">
+                    <img
+                      src={f.img}
+                      alt={f.name}
+                      loading="lazy"
+                      width={1200}
+                      height={750}
+                      className="max-h-[92%] w-auto object-contain"
+                    />
+                  </div>
+                  <div className="mt-3">
+                    <h3 className="font-display text-base font-semibold leading-tight">{f.name}</h3>
+                    <div className="mt-2.5 flex flex-wrap gap-y-2 gap-x-3 text-xs text-muted-foreground">
+                      <span className="inline-flex items-center gap-1">
+                        <Users className="size-3.5 text-[var(--gold)]" />
+                        {f.passengers}
+                      </span>
+                      <span className="inline-flex items-center gap-1">
+                        <Briefcase className="size-3.5 text-[var(--gold)]" />
+                        {f.luggage}
+                      </span>
+                      <span className="inline-flex items-center gap-1">
+                        <Car className="size-3.5 text-[var(--gold)]" />
+                        {f.transmission}
+                      </span>
+                    </div>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+
+          {/* Desktop: reference-style image cards */}
+          <div className="mt-12 hidden sm:grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {fleet.slice(0, 3).map((f, i) => (
               <Reveal
                 key={f.name}
@@ -575,7 +621,7 @@ function HomePage() {
               </Reveal>
             ))}
           </div>
-          <div className="mt-10 flex justify-center">
+          <div className="mt-8 sm:mt-10 flex justify-center">
             <Button asChild variant="outline" className="rounded-full">
               <Link to="/fleet">View full fleet <ArrowRight className="size-4" /></Link>
             </Button>
