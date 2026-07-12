@@ -88,20 +88,20 @@ export function BookingWidget() {
     navigate({ to: "/book", search: { q: params.toString() } as never });
   };
 
-  const tabBase = "flex-1 py-4 px-5 rounded-2xl text-left transition-all cursor-pointer";
+  const tabBase = "flex-1 min-w-0 py-3 px-3 sm:py-4 sm:px-5 rounded-2xl text-center sm:text-left transition-all cursor-pointer";
   const tabActive = "bg-[var(--navy)] text-[var(--gold)] shadow-[var(--shadow-elegant)]";
   const tabIdle = "bg-transparent text-foreground/55 hover:bg-white/60";
 
   return (
     <div className="w-full max-w-5xl mx-auto bg-card rounded-3xl shadow-[var(--shadow-elegant)] overflow-hidden border border-border">
-      <div className="flex bg-[var(--surface)] p-2 gap-2">
+      <div className="flex bg-[var(--surface)] p-1.5 sm:p-2 gap-1.5 sm:gap-2">
         <button type="button" onClick={() => setTab("quote")} className={`${tabBase} ${tab === "quote" ? tabActive : tabIdle}`}>
-          <span className="block text-[10px] uppercase tracking-[0.2em] font-bold opacity-70 mb-0.5">Service Type</span>
-          <span className="block text-base md:text-lg font-bold leading-tight font-display">Quick Quote</span>
+          <span className="hidden sm:block text-[10px] uppercase tracking-[0.2em] font-bold opacity-70 mb-0.5">Service Type</span>
+          <span className="block text-sm sm:text-base md:text-lg font-bold leading-tight font-display truncate">Quick Quote</span>
         </button>
         <button type="button" onClick={() => setTab("hourly")} className={`${tabBase} ${tab === "hourly" ? tabActive : tabIdle}`}>
-          <span className="block text-[10px] uppercase tracking-[0.2em] font-bold opacity-70 mb-0.5">Service Type</span>
-          <span className="block text-base md:text-lg font-bold leading-tight font-display">Hourly Rate</span>
+          <span className="hidden sm:block text-[10px] uppercase tracking-[0.2em] font-bold opacity-70 mb-0.5">Service Type</span>
+          <span className="block text-sm sm:text-base md:text-lg font-bold leading-tight font-display truncate">Hourly Rate</span>
         </button>
       </div>
 
