@@ -205,7 +205,7 @@ export function BookingWidget() {
         </div>
 
         {showReturn && (
-          <div className="rounded-2xl border border-border bg-[var(--surface)] p-5 space-y-4">
+          <div className="rounded-2xl border border-border bg-[var(--surface)] p-3 sm:p-5 space-y-4">
             <div className="flex items-center justify-between">
               <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--gold)]">Return Journey</p>
               <button type="button" onClick={() => setShowReturn(false)} className="text-xs text-muted-foreground hover:text-foreground inline-flex items-center gap-1">
