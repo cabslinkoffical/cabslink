@@ -105,7 +105,7 @@ export function BookingWidget() {
         </button>
       </div>
 
-      <form onSubmit={submit} className="p-6 md:p-8 space-y-7" noValidate>
+      <form onSubmit={submit} className="p-4 sm:p-6 md:p-8 space-y-6 sm:space-y-7" noValidate>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 relative">
           {tab === "quote" && (
             <div className="hidden md:flex absolute left-1/2 top-[60%] -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none">
