@@ -272,7 +272,7 @@ function HomePage() {
                 {/* Backdrop CABSLINK watermark */}
                 <div aria-hidden className="pointer-events-none absolute inset-0 flex items-center justify-center select-none">
                   <span
-                    className="font-display font-bold leading-none tracking-[-0.06em] text-[22vw] lg:text-[13vw]"
+                    className="font-display font-bold leading-none tracking-[-0.06em] text-[16vw] lg:text-[13vw]"
                     style={{
                       color: "transparent",
                       WebkitTextStroke: "1px color-mix(in oklab, var(--navy) 10%, transparent)",
