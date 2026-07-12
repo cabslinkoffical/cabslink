@@ -244,7 +244,7 @@ function HomePage() {
 
               {/* Stats strip */}
               <div
-                className="mt-8 grid grid-cols-3 gap-2 max-w-lg opacity-0"
+                className="mt-8 grid grid-cols-3 gap-2 w-full max-w-lg opacity-0"
                 style={{ animation: "fadeInUp 800ms cubic-bezier(.2,.7,.2,1) 620ms forwards" }}
               >
                 {[
