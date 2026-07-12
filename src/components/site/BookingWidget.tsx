@@ -307,20 +307,20 @@ function TimePicker12({ value, onChange }: { value: string; onChange: (v: string
   const setM = (nm: string) => onChange(to24(h, nm, p));
   const setP = (np: "AM" | "PM") => onChange(to24(h, m, np));
   return (
-    <div className="flex items-center gap-1.5 h-[52px] rounded-xl bg-background border border-border px-2">
+    <div className="flex items-center gap-1 h-[52px] rounded-xl bg-background border border-border px-1.5 min-w-0">
       <Select value={h} onValueChange={setH}>
-        <SelectTrigger className="w-[64px] border-0 shadow-none h-10 focus:ring-0 px-2 font-semibold tabular-nums"><SelectValue /></SelectTrigger>
+        <SelectTrigger className="w-[52px] sm:w-[64px] border-0 shadow-none h-10 focus:ring-0 px-1.5 font-semibold tabular-nums"><SelectValue /></SelectTrigger>
         <SelectContent>{HOURS_12.map((x) => <SelectItem key={x} value={x}>{x}</SelectItem>)}</SelectContent>
       </Select>
       <span className="text-foreground/30 font-bold">:</span>
       <Select value={m} onValueChange={setM}>
-        <SelectTrigger className="w-[64px] border-0 shadow-none h-10 focus:ring-0 px-2 font-semibold tabular-nums"><SelectValue /></SelectTrigger>
+        <SelectTrigger className="w-[52px] sm:w-[64px] border-0 shadow-none h-10 focus:ring-0 px-1.5 font-semibold tabular-nums"><SelectValue /></SelectTrigger>
         <SelectContent>{MINS.map((x) => <SelectItem key={x} value={x}>{x}</SelectItem>)}</SelectContent>
       </Select>
-      <div className="ml-auto flex rounded-lg bg-[var(--surface)] p-0.5">
+      <div className="ml-auto flex rounded-lg bg-[var(--surface)] p-0.5 shrink-0">
         {(["AM", "PM"] as const).map((opt) => (
           <button key={opt} type="button" onClick={() => setP(opt)}
-            className={`px-2.5 py-1 rounded-md text-[11px] font-bold tracking-wide transition-colors ${p === opt ? "bg-[var(--navy)] text-[var(--gold)] shadow-sm" : "text-foreground/60 hover:text-foreground"}`}>
+            className={`px-2 py-1 rounded-md text-[10px] sm:text-[11px] font-bold tracking-wide transition-colors ${p === opt ? "bg-[var(--navy)] text-[var(--gold)] shadow-sm" : "text-foreground/60 hover:text-foreground"}`}>
             {opt}
           </button>
         ))}

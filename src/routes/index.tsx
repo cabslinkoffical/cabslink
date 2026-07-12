@@ -174,9 +174,10 @@ function HomePage() {
         />
 
         <div className="container-x relative pt-14 md:pt-20 pb-8">
-          <div className="grid lg:grid-cols-12 gap-10 lg:gap-8 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
             {/* LEFT — copy */}
-            <div className="lg:col-span-6 relative z-10">
+            <div className="lg:col-span-6 relative z-10 min-w-0 w-full">
+
               <div
                 className="inline-flex items-center gap-3 rounded-full border border-[var(--gold)]/40 bg-[color-mix(in_oklab,var(--gold)_8%,transparent)] px-4 py-1.5 opacity-0"
                 style={{ animation: "fadeInUp 700ms cubic-bezier(.2,.7,.2,1) 100ms forwards" }}
@@ -188,7 +189,7 @@ function HomePage() {
               </div>
 
               <h1
-                className="mt-6 font-display font-bold text-[var(--navy)] leading-[0.95] tracking-[-0.035em] text-[2.75rem] sm:text-6xl lg:text-[5.25rem] opacity-0"
+                className="mt-5 font-display font-bold text-[var(--navy)] leading-[0.95] tracking-[-0.03em] text-[2rem] sm:text-5xl lg:text-[5.25rem] opacity-0"
                 style={{ animation: "fadeInUp 800ms cubic-bezier(.2,.7,.2,1) 200ms forwards" }}
               >
                 Arrive in{" "}
@@ -204,7 +205,7 @@ function HomePage() {
               </h1>
 
               <p
-                className="mt-6 max-w-xl text-base md:text-lg text-muted-foreground opacity-0"
+                className="mt-5 max-w-xl text-sm md:text-lg text-muted-foreground opacity-0"
                 style={{ animation: "fadeInUp 800ms cubic-bezier(.2,.7,.2,1) 380ms forwards" }}
               >
                 Fixed-fare Mercedes-Benz chauffeur transfers across the UK. Flight tracked, meet &amp; greet, 24/7 live dispatch — the calm way to travel.
@@ -212,39 +213,39 @@ function HomePage() {
 
               {/* Trust row */}
               <div
-                className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4 opacity-0"
+                className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-3 opacity-0"
                 style={{ animation: "fadeInUp 800ms cubic-bezier(.2,.7,.2,1) 500ms forwards" }}
               >
-                <div className="flex items-center gap-2">
-                  <div className="flex -space-x-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className="flex -space-x-2 shrink-0">
                     {["S","J","P","M"].map((c, idx) => (
                       <span
                         key={idx}
-                        className="grid size-8 place-items-center rounded-full border-2 border-[var(--background)] bg-[var(--navy)] text-[10px] font-semibold text-[var(--gold)]"
+                        className="grid size-7 place-items-center rounded-full border-2 border-[var(--background)] bg-[var(--navy)] text-[10px] font-semibold text-[var(--gold)]"
                       >
                         {c}
                       </span>
                     ))}
                   </div>
-                  <div className="text-xs text-[var(--navy)]">
-                    <div className="flex items-center gap-1">
+                  <div className="text-xs text-[var(--navy)] min-w-0">
+                    <div className="flex items-center gap-0.5">
                       {Array.from({ length: 5 }).map((_, i) => (
-                        <Star key={i} className="size-3.5 fill-[var(--gold)] text-[var(--gold)]" />
+                        <Star key={i} className="size-3 fill-[var(--gold)] text-[var(--gold)]" />
                       ))}
                     </div>
-                    <div className="text-muted-foreground">2,400+ five-star rides</div>
+                    <div className="text-muted-foreground text-[11px] truncate">2,400+ five-star rides</div>
                   </div>
                 </div>
                 <div className="h-8 w-px bg-[var(--navy)]/10 hidden sm:block" />
-                <div className="flex items-center gap-2 text-sm text-[var(--navy)]">
-                  <ShieldCheck className="size-4 text-[var(--gold)]" />
-                  <span className="font-medium">Fully licensed &amp; insured</span>
+                <div className="flex items-center gap-1.5 text-xs sm:text-sm text-[var(--navy)]">
+                  <ShieldCheck className="size-4 text-[var(--gold)] shrink-0" />
+                  <span className="font-medium">Licensed &amp; insured</span>
                 </div>
               </div>
 
               {/* Stats strip */}
               <div
-                className="mt-10 grid grid-cols-3 max-w-lg opacity-0"
+                className="mt-8 grid grid-cols-3 gap-2 w-full max-w-lg opacity-0"
                 style={{ animation: "fadeInUp 800ms cubic-bezier(.2,.7,.2,1) 620ms forwards" }}
               >
                 {[
@@ -252,12 +253,13 @@ function HomePage() {
                   { k: "24/7", v: "Dispatch" },
                   { k: "4.9★", v: "Rated" },
                 ].map((s, i, arr) => (
-                  <div key={s.k} className={`px-4 first:pl-0 ${i < arr.length - 1 ? "border-r border-[var(--navy)]/10" : ""}`}>
-                    <div className="font-display text-2xl md:text-3xl font-bold text-[var(--navy)]">{s.k}</div>
-                    <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground mt-1">{s.v}</div>
+                  <div key={s.k} className={`min-w-0 px-2 sm:px-4 first:pl-0 ${i < arr.length - 1 ? "border-r border-[var(--navy)]/10" : ""}`}>
+                    <div className="font-display text-xl sm:text-2xl md:text-3xl font-bold text-[var(--navy)]">{s.k}</div>
+                    <div className="text-[10px] sm:text-[11px] uppercase tracking-[0.14em] text-muted-foreground mt-1 truncate">{s.v}</div>
                   </div>
                 ))}
               </div>
+
             </div>
 
             {/* RIGHT — vehicle carousel */}
@@ -271,7 +273,7 @@ function HomePage() {
                 {/* Backdrop CABSLINK watermark */}
                 <div aria-hidden className="pointer-events-none absolute inset-0 flex items-center justify-center select-none">
                   <span
-                    className="font-display font-bold leading-none tracking-[-0.06em] text-[22vw] lg:text-[13vw]"
+                    className="font-display font-bold leading-none tracking-[-0.06em] text-[16vw] lg:text-[13vw]"
                     style={{
                       color: "transparent",
                       WebkitTextStroke: "1px color-mix(in oklab, var(--navy) 10%, transparent)",
@@ -445,7 +447,7 @@ function HomePage() {
 
       {/* AIRPORT COPY */}
       <section className="section-y">
-        <div className="container-x grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <div className="container-x grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div className="relative">
             {/* Decorative frame */}
             <div aria-hidden className="absolute -top-4 -left-4 size-24 border-t-2 border-l-2 border-[var(--gold)] rounded-tl-3xl" />
@@ -603,7 +605,7 @@ function HomePage() {
 
       {/* CORPORATE + TOURS SPLIT */}
       <section className="section-y">
-        <div className="container-x grid lg:grid-cols-2 gap-6">
+        <div className="container-x grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="group rounded-3xl bg-[var(--navy)] border border-white/10 text-white p-8 md:p-12 relative overflow-hidden hover:border-[var(--gold)]/30 transition-colors">
             <div aria-hidden className="absolute -top-24 -right-24 size-72 rounded-full bg-[radial-gradient(circle_at_center,color-mix(in_oklab,var(--gold)_30%,transparent),transparent_70%)] blur-3xl opacity-60 group-hover:opacity-100 transition-opacity" />
             <div className="relative">
