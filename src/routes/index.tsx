@@ -176,7 +176,8 @@ function HomePage() {
         <div className="container-x relative pt-14 md:pt-20 pb-8">
           <div className="grid lg:grid-cols-12 gap-10 lg:gap-8 items-center">
             {/* LEFT — copy */}
-            <div className="lg:col-span-6 relative z-10">
+            <div className="lg:col-span-6 relative z-10 min-w-0 w-full">
+
               <div
                 className="inline-flex items-center gap-3 rounded-full border border-[var(--gold)]/40 bg-[color-mix(in_oklab,var(--gold)_8%,transparent)] px-4 py-1.5 opacity-0"
                 style={{ animation: "fadeInUp 700ms cubic-bezier(.2,.7,.2,1) 100ms forwards" }}
