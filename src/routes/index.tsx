@@ -447,7 +447,7 @@ function HomePage() {
 
       {/* AIRPORT COPY */}
       <section className="section-y">
-        <div className="container-x grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <div className="container-x grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div className="relative">
             {/* Decorative frame */}
             <div aria-hidden className="absolute -top-4 -left-4 size-24 border-t-2 border-l-2 border-[var(--gold)] rounded-tl-3xl" />
@@ -605,7 +605,7 @@ function HomePage() {
 
       {/* CORPORATE + TOURS SPLIT */}
       <section className="section-y">
-        <div className="container-x grid lg:grid-cols-2 gap-6">
+        <div className="container-x grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="group rounded-3xl bg-[var(--navy)] border border-white/10 text-white p-8 md:p-12 relative overflow-hidden hover:border-[var(--gold)]/30 transition-colors">
             <div aria-hidden className="absolute -top-24 -right-24 size-72 rounded-full bg-[radial-gradient(circle_at_center,color-mix(in_oklab,var(--gold)_30%,transparent),transparent_70%)] blur-3xl opacity-60 group-hover:opacity-100 transition-opacity" />
             <div className="relative">
