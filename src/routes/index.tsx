@@ -359,15 +359,6 @@ function HomePage() {
                     );
                   })}
                 </div>
-                {/* Progress dots */}
-                <div className="mt-3 flex items-center gap-1.5">
-                  {heroVehicles.map((_, i) => (
-                    <span
-                      key={i}
-                      className={`h-1 rounded-full transition-all ${i === active ? "w-8 bg-[var(--gold)]" : "w-3 bg-[var(--navy)]/15"}`}
-                    />
-                  ))}
-                </div>
               </div>
             </div>
           </div>
