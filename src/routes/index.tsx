@@ -174,7 +174,7 @@ function HomePage() {
         />
 
         <div className="container-x relative pt-14 md:pt-20 pb-8">
-          <div className="grid lg:grid-cols-12 gap-10 lg:gap-8 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
             {/* LEFT — copy */}
             <div className="lg:col-span-6 relative z-10 min-w-0 w-full">
 
