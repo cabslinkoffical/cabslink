@@ -401,9 +401,39 @@ function HomePage() {
         <div className="container-x relative">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
             <SectionHeader eyebrow="Our Services" title="A Complete Chauffeur" titleAccent="Service" subtitle="From airport pickups to multi-day private tours — one trusted standard, every journey." />
-            <Button asChild variant="outline" className="rounded-full self-start"><Link to="/services">All services <ArrowRight className="size-4" /></Link></Button>
+            <Button asChild variant="outline" className="rounded-full self-start hidden md:inline-flex"><Link to="/services">All services <ArrowRight className="size-4" /></Link></Button>
           </div>
-          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+
+          {/* MOBILE — app-style stacked list */}
+          <ul className="mt-8 flex flex-col gap-3 sm:hidden">
+            {services.map((s, i) => (
+              <Reveal key={s.title} delay={(i % 3) * 60}>
+                <Link
+                  to={s.to}
+                  className="group relative flex items-center gap-4 overflow-hidden rounded-2xl border border-border bg-card p-3 pr-4 active:scale-[0.98] transition"
+                >
+                  <div className="relative size-20 shrink-0 overflow-hidden rounded-xl">
+                    <img src={s.img} alt={s.title} loading="lazy" className="absolute inset-0 size-full object-cover" />
+                    <div className="absolute inset-0 bg-gradient-to-tr from-black/50 to-transparent" />
+                    <div className="absolute bottom-1.5 left-1.5 grid size-7 place-items-center rounded-lg bg-[var(--gold)] text-[var(--gold-foreground)]">
+                      <s.icon className="size-3.5" />
+                    </div>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-display text-base font-semibold truncate">{s.title}</h3>
+                    <p className="mt-0.5 text-xs text-muted-foreground line-clamp-2 leading-snug">{s.desc}</p>
+                  </div>
+                  <ArrowRight className="size-4 shrink-0 text-[var(--gold)] group-hover:translate-x-0.5 transition-transform" />
+                </Link>
+              </Reveal>
+            ))}
+            <Link to="/services" className="mt-2 inline-flex items-center justify-center gap-2 rounded-full border border-[var(--gold)]/40 bg-transparent px-5 py-3 text-sm font-semibold text-[var(--navy)]">
+              View all services <ArrowRight className="size-4" />
+            </Link>
+          </ul>
+
+          {/* TABLET/DESKTOP — luxury image cards */}
+          <div className="mt-12 hidden gap-5 sm:grid sm:grid-cols-2 lg:grid-cols-3">
             {services.map((s, i) => (
               <Reveal key={s.title} delay={(i % 3) * 100}>
                 <Link
@@ -417,7 +447,6 @@ function HomePage() {
                     className="absolute inset-0 size-full object-cover transition duration-[900ms] group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/10 transition-opacity duration-500 group-hover:from-black/95 group-hover:via-black/40" />
-                  {/* Gold accent corner */}
                   <div aria-hidden className="absolute top-0 right-0 size-24 bg-[radial-gradient(circle_at_top_right,color-mix(in_oklab,var(--gold)_45%,transparent),transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <div className="absolute top-5 left-5 grid size-11 place-items-center rounded-xl bg-[var(--gold)] text-[var(--gold-foreground)] shadow-[var(--shadow-glow)] transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
                     <s.icon className="size-5" />
