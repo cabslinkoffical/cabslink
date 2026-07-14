@@ -91,6 +91,12 @@ function mapRouteError(err: unknown): Error {
 // Public: calculate quotes for all vehicles (Place-ID required)
 // -------------------------------------------------------------------
 const stopSchema = z.object({ placeId: placeIdSchema, label: placeLabelSchema });
+const bookingStopSchema = z.object({
+  placeId: placeIdSchema,
+  label: placeLabelSchema,
+  minutes: z.number().int().min(0).max(240).optional().default(0),
+  category: z.string().trim().max(64).optional().nullable(),
+});
 
 const quoteInput = z
   .object({
@@ -211,7 +217,10 @@ const createBookingInput = z
     pickupLabel: placeLabelSchema,
     destinationPlaceId: placeIdSchema,
     destinationLabel: placeLabelSchema,
-    stops: z.array(stopSchema).max(10).optional().default([]),
+    stops: z.array(bookingStopSchema).max(10).optional().default([]),
+    routeMode: z.enum(["direct", "scenic", "optimised"]).optional(),
+    stopsFingerprint: z.string().trim().regex(/^[0-9a-f]{64}$/i).optional().nullable(),
+    tourConversionAckAt: z.string().datetime().optional().nullable(),
     pickupDate: z.string().trim().min(1).max(20),
     pickupTime: z.string().trim().min(1).max(10),
     passengers: z.number().int().min(1).max(200),
@@ -332,9 +341,99 @@ export const createBooking = createServerFn({ method: "POST" })
       settings: auth.settings,
       vehicleCount: qty,
     });
-    const price = q.finalTotal;
+    let price = q.finalTotal;
     const pricingSnapshot = q.snapshot;
     const pricingProfileIdSnapshot = q.profileId;
+
+    // ---------------------------------------------------------------
+    // Multi-stop / scenic verification.
+    // If the client selected timed POI stops, re-derive the stops
+    // fingerprint from server-authoritative inputs and re-run the
+    // service classifier. Any mismatch → 409. Tour conversion without
+    // an acknowledgement → 409.
+    // ---------------------------------------------------------------
+    const hasTimedStops = data.stops.some((s) => (s.minutes ?? 0) > 0);
+    let serverServiceType = "direct_transfer";
+    let serverOriginalServiceType = "direct_transfer";
+    let serverFingerprint: string | null = null;
+    let plannedStopSeconds = 0;
+    let selectedPoisJson: any[] = [];
+    let scenicTemplateId: string | null = null;
+    let scenicPrice: number | null = null;
+
+    if (hasTimedStops) {
+      const routeMode = data.routeMode ?? "scenic";
+      const { stopsFingerprint } = await import("@/lib/stops-fingerprint");
+      const { classifyService } = await import("@/lib/classification");
+      const { loadPoiFeesByPlaceId, loadThresholds, calculateMultiStopQuote } = await import("@/lib/scenic-quote.functions");
+
+      serverFingerprint = await stopsFingerprint({
+        pickupPlaceId: data.pickupPlaceId,
+        destinationPlaceId: data.destinationPlaceId,
+        routeMode,
+        stops: data.stops.map((s) => ({ place_id: s.placeId, minutes: s.minutes ?? 0 })),
+      });
+      if (data.stopsFingerprint && data.stopsFingerprint.toLowerCase() !== serverFingerprint) {
+        try { setResponseStatus(409); } catch {}
+        throw new Error("Your journey changed while we were preparing the booking. Please refresh your quote and try again.");
+      }
+
+      const [thresholds, poiFees] = await Promise.all([
+        loadThresholds(),
+        loadPoiFeesByPlaceId(data.stops.map((s) => s.placeId)),
+      ]);
+      const classification = classifyService(
+        data.stops.map((s) => ({
+          place_id: s.placeId,
+          minutes: s.minutes ?? 0,
+          category: s.category ?? poiFees.get(s.placeId)?.category ?? null,
+        })),
+        {
+          sightseeingThresholdMinutes: thresholds.sightseeingThresholdMinutes,
+          tourThresholdMinutes: thresholds.tourThresholdMinutes,
+          tourThresholdStops: thresholds.tourThresholdStops,
+        },
+      );
+      serverServiceType = classification.service_type;
+      serverOriginalServiceType = "direct_transfer";
+      plannedStopSeconds = data.stops.reduce((sum, s) => sum + Math.max(0, s.minutes ?? 0) * 60, 0);
+      selectedPoisJson = data.stops.map((s) => ({
+        place_id: s.placeId, label: s.label, minutes: s.minutes ?? 0, category: s.category ?? null,
+      }));
+
+      if (serverServiceType !== serverOriginalServiceType && !data.tourConversionAckAt) {
+        try { setResponseStatus(409); } catch {}
+        throw new Error("This journey now qualifies as a different service. Please acknowledge the change and resubmit.");
+      }
+
+      // Recompute authoritative multi-stop total for this vehicle so the
+      // saved price includes stop / parking / scenic fees and any detour.
+      try {
+        const multi = await calculateMultiStopQuote({
+          data: {
+            pickup_place_id: data.pickupPlaceId,
+            pickup_label: data.pickupLabel,
+            destination_place_id: data.destinationPlaceId,
+            destination_label: data.destinationLabel,
+            pickup_time: data.pickupTime,
+            stops: data.stops.map((s) => ({
+              place_id: s.placeId, label: s.label,
+              minutes: s.minutes ?? 0, category: s.category ?? null,
+            })),
+            route_mode: routeMode,
+            vehicle_id: data.vehicleId,
+          } as any,
+        });
+        const veh = multi.vehicles.find((v) => v.vehicle_id === data.vehicleId);
+        if (veh) {
+          scenicPrice = Number((veh.per_vehicle_total * qty).toFixed(2));
+          scenicTemplateId = multi.template_id;
+          price = scenicPrice;
+        }
+      } catch (err) {
+        console.error("multi-stop verification recompute failed", err);
+      }
+    }
 
     const notesWithQty = qty > 1
       ? `Vehicles: ${qty} × ${profile.vehicle.name}${data.notes ? `\n\n${data.notes}` : ""}`
@@ -389,6 +488,14 @@ export const createBooking = createServerFn({ method: "POST" })
       status: "new",
       booking_ref: bookingRef,
       confirmation_token_expires_at: confirmationExpires,
+      // Multi-stop / scenic columns — null for direct transfers.
+      service_type: serverServiceType,
+      original_service_type: serverOriginalServiceType,
+      stops_fingerprint: serverFingerprint,
+      tour_conversion_ack_at: data.tourConversionAckAt ?? null,
+      planned_stop_duration_seconds: plannedStopSeconds,
+      selected_pois: selectedPoisJson,
+      scenic_template_id: scenicTemplateId,
       // confirmation_token_hash set immediately after we know the row id
     };
 

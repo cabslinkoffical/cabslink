@@ -109,7 +109,7 @@ function serverPublicClient() {
   });
 }
 
-async function loadPoiFeesByPlaceId(placeIds: string[]) {
+export async function loadPoiFeesByPlaceId(placeIds: string[]) {
   if (placeIds.length === 0) return new Map<string, { stop_fee_pence: number; parking_fee_pence: number; category: string }>();
   const client = serverPublicClient();
   const { data } = await client
@@ -128,7 +128,7 @@ async function loadPoiFeesByPlaceId(placeIds: string[]) {
   return out;
 }
 
-async function loadThresholds() {
+export async function loadThresholds() {
   const client = serverPublicClient();
   const { data } = await client
     .from("site_settings")
@@ -290,7 +290,7 @@ export const calculateMultiStopQuote = createServerFn({ method: "POST" })
         engine_version: ENGINE_VERSION,
         route_mode: data.route_mode,
         service_type: classification.service_type,
-        original_service_type: classification.service_type,
+        original_service_type: "direct_transfer",
         classification_reason: classification.reason,
         planned_stop_duration_seconds: plannedStopSeconds,
         driving_duration_seconds: drivingSeconds,
@@ -326,7 +326,7 @@ export const calculateMultiStopQuote = createServerFn({ method: "POST" })
       engine_version: ENGINE_VERSION,
       route_mode: data.route_mode,
       service_type: classification.service_type,
-      original_service_type: classification.service_type,
+      original_service_type: "direct_transfer",
       classification_reason: classification.reason,
       attraction_stops: classification.attraction_stops,
       planned_attraction_minutes: classification.planned_attraction_minutes,
