@@ -119,6 +119,10 @@ function BookPage() {
   const [chosen, setChosen] = useState<QuoteCard | null>(null);
   const [qty, setQty] = useState<number>(1);
   const [editOpen, setEditOpen] = useState(false);
+  // Selected POI stops (place_id -> minutes). Order determined by the curated
+  // template order (poisQuery result).
+  const [selectedStops, setSelectedStops] = useState<Record<string, number>>({});
+  const [routeMode, setRouteMode] = useState<"direct" | "scenic" | "optimised">("scenic");
 
   const hasValidRoute = !!pre.pickup?.placeId && !!pre.dropoff?.placeId
     && pre.pickup.placeId !== pre.dropoff.placeId;
