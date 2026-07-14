@@ -65,7 +65,7 @@ export type MultiStopVehicleQuote = {
   currency: string;
   currency_symbol: string;
   breakdown: BreakdownLine[];
-  snapshot: Record<string, unknown>;
+  snapshot: any;
 };
 
 export type MultiStopQuoteResult = {
@@ -158,7 +158,10 @@ export const calculateMultiStopQuote = createServerFn({ method: "POST" })
         return "0.0.0.0";
       }
     })();
-    const rl = checkLimit(`multi-stop-quote:${ip}`, 30, 60_000);
+    const rl = checkLimit(
+      { name: "multi-stop-quote", windowMs: 60_000, max: 30 },
+      ip,
+    );
     if (!rl.ok) {
       setResponseStatus(429);
       throw new Error("Too many quote requests, please slow down.");
