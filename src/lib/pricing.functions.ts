@@ -488,6 +488,14 @@ export const createBooking = createServerFn({ method: "POST" })
       status: "new",
       booking_ref: bookingRef,
       confirmation_token_expires_at: confirmationExpires,
+      // Multi-stop / scenic columns — null for direct transfers.
+      service_type: serverServiceType,
+      original_service_type: serverOriginalServiceType,
+      stops_fingerprint: serverFingerprint,
+      tour_conversion_ack_at: data.tourConversionAckAt ?? null,
+      planned_stop_duration_seconds: plannedStopSeconds,
+      selected_pois: selectedPoisJson,
+      scenic_template_id: scenicTemplateId,
       // confirmation_token_hash set immediately after we know the row id
     };
 
