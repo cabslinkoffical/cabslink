@@ -652,6 +652,7 @@ function VehicleCard({ card, best, qty, priceUpdating, onQtyChange, onSelect }: 
             <span className="text-3xl md:text-4xl font-display font-bold tabular-nums tracking-tight">{total.toFixed(2)}</span>
           </div>
           {qty > 1 && (<p className="text-[11px] text-muted-foreground mt-1">{qty} × £{card.finalPrice.toFixed(2)}</p>)}
+          {priceUpdating && (<p className="text-[10px] text-[var(--gold)] mt-1 uppercase tracking-wider">Updating…</p>)}
           <div className="mt-3 text-[11px] text-muted-foreground space-y-1">
             <p className="flex items-center justify-center gap-1.5"><ShieldCheck className="size-3 text-[var(--gold)]" /> No hidden cost</p>
             <p className="flex items-center justify-center gap-1.5"><Clock className="size-3 text-[var(--gold)]" /> Free cancellation</p>
