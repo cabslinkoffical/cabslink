@@ -265,10 +265,20 @@ function BookPage() {
                         onDurationChange={setStopMinutes}
                         routeMode={routeMode}
                         onRouteModeChange={setRouteMode}
+                        onRouteModeChange={changeRouteMode}
                         multiQuote={multiStopQuery.data ?? null}
                         multiLoading={multiStopQuery.isFetching}
                         multiError={multiStopQuery.error as Error | null}
                       />
+                      {isConverted && mq && (
+                        <TourConversionBanner
+                          from={mq.original_service_type}
+                          to={mq.service_type}
+                          reason={mq.classification_reason}
+                          acked={!!tourAckAt}
+                          onAck={() => setTourAckAt(new Date().toISOString())}
+                        />
+                      )}
                       <VehicleStep
                         pre={pre}
                         data={quoteQuery.data}
@@ -278,6 +288,8 @@ function BookPage() {
                         multiQuote={multiStopQuery.data ?? null}
                         multiLoading={multiStopQuery.isFetching}
                         hasStops={orderedSelected.length > 0}
+                        bookingDisabled={needsAck}
+                        bookingDisabledReason={needsAck ? "Please acknowledge the tour conversion above to continue." : null}
                         onSelect={(card, quantity) => { setChosen(card); setQty(quantity); setStep("details"); }}
                       />
                     </>
