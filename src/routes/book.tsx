@@ -248,6 +248,14 @@ function BookPage() {
                         template={poisQuery.data?.template ?? null}
                         pois={poisQuery.data?.pois ?? []}
                         isLoading={poisQuery.isLoading}
+                        selectedStops={selectedStops}
+                        onToggle={toggleStop}
+                        onDurationChange={setStopMinutes}
+                        routeMode={routeMode}
+                        onRouteModeChange={setRouteMode}
+                        multiQuote={multiStopQuery.data ?? null}
+                        multiLoading={multiStopQuery.isFetching}
+                        multiError={multiStopQuery.error as Error | null}
                       />
                       <VehicleStep
                         pre={pre}
