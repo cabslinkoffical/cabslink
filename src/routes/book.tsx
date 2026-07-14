@@ -174,6 +174,53 @@ function BookPage() {
       }),
   });
 
+  // Build ordered stops payload from selectedStops in the curated template order.
+  const orderedSelected = (poisQuery.data?.pois ?? [])
+    .filter((p) => selectedStops[p.place_id] !== undefined)
+    .map((p) => ({
+      place_id: p.place_id,
+      label: p.name,
+      minutes: selectedStops[p.place_id],
+      category: p.category,
+    }));
+
+  const multiStopFn = useServerFn(calculateMultiStopQuote);
+  const multiStopQuery = useQuery({
+    enabled: hasValidRoute && orderedSelected.length > 0,
+    queryKey: [
+      "multi-stop-quote",
+      pre.pickup?.placeId, pre.dropoff?.placeId, routeMode,
+      orderedSelected.map((s) => `${s.place_id}:${s.minutes}`).join("|"),
+    ],
+    queryFn: () =>
+      multiStopFn({
+        data: {
+          pickup_place_id: pre.pickup!.placeId,
+          pickup_label: pre.pickup!.label,
+          destination_place_id: pre.dropoff!.placeId,
+          destination_label: pre.dropoff!.label,
+          pickup_time: pre.time,
+          stops: orderedSelected,
+          route_mode: routeMode,
+        },
+      }),
+  });
+
+  const toggleStop = (poi: PoiSuggestion) => {
+    setSelectedStops((prev) => {
+      const next = { ...prev };
+      if (next[poi.place_id] !== undefined) delete next[poi.place_id];
+      else next[poi.place_id] = poi.recommended_visit_minutes;
+      return next;
+    });
+    setChosen(null);
+  };
+  const setStopMinutes = (placeId: string, minutes: number) => {
+    setSelectedStops((prev) => ({ ...prev, [placeId]: minutes }));
+    setChosen(null);
+  };
+
+
   return (
     <SiteLayout>
       <section className="relative bg-[var(--surface)] py-10 md:py-14 min-h-[80vh] overflow-hidden">
