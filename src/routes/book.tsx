@@ -508,15 +508,25 @@ function Sidebar({ pre, onEdit, route }: {
 }
 
 
-function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
+function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect, multiQuote, multiLoading, hasStops }: {
   pre: Prefill;
   data: Awaited<ReturnType<typeof calculateQuotes>> | undefined;
   isLoading: boolean;
   error: Error | null;
   onRetry: () => void;
   onSelect: (card: QuoteCard, qty: number) => void;
+  multiQuote: MultiStopQuoteResult | null;
+  multiLoading: boolean;
+  hasStops: boolean;
 }) {
   const [qtyMap, setQtyMap] = useState<Record<string, number>>({});
+  const priceByVehicle = useMemo(() => {
+    const m = new Map<string, number>();
+    if (multiQuote) {
+      for (const v of multiQuote.vehicles) m.set(v.vehicle_id, v.per_vehicle_total);
+    }
+    return m;
+  }, [multiQuote]);
   return (
     <div>
       <div className="mb-6 flex items-end justify-between flex-wrap gap-3">
@@ -525,7 +535,11 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
           <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground mt-1">
             Book Your Ride · {pre.ret ? "Return" : "One Way"}
           </h2>
-          <p className="text-sm text-muted-foreground mt-1">Every fare is all-inclusive — no surge, no hidden fees.</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            {hasStops
+              ? `Prices include your selected stops${multiLoading ? " · updating…" : ""}.`
+              : "Every fare is all-inclusive — no surge, no hidden fees."}
+          </p>
         </div>
         {data && (
           <div className="inline-flex items-center gap-2 bg-[var(--navy)] text-[var(--navy-foreground)] rounded-full px-4 py-2 text-xs font-bold uppercase tracking-widest">
@@ -554,10 +568,15 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
         )}
         {data?.quotes.map((q, i) => {
           const qty = qtyMap[q.vehicleId] ?? 1;
+          const override = priceByVehicle.get(q.vehicleId);
+          const effective: QuoteCard = override !== undefined
+            ? { ...q, finalPrice: override, basePrice: override }
+            : q;
           return (
-            <VehicleCard key={q.vehicleId} card={q} best={i === 0} qty={qty}
+            <VehicleCard key={q.vehicleId} card={effective} best={i === 0} qty={qty}
+              priceUpdating={hasStops && multiLoading}
               onQtyChange={(n) => setQtyMap((m) => ({ ...m, [q.vehicleId]: n }))}
-              onSelect={() => onSelect(q, qty)} />
+              onSelect={() => onSelect(effective, qty)} />
           );
         })}
       </div>
