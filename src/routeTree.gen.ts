@@ -29,11 +29,14 @@ import { Route as BookingTokenRouteImport } from './routes/booking.$token'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
+import { Route as AuthenticatedAdminTourSettingsRouteImport } from './routes/_authenticated/admin/tour-settings'
 import { Route as AuthenticatedAdminSurchargesRouteImport } from './routes/_authenticated/admin/surcharges'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin/settings'
+import { Route as AuthenticatedAdminScenicRoutesRouteImport } from './routes/_authenticated/admin/scenic-routes'
 import { Route as AuthenticatedAdminReportsRouteImport } from './routes/_authenticated/admin/reports'
 import { Route as AuthenticatedAdminPricingPreviewRouteImport } from './routes/_authenticated/admin/pricing-preview'
 import { Route as AuthenticatedAdminPricingRouteImport } from './routes/_authenticated/admin/pricing'
+import { Route as AuthenticatedAdminPoisRouteImport } from './routes/_authenticated/admin/pois'
 import { Route as AuthenticatedAdminPaymentsRouteImport } from './routes/_authenticated/admin/payments'
 import { Route as AuthenticatedAdminNotificationsRouteImport } from './routes/_authenticated/admin/notifications'
 import { Route as AuthenticatedAdminMileagePricingRouteImport } from './routes/_authenticated/admin/mileage-pricing'
@@ -148,6 +151,12 @@ const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
   path: '/users',
   getParentRoute: () => AuthenticatedAdminRouteRoute,
 } as any)
+const AuthenticatedAdminTourSettingsRoute =
+  AuthenticatedAdminTourSettingsRouteImport.update({
+    id: '/tour-settings',
+    path: '/tour-settings',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminSurchargesRoute =
   AuthenticatedAdminSurchargesRouteImport.update({
     id: '/surcharges',
@@ -158,6 +167,12 @@ const AuthenticatedAdminSettingsRoute =
   AuthenticatedAdminSettingsRouteImport.update({
     id: '/settings',
     path: '/settings',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminScenicRoutesRoute =
+  AuthenticatedAdminScenicRoutesRouteImport.update({
+    id: '/scenic-routes',
+    path: '/scenic-routes',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 const AuthenticatedAdminReportsRoute =
@@ -178,6 +193,11 @@ const AuthenticatedAdminPricingRoute =
     path: '/pricing',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminPoisRoute = AuthenticatedAdminPoisRouteImport.update({
+  id: '/pois',
+  path: '/pois',
+  getParentRoute: () => AuthenticatedAdminRouteRoute,
+} as any)
 const AuthenticatedAdminPaymentsRoute =
   AuthenticatedAdminPaymentsRouteImport.update({
     id: '/payments',
@@ -293,11 +313,14 @@ export interface FileRoutesByFullPath {
   '/admin/mileage-pricing': typeof AuthenticatedAdminMileagePricingRoute
   '/admin/notifications': typeof AuthenticatedAdminNotificationsRoute
   '/admin/payments': typeof AuthenticatedAdminPaymentsRoute
+  '/admin/pois': typeof AuthenticatedAdminPoisRoute
   '/admin/pricing': typeof AuthenticatedAdminPricingRoute
   '/admin/pricing-preview': typeof AuthenticatedAdminPricingPreviewRoute
   '/admin/reports': typeof AuthenticatedAdminReportsRoute
+  '/admin/scenic-routes': typeof AuthenticatedAdminScenicRoutesRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/surcharges': typeof AuthenticatedAdminSurchargesRoute
+  '/admin/tour-settings': typeof AuthenticatedAdminTourSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
 }
@@ -332,11 +355,14 @@ export interface FileRoutesByTo {
   '/admin/mileage-pricing': typeof AuthenticatedAdminMileagePricingRoute
   '/admin/notifications': typeof AuthenticatedAdminNotificationsRoute
   '/admin/payments': typeof AuthenticatedAdminPaymentsRoute
+  '/admin/pois': typeof AuthenticatedAdminPoisRoute
   '/admin/pricing': typeof AuthenticatedAdminPricingRoute
   '/admin/pricing-preview': typeof AuthenticatedAdminPricingPreviewRoute
   '/admin/reports': typeof AuthenticatedAdminReportsRoute
+  '/admin/scenic-routes': typeof AuthenticatedAdminScenicRoutesRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/surcharges': typeof AuthenticatedAdminSurchargesRoute
+  '/admin/tour-settings': typeof AuthenticatedAdminTourSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
 }
@@ -374,11 +400,14 @@ export interface FileRoutesById {
   '/_authenticated/admin/mileage-pricing': typeof AuthenticatedAdminMileagePricingRoute
   '/_authenticated/admin/notifications': typeof AuthenticatedAdminNotificationsRoute
   '/_authenticated/admin/payments': typeof AuthenticatedAdminPaymentsRoute
+  '/_authenticated/admin/pois': typeof AuthenticatedAdminPoisRoute
   '/_authenticated/admin/pricing': typeof AuthenticatedAdminPricingRoute
   '/_authenticated/admin/pricing-preview': typeof AuthenticatedAdminPricingPreviewRoute
   '/_authenticated/admin/reports': typeof AuthenticatedAdminReportsRoute
+  '/_authenticated/admin/scenic-routes': typeof AuthenticatedAdminScenicRoutesRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/surcharges': typeof AuthenticatedAdminSurchargesRoute
+  '/_authenticated/admin/tour-settings': typeof AuthenticatedAdminTourSettingsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
 }
@@ -416,11 +445,14 @@ export interface FileRouteTypes {
     | '/admin/mileage-pricing'
     | '/admin/notifications'
     | '/admin/payments'
+    | '/admin/pois'
     | '/admin/pricing'
     | '/admin/pricing-preview'
     | '/admin/reports'
+    | '/admin/scenic-routes'
     | '/admin/settings'
     | '/admin/surcharges'
+    | '/admin/tour-settings'
     | '/admin/users'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
@@ -455,11 +487,14 @@ export interface FileRouteTypes {
     | '/admin/mileage-pricing'
     | '/admin/notifications'
     | '/admin/payments'
+    | '/admin/pois'
     | '/admin/pricing'
     | '/admin/pricing-preview'
     | '/admin/reports'
+    | '/admin/scenic-routes'
     | '/admin/settings'
     | '/admin/surcharges'
+    | '/admin/tour-settings'
     | '/admin/users'
     | '/admin'
   id:
@@ -496,11 +531,14 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/mileage-pricing'
     | '/_authenticated/admin/notifications'
     | '/_authenticated/admin/payments'
+    | '/_authenticated/admin/pois'
     | '/_authenticated/admin/pricing'
     | '/_authenticated/admin/pricing-preview'
     | '/_authenticated/admin/reports'
+    | '/_authenticated/admin/scenic-routes'
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/surcharges'
+    | '/_authenticated/admin/tour-settings'
     | '/_authenticated/admin/users'
     | '/_authenticated/admin/'
   fileRoutesById: FileRoutesById
@@ -667,6 +705,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/tour-settings': {
+      id: '/_authenticated/admin/tour-settings'
+      path: '/tour-settings'
+      fullPath: '/admin/tour-settings'
+      preLoaderRoute: typeof AuthenticatedAdminTourSettingsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/surcharges': {
       id: '/_authenticated/admin/surcharges'
       path: '/surcharges'
@@ -679,6 +724,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/admin/settings'
       preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/scenic-routes': {
+      id: '/_authenticated/admin/scenic-routes'
+      path: '/scenic-routes'
+      fullPath: '/admin/scenic-routes'
+      preLoaderRoute: typeof AuthenticatedAdminScenicRoutesRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/admin/reports': {
@@ -700,6 +752,13 @@ declare module '@tanstack/react-router' {
       path: '/pricing'
       fullPath: '/admin/pricing'
       preLoaderRoute: typeof AuthenticatedAdminPricingRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/pois': {
+      id: '/_authenticated/admin/pois'
+      path: '/pois'
+      fullPath: '/admin/pois'
+      preLoaderRoute: typeof AuthenticatedAdminPoisRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/admin/payments': {
@@ -818,11 +877,14 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminMileagePricingRoute: typeof AuthenticatedAdminMileagePricingRoute
   AuthenticatedAdminNotificationsRoute: typeof AuthenticatedAdminNotificationsRoute
   AuthenticatedAdminPaymentsRoute: typeof AuthenticatedAdminPaymentsRoute
+  AuthenticatedAdminPoisRoute: typeof AuthenticatedAdminPoisRoute
   AuthenticatedAdminPricingRoute: typeof AuthenticatedAdminPricingRoute
   AuthenticatedAdminPricingPreviewRoute: typeof AuthenticatedAdminPricingPreviewRoute
   AuthenticatedAdminReportsRoute: typeof AuthenticatedAdminReportsRoute
+  AuthenticatedAdminScenicRoutesRoute: typeof AuthenticatedAdminScenicRoutesRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminSurchargesRoute: typeof AuthenticatedAdminSurchargesRoute
+  AuthenticatedAdminTourSettingsRoute: typeof AuthenticatedAdminTourSettingsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
@@ -845,12 +907,15 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
       AuthenticatedAdminMileagePricingRoute,
     AuthenticatedAdminNotificationsRoute: AuthenticatedAdminNotificationsRoute,
     AuthenticatedAdminPaymentsRoute: AuthenticatedAdminPaymentsRoute,
+    AuthenticatedAdminPoisRoute: AuthenticatedAdminPoisRoute,
     AuthenticatedAdminPricingRoute: AuthenticatedAdminPricingRoute,
     AuthenticatedAdminPricingPreviewRoute:
       AuthenticatedAdminPricingPreviewRoute,
     AuthenticatedAdminReportsRoute: AuthenticatedAdminReportsRoute,
+    AuthenticatedAdminScenicRoutesRoute: AuthenticatedAdminScenicRoutesRoute,
     AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
     AuthenticatedAdminSurchargesRoute: AuthenticatedAdminSurchargesRoute,
+    AuthenticatedAdminTourSettingsRoute: AuthenticatedAdminTourSettingsRoute,
     AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   }

@@ -68,7 +68,7 @@ export const upsertPoi = createServerFn({ method: "POST" })
     if (data.active && !data.place_id) {
       throw new Error("Active POIs must have a Google Place ID.");
     }
-    const payload = { ...data, place_id: data.place_id?.trim() || null };
+    const payload: any = { ...data, place_id: data.place_id?.trim() || null };
     if (payload.id) {
       const { error } = await context.supabase
         .from("points_of_interest")
