@@ -761,8 +761,17 @@ const detailsSchema = z.object({
   notes: z.string().trim().max(1000).optional().or(z.literal("")),
 });
 
-function DetailsStep({ pre, card, qty, onBack, onSuccess }:
-  { pre: Prefill; card: QuoteCard; qty: number; onBack: () => void; onSuccess: (token: string | null) => void }) {
+type ScenicStop = { place_id: string; label: string; minutes: number; category?: string | null };
+
+function DetailsStep({ pre, card, qty, scenicStops, routeMode, stopsFingerprint, tourConversionAckAt, onBack, onSuccess }:
+  {
+    pre: Prefill; card: QuoteCard; qty: number;
+    scenicStops: ScenicStop[];
+    routeMode: "direct" | "scenic" | "optimised";
+    stopsFingerprint: string | null;
+    tourConversionAckAt: string | null;
+    onBack: () => void; onSuccess: (token: string | null) => void;
+  }) {
   const [meetGreet, setMeetGreet] = useState(true);
   const [childSeat, setChildSeat] = useState(false);
   const [returnJourney, setReturnJourney] = useState(pre.ret);
@@ -783,6 +792,11 @@ function DetailsStep({ pre, card, qty, onBack, onSuccess }:
     inflight.current = true;
     setLoading(true);
     try {
+      // Merge URL waypoint stops (no minutes) with scenic POI stops (with minutes).
+      // Scenic POI stops are the authoritative source when present.
+      const mergedStops = scenicStops.length > 0
+        ? scenicStops.map((s) => ({ placeId: s.place_id, label: s.label, minutes: s.minutes, category: s.category ?? null }))
+        : pre.stops.map((s) => ({ placeId: s.placeId, label: s.label, minutes: 0 }));
       const res = await bookFn({
         data: {
           idempotencyKey: idempotencyKey.current,
@@ -792,7 +806,10 @@ function DetailsStep({ pre, card, qty, onBack, onSuccess }:
           pickupLabel: pre.pickup.label,
           destinationPlaceId: pre.dropoff.placeId,
           destinationLabel: pre.dropoff.label,
-          stops: pre.stops,
+          stops: mergedStops,
+          routeMode: scenicStops.length > 0 ? routeMode : undefined,
+          stopsFingerprint: stopsFingerprint ?? undefined,
+          tourConversionAckAt: tourConversionAckAt ?? undefined,
           pickupDate: pre.date,
           pickupTime: pre.time,
           passengers: pre.passengers,
