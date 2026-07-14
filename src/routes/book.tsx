@@ -215,11 +215,22 @@ function BookPage() {
       return next;
     });
     setChosen(null);
+    setTourAckAt(null);
   };
   const setStopMinutes = (placeId: string, minutes: number) => {
     setSelectedStops((prev) => ({ ...prev, [placeId]: minutes }));
     setChosen(null);
+    setTourAckAt(null);
   };
+  const changeRouteMode = (mode: "direct" | "scenic" | "optimised") => {
+    setRouteMode(mode);
+    setChosen(null);
+    setTourAckAt(null);
+  };
+
+  const mq = multiStopQuery.data ?? null;
+  const isConverted = !!mq && mq.service_type !== mq.original_service_type;
+  const needsAck = isConverted && !tourAckAt;
 
 
   return (
