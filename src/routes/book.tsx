@@ -189,16 +189,23 @@ function BookPage() {
                   onEdit={() => setEditOpen(true)}
                   route={quoteQuery.data ? { miles: quoteQuery.data.distanceMiles, minutes: quoteQuery.data.durationMinutes } : null}
                 />
-                <div className="min-w-0">
+                <div className="min-w-0 space-y-6">
                   {step === "vehicle" && (
-                    <VehicleStep
-                      pre={pre}
-                      data={quoteQuery.data}
-                      isLoading={quoteQuery.isLoading}
-                      error={quoteQuery.error as Error | null}
-                      onRetry={() => quoteQuery.refetch()}
-                      onSelect={(card, quantity) => { setChosen(card); setQty(quantity); setStep("details"); }}
-                    />
+                    <>
+                      <ScenicPoiPanel
+                        template={poisQuery.data?.template ?? null}
+                        pois={poisQuery.data?.pois ?? []}
+                        isLoading={poisQuery.isLoading}
+                      />
+                      <VehicleStep
+                        pre={pre}
+                        data={quoteQuery.data}
+                        isLoading={quoteQuery.isLoading}
+                        error={quoteQuery.error as Error | null}
+                        onRetry={() => quoteQuery.refetch()}
+                        onSelect={(card, quantity) => { setChosen(card); setQty(quantity); setStep("details"); }}
+                      />
+                    </>
                   )}
                   {step === "details" && chosen && (
                     <DetailsStep pre={pre} card={chosen} qty={qty}
