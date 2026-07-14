@@ -98,7 +98,7 @@ export function BookingWidget() {
 
       <form onSubmit={submit} className="px-4 pb-5 sm:px-6 sm:pb-6 md:px-8 md:pb-8 space-y-4" noValidate>
         {/* Route card — stacked pickup/dropoff like a maps app */}
-        <div className="rounded-2xl border border-border bg-background overflow-hidden">
+        <div className="rounded-2xl border border-border bg-background">
           <RouteRow
             icon={<MapPin className="w-4 h-4 text-[var(--gold)]" />}
             label="From"
