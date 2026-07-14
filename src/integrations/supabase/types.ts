@@ -180,6 +180,7 @@ export type Database = {
           deleted_at: string | null
           distance_miles: number | null
           driver_id: string | null
+          driving_duration_seconds: number | null
           dropoff_address: string
           dropoff_place_id: string | null
           email: string
@@ -191,6 +192,7 @@ export type Database = {
           luggage: number
           meet_greet: boolean
           notes: string | null
+          original_service_type: string
           passengers: number
           payment_status: Database["public"]["Enums"]["payment_status"]
           phone: string
@@ -198,13 +200,21 @@ export type Database = {
           pickup_date: string
           pickup_place_id: string | null
           pickup_time: string
+          planned_stop_duration_seconds: number
           price: number | null
           pricing_profile_id_snapshot: string | null
           pricing_snapshot: Json | null
           quote_expires_at: string | null
           quote_id: string | null
           return_journey: boolean
+          route_legs: Json
+          scenic_template_id: string | null
+          selected_pois: Json
+          service_type: string
           status: Database["public"]["Enums"]["booking_status"]
+          stops_fingerprint: string | null
+          total_journey_seconds: number | null
+          tour_conversion_ack_at: string | null
           updated_at: string
           vehicle_capacity_snapshot: Json | null
           vehicle_id: string | null
@@ -224,6 +234,7 @@ export type Database = {
           deleted_at?: string | null
           distance_miles?: number | null
           driver_id?: string | null
+          driving_duration_seconds?: number | null
           dropoff_address: string
           dropoff_place_id?: string | null
           email: string
@@ -235,6 +246,7 @@ export type Database = {
           luggage?: number
           meet_greet?: boolean
           notes?: string | null
+          original_service_type?: string
           passengers?: number
           payment_status?: Database["public"]["Enums"]["payment_status"]
           phone: string
@@ -242,13 +254,21 @@ export type Database = {
           pickup_date: string
           pickup_place_id?: string | null
           pickup_time: string
+          planned_stop_duration_seconds?: number
           price?: number | null
           pricing_profile_id_snapshot?: string | null
           pricing_snapshot?: Json | null
           quote_expires_at?: string | null
           quote_id?: string | null
           return_journey?: boolean
+          route_legs?: Json
+          scenic_template_id?: string | null
+          selected_pois?: Json
+          service_type?: string
           status?: Database["public"]["Enums"]["booking_status"]
+          stops_fingerprint?: string | null
+          total_journey_seconds?: number | null
+          tour_conversion_ack_at?: string | null
           updated_at?: string
           vehicle_capacity_snapshot?: Json | null
           vehicle_id?: string | null
@@ -268,6 +288,7 @@ export type Database = {
           deleted_at?: string | null
           distance_miles?: number | null
           driver_id?: string | null
+          driving_duration_seconds?: number | null
           dropoff_address?: string
           dropoff_place_id?: string | null
           email?: string
@@ -279,6 +300,7 @@ export type Database = {
           luggage?: number
           meet_greet?: boolean
           notes?: string | null
+          original_service_type?: string
           passengers?: number
           payment_status?: Database["public"]["Enums"]["payment_status"]
           phone?: string
@@ -286,13 +308,21 @@ export type Database = {
           pickup_date?: string
           pickup_place_id?: string | null
           pickup_time?: string
+          planned_stop_duration_seconds?: number
           price?: number | null
           pricing_profile_id_snapshot?: string | null
           pricing_snapshot?: Json | null
           quote_expires_at?: string | null
           quote_id?: string | null
           return_journey?: boolean
+          route_legs?: Json
+          scenic_template_id?: string | null
+          selected_pois?: Json
+          service_type?: string
           status?: Database["public"]["Enums"]["booking_status"]
+          stops_fingerprint?: string | null
+          total_journey_seconds?: number | null
+          tour_conversion_ack_at?: string | null
           updated_at?: string
           vehicle_capacity_snapshot?: Json | null
           vehicle_id?: string | null
@@ -305,6 +335,13 @@ export type Database = {
             columns: ["driver_id"]
             isOneToOne: false
             referencedRelation: "drivers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_scenic_template_id_fkey"
+            columns: ["scenic_template_id"]
+            isOneToOne: false
+            referencedRelation: "scenic_route_templates"
             referencedColumns: ["id"]
           },
           {
@@ -696,6 +733,84 @@ export type Database = {
           },
         ]
       }
+      points_of_interest: {
+        Row: {
+          active: boolean
+          address_label: string
+          admin_priority: number
+          admission_note: string | null
+          category: string
+          created_at: string
+          featured: boolean
+          id: string
+          image_url: string | null
+          latitude: number | null
+          longitude: number | null
+          maximum_visit_minutes: number
+          minimum_visit_minutes: number
+          name: string
+          opening_hours_note: string | null
+          parking_fee_pence: number
+          place_id: string
+          recommended_visit_minutes: number
+          scenic_score: number
+          short_description: string
+          slug: string
+          stop_fee_pence: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          address_label?: string
+          admin_priority?: number
+          admission_note?: string | null
+          category?: string
+          created_at?: string
+          featured?: boolean
+          id?: string
+          image_url?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          maximum_visit_minutes?: number
+          minimum_visit_minutes?: number
+          name: string
+          opening_hours_note?: string | null
+          parking_fee_pence?: number
+          place_id?: string
+          recommended_visit_minutes?: number
+          scenic_score?: number
+          short_description?: string
+          slug: string
+          stop_fee_pence?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          address_label?: string
+          admin_priority?: number
+          admission_note?: string | null
+          category?: string
+          created_at?: string
+          featured?: boolean
+          id?: string
+          image_url?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          maximum_visit_minutes?: number
+          minimum_visit_minutes?: number
+          name?: string
+          opening_hours_note?: string | null
+          parking_fee_pence?: number
+          place_id?: string
+          recommended_visit_minutes?: number
+          scenic_score?: number
+          short_description?: string
+          slug?: string
+          stop_fee_pence?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       pricing_rules: {
         Row: {
           active: boolean
@@ -792,26 +907,40 @@ export type Database = {
         Row: {
           base_price: number
           calculation_breakdown: Json | null
+          classification_reason: string | null
           created_at: string
           customer_id: string | null
+          direct_distance_miles: number | null
+          direct_duration_seconds: number | null
           discount_price: number
           distance_miles: number
+          driving_duration_seconds: number | null
           dropoff_address: string
           dropoff_surcharge: number | null
           engine_version: string | null
           final_price: number
+          final_service_type: string
           fixed_price_amount: number | null
           fixed_price_applied: boolean | null
           id: string
           mileage_price: number
+          original_service_type: string
           pickup_address: string
           pickup_surcharge: number | null
+          planned_stop_duration_seconds: number
+          polyline_ref: string | null
           profile_id: string | null
+          route_legs: Json
+          route_mode: string
+          scenic_template_id: string | null
+          selected_pois: Json
           snapshot: Json | null
+          stops_fingerprint: string | null
           surcharge_price: number
           tax_price: number
           tax_rate: number | null
           time_extra: number | null
+          total_journey_seconds: number | null
           vehicle_count: number | null
           vehicle_id: string | null
           via_price: number | null
@@ -820,26 +949,40 @@ export type Database = {
         Insert: {
           base_price?: number
           calculation_breakdown?: Json | null
+          classification_reason?: string | null
           created_at?: string
           customer_id?: string | null
+          direct_distance_miles?: number | null
+          direct_duration_seconds?: number | null
           discount_price?: number
           distance_miles: number
+          driving_duration_seconds?: number | null
           dropoff_address: string
           dropoff_surcharge?: number | null
           engine_version?: string | null
           final_price?: number
+          final_service_type?: string
           fixed_price_amount?: number | null
           fixed_price_applied?: boolean | null
           id?: string
           mileage_price?: number
+          original_service_type?: string
           pickup_address: string
           pickup_surcharge?: number | null
+          planned_stop_duration_seconds?: number
+          polyline_ref?: string | null
           profile_id?: string | null
+          route_legs?: Json
+          route_mode?: string
+          scenic_template_id?: string | null
+          selected_pois?: Json
           snapshot?: Json | null
+          stops_fingerprint?: string | null
           surcharge_price?: number
           tax_price?: number
           tax_rate?: number | null
           time_extra?: number | null
+          total_journey_seconds?: number | null
           vehicle_count?: number | null
           vehicle_id?: string | null
           via_price?: number | null
@@ -848,32 +991,53 @@ export type Database = {
         Update: {
           base_price?: number
           calculation_breakdown?: Json | null
+          classification_reason?: string | null
           created_at?: string
           customer_id?: string | null
+          direct_distance_miles?: number | null
+          direct_duration_seconds?: number | null
           discount_price?: number
           distance_miles?: number
+          driving_duration_seconds?: number | null
           dropoff_address?: string
           dropoff_surcharge?: number | null
           engine_version?: string | null
           final_price?: number
+          final_service_type?: string
           fixed_price_amount?: number | null
           fixed_price_applied?: boolean | null
           id?: string
           mileage_price?: number
+          original_service_type?: string
           pickup_address?: string
           pickup_surcharge?: number | null
+          planned_stop_duration_seconds?: number
+          polyline_ref?: string | null
           profile_id?: string | null
+          route_legs?: Json
+          route_mode?: string
+          scenic_template_id?: string | null
+          selected_pois?: Json
           snapshot?: Json | null
+          stops_fingerprint?: string | null
           surcharge_price?: number
           tax_price?: number
           tax_rate?: number | null
           time_extra?: number | null
+          total_journey_seconds?: number | null
           vehicle_count?: number | null
           vehicle_id?: string | null
           via_price?: number | null
           via_stops?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "quote_calculations_scenic_template_id_fkey"
+            columns: ["scenic_template_id"]
+            isOneToOne: false
+            referencedRelation: "scenic_route_templates"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "quote_calculations_vehicle_id_fkey"
             columns: ["vehicle_id"]
@@ -883,8 +1047,126 @@ export type Database = {
           },
         ]
       }
+      scenic_route_template_pois: {
+        Row: {
+          created_at: string
+          default_selected: boolean
+          id: string
+          poi_id: string
+          recommended: boolean
+          recommended_visit_minutes: number | null
+          route_template_id: string
+          stop_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          default_selected?: boolean
+          id?: string
+          poi_id: string
+          recommended?: boolean
+          recommended_visit_minutes?: number | null
+          route_template_id: string
+          stop_order: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          default_selected?: boolean
+          id?: string
+          poi_id?: string
+          recommended?: boolean
+          recommended_visit_minutes?: number | null
+          route_template_id?: string
+          stop_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scenic_route_template_pois_poi_id_fkey"
+            columns: ["poi_id"]
+            isOneToOne: false
+            referencedRelation: "points_of_interest"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scenic_route_template_pois_route_template_id_fkey"
+            columns: ["route_template_id"]
+            isOneToOne: false
+            referencedRelation: "scenic_route_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scenic_route_templates: {
+        Row: {
+          active: boolean
+          bidirectional: boolean
+          created_at: string
+          default_order_locked: boolean
+          description: string
+          destination_label: string
+          destination_place_id: string
+          display_order: number
+          featured: boolean
+          id: string
+          name: string
+          optimisation_allowed: boolean
+          origin_label: string
+          origin_place_id: string
+          seasonal_note: string | null
+          service_type: string
+          slug: string
+          tour_fee_pence: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          bidirectional?: boolean
+          created_at?: string
+          default_order_locked?: boolean
+          description?: string
+          destination_label?: string
+          destination_place_id?: string
+          display_order?: number
+          featured?: boolean
+          id?: string
+          name: string
+          optimisation_allowed?: boolean
+          origin_label?: string
+          origin_place_id?: string
+          seasonal_note?: string | null
+          service_type?: string
+          slug: string
+          tour_fee_pence?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          bidirectional?: boolean
+          created_at?: string
+          default_order_locked?: boolean
+          description?: string
+          destination_label?: string
+          destination_place_id?: string
+          display_order?: number
+          featured?: boolean
+          id?: string
+          name?: string
+          optimisation_allowed?: boolean
+          origin_label?: string
+          origin_place_id?: string
+          seasonal_note?: string | null
+          service_type?: string
+          slug?: string
+          tour_fee_pence?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       site_settings: {
         Row: {
+          allowed_stop_duration_minutes: number[]
           business_address: string | null
           cancellation_policy: string | null
           company_name: string
@@ -896,10 +1178,18 @@ export type Database = {
           favicon_url: string | null
           google_maps_api_key: string | null
           id: number
+          included_stop_minutes: number
           logo_url: string | null
           maintenance_mode: boolean
+          max_detour_miles: number
+          max_detour_minutes: number
+          max_poi_suggestions: number
+          max_selected_stops: number
           payment_mode: string
+          poi_discovery_enabled: boolean
+          price_per_extra_15min_pence: number
           primary_color: string
+          sightseeing_threshold_minutes: number
           smtp_host: string | null
           smtp_port: number | null
           smtp_user: string | null
@@ -907,10 +1197,14 @@ export type Database = {
           tax_label: string
           tax_percentage: number
           timezone: string
+          tour_conversion_wording: string
+          tour_threshold_minutes: number
+          tour_threshold_stops: number
           updated_at: string
           whatsapp_number: string | null
         }
         Insert: {
+          allowed_stop_duration_minutes?: number[]
           business_address?: string | null
           cancellation_policy?: string | null
           company_name?: string
@@ -922,10 +1216,18 @@ export type Database = {
           favicon_url?: string | null
           google_maps_api_key?: string | null
           id?: number
+          included_stop_minutes?: number
           logo_url?: string | null
           maintenance_mode?: boolean
+          max_detour_miles?: number
+          max_detour_minutes?: number
+          max_poi_suggestions?: number
+          max_selected_stops?: number
           payment_mode?: string
+          poi_discovery_enabled?: boolean
+          price_per_extra_15min_pence?: number
           primary_color?: string
+          sightseeing_threshold_minutes?: number
           smtp_host?: string | null
           smtp_port?: number | null
           smtp_user?: string | null
@@ -933,10 +1235,14 @@ export type Database = {
           tax_label?: string
           tax_percentage?: number
           timezone?: string
+          tour_conversion_wording?: string
+          tour_threshold_minutes?: number
+          tour_threshold_stops?: number
           updated_at?: string
           whatsapp_number?: string | null
         }
         Update: {
+          allowed_stop_duration_minutes?: number[]
           business_address?: string | null
           cancellation_policy?: string | null
           company_name?: string
@@ -948,10 +1254,18 @@ export type Database = {
           favicon_url?: string | null
           google_maps_api_key?: string | null
           id?: number
+          included_stop_minutes?: number
           logo_url?: string | null
           maintenance_mode?: boolean
+          max_detour_miles?: number
+          max_detour_minutes?: number
+          max_poi_suggestions?: number
+          max_selected_stops?: number
           payment_mode?: string
+          poi_discovery_enabled?: boolean
+          price_per_extra_15min_pence?: number
           primary_color?: string
+          sightseeing_threshold_minutes?: number
           smtp_host?: string | null
           smtp_port?: number | null
           smtp_user?: string | null
@@ -959,6 +1273,9 @@ export type Database = {
           tax_label?: string
           tax_percentage?: number
           timezone?: string
+          tour_conversion_wording?: string
+          tour_threshold_minutes?: number
+          tour_threshold_stops?: number
           updated_at?: string
           whatsapp_number?: string | null
         }
