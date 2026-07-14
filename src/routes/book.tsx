@@ -22,6 +22,7 @@ import { Switch } from "@/components/ui/switch";
 import { PlaceAutocomplete, type SelectedPlace } from "@/components/site/PlaceAutocomplete";
 
 import { calculateQuotes, createBooking, type QuoteCard } from "@/lib/pricing.functions";
+import { listPoisForRoute, type PoiSuggestion, type RouteTemplateSummary } from "@/lib/pois.functions";
 
 export const Route = createFileRoute("/book")({
   validateSearch: (search: Record<string, unknown>) => ({ q: typeof search.q === "string" ? search.q : "" }),
@@ -154,6 +155,20 @@ function BookPage() {
       }),
   });
 
+  const poisFn = useServerFn(listPoisForRoute);
+  const poisQuery = useQuery({
+    enabled: hasValidRoute && !!quoteQuery.data,
+    queryKey: ["pois", pre.pickup?.placeId, pre.dropoff?.placeId],
+    staleTime: 10 * 60 * 1000,
+    queryFn: () =>
+      poisFn({
+        data: {
+          pickup_place_id: pre.pickup!.placeId,
+          destination_place_id: pre.dropoff!.placeId,
+        },
+      }),
+  });
+
   return (
     <SiteLayout>
       <section className="relative bg-[var(--surface)] py-10 md:py-14 min-h-[80vh] overflow-hidden">
@@ -174,16 +189,23 @@ function BookPage() {
                   onEdit={() => setEditOpen(true)}
                   route={quoteQuery.data ? { miles: quoteQuery.data.distanceMiles, minutes: quoteQuery.data.durationMinutes } : null}
                 />
-                <div className="min-w-0">
+                <div className="min-w-0 space-y-6">
                   {step === "vehicle" && (
-                    <VehicleStep
-                      pre={pre}
-                      data={quoteQuery.data}
-                      isLoading={quoteQuery.isLoading}
-                      error={quoteQuery.error as Error | null}
-                      onRetry={() => quoteQuery.refetch()}
-                      onSelect={(card, quantity) => { setChosen(card); setQty(quantity); setStep("details"); }}
-                    />
+                    <>
+                      <ScenicPoiPanel
+                        template={poisQuery.data?.template ?? null}
+                        pois={poisQuery.data?.pois ?? []}
+                        isLoading={poisQuery.isLoading}
+                      />
+                      <VehicleStep
+                        pre={pre}
+                        data={quoteQuery.data}
+                        isLoading={quoteQuery.isLoading}
+                        error={quoteQuery.error as Error | null}
+                        onRetry={() => quoteQuery.refetch()}
+                        onSelect={(card, quantity) => { setChosen(card); setQty(quantity); setStep("details"); }}
+                      />
+                    </>
                   )}
                   {step === "details" && chosen && (
                     <DetailsStep pre={pre} card={chosen} qty={qty}
@@ -738,6 +760,60 @@ function AlreadySubmittedStep({ card, qty, onBack }: { card: QuoteCard; qty: num
           <Link to="/">Done</Link>
         </Button>
       </div>
+    </div>
+  );
+}
+
+function ScenicPoiPanel({
+  template,
+  pois,
+  isLoading,
+}: {
+  template: RouteTemplateSummary | null;
+  pois: PoiSuggestion[];
+  isLoading: boolean;
+}) {
+  if (isLoading) {
+    return (
+      <div className="rounded-2xl border border-border bg-card p-5 text-sm text-muted-foreground">
+        Checking for scenic stops on this route…
+      </div>
+    );
+  }
+  if (!template || pois.length === 0) return null;
+  return (
+    <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
+      <div>
+        <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--gold)]">
+          <Star className="size-3.5" /> Enhance your journey
+        </div>
+        <h2 className="mt-1 font-display text-lg font-bold">{template.name}</h2>
+        {template.description && (
+          <p className="mt-1 text-sm text-muted-foreground">{template.description}</p>
+        )}
+      </div>
+      <ul className="grid gap-2">
+        {pois.map((p) => (
+          <li
+            key={p.id}
+            className="flex items-start justify-between gap-3 rounded-xl border border-border bg-background p-3"
+          >
+            <div className="min-w-0">
+              <div className="font-semibold text-sm truncate">{p.name}</div>
+              <div className="text-xs text-muted-foreground capitalize">{p.category.replace(/_/g, " ")}</div>
+              {p.short_description && (
+                <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{p.short_description}</p>
+              )}
+            </div>
+            <div className="text-[11px] text-foreground/60 whitespace-nowrap">
+              ~{p.recommended_visit_minutes} min
+            </div>
+          </li>
+        ))}
+      </ul>
+      <p className="text-[11px] text-muted-foreground">
+        Selecting stops, live re-quoting and tour conversion arrive in the next update.
+      </p>
     </div>
   );
 }
