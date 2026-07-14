@@ -1,143 +1,74 @@
-# Pricing System Hardening Plan
 
-Keeps `src/lib/pricing.ts` as the single pricing engine. All calculation stays server-side via `pricing.functions.ts` / `pricing-helpers.server.ts`. No new formula, no client-side math, no fake UI numbers.
+# Phase 2B-2 — Route POIs, Sightseeing Stops, Tour Conversion
 
-## Scope
-In this phase: mileage tiers, fixed routes, address surcharges, tax & currency, admin quote preview, quote snapshot, automated tests.
-Deferred (marked "I'll add later" in code + admin UI): coupons runtime, hourly mode, waiting time, return journey, payment provider, reports.
+Delivered in 3 turns so each is reviewable and costs less to iterate on than one giant PR. Every rule from your spec is respected — nothing is dropped, only sequenced.
 
----
+## Scope decisions locked in
 
-## Task 1 — Mileage Pricing (admin + engine guardrails)
+- **POI discovery**: curated only. The `points_of_interest` table + curated route templates drive suggestions. Google **Search Along Route** is scaffolded as a server function stub behind a `poi_discovery_enabled` site setting (default off) and wired in a later phase. Reason: matches how you'll seed Edinburgh→Fort William, avoids per-quote Google cost, and every test in your spec still passes against curated data.
+- **Edinburgh→Fort William seed**: migration inserts the template + 7 POI rows as `active=false` with empty `place_id`. A DB trigger blocks activation until every `place_id` is a valid Place-ID string (reuses your existing `placeIdSchema` shape via a CHECK). Admin resolves each through the POI page's Google PlaceAutocomplete, then flips `active=true`.
+- **No Resend, no payments, no coupons, no hourly.** No frontend money. Additive migrations only. Existing Google Places connector, Routes integration, Place-ID validation, pricing engine, snapshots, idempotency and confirmation tokens all preserved.
 
-**DB migration** — add sanity constraints:
-- `vehicle_pricing_profiles`: unique `(vehicle_id)` where `status = true` (one active profile per vehicle).
-- `vehicle_mileage_tiers`: CHECK `miles > 0`, CHECK `cost_per_mile >= 0`, unique `(pricing_profile_id, sort_order)`.
-- Validation trigger `pricing_profile_requires_tier_when_active`: active profile must have ≥1 tier and the highest-sort tier must have `miles >= 500` (covers long journeys).
+## Turn 1 — Data model + engine + server + tests (this PR)
 
-**Server (`admin.functions.ts`)** — `upsertPricingProfile` runs a Zod schema:
-- vehicle_id required; base_price ≥ 0; via_price ≥ 0
-- tiers: each miles > 0, cost_per_mile ≥ 0, unique sort_order
-- if `status=true`: tiers array non-empty and last tier miles ≥ 500
-Rejects invalid saves with structured error, no partial writes.
+**Migrations (additive)**
+1. `points_of_interest` — full schema from spec, with CHECK: `active=true ⇒ place_id ~ '^[A-Za-z0-9_\-:.=@]+$'`. GRANTs: `SELECT` to `anon` (active only, via RLS), full to `authenticated` admin, all to `service_role`. Trigger `log_admin_action` attached.
+2. `scenic_route_templates` + `scenic_route_template_pois` join. Partial unique index on `(origin_place_id, destination_place_id)` where `active`. Bidirectional matching handled in the matcher, not the schema.
+3. `site_settings` extension: `sightseeing_threshold_minutes` (default 30), `tour_threshold_minutes` (120), `tour_threshold_stops` (3), `max_selected_stops` (8), `max_detour_miles`, `max_detour_minutes`, `poi_discovery_enabled` (false), `allowed_stop_duration_minutes` (int[] default `{15,30,45,60,90,120}`), `included_stop_minutes`, `price_per_extra_15min_pence`.
+4. `quote_calculations` + `bookings.pricing_snapshot` schema bump to `engine_version = "2026.07.2"`. Additive columns: `direct_distance_miles`, `direct_duration_seconds`, `driving_duration_seconds`, `planned_stop_duration_seconds`, `total_journey_seconds`, `route_mode` (`direct|scenic|optimised`), `original_service_type`, `final_service_type`, `classification_reason`, `selected_pois jsonb`, `route_legs jsonb`, `polyline_ref text`, `stops_fingerprint text` (SHA-256 of ordered `place_id|minutes` pairs — invalidates on any stop/order/duration change).
+5. `bookings`: `service_type`, `original_service_type`, `tour_conversion_ack_at`, `stops_fingerprint`.
+6. Seed migration: Edinburgh→Fort William template + 7 POI rows (Kelpies, Falkirk Wheel, Stirling Castle, Doune Castle, Callander, Lochearnhead, Glencoe), all inactive with empty `place_id`.
 
-**Engine safety (`pricing-helpers.server.ts`)** — when loading a quote for an active vehicle:
-- If no active pricing profile exists → filter that vehicle out of quote results with reason `no_pricing_profile`; log a warning.
-- Never fall back to a hidden default rate.
+**Engine (`src/lib/pricing.ts` + `pricing-helpers.server.ts`)**
+- New line kinds: `stop_fee`, `stop_time`, `parking`, `scenic_fee`.
+- Total = existing driving/mileage/fixed + Σ(per-stop base fee) + Σ(planned-time charge above `included_stop_minutes`) + parking + scenic/tour fee + surcharges + tax.
+- `plannedStopSeconds` computed separately; `runPricingEngine` returns `drivingDurationSeconds`, `plannedStopDurationSeconds`, `totalJourneySeconds` — never merged.
+- Classification helper `classifyService(stops, plannedMinutes, thresholds)` returns `{ service_type, reason }`. Server-only.
 
-**Admin UI (`/admin/pricing`)**:
-- Range labels rendered from cumulative miles (`0–10 mi`, `10–30 mi`, `30+ mi`).
-- Add / remove / reorder tiers (drag handle + up/down buttons; renumbers `sort_order`).
-- "Duplicate profile" action — pick source vehicle → copies profile + tiers to target vehicle.
-- Inline field errors + top-of-form error summary from server validation.
-- "Preview" panel calls the real backend preview endpoint (see Task 5), not local math.
+**Server functions (`src/lib/pois.functions.ts`, `scenic-routes.functions.ts`, extends `pricing.functions.ts`)**
+- `listPoisForRoute({ pickup_place_id, dropoff_place_id })` — matches curated template by exact Place-ID pair (bidirectional flag respected), returns template + curated POIs ranked by `admin_priority DESC, scenic_score DESC, detour ASC`. No template ⇒ returns POIs whose `place_id` is a stopover on the direct route by re-running Routes API with each candidate as intermediate and filtering by `max_detour_miles / max_detour_minutes`. Cached 10 min.
+- `calculateMultiStopQuote({ vehicle_id, pickup_place_id, dropoff_place_id, stops: [{ place_id, minutes }], route_mode })` — validates stops (min/max minutes, `≤ max_selected_stops`, no duplicate consecutive, all Place-IDs valid), calls Routes API with `intermediates` + `optimizeWaypointOrder` when `route_mode='optimised'` and template isn't locked, builds full snapshot, returns quote + fingerprint. Reuses `computeRoute` (extended to accept waypoints — already supported) and existing rate limiter.
+- `previewScenicOrderStub` — Search Along Route stub gated by `poi_discovery_enabled`.
+- Admin fns (`admin.functions.ts` additions): `upsertPoi`, `deactivatePoi`, `upsertScenicTemplate`, `reorderTemplateStops`, `updateTourSettings`. All `.middleware([requireSupabaseAuth])` + `has_role('admin')` check + Zod + activity log.
+- Booking creation extended: rejects if `stops_fingerprint` in submitted quote doesn't match server recomputation; requires `tour_conversion_ack_at` when `original_service_type != final_service_type` and final is `sightseeing_transfer|private_tour`.
 
-## Task 2 — Fixed Route Pricing
+**Tests (`tests/`)** — 30 tests covering every item in spec §18. Files: `poi-matching.test.ts`, `scenic-template-match.test.ts`, `multi-stop-quote.test.ts`, `classification.test.ts`, `stops-fingerprint.test.ts`, `poi-admin-authz.test.ts`, plus extends to `pricing-engine.test.ts` and `create-booking.test.ts`.
 
-**DB migration**:
-- Partial unique index preventing duplicate active rules on `(vehicle_id, from_place_id, to_place_id)` where `active`.
-- Trigger `pricing_rule_bidirectional_conflict`: if `bidirectional`, block another active rule (in either direction, either bidirectional flag) on the same vehicle + place-id pair.
-- Already-present trigger enforces place IDs when active.
+## Turn 2 — Admin UI
 
-**Server**:
-- `upsertPricingRule` Zod: vehicle_id required, `from_place_id`/`to_place_id` required when active, `price > 0`.
-- `pricing-helpers.server.ts` fixed-route lookup: match `(vehicle_id, pickup_place_id, dropoff_place_id)` OR bidirectional reversed. On hit, replace base + mileage with `fixed_price`; area surcharges, via, time extra, discount, tax still apply. Set snapshot flag `fixed_price_applied = true`.
+Routes under `src/routes/_authenticated/admin/`:
+- `pois.tsx` — CRUD, PlaceAutocomplete for `place_id`, image upload to `vehicle-images` bucket (reused), all fields from schema, activate/deactivate, "Preview affected routes" panel.
+- `scenic-routes.tsx` — origin/destination via PlaceAutocomplete, POI multi-select + drag reorder (`@dnd-kit` — already in deps? if not, added via `bun add`), lock-scenic-order toggle, tour fee, seasonal notes, preview panel calling `calculateMultiStopQuote`.
+- `tour-settings.tsx` — thresholds, max stops, max detour, included stop minutes, price per 15 min, allowed duration increments (chip editor), poi_discovery_enabled toggle.
+- Sidebar nav entries added.
 
-**Admin UI** — validation errors surfaced; bidirectional badge; conflict prevention message.
+## Turn 3 — Customer UI + tour conversion UX
 
-## Task 3 — Address Surcharges
+- `BookingWidget.tsx`: after direct quote returns, render "Enhance your journey" section — curated POI cards (checkbox, image or neutral placeholder, name, category, description, recommended duration, `+X min / +Y mi` detour, price delta). Selecting reveals duration segmented control from `allowed_stop_duration_minutes`.
+- Order chooser: `Recommended scenic` / `Fastest` / `Direct` (Fastest hidden when template is order-locked).
+- Live itinerary panel: driving time, planned visits time, total journey — three separate rows, no merged number.
+- Conversion banner appears when `final_service_type` changes; blocks "Book Now" until the acknowledgement checkbox is ticked; ack timestamp captured and sent with booking.
+- `book.tsx` receives the snapshot including `stops_fingerprint`; server re-verifies before creating booking.
 
-**DB migration** — extend `addresses`:
-- `place_id text` (indexed), `label text`, `updated_by uuid`.
-- Keep `comparable_value`, `pickup_charge`, `dropoff_charge`, `notes`, `active`.
+## Technical details
 
-**Server** — surcharge lookup already applied after mileage/fixed price in `pricing-helpers.server.ts`; extend the matcher to prefer `place_id` exact match, fall back to `comparable_value` text match. Both charges land as separate breakdown lines: `pickup_surcharge`, `dropoff_surcharge`.
+**Route matching order**: (1) exact Place-ID pair on active template, (2) reversed pair when `bidirectional=true`, (3) proximity fallback disabled by default (config flag), (4) no match ⇒ curated POIs only. Never substring match.
 
-**Admin UI (`/admin/addresses`)** — CRUD form with all fields, Place ID autocomplete (Google Places), active toggle, notes.
+**Fingerprint**: `sha256(pickup|dropoff|route_mode|stop1_place_id:stop1_min|stop2…)`. Written into snapshot, checked at booking. Any change ⇒ 409 with "quote expired, please refresh".
 
-## Task 4 — Tax & Currency Settings
+**Detour calc**: `detour = route_with_stop.miles - direct_route.miles`. Same for seconds. Computed via Routes API, not straight-line.
 
-**DB migration** — extend `site_settings`:
-- `tax_enabled bool default false`
-- `tax_label text default 'VAT'`
-- `currency_symbol text default '£'`
-(existing: `currency`, `tax_percentage`.)
+**Optimisation**: passes `optimizeWaypointOrder: true` only when `route_mode='optimised'` AND template `default_order_locked=false`. Reads `optimizedIntermediateWaypointIndex`, reorders `stops` in the returned snapshot, UI shows the reorder before confirm.
 
-**Server** — `pricing-helpers.server.ts` loads settings once per quote; passes `taxRate = tax_enabled ? tax_percentage/100 : 0` into engine. Tax is applied to subtotal **before** the vehicle_count multiplier (engine already does subtotal → tax → `finalPrice`; the outer wrapper multiplies by `vehicle_count`).
+**Cost control**: (a) curated-first — no Google POI call for the common case; (b) SAR gated off by default; (c) Routes API responses cached by fingerprint 10 min in existing `route-distance.server.ts` cache; (d) rate limiter reused; (e) strict `X-Goog-FieldMask` on any Places calls added later.
 
-**Admin UI (`/admin/settings`)** — Tax section (enable toggle, rate %, label) + Currency section (code + symbol).
+**Bundle safety**: all Google/server-role code lives in `*.server.ts` or handler bodies inside `*.functions.ts`. `tests/bundle-scan.test.ts` extended to assert new POI/scenic files don't leak `GOOGLE_MAPS_API_KEY` or `SUPABASE_SERVICE_ROLE_KEY` into the client bundle.
 
-## Task 5 — Quote Preview Tool
+**Files created (Turn 1)**
+- `src/lib/pois.functions.ts`, `src/lib/scenic-routes.functions.ts`, `src/lib/classification.ts`, `src/lib/stops-fingerprint.ts`
+- extends: `src/lib/pricing.ts`, `src/lib/pricing-helpers.server.ts`, `src/lib/pricing.functions.ts`, `src/lib/admin.functions.ts`, `src/lib/booking.functions.ts`, `src/lib/route-distance.server.ts` (waypoints support already partial)
+- 6 new test files, 2 extended
 
-**Server** — new authenticated admin server fn `previewQuote(input)`:
-- Inputs: pickup_place_id, dropoff_place_id, distance_miles, vehicle_id, vehicle_count, via_stops, pickup_date, pickup_time.
-- Calls the same `calculateQuoteForVehicle(...)` used by the public booking flow — no duplicated math.
-- Returns full breakdown + snapshot object (identical shape to Task 6).
+## Confirm to proceed
 
-**Admin UI (`/admin/pricing/preview`)** — form + result panel showing:
-`fixed_price_applied`, base, mileage tier lines, via, time_extra, pickup_surcharge, dropoff_surcharge, discount, tax_rate, tax_amount, vehicle_count, final_total, plus raw JSON snapshot.
-
-## Task 6 — Quote / Booking Snapshot
-
-**DB migration** — extend `quote_calculations` and `bookings.pricing_snapshot` JSONB with a fixed schema:
-```
-{
-  engine_version: "2026.07.1",
-  vehicle_id, profile_id,
-  distance_miles,
-  base_price,
-  mileage_tiers: [{ tier_name, miles, rate, amount }],
-  mileage_total,
-  fixed_price_applied: bool,
-  fixed_price_amount: number|null,
-  pickup_surcharge, dropoff_surcharge,
-  via_stops, via_price,
-  time_extra,
-  discount,
-  tax_rate, tax_amount,
-  vehicle_count,
-  final_total,
-  timestamp
-}
-```
-Add columns to `quote_calculations`: `engine_version`, `profile_id`, `fixed_price_applied`, `fixed_price_amount`, `pickup_surcharge`, `dropoff_surcharge`, `via_stops`, `via_price`, `time_extra`, `tax_rate`, `vehicle_count`, `snapshot jsonb`.
-
-**Server** — `pricing-helpers.server.ts` builds this snapshot in one place; both `calculateQuotes` and `createBooking` persist it. Engine version constant lives in `pricing.ts`.
-
-## Task 7 — Automated Tests
-
-Extend `tests/` (Vitest) covering the engine + helper pipeline with a fake Supabase context:
-
-1. Progressive mileage 42 mi → `10×3 + 20×2.5 + 12×2 = 104`.
-2. Fixed route override — matched rule replaces base+mileage; mileage lines absent.
-3. Fixed route + surcharges — pickup/dropoff surcharge lines still added on top of fixed price.
-4. Time extra — pickup time inside window adds correct amount (fixed and percent variants).
-5. Tax 20 % — `taxAmount === round2(subtotal × 0.2)` and `finalPrice === subtotal + taxAmount`.
-6. Vehicle count 2 → outer wrapper multiplies tax-inclusive total by 2.
-7. Rounding — every line item and total pass `round2(x) === x`.
-
-## Deferred (stubbed in admin, not wired to engine)
-Coupons runtime, hourly mode, waiting time, return journey, payment provider, reports — leave existing UI, add `// TODO(pricing-phase-2): wire when engine supports it` note. No fake numbers surfaced.
-
----
-
-## Technical Details
-
-**Files touched**
-- `src/lib/pricing.ts` — export `ENGINE_VERSION`, add snapshot builder helper (pure).
-- `src/lib/pricing-helpers.server.ts` — profile guard, fixed-route matcher with bidirectional, address surcharge by place_id, settings loader, snapshot builder, `vehicle_count` wrapper.
-- `src/lib/pricing.functions.ts` — plumb snapshot into `calculateQuotes`; add `previewQuote` (admin, `has_role('admin')` check).
-- `src/lib/admin.functions.ts` — Zod validation on `upsertPricingProfile`, `upsertPricingRule`, `upsertAddress`, `updateSiteSettings`; new `duplicatePricingProfile`.
-- `src/routes/_authenticated/admin/pricing.tsx` — tier reorder, ranges, duplicate, preview panel.
-- `src/routes/_authenticated/admin/pricing-rules.tsx` — validation surfacing.
-- `src/routes/_authenticated/admin/addresses.tsx` — new fields incl. Place ID.
-- `src/routes/_authenticated/admin/settings.tsx` — Tax + Currency sections.
-- `src/routes/_authenticated/admin/pricing/preview.tsx` — new route.
-- `tests/pricing-engine.test.ts` — 7 scenarios.
-
-**Migrations** (one migration per task, ordered): profile+tier constraints → pricing_rules uniqueness/trigger → addresses columns → site_settings columns → quote_calculations snapshot columns.
-
-**Non-negotiable rules**
-- No math in components. UI reads server results only.
-- One engine (`runPricingEngine`) — preview, quotes, and booking creation all funnel through it.
-- Every snapshot is written whenever a price is calculated or a booking is created.
+Reply **"go"** and I start Turn 1 immediately. Reply with edits if you want a different split (e.g. include admin UI in Turn 1, or wire live Search Along Route now — adds ~1 turn of work and per-quote Google cost).
