@@ -273,7 +273,7 @@ export function BookingWidget() {
           disabled={missingPlaces || identicalPlaces}
           className="group w-full h-14 bg-[var(--gold)] text-[var(--gold-foreground)] hover:bg-[var(--gold)] rounded-2xl font-display font-bold uppercase tracking-[0.2em] text-sm shadow-xl shadow-[var(--gold)]/20 hover:brightness-105 transition-all disabled:opacity-50"
         >
-          {tab === "quote" ? "Get a Quote" : "Book Hourly"}
+          Book Now
           <ArrowRight className="size-4 ml-2 transition-transform group-hover:translate-x-0.5" />
         </Button>
 
