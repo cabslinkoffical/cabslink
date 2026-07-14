@@ -584,8 +584,8 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect, multiQuot
   );
 }
 
-function VehicleCard({ card, best, qty, onQtyChange, onSelect }: {
-  card: QuoteCard; best: boolean; qty: number;
+function VehicleCard({ card, best, qty, priceUpdating, onQtyChange, onSelect }: {
+  card: QuoteCard; best: boolean; qty: number; priceUpdating?: boolean;
   onQtyChange: (n: number) => void; onSelect: () => void;
 }) {
   const total = card.finalPrice * qty;
