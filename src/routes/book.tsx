@@ -263,6 +263,9 @@ function BookPage() {
                         isLoading={quoteQuery.isLoading}
                         error={quoteQuery.error as Error | null}
                         onRetry={() => quoteQuery.refetch()}
+                        multiQuote={multiStopQuery.data ?? null}
+                        multiLoading={multiStopQuery.isFetching}
+                        hasStops={orderedSelected.length > 0}
                         onSelect={(card, quantity) => { setChosen(card); setQty(quantity); setStep("details"); }}
                       />
                     </>
