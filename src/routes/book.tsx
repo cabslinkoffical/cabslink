@@ -697,9 +697,12 @@ function VehicleCard({ card, best, qty, priceUpdating, disabled, disabledReason,
               </SelectContent>
             </Select>
           </div>
-          <Button onClick={onSelect} className="w-full h-12 rounded-lg bg-[var(--navy)] hover:bg-[var(--gold)] text-[var(--navy-foreground)] hover:text-[var(--gold-foreground)] font-bold uppercase tracking-[0.2em] text-[11px] transition-all shadow-md">
+          <Button onClick={onSelect} disabled={!!disabled} className="w-full h-12 rounded-lg bg-[var(--navy)] hover:bg-[var(--gold)] text-[var(--navy-foreground)] hover:text-[var(--gold-foreground)] font-bold uppercase tracking-[0.2em] text-[11px] transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
             Book Now
           </Button>
+          {disabled && disabledReason && (
+            <p className="text-[11px] text-muted-foreground mt-2 leading-snug">{disabledReason}</p>
+          )}
         </div>
       </div>
     </div>
