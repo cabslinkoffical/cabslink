@@ -562,7 +562,7 @@ function TourConversionBanner({ from, to, reason, acked, onAck }: {
   );
 }
 
-
+function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect, multiQuote, multiLoading, hasStops, bookingDisabled, bookingDisabledReason }: {
   pre: Prefill;
   data: Awaited<ReturnType<typeof calculateQuotes>> | undefined;
   isLoading: boolean;
