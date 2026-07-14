@@ -326,7 +326,7 @@ export const calculateMultiStopQuote = createServerFn({ method: "POST" })
       engine_version: ENGINE_VERSION,
       route_mode: data.route_mode,
       service_type: classification.service_type,
-      original_service_type: classification.service_type,
+      original_service_type: "direct_transfer",
       classification_reason: classification.reason,
       attraction_stops: classification.attraction_stops,
       planned_attraction_minutes: classification.planned_attraction_minutes,
