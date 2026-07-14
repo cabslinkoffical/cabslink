@@ -123,6 +123,7 @@ function BookPage() {
   // template order (poisQuery result).
   const [selectedStops, setSelectedStops] = useState<Record<string, number>>({});
   const [routeMode, setRouteMode] = useState<"direct" | "scenic" | "optimised">("scenic");
+  const [tourAckAt, setTourAckAt] = useState<string | null>(null);
 
   const hasValidRoute = !!pre.pickup?.placeId && !!pre.dropoff?.placeId
     && pre.pickup.placeId !== pre.dropoff.placeId;
