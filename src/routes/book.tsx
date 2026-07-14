@@ -764,3 +764,57 @@ function AlreadySubmittedStep({ card, qty, onBack }: { card: QuoteCard; qty: num
   );
 }
 
+function ScenicPoiPanel({
+  template,
+  pois,
+  isLoading,
+}: {
+  template: RouteTemplateSummary | null;
+  pois: PoiSuggestion[];
+  isLoading: boolean;
+}) {
+  if (isLoading) {
+    return (
+      <div className="rounded-2xl border border-border bg-card p-5 text-sm text-muted-foreground">
+        Checking for scenic stops on this route…
+      </div>
+    );
+  }
+  if (!template || pois.length === 0) return null;
+  return (
+    <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
+      <div>
+        <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--gold)]">
+          <Star className="size-3.5" /> Enhance your journey
+        </div>
+        <h2 className="mt-1 font-display text-lg font-bold">{template.name}</h2>
+        {template.description && (
+          <p className="mt-1 text-sm text-muted-foreground">{template.description}</p>
+        )}
+      </div>
+      <ul className="grid gap-2">
+        {pois.map((p) => (
+          <li
+            key={p.id}
+            className="flex items-start justify-between gap-3 rounded-xl border border-border bg-background p-3"
+          >
+            <div className="min-w-0">
+              <div className="font-semibold text-sm truncate">{p.name}</div>
+              <div className="text-xs text-muted-foreground capitalize">{p.category.replace(/_/g, " ")}</div>
+              {p.short_description && (
+                <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{p.short_description}</p>
+              )}
+            </div>
+            <div className="text-[11px] text-foreground/60 whitespace-nowrap">
+              ~{p.recommended_visit_minutes} min
+            </div>
+          </li>
+        ))}
+      </ul>
+      <p className="text-[11px] text-muted-foreground">
+        Selecting stops, live re-quoting and tour conversion arrive in the next update.
+      </p>
+    </div>
+  );
+}
+
