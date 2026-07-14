@@ -6,7 +6,7 @@
  * snapshots can be interpreted correctly.
  */
 
-export const ENGINE_VERSION = "2026.07.1" as const;
+export const ENGINE_VERSION = "2026.07.2" as const;
 
 export type PricingTier = {
   id?: string;
@@ -37,7 +37,11 @@ export type BreakdownLine =
   | { kind: "surcharge"; label: string; amount: number }
   | { kind: "time_extra"; label: string; amount: number }
   | { kind: "discount"; label: string; amount: number }
-  | { kind: "tax"; label: string; rate: number; amount: number };
+  | { kind: "tax"; label: string; rate: number; amount: number }
+  | { kind: "stop_fee"; label: string; count: number; amount: number }
+  | { kind: "stop_time"; label: string; extra_minutes: number; amount: number }
+  | { kind: "parking"; label: string; amount: number }
+  | { kind: "scenic_fee"; label: string; amount: number };
 
 export type QuoteOptions = {
   distanceMiles: number;
@@ -160,5 +164,106 @@ export function runPricingEngine(profile: PricingProfile, opts: QuoteOptions): Q
     subtotal,
     finalPrice,
     breakdown,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Stop charges — pure, isomorphic.
+//
+// For each selected POI:
+//   • per-stop base fee (stop_fee_pence)
+//   • planned-time uplift above `includedStopMinutes`, billed per whole 15 min
+//     block at `pricePerExtra15minPence`
+//   • parking fee (parking_fee_pence)
+// Plus an optional scenic/tour fee (scenic_route_templates.tour_fee_pence).
+//
+// All monetary inputs are in **pence** for lossless integer math; output is
+// in the same currency unit as the rest of the engine (major units).
+// ---------------------------------------------------------------------------
+
+export type StopChargeInput = {
+  name: string;
+  minutes: number;
+  stop_fee_pence: number;
+  parking_fee_pence: number;
+};
+
+export type StopChargesResult = {
+  stopFeeTotal: number;
+  stopTimeTotal: number;
+  parkingTotal: number;
+  scenicFee: number;
+  addedTotal: number;
+  breakdown: BreakdownLine[];
+  extraMinutesTotal: number;
+};
+
+export function computeStopCharges(args: {
+  stops: readonly StopChargeInput[];
+  includedStopMinutes: number;
+  pricePerExtra15minPence: number;
+  scenicFeePence?: number;
+}): StopChargesResult {
+  const breakdown: BreakdownLine[] = [];
+  let stopFeeP = 0;
+  let stopTimeP = 0;
+  let parkingP = 0;
+  let extraMinutes = 0;
+
+  const included = Math.max(0, Math.floor(Number(args.includedStopMinutes) || 0));
+  const per15 = Math.max(0, Math.floor(Number(args.pricePerExtra15minPence) || 0));
+
+  for (const s of args.stops) {
+    const fee = Math.max(0, Math.floor(Number(s.stop_fee_pence) || 0));
+    const parking = Math.max(0, Math.floor(Number(s.parking_fee_pence) || 0));
+    stopFeeP += fee;
+    parkingP += parking;
+    const mins = Math.max(0, Math.floor(Number(s.minutes) || 0));
+    const overrun = Math.max(0, mins - included);
+    if (overrun > 0 && per15 > 0) {
+      const blocks = Math.ceil(overrun / 15);
+      stopTimeP += blocks * per15;
+      extraMinutes += overrun;
+    }
+  }
+
+  const scenicP = Math.max(0, Math.floor(Number(args.scenicFeePence ?? 0)));
+
+  const stopFeeTotal = round2(stopFeeP / 100);
+  const stopTimeTotal = round2(stopTimeP / 100);
+  const parkingTotal = round2(parkingP / 100);
+  const scenicFee = round2(scenicP / 100);
+
+  if (stopFeeTotal > 0) {
+    breakdown.push({
+      kind: "stop_fee",
+      label: `Stop fees (${args.stops.length} stop${args.stops.length === 1 ? "" : "s"})`,
+      count: args.stops.length,
+      amount: stopFeeTotal,
+    });
+  }
+  if (stopTimeTotal > 0) {
+    breakdown.push({
+      kind: "stop_time",
+      label: `Extra time at stops (${extraMinutes} min)`,
+      extra_minutes: extraMinutes,
+      amount: stopTimeTotal,
+    });
+  }
+  if (parkingTotal > 0) {
+    breakdown.push({ kind: "parking", label: "Parking fees", amount: parkingTotal });
+  }
+  if (scenicFee > 0) {
+    breakdown.push({ kind: "scenic_fee", label: "Scenic route fee", amount: scenicFee });
+  }
+
+  return {
+    stopFeeTotal,
+    stopTimeTotal,
+    parkingTotal,
+    scenicFee,
+    addedTotal: round2(stopFeeTotal + stopTimeTotal + parkingTotal + scenicFee),
+    breakdown,
+    extraMinutesTotal: extraMinutes,
   };
 }
