@@ -6,7 +6,7 @@
  * snapshots can be interpreted correctly.
  */
 
-export const ENGINE_VERSION = "2026.07.1" as const;
+export const ENGINE_VERSION = "2026.07.2" as const;
 
 export type PricingTier = {
   id?: string;
@@ -37,7 +37,11 @@ export type BreakdownLine =
   | { kind: "surcharge"; label: string; amount: number }
   | { kind: "time_extra"; label: string; amount: number }
   | { kind: "discount"; label: string; amount: number }
-  | { kind: "tax"; label: string; rate: number; amount: number };
+  | { kind: "tax"; label: string; rate: number; amount: number }
+  | { kind: "stop_fee"; label: string; count: number; amount: number }
+  | { kind: "stop_time"; label: string; extra_minutes: number; amount: number }
+  | { kind: "parking"; label: string; amount: number }
+  | { kind: "scenic_fee"; label: string; amount: number };
 
 export type QuoteOptions = {
   distanceMiles: number;
