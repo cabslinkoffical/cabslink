@@ -67,6 +67,13 @@ const NAV: SidebarEntry[] = [
       { to: "/admin/content", label: "Website Content", icon: FileText },
     ],
   },
+  {
+    label: "Scenic Tours", icon: MapPin, items: [
+      { to: "/admin/pois", label: "Points of Interest", icon: MapPin },
+      { to: "/admin/scenic-routes", label: "Route Templates", icon: MapPin },
+      { to: "/admin/tour-settings", label: "Tour Settings", icon: SettingsIcon },
+    ],
+  },
   { to: "/admin/payments", label: "Payments", icon: CreditCard },
   { to: "/admin/reports", label: "Reports", icon: BarChart3 },
   { to: "/admin/logs", label: "Activity Logs", icon: History },
