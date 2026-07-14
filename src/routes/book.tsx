@@ -570,7 +570,7 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect, multiQuot
           const qty = qtyMap[q.vehicleId] ?? 1;
           const override = priceByVehicle.get(q.vehicleId);
           const effective: QuoteCard = override !== undefined
-            ? { ...q, finalPrice: override, basePrice: override }
+            ? { ...q, finalPrice: override }
             : q;
           return (
             <VehicleCard key={q.vehicleId} card={effective} best={i === 0} qty={qty}
