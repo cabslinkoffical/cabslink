@@ -295,6 +295,10 @@ function BookPage() {
                   )}
                   {step === "details" && chosen && (
                     <DetailsStep pre={pre} card={chosen} qty={qty}
+                      scenicStops={orderedSelected}
+                      routeMode={routeMode}
+                      stopsFingerprint={mq?.stops_fingerprint ?? null}
+                      tourConversionAckAt={tourAckAt}
                       onBack={() => setStep("vehicle")}
                       onSuccess={(token) => {
                         if (token) navigate({ to: "/booking/$token", params: { token } });
