@@ -72,7 +72,7 @@ export function BookingWidget() {
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto bg-card rounded-3xl shadow-[var(--shadow-elegant)] overflow-hidden border border-border">
+    <div className="w-full max-w-5xl mx-auto bg-card rounded-3xl shadow-[var(--shadow-elegant)] border border-border">
       {/* Segmented tab pill */}
       <div className="p-3 sm:p-4">
         <div className="relative flex bg-[var(--surface)] rounded-full p-1">
@@ -98,7 +98,7 @@ export function BookingWidget() {
 
       <form onSubmit={submit} className="px-4 pb-5 sm:px-6 sm:pb-6 md:px-8 md:pb-8 space-y-4" noValidate>
         {/* Route card — stacked pickup/dropoff like a maps app */}
-        <div className="rounded-2xl border border-border bg-background overflow-hidden">
+        <div className="rounded-2xl border border-border bg-background">
           <RouteRow
             icon={<MapPin className="w-4 h-4 text-[var(--gold)]" />}
             label="From"
