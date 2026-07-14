@@ -824,14 +824,41 @@ function AlreadySubmittedStep({ card, qty, onBack }: { card: QuoteCard; qty: num
   );
 }
 
+const DURATION_OPTIONS = [15, 30, 45, 60, 90, 120];
+
+function fmtHm(totalSeconds: number): string {
+  const m = Math.round(totalSeconds / 60);
+  const h = Math.floor(m / 60);
+  const mm = m % 60;
+  if (h === 0) return `${mm} min`;
+  if (mm === 0) return `${h} h`;
+  return `${h} h ${mm} min`;
+}
+
 function ScenicPoiPanel({
   template,
   pois,
   isLoading,
+  selectedStops,
+  onToggle,
+  onDurationChange,
+  routeMode,
+  onRouteModeChange,
+  multiQuote,
+  multiLoading,
+  multiError,
 }: {
   template: RouteTemplateSummary | null;
   pois: PoiSuggestion[];
   isLoading: boolean;
+  selectedStops: Record<string, number>;
+  onToggle: (poi: PoiSuggestion) => void;
+  onDurationChange: (placeId: string, minutes: number) => void;
+  routeMode: "direct" | "scenic" | "optimised";
+  onRouteModeChange: (m: "direct" | "scenic" | "optimised") => void;
+  multiQuote: MultiStopQuoteResult | null;
+  multiLoading: boolean;
+  multiError: Error | null;
 }) {
   if (isLoading) {
     return (
@@ -841,8 +868,27 @@ function ScenicPoiPanel({
     );
   }
   if (!template || pois.length === 0) return null;
+
+  const orderLocked = template.default_order_locked;
+  const modes: Array<{ id: "scenic" | "optimised" | "direct"; label: string }> = orderLocked
+    ? [{ id: "scenic", label: "Scenic order" }, { id: "direct", label: "Direct" }]
+    : [
+        { id: "scenic", label: "Recommended scenic" },
+        { id: "optimised", label: "Fastest" },
+        { id: "direct", label: "Direct" },
+      ];
+
+  const anySelected = Object.keys(selectedStops).length > 0;
+  const svc = multiQuote?.service_type;
+  const svcLabel =
+    svc === "private_tour" ? "Private Tour"
+    : svc === "sightseeing_transfer" ? "Sightseeing Transfer"
+    : svc === "transfer_with_stop" ? "Transfer with stop"
+    : svc === "direct_transfer" ? "Direct transfer"
+    : null;
+
   return (
-    <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
+    <div className="rounded-2xl border border-border bg-card p-5 space-y-5">
       <div>
         <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--gold)]">
           <Star className="size-3.5" /> Enhance your journey
@@ -852,29 +898,118 @@ function ScenicPoiPanel({
           <p className="mt-1 text-sm text-muted-foreground">{template.description}</p>
         )}
       </div>
+
       <ul className="grid gap-2">
-        {pois.map((p) => (
-          <li
-            key={p.id}
-            className="flex items-start justify-between gap-3 rounded-xl border border-border bg-background p-3"
-          >
-            <div className="min-w-0">
-              <div className="font-semibold text-sm truncate">{p.name}</div>
-              <div className="text-xs text-muted-foreground capitalize">{p.category.replace(/_/g, " ")}</div>
-              {p.short_description && (
-                <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{p.short_description}</p>
+        {pois.map((p) => {
+          const active = selectedStops[p.place_id] !== undefined;
+          const minutes = selectedStops[p.place_id] ?? p.recommended_visit_minutes;
+          return (
+            <li
+              key={p.id}
+              className={`rounded-xl border p-3 transition ${
+                active ? "border-[var(--gold)] bg-[var(--gold)]/5" : "border-border bg-background"
+              }`}
+            >
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="mt-1 size-4 accent-[var(--gold)]"
+                  checked={active}
+                  onChange={() => onToggle(p)}
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <div className="font-semibold text-sm truncate">{p.name}</div>
+                    <div className="text-[11px] text-foreground/60 whitespace-nowrap">
+                      ~{p.recommended_visit_minutes} min
+                    </div>
+                  </div>
+                  <div className="text-xs text-muted-foreground capitalize">
+                    {p.category.replace(/_/g, " ")}
+                  </div>
+                  {p.short_description && (
+                    <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
+                      {p.short_description}
+                    </p>
+                  )}
+                </div>
+              </label>
+              {active && (
+                <div className="mt-3 flex flex-wrap gap-1.5 pl-7">
+                  {DURATION_OPTIONS.filter(
+                    (m) => m >= p.minimum_visit_minutes && m <= p.maximum_visit_minutes,
+                  ).map((m) => (
+                    <button
+                      key={m}
+                      type="button"
+                      onClick={() => onDurationChange(p.place_id, m)}
+                      className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border transition ${
+                        minutes === m
+                          ? "bg-[var(--navy)] text-[var(--gold)] border-[var(--navy)]"
+                          : "border-border text-foreground/70 hover:border-[var(--gold)]"
+                      }`}
+                    >
+                      {m} min
+                    </button>
+                  ))}
+                </div>
               )}
-            </div>
-            <div className="text-[11px] text-foreground/60 whitespace-nowrap">
-              ~{p.recommended_visit_minutes} min
-            </div>
-          </li>
-        ))}
+            </li>
+          );
+        })}
       </ul>
-      <p className="text-[11px] text-muted-foreground">
-        Selecting stops, live re-quoting and tour conversion arrive in the next update.
-      </p>
+
+      {anySelected && (
+        <div className="rounded-xl border border-border bg-background p-4 space-y-3">
+          <div className="flex flex-wrap gap-1.5">
+            {modes.map((m) => (
+              <button
+                key={m.id}
+                type="button"
+                onClick={() => onRouteModeChange(m.id)}
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition ${
+                  routeMode === m.id
+                    ? "bg-[var(--navy)] text-[var(--gold)] border-[var(--navy)]"
+                    : "border-border text-foreground/70 hover:border-[var(--gold)]"
+                }`}
+              >
+                {m.label}
+              </button>
+            ))}
+          </div>
+
+          {multiLoading && (
+            <div className="text-xs text-muted-foreground">Recalculating your journey…</div>
+          )}
+          {multiError && (
+            <div className="text-xs text-destructive">{multiError.message}</div>
+          )}
+          {multiQuote && !multiLoading && (
+            <div className="space-y-2">
+              <div className="grid grid-cols-3 gap-2 text-xs">
+                <ItineraryRow label="Driving" value={fmtHm(multiQuote.driving_duration_seconds)} />
+                <ItineraryRow label="Planned visits" value={fmtHm(multiQuote.planned_stop_duration_seconds)} />
+                <ItineraryRow label="Total" value={fmtHm(multiQuote.total_journey_seconds)} bold />
+              </div>
+              <div className="text-[11px] text-muted-foreground">
+                +{multiQuote.detour_miles.toFixed(1)} mi / +{fmtHm(multiQuote.detour_seconds)} vs direct
+                {svcLabel && <> · Classified as <span className="font-semibold text-foreground/80">{svcLabel}</span></>}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
+
+function ItineraryRow({ label, value, bold }: { label: string; value: string; bold?: boolean }) {
+  return (
+    <div className="rounded-lg bg-[var(--surface)] px-3 py-2">
+      <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-foreground/45">{label}</div>
+      <div className={`text-sm ${bold ? "font-bold" : "font-semibold"} text-foreground`}>{value}</div>
+    </div>
+  );
+}
+
 
