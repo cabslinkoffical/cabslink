@@ -531,7 +531,7 @@ function Sidebar({ pre, onEdit, route }: {
 }
 
 
-function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect, multiQuote, multiLoading, hasStops }: {
+function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect, multiQuote, multiLoading, hasStops, bookingDisabled, bookingDisabledReason }: {
   pre: Prefill;
   data: Awaited<ReturnType<typeof calculateQuotes>> | undefined;
   isLoading: boolean;
@@ -541,6 +541,8 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect, multiQuot
   multiQuote: MultiStopQuoteResult | null;
   multiLoading: boolean;
   hasStops: boolean;
+  bookingDisabled?: boolean;
+  bookingDisabledReason?: string | null;
 }) {
   const [qtyMap, setQtyMap] = useState<Record<string, number>>({});
   const priceByVehicle = useMemo(() => {
