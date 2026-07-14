@@ -264,7 +264,6 @@ function BookPage() {
                         onToggle={toggleStop}
                         onDurationChange={setStopMinutes}
                         routeMode={routeMode}
-                        onRouteModeChange={setRouteMode}
                         onRouteModeChange={changeRouteMode}
                         multiQuote={multiStopQuery.data ?? null}
                         multiLoading={multiStopQuery.isFetching}
