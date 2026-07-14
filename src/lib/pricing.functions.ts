@@ -90,7 +90,8 @@ function mapRouteError(err: unknown): Error {
 // -------------------------------------------------------------------
 // Public: calculate quotes for all vehicles (Place-ID required)
 // -------------------------------------------------------------------
-const stopSchema = z.object({
+const stopSchema = z.object({ placeId: placeIdSchema, label: placeLabelSchema });
+const bookingStopSchema = z.object({
   placeId: placeIdSchema,
   label: placeLabelSchema,
   minutes: z.number().int().min(0).max(240).optional().default(0),
