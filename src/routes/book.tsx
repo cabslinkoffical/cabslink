@@ -22,6 +22,7 @@ import { Switch } from "@/components/ui/switch";
 import { PlaceAutocomplete, type SelectedPlace } from "@/components/site/PlaceAutocomplete";
 
 import { calculateQuotes, createBooking, type QuoteCard } from "@/lib/pricing.functions";
+import { listPoisForRoute, type PoiSuggestion, type RouteTemplateSummary } from "@/lib/pois.functions";
 
 export const Route = createFileRoute("/book")({
   validateSearch: (search: Record<string, unknown>) => ({ q: typeof search.q === "string" ? search.q : "" }),
