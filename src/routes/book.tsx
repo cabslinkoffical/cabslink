@@ -123,6 +123,7 @@ function BookPage() {
   // template order (poisQuery result).
   const [selectedStops, setSelectedStops] = useState<Record<string, number>>({});
   const [routeMode, setRouteMode] = useState<"direct" | "scenic" | "optimised">("scenic");
+  const [tourAckAt, setTourAckAt] = useState<string | null>(null);
 
   const hasValidRoute = !!pre.pickup?.placeId && !!pre.dropoff?.placeId
     && pre.pickup.placeId !== pre.dropoff.placeId;
@@ -214,11 +215,22 @@ function BookPage() {
       return next;
     });
     setChosen(null);
+    setTourAckAt(null);
   };
   const setStopMinutes = (placeId: string, minutes: number) => {
     setSelectedStops((prev) => ({ ...prev, [placeId]: minutes }));
     setChosen(null);
+    setTourAckAt(null);
   };
+  const changeRouteMode = (mode: "direct" | "scenic" | "optimised") => {
+    setRouteMode(mode);
+    setChosen(null);
+    setTourAckAt(null);
+  };
+
+  const mq = multiStopQuery.data ?? null;
+  const isConverted = !!mq && mq.service_type !== mq.original_service_type;
+  const needsAck = isConverted && !tourAckAt;
 
 
   return (
@@ -252,11 +264,20 @@ function BookPage() {
                         onToggle={toggleStop}
                         onDurationChange={setStopMinutes}
                         routeMode={routeMode}
-                        onRouteModeChange={setRouteMode}
+                        onRouteModeChange={changeRouteMode}
                         multiQuote={multiStopQuery.data ?? null}
                         multiLoading={multiStopQuery.isFetching}
                         multiError={multiStopQuery.error as Error | null}
                       />
+                      {isConverted && mq && (
+                        <TourConversionBanner
+                          from={mq.original_service_type}
+                          to={mq.service_type}
+                          reason={mq.classification_reason}
+                          acked={!!tourAckAt}
+                          onAck={() => setTourAckAt(new Date().toISOString())}
+                        />
+                      )}
                       <VehicleStep
                         pre={pre}
                         data={quoteQuery.data}
@@ -266,6 +287,8 @@ function BookPage() {
                         multiQuote={multiStopQuery.data ?? null}
                         multiLoading={multiStopQuery.isFetching}
                         hasStops={orderedSelected.length > 0}
+                        bookingDisabled={needsAck}
+                        bookingDisabledReason={needsAck ? "Please acknowledge the tour conversion above to continue." : null}
                         onSelect={(card, quantity) => { setChosen(card); setQty(quantity); setStep("details"); }}
                       />
                     </>
@@ -508,7 +531,38 @@ function Sidebar({ pre, onEdit, route }: {
 }
 
 
-function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect, multiQuote, multiLoading, hasStops }: {
+function TourConversionBanner({ from, to, reason, acked, onAck }: {
+  from: string; to: string; reason: string; acked: boolean; onAck: () => void;
+}) {
+  const pretty = (s: string) => s.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  return (
+    <div className={`rounded-2xl border p-5 md:p-6 ${acked ? "border-emerald-500/40 bg-emerald-500/5" : "border-[var(--gold)]/60 bg-[var(--gold)]/10"}`}>
+      <div className="flex items-start gap-3">
+        <BadgeCheck className={`size-5 shrink-0 mt-0.5 ${acked ? "text-emerald-600" : "text-[var(--gold)]"}`} />
+        <div className="flex-1 min-w-0">
+          <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--gold)]">Service change</p>
+          <h4 className="font-display font-bold text-base md:text-lg mt-1">
+            Your journey now qualifies as a <span className="underline decoration-[var(--gold)]">{pretty(to)}</span>
+          </h4>
+          <p className="text-sm text-muted-foreground mt-1">
+            Originally quoted as {pretty(from)}. {reason}
+          </p>
+          <div className="mt-4">
+            {acked ? (
+              <p className="text-xs text-emerald-700 font-semibold">✓ Change acknowledged — you can now continue.</p>
+            ) : (
+              <Button size="sm" variant="gold" className="rounded-full" onClick={onAck}>
+                I understand — continue
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect, multiQuote, multiLoading, hasStops, bookingDisabled, bookingDisabledReason }: {
   pre: Prefill;
   data: Awaited<ReturnType<typeof calculateQuotes>> | undefined;
   isLoading: boolean;
@@ -518,6 +572,8 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect, multiQuot
   multiQuote: MultiStopQuoteResult | null;
   multiLoading: boolean;
   hasStops: boolean;
+  bookingDisabled?: boolean;
+  bookingDisabledReason?: string | null;
 }) {
   const [qtyMap, setQtyMap] = useState<Record<string, number>>({});
   const priceByVehicle = useMemo(() => {
@@ -575,8 +631,10 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect, multiQuot
           return (
             <VehicleCard key={q.vehicleId} card={effective} best={i === 0} qty={qty}
               priceUpdating={hasStops && multiLoading}
+              disabled={!!bookingDisabled}
+              disabledReason={bookingDisabledReason ?? null}
               onQtyChange={(n) => setQtyMap((m) => ({ ...m, [q.vehicleId]: n }))}
-              onSelect={() => onSelect(effective, qty)} />
+              onSelect={() => { if (!bookingDisabled) onSelect(effective, qty); }} />
           );
         })}
       </div>
@@ -584,8 +642,9 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect, multiQuot
   );
 }
 
-function VehicleCard({ card, best, qty, priceUpdating, onQtyChange, onSelect }: {
+function VehicleCard({ card, best, qty, priceUpdating, disabled, disabledReason, onQtyChange, onSelect }: {
   card: QuoteCard; best: boolean; qty: number; priceUpdating?: boolean;
+  disabled?: boolean; disabledReason?: string | null;
   onQtyChange: (n: number) => void; onSelect: () => void;
 }) {
   const total = card.finalPrice * qty;
@@ -669,9 +728,12 @@ function VehicleCard({ card, best, qty, priceUpdating, onQtyChange, onSelect }: 
               </SelectContent>
             </Select>
           </div>
-          <Button onClick={onSelect} className="w-full h-12 rounded-lg bg-[var(--navy)] hover:bg-[var(--gold)] text-[var(--navy-foreground)] hover:text-[var(--gold-foreground)] font-bold uppercase tracking-[0.2em] text-[11px] transition-all shadow-md">
+          <Button onClick={onSelect} disabled={!!disabled} className="w-full h-12 rounded-lg bg-[var(--navy)] hover:bg-[var(--gold)] text-[var(--navy-foreground)] hover:text-[var(--gold-foreground)] font-bold uppercase tracking-[0.2em] text-[11px] transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
             Book Now
           </Button>
+          {disabled && disabledReason && (
+            <p className="text-[11px] text-muted-foreground mt-2 leading-snug">{disabledReason}</p>
+          )}
         </div>
       </div>
     </div>
