@@ -600,8 +600,10 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect, multiQuot
           return (
             <VehicleCard key={q.vehicleId} card={effective} best={i === 0} qty={qty}
               priceUpdating={hasStops && multiLoading}
+              disabled={!!bookingDisabled}
+              disabledReason={bookingDisabledReason ?? null}
               onQtyChange={(n) => setQtyMap((m) => ({ ...m, [q.vehicleId]: n }))}
-              onSelect={() => onSelect(effective, qty)} />
+              onSelect={() => { if (!bookingDisabled) onSelect(effective, qty); }} />
           );
         })}
       </div>
