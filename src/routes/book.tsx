@@ -263,6 +263,9 @@ function BookPage() {
                         isLoading={quoteQuery.isLoading}
                         error={quoteQuery.error as Error | null}
                         onRetry={() => quoteQuery.refetch()}
+                        multiQuote={multiStopQuery.data ?? null}
+                        multiLoading={multiStopQuery.isFetching}
+                        hasStops={orderedSelected.length > 0}
                         onSelect={(card, quantity) => { setChosen(card); setQty(quantity); setStep("details"); }}
                       />
                     </>
@@ -505,15 +508,25 @@ function Sidebar({ pre, onEdit, route }: {
 }
 
 
-function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
+function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect, multiQuote, multiLoading, hasStops }: {
   pre: Prefill;
   data: Awaited<ReturnType<typeof calculateQuotes>> | undefined;
   isLoading: boolean;
   error: Error | null;
   onRetry: () => void;
   onSelect: (card: QuoteCard, qty: number) => void;
+  multiQuote: MultiStopQuoteResult | null;
+  multiLoading: boolean;
+  hasStops: boolean;
 }) {
   const [qtyMap, setQtyMap] = useState<Record<string, number>>({});
+  const priceByVehicle = useMemo(() => {
+    const m = new Map<string, number>();
+    if (multiQuote) {
+      for (const v of multiQuote.vehicles) m.set(v.vehicle_id, v.per_vehicle_total);
+    }
+    return m;
+  }, [multiQuote]);
   return (
     <div>
       <div className="mb-6 flex items-end justify-between flex-wrap gap-3">
@@ -522,7 +535,11 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
           <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground mt-1">
             Book Your Ride · {pre.ret ? "Return" : "One Way"}
           </h2>
-          <p className="text-sm text-muted-foreground mt-1">Every fare is all-inclusive — no surge, no hidden fees.</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            {hasStops
+              ? `Prices include your selected stops${multiLoading ? " · updating…" : ""}.`
+              : "Every fare is all-inclusive — no surge, no hidden fees."}
+          </p>
         </div>
         {data && (
           <div className="inline-flex items-center gap-2 bg-[var(--navy)] text-[var(--navy-foreground)] rounded-full px-4 py-2 text-xs font-bold uppercase tracking-widest">
@@ -551,10 +568,15 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
         )}
         {data?.quotes.map((q, i) => {
           const qty = qtyMap[q.vehicleId] ?? 1;
+          const override = priceByVehicle.get(q.vehicleId);
+          const effective: QuoteCard = override !== undefined
+            ? { ...q, finalPrice: override }
+            : q;
           return (
-            <VehicleCard key={q.vehicleId} card={q} best={i === 0} qty={qty}
+            <VehicleCard key={q.vehicleId} card={effective} best={i === 0} qty={qty}
+              priceUpdating={hasStops && multiLoading}
               onQtyChange={(n) => setQtyMap((m) => ({ ...m, [q.vehicleId]: n }))}
-              onSelect={() => onSelect(q, qty)} />
+              onSelect={() => onSelect(effective, qty)} />
           );
         })}
       </div>
@@ -562,8 +584,8 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
   );
 }
 
-function VehicleCard({ card, best, qty, onQtyChange, onSelect }: {
-  card: QuoteCard; best: boolean; qty: number;
+function VehicleCard({ card, best, qty, priceUpdating, onQtyChange, onSelect }: {
+  card: QuoteCard; best: boolean; qty: number; priceUpdating?: boolean;
   onQtyChange: (n: number) => void; onSelect: () => void;
 }) {
   const total = card.finalPrice * qty;
@@ -630,6 +652,7 @@ function VehicleCard({ card, best, qty, onQtyChange, onSelect }: {
             <span className="text-3xl md:text-4xl font-display font-bold tabular-nums tracking-tight">{total.toFixed(2)}</span>
           </div>
           {qty > 1 && (<p className="text-[11px] text-muted-foreground mt-1">{qty} × £{card.finalPrice.toFixed(2)}</p>)}
+          {priceUpdating && (<p className="text-[10px] text-[var(--gold)] mt-1 uppercase tracking-wider">Updating…</p>)}
           <div className="mt-3 text-[11px] text-muted-foreground space-y-1">
             <p className="flex items-center justify-center gap-1.5"><ShieldCheck className="size-3 text-[var(--gold)]" /> No hidden cost</p>
             <p className="flex items-center justify-center gap-1.5"><Clock className="size-3 text-[var(--gold)]" /> Free cancellation</p>
