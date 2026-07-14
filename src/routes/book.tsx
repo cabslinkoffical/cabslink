@@ -531,7 +531,38 @@ function Sidebar({ pre, onEdit, route }: {
 }
 
 
-function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect, multiQuote, multiLoading, hasStops, bookingDisabled, bookingDisabledReason }: {
+function TourConversionBanner({ from, to, reason, acked, onAck }: {
+  from: string; to: string; reason: string; acked: boolean; onAck: () => void;
+}) {
+  const pretty = (s: string) => s.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  return (
+    <div className={`rounded-2xl border p-5 md:p-6 ${acked ? "border-emerald-500/40 bg-emerald-500/5" : "border-[var(--gold)]/60 bg-[var(--gold)]/10"}`}>
+      <div className="flex items-start gap-3">
+        <BadgeCheck className={`size-5 shrink-0 mt-0.5 ${acked ? "text-emerald-600" : "text-[var(--gold)]"}`} />
+        <div className="flex-1 min-w-0">
+          <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--gold)]">Service change</p>
+          <h4 className="font-display font-bold text-base md:text-lg mt-1">
+            Your journey now qualifies as a <span className="underline decoration-[var(--gold)]">{pretty(to)}</span>
+          </h4>
+          <p className="text-sm text-muted-foreground mt-1">
+            Originally quoted as {pretty(from)}. {reason}
+          </p>
+          <div className="mt-4">
+            {acked ? (
+              <p className="text-xs text-emerald-700 font-semibold">✓ Change acknowledged — you can now continue.</p>
+            ) : (
+              <Button size="sm" variant="gold" className="rounded-full" onClick={onAck}>
+                I understand — continue
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
   pre: Prefill;
   data: Awaited<ReturnType<typeof calculateQuotes>> | undefined;
   isLoading: boolean;
