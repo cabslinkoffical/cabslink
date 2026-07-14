@@ -155,6 +155,20 @@ function BookPage() {
       }),
   });
 
+  const poisFn = useServerFn(listPoisForRoute);
+  const poisQuery = useQuery({
+    enabled: hasValidRoute && !!quoteQuery.data,
+    queryKey: ["pois", pre.pickup?.placeId, pre.dropoff?.placeId],
+    staleTime: 10 * 60 * 1000,
+    queryFn: () =>
+      poisFn({
+        data: {
+          pickup_place_id: pre.pickup!.placeId,
+          destination_place_id: pre.dropoff!.placeId,
+        },
+      }),
+  });
+
   return (
     <SiteLayout>
       <section className="relative bg-[var(--surface)] py-10 md:py-14 min-h-[80vh] overflow-hidden">
