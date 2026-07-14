@@ -72,7 +72,7 @@ export function BookingWidget() {
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto bg-card rounded-3xl shadow-[var(--shadow-elegant)] overflow-hidden border border-border">
+    <div className="w-full max-w-5xl mx-auto bg-card rounded-3xl shadow-[var(--shadow-elegant)] border border-border">
       {/* Segmented tab pill */}
       <div className="p-3 sm:p-4">
         <div className="relative flex bg-[var(--surface)] rounded-full p-1">
