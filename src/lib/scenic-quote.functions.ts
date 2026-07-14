@@ -109,7 +109,7 @@ function serverPublicClient() {
   });
 }
 
-async function loadPoiFeesByPlaceId(placeIds: string[]) {
+export async function loadPoiFeesByPlaceId(placeIds: string[]) {
   if (placeIds.length === 0) return new Map<string, { stop_fee_pence: number; parking_fee_pence: number; category: string }>();
   const client = serverPublicClient();
   const { data } = await client
@@ -128,7 +128,7 @@ async function loadPoiFeesByPlaceId(placeIds: string[]) {
   return out;
 }
 
-async function loadThresholds() {
+export async function loadThresholds() {
   const client = serverPublicClient();
   const { data } = await client
     .from("site_settings")
