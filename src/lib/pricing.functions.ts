@@ -447,6 +447,12 @@ export const createBooking = createServerFn({ method: "POST" })
       }
     }
 
+    // Add child seat fee last so it applies whether the ride is a direct
+    // transfer or a scenic/multi-stop recompute.
+    if (childSeatFee > 0) {
+      price = Number((price + childSeatFee).toFixed(2));
+    }
+
     const notesWithQty = qty > 1
       ? `Vehicles: ${qty} × ${profile.vehicle.name}${data.notes ? `\n\n${data.notes}` : ""}`
       : data.notes || null;
