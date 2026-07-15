@@ -1314,12 +1314,12 @@ function PaymentStep({ value, onChange, grandTotal, onBack, onSubmit, submitting
   const options: Array<{ id: PaymentMethod; icon: React.ReactNode; title: string; body: string; badge?: string }> = [
     {
       id: "card_on_confirmation", icon: <CreditCard className="size-5" />, title: "Card payment",
-      body: "We'll send you a secure payment link once our team confirms availability.",
+      body: "Our team will contact you to arrange a secure payment once we've confirmed availability.",
       badge: "Most popular",
     },
     {
       id: "bank_transfer", icon: <Landmark className="size-5" />, title: "Bank transfer",
-      body: "Receive our UK bank details on the confirmation email.",
+      body: "We'll share our UK bank details when we confirm your booking.",
     },
     {
       id: "pay_on_account", icon: <Banknote className="size-5" />, title: "Pay on account",
