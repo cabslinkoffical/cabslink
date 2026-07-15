@@ -291,9 +291,20 @@ function BookPage() {
                         hasStops={orderedSelected.length > 0}
                         bookingDisabled={needsAck}
                         bookingDisabledReason={needsAck ? "Please acknowledge the tour conversion above to continue." : null}
-                        onSelect={(card, quantity) => { setChosen(card); setQty(quantity); setStep("details"); }}
+                        onSelect={(card, quantity) => { setChosen(card); setQty(quantity); setStep("policy"); }}
                       />
                     </>
+                  )}
+                  {step === "policy" && chosen && (
+                    <PolicyStep
+                      card={chosen}
+                      qty={qty}
+                      currentTotal={(multiStopQuery.data?.vehicles.find((v) => v.vehicle_id === chosen.vehicleId)?.per_vehicle_total ?? chosen.finalPrice) * qty}
+                      value={policy}
+                      onChange={setPolicy}
+                      onBack={() => setStep("vehicle")}
+                      onNext={() => setStep("details")}
+                    />
                   )}
                   {step === "details" && chosen && (
                     <DetailsStep pre={pre} card={chosen} qty={qty}
@@ -302,7 +313,8 @@ function BookPage() {
                       stopsFingerprint={mq?.stops_fingerprint ?? null}
                       tourConversionAckAt={tourAckAt}
                       childSeatFeePence={quoteQuery.data?.childSeatFeePence ?? 0}
-                      onBack={() => setStep("vehicle")}
+                      policy={policy}
+                      onBack={() => setStep("policy")}
                       onSuccess={(token) => {
                         if (token) navigate({ to: "/booking/$token", params: { token } });
                         else setStep("review");
@@ -418,9 +430,10 @@ function EditTripDialog({
 
 function Stepper({ step }: { step: Step }) {
   const items: { id: Step; label: string }[] = [
-    { id: "vehicle", label: "Vehicle" },
+    { id: "vehicle", label: "Extras & Ride" },
+    { id: "policy", label: "Policy" },
     { id: "details", label: "Details" },
-    { id: "review", label: "Review" },
+    { id: "review", label: "Done" },
   ];
 
   const idx = items.findIndex((x) => x.id === step);
