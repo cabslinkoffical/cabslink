@@ -133,7 +133,7 @@ function BookPage() {
   const applyEdit = (next: Prefill) => {
     // Any location change invalidates the current vehicle selection.
     setChosen(null);
-    setStep("vehicle");
+    setStep("stops");
     navigate({ search: { q: encodePrefill(next) }, replace: true });
     setEditOpen(false);
   };
