@@ -16,6 +16,7 @@ import { Plus, Edit, Trash2, Upload, Loader2, X, ChevronDown, Users, Briefcase, 
 import { toast } from "sonner";
 import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
 import { supabase } from "@/integrations/supabase/client";
+import { optimizeImage, getOptimizeSpeed, setOptimizeSpeed, type OptimizeSpeed } from "@/lib/optimize-image";
 
 const opts = queryOptions({ queryKey: ["admin", "vehicles"], queryFn: () => listVehiclesAdmin() });
 export const Route = createFileRoute("/_authenticated/admin/fleet")({
@@ -51,19 +52,26 @@ function FleetPage() {
 
   const [form, setForm] = useState<any>(null);
   const [uploading, setUploading] = useState(false);
+  const [optSpeed, setOptSpeedState] = useState<OptimizeSpeed>(() => getOptimizeSpeed());
+  function updateOptSpeed(s: OptimizeSpeed) { setOptSpeedState(s); setOptimizeSpeed(s); }
   const [saving, setSaving] = useState(false);
 
   function openNew() { setForm({ ...emptyVehicle }); }
   function openEdit(v: any) { setForm({ ...emptyVehicle, ...v }); }
   function close() { setForm(null); }
 
-  async function handleImageUpload(file: File) {
-    if (!file) return;
-    if (!file.type.startsWith("image/")) { toast.error("Please select an image file"); return; }
-    if (file.size > 5 * 1024 * 1024) { toast.error("Image must be under 5MB"); return; }
+  async function handleImageUpload(input: File) {
+    if (!input) return;
+    if (!input.type.startsWith("image/")) { toast.error("Please select an image file"); return; }
+    if (input.size > 20 * 1024 * 1024) { toast.error("Image must be under 20MB"); return; }
     setUploading(true);
     try {
-      const ext = file.name.split(".").pop() ?? "jpg";
+      const file = await optimizeImage(input, optSpeed);
+      if (optSpeed !== "off" && file !== input) {
+        const saved = Math.max(0, input.size - file.size);
+        if (saved > 1024) toast.success(`Optimized: ${(input.size/1024).toFixed(0)}KB → ${(file.size/1024).toFixed(0)}KB`);
+      }
+      const ext = (file.name.split(".").pop() ?? "jpg").toLowerCase();
       const path = `${crypto.randomUUID()}.${ext}`;
       const { error: upErr } = await supabase.storage.from("vehicle-images").upload(path, file, { contentType: file.type, upsert: false });
       if (upErr) throw upErr;
@@ -139,6 +147,19 @@ function FleetPage() {
               </Field>
               <Field label="Category (legacy)"><Input value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} /></Field>
               <Field label="Vehicle image *" full>
+                <div className="mb-2 flex items-center gap-2">
+                  <Label className="text-xs text-muted-foreground">Auto-optimize</Label>
+                  <Select value={optSpeed} onValueChange={(v) => updateOptSpeed(v as OptimizeSpeed)}>
+                    <SelectTrigger className="h-8 w-40"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="off">Off (original)</SelectItem>
+                      <SelectItem value="fast">Fast (light)</SelectItem>
+                      <SelectItem value="balanced">Balanced (recommended)</SelectItem>
+                      <SelectItem value="max">Max (smallest)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <span className="text-xs text-muted-foreground">Runs in your browser · WebP</span>
+                </div>
                 {form.image_url ? (
                   <div className="relative inline-block">
                     <img src={form.image_url} alt="" className="h-32 object-cover rounded border border-border" />
@@ -149,7 +170,7 @@ function FleetPage() {
                 ) : (
                   <label className="flex flex-col items-center justify-center gap-2 h-32 border-2 border-dashed border-border rounded-lg cursor-pointer hover:bg-muted/30 transition-colors">
                     {uploading ? <Loader2 className="size-6 animate-spin text-muted-foreground" /> : <Upload className="size-6 text-muted-foreground" />}
-                    <span className="text-sm text-muted-foreground">{uploading ? "Uploading…" : "Click to upload image (max 5MB)"}</span>
+                    <span className="text-sm text-muted-foreground">{uploading ? "Optimizing & uploading…" : "Click to upload image (max 20MB)"}</span>
                     <input type="file" accept="image/*" className="hidden" disabled={uploading} onChange={e => { const f = e.target.files?.[0]; if (f) handleImageUpload(f); e.target.value = ""; }} />
                   </label>
                 )}
