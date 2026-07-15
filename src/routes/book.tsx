@@ -865,8 +865,14 @@ function DetailsStep({ pre, card, qty, scenicStops, routeMode, stopsFingerprint,
           email: parsed.data.email,
           phone: parsed.data.phone,
           flight_number: parsed.data.flight_number || null,
-          notes: parsed.data.notes || null,
-          child_seat: childSeat,
+          notes: (() => {
+            const parts: string[] = [];
+            if (parsed.data.whatsapp) parts.push(`WhatsApp: ${parsed.data.whatsapp}`);
+            if (childSeatCount > 0) parts.push(`Child seats requested: ${childSeatCount}`);
+            if (parsed.data.notes) parts.push(parsed.data.notes);
+            return parts.length ? parts.join("\n") : null;
+          })(),
+          child_seat: childSeatCount > 0,
           meet_greet: meetGreet,
           return_journey: returnJourney,
         },
