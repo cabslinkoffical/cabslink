@@ -112,7 +112,37 @@ const vClassFeatures = [
 ];
 
 function FleetPage() {
-  const hero = fleet[3]; // V-Class
+  const [dbFleet, setDbFleet] = useState<Vehicle[] | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    supabase
+      .from("vehicles")
+      .select("id, name, category, image_url, passengers, luggage, hand_luggage, description, featured")
+      .eq("active", true)
+      .order("display_order", { ascending: true })
+      .then(({ data }) => {
+        if (cancelled || !data || data.length === 0) return;
+        const mapped: Vehicle[] = data
+          .filter((v: any) => v.image_url)
+          .map((v: any) => ({
+            name: v.name,
+            note: v.category ?? "Vehicle",
+            image: v.image_url,
+            pax: v.passengers ?? 0,
+            lug: v.luggage ?? 0,
+            hand: v.hand_luggage ?? 0,
+            desc: v.description ?? "",
+            featured: !!v.featured,
+          }));
+        if (mapped.length > 0) setDbFleet(mapped);
+      });
+    return () => { cancelled = true; };
+  }, []);
+
+  const activeFleet = useMemo(() => dbFleet ?? fleet, [dbFleet]);
+  const hero = activeFleet.find(v => /v-class/i.test(v.name)) ?? activeFleet[0];
+
 
   return (
     <SiteLayout>
