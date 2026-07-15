@@ -764,11 +764,17 @@ function VehicleCard({ card, best, qty, minQty, priceUpdating, disabled, disable
 
         <div className="w-full mt-5 space-y-3">
           <div className="w-full">
-            <Label className="text-[9px] font-bold uppercase tracking-[0.25em] text-muted-foreground">Vehicles</Label>
+            <Label className="text-[9px] font-bold uppercase tracking-[0.25em] text-muted-foreground">
+              Vehicles{minQty > 1 ? ` · min ${minQty}` : ""}
+            </Label>
             <Select value={String(qty)} onValueChange={(v) => onQtyChange(Number(v))}>
-              <SelectTrigger className="mt-1 h-10 border-[var(--gold)]/50 bg-card"><SelectValue /></SelectTrigger>
+              <SelectTrigger className={`mt-1 h-10 bg-card ${qty < minQty ? "border-amber-500" : "border-[var(--gold)]/50"}`}><SelectValue /></SelectTrigger>
               <SelectContent>
-                {[1, 2, 3, 4, 5].map((n) => (<SelectItem key={n} value={String(n)}>{n} × Vehicle</SelectItem>))}
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+                  <SelectItem key={n} value={String(n)}>
+                    {n} × Vehicle{n < minQty ? " — not enough" : ""}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
