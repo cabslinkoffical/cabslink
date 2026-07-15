@@ -354,11 +354,12 @@ function BookPage() {
           ) : (
             <>
               <Stepper step={step} />
-              <div className="mt-8 grid lg:grid-cols-[340px_1fr] gap-6 items-start">
+              <div className="mt-8 grid lg:grid-cols-[340px_1fr] gap-6 items-start pb-24 lg:pb-0">
                 <Sidebar
                   pre={pre}
                   onEdit={() => setEditOpen(true)}
                   route={quoteQuery.data ? { miles: quoteQuery.data.distanceMiles, minutes: quoteQuery.data.durationMinutes } : null}
+                  price={chosen ? { vehicleName: chosen.name, perVehicle: perVehiclePrice, qty, rideTotal, seatFee, seatCount: childSeatCount, policy, policyDelta, grandTotal } : null}
                 />
                 <div className="min-w-0 space-y-6">
                   {step === "vehicle" && (
