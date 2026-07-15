@@ -6,14 +6,11 @@ const insertSpy = vi.fn();
 vi.mock("@/integrations/supabase/client.server", () => ({
   supabaseAdmin: { from: () => ({ insert: (row: any) => { insertSpy(row); return Promise.resolve({ error: null }); } }) },
 }));
-vi.mock("@tanstack/react-start/server", () => ({
-  getRequestIP: () => "5.6.7.8",
-  setResponseStatus: () => {},
-}));
 
 async function importFn() {
+  vi.resetModules();
   const mod = await import("@/lib/driver-application.functions");
-  return (mod.submitDriverApplication as any);
+  return (data: any) => mod.submitDriverApplicationImpl(data, { ip: "5.6.7.8" });
 }
 
 const valid = {
@@ -23,11 +20,11 @@ const valid = {
 };
 
 describe("submitDriverApplication", () => {
-  beforeEach(() => { insertSpy.mockClear(); _resetAllLimits(); vi.resetModules(); });
+  beforeEach(() => { insertSpy.mockClear(); _resetAllLimits(); });
 
   it("accepts a valid application", async () => {
     const fn = await importFn();
-    const res = await fn({ data: valid });
+    const res = await fn(valid);
     expect(res).toEqual({ ok: true });
     expect(insertSpy).toHaveBeenCalledTimes(1);
     expect(insertSpy.mock.calls[0][0].subject).toMatch(/driver|partner/i);
@@ -35,13 +32,13 @@ describe("submitDriverApplication", () => {
 
   it("rejects invalid email and short messages", async () => {
     const fn = await importFn();
-    await expect(fn({ data: { ...valid, email: "nope" } })).rejects.toBeTruthy();
-    await expect(fn({ data: { ...valid, message: "hi" } })).rejects.toBeTruthy();
+    await expect(fn({ ...valid, email: "nope" })).rejects.toBeTruthy();
+    await expect(fn({ ...valid, message: "hi" })).rejects.toBeTruthy();
   });
 
   it("honeypot silently succeeds", async () => {
     const fn = await importFn();
-    const res = await fn({ data: { ...valid, website: "https://spam.example" } });
+    const res = await fn({ ...valid, website: "https://spam.example" });
     expect(res).toEqual({ ok: true });
     expect(insertSpy).not.toHaveBeenCalled();
   });
@@ -49,16 +46,16 @@ describe("submitDriverApplication", () => {
   it("rate-limits after 5 submissions", async () => {
     const fn = await importFn();
     for (let i = 0; i < 5; i++) {
-      await fn({ data: { ...valid, message: `unique application message ${i} ${Math.random()}` } });
+      await fn({ ...valid, message: `unique application message ${i} ${Math.random()}` });
     }
-    await expect(fn({ data: { ...valid, message: "one more application text here" } }))
+    await expect(fn({ ...valid, message: "one more application text here" }))
       .rejects.toThrow(/too many/i);
   });
 
   it("deduplicates identical submissions", async () => {
     const fn = await importFn();
-    await fn({ data: valid });
-    await fn({ data: valid });
+    await fn(valid);
+    await fn(valid);
     expect(insertSpy).toHaveBeenCalledTimes(1);
   });
 });

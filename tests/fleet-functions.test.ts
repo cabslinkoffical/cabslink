@@ -19,7 +19,7 @@ async function importFn() {
   process.env.SUPABASE_URL = "http://localhost";
   process.env.SUPABASE_PUBLISHABLE_KEY = "sb_publishable_test";
   const mod = await import("@/lib/fleet.functions");
-  return (mod.listPublicVehicles as any);
+  return mod.listPublicVehiclesImpl;
 }
 
 describe("listPublicVehicles", () => {
