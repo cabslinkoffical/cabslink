@@ -51,12 +51,13 @@ export type QuoteSettings = {
   taxLabel: string;
   currency: string;
   currencySymbol: string;
+  childSeatFeePence: number;
 };
 
 export async function loadQuoteSettings(client: ReturnType<typeof publicClient>): Promise<QuoteSettings> {
   const { data } = await client
     .from("site_settings")
-    .select("tax_enabled, tax_percentage, tax_label, currency, currency_symbol")
+    .select("tax_enabled, tax_percentage, tax_label, currency, currency_symbol, child_seat_fee_pence")
     .eq("id", 1)
     .maybeSingle();
   const row: any = data ?? {};
@@ -68,6 +69,7 @@ export async function loadQuoteSettings(client: ReturnType<typeof publicClient>)
     taxLabel: (row.tax_label as string) || "VAT",
     currency: (row.currency as string) || "GBP",
     currencySymbol: (row.currency_symbol as string) || "£",
+    childSeatFeePence: Math.max(0, Number(row.child_seat_fee_pence) || 0),
   };
 }
 
