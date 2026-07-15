@@ -709,7 +709,10 @@ function Sidebar({ pre, onEdit, route, price }: {
         </div>
       </div>
 
+      {price && <div className="hidden lg:block"><PriceBreakdown price={price} /></div>}
+
       <div className="bg-card rounded-2xl border border-border p-5 shadow-sm space-y-2.5">
+
         <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)] mb-1">Why Cabslink</p>
         {[
           "10,000+ passengers transferred",
