@@ -459,7 +459,8 @@ function EditTripDialog({
 
 function Stepper({ step }: { step: Step }) {
   const items: { id: Step; label: string }[] = [
-    { id: "vehicle", label: "Extras & Ride" },
+    { id: "stops", label: "Stops" },
+    { id: "vehicle", label: "Vehicle" },
     { id: "policy", label: "Policy" },
     { id: "details", label: "Details" },
     { id: "review", label: "Done" },
