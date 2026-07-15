@@ -826,7 +826,7 @@ const detailsSchema = z.object({
 
 type ScenicStop = { place_id: string; label: string; minutes: number; category?: string | null };
 
-function DetailsStep({ pre, card, qty, scenicStops, routeMode, stopsFingerprint, tourConversionAckAt, childSeatFeePence, onBack, onSuccess }:
+function DetailsStep({ pre, card, qty, scenicStops, routeMode, stopsFingerprint, tourConversionAckAt, childSeatFeePence, policy, onBack, onSuccess }:
   {
     pre: Prefill; card: QuoteCard; qty: number;
     scenicStops: ScenicStop[];
@@ -834,6 +834,7 @@ function DetailsStep({ pre, card, qty, scenicStops, routeMode, stopsFingerprint,
     stopsFingerprint: string | null;
     tourConversionAckAt: string | null;
     childSeatFeePence: number;
+    policy: Policy;
     onBack: () => void; onSuccess: (token: string | null) => void;
   }) {
   const [meetGreet, setMeetGreet] = useState(true);
