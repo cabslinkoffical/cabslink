@@ -197,6 +197,7 @@ export const calculateQuotes = createServerFn({ method: "POST" })
       distanceMiles: auth.distanceMiles,
       durationMinutes: auth.durationMinutes,
       quotes: cards,
+      childSeatFeePence: auth.settings.childSeatFeePence,
     };
   });
 
