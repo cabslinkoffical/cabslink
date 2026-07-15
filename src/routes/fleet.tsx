@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
 import { Users, Briefcase, ArrowRight, ShieldCheck, Star, Luggage } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero, SectionHeader } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 
 import rollsAsset from "@/assets/fleet/rolls.png.asset.json";
 import sclassAsset from "@/assets/fleet/sclass.png.asset.json";
@@ -27,6 +29,7 @@ export const Route = createFileRoute("/fleet")({
   }),
   component: FleetPage,
 });
+
 
 type Vehicle = {
   name: string;
@@ -109,7 +112,37 @@ const vClassFeatures = [
 ];
 
 function FleetPage() {
-  const hero = fleet[3]; // V-Class
+  const [dbFleet, setDbFleet] = useState<Vehicle[] | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    supabase
+      .from("vehicles")
+      .select("id, name, category, image_url, passengers, luggage, hand_luggage, description, featured")
+      .eq("active", true)
+      .order("display_order", { ascending: true })
+      .then(({ data }) => {
+        if (cancelled || !data || data.length === 0) return;
+        const mapped: Vehicle[] = data
+          .filter((v: any) => v.image_url)
+          .map((v: any) => ({
+            name: v.name,
+            note: v.category ?? "Vehicle",
+            image: v.image_url,
+            pax: v.passengers ?? 0,
+            lug: v.luggage ?? 0,
+            hand: v.hand_luggage ?? 0,
+            desc: v.description ?? "",
+            featured: !!v.featured,
+          }));
+        if (mapped.length > 0) setDbFleet(mapped);
+      });
+    return () => { cancelled = true; };
+  }, []);
+
+  const activeFleet = useMemo(() => dbFleet ?? fleet, [dbFleet]);
+  const hero = activeFleet.find(v => /v-class/i.test(v.name)) ?? activeFleet[0];
+
 
   return (
     <SiteLayout>
@@ -150,9 +183,9 @@ function FleetPage() {
       {/* FLEET GRID */}
       <section className="section-y bg-[var(--surface)]">
         <div className="container-x">
-          <SectionHeader eyebrow="The full fleet" title="Eight vehicles. One uncompromising standard." subtitle="Each capacity figure is shown as passengers · large luggage · hand luggage." center />
+          <SectionHeader eyebrow="The full fleet" title="One uncompromising standard across every vehicle." subtitle="Each capacity figure is shown as passengers · large luggage · hand luggage." center />
           <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {fleet.map((f, i) => (
+            {activeFleet.map((f, i) => (
               <Reveal key={f.name} delay={i * 80}>
                 <div className={`rounded-3xl border bg-card overflow-hidden hover:-translate-y-1 hover:shadow-[var(--shadow-elegant)] transition h-full flex flex-col ${f.featured ? "border-[var(--gold)]" : "border-border"}`}>
                   <div className="relative h-52 overflow-hidden bg-[var(--surface)] flex items-center justify-center p-4">
