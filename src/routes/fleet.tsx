@@ -97,7 +97,7 @@ function FleetPage() {
         <section className="section-y">
           <div className="container-x grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
             <Reveal>
-              <img src={hero.image} alt={`${hero.name} luxury chauffeur vehicle`} width={1600} height={1000} className="rounded-3xl object-cover w-full aspect-[4/3] shadow-[var(--shadow-elegant)] bg-[var(--surface)]" />
+              <img src={hero.image} alt={`${hero.name} luxury chauffeur vehicle`} width={1600} height={1000} decoding="async" fetchPriority="high" className="rounded-3xl object-cover w-full aspect-[4/3] shadow-[var(--shadow-elegant)] bg-[var(--surface)]" />
             </Reveal>
             <Reveal delay={120}>
               <p className="text-xs uppercase tracking-[0.3em] text-[var(--gold)] mb-3">{hero.featured ? "Featured vehicle" : "Available vehicle"}</p>
@@ -142,7 +142,7 @@ function FleetPage() {
               <Reveal key={f.id ?? f.name} delay={i * 80}>
                 <div className={`rounded-3xl border bg-card overflow-hidden hover:-translate-y-1 hover:shadow-[var(--shadow-elegant)] transition h-full flex flex-col ${f.featured ? "border-[var(--gold)]" : "border-border"}`}>
                   <div className="relative h-52 overflow-hidden bg-[var(--surface)] flex items-center justify-center p-4">
-                    <img src={f.image} alt={`${f.name} chauffeur vehicle`} loading="lazy" width={1200} height={800} className="size-full object-contain" />
+                    <img src={f.image} alt={`${f.name} chauffeur vehicle`} loading="lazy" decoding="async" width={1200} height={800} className="size-full object-contain" />
                     {f.featured && (
                       <span className="absolute top-3 left-3 inline-flex items-center gap-1 rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] px-3 py-1 text-xs font-semibold">
                         <Star className="size-3 fill-current" /> Featured

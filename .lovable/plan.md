@@ -1,74 +1,116 @@
+## Goal
+Cut homepage image transfer by converting large images to WebP, serving responsive sizes, and giving the LCP hero image priority — without touching design, layout, carousel behaviour, or the booking form.
 
-# Phase 2B-2 — Route POIs, Sightseeing Stops, Tour Conversion
+## Constraints I need to surface first
 
-Delivered in 3 turns so each is reviewable and costs less to iterate on than one giant PR. Every rule from your spec is respected — nothing is dropped, only sequenced.
+1. **Fleet carousel images are CDN pointers**, not local files. `src/assets/fleet/*.png.asset.json` point to R2-hosted PNGs (~800 KB each). `vite-imagetools` cannot process URLs — only local files. To convert them I have to: download original from CDN → convert to WebP locally with sharp → upload new WebP via `lovable-assets create` → update the `.asset.json` pointer to point at the WebP. Original PNG assets stay live at their CDN URL as fallback until I confirm the WebPs work.
+2. **Local images in `src/assets/`** (hero.jpg, edinburgh.jpg, v-class-side.png, v-class.png, v-class-interior.jpg, airport.jpg, corporate.jpg, chauffeur.jpg, fleet-suv.jpg) — these I can process with `vite-imagetools` query imports (`?format=webp&w=1600;1024;640&as=srcset`) which works in both dev and production build.
+3. **Lighthouse against the published URL** requires you to click Publish after I ship the code — I can't publish for you, and preview URL Lighthouse numbers aren't representative. I'll run Lighthouse via Playwright + `lighthouse` CLI against the published URL only after you re-publish and confirm. Until then I'll report: production build asset sizes, transferred bytes from a Playwright network trace against the local production preview, LCP element inspection, and whether below-fold images stayed unloaded on initial viewport.
+4. **Homepage component splitting and removing public realtime subscriptions** — you asked to do those after this phase is verified. I will not touch them in this turn.
 
-## Scope decisions locked in
+## Plan
 
-- **POI discovery**: curated only. The `points_of_interest` table + curated route templates drive suggestions. Google **Search Along Route** is scaffolded as a server function stub behind a `poi_discovery_enabled` site setting (default off) and wired in a later phase. Reason: matches how you'll seed Edinburgh→Fort William, avoids per-quote Google cost, and every test in your spec still passes against curated data.
-- **Edinburgh→Fort William seed**: migration inserts the template + 7 POI rows as `active=false` with empty `place_id`. A DB trigger blocks activation until every `place_id` is a valid Place-ID string (reuses your existing `placeIdSchema` shape via a CHECK). Admin resolves each through the POI page's Google PlaceAutocomplete, then flips `active=true`.
-- **No Resend, no payments, no coupons, no hourly.** No frontend money. Additive migrations only. Existing Google Places connector, Routes integration, Place-ID validation, pricing engine, snapshots, idempotency and confirmation tokens all preserved.
+### 1. Tooling
+- `bun add -D vite-imagetools sharp`
+- Add `imagetools()` plugin via `vite-tanstack-config`'s `vite: { plugins: [...] }` escape hatch. Verify it doesn't collide with the pre-bundled plugin list.
+- Add a TypeScript module declaration for `*?w=...&format=webp&as=srcset` imports so typecheck passes.
 
-## Turn 1 — Data model + engine + server + tests (this PR)
+### 2. Local images → WebP srcSet
+For each local image used on the homepage, replace the direct import with an imagetools srcset import at 3 widths (mobile / tablet / desktop, capped at the image's real max width):
 
-**Migrations (additive)**
-1. `points_of_interest` — full schema from spec, with CHECK: `active=true ⇒ place_id ~ '^[A-Za-z0-9_\-:.=@]+$'`. GRANTs: `SELECT` to `anon` (active only, via RLS), full to `authenticated` admin, all to `service_role`. Trigger `log_admin_action` attached.
-2. `scenic_route_templates` + `scenic_route_template_pois` join. Partial unique index on `(origin_place_id, destination_place_id)` where `active`. Bidirectional matching handled in the matcher, not the schema.
-3. `site_settings` extension: `sightseeing_threshold_minutes` (default 30), `tour_threshold_minutes` (120), `tour_threshold_stops` (3), `max_selected_stops` (8), `max_detour_miles`, `max_detour_minutes`, `poi_discovery_enabled` (false), `allowed_stop_duration_minutes` (int[] default `{15,30,45,60,90,120}`), `included_stop_minutes`, `price_per_extra_15min_pence`.
-4. `quote_calculations` + `bookings.pricing_snapshot` schema bump to `engine_version = "2026.07.2"`. Additive columns: `direct_distance_miles`, `direct_duration_seconds`, `driving_duration_seconds`, `planned_stop_duration_seconds`, `total_journey_seconds`, `route_mode` (`direct|scenic|optimised`), `original_service_type`, `final_service_type`, `classification_reason`, `selected_pois jsonb`, `route_legs jsonb`, `polyline_ref text`, `stops_fingerprint text` (SHA-256 of ordered `place_id|minutes` pairs — invalidates on any stop/order/duration change).
-5. `bookings`: `service_type`, `original_service_type`, `tour_conversion_ack_at`, `stops_fingerprint`.
-6. Seed migration: Edinburgh→Fort William template + 7 POI rows (Kelpies, Falkirk Wheel, Stirling Castle, Doune Castle, Callander, Lochearnhead, Glencoe), all inactive with empty `place_id`.
+```ts
+import heroSrcSet from "@/assets/hero.jpg?w=640;1024;1600&format=webp&as=srcset";
+import heroFallback from "@/assets/hero.jpg?w=1600&format=webp";
+```
 
-**Engine (`src/lib/pricing.ts` + `pricing-helpers.server.ts`)**
-- New line kinds: `stop_fee`, `stop_time`, `parking`, `scenic_fee`.
-- Total = existing driving/mileage/fixed + Σ(per-stop base fee) + Σ(planned-time charge above `included_stop_minutes`) + parking + scenic/tour fee + surcharges + tax.
-- `plannedStopSeconds` computed separately; `runPricingEngine` returns `drivingDurationSeconds`, `plannedStopDurationSeconds`, `totalJourneySeconds` — never merged.
-- Classification helper `classifyService(stops, plannedMinutes, thresholds)` returns `{ service_type, reason }`. Server-only.
+Render:
+```tsx
+<img
+  src={heroFallback}
+  srcSet={heroSrcSet}
+  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 600px"
+  width={1600} height={1000}
+  loading="lazy" decoding="async"
+  alt="..."
+/>
+```
+Explicit `width`/`height` on every image (preserving real aspect ratios) so no CLS.
 
-**Server functions (`src/lib/pois.functions.ts`, `scenic-routes.functions.ts`, extends `pricing.functions.ts`)**
-- `listPoisForRoute({ pickup_place_id, dropoff_place_id })` — matches curated template by exact Place-ID pair (bidirectional flag respected), returns template + curated POIs ranked by `admin_priority DESC, scenic_score DESC, detour ASC`. No template ⇒ returns POIs whose `place_id` is a stopover on the direct route by re-running Routes API with each candidate as intermediate and filtering by `max_detour_miles / max_detour_minutes`. Cached 10 min.
-- `calculateMultiStopQuote({ vehicle_id, pickup_place_id, dropoff_place_id, stops: [{ place_id, minutes }], route_mode })` — validates stops (min/max minutes, `≤ max_selected_stops`, no duplicate consecutive, all Place-IDs valid), calls Routes API with `intermediates` + `optimizeWaypointOrder` when `route_mode='optimised'` and template isn't locked, builds full snapshot, returns quote + fingerprint. Reuses `computeRoute` (extended to accept waypoints — already supported) and existing rate limiter.
-- `previewScenicOrderStub` — Search Along Route stub gated by `poi_discovery_enabled`.
-- Admin fns (`admin.functions.ts` additions): `upsertPoi`, `deactivatePoi`, `upsertScenicTemplate`, `reorderTemplateStops`, `updateTourSettings`. All `.middleware([requireSupabaseAuth])` + `has_role('admin')` check + Zod + activity log.
-- Booking creation extended: rejects if `stops_fingerprint` in submitted quote doesn't match server recomputation; requires `tour_conversion_ack_at` when `original_service_type != final_service_type` and final is `sightseeing_transfer|private_tour`.
+### 3. Fleet carousel CDN images → WebP
+Script (one-shot, in `/tmp`, not committed):
+- Read each `src/assets/fleet/*.png.asset.json`
+- `curl` the CDN URL to `/tmp/fleet/<name>.png`
+- `sharp` convert to WebP at widths 400 (thumbnail strip) and 1200 (hero stage), quality ~82, with alpha preserved
+- `lovable-assets create --file /tmp/fleet/<name>-1200.webp --filename <name>-1200.webp` → capture pointer
+- `lovable-assets create --file /tmp/fleet/<name>-400.webp --filename <name>-400.webp` → capture pointer
+- Rewrite `src/assets/fleet/<name>.png.asset.json` to include both variants (keeping original `url` as `fallbackUrl` for safety):
+  ```json
+  { "version": 1, "url": "/__l5e/.../<name>-1200.webp",
+    "srcSet": ".../<name>-400.webp 400w, .../<name>-1200.webp 1200w",
+    "fallbackUrl": "/__l5e/.../<name>.png", ...existing }
+  ```
+  This is a superset of the pointer schema; existing readers continue to work.
+- If any conversion fails, keep the original PNG pointer untouched for that vehicle.
 
-**Tests (`tests/`)** — 30 tests covering every item in spec §18. Files: `poi-matching.test.ts`, `scenic-template-match.test.ts`, `multi-stop-quote.test.ts`, `classification.test.ts`, `stops-fingerprint.test.ts`, `poi-admin-authz.test.ts`, plus extends to `pricing-engine.test.ts` and `create-booking.test.ts`.
+### 4. Homepage LCP treatment
+The visible LCP candidate at first paint is the hero **vehicle carousel image** on desktop (right column, above fold). On mobile the H1 text is bigger than the image but the image still renders above fold.
 
-## Turn 2 — Admin UI
+- Give the active carousel `<img>`:
+  - `fetchpriority="high"` (only when `active === 0` on first render)
+  - No `loading="lazy"` on the active slide
+  - Explicit width/height
+- Non-active carousel thumbnails (bottom selector strip): `loading="lazy" decoding="async"`, use the 400w WebP
+- Non-active hero slides: not preloaded, not eagerly requested. Only when the carousel advances (or hovers a thumbnail) do we swap `src` — the browser fetches then. This matches your "only load the active carousel image" requirement.
+- Add a preload link for the first vehicle's 1200w WebP inside `src/routes/index.tsx`'s `head().links`:
+  ```ts
+  { rel: "preload", as: "image", href: "<vclass-1200.webp url>",
+    imagesrcset: "...400w, ...1200w",
+    imagesizes: "(max-width: 640px) 100vw, 600px",
+    fetchpriority: "high" }
+  ```
+  Note: `imagesrcset` is honoured by Chromium/WebKit; unsupported browsers fall back to `href`.
 
-Routes under `src/routes/_authenticated/admin/`:
-- `pois.tsx` — CRUD, PlaceAutocomplete for `place_id`, image upload to `vehicle-images` bucket (reused), all fields from schema, activate/deactivate, "Preview affected routes" panel.
-- `scenic-routes.tsx` — origin/destination via PlaceAutocomplete, POI multi-select + drag reorder (`@dnd-kit` — already in deps? if not, added via `bun add`), lock-scenic-order toggle, tour fee, seasonal notes, preview panel calling `calculateMultiStopQuote`.
-- `tour-settings.tsx` — thresholds, max stops, max detour, included stop minutes, price per 15 min, allowed duration increments (chip editor), poi_discovery_enabled toggle.
-- Sidebar nav entries added.
+### 5. Below-the-fold discipline
+- Every `<img>` in Services, How It Works, Testimonials, Fleet grid: `loading="lazy" decoding="async"`, WebP srcSet, explicit dimensions.
+- No preloads for anything below the fold.
 
-## Turn 3 — Customer UI + tour conversion UX
+### 6. Remove unused imports
+After the switch, delete unreferenced `import xImg from "@/assets/x.jpg"` lines. Do not delete the underlying JPG/PNG files — they're the source `vite-imagetools` reads from.
 
-- `BookingWidget.tsx`: after direct quote returns, render "Enhance your journey" section — curated POI cards (checkbox, image or neutral placeholder, name, category, description, recommended duration, `+X min / +Y mi` detour, price delta). Selecting reveals duration segmented control from `allowed_stop_duration_minutes`.
-- Order chooser: `Recommended scenic` / `Fastest` / `Direct` (Fastest hidden when template is order-locked).
-- Live itinerary panel: driving time, planned visits time, total journey — three separate rows, no merged number.
-- Conversion banner appears when `final_service_type` changes; blocks "Book Now" until the acknowledgement checkbox is ticked; ack timestamp captured and sent with booking.
-- `book.tsx` receives the snapshot including `stops_fingerprint`; server re-verifies before creating booking.
+### 7. Build + measure
 
-## Technical details
+Then:
+1. `bun run build` — capture chunk sizes, warnings, asset output.
+2. Serve the production build locally and run a Playwright script that:
+   - Loads `/` at 1280x800 with cache disabled
+   - Waits for `load`
+   - Prints total image transfer bytes, per-URL sizes, `initiatorType`, response headers
+   - Checks that non-active carousel slides and below-fold images are NOT in the request log for the initial viewport
+   - Screenshots the fold to confirm no layout regression
+3. Post the report with:
+   - Before/after homepage image transfer (measured, not estimated)
+   - Largest remaining image
+   - LCP image URL, transferred size, `priority: "High"` observed in the request record
+   - Any build warnings
+   - Below-fold images confirmed absent from initial requests
 
-**Route matching order**: (1) exact Place-ID pair on active template, (2) reversed pair when `bidirectional=true`, (3) proximity fallback disabled by default (config flag), (4) no match ⇒ curated POIs only. Never substring match.
+### 8. What I will NOT claim
+- I will not claim Lighthouse mobile/desktop scores against production until you re-publish and I re-run Lighthouse against `cabslink.lovable.app`. If you want, once the code lands I'll: ask you to click Publish, then run `lighthouse` via CLI against the published URL from the sandbox and post the report. That's a second turn after this one.
+- I will not claim "load time cut in half" — I'll only report measured deltas.
 
-**Fingerprint**: `sha256(pickup|dropoff|route_mode|stop1_place_id:stop1_min|stop2…)`. Written into snapshot, checked at booking. Any change ⇒ 409 with "quote expired, please refresh".
+## Files changed
+- `vite.config.ts` (add imagetools plugin)
+- `package.json` (add vite-imagetools, sharp)
+- `src/env.d.ts` or new `src/imagetools.d.ts` (module declarations)
+- `src/routes/index.tsx` (image markup, preload in head, active-only carousel loading)
+- `src/routes/fleet.tsx` (below-fold vehicle grid — WebP + lazy)
+- `src/assets/fleet/*.png.asset.json` × 8 (add WebP variants; keep PNG fallback)
+- New: `src/lib/fleet-image.ts` — small helper to read `{ url, srcSet, fallbackUrl }` from the pointer JSON consistently
 
-**Detour calc**: `detour = route_with_stop.miles - direct_route.miles`. Same for seconds. Computed via Routes API, not straight-line.
+## Explicit non-goals for this turn
+- No component splitting of `src/routes/index.tsx`
+- No changes to Supabase realtime subscriptions
+- No design, copy, carousel behaviour, booking form, or layout changes
+- No deletion of original CDN PNG assets (kept as fallback)
 
-**Optimisation**: passes `optimizeWaypointOrder: true` only when `route_mode='optimised'` AND template `default_order_locked=false`. Reads `optimizedIntermediateWaypointIndex`, reorders `stops` in the returned snapshot, UI shows the reorder before confirm.
-
-**Cost control**: (a) curated-first — no Google POI call for the common case; (b) SAR gated off by default; (c) Routes API responses cached by fingerprint 10 min in existing `route-distance.server.ts` cache; (d) rate limiter reused; (e) strict `X-Goog-FieldMask` on any Places calls added later.
-
-**Bundle safety**: all Google/server-role code lives in `*.server.ts` or handler bodies inside `*.functions.ts`. `tests/bundle-scan.test.ts` extended to assert new POI/scenic files don't leak `GOOGLE_MAPS_API_KEY` or `SUPABASE_SERVICE_ROLE_KEY` into the client bundle.
-
-**Files created (Turn 1)**
-- `src/lib/pois.functions.ts`, `src/lib/scenic-routes.functions.ts`, `src/lib/classification.ts`, `src/lib/stops-fingerprint.ts`
-- extends: `src/lib/pricing.ts`, `src/lib/pricing-helpers.server.ts`, `src/lib/pricing.functions.ts`, `src/lib/admin.functions.ts`, `src/lib/booking.functions.ts`, `src/lib/route-distance.server.ts` (waypoints support already partial)
-- 6 new test files, 2 extended
-
-## Confirm to proceed
-
-Reply **"go"** and I start Turn 1 immediately. Reply with edits if you want a different split (e.g. include admin UI in Turn 1, or wire live Search Along Route now — adds ~1 turn of work and per-quote Google cost).
+Approve and I'll execute the whole thing in one go, then post the measured report.

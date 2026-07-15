@@ -14,14 +14,20 @@ import { Reveal } from "@/components/site/Reveal";
 import { Button } from "@/components/ui/button";
 import { SITE } from "@/lib/site";
 
-import heroImg from "@/assets/hero.jpg";
-import vClassSideImg from "@/assets/v-class-side.png";
-import chauffeurImg from "@/assets/chauffeur.jpg";
-import edinburghImg from "@/assets/edinburgh.jpg";
-import vClassInteriorImg from "@/assets/v-class-interior.jpg";
-import airportImg from "@/assets/airport.jpg";
-import corporateImg from "@/assets/corporate.jpg";
-import fleetSuvImg from "@/assets/fleet-suv.jpg";
+// Local images — served as responsive WebP srcSets via vite-imagetools.
+// `?w=480;800;1200&format=webp&as=srcset` produces a proper srcset string at build.
+import chauffeurSrc from "@/assets/chauffeur.jpg?w=480;800;1280&format=webp&as=srcset";
+import chauffeurFallback from "@/assets/chauffeur.jpg?w=1280&format=webp";
+import edinburghSrc from "@/assets/edinburgh.jpg?w=640;1200&format=webp&as=srcset";
+import edinburghFallback from "@/assets/edinburgh.jpg?w=1200&format=webp";
+import vClassInteriorSrc from "@/assets/v-class-interior.jpg?w=400;640;900&format=webp&as=srcset";
+import vClassInteriorFallback from "@/assets/v-class-interior.jpg?w=900&format=webp";
+import airportSrc from "@/assets/airport.jpg?w=400;640;900&format=webp&as=srcset";
+import airportFallback from "@/assets/airport.jpg?w=900&format=webp";
+import corporateSrc from "@/assets/corporate.jpg?w=400;640;900&format=webp&as=srcset";
+import corporateFallback from "@/assets/corporate.jpg?w=900&format=webp";
+import fleetSuvSrc from "@/assets/fleet-suv.jpg?w=400;640;900&format=webp&as=srcset";
+import fleetSuvFallback from "@/assets/fleet-suv.jpg?w=900&format=webp";
 
 import sclassAsset from "@/assets/fleet/sclass.png.asset.json";
 import eclassAsset from "@/assets/fleet/eclass.png.asset.json";
@@ -31,17 +37,31 @@ import minibusAsset from "@/assets/fleet/minibus.png.asset.json";
 import rollsAsset from "@/assets/fleet/rolls.png.asset.json";
 import coachAsset from "@/assets/fleet/coach.png.asset.json";
 import coasterAsset from "@/assets/fleet/coaster.png.asset.json";
+import { fleetThumbnailUrl } from "@/lib/fleet-image";
 
-const fallbackHeroVehicles = [
-  { key: "vclass", name: "Mercedes V-Class", tag: "First-class · 7 seats", img: vclassAsset.url, seats: 7 },
-  { key: "sclass", name: "Mercedes S-Class", tag: "Flagship saloon · 3 seats", img: sclassAsset.url, seats: 3 },
-  { key: "eclass", name: "Mercedes E-Class", tag: "Executive · 3 seats", img: eclassAsset.url, seats: 3 },
-  { key: "rangerover", name: "Range Rover", tag: "Luxury SUV · 4 seats", img: rangeroverAsset.url, seats: 4 },
-  { key: "rolls", name: "Rolls-Royce Bentley", tag: "Ultra-luxury · 3 seats", img: rollsAsset.url, seats: 3 },
-  { key: "minibus", name: "Executive Minibus", tag: "Groups · 16 seats", img: minibusAsset.url, seats: 16 },
-  { key: "coaster", name: "Coaster Bus", tag: "Mid-group · 24 seats", img: coasterAsset.url, seats: 24 },
-  { key: "coach", name: "Coach Bus", tag: "Large group · 55 seats", img: coachAsset.url, seats: 55 },
+type HeroVehicle = {
+  key: string;
+  name: string;
+  tag: string;
+  img: string;
+  srcSet?: string;
+  thumbnail?: string;
+  seats: number;
+};
+
+const fallbackHeroVehicles: HeroVehicle[] = [
+  { key: "vclass", name: "Mercedes V-Class", tag: "First-class · 7 seats", img: vclassAsset.url, srcSet: vclassAsset.srcSet, thumbnail: fleetThumbnailUrl(vclassAsset), seats: 7 },
+  { key: "sclass", name: "Mercedes S-Class", tag: "Flagship saloon · 3 seats", img: sclassAsset.url, srcSet: sclassAsset.srcSet, thumbnail: fleetThumbnailUrl(sclassAsset), seats: 3 },
+  { key: "eclass", name: "Mercedes E-Class", tag: "Executive · 3 seats", img: eclassAsset.url, srcSet: eclassAsset.srcSet, thumbnail: fleetThumbnailUrl(eclassAsset), seats: 3 },
+  { key: "rangerover", name: "Range Rover", tag: "Luxury SUV · 4 seats", img: rangeroverAsset.url, srcSet: rangeroverAsset.srcSet, thumbnail: fleetThumbnailUrl(rangeroverAsset), seats: 4 },
+  { key: "rolls", name: "Rolls-Royce Bentley", tag: "Ultra-luxury · 3 seats", img: rollsAsset.url, srcSet: rollsAsset.srcSet, thumbnail: fleetThumbnailUrl(rollsAsset), seats: 3 },
+  { key: "minibus", name: "Executive Minibus", tag: "Groups · 16 seats", img: minibusAsset.url, srcSet: minibusAsset.srcSet, thumbnail: fleetThumbnailUrl(minibusAsset), seats: 16 },
+  { key: "coaster", name: "Coaster Bus", tag: "Mid-group · 24 seats", img: coasterAsset.url, srcSet: coasterAsset.srcSet, thumbnail: fleetThumbnailUrl(coasterAsset), seats: 24 },
+  { key: "coach", name: "Coach Bus", tag: "Large group · 55 seats", img: coachAsset.url, srcSet: coachAsset.srcSet, thumbnail: fleetThumbnailUrl(coachAsset), seats: 55 },
 ];
+
+// Sizes value for the hero carousel image (right column, ~50vw on large screens).
+const HERO_VEHICLE_SIZES = "(max-width: 1024px) 92vw, 600px";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -53,7 +73,20 @@ export const Route = createFileRoute("/")({
       { property: "og:url", content: "/" },
       { property: "og:type", content: "website" },
     ],
-    links: [{ rel: "canonical", href: "/" }],
+    links: [
+      { rel: "canonical", href: "/" },
+      // Preload the initial LCP hero vehicle image (V-Class). `imagesrcset` +
+      // `imagesizes` let the browser pick the right responsive variant even
+      // for the preload; `fetchpriority` promotes it above other requests.
+      {
+        rel: "preload",
+        as: "image",
+        href: vclassAsset.url,
+        imagesrcset: vclassAsset.srcSet,
+        imagesizes: HERO_VEHICLE_SIZES,
+        fetchpriority: "high",
+      },
+    ],
   }),
   component: HomePage,
 });
@@ -66,12 +99,12 @@ const stats = [
 ];
 
 const services = [
-  { icon: Plane, title: "Airport Transfers", desc: "Punctual, stress-free transfers to and from every major UK airport.", to: "/airport-transfers", img: airportImg },
-  { icon: Building2, title: "Corporate Travel", desc: "Account-managed business travel with professional chauffeurs.", to: "/corporate-travel", img: corporateImg },
-  { icon: Gem, title: "VIP & Executive", desc: "Discreet, refined chauffeur service for VIPs and dignitaries.", to: "/vip-transfers", img: vClassInteriorImg },
-  { icon: RouteIcon, title: "Private Tours", desc: "Bespoke Scotland and UK tours with knowledgeable local drivers.", to: "/tours", img: edinburghImg },
-  { icon: Award, title: "Events & Weddings", desc: "Award ceremonies, weddings and red-carpet arrivals in style.", to: "/services", img: chauffeurImg },
-  { icon: Car, title: "Long Distance", desc: "City-to-city UK chauffeur drives with total comfort.", to: "/services", img: fleetSuvImg },
+  { icon: Plane, title: "Airport Transfers", desc: "Punctual, stress-free transfers to and from every major UK airport.", to: "/airport-transfers", img: airportFallback, imgSrcSet: airportSrc },
+  { icon: Building2, title: "Corporate Travel", desc: "Account-managed business travel with professional chauffeurs.", to: "/corporate-travel", img: corporateFallback, imgSrcSet: corporateSrc },
+  { icon: Gem, title: "VIP & Executive", desc: "Discreet, refined chauffeur service for VIPs and dignitaries.", to: "/vip-transfers", img: vClassInteriorFallback, imgSrcSet: vClassInteriorSrc },
+  { icon: RouteIcon, title: "Private Tours", desc: "Bespoke Scotland and UK tours with knowledgeable local drivers.", to: "/tours", img: edinburghFallback, imgSrcSet: edinburghSrc },
+  { icon: Award, title: "Events & Weddings", desc: "Award ceremonies, weddings and red-carpet arrivals in style.", to: "/services", img: chauffeurFallback, imgSrcSet: chauffeurSrc },
+  { icon: Car, title: "Long Distance", desc: "City-to-city UK chauffeur drives with total comfort.", to: "/services", img: fleetSuvFallback, imgSrcSet: fleetSuvSrc },
 ];
 
 const steps = [
@@ -90,11 +123,11 @@ const features = [
 ];
 
 const fleet = [
-  { name: "Mercedes-Benz S-Class", note: "Signature", img: sclassAsset.url, passengers: 3, luggage: 3, transmission: "Automatic", fuel: "Petrol" },
-  { name: "Mercedes-Benz E-Class", note: "Executive", img: eclassAsset.url, passengers: 3, luggage: 3, transmission: "Automatic", fuel: "Diesel" },
-  { name: "Mercedes-Benz V-Class", note: "First class", img: vclassAsset.url, passengers: 7, luggage: 7, transmission: "Automatic", fuel: "Diesel" },
-  { name: "Range Rover Autobiography", note: "Premium SUV", img: rangeroverAsset.url, passengers: 4, luggage: 4, transmission: "Automatic", fuel: "Petrol" },
-  { name: "Executive Minibus", note: "Groups", img: minibusAsset.url, passengers: 16, luggage: 16, transmission: "Automatic", fuel: "Diesel" },
+  { name: "Mercedes-Benz S-Class", note: "Signature", img: sclassAsset.url, srcSet: sclassAsset.srcSet, passengers: 3, luggage: 3, transmission: "Automatic", fuel: "Petrol" },
+  { name: "Mercedes-Benz E-Class", note: "Executive", img: eclassAsset.url, srcSet: eclassAsset.srcSet, passengers: 3, luggage: 3, transmission: "Automatic", fuel: "Diesel" },
+  { name: "Mercedes-Benz V-Class", note: "First class", img: vclassAsset.url, srcSet: vclassAsset.srcSet, passengers: 7, luggage: 7, transmission: "Automatic", fuel: "Diesel" },
+  { name: "Range Rover Autobiography", note: "Premium SUV", img: rangeroverAsset.url, srcSet: rangeroverAsset.srcSet, passengers: 4, luggage: 4, transmission: "Automatic", fuel: "Petrol" },
+  { name: "Executive Minibus", note: "Groups", img: minibusAsset.url, srcSet: minibusAsset.srcSet, passengers: 16, luggage: 16, transmission: "Automatic", fuel: "Diesel" },
 ];
 
 const testimonials = [
@@ -314,9 +347,13 @@ function HomePage() {
                   <img
                     key={current.key}
                     src={current.img}
+                    srcSet={current.srcSet}
+                    sizes={HERO_VEHICLE_SIZES}
                     alt={`${current.name} — chauffeur vehicle`}
-                    width={1920}
-                    height={1024}
+                    width={1200}
+                    height={750}
+                    decoding="async"
+                    fetchPriority={active === 0 ? "high" : "auto"}
                     className="absolute inset-0 m-auto w-[92%] h-full object-contain drop-shadow-[0_35px_45px_rgba(14,24,44,0.28)]"
                     style={{
                       animation: `${dir === 1 ? "vehicleSlideInR" : "vehicleSlideInL"} 850ms cubic-bezier(.2,.7,.2,1) both`,
@@ -355,7 +392,7 @@ function HomePage() {
                         }`}
                       >
                         <div className="w-14 h-9 shrink-0 grid place-items-center overflow-hidden">
-                          <img src={v.img} alt="" loading="lazy" className="max-h-full w-auto object-contain" />
+                          <img src={v.thumbnail ?? v.img} alt="" loading="lazy" decoding="async" width={56} height={36} className="max-h-full w-auto object-contain" />
                         </div>
                         <div className="text-left pr-1">
                           <div className={`text-[11px] font-semibold leading-tight ${isActive ? "text-[var(--navy)]" : "text-[var(--navy)]/80"}`}>
@@ -425,7 +462,7 @@ function HomePage() {
                   className="group relative flex items-center gap-4 overflow-hidden rounded-2xl border border-border bg-card p-3 pr-4 active:scale-[0.98] hover:border-[var(--gold)]/40 transition-all duration-300"
                 >
                   <div className="relative size-20 shrink-0 overflow-hidden rounded-xl">
-                    <img src={s.img} alt={s.title} loading="lazy" className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                    <img src={s.img} srcSet={s.imgSrcSet} sizes="80px" alt={s.title} loading="lazy" decoding="async" width={400} height={500} className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-110" />
                     <div className="absolute inset-0 bg-gradient-to-tr from-black/60 to-transparent" />
                     <div className="absolute bottom-1.5 left-1.5 grid size-7 place-items-center rounded-lg bg-[var(--gold)] text-[var(--gold-foreground)] shadow-[var(--shadow-glow)]">
                       <s.icon className="size-3.5" />
@@ -454,8 +491,13 @@ function HomePage() {
                 >
                   <img
                     src={s.img}
+                    srcSet={s.imgSrcSet}
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 45vw, 340px"
                     alt={s.title}
                     loading="lazy"
+                    decoding="async"
+                    width={900}
+                    height={1125}
                     className="absolute inset-0 size-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[var(--navy)]/95 via-[var(--navy)]/55 to-[var(--navy)]/10 transition-all duration-500 group-hover:from-[var(--navy)]/95 group-hover:via-[var(--navy)]/40" />
@@ -485,7 +527,7 @@ function HomePage() {
             {/* Decorative frame */}
             <div aria-hidden className="absolute -top-4 -left-4 size-24 border-t-2 border-l-2 border-[var(--gold)] rounded-tl-3xl" />
             <div aria-hidden className="absolute -bottom-4 -right-4 size-24 border-b-2 border-r-2 border-[var(--gold)] rounded-br-3xl" />
-            <img src={chauffeurImg} alt="Cabslink chauffeur opening rear door of Mercedes V-Class" width={1280} height={1600} loading="lazy" className="relative rounded-3xl object-cover w-full aspect-[4/5] shadow-[var(--shadow-elegant)]" />
+            <img src={chauffeurFallback} srcSet={chauffeurSrc} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 520px" alt="Cabslink chauffeur opening rear door of Mercedes V-Class" width={1280} height={1600} loading="lazy" decoding="async" className="relative rounded-3xl object-cover w-full aspect-[4/5] shadow-[var(--shadow-elegant)]" />
             <div className="absolute -bottom-6 right-4 sm:right-6 glass-card rounded-2xl p-5 max-w-[280px] border border-[var(--gold)]/20">
               <Quote className="size-6 text-[var(--gold)] mb-2" />
               <div className="flex items-center gap-1 text-[var(--gold)]">
@@ -560,8 +602,11 @@ function HomePage() {
                   <div className="relative aspect-[16/10] flex items-center justify-center overflow-hidden rounded-2xl bg-[var(--surface)]">
                     <img
                       src={f.img}
+                      srcSet={f.srcSet}
+                      sizes="(max-width: 640px) 78vw, 300px"
                       alt={f.name}
                       loading="lazy"
+                      decoding="async"
                       width={1200}
                       height={750}
                       className="max-h-[92%] w-auto object-contain"
@@ -603,8 +648,11 @@ function HomePage() {
                 <div className="relative aspect-[16/10] flex items-center justify-center overflow-hidden">
                   <img
                     src={f.img}
+                    srcSet={f.srcSet}
+                    sizes="(max-width: 1024px) 45vw, 360px"
                     alt={f.name}
                     loading="lazy"
+                    decoding="async"
                     width={1200}
                     height={750}
                     className="max-h-full w-auto object-contain transition-transform duration-500 group-hover:scale-105"
@@ -702,7 +750,7 @@ function HomePage() {
             </div>
           </div>
           <div className="group rounded-3xl bg-card border border-border p-8 md:p-12 relative overflow-hidden hover:border-[var(--gold)]/40 transition-colors">
-            <img src={edinburghImg} alt="Edinburgh skyline" width={1600} height={1024} loading="lazy" className="absolute inset-0 size-full object-cover opacity-15 group-hover:opacity-25 group-hover:scale-105 transition-all duration-700" />
+            <img src={edinburghFallback} srcSet={edinburghSrc} sizes="(max-width: 1024px) 100vw, 640px" alt="Edinburgh skyline" width={1600} height={1024} loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover opacity-15 group-hover:opacity-25 group-hover:scale-105 transition-all duration-700" />
             <div className="absolute inset-0 bg-gradient-to-br from-card/60 via-card/40 to-transparent" />
             <div className="relative">
               <div className="grid size-14 place-items-center rounded-2xl bg-[var(--gold)]/15 border border-[var(--gold)]/30 text-[var(--gold)]">
