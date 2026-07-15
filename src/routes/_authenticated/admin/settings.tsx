@@ -112,8 +112,8 @@ function Page() {
             <Row label="SMTP host"><Input value={form.smtp_host ?? ""} onChange={e => set("smtp_host", e.target.value)} /></Row>
             <Row label="SMTP port"><Input type="number" value={form.smtp_port ?? ""} onChange={e => set("smtp_port", e.target.value)} /></Row>
             <Row label="SMTP user"><Input value={form.smtp_user ?? ""} onChange={e => set("smtp_user", e.target.value)} /></Row>
-            {/* Google Maps API key is configured via the GOOGLE_MAPS_API_KEY environment variable, not in the admin UI. */}
-            <Row label="Google Maps API key"><p className="text-xs text-muted-foreground">Configured via the <code>GOOGLE_MAPS_API_KEY</code> environment variable.</p></Row>
+            {/* Google Maps API key is configured via an environment variable, not in the admin UI. */}
+            <Row label="Google Maps API key"><p className="text-xs text-muted-foreground">Configured via a server environment variable — not editable here.</p></Row>
           </Card>
         </TabsContent>
 
