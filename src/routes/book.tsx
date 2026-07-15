@@ -11,6 +11,7 @@ import {
   CheckCircle2, ArrowRight, ArrowLeft, MapPin, CalendarDays, Edit3, Star,
   Users, Briefcase, Luggage, BadgeCheck, Clock, DoorOpen, UserCheck, Award,
   ShieldCheck, CreditCard, User, Mail, Phone, MessageSquare, RefreshCw,
+  Shield, Package, CalendarClock,
 } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Button } from "@/components/ui/button";
@@ -109,7 +110,8 @@ function encodePrefill(pre: Prefill): string {
   return p.toString();
 }
 
-type Step = "vehicle" | "details" | "review";
+type Step = "vehicle" | "policy" | "details" | "review";
+type Policy = "non_refundable" | "standard" | "flexible";
 
 function BookPage() {
   const { q } = Route.useSearch();
@@ -118,9 +120,9 @@ function BookPage() {
   const [step, setStep] = useState<Step>("vehicle");
   const [chosen, setChosen] = useState<QuoteCard | null>(null);
   const [qty, setQty] = useState<number>(1);
+  const [policy, setPolicy] = useState<Policy>("standard");
   const [editOpen, setEditOpen] = useState(false);
-  // Selected POI stops (place_id -> minutes). Order determined by the curated
-  // template order (poisQuery result).
+  // Selected POI stops (place_id -> minutes).
   const [selectedStops, setSelectedStops] = useState<Record<string, number>>({});
   const [routeMode, setRouteMode] = useState<"direct" | "scenic" | "optimised">("scenic");
   const [tourAckAt, setTourAckAt] = useState<string | null>(null);
@@ -289,9 +291,20 @@ function BookPage() {
                         hasStops={orderedSelected.length > 0}
                         bookingDisabled={needsAck}
                         bookingDisabledReason={needsAck ? "Please acknowledge the tour conversion above to continue." : null}
-                        onSelect={(card, quantity) => { setChosen(card); setQty(quantity); setStep("details"); }}
+                        onSelect={(card, quantity) => { setChosen(card); setQty(quantity); setStep("policy"); }}
                       />
                     </>
+                  )}
+                  {step === "policy" && chosen && (
+                    <PolicyStep
+                      card={chosen}
+                      qty={qty}
+                      currentTotal={(multiStopQuery.data?.vehicles.find((v) => v.vehicle_id === chosen.vehicleId)?.per_vehicle_total ?? chosen.finalPrice) * qty}
+                      value={policy}
+                      onChange={setPolicy}
+                      onBack={() => setStep("vehicle")}
+                      onNext={() => setStep("details")}
+                    />
                   )}
                   {step === "details" && chosen && (
                     <DetailsStep pre={pre} card={chosen} qty={qty}
@@ -300,7 +313,8 @@ function BookPage() {
                       stopsFingerprint={mq?.stops_fingerprint ?? null}
                       tourConversionAckAt={tourAckAt}
                       childSeatFeePence={quoteQuery.data?.childSeatFeePence ?? 0}
-                      onBack={() => setStep("vehicle")}
+                      policy={policy}
+                      onBack={() => setStep("policy")}
                       onSuccess={(token) => {
                         if (token) navigate({ to: "/booking/$token", params: { token } });
                         else setStep("review");
@@ -416,9 +430,10 @@ function EditTripDialog({
 
 function Stepper({ step }: { step: Step }) {
   const items: { id: Step; label: string }[] = [
-    { id: "vehicle", label: "Vehicle" },
+    { id: "vehicle", label: "Extras & Ride" },
+    { id: "policy", label: "Policy" },
     { id: "details", label: "Details" },
-    { id: "review", label: "Review" },
+    { id: "review", label: "Done" },
   ];
 
   const idx = items.findIndex((x) => x.id === step);
@@ -811,7 +826,7 @@ const detailsSchema = z.object({
 
 type ScenicStop = { place_id: string; label: string; minutes: number; category?: string | null };
 
-function DetailsStep({ pre, card, qty, scenicStops, routeMode, stopsFingerprint, tourConversionAckAt, childSeatFeePence, onBack, onSuccess }:
+function DetailsStep({ pre, card, qty, scenicStops, routeMode, stopsFingerprint, tourConversionAckAt, childSeatFeePence, policy, onBack, onSuccess }:
   {
     pre: Prefill; card: QuoteCard; qty: number;
     scenicStops: ScenicStop[];
@@ -819,6 +834,7 @@ function DetailsStep({ pre, card, qty, scenicStops, routeMode, stopsFingerprint,
     stopsFingerprint: string | null;
     tourConversionAckAt: string | null;
     childSeatFeePence: number;
+    policy: Policy;
     onBack: () => void; onSuccess: (token: string | null) => void;
   }) {
   const [meetGreet, setMeetGreet] = useState(true);
@@ -871,6 +887,8 @@ function DetailsStep({ pre, card, qty, scenicStops, routeMode, stopsFingerprint,
           flight_number: parsed.data.flight_number || null,
           notes: (() => {
             const parts: string[] = [];
+            const policyLabel = policy === "non_refundable" ? "Non-refundable" : policy === "flexible" ? "Flexible" : "Standard";
+            parts.push(`Cancellation policy: ${policyLabel}`);
             if (parsed.data.whatsapp) parts.push(`WhatsApp: ${parsed.data.whatsapp}`);
             if (childSeatCount > 0) parts.push(`Child seats requested: ${childSeatCount}`);
             if (parsed.data.notes) parts.push(parsed.data.notes);
@@ -1200,5 +1218,155 @@ function ItineraryRow({ label, value, bold }: { label: string; value: string; bo
     </div>
   );
 }
+
+// ---------------------------------------------------------------
+// Cancellation policy step (between vehicle and details)
+// ---------------------------------------------------------------
+function PolicyStep({
+  card, qty, currentTotal, value, onChange, onBack, onNext,
+}: {
+  card: QuoteCard;
+  qty: number;
+  currentTotal: number;
+  value: Policy;
+  onChange: (p: Policy) => void;
+  onBack: () => void;
+  onNext: () => void;
+}) {
+  const base = currentTotal;
+  const tiers: Array<{
+    id: Policy;
+    title: string;
+    icon: React.ReactNode;
+    badge?: string;
+    badgeClass?: string;
+    headline: string;
+    body: string;
+    delta: number;
+    deltaLabel: string;
+    highlight?: boolean;
+  }> = [
+    {
+      id: "non_refundable",
+      title: "Non-refundable",
+      icon: <Package className="size-5" />,
+      badge: "Lowest price",
+      badgeClass: "bg-foreground/10 text-foreground",
+      headline: "Best price, no refund.",
+      body: "You save the most, with no refund if you cancel after confirmation.",
+      delta: -Math.max(2, Math.round(base * 0.05 * 100) / 100),
+      deltaLabel: "Save",
+    },
+    {
+      id: "standard",
+      title: "Standard",
+      icon: <CalendarClock className="size-5" />,
+      badge: "Most popular",
+      badgeClass: "bg-[var(--gold)] text-[var(--gold-foreground)]",
+      headline: "Cancel up to a day before.",
+      body: "Get a full refund if you cancel up to 24 hours before pickup.",
+      delta: 0,
+      deltaLabel: "Included",
+      highlight: true,
+    },
+    {
+      id: "flexible",
+      title: "Flexible",
+      icon: <Shield className="size-5" />,
+      badge: "Safest choice",
+      badgeClass: "bg-emerald-500/15 text-emerald-700",
+      headline: "Refundable up to the last hour.",
+      body: "The most freedom — full refund if you cancel up to 1 hour before pickup.",
+      delta: Math.max(4, Math.round(base * 0.12 * 100) / 100),
+      deltaLabel: "Add",
+    },
+  ];
+
+  return (
+    <div className="bg-card rounded-2xl border border-border shadow-sm p-6 md:p-8 space-y-6">
+      <div>
+        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)]">Step 02 — Cancellation policy</p>
+        <h2 className="mt-1 font-display text-2xl md:text-3xl font-bold">Choose how flexible you want to be</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Pick the cancellation cover that suits your trip — we apply it to your {qty > 1 ? `${qty} × ` : ""}
+          {card.name}.
+        </p>
+      </div>
+
+      <div className="space-y-3">
+        {tiers.map((t) => {
+          const selected = value === t.id;
+          const total = Math.max(0, base + t.delta);
+          return (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => onChange(t.id)}
+              className={`w-full text-left rounded-2xl border-2 p-5 transition-all ${
+                selected
+                  ? "border-[var(--gold)] bg-[var(--gold)]/5 shadow-[0_10px_30px_-15px_rgba(223,175,38,0.4)]"
+                  : "border-border bg-background hover:border-[var(--gold)]/40"
+              }`}
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-display font-bold text-lg">{t.title}</span>
+                    {t.badge && (
+                      <span className={`text-[10px] font-bold uppercase tracking-widest rounded-full px-2 py-0.5 ${t.badgeClass}`}>
+                        {t.badge}
+                      </span>
+                    )}
+                  </div>
+                  <div className="mt-3 flex items-start gap-3">
+                    <span className={`size-10 rounded-xl grid place-items-center shrink-0 ${
+                      selected ? "bg-[var(--gold)] text-[var(--gold-foreground)]" : "bg-[var(--surface)] text-foreground/70"
+                    }`}>
+                      {t.icon}
+                    </span>
+                    <div>
+                      <p className="font-semibold text-sm">{t.headline}</p>
+                      <p className="text-sm text-muted-foreground mt-0.5">{t.body}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="text-right shrink-0">
+                  <p className={`text-sm font-bold ${t.delta < 0 ? "text-emerald-600" : t.delta > 0 ? "text-foreground" : "text-[var(--gold)]"}`}>
+                    {t.delta === 0 ? "Included" : t.delta < 0 ? `Save £${Math.abs(t.delta).toFixed(2)}` : `+ £${t.delta.toFixed(2)}`}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">Total £{total.toFixed(2)}</p>
+                </div>
+              </div>
+              <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between">
+                <span className={`size-4 rounded-full border-2 grid place-items-center ${
+                  selected ? "border-[var(--gold)]" : "border-muted-foreground/40"
+                }`}>
+                  {selected && <span className="size-2 rounded-full bg-[var(--gold)]" />}
+                </span>
+                <span className="text-[11px] text-muted-foreground">
+                  {selected ? "Your selection" : `vs £${base.toFixed(2)} standard`}
+                </span>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="flex flex-wrap gap-3 pt-2">
+        <Button type="button" variant="outline" onClick={onBack} className="gap-2">
+          <ArrowLeft className="size-4" /> Back
+        </Button>
+        <Button
+          type="button"
+          onClick={onNext}
+          className="ml-auto bg-[var(--gold)] text-[var(--gold-foreground)] hover:brightness-110 font-bold tracking-wider px-8 gap-2"
+        >
+          Continue to details <ArrowRight className="size-4" />
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 
 
