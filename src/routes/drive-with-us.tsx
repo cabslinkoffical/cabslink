@@ -35,6 +35,7 @@ const schema = z.object({
 function DrivePage() {
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
+  const [phone, setPhone] = useState("");
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
