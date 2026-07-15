@@ -235,6 +235,7 @@ const createBookingInput = z
     flight_number: z.string().trim().max(20).optional().nullable(),
     notes: z.string().trim().max(1000).optional().nullable(),
     child_seat: z.boolean().optional().default(false),
+    child_seat_count: z.number().int().min(0).max(10).optional().default(0),
     meet_greet: z.boolean().optional().default(false),
     return_journey: z.boolean().optional().default(false),
   })
