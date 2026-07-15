@@ -111,26 +111,34 @@ function HomePage() {
 
   useEffect(() => {
     let cancelled = false;
-    supabase
-      .from("vehicles")
-      .select("id, name, category, image_url, passengers")
-      .eq("active", true)
-      .order("display_order", { ascending: true })
-      .then(({ data }) => {
-        if (cancelled || !data || data.length === 0) return;
-        const mapped = data
-          .filter((v: any) => v.image_url)
-          .map((v: any) => ({
-            key: v.id as string,
-            name: v.name as string,
-            tag: `${v.category ?? "Vehicle"} · ${v.passengers ?? 0} seats`,
-            img: v.image_url as string,
-            seats: v.passengers ?? 0,
-          }));
-        if (mapped.length > 0) setDbVehicles(mapped);
-      });
-    return () => { cancelled = true; };
+    const load = () => {
+      supabase
+        .from("vehicles")
+        .select("id, name, category, image_url, passengers")
+        .eq("active", true)
+        .order("display_order", { ascending: true })
+        .then(({ data }) => {
+          if (cancelled || !data) return;
+          const mapped = data
+            .filter((v: any) => v.image_url)
+            .map((v: any) => ({
+              key: v.id as string,
+              name: v.name as string,
+              tag: `${v.category ?? "Vehicle"} · ${v.passengers ?? 0} seats`,
+              img: v.image_url as string,
+              seats: v.passengers ?? 0,
+            }));
+          setDbVehicles(mapped.length > 0 ? mapped : null);
+        });
+    };
+    load();
+    const channel = supabase
+      .channel("vehicles-home")
+      .on("postgres_changes", { event: "*", schema: "public", table: "vehicles" }, load)
+      .subscribe();
+    return () => { cancelled = true; supabase.removeChannel(channel); };
   }, []);
+
 
   const heroVehicles = useMemo(() => dbVehicles ?? fallbackHeroVehicles, [dbVehicles]);
 
