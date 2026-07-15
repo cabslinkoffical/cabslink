@@ -32,6 +32,7 @@ export const Route = createFileRoute("/fleet")({
 
 
 type Vehicle = {
+  id?: string;
   name: string;
   note: string;
   image: string;
@@ -102,17 +103,9 @@ const fleet: Vehicle[] = [
   },
 ];
 
-const vClassFeatures = [
-  "Up to 8 passengers in executive comfort",
-  "Generous luggage capacity for airport runs",
-  "Premium leather captain seats",
-  "Privacy glass & ambient cabin lighting",
-  "Climate control & on-board USB charging",
-  "Fully insured & immaculately maintained",
-];
-
 function FleetPage() {
-  const [dbFleet, setDbFleet] = useState<Vehicle[] | null>(null);
+  const [dbFleet, setDbFleet] = useState<Vehicle[]>([]);
+  const [fleetStatus, setFleetStatus] = useState<"loading" | "ready" | "error">("loading");
 
   useEffect(() => {
     let cancelled = false;
@@ -122,21 +115,28 @@ function FleetPage() {
         .select("id, name, category, image_url, passengers, luggage, hand_luggage, description, featured")
         .eq("active", true)
         .order("display_order", { ascending: true })
-        .then(({ data }) => {
-          if (cancelled || !data) return;
+        .then(({ data, error }) => {
+          if (cancelled) return;
+          if (error) {
+            setFleetStatus("error");
+            setDbFleet([]);
+            return;
+          }
           const mapped: Vehicle[] = data
             .filter((v: any) => v.image_url)
             .map((v: any) => ({
-              name: v.name,
-              note: v.category ?? "Vehicle",
+              id: v.id,
+              name: (v.name ?? "").trim(),
+              note: (v.category ?? "Vehicle").trim(),
               image: v.image_url,
               pax: v.passengers ?? 0,
               lug: v.luggage ?? 0,
               hand: v.hand_luggage ?? 0,
-              desc: v.description ?? "",
+              desc: (v.description ?? "").trim(),
               featured: !!v.featured,
             }));
-          setDbFleet(mapped.length > 0 ? mapped : null);
+          setDbFleet(mapped);
+          setFleetStatus("ready");
         });
     };
     load();
@@ -148,8 +148,9 @@ function FleetPage() {
   }, []);
 
 
-  const activeFleet = useMemo(() => dbFleet ?? fleet, [dbFleet]);
-  const hero = activeFleet.find(v => /v-class/i.test(v.name)) ?? activeFleet[0];
+  const activeFleet = useMemo(() => dbFleet, [dbFleet]);
+  const hero = activeFleet.find(v => v.featured) ?? activeFleet.find(v => /v-class/i.test(v.name)) ?? activeFleet[0];
+  const isLoading = fleetStatus === "loading";
 
 
   return (
@@ -157,43 +158,57 @@ function FleetPage() {
       <PageHero
         eyebrow="Our Fleet"
         title="A luxury vehicle for every kind of journey."
-        subtitle="From Rolls-Royce Bentley and Mercedes-Benz S-Class to 55-seat coaches — every Cabslink vehicle is modern, immaculate and fully insured."
+        subtitle="Every vehicle shown here is live from the admin fleet, active for bookings and kept to the same Cabslink standard."
         breadcrumbs={[{ label: "Home", to: "/" }, { label: "Fleet" }]}
       />
 
       {/* V-CLASS HERO */}
-      <section className="section-y">
-        <div className="container-x grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
-          <Reveal>
-            <img src={hero.image} alt="Mercedes-Benz V-Class luxury chauffeur van" width={1600} height={1000} className="rounded-3xl object-cover w-full aspect-[4/3] shadow-[var(--shadow-elegant)] bg-[var(--surface)]" />
-          </Reveal>
-          <Reveal delay={120}>
-            <p className="text-xs uppercase tracking-[0.3em] text-[var(--gold)] mb-3">Most requested</p>
-            <h2 className="font-display text-3xl md:text-5xl font-semibold leading-tight">The Mercedes-Benz V-Class — our signature ride.</h2>
-            <p className="mt-5 text-muted-foreground">
-              The most refined people carrier on the road — whisper-quiet cabin, executive leather seating,
-              generous luggage space and a chauffeur trained to the highest standards. Ideal for airport
-              transfers, corporate travel, weddings and private tours.
-            </p>
-            <ul className="mt-6 grid sm:grid-cols-2 gap-3 text-sm">
-              {vClassFeatures.map(f => (
-                <li key={f} className="flex items-start gap-2"><ShieldCheck className="size-4 text-[var(--gold)] mt-0.5 shrink-0" />{f}</li>
-              ))}
-            </ul>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Button asChild variant="gold" className="rounded-full"><a href="/#booking">Book the V-Class <ArrowRight className="size-4" /></a></Button>
-              <Button asChild variant="outline" className="rounded-full"><Link to="/contact">Talk to our team</Link></Button>
-            </div>
-          </Reveal>
-        </div>
-      </section>
+      {hero && (
+        <section className="section-y">
+          <div className="container-x grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
+            <Reveal>
+              <img src={hero.image} alt={`${hero.name} luxury chauffeur vehicle`} width={1600} height={1000} className="rounded-3xl object-cover w-full aspect-[4/3] shadow-[var(--shadow-elegant)] bg-[var(--surface)]" />
+            </Reveal>
+            <Reveal delay={120}>
+              <p className="text-xs uppercase tracking-[0.3em] text-[var(--gold)] mb-3">{hero.featured ? "Featured vehicle" : "Available vehicle"}</p>
+              <h2 className="font-display text-3xl md:text-5xl font-semibold leading-tight">{hero.name}</h2>
+              <p className="mt-5 text-muted-foreground">{hero.desc || "Available for chauffeur bookings with Cabslink’s professional standards, immaculate presentation and fully insured service."}</p>
+              <ul className="mt-6 grid sm:grid-cols-2 gap-3 text-sm">
+                <li className="flex items-start gap-2"><Users className="size-4 text-[var(--gold)] mt-0.5 shrink-0" />{hero.pax} passengers</li>
+                <li className="flex items-start gap-2"><Briefcase className="size-4 text-[var(--gold)] mt-0.5 shrink-0" />{hero.lug} large luggage</li>
+                <li className="flex items-start gap-2"><Luggage className="size-4 text-[var(--gold)] mt-0.5 shrink-0" />{hero.hand} hand luggage</li>
+                <li className="flex items-start gap-2"><ShieldCheck className="size-4 text-[var(--gold)] mt-0.5 shrink-0" />{hero.note}</li>
+              </ul>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Button asChild variant="gold" className="rounded-full"><a href="/#booking">Book this vehicle <ArrowRight className="size-4" /></a></Button>
+                <Button asChild variant="outline" className="rounded-full"><Link to="/contact">Talk to our team</Link></Button>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+      )}
 
       {/* FLEET GRID */}
       <section className="section-y bg-[var(--surface)]">
         <div className="container-x">
           <SectionHeader eyebrow="The full fleet" title="One uncompromising standard across every vehicle." subtitle="Each capacity figure is shown as passengers · large luggage · hand luggage." center />
-          <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {activeFleet.map((f, i) => (
+          {isLoading ? (
+            <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="Loading fleet vehicles">
+              {[0, 1, 2].map((item) => (
+                <div key={item} className="rounded-3xl border border-border bg-card overflow-hidden h-[30rem] animate-pulse">
+                  <div className="h-52 bg-muted" />
+                  <div className="p-6 space-y-4">
+                    <div className="h-3 w-24 bg-muted rounded" />
+                    <div className="h-8 w-2/3 bg-muted rounded" />
+                    <div className="h-20 bg-muted rounded" />
+                    <div className="h-10 bg-muted rounded-full" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : activeFleet.length > 0 ? (
+            <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {activeFleet.map((f, i) => (
               <Reveal key={f.name} delay={i * 80}>
                 <div className={`rounded-3xl border bg-card overflow-hidden hover:-translate-y-1 hover:shadow-[var(--shadow-elegant)] transition h-full flex flex-col ${f.featured ? "border-[var(--gold)]" : "border-border"}`}>
                   <div className="relative h-52 overflow-hidden bg-[var(--surface)] flex items-center justify-center p-4">
@@ -217,8 +232,15 @@ function FleetPage() {
                   </div>
                 </div>
               </Reveal>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="mt-12 rounded-3xl border border-border bg-card p-8 text-center">
+              <h3 className="font-display text-2xl font-semibold">No active vehicles are available right now.</h3>
+              <p className="mt-2 text-sm text-muted-foreground">Once a vehicle is marked active in admin, it will appear here automatically.</p>
+              {fleetStatus === "error" && <p className="mt-2 text-sm text-muted-foreground">Fleet data could not be loaded. Please refresh the page.</p>}
+            </div>
+          )}
         </div>
       </section>
 
