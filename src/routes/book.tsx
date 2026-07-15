@@ -427,9 +427,11 @@ function BookPage() {
                 <Sidebar
                   pre={pre}
                   onEdit={() => setEditOpen(true)}
+                  onStartAgain={startAgain}
                   route={quoteQuery.data ? { miles: quoteQuery.data.distanceMiles, minutes: quoteQuery.data.durationMinutes } : null}
                   price={chosen ? { vehicleName: chosen.name, perVehicle: perVehiclePrice, qty, rideTotal, seatFee, seatCount: childSeatCount, policy, policyDelta, grandTotal } : null}
                 />
+
                 <div className="min-w-0 space-y-6">
                   {step === "vehicle" && (
                     <VehicleStep
