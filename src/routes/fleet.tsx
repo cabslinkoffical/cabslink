@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
 import { Users, Briefcase, ArrowRight, ShieldCheck, Star, Luggage } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero, SectionHeader } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 
 import rollsAsset from "@/assets/fleet/rolls.png.asset.json";
 import sclassAsset from "@/assets/fleet/sclass.png.asset.json";
@@ -27,6 +29,7 @@ export const Route = createFileRoute("/fleet")({
   }),
   component: FleetPage,
 });
+
 
 type Vehicle = {
   name: string;
