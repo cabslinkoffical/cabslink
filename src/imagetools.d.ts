@@ -1,13 +1,10 @@
-// vite-imagetools query-string imports for jpg/png sources.
-declare module "*.jpg?*" {
+// vite-imagetools query-string imports. TypeScript wildcard module patterns
+// accept a single `*`, so declare one per query suffix we actually use.
+declare module "*&as=srcset" {
   const src: string;
   export default src;
 }
-declare module "*.jpeg?*" {
-  const src: string;
-  export default src;
-}
-declare module "*.png?*" {
+declare module "*&format=webp" {
   const src: string;
   export default src;
 }
