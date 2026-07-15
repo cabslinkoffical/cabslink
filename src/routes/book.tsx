@@ -922,7 +922,7 @@ function DetailsStep({ pre, card, qty, scenicStops, routeMode, stopsFingerprint,
       </div>
       <div className="grid sm:grid-cols-2 gap-4">
         <Field label="Flight number (optional)"><Input name="flight_number" maxLength={20} placeholder="e.g. BA1234" /></Field>
-        <Field label="Child seats">
+        <Field label={childSeatFeePence > 0 ? `Child seats (£${(childSeatFeePence / 100).toFixed(2)} each)` : "Child seats"}>
           <Select value={String(childSeatCount)} onValueChange={(v) => setChildSeatCount(Number(v))}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
