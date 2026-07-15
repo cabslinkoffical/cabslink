@@ -55,6 +55,7 @@ function DrivePage() {
     setDone(true);
     toast.success("Application received — we'll be in touch.");
     e.currentTarget.reset();
+    setPhone("");
   };
 
   return (
