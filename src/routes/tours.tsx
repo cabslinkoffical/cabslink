@@ -365,9 +365,14 @@ function TourCard({ tour }: { tour: Tour }) {
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <Button asChild variant="gold" className="flex-1 rounded-full">
-            <Link to="/" hash="booking">Start booking <ArrowRight className="size-4" /></Link>
-          </Button>
+          <TourBookingDialog
+            tour={tour}
+            trigger={
+              <Button variant="gold" className="flex-1 rounded-full">
+                Book this tour <ArrowRight className="size-4" />
+              </Button>
+            }
+          />
           <Button asChild variant="outline" className="rounded-full">
             <Link to="/contact">Enquire</Link>
           </Button>
