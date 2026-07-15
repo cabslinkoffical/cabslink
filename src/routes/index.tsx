@@ -123,11 +123,11 @@ const features = [
 ];
 
 const fleet = [
-  { name: "Mercedes-Benz S-Class", note: "Signature", img: sclassAsset.url, passengers: 3, luggage: 3, transmission: "Automatic", fuel: "Petrol" },
-  { name: "Mercedes-Benz E-Class", note: "Executive", img: eclassAsset.url, passengers: 3, luggage: 3, transmission: "Automatic", fuel: "Diesel" },
-  { name: "Mercedes-Benz V-Class", note: "First class", img: vclassAsset.url, passengers: 7, luggage: 7, transmission: "Automatic", fuel: "Diesel" },
-  { name: "Range Rover Autobiography", note: "Premium SUV", img: rangeroverAsset.url, passengers: 4, luggage: 4, transmission: "Automatic", fuel: "Petrol" },
-  { name: "Executive Minibus", note: "Groups", img: minibusAsset.url, passengers: 16, luggage: 16, transmission: "Automatic", fuel: "Diesel" },
+  { name: "Mercedes-Benz S-Class", note: "Signature", img: sclassAsset.url, srcSet: sclassAsset.srcSet, passengers: 3, luggage: 3, transmission: "Automatic", fuel: "Petrol" },
+  { name: "Mercedes-Benz E-Class", note: "Executive", img: eclassAsset.url, srcSet: eclassAsset.srcSet, passengers: 3, luggage: 3, transmission: "Automatic", fuel: "Diesel" },
+  { name: "Mercedes-Benz V-Class", note: "First class", img: vclassAsset.url, srcSet: vclassAsset.srcSet, passengers: 7, luggage: 7, transmission: "Automatic", fuel: "Diesel" },
+  { name: "Range Rover Autobiography", note: "Premium SUV", img: rangeroverAsset.url, srcSet: rangeroverAsset.srcSet, passengers: 4, luggage: 4, transmission: "Automatic", fuel: "Petrol" },
+  { name: "Executive Minibus", note: "Groups", img: minibusAsset.url, srcSet: minibusAsset.srcSet, passengers: 16, luggage: 16, transmission: "Automatic", fuel: "Diesel" },
 ];
 
 const testimonials = [
@@ -347,9 +347,13 @@ function HomePage() {
                   <img
                     key={current.key}
                     src={current.img}
+                    srcSet={current.srcSet}
+                    sizes={HERO_VEHICLE_SIZES}
                     alt={`${current.name} — chauffeur vehicle`}
-                    width={1920}
-                    height={1024}
+                    width={1200}
+                    height={750}
+                    decoding="async"
+                    fetchPriority={active === 0 ? "high" : "auto"}
                     className="absolute inset-0 m-auto w-[92%] h-full object-contain drop-shadow-[0_35px_45px_rgba(14,24,44,0.28)]"
                     style={{
                       animation: `${dir === 1 ? "vehicleSlideInR" : "vehicleSlideInL"} 850ms cubic-bezier(.2,.7,.2,1) both`,
@@ -388,7 +392,7 @@ function HomePage() {
                         }`}
                       >
                         <div className="w-14 h-9 shrink-0 grid place-items-center overflow-hidden">
-                          <img src={v.img} alt="" loading="lazy" className="max-h-full w-auto object-contain" />
+                          <img src={v.thumbnail ?? v.img} alt="" loading="lazy" decoding="async" width={56} height={36} className="max-h-full w-auto object-contain" />
                         </div>
                         <div className="text-left pr-1">
                           <div className={`text-[11px] font-semibold leading-tight ${isActive ? "text-[var(--navy)]" : "text-[var(--navy)]/80"}`}>
@@ -458,7 +462,7 @@ function HomePage() {
                   className="group relative flex items-center gap-4 overflow-hidden rounded-2xl border border-border bg-card p-3 pr-4 active:scale-[0.98] hover:border-[var(--gold)]/40 transition-all duration-300"
                 >
                   <div className="relative size-20 shrink-0 overflow-hidden rounded-xl">
-                    <img src={s.img} alt={s.title} loading="lazy" className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                    <img src={s.img} srcSet={s.imgSrcSet} sizes="80px" alt={s.title} loading="lazy" decoding="async" width={400} height={500} className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-110" />
                     <div className="absolute inset-0 bg-gradient-to-tr from-black/60 to-transparent" />
                     <div className="absolute bottom-1.5 left-1.5 grid size-7 place-items-center rounded-lg bg-[var(--gold)] text-[var(--gold-foreground)] shadow-[var(--shadow-glow)]">
                       <s.icon className="size-3.5" />
@@ -487,8 +491,13 @@ function HomePage() {
                 >
                   <img
                     src={s.img}
+                    srcSet={s.imgSrcSet}
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 45vw, 340px"
                     alt={s.title}
                     loading="lazy"
+                    decoding="async"
+                    width={900}
+                    height={1125}
                     className="absolute inset-0 size-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[var(--navy)]/95 via-[var(--navy)]/55 to-[var(--navy)]/10 transition-all duration-500 group-hover:from-[var(--navy)]/95 group-hover:via-[var(--navy)]/40" />
@@ -593,8 +602,11 @@ function HomePage() {
                   <div className="relative aspect-[16/10] flex items-center justify-center overflow-hidden rounded-2xl bg-[var(--surface)]">
                     <img
                       src={f.img}
+                      srcSet={f.srcSet}
+                      sizes="(max-width: 640px) 78vw, 300px"
                       alt={f.name}
                       loading="lazy"
+                      decoding="async"
                       width={1200}
                       height={750}
                       className="max-h-[92%] w-auto object-contain"
@@ -636,8 +648,11 @@ function HomePage() {
                 <div className="relative aspect-[16/10] flex items-center justify-center overflow-hidden">
                   <img
                     src={f.img}
+                    srcSet={f.srcSet}
+                    sizes="(max-width: 1024px) 45vw, 360px"
                     alt={f.name}
                     loading="lazy"
+                    decoding="async"
                     width={1200}
                     height={750}
                     className="max-h-full w-auto object-contain transition-transform duration-500 group-hover:scale-105"
