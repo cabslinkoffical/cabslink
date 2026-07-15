@@ -7,7 +7,7 @@ export const Route = createFileRoute("/refund-policy")({
       { title: "Refund Policy — Cabslink" },
       { name: "description", content: "How Cabslink handles refunds for chauffeur and transfer bookings." },
     ],
-    links: [{ rel: "canonical", href: "https://cabslink.lovable.app/refund-policy" }],
+    links: [{ rel: "canonical", href: "/refund-policy" }],
   }),
   component: () => (
     <LegalPage eyebrow="Refunds" title="Refund Policy" updated="15 July 2026">

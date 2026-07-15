@@ -81,18 +81,24 @@ export function BookingWidget() {
             style={{ transform: tab === "hourly" ? "translateX(100%)" : "translateX(0)" }}
             aria-hidden
           />
-          {(["quote", "hourly"] as const).map((t) => (
-            <button
-              key={t}
-              type="button"
-              onClick={() => setTab(t)}
-              className={`relative z-10 flex-1 py-2.5 text-sm font-bold font-display tracking-wide transition-colors ${
-                tab === t ? "text-[var(--gold)]" : "text-foreground/55"
-              }`}
-            >
-              {t === "quote" ? "One Way" : "Hourly"}
-            </button>
-          ))}
+          {(["quote", "hourly"] as const).map((t) => {
+            const disabled = t === "hourly";
+            return (
+              <button
+                key={t}
+                type="button"
+                onClick={() => !disabled && setTab(t)}
+                disabled={disabled}
+                aria-disabled={disabled}
+                title={disabled ? "Hourly bookings coming soon — call us for hourly hire." : undefined}
+                className={`relative z-10 flex-1 py-2.5 text-sm font-bold font-display tracking-wide transition-colors ${
+                  tab === t ? "text-[var(--gold)]" : "text-foreground/55"
+                } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+              >
+                {t === "quote" ? "One Way" : "Hourly · Soon"}
+              </button>
+            );
+          })}
         </div>
       </div>
 

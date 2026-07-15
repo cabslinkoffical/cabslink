@@ -15,7 +15,11 @@ export type PublicVehicle = {
   display_order: number;
 };
 
-export const listPublicVehicles = createServerFn({ method: "GET" }).handler(async (): Promise<PublicVehicle[]> => {
+// Frozen public projection — anything not listed is not shipped to the client.
+const PUBLIC_FIELDS =
+  "id, name, category, image_url, passengers, luggage, hand_luggage, description, featured, display_order" as const;
+
+export async function listPublicVehiclesImpl(): Promise<PublicVehicle[]> {
   const url = process.env.SUPABASE_URL!;
   const key = process.env.SUPABASE_PUBLISHABLE_KEY!;
   const client = createClient<Database>(url, key, {
@@ -31,7 +35,7 @@ export const listPublicVehicles = createServerFn({ method: "GET" }).handler(asyn
   });
   const { data, error } = await client
     .from("vehicles")
-    .select("id, name, category, image_url, passengers, luggage, hand_luggage, description, featured, display_order")
+    .select(PUBLIC_FIELDS)
     .eq("active", true)
     .order("display_order", { ascending: true });
   if (error) {
@@ -40,7 +44,7 @@ export const listPublicVehicles = createServerFn({ method: "GET" }).handler(asyn
   }
   return (data ?? [])
     .filter((v: any) => !!v.image_url)
-    .map((v: any) => ({
+    .map((v: any): PublicVehicle => ({
       id: v.id,
       name: (v.name ?? "").trim(),
       category: (v.category ?? "Vehicle").trim(),
@@ -52,4 +56,6 @@ export const listPublicVehicles = createServerFn({ method: "GET" }).handler(asyn
       featured: !!v.featured,
       display_order: v.display_order ?? 0,
     }));
-});
+}
+
+export const listPublicVehicles = createServerFn({ method: "GET" }).handler(listPublicVehiclesImpl);

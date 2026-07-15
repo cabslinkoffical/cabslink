@@ -160,15 +160,20 @@ function BookPage() {
   const [submitting, setSubmitting] = useState(false);
   const inflight = useRef(false);
   const idempotencyKey = useRef<string>(crypto.randomUUID());
+  const didHydrateRef = useRef(false);
 
   const hasValidRoute = !!pre.pickup?.placeId && !!pre.dropoff?.placeId
     && pre.pickup.placeId !== pre.dropoff.placeId;
 
-  // Hydrate wizard from session-stored draft when URL has no query yet.
+  // Hydrate wizard from session-stored draft — one-shot, URL always wins.
   useEffect(() => {
-    if (q) return;
+    if (didHydrateRef.current) return;
+    didHydrateRef.current = true;
+    if (q) return; // Fresh URL data beats older draft.
     const d = loadDraft();
     if (!d) return;
+    // Reject drafts with identical pickup/dropoff (sanitize).
+    if (d.pickupPlaceId && d.dropoffPlaceId && d.pickupPlaceId === d.dropoffPlaceId) return;
     const next: Prefill = {
       pickup: d.pickupPlaceId && d.pickupLabel ? { placeId: d.pickupPlaceId, label: d.pickupLabel } : null,
       dropoff: d.dropoffPlaceId && d.dropoffLabel ? { placeId: d.dropoffPlaceId, label: d.dropoffLabel } : null,
@@ -188,7 +193,7 @@ function BookPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Persist draft (input fields only — never PII/notes/tokens).
+  // Persist draft (input fields only — never PII/notes/tokens/prices).
   useEffect(() => {
     saveDraft({
       pickupPlaceId: pre.pickup?.placeId,
@@ -201,10 +206,27 @@ function BookPage() {
       passengers: pre.passengers,
       luggage: pre.luggage,
       vehicleSlug: chosen?.vehicleId,
+      step,
+      selectedStops,
+      meetGreet,
+      childSeatCount,
+      routeMode,
       returnJourney: { enabled: returnJourney, date: pre.rdate, time: pre.rtime },
     });
-  }, [q, chosen?.vehicleId, returnJourney, pre.date, pre.time, pre.passengers, pre.luggage, pre.pickup?.placeId, pre.dropoff?.placeId, pre.rdate, pre.rtime, pre.pickup?.label, pre.dropoff?.label, pre.stops]);
+  }, [q, chosen?.vehicleId, step, selectedStops, meetGreet, childSeatCount, routeMode, returnJourney, pre.date, pre.time, pre.passengers, pre.luggage, pre.pickup?.placeId, pre.dropoff?.placeId, pre.rdate, pre.rtime, pre.pickup?.label, pre.dropoff?.label, pre.stops]);
 
+  const startAgain = () => {
+    clearDraft();
+    setChosen(null);
+    setStep("vehicle");
+    setSelectedStops({});
+    setMeetGreet(true);
+    setChildSeatCount(0);
+    setRouteMode("scenic");
+    setReturnJourney(false);
+    setContact(emptyContact);
+    navigate({ search: { q: "" }, replace: true });
+  };
 
   const applyEdit = (next: Prefill) => {
     setChosen(null);
@@ -212,6 +234,8 @@ function BookPage() {
     navigate({ search: { q: encodePrefill(next) }, replace: true });
     setEditOpen(false);
   };
+
+
 
   const quoteFn = useServerFn(calculateQuotes);
   const quoteQuery = useQuery({
@@ -331,7 +355,7 @@ function BookPage() {
         ? orderedSelected.map((s) => ({ placeId: s.place_id, label: s.label, minutes: s.minutes, category: s.category ?? null }))
         : pre.stops.map((s) => ({ placeId: s.placeId, label: s.label, minutes: 0 }));
       const paymentLabel =
-        payment === "card_on_confirmation" ? "Card (link sent on confirmation)"
+        payment === "card_on_confirmation" ? "Card (details shared on confirmation)"
         : payment === "bank_transfer" ? "Bank transfer"
         : "Pay on account";
       const policyLabel = policy === "non_refundable" ? "Non-refundable" : policy === "flexible" ? "Flexible" : "Standard";
@@ -403,9 +427,11 @@ function BookPage() {
                 <Sidebar
                   pre={pre}
                   onEdit={() => setEditOpen(true)}
+                  onStartAgain={startAgain}
                   route={quoteQuery.data ? { miles: quoteQuery.data.distanceMiles, minutes: quoteQuery.data.durationMinutes } : null}
                   price={chosen ? { vehicleName: chosen.name, perVehicle: perVehiclePrice, qty, rideTotal, seatFee, seatCount: childSeatCount, policy, policyDelta, grandTotal } : null}
                 />
+
                 <div className="min-w-0 space-y-6">
                   {step === "vehicle" && (
                     <VehicleStep
@@ -677,8 +703,8 @@ function MobilePriceBar({ price }: { price: PriceSummary }) {
   );
 }
 
-function Sidebar({ pre, onEdit, route, price }: {
-  pre: Prefill; onEdit: () => void;
+function Sidebar({ pre, onEdit, onStartAgain, route, price }: {
+  pre: Prefill; onEdit: () => void; onStartAgain?: () => void;
   route: { miles: number; minutes: number } | null;
   price: PriceSummary | null;
 
@@ -692,10 +718,18 @@ function Sidebar({ pre, onEdit, route, price }: {
             <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)]">Your Journey</p>
             <h3 className="font-display font-bold text-lg text-foreground mt-0.5">Trip Summary</h3>
           </div>
-          <button onClick={onEdit} className="size-8 rounded-full border border-border text-muted-foreground hover:text-[var(--gold)] hover:border-[var(--gold)]/40 flex items-center justify-center transition" aria-label="Edit trip">
-            <Edit3 className="size-3.5" />
-          </button>
+          <div className="flex items-center gap-2">
+            {onStartAgain && (
+              <button onClick={onStartAgain} className="text-[11px] px-2.5 py-1 rounded-full border border-border text-muted-foreground hover:text-[var(--gold)] hover:border-[var(--gold)]/40 transition" title="Clear saved draft and start over">
+                Start again
+              </button>
+            )}
+            <button onClick={onEdit} className="size-8 rounded-full border border-border text-muted-foreground hover:text-[var(--gold)] hover:border-[var(--gold)]/40 flex items-center justify-center transition" aria-label="Edit trip">
+              <Edit3 className="size-3.5" />
+            </button>
+          </div>
         </div>
+
 
         <div className="relative pl-6">
           <div className="absolute left-[9px] top-3 bottom-3 border-l-2 border-dashed border-[var(--gold)]/40" />
@@ -1314,12 +1348,12 @@ function PaymentStep({ value, onChange, grandTotal, onBack, onSubmit, submitting
   const options: Array<{ id: PaymentMethod; icon: React.ReactNode; title: string; body: string; badge?: string }> = [
     {
       id: "card_on_confirmation", icon: <CreditCard className="size-5" />, title: "Card payment",
-      body: "We'll send you a secure payment link once our team confirms availability.",
+      body: "Our team will contact you to arrange a secure payment once we've confirmed availability.",
       badge: "Most popular",
     },
     {
       id: "bank_transfer", icon: <Landmark className="size-5" />, title: "Bank transfer",
-      body: "Receive our UK bank details on the confirmation email.",
+      body: "We'll share our UK bank details when we confirm your booking.",
     },
     {
       id: "pay_on_account", icon: <Banknote className="size-5" />, title: "Pay on account",
