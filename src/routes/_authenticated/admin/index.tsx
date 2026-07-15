@@ -10,6 +10,7 @@ import {
   BarChart, Bar, Cell, PieChart, Pie,
 } from "recharts";
 import { StatCard, PageHeader, StatusBadge } from "@/components/admin/ui";
+import { LegalReadinessBanner } from "@/components/admin/LegalReadinessBanner";
 
 const statsOpts = queryOptions({ queryKey: ["admin", "stats"], queryFn: () => getDashboardStats() });
 
