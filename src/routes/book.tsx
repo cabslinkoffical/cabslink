@@ -331,7 +331,7 @@ function BookPage() {
         ? orderedSelected.map((s) => ({ placeId: s.place_id, label: s.label, minutes: s.minutes, category: s.category ?? null }))
         : pre.stops.map((s) => ({ placeId: s.placeId, label: s.label, minutes: 0 }));
       const paymentLabel =
-        payment === "card_on_confirmation" ? "Card (link sent on confirmation)"
+        payment === "card_on_confirmation" ? "Card (details shared on confirmation)"
         : payment === "bank_transfer" ? "Bank transfer"
         : "Pay on account";
       const policyLabel = policy === "non_refundable" ? "Non-refundable" : policy === "flexible" ? "Flexible" : "Standard";
