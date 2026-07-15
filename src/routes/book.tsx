@@ -373,6 +373,7 @@ function BookPage() {
       });
       toast.success("Booking request received.");
       idempotencyKey.current = crypto.randomUUID();
+      clearDraft();
       const token = (res as any)?.token ?? null;
       if (token) navigate({ to: "/booking/$token", params: { token } });
       else setStep("review");
