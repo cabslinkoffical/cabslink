@@ -54,6 +54,7 @@ function CorporateBookingPage() {
     if (error) { toast.error("Could not submit. Please try again."); return; }
     toast.success("Enquiry sent — our team will reply within 24 hours.");
     e.currentTarget.reset();
+    setPhone("");
   };
 
   return (
