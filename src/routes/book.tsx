@@ -1000,7 +1000,7 @@ function ContactStep({ contact, onChange, onBack, onNext }: {
           <Input type="email" value={contact.email} onChange={(e) => set("email", e.target.value)} required maxLength={255} />
         </Field>
         <Field label="WhatsApp number (optional)" icon={<MessageSquare className="size-4" />}>
-          <Input value={contact.whatsapp} onChange={(e) => set("whatsapp", e.target.value)} maxLength={30} placeholder="e.g. +44 7700 900123" />
+          <PhoneInput value={contact.whatsapp} onChange={(v) => set("whatsapp", v)} placeholder="7700 900123" />
         </Field>
       </div>
       <Field label="Flight number (optional)">
