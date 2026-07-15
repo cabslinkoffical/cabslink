@@ -44,6 +44,7 @@ export function canonicalizeBookingInput(i: BookingFingerprintInput): string {
     returnJourney: !!i.returnJourney,
     meetGreet: !!i.meetGreet,
     childSeat: !!i.childSeat,
+    childSeatCount: Math.max(0, (i.childSeatCount ?? 0) | 0),
   };
   return JSON.stringify(obj);
 }
