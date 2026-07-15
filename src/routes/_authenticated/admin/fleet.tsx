@@ -147,6 +147,19 @@ function FleetPage() {
               </Field>
               <Field label="Category (legacy)"><Input value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} /></Field>
               <Field label="Vehicle image *" full>
+                <div className="mb-2 flex items-center gap-2">
+                  <Label className="text-xs text-muted-foreground">Auto-optimize</Label>
+                  <Select value={optSpeed} onValueChange={(v) => updateOptSpeed(v as OptimizeSpeed)}>
+                    <SelectTrigger className="h-8 w-40"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="off">Off (original)</SelectItem>
+                      <SelectItem value="fast">Fast (light)</SelectItem>
+                      <SelectItem value="balanced">Balanced (recommended)</SelectItem>
+                      <SelectItem value="max">Max (smallest)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <span className="text-xs text-muted-foreground">Runs in your browser · WebP</span>
+                </div>
                 {form.image_url ? (
                   <div className="relative inline-block">
                     <img src={form.image_url} alt="" className="h-32 object-cover rounded border border-border" />
@@ -157,7 +170,7 @@ function FleetPage() {
                 ) : (
                   <label className="flex flex-col items-center justify-center gap-2 h-32 border-2 border-dashed border-border rounded-lg cursor-pointer hover:bg-muted/30 transition-colors">
                     {uploading ? <Loader2 className="size-6 animate-spin text-muted-foreground" /> : <Upload className="size-6 text-muted-foreground" />}
-                    <span className="text-sm text-muted-foreground">{uploading ? "Uploading…" : "Click to upload image (max 5MB)"}</span>
+                    <span className="text-sm text-muted-foreground">{uploading ? "Optimizing & uploading…" : "Click to upload image (max 20MB)"}</span>
                     <input type="file" accept="image/*" className="hidden" disabled={uploading} onChange={e => { const f = e.target.files?.[0]; if (f) handleImageUpload(f); e.target.value = ""; }} />
                   </label>
                 )}
