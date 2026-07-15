@@ -828,7 +828,9 @@ function DetailsStep({ pre, card, qty, scenicStops, routeMode, stopsFingerprint,
   const inflight = useRef(false);
   // One idempotency key per genuine submission attempt — regenerated on success.
   const idempotencyKey = useRef<string>(crypto.randomUUID());
-  const total = card.finalPrice * qty;
+  const seatFee = (childSeatFeePence / 100) * childSeatCount;
+  const rideTotal = card.finalPrice * qty;
+  const total = rideTotal + seatFee;
 
   const bookFn = useServerFn(createBooking);
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
