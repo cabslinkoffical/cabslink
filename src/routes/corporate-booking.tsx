@@ -35,6 +35,7 @@ const schema = z.object({
 
 function CorporateBookingPage() {
   const [loading, setLoading] = useState(false);
+  const [phone, setPhone] = useState("");
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
