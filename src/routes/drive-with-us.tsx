@@ -96,7 +96,7 @@ function DrivePage() {
             <div className="mt-6 grid gap-4">
               <div><Label>Full name</Label><Input name="name" required maxLength={100} className="mt-1.5" /></div>
               <div><Label>Email</Label><Input name="email" type="email" required maxLength={255} className="mt-1.5" /></div>
-              <div><Label>Phone</Label><Input name="phone" required maxLength={30} className="mt-1.5" /></div>
+              <div><Label>Phone</Label><div className="mt-1.5"><PhoneInput name="phone" value={phone} onChange={setPhone} required /></div></div>
               <div><Label>Tell us about yourself</Label><Textarea name="message" required maxLength={1000} rows={5} className="mt-1.5" placeholder="Years driving, licence, vehicle, area covered…" /></div>
               <Button type="submit" variant="gold" disabled={loading} className="rounded-full">
                 {loading ? "Submitting…" : <>Submit application <ArrowRight className="size-4" /></>}
