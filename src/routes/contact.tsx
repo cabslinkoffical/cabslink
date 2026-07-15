@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { SITE } from "@/lib/site";
 import { submitContactMessage } from "@/lib/contact.functions";
+import { PhoneInput } from "@/components/site/PhoneInput";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
