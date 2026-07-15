@@ -887,6 +887,8 @@ function DetailsStep({ pre, card, qty, scenicStops, routeMode, stopsFingerprint,
           flight_number: parsed.data.flight_number || null,
           notes: (() => {
             const parts: string[] = [];
+            const policyLabel = policy === "non_refundable" ? "Non-refundable" : policy === "flexible" ? "Flexible" : "Standard";
+            parts.push(`Cancellation policy: ${policyLabel}`);
             if (parsed.data.whatsapp) parts.push(`WhatsApp: ${parsed.data.whatsapp}`);
             if (childSeatCount > 0) parts.push(`Child seats requested: ${childSeatCount}`);
             if (parsed.data.notes) parts.push(parsed.data.notes);
