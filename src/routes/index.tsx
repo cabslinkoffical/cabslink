@@ -14,14 +14,20 @@ import { Reveal } from "@/components/site/Reveal";
 import { Button } from "@/components/ui/button";
 import { SITE } from "@/lib/site";
 
-import heroImg from "@/assets/hero.jpg";
-import vClassSideImg from "@/assets/v-class-side.png";
-import chauffeurImg from "@/assets/chauffeur.jpg";
-import edinburghImg from "@/assets/edinburgh.jpg";
-import vClassInteriorImg from "@/assets/v-class-interior.jpg";
-import airportImg from "@/assets/airport.jpg";
-import corporateImg from "@/assets/corporate.jpg";
-import fleetSuvImg from "@/assets/fleet-suv.jpg";
+// Local images — served as responsive WebP srcSets via vite-imagetools.
+// `?w=480;800;1200&format=webp&as=srcset` produces a proper srcset string at build.
+import chauffeurSrc from "@/assets/chauffeur.jpg?w=480;800;1280&format=webp&as=srcset";
+import chauffeurFallback from "@/assets/chauffeur.jpg?w=1280&format=webp";
+import edinburghSrc from "@/assets/edinburgh.jpg?w=640;1200&format=webp&as=srcset";
+import edinburghFallback from "@/assets/edinburgh.jpg?w=1200&format=webp";
+import vClassInteriorSrc from "@/assets/v-class-interior.jpg?w=400;640;900&format=webp&as=srcset";
+import vClassInteriorFallback from "@/assets/v-class-interior.jpg?w=900&format=webp";
+import airportSrc from "@/assets/airport.jpg?w=400;640;900&format=webp&as=srcset";
+import airportFallback from "@/assets/airport.jpg?w=900&format=webp";
+import corporateSrc from "@/assets/corporate.jpg?w=400;640;900&format=webp&as=srcset";
+import corporateFallback from "@/assets/corporate.jpg?w=900&format=webp";
+import fleetSuvSrc from "@/assets/fleet-suv.jpg?w=400;640;900&format=webp&as=srcset";
+import fleetSuvFallback from "@/assets/fleet-suv.jpg?w=900&format=webp";
 
 import sclassAsset from "@/assets/fleet/sclass.png.asset.json";
 import eclassAsset from "@/assets/fleet/eclass.png.asset.json";
@@ -31,6 +37,7 @@ import minibusAsset from "@/assets/fleet/minibus.png.asset.json";
 import rollsAsset from "@/assets/fleet/rolls.png.asset.json";
 import coachAsset from "@/assets/fleet/coach.png.asset.json";
 import coasterAsset from "@/assets/fleet/coaster.png.asset.json";
+import { fleetThumbnailUrl } from "@/lib/fleet-image";
 
 const fallbackHeroVehicles = [
   { key: "vclass", name: "Mercedes V-Class", tag: "First-class · 7 seats", img: vclassAsset.url, seats: 7 },
