@@ -900,11 +900,17 @@ function DetailsStep({ pre, card, qty, scenicStops, routeMode, stopsFingerprint,
         <div className="flex-1">
           <p className="text-xs uppercase tracking-wider text-muted-foreground font-bold">Selected vehicle</p>
           <p className="font-display font-bold">{qty > 1 ? `${qty} × ${card.name}` : card.name}</p>
+          {childSeatCount > 0 && childSeatFeePence > 0 && (
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Ride £{rideTotal.toFixed(2)} + {childSeatCount} × £{(childSeatFeePence / 100).toFixed(2)} child seat
+            </p>
+          )}
         </div>
         <p className="font-display font-bold text-2xl">£{total.toFixed(2)}</p>
       </div>
 
       <div className="grid sm:grid-cols-2 gap-4">
+
         <Field label="Full name" icon={<User className="size-4" />}><Input name="customer_name" required maxLength={100} /></Field>
         <Field label="Phone" icon={<Phone className="size-4" />}><Input name="phone" required maxLength={30} /></Field>
       </div>
