@@ -7,7 +7,7 @@ export const Route = createFileRoute("/cookies")({
       { title: "Cookie Policy — Cabslink" },
       { name: "description", content: "How Cabslink uses cookies and similar technologies." },
     ],
-    links: [{ rel: "canonical", href: "https://cabslink.lovable.app/cookies" }],
+    links: [{ rel: "canonical", href: "/cookies" }],
   }),
   component: () => (
     <LegalPage eyebrow="Cookies" title="Cookie Policy" updated="15 July 2026">

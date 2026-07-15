@@ -23,7 +23,7 @@ export const Route = createFileRoute("/fleet")({
       { property: "og:title", content: "Our Fleet — Cabslink Luxury Chauffeur Vehicles" },
       { property: "og:url", content: "/fleet" },
     ],
-    links: [{ rel: "canonical", href: "https://cabslink.lovable.app/fleet" }],
+    links: [{ rel: "canonical", href: "/fleet" }],
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(fleetQuery),
   errorComponent: () => (
