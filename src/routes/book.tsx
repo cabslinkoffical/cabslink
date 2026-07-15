@@ -11,6 +11,7 @@ import {
   CheckCircle2, ArrowRight, ArrowLeft, MapPin, CalendarDays, Edit3, Star,
   Users, Briefcase, Luggage, BadgeCheck, Clock, DoorOpen, UserCheck, Award,
   ShieldCheck, CreditCard, User, Mail, Phone, MessageSquare, RefreshCw,
+  Shield, Package, CalendarClock,
 } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Button } from "@/components/ui/button";
