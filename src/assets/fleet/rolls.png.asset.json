@@ -2,10 +2,22 @@
   "version": 1,
   "asset_id": "470f60b4-4baa-45ec-b923-d2461f0a8987",
   "project_id": "e2d845db-9efd-4dac-bae6-365b62867b96",
-  "url": "/__l5e/assets-v1/470f60b4-4baa-45ec-b923-d2461f0a8987/rolls.png",
+  "url": "/__l5e/assets-v1/3d815445-277c-486d-b38f-6092cf70e7c9/rolls-1200.webp",
   "r2_key": "a/v1/e2d845db-9efd-4dac-bae6-365b62867b96/470f60b4-4baa-45ec-b923-d2461f0a8987/rolls.png",
-  "original_filename": "rolls.png",
-  "size": 872062,
-  "content_type": "image/png",
-  "created_at": "2026-07-10T14:16:28Z"
+  "original_filename": "rolls-1200.webp",
+  "size": 52614,
+  "content_type": "image/webp",
+  "created_at": "2026-07-10T14:16:28Z",
+  "srcSet": "/__l5e/assets-v1/5bab0fec-d524-4efc-b918-1a872d56edf0/rolls-400.webp 400w, /__l5e/assets-v1/3d815445-277c-486d-b38f-6092cf70e7c9/rolls-1200.webp 1200w",
+  "fallbackUrl": "/__l5e/assets-v1/470f60b4-4baa-45ec-b923-d2461f0a8987/rolls.png",
+  "variants": {
+    "400": {
+      "url": "/__l5e/assets-v1/5bab0fec-d524-4efc-b918-1a872d56edf0/rolls-400.webp",
+      "size": 15448
+    },
+    "1200": {
+      "url": "/__l5e/assets-v1/3d815445-277c-486d-b38f-6092cf70e7c9/rolls-1200.webp",
+      "size": 52614
+    }
+  }
 }

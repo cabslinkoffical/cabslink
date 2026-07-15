@@ -2,10 +2,22 @@
   "version": 1,
   "asset_id": "c57d35eb-1738-4a0d-b97b-d08369ac9fd1",
   "project_id": "e2d845db-9efd-4dac-bae6-365b62867b96",
-  "url": "/__l5e/assets-v1/c57d35eb-1738-4a0d-b97b-d08369ac9fd1/minibus.png",
+  "url": "/__l5e/assets-v1/6c192f60-03eb-4ec0-b38b-108efaa31646/minibus-1200.webp",
   "r2_key": "a/v1/e2d845db-9efd-4dac-bae6-365b62867b96/c57d35eb-1738-4a0d-b97b-d08369ac9fd1/minibus.png",
-  "original_filename": "minibus.png",
-  "size": 868521,
-  "content_type": "image/png",
-  "created_at": "2026-07-10T14:16:40Z"
+  "original_filename": "minibus-1200.webp",
+  "size": 48354,
+  "content_type": "image/webp",
+  "created_at": "2026-07-10T14:16:40Z",
+  "srcSet": "/__l5e/assets-v1/77e22037-01ca-46a4-bcba-4e208222200b/minibus-400.webp 400w, /__l5e/assets-v1/6c192f60-03eb-4ec0-b38b-108efaa31646/minibus-1200.webp 1200w",
+  "fallbackUrl": "/__l5e/assets-v1/c57d35eb-1738-4a0d-b97b-d08369ac9fd1/minibus.png",
+  "variants": {
+    "400": {
+      "url": "/__l5e/assets-v1/77e22037-01ca-46a4-bcba-4e208222200b/minibus-400.webp",
+      "size": 15654
+    },
+    "1200": {
+      "url": "/__l5e/assets-v1/6c192f60-03eb-4ec0-b38b-108efaa31646/minibus-1200.webp",
+      "size": 48354
+    }
+  }
 }

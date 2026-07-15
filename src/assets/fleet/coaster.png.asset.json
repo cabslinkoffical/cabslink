@@ -2,10 +2,22 @@
   "version": 1,
   "asset_id": "b2858388-8f82-40f4-bba7-473979ec69df",
   "project_id": "e2d845db-9efd-4dac-bae6-365b62867b96",
-  "url": "/__l5e/assets-v1/b2858388-8f82-40f4-bba7-473979ec69df/coaster.png",
+  "url": "/__l5e/assets-v1/f9245a01-3fd7-439b-8058-95301d055049/coaster-1200.webp",
   "r2_key": "a/v1/e2d845db-9efd-4dac-bae6-365b62867b96/b2858388-8f82-40f4-bba7-473979ec69df/coaster.png",
-  "original_filename": "coaster.png",
-  "size": 817016,
-  "content_type": "image/png",
-  "created_at": "2026-07-10T14:16:43Z"
+  "original_filename": "coaster-1200.webp",
+  "size": 49250,
+  "content_type": "image/webp",
+  "created_at": "2026-07-10T14:16:43Z",
+  "srcSet": "/__l5e/assets-v1/4976a0b1-487c-4dc8-82a1-8a8b79c2abef/coaster-400.webp 400w, /__l5e/assets-v1/f9245a01-3fd7-439b-8058-95301d055049/coaster-1200.webp 1200w",
+  "fallbackUrl": "/__l5e/assets-v1/b2858388-8f82-40f4-bba7-473979ec69df/coaster.png",
+  "variants": {
+    "400": {
+      "url": "/__l5e/assets-v1/4976a0b1-487c-4dc8-82a1-8a8b79c2abef/coaster-400.webp",
+      "size": 16406
+    },
+    "1200": {
+      "url": "/__l5e/assets-v1/f9245a01-3fd7-439b-8058-95301d055049/coaster-1200.webp",
+      "size": 49250
+    }
+  }
 }
