@@ -52,6 +52,8 @@ function FleetPage() {
 
   const [form, setForm] = useState<any>(null);
   const [uploading, setUploading] = useState(false);
+  const [optSpeed, setOptSpeedState] = useState<OptimizeSpeed>(() => getOptimizeSpeed());
+  function updateOptSpeed(s: OptimizeSpeed) { setOptSpeedState(s); setOptimizeSpeed(s); }
   const [saving, setSaving] = useState(false);
 
   function openNew() { setForm({ ...emptyVehicle }); }
