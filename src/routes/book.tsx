@@ -587,35 +587,28 @@ function fmtGBP(n: number) {
 }
 
 function PriceBreakdown({ price }: { price: PriceSummary }) {
-  const policyLabel = price.policy === "non_refundable" ? "Non-refundable discount" : price.policy === "flexible" ? "Flexible cover" : "Standard policy";
+  const policyLabel = price.policy === "non_refundable" ? "Non-refundable" : price.policy === "flexible" ? "Flexible" : "Standard";
+  const parts = [
+    `Ride ${fmtGBP(price.rideTotal)}`,
+    ...(price.seatCount > 0 ? [`Child seats ${fmtGBP(price.seatFee)}`] : []),
+    `Cancellation cover: ${policyLabel}`,
+  ];
   return (
     <div className="bg-card rounded-2xl border border-border p-5 shadow-sm">
-      <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)] mb-3">Price Details</p>
-      <div className="space-y-2 text-sm">
-        <div className="flex justify-between gap-3">
-          <span className="text-muted-foreground truncate">{price.vehicleName} × {price.qty}</span>
-          <span className="font-semibold tabular-nums">{fmtGBP(price.rideTotal)}</span>
-        </div>
-        {price.seatCount > 0 && (
-          <div className="flex justify-between gap-3">
-            <span className="text-muted-foreground">Child seats × {price.seatCount}</span>
-            <span className="font-semibold tabular-nums">{fmtGBP(price.seatFee)}</span>
-          </div>
-        )}
-        {price.policyDelta !== 0 && (
-          <div className="flex justify-between gap-3">
-            <span className="text-muted-foreground">{policyLabel}</span>
-            <span className={`font-semibold tabular-nums ${price.policyDelta < 0 ? "text-emerald-600" : ""}`}>
-              {price.policyDelta > 0 ? "+" : ""}{fmtGBP(price.policyDelta)}
+      <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)] mb-3">Running Total</p>
+      <div className="flex items-center justify-between gap-4">
+        <p className="text-sm text-muted-foreground leading-snug">
+          {parts.map((part, i) => (
+            <span key={i}>
+              {part}
+              {i < parts.length - 1 && <span className="mx-1.5 text-border">·</span>}
             </span>
-          </div>
-        )}
+          ))}
+        </p>
+        <span className="shrink-0 font-display text-3xl font-bold text-[var(--gold)] tabular-nums leading-none">
+          {fmtGBP(price.grandTotal)}
+        </span>
       </div>
-      <div className="mt-4 pt-4 border-t border-border flex items-baseline justify-between">
-        <span className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">Total</span>
-        <span className="font-display text-2xl font-bold text-foreground tabular-nums">{fmtGBP(price.grandTotal)}</span>
-      </div>
-      <p className="mt-1 text-[10px] text-muted-foreground text-right">Incl. VAT · updates as you add extras</p>
     </div>
   );
 }
