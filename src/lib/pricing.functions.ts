@@ -273,6 +273,7 @@ export const createBooking = createServerFn({ method: "POST" })
       returnJourney: !!data.return_journey,
       meetGreet: !!data.meet_greet,
       childSeat: !!data.child_seat,
+      childSeatCount: data.child_seat_count ?? 0,
     });
 
     // Idempotency: return existing booking ONLY if the request fingerprint
