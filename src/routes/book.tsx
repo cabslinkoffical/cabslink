@@ -675,8 +675,8 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect, multiQuot
 }
 
 
-function VehicleCard({ card, best, qty, priceUpdating, disabled, disabledReason, onQtyChange, onSelect }: {
-  card: QuoteCard; best: boolean; qty: number; priceUpdating?: boolean;
+function VehicleCard({ card, best, qty, minQty, priceUpdating, disabled, disabledReason, onQtyChange, onSelect }: {
+  card: QuoteCard; best: boolean; qty: number; minQty: number; priceUpdating?: boolean;
   disabled?: boolean; disabledReason?: string | null;
   onQtyChange: (n: number) => void; onSelect: () => void;
 }) {
