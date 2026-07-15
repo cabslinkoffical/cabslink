@@ -567,9 +567,80 @@ function Stepper({ step }: { step: Step }) {
   );
 }
 
-function Sidebar({ pre, onEdit, route }: {
+type PriceSummary = {
+  vehicleName: string;
+  perVehicle: number;
+  qty: number;
+  rideTotal: number;
+  seatFee: number;
+  seatCount: number;
+  policy: Policy;
+  policyDelta: number;
+  grandTotal: number;
+};
+
+function fmtGBP(n: number) {
+  return `£${n.toFixed(2)}`;
+}
+
+function PriceBreakdown({ price }: { price: PriceSummary }) {
+  const policyLabel = price.policy === "non_refundable" ? "Non-refundable discount" : price.policy === "flexible" ? "Flexible cover" : "Standard policy";
+  return (
+    <div className="bg-card rounded-2xl border border-border p-5 shadow-sm">
+      <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)] mb-3">Price Details</p>
+      <div className="space-y-2 text-sm">
+        <div className="flex justify-between gap-3">
+          <span className="text-muted-foreground truncate">{price.vehicleName} × {price.qty}</span>
+          <span className="font-semibold tabular-nums">{fmtGBP(price.rideTotal)}</span>
+        </div>
+        {price.seatCount > 0 && (
+          <div className="flex justify-between gap-3">
+            <span className="text-muted-foreground">Child seats × {price.seatCount}</span>
+            <span className="font-semibold tabular-nums">{fmtGBP(price.seatFee)}</span>
+          </div>
+        )}
+        {price.policyDelta !== 0 && (
+          <div className="flex justify-between gap-3">
+            <span className="text-muted-foreground">{policyLabel}</span>
+            <span className={`font-semibold tabular-nums ${price.policyDelta < 0 ? "text-emerald-600" : ""}`}>
+              {price.policyDelta > 0 ? "+" : ""}{fmtGBP(price.policyDelta)}
+            </span>
+          </div>
+        )}
+      </div>
+      <div className="mt-4 pt-4 border-t border-border flex items-baseline justify-between">
+        <span className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">Total</span>
+        <span className="font-display text-2xl font-bold text-foreground tabular-nums">{fmtGBP(price.grandTotal)}</span>
+      </div>
+      <p className="mt-1 text-[10px] text-muted-foreground text-right">Incl. VAT · updates as you add extras</p>
+    </div>
+  );
+}
+
+function MobilePriceBar({ price }: { price: PriceSummary }) {
+  return (
+    <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-border bg-card/95 backdrop-blur px-4 py-3 shadow-[0_-8px_24px_-12px_rgba(14,24,44,0.25)]">
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Total incl. VAT</p>
+          <p className="font-display text-xl font-bold text-foreground tabular-nums leading-tight">{fmtGBP(price.grandTotal)}</p>
+        </div>
+        <a
+          href="#step-actions"
+          className="inline-flex items-center gap-2 rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] px-5 py-2.5 text-sm font-bold shadow-[var(--shadow-glow)]"
+        >
+          Continue <ArrowRight className="size-4" />
+        </a>
+      </div>
+    </div>
+  );
+}
+
+function Sidebar({ pre, onEdit, route, price }: {
   pre: Prefill; onEdit: () => void;
   route: { miles: number; minutes: number } | null;
+  price: PriceSummary | null;
+
 }) {
   return (
     <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
