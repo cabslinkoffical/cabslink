@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { toast } from "sonner";
 import { Building2, ArrowRight } from "lucide-react";
@@ -9,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { supabase } from "@/integrations/supabase/client";
+import { submitCorporateInquiry } from "@/lib/corporate.functions";
 import { PhoneInput } from "@/components/site/PhoneInput";
 
 export const Route = createFileRoute("/corporate-booking")({
@@ -36,26 +37,28 @@ const schema = z.object({
 function CorporateBookingPage() {
   const [loading, setLoading] = useState(false);
   const [phone, setPhone] = useState("");
+  const submit = useServerFn(submitCorporateInquiry);
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const data = Object.fromEntries(new FormData(e.currentTarget));
+    const form = e.currentTarget;
+    const fd = new FormData(form);
+    const data = Object.fromEntries(fd);
     const parsed = schema.safeParse(data);
     if (!parsed.success) { toast.error("Please complete all fields."); return; }
     setLoading(true);
-    const { error } = await supabase.from("contact_messages").insert({
-      name: `${parsed.data.name} (${parsed.data.company})`,
-      email: parsed.data.email,
-      phone: parsed.data.phone,
-      subject: "Corporate Account Enquiry",
-      message: parsed.data.needs,
-    });
-    setLoading(false);
-    if (error) { toast.error("Could not submit. Please try again."); return; }
-    toast.success("Enquiry sent — our team will reply within 24 hours.");
-    e.currentTarget.reset();
-    setPhone("");
+    try {
+      await submit({ data: { ...parsed.data, website: (fd.get("website") ?? "").toString() } });
+      toast.success("Enquiry sent — our team will reply within 24 hours.");
+      form.reset();
+      setPhone("");
+    } catch {
+      toast.error("Could not submit. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
+
 
   return (
     <SiteLayout>
@@ -93,6 +96,10 @@ function CorporateBookingPage() {
               </div>
               <div><Label>Email</Label><Input name="email" type="email" required maxLength={255} className="mt-1.5" /></div>
               <div><Label>Your travel needs</Label><Textarea name="needs" required maxLength={1500} rows={5} className="mt-1.5" placeholder="Team size, monthly volume, airports, billing preferences…" /></div>
+              <div className="absolute -left-[9999px]" aria-hidden="true">
+                <label htmlFor="corp-website">Website</label>
+                <input id="corp-website" name="website" type="text" tabIndex={-1} autoComplete="off" />
+              </div>
               <Button type="submit" variant="gold" disabled={loading} className="rounded-full">
                 {loading ? "Sending…" : <>Request proposal <ArrowRight className="size-4" /></>}
               </Button>
