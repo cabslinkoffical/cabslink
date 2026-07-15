@@ -438,6 +438,9 @@ function BookPage() {
           )}
         </div>
       </section>
+      {chosen && step !== "review" && (
+        <MobilePriceBar price={{ vehicleName: chosen.name, perVehicle: perVehiclePrice, qty, rideTotal, seatFee, seatCount: childSeatCount, policy, policyDelta, grandTotal }} />
+      )}
       <EditTripDialog open={editOpen} onOpenChange={setEditOpen} initial={pre} onSave={applyEdit} />
     </SiteLayout>
   );
