@@ -200,10 +200,10 @@ function BookPage() {
       time: pre.time,
       passengers: pre.passengers,
       luggage: pre.luggage,
-      vehicleSlug: chosen?.vehicle_id,
+      vehicleSlug: chosen?.vehicleId,
       returnJourney: { enabled: returnJourney, date: pre.rdate, time: pre.rtime },
     });
-  }, [q, chosen?.vehicle_id, returnJourney, pre.date, pre.time, pre.passengers, pre.luggage, pre.pickup?.placeId, pre.dropoff?.placeId, pre.rdate, pre.rtime, pre.pickup?.label, pre.dropoff?.label, pre.stops]);
+  }, [q, chosen?.vehicleId, returnJourney, pre.date, pre.time, pre.passengers, pre.luggage, pre.pickup?.placeId, pre.dropoff?.placeId, pre.rdate, pre.rtime, pre.pickup?.label, pre.dropoff?.label, pre.stops]);
 
 
   const applyEdit = (next: Prefill) => {
