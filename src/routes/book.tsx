@@ -164,6 +164,48 @@ function BookPage() {
   const hasValidRoute = !!pre.pickup?.placeId && !!pre.dropoff?.placeId
     && pre.pickup.placeId !== pre.dropoff.placeId;
 
+  // Hydrate wizard from session-stored draft when URL has no query yet.
+  useEffect(() => {
+    if (q) return;
+    const d = loadDraft();
+    if (!d) return;
+    const next: Prefill = {
+      pickup: d.pickupPlaceId && d.pickupLabel ? { placeId: d.pickupPlaceId, label: d.pickupLabel } : null,
+      dropoff: d.dropoffPlaceId && d.dropoffLabel ? { placeId: d.dropoffPlaceId, label: d.dropoffLabel } : null,
+      stops: (d.stops ?? []).flatMap((s) => (s.placeId && s.label ? [{ placeId: s.placeId, label: s.label }] : [])),
+      date: d.date ?? new Date().toISOString().slice(0, 10),
+      time: d.time ?? "12:00",
+      passengers: d.passengers ?? 1,
+      luggage: d.luggage ?? 0,
+      ret: d.returnJourney?.enabled ?? false,
+      rdate: d.returnJourney?.date ?? "",
+      rtime: d.returnJourney?.time ?? "",
+      mode: "quote",
+    };
+    if (next.pickup || next.dropoff) {
+      navigate({ search: { q: encodePrefill(next) }, replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Persist draft (input fields only — never PII/notes/tokens).
+  useEffect(() => {
+    saveDraft({
+      pickupPlaceId: pre.pickup?.placeId,
+      pickupLabel: pre.pickup?.label,
+      dropoffPlaceId: pre.dropoff?.placeId,
+      dropoffLabel: pre.dropoff?.label,
+      stops: pre.stops.map((s) => ({ placeId: s.placeId, label: s.label })),
+      date: pre.date,
+      time: pre.time,
+      passengers: pre.passengers,
+      luggage: pre.luggage,
+      vehicleSlug: chosen?.vehicle_id,
+      returnJourney: { enabled: returnJourney, date: pre.rdate, time: pre.rtime },
+    });
+  }, [q, chosen?.vehicle_id, returnJourney, pre.date, pre.time, pre.passengers, pre.luggage, pre.pickup?.placeId, pre.dropoff?.placeId, pre.rdate, pre.rtime, pre.pickup?.label, pre.dropoff?.label, pre.stops]);
+
+
   const applyEdit = (next: Prefill) => {
     setChosen(null);
     setStep("vehicle");
