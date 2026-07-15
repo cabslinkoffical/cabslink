@@ -149,6 +149,7 @@ function HomePage() {
         .from("vehicles")
         .select("id, name, category, image_url, passengers")
         .eq("active", true)
+        .eq("featured", true)
         .order("display_order", { ascending: true })
         .then(({ data }) => {
           if (cancelled || !data) return;
