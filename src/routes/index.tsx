@@ -82,7 +82,6 @@ export const Route = createFileRoute("/")({
         rel: "preload",
         as: "image",
         href: vclassAsset.url,
-        // @ts-expect-error - React types accept these attrs at runtime; TanStack Router links spread lowercase HTML attrs verbatim.
         imagesrcset: vclassAsset.srcSet,
         imagesizes: HERO_VEHICLE_SIZES,
         fetchpriority: "high",
