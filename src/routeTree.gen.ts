@@ -11,17 +11,23 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VipTransfersRouteImport } from './routes/vip-transfers'
 import { Route as ToursRouteImport } from './routes/tours'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ServicesRouteImport } from './routes/services'
+import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as FleetRouteImport } from './routes/fleet'
 import { Route as DriveWithUsRouteImport } from './routes/drive-with-us'
 import { Route as DistanceRouteImport } from './routes/distance'
 import { Route as CorporateTravelRouteImport } from './routes/corporate-travel'
 import { Route as CorporateBookingRouteImport } from './routes/corporate-booking'
+import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as BookingPolicyRouteImport } from './routes/booking-policy'
 import { Route as BookRouteImport } from './routes/book'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AirportTransfersRouteImport } from './routes/airport-transfers'
+import { Route as AccessibilityRouteImport } from './routes/accessibility'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
@@ -62,6 +68,11 @@ const ToursRoute = ToursRouteImport.update({
   path: '/tours',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
@@ -70,6 +81,16 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const ServicesRoute = ServicesRouteImport.update({
   id: '/services',
   path: '/services',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RefundPolicyRoute = RefundPolicyRouteImport.update({
+  id: '/refund-policy',
+  path: '/refund-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FleetRoute = FleetRouteImport.update({
@@ -97,9 +118,19 @@ const CorporateBookingRoute = CorporateBookingRouteImport.update({
   path: '/corporate-booking',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CookiesRoute = CookiesRouteImport.update({
+  id: '/cookies',
+  path: '/cookies',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BookingPolicyRoute = BookingPolicyRouteImport.update({
+  id: '/booking-policy',
+  path: '/booking-policy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BookRoute = BookRouteImport.update({
@@ -115,6 +146,11 @@ const AuthRoute = AuthRouteImport.update({
 const AirportTransfersRoute = AirportTransfersRouteImport.update({
   id: '/airport-transfers',
   path: '/airport-transfers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccessibilityRoute = AccessibilityRouteImport.update({
+  id: '/accessibility',
+  path: '/accessibility',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -284,17 +320,23 @@ const AuthenticatedAdminAddressesRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/accessibility': typeof AccessibilityRoute
   '/airport-transfers': typeof AirportTransfersRoute
   '/auth': typeof AuthRoute
   '/book': typeof BookRoute
+  '/booking-policy': typeof BookingPolicyRoute
   '/contact': typeof ContactRoute
+  '/cookies': typeof CookiesRoute
   '/corporate-booking': typeof CorporateBookingRoute
   '/corporate-travel': typeof CorporateTravelRoute
   '/distance': typeof DistanceRoute
   '/drive-with-us': typeof DriveWithUsRoute
   '/fleet': typeof FleetRoute
+  '/privacy': typeof PrivacyRoute
+  '/refund-policy': typeof RefundPolicyRoute
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms': typeof TermsRoute
   '/tours': typeof ToursRoute
   '/vip-transfers': typeof VipTransfersRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
@@ -327,17 +369,23 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/accessibility': typeof AccessibilityRoute
   '/airport-transfers': typeof AirportTransfersRoute
   '/auth': typeof AuthRoute
   '/book': typeof BookRoute
+  '/booking-policy': typeof BookingPolicyRoute
   '/contact': typeof ContactRoute
+  '/cookies': typeof CookiesRoute
   '/corporate-booking': typeof CorporateBookingRoute
   '/corporate-travel': typeof CorporateTravelRoute
   '/distance': typeof DistanceRoute
   '/drive-with-us': typeof DriveWithUsRoute
   '/fleet': typeof FleetRoute
+  '/privacy': typeof PrivacyRoute
+  '/refund-policy': typeof RefundPolicyRoute
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms': typeof TermsRoute
   '/tours': typeof ToursRoute
   '/vip-transfers': typeof VipTransfersRoute
   '/booking/$token': typeof BookingTokenRoute
@@ -371,17 +419,23 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/about': typeof AboutRoute
+  '/accessibility': typeof AccessibilityRoute
   '/airport-transfers': typeof AirportTransfersRoute
   '/auth': typeof AuthRoute
   '/book': typeof BookRoute
+  '/booking-policy': typeof BookingPolicyRoute
   '/contact': typeof ContactRoute
+  '/cookies': typeof CookiesRoute
   '/corporate-booking': typeof CorporateBookingRoute
   '/corporate-travel': typeof CorporateTravelRoute
   '/distance': typeof DistanceRoute
   '/drive-with-us': typeof DriveWithUsRoute
   '/fleet': typeof FleetRoute
+  '/privacy': typeof PrivacyRoute
+  '/refund-policy': typeof RefundPolicyRoute
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms': typeof TermsRoute
   '/tours': typeof ToursRoute
   '/vip-transfers': typeof VipTransfersRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
@@ -416,17 +470,23 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/accessibility'
     | '/airport-transfers'
     | '/auth'
     | '/book'
+    | '/booking-policy'
     | '/contact'
+    | '/cookies'
     | '/corporate-booking'
     | '/corporate-travel'
     | '/distance'
     | '/drive-with-us'
     | '/fleet'
+    | '/privacy'
+    | '/refund-policy'
     | '/services'
     | '/sitemap.xml'
+    | '/terms'
     | '/tours'
     | '/vip-transfers'
     | '/admin'
@@ -459,17 +519,23 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/accessibility'
     | '/airport-transfers'
     | '/auth'
     | '/book'
+    | '/booking-policy'
     | '/contact'
+    | '/cookies'
     | '/corporate-booking'
     | '/corporate-travel'
     | '/distance'
     | '/drive-with-us'
     | '/fleet'
+    | '/privacy'
+    | '/refund-policy'
     | '/services'
     | '/sitemap.xml'
+    | '/terms'
     | '/tours'
     | '/vip-transfers'
     | '/booking/$token'
@@ -502,17 +568,23 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/about'
+    | '/accessibility'
     | '/airport-transfers'
     | '/auth'
     | '/book'
+    | '/booking-policy'
     | '/contact'
+    | '/cookies'
     | '/corporate-booking'
     | '/corporate-travel'
     | '/distance'
     | '/drive-with-us'
     | '/fleet'
+    | '/privacy'
+    | '/refund-policy'
     | '/services'
     | '/sitemap.xml'
+    | '/terms'
     | '/tours'
     | '/vip-transfers'
     | '/_authenticated/admin'
@@ -547,17 +619,23 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
+  AccessibilityRoute: typeof AccessibilityRoute
   AirportTransfersRoute: typeof AirportTransfersRoute
   AuthRoute: typeof AuthRoute
   BookRoute: typeof BookRoute
+  BookingPolicyRoute: typeof BookingPolicyRoute
   ContactRoute: typeof ContactRoute
+  CookiesRoute: typeof CookiesRoute
   CorporateBookingRoute: typeof CorporateBookingRoute
   CorporateTravelRoute: typeof CorporateTravelRoute
   DistanceRoute: typeof DistanceRoute
   DriveWithUsRoute: typeof DriveWithUsRoute
   FleetRoute: typeof FleetRoute
+  PrivacyRoute: typeof PrivacyRoute
+  RefundPolicyRoute: typeof RefundPolicyRoute
   ServicesRoute: typeof ServicesRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  TermsRoute: typeof TermsRoute
   ToursRoute: typeof ToursRoute
   VipTransfersRoute: typeof VipTransfersRoute
   BookingTokenRoute: typeof BookingTokenRoute
@@ -579,6 +657,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ToursRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
@@ -591,6 +676,20 @@ declare module '@tanstack/react-router' {
       path: '/services'
       fullPath: '/services'
       preLoaderRoute: typeof ServicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/refund-policy': {
+      id: '/refund-policy'
+      path: '/refund-policy'
+      fullPath: '/refund-policy'
+      preLoaderRoute: typeof RefundPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/fleet': {
@@ -628,11 +727,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CorporateBookingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cookies': {
+      id: '/cookies'
+      path: '/cookies'
+      fullPath: '/cookies'
+      preLoaderRoute: typeof CookiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/contact': {
       id: '/contact'
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/booking-policy': {
+      id: '/booking-policy'
+      path: '/booking-policy'
+      fullPath: '/booking-policy'
+      preLoaderRoute: typeof BookingPolicyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/book': {
@@ -654,6 +767,13 @@ declare module '@tanstack/react-router' {
       path: '/airport-transfers'
       fullPath: '/airport-transfers'
       preLoaderRoute: typeof AirportTransfersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/accessibility': {
+      id: '/accessibility'
+      path: '/accessibility'
+      fullPath: '/accessibility'
+      preLoaderRoute: typeof AccessibilityRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -940,17 +1060,23 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AboutRoute: AboutRoute,
+  AccessibilityRoute: AccessibilityRoute,
   AirportTransfersRoute: AirportTransfersRoute,
   AuthRoute: AuthRoute,
   BookRoute: BookRoute,
+  BookingPolicyRoute: BookingPolicyRoute,
   ContactRoute: ContactRoute,
+  CookiesRoute: CookiesRoute,
   CorporateBookingRoute: CorporateBookingRoute,
   CorporateTravelRoute: CorporateTravelRoute,
   DistanceRoute: DistanceRoute,
   DriveWithUsRoute: DriveWithUsRoute,
   FleetRoute: FleetRoute,
+  PrivacyRoute: PrivacyRoute,
+  RefundPolicyRoute: RefundPolicyRoute,
   ServicesRoute: ServicesRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  TermsRoute: TermsRoute,
   ToursRoute: ToursRoute,
   VipTransfersRoute: VipTransfersRoute,
   BookingTokenRoute: BookingTokenRoute,
@@ -958,3 +1084,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

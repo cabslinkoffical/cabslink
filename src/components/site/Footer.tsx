@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Mail, Phone, MapPin, Facebook, Instagram, Twitter, Linkedin } from "lucide-react";
+import { Mail, Phone, MapPin } from "lucide-react";
 import { Logo } from "./Logo";
 import { SITE } from "@/lib/site";
 
@@ -18,7 +18,16 @@ const links = [
   { to: "/services", label: "Services" },
   { to: "/corporate-booking", label: "Corporate Booking" },
   { to: "/contact", label: "Contact" },
-  { to: "/#booking", label: "Book Now" },
+  { to: "/book", label: "Book Now" },
+];
+
+const legal = [
+  { to: "/privacy", label: "Privacy Policy" },
+  { to: "/terms", label: "Terms & Conditions" },
+  { to: "/cookies", label: "Cookie Policy" },
+  { to: "/booking-policy", label: "Booking & Cancellation" },
+  { to: "/refund-policy", label: "Refund Policy" },
+  { to: "/accessibility", label: "Accessibility" },
 ];
 
 export function Footer() {
@@ -31,13 +40,7 @@ export function Footer() {
             Premium UK airport transfers and chauffeur services — punctual,
             professional and effortlessly comfortable, around the clock.
           </p>
-          <div className="mt-6 flex gap-3">
-            {[Facebook, Instagram, Twitter, Linkedin].map((Icon, i) => (
-              <a key={i} href="#" aria-label="social" className="grid size-9 place-items-center rounded-full border border-white/15 hover:bg-[var(--gold)] hover:text-[var(--navy)] hover:border-[var(--gold)] transition">
-                <Icon className="size-4" />
-              </a>
-            ))}
-          </div>
+          {/* Social links intentionally hidden until real profile URLs are configured. */}
         </div>
         <div>
           <h4 className="text-sm font-semibold uppercase tracking-wider text-[var(--gold)]">Quick Links</h4>
@@ -69,9 +72,16 @@ export function Footer() {
         </div>
       </div>
       <div className="border-t border-white/10">
-        <div className="container-x py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/60">
-          <p>© {new Date().getFullYear()} Cabslink. All rights reserved.</p>
-          <p>Edinburgh · London · UK Wide</p>
+        <div className="container-x py-5 flex flex-col gap-4 text-xs text-white/60">
+          <ul className="flex flex-wrap justify-center gap-x-5 gap-y-2">
+            {legal.map(l => (
+              <li key={l.to}><Link to={l.to} className="hover:text-[var(--gold)]">{l.label}</Link></li>
+            ))}
+          </ul>
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p>© {new Date().getFullYear()} Cabslink. All rights reserved.</p>
+            <p>Edinburgh · London · UK Wide</p>
+          </div>
         </div>
       </div>
     </footer>

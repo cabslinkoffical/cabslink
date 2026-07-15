@@ -1,17 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 
-const BASE_URL = "";
+const BASE_URL = "https://cabslink.lovable.app";
+
+export const PUBLIC_ROUTES = [
+  "/", "/about", "/services", "/airport-transfers", "/vip-transfers",
+  "/corporate-travel", "/tours", "/fleet", "/drive-with-us",
+  "/corporate-booking", "/contact", "/book",
+  "/privacy", "/terms", "/cookies",
+  "/booking-policy", "/refund-policy", "/accessibility",
+];
 
 export const Route = createFileRoute("/sitemap.xml")({
   server: {
     handlers: {
       GET: async () => {
-        const paths = [
-          "/", "/about", "/services", "/airport-transfers", "/vip-transfers",
-          "/corporate-travel", "/tours", "/fleet", "/drive-with-us",
-          "/corporate-booking", "/contact", "/book",
-        ];
+        const paths = PUBLIC_ROUTES;
         const xml = [
           `<?xml version="1.0" encoding="UTF-8"?>`,
           `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`,
