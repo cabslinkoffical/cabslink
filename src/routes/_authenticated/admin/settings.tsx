@@ -50,6 +50,9 @@ function Page() {
           cancellation_policy: form.cancellation_policy, maintenance_mode: !!form.maintenance_mode,
           smtp_host: form.smtp_host, smtp_port: form.smtp_port ? Number(form.smtp_port) : null,
           smtp_user: form.smtp_user, google_maps_api_key: form.google_maps_api_key,
+          poi_corridor_enabled: !!form.poi_corridor_enabled,
+          poi_corridor_radius_miles: Number(form.poi_corridor_radius_miles ?? 15),
+          poi_corridor_max_pois: Number(form.poi_corridor_max_pois ?? 8),
         })} disabled={mut.isPending}>Save changes</Button>
       </PageHeader>
 
@@ -59,6 +62,7 @@ function Page() {
           <TabsTrigger value="branding">Branding</TabsTrigger>
           <TabsTrigger value="finance">Finance</TabsTrigger>
           <TabsTrigger value="integrations">Integrations</TabsTrigger>
+          <TabsTrigger value="pois">POI matching</TabsTrigger>
           <TabsTrigger value="advanced">Advanced</TabsTrigger>
         </TabsList>
 
@@ -109,6 +113,52 @@ function Page() {
             <Row label="SMTP port"><Input type="number" value={form.smtp_port ?? ""} onChange={e => set("smtp_port", e.target.value)} /></Row>
             <Row label="SMTP user"><Input value={form.smtp_user ?? ""} onChange={e => set("smtp_user", e.target.value)} /></Row>
             <Row label="Google Maps API key"><Input value={form.google_maps_api_key ?? ""} onChange={e => set("google_maps_api_key", e.target.value)} /></Row>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="pois" className="space-y-4 mt-4">
+          <Card>
+            <p className="text-sm text-muted-foreground -mt-1">
+              When no curated tour template matches a customer&apos;s pickup and dropoff, Cabslink can still
+              suggest famous points that lie near the direct route. Turn this on and pick a corridor
+              radius — any active point of interest whose coordinates fall within that many miles of the
+              straight line between pickup and dropoff will be offered as an optional stop.
+            </p>
+            <Row label="Enable corridor matching">
+              <div className="flex items-center gap-2">
+                <Switch
+                  checked={!!form.poi_corridor_enabled}
+                  onCheckedChange={(v) => set("poi_corridor_enabled", v)}
+                />
+                <span className="text-sm text-muted-foreground">
+                  When ON, POIs within the corridor are offered even without a curated template.
+                </span>
+              </div>
+            </Row>
+            <Row label="Corridor radius (miles)">
+              <Input
+                type="number"
+                min={0}
+                max={200}
+                step="0.5"
+                value={form.poi_corridor_radius_miles ?? 15}
+                onChange={(e) => set("poi_corridor_radius_miles", e.target.value)}
+              />
+            </Row>
+            <Row label="Max suggestions per route">
+              <Input
+                type="number"
+                min={0}
+                max={50}
+                step="1"
+                value={form.poi_corridor_max_pois ?? 8}
+                onChange={(e) => set("poi_corridor_max_pois", e.target.value)}
+              />
+            </Row>
+            <p className="text-xs text-muted-foreground">
+              Tip: POIs must have latitude/longitude set on their admin record for corridor matching to
+              pick them up. Curated tour templates always take precedence over corridor suggestions.
+            </p>
           </Card>
         </TabsContent>
 

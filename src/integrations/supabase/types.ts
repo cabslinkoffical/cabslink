@@ -736,6 +736,27 @@ export type Database = {
           },
         ]
       }
+      place_coords: {
+        Row: {
+          fetched_at: string
+          lat: number
+          lng: number
+          place_id: string
+        }
+        Insert: {
+          fetched_at?: string
+          lat: number
+          lng: number
+          place_id: string
+        }
+        Update: {
+          fetched_at?: string
+          lat?: number
+          lng?: number
+          place_id?: string
+        }
+        Relationships: []
+      }
       points_of_interest: {
         Row: {
           active: boolean
@@ -1190,6 +1211,9 @@ export type Database = {
           max_poi_suggestions: number
           max_selected_stops: number
           payment_mode: string
+          poi_corridor_enabled: boolean
+          poi_corridor_max_pois: number
+          poi_corridor_radius_miles: number
           poi_discovery_enabled: boolean
           price_per_extra_15min_pence: number
           primary_color: string
@@ -1229,6 +1253,9 @@ export type Database = {
           max_poi_suggestions?: number
           max_selected_stops?: number
           payment_mode?: string
+          poi_corridor_enabled?: boolean
+          poi_corridor_max_pois?: number
+          poi_corridor_radius_miles?: number
           poi_discovery_enabled?: boolean
           price_per_extra_15min_pence?: number
           primary_color?: string
@@ -1268,6 +1295,9 @@ export type Database = {
           max_poi_suggestions?: number
           max_selected_stops?: number
           payment_mode?: string
+          poi_corridor_enabled?: boolean
+          poi_corridor_max_pois?: number
+          poi_corridor_radius_miles?: number
           poi_discovery_enabled?: boolean
           price_per_extra_15min_pence?: number
           primary_color?: string
