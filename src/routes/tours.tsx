@@ -3,6 +3,7 @@ import { Clock, MapPin, Plane, ArrowRight, Star, Users, ShieldCheck } from "luci
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero, SectionHeader } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
+import { TourBookingDialog } from "@/components/site/TourBookingDialog";
 import edinburghImg from "@/assets/edinburgh.jpg";
 import rosslynImg from "@/assets/tours/rosslyn.jpg";
 import stirlingImg from "@/assets/tours/stirling.jpg";
