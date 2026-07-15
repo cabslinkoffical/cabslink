@@ -173,6 +173,7 @@ export type Database = {
           booking_ref: string | null
           cancellation_reason: string | null
           child_seat: boolean
+          child_seat_count: number
           confirmation_token_expires_at: string | null
           confirmation_token_hash: string | null
           created_at: string
@@ -227,6 +228,7 @@ export type Database = {
           booking_ref?: string | null
           cancellation_reason?: string | null
           child_seat?: boolean
+          child_seat_count?: number
           confirmation_token_expires_at?: string | null
           confirmation_token_hash?: string | null
           created_at?: string
@@ -281,6 +283,7 @@ export type Database = {
           booking_ref?: string | null
           cancellation_reason?: string | null
           child_seat?: boolean
+          child_seat_count?: number
           confirmation_token_expires_at?: string | null
           confirmation_token_hash?: string | null
           created_at?: string
@@ -1169,6 +1172,7 @@ export type Database = {
           allowed_stop_duration_minutes: number[]
           business_address: string | null
           cancellation_policy: string | null
+          child_seat_fee_pence: number
           company_name: string
           contact_email: string | null
           contact_phone: string | null
@@ -1207,6 +1211,7 @@ export type Database = {
           allowed_stop_duration_minutes?: number[]
           business_address?: string | null
           cancellation_policy?: string | null
+          child_seat_fee_pence?: number
           company_name?: string
           contact_email?: string | null
           contact_phone?: string | null
@@ -1245,6 +1250,7 @@ export type Database = {
           allowed_stop_duration_minutes?: number[]
           business_address?: string | null
           cancellation_policy?: string | null
+          child_seat_fee_pence?: number
           company_name?: string
           contact_email?: string | null
           contact_phone?: string | null
