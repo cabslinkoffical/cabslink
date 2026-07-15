@@ -364,7 +364,7 @@ export const createBooking = createServerFn({ method: "POST" })
     // service classifier. Any mismatch → 409. Tour conversion without
     // an acknowledgement → 409.
     // ---------------------------------------------------------------
-    const hasTimedStops = data.stops.some((s) => (s.minutes ?? 0) > 0);
+    const hasTimedStops = data.stops.length > 0;
     let serverServiceType = "direct_transfer";
     let serverOriginalServiceType = "direct_transfer";
     let serverFingerprint: string | null = null;
