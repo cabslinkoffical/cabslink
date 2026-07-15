@@ -903,14 +903,33 @@ function DetailsStep({ pre, card, qty, scenicStops, routeMode, stopsFingerprint,
         <Field label="Full name" icon={<User className="size-4" />}><Input name="customer_name" required maxLength={100} /></Field>
         <Field label="Phone" icon={<Phone className="size-4" />}><Input name="phone" required maxLength={30} /></Field>
       </div>
-      <Field label="Email" icon={<Mail className="size-4" />}><Input name="email" type="email" required maxLength={255} /></Field>
-      <Field label="Flight number (optional)"><Input name="flight_number" maxLength={20} placeholder="e.g. BA1234" /></Field>
+      <div className="grid sm:grid-cols-2 gap-4">
+        <Field label="Email" icon={<Mail className="size-4" />}><Input name="email" type="email" required maxLength={255} /></Field>
+        <Field label="WhatsApp number (optional)" icon={<MessageSquare className="size-4" />}>
+          <Input name="whatsapp" maxLength={30} placeholder="e.g. +44 7700 900123" />
+        </Field>
+      </div>
+      <div className="grid sm:grid-cols-2 gap-4">
+        <Field label="Flight number (optional)"><Input name="flight_number" maxLength={20} placeholder="e.g. BA1234" /></Field>
+        <Field label="Child seats">
+          <Select value={String(childSeatCount)} onValueChange={(v) => setChildSeatCount(Number(v))}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {[0, 1, 2, 3, 4].map((n) => (
+                <SelectItem key={n} value={String(n)}>
+                  {n === 0 ? "None" : `${n} child seat${n === 1 ? "" : "s"}`}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Field>
+      </div>
 
-      <div className="grid sm:grid-cols-3 gap-3">
+      <div className="grid sm:grid-cols-2 gap-3">
         <Toggle label="Meet & greet" checked={meetGreet} onChange={setMeetGreet} />
-        <Toggle label="Child seat" checked={childSeat} onChange={setChildSeat} />
         <Toggle label="Return journey" checked={returnJourney} onChange={setReturnJourney} />
       </div>
+
 
       <Field label="Notes (optional)" icon={<MessageSquare className="size-4" />}>
         <Textarea name="notes" rows={4} maxLength={1000} placeholder="Anything our chauffeur should know" />
