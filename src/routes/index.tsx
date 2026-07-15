@@ -39,16 +39,29 @@ import coachAsset from "@/assets/fleet/coach.png.asset.json";
 import coasterAsset from "@/assets/fleet/coaster.png.asset.json";
 import { fleetThumbnailUrl } from "@/lib/fleet-image";
 
-const fallbackHeroVehicles = [
-  { key: "vclass", name: "Mercedes V-Class", tag: "First-class · 7 seats", img: vclassAsset.url, seats: 7 },
-  { key: "sclass", name: "Mercedes S-Class", tag: "Flagship saloon · 3 seats", img: sclassAsset.url, seats: 3 },
-  { key: "eclass", name: "Mercedes E-Class", tag: "Executive · 3 seats", img: eclassAsset.url, seats: 3 },
-  { key: "rangerover", name: "Range Rover", tag: "Luxury SUV · 4 seats", img: rangeroverAsset.url, seats: 4 },
-  { key: "rolls", name: "Rolls-Royce Bentley", tag: "Ultra-luxury · 3 seats", img: rollsAsset.url, seats: 3 },
-  { key: "minibus", name: "Executive Minibus", tag: "Groups · 16 seats", img: minibusAsset.url, seats: 16 },
-  { key: "coaster", name: "Coaster Bus", tag: "Mid-group · 24 seats", img: coasterAsset.url, seats: 24 },
-  { key: "coach", name: "Coach Bus", tag: "Large group · 55 seats", img: coachAsset.url, seats: 55 },
+type HeroVehicle = {
+  key: string;
+  name: string;
+  tag: string;
+  img: string;
+  srcSet?: string;
+  thumbnail?: string;
+  seats: number;
+};
+
+const fallbackHeroVehicles: HeroVehicle[] = [
+  { key: "vclass", name: "Mercedes V-Class", tag: "First-class · 7 seats", img: vclassAsset.url, srcSet: vclassAsset.srcSet, thumbnail: fleetThumbnailUrl(vclassAsset), seats: 7 },
+  { key: "sclass", name: "Mercedes S-Class", tag: "Flagship saloon · 3 seats", img: sclassAsset.url, srcSet: sclassAsset.srcSet, thumbnail: fleetThumbnailUrl(sclassAsset), seats: 3 },
+  { key: "eclass", name: "Mercedes E-Class", tag: "Executive · 3 seats", img: eclassAsset.url, srcSet: eclassAsset.srcSet, thumbnail: fleetThumbnailUrl(eclassAsset), seats: 3 },
+  { key: "rangerover", name: "Range Rover", tag: "Luxury SUV · 4 seats", img: rangeroverAsset.url, srcSet: rangeroverAsset.srcSet, thumbnail: fleetThumbnailUrl(rangeroverAsset), seats: 4 },
+  { key: "rolls", name: "Rolls-Royce Bentley", tag: "Ultra-luxury · 3 seats", img: rollsAsset.url, srcSet: rollsAsset.srcSet, thumbnail: fleetThumbnailUrl(rollsAsset), seats: 3 },
+  { key: "minibus", name: "Executive Minibus", tag: "Groups · 16 seats", img: minibusAsset.url, srcSet: minibusAsset.srcSet, thumbnail: fleetThumbnailUrl(minibusAsset), seats: 16 },
+  { key: "coaster", name: "Coaster Bus", tag: "Mid-group · 24 seats", img: coasterAsset.url, srcSet: coasterAsset.srcSet, thumbnail: fleetThumbnailUrl(coasterAsset), seats: 24 },
+  { key: "coach", name: "Coach Bus", tag: "Large group · 55 seats", img: coachAsset.url, srcSet: coachAsset.srcSet, thumbnail: fleetThumbnailUrl(coachAsset), seats: 55 },
 ];
+
+// Sizes value for the hero carousel image (right column, ~50vw on large screens).
+const HERO_VEHICLE_SIZES = "(max-width: 1024px) 92vw, 600px";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -60,7 +73,21 @@ export const Route = createFileRoute("/")({
       { property: "og:url", content: "/" },
       { property: "og:type", content: "website" },
     ],
-    links: [{ rel: "canonical", href: "/" }],
+    links: [
+      { rel: "canonical", href: "/" },
+      // Preload the initial LCP hero vehicle image (V-Class). `imagesrcset` +
+      // `imagesizes` let the browser pick the right responsive variant even
+      // for the preload; `fetchpriority` promotes it above other requests.
+      {
+        rel: "preload",
+        as: "image",
+        href: vclassAsset.url,
+        // @ts-expect-error - React types accept these attrs at runtime; TanStack Router links spread lowercase HTML attrs verbatim.
+        imagesrcset: vclassAsset.srcSet,
+        imagesizes: HERO_VEHICLE_SIZES,
+        fetchpriority: "high",
+      },
+    ],
   }),
   component: HomePage,
 });
