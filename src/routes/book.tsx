@@ -299,6 +299,7 @@ function BookPage() {
                       routeMode={routeMode}
                       stopsFingerprint={mq?.stops_fingerprint ?? null}
                       tourConversionAckAt={tourAckAt}
+                      childSeatFeePence={quoteQuery.data?.childSeatFeePence ?? 0}
                       onBack={() => setStep("vehicle")}
                       onSuccess={(token) => {
                         if (token) navigate({ to: "/booking/$token", params: { token } });
@@ -810,13 +811,14 @@ const detailsSchema = z.object({
 
 type ScenicStop = { place_id: string; label: string; minutes: number; category?: string | null };
 
-function DetailsStep({ pre, card, qty, scenicStops, routeMode, stopsFingerprint, tourConversionAckAt, onBack, onSuccess }:
+function DetailsStep({ pre, card, qty, scenicStops, routeMode, stopsFingerprint, tourConversionAckAt, childSeatFeePence, onBack, onSuccess }:
   {
     pre: Prefill; card: QuoteCard; qty: number;
     scenicStops: ScenicStop[];
     routeMode: "direct" | "scenic" | "optimised";
     stopsFingerprint: string | null;
     tourConversionAckAt: string | null;
+    childSeatFeePence: number;
     onBack: () => void; onSuccess: (token: string | null) => void;
   }) {
   const [meetGreet, setMeetGreet] = useState(true);
@@ -826,7 +828,9 @@ function DetailsStep({ pre, card, qty, scenicStops, routeMode, stopsFingerprint,
   const inflight = useRef(false);
   // One idempotency key per genuine submission attempt — regenerated on success.
   const idempotencyKey = useRef<string>(crypto.randomUUID());
-  const total = card.finalPrice * qty;
+  const seatFee = (childSeatFeePence / 100) * childSeatCount;
+  const rideTotal = card.finalPrice * qty;
+  const total = rideTotal + seatFee;
 
   const bookFn = useServerFn(createBooking);
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -873,6 +877,7 @@ function DetailsStep({ pre, card, qty, scenicStops, routeMode, stopsFingerprint,
             return parts.length ? parts.join("\n") : null;
           })(),
           child_seat: childSeatCount > 0,
+          child_seat_count: childSeatCount,
           meet_greet: meetGreet,
           return_journey: returnJourney,
         },
@@ -895,11 +900,17 @@ function DetailsStep({ pre, card, qty, scenicStops, routeMode, stopsFingerprint,
         <div className="flex-1">
           <p className="text-xs uppercase tracking-wider text-muted-foreground font-bold">Selected vehicle</p>
           <p className="font-display font-bold">{qty > 1 ? `${qty} × ${card.name}` : card.name}</p>
+          {childSeatCount > 0 && childSeatFeePence > 0 && (
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Ride £{rideTotal.toFixed(2)} + {childSeatCount} × £{(childSeatFeePence / 100).toFixed(2)} child seat
+            </p>
+          )}
         </div>
         <p className="font-display font-bold text-2xl">£{total.toFixed(2)}</p>
       </div>
 
       <div className="grid sm:grid-cols-2 gap-4">
+
         <Field label="Full name" icon={<User className="size-4" />}><Input name="customer_name" required maxLength={100} /></Field>
         <Field label="Phone" icon={<Phone className="size-4" />}><Input name="phone" required maxLength={30} /></Field>
       </div>
@@ -911,7 +922,7 @@ function DetailsStep({ pre, card, qty, scenicStops, routeMode, stopsFingerprint,
       </div>
       <div className="grid sm:grid-cols-2 gap-4">
         <Field label="Flight number (optional)"><Input name="flight_number" maxLength={20} placeholder="e.g. BA1234" /></Field>
-        <Field label="Child seats">
+        <Field label={childSeatFeePence > 0 ? `Child seats (£${(childSeatFeePence / 100).toFixed(2)} each)` : "Child seats"}>
           <Select value={String(childSeatCount)} onValueChange={(v) => setChildSeatCount(Number(v))}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>

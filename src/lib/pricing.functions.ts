@@ -197,6 +197,7 @@ export const calculateQuotes = createServerFn({ method: "POST" })
       distanceMiles: auth.distanceMiles,
       durationMinutes: auth.durationMinutes,
       quotes: cards,
+      childSeatFeePence: auth.settings.childSeatFeePence,
     };
   });
 
@@ -234,6 +235,7 @@ const createBookingInput = z
     flight_number: z.string().trim().max(20).optional().nullable(),
     notes: z.string().trim().max(1000).optional().nullable(),
     child_seat: z.boolean().optional().default(false),
+    child_seat_count: z.number().int().min(0).max(10).optional().default(0),
     meet_greet: z.boolean().optional().default(false),
     return_journey: z.boolean().optional().default(false),
   })
@@ -271,6 +273,7 @@ export const createBooking = createServerFn({ method: "POST" })
       returnJourney: !!data.return_journey,
       meetGreet: !!data.meet_greet,
       childSeat: !!data.child_seat,
+      childSeatCount: data.child_seat_count ?? 0,
     });
 
     // Idempotency: return existing booking ONLY if the request fingerprint
@@ -347,6 +350,12 @@ export const createBooking = createServerFn({ method: "POST" })
     let price = q.finalTotal;
     const pricingSnapshot = q.snapshot;
     const pricingProfileIdSnapshot = q.profileId;
+
+    // Child seat fee — configurable per seat, added on top of the vehicle total.
+    const childSeatCount = Math.max(0, data.child_seat_count ?? 0);
+    const childSeatFee = childSeatCount > 0
+      ? Number(((auth.settings.childSeatFeePence * childSeatCount) / 100).toFixed(2))
+      : 0;
 
     // ---------------------------------------------------------------
     // Multi-stop / scenic verification.
@@ -438,6 +447,12 @@ export const createBooking = createServerFn({ method: "POST" })
       }
     }
 
+    // Add child seat fee last so it applies whether the ride is a direct
+    // transfer or a scenic/multi-stop recompute.
+    if (childSeatFee > 0) {
+      price = Number((price + childSeatFee).toFixed(2));
+    }
+
     const notesWithQty = qty > 1
       ? `Vehicles: ${qty} × ${profile.vehicle.name}${data.notes ? `\n\n${data.notes}` : ""}`
       : data.notes || null;
@@ -480,7 +495,8 @@ export const createBooking = createServerFn({ method: "POST" })
       pricing_profile_id_snapshot: pricingProfileIdSnapshot,
       pricing_snapshot: pricingSnapshot,
       engine_version: ENGINE_VERSION,
-      child_seat: !!data.child_seat,
+      child_seat: !!data.child_seat || childSeatCount > 0,
+      child_seat_count: childSeatCount,
       meet_greet: !!data.meet_greet,
       return_journey: !!data.return_journey,
       notes: notesWithQty,
