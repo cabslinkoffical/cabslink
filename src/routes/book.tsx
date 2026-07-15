@@ -724,11 +724,17 @@ function VehicleCard({ card, best, qty, minQty, priceUpdating, disabled, disable
               <Feature icon={<UserCheck className="size-3.5" />}>Pro Driver</Feature>
             </ul>
           </div>
+          {minQty > 1 && (
+            <div className="mt-4 rounded-lg border border-amber-400/50 bg-amber-50 dark:bg-amber-950/20 px-3 py-2 text-[12px] text-amber-900 dark:text-amber-200 leading-snug">
+              This vehicle fits {card.passengers} passenger{card.passengers === 1 ? "" : "s"} &amp; {card.luggage} bag{card.luggage === 1 ? "" : "s"}. You&apos;ll need <span className="font-bold">{minQty} vehicles</span> for your party — set the quantity below to continue.
+            </div>
+          )}
           <p className="mt-5 text-[9px] font-mono uppercase tracking-[0.3em] text-muted-foreground/70">
             No. {serial} · Cabslink Pass
           </p>
         </div>
       </div>
+
 
       <div className="relative hidden md:flex flex-col items-center justify-center px-1">
         <div className="absolute -top-3 w-6 h-6 rounded-full bg-[var(--surface)]"></div>
