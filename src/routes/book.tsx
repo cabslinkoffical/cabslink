@@ -447,7 +447,7 @@ function Sidebar({ pre, onEdit, route }: {
   route: { miles: number; minutes: number } | null;
 }) {
   return (
-    <aside className="space-y-4 lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto lg:pr-1 [scrollbar-width:thin]">
+    <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
       <div className="relative bg-card rounded-2xl border border-border p-6 shadow-[0_10px_40px_-20px_rgba(14,24,44,0.25)] overflow-hidden">
         <div className="absolute -top-16 -right-16 size-40 rounded-full bg-[var(--gold)]/10 blur-2xl" aria-hidden />
         <div className="relative flex items-center justify-between mb-5">
