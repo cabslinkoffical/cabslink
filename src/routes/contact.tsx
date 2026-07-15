@@ -37,6 +37,7 @@ const schema = z.object({
 
 function ContactPage() {
   const [loading, setLoading] = useState(false);
+  const [phone, setPhone] = useState("");
   const inflight = useRef(false);
   const submit = useServerFn(submitContactMessage);
 
