@@ -820,7 +820,7 @@ function DetailsStep({ pre, card, qty, scenicStops, routeMode, stopsFingerprint,
     onBack: () => void; onSuccess: (token: string | null) => void;
   }) {
   const [meetGreet, setMeetGreet] = useState(true);
-  const [childSeat, setChildSeat] = useState(false);
+  const [childSeatCount, setChildSeatCount] = useState(0);
   const [returnJourney, setReturnJourney] = useState(pre.ret);
   const [loading, setLoading] = useState(false);
   const inflight = useRef(false);
