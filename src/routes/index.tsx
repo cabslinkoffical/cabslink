@@ -453,17 +453,44 @@ function HomePage() {
 
         <div className="container-x relative">
           <div className="max-w-2xl">
-            <p className="text-[11px] font-bold uppercase tracking-[0.35em] text-[var(--gold)]">Private Chauffeured Tours</p>
-            <h2 className="mt-3 font-display text-4xl md:text-5xl lg:text-6xl leading-[1.05] font-bold">
+            <p className="text-[10px] md:text-[11px] font-bold uppercase tracking-[0.3em] md:tracking-[0.35em] text-[var(--gold)]">Private Chauffeured Tours</p>
+            <h2 className="mt-3 font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl leading-[1.05] font-bold">
               Trace the map. <span className="text-[var(--gold)]">Skip the queue.</span>
             </h2>
-            <p className="mt-5 text-white/75 leading-relaxed md:text-lg">
+            <p className="mt-4 md:mt-5 text-sm sm:text-base md:text-lg text-white/75 leading-relaxed">
               From Edinburgh's Old Town to Highland lochs and the Lake District — hand-crafted day trips and multi-day journeys in a private chauffeured car.
             </p>
           </div>
 
-          {/* Animated route line + destination stamps */}
-          <div className="relative mt-14 md:mt-20">
+          {/* MOBILE — vertical route timeline */}
+          <div className="mt-10 md:hidden">
+            <ol className="relative">
+              <span aria-hidden className="absolute left-[19px] top-2 bottom-2 w-px bg-gradient-to-b from-[var(--gold)]/10 via-[var(--gold)]/60 to-[var(--gold)]/10" />
+              {[
+                { name: "Edinburgh", tag: "Old Town · Castle", mi: "0 mi" },
+                { name: "Loch Lomond", tag: "Trossachs escape", mi: "72 mi" },
+                { name: "Isle of Skye", tag: "Highland classic", mi: "220 mi" },
+                { name: "Lake District", tag: "England border trip", mi: "145 mi" },
+              ].map((d, i) => (
+                <li key={d.name} className="relative flex gap-4 pb-5 last:pb-0">
+                  <div className="relative z-10 grid size-10 shrink-0 place-items-center rounded-full border border-[var(--gold)]/40 bg-[var(--navy)] text-[var(--gold)]">
+                    <MapPin className="size-4" />
+                  </div>
+                  <div className="min-w-0 flex-1 rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur px-4 py-3.5">
+                    <div className="flex items-center justify-between gap-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--gold)]">
+                      <span>Stop {String(i + 1).padStart(2, "0")}</span>
+                      <span className="text-white/50">{d.mi}</span>
+                    </div>
+                    <h3 className="mt-1.5 font-display text-lg font-bold leading-tight truncate">{d.name}</h3>
+                    <p className="mt-0.5 text-xs text-white/60 truncate">{d.tag}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+
+          {/* TABLET/DESKTOP — animated route reel */}
+          <div className="relative mt-14 md:mt-20 hidden md:block">
             <svg aria-hidden viewBox="0 0 1200 220" preserveAspectRatio="none" className="w-full h-40 md:h-52">
               <defs>
                 <linearGradient id="tourRouteGrad" x1="0" x2="1" y1="0" y2="0">
@@ -501,19 +528,19 @@ function HomePage() {
             </div>
           </div>
 
-          <div className="mt-14 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 rounded-3xl border border-[var(--gold)]/25 bg-white/[0.03] backdrop-blur p-6 md:p-8">
-            <div className="flex items-start gap-4 max-w-xl">
-              <div className="grid size-12 place-items-center rounded-2xl bg-[var(--gold)] text-[var(--gold-foreground)] shrink-0">
-                <GraduationCap className="size-6" />
+          <div className="mt-10 md:mt-14 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-5 md:gap-6 rounded-2xl md:rounded-3xl border border-[var(--gold)]/25 bg-white/[0.03] backdrop-blur p-5 md:p-8">
+            <div className="flex items-start gap-3 md:gap-4 max-w-xl">
+              <div className="grid size-10 md:size-12 place-items-center rounded-xl md:rounded-2xl bg-[var(--gold)] text-[var(--gold-foreground)] shrink-0">
+                <GraduationCap className="size-5 md:size-6" />
               </div>
-              <div>
+              <div className="min-w-0">
                 <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)]">Bespoke itineraries</p>
-                <p className="mt-1 text-white/85 leading-relaxed">
+                <p className="mt-1 text-sm md:text-base text-white/85 leading-relaxed">
                   Every tour is tailored — pick destinations, timing and pace. We arrange the car, driver, hotels and restaurants.
                 </p>
               </div>
             </div>
-            <Button asChild variant="gold" size="lg" className="rounded-full shrink-0 shadow-[var(--shadow-glow)]">
+            <Button asChild variant="gold" size="lg" className="rounded-full w-full md:w-auto md:shrink-0 shadow-[var(--shadow-glow)]">
               <Link to="/tours">Explore private tours <ArrowRight className="size-4" /></Link>
             </Button>
           </div>
