@@ -234,7 +234,7 @@ const vehicleSchema = z.object({
   category: z.string().min(1).max(80),
   tbms_id: z.string().nullable().optional(),
   vehicle_class: z.enum(["economy", "business", "first", "executive_v", "executive_van_8", "green"]).nullable().optional(),
-  image_url: z.string().url().max(1000),
+  image_url: z.string().min(1).max(2000),
   description: z.string().max(2000).default(""),
   passengers: z.number().int().min(1).max(99),
   luggage: z.number().int().min(0).max(99),
