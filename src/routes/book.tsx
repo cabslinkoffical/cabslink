@@ -256,7 +256,7 @@ function BookPage() {
                   route={quoteQuery.data ? { miles: quoteQuery.data.distanceMiles, minutes: quoteQuery.data.durationMinutes } : null}
                 />
                 <div className="min-w-0 space-y-6">
-                  {step === "vehicle" && (
+                  {step === "stops" && (
                     <>
                       <ScenicPoiPanel
                         template={poisQuery.data?.template ?? null}
@@ -280,6 +280,35 @@ function BookPage() {
                           onAck={() => setTourAckAt(new Date().toISOString())}
                         />
                       )}
+                      <div className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-card p-4">
+                        <div className="text-sm text-muted-foreground">
+                          {orderedSelected.length === 0
+                            ? "No stops added — you can continue with a direct transfer."
+                            : `${orderedSelected.length} stop${orderedSelected.length === 1 ? "" : "s"} added to your route.`}
+                        </div>
+                        <Button
+                          variant="gold"
+                          onClick={() => setStep("vehicle")}
+                          disabled={needsAck}
+                          className="rounded-full"
+                        >
+                          Continue to vehicle <ArrowRight className="ml-2 size-4" />
+                        </Button>
+                      </div>
+                    </>
+                  )}
+                  {step === "vehicle" && (
+                    <>
+                      <div className="flex items-center justify-between">
+                        <Button variant="outline" className="rounded-full" onClick={() => setStep("stops")}>
+                          <ArrowLeft className="mr-2 size-4" /> Back to stops
+                        </Button>
+                        {orderedSelected.length > 0 && (
+                          <span className="text-xs text-muted-foreground">
+                            {orderedSelected.length} stop{orderedSelected.length === 1 ? "" : "s"} selected
+                          </span>
+                        )}
+                      </div>
                       <VehicleStep
                         pre={pre}
                         data={quoteQuery.data}
