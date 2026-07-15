@@ -873,6 +873,7 @@ function DetailsStep({ pre, card, qty, scenicStops, routeMode, stopsFingerprint,
             return parts.length ? parts.join("\n") : null;
           })(),
           child_seat: childSeatCount > 0,
+          child_seat_count: childSeatCount,
           meet_greet: meetGreet,
           return_journey: returnJourney,
         },
