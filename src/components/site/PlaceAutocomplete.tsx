@@ -22,9 +22,9 @@ type Props = {
   inputClassName?: string;
 };
 
-const DEBOUNCE_MS = 300;
+const DEBOUNCE_MS = 250;
 const MIN_CHARS = 2;
-const REQUEST_TIMEOUT_MS = 8_000;
+const REQUEST_TIMEOUT_MS = 4_000;
 
 function normalizeQuery(q: string) {
   return q.trim().replace(/\s+/g, " ").toLowerCase();
@@ -126,7 +126,7 @@ export function PlaceAutocomplete({
       }
     }, DEBOUNCE_MS);
     return () => clearTimeout(t);
-  }, [text, sessionToken, mode, call, value, suggestions.length]);
+  }, [text, sessionToken, mode]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     function onDoc(e: MouseEvent) {

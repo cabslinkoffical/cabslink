@@ -55,7 +55,7 @@ function cacheKey(d: z.infer<typeof acInput>) {
 }
 
 export const placesAutocomplete = createServerFn({ method: "POST" })
-  .inputValidator((data: z.infer<typeof acInput>) => acInput.parse(data))
+  .validator((data: z.infer<typeof acInput>) => acInput.parse(data))
   .handler(async ({ data }) => {
     // Per-IP sliding-window rate limit: 60 queries / minute.
     let ip = "unknown";
