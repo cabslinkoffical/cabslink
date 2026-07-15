@@ -587,6 +587,28 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect, multiQuot
     }
     return m;
   }, [multiQuote]);
+
+  // Per-vehicle minimum qty to satisfy passenger + luggage requirements.
+  const minQtyFor = (v: { passengers: number; luggage: number }) => {
+    const paxNeed = Math.max(1, pre.passengers);
+    const lugNeed = Math.max(0, pre.luggage);
+    const paxQty = v.passengers > 0 ? Math.ceil(paxNeed / v.passengers) : 1;
+    const lugQty = v.luggage > 0 ? Math.ceil(lugNeed / v.luggage) : (lugNeed > 0 ? 99 : 1);
+    return Math.max(1, paxQty, lugQty);
+  };
+
+  // Suitable at qty=1 first (real "best value"), then by price ascending.
+  const orderedQuotes = useMemo(() => {
+    if (!data?.quotes) return [];
+    return [...data.quotes].sort((a, b) => {
+      const aFits = minQtyFor(a) <= 1 ? 0 : 1;
+      const bFits = minQtyFor(b) <= 1 ? 0 : 1;
+      if (aFits !== bFits) return aFits - bFits;
+      return a.finalPrice - b.finalPrice;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data?.quotes, pre.passengers, pre.luggage]);
+
   return (
     <div>
       <div className="mb-6 flex items-end justify-between flex-wrap gap-3">
@@ -604,7 +626,7 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect, multiQuot
         {data && (
           <div className="inline-flex items-center gap-2 bg-[var(--navy)] text-[var(--navy-foreground)] rounded-full px-4 py-2 text-xs font-bold uppercase tracking-widest">
             <BadgeCheck className="size-3.5 text-[var(--gold)]" />
-            {data.quotes.length} vehicles available
+            {orderedQuotes.length} vehicles available
           </div>
         )}
       </div>
@@ -623,28 +645,35 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect, multiQuot
         )}
         {data?.quotes.length === 0 && (
           <div className="bg-card rounded-2xl border border-border p-10 text-center text-sm text-muted-foreground">
-            No vehicles match these passenger / luggage requirements.
+            No vehicles are currently available.
           </div>
         )}
-        {data?.quotes.map((q, i) => {
-          const qty = qtyMap[q.vehicleId] ?? 1;
+        {orderedQuotes.map((q, i) => {
+          const minQty = minQtyFor(q);
+          const qty = qtyMap[q.vehicleId] ?? minQty;
           const override = priceByVehicle.get(q.vehicleId);
           const effective: QuoteCard = override !== undefined
             ? { ...q, finalPrice: override }
             : q;
+          const capacityShort = qty < minQty;
+          const reason = capacityShort
+            ? `This vehicle seats ${q.passengers} passengers and ${q.luggage} luggage. Select at least ${minQty} vehicles to fit ${pre.passengers} passenger${pre.passengers === 1 ? "" : "s"}${pre.luggage ? ` and ${pre.luggage} bag${pre.luggage === 1 ? "" : "s"}` : ""}.`
+            : bookingDisabledReason ?? null;
           return (
-            <VehicleCard key={q.vehicleId} card={effective} best={i === 0} qty={qty}
+            <VehicleCard key={q.vehicleId} card={effective} best={i === 0 && minQtyFor(q) <= 1} qty={qty}
+              minQty={minQty}
               priceUpdating={hasStops && multiLoading}
-              disabled={!!bookingDisabled}
-              disabledReason={bookingDisabledReason ?? null}
+              disabled={!!bookingDisabled || capacityShort}
+              disabledReason={reason}
               onQtyChange={(n) => setQtyMap((m) => ({ ...m, [q.vehicleId]: n }))}
-              onSelect={() => { if (!bookingDisabled) onSelect(effective, qty); }} />
+              onSelect={() => { if (!bookingDisabled && !capacityShort) onSelect(effective, qty); }} />
           );
         })}
       </div>
     </div>
   );
 }
+
 
 function VehicleCard({ card, best, qty, priceUpdating, disabled, disabledReason, onQtyChange, onSelect }: {
   card: QuoteCard; best: boolean; qty: number; priceUpdating?: boolean;
