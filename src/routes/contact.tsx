@@ -68,6 +68,7 @@ function ContactPage() {
       });
       toast.success("Message sent — we'll respond shortly.");
       (e.currentTarget as HTMLFormElement).reset();
+      setPhone("");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not send. Please try again.");
     } finally {
