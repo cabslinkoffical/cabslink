@@ -345,21 +345,23 @@ function HomePage() {
 
                 {/* Sliding vehicle stage */}
                 <div className="relative aspect-[16/10] overflow-hidden">
-                  <img
-                    key={current.key}
-                    src={current.img}
-                    srcSet={current.srcSet}
-                    sizes={HERO_VEHICLE_SIZES}
-                    alt={`${current.name} — chauffeur vehicle`}
-                    width={1200}
-                    height={750}
-                    decoding="async"
-                    fetchPriority={active === 0 ? "high" : "auto"}
-                    className="absolute inset-0 m-auto w-[92%] h-full object-contain drop-shadow-[0_35px_45px_rgba(14,24,44,0.28)]"
-                    style={{
-                      animation: `${dir === 1 ? "vehicleSlideInR" : "vehicleSlideInL"} 850ms cubic-bezier(.2,.7,.2,1) both`,
-                    }}
-                  />
+                  {current && (
+                    <img
+                      key={current.key}
+                      src={current.img}
+                      srcSet={current.srcSet}
+                      sizes={HERO_VEHICLE_SIZES}
+                      alt={`${current.name} — chauffeur vehicle`}
+                      width={1200}
+                      height={750}
+                      decoding="async"
+                      fetchPriority={active === 0 ? "high" : "auto"}
+                      className="absolute inset-0 m-auto w-[92%] h-full object-contain drop-shadow-[0_35px_45px_rgba(14,24,44,0.28)]"
+                      style={{
+                        animation: `${dir === 1 ? "vehicleSlideInR" : "vehicleSlideInL"} 850ms cubic-bezier(.2,.7,.2,1) both`,
+                      }}
+                    />
+                  )}
                 </div>
 
 
