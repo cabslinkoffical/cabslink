@@ -160,15 +160,20 @@ function BookPage() {
   const [submitting, setSubmitting] = useState(false);
   const inflight = useRef(false);
   const idempotencyKey = useRef<string>(crypto.randomUUID());
+  const didHydrateRef = useRef(false);
 
   const hasValidRoute = !!pre.pickup?.placeId && !!pre.dropoff?.placeId
     && pre.pickup.placeId !== pre.dropoff.placeId;
 
-  // Hydrate wizard from session-stored draft when URL has no query yet.
+  // Hydrate wizard from session-stored draft — one-shot, URL always wins.
   useEffect(() => {
-    if (q) return;
+    if (didHydrateRef.current) return;
+    didHydrateRef.current = true;
+    if (q) return; // Fresh URL data beats older draft.
     const d = loadDraft();
     if (!d) return;
+    // Reject drafts with identical pickup/dropoff (sanitize).
+    if (d.pickupPlaceId && d.dropoffPlaceId && d.pickupPlaceId === d.dropoffPlaceId) return;
     const next: Prefill = {
       pickup: d.pickupPlaceId && d.pickupLabel ? { placeId: d.pickupPlaceId, label: d.pickupLabel } : null,
       dropoff: d.dropoffPlaceId && d.dropoffLabel ? { placeId: d.dropoffPlaceId, label: d.dropoffLabel } : null,
@@ -188,7 +193,7 @@ function BookPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Persist draft (input fields only — never PII/notes/tokens).
+  // Persist draft (input fields only — never PII/notes/tokens/prices).
   useEffect(() => {
     saveDraft({
       pickupPlaceId: pre.pickup?.placeId,
@@ -201,10 +206,27 @@ function BookPage() {
       passengers: pre.passengers,
       luggage: pre.luggage,
       vehicleSlug: chosen?.vehicleId,
+      step,
+      selectedStops,
+      meetGreet,
+      childSeatCount,
+      routeMode,
       returnJourney: { enabled: returnJourney, date: pre.rdate, time: pre.rtime },
     });
-  }, [q, chosen?.vehicleId, returnJourney, pre.date, pre.time, pre.passengers, pre.luggage, pre.pickup?.placeId, pre.dropoff?.placeId, pre.rdate, pre.rtime, pre.pickup?.label, pre.dropoff?.label, pre.stops]);
+  }, [q, chosen?.vehicleId, step, selectedStops, meetGreet, childSeatCount, routeMode, returnJourney, pre.date, pre.time, pre.passengers, pre.luggage, pre.pickup?.placeId, pre.dropoff?.placeId, pre.rdate, pre.rtime, pre.pickup?.label, pre.dropoff?.label, pre.stops]);
 
+  const startAgain = () => {
+    clearDraft();
+    setChosen(null);
+    setStep("vehicle");
+    setSelectedStops({});
+    setMeetGreet(true);
+    setChildSeatCount(0);
+    setRouteMode("scenic");
+    setReturnJourney(false);
+    setContact(emptyContact);
+    navigate({ search: { q: "" }, replace: true });
+  };
 
   const applyEdit = (next: Prefill) => {
     setChosen(null);
@@ -212,6 +234,8 @@ function BookPage() {
     navigate({ search: { q: encodePrefill(next) }, replace: true });
     setEditOpen(false);
   };
+
+
 
   const quoteFn = useServerFn(calculateQuotes);
   const quoteQuery = useQuery({
