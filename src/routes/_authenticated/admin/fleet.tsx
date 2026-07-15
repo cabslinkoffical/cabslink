@@ -60,8 +60,6 @@ function FleetPage() {
   function openEdit(v: any) { setForm({ ...emptyVehicle, ...v }); }
   function close() { setForm(null); }
 
-  async function handleImageUpload(file: File) {
-    if (!file) return;
   async function handleImageUpload(input: File) {
     if (!input) return;
     if (!input.type.startsWith("image/")) { toast.error("Please select an image file"); return; }
