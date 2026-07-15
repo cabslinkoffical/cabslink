@@ -21,6 +21,7 @@ export type BookingFingerprintInput = {
   returnJourney: boolean;
   meetGreet: boolean;
   childSeat: boolean;
+  childSeatCount?: number;
 };
 
 function norm(s: string) {
