@@ -803,6 +803,7 @@ const detailsSchema = z.object({
   customer_name: z.string().trim().min(2).max(100),
   email: z.string().trim().email().max(255),
   phone: z.string().trim().min(6).max(30),
+  whatsapp: z.string().trim().max(30).optional().or(z.literal("")),
   flight_number: z.string().trim().max(20).optional().or(z.literal("")),
   notes: z.string().trim().max(1000).optional().or(z.literal("")),
 });
