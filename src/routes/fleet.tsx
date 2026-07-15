@@ -7,15 +7,6 @@ import { Reveal } from "@/components/site/Reveal";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 
-import rollsAsset from "@/assets/fleet/rolls.png.asset.json";
-import sclassAsset from "@/assets/fleet/sclass.png.asset.json";
-import eclassAsset from "@/assets/fleet/eclass.png.asset.json";
-import vclassAsset from "@/assets/fleet/vclass.png.asset.json";
-import minibusAsset from "@/assets/fleet/minibus.png.asset.json";
-import rangeRoverAsset from "@/assets/fleet/rangerover.png.asset.json";
-import coasterAsset from "@/assets/fleet/coaster.png.asset.json";
-import coachAsset from "@/assets/fleet/coach.png.asset.json";
-
 export const Route = createFileRoute("/fleet")({
   head: () => ({
     meta: [
@@ -23,7 +14,6 @@ export const Route = createFileRoute("/fleet")({
       { name: "description", content: "From the Mercedes-Benz S-Class and Rolls-Royce Bentley to V-Class people carriers, 16-seat minibuses and 55-seat coaches — Cabslink runs a modern, fully insured chauffeur fleet across the UK." },
       { property: "og:title", content: "Our Fleet — Cabslink Luxury Chauffeur Vehicles" },
       { property: "og:url", content: "/fleet" },
-      { property: "og:image", content: vclassAsset.url },
     ],
     links: [{ rel: "canonical", href: "/fleet" }],
   }),
@@ -42,66 +32,6 @@ type Vehicle = {
   desc: string;
   featured?: boolean;
 };
-
-const fleet: Vehicle[] = [
-  {
-    name: "Rolls-Royce Bentley",
-    note: "Ultra-luxury",
-    image: rollsAsset.url,
-    pax: 3, lug: 2, hand: 2,
-    desc: "The ultimate VIP statement. Handcrafted interiors, whisper-quiet ride and a uniformed chauffeur for weddings, premieres and special occasions.",
-    featured: true,
-  },
-  {
-    name: "Mercedes-Benz S-Class",
-    note: "Executive flagship",
-    image: sclassAsset.url,
-    pax: 4, lug: 2, hand: 1,
-    desc: "The benchmark in business travel — Nappa leather, climate-controlled rear cabin and effortless airport-to-meeting comfort.",
-  },
-  {
-    name: "Mercedes-Benz E-Class",
-    note: "Business class",
-    image: eclassAsset.url,
-    pax: 3, lug: 2, hand: 2,
-    desc: "Refined executive saloon for individuals and small groups — quiet, comfortable and impeccably presented.",
-  },
-  {
-    name: "Mercedes-Benz V-Class",
-    note: "Signature people carrier",
-    image: vclassAsset.url,
-    pax: 8, lug: 6, hand: 2,
-    desc: "Our signature 8-seater — captain seats, privacy glass and generous luggage space for families and corporate groups.",
-  },
-  {
-    name: "Range Rover",
-    note: "Luxury SUV",
-    image: rangeRoverAsset.url,
-    pax: 4, lug: 3, hand: 2,
-    desc: "Commanding presence and supreme comfort — the discreet luxury SUV for VIPs, security details and country journeys.",
-  },
-  {
-    name: "Mini Bus (16-seater)",
-    note: "Group travel",
-    image: minibusAsset.url,
-    pax: 16, lug: 16, hand: 16,
-    desc: "Modern 16-seat minibus for corporate groups, weddings, sports teams and airport runs with full luggage capacity.",
-  },
-  {
-    name: "Coaster Bus (24-seater)",
-    note: "Mid-size group",
-    image: coasterAsset.url,
-    pax: 24, lug: 24, hand: 20,
-    desc: "Comfortable 24-seat coaster for tours, conferences and event shuttles — air-conditioned with ample storage.",
-  },
-  {
-    name: "Coach Bus (55-seater)",
-    note: "Large groups & tours",
-    image: coachAsset.url,
-    pax: 55, lug: 55, hand: 30,
-    desc: "Full-size 55-seat coach for tours, weddings and corporate events — premium seating, climate control and on-board luggage hold.",
-  },
-];
 
 function FleetPage() {
   const [dbFleet, setDbFleet] = useState<Vehicle[]>([]);
@@ -162,7 +92,7 @@ function FleetPage() {
         breadcrumbs={[{ label: "Home", to: "/" }, { label: "Fleet" }]}
       />
 
-      {/* V-CLASS HERO */}
+      {/* FEATURED HERO */}
       {hero && (
         <section className="section-y">
           <div className="container-x grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
@@ -209,7 +139,7 @@ function FleetPage() {
           ) : activeFleet.length > 0 ? (
             <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {activeFleet.map((f, i) => (
-              <Reveal key={f.name} delay={i * 80}>
+              <Reveal key={f.id ?? f.name} delay={i * 80}>
                 <div className={`rounded-3xl border bg-card overflow-hidden hover:-translate-y-1 hover:shadow-[var(--shadow-elegant)] transition h-full flex flex-col ${f.featured ? "border-[var(--gold)]" : "border-border"}`}>
                   <div className="relative h-52 overflow-hidden bg-[var(--surface)] flex items-center justify-center p-4">
                     <img src={f.image} alt={`${f.name} chauffeur vehicle`} loading="lazy" width={1200} height={800} className="size-full object-contain" />
