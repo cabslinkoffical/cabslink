@@ -1,13 +1,13 @@
-// vite-imagetools query-string imports
-declare module "*&as=srcset" {
+// vite-imagetools query-string imports for jpg/png sources.
+declare module "*.jpg?*" {
   const src: string;
   export default src;
 }
-declare module "*?*format=webp*" {
+declare module "*.jpeg?*" {
   const src: string;
   export default src;
 }
-declare module "*?*format=avif*" {
+declare module "*.png?*" {
   const src: string;
   export default src;
 }
