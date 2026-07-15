@@ -36,7 +36,11 @@ function Page() {
 
   return (
     <div className="p-6 md:p-8 space-y-6">
-      <PageHeader title="Website Content" description="Editable copy blocks rendered on the public site. Use snake_case keys.">
+      <div className="rounded-lg border border-amber-500/50 bg-amber-500/10 p-3 text-xs text-foreground">
+        <strong>Experimental —</strong> content blocks are stored but not currently rendered on any public page.
+        Editing here has no effect on the live site. Hidden from the sidebar.
+      </div>
+      <PageHeader title="Website Content" description="Editable copy blocks. Not currently wired to public routes.">
         <Button onClick={() => setForm({ ...empty })}><Plus className="size-4 mr-1" /> New block</Button>
       </PageHeader>
 
