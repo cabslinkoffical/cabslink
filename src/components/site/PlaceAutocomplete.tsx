@@ -126,7 +126,7 @@ export function PlaceAutocomplete({
       }
     }, DEBOUNCE_MS);
     return () => clearTimeout(t);
-  }, [text, sessionToken, mode, call, value, suggestions.length]);
+  }, [text, sessionToken, mode]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     function onDoc(e: MouseEvent) {
