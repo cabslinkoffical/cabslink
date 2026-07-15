@@ -110,7 +110,8 @@ function encodePrefill(pre: Prefill): string {
   return p.toString();
 }
 
-type Step = "vehicle" | "details" | "review";
+type Step = "vehicle" | "policy" | "details" | "review";
+type Policy = "non_refundable" | "standard" | "flexible";
 
 function BookPage() {
   const { q } = Route.useSearch();
@@ -119,9 +120,9 @@ function BookPage() {
   const [step, setStep] = useState<Step>("vehicle");
   const [chosen, setChosen] = useState<QuoteCard | null>(null);
   const [qty, setQty] = useState<number>(1);
+  const [policy, setPolicy] = useState<Policy>("standard");
   const [editOpen, setEditOpen] = useState(false);
-  // Selected POI stops (place_id -> minutes). Order determined by the curated
-  // template order (poisQuery result).
+  // Selected POI stops (place_id -> minutes).
   const [selectedStops, setSelectedStops] = useState<Record<string, number>>({});
   const [routeMode, setRouteMode] = useState<"direct" | "scenic" | "optimised">("scenic");
   const [tourAckAt, setTourAckAt] = useState<string | null>(null);
