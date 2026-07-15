@@ -16,6 +16,7 @@ import { Plus, Edit, Trash2, Upload, Loader2, X, ChevronDown, Users, Briefcase, 
 import { toast } from "sonner";
 import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
 import { supabase } from "@/integrations/supabase/client";
+import { optimizeImage, getOptimizeSpeed, setOptimizeSpeed, type OptimizeSpeed } from "@/lib/optimize-image";
 
 const opts = queryOptions({ queryKey: ["admin", "vehicles"], queryFn: () => listVehiclesAdmin() });
 export const Route = createFileRoute("/_authenticated/admin/fleet")({
