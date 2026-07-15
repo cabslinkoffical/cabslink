@@ -992,7 +992,7 @@ function ContactStep({ contact, onChange, onBack, onNext }: {
           <Input value={contact.customer_name} onChange={(e) => set("customer_name", e.target.value)} required maxLength={100} />
         </Field>
         <Field label="Phone" icon={<Phone className="size-4" />}>
-          <Input value={contact.phone} onChange={(e) => set("phone", e.target.value)} required maxLength={30} />
+          <PhoneInput value={contact.phone} onChange={(v) => set("phone", v)} required />
         </Field>
       </div>
       <div className="grid sm:grid-cols-2 gap-4">
