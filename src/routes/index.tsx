@@ -173,10 +173,10 @@ function HomePage() {
   }, []);
 
 
-  const heroVehicles = useMemo(() => dbVehicles ?? fallbackHeroVehicles, [dbVehicles]);
+  const heroVehicles = useMemo(() => dbVehicles ?? [], [dbVehicles]);
 
   useEffect(() => {
-    if (paused) return;
+    if (paused || heroVehicles.length === 0) return;
     const id = setInterval(() => {
       setDir(1);
       setActive((i) => (i + 1) % heroVehicles.length);
@@ -185,15 +185,16 @@ function HomePage() {
   }, [paused, heroVehicles.length]);
 
   useEffect(() => {
-    if (active >= heroVehicles.length) setActive(0);
+    if (heroVehicles.length > 0 && active >= heroVehicles.length) setActive(0);
   }, [heroVehicles.length, active]);
 
   const go = (next: number) => {
+    if (heroVehicles.length === 0) return;
     setDir(next > active || (active === heroVehicles.length - 1 && next === 0) ? 1 : -1);
     setActive((next + heroVehicles.length) % heroVehicles.length);
   };
 
-  const current = heroVehicles[active] ?? heroVehicles[0];
+  const current = heroVehicles[active];
 
   return (
     <SiteLayout>
@@ -344,21 +345,23 @@ function HomePage() {
 
                 {/* Sliding vehicle stage */}
                 <div className="relative aspect-[16/10] overflow-hidden">
-                  <img
-                    key={current.key}
-                    src={current.img}
-                    srcSet={current.srcSet}
-                    sizes={HERO_VEHICLE_SIZES}
-                    alt={`${current.name} — chauffeur vehicle`}
-                    width={1200}
-                    height={750}
-                    decoding="async"
-                    fetchPriority={active === 0 ? "high" : "auto"}
-                    className="absolute inset-0 m-auto w-[92%] h-full object-contain drop-shadow-[0_35px_45px_rgba(14,24,44,0.28)]"
-                    style={{
-                      animation: `${dir === 1 ? "vehicleSlideInR" : "vehicleSlideInL"} 850ms cubic-bezier(.2,.7,.2,1) both`,
-                    }}
-                  />
+                  {current && (
+                    <img
+                      key={current.key}
+                      src={current.img}
+                      srcSet={current.srcSet}
+                      sizes={HERO_VEHICLE_SIZES}
+                      alt={`${current.name} — chauffeur vehicle`}
+                      width={1200}
+                      height={750}
+                      decoding="async"
+                      fetchPriority={active === 0 ? "high" : "auto"}
+                      className="absolute inset-0 m-auto w-[92%] h-full object-contain drop-shadow-[0_35px_45px_rgba(14,24,44,0.28)]"
+                      style={{
+                        animation: `${dir === 1 ? "vehicleSlideInR" : "vehicleSlideInL"} 850ms cubic-bezier(.2,.7,.2,1) both`,
+                      }}
+                    />
+                  )}
                 </div>
 
 
