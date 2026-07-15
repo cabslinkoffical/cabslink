@@ -11,7 +11,7 @@ import {
   CheckCircle2, ArrowRight, ArrowLeft, MapPin, CalendarDays, Edit3, Star,
   Users, Briefcase, Luggage, BadgeCheck, Clock, DoorOpen, UserCheck, Award,
   ShieldCheck, CreditCard, User, Mail, Phone, MessageSquare, RefreshCw,
-  Shield, Package, CalendarClock,
+  Shield, Package, CalendarClock, Landmark, Banknote, Sparkles,
 } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Button } from "@/components/ui/button";
@@ -110,30 +110,61 @@ function encodePrefill(pre: Prefill): string {
   return p.toString();
 }
 
-type Step = "stops" | "vehicle" | "policy" | "details" | "review";
+type Step = "vehicle" | "details" | "extras" | "payment" | "review";
 type Policy = "non_refundable" | "standard" | "flexible";
+type PaymentMethod = "card_on_confirmation" | "bank_transfer" | "pay_on_account";
+
+type Contact = {
+  customer_name: string;
+  email: string;
+  phone: string;
+  whatsapp: string;
+  flight_number: string;
+  notes: string;
+};
+
+const emptyContact: Contact = {
+  customer_name: "", email: "", phone: "", whatsapp: "", flight_number: "", notes: "",
+};
+
+const contactSchema = z.object({
+  customer_name: z.string().trim().min(2).max(100),
+  email: z.string().trim().email().max(255),
+  phone: z.string().trim().min(6).max(30),
+  whatsapp: z.string().trim().max(30).optional().or(z.literal("")),
+  flight_number: z.string().trim().max(20).optional().or(z.literal("")),
+  notes: z.string().trim().max(1000).optional().or(z.literal("")),
+});
 
 function BookPage() {
   const { q } = Route.useSearch();
   const pre = readPrefill(q);
   const navigate = useNavigate({ from: "/book" });
-  const [step, setStep] = useState<Step>("stops");
+  const [step, setStep] = useState<Step>("vehicle");
   const [chosen, setChosen] = useState<QuoteCard | null>(null);
   const [qty, setQty] = useState<number>(1);
   const [policy, setPolicy] = useState<Policy>("standard");
   const [editOpen, setEditOpen] = useState(false);
-  // Selected POI stops (place_id -> minutes).
+  // Extras (all consolidated on step 3)
   const [selectedStops, setSelectedStops] = useState<Record<string, number>>({});
   const [routeMode, setRouteMode] = useState<"direct" | "scenic" | "optimised">("scenic");
   const [tourAckAt, setTourAckAt] = useState<string | null>(null);
+  const [meetGreet, setMeetGreet] = useState(true);
+  const [childSeatCount, setChildSeatCount] = useState(0);
+  const [returnJourney, setReturnJourney] = useState(pre.ret);
+  // Contact + payment
+  const [contact, setContact] = useState<Contact>(emptyContact);
+  const [payment, setPayment] = useState<PaymentMethod>("card_on_confirmation");
+  const [submitting, setSubmitting] = useState(false);
+  const inflight = useRef(false);
+  const idempotencyKey = useRef<string>(crypto.randomUUID());
 
   const hasValidRoute = !!pre.pickup?.placeId && !!pre.dropoff?.placeId
     && pre.pickup.placeId !== pre.dropoff.placeId;
 
   const applyEdit = (next: Prefill) => {
-    // Any location change invalidates the current vehicle selection.
     setChosen(null);
-    setStep("stops");
+    setStep("vehicle");
     navigate({ search: { q: encodePrefill(next) }, replace: true });
     setEditOpen(false);
   };
@@ -177,7 +208,6 @@ function BookPage() {
       }),
   });
 
-  // Build ordered stops payload from selectedStops in the curated template order.
   const orderedSelected = (poisQuery.data?.pois ?? [])
     .filter((p) => selectedStops[p.place_id] !== undefined)
     .map((p) => ({
@@ -216,17 +246,14 @@ function BookPage() {
       else next[poi.place_id] = poi.recommended_visit_minutes;
       return next;
     });
-    setChosen(null);
     setTourAckAt(null);
   };
   const setStopMinutes = (placeId: string, minutes: number) => {
     setSelectedStops((prev) => ({ ...prev, [placeId]: minutes }));
-    setChosen(null);
     setTourAckAt(null);
   };
   const changeRouteMode = (mode: "direct" | "scenic" | "optimised") => {
     setRouteMode(mode);
-    setChosen(null);
     setTourAckAt(null);
   };
 
@@ -234,6 +261,84 @@ function BookPage() {
   const isConverted = !!mq && mq.service_type !== mq.original_service_type;
   const needsAck = isConverted && !tourAckAt;
 
+  // ---- Pricing math (single source used by extras/payment/review) ----
+  const childSeatFeePence = quoteQuery.data?.childSeatFeePence ?? 0;
+  const seatFee = (childSeatFeePence / 100) * childSeatCount;
+  const perVehiclePrice = chosen
+    ? (mq?.vehicles.find((v) => v.vehicle_id === chosen.vehicleId)?.per_vehicle_total ?? chosen.finalPrice)
+    : 0;
+  const rideTotal = perVehiclePrice * qty;
+  const policyDelta =
+    policy === "non_refundable" ? -Math.max(2, Math.round(rideTotal * 0.05 * 100) / 100)
+    : policy === "flexible" ? Math.max(4, Math.round(rideTotal * 0.12 * 100) / 100)
+    : 0;
+  const grandTotal = Math.max(0, rideTotal + seatFee + policyDelta);
+
+  const bookFn = useServerFn(createBooking);
+  const submitBooking = async () => {
+    if (inflight.current || !chosen) return;
+    if (!pre.pickup || !pre.dropoff) { toast.error("Journey is missing pickup or destination."); return; }
+    const parsed = contactSchema.safeParse(contact);
+    if (!parsed.success) { toast.error("Missing contact details."); setStep("details"); return; }
+    inflight.current = true;
+    setSubmitting(true);
+    try {
+      const mergedStops = orderedSelected.length > 0
+        ? orderedSelected.map((s) => ({ placeId: s.place_id, label: s.label, minutes: s.minutes, category: s.category ?? null }))
+        : pre.stops.map((s) => ({ placeId: s.placeId, label: s.label, minutes: 0 }));
+      const paymentLabel =
+        payment === "card_on_confirmation" ? "Card (link sent on confirmation)"
+        : payment === "bank_transfer" ? "Bank transfer"
+        : "Pay on account";
+      const policyLabel = policy === "non_refundable" ? "Non-refundable" : policy === "flexible" ? "Flexible" : "Standard";
+      const res = await bookFn({
+        data: {
+          idempotencyKey: idempotencyKey.current,
+          vehicleId: chosen.vehicleId,
+          vehicleCount: qty,
+          pickupPlaceId: pre.pickup.placeId,
+          pickupLabel: pre.pickup.label,
+          destinationPlaceId: pre.dropoff.placeId,
+          destinationLabel: pre.dropoff.label,
+          stops: mergedStops,
+          routeMode: orderedSelected.length > 0 ? routeMode : undefined,
+          stopsFingerprint: mq?.stops_fingerprint ?? undefined,
+          tourConversionAckAt: tourAckAt ?? undefined,
+          pickupDate: pre.date,
+          pickupTime: pre.time,
+          passengers: pre.passengers,
+          luggage: pre.luggage,
+          customer_name: parsed.data.customer_name,
+          email: parsed.data.email,
+          phone: parsed.data.phone,
+          flight_number: parsed.data.flight_number || null,
+          notes: (() => {
+            const parts: string[] = [];
+            parts.push(`Cancellation policy: ${policyLabel}`);
+            parts.push(`Payment method: ${paymentLabel}`);
+            if (parsed.data.whatsapp) parts.push(`WhatsApp: ${parsed.data.whatsapp}`);
+            if (childSeatCount > 0) parts.push(`Child seats requested: ${childSeatCount}`);
+            if (parsed.data.notes) parts.push(parsed.data.notes);
+            return parts.join("\n");
+          })(),
+          child_seat: childSeatCount > 0,
+          child_seat_count: childSeatCount,
+          meet_greet: meetGreet,
+          return_journey: returnJourney,
+        },
+      });
+      toast.success("Booking request received.");
+      idempotencyKey.current = crypto.randomUUID();
+      const token = (res as any)?.token ?? null;
+      if (token) navigate({ to: "/booking/$token", params: { token } });
+      else setStep("review");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't save booking. Try again or call us.");
+    } finally {
+      setSubmitting(false);
+      inflight.current = false;
+    }
+  };
 
   return (
     <SiteLayout>
@@ -256,101 +361,75 @@ function BookPage() {
                   route={quoteQuery.data ? { miles: quoteQuery.data.distanceMiles, minutes: quoteQuery.data.durationMinutes } : null}
                 />
                 <div className="min-w-0 space-y-6">
-                  {step === "stops" && (
-                    <>
-                      <ScenicPoiPanel
-                        template={poisQuery.data?.template ?? null}
-                        pois={poisQuery.data?.pois ?? []}
-                        isLoading={poisQuery.isLoading}
-                        selectedStops={selectedStops}
-                        onToggle={toggleStop}
-                        onDurationChange={setStopMinutes}
-                        routeMode={routeMode}
-                        onRouteModeChange={changeRouteMode}
-                        multiQuote={multiStopQuery.data ?? null}
-                        multiLoading={multiStopQuery.isFetching}
-                        multiError={multiStopQuery.error as Error | null}
-                      />
-                      {isConverted && mq && (
-                        <TourConversionBanner
-                          from={mq.original_service_type}
-                          to={mq.service_type}
-                          reason={mq.classification_reason}
-                          acked={!!tourAckAt}
-                          onAck={() => setTourAckAt(new Date().toISOString())}
-                        />
-                      )}
-                      <div className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-card p-4">
-                        <div className="text-sm text-muted-foreground">
-                          {orderedSelected.length === 0
-                            ? "No stops added — you can continue with a direct transfer."
-                            : `${orderedSelected.length} stop${orderedSelected.length === 1 ? "" : "s"} added to your route.`}
-                        </div>
-                        <Button
-                          variant="gold"
-                          onClick={() => setStep("vehicle")}
-                          disabled={needsAck}
-                          className="rounded-full"
-                        >
-                          Continue to vehicle <ArrowRight className="ml-2 size-4" />
-                        </Button>
-                      </div>
-                    </>
-                  )}
                   {step === "vehicle" && (
-                    <>
-                      <div className="flex items-center justify-between">
-                        <Button variant="outline" className="rounded-full" onClick={() => setStep("stops")}>
-                          <ArrowLeft className="mr-2 size-4" /> Back to stops
-                        </Button>
-                        {orderedSelected.length > 0 && (
-                          <span className="text-xs text-muted-foreground">
-                            {orderedSelected.length} stop{orderedSelected.length === 1 ? "" : "s"} selected
-                          </span>
-                        )}
-                      </div>
-                      <VehicleStep
-                        pre={pre}
-                        data={quoteQuery.data}
-                        isLoading={quoteQuery.isLoading}
-                        error={quoteQuery.error as Error | null}
-                        onRetry={() => quoteQuery.refetch()}
-                        multiQuote={multiStopQuery.data ?? null}
-                        multiLoading={multiStopQuery.isFetching}
-                        hasStops={orderedSelected.length > 0}
-                        bookingDisabled={needsAck}
-                        bookingDisabledReason={needsAck ? "Please acknowledge the tour conversion above to continue." : null}
-                        onSelect={(card, quantity) => { setChosen(card); setQty(quantity); setStep("policy"); }}
-                      />
-                    </>
-                  )}
-                  {step === "policy" && chosen && (
-                    <PolicyStep
-                      card={chosen}
-                      qty={qty}
-                      currentTotal={(multiStopQuery.data?.vehicles.find((v) => v.vehicle_id === chosen.vehicleId)?.per_vehicle_total ?? chosen.finalPrice) * qty}
-                      value={policy}
-                      onChange={setPolicy}
-                      onBack={() => setStep("vehicle")}
-                      onNext={() => setStep("details")}
+                    <VehicleStep
+                      pre={pre}
+                      data={quoteQuery.data}
+                      isLoading={quoteQuery.isLoading}
+                      error={quoteQuery.error as Error | null}
+                      onRetry={() => quoteQuery.refetch()}
+                      onSelect={(card, quantity) => { setChosen(card); setQty(quantity); setStep("details"); }}
                     />
                   )}
+
                   {step === "details" && chosen && (
-                    <DetailsStep pre={pre} card={chosen} qty={qty}
-                      scenicStops={orderedSelected}
-                      routeMode={routeMode}
-                      stopsFingerprint={mq?.stops_fingerprint ?? null}
-                      tourConversionAckAt={tourAckAt}
-                      childSeatFeePence={quoteQuery.data?.childSeatFeePence ?? 0}
-                      policy={policy}
-                      onBack={() => setStep("policy")}
-                      onSuccess={(token) => {
-                        if (token) navigate({ to: "/booking/$token", params: { token } });
-                        else setStep("review");
-                      }} />
+                    <ContactStep
+                      contact={contact}
+                      onChange={setContact}
+                      onBack={() => setStep("vehicle")}
+                      onNext={() => {
+                        const parsed = contactSchema.safeParse(contact);
+                        if (!parsed.success) { toast.error("Please fill name, email and phone."); return; }
+                        setStep("extras");
+                      }}
+                    />
                   )}
+
+                  {step === "extras" && chosen && (
+                    <ExtrasStep
+                      pois={poisQuery.data?.pois ?? []}
+                      template={poisQuery.data?.template ?? null}
+                      poisLoading={poisQuery.isLoading}
+                      selectedStops={selectedStops}
+                      onToggleStop={toggleStop}
+                      onStopMinutes={setStopMinutes}
+                      routeMode={routeMode}
+                      onRouteModeChange={changeRouteMode}
+                      multiQuote={mq}
+                      multiLoading={multiStopQuery.isFetching}
+                      multiError={multiStopQuery.error as Error | null}
+                      converted={isConverted}
+                      needsAck={needsAck}
+                      onAck={() => setTourAckAt(new Date().toISOString())}
+                      childSeatFeePence={childSeatFeePence}
+                      childSeatCount={childSeatCount}
+                      onChildSeatCount={setChildSeatCount}
+                      meetGreet={meetGreet}
+                      onMeetGreet={setMeetGreet}
+                      returnJourney={returnJourney}
+                      onReturnJourney={setReturnJourney}
+                      policy={policy}
+                      onPolicy={setPolicy}
+                      baseRideTotal={rideTotal}
+                      seatFee={seatFee}
+                      onBack={() => setStep("details")}
+                      onNext={() => setStep("payment")}
+                    />
+                  )}
+
+                  {step === "payment" && chosen && (
+                    <PaymentStep
+                      value={payment}
+                      onChange={setPayment}
+                      grandTotal={grandTotal}
+                      onBack={() => setStep("extras")}
+                      onSubmit={submitBooking}
+                      submitting={submitting}
+                    />
+                  )}
+
                   {step === "review" && chosen && (
-                    <AlreadySubmittedStep card={chosen} qty={qty} onBack={() => setStep("details")} />
+                    <AlreadySubmittedStep card={chosen} qty={qty} onBack={() => setStep("payment")} />
                   )}
                 </div>
               </div>
@@ -459,16 +538,16 @@ function EditTripDialog({
 
 function Stepper({ step }: { step: Step }) {
   const items: { id: Step; label: string }[] = [
-    { id: "stops", label: "Stops" },
     { id: "vehicle", label: "Vehicle" },
-    { id: "policy", label: "Policy" },
     { id: "details", label: "Details" },
+    { id: "extras", label: "Extras" },
+    { id: "payment", label: "Payment" },
     { id: "review", label: "Done" },
   ];
 
   const idx = items.findIndex((x) => x.id === step);
   return (
-    <div className="flex items-center justify-center gap-3 md:gap-4">
+    <div className="flex items-center justify-center gap-3 md:gap-4 flex-wrap">
       {items.map((it, i) => {
         const active = i === idx;
         const done = i < idx;
@@ -478,7 +557,7 @@ function Stepper({ step }: { step: Step }) {
               active ? "bg-[var(--gold)] text-[var(--gold-foreground)] shadow-[var(--shadow-glow)]"
               : done ? "bg-[var(--navy)] text-[var(--gold)]"
               : "bg-card text-foreground/55 border border-border"
-            }`}>{it.label}</div>
+            }`}>{`0${i + 1}`} · {it.label}</div>
             {i < items.length - 1 && <div className="w-6 h-px bg-border" />}
           </div>
         );
@@ -539,10 +618,6 @@ function Sidebar({ pre, onEdit, route }: {
                 {route.minutes}<span className="text-xs font-semibold text-muted-foreground ml-1">min</span>
               </p>
             </div>
-            <p className="col-span-2 text-[10px] text-muted-foreground flex items-start gap-1.5 mt-1">
-              <BadgeCheck className="size-3 mt-0.5 text-[var(--gold)] shrink-0" />
-              Real driving distance from Google Routes.
-            </p>
           </div>
         )}
 
@@ -612,29 +687,16 @@ function TourConversionBanner({ from, to, reason, acked, onAck }: {
   );
 }
 
-function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect, multiQuote, multiLoading, hasStops, bookingDisabled, bookingDisabledReason }: {
+function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
   pre: Prefill;
   data: Awaited<ReturnType<typeof calculateQuotes>> | undefined;
   isLoading: boolean;
   error: Error | null;
   onRetry: () => void;
   onSelect: (card: QuoteCard, qty: number) => void;
-  multiQuote: MultiStopQuoteResult | null;
-  multiLoading: boolean;
-  hasStops: boolean;
-  bookingDisabled?: boolean;
-  bookingDisabledReason?: string | null;
 }) {
   const [qtyMap, setQtyMap] = useState<Record<string, number>>({});
-  const priceByVehicle = useMemo(() => {
-    const m = new Map<string, number>();
-    if (multiQuote) {
-      for (const v of multiQuote.vehicles) m.set(v.vehicle_id, v.per_vehicle_total);
-    }
-    return m;
-  }, [multiQuote]);
 
-  // Per-vehicle minimum qty to satisfy passenger + luggage requirements.
   const minQtyFor = (v: { passengers: number; luggage: number }) => {
     const paxNeed = Math.max(1, pre.passengers);
     const lugNeed = Math.max(0, pre.luggage);
@@ -643,7 +705,6 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect, multiQuot
     return Math.max(1, paxQty, lugQty);
   };
 
-  // Suitable at qty=1 first (real "best value"), then by price ascending.
   const orderedQuotes = useMemo(() => {
     if (!data?.quotes) return [];
     return [...data.quotes].sort((a, b) => {
@@ -664,9 +725,7 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect, multiQuot
             Book Your Ride · {pre.ret ? "Return" : "One Way"}
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
-            {hasStops
-              ? `Prices include your selected stops${multiLoading ? " · updating…" : ""}.`
-              : "Every fare is all-inclusive — no surge, no hidden fees."}
+            Every fare is all-inclusive — you'll add stops, extras and cancellation cover in the next steps.
           </p>
         </div>
         {data && (
@@ -697,22 +756,17 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect, multiQuot
         {orderedQuotes.map((q, i) => {
           const minQty = minQtyFor(q);
           const qty = qtyMap[q.vehicleId] ?? minQty;
-          const override = priceByVehicle.get(q.vehicleId);
-          const effective: QuoteCard = override !== undefined
-            ? { ...q, finalPrice: override }
-            : q;
           const capacityShort = qty < minQty;
           const reason = capacityShort
             ? `This vehicle seats ${q.passengers} passengers and ${q.luggage} luggage. Select at least ${minQty} vehicles to fit ${pre.passengers} passenger${pre.passengers === 1 ? "" : "s"}${pre.luggage ? ` and ${pre.luggage} bag${pre.luggage === 1 ? "" : "s"}` : ""}.`
-            : bookingDisabledReason ?? null;
+            : null;
           return (
-            <VehicleCard key={q.vehicleId} card={effective} best={i === 0 && minQtyFor(q) <= 1} qty={qty}
+            <VehicleCard key={q.vehicleId} card={q} best={i === 0 && minQtyFor(q) <= 1} qty={qty}
               minQty={minQty}
-              priceUpdating={hasStops && multiLoading}
-              disabled={!!bookingDisabled || capacityShort}
+              disabled={capacityShort}
               disabledReason={reason}
               onQtyChange={(n) => setQtyMap((m) => ({ ...m, [q.vehicleId]: n }))}
-              onSelect={() => { if (!bookingDisabled && !capacityShort) onSelect(effective, qty); }} />
+              onSelect={() => { if (!capacityShort) onSelect(q, qty); }} />
           );
         })}
       </div>
@@ -721,8 +775,8 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect, multiQuot
 }
 
 
-function VehicleCard({ card, best, qty, minQty, priceUpdating, disabled, disabledReason, onQtyChange, onSelect }: {
-  card: QuoteCard; best: boolean; qty: number; minQty: number; priceUpdating?: boolean;
+function VehicleCard({ card, best, qty, minQty, disabled, disabledReason, onQtyChange, onSelect }: {
+  card: QuoteCard; best: boolean; qty: number; minQty: number;
   disabled?: boolean; disabledReason?: string | null;
   onQtyChange: (n: number) => void; onSelect: () => void;
 }) {
@@ -781,7 +835,6 @@ function VehicleCard({ card, best, qty, minQty, priceUpdating, disabled, disable
         </div>
       </div>
 
-
       <div className="relative hidden md:flex flex-col items-center justify-center px-1">
         <div className="absolute -top-3 w-6 h-6 rounded-full bg-[var(--surface)]"></div>
         <div className="h-[calc(100%-2rem)] w-px border-l-2 border-dashed border-[var(--gold)]/40"></div>
@@ -795,16 +848,15 @@ function VehicleCard({ card, best, qty, minQty, priceUpdating, disabled, disable
 
       <div className="w-full md:w-60 lg:w-64 shrink-0 bg-gradient-to-br from-[var(--gold)]/10 via-[var(--surface)] to-[var(--gold)]/5 md:rounded-r-2xl rounded-b-2xl md:rounded-b-none p-5 md:p-6 flex flex-col justify-between items-center text-center">
         <div>
-          <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground font-bold">All Inclusive</p>
+          <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground font-bold">From</p>
           <div className="mt-2 flex items-baseline justify-center gap-0.5 text-foreground">
             <span className="text-lg font-display font-bold text-[var(--gold)]">£</span>
             <span className="text-3xl md:text-4xl font-display font-bold tabular-nums tracking-tight">{total.toFixed(2)}</span>
           </div>
           {qty > 1 && (<p className="text-[11px] text-muted-foreground mt-1">{qty} × £{card.finalPrice.toFixed(2)}</p>)}
-          {priceUpdating && (<p className="text-[10px] text-[var(--gold)] mt-1 uppercase tracking-wider">Updating…</p>)}
           <div className="mt-3 text-[11px] text-muted-foreground space-y-1">
             <p className="flex items-center justify-center gap-1.5"><ShieldCheck className="size-3 text-[var(--gold)]" /> No hidden cost</p>
-            <p className="flex items-center justify-center gap-1.5"><Clock className="size-3 text-[var(--gold)]" /> Free cancellation</p>
+            <p className="flex items-center justify-center gap-1.5"><Clock className="size-3 text-[var(--gold)]" /> Free cancellation option</p>
           </div>
         </div>
 
@@ -825,7 +877,7 @@ function VehicleCard({ card, best, qty, minQty, priceUpdating, disabled, disable
             </Select>
           </div>
           <Button onClick={onSelect} disabled={!!disabled} className="w-full h-12 rounded-lg bg-[var(--navy)] hover:bg-[var(--gold)] text-[var(--navy-foreground)] hover:text-[var(--gold-foreground)] font-bold uppercase tracking-[0.2em] text-[11px] transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
-            Book Now
+            Continue <ArrowRight className="size-3.5 ml-1" />
           </Button>
           {disabled && disabledReason && (
             <p className="text-[11px] text-muted-foreground mt-2 leading-snug">{disabledReason}</p>
@@ -845,154 +897,366 @@ function Feature({ icon, children }: { icon: React.ReactNode; children: React.Re
   );
 }
 
-const detailsSchema = z.object({
-  customer_name: z.string().trim().min(2).max(100),
-  email: z.string().trim().email().max(255),
-  phone: z.string().trim().min(6).max(30),
-  whatsapp: z.string().trim().max(30).optional().or(z.literal("")),
-  flight_number: z.string().trim().max(20).optional().or(z.literal("")),
-  notes: z.string().trim().max(1000).optional().or(z.literal("")),
-});
+// ---------------------------------------------------------------
+// Step 02 — Passenger contact details (no extras, no submit)
+// ---------------------------------------------------------------
+function ContactStep({ contact, onChange, onBack, onNext }: {
+  contact: Contact; onChange: (c: Contact) => void;
+  onBack: () => void; onNext: () => void;
+}) {
+  const set = <K extends keyof Contact>(k: K, v: Contact[K]) => onChange({ ...contact, [k]: v });
+  return (
+    <div className="bg-card rounded-2xl border border-border shadow-sm p-6 md:p-8 space-y-6">
+      <div>
+        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)]">Step 02 — Passenger details</p>
+        <h2 className="mt-1 font-display text-2xl md:text-3xl font-bold">Who is travelling?</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          We'll use these details to confirm your booking and keep you updated.
+        </p>
+      </div>
 
+      <div className="grid sm:grid-cols-2 gap-4">
+        <Field label="Full name" icon={<User className="size-4" />}>
+          <Input value={contact.customer_name} onChange={(e) => set("customer_name", e.target.value)} required maxLength={100} />
+        </Field>
+        <Field label="Phone" icon={<Phone className="size-4" />}>
+          <Input value={contact.phone} onChange={(e) => set("phone", e.target.value)} required maxLength={30} />
+        </Field>
+      </div>
+      <div className="grid sm:grid-cols-2 gap-4">
+        <Field label="Email" icon={<Mail className="size-4" />}>
+          <Input type="email" value={contact.email} onChange={(e) => set("email", e.target.value)} required maxLength={255} />
+        </Field>
+        <Field label="WhatsApp number (optional)" icon={<MessageSquare className="size-4" />}>
+          <Input value={contact.whatsapp} onChange={(e) => set("whatsapp", e.target.value)} maxLength={30} placeholder="e.g. +44 7700 900123" />
+        </Field>
+      </div>
+      <Field label="Flight number (optional)">
+        <Input value={contact.flight_number} onChange={(e) => set("flight_number", e.target.value)} maxLength={20} placeholder="e.g. BA1234" />
+      </Field>
+      <Field label="Notes (optional)" icon={<MessageSquare className="size-4" />}>
+        <Textarea value={contact.notes} onChange={(e) => set("notes", e.target.value)} rows={4} maxLength={1000} placeholder="Anything our chauffeur should know" />
+      </Field>
+
+      <div className="flex flex-wrap gap-3 pt-2">
+        <Button type="button" variant="outline" onClick={onBack} className="gap-2">
+          <ArrowLeft className="size-4" /> Back
+        </Button>
+        <Button type="button" onClick={onNext}
+          className="ml-auto bg-[var(--gold)] text-[var(--gold-foreground)] hover:brightness-110 font-bold tracking-wider px-8 gap-2">
+          Continue to extras <ArrowRight className="size-4" />
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------
+// Step 03 — Extras (stops + child seats + meet & greet + return + policy)
+// ---------------------------------------------------------------
 type ScenicStop = { place_id: string; label: string; minutes: number; category?: string | null };
 
-function DetailsStep({ pre, card, qty, scenicStops, routeMode, stopsFingerprint, tourConversionAckAt, childSeatFeePence, policy, onBack, onSuccess }:
-  {
-    pre: Prefill; card: QuoteCard; qty: number;
-    scenicStops: ScenicStop[];
-    routeMode: "direct" | "scenic" | "optimised";
-    stopsFingerprint: string | null;
-    tourConversionAckAt: string | null;
-    childSeatFeePence: number;
-    policy: Policy;
-    onBack: () => void; onSuccess: (token: string | null) => void;
-  }) {
-  const [meetGreet, setMeetGreet] = useState(true);
-  const [childSeatCount, setChildSeatCount] = useState(0);
-  const [returnJourney, setReturnJourney] = useState(pre.ret);
-  const [loading, setLoading] = useState(false);
-  const inflight = useRef(false);
-  // One idempotency key per genuine submission attempt — regenerated on success.
-  const idempotencyKey = useRef<string>(crypto.randomUUID());
-  const seatFee = (childSeatFeePence / 100) * childSeatCount;
-  const rideTotal = card.finalPrice * qty;
-  const total = rideTotal + seatFee;
-
-  const bookFn = useServerFn(createBooking);
-  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (inflight.current) return;
-    if (!pre.pickup || !pre.dropoff) { toast.error("Journey is missing pickup or destination."); return; }
-    const fd = Object.fromEntries(new FormData(e.currentTarget));
-    const parsed = detailsSchema.safeParse(fd);
-    if (!parsed.success) { toast.error("Please fill in name, email and phone."); return; }
-    inflight.current = true;
-    setLoading(true);
-    try {
-      // Merge URL waypoint stops (no minutes) with scenic POI stops (with minutes).
-      // Scenic POI stops are the authoritative source when present.
-      const mergedStops = scenicStops.length > 0
-        ? scenicStops.map((s) => ({ placeId: s.place_id, label: s.label, minutes: s.minutes, category: s.category ?? null }))
-        : pre.stops.map((s) => ({ placeId: s.placeId, label: s.label, minutes: 0 }));
-      const res = await bookFn({
-        data: {
-          idempotencyKey: idempotencyKey.current,
-          vehicleId: card.vehicleId,
-          vehicleCount: qty,
-          pickupPlaceId: pre.pickup.placeId,
-          pickupLabel: pre.pickup.label,
-          destinationPlaceId: pre.dropoff.placeId,
-          destinationLabel: pre.dropoff.label,
-          stops: mergedStops,
-          routeMode: scenicStops.length > 0 ? routeMode : undefined,
-          stopsFingerprint: stopsFingerprint ?? undefined,
-          tourConversionAckAt: tourConversionAckAt ?? undefined,
-          pickupDate: pre.date,
-          pickupTime: pre.time,
-          passengers: pre.passengers,
-          luggage: pre.luggage,
-          customer_name: parsed.data.customer_name,
-          email: parsed.data.email,
-          phone: parsed.data.phone,
-          flight_number: parsed.data.flight_number || null,
-          notes: (() => {
-            const parts: string[] = [];
-            const policyLabel = policy === "non_refundable" ? "Non-refundable" : policy === "flexible" ? "Flexible" : "Standard";
-            parts.push(`Cancellation policy: ${policyLabel}`);
-            if (parsed.data.whatsapp) parts.push(`WhatsApp: ${parsed.data.whatsapp}`);
-            if (childSeatCount > 0) parts.push(`Child seats requested: ${childSeatCount}`);
-            if (parsed.data.notes) parts.push(parsed.data.notes);
-            return parts.length ? parts.join("\n") : null;
-          })(),
-          child_seat: childSeatCount > 0,
-          child_seat_count: childSeatCount,
-          meet_greet: meetGreet,
-          return_journey: returnJourney,
-        },
-      });
-      toast.success("Booking request received.");
-      idempotencyKey.current = crypto.randomUUID();
-      onSuccess((res as any)?.token ?? null);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Couldn't save booking. Try again or call us.");
-    } finally {
-      setLoading(false);
-      inflight.current = false;
-    }
-  };
+function ExtrasStep(props: {
+  pois: PoiSuggestion[];
+  template: RouteTemplateSummary | null;
+  poisLoading: boolean;
+  selectedStops: Record<string, number>;
+  onToggleStop: (poi: PoiSuggestion) => void;
+  onStopMinutes: (placeId: string, minutes: number) => void;
+  routeMode: "direct" | "scenic" | "optimised";
+  onRouteModeChange: (m: "direct" | "scenic" | "optimised") => void;
+  multiQuote: MultiStopQuoteResult | null;
+  multiLoading: boolean;
+  multiError: Error | null;
+  converted: boolean;
+  needsAck: boolean;
+  onAck: () => void;
+  childSeatFeePence: number;
+  childSeatCount: number;
+  onChildSeatCount: (n: number) => void;
+  meetGreet: boolean;
+  onMeetGreet: (v: boolean) => void;
+  returnJourney: boolean;
+  onReturnJourney: (v: boolean) => void;
+  policy: Policy;
+  onPolicy: (p: Policy) => void;
+  baseRideTotal: number;
+  seatFee: number;
+  onBack: () => void;
+  onNext: () => void;
+}) {
+  const {
+    pois, template, poisLoading, selectedStops, onToggleStop, onStopMinutes,
+    routeMode, onRouteModeChange, multiQuote, multiLoading, multiError,
+    converted, needsAck, onAck,
+    childSeatFeePence, childSeatCount, onChildSeatCount,
+    meetGreet, onMeetGreet, returnJourney, onReturnJourney,
+    policy, onPolicy, baseRideTotal, seatFee, onBack, onNext,
+  } = props;
 
   return (
-    <form onSubmit={onSubmit} className="bg-card rounded-2xl border border-border shadow-sm p-6 md:p-8 space-y-6">
-      <div className="flex items-center gap-3">
-        <img src={card.imageUrl} alt="" className="w-16 h-12 object-contain" />
-        <div className="flex-1">
-          <p className="text-xs uppercase tracking-wider text-muted-foreground font-bold">Selected vehicle</p>
-          <p className="font-display font-bold">{qty > 1 ? `${qty} × ${card.name}` : card.name}</p>
-          {childSeatCount > 0 && childSeatFeePence > 0 && (
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Ride £{rideTotal.toFixed(2)} + {childSeatCount} × £{(childSeatFeePence / 100).toFixed(2)} child seat
-            </p>
-          )}
+    <div className="space-y-6">
+      <div>
+        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)]">Step 03 — Extras</p>
+        <h2 className="mt-1 font-display text-2xl md:text-3xl font-bold">Personalise your journey</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Add scenic stops, child seats, meet &amp; greet, a return trip and pick your cancellation cover — all in one place.
+        </p>
+      </div>
+
+      {/* --- Famous stops along the route --- */}
+      <ExtrasCard
+        icon={<Landmark className="size-4" />}
+        eyebrow="Famous points along the way"
+        title="Add scenic stops"
+        subtitle="Break up your transfer with iconic viewpoints, castles and villages between your pickup and dropoff. Each stop has its own visit time and stay charge."
+      >
+        <ScenicPoiPanel
+          template={template}
+          pois={pois}
+          isLoading={poisLoading}
+          selectedStops={selectedStops}
+          onToggle={onToggleStop}
+          onDurationChange={onStopMinutes}
+          routeMode={routeMode}
+          onRouteModeChange={onRouteModeChange}
+          multiQuote={multiQuote}
+          multiLoading={multiLoading}
+          multiError={multiError}
+        />
+      </ExtrasCard>
+
+      {converted && multiQuote && (
+        <TourConversionBanner
+          from={multiQuote.original_service_type}
+          to={multiQuote.service_type}
+          reason={multiQuote.classification_reason}
+          acked={!needsAck}
+          onAck={onAck}
+        />
+      )}
+
+      {/* --- Comfort extras --- */}
+      <ExtrasCard
+        icon={<Sparkles className="size-4" />}
+        eyebrow="Comfort & assistance"
+        title="Onboard extras"
+      >
+        <div className="grid sm:grid-cols-2 gap-4">
+          <Field label={childSeatFeePence > 0 ? `Child seats (£${(childSeatFeePence / 100).toFixed(2)} each)` : "Child seats"}>
+            <Select value={String(childSeatCount)} onValueChange={(v) => onChildSeatCount(Number(v))}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {[0, 1, 2, 3, 4].map((n) => (
+                  <SelectItem key={n} value={String(n)}>
+                    {n === 0 ? "None" : `${n} child seat${n === 1 ? "" : "s"}`}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
+          <div className="grid gap-3">
+            <Toggle label="Meet & greet at arrivals" checked={meetGreet} onChange={onMeetGreet} />
+            <Toggle label="Add return journey" checked={returnJourney} onChange={onReturnJourney} />
+          </div>
         </div>
-        <p className="font-display font-bold text-2xl">£{total.toFixed(2)}</p>
+      </ExtrasCard>
+
+      {/* --- Cancellation policy tiers --- */}
+      <ExtrasCard
+        icon={<Shield className="size-4" />}
+        eyebrow="Cancellation cover"
+        title="Choose how flexible you want to be"
+      >
+        <PolicyTiers value={policy} onChange={onPolicy} base={baseRideTotal} />
+      </ExtrasCard>
+
+      {/* --- Running total --- */}
+      <div className="rounded-2xl border border-border bg-card p-5 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground">Running total</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            Ride £{baseRideTotal.toFixed(2)}
+            {seatFee > 0 && <> · Child seats £{seatFee.toFixed(2)}</>}
+            {" · "}Cancellation cover: <span className="font-semibold text-foreground/80">{policy === "non_refundable" ? "Non-refundable" : policy === "flexible" ? "Flexible" : "Standard"}</span>
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="font-display text-3xl font-bold text-[var(--gold)] tabular-nums">
+            £{(baseRideTotal + seatFee + (policy === "non_refundable" ? -Math.max(2, Math.round(baseRideTotal * 0.05 * 100) / 100) : policy === "flexible" ? Math.max(4, Math.round(baseRideTotal * 0.12 * 100) / 100) : 0)).toFixed(2)}
+          </p>
+        </div>
       </div>
 
-      <div className="grid sm:grid-cols-2 gap-4">
-
-        <Field label="Full name" icon={<User className="size-4" />}><Input name="customer_name" required maxLength={100} /></Field>
-        <Field label="Phone" icon={<Phone className="size-4" />}><Input name="phone" required maxLength={30} /></Field>
+      <div className="flex flex-wrap gap-3 pt-2">
+        <Button type="button" variant="outline" onClick={onBack} className="gap-2">
+          <ArrowLeft className="size-4" /> Back
+        </Button>
+        <Button
+          type="button"
+          onClick={onNext}
+          disabled={needsAck}
+          className="ml-auto bg-[var(--gold)] text-[var(--gold-foreground)] hover:brightness-110 font-bold tracking-wider px-8 gap-2"
+        >
+          Continue to payment <ArrowRight className="size-4" />
+        </Button>
       </div>
-      <div className="grid sm:grid-cols-2 gap-4">
-        <Field label="Email" icon={<Mail className="size-4" />}><Input name="email" type="email" required maxLength={255} /></Field>
-        <Field label="WhatsApp number (optional)" icon={<MessageSquare className="size-4" />}>
-          <Input name="whatsapp" maxLength={30} placeholder="e.g. +44 7700 900123" />
-        </Field>
+    </div>
+  );
+}
+
+function ExtrasCard({ icon, eyebrow, title, subtitle, children }: {
+  icon: React.ReactNode; eyebrow: string; title: string; subtitle?: string; children: React.ReactNode;
+}) {
+  return (
+    <section className="bg-card rounded-2xl border border-border shadow-sm p-5 md:p-6">
+      <div className="flex items-start gap-3 mb-4">
+        <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-[var(--gold)]/15 text-[var(--gold)]">{icon}</span>
+        <div className="min-w-0">
+          <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--gold)]">{eyebrow}</p>
+          <h3 className="font-display font-bold text-lg mt-0.5">{title}</h3>
+          {subtitle && <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>}
+        </div>
       </div>
-      <div className="grid sm:grid-cols-2 gap-4">
-        <Field label="Flight number (optional)"><Input name="flight_number" maxLength={20} placeholder="e.g. BA1234" /></Field>
-        <Field label={childSeatFeePence > 0 ? `Child seats (£${(childSeatFeePence / 100).toFixed(2)} each)` : "Child seats"}>
-          <Select value={String(childSeatCount)} onValueChange={(v) => setChildSeatCount(Number(v))}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {[0, 1, 2, 3, 4].map((n) => (
-                <SelectItem key={n} value={String(n)}>
-                  {n === 0 ? "None" : `${n} child seat${n === 1 ? "" : "s"}`}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </Field>
+      {children}
+    </section>
+  );
+}
+
+function PolicyTiers({ value, onChange, base }: { value: Policy; onChange: (p: Policy) => void; base: number }) {
+  const tiers: Array<{
+    id: Policy; title: string; icon: React.ReactNode; badge?: string; badgeClass?: string;
+    headline: string; body: string; delta: number;
+  }> = [
+    {
+      id: "non_refundable", title: "Non-refundable", icon: <Package className="size-5" />,
+      badge: "Lowest price", badgeClass: "bg-foreground/10 text-foreground",
+      headline: "Best price, no refund.",
+      body: "You save the most, with no refund if you cancel after confirmation.",
+      delta: -Math.max(2, Math.round(base * 0.05 * 100) / 100),
+    },
+    {
+      id: "standard", title: "Standard", icon: <CalendarClock className="size-5" />,
+      badge: "Most popular", badgeClass: "bg-[var(--gold)] text-[var(--gold-foreground)]",
+      headline: "Cancel up to a day before.",
+      body: "Full refund if you cancel up to 24 hours before pickup.",
+      delta: 0,
+    },
+    {
+      id: "flexible", title: "Flexible", icon: <Shield className="size-5" />,
+      badge: "Safest choice", badgeClass: "bg-emerald-500/15 text-emerald-700",
+      headline: "Refundable up to the last hour.",
+      body: "The most freedom — full refund if you cancel up to 1 hour before pickup.",
+      delta: Math.max(4, Math.round(base * 0.12 * 100) / 100),
+    },
+  ];
+  return (
+    <div className="grid gap-3 md:grid-cols-3">
+      {tiers.map((t) => {
+        const selected = value === t.id;
+        return (
+          <button
+            key={t.id}
+            type="button"
+            onClick={() => onChange(t.id)}
+            className={`text-left rounded-xl border-2 p-4 transition-all ${
+              selected
+                ? "border-[var(--gold)] bg-[var(--gold)]/5 shadow-[0_10px_30px_-15px_rgba(223,175,38,0.4)]"
+                : "border-border bg-background hover:border-[var(--gold)]/40"
+            }`}
+          >
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className={`size-8 rounded-lg grid place-items-center shrink-0 ${
+                selected ? "bg-[var(--gold)] text-[var(--gold-foreground)]" : "bg-[var(--surface)] text-foreground/70"
+              }`}>{t.icon}</span>
+              <span className="font-display font-bold">{t.title}</span>
+            </div>
+            {t.badge && (
+              <span className={`inline-block mt-2 text-[10px] font-bold uppercase tracking-widest rounded-full px-2 py-0.5 ${t.badgeClass}`}>
+                {t.badge}
+              </span>
+            )}
+            <p className="mt-3 text-sm font-semibold">{t.headline}</p>
+            <p className="text-xs text-muted-foreground mt-1">{t.body}</p>
+            <p className={`mt-3 text-sm font-bold ${t.delta < 0 ? "text-emerald-600" : t.delta > 0 ? "text-foreground" : "text-[var(--gold)]"}`}>
+              {t.delta === 0 ? "Included" : t.delta < 0 ? `Save £${Math.abs(t.delta).toFixed(2)}` : `+ £${t.delta.toFixed(2)}`}
+            </p>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------
+// Step 04 — Payment method
+// ---------------------------------------------------------------
+function PaymentStep({ value, onChange, grandTotal, onBack, onSubmit, submitting }: {
+  value: PaymentMethod; onChange: (v: PaymentMethod) => void;
+  grandTotal: number; onBack: () => void; onSubmit: () => void; submitting: boolean;
+}) {
+  const options: Array<{ id: PaymentMethod; icon: React.ReactNode; title: string; body: string; badge?: string }> = [
+    {
+      id: "card_on_confirmation", icon: <CreditCard className="size-5" />, title: "Card payment",
+      body: "We'll send you a secure payment link once our team confirms availability.",
+      badge: "Most popular",
+    },
+    {
+      id: "bank_transfer", icon: <Landmark className="size-5" />, title: "Bank transfer",
+      body: "Receive our UK bank details on the confirmation email.",
+    },
+    {
+      id: "pay_on_account", icon: <Banknote className="size-5" />, title: "Pay on account",
+      body: "For corporate customers with an approved Cabslink account.",
+    },
+  ];
+  return (
+    <div className="bg-card rounded-2xl border border-border shadow-sm p-6 md:p-8 space-y-6">
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)]">Step 04 — Payment</p>
+          <h2 className="mt-1 font-display text-2xl md:text-3xl font-bold">How would you like to pay?</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Choose a payment method — nothing is charged until our team confirms your booking.
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground">Total due</p>
+          <p className="font-display text-3xl font-bold text-[var(--gold)] tabular-nums">£{grandTotal.toFixed(2)}</p>
+        </div>
       </div>
 
-      <div className="grid sm:grid-cols-2 gap-3">
-        <Toggle label="Meet & greet" checked={meetGreet} onChange={setMeetGreet} />
-        <Toggle label="Return journey" checked={returnJourney} onChange={setReturnJourney} />
+      <div className="space-y-3">
+        {options.map((o) => {
+          const selected = value === o.id;
+          return (
+            <button key={o.id} type="button" onClick={() => onChange(o.id)}
+              className={`w-full text-left rounded-2xl border-2 p-5 transition-all flex items-start gap-4 ${
+                selected ? "border-[var(--gold)] bg-[var(--gold)]/5" : "border-border bg-background hover:border-[var(--gold)]/40"
+              }`}>
+              <span className={`size-10 rounded-xl grid place-items-center shrink-0 ${
+                selected ? "bg-[var(--gold)] text-[var(--gold-foreground)]" : "bg-[var(--surface)] text-foreground/70"
+              }`}>{o.icon}</span>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-display font-bold">{o.title}</span>
+                  {o.badge && (
+                    <span className="text-[10px] font-bold uppercase tracking-widest rounded-full px-2 py-0.5 bg-[var(--gold)] text-[var(--gold-foreground)]">
+                      {o.badge}
+                    </span>
+                  )}
+                </div>
+                <p className="text-sm text-muted-foreground mt-1">{o.body}</p>
+              </div>
+              <span className={`size-5 mt-1 rounded-full border-2 grid place-items-center shrink-0 ${
+                selected ? "border-[var(--gold)]" : "border-muted-foreground/40"
+              }`}>
+                {selected && <span className="size-2.5 rounded-full bg-[var(--gold)]" />}
+              </span>
+            </button>
+          );
+        })}
       </div>
-
-
-      <Field label="Notes (optional)" icon={<MessageSquare className="size-4" />}>
-        <Textarea name="notes" rows={4} maxLength={1000} placeholder="Anything our chauffeur should know" />
-      </Field>
 
       <p className="text-xs text-muted-foreground">
         Submitting sends your journey to our team. Our office will confirm availability and payment
@@ -1003,11 +1267,12 @@ function DetailsStep({ pre, card, qty, scenicStops, routeMode, stopsFingerprint,
         <Button type="button" variant="outline" onClick={onBack} className="gap-2">
           <ArrowLeft className="size-4" /> Back
         </Button>
-        <Button type="submit" disabled={loading} className="ml-auto bg-[var(--gold)] text-[var(--gold-foreground)] hover:brightness-110 font-bold tracking-wider px-8">
-          {loading ? "Sending…" : <>Submit booking request <ArrowRight className="size-4 ml-1" /></>}
+        <Button type="button" onClick={onSubmit} disabled={submitting}
+          className="ml-auto bg-[var(--gold)] text-[var(--gold-foreground)] hover:brightness-110 font-bold tracking-wider px-8 gap-2">
+          {submitting ? "Sending…" : <>Submit booking request <ArrowRight className="size-4" /></>}
         </Button>
       </div>
-    </form>
+    </div>
   );
 }
 
@@ -1031,8 +1296,7 @@ function Toggle({ label, checked, onChange }: { label: string; checked: boolean;
   );
 }
 
-/** Fallback shown only when the confirmation token could not be issued
- *  (e.g. duplicate submission returned an existing booking without a token). */
+/** Fallback shown only when the confirmation token could not be issued. */
 function AlreadySubmittedStep({ card, qty, onBack }: { card: QuoteCard; qty: number; onBack: () => void }) {
   const total = card.finalPrice * qty;
   return (
@@ -1073,17 +1337,8 @@ function fmtHm(totalSeconds: number): string {
 }
 
 function ScenicPoiPanel({
-  template,
-  pois,
-  isLoading,
-  selectedStops,
-  onToggle,
-  onDurationChange,
-  routeMode,
-  onRouteModeChange,
-  multiQuote,
-  multiLoading,
-  multiError,
+  template, pois, isLoading, selectedStops, onToggle, onDurationChange,
+  routeMode, onRouteModeChange, multiQuote, multiLoading, multiError,
 }: {
   template: RouteTemplateSummary | null;
   pois: PoiSuggestion[];
@@ -1098,13 +1353,15 @@ function ScenicPoiPanel({
   multiError: Error | null;
 }) {
   if (isLoading) {
+    return <div className="rounded-xl border border-border bg-background p-4 text-sm text-muted-foreground">Checking for scenic stops on this route…</div>;
+  }
+  if (!template || pois.length === 0) {
     return (
-      <div className="rounded-2xl border border-border bg-card p-5 text-sm text-muted-foreground">
-        Checking for scenic stops on this route…
+      <div className="rounded-xl border border-dashed border-border bg-background p-4 text-sm text-muted-foreground">
+        No curated famous stops are available for this route yet — you can continue with a direct transfer.
       </div>
     );
   }
-  if (!template || pois.length === 0) return null;
 
   const orderLocked = template.default_order_locked;
   const modes: Array<{ id: "scenic" | "optimised" | "direct"; label: string }> = orderLocked
@@ -1125,14 +1382,11 @@ function ScenicPoiPanel({
     : null;
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-5 space-y-5">
+    <div className="space-y-4">
       <div>
-        <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--gold)]">
-          <Star className="size-3.5" /> Enhance your journey
-        </div>
-        <h2 className="mt-1 font-display text-lg font-bold">{template.name}</h2>
+        <h4 className="font-semibold text-sm">{template.name}</h4>
         {template.description && (
-          <p className="mt-1 text-sm text-muted-foreground">{template.description}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{template.description}</p>
         )}
       </div>
 
@@ -1141,53 +1395,29 @@ function ScenicPoiPanel({
           const active = selectedStops[p.place_id] !== undefined;
           const minutes = selectedStops[p.place_id] ?? p.recommended_visit_minutes;
           return (
-            <li
-              key={p.id}
-              className={`rounded-xl border p-3 transition ${
-                active ? "border-[var(--gold)] bg-[var(--gold)]/5" : "border-border bg-background"
-              }`}
-            >
+            <li key={p.id}
+              className={`rounded-xl border p-3 transition ${active ? "border-[var(--gold)] bg-[var(--gold)]/5" : "border-border bg-background"}`}>
               <label className="flex items-start gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="mt-1 size-4 accent-[var(--gold)]"
-                  checked={active}
-                  onChange={() => onToggle(p)}
-                />
+                <input type="checkbox" className="mt-1 size-4 accent-[var(--gold)]"
+                  checked={active} onChange={() => onToggle(p)} />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-baseline justify-between gap-3">
                     <div className="font-semibold text-sm truncate">{p.name}</div>
-                    <div className="text-[11px] text-foreground/60 whitespace-nowrap">
-                      ~{p.recommended_visit_minutes} min
-                    </div>
+                    <div className="text-[11px] text-foreground/60 whitespace-nowrap">~{p.recommended_visit_minutes} min</div>
                   </div>
-                  <div className="text-xs text-muted-foreground capitalize">
-                    {p.category.replace(/_/g, " ")}
-                  </div>
+                  <div className="text-xs text-muted-foreground capitalize">{p.category.replace(/_/g, " ")}</div>
                   {p.short_description && (
-                    <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
-                      {p.short_description}
-                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{p.short_description}</p>
                   )}
                 </div>
               </label>
               {active && (
                 <div className="mt-3 flex flex-wrap gap-1.5 pl-7">
-                  {DURATION_OPTIONS.filter(
-                    (m) => m >= p.minimum_visit_minutes && m <= p.maximum_visit_minutes,
-                  ).map((m) => (
-                    <button
-                      key={m}
-                      type="button"
-                      onClick={() => onDurationChange(p.place_id, m)}
+                  {DURATION_OPTIONS.filter((m) => m >= p.minimum_visit_minutes && m <= p.maximum_visit_minutes).map((m) => (
+                    <button key={m} type="button" onClick={() => onDurationChange(p.place_id, m)}
                       className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border transition ${
-                        minutes === m
-                          ? "bg-[var(--navy)] text-[var(--gold)] border-[var(--navy)]"
-                          : "border-border text-foreground/70 hover:border-[var(--gold)]"
-                      }`}
-                    >
-                      {m} min
-                    </button>
+                        minutes === m ? "bg-[var(--navy)] text-[var(--gold)] border-[var(--navy)]" : "border-border text-foreground/70 hover:border-[var(--gold)]"
+                      }`}>{m} min</button>
                   ))}
                 </div>
               )}
@@ -1200,27 +1430,15 @@ function ScenicPoiPanel({
         <div className="rounded-xl border border-border bg-background p-4 space-y-3">
           <div className="flex flex-wrap gap-1.5">
             {modes.map((m) => (
-              <button
-                key={m.id}
-                type="button"
-                onClick={() => onRouteModeChange(m.id)}
+              <button key={m.id} type="button" onClick={() => onRouteModeChange(m.id)}
                 className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition ${
-                  routeMode === m.id
-                    ? "bg-[var(--navy)] text-[var(--gold)] border-[var(--navy)]"
-                    : "border-border text-foreground/70 hover:border-[var(--gold)]"
-                }`}
-              >
-                {m.label}
-              </button>
+                  routeMode === m.id ? "bg-[var(--navy)] text-[var(--gold)] border-[var(--navy)]" : "border-border text-foreground/70 hover:border-[var(--gold)]"
+                }`}>{m.label}</button>
             ))}
           </div>
 
-          {multiLoading && (
-            <div className="text-xs text-muted-foreground">Recalculating your journey…</div>
-          )}
-          {multiError && (
-            <div className="text-xs text-destructive">{multiError.message}</div>
-          )}
+          {multiLoading && <div className="text-xs text-muted-foreground">Recalculating your journey…</div>}
+          {multiError && <div className="text-xs text-destructive">{multiError.message}</div>}
           {multiQuote && !multiLoading && (
             <div className="space-y-2">
               <div className="grid grid-cols-3 gap-2 text-xs">
@@ -1248,155 +1466,3 @@ function ItineraryRow({ label, value, bold }: { label: string; value: string; bo
     </div>
   );
 }
-
-// ---------------------------------------------------------------
-// Cancellation policy step (between vehicle and details)
-// ---------------------------------------------------------------
-function PolicyStep({
-  card, qty, currentTotal, value, onChange, onBack, onNext,
-}: {
-  card: QuoteCard;
-  qty: number;
-  currentTotal: number;
-  value: Policy;
-  onChange: (p: Policy) => void;
-  onBack: () => void;
-  onNext: () => void;
-}) {
-  const base = currentTotal;
-  const tiers: Array<{
-    id: Policy;
-    title: string;
-    icon: React.ReactNode;
-    badge?: string;
-    badgeClass?: string;
-    headline: string;
-    body: string;
-    delta: number;
-    deltaLabel: string;
-    highlight?: boolean;
-  }> = [
-    {
-      id: "non_refundable",
-      title: "Non-refundable",
-      icon: <Package className="size-5" />,
-      badge: "Lowest price",
-      badgeClass: "bg-foreground/10 text-foreground",
-      headline: "Best price, no refund.",
-      body: "You save the most, with no refund if you cancel after confirmation.",
-      delta: -Math.max(2, Math.round(base * 0.05 * 100) / 100),
-      deltaLabel: "Save",
-    },
-    {
-      id: "standard",
-      title: "Standard",
-      icon: <CalendarClock className="size-5" />,
-      badge: "Most popular",
-      badgeClass: "bg-[var(--gold)] text-[var(--gold-foreground)]",
-      headline: "Cancel up to a day before.",
-      body: "Get a full refund if you cancel up to 24 hours before pickup.",
-      delta: 0,
-      deltaLabel: "Included",
-      highlight: true,
-    },
-    {
-      id: "flexible",
-      title: "Flexible",
-      icon: <Shield className="size-5" />,
-      badge: "Safest choice",
-      badgeClass: "bg-emerald-500/15 text-emerald-700",
-      headline: "Refundable up to the last hour.",
-      body: "The most freedom — full refund if you cancel up to 1 hour before pickup.",
-      delta: Math.max(4, Math.round(base * 0.12 * 100) / 100),
-      deltaLabel: "Add",
-    },
-  ];
-
-  return (
-    <div className="bg-card rounded-2xl border border-border shadow-sm p-6 md:p-8 space-y-6">
-      <div>
-        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)]">Step 02 — Cancellation policy</p>
-        <h2 className="mt-1 font-display text-2xl md:text-3xl font-bold">Choose how flexible you want to be</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Pick the cancellation cover that suits your trip — we apply it to your {qty > 1 ? `${qty} × ` : ""}
-          {card.name}.
-        </p>
-      </div>
-
-      <div className="space-y-3">
-        {tiers.map((t) => {
-          const selected = value === t.id;
-          const total = Math.max(0, base + t.delta);
-          return (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => onChange(t.id)}
-              className={`w-full text-left rounded-2xl border-2 p-5 transition-all ${
-                selected
-                  ? "border-[var(--gold)] bg-[var(--gold)]/5 shadow-[0_10px_30px_-15px_rgba(223,175,38,0.4)]"
-                  : "border-border bg-background hover:border-[var(--gold)]/40"
-              }`}
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-display font-bold text-lg">{t.title}</span>
-                    {t.badge && (
-                      <span className={`text-[10px] font-bold uppercase tracking-widest rounded-full px-2 py-0.5 ${t.badgeClass}`}>
-                        {t.badge}
-                      </span>
-                    )}
-                  </div>
-                  <div className="mt-3 flex items-start gap-3">
-                    <span className={`size-10 rounded-xl grid place-items-center shrink-0 ${
-                      selected ? "bg-[var(--gold)] text-[var(--gold-foreground)]" : "bg-[var(--surface)] text-foreground/70"
-                    }`}>
-                      {t.icon}
-                    </span>
-                    <div>
-                      <p className="font-semibold text-sm">{t.headline}</p>
-                      <p className="text-sm text-muted-foreground mt-0.5">{t.body}</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="text-right shrink-0">
-                  <p className={`text-sm font-bold ${t.delta < 0 ? "text-emerald-600" : t.delta > 0 ? "text-foreground" : "text-[var(--gold)]"}`}>
-                    {t.delta === 0 ? "Included" : t.delta < 0 ? `Save £${Math.abs(t.delta).toFixed(2)}` : `+ £${t.delta.toFixed(2)}`}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">Total £{total.toFixed(2)}</p>
-                </div>
-              </div>
-              <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between">
-                <span className={`size-4 rounded-full border-2 grid place-items-center ${
-                  selected ? "border-[var(--gold)]" : "border-muted-foreground/40"
-                }`}>
-                  {selected && <span className="size-2 rounded-full bg-[var(--gold)]" />}
-                </span>
-                <span className="text-[11px] text-muted-foreground">
-                  {selected ? "Your selection" : `vs £${base.toFixed(2)} standard`}
-                </span>
-              </div>
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="flex flex-wrap gap-3 pt-2">
-        <Button type="button" variant="outline" onClick={onBack} className="gap-2">
-          <ArrowLeft className="size-4" /> Back
-        </Button>
-        <Button
-          type="button"
-          onClick={onNext}
-          className="ml-auto bg-[var(--gold)] text-[var(--gold-foreground)] hover:brightness-110 font-bold tracking-wider px-8 gap-2"
-        >
-          Continue to details <ArrowRight className="size-4" />
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-
-
