@@ -683,10 +683,15 @@ function VehicleCard({ card, best, qty, minQty, priceUpdating, disabled, disable
   const total = card.finalPrice * qty;
   const serial = card.vehicleId.slice(0, 8).toUpperCase();
   return (
-    <div className={`relative flex flex-col md:flex-row bg-card rounded-2xl shadow-[0_10px_40px_-20px_rgba(14,24,44,0.25)] border transition-all duration-500 hover:shadow-[0_20px_60px_-20px_rgba(223,175,38,0.35)] ${best ? "border-[var(--gold)]/60" : "border-border"}`}>
+    <div className={`relative flex flex-col md:flex-row bg-card rounded-2xl shadow-[0_10px_40px_-20px_rgba(14,24,44,0.25)] border transition-all duration-500 hover:shadow-[0_20px_60px_-20px_rgba(223,175,38,0.35)] ${best ? "border-[var(--gold)]/60" : minQty > 1 ? "border-amber-400/50" : "border-border"}`}>
       {best && (
         <div className="absolute -top-3 left-6 z-10 inline-flex items-center gap-1.5 bg-[var(--gold)] text-[var(--gold-foreground)] text-[10px] font-bold uppercase tracking-[0.2em] px-3 py-1.5 rounded-md shadow-md">
           <Award className="size-3" /> Best Value
+        </div>
+      )}
+      {!best && minQty > 1 && (
+        <div className="absolute -top-3 left-6 z-10 inline-flex items-center gap-1.5 bg-amber-500 text-white text-[10px] font-bold uppercase tracking-[0.2em] px-3 py-1.5 rounded-md shadow-md">
+          Needs {minQty} vehicles
         </div>
       )}
 
