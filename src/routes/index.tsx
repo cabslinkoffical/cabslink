@@ -8,6 +8,7 @@ import {
   ChevronLeft, ChevronRight
 } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { MobileHomeShortcuts } from "@/components/site/AppShell";
 import { BookingWidget } from "@/components/site/BookingWidget";
 import { SectionHeader } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
@@ -197,6 +198,7 @@ function HomePage() {
 
   return (
     <SiteLayout>
+      <MobileHomeShortcuts />
       {/* HERO — unified: copy + vehicle + booking widget */}
       <section className="relative overflow-hidden bg-[var(--background)]">
         {/* Ambient tints */}
