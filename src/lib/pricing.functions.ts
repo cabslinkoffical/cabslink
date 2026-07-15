@@ -158,8 +158,11 @@ export const calculateQuotes = createServerFn({ method: "POST" })
       throw mapRouteError(err);
     }
 
+    // Return ALL active vehicle profiles — the client marks under-capacity
+    // vehicles with a "add more vehicles" notice and enforces qty >= minQty
+    // before Book Now is enabled. Server createBooking also re-checks
+    // capacity × qty, so this is safe.
     const cards: QuoteCard[] = auth.profiles
-      .filter((p: LoadedProfile) => p.vehicle.passengers >= data.passengers && p.vehicle.luggage >= data.luggage)
       .map((p: LoadedProfile) => {
         const fixed = auth.fixedByVehicle.get(p.vehicle.id) ?? auth.fixedAny;
         const q = computeVehicleQuote({
