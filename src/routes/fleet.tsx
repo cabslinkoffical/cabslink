@@ -183,9 +183,9 @@ function FleetPage() {
       {/* FLEET GRID */}
       <section className="section-y bg-[var(--surface)]">
         <div className="container-x">
-          <SectionHeader eyebrow="The full fleet" title="Eight vehicles. One uncompromising standard." subtitle="Each capacity figure is shown as passengers · large luggage · hand luggage." center />
+          <SectionHeader eyebrow="The full fleet" title="One uncompromising standard across every vehicle." subtitle="Each capacity figure is shown as passengers · large luggage · hand luggage." center />
           <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {fleet.map((f, i) => (
+            {activeFleet.map((f, i) => (
               <Reveal key={f.name} delay={i * 80}>
                 <div className={`rounded-3xl border bg-card overflow-hidden hover:-translate-y-1 hover:shadow-[var(--shadow-elegant)] transition h-full flex flex-col ${f.featured ? "border-[var(--gold)]" : "border-border"}`}>
                   <div className="relative h-52 overflow-hidden bg-[var(--surface)] flex items-center justify-center p-4">
