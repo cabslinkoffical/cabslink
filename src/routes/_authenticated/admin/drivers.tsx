@@ -15,6 +15,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Plus, Edit, Trash2, Mail, Phone } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
+import { PhoneInput } from "@/components/site/PhoneInput";
 
 const opts = queryOptions({ queryKey: ["admin", "drivers"], queryFn: () => listDrivers() });
 const vOpts = queryOptions({ queryKey: ["admin", "vehicles"], queryFn: () => listVehiclesAdmin() });
@@ -81,7 +82,7 @@ function Page() {
             <div className="grid sm:grid-cols-2 gap-3">
               <div className="sm:col-span-2"><Label>Full name *</Label><Input value={form.full_name} onChange={e => setForm({ ...form, full_name: e.target.value })} /></div>
               <div><Label>Email</Label><Input type="email" value={form.email ?? ""} onChange={e => setForm({ ...form, email: e.target.value })} /></div>
-              <div><Label>Phone</Label><Input value={form.phone ?? ""} onChange={e => setForm({ ...form, phone: e.target.value })} /></div>
+              <div><Label>Phone</Label><PhoneInput value={form.phone ?? ""} onChange={v => setForm({ ...form, phone: v })} /></div>
               <div className="sm:col-span-2"><Label>Address</Label><Input value={form.address ?? ""} onChange={e => setForm({ ...form, address: e.target.value })} /></div>
               <div><Label>License number</Label><Input value={form.license_number ?? ""} onChange={e => setForm({ ...form, license_number: e.target.value })} /></div>
               <div>

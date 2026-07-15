@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { submitContactMessage } from "@/lib/contact.functions";
+import { PhoneInput } from "@/components/site/PhoneInput";
 import { toast } from "sonner";
 
 type Stop = { name: string; time: string; blurb: string };
@@ -254,12 +255,7 @@ export function TourBookingDialog({ tour, trigger }: Props) {
                 </div>
                 <div className="space-y-1.5 sm:col-span-2">
                   <Label htmlFor="tb-phone">Phone (optional)</Label>
-                  <Input
-                    id="tb-phone"
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                  />
+                  <PhoneInput id="tb-phone" value={phone} onChange={setPhone} />
                 </div>
                 <div className="space-y-1.5 sm:col-span-2">
                   <Label htmlFor="tb-notes">Special requests (optional)</Label>

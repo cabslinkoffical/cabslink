@@ -21,6 +21,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { PlaceAutocomplete, type SelectedPlace } from "@/components/site/PlaceAutocomplete";
+import { PhoneInput } from "@/components/site/PhoneInput";
 
 import { calculateQuotes, createBooking, type QuoteCard } from "@/lib/pricing.functions";
 import { listPoisForRoute, type PoiSuggestion, type RouteTemplateSummary } from "@/lib/pois.functions";
@@ -991,7 +992,7 @@ function ContactStep({ contact, onChange, onBack, onNext }: {
           <Input value={contact.customer_name} onChange={(e) => set("customer_name", e.target.value)} required maxLength={100} />
         </Field>
         <Field label="Phone" icon={<Phone className="size-4" />}>
-          <Input value={contact.phone} onChange={(e) => set("phone", e.target.value)} required maxLength={30} />
+          <PhoneInput value={contact.phone} onChange={(v) => set("phone", v)} required />
         </Field>
       </div>
       <div className="grid sm:grid-cols-2 gap-4">
@@ -999,7 +1000,7 @@ function ContactStep({ contact, onChange, onBack, onNext }: {
           <Input type="email" value={contact.email} onChange={(e) => set("email", e.target.value)} required maxLength={255} />
         </Field>
         <Field label="WhatsApp number (optional)" icon={<MessageSquare className="size-4" />}>
-          <Input value={contact.whatsapp} onChange={(e) => set("whatsapp", e.target.value)} maxLength={30} placeholder="e.g. +44 7700 900123" />
+          <PhoneInput value={contact.whatsapp} onChange={(v) => set("whatsapp", v)} placeholder="7700 900123" />
         </Field>
       </div>
       <Field label="Flight number (optional)">

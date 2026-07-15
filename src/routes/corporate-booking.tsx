@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
+import { PhoneInput } from "@/components/site/PhoneInput";
 
 export const Route = createFileRoute("/corporate-booking")({
   head: () => ({
@@ -34,6 +35,7 @@ const schema = z.object({
 
 function CorporateBookingPage() {
   const [loading, setLoading] = useState(false);
+  const [phone, setPhone] = useState("");
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -52,6 +54,7 @@ function CorporateBookingPage() {
     if (error) { toast.error("Could not submit. Please try again."); return; }
     toast.success("Enquiry sent — our team will reply within 24 hours.");
     e.currentTarget.reset();
+    setPhone("");
   };
 
   return (
@@ -86,7 +89,7 @@ function CorporateBookingPage() {
               <div><Label>Company</Label><Input name="company" required maxLength={120} className="mt-1.5" /></div>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div><Label>Your name</Label><Input name="name" required maxLength={100} className="mt-1.5" /></div>
-                <div><Label>Phone</Label><Input name="phone" required maxLength={30} className="mt-1.5" /></div>
+                <div><Label>Phone</Label><div className="mt-1.5"><PhoneInput name="phone" value={phone} onChange={setPhone} required /></div></div>
               </div>
               <div><Label>Email</Label><Input name="email" type="email" required maxLength={255} className="mt-1.5" /></div>
               <div><Label>Your travel needs</Label><Textarea name="needs" required maxLength={1500} rows={5} className="mt-1.5" placeholder="Team size, monthly volume, airports, billing preferences…" /></div>

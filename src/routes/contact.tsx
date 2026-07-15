@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { SITE } from "@/lib/site";
 import { submitContactMessage } from "@/lib/contact.functions";
+import { PhoneInput } from "@/components/site/PhoneInput";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -36,6 +37,7 @@ const schema = z.object({
 
 function ContactPage() {
   const [loading, setLoading] = useState(false);
+  const [phone, setPhone] = useState("");
   const inflight = useRef(false);
   const submit = useServerFn(submitContactMessage);
 
@@ -66,6 +68,7 @@ function ContactPage() {
       });
       toast.success("Message sent — we'll respond shortly.");
       (e.currentTarget as HTMLFormElement).reset();
+      setPhone("");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not send. Please try again.");
     } finally {
@@ -113,7 +116,7 @@ function ContactPage() {
                 <div><Label>Email</Label><Input name="email" type="email" required maxLength={255} className="mt-1.5" /></div>
               </div>
               <div className="grid sm:grid-cols-2 gap-4">
-                <div><Label>Phone (optional)</Label><Input name="phone" maxLength={30} className="mt-1.5" /></div>
+                <div><Label>Phone (optional)</Label><div className="mt-1.5"><PhoneInput name="phone" value={phone} onChange={setPhone} /></div></div>
                 <div><Label>Subject (optional)</Label><Input name="subject" maxLength={150} className="mt-1.5" /></div>
               </div>
               <div><Label>Message</Label><Textarea name="message" required maxLength={1500} rows={6} className="mt-1.5" /></div>

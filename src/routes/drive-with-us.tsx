@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
+import { PhoneInput } from "@/components/site/PhoneInput";
 
 export const Route = createFileRoute("/drive-with-us")({
   head: () => ({
@@ -34,6 +35,7 @@ const schema = z.object({
 function DrivePage() {
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
+  const [phone, setPhone] = useState("");
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -53,6 +55,7 @@ function DrivePage() {
     setDone(true);
     toast.success("Application received — we'll be in touch.");
     e.currentTarget.reset();
+    setPhone("");
   };
 
   return (
@@ -93,7 +96,7 @@ function DrivePage() {
             <div className="mt-6 grid gap-4">
               <div><Label>Full name</Label><Input name="name" required maxLength={100} className="mt-1.5" /></div>
               <div><Label>Email</Label><Input name="email" type="email" required maxLength={255} className="mt-1.5" /></div>
-              <div><Label>Phone</Label><Input name="phone" required maxLength={30} className="mt-1.5" /></div>
+              <div><Label>Phone</Label><div className="mt-1.5"><PhoneInput name="phone" value={phone} onChange={setPhone} required /></div></div>
               <div><Label>Tell us about yourself</Label><Textarea name="message" required maxLength={1000} rows={5} className="mt-1.5" placeholder="Years driving, licence, vehicle, area covered…" /></div>
               <Button type="submit" variant="gold" disabled={loading} className="rounded-full">
                 {loading ? "Submitting…" : <>Submit application <ArrowRight className="size-4" /></>}
