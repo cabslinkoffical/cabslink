@@ -703,8 +703,8 @@ function MobilePriceBar({ price }: { price: PriceSummary }) {
   );
 }
 
-function Sidebar({ pre, onEdit, route, price }: {
-  pre: Prefill; onEdit: () => void;
+function Sidebar({ pre, onEdit, onStartAgain, route, price }: {
+  pre: Prefill; onEdit: () => void; onStartAgain?: () => void;
   route: { miles: number; minutes: number } | null;
   price: PriceSummary | null;
 
@@ -718,10 +718,18 @@ function Sidebar({ pre, onEdit, route, price }: {
             <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)]">Your Journey</p>
             <h3 className="font-display font-bold text-lg text-foreground mt-0.5">Trip Summary</h3>
           </div>
-          <button onClick={onEdit} className="size-8 rounded-full border border-border text-muted-foreground hover:text-[var(--gold)] hover:border-[var(--gold)]/40 flex items-center justify-center transition" aria-label="Edit trip">
-            <Edit3 className="size-3.5" />
-          </button>
+          <div className="flex items-center gap-2">
+            {onStartAgain && (
+              <button onClick={onStartAgain} className="text-[11px] px-2.5 py-1 rounded-full border border-border text-muted-foreground hover:text-[var(--gold)] hover:border-[var(--gold)]/40 transition" title="Clear saved draft and start over">
+                Start again
+              </button>
+            )}
+            <button onClick={onEdit} className="size-8 rounded-full border border-border text-muted-foreground hover:text-[var(--gold)] hover:border-[var(--gold)]/40 flex items-center justify-center transition" aria-label="Edit trip">
+              <Edit3 className="size-3.5" />
+            </button>
+          </div>
         </div>
+
 
         <div className="relative pl-6">
           <div className="absolute left-[9px] top-3 bottom-3 border-l-2 border-dashed border-[var(--gold)]/40" />
