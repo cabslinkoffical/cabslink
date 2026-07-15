@@ -146,7 +146,7 @@ export async function computeRoute(input: ComputeRouteInput): Promise<RouteDista
 
   if (!res.ok) {
     const body = await res.text().catch(() => "");
-    console.error(`Routes API failed [${res.status}]: ${body}`);
+    console.error(`Routes API failed [${res.status}] origin=${originPlaceId} dest=${destinationPlaceId}: ${body.slice(0, 500)}`);
     throw new RouteUnavailableError();
   }
 
