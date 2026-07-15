@@ -148,15 +148,10 @@ function AdminLayout() {
           </button>
           <Breadcrumbs />
           <div className="flex-1" />
-          <div className="hidden lg:flex relative">
-            <Search className="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <Input placeholder="Search…" className="pl-9 w-64 h-9 bg-muted/40" />
-          </div>
-          <Button variant="ghost" size="icon" onClick={toggleTheme} className="text-muted-foreground">
+          {/* Global admin search is not yet wired to a backend index — hidden until implemented. */}
+          {/* Notification bell is not yet wired to a real notification stream — hidden until implemented. */}
+          <Button variant="ghost" size="icon" onClick={toggleTheme} className="text-muted-foreground" aria-label="Toggle theme">
             {dark ? <Sun className="size-4" /> : <Moon className="size-4" />}
-          </Button>
-          <Button variant="ghost" size="icon" className="text-muted-foreground relative">
-            <BellIcon className="size-4" />
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
