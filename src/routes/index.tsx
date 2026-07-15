@@ -197,6 +197,7 @@ function HomePage() {
 
   return (
     <SiteLayout>
+      <MobileHomeShortcuts />
       {/* HERO — unified: copy + vehicle + booking widget */}
       <section className="relative overflow-hidden bg-[var(--background)]">
         {/* Ambient tints */}
