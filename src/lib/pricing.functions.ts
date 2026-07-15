@@ -351,6 +351,12 @@ export const createBooking = createServerFn({ method: "POST" })
     const pricingSnapshot = q.snapshot;
     const pricingProfileIdSnapshot = q.profileId;
 
+    // Child seat fee — configurable per seat, added on top of the vehicle total.
+    const childSeatCount = Math.max(0, data.child_seat_count ?? 0);
+    const childSeatFee = childSeatCount > 0
+      ? Number(((auth.settings.childSeatFeePence * childSeatCount) / 100).toFixed(2))
+      : 0;
+
     // ---------------------------------------------------------------
     // Multi-stop / scenic verification.
     // If the client selected timed POI stops, re-derive the stops
