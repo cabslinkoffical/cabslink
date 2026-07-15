@@ -110,14 +110,14 @@ function encodePrefill(pre: Prefill): string {
   return p.toString();
 }
 
-type Step = "vehicle" | "policy" | "details" | "review";
+type Step = "stops" | "vehicle" | "policy" | "details" | "review";
 type Policy = "non_refundable" | "standard" | "flexible";
 
 function BookPage() {
   const { q } = Route.useSearch();
   const pre = readPrefill(q);
   const navigate = useNavigate({ from: "/book" });
-  const [step, setStep] = useState<Step>("vehicle");
+  const [step, setStep] = useState<Step>("stops");
   const [chosen, setChosen] = useState<QuoteCard | null>(null);
   const [qty, setQty] = useState<number>(1);
   const [policy, setPolicy] = useState<Policy>("standard");
