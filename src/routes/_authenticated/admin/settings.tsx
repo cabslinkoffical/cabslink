@@ -50,6 +50,9 @@ function Page() {
           cancellation_policy: form.cancellation_policy, maintenance_mode: !!form.maintenance_mode,
           smtp_host: form.smtp_host, smtp_port: form.smtp_port ? Number(form.smtp_port) : null,
           smtp_user: form.smtp_user, google_maps_api_key: form.google_maps_api_key,
+          poi_corridor_enabled: !!form.poi_corridor_enabled,
+          poi_corridor_radius_miles: Number(form.poi_corridor_radius_miles ?? 15),
+          poi_corridor_max_pois: Number(form.poi_corridor_max_pois ?? 8),
         })} disabled={mut.isPending}>Save changes</Button>
       </PageHeader>
 
