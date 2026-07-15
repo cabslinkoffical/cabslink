@@ -173,10 +173,10 @@ function HomePage() {
   }, []);
 
 
-  const heroVehicles = useMemo(() => dbVehicles ?? fallbackHeroVehicles, [dbVehicles]);
+  const heroVehicles = useMemo(() => dbVehicles ?? [], [dbVehicles]);
 
   useEffect(() => {
-    if (paused) return;
+    if (paused || heroVehicles.length === 0) return;
     const id = setInterval(() => {
       setDir(1);
       setActive((i) => (i + 1) % heroVehicles.length);
@@ -185,15 +185,16 @@ function HomePage() {
   }, [paused, heroVehicles.length]);
 
   useEffect(() => {
-    if (active >= heroVehicles.length) setActive(0);
+    if (heroVehicles.length > 0 && active >= heroVehicles.length) setActive(0);
   }, [heroVehicles.length, active]);
 
   const go = (next: number) => {
+    if (heroVehicles.length === 0) return;
     setDir(next > active || (active === heroVehicles.length - 1 && next === 0) ? 1 : -1);
     setActive((next + heroVehicles.length) % heroVehicles.length);
   };
 
-  const current = heroVehicles[active] ?? heroVehicles[0];
+  const current = heroVehicles[active];
 
   return (
     <SiteLayout>
