@@ -11,7 +11,7 @@ export const Route = createFileRoute("/fleet")({
   head: () => ({
     meta: [
       { title: "Our Fleet — Cabslink Luxury Chauffeur Vehicles UK" },
-      { name: "description", content: "From the Mercedes-Benz S-Class and Rolls-Royce Bentley to V-Class people carriers, 16-seat minibuses and 55-seat coaches — Cabslink runs a modern, fully insured chauffeur fleet across the UK." },
+      { name: "description", content: "Explore Cabslink’s active chauffeur fleet, updated from admin with current vehicle details, images, capacity and availability." },
       { property: "og:title", content: "Our Fleet — Cabslink Luxury Chauffeur Vehicles" },
       { property: "og:url", content: "/fleet" },
     ],
