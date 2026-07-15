@@ -1,126 +1,113 @@
+# Phase 1 completion plan
 
-# CabsLink Production-Readiness — Phase 1
+Scope: finish the production-readiness pass before any Tours / scenic-route work. Nothing about the pricing engine, HMAC tokens, snapshots, admin permission model, replay/idempotency, or existing tests changes.
 
-Focused hardening pass on top of the current app. Nothing about the pricing engine, booking creation, snapshots, HMAC tokens, admin permission model, replay/idempotency, or existing tests changes.
+---
 
-## Phase A — Secure public form submissions
+## 1. Booking draft — harden the /book integration
 
-Reuse the pattern already in `src/lib/contact.functions.ts` (Zod → rate-limit → honeypot → dup-hash → generic error → activity log). Create parallel server functions for the two direct-write routes.
+The utility and a first pass are already wired. Remaining work:
 
-Files to add:
-- `src/lib/corporate.functions.ts` — `submitCorporateInquiry` server fn
-- `src/lib/driver-application.functions.ts` — `submitDriverApplication` server fn
-- `src/lib/public-form-guard.server.ts` — shared honeypot + fingerprint + generic-error helper (extracted from contact where useful)
+- **URL wins over draft**: current mount effect only hydrates when `q` is empty — keep that, but also skip hydration when the URL provides any pickup/dropoff PlaceId. Add a one-shot `didHydrateRef` so navigation-driven `q` changes never re-trigger hydration (prevents Back/Forward loops).
+- **Downgrade invalid drafts**: after hydration, run a lightweight validity pass — if `vehicleSlug` no longer maps to a `listPublicVehicles` result, drop it silently; if pickup === dropoff, drop both.
+- **Persist selected step**: extend `BookingDraft` with `step` (whitelisted enum), `selectedStops`, `meetGreet`, `childSeatCount`, `routeMode`. Update `stripForbidden` + tests.
+- **Debounce persistence**: replace the current effect with a 300 ms debounced write to avoid write-per-keystroke on numeric fields.
+- **Start again**: add a subtle "Start again" ghost button in the wizard header that calls `clearDraft()`, resets local state, and `navigate({ search: { q: "" }, replace: true })`.
+- **Never persist server prices**: audit — only inputs go in; `chosen` stays as `vehicleSlug` id only, no fare fields.
 
-Files to modify:
-- `src/routes/corporate-booking.tsx` — call server fn via `useServerFn`, remove direct `supabase.from('contact_messages').insert(...)`, add hidden honeypot field
-- `src/routes/drive-with-us.tsx` — same treatment
+Tests to add (`tests/booking-draft-integration.test.tsx`, jsdom):
+1. Hydrates wizard from stored draft on refresh.
+2. Non-empty URL `q` wins over stored draft.
+3. Draft cleared after successful `createBooking` (mock server fn).
+4. `vehicleSlug` pointing at an unknown vehicle is dropped, other fields kept.
+5. Expired draft (TTL+1ms) is ignored.
+6. PII keys attempted via `saveDraft` are stripped (extend existing).
+7. Restored journey triggers exactly one `calculateQuotes` call (not duplicated by hydration).
+8. "Start again" clears session + URL + local state.
 
-DB:
-- Reuse `contact_messages` (both flows already write here); add a `submission_type` value (`corporate` / `driver_application`) via server-set field, never client-supplied. Client payload allowed keys strictly whitelisted in the validator.
-- No schema change needed; `metadata` jsonb already exists on contact_messages for form-specific extra fields.
+## 2. Public functionality + copy audit (runtime, not source-only)
 
-## Phase B — Fleet page reliability
+Runtime harness: a Playwright script that walks each flow against `http://localhost:8080`, captures screenshots and the resulting `bookings` row shape via `supabase--read_query`. For each flow the outcome is one of *operational*, *hide from public*, or *relabel*.
 
-Files to modify:
-- `src/routes/fleet.tsx` (verify path) — switch initial data to a public server fn read (SSR-friendly), keep realtime as progressive enhancement only.
-- `src/lib/fleet.functions.ts` — add `listPublicVehicles` server fn using publishable-key server client + narrow public SELECT (returns only: id, slug, name, description, image_url, passengers, luggage, features[], display_order). No admin fields (cost, margins, driver notes, etc.).
+Flows tested end-to-end:
 
-Loader pattern: `ensureQueryData` → `useSuspenseQuery`. Add explicit empty/error UI + skeleton. Each card gets a "Get a quote" button linking to `/book?vehicle=<slug>`. Alt text: `"{vehicle.name} — chauffeured {passenger_capacity}-seat vehicle"`.
+- **Standard one-way** — must remain operational (regression check).
+- **Hourly** — check tab, min-duration guard, quote, submit, snapshot `journey_type`, admin visibility. If any step fails → hide the Hourly tab behind a "Coming soon" pill.
+- **Return journey** — check return date/time validation, pricing source, snapshot fields, admin display. If return pricing is not server-authoritative end-to-end → disable the toggle with "Contact us for return pricing".
+- **Add stop / POI stops** — verify recalculation, snapshot preserves stop list, admin itinerary shows stops. Document POI vs freeform stop divergence.
+- **Confirmation email claims** — grep every `email`/`confirmation` string; replace any "we've emailed you" wording with on-screen confirmation copy where notifications adapter is `not_configured`. Admin notification logs stay untouched.
 
-## Phase C — Honest public claims
+Deliverable: a claim → route → runtime status → action → final wording table in the completion report.
 
-Copy-only changes; no logic removed. Deliverable includes the full changelog table.
+## 3. Missing server-function tests
 
-Preliminary claim changes (to be finalized in the diff report):
-| Location | Before | After | Reason |
-|---|---|---|---|
-| Book widget step 1 CTA | "Book now" | "See vehicles & prices" | No booking created yet at that step |
-| Book confirmation copy | "Confirmation email sent" | "Booking confirmation displayed on screen" | Email adapter is a stub |
-| Homepage "Secure payment" badge | "Secure payment" | "Secure booking" | Card capture is not live |
-| Header "Book a Ride" | scroll-to-widget on `/`, else `/book` | same, but always resolves to `/book` on other pages | Currently a text-only anchor on some routes |
-| Availability strip | "Chauffeurs available now" | "24/7 booking" | No live driver-presence signal |
-| Hourly tab (if not fully wired) | active tab | hidden or "Coming soon" badge | Prevents dead flow |
-| Return-journey toggle (if server pricing not verified) | free-form toggle | disabled with "Contact us for return pricing" | Avoid client-side price fiction |
-| Add-stop button (if not persisted) | active | disabled + tooltip | Same reason |
-| Instant-payment confirmation | any wording | remove or replace with "We'll email you to confirm" | |
+Add three suites (Vitest, no jsdom needed):
 
-Exact set will be finalized after I re-verify each claim's runtime behaviour and reported alongside the diff.
+- `tests/corporate-functions.test.ts` — valid submit, invalid email, missing required fields, honeypot silent-200, rate-limit trip, dup-hash rejection, generic error surface, allowlist enforcement (bonus keys ignored), plus a static grep asserting `corporate-booking.tsx` contains no `supabase.from(` write.
+- `tests/driver-application.test.ts` — same battery, plus licence-format validation, plus grep on `drive-with-us.tsx`.
+- `tests/fleet-functions.test.ts` — only `active=true` returned, only public-safe columns present (assert no `cost`/`margin`/`internal_notes`/etc.), stable `display_order` sort, DB error returns `[]` (already the code path — lock it in), empty result path.
 
-## Phase D — Site-wide public issues
+Mocking: stub `@supabase/supabase-js` `createClient` per suite so we don't hit the live DB.
 
-- `src/components/site/Footer.tsx` — split merged phone numbers with proper `tel:` links; replace `#` social links with `rel="noopener"` real URLs or hide until provided; add legal-page links.
-- `src/routes/contact.tsx` — hide the honeypot field with `sr-only` + `aria-hidden` + `tabIndex={-1}` + `autoComplete="off"`.
-- Fix "5 tour s" typo (grep and correct).
-- `src/components/site/Header.tsx` — "Book a Ride" always resolves: if on `/`, scroll to `#book`, else `navigate({ to: '/book' })`.
-- `src/routes/sitemap.xml.ts` — include: `/`, `/book`, `/tours`, `/fleet`, `/services`, `/contact`, `/corporate-booking`, `/drive-with-us`, `/privacy`, `/terms`, `/cookies`, `/booking-policy`, `/refund-policy`, `/accessibility`.
-- Add `<link rel="canonical">` per public route via head().
-- Replace `href="#"` / dead buttons on Services with `<Link to="/book">` or remove.
-- Homepage primary CTA: scroll to `#book` on `/`, navigate to `/book` elsewhere.
+## 4. Content Blocks audit → decide A or B
 
-## Phase E — Legal & policy pages
+Enumerate every read/write of `content_blocks` and every consuming route. Given prior scans suggest zero public consumption, default recommendation is **Outcome B**:
 
-Files to add (all public routes, semantic HTML, matching site design tokens, using existing SectionHeader / Footer patterns):
-- `src/routes/privacy.tsx`
-- `src/routes/terms.tsx`
-- `src/routes/cookies.tsx`
-- `src/routes/booking-policy.tsx`
-- `src/routes/refund-policy.tsx`
-- `src/routes/accessibility.tsx`
+- Remove the "Content Blocks" link from admin sidebar.
+- Keep the route file and DB table (no schema change).
+- Add a top-of-page banner on the route itself: "Experimental — not wired to public site."
 
-Each page:
-- Real head() metadata (title, description, canonical)
-- Clearly-marked `[ADMIN: complete this — company registration / VAT / ICO / etc.]` placeholders instead of invented facts
-- Last-updated date pulled from a per-page constant
-- Footer link added
+If the audit finds actual public consumers, switch to Outcome A: introduce a `getContentBlock(key)` server fn with typed keys + safe fallbacks and wire only those keys.
 
-## Phase F — Admin stub cleanup (non-destructive)
+## 5. Legacy vehicle pricing columns audit
 
-- Hide non-functional topbar Search input in `src/components/admin/AdminTopbar.tsx` (or equivalent) behind a comment marker, OR render disabled with "Coming soon" tooltip.
-- Same for Notification bell.
-- Remove Google Maps API key input from Settings page; add note "Configured via environment (`GOOGLE_MAPS_API_KEY`)".
-- Content Blocks: audit references first. If unused end-to-end, hide the admin route link only (leave DB table + files). Report findings.
-- Legacy pricing columns on `vehicles`: enumerate call sites in a section of the final report; no DB change this phase.
+For each of `base_fare`, `per_mile_rate`, `waiting_charge`, `price_per_hour`, plus any siblings surfaced by grep:
+- read sites, write sites, migration usage, admin form binding, whether production pricing depends on it.
 
-## Phase G — Booking draft resilience
+Report only in this task; produce a migration plan document at `.lovable/legacy-pricing-migration.md` covering: backfill, compatibility window, read-path removal step, write-path removal step, validation queries, rollback, final drop migration. **No columns dropped this phase.**
 
-Files to add:
-- `src/lib/booking-draft.ts` — pure utility: `saveDraft(partial)`, `loadDraft()`, `clearDraft()`, `DRAFT_TTL_MS`. Uses `sessionStorage` with schema-validated (Zod) shape. Never stores name/email/phone/notes/tokens.
+## 6. Fleet SSR + SEO verification
 
-Files to modify:
-- `src/routes/book.tsx` — hydrate wizard state from URL `?q=` (existing) merged with sessionStorage draft on mount; write draft on step transitions (debounced); clear on successful booking creation.
-- Whitelisted draft fields: `pickupPlaceId`, `pickupLabel`, `dropoffPlaceId`, `dropoffLabel`, `date`, `time`, `passengers`, `luggage`, `vehicleSlug`, `stops[]` (placeId, label, durationMin), `extras{}`, `returnJourney` (bool + return time only).
+- Build with `bun run build`, curl the built `/fleet` route via `stack_modern--invoke-server-function`, grep the HTML for each vehicle `name` and `alt=` text, assert `<a href="/book?vehicle=…">` is present.
+- Add `tests/fleet-ssr.test.ts` that renders the route with a stubbed query client seeded via `ensureQueryData` and asserts vehicle names appear in server-rendered markup.
+- Confirm error/empty states never leak DB error messages (audit the catch block).
+- Lock the public projection: add a compile-time `satisfies` check on `PublicVehicle` so accidental column expansion in `listPublicVehicles` fails typecheck.
 
-## Phase H — Tests
+## 7. Legal-page discoverability + launch guard
 
-New Vitest specs (colocated under `src/**/__tests__` following existing conventions):
-- `corporate.functions.test.ts` — schema rejects bad input; honeypot triggers 200 silent; rate-limit trips after N; duplicate hash rejected.
-- `driver-application.functions.test.ts` — same battery.
-- `fleet.functions.test.ts` — `listPublicVehicles` projects only public fields; excludes inactive; sort order.
-- `fleet.route.test.tsx` — empty state and error state render.
-- `booking-draft.test.ts` — round-trip, TTL expiry, PII filter (name/email/phone/notes never persisted).
-- `sitemap.test.ts` — asserts each public route present.
-- `public-cta.test.tsx` — header/home CTAs resolve to a real route.
-- `bundle-secret-scan.test.ts` — greps `dist/` output for `SUPABASE_SERVICE_ROLE_KEY`, `sb_secret_`, `BOOKING_TOKEN_SECRET`, `GOOGLE_MAPS_API_KEY` value patterns; fails if found.
+- Footer links: verified present; add a test asserting each of the 6 legal routes is linked from `Footer.tsx`.
+- Sitemap: already includes them; add explicit assertion in `sitemap-routes.test.ts`.
+- Canonicals: switch each legal route's `<link rel="canonical">` to a **relative** path so preview vs production domain is resolved at request time (matches sitemap/robots guidance). Do the same for other public routes that currently hardcode a domain.
+- `[ADMIN TO COMPLETE]` markers: grep, ensure only inside legal pages, and render them in a visibly-styled `<mark>` so nobody mistakes them for finalized copy.
+- Add a small `LegalReadinessBanner` component shown only inside `_authenticated/admin` when any legal page still contains `[ADMIN TO COMPLETE]`, listing which pages are incomplete. Not shown on the public site. Not a deploy blocker technically, but a persistent admin warning.
 
-Run after each phase: `bunx vitest run`, `bunx tsgo --noEmit`, production build (`bun run build`), plus bundle secret scan.
+## 8. Validation
 
-## Risks to existing booking flow
+After each phase: `bunx tsgo --noEmit`, `bunx vitest run`, `bun run build`, and the existing bundle-secret scan (`tests/bundle-scan.test.ts`).
 
-- Draft hydration must NEVER override server-authoritative price snapshots or the HMAC-signed token payload. Draft only feeds inputs; every quote recompute still goes through `calculateQuotes` server fn. Confirmed by keeping draft strictly to input fields.
-- Return-journey / add-stop UI disable is copy-and-attribute only — the underlying handlers stay; a follow-up phase can re-enable once server pricing is verified end-to-end.
-- Fleet server fn is read-only anon; RLS policy audit before enabling to avoid exposing draft/inactive vehicles.
+Manual runtime checklist (executed via Playwright, screenshots saved under `/tmp/browser/phase1/`): standard one-way, hourly, return, add-stop, refresh at each step, Back/Forward, successful booking clears draft, expired draft ignored, corporate form, driver application, fleet SSR HTML dump.
 
-## Execution order
+## Risks
 
-1. Plan approval
-2. Phase A (forms) + tests
-3. Phase B (fleet) + tests
-4. Phase C (honest copy) + report
-5. Phase D (site-wide fixes)
-6. Phase E (legal pages)
-7. Phase F (admin cleanup + legacy-columns report)
-8. Phase G (draft) + tests
-9. Phase H final full test/typecheck/build/bundle-scan sweep + summary
+- Runtime tests may reveal that hourly / return / stops need to be hidden. That is the intended outcome — we ship honest UI, not a rebuild.
+- Debouncing draft writes could race with `clearDraft` on submit — mitigation: `clearDraft` cancels the pending debounce timer.
+- Adding `step` to the draft could resurrect a stale wizard state after a schema change — mitigation: on hydration, always reset to `"vehicle"` if `chosen` cannot be recovered from `vehicleSlug`.
 
-After each phase I'll post: files changed, tests added, test/typecheck results, remaining limitations. Nothing about scenic routes / intelligent tour expansion is touched in this task.
+## Order of execution
+
+1. Draft hardening + tests
+2. Server-fn tests (corporate, driver, fleet)
+3. Runtime audit of hourly / return / stops → hide or relabel
+4. Confirmation-email copy sweep
+5. Content Blocks decision + admin hide
+6. Legacy-pricing audit doc
+7. Fleet SSR check + legal discoverability + launch guard
+8. Full validation sweep + final report
+
+Per-phase report: files changed, tests added, test/typecheck/build results, remaining limitations. No scenic-routes / Tours work touched.
+
+## Decisions needed before I start
+
+- **Content Blocks**: OK to default to Outcome B (hide from admin nav, keep table) unless the audit surfaces public consumers?
+- **Hourly / Return / Stops**: if runtime tests show they are not fully server-authoritative, OK to hide/disable them with honest copy rather than fix them in this phase?
+- **Legal launch guard**: admin-only warning banner acceptable, or do you want a hard deploy check (would require build-time script + workflow change)?
