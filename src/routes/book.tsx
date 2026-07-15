@@ -299,6 +299,7 @@ function BookPage() {
                       routeMode={routeMode}
                       stopsFingerprint={mq?.stops_fingerprint ?? null}
                       tourConversionAckAt={tourAckAt}
+                      childSeatFeePence={quoteQuery.data?.childSeatFeePence ?? 0}
                       onBack={() => setStep("vehicle")}
                       onSuccess={(token) => {
                         if (token) navigate({ to: "/booking/$token", params: { token } });
