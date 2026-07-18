@@ -10,6 +10,7 @@ export const Route = createFileRoute("/corporate-travel")({
       { title: "Corporate Travel — Cabslink Business Chauffeur Accounts" },
       { name: "description", content: "Account-managed corporate travel with punctual chauffeurs, monthly invoicing, dedicated support and full reporting." },
       { property: "og:title", content: "Corporate Travel — Cabslink" },
+      { property: "og:description", content: "Account-managed corporate travel with punctual chauffeurs, monthly invoicing, dedicated support and full reporting." },
       { property: "og:url", content: "https://cabslink.lovable.app/corporate-travel" },
     ],
     links: [{ rel: "canonical", href: "https://cabslink.lovable.app/corporate-travel" }],

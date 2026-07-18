@@ -11,6 +11,7 @@ export const Route = createFileRoute("/vip-transfers")({
       { title: "VIP Transfers — Cabslink Luxury Chauffeur Service" },
       { name: "description", content: "Discreet, refined VIP chauffeur transfers across the UK. First-class vehicles, vetted chauffeurs and absolute privacy." },
       { property: "og:title", content: "VIP Transfers — Cabslink" },
+      { property: "og:description", content: "Discreet, refined VIP chauffeur transfers across the UK. First-class vehicles, vetted chauffeurs and absolute privacy." },
       { property: "og:url", content: "https://cabslink.lovable.app/vip-transfers" },
     ],
     links: [{ rel: "canonical", href: "https://cabslink.lovable.app/vip-transfers" }],
