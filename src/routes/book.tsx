@@ -27,6 +27,7 @@ import { PhoneInput } from "@/components/site/PhoneInput";
 import { calculateQuotes, createBooking, type QuoteCard } from "@/lib/pricing.functions";
 import { listPoisForRoute, type PoiSuggestion, type RouteTemplateSummary } from "@/lib/pois.functions";
 import { calculateMultiStopQuote, type MultiStopQuoteResult } from "@/lib/scenic-quote.functions";
+import { resolveTourTemplate } from "@/lib/tours.functions";
 
 export const Route = createFileRoute("/book")({
   validateSearch: (search: Record<string, unknown>) => ({ q: typeof search.q === "string" ? search.q : "" }),
@@ -299,6 +300,20 @@ function BookPage() {
       }),
   });
 
+  const resolveTemplateFn = useServerFn(resolveTourTemplate);
+  const templateQuery = useQuery({
+    enabled: !!pre.templateSlug,
+    queryKey: ["tour-template", pre.templateSlug],
+    staleTime: 5 * 60 * 1000,
+    queryFn: () => resolveTemplateFn({ data: { slug: pre.templateSlug } }),
+  });
+  const tourTemplate = templateQuery.data ?? null;
+  const templateMismatch = !!pre.templateSlug && !!tourTemplate && hasValidRoute && (
+    tourTemplate.pickup.place_id !== pre.pickup?.placeId
+    || tourTemplate.dropoff.place_id !== pre.dropoff?.placeId
+  );
+  const templateMissing = !!pre.templateSlug && templateQuery.isFetched && !tourTemplate;
+
   const orderedSelected = (poisQuery.data?.pois ?? [])
     .filter((p) => selectedStops[p.place_id] !== undefined)
     .map((p) => ({
@@ -416,6 +431,7 @@ function BookPage() {
           child_seat_count: childSeatCount,
           meet_greet: meetGreet,
           return_journey: returnJourney,
+          templateSlug: pre.templateSlug || null,
         },
       });
       toast.success("Booking request received.");
@@ -445,6 +461,16 @@ function BookPage() {
             <EmptyJourneyState onEdit={() => setEditOpen(true)} />
           ) : (
             <>
+              {pre.templateSlug && (
+                <TourBanner
+                  slug={pre.templateSlug}
+                  name={tourTemplate?.name ?? null}
+                  loading={templateQuery.isLoading}
+                  missing={templateMissing}
+                  mismatch={templateMismatch}
+                  onStartAgain={startAgain}
+                />
+              )}
               <Stepper step={step} />
               <div className="mt-8 grid lg:grid-cols-[340px_1fr] gap-6 items-start pb-24 lg:pb-0">
                 <Sidebar
@@ -722,6 +748,43 @@ function MobilePriceBar({ price }: { price: PriceSummary }) {
           Continue <ArrowRight className="size-4" />
         </a>
       </div>
+    </div>
+  );
+}
+
+function TourBanner({ slug, name, loading, missing, mismatch, onStartAgain }: {
+  slug: string;
+  name: string | null;
+  loading: boolean;
+  missing: boolean;
+  mismatch: boolean;
+  onStartAgain: () => void;
+}) {
+  const tone = missing || mismatch
+    ? "border-amber-400/60 bg-amber-50 text-amber-900"
+    : "border-[var(--gold)]/40 bg-[var(--gold)]/8 text-foreground";
+  return (
+    <div className={`rounded-2xl border ${tone} px-4 py-3 flex items-start gap-3`}>
+      <Sparkles className="size-4 mt-0.5 text-[var(--gold)] shrink-0" aria-hidden />
+      <div className="min-w-0 flex-1 text-sm">
+        {loading ? (
+          <p className="text-muted-foreground">Loading tour details…</p>
+        ) : missing ? (
+          <p><strong>This tour is no longer available.</strong> Start again to pick another tour or book a direct transfer.</p>
+        ) : mismatch ? (
+          <p><strong>Pickup or drop-off no longer matches the "{name}" tour.</strong> Return to the tour page to keep tour pricing.</p>
+        ) : (
+          <p>
+            You're customising the <strong>{name ?? "selected"}</strong> tour.{" "}
+            <Link to="/tours/$slug" params={{ slug }} className="underline underline-offset-2 hover:text-[var(--gold)]">View tour details</Link>.
+          </p>
+        )}
+      </div>
+      {(missing || mismatch) && (
+        <button onClick={onStartAgain} className="text-xs font-semibold px-3 py-1.5 rounded-full border border-current hover:bg-white/40 transition shrink-0">
+          Start again
+        </button>
+      )}
     </div>
   );
 }
