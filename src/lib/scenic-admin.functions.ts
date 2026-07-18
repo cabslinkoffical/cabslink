@@ -177,7 +177,7 @@ export const updateScenicTemplateMeta = createServerFn({ method: "POST" })
     if (Object.keys(cleaned).length === 0) return { ok: true };
     const { error } = await context.supabase
       .from("scenic_route_templates")
-      .update(cleaned)
+      .update(cleaned as any)
       .eq("id", id);
     if (error) throw new Error(error.message);
     return { ok: true };
