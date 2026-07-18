@@ -203,6 +203,8 @@ function BookPage() {
       rdate: d.returnJourney?.date ?? "",
       rtime: d.returnJourney?.time ?? "",
       mode: "quote",
+      templateSlug: "",
+
     };
     if (next.pickup || next.dropoff) {
       navigate({ search: { q: encodePrefill(next) }, replace: true });
