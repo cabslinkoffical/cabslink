@@ -35,16 +35,16 @@ function serverPublicClient() {
 
 // Frozen public projection — every new column MUST be added here explicitly.
 const LIST_FIELDS =
-  "id, slug, name, short_description, hero_image_url, origin_label, destination_label, theme, seasonal_note, featured, long_day, display_order, tour_fee_pence, direct_distance_miles_cache, direct_duration_seconds_cache, starting_price_pence_cache, starting_price_currency" as const;
+  "id, slug, name, short_description, hero_image_url, origin_label, destination_label, theme, seasonal_note, featured, long_day, display_order, tour_fee_pence, direct_distance_miles_cache, direct_duration_seconds_cache, starting_price_pence_cache, starting_price_currency";
 
 const DETAIL_FIELDS =
   LIST_FIELDS +
-  ", description, included, excluded, recommended_vehicle_categories, recommended_start_time, origin_place_id, destination_place_id, default_order_locked" as const;
+  ", description, included, excluded, recommended_vehicle_categories, recommended_start_time, origin_place_id, destination_place_id, default_order_locked";
 
 // POI fields we allow into the public projection. Deliberately excludes
 // scenic_score, admin_priority, latitude/longitude, address_label.
 const POI_FIELDS =
-  "id, slug, name, short_description, category, image_url, recommended_visit_minutes, minimum_visit_minutes, maximum_visit_minutes, stop_fee_pence, parking_fee_pence, admission_note, opening_hours_note, featured, place_id" as const;
+  "id, slug, name, short_description, category, image_url, recommended_visit_minutes, minimum_visit_minutes, maximum_visit_minutes, stop_fee_pence, parking_fee_pence, admission_note, opening_hours_note, featured, place_id";
 
 export type PublicTourListItem = {
   slug: string;
