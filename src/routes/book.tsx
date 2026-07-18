@@ -752,6 +752,43 @@ function MobilePriceBar({ price }: { price: PriceSummary }) {
   );
 }
 
+function TourBanner({ slug, name, loading, missing, mismatch, onStartAgain }: {
+  slug: string;
+  name: string | null;
+  loading: boolean;
+  missing: boolean;
+  mismatch: boolean;
+  onStartAgain: () => void;
+}) {
+  const tone = missing || mismatch
+    ? "border-amber-400/60 bg-amber-50 text-amber-900"
+    : "border-[var(--gold)]/40 bg-[var(--gold)]/8 text-foreground";
+  return (
+    <div className={`rounded-2xl border ${tone} px-4 py-3 flex items-start gap-3`}>
+      <Sparkles className="size-4 mt-0.5 text-[var(--gold)] shrink-0" aria-hidden />
+      <div className="min-w-0 flex-1 text-sm">
+        {loading ? (
+          <p className="text-muted-foreground">Loading tour details…</p>
+        ) : missing ? (
+          <p><strong>This tour is no longer available.</strong> Start again to pick another tour or book a direct transfer.</p>
+        ) : mismatch ? (
+          <p><strong>Pickup or drop-off no longer matches the "{name}" tour.</strong> Return to the tour page to keep tour pricing.</p>
+        ) : (
+          <p>
+            You're customising the <strong>{name ?? "selected"}</strong> tour.{" "}
+            <Link to="/tours/$slug" params={{ slug }} className="underline underline-offset-2 hover:text-[var(--gold)]">View tour details</Link>.
+          </p>
+        )}
+      </div>
+      {(missing || mismatch) && (
+        <button onClick={onStartAgain} className="text-xs font-semibold px-3 py-1.5 rounded-full border border-current hover:bg-white/40 transition shrink-0">
+          Start again
+        </button>
+      )}
+    </div>
+  );
+}
+
 function Sidebar({ pre, onEdit, onStartAgain, route, price }: {
   pre: Prefill; onEdit: () => void; onStartAgain?: () => void;
   route: { miles: number; minutes: number } | null;
