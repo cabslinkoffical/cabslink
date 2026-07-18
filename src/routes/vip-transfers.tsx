@@ -3,7 +3,7 @@ import { Crown, ShieldCheck, Sparkles, Star, ArrowRight } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero, SectionHeader } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
-import driverImg from "@/assets/driver.jpg";
+import driverImg from "@/assets/chauffeur.jpg";
 
 export const Route = createFileRoute("/vip-transfers")({
   head: () => ({
