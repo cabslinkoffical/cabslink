@@ -21,9 +21,9 @@ export const Route = createFileRoute("/fleet")({
       { title: "Our Fleet — Cabslink Luxury Chauffeur Vehicles UK" },
       { name: "description", content: "Explore Cabslink's active chauffeur fleet — current vehicle details, images, capacity and availability." },
       { property: "og:title", content: "Our Fleet — Cabslink Luxury Chauffeur Vehicles" },
-      { property: "og:url", content: "/fleet" },
+      { property: "og:url", content: "https://cabslink.lovable.app/fleet" },
     ],
-    links: [{ rel: "canonical", href: "/fleet" }],
+    links: [{ rel: "canonical", href: "https://cabslink.lovable.app/fleet" }],
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(fleetQuery),
   errorComponent: () => (

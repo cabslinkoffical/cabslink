@@ -19,9 +19,9 @@ export const Route = createFileRoute("/drive-with-us")({
       { title: "Drive With Us — Become a Cabslink Chauffeur or Fleet Partner" },
       { name: "description", content: "Join Cabslink as a professional chauffeur or licensed fleet operator. Steady premium work across the UK with a respected brand." },
       { property: "og:title", content: "Drive With Us — Cabslink" },
-      { property: "og:url", content: "/drive-with-us" },
+      { property: "og:url", content: "https://cabslink.lovable.app/drive-with-us" },
     ],
-    links: [{ rel: "canonical", href: "/drive-with-us" }],
+    links: [{ rel: "canonical", href: "https://cabslink.lovable.app/drive-with-us" }],
   }),
   component: DrivePage,
 });

@@ -12,9 +12,9 @@ export const Route = createFileRoute("/about")({
       { name: "description", content: "Cabslink is a UK-based premium airport transfer and chauffeur company. Learn about our story, values and the team behind every journey." },
       { property: "og:title", content: "About Cabslink" },
       { property: "og:description", content: "A UK-based premium airport transfer and chauffeur company built on punctuality and trust." },
-      { property: "og:url", content: "/about" },
+      { property: "og:url", content: "https://cabslink.lovable.app/about" },
     ],
-    links: [{ rel: "canonical", href: "/about" }],
+    links: [{ rel: "canonical", href: "https://cabslink.lovable.app/about" }],
   }),
   component: AboutPage,
 });
