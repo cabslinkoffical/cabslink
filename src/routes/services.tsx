@@ -9,9 +9,10 @@ export const Route = createFileRoute("/services")({
       { title: "Services — Cabslink UK Airport Transfers & Chauffeur" },
       { name: "description", content: "Airport transfers, VIP chauffeur, corporate travel, private tours, event transfers and more. Premium UK transport from Cabslink." },
       { property: "og:title", content: "Cabslink Services" },
-      { property: "og:url", content: "/services" },
+      { property: "og:description", content: "Airport transfers, VIP chauffeur, corporate travel, private tours, event transfers and more. Premium UK transport from Cabslink." },
+      { property: "og:url", content: "https://cabslink.lovable.app/services" },
     ],
-    links: [{ rel: "canonical", href: "/services" }],
+    links: [{ rel: "canonical", href: "https://cabslink.lovable.app/services" }],
   }),
   component: ServicesPage,
 });

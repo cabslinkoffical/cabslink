@@ -70,12 +70,13 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Book fixed-fare UK airport transfers and luxury chauffeur cars 24/7. Edinburgh, Heathrow, Gatwick, Manchester & Glasgow — flight tracking, meet & greet, Mercedes fleet." },
       { name: "keywords", content: "UK airport transfers, Edinburgh airport taxi, luxury chauffeur UK, private chauffeur service, Mercedes V-Class hire, executive car service, Scotland private tours" },
       { property: "og:title", content: "Cabslink | UK Airport Transfers & Luxury Chauffeur Service" },
+      { property: "og:description", content: "Book fixed-fare UK airport transfers and luxury chauffeur cars 24/7. Edinburgh, Heathrow, Gatwick, Manchester & Glasgow — flight tracking, meet & greet, Mercedes fleet." },
       { property: "og:description", content: "Fixed-fare UK airport transfers and chauffeur-driven cars. Flight tracking, meet & greet and a professional Mercedes fleet — book in under 60 seconds." },
-      { property: "og:url", content: "/" },
+      { property: "og:url", content: "https://cabslink.lovable.app/" },
       { property: "og:type", content: "website" },
     ],
     links: [
-      { rel: "canonical", href: "/" },
+      { rel: "canonical", href: "https://cabslink.lovable.app/" },
       // Preload the initial LCP hero vehicle image (V-Class). `imagesrcset` +
       // `imagesizes` let the browser pick the right responsive variant even
       // for the preload; `fetchpriority` promotes it above other requests.

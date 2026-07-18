@@ -7,7 +7,7 @@ export const Route = createFileRoute("/privacy")({
       { title: "Privacy Policy — Cabslink" },
       { name: "description", content: "How Cabslink collects, uses and protects your personal information." },
     ],
-    links: [{ rel: "canonical", href: "/privacy" }],
+    links: [{ rel: "canonical", href: "https://cabslink.lovable.app/privacy" }],
   }),
   component: () => (
     <LegalPage eyebrow="Privacy Policy" title="Privacy Policy" updated="15 July 2026"

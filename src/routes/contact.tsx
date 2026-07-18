@@ -20,9 +20,9 @@ export const Route = createFileRoute("/contact")({
       { title: "Contact Cabslink — 24/7 UK Chauffeur & Transfer Booking" },
       { name: "description", content: "Get in touch with Cabslink — 24/7 support, instant quotes and dedicated booking. Email, phone and Edinburgh office." },
       { property: "og:title", content: "Contact Cabslink" },
-      { property: "og:url", content: "/contact" },
+      { property: "og:url", content: "https://cabslink.lovable.app/contact" },
     ],
-    links: [{ rel: "canonical", href: "/contact" }],
+    links: [{ rel: "canonical", href: "https://cabslink.lovable.app/contact" }],
   }),
   component: ContactPage,
 });

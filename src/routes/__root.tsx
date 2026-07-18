@@ -61,8 +61,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:title", content: "Cabslink — Premium UK Airport Transfers & Chauffeur Services" },
       { property: "og:description", content: "Reliable, on-time UK airport transfers and luxury chauffeur services. 24/7 booking, flight tracking, meet & greet across the UK." },
       { name: "twitter:description", content: "Reliable, on-time UK airport transfers and luxury chauffeur services. 24/7 booking, flight tracking, meet & greet across the UK." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/3ff6f734-b7e5-4c4f-828e-d991ff89a359/id-preview-ca783148--e2d845db-9efd-4dac-bae6-365b62867b96.lovable.app-1782151103678.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/3ff6f734-b7e5-4c4f-828e-d991ff89a359/id-preview-ca783148--e2d845db-9efd-4dac-bae6-365b62867b96.lovable.app-1782151103678.png" },
+      { property: "og:url", content: "https://cabslink.lovable.app/" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
