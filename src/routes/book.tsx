@@ -165,7 +165,11 @@ function BookPage() {
   const [policy, setPolicy] = useState<Policy>("standard");
   const [editOpen, setEditOpen] = useState(false);
   // Extras (all consolidated on step 3)
-  const [selectedStops, setSelectedStops] = useState<Record<string, number>>({});
+  const [selectedStops, setSelectedStops] = useState<Record<string, number>>(() => {
+    const seed: Record<string, number> = {};
+    for (const s of pre.stops) if (s.minutes !== undefined) seed[s.placeId] = s.minutes;
+    return seed;
+  });
   const [routeMode, setRouteMode] = useState<"direct" | "scenic" | "optimised">("scenic");
   const [tourAckAt, setTourAckAt] = useState<string | null>(null);
   const [meetGreet, setMeetGreet] = useState(true);
