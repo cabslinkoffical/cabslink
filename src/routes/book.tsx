@@ -431,6 +431,7 @@ function BookPage() {
           child_seat_count: childSeatCount,
           meet_greet: meetGreet,
           return_journey: returnJourney,
+          templateSlug: pre.templateSlug || null,
         },
       });
       toast.success("Booking request received.");
