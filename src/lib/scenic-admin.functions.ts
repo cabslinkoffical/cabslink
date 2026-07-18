@@ -151,6 +151,114 @@ export const setScenicTemplateActive = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+// Update editable presentation metadata on a template (hero, copy, theme, etc.).
+const templateMetaSchema = z.object({
+  id: z.string().uuid(),
+  hero_image_url: z.string().trim().max(500).nullable().optional(),
+  short_description: z.string().trim().max(500).nullable().optional(),
+  theme: z.string().trim().max(80).nullable().optional(),
+  recommended_start_time: z.string().trim().max(40).nullable().optional(),
+  long_day: z.boolean().optional(),
+  seasonal_note: z.string().trim().max(300).nullable().optional(),
+  admin_notes: z.string().trim().max(1000).nullable().optional(),
+});
+
+export const updateScenicTemplateMeta = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => templateMetaSchema.parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { id, ...patch } = data;
+    const cleaned: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(patch)) {
+      if (v === undefined) continue;
+      cleaned[k] = typeof v === "string" && v.length === 0 ? null : v;
+    }
+    if (Object.keys(cleaned).length === 0) return { ok: true };
+    const { error } = await context.supabase
+      .from("scenic_route_templates")
+      .update(cleaned)
+      .eq("id", id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+// Publish/unpublish a template. Mirrors the DB publish-guard so we can return
+// actionable validation errors instead of raw trigger messages.
+export const publishScenicTemplate = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({ id: z.string().uuid(), published: z.boolean() }).parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    if (data.published) {
+      const { data: tpl, error: tErr } = await context.supabase
+        .from("scenic_route_templates")
+        .select("slug, origin_place_id, destination_place_id, active")
+        .eq("id", data.id)
+        .maybeSingle();
+      if (tErr) throw new Error(tErr.message);
+      if (!tpl) throw new Error("Template not found");
+      const problems: string[] = [];
+      if (!tpl.slug?.trim()) problems.push("Slug is required");
+      if (!tpl.origin_place_id?.trim()) problems.push("Origin Place ID is required");
+      if (!tpl.destination_place_id?.trim()) problems.push("Destination Place ID is required");
+      if (!tpl.active) problems.push("Template must be active before publishing");
+      const { data: rows, error: rErr } = await context.supabase
+        .from("scenic_route_template_pois")
+        .select("points_of_interest(active, place_id, name)")
+        .eq("route_template_id", data.id);
+      if (rErr) throw new Error(rErr.message);
+      const activePois = (rows ?? [])
+        .map((r: any) => r.points_of_interest)
+        .filter((p: any) => p?.active && p?.place_id);
+      if (activePois.length === 0) {
+        problems.push("At least one active POI with a Place ID is required");
+      }
+      if (problems.length) throw new Error(problems.join("; "));
+    }
+    const { error } = await context.supabase
+      .from("scenic_route_templates")
+      .update({ published: data.published })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+// Recompute the starting-price cache for a single template (admin action).
+export const refreshScenicTemplateStartingPrice = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { computeStartingPriceForTemplate } = await import("@/lib/tours-pricing.server");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const result = await computeStartingPriceForTemplate(data.id);
+    if (!result) {
+      await supabaseAdmin
+        .from("scenic_route_templates")
+        .update({
+          starting_price_pence_cache: null,
+          starting_price_calculated_at: new Date().toISOString(),
+        })
+        .eq("id", data.id);
+      return { ok: true, price_pence: null as number | null };
+    }
+    await supabaseAdmin
+      .from("scenic_route_templates")
+      .update({
+        starting_price_pence_cache: result.price_pence,
+        starting_price_currency: result.currency,
+        starting_price_vehicle_id: result.vehicle_id,
+        starting_price_calculated_at: new Date().toISOString(),
+        direct_distance_miles_cache: result.direct_distance_miles,
+        direct_duration_seconds_cache: result.direct_duration_seconds,
+      })
+      .eq("id", data.id);
+    return { ok: true, price_pence: result.price_pence };
+  });
+
 // ---------------- Tour settings ----------------
 
 const TOUR_SETTINGS_KEYS = [
