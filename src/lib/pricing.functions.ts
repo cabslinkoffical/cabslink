@@ -374,6 +374,30 @@ export const createBooking = createServerFn({ method: "POST" })
     let scenicTemplateId: string | null = null;
     let scenicPrice: number | null = null;
 
+    // Template validation — when the booking originates from a published
+    // tour we enforce that pickup/destination match the template's origin
+    // and that every timed stop is one of the template's approved POIs.
+    if (data.templateSlug) {
+      const { getPublishedTourBySlugImpl } = await import("@/lib/tours.functions");
+      const template = await getPublishedTourBySlugImpl(data.templateSlug);
+      if (!template) {
+        try { setResponseStatus(400); } catch {}
+        throw new Error("This tour is no longer available. Please choose another tour.");
+      }
+      if (template.origin_place_id !== data.pickupPlaceId
+          || template.destination_place_id !== data.destinationPlaceId) {
+        try { setResponseStatus(400); } catch {}
+        throw new Error("Pickup and destination don't match the selected tour. Return to the tour page and continue from there.");
+      }
+      const allowed = new Set(template.pois.map((p) => p.place_id));
+      const bad = data.stops.find((s) => !allowed.has(s.placeId));
+      if (bad) {
+        try { setResponseStatus(400); } catch {}
+        throw new Error(`Stop "${bad.label}" isn't part of this tour. Please refresh and reselect.`);
+      }
+      scenicTemplateId = template.id;
+    }
+
     if (hasTimedStops) {
       const routeMode = data.routeMode ?? "scenic";
       const { stopsFingerprint } = await import("@/lib/stops-fingerprint");
