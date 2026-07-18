@@ -66,10 +66,11 @@ const HERO_VEHICLE_SIZES = "(max-width: 1024px) 92vw, 600px";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Cabslink — Premium UK Airport Transfers & Chauffeur Services" },
-      { name: "description", content: "Premium UK airport transfers and chauffeur services in our Mercedes-Benz V-Class fleet. Flight-tracked, meet & greet, fixed fares, 24/7." },
-      { property: "og:title", content: "Cabslink — Premium UK Airport Transfers & Chauffeur Services" },
-      { property: "og:description", content: "Premium UK airport transfers and chauffeur services across the UK — Mercedes V-Class fleet, fixed fares, 24/7." },
+      { title: "Cabslink | UK Airport Transfers & Luxury Chauffeur Service" },
+      { name: "description", content: "Book fixed-fare UK airport transfers and luxury chauffeur cars 24/7. Edinburgh, Heathrow, Gatwick, Manchester & Glasgow — flight tracking, meet & greet, Mercedes fleet." },
+      { name: "keywords", content: "UK airport transfers, Edinburgh airport taxi, luxury chauffeur UK, private chauffeur service, Mercedes V-Class hire, executive car service, Scotland private tours" },
+      { property: "og:title", content: "Cabslink | UK Airport Transfers & Luxury Chauffeur Service" },
+      { property: "og:description", content: "Fixed-fare UK airport transfers and chauffeur-driven cars. Flight tracking, meet & greet and a professional Mercedes fleet — book in under 60 seconds." },
       { property: "og:url", content: "/" },
       { property: "og:type", content: "website" },
     ],
