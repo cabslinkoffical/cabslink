@@ -461,6 +461,16 @@ function BookPage() {
             <EmptyJourneyState onEdit={() => setEditOpen(true)} />
           ) : (
             <>
+              {pre.templateSlug && (
+                <TourBanner
+                  slug={pre.templateSlug}
+                  name={tourTemplate?.name ?? null}
+                  loading={templateQuery.isLoading}
+                  missing={templateMissing}
+                  mismatch={templateMismatch}
+                  onStartAgain={startAgain}
+                />
+              )}
               <Stepper step={step} />
               <div className="mt-8 grid lg:grid-cols-[340px_1fr] gap-6 items-start pb-24 lg:pb-0">
                 <Sidebar
