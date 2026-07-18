@@ -300,6 +300,20 @@ function BookPage() {
       }),
   });
 
+  const resolveTemplateFn = useServerFn(resolveTourTemplate);
+  const templateQuery = useQuery({
+    enabled: !!pre.templateSlug,
+    queryKey: ["tour-template", pre.templateSlug],
+    staleTime: 5 * 60 * 1000,
+    queryFn: () => resolveTemplateFn({ data: { slug: pre.templateSlug } }),
+  });
+  const tourTemplate = templateQuery.data ?? null;
+  const templateMismatch = !!pre.templateSlug && !!tourTemplate && hasValidRoute && (
+    tourTemplate.pickup.place_id !== pre.pickup?.placeId
+    || tourTemplate.dropoff.place_id !== pre.dropoff?.placeId
+  );
+  const templateMissing = !!pre.templateSlug && templateQuery.isFetched && !tourTemplate;
+
   const orderedSelected = (poisQuery.data?.pois ?? [])
     .filter((p) => selectedStops[p.place_id] !== undefined)
     .map((p) => ({
