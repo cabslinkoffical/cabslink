@@ -27,6 +27,7 @@ import { PhoneInput } from "@/components/site/PhoneInput";
 import { calculateQuotes, createBooking, type QuoteCard } from "@/lib/pricing.functions";
 import { listPoisForRoute, type PoiSuggestion, type RouteTemplateSummary } from "@/lib/pois.functions";
 import { calculateMultiStopQuote, type MultiStopQuoteResult } from "@/lib/scenic-quote.functions";
+import { resolveTourTemplate } from "@/lib/tours.functions";
 
 export const Route = createFileRoute("/book")({
   validateSearch: (search: Record<string, unknown>) => ({ q: typeof search.q === "string" ? search.q : "" }),
