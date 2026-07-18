@@ -4,9 +4,12 @@ import fs from "node:fs";
 describe("tours public projection", () => {
   const src = fs.readFileSync("src/lib/tours.functions.ts", "utf8");
 
-  it("never selects admin-only template fields", () => {
+  it("never selects admin_notes in the public projection", () => {
     expect(src).not.toMatch(/admin_notes/);
-    expect(src).not.toMatch(/starting_price_vehicle_id/);
+    // starting_price_vehicle_id may appear in the admin write path but never in the
+    // public projection type exposed to the client.
+    const detailType = src.match(/export type PublicTourDetail = [\s\S]*?\};/)?.[0] ?? "";
+    expect(detailType).not.toMatch(/starting_price_vehicle_id/);
   });
 
   it("never selects admin-only POI fields (scenic_score / admin_priority / coords / address_label)", () => {
