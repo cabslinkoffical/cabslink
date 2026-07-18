@@ -464,7 +464,7 @@ export const createBooking = createServerFn({ method: "POST" })
         const veh = multi.vehicles.find((v) => v.vehicle_id === data.vehicleId);
         if (veh) {
           scenicPrice = Number((veh.per_vehicle_total * qty).toFixed(2));
-          scenicTemplateId = multi.template_id;
+          if (!scenicTemplateId) scenicTemplateId = multi.template_id;
           price = scenicPrice;
         }
       } catch (err) {
