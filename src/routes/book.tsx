@@ -44,11 +44,13 @@ export const Route = createFileRoute("/book")({
 
 // -------------------------------------------------------------------
 // Prefill parsing — Place-IDs are required for a real quote.
+// stops encoding: `placeId::label` OR `placeId::label::minutes` (optional).
 // -------------------------------------------------------------------
+type PrefillStop = SelectedPlace & { minutes?: number };
 type Prefill = {
   pickup: SelectedPlace | null;
   dropoff: SelectedPlace | null;
-  stops: SelectedPlace[];
+  stops: PrefillStop[];
   date: string;
   time: string;
   passengers: number;
@@ -57,15 +59,24 @@ type Prefill = {
   rdate: string;
   rtime: string;
   mode: "quote" | "hourly";
+  templateSlug: string;
 };
 
-function decodeStops(raw: string): SelectedPlace[] {
+function decodeStops(raw: string): PrefillStop[] {
   if (!raw) return [];
   return raw.split("|").flatMap((chunk) => {
-    const [id, ...rest] = chunk.split("::");
-    if (!id || !rest.length) return [];
+    const parts = chunk.split("::");
+    const id = parts[0];
+    const label = parts[1];
+    const minsRaw = parts[2];
+    if (!id || !label) return [];
     try {
-      return [{ placeId: id, label: decodeURIComponent(rest.join("::")) }];
+      const stop: PrefillStop = { placeId: id, label: decodeURIComponent(label) };
+      if (minsRaw !== undefined) {
+        const n = Number(minsRaw);
+        if (Number.isFinite(n) && n >= 0 && n <= 240) stop.minutes = Math.round(n);
+      }
+      return [stop];
     } catch {
       return [];
     }
@@ -90,6 +101,7 @@ function readPrefill(q: string): Prefill {
     rdate: p.get("rdate") ?? "",
     rtime: p.get("rtime") ?? "",
     mode: (p.get("mode") as "quote" | "hourly") ?? "quote",
+    templateSlug: p.get("templateSlug") ?? "",
   };
 }
 
@@ -102,15 +114,20 @@ function encodePrefill(pre: Prefill): string {
   p.set("luggage", String(pre.luggage));
   p.set("mode", pre.mode);
   if (pre.stops.length) {
-    p.set("stops", pre.stops.map((s) => `${s.placeId}::${encodeURIComponent(s.label)}`).join("|"));
+    p.set("stops", pre.stops.map((s) => {
+      const base = `${s.placeId}::${encodeURIComponent(s.label)}`;
+      return s.minutes !== undefined ? `${base}::${s.minutes}` : base;
+    }).join("|"));
   }
   if (pre.ret) {
     p.set("ret", "1");
     if (pre.rdate) p.set("rdate", pre.rdate);
     if (pre.rtime) p.set("rtime", pre.rtime);
   }
+  if (pre.templateSlug) p.set("templateSlug", pre.templateSlug);
   return p.toString();
 }
+
 
 type Step = "vehicle" | "details" | "extras" | "payment" | "review";
 type Policy = "non_refundable" | "standard" | "flexible";
@@ -148,7 +165,11 @@ function BookPage() {
   const [policy, setPolicy] = useState<Policy>("standard");
   const [editOpen, setEditOpen] = useState(false);
   // Extras (all consolidated on step 3)
-  const [selectedStops, setSelectedStops] = useState<Record<string, number>>({});
+  const [selectedStops, setSelectedStops] = useState<Record<string, number>>(() => {
+    const seed: Record<string, number> = {};
+    for (const s of pre.stops) if (s.minutes !== undefined) seed[s.placeId] = s.minutes;
+    return seed;
+  });
   const [routeMode, setRouteMode] = useState<"direct" | "scenic" | "optimised">("scenic");
   const [tourAckAt, setTourAckAt] = useState<string | null>(null);
   const [meetGreet, setMeetGreet] = useState(true);
@@ -186,6 +207,8 @@ function BookPage() {
       rdate: d.returnJourney?.date ?? "",
       rtime: d.returnJourney?.time ?? "",
       mode: "quote",
+      templateSlug: "",
+
     };
     if (next.pickup || next.dropoff) {
       navigate({ search: { q: encodePrefill(next) }, replace: true });
