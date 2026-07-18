@@ -1125,68 +1125,124 @@ export type Database = {
       scenic_route_templates: {
         Row: {
           active: boolean
+          admin_notes: string | null
           bidirectional: boolean
           created_at: string
           default_order_locked: boolean
           description: string
           destination_label: string
           destination_place_id: string
+          direct_distance_miles_cache: number | null
+          direct_duration_seconds_cache: number | null
           display_order: number
+          excluded: Json
           featured: boolean
+          hero_image_url: string | null
           id: string
+          included: Json
+          long_day: boolean
           name: string
           optimisation_allowed: boolean
           origin_label: string
           origin_place_id: string
+          published: boolean
+          recommended_start_time: string | null
+          recommended_vehicle_categories: string[]
           seasonal_note: string | null
           service_type: string
+          short_description: string | null
           slug: string
+          starting_price_calculated_at: string | null
+          starting_price_currency: string | null
+          starting_price_pence_cache: number | null
+          starting_price_vehicle_id: string | null
+          theme: string | null
           tour_fee_pence: number
           updated_at: string
         }
         Insert: {
           active?: boolean
+          admin_notes?: string | null
           bidirectional?: boolean
           created_at?: string
           default_order_locked?: boolean
           description?: string
           destination_label?: string
           destination_place_id?: string
+          direct_distance_miles_cache?: number | null
+          direct_duration_seconds_cache?: number | null
           display_order?: number
+          excluded?: Json
           featured?: boolean
+          hero_image_url?: string | null
           id?: string
+          included?: Json
+          long_day?: boolean
           name: string
           optimisation_allowed?: boolean
           origin_label?: string
           origin_place_id?: string
+          published?: boolean
+          recommended_start_time?: string | null
+          recommended_vehicle_categories?: string[]
           seasonal_note?: string | null
           service_type?: string
+          short_description?: string | null
           slug: string
+          starting_price_calculated_at?: string | null
+          starting_price_currency?: string | null
+          starting_price_pence_cache?: number | null
+          starting_price_vehicle_id?: string | null
+          theme?: string | null
           tour_fee_pence?: number
           updated_at?: string
         }
         Update: {
           active?: boolean
+          admin_notes?: string | null
           bidirectional?: boolean
           created_at?: string
           default_order_locked?: boolean
           description?: string
           destination_label?: string
           destination_place_id?: string
+          direct_distance_miles_cache?: number | null
+          direct_duration_seconds_cache?: number | null
           display_order?: number
+          excluded?: Json
           featured?: boolean
+          hero_image_url?: string | null
           id?: string
+          included?: Json
+          long_day?: boolean
           name?: string
           optimisation_allowed?: boolean
           origin_label?: string
           origin_place_id?: string
+          published?: boolean
+          recommended_start_time?: string | null
+          recommended_vehicle_categories?: string[]
           seasonal_note?: string | null
           service_type?: string
+          short_description?: string | null
           slug?: string
+          starting_price_calculated_at?: string | null
+          starting_price_currency?: string | null
+          starting_price_pence_cache?: number | null
+          starting_price_vehicle_id?: string | null
+          theme?: string | null
           tour_fee_pence?: number
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "scenic_route_templates_starting_price_vehicle_id_fkey"
+            columns: ["starting_price_vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       site_settings: {
         Row: {
