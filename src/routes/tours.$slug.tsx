@@ -228,11 +228,10 @@ function TourDetailPage() {
               <p className="mt-1 text-xs text-muted-foreground">Live pricing — final total shown at checkout after vehicle & stops.</p>
 
               <Button asChild size="lg" className="w-full mt-5">
-                <Link to="/book" search={{ templateSlug: d.slug } as never}>
-                  Continue to booking <ArrowRight className="size-4 ml-1" />
-                </Link>
+                <a href={bookHref}>
+                  Continue to booking <ArrowRight className="size-4 ml-1 inline" />
+                </a>
               </Button>
-              <a href={bookHref} className="sr-only">Book this tour</a>
 
               <ul className="mt-5 space-y-2 text-sm text-muted-foreground">
                 {d.recommended_stop_count > 0 && <li className="flex items-center gap-2"><Check className="size-4 text-[var(--gold)]" />{d.recommended_stop_count} curated stops</li>}

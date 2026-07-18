@@ -31,6 +31,7 @@ import { Route as AccessibilityRouteImport } from './routes/accessibility'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ToursSlugRouteImport } from './routes/tours.$slug'
 import { Route as BookingTokenRouteImport } from './routes/booking.$token'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
@@ -166,6 +167,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ToursSlugRoute = ToursSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => ToursRoute,
 } as any)
 const BookingTokenRoute = BookingTokenRouteImport.update({
   id: '/booking/$token',
@@ -337,10 +343,11 @@ export interface FileRoutesByFullPath {
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
-  '/tours': typeof ToursRoute
+  '/tours': typeof ToursRouteWithChildren
   '/vip-transfers': typeof VipTransfersRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/booking/$token': typeof BookingTokenRoute
+  '/tours/$slug': typeof ToursSlugRoute
   '/admin/addresses': typeof AuthenticatedAdminAddressesRoute
   '/admin/banned-addresses': typeof AuthenticatedAdminBannedAddressesRoute
   '/admin/bookings': typeof AuthenticatedAdminBookingsRoute
@@ -386,9 +393,10 @@ export interface FileRoutesByTo {
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
-  '/tours': typeof ToursRoute
+  '/tours': typeof ToursRouteWithChildren
   '/vip-transfers': typeof VipTransfersRoute
   '/booking/$token': typeof BookingTokenRoute
+  '/tours/$slug': typeof ToursSlugRoute
   '/admin/addresses': typeof AuthenticatedAdminAddressesRoute
   '/admin/banned-addresses': typeof AuthenticatedAdminBannedAddressesRoute
   '/admin/bookings': typeof AuthenticatedAdminBookingsRoute
@@ -436,10 +444,11 @@ export interface FileRoutesById {
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
-  '/tours': typeof ToursRoute
+  '/tours': typeof ToursRouteWithChildren
   '/vip-transfers': typeof VipTransfersRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/booking/$token': typeof BookingTokenRoute
+  '/tours/$slug': typeof ToursSlugRoute
   '/_authenticated/admin/addresses': typeof AuthenticatedAdminAddressesRoute
   '/_authenticated/admin/banned-addresses': typeof AuthenticatedAdminBannedAddressesRoute
   '/_authenticated/admin/bookings': typeof AuthenticatedAdminBookingsRoute
@@ -491,6 +500,7 @@ export interface FileRouteTypes {
     | '/vip-transfers'
     | '/admin'
     | '/booking/$token'
+    | '/tours/$slug'
     | '/admin/addresses'
     | '/admin/banned-addresses'
     | '/admin/bookings'
@@ -539,6 +549,7 @@ export interface FileRouteTypes {
     | '/tours'
     | '/vip-transfers'
     | '/booking/$token'
+    | '/tours/$slug'
     | '/admin/addresses'
     | '/admin/banned-addresses'
     | '/admin/bookings'
@@ -589,6 +600,7 @@ export interface FileRouteTypes {
     | '/vip-transfers'
     | '/_authenticated/admin'
     | '/booking/$token'
+    | '/tours/$slug'
     | '/_authenticated/admin/addresses'
     | '/_authenticated/admin/banned-addresses'
     | '/_authenticated/admin/bookings'
@@ -636,7 +648,7 @@ export interface RootRouteChildren {
   ServicesRoute: typeof ServicesRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
-  ToursRoute: typeof ToursRoute
+  ToursRoute: typeof ToursRouteWithChildren
   VipTransfersRoute: typeof VipTransfersRoute
   BookingTokenRoute: typeof BookingTokenRoute
 }
@@ -796,6 +808,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/tours/$slug': {
+      id: '/tours/$slug'
+      path: '/$slug'
+      fullPath: '/tours/$slug'
+      preLoaderRoute: typeof ToursSlugRouteImport
+      parentRoute: typeof ToursRoute
     }
     '/booking/$token': {
       id: '/booking/$token'
@@ -1056,6 +1075,16 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface ToursRouteChildren {
+  ToursSlugRoute: typeof ToursSlugRoute
+}
+
+const ToursRouteChildren: ToursRouteChildren = {
+  ToursSlugRoute: ToursSlugRoute,
+}
+
+const ToursRouteWithChildren = ToursRoute._addFileChildren(ToursRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
@@ -1077,20 +1106,10 @@ const rootRouteChildren: RootRouteChildren = {
   ServicesRoute: ServicesRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
-  ToursRoute: ToursRoute,
+  ToursRoute: ToursRouteWithChildren,
   VipTransfersRoute: VipTransfersRoute,
   BookingTokenRoute: BookingTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
