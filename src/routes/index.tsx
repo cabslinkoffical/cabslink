@@ -16,8 +16,8 @@ import { SITE } from "@/lib/site";
 
 // Local images — served as responsive WebP srcSets via vite-imagetools.
 // `?w=480;800;1200&format=webp&as=srcset` produces a proper srcset string at build.
-import driverSrc from "@/assets/driver.jpg?w=480;800;1280&format=webp&as=srcset";
-import driverFallback from "@/assets/driver.jpg?w=1280&format=webp";
+import driverSrc from "@/assets/chauffeur.jpg?w=480;800;1280&format=webp&as=srcset";
+import driverFallback from "@/assets/chauffeur.jpg?w=1280&format=webp";
 import edinburghSrc from "@/assets/edinburgh.jpg?w=640;1200&format=webp&as=srcset";
 import edinburghFallback from "@/assets/edinburgh.jpg?w=1200&format=webp";
 import vClassInteriorSrc from "@/assets/v-class-interior.jpg?w=400;640;900&format=webp&as=srcset";
