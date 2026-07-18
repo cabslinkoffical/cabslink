@@ -17,9 +17,9 @@ export const Route = createFileRoute("/corporate-booking")({
   head: () => ({
     meta: [
       { title: "Corporate Booking — Open a Cabslink Business Account" },
-      { name: "description", content: "Open a corporate account with Cabslink for account-managed UK chauffeur and airport transfer services." },
+      { name: "description", content: "Open a corporate account with Cabslink for account-managed UK driver and airport transfer services." },
       { property: "og:title", content: "Corporate Booking — Cabslink" },
-      { property: "og:description", content: "Open a corporate account with Cabslink for account-managed UK chauffeur and airport transfer services." },
+      { property: "og:description", content: "Open a corporate account with Cabslink for account-managed UK driver and airport transfer services." },
       { property: "og:url", content: "https://cabslink.lovable.app/corporate-booking" },
     ],
     links: [{ rel: "canonical", href: "https://cabslink.lovable.app/corporate-booking" }],

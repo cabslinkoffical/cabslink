@@ -17,7 +17,7 @@ export const Route = createFileRoute("/booking-policy")({
       <p>Contact our team as early as possible to change pickup time, route or vehicle. We accommodate changes subject to availability.</p>
       <h2>3. Cancellations</h2>
       <AdminTodo note="Confirm exact cancellation windows and any fees (e.g. free cancellation up to X hours before pickup)." />
-      <p>We aim to be flexible with cancellations. Late cancellations or no-shows may incur a charge to cover the reserved chauffeur time.</p>
+      <p>We aim to be flexible with cancellations. Late cancellations or no-shows may incur a charge to cover the reserved driver time.</p>
       <h2>4. Waiting time</h2>
       <p>Airport pickups include reasonable free waiting time after landing. Additional waiting may be charged at the vehicle's published rate.</p>
       <AdminTodo note="Confirm free-waiting minutes for airport and non-airport pickups, and per-minute rate thereafter." />

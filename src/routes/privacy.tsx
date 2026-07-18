@@ -13,7 +13,7 @@ export const Route = createFileRoute("/privacy")({
     <LegalPage eyebrow="Privacy Policy" title="Privacy Policy" updated="15 July 2026"
       subtitle="How we collect, use and protect your personal information.">
       <h2>1. Who we are</h2>
-      <p>Cabslink is a UK private-hire and chauffeur booking service.</p>
+      <p>Cabslink is a UK private-hire and driver booking service.</p>
       <AdminTodo note="Add registered company name, company number, registered address, ICO registration number and Data Protection Officer contact." />
 
       <h2>2. Information we collect</h2>
@@ -36,7 +36,7 @@ export const Route = createFileRoute("/privacy")({
       <p>We rely on <em>contract performance</em> for bookings, <em>legitimate interests</em> for security and service improvements, and <em>consent</em> for optional marketing.</p>
 
       <h2>5. Sharing</h2>
-      <p>We share information only with the chauffeur assigned to your booking and with service providers strictly required to operate the platform (hosting, mapping, payments).</p>
+      <p>We share information only with the driver assigned to your booking and with service providers strictly required to operate the platform (hosting, mapping, payments).</p>
       <AdminTodo note="List sub-processors: hosting provider, mapping provider, payment provider, email/SMS provider." />
 
       <h2>6. Retention</h2>

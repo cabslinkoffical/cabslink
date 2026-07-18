@@ -37,7 +37,7 @@ export function Footer() {
         <div>
           <Logo variant="gold" />
           <p className="mt-4 text-sm text-white/70 max-w-xs">
-            Premium UK airport transfers and chauffeur services — punctual,
+            Premium UK airport transfers and airport travel services — punctual,
             professional and effortlessly comfortable, around the clock.
           </p>
           {/* Social links intentionally hidden until real profile URLs are configured. */}

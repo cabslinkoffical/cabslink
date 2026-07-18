@@ -5,7 +5,7 @@ export const Route = createFileRoute("/terms")({
   head: () => ({
     meta: [
       { title: "Terms & Conditions — Cabslink" },
-      { name: "description", content: "The terms that apply when you use Cabslink to book chauffeur and transfer services." },
+      { name: "description", content: "The terms that apply when you use Cabslink to book driver and transfer services." },
     ],
     links: [{ rel: "canonical", href: "https://cabslink.lovable.app/terms" }],
   }),
@@ -20,10 +20,10 @@ export const Route = createFileRoute("/terms")({
       <ul>
         <li>Provide accurate pickup, contact and flight information.</li>
         <li>Be ready at the agreed time and location.</li>
-        <li>Behave respectfully to the chauffeur. Damage caused by passengers is chargeable.</li>
+        <li>Behave respectfully to the driver. Damage caused by passengers is chargeable.</li>
       </ul>
       <h2>4. Our responsibilities</h2>
-      <p>We operate with fully licensed and insured chauffeurs. We aim for on-time arrival but are not liable for delays caused by circumstances outside our reasonable control (traffic, weather, road closures, force majeure).</p>
+      <p>We operate with fully licensed and insured drivers. We aim for on-time arrival but are not liable for delays caused by circumstances outside our reasonable control (traffic, weather, road closures, force majeure).</p>
       <h2>5. Payment</h2>
       <p>Payment terms are shown at booking. Where card capture is not offered on the website, payment is arranged directly.</p>
       <h2>6. Cancellation</h2>

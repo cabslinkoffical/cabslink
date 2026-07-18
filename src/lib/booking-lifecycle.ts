@@ -38,7 +38,7 @@ export const STATUS_META: Record<BookingStatus, Meta> = {
   pending_allocation: { label: "Pending allocation",   adminSelectable: true,  notifyCustomer: false, active: true,  requiresReason: false, terminal: false },
   awaiting_payment:   { label: "Awaiting payment",     adminSelectable: true,  notifyCustomer: false, active: true,  requiresReason: false, terminal: false },
   confirmed:          { label: "Confirmed",            adminSelectable: true,  notifyCustomer: true,  active: true,  requiresReason: false, terminal: false },
-  assigned:           { label: "Chauffeur assigned",   adminSelectable: true,  notifyCustomer: true,  active: true,  requiresReason: false, terminal: false },
+  assigned:           { label: "Driver assigned",   adminSelectable: true,  notifyCustomer: true,  active: true,  requiresReason: false, terminal: false },
   driver_en_route:    { label: "Driver en route",      adminSelectable: true,  notifyCustomer: true,  active: true,  requiresReason: false, terminal: false },
   on_way:             { label: "Driver en route",      adminSelectable: false, notifyCustomer: true,  active: true,  requiresReason: false, terminal: false },
   passenger_on_board: { label: "Passenger on board",   adminSelectable: true,  notifyCustomer: false, active: true,  requiresReason: false, terminal: false },

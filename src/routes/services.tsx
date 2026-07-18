@@ -6,10 +6,10 @@ import { PageHero } from "@/components/site/PageHero";
 export const Route = createFileRoute("/services")({
   head: () => ({
     meta: [
-      { title: "Services — Cabslink UK Airport Transfers & Chauffeur" },
-      { name: "description", content: "Airport transfers, VIP chauffeur, corporate travel, private tours, event transfers and more. Premium UK transport from Cabslink." },
+      { title: "Services — Cabslink UK Airport Transfers & Driver" },
+      { name: "description", content: "Airport transfers, VIP driver, corporate travel, private tours, event transfers and more. Premium UK transport from Cabslink." },
       { property: "og:title", content: "Cabslink Services" },
-      { property: "og:description", content: "Airport transfers, VIP chauffeur, corporate travel, private tours, event transfers and more. Premium UK transport from Cabslink." },
+      { property: "og:description", content: "Airport transfers, VIP driver, corporate travel, private tours, event transfers and more. Premium UK transport from Cabslink." },
       { property: "og:url", content: "https://cabslink.lovable.app/services" },
     ],
     links: [{ rel: "canonical", href: "https://cabslink.lovable.app/services" }],
@@ -19,15 +19,15 @@ export const Route = createFileRoute("/services")({
 
 const all = [
   { icon: Plane, title: "Airport Transfers", desc: "On-time transfers to and from every major UK airport, with flight tracking and meet & greet.", to: "/airport-transfers" },
-  { icon: Crown, title: "VIP Transfers", desc: "Discreet, high-end chauffeur service for dignitaries and discerning clients.", to: "/vip-transfers" },
+  { icon: Crown, title: "VIP Transfers", desc: "Discreet, high-end airport travel service for dignitaries and discerning clients.", to: "/vip-transfers" },
   { icon: Train, title: "Train Station Transfers", desc: "Reliable transfers to and from UK rail terminals, on your schedule.", to: "/services" },
   { icon: Hotel, title: "Hotel to City Transfers", desc: "Seamless travel between hotels, venues and city destinations.", to: "/services" },
   { icon: PartyPopper, title: "Event Transfers", desc: "Weddings, premieres, sporting events — arrive in style, on time.", to: "/services" },
-  { icon: Car, title: "Local Chauffeur Services", desc: "By-the-hour local chauffeurs for meetings, errands and dining.", to: "/services" },
-  { icon: Map, title: "Long Distance Chauffeur", desc: "City-to-city UK drives in modern, comfortable vehicles.", to: "/services" },
+  { icon: Car, title: "Local Airport Travel Services", desc: "By-the-hour local drivers for meetings, errands and dining.", to: "/services" },
+  { icon: Map, title: "Long Distance Driver", desc: "City-to-city UK drives in modern, comfortable vehicles.", to: "/services" },
   { icon: Building2, title: "Corporate Transportation", desc: "Account-managed, invoiced business travel with priority support.", to: "/corporate-travel" },
-  { icon: ShoppingBag, title: "Luxurious Shopping Trips", desc: "Private chauffeur for premium retail districts and boutique shopping.", to: "/services" },
-  { icon: Award, title: "Award Ceremonies", desc: "Red-carpet arrivals with discreet, well-presented chauffeurs.", to: "/services" },
+  { icon: ShoppingBag, title: "Luxurious Shopping Trips", desc: "Private driver for premium retail districts and boutique shopping.", to: "/services" },
+  { icon: Award, title: "Award Ceremonies", desc: "Red-carpet arrivals with discreet, well-presented drivers.", to: "/services" },
   { icon: Gem, title: "Tours & Travel Guide", desc: "Bespoke private tours of Scotland, England and the UK at large.", to: "/tours" },
 ];
 

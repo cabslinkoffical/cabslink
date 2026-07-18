@@ -5,7 +5,7 @@ export const Route = createFileRoute("/refund-policy")({
   head: () => ({
     meta: [
       { title: "Refund Policy — Cabslink" },
-      { name: "description", content: "How Cabslink handles refunds for chauffeur and transfer bookings." },
+      { name: "description", content: "How Cabslink handles refunds for driver and transfer bookings." },
     ],
     links: [{ rel: "canonical", href: "https://cabslink.lovable.app/refund-policy" }],
   }),

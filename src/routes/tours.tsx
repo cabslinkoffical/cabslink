@@ -16,10 +16,10 @@ const toursQuery = queryOptions({
 export const Route = createFileRoute("/tours")({
   head: () => ({
     meta: [
-      { title: "Scotland & UK Private Chauffeur Tours — Cabslink" },
-      { name: "description", content: "Private chauffeured tours across Scotland and the UK. Curated multi-stop itineraries with transparent per-mile pricing and hand-picked famous stops." },
-      { property: "og:title", content: "Private UK Chauffeur Tours — Cabslink" },
-      { property: "og:description", content: "Curated multi-stop chauffeur tours. See Scotland's icons with a private driver, transparent pricing, no hidden fees." },
+      { title: "Scotland & UK Private Driver Tours — Cabslink" },
+      { name: "description", content: "Private private tours across Scotland and the UK. Curated multi-stop itineraries with transparent per-mile pricing and hand-picked famous stops." },
+      { property: "og:title", content: "Private UK Driver Tours — Cabslink" },
+      { property: "og:description", content: "Curated multi-stop driver tours. See Scotland's icons with a private driver, transparent pricing, no hidden fees." },
       { property: "og:url", content: "https://cabslink.lovable.app/tours" },
     ],
     links: [{ rel: "canonical", href: "https://cabslink.lovable.app/tours" }],
@@ -64,7 +64,7 @@ function TourCard({ tour }: { tour: PublicTourListItem }) {
         {tour.hero_image_url ? (
           <img
             src={tour.hero_image_url}
-            alt={`${tour.name} chauffeured tour`}
+            alt={`${tour.name} private tour`}
             loading="lazy"
             decoding="async"
             className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
@@ -119,8 +119,8 @@ function ToursPage() {
   return (
     <SiteLayout>
       <PageHero
-        eyebrow="Private Chauffeur Tours"
-        title="Curated tours. Real chauffeurs. Transparent prices."
+        eyebrow="Private Driver Tours"
+        title="Curated tours. Real drivers. Transparent prices."
         subtitle="Pick a route, choose your stops, and travel in comfort with a professional driver. Every itinerary is priced live — no fabricated fares."
         breadcrumbs={[{ label: "Home", to: "/" }, { label: "Tours" }]}
       />
@@ -138,7 +138,7 @@ function ToursPage() {
             <div className="mt-12 rounded-3xl border border-white/10 bg-[var(--surface)] p-10 text-center">
               <h3 className="font-display text-2xl font-semibold">New tours coming soon</h3>
               <p className="mt-3 text-muted-foreground max-w-xl mx-auto">
-                We're finalising itineraries. In the meantime, you can request a bespoke chauffeured day out — tell us your route and we'll price it.
+                We're finalising itineraries. In the meantime, you can request a bespoke private day out — tell us your route and we'll price it.
               </p>
               <div className="mt-6 flex justify-center gap-3">
                 <Button asChild><Link to="/contact">Request a bespoke tour</Link></Button>

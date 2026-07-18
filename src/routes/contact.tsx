@@ -17,7 +17,7 @@ import { PhoneInput } from "@/components/site/PhoneInput";
 export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
-      { title: "Contact Cabslink — 24/7 UK Chauffeur & Transfer Booking" },
+      { title: "Contact Cabslink — 24/7 UK Driver & Transfer Booking" },
       { name: "description", content: "Get in touch with Cabslink — 24/7 support, instant quotes and dedicated booking. Email, phone and Edinburgh office." },
       { property: "og:title", content: "Contact Cabslink" },
       { property: "og:url", content: "https://cabslink.lovable.app/contact" },
