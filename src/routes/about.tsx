@@ -8,10 +8,10 @@ import edinburghImg from "@/assets/edinburgh.jpg";
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "About Cabslink — Trusted UK Chauffeur & Airport Transfer Company" },
-      { name: "description", content: "Cabslink is a UK-based premium airport transfer and chauffeur company. Learn about our story, values and the team behind every journey." },
+      { title: "About Cabslink — Trusted UK Driver & Airport Transfer Company" },
+      { name: "description", content: "Cabslink is a UK-based premium airport transfer and airport travel company. Learn about our story, values and the team behind every journey." },
       { property: "og:title", content: "About Cabslink" },
-      { property: "og:description", content: "A UK-based premium airport transfer and chauffeur company built on punctuality and trust." },
+      { property: "og:description", content: "A UK-based premium airport transfer and airport travel company built on punctuality and trust." },
       { property: "og:url", content: "https://cabslink.lovable.app/about" },
     ],
     links: [{ rel: "canonical", href: "https://cabslink.lovable.app/about" }],
@@ -22,7 +22,7 @@ export const Route = createFileRoute("/about")({
 function AboutPage() {
   const values = [
     { icon: Shield, title: "Reliability", desc: "On-time, every time — flight-tracked and door-to-door." },
-    { icon: Award, title: "Quality", desc: "Modern, immaculately maintained vehicles and vetted chauffeurs." },
+    { icon: Award, title: "Quality", desc: "Modern, immaculately maintained vehicles and vetted drivers." },
     { icon: Heart, title: "Care", desc: "Calm, courteous service that treats every passenger as a VIP." },
     { icon: Sparkles, title: "Discretion", desc: "Privacy first — the standard expected by corporate clients." },
   ];
@@ -30,8 +30,8 @@ function AboutPage() {
     <SiteLayout>
       <PageHero
         eyebrow="About Cabslink"
-        title="A modern UK chauffeur service, built on punctuality and trust."
-        subtitle="From Edinburgh to every UK airport — Cabslink delivers premium transfers, executive chauffeurs and bespoke private travel for individuals, families and businesses."
+        title="A modern UK airport travel service, built on punctuality and trust."
+        subtitle="From Edinburgh to every UK airport — Cabslink delivers premium transfers, executive drivers and bespoke private travel for individuals, families and businesses."
         breadcrumbs={[{ label: "Home", to: "/" }, { label: "About" }]}
       />
       <section className="section-y">

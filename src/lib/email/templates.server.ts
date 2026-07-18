@@ -174,7 +174,7 @@ export function statusChangeEmail(ctx: BookingEmailContext) {
       next: "We will be in touch closer to your pickup time with driver details.",
     },
     assigned: {
-      intro: `Your chauffeur has been assigned for booking ${esc(ctx.bookingRef)}.`,
+      intro: `Your driver has been assigned for booking ${esc(ctx.bookingRef)}.`,
       next: "You will receive driver contact details closer to your pickup time.",
     },
     driver_en_route: {

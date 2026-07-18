@@ -33,7 +33,7 @@ export const Route = createFileRoute("/book")({
   validateSearch: (search: Record<string, unknown>) => ({ q: typeof search.q === "string" ? search.q : "" }),
   head: () => ({
     meta: [
-      { title: "Book Now — Cabslink UK Airport Transfer & Chauffeur" },
+      { title: "Book Now — Cabslink UK Airport Transfer & Driver" },
       { name: "description", content: "Choose a vehicle and book a premium UK airport transfer with Cabslink. Instant quote, transparent pricing, 24/7 confirmation." },
       { property: "og:title", content: "Book your ride — Cabslink" },
       { property: "og:description", content: "Choose a vehicle and book a premium UK airport transfer with Cabslink. Instant quote, transparent pricing, 24/7 confirmation." },
@@ -1172,7 +1172,7 @@ function ContactStep({ contact, onChange, onBack, onNext }: {
         <Input value={contact.flight_number} onChange={(e) => set("flight_number", e.target.value)} maxLength={20} placeholder="e.g. BA1234" />
       </Field>
       <Field label="Notes (optional)" icon={<MessageSquare className="size-4" />}>
-        <Textarea value={contact.notes} onChange={(e) => set("notes", e.target.value)} rows={4} maxLength={1000} placeholder="Anything our chauffeur should know" />
+        <Textarea value={contact.notes} onChange={(e) => set("notes", e.target.value)} rows={4} maxLength={1000} placeholder="Anything our driver should know" />
       </Field>
 
       <div className="flex flex-wrap gap-3 pt-2">

@@ -16,10 +16,10 @@ import { PhoneInput } from "@/components/site/PhoneInput";
 export const Route = createFileRoute("/drive-with-us")({
   head: () => ({
     meta: [
-      { title: "Drive With Us — Become a Cabslink Chauffeur or Fleet Partner" },
-      { name: "description", content: "Join Cabslink as a professional chauffeur or licensed fleet operator. Steady premium work across the UK with a respected brand." },
+      { title: "Drive With Us — Become a Cabslink Driver or Fleet Partner" },
+      { name: "description", content: "Join Cabslink as a professional driver or licensed fleet operator. Steady premium work across the UK with a respected brand." },
       { property: "og:title", content: "Drive With Us — Cabslink" },
-      { property: "og:description", content: "Join Cabslink as a professional chauffeur or licensed fleet operator. Steady premium work across the UK with a respected brand." },
+      { property: "og:description", content: "Join Cabslink as a professional driver or licensed fleet operator. Steady premium work across the UK with a respected brand." },
       { property: "og:url", content: "https://cabslink.lovable.app/drive-with-us" },
     ],
     links: [{ rel: "canonical", href: "https://cabslink.lovable.app/drive-with-us" }],
@@ -66,7 +66,7 @@ function DrivePage() {
     <SiteLayout>
       <PageHero
         eyebrow="Drive With Us"
-        title="Partner with Cabslink as a chauffeur or fleet operator."
+        title="Partner with Cabslink as a driver or fleet operator."
         subtitle="Steady premium work, a respected brand, and a team that supports its drivers — apply to join us today."
         breadcrumbs={[{ label: "Home", to: "/" }, { label: "Drive With Us" }]}
       />

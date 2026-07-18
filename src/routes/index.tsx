@@ -16,8 +16,8 @@ import { SITE } from "@/lib/site";
 
 // Local images — served as responsive WebP srcSets via vite-imagetools.
 // `?w=480;800;1200&format=webp&as=srcset` produces a proper srcset string at build.
-import chauffeurSrc from "@/assets/chauffeur.jpg?w=480;800;1280&format=webp&as=srcset";
-import chauffeurFallback from "@/assets/chauffeur.jpg?w=1280&format=webp";
+import driverSrc from "@/assets/driver.jpg?w=480;800;1280&format=webp&as=srcset";
+import driverFallback from "@/assets/driver.jpg?w=1280&format=webp";
 import edinburghSrc from "@/assets/edinburgh.jpg?w=640;1200&format=webp&as=srcset";
 import edinburghFallback from "@/assets/edinburgh.jpg?w=1200&format=webp";
 import vClassInteriorSrc from "@/assets/v-class-interior.jpg?w=400;640;900&format=webp&as=srcset";
@@ -66,12 +66,12 @@ const HERO_VEHICLE_SIZES = "(max-width: 1024px) 92vw, 600px";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Cabslink | UK Airport Transfers & Luxury Chauffeur Service" },
-      { name: "description", content: "Book fixed-fare UK airport transfers and luxury chauffeur cars 24/7. Edinburgh, Heathrow, Gatwick, Manchester & Glasgow — flight tracking, meet & greet, Mercedes fleet." },
-      { name: "keywords", content: "UK airport transfers, Edinburgh airport taxi, luxury chauffeur UK, private chauffeur service, Mercedes V-Class hire, executive car service, Scotland private tours" },
-      { property: "og:title", content: "Cabslink | UK Airport Transfers & Luxury Chauffeur Service" },
-      { property: "og:description", content: "Book fixed-fare UK airport transfers and luxury chauffeur cars 24/7. Edinburgh, Heathrow, Gatwick, Manchester & Glasgow — flight tracking, meet & greet, Mercedes fleet." },
-      { property: "og:description", content: "Fixed-fare UK airport transfers and chauffeur-driven cars. Flight tracking, meet & greet and a professional Mercedes fleet — book in under 60 seconds." },
+      { title: "Cabslink | UK Airport Transfers & Luxury Airport Travel Service" },
+      { name: "description", content: "Book fixed-fare UK airport transfers and luxury driver cars 24/7. Edinburgh, Heathrow, Gatwick, Manchester & Glasgow — flight tracking, meet & greet, Mercedes fleet." },
+      { name: "keywords", content: "UK airport transfers, Edinburgh airport taxi, luxury driver UK, private airport travel service, Mercedes V-Class hire, executive car service, Scotland private tours" },
+      { property: "og:title", content: "Cabslink | UK Airport Transfers & Luxury Airport Travel Service" },
+      { property: "og:description", content: "Book fixed-fare UK airport transfers and luxury driver cars 24/7. Edinburgh, Heathrow, Gatwick, Manchester & Glasgow — flight tracking, meet & greet, Mercedes fleet." },
+      { property: "og:description", content: "Fixed-fare UK airport transfers and driver-driven cars. Flight tracking, meet & greet and a professional Mercedes fleet — book in under 60 seconds." },
       { property: "og:url", content: "https://cabslink.lovable.app/" },
       { property: "og:type", content: "website" },
     ],
@@ -102,17 +102,17 @@ const stats = [
 
 const services = [
   { icon: Plane, title: "Airport Transfers", desc: "Punctual, stress-free transfers to and from every major UK airport.", to: "/airport-transfers", img: airportFallback, imgSrcSet: airportSrc },
-  { icon: Building2, title: "Corporate Travel", desc: "Account-managed business travel with professional chauffeurs.", to: "/corporate-travel", img: corporateFallback, imgSrcSet: corporateSrc },
-  { icon: Gem, title: "VIP & Executive", desc: "Discreet, refined chauffeur service for VIPs and dignitaries.", to: "/vip-transfers", img: vClassInteriorFallback, imgSrcSet: vClassInteriorSrc },
+  { icon: Building2, title: "Corporate Travel", desc: "Account-managed business travel with professional drivers.", to: "/corporate-travel", img: corporateFallback, imgSrcSet: corporateSrc },
+  { icon: Gem, title: "VIP & Executive", desc: "Discreet, refined airport travel service for VIPs and dignitaries.", to: "/vip-transfers", img: vClassInteriorFallback, imgSrcSet: vClassInteriorSrc },
   { icon: RouteIcon, title: "Private Tours", desc: "Bespoke Scotland and UK tours with knowledgeable local drivers.", to: "/tours", img: edinburghFallback, imgSrcSet: edinburghSrc },
-  { icon: Award, title: "Events & Weddings", desc: "Award ceremonies, weddings and red-carpet arrivals in style.", to: "/services", img: chauffeurFallback, imgSrcSet: chauffeurSrc },
-  { icon: Car, title: "Long Distance", desc: "City-to-city UK chauffeur drives with total comfort.", to: "/services", img: fleetSuvFallback, imgSrcSet: fleetSuvSrc },
+  { icon: Award, title: "Events & Weddings", desc: "Award ceremonies, weddings and red-carpet arrivals in style.", to: "/services", img: driverFallback, imgSrcSet: driverSrc },
+  { icon: Car, title: "Long Distance", desc: "City-to-city UK driver drives with total comfort.", to: "/services", img: fleetSuvFallback, imgSrcSet: fleetSuvSrc },
 ];
 
 const steps = [
   { icon: MessageSquare, title: "Tell us your trip", desc: "Enter pickup, drop-off, date and any flight details — takes 30 seconds." },
   { icon: CheckCircle2, title: "Confirm instantly", desc: "Receive a fixed-fare quote and a booking confirmation by email." },
-  { icon: Car, title: "Sit back, relax", desc: "Your chauffeur arrives early, tracks your flight and gets you there on time." },
+  { icon: Car, title: "Sit back, relax", desc: "Your driver arrives early, tracks your flight and gets you there on time." },
 ];
 
 const features = [
@@ -120,7 +120,7 @@ const features = [
   { icon: BadgePoundSterling, title: "Fixed Fares", desc: "Transparent pricing, no surge, no surprises." },
   { icon: Plane, title: "Flight Tracking", desc: "We monitor delays so you never wait alone." },
   { icon: Headset, title: "24/7 Support", desc: "Live dispatch every day of the year." },
-  { icon: ShieldCheck, title: "Vetted Chauffeurs", desc: "Fully licensed, smartly-dressed professionals." },
+  { icon: ShieldCheck, title: "Vetted Drivers", desc: "Fully licensed, smartly-dressed professionals." },
   { icon: CreditCard, title: "Secure Payment", desc: "Pay online, by card or on account." },
 ];
 
@@ -228,7 +228,7 @@ function HomePage() {
               >
                 <Sparkles className="size-3.5 text-[var(--gold)]" />
                 <span className="text-[10px] md:text-[11px] font-semibold uppercase tracking-[0.32em] text-[var(--navy)]">
-                  UK's Trusted Chauffeur Company
+                  UK's Trusted Airport Travel Company
                 </span>
               </div>
 
@@ -252,7 +252,7 @@ function HomePage() {
                 className="mt-5 max-w-xl text-sm md:text-lg text-muted-foreground opacity-0"
                 style={{ animation: "fadeInUp 800ms cubic-bezier(.2,.7,.2,1) 380ms forwards" }}
               >
-                Fixed-fare Mercedes-Benz chauffeur transfers across the UK. Flight tracked, meet &amp; greet, 24/7 live dispatch — the calm way to travel.
+                Fixed-fare Mercedes-Benz driver transfers across the UK. Flight tracked, meet &amp; greet, 24/7 live dispatch — the calm way to travel.
               </p>
 
               {/* Trust row */}
@@ -353,7 +353,7 @@ function HomePage() {
                       src={current.img}
                       srcSet={current.srcSet}
                       sizes={HERO_VEHICLE_SIZES}
-                      alt={`${current.name} — chauffeur vehicle`}
+                      alt={`${current.name} — driver vehicle`}
                       width={1200}
                       height={750}
                       decoding="async"
@@ -375,7 +375,7 @@ function HomePage() {
                   </span>
                   <div className="text-xs">
                     <div className="font-semibold text-[var(--navy)]">Live dispatch</div>
-                    <div className="text-muted-foreground">Chauffeur available now</div>
+                    <div className="text-muted-foreground">Driver available now</div>
                   </div>
                 </div>
               </div>
@@ -427,7 +427,7 @@ function HomePage() {
       {/* HOW IT WORKS */}
       <section className="section-y">
         <div className="container-x">
-          <SectionHeader eyebrow="How it works" title="Three Steps To A Premium" titleAccent="Ride" subtitle="From quote to chauffeur at your door — built to feel effortless." center />
+          <SectionHeader eyebrow="How it works" title="Three Steps To A Premium" titleAccent="Ride" subtitle="From quote to driver at your door — built to feel effortless." center />
           <div className="mt-14 relative grid gap-6 md:grid-cols-3">
             {/* Connector line */}
             <div aria-hidden className="hidden md:block absolute top-16 left-[16.67%] right-[16.67%] h-px bg-gradient-to-r from-transparent via-[var(--gold)]/40 to-transparent" />
@@ -455,12 +455,12 @@ function HomePage() {
 
         <div className="container-x relative">
           <div className="max-w-2xl">
-            <p className="text-[10px] md:text-[11px] font-bold uppercase tracking-[0.3em] md:tracking-[0.35em] text-[var(--gold)]">Private Chauffeured Tours</p>
+            <p className="text-[10px] md:text-[11px] font-bold uppercase tracking-[0.3em] md:tracking-[0.35em] text-[var(--gold)]">Private Private Tours</p>
             <h2 className="mt-3 font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl leading-[1.05] font-bold">
               Trace the map. <span className="text-[var(--gold)]">Skip the queue.</span>
             </h2>
             <p className="mt-4 md:mt-5 text-sm sm:text-base md:text-lg text-white/75 leading-relaxed">
-              From Edinburgh's Old Town to Highland lochs and the Lake District — hand-crafted day trips and multi-day journeys in a private chauffeured car.
+              From Edinburgh's Old Town to Highland lochs and the Lake District — hand-crafted day trips and multi-day journeys in a private private car.
             </p>
           </div>
 
@@ -558,7 +558,7 @@ function HomePage() {
 
         <div className="container-x relative">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-            <SectionHeader eyebrow="Our Services" title="A Complete Chauffeur" titleAccent="Service" subtitle="From airport pickups to multi-day private tours — one trusted standard, every journey." />
+            <SectionHeader eyebrow="Our Services" title="A Complete Driver" titleAccent="Service" subtitle="From airport pickups to multi-day private tours — one trusted standard, every journey." />
             <Button asChild variant="outline" className="rounded-full self-start hidden md:inline-flex border-[var(--navy)]/15 bg-card hover:border-[var(--gold)] hover:bg-[var(--gold)]/8 hover:text-[var(--navy)] transition-all duration-300 group">
               <Link to="/services">All services <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" /></Link>
             </Button>
@@ -638,7 +638,7 @@ function HomePage() {
             {/* Decorative frame */}
             <div aria-hidden className="absolute -top-4 -left-4 size-24 border-t-2 border-l-2 border-[var(--gold)] rounded-tl-3xl" />
             <div aria-hidden className="absolute -bottom-4 -right-4 size-24 border-b-2 border-r-2 border-[var(--gold)] rounded-br-3xl" />
-            <img src={chauffeurFallback} srcSet={chauffeurSrc} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 520px" alt="Cabslink chauffeur opening rear door of Mercedes V-Class" width={1280} height={1600} loading="lazy" decoding="async" className="relative rounded-3xl object-cover w-full aspect-[4/5] shadow-[var(--shadow-elegant)]" />
+            <img src={driverFallback} srcSet={driverSrc} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 520px" alt="Cabslink driver opening rear door of Mercedes V-Class" width={1280} height={1600} loading="lazy" decoding="async" className="relative rounded-3xl object-cover w-full aspect-[4/5] shadow-[var(--shadow-elegant)]" />
             <div className="absolute -bottom-6 right-4 sm:right-6 glass-card rounded-2xl p-5 max-w-[280px] border border-[var(--gold)]/20">
               <Quote className="size-6 text-[var(--gold)] mb-2" />
               <div className="flex items-center gap-1 text-[var(--gold)]">
@@ -655,7 +655,7 @@ function HomePage() {
             </div>
             <h2 className="font-display text-3xl md:text-5xl font-semibold leading-[1.1]">Arrive relaxed.<br /><span className="text-[var(--gold)]">Leave on time.</span> Every time.</h2>
             <p className="mt-5 text-muted-foreground leading-relaxed">
-              From the moment you land, your Cabslink chauffeur is waiting — flight tracked, terminal known and luggage handled. No queues, no surge pricing, no surprises. Just a smooth ride to your door.
+              From the moment you land, your Cabslink driver is waiting — flight tracked, terminal known and luggage handled. No queues, no surge pricing, no surprises. Just a smooth ride to your door.
             </p>
             <ul className="mt-7 grid sm:grid-cols-2 gap-3 text-sm">
               {["Meet & greet at arrivals", "Free 60-minute wait time", "Door-to-door service", "Fixed transparent fare", "Child seats on request", "24/7 live support"].map(item => (
@@ -694,7 +694,7 @@ function HomePage() {
             eyebrow="Our Fleet"
             title="Our Premium"
             titleAccent="Fleet"
-            subtitle="Explore our modern, chauffeur-driven fleet available across the UK."
+            subtitle="Explore our modern, driver-driven fleet available across the UK."
             center
           />
 
@@ -854,10 +854,10 @@ function HomePage() {
               </div>
               <h3 className="mt-6 font-display text-3xl md:text-4xl leading-tight">Corporate Travel, <span className="text-[var(--gold)]">Effortless</span></h3>
               <p className="mt-4 text-white/75 max-w-md leading-relaxed">
-                Account-managed business travel for boards, executives and visiting clients. Punctual chauffeurs, monthly invoicing and full reporting.
+                Account-managed business travel for boards, executives and visiting clients. Punctual drivers, monthly invoicing and full reporting.
               </p>
               <ul className="mt-6 space-y-2.5 text-sm text-white/85">
-                {["Dedicated account manager", "Consolidated monthly invoicing", "Priority 24/7 booking line", "Discreet, vetted chauffeurs"].map(i => <li key={i} className="flex gap-2"><ShieldCheck className="size-4 text-[var(--gold)] shrink-0 mt-0.5" />{i}</li>)}
+                {["Dedicated account manager", "Consolidated monthly invoicing", "Priority 24/7 booking line", "Discreet, vetted drivers"].map(i => <li key={i} className="flex gap-2"><ShieldCheck className="size-4 text-[var(--gold)] shrink-0 mt-0.5" />{i}</li>)}
               </ul>
               <Button asChild variant="gold" className="mt-8 rounded-full"><Link to="/corporate-booking">Open corporate account <ArrowRight className="size-4" /></Link></Button>
             </div>
@@ -871,7 +871,7 @@ function HomePage() {
               </div>
               <h3 className="mt-6 font-display text-3xl md:text-4xl leading-tight">Private Tours <span className="text-[var(--gold)]">& Trips</span></h3>
               <p className="mt-4 text-muted-foreground max-w-md leading-relaxed">
-                Discover Scotland and the UK with a private chauffeur and a tailored itinerary — Edinburgh, the Highlands, the Lake District, the Cotswolds and beyond.
+                Discover Scotland and the UK with a private driver and a tailored itinerary — Edinburgh, the Highlands, the Lake District, the Cotswolds and beyond.
               </p>
               <ul className="mt-6 space-y-2.5 text-sm">
                 {["Bespoke routes & multi-day trips", "Knowledgeable local drivers", "Hotel & restaurant arrangements", "Family & group-friendly vehicles"].map(i => <li key={i} className="flex gap-2"><ShieldCheck className="size-4 text-[var(--gold)] shrink-0 mt-0.5" />{i}</li>)}
@@ -893,7 +893,7 @@ function HomePage() {
                 <span className="h-px w-8 bg-[var(--gold)]" aria-hidden />
                 <p className="text-xs uppercase tracking-[0.3em] text-[var(--gold)] font-semibold">Drive With Us</p>
               </div>
-              <h3 className="font-display text-3xl md:text-4xl font-semibold leading-tight">Partner with Cabslink as a chauffeur or fleet operator</h3>
+              <h3 className="font-display text-3xl md:text-4xl font-semibold leading-tight">Partner with Cabslink as a driver or fleet operator</h3>
               <p className="mt-4 text-muted-foreground max-w-2xl leading-relaxed">
                 We work with professional drivers and licensed fleet partners across the UK. Join a respected brand, get steady premium work, and grow your business with us.
               </p>
@@ -926,7 +926,7 @@ function HomePage() {
                   </span>
                 </h3>
                 <p className="mt-4 max-w-md text-muted-foreground leading-relaxed">
-                  Book, track and enjoy a seamless chauffeur experience across the UK. Available 24/7 — no surge, no surprises.
+                  Book, track and enjoy a seamless driver experience across the UK. Available 24/7 — no surge, no surprises.
                 </p>
                 <div className="mt-8 flex flex-wrap items-center gap-4">
                   <Button asChild variant="slash">

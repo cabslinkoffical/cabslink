@@ -18,10 +18,10 @@ const fleetQuery = queryOptions({
 export const Route = createFileRoute("/fleet")({
   head: () => ({
     meta: [
-      { title: "Our Fleet — Cabslink Luxury Chauffeur Vehicles UK" },
-      { name: "description", content: "Explore Cabslink's active chauffeur fleet — current vehicle details, images, capacity and availability." },
-      { property: "og:title", content: "Our Fleet — Cabslink Luxury Chauffeur Vehicles" },
-      { property: "og:description", content: "Explore Cabslink's active chauffeur fleet — current vehicle details, images, capacity and availability." },
+      { title: "Our Fleet — Cabslink Luxury Driver Vehicles UK" },
+      { name: "description", content: "Explore Cabslink's active driver fleet — current vehicle details, images, capacity and availability." },
+      { property: "og:title", content: "Our Fleet — Cabslink Luxury Driver Vehicles" },
+      { property: "og:description", content: "Explore Cabslink's active driver fleet — current vehicle details, images, capacity and availability." },
       { property: "og:url", content: "https://cabslink.lovable.app/fleet" },
     ],
     links: [{ rel: "canonical", href: "https://cabslink.lovable.app/fleet" }],
@@ -71,12 +71,12 @@ function FleetPage() {
         <section className="section-y">
           <div className="container-x grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
             <Reveal>
-              <img src={hero.image_url} alt={`${hero.name} — chauffeured ${hero.passengers}-seat vehicle`} width={1600} height={1000} decoding="async" fetchPriority="high" className="rounded-3xl object-cover w-full aspect-[4/3] shadow-[var(--shadow-elegant)] bg-[var(--surface)]" />
+              <img src={hero.image_url} alt={`${hero.name} — private ${hero.passengers}-seat vehicle`} width={1600} height={1000} decoding="async" fetchPriority="high" className="rounded-3xl object-cover w-full aspect-[4/3] shadow-[var(--shadow-elegant)] bg-[var(--surface)]" />
             </Reveal>
             <Reveal delay={120}>
               <p className="text-xs uppercase tracking-[0.3em] text-[var(--gold)] mb-3">{hero.featured ? "Featured vehicle" : "Available vehicle"}</p>
               <h2 className="font-display text-3xl md:text-5xl font-semibold leading-tight">{hero.name}</h2>
-              <p className="mt-5 text-muted-foreground">{hero.description || "Available for chauffeur bookings with Cabslink's professional standards, immaculate presentation and fully insured service."}</p>
+              <p className="mt-5 text-muted-foreground">{hero.description || "Available for driver bookings with Cabslink's professional standards, immaculate presentation and fully insured service."}</p>
               <ul className="mt-6 grid sm:grid-cols-2 gap-3 text-sm">
                 <li className="flex items-start gap-2"><Users className="size-4 text-[var(--gold)] mt-0.5 shrink-0" />{hero.passengers} passengers</li>
                 <li className="flex items-start gap-2"><Briefcase className="size-4 text-[var(--gold)] mt-0.5 shrink-0" />{hero.luggage} large luggage</li>
@@ -102,7 +102,7 @@ function FleetPage() {
               <Reveal key={f.id} delay={i * 80}>
                 <div className={`rounded-3xl border bg-card overflow-hidden hover:-translate-y-1 hover:shadow-[var(--shadow-elegant)] transition h-full flex flex-col ${f.featured ? "border-[var(--gold)]" : "border-border"}`}>
                   <div className="relative h-52 overflow-hidden bg-[var(--surface)] flex items-center justify-center p-4">
-                    <img src={f.image_url} alt={`${f.name} — chauffeured ${f.passengers}-seat vehicle`} loading="lazy" decoding="async" width={1200} height={800} className="size-full object-contain" />
+                    <img src={f.image_url} alt={`${f.name} — private ${f.passengers}-seat vehicle`} loading="lazy" decoding="async" width={1200} height={800} className="size-full object-contain" />
                     {f.featured && (
                       <span className="absolute top-3 left-3 inline-flex items-center gap-1 rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] px-3 py-1 text-xs font-semibold">
                         <Star className="size-3 fill-current" /> Featured

@@ -7,10 +7,10 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/corporate-travel")({
   head: () => ({
     meta: [
-      { title: "Corporate Travel — Cabslink Business Chauffeur Accounts" },
-      { name: "description", content: "Account-managed corporate travel with punctual chauffeurs, monthly invoicing, dedicated support and full reporting." },
+      { title: "Corporate Travel — Cabslink Business Business Travel Accounts" },
+      { name: "description", content: "Account-managed corporate travel with punctual drivers, monthly invoicing, dedicated support and full reporting." },
       { property: "og:title", content: "Corporate Travel — Cabslink" },
-      { property: "og:description", content: "Account-managed corporate travel with punctual chauffeurs, monthly invoicing, dedicated support and full reporting." },
+      { property: "og:description", content: "Account-managed corporate travel with punctual drivers, monthly invoicing, dedicated support and full reporting." },
       { property: "og:url", content: "https://cabslink.lovable.app/corporate-travel" },
     ],
     links: [{ rel: "canonical", href: "https://cabslink.lovable.app/corporate-travel" }],
@@ -24,13 +24,13 @@ function CorporatePage() {
     { i: FileText, t: "Consolidated invoicing", d: "One monthly invoice with cost-centre breakdowns and PO references." },
     { i: Headset, t: "Priority dispatch", d: "Dedicated 24/7 booking line, with named operators on rotation." },
     { i: Users, t: "Visiting clients", d: "Meet & greet for executives and visitors at every UK airport." },
-    { i: ShieldCheck, t: "Vetted chauffeurs", d: "Smartly dressed, discreet, security-aware professionals." },
+    { i: ShieldCheck, t: "Vetted drivers", d: "Smartly dressed, discreet, security-aware professionals." },
   ];
   return (
     <SiteLayout>
       <PageHero
         eyebrow="Corporate Travel"
-        title="A premium chauffeur partner for serious businesses."
+        title="A premium travel partner for serious businesses."
         subtitle="Boards, executives, visiting clients and event delegates — Cabslink handles every type of corporate journey, on account."
         breadcrumbs={[{ label: "Home", to: "/" }, { label: "Corporate Travel" }]}
       />

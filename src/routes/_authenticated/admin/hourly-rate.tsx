@@ -39,7 +39,7 @@ function Page() {
 
   return (
     <div className="p-6 md:p-8 space-y-6">
-      <PageHeader title="Hourly Rates" description="Per-vehicle hourly tiers used by chauffeur-by-the-hour quotes.">
+      <PageHeader title="Hourly Rates" description="Per-vehicle hourly tiers used by driver-by-the-hour quotes.">
         <Button onClick={() => setForm({ ...empty })}><Plus className="size-4 mr-1" /> New tier</Button>
       </PageHeader>
 

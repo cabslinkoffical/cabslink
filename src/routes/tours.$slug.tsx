@@ -30,8 +30,8 @@ export const Route = createFileRoute("/tours/$slug")({
     if (!d) {
       return { meta: [{ title: "Tour not found — Cabslink" }, { name: "robots", content: "noindex" }] };
     }
-    const title = `${d.name} — Private Chauffeur Tour | Cabslink`;
-    const desc = d.short_description ?? `Private chauffeured tour: ${d.origin_label} to ${d.destination_label}. Book with Cabslink.`;
+    const title = `${d.name} — Private Driver Tour | Cabslink`;
+    const desc = d.short_description ?? `Private private tour: ${d.origin_label} to ${d.destination_label}. Book with Cabslink.`;
     const meta: Array<Record<string, string>> = [
       { title },
       { name: "description", content: desc },
@@ -56,7 +56,7 @@ export const Route = createFileRoute("/tours/$slug")({
             name: d.name,
             description: desc,
             image: d.hero_image_url ?? undefined,
-            touristType: "Private chauffeur tour",
+            touristType: "Private driver tour",
             itinerary: d.pois.map((p) => ({
               "@type": "TouristAttraction",
               name: p.name,
@@ -214,7 +214,7 @@ function TourDetailPage() {
   return (
     <SiteLayout>
       <PageHero
-        eyebrow="Private Chauffeur Tour"
+        eyebrow="Private Driver Tour"
         title={d.name}
         subtitle={d.short_description ?? undefined}
         breadcrumbs={[{ label: "Home", to: "/" }, { label: "Tours", to: "/tours" }, { label: d.name }]}
@@ -228,7 +228,7 @@ function TourDetailPage() {
               <Reveal>
                 <img
                   src={d.hero_image_url}
-                  alt={`${d.name} — private chauffeur tour`}
+                  alt={`${d.name} — private driver tour`}
                   className="w-full aspect-[16/9] object-cover rounded-3xl shadow-[var(--shadow-elegant)]"
                   loading="eager"
                   decoding="async"
@@ -421,7 +421,7 @@ function TourDetailPage() {
               <ul className="mt-5 space-y-2 text-sm text-muted-foreground">
                 <li className="flex items-center gap-2"><Check className="size-4 text-[var(--gold)]" />{orderedStops.length || d.recommended_stop_count} stops selected</li>
                 {totalJourneySecs && <li className="flex items-center gap-2"><Check className="size-4 text-[var(--gold)]" />~{formatDuration(totalJourneySecs)} total journey</li>}
-                <li className="flex items-center gap-2"><Check className="size-4 text-[var(--gold)]" />Professional chauffeur</li>
+                <li className="flex items-center gap-2"><Check className="size-4 text-[var(--gold)]" />Professional driver</li>
                 <li className="flex items-center gap-2"><Check className="size-4 text-[var(--gold)]" />Free cancellation options at checkout</li>
               </ul>
             </div>
