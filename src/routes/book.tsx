@@ -1089,39 +1089,63 @@ function VehicleCard({ card, best, qty, minQty, disabled, disabledReason, onQtyC
       </div>
 
       <div className="w-full md:w-60 lg:w-64 shrink-0 bg-gradient-to-br from-[var(--gold)]/10 via-[var(--surface)] to-[var(--gold)]/5 md:rounded-r-2xl rounded-b-2xl md:rounded-b-none p-5 md:p-6 flex flex-col justify-between items-center text-center">
-        <div>
-          <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground font-bold">From</p>
-          <div className="mt-2 flex items-baseline justify-center gap-0.5 text-foreground">
-            <span className="text-lg font-display font-bold text-[var(--gold)]">£</span>
-            <span className="text-3xl md:text-4xl font-display font-bold tabular-nums tracking-tight">{total.toFixed(2)}</span>
+        {quoteOnly ? (
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground font-bold">Group Vehicle</p>
+            <p className="mt-2 font-display text-xl md:text-2xl font-bold text-[var(--gold)] leading-tight">Quote on request</p>
+            <p className="mt-2 text-[12px] text-muted-foreground leading-snug">
+              Pricing for {card.name.toLowerCase().includes("coach") ? "coach" : "coaster"} bookings depends on route, timings and availability. Contact us and we'll confirm the fare and reserve this vehicle for you.
+            </p>
+            <div className="mt-3 text-[11px] text-muted-foreground space-y-1">
+              <p className="flex items-center justify-center gap-1.5"><ShieldCheck className="size-3 text-[var(--gold)]" /> No obligation quote</p>
+              <p className="flex items-center justify-center gap-1.5"><Clock className="size-3 text-[var(--gold)]" /> Fast response, 24/7</p>
+            </div>
           </div>
-          {qty > 1 && (<p className="text-[11px] text-muted-foreground mt-1">{qty} × £{card.finalPrice.toFixed(2)}</p>)}
-          <div className="mt-3 text-[11px] text-muted-foreground space-y-1">
-            <p className="flex items-center justify-center gap-1.5"><ShieldCheck className="size-3 text-[var(--gold)]" /> No hidden cost</p>
-            <p className="flex items-center justify-center gap-1.5"><Clock className="size-3 text-[var(--gold)]" /> Free cancellation option</p>
+        ) : (
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground font-bold">From</p>
+            <div className="mt-2 flex items-baseline justify-center gap-0.5 text-foreground">
+              <span className="text-lg font-display font-bold text-[var(--gold)]">£</span>
+              <span className="text-3xl md:text-4xl font-display font-bold tabular-nums tracking-tight">{total.toFixed(2)}</span>
+            </div>
+            {qty > 1 && (<p className="text-[11px] text-muted-foreground mt-1">{qty} × £{card.finalPrice.toFixed(2)}</p>)}
+            <div className="mt-3 text-[11px] text-muted-foreground space-y-1">
+              <p className="flex items-center justify-center gap-1.5"><ShieldCheck className="size-3 text-[var(--gold)]" /> No hidden cost</p>
+              <p className="flex items-center justify-center gap-1.5"><Clock className="size-3 text-[var(--gold)]" /> Free cancellation option</p>
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="w-full mt-5 space-y-3">
-          <div className="w-full">
-            <Label className="text-[9px] font-bold uppercase tracking-[0.25em] text-muted-foreground">
-              Vehicles{minQty > 1 ? ` · min ${minQty}` : ""}
-            </Label>
-            <Select value={String(qty)} onValueChange={(v) => onQtyChange(Number(v))}>
-              <SelectTrigger className={`mt-1 h-10 bg-card ${qty < minQty ? "border-amber-500" : "border-[var(--gold)]/50"}`}><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
-                  <SelectItem key={n} value={String(n)}>
-                    {n} × Vehicle{n < minQty ? " — not enough" : ""}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <Button onClick={onSelect} disabled={!!disabled} className="w-full h-12 rounded-lg bg-[var(--navy)] hover:bg-[var(--gold)] text-[var(--navy-foreground)] hover:text-[var(--gold-foreground)] font-bold uppercase tracking-[0.2em] text-[11px] transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
-            Continue <ArrowRight className="size-3.5 ml-1" />
-          </Button>
-          {disabled && disabledReason && (
+          {!quoteOnly && (
+            <div className="w-full">
+              <Label className="text-[9px] font-bold uppercase tracking-[0.25em] text-muted-foreground">
+                Vehicles{minQty > 1 ? ` · min ${minQty}` : ""}
+              </Label>
+              <Select value={String(qty)} onValueChange={(v) => onQtyChange(Number(v))}>
+                <SelectTrigger className={`mt-1 h-10 bg-card ${qty < minQty ? "border-amber-500" : "border-[var(--gold)]/50"}`}><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+                    <SelectItem key={n} value={String(n)}>
+                      {n} × Vehicle{n < minQty ? " — not enough" : ""}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+          {quoteOnly ? (
+            <Button asChild className="w-full h-12 rounded-lg bg-[var(--navy)] hover:bg-[var(--gold)] text-[var(--navy-foreground)] hover:text-[var(--gold-foreground)] font-bold uppercase tracking-[0.2em] text-[11px] transition-all shadow-md">
+              <Link to="/contact" search={{ subject: `Group quote — ${card.name}` } as never}>
+                Request Quote <ArrowRight className="size-3.5 ml-1" />
+              </Link>
+            </Button>
+          ) : (
+            <Button onClick={onSelect} disabled={!!disabled} className="w-full h-12 rounded-lg bg-[var(--navy)] hover:bg-[var(--gold)] text-[var(--navy-foreground)] hover:text-[var(--gold-foreground)] font-bold uppercase tracking-[0.2em] text-[11px] transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
+              Continue <ArrowRight className="size-3.5 ml-1" />
+            </Button>
+          )}
+          {!quoteOnly && disabled && disabledReason && (
             <p className="text-[11px] text-muted-foreground mt-2 leading-snug">{disabledReason}</p>
           )}
         </div>
