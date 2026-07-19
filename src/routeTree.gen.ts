@@ -64,6 +64,7 @@ import { Route as AuthenticatedAdminSeoRoutesRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminSeoRedirectsRouteImport } from './routes/_authenticated/admin/seo.redirects'
 import { Route as AuthenticatedAdminSeoPagesRouteImport } from './routes/_authenticated/admin/seo.pages'
 import { Route as AuthenticatedAdminSeoLocationsRouteImport } from './routes/_authenticated/admin/seo.locations'
+import { Route as AuthenticatedAdminSeoIssuesRouteImport } from './routes/_authenticated/admin/seo.issues'
 import { Route as AuthenticatedAdminSeoAirportsRouteImport } from './routes/_authenticated/admin/seo.airports'
 import { Route as AuthenticatedAdminSeoPagesIdSectionsRouteImport } from './routes/_authenticated/admin/seo.pages.$id.sections'
 
@@ -366,6 +367,12 @@ const AuthenticatedAdminSeoLocationsRoute =
     path: '/seo/locations',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminSeoIssuesRoute =
+  AuthenticatedAdminSeoIssuesRouteImport.update({
+    id: '/seo/issues',
+    path: '/seo/issues',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminSeoAirportsRoute =
   AuthenticatedAdminSeoAirportsRouteImport.update({
     id: '/seo/airports',
@@ -429,6 +436,7 @@ export interface FileRoutesByFullPath {
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/admin/seo/airports': typeof AuthenticatedAdminSeoAirportsRoute
+  '/admin/seo/issues': typeof AuthenticatedAdminSeoIssuesRoute
   '/admin/seo/locations': typeof AuthenticatedAdminSeoLocationsRoute
   '/admin/seo/pages': typeof AuthenticatedAdminSeoPagesRouteWithChildren
   '/admin/seo/redirects': typeof AuthenticatedAdminSeoRedirectsRoute
@@ -486,6 +494,7 @@ export interface FileRoutesByTo {
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/admin/seo/airports': typeof AuthenticatedAdminSeoAirportsRoute
+  '/admin/seo/issues': typeof AuthenticatedAdminSeoIssuesRoute
   '/admin/seo/locations': typeof AuthenticatedAdminSeoLocationsRoute
   '/admin/seo/pages': typeof AuthenticatedAdminSeoPagesRouteWithChildren
   '/admin/seo/redirects': typeof AuthenticatedAdminSeoRedirectsRoute
@@ -546,6 +555,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/admin/seo/airports': typeof AuthenticatedAdminSeoAirportsRoute
+  '/_authenticated/admin/seo/issues': typeof AuthenticatedAdminSeoIssuesRoute
   '/_authenticated/admin/seo/locations': typeof AuthenticatedAdminSeoLocationsRoute
   '/_authenticated/admin/seo/pages': typeof AuthenticatedAdminSeoPagesRouteWithChildren
   '/_authenticated/admin/seo/redirects': typeof AuthenticatedAdminSeoRedirectsRoute
@@ -606,6 +616,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/admin/'
     | '/admin/seo/airports'
+    | '/admin/seo/issues'
     | '/admin/seo/locations'
     | '/admin/seo/pages'
     | '/admin/seo/redirects'
@@ -663,6 +674,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/admin'
     | '/admin/seo/airports'
+    | '/admin/seo/issues'
     | '/admin/seo/locations'
     | '/admin/seo/pages'
     | '/admin/seo/redirects'
@@ -722,6 +734,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/users'
     | '/_authenticated/admin/'
     | '/_authenticated/admin/seo/airports'
+    | '/_authenticated/admin/seo/issues'
     | '/_authenticated/admin/seo/locations'
     | '/_authenticated/admin/seo/pages'
     | '/_authenticated/admin/seo/redirects'
@@ -1145,6 +1158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSeoLocationsRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/seo/issues': {
+      id: '/_authenticated/admin/seo/issues'
+      path: '/seo/issues'
+      fullPath: '/admin/seo/issues'
+      preLoaderRoute: typeof AuthenticatedAdminSeoIssuesRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/seo/airports': {
       id: '/_authenticated/admin/seo/airports'
       path: '/seo/airports'
@@ -1203,6 +1223,7 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminSeoAirportsRoute: typeof AuthenticatedAdminSeoAirportsRoute
+  AuthenticatedAdminSeoIssuesRoute: typeof AuthenticatedAdminSeoIssuesRoute
   AuthenticatedAdminSeoLocationsRoute: typeof AuthenticatedAdminSeoLocationsRoute
   AuthenticatedAdminSeoPagesRoute: typeof AuthenticatedAdminSeoPagesRouteWithChildren
   AuthenticatedAdminSeoRedirectsRoute: typeof AuthenticatedAdminSeoRedirectsRoute
@@ -1241,6 +1262,7 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
     AuthenticatedAdminSeoAirportsRoute: AuthenticatedAdminSeoAirportsRoute,
+    AuthenticatedAdminSeoIssuesRoute: AuthenticatedAdminSeoIssuesRoute,
     AuthenticatedAdminSeoLocationsRoute: AuthenticatedAdminSeoLocationsRoute,
     AuthenticatedAdminSeoPagesRoute:
       AuthenticatedAdminSeoPagesRouteWithChildren,

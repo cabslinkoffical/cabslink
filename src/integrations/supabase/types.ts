@@ -2403,6 +2403,25 @@ export type Database = {
         }
         Returns: boolean
       }
+      seo_find_orphan_pages: {
+        Args: never
+        Returns: {
+          page_id: string
+          path: string
+          seo_title: string
+        }[]
+      }
+      seo_find_similar_pages: {
+        Args: { _threshold?: number }
+        Returns: {
+          a_id: string
+          a_path: string
+          b_id: string
+          b_path: string
+          meta_sim: number
+          title_sim: number
+        }[]
+      }
       set_booking_status: {
         Args: {
           _actor_id: string

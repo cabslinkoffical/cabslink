@@ -83,6 +83,7 @@ const NAV: SidebarEntry[] = [
       { to: "/admin/seo/services", label: "Services", icon: Wrench },
       { to: "/admin/seo/routes", label: "Popular Routes", icon: RouteIcon },
       { to: "/admin/seo/pages", label: "SEO Pages", icon: FileText },
+      { to: "/admin/seo/issues", label: "Content Issues", icon: Shield },
       { to: "/admin/seo/redirects", label: "Redirects", icon: ArrowLeftRight },
     ],
   },
