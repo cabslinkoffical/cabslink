@@ -75,6 +75,17 @@ const NAV: SidebarEntry[] = [
       { to: "/admin/tour-settings", label: "Tour Settings", icon: SettingsIcon },
     ],
   },
+  {
+    label: "SEO", icon: Globe, items: [
+      { to: "/admin/seo", label: "Overview", icon: Globe },
+      { to: "/admin/seo/locations", label: "Locations", icon: MapPin },
+      { to: "/admin/seo/airports", label: "Airports", icon: Plane },
+      { to: "/admin/seo/services", label: "Services", icon: Wrench },
+      { to: "/admin/seo/routes", label: "Popular Routes", icon: RouteIcon },
+      { to: "/admin/seo/pages", label: "SEO Pages", icon: FileText },
+      { to: "/admin/seo/redirects", label: "Redirects", icon: ArrowLeftRight },
+    ],
+  },
   { to: "/admin/payments", label: "Payments", icon: CreditCard },
   { to: "/admin/reports", label: "Reports", icon: BarChart3 },
   { to: "/admin/logs", label: "Activity Logs", icon: History },
