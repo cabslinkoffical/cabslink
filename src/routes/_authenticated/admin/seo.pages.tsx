@@ -154,7 +154,7 @@ function Page() {
               <div className="col-span-2 flex justify-between gap-2 pt-2">
                 <div>
                   <Button variant="outline" onClick={runCheck} disabled={!form.id}><ShieldCheck className="size-4 mr-2" /> Run quality check</Button>
-                  {form.id && <Link to={"/admin/seo/pages/$id/sections" as any} params={{ id: form.id }} className="ml-2 text-xs text-primary underline">Manage sections →</Link>}
+                  {form.id && <Link to={"/admin/seo/pages/$id/sections" as any} params={{ id: form.id } as any} className="ml-2 text-xs text-primary underline">Manage sections →</Link>}
                 </div>
                 <div className="flex gap-2">
                   <Button variant="outline" onClick={() => { setForm(null); setCheck(null); }}>Cancel</Button>

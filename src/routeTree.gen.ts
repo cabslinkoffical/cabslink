@@ -58,6 +58,14 @@ import { Route as AuthenticatedAdminContentRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminBookingsRouteImport } from './routes/_authenticated/admin/bookings'
 import { Route as AuthenticatedAdminBannedAddressesRouteImport } from './routes/_authenticated/admin/banned-addresses'
 import { Route as AuthenticatedAdminAddressesRouteImport } from './routes/_authenticated/admin/addresses'
+import { Route as AuthenticatedAdminSeoIndexRouteImport } from './routes/_authenticated/admin/seo.index'
+import { Route as AuthenticatedAdminSeoServicesRouteImport } from './routes/_authenticated/admin/seo.services'
+import { Route as AuthenticatedAdminSeoRoutesRouteImport } from './routes/_authenticated/admin/seo.routes'
+import { Route as AuthenticatedAdminSeoRedirectsRouteImport } from './routes/_authenticated/admin/seo.redirects'
+import { Route as AuthenticatedAdminSeoPagesRouteImport } from './routes/_authenticated/admin/seo.pages'
+import { Route as AuthenticatedAdminSeoLocationsRouteImport } from './routes/_authenticated/admin/seo.locations'
+import { Route as AuthenticatedAdminSeoAirportsRouteImport } from './routes/_authenticated/admin/seo.airports'
+import { Route as AuthenticatedAdminSeoPagesIdSectionsRouteImport } from './routes/_authenticated/admin/seo.pages.$id.sections'
 
 const VipTransfersRoute = VipTransfersRouteImport.update({
   id: '/vip-transfers',
@@ -322,6 +330,54 @@ const AuthenticatedAdminAddressesRoute =
     path: '/addresses',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminSeoIndexRoute =
+  AuthenticatedAdminSeoIndexRouteImport.update({
+    id: '/seo/',
+    path: '/seo/',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminSeoServicesRoute =
+  AuthenticatedAdminSeoServicesRouteImport.update({
+    id: '/seo/services',
+    path: '/seo/services',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminSeoRoutesRoute =
+  AuthenticatedAdminSeoRoutesRouteImport.update({
+    id: '/seo/routes',
+    path: '/seo/routes',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminSeoRedirectsRoute =
+  AuthenticatedAdminSeoRedirectsRouteImport.update({
+    id: '/seo/redirects',
+    path: '/seo/redirects',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminSeoPagesRoute =
+  AuthenticatedAdminSeoPagesRouteImport.update({
+    id: '/seo/pages',
+    path: '/seo/pages',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminSeoLocationsRoute =
+  AuthenticatedAdminSeoLocationsRouteImport.update({
+    id: '/seo/locations',
+    path: '/seo/locations',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminSeoAirportsRoute =
+  AuthenticatedAdminSeoAirportsRouteImport.update({
+    id: '/seo/airports',
+    path: '/seo/airports',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminSeoPagesIdSectionsRoute =
+  AuthenticatedAdminSeoPagesIdSectionsRouteImport.update({
+    id: '/$id/sections',
+    path: '/$id/sections',
+    getParentRoute: () => AuthenticatedAdminSeoPagesRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -372,6 +428,14 @@ export interface FileRoutesByFullPath {
   '/admin/tour-settings': typeof AuthenticatedAdminTourSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/admin/seo/airports': typeof AuthenticatedAdminSeoAirportsRoute
+  '/admin/seo/locations': typeof AuthenticatedAdminSeoLocationsRoute
+  '/admin/seo/pages': typeof AuthenticatedAdminSeoPagesRouteWithChildren
+  '/admin/seo/redirects': typeof AuthenticatedAdminSeoRedirectsRoute
+  '/admin/seo/routes': typeof AuthenticatedAdminSeoRoutesRoute
+  '/admin/seo/services': typeof AuthenticatedAdminSeoServicesRoute
+  '/admin/seo/': typeof AuthenticatedAdminSeoIndexRoute
+  '/admin/seo/pages/$id/sections': typeof AuthenticatedAdminSeoPagesIdSectionsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -421,6 +485,14 @@ export interface FileRoutesByTo {
   '/admin/tour-settings': typeof AuthenticatedAdminTourSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/admin/seo/airports': typeof AuthenticatedAdminSeoAirportsRoute
+  '/admin/seo/locations': typeof AuthenticatedAdminSeoLocationsRoute
+  '/admin/seo/pages': typeof AuthenticatedAdminSeoPagesRouteWithChildren
+  '/admin/seo/redirects': typeof AuthenticatedAdminSeoRedirectsRoute
+  '/admin/seo/routes': typeof AuthenticatedAdminSeoRoutesRoute
+  '/admin/seo/services': typeof AuthenticatedAdminSeoServicesRoute
+  '/admin/seo': typeof AuthenticatedAdminSeoIndexRoute
+  '/admin/seo/pages/$id/sections': typeof AuthenticatedAdminSeoPagesIdSectionsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -473,6 +545,14 @@ export interface FileRoutesById {
   '/_authenticated/admin/tour-settings': typeof AuthenticatedAdminTourSettingsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/admin/seo/airports': typeof AuthenticatedAdminSeoAirportsRoute
+  '/_authenticated/admin/seo/locations': typeof AuthenticatedAdminSeoLocationsRoute
+  '/_authenticated/admin/seo/pages': typeof AuthenticatedAdminSeoPagesRouteWithChildren
+  '/_authenticated/admin/seo/redirects': typeof AuthenticatedAdminSeoRedirectsRoute
+  '/_authenticated/admin/seo/routes': typeof AuthenticatedAdminSeoRoutesRoute
+  '/_authenticated/admin/seo/services': typeof AuthenticatedAdminSeoServicesRoute
+  '/_authenticated/admin/seo/': typeof AuthenticatedAdminSeoIndexRoute
+  '/_authenticated/admin/seo/pages/$id/sections': typeof AuthenticatedAdminSeoPagesIdSectionsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -525,6 +605,14 @@ export interface FileRouteTypes {
     | '/admin/tour-settings'
     | '/admin/users'
     | '/admin/'
+    | '/admin/seo/airports'
+    | '/admin/seo/locations'
+    | '/admin/seo/pages'
+    | '/admin/seo/redirects'
+    | '/admin/seo/routes'
+    | '/admin/seo/services'
+    | '/admin/seo/'
+    | '/admin/seo/pages/$id/sections'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -574,6 +662,14 @@ export interface FileRouteTypes {
     | '/admin/tour-settings'
     | '/admin/users'
     | '/admin'
+    | '/admin/seo/airports'
+    | '/admin/seo/locations'
+    | '/admin/seo/pages'
+    | '/admin/seo/redirects'
+    | '/admin/seo/routes'
+    | '/admin/seo/services'
+    | '/admin/seo'
+    | '/admin/seo/pages/$id/sections'
   id:
     | '__root__'
     | '/'
@@ -625,6 +721,14 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/tour-settings'
     | '/_authenticated/admin/users'
     | '/_authenticated/admin/'
+    | '/_authenticated/admin/seo/airports'
+    | '/_authenticated/admin/seo/locations'
+    | '/_authenticated/admin/seo/pages'
+    | '/_authenticated/admin/seo/redirects'
+    | '/_authenticated/admin/seo/routes'
+    | '/_authenticated/admin/seo/services'
+    | '/_authenticated/admin/seo/'
+    | '/_authenticated/admin/seo/pages/$id/sections'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -999,8 +1103,79 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAddressesRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/seo/': {
+      id: '/_authenticated/admin/seo/'
+      path: '/seo'
+      fullPath: '/admin/seo/'
+      preLoaderRoute: typeof AuthenticatedAdminSeoIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/seo/services': {
+      id: '/_authenticated/admin/seo/services'
+      path: '/seo/services'
+      fullPath: '/admin/seo/services'
+      preLoaderRoute: typeof AuthenticatedAdminSeoServicesRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/seo/routes': {
+      id: '/_authenticated/admin/seo/routes'
+      path: '/seo/routes'
+      fullPath: '/admin/seo/routes'
+      preLoaderRoute: typeof AuthenticatedAdminSeoRoutesRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/seo/redirects': {
+      id: '/_authenticated/admin/seo/redirects'
+      path: '/seo/redirects'
+      fullPath: '/admin/seo/redirects'
+      preLoaderRoute: typeof AuthenticatedAdminSeoRedirectsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/seo/pages': {
+      id: '/_authenticated/admin/seo/pages'
+      path: '/seo/pages'
+      fullPath: '/admin/seo/pages'
+      preLoaderRoute: typeof AuthenticatedAdminSeoPagesRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/seo/locations': {
+      id: '/_authenticated/admin/seo/locations'
+      path: '/seo/locations'
+      fullPath: '/admin/seo/locations'
+      preLoaderRoute: typeof AuthenticatedAdminSeoLocationsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/seo/airports': {
+      id: '/_authenticated/admin/seo/airports'
+      path: '/seo/airports'
+      fullPath: '/admin/seo/airports'
+      preLoaderRoute: typeof AuthenticatedAdminSeoAirportsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/seo/pages/$id/sections': {
+      id: '/_authenticated/admin/seo/pages/$id/sections'
+      path: '/$id/sections'
+      fullPath: '/admin/seo/pages/$id/sections'
+      preLoaderRoute: typeof AuthenticatedAdminSeoPagesIdSectionsRouteImport
+      parentRoute: typeof AuthenticatedAdminSeoPagesRoute
+    }
   }
 }
+
+interface AuthenticatedAdminSeoPagesRouteChildren {
+  AuthenticatedAdminSeoPagesIdSectionsRoute: typeof AuthenticatedAdminSeoPagesIdSectionsRoute
+}
+
+const AuthenticatedAdminSeoPagesRouteChildren: AuthenticatedAdminSeoPagesRouteChildren =
+  {
+    AuthenticatedAdminSeoPagesIdSectionsRoute:
+      AuthenticatedAdminSeoPagesIdSectionsRoute,
+  }
+
+const AuthenticatedAdminSeoPagesRouteWithChildren =
+  AuthenticatedAdminSeoPagesRoute._addFileChildren(
+    AuthenticatedAdminSeoPagesRouteChildren,
+  )
 
 interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminAddressesRoute: typeof AuthenticatedAdminAddressesRoute
@@ -1027,6 +1202,13 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminTourSettingsRoute: typeof AuthenticatedAdminTourSettingsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminSeoAirportsRoute: typeof AuthenticatedAdminSeoAirportsRoute
+  AuthenticatedAdminSeoLocationsRoute: typeof AuthenticatedAdminSeoLocationsRoute
+  AuthenticatedAdminSeoPagesRoute: typeof AuthenticatedAdminSeoPagesRouteWithChildren
+  AuthenticatedAdminSeoRedirectsRoute: typeof AuthenticatedAdminSeoRedirectsRoute
+  AuthenticatedAdminSeoRoutesRoute: typeof AuthenticatedAdminSeoRoutesRoute
+  AuthenticatedAdminSeoServicesRoute: typeof AuthenticatedAdminSeoServicesRoute
+  AuthenticatedAdminSeoIndexRoute: typeof AuthenticatedAdminSeoIndexRoute
 }
 
 const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
@@ -1058,6 +1240,14 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminTourSettingsRoute: AuthenticatedAdminTourSettingsRoute,
     AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+    AuthenticatedAdminSeoAirportsRoute: AuthenticatedAdminSeoAirportsRoute,
+    AuthenticatedAdminSeoLocationsRoute: AuthenticatedAdminSeoLocationsRoute,
+    AuthenticatedAdminSeoPagesRoute:
+      AuthenticatedAdminSeoPagesRouteWithChildren,
+    AuthenticatedAdminSeoRedirectsRoute: AuthenticatedAdminSeoRedirectsRoute,
+    AuthenticatedAdminSeoRoutesRoute: AuthenticatedAdminSeoRoutesRoute,
+    AuthenticatedAdminSeoServicesRoute: AuthenticatedAdminSeoServicesRoute,
+    AuthenticatedAdminSeoIndexRoute: AuthenticatedAdminSeoIndexRoute,
   }
 
 const AuthenticatedAdminRouteRouteWithChildren =
