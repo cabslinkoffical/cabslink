@@ -1,5 +1,6 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { getPublicSeoPageByPath } from "@/lib/seo-public.functions";
+import { getRelatedSeoLinks } from "@/lib/seo-related.functions";
 import { SeoPageRenderer, buildSeoHead } from "@/components/seo/SeoPageRenderer";
 
 const ORIGIN = "https://cabslink.lovable.app";
@@ -8,9 +9,13 @@ export const Route = createFileRoute("/airports/$iata")({
   loader: async ({ params }) => {
     const page = await getPublicSeoPageByPath({ data: { path: `/airports/${params.iata.toLowerCase()}` } });
     if (!page) throw notFound();
-    return { page };
+    const related = await getRelatedSeoLinks({
+      data: { entityType: page.primary_entity_type as any, entityId: page.primary_entity_id },
+    }).catch(() => null);
+    return { page, related };
   },
-  head: ({ loaderData }) => (loaderData ? buildSeoHead(loaderData.page, ORIGIN) : {}),
+  head: ({ loaderData }) =>
+    loaderData ? buildSeoHead(loaderData.page, ORIGIN, loaderData.related) : {},
   component: AirportPage,
   notFoundComponent: () => (
     <main className="container mx-auto px-4 py-24 text-center">
@@ -27,6 +32,6 @@ export const Route = createFileRoute("/airports/$iata")({
 });
 
 function AirportPage() {
-  const { page } = Route.useLoaderData();
-  return <SeoPageRenderer page={page} />;
+  const { page, related } = Route.useLoaderData();
+  return <SeoPageRenderer page={page} related={related} />;
 }
