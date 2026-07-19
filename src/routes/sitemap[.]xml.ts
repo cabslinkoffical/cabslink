@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 import { listPublishedToursImpl } from "@/lib/tours.functions";
+import { listPublishedSeoPaths } from "@/lib/seo-public.functions";
 
 const BASE_URL = "https://cabslink.lovable.app";
 
@@ -23,7 +24,14 @@ export const Route = createFileRoute("/sitemap.xml")({
         } catch {
           tourPaths = [];
         }
-        const paths = [...PUBLIC_ROUTES, ...tourPaths];
+        let seoPaths: string[] = [];
+        try {
+          const rows = await listPublishedSeoPaths();
+          seoPaths = rows.map((r: any) => r.path);
+        } catch {
+          seoPaths = [];
+        }
+        const paths = [...PUBLIC_ROUTES, ...tourPaths, ...seoPaths];
         const xml = [
           `<?xml version="1.0" encoding="UTF-8"?>`,
           `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`,

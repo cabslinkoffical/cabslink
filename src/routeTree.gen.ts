@@ -32,7 +32,10 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ToursIndexRouteImport } from './routes/tours.index'
 import { Route as ToursSlugRouteImport } from './routes/tours.$slug'
+import { Route as RoutesSlugRouteImport } from './routes/routes.$slug'
+import { Route as LocationsSlugRouteImport } from './routes/locations.$slug'
 import { Route as BookingTokenRouteImport } from './routes/booking.$token'
+import { Route as AirportsIataRouteImport } from './routes/airports.$iata'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
@@ -182,9 +185,24 @@ const ToursSlugRoute = ToursSlugRouteImport.update({
   path: '/tours/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RoutesSlugRoute = RoutesSlugRouteImport.update({
+  id: '/routes/$slug',
+  path: '/routes/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LocationsSlugRoute = LocationsSlugRouteImport.update({
+  id: '/locations/$slug',
+  path: '/locations/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BookingTokenRoute = BookingTokenRouteImport.update({
   id: '/booking/$token',
   path: '/booking/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AirportsIataRoute = AirportsIataRouteImport.update({
+  id: '/airports/$iata',
+  path: '/airports/$iata',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
@@ -408,7 +426,10 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/vip-transfers': typeof VipTransfersRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/airports/$iata': typeof AirportsIataRoute
   '/booking/$token': typeof BookingTokenRoute
+  '/locations/$slug': typeof LocationsSlugRoute
+  '/routes/$slug': typeof RoutesSlugRoute
   '/tours/$slug': typeof ToursSlugRoute
   '/tours/': typeof ToursIndexRoute
   '/admin/addresses': typeof AuthenticatedAdminAddressesRoute
@@ -466,7 +487,10 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/vip-transfers': typeof VipTransfersRoute
+  '/airports/$iata': typeof AirportsIataRoute
   '/booking/$token': typeof BookingTokenRoute
+  '/locations/$slug': typeof LocationsSlugRoute
+  '/routes/$slug': typeof RoutesSlugRoute
   '/tours/$slug': typeof ToursSlugRoute
   '/tours': typeof ToursIndexRoute
   '/admin/addresses': typeof AuthenticatedAdminAddressesRoute
@@ -527,7 +551,10 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/vip-transfers': typeof VipTransfersRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/airports/$iata': typeof AirportsIataRoute
   '/booking/$token': typeof BookingTokenRoute
+  '/locations/$slug': typeof LocationsSlugRoute
+  '/routes/$slug': typeof RoutesSlugRoute
   '/tours/$slug': typeof ToursSlugRoute
   '/tours/': typeof ToursIndexRoute
   '/_authenticated/admin/addresses': typeof AuthenticatedAdminAddressesRoute
@@ -588,7 +615,10 @@ export interface FileRouteTypes {
     | '/terms'
     | '/vip-transfers'
     | '/admin'
+    | '/airports/$iata'
     | '/booking/$token'
+    | '/locations/$slug'
+    | '/routes/$slug'
     | '/tours/$slug'
     | '/tours/'
     | '/admin/addresses'
@@ -646,7 +676,10 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/vip-transfers'
+    | '/airports/$iata'
     | '/booking/$token'
+    | '/locations/$slug'
+    | '/routes/$slug'
     | '/tours/$slug'
     | '/tours'
     | '/admin/addresses'
@@ -706,7 +739,10 @@ export interface FileRouteTypes {
     | '/terms'
     | '/vip-transfers'
     | '/_authenticated/admin'
+    | '/airports/$iata'
     | '/booking/$token'
+    | '/locations/$slug'
+    | '/routes/$slug'
     | '/tours/$slug'
     | '/tours/'
     | '/_authenticated/admin/addresses'
@@ -766,7 +802,10 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   VipTransfersRoute: typeof VipTransfersRoute
+  AirportsIataRoute: typeof AirportsIataRoute
   BookingTokenRoute: typeof BookingTokenRoute
+  LocationsSlugRoute: typeof LocationsSlugRoute
+  RoutesSlugRoute: typeof RoutesSlugRoute
   ToursSlugRoute: typeof ToursSlugRoute
   ToursIndexRoute: typeof ToursIndexRoute
 }
@@ -934,11 +973,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ToursSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/routes/$slug': {
+      id: '/routes/$slug'
+      path: '/routes/$slug'
+      fullPath: '/routes/$slug'
+      preLoaderRoute: typeof RoutesSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/locations/$slug': {
+      id: '/locations/$slug'
+      path: '/locations/$slug'
+      fullPath: '/locations/$slug'
+      preLoaderRoute: typeof LocationsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/booking/$token': {
       id: '/booking/$token'
       path: '/booking/$token'
       fullPath: '/booking/$token'
       preLoaderRoute: typeof BookingTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/airports/$iata': {
+      id: '/airports/$iata'
+      path: '/airports/$iata'
+      fullPath: '/airports/$iata'
+      preLoaderRoute: typeof AirportsIataRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin': {
@@ -1310,7 +1370,10 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   VipTransfersRoute: VipTransfersRoute,
+  AirportsIataRoute: AirportsIataRoute,
   BookingTokenRoute: BookingTokenRoute,
+  LocationsSlugRoute: LocationsSlugRoute,
+  RoutesSlugRoute: RoutesSlugRoute,
   ToursSlugRoute: ToursSlugRoute,
   ToursIndexRoute: ToursIndexRoute,
 }
