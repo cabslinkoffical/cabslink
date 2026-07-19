@@ -36,7 +36,8 @@ export type PublicSeoSection = {
   position: number;
   heading: string | null;
   body: string | null;
-  structured_payload: Record<string, unknown>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  structured_payload: any;
 };
 
 export type PublicSeoPage = {
