@@ -1,0 +1,1 @@
+DROP INDEX IF EXISTS public.scenic_template_unique_active_pair;
