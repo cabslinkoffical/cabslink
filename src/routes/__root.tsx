@@ -6,11 +6,13 @@ import {
   HeadContent,
   Scripts,
   Link,
+  redirect,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { resolvePublicRedirect } from "../lib/seo-public.functions";
 
 function NotFoundComponent() {
   return (
@@ -46,6 +48,22 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+  beforeLoad: async ({ location }) => {
+    // Skip static assets, API routes, and admin — cheap short-circuit before RPC.
+    const p = location.pathname;
+    if (!p || p === "/" || p.startsWith("/api/") || p.startsWith("/admin") ||
+        p.startsWith("/_") || /\.[a-z0-9]{2,5}$/i.test(p)) return;
+    try {
+      const row = await resolvePublicRedirect({ data: { path: p } });
+      if (row?.to_path && row.to_path !== p) {
+        const code = Number(row.status_code) === 302 ? 302 : 301;
+        throw redirect({ href: row.to_path, statusCode: code });
+      }
+    } catch (e: any) {
+      // Rethrow router redirects; swallow lookup errors so the site keeps loading.
+      if (e && (e.isRedirect || e.status === 301 || e.status === 302)) throw e;
+    }
+  },
   head: () => ({
     meta: [
       { charSet: "utf-8" },
