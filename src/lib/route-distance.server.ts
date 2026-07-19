@@ -106,6 +106,13 @@ export async function computeRoute(input: ComputeRouteInput): Promise<RouteDista
   const cached = cacheGet(key);
   if (cached) return cached;
 
+  // Persistent DB cache (shared across isolates, survives cold starts).
+  const persisted = await persistentCacheGet(key);
+  if (persisted) {
+    cacheSet(key, persisted);
+    return persisted;
+  }
+
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
   const lovableKey = process.env.LOVABLE_API_KEY;
   if (!apiKey || !lovableKey) throw new RouteUnavailableError();
@@ -164,5 +171,54 @@ export async function computeRoute(input: ComputeRouteInput): Promise<RouteDista
 
   const result: RouteDistanceResult = { distanceMeters, distanceMiles, durationSeconds };
   cacheSet(key, result);
+  void persistentCacheSet(key, originPlaceId, destinationPlaceId, waypointPlaceIds, result);
   return result;
 }
+
+// ---------- Persistent (DB) cache via service role ----------
+async function persistentCacheGet(key: string): Promise<RouteDistanceResult | null> {
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data } = await supabaseAdmin
+      .from("route_distance_cache")
+      .select("distance_meters, distance_miles, duration_seconds, expires_at")
+      .eq("cache_key", key)
+      .gt("expires_at", new Date().toISOString())
+      .maybeSingle();
+    if (!data) return null;
+    return {
+      distanceMeters: Number(data.distance_meters),
+      distanceMiles: Number(data.distance_miles),
+      durationSeconds: Number(data.duration_seconds),
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function persistentCacheSet(
+  key: string,
+  origin: string,
+  destination: string,
+  waypoints: string[],
+  value: RouteDistanceResult,
+): Promise<void> {
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin.from("route_distance_cache").upsert(
+      {
+        cache_key: key,
+        origin_place_id: origin,
+        destination_place_id: destination,
+        waypoint_place_ids: waypoints,
+        distance_meters: value.distanceMeters,
+        distance_miles: value.distanceMiles,
+        duration_seconds: value.durationSeconds,
+      },
+      { onConflict: "cache_key" },
+    );
+  } catch (err) {
+    console.warn("route_distance_cache upsert failed:", (err as Error).message);
+  }
+}
+

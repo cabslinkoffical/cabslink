@@ -1071,6 +1071,42 @@ export type Database = {
           },
         ]
       }
+      route_distance_cache: {
+        Row: {
+          cache_key: string
+          created_at: string
+          destination_place_id: string
+          distance_meters: number
+          distance_miles: number
+          duration_seconds: number
+          expires_at: string
+          origin_place_id: string
+          waypoint_place_ids: string[]
+        }
+        Insert: {
+          cache_key: string
+          created_at?: string
+          destination_place_id: string
+          distance_meters: number
+          distance_miles: number
+          duration_seconds: number
+          expires_at?: string
+          origin_place_id: string
+          waypoint_place_ids?: string[]
+        }
+        Update: {
+          cache_key?: string
+          created_at?: string
+          destination_place_id?: string
+          distance_meters?: number
+          distance_miles?: number
+          duration_seconds?: number
+          expires_at?: string
+          origin_place_id?: string
+          waypoint_place_ids?: string[]
+        }
+        Relationships: []
+      }
       scenic_route_template_pois: {
         Row: {
           created_at: string
