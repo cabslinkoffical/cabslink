@@ -1,5 +1,6 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { getPublicSeoPageByPath } from "@/lib/seo-public.functions";
+import { getRelatedSeoLinks } from "@/lib/seo-related.functions";
 import { SeoPageRenderer, buildSeoHead } from "@/components/seo/SeoPageRenderer";
 
 const ORIGIN = "https://cabslink.lovable.app";
@@ -8,9 +9,18 @@ export const Route = createFileRoute("/routes/$slug")({
   loader: async ({ params }) => {
     const page = await getPublicSeoPageByPath({ data: { path: `/routes/${params.slug}` } });
     if (!page) throw notFound();
-    return { page };
+    // Route pages: use origin entity as the anchor for nearby links
+    const entityType = page.primary_entity_type as any;
+    const related =
+      entityType === "location" || entityType === "airport" || entityType === "service"
+        ? await getRelatedSeoLinks({
+            data: { entityType, entityId: page.primary_entity_id },
+          }).catch(() => null)
+        : null;
+    return { page, related };
   },
-  head: ({ loaderData }) => (loaderData ? buildSeoHead(loaderData.page, ORIGIN) : {}),
+  head: ({ loaderData }) =>
+    loaderData ? buildSeoHead(loaderData.page, ORIGIN, loaderData.related) : {},
   component: RoutePage,
   notFoundComponent: () => (
     <main className="container mx-auto px-4 py-24 text-center">
@@ -27,6 +37,6 @@ export const Route = createFileRoute("/routes/$slug")({
 });
 
 function RoutePage() {
-  const { page } = Route.useLoaderData();
-  return <SeoPageRenderer page={page} />;
+  const { page, related } = Route.useLoaderData();
+  return <SeoPageRenderer page={page} related={related} />;
 }
