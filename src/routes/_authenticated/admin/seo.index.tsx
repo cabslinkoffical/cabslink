@@ -1,8 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import { queryOptions, useSuspenseQuery, useMutation } from "@tanstack/react-query";
 import { getSeoOverview } from "@/lib/seo-admin.functions";
+import { seedSeoPagesFromEntities } from "@/lib/seo-seeder.functions";
 import { PageHeader, StatCard } from "@/components/admin/ui";
-import { MapPin, Plane, Wrench, Route as RouteIcon, FileText, ArrowLeftRight } from "lucide-react";
+import { MapPin, Plane, Wrench, Route as RouteIcon, FileText, ArrowLeftRight, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { useState } from "react";
 
 const opts = queryOptions({ queryKey: ["admin", "seo", "overview"], queryFn: () => getSeoOverview() });
 
@@ -15,6 +19,12 @@ export const Route = createFileRoute("/_authenticated/admin/seo/")({
 
 function SeoOverview() {
   const { data } = useSuspenseQuery(opts);
+  const [lastResult, setLastResult] = useState<{ created: number; skipped: number; errors: string[] } | null>(null);
+  const seed = useMutation({
+    mutationFn: () => seedSeoPagesFromEntities(),
+    onSuccess: (r) => { setLastResult(r); toast.success(`Seeded ${r.created} draft page(s), skipped ${r.skipped}.`); },
+    onError: (e: any) => toast.error(e?.message ?? "Seeding failed"),
+  });
   const cards = [
     { label: "Locations", value: `${data.locations.published}/${data.locations.total}`, icon: MapPin, accent: "text-blue-600", to: "/admin/seo/locations" },
     { label: "Airports", value: `${data.airports.published}/${data.airports.total}`, icon: Plane, accent: "text-sky-600", to: "/admin/seo/airports" },
@@ -25,7 +35,28 @@ function SeoOverview() {
   ];
   return (
     <div className="p-6 md:p-8 space-y-6">
-      <PageHeader title="SEO System" description="Programmatic SEO entities, landing pages and redirects. Published counts shown as live/total." />
+      <PageHeader title="SEO System" description="Programmatic SEO entities, landing pages and redirects. Published counts shown as live/total.">
+        <Button onClick={() => seed.mutate()} disabled={seed.isPending} className="gap-2">
+          <Sparkles className="h-4 w-4" />
+          {seed.isPending ? "Seeding…" : "Seed pages from entities"}
+        </Button>
+      </PageHeader>
+      {lastResult && (
+        <div className="rounded-lg border bg-card p-4 text-sm">
+          <div className="font-medium">Last seed run</div>
+          <div className="text-muted-foreground mt-1">
+            Created <b>{lastResult.created}</b> draft page(s), skipped <b>{lastResult.skipped}</b> that already existed.
+          </div>
+          {lastResult.errors.length > 0 && (
+            <details className="mt-2">
+              <summary className="cursor-pointer text-destructive">{lastResult.errors.length} error(s)</summary>
+              <ul className="mt-2 space-y-1 text-xs">
+                {lastResult.errors.slice(0, 20).map((e, i) => <li key={i}>{e}</li>)}
+              </ul>
+            </details>
+          )}
+        </div>
+      )}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         {cards.map(c => (
           <Link key={c.label} to={c.to as any} className="block">
