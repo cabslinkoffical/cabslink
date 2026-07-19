@@ -56,7 +56,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     try {
       const row = await resolvePublicRedirect({ data: { path: p } });
       if (row?.to_path && row.to_path !== p) {
-        throw redirect({ href: row.to_path, statusCode: ((row.status_code as unknown) as 301 | 302) ?? 301 });
+        const code = Number(row.status_code) === 302 ? 302 : 301;
+        throw redirect({ href: row.to_path, statusCode: code });
       }
     } catch (e: any) {
       // Rethrow router redirects; swallow lookup errors so the site keeps loading.
