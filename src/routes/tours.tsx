@@ -97,13 +97,15 @@ function TourCard({ tour }: { tour: PublicTourListItem }) {
             <span>{tour.recommended_stop_count} stop{tour.recommended_stop_count === 1 ? "" : "s"}</span>
           )}
         </div>
-        <div className="mt-5 flex items-end justify-between">
+        <div className="mt-5 flex items-end justify-between gap-3">
           <div>
-            <p className="text-[11px] uppercase tracking-widest text-muted-foreground">From</p>
-            <p className="font-display text-2xl font-semibold text-[var(--gold)]">{formatPrice(tour.starting_price_pence, tour.currency)}</p>
+            <p className="text-[11px] uppercase tracking-widest text-muted-foreground">{tour.starting_price_pence == null ? "Enquire" : "From"}</p>
+            <p className={`font-display font-semibold ${tour.starting_price_pence == null ? "text-base text-foreground" : "text-2xl text-foreground"}`}>
+              {formatPrice(tour.starting_price_pence, tour.currency)}
+            </p>
           </div>
-          <span className="inline-flex items-center gap-1 text-sm font-medium text-[var(--gold)] group-hover:gap-2 transition-all">
-            View tour <ArrowRight className="size-4" />
+          <span className="inline-flex items-center gap-1 rounded-full bg-[var(--gold)] text-black text-xs font-semibold px-4 py-2 group-hover:gap-2 transition-all shadow-md">
+            View tour <ArrowRight className="size-3.5" />
           </span>
         </div>
       </div>
