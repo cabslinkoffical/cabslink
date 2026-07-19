@@ -1012,6 +1012,10 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
 }
 
 
+function isQuoteOnRequest(name: string): boolean {
+  return /coaster|coach\s*bus|24-?seater|55-?seater/i.test(name);
+}
+
 function VehicleCard({ card, best, qty, minQty, disabled, disabledReason, onQtyChange, onSelect }: {
   card: QuoteCard; best: boolean; qty: number; minQty: number;
   disabled?: boolean; disabledReason?: string | null;
@@ -1019,6 +1023,7 @@ function VehicleCard({ card, best, qty, minQty, disabled, disabledReason, onQtyC
 }) {
   const total = card.finalPrice * qty;
   const serial = card.vehicleId.slice(0, 8).toUpperCase();
+  const quoteOnly = isQuoteOnRequest(card.name);
   return (
     <div className={`relative flex flex-col md:flex-row bg-card rounded-2xl shadow-[0_10px_40px_-20px_rgba(14,24,44,0.25)] border transition-all duration-500 hover:shadow-[0_20px_60px_-20px_rgba(223,175,38,0.35)] ${best ? "border-[var(--gold)]/60" : minQty > 1 ? "border-amber-400/50" : "border-border"}`}>
       {best && (
