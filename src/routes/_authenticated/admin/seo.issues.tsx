@@ -38,7 +38,7 @@ function SeoIssuesPage() {
     catch (e: any) { toast.error(e.message); }
     finally { setLoading(false); }
   }
-  useState(() => { refresh(); return 0; });
+  useEffect(() => { refresh(); }, []);
 
   async function onAudit() {
     setRunning(true);
