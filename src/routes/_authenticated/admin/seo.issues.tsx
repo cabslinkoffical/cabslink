@@ -89,7 +89,7 @@ function SeoIssuesPage() {
                  <div className="min-w-0">
                    <div className="flex items-center gap-2 flex-wrap">
                      {severityBadge(r.severity)}
-                     <Badge variant="outline" className="text-xs">{r.issue_type}</Badge>
+                     <span className="inline-flex items-center rounded border px-1.5 py-0.5 text-xs">{r.issue_type}</span>
                      {r.seo_pages?.path && <span className="text-xs text-muted-foreground truncate">{r.seo_pages.path}</span>}
                    </div>
                    <p className="mt-1 text-sm">{r.message}</p>
