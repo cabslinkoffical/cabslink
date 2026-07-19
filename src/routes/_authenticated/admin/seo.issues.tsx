@@ -1,9 +1,8 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { listSeoIssues, resolveSeoIssue, runSeoQualityAudit } from "@/lib/seo-quality.functions";
 import { Loader2, ShieldAlert, AlertTriangle, Info } from "lucide-react";
