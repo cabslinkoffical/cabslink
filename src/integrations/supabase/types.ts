@@ -1280,6 +1280,703 @@ export type Database = {
           },
         ]
       }
+      seo_airports: {
+        Row: {
+          accessibility_notes: string | null
+          created_at: string
+          display_priority: number
+          dropoff_guidance: string | null
+          featured: boolean
+          flight_tracking_available: boolean
+          google_place_id: string | null
+          hero_image_url: string | null
+          iata_code: string | null
+          icao_code: string | null
+          id: string
+          last_reviewed_at: string | null
+          latitude: number | null
+          location_id: string | null
+          longitude: number | null
+          meet_and_greet_details: string | null
+          name: string
+          operating_hours_notes: string | null
+          parking_information: string | null
+          pickup_instructions: string | null
+          published: boolean
+          slug: string
+          terminal_information: string | null
+          updated_at: string
+          waiting_time_policy: string | null
+        }
+        Insert: {
+          accessibility_notes?: string | null
+          created_at?: string
+          display_priority?: number
+          dropoff_guidance?: string | null
+          featured?: boolean
+          flight_tracking_available?: boolean
+          google_place_id?: string | null
+          hero_image_url?: string | null
+          iata_code?: string | null
+          icao_code?: string | null
+          id?: string
+          last_reviewed_at?: string | null
+          latitude?: number | null
+          location_id?: string | null
+          longitude?: number | null
+          meet_and_greet_details?: string | null
+          name: string
+          operating_hours_notes?: string | null
+          parking_information?: string | null
+          pickup_instructions?: string | null
+          published?: boolean
+          slug: string
+          terminal_information?: string | null
+          updated_at?: string
+          waiting_time_policy?: string | null
+        }
+        Update: {
+          accessibility_notes?: string | null
+          created_at?: string
+          display_priority?: number
+          dropoff_guidance?: string | null
+          featured?: boolean
+          flight_tracking_available?: boolean
+          google_place_id?: string | null
+          hero_image_url?: string | null
+          iata_code?: string | null
+          icao_code?: string | null
+          id?: string
+          last_reviewed_at?: string | null
+          latitude?: number | null
+          location_id?: string | null
+          longitude?: number | null
+          meet_and_greet_details?: string | null
+          name?: string
+          operating_hours_notes?: string | null
+          parking_information?: string | null
+          pickup_instructions?: string | null
+          published?: boolean
+          slug?: string
+          terminal_information?: string | null
+          updated_at?: string
+          waiting_time_policy?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_airports_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "seo_locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seo_citations: {
+        Row: {
+          created_at: string
+          directory_name: string
+          id: string
+          last_verified_at: string | null
+          listing_url: string | null
+          nap_address: string | null
+          nap_name: string | null
+          nap_phone: string | null
+          notes: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          directory_name: string
+          id?: string
+          last_verified_at?: string | null
+          listing_url?: string | null
+          nap_address?: string | null
+          nap_name?: string | null
+          nap_phone?: string | null
+          notes?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          directory_name?: string
+          id?: string
+          last_verified_at?: string | null
+          listing_url?: string | null
+          nap_address?: string | null
+          nap_name?: string | null
+          nap_phone?: string | null
+          notes?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      seo_locations: {
+        Row: {
+          admin_area_1: string | null
+          admin_area_2: string | null
+          country_code: string
+          county: string | null
+          created_at: string
+          display_priority: number
+          featured: boolean
+          google_place_id: string | null
+          id: string
+          last_reviewed_at: string | null
+          latitude: number | null
+          location_type: Database["public"]["Enums"]["seo_location_type"]
+          longitude: number | null
+          name: string
+          nation: string | null
+          operational_status: Database["public"]["Enums"]["seo_operational_status"]
+          parent_id: string | null
+          postcode_area: string | null
+          published: boolean
+          region: string | null
+          service_area_status: Database["public"]["Enums"]["seo_operational_status"]
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          admin_area_1?: string | null
+          admin_area_2?: string | null
+          country_code?: string
+          county?: string | null
+          created_at?: string
+          display_priority?: number
+          featured?: boolean
+          google_place_id?: string | null
+          id?: string
+          last_reviewed_at?: string | null
+          latitude?: number | null
+          location_type: Database["public"]["Enums"]["seo_location_type"]
+          longitude?: number | null
+          name: string
+          nation?: string | null
+          operational_status?: Database["public"]["Enums"]["seo_operational_status"]
+          parent_id?: string | null
+          postcode_area?: string | null
+          published?: boolean
+          region?: string | null
+          service_area_status?: Database["public"]["Enums"]["seo_operational_status"]
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          admin_area_1?: string | null
+          admin_area_2?: string | null
+          country_code?: string
+          county?: string | null
+          created_at?: string
+          display_priority?: number
+          featured?: boolean
+          google_place_id?: string | null
+          id?: string
+          last_reviewed_at?: string | null
+          latitude?: number | null
+          location_type?: Database["public"]["Enums"]["seo_location_type"]
+          longitude?: number | null
+          name?: string
+          nation?: string | null
+          operational_status?: Database["public"]["Enums"]["seo_operational_status"]
+          parent_id?: string | null
+          postcode_area?: string | null
+          published?: boolean
+          region?: string | null
+          service_area_status?: Database["public"]["Enums"]["seo_operational_status"]
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_locations_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "seo_locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seo_page_sections: {
+        Row: {
+          body: string | null
+          created_at: string
+          heading: string | null
+          id: string
+          last_reviewed_at: string | null
+          page_id: string
+          position: number
+          section_type: Database["public"]["Enums"]["seo_section_type"]
+          structured_payload: Json
+          updated_at: string
+          visible: boolean
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          heading?: string | null
+          id?: string
+          last_reviewed_at?: string | null
+          page_id: string
+          position?: number
+          section_type: Database["public"]["Enums"]["seo_section_type"]
+          structured_payload?: Json
+          updated_at?: string
+          visible?: boolean
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          heading?: string | null
+          id?: string
+          last_reviewed_at?: string | null
+          page_id?: string
+          position?: number
+          section_type?: Database["public"]["Enums"]["seo_section_type"]
+          structured_payload?: Json
+          updated_at?: string
+          visible?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_page_sections_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "seo_pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seo_pages: {
+        Row: {
+          booking_cta_config: Json
+          canonical_override: string | null
+          canonical_parent_id: string | null
+          created_at: string
+          display_priority: number
+          duplicate_score: number | null
+          featured_image_url: string | null
+          h1: string
+          id: string
+          last_reviewed_at: string | null
+          meta_description: string
+          og_image_url: string | null
+          page_type: Database["public"]["Enums"]["seo_page_type"]
+          path: string
+          primary_entity_id: string
+          primary_entity_type: Database["public"]["Enums"]["seo_entity_type"]
+          publication_status: Database["public"]["Enums"]["seo_publication_status"]
+          published_at: string | null
+          quality_score: number | null
+          retired_at: string | null
+          reviewer_id: string | null
+          robots_status: string
+          secondary_entity_id: string | null
+          secondary_entity_type:
+            | Database["public"]["Enums"]["seo_entity_type"]
+            | null
+          seo_title: string
+          service_id: string | null
+          short_intro: string | null
+          slug: string
+          updated_at: string
+          vehicle_category: string | null
+        }
+        Insert: {
+          booking_cta_config?: Json
+          canonical_override?: string | null
+          canonical_parent_id?: string | null
+          created_at?: string
+          display_priority?: number
+          duplicate_score?: number | null
+          featured_image_url?: string | null
+          h1: string
+          id?: string
+          last_reviewed_at?: string | null
+          meta_description: string
+          og_image_url?: string | null
+          page_type: Database["public"]["Enums"]["seo_page_type"]
+          path: string
+          primary_entity_id: string
+          primary_entity_type: Database["public"]["Enums"]["seo_entity_type"]
+          publication_status?: Database["public"]["Enums"]["seo_publication_status"]
+          published_at?: string | null
+          quality_score?: number | null
+          retired_at?: string | null
+          reviewer_id?: string | null
+          robots_status?: string
+          secondary_entity_id?: string | null
+          secondary_entity_type?:
+            | Database["public"]["Enums"]["seo_entity_type"]
+            | null
+          seo_title: string
+          service_id?: string | null
+          short_intro?: string | null
+          slug: string
+          updated_at?: string
+          vehicle_category?: string | null
+        }
+        Update: {
+          booking_cta_config?: Json
+          canonical_override?: string | null
+          canonical_parent_id?: string | null
+          created_at?: string
+          display_priority?: number
+          duplicate_score?: number | null
+          featured_image_url?: string | null
+          h1?: string
+          id?: string
+          last_reviewed_at?: string | null
+          meta_description?: string
+          og_image_url?: string | null
+          page_type?: Database["public"]["Enums"]["seo_page_type"]
+          path?: string
+          primary_entity_id?: string
+          primary_entity_type?: Database["public"]["Enums"]["seo_entity_type"]
+          publication_status?: Database["public"]["Enums"]["seo_publication_status"]
+          published_at?: string | null
+          quality_score?: number | null
+          retired_at?: string | null
+          reviewer_id?: string | null
+          robots_status?: string
+          secondary_entity_id?: string | null
+          secondary_entity_type?:
+            | Database["public"]["Enums"]["seo_entity_type"]
+            | null
+          seo_title?: string
+          service_id?: string | null
+          short_intro?: string | null
+          slug?: string
+          updated_at?: string
+          vehicle_category?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_pages_canonical_parent_id_fkey"
+            columns: ["canonical_parent_id"]
+            isOneToOne: false
+            referencedRelation: "seo_pages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "seo_pages_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "seo_services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seo_popular_routes: {
+        Row: {
+          applicable_service_ids: string[]
+          applicable_vehicle_ids: string[]
+          bidirectional: boolean
+          created_at: string
+          destination_entity_id: string
+          destination_entity_type: Database["public"]["Enums"]["seo_entity_type"]
+          destination_place_id: string
+          direct_distance_miles_cache: number | null
+          direct_duration_seconds_cache: number | null
+          display_priority: number
+          distance_calculated_at: string | null
+          featured: boolean
+          id: string
+          last_reviewed_at: string | null
+          operational_status: Database["public"]["Enums"]["seo_operational_status"]
+          origin_entity_id: string
+          origin_entity_type: Database["public"]["Enums"]["seo_entity_type"]
+          origin_place_id: string
+          price_calculated_at: string | null
+          published: boolean
+          route_notes: string | null
+          seasonal_notes: string | null
+          slug: string
+          starting_price_pence_cache: number | null
+          updated_at: string
+        }
+        Insert: {
+          applicable_service_ids?: string[]
+          applicable_vehicle_ids?: string[]
+          bidirectional?: boolean
+          created_at?: string
+          destination_entity_id: string
+          destination_entity_type: Database["public"]["Enums"]["seo_entity_type"]
+          destination_place_id: string
+          direct_distance_miles_cache?: number | null
+          direct_duration_seconds_cache?: number | null
+          display_priority?: number
+          distance_calculated_at?: string | null
+          featured?: boolean
+          id?: string
+          last_reviewed_at?: string | null
+          operational_status?: Database["public"]["Enums"]["seo_operational_status"]
+          origin_entity_id: string
+          origin_entity_type: Database["public"]["Enums"]["seo_entity_type"]
+          origin_place_id: string
+          price_calculated_at?: string | null
+          published?: boolean
+          route_notes?: string | null
+          seasonal_notes?: string | null
+          slug: string
+          starting_price_pence_cache?: number | null
+          updated_at?: string
+        }
+        Update: {
+          applicable_service_ids?: string[]
+          applicable_vehicle_ids?: string[]
+          bidirectional?: boolean
+          created_at?: string
+          destination_entity_id?: string
+          destination_entity_type?: Database["public"]["Enums"]["seo_entity_type"]
+          destination_place_id?: string
+          direct_distance_miles_cache?: number | null
+          direct_duration_seconds_cache?: number | null
+          display_priority?: number
+          distance_calculated_at?: string | null
+          featured?: boolean
+          id?: string
+          last_reviewed_at?: string | null
+          operational_status?: Database["public"]["Enums"]["seo_operational_status"]
+          origin_entity_id?: string
+          origin_entity_type?: Database["public"]["Enums"]["seo_entity_type"]
+          origin_place_id?: string
+          price_calculated_at?: string | null
+          published?: boolean
+          route_notes?: string | null
+          seasonal_notes?: string | null
+          slug?: string
+          starting_price_pence_cache?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      seo_publication_issues: {
+        Row: {
+          created_at: string
+          id: string
+          issue_type: string
+          message: string
+          page_id: string | null
+          payload: Json | null
+          resolved: boolean
+          resolved_at: string | null
+          severity: Database["public"]["Enums"]["seo_issue_severity"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          issue_type: string
+          message: string
+          page_id?: string | null
+          payload?: Json | null
+          resolved?: boolean
+          resolved_at?: string | null
+          severity?: Database["public"]["Enums"]["seo_issue_severity"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          issue_type?: string
+          message?: string
+          page_id?: string | null
+          payload?: Json | null
+          resolved?: boolean
+          resolved_at?: string | null
+          severity?: Database["public"]["Enums"]["seo_issue_severity"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_publication_issues_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "seo_pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seo_redirects: {
+        Row: {
+          active: boolean
+          created_at: string
+          from_path: string
+          hit_count: number
+          id: string
+          last_hit_at: string | null
+          notes: string | null
+          status_code: Database["public"]["Enums"]["seo_redirect_code"]
+          to_path: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          from_path: string
+          hit_count?: number
+          id?: string
+          last_hit_at?: string | null
+          notes?: string | null
+          status_code?: Database["public"]["Enums"]["seo_redirect_code"]
+          to_path: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          from_path?: string
+          hit_count?: number
+          id?: string
+          last_hit_at?: string | null
+          notes?: string | null
+          status_code?: Database["public"]["Enums"]["seo_redirect_code"]
+          to_path?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      seo_review_requests: {
+        Row: {
+          booking_id: string | null
+          completed_at: string | null
+          created_at: string
+          customer_email: string | null
+          eligible: boolean
+          id: string
+          notes: string | null
+          platform: string | null
+          requested_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          booking_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          customer_email?: string | null
+          eligible?: boolean
+          id?: string
+          notes?: string | null
+          platform?: string | null
+          requested_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          booking_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          customer_email?: string | null
+          eligible?: boolean
+          id?: string
+          notes?: string | null
+          platform?: string | null
+          requested_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_review_requests_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seo_search_console_snapshots: {
+        Row: {
+          average_position: number | null
+          clicks: number
+          created_at: string
+          ctr: number | null
+          id: string
+          impressions: number
+          page_path: string
+          raw_payload: Json | null
+          snapshot_date: string
+        }
+        Insert: {
+          average_position?: number | null
+          clicks?: number
+          created_at?: string
+          ctr?: number | null
+          id?: string
+          impressions?: number
+          page_path: string
+          raw_payload?: Json | null
+          snapshot_date: string
+        }
+        Update: {
+          average_position?: number | null
+          clicks?: number
+          created_at?: string
+          ctr?: number | null
+          id?: string
+          impressions?: number
+          page_path?: string
+          raw_payload?: Json | null
+          snapshot_date?: string
+        }
+        Relationships: []
+      }
+      seo_services: {
+        Row: {
+          created_at: string
+          display_priority: number
+          eligibility: string | null
+          features: Json
+          fleet_categories: string[]
+          full_description: string | null
+          hero_image_url: string | null
+          id: string
+          legacy_route_path: string | null
+          name: string
+          published: boolean
+          short_description: string | null
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_priority?: number
+          eligibility?: string | null
+          features?: Json
+          fleet_categories?: string[]
+          full_description?: string | null
+          hero_image_url?: string | null
+          id?: string
+          legacy_route_path?: string | null
+          name: string
+          published?: boolean
+          short_description?: string | null
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_priority?: number
+          eligibility?: string | null
+          features?: Json
+          fleet_categories?: string[]
+          full_description?: string | null
+          hero_image_url?: string | null
+          id?: string
+          legacy_route_path?: string | null
+          name?: string
+          published?: boolean
+          short_description?: string | null
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       site_settings: {
         Row: {
           allowed_stop_duration_minutes: number[]
@@ -1743,6 +2440,65 @@ export type Database = {
       driver_status: "active" | "inactive" | "suspended"
       message_status: "new" | "read" | "resolved"
       payment_status: "unpaid" | "paid" | "refunded" | "partial" | "failed"
+      seo_entity_type:
+        | "location"
+        | "airport"
+        | "tour"
+        | "port"
+        | "train_station"
+        | "service"
+        | "fleet_category"
+      seo_issue_severity: "info" | "warning" | "error" | "blocker"
+      seo_location_type:
+        | "country"
+        | "nation"
+        | "region"
+        | "county"
+        | "city"
+        | "town"
+        | "district"
+      seo_operational_status: "active" | "partner" | "planned" | "not_serviced"
+      seo_page_type:
+        | "regional_hub"
+        | "location_hub"
+        | "location_service"
+        | "airport_hub"
+        | "airport_transfer"
+        | "airport_route"
+        | "city_to_city_route"
+        | "service"
+        | "fleet_category"
+        | "tour"
+        | "local_guide"
+      seo_publication_status:
+        | "draft"
+        | "needs_content"
+        | "needs_review"
+        | "approved"
+        | "published"
+        | "noindex"
+        | "retired"
+      seo_redirect_code: "301" | "308"
+      seo_section_type:
+        | "hero"
+        | "intro"
+        | "service_overview"
+        | "local_travel_info"
+        | "airport_pickup_instructions"
+        | "route_overview"
+        | "route_facts"
+        | "fleet_recommendations"
+        | "popular_destinations"
+        | "nearby_airports"
+        | "nearby_cities"
+        | "relevant_services"
+        | "relevant_tours"
+        | "booking_cta"
+        | "faqs"
+        | "local_landmarks"
+        | "corporate_travel_info"
+        | "accessibility"
+        | "custom_rich_text"
       vehicle_class:
         | "economy"
         | "business"
@@ -1897,6 +2653,70 @@ export const Constants = {
       driver_status: ["active", "inactive", "suspended"],
       message_status: ["new", "read", "resolved"],
       payment_status: ["unpaid", "paid", "refunded", "partial", "failed"],
+      seo_entity_type: [
+        "location",
+        "airport",
+        "tour",
+        "port",
+        "train_station",
+        "service",
+        "fleet_category",
+      ],
+      seo_issue_severity: ["info", "warning", "error", "blocker"],
+      seo_location_type: [
+        "country",
+        "nation",
+        "region",
+        "county",
+        "city",
+        "town",
+        "district",
+      ],
+      seo_operational_status: ["active", "partner", "planned", "not_serviced"],
+      seo_page_type: [
+        "regional_hub",
+        "location_hub",
+        "location_service",
+        "airport_hub",
+        "airport_transfer",
+        "airport_route",
+        "city_to_city_route",
+        "service",
+        "fleet_category",
+        "tour",
+        "local_guide",
+      ],
+      seo_publication_status: [
+        "draft",
+        "needs_content",
+        "needs_review",
+        "approved",
+        "published",
+        "noindex",
+        "retired",
+      ],
+      seo_redirect_code: ["301", "308"],
+      seo_section_type: [
+        "hero",
+        "intro",
+        "service_overview",
+        "local_travel_info",
+        "airport_pickup_instructions",
+        "route_overview",
+        "route_facts",
+        "fleet_recommendations",
+        "popular_destinations",
+        "nearby_airports",
+        "nearby_cities",
+        "relevant_services",
+        "relevant_tours",
+        "booking_cta",
+        "faqs",
+        "local_landmarks",
+        "corporate_travel_info",
+        "accessibility",
+        "custom_rich_text",
+      ],
       vehicle_class: [
         "economy",
         "business",
