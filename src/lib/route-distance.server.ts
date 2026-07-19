@@ -106,6 +106,13 @@ export async function computeRoute(input: ComputeRouteInput): Promise<RouteDista
   const cached = cacheGet(key);
   if (cached) return cached;
 
+  // Persistent DB cache (shared across isolates, survives cold starts).
+  const persisted = await persistentCacheGet(key);
+  if (persisted) {
+    cacheSet(key, persisted);
+    return persisted;
+  }
+
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
   const lovableKey = process.env.LOVABLE_API_KEY;
   if (!apiKey || !lovableKey) throw new RouteUnavailableError();
