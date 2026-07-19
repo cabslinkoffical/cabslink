@@ -109,7 +109,7 @@ export const runSeoQualityAudit = createServerFn({ method: "POST" })
       await supabase.from("seo_publication_issues").delete().in("page_id", pageIds).eq("resolved", false);
     }
     if (allIssues.length) {
-      const { error: insErr } = await supabase.from("seo_publication_issues").insert(allIssues);
+      const { error: insErr } = await supabase.from("seo_publication_issues").insert(allIssues as any);
       if (insErr) throw new Error(`issue insert failed: ${insErr.message}`);
     }
 
