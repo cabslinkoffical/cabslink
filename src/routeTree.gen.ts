@@ -10,7 +10,6 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VipTransfersRouteImport } from './routes/vip-transfers'
-import { Route as ToursRouteImport } from './routes/tours'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ServicesRouteImport } from './routes/services'
@@ -31,6 +30,7 @@ import { Route as AccessibilityRouteImport } from './routes/accessibility'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ToursIndexRouteImport } from './routes/tours.index'
 import { Route as ToursSlugRouteImport } from './routes/tours.$slug'
 import { Route as BookingTokenRouteImport } from './routes/booking.$token'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
@@ -62,11 +62,6 @@ import { Route as AuthenticatedAdminAddressesRouteImport } from './routes/_authe
 const VipTransfersRoute = VipTransfersRouteImport.update({
   id: '/vip-transfers',
   path: '/vip-transfers',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ToursRoute = ToursRouteImport.update({
-  id: '/tours',
-  path: '/tours',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TermsRoute = TermsRouteImport.update({
@@ -168,10 +163,15 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ToursIndexRoute = ToursIndexRouteImport.update({
+  id: '/tours/',
+  path: '/tours/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ToursSlugRoute = ToursSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => ToursRoute,
+  id: '/tours/$slug',
+  path: '/tours/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const BookingTokenRoute = BookingTokenRouteImport.update({
   id: '/booking/$token',
@@ -343,11 +343,11 @@ export interface FileRoutesByFullPath {
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
-  '/tours': typeof ToursRouteWithChildren
   '/vip-transfers': typeof VipTransfersRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/booking/$token': typeof BookingTokenRoute
   '/tours/$slug': typeof ToursSlugRoute
+  '/tours/': typeof ToursIndexRoute
   '/admin/addresses': typeof AuthenticatedAdminAddressesRoute
   '/admin/banned-addresses': typeof AuthenticatedAdminBannedAddressesRoute
   '/admin/bookings': typeof AuthenticatedAdminBookingsRoute
@@ -393,10 +393,10 @@ export interface FileRoutesByTo {
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
-  '/tours': typeof ToursRouteWithChildren
   '/vip-transfers': typeof VipTransfersRoute
   '/booking/$token': typeof BookingTokenRoute
   '/tours/$slug': typeof ToursSlugRoute
+  '/tours': typeof ToursIndexRoute
   '/admin/addresses': typeof AuthenticatedAdminAddressesRoute
   '/admin/banned-addresses': typeof AuthenticatedAdminBannedAddressesRoute
   '/admin/bookings': typeof AuthenticatedAdminBookingsRoute
@@ -444,11 +444,11 @@ export interface FileRoutesById {
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
-  '/tours': typeof ToursRouteWithChildren
   '/vip-transfers': typeof VipTransfersRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/booking/$token': typeof BookingTokenRoute
   '/tours/$slug': typeof ToursSlugRoute
+  '/tours/': typeof ToursIndexRoute
   '/_authenticated/admin/addresses': typeof AuthenticatedAdminAddressesRoute
   '/_authenticated/admin/banned-addresses': typeof AuthenticatedAdminBannedAddressesRoute
   '/_authenticated/admin/bookings': typeof AuthenticatedAdminBookingsRoute
@@ -496,11 +496,11 @@ export interface FileRouteTypes {
     | '/services'
     | '/sitemap.xml'
     | '/terms'
-    | '/tours'
     | '/vip-transfers'
     | '/admin'
     | '/booking/$token'
     | '/tours/$slug'
+    | '/tours/'
     | '/admin/addresses'
     | '/admin/banned-addresses'
     | '/admin/bookings'
@@ -546,10 +546,10 @@ export interface FileRouteTypes {
     | '/services'
     | '/sitemap.xml'
     | '/terms'
-    | '/tours'
     | '/vip-transfers'
     | '/booking/$token'
     | '/tours/$slug'
+    | '/tours'
     | '/admin/addresses'
     | '/admin/banned-addresses'
     | '/admin/bookings'
@@ -596,11 +596,11 @@ export interface FileRouteTypes {
     | '/services'
     | '/sitemap.xml'
     | '/terms'
-    | '/tours'
     | '/vip-transfers'
     | '/_authenticated/admin'
     | '/booking/$token'
     | '/tours/$slug'
+    | '/tours/'
     | '/_authenticated/admin/addresses'
     | '/_authenticated/admin/banned-addresses'
     | '/_authenticated/admin/bookings'
@@ -648,9 +648,10 @@ export interface RootRouteChildren {
   ServicesRoute: typeof ServicesRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
-  ToursRoute: typeof ToursRouteWithChildren
   VipTransfersRoute: typeof VipTransfersRoute
   BookingTokenRoute: typeof BookingTokenRoute
+  ToursSlugRoute: typeof ToursSlugRoute
+  ToursIndexRoute: typeof ToursIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -660,13 +661,6 @@ declare module '@tanstack/react-router' {
       path: '/vip-transfers'
       fullPath: '/vip-transfers'
       preLoaderRoute: typeof VipTransfersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/tours': {
-      id: '/tours'
-      path: '/tours'
-      fullPath: '/tours'
-      preLoaderRoute: typeof ToursRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/terms': {
@@ -809,12 +803,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tours/': {
+      id: '/tours/'
+      path: '/tours'
+      fullPath: '/tours/'
+      preLoaderRoute: typeof ToursIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tours/$slug': {
       id: '/tours/$slug'
-      path: '/$slug'
+      path: '/tours/$slug'
       fullPath: '/tours/$slug'
       preLoaderRoute: typeof ToursSlugRouteImport
-      parentRoute: typeof ToursRoute
+      parentRoute: typeof rootRouteImport
     }
     '/booking/$token': {
       id: '/booking/$token'
@@ -1075,16 +1076,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
-interface ToursRouteChildren {
-  ToursSlugRoute: typeof ToursSlugRoute
-}
-
-const ToursRouteChildren: ToursRouteChildren = {
-  ToursSlugRoute: ToursSlugRoute,
-}
-
-const ToursRouteWithChildren = ToursRoute._addFileChildren(ToursRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
@@ -1106,9 +1097,10 @@ const rootRouteChildren: RootRouteChildren = {
   ServicesRoute: ServicesRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
-  ToursRoute: ToursRouteWithChildren,
   VipTransfersRoute: VipTransfersRoute,
   BookingTokenRoute: BookingTokenRoute,
+  ToursSlugRoute: ToursSlugRoute,
+  ToursIndexRoute: ToursIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

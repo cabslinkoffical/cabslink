@@ -13,7 +13,7 @@ const toursQuery = queryOptions({
   staleTime: 60_000,
 });
 
-export const Route = createFileRoute("/tours")({
+export const Route = createFileRoute("/tours/")({
   head: () => ({
     meta: [
       { title: "Scotland & UK Private Driver Tours — Cabslink" },
