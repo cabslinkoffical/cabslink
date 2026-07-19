@@ -171,5 +171,54 @@ export async function computeRoute(input: ComputeRouteInput): Promise<RouteDista
 
   const result: RouteDistanceResult = { distanceMeters, distanceMiles, durationSeconds };
   cacheSet(key, result);
+  void persistentCacheSet(key, originPlaceId, destinationPlaceId, waypointPlaceIds, result);
   return result;
 }
+
+// ---------- Persistent (DB) cache via service role ----------
+async function persistentCacheGet(key: string): Promise<RouteDistanceResult | null> {
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data } = await supabaseAdmin
+      .from("route_distance_cache")
+      .select("distance_meters, distance_miles, duration_seconds, expires_at")
+      .eq("cache_key", key)
+      .gt("expires_at", new Date().toISOString())
+      .maybeSingle();
+    if (!data) return null;
+    return {
+      distanceMeters: Number(data.distance_meters),
+      distanceMiles: Number(data.distance_miles),
+      durationSeconds: Number(data.duration_seconds),
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function persistentCacheSet(
+  key: string,
+  origin: string,
+  destination: string,
+  waypoints: string[],
+  value: RouteDistanceResult,
+): Promise<void> {
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin.from("route_distance_cache").upsert(
+      {
+        cache_key: key,
+        origin_place_id: origin,
+        destination_place_id: destination,
+        waypoint_place_ids: waypoints,
+        distance_meters: value.distanceMeters,
+        distance_miles: value.distanceMiles,
+        duration_seconds: value.durationSeconds,
+      },
+      { onConflict: "cache_key" },
+    );
+  } catch (err) {
+    console.warn("route_distance_cache upsert failed:", (err as Error).message);
+  }
+}
+
