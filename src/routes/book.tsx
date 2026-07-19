@@ -1136,9 +1136,9 @@ function VehicleCard({ card, best, qty, minQty, disabled, disabledReason, onQtyC
           )}
           {quoteOnly ? (
             <Button asChild className="w-full h-12 rounded-lg bg-[var(--navy)] hover:bg-[var(--gold)] text-[var(--navy-foreground)] hover:text-[var(--gold-foreground)] font-bold uppercase tracking-[0.2em] text-[11px] transition-all shadow-md">
-              <Link to="/contact" search={{ subject: `Group quote — ${card.name}` } as never}>
+              <a href={`/contact?subject=${encodeURIComponent(`Group quote — ${card.name}`)}`}>
                 Request Quote <ArrowRight className="size-3.5 ml-1" />
-              </Link>
+              </a>
             </Button>
           ) : (
             <Button onClick={onSelect} disabled={!!disabled} className="w-full h-12 rounded-lg bg-[var(--navy)] hover:bg-[var(--gold)] text-[var(--navy-foreground)] hover:text-[var(--gold-foreground)] font-bold uppercase tracking-[0.2em] text-[11px] transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
