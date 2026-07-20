@@ -419,11 +419,15 @@ function TourDetailPage() {
                 </ul>
               )}
 
-              <Button asChild size="lg" className="w-full mt-5">
-                <a href={bookHref}>
-                  Continue to booking <ArrowRight className="size-4 ml-1 inline" />
-                </a>
-              </Button>
+              <TourBookingDialog
+                tour={tourForBooking}
+                trigger={
+                  <Button size="lg" className="w-full mt-5">
+                    Continue to booking <ArrowRight className="size-4 ml-1 inline" />
+                  </Button>
+                }
+              />
+
 
               <ul className="mt-5 space-y-2 text-sm text-muted-foreground">
                 <li className="flex items-center gap-2"><Check className="size-4 text-[var(--gold)]" />{orderedStops.length || d.recommended_stop_count} stops selected</li>
