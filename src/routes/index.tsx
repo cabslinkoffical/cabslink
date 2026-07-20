@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { BookingWidget } from "@/components/site/BookingWidget";
+import { HeroBookingBar } from "@/components/site/HeroBookingBar";
 import { SectionHeader } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
 import { Button } from "@/components/ui/button";
@@ -93,12 +94,6 @@ export const Route = createFileRoute("/")({
   component: HomePage,
 });
 
-const stats = [
-  { value: "50k+", label: "Journeys delivered" },
-  { value: "4.9★", label: "Avg. customer rating" },
-  { value: "24/7", label: "Live dispatch & support" },
-  { value: "100%", label: "Fixed transparent fares" },
-];
 
 const services = [
   { icon: Plane, title: "Airport Transfers", desc: "Punctual, stress-free transfers to and from every major UK airport.", to: "/airport-transfers", img: airportFallback, imgSrcSet: airportSrc },
@@ -200,189 +195,142 @@ function HomePage() {
 
   return (
     <SiteLayout>
-      {/* HERO — unified: copy + vehicle + booking widget */}
+      {/* HERO — centered reference layout with pill booking bar */}
       <section className="relative overflow-hidden bg-[var(--background)]">
-        {/* Ambient tints */}
-        <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,color-mix(in_oklab,var(--gold)_14%,transparent),transparent_60%)]" />
+        {/* Soft ambient tints */}
+        <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,color-mix(in_oklab,var(--gold)_14%,transparent),transparent_55%)]" />
         <div aria-hidden className="pointer-events-none absolute -top-24 -left-24 size-[520px] rounded-full bg-[radial-gradient(circle_at_center,color-mix(in_oklab,var(--gold)_18%,transparent),transparent_70%)] blur-3xl opacity-60" />
         <div aria-hidden className="pointer-events-none absolute top-1/3 -right-32 size-[560px] rounded-full bg-[radial-gradient(circle_at_center,color-mix(in_oklab,var(--navy)_12%,transparent),transparent_70%)] blur-3xl opacity-50" />
-        {/* Faint grid */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-[0.035]"
-          style={{
-            backgroundImage:
-              "linear-gradient(color-mix(in oklab, var(--navy) 60%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in oklab, var(--navy) 60%, transparent) 1px, transparent 1px)",
-            backgroundSize: "56px 56px",
-          }}
-        />
 
-        <div className="container-x relative pt-14 md:pt-20 pb-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
-            {/* LEFT — copy */}
-            <div className="lg:col-span-6 relative z-10 min-w-0 w-full">
+        <div className="container-x relative pt-12 md:pt-20 pb-10 md:pb-16">
+          {/* Eyebrow */}
+          <div className="flex justify-center">
+            <div
+              className="inline-flex items-center gap-3 rounded-full border border-[var(--gold)]/40 bg-[color-mix(in_oklab,var(--gold)_8%,transparent)] px-4 py-1.5 opacity-0"
+              style={{ animation: "fadeInUp 700ms cubic-bezier(.2,.7,.2,1) 100ms forwards" }}
+            >
+              <Sparkles className="size-3.5 text-[var(--gold)]" />
+              <span className="text-[10px] md:text-[11px] font-semibold uppercase tracking-[0.32em] text-[var(--navy)]">
+                UK's Trusted Airport Travel Company
+              </span>
+            </div>
+          </div>
 
-              <div
-                className="inline-flex items-center gap-3 rounded-full border border-[var(--gold)]/40 bg-[color-mix(in_oklab,var(--gold)_8%,transparent)] px-4 py-1.5 opacity-0"
-                style={{ animation: "fadeInUp 700ms cubic-bezier(.2,.7,.2,1) 100ms forwards" }}
+          {/* Headline */}
+          <h1
+            className="mt-6 text-center font-display font-bold text-[var(--navy)] leading-[0.98] tracking-[-0.03em] text-[2.25rem] sm:text-6xl lg:text-[5.5rem] opacity-0"
+            style={{ animation: "fadeInUp 800ms cubic-bezier(.2,.7,.2,1) 200ms forwards" }}
+          >
+            The Premium{" "}
+            <span
+              className="bg-clip-text text-transparent"
+              style={{
+                backgroundImage:
+                  "linear-gradient(180deg, #f0c548 0%, #dfaf26 55%, #b38a1d 100%)",
+              }}
+            >
+              Airport Travel
+            </span>{" "}
+            Service
+          </h1>
+
+          <p
+            className="mt-5 max-w-2xl mx-auto text-center text-sm md:text-lg text-muted-foreground opacity-0"
+            style={{ animation: "fadeInUp 800ms cubic-bezier(.2,.7,.2,1) 380ms forwards" }}
+          >
+            From business trips to leisure — fixed-fare Mercedes-Benz transfers, flight tracked and driver-driven with care.
+          </p>
+
+          {/* Booking pill */}
+          <div
+            className="mt-8 md:mt-10 opacity-0"
+            style={{ animation: "fadeInUp 800ms cubic-bezier(.2,.7,.2,1) 500ms forwards" }}
+          >
+            <HeroBookingBar />
+          </div>
+
+          {/* Stats row */}
+          <div
+            className="mt-7 md:mt-8 flex flex-wrap items-center justify-center gap-x-6 md:gap-x-10 gap-y-3 text-xs md:text-sm text-[var(--navy)] opacity-0"
+            style={{ animation: "fadeInUp 800ms cubic-bezier(.2,.7,.2,1) 620ms forwards" }}
+          >
+            {[
+              { k: "50k+", v: "Journeys Delivered" },
+              { k: "4.9★", v: "Trusted Clients" },
+              { k: "24/7", v: "Live Dispatch" },
+              { k: "100%", v: "Fixed Fares" },
+            ].map((s) => (
+              <span key={s.k} className="inline-flex items-center gap-2">
+                <span className="size-1.5 rounded-full bg-[var(--gold)]" />
+                <span className="font-bold text-[var(--navy)]">{s.k}</span>
+                <span className="text-muted-foreground">{s.v}</span>
+              </span>
+            ))}
+          </div>
+
+          {/* Centered vehicle stage with faded brand watermark */}
+          <div
+            className="relative mt-10 md:mt-14 opacity-0"
+            style={{ animation: "fadeInUp 900ms cubic-bezier(.2,.7,.2,1) 750ms forwards" }}
+            onMouseEnter={() => setPaused(true)}
+            onMouseLeave={() => setPaused(false)}
+          >
+            {/* Backdrop CABSLINK watermark */}
+            <div aria-hidden className="pointer-events-none absolute inset-0 flex items-center justify-center select-none">
+              <span
+                className="font-display font-bold leading-none tracking-[-0.06em] text-[22vw] md:text-[18vw]"
+                style={{
+                  color: "transparent",
+                  WebkitTextStroke: "1px color-mix(in oklab, var(--navy) 10%, transparent)",
+                  backgroundImage:
+                    "linear-gradient(180deg, color-mix(in oklab, var(--gold) 18%, transparent), transparent 80%)",
+                  WebkitBackgroundClip: "text",
+                  backgroundClip: "text",
+                }}
               >
-                <Sparkles className="size-3.5 text-[var(--gold)]" />
-                <span className="text-[10px] md:text-[11px] font-semibold uppercase tracking-[0.32em] text-[var(--navy)]">
-                  UK's Trusted Airport Travel Company
-                </span>
-              </div>
-
-              <h1
-                className="mt-5 font-display font-bold text-[var(--navy)] leading-[0.95] tracking-[-0.03em] text-[2rem] sm:text-5xl lg:text-[5.25rem] opacity-0"
-                style={{ animation: "fadeInUp 800ms cubic-bezier(.2,.7,.2,1) 200ms forwards" }}
-              >
-                Arrive in{" "}
-                <span
-                  className="bg-clip-text text-transparent"
-                  style={{
-                    backgroundImage:
-                      "linear-gradient(180deg, #f0c548 0%, #dfaf26 55%, #b38a1d 100%)",
-                  }}
-                >
-                  quiet luxury.
-                </span>
-              </h1>
-
-              <p
-                className="mt-5 max-w-xl text-sm md:text-lg text-muted-foreground opacity-0"
-                style={{ animation: "fadeInUp 800ms cubic-bezier(.2,.7,.2,1) 380ms forwards" }}
-              >
-                Fixed-fare Mercedes-Benz driver transfers across the UK. Flight tracked, meet &amp; greet, 24/7 live dispatch — the calm way to travel.
-              </p>
-
-              {/* Trust row */}
-              <div
-                className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-3 opacity-0"
-                style={{ animation: "fadeInUp 800ms cubic-bezier(.2,.7,.2,1) 500ms forwards" }}
-              >
-                <div className="flex items-center gap-2 min-w-0">
-                  <div className="flex -space-x-2 shrink-0">
-                    {["S","J","P","M"].map((c, idx) => (
-                      <span
-                        key={idx}
-                        className="grid size-7 place-items-center rounded-full border-2 border-[var(--background)] bg-[var(--navy)] text-[10px] font-semibold text-[var(--gold)]"
-                      >
-                        {c}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="text-xs text-[var(--navy)] min-w-0">
-                    <div className="flex items-center gap-0.5">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star key={i} className="size-3 fill-[var(--gold)] text-[var(--gold)]" />
-                      ))}
-                    </div>
-                    <div className="text-muted-foreground text-[11px] truncate">2,400+ five-star rides</div>
-                  </div>
-                </div>
-                <div className="h-8 w-px bg-[var(--navy)]/10 hidden sm:block" />
-                <div className="flex items-center gap-1.5 text-xs sm:text-sm text-[var(--navy)]">
-                  <ShieldCheck className="size-4 text-[var(--gold)] shrink-0" />
-                  <span className="font-medium">Licensed &amp; insured</span>
-                </div>
-              </div>
-
-              {/* Stats strip */}
-              <div
-                className="mt-8 grid grid-cols-3 gap-2 w-full max-w-lg opacity-0"
-                style={{ animation: "fadeInUp 800ms cubic-bezier(.2,.7,.2,1) 620ms forwards" }}
-              >
-                {[
-                  { k: "50k+", v: "Journeys" },
-                  { k: "24/7", v: "Dispatch" },
-                  { k: "4.9★", v: "Rated" },
-                ].map((s, i, arr) => (
-                  <div key={s.k} className={`min-w-0 px-2 sm:px-4 first:pl-0 ${i < arr.length - 1 ? "border-r border-[var(--navy)]/10" : ""}`}>
-                    <div className="font-display text-xl sm:text-2xl md:text-3xl font-bold text-[var(--navy)]">{s.k}</div>
-                    <div className="text-[10px] sm:text-[11px] uppercase tracking-[0.14em] text-muted-foreground mt-1 truncate">{s.v}</div>
-                  </div>
-                ))}
-              </div>
-
+                CABSLINK
+              </span>
             </div>
 
-            {/* RIGHT — vehicle carousel */}
-            <div className="lg:col-span-6 relative">
-              <div
-                className="relative opacity-0"
-                style={{ animation: "fadeInUp 900ms cubic-bezier(.2,.7,.2,1) 300ms forwards" }}
-                onMouseEnter={() => setPaused(true)}
-                onMouseLeave={() => setPaused(false)}
-              >
-                {/* Backdrop CABSLINK watermark */}
-                <div aria-hidden className="pointer-events-none absolute inset-0 flex items-center justify-center select-none">
-                  <span
-                    className="font-display font-bold leading-none tracking-[-0.06em] text-[16vw] lg:text-[13vw]"
-                    style={{
-                      color: "transparent",
-                      WebkitTextStroke: "1px color-mix(in oklab, var(--navy) 10%, transparent)",
-                      backgroundImage:
-                        "linear-gradient(180deg, color-mix(in oklab, var(--gold) 18%, transparent), transparent 80%)",
-                      WebkitBackgroundClip: "text",
-                      backgroundClip: "text",
-                    }}
-                  >
-                    CABSLINK
-                  </span>
-                </div>
+            {/* Gold halo */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 size-[85%] rounded-full"
+              style={{
+                background:
+                  "radial-gradient(circle at center, color-mix(in oklab, var(--gold) 25%, transparent) 0%, transparent 55%)",
+                filter: "blur(30px)",
+              }}
+            />
 
-                {/* Gold halo */}
-                <div
-                  aria-hidden
-                  className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 size-[110%] rounded-full"
+            {/* Ground shadow */}
+            <div aria-hidden className="absolute inset-x-20 bottom-4 h-10 rounded-[50%] bg-black/25 blur-2xl" />
+
+            {/* Sliding vehicle */}
+            <div className="relative aspect-[16/8] md:aspect-[16/7] overflow-hidden">
+              {current && (
+                <img
+                  key={current.key}
+                  src={current.img}
+                  srcSet={current.srcSet}
+                  sizes={HERO_VEHICLE_SIZES}
+                  alt={`${current.name} — driver vehicle`}
+                  width={1600}
+                  height={900}
+                  decoding="async"
+                  fetchPriority={active === 0 ? "high" : "auto"}
+                  className="absolute inset-0 m-auto w-[72%] md:w-[62%] h-full object-contain drop-shadow-[0_45px_55px_rgba(14,24,44,0.28)]"
                   style={{
-                    background:
-                      "radial-gradient(circle at center, color-mix(in oklab, var(--gold) 30%, transparent) 0%, transparent 55%)",
-                    filter: "blur(30px)",
+                    animation: `${dir === 1 ? "vehicleSlideInR" : "vehicleSlideInL"} 850ms cubic-bezier(.2,.7,.2,1) both`,
                   }}
                 />
+              )}
+            </div>
 
-                {/* Ground shadow */}
-                <div aria-hidden className="absolute inset-x-8 bottom-2 h-8 rounded-[50%] bg-black/30 blur-2xl" />
-
-                {/* Sliding vehicle stage */}
-                <div className="relative aspect-[16/10] overflow-hidden">
-                  {current && (
-                    <img
-                      key={current.key}
-                      src={current.img}
-                      srcSet={current.srcSet}
-                      sizes={HERO_VEHICLE_SIZES}
-                      alt={`${current.name} — driver vehicle`}
-                      width={1200}
-                      height={750}
-                      decoding="async"
-                      fetchPriority={active === 0 ? "high" : "auto"}
-                      className="absolute inset-0 m-auto w-[92%] h-full object-contain drop-shadow-[0_35px_45px_rgba(14,24,44,0.28)]"
-                      style={{
-                        animation: `${dir === 1 ? "vehicleSlideInR" : "vehicleSlideInL"} 850ms cubic-bezier(.2,.7,.2,1) both`,
-                      }}
-                    />
-                  )}
-                </div>
-
-
-                {/* Floating live chip */}
-                <div className="hidden md:flex absolute bottom-10 left-0 lg:left-4 items-center gap-3 rounded-2xl border border-[var(--navy)]/10 bg-[var(--background)]/85 backdrop-blur-md px-4 py-3 shadow-[var(--shadow-elegant)]">
-                  <span className="relative flex size-2.5">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500/50" />
-                    <span className="relative inline-flex size-2.5 rounded-full bg-emerald-500" />
-                  </span>
-                  <div className="text-xs">
-                    <div className="font-semibold text-[var(--navy)]">Live dispatch</div>
-                    <div className="text-muted-foreground">Driver available now</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Vehicle selector strip */}
-              <div className="mt-6 relative">
-                <div className="flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {/* Vehicle selector strip */}
+            {heroVehicles.length > 1 && (
+              <div className="relative -mt-2 md:mt-4">
+                <div className="flex gap-2 justify-start md:justify-center overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                   {heroVehicles.map((v, i) => {
                     const isActive = i === active;
                     return (
@@ -396,8 +344,8 @@ function HomePage() {
                             : "border-[var(--navy)]/10 bg-[var(--background)]/70 hover:border-[var(--gold)]/50 hover:-translate-y-0.5"
                         }`}
                       >
-                        <div className="w-14 h-9 shrink-0 grid place-items-center overflow-hidden">
-                          <img src={v.thumbnail ?? v.img} alt="" loading="lazy" decoding="async" width={56} height={36} className="max-h-full w-auto object-contain" />
+                        <div className="w-12 h-8 shrink-0 grid place-items-center overflow-hidden">
+                          <img src={v.thumbnail ?? v.img} alt="" loading="lazy" decoding="async" width={48} height={32} className="max-h-full w-auto object-contain" />
                         </div>
                         <div className="text-left pr-1">
                           <div className={`text-[11px] font-semibold leading-tight ${isActive ? "text-[var(--navy)]" : "text-[var(--navy)]/80"}`}>
@@ -410,17 +358,21 @@ function HomePage() {
                   })}
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </section>
 
-      {/* BOOKING WIDGET — flows straight out of hero */}
-      <section id="booking" className="relative z-20 scroll-mt-24 bg-[var(--background)]">
-        <div className="container-x pt-2 md:pt-4 pb-4">
-          <BookingWidget />
+      {/* Full booking widget — anchor target from header */}
+      <section id="booking" className="section-y bg-[var(--surface)] scroll-mt-24 relative">
+        <div className="container-x">
+          <SectionHeader eyebrow="Full Booking" title="Plan Every" titleAccent="Detail" subtitle="Add stops, return leg, luggage and passenger count — get a fixed-fare quote." center />
+          <div className="mt-10">
+            <BookingWidget />
+          </div>
         </div>
       </section>
+
 
 
 
@@ -802,7 +754,7 @@ function HomePage() {
       </section>
 
       {/* TESTIMONIALS — centered single-focus (reference-style) */}
-      <section className="section-y bg-[var(--background)] relative overflow-hidden">
+      <section className="section-y bg-[var(--surface)] relative overflow-hidden">
         <div className="container-x relative">
           <SectionHeader
             eyebrow="Testimonials"
