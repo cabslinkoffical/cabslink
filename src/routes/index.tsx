@@ -94,12 +94,6 @@ export const Route = createFileRoute("/")({
   component: HomePage,
 });
 
-const stats = [
-  { value: "50k+", label: "Journeys delivered" },
-  { value: "4.9★", label: "Avg. customer rating" },
-  { value: "24/7", label: "Live dispatch & support" },
-  { value: "100%", label: "Fixed transparent fares" },
-];
 
 const services = [
   { icon: Plane, title: "Airport Transfers", desc: "Punctual, stress-free transfers to and from every major UK airport.", to: "/airport-transfers", img: airportFallback, imgSrcSet: airportSrc },
