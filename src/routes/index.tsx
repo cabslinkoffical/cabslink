@@ -760,7 +760,7 @@ function HomePage() {
       </section>
 
       {/* TESTIMONIALS — centered single-focus (reference-style) */}
-      <section className="section-y bg-[var(--background)] relative overflow-hidden">
+      <section className="section-y bg-[var(--surface)] relative overflow-hidden">
         <div className="container-x relative">
           <SectionHeader
             eyebrow="Testimonials"
