@@ -9,8 +9,10 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
 import { Button } from "@/components/ui/button";
+import { TourBookingDialog, type TourForBooking } from "@/components/site/TourBookingDialog";
 import { getPublishedTourBySlug, type PublicPoiCard, type PublicTourDetail } from "@/lib/tours.functions";
 import { calculateMultiStopQuote } from "@/lib/scenic-quote.functions";
+
 
 const tourDetailQuery = (slug: string) =>
   queryOptions({
