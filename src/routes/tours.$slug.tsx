@@ -9,8 +9,10 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
 import { Button } from "@/components/ui/button";
+import { TourBookingDialog, type TourForBooking } from "@/components/site/TourBookingDialog";
 import { getPublishedTourBySlug, type PublicPoiCard, type PublicTourDetail } from "@/lib/tours.functions";
 import { calculateMultiStopQuote } from "@/lib/scenic-quote.functions";
+
 
 const tourDetailQuery = (slug: string) =>
   queryOptions({
@@ -190,22 +192,27 @@ function TourDetailPage() {
   const drivingSecs = quoteQuery.data?.driving_duration_seconds ?? d.direct_duration_seconds;
   const totalJourneySecs = drivingSecs ? drivingSecs + totalMinutes * 60 : null;
 
-  const bookHref = useMemo(() => {
-    const p = new URLSearchParams();
-    p.set("pickupPlaceId", d.origin_place_id);
-    p.set("pickupLabel", d.origin_label ?? d.name);
-    p.set("dropoffPlaceId", d.destination_place_id);
-    p.set("dropoffLabel", d.destination_label ?? d.name);
-    if (orderedStops.length) {
-      p.set(
-        "stops",
-        orderedStops.map((s) => `${s.place_id}::${encodeURIComponent(s.label)}::${s.minutes}`).join("|"),
-      );
-    }
-    p.set("templateSlug", d.slug);
-    p.set("mode", "quote");
-    return `/book?q=${encodeURIComponent(p.toString())}`;
-  }, [d, orderedStops]);
+  const tourForBooking: TourForBooking = useMemo(() => {
+    const stops = d.pois
+      .filter((p) => selected[p.id] !== undefined)
+      .sort((a, b) => a.stop_order - b.stop_order)
+      .map((p) => ({
+        name: p.name,
+        time: `${selected[p.id]} min`,
+        blurb: p.short_description ?? "",
+      }));
+    return {
+      slug: d.slug,
+      name: d.name,
+      from: d.origin_label ?? d.name,
+      to: d.destination_label ?? d.name,
+      duration: formatDuration(d.direct_duration_seconds) ?? "—",
+      distance: d.direct_distance_miles ? `${Math.round(d.direct_distance_miles)} mi` : "—",
+      fromPrice: `From ${formatPrice(liveStartingPence, liveCurrency)}`,
+      stops,
+    };
+  }, [d, selected, liveStartingPence, liveCurrency]);
+
 
   const duration = formatDuration(d.direct_duration_seconds);
   const optionalPois = d.pois.filter((p) => !p.mandatory);
@@ -412,11 +419,15 @@ function TourDetailPage() {
                 </ul>
               )}
 
-              <Button asChild size="lg" className="w-full mt-5">
-                <a href={bookHref}>
-                  Continue to booking <ArrowRight className="size-4 ml-1 inline" />
-                </a>
-              </Button>
+              <TourBookingDialog
+                tour={tourForBooking}
+                trigger={
+                  <Button size="lg" className="w-full mt-5">
+                    Continue to booking <ArrowRight className="size-4 ml-1 inline" />
+                  </Button>
+                }
+              />
+
 
               <ul className="mt-5 space-y-2 text-sm text-muted-foreground">
                 <li className="flex items-center gap-2"><Check className="size-4 text-[var(--gold)]" />{orderedStops.length || d.recommended_stop_count} stops selected</li>
