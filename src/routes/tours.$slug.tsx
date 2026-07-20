@@ -192,22 +192,27 @@ function TourDetailPage() {
   const drivingSecs = quoteQuery.data?.driving_duration_seconds ?? d.direct_duration_seconds;
   const totalJourneySecs = drivingSecs ? drivingSecs + totalMinutes * 60 : null;
 
-  const bookHref = useMemo(() => {
-    const p = new URLSearchParams();
-    p.set("pickupPlaceId", d.origin_place_id);
-    p.set("pickupLabel", d.origin_label ?? d.name);
-    p.set("dropoffPlaceId", d.destination_place_id);
-    p.set("dropoffLabel", d.destination_label ?? d.name);
-    if (orderedStops.length) {
-      p.set(
-        "stops",
-        orderedStops.map((s) => `${s.place_id}::${encodeURIComponent(s.label)}::${s.minutes}`).join("|"),
-      );
-    }
-    p.set("templateSlug", d.slug);
-    p.set("mode", "quote");
-    return `/book?q=${encodeURIComponent(p.toString())}`;
-  }, [d, orderedStops]);
+  const tourForBooking: TourForBooking = useMemo(() => {
+    const stops = d.pois
+      .filter((p) => selected[p.id] !== undefined)
+      .sort((a, b) => a.stop_order - b.stop_order)
+      .map((p) => ({
+        name: p.name,
+        time: `${selected[p.id]} min`,
+        blurb: p.short_description ?? "",
+      }));
+    return {
+      slug: d.slug,
+      name: d.name,
+      from: d.origin_label ?? d.name,
+      to: d.destination_label ?? d.name,
+      duration: formatDuration(d.direct_duration_seconds) ?? "—",
+      distance: d.direct_distance_miles ? `${Math.round(d.direct_distance_miles)} mi` : "—",
+      fromPrice: `From ${formatPrice(liveStartingPence, liveCurrency)}`,
+      stops,
+    };
+  }, [d, selected, liveStartingPence, liveCurrency]);
+
 
   const duration = formatDuration(d.direct_duration_seconds);
   const optionalPois = d.pois.filter((p) => !p.mandatory);
