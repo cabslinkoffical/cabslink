@@ -90,8 +90,8 @@
   --destructive: #0e182c;
   --destructive-foreground: #ffffff;
 
-  --border: #0e182c;
-  --input: #0e182c;
+  --border: rgba(14, 24, 44, 0.14);
+  --input: rgba(14, 24, 44, 0.18);
   --ring: #dfaf26;
 }
 
