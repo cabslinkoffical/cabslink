@@ -68,10 +68,10 @@ function FleetPage() {
 
       {/* FEATURED HERO */}
       {hero && (
-        <section className="section-y">
+        <section className="section-y section-cool">
           <div className="container-x grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
             <Reveal>
-              <img src={hero.image_url} alt={`${hero.name} — private ${hero.passengers}-seat vehicle`} width={1600} height={1000} decoding="async" fetchPriority="high" className="rounded-3xl object-cover w-full aspect-[4/3] shadow-[var(--shadow-elegant)] bg-[var(--surface)]" />
+              <img src={hero.image_url} alt={`${hero.name} — private ${hero.passengers}-seat vehicle`} width={1600} height={1000} decoding="async" fetchPriority="high" className="rounded-3xl object-cover w-full aspect-[4/3] shadow-[var(--shadow-elegant)] bg-[var(--surface-warm)]" />
             </Reveal>
             <Reveal delay={120}>
               <p className="text-xs uppercase tracking-[0.3em] text-[var(--gold)] mb-3">{hero.featured ? "Featured vehicle" : "Available vehicle"}</p>
@@ -93,7 +93,7 @@ function FleetPage() {
       )}
 
       {/* FLEET GRID */}
-      <section className="section-y bg-[var(--surface)]">
+      <section className="section-y section-warm">
         <div className="container-x">
           <SectionHeader eyebrow="The full fleet" title="One uncompromising standard across every vehicle." subtitle="Each capacity figure is shown as passengers · large luggage · hand luggage." center />
           {activeFleet.length > 0 ? (
@@ -101,7 +101,7 @@ function FleetPage() {
               {activeFleet.map((f, i) => (
               <Reveal key={f.id} delay={i * 80}>
                 <div className={`rounded-3xl border bg-card overflow-hidden hover:-translate-y-1 hover:shadow-[var(--shadow-elegant)] transition h-full flex flex-col ${f.featured ? "border-[var(--gold)]" : "border-border"}`}>
-                  <div className="relative h-52 overflow-hidden bg-[var(--surface)] flex items-center justify-center p-4">
+                  <div className="relative h-52 overflow-hidden bg-[var(--surface-cool)] flex items-center justify-center p-4">
                     <img src={f.image_url} alt={`${f.name} — private ${f.passengers}-seat vehicle`} loading="lazy" decoding="async" width={1200} height={800} className="size-full object-contain" />
                     {f.featured && (
                       <span className="absolute top-3 left-3 inline-flex items-center gap-1 rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] px-3 py-1 text-xs font-semibold">
@@ -135,17 +135,17 @@ function FleetPage() {
 
 
       {/* CTA */}
-      <section className="section-y">
+      <section className="section-y bg-[var(--background)]">
         <div className="container-x">
           <div className="rounded-3xl bg-[var(--navy)] text-[var(--navy-foreground)] p-10 md:p-14 text-center">
             <h2 className="font-display text-3xl md:text-4xl font-semibold">Give us a call</h2>
-            <p className="mt-4 text-white/80 max-w-2xl mx-auto">
+            <p className="mt-4 text-[var(--navy-foreground)]/80 max-w-2xl mx-auto">
               Need a hassle-free UK airport transfer? Cabslink offers personalised solutions tailored to your needs —
               expert advice, immediate assistance and flexible scheduling, with reliable comfort and top-notch service.
             </p>
             <div className="mt-7 flex flex-wrap gap-3 justify-center">
               <Button asChild variant="gold" className="rounded-full"><a href="/#booking">Book online</a></Button>
-              <Button asChild variant="outline" className="rounded-full bg-transparent text-white border-white/40 hover:bg-white/10"><Link to="/contact">Contact us</Link></Button>
+              <Button asChild variant="outline" className="rounded-full bg-transparent text-[var(--navy-foreground)] border-[var(--navy-foreground)]/40 hover:bg-[var(--navy-2)]"><Link to="/contact">Contact us</Link></Button>
             </div>
           </div>
         </div>
