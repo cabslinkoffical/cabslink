@@ -412,11 +412,10 @@ function HomePage() {
 
       {/* PRIVATE TOURS — creative destination reel */}
       <section className="section-y navy-scene relative overflow-hidden">
-        <div aria-hidden className="absolute inset-0 opacity-30">
+        <div aria-hidden className="absolute inset-0 opacity-20">
           <img src={edinburghFallback} srcSet={edinburghSrc} sizes="100vw" alt="" className="size-full object-cover" loading="lazy" decoding="async" />
-          <div className="absolute inset-0 bg-gradient-to-b from-[var(--navy-2)]/60 via-[var(--navy)]/85 to-[var(--navy)]" />
+          <div className="absolute inset-0 plain-image-scrim" />
         </div>
-        <div aria-hidden className="absolute -top-24 left-1/2 -translate-x-1/2 size-[42rem] rounded-full bg-[radial-gradient(circle_at_center,color-mix(in_oklab,var(--gold)_28%,transparent),transparent_70%)] blur-3xl" />
 
         <div className="container-x relative">
           <div className="max-w-2xl">
@@ -432,7 +431,7 @@ function HomePage() {
           {/* MOBILE — vertical route timeline */}
           <div className="mt-10 md:hidden">
             <ol className="relative">
-              <span aria-hidden className="absolute left-[19px] top-2 bottom-2 w-px bg-gradient-to-b from-[var(--gold)]/10 via-[var(--gold)]/60 to-[var(--gold)]/10" />
+              <span aria-hidden className="absolute left-[19px] top-2 bottom-2 w-px bg-[var(--gold)]/45" />
               {[
                 { name: "Edinburgh", tag: "Old Town · Castle", mi: "0 mi" },
                 { name: "Loch Lomond", tag: "Trossachs escape", mi: "72 mi" },
@@ -443,7 +442,7 @@ function HomePage() {
                   <div className="relative z-10 grid size-10 shrink-0 place-items-center rounded-full border border-[var(--gold)]/40 bg-[var(--navy)] text-[var(--gold)]">
                     <MapPin className="size-4" />
                   </div>
-                  <div className="min-w-0 flex-1 rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur px-4 py-3.5">
+                  <div className="min-w-0 flex-1 rounded-2xl border border-[var(--gold)]/20 bg-[var(--navy-2)] px-4 py-3.5">
                     <div className="flex items-center justify-between gap-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--gold)]">
                       <span>Stop {String(i + 1).padStart(2, "0")}</span>
                       <span className="text-white/50">{d.mi}</span>
@@ -459,15 +458,8 @@ function HomePage() {
           {/* TABLET/DESKTOP — animated route reel */}
           <div className="relative mt-14 md:mt-20 hidden md:block">
             <svg aria-hidden viewBox="0 0 1200 220" preserveAspectRatio="none" className="w-full h-40 md:h-52">
-              <defs>
-                <linearGradient id="tourRouteGrad" x1="0" x2="1" y1="0" y2="0">
-                  <stop offset="0%" stopColor="var(--gold)" stopOpacity="0.15" />
-                  <stop offset="50%" stopColor="var(--gold)" stopOpacity="1" />
-                  <stop offset="100%" stopColor="var(--gold)" stopOpacity="0.15" />
-                </linearGradient>
-              </defs>
               <path d="M 20 170 C 220 40, 380 210, 600 110 S 980 20, 1180 150"
-                fill="none" stroke="url(#tourRouteGrad)" strokeWidth="2.5" strokeDasharray="6 8"
+                fill="none" stroke="var(--gold)" strokeOpacity="0.75" strokeWidth="2.5" strokeDasharray="6 8"
                 style={{ animation: "tourDash 6s linear infinite" }} />
             </svg>
 
@@ -479,7 +471,7 @@ function HomePage() {
                 { name: "Lake District", tag: "England border trip", mi: "145 mi" },
               ].map((d, i) => (
                 <div key={d.name}
-                  className="group relative rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur px-5 py-6 hover:border-[var(--gold)]/60 hover:-translate-y-1 transition-all duration-300"
+                  className="group relative rounded-2xl border border-[var(--gold)]/20 bg-[var(--navy-2)] px-5 py-6 hover:border-[var(--gold)]/60 hover:-translate-y-1 transition-all duration-300"
                   style={{ transform: `rotate(${i % 2 === 0 ? -1.5 : 1.5}deg)` }}>
                   <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--gold)]">
                     <MapPin className="size-3" /> Stop {String(i + 1).padStart(2, "0")}
@@ -495,7 +487,7 @@ function HomePage() {
             </div>
           </div>
 
-          <div className="mt-10 md:mt-14 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-5 md:gap-6 rounded-2xl md:rounded-3xl border border-[var(--gold)]/25 bg-white/[0.03] backdrop-blur p-5 md:p-8">
+          <div className="mt-10 md:mt-14 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-5 md:gap-6 rounded-2xl md:rounded-3xl border border-[var(--gold)]/30 bg-[var(--navy-2)] p-5 md:p-8">
             <div className="flex items-start gap-3 md:gap-4 max-w-xl">
               <div className="grid size-10 md:size-12 place-items-center rounded-xl md:rounded-2xl bg-[var(--gold)] text-[var(--gold-foreground)] shrink-0">
                 <GraduationCap className="size-5 md:size-6" />
@@ -517,10 +509,7 @@ function HomePage() {
       </section>
 
       {/* SERVICES — luxury image cards */}
-      <section className="section-y bg-[var(--surface)] relative overflow-hidden">
-        <div aria-hidden className="absolute top-0 left-1/2 -translate-x-1/2 w-[70%] h-px bg-gradient-to-r from-transparent via-[var(--gold)]/40 to-transparent" />
-        <div aria-hidden className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[900px] rounded-full bg-[radial-gradient(circle_at_center,color-mix(in_oklab,var(--gold)_10%,transparent),transparent_60%)] blur-3xl opacity-60" />
-
+      <section className="section-y section-warm relative overflow-hidden">
         <div className="container-x relative">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
             <SectionHeader eyebrow="Our Services" title="A Complete Driver" titleAccent="Service" subtitle="From airport pickups to multi-day private tours — one trusted standard, every journey." />
@@ -539,7 +528,7 @@ function HomePage() {
                 >
                   <div className="relative size-20 shrink-0 overflow-hidden rounded-xl">
                     <img src={s.img} srcSet={s.imgSrcSet} sizes="80px" alt={s.title} loading="lazy" decoding="async" width={400} height={500} className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                    <div className="absolute inset-0 bg-gradient-to-tr from-black/60 to-transparent" />
+                    <div className="absolute inset-0 plain-image-scrim" />
                     <div className="absolute bottom-1.5 left-1.5 grid size-7 place-items-center rounded-lg bg-[var(--gold)] text-[var(--gold-foreground)] shadow-[var(--shadow-glow)]">
                       <s.icon className="size-3.5" />
                     </div>
@@ -576,8 +565,7 @@ function HomePage() {
                     height={1125}
                     className="absolute inset-0 size-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-110"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[var(--navy)]/95 via-[var(--navy)]/55 to-[var(--navy)]/10 transition-all duration-500 group-hover:from-[var(--navy)]/95 group-hover:via-[var(--navy)]/40" />
-                  <div aria-hidden className="absolute top-0 right-0 size-40 bg-[radial-gradient(circle_at_top_right,color-mix(in_oklab,var(--gold)_55%,transparent),transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="absolute inset-0 plain-image-scrim transition-opacity duration-500 group-hover:opacity-90" />
                   <div aria-hidden className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--gold)_50%,transparent)]" />
                   <div className="absolute top-5 left-5 grid size-11 place-items-center rounded-xl bg-[var(--gold)] text-[var(--gold-foreground)] shadow-[var(--shadow-glow)] transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
                     <s.icon className="size-5" />
@@ -597,7 +585,7 @@ function HomePage() {
       </section>
 
       {/* AIRPORT COPY */}
-      <section className="section-y">
+      <section className="section-y bg-[var(--background)]">
         <div className="container-x grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div className="relative">
             {/* Decorative frame */}
@@ -624,7 +612,7 @@ function HomePage() {
             </p>
             <ul className="mt-7 grid sm:grid-cols-2 gap-3 text-sm">
               {["Meet & greet at arrivals", "Free 60-minute wait time", "Door-to-door service", "Fixed transparent fare", "Child seats on request", "24/7 live support"].map(item => (
-                <li key={item} className="flex items-center gap-2.5 rounded-lg px-3 py-2 bg-[var(--surface)]/60 border border-border/60"><ShieldCheck className="size-4 text-[var(--gold)] shrink-0" />{item}</li>
+                <li key={item} className="flex items-center gap-2.5 rounded-lg px-3 py-2 bg-[var(--surface-cool)] border border-border/60"><ShieldCheck className="size-4 text-[var(--gold)] shrink-0" />{item}</li>
               ))}
             </ul>
             <Button asChild variant="gold" className="mt-8 rounded-full"><Link to="/airport-transfers">Explore airport transfers <ArrowRight className="size-4" /></Link></Button>
@@ -633,15 +621,13 @@ function HomePage() {
       </section>
 
       {/* FEATURES GRID */}
-      <section className="section-y bg-[var(--surface)] relative overflow-hidden">
-        <div aria-hidden className="absolute inset-0 opacity-[0.04] [background-image:radial-gradient(circle_at_1px_1px,var(--navy)_1px,transparent_0)] [background-size:24px_24px]" />
+      <section className="section-y section-cool relative overflow-hidden">
         <div className="container-x relative">
           <SectionHeader eyebrow="Included as standard" title="Every Cabslink Ride, By" titleAccent="Default" center />
           <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {features.map((f, i) => (
               <Reveal key={f.title} delay={(i % 3) * 100} className="group relative flex gap-4 rounded-2xl bg-card border border-border p-6 hover:border-[var(--gold)]/50 hover:-translate-y-1.5 hover:shadow-[var(--shadow-elegant)] transition-all duration-300 overflow-hidden">
-                <div aria-hidden className="absolute -right-8 -top-8 size-24 rounded-full bg-[var(--gold)]/0 group-hover:bg-[var(--gold)]/10 blur-2xl transition-all duration-500" />
-                <div className="relative grid size-12 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[var(--gold)]/20 to-[var(--gold)]/5 text-[var(--gold)] border border-[var(--gold)]/15 group-hover:scale-110 transition-transform duration-300"><f.icon className="size-5" /></div>
+                <div className="relative grid size-12 shrink-0 place-items-center rounded-xl bg-[var(--surface-gold)] text-[var(--gold-foreground)] border border-[var(--gold)]/30 group-hover:scale-110 transition-transform duration-300"><f.icon className="size-5" /></div>
                 <div className="min-w-0 relative">
                   <h3 className="font-semibold">{f.title}</h3>
                   <p className="mt-1 text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
@@ -653,7 +639,7 @@ function HomePage() {
       </section>
 
       {/* FLEET — mobile-first snap carousel, desktop grid */}
-      <section className="section-y overflow-hidden">
+      <section className="section-y section-gold-soft overflow-hidden">
         <div className="container-x">
           <SectionHeader
             eyebrow="Our Fleet"
@@ -675,7 +661,7 @@ function HomePage() {
                   <span className="absolute top-3 right-3 z-10 inline-flex items-center gap-1 rounded-full bg-[var(--gold)]/12 border border-[var(--gold)]/30 text-[var(--gold)] text-[9px] font-semibold uppercase tracking-[0.14em] px-2 py-0.5">
                     <Gem className="size-2.5" /> {f.note}
                   </span>
-                  <div className="relative aspect-[16/10] flex items-center justify-center overflow-hidden rounded-2xl bg-[var(--surface)]">
+                  <div className="relative aspect-[16/10] flex items-center justify-center overflow-hidden rounded-2xl bg-[var(--surface-cool)]">
                     <img
                       src={f.img}
                       srcSet={f.srcSet}
