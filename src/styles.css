@@ -32,10 +32,14 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-gold: var(--gold);
+  --color-gold-ink: var(--gold-ink);
   --color-gold-foreground: var(--gold-foreground);
   --color-navy: var(--navy);
+  --color-navy-2: var(--navy-2);
+  --color-navy-3: var(--navy-3);
   --color-navy-foreground: var(--navy-foreground);
   --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
 
   --font-display: "Space Grotesk", "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
