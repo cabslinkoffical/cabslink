@@ -48,52 +48,50 @@
   --font-sans: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
 
   --shadow-elegant: 0 30px 80px -30px color-mix(in oklab, #0e182c 35%, transparent);
-  --shadow-glow: 0 18px 40px -12px color-mix(in oklab, var(--gold) 55%, transparent);
+  --shadow-glow: 0 18px 40px -12px color-mix(in oklab, #dfaf26 55%, transparent);
 }
 
 :root {
   --radius: 0.75rem;
 
-  /* Bright theme — premium ivory + two-tone navy + signature gold */
-  --background: #fbfaf6;        /* warm ivory */
-  --foreground: #0b1424;        /* deep ink navy */
-  --surface: #eee9dc;            /* soft sand */
-  --surface-2: #f7f3e8;          /* pale sand */
-  --surface-warm: #f1e2c3;       /* stronger champagne band */
-  --surface-cool: #e8edf3;       /* cool steel-blue contrast band */
-  --surface-gold: #ead28a;       /* confident gold-tint panel */
+  /* Strict 3-color palette: white #ffffff, gold #dfaf26, navy #0e182c */
+  --background: #ffffff;
+  --foreground: #0e182c;
+  --surface: #ffffff;
+  --surface-2: #ffffff;
+  --surface-warm: #ffffff;
+  --surface-cool: #ffffff;
+  --surface-gold: #dfaf26;
 
   --card: #ffffff;
-  --card-foreground: #0b1424;
+  --card-foreground: #0e182c;
   --popover: #ffffff;
-  --popover-foreground: #0b1424;
+  --popover-foreground: #0e182c;
 
-  /* Brand — two-tone navy for depth */
-  --navy: #0b1424;
-  --navy-2: #17274a;             /* lifted royal navy */
-  --navy-3: #2a3d68;             /* steel navy accent */
-  --navy-foreground: #fbfaf6;
+  --navy: #0e182c;
+  --navy-2: #0e182c;
+  --navy-3: #0e182c;
+  --navy-foreground: #ffffff;
 
-  /* Gold with a legible-on-light companion */
   --gold: #dfaf26;
-  --gold-ink: #a3781a;           /* AA-safe gold text on ivory */
-  --gold-foreground: #0b1424;
+  --gold-ink: #dfaf26;
+  --gold-foreground: #0e182c;
 
-  --primary: #0b1424;
-  --primary-foreground: #fbfaf6;
-  --secondary: #f0ebde;
-  --secondary-foreground: #0b1424;
+  --primary: #0e182c;
+  --primary-foreground: #ffffff;
+  --secondary: #ffffff;
+  --secondary-foreground: #0e182c;
 
-  --muted: #ece7d8;
-  --muted-foreground: #3d475c;   /* darkened for AA on ivory */
+  --muted: #ffffff;
+  --muted-foreground: #0e182c;
   --accent: #dfaf26;
-  --accent-foreground: #0b1424;
+  --accent-foreground: #0e182c;
 
-  --destructive: oklch(0.6 0.22 27);
+  --destructive: #0e182c;
   --destructive-foreground: #ffffff;
 
-  --border: rgba(11, 20, 36, 0.12);
-  --input: rgba(11, 20, 36, 0.16);
+  --border: rgba(14, 24, 44, 0.14);
+  --input: rgba(14, 24, 44, 0.18);
   --ring: #dfaf26;
 }
 
