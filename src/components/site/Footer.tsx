@@ -32,7 +32,7 @@ const legal = [
 
 export function Footer() {
   return (
-    <footer className="bg-[var(--navy)] text-[var(--navy-foreground)] mt-20">
+    <footer className="navy-scene mt-20">
       <div className="container-x py-16 grid gap-12 md:grid-cols-2 lg:grid-cols-4">
         <div>
           <Logo variant="gold" />
