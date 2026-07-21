@@ -201,29 +201,14 @@ function HomePage() {
   return (
     <SiteLayout>
       {/* HERO — unified: copy + vehicle + booking widget */}
-      <section className="relative overflow-hidden bg-[var(--background)]">
-        {/* Ambient tints */}
-        <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,color-mix(in_oklab,var(--gold)_14%,transparent),transparent_60%)]" />
-        <div aria-hidden className="pointer-events-none absolute -top-24 -left-24 size-[520px] rounded-full bg-[radial-gradient(circle_at_center,color-mix(in_oklab,var(--gold)_18%,transparent),transparent_70%)] blur-3xl opacity-60" />
-        <div aria-hidden className="pointer-events-none absolute top-1/3 -right-32 size-[560px] rounded-full bg-[radial-gradient(circle_at_center,color-mix(in_oklab,var(--navy)_12%,transparent),transparent_70%)] blur-3xl opacity-50" />
-        {/* Faint grid */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-[0.035]"
-          style={{
-            backgroundImage:
-              "linear-gradient(color-mix(in oklab, var(--navy) 60%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in oklab, var(--navy) 60%, transparent) 1px, transparent 1px)",
-            backgroundSize: "56px 56px",
-          }}
-        />
-
+      <section className="relative overflow-hidden section-cool">
         <div className="container-x relative pt-14 md:pt-20 pb-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
             {/* LEFT — copy */}
             <div className="lg:col-span-6 relative z-10 min-w-0 w-full">
 
               <div
-                className="inline-flex items-center gap-3 rounded-full border border-[var(--gold)]/40 bg-[color-mix(in_oklab,var(--gold)_8%,transparent)] px-4 py-1.5 opacity-0"
+                className="inline-flex items-center gap-3 rounded-full border border-[var(--gold)]/45 bg-[var(--surface-gold)] px-4 py-1.5 opacity-0"
                 style={{ animation: "fadeInUp 700ms cubic-bezier(.2,.7,.2,1) 100ms forwards" }}
               >
                 <Sparkles className="size-3.5 text-[var(--gold)]" />
@@ -237,13 +222,7 @@ function HomePage() {
                 style={{ animation: "fadeInUp 800ms cubic-bezier(.2,.7,.2,1) 200ms forwards" }}
               >
                 Arrive in{" "}
-                <span
-                  className="bg-clip-text text-transparent"
-                  style={{
-                    backgroundImage:
-                      "linear-gradient(180deg, #f0c548 0%, #dfaf26 55%, #b38a1d 100%)",
-                  }}
-                >
+                <span className="text-[var(--gold-ink)]">
                   quiet luxury.
                 </span>
               </h1>
@@ -265,7 +244,7 @@ function HomePage() {
                     {["S","J","P","M"].map((c, idx) => (
                       <span
                         key={idx}
-                        className="grid size-7 place-items-center rounded-full border-2 border-[var(--background)] bg-[var(--navy)] text-[10px] font-semibold text-[var(--gold)]"
+                        className="grid size-7 place-items-center rounded-full border-2 border-[var(--surface-cool)] bg-[var(--navy)] text-[10px] font-semibold text-[var(--gold)]"
                       >
                         {c}
                       </span>
@@ -321,29 +300,15 @@ function HomePage() {
                     style={{
                       color: "transparent",
                       WebkitTextStroke: "1px color-mix(in oklab, var(--navy) 10%, transparent)",
-                      backgroundImage:
-                        "linear-gradient(180deg, color-mix(in oklab, var(--gold) 18%, transparent), transparent 80%)",
-                      WebkitBackgroundClip: "text",
-                      backgroundClip: "text",
+                      backgroundColor: "transparent",
                     }}
                   >
                     CABSLINK
                   </span>
                 </div>
 
-                {/* Gold halo */}
-                <div
-                  aria-hidden
-                  className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 size-[110%] rounded-full"
-                  style={{
-                    background:
-                      "radial-gradient(circle at center, color-mix(in oklab, var(--gold) 30%, transparent) 0%, transparent 55%)",
-                    filter: "blur(30px)",
-                  }}
-                />
-
                 {/* Ground shadow */}
-                <div aria-hidden className="absolute inset-x-8 bottom-2 h-8 rounded-[50%] bg-black/30 blur-2xl" />
+                <div aria-hidden className="absolute inset-x-8 bottom-2 h-8 rounded-[50%] bg-[color-mix(in_oklab,var(--navy)_28%,transparent)] blur-2xl" />
 
                 {/* Sliding vehicle stage */}
                 <div className="relative aspect-[16/10] overflow-hidden">
@@ -368,7 +333,7 @@ function HomePage() {
 
 
                 {/* Floating live chip */}
-                <div className="hidden md:flex absolute bottom-10 left-0 lg:left-4 items-center gap-3 rounded-2xl border border-[var(--navy)]/10 bg-[var(--background)]/85 backdrop-blur-md px-4 py-3 shadow-[var(--shadow-elegant)]">
+                <div className="hidden md:flex absolute bottom-10 left-0 lg:left-4 items-center gap-3 rounded-2xl border border-[var(--navy)]/10 bg-card px-4 py-3 shadow-[var(--shadow-elegant)]">
                   <span className="relative flex size-2.5">
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500/50" />
                     <span className="relative inline-flex size-2.5 rounded-full bg-emerald-500" />
@@ -392,8 +357,8 @@ function HomePage() {
                         onClick={() => go(i)}
                         className={`group shrink-0 flex items-center gap-3 rounded-2xl border px-3 py-2 transition-all ${
                           isActive
-                            ? "border-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_12%,var(--background))] shadow-[var(--shadow-elegant)]"
-                            : "border-[var(--navy)]/10 bg-[var(--background)]/70 hover:border-[var(--gold)]/50 hover:-translate-y-0.5"
+                            ? "border-[var(--gold)] bg-[var(--surface-gold)] shadow-[var(--shadow-elegant)]"
+                            : "border-[var(--navy)]/10 bg-card hover:border-[var(--gold)]/50 hover:-translate-y-0.5"
                         }`}
                       >
                         <div className="w-14 h-9 shrink-0 grid place-items-center overflow-hidden">
@@ -416,7 +381,7 @@ function HomePage() {
       </section>
 
       {/* BOOKING WIDGET — flows straight out of hero */}
-      <section id="booking" className="relative z-20 scroll-mt-24 bg-[var(--background)]">
+      <section id="booking" className="relative z-20 scroll-mt-24 section-cool">
         <div className="container-x pt-2 md:pt-4 pb-4">
           <BookingWidget />
         </div>
@@ -425,16 +390,16 @@ function HomePage() {
 
 
       {/* HOW IT WORKS */}
-      <section className="section-y">
+      <section className="section-y bg-[var(--background)]">
         <div className="container-x">
           <SectionHeader eyebrow="How it works" title="Three Steps To A Premium" titleAccent="Ride" subtitle="From quote to driver at your door — built to feel effortless." center />
           <div className="mt-14 relative grid gap-6 md:grid-cols-3">
             {/* Connector line */}
-            <div aria-hidden className="hidden md:block absolute top-16 left-[16.67%] right-[16.67%] h-px bg-gradient-to-r from-transparent via-[var(--gold)]/40 to-transparent" />
+            <div aria-hidden className="hidden md:block absolute top-16 left-[16.67%] right-[16.67%] h-px bg-[var(--gold)]/35" />
             {steps.map((s, i) => (
               <Reveal key={s.title} delay={i * 120} className="relative rounded-2xl border border-border bg-card p-8 hover:border-[var(--gold)]/50 hover:-translate-y-1.5 hover:shadow-[var(--shadow-elegant)] transition-all duration-300">
                 <span className="absolute top-5 right-6 font-display text-6xl font-bold text-transparent [-webkit-text-stroke:1px_color-mix(in_oklab,var(--gold)_35%,transparent)]">0{i + 1}</span>
-                <div className="relative grid size-14 place-items-center rounded-2xl bg-gradient-to-br from-[var(--gold)]/25 to-[var(--gold)]/5 text-[var(--gold)] border border-[var(--gold)]/20">
+                <div className="relative grid size-14 place-items-center rounded-2xl bg-[var(--surface-gold)] text-[var(--gold-foreground)] border border-[var(--gold)]/30">
                   <s.icon className="size-6" />
                 </div>
                 <h3 className="mt-6 font-display text-xl font-semibold">{s.title}</h3>
@@ -447,11 +412,10 @@ function HomePage() {
 
       {/* PRIVATE TOURS — creative destination reel */}
       <section className="section-y navy-scene relative overflow-hidden">
-        <div aria-hidden className="absolute inset-0 opacity-30">
+        <div aria-hidden className="absolute inset-0 opacity-20">
           <img src={edinburghFallback} srcSet={edinburghSrc} sizes="100vw" alt="" className="size-full object-cover" loading="lazy" decoding="async" />
-          <div className="absolute inset-0 bg-gradient-to-b from-[var(--navy-2)]/60 via-[var(--navy)]/85 to-[var(--navy)]" />
+          <div className="absolute inset-0 plain-image-scrim" />
         </div>
-        <div aria-hidden className="absolute -top-24 left-1/2 -translate-x-1/2 size-[42rem] rounded-full bg-[radial-gradient(circle_at_center,color-mix(in_oklab,var(--gold)_28%,transparent),transparent_70%)] blur-3xl" />
 
         <div className="container-x relative">
           <div className="max-w-2xl">
@@ -467,7 +431,7 @@ function HomePage() {
           {/* MOBILE — vertical route timeline */}
           <div className="mt-10 md:hidden">
             <ol className="relative">
-              <span aria-hidden className="absolute left-[19px] top-2 bottom-2 w-px bg-gradient-to-b from-[var(--gold)]/10 via-[var(--gold)]/60 to-[var(--gold)]/10" />
+              <span aria-hidden className="absolute left-[19px] top-2 bottom-2 w-px bg-[var(--gold)]/45" />
               {[
                 { name: "Edinburgh", tag: "Old Town · Castle", mi: "0 mi" },
                 { name: "Loch Lomond", tag: "Trossachs escape", mi: "72 mi" },
@@ -478,7 +442,7 @@ function HomePage() {
                   <div className="relative z-10 grid size-10 shrink-0 place-items-center rounded-full border border-[var(--gold)]/40 bg-[var(--navy)] text-[var(--gold)]">
                     <MapPin className="size-4" />
                   </div>
-                  <div className="min-w-0 flex-1 rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur px-4 py-3.5">
+                  <div className="min-w-0 flex-1 rounded-2xl border border-[var(--gold)]/20 bg-[var(--navy-2)] px-4 py-3.5">
                     <div className="flex items-center justify-between gap-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--gold)]">
                       <span>Stop {String(i + 1).padStart(2, "0")}</span>
                       <span className="text-white/50">{d.mi}</span>
@@ -494,15 +458,8 @@ function HomePage() {
           {/* TABLET/DESKTOP — animated route reel */}
           <div className="relative mt-14 md:mt-20 hidden md:block">
             <svg aria-hidden viewBox="0 0 1200 220" preserveAspectRatio="none" className="w-full h-40 md:h-52">
-              <defs>
-                <linearGradient id="tourRouteGrad" x1="0" x2="1" y1="0" y2="0">
-                  <stop offset="0%" stopColor="var(--gold)" stopOpacity="0.15" />
-                  <stop offset="50%" stopColor="var(--gold)" stopOpacity="1" />
-                  <stop offset="100%" stopColor="var(--gold)" stopOpacity="0.15" />
-                </linearGradient>
-              </defs>
               <path d="M 20 170 C 220 40, 380 210, 600 110 S 980 20, 1180 150"
-                fill="none" stroke="url(#tourRouteGrad)" strokeWidth="2.5" strokeDasharray="6 8"
+                fill="none" stroke="var(--gold)" strokeOpacity="0.75" strokeWidth="2.5" strokeDasharray="6 8"
                 style={{ animation: "tourDash 6s linear infinite" }} />
             </svg>
 
@@ -514,7 +471,7 @@ function HomePage() {
                 { name: "Lake District", tag: "England border trip", mi: "145 mi" },
               ].map((d, i) => (
                 <div key={d.name}
-                  className="group relative rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur px-5 py-6 hover:border-[var(--gold)]/60 hover:-translate-y-1 transition-all duration-300"
+                  className="group relative rounded-2xl border border-[var(--gold)]/20 bg-[var(--navy-2)] px-5 py-6 hover:border-[var(--gold)]/60 hover:-translate-y-1 transition-all duration-300"
                   style={{ transform: `rotate(${i % 2 === 0 ? -1.5 : 1.5}deg)` }}>
                   <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--gold)]">
                     <MapPin className="size-3" /> Stop {String(i + 1).padStart(2, "0")}
@@ -530,7 +487,7 @@ function HomePage() {
             </div>
           </div>
 
-          <div className="mt-10 md:mt-14 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-5 md:gap-6 rounded-2xl md:rounded-3xl border border-[var(--gold)]/25 bg-white/[0.03] backdrop-blur p-5 md:p-8">
+          <div className="mt-10 md:mt-14 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-5 md:gap-6 rounded-2xl md:rounded-3xl border border-[var(--gold)]/30 bg-[var(--navy-2)] p-5 md:p-8">
             <div className="flex items-start gap-3 md:gap-4 max-w-xl">
               <div className="grid size-10 md:size-12 place-items-center rounded-xl md:rounded-2xl bg-[var(--gold)] text-[var(--gold-foreground)] shrink-0">
                 <GraduationCap className="size-5 md:size-6" />
@@ -552,10 +509,7 @@ function HomePage() {
       </section>
 
       {/* SERVICES — luxury image cards */}
-      <section className="section-y bg-[var(--surface)] relative overflow-hidden">
-        <div aria-hidden className="absolute top-0 left-1/2 -translate-x-1/2 w-[70%] h-px bg-gradient-to-r from-transparent via-[var(--gold)]/40 to-transparent" />
-        <div aria-hidden className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[900px] rounded-full bg-[radial-gradient(circle_at_center,color-mix(in_oklab,var(--gold)_10%,transparent),transparent_60%)] blur-3xl opacity-60" />
-
+      <section className="section-y section-warm relative overflow-hidden">
         <div className="container-x relative">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
             <SectionHeader eyebrow="Our Services" title="A Complete Driver" titleAccent="Service" subtitle="From airport pickups to multi-day private tours — one trusted standard, every journey." />
@@ -574,7 +528,7 @@ function HomePage() {
                 >
                   <div className="relative size-20 shrink-0 overflow-hidden rounded-xl">
                     <img src={s.img} srcSet={s.imgSrcSet} sizes="80px" alt={s.title} loading="lazy" decoding="async" width={400} height={500} className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                    <div className="absolute inset-0 bg-gradient-to-tr from-black/60 to-transparent" />
+                    <div className="absolute inset-0 plain-image-scrim" />
                     <div className="absolute bottom-1.5 left-1.5 grid size-7 place-items-center rounded-lg bg-[var(--gold)] text-[var(--gold-foreground)] shadow-[var(--shadow-glow)]">
                       <s.icon className="size-3.5" />
                     </div>
@@ -611,8 +565,7 @@ function HomePage() {
                     height={1125}
                     className="absolute inset-0 size-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-110"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[var(--navy)]/95 via-[var(--navy)]/55 to-[var(--navy)]/10 transition-all duration-500 group-hover:from-[var(--navy)]/95 group-hover:via-[var(--navy)]/40" />
-                  <div aria-hidden className="absolute top-0 right-0 size-40 bg-[radial-gradient(circle_at_top_right,color-mix(in_oklab,var(--gold)_55%,transparent),transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="absolute inset-0 plain-image-scrim transition-opacity duration-500 group-hover:opacity-90" />
                   <div aria-hidden className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--gold)_50%,transparent)]" />
                   <div className="absolute top-5 left-5 grid size-11 place-items-center rounded-xl bg-[var(--gold)] text-[var(--gold-foreground)] shadow-[var(--shadow-glow)] transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
                     <s.icon className="size-5" />
@@ -632,7 +585,7 @@ function HomePage() {
       </section>
 
       {/* AIRPORT COPY */}
-      <section className="section-y">
+      <section className="section-y bg-[var(--background)]">
         <div className="container-x grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div className="relative">
             {/* Decorative frame */}
@@ -659,7 +612,7 @@ function HomePage() {
             </p>
             <ul className="mt-7 grid sm:grid-cols-2 gap-3 text-sm">
               {["Meet & greet at arrivals", "Free 60-minute wait time", "Door-to-door service", "Fixed transparent fare", "Child seats on request", "24/7 live support"].map(item => (
-                <li key={item} className="flex items-center gap-2.5 rounded-lg px-3 py-2 bg-[var(--surface)]/60 border border-border/60"><ShieldCheck className="size-4 text-[var(--gold)] shrink-0" />{item}</li>
+                <li key={item} className="flex items-center gap-2.5 rounded-lg px-3 py-2 bg-[var(--surface-cool)] border border-border/60"><ShieldCheck className="size-4 text-[var(--gold)] shrink-0" />{item}</li>
               ))}
             </ul>
             <Button asChild variant="gold" className="mt-8 rounded-full"><Link to="/airport-transfers">Explore airport transfers <ArrowRight className="size-4" /></Link></Button>
@@ -668,15 +621,13 @@ function HomePage() {
       </section>
 
       {/* FEATURES GRID */}
-      <section className="section-y bg-[var(--surface)] relative overflow-hidden">
-        <div aria-hidden className="absolute inset-0 opacity-[0.04] [background-image:radial-gradient(circle_at_1px_1px,var(--navy)_1px,transparent_0)] [background-size:24px_24px]" />
+      <section className="section-y section-cool relative overflow-hidden">
         <div className="container-x relative">
           <SectionHeader eyebrow="Included as standard" title="Every Cabslink Ride, By" titleAccent="Default" center />
           <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {features.map((f, i) => (
               <Reveal key={f.title} delay={(i % 3) * 100} className="group relative flex gap-4 rounded-2xl bg-card border border-border p-6 hover:border-[var(--gold)]/50 hover:-translate-y-1.5 hover:shadow-[var(--shadow-elegant)] transition-all duration-300 overflow-hidden">
-                <div aria-hidden className="absolute -right-8 -top-8 size-24 rounded-full bg-[var(--gold)]/0 group-hover:bg-[var(--gold)]/10 blur-2xl transition-all duration-500" />
-                <div className="relative grid size-12 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[var(--gold)]/20 to-[var(--gold)]/5 text-[var(--gold)] border border-[var(--gold)]/15 group-hover:scale-110 transition-transform duration-300"><f.icon className="size-5" /></div>
+                <div className="relative grid size-12 shrink-0 place-items-center rounded-xl bg-[var(--surface-gold)] text-[var(--gold-foreground)] border border-[var(--gold)]/30 group-hover:scale-110 transition-transform duration-300"><f.icon className="size-5" /></div>
                 <div className="min-w-0 relative">
                   <h3 className="font-semibold">{f.title}</h3>
                   <p className="mt-1 text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
@@ -688,7 +639,7 @@ function HomePage() {
       </section>
 
       {/* FLEET — mobile-first snap carousel, desktop grid */}
-      <section className="section-y overflow-hidden">
+      <section className="section-y section-gold-soft overflow-hidden">
         <div className="container-x">
           <SectionHeader
             eyebrow="Our Fleet"
@@ -710,7 +661,7 @@ function HomePage() {
                   <span className="absolute top-3 right-3 z-10 inline-flex items-center gap-1 rounded-full bg-[var(--gold)]/12 border border-[var(--gold)]/30 text-[var(--gold)] text-[9px] font-semibold uppercase tracking-[0.14em] px-2 py-0.5">
                     <Gem className="size-2.5" /> {f.note}
                   </span>
-                  <div className="relative aspect-[16/10] flex items-center justify-center overflow-hidden rounded-2xl bg-[var(--surface)]">
+                  <div className="relative aspect-[16/10] flex items-center justify-center overflow-hidden rounded-2xl bg-[var(--surface-cool)]">
                     <img
                       src={f.img}
                       srcSet={f.srcSet}
@@ -843,11 +794,10 @@ function HomePage() {
 
 
 
-      <section className="section-y">
+      <section className="section-y section-cool">
 
         <div className="container-x grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="group rounded-3xl navy-scene border border-white/10 p-8 md:p-12 relative overflow-hidden hover:border-[var(--gold)]/30 transition-colors">
-            <div aria-hidden className="absolute -top-24 -right-24 size-72 rounded-full bg-[radial-gradient(circle_at_center,color-mix(in_oklab,var(--gold)_30%,transparent),transparent_70%)] blur-3xl opacity-60 group-hover:opacity-100 transition-opacity" />
             <div className="relative">
               <div className="grid size-14 place-items-center rounded-2xl bg-[var(--gold)]/15 border border-[var(--gold)]/30 text-[var(--gold)]">
                 <Building2 className="size-6" />
@@ -862,9 +812,9 @@ function HomePage() {
               <Button asChild variant="gold" className="mt-8 rounded-full"><Link to="/corporate-booking">Open corporate account <ArrowRight className="size-4" /></Link></Button>
             </div>
           </div>
-          <div className="group rounded-3xl bg-card border border-border p-8 md:p-12 relative overflow-hidden hover:border-[var(--gold)]/40 transition-colors">
+          <div className="group rounded-3xl bg-[var(--surface-warm)] border border-border p-8 md:p-12 relative overflow-hidden hover:border-[var(--gold)]/40 transition-colors">
             <img src={edinburghFallback} srcSet={edinburghSrc} sizes="(max-width: 1024px) 100vw, 640px" alt="Edinburgh skyline" width={1600} height={1024} loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover opacity-15 group-hover:opacity-25 group-hover:scale-105 transition-all duration-700" />
-            <div className="absolute inset-0 bg-gradient-to-br from-card/60 via-card/40 to-transparent" />
+            <div className="absolute inset-0 bg-[var(--surface-warm)]/85" />
             <div className="relative">
               <div className="grid size-14 place-items-center rounded-2xl bg-[var(--gold)]/15 border border-[var(--gold)]/30 text-[var(--gold)]">
                 <GraduationCap className="size-6" />
@@ -883,10 +833,9 @@ function HomePage() {
       </section>
 
       {/* DRIVE WITH US */}
-      <section className="section-y bg-[var(--surface)]">
+      <section className="section-y section-warm">
         <div className="container-x">
           <div className="relative rounded-3xl border border-border bg-card p-8 md:p-14 flex flex-col md:flex-row items-start md:items-center gap-8 md:gap-12 shadow-sm overflow-hidden">
-            <div aria-hidden className="absolute -left-24 -bottom-24 size-72 rounded-full bg-[radial-gradient(circle_at_center,color-mix(in_oklab,var(--gold)_25%,transparent),transparent_70%)] blur-3xl" />
             <div aria-hidden className="absolute top-0 left-0 h-1 w-24 bg-[var(--gold)] rounded-br-2xl" />
             <div className="flex-1 relative">
               <div className="inline-flex items-center gap-3 mb-3">
@@ -904,12 +853,9 @@ function HomePage() {
       </section>
 
       {/* FINAL CTA — reference-style soft block */}
-      <section className="section-y">
+      <section className="section-y bg-[var(--background)]">
         <div className="container-x">
-          <div className="relative overflow-hidden rounded-3xl border border-[var(--gold)]/25 bg-[color-mix(in_oklab,var(--gold)_10%,var(--background))] p-10 md:p-16">
-            <div aria-hidden className="pointer-events-none absolute -top-24 -right-16 size-[420px] rounded-full bg-[radial-gradient(circle_at_center,color-mix(in_oklab,var(--gold)_28%,transparent),transparent_70%)] blur-3xl" />
-            <div aria-hidden className="pointer-events-none absolute -bottom-24 -left-16 size-[320px] rounded-full bg-[radial-gradient(circle_at_center,color-mix(in_oklab,var(--navy)_10%,transparent),transparent_70%)] blur-3xl" />
-
+          <div className="relative overflow-hidden rounded-3xl border border-[var(--gold)]/35 bg-[var(--surface-gold)] p-10 md:p-16">
             <div className="relative grid gap-10 lg:grid-cols-2 items-center">
               <div>
                 <div className="inline-flex items-center gap-3 mb-4">
@@ -918,10 +864,7 @@ function HomePage() {
                 </div>
                 <h3 className="font-display text-3xl md:text-5xl font-semibold leading-[1.05] text-[var(--navy)]">
                   Your Ride,{" "}
-                  <span
-                    className="bg-clip-text text-transparent"
-                    style={{ backgroundImage: "linear-gradient(180deg, #f0c548 0%, #dfaf26 55%, #b38a1d 100%)" }}
-                  >
+                  <span className="text-[var(--gold-ink)]">
                     One Tap Away.
                   </span>
                 </h3>
