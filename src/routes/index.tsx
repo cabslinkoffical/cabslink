@@ -446,10 +446,10 @@ function HomePage() {
       </section>
 
       {/* PRIVATE TOURS — creative destination reel */}
-      <section className="section-y bg-[var(--navy)] text-white relative overflow-hidden">
-        <div aria-hidden className="absolute inset-0 opacity-40">
+      <section className="section-y navy-scene relative overflow-hidden">
+        <div aria-hidden className="absolute inset-0 opacity-30">
           <img src={edinburghFallback} srcSet={edinburghSrc} sizes="100vw" alt="" className="size-full object-cover" loading="lazy" decoding="async" />
-          <div className="absolute inset-0 bg-gradient-to-b from-[var(--navy)]/60 via-[var(--navy)]/85 to-[var(--navy)]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[var(--navy-2)]/60 via-[var(--navy)]/85 to-[var(--navy)]" />
         </div>
         <div aria-hidden className="absolute -top-24 left-1/2 -translate-x-1/2 size-[42rem] rounded-full bg-[radial-gradient(circle_at_center,color-mix(in_oklab,var(--gold)_28%,transparent),transparent_70%)] blur-3xl" />
 
@@ -846,7 +846,7 @@ function HomePage() {
       <section className="section-y">
 
         <div className="container-x grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="group rounded-3xl bg-[var(--navy)] border border-white/10 text-white p-8 md:p-12 relative overflow-hidden hover:border-[var(--gold)]/30 transition-colors">
+          <div className="group rounded-3xl navy-scene border border-white/10 p-8 md:p-12 relative overflow-hidden hover:border-[var(--gold)]/30 transition-colors">
             <div aria-hidden className="absolute -top-24 -right-24 size-72 rounded-full bg-[radial-gradient(circle_at_center,color-mix(in_oklab,var(--gold)_30%,transparent),transparent_70%)] blur-3xl opacity-60 group-hover:opacity-100 transition-opacity" />
             <div className="relative">
               <div className="grid size-14 place-items-center rounded-2xl bg-[var(--gold)]/15 border border-[var(--gold)]/30 text-[var(--gold)]">

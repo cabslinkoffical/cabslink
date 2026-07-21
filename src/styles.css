@@ -32,10 +32,14 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-gold: var(--gold);
+  --color-gold-ink: var(--gold-ink);
   --color-gold-foreground: var(--gold-foreground);
   --color-navy: var(--navy);
+  --color-navy-2: var(--navy-2);
+  --color-navy-3: var(--navy-3);
   --color-navy-foreground: var(--navy-foreground);
   --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
 
   --font-display: "Space Grotesk", "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
@@ -47,37 +51,43 @@
 :root {
   --radius: 0.75rem;
 
-  /* Bright theme — premium ivory + deep navy + signature gold */
+  /* Bright theme — premium ivory + two-tone navy + signature gold */
   --background: #fbfaf6;        /* warm ivory */
-  --foreground: #0e182c;        /* deep navy */
-  --surface: #f3f1ea;            /* soft sand */
+  --foreground: #0b1424;        /* deep ink navy */
+  --surface: #eee9dc;            /* soft sand */
+  --surface-2: #f7f3e8;          /* pale sand */
 
   --card: #ffffff;
-  --card-foreground: #0e182c;
+  --card-foreground: #0b1424;
   --popover: #ffffff;
-  --popover-foreground: #0e182c;
+  --popover-foreground: #0b1424;
 
-  /* Brand */
-  --navy: #0e182c;
+  /* Brand — two-tone navy for depth */
+  --navy: #0b1424;
+  --navy-2: #17274a;             /* lifted royal navy */
+  --navy-3: #2a3d68;             /* steel navy accent */
   --navy-foreground: #fbfaf6;
+
+  /* Gold with a legible-on-light companion */
   --gold: #dfaf26;
-  --gold-foreground: #0e182c;
+  --gold-ink: #a3781a;           /* AA-safe gold text on ivory */
+  --gold-foreground: #0b1424;
 
-  --primary: #0e182c;
+  --primary: #0b1424;
   --primary-foreground: #fbfaf6;
-  --secondary: #f3f1ea;
-  --secondary-foreground: #0e182c;
+  --secondary: #f0ebde;
+  --secondary-foreground: #0b1424;
 
-  --muted: #efece4;
-  --muted-foreground: #5a6478;
+  --muted: #ece7d8;
+  --muted-foreground: #3d475c;   /* darkened for AA on ivory */
   --accent: #dfaf26;
-  --accent-foreground: #0e182c;
+  --accent-foreground: #0b1424;
 
   --destructive: oklch(0.6 0.22 27);
   --destructive-foreground: #ffffff;
 
-  --border: rgba(14, 24, 44, 0.10);
-  --input: rgba(14, 24, 44, 0.14);
+  --border: rgba(11, 20, 36, 0.12);
+  --input: rgba(11, 20, 36, 0.16);
   --ring: #dfaf26;
 }
 
@@ -115,8 +125,27 @@
 
 @utility hero-gradient {
   background:
-    radial-gradient(ellipse at 50% 0%, color-mix(in oklab, var(--gold) 28%, transparent), transparent 55%),
-    linear-gradient(180deg, var(--navy), #060c1a);
+    radial-gradient(ellipse 60% 45% at 78% 12%, color-mix(in oklab, var(--gold) 26%, transparent), transparent 60%),
+    radial-gradient(ellipse 55% 55% at 12% 90%, color-mix(in oklab, var(--navy-3) 55%, transparent), transparent 65%),
+    linear-gradient(160deg, var(--navy-2) 0%, var(--navy) 55%, #05080f 100%);
+}
+
+/* Rich dark section — replaces flat bg-[var(--navy)] blocks */
+@utility navy-scene {
+  position: relative;
+  color: var(--navy-foreground);
+  background:
+    radial-gradient(ellipse 40% 60% at 90% 10%, color-mix(in oklab, var(--gold) 14%, transparent), transparent 60%),
+    radial-gradient(ellipse 50% 70% at 5% 100%, color-mix(in oklab, var(--navy-3) 60%, transparent), transparent 65%),
+    linear-gradient(180deg, var(--navy-2) 0%, var(--navy) 60%, #070c17 100%);
+}
+
+/* Eyebrow label — AA-legible gold on light backgrounds */
+@utility eyebrow-gold {
+  color: var(--gold-ink);
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
 }
 
 @utility glass-card {
