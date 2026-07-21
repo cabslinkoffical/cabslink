@@ -14,7 +14,7 @@ export function PageHero({
   breadcrumbs?: { label: string; to?: string }[];
 }) {
   return (
-    <section className="hero-gradient text-white">
+    <section className="hero-gradient text-[var(--navy-foreground)]">
       <div className="container-x py-16 md:py-24">
         {eyebrow && (
           <p className="text-xs uppercase tracking-[0.3em] text-[var(--gold)] mb-4">{eyebrow}</p>
@@ -23,13 +23,13 @@ export function PageHero({
           {title}
         </h1>
         {subtitle && (
-          <p className="mt-5 max-w-2xl text-base md:text-lg text-white/75">{subtitle}</p>
+          <p className="mt-5 max-w-2xl text-base md:text-lg text-[var(--navy-foreground)]/75">{subtitle}</p>
         )}
         {breadcrumbs && (
-          <nav className="mt-8 flex flex-wrap items-center gap-1 text-sm text-white/60">
+          <nav className="mt-8 flex flex-wrap items-center gap-1 text-sm text-[var(--navy-foreground)]/60">
             {breadcrumbs.map((c, i) => (
               <span key={i} className="flex items-center gap-1">
-                {c.to ? <Link to={c.to} className="hover:text-[var(--gold)]">{c.label}</Link> : <span className="text-white">{c.label}</span>}
+                {c.to ? <Link to={c.to} className="hover:text-[var(--gold)]">{c.label}</Link> : <span className="text-[var(--navy-foreground)]">{c.label}</span>}
                 {i < breadcrumbs.length - 1 && <ChevronRight className="size-3.5" />}
               </span>
             ))}
@@ -50,8 +50,7 @@ export function SectionHeader({ eyebrow, title, titleAccent, subtitle, center = 
           <>
             {" "}
             <span
-              className="bg-clip-text text-transparent"
-              style={{ backgroundImage: "linear-gradient(180deg, #f0c548 0%, #dfaf26 55%, #b38a1d 100%)" }}
+              className="text-[var(--gold-ink)]"
             >
               {titleAccent}
             </span>
