@@ -201,29 +201,14 @@ function HomePage() {
   return (
     <SiteLayout>
       {/* HERO — unified: copy + vehicle + booking widget */}
-      <section className="relative overflow-hidden bg-[var(--background)]">
-        {/* Ambient tints */}
-        <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,color-mix(in_oklab,var(--gold)_14%,transparent),transparent_60%)]" />
-        <div aria-hidden className="pointer-events-none absolute -top-24 -left-24 size-[520px] rounded-full bg-[radial-gradient(circle_at_center,color-mix(in_oklab,var(--gold)_18%,transparent),transparent_70%)] blur-3xl opacity-60" />
-        <div aria-hidden className="pointer-events-none absolute top-1/3 -right-32 size-[560px] rounded-full bg-[radial-gradient(circle_at_center,color-mix(in_oklab,var(--navy)_12%,transparent),transparent_70%)] blur-3xl opacity-50" />
-        {/* Faint grid */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-[0.035]"
-          style={{
-            backgroundImage:
-              "linear-gradient(color-mix(in oklab, var(--navy) 60%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in oklab, var(--navy) 60%, transparent) 1px, transparent 1px)",
-            backgroundSize: "56px 56px",
-          }}
-        />
-
+      <section className="relative overflow-hidden section-cool">
         <div className="container-x relative pt-14 md:pt-20 pb-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
             {/* LEFT — copy */}
             <div className="lg:col-span-6 relative z-10 min-w-0 w-full">
 
               <div
-                className="inline-flex items-center gap-3 rounded-full border border-[var(--gold)]/40 bg-[color-mix(in_oklab,var(--gold)_8%,transparent)] px-4 py-1.5 opacity-0"
+                className="inline-flex items-center gap-3 rounded-full border border-[var(--gold)]/45 bg-[var(--surface-gold)] px-4 py-1.5 opacity-0"
                 style={{ animation: "fadeInUp 700ms cubic-bezier(.2,.7,.2,1) 100ms forwards" }}
               >
                 <Sparkles className="size-3.5 text-[var(--gold)]" />
@@ -237,13 +222,7 @@ function HomePage() {
                 style={{ animation: "fadeInUp 800ms cubic-bezier(.2,.7,.2,1) 200ms forwards" }}
               >
                 Arrive in{" "}
-                <span
-                  className="bg-clip-text text-transparent"
-                  style={{
-                    backgroundImage:
-                      "linear-gradient(180deg, #f0c548 0%, #dfaf26 55%, #b38a1d 100%)",
-                  }}
-                >
+                <span className="text-[var(--gold-ink)]">
                   quiet luxury.
                 </span>
               </h1>
@@ -265,7 +244,7 @@ function HomePage() {
                     {["S","J","P","M"].map((c, idx) => (
                       <span
                         key={idx}
-                        className="grid size-7 place-items-center rounded-full border-2 border-[var(--background)] bg-[var(--navy)] text-[10px] font-semibold text-[var(--gold)]"
+                        className="grid size-7 place-items-center rounded-full border-2 border-[var(--surface-cool)] bg-[var(--navy)] text-[10px] font-semibold text-[var(--gold)]"
                       >
                         {c}
                       </span>
@@ -321,29 +300,15 @@ function HomePage() {
                     style={{
                       color: "transparent",
                       WebkitTextStroke: "1px color-mix(in oklab, var(--navy) 10%, transparent)",
-                      backgroundImage:
-                        "linear-gradient(180deg, color-mix(in oklab, var(--gold) 18%, transparent), transparent 80%)",
-                      WebkitBackgroundClip: "text",
-                      backgroundClip: "text",
+                      backgroundColor: "transparent",
                     }}
                   >
                     CABSLINK
                   </span>
                 </div>
 
-                {/* Gold halo */}
-                <div
-                  aria-hidden
-                  className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 size-[110%] rounded-full"
-                  style={{
-                    background:
-                      "radial-gradient(circle at center, color-mix(in oklab, var(--gold) 30%, transparent) 0%, transparent 55%)",
-                    filter: "blur(30px)",
-                  }}
-                />
-
                 {/* Ground shadow */}
-                <div aria-hidden className="absolute inset-x-8 bottom-2 h-8 rounded-[50%] bg-black/30 blur-2xl" />
+                <div aria-hidden className="absolute inset-x-8 bottom-2 h-8 rounded-[50%] bg-[color-mix(in_oklab,var(--navy)_28%,transparent)] blur-2xl" />
 
                 {/* Sliding vehicle stage */}
                 <div className="relative aspect-[16/10] overflow-hidden">
@@ -368,7 +333,7 @@ function HomePage() {
 
 
                 {/* Floating live chip */}
-                <div className="hidden md:flex absolute bottom-10 left-0 lg:left-4 items-center gap-3 rounded-2xl border border-[var(--navy)]/10 bg-[var(--background)]/85 backdrop-blur-md px-4 py-3 shadow-[var(--shadow-elegant)]">
+                <div className="hidden md:flex absolute bottom-10 left-0 lg:left-4 items-center gap-3 rounded-2xl border border-[var(--navy)]/10 bg-card px-4 py-3 shadow-[var(--shadow-elegant)]">
                   <span className="relative flex size-2.5">
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500/50" />
                     <span className="relative inline-flex size-2.5 rounded-full bg-emerald-500" />
@@ -392,8 +357,8 @@ function HomePage() {
                         onClick={() => go(i)}
                         className={`group shrink-0 flex items-center gap-3 rounded-2xl border px-3 py-2 transition-all ${
                           isActive
-                            ? "border-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_12%,var(--background))] shadow-[var(--shadow-elegant)]"
-                            : "border-[var(--navy)]/10 bg-[var(--background)]/70 hover:border-[var(--gold)]/50 hover:-translate-y-0.5"
+                            ? "border-[var(--gold)] bg-[var(--surface-gold)] shadow-[var(--shadow-elegant)]"
+                            : "border-[var(--navy)]/10 bg-card hover:border-[var(--gold)]/50 hover:-translate-y-0.5"
                         }`}
                       >
                         <div className="w-14 h-9 shrink-0 grid place-items-center overflow-hidden">
@@ -416,7 +381,7 @@ function HomePage() {
       </section>
 
       {/* BOOKING WIDGET — flows straight out of hero */}
-      <section id="booking" className="relative z-20 scroll-mt-24 bg-[var(--background)]">
+      <section id="booking" className="relative z-20 scroll-mt-24 section-cool">
         <div className="container-x pt-2 md:pt-4 pb-4">
           <BookingWidget />
         </div>
@@ -425,16 +390,16 @@ function HomePage() {
 
 
       {/* HOW IT WORKS */}
-      <section className="section-y">
+      <section className="section-y bg-[var(--background)]">
         <div className="container-x">
           <SectionHeader eyebrow="How it works" title="Three Steps To A Premium" titleAccent="Ride" subtitle="From quote to driver at your door — built to feel effortless." center />
           <div className="mt-14 relative grid gap-6 md:grid-cols-3">
             {/* Connector line */}
-            <div aria-hidden className="hidden md:block absolute top-16 left-[16.67%] right-[16.67%] h-px bg-gradient-to-r from-transparent via-[var(--gold)]/40 to-transparent" />
+            <div aria-hidden className="hidden md:block absolute top-16 left-[16.67%] right-[16.67%] h-px bg-[var(--gold)]/35" />
             {steps.map((s, i) => (
               <Reveal key={s.title} delay={i * 120} className="relative rounded-2xl border border-border bg-card p-8 hover:border-[var(--gold)]/50 hover:-translate-y-1.5 hover:shadow-[var(--shadow-elegant)] transition-all duration-300">
                 <span className="absolute top-5 right-6 font-display text-6xl font-bold text-transparent [-webkit-text-stroke:1px_color-mix(in_oklab,var(--gold)_35%,transparent)]">0{i + 1}</span>
-                <div className="relative grid size-14 place-items-center rounded-2xl bg-gradient-to-br from-[var(--gold)]/25 to-[var(--gold)]/5 text-[var(--gold)] border border-[var(--gold)]/20">
+                <div className="relative grid size-14 place-items-center rounded-2xl bg-[var(--surface-gold)] text-[var(--gold-foreground)] border border-[var(--gold)]/30">
                   <s.icon className="size-6" />
                 </div>
                 <h3 className="mt-6 font-display text-xl font-semibold">{s.title}</h3>
