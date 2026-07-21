@@ -125,8 +125,27 @@
 
 @utility hero-gradient {
   background:
-    radial-gradient(ellipse at 50% 0%, color-mix(in oklab, var(--gold) 28%, transparent), transparent 55%),
-    linear-gradient(180deg, var(--navy), #060c1a);
+    radial-gradient(ellipse 60% 45% at 78% 12%, color-mix(in oklab, var(--gold) 26%, transparent), transparent 60%),
+    radial-gradient(ellipse 55% 55% at 12% 90%, color-mix(in oklab, var(--navy-3) 55%, transparent), transparent 65%),
+    linear-gradient(160deg, var(--navy-2) 0%, var(--navy) 55%, #05080f 100%);
+}
+
+/* Rich dark section — replaces flat bg-[var(--navy)] blocks */
+@utility navy-scene {
+  position: relative;
+  color: var(--navy-foreground);
+  background:
+    radial-gradient(ellipse 40% 60% at 90% 10%, color-mix(in oklab, var(--gold) 14%, transparent), transparent 60%),
+    radial-gradient(ellipse 50% 70% at 5% 100%, color-mix(in oklab, var(--navy-3) 60%, transparent), transparent 65%),
+    linear-gradient(180deg, var(--navy-2) 0%, var(--navy) 60%, #070c17 100%);
+}
+
+/* Eyebrow label — AA-legible gold on light backgrounds */
+@utility eyebrow-gold {
+  color: var(--gold-ink);
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
 }
 
 @utility glass-card {
