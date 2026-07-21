@@ -47,37 +47,43 @@
 :root {
   --radius: 0.75rem;
 
-  /* Bright theme — premium ivory + deep navy + signature gold */
+  /* Bright theme — premium ivory + two-tone navy + signature gold */
   --background: #fbfaf6;        /* warm ivory */
-  --foreground: #0e182c;        /* deep navy */
-  --surface: #f3f1ea;            /* soft sand */
+  --foreground: #0b1424;        /* deep ink navy */
+  --surface: #eee9dc;            /* soft sand */
+  --surface-2: #f7f3e8;          /* pale sand */
 
   --card: #ffffff;
-  --card-foreground: #0e182c;
+  --card-foreground: #0b1424;
   --popover: #ffffff;
-  --popover-foreground: #0e182c;
+  --popover-foreground: #0b1424;
 
-  /* Brand */
-  --navy: #0e182c;
+  /* Brand — two-tone navy for depth */
+  --navy: #0b1424;
+  --navy-2: #17274a;             /* lifted royal navy */
+  --navy-3: #2a3d68;             /* steel navy accent */
   --navy-foreground: #fbfaf6;
+
+  /* Gold with a legible-on-light companion */
   --gold: #dfaf26;
-  --gold-foreground: #0e182c;
+  --gold-ink: #a3781a;           /* AA-safe gold text on ivory */
+  --gold-foreground: #0b1424;
 
-  --primary: #0e182c;
+  --primary: #0b1424;
   --primary-foreground: #fbfaf6;
-  --secondary: #f3f1ea;
-  --secondary-foreground: #0e182c;
+  --secondary: #f0ebde;
+  --secondary-foreground: #0b1424;
 
-  --muted: #efece4;
-  --muted-foreground: #5a6478;
+  --muted: #ece7d8;
+  --muted-foreground: #3d475c;   /* darkened for AA on ivory */
   --accent: #dfaf26;
-  --accent-foreground: #0e182c;
+  --accent-foreground: #0b1424;
 
   --destructive: oklch(0.6 0.22 27);
   --destructive-foreground: #ffffff;
 
-  --border: rgba(14, 24, 44, 0.10);
-  --input: rgba(14, 24, 44, 0.14);
+  --border: rgba(11, 20, 36, 0.12);
+  --input: rgba(11, 20, 36, 0.16);
   --ring: #dfaf26;
 }
 
