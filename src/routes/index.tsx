@@ -794,11 +794,10 @@ function HomePage() {
 
 
 
-      <section className="section-y">
+      <section className="section-y section-cool">
 
         <div className="container-x grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="group rounded-3xl navy-scene border border-white/10 p-8 md:p-12 relative overflow-hidden hover:border-[var(--gold)]/30 transition-colors">
-            <div aria-hidden className="absolute -top-24 -right-24 size-72 rounded-full bg-[radial-gradient(circle_at_center,color-mix(in_oklab,var(--gold)_30%,transparent),transparent_70%)] blur-3xl opacity-60 group-hover:opacity-100 transition-opacity" />
             <div className="relative">
               <div className="grid size-14 place-items-center rounded-2xl bg-[var(--gold)]/15 border border-[var(--gold)]/30 text-[var(--gold)]">
                 <Building2 className="size-6" />
@@ -813,9 +812,9 @@ function HomePage() {
               <Button asChild variant="gold" className="mt-8 rounded-full"><Link to="/corporate-booking">Open corporate account <ArrowRight className="size-4" /></Link></Button>
             </div>
           </div>
-          <div className="group rounded-3xl bg-card border border-border p-8 md:p-12 relative overflow-hidden hover:border-[var(--gold)]/40 transition-colors">
+          <div className="group rounded-3xl bg-[var(--surface-warm)] border border-border p-8 md:p-12 relative overflow-hidden hover:border-[var(--gold)]/40 transition-colors">
             <img src={edinburghFallback} srcSet={edinburghSrc} sizes="(max-width: 1024px) 100vw, 640px" alt="Edinburgh skyline" width={1600} height={1024} loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover opacity-15 group-hover:opacity-25 group-hover:scale-105 transition-all duration-700" />
-            <div className="absolute inset-0 bg-gradient-to-br from-card/60 via-card/40 to-transparent" />
+            <div className="absolute inset-0 bg-[var(--surface-warm)]/85" />
             <div className="relative">
               <div className="grid size-14 place-items-center rounded-2xl bg-[var(--gold)]/15 border border-[var(--gold)]/30 text-[var(--gold)]">
                 <GraduationCap className="size-6" />
@@ -834,10 +833,9 @@ function HomePage() {
       </section>
 
       {/* DRIVE WITH US */}
-      <section className="section-y bg-[var(--surface)]">
+      <section className="section-y section-warm">
         <div className="container-x">
           <div className="relative rounded-3xl border border-border bg-card p-8 md:p-14 flex flex-col md:flex-row items-start md:items-center gap-8 md:gap-12 shadow-sm overflow-hidden">
-            <div aria-hidden className="absolute -left-24 -bottom-24 size-72 rounded-full bg-[radial-gradient(circle_at_center,color-mix(in_oklab,var(--gold)_25%,transparent),transparent_70%)] blur-3xl" />
             <div aria-hidden className="absolute top-0 left-0 h-1 w-24 bg-[var(--gold)] rounded-br-2xl" />
             <div className="flex-1 relative">
               <div className="inline-flex items-center gap-3 mb-3">
@@ -855,12 +853,9 @@ function HomePage() {
       </section>
 
       {/* FINAL CTA — reference-style soft block */}
-      <section className="section-y">
+      <section className="section-y bg-[var(--background)]">
         <div className="container-x">
-          <div className="relative overflow-hidden rounded-3xl border border-[var(--gold)]/25 bg-[color-mix(in_oklab,var(--gold)_10%,var(--background))] p-10 md:p-16">
-            <div aria-hidden className="pointer-events-none absolute -top-24 -right-16 size-[420px] rounded-full bg-[radial-gradient(circle_at_center,color-mix(in_oklab,var(--gold)_28%,transparent),transparent_70%)] blur-3xl" />
-            <div aria-hidden className="pointer-events-none absolute -bottom-24 -left-16 size-[320px] rounded-full bg-[radial-gradient(circle_at_center,color-mix(in_oklab,var(--navy)_10%,transparent),transparent_70%)] blur-3xl" />
-
+          <div className="relative overflow-hidden rounded-3xl border border-[var(--gold)]/35 bg-[var(--surface-gold)] p-10 md:p-16">
             <div className="relative grid gap-10 lg:grid-cols-2 items-center">
               <div>
                 <div className="inline-flex items-center gap-3 mb-4">
@@ -869,10 +864,7 @@ function HomePage() {
                 </div>
                 <h3 className="font-display text-3xl md:text-5xl font-semibold leading-[1.05] text-[var(--navy)]">
                   Your Ride,{" "}
-                  <span
-                    className="bg-clip-text text-transparent"
-                    style={{ backgroundImage: "linear-gradient(180deg, #f0c548 0%, #dfaf26 55%, #b38a1d 100%)" }}
-                  >
+                  <span className="text-[var(--gold-ink)]">
                     One Tap Away.
                   </span>
                 </h3>
