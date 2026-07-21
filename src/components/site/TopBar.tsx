@@ -3,7 +3,7 @@ import { SITE } from "@/lib/site";
 
 export function TopBar() {
   return (
-    <div className="hidden border-b border-border/60 bg-[var(--navy)] text-[var(--navy-foreground)] md:block">
+    <div className="hidden border-b border-white/10 navy-scene md:block">
       <div className="container-x flex h-10 items-center justify-between text-xs">
         <div className="flex items-center gap-6">
           <a href={`mailto:${SITE.email}`} className="flex items-center gap-2 opacity-80 hover:opacity-100 hover:text-[var(--gold)] transition">
