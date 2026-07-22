@@ -40,24 +40,22 @@ export function PageHero({
   );
 }
 
-export function SectionHeader({ eyebrow, title, titleAccent, subtitle, center = false, children }: { eyebrow?: string; title: string; titleAccent?: string; subtitle?: string; center?: boolean; children?: ReactNode }) {
+export function SectionHeader({ eyebrow, title, titleAccent, subtitle, center = false, dark = false, children }: { eyebrow?: string; title: string; titleAccent?: string; subtitle?: string; center?: boolean; dark?: boolean; children?: ReactNode }) {
   return (
     <div className={`max-w-3xl ${center ? "mx-auto text-center" : ""}`}>
       {eyebrow && <p className="text-xs uppercase tracking-[0.3em] text-[var(--gold)] mb-3">{eyebrow}</p>}
-      <h2 className="font-display text-3xl md:text-5xl font-semibold leading-tight">
+      <h2 className={`font-display text-3xl md:text-5xl font-semibold leading-tight ${dark ? "text-white" : "text-[var(--navy)]"}`}>
         {title}
         {titleAccent && (
           <>
             {" "}
-            <span
-              className="text-[var(--gold-ink)]"
-            >
+            <span className="text-[var(--gold)]">
               {titleAccent}
             </span>
           </>
         )}
       </h2>
-      {subtitle && <p className="mt-4 text-base md:text-lg text-muted-foreground">{subtitle}</p>}
+      {subtitle && <p className={`mt-4 text-base md:text-lg ${dark ? "text-white/70" : "text-muted-foreground"}`}>{subtitle}</p>}
       {children}
     </div>
   );
