@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  ArrowRight, Plane, ShieldCheck, Clock3, Star, CalendarCheck, Phone, MapPin,
+  ArrowRight, Plane, ShieldCheck, Star, CalendarCheck, Phone,
   Briefcase, Users, Award, BadgePoundSterling, Headset, Car, Building2, GraduationCap, Gem,
   Route as RouteIcon, CheckCircle2, Sparkles, MessageSquare, CreditCard, Quote,
   ChevronLeft, ChevronRight
@@ -10,25 +10,11 @@ import {
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { BookingWidget } from "@/components/site/BookingWidget";
 import { SectionHeader } from "@/components/site/PageHero";
-import { Reveal } from "@/components/site/Reveal";
 import { Button } from "@/components/ui/button";
 import { SITE } from "@/lib/site";
 
 // Local images — served as responsive WebP srcSets via vite-imagetools.
 // `?w=480;800;1200&format=webp&as=srcset` produces a proper srcset string at build.
-import driverSrc from "@/assets/chauffeur.jpg?w=480;800;1280&format=webp&as=srcset";
-import driverFallback from "@/assets/chauffeur.jpg?w=1280&format=webp";
-import edinburghSrc from "@/assets/edinburgh.jpg?w=640;1200&format=webp&as=srcset";
-import edinburghFallback from "@/assets/edinburgh.jpg?w=1200&format=webp";
-import vClassInteriorSrc from "@/assets/v-class-interior.jpg?w=400;640;900&format=webp&as=srcset";
-import vClassInteriorFallback from "@/assets/v-class-interior.jpg?w=900&format=webp";
-import airportSrc from "@/assets/airport.jpg?w=400;640;900&format=webp&as=srcset";
-import airportFallback from "@/assets/airport.jpg?w=900&format=webp";
-import corporateSrc from "@/assets/corporate.jpg?w=400;640;900&format=webp&as=srcset";
-import corporateFallback from "@/assets/corporate.jpg?w=900&format=webp";
-import fleetSuvSrc from "@/assets/fleet-suv.jpg?w=400;640;900&format=webp&as=srcset";
-import fleetSuvFallback from "@/assets/fleet-suv.jpg?w=900&format=webp";
-
 import sclassAsset from "@/assets/fleet/sclass.png.asset.json";
 import eclassAsset from "@/assets/fleet/eclass.png.asset.json";
 import vclassAsset from "@/assets/fleet/vclass.png.asset.json";
@@ -93,20 +79,13 @@ export const Route = createFileRoute("/")({
   component: HomePage,
 });
 
-const stats = [
-  { value: "50k+", label: "Journeys delivered" },
-  { value: "4.9★", label: "Avg. customer rating" },
-  { value: "24/7", label: "Live dispatch & support" },
-  { value: "100%", label: "Fixed transparent fares" },
-];
-
 const services = [
-  { icon: Plane, title: "Airport Transfers", desc: "Punctual, stress-free transfers to and from every major UK airport.", to: "/airport-transfers", img: airportFallback, imgSrcSet: airportSrc },
-  { icon: Building2, title: "Corporate Travel", desc: "Account-managed business travel with professional drivers.", to: "/corporate-travel", img: corporateFallback, imgSrcSet: corporateSrc },
-  { icon: Gem, title: "VIP & Executive", desc: "Discreet, refined airport travel service for VIPs and dignitaries.", to: "/vip-transfers", img: vClassInteriorFallback, imgSrcSet: vClassInteriorSrc },
-  { icon: RouteIcon, title: "Private Tours", desc: "Bespoke Scotland and UK tours with knowledgeable local drivers.", to: "/tours", img: edinburghFallback, imgSrcSet: edinburghSrc },
-  { icon: Award, title: "Events & Weddings", desc: "Award ceremonies, weddings and red-carpet arrivals in style.", to: "/services", img: driverFallback, imgSrcSet: driverSrc },
-  { icon: Car, title: "Long Distance", desc: "City-to-city UK driver drives with total comfort.", to: "/services", img: fleetSuvFallback, imgSrcSet: fleetSuvSrc },
+  { icon: Plane, title: "Airport Transfers", desc: "Punctual, stress-free transfers to and from every major UK airport.", to: "/airport-transfers" },
+  { icon: Building2, title: "Corporate Travel", desc: "Account-managed business travel with professional drivers.", to: "/corporate-travel" },
+  { icon: Gem, title: "VIP & Executive", desc: "Discreet, refined airport travel service for VIPs and dignitaries.", to: "/vip-transfers" },
+  { icon: RouteIcon, title: "Private Tours", desc: "Bespoke Scotland and UK tours with knowledgeable local drivers.", to: "/tours" },
+  { icon: Award, title: "Events & Weddings", desc: "Award ceremonies, weddings and red-carpet arrivals in style.", to: "/services" },
+  { icon: Car, title: "Long Distance", desc: "City-to-city UK driver drives with total comfort.", to: "/services" },
 ];
 
 const steps = [
@@ -128,8 +107,6 @@ const fleet = [
   { name: "Mercedes-Benz S-Class", note: "Signature", img: sclassAsset.url, srcSet: sclassAsset.srcSet, passengers: 3, luggage: 3, transmission: "Automatic", fuel: "Petrol" },
   { name: "Mercedes-Benz E-Class", note: "Executive", img: eclassAsset.url, srcSet: eclassAsset.srcSet, passengers: 3, luggage: 3, transmission: "Automatic", fuel: "Diesel" },
   { name: "Mercedes-Benz V-Class", note: "First class", img: vclassAsset.url, srcSet: vclassAsset.srcSet, passengers: 7, luggage: 7, transmission: "Automatic", fuel: "Diesel" },
-  { name: "Range Rover Autobiography", note: "Premium SUV", img: rangeroverAsset.url, srcSet: rangeroverAsset.srcSet, passengers: 4, luggage: 4, transmission: "Automatic", fuel: "Petrol" },
-  { name: "Executive Minibus", note: "Groups", img: minibusAsset.url, srcSet: minibusAsset.srcSet, passengers: 16, luggage: 16, transmission: "Automatic", fuel: "Diesel" },
 ];
 
 const testimonials = [
@@ -175,7 +152,7 @@ function HomePage() {
   }, []);
 
 
-  const heroVehicles = useMemo(() => dbVehicles ?? [], [dbVehicles]);
+  const heroVehicles = useMemo(() => dbVehicles ?? fallbackHeroVehicles, [dbVehicles]);
 
   useEffect(() => {
     if (paused || heroVehicles.length === 0) return;
@@ -200,35 +177,35 @@ function HomePage() {
 
   return (
     <SiteLayout>
-      {/* HERO — unified: copy + vehicle + booking widget */}
-      <section className="relative overflow-hidden section-cool">
+      {/* HERO — same structure, navy background */}
+      <section className="relative overflow-hidden navy-scene">
         <div className="container-x relative pt-14 md:pt-20 pb-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
             {/* LEFT — copy */}
             <div className="lg:col-span-6 relative z-10 min-w-0 w-full">
 
               <div
-                className="inline-flex items-center gap-3 rounded-full border border-[var(--gold)]/45 bg-[var(--surface-gold)] px-4 py-1.5 opacity-0"
+                className="inline-flex items-center gap-3 rounded-full border border-[var(--gold)]/45 bg-[var(--gold)]/10 px-4 py-1.5 opacity-0"
                 style={{ animation: "fadeInUp 700ms cubic-bezier(.2,.7,.2,1) 100ms forwards" }}
               >
                 <Sparkles className="size-3.5 text-[var(--gold)]" />
-                <span className="text-[10px] md:text-[11px] font-semibold uppercase tracking-[0.32em] text-[var(--navy)]">
+                <span className="text-[10px] md:text-[11px] font-semibold uppercase tracking-[0.32em] text-white">
                   UK's Trusted Airport Travel Company
                 </span>
               </div>
 
               <h1
-                className="mt-5 font-display font-bold text-[var(--navy)] leading-[0.95] tracking-[-0.03em] text-[2rem] sm:text-5xl lg:text-[5.25rem] opacity-0"
+                className="mt-5 font-display font-bold text-white leading-[0.95] tracking-[-0.03em] text-[2rem] sm:text-5xl lg:text-[5.25rem] opacity-0"
                 style={{ animation: "fadeInUp 800ms cubic-bezier(.2,.7,.2,1) 200ms forwards" }}
               >
                 Arrive in{" "}
-                <span className="text-[var(--gold-ink)]">
+                <span className="text-[var(--gold)]">
                   quiet luxury.
                 </span>
               </h1>
 
               <p
-                className="mt-5 max-w-xl text-sm md:text-lg text-muted-foreground opacity-0"
+                className="mt-5 max-w-xl text-sm md:text-lg text-white/75 opacity-0"
                 style={{ animation: "fadeInUp 800ms cubic-bezier(.2,.7,.2,1) 380ms forwards" }}
               >
                 Fixed-fare Mercedes-Benz driver transfers across the UK. Flight tracked, meet &amp; greet, 24/7 live dispatch — the calm way to travel.
@@ -244,23 +221,23 @@ function HomePage() {
                     {["S","J","P","M"].map((c, idx) => (
                       <span
                         key={idx}
-                        className="grid size-7 place-items-center rounded-full border-2 border-[var(--surface-cool)] bg-[var(--navy)] text-[10px] font-semibold text-[var(--gold)]"
+                        className="grid size-7 place-items-center rounded-full border-2 border-white/20 bg-[var(--navy)] text-[10px] font-semibold text-[var(--gold)]"
                       >
                         {c}
                       </span>
                     ))}
                   </div>
-                  <div className="text-xs text-[var(--navy)] min-w-0">
+                  <div className="text-xs text-white min-w-0">
                     <div className="flex items-center gap-0.5">
                       {Array.from({ length: 5 }).map((_, i) => (
                         <Star key={i} className="size-3 fill-[var(--gold)] text-[var(--gold)]" />
                       ))}
                     </div>
-                    <div className="text-muted-foreground text-[11px] truncate">2,400+ five-star rides</div>
+                    <div className="text-white/60 text-[11px] truncate">2,400+ five-star rides</div>
                   </div>
                 </div>
-                <div className="h-8 w-px bg-[var(--navy)]/10 hidden sm:block" />
-                <div className="flex items-center gap-1.5 text-xs sm:text-sm text-[var(--navy)]">
+                <div className="h-8 w-px bg-white/15 hidden sm:block" />
+                <div className="flex items-center gap-1.5 text-xs sm:text-sm text-white">
                   <ShieldCheck className="size-4 text-[var(--gold)] shrink-0" />
                   <span className="font-medium">Licensed &amp; insured</span>
                 </div>
@@ -276,13 +253,12 @@ function HomePage() {
                   { k: "24/7", v: "Dispatch" },
                   { k: "4.9★", v: "Rated" },
                 ].map((s, i, arr) => (
-                  <div key={s.k} className={`min-w-0 px-2 sm:px-4 first:pl-0 ${i < arr.length - 1 ? "border-r border-[var(--navy)]/10" : ""}`}>
-                    <div className="font-display text-xl sm:text-2xl md:text-3xl font-bold text-[var(--navy)]">{s.k}</div>
-                    <div className="text-[10px] sm:text-[11px] uppercase tracking-[0.14em] text-muted-foreground mt-1 truncate">{s.v}</div>
+                  <div key={s.k} className={`min-w-0 px-2 sm:px-4 first:pl-0 ${i < arr.length - 1 ? "border-r border-white/15" : ""}`}>
+                    <div className="font-display text-xl sm:text-2xl md:text-3xl font-bold text-white">{s.k}</div>
+                    <div className="text-[10px] sm:text-[11px] uppercase tracking-[0.14em] text-white/60 mt-1 truncate">{s.v}</div>
                   </div>
                 ))}
               </div>
-
             </div>
 
             {/* RIGHT — vehicle carousel */}
@@ -299,7 +275,7 @@ function HomePage() {
                     className="font-display font-bold leading-none tracking-[-0.06em] text-[16vw] lg:text-[13vw]"
                     style={{
                       color: "transparent",
-                      WebkitTextStroke: "1px color-mix(in oklab, var(--navy) 10%, transparent)",
+                      WebkitTextStroke: "1px color-mix(in oklab, #ffffff 12%, transparent)",
                       backgroundColor: "transparent",
                     }}
                   >
@@ -308,7 +284,7 @@ function HomePage() {
                 </div>
 
                 {/* Ground shadow */}
-                <div aria-hidden className="absolute inset-x-8 bottom-2 h-8 rounded-[50%] bg-[color-mix(in_oklab,var(--navy)_28%,transparent)] blur-2xl" />
+                <div aria-hidden className="absolute inset-x-8 bottom-2 h-8 rounded-[50%] bg-[color-mix(in_oklab,#000000_40%,transparent)] blur-2xl" />
 
                 {/* Sliding vehicle stage */}
                 <div className="relative aspect-[16/10] overflow-hidden">
@@ -323,7 +299,7 @@ function HomePage() {
                       height={750}
                       decoding="async"
                       fetchPriority={active === 0 ? "high" : "auto"}
-                      className="absolute inset-0 m-auto w-[92%] h-full object-contain drop-shadow-[0_35px_45px_rgba(14,24,44,0.28)]"
+                      className="absolute inset-0 m-auto w-[92%] h-full object-contain drop-shadow-[0_35px_45px_rgba(0,0,0,0.35)]"
                       style={{
                         animation: `${dir === 1 ? "vehicleSlideInR" : "vehicleSlideInL"} 850ms cubic-bezier(.2,.7,.2,1) both`,
                       }}
@@ -331,16 +307,15 @@ function HomePage() {
                   )}
                 </div>
 
-
                 {/* Floating live chip */}
-                <div className="hidden md:flex absolute bottom-10 left-0 lg:left-4 items-center gap-3 rounded-2xl border border-[var(--navy)]/10 bg-card px-4 py-3 shadow-[var(--shadow-elegant)]">
+                <div className="hidden md:flex absolute bottom-10 left-0 lg:left-4 items-center gap-3 rounded-2xl border border-white/15 bg-white px-4 py-3 shadow-[var(--shadow-elegant)]">
                   <span className="relative flex size-2.5">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500/50" />
-                    <span className="relative inline-flex size-2.5 rounded-full bg-emerald-500" />
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--gold)]/50" />
+                    <span className="relative inline-flex size-2.5 rounded-full bg-[var(--gold)]" />
                   </span>
                   <div className="text-xs">
                     <div className="font-semibold text-[var(--navy)]">Live dispatch</div>
-                    <div className="text-muted-foreground">Driver available now</div>
+                    <div className="text-[var(--navy)]/60">Driver available now</div>
                   </div>
                 </div>
               </div>
@@ -357,8 +332,8 @@ function HomePage() {
                         onClick={() => go(i)}
                         className={`group shrink-0 flex items-center gap-3 rounded-2xl border px-3 py-2 transition-all ${
                           isActive
-                            ? "border-[var(--gold)] bg-[var(--surface-gold)] shadow-[var(--shadow-elegant)]"
-                            : "border-[var(--navy)]/10 bg-card hover:border-[var(--gold)]/50 hover:-translate-y-0.5"
+                            ? "border-[var(--gold)] bg-[var(--gold)]/15 shadow-[var(--shadow-elegant)]"
+                            : "border-white/15 bg-white hover:border-[var(--gold)]/50 hover:-translate-y-0.5"
                         }`}
                       >
                         <div className="w-14 h-9 shrink-0 grid place-items-center overflow-hidden">
@@ -368,7 +343,7 @@ function HomePage() {
                           <div className={`text-[11px] font-semibold leading-tight ${isActive ? "text-[var(--navy)]" : "text-[var(--navy)]/80"}`}>
                             {v.name}
                           </div>
-                          <div className="text-[10px] text-muted-foreground leading-tight">{v.seats} seats</div>
+                          <div className="text-[10px] text-[var(--navy)]/60 leading-tight">{v.seats} seats</div>
                         </div>
                       </button>
                     );
@@ -380,334 +355,65 @@ function HomePage() {
         </div>
       </section>
 
-      {/* BOOKING WIDGET — flows straight out of hero */}
-      <section id="booking" className="relative z-20 scroll-mt-24 section-cool">
-        <div className="container-x pt-2 md:pt-4 pb-4">
+      {/* BOOKING WIDGET */}
+      <section id="booking" className="relative z-20 scroll-mt-24 bg-white border-b border-[var(--navy)]/8">
+        <div className="container-x pt-6 pb-6">
           <BookingWidget />
         </div>
       </section>
 
-
+      {/* SERVICES */}
+      <section className="section-y navy-scene">
+        <div className="container-x">
+          <SectionHeader eyebrow="Our Services" title="A Complete Airport" titleAccent="Travel Service" subtitle="From airport pickups to multi-day private tours — one trusted standard, every journey." center dark />
+          <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {services.map((s) => (
+              <Link
+                key={s.title}
+                to={s.to}
+                className="group rounded-2xl border border-white/15 bg-white/5 p-7 hover:border-[var(--gold)]/50 hover:-translate-y-1 hover:bg-white/10 transition-all duration-300"
+              >
+                <div className="grid size-12 place-items-center rounded-xl bg-[var(--gold)] text-[var(--gold-foreground)] mb-5">
+                  <s.icon className="size-5" />
+                </div>
+                <h3 className="font-display text-xl font-semibold text-white">{s.title}</h3>
+                <p className="mt-2 text-sm text-white/70 leading-relaxed">{s.desc}</p>
+                <p className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[var(--gold)] group-hover:gap-3 transition-all duration-300">
+                  Learn more <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
+                </p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* HOW IT WORKS */}
-      <section className="section-y bg-[var(--background)]">
+      <section className="section-y bg-white">
         <div className="container-x">
           <SectionHeader eyebrow="How it works" title="Three Steps To A Premium" titleAccent="Ride" subtitle="From quote to driver at your door — built to feel effortless." center />
-          <div className="mt-14 relative grid gap-6 md:grid-cols-3">
-            {/* Connector line */}
-            <div aria-hidden className="hidden md:block absolute top-16 left-[16.67%] right-[16.67%] h-px bg-[var(--gold)]/35" />
+          <div className="mt-14 grid gap-8 md:grid-cols-3">
             {steps.map((s, i) => (
-              <Reveal key={s.title} delay={i * 120} className="relative rounded-2xl border border-border bg-card p-8 hover:border-[var(--gold)]/50 hover:-translate-y-1.5 hover:shadow-[var(--shadow-elegant)] transition-all duration-300">
-                <span className="absolute top-5 right-6 font-display text-6xl font-bold text-transparent [-webkit-text-stroke:1px_color-mix(in_oklab,var(--gold)_35%,transparent)]">0{i + 1}</span>
-                <div className="relative grid size-14 place-items-center rounded-2xl bg-[var(--surface-gold)] text-[var(--gold-foreground)] border border-[var(--gold)]/30">
+              <div key={s.title} className="relative rounded-2xl border border-[var(--navy)]/10 bg-white p-8">
+                <span className="absolute top-5 right-6 font-display text-6xl font-bold text-[var(--gold)]/15">0{i + 1}</span>
+                <div className="relative grid size-14 place-items-center rounded-2xl bg-[var(--gold)]/10 text-[var(--navy)] border border-[var(--gold)]/30">
                   <s.icon className="size-6" />
                 </div>
-                <h3 className="mt-6 font-display text-xl font-semibold">{s.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* PRIVATE TOURS — creative destination reel */}
-      <section className="section-y navy-scene relative overflow-hidden">
-        <div aria-hidden className="absolute inset-0 opacity-20">
-          <img src={edinburghFallback} srcSet={edinburghSrc} sizes="100vw" alt="" className="size-full object-cover" loading="lazy" decoding="async" />
-          <div className="absolute inset-0 plain-image-scrim" />
-        </div>
-
-        <div className="container-x relative">
-          <div className="max-w-2xl">
-            <p className="text-[10px] md:text-[11px] font-bold uppercase tracking-[0.3em] md:tracking-[0.35em] text-[var(--gold)]">Private Private Tours</p>
-            <h2 className="mt-3 font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl leading-[1.05] font-bold">
-              Trace the map. <span className="text-[var(--gold)]">Skip the queue.</span>
-            </h2>
-            <p className="mt-4 md:mt-5 text-sm sm:text-base md:text-lg text-white/75 leading-relaxed">
-              From Edinburgh's Old Town to Highland lochs and the Lake District — hand-crafted day trips and multi-day journeys in a private private car.
-            </p>
-          </div>
-
-          {/* MOBILE — vertical route timeline */}
-          <div className="mt-10 md:hidden">
-            <ol className="relative">
-              <span aria-hidden className="absolute left-[19px] top-2 bottom-2 w-px bg-[var(--gold)]/45" />
-              {[
-                { name: "Edinburgh", tag: "Old Town · Castle", mi: "0 mi" },
-                { name: "Loch Lomond", tag: "Trossachs escape", mi: "72 mi" },
-                { name: "Isle of Skye", tag: "Highland classic", mi: "220 mi" },
-                { name: "Lake District", tag: "England border trip", mi: "145 mi" },
-              ].map((d, i) => (
-                <li key={d.name} className="relative flex gap-4 pb-5 last:pb-0">
-                  <div className="relative z-10 grid size-10 shrink-0 place-items-center rounded-full border border-[var(--gold)]/40 bg-[var(--navy)] text-[var(--gold)]">
-                    <MapPin className="size-4" />
-                  </div>
-                  <div className="min-w-0 flex-1 rounded-2xl border border-[var(--gold)]/20 bg-[var(--navy-2)] px-4 py-3.5">
-                    <div className="flex items-center justify-between gap-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--gold)]">
-                      <span>Stop {String(i + 1).padStart(2, "0")}</span>
-                      <span className="text-white/50">{d.mi}</span>
-                    </div>
-                    <h3 className="mt-1.5 font-display text-lg font-bold leading-tight truncate">{d.name}</h3>
-                    <p className="mt-0.5 text-xs text-white/60 truncate">{d.tag}</p>
-                  </div>
-                </li>
-              ))}
-            </ol>
-          </div>
-
-          {/* TABLET/DESKTOP — animated route reel */}
-          <div className="relative mt-14 md:mt-20 hidden md:block">
-            <svg aria-hidden viewBox="0 0 1200 220" preserveAspectRatio="none" className="w-full h-40 md:h-52">
-              <path d="M 20 170 C 220 40, 380 210, 600 110 S 980 20, 1180 150"
-                fill="none" stroke="var(--gold)" strokeOpacity="0.75" strokeWidth="2.5" strokeDasharray="6 8"
-                style={{ animation: "tourDash 6s linear infinite" }} />
-            </svg>
-
-            <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-              {[
-                { name: "Edinburgh", tag: "Old Town · Castle", mi: "0 mi" },
-                { name: "Loch Lomond", tag: "Trossachs escape", mi: "72 mi" },
-                { name: "Isle of Skye", tag: "Highland classic", mi: "220 mi" },
-                { name: "Lake District", tag: "England border trip", mi: "145 mi" },
-              ].map((d, i) => (
-                <div key={d.name}
-                  className="group relative rounded-2xl border border-[var(--gold)]/20 bg-[var(--navy-2)] px-5 py-6 hover:border-[var(--gold)]/60 hover:-translate-y-1 transition-all duration-300"
-                  style={{ transform: `rotate(${i % 2 === 0 ? -1.5 : 1.5}deg)` }}>
-                  <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--gold)]">
-                    <MapPin className="size-3" /> Stop {String(i + 1).padStart(2, "0")}
-                  </div>
-                  <h3 className="mt-3 font-display text-xl md:text-2xl font-bold leading-tight">{d.name}</h3>
-                  <p className="mt-1 text-xs text-white/60">{d.tag}</p>
-                  <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-between text-[11px] uppercase tracking-widest text-white/50">
-                    <span>{d.mi}</span>
-                    <ArrowRight className="size-3.5 text-[var(--gold)] group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="mt-10 md:mt-14 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-5 md:gap-6 rounded-2xl md:rounded-3xl border border-[var(--gold)]/30 bg-[var(--navy-2)] p-5 md:p-8">
-            <div className="flex items-start gap-3 md:gap-4 max-w-xl">
-              <div className="grid size-10 md:size-12 place-items-center rounded-xl md:rounded-2xl bg-[var(--gold)] text-[var(--gold-foreground)] shrink-0">
-                <GraduationCap className="size-5 md:size-6" />
+                <h3 className="mt-6 font-display text-xl font-semibold text-[var(--navy)]">{s.title}</h3>
+                <p className="mt-2 text-sm text-[var(--navy)]/60 leading-relaxed">{s.desc}</p>
               </div>
-              <div className="min-w-0">
-                <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)]">Bespoke itineraries</p>
-                <p className="mt-1 text-sm md:text-base text-white/85 leading-relaxed">
-                  Every tour is tailored — pick destinations, timing and pace. We arrange the car, driver, hotels and restaurants.
-                </p>
-              </div>
-            </div>
-            <Button asChild variant="gold" size="lg" className="rounded-full w-full md:w-auto md:shrink-0 shadow-[var(--shadow-glow)]">
-              <Link to="/tours">Explore private tours <ArrowRight className="size-4" /></Link>
-            </Button>
-          </div>
-        </div>
-
-        <style>{`@keyframes tourDash { to { stroke-dashoffset: -140; } }`}</style>
-      </section>
-
-      {/* SERVICES — luxury image cards */}
-      <section className="section-y section-warm relative overflow-hidden">
-        <div className="container-x relative">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-            <SectionHeader eyebrow="Our Services" title="A Complete Driver" titleAccent="Service" subtitle="From airport pickups to multi-day private tours — one trusted standard, every journey." />
-            <Button asChild variant="outline" className="rounded-full self-start hidden md:inline-flex border-[var(--navy)]/15 bg-card hover:border-[var(--gold)] hover:bg-[var(--gold)]/8 hover:text-[var(--navy)] transition-all duration-300 group">
-              <Link to="/services">All services <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" /></Link>
-            </Button>
-          </div>
-
-          {/* MOBILE — app-style stacked list */}
-          <ul className="mt-10 flex flex-col gap-3 sm:hidden">
-            {services.map((s, i) => (
-              <Reveal key={s.title} delay={(i % 3) * 60}>
-                <Link
-                  to={s.to}
-                  className="group relative flex items-center gap-4 overflow-hidden rounded-2xl border border-border bg-card p-3 pr-4 active:scale-[0.98] hover:border-[var(--gold)]/40 transition-all duration-300"
-                >
-                  <div className="relative size-20 shrink-0 overflow-hidden rounded-xl">
-                    <img src={s.img} srcSet={s.imgSrcSet} sizes="80px" alt={s.title} loading="lazy" decoding="async" width={400} height={500} className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                    <div className="absolute inset-0 plain-image-scrim" />
-                    <div className="absolute bottom-1.5 left-1.5 grid size-7 place-items-center rounded-lg bg-[var(--gold)] text-[var(--gold-foreground)] shadow-[var(--shadow-glow)]">
-                      <s.icon className="size-3.5" />
-                    </div>
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h3 className="font-display text-base font-semibold truncate">{s.title}</h3>
-                    <p className="mt-0.5 text-xs text-muted-foreground line-clamp-2 leading-snug">{s.desc}</p>
-                  </div>
-                  <ArrowRight className="size-4 shrink-0 text-[var(--gold)] group-hover:translate-x-1 transition-transform duration-300" />
-                </Link>
-              </Reveal>
-            ))}
-            <Link to="/services" className="mt-2 inline-flex items-center justify-center gap-2 rounded-full border border-[var(--gold)]/40 bg-transparent px-5 py-3 text-sm font-semibold text-[var(--navy)] hover:bg-[var(--gold)]/8 transition-colors duration-300">
-              View all services <ArrowRight className="size-4" />
-            </Link>
-          </ul>
-
-          {/* TABLET/DESKTOP — luxury image cards */}
-          <div className="mt-14 hidden gap-5 sm:grid sm:grid-cols-2 lg:grid-cols-3">
-            {services.map((s, i) => (
-              <Reveal key={s.title} delay={(i % 3) * 100} className="h-full">
-                <Link
-                  to={s.to}
-                  className="group relative overflow-hidden rounded-2xl border border-border bg-card aspect-[4/5] flex flex-col justify-end hover:border-[var(--gold)]/60 hover:-translate-y-2 hover:shadow-[var(--shadow-elegant)] transition-all duration-500 block h-full"
-                >
-                  <img
-                    src={s.img}
-                    srcSet={s.imgSrcSet}
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 45vw, 340px"
-                    alt={s.title}
-                    loading="lazy"
-                    decoding="async"
-                    width={900}
-                    height={1125}
-                    className="absolute inset-0 size-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 plain-image-scrim transition-opacity duration-500 group-hover:opacity-90" />
-                  <div aria-hidden className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--gold)_50%,transparent)]" />
-                  <div className="absolute top-5 left-5 grid size-11 place-items-center rounded-xl bg-[var(--gold)] text-[var(--gold-foreground)] shadow-[var(--shadow-glow)] transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
-                    <s.icon className="size-5" />
-                  </div>
-                  <div className="relative p-6 text-white">
-                    <h3 className="font-display text-2xl font-semibold">{s.title}</h3>
-                    <p className="mt-2 text-sm text-white/80 leading-relaxed">{s.desc}</p>
-                    <p className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[var(--gold)] group-hover:gap-3 transition-all duration-300">
-                      Learn more <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
-                    </p>
-                  </div>
-                </Link>
-              </Reveal>
             ))}
           </div>
         </div>
       </section>
 
-      {/* AIRPORT COPY */}
-      <section className="section-y bg-[var(--background)]">
-        <div className="container-x grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          <div className="relative">
-            {/* Decorative frame */}
-            <div aria-hidden className="absolute -top-4 -left-4 size-24 border-t-2 border-l-2 border-[var(--gold)] rounded-tl-3xl" />
-            <div aria-hidden className="absolute -bottom-4 -right-4 size-24 border-b-2 border-r-2 border-[var(--gold)] rounded-br-3xl" />
-            <img src={driverFallback} srcSet={driverSrc} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 520px" alt="Cabslink driver opening rear door of Mercedes V-Class" width={1280} height={1600} loading="lazy" decoding="async" className="relative rounded-3xl object-cover w-full aspect-[4/5] shadow-[var(--shadow-elegant)]" />
-            <div className="absolute -bottom-6 right-4 sm:right-6 glass-card rounded-2xl p-5 max-w-[280px] border border-[var(--gold)]/20">
-              <Quote className="size-6 text-[var(--gold)] mb-2" />
-              <div className="flex items-center gap-1 text-[var(--gold)]">
-                {[...Array(5)].map((_, i) => <Star key={i} className="size-4 fill-current" />)}
-              </div>
-              <p className="mt-2 text-sm font-medium leading-relaxed">Driver arrived right on time, immaculate V-Class and a calm, professional welcome.</p>
-              <p className="mt-2 text-xs text-muted-foreground">— Cabslink passenger</p>
-            </div>
-          </div>
-          <div>
-            <div className="inline-flex items-center gap-3 mb-4">
-              <span className="h-px w-8 bg-[var(--gold)]" aria-hidden />
-              <p className="text-xs uppercase tracking-[0.3em] text-[var(--gold)] font-semibold">Airport Transfers</p>
-            </div>
-            <h2 className="font-display text-3xl md:text-5xl font-semibold leading-[1.1]">Arrive relaxed.<br /><span className="text-[var(--gold)]">Leave on time.</span> Every time.</h2>
-            <p className="mt-5 text-muted-foreground leading-relaxed">
-              From the moment you land, your Cabslink driver is waiting — flight tracked, terminal known and luggage handled. No queues, no surge pricing, no surprises. Just a smooth ride to your door.
-            </p>
-            <ul className="mt-7 grid sm:grid-cols-2 gap-3 text-sm">
-              {["Meet & greet at arrivals", "Free 60-minute wait time", "Door-to-door service", "Fixed transparent fare", "Child seats on request", "24/7 live support"].map(item => (
-                <li key={item} className="flex items-center gap-2.5 rounded-lg px-3 py-2 bg-[var(--surface-cool)] border border-border/60"><ShieldCheck className="size-4 text-[var(--gold)] shrink-0" />{item}</li>
-              ))}
-            </ul>
-            <Button asChild variant="gold" className="mt-8 rounded-full"><Link to="/airport-transfers">Explore airport transfers <ArrowRight className="size-4" /></Link></Button>
-          </div>
-        </div>
-      </section>
-
-      {/* FEATURES GRID */}
-      <section className="section-y section-cool relative overflow-hidden">
-        <div className="container-x relative">
-          <SectionHeader eyebrow="Included as standard" title="Every Cabslink Ride, By" titleAccent="Default" center />
-          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {features.map((f, i) => (
-              <Reveal key={f.title} delay={(i % 3) * 100} className="group relative flex gap-4 rounded-2xl bg-card border border-border p-6 hover:border-[var(--gold)]/50 hover:-translate-y-1.5 hover:shadow-[var(--shadow-elegant)] transition-all duration-300 overflow-hidden">
-                <div className="relative grid size-12 shrink-0 place-items-center rounded-xl bg-[var(--surface-gold)] text-[var(--gold-foreground)] border border-[var(--gold)]/30 group-hover:scale-110 transition-transform duration-300"><f.icon className="size-5" /></div>
-                <div className="min-w-0 relative">
-                  <h3 className="font-semibold">{f.title}</h3>
-                  <p className="mt-1 text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* FLEET — mobile-first snap carousel, desktop grid */}
-      <section className="section-y section-gold-soft overflow-hidden">
+      {/* FLEET */}
+      <section className="section-y navy-scene">
         <div className="container-x">
-          <SectionHeader
-            eyebrow="Our Fleet"
-            title="Our Premium"
-            titleAccent="Fleet"
-            subtitle="Explore our modern, driver-driven fleet available across the UK."
-            center
-          />
-
-          {/* Mobile: horizontal snap cards */}
-          <div className="mt-8 -mx-5 sm:hidden">
-            <div className="flex gap-4 overflow-x-auto px-5 pb-6 snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {fleet.map((f, i) => (
-                <Reveal
-                  key={f.name}
-                  delay={i * 80}
-                  className="group relative shrink-0 w-[78vw] max-w-[320px] snap-start rounded-3xl border border-border bg-card p-4 active:scale-[0.98] transition-transform"
-                >
-                  <span className="absolute top-3 right-3 z-10 inline-flex items-center gap-1 rounded-full bg-[var(--gold)]/12 border border-[var(--gold)]/30 text-[var(--gold)] text-[9px] font-semibold uppercase tracking-[0.14em] px-2 py-0.5">
-                    <Gem className="size-2.5" /> {f.note}
-                  </span>
-                  <div className="relative aspect-[16/10] flex items-center justify-center overflow-hidden rounded-2xl bg-[var(--surface-cool)]">
-                    <img
-                      src={f.img}
-                      srcSet={f.srcSet}
-                      sizes="(max-width: 640px) 78vw, 300px"
-                      alt={f.name}
-                      loading="lazy"
-                      decoding="async"
-                      width={1200}
-                      height={750}
-                      className="max-h-[92%] w-auto object-contain"
-                    />
-                  </div>
-                  <div className="mt-3">
-                    <h3 className="font-display text-base font-semibold leading-tight">{f.name}</h3>
-                    <div className="mt-2.5 flex flex-wrap gap-y-2 gap-x-3 text-xs text-muted-foreground">
-                      <span className="inline-flex items-center gap-1">
-                        <Users className="size-3.5 text-[var(--gold)]" />
-                        {f.passengers}
-                      </span>
-                      <span className="inline-flex items-center gap-1">
-                        <Briefcase className="size-3.5 text-[var(--gold)]" />
-                        {f.luggage}
-                      </span>
-                      <span className="inline-flex items-center gap-1">
-                        <Car className="size-3.5 text-[var(--gold)]" />
-                        {f.transmission}
-                      </span>
-                    </div>
-                  </div>
-                </Reveal>
-              ))}
-            </div>
-          </div>
-
-          {/* Desktop: reference-style image cards */}
-          <div className="mt-12 hidden sm:grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {fleet.slice(0, 3).map((f, i) => (
-              <Reveal
-                key={f.name}
-                delay={i * 100}
-                className="group relative rounded-3xl border border-border bg-card p-6 hover:border-[var(--gold)]/60 hover:-translate-y-1.5 hover:shadow-[var(--shadow-elegant)] transition-all duration-300"
-              >
-                <span className="absolute top-5 right-5 z-10 inline-flex items-center gap-1.5 rounded-full bg-[var(--gold)]/12 border border-[var(--gold)]/30 text-[var(--gold)] text-[10px] font-semibold uppercase tracking-[0.16em] px-3 py-1">
-                  <Gem className="size-3" /> {f.note}
-                </span>
-                <div className="relative aspect-[16/10] flex items-center justify-center overflow-hidden">
+          <SectionHeader eyebrow="Our Fleet" title="Premium Vehicles," titleAccent="Impeccable Standard" subtitle="Explore our modern, driver-driven fleet available across the UK." center dark />
+          <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {fleet.map((f) => (
+              <div key={f.name} className="group rounded-2xl border border-white/15 bg-white p-6 hover:border-[var(--gold)]/50 hover:-translate-y-1 transition-all duration-300">
+                <div className="relative aspect-[16/10] flex items-center justify-center overflow-hidden rounded-xl bg-[var(--navy)]/5">
                   <img
                     src={f.img}
                     srcSet={f.srcSet}
@@ -720,197 +426,117 @@ function HomePage() {
                     className="max-h-full w-auto object-contain transition-transform duration-500 group-hover:scale-105"
                   />
                 </div>
-                <div className="mt-4 pt-5 border-t border-border">
-                  <h3 className="font-display text-xl font-semibold">{f.name}</h3>
+                <div className="mt-5">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-[var(--gold)]/10 border border-[var(--gold)]/30 text-[var(--gold)] text-[10px] font-semibold uppercase tracking-[0.14em] px-2.5 py-0.5">
+                    <Gem className="size-2.5" /> {f.note}
+                  </span>
+                  <h3 className="mt-3 font-display text-xl font-semibold text-[var(--navy)]">{f.name}</h3>
                   <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2.5 text-sm">
-                    <div className="flex items-center gap-2 text-muted-foreground">
+                    <div className="flex items-center gap-2 text-[var(--navy)]/60">
                       <Users className="size-4 text-[var(--gold)]" />
-                      <span>Passengers <span className="text-foreground font-medium">{f.passengers}</span></span>
+                      <span>Passengers <span className="text-[var(--navy)] font-medium">{f.passengers}</span></span>
                     </div>
-                    <div className="flex items-center gap-2 text-muted-foreground">
+                    <div className="flex items-center gap-2 text-[var(--navy)]/60">
                       <Briefcase className="size-4 text-[var(--gold)]" />
-                      <span>Luggage <span className="text-foreground font-medium">{f.luggage}</span></span>
+                      <span>Luggage <span className="text-[var(--navy)] font-medium">{f.luggage}</span></span>
                     </div>
-                    <div className="flex items-center gap-2 text-muted-foreground">
+                    <div className="flex items-center gap-2 text-[var(--navy)]/60">
                       <Car className="size-4 text-[var(--gold)]" />
                       <span className="truncate">{f.transmission}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-muted-foreground">
+                    <div className="flex items-center gap-2 text-[var(--navy)]/60">
                       <ShieldCheck className="size-4 text-[var(--gold)]" />
                       <span>{f.fuel}</span>
                     </div>
                   </dl>
                 </div>
-              </Reveal>
+              </div>
             ))}
           </div>
-          <div className="mt-8 sm:mt-10 flex justify-center">
-            <Button asChild variant="outline" className="rounded-full">
+          <div className="mt-10 flex justify-center">
+            <Button asChild variant="outline" className="rounded-full border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-[var(--gold-foreground)]">
               <Link to="/fleet">View full fleet <ArrowRight className="size-4" /></Link>
             </Button>
           </div>
         </div>
       </section>
 
-      {/* TESTIMONIALS — centered single-focus (reference-style) */}
-      <section className="section-y bg-[var(--background)] relative overflow-hidden">
-        <div className="container-x relative">
-          <SectionHeader
-            eyebrow="Testimonials"
-            title="What Our Clients"
-            titleAccent="Say"
-            subtitle="Delivering comfort, safety and elegance to every journey."
-            center
-          />
-          <div className="mt-14 grid gap-6 md:grid-cols-3">
-            {testimonials.map((t, i) => (
-              <Reveal
-                key={t.name}
-                delay={i * 120}
-                as="figure"
-                className="relative rounded-3xl border border-border bg-card p-8 pt-14 text-center flex flex-col items-center hover:border-[var(--gold)]/50 hover:-translate-y-1.5 hover:shadow-[var(--shadow-elegant)] transition-all duration-300"
-              >
-                <span className="absolute -top-6 left-1/2 -translate-x-1/2 grid size-12 place-items-center rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] shadow-[var(--shadow-glow)]">
-                  <Quote className="size-5" />
-                </span>
-                <div className="flex items-center gap-1 text-[var(--gold)]">
-                  {[...Array(5)].map((_, i) => <Star key={i} className="size-4 fill-current" />)}
+      {/* WHY CHOOSE US */}
+      <section className="section-y bg-white">
+        <div className="container-x">
+          <SectionHeader eyebrow="Included as standard" title="Every Cabslink Ride, By" titleAccent="Default" center />
+          <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {features.map((f) => (
+              <div key={f.title} className="group flex gap-4 rounded-2xl bg-white border border-[var(--navy)]/10 p-6 hover:border-[var(--gold)]/50 hover:-translate-y-1 transition-all duration-300">
+                <div className="relative grid size-12 shrink-0 place-items-center rounded-xl bg-[var(--gold)]/10 text-[var(--navy)] border border-[var(--gold)]/30 group-hover:scale-110 transition-transform duration-300">
+                  <f.icon className="size-5" />
                 </div>
-                <blockquote className="mt-5 text-sm md:text-base leading-relaxed text-foreground/85 flex-1">
-                  "{t.quote}"
-                </blockquote>
-                <figcaption className="mt-6 pt-5 border-t border-border w-full">
-                  <div className="mx-auto grid size-12 place-items-center rounded-full bg-[var(--gold)]/15 text-[var(--gold)] font-display font-bold text-lg">
-                    {t.name.charAt(0)}
-                  </div>
-                  <p className="mt-3 font-semibold text-sm">{t.name}</p>
-                  <p className="text-xs text-muted-foreground">{t.role}</p>
-                </figcaption>
-              </Reveal>
+                <div className="min-w-0 relative">
+                  <h3 className="font-semibold text-[var(--navy)]">{f.title}</h3>
+                  <p className="mt-1 text-sm text-[var(--navy)]/60 leading-relaxed">{f.desc}</p>
+                </div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-
-
-      <section className="section-y section-cool">
-
-        <div className="container-x grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="group rounded-3xl navy-scene border border-white/10 p-8 md:p-12 relative overflow-hidden hover:border-[var(--gold)]/30 transition-colors">
-            <div className="relative">
-              <div className="grid size-14 place-items-center rounded-2xl bg-[var(--gold)]/15 border border-[var(--gold)]/30 text-[var(--gold)]">
-                <Building2 className="size-6" />
-              </div>
-              <h3 className="mt-6 font-display text-3xl md:text-4xl leading-tight">Corporate Travel, <span className="text-[var(--gold)]">Effortless</span></h3>
-              <p className="mt-4 text-white/75 max-w-md leading-relaxed">
-                Account-managed business travel for boards, executives and visiting clients. Punctual drivers, monthly invoicing and full reporting.
-              </p>
-              <ul className="mt-6 space-y-2.5 text-sm text-white/85">
-                {["Dedicated account manager", "Consolidated monthly invoicing", "Priority 24/7 booking line", "Discreet, vetted drivers"].map(i => <li key={i} className="flex gap-2"><ShieldCheck className="size-4 text-[var(--gold)] shrink-0 mt-0.5" />{i}</li>)}
-              </ul>
-              <Button asChild variant="gold" className="mt-8 rounded-full"><Link to="/corporate-booking">Open corporate account <ArrowRight className="size-4" /></Link></Button>
-            </div>
-          </div>
-          <div className="group rounded-3xl bg-[var(--surface-warm)] border border-border p-8 md:p-12 relative overflow-hidden hover:border-[var(--gold)]/40 transition-colors">
-            <img src={edinburghFallback} srcSet={edinburghSrc} sizes="(max-width: 1024px) 100vw, 640px" alt="Edinburgh skyline" width={1600} height={1024} loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover opacity-15 group-hover:opacity-25 group-hover:scale-105 transition-all duration-700" />
-            <div className="absolute inset-0 bg-[var(--surface-warm)]/85" />
-            <div className="relative">
-              <div className="grid size-14 place-items-center rounded-2xl bg-[var(--gold)]/15 border border-[var(--gold)]/30 text-[var(--gold)]">
-                <GraduationCap className="size-6" />
-              </div>
-              <h3 className="mt-6 font-display text-3xl md:text-4xl leading-tight">Private Tours <span className="text-[var(--gold)]">& Trips</span></h3>
-              <p className="mt-4 text-muted-foreground max-w-md leading-relaxed">
-                Discover Scotland and the UK with a private driver and a tailored itinerary — Edinburgh, the Highlands, the Lake District, the Cotswolds and beyond.
-              </p>
-              <ul className="mt-6 space-y-2.5 text-sm">
-                {["Bespoke routes & multi-day trips", "Knowledgeable local drivers", "Hotel & restaurant arrangements", "Family & group-friendly vehicles"].map(i => <li key={i} className="flex gap-2"><ShieldCheck className="size-4 text-[var(--gold)] shrink-0 mt-0.5" />{i}</li>)}
-              </ul>
-              <Button asChild variant="outline" className="mt-8 rounded-full"><Link to="/tours">Browse tours <ArrowRight className="size-4" /></Link></Button>
-            </div>
+      {/* TESTIMONIALS */}
+      <section className="section-y navy-scene">
+        <div className="container-x">
+          <SectionHeader eyebrow="Testimonials" title="What Our Clients" titleAccent="Say" subtitle="Delivering comfort, safety and elegance to every journey." center dark />
+          <div className="mt-14 grid gap-6 md:grid-cols-3">
+            {testimonials.map((t) => (
+              <figure key={t.name} className="relative rounded-2xl border border-white/15 bg-white/5 p-8 text-center flex flex-col items-center">
+                <span className="absolute -top-6 left-1/2 -translate-x-1/2 grid size-12 place-items-center rounded-full bg-[var(--gold)] text-[var(--gold-foreground)]">
+                  <Quote className="size-5" />
+                </span>
+                <div className="flex items-center gap-1 text-[var(--gold)]">
+                  {[...Array(5)].map((_, i) => <Star key={i} className="size-4 fill-current" />)}
+                </div>
+                <blockquote className="mt-5 text-sm leading-relaxed text-white/85 flex-1">
+                  "{t.quote}"
+                </blockquote>
+                <figcaption className="mt-6 pt-5 border-t border-white/15 w-full">
+                  <div className="mx-auto grid size-12 place-items-center rounded-full bg-[var(--gold)]/15 text-[var(--gold)] font-display font-bold text-lg">
+                    {t.name.charAt(0)}
+                  </div>
+                  <p className="mt-3 font-semibold text-sm text-white">{t.name}</p>
+                  <p className="text-xs text-white/60">{t.role}</p>
+                </figcaption>
+              </figure>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* DRIVE WITH US */}
-      <section className="section-y section-warm">
+      {/* FINAL CTA */}
+      <section className="section-y bg-[var(--gold)]">
         <div className="container-x">
-          <div className="relative rounded-3xl border border-border bg-card p-8 md:p-14 flex flex-col md:flex-row items-start md:items-center gap-8 md:gap-12 shadow-sm overflow-hidden">
-            <div aria-hidden className="absolute top-0 left-0 h-1 w-24 bg-[var(--gold)] rounded-br-2xl" />
-            <div className="flex-1 relative">
-              <div className="inline-flex items-center gap-3 mb-3">
-                <span className="h-px w-8 bg-[var(--gold)]" aria-hidden />
-                <p className="text-xs uppercase tracking-[0.3em] text-[var(--gold)] font-semibold">Drive With Us</p>
-              </div>
-              <h3 className="font-display text-3xl md:text-4xl font-semibold leading-tight">Partner with Cabslink as a driver or fleet operator</h3>
-              <p className="mt-4 text-muted-foreground max-w-2xl leading-relaxed">
-                We work with professional drivers and licensed fleet partners across the UK. Join a respected brand, get steady premium work, and grow your business with us.
-              </p>
-            </div>
-            <Button asChild variant="gold" size="lg" className="rounded-full relative"><Link to="/drive-with-us">Apply to drive <ArrowRight className="size-4" /></Link></Button>
-          </div>
-        </div>
-      </section>
-
-      {/* FINAL CTA — reference-style soft block */}
-      <section className="section-y bg-[var(--background)]">
-        <div className="container-x">
-          <div className="relative overflow-hidden rounded-3xl border border-[var(--gold)]/35 bg-[var(--surface-gold)] p-10 md:p-16">
-            <div className="relative grid gap-10 lg:grid-cols-2 items-center">
-              <div>
-                <div className="inline-flex items-center gap-3 mb-4">
-                  <span className="h-px w-8 bg-[var(--gold)]" aria-hidden />
-                  <p className="text-[11px] uppercase tracking-[0.32em] text-[var(--gold)] font-semibold">Ready when you are</p>
-                </div>
-                <h3 className="font-display text-3xl md:text-5xl font-semibold leading-[1.05] text-[var(--navy)]">
-                  Your Ride,{" "}
-                  <span className="text-[var(--gold-ink)]">
-                    One Tap Away.
-                  </span>
-                </h3>
-                <p className="mt-4 max-w-md text-muted-foreground leading-relaxed">
-                  Book, track and enjoy a seamless driver experience across the UK. Available 24/7 — no surge, no surprises.
-                </p>
-                <div className="mt-8 flex flex-wrap items-center gap-4">
-                  <Button asChild variant="slash">
-                    <a href="#booking">Book a Ride <ArrowRight className="size-4" /></a>
-                  </Button>
-                  <a
-                    href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}
-                    className="group inline-flex items-center gap-3 text-[var(--navy)] hover:text-[var(--gold)] transition-colors"
-                  >
-                    <span className="grid place-items-center size-11 rounded-full border border-[var(--navy)]/20 group-hover:border-[var(--gold)] transition-colors">
-                      <Phone className="size-4" />
-                    </span>
-                    <span className="text-sm">
-                      <span className="block text-[10px] uppercase tracking-[0.24em] text-muted-foreground">24/7 Reservations</span>
-                      <span className="font-medium">{SITE.phoneUK}</span>
-                    </span>
-                  </a>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-5">
-                {[
-                  { icon: Phone, title: "Call us 24/7", body: SITE.phoneUK, href: `tel:${SITE.phoneUK.replace(/\s/g, "")}` },
-                  { icon: MapPin, title: "Visit our office", body: SITE.address, href: "/contact" },
-                  { icon: Clock3, title: "Always available", body: "365 days a year", href: "/contact" },
-                ].map((c) => (
-                  <a
-                    key={c.title}
-                    href={c.href}
-                    className="group relative flex items-center gap-4 rounded-2xl border border-border bg-card p-4 sm:flex-col sm:items-start sm:gap-0 sm:p-5 hover:border-[var(--gold)]/60 hover:-translate-y-1 hover:shadow-[var(--shadow-elegant)] transition-all duration-300"
-                  >
-                    <div className="grid size-11 shrink-0 place-items-center rounded-xl bg-[var(--gold)]/12 border border-[var(--gold)]/25 text-[var(--gold)] group-hover:scale-110 transition-transform">
-                      <c.icon className="size-5" />
-                    </div>
-                    <div className="min-w-0 flex-1 sm:mt-3 sm:flex-none">
-                      <p className="font-semibold text-sm leading-tight">{c.title}</p>
-                      <p className="mt-1 text-xs text-muted-foreground leading-snug line-clamp-2 break-words">{c.body}</p>
-                    </div>
-                  </a>
-                ))}
-              </div>
+          <div className="max-w-3xl mx-auto text-center">
+            <p className="text-[11px] uppercase tracking-[0.32em] text-[var(--navy)]/70 font-semibold">Ready when you are</p>
+            <h3 className="mt-4 font-display text-3xl md:text-5xl font-semibold leading-[1.05] text-[var(--navy)]">
+              Your Ride, <span className="text-white">One Tap Away.</span>
+            </h3>
+            <p className="mt-4 text-[var(--navy)]/70 leading-relaxed max-w-xl mx-auto">
+              Book, track and enjoy a seamless driver experience across the UK. Available 24/7 — no surge, no surprises.
+            </p>
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+              <Button asChild variant="slash">
+                <a href="#booking">Book a Ride <ArrowRight className="size-4" /></a>
+              </Button>
+              <a
+                href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}
+                className="group inline-flex items-center gap-3 text-[var(--navy)] hover:text-white transition-colors"
+              >
+                <span className="grid place-items-center size-11 rounded-full border border-[var(--navy)]/20 group-hover:border-white transition-colors">
+                  <Phone className="size-4" />
+                </span>
+                <span className="text-sm">
+                  <span className="block text-[10px] uppercase tracking-[0.24em] text-[var(--navy)]/60">24/7 Reservations</span>
+                  <span className="font-medium">{SITE.phoneUK}</span>
+                </span>
+              </a>
             </div>
           </div>
         </div>
