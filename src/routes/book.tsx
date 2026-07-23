@@ -956,7 +956,7 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.quotes, pre.passengers, pre.luggage]);
 
-  const { data: vehicleClasses = [] } = useQuery({
+  const { data: vehicleClasses = [], isLoading: vehicleClassesLoading } = useQuery({
     queryKey: ["public-vehicle-classes"],
     queryFn: () => listPublicVehicleClasses(),
     staleTime: 60_000,
@@ -966,7 +966,9 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
     for (const c of vehicleClasses) if (c.pricing_vehicle_id) m.set(c.pricing_vehicle_id, c);
     return m;
   }, [vehicleClasses]);
-  const visibleQuotes = orderedQuotes;
+  const visibleQuotes = vehicleClassesLoading
+    ? []
+    : orderedQuotes.filter((q) => q.classId ? vehicleClasses.some((c) => c.id === q.classId) : classByVehicleId.has(q.vehicleId));
 
   return (
     <div>
@@ -991,7 +993,7 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
       <VehicleAllocationNotice className="mb-6" compact />
 
       <div className="space-y-6">
-        {isLoading && (
+        {(isLoading || vehicleClassesLoading) && (
           <div className="bg-card rounded-2xl border border-border p-10 text-center text-muted-foreground text-sm">Calculating quotes…</div>
         )}
         {error && (
@@ -1002,7 +1004,7 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
             </Button>
           </div>
         )}
-        {data && visibleQuotes.length === 0 && (
+        {data && !vehicleClassesLoading && visibleQuotes.length === 0 && (
           <div className="bg-card rounded-2xl border border-border p-10 text-center text-sm text-muted-foreground">
             No vehicle classes are currently available.
           </div>
