@@ -148,7 +148,7 @@ export const importDestinationsDryRun = createServerFn({ method: "POST" })
       .filter((k): k is string => !!k);
     const existing = new Set<string>();
     if (keys.length) {
-      const types = Array.from(new Set(keys.map((k) => k.split(":")[0])));
+      const types = Array.from(new Set(keys.map((k) => k.split(":")[0]))) as DestinationType[];
       const { data: rows } = await context.supabase
         .from("destinations")
         .select("type,slug")

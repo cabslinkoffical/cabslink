@@ -1,8 +1,10 @@
 /**
  * Shared renderer for every destination-typed route.
- * Tier 1 → renders editorial page (from seo_pages, via existing CMS).
- * Tier 2 → sparse hub template with facts + internal links + booking widget.
- * Tier 3/4 or missing → 404 (thrown by loader).
+ *
+ * The route file only supplies the loader key; this component pulls the
+ * template config, runs the content engine, and renders sections in the
+ * template's declared order. No route file needs to know section-level
+ * details — one page pattern for all 15 destination types.
  */
 import { notFound } from "@tanstack/react-router";
 import {
@@ -11,15 +13,11 @@ import {
   type Destination,
   type DestinationType,
 } from "@/lib/destinations.functions";
-import {
-  nearbyLinks,
-  popularRouteLinks,
-  relatedServiceLinks,
-} from "@/lib/internal-links";
 import { Breadcrumbs, type Crumb } from "@/components/seo/Breadcrumbs";
-import { EntityBox } from "@/components/seo/EntityBox";
-import { LinkModuleList } from "@/components/seo/LinkModuleList";
-import { SpeakableBlock } from "@/components/seo/SpeakableBlock";
+import { DestinationSections } from "@/components/seo/DestinationSections";
+import { buildSections } from "@/lib/seo/content-engine";
+import { getTemplate } from "@/lib/seo/template-registry";
+import { evaluateQuality } from "@/lib/seo/quality";
 
 export type LoadedDestination = {
   destination: Destination;
@@ -35,7 +33,7 @@ export async function loadDestination(
 ): Promise<LoadedDestination> {
   const destination = await getDestination({ data: { type, slug } });
   if (!destination) throw notFound();
-  // Tier 3 records exist for search only — never render a page.
+  // Tier 3 records exist for booking search only — never render a page.
   if (destination.seo_tier === 3) throw notFound();
   const [nearby, popularRoutes, relatedServices] = await Promise.all([
     destination.nearby_ids.length
@@ -65,7 +63,11 @@ export function DestinationPage({
   data: LoadedDestination;
   breadcrumbs: Crumb[];
 }) {
-  const { destination: d, nearby, popularRoutes, relatedServices } = data;
+  const d = data.destination;
+  const tpl = getTemplate(d.type);
+  const quality = evaluateQuality(d);
+  const sections = buildSections(data, tpl.sections);
+
   return (
     <main className="mx-auto max-w-6xl px-4 py-10">
       <Breadcrumbs items={breadcrumbs} />
@@ -80,35 +82,13 @@ export function DestinationPage({
         )}
       </header>
 
-      <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
-        <div className="space-y-8">
-          <SpeakableBlock>
-            <p>
-              CabsLink provides pre-booked private travel to and from{" "}
-              <strong>{d.display_name ?? d.name}</strong>
-              {d.region ? ` in ${d.region}` : ""}. Fixed all-inclusive fares, meet
-              &amp; greet on request, and 24/7 UK support.
-            </p>
-          </SpeakableBlock>
+      {quality.effectiveNoindex && d.seo_tier !== 2 && (
+        <div className="mb-6 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          This page is not indexed by search engines yet — it is missing required data.
+        </div>
+      )}
 
-          <LinkModuleList
-            modules={[
-              popularRouteLinks(popularRoutes),
-              nearbyLinks(nearby),
-              relatedServiceLinks(relatedServices),
-            ]}
-          />
-        </div>
-        <div className="space-y-4">
-          <EntityBox d={d} />
-          <a
-            href={`/book?to=${encodeURIComponent(d.display_name ?? d.name)}`}
-            className="block rounded-2xl bg-[var(--gold)] px-4 py-3 text-center font-semibold text-[var(--navy)] hover:brightness-95"
-          >
-            Book a ride
-          </a>
-        </div>
-      </div>
+      <DestinationSections sections={sections} loaded={data} />
     </main>
   );
 }

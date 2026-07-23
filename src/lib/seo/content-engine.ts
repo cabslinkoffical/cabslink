@@ -40,7 +40,7 @@ function buildSummarySentences(loaded: LoadedDestination): string[] {
   const name = d.display_name ?? d.name;
   const s: string[] = [];
 
-  const geoBits = [d.town, d.council, d.region].filter(Boolean);
+  const geoBits = [d.town, d.council, d.region].filter((v): v is string => !!v);
   if (d.type === "route") {
     const m = d.meta as { from_name?: string; to_name?: string };
     if (m.from_name && m.to_name) {
