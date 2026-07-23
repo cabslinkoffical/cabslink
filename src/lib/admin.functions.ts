@@ -595,6 +595,13 @@ const settingsSchema = z.object({
   poi_corridor_enabled: z.boolean().default(false),
   poi_corridor_radius_miles: z.coerce.number().min(0).max(200).default(15),
   poi_corridor_max_pois: z.coerce.number().int().min(0).max(50).default(8),
+  child_seat_fee_pence: z.coerce.number().int().min(0).max(100000).default(0),
+  meet_greet_fee_pence: z.coerce.number().int().min(0).max(100000).default(0),
+  return_journey_fee_pence: z.coerce.number().int().min(0).max(1000000).default(0),
+  policy_non_refundable_percent: z.coerce.number().min(0).max(100).default(5),
+  policy_non_refundable_min_pence: z.coerce.number().int().min(0).max(1000000).default(200),
+  policy_flexible_percent: z.coerce.number().min(0).max(100).default(12),
+  policy_flexible_min_pence: z.coerce.number().int().min(0).max(1000000).default(400),
 });
 
 export const updateSettings = createServerFn({ method: "POST" })
