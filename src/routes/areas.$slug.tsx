@@ -1,21 +1,39 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { DestinationPage, buildBreadcrumbs } from "@/components/site/DestinationPage";
+import { AreaLocationPage } from "@/components/site/AreaLocationPage";
+import { areaSeoContextQuery } from "@/lib/explore.functions";
 import { buildAutoHead } from "@/lib/seo/auto-seo";
-import { destinationQueryOptions, HUBS } from "@/lib/hub-config";
-
-const KEY = "areas" as const;
 
 export const Route = createFileRoute("/areas/$slug")({
-  head: ({ loaderData }: { loaderData?: import("@/components/site/DestinationPage").LoadedDestination }) =>
-    buildAutoHead(loaderData),
-  loader: ({ params, context }: { params: { slug: string }, context: any }) => context.queryClient.ensureQueryData(destinationQueryOptions(KEY, params.slug)),
+  loader: async ({ params, context }) => {
+    const ctx = await context.queryClient.ensureQueryData(areaSeoContextQuery(params.slug));
+    if (!ctx) throw notFound();
+    return ctx;
+  },
+  head: ({ loaderData }) => {
+    if (!loaderData) {
+      return { meta: [{ title: "Location not found" }, { name: "robots", content: "noindex" }] };
+    }
+    // Reuse the auto-SEO head builder with a slim loaded shape.
+    return buildAutoHead({
+      destination: loaderData.destination,
+      nearby: loaderData.nearbyAreas,
+      popularRoutes: loaderData.popularRoutes,
+      relatedServices: loaderData.services,
+    });
+  },
   component: Page,
+  notFoundComponent: () => (
+    <main className="container-x py-24 text-center">
+      <h1 className="text-3xl font-bold">Location not found</h1>
+      <p className="mt-2 text-[var(--navy)]/70">This location isn't published yet.</p>
+    </main>
+  ),
 });
 
 function Page() {
   const { slug } = Route.useParams();
-  const { data } = useSuspenseQuery(destinationQueryOptions(KEY, slug));
-  const crumbs = buildBreadcrumbs(data.destination, `/${KEY}`, HUBS[KEY].title);
-  return <DestinationPage data={data} breadcrumbs={crumbs} />;
+  const { data } = useSuspenseQuery(areaSeoContextQuery(slug));
+  if (!data) return null;
+  return <AreaLocationPage data={data} />;
 }
