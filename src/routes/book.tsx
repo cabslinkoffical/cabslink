@@ -1504,7 +1504,12 @@ function ExtrasCard({ icon, eyebrow, title, subtitle, children }: {
   );
 }
 
-function PolicyTiers({ value, onChange, base }: { value: Policy; onChange: (p: Policy) => void; base: number }) {
+function PolicyTiers({ value, onChange, base, cfg }: {
+  value: Policy; onChange: (p: Policy) => void; base: number;
+  cfg: { nonRefundablePercent: number; nonRefundableMinPence: number; flexiblePercent: number; flexibleMinPence: number };
+}) {
+  const nonRefDelta = -Math.max(cfg.nonRefundableMinPence / 100, Math.round(base * (cfg.nonRefundablePercent / 100) * 100) / 100);
+  const flexDelta = Math.max(cfg.flexibleMinPence / 100, Math.round(base * (cfg.flexiblePercent / 100) * 100) / 100);
   const tiers: Array<{
     id: Policy; title: string; icon: React.ReactNode; badge?: string; badgeClass?: string;
     headline: string; body: string; delta: number;
@@ -1514,7 +1519,7 @@ function PolicyTiers({ value, onChange, base }: { value: Policy; onChange: (p: P
       badge: "Lowest price", badgeClass: "bg-foreground/10 text-foreground",
       headline: "Best price, no refund.",
       body: "You save the most, with no refund if you cancel after confirmation.",
-      delta: -Math.max(2, Math.round(base * 0.05 * 100) / 100),
+      delta: nonRefDelta,
     },
     {
       id: "standard", title: "Standard", icon: <CalendarClock className="size-5" />,
@@ -1528,7 +1533,7 @@ function PolicyTiers({ value, onChange, base }: { value: Policy; onChange: (p: P
       badge: "Safest choice", badgeClass: "bg-emerald-500/15 text-emerald-700",
       headline: "Refundable up to the last hour.",
       body: "The most freedom — full refund if you cancel up to 1 hour before pickup.",
-      delta: Math.max(4, Math.round(base * 0.12 * 100) / 100),
+      delta: flexDelta,
     },
   ];
   return (
