@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Menu, X, Phone, ShieldCheck } from "lucide-react";
+import { Menu, X, Phone, ShieldCheck, ArrowRight } from "lucide-react";
 import { Logo } from "./Logo";
 import { NAV, SITE } from "@/lib/site";
-import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 
 export function Header() {
@@ -33,57 +32,160 @@ export function Header() {
   }, []);
 
   return (
-    <header className={`sticky top-0 z-50 transition-all ${scrolled ? "bg-background/95 backdrop-blur-md border-b border-border shadow-sm" : "bg-background/80 backdrop-blur-sm"}`}>
-      <div className="container-x flex h-16 items-center justify-between md:h-20">
-        <Logo />
-        <nav className="hidden lg:flex items-center gap-1">
-          {NAV.map(item => (
-            <Link
-              key={item.to}
-              to={item.to}
-              className="px-4 py-2 text-sm font-semibold uppercase tracking-wider text-foreground/70 hover:text-[var(--gold)] rounded-md transition"
-              activeProps={{ className: "text-[var(--gold)]" }}
-              activeOptions={{ exact: item.to === "/" }}
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-        <div className="hidden md:flex items-center gap-4">
-          <a href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`} className="flex items-center gap-2 text-sm font-semibold text-foreground/80 hover:text-[var(--gold)]">
-            <Phone className="size-4" /> {SITE.phoneUK}
-          </a>
-          {isAdmin ? (
-            <Link to="/admin" className="flex items-center gap-1.5 text-sm font-semibold text-[var(--gold)] hover:opacity-80">
-              <ShieldCheck className="size-4" /> Admin
-            </Link>
-          ) : null}
-          <Button asChild variant="slash">
-            <Link to="/book">Book a Ride</Link>
-          </Button>
+    <header
+      className={`sticky top-0 z-50 transition-all duration-500 ${
+        scrolled
+          ? "bg-white/85 backdrop-blur-xl border-b border-[var(--navy)]/10 shadow-[0_10px_30px_-20px_rgba(14,24,44,0.25)]"
+          : "bg-transparent"
+      }`}
+    >
+      <div className="container-x flex h-16 md:h-20 items-center justify-between gap-6">
+        {/* Logo */}
+        <div className="shrink-0">
+          <Logo />
         </div>
+
+        {/* Center pill nav */}
+        <nav
+          className={`hidden lg:flex items-center gap-1 rounded-full border px-2 py-1.5 transition-all duration-500 ${
+            scrolled
+              ? "border-[var(--navy)]/10 bg-white/70 backdrop-blur"
+              : "border-white/15 bg-white/5 backdrop-blur-md"
+          }`}
+          aria-label="Primary"
+        >
+          {NAV.map(item => {
+            const active =
+              item.to === "/"
+                ? pathname === "/"
+                : pathname === item.to || pathname.startsWith(item.to + "/");
+            return (
+              <Link
+                key={item.to}
+                to={item.to}
+                className={`group relative px-4 py-1.5 rounded-full text-[11px] font-bold font-display uppercase tracking-[0.16em] transition-colors ${
+                  active
+                    ? "text-[var(--gold-foreground)]"
+                    : scrolled
+                    ? "text-[var(--navy)]/75 hover:text-[var(--navy)]"
+                    : "text-white/80 hover:text-white"
+                }`}
+              >
+                {active && (
+                  <span
+                    aria-hidden
+                    className="absolute inset-0 rounded-full bg-[var(--gold)] shadow-[0_6px_18px_-6px_var(--gold)]"
+                  />
+                )}
+                <span className="relative">{item.label}</span>
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Right actions */}
+        <div className="hidden md:flex items-center gap-2 md:gap-3 shrink-0">
+          <a
+            href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}
+            className={`hidden xl:flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full transition-colors ${
+              scrolled
+                ? "text-[var(--navy)]/80 hover:text-[var(--navy)]"
+                : "text-white/85 hover:text-white"
+            }`}
+          >
+            <span className="grid size-8 place-items-center rounded-full bg-[var(--gold)]/15 text-[var(--gold)] ring-1 ring-[var(--gold)]/30">
+              <Phone className="size-3.5" />
+            </span>
+            <span className="text-[13px] font-semibold tabular-nums leading-none">{SITE.phoneUK}</span>
+          </a>
+
+          {isAdmin && (
+            <Link
+              to="/admin"
+              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-[11px] font-bold uppercase tracking-[0.16em] transition-colors ${
+                scrolled
+                  ? "text-[var(--gold-ink)] hover:bg-[var(--gold)]/10"
+                  : "text-[var(--gold)] hover:bg-white/10"
+              }`}
+            >
+              <ShieldCheck className="size-3.5" /> Admin
+            </Link>
+          )}
+
+          <Link
+            to="/book"
+            className="group relative inline-flex items-center gap-2 rounded-full bg-[var(--gold)] pl-5 pr-2 py-2 text-[11px] font-bold font-display uppercase tracking-[0.18em] text-[var(--gold-foreground)] shadow-[0_10px_30px_-12px_var(--gold)] hover:brightness-105 transition-all"
+          >
+            Book a Ride
+            <span className="grid size-7 place-items-center rounded-full bg-[var(--navy)] text-[var(--gold)] transition-transform group-hover:translate-x-0.5">
+              <ArrowRight className="size-3.5" />
+            </span>
+          </Link>
+        </div>
+
+        {/* Mobile trigger */}
         <button
           aria-label="Menu"
+          aria-expanded={open}
           onClick={() => setOpen(v => !v)}
-          className="lg:hidden grid place-items-center size-10 rounded-md border border-border text-foreground"
+          className={`lg:hidden grid place-items-center size-10 rounded-full border transition-colors ${
+            scrolled
+              ? "border-[var(--navy)]/15 text-[var(--navy)] bg-white"
+              : "border-white/20 text-white bg-white/5 backdrop-blur"
+          }`}
         >
           {open ? <X className="size-5" /> : <Menu className="size-5" />}
         </button>
       </div>
+
+      {/* Mobile sheet */}
       {open && (
-        <div className="lg:hidden border-t border-border bg-background">
-          <div className="container-x py-4 flex flex-col gap-1">
-            {NAV.map(item => (
-              <Link key={item.to} to={item.to} className="py-2.5 text-base font-semibold uppercase tracking-wider text-foreground/80">
-                {item.label}
+        <div className="lg:hidden absolute inset-x-0 top-full border-t border-[var(--navy)]/10 bg-white/95 backdrop-blur-xl shadow-[0_20px_40px_-20px_rgba(14,24,44,0.25)]">
+          <div className="container-x py-5 flex flex-col">
+            <nav className="flex flex-col divide-y divide-[var(--navy)]/8">
+              {NAV.map(item => {
+                const active =
+                  item.to === "/"
+                    ? pathname === "/"
+                    : pathname === item.to || pathname.startsWith(item.to + "/");
+                return (
+                  <Link
+                    key={item.to}
+                    to={item.to}
+                    className={`flex items-center justify-between py-3.5 text-[13px] font-bold font-display uppercase tracking-[0.16em] ${
+                      active ? "text-[var(--gold-ink)]" : "text-[var(--navy)]/80"
+                    }`}
+                  >
+                    <span>{item.label}</span>
+                    <ArrowRight className={`size-4 transition-transform ${active ? "text-[var(--gold)]" : "text-[var(--navy)]/30"}`} />
+                  </Link>
+                );
+              })}
+            </nav>
+
+            <div className="mt-5 grid grid-cols-2 gap-2">
+              <a
+                href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-[var(--navy)]/15 px-4 py-3 text-xs font-bold text-[var(--navy)]"
+              >
+                <Phone className="size-4 text-[var(--gold)]" /> Call
+              </a>
+              <Link
+                to="/book"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--gold)] px-4 py-3 text-xs font-bold font-display uppercase tracking-[0.18em] text-[var(--gold-foreground)]"
+              >
+                Book <ArrowRight className="size-3.5" />
               </Link>
-            ))}
-            <Button asChild variant="slash" className="mt-3 self-start">
-              <Link to="/book">Book a Ride</Link>
-            </Button>
-            <a href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`} className="mt-2 text-center text-sm text-foreground/70">
-              Call {SITE.phoneUK}
-            </a>
+            </div>
+
+            {isAdmin && (
+              <Link
+                to="/admin"
+                className="mt-3 inline-flex items-center justify-center gap-1.5 rounded-full border border-[var(--gold)]/40 py-2.5 text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--gold-ink)]"
+              >
+                <ShieldCheck className="size-3.5" /> Admin Panel
+              </Link>
+            )}
           </div>
         </div>
       )}
