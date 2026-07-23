@@ -31,10 +31,20 @@ export function HubPage({
         <p className="mt-2 max-w-3xl text-[var(--navy)]/70">{intro}</p>
       </header>
       {destinations.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-[var(--navy)]/20 bg-white p-8 text-center text-[var(--navy)]/60">
-          More destinations are being added. In the meantime, use the booking widget on the
-          home page — we cover every UK postcode.
-        </p>
+        <div className="rounded-2xl border border-dashed border-[var(--navy)]/20 bg-white p-8 text-center">
+          <p className="text-[var(--navy)]/70">
+            We haven't published dedicated pages for this category yet, but we still
+            cover every UK postcode. Get a fixed-fare quote in under 30 seconds.
+          </p>
+          <div className="mt-5 flex flex-wrap justify-center gap-3">
+            <Link to="/book" className="rounded-full bg-[var(--gold)] px-6 py-3 font-semibold text-[var(--navy)]">
+              Get an instant quote
+            </Link>
+            <Link to="/areas" className="rounded-full border border-[var(--navy)]/20 px-6 py-3 font-semibold text-[var(--navy)]">
+              Browse all locations
+            </Link>
+          </div>
+        </div>
       ) : (
         <div className="space-y-8">
           {[...grouped.entries()].map(([region, items]) => (
