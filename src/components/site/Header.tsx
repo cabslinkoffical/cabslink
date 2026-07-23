@@ -35,7 +35,7 @@ export function Header() {
     <div className={`sticky top-0 z-50 transition-all duration-300 ${scrolled ? "pt-2 md:pt-3" : "pt-4 md:pt-6"}`}>
       <div className="mx-auto w-full max-w-[1400px] px-3 md:px-6">
         <header
-          className={`relative flex h-[68px] md:h-[76px] items-center justify-between gap-4 rounded-full pl-4 pr-3 md:pl-7 md:pr-3 transition-all duration-300 border border-white/10 backdrop-blur-xl bg-[#0b1428]/85 ${
+          className={`navy-scene relative flex h-[68px] md:h-[76px] items-center justify-between gap-4 rounded-full pl-4 pr-3 md:pl-7 md:pr-3 transition-all duration-300 border border-white/10 ${
             scrolled
               ? "shadow-[0_16px_50px_-18px_rgba(0,0,0,0.7)]"
               : "shadow-[0_24px_60px_-22px_rgba(0,0,0,0.55)]"
@@ -43,7 +43,7 @@ export function Header() {
         >
           {/* Logo */}
           <div className="shrink-0 flex items-center">
-            <Logo variant="dark" />
+            <Logo variant="gold" />
           </div>
 
           {/* Center nav */}
