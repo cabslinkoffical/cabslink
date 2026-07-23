@@ -49,16 +49,13 @@ import { Route as AuthenticatedAdminPricingPreviewRouteImport } from './routes/_
 import { Route as AuthenticatedAdminPricingRouteImport } from './routes/_authenticated/admin/pricing'
 import { Route as AuthenticatedAdminPoisRouteImport } from './routes/_authenticated/admin/pois'
 import { Route as AuthenticatedAdminPaymentsRouteImport } from './routes/_authenticated/admin/payments'
-import { Route as AuthenticatedAdminNotificationsRouteImport } from './routes/_authenticated/admin/notifications'
 import { Route as AuthenticatedAdminMileagePricingRouteImport } from './routes/_authenticated/admin/mileage-pricing'
 import { Route as AuthenticatedAdminMessagesRouteImport } from './routes/_authenticated/admin/messages'
 import { Route as AuthenticatedAdminLogsRouteImport } from './routes/_authenticated/admin/logs'
-import { Route as AuthenticatedAdminHourlyRateRouteImport } from './routes/_authenticated/admin/hourly-rate'
 import { Route as AuthenticatedAdminFleetRouteImport } from './routes/_authenticated/admin/fleet'
 import { Route as AuthenticatedAdminDriversRouteImport } from './routes/_authenticated/admin/drivers'
 import { Route as AuthenticatedAdminCustomersRouteImport } from './routes/_authenticated/admin/customers'
 import { Route as AuthenticatedAdminCouponsRouteImport } from './routes/_authenticated/admin/coupons'
-import { Route as AuthenticatedAdminContentRouteImport } from './routes/_authenticated/admin/content'
 import { Route as AuthenticatedAdminBookingsRouteImport } from './routes/_authenticated/admin/bookings'
 import { Route as AuthenticatedAdminBannedAddressesRouteImport } from './routes/_authenticated/admin/banned-addresses'
 import { Route as AuthenticatedAdminAddressesRouteImport } from './routes/_authenticated/admin/addresses'
@@ -280,12 +277,6 @@ const AuthenticatedAdminPaymentsRoute =
     path: '/payments',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
-const AuthenticatedAdminNotificationsRoute =
-  AuthenticatedAdminNotificationsRouteImport.update({
-    id: '/notifications',
-    path: '/notifications',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
-  } as any)
 const AuthenticatedAdminMileagePricingRoute =
   AuthenticatedAdminMileagePricingRouteImport.update({
     id: '/mileage-pricing',
@@ -303,12 +294,6 @@ const AuthenticatedAdminLogsRoute = AuthenticatedAdminLogsRouteImport.update({
   path: '/logs',
   getParentRoute: () => AuthenticatedAdminRouteRoute,
 } as any)
-const AuthenticatedAdminHourlyRateRoute =
-  AuthenticatedAdminHourlyRateRouteImport.update({
-    id: '/hourly-rate',
-    path: '/hourly-rate',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
-  } as any)
 const AuthenticatedAdminFleetRoute = AuthenticatedAdminFleetRouteImport.update({
   id: '/fleet',
   path: '/fleet',
@@ -330,12 +315,6 @@ const AuthenticatedAdminCouponsRoute =
   AuthenticatedAdminCouponsRouteImport.update({
     id: '/coupons',
     path: '/coupons',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
-  } as any)
-const AuthenticatedAdminContentRoute =
-  AuthenticatedAdminContentRouteImport.update({
-    id: '/content',
-    path: '/content',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 const AuthenticatedAdminBookingsRoute =
@@ -442,16 +421,13 @@ export interface FileRoutesByFullPath {
   '/admin/addresses': typeof AuthenticatedAdminAddressesRoute
   '/admin/banned-addresses': typeof AuthenticatedAdminBannedAddressesRoute
   '/admin/bookings': typeof AuthenticatedAdminBookingsRoute
-  '/admin/content': typeof AuthenticatedAdminContentRoute
   '/admin/coupons': typeof AuthenticatedAdminCouponsRoute
   '/admin/customers': typeof AuthenticatedAdminCustomersRoute
   '/admin/drivers': typeof AuthenticatedAdminDriversRoute
   '/admin/fleet': typeof AuthenticatedAdminFleetRoute
-  '/admin/hourly-rate': typeof AuthenticatedAdminHourlyRateRoute
   '/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/admin/messages': typeof AuthenticatedAdminMessagesRoute
   '/admin/mileage-pricing': typeof AuthenticatedAdminMileagePricingRoute
-  '/admin/notifications': typeof AuthenticatedAdminNotificationsRoute
   '/admin/payments': typeof AuthenticatedAdminPaymentsRoute
   '/admin/pois': typeof AuthenticatedAdminPoisRoute
   '/admin/pricing': typeof AuthenticatedAdminPricingRoute
@@ -504,16 +480,13 @@ export interface FileRoutesByTo {
   '/admin/addresses': typeof AuthenticatedAdminAddressesRoute
   '/admin/banned-addresses': typeof AuthenticatedAdminBannedAddressesRoute
   '/admin/bookings': typeof AuthenticatedAdminBookingsRoute
-  '/admin/content': typeof AuthenticatedAdminContentRoute
   '/admin/coupons': typeof AuthenticatedAdminCouponsRoute
   '/admin/customers': typeof AuthenticatedAdminCustomersRoute
   '/admin/drivers': typeof AuthenticatedAdminDriversRoute
   '/admin/fleet': typeof AuthenticatedAdminFleetRoute
-  '/admin/hourly-rate': typeof AuthenticatedAdminHourlyRateRoute
   '/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/admin/messages': typeof AuthenticatedAdminMessagesRoute
   '/admin/mileage-pricing': typeof AuthenticatedAdminMileagePricingRoute
-  '/admin/notifications': typeof AuthenticatedAdminNotificationsRoute
   '/admin/payments': typeof AuthenticatedAdminPaymentsRoute
   '/admin/pois': typeof AuthenticatedAdminPoisRoute
   '/admin/pricing': typeof AuthenticatedAdminPricingRoute
@@ -569,16 +542,13 @@ export interface FileRoutesById {
   '/_authenticated/admin/addresses': typeof AuthenticatedAdminAddressesRoute
   '/_authenticated/admin/banned-addresses': typeof AuthenticatedAdminBannedAddressesRoute
   '/_authenticated/admin/bookings': typeof AuthenticatedAdminBookingsRoute
-  '/_authenticated/admin/content': typeof AuthenticatedAdminContentRoute
   '/_authenticated/admin/coupons': typeof AuthenticatedAdminCouponsRoute
   '/_authenticated/admin/customers': typeof AuthenticatedAdminCustomersRoute
   '/_authenticated/admin/drivers': typeof AuthenticatedAdminDriversRoute
   '/_authenticated/admin/fleet': typeof AuthenticatedAdminFleetRoute
-  '/_authenticated/admin/hourly-rate': typeof AuthenticatedAdminHourlyRateRoute
   '/_authenticated/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/_authenticated/admin/messages': typeof AuthenticatedAdminMessagesRoute
   '/_authenticated/admin/mileage-pricing': typeof AuthenticatedAdminMileagePricingRoute
-  '/_authenticated/admin/notifications': typeof AuthenticatedAdminNotificationsRoute
   '/_authenticated/admin/payments': typeof AuthenticatedAdminPaymentsRoute
   '/_authenticated/admin/pois': typeof AuthenticatedAdminPoisRoute
   '/_authenticated/admin/pricing': typeof AuthenticatedAdminPricingRoute
@@ -634,16 +604,13 @@ export interface FileRouteTypes {
     | '/admin/addresses'
     | '/admin/banned-addresses'
     | '/admin/bookings'
-    | '/admin/content'
     | '/admin/coupons'
     | '/admin/customers'
     | '/admin/drivers'
     | '/admin/fleet'
-    | '/admin/hourly-rate'
     | '/admin/logs'
     | '/admin/messages'
     | '/admin/mileage-pricing'
-    | '/admin/notifications'
     | '/admin/payments'
     | '/admin/pois'
     | '/admin/pricing'
@@ -696,16 +663,13 @@ export interface FileRouteTypes {
     | '/admin/addresses'
     | '/admin/banned-addresses'
     | '/admin/bookings'
-    | '/admin/content'
     | '/admin/coupons'
     | '/admin/customers'
     | '/admin/drivers'
     | '/admin/fleet'
-    | '/admin/hourly-rate'
     | '/admin/logs'
     | '/admin/messages'
     | '/admin/mileage-pricing'
-    | '/admin/notifications'
     | '/admin/payments'
     | '/admin/pois'
     | '/admin/pricing'
@@ -760,16 +724,13 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/addresses'
     | '/_authenticated/admin/banned-addresses'
     | '/_authenticated/admin/bookings'
-    | '/_authenticated/admin/content'
     | '/_authenticated/admin/coupons'
     | '/_authenticated/admin/customers'
     | '/_authenticated/admin/drivers'
     | '/_authenticated/admin/fleet'
-    | '/_authenticated/admin/hourly-rate'
     | '/_authenticated/admin/logs'
     | '/_authenticated/admin/messages'
     | '/_authenticated/admin/mileage-pricing'
-    | '/_authenticated/admin/notifications'
     | '/_authenticated/admin/payments'
     | '/_authenticated/admin/pois'
     | '/_authenticated/admin/pricing'
@@ -1105,13 +1066,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminPaymentsRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
-    '/_authenticated/admin/notifications': {
-      id: '/_authenticated/admin/notifications'
-      path: '/notifications'
-      fullPath: '/admin/notifications'
-      preLoaderRoute: typeof AuthenticatedAdminNotificationsRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
-    }
     '/_authenticated/admin/mileage-pricing': {
       id: '/_authenticated/admin/mileage-pricing'
       path: '/mileage-pricing'
@@ -1131,13 +1085,6 @@ declare module '@tanstack/react-router' {
       path: '/logs'
       fullPath: '/admin/logs'
       preLoaderRoute: typeof AuthenticatedAdminLogsRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
-    }
-    '/_authenticated/admin/hourly-rate': {
-      id: '/_authenticated/admin/hourly-rate'
-      path: '/hourly-rate'
-      fullPath: '/admin/hourly-rate'
-      preLoaderRoute: typeof AuthenticatedAdminHourlyRateRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/admin/fleet': {
@@ -1166,13 +1113,6 @@ declare module '@tanstack/react-router' {
       path: '/coupons'
       fullPath: '/admin/coupons'
       preLoaderRoute: typeof AuthenticatedAdminCouponsRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
-    }
-    '/_authenticated/admin/content': {
-      id: '/_authenticated/admin/content'
-      path: '/content'
-      fullPath: '/admin/content'
-      preLoaderRoute: typeof AuthenticatedAdminContentRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/admin/bookings': {
@@ -1281,16 +1221,13 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminAddressesRoute: typeof AuthenticatedAdminAddressesRoute
   AuthenticatedAdminBannedAddressesRoute: typeof AuthenticatedAdminBannedAddressesRoute
   AuthenticatedAdminBookingsRoute: typeof AuthenticatedAdminBookingsRoute
-  AuthenticatedAdminContentRoute: typeof AuthenticatedAdminContentRoute
   AuthenticatedAdminCouponsRoute: typeof AuthenticatedAdminCouponsRoute
   AuthenticatedAdminCustomersRoute: typeof AuthenticatedAdminCustomersRoute
   AuthenticatedAdminDriversRoute: typeof AuthenticatedAdminDriversRoute
   AuthenticatedAdminFleetRoute: typeof AuthenticatedAdminFleetRoute
-  AuthenticatedAdminHourlyRateRoute: typeof AuthenticatedAdminHourlyRateRoute
   AuthenticatedAdminLogsRoute: typeof AuthenticatedAdminLogsRoute
   AuthenticatedAdminMessagesRoute: typeof AuthenticatedAdminMessagesRoute
   AuthenticatedAdminMileagePricingRoute: typeof AuthenticatedAdminMileagePricingRoute
-  AuthenticatedAdminNotificationsRoute: typeof AuthenticatedAdminNotificationsRoute
   AuthenticatedAdminPaymentsRoute: typeof AuthenticatedAdminPaymentsRoute
   AuthenticatedAdminPoisRoute: typeof AuthenticatedAdminPoisRoute
   AuthenticatedAdminPricingRoute: typeof AuthenticatedAdminPricingRoute
@@ -1319,17 +1256,14 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminBannedAddressesRoute:
       AuthenticatedAdminBannedAddressesRoute,
     AuthenticatedAdminBookingsRoute: AuthenticatedAdminBookingsRoute,
-    AuthenticatedAdminContentRoute: AuthenticatedAdminContentRoute,
     AuthenticatedAdminCouponsRoute: AuthenticatedAdminCouponsRoute,
     AuthenticatedAdminCustomersRoute: AuthenticatedAdminCustomersRoute,
     AuthenticatedAdminDriversRoute: AuthenticatedAdminDriversRoute,
     AuthenticatedAdminFleetRoute: AuthenticatedAdminFleetRoute,
-    AuthenticatedAdminHourlyRateRoute: AuthenticatedAdminHourlyRateRoute,
     AuthenticatedAdminLogsRoute: AuthenticatedAdminLogsRoute,
     AuthenticatedAdminMessagesRoute: AuthenticatedAdminMessagesRoute,
     AuthenticatedAdminMileagePricingRoute:
       AuthenticatedAdminMileagePricingRoute,
-    AuthenticatedAdminNotificationsRoute: AuthenticatedAdminNotificationsRoute,
     AuthenticatedAdminPaymentsRoute: AuthenticatedAdminPaymentsRoute,
     AuthenticatedAdminPoisRoute: AuthenticatedAdminPoisRoute,
     AuthenticatedAdminPricingRoute: AuthenticatedAdminPricingRoute,
