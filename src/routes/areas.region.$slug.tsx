@@ -2,6 +2,8 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { EntityGrid } from "@/components/explore/EntityCard";
+import { SiteLayout } from "@/components/site/SiteLayout";
+import { PageHero } from "@/components/site/PageHero";
 import { regionHubQuery } from "@/lib/explore.functions";
 
 export const Route = createFileRoute("/areas/region/$slug")({
