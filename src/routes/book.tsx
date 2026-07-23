@@ -674,23 +674,46 @@ function Stepper({ step }: { step: Step }) {
   ];
 
   const idx = items.findIndex((x) => x.id === step);
+  const current = items[Math.max(0, idx)];
   return (
-    <div className="flex items-center justify-center gap-3 md:gap-4 flex-wrap">
-      {items.map((it, i) => {
-        const active = i === idx;
-        const done = i < idx;
-        return (
-          <div key={it.id} className="flex items-center gap-3">
-            <div className={`px-5 py-2.5 rounded-lg text-sm font-bold uppercase tracking-wider transition ${
-              active ? "bg-[var(--gold)] text-[var(--gold-foreground)] shadow-[var(--shadow-glow)]"
-              : done ? "bg-[var(--navy)] text-[var(--gold)]"
-              : "bg-card text-foreground/55 border border-border"
-            }`}>{`0${i + 1}`} · {it.label}</div>
-            {i < items.length - 1 && <div className="w-6 h-px bg-border" />}
-          </div>
-        );
-      })}
-    </div>
+    <>
+      {/* Mobile: compact current-step + dots */}
+      <div className="md:hidden flex items-center justify-between gap-3 rounded-full bg-card border border-border px-4 py-2.5 shadow-sm">
+        <div className="min-w-0 flex items-baseline gap-2">
+          <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--gold)]">
+            Step 0{Math.max(1, idx + 1)}/5
+          </span>
+          <span className="text-sm font-bold text-foreground truncate">{current?.label}</span>
+        </div>
+        <div className="flex items-center gap-1.5 shrink-0" aria-hidden>
+          {items.map((it, i) => (
+            <span
+              key={it.id}
+              className={`h-1.5 rounded-full transition-all ${
+                i === idx ? "w-5 bg-[var(--gold)]" : i < idx ? "w-1.5 bg-[var(--navy)]" : "w-1.5 bg-border"
+              }`}
+            />
+          ))}
+        </div>
+      </div>
+      {/* md+: full pill stepper */}
+      <div className="hidden md:flex items-center justify-center gap-3 md:gap-4 flex-wrap">
+        {items.map((it, i) => {
+          const active = i === idx;
+          const done = i < idx;
+          return (
+            <div key={it.id} className="flex items-center gap-3">
+              <div className={`px-5 py-2.5 rounded-lg text-sm font-bold uppercase tracking-wider transition ${
+                active ? "bg-[var(--gold)] text-[var(--gold-foreground)] shadow-[var(--shadow-glow)]"
+                : done ? "bg-[var(--navy)] text-[var(--gold)]"
+                : "bg-card text-foreground/55 border border-border"
+              }`}>{`0${i + 1}`} · {it.label}</div>
+              {i < items.length - 1 && <div className="w-6 h-px bg-border" />}
+            </div>
+          );
+        })}
+      </div>
+    </>
   );
 }
 
