@@ -2,9 +2,9 @@ import { createFileRoute, Link, Outlet, redirect, useRouter, useRouterState } fr
 import { isAdmin } from "@/lib/admin.functions";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  LayoutDashboard, CalendarCheck, MapPin, Ban, Car, Tag, Clock, Percent, UserCog, Users,
-  CreditCard, Ticket, FileText, Bell, BarChart3, Shield, Settings as SettingsIcon, History,
-  LogOut, ExternalLink, Search, Bell as BellIcon, Sun, Moon, Menu, X, Inbox, Gauge,
+  LayoutDashboard, CalendarCheck, MapPin, Ban, Car, Tag, UserCog, Users,
+  CreditCard, Ticket, FileText, BarChart3, Shield, Settings as SettingsIcon, History,
+  LogOut, ExternalLink, Sun, Moon, Menu, X, Inbox, Gauge, Percent,
   Plane, Wrench, Route as RouteIcon, ArrowLeftRight, Globe,
 } from "lucide-react";
 import { SidebarNav, type SidebarEntry } from "@/components/admin/SidebarNav";
