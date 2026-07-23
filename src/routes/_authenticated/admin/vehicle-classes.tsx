@@ -181,7 +181,23 @@ function VehicleClassesPage() {
               <div className="grid sm:grid-cols-2 gap-3">
                 <div><Label>Name</Label><Input value={form.name} onChange={(e) => setForm((f: any) => ({ ...f, name: e.target.value }))} /></div>
                 <div><Label>Slug</Label><Input value={form.slug} onChange={(e) => setForm((f: any) => ({ ...f, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-") }))} /></div>
-                <div className="sm:col-span-2"><Label>Hero image URL</Label><Input value={form.hero_image ?? ""} onChange={(e) => setForm((f: any) => ({ ...f, hero_image: e.target.value }))} placeholder="https://..." /></div>
+                <div className="sm:col-span-2">
+                  <Label>Hero image</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      value={form.hero_image ?? ""}
+                      onChange={(e) => setForm((f: any) => ({ ...f, hero_image: e.target.value }))}
+                      placeholder="https://... or upload below"
+                    />
+                    <HeroImageUploader
+                      slug={form.slug || "class"}
+                      onUploaded={(url) => setForm((f: any) => ({ ...f, hero_image: url }))}
+                    />
+                  </div>
+                  {form.hero_image && (
+                    <img src={form.hero_image} alt="" className="mt-2 h-24 rounded border object-cover" />
+                  )}
+                </div>
                 <div className="sm:col-span-2"><Label>Short description</Label><Input value={form.short_description ?? ""} onChange={(e) => setForm((f: any) => ({ ...f, short_description: e.target.value }))} /></div>
                 <div className="sm:col-span-2"><Label>Long description</Label><Textarea rows={3} value={form.long_description ?? ""} onChange={(e) => setForm((f: any) => ({ ...f, long_description: e.target.value }))} /></div>
                 <div><Label>Passengers</Label><Input type="number" value={form.passengers} onChange={(e) => setForm((f: any) => ({ ...f, passengers: Number(e.target.value) }))} /></div>
