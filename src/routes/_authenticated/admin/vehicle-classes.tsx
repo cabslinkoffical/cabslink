@@ -95,14 +95,14 @@ function VehicleClassesPage() {
   return (
     <div className="p-6 md:p-8 space-y-6">
       <PageHeader
-        icon={<Layers className="size-5" />}
         title="Vehicle Classes"
         description="Customers book a class, not a specific model. Pricing follows the linked representative vehicle."
-        actions={<Button onClick={openNew}><Plus className="size-4 mr-1.5" />New class</Button>}
-      />
+      >
+        <Button onClick={openNew}><Plus className="size-4 mr-1.5" />New class</Button>
+      </PageHeader>
 
       {classes.length === 0 ? (
-        <EmptyState title="No vehicle classes yet" description="Create your first vehicle class to get started." />
+        <EmptyState title="No vehicle classes yet" hint="Create your first vehicle class to get started." />
       ) : (
         <div className="grid gap-4">
           {classes.map((c: any) => {
