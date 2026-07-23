@@ -133,19 +133,12 @@
   background: var(--navy);
 }
 
-/* Twilight sky — deep slate-navy base with soft cloudy highlights */
+/* Solid dark section — flat navy, no gradient */
 @utility navy-scene {
   position: relative;
   color: var(--navy-foreground);
-  background-color: #131c28;
-  background-image:
-    radial-gradient(ellipse 60% 45% at 20% 15%, rgba(180, 200, 220, 0.10), transparent 70%),
-    radial-gradient(ellipse 55% 40% at 85% 25%, rgba(200, 215, 230, 0.08), transparent 70%),
-    radial-gradient(ellipse 70% 50% at 50% 100%, rgba(90, 110, 130, 0.18), transparent 75%),
-    linear-gradient(180deg, #1a2532 0%, #131c28 45%, #0d1621 100%);
-  background-attachment: local;
+  background: var(--navy);
 }
-
 
 @utility section-warm {
   background: var(--surface-warm);
