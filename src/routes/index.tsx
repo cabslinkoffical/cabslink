@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
   ArrowRight, Plane, ShieldCheck, Star, CalendarCheck, Phone,
@@ -12,6 +13,7 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { BookingWidget } from "@/components/site/BookingWidget";
 import { Button } from "@/components/ui/button";
 import { SITE } from "@/lib/site";
+import { listPublishedTours } from "@/lib/tours.functions";
 
 import sclassAsset from "@/assets/fleet/sclass.png.asset.json";
 import eclassAsset from "@/assets/fleet/eclass.png.asset.json";
