@@ -50,6 +50,9 @@ export const HUB_LABELS: Record<Destination["type"], string> = {
   guide: "Travel Guides",
   region: "Regions",
   council: "Councils",
+  city: "Cities",
+  town: "Towns",
+  village: "Villages",
 };
 
 export function nearbyLinks(nearby: Destination[]): LinkModule {
