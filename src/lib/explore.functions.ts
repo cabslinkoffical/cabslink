@@ -75,6 +75,9 @@ const CATEGORY_META: Record<DestinationType, { label: string; hubHref: string }>
   distillery:    { label: "Distilleries",    hubHref: "/distilleries" },
   service:       { label: "Services",        hubHref: "/services" },
   guide:         { label: "Travel Guides",   hubHref: "/guides" },
+  city:          { label: "Cities",          hubHref: "/areas" },
+  town:          { label: "Towns",           hubHref: "/areas" },
+  village:       { label: "Villages",        hubHref: "/areas" },
 };
 
 export const getExploreOverview = createServerFn({ method: "GET" })
