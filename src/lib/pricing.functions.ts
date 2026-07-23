@@ -495,6 +495,26 @@ export const createBooking = createServerFn({ method: "POST" })
       price = Number((price + childSeatFee).toFixed(2));
     }
 
+    // Meet & greet + return journey extras (admin-configurable per site_settings).
+    if (data.meet_greet && auth.settings.meetGreetFeePence > 0) {
+      price = Number((price + auth.settings.meetGreetFeePence / 100).toFixed(2));
+    }
+    if (data.return_journey && auth.settings.returnJourneyFeePence > 0) {
+      price = Number((price + auth.settings.returnJourneyFeePence / 100).toFixed(2));
+    }
+
+    // Cancellation-policy delta (admin-configurable percent + minimum).
+    {
+      const s = auth.settings;
+      if (data.cancellation_policy === "non_refundable") {
+        const d = -Math.max(s.policyNonRefundableMinPence / 100, Math.round(price * (s.policyNonRefundablePercent / 100) * 100) / 100);
+        price = Number(Math.max(0, price + d).toFixed(2));
+      } else if (data.cancellation_policy === "flexible") {
+        const d = Math.max(s.policyFlexibleMinPence / 100, Math.round(price * (s.policyFlexiblePercent / 100) * 100) / 100);
+        price = Number((price + d).toFixed(2));
+      }
+    }
+
     const notesWithQty = qty > 1
       ? `Vehicles: ${qty} × ${profile.vehicle.name}${data.notes ? `\n\n${data.notes}` : ""}`
       : data.notes || null;
