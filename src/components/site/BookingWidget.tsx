@@ -9,7 +9,7 @@ function encodePlaces(list: SelectedPlace[]): string {
   return list.map((p) => `${p.placeId}::${encodeURIComponent(p.label)}`).join("|");
 }
 
-export function BookingWidget() {
+export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {}) {
   const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>("quote");
   const today = new Date().toISOString().slice(0, 10);
