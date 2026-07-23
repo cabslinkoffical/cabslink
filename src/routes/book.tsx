@@ -30,6 +30,7 @@ import { calculateMultiStopQuote, type MultiStopQuoteResult } from "@/lib/scenic
 import { resolveTourTemplate } from "@/lib/tours.functions";
 import { listPublicVehicleClasses, type PublicVehicleClass } from "@/lib/vehicle-classes.functions";
 import { VehicleAllocationNotice } from "@/components/site/VehicleAllocationNotice";
+import { fleetImageFor } from "@/assets/fleet";
 
 export const Route = createFileRoute("/book")({
   validateSearch: (search: Record<string, unknown>) => ({ q: typeof search.q === "string" ? search.q : "" }),
@@ -1042,7 +1043,7 @@ function VehicleCard({ card, klass, best, qty, minQty, disabled, disabledReason,
   const serial = card.vehicleId.slice(0, 8).toUpperCase();
   const quoteOnly = klass?.quote_on_request ?? isQuoteOnRequest(card.name);
   const displayName = klass?.name ?? card.name;
-  const displayImage = klass?.hero_image ?? card.imageUrl;
+  const displayImage = (klass ? fleetImageFor(klass.slug, klass.hero_image) : undefined) ?? card.imageUrl;
   return (
     <div className={`relative flex flex-col md:flex-row bg-card rounded-2xl shadow-[0_10px_40px_-20px_rgba(14,24,44,0.25)] border transition-all duration-500 hover:shadow-[0_20px_60px_-20px_rgba(223,175,38,0.35)] ${best ? "border-[var(--gold)]/60" : minQty > 1 ? "border-amber-400/50" : "border-border"}`}>
       {best && (
