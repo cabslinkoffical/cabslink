@@ -1019,7 +1019,7 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
               disabled={capacityShort}
               disabledReason={reason}
               onQtyChange={(n) => setQtyMap((m) => ({ ...m, [q.vehicleId]: n }))}
-              onSelect={() => { if (!capacityShort) onSelect(q, qty); }} />
+              onSelect={() => { if (!capacityShort) onSelect(klass ? { ...q, name: klass.name } : q, qty); }} />
           );
         })}
       </div>
