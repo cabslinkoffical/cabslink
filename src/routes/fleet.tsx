@@ -1,27 +1,28 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
-import { Users, Briefcase, ArrowRight, ShieldCheck, Star, Luggage } from "lucide-react";
+import { Users, Briefcase, Luggage, ArrowRight, ShieldCheck, Star, Accessibility, Zap, CheckCircle2 } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero, SectionHeader } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
-import { listPublicVehicles, type PublicVehicle } from "@/lib/fleet.functions";
+import { VehicleAllocationNotice } from "@/components/site/VehicleAllocationNotice";
+import { listPublicVehicleClasses, type PublicVehicleClass } from "@/lib/vehicle-classes.functions";
 
 const fleetQuery = queryOptions({
-  queryKey: ["public-vehicles"],
-  queryFn: () => listPublicVehicles(),
+  queryKey: ["public-vehicle-classes"],
+  queryFn: () => listPublicVehicleClasses(),
   staleTime: 60_000,
 });
 
 export const Route = createFileRoute("/fleet")({
   head: () => ({
     meta: [
-      { title: "Our Fleet — Cabslink Luxury Driver Vehicles UK" },
-      { name: "description", content: "Explore Cabslink's active driver fleet — current vehicle details, images, capacity and availability." },
-      { property: "og:title", content: "Our Fleet — Cabslink Luxury Driver Vehicles" },
-      { property: "og:description", content: "Explore Cabslink's active driver fleet — current vehicle details, images, capacity and availability." },
+      { title: "Our Fleet — Vehicle Classes | Cabslink UK" },
+      { name: "description", content: "Explore Cabslink's vehicle classes — from Executive Saloons to Premium MPVs and Coaches. Book by class, guaranteed allocation or complimentary upgrade." },
+      { property: "og:title", content: "Our Fleet — Vehicle Classes | Cabslink" },
+      { property: "og:description", content: "Explore Cabslink's vehicle classes — Executive Saloon, Luxury Chauffeur, Premium MPV and more. Book by class, guaranteed allocation." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { property: "og:url", content: "https://cabslink.lovable.app/fleet" },
     ],
     links: [{ rel: "canonical", href: "https://cabslink.lovable.app/fleet" }],
@@ -39,117 +40,167 @@ export const Route = createFileRoute("/fleet")({
   component: FleetPage,
 });
 
+const RECOMMENDED_LABELS: Record<string, string> = {
+  airport: "Airport transfers",
+  corporate: "Corporate travel",
+  long_distance: "Long distance",
+  tours: "Private tours",
+  weddings: "Weddings",
+  executive: "Executive travel",
+};
+
 function FleetPage() {
-  const { data: activeFleet, refetch } = useSuspenseQuery(fleetQuery);
-
-  useEffect(() => {
-    const channel = supabase
-      .channel("vehicles-fleet")
-      .on("postgres_changes", { event: "*", schema: "public", table: "vehicles" }, () => { void refetch(); })
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
-  }, [refetch]);
-
-  const hero: PublicVehicle | undefined =
-    activeFleet.find((v) => v.featured) ??
-    activeFleet.find((v) => /v-class/i.test(v.name)) ??
-    activeFleet[0];
-
-
+  const { data: classes } = useSuspenseQuery(fleetQuery);
+  const visible = classes.filter((c) => c.slug !== "unclassified");
 
   return (
     <SiteLayout>
       <PageHero
         eyebrow="Our Fleet"
-        title="A luxury vehicle for every kind of journey."
-        subtitle="Every vehicle shown here is live from the admin fleet, active for bookings and kept to the same Cabslink standard."
+        title="A vehicle class for every kind of journey."
+        subtitle="Book by class — Executive, Luxury Chauffeur, Premium MPV and more. The exact model is allocated by our dispatch team, always from your booked class or a complimentary upgrade."
         breadcrumbs={[{ label: "Home", to: "/" }, { label: "Fleet" }]}
       />
 
-      {/* FEATURED HERO */}
-      {hero && (
-        <section className="section-y section-cool">
-          <div className="container-x grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
-            <Reveal>
-              <img src={hero.image_url} alt={`${hero.name} — private ${hero.passengers}-seat vehicle`} width={1600} height={1000} decoding="async" fetchPriority="high" className="rounded-3xl object-cover w-full aspect-[4/3] shadow-[var(--shadow-elegant)] bg-[var(--surface-warm)]" />
-            </Reveal>
-            <Reveal delay={120}>
-              <p className="text-xs uppercase tracking-[0.3em] text-[var(--gold)] mb-3">{hero.featured ? "Featured vehicle" : "Available vehicle"}</p>
-              <h2 className="font-display text-3xl md:text-5xl font-semibold leading-tight">{hero.name}</h2>
-              <p className="mt-5 text-muted-foreground">{hero.description || "Available for driver bookings with Cabslink's professional standards, immaculate presentation and fully insured service."}</p>
-              <ul className="mt-6 grid sm:grid-cols-2 gap-3 text-sm">
-                <li className="flex items-start gap-2"><Users className="size-4 text-[var(--gold)] mt-0.5 shrink-0" />{hero.passengers} passengers</li>
-                <li className="flex items-start gap-2"><Briefcase className="size-4 text-[var(--gold)] mt-0.5 shrink-0" />{hero.luggage} large luggage</li>
-                <li className="flex items-start gap-2"><Luggage className="size-4 text-[var(--gold)] mt-0.5 shrink-0" />{hero.hand_luggage} hand luggage</li>
-                <li className="flex items-start gap-2"><ShieldCheck className="size-4 text-[var(--gold)] mt-0.5 shrink-0" />{hero.category}</li>
-              </ul>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <Button asChild variant="gold" className="rounded-full"><Link to="/book">Get a quote <ArrowRight className="size-4" /></Link></Button>
-                <Button asChild variant="outline" className="rounded-full"><Link to="/contact">Talk to our team</Link></Button>
-              </div>
-            </Reveal>
-          </div>
-        </section>
-      )}
-
-      {/* FLEET GRID */}
-      <section className="section-y section-warm">
+      <section className="section-y section-cool">
         <div className="container-x">
-          <SectionHeader eyebrow="The full fleet" title="One uncompromising standard across every vehicle." subtitle="Each capacity figure is shown as passengers · large luggage · hand luggage." center />
-          {activeFleet.length > 0 ? (
-            <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {activeFleet.map((f, i) => (
-              <Reveal key={f.id} delay={i * 80}>
-                <div className={`rounded-3xl border bg-card overflow-hidden hover:-translate-y-1 hover:shadow-[var(--shadow-elegant)] transition h-full flex flex-col ${f.featured ? "border-[var(--gold)]" : "border-border"}`}>
-                  <div className="relative h-52 overflow-hidden bg-[var(--surface-cool)] flex items-center justify-center p-4">
-                    <img src={f.image_url} alt={`${f.name} — private ${f.passengers}-seat vehicle`} loading="lazy" decoding="async" width={1200} height={800} className="size-full object-contain" />
-                    {f.featured && (
-                      <span className="absolute top-3 left-3 inline-flex items-center gap-1 rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] px-3 py-1 text-xs font-semibold">
-                        <Star className="size-3 fill-current" /> Featured
-                      </span>
-                    )}
-                  </div>
-                  <div className="p-6 flex flex-col flex-1">
-                    <p className="text-xs uppercase tracking-wider text-[var(--gold)]">{f.category}</p>
-                    <h3 className="mt-1 font-display text-2xl font-semibold">{f.name}</h3>
-                    <p className="mt-3 text-sm text-muted-foreground flex-1">{f.description}</p>
-                    <div className="mt-5 flex gap-4 text-sm">
-                      <span className="flex items-center gap-1.5" title="Passengers"><Users className="size-4 text-[var(--gold)]" />{f.passengers}</span>
-                      <span className="flex items-center gap-1.5" title="Large luggage"><Briefcase className="size-4 text-[var(--gold)]" />{f.luggage}</span>
-                      <span className="flex items-center gap-1.5" title="Hand luggage"><Luggage className="size-4 text-[var(--gold)]" />{f.hand_luggage}</span>
-                    </div>
-                    <Button asChild variant="gold" className="mt-5 w-full rounded-full"><Link to="/book">Get a quote <ArrowRight className="size-4" /></Link></Button>
-                  </div>
-                </div>
-              </Reveal>
-              ))}
-            </div>
-          ) : (
-            <div className="mt-12 rounded-3xl border border-border bg-card p-8 text-center">
-              <h3 className="font-display text-2xl font-semibold">No active vehicles are available right now.</h3>
-              <p className="mt-2 text-sm text-muted-foreground">Once a vehicle is marked active in admin, it will appear here automatically.</p>
-            </div>
-          )}
+          <SectionHeader
+            eyebrow="Industry-standard classes"
+            title="The Cabslink Vehicle Class system"
+            subtitle="Every class is professionally driven, fully insured and kept to a single Cabslink standard. Explore the class list below."
+            center
+          />
         </div>
       </section>
 
+      {visible.map((k, i) => (
+        <VehicleClassSection key={k.id} klass={k} alt={i % 2 === 1} />
+      ))}
 
-      {/* CTA */}
       <section className="section-y bg-[var(--background)]">
         <div className="container-x">
           <div className="rounded-3xl bg-[var(--navy)] text-[var(--navy-foreground)] p-10 md:p-14 text-center">
-            <h2 className="font-display text-3xl md:text-4xl font-semibold">Give us a call</h2>
+            <h2 className="font-display text-3xl md:text-4xl font-semibold">Not sure which class fits?</h2>
             <p className="mt-4 text-[var(--navy-foreground)]/80 max-w-2xl mx-auto">
-              Need a hassle-free UK airport transfer? Cabslink offers personalised solutions tailored to your needs —
-              expert advice, immediate assistance and flexible scheduling, with reliable comfort and top-notch service.
+              Tell us your party size, luggage and journey — we'll recommend the right class and lock in the fare.
             </p>
             <div className="mt-7 flex flex-wrap gap-3 justify-center">
-              <Button asChild variant="gold" className="rounded-full"><a href="/#booking">Book online</a></Button>
-              <Button asChild variant="outline" className="rounded-full bg-transparent text-[var(--navy-foreground)] border-[var(--navy-foreground)]/40 hover:bg-[var(--navy-2)]"><Link to="/contact">Contact us</Link></Button>
+              <Button asChild variant="gold" className="rounded-full"><Link to="/book">Get a quote <ArrowRight className="size-4" /></Link></Button>
+              <Button asChild variant="outline" className="rounded-full bg-transparent text-[var(--navy-foreground)] border-[var(--navy-foreground)]/40 hover:bg-[var(--navy-2)]"><Link to="/contact">Talk to our team</Link></Button>
             </div>
           </div>
         </div>
       </section>
     </SiteLayout>
+  );
+}
+
+function VehicleClassSection({ klass, alt }: { klass: PublicVehicleClass; alt: boolean }) {
+  const recs = Object.entries(klass.recommended_for ?? {}).filter(([, v]) => v).map(([k]) => RECOMMENDED_LABELS[k] ?? k);
+  return (
+    <section className={`section-y ${alt ? "section-warm" : "bg-[var(--background)]"}`}>
+      <div className="container-x grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
+        <Reveal className={alt ? "lg:order-2" : ""}>
+          {klass.hero_image ? (
+            <img
+              src={klass.hero_image}
+              alt={`${klass.name} — representative vehicle`}
+              width={1600}
+              height={1000}
+              loading="lazy"
+              decoding="async"
+              className="rounded-3xl object-cover w-full aspect-[4/3] shadow-[var(--shadow-elegant)] bg-[var(--surface-warm)]"
+            />
+          ) : (
+            <div className="rounded-3xl w-full aspect-[4/3] bg-[var(--surface-warm)] grid place-items-center text-muted-foreground">
+              Image coming soon
+            </div>
+          )}
+        </Reveal>
+        <Reveal delay={120} className={alt ? "lg:order-1" : ""}>
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="text-xs uppercase tracking-[0.3em] text-[var(--gold)]">Vehicle Class</p>
+            {klass.badge && (
+              <span className="rounded-full bg-[var(--gold)]/15 text-[var(--gold)] px-2.5 py-0.5 text-[11px] font-semibold">
+                {klass.badge}
+              </span>
+            )}
+            {klass.wheelchair_accessible && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-[var(--navy)]/5 text-[var(--navy)] px-2.5 py-0.5 text-[11px] font-semibold">
+                <Accessibility className="size-3" /> Accessible
+              </span>
+            )}
+            {klass.fuel_type === "electric" && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 text-emerald-700 px-2.5 py-0.5 text-[11px] font-semibold">
+                <Zap className="size-3" /> Electric
+              </span>
+            )}
+          </div>
+          <h2 className="mt-3 font-display text-3xl md:text-5xl font-semibold leading-tight">{klass.name}</h2>
+          {klass.short_description && <p className="mt-3 text-muted-foreground italic">{klass.short_description}</p>}
+          {klass.long_description && <p className="mt-4 text-foreground/80">{klass.long_description}</p>}
+
+          <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
+            <Spec icon={<Users className="size-4" />} label="Passengers">{klass.passengers}</Spec>
+            <Spec icon={<Briefcase className="size-4" />} label="Large luggage">{klass.large_luggage}</Spec>
+            <Spec icon={<Luggage className="size-4" />} label="Cabin bags">{klass.cabin_bags}</Spec>
+            <Spec icon={<ShieldCheck className="size-4" />} label="Child seats">{klass.child_seats_supported ? "Yes" : "—"}</Spec>
+            <Spec icon={<Accessibility className="size-4" />} label="Accessible">{klass.wheelchair_accessible ? "Yes" : "—"}</Spec>
+            <Spec icon={<Zap className="size-4" />} label="Fuel">{klass.fuel_type.replace(/_/g, " ")}</Spec>
+          </div>
+
+          {recs.length > 0 && (
+            <div className="mt-5">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-muted-foreground">Recommended for</p>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {recs.map((r) => (
+                  <span key={r} className="inline-flex items-center gap-1 rounded-full border border-border bg-card px-2.5 py-0.5 text-[12px]">
+                    <CheckCircle2 className="size-3 text-[var(--gold)]" /> {r}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {klass.models.length > 0 && (
+            <div className="mt-5">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-muted-foreground">Representative vehicles</p>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {klass.models.map((m) => (
+                  <span key={m.id} className="inline-flex items-center gap-1 rounded-full bg-[var(--navy)]/5 text-[var(--navy)] px-2.5 py-0.5 text-[12px] font-medium">
+                    <Star className="size-3 fill-[var(--gold)] text-[var(--gold)]" /> {m.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <VehicleAllocationNotice className="mt-6" compact />
+
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Button asChild variant="gold" className="rounded-full">
+              <Link to="/book">
+                {klass.quote_on_request ? "Request a quote" : "Get a quote"} <ArrowRight className="size-4" />
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className="rounded-full">
+              <Link to="/contact">Ask about {klass.name}</Link>
+            </Button>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+function Spec({ icon, label, children }: { icon: React.ReactNode; label: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-xl border border-border bg-card px-3 py-2.5">
+      <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+        <span className="text-[var(--gold)]">{icon}</span>
+        {label}
+      </div>
+      <div className="mt-1 font-semibold text-foreground text-sm capitalize">{children}</div>
+    </div>
   );
 }
