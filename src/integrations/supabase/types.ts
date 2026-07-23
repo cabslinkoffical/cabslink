@@ -486,6 +486,111 @@ export type Database = {
         }
         Relationships: []
       }
+      destinations: {
+        Row: {
+          active: boolean
+          council: string | null
+          country: string
+          created_at: string
+          display_name: string | null
+          id: string
+          keywords: string[]
+          lat: number | null
+          linked_page_id: string | null
+          lng: number | null
+          meta: Json
+          name: string
+          nearby_ids: string[]
+          noindex: boolean
+          parent_id: string | null
+          place_id: string | null
+          popular_route_ids: string[]
+          region: string | null
+          related_service_ids: string[]
+          search_vector: unknown
+          seo_tier: number
+          short_name: string | null
+          slug: string
+          synonyms: string[]
+          town: string | null
+          type: Database["public"]["Enums"]["destination_type"]
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          council?: string | null
+          country?: string
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          keywords?: string[]
+          lat?: number | null
+          linked_page_id?: string | null
+          lng?: number | null
+          meta?: Json
+          name: string
+          nearby_ids?: string[]
+          noindex?: boolean
+          parent_id?: string | null
+          place_id?: string | null
+          popular_route_ids?: string[]
+          region?: string | null
+          related_service_ids?: string[]
+          search_vector?: unknown
+          seo_tier?: number
+          short_name?: string | null
+          slug: string
+          synonyms?: string[]
+          town?: string | null
+          type: Database["public"]["Enums"]["destination_type"]
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          council?: string | null
+          country?: string
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          keywords?: string[]
+          lat?: number | null
+          linked_page_id?: string | null
+          lng?: number | null
+          meta?: Json
+          name?: string
+          nearby_ids?: string[]
+          noindex?: boolean
+          parent_id?: string | null
+          place_id?: string | null
+          popular_route_ids?: string[]
+          region?: string | null
+          related_service_ids?: string[]
+          search_vector?: unknown
+          seo_tier?: number
+          short_name?: string | null
+          slug?: string
+          synonyms?: string[]
+          town?: string | null
+          type?: Database["public"]["Enums"]["destination_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "destinations_linked_page_id_fkey"
+            columns: ["linked_page_id"]
+            isOneToOne: false
+            referencedRelation: "seo_pages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "destinations_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "destinations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       drivers: {
         Row: {
           address: string | null
@@ -2617,6 +2722,22 @@ export type Database = {
         | "driver_en_route"
         | "passenger_on_board"
         | "rejected"
+      destination_type:
+        | "location"
+        | "route"
+        | "airport"
+        | "station"
+        | "cruise_port"
+        | "university"
+        | "hospital"
+        | "corporate"
+        | "attraction"
+        | "distillery"
+        | "business_park"
+        | "service"
+        | "guide"
+        | "region"
+        | "council"
       discount_type: "fixed" | "percentage"
       driver_status: "active" | "inactive" | "suspended"
       message_status: "new" | "read" | "resolved"
@@ -2829,6 +2950,23 @@ export const Constants = {
         "driver_en_route",
         "passenger_on_board",
         "rejected",
+      ],
+      destination_type: [
+        "location",
+        "route",
+        "airport",
+        "station",
+        "cruise_port",
+        "university",
+        "hospital",
+        "corporate",
+        "attraction",
+        "distillery",
+        "business_park",
+        "service",
+        "guide",
+        "region",
+        "council",
       ],
       discount_type: ["fixed", "percentage"],
       driver_status: ["active", "inactive", "suspended"],

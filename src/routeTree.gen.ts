@@ -12,7 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as VipTransfersRouteImport } from './routes/vip-transfers'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as SitemapCoreDotxmlRouteImport } from './routes/sitemap-core[.]xml'
 import { Route as ServicesRouteImport } from './routes/services'
+import { Route as SearchRouteImport } from './routes/search'
 import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as FleetRouteImport } from './routes/fleet'
@@ -30,11 +32,30 @@ import { Route as AccessibilityRouteImport } from './routes/accessibility'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as UniversitiesIndexRouteImport } from './routes/universities.index'
 import { Route as ToursIndexRouteImport } from './routes/tours.index'
+import { Route as StationsIndexRouteImport } from './routes/stations.index'
+import { Route as HospitalsIndexRouteImport } from './routes/hospitals.index'
+import { Route as GuidesIndexRouteImport } from './routes/guides.index'
+import { Route as DistilleriesIndexRouteImport } from './routes/distilleries.index'
+import { Route as CruisePortsIndexRouteImport } from './routes/cruise-ports.index'
+import { Route as CorporateIndexRouteImport } from './routes/corporate.index'
+import { Route as AttractionsIndexRouteImport } from './routes/attractions.index'
+import { Route as AreasIndexRouteImport } from './routes/areas.index'
+import { Route as UniversitiesSlugRouteImport } from './routes/universities.$slug'
 import { Route as ToursSlugRouteImport } from './routes/tours.$slug'
+import { Route as StationsSlugRouteImport } from './routes/stations.$slug'
+import { Route as SitemapsTypeDotxmlRouteImport } from './routes/sitemaps.$type[.]xml'
 import { Route as RoutesSlugRouteImport } from './routes/routes.$slug'
 import { Route as LocationsSlugRouteImport } from './routes/locations.$slug'
+import { Route as HospitalsSlugRouteImport } from './routes/hospitals.$slug'
+import { Route as GuidesSlugRouteImport } from './routes/guides.$slug'
+import { Route as DistilleriesSlugRouteImport } from './routes/distilleries.$slug'
+import { Route as CruisePortsSlugRouteImport } from './routes/cruise-ports.$slug'
+import { Route as CorporateSlugRouteImport } from './routes/corporate.$slug'
 import { Route as BookingTokenRouteImport } from './routes/booking.$token'
+import { Route as AttractionsSlugRouteImport } from './routes/attractions.$slug'
+import { Route as AreasSlugRouteImport } from './routes/areas.$slug'
 import { Route as AirportsIataRouteImport } from './routes/airports.$iata'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
@@ -84,9 +105,19 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SitemapCoreDotxmlRoute = SitemapCoreDotxmlRouteImport.update({
+  id: '/sitemap-core.xml',
+  path: '/sitemap-core.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ServicesRoute = ServicesRouteImport.update({
   id: '/services',
   path: '/services',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SearchRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RefundPolicyRoute = RefundPolicyRouteImport.update({
@@ -173,14 +204,74 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UniversitiesIndexRoute = UniversitiesIndexRouteImport.update({
+  id: '/universities/',
+  path: '/universities/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ToursIndexRoute = ToursIndexRouteImport.update({
   id: '/tours/',
   path: '/tours/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StationsIndexRoute = StationsIndexRouteImport.update({
+  id: '/stations/',
+  path: '/stations/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HospitalsIndexRoute = HospitalsIndexRouteImport.update({
+  id: '/hospitals/',
+  path: '/hospitals/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuidesIndexRoute = GuidesIndexRouteImport.update({
+  id: '/guides/',
+  path: '/guides/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DistilleriesIndexRoute = DistilleriesIndexRouteImport.update({
+  id: '/distilleries/',
+  path: '/distilleries/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CruisePortsIndexRoute = CruisePortsIndexRouteImport.update({
+  id: '/cruise-ports/',
+  path: '/cruise-ports/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CorporateIndexRoute = CorporateIndexRouteImport.update({
+  id: '/corporate/',
+  path: '/corporate/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AttractionsIndexRoute = AttractionsIndexRouteImport.update({
+  id: '/attractions/',
+  path: '/attractions/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AreasIndexRoute = AreasIndexRouteImport.update({
+  id: '/areas/',
+  path: '/areas/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UniversitiesSlugRoute = UniversitiesSlugRouteImport.update({
+  id: '/universities/$slug',
+  path: '/universities/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ToursSlugRoute = ToursSlugRouteImport.update({
   id: '/tours/$slug',
   path: '/tours/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StationsSlugRoute = StationsSlugRouteImport.update({
+  id: '/stations/$slug',
+  path: '/stations/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapsTypeDotxmlRoute = SitemapsTypeDotxmlRouteImport.update({
+  id: '/sitemaps/$type.xml',
+  path: '/sitemaps/$type.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RoutesSlugRoute = RoutesSlugRouteImport.update({
@@ -193,9 +284,44 @@ const LocationsSlugRoute = LocationsSlugRouteImport.update({
   path: '/locations/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HospitalsSlugRoute = HospitalsSlugRouteImport.update({
+  id: '/hospitals/$slug',
+  path: '/hospitals/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuidesSlugRoute = GuidesSlugRouteImport.update({
+  id: '/guides/$slug',
+  path: '/guides/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DistilleriesSlugRoute = DistilleriesSlugRouteImport.update({
+  id: '/distilleries/$slug',
+  path: '/distilleries/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CruisePortsSlugRoute = CruisePortsSlugRouteImport.update({
+  id: '/cruise-ports/$slug',
+  path: '/cruise-ports/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CorporateSlugRoute = CorporateSlugRouteImport.update({
+  id: '/corporate/$slug',
+  path: '/corporate/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BookingTokenRoute = BookingTokenRouteImport.update({
   id: '/booking/$token',
   path: '/booking/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AttractionsSlugRoute = AttractionsSlugRouteImport.update({
+  id: '/attractions/$slug',
+  path: '/attractions/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AreasSlugRoute = AreasSlugRouteImport.update({
+  id: '/areas/$slug',
+  path: '/areas/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AirportsIataRoute = AirportsIataRouteImport.update({
@@ -407,17 +533,38 @@ export interface FileRoutesByFullPath {
   '/fleet': typeof FleetRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
+  '/search': typeof SearchRoute
   '/services': typeof ServicesRoute
+  '/sitemap-core.xml': typeof SitemapCoreDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/vip-transfers': typeof VipTransfersRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/airports/$iata': typeof AirportsIataRoute
+  '/areas/$slug': typeof AreasSlugRoute
+  '/attractions/$slug': typeof AttractionsSlugRoute
   '/booking/$token': typeof BookingTokenRoute
+  '/corporate/$slug': typeof CorporateSlugRoute
+  '/cruise-ports/$slug': typeof CruisePortsSlugRoute
+  '/distilleries/$slug': typeof DistilleriesSlugRoute
+  '/guides/$slug': typeof GuidesSlugRoute
+  '/hospitals/$slug': typeof HospitalsSlugRoute
   '/locations/$slug': typeof LocationsSlugRoute
   '/routes/$slug': typeof RoutesSlugRoute
+  '/sitemaps/$type.xml': typeof SitemapsTypeDotxmlRoute
+  '/stations/$slug': typeof StationsSlugRoute
   '/tours/$slug': typeof ToursSlugRoute
+  '/universities/$slug': typeof UniversitiesSlugRoute
+  '/areas/': typeof AreasIndexRoute
+  '/attractions/': typeof AttractionsIndexRoute
+  '/corporate/': typeof CorporateIndexRoute
+  '/cruise-ports/': typeof CruisePortsIndexRoute
+  '/distilleries/': typeof DistilleriesIndexRoute
+  '/guides/': typeof GuidesIndexRoute
+  '/hospitals/': typeof HospitalsIndexRoute
+  '/stations/': typeof StationsIndexRoute
   '/tours/': typeof ToursIndexRoute
+  '/universities/': typeof UniversitiesIndexRoute
   '/admin/addresses': typeof AuthenticatedAdminAddressesRoute
   '/admin/banned-addresses': typeof AuthenticatedAdminBannedAddressesRoute
   '/admin/bookings': typeof AuthenticatedAdminBookingsRoute
@@ -467,16 +614,37 @@ export interface FileRoutesByTo {
   '/fleet': typeof FleetRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
+  '/search': typeof SearchRoute
   '/services': typeof ServicesRoute
+  '/sitemap-core.xml': typeof SitemapCoreDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/vip-transfers': typeof VipTransfersRoute
   '/airports/$iata': typeof AirportsIataRoute
+  '/areas/$slug': typeof AreasSlugRoute
+  '/attractions/$slug': typeof AttractionsSlugRoute
   '/booking/$token': typeof BookingTokenRoute
+  '/corporate/$slug': typeof CorporateSlugRoute
+  '/cruise-ports/$slug': typeof CruisePortsSlugRoute
+  '/distilleries/$slug': typeof DistilleriesSlugRoute
+  '/guides/$slug': typeof GuidesSlugRoute
+  '/hospitals/$slug': typeof HospitalsSlugRoute
   '/locations/$slug': typeof LocationsSlugRoute
   '/routes/$slug': typeof RoutesSlugRoute
+  '/sitemaps/$type.xml': typeof SitemapsTypeDotxmlRoute
+  '/stations/$slug': typeof StationsSlugRoute
   '/tours/$slug': typeof ToursSlugRoute
+  '/universities/$slug': typeof UniversitiesSlugRoute
+  '/areas': typeof AreasIndexRoute
+  '/attractions': typeof AttractionsIndexRoute
+  '/corporate': typeof CorporateIndexRoute
+  '/cruise-ports': typeof CruisePortsIndexRoute
+  '/distilleries': typeof DistilleriesIndexRoute
+  '/guides': typeof GuidesIndexRoute
+  '/hospitals': typeof HospitalsIndexRoute
+  '/stations': typeof StationsIndexRoute
   '/tours': typeof ToursIndexRoute
+  '/universities': typeof UniversitiesIndexRoute
   '/admin/addresses': typeof AuthenticatedAdminAddressesRoute
   '/admin/banned-addresses': typeof AuthenticatedAdminBannedAddressesRoute
   '/admin/bookings': typeof AuthenticatedAdminBookingsRoute
@@ -528,17 +696,38 @@ export interface FileRoutesById {
   '/fleet': typeof FleetRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
+  '/search': typeof SearchRoute
   '/services': typeof ServicesRoute
+  '/sitemap-core.xml': typeof SitemapCoreDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/vip-transfers': typeof VipTransfersRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/airports/$iata': typeof AirportsIataRoute
+  '/areas/$slug': typeof AreasSlugRoute
+  '/attractions/$slug': typeof AttractionsSlugRoute
   '/booking/$token': typeof BookingTokenRoute
+  '/corporate/$slug': typeof CorporateSlugRoute
+  '/cruise-ports/$slug': typeof CruisePortsSlugRoute
+  '/distilleries/$slug': typeof DistilleriesSlugRoute
+  '/guides/$slug': typeof GuidesSlugRoute
+  '/hospitals/$slug': typeof HospitalsSlugRoute
   '/locations/$slug': typeof LocationsSlugRoute
   '/routes/$slug': typeof RoutesSlugRoute
+  '/sitemaps/$type.xml': typeof SitemapsTypeDotxmlRoute
+  '/stations/$slug': typeof StationsSlugRoute
   '/tours/$slug': typeof ToursSlugRoute
+  '/universities/$slug': typeof UniversitiesSlugRoute
+  '/areas/': typeof AreasIndexRoute
+  '/attractions/': typeof AttractionsIndexRoute
+  '/corporate/': typeof CorporateIndexRoute
+  '/cruise-ports/': typeof CruisePortsIndexRoute
+  '/distilleries/': typeof DistilleriesIndexRoute
+  '/guides/': typeof GuidesIndexRoute
+  '/hospitals/': typeof HospitalsIndexRoute
+  '/stations/': typeof StationsIndexRoute
   '/tours/': typeof ToursIndexRoute
+  '/universities/': typeof UniversitiesIndexRoute
   '/_authenticated/admin/addresses': typeof AuthenticatedAdminAddressesRoute
   '/_authenticated/admin/banned-addresses': typeof AuthenticatedAdminBannedAddressesRoute
   '/_authenticated/admin/bookings': typeof AuthenticatedAdminBookingsRoute
@@ -590,17 +779,38 @@ export interface FileRouteTypes {
     | '/fleet'
     | '/privacy'
     | '/refund-policy'
+    | '/search'
     | '/services'
+    | '/sitemap-core.xml'
     | '/sitemap.xml'
     | '/terms'
     | '/vip-transfers'
     | '/admin'
     | '/airports/$iata'
+    | '/areas/$slug'
+    | '/attractions/$slug'
     | '/booking/$token'
+    | '/corporate/$slug'
+    | '/cruise-ports/$slug'
+    | '/distilleries/$slug'
+    | '/guides/$slug'
+    | '/hospitals/$slug'
     | '/locations/$slug'
     | '/routes/$slug'
+    | '/sitemaps/$type.xml'
+    | '/stations/$slug'
     | '/tours/$slug'
+    | '/universities/$slug'
+    | '/areas/'
+    | '/attractions/'
+    | '/corporate/'
+    | '/cruise-ports/'
+    | '/distilleries/'
+    | '/guides/'
+    | '/hospitals/'
+    | '/stations/'
     | '/tours/'
+    | '/universities/'
     | '/admin/addresses'
     | '/admin/banned-addresses'
     | '/admin/bookings'
@@ -650,16 +860,37 @@ export interface FileRouteTypes {
     | '/fleet'
     | '/privacy'
     | '/refund-policy'
+    | '/search'
     | '/services'
+    | '/sitemap-core.xml'
     | '/sitemap.xml'
     | '/terms'
     | '/vip-transfers'
     | '/airports/$iata'
+    | '/areas/$slug'
+    | '/attractions/$slug'
     | '/booking/$token'
+    | '/corporate/$slug'
+    | '/cruise-ports/$slug'
+    | '/distilleries/$slug'
+    | '/guides/$slug'
+    | '/hospitals/$slug'
     | '/locations/$slug'
     | '/routes/$slug'
+    | '/sitemaps/$type.xml'
+    | '/stations/$slug'
     | '/tours/$slug'
+    | '/universities/$slug'
+    | '/areas'
+    | '/attractions'
+    | '/corporate'
+    | '/cruise-ports'
+    | '/distilleries'
+    | '/guides'
+    | '/hospitals'
+    | '/stations'
     | '/tours'
+    | '/universities'
     | '/admin/addresses'
     | '/admin/banned-addresses'
     | '/admin/bookings'
@@ -710,17 +941,38 @@ export interface FileRouteTypes {
     | '/fleet'
     | '/privacy'
     | '/refund-policy'
+    | '/search'
     | '/services'
+    | '/sitemap-core.xml'
     | '/sitemap.xml'
     | '/terms'
     | '/vip-transfers'
     | '/_authenticated/admin'
     | '/airports/$iata'
+    | '/areas/$slug'
+    | '/attractions/$slug'
     | '/booking/$token'
+    | '/corporate/$slug'
+    | '/cruise-ports/$slug'
+    | '/distilleries/$slug'
+    | '/guides/$slug'
+    | '/hospitals/$slug'
     | '/locations/$slug'
     | '/routes/$slug'
+    | '/sitemaps/$type.xml'
+    | '/stations/$slug'
     | '/tours/$slug'
+    | '/universities/$slug'
+    | '/areas/'
+    | '/attractions/'
+    | '/corporate/'
+    | '/cruise-ports/'
+    | '/distilleries/'
+    | '/guides/'
+    | '/hospitals/'
+    | '/stations/'
     | '/tours/'
+    | '/universities/'
     | '/_authenticated/admin/addresses'
     | '/_authenticated/admin/banned-addresses'
     | '/_authenticated/admin/bookings'
@@ -772,16 +1024,37 @@ export interface RootRouteChildren {
   FleetRoute: typeof FleetRoute
   PrivacyRoute: typeof PrivacyRoute
   RefundPolicyRoute: typeof RefundPolicyRoute
+  SearchRoute: typeof SearchRoute
   ServicesRoute: typeof ServicesRoute
+  SitemapCoreDotxmlRoute: typeof SitemapCoreDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   VipTransfersRoute: typeof VipTransfersRoute
   AirportsIataRoute: typeof AirportsIataRoute
+  AreasSlugRoute: typeof AreasSlugRoute
+  AttractionsSlugRoute: typeof AttractionsSlugRoute
   BookingTokenRoute: typeof BookingTokenRoute
+  CorporateSlugRoute: typeof CorporateSlugRoute
+  CruisePortsSlugRoute: typeof CruisePortsSlugRoute
+  DistilleriesSlugRoute: typeof DistilleriesSlugRoute
+  GuidesSlugRoute: typeof GuidesSlugRoute
+  HospitalsSlugRoute: typeof HospitalsSlugRoute
   LocationsSlugRoute: typeof LocationsSlugRoute
   RoutesSlugRoute: typeof RoutesSlugRoute
+  SitemapsTypeDotxmlRoute: typeof SitemapsTypeDotxmlRoute
+  StationsSlugRoute: typeof StationsSlugRoute
   ToursSlugRoute: typeof ToursSlugRoute
+  UniversitiesSlugRoute: typeof UniversitiesSlugRoute
+  AreasIndexRoute: typeof AreasIndexRoute
+  AttractionsIndexRoute: typeof AttractionsIndexRoute
+  CorporateIndexRoute: typeof CorporateIndexRoute
+  CruisePortsIndexRoute: typeof CruisePortsIndexRoute
+  DistilleriesIndexRoute: typeof DistilleriesIndexRoute
+  GuidesIndexRoute: typeof GuidesIndexRoute
+  HospitalsIndexRoute: typeof HospitalsIndexRoute
+  StationsIndexRoute: typeof StationsIndexRoute
   ToursIndexRoute: typeof ToursIndexRoute
+  UniversitiesIndexRoute: typeof UniversitiesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -807,11 +1080,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sitemap-core.xml': {
+      id: '/sitemap-core.xml'
+      path: '/sitemap-core.xml'
+      fullPath: '/sitemap-core.xml'
+      preLoaderRoute: typeof SitemapCoreDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/services': {
       id: '/services'
       path: '/services'
       fullPath: '/services'
       preLoaderRoute: typeof ServicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/refund-policy': {
@@ -933,6 +1220,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/universities/': {
+      id: '/universities/'
+      path: '/universities'
+      fullPath: '/universities/'
+      preLoaderRoute: typeof UniversitiesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tours/': {
       id: '/tours/'
       path: '/tours'
@@ -940,11 +1234,88 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ToursIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/stations/': {
+      id: '/stations/'
+      path: '/stations'
+      fullPath: '/stations/'
+      preLoaderRoute: typeof StationsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hospitals/': {
+      id: '/hospitals/'
+      path: '/hospitals'
+      fullPath: '/hospitals/'
+      preLoaderRoute: typeof HospitalsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guides/': {
+      id: '/guides/'
+      path: '/guides'
+      fullPath: '/guides/'
+      preLoaderRoute: typeof GuidesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/distilleries/': {
+      id: '/distilleries/'
+      path: '/distilleries'
+      fullPath: '/distilleries/'
+      preLoaderRoute: typeof DistilleriesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cruise-ports/': {
+      id: '/cruise-ports/'
+      path: '/cruise-ports'
+      fullPath: '/cruise-ports/'
+      preLoaderRoute: typeof CruisePortsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/corporate/': {
+      id: '/corporate/'
+      path: '/corporate'
+      fullPath: '/corporate/'
+      preLoaderRoute: typeof CorporateIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/attractions/': {
+      id: '/attractions/'
+      path: '/attractions'
+      fullPath: '/attractions/'
+      preLoaderRoute: typeof AttractionsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/areas/': {
+      id: '/areas/'
+      path: '/areas'
+      fullPath: '/areas/'
+      preLoaderRoute: typeof AreasIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/universities/$slug': {
+      id: '/universities/$slug'
+      path: '/universities/$slug'
+      fullPath: '/universities/$slug'
+      preLoaderRoute: typeof UniversitiesSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tours/$slug': {
       id: '/tours/$slug'
       path: '/tours/$slug'
       fullPath: '/tours/$slug'
       preLoaderRoute: typeof ToursSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stations/$slug': {
+      id: '/stations/$slug'
+      path: '/stations/$slug'
+      fullPath: '/stations/$slug'
+      preLoaderRoute: typeof StationsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemaps/$type.xml': {
+      id: '/sitemaps/$type.xml'
+      path: '/sitemaps/$type.xml'
+      fullPath: '/sitemaps/$type.xml'
+      preLoaderRoute: typeof SitemapsTypeDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/routes/$slug': {
@@ -961,11 +1332,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LocationsSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/hospitals/$slug': {
+      id: '/hospitals/$slug'
+      path: '/hospitals/$slug'
+      fullPath: '/hospitals/$slug'
+      preLoaderRoute: typeof HospitalsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guides/$slug': {
+      id: '/guides/$slug'
+      path: '/guides/$slug'
+      fullPath: '/guides/$slug'
+      preLoaderRoute: typeof GuidesSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/distilleries/$slug': {
+      id: '/distilleries/$slug'
+      path: '/distilleries/$slug'
+      fullPath: '/distilleries/$slug'
+      preLoaderRoute: typeof DistilleriesSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cruise-ports/$slug': {
+      id: '/cruise-ports/$slug'
+      path: '/cruise-ports/$slug'
+      fullPath: '/cruise-ports/$slug'
+      preLoaderRoute: typeof CruisePortsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/corporate/$slug': {
+      id: '/corporate/$slug'
+      path: '/corporate/$slug'
+      fullPath: '/corporate/$slug'
+      preLoaderRoute: typeof CorporateSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/booking/$token': {
       id: '/booking/$token'
       path: '/booking/$token'
       fullPath: '/booking/$token'
       preLoaderRoute: typeof BookingTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/attractions/$slug': {
+      id: '/attractions/$slug'
+      path: '/attractions/$slug'
+      fullPath: '/attractions/$slug'
+      preLoaderRoute: typeof AttractionsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/areas/$slug': {
+      id: '/areas/$slug'
+      path: '/areas/$slug'
+      fullPath: '/areas/$slug'
+      preLoaderRoute: typeof AreasSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/airports/$iata': {
@@ -1323,16 +1743,37 @@ const rootRouteChildren: RootRouteChildren = {
   FleetRoute: FleetRoute,
   PrivacyRoute: PrivacyRoute,
   RefundPolicyRoute: RefundPolicyRoute,
+  SearchRoute: SearchRoute,
   ServicesRoute: ServicesRoute,
+  SitemapCoreDotxmlRoute: SitemapCoreDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   VipTransfersRoute: VipTransfersRoute,
   AirportsIataRoute: AirportsIataRoute,
+  AreasSlugRoute: AreasSlugRoute,
+  AttractionsSlugRoute: AttractionsSlugRoute,
   BookingTokenRoute: BookingTokenRoute,
+  CorporateSlugRoute: CorporateSlugRoute,
+  CruisePortsSlugRoute: CruisePortsSlugRoute,
+  DistilleriesSlugRoute: DistilleriesSlugRoute,
+  GuidesSlugRoute: GuidesSlugRoute,
+  HospitalsSlugRoute: HospitalsSlugRoute,
   LocationsSlugRoute: LocationsSlugRoute,
   RoutesSlugRoute: RoutesSlugRoute,
+  SitemapsTypeDotxmlRoute: SitemapsTypeDotxmlRoute,
+  StationsSlugRoute: StationsSlugRoute,
   ToursSlugRoute: ToursSlugRoute,
+  UniversitiesSlugRoute: UniversitiesSlugRoute,
+  AreasIndexRoute: AreasIndexRoute,
+  AttractionsIndexRoute: AttractionsIndexRoute,
+  CorporateIndexRoute: CorporateIndexRoute,
+  CruisePortsIndexRoute: CruisePortsIndexRoute,
+  DistilleriesIndexRoute: DistilleriesIndexRoute,
+  GuidesIndexRoute: GuidesIndexRoute,
+  HospitalsIndexRoute: HospitalsIndexRoute,
+  StationsIndexRoute: StationsIndexRoute,
   ToursIndexRoute: ToursIndexRoute,
+  UniversitiesIndexRoute: UniversitiesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
