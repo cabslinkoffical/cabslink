@@ -575,7 +575,7 @@ function HomePage() {
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button asChild variant="gold" className="rounded-full">
-                <Link to="/explore">Explore Locations <ArrowRight className="size-4" /></Link>
+                <Link to="/areas">Explore Locations <ArrowRight className="size-4" /></Link>
               </Button>
               <Button asChild variant="outline" className="rounded-full border-[var(--navy)]/20 text-[var(--navy)] hover:border-[var(--gold)] hover:text-[var(--gold-ink)]">
                 <Link to="/airport-transfers">All airports</Link>
@@ -602,7 +602,7 @@ function HomePage() {
                   <Globe2 className="size-5 text-[var(--gold-ink)]" />
                   <span className="font-display text-lg font-semibold text-[var(--navy)]">Cities we serve</span>
                 </div>
-                <Link to="/explore" className="hidden sm:inline-flex items-center gap-1 text-xs font-semibold text-[var(--navy)]/60 hover:text-[var(--gold-ink)]">
+                <Link to="/areas" className="hidden sm:inline-flex items-center gap-1 text-xs font-semibold text-[var(--navy)]/60 hover:text-[var(--gold-ink)]">
                   View all <ArrowRight className="size-3" />
                 </Link>
               </div>
@@ -610,14 +610,14 @@ function HomePage() {
                 {ukCities.map((c) => (
                   <Link
                     key={c}
-                    to="/explore"
+                    to="/areas"
                     className="inline-flex items-center gap-1.5 rounded-full border border-[var(--navy)]/12 bg-white px-3.5 py-1.5 text-xs font-semibold text-[var(--navy)] hover:border-[var(--gold)] hover:text-[var(--gold-ink)] hover:-translate-y-0.5 transition-all"
                   >
                     <MapPin className="size-3 text-[var(--gold-ink)]" /> {c}
                   </Link>
                 ))}
                 <Link
-                  to="/explore"
+                  to="/areas"
                   className="inline-flex items-center gap-1 rounded-full bg-[var(--navy)] text-white px-3.5 py-1.5 text-xs font-semibold hover:bg-[var(--gold)] hover:text-[var(--navy)] transition-colors"
                 >
                   + 108 more <ArrowRight className="size-3" />
@@ -628,7 +628,7 @@ function HomePage() {
                 {["England", "Scotland", "Wales"].map((r) => (
                   <Link
                     key={r}
-                    to="/explore"
+                    to="/areas"
                     className="rounded-xl border border-[var(--navy)]/10 bg-[var(--surface-2)] px-3 py-3 text-xs font-semibold text-[var(--navy)] hover:border-[var(--gold)] hover:text-[var(--gold-ink)] transition"
                   >
                     {r}

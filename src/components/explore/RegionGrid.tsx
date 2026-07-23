@@ -15,7 +15,7 @@ export function RegionGrid({ regions }: { regions: RegionCard[] }) {
       {regions.map((r) => (
         <Link
           key={r.slug}
-          to="/explore/region/$slug"
+          to="/areas/region/$slug"
           params={{ slug: r.slug }}
           className="group flex flex-col justify-between rounded-2xl border border-[var(--navy)]/10 bg-white p-5 transition hover:border-[var(--gold)] hover:shadow-[0_16px_40px_-24px_rgba(14,24,44,0.35)]"
         >

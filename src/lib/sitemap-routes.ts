@@ -8,7 +8,7 @@ export const PUBLIC_ROUTES = [
   "/corporate-booking", "/contact", "/book",
   "/privacy", "/terms", "/cookies",
   "/booking-policy", "/refund-policy", "/accessibility",
-  "/explore",
+  
   "/areas", "/stations", "/cruise-ports", "/universities",
   "/hospitals", "/corporate", "/attractions", "/distilleries", "/guides",
 ];

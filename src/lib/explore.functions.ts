@@ -251,3 +251,168 @@ export const alphaBucketQuery = (letter: string) =>
     queryFn: () => getAlphaBucket({ data: { letter } }),
     staleTime: 30 * 60 * 1000,
   });
+
+// ---------------------------------------------------------------------------
+// Area SEO context — powers the authoritative /areas/$slug location page.
+// Fetches the location + all typed nearby entities via destination_relationships
+// (airports, stations, hospitals, universities, attractions, hotels, cruise ports).
+// ---------------------------------------------------------------------------
+
+export type AreaSeoContext = {
+  destination: Destination;
+  nearbyAreas: Destination[];
+  airports: Destination[];
+  stations: Destination[];
+  universities: Destination[];
+  hospitals: Destination[];
+  attractions: Destination[];
+  hotels: Destination[];
+  cruisePorts: Destination[];
+  popularRoutes: Destination[];
+  services: Destination[];
+};
+
+const REL_TO_BUCKET: Record<string, keyof AreaSeoContext> = {
+  nearby: "nearbyAreas",
+  nearest_airport: "airports",
+  nearest_station: "stations",
+  nearest_hospital: "hospitals",
+  nearest_university: "universities",
+  related_attraction: "attractions",
+  related_hotel: "hotels",
+  popular_route: "popularRoutes",
+  related_service: "services",
+};
+
+export const getAreaSeoContext = createServerFn({ method: "GET" })
+  .inputValidator((input: { slug: string }) => z.object({ slug: z.string().min(1).max(200) }).parse(input))
+  .handler(async ({ data }): Promise<AreaSeoContext | null> => {
+    const c = sb();
+    const { data: root } = await c
+      .from("destinations")
+      .select(FIELDS)
+      .eq("type", "location")
+      .eq("slug", data.slug)
+      .eq("active", true)
+      .neq("seo_tier", 4)
+      .maybeSingle();
+    if (!root) return null;
+    const d = root as Destination;
+
+    // 1) Relationships from this destination.
+    const { data: rels } = await c
+      .from("destination_relationships")
+      .select("to_id, rel_type, rank")
+      .eq("from_id", d.id)
+      .order("rank", { ascending: true })
+      .limit(300);
+
+    const ids = new Set<string>();
+    for (const r of (rels ?? []) as Array<{ to_id: string }>) ids.add(r.to_id);
+    // Merge legacy id arrays stored on the row itself.
+    for (const id of d.nearby_ids ?? []) ids.add(id);
+    for (const id of d.popular_route_ids ?? []) ids.add(id);
+    for (const id of d.related_service_ids ?? []) ids.add(id);
+
+    // 2) Fetch all referenced destinations in one round-trip.
+    let related: Destination[] = [];
+    if (ids.size) {
+      const { data: rows } = await c
+        .from("destinations")
+        .select(FIELDS)
+        .in("id", [...ids])
+        .eq("active", true)
+        .neq("seo_tier", 4);
+      related = (rows as Destination[]) ?? [];
+    }
+    const byId = new Map(related.map((r) => [r.id, r]));
+
+    // 3) Bucket by rel_type; fall back to type-based bucketing for legacy arrays.
+    const ctx: AreaSeoContext = {
+      destination: d,
+      nearbyAreas: [],
+      airports: [],
+      stations: [],
+      universities: [],
+      hospitals: [],
+      attractions: [],
+      hotels: [],
+      cruisePorts: [],
+      popularRoutes: [],
+      services: [],
+    };
+    const seenIn: Record<string, Set<string>> = {};
+    const pushBucket = (bucket: keyof AreaSeoContext, dest: Destination) => {
+      if (bucket === "destination") return;
+      const set = (seenIn[bucket] ??= new Set());
+      if (set.has(dest.id)) return;
+      set.add(dest.id);
+      (ctx[bucket] as Destination[]).push(dest);
+    };
+
+    for (const r of (rels ?? []) as Array<{ to_id: string; rel_type: string }>) {
+      const dest = byId.get(r.to_id);
+      if (!dest) continue;
+      const bucket = REL_TO_BUCKET[r.rel_type];
+      if (bucket) pushBucket(bucket, dest);
+    }
+
+    // Legacy fallbacks — sort into buckets by destination type when relationships missing.
+    for (const id of d.nearby_ids ?? []) {
+      const dest = byId.get(id);
+      if (!dest) continue;
+      if (dest.type === "airport") pushBucket("airports", dest);
+      else if (dest.type === "station") pushBucket("stations", dest);
+      else if (dest.type === "university") pushBucket("universities", dest);
+      else if (dest.type === "hospital") pushBucket("hospitals", dest);
+      else if (dest.type === "cruise_port") pushBucket("cruisePorts", dest);
+      else if (dest.type === "attraction" || dest.type === "distillery") pushBucket("attractions", dest);
+      else if (dest.type === "location") pushBucket("nearbyAreas", dest);
+    }
+    for (const id of d.popular_route_ids ?? []) {
+      const dest = byId.get(id);
+      if (dest) pushBucket("popularRoutes", dest);
+    }
+    for (const id of d.related_service_ids ?? []) {
+      const dest = byId.get(id);
+      if (dest) pushBucket("services", dest);
+    }
+
+    // 4) If no airports came through relationships, surface region airports as a fallback.
+    if (!ctx.airports.length && d.region) {
+      const { data: rows } = await c
+        .from("destinations")
+        .select(FIELDS)
+        .eq("type", "airport")
+        .eq("active", true)
+        .neq("seo_tier", 4)
+        .eq("region", d.region)
+        .limit(6);
+      ctx.airports = (rows as Destination[]) ?? [];
+    }
+
+    // Cap buckets for render.
+    const cap = <K extends keyof AreaSeoContext>(k: K, n: number) => {
+      if (Array.isArray(ctx[k])) (ctx[k] as Destination[]) = (ctx[k] as Destination[]).slice(0, n);
+    };
+    cap("nearbyAreas", 12);
+    cap("airports", 8);
+    cap("stations", 8);
+    cap("universities", 8);
+    cap("hospitals", 8);
+    cap("attractions", 12);
+    cap("hotels", 8);
+    cap("cruisePorts", 6);
+    cap("popularRoutes", 12);
+    cap("services", 8);
+
+    return ctx;
+  });
+
+export const areaSeoContextQuery = (slug: string) =>
+  queryOptions({
+    queryKey: ["explore", "area", slug],
+    queryFn: () => getAreaSeoContext({ data: { slug } }),
+    staleTime: 30 * 60 * 1000,
+  });
+
