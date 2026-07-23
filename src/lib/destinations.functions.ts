@@ -28,6 +28,7 @@ export const DESTINATION_TYPES = [
   "location", "route", "airport", "station", "cruise_port", "university",
   "hospital", "corporate", "attraction", "distillery", "business_park",
   "service", "guide", "region", "council",
+  "city", "town", "village",
 ] as const;
 export type DestinationType = (typeof DESTINATION_TYPES)[number];
 
