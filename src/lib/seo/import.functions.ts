@@ -28,9 +28,8 @@ const RULES_KEY = "seo_import_rules";
 /* Admin gate                                                          */
 /* ------------------------------------------------------------------ */
 async function assertAdmin(context: { supabase: unknown; userId: string }) {
-  const sb = context.supabase as {
-    rpc: (name: string, args: Record<string, unknown>) => Promise<{ data: unknown; error: unknown }>;
-  };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const sb = context.supabase as any;
   const { data, error } = await sb.rpc("has_role", { _user_id: context.userId, _role: "admin" });
   if (error || !data) throw new Error("Forbidden");
 }
@@ -38,23 +37,11 @@ async function assertAdmin(context: { supabase: unknown; userId: string }) {
 /* ------------------------------------------------------------------ */
 /* Ruleset (stored in private_settings.value as JSON)                  */
 /* ------------------------------------------------------------------ */
-type Ctx = { supabase: SupabaseLike; userId: string };
-type SupabaseLike = {
-  from: (t: string) => {
-    select: (c: string) => {
-      eq: (c: string, v: unknown) => {
-        maybeSingle: () => Promise<{ data: unknown; error: unknown }>;
-        in: (c: string, v: unknown[]) => Promise<{ data: unknown; error: unknown }>;
-      };
-      in: (c: string, v: unknown[]) => Promise<{ data: unknown; error: unknown }>;
-      limit: (n: number) => Promise<{ data: unknown; error: unknown }>;
-    };
-    upsert: (v: unknown, opts?: unknown) => Promise<{ data: unknown; error: unknown }>;
-    insert: (v: unknown) => Promise<{ data: unknown; error: unknown }>;
-    update: (v: unknown) => { eq: (c: string, v: unknown) => Promise<{ error: unknown }> };
-  };
-  rpc: (n: string, a: Record<string, unknown>) => Promise<{ data: unknown; error: unknown }>;
-};
+// The generated Supabase client type infers too deeply for the many builder
+// chains this file constructs, so we intentionally erase types inside the
+// engine and rely on runtime shape checks + tests.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SupabaseLike = any;
 
 async function loadRuleset(supabase: SupabaseLike): Promise<ImportRuleset> {
   const { data } = await supabase.from("private_settings").select("value").eq("key", RULES_KEY).maybeSingle();
