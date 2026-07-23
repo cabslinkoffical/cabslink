@@ -272,3 +272,56 @@ function VehicleClassesPage() {
     </div>
   );
 }
+
+function HeroImageUploader({ slug, onUploaded }: { slug: string; onUploaded: (url: string) => void }) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+
+  const handleFile = async (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please choose an image file.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image must be under 5MB.");
+      return;
+    }
+    setBusy(true);
+    try {
+      const ext = file.name.split(".").pop()?.toLowerCase() || "png";
+      const path = `classes/${slug || "class"}-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from("vehicle-images")
+        .upload(path, file, { cacheControl: "31536000", upsert: false, contentType: file.type });
+      if (upErr) throw upErr;
+      // Bucket is private — mint a long-lived signed URL (~10 years).
+      const { data, error } = await supabase.storage
+        .from("vehicle-images")
+        .createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
+      if (error || !data?.signedUrl) throw error ?? new Error("Failed to sign URL");
+      onUploaded(data.signedUrl);
+      toast.success("Image uploaded");
+    } catch (e: any) {
+      toast.error(e.message ?? "Upload failed");
+    } finally {
+      setBusy(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
+  };
+
+  return (
+    <>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
+      />
+      <Button type="button" variant="outline" onClick={() => inputRef.current?.click()} disabled={busy}>
+        {busy ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />}
+        <span className="ml-1.5">Upload</span>
+      </Button>
+    </>
+  );
+}
