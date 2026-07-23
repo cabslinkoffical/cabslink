@@ -5,7 +5,7 @@ import {
   ArrowRight, Plane, ShieldCheck, Star, CalendarCheck, Phone,
   Briefcase, Users, Award, BadgePoundSterling, Headset, Car, Building2, Gem,
   Route as RouteIcon, CheckCircle2, Sparkles, MessageSquare, CreditCard, Quote,
-  Plus, Minus, Clock, MapPin
+  Plus, Minus, MapPin
 } from "lucide-react";
 
 import { SiteLayout } from "@/components/site/SiteLayout";
