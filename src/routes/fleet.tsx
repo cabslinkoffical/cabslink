@@ -157,25 +157,16 @@ function ClassRow({ klass, reverse }: { klass: PublicVehicleClass; index: number
       id={klass.slug}
       className={`grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-center ${reverse ? "md:[&>div:first-child]:order-2" : ""}`}
     >
-      {/* IMAGE PLATE */}
+      {/* IMAGE PLATE — single subtle shade so every class reads the same */}
       <div className="md:col-span-6">
-        <div className="group relative rounded-[28px] bg-gradient-to-br from-[var(--surface,#f5f2ec)] via-white to-[var(--surface,#f5f2ec)] aspect-[16/10] p-6 md:p-10 flex items-center justify-center overflow-hidden ring-1 ring-[var(--navy)]/5 shadow-[0_30px_60px_-40px_rgba(14,24,44,0.35)]">
-          {/* soft gold glow */}
-          <div
-            aria-hidden
-            className="absolute -inset-8 opacity-60 blur-3xl"
-            style={{ background: "radial-gradient(closest-side, color-mix(in oklab, var(--gold) 22%, transparent), transparent 70%)" }}
-          />
-          {/* ground shadow */}
-          <div aria-hidden className="absolute bottom-6 left-8 right-8 h-3 rounded-full bg-[var(--navy)]/25 blur-xl" />
-
+        <div className="group relative rounded-[24px] bg-[#f4f5f7] aspect-[16/10] p-6 md:p-10 flex items-center justify-center overflow-hidden ring-1 ring-black/[0.04] shadow-[0_1px_2px_rgba(14,24,44,0.04),0_20px_40px_-30px_rgba(14,24,44,0.18)]">
           {img ? (
             <img
               src={img}
               alt={`${klass.name} — representative vehicle`}
               loading="lazy"
               decoding="async"
-              className="relative z-10 max-h-full max-w-full w-auto h-auto object-contain drop-shadow-[0_28px_28px_rgba(14,24,44,0.22)] transition-transform duration-500 group-hover:scale-[1.04]"
+              className="relative z-10 max-h-full max-w-full w-auto h-auto object-contain drop-shadow-[0_16px_18px_rgba(14,24,44,0.18)] transition-transform duration-500 group-hover:scale-[1.03]"
             />
           ) : (
             <span className="relative z-10 text-xs text-muted-foreground">Image coming soon</span>
