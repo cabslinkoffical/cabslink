@@ -735,6 +735,8 @@ type PriceSummary = {
   rideTotal: number;
   seatFee: number;
   seatCount: number;
+  meetGreetFee: number;
+  returnFee: number;
   policy: Policy;
   policyDelta: number;
   grandTotal: number;
@@ -749,6 +751,8 @@ function PriceBreakdown({ price }: { price: PriceSummary }) {
   const parts = [
     `Ride ${fmtGBP(price.rideTotal)}`,
     ...(price.seatCount > 0 ? [`Child seats ${fmtGBP(price.seatFee)}`] : []),
+    ...(price.meetGreetFee > 0 ? [`Meet & greet ${fmtGBP(price.meetGreetFee)}`] : []),
+    ...(price.returnFee > 0 ? [`Return ${fmtGBP(price.returnFee)}`] : []),
     `Cancellation cover: ${policyLabel}`,
   ];
   return (
