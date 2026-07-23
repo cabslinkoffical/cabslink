@@ -52,7 +52,7 @@ export function Header() {
           </div>
 
           {/* Center nav */}
-          <nav className="hidden lg:flex items-center gap-8 absolute left-1/2 -translate-x-1/2" aria-label="Primary">
+          <nav className="hidden lg:flex items-center gap-5 xl:gap-7 absolute left-1/2 -translate-x-1/2" aria-label="Primary">
             {NAV.map(item => {
               const active =
                 item.to === "/"
@@ -91,11 +91,27 @@ export function Header() {
 
             <a
               href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}
-              className="group inline-flex items-center gap-2 rounded-full bg-[var(--gold)] px-4 md:px-5 py-2.5 text-[12px] font-bold text-[var(--navy)] shadow-[0_8px_24px_-10px_rgba(223,175,38,0.9)] hover:shadow-[0_12px_32px_-8px_rgba(223,175,38,0.95)] hover:-translate-y-px transition-all duration-200"
+              className="group hidden 2xl:inline-flex items-center gap-2 rounded-full px-3 py-2 text-[12px] font-bold tracking-wide text-[var(--gold)] hover:text-white transition-colors"
             >
               <Phone className="size-3.5" />
-              <span className="hidden sm:inline tabular-nums">{SITE.phoneUK}</span>
-              <span className="sm:hidden">Call</span>
+              <span className="tabular-nums">{SITE.phoneUK}</span>
+            </a>
+
+            <Link
+              to="/book"
+              className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-[var(--gold)] px-5 md:px-6 py-2.5 text-[12px] font-extrabold uppercase tracking-[0.14em] text-[var(--navy)] shadow-[0_10px_28px_-10px_rgba(223,175,38,0.9)] hover:shadow-[0_14px_36px_-8px_rgba(223,175,38,0.95)] hover:-translate-y-px transition-all duration-200"
+            >
+              <span aria-hidden className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 skew-x-12 bg-white/30 blur-sm transition-transform duration-700 group-hover:translate-x-[500%]" />
+              <span className="relative">Book Now</span>
+            </Link>
+
+            {/* Compact call icon when the full phone number is hidden */}
+            <a
+              href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}
+              aria-label="Call CabsLink"
+              className="2xl:hidden grid size-10 place-items-center rounded-full bg-white/10 text-[var(--gold)] hover:bg-white/15"
+            >
+              <Phone className="size-4" />
             </a>
 
             {/* Mobile trigger */}
@@ -109,6 +125,7 @@ export function Header() {
             </button>
           </div>
         </header>
+
 
         {/* Mobile sheet */}
         {open && (
@@ -134,6 +151,14 @@ export function Header() {
                   );
                 })}
               </nav>
+
+              <Link
+                to="/book"
+                className="mt-2 inline-flex items-center justify-center gap-2 rounded-full bg-[var(--gold)] py-3 text-[12px] font-extrabold uppercase tracking-[0.16em] text-[var(--navy)] shadow-[0_10px_28px_-10px_rgba(223,175,38,0.9)]"
+              >
+                Book Now
+              </Link>
+
 
               {isAdmin && (
                 <Link
