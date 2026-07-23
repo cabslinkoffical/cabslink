@@ -325,46 +325,16 @@ function HomePage() {
                 </div>
               </div>
 
-              <div className="mt-6 relative">
-                <div className="flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                  {heroVehicles.map((v, i) => {
-                    const isActive = i === active;
-                    return (
-                      <button
-                        key={v.key}
-                        type="button"
-                        onClick={() => go(i)}
-                        className={`group shrink-0 flex items-center gap-3 rounded-2xl border px-3 py-2 transition-all ${
-                          isActive
-                            ? "border-[var(--gold)] bg-[var(--gold)]/15 shadow-[var(--shadow-elegant)]"
-                            : "border-white/15 bg-white hover:border-[var(--gold)]/50 hover:-translate-y-0.5"
-                        }`}
-                      >
-                        <div className="w-14 h-9 shrink-0 grid place-items-center overflow-hidden">
-                          <img src={v.thumbnail ?? v.img} alt="" loading="lazy" decoding="async" width={56} height={36} className="max-h-full w-auto object-contain" />
-                        </div>
-                        <div className="text-left pr-1">
-                          <div className={`text-[11px] font-semibold leading-tight ${isActive ? "text-[var(--navy)]" : "text-[var(--navy)]/80"}`}>
-                            {v.name}
-                          </div>
-                          <div className="text-[10px] text-[var(--navy)]/60 leading-tight">{v.seats} seats</div>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
             </div>
+          </div>
+
+          {/* Booking form inside hero */}
+          <div id="booking" className="mt-10 pb-4 scroll-mt-24">
+            <BookingWidget />
           </div>
         </div>
       </section>
 
-      {/* BOOKING WIDGET — untouched functionality */}
-      <section id="booking" className="relative z-20 scroll-mt-24 bg-white border-b border-[var(--navy)]/8">
-        <div className="container-x pt-8 pb-10">
-          <BookingWidget />
-        </div>
-      </section>
 
       {/* TRUST STRIP */}
       <section className="bg-white border-b border-[var(--navy)]/8">
