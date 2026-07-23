@@ -121,17 +121,17 @@ function Page() {
 
   return (
     <div className="p-6 md:p-8 space-y-6">
-      <PageHeader title="Mileage Pricing" description="Per-vehicle tiered mileage rates and time-based extras. Used as fallback when no fixed route price matches." />
+      <PageHeader title="Mileage Pricing" description="Per-class tiered mileage rates and time-based extras. Every vehicle in the class inherits this pricing." />
 
-      {vehicles.length === 0 ? (
-        <EmptyState title="No vehicles" hint="Add a vehicle first under Fleet → Vehicles." />
+      {classes.length === 0 ? (
+        <EmptyState title="No vehicle classes" hint="Add a class first under Fleet → Vehicle Classes." />
       ) : (
         <div className="border border-border rounded-xl bg-card overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">
               <tr>
-                <th className="text-left px-4 py-3">Vehicle</th>
-                <th className="text-left px-4 py-3">Class</th>
+                <th className="text-left px-4 py-3">Vehicle Class</th>
+                <th className="text-left px-4 py-3">Backing vehicle</th>
                 <th className="text-right px-4 py-3">Minimum price</th>
                 <th className="text-center px-4 py-3">Tiers</th>
                 <th className="text-left px-4 py-3">Status</th>
@@ -139,27 +139,36 @@ function Page() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {vehicles.map((v: any) => {
-                const p = profiles.find((x) => x.vehicle_id === v.id);
+              {classes.map((c: any) => {
+                const v = vehicles.find((x: any) => x.id === c.pricing_vehicle_id) ?? null;
+                const p = v ? profiles.find((x) => x.vehicle_id === v.id) : null;
+                const notLinked = !v;
                 return (
-                  <tr key={v.id} className="hover:bg-muted/30">
-                    <td className="px-4 py-3 flex items-center gap-3">
-                      {v.image_url && <img src={v.image_url} alt="" className="size-10 object-cover rounded-md bg-muted" />}
-                      <span className="font-medium">{v.name}</span>
+                  <tr key={c.id} className="hover:bg-muted/30">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        {c.hero_image && <img src={c.hero_image} alt="" className="size-10 object-cover rounded-md bg-muted" />}
+                        <div>
+                          <div className="font-medium">{c.name}</div>
+                          <div className="text-xs text-muted-foreground">{c.passengers} pax · {c.large_luggage + c.cabin_bags} bags</div>
+                        </div>
+                      </div>
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground capitalize">{v.vehicle_class?.replace(/_/g, " ") ?? "—"}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{v?.name ?? <span className="italic text-xs">Link a vehicle in Vehicle Classes</span>}</td>
                     <td className="px-4 py-3 text-right font-semibold">{p ? `£${Number(p.base_price).toFixed(2)}` : <span className="text-muted-foreground font-normal">—</span>}</td>
                     <td className="px-4 py-3 text-center">{p?.tiers?.length ?? 0}</td>
                     <td className="px-4 py-3">{p ? <StatusBadge status={p.status ? "active" : "inactive"} /> : <span className="text-xs text-muted-foreground">Not set</span>}</td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex justify-end gap-2">
-                        <DuplicateButton
-                          vehicleId={v.id}
-                          vehicleName={v.name}
-                          profiles={profiles}
-                          onDone={() => qc.invalidateQueries({ queryKey: ["pricing-profiles"] })}
-                        />
-                        <Button size="sm" variant={p ? "outline" : "default"} onClick={() => setActiveVehicle(v)}>
+                        {v && (
+                          <DuplicateButton
+                            vehicleId={v.id}
+                            vehicleName={c.name}
+                            profiles={profiles}
+                            onDone={() => qc.invalidateQueries({ queryKey: ["pricing-profiles"] })}
+                          />
+                        )}
+                        <Button size="sm" variant={p ? "outline" : "default"} disabled={notLinked} onClick={() => setActiveVehicle({ ...v, name: c.name })}>
                           {p ? "Edit pricing" : "Set pricing"}
                         </Button>
                       </div>
@@ -171,6 +180,7 @@ function Page() {
           </table>
         </div>
       )}
+
 
       <Dialog open={!!activeVehicle} onOpenChange={(o) => !o && setActiveVehicle(null)}>
         <DialogContent className="max-w-3xl max-h-[92vh] overflow-y-auto">
