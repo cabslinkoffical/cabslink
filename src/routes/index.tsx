@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { SITE } from "@/lib/site";
 import { listPublishedTours } from "@/lib/tours.functions";
 import { listPublicVehicleClasses } from "@/lib/vehicle-classes.functions";
+import { fleetImageFor } from "@/assets/fleet";
 
 import sclassAsset from "@/assets/fleet/sclass.png.asset.json";
 import eclassAsset from "@/assets/fleet/eclass.png.asset.json";
@@ -992,12 +993,15 @@ function FleetClassesSection() {
                   <Gem className="size-3" /> {k.badge}
                 </span>
               )}
-              <div className="relative aspect-[16/10] flex items-center justify-center bg-[var(--navy)]/5 overflow-hidden">
-                {k.hero_image ? (
-                  <img src={k.hero_image} alt={k.name} loading="lazy" decoding="async" className="max-h-full w-[92%] object-contain transition-transform duration-700 group-hover:scale-105" />
-                ) : (
-                  <div className="text-[var(--navy)]/40 text-sm">Image coming soon</div>
-                )}
+              <div className="relative aspect-[16/10] flex items-center justify-center bg-[var(--surface,#f5f2ec)] overflow-hidden p-5">
+                {(() => {
+                  const img = fleetImageFor(k.slug, k.hero_image);
+                  return img ? (
+                    <img src={img} alt={k.name} loading="lazy" decoding="async" className="max-h-full max-w-full object-contain drop-shadow-[0_18px_18px_rgba(14,24,44,0.15)] transition-transform duration-700 group-hover:scale-[1.04]" />
+                  ) : (
+                    <div className="text-[var(--navy)]/40 text-sm">Image coming soon</div>
+                  );
+                })()}
               </div>
               <div className="p-6 flex-1 flex flex-col">
                 <h3 className="font-display text-xl font-semibold text-[var(--navy)]">{k.name}</h3>
