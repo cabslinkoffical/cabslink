@@ -21,6 +21,7 @@ export const NAV = [
   { to: "/tours", label: "Tours" },
   { to: "/areas", label: "Locations" },
   { to: "/corporate-booking", label: "Corporate" },
+  { to: "/blog", label: "Blog" },
   { to: "/contact", label: "Contact" },
 ] as const;
 
