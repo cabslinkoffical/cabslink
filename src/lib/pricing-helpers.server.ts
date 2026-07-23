@@ -163,7 +163,7 @@ export async function loadActiveProfiles(client: ReturnType<typeof publicClient>
           id: v.id,
           name: c.name,
           category: c.slug,
-          image_url: c.hero_image ?? v.image_url,
+          image_url: (typeof c.hero_image === "string" && c.hero_image.trim()) ? c.hero_image : v.image_url,
           passengers: c.passengers,
           luggage: c.large_luggage,
           hand_luggage: c.hand_luggage,

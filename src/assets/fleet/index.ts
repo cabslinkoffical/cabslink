@@ -32,5 +32,6 @@ export const FLEET_IMAGES: Record<string, string> = {
 };
 
 export function fleetImageFor(slug: string, fallback?: string | null): string | undefined {
-  return fallback ?? FLEET_IMAGES[slug] ?? undefined;
+  const custom = fallback?.trim();
+  return custom || FLEET_IMAGES[slug] || undefined;
 }
