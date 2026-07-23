@@ -81,93 +81,103 @@ export function BookingWidget() {
       </div>
 
       <form onSubmit={submit} noValidate>
-        {/* Main horizontal pill */}
-        <div className="bg-white rounded-full shadow-[var(--shadow-elegant)] border border-black/5 flex flex-col lg:flex-row lg:items-stretch overflow-visible p-2 lg:p-1.5 gap-2 lg:gap-0">
-          {/* Pickup */}
-          <FieldCell icon={<MapPin className="w-4 h-4 text-[var(--gold)]" />} label="From">
-            <PlaceAutocomplete
-              id="widget-pickup"
-              value={pickup}
-              onChange={setPickup}
-              placeholder="From city, hotel, airport"
-              iconClassName="hidden"
-              inputClassName="border-0 shadow-none bg-transparent px-0 h-auto py-0 text-sm font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-foreground/40"
-              required
-            />
-          </FieldCell>
+        {/* Main container: rounded card on mobile/tablet, horizontal pill on desktop */}
+        <div className="bg-white shadow-[var(--shadow-elegant)] border border-black/5 rounded-3xl lg:rounded-full overflow-visible p-2 lg:p-1.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:items-stretch gap-1 lg:gap-0">
+            {/* Pickup */}
+            <div className="sm:col-span-2 lg:flex-1 lg:min-w-0">
+              <FieldCell icon={<MapPin className="w-4 h-4 text-[var(--gold)]" />} label="From">
+                <PlaceAutocomplete
+                  id="widget-pickup"
+                  value={pickup}
+                  onChange={setPickup}
+                  placeholder="From city, hotel, airport"
+                  iconClassName="hidden"
+                  inputClassName="border-0 shadow-none bg-transparent px-0 h-auto py-0 text-sm font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-foreground/40"
+                  required
+                />
+              </FieldCell>
+            </div>
 
-          <Divider />
+            <Divider />
 
-          {/* Dropoff */}
-          <FieldCell icon={<Flag className="w-4 h-4 text-[var(--gold)]" />} label="To">
-            <PlaceAutocomplete
-              id="widget-dropoff"
-              value={dropoff}
-              onChange={setDropoff}
-              placeholder="To city, hotel, airport"
-              iconClassName="hidden"
-              inputClassName="border-0 shadow-none bg-transparent px-0 h-auto py-0 text-sm font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-foreground/40"
-              required
-            />
-          </FieldCell>
+            {/* Dropoff */}
+            <div className="sm:col-span-2 lg:flex-1 lg:min-w-0 border-t border-black/5 sm:border-t-0 lg:border-0">
+              <FieldCell icon={<Flag className="w-4 h-4 text-[var(--gold)]" />} label="To">
+                <PlaceAutocomplete
+                  id="widget-dropoff"
+                  value={dropoff}
+                  onChange={setDropoff}
+                  placeholder="To city, hotel, airport"
+                  iconClassName="hidden"
+                  inputClassName="border-0 shadow-none bg-transparent px-0 h-auto py-0 text-sm font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-foreground/40"
+                  required
+                />
+              </FieldCell>
+            </div>
 
-          <Divider />
+            <Divider />
 
-          {/* Date */}
-          <FieldCell icon={<Calendar className="w-4 h-4 text-[var(--gold)]" />} label="Date" compact>
-            <input
-              required
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="w-full bg-transparent border-0 outline-none text-sm font-semibold text-foreground"
-            />
-          </FieldCell>
+            {/* Date */}
+            <div className="border-t border-black/5 lg:border-0">
+              <FieldCell icon={<Calendar className="w-4 h-4 text-[var(--gold)]" />} label="Date" compact>
+                <input
+                  required
+                  type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  className="w-full bg-transparent border-0 outline-none text-sm font-semibold text-foreground"
+                />
+              </FieldCell>
+            </div>
 
-          <Divider />
+            <Divider />
 
-          {/* Time */}
-          <FieldCell icon={<Clock className="w-4 h-4 text-[var(--gold)]" />} label="Time" compact>
-            <input
-              required
-              type="time"
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
-              className="w-full bg-transparent border-0 outline-none text-sm font-semibold text-foreground"
-            />
-          </FieldCell>
+            {/* Time */}
+            <div className="border-t border-black/5 sm:border-t-0 sm:border-l sm:border-black/5 lg:border-l-0 lg:border-0">
+              <FieldCell icon={<Clock className="w-4 h-4 text-[var(--gold)]" />} label="Time" compact>
+                <input
+                  required
+                  type="time"
+                  value={time}
+                  onChange={(e) => setTime(e.target.value)}
+                  className="w-full bg-transparent border-0 outline-none text-sm font-semibold text-foreground"
+                />
+              </FieldCell>
+            </div>
 
-          <Divider />
+            <Divider />
 
-          {/* Passengers + Luggage popover */}
-          <div className="relative flex-shrink-0 lg:w-[140px]" ref={paxRef}>
+            {/* Passengers + Luggage popover */}
+            <div className="relative sm:col-span-2 lg:col-span-1 lg:flex-shrink-0 lg:w-[150px] border-t border-black/5 lg:border-0" ref={paxRef}>
+              <button
+                type="button"
+                onClick={() => setPaxOpen((v) => !v)}
+                className="w-full h-full flex items-center gap-2 px-4 py-3 lg:py-2.5 rounded-2xl lg:rounded-full hover:bg-black/[0.03] transition-colors"
+              >
+                <Users className="w-4 h-4 text-[var(--gold)] shrink-0" />
+                <span className="text-sm font-semibold">{passengers} <span className="font-normal text-foreground/50 text-xs">pax</span></span>
+                <Briefcase className="w-4 h-4 text-[var(--gold)] ml-2 shrink-0" />
+                <span className="text-sm font-semibold">{luggage} <span className="font-normal text-foreground/50 text-xs">bag</span></span>
+              </button>
+              {paxOpen && (
+                <div className="absolute top-full mt-2 right-0 z-50 w-64 bg-white rounded-2xl shadow-[var(--shadow-elegant)] border border-border p-4 space-y-3">
+                  <StepperRow label="Passengers" value={passengers} min={1} max={16} onChange={setPassengers} />
+                  <StepperRow label="Luggage" value={luggage} min={0} max={10} onChange={setLuggage} />
+                </div>
+              )}
+            </div>
+
+            {/* Search button */}
             <button
-              type="button"
-              onClick={() => setPaxOpen((v) => !v)}
-              className="w-full h-full flex items-center gap-2 px-4 py-2.5 rounded-full hover:bg-black/[0.03] transition-colors"
+              type="submit"
+              disabled={missingPlaces || identicalPlaces}
+              className="sm:col-span-2 lg:col-span-1 group inline-flex items-center justify-center gap-2 bg-[var(--gold)] text-[var(--gold-foreground)] rounded-2xl lg:rounded-full px-6 lg:px-8 py-4 lg:py-2.5 font-display font-bold uppercase tracking-[0.18em] text-xs hover:brightness-105 transition-all disabled:opacity-50 shrink-0"
             >
-              <Users className="w-4 h-4 text-[var(--gold)] shrink-0" />
-              <span className="text-sm font-semibold">{passengers}</span>
-              <Briefcase className="w-4 h-4 text-[var(--gold)] ml-1 shrink-0" />
-              <span className="text-sm font-semibold">{luggage}</span>
+              <Search className="w-4 h-4" />
+              <span>Search</span>
             </button>
-            {paxOpen && (
-              <div className="absolute top-full mt-2 right-0 z-50 w-64 bg-white rounded-2xl shadow-[var(--shadow-elegant)] border border-border p-4 space-y-3">
-                <StepperRow label="Passengers" value={passengers} min={1} max={16} onChange={setPassengers} />
-                <StepperRow label="Luggage" value={luggage} min={0} max={10} onChange={setLuggage} />
-              </div>
-            )}
           </div>
-
-          {/* Search button */}
-          <button
-            type="submit"
-            disabled={missingPlaces || identicalPlaces}
-            className="group inline-flex items-center justify-center gap-2 bg-[var(--gold)] text-[var(--gold-foreground)] rounded-full px-6 lg:px-8 py-3.5 lg:py-2.5 font-display font-bold uppercase tracking-[0.18em] text-xs hover:brightness-105 transition-all disabled:opacity-50 shrink-0"
-          >
-            <Search className="w-4 h-4" />
-            <span>Search</span>
-          </button>
         </div>
 
         {/* Secondary row: stops / return / multi-city pills */}
