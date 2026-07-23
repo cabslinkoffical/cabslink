@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
   ArrowRight, Plane, ShieldCheck, Star, CalendarCheck, Phone,
@@ -12,6 +13,7 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { BookingWidget } from "@/components/site/BookingWidget";
 import { Button } from "@/components/ui/button";
 import { SITE } from "@/lib/site";
+import { listPublishedTours } from "@/lib/tours.functions";
 
 import sclassAsset from "@/assets/fleet/sclass.png.asset.json";
 import eclassAsset from "@/assets/fleet/eclass.png.asset.json";
@@ -152,6 +154,15 @@ function HomePage() {
   const [dir, setDir] = useState<1 | -1>(1);
   const [paused, setPaused] = useState(false);
   const [dbVehicles, setDbVehicles] = useState<typeof fallbackHeroVehicles | null>(null);
+  const { data: publishedTours = [] } = useQuery({
+    queryKey: ["published-tours"],
+    queryFn: () => listPublishedTours(),
+    staleTime: 60_000,
+  });
+  const popularTours = useMemo(() => {
+    const featured = publishedTours.filter((t) => t.featured);
+    return (featured.length >= 4 ? featured : publishedTours).slice(0, 4);
+  }, [publishedTours]);
 
   useEffect(() => {
     let cancelled = false;
@@ -353,64 +364,83 @@ function HomePage() {
         </div>
       </section>
 
-      {/* POPULAR ROUTES */}
+      {/* POPULAR TOURS */}
+      {popularTours.length > 0 && (
       <section className="section-y bg-white">
         <div className="container-x">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
             <div className="max-w-2xl">
-              <p className="eyebrow-gold text-[11px]">— Popular Routes</p>
+              <p className="eyebrow-gold text-[11px]">— Popular Tours</p>
               <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold text-[var(--navy)] leading-[1.05] tracking-[-0.02em]">
-                Trusted journeys, <span className="text-[var(--gold)]">fixed prices.</span>
+                Curated journeys, <span className="text-[var(--gold)]">transparent prices.</span>
               </h2>
             </div>
             <Button asChild variant="outline" className="rounded-full border-[var(--navy)]/20 text-[var(--navy)] hover:border-[var(--gold)] hover:text-[var(--gold-ink)] self-start md:self-auto">
-              <Link to="/airport-transfers">Explore all routes <ArrowRight className="size-4" /></Link>
+              <Link to="/tours">Explore all tours <ArrowRight className="size-4" /></Link>
             </Button>
           </div>
 
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {popularRoutes.map((r) => (
-              <Link
-                key={`${r.from}-${r.to}`}
-                to="/book"
-                className="group relative overflow-hidden rounded-[24px] border border-[var(--navy)]/10 bg-white hover:border-[var(--gold)] hover:-translate-y-1 transition-all duration-500"
-              >
-                <div className="relative aspect-[4/3] bg-[var(--navy)]/[0.04] overflow-hidden">
-                  <img
-                    src={r.img}
-                    alt={`${r.from} to ${r.to}`}
-                    loading="lazy"
-                    decoding="async"
-                    className="absolute inset-0 m-auto w-[90%] h-full object-contain transition-transform duration-700 group-hover:scale-105"
-                  />
-                  <span className="absolute top-3 left-3 rounded-full bg-[var(--navy)] text-white text-[10px] font-semibold uppercase tracking-[0.14em] px-2.5 py-1">
-                    Fixed fare
-                  </span>
-                </div>
-                <div className="p-5">
-                  <div className="flex items-center gap-2 text-xs text-[var(--navy)]/60">
-                    <MapPin className="size-3.5 text-[var(--gold-ink)]" />
-                    <span className="truncate">{r.from}</span>
+            {popularTours.map((t) => {
+              const priceLabel = t.starting_price_pence == null
+                ? "Enquire"
+                : `${t.currency === "GBP" ? "£" : t.currency === "EUR" ? "€" : t.currency === "USD" ? "$" : ""}${Math.round(t.starting_price_pence / 100).toLocaleString()}`;
+              const durH = t.direct_duration_seconds ? Math.round(t.direct_duration_seconds / 3600) : null;
+              return (
+                <Link
+                  key={t.slug}
+                  to="/tours/$slug"
+                  params={{ slug: t.slug }}
+                  className="group relative overflow-hidden rounded-[24px] border border-[var(--navy)]/10 bg-white hover:border-[var(--gold)] hover:-translate-y-1 transition-all duration-500"
+                >
+                  <div className="relative aspect-[4/3] bg-[var(--navy)]/[0.04] overflow-hidden">
+                    {t.hero_image_url ? (
+                      <img
+                        src={t.hero_image_url}
+                        alt={`${t.name} private tour`}
+                        loading="lazy"
+                        decoding="async"
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 bg-[var(--navy)]/10" />
+                    )}
+                    <span className="absolute top-3 left-3 rounded-full bg-[var(--navy)] text-white text-[10px] font-semibold uppercase tracking-[0.14em] px-2.5 py-1">
+                      {t.featured ? "Popular" : "Private Tour"}
+                    </span>
                   </div>
-                  <div className="mt-1 font-display text-lg font-semibold text-[var(--navy)] truncate">
-                    → {r.to}
-                  </div>
-                  <div className="mt-4 flex items-center justify-between border-t border-[var(--navy)]/10 pt-4">
-                    <div className="flex items-center gap-3 text-[11px] text-[var(--navy)]/60">
-                      <span className="flex items-center gap-1"><Compass className="size-3" />{r.distance}</span>
-                      <span className="flex items-center gap-1"><Timer className="size-3" />{r.duration}</span>
+                  <div className="p-5">
+                    {t.origin_label && t.destination_label && (
+                      <div className="flex items-center gap-2 text-xs text-[var(--navy)]/60">
+                        <MapPin className="size-3.5 text-[var(--gold-ink)]" />
+                        <span className="truncate">{t.origin_label} → {t.destination_label}</span>
+                      </div>
+                    )}
+                    <div className="mt-1 font-display text-lg font-semibold text-[var(--navy)] truncate">
+                      {t.name}
                     </div>
-                    <div className="text-right">
-                      <div className="text-[9px] uppercase tracking-[0.14em] text-[var(--navy)]/50">From</div>
-                      <div className="font-display font-bold text-[var(--navy)]">{r.price}</div>
+                    <div className="mt-4 flex items-center justify-between border-t border-[var(--navy)]/10 pt-4">
+                      <div className="flex items-center gap-3 text-[11px] text-[var(--navy)]/60">
+                        {durH && <span className="flex items-center gap-1"><Timer className="size-3" />{durH}h</span>}
+                        {t.recommended_stop_count > 0 && (
+                          <span className="flex items-center gap-1"><Compass className="size-3" />{t.recommended_stop_count} stop{t.recommended_stop_count === 1 ? "" : "s"}</span>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        <div className="text-[9px] uppercase tracking-[0.14em] text-[var(--navy)]/50">{t.starting_price_pence == null ? "" : "From"}</div>
+                        <div className="font-display font-bold text-[var(--navy)]">{priceLabel}</div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>
+      )}
+
+
 
       {/* SERVICES BENTO */}
       <section className="section-y bg-[var(--surface-2)]">
