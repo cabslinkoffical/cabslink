@@ -486,6 +486,230 @@ export type Database = {
         }
         Relationships: []
       }
+      destination_keywords: {
+        Row: {
+          created_at: string
+          destination_id: string
+          keyword_id: string
+          weight: number
+        }
+        Insert: {
+          created_at?: string
+          destination_id: string
+          keyword_id: string
+          weight?: number
+        }
+        Update: {
+          created_at?: string
+          destination_id?: string
+          keyword_id?: string
+          weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "destination_keywords_destination_id_fkey"
+            columns: ["destination_id"]
+            isOneToOne: false
+            referencedRelation: "destinations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "destination_keywords_keyword_id_fkey"
+            columns: ["keyword_id"]
+            isOneToOne: false
+            referencedRelation: "taxonomy_keywords"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      destination_relationships: {
+        Row: {
+          created_at: string
+          distance_miles: number | null
+          from_id: string
+          meta: Json
+          rank: number
+          rel_type: Database["public"]["Enums"]["destination_relationship_type"]
+          to_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          distance_miles?: number | null
+          from_id: string
+          meta?: Json
+          rank?: number
+          rel_type: Database["public"]["Enums"]["destination_relationship_type"]
+          to_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          distance_miles?: number | null
+          from_id?: string
+          meta?: Json
+          rank?: number
+          rel_type?: Database["public"]["Enums"]["destination_relationship_type"]
+          to_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "destination_relationships_from_id_fkey"
+            columns: ["from_id"]
+            isOneToOne: false
+            referencedRelation: "destinations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "destination_relationships_to_id_fkey"
+            columns: ["to_id"]
+            isOneToOne: false
+            referencedRelation: "destinations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      destination_search_intents: {
+        Row: {
+          created_at: string
+          destination_id: string
+          intent_id: string
+          priority: number
+        }
+        Insert: {
+          created_at?: string
+          destination_id: string
+          intent_id: string
+          priority?: number
+        }
+        Update: {
+          created_at?: string
+          destination_id?: string
+          intent_id?: string
+          priority?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "destination_search_intents_destination_id_fkey"
+            columns: ["destination_id"]
+            isOneToOne: false
+            referencedRelation: "destinations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "destination_search_intents_intent_id_fkey"
+            columns: ["intent_id"]
+            isOneToOne: false
+            referencedRelation: "taxonomy_search_intents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      destination_seo: {
+        Row: {
+          breadcrumb: Json
+          canonical_url: string | null
+          created_at: string
+          destination_id: string
+          faqs: Json
+          h1: string | null
+          internal_link_target_ids: string[]
+          meta_description: string | null
+          notes: string | null
+          og_description: string | null
+          og_image: string | null
+          og_title: string | null
+          schema_jsonld: Json
+          seo_title: string | null
+          twitter_description: string | null
+          twitter_image: string | null
+          twitter_title: string | null
+          updated_at: string
+        }
+        Insert: {
+          breadcrumb?: Json
+          canonical_url?: string | null
+          created_at?: string
+          destination_id: string
+          faqs?: Json
+          h1?: string | null
+          internal_link_target_ids?: string[]
+          meta_description?: string | null
+          notes?: string | null
+          og_description?: string | null
+          og_image?: string | null
+          og_title?: string | null
+          schema_jsonld?: Json
+          seo_title?: string | null
+          twitter_description?: string | null
+          twitter_image?: string | null
+          twitter_title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          breadcrumb?: Json
+          canonical_url?: string | null
+          created_at?: string
+          destination_id?: string
+          faqs?: Json
+          h1?: string | null
+          internal_link_target_ids?: string[]
+          meta_description?: string | null
+          notes?: string | null
+          og_description?: string | null
+          og_image?: string | null
+          og_title?: string | null
+          schema_jsonld?: Json
+          seo_title?: string | null
+          twitter_description?: string | null
+          twitter_image?: string | null
+          twitter_title?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "destination_seo_destination_id_fkey"
+            columns: ["destination_id"]
+            isOneToOne: true
+            referencedRelation: "destinations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      destination_tags: {
+        Row: {
+          created_at: string
+          destination_id: string
+          tag_id: string
+        }
+        Insert: {
+          created_at?: string
+          destination_id: string
+          tag_id: string
+        }
+        Update: {
+          created_at?: string
+          destination_id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "destination_tags_destination_id_fkey"
+            columns: ["destination_id"]
+            isOneToOne: false
+            referencedRelation: "destinations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "destination_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "taxonomy_tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       destinations: {
         Row: {
           active: boolean
@@ -2296,6 +2520,90 @@ export type Database = {
           },
         ]
       }
+      taxonomy_keywords: {
+        Row: {
+          category: string | null
+          created_at: string
+          id: string
+          keyword: string
+          normalized: string | null
+          notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          keyword: string
+          normalized?: string | null
+          notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          keyword?: string
+          normalized?: string | null
+          notes?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      taxonomy_search_intents: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          intent: string
+          normalized: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          intent: string
+          normalized?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          intent?: string
+          normalized?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      taxonomy_tags: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          normalized: string | null
+          tag: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          normalized?: string | null
+          tag: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          normalized?: string | null
+          tag?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -2670,6 +2978,22 @@ export type Database = {
         }
         Returns: boolean
       }
+      search_bookable_destinations: {
+        Args: { _limit?: number; _q: string }
+        Returns: {
+          council: string
+          id: string
+          lat: number
+          lng: number
+          name: string
+          place_id: string
+          region: string
+          seo_tier: number
+          slug: string
+          town: string
+          type: Database["public"]["Enums"]["destination_type"]
+        }[]
+      }
       seo_find_orphan_pages: {
         Args: never
         Returns: {
@@ -2722,6 +3046,19 @@ export type Database = {
         | "driver_en_route"
         | "passenger_on_board"
         | "rejected"
+      destination_relationship_type:
+        | "nearby"
+        | "serves"
+        | "belongs_to"
+        | "popular_route"
+        | "nearest_airport"
+        | "nearest_station"
+        | "nearest_hospital"
+        | "nearest_university"
+        | "related_service"
+        | "related_attraction"
+        | "related_hotel"
+        | "related_business_park"
       destination_type:
         | "location"
         | "route"
@@ -2738,6 +3075,24 @@ export type Database = {
         | "guide"
         | "region"
         | "council"
+        | "country"
+        | "city"
+        | "town"
+        | "village"
+        | "college"
+        | "castle"
+        | "museum"
+        | "golf_course"
+        | "hotel"
+        | "brewery"
+        | "wedding_venue"
+        | "event_venue"
+        | "car_rental"
+        | "campervan_rental"
+        | "ferry_terminal"
+        | "bus_station"
+        | "tour_category"
+        | "blog"
       discount_type: "fixed" | "percentage"
       driver_status: "active" | "inactive" | "suspended"
       message_status: "new" | "read" | "resolved"
@@ -2951,6 +3306,20 @@ export const Constants = {
         "passenger_on_board",
         "rejected",
       ],
+      destination_relationship_type: [
+        "nearby",
+        "serves",
+        "belongs_to",
+        "popular_route",
+        "nearest_airport",
+        "nearest_station",
+        "nearest_hospital",
+        "nearest_university",
+        "related_service",
+        "related_attraction",
+        "related_hotel",
+        "related_business_park",
+      ],
       destination_type: [
         "location",
         "route",
@@ -2967,6 +3336,24 @@ export const Constants = {
         "guide",
         "region",
         "council",
+        "country",
+        "city",
+        "town",
+        "village",
+        "college",
+        "castle",
+        "museum",
+        "golf_course",
+        "hotel",
+        "brewery",
+        "wedding_venue",
+        "event_venue",
+        "car_rental",
+        "campervan_rental",
+        "ferry_terminal",
+        "bus_station",
+        "tour_category",
+        "blog",
       ],
       discount_type: ["fixed", "percentage"],
       driver_status: ["active", "inactive", "suspended"],
