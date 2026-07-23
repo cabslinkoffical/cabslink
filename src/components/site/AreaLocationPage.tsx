@@ -60,7 +60,7 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
       />
 
       {/* Hero */}
-      <section className="mt-6 rounded-3xl bg-gradient-to-br from-[var(--navy)] to-[#1a2749] px-6 py-14 text-white sm:px-12">
+      <section className="mt-6 rounded-3xl bg-[var(--navy)] px-6 py-14 text-white sm:px-12">
         <div className="mx-auto max-w-4xl">
           <p className="text-xs font-bold uppercase tracking-[0.22em] text-[var(--gold)]">
             {region ? `${region} · Airport Travel` : "UK Airport Travel"}
