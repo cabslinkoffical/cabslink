@@ -291,7 +291,7 @@ function HomePage() {
 
             {/* Mobile/tablet: booking form before vehicle */}
             <div id="booking-mobile" className="lg:hidden scroll-mt-24">
-              <BookingWidget />
+              <BookingWidget idPrefix="mwidget" />
             </div>
 
             <div className="lg:col-span-6 relative">
