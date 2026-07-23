@@ -171,25 +171,38 @@ function HomePage() {
     const load = () => {
       supabase
         .from("vehicle_classes")
-        .select("id, name, slug, hero_image, passengers, badge, display_order")
+        .select("id, name, slug, hero_image, passengers, badge, display_order, pricing_vehicle_id")
         .eq("active", true)
         .neq("slug", "unclassified")
         .order("display_order", { ascending: true })
-        .then(({ data }) => {
+        .then(async ({ data }) => {
           if (cancelled || !data) return;
-          const mapped = data
-            .map((c: any) => {
-              const img = fleetImageFor(c.slug, c.hero_image);
-              if (!img) return null;
-              return {
-                key: c.id as string,
-                name: c.name as string,
-                tag: `${c.badge ?? "Vehicle class"} · ${c.passengers ?? 0} seats`,
-                img,
-                seats: c.passengers ?? 0,
-              } as HeroVehicle;
-            })
-            .filter(Boolean) as HeroVehicle[];
+          // Resolve fallback images from linked pricing vehicle when the class has no hero_image
+          const vehIds = Array.from(new Set(
+            data.map((c: any) => c.pricing_vehicle_id).filter(Boolean),
+          )) as string[];
+          const vehImg = new Map<string, string | null>();
+          if (vehIds.length > 0) {
+            const { data: vehs } = await supabase
+              .from("vehicles")
+              .select("id, image_url")
+              .in("id", vehIds);
+            for (const v of vehs ?? []) vehImg.set(v.id as string, (v as any).image_url ?? null);
+          }
+          const defaultImg = fallbackHeroVehicles[0]?.img;
+          const mapped = data.map((c: any) => {
+            const img =
+              fleetImageFor(c.slug, c.hero_image) ||
+              (c.pricing_vehicle_id ? vehImg.get(c.pricing_vehicle_id) ?? undefined : undefined) ||
+              defaultImg;
+            return {
+              key: c.id as string,
+              name: c.name as string,
+              tag: `${c.badge ?? "Vehicle class"} · ${c.passengers ?? 0} seats`,
+              img: img as string,
+              seats: c.passengers ?? 0,
+            } as HeroVehicle;
+          });
           setDbVehicles(mapped.length > 0 ? mapped : null);
         });
     };
