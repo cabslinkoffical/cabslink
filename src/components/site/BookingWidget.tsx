@@ -81,11 +81,11 @@ export function BookingWidget() {
       </div>
 
       <form onSubmit={submit} noValidate>
-        {/* Main container: rounded card on mobile/tablet, horizontal pill on desktop */}
-        <div className="bg-white shadow-[var(--shadow-elegant)] border border-black/5 rounded-3xl lg:rounded-full overflow-visible p-2 lg:p-1.5">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:items-stretch gap-1 lg:gap-0">
+        {/* Main container: rounded card on mobile/tablet, horizontal pill on wide desktop (xl+) */}
+        <div className="bg-white shadow-[var(--shadow-elegant)] border border-black/5 rounded-3xl xl:rounded-full overflow-visible p-2 xl:p-1.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:flex xl:items-stretch gap-1 xl:gap-0">
             {/* Pickup */}
-            <div className="sm:col-span-2 lg:flex-1 lg:min-w-0">
+            <div className="sm:col-span-2 xl:flex-1 xl:min-w-0">
               <FieldCell icon={<MapPin className="w-4 h-4 text-[var(--gold)]" />} label="From">
                 <PlaceAutocomplete
                   id="widget-pickup"
@@ -102,7 +102,7 @@ export function BookingWidget() {
             <Divider />
 
             {/* Dropoff */}
-            <div className="sm:col-span-2 lg:flex-1 lg:min-w-0 border-t border-black/5 sm:border-t-0 lg:border-0">
+            <div className="sm:col-span-2 xl:flex-1 xl:min-w-0 border-t border-black/5 sm:border-t-0 xl:border-0">
               <FieldCell icon={<Flag className="w-4 h-4 text-[var(--gold)]" />} label="To">
                 <PlaceAutocomplete
                   id="widget-dropoff"
@@ -119,7 +119,7 @@ export function BookingWidget() {
             <Divider />
 
             {/* Date */}
-            <div className="border-t border-black/5 lg:border-0">
+            <div className="border-t border-black/5 xl:border-0">
               <FieldCell icon={<Calendar className="w-4 h-4 text-[var(--gold)]" />} label="Date" compact>
                 <input
                   required
@@ -134,7 +134,7 @@ export function BookingWidget() {
             <Divider />
 
             {/* Time */}
-            <div className="border-t border-black/5 sm:border-t-0 sm:border-l sm:border-black/5 lg:border-l-0 lg:border-0">
+            <div className="border-t border-black/5 sm:border-t-0 sm:border-l sm:border-black/5 xl:border-l-0 xl:border-0">
               <FieldCell icon={<Clock className="w-4 h-4 text-[var(--gold)]" />} label="Time" compact>
                 <input
                   required
@@ -149,16 +149,23 @@ export function BookingWidget() {
             <Divider />
 
             {/* Passengers + Luggage popover */}
-            <div className="relative sm:col-span-2 lg:col-span-1 lg:flex-shrink-0 lg:w-[150px] border-t border-black/5 lg:border-0" ref={paxRef}>
+            <div className="relative sm:col-span-2 xl:col-span-1 xl:flex-shrink-0 xl:w-[190px] border-t border-black/5 xl:border-0" ref={paxRef}>
               <button
                 type="button"
                 onClick={() => setPaxOpen((v) => !v)}
-                className="w-full h-full flex items-center gap-2 px-4 py-3 lg:py-2.5 rounded-2xl lg:rounded-full hover:bg-black/[0.03] transition-colors"
+                className="w-full h-full flex items-center justify-center gap-3 px-4 py-3 xl:py-2.5 rounded-2xl xl:rounded-full hover:bg-black/[0.03] transition-colors"
               >
-                <Users className="w-4 h-4 text-[var(--gold)] shrink-0" />
-                <span className="text-sm font-semibold">{passengers} <span className="font-normal text-[var(--navy)]/70 text-xs">pax</span></span>
-                <Briefcase className="w-4 h-4 text-[var(--gold)] ml-2 shrink-0" />
-                <span className="text-sm font-semibold">{luggage} <span className="font-normal text-[var(--navy)]/70 text-xs">bag</span></span>
+                <span className="inline-flex items-center gap-1.5">
+                  <Users className="w-4 h-4 text-[var(--gold)] shrink-0" />
+                  <span className="text-sm font-bold tabular-nums text-[var(--navy)]">{passengers}</span>
+                  <span className="text-[11px] font-semibold text-[var(--navy)]/60">pax</span>
+                </span>
+                <span className="w-px h-4 bg-black/10" />
+                <span className="inline-flex items-center gap-1.5">
+                  <Briefcase className="w-4 h-4 text-[var(--gold)] shrink-0" />
+                  <span className="text-sm font-bold tabular-nums text-[var(--navy)]">{luggage}</span>
+                  <span className="text-[11px] font-semibold text-[var(--navy)]/60">bag</span>
+                </span>
               </button>
               {paxOpen && (
                 <div className="absolute top-full mt-2 right-0 z-50 w-64 bg-white rounded-2xl shadow-[var(--shadow-elegant)] border border-border p-4 space-y-3">
@@ -167,6 +174,7 @@ export function BookingWidget() {
                 </div>
               )}
             </div>
+
 
             {/* Search button */}
             <button
