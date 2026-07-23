@@ -1,160 +1,104 @@
-# CabsLink — Production Readiness Phase 3
+# Final Production Completion Plan
 
-Objective: finish every remaining production gap so no page is empty, every route has SEO+schema, search works site‑wide, mobile is polished, and there is zero mock data. Delivered as a single coordinated sweep with a final Production Readiness Report.
+This is a large multi-batch effort. I'll execute it in sequential batches, verifying between each. No UI redesign, no duplicate templates, reuse existing architecture.
 
-## Execution order
+## Batch 1 — Audit & Cleanup (foundation)
+- Run typecheck + build; capture broken routes, hydration warnings, TS errors, console errors.
+- Grep for: unused components, mock/placeholder text (`Lorem`, `TODO`, `placeholder`), duplicate templates, orphaned files.
+- Remove dead code: unused route files, duplicate page layouts, unused DB queries.
+- Fix any broken internal links found by scanning `<Link to=`.
+- Deliverable: clean build, zero TS errors, list of removals.
 
-Big up-front decision: build one **shared "authoritative location page" renderer** and reuse it for airports, corporate parks, distilleries, and any future entity type. This is the only way to hit 1,550 destinations without maintenance pain.
+## Batch 2 — Content Governance System
+New table `seo_page_quality` (or column on `seo_pages`) with:
+- `quality_score` (0–100, computed)
+- `tier` (1 index / 2 conditional / 3 noindex / draft)
+- signals: unique_content_len, internal_links_count, has_schema, has_local_info, has_faqs, metadata_complete, entity_coverage
 
-```text
-DestinationTemplate (shared)
- ├── Hero (name, region, breadcrumbs, hero image)
- ├── Overview (auto-generated from destination row)
- ├── Entity-specific block  (Airport / Corporate / Distillery / Attraction)
- ├── Transfer info + pricing CTA (BookingWidget prefilled)
- ├── Nearby: towns / hotels / stations / universities / attractions / hospitals
- ├── Popular routes to/from this destination
- ├── Related services + related guides
- ├── FAQ (type-specific defaults, override from destination_seo.faqs)
- └── JSON-LD (Breadcrumb + WebPage + type-specific: Airport / LocalBusiness / TouristAttraction / TaxiService)
+Scoring function (SQL + TS helper in `src/lib/seo-quality.ts`):
+```
+score =
+  25 (unique body > 800 chars)
++ 15 (>= 5 internal links)
++ 15 (valid JSON-LD)
++ 15 (local info: nearby, coords, council)
++ 10 (>= 3 FAQs)
++ 10 (title+desc+og complete)
++ 10 (linked entities: airports/areas/routes)
 ```
 
-Everything below plugs into that renderer.
+Tier logic:
+- ≥80 → Tier 1 (index)
+- 60–79 → Tier 2 (index if metadata complete)
+- 40–59 → Tier 3 (noindex, crawlable)
+- <40 → Draft (excluded from sitemap + robots noindex)
 
----
+Auto-apply in `head()` builders and `sitemap.xml` route.
 
-## 1. Airport pages — `/airports/$iata`
+## Batch 3 — Reusable Content Architecture
+Ensure ONE template per entity family reused everywhere:
+- `EntityPage` (already have `AreaLocationPage`) — extend to accept `entityType` prop for Airports / Universities / Hospitals / Hotels / Attractions / Distilleries / Business Parks / Cruise Ports / Stations / Golf / Castles / Beaches / Venues.
+- Delete any per-type duplicate templates found in audit.
+- Route-page template: `RoutePage.tsx` for `/routes/$from-to-$to`.
 
-- Stop depending on `seo_pages` being populated.
-- Loader: try `seo_pages` first; on miss, build a fallback context from `destinations` (type=`airport`), `seo_airports` if present, and taxonomy relationships.
-- Sections: Overview, Transfer info, Pickup zones, Drop-off, Meet & Greet, Flight monitoring, Popular routes, Nearby towns/hotels/universities/stations/attractions/hospitals, FAQ.
-- Schema: `Airport` + `TaxiService` + `FAQPage` + `BreadcrumbList`.
-- Seed the 6 UK airports we already need (EDI, GLA, ABZ, INV, PIK, MAN) in `destinations` with lat/lng so nearby queries work.
+## Batch 4 — Route SEO Pages
+- Migration: seed `seo_popular_routes` with top ~40 high-value airport → city pairs.
+- Route file `src/routes/routes.$slug.tsx` using `RoutePage` template with: distance, duration, pickup/dropoff info, vehicle recs, luggage, M&G, flight monitoring, related routes, nearby destinations, FAQs, TaxiService+FAQPage+Breadcrumb schema.
+- Distance/duration from cache; fall back to Google Routes API.
 
-## 2. Corporate transfers — `/corporate` and `/corporate/$slug`
+## Batch 5 — Internal Linking Engine
+`src/lib/internal-linking.ts`:
+- `getRelatedForEntity(entity)` returns: parent area, nearby areas, nearby destinations, related routes, related services, nearby airports/hotels/universities/hospitals/stations/attractions, relevant guides + blogs.
+- Wire into `AreaLocationPage`, `RoutePage`, blog posts.
+- Guarantee: every page has ≥8 outbound internal links → no orphans.
 
-- New `destination_type` values already exist as `business_park`; use that.
-- Seed 6 parks: Edinburgh Park, Gogarburn, BioQuarter, Quartermile, Eurocentral, Rosyth Dockyard.
-- Index page: card grid grouped by city.
-- Detail page uses `DestinationTemplate` with a Corporate block (executive travel, chauffeur options, business travel, no fake partnerships — just "Companies in the area" pulled from destination metadata).
-- Schema: `LocalBusiness` (the park) + `TaxiService` + `FAQPage` + `BreadcrumbList`.
+## Batch 6 — 10 Published Blogs
+Insert 10 high-quality Scotland-transfer-focused posts via migration:
+1. Edinburgh Airport Transfer Guide 2026
+2. Glasgow to Edinburgh: Best Ways to Travel
+3. Whisky Trail Private Tour Itinerary
+4. North Coast 500: How to Plan by Private Car
+5. Edinburgh Airport Meet & Greet Explained
+6. Corporate Travel in Scotland: A Complete Guide
+7. Cruise Transfers from Edinburgh & Glasgow
+8. Best Time to Visit Isle of Skye + Transport Options
+9. Group Travel Scotland: Vans, Coasters, Coaches
+10. Airport to St Andrews: Full Transfer Guide
 
-## 3. Distilleries — `/distilleries` and `/distilleries/$slug`
+Each: 1000+ words, structured sections, 5+ internal links, FAQs, Article+FAQ+Breadcrumb schema, cover image, category, tags, author.
 
-- Reuse `destinations` with type `attraction` and a `subtype=distillery` tag (via `destination_tags`).
-- Index groups by region (Speyside, Islay, Highland, Lowland, Campbeltown, Islands).
-- Detail sections: About, Tours, Airport transfers, Whisky tours, Nearby attractions/accommodation, FAQs.
-- Schema: `TouristAttraction` + `TaxiService` + `FAQPage` + `BreadcrumbList`.
+## Batch 7 — AEO/GEO, EEAT, Structured Data, Metadata
+- Reusable `<FaqBlock>` with FAQPage schema — add to every entity/route/blog page.
+- `<QuickAnswers>` component for concise AEO snippets (cost, duration, booking, flight monitor, M&G, child seats, executive, groups).
+- Ensure every leaf route has unique title/desc/canonical/og/twitter/H1/breadcrumbs.
+- Single source-of-truth schema helpers in `src/lib/schema.ts`; audit removes duplicates.
 
-## 4. Guides / Resources hub
+## Batch 8 — Search
+Upgrade `/search` (or global search) to grouped SSR results across all entity types via a single `search_all` server fn hitting existing search vectors.
 
-We already have `/blog` with categories/tags. Add `/guides` as an alias route that filters `blog_posts` where `category.kind = 'guide'` (add `kind` column: `article | guide`). Category & tag routes reused. Adds:
-- Featured shelf (posts flagged `is_featured`)
-- Search (client + server) with pagination
-- Breadcrumbs, related articles (by tag), related services, related locations (from `blog_post_destinations` join)
+## Batch 9 — Sitemap & Robots
+- Rebuild `/sitemap.xml` server route to include only Tier 1 + qualifying Tier 2 pages across all entities + blog + routes.
+- `robots.txt` verified; no leaked private paths.
 
-## 5. Site-wide search — `/search`
+## Batch 10 — Performance
+- Audit oversized client bundles; lazy-load heavy components (maps, carousels).
+- Ensure images use `loading="lazy"` + width/height.
+- Confirm no client-only rendering for indexable content.
 
-- SSR loader, URL-driven (`?q=`, `?type=`, `?page=`).
-- Server function `searchEverything({ q, types, limit })` unions:
-  areas, routes, airports, universities, hospitals, attractions, hotels, stations, cruise ports, distilleries, business parks, guides.
-- Uses existing `destinations.search_vector` + trigram fallback + `blog_posts` FTS.
-- Grouped results UI with counts, tabs, keyboard nav, empty-state = suggested popular destinations.
+## Batch 11 — Final Verification Report
+Automated checks:
+- `bun run build` clean
+- Playwright crawl of top routes → 0 404s, 0 hydration warnings, 0 console errors
+- Sitemap parse → all URLs 200
+- Schema validator on 10 sample pages
+- Report delivered as `.lovable/production-audit.md`
 
-## 6. Remove every empty state
+## Technical Details
+- All new DB objects via `supabase--migration` with GRANTs + RLS.
+- No new UI/design work; existing components reused.
+- New server logic uses `createServerFn` (not edge functions).
+- Quality scoring runs as SQL function + trigger on `seo_pages` insert/update so tier stays fresh.
+- Blog inserts run in a single migration; images use existing generated assets or Unsplash-safe stock references already in codebase.
 
-Replace "No results / Coming soon / Empty" globally with a shared `<HelpfulEmpty />` component that always renders:
-- 6 nearby destinations (by lat/lng or region)
-- 4 popular searches
-- Related services (Airport transfer, Tours, Corporate)
-- Contact CTA
-Audit callers: booking search, `/areas/*`, `/blog/*`, admin lists (admin keeps plain empty), `/tours`, `/fleet`.
-
-## 7. Internal linking audit
-
-- Every `DestinationTemplate` page emits: 6 nearby, 6 popular routes, 3 related guides, 3 related services.
-- Add "You might also like" strip at the bottom of every leaf route.
-- Add a build-time orphan check script that fails CI if any published destination has zero inbound internal links (writes report to `/tmp/orphan-report.txt`).
-- Max depth: Home → Category → Location → Route (enforced by breadcrumb builder).
-
-## 8 + 9. SEO + Schema audit
-
-- New `buildRouteHead(entity)` helper that guarantees: unique title, meta description, canonical, single H1, OG + Twitter, breadcrumbs, robots, correct JSON-LD by type, sitemap eligibility flag.
-- Extend `sitemap-*.xml.ts` shards to include airports, corporate, distilleries, guides.
-- Dedupe JSON-LD emitters (currently some pages emit both a page-level and section-level `BreadcrumbList`).
-- `noindex` for tier‑3 destinations and thin pages (<500 chars body).
-
-## 10. Performance
-
-- Convert remaining eager images to `loading="lazy"` + `decoding="async"`, add `fetchpriority="high"` only on the LCP hero of each route.
-- Preload LCP image via route `head().links`.
-- Split heavy admin routes with dynamic imports.
-- Verify font loading uses `font-display: swap` (already in `styles.css` — confirm).
-- Turn on `route.staleTime` for read-mostly loaders to reduce refetch churn.
-- Add `<link rel="preconnect">` for Google Maps + Supabase in `__root.tsx`.
-
-## 11. Database audit
-
-Remove/prune (migration):
-- Empty demo rows in `seo_pages` that block airport rendering.
-- Any `points_of_interest` marked inactive with no references.
-- Unused `content_blocks` rows.
-- Orphaned `blog_post_tags` and `destination_tags`.
-- Keep schema; only clean data.
-
-## 12. Mobile optimisation sweep
-
-- Audit every route with viewport 375×812:
-  Header (already pill), BookingWidget (already responsive — verify stops list on <sm), Booking flow steps, PriceBreakdown → sticky mobile bar, Fleet grid, Tours cards, Areas hub, Destination template, Admin (usable, not perfect).
-- Enforce tap targets ≥44px, `h-dvh` instead of `h-screen` where relevant, safe-area padding for iOS notch on sticky CTAs.
-- Wrap every text+widget header row in the `grid-cols-[minmax(0,1fr)_auto]` pattern to prevent overflow.
-
-## 13. Final Production Readiness Report
-
-At the end I output a single markdown report grouped by severity (Critical / High / Medium / Low) covering:
-- Broken links / 404s / hydration errors / console errors
-- Duplicate or thin pages
-- Missing metadata / schema
-- Orphan pages
-- Indexable low-quality pages
-- Zero mock components confirmation
-- Lighthouse targets: Performance ≥95, Accessibility ≥95, Best Practices ≥95, SEO 100.
-
----
-
-## Delivery plan (batched)
-
-Because this is very large, I will ship it in **4 batches**, each self-contained and verified before moving on. You approve once; I ship all four sequentially.
-
-**Batch A — Foundations (biggest, must land first)**
-1. Migration: add `blog_categories.kind`, seed 6 airports + 6 business parks + ~15 distilleries in `destinations`, prune demo data, add `destination_tags` for distilleries.
-2. Shared `DestinationTemplate`, `HelpfulEmpty`, `buildRouteHead`, `nearby` server fn.
-3. Sitemap shards extended.
-
-**Batch B — Entity routes**
-4. `/airports/$iata` fallback + section blocks.
-5. `/corporate` + `/corporate/$slug`.
-6. `/distilleries` + `/distilleries/$slug`.
-
-**Batch C — Content & search**
-7. `/guides` hub + category/tag/detail.
-8. `/search` SSR grouped results + `searchEverything` server fn.
-9. Global empty-state replacement pass.
-
-**Batch D — Polish & audit**
-10. Mobile sweep across all routes.
-11. Performance passes (lazy/preload/preconnect).
-12. Internal-link + orphan audit script.
-13. **Production Readiness Report** (markdown, severity-grouped, at `/mnt/documents/production-readiness.md`).
-
-## Technical notes
-
-- No new tables except a `kind` column on `blog_categories` and a `destination_subtype` on `destinations` (nullable). Everything else reuses existing entities via `type` + `destination_tags`.
-- All new server fns follow the `.functions.ts` + `.server.ts` split; loaders read via `queryClient.ensureQueryData` per template rules.
-- All new routes use `createFileRoute` with slash paths and per-route `head()` incl. og:image derived from destination hero when available.
-- No hardcoded copy for entities — everything is generated from destination data via the shared template, so 1,550 destinations render without new code.
-- Reports emitted to `/mnt/documents/` (never committed).
-
-## What I need from you
-
-Confirm you want all 4 batches shipped end-to-end (default: yes). If you'd rather see Batch A first and pause, say "Batch A only".
+## Approval
+This will take multiple execution turns. **Confirm to proceed**, and I'll start with Batch 1 (audit & cleanup) and report findings before continuing. If you'd like me to reorder (e.g. blogs first), say so.
