@@ -2,6 +2,8 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { EntityGrid } from "@/components/explore/EntityCard";
+import { SiteLayout } from "@/components/site/SiteLayout";
+import { PageHero } from "@/components/site/PageHero";
 import { regionHubQuery } from "@/lib/explore.functions";
 
 export const Route = createFileRoute("/areas/region/$slug")({
@@ -26,12 +28,14 @@ export const Route = createFileRoute("/areas/region/$slug")({
   },
   component: RegionPage,
   notFoundComponent: () => (
-    <main className="container-x py-24 text-center">
-      <h1 className="text-3xl font-bold">Region not found</h1>
-      <p className="mt-2 text-[var(--navy)]/70">
-        Try the <Link to="/areas" className="underline">Locations directory</Link>.
-      </p>
-    </main>
+    <SiteLayout>
+      <main className="container-x py-24 text-center">
+        <h1 className="text-3xl font-bold">Region not found</h1>
+        <p className="mt-2 text-[var(--navy)]/70">
+          Try the <Link to="/areas" className="underline">Locations directory</Link>.
+        </p>
+      </main>
+    </SiteLayout>
   ),
 });
 
@@ -52,32 +56,37 @@ function RegionPage() {
   ];
 
   return (
-    <main className="container-x py-10">
-      <Breadcrumbs
-        items={[
-          { name: "Home", href: "/" },
-          { name: "Locations", href: "/areas" },
-          { name: data.name, href: `/areas/region/${data.slug}` },
+    <SiteLayout>
+      <PageHero
+        eyebrow="Region"
+        title={data.name}
+        subtitle={`${data.total} destinations covered across ${data.name} — airports, stations, universities, hospitals and attractions.`}
+        breadcrumbs={[
+          { label: "Home", to: "/" },
+          { label: "Locations", to: "/areas" },
+          { label: data.name },
         ]}
       />
-      <header className="mt-6">
-        <p className="text-xs font-bold uppercase tracking-[0.22em] text-[var(--gold-ink)]">Region</p>
-        <h1 className="mt-2 text-4xl font-bold text-[var(--navy)] sm:text-5xl">{data.name}</h1>
-        <p className="mt-2 text-[var(--navy)]/70">
-          {data.total} destinations covered across {data.name}.
-        </p>
-      </header>
-
-      <div className="mt-10 space-y-12">
-        {sections
-          .filter((s) => s.items.length > 0)
-          .map((s) => (
-            <section key={s.title}>
-              <h2 className="mb-4 text-2xl font-bold text-[var(--navy)]">{s.title}</h2>
-              <EntityGrid items={s.items} />
-            </section>
-          ))}
-      </div>
-    </main>
+      <section className="section-y">
+        <div className="container-x space-y-14">
+          {sections
+            .filter((s) => s.items.length > 0)
+            .map((s) => (
+              <div key={s.title}>
+                <h2 className="mb-5 font-display text-2xl md:text-3xl font-semibold text-[var(--navy)]">{s.title}</h2>
+                <EntityGrid items={s.items} />
+              </div>
+            ))}
+          <Breadcrumbs
+            items={[
+              { name: "Home", href: "/" },
+              { name: "Locations", href: "/areas" },
+              { name: data.name, href: `/areas/region/${data.slug}` },
+            ]}
+          />
+        </div>
+      </section>
+    </SiteLayout>
   );
 }
+
