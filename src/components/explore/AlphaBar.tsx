@@ -11,7 +11,7 @@ export function AlphaBar({ available }: { available: string[] }) {
         return on ? (
           <Link
             key={L}
-            to="/explore/a/$letter"
+            to="/areas/a/$letter"
             params={{ letter: L.toLowerCase() }}
             className="grid size-9 place-items-center rounded-lg border border-[var(--navy)]/15 bg-white text-sm font-semibold text-[var(--navy)] hover:border-[var(--gold)] hover:text-[var(--gold-ink)]"
           >

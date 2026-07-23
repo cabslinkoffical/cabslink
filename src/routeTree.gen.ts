@@ -59,6 +59,7 @@ import { Route as AreasSlugRouteImport } from './routes/areas.$slug'
 import { Route as AirportsIataRouteImport } from './routes/airports.$iata'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
+import { Route as AreasRegionSlugRouteImport } from './routes/areas.region.$slug'
 import { Route as AuthenticatedAdminVehicleClassesRouteImport } from './routes/_authenticated/admin/vehicle-classes'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
 import { Route as AuthenticatedAdminTourSettingsRouteImport } from './routes/_authenticated/admin/tour-settings'
@@ -341,6 +342,11 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRouteRoute,
 } as any)
+const AreasRegionSlugRoute = AreasRegionSlugRouteImport.update({
+  id: '/areas/region/$slug',
+  path: '/areas/region/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAdminVehicleClassesRoute =
   AuthenticatedAdminVehicleClassesRouteImport.update({
     id: '/vehicle-classes',
@@ -594,6 +600,7 @@ export interface FileRoutesByFullPath {
   '/admin/tour-settings': typeof AuthenticatedAdminTourSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/admin/vehicle-classes': typeof AuthenticatedAdminVehicleClassesRoute
+  '/areas/region/$slug': typeof AreasRegionSlugRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/admin/seo/airports': typeof AuthenticatedAdminSeoAirportsRoute
   '/admin/seo/import': typeof AuthenticatedAdminSeoImportRoute
@@ -675,6 +682,7 @@ export interface FileRoutesByTo {
   '/admin/tour-settings': typeof AuthenticatedAdminTourSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/admin/vehicle-classes': typeof AuthenticatedAdminVehicleClassesRoute
+  '/areas/region/$slug': typeof AreasRegionSlugRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/admin/seo/airports': typeof AuthenticatedAdminSeoAirportsRoute
   '/admin/seo/import': typeof AuthenticatedAdminSeoImportRoute
@@ -759,6 +767,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/tour-settings': typeof AuthenticatedAdminTourSettingsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/admin/vehicle-classes': typeof AuthenticatedAdminVehicleClassesRoute
+  '/areas/region/$slug': typeof AreasRegionSlugRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/admin/seo/airports': typeof AuthenticatedAdminSeoAirportsRoute
   '/_authenticated/admin/seo/import': typeof AuthenticatedAdminSeoImportRoute
@@ -843,6 +852,7 @@ export interface FileRouteTypes {
     | '/admin/tour-settings'
     | '/admin/users'
     | '/admin/vehicle-classes'
+    | '/areas/region/$slug'
     | '/admin/'
     | '/admin/seo/airports'
     | '/admin/seo/import'
@@ -924,6 +934,7 @@ export interface FileRouteTypes {
     | '/admin/tour-settings'
     | '/admin/users'
     | '/admin/vehicle-classes'
+    | '/areas/region/$slug'
     | '/admin'
     | '/admin/seo/airports'
     | '/admin/seo/import'
@@ -1007,6 +1018,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/tour-settings'
     | '/_authenticated/admin/users'
     | '/_authenticated/admin/vehicle-classes'
+    | '/areas/region/$slug'
     | '/_authenticated/admin/'
     | '/_authenticated/admin/seo/airports'
     | '/_authenticated/admin/seo/import'
@@ -1069,6 +1081,7 @@ export interface RootRouteChildren {
   StationsIndexRoute: typeof StationsIndexRoute
   ToursIndexRoute: typeof ToursIndexRoute
   UniversitiesIndexRoute: typeof UniversitiesIndexRoute
+  AreasRegionSlugRoute: typeof AreasRegionSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1422,6 +1435,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/areas/region/$slug': {
+      id: '/areas/region/$slug'
+      path: '/areas/region/$slug'
+      fullPath: '/areas/region/$slug'
+      preLoaderRoute: typeof AreasRegionSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin/vehicle-classes': {
       id: '/_authenticated/admin/vehicle-classes'
@@ -1797,6 +1817,7 @@ const rootRouteChildren: RootRouteChildren = {
   StationsIndexRoute: StationsIndexRoute,
   ToursIndexRoute: ToursIndexRoute,
   UniversitiesIndexRoute: UniversitiesIndexRoute,
+  AreasRegionSlugRoute: AreasRegionSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
