@@ -1410,8 +1410,8 @@ function ExtrasStep(props: {
         <PolicyTiers value={policy} onChange={onPolicy} base={baseRideTotal} />
       </ExtrasCard>
 
-      {/* --- Running total --- */}
-      <div className="rounded-2xl border border-border bg-card p-5 flex flex-wrap items-center justify-between gap-3">
+      {/* --- Running total (desktop only; mobile shows sticky bar) --- */}
+      <div className="hidden lg:flex rounded-2xl border border-border bg-card p-5 flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground">Running total</p>
           <p className="text-xs text-muted-foreground mt-1">
