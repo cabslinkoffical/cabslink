@@ -1341,6 +1341,11 @@ function ExtrasStep(props: {
   onPolicy: (p: Policy) => void;
   baseRideTotal: number;
   seatFee: number;
+  meetGreetFee: number;
+  returnFee: number;
+  meetGreetFeePence: number;
+  returnJourneyFeePence: number;
+  policyCfg: { nonRefundablePercent: number; nonRefundableMinPence: number; flexiblePercent: number; flexibleMinPence: number };
   onBack: () => void;
   onNext: () => void;
 }) {
@@ -1350,7 +1355,8 @@ function ExtrasStep(props: {
     converted, needsAck, onAck,
     childSeatFeePence, childSeatCount, onChildSeatCount,
     meetGreet, onMeetGreet, returnJourney, onReturnJourney,
-    policy, onPolicy, baseRideTotal, seatFee, onBack, onNext,
+    policy, onPolicy, baseRideTotal, seatFee, meetGreetFee, returnFee,
+    meetGreetFeePence, returnJourneyFeePence, policyCfg, onBack, onNext,
   } = props;
 
   return (
