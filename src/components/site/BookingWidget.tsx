@@ -313,8 +313,9 @@ function FieldCell({ icon, label, children, compact }: { icon: React.ReactNode; 
 }
 
 function Divider() {
-  return <div className="hidden lg:block w-px bg-border my-2 shrink-0" />;
+  return <div className="hidden xl:block w-px bg-border my-2 shrink-0" />;
 }
+
 
 function StepperRow({ label, value, min, max, onChange }: { label: string; value: number; min: number; max: number; onChange: (v: number) => void }) {
   return (
