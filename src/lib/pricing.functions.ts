@@ -206,6 +206,14 @@ export const calculateQuotes = createServerFn({ method: "POST" })
       durationMinutes: auth.durationMinutes,
       quotes: cards,
       childSeatFeePence: auth.settings.childSeatFeePence,
+      meetGreetFeePence: auth.settings.meetGreetFeePence,
+      returnJourneyFeePence: auth.settings.returnJourneyFeePence,
+      policy: {
+        nonRefundablePercent: auth.settings.policyNonRefundablePercent,
+        nonRefundableMinPence: auth.settings.policyNonRefundableMinPence,
+        flexiblePercent: auth.settings.policyFlexiblePercent,
+        flexibleMinPence: auth.settings.policyFlexibleMinPence,
+      },
     };
   });
 
