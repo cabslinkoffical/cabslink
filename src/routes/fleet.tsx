@@ -228,22 +228,37 @@ function ClassRow({ klass, reverse }: { klass: PublicVehicleClass; index: number
           </div>
         )}
 
-        {/* Models */}
+        {/* Models table */}
         {klass.models.length > 0 && (
           <div className="mt-6">
-            <p className="text-[10px] uppercase tracking-[0.28em] text-muted-foreground mb-2">Includes models</p>
-            <div className="flex flex-wrap gap-2">
-              {klass.models.slice(0, 4).map((m) => (
-                <span key={m.id} className="inline-flex items-center gap-1.5 rounded-full border border-[var(--gold)]/40 bg-[var(--gold)]/10 text-foreground px-3 py-1.5 text-xs font-semibold">
-                  <Star className="size-3 fill-[var(--gold)] text-[var(--gold)]" /> {m.name}
-                </span>
-              ))}
-              {klass.models.length > 4 && (
-                <span className="inline-flex items-center rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground">
-                  +{klass.models.length - 4} more
-                </span>
-              )}
+            <p className="text-[10px] uppercase tracking-[0.28em] text-muted-foreground mb-2">Vehicles in this class</p>
+            <div className="overflow-hidden rounded-2xl border border-border">
+              <table className="w-full text-sm">
+                <thead className="bg-[var(--navy)]/5 text-[var(--navy)]">
+                  <tr>
+                    <th className="text-left font-semibold px-4 py-2.5">Model</th>
+                    <th className="text-left font-semibold px-4 py-2.5 hidden sm:table-cell">Make</th>
+                    <th className="text-right font-semibold px-4 py-2.5">Pax</th>
+                    <th className="text-right font-semibold px-4 py-2.5">Bags</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border bg-card">
+                  {klass.models.map((m) => (
+                    <tr key={m.id}>
+                      <td className="px-4 py-2.5 font-medium text-foreground">
+                        <span className="inline-flex items-center gap-1.5"><Star className="size-3 fill-[var(--gold)] text-[var(--gold)]" /> {m.name}</span>
+                      </td>
+                      <td className="px-4 py-2.5 text-muted-foreground hidden sm:table-cell">{m.manufacturer ?? "—"}</td>
+                      <td className="px-4 py-2.5 text-right">{klass.passengers}</td>
+                      <td className="px-4 py-2.5 text-right">{klass.large_luggage} + {klass.cabin_bags}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
+            <p className="mt-2 text-[11px] text-muted-foreground italic">
+              You book the class — we allocate the specific vehicle from this list based on availability, or upgrade at no extra cost.
+            </p>
           </div>
         )}
 
