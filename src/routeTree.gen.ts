@@ -37,7 +37,6 @@ import { Route as ToursIndexRouteImport } from './routes/tours.index'
 import { Route as StationsIndexRouteImport } from './routes/stations.index'
 import { Route as HospitalsIndexRouteImport } from './routes/hospitals.index'
 import { Route as GuidesIndexRouteImport } from './routes/guides.index'
-import { Route as ExploreIndexRouteImport } from './routes/explore.index'
 import { Route as DistilleriesIndexRouteImport } from './routes/distilleries.index'
 import { Route as CruisePortsIndexRouteImport } from './routes/cruise-ports.index'
 import { Route as CorporateIndexRouteImport } from './routes/corporate.index'
@@ -60,8 +59,6 @@ import { Route as AreasSlugRouteImport } from './routes/areas.$slug'
 import { Route as AirportsIataRouteImport } from './routes/airports.$iata'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
-import { Route as ExploreRegionSlugRouteImport } from './routes/explore.region.$slug'
-import { Route as ExploreALetterRouteImport } from './routes/explore.a.$letter'
 import { Route as AuthenticatedAdminVehicleClassesRouteImport } from './routes/_authenticated/admin/vehicle-classes'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
 import { Route as AuthenticatedAdminTourSettingsRouteImport } from './routes/_authenticated/admin/tour-settings'
@@ -233,11 +230,6 @@ const GuidesIndexRoute = GuidesIndexRouteImport.update({
   path: '/guides/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ExploreIndexRoute = ExploreIndexRouteImport.update({
-  id: '/explore/',
-  path: '/explore/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const DistilleriesIndexRoute = DistilleriesIndexRouteImport.update({
   id: '/distilleries/',
   path: '/distilleries/',
@@ -348,16 +340,6 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AuthenticatedAdminRouteRoute,
-} as any)
-const ExploreRegionSlugRoute = ExploreRegionSlugRouteImport.update({
-  id: '/explore/region/$slug',
-  path: '/explore/region/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ExploreALetterRoute = ExploreALetterRouteImport.update({
-  id: '/explore/a/$letter',
-  path: '/explore/a/$letter',
-  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminVehicleClassesRoute =
   AuthenticatedAdminVehicleClassesRouteImport.update({
@@ -586,7 +568,6 @@ export interface FileRoutesByFullPath {
   '/corporate/': typeof CorporateIndexRoute
   '/cruise-ports/': typeof CruisePortsIndexRoute
   '/distilleries/': typeof DistilleriesIndexRoute
-  '/explore/': typeof ExploreIndexRoute
   '/guides/': typeof GuidesIndexRoute
   '/hospitals/': typeof HospitalsIndexRoute
   '/stations/': typeof StationsIndexRoute
@@ -613,8 +594,6 @@ export interface FileRoutesByFullPath {
   '/admin/tour-settings': typeof AuthenticatedAdminTourSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/admin/vehicle-classes': typeof AuthenticatedAdminVehicleClassesRoute
-  '/explore/a/$letter': typeof ExploreALetterRoute
-  '/explore/region/$slug': typeof ExploreRegionSlugRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/admin/seo/airports': typeof AuthenticatedAdminSeoAirportsRoute
   '/admin/seo/import': typeof AuthenticatedAdminSeoImportRoute
@@ -670,7 +649,6 @@ export interface FileRoutesByTo {
   '/corporate': typeof CorporateIndexRoute
   '/cruise-ports': typeof CruisePortsIndexRoute
   '/distilleries': typeof DistilleriesIndexRoute
-  '/explore': typeof ExploreIndexRoute
   '/guides': typeof GuidesIndexRoute
   '/hospitals': typeof HospitalsIndexRoute
   '/stations': typeof StationsIndexRoute
@@ -697,8 +675,6 @@ export interface FileRoutesByTo {
   '/admin/tour-settings': typeof AuthenticatedAdminTourSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/admin/vehicle-classes': typeof AuthenticatedAdminVehicleClassesRoute
-  '/explore/a/$letter': typeof ExploreALetterRoute
-  '/explore/region/$slug': typeof ExploreRegionSlugRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/admin/seo/airports': typeof AuthenticatedAdminSeoAirportsRoute
   '/admin/seo/import': typeof AuthenticatedAdminSeoImportRoute
@@ -757,7 +733,6 @@ export interface FileRoutesById {
   '/corporate/': typeof CorporateIndexRoute
   '/cruise-ports/': typeof CruisePortsIndexRoute
   '/distilleries/': typeof DistilleriesIndexRoute
-  '/explore/': typeof ExploreIndexRoute
   '/guides/': typeof GuidesIndexRoute
   '/hospitals/': typeof HospitalsIndexRoute
   '/stations/': typeof StationsIndexRoute
@@ -784,8 +759,6 @@ export interface FileRoutesById {
   '/_authenticated/admin/tour-settings': typeof AuthenticatedAdminTourSettingsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/admin/vehicle-classes': typeof AuthenticatedAdminVehicleClassesRoute
-  '/explore/a/$letter': typeof ExploreALetterRoute
-  '/explore/region/$slug': typeof ExploreRegionSlugRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/admin/seo/airports': typeof AuthenticatedAdminSeoAirportsRoute
   '/_authenticated/admin/seo/import': typeof AuthenticatedAdminSeoImportRoute
@@ -844,7 +817,6 @@ export interface FileRouteTypes {
     | '/corporate/'
     | '/cruise-ports/'
     | '/distilleries/'
-    | '/explore/'
     | '/guides/'
     | '/hospitals/'
     | '/stations/'
@@ -871,8 +843,6 @@ export interface FileRouteTypes {
     | '/admin/tour-settings'
     | '/admin/users'
     | '/admin/vehicle-classes'
-    | '/explore/a/$letter'
-    | '/explore/region/$slug'
     | '/admin/'
     | '/admin/seo/airports'
     | '/admin/seo/import'
@@ -928,7 +898,6 @@ export interface FileRouteTypes {
     | '/corporate'
     | '/cruise-ports'
     | '/distilleries'
-    | '/explore'
     | '/guides'
     | '/hospitals'
     | '/stations'
@@ -955,8 +924,6 @@ export interface FileRouteTypes {
     | '/admin/tour-settings'
     | '/admin/users'
     | '/admin/vehicle-classes'
-    | '/explore/a/$letter'
-    | '/explore/region/$slug'
     | '/admin'
     | '/admin/seo/airports'
     | '/admin/seo/import'
@@ -1014,7 +981,6 @@ export interface FileRouteTypes {
     | '/corporate/'
     | '/cruise-ports/'
     | '/distilleries/'
-    | '/explore/'
     | '/guides/'
     | '/hospitals/'
     | '/stations/'
@@ -1041,8 +1007,6 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/tour-settings'
     | '/_authenticated/admin/users'
     | '/_authenticated/admin/vehicle-classes'
-    | '/explore/a/$letter'
-    | '/explore/region/$slug'
     | '/_authenticated/admin/'
     | '/_authenticated/admin/seo/airports'
     | '/_authenticated/admin/seo/import'
@@ -1100,14 +1064,11 @@ export interface RootRouteChildren {
   CorporateIndexRoute: typeof CorporateIndexRoute
   CruisePortsIndexRoute: typeof CruisePortsIndexRoute
   DistilleriesIndexRoute: typeof DistilleriesIndexRoute
-  ExploreIndexRoute: typeof ExploreIndexRoute
   GuidesIndexRoute: typeof GuidesIndexRoute
   HospitalsIndexRoute: typeof HospitalsIndexRoute
   StationsIndexRoute: typeof StationsIndexRoute
   ToursIndexRoute: typeof ToursIndexRoute
   UniversitiesIndexRoute: typeof UniversitiesIndexRoute
-  ExploreALetterRoute: typeof ExploreALetterRoute
-  ExploreRegionSlugRoute: typeof ExploreRegionSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1308,13 +1269,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GuidesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/explore/': {
-      id: '/explore/'
-      path: '/explore'
-      fullPath: '/explore/'
-      preLoaderRoute: typeof ExploreIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/distilleries/': {
       id: '/distilleries/'
       path: '/distilleries'
@@ -1468,20 +1422,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
-    }
-    '/explore/region/$slug': {
-      id: '/explore/region/$slug'
-      path: '/explore/region/$slug'
-      fullPath: '/explore/region/$slug'
-      preLoaderRoute: typeof ExploreRegionSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/explore/a/$letter': {
-      id: '/explore/a/$letter'
-      path: '/explore/a/$letter'
-      fullPath: '/explore/a/$letter'
-      preLoaderRoute: typeof ExploreALetterRouteImport
-      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin/vehicle-classes': {
       id: '/_authenticated/admin/vehicle-classes'
@@ -1852,14 +1792,11 @@ const rootRouteChildren: RootRouteChildren = {
   CorporateIndexRoute: CorporateIndexRoute,
   CruisePortsIndexRoute: CruisePortsIndexRoute,
   DistilleriesIndexRoute: DistilleriesIndexRoute,
-  ExploreIndexRoute: ExploreIndexRoute,
   GuidesIndexRoute: GuidesIndexRoute,
   HospitalsIndexRoute: HospitalsIndexRoute,
   StationsIndexRoute: StationsIndexRoute,
   ToursIndexRoute: ToursIndexRoute,
   UniversitiesIndexRoute: UniversitiesIndexRoute,
-  ExploreALetterRoute: ExploreALetterRoute,
-  ExploreRegionSlugRoute: ExploreRegionSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
