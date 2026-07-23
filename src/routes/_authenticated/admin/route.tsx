@@ -74,6 +74,14 @@ const NAV: SidebarEntry[] = [
     ],
   },
   {
+    label: "Content Hub", icon: Newspaper, items: [
+      { to: "/admin/blog", label: "Posts", icon: FileText },
+      { to: "/admin/blog/categories", label: "Categories", icon: Tag },
+      { to: "/admin/blog/tags", label: "Tags", icon: Tag },
+      { to: "/admin/blog/authors", label: "Authors", icon: UserCog },
+    ],
+  },
+  {
     label: "SEO", icon: Globe, items: [
       { to: "/admin/seo", label: "Overview", icon: Globe },
       { to: "/admin/seo/import", label: "Import", icon: UploadCloud },
