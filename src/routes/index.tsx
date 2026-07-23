@@ -712,3 +712,56 @@ function HomePage() {
     </SiteLayout>
   );
 }
+
+const faqItems = [
+  { q: "How far in advance should I book?", a: "You can book anytime — even minutes ahead — but we recommend 2+ hours for airport pickups to guarantee your preferred vehicle." },
+  { q: "Do you track my flight?", a: "Yes. Every airport transfer includes automatic flight tracking, and we adjust pickup times for delays or early arrivals at no extra cost." },
+  { q: "Is there a meet & greet at arrivals?", a: "Absolutely. Your driver waits inside the terminal with a name board and helps with your luggage — included as standard." },
+  { q: "What if I need to cancel?", a: "Free cancellation up to 24 hours before pickup. Same-day cancellations may incur a small fee — full terms shown at booking." },
+  { q: "How do I pay?", a: "Pay securely online by card at booking, or set up a business account for monthly invoicing on corporate travel." },
+  { q: "Do you cover the whole UK?", a: "Yes — Edinburgh, London (Heathrow, Gatwick, Stansted, Luton, City), Manchester, Glasgow, Birmingham and 120+ UK destinations." },
+];
+
+function Faq() {
+  const [open, setOpen] = useState<number | null>(0);
+  return (
+    <div className="divide-y divide-[var(--navy)]/10 border-y border-[var(--navy)]/10">
+      {faqItems.map((f, i) => {
+        const isOpen = open === i;
+        return (
+          <div key={f.q}>
+            <button
+              type="button"
+              onClick={() => setOpen(isOpen ? null : i)}
+              className="w-full flex items-center justify-between gap-4 py-5 text-left group"
+              aria-expanded={isOpen}
+            >
+              <span className="flex items-center gap-4 min-w-0">
+                <span className="font-mono text-xs text-[var(--gold-ink)] tabular-nums">0{i + 1}</span>
+                <span className="font-display text-base md:text-lg font-semibold text-[var(--navy)] group-hover:text-[var(--gold-ink)] transition-colors">
+                  {f.q}
+                </span>
+              </span>
+              <span className={`grid size-9 shrink-0 place-items-center rounded-full border transition-all ${
+                isOpen
+                  ? "bg-[var(--gold)] border-[var(--gold)] text-[var(--gold-foreground)] rotate-0"
+                  : "border-[var(--navy)]/20 text-[var(--navy)]"
+              }`}>
+                {isOpen ? <Minus className="size-4" /> : <Plus className="size-4" />}
+              </span>
+            </button>
+            <div
+              className="overflow-hidden transition-all duration-300"
+              style={{ maxHeight: isOpen ? 200 : 0, opacity: isOpen ? 1 : 0 }}
+            >
+              <p className="pb-6 pl-10 pr-14 text-sm text-[var(--navy)]/70 leading-relaxed">
+                {f.a}
+              </p>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
