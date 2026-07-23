@@ -106,12 +106,18 @@ function FleetPage() {
 
   return (
     <div className="p-6 md:p-8 space-y-6">
-      <PageHeader title="Vehicles" description="Manage your fleet details. Mileage pricing is set in Pricing → Mileage Pricing.">
+      <PageHeader title="Pricing Vehicles" description="These vehicles carry mileage pricing profiles that Vehicle Classes inherit from. Manage customer-facing classes at Fleet → Vehicle Classes.">
         <div className="flex gap-2">
+          <Button variant="outline" asChild><Link to="/admin/vehicle-classes"><Car className="size-4 mr-1" /> Vehicle Classes</Link></Button>
           <Button variant="outline" asChild><Link to="/admin/mileage-pricing"><Gauge className="size-4 mr-1" /> Mileage pricing</Link></Button>
           <Button onClick={openNew}><Plus className="size-4 mr-1" /> Add vehicle</Button>
         </div>
       </PageHeader>
+
+      <div className="rounded-lg border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-4 py-3 text-sm">
+        <strong>Customers book a Vehicle Class</strong>, not an individual vehicle. Each class inherits its mileage pricing from one vehicle listed here (its "pricing vehicle"). Manage the 14 classes and their models at{" "}
+        <Link to="/admin/vehicle-classes" className="underline font-medium">Vehicle Classes</Link>.
+      </div>
 
       {vehicles.length === 0 ? (
         <EmptyState title="No vehicles yet" hint="Add your first vehicle to start accepting bookings." action={<Button onClick={openNew}><Plus className="size-4 mr-1" /> Add vehicle</Button>} />
