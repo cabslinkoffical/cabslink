@@ -31,14 +31,12 @@ export function Header() {
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  const dark = !scrolled; // dark = over hero (white text)
-
   return (
     <header
       className={`sticky top-0 z-50 transition-all duration-300 ${
         scrolled
           ? "bg-white/95 backdrop-blur-xl border-b border-[var(--navy)]/8 shadow-[0_1px_0_rgba(14,24,44,0.04),0_8px_28px_-16px_rgba(14,24,44,0.18)]"
-          : "bg-transparent"
+          : "bg-white border-b border-[var(--navy)]/10 shadow-[0_10px_30px_-24px_rgba(14,24,44,0.32)]"
       }`}
     >
       <div className="container-x flex h-16 md:h-[74px] items-center justify-between gap-8">
@@ -59,9 +57,7 @@ export function Header() {
                 key={item.to}
                 to={item.to}
                 className={`group relative py-1 text-[13px] font-semibold tracking-[0.02em] transition-colors duration-200 ${
-                  dark
-                    ? active ? "text-white" : "text-white/75 hover:text-white"
-                    : active ? "text-[var(--navy)]" : "text-[var(--navy)]/65 hover:text-[var(--navy)]"
+                  active ? "text-[var(--navy)]" : "text-[var(--navy)]/70 hover:text-[var(--navy)]"
                 }`}
               >
                 <span>{item.label}</span>
@@ -81,23 +77,19 @@ export function Header() {
         <div className="hidden md:flex items-center gap-4 shrink-0">
           <a
             href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}
-            className={`hidden xl:inline-flex items-center gap-2 text-[13px] font-semibold transition-colors ${
-              dark ? "text-white/85 hover:text-white" : "text-[var(--navy)]/80 hover:text-[var(--navy)]"
-            }`}
+            className="hidden xl:inline-flex items-center gap-2 text-[13px] font-semibold text-[var(--navy)]/80 transition-colors hover:text-[var(--navy)]"
           >
             <Phone className="size-3.5 text-[var(--gold)]" />
             <span className="tabular-nums">{SITE.phoneUK}</span>
           </a>
 
           {/* Divider */}
-          <span className={`hidden xl:block h-5 w-px ${dark ? "bg-white/20" : "bg-[var(--navy)]/15"}`} />
+          <span className="hidden xl:block h-5 w-px bg-[var(--navy)]/15" />
 
           {isAdmin && (
             <Link
               to="/admin"
-              className={`inline-flex items-center gap-1.5 text-[12px] font-semibold transition-colors ${
-                dark ? "text-white/80 hover:text-[var(--gold)]" : "text-[var(--navy)]/75 hover:text-[var(--gold-ink)]"
-              }`}
+              className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-[var(--navy)]/75 transition-colors hover:text-[var(--gold-ink)]"
             >
               <ShieldCheck className="size-3.5" /> Admin
             </Link>
@@ -117,20 +109,13 @@ export function Header() {
           aria-label="Menu"
           aria-expanded={open}
           onClick={() => setOpen(v => !v)}
-          className={`lg:hidden grid place-items-center size-10 rounded-full transition-colors ${
-            dark
-              ? "text-white bg-white/10 hover:bg-white/15 backdrop-blur"
-              : "text-[var(--navy)] bg-[var(--navy)]/[0.06] hover:bg-[var(--navy)]/[0.09]"
-          }`}
+          className="grid size-10 place-items-center rounded-full bg-[var(--navy)]/[0.06] text-[var(--navy)] transition-colors hover:bg-[var(--navy)]/[0.09] lg:hidden"
         >
           {open ? <X className="size-5" /> : <Menu className="size-5" />}
         </button>
       </div>
 
-      {/* Bottom hairline visible only on hero for structure */}
-      {dark && (
-        <div className="hidden lg:block absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent pointer-events-none" />
-      )}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 hidden h-px bg-[var(--gold)]/45 lg:block" />
 
       {/* Mobile sheet */}
       {open && (
