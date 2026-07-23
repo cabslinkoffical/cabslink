@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { Plus, Edit, Trash2, ExternalLink, Tag, Folder, User } from "lucide-react";
 import { listAdminPosts, deletePost } from "@/lib/blog-admin.functions";
 
-export const Route = createFileRoute("/_authenticated/admin/blog")({
+export const Route = createFileRoute("/_authenticated/admin/blog/")({
   component: AdminBlogList,
 });
 

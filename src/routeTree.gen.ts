@@ -84,10 +84,10 @@ import { Route as AuthenticatedAdminDriversRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminCustomersRouteImport } from './routes/_authenticated/admin/customers'
 import { Route as AuthenticatedAdminCouponsRouteImport } from './routes/_authenticated/admin/coupons'
 import { Route as AuthenticatedAdminBookingsRouteImport } from './routes/_authenticated/admin/bookings'
-import { Route as AuthenticatedAdminBlogRouteImport } from './routes/_authenticated/admin/blog'
 import { Route as AuthenticatedAdminBannedAddressesRouteImport } from './routes/_authenticated/admin/banned-addresses'
 import { Route as AuthenticatedAdminAddressesRouteImport } from './routes/_authenticated/admin/addresses'
 import { Route as AuthenticatedAdminSeoIndexRouteImport } from './routes/_authenticated/admin/seo.index'
+import { Route as AuthenticatedAdminBlogIndexRouteImport } from './routes/_authenticated/admin/blog.index'
 import { Route as AuthenticatedAdminSeoServicesRouteImport } from './routes/_authenticated/admin/seo.services'
 import { Route as AuthenticatedAdminSeoRoutesRouteImport } from './routes/_authenticated/admin/seo.routes'
 import { Route as AuthenticatedAdminSeoRedirectsRouteImport } from './routes/_authenticated/admin/seo.redirects'
@@ -492,11 +492,6 @@ const AuthenticatedAdminBookingsRoute =
     path: '/bookings',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
-const AuthenticatedAdminBlogRoute = AuthenticatedAdminBlogRouteImport.update({
-  id: '/blog',
-  path: '/blog',
-  getParentRoute: () => AuthenticatedAdminRouteRoute,
-} as any)
 const AuthenticatedAdminBannedAddressesRoute =
   AuthenticatedAdminBannedAddressesRouteImport.update({
     id: '/banned-addresses',
@@ -513,6 +508,12 @@ const AuthenticatedAdminSeoIndexRoute =
   AuthenticatedAdminSeoIndexRouteImport.update({
     id: '/seo/',
     path: '/seo/',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminBlogIndexRoute =
+  AuthenticatedAdminBlogIndexRouteImport.update({
+    id: '/blog/',
+    path: '/blog/',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 const AuthenticatedAdminSeoServicesRoute =
@@ -565,27 +566,27 @@ const AuthenticatedAdminSeoAirportsRoute =
   } as any)
 const AuthenticatedAdminBlogTagsRoute =
   AuthenticatedAdminBlogTagsRouteImport.update({
-    id: '/tags',
-    path: '/tags',
-    getParentRoute: () => AuthenticatedAdminBlogRoute,
+    id: '/blog/tags',
+    path: '/blog/tags',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 const AuthenticatedAdminBlogCategoriesRoute =
   AuthenticatedAdminBlogCategoriesRouteImport.update({
-    id: '/categories',
-    path: '/categories',
-    getParentRoute: () => AuthenticatedAdminBlogRoute,
+    id: '/blog/categories',
+    path: '/blog/categories',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 const AuthenticatedAdminBlogAuthorsRoute =
   AuthenticatedAdminBlogAuthorsRouteImport.update({
-    id: '/authors',
-    path: '/authors',
-    getParentRoute: () => AuthenticatedAdminBlogRoute,
+    id: '/blog/authors',
+    path: '/blog/authors',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 const AuthenticatedAdminBlogIdRoute =
   AuthenticatedAdminBlogIdRouteImport.update({
-    id: '/$id',
-    path: '/$id',
-    getParentRoute: () => AuthenticatedAdminBlogRoute,
+    id: '/blog/$id',
+    path: '/blog/$id',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 const AuthenticatedAdminSeoPagesIdSectionsRoute =
   AuthenticatedAdminSeoPagesIdSectionsRouteImport.update({
@@ -647,7 +648,6 @@ export interface FileRoutesByFullPath {
   '/universities/': typeof UniversitiesIndexRoute
   '/admin/addresses': typeof AuthenticatedAdminAddressesRoute
   '/admin/banned-addresses': typeof AuthenticatedAdminBannedAddressesRoute
-  '/admin/blog': typeof AuthenticatedAdminBlogRouteWithChildren
   '/admin/bookings': typeof AuthenticatedAdminBookingsRoute
   '/admin/coupons': typeof AuthenticatedAdminCouponsRoute
   '/admin/customers': typeof AuthenticatedAdminCustomersRoute
@@ -684,6 +684,7 @@ export interface FileRoutesByFullPath {
   '/admin/seo/redirects': typeof AuthenticatedAdminSeoRedirectsRoute
   '/admin/seo/routes': typeof AuthenticatedAdminSeoRoutesRoute
   '/admin/seo/services': typeof AuthenticatedAdminSeoServicesRoute
+  '/admin/blog/': typeof AuthenticatedAdminBlogIndexRoute
   '/admin/seo/': typeof AuthenticatedAdminSeoIndexRoute
   '/admin/seo/pages/$id/sections': typeof AuthenticatedAdminSeoPagesIdSectionsRoute
 }
@@ -739,7 +740,6 @@ export interface FileRoutesByTo {
   '/universities': typeof UniversitiesIndexRoute
   '/admin/addresses': typeof AuthenticatedAdminAddressesRoute
   '/admin/banned-addresses': typeof AuthenticatedAdminBannedAddressesRoute
-  '/admin/blog': typeof AuthenticatedAdminBlogRouteWithChildren
   '/admin/bookings': typeof AuthenticatedAdminBookingsRoute
   '/admin/coupons': typeof AuthenticatedAdminCouponsRoute
   '/admin/customers': typeof AuthenticatedAdminCustomersRoute
@@ -776,6 +776,7 @@ export interface FileRoutesByTo {
   '/admin/seo/redirects': typeof AuthenticatedAdminSeoRedirectsRoute
   '/admin/seo/routes': typeof AuthenticatedAdminSeoRoutesRoute
   '/admin/seo/services': typeof AuthenticatedAdminSeoServicesRoute
+  '/admin/blog': typeof AuthenticatedAdminBlogIndexRoute
   '/admin/seo': typeof AuthenticatedAdminSeoIndexRoute
   '/admin/seo/pages/$id/sections': typeof AuthenticatedAdminSeoPagesIdSectionsRoute
 }
@@ -834,7 +835,6 @@ export interface FileRoutesById {
   '/universities/': typeof UniversitiesIndexRoute
   '/_authenticated/admin/addresses': typeof AuthenticatedAdminAddressesRoute
   '/_authenticated/admin/banned-addresses': typeof AuthenticatedAdminBannedAddressesRoute
-  '/_authenticated/admin/blog': typeof AuthenticatedAdminBlogRouteWithChildren
   '/_authenticated/admin/bookings': typeof AuthenticatedAdminBookingsRoute
   '/_authenticated/admin/coupons': typeof AuthenticatedAdminCouponsRoute
   '/_authenticated/admin/customers': typeof AuthenticatedAdminCustomersRoute
@@ -871,6 +871,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/seo/redirects': typeof AuthenticatedAdminSeoRedirectsRoute
   '/_authenticated/admin/seo/routes': typeof AuthenticatedAdminSeoRoutesRoute
   '/_authenticated/admin/seo/services': typeof AuthenticatedAdminSeoServicesRoute
+  '/_authenticated/admin/blog/': typeof AuthenticatedAdminBlogIndexRoute
   '/_authenticated/admin/seo/': typeof AuthenticatedAdminSeoIndexRoute
   '/_authenticated/admin/seo/pages/$id/sections': typeof AuthenticatedAdminSeoPagesIdSectionsRoute
 }
@@ -929,7 +930,6 @@ export interface FileRouteTypes {
     | '/universities/'
     | '/admin/addresses'
     | '/admin/banned-addresses'
-    | '/admin/blog'
     | '/admin/bookings'
     | '/admin/coupons'
     | '/admin/customers'
@@ -966,6 +966,7 @@ export interface FileRouteTypes {
     | '/admin/seo/redirects'
     | '/admin/seo/routes'
     | '/admin/seo/services'
+    | '/admin/blog/'
     | '/admin/seo/'
     | '/admin/seo/pages/$id/sections'
   fileRoutesByTo: FileRoutesByTo
@@ -1021,7 +1022,6 @@ export interface FileRouteTypes {
     | '/universities'
     | '/admin/addresses'
     | '/admin/banned-addresses'
-    | '/admin/blog'
     | '/admin/bookings'
     | '/admin/coupons'
     | '/admin/customers'
@@ -1058,6 +1058,7 @@ export interface FileRouteTypes {
     | '/admin/seo/redirects'
     | '/admin/seo/routes'
     | '/admin/seo/services'
+    | '/admin/blog'
     | '/admin/seo'
     | '/admin/seo/pages/$id/sections'
   id:
@@ -1115,7 +1116,6 @@ export interface FileRouteTypes {
     | '/universities/'
     | '/_authenticated/admin/addresses'
     | '/_authenticated/admin/banned-addresses'
-    | '/_authenticated/admin/blog'
     | '/_authenticated/admin/bookings'
     | '/_authenticated/admin/coupons'
     | '/_authenticated/admin/customers'
@@ -1152,6 +1152,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/seo/redirects'
     | '/_authenticated/admin/seo/routes'
     | '/_authenticated/admin/seo/services'
+    | '/_authenticated/admin/blog/'
     | '/_authenticated/admin/seo/'
     | '/_authenticated/admin/seo/pages/$id/sections'
   fileRoutesById: FileRoutesById
@@ -1740,13 +1741,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminBookingsRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
-    '/_authenticated/admin/blog': {
-      id: '/_authenticated/admin/blog'
-      path: '/blog'
-      fullPath: '/admin/blog'
-      preLoaderRoute: typeof AuthenticatedAdminBlogRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
-    }
     '/_authenticated/admin/banned-addresses': {
       id: '/_authenticated/admin/banned-addresses'
       path: '/banned-addresses'
@@ -1766,6 +1760,13 @@ declare module '@tanstack/react-router' {
       path: '/seo'
       fullPath: '/admin/seo/'
       preLoaderRoute: typeof AuthenticatedAdminSeoIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/blog/': {
+      id: '/_authenticated/admin/blog/'
+      path: '/blog'
+      fullPath: '/admin/blog/'
+      preLoaderRoute: typeof AuthenticatedAdminBlogIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/admin/seo/services': {
@@ -1826,31 +1827,31 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/admin/blog/tags': {
       id: '/_authenticated/admin/blog/tags'
-      path: '/tags'
+      path: '/blog/tags'
       fullPath: '/admin/blog/tags'
       preLoaderRoute: typeof AuthenticatedAdminBlogTagsRouteImport
-      parentRoute: typeof AuthenticatedAdminBlogRoute
+      parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/admin/blog/categories': {
       id: '/_authenticated/admin/blog/categories'
-      path: '/categories'
+      path: '/blog/categories'
       fullPath: '/admin/blog/categories'
       preLoaderRoute: typeof AuthenticatedAdminBlogCategoriesRouteImport
-      parentRoute: typeof AuthenticatedAdminBlogRoute
+      parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/admin/blog/authors': {
       id: '/_authenticated/admin/blog/authors'
-      path: '/authors'
+      path: '/blog/authors'
       fullPath: '/admin/blog/authors'
       preLoaderRoute: typeof AuthenticatedAdminBlogAuthorsRouteImport
-      parentRoute: typeof AuthenticatedAdminBlogRoute
+      parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/admin/blog/$id': {
       id: '/_authenticated/admin/blog/$id'
-      path: '/$id'
+      path: '/blog/$id'
       fullPath: '/admin/blog/$id'
       preLoaderRoute: typeof AuthenticatedAdminBlogIdRouteImport
-      parentRoute: typeof AuthenticatedAdminBlogRoute
+      parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/admin/seo/pages/$id/sections': {
       id: '/_authenticated/admin/seo/pages/$id/sections'
@@ -1861,27 +1862,6 @@ declare module '@tanstack/react-router' {
     }
   }
 }
-
-interface AuthenticatedAdminBlogRouteChildren {
-  AuthenticatedAdminBlogIdRoute: typeof AuthenticatedAdminBlogIdRoute
-  AuthenticatedAdminBlogAuthorsRoute: typeof AuthenticatedAdminBlogAuthorsRoute
-  AuthenticatedAdminBlogCategoriesRoute: typeof AuthenticatedAdminBlogCategoriesRoute
-  AuthenticatedAdminBlogTagsRoute: typeof AuthenticatedAdminBlogTagsRoute
-}
-
-const AuthenticatedAdminBlogRouteChildren: AuthenticatedAdminBlogRouteChildren =
-  {
-    AuthenticatedAdminBlogIdRoute: AuthenticatedAdminBlogIdRoute,
-    AuthenticatedAdminBlogAuthorsRoute: AuthenticatedAdminBlogAuthorsRoute,
-    AuthenticatedAdminBlogCategoriesRoute:
-      AuthenticatedAdminBlogCategoriesRoute,
-    AuthenticatedAdminBlogTagsRoute: AuthenticatedAdminBlogTagsRoute,
-  }
-
-const AuthenticatedAdminBlogRouteWithChildren =
-  AuthenticatedAdminBlogRoute._addFileChildren(
-    AuthenticatedAdminBlogRouteChildren,
-  )
 
 interface AuthenticatedAdminSeoPagesRouteChildren {
   AuthenticatedAdminSeoPagesIdSectionsRoute: typeof AuthenticatedAdminSeoPagesIdSectionsRoute
@@ -1901,7 +1881,6 @@ const AuthenticatedAdminSeoPagesRouteWithChildren =
 interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminAddressesRoute: typeof AuthenticatedAdminAddressesRoute
   AuthenticatedAdminBannedAddressesRoute: typeof AuthenticatedAdminBannedAddressesRoute
-  AuthenticatedAdminBlogRoute: typeof AuthenticatedAdminBlogRouteWithChildren
   AuthenticatedAdminBookingsRoute: typeof AuthenticatedAdminBookingsRoute
   AuthenticatedAdminCouponsRoute: typeof AuthenticatedAdminCouponsRoute
   AuthenticatedAdminCustomersRoute: typeof AuthenticatedAdminCustomersRoute
@@ -1922,6 +1901,10 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedAdminVehicleClassesRoute: typeof AuthenticatedAdminVehicleClassesRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminBlogIdRoute: typeof AuthenticatedAdminBlogIdRoute
+  AuthenticatedAdminBlogAuthorsRoute: typeof AuthenticatedAdminBlogAuthorsRoute
+  AuthenticatedAdminBlogCategoriesRoute: typeof AuthenticatedAdminBlogCategoriesRoute
+  AuthenticatedAdminBlogTagsRoute: typeof AuthenticatedAdminBlogTagsRoute
   AuthenticatedAdminSeoAirportsRoute: typeof AuthenticatedAdminSeoAirportsRoute
   AuthenticatedAdminSeoImportRoute: typeof AuthenticatedAdminSeoImportRoute
   AuthenticatedAdminSeoIssuesRoute: typeof AuthenticatedAdminSeoIssuesRoute
@@ -1930,6 +1913,7 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminSeoRedirectsRoute: typeof AuthenticatedAdminSeoRedirectsRoute
   AuthenticatedAdminSeoRoutesRoute: typeof AuthenticatedAdminSeoRoutesRoute
   AuthenticatedAdminSeoServicesRoute: typeof AuthenticatedAdminSeoServicesRoute
+  AuthenticatedAdminBlogIndexRoute: typeof AuthenticatedAdminBlogIndexRoute
   AuthenticatedAdminSeoIndexRoute: typeof AuthenticatedAdminSeoIndexRoute
 }
 
@@ -1938,7 +1922,6 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminAddressesRoute: AuthenticatedAdminAddressesRoute,
     AuthenticatedAdminBannedAddressesRoute:
       AuthenticatedAdminBannedAddressesRoute,
-    AuthenticatedAdminBlogRoute: AuthenticatedAdminBlogRouteWithChildren,
     AuthenticatedAdminBookingsRoute: AuthenticatedAdminBookingsRoute,
     AuthenticatedAdminCouponsRoute: AuthenticatedAdminCouponsRoute,
     AuthenticatedAdminCustomersRoute: AuthenticatedAdminCustomersRoute,
@@ -1962,6 +1945,11 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminVehicleClassesRoute:
       AuthenticatedAdminVehicleClassesRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+    AuthenticatedAdminBlogIdRoute: AuthenticatedAdminBlogIdRoute,
+    AuthenticatedAdminBlogAuthorsRoute: AuthenticatedAdminBlogAuthorsRoute,
+    AuthenticatedAdminBlogCategoriesRoute:
+      AuthenticatedAdminBlogCategoriesRoute,
+    AuthenticatedAdminBlogTagsRoute: AuthenticatedAdminBlogTagsRoute,
     AuthenticatedAdminSeoAirportsRoute: AuthenticatedAdminSeoAirportsRoute,
     AuthenticatedAdminSeoImportRoute: AuthenticatedAdminSeoImportRoute,
     AuthenticatedAdminSeoIssuesRoute: AuthenticatedAdminSeoIssuesRoute,
@@ -1971,6 +1959,7 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminSeoRedirectsRoute: AuthenticatedAdminSeoRedirectsRoute,
     AuthenticatedAdminSeoRoutesRoute: AuthenticatedAdminSeoRoutesRoute,
     AuthenticatedAdminSeoServicesRoute: AuthenticatedAdminSeoServicesRoute,
+    AuthenticatedAdminBlogIndexRoute: AuthenticatedAdminBlogIndexRoute,
     AuthenticatedAdminSeoIndexRoute: AuthenticatedAdminSeoIndexRoute,
   }
 
