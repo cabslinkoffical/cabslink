@@ -269,21 +269,6 @@ function HomePage() {
                 </div>
               </div>
 
-              <div
-                className="mt-8 grid grid-cols-3 gap-2 w-full max-w-lg opacity-0"
-                style={{ animation: "fadeInUp 800ms cubic-bezier(.2,.7,.2,1) 620ms forwards" }}
-              >
-                {[
-                  { k: "50k+", v: "Journeys" },
-                  { k: "24/7", v: "Dispatch" },
-                  { k: "4.9★", v: "Rated" },
-                ].map((s, i, arr) => (
-                  <div key={s.k} className={`min-w-0 px-2 sm:px-4 first:pl-0 ${i < arr.length - 1 ? "border-r border-white/15" : ""}`}>
-                    <div className="font-display text-xl sm:text-2xl md:text-3xl font-bold text-white">{s.k}</div>
-                    <div className="text-[10px] sm:text-[11px] uppercase tracking-[0.14em] text-white/60 mt-1 truncate">{s.v}</div>
-                  </div>
-                ))}
-              </div>
             </div>
 
             <div className="lg:col-span-6 relative">
