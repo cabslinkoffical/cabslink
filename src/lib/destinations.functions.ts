@@ -28,6 +28,7 @@ export const DESTINATION_TYPES = [
   "location", "route", "airport", "station", "cruise_port", "university",
   "hospital", "corporate", "attraction", "distillery", "business_park",
   "service", "guide", "region", "council",
+  "city", "town", "village",
 ] as const;
 export type DestinationType = (typeof DESTINATION_TYPES)[number];
 
@@ -120,7 +121,26 @@ export const listDestinationsByType = createServerFn({ method: "GET" })
     let q = sb.from("destinations").select(FIELDS).eq("type", data.type).eq("active", true);
     if (data.tiers?.length) q = q.in("seo_tier", data.tiers);
     else q = q.neq("seo_tier", 4);
-    q = q.order("name", { ascending: true }).limit(data.limit ?? 500);
+    q = q.order("seo_tier", { ascending: true }).order("name", { ascending: true }).limit(data.limit ?? 500);
+    const { data: rows } = await q;
+    return (rows as Destination[]) ?? [];
+  });
+
+/** List destinations across multiple types (hubs like /areas that span city/town/village). */
+export const listDestinationsByTypes = createServerFn({ method: "GET" })
+  .inputValidator((input: { types: DestinationType[]; tiers?: number[]; limit?: number }) =>
+    z.object({
+      types: z.array(z.enum(DESTINATION_TYPES as unknown as [DestinationType, ...DestinationType[]])).min(1),
+      tiers: z.array(z.number().int().min(1).max(4)).optional(),
+      limit: z.number().int().min(1).max(5000).optional(),
+    }).parse(input),
+  )
+  .handler(async ({ data }): Promise<Destination[]> => {
+    const sb = serverPublicClient();
+    let q = sb.from("destinations").select(FIELDS).in("type", data.types).eq("active", true);
+    if (data.tiers?.length) q = q.in("seo_tier", data.tiers);
+    else q = q.neq("seo_tier", 4);
+    q = q.order("seo_tier", { ascending: true }).order("name", { ascending: true }).limit(data.limit ?? 500);
     const { data: rows } = await q;
     return (rows as Destination[]) ?? [];
   });

@@ -33,8 +33,7 @@ export async function loadDestination(
 ): Promise<LoadedDestination> {
   const destination = await getDestination({ data: { type, slug } });
   if (!destination) throw notFound();
-  // Tier 3 records exist for booking search only — never render a page.
-  if (destination.seo_tier === 3) throw notFound();
+  // Tier 3 rows still render — evaluateQuality will force noindex on them.
   const [nearby, popularRoutes, relatedServices] = await Promise.all([
     destination.nearby_ids.length
       ? getDestinationsByIds({ data: { ids: destination.nearby_ids.slice(0, 12) } })
