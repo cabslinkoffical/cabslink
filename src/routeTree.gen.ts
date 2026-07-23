@@ -38,6 +38,7 @@ import { Route as BookingTokenRouteImport } from './routes/booking.$token'
 import { Route as AirportsIataRouteImport } from './routes/airports.$iata'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
+import { Route as AuthenticatedAdminVehicleClassesRouteImport } from './routes/_authenticated/admin/vehicle-classes'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
 import { Route as AuthenticatedAdminTourSettingsRouteImport } from './routes/_authenticated/admin/tour-settings'
 import { Route as AuthenticatedAdminSurchargesRouteImport } from './routes/_authenticated/admin/surcharges'
@@ -215,6 +216,12 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRouteRoute,
 } as any)
+const AuthenticatedAdminVehicleClassesRoute =
+  AuthenticatedAdminVehicleClassesRouteImport.update({
+    id: '/vehicle-classes',
+    path: '/vehicle-classes',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
   id: '/users',
   path: '/users',
@@ -455,6 +462,7 @@ export interface FileRoutesByFullPath {
   '/admin/surcharges': typeof AuthenticatedAdminSurchargesRoute
   '/admin/tour-settings': typeof AuthenticatedAdminTourSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/admin/vehicle-classes': typeof AuthenticatedAdminVehicleClassesRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/admin/seo/airports': typeof AuthenticatedAdminSeoAirportsRoute
   '/admin/seo/issues': typeof AuthenticatedAdminSeoIssuesRoute
@@ -516,6 +524,7 @@ export interface FileRoutesByTo {
   '/admin/surcharges': typeof AuthenticatedAdminSurchargesRoute
   '/admin/tour-settings': typeof AuthenticatedAdminTourSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/admin/vehicle-classes': typeof AuthenticatedAdminVehicleClassesRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/admin/seo/airports': typeof AuthenticatedAdminSeoAirportsRoute
   '/admin/seo/issues': typeof AuthenticatedAdminSeoIssuesRoute
@@ -580,6 +589,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/surcharges': typeof AuthenticatedAdminSurchargesRoute
   '/_authenticated/admin/tour-settings': typeof AuthenticatedAdminTourSettingsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/_authenticated/admin/vehicle-classes': typeof AuthenticatedAdminVehicleClassesRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/admin/seo/airports': typeof AuthenticatedAdminSeoAirportsRoute
   '/_authenticated/admin/seo/issues': typeof AuthenticatedAdminSeoIssuesRoute
@@ -644,6 +654,7 @@ export interface FileRouteTypes {
     | '/admin/surcharges'
     | '/admin/tour-settings'
     | '/admin/users'
+    | '/admin/vehicle-classes'
     | '/admin/'
     | '/admin/seo/airports'
     | '/admin/seo/issues'
@@ -705,6 +716,7 @@ export interface FileRouteTypes {
     | '/admin/surcharges'
     | '/admin/tour-settings'
     | '/admin/users'
+    | '/admin/vehicle-classes'
     | '/admin'
     | '/admin/seo/airports'
     | '/admin/seo/issues'
@@ -768,6 +780,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/surcharges'
     | '/_authenticated/admin/tour-settings'
     | '/_authenticated/admin/users'
+    | '/_authenticated/admin/vehicle-classes'
     | '/_authenticated/admin/'
     | '/_authenticated/admin/seo/airports'
     | '/_authenticated/admin/seo/issues'
@@ -1013,6 +1026,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/admin/'
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/vehicle-classes': {
+      id: '/_authenticated/admin/vehicle-classes'
+      path: '/vehicle-classes'
+      fullPath: '/admin/vehicle-classes'
+      preLoaderRoute: typeof AuthenticatedAdminVehicleClassesRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/admin/users': {
@@ -1281,6 +1301,7 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminSurchargesRoute: typeof AuthenticatedAdminSurchargesRoute
   AuthenticatedAdminTourSettingsRoute: typeof AuthenticatedAdminTourSettingsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
+  AuthenticatedAdminVehicleClassesRoute: typeof AuthenticatedAdminVehicleClassesRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminSeoAirportsRoute: typeof AuthenticatedAdminSeoAirportsRoute
   AuthenticatedAdminSeoIssuesRoute: typeof AuthenticatedAdminSeoIssuesRoute
@@ -1320,6 +1341,8 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminSurchargesRoute: AuthenticatedAdminSurchargesRoute,
     AuthenticatedAdminTourSettingsRoute: AuthenticatedAdminTourSettingsRoute,
     AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
+    AuthenticatedAdminVehicleClassesRoute:
+      AuthenticatedAdminVehicleClassesRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
     AuthenticatedAdminSeoAirportsRoute: AuthenticatedAdminSeoAirportsRoute,
     AuthenticatedAdminSeoIssuesRoute: AuthenticatedAdminSeoIssuesRoute,
