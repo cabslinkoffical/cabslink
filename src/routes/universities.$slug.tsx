@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { DestinationPage, buildBreadcrumbs } from "@/components/site/DestinationPage";
+import { buildAutoHead } from "@/lib/seo/auto-seo";
 import { destinationQueryOptions, HUBS } from "@/lib/hub-config";
 const KEY = "universities" as const;
 export const Route = createFileRoute("/universities/$slug")({
