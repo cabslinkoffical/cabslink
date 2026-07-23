@@ -35,16 +35,12 @@ export function Header() {
     <div className={`sticky top-0 z-50 transition-all duration-300 navy-scene ${scrolled ? "pt-2 md:pt-3 pb-2 md:pb-3" : "pt-4 md:pt-6 pb-4 md:pb-6"}`}>
       <div className="mx-auto w-full max-w-[1400px] px-3 md:px-6">
         <header
-          className={`relative flex h-[68px] md:h-[76px] items-center justify-between gap-4 rounded-full pl-4 pr-3 md:pl-7 md:pr-3 transition-all duration-300 border border-white/15 overflow-hidden bg-[linear-gradient(180deg,#1a2a4a_0%,#0e1a33_55%,#08122a_100%)] ${
+          className={`relative flex h-[68px] md:h-[76px] items-center justify-between gap-4 rounded-full pl-4 pr-3 md:pl-7 md:pr-3 transition-all duration-300 border border-white/10 overflow-hidden bg-[#0a1224]/95 ${
             scrolled
               ? "shadow-[0_16px_50px_-18px_rgba(0,0,0,0.7)]"
               : "shadow-[0_24px_60px_-22px_rgba(0,0,0,0.55)]"
           }`}
         >
-          {/* Glossy sheen overlays */}
-          <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-1/2 rounded-t-full bg-[linear-gradient(180deg,rgba(255,255,255,0.18)_0%,rgba(255,255,255,0.04)_60%,transparent_100%)]" />
-          <span aria-hidden className="pointer-events-none absolute inset-x-8 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.6),transparent)]" />
-          <span aria-hidden className="pointer-events-none absolute inset-x-16 -top-6 h-10 rounded-full bg-white/10 blur-2xl" />
 
           {/* Logo */}
           <div className="shrink-0 flex items-center">
