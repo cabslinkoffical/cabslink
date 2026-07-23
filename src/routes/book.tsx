@@ -446,6 +446,7 @@ function BookPage() {
           child_seat_count: childSeatCount,
           meet_greet: meetGreet,
           return_journey: returnJourney,
+          cancellation_policy: policy,
           templateSlug: pre.templateSlug || null,
         },
       });
