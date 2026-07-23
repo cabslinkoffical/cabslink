@@ -28,6 +28,8 @@ import { calculateQuotes, createBooking, type QuoteCard } from "@/lib/pricing.fu
 import { listPoisForRoute, type PoiSuggestion, type RouteTemplateSummary } from "@/lib/pois.functions";
 import { calculateMultiStopQuote, type MultiStopQuoteResult } from "@/lib/scenic-quote.functions";
 import { resolveTourTemplate } from "@/lib/tours.functions";
+import { listPublicVehicleClasses, type PublicVehicleClass } from "@/lib/vehicle-classes.functions";
+import { VehicleAllocationNotice } from "@/components/site/VehicleAllocationNotice";
 
 export const Route = createFileRoute("/book")({
   validateSearch: (search: Record<string, unknown>) => ({ q: typeof search.q === "string" ? search.q : "" }),
@@ -953,25 +955,38 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.quotes, pre.passengers, pre.luggage]);
 
+  const { data: vehicleClasses = [] } = useQuery({
+    queryKey: ["public-vehicle-classes"],
+    queryFn: () => listPublicVehicleClasses(),
+    staleTime: 60_000,
+  });
+  const classByVehicleId = useMemo(() => {
+    const m = new Map<string, PublicVehicleClass>();
+    for (const c of vehicleClasses) if (c.pricing_vehicle_id) m.set(c.pricing_vehicle_id, c);
+    return m;
+  }, [vehicleClasses]);
+
   return (
     <div>
       <div className="mb-6 flex items-end justify-between flex-wrap gap-3">
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)]">Step 01 — Choose Your Ride</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)]">Step 01 — Choose Your Class</p>
           <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground mt-1">
-            Book Your Ride · {pre.ret ? "Return" : "One Way"}
+            Select a vehicle class · {pre.ret ? "Return" : "One Way"}
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Every fare is all-inclusive — you'll add stops, extras and cancellation cover in the next steps.
+            You're booking a vehicle class — the exact model is allocated by our dispatch team on the day.
           </p>
         </div>
         {data && (
           <div className="inline-flex items-center gap-2 bg-[var(--navy)] text-[var(--navy-foreground)] rounded-full px-4 py-2 text-xs font-bold uppercase tracking-widest">
             <BadgeCheck className="size-3.5 text-[var(--gold)]" />
-            {orderedQuotes.length} vehicles available
+            {orderedQuotes.length} classes available
           </div>
         )}
       </div>
+
+      <VehicleAllocationNotice className="mb-6" compact />
 
       <div className="space-y-6">
         {isLoading && (
@@ -987,7 +1002,7 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
         )}
         {data?.quotes.length === 0 && (
           <div className="bg-card rounded-2xl border border-border p-10 text-center text-sm text-muted-foreground">
-            No vehicles are currently available.
+            No vehicle classes are currently available.
           </div>
         )}
         {orderedQuotes.map((q, i) => {
@@ -995,10 +1010,11 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
           const qty = qtyMap[q.vehicleId] ?? minQty;
           const capacityShort = qty < minQty;
           const reason = capacityShort
-            ? `This vehicle seats ${q.passengers} passengers and ${q.luggage} luggage. Select at least ${minQty} vehicles to fit ${pre.passengers} passenger${pre.passengers === 1 ? "" : "s"}${pre.luggage ? ` and ${pre.luggage} bag${pre.luggage === 1 ? "" : "s"}` : ""}.`
+            ? `This class seats ${q.passengers} passengers and ${q.luggage} luggage. Select at least ${minQty} vehicles to fit ${pre.passengers} passenger${pre.passengers === 1 ? "" : "s"}${pre.luggage ? ` and ${pre.luggage} bag${pre.luggage === 1 ? "" : "s"}` : ""}.`
             : null;
+          const klass = classByVehicleId.get(q.vehicleId);
           return (
-            <VehicleCard key={q.vehicleId} card={q} best={i === 0 && minQtyFor(q) <= 1} qty={qty}
+            <VehicleCard key={q.vehicleId} card={q} klass={klass} best={i === 0 && minQtyFor(q) <= 1} qty={qty}
               minQty={minQty}
               disabled={capacityShort}
               disabledReason={reason}
@@ -1010,6 +1026,7 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
     </div>
   );
 }
+
 
 
 function isQuoteOnRequest(name: string): boolean {
