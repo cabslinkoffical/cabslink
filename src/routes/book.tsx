@@ -1439,7 +1439,7 @@ function ExtrasStep(props: {
         eyebrow="Cancellation cover"
         title="Choose how flexible you want to be"
       >
-        <PolicyTiers value={policy} onChange={onPolicy} base={baseRideTotal} />
+        <PolicyTiers value={policy} onChange={onPolicy} base={baseRideTotal + seatFee + meetGreetFee + returnFee} cfg={policyCfg} />
       </ExtrasCard>
 
       {/* --- Running total (desktop only; mobile shows sticky bar) --- */}
