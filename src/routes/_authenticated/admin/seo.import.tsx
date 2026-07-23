@@ -10,6 +10,14 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 
+// Lightweight local table primitives — project has no shadcn Table component.
+const Table = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => <table className={`w-full text-sm ${className}`}>{children}</table>;
+const TableHeader = ({ children }: { children: React.ReactNode }) => <thead className="bg-muted/50">{children}</thead>;
+const TableBody = ({ children }: { children: React.ReactNode }) => <tbody>{children}</tbody>;
+const TableRow = ({ children }: { children: React.ReactNode }) => <tr className="border-b last:border-0">{children}</tr>;
+const TableHead = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => <th className={`text-left px-3 py-2 text-xs font-medium text-muted-foreground ${className}`}>{children}</th>;
+const TableCell = ({ children, className = "", title }: { children: React.ReactNode; className?: string; title?: string }) => <td className={`px-3 py-2 align-top ${className}`} title={title}>{children}</td>;
+
 import { UploadCloud, Play, CheckCircle2, AlertTriangle, Loader2, Download, RefreshCw, Sliders } from "lucide-react";
 import { parseImportFile, reportToCsv, type ParseResult } from "@/lib/seo/import-parser";
 import { IMPORT_KINDS, DEFAULT_RULESET, type ImportKind, type ImportRuleset } from "@/lib/seo/import-schema";
