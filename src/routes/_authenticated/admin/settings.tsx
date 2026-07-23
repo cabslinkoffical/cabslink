@@ -53,6 +53,13 @@ function Page() {
           poi_corridor_enabled: !!form.poi_corridor_enabled,
           poi_corridor_radius_miles: Number(form.poi_corridor_radius_miles ?? 15),
           poi_corridor_max_pois: Number(form.poi_corridor_max_pois ?? 8),
+          child_seat_fee_pence: Number(form.child_seat_fee_pence ?? 0),
+          meet_greet_fee_pence: Number(form.meet_greet_fee_pence ?? 0),
+          return_journey_fee_pence: Number(form.return_journey_fee_pence ?? 0),
+          policy_non_refundable_percent: Number(form.policy_non_refundable_percent ?? 5),
+          policy_non_refundable_min_pence: Number(form.policy_non_refundable_min_pence ?? 200),
+          policy_flexible_percent: Number(form.policy_flexible_percent ?? 12),
+          policy_flexible_min_pence: Number(form.policy_flexible_min_pence ?? 400),
         })} disabled={mut.isPending}>Save changes</Button>
       </PageHeader>
 
