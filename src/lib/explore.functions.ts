@@ -291,7 +291,7 @@ export const getAreaSeoContext = createServerFn({ method: "GET" })
     const { data: root } = await c
       .from("destinations")
       .select(FIELDS)
-      .in("type", ["location", "city", "town", "village", "area"])
+      .in("type", ["location", "city", "town", "village"])
       .eq("slug", data.slug)
       .eq("active", true)
       .maybeSingle();
