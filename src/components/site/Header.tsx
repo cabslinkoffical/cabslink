@@ -52,7 +52,7 @@ export function Header() {
           </div>
 
           {/* Center nav */}
-          <nav className="hidden lg:flex items-center gap-8 absolute left-1/2 -translate-x-1/2" aria-label="Primary">
+          <nav className="hidden lg:flex items-center gap-5 xl:gap-7 absolute left-1/2 -translate-x-1/2" aria-label="Primary">
             {NAV.map(item => {
               const active =
                 item.to === "/"
