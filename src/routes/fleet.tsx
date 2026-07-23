@@ -53,6 +53,16 @@ const RECOMMENDED_LABELS: Record<string, string> = {
 
 function FleetPage() {
   const { data: classes } = useSuspenseQuery(fleetQuery);
+  const qc = useQueryClient();
+  useEffect(() => {
+    const invalidate = () => qc.invalidateQueries({ queryKey: ["public-vehicle-classes"] });
+    const ch = supabase
+      .channel("public-fleet-classes")
+      .on("postgres_changes", { event: "*", schema: "public", table: "vehicle_classes" }, invalidate)
+      .on("postgres_changes", { event: "*", schema: "public", table: "vehicle_models" }, invalidate)
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [qc]);
   const items = classes.filter((c) => c.slug !== "unclassified");
 
   return (
