@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Menu, X, Phone, ShieldCheck, ArrowRight } from "lucide-react";
+import { Menu, X, Phone, ShieldCheck, ArrowUpRight } from "lucide-react";
 import { Logo } from "./Logo";
 import { NAV, SITE } from "@/lib/site";
 import { supabase } from "@/integrations/supabase/client";
@@ -31,38 +31,24 @@ export function Header() {
     return () => sub.subscription.unsubscribe();
   }, []);
 
+  const dark = !scrolled; // dark = over hero (white text)
+
   return (
     <header
-      className={`sticky top-0 z-50 transition-all duration-500 ${
+      className={`sticky top-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "bg-white/90 backdrop-blur-xl border-b border-[var(--navy)]/10 shadow-[0_10px_30px_-20px_rgba(14,24,44,0.25)]"
-          : "bg-[var(--navy)]/40 backdrop-blur-md border-b border-white/10"
+          ? "bg-white/95 backdrop-blur-xl border-b border-[var(--navy)]/8 shadow-[0_1px_0_rgba(14,24,44,0.04),0_8px_28px_-16px_rgba(14,24,44,0.18)]"
+          : "bg-transparent"
       }`}
     >
-      <div className="container-x flex h-16 md:h-20 items-center justify-between gap-6">
+      <div className="container-x flex h-16 md:h-[74px] items-center justify-between gap-8">
         {/* Logo */}
-        <div className="shrink-0">
+        <div className="shrink-0 flex items-center">
           <Logo />
         </div>
 
-        {/* Center glossy pill nav */}
-        <nav
-          className={`hidden lg:flex relative items-center gap-1 rounded-full border px-2 py-1.5 overflow-hidden transition-all duration-500 ${
-            scrolled
-              ? "border-[var(--navy)]/10 bg-white/80 backdrop-blur-xl shadow-[0_8px_30px_-12px_rgba(14,24,44,0.25),inset_0_1px_0_rgba(255,255,255,0.9)]"
-              : "border-white/25 bg-white/12 backdrop-blur-xl shadow-[0_10px_40px_-12px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.35)]"
-          }`}
-          aria-label="Primary"
-        >
-          {/* Glossy top-highlight sheen */}
-          <span
-            aria-hidden
-            className={`pointer-events-none absolute inset-x-3 top-0 h-1/2 rounded-full ${
-              scrolled
-                ? "bg-gradient-to-b from-white/90 to-transparent opacity-70"
-                : "bg-gradient-to-b from-white/40 to-transparent opacity-90"
-            }`}
-          />
+        {/* Center nav — clean minimal with animated underline */}
+        <nav className="hidden lg:flex items-center gap-9" aria-label="Primary">
           {NAV.map(item => {
             const active =
               item.to === "/"
@@ -72,49 +58,45 @@ export function Header() {
               <Link
                 key={item.to}
                 to={item.to}
-                className={`group relative px-4 py-1.5 rounded-full text-[11px] font-bold font-display uppercase tracking-[0.16em] transition-colors ${
-                  active
-                    ? "text-[var(--gold-foreground)]"
-                    : scrolled
-                    ? "text-[var(--navy)]/80 hover:text-[var(--navy)]"
-                    : "text-white/95 hover:text-white"
+                className={`group relative py-1 text-[13px] font-semibold tracking-[0.02em] transition-colors duration-200 ${
+                  dark
+                    ? active ? "text-white" : "text-white/75 hover:text-white"
+                    : active ? "text-[var(--navy)]" : "text-[var(--navy)]/65 hover:text-[var(--navy)]"
                 }`}
               >
-                {active && (
-                  <span
-                    aria-hidden
-                    className="absolute inset-0 rounded-full bg-[var(--gold)] shadow-[0_8px_24px_-6px_var(--gold),inset_0_1px_0_rgba(255,255,255,0.6)]"
-                  />
-                )}
-                <span className="relative">{item.label}</span>
+                <span>{item.label}</span>
+                {/* Animated gold underline */}
+                <span
+                  aria-hidden
+                  className={`absolute -bottom-0.5 left-0 h-[2px] bg-[var(--gold)] rounded-full transition-all duration-300 ${
+                    active ? "w-full" : "w-0 group-hover:w-full"
+                  }`}
+                />
               </Link>
             );
           })}
         </nav>
 
         {/* Right actions */}
-        <div className="hidden md:flex items-center gap-2 md:gap-3 shrink-0">
+        <div className="hidden md:flex items-center gap-4 shrink-0">
           <a
             href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}
-            className={`hidden xl:flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full transition-colors ${
-              scrolled
-                ? "text-[var(--navy)]/80 hover:text-[var(--navy)]"
-                : "text-white/85 hover:text-white"
+            className={`hidden xl:inline-flex items-center gap-2 text-[13px] font-semibold transition-colors ${
+              dark ? "text-white/85 hover:text-white" : "text-[var(--navy)]/80 hover:text-[var(--navy)]"
             }`}
           >
-            <span className="grid size-8 place-items-center rounded-full bg-[var(--gold)]/15 text-[var(--gold)] ring-1 ring-[var(--gold)]/30">
-              <Phone className="size-3.5" />
-            </span>
-            <span className="text-[13px] font-semibold tabular-nums leading-none">{SITE.phoneUK}</span>
+            <Phone className="size-3.5 text-[var(--gold)]" />
+            <span className="tabular-nums">{SITE.phoneUK}</span>
           </a>
+
+          {/* Divider */}
+          <span className={`hidden xl:block h-5 w-px ${dark ? "bg-white/20" : "bg-[var(--navy)]/15"}`} />
 
           {isAdmin && (
             <Link
               to="/admin"
-              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-[11px] font-bold uppercase tracking-[0.16em] transition-colors ${
-                scrolled
-                  ? "text-[var(--gold-ink)] hover:bg-[var(--gold)]/10"
-                  : "text-[var(--gold)] hover:bg-white/10"
+              className={`inline-flex items-center gap-1.5 text-[12px] font-semibold transition-colors ${
+                dark ? "text-white/80 hover:text-[var(--gold)]" : "text-[var(--navy)]/75 hover:text-[var(--gold-ink)]"
               }`}
             >
               <ShieldCheck className="size-3.5" /> Admin
@@ -123,12 +105,10 @@ export function Header() {
 
           <Link
             to="/book"
-            className="group relative inline-flex items-center gap-2 rounded-full bg-[var(--gold)] pl-5 pr-2 py-2 text-[11px] font-bold font-display uppercase tracking-[0.18em] text-[var(--gold-foreground)] shadow-[0_10px_30px_-12px_var(--gold)] hover:brightness-105 transition-all"
+            className="group inline-flex items-center gap-2 rounded-full bg-[var(--gold)] px-5 py-2.5 text-[12px] font-bold uppercase tracking-[0.14em] text-[var(--navy)] shadow-[0_8px_24px_-10px_rgba(223,175,38,0.9)] hover:shadow-[0_12px_32px_-8px_rgba(223,175,38,0.95)] hover:-translate-y-px transition-all duration-200"
           >
             Book a Ride
-            <span className="grid size-7 place-items-center rounded-full bg-[var(--navy)] text-[var(--gold)] transition-transform group-hover:translate-x-0.5">
-              <ArrowRight className="size-3.5" />
-            </span>
+            <ArrowUpRight className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </Link>
         </div>
 
@@ -137,21 +117,26 @@ export function Header() {
           aria-label="Menu"
           aria-expanded={open}
           onClick={() => setOpen(v => !v)}
-          className={`lg:hidden grid place-items-center size-10 rounded-full border transition-colors ${
-            scrolled
-              ? "border-[var(--navy)]/15 text-[var(--navy)] bg-white"
-              : "border-white/20 text-white bg-white/5 backdrop-blur"
+          className={`lg:hidden grid place-items-center size-10 rounded-full transition-colors ${
+            dark
+              ? "text-white bg-white/10 hover:bg-white/15 backdrop-blur"
+              : "text-[var(--navy)] bg-[var(--navy)]/[0.06] hover:bg-[var(--navy)]/[0.09]"
           }`}
         >
           {open ? <X className="size-5" /> : <Menu className="size-5" />}
         </button>
       </div>
 
+      {/* Bottom hairline visible only on hero for structure */}
+      {dark && (
+        <div className="hidden lg:block absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent pointer-events-none" />
+      )}
+
       {/* Mobile sheet */}
       {open && (
-        <div className="lg:hidden absolute inset-x-0 top-full border-t border-[var(--navy)]/10 bg-white/95 backdrop-blur-xl shadow-[0_20px_40px_-20px_rgba(14,24,44,0.25)]">
-          <div className="container-x py-5 flex flex-col">
-            <nav className="flex flex-col divide-y divide-[var(--navy)]/8">
+        <div className="lg:hidden absolute inset-x-0 top-full bg-white shadow-[0_20px_40px_-20px_rgba(14,24,44,0.25)] border-t border-[var(--navy)]/8">
+          <div className="container-x py-4 flex flex-col">
+            <nav className="flex flex-col">
               {NAV.map(item => {
                 const active =
                   item.to === "/"
@@ -161,36 +146,39 @@ export function Header() {
                   <Link
                     key={item.to}
                     to={item.to}
-                    className={`flex items-center justify-between py-3.5 text-[13px] font-bold font-display uppercase tracking-[0.16em] ${
-                      active ? "text-[var(--gold-ink)]" : "text-[var(--navy)]/80"
+                    className={`flex items-center justify-between py-3.5 border-b border-[var(--navy)]/6 text-[14px] font-semibold ${
+                      active ? "text-[var(--navy)]" : "text-[var(--navy)]/75"
                     }`}
                   >
-                    <span>{item.label}</span>
-                    <ArrowRight className={`size-4 transition-transform ${active ? "text-[var(--gold)]" : "text-[var(--navy)]/30"}`} />
+                    <span className="flex items-center gap-3">
+                      <span className={`h-1.5 w-1.5 rounded-full ${active ? "bg-[var(--gold)]" : "bg-[var(--navy)]/15"}`} />
+                      {item.label}
+                    </span>
+                    <ArrowUpRight className={`size-4 ${active ? "text-[var(--gold-ink)]" : "text-[var(--navy)]/30"}`} />
                   </Link>
                 );
               })}
             </nav>
 
-            <div className="mt-5 grid grid-cols-2 gap-2">
+            <div className="mt-4 grid grid-cols-2 gap-2">
               <a
                 href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-[var(--navy)]/15 px-4 py-3 text-xs font-bold text-[var(--navy)]"
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-[var(--navy)]/12 px-4 py-3 text-xs font-bold text-[var(--navy)]"
               >
                 <Phone className="size-4 text-[var(--gold)]" /> Call
               </a>
               <Link
                 to="/book"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--gold)] px-4 py-3 text-xs font-bold font-display uppercase tracking-[0.18em] text-[var(--gold-foreground)]"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--gold)] px-4 py-3 text-xs font-bold uppercase tracking-[0.14em] text-[var(--navy)]"
               >
-                Book <ArrowRight className="size-3.5" />
+                Book <ArrowUpRight className="size-3.5" />
               </Link>
             </div>
 
             {isAdmin && (
               <Link
                 to="/admin"
-                className="mt-3 inline-flex items-center justify-center gap-1.5 rounded-full border border-[var(--gold)]/40 py-2.5 text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--gold-ink)]"
+                className="mt-3 inline-flex items-center justify-center gap-1.5 rounded-full border border-[var(--gold)]/40 py-2.5 text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--gold-ink)]"
               >
                 <ShieldCheck className="size-3.5" /> Admin Panel
               </Link>
