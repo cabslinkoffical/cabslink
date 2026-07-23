@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery, useQuery, useMutation, useQueryClient, queryOptions } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { listVehiclesAdmin } from "@/lib/admin.functions";
+import { listVehicleClassesAdmin } from "@/lib/vehicle-classes.functions";
 import { adminListPricingProfiles, adminSavePricingProfile, adminDuplicatePricingProfile } from "@/lib/pricing.functions";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,8 @@ import { toast } from "sonner";
 import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
 
 const vOpts = queryOptions({ queryKey: ["admin", "vehicles"], queryFn: () => listVehiclesAdmin() });
+const cOpts = queryOptions({ queryKey: ["admin", "vehicle-classes"], queryFn: () => listVehicleClassesAdmin() });
+
 
 export const Route = createFileRoute("/_authenticated/admin/mileage-pricing")({
   loader: ({ context }) => context.queryClient.ensureQueryData(vOpts),
