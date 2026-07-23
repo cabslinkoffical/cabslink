@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/admin/ui";
@@ -41,7 +41,7 @@ function SeoImportPage() {
     initialData: DEFAULT_RULESET,
   });
   const [ruleset, setRuleset] = useState<ImportRuleset>(DEFAULT_RULESET);
-  useMemo(() => { if (rulesetQuery.data) setRuleset(rulesetQuery.data); }, [rulesetQuery.data]);
+  useEffect(() => { if (rulesetQuery.data) setRuleset(rulesetQuery.data); }, [rulesetQuery.data]);
 
   const saveRules = useMutation({
     mutationFn: (r: ImportRuleset) => updateImportRuleset({ data: r }),
