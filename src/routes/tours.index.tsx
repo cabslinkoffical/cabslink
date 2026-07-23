@@ -125,21 +125,22 @@ function TourCard({ tour, hero = false }: { tour: PublicTourListItem; hero?: boo
           </p>
         )}
 
-        {/* Meta chips */}
-        <div className={`flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11px] text-[var(--navy)]/70 ${hero ? "mt-3 sm:mt-4" : "mt-3.5"}`}>
+        {/* Meta chips — hidden on hero mobile (shown as overlay) */}
+        <div className={`flex-wrap items-center gap-x-3 gap-y-1.5 text-[11px] text-[var(--navy)]/70 ${hero ? "hidden sm:flex mt-4" : "flex mt-3.5"}`}>
           {tour.origin_label && tour.destination_label && (
-            <span className={`inline-flex items-center gap-1 ${hero ? "hidden sm:inline-flex" : ""}`}>
+            <span className="inline-flex items-center gap-1">
               <MapPin className="size-3.5 text-[var(--gold)]" />
               {tour.origin_label} → {tour.destination_label}
             </span>
           )}
           {tour.recommended_stop_count > 0 && (
-            <span className={`inline-flex items-center gap-1 ${hero ? "hidden sm:inline-flex" : ""}`}>
+            <span className="inline-flex items-center gap-1">
               <span className="size-1 rounded-full bg-[var(--navy)]/30" />
               {tour.recommended_stop_count} stops
             </span>
           )}
         </div>
+
 
         {/* Divider */}
         <div className="mt-4 h-px w-full bg-[var(--navy)]/8" />
