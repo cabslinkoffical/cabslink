@@ -43,7 +43,7 @@ export function SeoPageRenderer({
 
   return (
     <main className="min-h-screen bg-background">
-      <section className="relative border-b bg-gradient-to-b from-muted/40 to-background">
+      <section className="relative border-b bg-background">
         {hero && (
           <div className="absolute inset-0 -z-10 opacity-30">
             <img src={hero} alt="" className="h-full w-full object-cover" />
