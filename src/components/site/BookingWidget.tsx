@@ -93,7 +93,7 @@ export function BookingWidget() {
                   onChange={setPickup}
                   placeholder="From city, hotel, airport"
                   iconClassName="hidden"
-                  inputClassName="border-0 shadow-none bg-transparent px-0 h-auto py-0 text-sm font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-foreground/40"
+                  inputClassName="border-0 shadow-none bg-transparent px-0 h-auto py-0 text-sm font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-[var(--navy)]/55"
                   required
                 />
               </FieldCell>
@@ -110,7 +110,7 @@ export function BookingWidget() {
                   onChange={setDropoff}
                   placeholder="To city, hotel, airport"
                   iconClassName="hidden"
-                  inputClassName="border-0 shadow-none bg-transparent px-0 h-auto py-0 text-sm font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-foreground/40"
+                  inputClassName="border-0 shadow-none bg-transparent px-0 h-auto py-0 text-sm font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-[var(--navy)]/55"
                   required
                 />
               </FieldCell>
@@ -156,9 +156,9 @@ export function BookingWidget() {
                 className="w-full h-full flex items-center gap-2 px-4 py-3 lg:py-2.5 rounded-2xl lg:rounded-full hover:bg-black/[0.03] transition-colors"
               >
                 <Users className="w-4 h-4 text-[var(--gold)] shrink-0" />
-                <span className="text-sm font-semibold">{passengers} <span className="font-normal text-foreground/50 text-xs">pax</span></span>
+                <span className="text-sm font-semibold">{passengers} <span className="font-normal text-[var(--navy)]/70 text-xs">pax</span></span>
                 <Briefcase className="w-4 h-4 text-[var(--gold)] ml-2 shrink-0" />
-                <span className="text-sm font-semibold">{luggage} <span className="font-normal text-foreground/50 text-xs">bag</span></span>
+                <span className="text-sm font-semibold">{luggage} <span className="font-normal text-[var(--navy)]/70 text-xs">bag</span></span>
               </button>
               {paxOpen && (
                 <div className="absolute top-full mt-2 right-0 z-50 w-64 bg-white rounded-2xl shadow-[var(--shadow-elegant)] border border-border p-4 space-y-3">
@@ -201,7 +201,7 @@ export function BookingWidget() {
                   <div className="w-2 h-2 rounded-full bg-[var(--gold)]" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-foreground/45">Stop {i + 1}</div>
+                  <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/70">Stop {i + 1}</div>
                   <PlaceAutocomplete
                     value={s}
                     onChange={(v) => {
@@ -211,7 +211,7 @@ export function BookingWidget() {
                     }}
                     placeholder="Add stop"
                     iconClassName="hidden"
-                    inputClassName="border-0 shadow-none bg-transparent px-0 h-auto py-0 text-sm font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-foreground/40"
+                    inputClassName="border-0 shadow-none bg-transparent px-0 h-auto py-0 text-sm font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-[var(--navy)]/55"
                   />
                 </div>
                 <button
@@ -244,14 +244,14 @@ export function BookingWidget() {
               <div className="flex items-center gap-2 px-3 h-[54px] rounded-xl border border-border">
                 <Calendar className="w-4 h-4 text-[var(--gold)]" />
                 <div className="min-w-0 flex-1">
-                  <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-foreground/45">Date</div>
+                  <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/70">Date</div>
                   <input type="date" value={returnDate} onChange={(e) => setReturnDate(e.target.value)} className="w-full bg-transparent border-0 outline-none text-sm font-semibold" />
                 </div>
               </div>
               <div className="flex items-center gap-2 px-3 h-[54px] rounded-xl border border-border">
                 <Clock className="w-4 h-4 text-[var(--gold)]" />
                 <div className="min-w-0 flex-1">
-                  <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-foreground/45">Time</div>
+                  <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/70">Time</div>
                   <input type="time" value={returnTime} onChange={(e) => setReturnTime(e.target.value)} className="w-full bg-transparent border-0 outline-none text-sm font-semibold" />
                 </div>
               </div>
@@ -294,7 +294,7 @@ function FieldCell({ icon, label, children, compact }: { icon: React.ReactNode; 
     <div className={`flex items-center gap-2.5 px-4 py-2 min-w-0 flex-1 ${compact ? "lg:max-w-[150px]" : ""}`}>
       <div className="shrink-0">{icon}</div>
       <div className="min-w-0 flex-1">
-        <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-foreground/45">{label}</div>
+        <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/70">{label}</div>
         <div className="[&_input::-webkit-calendar-picker-indicator]:opacity-0 [&_input::-webkit-calendar-picker-indicator]:absolute [&_input::-webkit-calendar-picker-indicator]:inset-0 [&_input::-webkit-calendar-picker-indicator]:w-full [&_input::-webkit-calendar-picker-indicator]:cursor-pointer relative">
           {children}
         </div>
