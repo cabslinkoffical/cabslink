@@ -131,7 +131,6 @@ function Page() {
             <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">
               <tr>
                 <th className="text-left px-4 py-3">Vehicle Class</th>
-                <th className="text-left px-4 py-3">Backing vehicle</th>
                 <th className="text-right px-4 py-3">Minimum price</th>
                 <th className="text-center px-4 py-3">Tiers</th>
                 <th className="text-left px-4 py-3">Status</th>
@@ -154,7 +153,6 @@ function Page() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground">{v?.name ?? <span className="italic text-xs">Link a vehicle in Vehicle Classes</span>}</td>
                     <td className="px-4 py-3 text-right font-semibold">{p ? `£${Number(p.base_price).toFixed(2)}` : <span className="text-muted-foreground font-normal">—</span>}</td>
                     <td className="px-4 py-3 text-center">{p?.tiers?.length ?? 0}</td>
                     <td className="px-4 py-3">{p ? <StatusBadge status={p.status ? "active" : "inactive"} /> : <span className="text-xs text-muted-foreground">Not set</span>}</td>
@@ -168,7 +166,7 @@ function Page() {
                             onDone={() => qc.invalidateQueries({ queryKey: ["pricing-profiles"] })}
                           />
                         )}
-                        <Button size="sm" variant={p ? "outline" : "default"} disabled={notLinked} onClick={() => setActiveVehicle({ ...v, name: c.name })}>
+                        <Button size="sm" variant={p ? "outline" : "default"} disabled={notLinked} title={notLinked ? "This class is quote-on-request only" : ""} onClick={() => setActiveVehicle({ ...v, name: c.name })}>
                           {p ? "Edit pricing" : "Set pricing"}
                         </Button>
                       </div>
@@ -180,6 +178,7 @@ function Page() {
           </table>
         </div>
       )}
+
 
 
       <Dialog open={!!activeVehicle} onOpenChange={(o) => !o && setActiveVehicle(null)}>

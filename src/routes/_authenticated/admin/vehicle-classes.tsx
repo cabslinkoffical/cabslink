@@ -133,7 +133,7 @@ function VehicleClassesPage() {
                     <span>Large luggage: <b className="text-foreground">{c.large_luggage}</b></span>
                     <span>Cabin bags: <b className="text-foreground">{c.cabin_bags}</b></span>
                     <span>Fuel: <b className="text-foreground capitalize">{(c.fuel_type ?? "").replace(/_/g, " ")}</b></span>
-                    <span>Pricing vehicle: <b className="text-foreground">{linked?.name ?? "—"}</b></span>
+                    <span>Models: <b className="text-foreground">{models.length}</b></span>
                   </div>
                   <div className="mt-3 flex flex-wrap items-center gap-1.5">
                     <span className="text-[10px] uppercase tracking-widest text-muted-foreground mr-1">Models:</span>
@@ -194,17 +194,8 @@ function VehicleClassesPage() {
                     <SelectContent>{FUEL_TYPES.map((t) => <SelectItem key={t.v} value={t.v}>{t.l}</SelectItem>)}</SelectContent>
                   </Select>
                 </div>
-                <div>
-                  <Label>Pricing vehicle (carries pricing profile)</Label>
-                  <Select value={form.pricing_vehicle_id ?? "__none__"} onValueChange={(v) => setForm((f: any) => ({ ...f, pricing_vehicle_id: v === "__none__" ? null : v }))}>
-                    <SelectTrigger><SelectValue placeholder="None" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="__none__">None (quote on request)</SelectItem>
-                      {vehicles.map((v) => <SelectItem key={v.id} value={v.id}>{v.name}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </div>
                 <div><Label>Badge</Label><Input value={form.badge ?? ""} onChange={(e) => setForm((f: any) => ({ ...f, badge: e.target.value }))} placeholder="e.g. Most popular" /></div>
+
                 <div><Label>Display order</Label><Input type="number" value={form.display_order} onChange={(e) => setForm((f: any) => ({ ...f, display_order: Number(e.target.value) }))} /></div>
                 <div className="sm:col-span-2"><Label>SEO title</Label><Input value={form.seo_title ?? ""} onChange={(e) => setForm((f: any) => ({ ...f, seo_title: e.target.value }))} /></div>
                 <div className="sm:col-span-2"><Label>SEO description</Label><Textarea rows={2} value={form.seo_description ?? ""} onChange={(e) => setForm((f: any) => ({ ...f, seo_description: e.target.value }))} /></div>
