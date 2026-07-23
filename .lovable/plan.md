@@ -1,189 +1,160 @@
-# CabsLink Content Hub — Implementation Plan
+# CabsLink — Production Readiness Phase 3
 
-Goal: A production content hub that strengthens commercial pages (services, locations, routes, airports, universities, distilleries) and drives topical authority. Not an isolated blog.
+Objective: finish every remaining production gap so no page is empty, every route has SEO+schema, search works site‑wide, mobile is polished, and there is zero mock data. Delivered as a single coordinated sweep with a final Production Readiness Report.
 
-## 1. Data Model (one migration)
+## Execution order
 
-New tables in `public`, with GRANT + RLS. `anon` gets SELECT on published rows only; `authenticated` write via admin `has_role('admin')`.
+Big up-front decision: build one **shared "authoritative location page" renderer** and reuse it for airports, corporate parks, distilleries, and any future entity type. This is the only way to hit 1,550 destinations without maintenance pain.
 
-- `blog_categories` — id, slug, name, description, hero_image_url, seo_title, meta_description, sort_order, active
-- `blog_tags` — id, slug, name
-- `blog_authors` — id, slug, name, role, bio, avatar_url, links jsonb
-- `blog_posts`
-  - id, slug (unique), title, subtitle, excerpt, body_md (long), body_html_cache
-  - category_id, author_id
-  - featured_image_url, featured_image_alt
-  - status enum('draft','review','scheduled','published','archived')
-  - published_at, updated_at, last_reviewed_at, reading_minutes
-  - seo_title, meta_description, og_image_url, canonical_override, robots_status
-  - toc jsonb (array of {id,text,level}), faqs jsonb (array of {q,a}), key_takeaways jsonb (string[])
-  - cluster_key text (e.g. `airport`, `university`, `scotland`), pillar boolean
-  - related_service_slugs text[], related_location_slugs text[], related_route_slugs text[], related_post_ids uuid[]
-  - views_count int default 0
-- `blog_post_tags` — post_id, tag_id (M2M)
-- Triggers: `set_updated_at`, `blog_posts_publish_guard` (require seo_title, meta_desc, category, featured_image, ≥600 chars body when publishing).
-- Indexes on slug, status+published_at desc, category_id, cluster_key. Full-text on title+excerpt+body_md.
-
-## 2. Routes (TanStack Start)
-
-Public (all under `src/routes/`):
-
-```
-resources.tsx                       -> /resources (hub landing = redirect/alias to blog)
-blog.tsx (layout)                   -> /blog (renders <Outlet />)
-blog.index.tsx                      -> /blog (hub home)
-blog.category.$slug.tsx             -> /blog/category/:slug
-blog.tag.$slug.tsx                  -> /blog/tag/:slug
-blog.$slug.tsx                      -> /blog/:slug  (individual post)
-blog.search.tsx                     -> /blog/search?q=
-rss[.]xml.ts                        -> /rss.xml (server route)
+```text
+DestinationTemplate (shared)
+ ├── Hero (name, region, breadcrumbs, hero image)
+ ├── Overview (auto-generated from destination row)
+ ├── Entity-specific block  (Airport / Corporate / Distillery / Attraction)
+ ├── Transfer info + pricing CTA (BookingWidget prefilled)
+ ├── Nearby: towns / hotels / stations / universities / attractions / hospitals
+ ├── Popular routes to/from this destination
+ ├── Related services + related guides
+ ├── FAQ (type-specific defaults, override from destination_seo.faqs)
+ └── JSON-LD (Breadcrumb + WebPage + type-specific: Airport / LocalBusiness / TouristAttraction / TaxiService)
 ```
 
-Redirect-friendly shortcuts (mount as thin route files that read `blog_posts.slug`):
-- `/guides/$slug`, `/travel/$slug`, `/news/$slug`, `/airport-transfer-tips/$slug`, `/chauffeur/$slug` → resolve to same post if `category.slug` matches segment; else 301 to `/blog/$slug`. Keeps the "unique URL by cluster" pattern the brief lists.
+Everything below plugs into that renderer.
 
-Sitemap: extend `src/routes/sitemap[.]xml.ts` to include categories, tags with ≥1 post, and all published posts. Add `/rss.xml` and `Sitemap:` in robots.
+---
 
-## 3. Server functions (`src/lib/blog.functions.ts`)
+## 1. Airport pages — `/airports/$iata`
 
-All public reads via server-publishable client with narrow `TO anon` SELECT policies (published only). Writes via `requireSupabaseAuth` + `has_role('admin')` gate, using `supabaseAdmin` inside handlers.
+- Stop depending on `seo_pages` being populated.
+- Loader: try `seo_pages` first; on miss, build a fallback context from `destinations` (type=`airport`), `seo_airports` if present, and taxonomy relationships.
+- Sections: Overview, Transfer info, Pickup zones, Drop-off, Meet & Greet, Flight monitoring, Popular routes, Nearby towns/hotels/universities/stations/attractions/hospitals, FAQ.
+- Schema: `Airport` + `TaxiService` + `FAQPage` + `BreadcrumbList`.
+- Seed the 6 UK airports we already need (EDI, GLA, ABZ, INV, PIK, MAN) in `destinations` with lat/lng so nearby queries work.
 
-- `listPosts({ category?, tag?, cluster?, q?, limit, offset, sort: 'newest'|'popular'|'updated' })`
-- `getPost({ slug })` — returns post + author + category + tags + resolved related entities (services, locations, routes) via existing `destinations` lookups
-- `listCategories()`, `getCategory({ slug })`
-- `listTags({ minPosts?: number })`, `getTag({ slug })`
-- `listFeaturedPosts()`, `listTrending()` (by views_count over 30d), `listByCluster({ cluster })`
-- `incrementPostView({ id })` — rate-limited by IP hash
+## 2. Corporate transfers — `/corporate` and `/corporate/$slug`
 
-## 4. Individual post page (`/blog/$slug`)
+- New `destination_type` values already exist as `business_park`; use that.
+- Seed 6 parks: Edinburgh Park, Gogarburn, BioQuarter, Quartermile, Eurocentral, Rosyth Dockyard.
+- Index page: card grid grouped by city.
+- Detail page uses `DestinationTemplate` with a Corporate block (executive travel, chauffeur options, business travel, no fake partnerships — just "Companies in the area" pulled from destination metadata).
+- Schema: `LocalBusiness` (the park) + `TaxiService` + `FAQPage` + `BreadcrumbList`.
 
-Two-column desktop, single-column mobile.
+## 3. Distilleries — `/distilleries` and `/distilleries/$slug`
 
-Main column:
-1. Breadcrumbs: Home / Blog / {Category} / {Title}
-2. Category pill + reading time + published + updated dates
-3. H1 title + subtitle
-4. Author card (avatar, name, role)
-5. Featured image (16:9, lazy, `fetchpriority=high` for LCP)
-6. Quick summary card (2–3 sentence excerpt in gold-bordered box)
-7. Table of Contents (auto-generated from H2/H3 with anchor jump links) — sticky on desktop when scrolled
-8. Introduction → Main content (MD → HTML with heading anchors, callouts, cabslink shortcodes for CTA blocks)
-9. Key Takeaways bullet list
-10. FAQ accordion (drives FAQPage schema)
-11. Related Blogs (same cluster/category)
-12. Related Services + Related Locations + Related Routes (chips → real pages)
-13. Bottom CTA card ("Book your transfer")
-14. Social share row (Copy link, X, LinkedIn, WhatsApp, Email)
+- Reuse `destinations` with type `attraction` and a `subtype=distillery` tag (via `destination_tags`).
+- Index groups by region (Speyside, Islay, Highland, Lowland, Campbeltown, Islands).
+- Detail sections: About, Tours, Airport transfers, Whisky tours, Nearby attractions/accommodation, FAQs.
+- Schema: `TouristAttraction` + `TaxiService` + `FAQPage` + `BreadcrumbList`.
 
-Sidebar (desktop only, sticky):
-- Compact search
-- Categories list with counts
-- Popular articles (top 5 by views)
-- Latest posts
-- Related services (from post)
-- Popular locations (top areas)
-- Tags cloud
-- Book CTA card
+## 4. Guides / Resources hub
 
-Head/Schema:
-- title, description, canonical, og:*, twitter:*
-- JSON-LD @graph: Article + BreadcrumbList + FAQPage (when faqs exist) + Speakable + Organization/WebSite from existing `src/components/seo/schema.ts`
+We already have `/blog` with categories/tags. Add `/guides` as an alias route that filters `blog_posts` where `category.kind = 'guide'` (add `kind` column: `article | guide`). Category & tag routes reused. Adds:
+- Featured shelf (posts flagged `is_featured`)
+- Search (client + server) with pagination
+- Breadcrumbs, related articles (by tag), related services, related locations (from `blog_post_destinations` join)
 
-## 5. Blog Home (`/blog`)
+## 5. Site-wide search — `/search`
 
-Sections in order:
-1. Hero (navy → gradient with search box + primary CTA)
-2. Latest Articles (grid of 6)
-3. Featured Guides (pillar posts, cluster tiles with cover images)
-4. Popular Categories grid (icon + count)
-5. Trending Articles (top by views last 30d)
-6. Popular Destinations (from `destinations` — cities/airports)
-7. Popular Routes (from `destinations` type=route)
-8. Recent Articles (paginated grid, 12/page, load more)
-9. Newsletter CTA (email capture stored in existing `contact_messages` or new `newsletter_subscribers` — simple stub route; note: no email provider wired)
-10. Sidebar on desktop (same as post sidebar)
+- SSR loader, URL-driven (`?q=`, `?type=`, `?page=`).
+- Server function `searchEverything({ q, types, limit })` unions:
+  areas, routes, airports, universities, hospitals, attractions, hotels, stations, cruise ports, distilleries, business parks, guides.
+- Uses existing `destinations.search_vector` + trigram fallback + `blog_posts` FTS.
+- Grouped results UI with counts, tabs, keyboard nav, empty-state = suggested popular destinations.
 
-## 6. Category & Tag pages
+## 6. Remove every empty state
 
-- Hero (category name, description, hero image)
-- Filters: sort (newest/popular/updated), tag pills, search
-- Post grid (12/page)
-- Sub-section: Related services + Related locations (curated per category, static map in `src/lib/blog-cluster-links.ts`)
-- Own SEO head + BreadcrumbList JSON-LD
+Replace "No results / Coming soon / Empty" globally with a shared `<HelpfulEmpty />` component that always renders:
+- 6 nearby destinations (by lat/lng or region)
+- 4 popular searches
+- Related services (Airport transfer, Tours, Corporate)
+- Contact CTA
+Audit callers: booking search, `/areas/*`, `/blog/*`, admin lists (admin keeps plain empty), `/tours`, `/fleet`.
 
-## 7. Shared components (`src/components/blog/`)
+## 7. Internal linking audit
 
-- `PostCard.tsx` (image, category pill, title, excerpt, reading time, date, author)
-- `PostGrid.tsx` (responsive grid + empty state)
-- `BlogSidebar.tsx`
-- `TableOfContents.tsx` (scrollspy, sticky)
-- `PostBody.tsx` (renders sanitized HTML from markdown with anchor headings; uses `marked` + `dompurify`)
-- `FaqAccordion.tsx` (reuse existing FAQ or make lightweight)
-- `KeyTakeaways.tsx`
-- `RelatedRail.tsx` (services / locations / routes / posts variants)
-- `ShareBar.tsx`
-- `NewsletterCta.tsx`
-- `BlogHero.tsx`, `CategoryChip.tsx`, `AuthorInline.tsx`
+- Every `DestinationTemplate` page emits: 6 nearby, 6 popular routes, 3 related guides, 3 related services.
+- Add "You might also like" strip at the bottom of every leaf route.
+- Add a build-time orphan check script that fails CI if any published destination has zero inbound internal links (writes report to `/tmp/orphan-report.txt`).
+- Max depth: Home → Category → Location → Route (enforced by breadcrumb builder).
 
-Design: Royal Navy + Gold palette from existing tokens. Serif for H1s (existing `--font-serif`), sans for body.
+## 8 + 9. SEO + Schema audit
 
-## 8. Admin CMS (`/admin/blog/*`)
+- New `buildRouteHead(entity)` helper that guarantees: unique title, meta description, canonical, single H1, OG + Twitter, breadcrumbs, robots, correct JSON-LD by type, sitemap eligibility flag.
+- Extend `sitemap-*.xml.ts` shards to include airports, corporate, distilleries, guides.
+- Dedupe JSON-LD emitters (currently some pages emit both a page-level and section-level `BreadcrumbList`).
+- `noindex` for tier‑3 destinations and thin pages (<500 chars body).
 
-Reuse existing admin shell:
-- `/admin/blog` — posts list (status filter, search, bulk publish/archive)
-- `/admin/blog/new` and `/admin/blog/$id`
-  - Fields: title, slug (auto), subtitle, excerpt, category, tags, author, cluster, featured image (upload to existing `vehicle-images` bucket sibling: new `blog-images` bucket), status, published_at, body (markdown editor — textarea + preview), FAQ builder, Key Takeaways builder, related picker (services/locations/routes/posts autocomplete)
-  - SEO panel: seo_title, meta_description, og_image, canonical_override, robots
-  - "Preview" button opens `/blog/$slug?preview=1` (auth-gated)
-- `/admin/blog/categories`, `/admin/blog/tags`, `/admin/blog/authors` — CRUD grids
-- Publish guard: server-side validation matches DB trigger; friendly error surfacing
+## 10. Performance
 
-## 9. RSS + Sitemap + Robots
+- Convert remaining eager images to `loading="lazy"` + `decoding="async"`, add `fetchpriority="high"` only on the LCP hero of each route.
+- Preload LCP image via route `head().links`.
+- Split heavy admin routes with dynamic imports.
+- Verify font loading uses `font-display: swap` (already in `styles.css` — confirm).
+- Turn on `route.staleTime` for read-mostly loaders to reduce refetch churn.
+- Add `<link rel="preconnect">` for Google Maps + Supabase in `__root.tsx`.
 
-- `src/routes/rss[.]xml.ts` — latest 30 published posts
-- Extend sitemap route to include: `/blog`, all category slugs (with posts), all tag slugs (≥1 post), all published post URLs, lastmod=post.updated_at
-- Add `Sitemap:` line to `public/robots.txt`
+## 11. Database audit
 
-## 10. Seed content (initial 12 posts across 3 clusters)
+Remove/prune (migration):
+- Empty demo rows in `seo_pages` that block airport rendering.
+- Any `points_of_interest` marked inactive with no references.
+- Unused `content_blocks` rows.
+- Orphaned `blog_post_tags` and `destination_tags`.
+- Keep schema; only clean data.
 
-Airport cluster (5): Edinburgh Airport Pickup Guide, Meet & Greet Explained, Flight Monitoring, Airport Transfer vs Taxi, Airport Drop-off Tips.
-University cluster (3): University of Edinburgh Arrival Guide, Student Airport Transfer Guide, Freshers Week Transport.
-Scotland cluster (4): Best Day Trips from Edinburgh, Edinburgh to St Andrews, Best Scottish Castles, Whisky Distillery Day Tours.
+## 12. Mobile optimisation sweep
 
-Each has: full body (≥800 words), 6+ FAQs, key takeaways, TOC, 3+ related services + 3+ related locations + 2+ related posts. Cluster pillars flagged.
+- Audit every route with viewport 375×812:
+  Header (already pill), BookingWidget (already responsive — verify stops list on <sm), Booking flow steps, PriceBreakdown → sticky mobile bar, Fleet grid, Tours cards, Areas hub, Destination template, Admin (usable, not perfect).
+- Enforce tap targets ≥44px, `h-dvh` instead of `h-screen` where relevant, safe-area padding for iOS notch on sticky CTAs.
+- Wrap every text+widget header row in the `grid-cols-[minmax(0,1fr)_auto]` pattern to prevent overflow.
 
-Seed via migration `INSERT`s (deterministic content, no page-load seeding).
+## 13. Final Production Readiness Report
 
-## Technical details
+At the end I output a single markdown report grouped by severity (Critical / High / Medium / Low) covering:
+- Broken links / 404s / hydration errors / console errors
+- Duplicate or thin pages
+- Missing metadata / schema
+- Orphan pages
+- Indexable low-quality pages
+- Zero mock components confirmation
+- Lighthouse targets: Performance ≥95, Accessibility ≥95, Best Practices ≥95, SEO 100.
 
-**Markdown pipeline:** `marked` for parse (already lightweight, or `markdown-it`) + `isomorphic-dompurify` for sanitize (both work on Cloudflare Workers). Compute `reading_minutes` and `toc` server-side on publish and cache in the row.
+---
 
-**View tracking:** debounced `incrementPostView` server fn called once per session per post (sessionStorage key). Rate-limited by IP hash (reuse existing rate-limit util).
+## Delivery plan (batched)
 
-**Related resolution:** loader batches `getDestinationsByIds` / by-slug lookups for related_service_slugs, related_location_slugs, related_route_slugs. If a slug no longer exists, silently drop.
+Because this is very large, I will ship it in **4 batches**, each self-contained and verified before moving on. You approve once; I ship all four sequentially.
 
-**Images:** posts use CDN URLs. New Supabase bucket `blog-images` (public read via signed policy or public bucket). Fallback hero if none.
+**Batch A — Foundations (biggest, must land first)**
+1. Migration: add `blog_categories.kind`, seed 6 airports + 6 business parks + ~15 distilleries in `destinations`, prune demo data, add `destination_tags` for distilleries.
+2. Shared `DestinationTemplate`, `HelpfulEmpty`, `buildRouteHead`, `nearby` server fn.
+3. Sitemap shards extended.
 
-**Preview mode:** `?preview=1` on `/blog/$slug` with `requireSupabaseAuth` + admin role fetches drafts through admin server fn.
+**Batch B — Entity routes**
+4. `/airports/$iata` fallback + section blocks.
+5. `/corporate` + `/corporate/$slug`.
+6. `/distilleries` + `/distilleries/$slug`.
 
-**Search:** server fn using Postgres `websearch_to_tsquery` on `to_tsvector(title || excerpt || body_md)`. Fallback ILIKE for short queries.
+**Batch C — Content & search**
+7. `/guides` hub + category/tag/detail.
+8. `/search` SSR grouped results + `searchEverything` server fn.
+9. Global empty-state replacement pass.
 
-**Head / schema:** new helper `buildPostHead(post)` in `src/lib/seo/blog-seo.ts` emits Article + BreadcrumbList + FAQPage + Speakable JSON-LD. Reuses existing schema builders where possible.
+**Batch D — Polish & audit**
+10. Mobile sweep across all routes.
+11. Performance passes (lazy/preload/preconnect).
+12. Internal-link + orphan audit script.
+13. **Production Readiness Report** (markdown, severity-grouped, at `/mnt/documents/production-readiness.md`).
 
-**Ordering of work:**
-1. Migration + RLS + grants + triggers
-2. `blog.functions.ts` (public reads) + `blog-admin.functions.ts` (writes)
-3. Shared components + individual post page
-4. Blog home + category + tag pages
-5. Admin CMS (list + editor)
-6. RSS, sitemap update, robots
-7. Seed 12 pillar posts
-8. Wire internal links from existing service/location/route pages ("From the blog" rail)
+## Technical notes
 
-## Out of scope (call out to user)
+- No new tables except a `kind` column on `blog_categories` and a `destination_subtype` on `destinations` (nullable). Everything else reuses existing entities via `type` + `destination_tags`.
+- All new server fns follow the `.functions.ts` + `.server.ts` split; loaders read via `queryClient.ensureQueryData` per template rules.
+- All new routes use `createFileRoute` with slash paths and per-route `head()` incl. og:image derived from destination hero when available.
+- No hardcoded copy for entities — everything is generated from destination data via the shared template, so 1,550 destinations render without new code.
+- Reports emitted to `/mnt/documents/` (never committed).
 
-- Comments (marked optional in brief) — skipped
-- Newsletter sending (only capture; no ESP integration)
-- WYSIWYG rich editor — using markdown textarea + live preview. If you want a full editor (TipTap etc.) say so and I'll swap it in
+## What I need from you
 
-Confirm this plan (or tell me what to trim) and I'll build it in the order above. It's a large scope — expect several turns.
+Confirm you want all 4 batches shipped end-to-end (default: yes). If you'd rather see Batch A first and pause, say "Batch A only".
