@@ -105,11 +105,11 @@ export function Header() {
               <span className="relative">Book Now</span>
             </Link>
 
-            {/* Mobile: call icon */}
+            {/* Compact call icon when the full phone number is hidden */}
             <a
               href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}
               aria-label="Call CabsLink"
-              className="md:hidden grid size-10 place-items-center rounded-full bg-white/10 text-[var(--gold)] hover:bg-white/15"
+              className="2xl:hidden grid size-10 place-items-center rounded-full bg-white/10 text-[var(--gold)] hover:bg-white/15"
             >
               <Phone className="size-4" />
             </a>
