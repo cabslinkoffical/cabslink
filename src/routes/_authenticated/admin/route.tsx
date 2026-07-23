@@ -2,16 +2,16 @@ import { createFileRoute, Link, Outlet, redirect, useRouter, useRouterState } fr
 import { isAdmin } from "@/lib/admin.functions";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  LayoutDashboard, CalendarCheck, MapPin, Ban, Car, Tag, Clock, Percent, UserCog, Users,
-  CreditCard, Ticket, FileText, Bell, BarChart3, Shield, Settings as SettingsIcon, History,
-  LogOut, ExternalLink, Search, Bell as BellIcon, Sun, Moon, Menu, X, Inbox, Gauge,
+  LayoutDashboard, CalendarCheck, MapPin, Ban, Car, Tag, UserCog, Users,
+  CreditCard, Ticket, FileText, BarChart3, Shield, Settings as SettingsIcon, History,
+  LogOut, ExternalLink, Sun, Moon, Menu, X, Inbox, Gauge, Percent,
   Plane, Wrench, Route as RouteIcon, ArrowLeftRight, Globe,
 } from "lucide-react";
 import { SidebarNav, type SidebarEntry } from "@/components/admin/SidebarNav";
 import { Breadcrumbs } from "@/components/admin/Breadcrumbs";
 import { Logo } from "@/components/site/Logo";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
@@ -44,7 +44,6 @@ const NAV: SidebarEntry[] = [
       { to: "/admin/mileage-pricing", label: "Mileage Pricing", icon: Gauge },
       { to: "/admin/pricing", label: "Route Pricing", icon: Tag },
       { to: "/admin/pricing-preview", label: "Quote Preview", icon: Gauge },
-      { to: "/admin/hourly-rate", label: "Hourly Rates", icon: Clock },
       { to: "/admin/surcharges", label: "Surcharges", icon: Percent },
       { to: "/admin/coupons", label: "Coupons", icon: Ticket },
     ],
@@ -65,8 +64,6 @@ const NAV: SidebarEntry[] = [
   {
     label: "Communication", icon: Inbox, items: [
       { to: "/admin/messages", label: "Messages", icon: Inbox },
-      { to: "/admin/notifications", label: "Notifications", icon: Bell },
-      // "Website Content" hidden — content_blocks table is not wired to any public route.
     ],
   },
   {
