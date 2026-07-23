@@ -88,7 +88,7 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
             <div className="sm:col-span-2 lg:flex-1 lg:min-w-0">
               <FieldCell icon={<MapPin className="w-4 h-4 text-[var(--gold)]" />} label="From">
                 <PlaceAutocomplete
-                  id="widget-pickup"
+                  id={`${idPrefix}-pickup`}
                   value={pickup}
                   onChange={setPickup}
                   placeholder="From city, hotel, airport"
@@ -105,7 +105,7 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
             <div className="sm:col-span-2 lg:flex-1 lg:min-w-0 border-t border-black/5 sm:border-t-0 lg:border-0">
               <FieldCell icon={<Flag className="w-4 h-4 text-[var(--gold)]" />} label="To">
                 <PlaceAutocomplete
-                  id="widget-dropoff"
+                  id={`${idPrefix}-dropoff`}
                   value={dropoff}
                   onChange={setDropoff}
                   placeholder="To city, hotel, airport"
