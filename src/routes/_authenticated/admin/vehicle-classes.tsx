@@ -47,6 +47,14 @@ const emptyClass: any = {
   pricing_vehicle_id: null, seo_title: "", seo_description: "", seo_keywords: "",
 };
 
+const refreshVehicleClassQueries = (qc: ReturnType<typeof useQueryClient>) =>
+  Promise.all([
+    qc.invalidateQueries({ queryKey: ["admin", "vehicle-classes"] }),
+    qc.invalidateQueries({ queryKey: ["admin", "vehicles"] }),
+    qc.invalidateQueries({ queryKey: ["public-vehicle-classes"] }),
+    qc.invalidateQueries({ queryKey: ["quotes"] }),
+  ]);
+
 function VehicleClassesPage() {
   const { data } = useSuspenseQuery(opts);
   const qc = useQueryClient();
@@ -63,22 +71,23 @@ function VehicleClassesPage() {
 
   const upsertMut = useMutation({
     mutationFn: (payload: any) => upsertFn({ data: payload }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin", "vehicle-classes"] }); qc.invalidateQueries({ queryKey: ["public-vehicle-classes"] }); toast.success("Class saved"); setForm(null); setSaving(false); },
-    onError: (e: any) => { toast.error(e.message ?? "Save failed"); setSaving(false); },
+    onSuccess: async () => { await refreshVehicleClassQueries(qc); toast.success("Class saved"); setForm(null); },
+    onError: (e: any) => { toast.error(e.message ?? "Save failed"); },
+    onSettled: () => setSaving(false),
   });
   const delMut = useMutation({
     mutationFn: (id: string) => deleteFn({ data: { id } }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin", "vehicle-classes"] }); qc.invalidateQueries({ queryKey: ["public-vehicle-classes"] }); toast.success("Class deleted"); },
+    onSuccess: async () => { await refreshVehicleClassQueries(qc); toast.success("Class deleted"); },
     onError: (e: any) => toast.error(e.message ?? "Delete failed"),
   });
   const upsertModelMut = useMutation({
     mutationFn: (payload: any) => upsertModelFn({ data: payload }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin", "vehicle-classes"] }); qc.invalidateQueries({ queryKey: ["public-vehicle-classes"] }); toast.success("Model saved"); setModelForm(null); },
+    onSuccess: async () => { await refreshVehicleClassQueries(qc); toast.success("Model saved"); setModelForm(null); },
     onError: (e: any) => toast.error(e.message ?? "Save failed"),
   });
   const delModelMut = useMutation({
     mutationFn: (id: string) => deleteModelFn({ data: { id } }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin", "vehicle-classes"] }); qc.invalidateQueries({ queryKey: ["public-vehicle-classes"] }); toast.success("Model deleted"); },
+    onSuccess: async () => { await refreshVehicleClassQueries(qc); toast.success("Model deleted"); },
     onError: (e: any) => toast.error(e.message ?? "Delete failed"),
   });
 

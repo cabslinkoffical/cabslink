@@ -129,6 +129,10 @@ export type QuoteCard = {
   pricing: QuoteResult;
   snapshot: PricingSnapshot;
   fixedPriceApplied: boolean;
+  classId: string;
+  classSlug: string;
+  classDisplayOrder: number;
+  quoteOnRequest: boolean;
 };
 
 export const calculateQuotes = createServerFn({ method: "POST" })
@@ -189,9 +193,13 @@ export const calculateQuotes = createServerFn({ method: "POST" })
           pricing: q.engine,
           snapshot: q.snapshot,
           fixedPriceApplied: q.fixedPriceApplied,
+          classId: p.vehicle.class_id,
+          classSlug: p.vehicle.class_slug,
+          classDisplayOrder: p.vehicle.class_display_order,
+          quoteOnRequest: p.vehicle.class_quote_on_request,
         };
       })
-      .sort((a: QuoteCard, b: QuoteCard) => a.finalPrice - b.finalPrice);
+      .sort((a: QuoteCard, b: QuoteCard) => a.classDisplayOrder - b.classDisplayOrder || a.finalPrice - b.finalPrice);
 
     return {
       distanceMiles: auth.distanceMiles,

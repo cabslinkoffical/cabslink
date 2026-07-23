@@ -966,6 +966,7 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
     for (const c of vehicleClasses) if (c.pricing_vehicle_id) m.set(c.pricing_vehicle_id, c);
     return m;
   }, [vehicleClasses]);
+  const visibleQuotes = orderedQuotes;
 
   return (
     <div>
@@ -982,7 +983,7 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
         {data && (
           <div className="inline-flex items-center gap-2 bg-[var(--navy)] text-[var(--navy-foreground)] rounded-full px-4 py-2 text-xs font-bold uppercase tracking-widest">
             <BadgeCheck className="size-3.5 text-[var(--gold)]" />
-            {orderedQuotes.length} classes available
+             {visibleQuotes.length} classes available
           </div>
         )}
       </div>
@@ -1001,12 +1002,12 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
             </Button>
           </div>
         )}
-        {data?.quotes.length === 0 && (
+        {data && visibleQuotes.length === 0 && (
           <div className="bg-card rounded-2xl border border-border p-10 text-center text-sm text-muted-foreground">
             No vehicle classes are currently available.
           </div>
         )}
-        {orderedQuotes.map((q, i) => {
+        {visibleQuotes.map((q, i) => {
           const minQty = minQtyFor(q);
           const qty = qtyMap[q.vehicleId] ?? minQty;
           const capacityShort = qty < minQty;
@@ -1041,7 +1042,7 @@ function VehicleCard({ card, klass, best, qty, minQty, disabled, disabledReason,
 }) {
   const total = card.finalPrice * qty;
   const serial = card.vehicleId.slice(0, 8).toUpperCase();
-  const quoteOnly = klass?.quote_on_request ?? isQuoteOnRequest(card.name);
+  const quoteOnly = klass?.quote_on_request ?? card.quoteOnRequest ?? isQuoteOnRequest(card.name);
   const displayName = klass?.name ?? card.name;
   const displayImage = (klass ? fleetImageFor(klass.slug, klass.hero_image) : undefined) ?? card.imageUrl;
   return (
@@ -1131,7 +1132,7 @@ function VehicleCard({ card, klass, best, qty, minQty, disabled, disabledReason,
             <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground font-bold">Group Vehicle</p>
             <p className="mt-2 font-display text-xl md:text-2xl font-bold text-[var(--gold)] leading-tight">Quote on request</p>
             <p className="mt-2 text-[12px] text-muted-foreground leading-snug">
-              Pricing for {card.name.toLowerCase().includes("coach") ? "coach" : "coaster"} bookings depends on route, timings and availability. Contact us and we'll confirm the fare and reserve this vehicle for you.
+               Pricing for {displayName.toLowerCase().includes("coach") ? "coach" : "coaster"} bookings depends on route, timings and availability. Contact us and we'll confirm the fare and reserve this vehicle for you.
             </p>
             <div className="mt-3 text-[11px] text-muted-foreground space-y-1">
               <p className="flex items-center justify-center gap-1.5"><ShieldCheck className="size-3 text-[var(--gold)]" /> No obligation quote</p>
@@ -1173,7 +1174,7 @@ function VehicleCard({ card, klass, best, qty, minQty, disabled, disabledReason,
           )}
           {quoteOnly ? (
             <Button asChild className="w-full h-12 rounded-lg bg-[var(--navy)] hover:bg-[var(--gold)] text-[var(--navy-foreground)] hover:text-[var(--gold-foreground)] font-bold uppercase tracking-[0.2em] text-[11px] transition-all shadow-md">
-              <a href={`/contact?subject=${encodeURIComponent(`Group quote — ${card.name}`)}`}>
+              <a href={`/contact?subject=${encodeURIComponent(`Group quote — ${displayName}`)}`}>
                 Request Quote <ArrowRight className="size-3.5 ml-1" />
               </a>
             </Button>
