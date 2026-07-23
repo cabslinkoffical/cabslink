@@ -158,13 +158,13 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
                 <span className="inline-flex items-center gap-1.5">
                   <Users className="w-4 h-4 text-[var(--gold)] shrink-0" />
                   <span className="text-sm font-bold tabular-nums text-[var(--navy)]">{passengers}</span>
-                  <span className="text-[11px] font-semibold text-[var(--navy)]/60">pax</span>
+                  <span className="text-[11px] font-semibold text-[var(--navy)]/60">{passengers === 1 ? "Person" : "People"}</span>
                 </span>
                 <span className="w-px h-4 bg-black/10" />
                 <span className="inline-flex items-center gap-1.5">
                   <Briefcase className="w-4 h-4 text-[var(--gold)] shrink-0" />
                   <span className="text-sm font-bold tabular-nums text-[var(--navy)]">{luggage}</span>
-                  <span className="text-[11px] font-semibold text-[var(--navy)]/60">bag</span>
+                  <span className="text-[11px] font-semibold text-[var(--navy)]/60">{luggage === 1 ? "Bag" : "Bags"}</span>
                 </span>
               </button>
               {paxOpen && (
@@ -326,20 +326,20 @@ function StepperRow({ label, value, min, max, onChange }: { label: string; value
           type="button"
           onClick={() => onChange(Math.max(min, value - 1))}
           disabled={value <= min}
-          className="w-7 h-7 rounded-full bg-[var(--surface)] text-foreground/70 disabled:opacity-40 flex items-center justify-center"
+          className="w-8 h-8 rounded-full bg-[var(--navy)] text-[var(--gold)] disabled:opacity-30 disabled:cursor-not-allowed hover:brightness-125 transition flex items-center justify-center"
           aria-label={`Decrease ${label}`}
         >
-          <Minus className="w-3 h-3" strokeWidth={3} />
+          <Minus className="w-3.5 h-3.5" strokeWidth={3} />
         </button>
         <span className="w-6 text-center text-sm font-bold tabular-nums">{value}</span>
         <button
           type="button"
           onClick={() => onChange(Math.min(max, value + 1))}
           disabled={value >= max}
-          className="w-7 h-7 rounded-full bg-[var(--navy)] text-[var(--gold)] disabled:opacity-40 flex items-center justify-center"
+          className="w-8 h-8 rounded-full bg-[var(--navy)] text-[var(--gold)] disabled:opacity-30 disabled:cursor-not-allowed hover:brightness-125 transition flex items-center justify-center"
           aria-label={`Increase ${label}`}
         >
-          <Plus className="w-3 h-3" strokeWidth={3} />
+          <Plus className="w-3.5 h-3.5" strokeWidth={3} />
         </button>
       </div>
     </div>
