@@ -3,18 +3,12 @@ import type {} from "@tanstack/react-start";
 import { listPublishedToursImpl } from "@/lib/tours.functions";
 import { listPublishedSeoPaths } from "@/lib/seo-public.functions";
 import { DESTINATION_TYPES } from "@/lib/destinations.functions";
+import { PUBLIC_ROUTES } from "@/lib/sitemap-routes";
 
 const BASE_URL = "https://cabslink.lovable.app";
 
-export const PUBLIC_ROUTES = [
-  "/", "/about", "/services", "/airport-transfers", "/vip-transfers",
-  "/corporate-travel", "/tours", "/fleet", "/drive-with-us",
-  "/corporate-booking", "/contact", "/book",
-  "/privacy", "/terms", "/cookies",
-  "/booking-policy", "/refund-policy", "/accessibility",
-  "/areas", "/stations", "/cruise-ports", "/universities",
-  "/hospitals", "/corporate", "/attractions", "/distilleries", "/guides",
-];
+export { PUBLIC_ROUTES };
+
 
 /**
  * Sitemap index: references the static-route sitemap plus one sub-sitemap per

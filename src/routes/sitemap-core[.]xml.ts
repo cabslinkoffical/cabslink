@@ -6,7 +6,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 import { listPublishedToursImpl } from "@/lib/tours.functions";
 import { listPublishedSeoPaths } from "@/lib/seo-public.functions";
-import { PUBLIC_ROUTES } from "./sitemap.xml";
+import { PUBLIC_ROUTES } from "@/lib/sitemap-routes";
 
 const BASE_URL = "https://cabslink.lovable.app";
 
