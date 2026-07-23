@@ -69,14 +69,7 @@ function FleetPage() {
     <SiteLayout>
       {/* HERO — compact */}
       <section className="relative overflow-hidden bg-[var(--navy)] text-[var(--navy-foreground)]">
-        <div
-          aria-hidden
-          className="absolute inset-0 opacity-[0.08]"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle at 15% 20%, var(--gold) 0, transparent 45%), radial-gradient(circle at 85% 80%, #ffffff 0, transparent 40%)",
-          }}
-        />
+
         <div className="container-x relative pt-20 md:pt-24 pb-12 md:pb-16">
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-[var(--gold)]">
