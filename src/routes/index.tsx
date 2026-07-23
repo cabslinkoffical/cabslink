@@ -154,6 +154,15 @@ function HomePage() {
   const [dir, setDir] = useState<1 | -1>(1);
   const [paused, setPaused] = useState(false);
   const [dbVehicles, setDbVehicles] = useState<typeof fallbackHeroVehicles | null>(null);
+  const { data: publishedTours = [] } = useQuery({
+    queryKey: ["published-tours"],
+    queryFn: () => listPublishedTours(),
+    staleTime: 60_000,
+  });
+  const popularTours = useMemo(() => {
+    const featured = publishedTours.filter((t) => t.featured);
+    return (featured.length >= 4 ? featured : publishedTours).slice(0, 4);
+  }, [publishedTours]);
 
   useEffect(() => {
     let cancelled = false;
