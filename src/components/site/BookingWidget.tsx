@@ -1,14 +1,9 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Plus, X, Minus, ArrowRight, Flag, MapPin, Calendar, Clock, Users, Briefcase, Repeat } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Plus, X, Minus, Search, Flag, MapPin, Calendar, Clock, Users, Briefcase, Repeat, Car, Palmtree } from "lucide-react";
 import { PlaceAutocomplete, type SelectedPlace } from "@/components/site/PlaceAutocomplete";
 
 type Tab = "quote" | "hourly";
-
-const DURATIONS = ["2", "3", "4", "5", "6", "8", "10", "12"];
 
 function encodePlaces(list: SelectedPlace[]): string {
   return list.map((p) => `${p.placeId}::${encodeURIComponent(p.label)}`).join("|");
@@ -33,15 +28,20 @@ export function BookingWidget() {
   const [showReturn, setShowReturn] = useState(false);
   const [returnDate, setReturnDate] = useState(today);
   const [returnTime, setReturnTime] = useState<string>("12:00");
-  const [duration, setDuration] = useState("3");
   const [attempted, setAttempted] = useState(false);
+  const [paxOpen, setPaxOpen] = useState(false);
+  const paxRef = useRef<HTMLDivElement>(null);
 
-  const missingPlaces = !pickup?.placeId || (tab === "quote" && !dropoff?.placeId);
-  const identicalPlaces =
-    tab === "quote" &&
-    !!pickup?.placeId &&
-    !!dropoff?.placeId &&
-    pickup.placeId === dropoff.placeId;
+  useEffect(() => {
+    function onDoc(e: MouseEvent) {
+      if (paxRef.current && !paxRef.current.contains(e.target as Node)) setPaxOpen(false);
+    }
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, []);
+
+  const missingPlaces = !pickup?.placeId || !dropoff?.placeId;
+  const identicalPlaces = !!pickup?.placeId && !!dropoff?.placeId && pickup.placeId === dropoff.placeId;
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,17 +51,14 @@ export function BookingWidget() {
     const params = new URLSearchParams();
     params.set("pickupPlaceId", pickup!.placeId);
     params.set("pickupLabel", pickup!.label);
-    if (tab === "quote") {
-      params.set("dropoffPlaceId", dropoff!.placeId);
-      params.set("dropoffLabel", dropoff!.label);
-    }
+    params.set("dropoffPlaceId", dropoff!.placeId);
+    params.set("dropoffLabel", dropoff!.label);
     params.set("date", date);
     params.set("time", time);
     params.set("passengers", String(passengers));
     params.set("luggage", String(luggage));
     params.set("ret", showReturn ? "1" : "0");
-    params.set("mode", tab);
-    if (tab === "hourly") params.set("duration", duration);
+    params.set("mode", "quote");
     if (showReturn) {
       params.set("rdate", returnDate);
       params.set("rtime", returnTime);
@@ -72,122 +69,52 @@ export function BookingWidget() {
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto bg-card rounded-3xl shadow-[var(--shadow-elegant)] border border-border">
-      {/* Segmented tab pill */}
-      <div className="p-3 sm:p-4">
-        <div className="relative flex bg-[var(--surface)] rounded-full p-1">
-          <span
-            className="absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] rounded-full bg-[var(--navy)] shadow-[var(--shadow-elegant)] transition-transform duration-300 ease-out"
-            style={{ transform: tab === "hourly" ? "translateX(100%)" : "translateX(0)" }}
-            aria-hidden
-          />
-          <button
-            type="button"
-            onClick={() => setTab("quote")}
-            className={`relative z-10 flex-1 py-2.5 text-sm font-bold font-display tracking-wide transition-colors ${
-              tab === "quote" ? "text-[var(--gold)]" : "text-foreground/55"
-            }`}
-          >
-            One Way Transfer
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate({ to: "/tours" })}
-            title="Browse curated private day tours"
-            className="relative z-10 flex-1 py-2.5 text-sm font-bold font-display tracking-wide transition-colors text-foreground/55 hover:text-[var(--gold)]"
-          >
-            Day Tours
-          </button>
-        </div>
+    <div className="w-full max-w-6xl mx-auto">
+      {/* Tabs above the pill */}
+      <div className="flex items-center gap-1 mb-3 px-2">
+        <TabButton active={tab === "quote"} onClick={() => setTab("quote")} icon={<Car className="w-4 h-4" />}>
+          Transfers
+        </TabButton>
+        <TabButton active={false} onClick={() => navigate({ to: "/tours" })} icon={<Palmtree className="w-4 h-4" />}>
+          Day Tours
+        </TabButton>
       </div>
 
-      <form onSubmit={submit} className="px-4 pb-5 sm:px-6 sm:pb-6 md:px-8 md:pb-8 space-y-4" noValidate>
-        {/* Route card — stacked pickup/dropoff like a maps app */}
-        <div className="rounded-2xl border border-border bg-background">
-          <RouteRow
-            icon={<MapPin className="w-4 h-4 text-[var(--gold)]" />}
-            label="From"
-          >
+      <form onSubmit={submit} noValidate>
+        {/* Main horizontal pill */}
+        <div className="bg-white rounded-full shadow-[var(--shadow-elegant)] border border-black/5 flex flex-col lg:flex-row lg:items-stretch overflow-visible p-2 lg:p-1.5 gap-2 lg:gap-0">
+          {/* Pickup */}
+          <FieldCell icon={<MapPin className="w-4 h-4 text-[var(--gold)]" />} label="From">
             <PlaceAutocomplete
               id="widget-pickup"
               value={pickup}
               onChange={setPickup}
-              placeholder="Pickup address or airport"
+              placeholder="From city, hotel, airport"
               iconClassName="hidden"
-              inputClassName="border-0 shadow-none bg-transparent px-0 h-auto py-0 text-base font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-foreground/40"
+              inputClassName="border-0 shadow-none bg-transparent px-0 h-auto py-0 text-sm font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-foreground/40"
               required
             />
-          </RouteRow>
+          </FieldCell>
 
-          {tab === "quote" &&
-            stops.map((s, i) => (
-              <RouteRow
-                key={i}
-                icon={<div className="w-2 h-2 rounded-full bg-[var(--gold)]/50" />}
-                label={`Stop ${i + 1}`}
-                onRemove={() => setStops(stops.filter((_, idx) => idx !== i))}
-              >
-                <PlaceAutocomplete
-                  value={s}
-                  onChange={(v) => {
-                    const next = [...stops];
-                    next[i] = v ?? ({ placeId: "", label: "" } as SelectedPlace);
-                    setStops(next);
-                  }}
-                  placeholder="Add stop"
-                  iconClassName="hidden"
-                  inputClassName="border-0 shadow-none bg-transparent px-0 h-auto py-0 text-base font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-foreground/40"
-                />
-              </RouteRow>
-            ))}
+          <Divider />
 
-          {tab === "quote" ? (
-            <RouteRow icon={<Flag className="w-4 h-4 text-[var(--gold)]" />} label="To" last>
-              <PlaceAutocomplete
-                id="widget-dropoff"
-                value={dropoff}
-                onChange={setDropoff}
-                placeholder="Destination"
-                iconClassName="hidden"
-                inputClassName="border-0 shadow-none bg-transparent px-0 h-auto py-0 text-base font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-foreground/40"
-                required
-              />
-            </RouteRow>
-          ) : (
-            <RouteRow icon={<Clock className="w-4 h-4 text-[var(--gold)]" />} label="Duration" last>
-              <Select value={duration} onValueChange={setDuration}>
-                <SelectTrigger className="border-0 shadow-none bg-transparent px-0 h-auto py-0 text-base font-semibold focus:ring-0 [&>svg]:ml-auto">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {DURATIONS.map((d) => (
-                    <SelectItem key={d} value={d}>
-                      {d} hours
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </RouteRow>
-          )}
-        </div>
+          {/* Dropoff */}
+          <FieldCell icon={<Flag className="w-4 h-4 text-[var(--gold)]" />} label="To">
+            <PlaceAutocomplete
+              id="widget-dropoff"
+              value={dropoff}
+              onChange={setDropoff}
+              placeholder="To city, hotel, airport"
+              iconClassName="hidden"
+              inputClassName="border-0 shadow-none bg-transparent px-0 h-auto py-0 text-sm font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-foreground/40"
+              required
+            />
+          </FieldCell>
 
-        {/* Quick actions */}
-        {tab === "quote" && (
-          <div className="flex flex-wrap gap-2">
-            <PillButton icon={<Plus className="w-3 h-3" strokeWidth={3} />} onClick={() => setStops([...stops, { placeId: "", label: "" }])}>
-              Add stop
-            </PillButton>
-            {!showReturn && (
-              <PillButton icon={<Repeat className="w-3 h-3" strokeWidth={3} />} onClick={() => setShowReturn(true)}>
-                Return journey
-              </PillButton>
-            )}
-          </div>
-        )}
+          <Divider />
 
-        {/* Date + Time as one card */}
-        <div className="grid grid-cols-2 gap-3">
-          <IconField icon={<Calendar className="w-4 h-4 text-[var(--gold)]" />} label="Date">
+          {/* Date */}
+          <FieldCell icon={<Calendar className="w-4 h-4 text-[var(--gold)]" />} label="Date" compact>
             <input
               required
               type="date"
@@ -195,8 +122,12 @@ export function BookingWidget() {
               onChange={(e) => setDate(e.target.value)}
               className="w-full bg-transparent border-0 outline-none text-sm font-semibold text-foreground"
             />
-          </IconField>
-          <IconField icon={<Clock className="w-4 h-4 text-[var(--gold)]" />} label="Time">
+          </FieldCell>
+
+          <Divider />
+
+          {/* Time */}
+          <FieldCell icon={<Clock className="w-4 h-4 text-[var(--gold)]" />} label="Time" compact>
             <input
               required
               type="time"
@@ -204,33 +135,92 @@ export function BookingWidget() {
               onChange={(e) => setTime(e.target.value)}
               className="w-full bg-transparent border-0 outline-none text-sm font-semibold text-foreground"
             />
-          </IconField>
+          </FieldCell>
+
+          <Divider />
+
+          {/* Passengers + Luggage popover */}
+          <div className="relative flex-shrink-0 lg:w-[140px]" ref={paxRef}>
+            <button
+              type="button"
+              onClick={() => setPaxOpen((v) => !v)}
+              className="w-full h-full flex items-center gap-2 px-4 py-2.5 rounded-full hover:bg-black/[0.03] transition-colors"
+            >
+              <Users className="w-4 h-4 text-[var(--gold)] shrink-0" />
+              <span className="text-sm font-semibold">{passengers}</span>
+              <Briefcase className="w-4 h-4 text-[var(--gold)] ml-1 shrink-0" />
+              <span className="text-sm font-semibold">{luggage}</span>
+            </button>
+            {paxOpen && (
+              <div className="absolute top-full mt-2 right-0 z-50 w-64 bg-white rounded-2xl shadow-[var(--shadow-elegant)] border border-border p-4 space-y-3">
+                <StepperRow label="Passengers" value={passengers} min={1} max={16} onChange={setPassengers} />
+                <StepperRow label="Luggage" value={luggage} min={0} max={10} onChange={setLuggage} />
+              </div>
+            )}
+          </div>
+
+          {/* Search button */}
+          <button
+            type="submit"
+            disabled={missingPlaces || identicalPlaces}
+            className="group inline-flex items-center justify-center gap-2 bg-[var(--gold)] text-[var(--gold-foreground)] rounded-full px-6 lg:px-8 py-3.5 lg:py-2.5 font-display font-bold uppercase tracking-[0.18em] text-xs hover:brightness-105 transition-all disabled:opacity-50 shrink-0"
+          >
+            <Search className="w-4 h-4" />
+            <span>Search</span>
+          </button>
         </div>
 
-        {/* Passengers + luggage steppers */}
-        <div className="grid grid-cols-2 gap-3">
-          <StepperCard
-            icon={<Users className="w-4 h-4 text-[var(--gold)]" />}
-            label="Passengers"
-            value={passengers}
-            min={1}
-            max={16}
-            onChange={setPassengers}
-          />
-          <StepperCard
-            icon={<Briefcase className="w-4 h-4 text-[var(--gold)]" />}
-            label="Luggage"
-            value={luggage}
-            min={0}
-            max={10}
-            onChange={setLuggage}
-          />
+        {/* Secondary row: stops / return / multi-city pills */}
+        <div className="flex flex-wrap items-center gap-2 mt-3 px-2">
+          <PillButton icon={<Plus className="w-3 h-3" strokeWidth={3} />} onClick={() => setStops([...stops, { placeId: "", label: "" }])}>
+            Add stop
+          </PillButton>
+          {!showReturn && (
+            <PillButton icon={<Repeat className="w-3 h-3" strokeWidth={3} />} onClick={() => setShowReturn(true)}>
+              Add return
+            </PillButton>
+          )}
         </div>
+
+        {/* Stops list (appears when added) */}
+        {stops.length > 0 && (
+          <div className="mt-3 bg-white rounded-2xl border border-border p-2 space-y-1">
+            {stops.map((s, i) => (
+              <div key={i} className="flex items-center gap-3 px-3 py-2">
+                <div className="w-8 h-8 rounded-full bg-[var(--surface)] shrink-0 flex items-center justify-center">
+                  <div className="w-2 h-2 rounded-full bg-[var(--gold)]" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-foreground/45">Stop {i + 1}</div>
+                  <PlaceAutocomplete
+                    value={s}
+                    onChange={(v) => {
+                      const next = [...stops];
+                      next[i] = v ?? ({ placeId: "", label: "" } as SelectedPlace);
+                      setStops(next);
+                    }}
+                    placeholder="Add stop"
+                    iconClassName="hidden"
+                    inputClassName="border-0 shadow-none bg-transparent px-0 h-auto py-0 text-sm font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-foreground/40"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setStops(stops.filter((_, idx) => idx !== i))}
+                  className="w-7 h-7 rounded-full bg-[var(--surface)] hover:bg-foreground/10 flex items-center justify-center text-foreground/60 shrink-0"
+                  aria-label="Remove stop"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Return journey */}
         {showReturn && (
-          <div className="rounded-2xl border border-border bg-[var(--surface)] p-3 sm:p-4 space-y-3">
-            <div className="flex items-center justify-between">
+          <div className="mt-3 bg-white rounded-2xl border border-border p-3 sm:p-4">
+            <div className="flex items-center justify-between mb-3">
               <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--gold)]">Return Journey</p>
               <button
                 type="button"
@@ -241,184 +231,109 @@ export function BookingWidget() {
               </button>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <IconField icon={<Calendar className="w-4 h-4 text-[var(--gold)]" />} label="Date">
-                <input
-                  type="date"
-                  value={returnDate}
-                  onChange={(e) => setReturnDate(e.target.value)}
-                  className="w-full bg-transparent border-0 outline-none text-sm font-semibold text-foreground"
-                />
-              </IconField>
-              <IconField icon={<Clock className="w-4 h-4 text-[var(--gold)]" />} label="Time">
-                <input
-                  type="time"
-                  value={returnTime}
-                  onChange={(e) => setReturnTime(e.target.value)}
-                  className="w-full bg-transparent border-0 outline-none text-sm font-semibold text-foreground"
-                />
-              </IconField>
+              <div className="flex items-center gap-2 px-3 h-[54px] rounded-xl border border-border">
+                <Calendar className="w-4 h-4 text-[var(--gold)]" />
+                <div className="min-w-0 flex-1">
+                  <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-foreground/45">Date</div>
+                  <input type="date" value={returnDate} onChange={(e) => setReturnDate(e.target.value)} className="w-full bg-transparent border-0 outline-none text-sm font-semibold" />
+                </div>
+              </div>
+              <div className="flex items-center gap-2 px-3 h-[54px] rounded-xl border border-border">
+                <Clock className="w-4 h-4 text-[var(--gold)]" />
+                <div className="min-w-0 flex-1">
+                  <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-foreground/45">Time</div>
+                  <input type="time" value={returnTime} onChange={(e) => setReturnTime(e.target.value)} className="w-full bg-transparent border-0 outline-none text-sm font-semibold" />
+                </div>
+              </div>
             </div>
           </div>
         )}
 
         {attempted && missingPlaces && (
-          <p className="text-xs text-destructive text-center" role="alert">
-            Please select {tab === "quote" ? "pickup and destination" : "pickup"} from the suggestions.
+          <p className="text-xs text-destructive text-center mt-3" role="alert">
+            Please select pickup and destination from the suggestions.
           </p>
         )}
         {attempted && identicalPlaces && (
-          <p className="text-xs text-destructive text-center" role="alert">
+          <p className="text-xs text-destructive text-center mt-3" role="alert">
             Pickup and destination cannot be the same location.
           </p>
         )}
-
-        {/* CTA — full-width primary on mobile like an app */}
-        <Button
-          type="submit"
-          disabled={missingPlaces || identicalPlaces}
-          className="group w-full h-14 bg-[var(--gold)] text-[var(--gold-foreground)] hover:bg-[var(--gold)] rounded-2xl font-display font-bold uppercase tracking-[0.2em] text-sm shadow-xl shadow-[var(--gold)]/20 hover:brightness-105 transition-all disabled:opacity-50"
-        >
-          Book Now
-          <ArrowRight className="size-4 ml-2 transition-transform group-hover:translate-x-0.5" />
-        </Button>
-
-        <div className="flex items-center justify-center gap-4 text-foreground/45 text-[11px] pt-1">
-          <span className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-[var(--gold)]" /> Fixed pricing
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-[var(--gold)]" /> Wait time included
-          </span>
-        </div>
       </form>
     </div>
   );
 }
 
-function RouteRow({
-  icon,
-  label,
-  children,
-  last,
-  onRemove,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  children: React.ReactNode;
-  last?: boolean;
-  onRemove?: () => void;
-}) {
-  return (
-    <div className={`relative flex items-center gap-3 px-4 py-3 ${!last ? "border-b border-border" : ""}`}>
-      <div className="w-9 h-9 rounded-full bg-[var(--surface)] shrink-0 flex items-center justify-center">
-        {icon}
-      </div>
-      <div className="min-w-0 flex-1">
-        <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-foreground/45">{label}</div>
-        <div className="mt-0.5">{children}</div>
-      </div>
-      {onRemove && (
-        <button
-          type="button"
-          aria-label="Remove"
-          onClick={onRemove}
-          className="w-7 h-7 rounded-full bg-[var(--surface)] hover:bg-foreground/10 flex items-center justify-center text-foreground/60 shrink-0"
-        >
-          <X className="w-3.5 h-3.5" />
-        </button>
-      )}
-    </div>
-  );
-}
-
-function IconField({
-  icon,
-  label,
-  children,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="flex items-center gap-2.5 px-3 h-[60px] rounded-2xl border border-border bg-background">
-      <div className="w-8 h-8 rounded-full bg-[var(--surface)] shrink-0 flex items-center justify-center">
-        {icon}
-      </div>
-      <div className="min-w-0 flex-1">
-        <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-foreground/45 truncate">{label}</div>
-        <div className="[&_input::-webkit-calendar-picker-indicator]:opacity-0 [&_input::-webkit-calendar-picker-indicator]:absolute [&_input::-webkit-calendar-picker-indicator]:inset-0 [&_input::-webkit-calendar-picker-indicator]:w-full [&_input::-webkit-calendar-picker-indicator]:h-full [&_input::-webkit-calendar-picker-indicator]:cursor-pointer relative">{children}</div>
-      </div>
-    </div>
-  );
-}
-
-function StepperCard({
-  icon,
-  label,
-  value,
-  min,
-  max,
-  onChange,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: number;
-  min: number;
-  max: number;
-  onChange: (v: number) => void;
-}) {
-  return (
-    <div className="rounded-2xl border border-border bg-background px-3 py-2">
-      <div className="flex items-center gap-2 min-w-0">
-        <div className="w-7 h-7 rounded-full bg-[var(--surface)] shrink-0 flex items-center justify-center">
-          {icon}
-        </div>
-        <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-foreground/45 truncate">{label}</div>
-      </div>
-      <div className="flex items-center justify-between mt-1">
-        <span className="text-lg font-bold tabular-nums leading-none">{value}</span>
-        <div className="flex items-center gap-1.5 shrink-0">
-          <button
-            type="button"
-            onClick={() => onChange(Math.max(min, value - 1))}
-            disabled={value <= min}
-            aria-label="Decrease"
-            className="w-7 h-7 rounded-full bg-[var(--surface)] text-foreground/70 disabled:opacity-40 flex items-center justify-center"
-          >
-            <Minus className="w-3 h-3" strokeWidth={3} />
-          </button>
-          <button
-            type="button"
-            onClick={() => onChange(Math.min(max, value + 1))}
-            disabled={value >= max}
-            aria-label="Increase"
-            className="w-7 h-7 rounded-full bg-[var(--navy)] text-[var(--gold)] disabled:opacity-40 flex items-center justify-center"
-          >
-            <Plus className="w-3 h-3" strokeWidth={3} />
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function PillButton({
-  onClick,
-  children,
-  icon,
-}: {
-  onClick: () => void;
-  children: React.ReactNode;
-  icon: React.ReactNode;
-}) {
+function TabButton({ active, onClick, icon, children }: { active: boolean; onClick: () => void; icon: React.ReactNode; children: React.ReactNode }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="group flex items-center gap-2 px-3.5 py-2 rounded-full border border-border bg-card text-xs font-bold text-foreground/70 hover:border-[var(--gold)] hover:text-foreground transition-all"
+      className={`inline-flex items-center gap-2 px-4 py-2.5 text-sm font-bold font-display tracking-wide transition-colors border-b-2 ${
+        active ? "text-white border-[var(--gold)]" : "text-white/60 border-transparent hover:text-white/90"
+      }`}
     >
-      <span className="w-4 h-4 rounded-full bg-[var(--gold)]/15 text-[var(--gold)] flex items-center justify-center">
+      {icon}
+      {children}
+    </button>
+  );
+}
+
+function FieldCell({ icon, label, children, compact }: { icon: React.ReactNode; label: string; children: React.ReactNode; compact?: boolean }) {
+  return (
+    <div className={`flex items-center gap-2.5 px-4 py-2 min-w-0 flex-1 ${compact ? "lg:max-w-[150px]" : ""}`}>
+      <div className="shrink-0">{icon}</div>
+      <div className="min-w-0 flex-1">
+        <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-foreground/45">{label}</div>
+        <div className="[&_input::-webkit-calendar-picker-indicator]:opacity-0 [&_input::-webkit-calendar-picker-indicator]:absolute [&_input::-webkit-calendar-picker-indicator]:inset-0 [&_input::-webkit-calendar-picker-indicator]:w-full [&_input::-webkit-calendar-picker-indicator]:cursor-pointer relative">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Divider() {
+  return <div className="hidden lg:block w-px bg-border my-2 shrink-0" />;
+}
+
+function StepperRow({ label, value, min, max, onChange }: { label: string; value: number; min: number; max: number; onChange: (v: number) => void }) {
+  return (
+    <div className="flex items-center justify-between">
+      <span className="text-sm font-semibold">{label}</span>
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => onChange(Math.max(min, value - 1))}
+          disabled={value <= min}
+          className="w-7 h-7 rounded-full bg-[var(--surface)] text-foreground/70 disabled:opacity-40 flex items-center justify-center"
+          aria-label={`Decrease ${label}`}
+        >
+          <Minus className="w-3 h-3" strokeWidth={3} />
+        </button>
+        <span className="w-6 text-center text-sm font-bold tabular-nums">{value}</span>
+        <button
+          type="button"
+          onClick={() => onChange(Math.min(max, value + 1))}
+          disabled={value >= max}
+          className="w-7 h-7 rounded-full bg-[var(--navy)] text-[var(--gold)] disabled:opacity-40 flex items-center justify-center"
+          aria-label={`Increase ${label}`}
+        >
+          <Plus className="w-3 h-3" strokeWidth={3} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function PillButton({ onClick, children, icon }: { onClick: () => void; children: React.ReactNode; icon: React.ReactNode }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 text-white text-xs font-bold hover:bg-white/20 transition-all backdrop-blur"
+    >
+      <span className="w-4 h-4 rounded-full bg-[var(--gold)]/25 text-[var(--gold)] flex items-center justify-center">
         {icon}
       </span>
       {children}
