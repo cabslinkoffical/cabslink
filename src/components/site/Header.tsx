@@ -35,8 +35,8 @@ export function Header() {
     <header
       className={`sticky top-0 z-50 transition-all duration-500 ${
         scrolled
-          ? "bg-white/85 backdrop-blur-xl border-b border-[var(--navy)]/10 shadow-[0_10px_30px_-20px_rgba(14,24,44,0.25)]"
-          : "bg-transparent"
+          ? "bg-white/90 backdrop-blur-xl border-b border-[var(--navy)]/10 shadow-[0_10px_30px_-20px_rgba(14,24,44,0.25)]"
+          : "bg-[var(--navy)]/40 backdrop-blur-md border-b border-white/10"
       }`}
     >
       <div className="container-x flex h-16 md:h-20 items-center justify-between gap-6">
@@ -45,15 +45,24 @@ export function Header() {
           <Logo />
         </div>
 
-        {/* Center pill nav */}
+        {/* Center glossy pill nav */}
         <nav
-          className={`hidden lg:flex items-center gap-1 rounded-full border px-2 py-1.5 transition-all duration-500 ${
+          className={`hidden lg:flex relative items-center gap-1 rounded-full border px-2 py-1.5 overflow-hidden transition-all duration-500 ${
             scrolled
-              ? "border-[var(--navy)]/10 bg-white/70 backdrop-blur"
-              : "border-white/15 bg-white/5 backdrop-blur-md"
+              ? "border-[var(--navy)]/10 bg-white/80 backdrop-blur-xl shadow-[0_8px_30px_-12px_rgba(14,24,44,0.25),inset_0_1px_0_rgba(255,255,255,0.9)]"
+              : "border-white/25 bg-white/12 backdrop-blur-xl shadow-[0_10px_40px_-12px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.35)]"
           }`}
           aria-label="Primary"
         >
+          {/* Glossy top-highlight sheen */}
+          <span
+            aria-hidden
+            className={`pointer-events-none absolute inset-x-3 top-0 h-1/2 rounded-full ${
+              scrolled
+                ? "bg-gradient-to-b from-white/90 to-transparent opacity-70"
+                : "bg-gradient-to-b from-white/40 to-transparent opacity-90"
+            }`}
+          />
           {NAV.map(item => {
             const active =
               item.to === "/"
@@ -67,14 +76,14 @@ export function Header() {
                   active
                     ? "text-[var(--gold-foreground)]"
                     : scrolled
-                    ? "text-[var(--navy)]/75 hover:text-[var(--navy)]"
-                    : "text-white/80 hover:text-white"
+                    ? "text-[var(--navy)]/80 hover:text-[var(--navy)]"
+                    : "text-white/95 hover:text-white"
                 }`}
               >
                 {active && (
                   <span
                     aria-hidden
-                    className="absolute inset-0 rounded-full bg-[var(--gold)] shadow-[0_6px_18px_-6px_var(--gold)]"
+                    className="absolute inset-0 rounded-full bg-[var(--gold)] shadow-[0_8px_24px_-6px_var(--gold),inset_0_1px_0_rgba(255,255,255,0.6)]"
                   />
                 )}
                 <span className="relative">{item.label}</span>
