@@ -282,7 +282,13 @@ function HomePage() {
 
             </div>
 
+            {/* Mobile/tablet: booking form before vehicle */}
+            <div id="booking-mobile" className="lg:hidden scroll-mt-24">
+              <BookingWidget />
+            </div>
+
             <div className="lg:col-span-6 relative">
+
               <div
                 className="relative opacity-0"
                 style={{ animation: "fadeInUp 900ms cubic-bezier(.2,.7,.2,1) 300ms forwards" }}
