@@ -45,6 +45,7 @@ import { Route as AreasIndexRouteImport } from './routes/areas.index'
 import { Route as UniversitiesSlugRouteImport } from './routes/universities.$slug'
 import { Route as ToursSlugRouteImport } from './routes/tours.$slug'
 import { Route as StationsSlugRouteImport } from './routes/stations.$slug'
+import { Route as SitemapsChar123typeChar125DotxmlRouteImport } from './routes/sitemaps.{$type}[.]xml'
 import { Route as RoutesSlugRouteImport } from './routes/routes.$slug'
 import { Route as LocationsSlugRouteImport } from './routes/locations.$slug'
 import { Route as HospitalsSlugRouteImport } from './routes/hospitals.$slug'
@@ -268,6 +269,12 @@ const StationsSlugRoute = StationsSlugRouteImport.update({
   path: '/stations/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SitemapsChar123typeChar125DotxmlRoute =
+  SitemapsChar123typeChar125DotxmlRouteImport.update({
+    id: '/sitemaps/{$type}.xml',
+    path: '/sitemaps/{$type}.xml',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const RoutesSlugRoute = RoutesSlugRouteImport.update({
   id: '/routes/$slug',
   path: '/routes/$slug',
@@ -545,6 +552,7 @@ export interface FileRoutesByFullPath {
   '/hospitals/$slug': typeof HospitalsSlugRoute
   '/locations/$slug': typeof LocationsSlugRoute
   '/routes/$slug': typeof RoutesSlugRoute
+  '/sitemaps/{$type}.xml': typeof SitemapsChar123typeChar125DotxmlRoute
   '/stations/$slug': typeof StationsSlugRoute
   '/tours/$slug': typeof ToursSlugRoute
   '/universities/$slug': typeof UniversitiesSlugRoute
@@ -624,6 +632,7 @@ export interface FileRoutesByTo {
   '/hospitals/$slug': typeof HospitalsSlugRoute
   '/locations/$slug': typeof LocationsSlugRoute
   '/routes/$slug': typeof RoutesSlugRoute
+  '/sitemaps/{$type}.xml': typeof SitemapsChar123typeChar125DotxmlRoute
   '/stations/$slug': typeof StationsSlugRoute
   '/tours/$slug': typeof ToursSlugRoute
   '/universities/$slug': typeof UniversitiesSlugRoute
@@ -706,6 +715,7 @@ export interface FileRoutesById {
   '/hospitals/$slug': typeof HospitalsSlugRoute
   '/locations/$slug': typeof LocationsSlugRoute
   '/routes/$slug': typeof RoutesSlugRoute
+  '/sitemaps/{$type}.xml': typeof SitemapsChar123typeChar125DotxmlRoute
   '/stations/$slug': typeof StationsSlugRoute
   '/tours/$slug': typeof ToursSlugRoute
   '/universities/$slug': typeof UniversitiesSlugRoute
@@ -788,6 +798,7 @@ export interface FileRouteTypes {
     | '/hospitals/$slug'
     | '/locations/$slug'
     | '/routes/$slug'
+    | '/sitemaps/{$type}.xml'
     | '/stations/$slug'
     | '/tours/$slug'
     | '/universities/$slug'
@@ -867,6 +878,7 @@ export interface FileRouteTypes {
     | '/hospitals/$slug'
     | '/locations/$slug'
     | '/routes/$slug'
+    | '/sitemaps/{$type}.xml'
     | '/stations/$slug'
     | '/tours/$slug'
     | '/universities/$slug'
@@ -948,6 +960,7 @@ export interface FileRouteTypes {
     | '/hospitals/$slug'
     | '/locations/$slug'
     | '/routes/$slug'
+    | '/sitemaps/{$type}.xml'
     | '/stations/$slug'
     | '/tours/$slug'
     | '/universities/$slug'
@@ -1029,6 +1042,7 @@ export interface RootRouteChildren {
   HospitalsSlugRoute: typeof HospitalsSlugRoute
   LocationsSlugRoute: typeof LocationsSlugRoute
   RoutesSlugRoute: typeof RoutesSlugRoute
+  SitemapsChar123typeChar125DotxmlRoute: typeof SitemapsChar123typeChar125DotxmlRoute
   StationsSlugRoute: typeof StationsSlugRoute
   ToursSlugRoute: typeof ToursSlugRoute
   UniversitiesSlugRoute: typeof UniversitiesSlugRoute
@@ -1296,6 +1310,13 @@ declare module '@tanstack/react-router' {
       path: '/stations/$slug'
       fullPath: '/stations/$slug'
       preLoaderRoute: typeof StationsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemaps/{$type}.xml': {
+      id: '/sitemaps/{$type}.xml'
+      path: '/sitemaps/{$type}.xml'
+      fullPath: '/sitemaps/{$type}.xml'
+      preLoaderRoute: typeof SitemapsChar123typeChar125DotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/routes/$slug': {
@@ -1740,6 +1761,7 @@ const rootRouteChildren: RootRouteChildren = {
   HospitalsSlugRoute: HospitalsSlugRoute,
   LocationsSlugRoute: LocationsSlugRoute,
   RoutesSlugRoute: RoutesSlugRoute,
+  SitemapsChar123typeChar125DotxmlRoute: SitemapsChar123typeChar125DotxmlRoute,
   StationsSlugRoute: StationsSlugRoute,
   ToursSlugRoute: ToursSlugRoute,
   UniversitiesSlugRoute: UniversitiesSlugRoute,
