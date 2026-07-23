@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+
 import { UploadCloud, Play, CheckCircle2, AlertTriangle, Loader2, Download, RefreshCw, Sliders } from "lucide-react";
 import { parseImportFile, reportToCsv, type ParseResult } from "@/lib/seo/import-parser";
 import { IMPORT_KINDS, DEFAULT_RULESET, type ImportKind, type ImportRuleset } from "@/lib/seo/import-schema";
