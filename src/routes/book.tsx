@@ -1449,12 +1449,22 @@ function ExtrasStep(props: {
           <p className="text-xs text-muted-foreground mt-1">
             Ride £{baseRideTotal.toFixed(2)}
             {seatFee > 0 && <> · Child seats £{seatFee.toFixed(2)}</>}
+            {meetGreetFee > 0 && <> · Meet &amp; greet £{meetGreetFee.toFixed(2)}</>}
+            {returnFee > 0 && <> · Return £{returnFee.toFixed(2)}</>}
             {" · "}Cancellation cover: <span className="font-semibold text-foreground/80">{policy === "non_refundable" ? "Non-refundable" : policy === "flexible" ? "Flexible" : "Standard"}</span>
           </p>
         </div>
         <div className="text-right">
           <p className="font-display text-3xl font-bold text-[var(--gold)] tabular-nums">
-            £{(baseRideTotal + seatFee + (policy === "non_refundable" ? -Math.max(2, Math.round(baseRideTotal * 0.05 * 100) / 100) : policy === "flexible" ? Math.max(4, Math.round(baseRideTotal * 0.12 * 100) / 100) : 0)).toFixed(2)}
+            £{(() => {
+              const base = baseRideTotal + seatFee + meetGreetFee + returnFee;
+              const delta = policy === "non_refundable"
+                ? -Math.max(policyCfg.nonRefundableMinPence / 100, Math.round(base * (policyCfg.nonRefundablePercent / 100) * 100) / 100)
+                : policy === "flexible"
+                ? Math.max(policyCfg.flexibleMinPence / 100, Math.round(base * (policyCfg.flexiblePercent / 100) * 100) / 100)
+                : 0;
+              return (base + delta).toFixed(2);
+            })()}
           </p>
         </div>
       </div>
