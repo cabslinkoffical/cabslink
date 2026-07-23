@@ -122,9 +122,9 @@ function VehicleClassesPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <h3 className="font-display text-xl font-semibold">{c.name}</h3>
-                    <StatusBadge tone={c.active ? "success" : "muted"}>{c.active ? "Active" : "Inactive"}</StatusBadge>
-                    {c.featured && <StatusBadge tone="gold"><Star className="size-3 mr-1" />Featured</StatusBadge>}
-                    {c.quote_on_request && <StatusBadge tone="muted">Quote on request</StatusBadge>}
+                    <StatusBadge status={c.active ? "active" : "inactive"} />
+                    {c.featured && <StatusBadge status="featured" color="bg-[var(--gold)]/15 text-[var(--gold-foreground,#000)]" />}
+                    {c.quote_on_request && <StatusBadge status="quote on request" />}
                     <span className="text-[11px] text-muted-foreground">/{c.slug}</span>
                   </div>
                   {c.short_description && <p className="mt-1 text-sm text-muted-foreground">{c.short_description}</p>}
