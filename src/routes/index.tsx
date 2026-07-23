@@ -363,44 +363,109 @@ function HomePage() {
         </div>
       </section>
 
-      {/* SERVICES */}
-      <section className="section-y navy-scene">
+      {/* SERVICES — asymmetric editorial grid (Limoride-style) */}
+      <section className="section-y bg-white">
         <div className="container-x">
-          <SectionHeader eyebrow="Our Services" title="A Complete Airport" titleAccent="Travel Service" subtitle="From airport pickups to multi-day private tours — one trusted standard, every journey." center dark />
-          <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {services.map((s) => (
-              <Link
-                key={s.title}
-                to={s.to}
-                className="group rounded-2xl border border-white/15 bg-white/5 p-7 hover:border-[var(--gold)]/50 hover:-translate-y-1 hover:bg-white/10 transition-all duration-300"
-              >
-                <div className="grid size-12 place-items-center rounded-xl bg-[var(--gold)] text-[var(--gold-foreground)] mb-5">
-                  <s.icon className="size-5" />
-                </div>
-                <h3 className="font-display text-xl font-semibold text-white">{s.title}</h3>
-                <p className="mt-2 text-sm text-white/70 leading-relaxed">{s.desc}</p>
-                <p className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[var(--gold)] group-hover:gap-3 transition-all duration-300">
-                  Learn more <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
-                </p>
-              </Link>
-            ))}
+          <div className="grid lg:grid-cols-12 gap-10 items-end">
+            <div className="lg:col-span-7">
+              <p className="eyebrow-gold text-[11px]">— Our Services</p>
+              <h2 className="mt-4 font-display text-4xl md:text-6xl font-bold leading-[1.02] tracking-[-0.02em] text-[var(--navy)]">
+                A complete airport <br className="hidden md:block" />
+                <span className="text-[var(--gold)]">travel service.</span>
+              </h2>
+            </div>
+            <div className="lg:col-span-5">
+              <p className="text-[var(--navy)]/70 leading-relaxed text-base md:text-lg">
+                From airport pickups to multi-day private tours — one trusted standard,
+                every journey. Every ride includes flight tracking, meet &amp; greet
+                and a professional Mercedes fleet.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-14 grid gap-5 lg:grid-cols-6 lg:grid-rows-2">
+            {services.map((s, i) => {
+              const featured = i === 0;
+              return (
+                <Link
+                  key={s.title}
+                  to={s.to}
+                  className={`group relative overflow-hidden rounded-[28px] border transition-all duration-500 ${
+                    featured
+                      ? "lg:col-span-2 lg:row-span-2 bg-[var(--navy)] border-[var(--navy)] text-white p-8 hover:-translate-y-1"
+                      : "lg:col-span-2 bg-white border-[var(--navy)]/10 p-7 hover:border-[var(--gold)] hover:-translate-y-1"
+                  }`}
+                >
+                  <span className={`text-[11px] font-mono ${featured ? "text-[var(--gold)]" : "text-[var(--navy)]/40"}`}>
+                    0{i + 1} / 0{services.length}
+                  </span>
+                  <div className={`mt-4 grid size-14 place-items-center rounded-2xl ${
+                    featured ? "bg-[var(--gold)] text-[var(--gold-foreground)]" : "bg-[var(--gold)]/10 text-[var(--navy)] border border-[var(--gold)]/40"
+                  }`}>
+                    <s.icon className="size-6" />
+                  </div>
+                  <h3 className={`mt-6 font-display font-semibold leading-tight ${featured ? "text-white text-3xl md:text-4xl" : "text-[var(--navy)] text-xl"}`}>
+                    {s.title}
+                  </h3>
+                  <p className={`mt-3 text-sm leading-relaxed ${featured ? "text-white/70" : "text-[var(--navy)]/60"}`}>
+                    {s.desc}
+                  </p>
+                  <span className={`mt-6 inline-flex items-center gap-2 text-sm font-semibold group-hover:gap-3 transition-all ${
+                    featured ? "text-[var(--gold)]" : "text-[var(--navy)] group-hover:text-[var(--gold-ink)]"
+                  }`}>
+                    Explore <ArrowRight className="size-4" />
+                  </span>
+                  {featured && (
+                    <div aria-hidden className="absolute -bottom-10 -right-10 size-56 rounded-full border border-white/10" />
+                  )}
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* HOW IT WORKS */}
+      {/* STATS COUNTER STRIP */}
+      <section className="navy-scene border-y border-white/10">
+        <div className="container-x py-14 grid grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-6">
+          {[
+            { k: "50k+", v: "Journeys completed" },
+            { k: "24/7", v: "Live dispatch" },
+            { k: "4.9★", v: "Average rating" },
+            { k: "120+", v: "UK destinations" },
+          ].map((s, i, arr) => (
+            <div key={s.k} className={`px-2 md:px-6 ${i < arr.length - 1 ? "md:border-r border-white/10" : ""}`}>
+              <div className="font-display text-5xl md:text-6xl font-bold text-[var(--gold)] leading-none tracking-[-0.03em]">
+                {s.k}
+              </div>
+              <div className="mt-3 text-xs md:text-sm uppercase tracking-[0.22em] text-white/60">{s.v}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* HOW IT WORKS — connected timeline */}
       <section className="section-y bg-white">
         <div className="container-x">
-          <SectionHeader eyebrow="How it works" title="Three Steps To A Premium" titleAccent="Ride" subtitle="From quote to driver at your door — built to feel effortless." center />
-          <div className="mt-14 grid gap-8 md:grid-cols-3">
+          <div className="max-w-3xl">
+            <p className="eyebrow-gold text-[11px]">— Simple Process</p>
+            <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold text-[var(--navy)] leading-[1.05]">
+              Three steps to a <span className="text-[var(--gold)]">premium ride.</span>
+            </h2>
+          </div>
+
+          <div className="mt-16 relative grid gap-10 md:grid-cols-3">
+            <div aria-hidden className="hidden md:block absolute top-8 left-[16%] right-[16%] border-t-2 border-dashed border-[var(--gold)]/40" />
             {steps.map((s, i) => (
-              <div key={s.title} className="relative rounded-2xl border border-[var(--navy)]/10 bg-white p-8">
-                <span className="absolute top-5 right-6 font-display text-6xl font-bold text-[var(--gold)]/15">0{i + 1}</span>
-                <div className="relative grid size-14 place-items-center rounded-2xl bg-[var(--gold)]/10 text-[var(--navy)] border border-[var(--gold)]/30">
+              <div key={s.title} className="relative text-center md:text-left">
+                <div className="relative mx-auto md:mx-0 grid size-16 place-items-center rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] shadow-[0_10px_30px_-10px_rgba(223,175,38,0.6)]">
                   <s.icon className="size-6" />
+                  <span className="absolute -top-2 -right-2 grid size-7 place-items-center rounded-full bg-[var(--navy)] text-white text-xs font-bold border-2 border-white">
+                    {i + 1}
+                  </span>
                 </div>
-                <h3 className="mt-6 font-display text-xl font-semibold text-[var(--navy)]">{s.title}</h3>
-                <p className="mt-2 text-sm text-[var(--navy)]/60 leading-relaxed">{s.desc}</p>
+                <h3 className="mt-6 font-display text-2xl font-semibold text-[var(--navy)]">{s.title}</h3>
+                <p className="mt-3 text-sm text-[var(--navy)]/60 leading-relaxed max-w-xs mx-auto md:mx-0">{s.desc}</p>
               </div>
             ))}
           </div>
@@ -410,11 +475,27 @@ function HomePage() {
       {/* FLEET */}
       <section className="section-y navy-scene">
         <div className="container-x">
-          <SectionHeader eyebrow="Our Fleet" title="Premium Vehicles," titleAccent="Impeccable Standard" subtitle="Explore our modern, driver-driven fleet available across the UK." center dark />
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+            <div className="max-w-2xl">
+              <p className="text-[11px] uppercase tracking-[0.28em] font-semibold text-[var(--gold)]">— Our Fleet</p>
+              <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold text-white leading-[1.05]">
+                Premium vehicles, <br />
+                <span className="text-[var(--gold)]">impeccable standard.</span>
+              </h2>
+            </div>
+            <Button asChild variant="outline" className="rounded-full border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-[var(--gold-foreground)] self-start md:self-auto">
+              <Link to="/fleet">View full fleet <ArrowRight className="size-4" /></Link>
+            </Button>
+          </div>
+
           <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {fleet.map((f) => (
-              <div key={f.name} className="group rounded-2xl border border-white/15 bg-white p-6 hover:border-[var(--gold)]/50 hover:-translate-y-1 transition-all duration-300">
-                <div className="relative aspect-[16/10] flex items-center justify-center overflow-hidden rounded-xl bg-[var(--navy)]/5">
+              <div key={f.name} className="group relative rounded-[24px] bg-white overflow-hidden border border-white/10 hover:-translate-y-1 transition-all duration-500">
+                <span className="absolute top-5 left-5 z-10 inline-flex items-center gap-1.5 rounded-full bg-[var(--navy)] text-white text-[10px] font-semibold uppercase tracking-[0.16em] px-3 py-1.5">
+                  <Gem className="size-3 text-[var(--gold)]" /> {f.note}
+                </span>
+
+                <div className="relative aspect-[16/10] flex items-center justify-center bg-[var(--navy)]/5 overflow-hidden">
                   <img
                     src={f.img}
                     srcSet={f.srcSet}
@@ -424,58 +505,79 @@ function HomePage() {
                     decoding="async"
                     width={1200}
                     height={750}
-                    className="max-h-full w-auto object-contain transition-transform duration-500 group-hover:scale-105"
+                    className="max-h-full w-[92%] object-contain transition-transform duration-700 group-hover:scale-105"
                   />
                 </div>
-                <div className="mt-5">
-                  <span className="inline-flex items-center gap-1 rounded-full bg-[var(--gold)]/10 border border-[var(--gold)]/30 text-[var(--gold)] text-[10px] font-semibold uppercase tracking-[0.14em] px-2.5 py-0.5">
-                    <Gem className="size-2.5" /> {f.note}
-                  </span>
-                  <h3 className="mt-3 font-display text-xl font-semibold text-[var(--navy)]">{f.name}</h3>
-                  <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2.5 text-sm">
-                    <div className="flex items-center gap-2 text-[var(--navy)]/60">
-                      <Users className="size-4 text-[var(--gold)]" />
-                      <span>Passengers <span className="text-[var(--navy)] font-medium">{f.passengers}</span></span>
+
+                <div className="p-6">
+                  <h3 className="font-display text-xl font-semibold text-[var(--navy)]">{f.name}</h3>
+                  <div className="mt-5 grid grid-cols-2 gap-3 text-xs">
+                    {[
+                      { i: Users, l: "Passengers", v: f.passengers },
+                      { i: Briefcase, l: "Luggage", v: f.luggage },
+                      { i: Car, l: "Gearbox", v: f.transmission },
+                      { i: ShieldCheck, l: "Fuel", v: f.fuel },
+                    ].map((sp) => (
+                      <div key={sp.l} className="flex items-center gap-2 rounded-lg bg-[var(--navy)]/5 px-3 py-2">
+                        <sp.i className="size-4 text-[var(--gold-ink)]" />
+                        <div className="min-w-0">
+                          <div className="text-[10px] uppercase tracking-wider text-[var(--navy)]/50">{sp.l}</div>
+                          <div className="text-[13px] font-semibold text-[var(--navy)] truncate">{sp.v}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-6 flex items-center justify-between border-t border-[var(--navy)]/10 pt-5">
+                    <div className="flex items-center gap-2 text-[var(--navy)]/70 text-xs">
+                      <MapPin className="size-4 text-[var(--gold-ink)]" /> UK-wide coverage
                     </div>
-                    <div className="flex items-center gap-2 text-[var(--navy)]/60">
-                      <Briefcase className="size-4 text-[var(--gold)]" />
-                      <span>Luggage <span className="text-[var(--navy)] font-medium">{f.luggage}</span></span>
-                    </div>
-                    <div className="flex items-center gap-2 text-[var(--navy)]/60">
-                      <Car className="size-4 text-[var(--gold)]" />
-                      <span className="truncate">{f.transmission}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-[var(--navy)]/60">
-                      <ShieldCheck className="size-4 text-[var(--gold)]" />
-                      <span>{f.fuel}</span>
-                    </div>
-                  </dl>
+                    <Link
+                      to="/book"
+                      className="inline-flex items-center gap-2 rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] px-4 py-2.5 text-xs font-bold uppercase tracking-[0.12em] hover:brightness-110 transition"
+                    >
+                      Book <ArrowRight className="size-3.5" />
+                    </Link>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
-          <div className="mt-10 flex justify-center">
-            <Button asChild variant="outline" className="rounded-full border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-[var(--gold-foreground)]">
-              <Link to="/fleet">View full fleet <ArrowRight className="size-4" /></Link>
-            </Button>
-          </div>
         </div>
       </section>
 
-      {/* WHY CHOOSE US */}
+      {/* WHY CHOOSE US — split layout with numbered list */}
       <section className="section-y bg-white">
-        <div className="container-x">
-          <SectionHeader eyebrow="Included as standard" title="Every Cabslink Ride, By" titleAccent="Default" center />
-          <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {features.map((f) => (
-              <div key={f.title} className="group flex gap-4 rounded-2xl bg-white border border-[var(--navy)]/10 p-6 hover:border-[var(--gold)]/50 hover:-translate-y-1 transition-all duration-300">
-                <div className="relative grid size-12 shrink-0 place-items-center rounded-xl bg-[var(--gold)]/10 text-[var(--navy)] border border-[var(--gold)]/30 group-hover:scale-110 transition-transform duration-300">
+        <div className="container-x grid lg:grid-cols-12 gap-14 items-start">
+          <div className="lg:col-span-5 lg:sticky lg:top-24">
+            <p className="eyebrow-gold text-[11px]">— Why Cabslink</p>
+            <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold text-[var(--navy)] leading-[1.05]">
+              Every ride, <br />
+              <span className="text-[var(--gold)]">by default.</span>
+            </h2>
+            <p className="mt-5 text-[var(--navy)]/65 leading-relaxed">
+              We built Cabslink around the details other operators treat as extras.
+              Fixed fares, live flight tracking, spotless Mercedes vehicles — no upsells, no surprises.
+            </p>
+            <Button asChild variant="gold" className="mt-8 rounded-full">
+              <a href="#booking">Book your ride <ArrowRight className="size-4" /></a>
+            </Button>
+          </div>
+
+          <div className="lg:col-span-7 divide-y divide-[var(--navy)]/10 border-y border-[var(--navy)]/10">
+            {features.map((f, i) => (
+              <div key={f.title} className="group flex items-center gap-6 py-6 hover:bg-[var(--navy)]/[0.02] transition-colors -mx-2 px-2 rounded-lg">
+                <span className="font-display text-3xl font-bold text-[var(--gold)]/70 tabular-nums w-10">
+                  0{i + 1}
+                </span>
+                <div className="grid size-12 shrink-0 place-items-center rounded-xl bg-[var(--gold)]/10 text-[var(--navy)] border border-[var(--gold)]/30 group-hover:bg-[var(--gold)] group-hover:text-[var(--gold-foreground)] transition-colors">
                   <f.icon className="size-5" />
                 </div>
-                <div className="min-w-0 relative">
-                  <h3 className="font-semibold text-[var(--navy)]">{f.title}</h3>
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-display text-lg font-semibold text-[var(--navy)]">{f.title}</h3>
                   <p className="mt-1 text-sm text-[var(--navy)]/60 leading-relaxed">{f.desc}</p>
                 </div>
+                <ArrowRight className="size-4 text-[var(--navy)]/30 group-hover:text-[var(--gold)] group-hover:translate-x-1 transition-all shrink-0" />
               </div>
             ))}
           </div>
@@ -485,63 +587,128 @@ function HomePage() {
       {/* TESTIMONIALS */}
       <section className="section-y navy-scene">
         <div className="container-x">
-          <SectionHeader eyebrow="Testimonials" title="What Our Clients" titleAccent="Say" subtitle="Delivering comfort, safety and elegance to every journey." center dark />
-          <div className="mt-14 grid gap-6 md:grid-cols-3">
-            {testimonials.map((t) => (
-              <figure key={t.name} className="relative rounded-2xl border border-white/15 bg-white/5 p-8 text-center flex flex-col items-center">
-                <span className="absolute -top-6 left-1/2 -translate-x-1/2 grid size-12 place-items-center rounded-full bg-[var(--gold)] text-[var(--gold-foreground)]">
-                  <Quote className="size-5" />
-                </span>
-                <div className="flex items-center gap-1 text-[var(--gold)]">
-                  {[...Array(5)].map((_, i) => <Star key={i} className="size-4 fill-current" />)}
+          <div className="max-w-2xl">
+            <p className="text-[11px] uppercase tracking-[0.28em] font-semibold text-[var(--gold)]">— Testimonials</p>
+            <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold text-white leading-[1.05]">
+              What our clients <span className="text-[var(--gold)]">say.</span>
+            </h2>
+          </div>
+
+          <div className="mt-14 grid gap-6 lg:grid-cols-12">
+            <figure className="lg:col-span-7 relative rounded-[28px] bg-[var(--gold)] text-[var(--navy)] p-10 md:p-12 overflow-hidden">
+              <Quote className="absolute top-6 right-6 size-24 text-[var(--navy)]/10" />
+              <div className="flex items-center gap-1 text-[var(--navy)]">
+                {[...Array(5)].map((_, i) => <Star key={i} className="size-4 fill-current" />)}
+              </div>
+              <blockquote className="mt-6 font-display text-2xl md:text-3xl font-semibold leading-[1.25] tracking-[-0.01em]">
+                "{testimonials[0].quote}"
+              </blockquote>
+              <figcaption className="mt-8 flex items-center gap-4 pt-6 border-t border-[var(--navy)]/15">
+                <div className="grid size-12 place-items-center rounded-full bg-[var(--navy)] text-[var(--gold)] font-display font-bold text-lg">
+                  {testimonials[0].name.charAt(0)}
                 </div>
-                <blockquote className="mt-5 text-sm leading-relaxed text-white/85 flex-1">
-                  "{t.quote}"
-                </blockquote>
-                <figcaption className="mt-6 pt-5 border-t border-white/15 w-full">
-                  <div className="mx-auto grid size-12 place-items-center rounded-full bg-[var(--gold)]/15 text-[var(--gold)] font-display font-bold text-lg">
-                    {t.name.charAt(0)}
+                <div>
+                  <p className="font-semibold text-[var(--navy)]">{testimonials[0].name}</p>
+                  <p className="text-xs text-[var(--navy)]/70">{testimonials[0].role}</p>
+                </div>
+              </figcaption>
+            </figure>
+
+            <div className="lg:col-span-5 grid gap-6">
+              {testimonials.slice(1).map((t) => (
+                <figure key={t.name} className="relative rounded-[24px] border border-white/15 bg-white/5 p-7">
+                  <div className="flex items-center gap-1 text-[var(--gold)]">
+                    {[...Array(5)].map((_, i) => <Star key={i} className="size-3.5 fill-current" />)}
                   </div>
-                  <p className="mt-3 font-semibold text-sm text-white">{t.name}</p>
-                  <p className="text-xs text-white/60">{t.role}</p>
-                </figcaption>
-              </figure>
-            ))}
+                  <blockquote className="mt-4 text-sm text-white/85 leading-relaxed">
+                    "{t.quote}"
+                  </blockquote>
+                  <figcaption className="mt-5 flex items-center gap-3 pt-4 border-t border-white/10">
+                    <div className="grid size-9 place-items-center rounded-full bg-[var(--gold)]/15 text-[var(--gold)] font-display font-bold text-sm">
+                      {t.name.charAt(0)}
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-white">{t.name}</p>
+                      <p className="text-[11px] text-white/60">{t.role}</p>
+                    </div>
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="section-y bg-white">
+        <div className="container-x grid lg:grid-cols-12 gap-12">
+          <div className="lg:col-span-4">
+            <p className="eyebrow-gold text-[11px]">— FAQ</p>
+            <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold text-[var(--navy)] leading-[1.05]">
+              Answers, <br /><span className="text-[var(--gold)]">upfront.</span>
+            </h2>
+            <p className="mt-5 text-[var(--navy)]/65 leading-relaxed">
+              Everything you need to know before you book. Can't find your answer?
+              Our dispatch team is available 24/7.
+            </p>
+            <a
+              href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}
+              className="mt-6 inline-flex items-center gap-3 text-[var(--navy)] group"
+            >
+              <span className="grid place-items-center size-11 rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] group-hover:brightness-110 transition">
+                <Phone className="size-4" />
+              </span>
+              <span className="text-sm">
+                <span className="block text-[10px] uppercase tracking-[0.24em] text-[var(--navy)]/60">Call 24/7</span>
+                <span className="font-semibold">{SITE.phoneUK}</span>
+              </span>
+            </a>
+          </div>
+          <div className="lg:col-span-8">
+            <Faq />
           </div>
         </div>
       </section>
 
       {/* FINAL CTA */}
-      <section className="section-y bg-[var(--gold)]">
-        <div className="container-x">
-          <div className="max-w-3xl mx-auto text-center">
-            <p className="text-[11px] uppercase tracking-[0.32em] text-[var(--navy)]/70 font-semibold">Ready when you are</p>
-            <h3 className="mt-4 font-display text-3xl md:text-5xl font-semibold leading-[1.05] text-[var(--navy)]">
-              Your Ride, <span className="text-white">One Tap Away.</span>
-            </h3>
-            <p className="mt-4 text-[var(--navy)]/70 leading-relaxed max-w-xl mx-auto">
-              Book, track and enjoy a seamless driver experience across the UK. Available 24/7 — no surge, no surprises.
-            </p>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-              <Button asChild variant="slash">
+      <section className="section-y bg-[var(--gold)] relative overflow-hidden">
+        <div aria-hidden className="absolute inset-0 opacity-[0.06]" style={{
+          backgroundImage: "radial-gradient(circle at 1px 1px, #0e182c 1px, transparent 0)",
+          backgroundSize: "24px 24px",
+        }} />
+        <div className="container-x relative">
+          <div className="grid lg:grid-cols-12 gap-8 items-center">
+            <div className="lg:col-span-8">
+              <p className="text-[11px] uppercase tracking-[0.32em] text-[var(--navy)]/70 font-semibold">Ready when you are</p>
+              <h3 className="mt-4 font-display text-4xl md:text-6xl font-bold leading-[1.02] text-[var(--navy)] tracking-[-0.02em]">
+                Your ride, <span className="text-white">one tap away.</span>
+              </h3>
+              <p className="mt-5 text-[var(--navy)]/75 leading-relaxed max-w-xl">
+                Book, track and enjoy a seamless driver experience across the UK.
+                Available 24/7 — no surge, no surprises.
+              </p>
+            </div>
+            <div className="lg:col-span-4 flex flex-col gap-4 lg:items-end">
+              <Button asChild variant="slash" className="w-full lg:w-auto">
                 <a href="#booking">Book a Ride <ArrowRight className="size-4" /></a>
               </Button>
               <a
                 href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}
                 className="group inline-flex items-center gap-3 text-[var(--navy)] hover:text-white transition-colors"
               >
-                <span className="grid place-items-center size-11 rounded-full border border-[var(--navy)]/20 group-hover:border-white transition-colors">
+                <span className="grid place-items-center size-11 rounded-full border border-[var(--navy)]/25 group-hover:border-white transition-colors">
                   <Phone className="size-4" />
                 </span>
                 <span className="text-sm">
                   <span className="block text-[10px] uppercase tracking-[0.24em] text-[var(--navy)]/60">24/7 Reservations</span>
-                  <span className="font-medium">{SITE.phoneUK}</span>
+                  <span className="font-semibold">{SITE.phoneUK}</span>
                 </span>
               </a>
             </div>
           </div>
         </div>
       </section>
+
     </SiteLayout>
   );
 }
