@@ -52,66 +52,117 @@ function formatPrice(pence: number | null, currency: string): string {
   return `${symbol}${Math.round(pence / 100).toLocaleString()}`;
 }
 
-function TourCard({ tour }: { tour: PublicTourListItem }) {
+function TourCard({ tour, hero = false }: { tour: PublicTourListItem; hero?: boolean }) {
   const duration = formatDuration(tour.direct_duration_seconds);
+  const isQuote = tour.starting_price_pence == null;
   return (
     <Link
       to="/tours/$slug"
       params={{ slug: tour.slug }}
-      className="group block rounded-3xl overflow-hidden border border-white/10 bg-[var(--surface)] shadow-[var(--shadow-elegant)] hover:shadow-2xl transition-all"
+      className="group relative block overflow-hidden rounded-[28px] bg-white shadow-[0_10px_30px_-16px_rgba(14,24,44,0.35)] ring-1 ring-[var(--navy)]/8 transition-all hover:shadow-[0_20px_40px_-18px_rgba(14,24,44,0.45)]"
     >
-      <div className="relative aspect-[4/3] overflow-hidden bg-black/40">
+      {/* Media */}
+      <div className={`relative overflow-hidden bg-[var(--navy)]/90 ${hero ? "aspect-[4/5] sm:aspect-[16/9]" : "aspect-[5/6] sm:aspect-[4/3]"}`}>
         {tour.hero_image_url ? (
           <img
             src={tour.hero_image_url}
             alt={`${tour.name} private tour`}
             loading="lazy"
             decoding="async"
-            className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
+            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-black/60 to-black/20" />
+          <div className="h-full w-full bg-gradient-to-br from-[var(--navy)] to-[var(--navy)]/60" />
         )}
-        {tour.featured && (
-          <span className="absolute top-3 left-3 inline-flex items-center gap-1 rounded-full bg-[var(--gold)]/95 text-black text-[11px] font-semibold px-2.5 py-1">
-            <Star className="size-3" /> Popular
-          </span>
+        {/* Bottom scrim for overlay title on mobile hero */}
+        {hero && (
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-[var(--navy)] via-[var(--navy)]/70 to-transparent sm:hidden" />
         )}
-        {tour.long_day && (
-          <span className="absolute top-3 right-3 rounded-full bg-black/70 text-white text-[11px] font-medium px-2.5 py-1">
-            Long day
-          </span>
-        )}
-      </div>
-      <div className="p-5">
-        <h3 className="font-display text-xl font-semibold leading-tight">{tour.name}</h3>
-        {tour.short_description && (
-          <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{tour.short_description}</p>
-        )}
-        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
-          {tour.origin_label && tour.destination_label && (
-            <span className="inline-flex items-center gap-1"><MapPin className="size-3.5 text-[var(--gold)]" />{tour.origin_label} → {tour.destination_label}</span>
+
+        {/* Badges */}
+        <div className="absolute inset-x-3 top-3 flex items-start justify-between gap-2">
+          {tour.featured ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-[var(--gold)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--navy)] shadow-sm">
+              <Star className="size-3 fill-current" /> Signature
+            </span>
+          ) : (
+            <span />
           )}
-          {duration && <span className="inline-flex items-center gap-1"><Clock className="size-3.5 text-[var(--gold)]" />{duration}</span>}
-          {tour.recommended_stop_count > 0 && (
-            <span>{tour.recommended_stop_count} stop{tour.recommended_stop_count === 1 ? "" : "s"}</span>
+          {duration && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-semibold text-[var(--navy)] backdrop-blur">
+              <Clock className="size-3" /> {duration}
+            </span>
           )}
         </div>
-        <div className="mt-5 flex items-end justify-between gap-3">
-          <div>
-            <p className="text-[11px] uppercase tracking-widest text-muted-foreground">{tour.starting_price_pence == null ? "Enquire" : "From"}</p>
-            <p className={`font-display font-semibold ${tour.starting_price_pence == null ? "text-base text-foreground" : "text-2xl text-foreground"}`}>
-              {formatPrice(tour.starting_price_pence, tour.currency)}
+
+        {/* Hero-only overlay title on mobile */}
+        {hero && (
+          <div className="absolute inset-x-4 bottom-4 sm:hidden">
+            <h3 className="font-display text-2xl font-bold leading-[1.05] tracking-[-0.01em] text-white">
+              {tour.name}
+            </h3>
+            {tour.origin_label && tour.destination_label && (
+              <p className="mt-1.5 inline-flex items-center gap-1 text-[11px] font-medium text-white/85">
+                <MapPin className="size-3 text-[var(--gold)]" />
+                {tour.origin_label} → {tour.destination_label}
+                {tour.recommended_stop_count > 0 && (
+                  <span className="ml-1 text-white/60">· {tour.recommended_stop_count} stops</span>
+                )}
+              </p>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Body — hero hides duplicate title on mobile */}
+      <div className="p-5 sm:p-6">
+        <h3 className={`font-display text-[1.15rem] sm:text-xl font-semibold leading-tight text-[var(--navy)] ${hero ? "hidden sm:block" : ""}`}>
+          {tour.name}
+        </h3>
+        {tour.short_description && (
+          <p className={`text-sm leading-relaxed text-[var(--navy)]/65 line-clamp-2 ${hero ? "mt-0 sm:mt-2" : "mt-2"}`}>
+            {tour.short_description}
+          </p>
+        )}
+
+        {/* Meta chips */}
+        <div className={`flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11px] text-[var(--navy)]/70 ${hero ? "mt-3 sm:mt-4" : "mt-3.5"}`}>
+          {tour.origin_label && tour.destination_label && (
+            <span className={`inline-flex items-center gap-1 ${hero ? "hidden sm:inline-flex" : ""}`}>
+              <MapPin className="size-3.5 text-[var(--gold)]" />
+              {tour.origin_label} → {tour.destination_label}
+            </span>
+          )}
+          {tour.recommended_stop_count > 0 && (
+            <span className={`inline-flex items-center gap-1 ${hero ? "hidden sm:inline-flex" : ""}`}>
+              <span className="size-1 rounded-full bg-[var(--navy)]/30" />
+              {tour.recommended_stop_count} stops
+            </span>
+          )}
+        </div>
+
+        {/* Divider */}
+        <div className="mt-4 h-px w-full bg-[var(--navy)]/8" />
+
+        {/* Footer */}
+        <div className="mt-4 flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--navy)]/50">
+              {isQuote ? "Enquire" : "From"}
+            </p>
+            <p className={`font-display font-bold text-[var(--navy)] ${isQuote ? "text-sm" : "text-2xl leading-none tracking-[-0.02em]"}`}>
+              {isQuote ? "Price on request" : formatPrice(tour.starting_price_pence, tour.currency)}
             </p>
           </div>
-          <span className="inline-flex items-center gap-1 rounded-full bg-[var(--gold)] text-black text-xs font-semibold px-4 py-2 group-hover:gap-2 transition-all shadow-md">
-            View tour <ArrowRight className="size-3.5" />
+          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[var(--navy)] px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition-all group-hover:bg-[var(--gold)] group-hover:text-[var(--navy)]">
+            View tour <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
           </span>
         </div>
       </div>
     </Link>
   );
 }
+
 
 function ToursPage() {
   const { data: allTours } = useSuspenseQuery(toursQuery);
