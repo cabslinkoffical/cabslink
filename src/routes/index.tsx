@@ -564,7 +564,7 @@ function HomePage() {
       <section className="section-y bg-[var(--surface-2)]">
         <div className="container-x grid lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-5">
-            <p className="eyebrow-gold text-[11px]">— UK Coverage</p>
+            <span className="eyebrow-gold text-[11px]">UK Coverage</span>
             <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold text-[var(--navy)] leading-[1.05]">
               From the Highlands <br />
               <span className="text-[var(--gold)]">to the Channel.</span>
@@ -573,26 +573,67 @@ function HomePage() {
               120+ towns and cities. Every major airport. One trusted travel platform
               across England, Scotland and Wales — with local drivers who know the roads.
             </p>
-            <Button asChild variant="gold" className="mt-8 rounded-full">
-              <Link to="/services">Explore Locations <ArrowRight className="size-4" /></Link>
-            </Button>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Button asChild variant="gold" className="rounded-full">
+                <Link to="/explore">Explore Locations <ArrowRight className="size-4" /></Link>
+              </Button>
+              <Button asChild variant="outline" className="rounded-full border-[var(--navy)]/20 text-[var(--navy)] hover:border-[var(--gold)] hover:text-[var(--gold-ink)]">
+                <Link to="/airport-transfers">All airports</Link>
+              </Button>
+            </div>
+            <dl className="mt-10 grid grid-cols-3 gap-6 max-w-md">
+              {[
+                { k: "120+", v: "Towns & cities" },
+                { k: "25+", v: "UK airports" },
+                { k: "24/7", v: "Dispatch" },
+              ].map((s) => (
+                <div key={s.v}>
+                  <dt className="font-display text-3xl font-bold text-[var(--navy)]">{s.k}</dt>
+                  <dd className="text-xs text-[var(--navy)]/60 mt-1">{s.v}</dd>
+                </div>
+              ))}
+            </dl>
           </div>
 
           <div className="lg:col-span-7">
-            <div className="rounded-[28px] border border-[var(--navy)]/10 bg-white p-8 shadow-[var(--shadow-elegant)]">
-              <div className="flex items-center gap-3 pb-5 border-b border-[var(--navy)]/10">
-                <Globe2 className="size-5 text-[var(--gold-ink)]" />
-                <span className="font-display text-lg font-semibold text-[var(--navy)]">Cities we serve</span>
+            <div className="rounded-[28px] border border-[var(--navy)]/10 bg-white p-6 md:p-8 shadow-[var(--shadow-elegant)]">
+              <div className="flex items-center justify-between gap-3 pb-5 border-b border-[var(--navy)]/10">
+                <div className="flex items-center gap-3">
+                  <Globe2 className="size-5 text-[var(--gold-ink)]" />
+                  <span className="font-display text-lg font-semibold text-[var(--navy)]">Cities we serve</span>
+                </div>
+                <Link to="/explore" className="hidden sm:inline-flex items-center gap-1 text-xs font-semibold text-[var(--navy)]/60 hover:text-[var(--gold-ink)]">
+                  View all <ArrowRight className="size-3" />
+                </Link>
               </div>
               <div className="mt-5 flex flex-wrap gap-2">
                 {ukCities.map((c) => (
-                  <span key={c} className="inline-flex items-center gap-1.5 rounded-full border border-[var(--navy)]/12 bg-white px-3.5 py-1.5 text-xs font-semibold text-[var(--navy)] hover:border-[var(--gold)] hover:text-[var(--gold-ink)] transition cursor-default">
+                  <Link
+                    key={c}
+                    to="/explore"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-[var(--navy)]/12 bg-white px-3.5 py-1.5 text-xs font-semibold text-[var(--navy)] hover:border-[var(--gold)] hover:text-[var(--gold-ink)] hover:-translate-y-0.5 transition-all"
+                  >
                     <MapPin className="size-3 text-[var(--gold-ink)]" /> {c}
-                  </span>
+                  </Link>
                 ))}
-                <span className="inline-flex items-center rounded-full bg-[var(--navy)] text-white px-3.5 py-1.5 text-xs font-semibold">
-                  + 108 more
-                </span>
+                <Link
+                  to="/explore"
+                  className="inline-flex items-center gap-1 rounded-full bg-[var(--navy)] text-white px-3.5 py-1.5 text-xs font-semibold hover:bg-[var(--gold)] hover:text-[var(--navy)] transition-colors"
+                >
+                  + 108 more <ArrowRight className="size-3" />
+                </Link>
+              </div>
+
+              <div className="mt-6 pt-5 border-t border-[var(--navy)]/10 grid grid-cols-3 gap-3 text-center">
+                {["England", "Scotland", "Wales"].map((r) => (
+                  <Link
+                    key={r}
+                    to="/explore"
+                    className="rounded-xl border border-[var(--navy)]/10 bg-[var(--surface-2)] px-3 py-3 text-xs font-semibold text-[var(--navy)] hover:border-[var(--gold)] hover:text-[var(--gold-ink)] transition"
+                  >
+                    {r}
+                  </Link>
+                ))}
               </div>
             </div>
           </div>
