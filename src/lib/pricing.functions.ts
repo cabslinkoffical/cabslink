@@ -254,6 +254,7 @@ const createBookingInput = z
     child_seat_count: z.number().int().min(0).max(10).optional().default(0),
     meet_greet: z.boolean().optional().default(false),
     return_journey: z.boolean().optional().default(false),
+    cancellation_policy: z.enum(["standard", "non_refundable", "flexible"]).optional().default("standard"),
     templateSlug: z.string().trim().min(1).max(120).optional().nullable(),
   })
   .refine((v) => v.pickupPlaceId !== v.destinationPlaceId, {
