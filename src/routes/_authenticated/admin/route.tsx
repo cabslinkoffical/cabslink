@@ -64,8 +64,6 @@ const NAV: SidebarEntry[] = [
   {
     label: "Communication", icon: Inbox, items: [
       { to: "/admin/messages", label: "Messages", icon: Inbox },
-      { to: "/admin/notifications", label: "Notifications", icon: Bell },
-      // "Website Content" hidden — content_blocks table is not wired to any public route.
     ],
   },
   {
