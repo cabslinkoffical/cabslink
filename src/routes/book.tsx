@@ -1421,8 +1421,14 @@ function ExtrasStep(props: {
             </Select>
           </Field>
           <div className="grid gap-3">
-            <Toggle label="Meet & greet at arrivals" checked={meetGreet} onChange={onMeetGreet} />
-            <Toggle label="Add return journey" checked={returnJourney} onChange={onReturnJourney} />
+            <Toggle
+              label={meetGreetFeePence > 0 ? `Meet & greet at arrivals (+£${(meetGreetFeePence / 100).toFixed(2)})` : "Meet & greet at arrivals"}
+              checked={meetGreet} onChange={onMeetGreet}
+            />
+            <Toggle
+              label={returnJourneyFeePence > 0 ? `Add return journey (+£${(returnJourneyFeePence / 100).toFixed(2)})` : "Add return journey"}
+              checked={returnJourney} onChange={onReturnJourney}
+            />
           </div>
         </div>
       </ExtrasCard>
