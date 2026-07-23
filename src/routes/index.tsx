@@ -3,10 +3,11 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   ArrowRight, Plane, ShieldCheck, Star, CalendarCheck, Phone,
-  Briefcase, Users, Award, BadgePoundSterling, Headset, Car, Building2, GraduationCap, Gem,
+  Briefcase, Users, Award, BadgePoundSterling, Headset, Car, Building2, Gem,
   Route as RouteIcon, CheckCircle2, Sparkles, MessageSquare, CreditCard, Quote,
-  ChevronLeft, ChevronRight
+  Plus, Minus, Clock, MapPin
 } from "lucide-react";
+
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { BookingWidget } from "@/components/site/BookingWidget";
 import { SectionHeader } from "@/components/site/PageHero";
