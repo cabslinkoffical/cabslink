@@ -157,10 +157,14 @@ export const searchDestinations = createServerFn({ method: "GET" })
     // future upgrade to `.textSearch` / RPC when volume warrants it.
     let q = sb.from("destinations").select(FIELDS).eq("active", true).neq("seo_tier", 4);
     if (data.types?.length) q = q.in("type", data.types);
-    q = q.or(`name.ilike.%${data.q}%,town.ilike.%${data.q}%,region.ilike.%${data.q}%,council.ilike.%${data.q}%`)
+    // Sanitize: PostgREST `.or()` breaks on `,` and `)` inside the pattern.
+    const safe = data.q.replace(/[,()]/g, " ").trim();
+    q = q.or(
+      `name.ilike.%${safe}%,display_name.ilike.%${safe}%,slug.ilike.%${safe}%,town.ilike.%${safe}%,region.ilike.%${safe}%,council.ilike.%${safe}%`,
+    )
       .order("seo_tier", { ascending: true })
       .order("name", { ascending: true })
-      .limit(data.limit ?? 20);
+      .limit(data.limit ?? 30);
     const { data: rows } = await q;
     const list = (rows as Destination[]) ?? [];
     return list.map((d) => ({
