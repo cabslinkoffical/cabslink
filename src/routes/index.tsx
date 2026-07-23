@@ -345,10 +345,11 @@ function HomePage() {
             </div>
           </div>
 
-          {/* Booking form inside hero */}
-          <div id="booking" className="mt-10 pb-4 scroll-mt-24">
+          {/* Booking form inside hero (desktop) */}
+          <div id="booking" className="hidden lg:block mt-10 pb-4 scroll-mt-24">
             <BookingWidget />
           </div>
+
         </div>
       </section>
 
