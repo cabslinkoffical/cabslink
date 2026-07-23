@@ -20,7 +20,10 @@ const cOpts = queryOptions({ queryKey: ["admin", "vehicle-classes"], queryFn: ()
 
 
 export const Route = createFileRoute("/_authenticated/admin/mileage-pricing")({
-  loader: ({ context }) => context.queryClient.ensureQueryData(vOpts),
+  loader: ({ context }) => Promise.all([
+    context.queryClient.ensureQueryData(vOpts),
+    context.queryClient.ensureQueryData(cOpts),
+  ]),
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
   notFoundComponent: () => <div className="p-8">Not found</div>,
   component: Page,
@@ -46,12 +49,15 @@ const emptyPricing = {
 
 function Page() {
   const { data: vehicles } = useSuspenseQuery(vOpts);
+  const { data: classData } = useSuspenseQuery(cOpts);
+  const classes: any[] = classData.classes ?? [];
   const qc = useQueryClient();
   const listPricingFn = useServerFn(adminListPricingProfiles);
   const saveFn = useServerFn(adminSavePricingProfile);
 
   const pricingQ = useQuery({ queryKey: ["pricing-profiles"], queryFn: () => listPricingFn() });
   const profiles: any[] = pricingQ.data?.profiles ?? [];
+
 
   const [activeVehicle, setActiveVehicle] = useState<any>(null);
   const [pricing, setPricing] = useState<typeof emptyPricing>(emptyPricing);
