@@ -300,7 +300,7 @@ function TabButton({ active, onClick, icon, children }: { active: boolean; onCli
 
 function FieldCell({ icon, label, children, compact }: { icon: React.ReactNode; label: string; children: React.ReactNode; compact?: boolean }) {
   return (
-    <div className={`flex items-center gap-2.5 px-4 py-2 min-w-0 flex-1 ${compact ? "lg:max-w-[150px]" : ""}`}>
+    <div className={`flex items-center gap-2.5 px-4 py-2 min-w-0 flex-1 ${compact ? "xl:max-w-[150px]" : ""}`}>
       <div className="shrink-0">{icon}</div>
       <div className="min-w-0 flex-1">
         <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/70">{label}</div>
