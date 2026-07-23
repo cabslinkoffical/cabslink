@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery, useQuery, useMutation, useQueryClient, queryOptions } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { listVehiclesAdmin } from "@/lib/admin.functions";
+import { listVehicleClassesAdmin } from "@/lib/vehicle-classes.functions";
 import { adminListPricingProfiles, adminSavePricingProfile, adminDuplicatePricingProfile } from "@/lib/pricing.functions";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -15,9 +16,14 @@ import { toast } from "sonner";
 import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
 
 const vOpts = queryOptions({ queryKey: ["admin", "vehicles"], queryFn: () => listVehiclesAdmin() });
+const cOpts = queryOptions({ queryKey: ["admin", "vehicle-classes"], queryFn: () => listVehicleClassesAdmin() });
+
 
 export const Route = createFileRoute("/_authenticated/admin/mileage-pricing")({
-  loader: ({ context }) => context.queryClient.ensureQueryData(vOpts),
+  loader: ({ context }) => Promise.all([
+    context.queryClient.ensureQueryData(vOpts),
+    context.queryClient.ensureQueryData(cOpts),
+  ]),
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
   notFoundComponent: () => <div className="p-8">Not found</div>,
   component: Page,
@@ -43,12 +49,15 @@ const emptyPricing = {
 
 function Page() {
   const { data: vehicles } = useSuspenseQuery(vOpts);
+  const { data: classData } = useSuspenseQuery(cOpts);
+  const classes: any[] = classData.classes ?? [];
   const qc = useQueryClient();
   const listPricingFn = useServerFn(adminListPricingProfiles);
   const saveFn = useServerFn(adminSavePricingProfile);
 
   const pricingQ = useQuery({ queryKey: ["pricing-profiles"], queryFn: () => listPricingFn() });
   const profiles: any[] = pricingQ.data?.profiles ?? [];
+
 
   const [activeVehicle, setActiveVehicle] = useState<any>(null);
   const [pricing, setPricing] = useState<typeof emptyPricing>(emptyPricing);
@@ -112,17 +121,17 @@ function Page() {
 
   return (
     <div className="p-6 md:p-8 space-y-6">
-      <PageHeader title="Mileage Pricing" description="Per-vehicle tiered mileage rates and time-based extras. Used as fallback when no fixed route price matches." />
+      <PageHeader title="Mileage Pricing" description="Per-class tiered mileage rates and time-based extras. Every vehicle in the class inherits this pricing." />
 
-      {vehicles.length === 0 ? (
-        <EmptyState title="No vehicles" hint="Add a vehicle first under Fleet → Vehicles." />
+      {classes.length === 0 ? (
+        <EmptyState title="No vehicle classes" hint="Add a class first under Fleet → Vehicle Classes." />
       ) : (
         <div className="border border-border rounded-xl bg-card overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">
               <tr>
-                <th className="text-left px-4 py-3">Vehicle</th>
-                <th className="text-left px-4 py-3">Class</th>
+                <th className="text-left px-4 py-3">Vehicle Class</th>
+                <th className="text-left px-4 py-3">Backing vehicle</th>
                 <th className="text-right px-4 py-3">Minimum price</th>
                 <th className="text-center px-4 py-3">Tiers</th>
                 <th className="text-left px-4 py-3">Status</th>
@@ -130,27 +139,36 @@ function Page() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {vehicles.map((v: any) => {
-                const p = profiles.find((x) => x.vehicle_id === v.id);
+              {classes.map((c: any) => {
+                const v = vehicles.find((x: any) => x.id === c.pricing_vehicle_id) ?? null;
+                const p = v ? profiles.find((x) => x.vehicle_id === v.id) : null;
+                const notLinked = !v;
                 return (
-                  <tr key={v.id} className="hover:bg-muted/30">
-                    <td className="px-4 py-3 flex items-center gap-3">
-                      {v.image_url && <img src={v.image_url} alt="" className="size-10 object-cover rounded-md bg-muted" />}
-                      <span className="font-medium">{v.name}</span>
+                  <tr key={c.id} className="hover:bg-muted/30">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        {c.hero_image && <img src={c.hero_image} alt="" className="size-10 object-cover rounded-md bg-muted" />}
+                        <div>
+                          <div className="font-medium">{c.name}</div>
+                          <div className="text-xs text-muted-foreground">{c.passengers} pax · {c.large_luggage + c.cabin_bags} bags</div>
+                        </div>
+                      </div>
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground capitalize">{v.vehicle_class?.replace(/_/g, " ") ?? "—"}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{v?.name ?? <span className="italic text-xs">Link a vehicle in Vehicle Classes</span>}</td>
                     <td className="px-4 py-3 text-right font-semibold">{p ? `£${Number(p.base_price).toFixed(2)}` : <span className="text-muted-foreground font-normal">—</span>}</td>
                     <td className="px-4 py-3 text-center">{p?.tiers?.length ?? 0}</td>
                     <td className="px-4 py-3">{p ? <StatusBadge status={p.status ? "active" : "inactive"} /> : <span className="text-xs text-muted-foreground">Not set</span>}</td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex justify-end gap-2">
-                        <DuplicateButton
-                          vehicleId={v.id}
-                          vehicleName={v.name}
-                          profiles={profiles}
-                          onDone={() => qc.invalidateQueries({ queryKey: ["pricing-profiles"] })}
-                        />
-                        <Button size="sm" variant={p ? "outline" : "default"} onClick={() => setActiveVehicle(v)}>
+                        {v && (
+                          <DuplicateButton
+                            vehicleId={v.id}
+                            vehicleName={c.name}
+                            profiles={profiles}
+                            onDone={() => qc.invalidateQueries({ queryKey: ["pricing-profiles"] })}
+                          />
+                        )}
+                        <Button size="sm" variant={p ? "outline" : "default"} disabled={notLinked} onClick={() => setActiveVehicle({ ...v, name: c.name })}>
                           {p ? "Edit pricing" : "Set pricing"}
                         </Button>
                       </div>
@@ -162,6 +180,7 @@ function Page() {
           </table>
         </div>
       )}
+
 
       <Dialog open={!!activeVehicle} onOpenChange={(o) => !o && setActiveVehicle(null)}>
         <DialogContent className="max-w-3xl max-h-[92vh] overflow-y-auto">
