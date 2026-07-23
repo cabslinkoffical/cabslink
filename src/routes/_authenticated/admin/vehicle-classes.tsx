@@ -133,7 +133,7 @@ function VehicleClassesPage() {
                     <span>Large luggage: <b className="text-foreground">{c.large_luggage}</b></span>
                     <span>Cabin bags: <b className="text-foreground">{c.cabin_bags}</b></span>
                     <span>Fuel: <b className="text-foreground capitalize">{(c.fuel_type ?? "").replace(/_/g, " ")}</b></span>
-                    <span>Pricing vehicle: <b className="text-foreground">{linked?.name ?? "—"}</b></span>
+                    <span>Models: <b className="text-foreground">{models.length}</b></span>
                   </div>
                   <div className="mt-3 flex flex-wrap items-center gap-1.5">
                     <span className="text-[10px] uppercase tracking-widest text-muted-foreground mr-1">Models:</span>
