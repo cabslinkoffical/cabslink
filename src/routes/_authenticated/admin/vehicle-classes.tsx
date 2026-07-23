@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { queryOptions, useSuspenseQuery, useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Plus, Edit, Trash2, X, Loader2 } from "lucide-react";
+import { Plus, Edit, Trash2, X, Loader2, Upload } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
