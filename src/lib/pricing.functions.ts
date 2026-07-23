@@ -206,6 +206,14 @@ export const calculateQuotes = createServerFn({ method: "POST" })
       durationMinutes: auth.durationMinutes,
       quotes: cards,
       childSeatFeePence: auth.settings.childSeatFeePence,
+      meetGreetFeePence: auth.settings.meetGreetFeePence,
+      returnJourneyFeePence: auth.settings.returnJourneyFeePence,
+      policy: {
+        nonRefundablePercent: auth.settings.policyNonRefundablePercent,
+        nonRefundableMinPence: auth.settings.policyNonRefundableMinPence,
+        flexiblePercent: auth.settings.policyFlexiblePercent,
+        flexibleMinPence: auth.settings.policyFlexibleMinPence,
+      },
     };
   });
 
@@ -246,6 +254,7 @@ const createBookingInput = z
     child_seat_count: z.number().int().min(0).max(10).optional().default(0),
     meet_greet: z.boolean().optional().default(false),
     return_journey: z.boolean().optional().default(false),
+    cancellation_policy: z.enum(["standard", "non_refundable", "flexible"]).optional().default("standard"),
     templateSlug: z.string().trim().min(1).max(120).optional().nullable(),
   })
   .refine((v) => v.pickupPlaceId !== v.destinationPlaceId, {
@@ -484,6 +493,26 @@ export const createBooking = createServerFn({ method: "POST" })
     // transfer or a scenic/multi-stop recompute.
     if (childSeatFee > 0) {
       price = Number((price + childSeatFee).toFixed(2));
+    }
+
+    // Meet & greet + return journey extras (admin-configurable per site_settings).
+    if (data.meet_greet && auth.settings.meetGreetFeePence > 0) {
+      price = Number((price + auth.settings.meetGreetFeePence / 100).toFixed(2));
+    }
+    if (data.return_journey && auth.settings.returnJourneyFeePence > 0) {
+      price = Number((price + auth.settings.returnJourneyFeePence / 100).toFixed(2));
+    }
+
+    // Cancellation-policy delta (admin-configurable percent + minimum).
+    {
+      const s = auth.settings;
+      if (data.cancellation_policy === "non_refundable") {
+        const d = -Math.max(s.policyNonRefundableMinPence / 100, Math.round(price * (s.policyNonRefundablePercent / 100) * 100) / 100);
+        price = Number(Math.max(0, price + d).toFixed(2));
+      } else if (data.cancellation_policy === "flexible") {
+        const d = Math.max(s.policyFlexibleMinPence / 100, Math.round(price * (s.policyFlexiblePercent / 100) * 100) / 100);
+        price = Number((price + d).toFixed(2));
+      }
     }
 
     const notesWithQty = qty > 1

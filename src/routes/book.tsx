@@ -373,16 +373,27 @@ function BookPage() {
 
   // ---- Pricing math (single source used by extras/payment/review) ----
   const childSeatFeePence = quoteQuery.data?.childSeatFeePence ?? 0;
+  const meetGreetFeePence = quoteQuery.data?.meetGreetFeePence ?? 0;
+  const returnJourneyFeePence = quoteQuery.data?.returnJourneyFeePence ?? 0;
+  const policyCfg = quoteQuery.data?.policy ?? {
+    nonRefundablePercent: 5, nonRefundableMinPence: 200,
+    flexiblePercent: 12, flexibleMinPence: 400,
+  };
   const seatFee = (childSeatFeePence / 100) * childSeatCount;
+  const meetGreetFee = meetGreet ? meetGreetFeePence / 100 : 0;
+  const returnFee = returnJourney ? returnJourneyFeePence / 100 : 0;
   const perVehiclePrice = chosen
     ? (mq?.vehicles.find((v) => v.vehicle_id === chosen.vehicleId)?.per_vehicle_total ?? chosen.finalPrice)
     : 0;
   const rideTotal = perVehiclePrice * qty;
+  const extrasBase = rideTotal + seatFee + meetGreetFee + returnFee;
   const policyDelta =
-    policy === "non_refundable" ? -Math.max(2, Math.round(rideTotal * 0.05 * 100) / 100)
-    : policy === "flexible" ? Math.max(4, Math.round(rideTotal * 0.12 * 100) / 100)
-    : 0;
-  const grandTotal = Math.max(0, rideTotal + seatFee + policyDelta);
+    policy === "non_refundable"
+      ? -Math.max(policyCfg.nonRefundableMinPence / 100, Math.round(extrasBase * (policyCfg.nonRefundablePercent / 100) * 100) / 100)
+      : policy === "flexible"
+      ? Math.max(policyCfg.flexibleMinPence / 100, Math.round(extrasBase * (policyCfg.flexiblePercent / 100) * 100) / 100)
+      : 0;
+  const grandTotal = Math.max(0, extrasBase + policyDelta);
 
   const bookFn = useServerFn(createBooking);
   const submitBooking = async () => {
@@ -435,6 +446,7 @@ function BookPage() {
           child_seat_count: childSeatCount,
           meet_greet: meetGreet,
           return_journey: returnJourney,
+          cancellation_policy: policy,
           templateSlug: pre.templateSlug || null,
         },
       });
@@ -482,7 +494,7 @@ function BookPage() {
                   onEdit={() => setEditOpen(true)}
                   onStartAgain={startAgain}
                   route={quoteQuery.data ? { miles: quoteQuery.data.distanceMiles, minutes: quoteQuery.data.durationMinutes } : null}
-                  price={chosen ? { vehicleName: chosen.name, perVehicle: perVehiclePrice, qty, rideTotal, seatFee, seatCount: childSeatCount, policy, policyDelta, grandTotal } : null}
+                  price={chosen ? { vehicleName: chosen.name, perVehicle: perVehiclePrice, qty, rideTotal, seatFee, seatCount: childSeatCount, meetGreetFee, returnFee, policy, policyDelta, grandTotal } : null}
                 />
 
                 <div className="min-w-0 space-y-6">
@@ -537,6 +549,11 @@ function BookPage() {
                       onPolicy={setPolicy}
                       baseRideTotal={rideTotal}
                       seatFee={seatFee}
+                      meetGreetFee={meetGreetFee}
+                      returnFee={returnFee}
+                      meetGreetFeePence={meetGreetFeePence}
+                      returnJourneyFeePence={returnJourneyFeePence}
+                      policyCfg={policyCfg}
                       onBack={() => setStep("details")}
                       onNext={() => setStep("payment")}
                     />
@@ -563,7 +580,7 @@ function BookPage() {
         </div>
       </section>
       {chosen && step !== "review" && (
-        <MobilePriceBar price={{ vehicleName: chosen.name, perVehicle: perVehiclePrice, qty, rideTotal, seatFee, seatCount: childSeatCount, policy, policyDelta, grandTotal }} />
+        <MobilePriceBar price={{ vehicleName: chosen.name, perVehicle: perVehiclePrice, qty, rideTotal, seatFee, seatCount: childSeatCount, meetGreetFee, returnFee, policy, policyDelta, grandTotal }} />
       )}
       <EditTripDialog open={editOpen} onOpenChange={setEditOpen} initial={pre} onSave={applyEdit} />
     </SiteLayout>
@@ -724,6 +741,8 @@ type PriceSummary = {
   rideTotal: number;
   seatFee: number;
   seatCount: number;
+  meetGreetFee: number;
+  returnFee: number;
   policy: Policy;
   policyDelta: number;
   grandTotal: number;
@@ -738,6 +757,8 @@ function PriceBreakdown({ price }: { price: PriceSummary }) {
   const parts = [
     `Ride ${fmtGBP(price.rideTotal)}`,
     ...(price.seatCount > 0 ? [`Child seats ${fmtGBP(price.seatFee)}`] : []),
+    ...(price.meetGreetFee > 0 ? [`Meet & greet ${fmtGBP(price.meetGreetFee)}`] : []),
+    ...(price.returnFee > 0 ? [`Return ${fmtGBP(price.returnFee)}`] : []),
     `Cancellation cover: ${policyLabel}`,
   ];
   return (
@@ -1321,6 +1342,11 @@ function ExtrasStep(props: {
   onPolicy: (p: Policy) => void;
   baseRideTotal: number;
   seatFee: number;
+  meetGreetFee: number;
+  returnFee: number;
+  meetGreetFeePence: number;
+  returnJourneyFeePence: number;
+  policyCfg: { nonRefundablePercent: number; nonRefundableMinPence: number; flexiblePercent: number; flexibleMinPence: number };
   onBack: () => void;
   onNext: () => void;
 }) {
@@ -1330,7 +1356,8 @@ function ExtrasStep(props: {
     converted, needsAck, onAck,
     childSeatFeePence, childSeatCount, onChildSeatCount,
     meetGreet, onMeetGreet, returnJourney, onReturnJourney,
-    policy, onPolicy, baseRideTotal, seatFee, onBack, onNext,
+    policy, onPolicy, baseRideTotal, seatFee, meetGreetFee, returnFee,
+    meetGreetFeePence, returnJourneyFeePence, policyCfg, onBack, onNext,
   } = props;
 
   return (
@@ -1395,8 +1422,14 @@ function ExtrasStep(props: {
             </Select>
           </Field>
           <div className="grid gap-3">
-            <Toggle label="Meet & greet at arrivals" checked={meetGreet} onChange={onMeetGreet} />
-            <Toggle label="Add return journey" checked={returnJourney} onChange={onReturnJourney} />
+            <Toggle
+              label={meetGreetFeePence > 0 ? `Meet & greet at arrivals (+£${(meetGreetFeePence / 100).toFixed(2)})` : "Meet & greet at arrivals"}
+              checked={meetGreet} onChange={onMeetGreet}
+            />
+            <Toggle
+              label={returnJourneyFeePence > 0 ? `Add return journey (+£${(returnJourneyFeePence / 100).toFixed(2)})` : "Add return journey"}
+              checked={returnJourney} onChange={onReturnJourney}
+            />
           </div>
         </div>
       </ExtrasCard>
@@ -1407,7 +1440,7 @@ function ExtrasStep(props: {
         eyebrow="Cancellation cover"
         title="Choose how flexible you want to be"
       >
-        <PolicyTiers value={policy} onChange={onPolicy} base={baseRideTotal} />
+        <PolicyTiers value={policy} onChange={onPolicy} base={baseRideTotal + seatFee + meetGreetFee + returnFee} cfg={policyCfg} />
       </ExtrasCard>
 
       {/* --- Running total (desktop only; mobile shows sticky bar) --- */}
@@ -1417,12 +1450,22 @@ function ExtrasStep(props: {
           <p className="text-xs text-muted-foreground mt-1">
             Ride £{baseRideTotal.toFixed(2)}
             {seatFee > 0 && <> · Child seats £{seatFee.toFixed(2)}</>}
+            {meetGreetFee > 0 && <> · Meet &amp; greet £{meetGreetFee.toFixed(2)}</>}
+            {returnFee > 0 && <> · Return £{returnFee.toFixed(2)}</>}
             {" · "}Cancellation cover: <span className="font-semibold text-foreground/80">{policy === "non_refundable" ? "Non-refundable" : policy === "flexible" ? "Flexible" : "Standard"}</span>
           </p>
         </div>
         <div className="text-right">
           <p className="font-display text-3xl font-bold text-[var(--gold)] tabular-nums">
-            £{(baseRideTotal + seatFee + (policy === "non_refundable" ? -Math.max(2, Math.round(baseRideTotal * 0.05 * 100) / 100) : policy === "flexible" ? Math.max(4, Math.round(baseRideTotal * 0.12 * 100) / 100) : 0)).toFixed(2)}
+            £{(() => {
+              const base = baseRideTotal + seatFee + meetGreetFee + returnFee;
+              const delta = policy === "non_refundable"
+                ? -Math.max(policyCfg.nonRefundableMinPence / 100, Math.round(base * (policyCfg.nonRefundablePercent / 100) * 100) / 100)
+                : policy === "flexible"
+                ? Math.max(policyCfg.flexibleMinPence / 100, Math.round(base * (policyCfg.flexiblePercent / 100) * 100) / 100)
+                : 0;
+              return (base + delta).toFixed(2);
+            })()}
           </p>
         </div>
       </div>
@@ -1462,7 +1505,12 @@ function ExtrasCard({ icon, eyebrow, title, subtitle, children }: {
   );
 }
 
-function PolicyTiers({ value, onChange, base }: { value: Policy; onChange: (p: Policy) => void; base: number }) {
+function PolicyTiers({ value, onChange, base, cfg }: {
+  value: Policy; onChange: (p: Policy) => void; base: number;
+  cfg: { nonRefundablePercent: number; nonRefundableMinPence: number; flexiblePercent: number; flexibleMinPence: number };
+}) {
+  const nonRefDelta = -Math.max(cfg.nonRefundableMinPence / 100, Math.round(base * (cfg.nonRefundablePercent / 100) * 100) / 100);
+  const flexDelta = Math.max(cfg.flexibleMinPence / 100, Math.round(base * (cfg.flexiblePercent / 100) * 100) / 100);
   const tiers: Array<{
     id: Policy; title: string; icon: React.ReactNode; badge?: string; badgeClass?: string;
     headline: string; body: string; delta: number;
@@ -1472,7 +1520,7 @@ function PolicyTiers({ value, onChange, base }: { value: Policy; onChange: (p: P
       badge: "Lowest price", badgeClass: "bg-foreground/10 text-foreground",
       headline: "Best price, no refund.",
       body: "You save the most, with no refund if you cancel after confirmation.",
-      delta: -Math.max(2, Math.round(base * 0.05 * 100) / 100),
+      delta: nonRefDelta,
     },
     {
       id: "standard", title: "Standard", icon: <CalendarClock className="size-5" />,
@@ -1486,7 +1534,7 @@ function PolicyTiers({ value, onChange, base }: { value: Policy; onChange: (p: P
       badge: "Safest choice", badgeClass: "bg-emerald-500/15 text-emerald-700",
       headline: "Refundable up to the last hour.",
       body: "The most freedom — full refund if you cancel up to 1 hour before pickup.",
-      delta: Math.max(4, Math.round(base * 0.12 * 100) / 100),
+      delta: flexDelta,
     },
   ];
   return (

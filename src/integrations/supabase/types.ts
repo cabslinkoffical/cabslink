@@ -2606,13 +2606,19 @@ export type Database = {
           max_detour_minutes: number
           max_poi_suggestions: number
           max_selected_stops: number
+          meet_greet_fee_pence: number
           payment_mode: string
           poi_corridor_enabled: boolean
           poi_corridor_max_pois: number
           poi_corridor_radius_miles: number
           poi_discovery_enabled: boolean
+          policy_flexible_min_pence: number
+          policy_flexible_percent: number
+          policy_non_refundable_min_pence: number
+          policy_non_refundable_percent: number
           price_per_extra_15min_pence: number
           primary_color: string
+          return_journey_fee_pence: number
           sightseeing_threshold_minutes: number
           smtp_host: string | null
           smtp_port: number | null
@@ -2648,13 +2654,19 @@ export type Database = {
           max_detour_minutes?: number
           max_poi_suggestions?: number
           max_selected_stops?: number
+          meet_greet_fee_pence?: number
           payment_mode?: string
           poi_corridor_enabled?: boolean
           poi_corridor_max_pois?: number
           poi_corridor_radius_miles?: number
           poi_discovery_enabled?: boolean
+          policy_flexible_min_pence?: number
+          policy_flexible_percent?: number
+          policy_non_refundable_min_pence?: number
+          policy_non_refundable_percent?: number
           price_per_extra_15min_pence?: number
           primary_color?: string
+          return_journey_fee_pence?: number
           sightseeing_threshold_minutes?: number
           smtp_host?: string | null
           smtp_port?: number | null
@@ -2690,13 +2702,19 @@ export type Database = {
           max_detour_minutes?: number
           max_poi_suggestions?: number
           max_selected_stops?: number
+          meet_greet_fee_pence?: number
           payment_mode?: string
           poi_corridor_enabled?: boolean
           poi_corridor_max_pois?: number
           poi_corridor_radius_miles?: number
           poi_discovery_enabled?: boolean
+          policy_flexible_min_pence?: number
+          policy_flexible_percent?: number
+          policy_non_refundable_min_pence?: number
+          policy_non_refundable_percent?: number
           price_per_extra_15min_pence?: number
           primary_color?: string
+          return_journey_fee_pence?: number
           sightseeing_threshold_minutes?: number
           smtp_host?: string | null
           smtp_port?: number | null

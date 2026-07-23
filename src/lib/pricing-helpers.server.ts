@@ -61,12 +61,18 @@ export type QuoteSettings = {
   currency: string;
   currencySymbol: string;
   childSeatFeePence: number;
+  meetGreetFeePence: number;
+  returnJourneyFeePence: number;
+  policyNonRefundablePercent: number;
+  policyNonRefundableMinPence: number;
+  policyFlexiblePercent: number;
+  policyFlexibleMinPence: number;
 };
 
 export async function loadQuoteSettings(client: ReturnType<typeof publicClient>): Promise<QuoteSettings> {
   const { data } = await client
     .from("site_settings")
-    .select("tax_enabled, tax_percentage, tax_label, currency, currency_symbol, child_seat_fee_pence")
+    .select("tax_enabled, tax_percentage, tax_label, currency, currency_symbol, child_seat_fee_pence, meet_greet_fee_pence, return_journey_fee_pence, policy_non_refundable_percent, policy_non_refundable_min_pence, policy_flexible_percent, policy_flexible_min_pence")
     .eq("id", 1)
     .maybeSingle();
   const row: any = data ?? {};
@@ -79,6 +85,12 @@ export async function loadQuoteSettings(client: ReturnType<typeof publicClient>)
     currency: (row.currency as string) || "GBP",
     currencySymbol: (row.currency_symbol as string) || "£",
     childSeatFeePence: Math.max(0, Number(row.child_seat_fee_pence) || 0),
+    meetGreetFeePence: Math.max(0, Number(row.meet_greet_fee_pence) || 0),
+    returnJourneyFeePence: Math.max(0, Number(row.return_journey_fee_pence) || 0),
+    policyNonRefundablePercent: Math.max(0, Math.min(100, Number(row.policy_non_refundable_percent) || 0)),
+    policyNonRefundableMinPence: Math.max(0, Number(row.policy_non_refundable_min_pence) || 0),
+    policyFlexiblePercent: Math.max(0, Math.min(100, Number(row.policy_flexible_percent) || 0)),
+    policyFlexibleMinPence: Math.max(0, Number(row.policy_flexible_min_pence) || 0),
   };
 }
 

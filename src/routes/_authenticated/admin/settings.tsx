@@ -53,6 +53,13 @@ function Page() {
           poi_corridor_enabled: !!form.poi_corridor_enabled,
           poi_corridor_radius_miles: Number(form.poi_corridor_radius_miles ?? 15),
           poi_corridor_max_pois: Number(form.poi_corridor_max_pois ?? 8),
+          child_seat_fee_pence: Number(form.child_seat_fee_pence ?? 0),
+          meet_greet_fee_pence: Number(form.meet_greet_fee_pence ?? 0),
+          return_journey_fee_pence: Number(form.return_journey_fee_pence ?? 0),
+          policy_non_refundable_percent: Number(form.policy_non_refundable_percent ?? 5),
+          policy_non_refundable_min_pence: Number(form.policy_non_refundable_min_pence ?? 200),
+          policy_flexible_percent: Number(form.policy_flexible_percent ?? 12),
+          policy_flexible_min_pence: Number(form.policy_flexible_min_pence ?? 400),
         })} disabled={mut.isPending}>Save changes</Button>
       </PageHeader>
 
@@ -61,6 +68,7 @@ function Page() {
           <TabsTrigger value="company">Company</TabsTrigger>
           <TabsTrigger value="branding">Branding</TabsTrigger>
           <TabsTrigger value="finance">Finance</TabsTrigger>
+          <TabsTrigger value="extras">Pricing extras</TabsTrigger>
           <TabsTrigger value="integrations">Integrations</TabsTrigger>
           <TabsTrigger value="pois">POI matching</TabsTrigger>
           <TabsTrigger value="advanced">Advanced</TabsTrigger>
@@ -104,6 +112,51 @@ function Page() {
             </Row>
             <Row label="Tax rate %"><Input type="number" step="0.01" value={form.tax_percentage ?? 0} onChange={e => set("tax_percentage", e.target.value)} /></Row>
             <Row label="Cancellation policy"><Textarea rows={3} value={form.cancellation_policy ?? ""} onChange={e => set("cancellation_policy", e.target.value)} /></Row>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="extras" className="space-y-4 mt-4">
+          <Card>
+            <p className="text-sm text-muted-foreground -mt-1">
+              These fees appear on step 3 (Extras) of the booking form and are applied server-side to
+              the final booking price. Enter amounts in pence (e.g. 500 = £5.00). Set a fee to 0 to
+              hide its price and treat it as a free option.
+            </p>
+            <Row label="Child seat fee (pence, per seat)">
+              <Input type="number" min={0} step={1} value={form.child_seat_fee_pence ?? 0}
+                onChange={e => set("child_seat_fee_pence", e.target.value)} />
+            </Row>
+            <Row label="Meet & greet fee (pence)">
+              <Input type="number" min={0} step={1} value={form.meet_greet_fee_pence ?? 0}
+                onChange={e => set("meet_greet_fee_pence", e.target.value)} />
+            </Row>
+            <Row label="Return journey fee (pence)">
+              <Input type="number" min={0} step={1} value={form.return_journey_fee_pence ?? 0}
+                onChange={e => set("return_journey_fee_pence", e.target.value)} />
+            </Row>
+          </Card>
+          <Card>
+            <p className="text-sm text-muted-foreground -mt-1">
+              Cancellation-cover pricing. The discount / surcharge is calculated as a percent of the
+              ride subtotal (including seat and extras), with a minimum in pence to avoid tiny
+              amounts on short journeys.
+            </p>
+            <Row label="Non-refundable discount %">
+              <Input type="number" min={0} max={100} step="0.5" value={form.policy_non_refundable_percent ?? 5}
+                onChange={e => set("policy_non_refundable_percent", e.target.value)} />
+            </Row>
+            <Row label="Non-refundable minimum (pence)">
+              <Input type="number" min={0} step={1} value={form.policy_non_refundable_min_pence ?? 200}
+                onChange={e => set("policy_non_refundable_min_pence", e.target.value)} />
+            </Row>
+            <Row label="Flexible surcharge %">
+              <Input type="number" min={0} max={100} step="0.5" value={form.policy_flexible_percent ?? 12}
+                onChange={e => set("policy_flexible_percent", e.target.value)} />
+            </Row>
+            <Row label="Flexible minimum (pence)">
+              <Input type="number" min={0} step={1} value={form.policy_flexible_min_pence ?? 400}
+                onChange={e => set("policy_flexible_min_pence", e.target.value)} />
+            </Row>
           </Card>
         </TabsContent>
 
