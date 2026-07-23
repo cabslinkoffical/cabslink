@@ -218,6 +218,8 @@ export type Database = {
           tour_conversion_ack_at: string | null
           updated_at: string
           vehicle_capacity_snapshot: Json | null
+          vehicle_class_id: string | null
+          vehicle_class_name_snapshot: string | null
           vehicle_id: string | null
           vehicle_name_snapshot: string | null
           vehicle_type: string
@@ -273,6 +275,8 @@ export type Database = {
           tour_conversion_ack_at?: string | null
           updated_at?: string
           vehicle_capacity_snapshot?: Json | null
+          vehicle_class_id?: string | null
+          vehicle_class_name_snapshot?: string | null
           vehicle_id?: string | null
           vehicle_name_snapshot?: string | null
           vehicle_type: string
@@ -328,6 +332,8 @@ export type Database = {
           tour_conversion_ack_at?: string | null
           updated_at?: string
           vehicle_capacity_snapshot?: Json | null
+          vehicle_class_id?: string | null
+          vehicle_class_name_snapshot?: string | null
           vehicle_id?: string | null
           vehicle_name_snapshot?: string | null
           vehicle_type?: string
@@ -345,6 +351,13 @@ export type Database = {
             columns: ["scenic_template_id"]
             isOneToOne: false
             referencedRelation: "scenic_route_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_vehicle_class_id_fkey"
+            columns: ["vehicle_class_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_classes"
             referencedColumns: ["id"]
           },
           {
@@ -965,6 +978,7 @@ export type Database = {
           tax_rate: number | null
           time_extra: number | null
           total_journey_seconds: number | null
+          vehicle_class_id: string | null
           vehicle_count: number | null
           vehicle_id: string | null
           via_price: number | null
@@ -1007,6 +1021,7 @@ export type Database = {
           tax_rate?: number | null
           time_extra?: number | null
           total_journey_seconds?: number | null
+          vehicle_class_id?: string | null
           vehicle_count?: number | null
           vehicle_id?: string | null
           via_price?: number | null
@@ -1049,6 +1064,7 @@ export type Database = {
           tax_rate?: number | null
           time_extra?: number | null
           total_journey_seconds?: number | null
+          vehicle_class_id?: string | null
           vehicle_count?: number | null
           vehicle_id?: string | null
           via_price?: number | null
@@ -1060,6 +1076,13 @@ export type Database = {
             columns: ["scenic_template_id"]
             isOneToOne: false
             referencedRelation: "scenic_route_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_calculations_vehicle_class_id_fkey"
+            columns: ["vehicle_class_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_classes"
             referencedColumns: ["id"]
           },
           {
@@ -2189,6 +2212,101 @@ export type Database = {
         }
         Relationships: []
       }
+      vehicle_classes: {
+        Row: {
+          active: boolean
+          badge: string | null
+          cabin_bags: number
+          child_seats_supported: boolean
+          created_at: string
+          display_order: number
+          featured: boolean
+          fuel_type: string
+          gallery: Json
+          hand_luggage: number
+          hero_image: string | null
+          id: string
+          large_luggage: number
+          long_description: string | null
+          name: string
+          passengers: number
+          pricing_vehicle_id: string | null
+          quote_on_request: boolean
+          recommended_for: Json
+          seo_description: string | null
+          seo_keywords: string | null
+          seo_title: string | null
+          short_description: string | null
+          slug: string
+          updated_at: string
+          wheelchair_accessible: boolean
+        }
+        Insert: {
+          active?: boolean
+          badge?: string | null
+          cabin_bags?: number
+          child_seats_supported?: boolean
+          created_at?: string
+          display_order?: number
+          featured?: boolean
+          fuel_type?: string
+          gallery?: Json
+          hand_luggage?: number
+          hero_image?: string | null
+          id?: string
+          large_luggage?: number
+          long_description?: string | null
+          name: string
+          passengers?: number
+          pricing_vehicle_id?: string | null
+          quote_on_request?: boolean
+          recommended_for?: Json
+          seo_description?: string | null
+          seo_keywords?: string | null
+          seo_title?: string | null
+          short_description?: string | null
+          slug: string
+          updated_at?: string
+          wheelchair_accessible?: boolean
+        }
+        Update: {
+          active?: boolean
+          badge?: string | null
+          cabin_bags?: number
+          child_seats_supported?: boolean
+          created_at?: string
+          display_order?: number
+          featured?: boolean
+          fuel_type?: string
+          gallery?: Json
+          hand_luggage?: number
+          hero_image?: string | null
+          id?: string
+          large_luggage?: number
+          long_description?: string | null
+          name?: string
+          passengers?: number
+          pricing_vehicle_id?: string | null
+          quote_on_request?: boolean
+          recommended_for?: Json
+          seo_description?: string | null
+          seo_keywords?: string | null
+          seo_title?: string | null
+          short_description?: string | null
+          slug?: string
+          updated_at?: string
+          wheelchair_accessible?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_classes_pricing_vehicle_id_fkey"
+            columns: ["pricing_vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vehicle_mileage_tiers: {
         Row: {
           cost_per_mile: number
@@ -2226,6 +2344,50 @@ export type Database = {
             columns: ["pricing_profile_id"]
             isOneToOne: false
             referencedRelation: "vehicle_pricing_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vehicle_models: {
+        Row: {
+          active: boolean
+          created_at: string
+          display_order: number
+          id: string
+          manufacturer: string | null
+          name: string
+          notes: string | null
+          updated_at: string
+          vehicle_class_id: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          display_order?: number
+          id?: string
+          manufacturer?: string | null
+          name: string
+          notes?: string | null
+          updated_at?: string
+          vehicle_class_id: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          display_order?: number
+          id?: string
+          manufacturer?: string | null
+          name?: string
+          notes?: string | null
+          updated_at?: string
+          vehicle_class_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_models_vehicle_class_id_fkey"
+            columns: ["vehicle_class_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_classes"
             referencedColumns: ["id"]
           },
         ]
