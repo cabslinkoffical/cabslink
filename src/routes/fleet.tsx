@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import { queryOptions, useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { Users, Briefcase, Luggage, ArrowRight, ShieldCheck, Accessibility, Zap, CheckCircle2, Sparkles, Star } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Reveal } from "@/components/site/Reveal";
@@ -7,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { VehicleAllocationNotice } from "@/components/site/VehicleAllocationNotice";
 import { listPublicVehicleClasses, type PublicVehicleClass } from "@/lib/vehicle-classes.functions";
 import { fleetImageFor } from "@/assets/fleet";
+import { supabase } from "@/integrations/supabase/client";
 
 const fleetQuery = queryOptions({
   queryKey: ["public-vehicle-classes"],
@@ -51,6 +53,16 @@ const RECOMMENDED_LABELS: Record<string, string> = {
 
 function FleetPage() {
   const { data: classes } = useSuspenseQuery(fleetQuery);
+  const qc = useQueryClient();
+  useEffect(() => {
+    const invalidate = () => qc.invalidateQueries({ queryKey: ["public-vehicle-classes"] });
+    const ch = supabase
+      .channel("public-fleet-classes")
+      .on("postgres_changes", { event: "*", schema: "public", table: "vehicle_classes" }, invalidate)
+      .on("postgres_changes", { event: "*", schema: "public", table: "vehicle_models" }, invalidate)
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [qc]);
   const items = classes.filter((c) => c.slug !== "unclassified");
 
   return (
