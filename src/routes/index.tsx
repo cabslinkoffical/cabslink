@@ -170,28 +170,33 @@ function HomePage() {
     let cancelled = false;
     const load = () => {
       supabase
-        .from("vehicles")
-        .select("id, name, category, image_url, passengers")
+        .from("vehicle_classes")
+        .select("id, name, slug, hero_image, passengers, badge, display_order")
         .eq("active", true)
+        .neq("slug", "unclassified")
         .order("display_order", { ascending: true })
         .then(({ data }) => {
           if (cancelled || !data) return;
           const mapped = data
-            .filter((v: any) => v.image_url)
-            .map((v: any) => ({
-              key: v.id as string,
-              name: v.name as string,
-              tag: `${v.category ?? "Vehicle"} · ${v.passengers ?? 0} seats`,
-              img: v.image_url as string,
-              seats: v.passengers ?? 0,
-            }));
+            .map((c: any) => {
+              const img = fleetImageFor(c.slug, c.hero_image);
+              if (!img) return null;
+              return {
+                key: c.id as string,
+                name: c.name as string,
+                tag: `${c.badge ?? "Vehicle class"} · ${c.passengers ?? 0} seats`,
+                img,
+                seats: c.passengers ?? 0,
+              } as HeroVehicle;
+            })
+            .filter(Boolean) as HeroVehicle[];
           setDbVehicles(mapped.length > 0 ? mapped : null);
         });
     };
     load();
     const channel = supabase
-      .channel("vehicles-home")
-      .on("postgres_changes", { event: "*", schema: "public", table: "vehicles" }, load)
+      .channel("vehicle-classes-home")
+      .on("postgres_changes", { event: "*", schema: "public", table: "vehicle_classes" }, load)
       .subscribe();
     return () => { cancelled = true; supabase.removeChannel(channel); };
   }, []);
