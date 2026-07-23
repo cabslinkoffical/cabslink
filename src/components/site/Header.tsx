@@ -91,7 +91,7 @@ export function Header() {
 
             <a
               href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}
-              className="group hidden md:inline-flex items-center gap-2 rounded-full px-3 py-2 text-[12px] font-bold tracking-wide text-[var(--gold)] hover:text-white transition-colors"
+              className="group hidden 2xl:inline-flex items-center gap-2 rounded-full px-3 py-2 text-[12px] font-bold tracking-wide text-[var(--gold)] hover:text-white transition-colors"
             >
               <Phone className="size-3.5" />
               <span className="tabular-nums">{SITE.phoneUK}</span>
