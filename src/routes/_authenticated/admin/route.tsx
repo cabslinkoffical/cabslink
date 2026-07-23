@@ -11,7 +11,7 @@ import { SidebarNav, type SidebarEntry } from "@/components/admin/SidebarNav";
 import { Breadcrumbs } from "@/components/admin/Breadcrumbs";
 import { Logo } from "@/components/site/Logo";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
