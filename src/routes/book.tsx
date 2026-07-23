@@ -28,6 +28,8 @@ import { calculateQuotes, createBooking, type QuoteCard } from "@/lib/pricing.fu
 import { listPoisForRoute, type PoiSuggestion, type RouteTemplateSummary } from "@/lib/pois.functions";
 import { calculateMultiStopQuote, type MultiStopQuoteResult } from "@/lib/scenic-quote.functions";
 import { resolveTourTemplate } from "@/lib/tours.functions";
+import { listPublicVehicleClasses, type PublicVehicleClass } from "@/lib/vehicle-classes.functions";
+import { VehicleAllocationNotice } from "@/components/site/VehicleAllocationNotice";
 
 export const Route = createFileRoute("/book")({
   validateSearch: (search: Record<string, unknown>) => ({ q: typeof search.q === "string" ? search.q : "" }),
@@ -953,25 +955,38 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.quotes, pre.passengers, pre.luggage]);
 
+  const { data: vehicleClasses = [] } = useQuery({
+    queryKey: ["public-vehicle-classes"],
+    queryFn: () => listPublicVehicleClasses(),
+    staleTime: 60_000,
+  });
+  const classByVehicleId = useMemo(() => {
+    const m = new Map<string, PublicVehicleClass>();
+    for (const c of vehicleClasses) if (c.pricing_vehicle_id) m.set(c.pricing_vehicle_id, c);
+    return m;
+  }, [vehicleClasses]);
+
   return (
     <div>
       <div className="mb-6 flex items-end justify-between flex-wrap gap-3">
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)]">Step 01 — Choose Your Ride</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)]">Step 01 — Choose Your Class</p>
           <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground mt-1">
-            Book Your Ride · {pre.ret ? "Return" : "One Way"}
+            Select a vehicle class · {pre.ret ? "Return" : "One Way"}
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Every fare is all-inclusive — you'll add stops, extras and cancellation cover in the next steps.
+            You're booking a vehicle class — the exact model is allocated by our dispatch team on the day.
           </p>
         </div>
         {data && (
           <div className="inline-flex items-center gap-2 bg-[var(--navy)] text-[var(--navy-foreground)] rounded-full px-4 py-2 text-xs font-bold uppercase tracking-widest">
             <BadgeCheck className="size-3.5 text-[var(--gold)]" />
-            {orderedQuotes.length} vehicles available
+            {orderedQuotes.length} classes available
           </div>
         )}
       </div>
+
+      <VehicleAllocationNotice className="mb-6" compact />
 
       <div className="space-y-6">
         {isLoading && (
@@ -987,7 +1002,7 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
         )}
         {data?.quotes.length === 0 && (
           <div className="bg-card rounded-2xl border border-border p-10 text-center text-sm text-muted-foreground">
-            No vehicles are currently available.
+            No vehicle classes are currently available.
           </div>
         )}
         {orderedQuotes.map((q, i) => {
@@ -995,15 +1010,16 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
           const qty = qtyMap[q.vehicleId] ?? minQty;
           const capacityShort = qty < minQty;
           const reason = capacityShort
-            ? `This vehicle seats ${q.passengers} passengers and ${q.luggage} luggage. Select at least ${minQty} vehicles to fit ${pre.passengers} passenger${pre.passengers === 1 ? "" : "s"}${pre.luggage ? ` and ${pre.luggage} bag${pre.luggage === 1 ? "" : "s"}` : ""}.`
+            ? `This class seats ${q.passengers} passengers and ${q.luggage} luggage. Select at least ${minQty} vehicles to fit ${pre.passengers} passenger${pre.passengers === 1 ? "" : "s"}${pre.luggage ? ` and ${pre.luggage} bag${pre.luggage === 1 ? "" : "s"}` : ""}.`
             : null;
+          const klass = classByVehicleId.get(q.vehicleId);
           return (
-            <VehicleCard key={q.vehicleId} card={q} best={i === 0 && minQtyFor(q) <= 1} qty={qty}
+            <VehicleCard key={q.vehicleId} card={q} klass={klass} best={i === 0 && minQtyFor(q) <= 1} qty={qty}
               minQty={minQty}
               disabled={capacityShort}
               disabledReason={reason}
               onQtyChange={(n) => setQtyMap((m) => ({ ...m, [q.vehicleId]: n }))}
-              onSelect={() => { if (!capacityShort) onSelect(q, qty); }} />
+              onSelect={() => { if (!capacityShort) onSelect(klass ? { ...q, name: klass.name } : q, qty); }} />
           );
         })}
       </div>
@@ -1012,18 +1028,21 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
 }
 
 
+
 function isQuoteOnRequest(name: string): boolean {
   return /coaster|coach\s*bus|24-?seater|55-?seater/i.test(name);
 }
 
-function VehicleCard({ card, best, qty, minQty, disabled, disabledReason, onQtyChange, onSelect }: {
-  card: QuoteCard; best: boolean; qty: number; minQty: number;
+function VehicleCard({ card, klass, best, qty, minQty, disabled, disabledReason, onQtyChange, onSelect }: {
+  card: QuoteCard; klass?: PublicVehicleClass; best: boolean; qty: number; minQty: number;
   disabled?: boolean; disabledReason?: string | null;
   onQtyChange: (n: number) => void; onSelect: () => void;
 }) {
   const total = card.finalPrice * qty;
   const serial = card.vehicleId.slice(0, 8).toUpperCase();
-  const quoteOnly = isQuoteOnRequest(card.name);
+  const quoteOnly = klass?.quote_on_request ?? isQuoteOnRequest(card.name);
+  const displayName = klass?.name ?? card.name;
+  const displayImage = klass?.hero_image ?? card.imageUrl;
   return (
     <div className={`relative flex flex-col md:flex-row bg-card rounded-2xl shadow-[0_10px_40px_-20px_rgba(14,24,44,0.25)] border transition-all duration-500 hover:shadow-[0_20px_60px_-20px_rgba(223,175,38,0.35)] ${best ? "border-[var(--gold)]/60" : minQty > 1 ? "border-amber-400/50" : "border-border"}`}>
       {best && (
@@ -1039,23 +1058,40 @@ function VehicleCard({ card, best, qty, minQty, disabled, disabledReason, onQtyC
 
       <div className="flex-1 min-w-0 p-5 md:p-6 flex flex-col md:flex-row gap-5 md:gap-6">
         <div className="w-full md:w-44 lg:w-48 flex-shrink-0 flex items-center justify-center bg-[var(--surface)] rounded-xl p-3">
-          <img src={card.imageUrl} alt={card.name} className="w-full aspect-[3/2] object-contain" loading="lazy" />
+          <img src={displayImage} alt={displayName} className="w-full aspect-[3/2] object-contain" loading="lazy" />
         </div>
         <div className="flex-1 min-w-0 flex flex-col justify-between">
           <div>
             <div className="flex justify-between items-start gap-3">
               <div className="min-w-0 flex-1">
                 <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--gold)]">
-                  <BadgeCheck className="size-3" /> Private Transfer
+                  <BadgeCheck className="size-3" /> Vehicle Class
                 </span>
                 <h3 className="mt-1.5 font-display text-lg md:text-xl font-bold uppercase tracking-tight text-foreground leading-tight break-words">
-                  {card.name}
+                  {displayName}
                 </h3>
+                {klass?.short_description && (
+                  <p className="mt-1 text-[12px] text-muted-foreground line-clamp-2">{klass.short_description}</p>
+                )}
+                {klass && klass.models.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground mr-1 self-center">Includes:</span>
+                    {klass.models.slice(0, 4).map((m) => (
+                      <span key={m.id} className="rounded-full bg-[var(--navy)]/5 text-[var(--navy)]/80 px-2 py-0.5 text-[10.5px] font-medium">
+                        {m.name}
+                      </span>
+                    ))}
+                    {klass.models.length > 4 && (
+                      <span className="text-[10.5px] text-muted-foreground self-center">+{klass.models.length - 4}</span>
+                    )}
+                  </div>
+                )}
               </div>
               <div className="flex gap-0.5 text-[var(--gold)] shrink-0 pt-1">
                 {Array.from({ length: 5 }).map((_, i) => (<Star key={i} className="size-3 fill-current" />))}
               </div>
             </div>
+
             <ul className="mt-4 grid grid-cols-2 gap-x-3 gap-y-1.5 text-[13px]">
               <Feature icon={<Users className="size-3.5" />}>{card.passengers * qty} Passengers</Feature>
               <Feature icon={<Briefcase className="size-3.5" />}>{card.luggage * qty} Luggage</Feature>

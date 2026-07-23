@@ -14,6 +14,7 @@ import { BookingWidget } from "@/components/site/BookingWidget";
 import { Button } from "@/components/ui/button";
 import { SITE } from "@/lib/site";
 import { listPublishedTours } from "@/lib/tours.functions";
+import { listPublicVehicleClasses } from "@/lib/vehicle-classes.functions";
 
 import sclassAsset from "@/assets/fleet/sclass.png.asset.json";
 import eclassAsset from "@/assets/fleet/eclass.png.asset.json";
@@ -511,73 +512,9 @@ function HomePage() {
         </div>
       </section>
 
-      {/* LUXURY FLEET */}
-      <section className="section-y navy-scene">
-        <div className="container-x">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-            <div className="max-w-2xl">
-              <p className="text-[11px] uppercase tracking-[0.28em] font-semibold text-[var(--gold)]">— Luxury Fleet</p>
-              <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold text-white leading-[1.05]">
-                Premium vehicles, <br />
-                <span className="text-[var(--gold)]">impeccable standard.</span>
-              </h2>
-            </div>
-            <Button asChild variant="outline" className="rounded-full border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-[var(--gold-foreground)] self-start md:self-auto">
-              <Link to="/fleet">View full fleet <ArrowRight className="size-4" /></Link>
-            </Button>
-          </div>
+      {/* VEHICLE CLASSES */}
+      <FleetClassesSection />
 
-          <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {fleet.map((f) => (
-              <div key={f.name} className="group relative rounded-[24px] bg-white overflow-hidden border border-white/10 hover:-translate-y-1 transition-all duration-500">
-                <span className="absolute top-5 left-5 z-10 inline-flex items-center gap-1.5 rounded-full bg-[var(--navy)] text-white text-[10px] font-semibold uppercase tracking-[0.16em] px-3 py-1.5">
-                  <Gem className="size-3 text-[var(--gold)]" /> {f.note}
-                </span>
-                <span className="absolute top-5 right-5 z-10 rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] text-[10px] font-bold uppercase tracking-[0.14em] px-3 py-1.5">
-                  From {f.from}
-                </span>
-
-                <div className="relative aspect-[16/10] flex items-center justify-center bg-[var(--navy)]/5 overflow-hidden">
-                  <img
-                    src={f.img}
-                    srcSet={f.srcSet}
-                    sizes="(max-width: 1024px) 45vw, 360px"
-                    alt={f.name}
-                    loading="lazy"
-                    decoding="async"
-                    width={1200}
-                    height={750}
-                    className="max-h-full w-[92%] object-contain transition-transform duration-700 group-hover:scale-105"
-                  />
-                </div>
-
-                <div className="p-6">
-                  <h3 className="font-display text-xl font-semibold text-[var(--navy)]">{f.name}</h3>
-                  <p className="mt-1 text-xs text-[var(--navy)]/60">Best for: {f.best}</p>
-
-                  <div className="mt-5 flex items-center gap-4 text-xs text-[var(--navy)]/70">
-                    <span className="flex items-center gap-1.5"><Users className="size-4 text-[var(--gold-ink)]" />{f.passengers} pax</span>
-                    <span className="flex items-center gap-1.5"><Briefcase className="size-4 text-[var(--gold-ink)]" />{f.luggage} bags</span>
-                    <span className="flex items-center gap-1.5"><ShieldCheck className="size-4 text-[var(--gold-ink)]" />Insured</span>
-                  </div>
-
-                  <div className="mt-6 flex items-center justify-between border-t border-[var(--navy)]/10 pt-5">
-                    <div className="flex items-center gap-2 text-[var(--navy)]/70 text-xs">
-                      <MapPin className="size-4 text-[var(--gold-ink)]" /> UK-wide
-                    </div>
-                    <Link
-                      to="/book"
-                      className="inline-flex items-center gap-2 rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] px-4 py-2.5 text-xs font-bold uppercase tracking-[0.12em] hover:brightness-110 transition"
-                    >
-                      Book <ArrowRight className="size-3.5" />
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* WHY CHOOSE — BENTO */}
       <section className="section-y bg-white">
@@ -1018,5 +955,81 @@ function Faq() {
         );
       })}
     </div>
+  );
+}
+
+function FleetClassesSection() {
+  const { data: classes = [] } = useQuery({
+    queryKey: ["public-vehicle-classes"],
+    queryFn: () => listPublicVehicleClasses(),
+    staleTime: 60_000,
+  });
+  const visible = classes.filter((c) => c.slug !== "unclassified").slice(0, 6);
+  return (
+    <section className="section-y navy-scene">
+      <div className="container-x">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+          <div className="max-w-2xl">
+            <p className="text-[11px] uppercase tracking-[0.28em] font-semibold text-[var(--gold)]">— Vehicle Classes</p>
+            <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold text-white leading-[1.05]">
+              Book by class,<br />
+              <span className="text-[var(--gold)]">travel the standard.</span>
+            </h2>
+            <p className="mt-4 text-white/70 text-sm max-w-xl">
+              You pick a vehicle class — Executive, Luxury Chauffeur, Premium MPV or more. Our dispatch team allocates the exact model on the day, always from your booked class or a complimentary upgrade.
+            </p>
+          </div>
+          <Button asChild variant="outline" className="rounded-full border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-[var(--gold-foreground)] self-start md:self-auto">
+            <Link to="/fleet">View all classes <ArrowRight className="size-4" /></Link>
+          </Button>
+        </div>
+
+        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {visible.map((k) => (
+            <div key={k.id} className="group relative rounded-[24px] bg-white overflow-hidden border border-white/10 hover:-translate-y-1 transition-all duration-500 flex flex-col">
+              {k.badge && (
+                <span className="absolute top-5 left-5 z-10 inline-flex items-center gap-1.5 rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] text-[10px] font-bold uppercase tracking-[0.16em] px-3 py-1.5">
+                  <Gem className="size-3" /> {k.badge}
+                </span>
+              )}
+              <div className="relative aspect-[16/10] flex items-center justify-center bg-[var(--navy)]/5 overflow-hidden">
+                {k.hero_image ? (
+                  <img src={k.hero_image} alt={k.name} loading="lazy" decoding="async" className="max-h-full w-[92%] object-contain transition-transform duration-700 group-hover:scale-105" />
+                ) : (
+                  <div className="text-[var(--navy)]/40 text-sm">Image coming soon</div>
+                )}
+              </div>
+              <div className="p-6 flex-1 flex flex-col">
+                <h3 className="font-display text-xl font-semibold text-[var(--navy)]">{k.name}</h3>
+                {k.short_description && <p className="mt-1 text-xs text-[var(--navy)]/60 line-clamp-2">{k.short_description}</p>}
+                <div className="mt-4 flex items-center gap-4 text-xs text-[var(--navy)]/70">
+                  <span className="flex items-center gap-1.5"><Users className="size-4 text-[var(--gold-ink)]" />{k.passengers} pax</span>
+                  <span className="flex items-center gap-1.5"><Briefcase className="size-4 text-[var(--gold-ink)]" />{k.large_luggage} bags</span>
+                  <span className="flex items-center gap-1.5"><ShieldCheck className="size-4 text-[var(--gold-ink)]" />Insured</span>
+                </div>
+                {k.models.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    {k.models.slice(0, 4).map((m) => (
+                      <span key={m.id} className="rounded-full bg-[var(--navy)]/5 text-[var(--navy)]/80 px-2 py-0.5 text-[10.5px] font-medium">
+                        {m.name}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                <div className="mt-auto pt-5 flex items-center justify-between border-t border-[var(--navy)]/10">
+                  <Link to="/fleet" className="text-[var(--navy)]/70 text-xs font-semibold hover:text-[var(--gold-ink)]">View class</Link>
+                  <Link to="/book" className="inline-flex items-center gap-2 rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] px-4 py-2.5 text-xs font-bold uppercase tracking-[0.12em] hover:brightness-110 transition">
+                    {k.quote_on_request ? "Request quote" : "Get quote"} <ArrowRight className="size-3.5" />
+                  </Link>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <p className="mt-8 text-center text-[11px] text-white/50 max-w-2xl mx-auto">
+          You book a vehicle class, not a specific model. You always receive a vehicle from the booked class or a complimentary upgrade — never a lower class.
+        </p>
+      </div>
+    </section>
   );
 }
