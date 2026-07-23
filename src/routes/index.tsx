@@ -227,7 +227,7 @@ function HomePage() {
   return (
     <SiteLayout>
       {/* HERO — untouched blue background */}
-      <section className="relative overflow-hidden navy-scene">
+      <section className="relative z-20 overflow-visible navy-scene">
         <div className="container-x relative pt-14 md:pt-20 pb-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
             <div className="lg:col-span-6 relative z-10 min-w-0 w-full">
@@ -353,7 +353,7 @@ function HomePage() {
           </div>
 
           {/* Booking form inside hero (desktop) */}
-          <div id="booking" className="hidden lg:block mt-10 pb-4 scroll-mt-24">
+          <div id="booking" className="relative z-50 hidden lg:block mt-10 pb-4 scroll-mt-24">
             <BookingWidget />
           </div>
 
