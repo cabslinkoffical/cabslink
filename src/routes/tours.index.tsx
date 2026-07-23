@@ -114,9 +114,12 @@ function TourCard({ tour }: { tour: PublicTourListItem }) {
 }
 
 function ToursPage() {
-  const { data: tours } = useSuspenseQuery(toursQuery);
+  const { data: allTours } = useSuspenseQuery(toursQuery);
+  // Day trips only — exclude long-day / multi-day itineraries
+  const tours = allTours.filter((t) => !t.long_day);
   const featured = tours.filter((t) => t.featured);
   const rest = tours.filter((t) => !t.featured);
+
 
   return (
     <SiteLayout>
