@@ -674,23 +674,46 @@ function Stepper({ step }: { step: Step }) {
   ];
 
   const idx = items.findIndex((x) => x.id === step);
+  const current = items[Math.max(0, idx)];
   return (
-    <div className="flex items-center justify-center gap-3 md:gap-4 flex-wrap">
-      {items.map((it, i) => {
-        const active = i === idx;
-        const done = i < idx;
-        return (
-          <div key={it.id} className="flex items-center gap-3">
-            <div className={`px-5 py-2.5 rounded-lg text-sm font-bold uppercase tracking-wider transition ${
-              active ? "bg-[var(--gold)] text-[var(--gold-foreground)] shadow-[var(--shadow-glow)]"
-              : done ? "bg-[var(--navy)] text-[var(--gold)]"
-              : "bg-card text-foreground/55 border border-border"
-            }`}>{`0${i + 1}`} · {it.label}</div>
-            {i < items.length - 1 && <div className="w-6 h-px bg-border" />}
-          </div>
-        );
-      })}
-    </div>
+    <>
+      {/* Mobile: compact current-step + dots */}
+      <div className="md:hidden flex items-center justify-between gap-3 rounded-full bg-card border border-border px-4 py-2.5 shadow-sm">
+        <div className="min-w-0 flex items-baseline gap-2">
+          <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--gold)]">
+            Step 0{Math.max(1, idx + 1)}/5
+          </span>
+          <span className="text-sm font-bold text-foreground truncate">{current?.label}</span>
+        </div>
+        <div className="flex items-center gap-1.5 shrink-0" aria-hidden>
+          {items.map((it, i) => (
+            <span
+              key={it.id}
+              className={`h-1.5 rounded-full transition-all ${
+                i === idx ? "w-5 bg-[var(--gold)]" : i < idx ? "w-1.5 bg-[var(--navy)]" : "w-1.5 bg-border"
+              }`}
+            />
+          ))}
+        </div>
+      </div>
+      {/* md+: full pill stepper */}
+      <div className="hidden md:flex items-center justify-center gap-3 md:gap-4 flex-wrap">
+        {items.map((it, i) => {
+          const active = i === idx;
+          const done = i < idx;
+          return (
+            <div key={it.id} className="flex items-center gap-3">
+              <div className={`px-5 py-2.5 rounded-lg text-sm font-bold uppercase tracking-wider transition ${
+                active ? "bg-[var(--gold)] text-[var(--gold-foreground)] shadow-[var(--shadow-glow)]"
+                : done ? "bg-[var(--navy)] text-[var(--gold)]"
+                : "bg-card text-foreground/55 border border-border"
+              }`}>{`0${i + 1}`} · {it.label}</div>
+              {i < items.length - 1 && <div className="w-6 h-px bg-border" />}
+            </div>
+          );
+        })}
+      </div>
+    </>
   );
 }
 
@@ -801,83 +824,93 @@ function Sidebar({ pre, onEdit, onStartAgain, route, price }: {
 }) {
   return (
     <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
-      <div className="relative bg-card rounded-2xl border border-border p-6 shadow-[0_10px_40px_-20px_rgba(14,24,44,0.25)] overflow-hidden">
-        <div className="absolute -top-16 -right-16 size-40 rounded-full bg-[var(--gold)]/10 blur-2xl" aria-hidden />
-        <div className="relative flex items-center justify-between mb-5">
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)]">Your Journey</p>
-            <h3 className="font-display font-bold text-lg text-foreground mt-0.5">Trip Summary</h3>
+      <details className="group relative bg-card rounded-2xl border border-border shadow-[0_10px_40px_-20px_rgba(14,24,44,0.25)] overflow-hidden lg:!open" open>
+        <summary className="lg:hidden list-none cursor-pointer select-none flex items-center justify-between gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden">
+          <div className="min-w-0 flex items-center gap-2">
+            <MapPin className="size-4 text-[var(--gold)] shrink-0" />
+            <span className="text-sm font-semibold text-foreground truncate">
+              {pre.pickup?.label || "Pickup"} → {pre.dropoff?.label || "Dropoff"}
+            </span>
           </div>
-          <div className="flex items-center gap-2">
-            {onStartAgain && (
-              <button onClick={onStartAgain} className="text-[11px] px-2.5 py-1 rounded-full border border-border text-muted-foreground hover:text-[var(--gold)] hover:border-[var(--gold)]/40 transition" title="Clear saved draft and start over">
-                Start again
+          <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--gold)] group-open:hidden shrink-0">View</span>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground hidden group-open:inline shrink-0">Hide</span>
+        </summary>
+        <div className="p-5 lg:p-6 pt-0 lg:pt-6">
+          <div className="absolute -top-16 -right-16 size-40 rounded-full bg-[var(--gold)]/10 blur-2xl pointer-events-none" aria-hidden />
+          <div className="relative flex items-center justify-between mb-5">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)]">Your Journey</p>
+              <h3 className="font-display font-bold text-lg text-foreground mt-0.5">Trip Summary</h3>
+            </div>
+            <div className="flex items-center gap-2">
+              {onStartAgain && (
+                <button onClick={onStartAgain} className="text-[11px] px-2.5 py-1 rounded-full border border-border text-muted-foreground hover:text-[var(--gold)] hover:border-[var(--gold)]/40 transition" title="Clear saved draft and start over">
+                  Start again
+                </button>
+              )}
+              <button onClick={onEdit} className="size-8 rounded-full border border-border text-muted-foreground hover:text-[var(--gold)] hover:border-[var(--gold)]/40 flex items-center justify-center transition" aria-label="Edit trip">
+                <Edit3 className="size-3.5" />
               </button>
-            )}
-            <button onClick={onEdit} className="size-8 rounded-full border border-border text-muted-foreground hover:text-[var(--gold)] hover:border-[var(--gold)]/40 flex items-center justify-center transition" aria-label="Edit trip">
-              <Edit3 className="size-3.5" />
-            </button>
-          </div>
-        </div>
-
-
-        <div className="relative pl-6">
-          <div className="absolute left-[9px] top-3 bottom-3 border-l-2 border-dashed border-[var(--gold)]/40" />
-          <div className="relative">
-            <div className="absolute -left-6 top-1.5 size-4 rounded-full bg-[var(--gold)] ring-4 ring-[var(--gold)]/20" />
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Pickup</p>
-            <p className="text-sm font-semibold text-foreground leading-snug mt-0.5">{pre.pickup?.label || "—"}</p>
-          </div>
-          <div className="relative mt-6">
-            <div className="absolute -left-6 top-1.5 size-4 rounded-full border-2 border-[var(--gold)] bg-card" />
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Dropoff</p>
-            <p className="text-sm font-semibold text-foreground leading-snug mt-0.5">{pre.dropoff?.label || "—"}</p>
-          </div>
-        </div>
-
-        {route && (
-          <div className="relative mt-5 grid grid-cols-2 gap-2">
-            <div className="bg-[var(--surface)] rounded-xl p-3 border border-border/60">
-              <div className="flex items-center gap-1.5 text-[var(--gold)]">
-                <MapPin className="size-3.5" />
-                <span className="text-[9px] font-bold uppercase tracking-[0.2em]">Distance</span>
-              </div>
-              <p className="mt-1 font-display text-xl font-bold text-foreground tabular-nums leading-none">
-                {route.miles.toFixed(1)}<span className="text-xs font-semibold text-muted-foreground ml-1">mi</span>
-              </p>
-            </div>
-            <div className="bg-[var(--surface)] rounded-xl p-3 border border-border/60">
-              <div className="flex items-center gap-1.5 text-[var(--gold)]">
-                <Clock className="size-3.5" />
-                <span className="text-[9px] font-bold uppercase tracking-[0.2em]">Duration</span>
-              </div>
-              <p className="mt-1 font-display text-xl font-bold text-foreground tabular-nums leading-none">
-                {route.minutes}<span className="text-xs font-semibold text-muted-foreground ml-1">min</span>
-              </p>
             </div>
           </div>
-        )}
 
-        <div className="relative mt-5 pt-4 border-t border-border grid grid-cols-2 gap-3">
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-1">
-              <CalendarDays className="size-3 text-[var(--gold)]" /> Date
-            </p>
-            <p className="text-sm font-semibold text-foreground mt-0.5">{pre.date || "—"}</p>
+          <div className="relative pl-6">
+            <div className="absolute left-[9px] top-3 bottom-3 border-l-2 border-dashed border-[var(--gold)]/40" />
+            <div className="relative">
+              <div className="absolute -left-6 top-1.5 size-4 rounded-full bg-[var(--gold)] ring-4 ring-[var(--gold)]/20" />
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Pickup</p>
+              <p className="text-sm font-semibold text-foreground leading-snug mt-0.5">{pre.pickup?.label || "—"}</p>
+            </div>
+            <div className="relative mt-6">
+              <div className="absolute -left-6 top-1.5 size-4 rounded-full border-2 border-[var(--gold)] bg-card" />
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Dropoff</p>
+              <p className="text-sm font-semibold text-foreground leading-snug mt-0.5">{pre.dropoff?.label || "—"}</p>
+            </div>
           </div>
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-1">
-              <Clock className="size-3 text-[var(--gold)]" /> Time
-            </p>
-            <p className="text-sm font-semibold text-foreground mt-0.5">{pre.time || "—"}</p>
+
+          {route && (
+            <div className="relative mt-5 grid grid-cols-2 gap-2">
+              <div className="bg-[var(--surface)] rounded-xl p-3 border border-border/60">
+                <div className="flex items-center gap-1.5 text-[var(--gold)]">
+                  <MapPin className="size-3.5" />
+                  <span className="text-[9px] font-bold uppercase tracking-[0.2em]">Distance</span>
+                </div>
+                <p className="mt-1 font-display text-xl font-bold text-foreground tabular-nums leading-none">
+                  {route.miles.toFixed(1)}<span className="text-xs font-semibold text-muted-foreground ml-1">mi</span>
+                </p>
+              </div>
+              <div className="bg-[var(--surface)] rounded-xl p-3 border border-border/60">
+                <div className="flex items-center gap-1.5 text-[var(--gold)]">
+                  <Clock className="size-3.5" />
+                  <span className="text-[9px] font-bold uppercase tracking-[0.2em]">Duration</span>
+                </div>
+                <p className="mt-1 font-display text-xl font-bold text-foreground tabular-nums leading-none">
+                  {route.minutes}<span className="text-xs font-semibold text-muted-foreground ml-1">min</span>
+                </p>
+              </div>
+            </div>
+          )}
+
+          <div className="relative mt-5 pt-4 border-t border-border grid grid-cols-2 gap-3">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-1">
+                <CalendarDays className="size-3 text-[var(--gold)]" /> Date
+              </p>
+              <p className="text-sm font-semibold text-foreground mt-0.5">{pre.date || "—"}</p>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-1">
+                <Clock className="size-3 text-[var(--gold)]" /> Time
+              </p>
+              <p className="text-sm font-semibold text-foreground mt-0.5">{pre.time || "—"}</p>
+            </div>
           </div>
         </div>
-      </div>
+      </details>
 
       {price && <div className="hidden lg:block"><PriceBreakdown price={price} /></div>}
 
-      <div className="bg-card rounded-2xl border border-border p-5 shadow-sm space-y-2.5">
-
+      <div className="hidden lg:block bg-card rounded-2xl border border-border p-5 shadow-sm space-y-2.5">
         <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)] mb-1">Why Cabslink</p>
         {[
           "10,000+ passengers transferred",
@@ -1244,7 +1277,7 @@ function ContactStep({ contact, onChange, onBack, onNext }: {
         <Textarea value={contact.notes} onChange={(e) => set("notes", e.target.value)} rows={4} maxLength={1000} placeholder="Anything our driver should know" />
       </Field>
 
-      <div className="flex flex-wrap gap-3 pt-2">
+      <div id="step-actions" className="flex flex-wrap gap-3 pt-2 scroll-mt-24">
         <Button type="button" variant="outline" onClick={onBack} className="gap-2">
           <ArrowLeft className="size-4" /> Back
         </Button>
@@ -1377,8 +1410,8 @@ function ExtrasStep(props: {
         <PolicyTiers value={policy} onChange={onPolicy} base={baseRideTotal} />
       </ExtrasCard>
 
-      {/* --- Running total --- */}
-      <div className="rounded-2xl border border-border bg-card p-5 flex flex-wrap items-center justify-between gap-3">
+      {/* --- Running total (desktop only; mobile shows sticky bar) --- */}
+      <div className="hidden lg:flex rounded-2xl border border-border bg-card p-5 flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground">Running total</p>
           <p className="text-xs text-muted-foreground mt-1">
@@ -1394,7 +1427,7 @@ function ExtrasStep(props: {
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-3 pt-2">
+      <div id="step-actions" className="flex flex-wrap gap-3 pt-2 scroll-mt-24">
         <Button type="button" variant="outline" onClick={onBack} className="gap-2">
           <ArrowLeft className="size-4" /> Back
         </Button>
@@ -1569,7 +1602,7 @@ function PaymentStep({ value, onChange, grandTotal, onBack, onSubmit, submitting
         arrangements. Online card payments are not enabled at this time.
       </p>
 
-      <div className="flex flex-wrap gap-3">
+      <div id="step-actions" className="flex flex-wrap gap-3 scroll-mt-24">
         <Button type="button" variant="outline" onClick={onBack} className="gap-2">
           <ArrowLeft className="size-4" /> Back
         </Button>
