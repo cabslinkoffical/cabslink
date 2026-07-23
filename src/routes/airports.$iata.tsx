@@ -84,7 +84,7 @@ function AirportPage() {
         <section className="mt-12">
           <h2 className="mb-4 text-xl font-semibold text-[var(--navy)]">All UK airports we cover</h2>
           <ul className="grid gap-2 sm:grid-cols-2">
-            {f.airports.map((a) => (
+            {f.airports.map((a: typeof f.airports[number]) => (
               <li key={a.id}>
                 <Link
                   to="/areas/$slug"
