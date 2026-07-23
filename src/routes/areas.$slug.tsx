@@ -6,7 +6,7 @@ import { destinationQueryOptions, HUBS } from "@/lib/hub-config";
 const KEY = "areas" as const;
 
 export const Route = createFileRoute("/areas/$slug")({
-  head: ({ loaderData }) => {
+  head: ({ loaderData }: { loaderData?: import("@/components/site/DestinationPage").LoadedDestination }) => {
     if (!loaderData) return { meta: [{ title: "Not found" }, { name: "robots", content: "noindex" }] };
     const d = loaderData.destination;
     const title = `${d.display_name ?? d.name} Private Travel — CabsLink`;
