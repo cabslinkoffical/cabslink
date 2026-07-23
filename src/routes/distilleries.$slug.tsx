@@ -1,20 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { DestinationPage, buildBreadcrumbs } from "@/components/site/DestinationPage";
+import { buildAutoHead } from "@/lib/seo/auto-seo";
 import { destinationQueryOptions, HUBS } from "@/lib/hub-config";
 const KEY = "distilleries" as const;
 export const Route = createFileRoute("/distilleries/$slug")({
-  head: ({ loaderData }: { loaderData?: import("@/components/site/DestinationPage").LoadedDestination }) => {
-    if (!loaderData) return { meta: [{ title: "Not found" }, { name: "robots", content: "noindex" }] };
-    const d = loaderData.destination;
-    const title = `${d.display_name ?? d.name} Whisky Tour Transport — CabsLink`;
-    const desc = `Private tour transport to ${d.display_name ?? d.name}.`;
-    return { meta: [
-      { title }, { name: "description", content: desc },
-      { property: "og:title", content: title }, { property: "og:description", content: desc },
-      ...(d.noindex ? [{ name: "robots", content: "noindex" }] : []),
-    ] };
-  },
+  head: ({ loaderData }: { loaderData?: import("@/components/site/DestinationPage").LoadedDestination }) =>
+    buildAutoHead(loaderData),
   loader: ({ params, context }: { params: { slug: string }, context: any }) => context.queryClient.ensureQueryData(destinationQueryOptions(KEY, params.slug)),
   component: () => {
     const { slug } = Route.useParams();
