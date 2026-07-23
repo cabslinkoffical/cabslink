@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { queryOptions, useSuspenseQuery, useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Plus, Edit, Trash2, X, Loader2 } from "lucide-react";
+import { Plus, Edit, Trash2, X, Loader2, Upload } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -180,7 +181,23 @@ function VehicleClassesPage() {
               <div className="grid sm:grid-cols-2 gap-3">
                 <div><Label>Name</Label><Input value={form.name} onChange={(e) => setForm((f: any) => ({ ...f, name: e.target.value }))} /></div>
                 <div><Label>Slug</Label><Input value={form.slug} onChange={(e) => setForm((f: any) => ({ ...f, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-") }))} /></div>
-                <div className="sm:col-span-2"><Label>Hero image URL</Label><Input value={form.hero_image ?? ""} onChange={(e) => setForm((f: any) => ({ ...f, hero_image: e.target.value }))} placeholder="https://..." /></div>
+                <div className="sm:col-span-2">
+                  <Label>Hero image</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      value={form.hero_image ?? ""}
+                      onChange={(e) => setForm((f: any) => ({ ...f, hero_image: e.target.value }))}
+                      placeholder="https://... or upload below"
+                    />
+                    <HeroImageUploader
+                      slug={form.slug || "class"}
+                      onUploaded={(url) => setForm((f: any) => ({ ...f, hero_image: url }))}
+                    />
+                  </div>
+                  {form.hero_image && (
+                    <img src={form.hero_image} alt="" className="mt-2 h-24 rounded border object-cover" />
+                  )}
+                </div>
                 <div className="sm:col-span-2"><Label>Short description</Label><Input value={form.short_description ?? ""} onChange={(e) => setForm((f: any) => ({ ...f, short_description: e.target.value }))} /></div>
                 <div className="sm:col-span-2"><Label>Long description</Label><Textarea rows={3} value={form.long_description ?? ""} onChange={(e) => setForm((f: any) => ({ ...f, long_description: e.target.value }))} /></div>
                 <div><Label>Passengers</Label><Input type="number" value={form.passengers} onChange={(e) => setForm((f: any) => ({ ...f, passengers: Number(e.target.value) }))} /></div>
@@ -253,5 +270,58 @@ function VehicleClassesPage() {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+function HeroImageUploader({ slug, onUploaded }: { slug: string; onUploaded: (url: string) => void }) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+
+  const handleFile = async (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please choose an image file.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image must be under 5MB.");
+      return;
+    }
+    setBusy(true);
+    try {
+      const ext = file.name.split(".").pop()?.toLowerCase() || "png";
+      const path = `classes/${slug || "class"}-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from("vehicle-images")
+        .upload(path, file, { cacheControl: "31536000", upsert: false, contentType: file.type });
+      if (upErr) throw upErr;
+      // Bucket is private — mint a long-lived signed URL (~10 years).
+      const { data, error } = await supabase.storage
+        .from("vehicle-images")
+        .createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
+      if (error || !data?.signedUrl) throw error ?? new Error("Failed to sign URL");
+      onUploaded(data.signedUrl);
+      toast.success("Image uploaded");
+    } catch (e: any) {
+      toast.error(e.message ?? "Upload failed");
+    } finally {
+      setBusy(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
+  };
+
+  return (
+    <>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
+      />
+      <Button type="button" variant="outline" onClick={() => inputRef.current?.click()} disabled={busy}>
+        {busy ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />}
+        <span className="ml-1.5">Upload</span>
+      </Button>
+    </>
   );
 }
