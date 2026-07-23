@@ -1277,7 +1277,7 @@ function ContactStep({ contact, onChange, onBack, onNext }: {
         <Textarea value={contact.notes} onChange={(e) => set("notes", e.target.value)} rows={4} maxLength={1000} placeholder="Anything our driver should know" />
       </Field>
 
-      <div className="flex flex-wrap gap-3 pt-2">
+      <div id="step-actions" className="flex flex-wrap gap-3 pt-2 scroll-mt-24">
         <Button type="button" variant="outline" onClick={onBack} className="gap-2">
           <ArrowLeft className="size-4" /> Back
         </Button>
@@ -1427,7 +1427,7 @@ function ExtrasStep(props: {
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-3 pt-2">
+      <div id="step-actions" className="flex flex-wrap gap-3 pt-2 scroll-mt-24">
         <Button type="button" variant="outline" onClick={onBack} className="gap-2">
           <ArrowLeft className="size-4" /> Back
         </Button>
@@ -1602,7 +1602,7 @@ function PaymentStep({ value, onChange, grandTotal, onBack, onSubmit, submitting
         arrangements. Online card payments are not enabled at this time.
       </p>
 
-      <div className="flex flex-wrap gap-3">
+      <div id="step-actions" className="flex flex-wrap gap-3 scroll-mt-24">
         <Button type="button" variant="outline" onClick={onBack} className="gap-2">
           <ArrowLeft className="size-4" /> Back
         </Button>
