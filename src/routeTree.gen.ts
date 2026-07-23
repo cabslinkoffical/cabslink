@@ -40,6 +40,7 @@ import { Route as GuidesIndexRouteImport } from './routes/guides.index'
 import { Route as DistilleriesIndexRouteImport } from './routes/distilleries.index'
 import { Route as CruisePortsIndexRouteImport } from './routes/cruise-ports.index'
 import { Route as CorporateIndexRouteImport } from './routes/corporate.index'
+import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as AttractionsIndexRouteImport } from './routes/attractions.index'
 import { Route as AreasIndexRouteImport } from './routes/areas.index'
 import { Route as UniversitiesSlugRouteImport } from './routes/universities.$slug'
@@ -54,11 +55,14 @@ import { Route as DistilleriesSlugRouteImport } from './routes/distilleries.$slu
 import { Route as CruisePortsSlugRouteImport } from './routes/cruise-ports.$slug'
 import { Route as CorporateSlugRouteImport } from './routes/corporate.$slug'
 import { Route as BookingTokenRouteImport } from './routes/booking.$token'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AttractionsSlugRouteImport } from './routes/attractions.$slug'
 import { Route as AreasSlugRouteImport } from './routes/areas.$slug'
 import { Route as AirportsIataRouteImport } from './routes/airports.$iata'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
+import { Route as BlogTagSlugRouteImport } from './routes/blog.tag.$slug'
+import { Route as BlogCategorySlugRouteImport } from './routes/blog.category.$slug'
 import { Route as AreasRegionSlugRouteImport } from './routes/areas.region.$slug'
 import { Route as AreasALetterRouteImport } from './routes/areas.a.$letter'
 import { Route as AuthenticatedAdminVehicleClassesRouteImport } from './routes/_authenticated/admin/vehicle-classes'
@@ -83,6 +87,7 @@ import { Route as AuthenticatedAdminBookingsRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminBannedAddressesRouteImport } from './routes/_authenticated/admin/banned-addresses'
 import { Route as AuthenticatedAdminAddressesRouteImport } from './routes/_authenticated/admin/addresses'
 import { Route as AuthenticatedAdminSeoIndexRouteImport } from './routes/_authenticated/admin/seo.index'
+import { Route as AuthenticatedAdminBlogIndexRouteImport } from './routes/_authenticated/admin/blog.index'
 import { Route as AuthenticatedAdminSeoServicesRouteImport } from './routes/_authenticated/admin/seo.services'
 import { Route as AuthenticatedAdminSeoRoutesRouteImport } from './routes/_authenticated/admin/seo.routes'
 import { Route as AuthenticatedAdminSeoRedirectsRouteImport } from './routes/_authenticated/admin/seo.redirects'
@@ -91,6 +96,10 @@ import { Route as AuthenticatedAdminSeoLocationsRouteImport } from './routes/_au
 import { Route as AuthenticatedAdminSeoIssuesRouteImport } from './routes/_authenticated/admin/seo.issues'
 import { Route as AuthenticatedAdminSeoImportRouteImport } from './routes/_authenticated/admin/seo.import'
 import { Route as AuthenticatedAdminSeoAirportsRouteImport } from './routes/_authenticated/admin/seo.airports'
+import { Route as AuthenticatedAdminBlogTagsRouteImport } from './routes/_authenticated/admin/blog.tags'
+import { Route as AuthenticatedAdminBlogCategoriesRouteImport } from './routes/_authenticated/admin/blog.categories'
+import { Route as AuthenticatedAdminBlogAuthorsRouteImport } from './routes/_authenticated/admin/blog.authors'
+import { Route as AuthenticatedAdminBlogIdRouteImport } from './routes/_authenticated/admin/blog.$id'
 import { Route as AuthenticatedAdminSeoPagesIdSectionsRouteImport } from './routes/_authenticated/admin/seo.pages.$id.sections'
 
 const VipTransfersRoute = VipTransfersRouteImport.update({
@@ -247,6 +256,11 @@ const CorporateIndexRoute = CorporateIndexRouteImport.update({
   path: '/corporate/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AttractionsIndexRoute = AttractionsIndexRouteImport.update({
   id: '/attractions/',
   path: '/attractions/',
@@ -318,6 +332,11 @@ const BookingTokenRoute = BookingTokenRouteImport.update({
   path: '/booking/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/blog/$slug',
+  path: '/blog/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AttractionsSlugRoute = AttractionsSlugRouteImport.update({
   id: '/attractions/$slug',
   path: '/attractions/$slug',
@@ -342,6 +361,16 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AuthenticatedAdminRouteRoute,
+} as any)
+const BlogTagSlugRoute = BlogTagSlugRouteImport.update({
+  id: '/blog/tag/$slug',
+  path: '/blog/tag/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogCategorySlugRoute = BlogCategorySlugRouteImport.update({
+  id: '/blog/category/$slug',
+  path: '/blog/category/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AreasRegionSlugRoute = AreasRegionSlugRouteImport.update({
   id: '/areas/region/$slug',
@@ -481,6 +510,12 @@ const AuthenticatedAdminSeoIndexRoute =
     path: '/seo/',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminBlogIndexRoute =
+  AuthenticatedAdminBlogIndexRouteImport.update({
+    id: '/blog/',
+    path: '/blog/',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminSeoServicesRoute =
   AuthenticatedAdminSeoServicesRouteImport.update({
     id: '/seo/services',
@@ -529,6 +564,30 @@ const AuthenticatedAdminSeoAirportsRoute =
     path: '/seo/airports',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminBlogTagsRoute =
+  AuthenticatedAdminBlogTagsRouteImport.update({
+    id: '/blog/tags',
+    path: '/blog/tags',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminBlogCategoriesRoute =
+  AuthenticatedAdminBlogCategoriesRouteImport.update({
+    id: '/blog/categories',
+    path: '/blog/categories',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminBlogAuthorsRoute =
+  AuthenticatedAdminBlogAuthorsRouteImport.update({
+    id: '/blog/authors',
+    path: '/blog/authors',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminBlogIdRoute =
+  AuthenticatedAdminBlogIdRouteImport.update({
+    id: '/blog/$id',
+    path: '/blog/$id',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminSeoPagesIdSectionsRoute =
   AuthenticatedAdminSeoPagesIdSectionsRouteImport.update({
     id: '/$id/sections',
@@ -563,6 +622,7 @@ export interface FileRoutesByFullPath {
   '/airports/$iata': typeof AirportsIataRoute
   '/areas/$slug': typeof AreasSlugRoute
   '/attractions/$slug': typeof AttractionsSlugRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/booking/$token': typeof BookingTokenRoute
   '/corporate/$slug': typeof CorporateSlugRoute
   '/cruise-ports/$slug': typeof CruisePortsSlugRoute
@@ -577,6 +637,7 @@ export interface FileRoutesByFullPath {
   '/universities/$slug': typeof UniversitiesSlugRoute
   '/areas/': typeof AreasIndexRoute
   '/attractions/': typeof AttractionsIndexRoute
+  '/blog/': typeof BlogIndexRoute
   '/corporate/': typeof CorporateIndexRoute
   '/cruise-ports/': typeof CruisePortsIndexRoute
   '/distilleries/': typeof DistilleriesIndexRoute
@@ -608,7 +669,13 @@ export interface FileRoutesByFullPath {
   '/admin/vehicle-classes': typeof AuthenticatedAdminVehicleClassesRoute
   '/areas/a/$letter': typeof AreasALetterRoute
   '/areas/region/$slug': typeof AreasRegionSlugRoute
+  '/blog/category/$slug': typeof BlogCategorySlugRoute
+  '/blog/tag/$slug': typeof BlogTagSlugRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/admin/blog/$id': typeof AuthenticatedAdminBlogIdRoute
+  '/admin/blog/authors': typeof AuthenticatedAdminBlogAuthorsRoute
+  '/admin/blog/categories': typeof AuthenticatedAdminBlogCategoriesRoute
+  '/admin/blog/tags': typeof AuthenticatedAdminBlogTagsRoute
   '/admin/seo/airports': typeof AuthenticatedAdminSeoAirportsRoute
   '/admin/seo/import': typeof AuthenticatedAdminSeoImportRoute
   '/admin/seo/issues': typeof AuthenticatedAdminSeoIssuesRoute
@@ -617,6 +684,7 @@ export interface FileRoutesByFullPath {
   '/admin/seo/redirects': typeof AuthenticatedAdminSeoRedirectsRoute
   '/admin/seo/routes': typeof AuthenticatedAdminSeoRoutesRoute
   '/admin/seo/services': typeof AuthenticatedAdminSeoServicesRoute
+  '/admin/blog/': typeof AuthenticatedAdminBlogIndexRoute
   '/admin/seo/': typeof AuthenticatedAdminSeoIndexRoute
   '/admin/seo/pages/$id/sections': typeof AuthenticatedAdminSeoPagesIdSectionsRoute
 }
@@ -646,6 +714,7 @@ export interface FileRoutesByTo {
   '/airports/$iata': typeof AirportsIataRoute
   '/areas/$slug': typeof AreasSlugRoute
   '/attractions/$slug': typeof AttractionsSlugRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/booking/$token': typeof BookingTokenRoute
   '/corporate/$slug': typeof CorporateSlugRoute
   '/cruise-ports/$slug': typeof CruisePortsSlugRoute
@@ -660,6 +729,7 @@ export interface FileRoutesByTo {
   '/universities/$slug': typeof UniversitiesSlugRoute
   '/areas': typeof AreasIndexRoute
   '/attractions': typeof AttractionsIndexRoute
+  '/blog': typeof BlogIndexRoute
   '/corporate': typeof CorporateIndexRoute
   '/cruise-ports': typeof CruisePortsIndexRoute
   '/distilleries': typeof DistilleriesIndexRoute
@@ -691,7 +761,13 @@ export interface FileRoutesByTo {
   '/admin/vehicle-classes': typeof AuthenticatedAdminVehicleClassesRoute
   '/areas/a/$letter': typeof AreasALetterRoute
   '/areas/region/$slug': typeof AreasRegionSlugRoute
+  '/blog/category/$slug': typeof BlogCategorySlugRoute
+  '/blog/tag/$slug': typeof BlogTagSlugRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/admin/blog/$id': typeof AuthenticatedAdminBlogIdRoute
+  '/admin/blog/authors': typeof AuthenticatedAdminBlogAuthorsRoute
+  '/admin/blog/categories': typeof AuthenticatedAdminBlogCategoriesRoute
+  '/admin/blog/tags': typeof AuthenticatedAdminBlogTagsRoute
   '/admin/seo/airports': typeof AuthenticatedAdminSeoAirportsRoute
   '/admin/seo/import': typeof AuthenticatedAdminSeoImportRoute
   '/admin/seo/issues': typeof AuthenticatedAdminSeoIssuesRoute
@@ -700,6 +776,7 @@ export interface FileRoutesByTo {
   '/admin/seo/redirects': typeof AuthenticatedAdminSeoRedirectsRoute
   '/admin/seo/routes': typeof AuthenticatedAdminSeoRoutesRoute
   '/admin/seo/services': typeof AuthenticatedAdminSeoServicesRoute
+  '/admin/blog': typeof AuthenticatedAdminBlogIndexRoute
   '/admin/seo': typeof AuthenticatedAdminSeoIndexRoute
   '/admin/seo/pages/$id/sections': typeof AuthenticatedAdminSeoPagesIdSectionsRoute
 }
@@ -732,6 +809,7 @@ export interface FileRoutesById {
   '/airports/$iata': typeof AirportsIataRoute
   '/areas/$slug': typeof AreasSlugRoute
   '/attractions/$slug': typeof AttractionsSlugRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/booking/$token': typeof BookingTokenRoute
   '/corporate/$slug': typeof CorporateSlugRoute
   '/cruise-ports/$slug': typeof CruisePortsSlugRoute
@@ -746,6 +824,7 @@ export interface FileRoutesById {
   '/universities/$slug': typeof UniversitiesSlugRoute
   '/areas/': typeof AreasIndexRoute
   '/attractions/': typeof AttractionsIndexRoute
+  '/blog/': typeof BlogIndexRoute
   '/corporate/': typeof CorporateIndexRoute
   '/cruise-ports/': typeof CruisePortsIndexRoute
   '/distilleries/': typeof DistilleriesIndexRoute
@@ -777,7 +856,13 @@ export interface FileRoutesById {
   '/_authenticated/admin/vehicle-classes': typeof AuthenticatedAdminVehicleClassesRoute
   '/areas/a/$letter': typeof AreasALetterRoute
   '/areas/region/$slug': typeof AreasRegionSlugRoute
+  '/blog/category/$slug': typeof BlogCategorySlugRoute
+  '/blog/tag/$slug': typeof BlogTagSlugRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/admin/blog/$id': typeof AuthenticatedAdminBlogIdRoute
+  '/_authenticated/admin/blog/authors': typeof AuthenticatedAdminBlogAuthorsRoute
+  '/_authenticated/admin/blog/categories': typeof AuthenticatedAdminBlogCategoriesRoute
+  '/_authenticated/admin/blog/tags': typeof AuthenticatedAdminBlogTagsRoute
   '/_authenticated/admin/seo/airports': typeof AuthenticatedAdminSeoAirportsRoute
   '/_authenticated/admin/seo/import': typeof AuthenticatedAdminSeoImportRoute
   '/_authenticated/admin/seo/issues': typeof AuthenticatedAdminSeoIssuesRoute
@@ -786,6 +871,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/seo/redirects': typeof AuthenticatedAdminSeoRedirectsRoute
   '/_authenticated/admin/seo/routes': typeof AuthenticatedAdminSeoRoutesRoute
   '/_authenticated/admin/seo/services': typeof AuthenticatedAdminSeoServicesRoute
+  '/_authenticated/admin/blog/': typeof AuthenticatedAdminBlogIndexRoute
   '/_authenticated/admin/seo/': typeof AuthenticatedAdminSeoIndexRoute
   '/_authenticated/admin/seo/pages/$id/sections': typeof AuthenticatedAdminSeoPagesIdSectionsRoute
 }
@@ -818,6 +904,7 @@ export interface FileRouteTypes {
     | '/airports/$iata'
     | '/areas/$slug'
     | '/attractions/$slug'
+    | '/blog/$slug'
     | '/booking/$token'
     | '/corporate/$slug'
     | '/cruise-ports/$slug'
@@ -832,6 +919,7 @@ export interface FileRouteTypes {
     | '/universities/$slug'
     | '/areas/'
     | '/attractions/'
+    | '/blog/'
     | '/corporate/'
     | '/cruise-ports/'
     | '/distilleries/'
@@ -863,7 +951,13 @@ export interface FileRouteTypes {
     | '/admin/vehicle-classes'
     | '/areas/a/$letter'
     | '/areas/region/$slug'
+    | '/blog/category/$slug'
+    | '/blog/tag/$slug'
     | '/admin/'
+    | '/admin/blog/$id'
+    | '/admin/blog/authors'
+    | '/admin/blog/categories'
+    | '/admin/blog/tags'
     | '/admin/seo/airports'
     | '/admin/seo/import'
     | '/admin/seo/issues'
@@ -872,6 +966,7 @@ export interface FileRouteTypes {
     | '/admin/seo/redirects'
     | '/admin/seo/routes'
     | '/admin/seo/services'
+    | '/admin/blog/'
     | '/admin/seo/'
     | '/admin/seo/pages/$id/sections'
   fileRoutesByTo: FileRoutesByTo
@@ -901,6 +996,7 @@ export interface FileRouteTypes {
     | '/airports/$iata'
     | '/areas/$slug'
     | '/attractions/$slug'
+    | '/blog/$slug'
     | '/booking/$token'
     | '/corporate/$slug'
     | '/cruise-ports/$slug'
@@ -915,6 +1011,7 @@ export interface FileRouteTypes {
     | '/universities/$slug'
     | '/areas'
     | '/attractions'
+    | '/blog'
     | '/corporate'
     | '/cruise-ports'
     | '/distilleries'
@@ -946,7 +1043,13 @@ export interface FileRouteTypes {
     | '/admin/vehicle-classes'
     | '/areas/a/$letter'
     | '/areas/region/$slug'
+    | '/blog/category/$slug'
+    | '/blog/tag/$slug'
     | '/admin'
+    | '/admin/blog/$id'
+    | '/admin/blog/authors'
+    | '/admin/blog/categories'
+    | '/admin/blog/tags'
     | '/admin/seo/airports'
     | '/admin/seo/import'
     | '/admin/seo/issues'
@@ -955,6 +1058,7 @@ export interface FileRouteTypes {
     | '/admin/seo/redirects'
     | '/admin/seo/routes'
     | '/admin/seo/services'
+    | '/admin/blog'
     | '/admin/seo'
     | '/admin/seo/pages/$id/sections'
   id:
@@ -986,6 +1090,7 @@ export interface FileRouteTypes {
     | '/airports/$iata'
     | '/areas/$slug'
     | '/attractions/$slug'
+    | '/blog/$slug'
     | '/booking/$token'
     | '/corporate/$slug'
     | '/cruise-ports/$slug'
@@ -1000,6 +1105,7 @@ export interface FileRouteTypes {
     | '/universities/$slug'
     | '/areas/'
     | '/attractions/'
+    | '/blog/'
     | '/corporate/'
     | '/cruise-ports/'
     | '/distilleries/'
@@ -1031,7 +1137,13 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/vehicle-classes'
     | '/areas/a/$letter'
     | '/areas/region/$slug'
+    | '/blog/category/$slug'
+    | '/blog/tag/$slug'
     | '/_authenticated/admin/'
+    | '/_authenticated/admin/blog/$id'
+    | '/_authenticated/admin/blog/authors'
+    | '/_authenticated/admin/blog/categories'
+    | '/_authenticated/admin/blog/tags'
     | '/_authenticated/admin/seo/airports'
     | '/_authenticated/admin/seo/import'
     | '/_authenticated/admin/seo/issues'
@@ -1040,6 +1152,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/seo/redirects'
     | '/_authenticated/admin/seo/routes'
     | '/_authenticated/admin/seo/services'
+    | '/_authenticated/admin/blog/'
     | '/_authenticated/admin/seo/'
     | '/_authenticated/admin/seo/pages/$id/sections'
   fileRoutesById: FileRoutesById
@@ -1071,6 +1184,7 @@ export interface RootRouteChildren {
   AirportsIataRoute: typeof AirportsIataRoute
   AreasSlugRoute: typeof AreasSlugRoute
   AttractionsSlugRoute: typeof AttractionsSlugRoute
+  BlogSlugRoute: typeof BlogSlugRoute
   BookingTokenRoute: typeof BookingTokenRoute
   CorporateSlugRoute: typeof CorporateSlugRoute
   CruisePortsSlugRoute: typeof CruisePortsSlugRoute
@@ -1085,6 +1199,7 @@ export interface RootRouteChildren {
   UniversitiesSlugRoute: typeof UniversitiesSlugRoute
   AreasIndexRoute: typeof AreasIndexRoute
   AttractionsIndexRoute: typeof AttractionsIndexRoute
+  BlogIndexRoute: typeof BlogIndexRoute
   CorporateIndexRoute: typeof CorporateIndexRoute
   CruisePortsIndexRoute: typeof CruisePortsIndexRoute
   DistilleriesIndexRoute: typeof DistilleriesIndexRoute
@@ -1095,6 +1210,8 @@ export interface RootRouteChildren {
   UniversitiesIndexRoute: typeof UniversitiesIndexRoute
   AreasALetterRoute: typeof AreasALetterRoute
   AreasRegionSlugRoute: typeof AreasRegionSlugRoute
+  BlogCategorySlugRoute: typeof BlogCategorySlugRoute
+  BlogTagSlugRoute: typeof BlogTagSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1316,6 +1433,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CorporateIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/blog/': {
+      id: '/blog/'
+      path: '/blog'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/attractions/': {
       id: '/attractions/'
       path: '/attractions'
@@ -1414,6 +1538,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BookingTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/blog/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/attractions/$slug': {
       id: '/attractions/$slug'
       path: '/attractions/$slug'
@@ -1448,6 +1579,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/blog/tag/$slug': {
+      id: '/blog/tag/$slug'
+      path: '/blog/tag/$slug'
+      fullPath: '/blog/tag/$slug'
+      preLoaderRoute: typeof BlogTagSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/category/$slug': {
+      id: '/blog/category/$slug'
+      path: '/blog/category/$slug'
+      fullPath: '/blog/category/$slug'
+      preLoaderRoute: typeof BlogCategorySlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/areas/region/$slug': {
       id: '/areas/region/$slug'
@@ -1617,6 +1762,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSeoIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/blog/': {
+      id: '/_authenticated/admin/blog/'
+      path: '/blog'
+      fullPath: '/admin/blog/'
+      preLoaderRoute: typeof AuthenticatedAdminBlogIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/seo/services': {
       id: '/_authenticated/admin/seo/services'
       path: '/seo/services'
@@ -1673,6 +1825,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSeoAirportsRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/blog/tags': {
+      id: '/_authenticated/admin/blog/tags'
+      path: '/blog/tags'
+      fullPath: '/admin/blog/tags'
+      preLoaderRoute: typeof AuthenticatedAdminBlogTagsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/blog/categories': {
+      id: '/_authenticated/admin/blog/categories'
+      path: '/blog/categories'
+      fullPath: '/admin/blog/categories'
+      preLoaderRoute: typeof AuthenticatedAdminBlogCategoriesRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/blog/authors': {
+      id: '/_authenticated/admin/blog/authors'
+      path: '/blog/authors'
+      fullPath: '/admin/blog/authors'
+      preLoaderRoute: typeof AuthenticatedAdminBlogAuthorsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/blog/$id': {
+      id: '/_authenticated/admin/blog/$id'
+      path: '/blog/$id'
+      fullPath: '/admin/blog/$id'
+      preLoaderRoute: typeof AuthenticatedAdminBlogIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/seo/pages/$id/sections': {
       id: '/_authenticated/admin/seo/pages/$id/sections'
       path: '/$id/sections'
@@ -1721,6 +1901,10 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedAdminVehicleClassesRoute: typeof AuthenticatedAdminVehicleClassesRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminBlogIdRoute: typeof AuthenticatedAdminBlogIdRoute
+  AuthenticatedAdminBlogAuthorsRoute: typeof AuthenticatedAdminBlogAuthorsRoute
+  AuthenticatedAdminBlogCategoriesRoute: typeof AuthenticatedAdminBlogCategoriesRoute
+  AuthenticatedAdminBlogTagsRoute: typeof AuthenticatedAdminBlogTagsRoute
   AuthenticatedAdminSeoAirportsRoute: typeof AuthenticatedAdminSeoAirportsRoute
   AuthenticatedAdminSeoImportRoute: typeof AuthenticatedAdminSeoImportRoute
   AuthenticatedAdminSeoIssuesRoute: typeof AuthenticatedAdminSeoIssuesRoute
@@ -1729,6 +1913,7 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminSeoRedirectsRoute: typeof AuthenticatedAdminSeoRedirectsRoute
   AuthenticatedAdminSeoRoutesRoute: typeof AuthenticatedAdminSeoRoutesRoute
   AuthenticatedAdminSeoServicesRoute: typeof AuthenticatedAdminSeoServicesRoute
+  AuthenticatedAdminBlogIndexRoute: typeof AuthenticatedAdminBlogIndexRoute
   AuthenticatedAdminSeoIndexRoute: typeof AuthenticatedAdminSeoIndexRoute
 }
 
@@ -1760,6 +1945,11 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminVehicleClassesRoute:
       AuthenticatedAdminVehicleClassesRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+    AuthenticatedAdminBlogIdRoute: AuthenticatedAdminBlogIdRoute,
+    AuthenticatedAdminBlogAuthorsRoute: AuthenticatedAdminBlogAuthorsRoute,
+    AuthenticatedAdminBlogCategoriesRoute:
+      AuthenticatedAdminBlogCategoriesRoute,
+    AuthenticatedAdminBlogTagsRoute: AuthenticatedAdminBlogTagsRoute,
     AuthenticatedAdminSeoAirportsRoute: AuthenticatedAdminSeoAirportsRoute,
     AuthenticatedAdminSeoImportRoute: AuthenticatedAdminSeoImportRoute,
     AuthenticatedAdminSeoIssuesRoute: AuthenticatedAdminSeoIssuesRoute,
@@ -1769,6 +1959,7 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminSeoRedirectsRoute: AuthenticatedAdminSeoRedirectsRoute,
     AuthenticatedAdminSeoRoutesRoute: AuthenticatedAdminSeoRoutesRoute,
     AuthenticatedAdminSeoServicesRoute: AuthenticatedAdminSeoServicesRoute,
+    AuthenticatedAdminBlogIndexRoute: AuthenticatedAdminBlogIndexRoute,
     AuthenticatedAdminSeoIndexRoute: AuthenticatedAdminSeoIndexRoute,
   }
 
@@ -1815,6 +2006,7 @@ const rootRouteChildren: RootRouteChildren = {
   AirportsIataRoute: AirportsIataRoute,
   AreasSlugRoute: AreasSlugRoute,
   AttractionsSlugRoute: AttractionsSlugRoute,
+  BlogSlugRoute: BlogSlugRoute,
   BookingTokenRoute: BookingTokenRoute,
   CorporateSlugRoute: CorporateSlugRoute,
   CruisePortsSlugRoute: CruisePortsSlugRoute,
@@ -1829,6 +2021,7 @@ const rootRouteChildren: RootRouteChildren = {
   UniversitiesSlugRoute: UniversitiesSlugRoute,
   AreasIndexRoute: AreasIndexRoute,
   AttractionsIndexRoute: AttractionsIndexRoute,
+  BlogIndexRoute: BlogIndexRoute,
   CorporateIndexRoute: CorporateIndexRoute,
   CruisePortsIndexRoute: CruisePortsIndexRoute,
   DistilleriesIndexRoute: DistilleriesIndexRoute,
@@ -1839,6 +2032,8 @@ const rootRouteChildren: RootRouteChildren = {
   UniversitiesIndexRoute: UniversitiesIndexRoute,
   AreasALetterRoute: AreasALetterRoute,
   AreasRegionSlugRoute: AreasRegionSlugRoute,
+  BlogCategorySlugRoute: BlogCategorySlugRoute,
+  BlogTagSlugRoute: BlogTagSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

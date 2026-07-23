@@ -5,7 +5,7 @@ import {
   LayoutDashboard, CalendarCheck, MapPin, Ban, Car, Tag, UserCog, Users,
   CreditCard, Ticket, FileText, BarChart3, Shield, Settings as SettingsIcon, History,
   LogOut, ExternalLink, Sun, Moon, Menu, X, Inbox, Gauge, Percent,
-  Plane, Wrench, Route as RouteIcon, ArrowLeftRight, Globe, UploadCloud,
+  Plane, Wrench, Route as RouteIcon, ArrowLeftRight, Globe, UploadCloud, Newspaper,
 } from "lucide-react";
 import { SidebarNav, type SidebarEntry } from "@/components/admin/SidebarNav";
 import { Breadcrumbs } from "@/components/admin/Breadcrumbs";
@@ -71,6 +71,14 @@ const NAV: SidebarEntry[] = [
       { to: "/admin/pois", label: "Points of Interest", icon: MapPin },
       { to: "/admin/scenic-routes", label: "Route Templates", icon: MapPin },
       { to: "/admin/tour-settings", label: "Tour Settings", icon: SettingsIcon },
+    ],
+  },
+  {
+    label: "Content Hub", icon: Newspaper, items: [
+      { to: "/admin/blog", label: "Posts", icon: FileText },
+      { to: "/admin/blog/categories", label: "Categories", icon: Tag },
+      { to: "/admin/blog/tags", label: "Tags", icon: Tag },
+      { to: "/admin/blog/authors", label: "Authors", icon: UserCog },
     ],
   },
   {
