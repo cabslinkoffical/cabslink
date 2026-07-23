@@ -548,6 +548,11 @@ function BookPage() {
                       onPolicy={setPolicy}
                       baseRideTotal={rideTotal}
                       seatFee={seatFee}
+                      meetGreetFee={meetGreetFee}
+                      returnFee={returnFee}
+                      meetGreetFeePence={meetGreetFeePence}
+                      returnJourneyFeePence={returnJourneyFeePence}
+                      policyCfg={policyCfg}
                       onBack={() => setStep("details")}
                       onNext={() => setStep("payment")}
                     />
