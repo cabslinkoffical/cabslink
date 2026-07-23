@@ -156,7 +156,7 @@ export function PlaceAutocomplete({
   const canSelect = !loading;
 
   return (
-    <div className={cn("relative w-full", className)} ref={wrapRef}>
+    <div className={cn("relative w-full text-[var(--navy)]", className)} ref={wrapRef}>
       <MapPin
         className={cn(
           "absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--gold)] pointer-events-none",
@@ -173,7 +173,10 @@ export function PlaceAutocomplete({
         aria-autocomplete="list"
         aria-activedescendant={activeIdx >= 0 ? `${listboxId}-opt-${activeIdx}` : undefined}
         placeholder={placeholder}
-        className={cn("pl-11 pr-9 h-[52px] text-sm", inputClassName)}
+        className={cn(
+          "pl-11 pr-9 h-[52px] text-sm text-[var(--navy)] placeholder:text-[var(--navy)]/55 caret-[var(--gold)]",
+          inputClassName,
+        )}
         value={text}
         onChange={(e) => {
           const v = e.target.value;
@@ -209,7 +212,7 @@ export function PlaceAutocomplete({
         <ul
           id={listboxId}
           role="listbox"
-          className="absolute z-[60] mt-1 w-full max-h-72 overflow-auto rounded-md border bg-popover shadow-lg"
+          className="absolute z-[60] mt-2 w-full min-w-[275px] max-h-72 overflow-auto rounded-2xl border border-[var(--border)] bg-[var(--popover)] text-[var(--popover-foreground)] shadow-[var(--shadow-elegant)]"
         >
           {suggestions.map((s, i) => (
             <li
@@ -224,17 +227,21 @@ export function PlaceAutocomplete({
               }}
               onMouseEnter={() => setActiveIdx(i)}
               className={cn(
-                "cursor-pointer px-3 py-2 text-sm",
-                i === activeIdx ? "bg-accent" : "",
+                "cursor-pointer px-4 py-3 text-sm transition-colors",
+                i === activeIdx ? "bg-[var(--gold)] text-[var(--navy)]" : "bg-[var(--popover)] text-[var(--navy)] hover:bg-[var(--surface-gold)]",
                 !canSelect ? "opacity-60 cursor-not-allowed" : "",
               )}
             >
-              <div className="font-medium">{s.primary}</div>
-              {s.secondary && <div className="text-xs text-muted-foreground">{s.secondary}</div>}
+              <div className="font-bold leading-tight">{s.primary}</div>
+              {s.secondary && (
+                <div className={cn("mt-1 text-xs leading-tight", i === activeIdx ? "text-[var(--navy)]/80" : "text-[var(--navy)]/65")}>
+                  {s.secondary}
+                </div>
+              )}
             </li>
           ))}
           {!hideAttribution && (
-            <li className="border-t px-3 py-1.5 text-[10px] text-muted-foreground text-right">
+            <li className="border-t border-[var(--border)] px-4 py-2 text-right text-[10px] font-semibold text-[var(--navy)]/55">
               Powered by Google
             </li>
           )}
