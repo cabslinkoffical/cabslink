@@ -132,9 +132,10 @@ export const listVehicleClassesAdmin = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const [{ data: classes }, { data: models }] = await Promise.all([
-      context.supabase.from("vehicle_classes").select("*").order("display_order", { ascending: true }),
-      context.supabase.from("vehicle_models").select("*").order("display_order", { ascending: true }),
+      supabaseAdmin.from("vehicle_classes").select("*").order("display_order", { ascending: true }),
+      supabaseAdmin.from("vehicle_models").select("*").order("display_order", { ascending: true }),
     ]);
     return { classes: classes ?? [], models: models ?? [] };
   });
@@ -144,16 +145,18 @@ export const upsertVehicleClass = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => classSchema.parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     if (data.id) {
       const { id, ...patch } = data;
-      const { error } = await context.supabase.from("vehicle_classes").update(patch).eq("id", id);
+      const { error } = await supabaseAdmin.from("vehicle_classes").update(patch).eq("id", id);
       if (error) throw new Error(error.message);
       return { id };
     }
-    const { data: created, error } = await context.supabase
+    const { data: created, error } = await supabaseAdmin
       .from("vehicle_classes").insert(data).select("id").single();
     if (error) throw new Error(error.message);
-    return { id: created!.id };
+    if (!created?.id) throw new Error("Vehicle class was saved but no id was returned.");
+    return { id: created.id };
   });
 
 export const deleteVehicleClass = createServerFn({ method: "POST" })
@@ -161,7 +164,8 @@ export const deleteVehicleClass = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    const { error } = await context.supabase.from("vehicle_classes").delete().eq("id", data.id);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("vehicle_classes").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -181,16 +185,18 @@ export const upsertVehicleModel = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => modelSchema.parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     if (data.id) {
       const { id, ...patch } = data;
-      const { error } = await context.supabase.from("vehicle_models").update(patch).eq("id", id);
+      const { error } = await supabaseAdmin.from("vehicle_models").update(patch).eq("id", id);
       if (error) throw new Error(error.message);
       return { id };
     }
-    const { data: created, error } = await context.supabase
+    const { data: created, error } = await supabaseAdmin
       .from("vehicle_models").insert(data).select("id").single();
     if (error) throw new Error(error.message);
-    return { id: created!.id };
+    if (!created?.id) throw new Error("Vehicle model was saved but no id was returned.");
+    return { id: created.id };
   });
 
 export const deleteVehicleModel = createServerFn({ method: "POST" })
@@ -198,7 +204,8 @@ export const deleteVehicleModel = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    const { error } = await context.supabase.from("vehicle_models").delete().eq("id", data.id);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("vehicle_models").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });

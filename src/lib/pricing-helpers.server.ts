@@ -8,8 +8,17 @@ const round2 = (n: number) => Math.round(n * 100) / 100;
 // Public client for anonymous quote reads
 // -------------------------------------------------------------------
 export function publicClient() {
-  return createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_PUBLISHABLE_KEY!, {
+  const key = process.env.SUPABASE_PUBLISHABLE_KEY!;
+  return createClient(process.env.SUPABASE_URL!, key, {
     auth: { persistSession: false, autoRefreshToken: false },
+    global: {
+      fetch: (input, init) => {
+        const h = new Headers(init?.headers);
+        if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`) h.delete("Authorization");
+        h.set("apikey", key);
+        return fetch(input, { ...init, headers: h });
+      },
+    },
   });
 }
 
@@ -85,6 +94,11 @@ export type LoadedProfile = PricingProfile & {
     passengers: number;
     luggage: number;
     hand_luggage: number;
+    class_id: string;
+    class_slug: string;
+    class_name: string;
+    class_display_order: number;
+    class_quote_on_request: boolean;
   };
 };
 
@@ -98,7 +112,7 @@ export async function loadActiveProfiles(client: ReturnType<typeof publicClient>
   const ids = (profiles ?? []).map((p: any) => p.id);
   const vehicleIds = (profiles ?? []).map((p: any) => p.vehicle_id);
 
-  const [tiersRes, vehiclesRes] = await Promise.all([
+  const [tiersRes, vehiclesRes, classesRes] = await Promise.all([
     client
       .from("vehicle_mileage_tiers" as any)
       .select("*")
@@ -108,11 +122,18 @@ export async function loadActiveProfiles(client: ReturnType<typeof publicClient>
       .from("vehicles")
       .select("id, name, category, image_url, passengers, luggage, hand_luggage, active, display_order")
       .in("id", vehicleIds.length ? vehicleIds : ["00000000-0000-0000-0000-000000000000"]),
+    client
+      .from("vehicle_classes")
+      .select("id, name, slug, hero_image, passengers, large_luggage, hand_luggage, quote_on_request, display_order, pricing_vehicle_id, active")
+      .eq("active", true)
+      .in("pricing_vehicle_id", vehicleIds.length ? vehicleIds : ["00000000-0000-0000-0000-000000000000"]),
   ]);
   if (tiersRes.error) throw new Error(tiersRes.error.message);
   if (vehiclesRes.error) throw new Error(vehiclesRes.error.message);
+  if (classesRes.error) throw new Error(classesRes.error.message);
   const tiers = tiersRes.data;
   const vehicles = vehiclesRes.data;
+  const classes = classesRes.data;
 
   const tiersByProfile = new Map<string, any[]>();
   for (const t of tiers ?? []) {
@@ -121,11 +142,14 @@ export async function loadActiveProfiles(client: ReturnType<typeof publicClient>
     tiersByProfile.set((t as any).pricing_profile_id, list);
   }
   const vehicleById = new Map((vehicles ?? []).map((v: any) => [v.id, v]));
+  const classByPricingVehicleId = new Map((classes ?? []).map((c: any) => [c.pricing_vehicle_id, c]));
 
   return (profiles ?? [])
     .map((p: any) => {
       const v: any = vehicleById.get(p.vehicle_id);
+      const c: any = classByPricingVehicleId.get(p.vehicle_id);
       if (!v || !v.active) return null;
+      if (!c) return null;
       return {
         ...p,
         tiers: (tiersByProfile.get(p.id) ?? []).map((t: any) => ({
@@ -137,16 +161,22 @@ export async function loadActiveProfiles(client: ReturnType<typeof publicClient>
         })),
         vehicle: {
           id: v.id,
-          name: v.name,
-          category: v.category,
-          image_url: v.image_url,
-          passengers: v.passengers,
-          luggage: v.luggage,
-          hand_luggage: v.hand_luggage,
+          name: c.name,
+          category: c.slug,
+          image_url: (typeof c.hero_image === "string" && c.hero_image.trim()) ? c.hero_image : v.image_url,
+          passengers: c.passengers,
+          luggage: c.large_luggage,
+          hand_luggage: c.hand_luggage,
+          class_id: c.id,
+          class_slug: c.slug,
+          class_name: c.name,
+          class_display_order: Number(c.display_order ?? v.display_order ?? 0),
+          class_quote_on_request: !!c.quote_on_request,
         },
       } as LoadedProfile;
     })
-    .filter(Boolean) as LoadedProfile[];
+    .filter((profile): profile is LoadedProfile => profile !== null)
+    .sort((a: LoadedProfile, b: LoadedProfile) => a.vehicle.class_display_order - b.vehicle.class_display_order) as LoadedProfile[];
 }
 
 // -------------------------------------------------------------------
