@@ -28,6 +28,9 @@ export const HUB_SEGMENTS: Record<Destination["type"], string> = {
   guide: "guides",
   region: "areas",
   council: "areas",
+  city: "areas",
+  town: "areas",
+  village: "areas",
 };
 
 /** Human label per type. */
