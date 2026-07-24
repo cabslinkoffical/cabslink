@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { Users, Briefcase, Luggage, ArrowRight, ShieldCheck, Accessibility, Zap, CheckCircle2, Sparkles, Star } from "lucide-react";
+import { Users, Briefcase, Luggage, ArrowRight, Accessibility, Zap, CheckCircle2, Sparkles } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Reveal } from "@/components/site/Reveal";
 import { Button } from "@/components/ui/button";
@@ -93,18 +93,16 @@ function FleetPage() {
         </div>
       </section>
 
-      {/* ALTERNATING CLASS ROWS */}
-      <section id="classes" className="bg-[var(--background)]">
+      {/* CLASS TICKETS — compact separate cards */}
+      <section id="classes" className="bg-[var(--surface-2)]">
         <div className="container-x py-12 md:py-16">
-          <ul className="divide-y divide-border/60">
-            {items.map((c, i) => (
-              <li key={c.id} className="py-10 md:py-14 first:pt-0 last:pb-0">
-                <Reveal>
-                  <ClassRow klass={c} index={i} reverse={i % 2 === 1} />
-                </Reveal>
-              </li>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
+            {items.map((c) => (
+              <Reveal key={c.id}>
+                <ClassTicket klass={c} />
+              </Reveal>
             ))}
-          </ul>
+          </div>
 
           <div className="pt-10">
             <VehicleAllocationNotice />
@@ -116,11 +114,6 @@ function FleetPage() {
       <section className="section-y bg-[var(--background)]">
         <div className="container-x">
           <div className="relative overflow-hidden rounded-3xl bg-[var(--navy)] text-[var(--navy-foreground)] p-10 md:p-14">
-            <div
-              aria-hidden
-              className="absolute inset-0 opacity-[0.08]"
-              style={{ backgroundImage: "radial-gradient(circle at 80% 30%, var(--gold) 0, transparent 45%)" }}
-            />
             <div className="relative text-center max-w-2xl mx-auto">
               <h2 className="font-display text-3xl md:text-4xl font-semibold">Not sure which class fits?</h2>
               <p className="mt-4 text-[var(--navy-foreground)]/80">
@@ -138,149 +131,99 @@ function FleetPage() {
   );
 }
 
-function ClassRow({ klass, reverse }: { klass: PublicVehicleClass; index: number; reverse: boolean }) {
+function ClassTicket({ klass }: { klass: PublicVehicleClass }) {
   const img = fleetImageFor(klass.slug, klass.hero_image);
   const recs = Object.entries(klass.recommended_for ?? {})
     .filter(([, v]) => v)
     .map(([k]) => RECOMMENDED_LABELS[k] ?? k)
-    .slice(0, 4);
+    .slice(0, 2);
 
   return (
     <article
       id={klass.slug}
-      className={`grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-center ${reverse ? "md:[&>div:first-child]:order-2" : ""}`}
+      className="group relative flex flex-col rounded-2xl bg-card border border-border overflow-hidden shadow-[0_1px_2px_rgba(14,24,44,0.04),0_16px_36px_-28px_rgba(14,24,44,0.25)] hover:shadow-[0_1px_2px_rgba(14,24,44,0.04),0_24px_50px_-24px_rgba(14,24,44,0.35)] hover:-translate-y-0.5 transition-all duration-300"
     >
-      {/* IMAGE PLATE — single subtle shade so every class reads the same */}
-      <div className="md:col-span-6">
-        <div className="group relative rounded-[24px] bg-[#f4f5f7] aspect-[16/10] p-6 md:p-10 flex items-center justify-center overflow-hidden ring-1 ring-black/[0.04] shadow-[0_1px_2px_rgba(14,24,44,0.04),0_20px_40px_-30px_rgba(14,24,44,0.18)]">
-          {img ? (
-            <img
-              src={img}
-              alt={`${klass.name} — representative vehicle`}
-              loading="lazy"
-              decoding="async"
-              className="relative z-10 max-h-full max-w-full w-auto h-auto object-contain drop-shadow-[0_16px_18px_rgba(14,24,44,0.18)] transition-transform duration-500 group-hover:scale-[1.03]"
-            />
-          ) : (
-            <span className="relative z-10 text-xs text-muted-foreground">Image coming soon</span>
-          )}
+      {/* Image plate */}
+      <div className="relative bg-[#f4f5f7] aspect-[16/10] flex items-center justify-center overflow-hidden">
+        {img ? (
+          <img
+            src={img}
+            alt={`${klass.name}`}
+            loading="lazy"
+            decoding="async"
+            className="max-h-[82%] max-w-[86%] w-auto h-auto object-contain drop-shadow-[0_10px_14px_rgba(14,24,44,0.18)] transition-transform duration-500 group-hover:scale-[1.04]"
+          />
+        ) : (
+          <span className="text-xs text-muted-foreground">Image coming soon</span>
+        )}
 
-          {/* Badges */}
-          <div className="absolute top-4 left-4 flex flex-wrap gap-1.5 z-20">
-            {klass.badge && (
-              <span className="rounded-full bg-[var(--gold)] text-[var(--gold-foreground,#0e182c)] px-3 py-1 text-[10px] font-bold uppercase tracking-widest shadow-sm">
-                {klass.badge}
-              </span>
-            )}
-            {klass.featured && !klass.badge && (
-              <span className="rounded-full bg-[var(--gold)] text-[var(--gold-foreground,#0e182c)] px-3 py-1 text-[10px] font-bold uppercase tracking-widest shadow-sm">
-                Featured
-              </span>
-            )}
-            {klass.fuel_type === "electric" && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500 text-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest shadow-sm">
-                <Zap className="size-2.5" /> Electric
-              </span>
-            )}
-            {klass.wheelchair_accessible && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-[var(--navy)] text-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest shadow-sm">
-                <Accessibility className="size-2.5" /> WAV
-              </span>
-            )}
-          </div>
+        <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
+          {klass.badge ? (
+            <span className="rounded-full bg-[var(--gold)] text-[var(--gold-foreground,#0e182c)] px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest shadow-sm">
+              {klass.badge}
+            </span>
+          ) : klass.featured ? (
+            <span className="rounded-full bg-[var(--gold)] text-[var(--gold-foreground,#0e182c)] px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest shadow-sm">
+              Featured
+            </span>
+          ) : null}
+          {klass.fuel_type === "electric" && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500 text-white px-2 py-1 text-[9px] font-bold uppercase tracking-widest shadow-sm">
+              <Zap className="size-2.5" /> Electric
+            </span>
+          )}
+          {klass.wheelchair_accessible && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-[var(--navy)] text-white px-2 py-1 text-[9px] font-bold uppercase tracking-widest shadow-sm">
+              <Accessibility className="size-2.5" /> WAV
+            </span>
+          )}
         </div>
       </div>
 
-      {/* CONTENT */}
-      <div className="md:col-span-6">
-        <p className="inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.32em] text-[var(--gold)]">
-          <span className="h-px w-8 bg-[var(--gold)]" /> Vehicle Class
-        </p>
-        <h2 className="mt-3 font-display text-3xl md:text-4xl xl:text-5xl font-semibold text-foreground leading-[1.05] tracking-tight">
-          {klass.name}
-        </h2>
-        {klass.short_description && (
-          <p className="mt-4 text-base md:text-lg text-muted-foreground max-w-xl leading-relaxed">{klass.short_description}</p>
-        )}
+      {/* Perforation divider */}
+      <div className="relative h-3 bg-card">
+        <div className="absolute inset-x-4 top-1/2 -translate-y-1/2 border-t border-dashed border-border" />
+        <div className="absolute -left-1.5 top-1/2 -translate-y-1/2 size-3 rounded-full bg-[var(--surface-2)] border border-border" />
+        <div className="absolute -right-1.5 top-1/2 -translate-y-1/2 size-3 rounded-full bg-[var(--surface-2)] border border-border" />
+      </div>
 
-        {/* Specs — prominent */}
-        <div className="mt-6 grid grid-cols-3 gap-3 max-w-md">
-          <MiniSpec icon={<Users className="size-4" />} label="Passengers" value={String(klass.passengers)} />
-          <MiniSpec icon={<Briefcase className="size-4" />} label="Large bags" value={String(klass.large_luggage)} />
-          <MiniSpec icon={<Luggage className="size-4" />} label="Cabin bags" value={String(klass.cabin_bags)} />
+      {/* Body */}
+      <div className="p-4 md:p-5 flex flex-col gap-3">
+        <div>
+          <p className="text-[9px] font-semibold uppercase tracking-[0.28em] text-[var(--gold-ink)]">Vehicle Class</p>
+          <h3 className="mt-1 font-display text-lg md:text-xl font-semibold leading-tight line-clamp-1">{klass.name}</h3>
+          {klass.short_description && (
+            <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{klass.short_description}</p>
+          )}
         </div>
 
-        {/* Recommended chips */}
+        {/* Compact specs row */}
+        <div className="flex items-center gap-3 text-xs text-foreground/80">
+          <span className="inline-flex items-center gap-1.5"><Users className="size-3.5 text-[var(--gold)]" /> {klass.passengers}</span>
+          <span className="h-3 w-px bg-border" />
+          <span className="inline-flex items-center gap-1.5"><Briefcase className="size-3.5 text-[var(--gold)]" /> {klass.large_luggage}</span>
+          <span className="h-3 w-px bg-border" />
+          <span className="inline-flex items-center gap-1.5"><Luggage className="size-3.5 text-[var(--gold)]" /> {klass.cabin_bags}</span>
+        </div>
+
         {recs.length > 0 && (
-          <div className="mt-6">
-            <p className="text-[10px] uppercase tracking-[0.28em] text-muted-foreground mb-2">Best for</p>
-            <div className="flex flex-wrap gap-2">
-              {recs.map((r) => (
-                <span key={r} className="inline-flex items-center gap-1.5 rounded-full bg-[var(--navy)] text-white px-3 py-1.5 text-xs font-medium shadow-sm">
-                  <CheckCircle2 className="size-3.5 text-[var(--gold)]" /> {r}
-                </span>
-              ))}
-            </div>
+          <div className="flex flex-wrap gap-1.5">
+            {recs.map((r) => (
+              <span key={r} className="inline-flex items-center gap-1 rounded-full bg-[var(--surface-2)] text-foreground/80 px-2 py-0.5 text-[10px] font-medium">
+                <CheckCircle2 className="size-2.5 text-[var(--gold)]" /> {r}
+              </span>
+            ))}
           </div>
         )}
 
-        {/* Models table */}
-        {klass.models.length > 0 && (
-          <div className="mt-6">
-            <p className="text-[10px] uppercase tracking-[0.28em] text-muted-foreground mb-2">Vehicles in this class</p>
-            <div className="overflow-hidden rounded-2xl border border-border">
-              <table className="w-full text-sm">
-                <thead className="bg-[var(--navy)]/5 text-[var(--navy)]">
-                  <tr>
-                    <th className="text-left font-semibold px-4 py-2.5">Model</th>
-                    <th className="text-left font-semibold px-4 py-2.5 hidden sm:table-cell">Make</th>
-                    <th className="text-right font-semibold px-4 py-2.5">Pax</th>
-                    <th className="text-right font-semibold px-4 py-2.5">Bags</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border bg-card">
-                  {klass.models.map((m) => (
-                    <tr key={m.id}>
-                      <td className="px-4 py-2.5 font-medium text-foreground">
-                        <span className="inline-flex items-center gap-1.5"><Star className="size-3 fill-[var(--gold)] text-[var(--gold)]" /> {m.name}</span>
-                      </td>
-                      <td className="px-4 py-2.5 text-muted-foreground hidden sm:table-cell">{m.manufacturer ?? "—"}</td>
-                      <td className="px-4 py-2.5 text-right">{klass.passengers}</td>
-                      <td className="px-4 py-2.5 text-right">{klass.large_luggage} + {klass.cabin_bags}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <p className="mt-2 text-[11px] text-muted-foreground italic">
-              You book the class — we allocate the specific vehicle from this list based on availability, or upgrade at no extra cost.
-            </p>
-          </div>
-        )}
-
-        {/* Actions */}
-        <div className="mt-8 flex flex-wrap items-center gap-3">
-          <Button asChild size="lg" variant="gold" className="rounded-full">
+        <div className="pt-1">
+          <Button asChild size="sm" variant="gold" className="w-full rounded-full">
             <Link to="/book">
-              {klass.quote_on_request ? "Request quote" : "Book this class"} <ArrowRight className="size-4" />
+              {klass.quote_on_request ? "Request quote" : "Book this class"} <ArrowRight className="size-3.5" />
             </Link>
-          </Button>
-          <Button asChild size="lg" variant="outline" className="rounded-full">
-            <Link to="/contact"><ShieldCheck className="size-4" /> Talk to us</Link>
           </Button>
         </div>
       </div>
     </article>
-  );
-}
-
-function MiniSpec({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
-  return (
-    <div className="rounded-2xl border border-border bg-card px-3 py-3.5 text-center shadow-[0_2px_10px_-6px_rgba(14,24,44,0.2)]">
-      <div className="flex items-center justify-center gap-1.5 text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
-        <span className="text-[var(--gold)]">{icon}</span> {label}
-      </div>
-      <div className="mt-1 font-display font-semibold text-foreground text-2xl leading-none">{value}</div>
-    </div>
   );
 }
