@@ -83,7 +83,7 @@ function AirportPage() {
   const name = airport.display_name ?? airport.name;
   const shortName = airport.short_name ?? airport.name.replace(/ Airport$/, "");
   const cityLine = [airport.town, airport.council, airport.region].filter(Boolean).join(", ");
-  const others = airports.filter((a) => a.id !== airport.id).slice(0, 12);
+  const others = airports.filter((a: Destination) => a.id !== airport.id).slice(0, 12);
 
   const features = [
     { icon: Plane, title: "Live flight tracking", desc: "We monitor your flight and adjust pickup for delays or early arrivals — no extra charge." },
