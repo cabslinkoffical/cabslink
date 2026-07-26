@@ -23,10 +23,10 @@ export const Route = createFileRoute("/airports/$iata")({
     }
 
     // 2) Resolve destination row: match by slug OR by meta.iata (case-insensitive).
-    const airports = await listDestinationsByType({ data: { type: "airport", tiers: [1, 2, 3] } }).catch(() => []);
+    const airports: Destination[] = await listDestinationsByType({ data: { type: "airport", tiers: [1, 2, 3] } }).catch(() => [] as Destination[]);
     const matched =
-      airports.find((a) => a.slug === key) ??
-      airports.find((a) => ((a.meta?.iata as string | undefined) ?? "").toLowerCase() === key) ??
+      airports.find((a: Destination) => a.slug === key) ??
+      airports.find((a: Destination) => ((a.meta?.iata as string | undefined) ?? "").toLowerCase() === key) ??
       null;
 
     if (!matched) throw notFound();
