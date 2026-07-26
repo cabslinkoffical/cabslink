@@ -43,6 +43,7 @@ import { Route as CorporateIndexRouteImport } from './routes/corporate.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as AttractionsIndexRouteImport } from './routes/attractions.index'
 import { Route as AreasIndexRouteImport } from './routes/areas.index'
+import { Route as AirportsIndexRouteImport } from './routes/airports.index'
 import { Route as UniversitiesSlugRouteImport } from './routes/universities.$slug'
 import { Route as ToursSlugRouteImport } from './routes/tours.$slug'
 import { Route as StationsSlugRouteImport } from './routes/stations.$slug'
@@ -269,6 +270,11 @@ const AttractionsIndexRoute = AttractionsIndexRouteImport.update({
 const AreasIndexRoute = AreasIndexRouteImport.update({
   id: '/areas/',
   path: '/areas/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AirportsIndexRoute = AirportsIndexRouteImport.update({
+  id: '/airports/',
+  path: '/airports/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const UniversitiesSlugRoute = UniversitiesSlugRouteImport.update({
@@ -635,6 +641,7 @@ export interface FileRoutesByFullPath {
   '/stations/$slug': typeof StationsSlugRoute
   '/tours/$slug': typeof ToursSlugRoute
   '/universities/$slug': typeof UniversitiesSlugRoute
+  '/airports/': typeof AirportsIndexRoute
   '/areas/': typeof AreasIndexRoute
   '/attractions/': typeof AttractionsIndexRoute
   '/blog/': typeof BlogIndexRoute
@@ -727,6 +734,7 @@ export interface FileRoutesByTo {
   '/stations/$slug': typeof StationsSlugRoute
   '/tours/$slug': typeof ToursSlugRoute
   '/universities/$slug': typeof UniversitiesSlugRoute
+  '/airports': typeof AirportsIndexRoute
   '/areas': typeof AreasIndexRoute
   '/attractions': typeof AttractionsIndexRoute
   '/blog': typeof BlogIndexRoute
@@ -822,6 +830,7 @@ export interface FileRoutesById {
   '/stations/$slug': typeof StationsSlugRoute
   '/tours/$slug': typeof ToursSlugRoute
   '/universities/$slug': typeof UniversitiesSlugRoute
+  '/airports/': typeof AirportsIndexRoute
   '/areas/': typeof AreasIndexRoute
   '/attractions/': typeof AttractionsIndexRoute
   '/blog/': typeof BlogIndexRoute
@@ -917,6 +926,7 @@ export interface FileRouteTypes {
     | '/stations/$slug'
     | '/tours/$slug'
     | '/universities/$slug'
+    | '/airports/'
     | '/areas/'
     | '/attractions/'
     | '/blog/'
@@ -1009,6 +1019,7 @@ export interface FileRouteTypes {
     | '/stations/$slug'
     | '/tours/$slug'
     | '/universities/$slug'
+    | '/airports'
     | '/areas'
     | '/attractions'
     | '/blog'
@@ -1103,6 +1114,7 @@ export interface FileRouteTypes {
     | '/stations/$slug'
     | '/tours/$slug'
     | '/universities/$slug'
+    | '/airports/'
     | '/areas/'
     | '/attractions/'
     | '/blog/'
@@ -1197,6 +1209,7 @@ export interface RootRouteChildren {
   StationsSlugRoute: typeof StationsSlugRoute
   ToursSlugRoute: typeof ToursSlugRoute
   UniversitiesSlugRoute: typeof UniversitiesSlugRoute
+  AirportsIndexRoute: typeof AirportsIndexRoute
   AreasIndexRoute: typeof AreasIndexRoute
   AttractionsIndexRoute: typeof AttractionsIndexRoute
   BlogIndexRoute: typeof BlogIndexRoute
@@ -1452,6 +1465,13 @@ declare module '@tanstack/react-router' {
       path: '/areas'
       fullPath: '/areas/'
       preLoaderRoute: typeof AreasIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/airports/': {
+      id: '/airports/'
+      path: '/airports'
+      fullPath: '/airports/'
+      preLoaderRoute: typeof AirportsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/universities/$slug': {
@@ -2019,6 +2039,7 @@ const rootRouteChildren: RootRouteChildren = {
   StationsSlugRoute: StationsSlugRoute,
   ToursSlugRoute: ToursSlugRoute,
   UniversitiesSlugRoute: UniversitiesSlugRoute,
+  AirportsIndexRoute: AirportsIndexRoute,
   AreasIndexRoute: AreasIndexRoute,
   AttractionsIndexRoute: AttractionsIndexRoute,
   BlogIndexRoute: BlogIndexRoute,

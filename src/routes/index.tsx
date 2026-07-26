@@ -664,7 +664,7 @@ function HomePage() {
               </h2>
             </div>
             <Button asChild variant="outline" className="rounded-full border-[var(--navy)]/20 text-[var(--navy)] hover:border-[var(--gold)] hover:text-[var(--gold-ink)] self-start md:self-auto">
-              <Link to="/airport-transfers">All airports <ArrowRight className="size-4" /></Link>
+              <Link to="/airports">All airports <ArrowRight className="size-4" /></Link>
             </Button>
           </div>
 
