@@ -56,6 +56,7 @@ import { Route as DistilleriesSlugRouteImport } from './routes/distilleries.$slu
 import { Route as CruisePortsSlugRouteImport } from './routes/cruise-ports.$slug'
 import { Route as CorporateSlugRouteImport } from './routes/corporate.$slug'
 import { Route as BookingTokenRouteImport } from './routes/booking.$token'
+import { Route as BookHourlyRouteImport } from './routes/book.hourly'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AttractionsSlugRouteImport } from './routes/attractions.$slug'
 import { Route as AreasSlugRouteImport } from './routes/areas.$slug'
@@ -80,6 +81,7 @@ import { Route as AuthenticatedAdminPaymentsRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminMileagePricingRouteImport } from './routes/_authenticated/admin/mileage-pricing'
 import { Route as AuthenticatedAdminMessagesRouteImport } from './routes/_authenticated/admin/messages'
 import { Route as AuthenticatedAdminLogsRouteImport } from './routes/_authenticated/admin/logs'
+import { Route as AuthenticatedAdminHourlyRatesRouteImport } from './routes/_authenticated/admin/hourly-rates'
 import { Route as AuthenticatedAdminFleetRouteImport } from './routes/_authenticated/admin/fleet'
 import { Route as AuthenticatedAdminDriversRouteImport } from './routes/_authenticated/admin/drivers'
 import { Route as AuthenticatedAdminCustomersRouteImport } from './routes/_authenticated/admin/customers'
@@ -338,6 +340,11 @@ const BookingTokenRoute = BookingTokenRouteImport.update({
   path: '/booking/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BookHourlyRoute = BookHourlyRouteImport.update({
+  id: '/hourly',
+  path: '/hourly',
+  getParentRoute: () => BookRoute,
+} as any)
 const BlogSlugRoute = BlogSlugRouteImport.update({
   id: '/blog/$slug',
   path: '/blog/$slug',
@@ -469,6 +476,12 @@ const AuthenticatedAdminLogsRoute = AuthenticatedAdminLogsRouteImport.update({
   path: '/logs',
   getParentRoute: () => AuthenticatedAdminRouteRoute,
 } as any)
+const AuthenticatedAdminHourlyRatesRoute =
+  AuthenticatedAdminHourlyRatesRouteImport.update({
+    id: '/hourly-rates',
+    path: '/hourly-rates',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminFleetRoute = AuthenticatedAdminFleetRouteImport.update({
   id: '/fleet',
   path: '/fleet',
@@ -607,7 +620,7 @@ export interface FileRoutesByFullPath {
   '/accessibility': typeof AccessibilityRoute
   '/airport-transfers': typeof AirportTransfersRoute
   '/auth': typeof AuthRoute
-  '/book': typeof BookRoute
+  '/book': typeof BookRouteWithChildren
   '/booking-policy': typeof BookingPolicyRoute
   '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
@@ -629,6 +642,7 @@ export interface FileRoutesByFullPath {
   '/areas/$slug': typeof AreasSlugRoute
   '/attractions/$slug': typeof AttractionsSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/book/hourly': typeof BookHourlyRoute
   '/booking/$token': typeof BookingTokenRoute
   '/corporate/$slug': typeof CorporateSlugRoute
   '/cruise-ports/$slug': typeof CruisePortsSlugRoute
@@ -660,6 +674,7 @@ export interface FileRoutesByFullPath {
   '/admin/customers': typeof AuthenticatedAdminCustomersRoute
   '/admin/drivers': typeof AuthenticatedAdminDriversRoute
   '/admin/fleet': typeof AuthenticatedAdminFleetRoute
+  '/admin/hourly-rates': typeof AuthenticatedAdminHourlyRatesRoute
   '/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/admin/messages': typeof AuthenticatedAdminMessagesRoute
   '/admin/mileage-pricing': typeof AuthenticatedAdminMileagePricingRoute
@@ -701,7 +716,7 @@ export interface FileRoutesByTo {
   '/accessibility': typeof AccessibilityRoute
   '/airport-transfers': typeof AirportTransfersRoute
   '/auth': typeof AuthRoute
-  '/book': typeof BookRoute
+  '/book': typeof BookRouteWithChildren
   '/booking-policy': typeof BookingPolicyRoute
   '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
@@ -722,6 +737,7 @@ export interface FileRoutesByTo {
   '/areas/$slug': typeof AreasSlugRoute
   '/attractions/$slug': typeof AttractionsSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/book/hourly': typeof BookHourlyRoute
   '/booking/$token': typeof BookingTokenRoute
   '/corporate/$slug': typeof CorporateSlugRoute
   '/cruise-ports/$slug': typeof CruisePortsSlugRoute
@@ -753,6 +769,7 @@ export interface FileRoutesByTo {
   '/admin/customers': typeof AuthenticatedAdminCustomersRoute
   '/admin/drivers': typeof AuthenticatedAdminDriversRoute
   '/admin/fleet': typeof AuthenticatedAdminFleetRoute
+  '/admin/hourly-rates': typeof AuthenticatedAdminHourlyRatesRoute
   '/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/admin/messages': typeof AuthenticatedAdminMessagesRoute
   '/admin/mileage-pricing': typeof AuthenticatedAdminMileagePricingRoute
@@ -796,7 +813,7 @@ export interface FileRoutesById {
   '/accessibility': typeof AccessibilityRoute
   '/airport-transfers': typeof AirportTransfersRoute
   '/auth': typeof AuthRoute
-  '/book': typeof BookRoute
+  '/book': typeof BookRouteWithChildren
   '/booking-policy': typeof BookingPolicyRoute
   '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
@@ -818,6 +835,7 @@ export interface FileRoutesById {
   '/areas/$slug': typeof AreasSlugRoute
   '/attractions/$slug': typeof AttractionsSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/book/hourly': typeof BookHourlyRoute
   '/booking/$token': typeof BookingTokenRoute
   '/corporate/$slug': typeof CorporateSlugRoute
   '/cruise-ports/$slug': typeof CruisePortsSlugRoute
@@ -849,6 +867,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/customers': typeof AuthenticatedAdminCustomersRoute
   '/_authenticated/admin/drivers': typeof AuthenticatedAdminDriversRoute
   '/_authenticated/admin/fleet': typeof AuthenticatedAdminFleetRoute
+  '/_authenticated/admin/hourly-rates': typeof AuthenticatedAdminHourlyRatesRoute
   '/_authenticated/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/_authenticated/admin/messages': typeof AuthenticatedAdminMessagesRoute
   '/_authenticated/admin/mileage-pricing': typeof AuthenticatedAdminMileagePricingRoute
@@ -914,6 +933,7 @@ export interface FileRouteTypes {
     | '/areas/$slug'
     | '/attractions/$slug'
     | '/blog/$slug'
+    | '/book/hourly'
     | '/booking/$token'
     | '/corporate/$slug'
     | '/cruise-ports/$slug'
@@ -945,6 +965,7 @@ export interface FileRouteTypes {
     | '/admin/customers'
     | '/admin/drivers'
     | '/admin/fleet'
+    | '/admin/hourly-rates'
     | '/admin/logs'
     | '/admin/messages'
     | '/admin/mileage-pricing'
@@ -1007,6 +1028,7 @@ export interface FileRouteTypes {
     | '/areas/$slug'
     | '/attractions/$slug'
     | '/blog/$slug'
+    | '/book/hourly'
     | '/booking/$token'
     | '/corporate/$slug'
     | '/cruise-ports/$slug'
@@ -1038,6 +1060,7 @@ export interface FileRouteTypes {
     | '/admin/customers'
     | '/admin/drivers'
     | '/admin/fleet'
+    | '/admin/hourly-rates'
     | '/admin/logs'
     | '/admin/messages'
     | '/admin/mileage-pricing'
@@ -1102,6 +1125,7 @@ export interface FileRouteTypes {
     | '/areas/$slug'
     | '/attractions/$slug'
     | '/blog/$slug'
+    | '/book/hourly'
     | '/booking/$token'
     | '/corporate/$slug'
     | '/cruise-ports/$slug'
@@ -1133,6 +1157,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/customers'
     | '/_authenticated/admin/drivers'
     | '/_authenticated/admin/fleet'
+    | '/_authenticated/admin/hourly-rates'
     | '/_authenticated/admin/logs'
     | '/_authenticated/admin/messages'
     | '/_authenticated/admin/mileage-pricing'
@@ -1176,7 +1201,7 @@ export interface RootRouteChildren {
   AccessibilityRoute: typeof AccessibilityRoute
   AirportTransfersRoute: typeof AirportTransfersRoute
   AuthRoute: typeof AuthRoute
-  BookRoute: typeof BookRoute
+  BookRoute: typeof BookRouteWithChildren
   BookingPolicyRoute: typeof BookingPolicyRoute
   ContactRoute: typeof ContactRoute
   CookiesRoute: typeof CookiesRoute
@@ -1558,6 +1583,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BookingTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/book/hourly': {
+      id: '/book/hourly'
+      path: '/hourly'
+      fullPath: '/book/hourly'
+      preLoaderRoute: typeof BookHourlyRouteImport
+      parentRoute: typeof BookRoute
+    }
     '/blog/$slug': {
       id: '/blog/$slug'
       path: '/blog/$slug'
@@ -1724,6 +1756,13 @@ declare module '@tanstack/react-router' {
       path: '/logs'
       fullPath: '/admin/logs'
       preLoaderRoute: typeof AuthenticatedAdminLogsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/hourly-rates': {
+      id: '/_authenticated/admin/hourly-rates'
+      path: '/hourly-rates'
+      fullPath: '/admin/hourly-rates'
+      preLoaderRoute: typeof AuthenticatedAdminHourlyRatesRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/admin/fleet': {
@@ -1906,6 +1945,7 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminCustomersRoute: typeof AuthenticatedAdminCustomersRoute
   AuthenticatedAdminDriversRoute: typeof AuthenticatedAdminDriversRoute
   AuthenticatedAdminFleetRoute: typeof AuthenticatedAdminFleetRoute
+  AuthenticatedAdminHourlyRatesRoute: typeof AuthenticatedAdminHourlyRatesRoute
   AuthenticatedAdminLogsRoute: typeof AuthenticatedAdminLogsRoute
   AuthenticatedAdminMessagesRoute: typeof AuthenticatedAdminMessagesRoute
   AuthenticatedAdminMileagePricingRoute: typeof AuthenticatedAdminMileagePricingRoute
@@ -1947,6 +1987,7 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminCustomersRoute: AuthenticatedAdminCustomersRoute,
     AuthenticatedAdminDriversRoute: AuthenticatedAdminDriversRoute,
     AuthenticatedAdminFleetRoute: AuthenticatedAdminFleetRoute,
+    AuthenticatedAdminHourlyRatesRoute: AuthenticatedAdminHourlyRatesRoute,
     AuthenticatedAdminLogsRoute: AuthenticatedAdminLogsRoute,
     AuthenticatedAdminMessagesRoute: AuthenticatedAdminMessagesRoute,
     AuthenticatedAdminMileagePricingRoute:
@@ -1999,6 +2040,16 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface BookRouteChildren {
+  BookHourlyRoute: typeof BookHourlyRoute
+}
+
+const BookRouteChildren: BookRouteChildren = {
+  BookHourlyRoute: BookHourlyRoute,
+}
+
+const BookRouteWithChildren = BookRoute._addFileChildren(BookRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
@@ -2006,7 +2057,7 @@ const rootRouteChildren: RootRouteChildren = {
   AccessibilityRoute: AccessibilityRoute,
   AirportTransfersRoute: AirportTransfersRoute,
   AuthRoute: AuthRoute,
-  BookRoute: BookRoute,
+  BookRoute: BookRouteWithChildren,
   BookingPolicyRoute: BookingPolicyRoute,
   ContactRoute: ContactRoute,
   CookiesRoute: CookiesRoute,
@@ -2059,13 +2110,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

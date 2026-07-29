@@ -42,6 +42,8 @@ const NAV: SidebarEntry[] = [
       { to: "/admin/vehicle-classes", label: "Vehicle Classes", icon: Car },
       
       { to: "/admin/mileage-pricing", label: "Mileage Pricing", icon: Gauge },
+      { to: "/admin/hourly-rates", label: "Hourly Rates", icon: Gauge },
+
       { to: "/admin/pricing", label: "Route Pricing", icon: Tag },
       { to: "/admin/pricing-preview", label: "Quote Preview", icon: Gauge },
       { to: "/admin/surcharges", label: "Surcharges", icon: Percent },

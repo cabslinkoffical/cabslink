@@ -442,6 +442,8 @@ export type Database = {
           email: string
           engine_version: string | null
           flight_number: string | null
+          hourly_hours: number | null
+          hourly_rate_per_hour: number | null
           id: string
           idempotency_key: string | null
           idempotency_request_hash: string | null
@@ -499,6 +501,8 @@ export type Database = {
           email: string
           engine_version?: string | null
           flight_number?: string | null
+          hourly_hours?: number | null
+          hourly_rate_per_hour?: number | null
           id?: string
           idempotency_key?: string | null
           idempotency_request_hash?: string | null
@@ -556,6 +560,8 @@ export type Database = {
           email?: string
           engine_version?: string | null
           flight_number?: string | null
+          hourly_hours?: number | null
+          hourly_rate_per_hour?: number | null
           id?: string
           idempotency_key?: string | null
           idempotency_request_hash?: string | null
@@ -1131,9 +1137,11 @@ export type Database = {
           active: boolean
           created_at: string
           currency: string
+          display_order: number
           id: string
           max_hours: number
           min_hours: number
+          notes: string | null
           price_per_hour: number
           updated_at: string
           vehicle_id: string | null
@@ -1142,9 +1150,11 @@ export type Database = {
           active?: boolean
           created_at?: string
           currency?: string
+          display_order?: number
           id?: string
           max_hours?: number
           min_hours?: number
+          notes?: string | null
           price_per_hour: number
           updated_at?: string
           vehicle_id?: string | null
@@ -1153,9 +1163,11 @@ export type Database = {
           active?: boolean
           created_at?: string
           currency?: string
+          display_order?: number
           id?: string
           max_hours?: number
           min_hours?: number
+          notes?: string | null
           price_per_hour?: number
           updated_at?: string
           vehicle_id?: string | null
