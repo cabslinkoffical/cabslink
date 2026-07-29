@@ -247,7 +247,7 @@ function HomePage() {
 
 
               <h1
-                className="mt-5 font-display font-bold text-white leading-[0.95] tracking-[-0.03em] text-[2rem] sm:text-5xl lg:text-[5.25rem] opacity-0"
+                className="mt-4 font-display font-bold text-white leading-[0.95] tracking-[-0.03em] text-[2rem] sm:text-5xl lg:text-[3.9rem] xl:text-[4.4rem] opacity-0"
                 style={{ animation: "fadeInUp 800ms cubic-bezier(.2,.7,.2,1) 200ms forwards" }}
               >
                 Plan your{" "}
@@ -255,16 +255,17 @@ function HomePage() {
               </h1>
 
               <p
-                className="mt-5 max-w-xl text-sm md:text-lg text-white/75 opacity-0"
+                className="mt-4 max-w-xl text-sm md:text-base text-white/75 opacity-0"
                 style={{ animation: "fadeInUp 800ms cubic-bezier(.2,.7,.2,1) 380ms forwards" }}
               >
                 Fixed-fare Mercedes-Benz transfers, private tours and executive travel across the UK. Flight tracked, meet &amp; greet, 24/7 dispatch — the calm way to travel.
               </p>
 
               <div
-                className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-3 opacity-0"
+                className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-3 opacity-0"
                 style={{ animation: "fadeInUp 800ms cubic-bezier(.2,.7,.2,1) 500ms forwards" }}
               >
+
                 <div className="flex items-center gap-2 min-w-0">
                   <div className="flex -space-x-2 shrink-0">
                     {["S","J","P","M"].map((c, idx) => (
