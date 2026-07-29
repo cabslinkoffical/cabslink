@@ -17,6 +17,7 @@ import { DrivingCarBadge } from "@/components/site/DrivingCarBadge";
 import { Button } from "@/components/ui/button";
 import { SITE } from "@/lib/site";
 import { listPublishedTours } from "@/lib/tours.functions";
+import { TourCard } from "@/components/site/TourCard";
 import { listPublicVehicleClasses } from "@/lib/vehicle-classes.functions";
 import { fleetImageFor } from "@/assets/fleet";
 
