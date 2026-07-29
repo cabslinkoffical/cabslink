@@ -418,12 +418,16 @@ function TabButton({ active, onClick, icon, children }: { active: boolean; onCli
   );
 }
 
-function FieldCell({ icon, label, children, compact }: { icon: React.ReactNode; label: string; children: React.ReactNode; compact?: boolean }) {
+function FieldCell({ icon, label, children, compact, invalid }: { icon: React.ReactNode; label: string; children: React.ReactNode; compact?: boolean; invalid?: boolean }) {
   return (
-    <div className={`flex items-center gap-2.5 px-4 py-2 min-w-0 flex-1 ${compact ? "lg:max-w-[150px]" : ""}`}>
+    <div
+      className={`flex items-center gap-2.5 px-4 py-2 min-w-0 flex-1 rounded-2xl lg:rounded-full transition-colors ${compact ? "lg:max-w-[150px]" : ""} ${
+        invalid ? "bg-destructive/5 ring-1 ring-destructive/60" : ""
+      }`}
+    >
       <div className="shrink-0">{icon}</div>
       <div className="min-w-0 flex-1">
-        <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/70">{label}</div>
+        <div className={`text-[9px] font-bold uppercase tracking-[0.18em] ${invalid ? "text-destructive" : "text-[var(--navy)]/70"}`}>{label}</div>
         <div className="[&_input::-webkit-calendar-picker-indicator]:opacity-0 [&_input::-webkit-calendar-picker-indicator]:absolute [&_input::-webkit-calendar-picker-indicator]:inset-0 [&_input::-webkit-calendar-picker-indicator]:w-full [&_input::-webkit-calendar-picker-indicator]:cursor-pointer relative">
           {children}
         </div>
@@ -431,6 +435,7 @@ function FieldCell({ icon, label, children, compact }: { icon: React.ReactNode; 
     </div>
   );
 }
+
 
 function Divider() {
   return <div className="hidden lg:block w-px bg-border my-2 shrink-0" />;
