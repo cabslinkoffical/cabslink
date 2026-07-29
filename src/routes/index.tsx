@@ -407,7 +407,7 @@ function HomePage() {
                   key={t.slug}
                   to="/tours/$slug"
                   params={{ slug: t.slug }}
-                  className="group relative overflow-hidden rounded-[24px] border border-[var(--navy)]/10 bg-white hover:border-[var(--gold)] hover:-translate-y-1 transition-all duration-500"
+                  className="group relative overflow-hidden rounded-[24px] border border-[var(--navy)]/10 bg-white shadow-raised hover:shadow-raised-hover hover:border-[var(--gold)] hover:-translate-y-1.5 transition-all duration-500"
                 >
                   <div className="relative aspect-[4/3] bg-[var(--navy)]/[0.04] overflow-hidden">
                     {t.hero_image_url ? (
@@ -487,8 +487,8 @@ function HomePage() {
                   to={s.to}
                   className={`group relative overflow-hidden rounded-[28px] border transition-all duration-500 ${
                     featured
-                      ? "lg:col-span-2 lg:row-span-2 bg-[var(--navy)] border-[var(--navy)] text-white p-8 hover:-translate-y-1"
-                      : "lg:col-span-2 bg-white border-[var(--navy)]/10 p-7 hover:border-[var(--gold)] hover:-translate-y-1"
+                      ? "lg:col-span-2 lg:row-span-2 bg-[var(--navy)] border-[var(--navy)] text-white p-8 shadow-dark-raised hover:shadow-dark-raised-hover hover:-translate-y-1.5"
+                      : "lg:col-span-2 bg-white border-[var(--navy)]/10 p-7 shadow-raised hover:shadow-raised-hover hover:border-[var(--gold)] hover:-translate-y-1.5"
                   }`}
                 >
                   <span className={`text-[11px] font-mono ${featured ? "text-[var(--gold)]" : "text-[var(--navy)]/40"}`}>
@@ -540,8 +540,8 @@ function HomePage() {
               return (
                 <div
                   key={f.title}
-                  className={`group relative overflow-hidden rounded-[22px] border border-[var(--navy)]/10 p-6 transition-all duration-500 hover:-translate-y-1 hover:border-[var(--gold)] ${
-                    wide ? "md:col-span-2 bg-[var(--navy)] text-white" : "bg-white"
+                  className={`group relative overflow-hidden rounded-[22px] border border-[var(--navy)]/10 p-6 transition-all duration-500 hover:-translate-y-1.5 hover:border-[var(--gold)] ${
+                    wide ? "md:col-span-2 bg-[var(--navy)] text-white shadow-dark-raised hover:shadow-dark-raised-hover" : "bg-white shadow-raised hover:shadow-raised-hover"
                   }`}
                 >
                   <div className={`grid size-12 place-items-center rounded-xl ${
@@ -598,7 +598,7 @@ function HomePage() {
           </div>
 
           <div className="lg:col-span-7">
-            <div className="rounded-[28px] border border-[var(--navy)]/10 bg-white p-6 md:p-8 shadow-[var(--shadow-elegant)]">
+            <div className="rounded-[28px] border border-[var(--navy)]/10 bg-white p-6 md:p-8 shadow-raised">
               <div className="flex items-center justify-between gap-3 pb-5 border-b border-[var(--navy)]/10">
                 <div className="flex items-center gap-3">
                   <Globe2 className="size-5 text-[var(--gold-ink)]" />
@@ -663,7 +663,7 @@ function HomePage() {
                 key={a.code}
                 to="/airports/$iata"
                 params={{ iata: a.code.toLowerCase() }}
-                className="group relative overflow-hidden rounded-[20px] border border-[var(--navy)]/10 bg-white p-6 hover:border-[var(--gold)] hover:-translate-y-1 transition-all"
+                className="group relative overflow-hidden rounded-[20px] border border-[var(--navy)]/10 bg-white p-6 shadow-raised hover:shadow-raised-hover hover:border-[var(--gold)] hover:-translate-y-1.5 transition-all"
               >
                 <div className="flex items-start justify-between">
                   <Plane className="size-6 text-[var(--gold-ink)]" />
@@ -702,7 +702,7 @@ function HomePage() {
                 key={t.slug}
                 to="/tours/$slug"
                 params={{ slug: t.slug }}
-                className="group relative overflow-hidden rounded-[28px] border border-[var(--navy)]/10 bg-white hover:-translate-y-1 hover:border-[var(--gold)] transition-all duration-500"
+                className="group relative overflow-hidden rounded-[28px] border border-[var(--navy)]/10 bg-white shadow-raised hover:shadow-raised-hover hover:-translate-y-1.5 hover:border-[var(--gold)] transition-all duration-500"
               >
                 <div className="relative aspect-[4/3] bg-[var(--navy)]/[0.04] overflow-hidden">
                   <img src={t.img} alt={t.title} loading="lazy" decoding="async"
@@ -793,7 +793,7 @@ function HomePage() {
 
             <div className="lg:col-span-5 grid gap-6">
               {testimonials.slice(1).map((t) => (
-                <figure key={t.name} className="relative rounded-[24px] border border-white/15 bg-white/5 p-7 backdrop-blur">
+                <figure key={t.name} className="relative rounded-[24px] border border-white/15 bg-white/5 p-7 backdrop-blur shadow-dark-raised">
                   <div className="flex items-center gap-1 text-[var(--gold)]">
                     {[...Array(5)].map((_, i) => <Star key={i} className="size-3.5 fill-current" />)}
                   </div>
@@ -1035,7 +1035,7 @@ function FleetClassesSection() {
 
         <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {visible.map((k) => (
-            <div key={k.id} className="group relative rounded-[24px] bg-white overflow-hidden border border-white/10 hover:-translate-y-1 transition-all duration-500 flex flex-col">
+            <div key={k.id} className="group relative rounded-[24px] bg-white overflow-hidden border border-white/10 shadow-raised hover:shadow-raised-hover hover:-translate-y-1.5 transition-all duration-500 flex flex-col">
               {k.badge && (
                 <span className="absolute top-5 left-5 z-10 inline-flex items-center gap-1.5 rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] text-[10px] font-bold uppercase tracking-[0.16em] px-3 py-1.5">
                   <Gem className="size-3" /> {k.badge}

@@ -141,7 +141,7 @@ function ClassTicket({ klass }: { klass: PublicVehicleClass }) {
   return (
     <article
       id={klass.slug}
-      className="group relative flex flex-col rounded-2xl bg-card border border-border overflow-hidden shadow-[0_1px_2px_rgba(14,24,44,0.04),0_16px_36px_-28px_rgba(14,24,44,0.25)] hover:shadow-[0_1px_2px_rgba(14,24,44,0.04),0_24px_50px_-24px_rgba(14,24,44,0.35)] hover:-translate-y-0.5 transition-all duration-300"
+      className="group relative flex flex-col rounded-2xl bg-card border border-border overflow-hidden shadow-raised hover:shadow-raised-hover hover:-translate-y-1.5 transition-all duration-300"
     >
       {/* Image plate */}
       <div className="relative bg-muted aspect-[16/10] flex items-center justify-center overflow-hidden">
