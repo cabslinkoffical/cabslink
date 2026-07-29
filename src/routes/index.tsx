@@ -77,8 +77,17 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
+  // Prefetch on the server so the vehicle-class cards are present in the very
+  // first render instead of popping in after hydration.
+  loader: ({ context }) =>
+    context.queryClient.ensureQueryData({
+      queryKey: ["public-vehicle-classes"],
+      queryFn: () => listPublicVehicleClasses(),
+      staleTime: 5 * 60_000,
+    }),
   component: HomePage,
 });
+
 
 const trustStats = [
   { icon: Star, k: "4.9/5", v: "Rated Excellent" },
