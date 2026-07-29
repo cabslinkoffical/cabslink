@@ -125,10 +125,13 @@ function TourCard({ tour }: { tour: PublicTourListItem }) {
 
 function ToursPage() {
   const { data: allTours } = useSuspenseQuery(toursQuery);
-  // Day trips only — exclude long-day / multi-day itineraries
-  const tours = allTours.filter((t) => !t.long_day);
-  const featured = tours.filter((t) => t.featured);
-  const rest = tours.filter((t) => !t.featured);
+  // Day trips only — exclude long-day / multi-day itineraries.
+  // Featured tours first, but every card renders identically.
+  const tours = allTours
+    .filter((t) => !t.long_day)
+    .slice()
+    .sort((a, b) => Number(b.featured) - Number(a.featured));
+
 
 
   return (
