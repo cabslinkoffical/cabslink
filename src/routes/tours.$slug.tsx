@@ -98,18 +98,8 @@ function formatDuration(seconds: number | null | undefined): string | null {
   return `${m}m`;
 }
 
-function currencySymbol(currency: string): string {
-  return currency === "GBP" ? "£" : currency === "EUR" ? "€" : currency === "USD" ? "$" : "";
-}
 
-function formatPrice(pence: number | null, currency: string): string {
-  if (pence == null) return "Price on request";
-  return `${currencySymbol(currency)}${Math.round(pence / 100).toLocaleString()}`;
-}
 
-function formatMoney(amount: number, currency: string): string {
-  return `${currencySymbol(currency)}${amount.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
-}
 
 function TourDetailPage() {
   const { slug } = Route.useParams();
@@ -179,15 +169,6 @@ function TourDetailPage() {
       }),
   });
 
-  const liveStartingPence: number | null = useMemo(() => {
-    const vs = quoteQuery.data?.vehicles ?? [];
-    if (!vs.length) return d.starting_price_pence;
-    let min = Infinity;
-    for (const v of vs) if (v.final_total < min) min = v.final_total;
-    return Number.isFinite(min) ? Math.round(min * 100) : d.starting_price_pence;
-  }, [quoteQuery.data, d.starting_price_pence]);
-
-  const liveCurrency = quoteQuery.data?.vehicles?.[0]?.currency ?? d.currency;
   const totalMinutes = orderedStops.reduce((s, x) => s + x.minutes, 0);
   const drivingSecs = quoteQuery.data?.driving_duration_seconds ?? d.direct_duration_seconds;
   const totalJourneySecs = drivingSecs ? drivingSecs + totalMinutes * 60 : null;
@@ -208,10 +189,10 @@ function TourDetailPage() {
       to: d.destination_label ?? d.name,
       duration: formatDuration(d.direct_duration_seconds) ?? "—",
       distance: d.direct_distance_miles ? `${Math.round(d.direct_distance_miles)} mi` : "—",
-      fromPrice: `From ${formatPrice(liveStartingPence, liveCurrency)}`,
+      fromPrice: "Price on request",
       stops,
     };
-  }, [d, selected, liveStartingPence, liveCurrency]);
+  }, [d, selected]);
 
 
   const duration = formatDuration(d.direct_duration_seconds);
@@ -397,27 +378,17 @@ function TourDetailPage() {
             <div className="rounded-3xl border border-white/10 bg-[var(--surface)] p-6 shadow-[var(--shadow-elegant)]">
               <div className="flex items-baseline justify-between">
                 <p className="text-[11px] uppercase tracking-widest text-muted-foreground">
-                  {orderedStops.length > 0 ? "Live estimate from" : "Starting from"}
+                  Private day tour
                 </p>
                 {quoteQuery.isFetching && <Loader2 className="size-3.5 animate-spin text-muted-foreground" />}
               </div>
-              <p className="font-display text-4xl font-semibold text-[var(--gold)] mt-1">
-                {formatPrice(liveStartingPence, liveCurrency)}
+              <p className="font-display text-3xl font-semibold text-[var(--gold)] mt-1">
+                Price on request
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
-                Cheapest active vehicle. Final total shown after you pick a vehicle at checkout.
+                Tell us your date, group size and stops — we'll send a tailored quote.
               </p>
 
-              {quoteQuery.data && quoteQuery.data.vehicles.length > 1 && (
-                <ul className="mt-3 space-y-1 text-xs">
-                  {quoteQuery.data.vehicles.slice(0, 3).map((v) => (
-                    <li key={v.vehicle_id} className="flex justify-between text-muted-foreground">
-                      <span>{v.vehicle_name}</span>
-                      <span className="text-foreground">{formatMoney(v.final_total, v.currency)}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
 
               <TourBookingDialog
                 tour={tourForBooking}
