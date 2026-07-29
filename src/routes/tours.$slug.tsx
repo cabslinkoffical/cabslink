@@ -397,27 +397,17 @@ function TourDetailPage() {
             <div className="rounded-3xl border border-white/10 bg-[var(--surface)] p-6 shadow-[var(--shadow-elegant)]">
               <div className="flex items-baseline justify-between">
                 <p className="text-[11px] uppercase tracking-widest text-muted-foreground">
-                  {orderedStops.length > 0 ? "Live estimate from" : "Starting from"}
+                  Private day tour
                 </p>
                 {quoteQuery.isFetching && <Loader2 className="size-3.5 animate-spin text-muted-foreground" />}
               </div>
-              <p className="font-display text-4xl font-semibold text-[var(--gold)] mt-1">
-                {formatPrice(liveStartingPence, liveCurrency)}
+              <p className="font-display text-3xl font-semibold text-[var(--gold)] mt-1">
+                Price on request
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
-                Cheapest active vehicle. Final total shown after you pick a vehicle at checkout.
+                Tell us your date, group size and stops — we'll send a tailored quote.
               </p>
 
-              {quoteQuery.data && quoteQuery.data.vehicles.length > 1 && (
-                <ul className="mt-3 space-y-1 text-xs">
-                  {quoteQuery.data.vehicles.slice(0, 3).map((v) => (
-                    <li key={v.vehicle_id} className="flex justify-between text-muted-foreground">
-                      <span>{v.vehicle_name}</span>
-                      <span className="text-foreground">{formatMoney(v.final_total, v.currency)}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
 
               <TourBookingDialog
                 tour={tourForBooking}
