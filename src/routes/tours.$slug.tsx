@@ -399,6 +399,8 @@ function TourDetailPage() {
               <TourBookingDialog
                 tour={tourForBooking}
                 autoOpen={enquire === true}
+                trigger={
+
 
                   <Button size="lg" className="w-full mt-5">
                     Continue to booking <ArrowRight className="size-4 ml-1 inline" />
