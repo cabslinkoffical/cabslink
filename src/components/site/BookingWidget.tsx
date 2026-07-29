@@ -352,12 +352,12 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
             {/* Search button */}
             <button
               type="submit"
-              disabled={missingPlaces || identicalPlaces}
-              className="sm:col-span-2 lg:col-span-1 group inline-flex items-center justify-center gap-2 bg-[var(--gold)] text-[var(--gold-foreground)] rounded-2xl lg:rounded-full px-6 lg:px-8 py-4 lg:py-2.5 font-display font-bold uppercase tracking-[0.18em] text-xs hover:brightness-105 transition-all disabled:opacity-50 shrink-0"
+              className="sm:col-span-2 lg:col-span-1 group inline-flex items-center justify-center gap-2 bg-[var(--gold)] text-[var(--gold-foreground)] rounded-2xl lg:rounded-full px-6 lg:px-8 py-4 lg:py-2.5 font-display font-bold uppercase tracking-[0.18em] text-xs hover:brightness-105 transition-all shrink-0"
             >
-              <Search className="w-4 h-4" />
+              <Search className="w-4 h-4" strokeWidth={2.5} />
               <span>Search</span>
             </button>
+
           </div>
         </div>
 
