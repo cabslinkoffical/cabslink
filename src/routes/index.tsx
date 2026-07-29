@@ -349,17 +349,6 @@ function HomePage() {
                     />
                   )}
                 </div>
-
-                <div className="hidden md:flex absolute bottom-10 left-0 lg:left-4 items-center gap-3 rounded-2xl border border-white/15 bg-white px-4 py-3 shadow-[var(--shadow-elegant)]">
-                  <span className="relative flex size-2.5">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--gold)]/50" />
-                    <span className="relative inline-flex size-2.5 rounded-full bg-[var(--gold)]" />
-                  </span>
-                  <div className="text-xs">
-                    <div className="font-semibold text-[var(--navy)]">Live dispatch</div>
-                    <div className="text-[var(--navy)]/60">Driver available now</div>
-                  </div>
-                </div>
               </div>
 
             </div>
