@@ -42,13 +42,49 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
     return () => document.removeEventListener("mousedown", onDoc);
   }, []);
 
+  const isPastDateTime = (d: string, t: string) => {
+    if (!d || !t) return false;
+    const dt = new Date(`${d}T${t}`);
+    return !Number.isNaN(dt.getTime()) && dt.getTime() < Date.now() - 60_000;
+  };
+
   const missingPlaces = !pickup?.placeId || !dropoff?.placeId;
   const identicalPlaces = !!pickup?.placeId && !!dropoff?.placeId && pickup.placeId === dropoff.placeId;
 
-  const submit = (e: React.FormEvent) => {
+  const errors = {
+    pickup: !pickup?.placeId ? "Select a pickup location from the suggestions." : "",
+    dropoff: !dropoff?.placeId
+      ? "Select a destination from the suggestions."
+      : identicalPlaces
+        ? "Destination cannot be the same as pickup."
+        : "",
+    date: !date ? "Choose a travel date." : "",
+    time: !time ? "Choose a pickup time." : isPastDateTime(date, time) ? "Pickup time cannot be in the past." : "",
+    returnDate: showReturn && !returnDate ? "Choose a return date." : "",
+    returnTime: showReturn
+      ? !returnTime
+        ? "Choose a return time."
+        : new Date(`${returnDate}T${returnTime}`).getTime() <= new Date(`${date}T${time}`).getTime()
+          ? "Return must be after the outbound journey."
+          : ""
+      : "",
+    stops: stops.some((s) => !s?.placeId) ? "Complete or remove empty stops." : "",
+  };
+  const errorList = Object.values(errors).filter(Boolean);
+
+  const focusFirstInvalid = (form: HTMLFormElement) => {
+    const el = form.querySelector<HTMLElement>('[data-invalid="true"] input, [data-invalid="true"] select');
+    el?.focus();
+    el?.scrollIntoView({ block: "center", behavior: "smooth" });
+  };
+
+  const submit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setAttempted(true);
-    if (missingPlaces || identicalPlaces) return;
+    if (errorList.length) {
+      focusFirstInvalid(e.currentTarget);
+      return;
+    }
 
     const params = new URLSearchParams();
     params.set("pickupPlaceId", pickup!.placeId);
@@ -69,6 +105,14 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
     if (validStops.length) params.set("stops", encodePlaces(validStops));
     navigate({ to: "/book", search: { q: params.toString() } as never });
   };
+
+  const hourlyErrors = {
+    pickup: !pickup?.placeId ? "Select a pickup location from the suggestions." : "",
+    date: !date ? "Choose a travel date." : "",
+    time: !time ? "Choose a start time." : isPastDateTime(date, time) ? "Start time cannot be in the past." : "",
+  };
+  const hourlyErrorList = Object.values(hourlyErrors).filter(Boolean);
+
 
   return (
     <div className="w-full max-w-6xl mx-auto">
