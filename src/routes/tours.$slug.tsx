@@ -98,18 +98,8 @@ function formatDuration(seconds: number | null | undefined): string | null {
   return `${m}m`;
 }
 
-function currencySymbol(currency: string): string {
-  return currency === "GBP" ? "£" : currency === "EUR" ? "€" : currency === "USD" ? "$" : "";
-}
 
-function formatPrice(pence: number | null, currency: string): string {
-  if (pence == null) return "Price on request";
-  return `${currencySymbol(currency)}${Math.round(pence / 100).toLocaleString()}`;
-}
 
-function formatMoney(amount: number, currency: string): string {
-  return `${currencySymbol(currency)}${amount.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
-}
 
 function TourDetailPage() {
   const { slug } = Route.useParams();
