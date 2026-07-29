@@ -378,10 +378,15 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
         {stops.length > 0 && (
           <div className="mt-3 bg-white rounded-2xl border border-border p-2 space-y-1">
             {stops.map((s, i) => (
-              <div key={i} className="flex items-center gap-3 px-3 py-2">
+              <div
+                key={i}
+                data-invalid={attempted && !s?.placeId}
+                className={`flex items-center gap-3 px-3 py-2 rounded-xl ${attempted && !s?.placeId ? "bg-destructive/5 ring-1 ring-destructive/60" : ""}`}
+              >
                 <div className="w-8 h-8 rounded-full bg-[var(--surface)] shrink-0 flex items-center justify-center">
                   <div className="w-2 h-2 rounded-full bg-[var(--gold)]" />
                 </div>
+
                 <div className="min-w-0 flex-1">
                   <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/70">Stop {i + 1}</div>
                   <PlaceAutocomplete
