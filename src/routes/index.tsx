@@ -139,11 +139,6 @@ const ukCities = [
   "Liverpool", "Leeds", "Bristol", "Cardiff", "Newcastle", "Oxford", "Cambridge",
 ];
 
-const featuredTours = [
-  { slug: "loch-ness-highlands", title: "Loch Ness & Highlands", duration: "10 hours", highlights: ["Urquhart Castle", "Glencoe", "Scenic lochs"], img: vclassAsset.url },
-  { slug: "outlander-experience", title: "Outlander Filming Locations", duration: "8 hours", highlights: ["Doune Castle", "Culross", "Blackness"], img: sclassAsset.url },
-  { slug: "harry-potter-scotland", title: "Harry Potter in Scotland", duration: "12 hours", highlights: ["Glenfinnan Viaduct", "Loch Shiel", "Fort William"], img: rangeroverAsset.url },
-];
 
 const testimonials = [
   { name: "Sarah M.", role: "Frequent flyer · Edinburgh", vehicle: "Mercedes V-Class", country: "🇬🇧", quote: "Driver was waiting at arrivals with a name board. Immaculate vehicle, calm and professional. Best transfer service I've used in the UK." },
@@ -680,58 +675,8 @@ function HomePage() {
         </div>
       </section>
 
-      {/* FEATURED TOURS */}
-      <section className="section-y bg-[var(--surface-2)]">
-        <div className="container-x">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
-            <div className="max-w-2xl">
-              <p className="eyebrow-gold text-[11px]">— Featured Tours</p>
-              <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold text-[var(--navy)] leading-[1.05]">
-                Private tours, <br className="hidden md:block" />
-                <span className="text-[var(--gold)]">unforgettable journeys.</span>
-              </h2>
-            </div>
-            <Button asChild variant="outline" className="rounded-full border-[var(--navy)]/20 text-[var(--navy)] hover:border-[var(--gold)] hover:text-[var(--gold-ink)] self-start md:self-auto">
-              <Link to="/tours">Browse all tours <ArrowRight className="size-4" /></Link>
-            </Button>
-          </div>
 
-          <div className="grid gap-6 md:grid-cols-3">
-            {featuredTours.map((t) => (
-              <Link
-                key={t.slug}
-                to="/tours/$slug"
-                params={{ slug: t.slug }}
-                className="group relative overflow-hidden rounded-[28px] border border-[var(--navy)]/10 bg-white shadow-raised hover:shadow-raised-hover hover:-translate-y-1.5 hover:border-[var(--gold)] transition-all duration-500"
-              >
-                <div className="relative aspect-[4/3] bg-[var(--navy)]/[0.04] overflow-hidden">
-                  <img src={t.img} alt={t.title} loading="lazy" decoding="async"
-                       className="absolute inset-0 m-auto w-[92%] h-full object-contain transition-transform duration-700 group-hover:scale-105" />
-                  <span className="absolute top-4 left-4 rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] text-[10px] font-bold uppercase tracking-[0.14em] px-3 py-1.5 inline-flex items-center gap-1">
-                    <Clock className="size-3" /> {t.duration}
-                  </span>
-                </div>
-                <div className="p-6">
-                  <h3 className="font-display text-xl font-semibold text-[var(--navy)]">{t.title}</h3>
-                  <ul className="mt-4 space-y-1.5">
-                    {t.highlights.map((h) => (
-                      <li key={h} className="flex items-center gap-2 text-xs text-[var(--navy)]/65">
-                        <CheckCircle2 className="size-3.5 text-[var(--gold-ink)] shrink-0" /> {h}
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="mt-6 flex items-center justify-between border-t border-[var(--navy)]/10 pt-5">
-                    <span className="text-xs font-semibold text-[var(--navy)]/60">Private tour</span>
-                    <span className="inline-flex items-center gap-1 text-xs font-bold text-[var(--gold-ink)] group-hover:gap-2 transition-all">
-                      Explore <ArrowRight className="size-3.5" />
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
+
 
       {/* HOW IT WORKS */}
       <section className="section-y bg-white">
