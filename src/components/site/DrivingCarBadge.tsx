@@ -12,37 +12,35 @@ export function DrivingCarBadge({ label, className }: DrivingCarBadgeProps) {
     <div className={`inline-flex w-fit max-w-full flex-col items-start gap-1.5 ${className ?? ""}`}>
       <div className="flex items-center gap-2.5 whitespace-nowrap">
         <svg
-          viewBox="0 0 40 22"
-          className="h-5 w-9 shrink-0 overflow-visible text-[var(--gold)]"
+          viewBox="0 0 64 30"
+          className="h-8 w-[68px] shrink-0 overflow-visible text-[var(--gold)]"
           role="img"
           aria-hidden="true"
         >
-          {/* body */}
+          {/* car body — solid sedan silhouette */}
           <path
-            d="M3 15c0-2 1-3.4 3-3.8l4.2-.8 4.4-4.1c.9-.8 2-1.3 3.2-1.3h7.4c1.6 0 3 .8 3.9 2.1l2.3 3.4 3.4 1c1.3.4 2.2 1.6 2.2 3V15"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path d="M3 15h34" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-          {/* windows */}
-          <path
-            d="M16.4 6.6v4.1h7.9l-2.6-4.1z"
+            d="M2.5 22c-.8 0-1.4-.7-1.3-1.5l.5-3.6c.2-1.5 1.3-2.7 2.8-3.1l7.6-2 6.3-4.5C19.7 6.4 21.3 6 22.9 6h13.4c2.2 0 4.3.9 5.8 2.5l4.4 4.7 9.1 1.9c2.2.5 3.8 2.3 4 4.5l.1 1.2c.1.7-.5 1.2-1.2 1.2H2.5z"
             fill="currentColor"
-            opacity="0.35"
           />
+          {/* windows */}
+          <path d="M22.6 8.7h-.2c-.9 0-1.8.3-2.5.8l-4.9 3.5h7.6V8.7z" fill="#0a1224" opacity="0.85" />
+          <path d="M25.4 8.7h10.4c1.3 0 2.5.5 3.4 1.4l2.8 2.9H25.4V8.7z" fill="#0a1224" opacity="0.85" />
+          {/* wheel arch cutouts */}
+          <circle cx="17" cy="22" r="6.4" fill="#0a1224" />
+          <circle cx="47" cy="22" r="6.4" fill="#0a1224" />
           {/* wheels — spinning */}
-          <g className="car-wheel" style={{ transformOrigin: "12px 15px" }}>
-            <circle cx="12" cy="15" r="3.6" fill="none" stroke="currentColor" strokeWidth="1.8" />
-            <path d="M12 11.8v6.4M8.8 15h6.4" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" opacity="0.8" />
+          <g className="car-wheel" style={{ transformOrigin: "17px 22px" }}>
+            <circle cx="17" cy="22" r="5.4" fill="currentColor" />
+            <circle cx="17" cy="22" r="2.4" fill="#0a1224" />
+            <path d="M17 16.6v10.8M11.6 22h10.8M13.2 18.2l7.6 7.6M20.8 18.2l-7.6 7.6" stroke="#0a1224" strokeWidth="0.9" />
           </g>
-          <g className="car-wheel" style={{ transformOrigin: "29px 15px" }}>
-            <circle cx="29" cy="15" r="3.6" fill="none" stroke="currentColor" strokeWidth="1.8" />
-            <path d="M29 11.8v6.4M25.8 15h6.4" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" opacity="0.8" />
+          <g className="car-wheel" style={{ transformOrigin: "47px 22px" }}>
+            <circle cx="47" cy="22" r="5.4" fill="currentColor" />
+            <circle cx="47" cy="22" r="2.4" fill="#0a1224" />
+            <path d="M47 16.6v10.8M41.6 22h10.8M43.2 18.2l7.6 7.6M50.8 18.2l-7.6 7.6" stroke="#0a1224" strokeWidth="0.9" />
           </g>
         </svg>
+
 
         <span className="text-[10px] md:text-[11px] font-semibold uppercase tracking-[0.32em] text-white">
           {label}
