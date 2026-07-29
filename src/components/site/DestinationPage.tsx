@@ -18,6 +18,7 @@ import { DestinationSections } from "@/components/seo/DestinationSections";
 import { buildSections } from "@/lib/seo/content-engine";
 import { getTemplate } from "@/lib/seo/template-registry";
 import { evaluateQuality } from "@/lib/seo/quality";
+import { SiteLayout } from "@/components/site/SiteLayout";
 
 export type LoadedDestination = {
   destination: Destination;
@@ -68,7 +69,8 @@ export function DestinationPage({
   const sections = buildSections(data, tpl.sections);
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-10">
+    <SiteLayout>
+    <div className="mx-auto max-w-6xl px-4 py-10">
       <Breadcrumbs items={breadcrumbs} />
       <header className="mt-4 mb-8">
         <h1 className="text-4xl font-bold tracking-tight text-[var(--navy)]">
@@ -88,6 +90,7 @@ export function DestinationPage({
       )}
 
       <DestinationSections sections={sections} loaded={data} />
-    </main>
+    </div>
+    </SiteLayout>
   );
 }
