@@ -323,7 +323,7 @@ function HomePage() {
 
                 <div aria-hidden className="absolute inset-x-8 bottom-2 h-8 rounded-[50%] bg-[color-mix(in_oklab,#000000_40%,transparent)] blur-2xl" />
 
-                <div className="relative aspect-[16/10] overflow-hidden">
+                <div className="relative aspect-[16/10] lg:aspect-[16/8.5] lg:max-h-[300px] xl:max-h-[340px]">
                   {current && (
                     <img
                       key={current.key}
