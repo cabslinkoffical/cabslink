@@ -298,3 +298,12 @@
   .animate-float, .animate-pulse-ring, .animate-marquee { animation: none !important; }
 }
 
+
+/* Driving car badge */
+@keyframes carWheelSpin { to { transform: rotate(360deg); } }
+@keyframes roadDashMove { to { stroke-dashoffset: -44; } }
+.car-wheel { animation: carWheelSpin 900ms linear infinite; }
+.road-dash { animation: roadDashMove 900ms linear infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .car-wheel, .road-dash { animation: none !important; }
+}
