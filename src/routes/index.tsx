@@ -91,11 +91,12 @@ export const Route = createFileRoute("/")({
 
 
 const trustStats = [
-  { icon: Star, k: "4.9/5", v: "Rated Excellent" },
-  { icon: Globe2, k: "50k+", v: "Journeys Completed" },
-  { icon: Headset, k: "24/7", v: "Live Support" },
-  { icon: ShieldCheck, k: "100%", v: "Licensed Drivers" },
+  { icon: ShieldCheck, k: "Licensed & insured", v: "Fully vetted UK drivers" },
+  { icon: Clock, k: "24/7 availability", v: "Day, night and holidays" },
+  { icon: BadgeCheck, k: "Fixed pricing", v: "No hidden surcharges" },
+  { icon: PlaneTakeoff, k: "Flight tracking", v: "Free waiting on delays" },
 ];
+
 
 const popularRoutes = [
   { from: "London Heathrow", to: "Central London", distance: "24 mi", duration: "45 min", price: "£65", img: eclassAsset.url },
