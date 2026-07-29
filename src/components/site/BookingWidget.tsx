@@ -42,13 +42,49 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
     return () => document.removeEventListener("mousedown", onDoc);
   }, []);
 
-  const missingPlaces = !pickup?.placeId || !dropoff?.placeId;
+  const isPastDateTime = (d: string, t: string) => {
+    if (!d || !t) return false;
+    const dt = new Date(`${d}T${t}`);
+    return !Number.isNaN(dt.getTime()) && dt.getTime() < Date.now() - 60_000;
+  };
+
+  
   const identicalPlaces = !!pickup?.placeId && !!dropoff?.placeId && pickup.placeId === dropoff.placeId;
 
-  const submit = (e: React.FormEvent) => {
+  const errors = {
+    pickup: !pickup?.placeId ? "Select a pickup location from the suggestions." : "",
+    dropoff: !dropoff?.placeId
+      ? "Select a destination from the suggestions."
+      : identicalPlaces
+        ? "Destination cannot be the same as pickup."
+        : "",
+    date: !date ? "Choose a travel date." : "",
+    time: !time ? "Choose a pickup time." : isPastDateTime(date, time) ? "Pickup time cannot be in the past." : "",
+    returnDate: showReturn && !returnDate ? "Choose a return date." : "",
+    returnTime: showReturn
+      ? !returnTime
+        ? "Choose a return time."
+        : new Date(`${returnDate}T${returnTime}`).getTime() <= new Date(`${date}T${time}`).getTime()
+          ? "Return must be after the outbound journey."
+          : ""
+      : "",
+    stops: stops.some((s) => !s?.placeId) ? "Complete or remove empty stops." : "",
+  };
+  const errorList = Object.values(errors).filter(Boolean);
+
+  const focusFirstInvalid = (form: HTMLFormElement) => {
+    const el = form.querySelector<HTMLElement>('[data-invalid="true"] input, [data-invalid="true"] select');
+    el?.focus();
+    el?.scrollIntoView({ block: "center", behavior: "smooth" });
+  };
+
+  const submit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setAttempted(true);
-    if (missingPlaces || identicalPlaces) return;
+    if (errorList.length) {
+      focusFirstInvalid(e.currentTarget);
+      return;
+    }
 
     const params = new URLSearchParams();
     params.set("pickupPlaceId", pickup!.placeId);
@@ -69,6 +105,14 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
     if (validStops.length) params.set("stops", encodePlaces(validStops));
     navigate({ to: "/book", search: { q: params.toString() } as never });
   };
+
+  const hourlyErrors = {
+    pickup: !pickup?.placeId ? "Select a pickup location from the suggestions." : "",
+    date: !date ? "Choose a travel date." : "",
+    time: !time ? "Choose a start time." : isPastDateTime(date, time) ? "Start time cannot be in the past." : "",
+  };
+  const hourlyErrorList = Object.values(hourlyErrors).filter(Boolean);
+
 
   return (
     <div className="w-full max-w-6xl mx-auto">
@@ -91,10 +135,13 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
           onSubmit={(e) => {
             e.preventDefault();
             setAttempted(true);
-            if (!pickup?.placeId) return;
+            if (hourlyErrorList.length) {
+              focusFirstInvalid(e.currentTarget);
+              return;
+            }
             const params = new URLSearchParams();
-            params.set("pickupPlaceId", pickup.placeId);
-            params.set("pickupLabel", pickup.label);
+            params.set("pickupPlaceId", pickup!.placeId);
+            params.set("pickupLabel", pickup!.label);
             params.set("date", date);
             params.set("time", time);
             params.set("hours", String(hours));
@@ -102,11 +149,12 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
             params.set("luggage", String(luggage));
             navigate({ to: "/book/hourly", search: { q: params.toString() } as never });
           }}
+
         >
           <div className="bg-white shadow-[var(--shadow-elegant)] border border-black/5 rounded-3xl lg:rounded-full overflow-visible p-2 lg:p-1.5">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:items-stretch gap-1 lg:gap-0">
-              <div className="sm:col-span-2 lg:flex-1 lg:min-w-0">
-                <FieldCell icon={<MapPin className="w-4 h-4 text-[var(--gold)]" />} label="Pickup">
+              <div className="sm:col-span-2 lg:flex-1 lg:min-w-0" data-invalid={attempted && !!hourlyErrors.pickup}>
+                <FieldCell icon={<MapPin className="w-4 h-4 text-[var(--gold)]" />} label="Pickup" invalid={attempted && !!hourlyErrors.pickup}>
                   <PlaceAutocomplete
                     id={`${idPrefix}-hourly-pickup`}
                     value={pickup}
@@ -121,19 +169,20 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
 
               <Divider />
 
-              <div className="border-t border-black/5 lg:border-0">
-                <FieldCell icon={<Calendar className="w-4 h-4 text-[var(--gold)]" />} label="Date" compact>
-                  <input required type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full bg-transparent border-0 outline-none text-sm font-semibold text-foreground" />
+              <div className="border-t border-black/5 lg:border-0" data-invalid={attempted && !!hourlyErrors.date}>
+                <FieldCell icon={<Calendar className="w-4 h-4 text-[var(--gold)]" />} label="Date" compact invalid={attempted && !!hourlyErrors.date}>
+                  <input required type="date" min={today} value={date} onChange={(e) => setDate(e.target.value)} className="w-full bg-transparent border-0 outline-none text-sm font-semibold text-foreground" />
                 </FieldCell>
               </div>
 
               <Divider />
 
-              <div className="border-t border-black/5 sm:border-t-0 sm:border-l sm:border-black/5 lg:border-l-0 lg:border-0">
-                <FieldCell icon={<Clock className="w-4 h-4 text-[var(--gold)]" />} label="Start time" compact>
+              <div className="border-t border-black/5 sm:border-t-0 sm:border-l sm:border-black/5 lg:border-l-0 lg:border-0" data-invalid={attempted && !!hourlyErrors.time}>
+                <FieldCell icon={<Clock className="w-4 h-4 text-[var(--gold)]" />} label="Start time" compact invalid={attempted && !!hourlyErrors.time}>
                   <input required type="time" value={time} onChange={(e) => setTime(e.target.value)} className="w-full bg-transparent border-0 outline-none text-sm font-semibold text-foreground" />
                 </FieldCell>
               </div>
+
 
               <Divider />
 
@@ -179,10 +228,9 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
 
               <button
                 type="submit"
-                disabled={!pickup?.placeId}
-                className="sm:col-span-2 lg:col-span-1 inline-flex items-center justify-center gap-2 bg-[var(--gold)] text-[var(--gold-foreground)] rounded-2xl lg:rounded-full px-6 lg:px-8 py-4 lg:py-2.5 font-display font-bold uppercase tracking-[0.18em] text-xs hover:brightness-105 transition-all disabled:opacity-50 shrink-0"
+                className="sm:col-span-2 lg:col-span-1 inline-flex items-center justify-center gap-2 bg-[var(--gold)] text-[var(--gold-foreground)] rounded-2xl lg:rounded-full px-6 lg:px-8 py-4 lg:py-2.5 font-display font-bold uppercase tracking-[0.18em] text-xs hover:brightness-105 transition-all shrink-0"
               >
-                <Search className="w-4 h-4" />
+                <Search className="w-4 h-4" strokeWidth={2.5} />
                 <span>See rates</span>
               </button>
             </div>
@@ -190,9 +238,14 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
           <p className="text-xs text-white/70 mt-3 px-2">
             Car and driver at your disposal — travel as directed, multiple stops included.
           </p>
-          {attempted && !pickup?.placeId && (
-            <p className="text-xs text-destructive text-center mt-2" role="alert">Please select a pickup location from the suggestions.</p>
+          {attempted && hourlyErrorList.length > 0 && (
+            <ul className="mt-2 space-y-1 text-xs text-destructive text-center" role="alert">
+              {hourlyErrorList.map((msg) => (
+                <li key={msg}>{msg}</li>
+              ))}
+            </ul>
           )}
+
         </form>
       )}
 
@@ -203,8 +256,8 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
         <div className="bg-white shadow-[var(--shadow-elegant)] border border-black/5 rounded-3xl lg:rounded-full overflow-visible p-2 lg:p-1.5">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:items-stretch gap-1 lg:gap-0">
             {/* Pickup */}
-            <div className="sm:col-span-2 lg:flex-1 lg:min-w-0">
-              <FieldCell icon={<MapPin className="w-4 h-4 text-[var(--gold)]" />} label="From">
+            <div className="sm:col-span-2 lg:flex-1 lg:min-w-0" data-invalid={attempted && !!errors.pickup}>
+              <FieldCell icon={<MapPin className="w-4 h-4 text-[var(--gold)]" />} label="From" invalid={attempted && !!errors.pickup}>
                 <PlaceAutocomplete
                   id={`${idPrefix}-pickup`}
                   value={pickup}
@@ -220,8 +273,8 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
             <Divider />
 
             {/* Dropoff */}
-            <div className="sm:col-span-2 lg:flex-1 lg:min-w-0 border-t border-black/5 sm:border-t-0 lg:border-0">
-              <FieldCell icon={<Flag className="w-4 h-4 text-[var(--gold)]" />} label="To">
+            <div className="sm:col-span-2 lg:flex-1 lg:min-w-0 border-t border-black/5 sm:border-t-0 lg:border-0" data-invalid={attempted && !!errors.dropoff}>
+              <FieldCell icon={<Flag className="w-4 h-4 text-[var(--gold)]" />} label="To" invalid={attempted && !!errors.dropoff}>
                 <PlaceAutocomplete
                   id={`${idPrefix}-dropoff`}
                   value={dropoff}
@@ -237,11 +290,12 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
             <Divider />
 
             {/* Date */}
-            <div className="border-t border-black/5 lg:border-0">
-              <FieldCell icon={<Calendar className="w-4 h-4 text-[var(--gold)]" />} label="Date" compact>
+            <div className="border-t border-black/5 lg:border-0" data-invalid={attempted && !!errors.date}>
+              <FieldCell icon={<Calendar className="w-4 h-4 text-[var(--gold)]" />} label="Date" compact invalid={attempted && !!errors.date}>
                 <input
                   required
                   type="date"
+                  min={today}
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
                   className="w-full bg-transparent border-0 outline-none text-sm font-semibold text-foreground"
@@ -252,8 +306,8 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
             <Divider />
 
             {/* Time */}
-            <div className="border-t border-black/5 sm:border-t-0 sm:border-l sm:border-black/5 lg:border-l-0 lg:border-0">
-              <FieldCell icon={<Clock className="w-4 h-4 text-[var(--gold)]" />} label="Time" compact>
+            <div className="border-t border-black/5 sm:border-t-0 sm:border-l sm:border-black/5 lg:border-l-0 lg:border-0" data-invalid={attempted && !!errors.time}>
+              <FieldCell icon={<Clock className="w-4 h-4 text-[var(--gold)]" />} label="Time" compact invalid={attempted && !!errors.time}>
                 <input
                   required
                   type="time"
@@ -263,6 +317,7 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
                 />
               </FieldCell>
             </div>
+
 
             <Divider />
 
@@ -297,12 +352,12 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
             {/* Search button */}
             <button
               type="submit"
-              disabled={missingPlaces || identicalPlaces}
-              className="sm:col-span-2 lg:col-span-1 group inline-flex items-center justify-center gap-2 bg-[var(--gold)] text-[var(--gold-foreground)] rounded-2xl lg:rounded-full px-6 lg:px-8 py-4 lg:py-2.5 font-display font-bold uppercase tracking-[0.18em] text-xs hover:brightness-105 transition-all disabled:opacity-50 shrink-0"
+              className="sm:col-span-2 lg:col-span-1 group inline-flex items-center justify-center gap-2 bg-[var(--gold)] text-[var(--gold-foreground)] rounded-2xl lg:rounded-full px-6 lg:px-8 py-4 lg:py-2.5 font-display font-bold uppercase tracking-[0.18em] text-xs hover:brightness-105 transition-all shrink-0"
             >
-              <Search className="w-4 h-4" />
+              <Search className="w-4 h-4" strokeWidth={2.5} />
               <span>Search</span>
             </button>
+
           </div>
         </div>
 
@@ -323,10 +378,15 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
         {stops.length > 0 && (
           <div className="mt-3 bg-white rounded-2xl border border-border p-2 space-y-1">
             {stops.map((s, i) => (
-              <div key={i} className="flex items-center gap-3 px-3 py-2">
+              <div
+                key={i}
+                data-invalid={attempted && !s?.placeId}
+                className={`flex items-center gap-3 px-3 py-2 rounded-xl ${attempted && !s?.placeId ? "bg-destructive/5 ring-1 ring-destructive/60" : ""}`}
+              >
                 <div className="w-8 h-8 rounded-full bg-[var(--surface)] shrink-0 flex items-center justify-center">
                   <div className="w-2 h-2 rounded-full bg-[var(--gold)]" />
                 </div>
+
                 <div className="min-w-0 flex-1">
                   <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/70">Stop {i + 1}</div>
                   <PlaceAutocomplete
@@ -368,14 +428,20 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
               </button>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <div className="flex items-center gap-2 px-3 h-[54px] rounded-xl border border-border">
+              <div
+                data-invalid={attempted && !!errors.returnDate}
+                className={`flex items-center gap-2 px-3 h-[54px] rounded-xl border ${attempted && errors.returnDate ? "border-destructive bg-destructive/5" : "border-border"}`}
+              >
                 <Calendar className="w-4 h-4 text-[var(--gold)]" />
                 <div className="min-w-0 flex-1">
                   <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/70">Date</div>
-                  <input type="date" value={returnDate} onChange={(e) => setReturnDate(e.target.value)} className="w-full bg-transparent border-0 outline-none text-sm font-semibold" />
+                  <input type="date" min={date || today} value={returnDate} onChange={(e) => setReturnDate(e.target.value)} className="w-full bg-transparent border-0 outline-none text-sm font-semibold" />
                 </div>
               </div>
-              <div className="flex items-center gap-2 px-3 h-[54px] rounded-xl border border-border">
+              <div
+                data-invalid={attempted && !!errors.returnTime}
+                className={`flex items-center gap-2 px-3 h-[54px] rounded-xl border ${attempted && errors.returnTime ? "border-destructive bg-destructive/5" : "border-border"}`}
+              >
                 <Clock className="w-4 h-4 text-[var(--gold)]" />
                 <div className="min-w-0 flex-1">
                   <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/70">Time</div>
@@ -386,16 +452,14 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
           </div>
         )}
 
-        {attempted && missingPlaces && (
-          <p className="text-xs text-destructive text-center mt-3" role="alert">
-            Please select pickup and destination from the suggestions.
-          </p>
+        {attempted && errorList.length > 0 && (
+          <ul className="mt-3 space-y-1 text-xs text-destructive text-center" role="alert">
+            {errorList.map((msg) => (
+              <li key={msg}>{msg}</li>
+            ))}
+          </ul>
         )}
-        {attempted && identicalPlaces && (
-          <p className="text-xs text-destructive text-center mt-3" role="alert">
-            Pickup and destination cannot be the same location.
-          </p>
-        )}
+
       </form>
       )}
 
@@ -418,12 +482,16 @@ function TabButton({ active, onClick, icon, children }: { active: boolean; onCli
   );
 }
 
-function FieldCell({ icon, label, children, compact }: { icon: React.ReactNode; label: string; children: React.ReactNode; compact?: boolean }) {
+function FieldCell({ icon, label, children, compact, invalid }: { icon: React.ReactNode; label: string; children: React.ReactNode; compact?: boolean; invalid?: boolean }) {
   return (
-    <div className={`flex items-center gap-2.5 px-4 py-2 min-w-0 flex-1 ${compact ? "lg:max-w-[150px]" : ""}`}>
+    <div
+      className={`flex items-center gap-2.5 px-4 py-2 min-w-0 flex-1 rounded-2xl lg:rounded-full transition-colors ${compact ? "lg:max-w-[150px]" : ""} ${
+        invalid ? "bg-destructive/5 ring-1 ring-destructive/60" : ""
+      }`}
+    >
       <div className="shrink-0">{icon}</div>
       <div className="min-w-0 flex-1">
-        <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/70">{label}</div>
+        <div className={`text-[9px] font-bold uppercase tracking-[0.18em] ${invalid ? "text-destructive" : "text-[var(--navy)]/70"}`}>{label}</div>
         <div className="[&_input::-webkit-calendar-picker-indicator]:opacity-0 [&_input::-webkit-calendar-picker-indicator]:absolute [&_input::-webkit-calendar-picker-indicator]:inset-0 [&_input::-webkit-calendar-picker-indicator]:w-full [&_input::-webkit-calendar-picker-indicator]:cursor-pointer relative">
           {children}
         </div>
@@ -431,6 +499,7 @@ function FieldCell({ icon, label, children, compact }: { icon: React.ReactNode; 
     </div>
   );
 }
+
 
 function Divider() {
   return <div className="hidden lg:block w-px bg-border my-2 shrink-0" />;
