@@ -101,6 +101,14 @@
   --border: rgba(14, 24, 44, 0.12);
   --input: rgba(14, 24, 44, 0.18);
   --ring: #dfaf26;
+
+  /* Status tokens — kept tonally close to the navy/gold brand */
+  --success: #14684b;
+  --success-foreground: #ffffff;
+  --warning: #a8760a;
+  --warning-foreground: #0e182c;
+  --info: #1c3f77;
+  --info-foreground: #ffffff;
 }
 
 @layer base {
