@@ -77,8 +77,17 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
+  // Prefetch on the server so the vehicle-class cards are present in the very
+  // first render instead of popping in after hydration.
+  loader: ({ context }) =>
+    context.queryClient.ensureQueryData({
+      queryKey: ["public-vehicle-classes"],
+      queryFn: () => listPublicVehicleClasses(),
+      staleTime: 5 * 60_000,
+    }),
   component: HomePage,
 });
+
 
 const trustStats = [
   { icon: Star, k: "4.9/5", v: "Rated Excellent" },
@@ -902,9 +911,15 @@ function FleetClassesSection() {
   const { data: classes = [] } = useQuery({
     queryKey: ["public-vehicle-classes"],
     queryFn: () => listPublicVehicleClasses(),
-    staleTime: 60_000,
+    staleTime: 5 * 60_000,
+    gcTime: 30 * 60_000,
+    refetchOnWindowFocus: false,
+    placeholderData: (prev) => prev,
   });
-  const visible = classes.filter((c) => c.slug !== "unclassified").slice(0, 6);
+  const visible = classes.filter((c) => c.slug !== "unclassified");
+  // Duplicate the list so the marquee track loops seamlessly left → right.
+  const track = visible.length > 0 ? [...visible, ...visible] : [];
+
   return (
     <section className="section-y navy-scene">
       <div className="container-x">
@@ -924,9 +939,24 @@ function FleetClassesSection() {
           </Button>
         </div>
 
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {visible.map((k) => (
-            <div key={k.id} className="group relative rounded-[24px] bg-white overflow-hidden border border-white/10 shadow-raised hover:shadow-raised-hover hover:-translate-y-1.5 transition-all duration-500 flex flex-col">
+        {/* Continuous left → right marquee of every active class */}
+        <div className="mt-12 -mx-4 md:-mx-6 lg:-mx-10 relative group/marquee">
+          <div aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-12 md:w-24 z-10 bg-gradient-to-r from-[var(--navy)] to-transparent" />
+          <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 w-12 md:w-24 z-10 bg-gradient-to-l from-[var(--navy)] to-transparent" />
+          <div className="overflow-hidden px-4 md:px-6 lg:px-10 py-2">
+            {track.length === 0 ? (
+              <div className="flex gap-6">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="w-[280px] sm:w-[320px] shrink-0 rounded-[24px] bg-white/10 animate-pulse h-[420px]" />
+                ))}
+              </div>
+            ) : (
+              <div
+                className="flex gap-6 w-max animate-[classMarquee_60s_linear_infinite] group-hover/marquee:[animation-play-state:paused] motion-reduce:animate-none"
+                style={{ animationDirection: "reverse" }}
+              >
+                {track.map((k, idx) => (
+            <div key={`${k.id}-${idx}`} className="group relative w-[280px] sm:w-[320px] shrink-0 rounded-[24px] bg-white overflow-hidden border border-white/10 shadow-raised hover:shadow-raised-hover hover:-translate-y-1.5 transition-all duration-500 flex flex-col">
               {k.badge && (
                 <span className="absolute top-5 left-5 z-10 inline-flex items-center gap-1.5 rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] text-[10px] font-bold uppercase tracking-[0.16em] px-3 py-1.5">
                   <Gem className="size-3" /> {k.badge}
@@ -936,7 +966,7 @@ function FleetClassesSection() {
                 {(() => {
                   const img = fleetImageFor(k.slug, k.hero_image);
                   return img ? (
-                    <img src={img} alt={k.name} loading="lazy" decoding="async" className="max-h-full max-w-full object-contain drop-shadow-[0_18px_18px_rgba(14,24,44,0.15)] transition-transform duration-700 group-hover:scale-[1.04]" />
+                    <img src={img} alt={k.name} loading={idx < 4 ? "eager" : "lazy"} decoding="async" className="max-h-full max-w-full object-contain drop-shadow-[0_18px_18px_rgba(14,24,44,0.15)] transition-transform duration-700 group-hover:scale-[1.04]" />
                   ) : (
                     <div className="text-[var(--navy)]/40 text-sm">Image coming soon</div>
                   );
@@ -948,11 +978,10 @@ function FleetClassesSection() {
                 <div className="mt-4 flex items-center gap-4 text-xs text-[var(--navy)]/70">
                   <span className="flex items-center gap-1.5"><Users className="size-4 text-[var(--gold-ink)]" />{k.passengers} pax</span>
                   <span className="flex items-center gap-1.5"><Briefcase className="size-4 text-[var(--gold-ink)]" />{k.large_luggage} bags</span>
-                  <span className="flex items-center gap-1.5"><ShieldCheck className="size-4 text-[var(--gold-ink)]" />Insured</span>
                 </div>
                 {k.models.length > 0 && (
                   <div className="mt-3 flex flex-wrap gap-1.5">
-                    {k.models.slice(0, 4).map((m) => (
+                    {k.models.slice(0, 3).map((m) => (
                       <span key={m.id} className="rounded-full bg-[var(--navy)]/5 text-[var(--navy)]/80 px-2 py-0.5 text-[10.5px] font-medium">
                         {m.name}
                       </span>
@@ -967,8 +996,12 @@ function FleetClassesSection() {
                 </div>
               </div>
             </div>
-          ))}
+                ))}
+              </div>
+            )}
+          </div>
         </div>
+
         <p className="mt-8 text-center text-[11px] text-white/50 max-w-2xl mx-auto">
           You book a vehicle class, not a specific model. You always receive a vehicle from the booked class or a complimentary upgrade — never a lower class.
         </p>

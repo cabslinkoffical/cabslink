@@ -307,3 +307,9 @@
 @media (prefers-reduced-motion: reduce) {
   .car-wheel, .road-dash { animation: none !important; }
 }
+
+/* Vehicle-class marquee: track is duplicated, so -50% is one full loop. */
+@keyframes classMarquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
