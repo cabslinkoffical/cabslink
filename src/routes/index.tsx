@@ -236,14 +236,12 @@ function HomePage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
             <div className="lg:col-span-6 relative z-10 min-w-0 w-full">
               <div
-                className="inline-flex items-center gap-3 rounded-full border border-[var(--gold)]/45 bg-[var(--gold)]/10 px-4 py-1.5 opacity-0"
+                className="inline-block max-w-[19rem] opacity-0"
                 style={{ animation: "fadeInUp 700ms cubic-bezier(.2,.7,.2,1) 100ms forwards" }}
               >
-                <Sparkles className="size-3.5 text-[var(--gold)]" />
-                <span className="text-[10px] md:text-[11px] font-semibold uppercase tracking-[0.32em] text-white">
-                  UK's Premium Travel Platform
-                </span>
+                <DrivingCarBadge label="UK's Premium Travel Platform" />
               </div>
+
 
               <h1
                 className="mt-5 font-display font-bold text-white leading-[0.95] tracking-[-0.03em] text-[2rem] sm:text-5xl lg:text-[5.25rem] opacity-0"
