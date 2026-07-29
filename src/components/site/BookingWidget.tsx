@@ -153,8 +153,8 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
         >
           <div className="bg-white shadow-[var(--shadow-elegant)] border border-black/5 rounded-3xl lg:rounded-full overflow-visible p-2 lg:p-1.5">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:items-stretch gap-1 lg:gap-0">
-              <div className="sm:col-span-2 lg:flex-1 lg:min-w-0">
-                <FieldCell icon={<MapPin className="w-4 h-4 text-[var(--gold)]" />} label="Pickup">
+              <div className="sm:col-span-2 lg:flex-1 lg:min-w-0" data-invalid={attempted && !!hourlyErrors.pickup}>
+                <FieldCell icon={<MapPin className="w-4 h-4 text-[var(--gold)]" />} label="Pickup" invalid={attempted && !!hourlyErrors.pickup}>
                   <PlaceAutocomplete
                     id={`${idPrefix}-hourly-pickup`}
                     value={pickup}
@@ -169,19 +169,20 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
 
               <Divider />
 
-              <div className="border-t border-black/5 lg:border-0">
-                <FieldCell icon={<Calendar className="w-4 h-4 text-[var(--gold)]" />} label="Date" compact>
-                  <input required type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full bg-transparent border-0 outline-none text-sm font-semibold text-foreground" />
+              <div className="border-t border-black/5 lg:border-0" data-invalid={attempted && !!hourlyErrors.date}>
+                <FieldCell icon={<Calendar className="w-4 h-4 text-[var(--gold)]" />} label="Date" compact invalid={attempted && !!hourlyErrors.date}>
+                  <input required type="date" min={today} value={date} onChange={(e) => setDate(e.target.value)} className="w-full bg-transparent border-0 outline-none text-sm font-semibold text-foreground" />
                 </FieldCell>
               </div>
 
               <Divider />
 
-              <div className="border-t border-black/5 sm:border-t-0 sm:border-l sm:border-black/5 lg:border-l-0 lg:border-0">
-                <FieldCell icon={<Clock className="w-4 h-4 text-[var(--gold)]" />} label="Start time" compact>
+              <div className="border-t border-black/5 sm:border-t-0 sm:border-l sm:border-black/5 lg:border-l-0 lg:border-0" data-invalid={attempted && !!hourlyErrors.time}>
+                <FieldCell icon={<Clock className="w-4 h-4 text-[var(--gold)]" />} label="Start time" compact invalid={attempted && !!hourlyErrors.time}>
                   <input required type="time" value={time} onChange={(e) => setTime(e.target.value)} className="w-full bg-transparent border-0 outline-none text-sm font-semibold text-foreground" />
                 </FieldCell>
               </div>
+
 
               <Divider />
 
