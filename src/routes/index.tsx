@@ -432,40 +432,42 @@ function HomePage() {
             </div>
           </div>
 
-          <div className="mt-14 grid gap-px overflow-hidden rounded-[28px] border border-[var(--navy)]/10 bg-[var(--navy)]/10 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {services.map((s, i) => (
               <Link
                 key={s.title}
                 to={s.to}
-                className="group relative flex h-full flex-col bg-white p-7 transition-colors duration-300 hover:bg-[var(--navy)] md:p-8"
+                className="group relative flex h-full flex-col overflow-hidden rounded-3xl bg-white p-7 ring-1 ring-[var(--navy)]/8 shadow-raised transition-all duration-300 hover:-translate-y-1 hover:shadow-raised-hover hover:ring-[var(--gold)]/45 md:p-8"
               >
+                {/* soft gold wash on hover */}
                 <span
                   aria-hidden
-                  className="absolute inset-x-0 top-0 h-[3px] origin-left scale-x-0 bg-[var(--gold)] transition-transform duration-500 group-hover:scale-x-100"
+                  className="pointer-events-none absolute -right-10 -top-10 size-32 rounded-full bg-[var(--gold)]/12 opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100"
                 />
 
-                <div className="flex items-center justify-between gap-4">
-                  <div className="grid size-12 shrink-0 place-items-center rounded-xl border border-[var(--gold)]/40 bg-[var(--gold)]/10 text-[var(--navy)] transition-colors duration-300 group-hover:border-[var(--gold)] group-hover:bg-[var(--gold)] group-hover:text-[var(--gold-foreground)]">
-                    <s.icon className="size-5" />
-                  </div>
-                  <span className="font-mono text-[11px] text-[var(--navy)]/35 transition-colors group-hover:text-[var(--gold)]">
-                    0{i + 1}
-                  </span>
+                <span className="absolute right-6 top-6 font-mono text-[11px] tracking-widest text-[var(--navy)]/25 transition-colors group-hover:text-[var(--gold)]">
+                  0{i + 1}
+                </span>
+
+                <div className="grid size-14 shrink-0 place-items-center rounded-2xl bg-[var(--gold)]/12 text-[var(--gold-ink)] ring-1 ring-[var(--gold)]/30 transition-all duration-300 group-hover:bg-[var(--gold)] group-hover:text-[var(--navy)] group-hover:ring-[var(--gold)]">
+                  <s.icon className="size-6" />
                 </div>
 
-                <h3 className="mt-6 font-display text-xl font-semibold leading-tight text-[var(--navy)] transition-colors group-hover:text-white">
+                <h3 className="mt-6 font-display text-xl font-semibold leading-tight text-[var(--navy)]">
                   {s.title}
                 </h3>
-                <p className="mt-2.5 min-h-[3.25rem] text-sm leading-relaxed text-[var(--navy)]/60 transition-colors group-hover:text-white/70">
+                <p className="mt-2.5 text-sm leading-relaxed text-[var(--navy)]/62">
                   {s.desc}
                 </p>
 
-                <span className="mt-auto inline-flex items-center gap-2 pt-6 text-sm font-semibold text-[var(--navy)] transition-all group-hover:gap-3 group-hover:text-[var(--gold)]">
+                <span className="mt-6 h-px w-full bg-[var(--navy)]/8" />
+                <span className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[var(--navy)] transition-all group-hover:gap-3 group-hover:text-[var(--gold-ink)]">
                   Explore <ArrowRight className="size-4" />
                 </span>
               </Link>
             ))}
           </div>
+
 
         </div>
       </section>
