@@ -107,6 +107,8 @@ function formatDuration(seconds: number | null | undefined): string | null {
 
 function TourDetailPage() {
   const { slug } = Route.useParams();
+  const { enquire } = Route.useSearch();
+
   const { data: d } = useSuspenseQuery(tourDetailQuery(slug));
 
   // ---- Selection state (mandatory stops are always selected) ----
