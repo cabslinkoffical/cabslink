@@ -911,9 +911,15 @@ function FleetClassesSection() {
   const { data: classes = [] } = useQuery({
     queryKey: ["public-vehicle-classes"],
     queryFn: () => listPublicVehicleClasses(),
-    staleTime: 60_000,
+    staleTime: 5 * 60_000,
+    gcTime: 30 * 60_000,
+    refetchOnWindowFocus: false,
+    placeholderData: (prev) => prev,
   });
-  const visible = classes.filter((c) => c.slug !== "unclassified").slice(0, 6);
+  const visible = classes.filter((c) => c.slug !== "unclassified");
+  // Duplicate the list so the marquee track loops seamlessly left → right.
+  const track = visible.length > 0 ? [...visible, ...visible] : [];
+
   return (
     <section className="section-y navy-scene">
       <div className="container-x">
