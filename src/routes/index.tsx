@@ -953,10 +953,6 @@ function FleetClassesSection() {
             )}
           </div>
         </div>
-
-        <p className="mt-8 text-center text-[11px] text-white/50 max-w-2xl mx-auto">
-          You book a vehicle class, not a specific model. You always receive a vehicle from the booked class or a complimentary upgrade — never a lower class.
-        </p>
       </div>
     </section>
   );
