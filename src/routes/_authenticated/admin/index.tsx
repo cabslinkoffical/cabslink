@@ -46,7 +46,7 @@ function Dashboard() {
     { label: "Allocated", value: totals.allocated, icon: UserCog, accent: "text-info" },
     { label: "In Progress", value: totals.inProgress, icon: Activity, accent: "text-info" },
     { label: "Bidding", value: totals.bidding, icon: Tag, accent: "text-info" },
-    { label: "Deleted", value: totals.deleted, icon: X, accent: "text-slate-500" },
+    { label: "Deleted", value: totals.deleted, icon: X, accent: "text-muted-foreground" },
     { label: "Total Revenue", value: fmt(totals.totalRevenue), icon: Wallet, accent: "text-success" },
     { label: "Today's Revenue", value: fmt(totals.todayRevenue), icon: TrendingUp, accent: "text-success" },
     { label: "Monthly Revenue", value: fmt(totals.monthRevenue), icon: TrendingUp, accent: "text-success" },

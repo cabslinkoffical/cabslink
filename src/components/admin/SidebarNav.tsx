@@ -32,10 +32,10 @@ function LinkItem({ item, active, indent = false }: { item: NavItem; active: boo
         indent && "pl-9",
         active
           ? "bg-primary text-primary-foreground font-medium shadow-sm"
-          : "text-slate-300 hover:bg-white/5 hover:text-white"
+          : "text-white/70 hover:bg-white/5 hover:text-white"
       )}
     >
-      <item.icon className={cn("size-4 shrink-0", active ? "" : "text-slate-400 group-hover:text-white")} />
+      <item.icon className={cn("size-4 shrink-0", active ? "" : "text-white/55 group-hover:text-white")} />
       <span className="truncate">{item.label}</span>
     </Link>
   );
@@ -51,10 +51,10 @@ function Group({ group, pathname }: { group: NavGroup; pathname: string }) {
         onClick={() => setOpen(o => !o)}
         className={cn(
           "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition",
-          hasActive ? "text-white" : "text-slate-300 hover:bg-white/5 hover:text-white"
+          hasActive ? "text-white" : "text-white/70 hover:bg-white/5 hover:text-white"
         )}
       >
-        <group.icon className="size-4 shrink-0 text-slate-400" />
+        <group.icon className="size-4 shrink-0 text-white/55" />
         <span className="flex-1 text-left truncate">{group.label}</span>
         <ChevronDown className={cn("size-3.5 transition-transform", open && "rotate-180")} />
       </button>

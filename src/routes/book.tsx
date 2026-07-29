@@ -1109,7 +1109,7 @@ function VehicleCard({ card, klass, best, qty, minQty, disabled, disabledReason,
         </div>
       )}
       {!best && minQty > 1 && (
-        <div className="absolute -top-3 left-6 z-10 inline-flex items-center gap-1.5 bg-warning text-white text-[10px] font-bold uppercase tracking-[0.2em] px-3 py-1.5 rounded-md shadow-md">
+        <div className="absolute -top-3 left-6 z-10 inline-flex items-center gap-1.5 bg-warning text-warning-foreground text-[10px] font-bold uppercase tracking-[0.2em] px-3 py-1.5 rounded-md shadow-md">
           Needs {minQty} vehicles
         </div>
       )}

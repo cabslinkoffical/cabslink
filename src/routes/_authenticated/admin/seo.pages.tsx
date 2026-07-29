@@ -44,7 +44,7 @@ const STATUS_STYLES: Record<string, string> = {
   needs_review: "bg-warning/15 text-warning",
   approved: "bg-info/15 text-info",
   published: "bg-success/15 text-success",
-  noindex: "bg-slate-500/15 text-slate-700 dark:text-slate-300",
+  noindex: "bg-muted text-muted-foreground",
   retired: "bg-destructive/15 text-destructive",
 };
 
