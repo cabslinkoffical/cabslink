@@ -10,7 +10,7 @@ export function BlogPostCard({ post, compact = false }: { post: BlogPostSummary;
     <Link
       to="/blog/$slug"
       params={{ slug: post.slug }}
-      className="group block overflow-hidden rounded-2xl border border-[var(--navy)]/10 bg-white transition hover:shadow-lg hover:-translate-y-0.5"
+      className="group block overflow-hidden rounded-2xl border border-[var(--navy)]/10 bg-white transition hover:-translate-y-0.5 shadow-raised hover:shadow-raised-hover"
     >
       {post.featured_image_url && (
         <div className={`overflow-hidden ${compact ? "aspect-[16/10]" : "aspect-[16/9]"}`}>

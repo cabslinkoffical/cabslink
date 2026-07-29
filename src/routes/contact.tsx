@@ -94,7 +94,7 @@ function ContactPage() {
               { i: MapPin, t: "Visit our office", lines: [SITE.address] },
               { i: Clock, t: "Hours", lines: ["Open 365 days a year, 24 hours a day"] },
             ].map(c => (
-              <div key={c.t} className="rounded-2xl border border-border bg-card p-6 flex gap-4">
+              <div key={c.t} className="rounded-2xl border border-border bg-card p-6 flex gap-4 shadow-raised">
                 <div className="grid size-11 shrink-0 place-items-center rounded-xl bg-[var(--gold)]/15 text-[var(--gold)]"><c.i className="size-5" /></div>
                 <div>
                   <h3 className="font-semibold">{c.t}</h3>
@@ -103,7 +103,7 @@ function ContactPage() {
               </div>
             ))}
           </div>
-          <form onSubmit={onSubmit} className="lg:col-span-3 rounded-3xl border border-border bg-card p-6 md:p-8 shadow-sm" noValidate>
+          <form onSubmit={onSubmit} className="lg:col-span-3 rounded-3xl border border-border bg-card p-6 md:p-8 shadow-raised" noValidate>
             <h3 className="font-display text-2xl font-semibold">Send us a message</h3>
             {/* Honeypot: must remain empty; hidden from users, tempting to bots. */}
             <div className="absolute -left-[9999px]" aria-hidden="true">

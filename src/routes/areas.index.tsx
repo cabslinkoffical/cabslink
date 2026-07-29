@@ -51,7 +51,7 @@ function LocationsPage() {
 
       {/* Search bar in a lifted card, overlapping the hero */}
       <section className="container-x -mt-10 md:-mt-14 relative z-10">
-        <div className="rounded-2xl border border-[var(--navy)]/10 bg-white p-4 md:p-6 shadow-[var(--shadow-elegant)]">
+        <div className="rounded-2xl border border-[var(--navy)]/10 bg-white p-4 md:p-6 shadow-raised">
           <InstantSearch />
         </div>
       </section>

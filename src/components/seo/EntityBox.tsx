@@ -13,7 +13,7 @@ export function EntityBox({ d }: { d: Destination }) {
     <aside
       itemScope
       itemType="https://schema.org/Place"
-      className="rounded-2xl border border-[var(--navy)]/10 bg-white p-5"
+      className="rounded-2xl border border-[var(--navy)]/10 bg-white p-5 shadow-raised"
     >
       <h3 itemProp="name" className="text-lg font-semibold text-[var(--navy)]">
         {d.display_name ?? d.name}

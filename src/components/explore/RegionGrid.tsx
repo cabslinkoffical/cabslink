@@ -5,7 +5,7 @@ import type { RegionCard } from "@/lib/explore.functions";
 export function RegionGrid({ regions }: { regions: RegionCard[] }) {
   if (!regions.length) {
     return (
-      <p className="rounded-2xl border border-dashed border-[var(--navy)]/20 bg-white p-8 text-center text-[var(--navy)]/60">
+      <p className="rounded-2xl border border-dashed border-[var(--navy)]/20 bg-white p-8 text-center text-[var(--navy)]/60 shadow-raised">
         Regions will appear here as destinations are added.
       </p>
     );
@@ -17,7 +17,7 @@ export function RegionGrid({ regions }: { regions: RegionCard[] }) {
           key={r.slug}
           to="/areas/region/$slug"
           params={{ slug: r.slug }}
-          className="group flex flex-col justify-between rounded-2xl border border-[var(--navy)]/10 bg-white p-5 transition hover:border-[var(--gold)] hover:shadow-[0_16px_40px_-24px_rgba(14,24,44,0.35)]"
+          className="group flex flex-col justify-between rounded-2xl border border-[var(--navy)]/10 bg-white p-5 transition hover:border-[var(--gold)] shadow-raised hover:shadow-raised-hover"
         >
           <div>
             <div className="flex items-start justify-between gap-3">

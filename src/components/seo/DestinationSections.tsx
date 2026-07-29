@@ -44,7 +44,7 @@ function SectionRenderer({ section, loaded }: { section: Section; loaded: Loaded
       );
     case "route_action":
       return (
-        <section className="rounded-2xl border border-[var(--navy)]/10 bg-white p-5">
+        <section className="rounded-2xl border border-[var(--navy)]/10 bg-white p-5 shadow-raised">
           <h2 className="text-lg font-semibold text-[var(--navy)]">Route</h2>
           <p className="mt-2 text-[var(--navy)]/80">
             <strong>{section.from}</strong> → <strong>{section.to}</strong>
@@ -56,7 +56,7 @@ function SectionRenderer({ section, loaded }: { section: Section; loaded: Loaded
       return <EntityBox d={loaded.destination} />;
     case "geo_context":
       return (
-        <section aria-label="Location context" className="rounded-2xl border border-[var(--navy)]/10 bg-white p-5">
+        <section aria-label="Location context" className="rounded-2xl border border-[var(--navy)]/10 bg-white p-5 shadow-raised">
           <h2 className="text-lg font-semibold text-[var(--navy)]">Where it is</h2>
           <dl className="mt-3 grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
             {section.parts.map((p) => (
@@ -71,7 +71,7 @@ function SectionRenderer({ section, loaded }: { section: Section; loaded: Loaded
     case "airport_info":
     case "attraction_info":
       return (
-        <section className="rounded-2xl border border-[var(--navy)]/10 bg-white p-5">
+        <section className="rounded-2xl border border-[var(--navy)]/10 bg-white p-5 shadow-raised">
           <h2 className="text-lg font-semibold text-[var(--navy)]">Key facts</h2>
           <dl className="mt-3 grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
             {section.rows.map(([k, v]) => (

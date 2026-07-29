@@ -6,7 +6,7 @@ export function EntityCard({ d }: { d: Destination }) {
   return (
     <Link
       to={destinationHref(d)}
-      className="block rounded-xl border border-[var(--navy)]/10 bg-white p-4 transition hover:border-[var(--gold)] hover:shadow-sm"
+      className="block rounded-xl border border-[var(--navy)]/10 bg-white p-4 transition hover:border-[var(--gold)] shadow-raised hover:shadow-raised-hover"
     >
       <span className="block font-medium text-[var(--navy)]">{d.display_name ?? d.name}</span>
       {sub && <span className="mt-0.5 block text-xs text-[var(--navy)]/60">{sub}</span>}
