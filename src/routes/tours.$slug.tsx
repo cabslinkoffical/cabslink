@@ -179,15 +179,6 @@ function TourDetailPage() {
       }),
   });
 
-  const liveStartingPence: number | null = useMemo(() => {
-    const vs = quoteQuery.data?.vehicles ?? [];
-    if (!vs.length) return d.starting_price_pence;
-    let min = Infinity;
-    for (const v of vs) if (v.final_total < min) min = v.final_total;
-    return Number.isFinite(min) ? Math.round(min * 100) : d.starting_price_pence;
-  }, [quoteQuery.data, d.starting_price_pence]);
-
-  const liveCurrency = quoteQuery.data?.vehicles?.[0]?.currency ?? d.currency;
   const totalMinutes = orderedStops.reduce((s, x) => s + x.minutes, 0);
   const drivingSecs = quoteQuery.data?.driving_duration_seconds ?? d.direct_duration_seconds;
   const totalJourneySecs = drivingSecs ? drivingSecs + totalMinutes * 60 : null;
