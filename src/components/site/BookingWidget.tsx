@@ -75,12 +75,128 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
         <TabButton active={tab === "quote"} onClick={() => setTab("quote")} icon={<Car className="w-4 h-4" />}>
           Transfers
         </TabButton>
+        <TabButton active={tab === "hourly"} onClick={() => setTab("hourly")} icon={<Clock className="w-4 h-4" />}>
+          Hourly Hire
+        </TabButton>
         <TabButton active={false} onClick={() => navigate({ to: "/tours" })} icon={<Palmtree className="w-4 h-4" />}>
           Day Tours
         </TabButton>
       </div>
 
+      {tab === "hourly" && (
+        <form
+          noValidate
+          onSubmit={(e) => {
+            e.preventDefault();
+            setAttempted(true);
+            if (!pickup?.placeId) return;
+            const params = new URLSearchParams();
+            params.set("pickupPlaceId", pickup.placeId);
+            params.set("pickupLabel", pickup.label);
+            params.set("date", date);
+            params.set("time", time);
+            params.set("hours", String(hours));
+            params.set("passengers", String(passengers));
+            params.set("luggage", String(luggage));
+            navigate({ to: "/book/hourly", search: { q: params.toString() } as never });
+          }}
+        >
+          <div className="bg-white shadow-[var(--shadow-elegant)] border border-black/5 rounded-3xl lg:rounded-full overflow-visible p-2 lg:p-1.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:items-stretch gap-1 lg:gap-0">
+              <div className="sm:col-span-2 lg:flex-1 lg:min-w-0">
+                <FieldCell icon={<MapPin className="w-4 h-4 text-[var(--gold)]" />} label="Pickup">
+                  <PlaceAutocomplete
+                    id={`${idPrefix}-hourly-pickup`}
+                    value={pickup}
+                    onChange={setPickup}
+                    placeholder="Pickup city, hotel, airport"
+                    iconClassName="hidden"
+                    inputClassName="border-0 shadow-none bg-transparent px-0 h-auto py-0 text-sm font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-[var(--navy)]/55"
+                    required
+                  />
+                </FieldCell>
+              </div>
+
+              <Divider />
+
+              <div className="border-t border-black/5 lg:border-0">
+                <FieldCell icon={<Calendar className="w-4 h-4 text-[var(--gold)]" />} label="Date" compact>
+                  <input required type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full bg-transparent border-0 outline-none text-sm font-semibold text-foreground" />
+                </FieldCell>
+              </div>
+
+              <Divider />
+
+              <div className="border-t border-black/5 sm:border-t-0 sm:border-l sm:border-black/5 lg:border-l-0 lg:border-0">
+                <FieldCell icon={<Clock className="w-4 h-4 text-[var(--gold)]" />} label="Start time" compact>
+                  <input required type="time" value={time} onChange={(e) => setTime(e.target.value)} className="w-full bg-transparent border-0 outline-none text-sm font-semibold text-foreground" />
+                </FieldCell>
+              </div>
+
+              <Divider />
+
+              <div className="border-t border-black/5 lg:border-0 lg:w-[150px] shrink-0">
+                <FieldCell icon={<Clock className="w-4 h-4 text-[var(--gold)]" />} label="Duration" compact>
+                  <select
+                    value={hours}
+                    onChange={(e) => setHours(Number(e.target.value))}
+                    className="w-full bg-transparent border-0 outline-none text-sm font-semibold text-foreground"
+                  >
+                    {Array.from({ length: 12 }, (_, i) => i + 3).map((h) => (
+                      <option key={h} value={h}>{h} hours</option>
+                    ))}
+                  </select>
+                </FieldCell>
+              </div>
+
+              <Divider />
+
+              <div className="relative sm:col-span-2 lg:col-span-1 lg:flex-shrink-0 lg:w-[170px] border-t border-black/5 lg:border-0">
+                <button
+                  type="button"
+                  onClick={() => setPaxOpen((v) => !v)}
+                  className="w-full h-full flex items-center justify-center gap-3 px-4 py-3 lg:py-2.5 rounded-2xl lg:rounded-full hover:bg-black/[0.03] transition-colors"
+                >
+                  <span className="inline-flex items-center gap-1.5">
+                    <Users className="w-4 h-4 text-[var(--gold)] shrink-0" />
+                    <span className="text-sm font-bold tabular-nums text-[var(--navy)]">{passengers}</span>
+                  </span>
+                  <span className="w-px h-4 bg-black/10" />
+                  <span className="inline-flex items-center gap-1.5">
+                    <Briefcase className="w-4 h-4 text-[var(--gold)] shrink-0" />
+                    <span className="text-sm font-bold tabular-nums text-[var(--navy)]">{luggage}</span>
+                  </span>
+                </button>
+                {paxOpen && (
+                  <div className="absolute top-full mt-2 right-0 z-50 w-64 bg-white rounded-2xl shadow-[var(--shadow-elegant)] border border-border p-4 space-y-3">
+                    <StepperRow label="Passengers" value={passengers} min={1} max={16} onChange={setPassengers} />
+                    <StepperRow label="Luggage" value={luggage} min={0} max={10} onChange={setLuggage} />
+                  </div>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                disabled={!pickup?.placeId}
+                className="sm:col-span-2 lg:col-span-1 inline-flex items-center justify-center gap-2 bg-[var(--gold)] text-[var(--gold-foreground)] rounded-2xl lg:rounded-full px-6 lg:px-8 py-4 lg:py-2.5 font-display font-bold uppercase tracking-[0.18em] text-xs hover:brightness-105 transition-all disabled:opacity-50 shrink-0"
+              >
+                <Search className="w-4 h-4" />
+                <span>See rates</span>
+              </button>
+            </div>
+          </div>
+          <p className="text-xs text-white/70 mt-3 px-2">
+            Car and driver at your disposal — travel as directed, multiple stops included.
+          </p>
+          {attempted && !pickup?.placeId && (
+            <p className="text-xs text-destructive text-center mt-2" role="alert">Please select a pickup location from the suggestions.</p>
+          )}
+        </form>
+      )}
+
+      {tab === "quote" && (
       <form onSubmit={submit} noValidate>
+
         {/* Main container: rounded card on mobile/tablet, horizontal pill on wide desktop (xl+) */}
         <div className="bg-white shadow-[var(--shadow-elegant)] border border-black/5 rounded-3xl lg:rounded-full overflow-visible p-2 lg:p-1.5">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:items-stretch gap-1 lg:gap-0">
