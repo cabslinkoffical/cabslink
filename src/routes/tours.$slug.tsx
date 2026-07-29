@@ -26,7 +26,11 @@ const tourDetailQuery = (slug: string) =>
   });
 
 export const Route = createFileRoute("/tours/$slug")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    enquire: search.enquire === true || search.enquire === "true" || search.enquire === "1" ? true : undefined,
+  }),
   loader: ({ params, context }) => context.queryClient.ensureQueryData(tourDetailQuery(params.slug)),
+
   head: ({ loaderData }) => {
     const d = loaderData as PublicTourDetail | undefined;
     if (!d) {
@@ -103,6 +107,8 @@ function formatDuration(seconds: number | null | undefined): string | null {
 
 function TourDetailPage() {
   const { slug } = Route.useParams();
+  const { enquire } = Route.useSearch();
+
   const { data: d } = useSuspenseQuery(tourDetailQuery(slug));
 
   // ---- Selection state (mandatory stops are always selected) ----
@@ -392,7 +398,10 @@ function TourDetailPage() {
 
               <TourBookingDialog
                 tour={tourForBooking}
+                autoOpen={enquire === true}
                 trigger={
+
+
                   <Button size="lg" className="w-full mt-5">
                     Continue to booking <ArrowRight className="size-4 ml-1 inline" />
                   </Button>
