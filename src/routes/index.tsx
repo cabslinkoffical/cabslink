@@ -6,7 +6,7 @@ import {
   ArrowRight, Plane, ShieldCheck, Star, CalendarCheck, Phone,
   Briefcase, Users, Award, BadgePoundSterling, Headset, Car, Building2, Gem,
   Route as RouteIcon, CheckCircle2, Sparkles, MessageSquare, CreditCard, Quote,
-  Plus, Minus, MapPin, Clock, Globe2, Compass, Wallet, Timer, Mail
+  Plus, Minus, MapPin, Clock, Globe2, Compass, Wallet, Timer, Mail, BadgeCheck, PlaneTakeoff
 } from "lucide-react";
 
 import { SiteLayout } from "@/components/site/SiteLayout";
@@ -91,11 +91,12 @@ export const Route = createFileRoute("/")({
 
 
 const trustStats = [
-  { icon: Star, k: "4.9/5", v: "Rated Excellent" },
-  { icon: Globe2, k: "50k+", v: "Journeys Completed" },
-  { icon: Headset, k: "24/7", v: "Live Support" },
-  { icon: ShieldCheck, k: "100%", v: "Licensed Drivers" },
+  { icon: ShieldCheck, k: "Licensed & insured", v: "Fully vetted UK drivers" },
+  { icon: Clock, k: "24/7 availability", v: "Day, night and holidays" },
+  { icon: BadgeCheck, k: "Fixed pricing", v: "No hidden surcharges" },
+  { icon: PlaneTakeoff, k: "Flight tracking", v: "Free waiting on delays" },
 ];
+
 
 const popularRoutes = [
   { from: "London Heathrow", to: "Central London", distance: "24 mi", duration: "45 min", price: "£65", img: eclassAsset.url },
@@ -367,21 +368,22 @@ function HomePage() {
 
 
       {/* TRUST STRIP */}
-      <section className="bg-white border-b border-[var(--navy)]/8">
-        <div className="container-x py-10 grid grid-cols-2 md:grid-cols-4 gap-6">
+      <section className="bg-[var(--navy)] border-y border-white/10">
+        <div className="container-x py-6 sm:py-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-4 sm:gap-y-6">
           {trustStats.map((s) => (
-            <div key={s.v} className="flex items-center gap-4">
-              <div className="grid size-12 shrink-0 place-items-center rounded-2xl bg-[var(--gold)]/12 text-[var(--gold-ink)]">
-                <s.icon className="size-5" />
-              </div>
-              <div className="min-w-0">
-                <div className="font-display text-2xl font-bold text-[var(--navy)] leading-none tracking-[-0.02em]">{s.k}</div>
-                <div className="mt-1 text-[11px] uppercase tracking-[0.16em] text-[var(--navy)]/60 truncate">{s.v}</div>
-              </div>
+            <div key={s.k} className="flex items-center gap-3 min-w-0">
+              <span className="grid size-10 shrink-0 place-items-center rounded-full border border-[var(--gold)]/40 text-[var(--gold)]">
+                <s.icon className="size-[18px]" />
+              </span>
+              <span className="min-w-0">
+                <span className="block text-sm font-semibold text-white truncate">{s.k}</span>
+                <span className="block text-xs text-white/60 truncate">{s.v}</span>
+              </span>
             </div>
           ))}
         </div>
       </section>
+
 
       {/* POPULAR TOURS */}
       {popularTours.length > 0 && (

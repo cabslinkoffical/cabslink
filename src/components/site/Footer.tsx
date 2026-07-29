@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Mail, Phone, MapPin, ShieldCheck, Clock, BadgeCheck, PlaneTakeoff } from "lucide-react";
+import { Mail, Phone, MapPin } from "lucide-react";
 import { Logo } from "./Logo";
 import { SITE } from "@/lib/site";
 
@@ -34,27 +34,7 @@ const legal = [
 export function Footer() {
   return (
     <footer className="navy-scene">
-      {/* Trust strip — fills the band between page content and footer */}
-      <div className="border-y border-white/10 bg-white/[0.03]">
-        <div className="container-x py-6 grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-4">
-          {[
-            { icon: ShieldCheck, title: "Licensed & insured", sub: "Fully vetted UK drivers" },
-            { icon: Clock, title: "24/7 availability", sub: "Day, night and holidays" },
-            { icon: BadgeCheck, title: "Fixed pricing", sub: "No hidden surcharges" },
-            { icon: PlaneTakeoff, title: "Flight tracking", sub: "Free waiting on delays" },
-          ].map(({ icon: Icon, title, sub }) => (
-            <div key={title} className="flex items-start gap-3 min-w-0">
-              <span className="grid size-9 shrink-0 place-items-center rounded-full border border-[var(--gold)]/40 text-[var(--gold)]">
-                <Icon className="size-4" />
-              </span>
-              <span className="min-w-0">
-                <span className="block text-sm font-semibold text-white truncate">{title}</span>
-                <span className="block text-xs text-white/60">{sub}</span>
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
+
       <div className="container-x py-16 grid gap-12 md:grid-cols-2 lg:grid-cols-4">
 
         <div>
