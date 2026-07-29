@@ -228,10 +228,9 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
 
               <button
                 type="submit"
-                disabled={!pickup?.placeId}
-                className="sm:col-span-2 lg:col-span-1 inline-flex items-center justify-center gap-2 bg-[var(--gold)] text-[var(--gold-foreground)] rounded-2xl lg:rounded-full px-6 lg:px-8 py-4 lg:py-2.5 font-display font-bold uppercase tracking-[0.18em] text-xs hover:brightness-105 transition-all disabled:opacity-50 shrink-0"
+                className="sm:col-span-2 lg:col-span-1 inline-flex items-center justify-center gap-2 bg-[var(--gold)] text-[var(--gold-foreground)] rounded-2xl lg:rounded-full px-6 lg:px-8 py-4 lg:py-2.5 font-display font-bold uppercase tracking-[0.18em] text-xs hover:brightness-105 transition-all shrink-0"
               >
-                <Search className="w-4 h-4" />
+                <Search className="w-4 h-4" strokeWidth={2.5} />
                 <span>See rates</span>
               </button>
             </div>
@@ -239,9 +238,14 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
           <p className="text-xs text-white/70 mt-3 px-2">
             Car and driver at your disposal — travel as directed, multiple stops included.
           </p>
-          {attempted && !pickup?.placeId && (
-            <p className="text-xs text-destructive text-center mt-2" role="alert">Please select a pickup location from the suggestions.</p>
+          {attempted && hourlyErrorList.length > 0 && (
+            <ul className="mt-2 space-y-1 text-xs text-destructive text-center" role="alert">
+              {hourlyErrorList.map((msg) => (
+                <li key={msg}>{msg}</li>
+              ))}
+            </ul>
           )}
+
         </form>
       )}
 
