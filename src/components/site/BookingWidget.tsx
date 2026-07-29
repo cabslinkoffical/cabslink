@@ -25,6 +25,8 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
   const [time, setTime] = useState<string>(nowTime);
   const [passengers, setPassengers] = useState(1);
   const [luggage, setLuggage] = useState(0);
+  const [hours, setHours] = useState(4);
+
   const [showReturn, setShowReturn] = useState(false);
   const [returnDate, setReturnDate] = useState(today);
   const [returnTime, setReturnTime] = useState<string>("12:00");
