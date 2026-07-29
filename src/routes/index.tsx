@@ -348,7 +348,7 @@ function HomePage() {
           </div>
 
           {/* Booking form inside hero (desktop) */}
-          <div id="booking" className="relative z-50 hidden lg:block mt-10 pb-4 scroll-mt-24">
+          <div id="booking" className="relative z-50 hidden lg:block mt-6 pb-2 scroll-mt-24">
             <BookingWidget />
           </div>
 
