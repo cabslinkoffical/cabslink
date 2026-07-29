@@ -1,4 +1,4 @@
-import { Mail, Phone, MapPin, Facebook, Instagram, Twitter, Linkedin } from "lucide-react";
+import { Mail, Phone, Facebook, Instagram, Twitter, Linkedin } from "lucide-react";
 import { SITE } from "@/lib/site";
 
 export function TopBar() {
@@ -12,9 +12,6 @@ export function TopBar() {
           <a href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`} className="flex items-center gap-2 opacity-80 hover:opacity-100 hover:text-[var(--gold)] transition">
             <Phone className="size-3.5" /> {SITE.phoneUK}
           </a>
-          <span className="hidden lg:flex items-center gap-2 opacity-70">
-            <MapPin className="size-3.5" /> {SITE.address}
-          </span>
         </div>
         <div className="flex items-center gap-3 opacity-80">
           <a href={SITE.social.facebook} aria-label="Facebook" className="hover:text-[var(--gold)]"><Facebook className="size-3.5" /></a>
