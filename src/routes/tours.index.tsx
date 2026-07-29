@@ -149,7 +149,7 @@ function ToursPage() {
             eyebrow="Choose your route"
             title="Tours ready to book"
             titleAccent="today"
-            subtitle="Each tour includes a suggested itinerary. Customise stops and duration during booking — the price updates live."
+            subtitle="Each tour includes a suggested itinerary. Tell us your date, stops and group size and we'll send a tailored quote."
           />
 
           {tours.length === 0 ? (
