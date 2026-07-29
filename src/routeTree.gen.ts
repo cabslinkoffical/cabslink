@@ -56,6 +56,7 @@ import { Route as DistilleriesSlugRouteImport } from './routes/distilleries.$slu
 import { Route as CruisePortsSlugRouteImport } from './routes/cruise-ports.$slug'
 import { Route as CorporateSlugRouteImport } from './routes/corporate.$slug'
 import { Route as BookingTokenRouteImport } from './routes/booking.$token'
+import { Route as BookHourlyRouteImport } from './routes/book.hourly'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AttractionsSlugRouteImport } from './routes/attractions.$slug'
 import { Route as AreasSlugRouteImport } from './routes/areas.$slug'
@@ -338,6 +339,11 @@ const BookingTokenRoute = BookingTokenRouteImport.update({
   path: '/booking/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BookHourlyRoute = BookHourlyRouteImport.update({
+  id: '/hourly',
+  path: '/hourly',
+  getParentRoute: () => BookRoute,
+} as any)
 const BlogSlugRoute = BlogSlugRouteImport.update({
   id: '/blog/$slug',
   path: '/blog/$slug',
@@ -607,7 +613,7 @@ export interface FileRoutesByFullPath {
   '/accessibility': typeof AccessibilityRoute
   '/airport-transfers': typeof AirportTransfersRoute
   '/auth': typeof AuthRoute
-  '/book': typeof BookRoute
+  '/book': typeof BookRouteWithChildren
   '/booking-policy': typeof BookingPolicyRoute
   '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
@@ -629,6 +635,7 @@ export interface FileRoutesByFullPath {
   '/areas/$slug': typeof AreasSlugRoute
   '/attractions/$slug': typeof AttractionsSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/book/hourly': typeof BookHourlyRoute
   '/booking/$token': typeof BookingTokenRoute
   '/corporate/$slug': typeof CorporateSlugRoute
   '/cruise-ports/$slug': typeof CruisePortsSlugRoute
@@ -701,7 +708,7 @@ export interface FileRoutesByTo {
   '/accessibility': typeof AccessibilityRoute
   '/airport-transfers': typeof AirportTransfersRoute
   '/auth': typeof AuthRoute
-  '/book': typeof BookRoute
+  '/book': typeof BookRouteWithChildren
   '/booking-policy': typeof BookingPolicyRoute
   '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
@@ -722,6 +729,7 @@ export interface FileRoutesByTo {
   '/areas/$slug': typeof AreasSlugRoute
   '/attractions/$slug': typeof AttractionsSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/book/hourly': typeof BookHourlyRoute
   '/booking/$token': typeof BookingTokenRoute
   '/corporate/$slug': typeof CorporateSlugRoute
   '/cruise-ports/$slug': typeof CruisePortsSlugRoute
@@ -796,7 +804,7 @@ export interface FileRoutesById {
   '/accessibility': typeof AccessibilityRoute
   '/airport-transfers': typeof AirportTransfersRoute
   '/auth': typeof AuthRoute
-  '/book': typeof BookRoute
+  '/book': typeof BookRouteWithChildren
   '/booking-policy': typeof BookingPolicyRoute
   '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
@@ -818,6 +826,7 @@ export interface FileRoutesById {
   '/areas/$slug': typeof AreasSlugRoute
   '/attractions/$slug': typeof AttractionsSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/book/hourly': typeof BookHourlyRoute
   '/booking/$token': typeof BookingTokenRoute
   '/corporate/$slug': typeof CorporateSlugRoute
   '/cruise-ports/$slug': typeof CruisePortsSlugRoute
@@ -914,6 +923,7 @@ export interface FileRouteTypes {
     | '/areas/$slug'
     | '/attractions/$slug'
     | '/blog/$slug'
+    | '/book/hourly'
     | '/booking/$token'
     | '/corporate/$slug'
     | '/cruise-ports/$slug'
@@ -1007,6 +1017,7 @@ export interface FileRouteTypes {
     | '/areas/$slug'
     | '/attractions/$slug'
     | '/blog/$slug'
+    | '/book/hourly'
     | '/booking/$token'
     | '/corporate/$slug'
     | '/cruise-ports/$slug'
@@ -1102,6 +1113,7 @@ export interface FileRouteTypes {
     | '/areas/$slug'
     | '/attractions/$slug'
     | '/blog/$slug'
+    | '/book/hourly'
     | '/booking/$token'
     | '/corporate/$slug'
     | '/cruise-ports/$slug'
@@ -1176,7 +1188,7 @@ export interface RootRouteChildren {
   AccessibilityRoute: typeof AccessibilityRoute
   AirportTransfersRoute: typeof AirportTransfersRoute
   AuthRoute: typeof AuthRoute
-  BookRoute: typeof BookRoute
+  BookRoute: typeof BookRouteWithChildren
   BookingPolicyRoute: typeof BookingPolicyRoute
   ContactRoute: typeof ContactRoute
   CookiesRoute: typeof CookiesRoute
@@ -1557,6 +1569,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/booking/$token'
       preLoaderRoute: typeof BookingTokenRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/book/hourly': {
+      id: '/book/hourly'
+      path: '/hourly'
+      fullPath: '/book/hourly'
+      preLoaderRoute: typeof BookHourlyRouteImport
+      parentRoute: typeof BookRoute
     }
     '/blog/$slug': {
       id: '/blog/$slug'
@@ -1999,6 +2018,16 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface BookRouteChildren {
+  BookHourlyRoute: typeof BookHourlyRoute
+}
+
+const BookRouteChildren: BookRouteChildren = {
+  BookHourlyRoute: BookHourlyRoute,
+}
+
+const BookRouteWithChildren = BookRoute._addFileChildren(BookRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
@@ -2006,7 +2035,7 @@ const rootRouteChildren: RootRouteChildren = {
   AccessibilityRoute: AccessibilityRoute,
   AirportTransfersRoute: AirportTransfersRoute,
   AuthRoute: AuthRoute,
-  BookRoute: BookRoute,
+  BookRoute: BookRouteWithChildren,
   BookingPolicyRoute: BookingPolicyRoute,
   ContactRoute: ContactRoute,
   CookiesRoute: CookiesRoute,
