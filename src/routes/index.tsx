@@ -449,7 +449,7 @@ function HomePage() {
                   0{i + 1}
                 </span>
 
-                <div className="grid size-13 w-13 h-13 shrink-0 place-items-center rounded-2xl bg-[var(--gold)]/12 text-[var(--gold-ink)] ring-1 ring-[var(--gold)]/30 transition-all duration-300 group-hover:bg-[var(--gold)] group-hover:text-[var(--navy)] group-hover:ring-[var(--gold)]">
+                <div className="grid size-14 shrink-0 place-items-center rounded-2xl bg-[var(--gold)]/12 text-[var(--gold-ink)] ring-1 ring-[var(--gold)]/30 transition-all duration-300 group-hover:bg-[var(--gold)] group-hover:text-[var(--navy)] group-hover:ring-[var(--gold)]">
                   <s.icon className="size-6" />
                 </div>
 
