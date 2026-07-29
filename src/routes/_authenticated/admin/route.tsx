@@ -139,22 +139,22 @@ function AdminLayout() {
     <div className="min-h-screen flex bg-muted/30">
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 w-64 bg-slate-900 text-white flex flex-col border-r border-slate-800 transition-transform md:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 w-64 bg-[var(--navy)] text-white flex flex-col border-r border-white/10 transition-transform md:translate-x-0 ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="px-5 py-4 border-b border-slate-800 flex items-center justify-between">
+        <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between">
           <Logo />
-          <button className="md:hidden text-slate-400" onClick={() => setMobileOpen(false)}>
+          <button className="md:hidden text-white/55" onClick={() => setMobileOpen(false)}>
             <X className="size-5" />
           </button>
         </div>
         <SidebarNav entries={NAV} />
-        <div className="p-3 border-t border-slate-800 space-y-1">
-          <Link to="/" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:text-white">
+        <div className="p-3 border-t border-white/10 space-y-1">
+          <Link to="/" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-white/55 hover:text-white">
             <ExternalLink className="size-3.5" /> View website
           </Link>
-          <button onClick={signOut} className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm text-slate-300 hover:bg-white/5 hover:text-white">
+          <button onClick={signOut} className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm text-white/70 hover:bg-white/5 hover:text-white">
             <LogOut className="size-4" /> Sign out
           </button>
         </div>
@@ -188,7 +188,7 @@ function AdminLayout() {
               <DropdownMenuItem onClick={() => router.navigate({ to: "/admin/settings" as any })}>Settings</DropdownMenuItem>
               <DropdownMenuItem onClick={() => router.navigate({ to: "/" })}>View website</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={signOut} className="text-red-600">Sign out</DropdownMenuItem>
+              <DropdownMenuItem onClick={signOut} className="text-destructive">Sign out</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </header>

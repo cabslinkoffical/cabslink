@@ -809,7 +809,7 @@ function TourBanner({ slug, name, loading, missing, mismatch, onStartAgain }: {
   onStartAgain: () => void;
 }) {
   const tone = missing || mismatch
-    ? "border-amber-400/60 bg-amber-50 text-amber-900"
+    ? "border-warning/60 bg-warning/12 text-warning"
     : "border-[var(--gold)]/40 bg-[var(--gold)]/8 text-foreground";
   return (
     <div className={`rounded-2xl border ${tone} px-4 py-3 flex items-start gap-3`}>
@@ -955,9 +955,9 @@ function TourConversionBanner({ from, to, reason, acked, onAck }: {
 }) {
   const pretty = (s: string) => s.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
   return (
-    <div className={`rounded-2xl border p-5 md:p-6 ${acked ? "border-emerald-500/40 bg-emerald-500/5" : "border-[var(--gold)]/60 bg-[var(--gold)]/10"}`}>
+    <div className={`rounded-2xl border p-5 md:p-6 ${acked ? "border-success/40 bg-success/5" : "border-[var(--gold)]/60 bg-[var(--gold)]/10"}`}>
       <div className="flex items-start gap-3">
-        <BadgeCheck className={`size-5 shrink-0 mt-0.5 ${acked ? "text-emerald-600" : "text-[var(--gold)]"}`} />
+        <BadgeCheck className={`size-5 shrink-0 mt-0.5 ${acked ? "text-success" : "text-[var(--gold)]"}`} />
         <div className="flex-1 min-w-0">
           <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--gold)]">Service change</p>
           <h4 className="font-display font-bold text-base md:text-lg mt-1">
@@ -968,7 +968,7 @@ function TourConversionBanner({ from, to, reason, acked, onAck }: {
           </p>
           <div className="mt-4">
             {acked ? (
-              <p className="text-xs text-emerald-700 font-semibold">✓ Change acknowledged — you can now continue.</p>
+              <p className="text-xs text-success font-semibold">✓ Change acknowledged — you can now continue.</p>
             ) : (
               <Button size="sm" variant="gold" className="rounded-full" onClick={onAck}>
                 I understand — continue
@@ -1102,14 +1102,14 @@ function VehicleCard({ card, klass, best, qty, minQty, disabled, disabledReason,
   const displayName = klass?.name ?? card.name;
   const displayImage = (klass ? fleetImageFor(klass.slug, klass.hero_image) : undefined) ?? card.imageUrl;
   return (
-    <div className={`relative flex flex-col md:flex-row bg-card rounded-2xl shadow-[0_10px_40px_-20px_rgba(14,24,44,0.25)] border transition-all duration-500 hover:shadow-[0_20px_60px_-20px_rgba(223,175,38,0.35)] ${best ? "border-[var(--gold)]/60" : minQty > 1 ? "border-amber-400/50" : "border-border"}`}>
+    <div className={`relative flex flex-col md:flex-row bg-card rounded-2xl shadow-[0_10px_40px_-20px_rgba(14,24,44,0.25)] border transition-all duration-500 hover:shadow-[0_20px_60px_-20px_rgba(223,175,38,0.35)] ${best ? "border-[var(--gold)]/60" : minQty > 1 ? "border-warning/50" : "border-border"}`}>
       {best && (
         <div className="absolute -top-3 left-6 z-10 inline-flex items-center gap-1.5 bg-[var(--gold)] text-[var(--gold-foreground)] text-[10px] font-bold uppercase tracking-[0.2em] px-3 py-1.5 rounded-md shadow-md">
           <Award className="size-3" /> Best Value
         </div>
       )}
       {!best && minQty > 1 && (
-        <div className="absolute -top-3 left-6 z-10 inline-flex items-center gap-1.5 bg-amber-500 text-white text-[10px] font-bold uppercase tracking-[0.2em] px-3 py-1.5 rounded-md shadow-md">
+        <div className="absolute -top-3 left-6 z-10 inline-flex items-center gap-1.5 bg-warning text-warning-foreground text-[10px] font-bold uppercase tracking-[0.2em] px-3 py-1.5 rounded-md shadow-md">
           Needs {minQty} vehicles
         </div>
       )}
@@ -1161,7 +1161,7 @@ function VehicleCard({ card, klass, best, qty, minQty, disabled, disabledReason,
             </ul>
           </div>
           {minQty > 1 && (
-            <div className="mt-4 rounded-lg border border-amber-400/50 bg-amber-50 dark:bg-amber-950/20 px-3 py-2 text-[12px] text-amber-900 dark:text-amber-200 leading-snug">
+            <div className="mt-4 rounded-lg border border-warning/50 bg-warning/12 px-3 py-2 text-[12px] text-warning leading-snug">
               This vehicle fits {card.passengers} passenger{card.passengers === 1 ? "" : "s"} &amp; {card.luggage} bag{card.luggage === 1 ? "" : "s"}. You&apos;ll need <span className="font-bold">{minQty} vehicles</span> for your party — set the quantity below to continue.
             </div>
           )}
@@ -1217,7 +1217,7 @@ function VehicleCard({ card, klass, best, qty, minQty, disabled, disabledReason,
                 Vehicles{minQty > 1 ? ` · min ${minQty}` : ""}
               </Label>
               <Select value={String(qty)} onValueChange={(v) => onQtyChange(Number(v))}>
-                <SelectTrigger className={`mt-1 h-10 bg-card ${qty < minQty ? "border-amber-500" : "border-[var(--gold)]/50"}`}><SelectValue /></SelectTrigger>
+                <SelectTrigger className={`mt-1 h-10 bg-card ${qty < minQty ? "border-warning" : "border-[var(--gold)]/50"}`}><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
                     <SelectItem key={n} value={String(n)}>
@@ -1531,7 +1531,7 @@ function PolicyTiers({ value, onChange, base, cfg }: {
     },
     {
       id: "flexible", title: "Flexible", icon: <Shield className="size-5" />,
-      badge: "Safest choice", badgeClass: "bg-emerald-500/15 text-emerald-700",
+      badge: "Safest choice", badgeClass: "bg-success/15 text-success",
       headline: "Refundable up to the last hour.",
       body: "The most freedom — full refund if you cancel up to 1 hour before pickup.",
       delta: flexDelta,
@@ -1565,7 +1565,7 @@ function PolicyTiers({ value, onChange, base, cfg }: {
             )}
             <p className="mt-3 text-sm font-semibold">{t.headline}</p>
             <p className="text-xs text-muted-foreground mt-1">{t.body}</p>
-            <p className={`mt-3 text-sm font-bold ${t.delta < 0 ? "text-emerald-600" : t.delta > 0 ? "text-foreground" : "text-[var(--gold)]"}`}>
+            <p className={`mt-3 text-sm font-bold ${t.delta < 0 ? "text-success" : t.delta > 0 ? "text-foreground" : "text-[var(--gold)]"}`}>
               {t.delta === 0 ? "Included" : t.delta < 0 ? `Save £${Math.abs(t.delta).toFixed(2)}` : `+ £${t.delta.toFixed(2)}`}
             </p>
           </button>

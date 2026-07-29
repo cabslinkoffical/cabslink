@@ -127,7 +127,7 @@ function Page() {
                     <td className="px-4 py-3">
                       <div>{r.from_address}</div>
                       {legacy && (
-                        <div className="mt-1 inline-flex items-center gap-1 text-[10px] font-semibold text-amber-700 bg-amber-100 rounded px-1.5 py-0.5">
+                        <div className="mt-1 inline-flex items-center gap-1 text-[10px] font-semibold text-warning bg-warning/12 rounded px-1.5 py-0.5">
                           <AlertTriangle className="size-3" /> Requires location re-selection
                         </div>
                       )}
@@ -135,7 +135,7 @@ function Page() {
                     <td className="px-4 py-3">
                       <div>{r.to_address}</div>
                       {r.bidirectional && (
-                        <div className="mt-1 inline-block text-[10px] font-semibold text-emerald-700 bg-emerald-100 rounded px-1.5 py-0.5">
+                        <div className="mt-1 inline-block text-[10px] font-semibold text-success bg-success/12 rounded px-1.5 py-0.5">
                           Bidirectional
                         </div>
                       )}
@@ -158,8 +158,8 @@ function Page() {
                           notes: r.notes ?? "",
                         })}><Edit className="size-4" /></Button>
                         <AlertDialog>
-                          <AlertDialogTrigger asChild><Button size="icon" variant="ghost"><Trash2 className="size-4 text-red-600" /></Button></AlertDialogTrigger>
-                          <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Delete pricing rule?</AlertDialogTitle></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => remove.mutate(r.id)} className="bg-red-600">Delete</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
+                          <AlertDialogTrigger asChild><Button size="icon" variant="ghost"><Trash2 className="size-4 text-destructive" /></Button></AlertDialogTrigger>
+                          <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Delete pricing rule?</AlertDialogTitle></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => remove.mutate(r.id)} className="bg-destructive">Delete</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
                         </AlertDialog>
                       </div>
                     </td>
@@ -234,7 +234,7 @@ function Page() {
                 <Label>Active</Label>
               </div>
               {(!form.from_place_id || !form.to_place_id) && (
-                <div className="col-span-2 flex items-start gap-2 text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded p-2">
+                <div className="col-span-2 flex items-start gap-2 text-xs text-warning bg-warning/12 border border-warning/40 rounded p-2">
                   <AlertTriangle className="size-4 shrink-0 mt-0.5" />
                   <span>
                     Incomplete rule — this rule cannot affect customer quotes until both origin and
@@ -243,7 +243,7 @@ function Page() {
                 </div>
               )}
               {!canSave && form.from_place_id && form.to_place_id && (
-                <p className="col-span-2 text-xs text-amber-700">
+                <p className="col-span-2 text-xs text-warning">
                   Set a positive price to save.
                 </p>
               )}

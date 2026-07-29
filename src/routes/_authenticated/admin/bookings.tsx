@@ -171,12 +171,12 @@ function BookingsPage() {
                         {b.deleted_at ? (
                           <Button size="icon" variant="ghost" onClick={() => delMut.mutate({ id: b.id, restore: true })} title="Restore"><RotateCcw className="size-4" /></Button>
                         ) : (
-                          <Button size="icon" variant="ghost" onClick={() => delMut.mutate({ id: b.id })} title="Soft delete"><Trash2 className="size-4 text-amber-600" /></Button>
+                          <Button size="icon" variant="ghost" onClick={() => delMut.mutate({ id: b.id })} title="Soft delete"><Trash2 className="size-4 text-warning" /></Button>
                         )}
                         {b.deleted_at && (
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
-                              <Button size="icon" variant="ghost" title="Permanently delete"><Trash2 className="size-4 text-red-600" /></Button>
+                              <Button size="icon" variant="ghost" title="Permanently delete"><Trash2 className="size-4 text-destructive" /></Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
@@ -185,7 +185,7 @@ function BookingsPage() {
                               </AlertDialogHeader>
                               <AlertDialogFooter>
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => hardDelMut.mutate(b.id)} className="bg-red-600 hover:bg-red-700">Delete forever</AlertDialogAction>
+                                <AlertDialogAction onClick={() => hardDelMut.mutate(b.id)} className="bg-destructive hover:bg-destructive">Delete forever</AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>
                           </AlertDialog>
@@ -338,9 +338,9 @@ function NotificationsPanel({ bookingId }: { bookingId: string }) {
       <ul className="space-y-2">
         {q.data?.map((n: any) => (
           <li key={n.id} className="flex items-start gap-2 text-xs border border-border rounded-md p-2">
-            {n.status === "sent" ? <MailCheck className="size-4 text-emerald-600 mt-0.5" />
-              : n.status === "failed" ? <MailX className="size-4 text-red-600 mt-0.5" />
-              : <MailWarning className="size-4 text-amber-600 mt-0.5" />}
+            {n.status === "sent" ? <MailCheck className="size-4 text-success mt-0.5" />
+              : n.status === "failed" ? <MailX className="size-4 text-destructive mt-0.5" />
+              : <MailWarning className="size-4 text-warning mt-0.5" />}
             <div className="flex-1 min-w-0">
               <div className="font-medium truncate">{n.notification_type} · {n.recipient_category}</div>
               <div className="text-muted-foreground truncate">{n.recipient} · {n.status} · attempt {n.attempt_count}{n.error_category ? ` · ${n.error_category}` : ""}</div>

@@ -26,7 +26,7 @@ export function LegalPage({
       <section className="section-y">
         <div className="container-x max-w-3xl">
           <p className="text-xs uppercase tracking-widest text-muted-foreground">Last updated: {updated}</p>
-          <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-foreground mt-4">
+          <div className="rounded-lg border border-warning/40 bg-warning/10 p-3 text-xs text-foreground mt-4">
             <strong>Draft policy —</strong> this page is a working template. Company details, jurisdiction, and specific
             terms marked <code>[ADMIN TO COMPLETE]</code> must be finalised before production launch. It is not
             finalised legal advice.

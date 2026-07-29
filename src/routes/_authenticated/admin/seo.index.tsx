@@ -26,12 +26,12 @@ function SeoOverview() {
     onError: (e: any) => toast.error(e?.message ?? "Seeding failed"),
   });
   const cards = [
-    { label: "Locations", value: `${data.locations.published}/${data.locations.total}`, icon: MapPin, accent: "text-blue-600", to: "/admin/seo/locations" },
-    { label: "Airports", value: `${data.airports.published}/${data.airports.total}`, icon: Plane, accent: "text-sky-600", to: "/admin/seo/airports" },
-    { label: "Services", value: `${data.services.published}/${data.services.total}`, icon: Wrench, accent: "text-amber-600", to: "/admin/seo/services" },
-    { label: "Popular Routes", value: `${data.routes.published}/${data.routes.total}`, icon: RouteIcon, accent: "text-violet-600", to: "/admin/seo/routes" },
-    { label: "SEO Pages", value: String(data.pages.total), icon: FileText, accent: "text-emerald-600", to: "/admin/seo/pages" },
-    { label: "Redirects", value: `${data.redirects.active}/${data.redirects.total}`, icon: ArrowLeftRight, accent: "text-rose-600", to: "/admin/seo/redirects" },
+    { label: "Locations", value: `${data.locations.published}/${data.locations.total}`, icon: MapPin, accent: "text-info", to: "/admin/seo/locations" },
+    { label: "Airports", value: `${data.airports.published}/${data.airports.total}`, icon: Plane, accent: "text-info", to: "/admin/seo/airports" },
+    { label: "Services", value: `${data.services.published}/${data.services.total}`, icon: Wrench, accent: "text-warning", to: "/admin/seo/services" },
+    { label: "Popular Routes", value: `${data.routes.published}/${data.routes.total}`, icon: RouteIcon, accent: "text-info", to: "/admin/seo/routes" },
+    { label: "SEO Pages", value: String(data.pages.total), icon: FileText, accent: "text-success", to: "/admin/seo/pages" },
+    { label: "Redirects", value: `${data.redirects.active}/${data.redirects.total}`, icon: ArrowLeftRight, accent: "text-destructive", to: "/admin/seo/redirects" },
   ];
   return (
     <div className="p-6 md:p-8 space-y-6">

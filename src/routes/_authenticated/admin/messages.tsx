@@ -18,9 +18,9 @@ export const Route = createFileRoute("/_authenticated/admin/messages")({
 });
 
 const STATUS_BADGE: Record<string, string> = {
-  new: "bg-amber-500/15 text-amber-600",
-  read: "bg-sky-500/15 text-sky-600",
-  resolved: "bg-emerald-500/15 text-emerald-600",
+  new: "bg-warning/15 text-warning",
+  read: "bg-info/15 text-info",
+  resolved: "bg-success/15 text-success",
 };
 
 function MessagesPage() {
@@ -51,7 +51,7 @@ function MessagesPage() {
         {data.map((m: any) => (
           <div
             key={m.id}
-            className={`p-4 flex items-start gap-3 hover:bg-muted/20 cursor-pointer ${m.status === "new" ? "bg-amber-500/5" : ""}`}
+            className={`p-4 flex items-start gap-3 hover:bg-muted/20 cursor-pointer ${m.status === "new" ? "bg-warning/5" : ""}`}
             onClick={() => {
               setOpenId(m.id);
               if (m.status === "new") upd.mutate({ data: { id: m.id, status: "read" } });

@@ -144,7 +144,7 @@ function ClassTicket({ klass }: { klass: PublicVehicleClass }) {
       className="group relative flex flex-col rounded-2xl bg-card border border-border overflow-hidden shadow-[0_1px_2px_rgba(14,24,44,0.04),0_16px_36px_-28px_rgba(14,24,44,0.25)] hover:shadow-[0_1px_2px_rgba(14,24,44,0.04),0_24px_50px_-24px_rgba(14,24,44,0.35)] hover:-translate-y-0.5 transition-all duration-300"
     >
       {/* Image plate */}
-      <div className="relative bg-[#f4f5f7] aspect-[16/10] flex items-center justify-center overflow-hidden">
+      <div className="relative bg-muted aspect-[16/10] flex items-center justify-center overflow-hidden">
         {img ? (
           <img
             src={img}
@@ -168,7 +168,7 @@ function ClassTicket({ klass }: { klass: PublicVehicleClass }) {
             </span>
           ) : null}
           {klass.fuel_type === "electric" && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500 text-white px-2 py-1 text-[9px] font-bold uppercase tracking-widest shadow-sm">
+            <span className="inline-flex items-center gap-1 rounded-full bg-success text-success-foreground px-2 py-1 text-[9px] font-bold uppercase tracking-widest shadow-sm">
               <Zap className="size-2.5" /> Electric
             </span>
           )}

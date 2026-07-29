@@ -194,7 +194,7 @@ function TemplateCard({
             <h3 className="font-semibold">{t.name}</h3>
             <span className="text-xs text-muted-foreground">/{t.slug}</span>
             {t.published ? (
-              <span className="text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600">
+              <span className="text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full bg-success/10 text-success">
                 Live
               </span>
             ) : (
@@ -232,7 +232,7 @@ function TemplateCard({
       </div>
 
       {!canPublish && !t.published && (
-        <p className="text-xs text-amber-600 mt-2">
+        <p className="text-xs text-warning mt-2">
           To publish: activate the template, set origin/destination Place IDs, and add at least
           one active POI with a Place ID.
         </p>
@@ -317,7 +317,7 @@ function TemplateCard({
             <div key={i} className="flex items-center justify-between px-3 py-2 text-sm">
               <div>
                 <span className="text-muted-foreground mr-2">{i + 1}.</span>
-                <span className={bad ? "text-amber-600" : ""}>{poi?.name ?? "—"}</span>
+                <span className={bad ? "text-warning" : ""}>{poi?.name ?? "—"}</span>
               </div>
               <span className="text-xs text-muted-foreground">
                 {bad ? "needs Place ID / activation" : s.default_selected ? "default on" : "optional"}
@@ -327,7 +327,7 @@ function TemplateCard({
         })}
       </div>
       {missing > 0 && (
-        <p className="text-xs text-amber-600 mt-2">
+        <p className="text-xs text-warning mt-2">
           {missing} stop(s) missing Place ID or not active.
         </p>
       )}

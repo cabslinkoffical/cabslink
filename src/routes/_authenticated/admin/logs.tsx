@@ -37,9 +37,9 @@ function Page() {
   const rows = mut.data ?? [];
 
   function actionColor(a: string) {
-    if (a === "insert") return "text-emerald-600";
-    if (a === "delete") return "text-red-600";
-    return "text-amber-600";
+    if (a === "insert") return "text-success";
+    if (a === "delete") return "text-destructive";
+    return "text-warning";
   }
 
   return (

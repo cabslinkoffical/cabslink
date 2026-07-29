@@ -281,7 +281,7 @@ function MileageEditor({ pricing, setPricing }: { pricing: typeof emptyPricing; 
               </div>
             </div>
             <div className="col-span-1 flex justify-end">
-              <Button type="button" size="icon" variant="ghost" className="text-red-600 hover:text-red-700"
+              <Button type="button" size="icon" variant="ghost" className="text-destructive hover:text-destructive"
                 onClick={() => {
                   const tiers = pricing.tiers.filter((_, k) => k !== i);
                   tiers.forEach((x, k) => (x.sort_order = k + 1));
