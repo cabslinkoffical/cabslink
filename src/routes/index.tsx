@@ -430,19 +430,21 @@ function HomePage() {
             </div>
           </div>
 
-          <div className="mt-14 grid gap-5 lg:grid-cols-6 lg:grid-rows-2">
+          <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-6 lg:grid-rows-3">
             {services.map((s, i) => {
               const featured = i === 0;
+              const last = i === services.length - 1;
               return (
                 <Link
                   key={s.title}
                   to={s.to}
-                  className={`group relative overflow-hidden rounded-[28px] border transition-all duration-500 ${
+                  className={`group relative flex h-full flex-col overflow-hidden rounded-[28px] border transition-all duration-500 ${
                     featured
-                      ? "lg:col-span-2 lg:row-span-2 bg-[var(--navy)] border-[var(--navy)] text-white p-8 shadow-dark-raised hover:shadow-dark-raised-hover hover:-translate-y-1.5"
-                      : "lg:col-span-2 bg-white border-[var(--navy)]/10 p-7 shadow-raised hover:shadow-raised-hover hover:border-[var(--gold)] hover:-translate-y-1.5"
+                      ? "md:col-span-2 lg:col-span-2 lg:row-span-3 bg-[var(--navy)] border-[var(--navy)] text-white p-8 shadow-dark-raised hover:shadow-dark-raised-hover hover:-translate-y-1.5"
+                      : `${last ? "md:col-span-2 lg:col-span-4" : "lg:col-span-2"} bg-white border-[var(--navy)]/10 p-7 shadow-raised hover:shadow-raised-hover hover:border-[var(--gold)] hover:-translate-y-1.5`
                   }`}
                 >
+
                   <span className={`text-[11px] font-mono ${featured ? "text-[var(--gold)]" : "text-[var(--navy)]/40"}`}>
                     0{i + 1} / 0{services.length}
                   </span>
@@ -457,7 +459,7 @@ function HomePage() {
                   <p className={`mt-3 text-sm leading-relaxed ${featured ? "text-white/70" : "text-[var(--navy)]/60"}`}>
                     {s.desc}
                   </p>
-                  <span className={`mt-6 inline-flex items-center gap-2 text-sm font-semibold group-hover:gap-3 transition-all ${
+                  <span className={`mt-auto pt-6 inline-flex items-center gap-2 text-sm font-semibold group-hover:gap-3 transition-all ${
                     featured ? "text-[var(--gold)]" : "text-[var(--navy)] group-hover:text-[var(--gold-ink)]"
                   }`}>
                     Explore <ArrowRight className="size-4" />
