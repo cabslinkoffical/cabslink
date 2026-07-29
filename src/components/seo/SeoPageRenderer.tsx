@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import type { PublicSeoPage, PublicSeoSection } from "@/lib/seo-public.functions";
 import type { RelatedBundle, RelatedLink } from "@/lib/seo-related.functions";
 import { Button } from "@/components/ui/button";
+import { SiteLayout } from "@/components/site/SiteLayout";
 
 /**
  * Renders a published seo_pages record + its sections.
@@ -42,7 +43,8 @@ export function SeoPageRenderer({
   const allSections = [...page.sections, ...autoSections];
 
   return (
-    <main className="min-h-screen bg-background">
+    <SiteLayout>
+    <div className="min-h-screen bg-background">
       <section className="relative border-b bg-background">
         {hero && (
           <div className="absolute inset-0 -z-10 opacity-30">
@@ -67,7 +69,8 @@ export function SeoPageRenderer({
           <SectionBlock key={s.id} section={s} />
         ))}
       </div>
-    </main>
+    </div>
+    </SiteLayout>
   );
 }
 

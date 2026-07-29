@@ -5,6 +5,7 @@ import { Link } from "@tanstack/react-router";
 import type { Destination, DestinationType } from "@/lib/destinations.functions";
 import { destinationHref } from "@/lib/destinations.functions";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
+import { SiteLayout } from "@/components/site/SiteLayout";
 
 export function HubPage({
   title,
@@ -24,7 +25,8 @@ export function HubPage({
     grouped.set(key, list);
   }
   return (
-    <main className="mx-auto max-w-6xl px-4 py-10">
+    <SiteLayout>
+    <div className="mx-auto max-w-6xl px-4 py-10">
       <Breadcrumbs items={[{ name: "Home", href: "/" }, { name: title, href: "#" }]} />
       <header className="mt-4 mb-8">
         <h1 className="text-4xl font-bold tracking-tight text-[var(--navy)]">{title}</h1>
@@ -73,6 +75,7 @@ export function HubPage({
           ))}
         </div>
       )}
-    </main>
+    </div>
+    </SiteLayout>
   );
 }

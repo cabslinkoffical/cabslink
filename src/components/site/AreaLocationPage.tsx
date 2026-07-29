@@ -10,6 +10,7 @@ import { FaqBlock } from "@/components/seo/FaqBlock";
 import { EntityGrid } from "@/components/explore/EntityCard";
 import type { AreaSeoContext } from "@/lib/explore.functions";
 import type { Destination } from "@/lib/destinations.functions";
+import { SiteLayout } from "@/components/site/SiteLayout";
 import {
   CheckCircle2,
   Clock,
@@ -49,7 +50,8 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
   const heroSub = [d.town, d.council, region].filter(Boolean).join(" · ");
 
   return (
-    <main className="container-x py-10">
+    <SiteLayout>
+    <div className="container-x py-10">
       <Breadcrumbs
         items={[
           { name: "Home", href: "/" },
@@ -203,7 +205,8 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
           Get a quote <ArrowRight className="size-4" />
         </Link>
       </section>
-    </main>
+    </div>
+    </SiteLayout>
   );
 }
 

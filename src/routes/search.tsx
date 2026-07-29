@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { searchDestinations } from "@/lib/destinations.functions";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
+import { SiteLayout } from "@/components/site/SiteLayout";
 
 type Result = Awaited<ReturnType<typeof searchDestinations>>[number];
 
@@ -40,7 +41,8 @@ function SearchPage() {
   }
 
   return (
-    <main className="mx-auto max-w-4xl px-4 py-10">
+    <SiteLayout>
+    <div className="mx-auto max-w-4xl px-4 py-10">
       <Breadcrumbs items={[{ name: "Home", href: "/" }, { name: "Search", href: "/search" }]} />
       <h1 className="mt-4 mb-6 text-4xl font-bold text-[var(--navy)]">Search destinations</h1>
       <form
@@ -94,6 +96,7 @@ function SearchPage() {
           </li>
         ))}
       </ul>
-    </main>
+    </div>
+    </SiteLayout>
   );
 }
