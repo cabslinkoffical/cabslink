@@ -398,61 +398,10 @@ function HomePage() {
             </Button>
           </div>
 
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {popularTours.map((t) => {
-              const priceLabel = t.starting_price_pence == null
-                ? "Enquire"
-                : `${t.currency === "GBP" ? "£" : t.currency === "EUR" ? "€" : t.currency === "USD" ? "$" : ""}${Math.round(t.starting_price_pence / 100).toLocaleString()}`;
-              const durH = t.direct_duration_seconds ? Math.round(t.direct_duration_seconds / 3600) : null;
-              return (
-                <Link
-                  key={t.slug}
-                  to="/tours/$slug"
-                  params={{ slug: t.slug }}
-                  className="group relative overflow-hidden rounded-[24px] border border-[var(--navy)]/10 bg-white shadow-raised hover:shadow-raised-hover hover:border-[var(--gold)] hover:-translate-y-1.5 transition-all duration-500"
-                >
-                  <div className="relative aspect-[4/3] bg-[var(--navy)]/[0.04] overflow-hidden">
-                    {t.hero_image_url ? (
-                      <img
-                        src={t.hero_image_url}
-                        alt={`${t.name} private tour`}
-                        loading="lazy"
-                        decoding="async"
-                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      />
-                    ) : (
-                      <div className="absolute inset-0 bg-[var(--navy)]/10" />
-                    )}
-                    <span className="absolute top-3 left-3 rounded-full bg-[var(--navy)] text-white text-[10px] font-semibold uppercase tracking-[0.14em] px-2.5 py-1">
-                      {t.featured ? "Popular" : "Private Tour"}
-                    </span>
-                  </div>
-                  <div className="p-5">
-                    {t.origin_label && t.destination_label && (
-                      <div className="flex items-center gap-2 text-xs text-[var(--navy)]/60">
-                        <MapPin className="size-3.5 text-[var(--gold-ink)]" />
-                        <span className="truncate">{t.origin_label} → {t.destination_label}</span>
-                      </div>
-                    )}
-                    <div className="mt-1 font-display text-lg font-semibold text-[var(--navy)] truncate">
-                      {t.name}
-                    </div>
-                    <div className="mt-4 flex items-center justify-between border-t border-[var(--navy)]/10 pt-4">
-                      <div className="flex items-center gap-3 text-[11px] text-[var(--navy)]/60">
-                        {durH && <span className="flex items-center gap-1"><Timer className="size-3" />{durH}h</span>}
-                        {t.recommended_stop_count > 0 && (
-                          <span className="flex items-center gap-1"><Compass className="size-3" />{t.recommended_stop_count} stop{t.recommended_stop_count === 1 ? "" : "s"}</span>
-                        )}
-                      </div>
-                      <div className="text-right">
-                        <div className="text-[9px] uppercase tracking-[0.14em] text-[var(--navy)]/50">{t.starting_price_pence == null ? "" : "From"}</div>
-                        <div className="font-display font-bold text-[var(--navy)]">{priceLabel}</div>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
+          <div className="grid items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {popularTours.map((t) => (
+              <TourCard key={t.slug} tour={t} />
+            ))}
           </div>
         </div>
       </section>
