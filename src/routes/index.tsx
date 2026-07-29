@@ -459,7 +459,7 @@ function HomePage() {
                   <p className={`mt-3 text-sm leading-relaxed ${featured ? "text-white/70" : "text-[var(--navy)]/60"}`}>
                     {s.desc}
                   </p>
-                  <span className={`mt-6 inline-flex items-center gap-2 text-sm font-semibold group-hover:gap-3 transition-all ${
+                  <span className={`mt-auto pt-6 inline-flex items-center gap-2 text-sm font-semibold group-hover:gap-3 transition-all ${
                     featured ? "text-[var(--gold)]" : "text-[var(--navy)] group-hover:text-[var(--gold-ink)]"
                   }`}>
                     Explore <ArrowRight className="size-4" />
