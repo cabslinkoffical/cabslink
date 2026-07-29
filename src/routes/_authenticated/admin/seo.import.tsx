@@ -251,7 +251,7 @@ function SeoImportPage() {
                       <TableCell className="text-xs">{o.key || "—"}</TableCell>
                       <TableCell className="text-xs"><span className={`px-1.5 py-0.5 rounded ${statusColor(o.status)}`}>{o.status.replace(/_/g, " ")}</span></TableCell>
                       <TableCell className="text-xs text-destructive max-w-[280px] truncate" title={o.errors.join(" · ")}>{o.errors.join(" · ")}</TableCell>
-                      <TableCell className="text-xs text-amber-600 max-w-[280px] truncate" title={o.warnings.join(" · ")}>{o.warnings.join(" · ")}</TableCell>
+                      <TableCell className="text-xs text-warning max-w-[280px] truncate" title={o.warnings.join(" · ")}>{o.warnings.join(" · ")}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -268,7 +268,7 @@ function SeoImportPage() {
       {commitReport && (
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-emerald-600" /> Import completed</CardTitle>
+            <CardTitle className="text-base flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-success" /> Import completed</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
             <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
@@ -307,10 +307,10 @@ function Stat({ label, value }: { label: string; value: number }) {
 }
 
 function statusColor(s: string): string {
-  if (s === "new") return "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300";
-  if (s === "update") return "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300";
-  if (s === "duplicate_in_file") return "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300";
-  if (s === "invalid" || s === "orphan_parent" || s === "orphan_ref") return "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/40 dark:text-red-300";
+  if (s === "new") return "bg-success/12 text-success border-success/40";
+  if (s === "update") return "bg-info/12 text-info border-info/40";
+  if (s === "duplicate_in_file") return "bg-warning/12 text-warning border-warning/40";
+  if (s === "invalid" || s === "orphan_parent" || s === "orphan_ref") return "bg-destructive/12 text-destructive border-destructive/40";
   return "bg-muted text-muted-foreground border-border";
 }
 

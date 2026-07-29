@@ -40,12 +40,12 @@ const empty: any = {
 
 const STATUS_STYLES: Record<string, string> = {
   draft: "bg-muted text-muted-foreground",
-  needs_content: "bg-orange-500/15 text-orange-700 dark:text-orange-300",
-  needs_review: "bg-amber-500/15 text-amber-700 dark:text-amber-300",
-  approved: "bg-blue-500/15 text-blue-700 dark:text-blue-300",
-  published: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
+  needs_content: "bg-warning/15 text-warning",
+  needs_review: "bg-warning/15 text-warning",
+  approved: "bg-info/15 text-info",
+  published: "bg-success/15 text-success",
   noindex: "bg-slate-500/15 text-slate-700 dark:text-slate-300",
-  retired: "bg-red-500/15 text-red-700 dark:text-red-300",
+  retired: "bg-destructive/15 text-destructive",
 };
 
 function Page() {
@@ -145,9 +145,9 @@ function Page() {
               {check && (
                 <div className="col-span-2 rounded-lg border border-border p-3 space-y-2 bg-muted/40">
                   <p className="text-sm font-semibold flex items-center gap-2"><ShieldCheck className="size-4 text-primary" /> Quality check</p>
-                  {check.blockers.length === 0 && check.warnings.length === 0 && <p className="text-sm text-emerald-600">All checks passed — safe to publish.</p>}
-                  {check.blockers.map((b, i) => <p key={i} className="text-sm text-red-600">⛔ {b}</p>)}
-                  {check.warnings.map((b, i) => <p key={i} className="text-sm text-amber-700">⚠ {b}</p>)}
+                  {check.blockers.length === 0 && check.warnings.length === 0 && <p className="text-sm text-success">All checks passed — safe to publish.</p>}
+                  {check.blockers.map((b, i) => <p key={i} className="text-sm text-destructive">⛔ {b}</p>)}
+                  {check.warnings.map((b, i) => <p key={i} className="text-sm text-warning">⚠ {b}</p>)}
                 </div>
               )}
 

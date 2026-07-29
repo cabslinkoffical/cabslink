@@ -188,7 +188,7 @@ function AdminLayout() {
               <DropdownMenuItem onClick={() => router.navigate({ to: "/admin/settings" as any })}>Settings</DropdownMenuItem>
               <DropdownMenuItem onClick={() => router.navigate({ to: "/" })}>View website</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={signOut} className="text-red-600">Sign out</DropdownMenuItem>
+              <DropdownMenuItem onClick={signOut} className="text-destructive">Sign out</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </header>

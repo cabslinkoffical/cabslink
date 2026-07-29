@@ -223,7 +223,7 @@ function VehicleCard({ v, profile, onEdit, onDelete }: { v: any; profile: any; o
           <div className="flex items-center gap-2 flex-wrap">
             <h3 className="font-semibold truncate">{v.name}</h3>
             <StatusBadge status={v.active ? "active" : "inactive"} />
-            {v.featured && <span className="text-[10px] uppercase tracking-wider bg-amber-500/15 text-amber-700 dark:text-amber-400 px-1.5 py-0.5 rounded">Featured</span>}
+            {v.featured && <span className="text-[10px] uppercase tracking-wider bg-warning/15 text-warning px-1.5 py-0.5 rounded">Featured</span>}
           </div>
           <div className="text-xs text-muted-foreground mt-0.5 capitalize">
             {v.vehicle_class?.replace(/_/g, " ") ?? v.category}
@@ -235,7 +235,7 @@ function VehicleCard({ v, profile, onEdit, onDelete }: { v: any; profile: any; o
             {profile ? (
               <span className="inline-flex items-center gap-1 text-foreground/70">From £{Number(profile.base_price).toFixed(2)} · {tiers.length} {tiers.length === 1 ? "tier" : "tiers"}</span>
             ) : (
-              <span className="text-amber-600">No mileage pricing</span>
+              <span className="text-warning">No mileage pricing</span>
             )}
           </div>
         </div>
@@ -246,10 +246,10 @@ function VehicleCard({ v, profile, onEdit, onDelete }: { v: any; profile: any; o
           </Button>
           <Button size="icon" variant="ghost" onClick={onEdit}><Edit className="size-4" /></Button>
           <AlertDialog>
-            <AlertDialogTrigger asChild><Button size="icon" variant="ghost"><Trash2 className="size-4 text-red-600" /></Button></AlertDialogTrigger>
+            <AlertDialogTrigger asChild><Button size="icon" variant="ghost"><Trash2 className="size-4 text-destructive" /></Button></AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader><AlertDialogTitle>Delete vehicle?</AlertDialogTitle><AlertDialogDescription>{v.name} will be removed permanently.</AlertDialogDescription></AlertDialogHeader>
-              <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={onDelete} className="bg-red-600">Delete</AlertDialogAction></AlertDialogFooter>
+              <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={onDelete} className="bg-destructive">Delete</AlertDialogAction></AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
         </div>

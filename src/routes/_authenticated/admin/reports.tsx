@@ -79,10 +79,10 @@ function Page() {
       {r && kpi && (
         <>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-            <StatCard label="Revenue" value={`£${kpi.revenue.toFixed(2)}`} icon={PoundSterling} accent="text-emerald-600" />
+            <StatCard label="Revenue" value={`£${kpi.revenue.toFixed(2)}`} icon={PoundSterling} accent="text-success" />
             <StatCard label="Bookings" value={kpi.bookings} icon={BarChart3} />
-            <StatCard label="Completed" value={kpi.completed} icon={CheckCircle2} accent="text-emerald-600" />
-            <StatCard label="Cancelled" value={kpi.cancelled} icon={XCircle} accent="text-red-600" />
+            <StatCard label="Completed" value={kpi.completed} icon={CheckCircle2} accent="text-success" />
+            <StatCard label="Cancelled" value={kpi.cancelled} icon={XCircle} accent="text-destructive" />
             <StatCard label="Cancel rate" value={`${(kpi.cancellationRate * 100).toFixed(1)}%`} icon={TrendingUp} />
             <StatCard label="Avg fare" value={`£${kpi.avgFare.toFixed(2)}`} icon={Calculator} />
           </div>

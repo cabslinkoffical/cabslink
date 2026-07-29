@@ -168,7 +168,7 @@ function ClassTicket({ klass }: { klass: PublicVehicleClass }) {
             </span>
           ) : null}
           {klass.fuel_type === "electric" && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500 text-white px-2 py-1 text-[9px] font-bold uppercase tracking-widest shadow-sm">
+            <span className="inline-flex items-center gap-1 rounded-full bg-success text-white px-2 py-1 text-[9px] font-bold uppercase tracking-widest shadow-sm">
               <Zap className="size-2.5" /> Electric
             </span>
           )}

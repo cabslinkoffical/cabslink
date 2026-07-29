@@ -16,9 +16,9 @@ const LEGAL_PAGES = [
  */
 export function LegalReadinessBanner() {
   return (
-    <div className="rounded-lg border border-amber-500/50 bg-amber-500/10 p-3 text-xs text-foreground">
+    <div className="rounded-lg border border-warning/50 bg-warning/10 p-3 text-xs text-foreground">
       <div className="flex items-start gap-2">
-        <AlertTriangle className="size-4 shrink-0 text-amber-600 mt-0.5" />
+        <AlertTriangle className="size-4 shrink-0 text-warning mt-0.5" />
         <div>
           <strong className="block">Pre-launch: legal pages need finalising.</strong>
           <p className="mt-1 text-muted-foreground">
@@ -28,7 +28,7 @@ export function LegalReadinessBanner() {
           <ul className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
             {LEGAL_PAGES.map((p) => (
               <li key={p.path}>
-                <a href={p.path} target="_blank" rel="noreferrer" className="underline hover:text-amber-700">{p.label}</a>
+                <a href={p.path} target="_blank" rel="noreferrer" className="underline hover:text-warning">{p.label}</a>
               </li>
             ))}
           </ul>

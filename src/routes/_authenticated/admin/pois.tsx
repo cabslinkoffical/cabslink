@@ -104,7 +104,7 @@ function PoisPage() {
                   <td className="px-3 py-2 text-right tabular-nums">{((p.parking_fee_pence ?? 0) / 100).toFixed(2)}</td>
                   <td className="px-3 py-2 text-right tabular-nums">{p.admin_priority ?? 0}</td>
                   <td className="px-3 py-2 text-center">
-                    <span className={p.active ? "text-emerald-600" : "text-muted-foreground"}>
+                    <span className={p.active ? "text-success" : "text-muted-foreground"}>
                       {p.active ? "Yes" : "No"}
                     </span>
                   </td>
@@ -113,7 +113,7 @@ function PoisPage() {
                       <Edit className="size-4" />
                     </Button>
                     <Button variant="ghost" size="icon" onClick={() => remove(p.id)}>
-                      <Trash2 className="size-4 text-red-600" />
+                      <Trash2 className="size-4 text-destructive" />
                     </Button>
                   </td>
                 </tr>

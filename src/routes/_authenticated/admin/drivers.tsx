@@ -57,16 +57,16 @@ function Page() {
                   <div className="text-xs text-muted-foreground truncate flex items-center gap-1"><Phone className="size-3" /> {d.phone ?? "—"}</div>
                 </div>
               </div>
-              <div className="flex gap-2 mt-3"><StatusBadge status={d.status} />{d.available ? <StatusBadge status="active" color="bg-emerald-100 text-emerald-800" /> : null}</div>
+              <div className="flex gap-2 mt-3"><StatusBadge status={d.status} />{d.available ? <StatusBadge status="active" color="bg-success/12 text-success" /> : null}</div>
               <div className="text-xs text-muted-foreground mt-2">Vehicle: <span className="text-foreground">{d.vehicle?.name ?? "—"}</span></div>
               <div className="text-xs text-muted-foreground">License: <span className="text-foreground font-mono">{d.license_number ?? "—"}</span></div>
               <div className="flex justify-end gap-1 mt-3 pt-3 border-t border-border">
                 <Button size="sm" variant="ghost" onClick={() => setForm({ ...empty, ...d })}><Edit className="size-3.5 mr-1" /> Edit</Button>
                 <AlertDialog>
-                  <AlertDialogTrigger asChild><Button size="sm" variant="ghost" className="text-red-600"><Trash2 className="size-3.5 mr-1" /> Delete</Button></AlertDialogTrigger>
+                  <AlertDialogTrigger asChild><Button size="sm" variant="ghost" className="text-destructive"><Trash2 className="size-3.5 mr-1" /> Delete</Button></AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader><AlertDialogTitle>Delete driver?</AlertDialogTitle></AlertDialogHeader>
-                    <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => remove.mutate(d.id)} className="bg-red-600">Delete</AlertDialogAction></AlertDialogFooter>
+                    <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => remove.mutate(d.id)} className="bg-destructive">Delete</AlertDialogAction></AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
               </div>

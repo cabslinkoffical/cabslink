@@ -51,5 +51,5 @@ export function SeoTable<T extends { id: string }>({
 }
 
 export function PublishedPill({ on }: { on: boolean }) {
-  return <span className={"inline-block px-2 py-0.5 rounded-full text-[11px] font-medium " + (on ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300" : "bg-muted text-muted-foreground")}>{on ? "Live" : "Draft"}</span>;
+  return <span className={"inline-block px-2 py-0.5 rounded-full text-[11px] font-medium " + (on ? "bg-success/15 text-success" : "bg-muted text-muted-foreground")}>{on ? "Live" : "Draft"}</span>;
 }

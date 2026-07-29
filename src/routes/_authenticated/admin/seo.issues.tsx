@@ -14,8 +14,8 @@ export const Route = createFileRoute("/_authenticated/admin/seo/issues")({
 function severityBadge(sev: string) {
   const map: Record<string, { icon: any; cls: string; label: string }> = {
     blocker: { icon: ShieldAlert, cls: "bg-destructive/10 text-destructive", label: "Blocker" },
-    warning: { icon: AlertTriangle, cls: "bg-amber-500/10 text-amber-700", label: "Warning" },
-    info: { icon: Info, cls: "bg-sky-500/10 text-sky-700", label: "Info" },
+    warning: { icon: AlertTriangle, cls: "bg-warning/10 text-warning", label: "Warning" },
+    info: { icon: Info, cls: "bg-info/10 text-info", label: "Info" },
   };
   const cfg = map[sev] ?? map.info;
   const Icon = cfg.icon;
@@ -73,8 +73,8 @@ function SeoIssuesPage() {
         <Card><CardContent className="py-4 text-sm flex gap-6">
           <span><b>{stats.pages}</b> pages scanned</span>
           <span className="text-destructive"><b>{stats.blockers}</b> blockers</span>
-          <span className="text-amber-700"><b>{stats.warnings}</b> warnings</span>
-          <span className="text-sky-700"><b>{stats.info}</b> info</span>
+          <span className="text-warning"><b>{stats.warnings}</b> warnings</span>
+          <span className="text-info"><b>{stats.info}</b> info</span>
         </CardContent></Card>
       )}
 

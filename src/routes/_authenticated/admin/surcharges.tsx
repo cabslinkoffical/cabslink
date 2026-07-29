@@ -73,8 +73,8 @@ function Page() {
               <div className="mt-3 flex justify-end gap-1">
                 <Button size="sm" variant="ghost" onClick={() => setForm({ ...empty, ...s, starts_at: s.starts_at ? s.starts_at.slice(0, 16) : "", ends_at: s.ends_at ? s.ends_at.slice(0, 16) : "", time_from: s.time_from ?? "", time_to: s.time_to ?? "", days_of_week: s.days_of_week ?? [], notes: s.notes ?? "" })}><Edit className="size-4" /></Button>
                 <AlertDialog>
-                  <AlertDialogTrigger asChild><Button size="sm" variant="ghost"><Trash2 className="size-4 text-red-600" /></Button></AlertDialogTrigger>
-                  <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Delete surcharge?</AlertDialogTitle></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => remove.mutate(s.id)} className="bg-red-600">Delete</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
+                  <AlertDialogTrigger asChild><Button size="sm" variant="ghost"><Trash2 className="size-4 text-destructive" /></Button></AlertDialogTrigger>
+                  <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Delete surcharge?</AlertDialogTitle></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => remove.mutate(s.id)} className="bg-destructive">Delete</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
                 </AlertDialog>
               </div>
             </div>

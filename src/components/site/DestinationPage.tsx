@@ -82,7 +82,7 @@ export function DestinationPage({
       </header>
 
       {quality.effectiveNoindex && d.seo_tier !== 2 && (
-        <div className="mb-6 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        <div className="mb-6 rounded-xl border border-warning/40 bg-warning/12 px-4 py-3 text-sm text-warning">
           This page is not indexed by search engines yet — it is missing required data.
         </div>
       )}
