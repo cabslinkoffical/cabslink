@@ -256,8 +256,8 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
         <div className="bg-white shadow-[var(--shadow-elegant)] border border-black/5 rounded-3xl lg:rounded-full overflow-visible p-2 lg:p-1.5">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:items-stretch gap-1 lg:gap-0">
             {/* Pickup */}
-            <div className="sm:col-span-2 lg:flex-1 lg:min-w-0">
-              <FieldCell icon={<MapPin className="w-4 h-4 text-[var(--gold)]" />} label="From">
+            <div className="sm:col-span-2 lg:flex-1 lg:min-w-0" data-invalid={attempted && !!errors.pickup}>
+              <FieldCell icon={<MapPin className="w-4 h-4 text-[var(--gold)]" />} label="From" invalid={attempted && !!errors.pickup}>
                 <PlaceAutocomplete
                   id={`${idPrefix}-pickup`}
                   value={pickup}
@@ -273,8 +273,8 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
             <Divider />
 
             {/* Dropoff */}
-            <div className="sm:col-span-2 lg:flex-1 lg:min-w-0 border-t border-black/5 sm:border-t-0 lg:border-0">
-              <FieldCell icon={<Flag className="w-4 h-4 text-[var(--gold)]" />} label="To">
+            <div className="sm:col-span-2 lg:flex-1 lg:min-w-0 border-t border-black/5 sm:border-t-0 lg:border-0" data-invalid={attempted && !!errors.dropoff}>
+              <FieldCell icon={<Flag className="w-4 h-4 text-[var(--gold)]" />} label="To" invalid={attempted && !!errors.dropoff}>
                 <PlaceAutocomplete
                   id={`${idPrefix}-dropoff`}
                   value={dropoff}
@@ -290,11 +290,12 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
             <Divider />
 
             {/* Date */}
-            <div className="border-t border-black/5 lg:border-0">
-              <FieldCell icon={<Calendar className="w-4 h-4 text-[var(--gold)]" />} label="Date" compact>
+            <div className="border-t border-black/5 lg:border-0" data-invalid={attempted && !!errors.date}>
+              <FieldCell icon={<Calendar className="w-4 h-4 text-[var(--gold)]" />} label="Date" compact invalid={attempted && !!errors.date}>
                 <input
                   required
                   type="date"
+                  min={today}
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
                   className="w-full bg-transparent border-0 outline-none text-sm font-semibold text-foreground"
@@ -305,8 +306,8 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
             <Divider />
 
             {/* Time */}
-            <div className="border-t border-black/5 sm:border-t-0 sm:border-l sm:border-black/5 lg:border-l-0 lg:border-0">
-              <FieldCell icon={<Clock className="w-4 h-4 text-[var(--gold)]" />} label="Time" compact>
+            <div className="border-t border-black/5 sm:border-t-0 sm:border-l sm:border-black/5 lg:border-l-0 lg:border-0" data-invalid={attempted && !!errors.time}>
+              <FieldCell icon={<Clock className="w-4 h-4 text-[var(--gold)]" />} label="Time" compact invalid={attempted && !!errors.time}>
                 <input
                   required
                   type="time"
@@ -316,6 +317,7 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
                 />
               </FieldCell>
             </div>
+
 
             <Divider />
 
