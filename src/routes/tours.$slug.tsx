@@ -208,10 +208,10 @@ function TourDetailPage() {
       to: d.destination_label ?? d.name,
       duration: formatDuration(d.direct_duration_seconds) ?? "—",
       distance: d.direct_distance_miles ? `${Math.round(d.direct_distance_miles)} mi` : "—",
-      fromPrice: `From ${formatPrice(liveStartingPence, liveCurrency)}`,
+      fromPrice: "Price on request",
       stops,
     };
-  }, [d, selected, liveStartingPence, liveCurrency]);
+  }, [d, selected]);
 
 
   const duration = formatDuration(d.direct_duration_seconds);
