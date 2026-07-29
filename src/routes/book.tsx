@@ -474,7 +474,8 @@ function BookPage() {
 
         <div className="container-x relative">
           {!hasValidRoute ? (
-            <EmptyJourneyState onEdit={() => setEditOpen(true)} />
+            <JourneyForm initial={pre} onSubmit={applyEdit} />
+
           ) : (
             <>
               {pre.templateSlug && (
@@ -588,28 +589,87 @@ function BookPage() {
 }
 
 
-function EmptyJourneyState({ onEdit }: { onEdit: () => void }) {
+function JourneyForm({ initial, onSubmit }: { initial: Prefill; onSubmit: (next: Prefill) => void }) {
+  const [form, setForm] = useState<Prefill>(initial);
+  const [touched, setTouched] = useState(false);
+  const set = <K extends keyof Prefill>(k: K, v: Prefill[K]) => setForm((f) => ({ ...f, [k]: v }));
+
+  const sameSpot = !!form.pickup?.placeId && form.pickup.placeId === form.dropoff?.placeId;
+  const canSubmit = !!form.pickup?.placeId && !!form.dropoff?.placeId && !sameSpot && !!form.date && !!form.time;
+
   return (
-    <div
-      data-testid="book-empty-state"
-      className="max-w-xl mx-auto mt-10 rounded-3xl border border-border bg-card p-10 text-center space-y-5"
+    <form
+      data-testid="book-journey-form"
+      onSubmit={(e) => {
+        e.preventDefault();
+        setTouched(true);
+        if (canSubmit) onSubmit(form);
+      }}
+      className="max-w-2xl mx-auto mt-6 md:mt-10 rounded-3xl border border-border bg-card p-6 md:p-8 shadow-raised"
     >
-      <MapPin className="size-10 mx-auto text-[var(--gold)]" />
-      <div>
-        <h1 className="font-display text-2xl md:text-3xl font-bold">Enter your journey first</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Choose pickup and destination from the suggestions to get an instant quote.
-        </p>
+      <div className="flex items-center gap-3">
+        <span className="grid place-items-center size-10 rounded-full bg-[var(--gold)]/15 text-[var(--gold-ink)]">
+          <MapPin className="size-5" />
+        </span>
+        <div>
+          <h1 className="font-display text-xl md:text-2xl font-bold leading-tight">Your journey details</h1>
+          <p className="text-sm text-muted-foreground">Fill this in and we'll show your instant quote.</p>
+        </div>
       </div>
-      <div className="flex flex-wrap justify-center gap-3">
-        <Button asChild variant="gold" className="rounded-full">
-          <Link to="/" hash="booking">Start a booking</Link>
-        </Button>
-        <Button variant="outline" className="rounded-full" onClick={onEdit}>Enter here instead</Button>
+
+      <div className="mt-6 grid gap-4">
+        <div className="grid gap-1.5">
+          <Label htmlFor="jf-pickup">Pickup</Label>
+          <PlaceAutocomplete id="jf-pickup" value={form.pickup} onChange={(v) => set("pickup", v)}
+            placeholder="Enter UK airport, postcode or address" iconClassName="left-3" inputClassName="pl-9" />
+          {touched && !form.pickup?.placeId && (
+            <p className="text-xs text-destructive">Choose a pickup location from the suggestions.</p>
+          )}
+        </div>
+        <div className="grid gap-1.5">
+          <Label htmlFor="jf-dropoff">Destination</Label>
+          <PlaceAutocomplete id="jf-dropoff" value={form.dropoff} onChange={(v) => set("dropoff", v)}
+            placeholder="Enter UK destination" iconClassName="left-3" inputClassName="pl-9" />
+          {touched && !form.dropoff?.placeId && (
+            <p className="text-xs text-destructive">Choose a destination from the suggestions.</p>
+          )}
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="grid gap-1.5">
+            <Label htmlFor="jf-date">Date</Label>
+            <Input id="jf-date" type="date" value={form.date} onChange={(e) => set("date", e.target.value)} />
+            {touched && !form.date && <p className="text-xs text-destructive">Pick a date.</p>}
+          </div>
+          <div className="grid gap-1.5">
+            <Label htmlFor="jf-time">Time</Label>
+            <Input id="jf-time" type="time" value={form.time} onChange={(e) => set("time", e.target.value)} />
+            {touched && !form.time && <p className="text-xs text-destructive">Pick a time.</p>}
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="grid gap-1.5">
+            <Label htmlFor="jf-pax">Passengers</Label>
+            <Input id="jf-pax" type="number" min={1} max={60} value={form.passengers}
+              onChange={(e) => set("passengers", Math.max(1, Number(e.target.value) || 1))} />
+          </div>
+          <div className="grid gap-1.5">
+            <Label htmlFor="jf-lug">Luggage</Label>
+            <Input id="jf-lug" type="number" min={0} max={60} value={form.luggage}
+              onChange={(e) => set("luggage", Math.max(0, Number(e.target.value) || 0))} />
+          </div>
+        </div>
+        {sameSpot && (
+          <p className="text-xs text-destructive">Pickup and destination cannot be the same location.</p>
+        )}
       </div>
-    </div>
+
+      <Button type="submit" variant="gold" className="mt-6 w-full rounded-full h-12 text-base">
+        Continue to vehicles
+      </Button>
+    </form>
   );
 }
+
 
 function EditTripDialog({
   open, onOpenChange, initial, onSave,
