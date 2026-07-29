@@ -234,8 +234,9 @@ function HomePage() {
     <SiteLayout>
       {/* HERO — untouched blue background */}
       <section className="relative z-20 overflow-visible navy-scene">
-        <div className="container-x relative pt-14 md:pt-20 pb-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
+        <div className="container-x relative pt-5 md:pt-6 pb-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
+
             <div className="lg:col-span-6 relative z-10 min-w-0 w-full">
               <div
                 className="inline-block max-w-full opacity-0"
@@ -246,7 +247,7 @@ function HomePage() {
 
 
               <h1
-                className="mt-5 font-display font-bold text-white leading-[0.95] tracking-[-0.03em] text-[2rem] sm:text-5xl lg:text-[5.25rem] opacity-0"
+                className="mt-4 font-display font-bold text-white leading-[0.95] tracking-[-0.03em] text-[2rem] sm:text-5xl lg:text-[3.2rem] xl:text-[3.8rem] opacity-0"
                 style={{ animation: "fadeInUp 800ms cubic-bezier(.2,.7,.2,1) 200ms forwards" }}
               >
                 Plan your{" "}
@@ -254,16 +255,17 @@ function HomePage() {
               </h1>
 
               <p
-                className="mt-5 max-w-xl text-sm md:text-lg text-white/75 opacity-0"
+                className="mt-4 max-w-xl text-sm md:text-base text-white/75 opacity-0"
                 style={{ animation: "fadeInUp 800ms cubic-bezier(.2,.7,.2,1) 380ms forwards" }}
               >
                 Fixed-fare Mercedes-Benz transfers, private tours and executive travel across the UK. Flight tracked, meet &amp; greet, 24/7 dispatch — the calm way to travel.
               </p>
 
               <div
-                className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-3 opacity-0"
+                className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-3 opacity-0"
                 style={{ animation: "fadeInUp 800ms cubic-bezier(.2,.7,.2,1) 500ms forwards" }}
               >
+
                 <div className="flex items-center gap-2 min-w-0">
                   <div className="flex -space-x-2 shrink-0">
                     {["S","J","P","M"].map((c, idx) => (
@@ -321,7 +323,7 @@ function HomePage() {
 
                 <div aria-hidden className="absolute inset-x-8 bottom-2 h-8 rounded-[50%] bg-[color-mix(in_oklab,#000000_40%,transparent)] blur-2xl" />
 
-                <div className="relative aspect-[16/10] overflow-hidden">
+                <div className="relative aspect-[16/10] lg:aspect-[16/8.5] lg:max-h-[230px] xl:max-h-[270px]">
                   {current && (
                     <img
                       key={current.key}
@@ -346,7 +348,7 @@ function HomePage() {
           </div>
 
           {/* Booking form inside hero (desktop) */}
-          <div id="booking" className="relative z-50 hidden lg:block mt-10 pb-4 scroll-mt-24">
+          <div id="booking" className="relative z-50 hidden lg:block mt-4 pb-2 scroll-mt-24">
             <BookingWidget />
           </div>
 
