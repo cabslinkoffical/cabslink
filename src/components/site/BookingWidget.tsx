@@ -48,7 +48,7 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
     return !Number.isNaN(dt.getTime()) && dt.getTime() < Date.now() - 60_000;
   };
 
-  const missingPlaces = !pickup?.placeId || !dropoff?.placeId;
+  
   const identicalPlaces = !!pickup?.placeId && !!dropoff?.placeId && pickup.placeId === dropoff.placeId;
 
   const errors = {
