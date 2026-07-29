@@ -32,7 +32,7 @@ export function Header() {
   }, []);
 
   return (
-    <div className={`sticky top-0 z-50 transition-all duration-300 navy-scene ${scrolled ? "pt-2 md:pt-3 pb-2 md:pb-3" : "pt-4 md:pt-6 pb-4 md:pb-6"}`}>
+    <div className={`sticky lg:static top-0 z-50 transition-all duration-300 navy-scene ${scrolled ? "pt-2 md:pt-3 pb-2 md:pb-3" : "pt-4 md:pt-6 pb-4 md:pb-6"}`}>
       <div className="mx-auto w-full max-w-[1400px] px-3 md:px-6">
         <header
           className={`relative flex h-[68px] md:h-[76px] items-center justify-between gap-4 rounded-full pl-4 pr-3 md:pl-7 md:pr-3 transition-all duration-300 border border-white/10 overflow-hidden bg-[var(--navy)]/95 ${
