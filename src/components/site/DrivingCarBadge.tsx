@@ -9,8 +9,8 @@ type DrivingCarBadgeProps = {
  */
 export function DrivingCarBadge({ label, className }: DrivingCarBadgeProps) {
   return (
-    <div className={`inline-flex flex-col items-start gap-1.5 ${className ?? ""}`}>
-      <div className="flex items-center gap-2.5">
+    <div className={`inline-flex w-fit max-w-full flex-col items-start gap-1.5 ${className ?? ""}`}>
+      <div className="flex items-center gap-2.5 whitespace-nowrap">
         <svg
           viewBox="0 0 40 22"
           className="h-5 w-9 shrink-0 overflow-visible text-[var(--gold)]"
