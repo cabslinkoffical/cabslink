@@ -3,6 +3,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { AreaLocationPage } from "@/components/site/AreaLocationPage";
 import { areaSeoContextQuery } from "@/lib/explore.functions";
 import { buildAutoHead } from "@/lib/seo/auto-seo";
+import { SiteLayout } from "@/components/site/SiteLayout";
 
 export const Route = createFileRoute("/areas/$slug")({
   loader: async ({ params, context }) => {
@@ -24,10 +25,10 @@ export const Route = createFileRoute("/areas/$slug")({
   },
   component: Page,
   notFoundComponent: () => (
-    <main className="container-x py-24 text-center">
+    <SiteLayout><div className="container-x py-24 text-center">
       <h1 className="text-3xl font-bold">Location not found</h1>
       <p className="mt-2 text-[var(--navy)]/70">This location isn't published yet.</p>
-    </main>
+    </div></SiteLayout>
   ),
 });
 
