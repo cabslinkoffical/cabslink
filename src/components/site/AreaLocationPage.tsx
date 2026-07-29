@@ -97,7 +97,7 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
         <SectionHeader eyebrow="Why Cabslink" title={`Why book with us in ${locName}`} />
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {WHY.map((w) => (
-            <div key={w.title} className="rounded-2xl border border-[var(--navy)]/10 bg-white p-5">
+            <div key={w.title} className="rounded-2xl border border-[var(--navy)]/10 bg-white p-5 shadow-raised">
               <w.icon className="size-6 text-[var(--gold-ink)]" />
               <div className="mt-3 font-semibold text-[var(--navy)]">{w.title}</div>
               <div className="mt-1 text-sm text-[var(--navy)]/70">{w.text}</div>
@@ -114,7 +114,7 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
             <a
               key={s.href}
               href={s.href}
-              className="group flex flex-col justify-between rounded-2xl border border-[var(--navy)]/10 bg-white p-5 transition hover:border-[var(--gold)]"
+              className="group flex flex-col justify-between rounded-2xl border border-[var(--navy)]/10 bg-white p-5 transition hover:border-[var(--gold)] shadow-raised hover:shadow-raised-hover"
             >
               <div>
                 <div className="font-semibold text-[var(--navy)]">{s.label}</div>
@@ -139,7 +139,7 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
       )}
 
       {/* Vehicles callout */}
-      <section className="mt-14 rounded-3xl border border-[var(--navy)]/10 bg-white p-8">
+      <section className="mt-14 rounded-3xl border border-[var(--navy)]/10 bg-white p-8 shadow-raised">
         <SectionHeader eyebrow="Our fleet" title="Vehicles available" />
         <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 text-sm text-[var(--navy)]/80">
           {[

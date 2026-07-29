@@ -50,7 +50,7 @@ function BlogHome() {
             <Link
               to="/blog/$slug"
               params={{ slug: hero.slug }}
-              className="group grid md:grid-cols-2 gap-8 items-center overflow-hidden rounded-3xl border border-[var(--navy)]/10 bg-white"
+              className="group grid md:grid-cols-2 gap-8 items-center overflow-hidden rounded-3xl border border-[var(--navy)]/10 bg-white shadow-raised hover:shadow-raised-hover"
             >
               {hero.featured_image_url && (
                 <div className="aspect-[16/10] md:aspect-auto md:h-full overflow-hidden">

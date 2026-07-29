@@ -52,7 +52,7 @@ function AirportsIndex() {
                       key={a.id}
                       to="/airports/$iata"
                       params={{ iata: iata.toLowerCase() || a.slug }}
-                      className="group relative overflow-hidden rounded-[20px] border border-[var(--navy)]/10 bg-white p-6 hover:border-[var(--gold)] hover:-translate-y-1 transition-all"
+                      className="group relative overflow-hidden rounded-[20px] border border-[var(--navy)]/10 bg-white p-6 hover:border-[var(--gold)] hover:-translate-y-1 transition-all shadow-raised hover:shadow-raised-hover"
                     >
                       <div className="flex items-start justify-between">
                         <Plane className="size-6 text-[var(--gold-ink)]" />

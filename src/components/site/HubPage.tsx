@@ -31,7 +31,7 @@ export function HubPage({
         <p className="mt-2 max-w-3xl text-[var(--navy)]/70">{intro}</p>
       </header>
       {destinations.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-[var(--navy)]/20 bg-white p-8 text-center">
+        <div className="rounded-2xl border border-dashed border-[var(--navy)]/20 bg-white p-8 text-center shadow-raised">
           <p className="text-[var(--navy)]/70">
             We haven't published dedicated pages for this category yet, but we still
             cover every UK postcode. Get a fixed-fare quote in under 30 seconds.
@@ -55,7 +55,7 @@ export function HubPage({
                   <li key={d.id}>
                     <Link
                       to={destinationHref(d)}
-                      className="block rounded-xl border border-[var(--navy)]/10 bg-white p-4 hover:border-[var(--gold)] hover:shadow-sm"
+                      className="block rounded-xl border border-[var(--navy)]/10 bg-white p-4 hover:border-[var(--gold)] shadow-raised hover:shadow-raised-hover"
                     >
                       <span className="block font-medium text-[var(--navy)]">
                         {d.display_name ?? d.name}

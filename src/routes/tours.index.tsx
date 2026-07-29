@@ -59,7 +59,7 @@ function TourCard({ tour, hero = false }: { tour: PublicTourListItem; hero?: boo
     <Link
       to="/tours/$slug"
       params={{ slug: tour.slug }}
-      className="group relative block overflow-hidden rounded-[28px] bg-white shadow-[0_10px_30px_-16px_rgba(14,24,44,0.35)] ring-1 ring-[var(--navy)]/8 transition-all hover:shadow-[0_20px_40px_-18px_rgba(14,24,44,0.45)]"
+      className="group relative block overflow-hidden rounded-[28px] bg-white ring-1 ring-[var(--navy)]/8 transition-all shadow-raised hover:shadow-raised-hover"
     >
       {/* Media */}
       <div className={`relative overflow-hidden bg-[var(--navy)]/90 ${hero ? "aspect-[4/5] sm:aspect-[16/9]" : "aspect-[5/6] sm:aspect-[4/3]"}`}>

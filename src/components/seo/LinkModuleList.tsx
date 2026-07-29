@@ -7,7 +7,7 @@ export function LinkModuleList({ modules }: { modules: LinkModule[] }) {
   return (
     <div className="grid gap-6 md:grid-cols-3">
       {nonEmpty.map((mod) => (
-        <section key={mod.heading} className="rounded-2xl border border-[var(--navy)]/10 bg-white p-5">
+        <section key={mod.heading} className="rounded-2xl border border-[var(--navy)]/10 bg-white p-5 shadow-raised">
           <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--navy)]/70">
             {mod.heading}
           </h3>

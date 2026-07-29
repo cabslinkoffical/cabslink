@@ -10,7 +10,7 @@ export function CategoryGrid({ categories }: { categories: CategoryCard[] }) {
         <Link
           key={c.type}
           to={c.hubHref}
-          className="group flex items-center justify-between gap-3 rounded-xl border border-[var(--navy)]/10 bg-white px-4 py-3.5 transition hover:border-[var(--gold)]"
+          className="group flex items-center justify-between gap-3 rounded-xl border border-[var(--navy)]/10 bg-white px-4 py-3.5 transition hover:border-[var(--gold)] shadow-raised hover:shadow-raised-hover"
         >
           <div>
             <div className="text-sm font-semibold text-[var(--navy)]">{c.label}</div>
