@@ -5,7 +5,6 @@ import { Users, Briefcase, Luggage, ArrowRight, Accessibility, Zap, CheckCircle2
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Reveal } from "@/components/site/Reveal";
 import { Button } from "@/components/ui/button";
-import { VehicleAllocationNotice } from "@/components/site/VehicleAllocationNotice";
 import { listPublicVehicleClasses, type PublicVehicleClass } from "@/lib/vehicle-classes.functions";
 import { fleetImageFor } from "@/assets/fleet";
 import { supabase } from "@/integrations/supabase/client";
@@ -102,10 +101,6 @@ function FleetPage() {
                 <ClassTicket klass={c} />
               </Reveal>
             ))}
-          </div>
-
-          <div className="pt-10">
-            <VehicleAllocationNotice />
           </div>
         </div>
       </section>
