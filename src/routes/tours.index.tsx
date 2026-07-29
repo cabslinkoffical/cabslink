@@ -164,24 +164,14 @@ function ToursPage() {
               </div>
             </div>
           ) : (
-            <>
-              {featured.length > 0 && (
-                <div className="mt-10 grid gap-5 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {featured.map((t, i) => (
-                    <Reveal key={t.slug} className={i === 0 ? "md:col-span-2 lg:col-span-1" : ""}>
-                      <TourCard tour={t} hero={i === 0} />
-                    </Reveal>
-                  ))}
-                </div>
-              )}
-              {rest.length > 0 && (
-                <div className={`grid gap-5 sm:gap-6 md:grid-cols-2 lg:grid-cols-3 ${featured.length > 0 ? "mt-6 sm:mt-8" : "mt-10"}`}>
-                  {rest.map((t) => (
-                    <Reveal key={t.slug}><TourCard tour={t} /></Reveal>
-                  ))}
-                </div>
-              )}
-            </>
+            <div className="mt-10 grid items-stretch gap-5 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {tours.map((t) => (
+                <Reveal key={t.slug} className="h-full">
+                  <TourCard tour={t} />
+                </Reveal>
+              ))}
+            </div>
+
 
           )}
         </div>
