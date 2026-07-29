@@ -1,11 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { ArrowRight, Clock, MapPin, Star } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero, SectionHeader } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
 import { Button } from "@/components/ui/button";
-import { listPublishedTours, type PublicTourListItem } from "@/lib/tours.functions";
+import { TourCard } from "@/components/site/TourCard";
+import { listPublishedTours } from "@/lib/tours.functions";
 
 const toursQuery = queryOptions({
   queryKey: ["published-tours"],
