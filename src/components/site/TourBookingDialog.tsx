@@ -33,10 +33,12 @@ export type TourForBooking = {
 type Props = {
   tour: TourForBooking;
   trigger: React.ReactNode;
+  autoOpen?: boolean;
 };
 
-export function TourBookingDialog({ tour, trigger }: Props) {
-  const [open, setOpen] = useState(false);
+export function TourBookingDialog({ tour, trigger, autoOpen = false }: Props) {
+  const [open, setOpen] = useState(autoOpen);
+
   const today = new Date().toISOString().slice(0, 10);
 
   const [date, setDate] = useState(today);
