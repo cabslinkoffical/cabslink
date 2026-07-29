@@ -141,11 +141,6 @@ const ukCities = [
 ];
 
 
-const testimonials = [
-  { name: "Sarah M.", role: "Frequent flyer · Edinburgh", vehicle: "Mercedes V-Class", country: "🇬🇧", quote: "Driver was waiting at arrivals with a name board. Immaculate vehicle, calm and professional. Best transfer service I've used in the UK." },
-  { name: "James R.", role: "Operations Director", vehicle: "Mercedes E-Class", country: "🇬🇧", quote: "We moved our entire executive travel to Cabslink. Reliable, on-time, polished — and the monthly invoicing is a relief." },
-  { name: "Priya K.", role: "Wedding planner", vehicle: "Mercedes S-Class", country: "🇬🇧", quote: "They handled five vehicles across two venues without a hitch. Pure professionalism from start to finish." },
-];
 
 function HomePage() {
   const [active, setActive] = useState(0);
