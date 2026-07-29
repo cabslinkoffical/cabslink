@@ -26,7 +26,11 @@ const tourDetailQuery = (slug: string) =>
   });
 
 export const Route = createFileRoute("/tours/$slug")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    enquire: search.enquire === true || search.enquire === "true" || search.enquire === "1" ? true : undefined,
+  }),
   loader: ({ params, context }) => context.queryClient.ensureQueryData(tourDetailQuery(params.slug)),
+
   head: ({ loaderData }) => {
     const d = loaderData as PublicTourDetail | undefined;
     if (!d) {
