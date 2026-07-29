@@ -707,59 +707,7 @@ function HomePage() {
       </section>
 
       {/* REVIEWS */}
-      <section className="section-y navy-scene">
-        <div className="container-x">
-          <div className="max-w-2xl">
-            <p className="text-[11px] uppercase tracking-[0.28em] font-semibold text-[var(--gold)]">— Customer Reviews</p>
-            <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold text-white leading-[1.05]">
-              What our clients <span className="text-[var(--gold)]">say.</span>
-            </h2>
-          </div>
-
-          <div className="mt-14 grid gap-6 lg:grid-cols-12">
-            <figure className="lg:col-span-7 relative rounded-[28px] bg-[var(--gold)] text-[var(--navy)] p-10 md:p-12 overflow-hidden">
-              <Quote className="absolute top-6 right-6 size-24 text-[var(--navy)]/10" />
-              <div className="flex items-center gap-1 text-[var(--navy)]">
-                {[...Array(5)].map((_, i) => <Star key={i} className="size-4 fill-current" />)}
-              </div>
-              <blockquote className="mt-6 font-display text-2xl md:text-3xl font-semibold leading-[1.25] tracking-[-0.01em]">
-                "{testimonials[0].quote}"
-              </blockquote>
-              <figcaption className="mt-8 flex items-center gap-4 pt-6 border-t border-[var(--navy)]/15">
-                <div className="grid size-12 place-items-center rounded-full bg-[var(--navy)] text-[var(--gold)] font-display font-bold text-lg">
-                  {testimonials[0].name.charAt(0)}
-                </div>
-                <div>
-                  <p className="font-semibold text-[var(--navy)]">{testimonials[0].name} <span className="ml-1">{testimonials[0].country}</span></p>
-                  <p className="text-xs text-[var(--navy)]/70">{testimonials[0].role} · {testimonials[0].vehicle}</p>
-                </div>
-              </figcaption>
-            </figure>
-
-            <div className="lg:col-span-5 grid gap-6">
-              {testimonials.slice(1).map((t) => (
-                <figure key={t.name} className="relative rounded-[24px] border border-white/15 bg-white/5 p-7 backdrop-blur shadow-dark-raised">
-                  <div className="flex items-center gap-1 text-[var(--gold)]">
-                    {[...Array(5)].map((_, i) => <Star key={i} className="size-3.5 fill-current" />)}
-                  </div>
-                  <blockquote className="mt-4 text-sm text-white/85 leading-relaxed">
-                    "{t.quote}"
-                  </blockquote>
-                  <figcaption className="mt-5 flex items-center gap-3 pt-4 border-t border-white/10">
-                    <div className="grid size-9 place-items-center rounded-full bg-[var(--gold)]/15 text-[var(--gold)] font-display font-bold text-sm">
-                      {t.name.charAt(0)}
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-white">{t.name} <span className="ml-1">{t.country}</span></p>
-                      <p className="text-[11px] text-white/60">{t.role} · {t.vehicle}</p>
-                    </div>
-                  </figcaption>
-                </figure>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
+      <TestimonialsSection />
 
       {/* CORPORATE TRAVEL */}
       <section className="section-y bg-white">
