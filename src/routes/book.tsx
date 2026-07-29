@@ -474,7 +474,8 @@ function BookPage() {
 
         <div className="container-x relative">
           {!hasValidRoute ? (
-            <EmptyJourneyState onEdit={() => setEditOpen(true)} />
+            <JourneyForm initial={pre} onSubmit={applyEdit} />
+
           ) : (
             <>
               {pre.templateSlug && (
