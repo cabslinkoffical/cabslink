@@ -234,8 +234,9 @@ function HomePage() {
     <SiteLayout>
       {/* HERO — untouched blue background */}
       <section className="relative z-20 overflow-visible navy-scene">
-        <div className="container-x relative pt-14 md:pt-20 pb-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
+        <div className="container-x relative pt-8 md:pt-10 pb-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-8 items-center">
+
             <div className="lg:col-span-6 relative z-10 min-w-0 w-full">
               <div
                 className="inline-block max-w-full opacity-0"
