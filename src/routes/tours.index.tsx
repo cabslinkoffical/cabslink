@@ -138,8 +138,9 @@ function ToursPage() {
     <SiteLayout>
       <PageHero
         eyebrow="Private Driver Tours"
-        title="Curated tours. Real drivers. Transparent prices."
-        subtitle="Pick a route, choose your stops, and travel in comfort with a professional driver. Every itinerary is priced live — no fabricated fares."
+        title="Curated tours. Real drivers. Tailored quotes."
+        subtitle="Pick a route, choose your stops, and travel in comfort with a professional driver. Enquire and we'll quote your exact itinerary."
+
         breadcrumbs={[{ label: "Home", to: "/" }, { label: "Tours" }]}
       />
 
