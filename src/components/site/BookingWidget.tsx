@@ -135,10 +135,13 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
           onSubmit={(e) => {
             e.preventDefault();
             setAttempted(true);
-            if (!pickup?.placeId) return;
+            if (hourlyErrorList.length) {
+              focusFirstInvalid(e.currentTarget);
+              return;
+            }
             const params = new URLSearchParams();
-            params.set("pickupPlaceId", pickup.placeId);
-            params.set("pickupLabel", pickup.label);
+            params.set("pickupPlaceId", pickup!.placeId);
+            params.set("pickupLabel", pickup!.label);
             params.set("date", date);
             params.set("time", time);
             params.set("hours", String(hours));
@@ -146,6 +149,7 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
             params.set("luggage", String(luggage));
             navigate({ to: "/book/hourly", search: { q: params.toString() } as never });
           }}
+
         >
           <div className="bg-white shadow-[var(--shadow-elegant)] border border-black/5 rounded-3xl lg:rounded-full overflow-visible p-2 lg:p-1.5">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:items-stretch gap-1 lg:gap-0">
