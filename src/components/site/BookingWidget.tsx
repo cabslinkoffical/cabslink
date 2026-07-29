@@ -428,14 +428,20 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
               </button>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <div className="flex items-center gap-2 px-3 h-[54px] rounded-xl border border-border">
+              <div
+                data-invalid={attempted && !!errors.returnDate}
+                className={`flex items-center gap-2 px-3 h-[54px] rounded-xl border ${attempted && errors.returnDate ? "border-destructive bg-destructive/5" : "border-border"}`}
+              >
                 <Calendar className="w-4 h-4 text-[var(--gold)]" />
                 <div className="min-w-0 flex-1">
                   <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/70">Date</div>
-                  <input type="date" value={returnDate} onChange={(e) => setReturnDate(e.target.value)} className="w-full bg-transparent border-0 outline-none text-sm font-semibold" />
+                  <input type="date" min={date || today} value={returnDate} onChange={(e) => setReturnDate(e.target.value)} className="w-full bg-transparent border-0 outline-none text-sm font-semibold" />
                 </div>
               </div>
-              <div className="flex items-center gap-2 px-3 h-[54px] rounded-xl border border-border">
+              <div
+                data-invalid={attempted && !!errors.returnTime}
+                className={`flex items-center gap-2 px-3 h-[54px] rounded-xl border ${attempted && errors.returnTime ? "border-destructive bg-destructive/5" : "border-border"}`}
+              >
                 <Clock className="w-4 h-4 text-[var(--gold)]" />
                 <div className="min-w-0 flex-1">
                   <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/70">Time</div>
@@ -446,16 +452,14 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
           </div>
         )}
 
-        {attempted && missingPlaces && (
-          <p className="text-xs text-destructive text-center mt-3" role="alert">
-            Please select pickup and destination from the suggestions.
-          </p>
+        {attempted && errorList.length > 0 && (
+          <ul className="mt-3 space-y-1 text-xs text-destructive text-center" role="alert">
+            {errorList.map((msg) => (
+              <li key={msg}>{msg}</li>
+            ))}
+          </ul>
         )}
-        {attempted && identicalPlaces && (
-          <p className="text-xs text-destructive text-center mt-3" role="alert">
-            Pickup and destination cannot be the same location.
-          </p>
-        )}
+
       </form>
       )}
 
