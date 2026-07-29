@@ -16,7 +16,7 @@ export function CategoryGrid({ categories }: { categories: CategoryCard[] }) {
             <div className="text-sm font-semibold text-[var(--navy)]">{c.label}</div>
             <div className="text-xs text-[var(--navy)]/60">{c.count} destination{c.count === 1 ? "" : "s"}</div>
           </div>
-          <ArrowUpRight className="size-4 text-[var(--navy)]/40 transition group-hover:text-[var(--gold-ink)]" />
+          <ArrowUpRight className="size-4 text-[var(--navy)]/75 transition group-hover:text-[var(--gold-ink)]" />
         </Link>
       ))}
     </div>

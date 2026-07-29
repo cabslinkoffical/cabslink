@@ -56,7 +56,7 @@ export function InstantSearch({ placeholder = "Search cities, airports, routes, 
   return (
     <div ref={boxRef} className="relative w-full max-w-2xl">
       <div className="flex items-center gap-3 rounded-full border border-[var(--navy)]/12 bg-white px-5 py-3.5 shadow-[0_20px_60px_-30px_rgba(14,24,44,0.4)] focus-within:border-[var(--gold)]">
-        <Search className="size-5 text-[var(--navy)]/50" />
+        <Search className="size-5 text-[var(--navy)]/75" />
         <input
           value={q}
           onChange={(e) => {
