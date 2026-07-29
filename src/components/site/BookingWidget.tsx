@@ -395,6 +395,8 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
           </p>
         )}
       </form>
+      )}
+
     </div>
   );
 }
