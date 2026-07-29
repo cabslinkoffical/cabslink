@@ -12,6 +12,8 @@ import {
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { BookingWidget } from "@/components/site/BookingWidget";
 import { TestimonialsSection } from "@/components/site/TestimonialsSection";
+import { DrivingCarBadge } from "@/components/site/DrivingCarBadge";
+
 import { Button } from "@/components/ui/button";
 import { SITE } from "@/lib/site";
 import { listPublishedTours } from "@/lib/tours.functions";
