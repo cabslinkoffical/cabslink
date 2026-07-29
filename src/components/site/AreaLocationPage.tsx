@@ -10,8 +10,8 @@ import { FaqBlock } from "@/components/seo/FaqBlock";
 import { EntityGrid } from "@/components/explore/EntityCard";
 import type { AreaSeoContext } from "@/lib/explore.functions";
 import type { Destination } from "@/lib/destinations.functions";
-import {
 import { SiteLayout } from "@/components/site/SiteLayout";
+import {
   CheckCircle2,
   Clock,
   ShieldCheck,
