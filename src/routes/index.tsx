@@ -139,11 +139,6 @@ const ukCities = [
   "Liverpool", "Leeds", "Bristol", "Cardiff", "Newcastle", "Oxford", "Cambridge",
 ];
 
-const featuredTours = [
-  { slug: "loch-ness-highlands", title: "Loch Ness & Highlands", duration: "10 hours", highlights: ["Urquhart Castle", "Glencoe", "Scenic lochs"], img: vclassAsset.url },
-  { slug: "outlander-experience", title: "Outlander Filming Locations", duration: "8 hours", highlights: ["Doune Castle", "Culross", "Blackness"], img: sclassAsset.url },
-  { slug: "harry-potter-scotland", title: "Harry Potter in Scotland", duration: "12 hours", highlights: ["Glenfinnan Viaduct", "Loch Shiel", "Fort William"], img: rangeroverAsset.url },
-];
 
 const testimonials = [
   { name: "Sarah M.", role: "Frequent flyer · Edinburgh", vehicle: "Mercedes V-Class", country: "🇬🇧", quote: "Driver was waiting at arrivals with a name board. Immaculate vehicle, calm and professional. Best transfer service I've used in the UK." },
