@@ -430,47 +430,41 @@ function HomePage() {
             </div>
           </div>
 
-          <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-6 lg:grid-rows-3">
-            {services.map((s, i) => {
-              const featured = i === 0;
-              const last = i === services.length - 1;
-              return (
-                <Link
-                  key={s.title}
-                  to={s.to}
-                  className={`group relative flex h-full flex-col overflow-hidden rounded-[28px] border transition-all duration-500 ${
-                    featured
-                      ? "md:col-span-2 lg:col-span-2 lg:row-span-3 bg-[var(--navy)] border-[var(--navy)] text-white p-8 shadow-dark-raised hover:shadow-dark-raised-hover hover:-translate-y-1.5"
-                      : `${last ? "md:col-span-2 lg:col-span-4" : "lg:col-span-2"} bg-white border-[var(--navy)]/10 p-7 shadow-raised hover:shadow-raised-hover hover:border-[var(--gold)] hover:-translate-y-1.5`
-                  }`}
-                >
+          <div className="mt-14 grid gap-px overflow-hidden rounded-[28px] border border-[var(--navy)]/10 bg-[var(--navy)]/10 sm:grid-cols-2 lg:grid-cols-3">
+            {services.map((s, i) => (
+              <Link
+                key={s.title}
+                to={s.to}
+                className="group relative flex h-full flex-col bg-white p-7 transition-colors duration-300 hover:bg-[var(--navy)] md:p-8"
+              >
+                <span
+                  aria-hidden
+                  className="absolute inset-x-0 top-0 h-[3px] origin-left scale-x-0 bg-[var(--gold)] transition-transform duration-500 group-hover:scale-x-100"
+                />
 
-                  <span className={`text-[11px] font-mono ${featured ? "text-[var(--gold)]" : "text-[var(--navy)]/40"}`}>
-                    0{i + 1} / 0{services.length}
-                  </span>
-                  <div className={`mt-4 grid size-14 place-items-center rounded-2xl ${
-                    featured ? "bg-[var(--gold)] text-[var(--gold-foreground)]" : "bg-[var(--gold)]/10 text-[var(--navy)] border border-[var(--gold)]/40"
-                  }`}>
-                    <s.icon className="size-6" />
+                <div className="flex items-center justify-between gap-4">
+                  <div className="grid size-12 shrink-0 place-items-center rounded-xl border border-[var(--gold)]/40 bg-[var(--gold)]/10 text-[var(--navy)] transition-colors duration-300 group-hover:border-[var(--gold)] group-hover:bg-[var(--gold)] group-hover:text-[var(--gold-foreground)]">
+                    <s.icon className="size-5" />
                   </div>
-                  <h3 className={`mt-6 font-display font-semibold leading-tight ${featured ? "text-white text-3xl md:text-4xl" : "text-[var(--navy)] text-xl"}`}>
-                    {s.title}
-                  </h3>
-                  <p className={`mt-3 text-sm leading-relaxed ${featured ? "text-white/70" : "text-[var(--navy)]/60"}`}>
-                    {s.desc}
-                  </p>
-                  <span className={`mt-auto pt-6 inline-flex items-center gap-2 text-sm font-semibold group-hover:gap-3 transition-all ${
-                    featured ? "text-[var(--gold)]" : "text-[var(--navy)] group-hover:text-[var(--gold-ink)]"
-                  }`}>
-                    Explore <ArrowRight className="size-4" />
+                  <span className="font-mono text-[11px] text-[var(--navy)]/35 transition-colors group-hover:text-[var(--gold)]">
+                    0{i + 1}
                   </span>
-                  {featured && (
-                    <div aria-hidden className="absolute -bottom-10 -right-10 size-56 rounded-full border border-white/10" />
-                  )}
-                </Link>
-              );
-            })}
+                </div>
+
+                <h3 className="mt-6 font-display text-xl font-semibold leading-tight text-[var(--navy)] transition-colors group-hover:text-white">
+                  {s.title}
+                </h3>
+                <p className="mt-2.5 min-h-[3.25rem] text-sm leading-relaxed text-[var(--navy)]/60 transition-colors group-hover:text-white/70">
+                  {s.desc}
+                </p>
+
+                <span className="mt-auto inline-flex items-center gap-2 pt-6 text-sm font-semibold text-[var(--navy)] transition-all group-hover:gap-3 group-hover:text-[var(--gold)]">
+                  Explore <ArrowRight className="size-4" />
+                </span>
+              </Link>
+            ))}
           </div>
+
         </div>
       </section>
 
