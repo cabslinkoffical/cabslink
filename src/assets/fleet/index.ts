@@ -32,6 +32,8 @@ export const FLEET_IMAGES: Record<string, string> = {
 };
 
 export function fleetImageFor(slug: string, fallback?: string | null): string | undefined {
+  // Curated class artwork always wins so the fleet looks consistent site-wide.
+  // Uploaded/legacy vehicle photos are only used for classes we have no artwork for.
   const custom = fallback?.trim();
-  return custom || FLEET_IMAGES[slug] || undefined;
+  return FLEET_IMAGES[slug] || custom || undefined;
 }
