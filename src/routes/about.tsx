@@ -6,6 +6,7 @@ import {
   CheckCircle2, ArrowRight,
 } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { CtaBand } from "@/components/site/CtaBand";
 import { PageHero, SectionHeader } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
 import { SITE } from "@/lib/site";
@@ -202,6 +203,13 @@ function AboutPage() {
           </div>
         </div>
       </section>
+
+      <CtaBand
+        eyebrow="Ready when you are"
+        title="Book a Cabslink driver today"
+        subtitle="Fixed fares, vetted drivers and 24/7 UK reservations support."
+        tone="navy"
+      />
 
       {/* Coverage */}
       <section className="section-y">

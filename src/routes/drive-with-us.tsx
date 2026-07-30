@@ -69,6 +69,8 @@ function DrivePage() {
         title="Partner with Cabslink as a driver or fleet operator."
         subtitle="Steady premium work, a respected brand, and a team that supports its drivers — apply to join us today."
         breadcrumbs={[{ label: "Home", to: "/" }, { label: "Drive With Us" }]}
+        showCta={false}
+
       />
       <section className="section-y">
         <div className="container-x grid lg:grid-cols-2 gap-12">

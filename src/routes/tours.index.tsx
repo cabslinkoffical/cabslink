@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { CtaBand } from "@/components/site/CtaBand";
 import { PageHero, SectionHeader } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
 import { Button } from "@/components/ui/button";
@@ -96,6 +97,16 @@ function ToursPage() {
           )}
         </div>
       </section>
+
+      <CtaBand
+        eyebrow="Private tours"
+        title="Plan your Scottish tour with a private driver"
+        subtitle="Tell us your dates and we will build the itinerary and quote around you."
+        primaryLabel="Book now"
+        secondaryLabel="Talk to us"
+        secondaryTo="/contact"
+        tone="navy"
+      />
 
       <section className="section-y bg-[var(--surface)]/60">
         <div className="container-x text-center max-w-3xl mx-auto">

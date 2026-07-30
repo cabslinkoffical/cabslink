@@ -1,17 +1,27 @@
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, ArrowRight, Phone } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { SITE } from "@/lib/site";
 
 export function PageHero({
   eyebrow,
   title,
   subtitle,
   breadcrumbs,
+  showCta = true,
+  primaryLabel = "Book now",
+  primaryTo = "/book",
+  children,
 }: {
   eyebrow?: string;
   title: string;
   subtitle?: string;
   breadcrumbs?: { label: string; to?: string }[];
+  showCta?: boolean;
+  primaryLabel?: string;
+  primaryTo?: string;
+  children?: ReactNode;
 }) {
   return (
     <section className="hero-gradient text-[var(--navy-foreground)]">
@@ -25,6 +35,25 @@ export function PageHero({
         {subtitle && (
           <p className="mt-5 max-w-2xl text-base md:text-lg text-[var(--navy-foreground)]/75">{subtitle}</p>
         )}
+        {showCta && (
+          <div className="mt-8 flex flex-wrap items-center gap-3">
+            <Button asChild variant="gold" className="rounded-full px-6">
+              <Link to={primaryTo}>
+                {primaryLabel} <ArrowRight className="size-4" />
+              </Link>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              className="rounded-full px-6 bg-transparent text-[var(--navy-foreground)] border-[var(--navy-foreground)]/30 hover:bg-white/10"
+            >
+              <a href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}>
+                <Phone className="size-4" /> {SITE.phoneUK}
+              </a>
+            </Button>
+          </div>
+        )}
+        {children}
         {breadcrumbs && (
           <nav className="mt-8 flex flex-wrap items-center gap-1 text-sm text-[var(--navy-foreground)]/60">
             {breadcrumbs.map((c, i) => (
@@ -39,6 +68,7 @@ export function PageHero({
     </section>
   );
 }
+
 
 export function SectionHeader({ eyebrow, title, titleAccent, subtitle, center = false, dark = false, children }: { eyebrow?: string; title: string; titleAccent?: string; subtitle?: string; center?: boolean; dark?: boolean; children?: ReactNode }) {
   return (

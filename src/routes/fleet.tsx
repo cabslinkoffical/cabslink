@@ -3,6 +3,7 @@ import { queryOptions, useSuspenseQuery, useQueryClient } from "@tanstack/react-
 import { useEffect } from "react";
 import { Users, Briefcase, Luggage, ArrowRight, Accessibility, Zap, CheckCircle2, Sparkles, Backpack, Fuel, Baby, Car } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { CtaBand } from "@/components/site/CtaBand";
 import { Reveal } from "@/components/site/Reveal";
 import { Button } from "@/components/ui/button";
 import { listPublicVehicleClasses, type PublicVehicleClass } from "@/lib/vehicle-classes.functions";
@@ -105,6 +106,12 @@ function FleetPage() {
 
         </div>
       </section>
+
+      <CtaBand
+        eyebrow="Guaranteed allocation"
+        title="Book the class that fits your journey"
+        subtitle="Choose a vehicle class and we allocate the model — or a complimentary upgrade."
+      />
 
     </SiteLayout>
   );
