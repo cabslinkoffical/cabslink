@@ -3226,7 +3226,114 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_site_settings: {
+        Row: {
+          business_address: string | null
+          cancellation_policy: string | null
+          child_seat_fee_pence: number | null
+          company_name: string | null
+          contact_email: string | null
+          contact_phone: string | null
+          currency: string | null
+          currency_symbol: string | null
+          favicon_url: string | null
+          id: number | null
+          included_stop_minutes: number | null
+          logo_url: string | null
+          maintenance_mode: boolean | null
+          max_selected_stops: number | null
+          meet_greet_fee_pence: number | null
+          poi_corridor_enabled: boolean | null
+          poi_corridor_max_pois: number | null
+          poi_corridor_radius_miles: number | null
+          policy_flexible_min_pence: number | null
+          policy_flexible_percent: number | null
+          policy_non_refundable_min_pence: number | null
+          policy_non_refundable_percent: number | null
+          price_per_extra_15min_pence: number | null
+          primary_color: string | null
+          return_journey_fee_pence: number | null
+          sightseeing_threshold_minutes: number | null
+          tax_enabled: boolean | null
+          tax_label: string | null
+          tax_percentage: number | null
+          timezone: string | null
+          tour_threshold_minutes: number | null
+          tour_threshold_stops: number | null
+          whatsapp_number: string | null
+        }
+        Insert: {
+          business_address?: string | null
+          cancellation_policy?: string | null
+          child_seat_fee_pence?: number | null
+          company_name?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          currency?: string | null
+          currency_symbol?: string | null
+          favicon_url?: string | null
+          id?: number | null
+          included_stop_minutes?: number | null
+          logo_url?: string | null
+          maintenance_mode?: boolean | null
+          max_selected_stops?: number | null
+          meet_greet_fee_pence?: number | null
+          poi_corridor_enabled?: boolean | null
+          poi_corridor_max_pois?: number | null
+          poi_corridor_radius_miles?: number | null
+          policy_flexible_min_pence?: number | null
+          policy_flexible_percent?: number | null
+          policy_non_refundable_min_pence?: number | null
+          policy_non_refundable_percent?: number | null
+          price_per_extra_15min_pence?: number | null
+          primary_color?: string | null
+          return_journey_fee_pence?: number | null
+          sightseeing_threshold_minutes?: number | null
+          tax_enabled?: boolean | null
+          tax_label?: string | null
+          tax_percentage?: number | null
+          timezone?: string | null
+          tour_threshold_minutes?: number | null
+          tour_threshold_stops?: number | null
+          whatsapp_number?: string | null
+        }
+        Update: {
+          business_address?: string | null
+          cancellation_policy?: string | null
+          child_seat_fee_pence?: number | null
+          company_name?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          currency?: string | null
+          currency_symbol?: string | null
+          favicon_url?: string | null
+          id?: number | null
+          included_stop_minutes?: number | null
+          logo_url?: string | null
+          maintenance_mode?: boolean | null
+          max_selected_stops?: number | null
+          meet_greet_fee_pence?: number | null
+          poi_corridor_enabled?: boolean | null
+          poi_corridor_max_pois?: number | null
+          poi_corridor_radius_miles?: number | null
+          policy_flexible_min_pence?: number | null
+          policy_flexible_percent?: number | null
+          policy_non_refundable_min_pence?: number | null
+          policy_non_refundable_percent?: number | null
+          price_per_extra_15min_pence?: number | null
+          primary_color?: string | null
+          return_journey_fee_pence?: number | null
+          sightseeing_threshold_minutes?: number | null
+          tax_enabled?: boolean | null
+          tax_label?: string | null
+          tax_percentage?: number | null
+          timezone?: string | null
+          tour_threshold_minutes?: number | null
+          tour_threshold_stops?: number | null
+          whatsapp_number?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       generate_booking_ref: { Args: never; Returns: string }
