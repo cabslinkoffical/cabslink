@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { searchDestinations } from "@/lib/destinations.functions";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
@@ -39,6 +39,19 @@ function SearchPage() {
       setResults(res);
     } finally { setLoading(false); }
   }
+
+  // Run the query straight away when arriving with ?q= in the URL.
+  const ranFor = useRef<string | null>(null);
+  useEffect(() => {
+    if (initial && ranFor.current !== initial) {
+      ranFor.current = initial;
+      setQ(initial);
+      void run(initial);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initial]);
+
+
 
   return (
     <SiteLayout>

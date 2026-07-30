@@ -2,7 +2,13 @@ import { Link } from "@tanstack/react-router";
 import type { LinkModule } from "@/lib/internal-links";
 
 export function LinkModuleList({ modules }: { modules: LinkModule[] }) {
-  const nonEmpty = modules.filter((m) => m.links.length > 0);
+  const nonEmpty = modules
+    // Drop duplicate hrefs inside a module so links never collide.
+    .map((m) => ({
+      ...m,
+      links: m.links.filter((l, i, arr) => arr.findIndex((x) => x.href === l.href) === i),
+    }))
+    .filter((m) => m.links.length > 0);
   if (!nonEmpty.length) return null;
   return (
     <div className="grid gap-6 md:grid-cols-3">
@@ -14,6 +20,7 @@ export function LinkModuleList({ modules }: { modules: LinkModule[] }) {
           <ul className="space-y-2">
             {mod.links.map((l) => (
               <li key={l.href}>
+
                 <Link
                   to={l.href}
                   className="block text-[var(--navy)] hover:text-[var(--gold)]"

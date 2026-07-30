@@ -1,4 +1,4 @@
-import { createFileRoute, notFound } from "@tanstack/react-router";
+import { createFileRoute, notFound, redirect } from "@tanstack/react-router";
 import { getPublicSeoPageByPath } from "@/lib/seo-public.functions";
 import { getRelatedSeoLinks } from "@/lib/seo-related.functions";
 import { SeoPageRenderer, buildSeoHead } from "@/components/seo/SeoPageRenderer";
@@ -8,13 +8,15 @@ const ORIGIN = "https://cabslink.lovable.app";
 
 export const Route = createFileRoute("/locations/$slug")({
   loader: async ({ params }) => {
-    const page = await getPublicSeoPageByPath({ data: { path: `/locations/${params.slug}` } });
-    if (!page) throw notFound();
+    const page = await getPublicSeoPageByPath({ data: { path: `/locations/${params.slug}` } }).catch(() => null);
+    // Locations are served from /areas — send unpublished CMS paths there instead of 404ing.
+    if (!page) throw redirect({ to: "/areas/$slug", params: { slug: params.slug } });
     const related = await getRelatedSeoLinks({
       data: { entityType: page.primary_entity_type as any, entityId: page.primary_entity_id },
     }).catch(() => null);
     return { page, related };
   },
+
   head: ({ loaderData }) =>
     loaderData ? buildSeoHead(loaderData.page, ORIGIN, loaderData.related) : {},
   component: LocationPage,
