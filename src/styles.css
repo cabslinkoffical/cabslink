@@ -341,3 +341,18 @@ svg.lucide.size-12, svg.lucide.h-10, svg.lucide.h-12 {
 .text-muted-foreground svg.lucide {
   opacity: 0.92;
 }
+
+/* Date/time inputs: hide the native picker glyph but keep the whole field clickable */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+input[type="date"],
+input[type="time"] {
+  position: relative;
+}

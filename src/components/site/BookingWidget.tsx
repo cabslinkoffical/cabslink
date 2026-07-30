@@ -9,7 +9,10 @@ function encodePlaces(list: SelectedPlace[]): string {
   return list.map((p) => `${p.placeId}::${encodeURIComponent(p.label)}`).join("|");
 }
 
-export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {}) {
+export function BookingWidget({
+  idPrefix = "widget",
+  tone = "dark",
+}: { idPrefix?: string; tone?: "dark" | "light" } = {}) {
   const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>("quote");
   const today = new Date().toISOString().slice(0, 10);
@@ -118,13 +121,13 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
     <div className="w-full max-w-6xl mx-auto">
       {/* Tabs above the pill */}
       <div className="flex items-center gap-1 mb-3 px-2">
-        <TabButton active={tab === "quote"} onClick={() => setTab("quote")} icon={<Car className="w-4 h-4" />}>
+        <TabButton tone={tone} active={tab === "quote"} onClick={() => setTab("quote")} icon={<Car className="w-4 h-4" />}>
           Transfers
         </TabButton>
-        <TabButton active={tab === "hourly"} onClick={() => setTab("hourly")} icon={<Clock className="w-4 h-4" />}>
+        <TabButton tone={tone} active={tab === "hourly"} onClick={() => setTab("hourly")} icon={<Clock className="w-4 h-4" />}>
           Hourly Hire
         </TabButton>
-        <TabButton active={false} onClick={() => navigate({ to: "/tours" })} icon={<Palmtree className="w-4 h-4" />}>
+        <TabButton tone={tone} active={false} onClick={() => navigate({ to: "/tours" })} icon={<Palmtree className="w-4 h-4" />}>
           Day Tours
         </TabButton>
       </div>
@@ -235,7 +238,7 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
               </button>
             </div>
           </div>
-          <p className="text-xs text-white/70 mt-3 px-2">
+          <p className={`text-xs mt-3 px-2 ${tone === "light" ? "text-[var(--navy)]/70" : "text-white/70"}`}>
             Car and driver at your disposal — travel as directed, multiple stops included.
           </p>
           {attempted && hourlyErrorList.length > 0 && (
@@ -364,11 +367,11 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
 
         {/* Secondary row: stops / return / multi-city pills */}
         <div className="flex flex-wrap items-center gap-2 mt-3 px-2">
-          <PillButton icon={<Plus className="w-3 h-3" strokeWidth={3} />} onClick={() => setStops([...stops, { placeId: "", label: "" }])}>
+          <PillButton tone={tone} icon={<Plus className="w-3 h-3" strokeWidth={3} />} onClick={() => setStops([...stops, { placeId: "", label: "" }])}>
             Add stop
           </PillButton>
           {!showReturn && (
-            <PillButton icon={<Repeat className="w-3 h-3" strokeWidth={3} />} onClick={() => setShowReturn(true)}>
+            <PillButton tone={tone} icon={<Repeat className="w-3 h-3" strokeWidth={3} />} onClick={() => setShowReturn(true)}>
               Add return
             </PillButton>
           )}
@@ -467,13 +470,18 @@ export function BookingWidget({ idPrefix = "widget" }: { idPrefix?: string } = {
   );
 }
 
-function TabButton({ active, onClick, icon, children }: { active: boolean; onClick: () => void; icon: React.ReactNode; children: React.ReactNode }) {
+function TabButton({ active, onClick, icon, children, tone = "dark" }: { active: boolean; onClick: () => void; icon: React.ReactNode; children: React.ReactNode; tone?: "dark" | "light" }) {
+  const activeCls = tone === "light" ? "text-[var(--navy)] border-[var(--gold)]" : "text-white border-[var(--gold)]";
+  const idleCls =
+    tone === "light"
+      ? "text-[var(--navy)]/60 border-transparent hover:text-[var(--navy)]"
+      : "text-white/60 border-transparent hover:text-white/90";
   return (
     <button
       type="button"
       onClick={onClick}
       className={`inline-flex items-center gap-2 px-4 py-2.5 text-sm font-bold font-display tracking-wide transition-colors border-b-2 ${
-        active ? "text-white border-[var(--gold)]" : "text-white/60 border-transparent hover:text-white/90"
+        active ? activeCls : idleCls
       }`}
     >
       {icon}
@@ -535,12 +543,16 @@ function StepperRow({ label, value, min, max, onChange }: { label: string; value
   );
 }
 
-function PillButton({ onClick, children, icon }: { onClick: () => void; children: React.ReactNode; icon: React.ReactNode }) {
+function PillButton({ onClick, children, icon, tone = "dark" }: { onClick: () => void; children: React.ReactNode; icon: React.ReactNode; tone?: "dark" | "light" }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 text-white text-xs font-bold hover:bg-white/20 transition-all backdrop-blur"
+      className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all backdrop-blur ${
+        tone === "light"
+          ? "bg-[var(--navy)]/6 text-[var(--navy)] ring-1 ring-[var(--navy)]/12 hover:bg-[var(--navy)]/12"
+          : "bg-white/10 text-white hover:bg-white/20"
+      }`}
     >
       <span className="w-4 h-4 rounded-full bg-[var(--gold)]/25 text-[var(--gold)] flex items-center justify-center">
         {icon}
