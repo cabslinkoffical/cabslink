@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import { queryOptions, useSuspenseQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Loader2, Upload, Trash2, ImageOff, CheckCircle2 } from "lucide-react";
+import { Loader2, Upload, Trash2, ImageOff, CheckCircle2, ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, EmptyState } from "@/components/admin/ui";
 import { FLEET_IMAGES, fleetImageFor } from "@/assets/fleet";
@@ -72,6 +72,8 @@ function FleetImageAuditPage() {
           <Chip>0 missing</Chip>
         )}
       </div>
+
+      {classes.length > 0 && <HeroPreview classes={classes} />}
 
       {classes.length === 0 ? (
         <EmptyState title="No vehicle classes" hint="Create a vehicle class first." />
@@ -227,5 +229,88 @@ function Chip({ tone = "muted", children }: { tone?: "muted" | "good" | "bad"; c
     <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${cls}`}>
       {children}
     </span>
+  );
+}
+
+type PreviewMode = "published" | "curated" | "uploaded";
+
+const MODES: { v: PreviewMode; l: string; hint: string }[] = [
+  { v: "published", l: "As published", hint: "Exactly what the live site renders today" },
+  { v: "curated", l: "Curated artwork", hint: "Built-in class artwork only" },
+  { v: "uploaded", l: "Uploaded hero_image", hint: "Admin uploads only" },
+];
+
+function HeroPreview({ classes }: { classes: any[] }) {
+  const [mode, setMode] = useState<PreviewMode>("published");
+  const [i, setI] = useState(0);
+
+  const cls = classes[Math.min(i, classes.length - 1)];
+  const uploaded = cls?.hero_image?.trim() || null;
+  const curated = FLEET_IMAGES[cls?.slug] || null;
+  const src = mode === "published" ? fleetImageFor(cls?.slug, uploaded) : mode === "curated" ? curated : uploaded;
+
+  const step = (d: number) => setI((p) => (p + d + classes.length) % classes.length);
+  const active = MODES.find((m) => m.v === mode)!;
+
+  return (
+    <div className="rounded-xl border bg-card p-4 shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="font-semibold">Hero preview</p>
+          <p className="text-xs text-muted-foreground">{active.hint}</p>
+        </div>
+        <div className="inline-flex rounded-lg border p-1">
+          {MODES.map((m) => (
+            <button
+              key={m.v}
+              type="button"
+              onClick={() => setMode(m.v)}
+              className={`rounded-md px-3 py-1.5 text-xs font-medium transition ${
+                mode === m.v ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {m.l}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-4 overflow-hidden rounded-xl bg-[#0a1224] p-6">
+        <div className="flex items-center gap-4">
+          <Button type="button" size="icon" variant="secondary" onClick={() => step(-1)} aria-label="Previous class">
+            <ChevronLeft className="size-4" />
+          </Button>
+          <div className="flex min-h-52 flex-1 items-center justify-center">
+            {src ? (
+              <img src={src} alt={`${cls.name} hero preview`} className="max-h-52 w-full object-contain" />
+            ) : (
+              <div className="flex flex-col items-center gap-2 text-white/60">
+                <ImageOff className="size-7" />
+                <span className="text-xs">
+                  {mode === "uploaded" ? "No uploaded image for this class" : "No curated artwork for this class"}
+                </span>
+              </div>
+            )}
+          </div>
+          <Button type="button" size="icon" variant="secondary" onClick={() => step(1)} aria-label="Next class">
+            <ChevronRight className="size-4" />
+          </Button>
+        </div>
+        <div className="mt-3 text-center">
+          <p className="font-semibold text-white">{cls?.name}</p>
+          <p className="text-xs text-white/60">
+            /{cls?.slug} · {i + 1} of {classes.length}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <Chip tone={uploaded ? "good" : "muted"}>{uploaded ? "Has upload" : "No upload"}</Chip>
+        <Chip tone={curated ? "good" : "bad"}>{curated ? "Has curated artwork" : "No curated artwork"}</Chip>
+        <span className="text-[11px] text-muted-foreground">
+          Live site resolves: {uploaded ? "uploaded hero_image" : curated ? "curated artwork" : "nothing"}
+        </span>
+      </div>
+    </div>
   );
 }
