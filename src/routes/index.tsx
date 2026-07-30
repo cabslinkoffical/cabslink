@@ -859,7 +859,7 @@ function FleetClassesSection() {
               You pick a vehicle class — Executive, Luxury Chauffeur, Premium MPV or more. Our dispatch team allocates the exact model on the day, always from your booked class or a complimentary upgrade.
             </p>
           </div>
-          <Button asChild variant="outline" className="rounded-full border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-[var(--gold-foreground)] self-start md:self-auto">
+          <Button asChild variant="outline" className="rounded-full bg-transparent border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-[var(--gold-foreground)] hover:border-[var(--gold)] self-start md:self-auto">
             <Link to="/fleet">View all classes <ArrowRight className="size-4" /></Link>
           </Button>
         </div>
