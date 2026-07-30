@@ -237,31 +237,6 @@ function ServicesPage() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="pb-16 sm:pb-20">
-        <div className="container-x">
-          <div className="relative overflow-hidden rounded-3xl bg-[var(--navy)] px-6 py-12 text-center sm:px-12 sm:py-16">
-            <h2 className="font-display text-3xl font-semibold text-white sm:text-4xl">Ready when you are</h2>
-            <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-white/70">
-              Get an instant fixed quote for any journey, or speak to our team about tailored and account travel.
-            </p>
-            <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-              <Link
-                to="/book"
-                className="inline-flex items-center gap-2 rounded-full bg-[var(--gold)] px-7 py-3 text-sm font-semibold text-[var(--navy)] transition-transform hover:scale-[1.03]"
-              >
-                Book a journey <ArrowRight className="size-4" />
-              </Link>
-              <Link
-                to="/contact"
-                className="inline-flex items-center gap-2 rounded-full border border-white/25 px-7 py-3 text-sm font-semibold text-white transition-colors hover:border-[var(--gold)] hover:text-[var(--gold)]"
-              >
-                Talk to our team
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
     </SiteLayout>
   );
 }

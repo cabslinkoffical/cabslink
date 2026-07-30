@@ -105,23 +105,6 @@ function FleetPage() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="section-y bg-[var(--background)]">
-        <div className="container-x">
-          <div className="relative overflow-hidden rounded-3xl bg-[var(--navy)] text-[var(--navy-foreground)] p-10 md:p-14">
-            <div className="relative text-center max-w-2xl mx-auto">
-              <h2 className="font-display text-3xl md:text-4xl font-semibold">Not sure which class fits?</h2>
-              <p className="mt-4 text-[var(--navy-foreground)]/80">
-                Tell us your party size, luggage and journey — we'll recommend the right class and lock in the fare.
-              </p>
-              <div className="mt-7 flex flex-wrap gap-3 justify-center">
-                <Button asChild variant="gold" className="rounded-full"><Link to="/book">Get a quote <ArrowRight className="size-4" /></Link></Button>
-                <Button asChild variant="outline" className="rounded-full bg-transparent text-[var(--navy-foreground)] border-[var(--navy-foreground)]/40 hover:bg-white/10"><Link to="/contact">Talk to our team</Link></Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
     </SiteLayout>
   );
 }

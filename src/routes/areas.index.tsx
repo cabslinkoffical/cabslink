@@ -113,22 +113,10 @@ function LocationsPage() {
 
       <section className="section-y">
         <div className="container-x">
-          <div className="rounded-3xl bg-[var(--navy)] text-white p-10 md:p-14 text-center">
-            <p className="text-xs font-bold uppercase tracking-[0.22em] text-[var(--gold)]">Ready when you are</p>
-            <h2 className="mt-3 font-display text-3xl md:text-4xl font-semibold">Book your next journey</h2>
-            <p className="mt-3 text-white/70 max-w-xl mx-auto">Instant quote, fixed prices, professional drivers — 24/7 across the UK.</p>
-            <Link
-              to="/book"
-              className="mt-6 inline-flex items-center gap-2 rounded-full bg-[var(--gold)] px-7 py-3 text-sm font-bold uppercase tracking-[0.14em] text-[var(--navy)]"
-            >
-              Get a quote
-            </Link>
-          </div>
-          <div className="mt-8">
-            <Breadcrumbs items={[{ name: "Home", href: "/" }, { name: "Locations", href: "/areas" }]} />
-          </div>
+          <Breadcrumbs items={[{ name: "Home", href: "/" }, { name: "Locations", href: "/areas" }]} />
         </div>
       </section>
+
     </SiteLayout>
   );
 }
