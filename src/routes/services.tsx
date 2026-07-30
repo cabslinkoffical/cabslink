@@ -322,7 +322,7 @@ function ServicesPage() {
             </div>
             <div className="flex flex-wrap gap-3">
               <Button asChild size="lg" className="rounded-full">
-                <Link to="/book">Get a fixed quote</Link>
+                <Link to="/book" search={{ q: "" }}>Get a fixed quote</Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="rounded-full border-white/25 bg-transparent text-white hover:bg-white/10 hover:text-white">
                 <Link to="/contact">Talk to our team</Link>
