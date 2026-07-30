@@ -238,7 +238,7 @@ export function BookingWidget({
               </button>
             </div>
           </div>
-          <p className="text-xs text-white/70 mt-3 px-2">
+          <p className={`text-xs mt-3 px-2 ${tone === "light" ? "text-[var(--navy)]/70" : "text-white/70"}`}>
             Car and driver at your disposal — travel as directed, multiple stops included.
           </p>
           {attempted && hourlyErrorList.length > 0 && (
