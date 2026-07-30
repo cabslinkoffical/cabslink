@@ -95,13 +95,14 @@ function FleetPage() {
       {/* CLASS TICKETS — compact separate cards */}
       <section id="classes" className="bg-[var(--surface-2)]">
         <div className="container-x py-12 md:py-16">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
-            {items.map((c) => (
+          <div className="flex flex-col gap-6 md:gap-8">
+            {items.map((c, i) => (
               <Reveal key={c.id}>
-                <ClassTicket klass={c} />
+                <ClassTicket klass={c} reverse={i % 2 === 1} />
               </Reveal>
             ))}
           </div>
+
         </div>
       </section>
 
@@ -109,7 +110,7 @@ function FleetPage() {
   );
 }
 
-function ClassTicket({ klass }: { klass: PublicVehicleClass }) {
+function ClassTicket({ klass, reverse = false }: { klass: PublicVehicleClass; reverse?: boolean }) {
   const img = fleetImageFor(klass.slug, klass.hero_image);
   const recs = Object.entries(klass.recommended_for ?? {})
     .filter(([, v]) => v)
@@ -125,10 +126,13 @@ function ClassTicket({ klass }: { klass: PublicVehicleClass }) {
   return (
     <article
       id={klass.slug}
-      className="group relative flex h-full flex-col rounded-2xl bg-card border border-border overflow-hidden shadow-raised hover:shadow-raised-hover hover:-translate-y-1.5 transition-all duration-300"
+      className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-raised transition-all duration-300 hover:-translate-y-1.5 hover:shadow-raised-hover ${
+        reverse ? "md:flex-row-reverse" : "md:flex-row"
+      }`}
     >
       {/* Image plate */}
-      <div className="relative bg-muted aspect-[16/10] flex items-center justify-center overflow-hidden">
+      <div className="relative flex aspect-[16/10] w-full shrink-0 items-center justify-center overflow-hidden bg-muted md:aspect-auto md:w-[38%] md:min-h-[300px]">
+
         {img ? (
           <img
             src={img}
@@ -164,32 +168,35 @@ function ClassTicket({ klass }: { klass: PublicVehicleClass }) {
         </div>
       </div>
 
-      {/* Perforation divider */}
-      <div className="relative h-3 bg-card">
-        <div className="absolute inset-x-4 top-1/2 -translate-y-1/2 border-t border-dashed border-border" />
-        <div className="absolute -left-1.5 top-1/2 -translate-y-1/2 size-3 rounded-full bg-[var(--surface-2)] border border-border" />
-        <div className="absolute -right-1.5 top-1/2 -translate-y-1/2 size-3 rounded-full bg-[var(--surface-2)] border border-border" />
+      {/* Perforation divider — horizontal on mobile, vertical on desktop */}
+      <div className="relative h-3 bg-card md:h-auto md:w-3">
+        <div className="absolute inset-x-4 top-1/2 -translate-y-1/2 border-t border-dashed border-border md:inset-x-auto md:inset-y-6 md:left-1/2 md:top-auto md:-translate-x-1/2 md:translate-y-0 md:border-t-0 md:border-l md:border-dashed" />
+        <div className="absolute -left-1.5 top-1/2 -translate-y-1/2 size-3 rounded-full bg-[var(--surface-2)] border border-border md:left-1/2 md:top-0 md:-translate-x-1/2 md:-translate-y-1/2" />
+        <div className="absolute -right-1.5 top-1/2 -translate-y-1/2 size-3 rounded-full bg-[var(--surface-2)] border border-border md:left-1/2 md:right-auto md:top-full md:-translate-x-1/2 md:-translate-y-1/2" />
       </div>
 
+
       {/* Body */}
-      <div className="p-4 md:p-5 flex flex-1 flex-col gap-4">
+      <div className="flex flex-1 flex-col gap-4 p-5 md:p-7">
         <div>
           <p className="text-[9px] font-semibold uppercase tracking-[0.28em] text-[var(--gold-ink)]">Vehicle Class</p>
-          <h3 className="mt-1 font-display text-lg md:text-xl font-semibold leading-tight">{klass.name}</h3>
+          <h3 className="mt-1 font-display text-xl md:text-2xl font-semibold leading-tight">{klass.name}</h3>
           {(klass.short_description || klass.long_description) && (
-            <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
               {klass.short_description || klass.long_description}
             </p>
           )}
         </div>
 
+
         {/* Full capacity spec grid */}
-        <dl className="grid grid-cols-2 gap-2">
+        <dl className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           <SpecCell icon={<Users className="size-3.5" />} label="Passengers" value={klass.passengers} />
           <SpecCell icon={<Briefcase className="size-3.5" />} label="Large bags" value={klass.large_luggage} />
           <SpecCell icon={<Luggage className="size-3.5" />} label="Cabin bags" value={klass.cabin_bags} />
           <SpecCell icon={<Backpack className="size-3.5" />} label="Hand luggage" value={klass.hand_luggage} />
         </dl>
+
 
         {/* Attributes */}
         <div className="flex flex-wrap gap-1.5">
@@ -220,7 +227,10 @@ function ClassTicket({ klass }: { klass: PublicVehicleClass }) {
                   key={m.id}
                   className="rounded-md bg-card border border-border px-2 py-1 text-[11px] font-medium text-foreground/85"
                 >
-                  {[m.manufacturer, m.name].filter(Boolean).join(" ")}
+                  {m.manufacturer && !m.name.toLowerCase().startsWith(m.manufacturer.toLowerCase())
+                    ? `${m.manufacturer} ${m.name}`
+                    : m.name}
+
                 </li>
               ))}
             </ul>
@@ -244,16 +254,17 @@ function ClassTicket({ klass }: { klass: PublicVehicleClass }) {
           </div>
         )}
 
-        <div className="mt-auto pt-1">
-          {klass.quote_on_request && (
-            <p className="mb-2 text-[10px] font-medium text-muted-foreground">Pricing on request for this class.</p>
-          )}
-          <Button asChild size="sm" variant="gold" className="w-full rounded-full">
+        <div className="mt-auto flex flex-wrap items-center gap-3 pt-1">
+          <Button asChild size="sm" variant="gold" className="rounded-full px-6">
             <Link to="/book">
               {klass.quote_on_request ? "Request quote" : "Book this class"} <ArrowRight className="size-3.5" />
             </Link>
           </Button>
+          {klass.quote_on_request && (
+            <p className="text-[11px] font-medium text-muted-foreground">Pricing on request for this class.</p>
+          )}
         </div>
+
       </div>
     </article>
   );
