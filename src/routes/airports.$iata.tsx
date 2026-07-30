@@ -38,7 +38,8 @@ export const Route = createFileRoute("/airports/$iata")({
       const a = loaderData.airport;
       const iata = (a.meta?.iata as string | undefined) ?? "";
       const name = a.display_name ?? a.name;
-      const title = `${name}${iata ? ` (${iata})` : ""} Transfers — Fixed-Fare Airport Taxi | Cabslink`;
+      const title = `${name}${iata && !name.includes(iata) ? ` (${iata})` : ""} Transfers — Fixed-Fare Airport Taxi | Cabslink`;
+
       const desc = `Private transfers to and from ${name}. Fixed fares, meet & greet, live flight tracking, 24/7 dispatch across the UK.`;
       return {
         meta: [

@@ -101,19 +101,20 @@ export function PhoneInput({
   return (
     <div className={`flex gap-2 ${className ?? ""}`}>
       <Select
-        value={dial}
-        onValueChange={(d) => {
+        value={COUNTRY_CODES.find((c) => c.dial === dial)?.code ?? "GB"}
+        onValueChange={(code) => {
+          const d = COUNTRY_CODES.find((c) => c.code === code)?.dial ?? "+44";
           setDial(d);
           emit(d, local);
         }}
         disabled={disabled}
       >
         <SelectTrigger className="w-[110px] shrink-0" aria-label="Country dial code">
-          <SelectValue />
+          <SelectValue placeholder={dial}>{dial}</SelectValue>
         </SelectTrigger>
         <SelectContent className="max-h-72">
           {COUNTRY_CODES.map((c) => (
-            <SelectItem key={c.code} value={c.dial}>
+            <SelectItem key={c.code} value={c.code}>
               <span className="mr-2">{c.flag}</span>
               {c.dial}
               <span className="ml-2 text-muted-foreground text-xs">{c.label}</span>
@@ -121,6 +122,7 @@ export function PhoneInput({
           ))}
         </SelectContent>
       </Select>
+
       <Input
         id={id}
         type="tel"

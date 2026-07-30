@@ -56,10 +56,14 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
         items={[
           { name: "Home", href: "/" },
           { name: "Locations", href: "/areas" },
-          ...(region ? [{ name: region, href: `/areas` }] : []),
+          // Region crumb points at its own region page so no two crumbs share a href.
+          ...(region
+            ? [{ name: region, href: `/areas/region/${region.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}` }]
+            : []),
           { name: locName, href: `/areas/${d.slug}` },
         ]}
       />
+
 
       {/* Hero */}
       <section className="mt-6 rounded-3xl bg-[var(--navy)] px-6 py-14 text-white sm:px-12">

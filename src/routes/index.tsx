@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
   ArrowRight, Plane, ShieldCheck, Star, CalendarCheck, Phone,
@@ -803,14 +803,15 @@ function Faq() {
 }
 
 function FleetClassesSection() {
-  const { data: classes = [] } = useQuery({
+  // Suspense read: the route loader primes this key, so SSR and the client
+  // render the same cards (no hydration mismatch, no skeleton flash).
+  const { data: classes = [] } = useSuspenseQuery({
     queryKey: ["public-vehicle-classes"],
     queryFn: () => listPublicVehicleClasses(),
     staleTime: 5 * 60_000,
     gcTime: 30 * 60_000,
-    refetchOnWindowFocus: false,
-    placeholderData: (prev) => prev,
   });
+
   const visible = classes.filter((c) => c.slug !== "unclassified");
   // Duplicate the list so the marquee track loops seamlessly left → right.
   const track = visible.length > 0 ? [...visible, ...visible] : [];
