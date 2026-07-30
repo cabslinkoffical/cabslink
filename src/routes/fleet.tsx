@@ -227,7 +227,10 @@ function ClassTicket({ klass, reverse = false }: { klass: PublicVehicleClass; re
                   key={m.id}
                   className="rounded-md bg-card border border-border px-2 py-1 text-[11px] font-medium text-foreground/85"
                 >
-                  {[m.manufacturer, m.name].filter(Boolean).join(" ")}
+                  {m.manufacturer && !m.name.toLowerCase().startsWith(m.manufacturer.toLowerCase())
+                    ? `${m.manufacturer} ${m.name}`
+                    : m.name}
+
                 </li>
               ))}
             </ul>
