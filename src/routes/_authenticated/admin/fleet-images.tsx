@@ -8,7 +8,6 @@ import { PageHeader, EmptyState } from "@/components/admin/ui";
 import { FLEET_IMAGES, fleetImageFor } from "@/assets/fleet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { listVehicleClassesAdmin, setVehicleClassHeroImage } from "@/lib/vehicle-classes.functions";
 
 const opts = queryOptions({ queryKey: ["admin", "vehicle-classes"], queryFn: () => listVehicleClassesAdmin() });
@@ -64,18 +63,18 @@ function FleetImageAuditPage() {
       />
 
       <div className="flex flex-wrap gap-2 text-sm">
-        <Badge variant="secondary">{classes.length} classes</Badge>
-        <Badge variant="secondary">{counts.uploaded} admin uploads</Badge>
-        <Badge variant="secondary">{counts.curated} built-in artwork</Badge>
+        <Chip>{classes.length} classes</Chip>
+        <Chip>{counts.uploaded} admin uploads</Chip>
+        <Chip>{counts.curated} built-in artwork</Chip>
         {counts.missing > 0 ? (
-          <Badge variant="destructive">{counts.missing} missing</Badge>
+          <Chip tone="bad">{counts.missing} missing</Chip>
         ) : (
-          <Badge variant="secondary">0 missing</Badge>
+          <Chip>0 missing</Chip>
         )}
       </div>
 
       {classes.length === 0 ? (
-        <EmptyState title="No vehicle classes" description="Create a vehicle class first." />
+        <EmptyState title="No vehicle classes" hint="Create a vehicle class first." />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {classes.map((c: any) => (
@@ -139,9 +138,9 @@ function ClassImageCard({
           <p className="truncate font-semibold">{cls.name}</p>
           <p className="truncate text-xs text-muted-foreground">/{cls.slug}</p>
         </div>
-        {source === "uploaded" && <Badge variant="default">Admin upload</Badge>}
-        {source === "curated" && <Badge variant="secondary">Built-in artwork</Badge>}
-        {source === "missing" && <Badge variant="destructive">Missing</Badge>}
+        {source === "uploaded" && <Chip tone="good">Admin upload</Chip>}
+        {source === "curated" && <Chip>Built-in artwork</Chip>}
+        {source === "missing" && <Chip tone="bad">Missing</Chip>}
       </div>
 
       <div className="mt-3 flex h-36 items-center justify-center overflow-hidden rounded-lg bg-muted/40">
@@ -214,5 +213,19 @@ function ClassImageCard({
         </Button>
       </div>
     </div>
+  );
+}
+
+function Chip({ tone = "muted", children }: { tone?: "muted" | "good" | "bad"; children: React.ReactNode }) {
+  const cls =
+    tone === "good"
+      ? "bg-primary/10 text-primary border-primary/30"
+      : tone === "bad"
+        ? "bg-destructive/10 text-destructive border-destructive/30"
+        : "bg-muted text-muted-foreground border-border";
+  return (
+    <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${cls}`}>
+      {children}
+    </span>
   );
 }
