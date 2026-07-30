@@ -98,6 +98,16 @@ function ToursPage() {
         </div>
       </section>
 
+      <CtaBand
+        eyebrow="Private tours"
+        title="Plan your Scottish tour with a private driver"
+        subtitle="Tell us your dates and we will build the itinerary and quote around you."
+        primaryLabel="Book now"
+        secondaryLabel="Talk to us"
+        secondaryTo="/contact"
+        tone="navy"
+      />
+
       <section className="section-y bg-[var(--surface)]/60">
         <div className="container-x text-center max-w-3xl mx-auto">
           <SectionHeader

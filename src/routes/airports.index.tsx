@@ -74,6 +74,12 @@ function AirportsIndex() {
           ))}
         </div>
       </section>
+
+      <CtaBand
+        eyebrow="Airport transfers"
+        title="Book a meet & greet airport transfer"
+        subtitle="Flight tracking, free waiting time and fixed fares to every UK airport."
+      />
     </SiteLayout>
   );
 }
