@@ -118,7 +118,7 @@ export function BookingWidget({
 
 
   return (
-    <div className="w-full max-w-6xl mx-auto">
+    <div className="@container w-full max-w-6xl mx-auto">
       {/* Tabs above the pill */}
       <div className="flex items-center gap-1 mb-3 px-2">
         <TabButton tone={tone} active={tab === "quote"} onClick={() => setTab("quote")} icon={<Car className="w-4 h-4" />}>
@@ -154,9 +154,9 @@ export function BookingWidget({
           }}
 
         >
-          <div className="bg-white shadow-[var(--shadow-elegant)] border border-black/5 rounded-3xl xl:rounded-full overflow-visible p-2 xl:p-1.5">
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:flex xl:items-stretch gap-1 xl:gap-0">
-              <div className="md:col-span-2 xl:flex-1 xl:min-w-0" data-invalid={attempted && !!hourlyErrors.pickup}>
+          <div className="bg-white shadow-[var(--shadow-elegant)] border border-black/5 rounded-3xl @[980px]:rounded-full overflow-visible p-2 @[980px]:p-1.5">
+            <div className="grid grid-cols-1 @[600px]:grid-cols-2 @[980px]:flex @[980px]:items-stretch gap-1 @[980px]:gap-0">
+              <div className="@[600px]:col-span-2 @[980px]:flex-1 @[980px]:min-w-0" data-invalid={attempted && !!hourlyErrors.pickup}>
                 <FieldCell icon={<MapPin className="w-4 h-4 text-[var(--gold)]" />} label="Pickup" invalid={attempted && !!hourlyErrors.pickup}>
                   <PlaceAutocomplete
                     id={`${idPrefix}-hourly-pickup`}
@@ -172,7 +172,7 @@ export function BookingWidget({
 
               <Divider />
 
-              <div className="border-t border-black/5 xl:border-0" data-invalid={attempted && !!hourlyErrors.date}>
+              <div className="border-t border-black/5 @[980px]:border-0" data-invalid={attempted && !!hourlyErrors.date}>
                 <FieldCell icon={<Calendar className="w-4 h-4 text-[var(--gold)]" />} label="Date" compact invalid={attempted && !!hourlyErrors.date}>
                   <input required type="date" min={today} value={date} onChange={(e) => setDate(e.target.value)} className="w-full bg-transparent border-0 outline-none text-sm font-semibold text-foreground" />
                 </FieldCell>
@@ -180,7 +180,7 @@ export function BookingWidget({
 
               <Divider />
 
-              <div className="border-t border-black/5 md:border-t-0 md:border-l md:border-black/5 xl:border-l-0 xl:border-0" data-invalid={attempted && !!hourlyErrors.time}>
+              <div className="border-t border-black/5 @[600px]:border-t-0 @[600px]:border-l @[600px]:border-black/5 @[980px]:border-l-0 @[980px]:border-0" data-invalid={attempted && !!hourlyErrors.time}>
                 <FieldCell icon={<Clock className="w-4 h-4 text-[var(--gold)]" />} label="Start time" compact invalid={attempted && !!hourlyErrors.time}>
                   <input required type="time" value={time} onChange={(e) => setTime(e.target.value)} className="w-full bg-transparent border-0 outline-none text-sm font-semibold text-foreground" />
                 </FieldCell>
@@ -189,7 +189,7 @@ export function BookingWidget({
 
               <Divider />
 
-              <div className="border-t border-black/5 xl:border-0 xl:w-[150px] shrink-0">
+              <div className="border-t border-black/5 @[980px]:border-0 @[980px]:w-[150px] shrink-0">
                 <FieldCell icon={<Clock className="w-4 h-4 text-[var(--gold)]" />} label="Duration" compact>
                   <select
                     value={hours}
@@ -205,11 +205,11 @@ export function BookingWidget({
 
               <Divider />
 
-              <div className="relative md:col-span-2 xl:col-span-1 xl:flex-shrink-0 xl:w-[170px] border-t border-black/5 xl:border-0">
+              <div className="relative @[600px]:col-span-2 @[980px]:col-span-1 @[980px]:flex-shrink-0 @[980px]:w-[170px] border-t border-black/5 @[980px]:border-0">
                 <button
                   type="button"
                   onClick={() => setPaxOpen((v) => !v)}
-                  className="w-full h-full flex items-center justify-center gap-3 px-4 py-3 xl:py-2.5 rounded-2xl xl:rounded-full hover:bg-black/[0.03] transition-colors"
+                  className="w-full h-full flex items-center justify-center gap-3 px-4 py-3 @[980px]:py-2.5 rounded-2xl @[980px]:rounded-full hover:bg-black/[0.03] transition-colors"
                 >
                   <span className="inline-flex items-center gap-1.5">
                     <Users className="w-4 h-4 text-[var(--gold)] shrink-0" />
@@ -231,7 +231,7 @@ export function BookingWidget({
 
               <button
                 type="submit"
-                className="md:col-span-2 xl:col-span-1 inline-flex items-center justify-center gap-2 bg-[var(--gold)] text-[var(--gold-foreground)] rounded-2xl xl:rounded-full px-6 xl:px-8 py-4 xl:py-2.5 font-display font-bold uppercase tracking-[0.18em] text-xs hover:brightness-105 transition-all shrink-0"
+                className="@[600px]:col-span-2 @[980px]:col-span-1 inline-flex items-center justify-center gap-2 bg-[var(--gold)] text-[var(--gold-foreground)] rounded-2xl @[980px]:rounded-full px-6 @[980px]:px-8 py-4 @[980px]:py-2.5 font-display font-bold uppercase tracking-[0.18em] text-xs hover:brightness-105 transition-all shrink-0"
               >
                 <Search className="w-4 h-4" strokeWidth={2.5} />
                 <span>See rates</span>
@@ -256,10 +256,10 @@ export function BookingWidget({
       <form onSubmit={submit} noValidate>
 
         {/* Main container: rounded card on mobile/tablet, horizontal pill on wide desktop (xl+) */}
-        <div className="bg-white shadow-[var(--shadow-elegant)] border border-black/5 rounded-3xl xl:rounded-full overflow-visible p-2 xl:p-1.5">
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:flex xl:items-stretch gap-1 xl:gap-0">
+        <div className="bg-white shadow-[var(--shadow-elegant)] border border-black/5 rounded-3xl @[980px]:rounded-full overflow-visible p-2 @[980px]:p-1.5">
+          <div className="grid grid-cols-1 @[600px]:grid-cols-2 @[980px]:flex @[980px]:items-stretch gap-1 @[980px]:gap-0">
             {/* Pickup */}
-            <div className="md:col-span-2 xl:flex-1 xl:min-w-0" data-invalid={attempted && !!errors.pickup}>
+            <div className="@[600px]:col-span-2 @[980px]:flex-1 @[980px]:min-w-0" data-invalid={attempted && !!errors.pickup}>
               <FieldCell icon={<MapPin className="w-4 h-4 text-[var(--gold)]" />} label="From" invalid={attempted && !!errors.pickup}>
                 <PlaceAutocomplete
                   id={`${idPrefix}-pickup`}
@@ -276,7 +276,7 @@ export function BookingWidget({
             <Divider />
 
             {/* Dropoff */}
-            <div className="md:col-span-2 xl:flex-1 xl:min-w-0 border-t border-black/5 md:border-t-0 xl:border-0" data-invalid={attempted && !!errors.dropoff}>
+            <div className="@[600px]:col-span-2 @[980px]:flex-1 @[980px]:min-w-0 border-t border-black/5 @[600px]:border-t-0 @[980px]:border-0" data-invalid={attempted && !!errors.dropoff}>
               <FieldCell icon={<Flag className="w-4 h-4 text-[var(--gold)]" />} label="To" invalid={attempted && !!errors.dropoff}>
                 <PlaceAutocomplete
                   id={`${idPrefix}-dropoff`}
@@ -293,7 +293,7 @@ export function BookingWidget({
             <Divider />
 
             {/* Date */}
-            <div className="border-t border-black/5 xl:border-0" data-invalid={attempted && !!errors.date}>
+            <div className="border-t border-black/5 @[980px]:border-0" data-invalid={attempted && !!errors.date}>
               <FieldCell icon={<Calendar className="w-4 h-4 text-[var(--gold)]" />} label="Date" compact invalid={attempted && !!errors.date}>
                 <input
                   required
@@ -309,7 +309,7 @@ export function BookingWidget({
             <Divider />
 
             {/* Time */}
-            <div className="border-t border-black/5 md:border-t-0 md:border-l md:border-black/5 xl:border-l-0 xl:border-0" data-invalid={attempted && !!errors.time}>
+            <div className="border-t border-black/5 @[600px]:border-t-0 @[600px]:border-l @[600px]:border-black/5 @[980px]:border-l-0 @[980px]:border-0" data-invalid={attempted && !!errors.time}>
               <FieldCell icon={<Clock className="w-4 h-4 text-[var(--gold)]" />} label="Time" compact invalid={attempted && !!errors.time}>
                 <input
                   required
@@ -325,11 +325,11 @@ export function BookingWidget({
             <Divider />
 
             {/* Passengers + Luggage popover */}
-            <div className="relative md:col-span-2 xl:col-span-1 xl:flex-shrink-0 xl:w-[190px] border-t border-black/5 xl:border-0" ref={paxRef}>
+            <div className="relative @[600px]:col-span-2 @[980px]:col-span-1 @[980px]:flex-shrink-0 @[980px]:w-[190px] border-t border-black/5 @[980px]:border-0" ref={paxRef}>
               <button
                 type="button"
                 onClick={() => setPaxOpen((v) => !v)}
-                className="w-full h-full flex items-center justify-center gap-3 px-4 py-3 xl:py-2.5 rounded-2xl xl:rounded-full hover:bg-black/[0.03] transition-colors"
+                className="w-full h-full flex items-center justify-center gap-3 px-4 py-3 @[980px]:py-2.5 rounded-2xl @[980px]:rounded-full hover:bg-black/[0.03] transition-colors"
               >
                 <span className="inline-flex items-center gap-1.5">
                   <Users className="w-4 h-4 text-[var(--gold)] shrink-0" />
@@ -355,7 +355,7 @@ export function BookingWidget({
             {/* Search button */}
             <button
               type="submit"
-              className="md:col-span-2 xl:col-span-1 group inline-flex items-center justify-center gap-2 bg-[var(--gold)] text-[var(--gold-foreground)] rounded-2xl xl:rounded-full px-6 xl:px-8 py-4 xl:py-2.5 font-display font-bold uppercase tracking-[0.18em] text-xs hover:brightness-105 transition-all shrink-0"
+              className="@[600px]:col-span-2 @[980px]:col-span-1 group inline-flex items-center justify-center gap-2 bg-[var(--gold)] text-[var(--gold-foreground)] rounded-2xl @[980px]:rounded-full px-6 @[980px]:px-8 py-4 @[980px]:py-2.5 font-display font-bold uppercase tracking-[0.18em] text-xs hover:brightness-105 transition-all shrink-0"
             >
               <Search className="w-4 h-4" strokeWidth={2.5} />
               <span>Search</span>
@@ -419,7 +419,7 @@ export function BookingWidget({
 
         {/* Return journey */}
         {showReturn && (
-          <div className="mt-3 bg-white rounded-2xl border border-border p-3 md:p-4">
+          <div className="mt-3 bg-white rounded-2xl border border-border p-3 @[600px]:p-4">
             <div className="flex items-center justify-between mb-3">
               <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--gold)]">Return Journey</p>
               <button
@@ -493,7 +493,7 @@ function TabButton({ active, onClick, icon, children, tone = "dark" }: { active:
 function FieldCell({ icon, label, children, compact, invalid }: { icon: React.ReactNode; label: string; children: React.ReactNode; compact?: boolean; invalid?: boolean }) {
   return (
     <div
-      className={`flex items-center gap-2.5 px-4 py-2 min-w-0 flex-1 rounded-2xl xl:rounded-full transition-colors ${compact ? "xl:w-[136px] xl:max-w-[136px] xl:flex-none" : ""} ${
+      className={`flex items-center gap-2.5 px-4 py-2 min-w-0 flex-1 rounded-2xl @[980px]:rounded-full transition-colors ${compact ? "@[980px]:w-[136px] @[980px]:max-w-[136px] @[980px]:flex-none" : ""} ${
         invalid ? "bg-destructive/5 ring-1 ring-destructive/60" : ""
       }`}
     >
@@ -511,7 +511,7 @@ function FieldCell({ icon, label, children, compact, invalid }: { icon: React.Re
 
 
 function Divider() {
-  return <div className="hidden xl:block w-px bg-border my-2 shrink-0" />;
+  return <div className="hidden @[980px]:block w-px bg-border my-2 shrink-0" />;
 }
 
 
