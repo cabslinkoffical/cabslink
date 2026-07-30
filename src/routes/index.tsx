@@ -782,44 +782,6 @@ function HomePage() {
         </div>
       </section>
 
-      {/* FINAL CTA */}
-      <section className="section-y navy-scene relative overflow-hidden">
-        <div aria-hidden className="absolute inset-0 opacity-[0.06]" style={{
-          backgroundImage: "radial-gradient(circle at 1px 1px, #dfaf26 1px, transparent 0)",
-          backgroundSize: "24px 24px",
-        }} />
-        <div className="container-x relative">
-          <div className="grid lg:grid-cols-12 gap-8 items-center">
-            <div className="lg:col-span-8">
-              <p className="text-[11px] uppercase tracking-[0.32em] text-[var(--gold)] font-semibold">Ready when you are</p>
-              <h3 className="mt-4 font-display text-4xl md:text-6xl font-bold leading-[1.02] text-white tracking-[-0.02em]">
-                Ready for your <span className="text-[var(--gold)]">next journey?</span>
-              </h3>
-              <p className="mt-5 text-white/75 leading-relaxed max-w-xl">
-                Book your driver in under two minutes. Fixed pricing, instant confirmation,
-                24/7 support — the calm way to travel across the UK.
-              </p>
-            </div>
-            <div className="lg:col-span-4 flex flex-col gap-4 lg:items-end">
-              <Button asChild variant="slash" className="w-full lg:w-auto">
-                <a href="#booking">Get Instant Quote <ArrowRight className="size-4" /></a>
-              </Button>
-              <a
-                href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}
-                className="group inline-flex items-center gap-3 text-white transition-colors"
-              >
-                <span className="grid place-items-center size-11 rounded-full border border-white/25 group-hover:border-[var(--gold)] transition-colors">
-                  <Phone className="size-4" />
-                </span>
-                <span className="text-sm">
-                  <span className="block text-[10px] uppercase tracking-[0.24em] text-white/60">24/7 Reservations</span>
-                  <span className="font-semibold">{SITE.phoneUK}</span>
-                </span>
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
     </SiteLayout>
   );
 }
