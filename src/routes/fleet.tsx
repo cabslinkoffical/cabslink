@@ -109,7 +109,7 @@ function FleetPage() {
   );
 }
 
-function ClassTicket({ klass }: { klass: PublicVehicleClass }) {
+function ClassTicket({ klass, reverse = false }: { klass: PublicVehicleClass; reverse?: boolean }) {
   const img = fleetImageFor(klass.slug, klass.hero_image);
   const recs = Object.entries(klass.recommended_for ?? {})
     .filter(([, v]) => v)
