@@ -78,24 +78,25 @@ export function TourCard({ tour }: { tour: PublicTourListItem }) {
         {/* Footer pinned to bottom — view + enquire, no pricing */}
         <div className="mt-auto pt-5">
           <div className="h-px w-full bg-[var(--navy)]/8" />
-          <div className="mt-4 grid gap-2">
+          <div className="mt-4 grid grid-cols-2 gap-2">
+            <Link
+              to="/tours/$slug"
+              params={{ slug: tour.slug }}
+              className="inline-flex w-full items-center justify-center gap-1.5 rounded-full border border-[var(--navy)]/15 bg-white px-4 py-3 text-sm font-semibold text-[var(--navy)] transition-all hover:border-[var(--gold)] hover:text-[var(--gold-ink)]"
+            >
+              View tour
+            </Link>
             <Link
               to="/tours/$slug"
               params={{ slug: tour.slug }}
               search={{ enquire: true }}
-              className="inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-[var(--navy)] px-5 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[var(--gold)] hover:text-[var(--navy)]"
+              className="inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-[var(--navy)] px-4 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[var(--gold)] hover:text-[var(--navy)]"
             >
-              Enquire about this tour
+              Enquire
               <ArrowRight className="size-4" />
             </Link>
-            <Link
-              to="/tours/$slug"
-              params={{ slug: tour.slug }}
-              className="inline-flex w-full items-center justify-center gap-1.5 rounded-full border border-[var(--navy)]/15 bg-white px-5 py-3 text-sm font-semibold text-[var(--navy)] transition-all hover:border-[var(--gold)] hover:text-[var(--gold-ink)]"
-            >
-              View tour
-            </Link>
           </div>
+
         </div>
       </div>
     </div>
