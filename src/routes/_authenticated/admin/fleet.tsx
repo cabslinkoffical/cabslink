@@ -72,7 +72,7 @@ function FleetPage() {
         if (saved > 1024) toast.success(`Optimized: ${(input.size/1024).toFixed(0)}KB → ${(file.size/1024).toFixed(0)}KB`);
       }
       const ext = (file.name.split(".").pop() ?? "jpg").toLowerCase();
-      const path = `${crypto.randomUUID()}.${ext}`;
+      const path = `vehicles/${crypto.randomUUID()}.${ext}`;
       const { error: upErr } = await supabase.storage.from("vehicle-images").upload(path, file, { contentType: file.type, upsert: false });
       if (upErr) throw upErr;
       const { data, error: urlErr } = await supabase.storage.from("vehicle-images").createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
