@@ -73,6 +73,8 @@ function FleetImageAuditPage() {
         )}
       </div>
 
+      {classes.length > 0 && <HeroPreview classes={classes} />}
+
       {classes.length === 0 ? (
         <EmptyState title="No vehicle classes" hint="Create a vehicle class first." />
       ) : (
