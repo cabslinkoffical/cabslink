@@ -384,34 +384,6 @@ function HomePage() {
         </div>
       </section>
 
-
-      {/* POPULAR TOURS */}
-      {popularTours.length > 0 && (
-      <section className="section-y bg-white">
-        <div className="container-x">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
-            <div className="max-w-2xl">
-              <p className="eyebrow-gold text-[11px]">— Popular Tours</p>
-              <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold text-[var(--navy)] leading-[1.05] tracking-[-0.02em]">
-                Curated journeys, <span className="text-[var(--gold)]">crafted your way.</span>
-              </h2>
-            </div>
-            <Button asChild variant="outline" className="rounded-full border-[var(--navy)]/20 text-[var(--navy)] hover:border-[var(--gold)] hover:text-[var(--gold-ink)] self-start md:self-auto">
-              <Link to="/tours">Explore all tours <ArrowRight className="size-4" /></Link>
-            </Button>
-          </div>
-
-          <div className="grid items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {popularTours.map((t) => (
-              <TourCard key={t.slug} tour={t} />
-            ))}
-          </div>
-        </div>
-      </section>
-      )}
-
-
-
       {/* SERVICES BENTO */}
       <section className="section-y bg-[var(--surface-2)]">
         <div className="container-x">
@@ -472,9 +444,74 @@ function HomePage() {
         </div>
       </section>
 
+      {/* AIRPORT TRANSFERS */}
+      <section className="section-y bg-white">
+        <div className="container-x">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
+            <div className="max-w-2xl">
+              <p className="eyebrow-gold text-[11px]">— Airport Transfers</p>
+              <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold text-[var(--navy)] leading-[1.05]">
+                Every major UK <span className="text-[var(--gold)]">airport.</span>
+              </h2>
+            </div>
+            <Button asChild variant="outline" className="rounded-full border-[var(--navy)]/20 text-[var(--navy)] hover:border-[var(--gold)] hover:text-[var(--gold-ink)] self-start md:self-auto">
+              <Link to="/airports">All airports <ArrowRight className="size-4" /></Link>
+            </Button>
+          </div>
+
+          <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
+            {ukAirports.map((a) => (
+              <Link
+                key={a.code}
+                to="/airports/$iata"
+                params={{ iata: a.code.toLowerCase() }}
+                className="group relative overflow-hidden rounded-[20px] border border-[var(--navy)]/10 bg-white p-6 shadow-raised hover:shadow-raised-hover hover:border-[var(--gold)] hover:-translate-y-1.5 transition-all"
+              >
+                <div className="flex items-start justify-between">
+                  <Plane className="size-6 text-[var(--gold-ink)]" />
+                  <span className="font-mono text-[10px] text-[var(--navy)]/40 tracking-widest">{a.code}</span>
+                </div>
+                <h3 className="mt-6 font-display text-lg font-semibold text-[var(--navy)]">{a.name}</h3>
+                <p className="text-xs text-[var(--navy)]/55">{a.city}</p>
+                <span className="mt-5 inline-flex items-center gap-1 text-xs font-semibold text-[var(--navy)] group-hover:text-[var(--gold-ink)] group-hover:gap-2 transition-all">
+                  Book transfer <ArrowRight className="size-3" />
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* VEHICLE CLASSES */}
       <FleetClassesSection />
 
+      {/* HOW IT WORKS */}
+      <section className="section-y bg-[var(--surface-2)]">
+        <div className="container-x">
+          <div className="max-w-3xl">
+            <p className="eyebrow-gold text-[11px]">— How It Works</p>
+            <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold text-[var(--navy)] leading-[1.05]">
+              Three steps to a <span className="text-[var(--gold)]">premium journey.</span>
+            </h2>
+          </div>
+
+          <div className="mt-16 relative grid gap-10 md:grid-cols-3">
+            <div aria-hidden className="hidden md:block absolute top-8 left-[16%] right-[16%] border-t-2 border-dashed border-[var(--gold)]/40" />
+            {steps.map((s, i) => (
+              <div key={s.title} className="relative text-center md:text-left">
+                <div className="relative mx-auto md:mx-0 grid size-16 place-items-center rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] shadow-[0_10px_30px_-10px_rgba(223,175,38,0.6)]">
+                  <s.icon className="size-6" />
+                  <span className="absolute -top-2 -right-2 grid size-7 place-items-center rounded-full bg-[var(--navy)] text-white text-xs font-bold border-2 border-white">
+                    {i + 1}
+                  </span>
+                </div>
+                <h3 className="mt-6 font-display text-2xl font-semibold text-[var(--navy)]">{s.title}</h3>
+                <p className="mt-3 text-sm text-[var(--navy)]/60 leading-relaxed max-w-xs mx-auto md:mx-0">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* WHY CHOOSE */}
       <section className="section-y bg-white">
@@ -532,9 +569,36 @@ function HomePage() {
         </div>
       </section>
 
+      {/* REVIEWS */}
+      <TestimonialsSection />
+
+      {/* POPULAR TOURS */}
+      {popularTours.length > 0 && (
+      <section className="section-y bg-[var(--surface-2)]">
+        <div className="container-x">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
+            <div className="max-w-2xl">
+              <p className="eyebrow-gold text-[11px]">— Popular Tours</p>
+              <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold text-[var(--navy)] leading-[1.05] tracking-[-0.02em]">
+                Curated journeys, <span className="text-[var(--gold)]">crafted your way.</span>
+              </h2>
+            </div>
+            <Button asChild variant="outline" className="rounded-full border-[var(--navy)]/20 text-[var(--navy)] hover:border-[var(--gold)] hover:text-[var(--gold-ink)] self-start md:self-auto">
+              <Link to="/tours">Explore all tours <ArrowRight className="size-4" /></Link>
+            </Button>
+          </div>
+
+          <div className="grid items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {popularTours.map((t) => (
+              <TourCard key={t.slug} tour={t} />
+            ))}
+          </div>
+        </div>
+      </section>
+      )}
 
       {/* UK COVERAGE */}
-      <section className="section-y bg-[var(--surface-2)]">
+      <section className="section-y bg-white">
         <div className="container-x grid lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-5">
             <span className="eyebrow-gold text-[11px]">UK Coverage</span>
@@ -613,80 +677,8 @@ function HomePage() {
         </div>
       </section>
 
-      {/* AIRPORT TRANSFERS */}
-      <section className="section-y bg-white">
-        <div className="container-x">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
-            <div className="max-w-2xl">
-              <p className="eyebrow-gold text-[11px]">— Airport Transfers</p>
-              <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold text-[var(--navy)] leading-[1.05]">
-                Every major UK <span className="text-[var(--gold)]">airport.</span>
-              </h2>
-            </div>
-            <Button asChild variant="outline" className="rounded-full border-[var(--navy)]/20 text-[var(--navy)] hover:border-[var(--gold)] hover:text-[var(--gold-ink)] self-start md:self-auto">
-              <Link to="/airports">All airports <ArrowRight className="size-4" /></Link>
-            </Button>
-          </div>
-
-          <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
-            {ukAirports.map((a) => (
-              <Link
-                key={a.code}
-                to="/airports/$iata"
-                params={{ iata: a.code.toLowerCase() }}
-                className="group relative overflow-hidden rounded-[20px] border border-[var(--navy)]/10 bg-white p-6 shadow-raised hover:shadow-raised-hover hover:border-[var(--gold)] hover:-translate-y-1.5 transition-all"
-              >
-                <div className="flex items-start justify-between">
-                  <Plane className="size-6 text-[var(--gold-ink)]" />
-                  <span className="font-mono text-[10px] text-[var(--navy)]/40 tracking-widest">{a.code}</span>
-                </div>
-                <h3 className="mt-6 font-display text-lg font-semibold text-[var(--navy)]">{a.name}</h3>
-                <p className="text-xs text-[var(--navy)]/55">{a.city}</p>
-                <span className="mt-5 inline-flex items-center gap-1 text-xs font-semibold text-[var(--navy)] group-hover:text-[var(--gold-ink)] group-hover:gap-2 transition-all">
-                  Book transfer <ArrowRight className="size-3" />
-                </span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-
-
-
-      {/* HOW IT WORKS */}
-      <section className="section-y bg-white">
-        <div className="container-x">
-          <div className="max-w-3xl">
-            <p className="eyebrow-gold text-[11px]">— How It Works</p>
-            <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold text-[var(--navy)] leading-[1.05]">
-              Three steps to a <span className="text-[var(--gold)]">premium journey.</span>
-            </h2>
-          </div>
-
-          <div className="mt-16 relative grid gap-10 md:grid-cols-3">
-            <div aria-hidden className="hidden md:block absolute top-8 left-[16%] right-[16%] border-t-2 border-dashed border-[var(--gold)]/40" />
-            {steps.map((s, i) => (
-              <div key={s.title} className="relative text-center md:text-left">
-                <div className="relative mx-auto md:mx-0 grid size-16 place-items-center rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] shadow-[0_10px_30px_-10px_rgba(223,175,38,0.6)]">
-                  <s.icon className="size-6" />
-                  <span className="absolute -top-2 -right-2 grid size-7 place-items-center rounded-full bg-[var(--navy)] text-white text-xs font-bold border-2 border-white">
-                    {i + 1}
-                  </span>
-                </div>
-                <h3 className="mt-6 font-display text-2xl font-semibold text-[var(--navy)]">{s.title}</h3>
-                <p className="mt-3 text-sm text-[var(--navy)]/60 leading-relaxed max-w-xs mx-auto md:mx-0">{s.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* REVIEWS */}
-      <TestimonialsSection />
-
       {/* CORPORATE TRAVEL */}
-      <section className="section-y bg-white">
+      <section className="section-y bg-[var(--surface-2)]">
         <div className="container-x grid lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-6 order-2 lg:order-1">
             <p className="eyebrow-gold text-[11px]">— Corporate Travel</p>
@@ -751,8 +743,9 @@ function HomePage() {
         </div>
       </section>
 
+
       {/* FAQ */}
-      <section className="section-y bg-[var(--surface-2)]">
+      <section className="section-y bg-white">
         <div className="container-x grid lg:grid-cols-12 gap-12">
           <div className="lg:col-span-4">
             <p className="eyebrow-gold text-[11px]">— FAQ</p>
@@ -781,6 +774,7 @@ function HomePage() {
           </div>
         </div>
       </section>
+
 
     </SiteLayout>
   );
