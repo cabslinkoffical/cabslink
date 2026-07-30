@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Plus, Edit, Trash2, X, Loader2, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
+import { fleetImageFor } from "@/assets/fleet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
