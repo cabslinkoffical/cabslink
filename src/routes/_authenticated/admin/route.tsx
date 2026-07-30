@@ -40,6 +40,7 @@ const NAV: SidebarEntry[] = [
   {
     label: "Fleet & Pricing", icon: Car, items: [
       { to: "/admin/vehicle-classes", label: "Vehicle Classes", icon: Car },
+      { to: "/admin/fleet-images", label: "Fleet Image Audit", icon: UploadCloud },
       
       { to: "/admin/mileage-pricing", label: "Mileage Pricing", icon: Gauge },
       { to: "/admin/hourly-rates", label: "Hourly Rates", icon: Gauge },
