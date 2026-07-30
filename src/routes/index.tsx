@@ -476,43 +476,62 @@ function HomePage() {
       <FleetClassesSection />
 
 
-      {/* WHY CHOOSE — BENTO */}
+      {/* WHY CHOOSE */}
       <section className="section-y bg-white">
-        <div className="container-x">
-          <div className="max-w-2xl mb-14">
+        <div className="container-x grid lg:grid-cols-12 gap-10 lg:gap-14 items-start">
+          {/* Left: heading + proof panel */}
+          <div className="lg:col-span-4 lg:sticky lg:top-28">
             <p className="eyebrow-gold text-[11px]">— Why Cabslink</p>
             <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold text-[var(--navy)] leading-[1.05]">
               The details that <span className="text-[var(--gold)]">make the difference.</span>
             </h2>
+            <p className="mt-5 text-[var(--navy)]/65 leading-relaxed">
+              Every journey is handled by vetted drivers, tracked flights and fixed
+              pricing — so the only thing you think about is where you're going.
+            </p>
+
+            <div className="mt-8 rounded-[22px] bg-[var(--navy)] text-white p-6 shadow-dark-raised">
+              <div className="grid size-11 place-items-center rounded-xl bg-[var(--gold)] text-[var(--gold-foreground)]">
+                <Star className="size-5" />
+              </div>
+              <p className="mt-4 font-display text-2xl font-semibold">Rated 4.9 / 5 by travellers</p>
+              <p className="mt-2 text-sm leading-relaxed text-white/70">
+                Thousands of airport transfers completed across the UK — on time, every time.
+              </p>
+              <Button asChild variant="gold" className="mt-6 rounded-full">
+                <Link to="/book" search={{}}>Get an instant quote <ArrowRight className="size-4" /></Link>
+              </Button>
+            </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
-            {features.map((f, i) => {
-              const wide = i === 0;
-              return (
+          {/* Right: feature grid */}
+          <div className="lg:col-span-8">
+            <div className="grid sm:grid-cols-2 gap-x-10 gap-y-0">
+              {features.map((f, i) => (
                 <div
                   key={f.title}
-                  className={`group relative overflow-hidden rounded-[22px] border border-[var(--navy)]/10 p-6 transition-all duration-500 hover:-translate-y-1.5 hover:border-[var(--gold)] ${
-                    wide ? "md:col-span-2 bg-[var(--navy)] text-white shadow-dark-raised hover:shadow-dark-raised-hover" : "bg-white shadow-raised hover:shadow-raised-hover"
-                  }`}
+                  className="group relative flex gap-4 py-6 border-t border-[var(--navy)]/10 first:border-t-0 sm:[&:nth-child(2)]:border-t-0"
                 >
-                  <div className={`grid size-12 place-items-center rounded-xl ${
-                    wide ? "bg-[var(--gold)] text-[var(--gold-foreground)]" : "bg-[var(--gold)]/10 text-[var(--navy)] border border-[var(--gold)]/30"
-                  }`}>
+                  <span className="absolute left-0 top-0 h-px w-0 bg-[var(--gold)] transition-all duration-500 group-hover:w-full" />
+                  <div className="shrink-0 grid size-12 place-items-center rounded-xl bg-[var(--gold)]/10 border border-[var(--gold)]/30 text-[var(--navy)] transition-colors duration-300 group-hover:bg-[var(--gold)] group-hover:text-[var(--gold-foreground)] group-hover:border-[var(--gold)]">
                     <f.icon className="size-5" />
                   </div>
-                  <h3 className={`mt-5 font-display font-semibold ${wide ? "text-2xl md:text-3xl text-white" : "text-lg text-[var(--navy)]"}`}>
-                    {f.title}
-                  </h3>
-                  <p className={`mt-2 text-sm leading-relaxed ${wide ? "text-white/70 max-w-md" : "text-[var(--navy)]/60"}`}>
-                    {f.desc}
-                  </p>
+                  <div className="min-w-0">
+                    <div className="flex items-baseline gap-2">
+                      <h3 className="font-display text-lg font-semibold text-[var(--navy)]">{f.title}</h3>
+                      <span className="font-display text-[11px] font-bold text-[var(--navy)]/25 tabular-nums">
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                    </div>
+                    <p className="mt-1.5 text-sm leading-relaxed text-[var(--navy)]/60">{f.desc}</p>
+                  </div>
                 </div>
-              );
-            })}
+              ))}
+            </div>
           </div>
         </div>
       </section>
+
 
       {/* UK COVERAGE */}
       <section className="section-y bg-[var(--surface-2)]">
