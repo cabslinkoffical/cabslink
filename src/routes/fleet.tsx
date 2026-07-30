@@ -244,16 +244,17 @@ function ClassTicket({ klass }: { klass: PublicVehicleClass }) {
           </div>
         )}
 
-        <div className="mt-auto pt-1">
-          {klass.quote_on_request && (
-            <p className="mb-2 text-[10px] font-medium text-muted-foreground">Pricing on request for this class.</p>
-          )}
-          <Button asChild size="sm" variant="gold" className="w-full rounded-full">
+        <div className="mt-auto flex flex-wrap items-center gap-3 pt-1">
+          <Button asChild size="sm" variant="gold" className="rounded-full px-6">
             <Link to="/book">
               {klass.quote_on_request ? "Request quote" : "Book this class"} <ArrowRight className="size-3.5" />
             </Link>
           </Button>
+          {klass.quote_on_request && (
+            <p className="text-[11px] font-medium text-muted-foreground">Pricing on request for this class.</p>
+          )}
         </div>
+
       </div>
     </article>
   );
