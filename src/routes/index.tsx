@@ -272,37 +272,6 @@ function HomePage() {
                 Fixed-fare Mercedes-Benz transfers, private tours and executive travel across the UK. Flight tracked, meet &amp; greet, 24/7 dispatch — the calm way to travel.
               </p>
 
-              <div
-                className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-3 opacity-0"
-                style={{ animation: "fadeInUp 800ms cubic-bezier(.2,.7,.2,1) 500ms forwards" }}
-              >
-
-                <div className="flex items-center gap-2 min-w-0">
-                  <div className="flex -space-x-2 shrink-0">
-                    {["S","J","P","M"].map((c, idx) => (
-                      <span
-                        key={idx}
-                        className="grid size-7 place-items-center rounded-full border-2 border-white/20 bg-[var(--navy)] text-[10px] font-semibold text-[var(--gold)]"
-                      >
-                        {c}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="text-xs text-white min-w-0">
-                    <div className="flex items-center gap-0.5">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star key={i} className="size-3 fill-[var(--gold)] text-[var(--gold)]" />
-                      ))}
-                    </div>
-                    <div className="text-white/60 text-[11px] truncate">2,400+ five-star journeys</div>
-                  </div>
-                </div>
-                <div className="h-8 w-px bg-white/15 hidden sm:block" />
-                <div className="flex items-center gap-1.5 text-xs sm:text-sm text-white">
-                  <ShieldCheck className="size-4 text-[var(--gold)] shrink-0" />
-                  <span className="font-medium">Licensed &amp; insured</span>
-                </div>
-              </div>
 
             </div>
 
