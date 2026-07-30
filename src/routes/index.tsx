@@ -507,7 +507,7 @@ function HomePage() {
           {/* Right: feature grid */}
           <div className="lg:col-span-8">
             <div className="grid sm:grid-cols-2 gap-x-10 gap-y-0">
-              {features.map((f, i) => (
+              {features.slice(1).map((f, i) => (
                 <div
                   key={f.title}
                   className="group relative flex gap-4 py-6 border-t border-[var(--navy)]/10 first:border-t-0 sm:[&:nth-child(2)]:border-t-0"
