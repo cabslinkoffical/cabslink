@@ -95,13 +95,14 @@ function FleetPage() {
       {/* CLASS TICKETS — compact separate cards */}
       <section id="classes" className="bg-[var(--surface-2)]">
         <div className="container-x py-12 md:py-16">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
-            {items.map((c) => (
+          <div className="flex flex-col gap-6 md:gap-8">
+            {items.map((c, i) => (
               <Reveal key={c.id}>
-                <ClassTicket klass={c} />
+                <ClassTicket klass={c} reverse={i % 2 === 1} />
               </Reveal>
             ))}
           </div>
+
         </div>
       </section>
 
