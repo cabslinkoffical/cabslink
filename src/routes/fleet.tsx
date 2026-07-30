@@ -125,10 +125,13 @@ function ClassTicket({ klass }: { klass: PublicVehicleClass }) {
   return (
     <article
       id={klass.slug}
-      className="group relative flex h-full flex-col rounded-2xl bg-card border border-border overflow-hidden shadow-raised hover:shadow-raised-hover hover:-translate-y-1.5 transition-all duration-300"
+      className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-raised transition-all duration-300 hover:-translate-y-1.5 hover:shadow-raised-hover ${
+        reverse ? "md:flex-row-reverse" : "md:flex-row"
+      }`}
     >
       {/* Image plate */}
-      <div className="relative bg-muted aspect-[16/10] flex items-center justify-center overflow-hidden">
+      <div className="relative flex aspect-[16/10] w-full shrink-0 items-center justify-center overflow-hidden bg-muted md:aspect-auto md:w-[38%] md:min-h-[300px]">
+
         {img ? (
           <img
             src={img}
