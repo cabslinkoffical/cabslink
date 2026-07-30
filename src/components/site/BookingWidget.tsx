@@ -470,13 +470,18 @@ export function BookingWidget({
   );
 }
 
-function TabButton({ active, onClick, icon, children }: { active: boolean; onClick: () => void; icon: React.ReactNode; children: React.ReactNode }) {
+function TabButton({ active, onClick, icon, children, tone = "dark" }: { active: boolean; onClick: () => void; icon: React.ReactNode; children: React.ReactNode; tone?: "dark" | "light" }) {
+  const activeCls = tone === "light" ? "text-[var(--navy)] border-[var(--gold)]" : "text-white border-[var(--gold)]";
+  const idleCls =
+    tone === "light"
+      ? "text-[var(--navy)]/60 border-transparent hover:text-[var(--navy)]"
+      : "text-white/60 border-transparent hover:text-white/90";
   return (
     <button
       type="button"
       onClick={onClick}
       className={`inline-flex items-center gap-2 px-4 py-2.5 text-sm font-bold font-display tracking-wide transition-colors border-b-2 ${
-        active ? "text-white border-[var(--gold)]" : "text-white/60 border-transparent hover:text-white/90"
+        active ? activeCls : idleCls
       }`}
     >
       {icon}
