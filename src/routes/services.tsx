@@ -16,9 +16,22 @@ import {
   Clock,
   BadgePoundSterling,
   PlaneLanding,
+  Ship,
+  GraduationCap,
+  Stethoscope,
+  Timer,
+  Accessibility,
+  Users,
+  Heart,
+  Route as RouteIcon,
+  Landmark,
+  Wine,
+  Briefcase,
+  BookOpen,
 } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
+import { Button } from "@/components/ui/button";
 import airportImg from "@/assets/services/airport.jpg.asset.json";
 import corporateImg from "@/assets/services/corporate.jpg.asset.json";
 import toursImg from "@/assets/services/tours.jpg.asset.json";
@@ -30,9 +43,9 @@ export const Route = createFileRoute("/services")({
   head: () => ({
     meta: [
       { title: "Services — Cabslink UK Airport Transfers & Private Travel" },
-      { name: "description", content: "Airport transfers, VIP travel, corporate accounts, private tours, event and station transfers. Premium UK transport from Cabslink." },
+      { name: "description", content: "Every Cabslink service: airport, station, cruise port and hospital transfers, day tours, hourly hire, corporate accounts, VIP, weddings, events and group travel across the UK." },
       { property: "og:title", content: "Cabslink Services — UK Airport Transfers & Private Travel" },
-      { property: "og:description", content: "Airport transfers, VIP travel, corporate accounts, private tours, event and station transfers across the UK." },
+      { property: "og:description", content: "Airport, station and cruise transfers, day tours, hourly hire, corporate accounts, VIP and event travel across the UK." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { property: "og:url", content: "https://cabslink.lovable.app/services" },
@@ -54,8 +67,8 @@ const featured = [
   },
   {
     icon: Gem,
-    title: "Private Tours",
-    desc: "Bespoke chauffeured days out across Scotland and the wider UK — castles, distilleries, coastlines and film locations, at your pace.",
+    title: "Private Day Tours",
+    desc: "Bespoke driver-led days out across Scotland and the wider UK — castles, distilleries, coastlines and film locations, entirely at your pace.",
     to: "/tours",
     img: toursImg.url,
     tag: "Signature",
@@ -63,20 +76,68 @@ const featured = [
   },
 ];
 
-const services = [
+const showcase = [
   { icon: Crown, title: "VIP Transfers", desc: "Discreet, high-end travel for dignitaries and discerning clients.", to: "/vip-transfers", img: vipImg.url },
-  { icon: Building2, title: "Corporate Transportation", desc: "Account-managed, invoiced business travel with priority support.", to: "/corporate-travel", img: corporateImg.url },
-  { icon: Train, title: "Train Station Transfers", desc: "Reliable transfers to and from UK rail terminals, on your schedule.", to: "/services", img: stationImg.url },
-  { icon: PartyPopper, title: "Event Transfers", desc: "Weddings, premieres and sporting events — arrive in style, on time.", to: "/services", img: eventsImg.url },
+  { icon: Building2, title: "Corporate Travel", desc: "Account-managed, invoiced business travel with priority support.", to: "/corporate-travel", img: corporateImg.url },
+  { icon: Train, title: "Station Transfers", desc: "Reliable transfers to and from UK rail terminals, on your schedule.", to: "/stations", img: stationImg.url },
+  { icon: PartyPopper, title: "Event Transfers", desc: "Weddings, premieres and sporting fixtures — arrive in style, on time.", to: "/contact", img: eventsImg.url },
 ];
 
-const more = [
-  { icon: Hotel, title: "Hotel to City Transfers", desc: "Seamless travel between hotels, venues and city destinations.", to: "/services" },
-  { icon: Car, title: "Local Travel Services", desc: "Day-hire drivers for meetings, errands and dining.", to: "/services" },
-  { icon: Map, title: "Long Distance Travel", desc: "City-to-city UK drives in modern, comfortable vehicles.", to: "/services" },
-  { icon: ShoppingBag, title: "Luxury Shopping Trips", desc: "Private driver for premium retail districts and boutiques.", to: "/services" },
-  { icon: Award, title: "Award Ceremonies", desc: "Red-carpet arrivals with discreet, well-presented drivers.", to: "/services" },
-  { icon: Gem, title: "Tours & Travel Guide", desc: "Bespoke private tours of Scotland, England and the UK.", to: "/tours" },
+type Item = { icon: typeof Plane; title: string; desc: string; to: string };
+
+const groups: { eyebrow: string; heading: string; blurb: string; items: Item[] }[] = [
+  {
+    eyebrow: "Travel hubs",
+    heading: "Airports, stations & ports",
+    blurb: "Every arrival and departure point in the UK, with tracked schedules and fixed fares.",
+    items: [
+      { icon: Plane, title: "Airport Transfers", desc: "All major UK airports with flight tracking and meet & greet.", to: "/airport-transfers" },
+      { icon: PlaneLanding, title: "Airport Directory", desc: "Terminal guides, pickup points and fares for each airport.", to: "/airports" },
+      { icon: Train, title: "Train Station Transfers", desc: "Kerbside pickup at UK rail terminals, timed to your train.", to: "/stations" },
+      { icon: Ship, title: "Cruise Port Transfers", desc: "Embarkation and disembarkation transfers with luggage space.", to: "/cruise-ports" },
+      { icon: Hotel, title: "Hotel & City Transfers", desc: "Seamless travel between hotels, venues and city destinations.", to: "/book" },
+      { icon: RouteIcon, title: "Long Distance Travel", desc: "City-to-city UK drives in modern, comfortable vehicles.", to: "/distance" },
+    ],
+  },
+  {
+    eyebrow: "Business",
+    heading: "Corporate & professional travel",
+    blurb: "Invoiced accounts, dedicated support and drivers who understand a schedule.",
+    items: [
+      { icon: Building2, title: "Corporate Transportation", desc: "Managed business travel with monthly invoicing.", to: "/corporate-travel" },
+      { icon: Briefcase, title: "Open a Corporate Account", desc: "Set up billing, cost centres and approved travellers.", to: "/corporate-booking" },
+      { icon: Landmark, title: "Business Park Transfers", desc: "Recurring runs to offices, campuses and business parks.", to: "/corporate" },
+      { icon: Timer, title: "Hourly Hire", desc: "A driver and vehicle on standby for meetings and multi-stop days.", to: "/book/hourly" },
+      { icon: Crown, title: "VIP & Executive", desc: "Premium saloons with our most experienced drivers.", to: "/vip-transfers" },
+      { icon: Award, title: "Award Ceremonies", desc: "Red-carpet arrivals with discreet, well-presented drivers.", to: "/contact" },
+    ],
+  },
+  {
+    eyebrow: "Leisure",
+    heading: "Tours, days out & experiences",
+    blurb: "Curated Scottish itineraries, or build your own route from scratch.",
+    items: [
+      { icon: Gem, title: "Private Tours", desc: "Full-day and multi-day driver-led tours, price on request.", to: "/tours" },
+      { icon: Wine, title: "Distillery Tours", desc: "Whisky trails across Speyside, Islay and the Highlands.", to: "/distilleries" },
+      { icon: Landmark, title: "Attraction Transfers", desc: "Castles, lochs and landmarks with waiting time included.", to: "/attractions" },
+      { icon: BookOpen, title: "Travel Guides", desc: "Route notes, timings and tips before you book.", to: "/guides" },
+      { icon: Map, title: "Scenic Routes", desc: "NC500, Glencoe and Loch Ness drives with photo stops.", to: "/tours" },
+      { icon: ShoppingBag, title: "Luxury Shopping Trips", desc: "Private driver for premium retail districts and boutiques.", to: "/book" },
+    ],
+  },
+  {
+    eyebrow: "Specialist",
+    heading: "Group, accessible & occasion travel",
+    blurb: "Larger parties and sensitive journeys, handled with the same care.",
+    items: [
+      { icon: Users, title: "Group & Minibus Travel", desc: "MPVs, vans, minibuses and coaches for 5–50 passengers.", to: "/fleet" },
+      { icon: Accessibility, title: "Wheelchair Accessible", desc: "Ramp-equipped vehicles with trained drivers.", to: "/accessibility" },
+      { icon: Stethoscope, title: "Hospital Transfers", desc: "Appointment and discharge travel with door-to-door assistance.", to: "/hospitals" },
+      { icon: GraduationCap, title: "University Transfers", desc: "Term-start, campus and student arrival transfers.", to: "/universities" },
+      { icon: Heart, title: "Wedding Cars", desc: "Immaculate vehicles for the couple, family and guests.", to: "/contact" },
+      { icon: Car, title: "Local Travel Services", desc: "Day-hire drivers for meetings, errands and dining.", to: "/book" },
+    ],
+  },
 ];
 
 const promises = [
@@ -168,7 +229,7 @@ function ServicesPage() {
         </div>
       </section>
 
-      {/* Image card grid */}
+      {/* Image showcase grid */}
       <section className="section-y bg-muted/40">
         <div className="container-x">
           <div className="max-w-2xl">
@@ -177,7 +238,7 @@ function ServicesPage() {
           </div>
 
           <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {services.map((s) => (
+            {showcase.map((s) => (
               <Link
                 key={s.title}
                 to={s.to}
@@ -208,35 +269,68 @@ function ServicesPage() {
         </div>
       </section>
 
-      {/* More services */}
+      {/* Full service catalogue */}
       <section className="section-y">
         <div className="container-x">
           <div className="max-w-2xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--gold)]">Also available</p>
-            <h2 className="mt-3 font-display text-3xl font-semibold sm:text-4xl">Every other journey, covered</h2>
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--gold)]">Full catalogue</p>
+            <h2 className="mt-3 font-display text-3xl font-semibold sm:text-4xl">Every service we operate</h2>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+              Twenty-four services across four travel categories. If your journey isn't listed, we'll still quote it — just ask.
+            </p>
           </div>
 
-          <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {more.map((s) => (
-              <Link
-                key={s.title}
-                to={s.to}
-                className="group flex items-start gap-4 rounded-2xl border border-border bg-card p-5 transition-all hover:-translate-y-0.5 hover:border-[var(--gold)]/40 hover:shadow-raised-hover"
-              >
-                <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-[var(--gold)]/12 text-[var(--gold)] transition-colors group-hover:bg-[var(--gold)] group-hover:text-[var(--navy)]">
-                  <s.icon className="size-5" />
-                </span>
-                <div className="min-w-0">
-                  <h3 className="font-semibold">{s.title}</h3>
-                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{s.desc}</p>
+          <div className="mt-12 space-y-14">
+            {groups.map((g) => (
+              <div key={g.heading}>
+                <div className="flex flex-col gap-2 border-b border-border pb-5 md:flex-row md:items-end md:justify-between">
+                  <div>
+                    <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-[var(--gold)]">{g.eyebrow}</p>
+                    <h3 className="mt-2 font-display text-2xl font-semibold text-[var(--navy)]">{g.heading}</h3>
+                  </div>
+                  <p className="max-w-md text-sm leading-relaxed text-muted-foreground">{g.blurb}</p>
                 </div>
-                <ArrowRight className="mt-1 size-4 shrink-0 text-[var(--gold)] opacity-0 transition-opacity group-hover:opacity-100" />
-              </Link>
+
+                <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {g.items.map((s) => (
+                    <Link
+                      key={g.heading + s.title}
+                      to={s.to}
+                      className="group flex items-start gap-4 rounded-2xl border border-border bg-card p-5 shadow-raised transition-all hover:-translate-y-0.5 hover:border-[var(--gold)]/40 hover:shadow-raised-hover"
+                    >
+                      <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-[var(--gold)]/12 text-[var(--gold)] transition-colors group-hover:bg-[var(--gold)] group-hover:text-[var(--navy)]">
+                        <s.icon className="size-5" />
+                      </span>
+                      <div className="min-w-0">
+                        <h4 className="font-semibold">{s.title}</h4>
+                        <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{s.desc}</p>
+                      </div>
+                      <ArrowRight className="mt-1 size-4 shrink-0 text-[var(--gold)] opacity-0 transition-opacity group-hover:opacity-100" />
+                    </Link>
+                  ))}
+                </div>
+              </div>
             ))}
+          </div>
+
+          <div className="mt-14 flex flex-col items-start gap-4 rounded-3xl border border-[var(--gold)]/25 bg-[var(--navy)] p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
+            <div className="max-w-xl">
+              <h3 className="font-display text-2xl font-semibold text-white">Not sure which service fits?</h3>
+              <p className="mt-2 text-sm leading-relaxed text-white/70">
+                Tell us the journey and we'll recommend the right vehicle class and quote a fixed fare.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Button asChild size="lg" className="rounded-full">
+                <Link to="/book" search={{ q: "" }}>Get a fixed quote</Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="rounded-full border-white/25 bg-transparent text-white hover:bg-white/10 hover:text-white">
+                <Link to="/contact">Talk to our team</Link>
+              </Button>
+            </div>
           </div>
         </div>
       </section>
-
     </SiteLayout>
   );
 }
