@@ -49,7 +49,7 @@ function AirportPage() {
             </ul>
             <Button asChild variant="gold" className="mt-8 rounded-full"><a href="/#booking">Book your transfer <ArrowRight className="size-4" /></a></Button>
           </div>
-          <BookingWidget />
+          <BookingWidget tone="light" />
         </div>
       </section>
       <section className="section-y bg-[var(--surface)]">
