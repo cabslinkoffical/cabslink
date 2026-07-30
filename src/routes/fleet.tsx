@@ -164,12 +164,13 @@ function ClassTicket({ klass }: { klass: PublicVehicleClass }) {
         </div>
       </div>
 
-      {/* Perforation divider */}
-      <div className="relative h-3 bg-card">
-        <div className="absolute inset-x-4 top-1/2 -translate-y-1/2 border-t border-dashed border-border" />
-        <div className="absolute -left-1.5 top-1/2 -translate-y-1/2 size-3 rounded-full bg-[var(--surface-2)] border border-border" />
-        <div className="absolute -right-1.5 top-1/2 -translate-y-1/2 size-3 rounded-full bg-[var(--surface-2)] border border-border" />
+      {/* Perforation divider — horizontal on mobile, vertical on desktop */}
+      <div className="relative h-3 bg-card md:h-auto md:w-3">
+        <div className="absolute inset-x-4 top-1/2 -translate-y-1/2 border-t border-dashed border-border md:inset-x-auto md:inset-y-6 md:left-1/2 md:top-auto md:-translate-x-1/2 md:translate-y-0 md:border-t-0 md:border-l md:border-dashed" />
+        <div className="absolute -left-1.5 top-1/2 -translate-y-1/2 size-3 rounded-full bg-[var(--surface-2)] border border-border md:left-1/2 md:top-0 md:-translate-x-1/2 md:-translate-y-1/2" />
+        <div className="absolute -right-1.5 top-1/2 -translate-y-1/2 size-3 rounded-full bg-[var(--surface-2)] border border-border md:left-1/2 md:right-auto md:top-full md:-translate-x-1/2 md:-translate-y-1/2" />
       </div>
+
 
       {/* Body */}
       <div className="flex flex-1 flex-col gap-4 p-5 md:p-7">
