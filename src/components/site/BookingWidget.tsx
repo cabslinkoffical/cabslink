@@ -121,13 +121,13 @@ export function BookingWidget({
     <div className="w-full max-w-6xl mx-auto">
       {/* Tabs above the pill */}
       <div className="flex items-center gap-1 mb-3 px-2">
-        <TabButton active={tab === "quote"} onClick={() => setTab("quote")} icon={<Car className="w-4 h-4" />}>
+        <TabButton tone={tone} active={tab === "quote"} onClick={() => setTab("quote")} icon={<Car className="w-4 h-4" />}>
           Transfers
         </TabButton>
-        <TabButton active={tab === "hourly"} onClick={() => setTab("hourly")} icon={<Clock className="w-4 h-4" />}>
+        <TabButton tone={tone} active={tab === "hourly"} onClick={() => setTab("hourly")} icon={<Clock className="w-4 h-4" />}>
           Hourly Hire
         </TabButton>
-        <TabButton active={false} onClick={() => navigate({ to: "/tours" })} icon={<Palmtree className="w-4 h-4" />}>
+        <TabButton tone={tone} active={false} onClick={() => navigate({ to: "/tours" })} icon={<Palmtree className="w-4 h-4" />}>
           Day Tours
         </TabButton>
       </div>
