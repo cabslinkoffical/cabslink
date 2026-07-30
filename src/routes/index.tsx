@@ -459,30 +459,22 @@ function HomePage() {
         </div>
       </section>
 
-      {/* POPULAR TOURS */}
-      {popularTours.length > 0 && (
-      <section className="section-y bg-[var(--surface-2)]">
-        <div className="container-x">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
-            <div className="max-w-2xl">
-              <p className="eyebrow-gold text-[11px]">— Popular Tours</p>
-              <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold text-[var(--navy)] leading-[1.05] tracking-[-0.02em]">
-                Curated journeys, <span className="text-[var(--gold)]">crafted your way.</span>
-              </h2>
+      {/* TRUST STRIP */}
+      <section className="bg-[var(--navy)] border-y border-white/10">
+        <div className="container-x py-6 sm:py-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-4 sm:gap-y-6">
+          {trustStats.map((s) => (
+            <div key={s.k} className="flex items-center gap-3 min-w-0">
+              <span className="grid size-10 shrink-0 place-items-center rounded-full border border-[var(--gold)]/40 text-[var(--gold)]">
+                <s.icon className="size-[18px]" />
+              </span>
+              <span className="min-w-0">
+                <span className="block text-sm font-semibold text-white truncate">{s.k}</span>
+                <span className="block text-xs text-white/60 truncate">{s.v}</span>
+              </span>
             </div>
-            <Button asChild variant="outline" className="rounded-full border-[var(--navy)]/20 text-[var(--navy)] hover:border-[var(--gold)] hover:text-[var(--gold-ink)] self-start md:self-auto">
-              <Link to="/tours">Explore all tours <ArrowRight className="size-4" /></Link>
-            </Button>
-          </div>
-
-          <div className="grid items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {popularTours.map((t) => (
-              <TourCard key={t.slug} tour={t} />
-            ))}
-          </div>
+          ))}
         </div>
       </section>
-      )}
 
       {/* VEHICLE CLASSES */}
       <FleetClassesSection />
