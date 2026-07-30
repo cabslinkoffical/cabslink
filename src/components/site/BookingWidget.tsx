@@ -367,11 +367,11 @@ export function BookingWidget({
 
         {/* Secondary row: stops / return / multi-city pills */}
         <div className="flex flex-wrap items-center gap-2 mt-3 px-2">
-          <PillButton icon={<Plus className="w-3 h-3" strokeWidth={3} />} onClick={() => setStops([...stops, { placeId: "", label: "" }])}>
+          <PillButton tone={tone} icon={<Plus className="w-3 h-3" strokeWidth={3} />} onClick={() => setStops([...stops, { placeId: "", label: "" }])}>
             Add stop
           </PillButton>
           {!showReturn && (
-            <PillButton icon={<Repeat className="w-3 h-3" strokeWidth={3} />} onClick={() => setShowReturn(true)}>
+            <PillButton tone={tone} icon={<Repeat className="w-3 h-3" strokeWidth={3} />} onClick={() => setShowReturn(true)}>
               Add return
             </PillButton>
           )}
