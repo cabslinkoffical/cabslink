@@ -204,6 +204,13 @@ function AboutPage() {
         </div>
       </section>
 
+      <CtaBand
+        eyebrow="Ready when you are"
+        title="Book a Cabslink driver today"
+        subtitle="Fixed fares, vetted drivers and 24/7 UK reservations support."
+        tone="navy"
+      />
+
       {/* Coverage */}
       <section className="section-y">
         <div className="container-x">
