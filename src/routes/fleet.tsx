@@ -172,16 +172,17 @@ function ClassTicket({ klass }: { klass: PublicVehicleClass }) {
       </div>
 
       {/* Body */}
-      <div className="p-4 md:p-5 flex flex-1 flex-col gap-4">
+      <div className="flex flex-1 flex-col gap-4 p-5 md:p-7">
         <div>
           <p className="text-[9px] font-semibold uppercase tracking-[0.28em] text-[var(--gold-ink)]">Vehicle Class</p>
-          <h3 className="mt-1 font-display text-lg md:text-xl font-semibold leading-tight">{klass.name}</h3>
+          <h3 className="mt-1 font-display text-xl md:text-2xl font-semibold leading-tight">{klass.name}</h3>
           {(klass.short_description || klass.long_description) && (
-            <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
               {klass.short_description || klass.long_description}
             </p>
           )}
         </div>
+
 
         {/* Full capacity spec grid */}
         <dl className="grid grid-cols-2 sm:grid-cols-4 gap-2">
