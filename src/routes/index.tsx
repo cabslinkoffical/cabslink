@@ -347,7 +347,7 @@ function HomePage() {
                 Curated journeys, <span className="text-[var(--gold)]">crafted your way.</span>
               </h2>
             </div>
-            <Button asChild variant="outline" className="rounded-full border-[var(--navy-ink)]/20 text-[var(--navy)] hover:border-[var(--gold)] hover:text-[var(--gold-ink)] self-start md:self-auto">
+            <Button asChild variant="outline" className="rounded-full border-[var(--navy)]/20 text-[var(--navy)] hover:border-[var(--gold)] hover:text-[var(--gold-ink)] self-start md:self-auto">
               <Link to="/tours">Explore all tours <ArrowRight className="size-4" /></Link>
             </Button>
           </div>
