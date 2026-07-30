@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Plus, Edit, Trash2, X, Loader2, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
+import { fleetImageFor } from "@/assets/fleet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -121,10 +122,12 @@ function VehicleClassesPage() {
             return (
               <div key={c.id} className="rounded-2xl border border-border bg-card p-5 flex flex-col md:flex-row gap-5">
                 <div className="w-full md:w-40 aspect-[4/3] rounded-xl bg-[var(--surface)] flex items-center justify-center overflow-hidden shrink-0">
-                  {c.hero_image ? (
-                    <img src={c.hero_image} alt={c.name} className="w-full h-full object-cover" />
-                  ) : linked?.image_url ? (
-                    <img src={linked.image_url} alt={c.name} className="w-full h-full object-contain p-2" />
+                  {fleetImageFor(c.slug, c.hero_image || linked?.image_url) ? (
+                    <img
+                      src={fleetImageFor(c.slug, c.hero_image || linked?.image_url)}
+                      alt={c.name}
+                      className="w-full h-full object-contain p-2"
+                    />
                   ) : (
                     <span className="text-xs text-muted-foreground">No image</span>
                   )}
