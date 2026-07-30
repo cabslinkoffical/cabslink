@@ -493,7 +493,7 @@ function TabButton({ active, onClick, icon, children, tone = "dark" }: { active:
 function FieldCell({ icon, label, children, compact, invalid }: { icon: React.ReactNode; label: string; children: React.ReactNode; compact?: boolean; invalid?: boolean }) {
   return (
     <div
-      className={`flex items-center gap-2.5 px-4 py-2 min-w-0 flex-1 rounded-2xl @[980px]:rounded-full transition-colors ${compact ? "@[980px]:w-[136px] @[980px]:max-w-[136px] @[980px]:flex-none" : ""} ${
+      className={`flex items-center gap-2.5 px-4 py-2 min-w-0 flex-1 rounded-2xl @[980px]:rounded-full transition-colors ${compact ? "@[980px]:w-[152px] @[980px]:max-w-[152px] @[980px]:flex-none" : ""} ${
         invalid ? "bg-destructive/5 ring-1 ring-destructive/60" : ""
       }`}
     >
