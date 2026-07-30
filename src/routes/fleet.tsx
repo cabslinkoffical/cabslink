@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { Users, Briefcase, Luggage, ArrowRight, Accessibility, Zap, CheckCircle2, Sparkles } from "lucide-react";
+import { Users, Briefcase, Luggage, ArrowRight, Accessibility, Zap, CheckCircle2, Sparkles, Backpack, Fuel, Baby, Car } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Reveal } from "@/components/site/Reveal";
 import { Button } from "@/components/ui/button";
@@ -113,13 +113,19 @@ function ClassTicket({ klass }: { klass: PublicVehicleClass }) {
   const img = fleetImageFor(klass.slug, klass.hero_image);
   const recs = Object.entries(klass.recommended_for ?? {})
     .filter(([, v]) => v)
-    .map(([k]) => RECOMMENDED_LABELS[k] ?? k)
-    .slice(0, 2);
+    .map(([k]) => RECOMMENDED_LABELS[k] ?? k.replace(/_/g, " "));
+  const models = klass.models ?? [];
+  const fuelLabel =
+    klass.fuel_type === "electric"
+      ? "Electric"
+      : klass.fuel_type
+        ? klass.fuel_type.charAt(0).toUpperCase() + klass.fuel_type.slice(1).replace(/_/g, " ")
+        : null;
 
   return (
     <article
       id={klass.slug}
-      className="group relative flex flex-col rounded-2xl bg-card border border-border overflow-hidden shadow-raised hover:shadow-raised-hover hover:-translate-y-1.5 transition-all duration-300"
+      className="group relative flex h-full flex-col rounded-2xl bg-card border border-border overflow-hidden shadow-raised hover:shadow-raised-hover hover:-translate-y-1.5 transition-all duration-300"
     >
       {/* Image plate */}
       <div className="relative bg-muted aspect-[16/10] flex items-center justify-center overflow-hidden">
@@ -166,35 +172,82 @@ function ClassTicket({ klass }: { klass: PublicVehicleClass }) {
       </div>
 
       {/* Body */}
-      <div className="p-4 md:p-5 flex flex-col gap-3">
+      <div className="p-4 md:p-5 flex flex-1 flex-col gap-4">
         <div>
           <p className="text-[9px] font-semibold uppercase tracking-[0.28em] text-[var(--gold-ink)]">Vehicle Class</p>
-          <h3 className="mt-1 font-display text-lg md:text-xl font-semibold leading-tight line-clamp-1">{klass.name}</h3>
-          {klass.short_description && (
-            <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{klass.short_description}</p>
+          <h3 className="mt-1 font-display text-lg md:text-xl font-semibold leading-tight">{klass.name}</h3>
+          {(klass.short_description || klass.long_description) && (
+            <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
+              {klass.short_description || klass.long_description}
+            </p>
           )}
         </div>
 
-        {/* Compact specs row */}
-        <div className="flex items-center gap-3 text-xs text-foreground/80">
-          <span className="inline-flex items-center gap-1.5"><Users className="size-3.5 text-[var(--gold)]" /> {klass.passengers}</span>
-          <span className="h-3 w-px bg-border" />
-          <span className="inline-flex items-center gap-1.5"><Briefcase className="size-3.5 text-[var(--gold)]" /> {klass.large_luggage}</span>
-          <span className="h-3 w-px bg-border" />
-          <span className="inline-flex items-center gap-1.5"><Luggage className="size-3.5 text-[var(--gold)]" /> {klass.cabin_bags}</span>
+        {/* Full capacity spec grid */}
+        <dl className="grid grid-cols-2 gap-2">
+          <SpecCell icon={<Users className="size-3.5" />} label="Passengers" value={klass.passengers} />
+          <SpecCell icon={<Briefcase className="size-3.5" />} label="Large bags" value={klass.large_luggage} />
+          <SpecCell icon={<Luggage className="size-3.5" />} label="Cabin bags" value={klass.cabin_bags} />
+          <SpecCell icon={<Backpack className="size-3.5" />} label="Hand luggage" value={klass.hand_luggage} />
+        </dl>
+
+        {/* Attributes */}
+        <div className="flex flex-wrap gap-1.5">
+          {fuelLabel && (
+            <span className="inline-flex items-center gap-1 rounded-full border border-border bg-[var(--surface-2)] px-2 py-0.5 text-[10px] font-medium text-foreground/80">
+              <Fuel className="size-2.5 text-[var(--gold)]" /> {fuelLabel}
+            </span>
+          )}
+          <span className="inline-flex items-center gap-1 rounded-full border border-border bg-[var(--surface-2)] px-2 py-0.5 text-[10px] font-medium text-foreground/80">
+            <Baby className="size-2.5 text-[var(--gold)]" />
+            {klass.child_seats_supported ? "Child seats available" : "No child seats"}
+          </span>
+          <span className="inline-flex items-center gap-1 rounded-full border border-border bg-[var(--surface-2)] px-2 py-0.5 text-[10px] font-medium text-foreground/80">
+            <Accessibility className="size-2.5 text-[var(--gold)]" />
+            {klass.wheelchair_accessible ? "Wheelchair accessible" : "Step-in access"}
+          </span>
         </div>
 
-        {recs.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
-            {recs.map((r) => (
-              <span key={r} className="inline-flex items-center gap-1 rounded-full bg-[var(--surface-2)] text-foreground/80 px-2 py-0.5 text-[10px] font-medium">
-                <CheckCircle2 className="size-2.5 text-[var(--gold)]" /> {r}
-              </span>
-            ))}
+        {/* Vehicle models in this class */}
+        {models.length > 0 && (
+          <div className="rounded-xl border border-border bg-[var(--surface-2)]/70 p-3">
+            <p className="flex items-center gap-1.5 text-[9px] font-semibold uppercase tracking-[0.22em] text-[var(--gold-ink)]">
+              <Car className="size-3" /> Vehicles in this class
+            </p>
+            <ul className="mt-2 flex flex-wrap gap-1.5">
+              {models.map((m) => (
+                <li
+                  key={m.id}
+                  className="rounded-md bg-card border border-border px-2 py-1 text-[11px] font-medium text-foreground/85"
+                >
+                  {[m.manufacturer, m.name].filter(Boolean).join(" ")}
+                </li>
+              ))}
+            </ul>
+            <p className="mt-2 text-[10px] text-muted-foreground">Or similar — allocated by dispatch.</p>
           </div>
         )}
 
-        <div className="pt-1">
+        {recs.length > 0 && (
+          <div>
+            <p className="text-[9px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">Best for</p>
+            <div className="mt-1.5 flex flex-wrap gap-1.5">
+              {recs.map((r) => (
+                <span
+                  key={r}
+                  className="inline-flex items-center gap-1 rounded-full bg-[var(--surface-2)] text-foreground/80 px-2 py-0.5 text-[10px] font-medium capitalize"
+                >
+                  <CheckCircle2 className="size-2.5 text-[var(--gold)]" /> {r}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="mt-auto pt-1">
+          {klass.quote_on_request && (
+            <p className="mb-2 text-[10px] font-medium text-muted-foreground">Pricing on request for this class.</p>
+          )}
           <Button asChild size="sm" variant="gold" className="w-full rounded-full">
             <Link to="/book">
               {klass.quote_on_request ? "Request quote" : "Book this class"} <ArrowRight className="size-3.5" />
@@ -205,3 +258,16 @@ function ClassTicket({ klass }: { klass: PublicVehicleClass }) {
     </article>
   );
 }
+
+function SpecCell({ icon, label, value }: { icon: React.ReactNode; label: string; value: number }) {
+  return (
+    <div className="flex items-center gap-2 rounded-lg border border-border bg-[var(--surface-2)]/60 px-2.5 py-2">
+      <span className="text-[var(--gold)]">{icon}</span>
+      <div className="min-w-0">
+        <dt className="text-[9px] uppercase tracking-wider text-muted-foreground truncate">{label}</dt>
+        <dd className="text-sm font-semibold leading-none">{value}</dd>
+      </div>
+    </div>
+  );
+}
+
