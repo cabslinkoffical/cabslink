@@ -184,12 +184,13 @@ function ClassTicket({ klass }: { klass: PublicVehicleClass }) {
         </div>
 
         {/* Full capacity spec grid */}
-        <dl className="grid grid-cols-2 gap-2">
+        <dl className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           <SpecCell icon={<Users className="size-3.5" />} label="Passengers" value={klass.passengers} />
           <SpecCell icon={<Briefcase className="size-3.5" />} label="Large bags" value={klass.large_luggage} />
           <SpecCell icon={<Luggage className="size-3.5" />} label="Cabin bags" value={klass.cabin_bags} />
           <SpecCell icon={<Backpack className="size-3.5" />} label="Hand luggage" value={klass.hand_luggage} />
         </dl>
+
 
         {/* Attributes */}
         <div className="flex flex-wrap gap-1.5">
