@@ -492,11 +492,11 @@ function HomePage() {
 
             <div className="mt-8 rounded-[22px] bg-[var(--navy)] text-white p-6 shadow-dark-raised">
               <div className="grid size-11 place-items-center rounded-xl bg-[var(--gold)] text-[var(--gold-foreground)]">
-                <BadgePoundSterling className="size-5" />
+                <Star className="size-5" />
               </div>
-              <p className="mt-4 font-display text-2xl font-semibold">Fixed pricing, always</p>
+              <p className="mt-4 font-display text-2xl font-semibold">Rated 4.9 / 5 by travellers</p>
               <p className="mt-2 text-sm leading-relaxed text-white/70">
-                No surge. No surprises. The quote you see is the price you pay.
+                Thousands of airport transfers completed across the UK — on time, every time.
               </p>
               <Button asChild variant="gold" className="mt-6 rounded-full">
                 <Link to="/book" search={{}}>Get an instant quote <ArrowRight className="size-4" /></Link>
@@ -507,7 +507,7 @@ function HomePage() {
           {/* Right: feature grid */}
           <div className="lg:col-span-8">
             <div className="grid sm:grid-cols-2 gap-x-10 gap-y-0">
-              {features.slice(1).map((f, i) => (
+              {features.map((f, i) => (
                 <div
                   key={f.title}
                   className="group relative flex gap-4 py-6 border-t border-[var(--navy)]/10 first:border-t-0 sm:[&:nth-child(2)]:border-t-0"
