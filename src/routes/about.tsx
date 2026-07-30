@@ -6,6 +6,7 @@ import {
   CheckCircle2, ArrowRight,
 } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { CtaBand } from "@/components/site/CtaBand";
 import { PageHero, SectionHeader } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
 import { SITE } from "@/lib/site";
