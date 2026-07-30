@@ -597,30 +597,6 @@ function HomePage() {
       {/* REVIEWS */}
       <TestimonialsSection />
 
-      {/* POPULAR TOURS */}
-      {popularTours.length > 0 && (
-      <section className="section-y bg-[var(--surface-2)]">
-        <div className="container-x">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
-            <div className="max-w-2xl">
-              <p className="eyebrow-gold text-[11px]">— Popular Tours</p>
-              <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold text-[var(--navy)] leading-[1.05] tracking-[-0.02em]">
-                Curated journeys, <span className="text-[var(--gold)]">crafted your way.</span>
-              </h2>
-            </div>
-            <Button asChild variant="outline" className="rounded-full border-[var(--navy)]/20 text-[var(--navy)] hover:border-[var(--gold)] hover:text-[var(--gold-ink)] self-start md:self-auto">
-              <Link to="/tours">Explore all tours <ArrowRight className="size-4" /></Link>
-            </Button>
-          </div>
-
-          <div className="grid items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {popularTours.map((t) => (
-              <TourCard key={t.slug} tour={t} />
-            ))}
-          </div>
-        </div>
-      </section>
-      )}
 
       {/* UK COVERAGE */}
       <section className="section-y bg-white">
