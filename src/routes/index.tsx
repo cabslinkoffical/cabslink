@@ -482,30 +482,52 @@ function HomePage() {
       {/* HOW IT WORKS */}
       <section className="section-y bg-[var(--surface-2)]">
         <div className="container-x">
-          <div className="max-w-3xl">
-            <p className="eyebrow-gold text-[11px]">— How It Works</p>
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-3">
+              <span aria-hidden className="h-px w-8 bg-[var(--gold)]" />
+              <p className="eyebrow-gold text-[11px]">How It Works</p>
+              <span aria-hidden className="h-px w-8 bg-[var(--gold)]" />
+            </div>
             <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold text-[var(--navy)] leading-[1.05]">
               Three steps to a <span className="text-[var(--gold-ink)]">premium journey.</span>
             </h2>
           </div>
 
-          <div className="mt-16 relative grid gap-10 md:grid-cols-3">
-            <div aria-hidden className="hidden md:block absolute top-8 left-[16%] right-[16%] border-t-2 border-dashed border-[var(--gold)]/40" />
-            {steps.map((s, i) => (
-              <div key={s.title} className="relative text-center md:text-left">
-                <div className="relative mx-auto md:mx-0 grid size-16 place-items-center rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] shadow-[0_10px_30px_-10px_rgba(223,175,38,0.6)]">
-                  <s.icon className="size-6" />
-                  <span className="absolute -top-2 -right-2 grid size-7 place-items-center rounded-full bg-[var(--navy)] text-white text-xs font-bold border-2 border-white">
-                    {i + 1}
-                  </span>
+          <div className="mt-16 md:mt-20 relative">
+            <div
+              aria-hidden
+              className="hidden md:block absolute top-12 left-0 right-0 mx-auto h-[2px] w-[80%] bg-gradient-to-r from-[var(--navy)]/10 via-[var(--gold)] to-[var(--navy)]/10"
+            />
+            <div className="relative grid gap-12 md:grid-cols-3">
+              {steps.map((s, i) => (
+                <div key={s.title} className="group flex flex-col items-center text-center">
+                  <div className="relative mb-8 md:mb-10">
+                    <div
+                      className={`grid size-24 place-items-center rounded-2xl bg-[var(--navy)] text-[var(--gold)] shadow-dark-raised transition-transform duration-500 group-hover:rotate-0 ${
+                        i === 1 ? "-rotate-3" : "rotate-3"
+                      }`}
+                    >
+                      <s.icon className="size-10" strokeWidth={1.5} />
+                    </div>
+                    <span className="absolute -top-3 -right-3 grid size-10 place-items-center rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] font-display text-lg font-bold border-4 border-[var(--surface-2)] shadow-lg">
+                      {i + 1}
+                    </span>
+                  </div>
+                  <div className="px-4">
+                    <h3 className="font-display text-xl font-bold text-[var(--navy)] transition-colors group-hover:text-[var(--gold-ink)]">
+                      {s.title}
+                    </h3>
+                    <p className="mt-3 max-w-[260px] mx-auto text-sm leading-relaxed text-[var(--navy)]/70">
+                      {s.desc}
+                    </p>
+                  </div>
                 </div>
-                <h3 className="mt-6 font-display text-2xl font-semibold text-[var(--navy)]">{s.title}</h3>
-                <p className="mt-3 text-sm text-[var(--navy)]/60 leading-relaxed max-w-xs mx-auto md:mx-0">{s.desc}</p>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </section>
+
 
       {/* WHY CHOOSE */}
       <section className="section-y bg-white">
