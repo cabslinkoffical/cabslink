@@ -46,10 +46,10 @@ import vipImg from "@/assets/services/vip.jpg.asset.json";
 export const Route = createFileRoute("/services")({
   head: () => ({
     meta: [
-      { title: "Services — Cabslink UK Airport Transfers & Private Travel" },
-      { name: "description", content: "Every Cabslink service: airport, station, cruise port and hospital transfers, day tours, hourly hire, corporate accounts, VIP, weddings, events and group travel across the UK." },
-      { property: "og:title", content: "Cabslink Services — UK Airport Transfers & Private Travel" },
-      { property: "og:description", content: "Airport, station and cruise transfers, day tours, hourly hire, corporate accounts, VIP and event travel across the UK." },
+      { title: "Services — Cabslink UK Airport Transfers, Golf & Sports Travel" },
+      { name: "description", content: "Every Cabslink service: airport, station and cruise transfers, golf transfers, football travel, sports events, day tours, hourly hire, corporate accounts, VIP and group travel across the UK." },
+      { property: "og:title", content: "Cabslink Services — UK Airport Transfers, Golf & Sports Travel" },
+      { property: "og:description", content: "Airport, station and cruise transfers, golf and football travel, sports events, day tours, hourly hire, corporate accounts, VIP and group travel across the UK." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { property: "og:url", content: "https://cabslink.com/services" },
