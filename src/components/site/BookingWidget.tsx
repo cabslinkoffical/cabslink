@@ -490,12 +490,9 @@ export function BookingWidget({
         )}
 
         {attempted && errorList.length > 0 && (
-          <ul className="mt-3 space-y-1 text-xs text-destructive text-center" role="alert">
-            {errorList.map((msg) => (
-              <li key={msg}>{msg}</li>
-            ))}
-          </ul>
+          <span className="sr-only" role="alert">{errorList.join(" ")}</span>
         )}
+
 
       </form>
       )}
