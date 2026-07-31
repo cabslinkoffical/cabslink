@@ -116,7 +116,7 @@ export const Route = createFileRoute("/blog/$slug")({
       <div className="container-x py-24 text-center">
         <h1 className="font-display text-3xl md:text-4xl font-semibold text-[var(--navy)] mb-4">Article not found</h1>
         <p className="text-[var(--navy)]/70 mb-6">This article may have been moved or is no longer published.</p>
-        <Link to="/blog" className="text-[var(--gold)] hover:underline">← Back to the blog</Link>
+        <Link to="/blog" className="text-[var(--gold-ink)] hover:underline">← Back to the blog</Link>
       </div>
     </SiteLayout>
   ),
@@ -124,7 +124,7 @@ export const Route = createFileRoute("/blog/$slug")({
     <SiteLayout>
       <div className="container-x py-24 text-center">
         <h1 className="font-display text-3xl font-semibold text-[var(--navy)] mb-4">Something went wrong</h1>
-        <Link to="/blog" className="text-[var(--gold)] hover:underline">← Back to the blog</Link>
+        <Link to="/blog" className="text-[var(--gold-ink)] hover:underline">← Back to the blog</Link>
       </div>
     </SiteLayout>
   ),
