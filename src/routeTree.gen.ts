@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VipTransfersRouteImport } from './routes/vip-transfers'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as TeamSportsTravelRouteImport } from './routes/team-sports-travel'
 import { Route as StadiumTransfersRouteImport } from './routes/stadium-transfers'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SitemapCoreDotxmlRouteImport } from './routes/sitemap-core[.]xml'
@@ -117,6 +118,11 @@ const VipTransfersRoute = VipTransfersRouteImport.update({
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TeamSportsTravelRoute = TeamSportsTravelRouteImport.update({
+  id: '/team-sports-travel',
+  path: '/team-sports-travel',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StadiumTransfersRoute = StadiumTransfersRouteImport.update({
@@ -663,6 +669,7 @@ export interface FileRoutesByFullPath {
   '/sitemap-core.xml': typeof SitemapCoreDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/stadium-transfers': typeof StadiumTransfersRoute
+  '/team-sports-travel': typeof TeamSportsTravelRoute
   '/terms': typeof TermsRoute
   '/vip-transfers': typeof VipTransfersRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
@@ -763,6 +770,7 @@ export interface FileRoutesByTo {
   '/sitemap-core.xml': typeof SitemapCoreDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/stadium-transfers': typeof StadiumTransfersRoute
+  '/team-sports-travel': typeof TeamSportsTravelRoute
   '/terms': typeof TermsRoute
   '/vip-transfers': typeof VipTransfersRoute
   '/airports/$iata': typeof AirportsIataRoute
@@ -864,6 +872,7 @@ export interface FileRoutesById {
   '/sitemap-core.xml': typeof SitemapCoreDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/stadium-transfers': typeof StadiumTransfersRoute
+  '/team-sports-travel': typeof TeamSportsTravelRoute
   '/terms': typeof TermsRoute
   '/vip-transfers': typeof VipTransfersRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
@@ -966,6 +975,7 @@ export interface FileRouteTypes {
     | '/sitemap-core.xml'
     | '/sitemap.xml'
     | '/stadium-transfers'
+    | '/team-sports-travel'
     | '/terms'
     | '/vip-transfers'
     | '/admin'
@@ -1066,6 +1076,7 @@ export interface FileRouteTypes {
     | '/sitemap-core.xml'
     | '/sitemap.xml'
     | '/stadium-transfers'
+    | '/team-sports-travel'
     | '/terms'
     | '/vip-transfers'
     | '/airports/$iata'
@@ -1166,6 +1177,7 @@ export interface FileRouteTypes {
     | '/sitemap-core.xml'
     | '/sitemap.xml'
     | '/stadium-transfers'
+    | '/team-sports-travel'
     | '/terms'
     | '/vip-transfers'
     | '/_authenticated/admin'
@@ -1268,6 +1280,7 @@ export interface RootRouteChildren {
   SitemapCoreDotxmlRoute: typeof SitemapCoreDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StadiumTransfersRoute: typeof StadiumTransfersRoute
+  TeamSportsTravelRoute: typeof TeamSportsTravelRoute
   TermsRoute: typeof TermsRoute
   VipTransfersRoute: typeof VipTransfersRoute
   AirportsIataRoute: typeof AirportsIataRoute
@@ -1318,6 +1331,13 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/team-sports-travel': {
+      id: '/team-sports-travel'
+      path: '/team-sports-travel'
+      fullPath: '/team-sports-travel'
+      preLoaderRoute: typeof TeamSportsTravelRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/stadium-transfers': {
@@ -2157,6 +2177,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapCoreDotxmlRoute: SitemapCoreDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   StadiumTransfersRoute: StadiumTransfersRoute,
+  TeamSportsTravelRoute: TeamSportsTravelRoute,
   TermsRoute: TermsRoute,
   VipTransfersRoute: VipTransfersRoute,
   AirportsIataRoute: AirportsIataRoute,
