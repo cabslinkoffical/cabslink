@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VipTransfersRouteImport } from './routes/vip-transfers'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as StadiumTransfersRouteImport } from './routes/stadium-transfers'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SitemapCoreDotxmlRouteImport } from './routes/sitemap-core[.]xml'
 import { Route as ServicesRouteImport } from './routes/services'
@@ -116,6 +117,11 @@ const VipTransfersRoute = VipTransfersRouteImport.update({
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StadiumTransfersRoute = StadiumTransfersRouteImport.update({
+  id: '/stadium-transfers',
+  path: '/stadium-transfers',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -656,6 +662,7 @@ export interface FileRoutesByFullPath {
   '/services': typeof ServicesRoute
   '/sitemap-core.xml': typeof SitemapCoreDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/stadium-transfers': typeof StadiumTransfersRoute
   '/terms': typeof TermsRoute
   '/vip-transfers': typeof VipTransfersRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
@@ -755,6 +762,7 @@ export interface FileRoutesByTo {
   '/services': typeof ServicesRoute
   '/sitemap-core.xml': typeof SitemapCoreDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/stadium-transfers': typeof StadiumTransfersRoute
   '/terms': typeof TermsRoute
   '/vip-transfers': typeof VipTransfersRoute
   '/airports/$iata': typeof AirportsIataRoute
@@ -855,6 +863,7 @@ export interface FileRoutesById {
   '/services': typeof ServicesRoute
   '/sitemap-core.xml': typeof SitemapCoreDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/stadium-transfers': typeof StadiumTransfersRoute
   '/terms': typeof TermsRoute
   '/vip-transfers': typeof VipTransfersRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
@@ -956,6 +965,7 @@ export interface FileRouteTypes {
     | '/services'
     | '/sitemap-core.xml'
     | '/sitemap.xml'
+    | '/stadium-transfers'
     | '/terms'
     | '/vip-transfers'
     | '/admin'
@@ -1055,6 +1065,7 @@ export interface FileRouteTypes {
     | '/services'
     | '/sitemap-core.xml'
     | '/sitemap.xml'
+    | '/stadium-transfers'
     | '/terms'
     | '/vip-transfers'
     | '/airports/$iata'
@@ -1154,6 +1165,7 @@ export interface FileRouteTypes {
     | '/services'
     | '/sitemap-core.xml'
     | '/sitemap.xml'
+    | '/stadium-transfers'
     | '/terms'
     | '/vip-transfers'
     | '/_authenticated/admin'
@@ -1255,6 +1267,7 @@ export interface RootRouteChildren {
   ServicesRoute: typeof ServicesRoute
   SitemapCoreDotxmlRoute: typeof SitemapCoreDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  StadiumTransfersRoute: typeof StadiumTransfersRoute
   TermsRoute: typeof TermsRoute
   VipTransfersRoute: typeof VipTransfersRoute
   AirportsIataRoute: typeof AirportsIataRoute
@@ -1305,6 +1318,13 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stadium-transfers': {
+      id: '/stadium-transfers'
+      path: '/stadium-transfers'
+      fullPath: '/stadium-transfers'
+      preLoaderRoute: typeof StadiumTransfersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap.xml': {
@@ -2136,6 +2156,7 @@ const rootRouteChildren: RootRouteChildren = {
   ServicesRoute: ServicesRoute,
   SitemapCoreDotxmlRoute: SitemapCoreDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  StadiumTransfersRoute: StadiumTransfersRoute,
   TermsRoute: TermsRoute,
   VipTransfersRoute: VipTransfersRoute,
   AirportsIataRoute: AirportsIataRoute,
