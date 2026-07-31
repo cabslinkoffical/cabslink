@@ -18,7 +18,7 @@ import {
   websiteSchema,
 } from "@/components/seo/schema";
 
-const SITE_URL = "https://cabslink.lovable.app";
+const SITE_URL = "https://cabslink.com";
 
 export type HeadPayload = {
   meta: Array<Record<string, string>>;
