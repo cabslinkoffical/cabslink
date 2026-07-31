@@ -530,10 +530,10 @@ function HomePage() {
 
 
       {/* WHY CHOOSE */}
-      <section className="section-y bg-white">
-        <div className="container-x grid lg:grid-cols-12 gap-10 lg:gap-14 items-start">
-          {/* Left: heading + proof panel */}
-          <div className="lg:col-span-4 lg:sticky lg:top-28">
+      <section className="section-y bg-[var(--surface-2)]">
+        <div className="container-x">
+          {/* Header */}
+          <div className="max-w-3xl mx-auto text-center mb-12 md:mb-16">
             <p className="eyebrow-gold text-[11px]">— Why Cabslink</p>
             <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold text-[var(--navy)] leading-[1.05]">
               The details that <span className="text-[var(--gold-ink)]">make the difference.</span>
@@ -542,45 +542,48 @@ function HomePage() {
               Every journey is handled by vetted drivers, tracked flights and fixed
               pricing — so the only thing you think about is where you're going.
             </p>
-
-            <div className="mt-8 rounded-[22px] bg-[var(--navy)] text-white p-6 shadow-dark-raised">
-              <div className="grid size-11 place-items-center rounded-xl bg-[var(--gold)] text-[var(--gold-foreground)]">
-                <Star className="size-5" />
-              </div>
-              <p className="mt-4 font-display text-2xl font-semibold">Rated 4.9 / 5 by travellers</p>
-              <p className="mt-2 text-sm leading-relaxed text-white/70">
-                Thousands of airport transfers completed across the UK — on time, every time.
-              </p>
-              <Button asChild variant="gold" className="mt-6 rounded-full">
-                <Link to="/book" search={{}}>Get an instant quote <ArrowRight className="size-4" /></Link>
-              </Button>
-            </div>
           </div>
 
-          {/* Right: feature grid */}
-          <div className="lg:col-span-8">
-            <div className="grid sm:grid-cols-2 gap-x-10 gap-y-0">
-              {features.map((f, i) => (
-                <div
-                  key={f.title}
-                  className="group relative flex gap-4 py-6 border-t border-[var(--navy)]/10 first:border-t-0 sm:[&:nth-child(2)]:border-t-0"
-                >
-                  <span className="absolute left-0 top-0 h-px w-0 bg-[var(--gold)] transition-all duration-500 group-hover:w-full" />
-                  <div className="shrink-0 grid size-12 place-items-center rounded-xl bg-[var(--gold)]/10 border border-[var(--gold)]/30 text-[var(--navy)] transition-colors duration-300 group-hover:bg-[var(--gold)] group-hover:text-[var(--gold-foreground)] group-hover:border-[var(--gold)]">
+          {/* Bento feature grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
+            {/* Trust card — spans 2 rows on large screens */}
+            <div className="sm:col-span-2 lg:row-span-2 rounded-[28px] bg-[var(--navy)] text-white p-7 md:p-8 shadow-dark-raised flex flex-col justify-between relative overflow-hidden group">
+              <div aria-hidden className="absolute -right-10 -top-10 w-48 h-48 rounded-full bg-[var(--gold)]/10 blur-3xl group-hover:bg-[var(--gold)]/15 transition-colors duration-700" />
+              <div className="relative">
+                <div className="flex items-center gap-1 text-[var(--gold)]">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="size-5 fill-current" />
+                  ))}
+                </div>
+                <p className="mt-5 font-display text-3xl md:text-4xl font-semibold leading-tight">Rated 4.9 / 5 by travellers</p>
+                <p className="mt-3 text-sm leading-relaxed text-white/70 max-w-sm">
+                  Thousands of airport transfers completed across the UK — on time, every time.
+                </p>
+              </div>
+              <div className="relative mt-8">
+                <Button asChild variant="gold" className="rounded-lg">
+                  <Link to="/book" search={{}}>Get an instant quote <ArrowRight className="size-4" /></Link>
+                </Button>
+              </div>
+            </div>
+
+            {features.map((f, i) => (
+              <div
+                key={f.title}
+                className="group rounded-[24px] bg-white border border-[var(--navy)]/8 p-6 md:p-7 shadow-raised transition-all duration-300 hover:-translate-y-1 hover:shadow-raised-hover hover:border-[var(--gold)]/30"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="shrink-0 grid size-12 place-items-center rounded-2xl bg-[var(--gold)] text-[var(--gold-foreground)] transition-transform duration-300 group-hover:scale-110">
                     <f.icon className="size-5" />
                   </div>
-                  <div className="min-w-0">
-                    <div className="flex items-baseline gap-2">
-                      <h3 className="font-display text-lg font-semibold text-[var(--navy)]">{f.title}</h3>
-                      <span className="font-display text-[11px] font-bold text-[var(--navy)]/25 tabular-nums">
-                        {String(i + 1).padStart(2, "0")}
-                      </span>
-                    </div>
-                    <p className="mt-1.5 text-sm leading-relaxed text-[var(--navy)]/60">{f.desc}</p>
-                  </div>
+                  <span className="font-display text-[13px] font-bold text-[var(--navy)]/15 tabular-nums">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
                 </div>
-              ))}
-            </div>
+                <h3 className="mt-5 font-display text-lg font-semibold text-[var(--navy)]">{f.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-[var(--navy)]/60">{f.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
