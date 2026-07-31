@@ -17,6 +17,7 @@ import { Route as ServicesRouteImport } from './routes/services'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as GolfTransfersRouteImport } from './routes/golf-transfers'
 import { Route as FleetRouteImport } from './routes/fleet'
 import { Route as DriveWithUsRouteImport } from './routes/drive-with-us'
 import { Route as DistanceRouteImport } from './routes/distance'
@@ -144,6 +145,11 @@ const RefundPolicyRoute = RefundPolicyRouteImport.update({
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GolfTransfersRoute = GolfTransfersRouteImport.update({
+  id: '/golf-transfers',
+  path: '/golf-transfers',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FleetRoute = FleetRouteImport.update({
@@ -636,6 +642,7 @@ export interface FileRoutesByFullPath {
   '/distance': typeof DistanceRoute
   '/drive-with-us': typeof DriveWithUsRoute
   '/fleet': typeof FleetRoute
+  '/golf-transfers': typeof GolfTransfersRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/search': typeof SearchRoute
@@ -733,6 +740,7 @@ export interface FileRoutesByTo {
   '/distance': typeof DistanceRoute
   '/drive-with-us': typeof DriveWithUsRoute
   '/fleet': typeof FleetRoute
+  '/golf-transfers': typeof GolfTransfersRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/search': typeof SearchRoute
@@ -831,6 +839,7 @@ export interface FileRoutesById {
   '/distance': typeof DistanceRoute
   '/drive-with-us': typeof DriveWithUsRoute
   '/fleet': typeof FleetRoute
+  '/golf-transfers': typeof GolfTransfersRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/search': typeof SearchRoute
@@ -930,6 +939,7 @@ export interface FileRouteTypes {
     | '/distance'
     | '/drive-with-us'
     | '/fleet'
+    | '/golf-transfers'
     | '/privacy'
     | '/refund-policy'
     | '/search'
@@ -1027,6 +1037,7 @@ export interface FileRouteTypes {
     | '/distance'
     | '/drive-with-us'
     | '/fleet'
+    | '/golf-transfers'
     | '/privacy'
     | '/refund-policy'
     | '/search'
@@ -1124,6 +1135,7 @@ export interface FileRouteTypes {
     | '/distance'
     | '/drive-with-us'
     | '/fleet'
+    | '/golf-transfers'
     | '/privacy'
     | '/refund-policy'
     | '/search'
@@ -1223,6 +1235,7 @@ export interface RootRouteChildren {
   DistanceRoute: typeof DistanceRoute
   DriveWithUsRoute: typeof DriveWithUsRoute
   FleetRoute: typeof FleetRoute
+  GolfTransfersRoute: typeof GolfTransfersRoute
   PrivacyRoute: typeof PrivacyRoute
   RefundPolicyRoute: typeof RefundPolicyRoute
   SearchRoute: typeof SearchRoute
@@ -1321,6 +1334,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/golf-transfers': {
+      id: '/golf-transfers'
+      path: '/golf-transfers'
+      fullPath: '/golf-transfers'
+      preLoaderRoute: typeof GolfTransfersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/fleet': {
@@ -2088,6 +2108,7 @@ const rootRouteChildren: RootRouteChildren = {
   DistanceRoute: DistanceRoute,
   DriveWithUsRoute: DriveWithUsRoute,
   FleetRoute: FleetRoute,
+  GolfTransfersRoute: GolfTransfersRoute,
   PrivacyRoute: PrivacyRoute,
   RefundPolicyRoute: RefundPolicyRoute,
   SearchRoute: SearchRoute,
@@ -2132,13 +2153,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
