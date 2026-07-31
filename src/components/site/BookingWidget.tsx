@@ -16,23 +16,19 @@ export function BookingWidget({
   const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>("quote");
   const today = new Date().toISOString().slice(0, 10);
-  const now = new Date();
-  const nowTime = `${String(now.getHours()).padStart(2, "0")}:${String(
-    (Math.round(now.getMinutes() / 15) * 15) % 60
-  ).padStart(2, "0")}`;
 
   const [pickup, setPickup] = useState<SelectedPlace | null>(null);
   const [dropoff, setDropoff] = useState<SelectedPlace | null>(null);
   const [stops, setStops] = useState<SelectedPlace[]>([]);
-  const [date, setDate] = useState(today);
-  const [time, setTime] = useState<string>(nowTime);
-  const [passengers, setPassengers] = useState(1);
-  const [luggage, setLuggage] = useState(0);
-  const [hours, setHours] = useState(4);
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState<string>("");
+  const [passengers, setPassengers] = useState<number | null>(null);
+  const [luggage, setLuggage] = useState<number | null>(null);
+  const [hours, setHours] = useState<number | null>(null);
 
   const [showReturn, setShowReturn] = useState(false);
-  const [returnDate, setReturnDate] = useState(today);
-  const [returnTime, setReturnTime] = useState<string>("12:00");
+  const [returnDate, setReturnDate] = useState("");
+  const [returnTime, setReturnTime] = useState<string>("");
   const [attempted, setAttempted] = useState(false);
   const [paxOpen, setPaxOpen] = useState(false);
   const paxRef = useRef<HTMLDivElement>(null);
@@ -71,6 +67,8 @@ export function BookingWidget({
           ? "Return must be after the outbound journey."
           : ""
       : "",
+    passengers: passengers === null ? "Select the number of passengers." : "",
+    luggage: luggage === null ? "Select how many bags you have." : "",
     stops: stops.some((s) => !s?.placeId) ? "Complete or remove empty stops." : "",
   };
   const errorList = Object.values(errors).filter(Boolean);
@@ -113,6 +111,9 @@ export function BookingWidget({
     pickup: !pickup?.placeId ? "Select a pickup location from the suggestions." : "",
     date: !date ? "Choose a travel date." : "",
     time: !time ? "Choose a start time." : isPastDateTime(date, time) ? "Start time cannot be in the past." : "",
+    hours: hours === null ? "Choose how many hours you need." : "",
+    passengers: passengers === null ? "Select the number of passengers." : "",
+    luggage: luggage === null ? "Select how many bags you have." : "",
   };
   const hourlyErrorList = Object.values(hourlyErrors).filter(Boolean);
 
@@ -192,10 +193,11 @@ export function BookingWidget({
               <div className="border-t border-black/5 @[980px]:border-0 @[980px]:w-[150px] shrink-0">
                 <FieldCell icon={<Clock className="w-4 h-4 text-[var(--gold-ink)]" />} label="Duration" compact>
                   <select
-                    value={hours}
-                    onChange={(e) => setHours(Number(e.target.value))}
+                    value={hours ?? ""}
+                    onChange={(e) => setHours(e.target.value ? Number(e.target.value) : null)}
                     className="w-full bg-transparent border-0 outline-none text-sm font-semibold text-foreground"
                   >
+                    <option value="">Select hours</option>
                     {Array.from({ length: 12 }, (_, i) => i + 3).map((h) => (
                       <option key={h} value={h}>{h} hours</option>
                     ))}
@@ -213,12 +215,16 @@ export function BookingWidget({
                 >
                   <span className="inline-flex items-center gap-1.5">
                     <Users className="w-4 h-4 text-[var(--gold-ink)] shrink-0" />
-                    <span className="text-sm font-bold tabular-nums text-[var(--navy)]">{passengers}</span>
+                    <span className={`text-sm font-bold tabular-nums ${passengers === null ? "text-[var(--navy)]/45 font-normal" : "text-[var(--navy)]"}`}>
+                      {passengers === null ? "Passengers" : passengers}
+                    </span>
                   </span>
                   <span className="w-px h-4 bg-black/10" />
                   <span className="inline-flex items-center gap-1.5">
                     <Briefcase className="w-4 h-4 text-[var(--gold-ink)] shrink-0" />
-                    <span className="text-sm font-bold tabular-nums text-[var(--navy)]">{luggage}</span>
+                    <span className={`text-sm font-bold tabular-nums ${luggage === null ? "text-[var(--navy)]/45 font-normal" : "text-[var(--navy)]"}`}>
+                      {luggage === null ? "Bags" : luggage}
+                    </span>
                   </span>
                 </button>
                 {paxOpen && (
@@ -330,22 +336,40 @@ export function BookingWidget({
             <Divider />
 
             {/* Passengers + Luggage popover */}
-            <div className="relative @[600px]:col-span-2 @[980px]:col-span-1 @[980px]:flex-shrink-0 @[980px]:w-[190px] border-t border-black/5 @[980px]:border-0" ref={paxRef}>
+            <div
+              className="relative @[600px]:col-span-2 @[980px]:col-span-1 @[980px]:flex-shrink-0 @[980px]:w-[190px] border-t border-black/5 @[980px]:border-0"
+              ref={paxRef}
+              data-invalid={attempted && (!!errors.passengers || !!errors.luggage)}
+            >
               <button
                 type="button"
                 onClick={() => setPaxOpen((v) => !v)}
-                className="w-full h-full flex items-center justify-center gap-3 px-4 py-3 @[980px]:py-2.5 rounded-2xl @[980px]:rounded-full hover:bg-black/[0.03] transition-colors"
+                className={`w-full h-full flex items-center justify-center gap-3 px-4 py-3 @[980px]:py-2.5 rounded-2xl @[980px]:rounded-full hover:bg-black/[0.03] transition-colors ${
+                  attempted && (errors.passengers || errors.luggage) ? "bg-destructive/5 ring-1 ring-destructive/60" : ""
+                }`}
               >
                 <span className="inline-flex items-center gap-1.5">
                   <Users className="w-4 h-4 text-[var(--gold-ink)] shrink-0" />
-                  <span className="text-sm font-bold tabular-nums text-[var(--navy)]">{passengers}</span>
-                  <span className="text-[11px] font-semibold text-[var(--navy)]/60">{passengers === 1 ? "Person" : "People"}</span>
+                  {passengers === null ? (
+                    <span className="text-sm text-[var(--navy)]/45">Passengers</span>
+                  ) : (
+                    <>
+                      <span className="text-sm font-bold tabular-nums text-[var(--navy)]">{passengers}</span>
+                      <span className="text-[11px] font-semibold text-[var(--navy)]/60">{passengers === 1 ? "Person" : "People"}</span>
+                    </>
+                  )}
                 </span>
                 <span className="w-px h-4 bg-black/10" />
                 <span className="inline-flex items-center gap-1.5">
                   <Briefcase className="w-4 h-4 text-[var(--gold-ink)] shrink-0" />
-                  <span className="text-sm font-bold tabular-nums text-[var(--navy)]">{luggage}</span>
-                  <span className="text-[11px] font-semibold text-[var(--navy)]/60">{luggage === 1 ? "Bag" : "Bags"}</span>
+                  {luggage === null ? (
+                    <span className="text-sm text-[var(--navy)]/45">Bags</span>
+                  ) : (
+                    <>
+                      <span className="text-sm font-bold tabular-nums text-[var(--navy)]">{luggage}</span>
+                      <span className="text-[11px] font-semibold text-[var(--navy)]/60">{luggage === 1 ? "Bag" : "Bags"}</span>
+                    </>
+                  )}
                 </span>
               </button>
               {paxOpen && (
@@ -532,9 +556,9 @@ function StepperRow({
   min,
   max,
   onChange,
-}: { label: string; hint?: string; value: number; min: number; max: number; onChange: (v: number) => void }) {
-  const atMin = value <= min;
-  const atMax = value >= max;
+}: { label: string; hint?: string; value: number | null; min: number; max: number; onChange: (v: number) => void }) {
+  const atMin = value !== null && value <= min;
+  const atMax = value !== null && value >= max;
   const btn =
     "w-9 h-9 flex items-center justify-center text-[var(--navy)] transition-colors hover:bg-[var(--navy)]/[0.06] active:bg-[var(--navy)]/[0.12] disabled:text-[var(--navy)]/25 disabled:hover:bg-transparent disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold)] focus-visible:ring-inset";
 
@@ -547,7 +571,7 @@ function StepperRow({
       <div className="flex items-center rounded-lg border border-border overflow-hidden bg-background shrink-0">
         <button
           type="button"
-          onClick={() => onChange(Math.max(min, value - 1))}
+          onClick={() => onChange(value === null ? min : Math.max(min, value - 1))}
           disabled={atMin}
           className={btn}
           aria-label={`Decrease ${label}`}
@@ -558,11 +582,11 @@ function StepperRow({
           className="w-10 text-center text-sm font-bold tabular-nums text-[var(--navy)] border-x border-border py-1.5"
           aria-live="polite"
         >
-          {value}
+          {value === null ? "—" : value}
         </span>
         <button
           type="button"
-          onClick={() => onChange(Math.min(max, value + 1))}
+          onClick={() => onChange(value === null ? Math.max(min, 1) : Math.min(max, value + 1))}
           disabled={atMax}
           className={btn}
           aria-label={`Increase ${label}`}
