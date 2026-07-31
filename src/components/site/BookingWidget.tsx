@@ -212,12 +212,16 @@ export function BookingWidget({
                 >
                   <span className="inline-flex items-center gap-1.5">
                     <Users className="w-4 h-4 text-[var(--gold-ink)] shrink-0" />
-                    <span className="text-sm font-bold tabular-nums text-[var(--navy)]">{passengers}</span>
+                    <span className={`text-sm font-bold tabular-nums ${passengers === null ? "text-[var(--navy)]/45 font-normal" : "text-[var(--navy)]"}`}>
+                      {passengers === null ? "Passengers" : passengers}
+                    </span>
                   </span>
                   <span className="w-px h-4 bg-black/10" />
                   <span className="inline-flex items-center gap-1.5">
                     <Briefcase className="w-4 h-4 text-[var(--gold-ink)] shrink-0" />
-                    <span className="text-sm font-bold tabular-nums text-[var(--navy)]">{luggage}</span>
+                    <span className={`text-sm font-bold tabular-nums ${luggage === null ? "text-[var(--navy)]/45 font-normal" : "text-[var(--navy)]"}`}>
+                      {luggage === null ? "Bags" : luggage}
+                    </span>
                   </span>
                 </button>
                 {paxOpen && (
