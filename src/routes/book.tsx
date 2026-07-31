@@ -1289,13 +1289,13 @@ function VehicleCard({ card, klass, best, qty, minQty, disabled, disabledReason,
             </div>
           )}
           {quoteOnly ? (
-            <Button asChild className="w-full h-12 rounded-lg bg-[var(--navy)] hover:bg-[var(--gold)] text-[var(--navy-foreground)] hover:text-[var(--gold-foreground)] font-bold uppercase tracking-[0.2em] text-[11px] transition-all shadow-md">
+            <Button asChild variant="navy" className="w-full h-12 rounded-lg uppercase tracking-[0.2em] text-[11px] shadow-md">
               <a href={`/contact?subject=${encodeURIComponent(`Group quote — ${displayName}`)}`}>
                 Request Quote <ArrowRight className="size-3.5 ml-1" />
               </a>
             </Button>
           ) : (
-            <Button onClick={onSelect} disabled={!!disabled} className="w-full h-12 rounded-lg bg-[var(--navy)] hover:bg-[var(--gold)] text-[var(--navy-foreground)] hover:text-[var(--gold-foreground)] font-bold uppercase tracking-[0.2em] text-[11px] transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
+            <Button onClick={onSelect} disabled={!!disabled} variant="navy" className="w-full h-12 rounded-lg uppercase tracking-[0.2em] text-[11px] shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
               Continue <ArrowRight className="size-3.5 ml-1" />
             </Button>
           )}
@@ -1363,7 +1363,7 @@ function ContactStep({ contact, onChange, onBack, onNext }: {
           <ArrowLeft className="size-4" /> Back
         </Button>
         <Button type="button" onClick={onNext}
-          className="ml-auto bg-[var(--gold)] text-[var(--gold-foreground)] hover:brightness-110 font-bold tracking-wider px-8 gap-2">
+          variant="gold" className="ml-auto tracking-wider px-8 gap-2">
           Continue to extras <ArrowRight className="size-4" />
         </Button>
       </div>
@@ -1538,7 +1538,7 @@ function ExtrasStep(props: {
           type="button"
           onClick={onNext}
           disabled={needsAck}
-          className="ml-auto bg-[var(--gold)] text-[var(--gold-foreground)] hover:brightness-110 font-bold tracking-wider px-8 gap-2"
+          variant="gold" className="ml-auto tracking-wider px-8 gap-2"
         >
           Continue to payment <ArrowRight className="size-4" />
         </Button>
@@ -1715,7 +1715,7 @@ function PaymentStep({ value, onChange, grandTotal, onBack, onSubmit, submitting
           <ArrowLeft className="size-4" /> Back
         </Button>
         <Button type="button" onClick={onSubmit} disabled={submitting}
-          className="ml-auto bg-[var(--gold)] text-[var(--gold-foreground)] hover:brightness-110 font-bold tracking-wider px-8 gap-2">
+          variant="gold" className="ml-auto tracking-wider px-8 gap-2">
           {submitting ? "Sending…" : <>Submit booking request <ArrowRight className="size-4" /></>}
         </Button>
       </div>
@@ -1764,7 +1764,7 @@ function AlreadySubmittedStep({ card, qty, onBack }: { card: QuoteCard; qty: num
         <Button variant="outline" onClick={onBack} className="gap-2">
           <ArrowLeft className="size-4" /> Back
         </Button>
-        <Button asChild className="bg-[var(--navy)] text-[var(--gold)] hover:bg-[var(--navy)] gap-2">
+        <Button asChild className="bg-[var(--navy)] text-[var(--gold)] hover:bg-[var(--navy)]! hover:text-[var(--gold)]! gap-2">
           <Link to="/">Done</Link>
         </Button>
       </div>

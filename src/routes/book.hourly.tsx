@@ -254,7 +254,7 @@ function HourlyBookPage() {
                   <Button
                     disabled={!selected || !pickup?.placeId}
                     onClick={() => setStep(2)}
-                    className="bg-[var(--gold)] text-[var(--gold-foreground)] hover:brightness-105"
+                    variant="gold"
                   >
                     Continue <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
@@ -311,7 +311,7 @@ function HourlyBookPage() {
 
                 <div className="flex justify-between">
                   <Button variant="outline" onClick={() => setStep(1)}><ArrowLeft className="w-4 h-4 mr-2" />Back</Button>
-                  <Button onClick={() => setStep(3)} className="bg-[var(--gold)] text-[var(--gold-foreground)] hover:brightness-105">
+                  <Button onClick={() => setStep(3)} variant="gold">
                     Review <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 </div>
@@ -342,7 +342,7 @@ function HourlyBookPage() {
 
                 <div className="flex justify-between">
                   <Button variant="outline" onClick={() => setStep(2)}><ArrowLeft className="w-4 h-4 mr-2" />Back</Button>
-                  <Button disabled={submitting} onClick={submit} className="bg-[var(--gold)] text-[var(--gold-foreground)] hover:brightness-105">
+                  <Button disabled={submitting} onClick={submit} variant="gold">
                     {submitting ? "Sending…" : "Confirm booking"} <CheckCircle2 className="w-4 h-4 ml-2" />
                   </Button>
                 </div>
@@ -378,9 +378,9 @@ function HourlyBookPage() {
             <div className="font-display text-lg font-bold text-[var(--navy)]">{symbol}{grandTotal.toFixed(2)}</div>
           </div>
           {step < 3 ? (
-            <Button onClick={() => setStep(step + 1)} className="bg-[var(--gold)] text-[var(--gold-foreground)]">Continue</Button>
+            <Button onClick={() => setStep(step + 1)} variant="gold">Continue</Button>
           ) : (
-            <Button disabled={submitting} onClick={submit} className="bg-[var(--gold)] text-[var(--gold-foreground)]">
+            <Button disabled={submitting} onClick={submit} variant="gold">
               {submitting ? "Sending…" : "Confirm"}
             </Button>
           )}

@@ -16,9 +16,10 @@ const buttonVariants = cva(
         secondary: "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
         ghost: "text-foreground hover:bg-secondary hover:text-foreground",
         link: "text-foreground underline-offset-4 hover:underline hover:text-[var(--gold-ink)]",
-        gold: "bg-[var(--gold)] text-[var(--gold-foreground)] shadow-[var(--shadow-glow)] hover:bg-[var(--gold-ink)] hover:text-[var(--navy-foreground)] font-bold",
-        hero: "bg-[var(--gold)] text-[var(--gold-foreground)] shadow-[var(--shadow-glow)] hover:bg-[var(--gold-ink)] hover:text-[var(--navy-foreground)] h-12 px-7 text-base rounded-none font-bold tracking-wide",
+        gold: "bg-[var(--gold)] text-[var(--gold-foreground)] shadow-[var(--shadow-glow)] hover:bg-[#c9991c] hover:text-[var(--gold-foreground)] font-bold",
+        hero: "bg-[var(--gold)] text-[var(--gold-foreground)] shadow-[var(--shadow-glow)] hover:bg-[#c9991c] hover:text-[var(--gold-foreground)] h-12 px-7 text-base rounded-none font-bold tracking-wide",
         heroGhost: "border border-white/30 text-[var(--navy-foreground)] bg-white/5 backdrop-blur hover:bg-white/15 hover:border-white/50 h-12 px-7 text-base rounded-none font-semibold",
+        navy: "bg-[var(--navy)] text-[var(--navy-foreground)] shadow-sm hover:bg-[var(--gold)] hover:text-[var(--gold-foreground)] font-bold",
         slash: "slash-cta slash-cta-hover h-12 px-7 text-sm uppercase tracking-[0.08em]",
       },
 
