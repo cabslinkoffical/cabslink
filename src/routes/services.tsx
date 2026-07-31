@@ -28,6 +28,9 @@ import {
   Wine,
   Briefcase,
   BookOpen,
+  Trophy,
+  Target,
+  Circle,
 } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { CtaBand } from "@/components/site/CtaBand";
@@ -43,10 +46,10 @@ import vipImg from "@/assets/services/vip.jpg.asset.json";
 export const Route = createFileRoute("/services")({
   head: () => ({
     meta: [
-      { title: "Services — Cabslink UK Airport Transfers & Private Travel" },
-      { name: "description", content: "Every Cabslink service: airport, station, cruise port and hospital transfers, day tours, hourly hire, corporate accounts, VIP, weddings, events and group travel across the UK." },
-      { property: "og:title", content: "Cabslink Services — UK Airport Transfers & Private Travel" },
-      { property: "og:description", content: "Airport, station and cruise transfers, day tours, hourly hire, corporate accounts, VIP and event travel across the UK." },
+      { title: "Services — Cabslink UK Airport Transfers, Golf & Sports Travel" },
+      { name: "description", content: "Every Cabslink service: airport, station and cruise transfers, golf transfers, football travel, sports events, day tours, hourly hire, corporate accounts, VIP and group travel across the UK." },
+      { property: "og:title", content: "Cabslink Services — UK Airport Transfers, Golf & Sports Travel" },
+      { property: "og:description", content: "Airport, station and cruise transfers, golf and football travel, sports events, day tours, hourly hire, corporate accounts, VIP and group travel across the UK." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { property: "og:url", content: "https://cabslink.com/services" },
@@ -81,7 +84,7 @@ const showcase = [
   { icon: Crown, title: "VIP Transfers", desc: "Discreet, high-end travel for dignitaries and discerning clients.", to: "/vip-transfers", img: vipImg.url },
   { icon: Building2, title: "Corporate Travel", desc: "Account-managed, invoiced business travel with priority support.", to: "/corporate-travel", img: corporateImg.url },
   { icon: Train, title: "Station Transfers", desc: "Reliable transfers to and from UK rail terminals, on your schedule.", to: "/stations", img: stationImg.url },
-  { icon: PartyPopper, title: "Event Transfers", desc: "Weddings, premieres and sporting fixtures — arrive in style, on time.", to: "/contact", img: eventsImg.url },
+  { icon: Trophy, title: "Events & Sports", desc: "Weddings, premieres, golf days and football fixtures — arrive in style, on time.", to: "/contact", img: eventsImg.url },
 ];
 
 type Item = { icon: typeof Plane; title: string; desc: string; to: string };
@@ -137,6 +140,19 @@ const groups: { eyebrow: string; heading: string; blurb: string; items: Item[] }
       { icon: GraduationCap, title: "University Transfers", desc: "Term-start, campus and student arrival transfers.", to: "/universities" },
       { icon: Heart, title: "Wedding Cars", desc: "Immaculate vehicles for the couple, family and guests.", to: "/contact" },
       { icon: Car, title: "Local Travel Services", desc: "Day-hire drivers for meetings, errands and dining.", to: "/book" },
+    ],
+  },
+  {
+    eyebrow: "Sporting events",
+    heading: "Golf, football & sports travel",
+    blurb: "Dedicated transport for golfers, fans, teams and VIP hospitality — across Scotland and the UK.",
+    items: [
+      { icon: Target, title: "Golf Transfers", desc: "Door-to-door transfers to St Andrews, Carnoustie, Turnberry and top courses.", to: "/contact" },
+      { icon: Circle, title: "Football Transfers", desc: "Match-day transport to stadiums and away fixtures for fans and groups.", to: "/contact" },
+      { icon: Car, title: "Stadium Transfers", desc: "Reliable drop-off and pickup at Hampden, Murrayfield and UK grounds.", to: "/contact" },
+      { icon: Trophy, title: "Major Sporting Events", desc: "The Open, Six Nations, cup finals and race days — travel arranged end to end.", to: "/contact" },
+      { icon: Users, title: "Team Sports Travel", desc: "Minibuses and coaches for squads, kit and supporters travelling together.", to: "/fleet" },
+      { icon: Crown, title: "VIP Sports Hospitality", desc: "Premium vehicles and discreet drivers for corporate hospitality days.", to: "/vip-transfers" },
     ],
   },
 ];
@@ -286,7 +302,7 @@ function ServicesPage() {
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--gold-ink)]">Full catalogue</p>
             <h2 className="mt-3 font-display text-3xl font-semibold sm:text-4xl">Every service we operate</h2>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Twenty-four services across four travel categories. If your journey isn't listed, we'll still quote it — just ask.
+              Thirty services across five travel categories. If your journey isn't listed, we'll still quote it — just ask.
             </p>
           </div>
 
