@@ -80,7 +80,7 @@ export function TestimonialsSection() {
           </div>
 
           <h2 className="mt-6 font-display text-4xl md:text-5xl font-bold text-[var(--navy)] leading-[1.05]">
-            What our clients <span className="text-[var(--gold)]">say.</span>
+            What our clients <span className="text-[var(--gold-ink)]">say.</span>
           </h2>
           <p className="mt-4 text-sm md:text-base text-[var(--navy)]/60 leading-relaxed">
             Thousands of airport transfers, corporate journeys and private tours across the UK — here's
