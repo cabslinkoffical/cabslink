@@ -84,7 +84,7 @@ const showcase = [
   { icon: Crown, title: "VIP Transfers", desc: "Discreet, high-end travel for dignitaries and discerning clients.", to: "/vip-transfers", img: vipImg.url },
   { icon: Building2, title: "Corporate Travel", desc: "Account-managed, invoiced business travel with priority support.", to: "/corporate-travel", img: corporateImg.url },
   { icon: Train, title: "Station Transfers", desc: "Reliable transfers to and from UK rail terminals, on your schedule.", to: "/stations", img: stationImg.url },
-  { icon: PartyPopper, title: "Event Transfers", desc: "Weddings, premieres and sporting fixtures — arrive in style, on time.", to: "/contact", img: eventsImg.url },
+  { icon: Trophy, title: "Events & Sports", desc: "Weddings, premieres, golf days and football fixtures — arrive in style, on time.", to: "/contact", img: eventsImg.url },
 ];
 
 type Item = { icon: typeof Plane; title: string; desc: string; to: string };
