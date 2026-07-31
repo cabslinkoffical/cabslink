@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+
 import {
   ArrowRight, Plane, ShieldCheck, Star, CalendarCheck, Phone,
   Briefcase, Users, Award, BadgePoundSterling, Headset, Car, Building2, Gem,
@@ -159,7 +159,6 @@ function HomePage() {
   const [active, setActive] = useState(0);
   const [dir, setDir] = useState<1 | -1>(1);
   const [paused, setPaused] = useState(false);
-  const [dbVehicles, setDbVehicles] = useState<typeof fallbackHeroVehicles | null>(null);
   const { data: publishedTours = [] } = useQuery({
     queryKey: ["published-tours"],
     queryFn: () => listPublishedTours(),
@@ -170,58 +169,47 @@ function HomePage() {
     return (featured.length >= 4 ? featured : publishedTours).slice(0, 4);
   }, [publishedTours]);
 
-  useEffect(() => {
-    let cancelled = false;
-    const load = () => {
-      supabase
-        .from("vehicle_classes")
-        .select("id, name, slug, hero_image, passengers, badge, display_order, pricing_vehicle_id")
-        .eq("active", true)
-        .neq("slug", "unclassified")
-        .order("display_order", { ascending: true })
-        .then(async ({ data }) => {
-          if (cancelled || !data) return;
-          // Resolve fallback images from linked pricing vehicle when the class has no hero_image
-          const vehIds = Array.from(new Set(
-            data.map((c: any) => c.pricing_vehicle_id).filter(Boolean),
-          )) as string[];
-          const vehImg = new Map<string, string | null>();
-          if (vehIds.length > 0) {
-            const { data: vehs } = await supabase
-              .from("vehicles")
-              .select("id, image_url")
-              .in("id", vehIds);
-            for (const v of vehs ?? []) vehImg.set(v.id as string, (v as any).image_url ?? null);
-          }
-          const defaultImg = fallbackHeroVehicles[0]?.img;
-          const mapped = data.map((c: any) => {
-            const img =
-              fleetImageFor(c.slug, c.hero_image) ||
-              (c.pricing_vehicle_id ? vehImg.get(c.pricing_vehicle_id) ?? undefined : undefined) ||
-              defaultImg;
-            return {
-              key: c.id as string,
-              name: c.name as string,
-              tag: `${c.badge ?? "Vehicle class"} · ${c.passengers ?? 0} seats`,
-              img: img as string,
-              seats: c.passengers ?? 0,
-            } as HeroVehicle;
-          });
-          setDbVehicles(mapped.length > 0 ? mapped : null);
-        });
-    };
-    load();
-    const channel = supabase
-      .channel("vehicle-classes-home")
-      .on("postgres_changes", { event: "*", schema: "public", table: "vehicle_classes" }, load)
-      .subscribe();
-    return () => { cancelled = true; supabase.removeChannel(channel); };
-  }, []);
+  // Same key the route loader primes → hero renders the real classes on the
+  // first paint instead of flashing the static fallback vehicles.
+  const { data: vehicleClasses = [] } = useSuspenseQuery({
+    queryKey: ["public-vehicle-classes"],
+    queryFn: () => listPublicVehicleClasses(),
+    staleTime: 5 * 60_000,
+    gcTime: 30 * 60_000,
+  });
 
-  const heroVehicles = useMemo(() => dbVehicles ?? fallbackHeroVehicles, [dbVehicles]);
+  const heroVehicles = useMemo<HeroVehicle[]>(() => {
+    const mapped = vehicleClasses
+      .filter((c) => c.slug !== "unclassified")
+      // Featured classes lead the carousel, then display order.
+      .slice()
+      .sort((a, b) =>
+        (b.featured ? 1 : 0) - (a.featured ? 1 : 0) ||
+        (a.display_order ?? 0) - (b.display_order ?? 0),
+      )
+      .map((c) => {
+        const fb = fallbackHeroVehicles.find((f) => f.key === c.slug);
+        const img = fleetImageFor(c.slug, c.hero_image) || fb?.img;
+        if (!img) return null;
+        const useFb = img === fb?.img;
+        return {
+          key: c.id,
+          name: c.name,
+          tag: `${c.badge ?? "Vehicle class"} · ${c.passengers ?? 0} seats`,
+          img,
+          srcSet: useFb ? fb?.srcSet : undefined,
+          seats: c.passengers ?? 0,
+        } as HeroVehicle;
+      })
+      .filter(Boolean)
+      // Keep the rotation (and the dot row) readable.
+      .slice(0, 8) as HeroVehicle[];
+    return mapped.length > 0 ? mapped : fallbackHeroVehicles;
+  }, [vehicleClasses]);
+
 
   useEffect(() => {
-    if (paused || heroVehicles.length === 0) return;
+    if (paused || heroVehicles.length < 2) return;
     const id = setInterval(() => {
       setDir(1);
       setActive((i) => (i + 1) % heroVehicles.length);
@@ -230,16 +218,17 @@ function HomePage() {
   }, [paused, heroVehicles.length]);
 
   useEffect(() => {
-    if (heroVehicles.length > 0 && active >= heroVehicles.length) setActive(0);
-  }, [heroVehicles.length, active]);
+    setActive((i) => (i >= heroVehicles.length ? 0 : i));
+  }, [heroVehicles.length]);
 
   const go = (next: number) => {
     if (heroVehicles.length === 0) return;
-    setDir(next > active || (active === heroVehicles.length - 1 && next === 0) ? 1 : -1);
-    setActive((next + heroVehicles.length) % heroVehicles.length);
+    setDir(next >= active ? 1 : -1);
+    setActive(((next % heroVehicles.length) + heroVehicles.length) % heroVehicles.length);
   };
 
-  const current = heroVehicles[active];
+  const current = heroVehicles[Math.min(active, heroVehicles.length - 1)];
+
 
   return (
     <SiteLayout>
@@ -349,7 +338,36 @@ function HomePage() {
                     </>
                   )}
                 </div>
+
+                {/* Vehicle label + carousel dots */}
+                {current && (
+                  <div className="relative z-10 mt-6 flex flex-col items-center gap-3 lg:mt-8">
+                    <div className="text-center">
+                      <p className="font-display text-base font-semibold text-white sm:text-lg">{current.name}</p>
+                      <p className="mt-0.5 text-[11px] uppercase tracking-[0.18em] text-[var(--gold)]">{current.tag}</p>
+                    </div>
+                    {heroVehicles.length > 1 && (
+                      <div className="flex flex-wrap items-center justify-center gap-2">
+                        {heroVehicles.map((v, i) => (
+                          <button
+                            key={v.key}
+                            type="button"
+                            onClick={() => go(i)}
+                            aria-label={`Show ${v.name}`}
+                            aria-current={i === active}
+                            className={`h-1.5 rounded-full transition-all ${
+                              i === active
+                                ? "w-7 bg-[var(--gold)]"
+                                : "w-3 bg-white/25 hover:bg-white/50"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
+
 
             </div>
 
