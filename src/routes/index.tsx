@@ -282,18 +282,27 @@ function HomePage() {
 
             <div className="lg:col-span-6 relative">
 
+              {/* Luminous studio stage */}
               <div
-                className="relative opacity-0"
+                aria-hidden
+                className="pointer-events-none absolute -inset-x-10 -inset-y-16 z-0"
+              >
+                <div className="absolute left-1/2 top-1/2 size-[560px] lg:size-[640px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--gold)]/10 blur-[120px]" />
+                <div className="absolute left-1/2 top-1/2 size-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/[0.06] blur-[90px]" />
+              </div>
+
+              <div
+                className="relative z-10 opacity-0"
                 style={{ animation: "fadeInUp 900ms cubic-bezier(.2,.7,.2,1) 300ms forwards" }}
                 onMouseEnter={() => setPaused(true)}
                 onMouseLeave={() => setPaused(false)}
               >
                 <div aria-hidden className="pointer-events-none absolute inset-0 flex items-center justify-center select-none">
                   <span
-                    className="font-display font-bold leading-none tracking-[-0.06em] text-[16vw] lg:text-[13vw]"
+                    className="font-display font-extrabold leading-none tracking-[-0.06em] text-[16vw] lg:text-[13vw]"
                     style={{
                       color: "transparent",
-                      WebkitTextStroke: "1px color-mix(in oklab, #ffffff 12%, transparent)",
+                      WebkitTextStroke: "1px color-mix(in oklab, #ffffff 7%, transparent)",
                       backgroundColor: "transparent",
                     }}
                   >
@@ -301,30 +310,49 @@ function HomePage() {
                   </span>
                 </div>
 
-                <div aria-hidden className="absolute inset-x-8 bottom-2 h-8 rounded-[50%] bg-[color-mix(in_oklab,#000000_40%,transparent)] blur-2xl" />
+                {/* Ground plane + contact shadow */}
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white/[0.07] to-transparent blur-xl"
+                />
+                <div aria-hidden className="pointer-events-none absolute inset-x-4 bottom-3 h-px bg-gradient-to-r from-transparent via-[var(--gold)]/30 to-transparent" />
+                <div aria-hidden className="pointer-events-none absolute inset-x-16 bottom-1 h-7 rounded-[50%] bg-[color-mix(in_oklab,#000000_55%,transparent)] blur-2xl" />
 
-                <div className="relative aspect-[16/10] lg:aspect-[16/8.5] lg:max-h-[230px] xl:max-h-[270px]">
+                <div className="group relative aspect-[16/10] lg:aspect-[16/8.5] lg:max-h-[230px] xl:max-h-[270px]">
                   {current && (
-                    <img
-                      key={current.key}
-                      src={current.img}
-                      srcSet={current.srcSet}
-                      sizes={HERO_VEHICLE_SIZES}
-                      alt={`${current.name} — luxury travel vehicle`}
-                      width={1200}
-                      height={750}
-                      decoding="async"
-                      fetchPriority={active === 0 ? "high" : "auto"}
-                      className="absolute inset-0 m-auto w-[92%] h-full object-contain animate-float drop-shadow-[0_35px_45px_rgba(0,0,0,0.35)]"
-                      style={{
-                        animation: `${dir === 1 ? "vehicleSlideInR" : "vehicleSlideInL"} 850ms cubic-bezier(.2,.7,.2,1) both, float-y 6s ease-in-out 1s infinite`,
-                      }}
-                    />
+                    <>
+                      <img
+                        key={current.key}
+                        src={current.img}
+                        srcSet={current.srcSet}
+                        sizes={HERO_VEHICLE_SIZES}
+                        alt={`${current.name} — luxury travel vehicle`}
+                        width={1200}
+                        height={750}
+                        decoding="async"
+                        fetchPriority={active === 0 ? "high" : "auto"}
+                        className="absolute inset-0 m-auto w-[92%] h-full object-contain drop-shadow-[0_38px_50px_rgba(0,0,0,0.45)] transition-transform duration-700 group-hover:scale-[1.04]"
+                        style={{
+                          animation: `${dir === 1 ? "vehicleSlideInR" : "vehicleSlideInL"} 850ms cubic-bezier(.2,.7,.2,1) both, float-y 6s ease-in-out 1s infinite`,
+                        }}
+                      />
+                      {/* Mirrored floor reflection */}
+                      <img
+                        aria-hidden
+                        src={current.img}
+                        srcSet={current.srcSet}
+                        sizes={HERO_VEHICLE_SIZES}
+                        alt=""
+                        decoding="async"
+                        className="pointer-events-none absolute inset-x-0 top-[86%] m-auto w-[92%] h-[45%] object-contain object-top opacity-[0.13] blur-[3px] [transform:scaleY(-1)] [mask-image:linear-gradient(to_bottom,rgba(0,0,0,0.8),transparent)] [-webkit-mask-image:linear-gradient(to_bottom,rgba(0,0,0,0.8),transparent)]"
+                      />
+                    </>
                   )}
                 </div>
               </div>
 
             </div>
+
           </div>
 
           {/* Booking form inside hero (desktop) */}
