@@ -21,6 +21,13 @@ const opts = queryOptions({ queryKey: ["admin", "bookings"], queryFn: () => list
 const driverOpts = queryOptions({ queryKey: ["admin", "drivers-pick"], queryFn: () => listDrivers() });
 
 export const Route = createFileRoute("/_authenticated/admin/bookings")({
+  head: () => ({
+    meta: [
+      { title: "Bookings — Cabslink Admin" },
+      { name: "description", content: "Cabslink staff console: bookings." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   validateSearch: (s: Record<string, unknown>) => ({ tab: (s.tab as string) ?? "all" }),
   loader: ({ context }) => context.queryClient.ensureQueryData(opts),
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,

@@ -13,6 +13,13 @@ import { ArrowLeft, Plus } from "lucide-react";
 import { listAuthorsAdmin, upsertAuthor, deleteAuthor } from "@/lib/blog-admin.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/blog/authors")({
+  head: () => ({
+    meta: [
+      { title: "Blog › Authors — Cabslink Admin" },
+      { name: "description", content: "Cabslink staff console: blog › authors." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   component: AdminBlogAuthors,
 });
 

@@ -19,6 +19,13 @@ const opts = queryOptions({ queryKey: ["admin", "surcharges"], queryFn: () => li
 const vOpts = queryOptions({ queryKey: ["admin", "vehicles"], queryFn: () => listVehiclesAdmin() });
 
 export const Route = createFileRoute("/_authenticated/admin/surcharges")({
+  head: () => ({
+    meta: [
+      { title: "Surcharges — Cabslink Admin" },
+      { name: "description", content: "Cabslink staff console: surcharges." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   loader: ({ context }) => Promise.all([context.queryClient.ensureQueryData(opts), context.queryClient.ensureQueryData(vOpts)]),
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
   notFoundComponent: () => <div className="p-8">Not found</div>,

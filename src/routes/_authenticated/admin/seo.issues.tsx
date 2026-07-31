@@ -8,6 +8,13 @@ import { listSeoIssues, resolveSeoIssue, runSeoQualityAudit } from "@/lib/seo-qu
 import { Loader2, ShieldAlert, AlertTriangle, Info } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/seo/issues")({
+  head: () => ({
+    meta: [
+      { title: "Seo › Issues — Cabslink Admin" },
+      { name: "description", content: "Cabslink staff console: seo › issues." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   component: SeoIssuesPage,
 });
 

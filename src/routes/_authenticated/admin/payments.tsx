@@ -18,6 +18,13 @@ import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
 const opts = queryOptions({ queryKey: ["admin", "payments"], queryFn: () => listPayments() });
 const bOpts = queryOptions({ queryKey: ["admin", "bookings"], queryFn: () => listBookings() });
 export const Route = createFileRoute("/_authenticated/admin/payments")({
+  head: () => ({
+    meta: [
+      { title: "Payments — Cabslink Admin" },
+      { name: "description", content: "Cabslink staff console: payments." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   loader: ({ context }) => context.queryClient.ensureQueryData(opts),
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
   notFoundComponent: () => <div className="p-8">Not found</div>,

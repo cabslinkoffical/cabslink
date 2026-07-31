@@ -22,6 +22,13 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export const Route = createFileRoute("/_authenticated/admin")({
+  head: () => ({
+    meta: [
+      { title: "Dashboard — Cabslink Admin" },
+      { name: "description", content: "Cabslink staff console: dashboard." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   beforeLoad: async () => {
     try {
       const res = await isAdmin();

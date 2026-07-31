@@ -17,6 +17,13 @@ import { toast } from "sonner";
 const opts = queryOptions({ queryKey: ["admin", "pois"], queryFn: () => listPois() });
 
 export const Route = createFileRoute("/_authenticated/admin/pois")({
+  head: () => ({
+    meta: [
+      { title: "Pois — Cabslink Admin" },
+      { name: "description", content: "Cabslink staff console: pois." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   loader: ({ context }) => context.queryClient.ensureQueryData(opts),
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
   notFoundComponent: () => <div className="p-8">Not found</div>,

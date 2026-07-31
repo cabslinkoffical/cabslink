@@ -9,6 +9,13 @@ import { Plus, Edit, Trash2, ExternalLink, Tag, Folder, User } from "lucide-reac
 import { listAdminPosts, deletePost } from "@/lib/blog-admin.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/blog/")({
+  head: () => ({
+    meta: [
+      { title: "Blog — Cabslink Admin" },
+      { name: "description", content: "Cabslink staff console: blog." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   component: AdminBlogList,
 });
 

@@ -20,6 +20,13 @@ import { optimizeImage, getOptimizeSpeed, setOptimizeSpeed, type OptimizeSpeed }
 
 const opts = queryOptions({ queryKey: ["admin", "vehicles"], queryFn: () => listVehiclesAdmin() });
 export const Route = createFileRoute("/_authenticated/admin/fleet")({
+  head: () => ({
+    meta: [
+      { title: "Fleet — Cabslink Admin" },
+      { name: "description", content: "Cabslink staff console: fleet." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   loader: ({ context }) => context.queryClient.ensureQueryData(opts),
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
   notFoundComponent: () => <div className="p-8">Not found</div>,

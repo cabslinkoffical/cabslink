@@ -13,6 +13,13 @@ import { listVehicleClassesAdmin, setVehicleClassHeroImage } from "@/lib/vehicle
 const opts = queryOptions({ queryKey: ["admin", "vehicle-classes"], queryFn: () => listVehicleClassesAdmin() });
 
 export const Route = createFileRoute("/_authenticated/admin/fleet-images")({
+  head: () => ({
+    meta: [
+      { title: "Fleet Images — Cabslink Admin" },
+      { name: "description", content: "Cabslink staff console: fleet images." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   loader: ({ context }) => context.queryClient.ensureQueryData(opts),
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
   notFoundComponent: () => <div className="p-8">Not found</div>,

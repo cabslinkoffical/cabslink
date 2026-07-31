@@ -20,6 +20,13 @@ const opts = queryOptions({ queryKey: ["admin", "pricing"], queryFn: () => listP
 const vOpts = queryOptions({ queryKey: ["admin", "vehicles"], queryFn: () => listVehiclesAdmin() });
 
 export const Route = createFileRoute("/_authenticated/admin/pricing")({
+  head: () => ({
+    meta: [
+      { title: "Pricing — Cabslink Admin" },
+      { name: "description", content: "Cabslink staff console: pricing." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   loader: ({ context }) => Promise.all([context.queryClient.ensureQueryData(opts), context.queryClient.ensureQueryData(vOpts)]),
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
   notFoundComponent: () => <div className="p-8">Not found</div>,

@@ -13,6 +13,13 @@ import { toast } from "sonner";
 const opts = queryOptions({ queryKey: ["admin", "tour-settings"], queryFn: () => getTourSettings() });
 
 export const Route = createFileRoute("/_authenticated/admin/tour-settings")({
+  head: () => ({
+    meta: [
+      { title: "Tour Settings — Cabslink Admin" },
+      { name: "description", content: "Cabslink staff console: tour settings." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   loader: ({ context }) => context.queryClient.ensureQueryData(opts),
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
   notFoundComponent: () => <div className="p-8">Not found</div>,

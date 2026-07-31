@@ -15,6 +15,13 @@ import { toast } from "sonner";
 const ENTITIES = ["bookings", "vehicles", "drivers", "coupons", "addresses", "payments", "pricing_rules", "hourly_rates", "surcharges", "content_blocks", "site_settings"];
 
 export const Route = createFileRoute("/_authenticated/admin/logs")({
+  head: () => ({
+    meta: [
+      { title: "Logs — Cabslink Admin" },
+      { name: "description", content: "Cabslink staff console: logs." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
   notFoundComponent: () => <div className="p-8">Not found</div>,
   component: Page,

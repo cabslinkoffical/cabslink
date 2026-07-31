@@ -11,6 +11,13 @@ import { ArrowLeft, Plus } from "lucide-react";
 import { listTagsAdmin, upsertTag, deleteTag } from "@/lib/blog-admin.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/blog/tags")({
+  head: () => ({
+    meta: [
+      { title: "Blog › Tags — Cabslink Admin" },
+      { name: "description", content: "Cabslink staff console: blog › tags." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   component: AdminBlogTags,
 });
 

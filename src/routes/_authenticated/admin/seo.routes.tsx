@@ -23,6 +23,13 @@ const locsOpts = queryOptions({ queryKey: ["admin", "seo", "locations"], queryFn
 const airsOpts = queryOptions({ queryKey: ["admin", "seo", "airports"], queryFn: () => listSeoAirports() });
 
 export const Route = createFileRoute("/_authenticated/admin/seo/routes")({
+  head: () => ({
+    meta: [
+      { title: "Seo › Routes — Cabslink Admin" },
+      { name: "description", content: "Cabslink staff console: seo › routes." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   loader: ({ context }) => Promise.all([
     context.queryClient.ensureQueryData(opts),
     context.queryClient.ensureQueryData(locsOpts),

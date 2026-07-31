@@ -12,6 +12,13 @@ import { adminListHourlyRates, adminSaveHourlyRate } from "@/lib/hourly.function
 const opts = queryOptions({ queryKey: ["admin", "hourly-rates"], queryFn: () => adminListHourlyRates() });
 
 export const Route = createFileRoute("/_authenticated/admin/hourly-rates")({
+  head: () => ({
+    meta: [
+      { title: "Hourly Rates — Cabslink Admin" },
+      { name: "description", content: "Cabslink staff console: hourly rates." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   loader: ({ context }) => context.queryClient.ensureQueryData(opts),
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
   component: Page,

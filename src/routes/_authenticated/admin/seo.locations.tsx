@@ -17,6 +17,13 @@ import { toast } from "sonner";
 const opts = queryOptions({ queryKey: ["admin", "seo", "locations"], queryFn: () => listSeoLocations() });
 
 export const Route = createFileRoute("/_authenticated/admin/seo/locations")({
+  head: () => ({
+    meta: [
+      { title: "Seo › Locations — Cabslink Admin" },
+      { name: "description", content: "Cabslink staff console: seo › locations." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   loader: ({ context }) => context.queryClient.ensureQueryData(opts),
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
   notFoundComponent: () => <div className="p-8">Not found</div>,

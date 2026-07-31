@@ -21,6 +21,13 @@ import { listVehiclesAdmin } from "@/lib/admin.functions";
 const opts = queryOptions({ queryKey: ["admin", "vehicle-classes"], queryFn: () => listVehicleClassesAdmin() });
 
 export const Route = createFileRoute("/_authenticated/admin/vehicle-classes")({
+  head: () => ({
+    meta: [
+      { title: "Vehicle Classes — Cabslink Admin" },
+      { name: "description", content: "Cabslink staff console: vehicle classes." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   loader: ({ context }) => context.queryClient.ensureQueryData(opts),
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
   notFoundComponent: () => <div className="p-8">Not found</div>,
