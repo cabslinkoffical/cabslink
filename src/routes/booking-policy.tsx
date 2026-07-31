@@ -7,7 +7,7 @@ export const Route = createFileRoute("/booking-policy")({
       { title: "Booking & Cancellation Policy — Cabslink" },
       { name: "description", content: "How Cabslink bookings, changes and cancellations work." },
     ],
-    links: [{ rel: "canonical", href: "https://cabslink.lovable.app/booking-policy" }],
+    links: [{ rel: "canonical", href: "https://cabslink.com/booking-policy" }],
   }),
   component: () => (
     <LegalPage eyebrow="Booking" title="Booking & Cancellation Policy" updated="15 July 2026">

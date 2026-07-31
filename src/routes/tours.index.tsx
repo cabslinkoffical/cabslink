@@ -21,9 +21,9 @@ export const Route = createFileRoute("/tours/")({
       { name: "description", content: "Private private tours across Scotland and the UK. Curated multi-stop itineraries with transparent per-mile pricing and hand-picked famous stops." },
       { property: "og:title", content: "Private UK Driver Tours — Cabslink" },
       { property: "og:description", content: "Curated multi-stop driver tours. See Scotland's icons with a private driver, transparent pricing, no hidden fees." },
-      { property: "og:url", content: "https://cabslink.lovable.app/tours" },
+      { property: "og:url", content: "https://cabslink.com/tours" },
     ],
-    links: [{ rel: "canonical", href: "https://cabslink.lovable.app/tours" }],
+    links: [{ rel: "canonical", href: "https://cabslink.com/tours" }],
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(toursQuery),
   errorComponent: () => (

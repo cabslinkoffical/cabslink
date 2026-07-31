@@ -40,9 +40,9 @@ export const Route = createFileRoute("/book")({
       { name: "description", content: "Choose a vehicle and book a premium UK airport transfer with Cabslink. Instant quote, transparent pricing, 24/7 confirmation." },
       { property: "og:title", content: "Book your ride — Cabslink" },
       { property: "og:description", content: "Choose a vehicle and book a premium UK airport transfer with Cabslink. Instant quote, transparent pricing, 24/7 confirmation." },
-      { property: "og:url", content: "https://cabslink.lovable.app/book" },
+      { property: "og:url", content: "https://cabslink.com/book" },
     ],
-    links: [{ rel: "canonical", href: "https://cabslink.lovable.app/book" }],
+    links: [{ rel: "canonical", href: "https://cabslink.com/book" }],
   }),
   component: BookPage,
 });

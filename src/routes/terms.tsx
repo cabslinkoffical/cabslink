@@ -7,7 +7,7 @@ export const Route = createFileRoute("/terms")({
       { title: "Terms & Conditions — Cabslink" },
       { name: "description", content: "The terms that apply when you use Cabslink to book driver and transfer services." },
     ],
-    links: [{ rel: "canonical", href: "https://cabslink.lovable.app/terms" }],
+    links: [{ rel: "canonical", href: "https://cabslink.com/terms" }],
   }),
   component: () => (
     <LegalPage eyebrow="Terms" title="Terms & Conditions" updated="15 July 2026">

@@ -5,7 +5,7 @@ import { listPublishedSeoPaths } from "@/lib/seo-public.functions";
 import { DESTINATION_TYPES } from "@/lib/destinations.functions";
 import { PUBLIC_ROUTES } from "@/lib/sitemap-routes";
 
-const BASE_URL = "https://cabslink.lovable.app";
+const BASE_URL = "https://cabslink.com";
 
 export { PUBLIC_ROUTES };
 

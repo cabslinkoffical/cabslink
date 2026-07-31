@@ -187,10 +187,10 @@ function SectionBlock({ section }: { section: PublicSeoSection }) {
 
 const ORG_JSONLD = {
   "@type": "LocalBusiness",
-  "@id": "https://cabslink.lovable.app/#business",
+  "@id": "https://cabslink.com/#business",
   name: "CabsLink",
-  url: "https://cabslink.lovable.app",
-  image: "https://cabslink.lovable.app/og-image.png",
+  url: "https://cabslink.com",
+  image: "https://cabslink.com/og-image.png",
   priceRange: "££",
   areaServed: { "@type": "Country", name: "United Kingdom" },
   telephone: "+44",
@@ -230,8 +230,8 @@ export function buildSeoHead(
       url,
       ...(image ? { primaryImageOfPage: image } : {}),
       dateModified: page.updated_at,
-      isPartOf: { "@id": "https://cabslink.lovable.app/#website" },
-      about: { "@id": "https://cabslink.lovable.app/#business" },
+      isPartOf: { "@id": "https://cabslink.com/#website" },
+      about: { "@id": "https://cabslink.com/#business" },
     },
     buildBreadcrumbLd(page, origin),
   ];
@@ -307,7 +307,7 @@ function buildEntityLd(page: PublicSeoPage, url: string) {
     return {
       "@type": "Service",
       name: e.name,
-      provider: { "@id": "https://cabslink.lovable.app/#business" },
+      provider: { "@id": "https://cabslink.com/#business" },
       url,
     };
   }
@@ -338,7 +338,7 @@ function buildTravelActionLd(page: PublicSeoPage, related: RelatedBundle, url: s
     "@type": "TravelAction",
     name: page.h1,
     url,
-    agent: { "@id": "https://cabslink.lovable.app/#business" },
+    agent: { "@id": "https://cabslink.com/#business" },
     fromLocation: { "@type": "Place", name: first.label.split("→")[0]?.trim() ?? "Origin" },
     toLocation: { "@type": "Place", name: first.label.split("→")[1]?.trim() ?? "Destination" },
   };

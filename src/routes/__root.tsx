@@ -79,7 +79,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:title", content: "Cabslink — Premium UK Airport Transfers & Airport Travel Services" },
       { property: "og:description", content: "Reliable, on-time UK airport transfers and luxury airport travel services. 24/7 booking, flight tracking, meet & greet across the UK." },
       { name: "twitter:description", content: "Reliable, on-time UK airport transfers and luxury airport travel services. 24/7 booking, flight tracking, meet & greet across the UK." },
-      { property: "og:url", content: "https://cabslink.lovable.app/" },
+      { property: "og:url", content: "https://cabslink.com/" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },

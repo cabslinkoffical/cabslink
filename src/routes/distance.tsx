@@ -10,9 +10,9 @@ export const Route = createFileRoute("/distance")({
       { name: "description", content: "Instantly estimate the driving distance in miles between any two UK locations using Google Maps Routes." },
       { property: "og:title", content: "UK Driving Distance Calculator" },
       { property: "og:description", content: "Enter a pickup and destination to see the real driving-route distance in miles." },
-      { property: "og:url", content: "https://cabslink.lovable.app/distance" },
+      { property: "og:url", content: "https://cabslink.com/distance" },
     ],
-    links: [{ rel: "canonical", href: "https://cabslink.lovable.app/distance" }],
+    links: [{ rel: "canonical", href: "https://cabslink.com/distance" }],
   }),
   component: DistancePage,
 });

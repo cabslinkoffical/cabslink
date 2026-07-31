@@ -7,7 +7,7 @@ export const Route = createFileRoute("/accessibility")({
       { title: "Accessibility — Cabslink" },
       { name: "description", content: "Cabslink's commitment to an accessible website and inclusive airport travel service." },
     ],
-    links: [{ rel: "canonical", href: "https://cabslink.lovable.app/accessibility" }],
+    links: [{ rel: "canonical", href: "https://cabslink.com/accessibility" }],
   }),
   component: () => (
     <LegalPage eyebrow="Accessibility" title="Accessibility Statement" updated="15 July 2026">

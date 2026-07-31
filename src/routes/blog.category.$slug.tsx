@@ -5,7 +5,7 @@ import { PageHero } from "@/components/site/PageHero";
 import { BlogPostCard } from "@/components/site/BlogPostCard";
 import { listPostsByCategory } from "@/lib/blog.functions";
 
-const BASE = "https://cabslink.lovable.app";
+const BASE = "https://cabslink.com";
 
 const q = (slug: string) =>
   queryOptions({

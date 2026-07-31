@@ -9,7 +9,7 @@ import { listPublishedSeoPaths } from "@/lib/seo-public.functions";
 import { listPublishedBlogPathsImpl } from "@/lib/blog.functions";
 import { PUBLIC_ROUTES } from "@/lib/sitemap-routes";
 
-const BASE_URL = "https://cabslink.lovable.app";
+const BASE_URL = "https://cabslink.com";
 
 export const Route = createFileRoute("/sitemap-core.xml")({
   server: {

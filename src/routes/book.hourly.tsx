@@ -29,7 +29,7 @@ export const Route = createFileRoute("/book/hourly")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: "https://cabslink.lovable.app/book/hourly" }],
+    links: [{ rel: "canonical", href: "https://cabslink.com/book/hourly" }],
   }),
   component: HourlyBookPage,
 });
