@@ -528,9 +528,9 @@ function StepperRow({
   min,
   max,
   onChange,
-}: { label: string; hint?: string; value: number; min: number; max: number; onChange: (v: number) => void }) {
-  const atMin = value <= min;
-  const atMax = value >= max;
+}: { label: string; hint?: string; value: number | null; min: number; max: number; onChange: (v: number) => void }) {
+  const atMin = value !== null && value <= min;
+  const atMax = value !== null && value >= max;
   const btn =
     "w-9 h-9 flex items-center justify-center text-[var(--navy)] transition-colors hover:bg-[var(--navy)]/[0.06] active:bg-[var(--navy)]/[0.12] disabled:text-[var(--navy)]/25 disabled:hover:bg-transparent disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold)] focus-visible:ring-inset";
 
@@ -543,7 +543,7 @@ function StepperRow({
       <div className="flex items-center rounded-lg border border-border overflow-hidden bg-background shrink-0">
         <button
           type="button"
-          onClick={() => onChange(Math.max(min, value - 1))}
+          onClick={() => onChange(value === null ? min : Math.max(min, value - 1))}
           disabled={atMin}
           className={btn}
           aria-label={`Decrease ${label}`}
@@ -554,11 +554,11 @@ function StepperRow({
           className="w-10 text-center text-sm font-bold tabular-nums text-[var(--navy)] border-x border-border py-1.5"
           aria-live="polite"
         >
-          {value}
+          {value === null ? "—" : value}
         </span>
         <button
           type="button"
-          onClick={() => onChange(Math.min(max, value + 1))}
+          onClick={() => onChange(value === null ? Math.max(min, 1) : Math.min(max, value + 1))}
           disabled={atMax}
           className={btn}
           aria-label={`Increase ${label}`}
