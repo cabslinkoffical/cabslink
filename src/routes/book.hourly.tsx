@@ -332,7 +332,7 @@ function HourlyBookPage() {
                 </div>
 
                 <div className="rounded-2xl border border-border bg-[var(--surface)] p-4 text-sm text-muted-foreground flex gap-3">
-                  <ShieldCheck className="w-5 h-5 text-[var(--gold)] shrink-0" />
+                  <ShieldCheck className="w-5 h-5 text-[var(--gold-ink)] shrink-0" />
                   <p>
                     Additional hours beyond the booked period are charged at {symbol}{selected.pricePerHour.toFixed(2)} per hour.
                     Free cancellation up to 24 hours before pickup — see our{" "}
@@ -393,7 +393,7 @@ function HourlyBookPage() {
 function Row({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
     <div className="flex items-start gap-3 text-sm">
-      <span className="text-[var(--gold)] mt-0.5">{icon}</span>
+      <span className="text-[var(--gold-ink)] mt-0.5">{icon}</span>
       <span className="w-28 shrink-0 text-muted-foreground">{label}</span>
       <span className="font-semibold">{value}</span>
     </div>

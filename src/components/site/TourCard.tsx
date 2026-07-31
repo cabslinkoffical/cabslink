@@ -63,7 +63,7 @@ export function TourCard({ tour }: { tour: PublicTourListItem }) {
         <div className="mt-3.5 flex min-h-[1.25rem] flex-wrap items-center gap-x-3 gap-y-1.5 text-[11px] text-[var(--navy)]/70">
           {tour.origin_label && tour.destination_label && (
             <span className="inline-flex items-center gap-1">
-              <MapPin className="size-3.5 text-[var(--gold)]" />
+              <MapPin className="size-3.5 text-[var(--gold-ink)]" />
               {tour.origin_label} → {tour.destination_label}
             </span>
           )}

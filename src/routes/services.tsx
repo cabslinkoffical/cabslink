@@ -179,7 +179,7 @@ function ServicesPage() {
       <section className="section-y">
         <div className="container-x">
           <div className="max-w-2xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--gold)]">Where we shine</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--gold-ink)]">Where we shine</p>
             <h2 className="mt-3 font-display text-3xl font-semibold sm:text-4xl">Signature services</h2>
           </div>
 
@@ -220,7 +220,7 @@ function ServicesPage() {
                       </li>
                     ))}
                   </ul>
-                  <p className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--gold)] transition-all group-hover:gap-3">
+                  <p className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--gold-ink)] transition-all group-hover:gap-3">
                     Explore service <ArrowRight className="size-4" />
                   </p>
                 </div>
@@ -243,7 +243,7 @@ function ServicesPage() {
       <section className="section-y bg-muted/40">
         <div className="container-x">
           <div className="max-w-2xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--gold)]">Tailored travel</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--gold-ink)]">Tailored travel</p>
             <h2 className="mt-3 font-display text-3xl font-semibold sm:text-4xl">Built around the occasion</h2>
           </div>
 
@@ -283,7 +283,7 @@ function ServicesPage() {
       <section className="section-y">
         <div className="container-x">
           <div className="max-w-2xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--gold)]">Full catalogue</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--gold-ink)]">Full catalogue</p>
             <h2 className="mt-3 font-display text-3xl font-semibold sm:text-4xl">Every service we operate</h2>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
               Twenty-four services across four travel categories. If your journey isn't listed, we'll still quote it — just ask.
@@ -295,7 +295,7 @@ function ServicesPage() {
               <div key={g.heading}>
                 <div className="flex flex-col gap-2 border-b border-border pb-5 md:flex-row md:items-end md:justify-between">
                   <div>
-                    <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-[var(--gold)]">{g.eyebrow}</p>
+                    <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-[var(--gold-ink)]">{g.eyebrow}</p>
                     <h3 className="mt-2 font-display text-2xl font-semibold text-[var(--navy)]">{g.heading}</h3>
                   </div>
                   <p className="max-w-md text-sm leading-relaxed text-muted-foreground">{g.blurb}</p>
@@ -308,14 +308,14 @@ function ServicesPage() {
                       to={s.to}
                       className="group flex items-start gap-4 rounded-2xl border border-border bg-card p-5 shadow-raised transition-all hover:-translate-y-0.5 hover:border-[var(--gold)]/40 hover:shadow-raised-hover"
                     >
-                      <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-[var(--gold)]/12 text-[var(--gold)] transition-colors group-hover:bg-[var(--gold)] group-hover:text-[var(--navy)]">
+                      <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-[var(--gold)]/12 text-[var(--gold-ink)] transition-colors group-hover:bg-[var(--gold)] group-hover:text-[var(--navy)]">
                         <s.icon className="size-5" />
                       </span>
                       <div className="min-w-0">
                         <h4 className="font-semibold">{s.title}</h4>
                         <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{s.desc}</p>
                       </div>
-                      <ArrowRight className="mt-1 size-4 shrink-0 text-[var(--gold)] opacity-0 transition-opacity group-hover:opacity-100" />
+                      <ArrowRight className="mt-1 size-4 shrink-0 text-[var(--gold-ink)] opacity-0 transition-opacity group-hover:opacity-100" />
                     </Link>
                   ))}
                 </div>

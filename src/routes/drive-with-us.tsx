@@ -84,7 +84,7 @@ function DrivePage() {
                 { i: ShieldCheck, t: "Driver-first support", d: "Real humans on the dispatch line, day and night." },
               ].map(b => (
                 <li key={b.t} className="flex gap-4">
-                  <div className="grid size-11 shrink-0 place-items-center rounded-xl bg-[var(--gold)]/15 text-[var(--gold)]"><b.i className="size-5" /></div>
+                  <div className="grid size-11 shrink-0 place-items-center rounded-xl bg-[var(--gold)]/15 text-[var(--gold-ink)]"><b.i className="size-5" /></div>
                   <div><h4 className="font-semibold">{b.t}</h4><p className="text-sm text-muted-foreground mt-1">{b.d}</p></div>
                 </li>
               ))}
@@ -111,7 +111,7 @@ function DrivePage() {
               <Button type="submit" variant="gold" disabled={loading} className="rounded-full">
                 {loading ? "Submitting…" : <>Submit application <ArrowRight className="size-4" /></>}
               </Button>
-              {done && <p className="text-sm text-[var(--gold)] text-center">Thanks — your application has been received.</p>}
+              {done && <p className="text-sm text-[var(--gold-ink)] text-center">Thanks — your application has been received.</p>}
             </div>
           </form>
         </div>

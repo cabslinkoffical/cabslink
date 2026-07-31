@@ -40,7 +40,7 @@ function CorporatePage() {
           <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {features.map(f => (
               <div key={f.t} className="rounded-2xl border border-border bg-card p-7">
-                <div className="grid size-12 place-items-center rounded-xl bg-[var(--gold)]/15 text-[var(--gold)]"><f.i className="size-5" /></div>
+                <div className="grid size-12 place-items-center rounded-xl bg-[var(--gold)]/15 text-[var(--gold-ink)]"><f.i className="size-5" /></div>
                 <h3 className="mt-5 font-display text-xl font-semibold">{f.t}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">{f.d}</p>
               </div>

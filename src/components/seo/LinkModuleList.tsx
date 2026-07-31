@@ -23,7 +23,7 @@ export function LinkModuleList({ modules }: { modules: LinkModule[] }) {
 
                 <Link
                   to={l.href}
-                  className="block text-[var(--navy)] hover:text-[var(--gold)]"
+                  className="block text-[var(--navy)] hover:text-[var(--gold-ink)]"
                 >
                   <span className="font-medium">{l.label}</span>
                   {l.sublabel && (

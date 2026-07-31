@@ -49,7 +49,7 @@ function TagPage() {
       <section className="container-x py-12 md:py-16">
         {posts.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-[var(--navy)]/20 p-12 text-center text-[var(--navy)]/60">
-            No articles for this tag. <Link to="/blog" className="text-[var(--gold)] hover:underline">Browse all articles →</Link>
+            No articles for this tag. <Link to="/blog" className="text-[var(--gold-ink)] hover:underline">Browse all articles →</Link>
           </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

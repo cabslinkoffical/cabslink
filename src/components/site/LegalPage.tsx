@@ -43,7 +43,7 @@ export function LegalPage({
 export function AdminTodo({ note }: { note: string }) {
   return (
     <p className="rounded-lg border border-dashed border-[var(--gold)]/60 bg-[var(--gold)]/10 p-3 text-xs text-foreground">
-      <mark className="bg-transparent font-bold text-[var(--gold)]">[ADMIN TO COMPLETE]</mark> {note}
+      <mark className="bg-transparent font-bold text-[var(--gold-ink)]">[ADMIN TO COMPLETE]</mark> {note}
     </p>
   );
 }

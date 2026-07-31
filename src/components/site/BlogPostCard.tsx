@@ -24,11 +24,11 @@ export function BlogPostCard({ post, compact = false }: { post: BlogPostSummary;
       )}
       <div className="p-5">
         {post.category && (
-          <p className="text-[11px] uppercase tracking-[0.2em] text-[var(--gold)] font-semibold mb-2">
+          <p className="text-[11px] uppercase tracking-[0.2em] text-[var(--gold-ink)] font-semibold mb-2">
             {post.category.name}
           </p>
         )}
-        <h3 className="font-display text-lg md:text-xl font-semibold text-[var(--navy)] leading-snug group-hover:text-[var(--gold)] transition">
+        <h3 className="font-display text-lg md:text-xl font-semibold text-[var(--navy)] leading-snug group-hover:text-[var(--gold-ink)] transition">
           {post.title}
         </h3>
         {post.excerpt && !compact && (

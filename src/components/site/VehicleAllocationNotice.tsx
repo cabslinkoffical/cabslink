@@ -14,7 +14,7 @@ export function VehicleAllocationNotice({
       className={`rounded-xl border border-[var(--gold)]/40 bg-[var(--gold)]/10 text-foreground/80 p-4 text-[12.5px] leading-relaxed ${className ?? ""}`}
     >
       <div className="flex items-start gap-2.5">
-        <Info className="size-4 text-[var(--gold)] mt-0.5 shrink-0" />
+        <Info className="size-4 text-[var(--gold-ink)] mt-0.5 shrink-0" />
         <div className="min-w-0">
           <p className="font-semibold text-foreground">Vehicle allocation</p>
           <p className={compact ? "mt-1" : "mt-1.5"}>

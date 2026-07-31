@@ -112,7 +112,7 @@ export function TourBookingDialog({ tour, trigger, autoOpen = false }: Props) {
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         {done ? (
           <div className="py-8 text-center space-y-4">
-            <CheckCircle2 className="size-14 text-[var(--gold)] mx-auto" />
+            <CheckCircle2 className="size-14 text-[var(--gold-ink)] mx-auto" />
             <h3 className="font-display text-2xl font-bold">Tour enquiry received</h3>
             <p className="text-sm text-muted-foreground max-w-md mx-auto">
               Thanks {name.split(" ")[0]}. Our tour desk will confirm availability and a fixed price
@@ -125,7 +125,7 @@ export function TourBookingDialog({ tour, trigger, autoOpen = false }: Props) {
         ) : (
           <>
             <DialogHeader className="text-left">
-              <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--gold)]">
+              <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--gold-ink)]">
                 Book this tour
               </p>
               <DialogTitle className="font-display text-2xl">{tour.name}</DialogTitle>
@@ -206,7 +206,7 @@ export function TourBookingDialog({ tour, trigger, autoOpen = false }: Props) {
 
               {/* Stops picker */}
               <div className="rounded-2xl border border-border p-4">
-                <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--gold)] mb-3">
+                <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--gold-ink)] mb-3">
                   Stops to include
                 </p>
                 <div className="space-y-2">
@@ -309,7 +309,7 @@ function Field({
 }) {
   return (
     <div className="flex items-center gap-2.5 px-3 h-[60px] rounded-2xl border border-border bg-background">
-      <div className="w-8 h-8 rounded-full bg-[var(--surface)] shrink-0 flex items-center justify-center text-[var(--gold)]">
+      <div className="w-8 h-8 rounded-full bg-[var(--surface)] shrink-0 flex items-center justify-center text-[var(--gold-ink)]">
         {icon}
       </div>
       <div className="min-w-0 flex-1">

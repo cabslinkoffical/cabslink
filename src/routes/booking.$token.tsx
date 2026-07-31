@@ -89,14 +89,14 @@ function ConfirmationPage() {
           <div className="rounded-3xl border border-border bg-card p-8 md:p-10 shadow-[var(--shadow-elegant)]">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>
-                <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-[var(--gold)]">{SITE.name} · Your Journey</p>
+                <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-[var(--gold-ink)]">{SITE.name} · Your Journey</p>
                 <h1 className="mt-2 font-display text-3xl md:text-4xl font-bold">{heading}</h1>
                 <p className="mt-2 text-sm text-muted-foreground max-w-lg">{nextStep}</p>
               </div>
               <div className="rounded-2xl border-2 border-[var(--gold)]/50 bg-[color-mix(in_oklab,var(--gold)_10%,transparent)] px-5 py-4 text-center">
                 <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground">Booking reference</p>
                 <p className="font-mono text-xl font-bold tracking-wider mt-1">{b.bookingRef}</p>
-                <p className="mt-1 text-[10px] uppercase tracking-[0.2em] text-[var(--gold)]">{statusLabel(b.status)}</p>
+                <p className="mt-1 text-[10px] uppercase tracking-[0.2em] text-[var(--gold-ink)]">{statusLabel(b.status)}</p>
                 <div className="mt-3 flex gap-2 justify-center print:hidden">
                   <Button size="sm" variant="outline" onClick={copyRef} className="h-7 gap-1 text-xs"><Copy className="size-3" /> Copy</Button>
                   <Button size="sm" variant="outline" onClick={printPage} className="h-7 gap-1 text-xs"><Printer className="size-3" /> Print</Button>
@@ -136,7 +136,7 @@ function ConfirmationPage() {
                 </p>
                 <p className="mt-1 text-[11px] text-muted-foreground">Payment status: {b.paymentStatus ?? "unpaid"} · manual arrangement</p>
               </div>
-              <BadgeCheck className="size-8 text-[var(--gold)]" />
+              <BadgeCheck className="size-8 text-[var(--gold-ink)]" />
             </div>
 
             <div className="mt-8 grid gap-3 sm:grid-cols-2 text-sm">
@@ -146,7 +146,7 @@ function ConfirmationPage() {
             </div>
 
             <div className="mt-8 rounded-2xl border border-[var(--gold)]/30 bg-[color-mix(in_oklab,var(--gold)_8%,transparent)] p-5 text-sm">
-              <p className="font-semibold flex items-center gap-2"><ShieldCheck className="size-4 text-[var(--gold)]" /> What happens next</p>
+              <p className="font-semibold flex items-center gap-2"><ShieldCheck className="size-4 text-[var(--gold-ink)]" /> What happens next</p>
               <p className="mt-1 text-muted-foreground leading-relaxed">{nextStep}</p>
               <p className="mt-3 text-muted-foreground">
                 Need to reach us? Call <a className="font-semibold text-foreground" href={`tel:${SITE.phoneUK}`}>{SITE.phoneUK}</a> or email <a className="font-semibold text-foreground" href={`mailto:${SITE.email}`}>{SITE.email}</a> and quote your reference <span className="font-mono">{b.bookingRef}</span>.
@@ -168,7 +168,7 @@ function Row({ icon, label, value }: { icon: React.ReactNode; label: string; val
   return (
     <div className="rounded-xl border border-border bg-[var(--surface)] p-4">
       <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">
-        <span className="text-[var(--gold)]">{icon}</span>{label}
+        <span className="text-[var(--gold-ink)]">{icon}</span>{label}
       </p>
       <p className="mt-1 font-semibold text-foreground text-sm break-words">{value}</p>
     </div>
@@ -178,7 +178,7 @@ function Row({ icon, label, value }: { icon: React.ReactNode; label: string; val
 function ContactRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
     <div className="flex items-start gap-3">
-      <span className="mt-0.5 text-[var(--gold)]">{icon}</span>
+      <span className="mt-0.5 text-[var(--gold-ink)]">{icon}</span>
       <div>
         <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">{label}</p>
         <p className="font-medium text-foreground text-sm">{value}</p>
@@ -190,7 +190,7 @@ function ContactRow({ icon, label, value }: { icon: React.ReactNode; label: stri
 function Chip({ children }: { children: React.ReactNode }) {
   return (
     <span className="inline-flex items-center gap-1 rounded-full border border-[var(--gold)]/40 bg-[color-mix(in_oklab,var(--gold)_12%,transparent)] px-3 py-1 text-[11px] font-semibold text-[var(--navy)]">
-      <BadgeCheck className="size-3 text-[var(--gold)]" /> {children}
+      <BadgeCheck className="size-3 text-[var(--gold-ink)]" /> {children}
     </span>
   );
 }

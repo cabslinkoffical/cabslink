@@ -42,7 +42,7 @@ function AirportPage() {
                 { i: MapPin, t: "Door-to-door", d: "From home, hotel or office to your terminal." },
               ].map(f => (
                 <li key={f.t} className="flex gap-4">
-                  <div className="grid size-11 shrink-0 place-items-center rounded-xl bg-[var(--gold)]/15 text-[var(--gold)]"><f.i className="size-5" /></div>
+                  <div className="grid size-11 shrink-0 place-items-center rounded-xl bg-[var(--gold)]/15 text-[var(--gold-ink)]"><f.i className="size-5" /></div>
                   <div><h4 className="font-semibold">{f.t}</h4><p className="text-sm text-muted-foreground mt-1">{f.d}</p></div>
                 </li>
               ))}
@@ -58,7 +58,7 @@ function AirportPage() {
           <div className="mt-10 grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {airports.map(a => (
               <div key={a} className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 hover:border-[var(--gold)]/50 transition">
-                <Plane className="size-4 text-[var(--gold)]" />
+                <Plane className="size-4 text-[var(--gold-ink)]" />
                 <span className="text-sm font-medium">{a}</span>
               </div>
             ))}

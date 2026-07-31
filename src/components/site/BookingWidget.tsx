@@ -157,7 +157,7 @@ export function BookingWidget({
           <div className="bg-white shadow-[var(--shadow-elegant)] border border-black/5 rounded-3xl @[980px]:rounded-full overflow-visible p-2 @[980px]:p-1.5">
             <div className="grid grid-cols-1 @[600px]:grid-cols-2 @[980px]:flex @[980px]:items-stretch gap-1 @[980px]:gap-0">
               <div className="@[600px]:col-span-2 @[980px]:flex-1 @[980px]:min-w-0" data-invalid={attempted && !!hourlyErrors.pickup}>
-                <FieldCell icon={<MapPin className="w-4 h-4 text-[var(--gold)]" />} label="Pickup" invalid={attempted && !!hourlyErrors.pickup}>
+                <FieldCell icon={<MapPin className="w-4 h-4 text-[var(--gold-ink)]" />} label="Pickup" invalid={attempted && !!hourlyErrors.pickup}>
                   <PlaceAutocomplete
                     id={`${idPrefix}-hourly-pickup`}
                     value={pickup}
@@ -173,7 +173,7 @@ export function BookingWidget({
               <Divider />
 
               <div className="border-t border-black/5 @[980px]:border-0" data-invalid={attempted && !!hourlyErrors.date}>
-                <FieldCell icon={<Calendar className="w-4 h-4 text-[var(--gold)]" />} label="Date" compact invalid={attempted && !!hourlyErrors.date}>
+                <FieldCell icon={<Calendar className="w-4 h-4 text-[var(--gold-ink)]" />} label="Date" compact invalid={attempted && !!hourlyErrors.date}>
                   <input required type="date" min={today} value={date} onChange={(e) => setDate(e.target.value)} className="w-full bg-transparent border-0 outline-none text-sm font-semibold text-foreground" />
                 </FieldCell>
               </div>
@@ -181,7 +181,7 @@ export function BookingWidget({
               <Divider />
 
               <div className="border-t border-black/5 @[600px]:border-t-0 @[600px]:border-l @[600px]:border-black/5 @[980px]:border-l-0 @[980px]:border-0" data-invalid={attempted && !!hourlyErrors.time}>
-                <FieldCell icon={<Clock className="w-4 h-4 text-[var(--gold)]" />} label="Start time" compact invalid={attempted && !!hourlyErrors.time}>
+                <FieldCell icon={<Clock className="w-4 h-4 text-[var(--gold-ink)]" />} label="Start time" compact invalid={attempted && !!hourlyErrors.time}>
                   <input required type="time" value={time} onChange={(e) => setTime(e.target.value)} className="w-full bg-transparent border-0 outline-none text-sm font-semibold text-foreground" />
                 </FieldCell>
               </div>
@@ -190,7 +190,7 @@ export function BookingWidget({
               <Divider />
 
               <div className="border-t border-black/5 @[980px]:border-0 @[980px]:w-[150px] shrink-0">
-                <FieldCell icon={<Clock className="w-4 h-4 text-[var(--gold)]" />} label="Duration" compact>
+                <FieldCell icon={<Clock className="w-4 h-4 text-[var(--gold-ink)]" />} label="Duration" compact>
                   <select
                     value={hours}
                     onChange={(e) => setHours(Number(e.target.value))}
@@ -212,12 +212,12 @@ export function BookingWidget({
                   className="w-full h-full flex items-center justify-center gap-3 px-4 py-3 @[980px]:py-2.5 rounded-2xl @[980px]:rounded-full hover:bg-black/[0.03] transition-colors"
                 >
                   <span className="inline-flex items-center gap-1.5">
-                    <Users className="w-4 h-4 text-[var(--gold)] shrink-0" />
+                    <Users className="w-4 h-4 text-[var(--gold-ink)] shrink-0" />
                     <span className="text-sm font-bold tabular-nums text-[var(--navy)]">{passengers}</span>
                   </span>
                   <span className="w-px h-4 bg-black/10" />
                   <span className="inline-flex items-center gap-1.5">
-                    <Briefcase className="w-4 h-4 text-[var(--gold)] shrink-0" />
+                    <Briefcase className="w-4 h-4 text-[var(--gold-ink)] shrink-0" />
                     <span className="text-sm font-bold tabular-nums text-[var(--navy)]">{luggage}</span>
                   </span>
                 </button>
@@ -265,7 +265,7 @@ export function BookingWidget({
           <div className="grid grid-cols-1 @[600px]:grid-cols-2 @[980px]:flex @[980px]:items-stretch gap-1 @[980px]:gap-0">
             {/* Pickup */}
             <div className="@[600px]:col-span-2 @[980px]:flex-1 @[980px]:min-w-0" data-invalid={attempted && !!errors.pickup}>
-              <FieldCell icon={<MapPin className="w-4 h-4 text-[var(--gold)]" />} label="From" invalid={attempted && !!errors.pickup}>
+              <FieldCell icon={<MapPin className="w-4 h-4 text-[var(--gold-ink)]" />} label="From" invalid={attempted && !!errors.pickup}>
                 <PlaceAutocomplete
                   id={`${idPrefix}-pickup`}
                   value={pickup}
@@ -282,7 +282,7 @@ export function BookingWidget({
 
             {/* Dropoff */}
             <div className="@[600px]:col-span-2 @[980px]:flex-1 @[980px]:min-w-0 border-t border-black/5 @[600px]:border-t-0 @[980px]:border-0" data-invalid={attempted && !!errors.dropoff}>
-              <FieldCell icon={<Flag className="w-4 h-4 text-[var(--gold)]" />} label="To" invalid={attempted && !!errors.dropoff}>
+              <FieldCell icon={<Flag className="w-4 h-4 text-[var(--gold-ink)]" />} label="To" invalid={attempted && !!errors.dropoff}>
                 <PlaceAutocomplete
                   id={`${idPrefix}-dropoff`}
                   value={dropoff}
@@ -299,7 +299,7 @@ export function BookingWidget({
 
             {/* Date */}
             <div className="border-t border-black/5 @[980px]:border-0" data-invalid={attempted && !!errors.date}>
-              <FieldCell icon={<Calendar className="w-4 h-4 text-[var(--gold)]" />} label="Date" compact invalid={attempted && !!errors.date}>
+              <FieldCell icon={<Calendar className="w-4 h-4 text-[var(--gold-ink)]" />} label="Date" compact invalid={attempted && !!errors.date}>
                 <input
                   required
                   type="date"
@@ -315,7 +315,7 @@ export function BookingWidget({
 
             {/* Time */}
             <div className="border-t border-black/5 @[600px]:border-t-0 @[600px]:border-l @[600px]:border-black/5 @[980px]:border-l-0 @[980px]:border-0" data-invalid={attempted && !!errors.time}>
-              <FieldCell icon={<Clock className="w-4 h-4 text-[var(--gold)]" />} label="Time" compact invalid={attempted && !!errors.time}>
+              <FieldCell icon={<Clock className="w-4 h-4 text-[var(--gold-ink)]" />} label="Time" compact invalid={attempted && !!errors.time}>
                 <input
                   required
                   type="time"
@@ -337,13 +337,13 @@ export function BookingWidget({
                 className="w-full h-full flex items-center justify-center gap-3 px-4 py-3 @[980px]:py-2.5 rounded-2xl @[980px]:rounded-full hover:bg-black/[0.03] transition-colors"
               >
                 <span className="inline-flex items-center gap-1.5">
-                  <Users className="w-4 h-4 text-[var(--gold)] shrink-0" />
+                  <Users className="w-4 h-4 text-[var(--gold-ink)] shrink-0" />
                   <span className="text-sm font-bold tabular-nums text-[var(--navy)]">{passengers}</span>
                   <span className="text-[11px] font-semibold text-[var(--navy)]/60">{passengers === 1 ? "Person" : "People"}</span>
                 </span>
                 <span className="w-px h-4 bg-black/10" />
                 <span className="inline-flex items-center gap-1.5">
-                  <Briefcase className="w-4 h-4 text-[var(--gold)] shrink-0" />
+                  <Briefcase className="w-4 h-4 text-[var(--gold-ink)] shrink-0" />
                   <span className="text-sm font-bold tabular-nums text-[var(--navy)]">{luggage}</span>
                   <span className="text-[11px] font-semibold text-[var(--navy)]/60">{luggage === 1 ? "Bag" : "Bags"}</span>
                 </span>
@@ -431,7 +431,7 @@ export function BookingWidget({
         {showReturn && (
           <div className="mt-3 bg-white rounded-2xl border border-border p-3 @[600px]:p-4">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--gold)]">Return Journey</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--gold-ink)]">Return Journey</p>
               <button
                 type="button"
                 onClick={() => setShowReturn(false)}
@@ -445,7 +445,7 @@ export function BookingWidget({
                 data-invalid={attempted && !!errors.returnDate}
                 className={`flex items-center gap-2 px-3 h-[54px] rounded-xl border ${attempted && errors.returnDate ? "border-destructive bg-destructive/5" : "border-border"}`}
               >
-                <Calendar className="w-4 h-4 text-[var(--gold)]" />
+                <Calendar className="w-4 h-4 text-[var(--gold-ink)]" />
                 <div className="min-w-0 flex-1">
                   <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/70">Date</div>
                   <input type="date" min={date || today} value={returnDate} onChange={(e) => setReturnDate(e.target.value)} className="w-full bg-transparent border-0 outline-none text-sm font-semibold" />
@@ -455,7 +455,7 @@ export function BookingWidget({
                 data-invalid={attempted && !!errors.returnTime}
                 className={`flex items-center gap-2 px-3 h-[54px] rounded-xl border ${attempted && errors.returnTime ? "border-destructive bg-destructive/5" : "border-border"}`}
               >
-                <Clock className="w-4 h-4 text-[var(--gold)]" />
+                <Clock className="w-4 h-4 text-[var(--gold-ink)]" />
                 <div className="min-w-0 flex-1">
                   <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/70">Time</div>
                   <input type="time" value={returnTime} onChange={(e) => setReturnTime(e.target.value)} className="w-full bg-transparent border-0 outline-none text-sm font-semibold" />

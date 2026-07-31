@@ -234,13 +234,13 @@ function TourDetailPage() {
               {d.origin_label && d.destination_label && (
                 <div className="rounded-2xl border border-white/10 p-4">
                   <p className="text-[11px] uppercase tracking-widest text-muted-foreground">Route</p>
-                  <p className="mt-1 font-medium flex items-center gap-1.5"><MapPin className="size-4 text-[var(--gold)]" />{d.origin_label} → {d.destination_label}</p>
+                  <p className="mt-1 font-medium flex items-center gap-1.5"><MapPin className="size-4 text-[var(--gold-ink)]" />{d.origin_label} → {d.destination_label}</p>
                 </div>
               )}
               {duration && (
                 <div className="rounded-2xl border border-white/10 p-4">
                   <p className="text-[11px] uppercase tracking-widest text-muted-foreground">Driving</p>
-                  <p className="mt-1 font-medium flex items-center gap-1.5"><Clock className="size-4 text-[var(--gold)]" />{duration}{d.direct_distance_miles ? ` · ${Math.round(d.direct_distance_miles)} mi` : ""}</p>
+                  <p className="mt-1 font-medium flex items-center gap-1.5"><Clock className="size-4 text-[var(--gold-ink)]" />{duration}{d.direct_distance_miles ? ` · ${Math.round(d.direct_distance_miles)} mi` : ""}</p>
                 </div>
               )}
               {d.recommended_start_time && (
@@ -287,12 +287,12 @@ function TourDetailPage() {
                           <div className="flex-1 p-4">
                             <div className="flex items-start justify-between gap-3">
                               <div>
-                                <p className="text-[11px] uppercase tracking-widest text-[var(--gold)]">Stop {i + 1}{p.category ? ` · ${p.category}` : ""}</p>
+                                <p className="text-[11px] uppercase tracking-widest text-[var(--gold-ink)]">Stop {i + 1}{p.category ? ` · ${p.category}` : ""}</p>
                                 <h3 className="font-display text-lg font-semibold mt-0.5">{p.name}</h3>
                               </div>
                               <div className="flex flex-col items-end gap-1">
                                 {p.mandatory ? (
-                                  <span className="rounded-full bg-[var(--gold)]/20 text-[var(--gold)] text-[10px] px-2 py-0.5">Included</span>
+                                  <span className="rounded-full bg-[var(--gold)]/20 text-[var(--gold-ink)] text-[10px] px-2 py-0.5">Included</span>
                                 ) : (
                                   <label className="inline-flex items-center gap-2 cursor-pointer select-none">
                                     <span className="text-[11px] text-muted-foreground">{active ? "In tour" : "Add"}</span>
@@ -316,7 +316,7 @@ function TourDetailPage() {
                                 <div className="inline-flex items-center gap-1 rounded-full border border-white/10 px-2 py-0.5">
                                   <button
                                     type="button"
-                                    className="p-1 hover:text-[var(--gold)] disabled:opacity-30"
+                                    className="p-1 hover:text-[var(--gold-ink)] disabled:opacity-30"
                                     onClick={() => bumpMinutes(p, -15)}
                                     disabled={minutes <= p.minimum_visit_minutes}
                                     aria-label={`Reduce time at ${p.name}`}
@@ -326,7 +326,7 @@ function TourDetailPage() {
                                   <span className="min-w-[54px] text-center text-foreground"><Clock className="inline size-3 mr-1" />{minutes} min</span>
                                   <button
                                     type="button"
-                                    className="p-1 hover:text-[var(--gold)] disabled:opacity-30"
+                                    className="p-1 hover:text-[var(--gold-ink)] disabled:opacity-30"
                                     onClick={() => bumpMinutes(p, 15)}
                                     disabled={minutes >= p.maximum_visit_minutes}
                                     aria-label={`Add time at ${p.name}`}
@@ -357,7 +357,7 @@ function TourDetailPage() {
                   <div className="rounded-2xl border border-white/10 p-5">
                     <h3 className="font-display text-lg font-semibold">What's included</h3>
                     <ul className="mt-3 space-y-2 text-sm">
-                      {d.included.map((x, i) => <li key={i} className="flex items-start gap-2"><Check className="size-4 text-[var(--gold)] mt-0.5 shrink-0" />{x}</li>)}
+                      {d.included.map((x, i) => <li key={i} className="flex items-start gap-2"><Check className="size-4 text-[var(--gold-ink)] mt-0.5 shrink-0" />{x}</li>)}
                     </ul>
                   </div>
                 )}
@@ -374,7 +374,7 @@ function TourDetailPage() {
 
             {d.seasonal_note && (
               <div className="mt-8 rounded-2xl border border-[var(--gold)]/30 bg-[var(--gold)]/5 p-4 text-sm">
-                <p className="flex items-start gap-2"><Info className="size-4 text-[var(--gold)] mt-0.5 shrink-0" /><span>{d.seasonal_note}</span></p>
+                <p className="flex items-start gap-2"><Info className="size-4 text-[var(--gold-ink)] mt-0.5 shrink-0" /><span>{d.seasonal_note}</span></p>
               </div>
             )}
           </div>
@@ -388,7 +388,7 @@ function TourDetailPage() {
                 </p>
                 {quoteQuery.isFetching && <Loader2 className="size-3.5 animate-spin text-muted-foreground" />}
               </div>
-              <p className="font-display text-3xl font-semibold text-[var(--gold)] mt-1">
+              <p className="font-display text-3xl font-semibold text-[var(--gold-ink)] mt-1">
                 Price on request
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
@@ -410,10 +410,10 @@ function TourDetailPage() {
 
 
               <ul className="mt-5 space-y-2 text-sm text-muted-foreground">
-                <li className="flex items-center gap-2"><Check className="size-4 text-[var(--gold)]" />{orderedStops.length || d.recommended_stop_count} stops selected</li>
-                {totalJourneySecs && <li className="flex items-center gap-2"><Check className="size-4 text-[var(--gold)]" />~{formatDuration(totalJourneySecs)} total journey</li>}
-                <li className="flex items-center gap-2"><Check className="size-4 text-[var(--gold)]" />Professional driver</li>
-                <li className="flex items-center gap-2"><Check className="size-4 text-[var(--gold)]" />Free cancellation options at checkout</li>
+                <li className="flex items-center gap-2"><Check className="size-4 text-[var(--gold-ink)]" />{orderedStops.length || d.recommended_stop_count} stops selected</li>
+                {totalJourneySecs && <li className="flex items-center gap-2"><Check className="size-4 text-[var(--gold-ink)]" />~{formatDuration(totalJourneySecs)} total journey</li>}
+                <li className="flex items-center gap-2"><Check className="size-4 text-[var(--gold-ink)]" />Professional driver</li>
+                <li className="flex items-center gap-2"><Check className="size-4 text-[var(--gold-ink)]" />Free cancellation options at checkout</li>
               </ul>
             </div>
 
@@ -423,7 +423,7 @@ function TourDetailPage() {
                 <ul className="space-y-2 text-sm">
                   {d.related_slugs.map((s) => (
                     <li key={s}>
-                      <Link to="/tours/$slug" params={{ slug: s }} className="inline-flex items-center gap-1 hover:text-[var(--gold)]">
+                      <Link to="/tours/$slug" params={{ slug: s }} className="inline-flex items-center gap-1 hover:text-[var(--gold-ink)]">
                         <ArrowRight className="size-3.5" /> {s.replace(/-/g, " ")}
                       </Link>
                     </li>

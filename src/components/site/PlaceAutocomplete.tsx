@@ -159,7 +159,7 @@ export function PlaceAutocomplete({
     <div className={cn("relative w-full text-[var(--navy)]", className)} ref={wrapRef}>
       <MapPin
         className={cn(
-          "absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--gold)] pointer-events-none",
+          "absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--gold-ink)] pointer-events-none",
           iconClassName,
         )}
       />
