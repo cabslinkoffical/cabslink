@@ -142,6 +142,19 @@ const groups: { eyebrow: string; heading: string; blurb: string; items: Item[] }
       { icon: Car, title: "Local Travel Services", desc: "Day-hire drivers for meetings, errands and dining.", to: "/book" },
     ],
   },
+  {
+    eyebrow: "Sporting events",
+    heading: "Golf, football & sports travel",
+    blurb: "Dedicated transport for golfers, fans, teams and VIP hospitality — across Scotland and the UK.",
+    items: [
+      { icon: Target, title: "Golf Transfers", desc: "Door-to-door transfers to St Andrews, Carnoustie, Turnberry and top courses.", to: "/contact" },
+      { icon: Circle, title: "Football Transfers", desc: "Match-day transport to stadiums and away fixtures for fans and groups.", to: "/contact" },
+      { icon: Car, title: "Stadium Transfers", desc: "Reliable drop-off and pickup at Hampden, Murrayfield and UK grounds.", to: "/contact" },
+      { icon: Trophy, title: "Major Sporting Events", desc: "The Open, Six Nations, cup finals and race days — travel arranged end to end.", to: "/contact" },
+      { icon: Users, title: "Team Sports Travel", desc: "Minibuses and coaches for squads, kit and supporters travelling together.", to: "/fleet" },
+      { icon: Crown, title: "VIP Sports Hospitality", desc: "Premium vehicles and discreet drivers for corporate hospitality days.", to: "/vip-transfers" },
+    ],
+  },
 ];
 
 const promises = [
