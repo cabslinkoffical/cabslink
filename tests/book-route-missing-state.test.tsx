@@ -70,14 +70,14 @@ beforeEach(() => calcMock.mockReset());
 describe("/book — missing-location state (router-aware)", () => {
   it("does not call calculateQuotes and shows the empty-state when no Place IDs", async () => {
     await renderAt("/book");
-    await screen.findByText(/Enter your journey first/i);
+    await screen.findByTestId("book-journey-form");
     expect(calcMock).not.toHaveBeenCalled();
     expect(screen.queryByText(/Calculating quotes/i)).toBeNull();
   });
 
   it("shows empty-state when a label is present but Place ID missing (incomplete free text)", async () => {
     await renderAt("/book?q=" + encodeURIComponent("pickupLabel=Somewhere&dropoffLabel=Elsewhere"));
-    await screen.findByText(/Enter your journey first/i);
+    await screen.findByTestId("book-journey-form");
     expect(calcMock).not.toHaveBeenCalled();
   });
 
@@ -87,7 +87,7 @@ describe("/book — missing-location state (router-aware)", () => {
       dropoffPlaceId: "ChIJ_same", dropoffLabel: "Same",
     }).toString();
     await renderAt(`/book?q=${encodeURIComponent(q)}`);
-    await screen.findByText(/Enter your journey first/i);
+    await screen.findByTestId("book-journey-form");
     expect(calcMock).not.toHaveBeenCalled();
   });
 });
