@@ -122,22 +122,19 @@ function FleetCard({ klass }: { klass: PublicVehicleClass }) {
     .map(([k]) => RECOMMENDED_LABELS[k] ?? k.replace(/_/g, " "));
 
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-xl border border-[var(--gold)]/15 bg-[#111a2d] transition-all duration-300 hover:-translate-y-2 hover:border-[var(--gold)]/40 hover:shadow-[0_22px_46px_-20px_rgba(0,0,0,0.45)]">
+    <article className="group flex h-full flex-col overflow-hidden rounded-xl border border-[var(--navy)]/10 bg-white transition-all duration-300 hover:-translate-y-2 hover:border-[var(--navy)]/20 hover:shadow-[0_22px_46px_-20px_rgba(0,0,0,0.18)]">
       {/* Image stage */}
-      <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-gradient-to-b from-[#162036] to-[#0e182c]">
-        <div className="absolute inset-x-0 top-0 h-[2px] bg-[var(--gold)]/60" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_55%_at_50%_80%,rgba(222,174,37,0.12),transparent_70%)]" />
-
+      <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-[var(--surface-2)]">
         {img ? (
           <img
             src={img}
             alt={klass.name}
             loading="lazy"
             decoding="async"
-            className="relative z-10 max-h-[78%] max-w-[84%] w-auto h-auto object-contain drop-shadow-[0_12px_18px_rgba(0,0,0,0.35)] transition-transform duration-500 group-hover:scale-[1.05]"
+            className="relative z-10 max-h-[78%] max-w-[84%] w-auto h-auto object-contain drop-shadow-[0_12px_18px_rgba(0,0,0,0.25)] transition-transform duration-500 group-hover:scale-[1.05]"
           />
         ) : (
-          <span className="text-xs text-[var(--navy-foreground)]/50">Image coming soon</span>
+          <span className="text-xs text-[var(--navy)]/50">Image coming soon</span>
         )}
 
         <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
@@ -151,12 +148,12 @@ function FleetCard({ klass }: { klass: PublicVehicleClass }) {
             </span>
           ) : null}
           {klass.fuel_type === "electric" && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-[var(--navy)] text-white px-2 py-1 text-[9px] font-bold uppercase tracking-widest border border-[var(--gold)]/30">
+            <span className="inline-flex items-center gap-1 rounded-full bg-white text-[var(--navy)] px-2 py-1 text-[9px] font-bold uppercase tracking-widest border border-[var(--navy)]/10 shadow-sm">
               <Zap className="size-2.5 text-[var(--gold)]" /> Zero emission
             </span>
           )}
           {klass.wheelchair_accessible && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-[var(--navy)] text-white px-2 py-1 text-[9px] font-bold uppercase tracking-widest border border-[var(--gold)]/30">
+            <span className="inline-flex items-center gap-1 rounded-full bg-white text-[var(--navy)] px-2 py-1 text-[9px] font-bold uppercase tracking-widest border border-[var(--navy)]/10 shadow-sm">
               <Accessibility className="size-2.5 text-[var(--gold)]" /> WAV
             </span>
           )}
