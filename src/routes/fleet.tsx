@@ -163,24 +163,24 @@ function FleetCard({ klass }: { klass: PublicVehicleClass }) {
       {/* Body */}
       <div className="flex flex-1 flex-col gap-4 p-5">
         <div>
-          <p className="text-[9px] font-semibold uppercase tracking-[0.28em] text-[var(--gold)]">Vehicle Class</p>
-          <h3 className="mt-1 font-display text-xl font-semibold leading-tight text-[var(--navy-foreground)]">{klass.name}</h3>
-          <p className="mt-2 text-sm leading-relaxed text-[var(--navy-foreground)]/70">
+          <p className="text-[9px] font-semibold uppercase tracking-[0.28em] text-[var(--gold-ink)]">Vehicle Class</p>
+          <h3 className="mt-1 font-display text-xl font-semibold leading-tight text-[var(--navy)]">{klass.name}</h3>
+          <p className="mt-2 text-sm leading-relaxed text-[var(--navy)]/70">
             {klass.short_description || klass.long_description}
           </p>
         </div>
 
         {/* Capacity */}
-        <div className="flex flex-wrap items-center gap-3 text-[var(--navy-foreground)]/80">
+        <div className="flex flex-wrap items-center gap-3 text-[var(--navy)]/80">
           <span className="inline-flex items-center gap-1.5 text-xs font-medium">
-            <Users className="size-3.5 text-[var(--gold)]" /> {klass.passengers} pax
+            <Users className="size-3.5 text-[var(--gold-ink)]" /> {klass.passengers} pax
           </span>
           <span className="inline-flex items-center gap-1.5 text-xs font-medium">
-            <Briefcase className="size-3.5 text-[var(--gold)]" /> {klass.large_luggage} bags
+            <Briefcase className="size-3.5 text-[var(--gold-ink)]" /> {klass.large_luggage} bags
           </span>
           {klass.cabin_bags > 0 && (
             <span className="inline-flex items-center gap-1.5 text-xs font-medium">
-              <Luggage className="size-3.5 text-[var(--gold)]" /> {klass.cabin_bags} cabin
+              <Luggage className="size-3.5 text-[var(--gold-ink)]" /> {klass.cabin_bags} cabin
             </span>
           )}
         </div>
@@ -191,7 +191,7 @@ function FleetCard({ klass }: { klass: PublicVehicleClass }) {
             {models.map((m) => (
               <span
                 key={m.id}
-                className="rounded-md border border-[var(--navy-foreground)]/15 bg-[var(--navy-foreground)]/5 px-2 py-1 text-[11px] font-medium text-[var(--navy-foreground)]/80"
+                className="rounded-md border border-[var(--navy)]/10 bg-[var(--navy)]/5 px-2 py-1 text-[11px] font-medium text-[var(--navy)]/80"
               >
                 {m.manufacturer && !m.name.toLowerCase().startsWith(m.manufacturer.toLowerCase())
                   ? `${m.manufacturer} ${m.name}`
@@ -207,7 +207,7 @@ function FleetCard({ klass }: { klass: PublicVehicleClass }) {
             {recs.slice(0, 2).map((r) => (
               <span
                 key={r}
-                className="inline-flex items-center gap-1 rounded-full border border-[var(--gold)]/20 bg-[var(--gold)]/10 px-2 py-0.5 text-[10px] font-medium text-[var(--gold)] capitalize"
+                className="inline-flex items-center gap-1 rounded-full border border-[var(--gold)]/20 bg-[var(--gold)]/10 px-2 py-0.5 text-[10px] font-medium text-[var(--gold-ink)] capitalize"
               >
                 <CheckCircle2 className="size-2.5" /> {r}
               </span>
@@ -216,10 +216,10 @@ function FleetCard({ klass }: { klass: PublicVehicleClass }) {
         )}
 
         {/* Footer */}
-        <div className="mt-auto flex items-center justify-between gap-3 pt-2 border-t border-[var(--navy-foreground)]/10">
+        <div className="mt-auto flex items-center justify-between gap-3 pt-2 border-t border-[var(--navy)]/10">
           <Link
             to="/book"
-            className="text-sm font-medium text-[var(--navy-foreground)]/80 hover:text-[var(--gold)] transition-colors"
+            className="text-sm font-medium text-[var(--navy)]/80 hover:text-[var(--gold-ink)] transition-colors"
           >
             View class
           </Link>
