@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VipTransfersRouteImport } from './routes/vip-transfers'
+import { Route as VipSportsHospitalityRouteImport } from './routes/vip-sports-hospitality'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TeamSportsTravelRouteImport } from './routes/team-sports-travel'
 import { Route as StadiumTransfersRouteImport } from './routes/stadium-transfers'
@@ -113,6 +114,11 @@ import { Route as AuthenticatedAdminSeoPagesIdSectionsRouteImport } from './rout
 const VipTransfersRoute = VipTransfersRouteImport.update({
   id: '/vip-transfers',
   path: '/vip-transfers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VipSportsHospitalityRoute = VipSportsHospitalityRouteImport.update({
+  id: '/vip-sports-hospitality',
+  path: '/vip-sports-hospitality',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TermsRoute = TermsRouteImport.update({
@@ -671,6 +677,7 @@ export interface FileRoutesByFullPath {
   '/stadium-transfers': typeof StadiumTransfersRoute
   '/team-sports-travel': typeof TeamSportsTravelRoute
   '/terms': typeof TermsRoute
+  '/vip-sports-hospitality': typeof VipSportsHospitalityRoute
   '/vip-transfers': typeof VipTransfersRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/airports/$iata': typeof AirportsIataRoute
@@ -772,6 +779,7 @@ export interface FileRoutesByTo {
   '/stadium-transfers': typeof StadiumTransfersRoute
   '/team-sports-travel': typeof TeamSportsTravelRoute
   '/terms': typeof TermsRoute
+  '/vip-sports-hospitality': typeof VipSportsHospitalityRoute
   '/vip-transfers': typeof VipTransfersRoute
   '/airports/$iata': typeof AirportsIataRoute
   '/areas/$slug': typeof AreasSlugRoute
@@ -874,6 +882,7 @@ export interface FileRoutesById {
   '/stadium-transfers': typeof StadiumTransfersRoute
   '/team-sports-travel': typeof TeamSportsTravelRoute
   '/terms': typeof TermsRoute
+  '/vip-sports-hospitality': typeof VipSportsHospitalityRoute
   '/vip-transfers': typeof VipTransfersRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/airports/$iata': typeof AirportsIataRoute
@@ -977,6 +986,7 @@ export interface FileRouteTypes {
     | '/stadium-transfers'
     | '/team-sports-travel'
     | '/terms'
+    | '/vip-sports-hospitality'
     | '/vip-transfers'
     | '/admin'
     | '/airports/$iata'
@@ -1078,6 +1088,7 @@ export interface FileRouteTypes {
     | '/stadium-transfers'
     | '/team-sports-travel'
     | '/terms'
+    | '/vip-sports-hospitality'
     | '/vip-transfers'
     | '/airports/$iata'
     | '/areas/$slug'
@@ -1179,6 +1190,7 @@ export interface FileRouteTypes {
     | '/stadium-transfers'
     | '/team-sports-travel'
     | '/terms'
+    | '/vip-sports-hospitality'
     | '/vip-transfers'
     | '/_authenticated/admin'
     | '/airports/$iata'
@@ -1282,6 +1294,7 @@ export interface RootRouteChildren {
   StadiumTransfersRoute: typeof StadiumTransfersRoute
   TeamSportsTravelRoute: typeof TeamSportsTravelRoute
   TermsRoute: typeof TermsRoute
+  VipSportsHospitalityRoute: typeof VipSportsHospitalityRoute
   VipTransfersRoute: typeof VipTransfersRoute
   AirportsIataRoute: typeof AirportsIataRoute
   AreasSlugRoute: typeof AreasSlugRoute
@@ -1324,6 +1337,13 @@ declare module '@tanstack/react-router' {
       path: '/vip-transfers'
       fullPath: '/vip-transfers'
       preLoaderRoute: typeof VipTransfersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/vip-sports-hospitality': {
+      id: '/vip-sports-hospitality'
+      path: '/vip-sports-hospitality'
+      fullPath: '/vip-sports-hospitality'
+      preLoaderRoute: typeof VipSportsHospitalityRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/terms': {
@@ -2179,6 +2199,7 @@ const rootRouteChildren: RootRouteChildren = {
   StadiumTransfersRoute: StadiumTransfersRoute,
   TeamSportsTravelRoute: TeamSportsTravelRoute,
   TermsRoute: TermsRoute,
+  VipSportsHospitalityRoute: VipSportsHospitalityRoute,
   VipTransfersRoute: VipTransfersRoute,
   AirportsIataRoute: AirportsIataRoute,
   AreasSlugRoute: AreasSlugRoute,
