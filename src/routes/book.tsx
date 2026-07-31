@@ -823,7 +823,7 @@ function PriceBreakdown({ price }: { price: PriceSummary }) {
   ];
   return (
     <div className="bg-card rounded-2xl border border-border p-5 shadow-sm">
-      <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)] mb-3">Running Total</p>
+      <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)] mb-3">Running Total</p>
       <div className="flex items-center justify-between gap-4">
         <p className="text-sm text-muted-foreground leading-snug">
           {parts.map((part, i) => (
@@ -833,7 +833,7 @@ function PriceBreakdown({ price }: { price: PriceSummary }) {
             </span>
           ))}
         </p>
-        <span className="shrink-0 font-display text-3xl font-bold text-[var(--gold)] tabular-nums leading-none">
+        <span className="shrink-0 font-display text-3xl font-bold text-[var(--gold-ink)] tabular-nums leading-none">
           {fmtGBP(price.grandTotal)}
         </span>
       </div>

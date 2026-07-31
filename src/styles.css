@@ -100,7 +100,7 @@
   --navy-foreground: #ffffff;
 
   --gold: #dfaf26;
-  --gold-ink: #b98d10;
+  --gold-ink: #9a7508;
   --gold-foreground: #0e182c;
 
   --primary: #0e182c;
@@ -162,7 +162,7 @@
   @media (min-width: 768px) { padding-block: 6rem; }
 }
 
-@utility gold-text { color: var(--gold); }
+@utility gold-text { color: var(--gold-ink); }
 
 @utility hero-gradient {
   background: var(--navy);
