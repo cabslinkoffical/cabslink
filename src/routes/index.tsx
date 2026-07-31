@@ -335,6 +335,22 @@ function HomePage() {
         </div>
       </section>
 
+      {/* TRUST STRIP */}
+      <section className="bg-[var(--navy)] border-y border-white/10">
+        <div className="container-x py-6 sm:py-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-4 sm:gap-y-6">
+          {trustStats.map((s) => (
+            <div key={s.k} className="flex items-center gap-3 min-w-0">
+              <span className="grid size-10 shrink-0 place-items-center rounded-full border border-[var(--gold)]/40 text-[var(--gold)]">
+                <s.icon className="size-[18px]" />
+              </span>
+              <span className="min-w-0">
+                <span className="block text-sm font-semibold text-white truncate">{s.k}</span>
+                <span className="block text-xs text-white/60 truncate">{s.v}</span>
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* POPULAR TOURS */}
       {popularTours.length > 0 && (
@@ -459,22 +475,6 @@ function HomePage() {
         </div>
       </section>
 
-      {/* TRUST STRIP */}
-      <section className="bg-[var(--navy)] border-y border-white/10">
-        <div className="container-x py-6 sm:py-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-4 sm:gap-y-6">
-          {trustStats.map((s) => (
-            <div key={s.k} className="flex items-center gap-3 min-w-0">
-              <span className="grid size-10 shrink-0 place-items-center rounded-full border border-[var(--gold)]/40 text-[var(--gold)]">
-                <s.icon className="size-[18px]" />
-              </span>
-              <span className="min-w-0">
-                <span className="block text-sm font-semibold text-white truncate">{s.k}</span>
-                <span className="block text-xs text-white/60 truncate">{s.v}</span>
-              </span>
-            </div>
-          ))}
-        </div>
-      </section>
 
       {/* VEHICLE CLASSES */}
       <FleetClassesSection />
