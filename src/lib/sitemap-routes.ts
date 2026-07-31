@@ -4,6 +4,8 @@
  */
 export const PUBLIC_ROUTES = [
   "/", "/about", "/services", "/airport-transfers", "/vip-transfers",
+  "/golf-transfers", "/football-transfers", "/stadium-transfers",
+  "/team-sports-travel", "/vip-sports-hospitality",
   "/corporate-travel", "/tours", "/fleet", "/drive-with-us",
   "/corporate-booking", "/contact", "/book",
   "/privacy", "/terms", "/cookies",

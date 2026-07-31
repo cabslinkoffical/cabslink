@@ -10,13 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VipTransfersRouteImport } from './routes/vip-transfers'
+import { Route as VipSportsHospitalityRouteImport } from './routes/vip-sports-hospitality'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as TeamSportsTravelRouteImport } from './routes/team-sports-travel'
+import { Route as StadiumTransfersRouteImport } from './routes/stadium-transfers'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SitemapCoreDotxmlRouteImport } from './routes/sitemap-core[.]xml'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as GolfTransfersRouteImport } from './routes/golf-transfers'
+import { Route as FootballTransfersRouteImport } from './routes/football-transfers'
 import { Route as FleetRouteImport } from './routes/fleet'
 import { Route as DriveWithUsRouteImport } from './routes/drive-with-us'
 import { Route as DistanceRouteImport } from './routes/distance'
@@ -111,9 +116,24 @@ const VipTransfersRoute = VipTransfersRouteImport.update({
   path: '/vip-transfers',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VipSportsHospitalityRoute = VipSportsHospitalityRouteImport.update({
+  id: '/vip-sports-hospitality',
+  path: '/vip-sports-hospitality',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TeamSportsTravelRoute = TeamSportsTravelRouteImport.update({
+  id: '/team-sports-travel',
+  path: '/team-sports-travel',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StadiumTransfersRoute = StadiumTransfersRouteImport.update({
+  id: '/stadium-transfers',
+  path: '/stadium-transfers',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -144,6 +164,16 @@ const RefundPolicyRoute = RefundPolicyRouteImport.update({
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GolfTransfersRoute = GolfTransfersRouteImport.update({
+  id: '/golf-transfers',
+  path: '/golf-transfers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FootballTransfersRoute = FootballTransfersRouteImport.update({
+  id: '/football-transfers',
+  path: '/football-transfers',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FleetRoute = FleetRouteImport.update({
@@ -636,13 +666,18 @@ export interface FileRoutesByFullPath {
   '/distance': typeof DistanceRoute
   '/drive-with-us': typeof DriveWithUsRoute
   '/fleet': typeof FleetRoute
+  '/football-transfers': typeof FootballTransfersRoute
+  '/golf-transfers': typeof GolfTransfersRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/search': typeof SearchRoute
   '/services': typeof ServicesRoute
   '/sitemap-core.xml': typeof SitemapCoreDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/stadium-transfers': typeof StadiumTransfersRoute
+  '/team-sports-travel': typeof TeamSportsTravelRoute
   '/terms': typeof TermsRoute
+  '/vip-sports-hospitality': typeof VipSportsHospitalityRoute
   '/vip-transfers': typeof VipTransfersRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/airports/$iata': typeof AirportsIataRoute
@@ -733,13 +768,18 @@ export interface FileRoutesByTo {
   '/distance': typeof DistanceRoute
   '/drive-with-us': typeof DriveWithUsRoute
   '/fleet': typeof FleetRoute
+  '/football-transfers': typeof FootballTransfersRoute
+  '/golf-transfers': typeof GolfTransfersRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/search': typeof SearchRoute
   '/services': typeof ServicesRoute
   '/sitemap-core.xml': typeof SitemapCoreDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/stadium-transfers': typeof StadiumTransfersRoute
+  '/team-sports-travel': typeof TeamSportsTravelRoute
   '/terms': typeof TermsRoute
+  '/vip-sports-hospitality': typeof VipSportsHospitalityRoute
   '/vip-transfers': typeof VipTransfersRoute
   '/airports/$iata': typeof AirportsIataRoute
   '/areas/$slug': typeof AreasSlugRoute
@@ -831,13 +871,18 @@ export interface FileRoutesById {
   '/distance': typeof DistanceRoute
   '/drive-with-us': typeof DriveWithUsRoute
   '/fleet': typeof FleetRoute
+  '/football-transfers': typeof FootballTransfersRoute
+  '/golf-transfers': typeof GolfTransfersRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/search': typeof SearchRoute
   '/services': typeof ServicesRoute
   '/sitemap-core.xml': typeof SitemapCoreDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/stadium-transfers': typeof StadiumTransfersRoute
+  '/team-sports-travel': typeof TeamSportsTravelRoute
   '/terms': typeof TermsRoute
+  '/vip-sports-hospitality': typeof VipSportsHospitalityRoute
   '/vip-transfers': typeof VipTransfersRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/airports/$iata': typeof AirportsIataRoute
@@ -930,13 +975,18 @@ export interface FileRouteTypes {
     | '/distance'
     | '/drive-with-us'
     | '/fleet'
+    | '/football-transfers'
+    | '/golf-transfers'
     | '/privacy'
     | '/refund-policy'
     | '/search'
     | '/services'
     | '/sitemap-core.xml'
     | '/sitemap.xml'
+    | '/stadium-transfers'
+    | '/team-sports-travel'
     | '/terms'
+    | '/vip-sports-hospitality'
     | '/vip-transfers'
     | '/admin'
     | '/airports/$iata'
@@ -1027,13 +1077,18 @@ export interface FileRouteTypes {
     | '/distance'
     | '/drive-with-us'
     | '/fleet'
+    | '/football-transfers'
+    | '/golf-transfers'
     | '/privacy'
     | '/refund-policy'
     | '/search'
     | '/services'
     | '/sitemap-core.xml'
     | '/sitemap.xml'
+    | '/stadium-transfers'
+    | '/team-sports-travel'
     | '/terms'
+    | '/vip-sports-hospitality'
     | '/vip-transfers'
     | '/airports/$iata'
     | '/areas/$slug'
@@ -1124,13 +1179,18 @@ export interface FileRouteTypes {
     | '/distance'
     | '/drive-with-us'
     | '/fleet'
+    | '/football-transfers'
+    | '/golf-transfers'
     | '/privacy'
     | '/refund-policy'
     | '/search'
     | '/services'
     | '/sitemap-core.xml'
     | '/sitemap.xml'
+    | '/stadium-transfers'
+    | '/team-sports-travel'
     | '/terms'
+    | '/vip-sports-hospitality'
     | '/vip-transfers'
     | '/_authenticated/admin'
     | '/airports/$iata'
@@ -1223,13 +1283,18 @@ export interface RootRouteChildren {
   DistanceRoute: typeof DistanceRoute
   DriveWithUsRoute: typeof DriveWithUsRoute
   FleetRoute: typeof FleetRoute
+  FootballTransfersRoute: typeof FootballTransfersRoute
+  GolfTransfersRoute: typeof GolfTransfersRoute
   PrivacyRoute: typeof PrivacyRoute
   RefundPolicyRoute: typeof RefundPolicyRoute
   SearchRoute: typeof SearchRoute
   ServicesRoute: typeof ServicesRoute
   SitemapCoreDotxmlRoute: typeof SitemapCoreDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  StadiumTransfersRoute: typeof StadiumTransfersRoute
+  TeamSportsTravelRoute: typeof TeamSportsTravelRoute
   TermsRoute: typeof TermsRoute
+  VipSportsHospitalityRoute: typeof VipSportsHospitalityRoute
   VipTransfersRoute: typeof VipTransfersRoute
   AirportsIataRoute: typeof AirportsIataRoute
   AreasSlugRoute: typeof AreasSlugRoute
@@ -1274,11 +1339,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VipTransfersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/vip-sports-hospitality': {
+      id: '/vip-sports-hospitality'
+      path: '/vip-sports-hospitality'
+      fullPath: '/vip-sports-hospitality'
+      preLoaderRoute: typeof VipSportsHospitalityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/terms': {
       id: '/terms'
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/team-sports-travel': {
+      id: '/team-sports-travel'
+      path: '/team-sports-travel'
+      fullPath: '/team-sports-travel'
+      preLoaderRoute: typeof TeamSportsTravelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stadium-transfers': {
+      id: '/stadium-transfers'
+      path: '/stadium-transfers'
+      fullPath: '/stadium-transfers'
+      preLoaderRoute: typeof StadiumTransfersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap.xml': {
@@ -1321,6 +1407,20 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/golf-transfers': {
+      id: '/golf-transfers'
+      path: '/golf-transfers'
+      fullPath: '/golf-transfers'
+      preLoaderRoute: typeof GolfTransfersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/football-transfers': {
+      id: '/football-transfers'
+      path: '/football-transfers'
+      fullPath: '/football-transfers'
+      preLoaderRoute: typeof FootballTransfersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/fleet': {
@@ -2088,13 +2188,18 @@ const rootRouteChildren: RootRouteChildren = {
   DistanceRoute: DistanceRoute,
   DriveWithUsRoute: DriveWithUsRoute,
   FleetRoute: FleetRoute,
+  FootballTransfersRoute: FootballTransfersRoute,
+  GolfTransfersRoute: GolfTransfersRoute,
   PrivacyRoute: PrivacyRoute,
   RefundPolicyRoute: RefundPolicyRoute,
   SearchRoute: SearchRoute,
   ServicesRoute: ServicesRoute,
   SitemapCoreDotxmlRoute: SitemapCoreDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  StadiumTransfersRoute: StadiumTransfersRoute,
+  TeamSportsTravelRoute: TeamSportsTravelRoute,
   TermsRoute: TermsRoute,
+  VipSportsHospitalityRoute: VipSportsHospitalityRoute,
   VipTransfersRoute: VipTransfersRoute,
   AirportsIataRoute: AirportsIataRoute,
   AreasSlugRoute: AreasSlugRoute,
@@ -2132,13 +2237,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
