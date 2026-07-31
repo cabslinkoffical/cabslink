@@ -16,23 +16,19 @@ export function BookingWidget({
   const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>("quote");
   const today = new Date().toISOString().slice(0, 10);
-  const now = new Date();
-  const nowTime = `${String(now.getHours()).padStart(2, "0")}:${String(
-    (Math.round(now.getMinutes() / 15) * 15) % 60
-  ).padStart(2, "0")}`;
 
   const [pickup, setPickup] = useState<SelectedPlace | null>(null);
   const [dropoff, setDropoff] = useState<SelectedPlace | null>(null);
   const [stops, setStops] = useState<SelectedPlace[]>([]);
-  const [date, setDate] = useState(today);
-  const [time, setTime] = useState<string>(nowTime);
-  const [passengers, setPassengers] = useState(1);
-  const [luggage, setLuggage] = useState(0);
-  const [hours, setHours] = useState(4);
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState<string>("");
+  const [passengers, setPassengers] = useState<number | null>(null);
+  const [luggage, setLuggage] = useState<number | null>(null);
+  const [hours, setHours] = useState<number | null>(null);
 
   const [showReturn, setShowReturn] = useState(false);
-  const [returnDate, setReturnDate] = useState(today);
-  const [returnTime, setReturnTime] = useState<string>("12:00");
+  const [returnDate, setReturnDate] = useState("");
+  const [returnTime, setReturnTime] = useState<string>("");
   const [attempted, setAttempted] = useState(false);
   const [paxOpen, setPaxOpen] = useState(false);
   const paxRef = useRef<HTMLDivElement>(null);
