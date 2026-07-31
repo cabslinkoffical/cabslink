@@ -77,11 +77,11 @@ export function BlogArticle({ post, related }: { post: BlogPostFull; related: Bl
           <aside className="hidden lg:block">
             {post.toc.length > 0 && (
               <div className="sticky top-24 rounded-2xl border border-[var(--navy)]/10 bg-white p-5">
-                <p className="text-xs uppercase tracking-[0.2em] text-[var(--gold)] font-semibold mb-3">On this page</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-[var(--gold-ink)] font-semibold mb-3">On this page</p>
                 <ol className="space-y-2 text-sm">
                   {post.toc.map((t) => (
                     <li key={t.id} style={{ paddingLeft: `${(t.level - 2) * 12}px` }}>
-                      <a href={`#${t.id}`} className="text-[var(--navy)]/80 hover:text-[var(--gold)]">{t.text}</a>
+                      <a href={`#${t.id}`} className="text-[var(--navy)]/80 hover:text-[var(--gold-ink)]">{t.text}</a>
                     </li>
                   ))}
                 </ol>
@@ -93,14 +93,14 @@ export function BlogArticle({ post, related }: { post: BlogPostFull; related: Bl
           <div className="min-w-0">
             {post.key_takeaways.length > 0 && (
               <div className="mb-8 rounded-2xl border border-[var(--gold)]/40 bg-[var(--gold)]/5 p-6">
-                <p className="text-xs uppercase tracking-[0.2em] text-[var(--gold)] font-semibold mb-3">Key takeaways</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-[var(--gold-ink)] font-semibold mb-3">Key takeaways</p>
                 <ul className="space-y-2 text-[var(--navy)]/85 list-disc pl-5">
                   {post.key_takeaways.map((k, i) => <li key={i}>{k}</li>)}
                 </ul>
               </div>
             )}
 
-            <div className="prose prose-slate max-w-none prose-headings:font-display prose-headings:text-[var(--navy)] prose-a:text-[var(--gold)] prose-a:no-underline hover:prose-a:underline">
+            <div className="prose prose-slate max-w-none prose-headings:font-display prose-headings:text-[var(--navy)] prose-a:text-[var(--gold-ink)] prose-a:no-underline hover:prose-a:underline">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>{post.body_md}</ReactMarkdown>
             </div>
 
@@ -117,7 +117,7 @@ export function BlogArticle({ post, related }: { post: BlogPostFull; related: Bl
                     key={t.id}
                     to="/blog/tag/$slug"
                     params={{ slug: t.slug }}
-                    className="inline-block rounded-full border border-[var(--navy)]/15 bg-white px-3 py-1 text-xs text-[var(--navy)]/80 hover:border-[var(--gold)] hover:text-[var(--gold)]"
+                    className="inline-block rounded-full border border-[var(--navy)]/15 bg-white px-3 py-1 text-xs text-[var(--navy)]/80 hover:border-[var(--gold)] hover:text-[var(--gold-ink)]"
                   >
                     #{t.name}
                   </Link>

@@ -59,9 +59,9 @@ function BlogHome() {
               )}
               <div className="p-8 md:p-12">
                 {hero.category && (
-                  <p className="text-xs uppercase tracking-[0.3em] text-[var(--gold)] font-semibold mb-3">{hero.category.name}</p>
+                  <p className="text-xs uppercase tracking-[0.3em] text-[var(--gold-ink)] font-semibold mb-3">{hero.category.name}</p>
                 )}
-                <h2 className="font-display text-2xl md:text-4xl font-semibold text-[var(--navy)] leading-tight group-hover:text-[var(--gold)] transition">
+                <h2 className="font-display text-2xl md:text-4xl font-semibold text-[var(--navy)] leading-tight group-hover:text-[var(--gold-ink)] transition">
                   {hero.title}
                 </h2>
                 {hero.excerpt && <p className="mt-4 text-[var(--navy)]/70">{hero.excerpt}</p>}
@@ -79,7 +79,7 @@ function BlogHome() {
                 key={c.id}
                 to="/blog/category/$slug"
                 params={{ slug: c.slug }}
-                className="rounded-full border border-[var(--navy)]/15 bg-white px-4 py-2 text-sm text-[var(--navy)] hover:border-[var(--gold)] hover:text-[var(--gold)] transition"
+                className="rounded-full border border-[var(--navy)]/15 bg-white px-4 py-2 text-sm text-[var(--navy)] hover:border-[var(--gold)] hover:text-[var(--gold-ink)] transition"
               >
                 {c.name}
               </Link>

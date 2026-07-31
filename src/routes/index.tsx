@@ -360,7 +360,7 @@ function HomePage() {
             <div className="max-w-2xl">
               <p className="eyebrow-gold text-[11px]">— Popular Tours</p>
               <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold text-[var(--navy)] leading-[1.05] tracking-[-0.02em]">
-                Curated journeys, <span className="text-[var(--gold)]">crafted your way.</span>
+                Curated journeys, <span className="text-[var(--gold-ink)]">crafted your way.</span>
               </h2>
             </div>
             <Button asChild variant="outline" className="rounded-full border-[var(--navy)]/20 text-[var(--navy)] hover:border-[var(--gold)] hover:text-[var(--gold-ink)] self-start md:self-auto">
@@ -385,7 +385,7 @@ function HomePage() {
               <p className="eyebrow-gold text-[11px]">— Our Services</p>
               <h2 className="mt-4 font-display text-4xl md:text-6xl font-bold leading-[1.02] tracking-[-0.02em] text-[var(--navy)]">
                 A complete travel <br className="hidden md:block" />
-                <span className="text-[var(--gold)]">platform.</span>
+                <span className="text-[var(--gold-ink)]">platform.</span>
               </h2>
             </div>
             <div className="lg:col-span-5">
@@ -410,7 +410,7 @@ function HomePage() {
                   className="pointer-events-none absolute -right-10 -top-10 size-32 rounded-full bg-[var(--gold)]/12 opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100"
                 />
 
-                <span className="absolute right-6 top-6 font-mono text-[11px] tracking-widest text-[var(--navy)]/25 transition-colors group-hover:text-[var(--gold)]">
+                <span className="absolute right-6 top-6 font-mono text-[11px] tracking-widest text-[var(--navy)]/25 transition-colors group-hover:text-[var(--gold-ink)]">
                   0{i + 1}
                 </span>
 
@@ -444,7 +444,7 @@ function HomePage() {
             <div className="max-w-2xl">
               <p className="eyebrow-gold text-[11px]">— Airport Transfers</p>
               <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold text-[var(--navy)] leading-[1.05]">
-                Every major UK <span className="text-[var(--gold)]">airport.</span>
+                Every major UK <span className="text-[var(--gold-ink)]">airport.</span>
               </h2>
             </div>
             <Button asChild variant="outline" className="rounded-full border-[var(--navy)]/20 text-[var(--navy)] hover:border-[var(--gold)] hover:text-[var(--gold-ink)] self-start md:self-auto">
@@ -485,7 +485,7 @@ function HomePage() {
           <div className="max-w-3xl">
             <p className="eyebrow-gold text-[11px]">— How It Works</p>
             <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold text-[var(--navy)] leading-[1.05]">
-              Three steps to a <span className="text-[var(--gold)]">premium journey.</span>
+              Three steps to a <span className="text-[var(--gold-ink)]">premium journey.</span>
             </h2>
           </div>
 
@@ -514,7 +514,7 @@ function HomePage() {
           <div className="lg:col-span-4 lg:sticky lg:top-28">
             <p className="eyebrow-gold text-[11px]">— Why Cabslink</p>
             <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold text-[var(--navy)] leading-[1.05]">
-              The details that <span className="text-[var(--gold)]">make the difference.</span>
+              The details that <span className="text-[var(--gold-ink)]">make the difference.</span>
             </h2>
             <p className="mt-5 text-[var(--navy)]/65 leading-relaxed">
               Every journey is handled by vetted drivers, tracked flights and fixed
@@ -574,7 +574,7 @@ function HomePage() {
             <span className="eyebrow-gold text-[11px]">UK Coverage</span>
             <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold text-[var(--navy)] leading-[1.05]">
               From the Highlands <br />
-              <span className="text-[var(--gold)]">to the Channel.</span>
+              <span className="text-[var(--gold-ink)]">to the Channel.</span>
             </h2>
             <p className="mt-5 text-[var(--navy)]/65 leading-relaxed">
               120+ towns and cities. Every major airport. One trusted travel platform
@@ -653,7 +653,7 @@ function HomePage() {
           <div className="lg:col-span-6 order-2 lg:order-1">
             <p className="eyebrow-gold text-[11px]">— Corporate Travel</p>
             <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold text-[var(--navy)] leading-[1.05]">
-              Business travel, <span className="text-[var(--gold)]">handled.</span>
+              Business travel, <span className="text-[var(--gold-ink)]">handled.</span>
             </h2>
             <p className="mt-5 text-[var(--navy)]/65 leading-relaxed">
               Dedicated account management, monthly consolidated invoicing and priority
@@ -720,7 +720,7 @@ function HomePage() {
           <div className="lg:col-span-4">
             <p className="eyebrow-gold text-[11px]">— FAQ</p>
             <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold text-[var(--navy)] leading-[1.05]">
-              Answers, <br /><span className="text-[var(--gold)]">upfront.</span>
+              Answers, <br /><span className="text-[var(--gold-ink)]">upfront.</span>
             </h2>
             <p className="mt-5 text-[var(--navy)]/65 leading-relaxed">
               Everything you need to know before you book. Can't find your answer?
