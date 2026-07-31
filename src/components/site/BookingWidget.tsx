@@ -515,34 +515,55 @@ function Divider() {
 }
 
 
-function StepperRow({ label, value, min, max, onChange }: { label: string; value: number; min: number; max: number; onChange: (v: number) => void }) {
+function StepperRow({
+  label,
+  hint,
+  value,
+  min,
+  max,
+  onChange,
+}: { label: string; hint?: string; value: number; min: number; max: number; onChange: (v: number) => void }) {
+  const atMin = value <= min;
+  const atMax = value >= max;
+  const btn =
+    "w-9 h-9 flex items-center justify-center text-[var(--navy)] transition-colors hover:bg-[var(--navy)]/[0.06] active:bg-[var(--navy)]/[0.12] disabled:text-[var(--navy)]/25 disabled:hover:bg-transparent disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold)] focus-visible:ring-inset";
+
   return (
-    <div className="flex items-center justify-between">
-      <span className="text-sm font-semibold">{label}</span>
-      <div className="flex items-center gap-2">
+    <div className="flex items-center justify-between gap-4 py-1">
+      <div className="min-w-0">
+        <div className="text-sm font-semibold text-[var(--navy)]">{label}</div>
+        {hint && <div className="text-[11px] text-muted-foreground">{hint}</div>}
+      </div>
+      <div className="flex items-center rounded-lg border border-border overflow-hidden bg-background shrink-0">
         <button
           type="button"
           onClick={() => onChange(Math.max(min, value - 1))}
-          disabled={value <= min}
-          className="w-8 h-8 rounded-full bg-[var(--navy)] text-[var(--gold)] disabled:opacity-30 disabled:cursor-not-allowed hover:brightness-125 transition flex items-center justify-center"
+          disabled={atMin}
+          className={btn}
           aria-label={`Decrease ${label}`}
         >
-          <Minus className="w-3.5 h-3.5" strokeWidth={3} />
+          <Minus className="w-4 h-4" strokeWidth={2.5} />
         </button>
-        <span className="w-6 text-center text-sm font-bold tabular-nums">{value}</span>
+        <span
+          className="w-10 text-center text-sm font-bold tabular-nums text-[var(--navy)] border-x border-border py-1.5"
+          aria-live="polite"
+        >
+          {value}
+        </span>
         <button
           type="button"
           onClick={() => onChange(Math.min(max, value + 1))}
-          disabled={value >= max}
-          className="w-8 h-8 rounded-full bg-[var(--navy)] text-[var(--gold)] disabled:opacity-30 disabled:cursor-not-allowed hover:brightness-125 transition flex items-center justify-center"
+          disabled={atMax}
+          className={btn}
           aria-label={`Increase ${label}`}
         >
-          <Plus className="w-3.5 h-3.5" strokeWidth={3} />
+          <Plus className="w-4 h-4" strokeWidth={2.5} />
         </button>
       </div>
     </div>
   );
 }
+
 
 function PillButton({ onClick, children, icon, tone = "dark" }: { onClick: () => void; children: React.ReactNode; icon: React.ReactNode; tone?: "dark" | "light" }) {
   return (
