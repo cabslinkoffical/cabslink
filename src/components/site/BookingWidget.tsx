@@ -111,6 +111,9 @@ export function BookingWidget({
     pickup: !pickup?.placeId ? "Select a pickup location from the suggestions." : "",
     date: !date ? "Choose a travel date." : "",
     time: !time ? "Choose a start time." : isPastDateTime(date, time) ? "Start time cannot be in the past." : "",
+    hours: hours === null ? "Choose how many hours you need." : "",
+    passengers: passengers === null ? "Select the number of passengers." : "",
+    luggage: luggage === null ? "Select how many bags you have." : "",
   };
   const hourlyErrorList = Object.values(hourlyErrors).filter(Boolean);
 
