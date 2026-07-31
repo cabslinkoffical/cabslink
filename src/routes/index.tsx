@@ -877,40 +877,42 @@ function FleetClassesSection() {
                 style={{ animationDirection: "reverse" }}
               >
                 {track.map((k, idx) => (
-            <div key={`${k.id}-${idx}`} className="group relative w-[280px] sm:w-[320px] shrink-0 rounded-[24px] bg-white overflow-hidden border border-white/10 shadow-raised hover:shadow-raised-hover hover:-translate-y-1.5 transition-all duration-500 flex flex-col">
+            <div key={`${k.id}-${idx}`} className="group vehicle-card vehicle-card-sheen relative w-[280px] sm:w-[320px] shrink-0 rounded-[24px] flex flex-col">
+              <div className="vehicle-sheen" aria-hidden="true" />
               {k.badge && (
-                <span className="absolute top-5 left-5 z-10 inline-flex items-center gap-1.5 rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] text-[10px] font-bold uppercase tracking-[0.16em] px-3 py-1.5">
+                <span className="absolute top-5 left-5 z-20 inline-flex items-center gap-1.5 rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] text-[10px] font-bold uppercase tracking-[0.16em] px-3 py-1.5 shadow-glow">
                   <Gem className="size-3" /> {k.badge}
                 </span>
               )}
-              <div className="relative aspect-[16/10] flex items-center justify-center bg-[var(--surface,#f5f2ec)] overflow-hidden p-5">
+              <div className="vehicle-stage relative aspect-[16/10] flex items-center justify-center overflow-hidden p-5">
+                <div className="vehicle-reflection" aria-hidden="true" />
                 {(() => {
                   const img = fleetImageFor(k.slug, k.hero_image);
                   return img ? (
-                    <img src={img} alt={k.name} loading={idx < 4 ? "eager" : "lazy"} decoding="async" className="max-h-full max-w-full object-contain drop-shadow-[0_18px_18px_rgba(14,24,44,0.15)] transition-transform duration-700 group-hover:scale-[1.04]" />
+                    <img src={img} alt={k.name} loading={idx < 4 ? "eager" : "lazy"} decoding="async" className="relative z-10 max-h-full max-w-full object-contain drop-shadow-[0_24px_30px_rgba(0,0,0,0.45)] transition-all duration-700 group-hover:scale-[1.06] group-hover:-translate-y-1" />
                   ) : (
-                    <div className="text-[var(--navy)]/40 text-sm">Image coming soon</div>
+                    <div className="relative z-10 text-white/40 text-sm">Image coming soon</div>
                   );
                 })()}
               </div>
-              <div className="p-6 flex-1 flex flex-col">
-                <h3 className="font-display text-xl font-semibold text-[var(--navy)]">{k.name}</h3>
-                {k.short_description && <p className="mt-1 text-xs text-[var(--navy)]/60 line-clamp-2">{k.short_description}</p>}
-                <div className="mt-4 flex items-center gap-4 text-xs text-[var(--navy)]/70">
-                  <span className="flex items-center gap-1.5"><Users className="size-4 text-[var(--gold-ink)]" />{k.passengers} pax</span>
-                  <span className="flex items-center gap-1.5"><Briefcase className="size-4 text-[var(--gold-ink)]" />{k.large_luggage} bags</span>
+              <div className="relative z-10 p-6 flex-1 flex flex-col">
+                <h3 className="font-display text-xl font-semibold text-white">{k.name}</h3>
+                {k.short_description && <p className="mt-1 text-xs text-white/60 line-clamp-2">{k.short_description}</p>}
+                <div className="mt-4 flex items-center gap-4 text-xs text-white/70">
+                  <span className="flex items-center gap-1.5"><Users className="size-4 text-[var(--gold)]" />{k.passengers} pax</span>
+                  <span className="flex items-center gap-1.5"><Briefcase className="size-4 text-[var(--gold)]" />{k.large_luggage} bags</span>
                 </div>
                 {k.models.length > 0 && (
                   <div className="mt-3 flex flex-wrap gap-1.5">
                     {k.models.slice(0, 3).map((m) => (
-                      <span key={m.id} className="rounded-full bg-[var(--navy)]/5 text-[var(--navy)]/80 px-2 py-0.5 text-[10.5px] font-medium">
+                      <span key={m.id} className="rounded-full bg-white/10 text-white/80 px-2 py-0.5 text-[10.5px] font-medium border border-white/10">
                         {m.name}
                       </span>
                     ))}
                   </div>
                 )}
-                <div className="mt-auto pt-5 flex items-center justify-between border-t border-[var(--navy)]/10">
-                  <Link to="/fleet" className="text-[var(--navy)]/70 text-xs font-semibold hover:text-[var(--gold-ink)]">View class</Link>
+                <div className="mt-auto pt-5 flex items-center justify-between border-t border-white/10">
+                  <Link to="/fleet" className="text-white/70 text-xs font-semibold hover:text-[var(--gold)] transition-colors">View class</Link>
                   <Link to="/book" search={{ q: "" }} className="inline-flex items-center gap-2 rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] px-4 py-2.5 text-xs font-bold uppercase tracking-[0.12em] hover:brightness-110 transition">
                     {k.quote_on_request ? "Request quote" : "Get quote"} <ArrowRight className="size-3.5" />
                   </Link>
