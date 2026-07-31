@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { Users, Briefcase, Luggage, ArrowRight, Accessibility, Zap, CheckCircle2, Sparkles, Car } from "lucide-react";
+import { Users, Briefcase, Luggage, ArrowRight, Accessibility, Zap, CheckCircle2, Sparkles } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { CtaBand } from "@/components/site/CtaBand";
 import { Reveal } from "@/components/site/Reveal";
