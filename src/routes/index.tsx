@@ -329,7 +329,36 @@ function HomePage() {
                     </>
                   )}
                 </div>
+
+                {/* Vehicle label + carousel dots */}
+                {current && (
+                  <div className="relative z-10 mt-6 flex flex-col items-center gap-3 lg:mt-8">
+                    <div className="text-center">
+                      <p className="font-display text-base font-semibold text-white sm:text-lg">{current.name}</p>
+                      <p className="mt-0.5 text-[11px] uppercase tracking-[0.18em] text-[var(--gold)]">{current.tag}</p>
+                    </div>
+                    {heroVehicles.length > 1 && (
+                      <div className="flex flex-wrap items-center justify-center gap-2">
+                        {heroVehicles.map((v, i) => (
+                          <button
+                            key={v.key}
+                            type="button"
+                            onClick={() => go(i)}
+                            aria-label={`Show ${v.name}`}
+                            aria-current={i === active}
+                            className={`h-1.5 rounded-full transition-all ${
+                              i === active
+                                ? "w-7 bg-[var(--gold)]"
+                                : "w-3 bg-white/25 hover:bg-white/50"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
+
 
             </div>
 
