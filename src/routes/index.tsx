@@ -181,6 +181,12 @@ function HomePage() {
   const heroVehicles = useMemo<HeroVehicle[]>(() => {
     const mapped = vehicleClasses
       .filter((c) => c.slug !== "unclassified")
+      // Featured classes lead the carousel, then display order.
+      .slice()
+      .sort((a, b) =>
+        (b.featured ? 1 : 0) - (a.featured ? 1 : 0) ||
+        (a.display_order ?? 0) - (b.display_order ?? 0),
+      )
       .map((c) => {
         const fb = fallbackHeroVehicles.find((f) => f.key === c.slug);
         const img = fleetImageFor(c.slug, c.hero_image) || fb?.img;
@@ -195,9 +201,12 @@ function HomePage() {
           seats: c.passengers ?? 0,
         } as HeroVehicle;
       })
-      .filter(Boolean) as HeroVehicle[];
+      .filter(Boolean)
+      // Keep the rotation (and the dot row) readable.
+      .slice(0, 8) as HeroVehicle[];
     return mapped.length > 0 ? mapped : fallbackHeroVehicles;
   }, [vehicleClasses]);
+
 
   useEffect(() => {
     if (paused || heroVehicles.length < 2) return;
