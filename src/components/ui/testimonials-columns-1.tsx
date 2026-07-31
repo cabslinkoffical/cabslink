@@ -35,7 +35,7 @@ export const TestimonialsColumn = (props: {
                 key={`${index}-${i}`}
                 className="p-8 rounded-3xl border border-[var(--navy)]/10 bg-card shadow-raised max-w-xs w-full"
               >
-                <div className="flex items-center gap-1 text-[var(--gold)]">
+                <div className="flex items-center gap-1 text-[var(--gold-ink)]">
                   {[...Array(5)].map((_, s) => (
                     <Star key={s} className="size-3.5 fill-current" />
                   ))}

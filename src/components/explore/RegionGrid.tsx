@@ -22,7 +22,7 @@ export function RegionGrid({ regions }: { regions: RegionCard[] }) {
           <div>
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-2">
-                <MapPin className="size-4 text-[var(--gold)]" />
+                <MapPin className="size-4 text-[var(--gold-ink)]" />
                 <h3 className="text-lg font-semibold text-[var(--navy)]">{r.name}</h3>
               </div>
               <span className="rounded-full bg-[var(--navy)]/6 px-2.5 py-0.5 text-xs font-semibold tabular-nums text-[var(--navy)]/70">

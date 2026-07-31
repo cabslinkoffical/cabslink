@@ -101,7 +101,7 @@ function AboutPage() {
         <div className="container-x py-6 flex flex-wrap items-center gap-3">
           <Button asChild variant="gold" className="rounded-full"><Link to="/book">Book Now</Link></Button>
           <Button asChild variant="outline" className="rounded-full"><Link to="/distance">Get a Quote</Link></Button>
-          <a href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`} className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--navy)] hover:text-[var(--gold)]">
+          <a href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`} className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--navy)] hover:text-[var(--gold-ink)]">
             <PhoneCall className="size-4" /> {SITE.phoneUK}
           </a>
         </div>
@@ -125,7 +125,7 @@ function AboutPage() {
                 "Cruise transfers", "Student transfers", "Hotel transfers", "Group transport",
               ].map(t => (
                 <span key={t} className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium">
-                  <CheckCircle2 className="size-3.5 text-[var(--gold)]" /> {t}
+                  <CheckCircle2 className="size-3.5 text-[var(--gold-ink)]" /> {t}
                 </span>
               ))}
             </div>
@@ -137,7 +137,7 @@ function AboutPage() {
       <section className="section-y bg-[var(--surface)]">
         <div className="container-x">
           <div className="mx-auto max-w-3xl text-center">
-            <p className="text-xs uppercase tracking-[0.3em] text-[var(--gold)] mb-3">Our mission</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-[var(--gold-ink)] mb-3">Our mission</p>
             <p className="font-display text-2xl md:text-4xl leading-snug text-[var(--navy)]">
               To make airport travel simple, comfortable and stress-free — through reliable private
               transport, transparent fixed pricing and exceptional customer service on every journey.
@@ -166,7 +166,7 @@ function AboutPage() {
               { icon: Luggage, t: "Luggage Assistance", d: "Every driver helps with cases, kit and pushchairs." },
             ].map(f => (
               <div key={f.t} className="rounded-2xl bg-card border border-border p-6">
-                <div className="grid size-11 place-items-center rounded-xl bg-[var(--gold)]/15 text-[var(--gold)]"><f.icon className="size-5" /></div>
+                <div className="grid size-11 place-items-center rounded-xl bg-[var(--gold)]/15 text-[var(--gold-ink)]"><f.icon className="size-5" /></div>
                 <h3 className="mt-4 font-display text-lg font-semibold">{f.t}</h3>
                 <p className="mt-1.5 text-sm text-muted-foreground">{f.d}</p>
               </div>
@@ -195,8 +195,8 @@ function AboutPage() {
               { to: "/tours", icon: MapPin, t: "Distillery Tours" },
             ].map(s => (
               <Link key={s.t} to={s.to} className="group rounded-2xl bg-card border border-border p-5 hover:border-[var(--gold)]/60 hover:shadow-[var(--shadow-elegant)] transition-all">
-                <s.icon className="size-6 text-[var(--gold)]" />
-                <p className="mt-4 font-display text-base font-semibold group-hover:text-[var(--gold)]">{s.t}</p>
+                <s.icon className="size-6 text-[var(--gold-ink)]" />
+                <p className="mt-4 font-display text-base font-semibold group-hover:text-[var(--gold-ink)]">{s.t}</p>
                 <span className="mt-2 inline-flex items-center gap-1 text-xs text-muted-foreground">Learn more <ArrowRight className="size-3" /></span>
               </Link>
             ))}
@@ -217,8 +217,8 @@ function AboutPage() {
           <SectionHeader eyebrow="Our coverage" title="Scotland-wide, UK-ready." subtitle="From our Edinburgh base we cover every major city, airport, station and cruise port in Scotland — with long-distance transfers into England and Wales on request." center />
           <div className="mt-10 grid gap-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-5">
             {["Edinburgh","Glasgow","Livingston","Stirling","Dundee","Perth","St Andrews","Falkirk","Fife","Borders"].map(city => (
-              <Link key={city} to="/areas/$slug" params={{ slug: city.toLowerCase().replace(/\s+/g, "-") }} className="rounded-xl border border-border bg-card px-4 py-3 text-sm font-semibold text-[var(--navy)] hover:border-[var(--gold)]/60 hover:text-[var(--gold)] transition-colors">
-                <MapPin className="inline size-3.5 mr-1.5 text-[var(--gold)]" />{city}
+              <Link key={city} to="/areas/$slug" params={{ slug: city.toLowerCase().replace(/\s+/g, "-") }} className="rounded-xl border border-border bg-card px-4 py-3 text-sm font-semibold text-[var(--navy)] hover:border-[var(--gold)]/60 hover:text-[var(--gold-ink)] transition-colors">
+                <MapPin className="inline size-3.5 mr-1.5 text-[var(--gold-ink)]" />{city}
               </Link>
             ))}
           </div>
@@ -245,10 +245,10 @@ function AboutPage() {
               { t: "Long-Distance Executive", pax: "Cross-country", use: "City-to-city travel" },
             ].map(v => (
               <div key={v.t} className="rounded-2xl bg-card border border-border p-6">
-                <Car className="size-6 text-[var(--gold)]" />
+                <Car className="size-6 text-[var(--gold-ink)]" />
                 <h3 className="mt-4 font-display text-lg font-semibold">{v.t}</h3>
                 <p className="mt-1 text-sm text-muted-foreground">{v.pax}</p>
-                <p className="mt-3 text-xs uppercase tracking-[0.14em] text-[var(--gold)]">{v.use}</p>
+                <p className="mt-3 text-xs uppercase tracking-[0.14em] text-[var(--gold-ink)]">{v.use}</p>
               </div>
             ))}
           </div>
@@ -278,7 +278,7 @@ function AboutPage() {
               { icon: Users, t: "Event organisers" },
             ].map(c => (
               <div key={c.t} className="rounded-xl border border-border bg-card px-4 py-4 flex items-center gap-3">
-                <div className="grid size-9 place-items-center rounded-lg bg-[var(--gold)]/15 text-[var(--gold)]"><c.icon className="size-4" /></div>
+                <div className="grid size-9 place-items-center rounded-lg bg-[var(--gold)]/15 text-[var(--gold-ink)]"><c.icon className="size-4" /></div>
                 <span className="text-sm font-medium">{c.t}</span>
               </div>
             ))}
@@ -296,7 +296,7 @@ function AboutPage() {
               "Driver assigned", "Flight monitored", "Meet & greet pickup", "Safe arrival",
             ].map((step, i) => (
               <li key={step} className="relative rounded-2xl bg-card border border-border p-5 text-center">
-                <div className="mx-auto grid size-10 place-items-center rounded-full bg-[var(--navy)] text-[var(--gold)] font-display font-semibold">{i + 1}</div>
+                <div className="mx-auto grid size-10 place-items-center rounded-full bg-[var(--navy)] text-[var(--gold-ink)] font-display font-semibold">{i + 1}</div>
                 <p className="mt-3 text-sm font-semibold text-[var(--navy)]">{step}</p>
               </li>
             ))}
@@ -321,7 +321,7 @@ function AboutPage() {
                 "Secure encrypted online payments",
               ].map(item => (
                 <li key={item} className="flex items-start gap-3">
-                  <Shield className="size-5 text-[var(--gold)] shrink-0 mt-0.5" />
+                  <Shield className="size-5 text-[var(--gold-ink)] shrink-0 mt-0.5" />
                   <span className="text-sm text-muted-foreground">{item}</span>
                 </li>
               ))}
@@ -341,7 +341,7 @@ function AboutPage() {
                 { icon: CheckCircle2, t: "Accountability" },
               ].map(v => (
                 <div key={v.t} className="rounded-xl border border-border bg-card p-4 flex items-center gap-3">
-                  <div className="grid size-9 place-items-center rounded-lg bg-[var(--gold)]/15 text-[var(--gold)]"><v.icon className="size-4" /></div>
+                  <div className="grid size-9 place-items-center rounded-lg bg-[var(--gold)]/15 text-[var(--gold-ink)]"><v.icon className="size-4" /></div>
                   <span className="text-sm font-semibold">{v.t}</span>
                 </div>
               ))}
@@ -366,7 +366,7 @@ function AboutPage() {
               "24/7 customer support",
             ].map(t => (
               <div key={t} className="rounded-xl border border-border bg-card p-4 flex items-start gap-3">
-                <BadgeCheck className="size-5 text-[var(--gold)] shrink-0 mt-0.5" />
+                <BadgeCheck className="size-5 text-[var(--gold-ink)] shrink-0 mt-0.5" />
                 <span className="text-sm font-medium">{t}</span>
               </div>
             ))}
@@ -383,7 +383,7 @@ function AboutPage() {
               <details key={f.q} className="group rounded-2xl border border-border bg-card p-5 open:shadow-[var(--shadow-elegant)]">
                 <summary className="cursor-pointer list-none flex items-center justify-between gap-4">
                   <span className="font-display text-base md:text-lg font-semibold text-[var(--navy)]">{f.q}</span>
-                  <span className="grid size-8 place-items-center rounded-full bg-[var(--gold)]/15 text-[var(--gold)] transition-transform group-open:rotate-45">+</span>
+                  <span className="grid size-8 place-items-center rounded-full bg-[var(--gold)]/15 text-[var(--gold-ink)] transition-transform group-open:rotate-45">+</span>
                 </summary>
                 <p className="mt-3 text-sm text-muted-foreground">{f.a}</p>
               </details>
@@ -395,7 +395,7 @@ function AboutPage() {
       {/* Final CTA */}
       <section className="section-y bg-[var(--navy)] text-white">
         <div className="container-x text-center">
-          <p className="text-xs uppercase tracking-[0.3em] text-[var(--gold)] mb-4">Ready to travel</p>
+          <p className="text-xs uppercase tracking-[0.3em] text-[var(--gold-ink)] mb-4">Ready to travel</p>
           <h2 className="font-display text-3xl md:text-5xl font-semibold">Ready to book your journey?</h2>
           <p className="mt-4 max-w-2xl mx-auto text-white/75">Get an instant fixed-price quote in under a minute — or speak to a real person 24/7.</p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
@@ -419,7 +419,7 @@ function AboutPage() {
                 { to: "/cruise-ports", t: "Cruise Transfers" },
                 { to: "/universities", t: "University Transfers" },
               ].map(l => (
-                <li key={l.t}><Link to={l.to} className="text-muted-foreground hover:text-[var(--gold)]">{l.t} →</Link></li>
+                <li key={l.t}><Link to={l.to} className="text-muted-foreground hover:text-[var(--gold-ink)]">{l.t} →</Link></li>
               ))}
             </ul>
           </div>
@@ -428,7 +428,7 @@ function AboutPage() {
             <ul className="mt-4 space-y-2 text-sm">
               {["Edinburgh","Glasgow","Livingston","St Andrews","Perth"].map(city => (
                 <li key={city}>
-                  <Link to="/areas/$slug" params={{ slug: city.toLowerCase().replace(/\s+/g, "-") }} className="text-muted-foreground hover:text-[var(--gold)]">{city} Transfers →</Link>
+                  <Link to="/areas/$slug" params={{ slug: city.toLowerCase().replace(/\s+/g, "-") }} className="text-muted-foreground hover:text-[var(--gold-ink)]">{city} Transfers →</Link>
                 </li>
               ))}
             </ul>
@@ -443,7 +443,7 @@ function AboutPage() {
                 { to: "/tours", t: "Scotland Private Tours" },
                 { to: "/fleet", t: "Choosing the Right Vehicle" },
               ].map(l => (
-                <li key={l.t}><Link to={l.to} className="text-muted-foreground hover:text-[var(--gold)]">{l.t} →</Link></li>
+                <li key={l.t}><Link to={l.to} className="text-muted-foreground hover:text-[var(--gold-ink)]">{l.t} →</Link></li>
               ))}
             </ul>
           </div>

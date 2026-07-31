@@ -81,14 +81,14 @@ function CorporateBookingPage() {
                 { n: "04", t: "Book & travel", d: "Web, phone or email — billed monthly with full reporting." },
               ].map(s => (
                 <li key={s.n} className="flex gap-5">
-                  <span className="font-display text-3xl text-[var(--gold)] w-10">{s.n}</span>
+                  <span className="font-display text-3xl text-[var(--gold-ink)] w-10">{s.n}</span>
                   <div><h4 className="font-semibold text-lg">{s.t}</h4><p className="text-sm text-muted-foreground mt-1">{s.d}</p></div>
                 </li>
               ))}
             </ol>
           </div>
           <form onSubmit={onSubmit} className="rounded-3xl border border-border bg-card p-6 md:p-8 shadow-sm h-fit">
-            <div className="flex items-center gap-3"><Building2 className="size-6 text-[var(--gold)]" /><h3 className="font-display text-2xl font-semibold">Corporate enquiry</h3></div>
+            <div className="flex items-center gap-3"><Building2 className="size-6 text-[var(--gold-ink)]" /><h3 className="font-display text-2xl font-semibold">Corporate enquiry</h3></div>
             <div className="mt-6 grid gap-4">
               <div><Label>Company</Label><Input name="company" required maxLength={120} className="mt-1.5" /></div>
               <div className="grid sm:grid-cols-2 gap-4">

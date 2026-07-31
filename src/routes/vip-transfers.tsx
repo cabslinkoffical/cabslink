@@ -41,7 +41,7 @@ function VipPage() {
                 { i: Star, t: "Total discretion", d: "Confidentiality is the baseline, not a premium add-on." },
               ].map(f => (
                 <li key={f.t} className="flex gap-4">
-                  <div className="grid size-11 shrink-0 place-items-center rounded-xl bg-[var(--gold)]/15 text-[var(--gold)]"><f.i className="size-5" /></div>
+                  <div className="grid size-11 shrink-0 place-items-center rounded-xl bg-[var(--gold)]/15 text-[var(--gold-ink)]"><f.i className="size-5" /></div>
                   <div><h4 className="font-semibold">{f.t}</h4><p className="text-sm text-muted-foreground mt-1">{f.d}</p></div>
                 </li>
               ))}
