@@ -333,22 +333,40 @@ export function BookingWidget({
             <Divider />
 
             {/* Passengers + Luggage popover */}
-            <div className="relative @[600px]:col-span-2 @[980px]:col-span-1 @[980px]:flex-shrink-0 @[980px]:w-[190px] border-t border-black/5 @[980px]:border-0" ref={paxRef}>
+            <div
+              className="relative @[600px]:col-span-2 @[980px]:col-span-1 @[980px]:flex-shrink-0 @[980px]:w-[190px] border-t border-black/5 @[980px]:border-0"
+              ref={paxRef}
+              data-invalid={attempted && (!!errors.passengers || !!errors.luggage)}
+            >
               <button
                 type="button"
                 onClick={() => setPaxOpen((v) => !v)}
-                className="w-full h-full flex items-center justify-center gap-3 px-4 py-3 @[980px]:py-2.5 rounded-2xl @[980px]:rounded-full hover:bg-black/[0.03] transition-colors"
+                className={`w-full h-full flex items-center justify-center gap-3 px-4 py-3 @[980px]:py-2.5 rounded-2xl @[980px]:rounded-full hover:bg-black/[0.03] transition-colors ${
+                  attempted && (errors.passengers || errors.luggage) ? "bg-destructive/5 ring-1 ring-destructive/60" : ""
+                }`}
               >
                 <span className="inline-flex items-center gap-1.5">
                   <Users className="w-4 h-4 text-[var(--gold-ink)] shrink-0" />
-                  <span className="text-sm font-bold tabular-nums text-[var(--navy)]">{passengers}</span>
-                  <span className="text-[11px] font-semibold text-[var(--navy)]/60">{passengers === 1 ? "Person" : "People"}</span>
+                  {passengers === null ? (
+                    <span className="text-sm text-[var(--navy)]/45">Passengers</span>
+                  ) : (
+                    <>
+                      <span className="text-sm font-bold tabular-nums text-[var(--navy)]">{passengers}</span>
+                      <span className="text-[11px] font-semibold text-[var(--navy)]/60">{passengers === 1 ? "Person" : "People"}</span>
+                    </>
+                  )}
                 </span>
                 <span className="w-px h-4 bg-black/10" />
                 <span className="inline-flex items-center gap-1.5">
                   <Briefcase className="w-4 h-4 text-[var(--gold-ink)] shrink-0" />
-                  <span className="text-sm font-bold tabular-nums text-[var(--navy)]">{luggage}</span>
-                  <span className="text-[11px] font-semibold text-[var(--navy)]/60">{luggage === 1 ? "Bag" : "Bags"}</span>
+                  {luggage === null ? (
+                    <span className="text-sm text-[var(--navy)]/45">Bags</span>
+                  ) : (
+                    <>
+                      <span className="text-sm font-bold tabular-nums text-[var(--navy)]">{luggage}</span>
+                      <span className="text-[11px] font-semibold text-[var(--navy)]/60">{luggage === 1 ? "Bag" : "Bags"}</span>
+                    </>
+                  )}
                 </span>
               </button>
               {paxOpen && (
