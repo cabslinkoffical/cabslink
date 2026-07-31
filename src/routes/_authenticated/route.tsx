@@ -4,8 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/_authenticated")({
   head: () => ({
     meta: [
-      { title: "_Authenticated — Cabslink Admin" },
-      { name: "description", content: "Cabslink staff console: _authenticated." },
+      { title: "Cabslink Account" },
+      { name: "description", content: "Cabslink secure account area." },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),

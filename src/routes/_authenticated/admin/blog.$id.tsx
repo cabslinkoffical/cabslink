@@ -18,8 +18,8 @@ import {
 export const Route = createFileRoute("/_authenticated/admin/blog/$id")({
   head: () => ({
     meta: [
-      { title: "Blog — Cabslink Admin" },
-      { name: "description", content: "Cabslink staff console: blog." },
+      { title: "Edit Article — Cabslink Admin" },
+      { name: "description", content: "Cabslink edit blog article." },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
