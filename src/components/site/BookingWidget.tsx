@@ -190,10 +190,11 @@ export function BookingWidget({
               <div className="border-t border-black/5 @[980px]:border-0 @[980px]:w-[150px] shrink-0">
                 <FieldCell icon={<Clock className="w-4 h-4 text-[var(--gold-ink)]" />} label="Duration" compact>
                   <select
-                    value={hours}
-                    onChange={(e) => setHours(Number(e.target.value))}
+                    value={hours ?? ""}
+                    onChange={(e) => setHours(e.target.value ? Number(e.target.value) : null)}
                     className="w-full bg-transparent border-0 outline-none text-sm font-semibold text-foreground"
                   >
+                    <option value="">Select hours</option>
                     {Array.from({ length: 12 }, (_, i) => i + 3).map((h) => (
                       <option key={h} value={h}>{h} hours</option>
                     ))}
