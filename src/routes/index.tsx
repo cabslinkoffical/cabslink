@@ -276,7 +276,6 @@ function HomePage() {
                 aria-hidden
                 className="pointer-events-none absolute -inset-x-10 -inset-y-16 z-0"
               >
-                <div className="absolute left-1/2 top-1/2 size-[560px] lg:size-[640px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--gold)]/10 blur-[120px]" />
                 <div className="absolute left-1/2 top-1/2 size-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/[0.06] blur-[90px]" />
               </div>
 
