@@ -71,7 +71,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "Cabslink — Premium UK Airport Transfers & Airport Travel Services" },
       { name: "description", content: "Reliable, on-time UK airport transfers and luxury airport travel services. 24/7 booking, flight tracking, meet & greet across the UK." },
       { name: "author", content: "Cabslink" },
-      { name: "theme-color", content: "#1a1f3a" },
+      { name: "theme-color", content: "#0e182c" },
       { property: "og:site_name", content: "Cabslink" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

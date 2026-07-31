@@ -54,7 +54,7 @@
   --font-sans: "Epilogue", "Inter", ui-sans-serif, system-ui, sans-serif;
 
   --shadow-elegant: 0 30px 80px -30px color-mix(in oklab, #0e182c 35%, transparent);
-  --shadow-glow: 0 18px 40px -12px color-mix(in oklab, #dfaf26 55%, transparent);
+  --shadow-glow: 0 18px 40px -12px color-mix(in oklab, #deae25 55%, transparent);
 
   /* Raised card shadows — layered for a tangible "popped up" feel */
   --shadow-raised:

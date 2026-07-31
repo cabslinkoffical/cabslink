@@ -275,7 +275,7 @@ function HeroPreview({ classes }: { classes: any[] }) {
         </div>
       </div>
 
-      <div className="mt-4 overflow-hidden rounded-xl bg-[#0a1224] p-6">
+      <div className="mt-4 overflow-hidden rounded-xl bg-[var(--navy)] p-6">
         <div className="flex items-center gap-4">
           <Button type="button" size="icon" variant="secondary" onClick={() => step(-1)} aria-label="Previous class">
             <ChevronLeft className="size-4" />

@@ -19,7 +19,7 @@ export function WhatsAppButton() {
       rel="noopener noreferrer"
       aria-label="Chat with Cabslink on WhatsApp"
       className={cn(
-        "fixed right-3 z-40 grid size-12 place-items-center rounded-full bg-[#25D366] text-white shadow-lg ring-1 ring-black/10 transition-all",
+        "fixed right-3 z-40 grid size-12 place-items-center rounded-full bg-[var(--gold)] text-[var(--navy)] shadow-lg ring-1 ring-black/10 transition-all",
         "hover:scale-105 hover:shadow-xl active:scale-95 sm:right-6 sm:size-14",
         hasMobileBar ? "bottom-[calc(env(safe-area-inset-bottom)+5.5rem)]" : "bottom-[calc(env(safe-area-inset-bottom)+1rem)]",
         "lg:bottom-6",
