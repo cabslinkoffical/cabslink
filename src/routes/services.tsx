@@ -302,7 +302,7 @@ function ServicesPage() {
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--gold-ink)]">Full catalogue</p>
             <h2 className="mt-3 font-display text-3xl font-semibold sm:text-4xl">Every service we operate</h2>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Twenty-four services across four travel categories. If your journey isn't listed, we'll still quote it — just ask.
+              Thirty services across five travel categories. If your journey isn't listed, we'll still quote it — just ask.
             </p>
           </div>
 
