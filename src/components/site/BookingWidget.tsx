@@ -344,11 +344,16 @@ export function BookingWidget({
                 </span>
               </button>
               {paxOpen && (
-                <div className="absolute top-full mt-2 right-0 z-50 w-64 bg-white rounded-2xl shadow-[var(--shadow-elegant)] border border-border p-4 space-y-3">
-                  <StepperRow label="Passengers" value={passengers} min={1} max={16} onChange={setPassengers} />
-                  <StepperRow label="Luggage" value={luggage} min={0} max={10} onChange={setLuggage} />
+                <div className="absolute top-full mt-2 right-0 z-50 w-72 bg-white rounded-xl shadow-[var(--shadow-elegant)] border border-border p-4 divide-y divide-border">
+                  <div className="pb-2">
+                    <StepperRow label="Passengers" hint="Including children" value={passengers} min={1} max={16} onChange={setPassengers} />
+                  </div>
+                  <div className="pt-2">
+                    <StepperRow label="Luggage" hint="Large cases" value={luggage} min={0} max={10} onChange={setLuggage} />
+                  </div>
                 </div>
               )}
+
             </div>
 
 
