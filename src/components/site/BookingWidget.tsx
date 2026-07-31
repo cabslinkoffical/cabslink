@@ -163,7 +163,7 @@ export function BookingWidget({
                     id={`${idPrefix}-hourly-pickup`}
                     value={pickup}
                     onChange={setPickup}
-                    placeholder="Pickup city, hotel, airport"
+                    placeholder="Pickup location"
                     iconClassName="hidden"
                     inputClassName="border-0 shadow-none bg-transparent px-0 h-auto py-0 text-sm font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-[var(--navy)]/55"
                     required
@@ -276,7 +276,7 @@ export function BookingWidget({
                   id={`${idPrefix}-pickup`}
                   value={pickup}
                   onChange={setPickup}
-                  placeholder="From city, hotel, airport"
+                  placeholder="Pickup location"
                   iconClassName="hidden"
                   inputClassName="border-0 shadow-none bg-transparent px-0 h-auto py-0 text-sm font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-[var(--navy)]/55"
                   required
@@ -293,7 +293,7 @@ export function BookingWidget({
                   id={`${idPrefix}-dropoff`}
                   value={dropoff}
                   onChange={setDropoff}
-                  placeholder="To city, hotel, airport"
+                  placeholder="Destination"
                   iconClassName="hidden"
                   inputClassName="border-0 shadow-none bg-transparent px-0 h-auto py-0 text-sm font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-[var(--navy)]/55"
                   required
