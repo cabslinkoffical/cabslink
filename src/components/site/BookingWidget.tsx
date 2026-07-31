@@ -242,9 +242,9 @@ export function BookingWidget({
 
               <button
                 type="submit"
-                className="@[600px]:col-span-2 @[980px]:col-span-1 inline-flex items-center justify-center gap-2 bg-[var(--gold)] text-[var(--gold-foreground)] rounded-2xl @[980px]:rounded-full px-6 @[980px]:px-8 py-4 @[980px]:py-2.5 font-display font-bold uppercase tracking-[0.18em] text-xs hover:brightness-105 transition-all shrink-0"
+                className={`@[600px]:col-span-2 @[980px]:col-span-1 group cta-search inline-flex items-center justify-center gap-2 bg-[var(--gold)] text-[var(--gold-foreground)] rounded-2xl @[980px]:rounded-full px-6 @[980px]:px-8 py-4 @[980px]:py-2.5 font-display font-bold uppercase tracking-[0.18em] text-xs shrink-0 ${hourlyErrorList.length === 0 ? "cta-search-ready" : ""}`}
               >
-                <Search className="w-4 h-4" strokeWidth={2.5} />
+                <Search className="w-4 h-4 transition-transform duration-200 group-hover:scale-110" strokeWidth={2.5} />
                 <span>See rates</span>
               </button>
             </div>
@@ -389,9 +389,9 @@ export function BookingWidget({
             {/* Search button */}
             <button
               type="submit"
-              className="@[600px]:col-span-2 @[980px]:col-span-1 group inline-flex items-center justify-center gap-2 bg-[var(--gold)] text-[var(--gold-foreground)] rounded-2xl @[980px]:rounded-full px-6 @[980px]:px-8 py-4 @[980px]:py-2.5 font-display font-bold uppercase tracking-[0.18em] text-xs hover:brightness-105 transition-all shrink-0"
+              className={`@[600px]:col-span-2 @[980px]:col-span-1 group cta-search inline-flex items-center justify-center gap-2 bg-[var(--gold)] text-[var(--gold-foreground)] rounded-2xl @[980px]:rounded-full px-6 @[980px]:px-8 py-4 @[980px]:py-2.5 font-display font-bold uppercase tracking-[0.18em] text-xs shrink-0 ${errorList.length === 0 ? "cta-search-ready" : ""}`}
             >
-              <Search className="w-4 h-4" strokeWidth={2.5} />
+              <Search className="w-4 h-4 transition-transform duration-200 group-hover:scale-110" strokeWidth={2.5} />
               <span>Search</span>
             </button>
 
