@@ -13,6 +13,13 @@ import { ArrowLeft, Plus } from "lucide-react";
 import { listCategoriesAdmin, upsertCategory, deleteCategory } from "@/lib/blog-admin.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/blog/categories")({
+  head: () => ({
+    meta: [
+      { title: "Blog › Categories — Cabslink Admin" },
+      { name: "description", content: "Cabslink staff console: blog › categories." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   component: AdminBlogCategories,
 });
 

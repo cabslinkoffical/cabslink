@@ -23,6 +23,13 @@ const opts = queryOptions({
 });
 
 export const Route = createFileRoute("/_authenticated/admin/scenic-routes")({
+  head: () => ({
+    meta: [
+      { title: "Scenic Routes — Cabslink Admin" },
+      { name: "description", content: "Cabslink staff console: scenic routes." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   loader: ({ context }) => context.queryClient.ensureQueryData(opts),
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
   notFoundComponent: () => <div className="p-8">Not found</div>,

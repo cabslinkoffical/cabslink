@@ -11,9 +11,9 @@ export const Route = createFileRoute("/corporate-travel")({
       { name: "description", content: "Account-managed corporate travel with punctual drivers, monthly invoicing, dedicated support and full reporting." },
       { property: "og:title", content: "Corporate Travel — Cabslink" },
       { property: "og:description", content: "Account-managed corporate travel with punctual drivers, monthly invoicing, dedicated support and full reporting." },
-      { property: "og:url", content: "https://cabslink.lovable.app/corporate-travel" },
+      { property: "og:url", content: "https://cabslink.com/corporate-travel" },
     ],
-    links: [{ rel: "canonical", href: "https://cabslink.lovable.app/corporate-travel" }],
+    links: [{ rel: "canonical", href: "https://cabslink.com/corporate-travel" }],
   }),
   component: CorporatePage,
 });

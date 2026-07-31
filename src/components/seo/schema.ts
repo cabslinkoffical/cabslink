@@ -6,8 +6,8 @@ import type { Destination } from "@/lib/destinations.functions";
 
 const BRAND = {
   name: "CabsLink",
-  url: "https://cabslink.lovable.app",
-  logo: "https://cabslink.lovable.app/logo.png",
+  url: "https://cabslink.com",
+  logo: "https://cabslink.com/logo.png",
 };
 
 export function organizationSchema() {

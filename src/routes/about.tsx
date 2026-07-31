@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { SITE } from "@/lib/site";
 import edinburghImg from "@/assets/edinburgh.jpg";
 
-const CANONICAL = "https://cabslink.lovable.app/about";
+const CANONICAL = "https://cabslink.com/about";
 
 const FAQS = [
   { q: "Do you monitor flights?", a: "Yes. Every airport pickup is linked to your flight number and tracked in real time, so your driver adjusts automatically for early arrivals or delays at no extra cost." },
@@ -43,7 +43,7 @@ export const Route = createFileRoute("/about")({
           "@context": "https://schema.org",
           "@type": "BreadcrumbList",
           itemListElement: [
-            { "@type": "ListItem", position: 1, name: "Home", item: "https://cabslink.lovable.app/" },
+            { "@type": "ListItem", position: 1, name: "Home", item: "https://cabslink.com/" },
             { "@type": "ListItem", position: 2, name: "About", item: CANONICAL },
           ],
         }),
@@ -53,9 +53,9 @@ export const Route = createFileRoute("/about")({
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "LocalBusiness",
-          "@id": "https://cabslink.lovable.app/#organization",
+          "@id": "https://cabslink.com/#organization",
           name: "Cabslink",
-          url: "https://cabslink.lovable.app",
+          url: "https://cabslink.com",
           telephone: SITE.phoneUK,
           areaServed: [
             { "@type": "AdministrativeArea", name: "Scotland" },

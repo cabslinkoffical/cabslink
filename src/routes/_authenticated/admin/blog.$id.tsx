@@ -16,6 +16,13 @@ import {
 } from "@/lib/blog-admin.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/blog/$id")({
+  head: () => ({
+    meta: [
+      { title: "Edit Article — Cabslink Admin" },
+      { name: "description", content: "Cabslink edit blog article." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   component: PostEditor,
 });
 

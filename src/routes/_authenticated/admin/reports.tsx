@@ -13,6 +13,13 @@ import { PageHeader, StatCard, EmptyState } from "@/components/admin/ui";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/admin/reports")({
+  head: () => ({
+    meta: [
+      { title: "Reports — Cabslink Admin" },
+      { name: "description", content: "Cabslink staff console: reports." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
   notFoundComponent: () => <div className="p-8">Not found</div>,
   component: Page,

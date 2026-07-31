@@ -11,6 +11,13 @@ const opts = queryOptions({ queryKey: ["admin", "users"], queryFn: () => listUse
 const meOpts = queryOptions({ queryKey: ["admin", "me"], queryFn: () => isAdmin() });
 
 export const Route = createFileRoute("/_authenticated/admin/users")({
+  head: () => ({
+    meta: [
+      { title: "Users — Cabslink Admin" },
+      { name: "description", content: "Cabslink staff console: users." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   loader: async ({ context }) => {
     await Promise.all([context.queryClient.ensureQueryData(opts), context.queryClient.ensureQueryData(meOpts)]);
   },

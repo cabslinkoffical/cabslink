@@ -11,6 +11,13 @@ import { toast } from "sonner";
 const opts = queryOptions({ queryKey: ["admin", "messages"], queryFn: () => listMessages() });
 
 export const Route = createFileRoute("/_authenticated/admin/messages")({
+  head: () => ({
+    meta: [
+      { title: "Messages — Cabslink Admin" },
+      { name: "description", content: "Cabslink staff console: messages." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   loader: ({ context }) => context.queryClient.ensureQueryData(opts),
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
   notFoundComponent: () => <div className="p-8">Not found</div>,

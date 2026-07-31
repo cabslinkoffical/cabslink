@@ -25,9 +25,9 @@ export const Route = createFileRoute("/fleet")({
       { property: "og:description", content: "Executive Saloon, Luxury Chauffeur, Premium MPV and more. Book by class, guaranteed allocation." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { property: "og:url", content: "https://cabslink.lovable.app/fleet" },
+      { property: "og:url", content: "https://cabslink.com/fleet" },
     ],
-    links: [{ rel: "canonical", href: "https://cabslink.lovable.app/fleet" }],
+    links: [{ rel: "canonical", href: "https://cabslink.com/fleet" }],
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(fleetQuery),
   errorComponent: () => (

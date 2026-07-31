@@ -49,9 +49,9 @@ export const Route = createFileRoute("/services")({
       { property: "og:description", content: "Airport, station and cruise transfers, day tours, hourly hire, corporate accounts, VIP and event travel across the UK." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { property: "og:url", content: "https://cabslink.lovable.app/services" },
+      { property: "og:url", content: "https://cabslink.com/services" },
     ],
-    links: [{ rel: "canonical", href: "https://cabslink.lovable.app/services" }],
+    links: [{ rel: "canonical", href: "https://cabslink.com/services" }],
   }),
   component: ServicesPage,
 });

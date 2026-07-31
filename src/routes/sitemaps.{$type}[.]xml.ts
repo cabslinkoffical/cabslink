@@ -9,7 +9,7 @@ import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { destinationHref, DESTINATION_TYPES, type DestinationType } from "@/lib/destinations.functions";
 
-const BASE_URL = "https://cabslink.lovable.app";
+const BASE_URL = "https://cabslink.com";
 
 function serverPublicClient() {
   const key = process.env.SUPABASE_PUBLISHABLE_KEY!;

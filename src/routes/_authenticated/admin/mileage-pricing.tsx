@@ -20,6 +20,13 @@ const cOpts = queryOptions({ queryKey: ["admin", "vehicle-classes"], queryFn: ()
 
 
 export const Route = createFileRoute("/_authenticated/admin/mileage-pricing")({
+  head: () => ({
+    meta: [
+      { title: "Mileage Pricing — Cabslink Admin" },
+      { name: "description", content: "Cabslink staff console: mileage pricing." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   loader: ({ context }) => Promise.all([
     context.queryClient.ensureQueryData(vOpts),
     context.queryClient.ensureQueryData(cOpts),

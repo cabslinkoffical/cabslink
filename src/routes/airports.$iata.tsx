@@ -7,7 +7,7 @@ import { getRelatedSeoLinks } from "@/lib/seo-related.functions";
 import { SeoPageRenderer, buildSeoHead } from "@/components/seo/SeoPageRenderer";
 import { listDestinationsByType, type Destination } from "@/lib/destinations.functions";
 
-const ORIGIN = "https://cabslink.lovable.app";
+const ORIGIN = "https://cabslink.com";
 
 export const Route = createFileRoute("/airports/$iata")({
   loader: async ({ params }) => {

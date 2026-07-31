@@ -14,6 +14,13 @@ import { Loader2 } from "lucide-react";
 const pOpts = queryOptions({ queryKey: ["pricing-profiles"], queryFn: () => adminListPricingProfiles() });
 
 export const Route = createFileRoute("/_authenticated/admin/pricing-preview")({
+  head: () => ({
+    meta: [
+      { title: "Pricing Preview — Cabslink Admin" },
+      { name: "description", content: "Cabslink staff console: pricing preview." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   loader: ({ context }) => context.queryClient.ensureQueryData(pOpts),
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
   notFoundComponent: () => <div className="p-8">Not found</div>,

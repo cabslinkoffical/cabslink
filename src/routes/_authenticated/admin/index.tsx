@@ -15,6 +15,13 @@ import { LegalReadinessBanner } from "@/components/admin/LegalReadinessBanner";
 const statsOpts = queryOptions({ queryKey: ["admin", "stats"], queryFn: () => getDashboardStats() });
 
 export const Route = createFileRoute("/_authenticated/admin/")({
+  head: () => ({
+    meta: [
+      { title: "Dashboard — Cabslink Admin" },
+      { name: "description", content: "Cabslink staff console: dashboard." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   loader: ({ context }) => context.queryClient.ensureQueryData(statsOpts),
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
   notFoundComponent: () => <div className="p-8">Not found</div>,

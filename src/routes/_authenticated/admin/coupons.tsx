@@ -17,6 +17,13 @@ import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
 
 const opts = queryOptions({ queryKey: ["admin", "coupons"], queryFn: () => listCoupons() });
 export const Route = createFileRoute("/_authenticated/admin/coupons")({
+  head: () => ({
+    meta: [
+      { title: "Coupons — Cabslink Admin" },
+      { name: "description", content: "Cabslink staff console: coupons." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   loader: ({ context }) => context.queryClient.ensureQueryData(opts),
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
   notFoundComponent: () => <div className="p-8">Not found</div>,

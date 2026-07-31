@@ -20,9 +20,9 @@ export const Route = createFileRoute("/drive-with-us")({
       { name: "description", content: "Join Cabslink as a professional driver or licensed fleet operator. Steady premium work across the UK with a respected brand." },
       { property: "og:title", content: "Drive With Us — Cabslink" },
       { property: "og:description", content: "Join Cabslink as a professional driver or licensed fleet operator. Steady premium work across the UK with a respected brand." },
-      { property: "og:url", content: "https://cabslink.lovable.app/drive-with-us" },
+      { property: "og:url", content: "https://cabslink.com/drive-with-us" },
     ],
-    links: [{ rel: "canonical", href: "https://cabslink.lovable.app/drive-with-us" }],
+    links: [{ rel: "canonical", href: "https://cabslink.com/drive-with-us" }],
   }),
   component: DrivePage,
 });

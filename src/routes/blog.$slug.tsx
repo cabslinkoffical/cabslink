@@ -4,7 +4,7 @@ import { getBlogPost, type BlogPostFull, type BlogPostSummary } from "@/lib/blog
 import { BlogArticle } from "@/components/site/BlogArticle";
 import { SiteLayout } from "@/components/site/SiteLayout";
 
-const BASE = "https://cabslink.lovable.app";
+const BASE = "https://cabslink.com";
 
 const postQuery = (slug: string) =>
   queryOptions({

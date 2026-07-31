@@ -16,6 +16,13 @@ import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
 
 const opts = queryOptions({ queryKey: ["admin", "addresses"], queryFn: () => listAddresses() });
 export const Route = createFileRoute("/_authenticated/admin/addresses")({
+  head: () => ({
+    meta: [
+      { title: "Addresses — Cabslink Admin" },
+      { name: "description", content: "Cabslink staff console: addresses." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   loader: ({ context }) => context.queryClient.ensureQueryData(opts),
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
   notFoundComponent: () => <div className="p-8">Not found</div>,

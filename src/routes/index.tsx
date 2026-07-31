@@ -62,12 +62,12 @@ export const Route = createFileRoute("/")({
       { name: "keywords", content: "UK airport transfers, luxury travel UK, private driver, Edinburgh airport taxi, Heathrow transfer, Mercedes V-Class hire, executive car service, Scotland tours" },
       { property: "og:title", content: "Cabslink | UK Airport Transfers & Luxury Travel Platform" },
       { property: "og:description", content: "Plan premium UK journeys — fixed-fare transfers, private tours, executive travel. Flight tracking, meet & greet, Mercedes fleet." },
-      { property: "og:url", content: "https://cabslink.lovable.app/" },
+      { property: "og:url", content: "https://cabslink.com/" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
-      { rel: "canonical", href: "https://cabslink.lovable.app/" },
+      { rel: "canonical", href: "https://cabslink.com/" },
       {
         rel: "preload",
         as: "image",

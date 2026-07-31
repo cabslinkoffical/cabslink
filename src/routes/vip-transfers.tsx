@@ -12,9 +12,9 @@ export const Route = createFileRoute("/vip-transfers")({
       { name: "description", content: "Discreet, refined VIP driver transfers across the UK. First-class vehicles, vetted drivers and absolute privacy." },
       { property: "og:title", content: "VIP Transfers — Cabslink" },
       { property: "og:description", content: "Discreet, refined VIP driver transfers across the UK. First-class vehicles, vetted drivers and absolute privacy." },
-      { property: "og:url", content: "https://cabslink.lovable.app/vip-transfers" },
+      { property: "og:url", content: "https://cabslink.com/vip-transfers" },
     ],
-    links: [{ rel: "canonical", href: "https://cabslink.lovable.app/vip-transfers" }],
+    links: [{ rel: "canonical", href: "https://cabslink.com/vip-transfers" }],
   }),
   component: VipPage,
 });

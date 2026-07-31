@@ -4,7 +4,7 @@ import { getRelatedSeoLinks } from "@/lib/seo-related.functions";
 import { SeoPageRenderer, buildSeoHead } from "@/components/seo/SeoPageRenderer";
 import { SiteLayout } from "@/components/site/SiteLayout";
 
-const ORIGIN = "https://cabslink.lovable.app";
+const ORIGIN = "https://cabslink.com";
 
 export const Route = createFileRoute("/locations/$slug")({
   loader: async ({ params }) => {

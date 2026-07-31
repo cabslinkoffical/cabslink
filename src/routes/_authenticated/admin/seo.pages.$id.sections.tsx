@@ -18,6 +18,13 @@ import { toast } from "sonner";
 const SECTION_TYPES = ["hero","intro","service_overview","local_travel_info","airport_pickup_instructions","route_overview","route_facts","fleet_recommendations","popular_destinations","nearby_airports","nearby_cities","relevant_services","relevant_tours","booking_cta","faqs","local_landmarks","corporate_travel_info","accessibility","custom_rich_text"];
 
 export const Route = createFileRoute("/_authenticated/admin/seo/pages/$id/sections")({
+  head: () => ({
+    meta: [
+      { title: "Seo › Pages › Sections — Cabslink Admin" },
+      { name: "description", content: "Cabslink staff console: seo › pages › sections." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   loader: ({ context, params }) => context.queryClient.ensureQueryData(
     queryOptions({ queryKey: ["admin", "seo", "sections", params.id], queryFn: () => listSeoPageSections({ data: { page_id: params.id } }) })
   ),

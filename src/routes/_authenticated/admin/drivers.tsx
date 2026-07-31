@@ -20,6 +20,13 @@ import { PhoneInput } from "@/components/site/PhoneInput";
 const opts = queryOptions({ queryKey: ["admin", "drivers"], queryFn: () => listDrivers() });
 const vOpts = queryOptions({ queryKey: ["admin", "vehicles"], queryFn: () => listVehiclesAdmin() });
 export const Route = createFileRoute("/_authenticated/admin/drivers")({
+  head: () => ({
+    meta: [
+      { title: "Drivers — Cabslink Admin" },
+      { name: "description", content: "Cabslink staff console: drivers." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   loader: ({ context }) => context.queryClient.ensureQueryData(opts),
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
   notFoundComponent: () => <div className="p-8">Not found</div>,

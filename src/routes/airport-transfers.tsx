@@ -12,9 +12,9 @@ export const Route = createFileRoute("/airport-transfers")({
       { name: "description", content: "Reliable UK airport transfers with flight tracking, meet & greet and fixed transparent fares. Edinburgh, Heathrow, Gatwick, Manchester and more." },
       { property: "og:title", content: "UK Airport Transfers — Cabslink" },
       { property: "og:description", content: "Reliable UK airport transfers with flight tracking, meet & greet and fixed transparent fares. Edinburgh, Heathrow, Gatwick, Manchester and more." },
-      { property: "og:url", content: "https://cabslink.lovable.app/airport-transfers" },
+      { property: "og:url", content: "https://cabslink.com/airport-transfers" },
     ],
-    links: [{ rel: "canonical", href: "https://cabslink.lovable.app/airport-transfers" }],
+    links: [{ rel: "canonical", href: "https://cabslink.com/airport-transfers" }],
   }),
   component: AirportPage,
 });

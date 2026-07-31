@@ -24,6 +24,13 @@ import { IMPORT_KINDS, DEFAULT_RULESET, type ImportKind, type ImportRuleset } fr
 import { validateImport, commitImport, computeAutoRelationships, getImportRuleset, updateImportRuleset, type ValidationOutcome, type CommitReport } from "@/lib/seo/import.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/seo/import")({
+  head: () => ({
+    meta: [
+      { title: "Seo › Import — Cabslink Admin" },
+      { name: "description", content: "Cabslink staff console: seo › import." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   component: SeoImportPage,
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
 });
