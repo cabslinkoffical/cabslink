@@ -39,18 +39,26 @@ import { BookingWidget } from "@/components/site/BookingWidget";
 beforeEach(() => navigateMock.mockReset());
 
 describe("BookingWidget — Place-ID gating", () => {
-  it("keeps Search disabled and blocks submit when no places are selected", async () => {
+  it("blocks submit and shows validation when no places are selected", async () => {
+    const user = userEvent.setup();
     render(<BookingWidget />);
-    const submit = screen.getByRole("button", { name: /Search/i });
-    expect(submit).toBeDisabled();
+    await user.click(screen.getByRole("button", { name: /Search/i }));
     expect(navigateMock).not.toHaveBeenCalled();
+    expect(await screen.findByText(/Select a pickup location from the suggestions/i)).toBeTruthy();
   });
 
-  it("submits with pickupPlaceId/destinationPlaceId query params when both selected", async () => {
+  it("submits with pickupPlaceId/dropoffPlaceId query params when both selected", async () => {
     const user = userEvent.setup();
     render(<BookingWidget />);
     await user.click(screen.getByTestId("widget-pickup-pick-a"));
     await user.click(screen.getByTestId("widget-dropoff-pick-b"));
+    const today = new Date();
+    const d = new Date(today.getTime() + 86_400_000).toISOString().slice(0, 10);
+    const dateInput = document.querySelector('input[type="date"]') as HTMLInputElement;
+    const timeInput = document.querySelector('input[type="time"]') as HTMLInputElement;
+    await user.clear(dateInput);
+    await user.type(dateInput, d);
+    if (!timeInput.value) await user.type(timeInput, "10:00");
     await user.click(screen.getByRole("button", { name: /Search/i }));
     expect(navigateMock).toHaveBeenCalledTimes(1);
     const arg = navigateMock.mock.calls[0][0];
@@ -61,13 +69,14 @@ describe("BookingWidget — Place-ID gating", () => {
     expect(params.get("dropoffLabel")).toBe("B");
   });
 
-  it("keeps Search disabled when pickup and destination are identical", async () => {
+  it("blocks submit when pickup and destination are identical", async () => {
     const user = userEvent.setup();
     render(<BookingWidget />);
     await user.click(screen.getByTestId("widget-pickup-pick-a"));
     await user.click(screen.getByTestId("widget-dropoff-pick-a"));
-    const submit = screen.getByRole("button", { name: /Search/i });
-    expect(submit).toBeDisabled();
+    await user.click(screen.getByRole("button", { name: /Search/i }));
     expect(navigateMock).not.toHaveBeenCalled();
+    expect(await screen.findByText(/cannot be the same as pickup/i)).toBeTruthy();
   });
 });
+
