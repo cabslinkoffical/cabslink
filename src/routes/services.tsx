@@ -28,6 +28,9 @@ import {
   Wine,
   Briefcase,
   BookOpen,
+  Trophy,
+  Target,
+  Circle,
 } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { CtaBand } from "@/components/site/CtaBand";
