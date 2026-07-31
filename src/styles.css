@@ -489,3 +489,29 @@ input[type="time"] {
   .cta-search-ready { animation: none; }
   .cta-search:hover::after { animation: none; display: none; }
 }
+
+/* ===== Ticket print isolation: print only #ticket ===== */
+@media print {
+  @page { margin: 10mm; }
+  html, body { background: #ffffff !important; }
+  body * { visibility: hidden !important; box-shadow: none !important; }
+  #ticket, #ticket * { visibility: visible !important; }
+  #ticket {
+    position: absolute !important;
+    left: 0; top: 0;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+  }
+  .print\:hidden { display: none !important; }
+}
+
+/* Perforated edge between ticket body and stub */
+@utility ticket-perforation {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    color-mix(in oklab, var(--navy) 30%, transparent) 0 6px,
+    transparent 6px 12px
+  );
+}

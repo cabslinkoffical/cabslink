@@ -82,118 +82,124 @@ function ConfirmationPage() {
   };
   const printPage = () => { try { window.print(); } catch { /* ignore */ } };
 
+  const extras = [
+    b.meetGreet ? "Meet & greet" : null,
+    b.childSeat ? "Child seat" : null,
+    b.returnJourney ? "Return journey" : null,
+  ].filter(Boolean) as string[];
+
   return (
     <SiteLayout>
-      <section className="section-y bg-[var(--surface)]">
-        <div className="container-x max-w-3xl">
-          <div className="rounded-3xl border border-border bg-card p-8 md:p-10 shadow-[var(--shadow-elegant)]">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div>
-                <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-[var(--gold-ink)]">{SITE.name} · Your Journey</p>
-                <h1 className="mt-2 font-display text-3xl md:text-4xl font-bold">{heading}</h1>
-                <p className="mt-2 text-sm text-muted-foreground max-w-lg">{nextStep}</p>
-              </div>
-              <div className="rounded-2xl border-2 border-[var(--gold)]/50 bg-[color-mix(in_oklab,var(--gold)_10%,transparent)] px-5 py-4 text-center">
-                <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground">Booking reference</p>
-                <p className="font-mono text-xl font-bold tracking-wider mt-1">{b.bookingRef}</p>
-                <p className="mt-1 text-[10px] uppercase tracking-[0.2em] text-[var(--gold-ink)]">{statusLabel(b.status)}</p>
-                <div className="mt-3 flex gap-2 justify-center print:hidden">
-                  <Button size="sm" variant="outline" onClick={copyRef} className="h-7 gap-1 text-xs"><Copy className="size-3" /> Copy</Button>
-                  <Button size="sm" variant="outline" onClick={printPage} className="h-7 gap-1 text-xs"><Printer className="size-3" /> Print</Button>
+      <section className="section-y bg-[var(--surface-2)]">
+        <div className="container-x max-w-4xl">
+          {/* ===== TICKET ===== */}
+          <div id="ticket" className="overflow-hidden rounded-2xl border border-[var(--navy)]/12 bg-card shadow-raised">
+            {/* Header bar */}
+            <div className="bg-[var(--navy)] px-5 py-4 md:px-7 md:py-5 text-[var(--navy-foreground)]">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-[var(--gold)]">{SITE.name} · E-Ticket</p>
+                  <h1 className="mt-1 font-display text-xl md:text-2xl font-bold leading-tight">{heading}</h1>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="rounded-md bg-[var(--gold)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]">
+                    {statusLabel(b.status)}
+                  </span>
+                  <BadgeCheck className="size-6 text-[var(--gold)]" />
                 </div>
               </div>
             </div>
 
-            <div className="mt-6 rounded-xl bg-[color-mix(in_oklab,var(--gold)_6%,transparent)] border border-[var(--gold)]/30 p-4 text-sm text-muted-foreground">
-              <strong className="text-foreground">Please save this reference.</strong> You may need it when contacting us about this booking.
-            </div>
+            <div className="flex flex-col md:flex-row">
+              {/* Main details */}
+              <div className="flex-1 p-5 md:p-7">
+                {/* Route line */}
+                <div className="flex items-stretch gap-3">
+                  <div className="flex flex-col items-center pt-1">
+                    <span className="size-2.5 rounded-full bg-[var(--gold)]" />
+                    <span className="my-1 w-px flex-1 bg-[var(--navy)]/20" />
+                    <MapPin className="size-3.5 text-[var(--navy)]" />
+                  </div>
+                  <div className="min-w-0 flex-1 space-y-3">
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Pickup</p>
+                      <p className="text-sm font-semibold break-words">{b.pickupAddress}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Destination</p>
+                      <p className="text-sm font-semibold break-words">{b.dropoffAddress}</p>
+                    </div>
+                  </div>
+                </div>
 
-            <div className="mt-8 grid gap-4 md:grid-cols-2">
-              <Row icon={<MapPin className="size-4" />} label="Pickup" value={b.pickupAddress} />
-              <Row icon={<MapPin className="size-4" />} label="Destination" value={b.dropoffAddress} />
-              <Row icon={<CalendarDays className="size-4" />} label="Date" value={b.pickupDate} />
-              <Row icon={<Clock className="size-4" />} label="Time" value={b.pickupTime} />
-              <Row icon={<Car className="size-4" />} label="Vehicle" value={b.vehicleType} />
-              <Row icon={<Users className="size-4" />} label="Passengers" value={String(b.passengers)} />
-              <Row icon={<Briefcase className="size-4" />} label="Luggage" value={String(b.luggage)} />
-              {b.distanceMiles != null && <Row icon={<MapPin className="size-4" />} label="Estimated distance" value={`${b.distanceMiles.toFixed(1)} mi`} />}
-              {b.flightNumber && <Row icon={<Info className="size-4" />} label="Flight" value={b.flightNumber} />}
-            </div>
-
-            {(b.meetGreet || b.childSeat || b.returnJourney) && (
-              <div className="mt-4 flex flex-wrap gap-2">
-                {b.meetGreet && <Chip>Meet &amp; greet</Chip>}
-                {b.childSeat && <Chip>Child seat</Chip>}
-                {b.returnJourney && <Chip>Return journey</Chip>}
+                {/* Dense fact grid */}
+                <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-dashed border-[var(--navy)]/15 pt-4 sm:grid-cols-3">
+                  <Fact icon={<CalendarDays className="size-3" />} label="Date" value={b.pickupDate} />
+                  <Fact icon={<Clock className="size-3" />} label="Time" value={b.pickupTime} />
+                  <Fact icon={<Car className="size-3" />} label="Vehicle" value={b.vehicleType} />
+                  <Fact icon={<Users className="size-3" />} label="Passengers" value={String(b.passengers)} />
+                  <Fact icon={<Briefcase className="size-3" />} label="Luggage" value={String(b.luggage)} />
+                  {b.distanceMiles != null && <Fact icon={<MapPin className="size-3" />} label="Distance" value={`${b.distanceMiles.toFixed(1)} mi`} />}
+                  {b.flightNumber && <Fact icon={<Info className="size-3" />} label="Flight" value={b.flightNumber} />}
+                  <Fact icon={<User className="size-3" />} label="Booked by" value={b.customerName} />
+                  <Fact icon={<Phone className="size-3" />} label="Phone" value={b.customerPhone} />
+                  <Fact icon={<Mail className="size-3" />} label="Email" value={b.customerEmail} />
+                  {extras.length > 0 && <Fact icon={<BadgeCheck className="size-3" />} label="Extras" value={extras.join(" · ")} />}
+                </dl>
               </div>
-            )}
 
-            <div className="mt-6 rounded-2xl border border-border bg-[var(--surface)] p-5 flex items-center justify-between">
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground">Estimated fare</p>
-                <p className="font-display text-2xl font-bold">
-                  {b.price != null ? `£${b.price.toFixed(2)}` : "—"}
-                </p>
-                <p className="mt-1 text-[11px] text-muted-foreground">Payment status: {b.paymentStatus ?? "unpaid"} · manual arrangement</p>
+              {/* Stub */}
+              <div className="ticket-perforation hidden w-px md:block" aria-hidden />
+              <div className="border-t border-dashed border-[var(--navy)]/25 md:border-t-0 md:w-[236px] shrink-0 p-5 md:p-6 bg-[var(--surface-2)]">
+                <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">Booking reference</p>
+                <p className="mt-1 font-mono text-lg font-bold tracking-wider">{b.bookingRef}</p>
+
+                <div className="mt-4 border-t border-dashed border-[var(--navy)]/20 pt-3">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">Estimated fare</p>
+                  <p className="font-display text-2xl font-bold">{b.price != null ? `£${b.price.toFixed(2)}` : "—"}</p>
+                  <p className="mt-0.5 text-[10px] text-muted-foreground">{b.paymentStatus ?? "unpaid"} · pay on arrangement</p>
+                </div>
+
+                {/* Barcode flourish */}
+                <div aria-hidden className="mt-4 h-9 w-full bg-[repeating-linear-gradient(90deg,var(--navy)_0_2px,transparent_2px_5px)] opacity-80" />
+
+                <div className="mt-4 flex gap-2 print:hidden">
+                  <Button size="sm" variant="outline" onClick={copyRef} className="h-8 flex-1 gap-1 text-xs"><Copy className="size-3" /> Copy</Button>
+                  <Button size="sm" variant="outline" onClick={printPage} className="h-8 flex-1 gap-1 text-xs"><Printer className="size-3" /> Print</Button>
+                </div>
               </div>
-              <BadgeCheck className="size-8 text-[var(--gold-ink)]" />
             </div>
 
-            <div className="mt-8 grid gap-3 sm:grid-cols-2 text-sm">
-              <ContactRow icon={<User className="size-4" />} label="Booked by" value={b.customerName} />
-              <ContactRow icon={<Mail className="size-4" />} label="Email" value={b.customerEmail} />
-              <ContactRow icon={<Phone className="size-4" />} label="Phone" value={b.customerPhone} />
-            </div>
-
-            <div className="mt-8 rounded-2xl border border-[var(--gold)]/30 bg-[color-mix(in_oklab,var(--gold)_8%,transparent)] p-5 text-sm">
-              <p className="font-semibold flex items-center gap-2"><ShieldCheck className="size-4 text-[var(--gold-ink)]" /> What happens next</p>
-              <p className="mt-1 text-muted-foreground leading-relaxed">{nextStep}</p>
-              <p className="mt-3 text-muted-foreground">
-                Need to reach us? Call <a className="font-semibold text-foreground" href={`tel:${SITE.phoneUK}`}>{SITE.phoneUK}</a> or email <a className="font-semibold text-foreground" href={`mailto:${SITE.email}`}>{SITE.email}</a> and quote your reference <span className="font-mono">{b.bookingRef}</span>.
-              </p>
-            </div>
-
-            <div className="mt-8 flex flex-wrap gap-3 print:hidden">
-              <Button asChild variant="outline" rel="noreferrer"><Link to="/">Back to home</Link></Button>
-              <Button asChild className="ml-auto"><a href={`tel:${SITE.phoneUK}`}>Call us</a></Button>
+            {/* Footer strip inside ticket */}
+            <div className="border-t border-[var(--navy)]/10 bg-[color-mix(in_oklab,var(--gold)_8%,transparent)] px-5 py-3 md:px-7 text-[11px] leading-relaxed text-muted-foreground">
+              <span className="font-semibold text-foreground">Next: </span>{nextStep} Quote ref <span className="font-mono">{b.bookingRef}</span> · {SITE.phoneUK} · {SITE.email}
             </div>
           </div>
+          {/* ===== /TICKET ===== */}
+
+          <div className="mt-6 flex flex-wrap items-center gap-3 print:hidden">
+            <Button asChild variant="outline" rel="noreferrer"><Link to="/">Back to home</Link></Button>
+            <Button asChild variant="navy" className="ml-auto"><a href={`tel:${SITE.phoneUK}`}><Phone className="size-4" /> Call us</a></Button>
+          </div>
+          <p className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground print:hidden">
+            <ShieldCheck className="size-3.5 text-[var(--gold-ink)]" /> Keep this reference safe — you'll need it when contacting us.
+          </p>
         </div>
       </section>
     </SiteLayout>
   );
 }
 
-function Row({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+function Fact({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-border bg-[var(--surface)] p-4">
-      <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">
+    <div className="min-w-0">
+      <dt className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
         <span className="text-[var(--gold-ink)]">{icon}</span>{label}
-      </p>
-      <p className="mt-1 font-semibold text-foreground text-sm break-words">{value}</p>
+      </dt>
+      <dd className="mt-0.5 truncate text-sm font-semibold" title={value}>{value}</dd>
     </div>
   );
 }
 
-function ContactRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
-  return (
-    <div className="flex items-start gap-3">
-      <span className="mt-0.5 text-[var(--gold-ink)]">{icon}</span>
-      <div>
-        <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">{label}</p>
-        <p className="font-medium text-foreground text-sm">{value}</p>
-      </div>
-    </div>
-  );
-}
-
-function Chip({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="inline-flex items-center gap-1 rounded-full border border-[var(--gold)]/40 bg-[color-mix(in_oklab,var(--gold)_12%,transparent)] px-3 py-1 text-[11px] font-semibold text-[var(--navy)]">
-      <BadgeCheck className="size-3 text-[var(--gold-ink)]" /> {children}
-    </span>
-  );
-}
-
-// Also drop `useState` unused import warning — the print state is inline.
 void useState;
+
