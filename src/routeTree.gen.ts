@@ -18,6 +18,7 @@ import { Route as SearchRouteImport } from './routes/search'
 import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as GolfTransfersRouteImport } from './routes/golf-transfers'
+import { Route as FootballTransfersRouteImport } from './routes/football-transfers'
 import { Route as FleetRouteImport } from './routes/fleet'
 import { Route as DriveWithUsRouteImport } from './routes/drive-with-us'
 import { Route as DistanceRouteImport } from './routes/distance'
@@ -150,6 +151,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
 const GolfTransfersRoute = GolfTransfersRouteImport.update({
   id: '/golf-transfers',
   path: '/golf-transfers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FootballTransfersRoute = FootballTransfersRouteImport.update({
+  id: '/football-transfers',
+  path: '/football-transfers',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FleetRoute = FleetRouteImport.update({
@@ -642,6 +648,7 @@ export interface FileRoutesByFullPath {
   '/distance': typeof DistanceRoute
   '/drive-with-us': typeof DriveWithUsRoute
   '/fleet': typeof FleetRoute
+  '/football-transfers': typeof FootballTransfersRoute
   '/golf-transfers': typeof GolfTransfersRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
@@ -740,6 +747,7 @@ export interface FileRoutesByTo {
   '/distance': typeof DistanceRoute
   '/drive-with-us': typeof DriveWithUsRoute
   '/fleet': typeof FleetRoute
+  '/football-transfers': typeof FootballTransfersRoute
   '/golf-transfers': typeof GolfTransfersRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
@@ -839,6 +847,7 @@ export interface FileRoutesById {
   '/distance': typeof DistanceRoute
   '/drive-with-us': typeof DriveWithUsRoute
   '/fleet': typeof FleetRoute
+  '/football-transfers': typeof FootballTransfersRoute
   '/golf-transfers': typeof GolfTransfersRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
@@ -939,6 +948,7 @@ export interface FileRouteTypes {
     | '/distance'
     | '/drive-with-us'
     | '/fleet'
+    | '/football-transfers'
     | '/golf-transfers'
     | '/privacy'
     | '/refund-policy'
@@ -1037,6 +1047,7 @@ export interface FileRouteTypes {
     | '/distance'
     | '/drive-with-us'
     | '/fleet'
+    | '/football-transfers'
     | '/golf-transfers'
     | '/privacy'
     | '/refund-policy'
@@ -1135,6 +1146,7 @@ export interface FileRouteTypes {
     | '/distance'
     | '/drive-with-us'
     | '/fleet'
+    | '/football-transfers'
     | '/golf-transfers'
     | '/privacy'
     | '/refund-policy'
@@ -1235,6 +1247,7 @@ export interface RootRouteChildren {
   DistanceRoute: typeof DistanceRoute
   DriveWithUsRoute: typeof DriveWithUsRoute
   FleetRoute: typeof FleetRoute
+  FootballTransfersRoute: typeof FootballTransfersRoute
   GolfTransfersRoute: typeof GolfTransfersRoute
   PrivacyRoute: typeof PrivacyRoute
   RefundPolicyRoute: typeof RefundPolicyRoute
@@ -1341,6 +1354,13 @@ declare module '@tanstack/react-router' {
       path: '/golf-transfers'
       fullPath: '/golf-transfers'
       preLoaderRoute: typeof GolfTransfersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/football-transfers': {
+      id: '/football-transfers'
+      path: '/football-transfers'
+      fullPath: '/football-transfers'
+      preLoaderRoute: typeof FootballTransfersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/fleet': {
@@ -2108,6 +2128,7 @@ const rootRouteChildren: RootRouteChildren = {
   DistanceRoute: DistanceRoute,
   DriveWithUsRoute: DriveWithUsRoute,
   FleetRoute: FleetRoute,
+  FootballTransfersRoute: FootballTransfersRoute,
   GolfTransfersRoute: GolfTransfersRoute,
   PrivacyRoute: PrivacyRoute,
   RefundPolicyRoute: RefundPolicyRoute,
