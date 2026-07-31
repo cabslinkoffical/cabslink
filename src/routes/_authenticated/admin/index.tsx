@@ -22,10 +22,10 @@ export const Route = createFileRoute("/_authenticated/admin/")({
 });
 
 const STATUS_COLORS: Record<string, string> = {
-  new: "#f59e0b", pending_allocation: "#f59e0b",
-  confirmed: "#3b82f6", assigned: "#8b5cf6",
-  on_way: "#06b6d4", in_progress: "#06b6d4",
-  completed: "#10b981", cancelled: "#ef4444", bidding: "#d946ef",
+  new: "#deae25", pending_allocation: "#deae25",
+  confirmed: "#0e182c", assigned: "#0e182c",
+  on_way: "#deae25", in_progress: "#deae25",
+  completed: "#0e182c", cancelled: "#deae25", bidding: "#0e182c",
 };
 
 function fmt(n: number) {
@@ -56,7 +56,7 @@ function Dashboard() {
     { label: "New Bookings Today", value: totals.newToday, icon: CalendarCheck, accent: "text-primary" },
   ];
 
-  const pieData = Object.entries(byStatus).map(([name, value]) => ({ name: name.replace(/_/g, " "), value, fill: STATUS_COLORS[name] ?? "#94a3b8" }));
+  const pieData = Object.entries(byStatus).map(([name, value]) => ({ name: name.replace(/_/g, " "), value, fill: STATUS_COLORS[name] ?? "#0e182c" }));
 
   return (
     <div className="p-6 md:p-8 space-y-6">

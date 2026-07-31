@@ -15,7 +15,7 @@ export function FinalCta() {
             aria-hidden
             className="absolute inset-0 opacity-[0.06]"
             style={{
-              backgroundImage: "radial-gradient(circle at 1px 1px, #dfaf26 1px, transparent 0)",
+              backgroundImage: "radial-gradient(circle at 1px 1px, #deae25 1px, transparent 0)",
               backgroundSize: "24px 24px",
             }}
           />

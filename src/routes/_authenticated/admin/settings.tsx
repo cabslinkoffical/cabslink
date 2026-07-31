@@ -88,7 +88,7 @@ function Page() {
           <Card>
             <Row label="Logo URL"><Input value={form.logo_url ?? ""} onChange={e => set("logo_url", e.target.value)} placeholder="https://…" /></Row>
             <Row label="Favicon URL"><Input value={form.favicon_url ?? ""} onChange={e => set("favicon_url", e.target.value)} /></Row>
-            <Row label="Primary color"><div className="flex gap-2"><Input type="color" value={form.primary_color ?? "#1e3a8a"} onChange={e => set("primary_color", e.target.value)} className="w-20 h-10 p-1" /><Input value={form.primary_color ?? ""} onChange={e => set("primary_color", e.target.value)} /></div></Row>
+            <Row label="Primary color"><div className="flex gap-2"><Input type="color" value={form.primary_color ?? "#0e182c"} onChange={e => set("primary_color", e.target.value)} className="w-20 h-10 p-1" /><Input value={form.primary_color ?? ""} onChange={e => set("primary_color", e.target.value)} /></div></Row>
           </Card>
         </TabsContent>
 

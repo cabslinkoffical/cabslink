@@ -54,7 +54,7 @@
   --font-sans: "Epilogue", "Inter", ui-sans-serif, system-ui, sans-serif;
 
   --shadow-elegant: 0 30px 80px -30px color-mix(in oklab, #0e182c 35%, transparent);
-  --shadow-glow: 0 18px 40px -12px color-mix(in oklab, #dfaf26 55%, transparent);
+  --shadow-glow: 0 18px 40px -12px color-mix(in oklab, #deae25 55%, transparent);
 
   /* Raised card shadows — layered for a tangible "popped up" feel */
   --shadow-raised:
@@ -78,16 +78,16 @@
 :root {
   --radius: 0.75rem;
 
-  /* Strict 3-color palette: white #ffffff, gold #dfaf26, navy #0e182c.
-     Surface variants use navy at low alpha over white — same 3 hues,
-     just tonal bands for professional section rhythm. */
+  /* Strict brand palette — ONLY these values:
+     navy #0E182C, gold #DEAE25, white #ffffff.
+     Surfaces are the same hues at reduced alpha, never new shades. */
   --background: #ffffff;
   --foreground: #0e182c;
   --surface: #ffffff;
   --surface-2: rgba(14, 24, 44, 0.035);
   --surface-warm: rgba(14, 24, 44, 0.05);
   --surface-cool: rgba(14, 24, 44, 0.07);
-  --surface-gold: rgba(223, 175, 38, 0.12);
+  --surface-gold: rgba(222, 174, 37, 0.12);
 
   --card: #ffffff;
   --card-foreground: #0e182c;
@@ -99,8 +99,8 @@
   --navy-3: #0e182c;
   --navy-foreground: #ffffff;
 
-  --gold: #dfaf26;
-  --gold-ink: #9a7508;
+  --gold: #deae25;
+  --gold-ink: #deae25;
   --gold-foreground: #0e182c;
 
   --primary: #0e182c;
@@ -110,23 +110,24 @@
 
   --muted: rgba(14, 24, 44, 0.04);
   --muted-foreground: rgba(14, 24, 44, 0.62);
-  --accent: #dfaf26;
+  --accent: #deae25;
   --accent-foreground: #0e182c;
 
-  --destructive: #b00020;
+  --destructive: #0e182c;
   --destructive-foreground: #ffffff;
 
   --border: rgba(14, 24, 44, 0.12);
   --input: rgba(14, 24, 44, 0.18);
-  --ring: #dfaf26;
+  --ring: #deae25;
 
-  /* Status tokens — kept tonally close to the navy/gold brand */
-  --success: #14684b;
+  /* Status tokens — restricted to the two brand colors */
+  --success: #0e182c;
   --success-foreground: #ffffff;
-  --warning: #a8760a;
+  --warning: #deae25;
   --warning-foreground: #0e182c;
-  --info: #1c3f77;
+  --info: #0e182c;
   --info-foreground: #ffffff;
+
 }
 
 @layer base {
@@ -208,7 +209,7 @@
 /* Premium vehicle showcase cards */
 @utility vehicle-card {
   position: relative;
-  background: linear-gradient(180deg, color-mix(in oklab, var(--navy) 96%, #fff) 0%, var(--navy) 100%);
+  background: var(--navy);
   border: 1px solid color-mix(in oklab, var(--gold) 22%, transparent);
   border-top: 2px solid color-mix(in oklab, var(--gold) 55%, transparent);
   box-shadow:
@@ -245,7 +246,7 @@
   background:
     radial-gradient(ellipse 70% 55% at 50% 75%, color-mix(in oklab, var(--gold) 16%, transparent) 0%, transparent 70%),
     radial-gradient(ellipse 90% 50% at 50% 90%, color-mix(in oklab, #fff 12%, transparent) 0%, transparent 55%),
-    linear-gradient(180deg, color-mix(in oklab, var(--navy) 92%, #fff) 0%, var(--navy) 100%);
+    var(--navy);
   overflow: hidden;
   &::after {
     content: "";
