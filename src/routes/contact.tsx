@@ -95,7 +95,7 @@ function ContactPage() {
               { i: Clock, t: "Hours", lines: ["Open 365 days a year, 24 hours a day"] },
             ].map(c => (
               <div key={c.t} className="rounded-2xl border border-border bg-card p-6 flex gap-4 shadow-raised">
-                <div className="grid size-11 shrink-0 place-items-center rounded-xl bg-[var(--gold)]/15 text-[var(--gold)]"><c.i className="size-5" /></div>
+                <div className="grid size-11 shrink-0 place-items-center rounded-xl bg-[var(--gold)]/15 text-[var(--gold-ink)]"><c.i className="size-5" /></div>
                 <div>
                   <h3 className="font-semibold">{c.t}</h3>
                   {c.lines.map(l => <p key={l} className="text-sm text-muted-foreground mt-0.5">{l}</p>)}

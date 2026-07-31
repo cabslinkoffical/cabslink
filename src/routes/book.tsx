@@ -757,7 +757,7 @@ function Stepper({ step }: { step: Step }) {
       {/* Mobile: compact current-step + dots */}
       <div className="md:hidden flex items-center justify-between gap-3 rounded-full bg-card border border-border px-4 py-2.5 shadow-sm">
         <div className="min-w-0 flex items-baseline gap-2">
-          <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--gold)]">
+          <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--gold-ink)]">
             Step 0{Math.max(1, idx + 1)}/5
           </span>
           <span className="text-sm font-bold text-foreground truncate">{current?.label}</span>
@@ -873,7 +873,7 @@ function TourBanner({ slug, name, loading, missing, mismatch, onStartAgain }: {
     : "border-[var(--gold)]/40 bg-[var(--gold)]/8 text-foreground";
   return (
     <div className={`rounded-2xl border ${tone} px-4 py-3 flex items-start gap-3`}>
-      <Sparkles className="size-4 mt-0.5 text-[var(--gold)] shrink-0" aria-hidden />
+      <Sparkles className="size-4 mt-0.5 text-[var(--gold-ink)] shrink-0" aria-hidden />
       <div className="min-w-0 flex-1 text-sm">
         {loading ? (
           <p className="text-muted-foreground">Loading tour details…</p>
@@ -884,7 +884,7 @@ function TourBanner({ slug, name, loading, missing, mismatch, onStartAgain }: {
         ) : (
           <p>
             You're customising the <strong>{name ?? "selected"}</strong> tour.{" "}
-            <Link to="/tours/$slug" params={{ slug }} className="underline underline-offset-2 hover:text-[var(--gold)]">View tour details</Link>.
+            <Link to="/tours/$slug" params={{ slug }} className="underline underline-offset-2 hover:text-[var(--gold-ink)]">View tour details</Link>.
           </p>
         )}
       </div>
@@ -908,28 +908,28 @@ function Sidebar({ pre, onEdit, onStartAgain, route, price }: {
       <details className="group relative bg-card rounded-2xl border border-border shadow-[0_10px_40px_-20px_rgba(14,24,44,0.25)] overflow-hidden lg:!open" open>
         <summary className="lg:hidden list-none cursor-pointer select-none flex items-center justify-between gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden">
           <div className="min-w-0 flex items-center gap-2">
-            <MapPin className="size-4 text-[var(--gold)] shrink-0" />
+            <MapPin className="size-4 text-[var(--gold-ink)] shrink-0" />
             <span className="text-sm font-semibold text-foreground truncate">
               {pre.pickup?.label || "Pickup"} → {pre.dropoff?.label || "Dropoff"}
             </span>
           </div>
-          <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--gold)] group-open:hidden shrink-0">View</span>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--gold-ink)] group-open:hidden shrink-0">View</span>
           <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground hidden group-open:inline shrink-0">Hide</span>
         </summary>
         <div className="p-5 lg:p-6 pt-0 lg:pt-6">
           <div className="absolute -top-16 -right-16 size-40 rounded-full bg-[var(--gold)]/10 blur-2xl pointer-events-none" aria-hidden />
           <div className="relative flex items-center justify-between mb-5">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)]">Your Journey</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)]">Your Journey</p>
               <h3 className="font-display font-bold text-lg text-foreground mt-0.5">Trip Summary</h3>
             </div>
             <div className="flex items-center gap-2">
               {onStartAgain && (
-                <button onClick={onStartAgain} className="text-[11px] px-2.5 py-1 rounded-full border border-border text-muted-foreground hover:text-[var(--gold)] hover:border-[var(--gold)]/40 transition" title="Clear saved draft and start over">
+                <button onClick={onStartAgain} className="text-[11px] px-2.5 py-1 rounded-full border border-border text-muted-foreground hover:text-[var(--gold-ink)] hover:border-[var(--gold)]/40 transition" title="Clear saved draft and start over">
                   Start again
                 </button>
               )}
-              <button onClick={onEdit} className="size-8 rounded-full border border-border text-muted-foreground hover:text-[var(--gold)] hover:border-[var(--gold)]/40 flex items-center justify-center transition" aria-label="Edit trip">
+              <button onClick={onEdit} className="size-8 rounded-full border border-border text-muted-foreground hover:text-[var(--gold-ink)] hover:border-[var(--gold)]/40 flex items-center justify-center transition" aria-label="Edit trip">
                 <Edit3 className="size-3.5" />
               </button>
             </div>
@@ -952,7 +952,7 @@ function Sidebar({ pre, onEdit, onStartAgain, route, price }: {
           {route && (
             <div className="relative mt-5 grid grid-cols-2 gap-2">
               <div className="bg-[var(--surface)] rounded-xl p-3 border border-border/60">
-                <div className="flex items-center gap-1.5 text-[var(--gold)]">
+                <div className="flex items-center gap-1.5 text-[var(--gold-ink)]">
                   <MapPin className="size-3.5" />
                   <span className="text-[9px] font-bold uppercase tracking-[0.2em]">Distance</span>
                 </div>
@@ -961,7 +961,7 @@ function Sidebar({ pre, onEdit, onStartAgain, route, price }: {
                 </p>
               </div>
               <div className="bg-[var(--surface)] rounded-xl p-3 border border-border/60">
-                <div className="flex items-center gap-1.5 text-[var(--gold)]">
+                <div className="flex items-center gap-1.5 text-[var(--gold-ink)]">
                   <Clock className="size-3.5" />
                   <span className="text-[9px] font-bold uppercase tracking-[0.2em]">Duration</span>
                 </div>
@@ -975,13 +975,13 @@ function Sidebar({ pre, onEdit, onStartAgain, route, price }: {
           <div className="relative mt-5 pt-4 border-t border-border grid grid-cols-2 gap-3">
             <div>
               <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-1">
-                <CalendarDays className="size-3 text-[var(--gold)]" /> Date
+                <CalendarDays className="size-3 text-[var(--gold-ink)]" /> Date
               </p>
               <p className="text-sm font-semibold text-foreground mt-0.5">{pre.date || "—"}</p>
             </div>
             <div>
               <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-1">
-                <Clock className="size-3 text-[var(--gold)]" /> Time
+                <Clock className="size-3 text-[var(--gold-ink)]" /> Time
               </p>
               <p className="text-sm font-semibold text-foreground mt-0.5">{pre.time || "—"}</p>
             </div>
@@ -992,7 +992,7 @@ function Sidebar({ pre, onEdit, onStartAgain, route, price }: {
       {price && <div className="hidden lg:block"><PriceBreakdown price={price} /></div>}
 
       <div className="hidden lg:block bg-card rounded-2xl border border-border p-5 shadow-sm space-y-2.5">
-        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)] mb-1">Why Cabslink</p>
+        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)] mb-1">Why Cabslink</p>
         {[
           "10,000+ passengers transferred",
           "Team confirms availability quickly",
@@ -1000,7 +1000,7 @@ function Sidebar({ pre, onEdit, onStartAgain, route, price }: {
           "Pay by card or on account after we confirm",
         ].map((t) => (
           <div key={t} className="flex gap-2 text-sm">
-            <CheckCircle2 className="size-4 text-[var(--gold)] mt-0.5 shrink-0" />
+            <CheckCircle2 className="size-4 text-[var(--gold-ink)] mt-0.5 shrink-0" />
             <span className="text-foreground/80">{t}</span>
           </div>
         ))}
@@ -1017,9 +1017,9 @@ function TourConversionBanner({ from, to, reason, acked, onAck }: {
   return (
     <div className={`rounded-2xl border p-5 md:p-6 ${acked ? "border-success/40 bg-success/5" : "border-[var(--gold)]/60 bg-[var(--gold)]/10"}`}>
       <div className="flex items-start gap-3">
-        <BadgeCheck className={`size-5 shrink-0 mt-0.5 ${acked ? "text-success" : "text-[var(--gold)]"}`} />
+        <BadgeCheck className={`size-5 shrink-0 mt-0.5 ${acked ? "text-success" : "text-[var(--gold-ink)]"}`} />
         <div className="flex-1 min-w-0">
-          <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--gold)]">Service change</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--gold-ink)]">Service change</p>
           <h4 className="font-display font-bold text-base md:text-lg mt-1">
             Your journey now qualifies as a <span className="underline decoration-[var(--gold)]">{pretty(to)}</span>
           </h4>
@@ -1088,7 +1088,7 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
     <div>
       <div className="mb-6 flex items-end justify-between flex-wrap gap-3">
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)]">Step 01 — Choose Your Class</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)]">Step 01 — Choose Your Class</p>
           <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground mt-1">
             Select a vehicle class · {pre.ret ? "Return" : "One Way"}
           </h2>
@@ -1098,7 +1098,7 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
         </div>
         {data && (
           <div className="inline-flex items-center gap-2 bg-[var(--navy)] text-[var(--navy-foreground)] rounded-full px-4 py-2 text-xs font-bold uppercase tracking-widest">
-            <BadgeCheck className="size-3.5 text-[var(--gold)]" />
+            <BadgeCheck className="size-3.5 text-[var(--gold-ink)]" />
              {visibleQuotes.length} classes available
           </div>
         )}
@@ -1182,7 +1182,7 @@ function VehicleCard({ card, klass, best, qty, minQty, disabled, disabledReason,
           <div>
             <div className="flex justify-between items-start gap-3">
               <div className="min-w-0 flex-1">
-                <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--gold)]">
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--gold-ink)]">
                   <BadgeCheck className="size-3" /> Vehicle Class
                 </span>
                 <h3 className="mt-1.5 font-display text-lg md:text-xl font-bold uppercase tracking-tight text-foreground leading-tight break-words">
@@ -1205,7 +1205,7 @@ function VehicleCard({ card, klass, best, qty, minQty, disabled, disabledReason,
                   </div>
                 )}
               </div>
-              <div className="flex gap-0.5 text-[var(--gold)] shrink-0 pt-1">
+              <div className="flex gap-0.5 text-[var(--gold-ink)] shrink-0 pt-1">
                 {Array.from({ length: 5 }).map((_, i) => (<Star key={i} className="size-3 fill-current" />))}
               </div>
             </div>
@@ -1246,26 +1246,26 @@ function VehicleCard({ card, klass, best, qty, minQty, disabled, disabledReason,
         {quoteOnly ? (
           <div>
             <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground font-bold">Group Vehicle</p>
-            <p className="mt-2 font-display text-xl md:text-2xl font-bold text-[var(--gold)] leading-tight">Quote on request</p>
+            <p className="mt-2 font-display text-xl md:text-2xl font-bold text-[var(--gold-ink)] leading-tight">Quote on request</p>
             <p className="mt-2 text-[12px] text-muted-foreground leading-snug">
                Pricing for {displayName.toLowerCase().includes("coach") ? "coach" : "coaster"} bookings depends on route, timings and availability. Contact us and we'll confirm the fare and reserve this vehicle for you.
             </p>
             <div className="mt-3 text-[11px] text-muted-foreground space-y-1">
-              <p className="flex items-center justify-center gap-1.5"><ShieldCheck className="size-3 text-[var(--gold)]" /> No obligation quote</p>
-              <p className="flex items-center justify-center gap-1.5"><Clock className="size-3 text-[var(--gold)]" /> Fast response, 24/7</p>
+              <p className="flex items-center justify-center gap-1.5"><ShieldCheck className="size-3 text-[var(--gold-ink)]" /> No obligation quote</p>
+              <p className="flex items-center justify-center gap-1.5"><Clock className="size-3 text-[var(--gold-ink)]" /> Fast response, 24/7</p>
             </div>
           </div>
         ) : (
           <div>
             <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground font-bold">From</p>
             <div className="mt-2 flex items-baseline justify-center gap-0.5 text-foreground">
-              <span className="text-lg font-display font-bold text-[var(--gold)]">£</span>
+              <span className="text-lg font-display font-bold text-[var(--gold-ink)]">£</span>
               <span className="text-3xl md:text-4xl font-display font-bold tabular-nums tracking-tight">{total.toFixed(2)}</span>
             </div>
             {qty > 1 && (<p className="text-[11px] text-muted-foreground mt-1">{qty} × £{card.finalPrice.toFixed(2)}</p>)}
             <div className="mt-3 text-[11px] text-muted-foreground space-y-1">
-              <p className="flex items-center justify-center gap-1.5"><ShieldCheck className="size-3 text-[var(--gold)]" /> No hidden cost</p>
-              <p className="flex items-center justify-center gap-1.5"><Clock className="size-3 text-[var(--gold)]" /> Free cancellation option</p>
+              <p className="flex items-center justify-center gap-1.5"><ShieldCheck className="size-3 text-[var(--gold-ink)]" /> No hidden cost</p>
+              <p className="flex items-center justify-center gap-1.5"><Clock className="size-3 text-[var(--gold-ink)]" /> Free cancellation option</p>
             </div>
           </div>
         )}
@@ -1311,7 +1311,7 @@ function VehicleCard({ card, klass, best, qty, minQty, disabled, disabledReason,
 function Feature({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) {
   return (
     <li className="flex items-center gap-2 text-foreground/75 text-[13px]">
-      <span className="text-[var(--gold)] shrink-0">{icon}</span>
+      <span className="text-[var(--gold-ink)] shrink-0">{icon}</span>
       <span className="truncate">{children}</span>
     </li>
   );
@@ -1328,7 +1328,7 @@ function ContactStep({ contact, onChange, onBack, onNext }: {
   return (
     <div className="bg-card rounded-2xl border border-border shadow-sm p-6 md:p-8 space-y-6">
       <div>
-        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)]">Step 02 — Passenger details</p>
+        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)]">Step 02 — Passenger details</p>
         <h2 className="mt-1 font-display text-2xl md:text-3xl font-bold">Who is travelling?</h2>
         <p className="mt-2 text-sm text-muted-foreground">
           We'll use these details to confirm your booking and keep you updated.
@@ -1423,7 +1423,7 @@ function ExtrasStep(props: {
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)]">Step 03 — Extras</p>
+        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)]">Step 03 — Extras</p>
         <h2 className="mt-1 font-display text-2xl md:text-3xl font-bold">Personalise your journey</h2>
         <p className="mt-2 text-sm text-muted-foreground">
           Add scenic stops, child seats, meet &amp; greet, a return trip and pick your cancellation cover — all in one place.
@@ -1516,7 +1516,7 @@ function ExtrasStep(props: {
           </p>
         </div>
         <div className="text-right">
-          <p className="font-display text-3xl font-bold text-[var(--gold)] tabular-nums">
+          <p className="font-display text-3xl font-bold text-[var(--gold-ink)] tabular-nums">
             £{(() => {
               const base = baseRideTotal + seatFee + meetGreetFee + returnFee;
               const delta = policy === "non_refundable"
@@ -1553,9 +1553,9 @@ function ExtrasCard({ icon, eyebrow, title, subtitle, children }: {
   return (
     <section className="bg-card rounded-2xl border border-border shadow-sm p-5 md:p-6">
       <div className="flex items-start gap-3 mb-4">
-        <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-[var(--gold)]/15 text-[var(--gold)]">{icon}</span>
+        <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-[var(--gold)]/15 text-[var(--gold-ink)]">{icon}</span>
         <div className="min-w-0">
-          <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--gold)]">{eyebrow}</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--gold-ink)]">{eyebrow}</p>
           <h3 className="font-display font-bold text-lg mt-0.5">{title}</h3>
           {subtitle && <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>}
         </div>
@@ -1625,7 +1625,7 @@ function PolicyTiers({ value, onChange, base, cfg }: {
             )}
             <p className="mt-3 text-sm font-semibold">{t.headline}</p>
             <p className="text-xs text-muted-foreground mt-1">{t.body}</p>
-            <p className={`mt-3 text-sm font-bold ${t.delta < 0 ? "text-success" : t.delta > 0 ? "text-foreground" : "text-[var(--gold)]"}`}>
+            <p className={`mt-3 text-sm font-bold ${t.delta < 0 ? "text-success" : t.delta > 0 ? "text-foreground" : "text-[var(--gold-ink)]"}`}>
               {t.delta === 0 ? "Included" : t.delta < 0 ? `Save £${Math.abs(t.delta).toFixed(2)}` : `+ £${t.delta.toFixed(2)}`}
             </p>
           </button>
@@ -1661,7 +1661,7 @@ function PaymentStep({ value, onChange, grandTotal, onBack, onSubmit, submitting
     <div className="bg-card rounded-2xl border border-border shadow-sm p-6 md:p-8 space-y-6">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)]">Step 04 — Payment</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)]">Step 04 — Payment</p>
           <h2 className="mt-1 font-display text-2xl md:text-3xl font-bold">How would you like to pay?</h2>
           <p className="mt-2 text-sm text-muted-foreground">
             Choose a payment method — nothing is charged until our team confirms your booking.
@@ -1669,7 +1669,7 @@ function PaymentStep({ value, onChange, grandTotal, onBack, onSubmit, submitting
         </div>
         <div className="text-right">
           <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground">Total due</p>
-          <p className="font-display text-3xl font-bold text-[var(--gold)] tabular-nums">£{grandTotal.toFixed(2)}</p>
+          <p className="font-display text-3xl font-bold text-[var(--gold-ink)] tabular-nums">£{grandTotal.toFixed(2)}</p>
         </div>
       </div>
 
@@ -1748,7 +1748,7 @@ function AlreadySubmittedStep({ card, qty, onBack }: { card: QuoteCard; qty: num
   const total = card.finalPrice * qty;
   return (
     <div className="bg-card rounded-2xl border border-border shadow-sm p-8 text-center">
-      <CheckCircle2 className="size-12 text-[var(--gold)] mx-auto" />
+      <CheckCircle2 className="size-12 text-[var(--gold-ink)] mx-auto" />
       <h2 className="mt-3 font-display text-2xl font-bold">Booking request received</h2>
       <p className="mt-2 text-muted-foreground max-w-md mx-auto">
         Please save your booking reference. Our team will contact you to confirm the booking and

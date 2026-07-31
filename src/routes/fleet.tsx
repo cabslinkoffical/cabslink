@@ -72,7 +72,7 @@ function FleetPage() {
 
         <div className="container-x relative pt-20 md:pt-24 pb-12 md:pb-16">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-[var(--gold)]">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-[var(--gold-ink)]">
               <Sparkles className="size-3.5" /> The Cabslink Fleet
             </div>
             <h1 className="mt-5 font-display text-4xl md:text-5xl font-semibold leading-[1.05]">
@@ -209,15 +209,15 @@ function ClassTicket({ klass, reverse = false }: { klass: PublicVehicleClass; re
         <div className="flex flex-wrap gap-1.5">
           {fuelLabel && (
             <span className="inline-flex items-center gap-1 rounded-full border border-border bg-[var(--surface-2)] px-2 py-0.5 text-[10px] font-medium text-foreground/80">
-              <Fuel className="size-2.5 text-[var(--gold)]" /> {fuelLabel}
+              <Fuel className="size-2.5 text-[var(--gold-ink)]" /> {fuelLabel}
             </span>
           )}
           <span className="inline-flex items-center gap-1 rounded-full border border-border bg-[var(--surface-2)] px-2 py-0.5 text-[10px] font-medium text-foreground/80">
-            <Baby className="size-2.5 text-[var(--gold)]" />
+            <Baby className="size-2.5 text-[var(--gold-ink)]" />
             {klass.child_seats_supported ? "Child seats available" : "No child seats"}
           </span>
           <span className="inline-flex items-center gap-1 rounded-full border border-border bg-[var(--surface-2)] px-2 py-0.5 text-[10px] font-medium text-foreground/80">
-            <Accessibility className="size-2.5 text-[var(--gold)]" />
+            <Accessibility className="size-2.5 text-[var(--gold-ink)]" />
             {klass.wheelchair_accessible ? "Wheelchair accessible" : "Step-in access"}
           </span>
         </div>
@@ -254,7 +254,7 @@ function ClassTicket({ klass, reverse = false }: { klass: PublicVehicleClass; re
                   key={r}
                   className="inline-flex items-center gap-1 rounded-full bg-[var(--surface-2)] text-foreground/80 px-2 py-0.5 text-[10px] font-medium capitalize"
                 >
-                  <CheckCircle2 className="size-2.5 text-[var(--gold)]" /> {r}
+                  <CheckCircle2 className="size-2.5 text-[var(--gold-ink)]" /> {r}
                 </span>
               ))}
             </div>
@@ -280,7 +280,7 @@ function ClassTicket({ klass, reverse = false }: { klass: PublicVehicleClass; re
 function SpecCell({ icon, label, value }: { icon: React.ReactNode; label: string; value: number }) {
   return (
     <div className="flex items-center gap-2 rounded-lg border border-border bg-[var(--surface-2)]/60 px-2.5 py-2">
-      <span className="text-[var(--gold)]">{icon}</span>
+      <span className="text-[var(--gold-ink)]">{icon}</span>
       <div className="min-w-0">
         <dt className="text-[9px] uppercase tracking-wider text-muted-foreground truncate">{label}</dt>
         <dd className="text-sm font-semibold leading-none">{value}</dd>
