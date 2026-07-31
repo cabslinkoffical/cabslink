@@ -562,7 +562,7 @@ function HomePage() {
               </div>
               <div className="relative mt-8">
                 <Button asChild variant="gold" className="rounded-lg">
-                  <Link to="/book" search={{}}>Get an instant quote <ArrowRight className="size-4" /></Link>
+                  <Link to="/book" search={{ q: "" }}>Get an instant quote <ArrowRight className="size-4" /></Link>
                 </Button>
               </div>
             </div>
@@ -911,7 +911,7 @@ function FleetClassesSection() {
                 )}
                 <div className="mt-auto pt-5 flex items-center justify-between border-t border-[var(--navy)]/10">
                   <Link to="/fleet" className="text-[var(--navy)]/70 text-xs font-semibold hover:text-[var(--gold-ink)]">View class</Link>
-                  <Link to="/book" className="inline-flex items-center gap-2 rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] px-4 py-2.5 text-xs font-bold uppercase tracking-[0.12em] hover:brightness-110 transition">
+                  <Link to="/book" search={{ q: "" }} className="inline-flex items-center gap-2 rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] px-4 py-2.5 text-xs font-bold uppercase tracking-[0.12em] hover:brightness-110 transition">
                     {k.quote_on_request ? "Request quote" : "Get quote"} <ArrowRight className="size-3.5" />
                   </Link>
                 </div>
