@@ -67,6 +67,8 @@ export function BookingWidget({
           ? "Return must be after the outbound journey."
           : ""
       : "",
+    passengers: passengers === null ? "Select the number of passengers." : "",
+    luggage: luggage === null ? "Select how many bags you have." : "",
     stops: stops.some((s) => !s?.placeId) ? "Complete or remove empty stops." : "",
   };
   const errorList = Object.values(errors).filter(Boolean);
