@@ -16,6 +16,7 @@ const links = [
   { to: "/", label: "Home" },
   { to: "/about", label: "About Us" },
   { to: "/services", label: "Services" },
+  { to: "/travel-solutions", label: "Travel Solutions" },
   { to: "/areas", label: "Locations" },
   { to: "/corporate-booking", label: "Corporate Booking" },
   { to: "/contact", label: "Contact" },
