@@ -573,7 +573,7 @@ export const getSettings = createServerFn({ method: "GET" })
       .select("smtp_host, smtp_port, smtp_user, google_maps_api_key")
       .eq("id", 1)
       .maybeSingle();
-    return { ...(data ?? {}), ...(creds ?? {}) } as Record<string, unknown>;
+    return { ...(data ?? {}), ...(creds ?? {}) } as any;
   });
 
 const settingsSchema = z.object({
