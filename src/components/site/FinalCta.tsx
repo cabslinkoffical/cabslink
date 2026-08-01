@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { ArrowRight, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SITE } from "@/lib/site";
+import { trackClick } from "@/lib/tracking";
 
 /**
  * Site-wide closing CTA rendered above the footer on every page.
@@ -35,12 +36,13 @@ export function FinalCta() {
               </div>
               <div className="flex flex-col gap-4 lg:col-span-4 lg:items-end">
                 <Button asChild variant="slash" className="w-full lg:w-auto">
-                  <Link to="/book">
+                  <Link to="/book" onClick={trackClick("cta_click", { cta: "final_cta_quote" })}>
                     Get Instant Quote <ArrowRight className="size-4" />
                   </Link>
                 </Button>
                 <a
                   href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}
+                  onClick={trackClick("phone_click", { source: "final_cta" })}
                   className="group inline-flex items-center gap-3 text-white transition-colors"
                 >
                   <span className="grid size-11 place-items-center rounded-full border border-white/25 transition-colors group-hover:border-[var(--gold)]">

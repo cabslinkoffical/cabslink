@@ -1,6 +1,7 @@
 import { useRouterState } from "@tanstack/react-router";
 import { SITE } from "@/lib/site";
 import { cn } from "@/lib/utils";
+import { trackClick } from "@/lib/tracking";
 
 const WA_NUMBER = SITE.phoneUK.replace(/[^0-9]/g, "");
 const WA_MESSAGE = "Hi Cabslink, I'd like a quote for an airport transfer.";
@@ -18,6 +19,7 @@ export function WhatsAppButton() {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat with Cabslink on WhatsApp"
+      onClick={trackClick("whatsapp_click", { path: pathname })}
       className={cn(
         "fixed right-3 z-40 grid size-12 place-items-center rounded-full bg-[var(--gold)] text-[var(--navy)] shadow-lg ring-1 ring-black/10 transition-all",
         "hover:scale-105 hover:shadow-xl active:scale-95 sm:right-6 sm:size-14",
