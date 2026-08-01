@@ -7,6 +7,8 @@ import { CategoryGrid } from "@/components/explore/CategoryGrid";
 import { EntityGrid } from "@/components/explore/EntityCard";
 import { FaqBlock } from "@/components/seo/FaqBlock";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
+import { CoverageMap } from "@/components/seo/CoverageMap";
+
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
 import { exploreOverviewQuery } from "@/lib/explore.functions";
