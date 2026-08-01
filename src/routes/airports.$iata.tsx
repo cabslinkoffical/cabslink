@@ -41,15 +41,30 @@ export const Route = createFileRoute("/airports/$iata")({
       const title = `${name}${iata && !name.includes(iata) ? ` (${iata})` : ""} Transfers — Fixed-Fare Airport Taxi | Cabslink`;
 
       const desc = `Private transfers to and from ${name}. Fixed fares, meet & greet, live flight tracking, 24/7 dispatch across the UK.`;
+      const canonical = `${ORIGIN}/airports/${a.slug}`;
+      const image = (a as { hero_image_url?: string | null }).hero_image_url || null;
       return {
         meta: [
           { title },
           { name: "description", content: desc },
           { property: "og:title", content: title },
           { property: "og:description", content: desc },
+          { property: "og:url", content: canonical },
+          { property: "og:type", content: "website" },
+          { name: "twitter:card", content: image ? "summary_large_image" : "summary" },
+          { name: "twitter:title", content: title },
+          { name: "twitter:description", content: desc },
+          ...(image
+            ? [
+                { property: "og:image", content: image },
+                { name: "twitter:image", content: image },
+              ]
+            : []),
         ],
+        links: [{ rel: "canonical", href: canonical }],
       };
     }
+
     return { meta: [{ title: "Airport not found" }, { name: "robots", content: "noindex" }] };
   },
   component: AirportPage,

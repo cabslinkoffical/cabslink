@@ -38,9 +38,10 @@ export const Route = createFileRoute("/sitemaps/{$type}.xml")({
           .select("type,slug,updated_at,noindex")
           .eq("type", type)
           .eq("active", true)
-          .eq("seo_tier", 1)
+          .lte("seo_tier", 2)
           .eq("noindex", false)
           .limit(50000);
+
         const rows = data ?? [];
         const xml = [
           `<?xml version="1.0" encoding="UTF-8"?>`,
