@@ -11,6 +11,9 @@ import { EntityGrid } from "@/components/explore/EntityCard";
 import type { AreaSeoContext } from "@/lib/explore.functions";
 import type { Destination } from "@/lib/destinations.functions";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { journeyLinksForLocation } from "@/lib/seo/coverage";
+import { servicePagesForLocation } from "@/lib/seo/service-locations";
+
 import {
   CheckCircle2,
   Clock,
