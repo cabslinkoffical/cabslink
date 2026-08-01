@@ -49,6 +49,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as UniversitiesIndexRouteImport } from './routes/universities.index'
+import { Route as TravelSolutionsIndexRouteImport } from './routes/travel-solutions.index'
 import { Route as ToursIndexRouteImport } from './routes/tours.index'
 import { Route as StationsIndexRouteImport } from './routes/stations.index'
 import { Route as HospitalsIndexRouteImport } from './routes/hospitals.index'
@@ -319,6 +320,11 @@ const IndexRoute = IndexRouteImport.update({
 const UniversitiesIndexRoute = UniversitiesIndexRouteImport.update({
   id: '/universities/',
   path: '/universities/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TravelSolutionsIndexRoute = TravelSolutionsIndexRouteImport.update({
+  id: '/travel-solutions/',
+  path: '/travel-solutions/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ToursIndexRoute = ToursIndexRouteImport.update({
@@ -785,6 +791,7 @@ export interface FileRoutesByFullPath {
   '/hospitals/': typeof HospitalsIndexRoute
   '/stations/': typeof StationsIndexRoute
   '/tours/': typeof ToursIndexRoute
+  '/travel-solutions/': typeof TravelSolutionsIndexRoute
   '/universities/': typeof UniversitiesIndexRoute
   '/admin/addresses': typeof AuthenticatedAdminAddressesRoute
   '/admin/banned-addresses': typeof AuthenticatedAdminBannedAddressesRoute
@@ -897,6 +904,7 @@ export interface FileRoutesByTo {
   '/hospitals': typeof HospitalsIndexRoute
   '/stations': typeof StationsIndexRoute
   '/tours': typeof ToursIndexRoute
+  '/travel-solutions': typeof TravelSolutionsIndexRoute
   '/universities': typeof UniversitiesIndexRoute
   '/admin/addresses': typeof AuthenticatedAdminAddressesRoute
   '/admin/banned-addresses': typeof AuthenticatedAdminBannedAddressesRoute
@@ -1012,6 +1020,7 @@ export interface FileRoutesById {
   '/hospitals/': typeof HospitalsIndexRoute
   '/stations/': typeof StationsIndexRoute
   '/tours/': typeof ToursIndexRoute
+  '/travel-solutions/': typeof TravelSolutionsIndexRoute
   '/universities/': typeof UniversitiesIndexRoute
   '/_authenticated/admin/addresses': typeof AuthenticatedAdminAddressesRoute
   '/_authenticated/admin/banned-addresses': typeof AuthenticatedAdminBannedAddressesRoute
@@ -1127,6 +1136,7 @@ export interface FileRouteTypes {
     | '/hospitals/'
     | '/stations/'
     | '/tours/'
+    | '/travel-solutions/'
     | '/universities/'
     | '/admin/addresses'
     | '/admin/banned-addresses'
@@ -1239,6 +1249,7 @@ export interface FileRouteTypes {
     | '/hospitals'
     | '/stations'
     | '/tours'
+    | '/travel-solutions'
     | '/universities'
     | '/admin/addresses'
     | '/admin/banned-addresses'
@@ -1353,6 +1364,7 @@ export interface FileRouteTypes {
     | '/hospitals/'
     | '/stations/'
     | '/tours/'
+    | '/travel-solutions/'
     | '/universities/'
     | '/_authenticated/admin/addresses'
     | '/_authenticated/admin/banned-addresses'
@@ -1466,6 +1478,7 @@ export interface RootRouteChildren {
   HospitalsIndexRoute: typeof HospitalsIndexRoute
   StationsIndexRoute: typeof StationsIndexRoute
   ToursIndexRoute: typeof ToursIndexRoute
+  TravelSolutionsIndexRoute: typeof TravelSolutionsIndexRoute
   UniversitiesIndexRoute: typeof UniversitiesIndexRoute
   AreasALetterRoute: typeof AreasALetterRoute
   AreasRegionSlugRoute: typeof AreasRegionSlugRoute
@@ -1753,6 +1766,13 @@ declare module '@tanstack/react-router' {
       path: '/universities'
       fullPath: '/universities/'
       preLoaderRoute: typeof UniversitiesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/travel-solutions/': {
+      id: '/travel-solutions/'
+      path: '/travel-solutions'
+      fullPath: '/travel-solutions/'
+      preLoaderRoute: typeof TravelSolutionsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tours/': {
@@ -2459,6 +2479,7 @@ const rootRouteChildren: RootRouteChildren = {
   HospitalsIndexRoute: HospitalsIndexRoute,
   StationsIndexRoute: StationsIndexRoute,
   ToursIndexRoute: ToursIndexRoute,
+  TravelSolutionsIndexRoute: TravelSolutionsIndexRoute,
   UniversitiesIndexRoute: UniversitiesIndexRoute,
   AreasALetterRoute: AreasALetterRoute,
   AreasRegionSlugRoute: AreasRegionSlugRoute,
