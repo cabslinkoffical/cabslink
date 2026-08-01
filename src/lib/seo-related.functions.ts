@@ -132,7 +132,7 @@ export const getRelatedSeoLinks = createServerFn({ method: "GET" })
         .slice(0, 6);
       bundle.nearby_cities = nearCities.map(({ l, d }) => ({
         label: l.name,
-        href: `/locations/${l.slug}`,
+        href: `/areas/${l.slug}`,
         description: `${d.toFixed(0)} mi away`,
       }));
     }
