@@ -407,6 +407,16 @@
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
 }
+.class-marquee-track {
+  animation: classMarquee 46s linear infinite;
+  will-change: transform;
+}
+.class-marquee:hover .class-marquee-track { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) {
+  .class-marquee-track { animation: none !important; }
+  .class-marquee { overflow-x: auto; }
+}
+
 
 /* ── Icon polish ─────────────────────────────────────────────
    Lucide icons default to a 2px hairline stroke that reads dull
