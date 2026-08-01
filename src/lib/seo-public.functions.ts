@@ -128,7 +128,11 @@ export const listPublishedSeoPaths = createServerFn({ method: "GET" }).handler(a
     .from("seo_pages")
     .select("path, updated_at, robots_status")
     .eq("publication_status", "published");
-  return (data ?? []).filter((r: any) => !String(r.robots_status ?? "").includes("noindex"));
+  return (data ?? [])
+    .filter((r: any) => !String(r.robots_status ?? "").includes("noindex"))
+    // `/locations/*` is a legacy duplicate that now 301s to `/areas/*`.
+    // Redirecting URLs must never appear in a sitemap.
+    .filter((r: any) => !String(r.path ?? "").startsWith("/locations/"));
 });
 
 export const resolvePublicRedirect = createServerFn({ method: "GET" })
