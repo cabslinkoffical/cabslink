@@ -193,10 +193,13 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
         <NearbySection icon={Anchor} title={`Cruise ports near ${locName}`} items={data.cruisePorts} />
       )}
 
+      <LocalPagesSection slug={d.slug} name={locName} />
+
       {/* FAQ */}
       <section className="mt-14">
         <FaqBlock items={buildFaqs(data)} />
       </section>
+
 
       {/* CTA */}
       <section className="mt-14 rounded-3xl bg-[var(--navy)] p-10 text-center text-white">
