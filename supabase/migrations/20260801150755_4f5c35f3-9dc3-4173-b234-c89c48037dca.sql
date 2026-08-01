@@ -1,0 +1,1 @@
+UPDATE public.vehicle_classes SET name = 'Luxury Saloon' WHERE slug = 'luxury-chauffeur-saloon';
