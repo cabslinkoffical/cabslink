@@ -63,7 +63,8 @@ const CATEGORY_META: Record<DestinationType, { label: string; hubHref: string }>
   location:      { label: "Areas & Towns",   hubHref: "/areas" },
   region:        { label: "Regions",         hubHref: "/areas" },
   council:       { label: "Councils",        hubHref: "/areas" },
-  route:         { label: "Popular Routes",  hubHref: "/routes" },
+  // No `/routes` hub exists (no published route pages) — send browsers to /areas.
+  route:         { label: "Popular Routes",  hubHref: "/areas" },
   airport:       { label: "Airports",        hubHref: "/airports" },
   station:       { label: "Train Stations",  hubHref: "/stations" },
   cruise_port:   { label: "Cruise Ports",    hubHref: "/cruise-ports" },
