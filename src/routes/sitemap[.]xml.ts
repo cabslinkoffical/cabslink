@@ -1,59 +1,62 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
-import { listPublishedToursImpl } from "@/lib/tours.functions";
-import { listPublishedSeoPaths } from "@/lib/seo-public.functions";
-import { DESTINATION_TYPES } from "@/lib/destinations.functions";
+import { createClient } from "@supabase/supabase-js";
+import type { Database } from "@/integrations/supabase/types";
+import { DESTINATION_TYPES, type DestinationType } from "@/lib/destinations.functions";
 import { PUBLIC_ROUTES } from "@/lib/sitemap-routes";
 
 const BASE_URL = "https://cabslink.com";
 
 export { PUBLIC_ROUTES };
 
+function serverPublicClient() {
+  const key = process.env.SUPABASE_PUBLISHABLE_KEY!;
+  return createClient<Database>(process.env.SUPABASE_URL!, key, {
+    auth: { persistSession: false, autoRefreshToken: false },
+    global: {
+      fetch: (input, init) => {
+        const h = new Headers(init?.headers);
+        if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`) h.delete("Authorization");
+        h.set("apikey", key);
+        return fetch(input, { ...init, headers: h });
+      },
+    },
+  });
+}
 
 /**
- * Sitemap index: references the static-route sitemap plus one sub-sitemap per
- * destination type. Sub-sitemaps live at /sitemaps/{type}.xml and only emit
- * Tier 1 destinations (fully indexed pages).
+ * Sitemap index: references the static-route sitemap (/sitemap-core.xml) plus
+ * one sub-sitemap per destination type that actually has indexable pages, so
+ * crawlers never fetch empty urlsets.
  */
 export const Route = createFileRoute("/sitemap.xml")({
   server: {
     handlers: {
       GET: async () => {
-        // Core: static routes + tours + legacy SEO CMS paths (unchanged behaviour)
-        let tourPaths: string[] = [];
+        let types: DestinationType[] = [];
         try {
-          const tours = await listPublishedToursImpl();
-          tourPaths = tours.map((t) => `/tours/${t.slug}`);
-        } catch { tourPaths = []; }
-        let seoPaths: string[] = [];
-        try {
-          const rows = await listPublishedSeoPaths();
-          seoPaths = rows.map((r: { path: string }) => r.path);
-        } catch { seoPaths = []; }
-        const corePaths = [...PUBLIC_ROUTES, ...tourPaths, ...seoPaths];
+          const sb = serverPublicClient();
+          const { data } = await sb
+            .from("destinations")
+            .select("type")
+            .eq("active", true)
+            .lte("seo_tier", 2)
+            .eq("noindex", false)
+            .limit(50000);
+          const present = new Set((data ?? []).map((r) => r.type as DestinationType));
+          types = DESTINATION_TYPES.filter((t) => present.has(t));
+        } catch {
+          types = [];
+        }
 
-        const coreXml = [
-          `<?xml version="1.0" encoding="UTF-8"?>`,
-          `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`,
-          ...corePaths.map((p) => `  <url><loc>${BASE_URL}${p}</loc><changefreq>weekly</changefreq></url>`),
-          `</urlset>`,
-        ].join("\n");
-
-        // Sitemap index that fans out to per-type sub-sitemaps.
         const indexXml = [
           `<?xml version="1.0" encoding="UTF-8"?>`,
           `<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`,
           `  <sitemap><loc>${BASE_URL}/sitemap-core.xml</loc></sitemap>`,
-          ...DESTINATION_TYPES.map(
-            (t) => `  <sitemap><loc>${BASE_URL}/sitemaps/${t}.xml</loc></sitemap>`,
-          ),
+          ...types.map((t) => `  <sitemap><loc>${BASE_URL}/sitemaps/${t}.xml</loc></sitemap>`),
           `</sitemapindex>`,
         ].join("\n");
 
-        // Legacy consumers may still request /sitemap.xml expecting a urlset;
-        // we serve the sitemap index (crawlers understand both). Store the
-        // urlset variant at /sitemap-core.xml (below).
-        void coreXml; // referenced by /sitemap-core.xml route handler
         return new Response(indexXml, {
           headers: { "Content-Type": "application/xml", "Cache-Control": "public, max-age=3600" },
         });
@@ -61,4 +64,5 @@ export const Route = createFileRoute("/sitemap.xml")({
     },
   },
 });
+
 
