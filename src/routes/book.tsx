@@ -25,6 +25,7 @@ import { PlaceAutocomplete, type SelectedPlace } from "@/components/site/PlaceAu
 import { PhoneInput } from "@/components/site/PhoneInput";
 
 import { calculateQuotes, createBooking, type QuoteCard } from "@/lib/pricing.functions";
+import { track } from "@/lib/tracking";
 import { listPoisForRoute, type PoiSuggestion, type RouteTemplateSummary } from "@/lib/pois.functions";
 import { calculateMultiStopQuote, type MultiStopQuoteResult } from "@/lib/scenic-quote.functions";
 import { resolveTourTemplate } from "@/lib/tours.functions";
@@ -450,6 +451,15 @@ function BookPage() {
           templateSlug: pre.templateSlug || null,
         },
       });
+      track("booking_submitted", {
+        vehicle: chosen.vehicleId,
+        vehicle_count: qty,
+        value: grandTotal / 100,
+        currency: "GBP",
+        stops: mergedStops.length,
+        payment_method: payment,
+        cancellation_policy: policy,
+      });
       toast.success("Booking request received.");
       idempotencyKey.current = crypto.randomUUID();
       clearDraft();
@@ -506,7 +516,7 @@ function BookPage() {
                       isLoading={quoteQuery.isLoading}
                       error={quoteQuery.error as Error | null}
                       onRetry={() => quoteQuery.refetch()}
-                      onSelect={(card, quantity) => { setChosen(card); setQty(quantity); setStep("details"); }}
+                      onSelect={(card, quantity) => { setChosen(card); setQty(quantity); track("booking_step", { step: "details", vehicle: card.vehicleId, vehicle_count: quantity }); setStep("details"); }}
                     />
                   )}
 
@@ -556,7 +566,7 @@ function BookPage() {
                       returnJourneyFeePence={returnJourneyFeePence}
                       policyCfg={policyCfg}
                       onBack={() => setStep("details")}
-                      onNext={() => setStep("payment")}
+                      onNext={() => { track("booking_step", { step: "payment", value: grandTotal / 100, currency: "GBP" }); setStep("payment"); }}
                     />
                   )}
 

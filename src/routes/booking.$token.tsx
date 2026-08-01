@@ -5,6 +5,7 @@ import { BadgeCheck, CalendarDays, Car, Clock, MapPin, Phone, Mail, ShieldCheck,
 import { useState } from "react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { getBookingByToken } from "@/lib/booking.functions";
+import { track } from "@/lib/tracking";
 import { paymentNextStepMessage, statusLabel, type BookingStatus, type PaymentMode } from "@/lib/booking-lifecycle";
 import { SITE } from "@/lib/site";
 import { Button } from "@/components/ui/button";
