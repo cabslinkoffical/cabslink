@@ -3,9 +3,13 @@
  * Extracted so multiple sitemap handlers can import without circular refs.
  */
 import { publishedCombinations } from "@/lib/seo/service-locations";
+import { publishedJourneyPaths } from "@/lib/seo/journeys";
 
 /** Published service + location combination pages (facts-gated). */
 export const SERVICE_LOCATION_ROUTES = publishedCombinations().map((c) => c.path);
+
+/** Published journey (route) pages (facts-gated). */
+export const JOURNEY_ROUTES = publishedJourneyPaths();
 
 export const PUBLIC_ROUTES = [
 
@@ -21,6 +25,8 @@ export const PUBLIC_ROUTES = [
   "/blog",
   "/areas", "/stations", "/cruise-ports", "/universities",
   "/hospitals", "/corporate", "/attractions", "/distilleries", "/guides",
+  "/routes",
+  ...JOURNEY_ROUTES,
   ...SERVICE_LOCATION_ROUTES,
 
 ];
