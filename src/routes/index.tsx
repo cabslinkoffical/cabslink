@@ -1003,10 +1003,11 @@ function FleetClassesSection() {
                   </div>
                 </div>
               </article>
-            ))
-          )}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </section>
+
   );
 }
