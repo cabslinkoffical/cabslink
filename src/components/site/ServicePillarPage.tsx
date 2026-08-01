@@ -35,6 +35,7 @@ const ICONS = {
   card: CreditCard,
   heart: Heart,
   luggage: Luggage,
+  phone: Phone,
   pin: MapPin,
   plane: Plane,
   route: RouteIcon,
