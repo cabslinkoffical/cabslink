@@ -84,50 +84,50 @@ import { Route as AttractionsSlugRouteImport } from './routes/attractions.$slug'
 import { Route as AreasSlugRouteImport } from './routes/areas.$slug'
 import { Route as AirportsIataRouteImport } from './routes/airports.$iata'
 import { Route as AirportTransfersLocationRouteImport } from './routes/airport-transfers.$location'
-import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
-import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
+import { Route as AuthenticatedCabsBookingPannelRouteRouteImport } from './routes/_authenticated/cabs-booking-pannel/route'
+import { Route as AuthenticatedCabsBookingPannelIndexRouteImport } from './routes/_authenticated/cabs-booking-pannel/index'
 import { Route as BlogTagSlugRouteImport } from './routes/blog.tag.$slug'
 import { Route as BlogCategorySlugRouteImport } from './routes/blog.category.$slug'
 import { Route as AreasRegionSlugRouteImport } from './routes/areas.region.$slug'
 import { Route as AreasALetterRouteImport } from './routes/areas.a.$letter'
-import { Route as AuthenticatedAdminVehicleClassesRouteImport } from './routes/_authenticated/admin/vehicle-classes'
-import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
-import { Route as AuthenticatedAdminTourSettingsRouteImport } from './routes/_authenticated/admin/tour-settings'
-import { Route as AuthenticatedAdminSurchargesRouteImport } from './routes/_authenticated/admin/surcharges'
-import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin/settings'
-import { Route as AuthenticatedAdminScenicRoutesRouteImport } from './routes/_authenticated/admin/scenic-routes'
-import { Route as AuthenticatedAdminReportsRouteImport } from './routes/_authenticated/admin/reports'
-import { Route as AuthenticatedAdminPricingPreviewRouteImport } from './routes/_authenticated/admin/pricing-preview'
-import { Route as AuthenticatedAdminPricingRouteImport } from './routes/_authenticated/admin/pricing'
-import { Route as AuthenticatedAdminPoisRouteImport } from './routes/_authenticated/admin/pois'
-import { Route as AuthenticatedAdminPaymentsRouteImport } from './routes/_authenticated/admin/payments'
-import { Route as AuthenticatedAdminMileagePricingRouteImport } from './routes/_authenticated/admin/mileage-pricing'
-import { Route as AuthenticatedAdminMessagesRouteImport } from './routes/_authenticated/admin/messages'
-import { Route as AuthenticatedAdminLogsRouteImport } from './routes/_authenticated/admin/logs'
-import { Route as AuthenticatedAdminHourlyRatesRouteImport } from './routes/_authenticated/admin/hourly-rates'
-import { Route as AuthenticatedAdminFleetImagesRouteImport } from './routes/_authenticated/admin/fleet-images'
-import { Route as AuthenticatedAdminFleetRouteImport } from './routes/_authenticated/admin/fleet'
-import { Route as AuthenticatedAdminDriversRouteImport } from './routes/_authenticated/admin/drivers'
-import { Route as AuthenticatedAdminCustomersRouteImport } from './routes/_authenticated/admin/customers'
-import { Route as AuthenticatedAdminCouponsRouteImport } from './routes/_authenticated/admin/coupons'
-import { Route as AuthenticatedAdminBookingsRouteImport } from './routes/_authenticated/admin/bookings'
-import { Route as AuthenticatedAdminBannedAddressesRouteImport } from './routes/_authenticated/admin/banned-addresses'
-import { Route as AuthenticatedAdminAddressesRouteImport } from './routes/_authenticated/admin/addresses'
-import { Route as AuthenticatedAdminSeoIndexRouteImport } from './routes/_authenticated/admin/seo.index'
-import { Route as AuthenticatedAdminBlogIndexRouteImport } from './routes/_authenticated/admin/blog.index'
-import { Route as AuthenticatedAdminSeoServicesRouteImport } from './routes/_authenticated/admin/seo.services'
-import { Route as AuthenticatedAdminSeoRoutesRouteImport } from './routes/_authenticated/admin/seo.routes'
-import { Route as AuthenticatedAdminSeoRedirectsRouteImport } from './routes/_authenticated/admin/seo.redirects'
-import { Route as AuthenticatedAdminSeoPagesRouteImport } from './routes/_authenticated/admin/seo.pages'
-import { Route as AuthenticatedAdminSeoLocationsRouteImport } from './routes/_authenticated/admin/seo.locations'
-import { Route as AuthenticatedAdminSeoIssuesRouteImport } from './routes/_authenticated/admin/seo.issues'
-import { Route as AuthenticatedAdminSeoImportRouteImport } from './routes/_authenticated/admin/seo.import'
-import { Route as AuthenticatedAdminSeoAirportsRouteImport } from './routes/_authenticated/admin/seo.airports'
-import { Route as AuthenticatedAdminBlogTagsRouteImport } from './routes/_authenticated/admin/blog.tags'
-import { Route as AuthenticatedAdminBlogCategoriesRouteImport } from './routes/_authenticated/admin/blog.categories'
-import { Route as AuthenticatedAdminBlogAuthorsRouteImport } from './routes/_authenticated/admin/blog.authors'
-import { Route as AuthenticatedAdminBlogIdRouteImport } from './routes/_authenticated/admin/blog.$id'
-import { Route as AuthenticatedAdminSeoPagesIdSectionsRouteImport } from './routes/_authenticated/admin/seo.pages.$id.sections'
+import { Route as AuthenticatedCabsBookingPannelVehicleClassesRouteImport } from './routes/_authenticated/cabs-booking-pannel/vehicle-classes'
+import { Route as AuthenticatedCabsBookingPannelUsersRouteImport } from './routes/_authenticated/cabs-booking-pannel/users'
+import { Route as AuthenticatedCabsBookingPannelTourSettingsRouteImport } from './routes/_authenticated/cabs-booking-pannel/tour-settings'
+import { Route as AuthenticatedCabsBookingPannelSurchargesRouteImport } from './routes/_authenticated/cabs-booking-pannel/surcharges'
+import { Route as AuthenticatedCabsBookingPannelSettingsRouteImport } from './routes/_authenticated/cabs-booking-pannel/settings'
+import { Route as AuthenticatedCabsBookingPannelScenicRoutesRouteImport } from './routes/_authenticated/cabs-booking-pannel/scenic-routes'
+import { Route as AuthenticatedCabsBookingPannelReportsRouteImport } from './routes/_authenticated/cabs-booking-pannel/reports'
+import { Route as AuthenticatedCabsBookingPannelPricingPreviewRouteImport } from './routes/_authenticated/cabs-booking-pannel/pricing-preview'
+import { Route as AuthenticatedCabsBookingPannelPricingRouteImport } from './routes/_authenticated/cabs-booking-pannel/pricing'
+import { Route as AuthenticatedCabsBookingPannelPoisRouteImport } from './routes/_authenticated/cabs-booking-pannel/pois'
+import { Route as AuthenticatedCabsBookingPannelPaymentsRouteImport } from './routes/_authenticated/cabs-booking-pannel/payments'
+import { Route as AuthenticatedCabsBookingPannelMileagePricingRouteImport } from './routes/_authenticated/cabs-booking-pannel/mileage-pricing'
+import { Route as AuthenticatedCabsBookingPannelMessagesRouteImport } from './routes/_authenticated/cabs-booking-pannel/messages'
+import { Route as AuthenticatedCabsBookingPannelLogsRouteImport } from './routes/_authenticated/cabs-booking-pannel/logs'
+import { Route as AuthenticatedCabsBookingPannelHourlyRatesRouteImport } from './routes/_authenticated/cabs-booking-pannel/hourly-rates'
+import { Route as AuthenticatedCabsBookingPannelFleetImagesRouteImport } from './routes/_authenticated/cabs-booking-pannel/fleet-images'
+import { Route as AuthenticatedCabsBookingPannelFleetRouteImport } from './routes/_authenticated/cabs-booking-pannel/fleet'
+import { Route as AuthenticatedCabsBookingPannelDriversRouteImport } from './routes/_authenticated/cabs-booking-pannel/drivers'
+import { Route as AuthenticatedCabsBookingPannelCustomersRouteImport } from './routes/_authenticated/cabs-booking-pannel/customers'
+import { Route as AuthenticatedCabsBookingPannelCouponsRouteImport } from './routes/_authenticated/cabs-booking-pannel/coupons'
+import { Route as AuthenticatedCabsBookingPannelBookingsRouteImport } from './routes/_authenticated/cabs-booking-pannel/bookings'
+import { Route as AuthenticatedCabsBookingPannelBannedAddressesRouteImport } from './routes/_authenticated/cabs-booking-pannel/banned-addresses'
+import { Route as AuthenticatedCabsBookingPannelAddressesRouteImport } from './routes/_authenticated/cabs-booking-pannel/addresses'
+import { Route as AuthenticatedCabsBookingPannelSeoIndexRouteImport } from './routes/_authenticated/cabs-booking-pannel/seo.index'
+import { Route as AuthenticatedCabsBookingPannelBlogIndexRouteImport } from './routes/_authenticated/cabs-booking-pannel/blog.index'
+import { Route as AuthenticatedCabsBookingPannelSeoServicesRouteImport } from './routes/_authenticated/cabs-booking-pannel/seo.services'
+import { Route as AuthenticatedCabsBookingPannelSeoRoutesRouteImport } from './routes/_authenticated/cabs-booking-pannel/seo.routes'
+import { Route as AuthenticatedCabsBookingPannelSeoRedirectsRouteImport } from './routes/_authenticated/cabs-booking-pannel/seo.redirects'
+import { Route as AuthenticatedCabsBookingPannelSeoPagesRouteImport } from './routes/_authenticated/cabs-booking-pannel/seo.pages'
+import { Route as AuthenticatedCabsBookingPannelSeoLocationsRouteImport } from './routes/_authenticated/cabs-booking-pannel/seo.locations'
+import { Route as AuthenticatedCabsBookingPannelSeoIssuesRouteImport } from './routes/_authenticated/cabs-booking-pannel/seo.issues'
+import { Route as AuthenticatedCabsBookingPannelSeoImportRouteImport } from './routes/_authenticated/cabs-booking-pannel/seo.import'
+import { Route as AuthenticatedCabsBookingPannelSeoAirportsRouteImport } from './routes/_authenticated/cabs-booking-pannel/seo.airports'
+import { Route as AuthenticatedCabsBookingPannelBlogTagsRouteImport } from './routes/_authenticated/cabs-booking-pannel/blog.tags'
+import { Route as AuthenticatedCabsBookingPannelBlogCategoriesRouteImport } from './routes/_authenticated/cabs-booking-pannel/blog.categories'
+import { Route as AuthenticatedCabsBookingPannelBlogAuthorsRouteImport } from './routes/_authenticated/cabs-booking-pannel/blog.authors'
+import { Route as AuthenticatedCabsBookingPannelBlogIdRouteImport } from './routes/_authenticated/cabs-booking-pannel/blog.$id'
+import { Route as AuthenticatedCabsBookingPannelSeoPagesIdSectionsRouteImport } from './routes/_authenticated/cabs-booking-pannel/seo.pages.$id.sections'
 
 const WeddingTransportRoute = WeddingTransportRouteImport.update({
   id: '/wedding-transport',
@@ -506,16 +506,18 @@ const AirportTransfersLocationRoute =
     path: '/airport-transfers/$location',
     getParentRoute: () => rootRouteImport,
   } as any)
-const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
-  id: '/admin',
-  path: '/admin',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AuthenticatedAdminRouteRoute,
-} as any)
+const AuthenticatedCabsBookingPannelRouteRoute =
+  AuthenticatedCabsBookingPannelRouteRouteImport.update({
+    id: '/cabs-booking-pannel',
+    path: '/cabs-booking-pannel',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCabsBookingPannelIndexRoute =
+  AuthenticatedCabsBookingPannelIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
+  } as any)
 const BlogTagSlugRoute = BlogTagSlugRouteImport.update({
   id: '/blog/tag/$slug',
   path: '/blog/tag/$slug',
@@ -536,229 +538,233 @@ const AreasALetterRoute = AreasALetterRouteImport.update({
   path: '/areas/a/$letter',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedAdminVehicleClassesRoute =
-  AuthenticatedAdminVehicleClassesRouteImport.update({
+const AuthenticatedCabsBookingPannelVehicleClassesRoute =
+  AuthenticatedCabsBookingPannelVehicleClassesRouteImport.update({
     id: '/vehicle-classes',
     path: '/vehicle-classes',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
-const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
-  id: '/users',
-  path: '/users',
-  getParentRoute: () => AuthenticatedAdminRouteRoute,
-} as any)
-const AuthenticatedAdminTourSettingsRoute =
-  AuthenticatedAdminTourSettingsRouteImport.update({
+const AuthenticatedCabsBookingPannelUsersRoute =
+  AuthenticatedCabsBookingPannelUsersRouteImport.update({
+    id: '/users',
+    path: '/users',
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
+  } as any)
+const AuthenticatedCabsBookingPannelTourSettingsRoute =
+  AuthenticatedCabsBookingPannelTourSettingsRouteImport.update({
     id: '/tour-settings',
     path: '/tour-settings',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
-const AuthenticatedAdminSurchargesRoute =
-  AuthenticatedAdminSurchargesRouteImport.update({
+const AuthenticatedCabsBookingPannelSurchargesRoute =
+  AuthenticatedCabsBookingPannelSurchargesRouteImport.update({
     id: '/surcharges',
     path: '/surcharges',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
-const AuthenticatedAdminSettingsRoute =
-  AuthenticatedAdminSettingsRouteImport.update({
+const AuthenticatedCabsBookingPannelSettingsRoute =
+  AuthenticatedCabsBookingPannelSettingsRouteImport.update({
     id: '/settings',
     path: '/settings',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
-const AuthenticatedAdminScenicRoutesRoute =
-  AuthenticatedAdminScenicRoutesRouteImport.update({
+const AuthenticatedCabsBookingPannelScenicRoutesRoute =
+  AuthenticatedCabsBookingPannelScenicRoutesRouteImport.update({
     id: '/scenic-routes',
     path: '/scenic-routes',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
-const AuthenticatedAdminReportsRoute =
-  AuthenticatedAdminReportsRouteImport.update({
+const AuthenticatedCabsBookingPannelReportsRoute =
+  AuthenticatedCabsBookingPannelReportsRouteImport.update({
     id: '/reports',
     path: '/reports',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
-const AuthenticatedAdminPricingPreviewRoute =
-  AuthenticatedAdminPricingPreviewRouteImport.update({
+const AuthenticatedCabsBookingPannelPricingPreviewRoute =
+  AuthenticatedCabsBookingPannelPricingPreviewRouteImport.update({
     id: '/pricing-preview',
     path: '/pricing-preview',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
-const AuthenticatedAdminPricingRoute =
-  AuthenticatedAdminPricingRouteImport.update({
+const AuthenticatedCabsBookingPannelPricingRoute =
+  AuthenticatedCabsBookingPannelPricingRouteImport.update({
     id: '/pricing',
     path: '/pricing',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
-const AuthenticatedAdminPoisRoute = AuthenticatedAdminPoisRouteImport.update({
-  id: '/pois',
-  path: '/pois',
-  getParentRoute: () => AuthenticatedAdminRouteRoute,
-} as any)
-const AuthenticatedAdminPaymentsRoute =
-  AuthenticatedAdminPaymentsRouteImport.update({
+const AuthenticatedCabsBookingPannelPoisRoute =
+  AuthenticatedCabsBookingPannelPoisRouteImport.update({
+    id: '/pois',
+    path: '/pois',
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
+  } as any)
+const AuthenticatedCabsBookingPannelPaymentsRoute =
+  AuthenticatedCabsBookingPannelPaymentsRouteImport.update({
     id: '/payments',
     path: '/payments',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
-const AuthenticatedAdminMileagePricingRoute =
-  AuthenticatedAdminMileagePricingRouteImport.update({
+const AuthenticatedCabsBookingPannelMileagePricingRoute =
+  AuthenticatedCabsBookingPannelMileagePricingRouteImport.update({
     id: '/mileage-pricing',
     path: '/mileage-pricing',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
-const AuthenticatedAdminMessagesRoute =
-  AuthenticatedAdminMessagesRouteImport.update({
+const AuthenticatedCabsBookingPannelMessagesRoute =
+  AuthenticatedCabsBookingPannelMessagesRouteImport.update({
     id: '/messages',
     path: '/messages',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
-const AuthenticatedAdminLogsRoute = AuthenticatedAdminLogsRouteImport.update({
-  id: '/logs',
-  path: '/logs',
-  getParentRoute: () => AuthenticatedAdminRouteRoute,
-} as any)
-const AuthenticatedAdminHourlyRatesRoute =
-  AuthenticatedAdminHourlyRatesRouteImport.update({
+const AuthenticatedCabsBookingPannelLogsRoute =
+  AuthenticatedCabsBookingPannelLogsRouteImport.update({
+    id: '/logs',
+    path: '/logs',
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
+  } as any)
+const AuthenticatedCabsBookingPannelHourlyRatesRoute =
+  AuthenticatedCabsBookingPannelHourlyRatesRouteImport.update({
     id: '/hourly-rates',
     path: '/hourly-rates',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
-const AuthenticatedAdminFleetImagesRoute =
-  AuthenticatedAdminFleetImagesRouteImport.update({
+const AuthenticatedCabsBookingPannelFleetImagesRoute =
+  AuthenticatedCabsBookingPannelFleetImagesRouteImport.update({
     id: '/fleet-images',
     path: '/fleet-images',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
-const AuthenticatedAdminFleetRoute = AuthenticatedAdminFleetRouteImport.update({
-  id: '/fleet',
-  path: '/fleet',
-  getParentRoute: () => AuthenticatedAdminRouteRoute,
-} as any)
-const AuthenticatedAdminDriversRoute =
-  AuthenticatedAdminDriversRouteImport.update({
+const AuthenticatedCabsBookingPannelFleetRoute =
+  AuthenticatedCabsBookingPannelFleetRouteImport.update({
+    id: '/fleet',
+    path: '/fleet',
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
+  } as any)
+const AuthenticatedCabsBookingPannelDriversRoute =
+  AuthenticatedCabsBookingPannelDriversRouteImport.update({
     id: '/drivers',
     path: '/drivers',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
-const AuthenticatedAdminCustomersRoute =
-  AuthenticatedAdminCustomersRouteImport.update({
+const AuthenticatedCabsBookingPannelCustomersRoute =
+  AuthenticatedCabsBookingPannelCustomersRouteImport.update({
     id: '/customers',
     path: '/customers',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
-const AuthenticatedAdminCouponsRoute =
-  AuthenticatedAdminCouponsRouteImport.update({
+const AuthenticatedCabsBookingPannelCouponsRoute =
+  AuthenticatedCabsBookingPannelCouponsRouteImport.update({
     id: '/coupons',
     path: '/coupons',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
-const AuthenticatedAdminBookingsRoute =
-  AuthenticatedAdminBookingsRouteImport.update({
+const AuthenticatedCabsBookingPannelBookingsRoute =
+  AuthenticatedCabsBookingPannelBookingsRouteImport.update({
     id: '/bookings',
     path: '/bookings',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
-const AuthenticatedAdminBannedAddressesRoute =
-  AuthenticatedAdminBannedAddressesRouteImport.update({
+const AuthenticatedCabsBookingPannelBannedAddressesRoute =
+  AuthenticatedCabsBookingPannelBannedAddressesRouteImport.update({
     id: '/banned-addresses',
     path: '/banned-addresses',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
-const AuthenticatedAdminAddressesRoute =
-  AuthenticatedAdminAddressesRouteImport.update({
+const AuthenticatedCabsBookingPannelAddressesRoute =
+  AuthenticatedCabsBookingPannelAddressesRouteImport.update({
     id: '/addresses',
     path: '/addresses',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
-const AuthenticatedAdminSeoIndexRoute =
-  AuthenticatedAdminSeoIndexRouteImport.update({
+const AuthenticatedCabsBookingPannelSeoIndexRoute =
+  AuthenticatedCabsBookingPannelSeoIndexRouteImport.update({
     id: '/seo/',
     path: '/seo/',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
-const AuthenticatedAdminBlogIndexRoute =
-  AuthenticatedAdminBlogIndexRouteImport.update({
+const AuthenticatedCabsBookingPannelBlogIndexRoute =
+  AuthenticatedCabsBookingPannelBlogIndexRouteImport.update({
     id: '/blog/',
     path: '/blog/',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
-const AuthenticatedAdminSeoServicesRoute =
-  AuthenticatedAdminSeoServicesRouteImport.update({
+const AuthenticatedCabsBookingPannelSeoServicesRoute =
+  AuthenticatedCabsBookingPannelSeoServicesRouteImport.update({
     id: '/seo/services',
     path: '/seo/services',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
-const AuthenticatedAdminSeoRoutesRoute =
-  AuthenticatedAdminSeoRoutesRouteImport.update({
+const AuthenticatedCabsBookingPannelSeoRoutesRoute =
+  AuthenticatedCabsBookingPannelSeoRoutesRouteImport.update({
     id: '/seo/routes',
     path: '/seo/routes',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
-const AuthenticatedAdminSeoRedirectsRoute =
-  AuthenticatedAdminSeoRedirectsRouteImport.update({
+const AuthenticatedCabsBookingPannelSeoRedirectsRoute =
+  AuthenticatedCabsBookingPannelSeoRedirectsRouteImport.update({
     id: '/seo/redirects',
     path: '/seo/redirects',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
-const AuthenticatedAdminSeoPagesRoute =
-  AuthenticatedAdminSeoPagesRouteImport.update({
+const AuthenticatedCabsBookingPannelSeoPagesRoute =
+  AuthenticatedCabsBookingPannelSeoPagesRouteImport.update({
     id: '/seo/pages',
     path: '/seo/pages',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
-const AuthenticatedAdminSeoLocationsRoute =
-  AuthenticatedAdminSeoLocationsRouteImport.update({
+const AuthenticatedCabsBookingPannelSeoLocationsRoute =
+  AuthenticatedCabsBookingPannelSeoLocationsRouteImport.update({
     id: '/seo/locations',
     path: '/seo/locations',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
-const AuthenticatedAdminSeoIssuesRoute =
-  AuthenticatedAdminSeoIssuesRouteImport.update({
+const AuthenticatedCabsBookingPannelSeoIssuesRoute =
+  AuthenticatedCabsBookingPannelSeoIssuesRouteImport.update({
     id: '/seo/issues',
     path: '/seo/issues',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
-const AuthenticatedAdminSeoImportRoute =
-  AuthenticatedAdminSeoImportRouteImport.update({
+const AuthenticatedCabsBookingPannelSeoImportRoute =
+  AuthenticatedCabsBookingPannelSeoImportRouteImport.update({
     id: '/seo/import',
     path: '/seo/import',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
-const AuthenticatedAdminSeoAirportsRoute =
-  AuthenticatedAdminSeoAirportsRouteImport.update({
+const AuthenticatedCabsBookingPannelSeoAirportsRoute =
+  AuthenticatedCabsBookingPannelSeoAirportsRouteImport.update({
     id: '/seo/airports',
     path: '/seo/airports',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
-const AuthenticatedAdminBlogTagsRoute =
-  AuthenticatedAdminBlogTagsRouteImport.update({
+const AuthenticatedCabsBookingPannelBlogTagsRoute =
+  AuthenticatedCabsBookingPannelBlogTagsRouteImport.update({
     id: '/blog/tags',
     path: '/blog/tags',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
-const AuthenticatedAdminBlogCategoriesRoute =
-  AuthenticatedAdminBlogCategoriesRouteImport.update({
+const AuthenticatedCabsBookingPannelBlogCategoriesRoute =
+  AuthenticatedCabsBookingPannelBlogCategoriesRouteImport.update({
     id: '/blog/categories',
     path: '/blog/categories',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
-const AuthenticatedAdminBlogAuthorsRoute =
-  AuthenticatedAdminBlogAuthorsRouteImport.update({
+const AuthenticatedCabsBookingPannelBlogAuthorsRoute =
+  AuthenticatedCabsBookingPannelBlogAuthorsRouteImport.update({
     id: '/blog/authors',
     path: '/blog/authors',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
-const AuthenticatedAdminBlogIdRoute =
-  AuthenticatedAdminBlogIdRouteImport.update({
+const AuthenticatedCabsBookingPannelBlogIdRoute =
+  AuthenticatedCabsBookingPannelBlogIdRouteImport.update({
     id: '/blog/$id',
     path: '/blog/$id',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
-const AuthenticatedAdminSeoPagesIdSectionsRoute =
-  AuthenticatedAdminSeoPagesIdSectionsRouteImport.update({
+const AuthenticatedCabsBookingPannelSeoPagesIdSectionsRoute =
+  AuthenticatedCabsBookingPannelSeoPagesIdSectionsRouteImport.update({
     id: '/$id/sections',
     path: '/$id/sections',
-    getParentRoute: () => AuthenticatedAdminSeoPagesRoute,
+    getParentRoute: () => AuthenticatedCabsBookingPannelSeoPagesRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -796,7 +802,7 @@ export interface FileRoutesByFullPath {
   '/vip-sports-hospitality': typeof VipSportsHospitalityRoute
   '/vip-transfers': typeof VipTransfersRoute
   '/wedding-transport': typeof WeddingTransportRoute
-  '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/cabs-booking-pannel': typeof AuthenticatedCabsBookingPannelRouteRouteWithChildren
   '/airport-transfers/$location': typeof AirportTransfersLocationRoute
   '/airports/$iata': typeof AirportsIataRoute
   '/areas/$slug': typeof AreasSlugRoute
@@ -837,49 +843,49 @@ export interface FileRoutesByFullPath {
   '/tours/': typeof ToursIndexRoute
   '/travel-solutions/': typeof TravelSolutionsIndexRoute
   '/universities/': typeof UniversitiesIndexRoute
-  '/admin/addresses': typeof AuthenticatedAdminAddressesRoute
-  '/admin/banned-addresses': typeof AuthenticatedAdminBannedAddressesRoute
-  '/admin/bookings': typeof AuthenticatedAdminBookingsRoute
-  '/admin/coupons': typeof AuthenticatedAdminCouponsRoute
-  '/admin/customers': typeof AuthenticatedAdminCustomersRoute
-  '/admin/drivers': typeof AuthenticatedAdminDriversRoute
-  '/admin/fleet': typeof AuthenticatedAdminFleetRoute
-  '/admin/fleet-images': typeof AuthenticatedAdminFleetImagesRoute
-  '/admin/hourly-rates': typeof AuthenticatedAdminHourlyRatesRoute
-  '/admin/logs': typeof AuthenticatedAdminLogsRoute
-  '/admin/messages': typeof AuthenticatedAdminMessagesRoute
-  '/admin/mileage-pricing': typeof AuthenticatedAdminMileagePricingRoute
-  '/admin/payments': typeof AuthenticatedAdminPaymentsRoute
-  '/admin/pois': typeof AuthenticatedAdminPoisRoute
-  '/admin/pricing': typeof AuthenticatedAdminPricingRoute
-  '/admin/pricing-preview': typeof AuthenticatedAdminPricingPreviewRoute
-  '/admin/reports': typeof AuthenticatedAdminReportsRoute
-  '/admin/scenic-routes': typeof AuthenticatedAdminScenicRoutesRoute
-  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
-  '/admin/surcharges': typeof AuthenticatedAdminSurchargesRoute
-  '/admin/tour-settings': typeof AuthenticatedAdminTourSettingsRoute
-  '/admin/users': typeof AuthenticatedAdminUsersRoute
-  '/admin/vehicle-classes': typeof AuthenticatedAdminVehicleClassesRoute
+  '/cabs-booking-pannel/addresses': typeof AuthenticatedCabsBookingPannelAddressesRoute
+  '/cabs-booking-pannel/banned-addresses': typeof AuthenticatedCabsBookingPannelBannedAddressesRoute
+  '/cabs-booking-pannel/bookings': typeof AuthenticatedCabsBookingPannelBookingsRoute
+  '/cabs-booking-pannel/coupons': typeof AuthenticatedCabsBookingPannelCouponsRoute
+  '/cabs-booking-pannel/customers': typeof AuthenticatedCabsBookingPannelCustomersRoute
+  '/cabs-booking-pannel/drivers': typeof AuthenticatedCabsBookingPannelDriversRoute
+  '/cabs-booking-pannel/fleet': typeof AuthenticatedCabsBookingPannelFleetRoute
+  '/cabs-booking-pannel/fleet-images': typeof AuthenticatedCabsBookingPannelFleetImagesRoute
+  '/cabs-booking-pannel/hourly-rates': typeof AuthenticatedCabsBookingPannelHourlyRatesRoute
+  '/cabs-booking-pannel/logs': typeof AuthenticatedCabsBookingPannelLogsRoute
+  '/cabs-booking-pannel/messages': typeof AuthenticatedCabsBookingPannelMessagesRoute
+  '/cabs-booking-pannel/mileage-pricing': typeof AuthenticatedCabsBookingPannelMileagePricingRoute
+  '/cabs-booking-pannel/payments': typeof AuthenticatedCabsBookingPannelPaymentsRoute
+  '/cabs-booking-pannel/pois': typeof AuthenticatedCabsBookingPannelPoisRoute
+  '/cabs-booking-pannel/pricing': typeof AuthenticatedCabsBookingPannelPricingRoute
+  '/cabs-booking-pannel/pricing-preview': typeof AuthenticatedCabsBookingPannelPricingPreviewRoute
+  '/cabs-booking-pannel/reports': typeof AuthenticatedCabsBookingPannelReportsRoute
+  '/cabs-booking-pannel/scenic-routes': typeof AuthenticatedCabsBookingPannelScenicRoutesRoute
+  '/cabs-booking-pannel/settings': typeof AuthenticatedCabsBookingPannelSettingsRoute
+  '/cabs-booking-pannel/surcharges': typeof AuthenticatedCabsBookingPannelSurchargesRoute
+  '/cabs-booking-pannel/tour-settings': typeof AuthenticatedCabsBookingPannelTourSettingsRoute
+  '/cabs-booking-pannel/users': typeof AuthenticatedCabsBookingPannelUsersRoute
+  '/cabs-booking-pannel/vehicle-classes': typeof AuthenticatedCabsBookingPannelVehicleClassesRoute
   '/areas/a/$letter': typeof AreasALetterRoute
   '/areas/region/$slug': typeof AreasRegionSlugRoute
   '/blog/category/$slug': typeof BlogCategorySlugRoute
   '/blog/tag/$slug': typeof BlogTagSlugRoute
-  '/admin/': typeof AuthenticatedAdminIndexRoute
-  '/admin/blog/$id': typeof AuthenticatedAdminBlogIdRoute
-  '/admin/blog/authors': typeof AuthenticatedAdminBlogAuthorsRoute
-  '/admin/blog/categories': typeof AuthenticatedAdminBlogCategoriesRoute
-  '/admin/blog/tags': typeof AuthenticatedAdminBlogTagsRoute
-  '/admin/seo/airports': typeof AuthenticatedAdminSeoAirportsRoute
-  '/admin/seo/import': typeof AuthenticatedAdminSeoImportRoute
-  '/admin/seo/issues': typeof AuthenticatedAdminSeoIssuesRoute
-  '/admin/seo/locations': typeof AuthenticatedAdminSeoLocationsRoute
-  '/admin/seo/pages': typeof AuthenticatedAdminSeoPagesRouteWithChildren
-  '/admin/seo/redirects': typeof AuthenticatedAdminSeoRedirectsRoute
-  '/admin/seo/routes': typeof AuthenticatedAdminSeoRoutesRoute
-  '/admin/seo/services': typeof AuthenticatedAdminSeoServicesRoute
-  '/admin/blog/': typeof AuthenticatedAdminBlogIndexRoute
-  '/admin/seo/': typeof AuthenticatedAdminSeoIndexRoute
-  '/admin/seo/pages/$id/sections': typeof AuthenticatedAdminSeoPagesIdSectionsRoute
+  '/cabs-booking-pannel/': typeof AuthenticatedCabsBookingPannelIndexRoute
+  '/cabs-booking-pannel/blog/$id': typeof AuthenticatedCabsBookingPannelBlogIdRoute
+  '/cabs-booking-pannel/blog/authors': typeof AuthenticatedCabsBookingPannelBlogAuthorsRoute
+  '/cabs-booking-pannel/blog/categories': typeof AuthenticatedCabsBookingPannelBlogCategoriesRoute
+  '/cabs-booking-pannel/blog/tags': typeof AuthenticatedCabsBookingPannelBlogTagsRoute
+  '/cabs-booking-pannel/seo/airports': typeof AuthenticatedCabsBookingPannelSeoAirportsRoute
+  '/cabs-booking-pannel/seo/import': typeof AuthenticatedCabsBookingPannelSeoImportRoute
+  '/cabs-booking-pannel/seo/issues': typeof AuthenticatedCabsBookingPannelSeoIssuesRoute
+  '/cabs-booking-pannel/seo/locations': typeof AuthenticatedCabsBookingPannelSeoLocationsRoute
+  '/cabs-booking-pannel/seo/pages': typeof AuthenticatedCabsBookingPannelSeoPagesRouteWithChildren
+  '/cabs-booking-pannel/seo/redirects': typeof AuthenticatedCabsBookingPannelSeoRedirectsRoute
+  '/cabs-booking-pannel/seo/routes': typeof AuthenticatedCabsBookingPannelSeoRoutesRoute
+  '/cabs-booking-pannel/seo/services': typeof AuthenticatedCabsBookingPannelSeoServicesRoute
+  '/cabs-booking-pannel/blog/': typeof AuthenticatedCabsBookingPannelBlogIndexRoute
+  '/cabs-booking-pannel/seo/': typeof AuthenticatedCabsBookingPannelSeoIndexRoute
+  '/cabs-booking-pannel/seo/pages/$id/sections': typeof AuthenticatedCabsBookingPannelSeoPagesIdSectionsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -956,49 +962,49 @@ export interface FileRoutesByTo {
   '/tours': typeof ToursIndexRoute
   '/travel-solutions': typeof TravelSolutionsIndexRoute
   '/universities': typeof UniversitiesIndexRoute
-  '/admin/addresses': typeof AuthenticatedAdminAddressesRoute
-  '/admin/banned-addresses': typeof AuthenticatedAdminBannedAddressesRoute
-  '/admin/bookings': typeof AuthenticatedAdminBookingsRoute
-  '/admin/coupons': typeof AuthenticatedAdminCouponsRoute
-  '/admin/customers': typeof AuthenticatedAdminCustomersRoute
-  '/admin/drivers': typeof AuthenticatedAdminDriversRoute
-  '/admin/fleet': typeof AuthenticatedAdminFleetRoute
-  '/admin/fleet-images': typeof AuthenticatedAdminFleetImagesRoute
-  '/admin/hourly-rates': typeof AuthenticatedAdminHourlyRatesRoute
-  '/admin/logs': typeof AuthenticatedAdminLogsRoute
-  '/admin/messages': typeof AuthenticatedAdminMessagesRoute
-  '/admin/mileage-pricing': typeof AuthenticatedAdminMileagePricingRoute
-  '/admin/payments': typeof AuthenticatedAdminPaymentsRoute
-  '/admin/pois': typeof AuthenticatedAdminPoisRoute
-  '/admin/pricing': typeof AuthenticatedAdminPricingRoute
-  '/admin/pricing-preview': typeof AuthenticatedAdminPricingPreviewRoute
-  '/admin/reports': typeof AuthenticatedAdminReportsRoute
-  '/admin/scenic-routes': typeof AuthenticatedAdminScenicRoutesRoute
-  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
-  '/admin/surcharges': typeof AuthenticatedAdminSurchargesRoute
-  '/admin/tour-settings': typeof AuthenticatedAdminTourSettingsRoute
-  '/admin/users': typeof AuthenticatedAdminUsersRoute
-  '/admin/vehicle-classes': typeof AuthenticatedAdminVehicleClassesRoute
+  '/cabs-booking-pannel/addresses': typeof AuthenticatedCabsBookingPannelAddressesRoute
+  '/cabs-booking-pannel/banned-addresses': typeof AuthenticatedCabsBookingPannelBannedAddressesRoute
+  '/cabs-booking-pannel/bookings': typeof AuthenticatedCabsBookingPannelBookingsRoute
+  '/cabs-booking-pannel/coupons': typeof AuthenticatedCabsBookingPannelCouponsRoute
+  '/cabs-booking-pannel/customers': typeof AuthenticatedCabsBookingPannelCustomersRoute
+  '/cabs-booking-pannel/drivers': typeof AuthenticatedCabsBookingPannelDriversRoute
+  '/cabs-booking-pannel/fleet': typeof AuthenticatedCabsBookingPannelFleetRoute
+  '/cabs-booking-pannel/fleet-images': typeof AuthenticatedCabsBookingPannelFleetImagesRoute
+  '/cabs-booking-pannel/hourly-rates': typeof AuthenticatedCabsBookingPannelHourlyRatesRoute
+  '/cabs-booking-pannel/logs': typeof AuthenticatedCabsBookingPannelLogsRoute
+  '/cabs-booking-pannel/messages': typeof AuthenticatedCabsBookingPannelMessagesRoute
+  '/cabs-booking-pannel/mileage-pricing': typeof AuthenticatedCabsBookingPannelMileagePricingRoute
+  '/cabs-booking-pannel/payments': typeof AuthenticatedCabsBookingPannelPaymentsRoute
+  '/cabs-booking-pannel/pois': typeof AuthenticatedCabsBookingPannelPoisRoute
+  '/cabs-booking-pannel/pricing': typeof AuthenticatedCabsBookingPannelPricingRoute
+  '/cabs-booking-pannel/pricing-preview': typeof AuthenticatedCabsBookingPannelPricingPreviewRoute
+  '/cabs-booking-pannel/reports': typeof AuthenticatedCabsBookingPannelReportsRoute
+  '/cabs-booking-pannel/scenic-routes': typeof AuthenticatedCabsBookingPannelScenicRoutesRoute
+  '/cabs-booking-pannel/settings': typeof AuthenticatedCabsBookingPannelSettingsRoute
+  '/cabs-booking-pannel/surcharges': typeof AuthenticatedCabsBookingPannelSurchargesRoute
+  '/cabs-booking-pannel/tour-settings': typeof AuthenticatedCabsBookingPannelTourSettingsRoute
+  '/cabs-booking-pannel/users': typeof AuthenticatedCabsBookingPannelUsersRoute
+  '/cabs-booking-pannel/vehicle-classes': typeof AuthenticatedCabsBookingPannelVehicleClassesRoute
   '/areas/a/$letter': typeof AreasALetterRoute
   '/areas/region/$slug': typeof AreasRegionSlugRoute
   '/blog/category/$slug': typeof BlogCategorySlugRoute
   '/blog/tag/$slug': typeof BlogTagSlugRoute
-  '/admin': typeof AuthenticatedAdminIndexRoute
-  '/admin/blog/$id': typeof AuthenticatedAdminBlogIdRoute
-  '/admin/blog/authors': typeof AuthenticatedAdminBlogAuthorsRoute
-  '/admin/blog/categories': typeof AuthenticatedAdminBlogCategoriesRoute
-  '/admin/blog/tags': typeof AuthenticatedAdminBlogTagsRoute
-  '/admin/seo/airports': typeof AuthenticatedAdminSeoAirportsRoute
-  '/admin/seo/import': typeof AuthenticatedAdminSeoImportRoute
-  '/admin/seo/issues': typeof AuthenticatedAdminSeoIssuesRoute
-  '/admin/seo/locations': typeof AuthenticatedAdminSeoLocationsRoute
-  '/admin/seo/pages': typeof AuthenticatedAdminSeoPagesRouteWithChildren
-  '/admin/seo/redirects': typeof AuthenticatedAdminSeoRedirectsRoute
-  '/admin/seo/routes': typeof AuthenticatedAdminSeoRoutesRoute
-  '/admin/seo/services': typeof AuthenticatedAdminSeoServicesRoute
-  '/admin/blog': typeof AuthenticatedAdminBlogIndexRoute
-  '/admin/seo': typeof AuthenticatedAdminSeoIndexRoute
-  '/admin/seo/pages/$id/sections': typeof AuthenticatedAdminSeoPagesIdSectionsRoute
+  '/cabs-booking-pannel': typeof AuthenticatedCabsBookingPannelIndexRoute
+  '/cabs-booking-pannel/blog/$id': typeof AuthenticatedCabsBookingPannelBlogIdRoute
+  '/cabs-booking-pannel/blog/authors': typeof AuthenticatedCabsBookingPannelBlogAuthorsRoute
+  '/cabs-booking-pannel/blog/categories': typeof AuthenticatedCabsBookingPannelBlogCategoriesRoute
+  '/cabs-booking-pannel/blog/tags': typeof AuthenticatedCabsBookingPannelBlogTagsRoute
+  '/cabs-booking-pannel/seo/airports': typeof AuthenticatedCabsBookingPannelSeoAirportsRoute
+  '/cabs-booking-pannel/seo/import': typeof AuthenticatedCabsBookingPannelSeoImportRoute
+  '/cabs-booking-pannel/seo/issues': typeof AuthenticatedCabsBookingPannelSeoIssuesRoute
+  '/cabs-booking-pannel/seo/locations': typeof AuthenticatedCabsBookingPannelSeoLocationsRoute
+  '/cabs-booking-pannel/seo/pages': typeof AuthenticatedCabsBookingPannelSeoPagesRouteWithChildren
+  '/cabs-booking-pannel/seo/redirects': typeof AuthenticatedCabsBookingPannelSeoRedirectsRoute
+  '/cabs-booking-pannel/seo/routes': typeof AuthenticatedCabsBookingPannelSeoRoutesRoute
+  '/cabs-booking-pannel/seo/services': typeof AuthenticatedCabsBookingPannelSeoServicesRoute
+  '/cabs-booking-pannel/blog': typeof AuthenticatedCabsBookingPannelBlogIndexRoute
+  '/cabs-booking-pannel/seo': typeof AuthenticatedCabsBookingPannelSeoIndexRoute
+  '/cabs-booking-pannel/seo/pages/$id/sections': typeof AuthenticatedCabsBookingPannelSeoPagesIdSectionsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -1037,7 +1043,7 @@ export interface FileRoutesById {
   '/vip-sports-hospitality': typeof VipSportsHospitalityRoute
   '/vip-transfers': typeof VipTransfersRoute
   '/wedding-transport': typeof WeddingTransportRoute
-  '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/_authenticated/cabs-booking-pannel': typeof AuthenticatedCabsBookingPannelRouteRouteWithChildren
   '/airport-transfers/$location': typeof AirportTransfersLocationRoute
   '/airports/$iata': typeof AirportsIataRoute
   '/areas/$slug': typeof AreasSlugRoute
@@ -1078,49 +1084,49 @@ export interface FileRoutesById {
   '/tours/': typeof ToursIndexRoute
   '/travel-solutions/': typeof TravelSolutionsIndexRoute
   '/universities/': typeof UniversitiesIndexRoute
-  '/_authenticated/admin/addresses': typeof AuthenticatedAdminAddressesRoute
-  '/_authenticated/admin/banned-addresses': typeof AuthenticatedAdminBannedAddressesRoute
-  '/_authenticated/admin/bookings': typeof AuthenticatedAdminBookingsRoute
-  '/_authenticated/admin/coupons': typeof AuthenticatedAdminCouponsRoute
-  '/_authenticated/admin/customers': typeof AuthenticatedAdminCustomersRoute
-  '/_authenticated/admin/drivers': typeof AuthenticatedAdminDriversRoute
-  '/_authenticated/admin/fleet': typeof AuthenticatedAdminFleetRoute
-  '/_authenticated/admin/fleet-images': typeof AuthenticatedAdminFleetImagesRoute
-  '/_authenticated/admin/hourly-rates': typeof AuthenticatedAdminHourlyRatesRoute
-  '/_authenticated/admin/logs': typeof AuthenticatedAdminLogsRoute
-  '/_authenticated/admin/messages': typeof AuthenticatedAdminMessagesRoute
-  '/_authenticated/admin/mileage-pricing': typeof AuthenticatedAdminMileagePricingRoute
-  '/_authenticated/admin/payments': typeof AuthenticatedAdminPaymentsRoute
-  '/_authenticated/admin/pois': typeof AuthenticatedAdminPoisRoute
-  '/_authenticated/admin/pricing': typeof AuthenticatedAdminPricingRoute
-  '/_authenticated/admin/pricing-preview': typeof AuthenticatedAdminPricingPreviewRoute
-  '/_authenticated/admin/reports': typeof AuthenticatedAdminReportsRoute
-  '/_authenticated/admin/scenic-routes': typeof AuthenticatedAdminScenicRoutesRoute
-  '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
-  '/_authenticated/admin/surcharges': typeof AuthenticatedAdminSurchargesRoute
-  '/_authenticated/admin/tour-settings': typeof AuthenticatedAdminTourSettingsRoute
-  '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
-  '/_authenticated/admin/vehicle-classes': typeof AuthenticatedAdminVehicleClassesRoute
+  '/_authenticated/cabs-booking-pannel/addresses': typeof AuthenticatedCabsBookingPannelAddressesRoute
+  '/_authenticated/cabs-booking-pannel/banned-addresses': typeof AuthenticatedCabsBookingPannelBannedAddressesRoute
+  '/_authenticated/cabs-booking-pannel/bookings': typeof AuthenticatedCabsBookingPannelBookingsRoute
+  '/_authenticated/cabs-booking-pannel/coupons': typeof AuthenticatedCabsBookingPannelCouponsRoute
+  '/_authenticated/cabs-booking-pannel/customers': typeof AuthenticatedCabsBookingPannelCustomersRoute
+  '/_authenticated/cabs-booking-pannel/drivers': typeof AuthenticatedCabsBookingPannelDriversRoute
+  '/_authenticated/cabs-booking-pannel/fleet': typeof AuthenticatedCabsBookingPannelFleetRoute
+  '/_authenticated/cabs-booking-pannel/fleet-images': typeof AuthenticatedCabsBookingPannelFleetImagesRoute
+  '/_authenticated/cabs-booking-pannel/hourly-rates': typeof AuthenticatedCabsBookingPannelHourlyRatesRoute
+  '/_authenticated/cabs-booking-pannel/logs': typeof AuthenticatedCabsBookingPannelLogsRoute
+  '/_authenticated/cabs-booking-pannel/messages': typeof AuthenticatedCabsBookingPannelMessagesRoute
+  '/_authenticated/cabs-booking-pannel/mileage-pricing': typeof AuthenticatedCabsBookingPannelMileagePricingRoute
+  '/_authenticated/cabs-booking-pannel/payments': typeof AuthenticatedCabsBookingPannelPaymentsRoute
+  '/_authenticated/cabs-booking-pannel/pois': typeof AuthenticatedCabsBookingPannelPoisRoute
+  '/_authenticated/cabs-booking-pannel/pricing': typeof AuthenticatedCabsBookingPannelPricingRoute
+  '/_authenticated/cabs-booking-pannel/pricing-preview': typeof AuthenticatedCabsBookingPannelPricingPreviewRoute
+  '/_authenticated/cabs-booking-pannel/reports': typeof AuthenticatedCabsBookingPannelReportsRoute
+  '/_authenticated/cabs-booking-pannel/scenic-routes': typeof AuthenticatedCabsBookingPannelScenicRoutesRoute
+  '/_authenticated/cabs-booking-pannel/settings': typeof AuthenticatedCabsBookingPannelSettingsRoute
+  '/_authenticated/cabs-booking-pannel/surcharges': typeof AuthenticatedCabsBookingPannelSurchargesRoute
+  '/_authenticated/cabs-booking-pannel/tour-settings': typeof AuthenticatedCabsBookingPannelTourSettingsRoute
+  '/_authenticated/cabs-booking-pannel/users': typeof AuthenticatedCabsBookingPannelUsersRoute
+  '/_authenticated/cabs-booking-pannel/vehicle-classes': typeof AuthenticatedCabsBookingPannelVehicleClassesRoute
   '/areas/a/$letter': typeof AreasALetterRoute
   '/areas/region/$slug': typeof AreasRegionSlugRoute
   '/blog/category/$slug': typeof BlogCategorySlugRoute
   '/blog/tag/$slug': typeof BlogTagSlugRoute
-  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
-  '/_authenticated/admin/blog/$id': typeof AuthenticatedAdminBlogIdRoute
-  '/_authenticated/admin/blog/authors': typeof AuthenticatedAdminBlogAuthorsRoute
-  '/_authenticated/admin/blog/categories': typeof AuthenticatedAdminBlogCategoriesRoute
-  '/_authenticated/admin/blog/tags': typeof AuthenticatedAdminBlogTagsRoute
-  '/_authenticated/admin/seo/airports': typeof AuthenticatedAdminSeoAirportsRoute
-  '/_authenticated/admin/seo/import': typeof AuthenticatedAdminSeoImportRoute
-  '/_authenticated/admin/seo/issues': typeof AuthenticatedAdminSeoIssuesRoute
-  '/_authenticated/admin/seo/locations': typeof AuthenticatedAdminSeoLocationsRoute
-  '/_authenticated/admin/seo/pages': typeof AuthenticatedAdminSeoPagesRouteWithChildren
-  '/_authenticated/admin/seo/redirects': typeof AuthenticatedAdminSeoRedirectsRoute
-  '/_authenticated/admin/seo/routes': typeof AuthenticatedAdminSeoRoutesRoute
-  '/_authenticated/admin/seo/services': typeof AuthenticatedAdminSeoServicesRoute
-  '/_authenticated/admin/blog/': typeof AuthenticatedAdminBlogIndexRoute
-  '/_authenticated/admin/seo/': typeof AuthenticatedAdminSeoIndexRoute
-  '/_authenticated/admin/seo/pages/$id/sections': typeof AuthenticatedAdminSeoPagesIdSectionsRoute
+  '/_authenticated/cabs-booking-pannel/': typeof AuthenticatedCabsBookingPannelIndexRoute
+  '/_authenticated/cabs-booking-pannel/blog/$id': typeof AuthenticatedCabsBookingPannelBlogIdRoute
+  '/_authenticated/cabs-booking-pannel/blog/authors': typeof AuthenticatedCabsBookingPannelBlogAuthorsRoute
+  '/_authenticated/cabs-booking-pannel/blog/categories': typeof AuthenticatedCabsBookingPannelBlogCategoriesRoute
+  '/_authenticated/cabs-booking-pannel/blog/tags': typeof AuthenticatedCabsBookingPannelBlogTagsRoute
+  '/_authenticated/cabs-booking-pannel/seo/airports': typeof AuthenticatedCabsBookingPannelSeoAirportsRoute
+  '/_authenticated/cabs-booking-pannel/seo/import': typeof AuthenticatedCabsBookingPannelSeoImportRoute
+  '/_authenticated/cabs-booking-pannel/seo/issues': typeof AuthenticatedCabsBookingPannelSeoIssuesRoute
+  '/_authenticated/cabs-booking-pannel/seo/locations': typeof AuthenticatedCabsBookingPannelSeoLocationsRoute
+  '/_authenticated/cabs-booking-pannel/seo/pages': typeof AuthenticatedCabsBookingPannelSeoPagesRouteWithChildren
+  '/_authenticated/cabs-booking-pannel/seo/redirects': typeof AuthenticatedCabsBookingPannelSeoRedirectsRoute
+  '/_authenticated/cabs-booking-pannel/seo/routes': typeof AuthenticatedCabsBookingPannelSeoRoutesRoute
+  '/_authenticated/cabs-booking-pannel/seo/services': typeof AuthenticatedCabsBookingPannelSeoServicesRoute
+  '/_authenticated/cabs-booking-pannel/blog/': typeof AuthenticatedCabsBookingPannelBlogIndexRoute
+  '/_authenticated/cabs-booking-pannel/seo/': typeof AuthenticatedCabsBookingPannelSeoIndexRoute
+  '/_authenticated/cabs-booking-pannel/seo/pages/$id/sections': typeof AuthenticatedCabsBookingPannelSeoPagesIdSectionsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -1159,7 +1165,7 @@ export interface FileRouteTypes {
     | '/vip-sports-hospitality'
     | '/vip-transfers'
     | '/wedding-transport'
-    | '/admin'
+    | '/cabs-booking-pannel'
     | '/airport-transfers/$location'
     | '/airports/$iata'
     | '/areas/$slug'
@@ -1200,49 +1206,49 @@ export interface FileRouteTypes {
     | '/tours/'
     | '/travel-solutions/'
     | '/universities/'
-    | '/admin/addresses'
-    | '/admin/banned-addresses'
-    | '/admin/bookings'
-    | '/admin/coupons'
-    | '/admin/customers'
-    | '/admin/drivers'
-    | '/admin/fleet'
-    | '/admin/fleet-images'
-    | '/admin/hourly-rates'
-    | '/admin/logs'
-    | '/admin/messages'
-    | '/admin/mileage-pricing'
-    | '/admin/payments'
-    | '/admin/pois'
-    | '/admin/pricing'
-    | '/admin/pricing-preview'
-    | '/admin/reports'
-    | '/admin/scenic-routes'
-    | '/admin/settings'
-    | '/admin/surcharges'
-    | '/admin/tour-settings'
-    | '/admin/users'
-    | '/admin/vehicle-classes'
+    | '/cabs-booking-pannel/addresses'
+    | '/cabs-booking-pannel/banned-addresses'
+    | '/cabs-booking-pannel/bookings'
+    | '/cabs-booking-pannel/coupons'
+    | '/cabs-booking-pannel/customers'
+    | '/cabs-booking-pannel/drivers'
+    | '/cabs-booking-pannel/fleet'
+    | '/cabs-booking-pannel/fleet-images'
+    | '/cabs-booking-pannel/hourly-rates'
+    | '/cabs-booking-pannel/logs'
+    | '/cabs-booking-pannel/messages'
+    | '/cabs-booking-pannel/mileage-pricing'
+    | '/cabs-booking-pannel/payments'
+    | '/cabs-booking-pannel/pois'
+    | '/cabs-booking-pannel/pricing'
+    | '/cabs-booking-pannel/pricing-preview'
+    | '/cabs-booking-pannel/reports'
+    | '/cabs-booking-pannel/scenic-routes'
+    | '/cabs-booking-pannel/settings'
+    | '/cabs-booking-pannel/surcharges'
+    | '/cabs-booking-pannel/tour-settings'
+    | '/cabs-booking-pannel/users'
+    | '/cabs-booking-pannel/vehicle-classes'
     | '/areas/a/$letter'
     | '/areas/region/$slug'
     | '/blog/category/$slug'
     | '/blog/tag/$slug'
-    | '/admin/'
-    | '/admin/blog/$id'
-    | '/admin/blog/authors'
-    | '/admin/blog/categories'
-    | '/admin/blog/tags'
-    | '/admin/seo/airports'
-    | '/admin/seo/import'
-    | '/admin/seo/issues'
-    | '/admin/seo/locations'
-    | '/admin/seo/pages'
-    | '/admin/seo/redirects'
-    | '/admin/seo/routes'
-    | '/admin/seo/services'
-    | '/admin/blog/'
-    | '/admin/seo/'
-    | '/admin/seo/pages/$id/sections'
+    | '/cabs-booking-pannel/'
+    | '/cabs-booking-pannel/blog/$id'
+    | '/cabs-booking-pannel/blog/authors'
+    | '/cabs-booking-pannel/blog/categories'
+    | '/cabs-booking-pannel/blog/tags'
+    | '/cabs-booking-pannel/seo/airports'
+    | '/cabs-booking-pannel/seo/import'
+    | '/cabs-booking-pannel/seo/issues'
+    | '/cabs-booking-pannel/seo/locations'
+    | '/cabs-booking-pannel/seo/pages'
+    | '/cabs-booking-pannel/seo/redirects'
+    | '/cabs-booking-pannel/seo/routes'
+    | '/cabs-booking-pannel/seo/services'
+    | '/cabs-booking-pannel/blog/'
+    | '/cabs-booking-pannel/seo/'
+    | '/cabs-booking-pannel/seo/pages/$id/sections'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1319,49 +1325,49 @@ export interface FileRouteTypes {
     | '/tours'
     | '/travel-solutions'
     | '/universities'
-    | '/admin/addresses'
-    | '/admin/banned-addresses'
-    | '/admin/bookings'
-    | '/admin/coupons'
-    | '/admin/customers'
-    | '/admin/drivers'
-    | '/admin/fleet'
-    | '/admin/fleet-images'
-    | '/admin/hourly-rates'
-    | '/admin/logs'
-    | '/admin/messages'
-    | '/admin/mileage-pricing'
-    | '/admin/payments'
-    | '/admin/pois'
-    | '/admin/pricing'
-    | '/admin/pricing-preview'
-    | '/admin/reports'
-    | '/admin/scenic-routes'
-    | '/admin/settings'
-    | '/admin/surcharges'
-    | '/admin/tour-settings'
-    | '/admin/users'
-    | '/admin/vehicle-classes'
+    | '/cabs-booking-pannel/addresses'
+    | '/cabs-booking-pannel/banned-addresses'
+    | '/cabs-booking-pannel/bookings'
+    | '/cabs-booking-pannel/coupons'
+    | '/cabs-booking-pannel/customers'
+    | '/cabs-booking-pannel/drivers'
+    | '/cabs-booking-pannel/fleet'
+    | '/cabs-booking-pannel/fleet-images'
+    | '/cabs-booking-pannel/hourly-rates'
+    | '/cabs-booking-pannel/logs'
+    | '/cabs-booking-pannel/messages'
+    | '/cabs-booking-pannel/mileage-pricing'
+    | '/cabs-booking-pannel/payments'
+    | '/cabs-booking-pannel/pois'
+    | '/cabs-booking-pannel/pricing'
+    | '/cabs-booking-pannel/pricing-preview'
+    | '/cabs-booking-pannel/reports'
+    | '/cabs-booking-pannel/scenic-routes'
+    | '/cabs-booking-pannel/settings'
+    | '/cabs-booking-pannel/surcharges'
+    | '/cabs-booking-pannel/tour-settings'
+    | '/cabs-booking-pannel/users'
+    | '/cabs-booking-pannel/vehicle-classes'
     | '/areas/a/$letter'
     | '/areas/region/$slug'
     | '/blog/category/$slug'
     | '/blog/tag/$slug'
-    | '/admin'
-    | '/admin/blog/$id'
-    | '/admin/blog/authors'
-    | '/admin/blog/categories'
-    | '/admin/blog/tags'
-    | '/admin/seo/airports'
-    | '/admin/seo/import'
-    | '/admin/seo/issues'
-    | '/admin/seo/locations'
-    | '/admin/seo/pages'
-    | '/admin/seo/redirects'
-    | '/admin/seo/routes'
-    | '/admin/seo/services'
-    | '/admin/blog'
-    | '/admin/seo'
-    | '/admin/seo/pages/$id/sections'
+    | '/cabs-booking-pannel'
+    | '/cabs-booking-pannel/blog/$id'
+    | '/cabs-booking-pannel/blog/authors'
+    | '/cabs-booking-pannel/blog/categories'
+    | '/cabs-booking-pannel/blog/tags'
+    | '/cabs-booking-pannel/seo/airports'
+    | '/cabs-booking-pannel/seo/import'
+    | '/cabs-booking-pannel/seo/issues'
+    | '/cabs-booking-pannel/seo/locations'
+    | '/cabs-booking-pannel/seo/pages'
+    | '/cabs-booking-pannel/seo/redirects'
+    | '/cabs-booking-pannel/seo/routes'
+    | '/cabs-booking-pannel/seo/services'
+    | '/cabs-booking-pannel/blog'
+    | '/cabs-booking-pannel/seo'
+    | '/cabs-booking-pannel/seo/pages/$id/sections'
   id:
     | '__root__'
     | '/'
@@ -1399,7 +1405,7 @@ export interface FileRouteTypes {
     | '/vip-sports-hospitality'
     | '/vip-transfers'
     | '/wedding-transport'
-    | '/_authenticated/admin'
+    | '/_authenticated/cabs-booking-pannel'
     | '/airport-transfers/$location'
     | '/airports/$iata'
     | '/areas/$slug'
@@ -1440,49 +1446,49 @@ export interface FileRouteTypes {
     | '/tours/'
     | '/travel-solutions/'
     | '/universities/'
-    | '/_authenticated/admin/addresses'
-    | '/_authenticated/admin/banned-addresses'
-    | '/_authenticated/admin/bookings'
-    | '/_authenticated/admin/coupons'
-    | '/_authenticated/admin/customers'
-    | '/_authenticated/admin/drivers'
-    | '/_authenticated/admin/fleet'
-    | '/_authenticated/admin/fleet-images'
-    | '/_authenticated/admin/hourly-rates'
-    | '/_authenticated/admin/logs'
-    | '/_authenticated/admin/messages'
-    | '/_authenticated/admin/mileage-pricing'
-    | '/_authenticated/admin/payments'
-    | '/_authenticated/admin/pois'
-    | '/_authenticated/admin/pricing'
-    | '/_authenticated/admin/pricing-preview'
-    | '/_authenticated/admin/reports'
-    | '/_authenticated/admin/scenic-routes'
-    | '/_authenticated/admin/settings'
-    | '/_authenticated/admin/surcharges'
-    | '/_authenticated/admin/tour-settings'
-    | '/_authenticated/admin/users'
-    | '/_authenticated/admin/vehicle-classes'
+    | '/_authenticated/cabs-booking-pannel/addresses'
+    | '/_authenticated/cabs-booking-pannel/banned-addresses'
+    | '/_authenticated/cabs-booking-pannel/bookings'
+    | '/_authenticated/cabs-booking-pannel/coupons'
+    | '/_authenticated/cabs-booking-pannel/customers'
+    | '/_authenticated/cabs-booking-pannel/drivers'
+    | '/_authenticated/cabs-booking-pannel/fleet'
+    | '/_authenticated/cabs-booking-pannel/fleet-images'
+    | '/_authenticated/cabs-booking-pannel/hourly-rates'
+    | '/_authenticated/cabs-booking-pannel/logs'
+    | '/_authenticated/cabs-booking-pannel/messages'
+    | '/_authenticated/cabs-booking-pannel/mileage-pricing'
+    | '/_authenticated/cabs-booking-pannel/payments'
+    | '/_authenticated/cabs-booking-pannel/pois'
+    | '/_authenticated/cabs-booking-pannel/pricing'
+    | '/_authenticated/cabs-booking-pannel/pricing-preview'
+    | '/_authenticated/cabs-booking-pannel/reports'
+    | '/_authenticated/cabs-booking-pannel/scenic-routes'
+    | '/_authenticated/cabs-booking-pannel/settings'
+    | '/_authenticated/cabs-booking-pannel/surcharges'
+    | '/_authenticated/cabs-booking-pannel/tour-settings'
+    | '/_authenticated/cabs-booking-pannel/users'
+    | '/_authenticated/cabs-booking-pannel/vehicle-classes'
     | '/areas/a/$letter'
     | '/areas/region/$slug'
     | '/blog/category/$slug'
     | '/blog/tag/$slug'
-    | '/_authenticated/admin/'
-    | '/_authenticated/admin/blog/$id'
-    | '/_authenticated/admin/blog/authors'
-    | '/_authenticated/admin/blog/categories'
-    | '/_authenticated/admin/blog/tags'
-    | '/_authenticated/admin/seo/airports'
-    | '/_authenticated/admin/seo/import'
-    | '/_authenticated/admin/seo/issues'
-    | '/_authenticated/admin/seo/locations'
-    | '/_authenticated/admin/seo/pages'
-    | '/_authenticated/admin/seo/redirects'
-    | '/_authenticated/admin/seo/routes'
-    | '/_authenticated/admin/seo/services'
-    | '/_authenticated/admin/blog/'
-    | '/_authenticated/admin/seo/'
-    | '/_authenticated/admin/seo/pages/$id/sections'
+    | '/_authenticated/cabs-booking-pannel/'
+    | '/_authenticated/cabs-booking-pannel/blog/$id'
+    | '/_authenticated/cabs-booking-pannel/blog/authors'
+    | '/_authenticated/cabs-booking-pannel/blog/categories'
+    | '/_authenticated/cabs-booking-pannel/blog/tags'
+    | '/_authenticated/cabs-booking-pannel/seo/airports'
+    | '/_authenticated/cabs-booking-pannel/seo/import'
+    | '/_authenticated/cabs-booking-pannel/seo/issues'
+    | '/_authenticated/cabs-booking-pannel/seo/locations'
+    | '/_authenticated/cabs-booking-pannel/seo/pages'
+    | '/_authenticated/cabs-booking-pannel/seo/redirects'
+    | '/_authenticated/cabs-booking-pannel/seo/routes'
+    | '/_authenticated/cabs-booking-pannel/seo/services'
+    | '/_authenticated/cabs-booking-pannel/blog/'
+    | '/_authenticated/cabs-booking-pannel/seo/'
+    | '/_authenticated/cabs-booking-pannel/seo/pages/$id/sections'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -2093,19 +2099,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AirportTransfersLocationRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/admin': {
-      id: '/_authenticated/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AuthenticatedAdminRouteRouteImport
+    '/_authenticated/cabs-booking-pannel': {
+      id: '/_authenticated/cabs-booking-pannel'
+      path: '/cabs-booking-pannel'
+      fullPath: '/cabs-booking-pannel'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/admin/': {
-      id: '/_authenticated/admin/'
+    '/_authenticated/cabs-booking-pannel/': {
+      id: '/_authenticated/cabs-booking-pannel/'
       path: '/'
-      fullPath: '/admin/'
-      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
+      fullPath: '/cabs-booking-pannel/'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelIndexRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
     '/blog/tag/$slug': {
       id: '/blog/tag/$slug'
@@ -2135,390 +2141,423 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AreasALetterRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/admin/vehicle-classes': {
-      id: '/_authenticated/admin/vehicle-classes'
+    '/_authenticated/cabs-booking-pannel/vehicle-classes': {
+      id: '/_authenticated/cabs-booking-pannel/vehicle-classes'
       path: '/vehicle-classes'
-      fullPath: '/admin/vehicle-classes'
-      preLoaderRoute: typeof AuthenticatedAdminVehicleClassesRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
+      fullPath: '/cabs-booking-pannel/vehicle-classes'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelVehicleClassesRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
-    '/_authenticated/admin/users': {
-      id: '/_authenticated/admin/users'
+    '/_authenticated/cabs-booking-pannel/users': {
+      id: '/_authenticated/cabs-booking-pannel/users'
       path: '/users'
-      fullPath: '/admin/users'
-      preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
+      fullPath: '/cabs-booking-pannel/users'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelUsersRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
-    '/_authenticated/admin/tour-settings': {
-      id: '/_authenticated/admin/tour-settings'
+    '/_authenticated/cabs-booking-pannel/tour-settings': {
+      id: '/_authenticated/cabs-booking-pannel/tour-settings'
       path: '/tour-settings'
-      fullPath: '/admin/tour-settings'
-      preLoaderRoute: typeof AuthenticatedAdminTourSettingsRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
+      fullPath: '/cabs-booking-pannel/tour-settings'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelTourSettingsRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
-    '/_authenticated/admin/surcharges': {
-      id: '/_authenticated/admin/surcharges'
+    '/_authenticated/cabs-booking-pannel/surcharges': {
+      id: '/_authenticated/cabs-booking-pannel/surcharges'
       path: '/surcharges'
-      fullPath: '/admin/surcharges'
-      preLoaderRoute: typeof AuthenticatedAdminSurchargesRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
+      fullPath: '/cabs-booking-pannel/surcharges'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelSurchargesRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
-    '/_authenticated/admin/settings': {
-      id: '/_authenticated/admin/settings'
+    '/_authenticated/cabs-booking-pannel/settings': {
+      id: '/_authenticated/cabs-booking-pannel/settings'
       path: '/settings'
-      fullPath: '/admin/settings'
-      preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
+      fullPath: '/cabs-booking-pannel/settings'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelSettingsRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
-    '/_authenticated/admin/scenic-routes': {
-      id: '/_authenticated/admin/scenic-routes'
+    '/_authenticated/cabs-booking-pannel/scenic-routes': {
+      id: '/_authenticated/cabs-booking-pannel/scenic-routes'
       path: '/scenic-routes'
-      fullPath: '/admin/scenic-routes'
-      preLoaderRoute: typeof AuthenticatedAdminScenicRoutesRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
+      fullPath: '/cabs-booking-pannel/scenic-routes'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelScenicRoutesRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
-    '/_authenticated/admin/reports': {
-      id: '/_authenticated/admin/reports'
+    '/_authenticated/cabs-booking-pannel/reports': {
+      id: '/_authenticated/cabs-booking-pannel/reports'
       path: '/reports'
-      fullPath: '/admin/reports'
-      preLoaderRoute: typeof AuthenticatedAdminReportsRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
+      fullPath: '/cabs-booking-pannel/reports'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelReportsRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
-    '/_authenticated/admin/pricing-preview': {
-      id: '/_authenticated/admin/pricing-preview'
+    '/_authenticated/cabs-booking-pannel/pricing-preview': {
+      id: '/_authenticated/cabs-booking-pannel/pricing-preview'
       path: '/pricing-preview'
-      fullPath: '/admin/pricing-preview'
-      preLoaderRoute: typeof AuthenticatedAdminPricingPreviewRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
+      fullPath: '/cabs-booking-pannel/pricing-preview'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelPricingPreviewRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
-    '/_authenticated/admin/pricing': {
-      id: '/_authenticated/admin/pricing'
+    '/_authenticated/cabs-booking-pannel/pricing': {
+      id: '/_authenticated/cabs-booking-pannel/pricing'
       path: '/pricing'
-      fullPath: '/admin/pricing'
-      preLoaderRoute: typeof AuthenticatedAdminPricingRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
+      fullPath: '/cabs-booking-pannel/pricing'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelPricingRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
-    '/_authenticated/admin/pois': {
-      id: '/_authenticated/admin/pois'
+    '/_authenticated/cabs-booking-pannel/pois': {
+      id: '/_authenticated/cabs-booking-pannel/pois'
       path: '/pois'
-      fullPath: '/admin/pois'
-      preLoaderRoute: typeof AuthenticatedAdminPoisRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
+      fullPath: '/cabs-booking-pannel/pois'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelPoisRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
-    '/_authenticated/admin/payments': {
-      id: '/_authenticated/admin/payments'
+    '/_authenticated/cabs-booking-pannel/payments': {
+      id: '/_authenticated/cabs-booking-pannel/payments'
       path: '/payments'
-      fullPath: '/admin/payments'
-      preLoaderRoute: typeof AuthenticatedAdminPaymentsRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
+      fullPath: '/cabs-booking-pannel/payments'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelPaymentsRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
-    '/_authenticated/admin/mileage-pricing': {
-      id: '/_authenticated/admin/mileage-pricing'
+    '/_authenticated/cabs-booking-pannel/mileage-pricing': {
+      id: '/_authenticated/cabs-booking-pannel/mileage-pricing'
       path: '/mileage-pricing'
-      fullPath: '/admin/mileage-pricing'
-      preLoaderRoute: typeof AuthenticatedAdminMileagePricingRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
+      fullPath: '/cabs-booking-pannel/mileage-pricing'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelMileagePricingRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
-    '/_authenticated/admin/messages': {
-      id: '/_authenticated/admin/messages'
+    '/_authenticated/cabs-booking-pannel/messages': {
+      id: '/_authenticated/cabs-booking-pannel/messages'
       path: '/messages'
-      fullPath: '/admin/messages'
-      preLoaderRoute: typeof AuthenticatedAdminMessagesRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
+      fullPath: '/cabs-booking-pannel/messages'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelMessagesRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
-    '/_authenticated/admin/logs': {
-      id: '/_authenticated/admin/logs'
+    '/_authenticated/cabs-booking-pannel/logs': {
+      id: '/_authenticated/cabs-booking-pannel/logs'
       path: '/logs'
-      fullPath: '/admin/logs'
-      preLoaderRoute: typeof AuthenticatedAdminLogsRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
+      fullPath: '/cabs-booking-pannel/logs'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelLogsRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
-    '/_authenticated/admin/hourly-rates': {
-      id: '/_authenticated/admin/hourly-rates'
+    '/_authenticated/cabs-booking-pannel/hourly-rates': {
+      id: '/_authenticated/cabs-booking-pannel/hourly-rates'
       path: '/hourly-rates'
-      fullPath: '/admin/hourly-rates'
-      preLoaderRoute: typeof AuthenticatedAdminHourlyRatesRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
+      fullPath: '/cabs-booking-pannel/hourly-rates'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelHourlyRatesRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
-    '/_authenticated/admin/fleet-images': {
-      id: '/_authenticated/admin/fleet-images'
+    '/_authenticated/cabs-booking-pannel/fleet-images': {
+      id: '/_authenticated/cabs-booking-pannel/fleet-images'
       path: '/fleet-images'
-      fullPath: '/admin/fleet-images'
-      preLoaderRoute: typeof AuthenticatedAdminFleetImagesRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
+      fullPath: '/cabs-booking-pannel/fleet-images'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelFleetImagesRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
-    '/_authenticated/admin/fleet': {
-      id: '/_authenticated/admin/fleet'
+    '/_authenticated/cabs-booking-pannel/fleet': {
+      id: '/_authenticated/cabs-booking-pannel/fleet'
       path: '/fleet'
-      fullPath: '/admin/fleet'
-      preLoaderRoute: typeof AuthenticatedAdminFleetRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
+      fullPath: '/cabs-booking-pannel/fleet'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelFleetRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
-    '/_authenticated/admin/drivers': {
-      id: '/_authenticated/admin/drivers'
+    '/_authenticated/cabs-booking-pannel/drivers': {
+      id: '/_authenticated/cabs-booking-pannel/drivers'
       path: '/drivers'
-      fullPath: '/admin/drivers'
-      preLoaderRoute: typeof AuthenticatedAdminDriversRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
+      fullPath: '/cabs-booking-pannel/drivers'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelDriversRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
-    '/_authenticated/admin/customers': {
-      id: '/_authenticated/admin/customers'
+    '/_authenticated/cabs-booking-pannel/customers': {
+      id: '/_authenticated/cabs-booking-pannel/customers'
       path: '/customers'
-      fullPath: '/admin/customers'
-      preLoaderRoute: typeof AuthenticatedAdminCustomersRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
+      fullPath: '/cabs-booking-pannel/customers'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelCustomersRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
-    '/_authenticated/admin/coupons': {
-      id: '/_authenticated/admin/coupons'
+    '/_authenticated/cabs-booking-pannel/coupons': {
+      id: '/_authenticated/cabs-booking-pannel/coupons'
       path: '/coupons'
-      fullPath: '/admin/coupons'
-      preLoaderRoute: typeof AuthenticatedAdminCouponsRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
+      fullPath: '/cabs-booking-pannel/coupons'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelCouponsRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
-    '/_authenticated/admin/bookings': {
-      id: '/_authenticated/admin/bookings'
+    '/_authenticated/cabs-booking-pannel/bookings': {
+      id: '/_authenticated/cabs-booking-pannel/bookings'
       path: '/bookings'
-      fullPath: '/admin/bookings'
-      preLoaderRoute: typeof AuthenticatedAdminBookingsRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
+      fullPath: '/cabs-booking-pannel/bookings'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelBookingsRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
-    '/_authenticated/admin/banned-addresses': {
-      id: '/_authenticated/admin/banned-addresses'
+    '/_authenticated/cabs-booking-pannel/banned-addresses': {
+      id: '/_authenticated/cabs-booking-pannel/banned-addresses'
       path: '/banned-addresses'
-      fullPath: '/admin/banned-addresses'
-      preLoaderRoute: typeof AuthenticatedAdminBannedAddressesRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
+      fullPath: '/cabs-booking-pannel/banned-addresses'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelBannedAddressesRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
-    '/_authenticated/admin/addresses': {
-      id: '/_authenticated/admin/addresses'
+    '/_authenticated/cabs-booking-pannel/addresses': {
+      id: '/_authenticated/cabs-booking-pannel/addresses'
       path: '/addresses'
-      fullPath: '/admin/addresses'
-      preLoaderRoute: typeof AuthenticatedAdminAddressesRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
+      fullPath: '/cabs-booking-pannel/addresses'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelAddressesRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
-    '/_authenticated/admin/seo/': {
-      id: '/_authenticated/admin/seo/'
+    '/_authenticated/cabs-booking-pannel/seo/': {
+      id: '/_authenticated/cabs-booking-pannel/seo/'
       path: '/seo'
-      fullPath: '/admin/seo/'
-      preLoaderRoute: typeof AuthenticatedAdminSeoIndexRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
+      fullPath: '/cabs-booking-pannel/seo/'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelSeoIndexRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
-    '/_authenticated/admin/blog/': {
-      id: '/_authenticated/admin/blog/'
+    '/_authenticated/cabs-booking-pannel/blog/': {
+      id: '/_authenticated/cabs-booking-pannel/blog/'
       path: '/blog'
-      fullPath: '/admin/blog/'
-      preLoaderRoute: typeof AuthenticatedAdminBlogIndexRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
+      fullPath: '/cabs-booking-pannel/blog/'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelBlogIndexRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
-    '/_authenticated/admin/seo/services': {
-      id: '/_authenticated/admin/seo/services'
+    '/_authenticated/cabs-booking-pannel/seo/services': {
+      id: '/_authenticated/cabs-booking-pannel/seo/services'
       path: '/seo/services'
-      fullPath: '/admin/seo/services'
-      preLoaderRoute: typeof AuthenticatedAdminSeoServicesRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
+      fullPath: '/cabs-booking-pannel/seo/services'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelSeoServicesRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
-    '/_authenticated/admin/seo/routes': {
-      id: '/_authenticated/admin/seo/routes'
+    '/_authenticated/cabs-booking-pannel/seo/routes': {
+      id: '/_authenticated/cabs-booking-pannel/seo/routes'
       path: '/seo/routes'
-      fullPath: '/admin/seo/routes'
-      preLoaderRoute: typeof AuthenticatedAdminSeoRoutesRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
+      fullPath: '/cabs-booking-pannel/seo/routes'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelSeoRoutesRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
-    '/_authenticated/admin/seo/redirects': {
-      id: '/_authenticated/admin/seo/redirects'
+    '/_authenticated/cabs-booking-pannel/seo/redirects': {
+      id: '/_authenticated/cabs-booking-pannel/seo/redirects'
       path: '/seo/redirects'
-      fullPath: '/admin/seo/redirects'
-      preLoaderRoute: typeof AuthenticatedAdminSeoRedirectsRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
+      fullPath: '/cabs-booking-pannel/seo/redirects'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelSeoRedirectsRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
-    '/_authenticated/admin/seo/pages': {
-      id: '/_authenticated/admin/seo/pages'
+    '/_authenticated/cabs-booking-pannel/seo/pages': {
+      id: '/_authenticated/cabs-booking-pannel/seo/pages'
       path: '/seo/pages'
-      fullPath: '/admin/seo/pages'
-      preLoaderRoute: typeof AuthenticatedAdminSeoPagesRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
+      fullPath: '/cabs-booking-pannel/seo/pages'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelSeoPagesRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
-    '/_authenticated/admin/seo/locations': {
-      id: '/_authenticated/admin/seo/locations'
+    '/_authenticated/cabs-booking-pannel/seo/locations': {
+      id: '/_authenticated/cabs-booking-pannel/seo/locations'
       path: '/seo/locations'
-      fullPath: '/admin/seo/locations'
-      preLoaderRoute: typeof AuthenticatedAdminSeoLocationsRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
+      fullPath: '/cabs-booking-pannel/seo/locations'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelSeoLocationsRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
-    '/_authenticated/admin/seo/issues': {
-      id: '/_authenticated/admin/seo/issues'
+    '/_authenticated/cabs-booking-pannel/seo/issues': {
+      id: '/_authenticated/cabs-booking-pannel/seo/issues'
       path: '/seo/issues'
-      fullPath: '/admin/seo/issues'
-      preLoaderRoute: typeof AuthenticatedAdminSeoIssuesRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
+      fullPath: '/cabs-booking-pannel/seo/issues'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelSeoIssuesRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
-    '/_authenticated/admin/seo/import': {
-      id: '/_authenticated/admin/seo/import'
+    '/_authenticated/cabs-booking-pannel/seo/import': {
+      id: '/_authenticated/cabs-booking-pannel/seo/import'
       path: '/seo/import'
-      fullPath: '/admin/seo/import'
-      preLoaderRoute: typeof AuthenticatedAdminSeoImportRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
+      fullPath: '/cabs-booking-pannel/seo/import'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelSeoImportRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
-    '/_authenticated/admin/seo/airports': {
-      id: '/_authenticated/admin/seo/airports'
+    '/_authenticated/cabs-booking-pannel/seo/airports': {
+      id: '/_authenticated/cabs-booking-pannel/seo/airports'
       path: '/seo/airports'
-      fullPath: '/admin/seo/airports'
-      preLoaderRoute: typeof AuthenticatedAdminSeoAirportsRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
+      fullPath: '/cabs-booking-pannel/seo/airports'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelSeoAirportsRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
-    '/_authenticated/admin/blog/tags': {
-      id: '/_authenticated/admin/blog/tags'
+    '/_authenticated/cabs-booking-pannel/blog/tags': {
+      id: '/_authenticated/cabs-booking-pannel/blog/tags'
       path: '/blog/tags'
-      fullPath: '/admin/blog/tags'
-      preLoaderRoute: typeof AuthenticatedAdminBlogTagsRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
+      fullPath: '/cabs-booking-pannel/blog/tags'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelBlogTagsRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
-    '/_authenticated/admin/blog/categories': {
-      id: '/_authenticated/admin/blog/categories'
+    '/_authenticated/cabs-booking-pannel/blog/categories': {
+      id: '/_authenticated/cabs-booking-pannel/blog/categories'
       path: '/blog/categories'
-      fullPath: '/admin/blog/categories'
-      preLoaderRoute: typeof AuthenticatedAdminBlogCategoriesRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
+      fullPath: '/cabs-booking-pannel/blog/categories'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelBlogCategoriesRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
-    '/_authenticated/admin/blog/authors': {
-      id: '/_authenticated/admin/blog/authors'
+    '/_authenticated/cabs-booking-pannel/blog/authors': {
+      id: '/_authenticated/cabs-booking-pannel/blog/authors'
       path: '/blog/authors'
-      fullPath: '/admin/blog/authors'
-      preLoaderRoute: typeof AuthenticatedAdminBlogAuthorsRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
+      fullPath: '/cabs-booking-pannel/blog/authors'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelBlogAuthorsRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
-    '/_authenticated/admin/blog/$id': {
-      id: '/_authenticated/admin/blog/$id'
+    '/_authenticated/cabs-booking-pannel/blog/$id': {
+      id: '/_authenticated/cabs-booking-pannel/blog/$id'
       path: '/blog/$id'
-      fullPath: '/admin/blog/$id'
-      preLoaderRoute: typeof AuthenticatedAdminBlogIdRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
+      fullPath: '/cabs-booking-pannel/blog/$id'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelBlogIdRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
-    '/_authenticated/admin/seo/pages/$id/sections': {
-      id: '/_authenticated/admin/seo/pages/$id/sections'
+    '/_authenticated/cabs-booking-pannel/seo/pages/$id/sections': {
+      id: '/_authenticated/cabs-booking-pannel/seo/pages/$id/sections'
       path: '/$id/sections'
-      fullPath: '/admin/seo/pages/$id/sections'
-      preLoaderRoute: typeof AuthenticatedAdminSeoPagesIdSectionsRouteImport
-      parentRoute: typeof AuthenticatedAdminSeoPagesRoute
+      fullPath: '/cabs-booking-pannel/seo/pages/$id/sections'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelSeoPagesIdSectionsRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelSeoPagesRoute
     }
   }
 }
 
-interface AuthenticatedAdminSeoPagesRouteChildren {
-  AuthenticatedAdminSeoPagesIdSectionsRoute: typeof AuthenticatedAdminSeoPagesIdSectionsRoute
+interface AuthenticatedCabsBookingPannelSeoPagesRouteChildren {
+  AuthenticatedCabsBookingPannelSeoPagesIdSectionsRoute: typeof AuthenticatedCabsBookingPannelSeoPagesIdSectionsRoute
 }
 
-const AuthenticatedAdminSeoPagesRouteChildren: AuthenticatedAdminSeoPagesRouteChildren =
+const AuthenticatedCabsBookingPannelSeoPagesRouteChildren: AuthenticatedCabsBookingPannelSeoPagesRouteChildren =
   {
-    AuthenticatedAdminSeoPagesIdSectionsRoute:
-      AuthenticatedAdminSeoPagesIdSectionsRoute,
+    AuthenticatedCabsBookingPannelSeoPagesIdSectionsRoute:
+      AuthenticatedCabsBookingPannelSeoPagesIdSectionsRoute,
   }
 
-const AuthenticatedAdminSeoPagesRouteWithChildren =
-  AuthenticatedAdminSeoPagesRoute._addFileChildren(
-    AuthenticatedAdminSeoPagesRouteChildren,
+const AuthenticatedCabsBookingPannelSeoPagesRouteWithChildren =
+  AuthenticatedCabsBookingPannelSeoPagesRoute._addFileChildren(
+    AuthenticatedCabsBookingPannelSeoPagesRouteChildren,
   )
 
-interface AuthenticatedAdminRouteRouteChildren {
-  AuthenticatedAdminAddressesRoute: typeof AuthenticatedAdminAddressesRoute
-  AuthenticatedAdminBannedAddressesRoute: typeof AuthenticatedAdminBannedAddressesRoute
-  AuthenticatedAdminBookingsRoute: typeof AuthenticatedAdminBookingsRoute
-  AuthenticatedAdminCouponsRoute: typeof AuthenticatedAdminCouponsRoute
-  AuthenticatedAdminCustomersRoute: typeof AuthenticatedAdminCustomersRoute
-  AuthenticatedAdminDriversRoute: typeof AuthenticatedAdminDriversRoute
-  AuthenticatedAdminFleetRoute: typeof AuthenticatedAdminFleetRoute
-  AuthenticatedAdminFleetImagesRoute: typeof AuthenticatedAdminFleetImagesRoute
-  AuthenticatedAdminHourlyRatesRoute: typeof AuthenticatedAdminHourlyRatesRoute
-  AuthenticatedAdminLogsRoute: typeof AuthenticatedAdminLogsRoute
-  AuthenticatedAdminMessagesRoute: typeof AuthenticatedAdminMessagesRoute
-  AuthenticatedAdminMileagePricingRoute: typeof AuthenticatedAdminMileagePricingRoute
-  AuthenticatedAdminPaymentsRoute: typeof AuthenticatedAdminPaymentsRoute
-  AuthenticatedAdminPoisRoute: typeof AuthenticatedAdminPoisRoute
-  AuthenticatedAdminPricingRoute: typeof AuthenticatedAdminPricingRoute
-  AuthenticatedAdminPricingPreviewRoute: typeof AuthenticatedAdminPricingPreviewRoute
-  AuthenticatedAdminReportsRoute: typeof AuthenticatedAdminReportsRoute
-  AuthenticatedAdminScenicRoutesRoute: typeof AuthenticatedAdminScenicRoutesRoute
-  AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
-  AuthenticatedAdminSurchargesRoute: typeof AuthenticatedAdminSurchargesRoute
-  AuthenticatedAdminTourSettingsRoute: typeof AuthenticatedAdminTourSettingsRoute
-  AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
-  AuthenticatedAdminVehicleClassesRoute: typeof AuthenticatedAdminVehicleClassesRoute
-  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
-  AuthenticatedAdminBlogIdRoute: typeof AuthenticatedAdminBlogIdRoute
-  AuthenticatedAdminBlogAuthorsRoute: typeof AuthenticatedAdminBlogAuthorsRoute
-  AuthenticatedAdminBlogCategoriesRoute: typeof AuthenticatedAdminBlogCategoriesRoute
-  AuthenticatedAdminBlogTagsRoute: typeof AuthenticatedAdminBlogTagsRoute
-  AuthenticatedAdminSeoAirportsRoute: typeof AuthenticatedAdminSeoAirportsRoute
-  AuthenticatedAdminSeoImportRoute: typeof AuthenticatedAdminSeoImportRoute
-  AuthenticatedAdminSeoIssuesRoute: typeof AuthenticatedAdminSeoIssuesRoute
-  AuthenticatedAdminSeoLocationsRoute: typeof AuthenticatedAdminSeoLocationsRoute
-  AuthenticatedAdminSeoPagesRoute: typeof AuthenticatedAdminSeoPagesRouteWithChildren
-  AuthenticatedAdminSeoRedirectsRoute: typeof AuthenticatedAdminSeoRedirectsRoute
-  AuthenticatedAdminSeoRoutesRoute: typeof AuthenticatedAdminSeoRoutesRoute
-  AuthenticatedAdminSeoServicesRoute: typeof AuthenticatedAdminSeoServicesRoute
-  AuthenticatedAdminBlogIndexRoute: typeof AuthenticatedAdminBlogIndexRoute
-  AuthenticatedAdminSeoIndexRoute: typeof AuthenticatedAdminSeoIndexRoute
+interface AuthenticatedCabsBookingPannelRouteRouteChildren {
+  AuthenticatedCabsBookingPannelAddressesRoute: typeof AuthenticatedCabsBookingPannelAddressesRoute
+  AuthenticatedCabsBookingPannelBannedAddressesRoute: typeof AuthenticatedCabsBookingPannelBannedAddressesRoute
+  AuthenticatedCabsBookingPannelBookingsRoute: typeof AuthenticatedCabsBookingPannelBookingsRoute
+  AuthenticatedCabsBookingPannelCouponsRoute: typeof AuthenticatedCabsBookingPannelCouponsRoute
+  AuthenticatedCabsBookingPannelCustomersRoute: typeof AuthenticatedCabsBookingPannelCustomersRoute
+  AuthenticatedCabsBookingPannelDriversRoute: typeof AuthenticatedCabsBookingPannelDriversRoute
+  AuthenticatedCabsBookingPannelFleetRoute: typeof AuthenticatedCabsBookingPannelFleetRoute
+  AuthenticatedCabsBookingPannelFleetImagesRoute: typeof AuthenticatedCabsBookingPannelFleetImagesRoute
+  AuthenticatedCabsBookingPannelHourlyRatesRoute: typeof AuthenticatedCabsBookingPannelHourlyRatesRoute
+  AuthenticatedCabsBookingPannelLogsRoute: typeof AuthenticatedCabsBookingPannelLogsRoute
+  AuthenticatedCabsBookingPannelMessagesRoute: typeof AuthenticatedCabsBookingPannelMessagesRoute
+  AuthenticatedCabsBookingPannelMileagePricingRoute: typeof AuthenticatedCabsBookingPannelMileagePricingRoute
+  AuthenticatedCabsBookingPannelPaymentsRoute: typeof AuthenticatedCabsBookingPannelPaymentsRoute
+  AuthenticatedCabsBookingPannelPoisRoute: typeof AuthenticatedCabsBookingPannelPoisRoute
+  AuthenticatedCabsBookingPannelPricingRoute: typeof AuthenticatedCabsBookingPannelPricingRoute
+  AuthenticatedCabsBookingPannelPricingPreviewRoute: typeof AuthenticatedCabsBookingPannelPricingPreviewRoute
+  AuthenticatedCabsBookingPannelReportsRoute: typeof AuthenticatedCabsBookingPannelReportsRoute
+  AuthenticatedCabsBookingPannelScenicRoutesRoute: typeof AuthenticatedCabsBookingPannelScenicRoutesRoute
+  AuthenticatedCabsBookingPannelSettingsRoute: typeof AuthenticatedCabsBookingPannelSettingsRoute
+  AuthenticatedCabsBookingPannelSurchargesRoute: typeof AuthenticatedCabsBookingPannelSurchargesRoute
+  AuthenticatedCabsBookingPannelTourSettingsRoute: typeof AuthenticatedCabsBookingPannelTourSettingsRoute
+  AuthenticatedCabsBookingPannelUsersRoute: typeof AuthenticatedCabsBookingPannelUsersRoute
+  AuthenticatedCabsBookingPannelVehicleClassesRoute: typeof AuthenticatedCabsBookingPannelVehicleClassesRoute
+  AuthenticatedCabsBookingPannelIndexRoute: typeof AuthenticatedCabsBookingPannelIndexRoute
+  AuthenticatedCabsBookingPannelBlogIdRoute: typeof AuthenticatedCabsBookingPannelBlogIdRoute
+  AuthenticatedCabsBookingPannelBlogAuthorsRoute: typeof AuthenticatedCabsBookingPannelBlogAuthorsRoute
+  AuthenticatedCabsBookingPannelBlogCategoriesRoute: typeof AuthenticatedCabsBookingPannelBlogCategoriesRoute
+  AuthenticatedCabsBookingPannelBlogTagsRoute: typeof AuthenticatedCabsBookingPannelBlogTagsRoute
+  AuthenticatedCabsBookingPannelSeoAirportsRoute: typeof AuthenticatedCabsBookingPannelSeoAirportsRoute
+  AuthenticatedCabsBookingPannelSeoImportRoute: typeof AuthenticatedCabsBookingPannelSeoImportRoute
+  AuthenticatedCabsBookingPannelSeoIssuesRoute: typeof AuthenticatedCabsBookingPannelSeoIssuesRoute
+  AuthenticatedCabsBookingPannelSeoLocationsRoute: typeof AuthenticatedCabsBookingPannelSeoLocationsRoute
+  AuthenticatedCabsBookingPannelSeoPagesRoute: typeof AuthenticatedCabsBookingPannelSeoPagesRouteWithChildren
+  AuthenticatedCabsBookingPannelSeoRedirectsRoute: typeof AuthenticatedCabsBookingPannelSeoRedirectsRoute
+  AuthenticatedCabsBookingPannelSeoRoutesRoute: typeof AuthenticatedCabsBookingPannelSeoRoutesRoute
+  AuthenticatedCabsBookingPannelSeoServicesRoute: typeof AuthenticatedCabsBookingPannelSeoServicesRoute
+  AuthenticatedCabsBookingPannelBlogIndexRoute: typeof AuthenticatedCabsBookingPannelBlogIndexRoute
+  AuthenticatedCabsBookingPannelSeoIndexRoute: typeof AuthenticatedCabsBookingPannelSeoIndexRoute
 }
 
-const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
+const AuthenticatedCabsBookingPannelRouteRouteChildren: AuthenticatedCabsBookingPannelRouteRouteChildren =
   {
-    AuthenticatedAdminAddressesRoute: AuthenticatedAdminAddressesRoute,
-    AuthenticatedAdminBannedAddressesRoute:
-      AuthenticatedAdminBannedAddressesRoute,
-    AuthenticatedAdminBookingsRoute: AuthenticatedAdminBookingsRoute,
-    AuthenticatedAdminCouponsRoute: AuthenticatedAdminCouponsRoute,
-    AuthenticatedAdminCustomersRoute: AuthenticatedAdminCustomersRoute,
-    AuthenticatedAdminDriversRoute: AuthenticatedAdminDriversRoute,
-    AuthenticatedAdminFleetRoute: AuthenticatedAdminFleetRoute,
-    AuthenticatedAdminFleetImagesRoute: AuthenticatedAdminFleetImagesRoute,
-    AuthenticatedAdminHourlyRatesRoute: AuthenticatedAdminHourlyRatesRoute,
-    AuthenticatedAdminLogsRoute: AuthenticatedAdminLogsRoute,
-    AuthenticatedAdminMessagesRoute: AuthenticatedAdminMessagesRoute,
-    AuthenticatedAdminMileagePricingRoute:
-      AuthenticatedAdminMileagePricingRoute,
-    AuthenticatedAdminPaymentsRoute: AuthenticatedAdminPaymentsRoute,
-    AuthenticatedAdminPoisRoute: AuthenticatedAdminPoisRoute,
-    AuthenticatedAdminPricingRoute: AuthenticatedAdminPricingRoute,
-    AuthenticatedAdminPricingPreviewRoute:
-      AuthenticatedAdminPricingPreviewRoute,
-    AuthenticatedAdminReportsRoute: AuthenticatedAdminReportsRoute,
-    AuthenticatedAdminScenicRoutesRoute: AuthenticatedAdminScenicRoutesRoute,
-    AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
-    AuthenticatedAdminSurchargesRoute: AuthenticatedAdminSurchargesRoute,
-    AuthenticatedAdminTourSettingsRoute: AuthenticatedAdminTourSettingsRoute,
-    AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
-    AuthenticatedAdminVehicleClassesRoute:
-      AuthenticatedAdminVehicleClassesRoute,
-    AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
-    AuthenticatedAdminBlogIdRoute: AuthenticatedAdminBlogIdRoute,
-    AuthenticatedAdminBlogAuthorsRoute: AuthenticatedAdminBlogAuthorsRoute,
-    AuthenticatedAdminBlogCategoriesRoute:
-      AuthenticatedAdminBlogCategoriesRoute,
-    AuthenticatedAdminBlogTagsRoute: AuthenticatedAdminBlogTagsRoute,
-    AuthenticatedAdminSeoAirportsRoute: AuthenticatedAdminSeoAirportsRoute,
-    AuthenticatedAdminSeoImportRoute: AuthenticatedAdminSeoImportRoute,
-    AuthenticatedAdminSeoIssuesRoute: AuthenticatedAdminSeoIssuesRoute,
-    AuthenticatedAdminSeoLocationsRoute: AuthenticatedAdminSeoLocationsRoute,
-    AuthenticatedAdminSeoPagesRoute:
-      AuthenticatedAdminSeoPagesRouteWithChildren,
-    AuthenticatedAdminSeoRedirectsRoute: AuthenticatedAdminSeoRedirectsRoute,
-    AuthenticatedAdminSeoRoutesRoute: AuthenticatedAdminSeoRoutesRoute,
-    AuthenticatedAdminSeoServicesRoute: AuthenticatedAdminSeoServicesRoute,
-    AuthenticatedAdminBlogIndexRoute: AuthenticatedAdminBlogIndexRoute,
-    AuthenticatedAdminSeoIndexRoute: AuthenticatedAdminSeoIndexRoute,
+    AuthenticatedCabsBookingPannelAddressesRoute:
+      AuthenticatedCabsBookingPannelAddressesRoute,
+    AuthenticatedCabsBookingPannelBannedAddressesRoute:
+      AuthenticatedCabsBookingPannelBannedAddressesRoute,
+    AuthenticatedCabsBookingPannelBookingsRoute:
+      AuthenticatedCabsBookingPannelBookingsRoute,
+    AuthenticatedCabsBookingPannelCouponsRoute:
+      AuthenticatedCabsBookingPannelCouponsRoute,
+    AuthenticatedCabsBookingPannelCustomersRoute:
+      AuthenticatedCabsBookingPannelCustomersRoute,
+    AuthenticatedCabsBookingPannelDriversRoute:
+      AuthenticatedCabsBookingPannelDriversRoute,
+    AuthenticatedCabsBookingPannelFleetRoute:
+      AuthenticatedCabsBookingPannelFleetRoute,
+    AuthenticatedCabsBookingPannelFleetImagesRoute:
+      AuthenticatedCabsBookingPannelFleetImagesRoute,
+    AuthenticatedCabsBookingPannelHourlyRatesRoute:
+      AuthenticatedCabsBookingPannelHourlyRatesRoute,
+    AuthenticatedCabsBookingPannelLogsRoute:
+      AuthenticatedCabsBookingPannelLogsRoute,
+    AuthenticatedCabsBookingPannelMessagesRoute:
+      AuthenticatedCabsBookingPannelMessagesRoute,
+    AuthenticatedCabsBookingPannelMileagePricingRoute:
+      AuthenticatedCabsBookingPannelMileagePricingRoute,
+    AuthenticatedCabsBookingPannelPaymentsRoute:
+      AuthenticatedCabsBookingPannelPaymentsRoute,
+    AuthenticatedCabsBookingPannelPoisRoute:
+      AuthenticatedCabsBookingPannelPoisRoute,
+    AuthenticatedCabsBookingPannelPricingRoute:
+      AuthenticatedCabsBookingPannelPricingRoute,
+    AuthenticatedCabsBookingPannelPricingPreviewRoute:
+      AuthenticatedCabsBookingPannelPricingPreviewRoute,
+    AuthenticatedCabsBookingPannelReportsRoute:
+      AuthenticatedCabsBookingPannelReportsRoute,
+    AuthenticatedCabsBookingPannelScenicRoutesRoute:
+      AuthenticatedCabsBookingPannelScenicRoutesRoute,
+    AuthenticatedCabsBookingPannelSettingsRoute:
+      AuthenticatedCabsBookingPannelSettingsRoute,
+    AuthenticatedCabsBookingPannelSurchargesRoute:
+      AuthenticatedCabsBookingPannelSurchargesRoute,
+    AuthenticatedCabsBookingPannelTourSettingsRoute:
+      AuthenticatedCabsBookingPannelTourSettingsRoute,
+    AuthenticatedCabsBookingPannelUsersRoute:
+      AuthenticatedCabsBookingPannelUsersRoute,
+    AuthenticatedCabsBookingPannelVehicleClassesRoute:
+      AuthenticatedCabsBookingPannelVehicleClassesRoute,
+    AuthenticatedCabsBookingPannelIndexRoute:
+      AuthenticatedCabsBookingPannelIndexRoute,
+    AuthenticatedCabsBookingPannelBlogIdRoute:
+      AuthenticatedCabsBookingPannelBlogIdRoute,
+    AuthenticatedCabsBookingPannelBlogAuthorsRoute:
+      AuthenticatedCabsBookingPannelBlogAuthorsRoute,
+    AuthenticatedCabsBookingPannelBlogCategoriesRoute:
+      AuthenticatedCabsBookingPannelBlogCategoriesRoute,
+    AuthenticatedCabsBookingPannelBlogTagsRoute:
+      AuthenticatedCabsBookingPannelBlogTagsRoute,
+    AuthenticatedCabsBookingPannelSeoAirportsRoute:
+      AuthenticatedCabsBookingPannelSeoAirportsRoute,
+    AuthenticatedCabsBookingPannelSeoImportRoute:
+      AuthenticatedCabsBookingPannelSeoImportRoute,
+    AuthenticatedCabsBookingPannelSeoIssuesRoute:
+      AuthenticatedCabsBookingPannelSeoIssuesRoute,
+    AuthenticatedCabsBookingPannelSeoLocationsRoute:
+      AuthenticatedCabsBookingPannelSeoLocationsRoute,
+    AuthenticatedCabsBookingPannelSeoPagesRoute:
+      AuthenticatedCabsBookingPannelSeoPagesRouteWithChildren,
+    AuthenticatedCabsBookingPannelSeoRedirectsRoute:
+      AuthenticatedCabsBookingPannelSeoRedirectsRoute,
+    AuthenticatedCabsBookingPannelSeoRoutesRoute:
+      AuthenticatedCabsBookingPannelSeoRoutesRoute,
+    AuthenticatedCabsBookingPannelSeoServicesRoute:
+      AuthenticatedCabsBookingPannelSeoServicesRoute,
+    AuthenticatedCabsBookingPannelBlogIndexRoute:
+      AuthenticatedCabsBookingPannelBlogIndexRoute,
+    AuthenticatedCabsBookingPannelSeoIndexRoute:
+      AuthenticatedCabsBookingPannelSeoIndexRoute,
   }
 
-const AuthenticatedAdminRouteRouteWithChildren =
-  AuthenticatedAdminRouteRoute._addFileChildren(
-    AuthenticatedAdminRouteRouteChildren,
+const AuthenticatedCabsBookingPannelRouteRouteWithChildren =
+  AuthenticatedCabsBookingPannelRouteRoute._addFileChildren(
+    AuthenticatedCabsBookingPannelRouteRouteChildren,
   )
 
 interface AuthenticatedRouteRouteChildren {
-  AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
+  AuthenticatedCabsBookingPannelRouteRoute: typeof AuthenticatedCabsBookingPannelRouteRouteWithChildren
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
+  AuthenticatedCabsBookingPannelRouteRoute:
+    AuthenticatedCabsBookingPannelRouteRouteWithChildren,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -2617,13 +2656,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

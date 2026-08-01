@@ -2,7 +2,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { ChevronRight } from "lucide-react";
 
 const LABELS: Record<string, string> = {
-  admin: "Dashboard",
+  "cabs-booking-pannel": "Dashboard",
   bookings: "Bookings",
   fleet: "Fleet",
   addresses: "Addresses",

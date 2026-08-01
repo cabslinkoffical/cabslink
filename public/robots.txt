@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 
 # Private / non-indexable areas
-Disallow: /admin
+Disallow: /cabs-booking-pannel
 Disallow: /auth
 Disallow: /booking/
 Disallow: /book/confirm

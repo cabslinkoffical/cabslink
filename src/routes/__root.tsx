@@ -51,7 +51,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   beforeLoad: async ({ location }) => {
     // Skip static assets, API routes, and admin — cheap short-circuit before RPC.
     const p = location.pathname;
-    if (!p || p === "/" || p.startsWith("/api/") || p.startsWith("/admin") ||
+    if (!p || p === "/" || p.startsWith("/api/") || p.startsWith("/cabs-booking-pannel") ||
         p.startsWith("/_") || /\.[a-z0-9]{2,5}$/i.test(p)) return;
     try {
       const row = await resolvePublicRedirect({ data: { path: p } });
