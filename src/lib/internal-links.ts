@@ -90,7 +90,8 @@ export function relatedServiceLinks(services: Destination[]): LinkModule {
 export const HOME_TO_HUBS: Array<{ href: string; label: string }> = [
   { href: "/services", label: "Services" },
   { href: "/areas", label: "Areas we cover" },
-  { href: "/routes", label: "Popular routes" },
+  // NOTE: no `/routes` hub link — route pages are CMS-backed and none are
+  // published yet, so linking there would be a broken hub link.
   { href: "/airports", label: "Airports" },
   { href: "/stations", label: "Train stations" },
   { href: "/cruise-ports", label: "Cruise ports" },

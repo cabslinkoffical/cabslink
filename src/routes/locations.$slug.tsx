@@ -1,40 +1,21 @@
-import { createFileRoute, notFound, redirect } from "@tanstack/react-router";
-import { getPublicSeoPageByPath } from "@/lib/seo-public.functions";
-import { getRelatedSeoLinks } from "@/lib/seo-related.functions";
-import { SeoPageRenderer, buildSeoHead } from "@/components/seo/SeoPageRenderer";
-import { SiteLayout } from "@/components/site/SiteLayout";
-
-const ORIGIN = "https://cabslink.com";
+/**
+ * `/locations/:slug` is a legacy duplicate of the canonical `/areas/:slug`
+ * city/town page. It now serves a single-hop permanent redirect and renders no
+ * content of its own, so only one URL per location returns HTTP 200.
+ *
+ * Canonical mapping lives in SEO_REDIRECTS (src/lib/seo/service-registry.ts).
+ */
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/locations/$slug")({
-  loader: async ({ params }) => {
-    const page = await getPublicSeoPageByPath({ data: { path: `/locations/${params.slug}` } }).catch(() => null);
-    // Locations are served from /areas — send unpublished CMS paths there instead of 404ing.
-    if (!page) throw redirect({ to: "/areas/$slug", params: { slug: params.slug } });
-    const related = await getRelatedSeoLinks({
-      data: { entityType: page.primary_entity_type as any, entityId: page.primary_entity_id },
-    }).catch(() => null);
-    return { page, related };
+  loader: ({ params }) => {
+    throw redirect({
+      to: "/areas/$slug",
+      params: { slug: params.slug },
+      statusCode: 301,
+      throw: true,
+    });
   },
-
-  head: ({ loaderData }) =>
-    loaderData ? buildSeoHead(loaderData.page, ORIGIN, loaderData.related) : {},
-  component: LocationPage,
-  notFoundComponent: () => (
-    <SiteLayout><div className="container mx-auto px-4 py-24 text-center">
-      <h1 className="text-3xl font-bold">Location not found</h1>
-      <p className="text-muted-foreground mt-2">This location isn't published yet.</p>
-    </div></SiteLayout>
-  ),
-  errorComponent: ({ error }) => (
-    <SiteLayout><div className="container mx-auto px-4 py-24 text-center">
-      <h1 className="text-2xl font-bold">Something went wrong</h1>
-      <p className="text-muted-foreground mt-2">{error.message}</p>
-    </div></SiteLayout>
-  ),
+  head: () => ({ meta: [{ name: "robots", content: "noindex,follow" }] }),
+  component: () => null,
 });
-
-function LocationPage() {
-  const { page, related } = Route.useLoaderData();
-  return <SeoPageRenderer page={page} related={related} />;
-}
