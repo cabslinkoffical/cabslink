@@ -90,14 +90,22 @@ function LocationsPage() {
         </section>
       )}
 
+      <section className="section-y">
+        <div className="container-x">
+          <SectionHeader eyebrow="Coverage map" title="Where we run — and the pages for each" />
+          <CoverageMap />
+        </div>
+      </section>
+
       {data.letters.length > 0 && (
-        <section className="section-y">
+        <section className="section-y bg-[var(--navy)]/[0.03]">
           <div className="container-x">
             <SectionHeader eyebrow="Directory" title="Browse alphabetically" />
             <AlphaBar available={data.letters} />
           </div>
         </section>
       )}
+
 
       <section className="section-y bg-[var(--navy)]/[0.03]">
         <div className="container-x max-w-3xl">
