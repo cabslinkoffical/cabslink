@@ -916,15 +916,16 @@ function FleetClassesSection() {
         </div>
       ) : (
         <div className="class-marquee mt-12 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_6%,black_94%,transparent)]">
-          <div className="class-marquee-track flex w-max gap-5">
+          <div className="class-marquee-track flex w-max items-stretch gap-5">
             {track.map((k, i) => (
               <article
                 key={`${k.id}-${i}`}
-                className="group flex h-full w-[280px] shrink-0 flex-col overflow-hidden rounded-2xl border border-white/10 bg-white transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_22px_46px_-20px_rgba(0,0,0,0.18)] sm:w-[300px]"
+                className="group flex h-[540px] w-[280px] shrink-0 flex-col overflow-hidden rounded-2xl border border-white/10 bg-white transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_22px_46px_-20px_rgba(0,0,0,0.18)] sm:w-[300px]"
               >
 
+
                 {/* Image stage */}
-                <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-[var(--surface-2)]">
+                <div className="relative flex aspect-[4/3] shrink-0 items-center justify-center overflow-hidden bg-[var(--surface-2)]">
                   {(() => {
                     const img = fleetImageFor(k.slug, k.hero_image);
                     return img ? (
@@ -954,17 +955,17 @@ function FleetClassesSection() {
                 </div>
 
                 {/* Body */}
-                <div className="flex flex-1 flex-col gap-4 p-5">
+                <div className="flex flex-1 min-h-0 flex-col gap-3 p-5">
                   <div>
                     <p className="text-[9px] font-semibold uppercase tracking-[0.28em] text-[var(--gold-ink)]">Vehicle Class</p>
-                    <h3 className="mt-1 font-display text-xl font-semibold leading-tight text-[var(--navy)]">{k.name}</h3>
-                    <p className="mt-2 text-sm leading-relaxed text-[var(--navy)]/70 line-clamp-2">
+                    <h3 className="mt-1 line-clamp-1 font-display text-xl font-semibold leading-tight text-[var(--navy)]">{k.name}</h3>
+                    <p className="mt-2 h-10 text-sm leading-relaxed text-[var(--navy)]/70 line-clamp-2">
                       {k.short_description || k.long_description}
                     </p>
                   </div>
 
                   {/* Capacity */}
-                  <div className="flex flex-wrap items-center gap-3 text-[var(--navy)]/80">
+                  <div className="flex items-center gap-3 text-[var(--navy)]/80">
                     <span className="inline-flex items-center gap-1.5 text-xs font-medium">
                       <Users className="size-3.5 text-[var(--gold-ink)]" /> {k.passengers} pax
                     </span>
@@ -974,18 +975,17 @@ function FleetClassesSection() {
                   </div>
 
                   {/* Models */}
-                  {k.models.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5">
-                      {k.models.slice(0, 3).map((m) => (
-                        <span
-                          key={m.id}
-                          className="rounded-md border border-[var(--navy)]/10 bg-[var(--navy)]/5 px-2 py-1 text-[11px] font-medium text-[var(--navy)]/80"
-                        >
-                          {m.name}
-                        </span>
-                      ))}
-                    </div>
-                  )}
+                  <div className="flex h-7 gap-1.5 overflow-hidden">
+                    {k.models.slice(0, 2).map((m) => (
+                      <span
+                        key={m.id}
+                        className="truncate rounded-md border border-[var(--navy)]/10 bg-[var(--navy)]/5 px-2 py-1 text-[11px] font-medium text-[var(--navy)]/80"
+                      >
+                        {m.name}
+                      </span>
+                    ))}
+                  </div>
+
 
                   {/* Footer */}
                   <div className="mt-auto flex items-center justify-between gap-3 pt-2 border-t border-[var(--navy)]/10">
