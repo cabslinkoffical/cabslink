@@ -3,11 +3,17 @@ import { getPublicSeoPageByPath } from "@/lib/seo-public.functions";
 import { getRelatedSeoLinks } from "@/lib/seo-related.functions";
 import { SeoPageRenderer, buildSeoHead } from "@/components/seo/SeoPageRenderer";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { JourneyPage, journeyHead } from "@/components/site/JourneyPage";
+import { buildJourney } from "@/lib/seo/journeys";
 
 const ORIGIN = "https://cabslink.com";
 
 export const Route = createFileRoute("/routes/$slug")({
   loader: async ({ params }) => {
+    // Code-defined, facts-gated journey pages take precedence.
+    const journey = buildJourney(params.slug);
+    if (journey) return { journey, page: null, related: null };
+
     const page = await getPublicSeoPageByPath({ data: { path: `/routes/${params.slug}` } });
     if (!page) throw notFound();
     // Route pages: use origin entity as the anchor for nearby links
@@ -18,10 +24,14 @@ export const Route = createFileRoute("/routes/$slug")({
             data: { entityType, entityId: page.primary_entity_id },
           }).catch(() => null)
         : null;
-    return { page, related };
+    return { journey: null, page, related };
   },
-  head: ({ loaderData }) =>
-    loaderData ? buildSeoHead(loaderData.page, ORIGIN, loaderData.related) : {},
+  head: ({ loaderData }) => {
+    if (!loaderData) return {};
+    if (loaderData.journey) return journeyHead(loaderData.journey);
+    return loaderData.page ? buildSeoHead(loaderData.page, ORIGIN, loaderData.related) : {};
+  },
+
   component: RoutePage,
   notFoundComponent: () => (
     <SiteLayout><div className="container mx-auto px-4 py-24 text-center">

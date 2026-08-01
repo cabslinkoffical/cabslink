@@ -48,6 +48,7 @@ import { Route as UniversitiesIndexRouteImport } from './routes/universities.ind
 import { Route as TravelSolutionsIndexRouteImport } from './routes/travel-solutions.index'
 import { Route as ToursIndexRouteImport } from './routes/tours.index'
 import { Route as StationsIndexRouteImport } from './routes/stations.index'
+import { Route as RoutesIndexRouteImport } from './routes/routes.index'
 import { Route as PrivateHireIndexRouteImport } from './routes/private-hire.index'
 import { Route as HospitalsIndexRouteImport } from './routes/hospitals.index'
 import { Route as GuidesIndexRouteImport } from './routes/guides.index'
@@ -320,6 +321,11 @@ const ToursIndexRoute = ToursIndexRouteImport.update({
 const StationsIndexRoute = StationsIndexRouteImport.update({
   id: '/stations/',
   path: '/stations/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RoutesIndexRoute = RoutesIndexRouteImport.update({
+  id: '/routes/',
+  path: '/routes/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivateHireIndexRoute = PrivateHireIndexRouteImport.update({
@@ -826,6 +832,7 @@ export interface FileRoutesByFullPath {
   '/guides/': typeof GuidesIndexRoute
   '/hospitals/': typeof HospitalsIndexRoute
   '/private-hire/': typeof PrivateHireIndexRoute
+  '/routes/': typeof RoutesIndexRoute
   '/stations/': typeof StationsIndexRoute
   '/tours/': typeof ToursIndexRoute
   '/travel-solutions/': typeof TravelSolutionsIndexRoute
@@ -944,6 +951,7 @@ export interface FileRoutesByTo {
   '/guides': typeof GuidesIndexRoute
   '/hospitals': typeof HospitalsIndexRoute
   '/private-hire': typeof PrivateHireIndexRoute
+  '/routes': typeof RoutesIndexRoute
   '/stations': typeof StationsIndexRoute
   '/tours': typeof ToursIndexRoute
   '/travel-solutions': typeof TravelSolutionsIndexRoute
@@ -1065,6 +1073,7 @@ export interface FileRoutesById {
   '/guides/': typeof GuidesIndexRoute
   '/hospitals/': typeof HospitalsIndexRoute
   '/private-hire/': typeof PrivateHireIndexRoute
+  '/routes/': typeof RoutesIndexRoute
   '/stations/': typeof StationsIndexRoute
   '/tours/': typeof ToursIndexRoute
   '/travel-solutions/': typeof TravelSolutionsIndexRoute
@@ -1186,6 +1195,7 @@ export interface FileRouteTypes {
     | '/guides/'
     | '/hospitals/'
     | '/private-hire/'
+    | '/routes/'
     | '/stations/'
     | '/tours/'
     | '/travel-solutions/'
@@ -1304,6 +1314,7 @@ export interface FileRouteTypes {
     | '/guides'
     | '/hospitals'
     | '/private-hire'
+    | '/routes'
     | '/stations'
     | '/tours'
     | '/travel-solutions'
@@ -1424,6 +1435,7 @@ export interface FileRouteTypes {
     | '/guides/'
     | '/hospitals/'
     | '/private-hire/'
+    | '/routes/'
     | '/stations/'
     | '/tours/'
     | '/travel-solutions/'
@@ -1543,6 +1555,7 @@ export interface RootRouteChildren {
   GuidesIndexRoute: typeof GuidesIndexRoute
   HospitalsIndexRoute: typeof HospitalsIndexRoute
   PrivateHireIndexRoute: typeof PrivateHireIndexRoute
+  RoutesIndexRoute: typeof RoutesIndexRoute
   StationsIndexRoute: typeof StationsIndexRoute
   ToursIndexRoute: typeof ToursIndexRoute
   TravelSolutionsIndexRoute: typeof TravelSolutionsIndexRoute
@@ -1826,6 +1839,13 @@ declare module '@tanstack/react-router' {
       path: '/stations'
       fullPath: '/stations/'
       preLoaderRoute: typeof StationsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/routes/': {
+      id: '/routes/'
+      path: '/routes'
+      fullPath: '/routes/'
+      preLoaderRoute: typeof RoutesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/private-hire/': {
@@ -2584,6 +2604,7 @@ const rootRouteChildren: RootRouteChildren = {
   GuidesIndexRoute: GuidesIndexRoute,
   HospitalsIndexRoute: HospitalsIndexRoute,
   PrivateHireIndexRoute: PrivateHireIndexRoute,
+  RoutesIndexRoute: RoutesIndexRoute,
   StationsIndexRoute: StationsIndexRoute,
   ToursIndexRoute: ToursIndexRoute,
   TravelSolutionsIndexRoute: TravelSolutionsIndexRoute,
