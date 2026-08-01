@@ -104,7 +104,17 @@ export function BookingWidget({
     }
     const validStops = stops.filter((s) => !!s?.placeId);
     if (validStops.length) params.set("stops", encodePlaces(validStops));
+    track("quote_start", {
+      pickup: pickup!.label,
+      dropoff: dropoff!.label,
+      passengers: passengers ?? 0,
+      luggage: luggage ?? 0,
+      stops: validStops.length,
+      return_leg: showReturn,
+      source: "booking_widget",
+    });
     navigate({ to: "/book", search: { q: params.toString() } as never });
+
   };
 
   const hourlyErrors = {
