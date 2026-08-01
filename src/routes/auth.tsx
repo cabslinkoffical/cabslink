@@ -28,7 +28,7 @@ function AuthPage() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/admin" });
+      if (data.session) navigate({ to: "/cabs-booking-pannel" });
     });
   }, [navigate]);
 
@@ -40,7 +40,7 @@ function AuthPage() {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast.success("Signed in");
-        navigate({ to: "/admin" });
+        navigate({ to: "/cabs-booking-pannel" });
       } else {
         const { error } = await supabase.auth.signUp({
           email,

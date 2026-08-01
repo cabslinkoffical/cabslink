@@ -78,7 +78,7 @@ export function Header() {
           <div className="flex items-center gap-2 shrink-0">
             {isAdmin && (
               <Link
-                to="/admin"
+                to="/cabs-booking-pannel"
                 className="hidden md:inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-white/80 hover:text-[var(--gold)] transition-colors"
               >
                 <ShieldCheck className="size-3.5" /> Admin
@@ -158,7 +158,7 @@ export function Header() {
 
               {isAdmin && (
                 <Link
-                  to="/admin"
+                  to="/cabs-booking-pannel"
                   className="mt-2 inline-flex items-center justify-center gap-1.5 rounded-full border border-[var(--gold)]/40 py-2.5 text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--gold)]"
                 >
                   <ShieldCheck className="size-3.5" /> Admin Panel
