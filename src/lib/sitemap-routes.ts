@@ -2,7 +2,13 @@
  * Static route paths that appear in the core sitemap.
  * Extracted so multiple sitemap handlers can import without circular refs.
  */
+import { publishedCombinations } from "@/lib/seo/service-locations";
+
+/** Published service + location combination pages (facts-gated). */
+export const SERVICE_LOCATION_ROUTES = publishedCombinations().map((c) => c.path);
+
 export const PUBLIC_ROUTES = [
+
   "/", "/about", "/services", "/airport-transfers", "/vip-transfers",
   "/golf-transfers", "/football-transfers", "/stadium-transfers",
   "/team-sports-travel", "/vip-sports-hospitality",
@@ -15,4 +21,6 @@ export const PUBLIC_ROUTES = [
   "/blog",
   "/areas", "/stations", "/cruise-ports", "/universities",
   "/hospitals", "/corporate", "/attractions", "/distilleries", "/guides",
+  ...SERVICE_LOCATION_ROUTES,
+
 ];
