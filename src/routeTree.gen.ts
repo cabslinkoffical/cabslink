@@ -62,6 +62,7 @@ import { Route as AttractionsIndexRouteImport } from './routes/attractions.index
 import { Route as AreasIndexRouteImport } from './routes/areas.index'
 import { Route as AirportsIndexRouteImport } from './routes/airports.index'
 import { Route as UniversitiesSlugRouteImport } from './routes/universities.$slug'
+import { Route as TravelSolutionsSlugRouteImport } from './routes/travel-solutions.$slug'
 import { Route as ToursSlugRouteImport } from './routes/tours.$slug'
 import { Route as StationsSlugRouteImport } from './routes/stations.$slug'
 import { Route as SitemapsChar123typeChar125DotxmlRouteImport } from './routes/sitemaps.{$type}[.]xml'
@@ -385,6 +386,11 @@ const AirportsIndexRoute = AirportsIndexRouteImport.update({
 const UniversitiesSlugRoute = UniversitiesSlugRouteImport.update({
   id: '/universities/$slug',
   path: '/universities/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TravelSolutionsSlugRoute = TravelSolutionsSlugRouteImport.update({
+  id: '/travel-solutions/$slug',
+  path: '/travel-solutions/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ToursSlugRoute = ToursSlugRouteImport.update({
@@ -779,6 +785,7 @@ export interface FileRoutesByFullPath {
   '/sitemaps/{$type}.xml': typeof SitemapsChar123typeChar125DotxmlRoute
   '/stations/$slug': typeof StationsSlugRoute
   '/tours/$slug': typeof ToursSlugRoute
+  '/travel-solutions/$slug': typeof TravelSolutionsSlugRoute
   '/universities/$slug': typeof UniversitiesSlugRoute
   '/airports/': typeof AirportsIndexRoute
   '/areas/': typeof AreasIndexRoute
@@ -892,6 +899,7 @@ export interface FileRoutesByTo {
   '/sitemaps/{$type}.xml': typeof SitemapsChar123typeChar125DotxmlRoute
   '/stations/$slug': typeof StationsSlugRoute
   '/tours/$slug': typeof ToursSlugRoute
+  '/travel-solutions/$slug': typeof TravelSolutionsSlugRoute
   '/universities/$slug': typeof UniversitiesSlugRoute
   '/airports': typeof AirportsIndexRoute
   '/areas': typeof AreasIndexRoute
@@ -1008,6 +1016,7 @@ export interface FileRoutesById {
   '/sitemaps/{$type}.xml': typeof SitemapsChar123typeChar125DotxmlRoute
   '/stations/$slug': typeof StationsSlugRoute
   '/tours/$slug': typeof ToursSlugRoute
+  '/travel-solutions/$slug': typeof TravelSolutionsSlugRoute
   '/universities/$slug': typeof UniversitiesSlugRoute
   '/airports/': typeof AirportsIndexRoute
   '/areas/': typeof AreasIndexRoute
@@ -1124,6 +1133,7 @@ export interface FileRouteTypes {
     | '/sitemaps/{$type}.xml'
     | '/stations/$slug'
     | '/tours/$slug'
+    | '/travel-solutions/$slug'
     | '/universities/$slug'
     | '/airports/'
     | '/areas/'
@@ -1237,6 +1247,7 @@ export interface FileRouteTypes {
     | '/sitemaps/{$type}.xml'
     | '/stations/$slug'
     | '/tours/$slug'
+    | '/travel-solutions/$slug'
     | '/universities/$slug'
     | '/airports'
     | '/areas'
@@ -1352,6 +1363,7 @@ export interface FileRouteTypes {
     | '/sitemaps/{$type}.xml'
     | '/stations/$slug'
     | '/tours/$slug'
+    | '/travel-solutions/$slug'
     | '/universities/$slug'
     | '/airports/'
     | '/areas/'
@@ -1466,6 +1478,7 @@ export interface RootRouteChildren {
   SitemapsChar123typeChar125DotxmlRoute: typeof SitemapsChar123typeChar125DotxmlRoute
   StationsSlugRoute: typeof StationsSlugRoute
   ToursSlugRoute: typeof ToursSlugRoute
+  TravelSolutionsSlugRoute: typeof TravelSolutionsSlugRoute
   UniversitiesSlugRoute: typeof UniversitiesSlugRoute
   AirportsIndexRoute: typeof AirportsIndexRoute
   AreasIndexRoute: typeof AreasIndexRoute
@@ -1857,6 +1870,13 @@ declare module '@tanstack/react-router' {
       path: '/universities/$slug'
       fullPath: '/universities/$slug'
       preLoaderRoute: typeof UniversitiesSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/travel-solutions/$slug': {
+      id: '/travel-solutions/$slug'
+      path: '/travel-solutions/$slug'
+      fullPath: '/travel-solutions/$slug'
+      preLoaderRoute: typeof TravelSolutionsSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tours/$slug': {
@@ -2467,6 +2487,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapsChar123typeChar125DotxmlRoute: SitemapsChar123typeChar125DotxmlRoute,
   StationsSlugRoute: StationsSlugRoute,
   ToursSlugRoute: ToursSlugRoute,
+  TravelSolutionsSlugRoute: TravelSolutionsSlugRoute,
   UniversitiesSlugRoute: UniversitiesSlugRoute,
   AirportsIndexRoute: AirportsIndexRoute,
   AreasIndexRoute: AreasIndexRoute,
