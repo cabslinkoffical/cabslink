@@ -897,7 +897,7 @@ function FleetClassesSection() {
               <span className="text-[var(--gold)]">travel the standard.</span>
             </h2>
             <p className="mt-4 text-white/70 text-sm max-w-xl">
-              You pick a vehicle class — Executive, Luxury Chauffeur, Premium MPV or more. Our dispatch team allocates the exact model on the day, always from your booked class or a complimentary upgrade.
+              You pick a vehicle class — Executive, Luxury, Premium MPV or more. Our dispatch team allocates the exact model on the day, always from your booked class or a complimentary upgrade.
             </p>
           </div>
           <Button asChild variant="outline" className="rounded-full bg-transparent border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-[var(--gold-foreground)] hover:border-[var(--gold)] self-start md:self-auto">
@@ -905,69 +905,100 @@ function FleetClassesSection() {
           </Button>
         </div>
 
-        {/* Continuous left → right marquee of every active class */}
-        <div className="mt-12 -mx-4 md:-mx-6 lg:-mx-10 relative group/marquee">
-          <div aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-12 md:w-24 z-10 bg-gradient-to-r from-[var(--navy)] to-transparent" />
-          <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 w-12 md:w-24 z-10 bg-gradient-to-l from-[var(--navy)] to-transparent" />
-          <div className="overflow-hidden px-4 md:px-6 lg:px-10 py-2">
-            {track.length === 0 ? (
-              <div className="flex gap-6">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="w-[280px] sm:w-[320px] shrink-0 rounded-[24px] bg-white/10 animate-pulse h-[420px]" />
-                ))}
-              </div>
-            ) : (
-              <div
-                className="flex gap-6 w-max animate-[classMarquee_60s_linear_infinite] group-hover/marquee:[animation-play-state:paused] motion-reduce:animate-none"
-                style={{ animationDirection: "reverse" }}
+        {/* Responsive grid of white vehicle-class cards */}
+        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {visible.length === 0 ? (
+            Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="rounded-2xl bg-white/10 animate-pulse h-[420px]" />
+            ))
+          ) : (
+            visible.map((k) => (
+              <article
+                key={k.id}
+                className="group flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-white transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_22px_46px_-20px_rgba(0,0,0,0.18)]"
               >
-                {track.map((k, idx) => (
-            <div key={`${k.id}-${idx}`} className="group vehicle-card vehicle-card-sheen relative w-[280px] sm:w-[320px] shrink-0 rounded-[24px] flex flex-col">
-              <div className="vehicle-sheen" aria-hidden="true" />
-              {k.badge && (
-                <span className="absolute top-5 left-5 z-20 inline-flex items-center gap-1.5 rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] text-[10px] font-bold uppercase tracking-[0.16em] px-3 py-1.5 shadow-glow">
-                  <Gem className="size-3" /> {k.badge}
-                </span>
-              )}
-              <div className="vehicle-stage relative aspect-[16/10] flex items-center justify-center overflow-hidden p-5">
-                <div className="vehicle-reflection" aria-hidden="true" />
-                {(() => {
-                  const img = fleetImageFor(k.slug, k.hero_image);
-                  return img ? (
-                    <img src={img} alt={k.name} loading={idx < 4 ? "eager" : "lazy"} decoding="async" className="relative z-10 max-h-full max-w-full object-contain drop-shadow-[0_24px_30px_rgba(0,0,0,0.45)] transition-all duration-700 group-hover:scale-[1.06] group-hover:-translate-y-1" />
-                  ) : (
-                    <div className="relative z-10 text-white/40 text-sm">Image coming soon</div>
-                  );
-                })()}
-              </div>
-              <div className="relative z-10 p-6 flex-1 flex flex-col">
-                <h3 className="font-display text-xl font-semibold text-white">{k.name}</h3>
-                {k.short_description && <p className="mt-1 text-xs text-white/60 line-clamp-2">{k.short_description}</p>}
-                <div className="mt-4 flex items-center gap-4 text-xs text-white/70">
-                  <span className="flex items-center gap-1.5"><Users className="size-4 text-[var(--gold)]" />{k.passengers} pax</span>
-                  <span className="flex items-center gap-1.5"><Briefcase className="size-4 text-[var(--gold)]" />{k.large_luggage} bags</span>
-                </div>
-                {k.models.length > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-1.5">
-                    {k.models.slice(0, 3).map((m) => (
-                      <span key={m.id} className="rounded-full bg-white/10 text-white/80 px-2 py-0.5 text-[10.5px] font-medium border border-white/10">
-                        {m.name}
+                {/* Image stage */}
+                <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-[var(--surface-2)]">
+                  {(() => {
+                    const img = fleetImageFor(k.slug, k.hero_image);
+                    return img ? (
+                      <img
+                        src={img}
+                        alt={k.name}
+                        loading="lazy"
+                        decoding="async"
+                        className="relative z-10 max-h-[78%] max-w-[84%] w-auto h-auto object-contain drop-shadow-[0_12px_18px_rgba(0,0,0,0.25)] transition-transform duration-500 group-hover:scale-[1.05]"
+                      />
+                    ) : (
+                      <span className="text-xs text-[var(--navy)]/50">Image coming soon</span>
+                    );
+                  })()}
+
+                  <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
+                    {k.badge ? (
+                      <span className="rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest shadow-sm">
+                        {k.badge}
                       </span>
-                    ))}
+                    ) : k.featured ? (
+                      <span className="rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest shadow-sm">
+                        Featured
+                      </span>
+                    ) : null}
                   </div>
-                )}
-                <div className="mt-auto pt-5 flex items-center justify-between border-t border-white/10">
-                  <Link to="/fleet" className="text-white/70 text-xs font-semibold hover:text-[var(--gold)] transition-colors">View class</Link>
-                  <Link to="/book" search={{ q: "" }} className="inline-flex items-center gap-2 rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] px-4 py-2.5 text-xs font-bold uppercase tracking-[0.12em] hover:brightness-110 transition">
-                    {k.quote_on_request ? "Request quote" : "Get quote"} <ArrowRight className="size-3.5" />
-                  </Link>
                 </div>
-              </div>
-            </div>
-                ))}
-              </div>
-            )}
-          </div>
+
+                {/* Body */}
+                <div className="flex flex-1 flex-col gap-4 p-5">
+                  <div>
+                    <p className="text-[9px] font-semibold uppercase tracking-[0.28em] text-[var(--gold-ink)]">Vehicle Class</p>
+                    <h3 className="mt-1 font-display text-xl font-semibold leading-tight text-[var(--navy)]">{k.name}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-[var(--navy)]/70 line-clamp-2">
+                      {k.short_description || k.long_description}
+                    </p>
+                  </div>
+
+                  {/* Capacity */}
+                  <div className="flex flex-wrap items-center gap-3 text-[var(--navy)]/80">
+                    <span className="inline-flex items-center gap-1.5 text-xs font-medium">
+                      <Users className="size-3.5 text-[var(--gold-ink)]" /> {k.passengers} pax
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 text-xs font-medium">
+                      <Briefcase className="size-3.5 text-[var(--gold-ink)]" /> {k.large_luggage} bags
+                    </span>
+                  </div>
+
+                  {/* Models */}
+                  {k.models.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {k.models.slice(0, 3).map((m) => (
+                        <span
+                          key={m.id}
+                          className="rounded-md border border-[var(--navy)]/10 bg-[var(--navy)]/5 px-2 py-1 text-[11px] font-medium text-[var(--navy)]/80"
+                        >
+                          {m.name}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Footer */}
+                  <div className="mt-auto flex items-center justify-between gap-3 pt-2 border-t border-[var(--navy)]/10">
+                    <Link
+                      to="/fleet"
+                      className="text-sm font-medium text-[var(--navy)]/80 hover:text-[var(--gold-ink)] transition-colors"
+                    >
+                      View class
+                    </Link>
+                    <Button asChild size="sm" variant="gold" className="rounded-full px-5">
+                      <Link to="/book" search={{ q: "" }}>
+                        {k.quote_on_request ? "Request quote" : "Get quote"} <ArrowRight className="size-3.5" />
+                      </Link>
+                    </Button>
+                  </div>
+                </div>
+              </article>
+            ))
+          )}
         </div>
       </div>
     </section>
