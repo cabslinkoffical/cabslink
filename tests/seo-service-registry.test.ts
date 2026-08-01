@@ -52,7 +52,8 @@ describe("canonical service registry", () => {
 });
 
 describe("hub links", () => {
-  it("does not link to the unbuilt /routes hub", () => {
-    expect(HOME_TO_HUBS.map((l) => l.href)).not.toContain("/routes");
+  it("links to the /routes hub now that journey pages are published", () => {
+    expect(HOME_TO_HUBS.map((l) => l.href)).toContain("/routes");
   });
 });
+
