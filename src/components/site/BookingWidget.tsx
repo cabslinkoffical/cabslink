@@ -140,7 +140,15 @@ export function BookingWidget({
         <TabButton tone={tone} active={tab === "hourly"} onClick={() => setTab("hourly")} icon={<Clock className="w-4 h-4" />}>
           Hourly Hire
         </TabButton>
-        <TabButton tone={tone} active={false} onClick={() => navigate({ to: "/tours" })} icon={<Palmtree className="w-4 h-4" />}>
+        <TabButton
+          tone={tone}
+          active={false}
+          onClick={() => {
+            track("tours_interest", { source: "booking_widget_tab" });
+            navigate({ to: "/tours" });
+          }}
+          icon={<Palmtree className="w-4 h-4" />}
+        >
           Day Tours
         </TabButton>
       </div>
@@ -163,7 +171,15 @@ export function BookingWidget({
             params.set("hours", String(hours));
             params.set("passengers", String(passengers));
             params.set("luggage", String(luggage));
+            track("hourly_quote_start", {
+              pickup: pickup!.label,
+              hours: hours ?? 0,
+              passengers: passengers ?? 0,
+              luggage: luggage ?? 0,
+              source: "booking_widget",
+            });
             navigate({ to: "/book/hourly", search: { q: params.toString() } as never });
+
           }}
 
         >
