@@ -925,7 +925,7 @@ function FleetClassesSection() {
 
 
                 {/* Image stage */}
-                <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-[var(--surface-2)]">
+                <div className="relative flex aspect-[4/3] shrink-0 items-center justify-center overflow-hidden bg-[var(--surface-2)]">
                   {(() => {
                     const img = fleetImageFor(k.slug, k.hero_image);
                     return img ? (
