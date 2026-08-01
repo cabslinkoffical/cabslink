@@ -916,12 +916,13 @@ function FleetClassesSection() {
         </div>
       ) : (
         <div className="class-marquee mt-12 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_6%,black_94%,transparent)]">
-          <div className="class-marquee-track flex w-max gap-5">
+          <div className="class-marquee-track flex w-max items-stretch gap-5">
             {track.map((k, i) => (
               <article
                 key={`${k.id}-${i}`}
-                className="group flex h-full w-[280px] shrink-0 flex-col overflow-hidden rounded-2xl border border-white/10 bg-white transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_22px_46px_-20px_rgba(0,0,0,0.18)] sm:w-[300px]"
+                className="group flex h-[540px] w-[280px] shrink-0 flex-col overflow-hidden rounded-2xl border border-white/10 bg-white transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_22px_46px_-20px_rgba(0,0,0,0.18)] sm:w-[300px]"
               >
+
 
                 {/* Image stage */}
                 <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-[var(--surface-2)]">
