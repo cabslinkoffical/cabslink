@@ -955,17 +955,17 @@ function FleetClassesSection() {
                 </div>
 
                 {/* Body */}
-                <div className="flex flex-1 flex-col gap-4 p-5">
+                <div className="flex flex-1 min-h-0 flex-col gap-3 p-5">
                   <div>
                     <p className="text-[9px] font-semibold uppercase tracking-[0.28em] text-[var(--gold-ink)]">Vehicle Class</p>
-                    <h3 className="mt-1 font-display text-xl font-semibold leading-tight text-[var(--navy)]">{k.name}</h3>
-                    <p className="mt-2 text-sm leading-relaxed text-[var(--navy)]/70 line-clamp-2">
+                    <h3 className="mt-1 line-clamp-1 font-display text-xl font-semibold leading-tight text-[var(--navy)]">{k.name}</h3>
+                    <p className="mt-2 h-10 text-sm leading-relaxed text-[var(--navy)]/70 line-clamp-2">
                       {k.short_description || k.long_description}
                     </p>
                   </div>
 
                   {/* Capacity */}
-                  <div className="flex flex-wrap items-center gap-3 text-[var(--navy)]/80">
+                  <div className="flex items-center gap-3 text-[var(--navy)]/80">
                     <span className="inline-flex items-center gap-1.5 text-xs font-medium">
                       <Users className="size-3.5 text-[var(--gold-ink)]" /> {k.passengers} pax
                     </span>
@@ -975,18 +975,17 @@ function FleetClassesSection() {
                   </div>
 
                   {/* Models */}
-                  {k.models.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5">
-                      {k.models.slice(0, 3).map((m) => (
-                        <span
-                          key={m.id}
-                          className="rounded-md border border-[var(--navy)]/10 bg-[var(--navy)]/5 px-2 py-1 text-[11px] font-medium text-[var(--navy)]/80"
-                        >
-                          {m.name}
-                        </span>
-                      ))}
-                    </div>
-                  )}
+                  <div className="flex h-7 gap-1.5 overflow-hidden">
+                    {k.models.slice(0, 2).map((m) => (
+                      <span
+                        key={m.id}
+                        className="truncate rounded-md border border-[var(--navy)]/10 bg-[var(--navy)]/5 px-2 py-1 text-[11px] font-medium text-[var(--navy)]/80"
+                      >
+                        {m.name}
+                      </span>
+                    ))}
+                  </div>
+
 
                   {/* Footer */}
                   <div className="mt-auto flex items-center justify-between gap-3 pt-2 border-t border-[var(--navy)]/10">
