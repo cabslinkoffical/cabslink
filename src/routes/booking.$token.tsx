@@ -2,9 +2,10 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { BadgeCheck, CalendarDays, Car, Clock, MapPin, Phone, Mail, ShieldCheck, User, Users, Briefcase, Info, Copy, Printer } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { getBookingByToken } from "@/lib/booking.functions";
+import { track } from "@/lib/tracking";
 import { paymentNextStepMessage, statusLabel, type BookingStatus, type PaymentMode } from "@/lib/booking-lifecycle";
 import { SITE } from "@/lib/site";
 import { Button } from "@/components/ui/button";
@@ -51,6 +52,16 @@ function ConfirmationPage() {
     retry: false,
     staleTime: 60_000,
   });
+
+  const fired = useRef(false);
+  useEffect(() => {
+    if (fired.current || !q.data) return;
+    fired.current = true;
+    track("booking_confirmed", {
+      booking_ref: q.data.bookingRef,
+      status: q.data.status,
+    });
+  }, [q.data]);
 
   if (q.isLoading) {
     return (

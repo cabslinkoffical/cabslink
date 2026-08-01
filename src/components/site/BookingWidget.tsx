@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Plus, X, Minus, Search, Flag, MapPin, Calendar, Clock, Users, Briefcase, Repeat, Car, Palmtree } from "lucide-react";
 import { PlaceAutocomplete, type SelectedPlace } from "@/components/site/PlaceAutocomplete";
+import { track } from "@/lib/tracking";
+
 
 type Tab = "quote" | "hourly";
 
@@ -104,7 +106,17 @@ export function BookingWidget({
     }
     const validStops = stops.filter((s) => !!s?.placeId);
     if (validStops.length) params.set("stops", encodePlaces(validStops));
+    track("quote_start", {
+      pickup: pickup!.label,
+      dropoff: dropoff!.label,
+      passengers: passengers ?? 0,
+      luggage: luggage ?? 0,
+      stops: validStops.length,
+      return_leg: showReturn,
+      source: "booking_widget",
+    });
     navigate({ to: "/book", search: { q: params.toString() } as never });
+
   };
 
   const hourlyErrors = {
@@ -128,7 +140,15 @@ export function BookingWidget({
         <TabButton tone={tone} active={tab === "hourly"} onClick={() => setTab("hourly")} icon={<Clock className="w-4 h-4" />}>
           Hourly Hire
         </TabButton>
-        <TabButton tone={tone} active={false} onClick={() => navigate({ to: "/tours" })} icon={<Palmtree className="w-4 h-4" />}>
+        <TabButton
+          tone={tone}
+          active={false}
+          onClick={() => {
+            track("tours_interest", { source: "booking_widget_tab" });
+            navigate({ to: "/tours" });
+          }}
+          icon={<Palmtree className="w-4 h-4" />}
+        >
           Day Tours
         </TabButton>
       </div>
@@ -151,7 +171,15 @@ export function BookingWidget({
             params.set("hours", String(hours));
             params.set("passengers", String(passengers));
             params.set("luggage", String(luggage));
+            track("hourly_quote_start", {
+              pickup: pickup!.label,
+              hours: hours ?? 0,
+              passengers: passengers ?? 0,
+              luggage: luggage ?? 0,
+              source: "booking_widget",
+            });
             navigate({ to: "/book/hourly", search: { q: params.toString() } as never });
+
           }}
 
         >
