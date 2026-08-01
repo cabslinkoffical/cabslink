@@ -5,7 +5,7 @@ import { PageHero, SectionHeader } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
 import { BookingWidget } from "@/components/site/BookingWidget";
 
-export const Route = createFileRoute("/airport-transfers")({
+export const Route = createFileRoute("/airport-transfers/")({
   head: () => ({
     meta: [
       { title: "Airport Transfers — Cabslink UK" },
