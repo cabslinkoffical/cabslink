@@ -5,7 +5,7 @@ import { SERVICE_PILLARS } from "@/lib/seo/service-pillars";
 const content = SERVICE_PILLARS["private-hire"]!;
 const URL = "https://cabslink.com/private-hire";
 
-export const Route = createFileRoute("/private-hire")({
+export const Route = createFileRoute("/private-hire/")({
   head: () => ({
     meta: [
       { title: content.metaTitle },

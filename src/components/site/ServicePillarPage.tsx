@@ -24,6 +24,8 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero, SectionHeader } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
 import { getService } from "@/lib/seo/service-registry";
+import { localPagesForService } from "@/lib/seo/service-locations";
+
 import { SITE } from "@/lib/site";
 
 const ICONS = {
@@ -82,7 +84,9 @@ export const DEFAULT_COVERAGE: { label: string; to: string }[] = [
 ];
 
 export function ServicePillarPage({ content }: { content: PillarContent }) {
+  const localPages = localPagesForService(content.id);
   const related = content.related
+
     .map((id) => getService(id))
     .filter((s): s is NonNullable<typeof s> => Boolean(s));
 
@@ -207,8 +211,28 @@ export function ServicePillarPage({ content }: { content: PillarContent }) {
             </Link>
             .
           </p>
+          {localPages.length > 0 && (
+            <div className="mt-10">
+              <h3 className="font-display text-lg font-semibold">
+                {content.breadcrumbLabel} by location
+              </h3>
+              <ul className="mt-4 flex flex-wrap gap-3">
+                {localPages.map((p) => (
+                  <li key={p.to}>
+                    <Link
+                      to={p.to}
+                      className="inline-flex items-center gap-2 rounded-lg border bg-background px-4 py-2 text-sm font-medium shadow-[var(--shadow-raised)] hover:border-[var(--gold)]"
+                    >
+                      {content.breadcrumbLabel} in {p.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       </section>
+
 
       {/* Related services */}
       {related.length > 0 && (

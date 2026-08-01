@@ -4,7 +4,7 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero, SectionHeader } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
 
-export const Route = createFileRoute("/corporate-travel")({
+export const Route = createFileRoute("/corporate-travel/")({
   head: () => ({
     meta: [
       { title: "Corporate Travel — Cabslink Business Business Travel Accounts" },
