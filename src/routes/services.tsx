@@ -47,7 +47,7 @@ export const Route = createFileRoute("/services")({
   head: () => ({
     meta: [
       { title: "Services — Cabslink UK Airport Transfers, Golf & Sports Travel" },
-      { name: "description", content: "Every Cabslink service: airport, station and cruise transfers, golf transfers, football travel, sports events, day tours, hourly hire, corporate accounts, VIP and group travel across the UK." },
+      { name: "description", content: "Every Cabslink service: airport, station and cruise transfers, golf and football travel, day tours, hourly hire, corporate accounts, VIP and group travel across the UK." },
       { property: "og:title", content: "Cabslink Services — UK Airport Transfers, Golf & Sports Travel" },
       { property: "og:description", content: "Airport, station and cruise transfers, golf and football travel, sports events, day tours, hourly hire, corporate accounts, VIP and group travel across the UK." },
       { property: "og:type", content: "website" },

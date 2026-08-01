@@ -59,6 +59,10 @@ describe("BookingWidget — Place-ID gating", () => {
     await user.clear(dateInput);
     await user.type(dateInput, d);
     if (!timeInput.value) await user.type(timeInput, "10:00");
+    // Passengers + luggage are required — open the occupancy popover and set them
+    await user.click(screen.getByRole("button", { name: /Passengers/i }));
+    await user.click(screen.getByLabelText(/Increase Passengers/i));
+    await user.click(screen.getByLabelText(/Increase Luggage/i));
     await user.click(screen.getByRole("button", { name: /Search/i }));
     expect(navigateMock).toHaveBeenCalledTimes(1);
     const arg = navigateMock.mock.calls[0][0];
@@ -67,7 +71,10 @@ describe("BookingWidget — Place-ID gating", () => {
     expect(params.get("dropoffPlaceId")).toBe("PID_B");
     expect(params.get("pickupLabel")).toBe("A");
     expect(params.get("dropoffLabel")).toBe("B");
+    expect(Number(params.get("passengers"))).toBeGreaterThanOrEqual(1);
+    expect(Number(params.get("luggage"))).toBeGreaterThanOrEqual(0);
   });
+
 
   it("blocks submit when pickup and destination are identical", async () => {
     const user = userEvent.setup();

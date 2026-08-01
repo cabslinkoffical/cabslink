@@ -6,6 +6,11 @@ export const Route = createFileRoute("/privacy")({
     meta: [
       { title: "Privacy Policy — Cabslink" },
       { name: "description", content: "How Cabslink collects, uses and protects your personal information." },
+      { property: "og:title", content: "Privacy Policy — Cabslink" },
+      { property: "og:description", content: "How Cabslink collects, uses and protects your personal information." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://cabslink.com/privacy" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: "https://cabslink.com/privacy" }],
   }),

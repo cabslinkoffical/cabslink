@@ -6,6 +6,11 @@ export const Route = createFileRoute("/accessibility")({
     meta: [
       { title: "Accessibility — Cabslink" },
       { name: "description", content: "Cabslink's commitment to an accessible website and inclusive airport travel service." },
+      { property: "og:title", content: "Accessibility — Cabslink" },
+      { property: "og:description", content: "Cabslink's commitment to an accessible website and inclusive airport travel service." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://cabslink.com/accessibility" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: "https://cabslink.com/accessibility" }],
   }),

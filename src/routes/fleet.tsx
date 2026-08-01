@@ -20,9 +20,9 @@ export const Route = createFileRoute("/fleet")({
   head: () => ({
     meta: [
       { title: "Our Fleet — Vehicle Classes | Cabslink UK" },
-      { name: "description", content: "Explore Cabslink's vehicle classes — Executive Saloons, Luxury Chauffeur, Premium MPVs, Vans and Coaches. Book by class, guaranteed allocation." },
+      { name: "description", content: "Explore Cabslink's vehicle classes — Executive Saloons, Luxury Class, Premium MPVs, Vans and Coaches. Book by class, guaranteed allocation." },
       { property: "og:title", content: "Our Fleet — Vehicle Classes | Cabslink" },
-      { property: "og:description", content: "Executive Saloon, Luxury Chauffeur, Premium MPV and more. Book by class, guaranteed allocation." },
+      { property: "og:description", content: "Executive Saloon, Luxury Class, Premium MPV and more. Book by class, guaranteed allocation." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { property: "og:url", content: "https://cabslink.com/fleet" },
@@ -80,7 +80,7 @@ function FleetPage() {
                 <span className="text-[var(--gold)]">travel the standard.</span>
               </h1>
               <p className="mt-4 text-base md:text-lg text-[var(--navy-foreground)]/80 max-w-2xl">
-                You pick a vehicle class — Executive, Luxury Chauffeur, Premium MPV or more. Our dispatch team allocates the exact model on the day, always from your booked class or a complimentary upgrade.
+                You pick a vehicle class — Executive, Luxury, Premium MPV or more. Our dispatch team allocates the exact model on the day, always from your booked class or a complimentary upgrade.
               </p>
             </div>
             <Button asChild variant="outline" className="rounded-full bg-transparent text-[var(--navy-foreground)] border-[var(--navy-foreground)]/30 hover:bg-white/10 hover:text-[var(--navy-foreground)] shrink-0">
