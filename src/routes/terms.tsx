@@ -6,6 +6,11 @@ export const Route = createFileRoute("/terms")({
     meta: [
       { title: "Terms & Conditions — Cabslink" },
       { name: "description", content: "The terms that apply when you use Cabslink to book driver and transfer services." },
+      { property: "og:title", content: "Terms & Conditions — Cabslink" },
+      { property: "og:description", content: "The terms that apply when you use Cabslink to book driver and transfer services." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://cabslink.com/terms" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: "https://cabslink.com/terms" }],
   }),

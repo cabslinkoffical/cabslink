@@ -568,7 +568,12 @@ export const getSettings = createServerFn({ method: "GET" })
     await assertAdmin(context);
     const { data, error } = await context.supabase.from("site_settings").select("*").eq("id", 1).maybeSingle();
     if (error) throw new Error(error.message);
-    return data;
+    const { data: creds } = await context.supabase
+      .from("site_credentials")
+      .select("smtp_host, smtp_port, smtp_user, google_maps_api_key")
+      .eq("id", 1)
+      .maybeSingle();
+    return { ...(data ?? {}), ...(creds ?? {}) } as Record<string, unknown>;
   });
 
 const settingsSchema = z.object({
@@ -609,10 +614,17 @@ export const updateSettings = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => settingsSchema.parse(i))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    const { error } = await context.supabase.from("site_settings").update(data).eq("id", 1);
+    // Credentials live in an admin-only table so they are never publicly readable.
+    const { smtp_host, smtp_port, smtp_user, google_maps_api_key, ...settings } = data;
+    const { error } = await context.supabase.from("site_settings").update(settings).eq("id", 1);
     if (error) throw new Error(error.message);
+    const { error: credError } = await context.supabase
+      .from("site_credentials")
+      .upsert({ id: 1, smtp_host: smtp_host ?? null, smtp_port: smtp_port ?? null, smtp_user: smtp_user ?? null, google_maps_api_key: google_maps_api_key ?? null }, { onConflict: "id" });
+    if (credError) throw new Error(credError.message);
     return { ok: true };
   });
+
 
 // =================================================================
 // Users & roles

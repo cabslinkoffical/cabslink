@@ -9,7 +9,10 @@ export const Route = createFileRoute("/stations/")({
     { name: "description", content: HUBS[KEY].intro },
     { property: "og:title", content: `${HUBS[KEY].title} — CabsLink` },
     { property: "og:description", content: HUBS[KEY].intro },
-  ] }),
+    { property: "og:type", content: "website" },
+    { property: "og:url", content: "https://cabslink.com/stations" },
+    { name: "twitter:card", content: "summary_large_image" },
+  ], links: [{ rel: "canonical", href: "https://cabslink.com/stations" }] }),
   loader: ({ context }) => context.queryClient.ensureQueryData(hubQueryOptions(KEY)),
   component: () => {
     const { data } = useSuspenseQuery(hubQueryOptions(KEY));

@@ -29,7 +29,7 @@ export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
       { title: "About Cabslink — Scotland's Trusted Airport Transfer Company" },
-      { name: "description", content: "Cabslink is a Scotland-based airport transfer and private transport company offering fixed prices, flight monitoring, executive vehicles and 24/7 service across Edinburgh, Glasgow and the UK." },
+      { name: "description", content: "Scotland-based airport transfer and private transport company: fixed prices, flight monitoring, executive vehicles and 24/7 service across Edinburgh, Glasgow and the UK." },
       { property: "og:title", content: "About Cabslink — Scotland's Trusted Airport Transfer Company" },
       { property: "og:description", content: "Reliable pre-booked airport transfers, executive travel, cruise, corporate and group transport across Scotland — with fixed prices and flight monitoring." },
       { property: "og:url", content: CANONICAL },

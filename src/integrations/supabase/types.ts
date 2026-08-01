@@ -2596,6 +2596,33 @@ export type Database = {
         }
         Relationships: []
       }
+      site_credentials: {
+        Row: {
+          google_maps_api_key: string | null
+          id: number
+          smtp_host: string | null
+          smtp_port: number | null
+          smtp_user: string | null
+          updated_at: string
+        }
+        Insert: {
+          google_maps_api_key?: string | null
+          id?: number
+          smtp_host?: string | null
+          smtp_port?: number | null
+          smtp_user?: string | null
+          updated_at?: string
+        }
+        Update: {
+          google_maps_api_key?: string | null
+          id?: number
+          smtp_host?: string | null
+          smtp_port?: number | null
+          smtp_user?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       site_settings: {
         Row: {
           allowed_stop_duration_minutes: number[]
@@ -2609,7 +2636,6 @@ export type Database = {
           currency_symbol: string
           default_booking_status: Database["public"]["Enums"]["booking_status"]
           favicon_url: string | null
-          google_maps_api_key: string | null
           id: number
           included_stop_minutes: number
           logo_url: string | null
@@ -2632,9 +2658,6 @@ export type Database = {
           primary_color: string
           return_journey_fee_pence: number
           sightseeing_threshold_minutes: number
-          smtp_host: string | null
-          smtp_port: number | null
-          smtp_user: string | null
           tax_enabled: boolean
           tax_label: string
           tax_percentage: number
@@ -2657,7 +2680,6 @@ export type Database = {
           currency_symbol?: string
           default_booking_status?: Database["public"]["Enums"]["booking_status"]
           favicon_url?: string | null
-          google_maps_api_key?: string | null
           id?: number
           included_stop_minutes?: number
           logo_url?: string | null
@@ -2680,9 +2702,6 @@ export type Database = {
           primary_color?: string
           return_journey_fee_pence?: number
           sightseeing_threshold_minutes?: number
-          smtp_host?: string | null
-          smtp_port?: number | null
-          smtp_user?: string | null
           tax_enabled?: boolean
           tax_label?: string
           tax_percentage?: number
@@ -2705,7 +2724,6 @@ export type Database = {
           currency_symbol?: string
           default_booking_status?: Database["public"]["Enums"]["booking_status"]
           favicon_url?: string | null
-          google_maps_api_key?: string | null
           id?: number
           included_stop_minutes?: number
           logo_url?: string | null
@@ -2728,9 +2746,6 @@ export type Database = {
           primary_color?: string
           return_journey_fee_pence?: number
           sightseeing_threshold_minutes?: number
-          smtp_host?: string | null
-          smtp_port?: number | null
-          smtp_user?: string | null
           tax_enabled?: boolean
           tax_label?: string
           tax_percentage?: number

@@ -6,6 +6,11 @@ export const Route = createFileRoute("/refund-policy")({
     meta: [
       { title: "Refund Policy — Cabslink" },
       { name: "description", content: "How Cabslink handles refunds for driver and transfer bookings." },
+      { property: "og:title", content: "Refund Policy — Cabslink" },
+      { property: "og:description", content: "How Cabslink handles refunds for driver and transfer bookings." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://cabslink.com/refund-policy" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: "https://cabslink.com/refund-policy" }],
   }),

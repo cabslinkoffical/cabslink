@@ -19,7 +19,11 @@ export const Route = createFileRoute("/airports/")({
       { name: "description", content: "Fixed-fare private transfers to every major UK airport. Meet & greet, flight tracking, 24/7 dispatch across England, Scotland, Wales and Northern Ireland." },
       { property: "og:title", content: "UK Airport Transfers — Every Major Airport" },
       { property: "og:description", content: "Private transfers to every major UK airport. Fixed fares, meet & greet, flight tracking." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://cabslink.com/airports" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: "https://cabslink.com/airports" }],
   }),
   component: AirportsIndex,
 });

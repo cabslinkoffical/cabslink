@@ -12,7 +12,8 @@ export const Route = createFileRoute("/areas/region/$slug")({
     if (!hub) throw notFound();
     return hub;
   },
-  head: ({ loaderData }) => {
+  head: ({ params, loaderData }) => {
+    const canonical = `https://cabslink.com/areas/region/${params.slug}`;
     const title = loaderData ? `${loaderData.name} — Cabslink Locations` : "Region";
     const desc = loaderData
       ? `Explore ${loaderData.total} destinations across ${loaderData.name} — towns, airports, stations, universities, hospitals and attractions.`
@@ -23,7 +24,11 @@ export const Route = createFileRoute("/areas/region/$slug")({
         { name: "description", content: desc },
         { property: "og:title", content: title },
         { property: "og:description", content: desc },
+        { property: "og:type", content: "website" },
+        { property: "og:url", content: canonical },
+        { name: "twitter:card", content: "summary_large_image" },
       ],
+      links: [{ rel: "canonical", href: canonical }],
     };
   },
   component: RegionPage,
