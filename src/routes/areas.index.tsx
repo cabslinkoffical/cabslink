@@ -7,6 +7,8 @@ import { CategoryGrid } from "@/components/explore/CategoryGrid";
 import { EntityGrid } from "@/components/explore/EntityCard";
 import { FaqBlock } from "@/components/seo/FaqBlock";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
+import { CoverageMap } from "@/components/seo/CoverageMap";
+
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
 import { exploreOverviewQuery } from "@/lib/explore.functions";
@@ -90,14 +92,22 @@ function LocationsPage() {
         </section>
       )}
 
+      <section className="section-y">
+        <div className="container-x">
+          <SectionHeader eyebrow="Coverage map" title="Where we run — and the pages for each" />
+          <CoverageMap />
+        </div>
+      </section>
+
       {data.letters.length > 0 && (
-        <section className="section-y">
+        <section className="section-y bg-[var(--navy)]/[0.03]">
           <div className="container-x">
             <SectionHeader eyebrow="Directory" title="Browse alphabetically" />
             <AlphaBar available={data.letters} />
           </div>
         </section>
       )}
+
 
       <section className="section-y bg-[var(--navy)]/[0.03]">
         <div className="container-x max-w-3xl">

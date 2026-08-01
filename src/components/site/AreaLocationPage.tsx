@@ -11,6 +11,9 @@ import { EntityGrid } from "@/components/explore/EntityCard";
 import type { AreaSeoContext } from "@/lib/explore.functions";
 import type { Destination } from "@/lib/destinations.functions";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { journeyLinksForLocation } from "@/lib/seo/coverage";
+import { servicePagesForLocation } from "@/lib/seo/service-locations";
+
 import {
   CheckCircle2,
   Clock,
@@ -193,10 +196,13 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
         <NearbySection icon={Anchor} title={`Cruise ports near ${locName}`} items={data.cruisePorts} />
       )}
 
+      <LocalPagesSection slug={d.slug} name={locName} />
+
       {/* FAQ */}
       <section className="mt-14">
         <FaqBlock items={buildFaqs(data)} />
       </section>
+
 
       {/* CTA */}
       <section className="mt-14 rounded-3xl bg-[var(--navy)] p-10 text-center text-white">
@@ -277,4 +283,54 @@ function buildFaqs(ctx: AreaSeoContext): { q: string; a: string }[] {
       a: `Yes. Business accounts include monthly billing, priority dispatch, and dedicated account management. Visit our corporate page to open an account.`,
     },
   ];
+}
+
+function LocalPagesSection({ slug, name }: { slug: string; name: string }) {
+  const services = servicePagesForLocation(slug);
+  const journeys = journeyLinksForLocation(slug);
+  if (services.length === 0 && journeys.length === 0) return null;
+
+  return (
+    <section className="mt-14 rounded-3xl border border-[var(--navy)]/10 bg-white p-8 shadow-raised">
+      <SectionHeader eyebrow="Local pages" title={`More on travel in ${name}`} />
+      {services.length > 0 && (
+        <div className="mt-2">
+          <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/50">
+            Services in {name}
+          </div>
+          <ul className="mt-3 flex flex-wrap gap-2">
+            {services.map((s) => (
+              <li key={s.to}>
+                <Link
+                  to={s.to}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--navy)]/10 bg-[var(--navy)]/[0.03] px-3 py-2 text-sm font-medium text-[var(--navy)] transition hover:border-[var(--gold)]"
+                >
+                  {s.label} <ArrowRight className="size-3.5 text-[var(--gold-ink)]" />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {journeys.length > 0 && (
+        <div className="mt-6">
+          <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/50">
+            Fixed-price journeys
+          </div>
+          <ul className="mt-3 flex flex-wrap gap-2">
+            {journeys.map((j) => (
+              <li key={j.to}>
+                <Link
+                  to={j.to}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-[var(--navy)]/20 px-3 py-2 text-sm font-medium text-[var(--navy)] transition hover:border-[var(--gold)]"
+                >
+                  {j.label} <ArrowRight className="size-3.5 text-[var(--gold-ink)]" />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </section>
+  );
 }
