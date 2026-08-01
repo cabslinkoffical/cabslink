@@ -905,18 +905,24 @@ function FleetClassesSection() {
           </Button>
         </div>
 
-        {/* Responsive grid of white vehicle-class cards */}
-        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {visible.length === 0 ? (
-            Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="rounded-2xl bg-white/10 animate-pulse h-[420px]" />
-            ))
-          ) : (
-            visible.map((k) => (
+      </div>
+
+      {/* Smooth infinite marquee of white vehicle-class cards */}
+      {visible.length === 0 ? (
+        <div className="container-x mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="rounded-2xl bg-white/10 animate-pulse h-[420px]" />
+          ))}
+        </div>
+      ) : (
+        <div className="class-marquee mt-12 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_6%,black_94%,transparent)]">
+          <div className="class-marquee-track flex w-max gap-5">
+            {track.map((k, i) => (
               <article
-                key={k.id}
-                className="group flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-white transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_22px_46px_-20px_rgba(0,0,0,0.18)]"
+                key={`${k.id}-${i}`}
+                className="group flex h-full w-[280px] shrink-0 flex-col overflow-hidden rounded-2xl border border-white/10 bg-white transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_22px_46px_-20px_rgba(0,0,0,0.18)] sm:w-[300px]"
               >
+
                 {/* Image stage */}
                 <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-[var(--surface-2)]">
                   {(() => {
@@ -997,10 +1003,11 @@ function FleetClassesSection() {
                   </div>
                 </div>
               </article>
-            ))
-          )}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </section>
+
   );
 }
