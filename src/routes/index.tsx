@@ -382,20 +382,24 @@ function HomePage() {
 
       {/* TRUST STRIP */}
       <section className="bg-[var(--navy)] border-y border-white/10">
-        <div className="container-x py-6 sm:py-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-4 sm:gap-y-6">
+        <div className="container-x py-5 sm:py-8 grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-x-6 sm:gap-y-6">
           {trustStats.map((s) => (
-            <div key={s.k} className="flex items-center gap-3 min-w-0">
-              <span className="grid size-10 shrink-0 place-items-center rounded-full border border-[var(--gold)]/40 text-[var(--gold)]">
-                <s.icon className="size-[18px]" />
+            <div
+              key={s.k}
+              className="flex flex-col items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] p-3 text-center sm:flex-row sm:items-center sm:gap-3 sm:rounded-none sm:border-0 sm:bg-transparent sm:p-0 sm:text-left min-w-0"
+            >
+              <span className="grid size-9 shrink-0 place-items-center rounded-full border border-[var(--gold)]/40 text-[var(--gold)] sm:size-10">
+                <s.icon className="size-4 sm:size-[18px]" />
               </span>
               <span className="min-w-0">
-                <span className="block text-sm font-semibold text-white truncate">{s.k}</span>
-                <span className="block text-xs text-white/60 truncate">{s.v}</span>
+                <span className="block text-[13px] font-semibold leading-tight text-white sm:text-sm sm:truncate">{s.k}</span>
+                <span className="block text-[11px] leading-tight text-white/60 sm:text-xs sm:truncate">{s.v}</span>
               </span>
             </div>
           ))}
         </div>
       </section>
+
 
       {/* POPULAR TOURS */}
       {popularTours.length > 0 && (
