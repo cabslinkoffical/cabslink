@@ -11,7 +11,8 @@ import {
 
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { BookingWidget } from "@/components/site/BookingWidget";
-import { TestimonialsSection } from "@/components/site/TestimonialsSection";
+import { TrustpilotSection } from "@/components/site/TrustpilotSection";
+import { organizationSchema, websiteSchema } from "@/components/seo/schema";
 import { DrivingCarBadge } from "@/components/site/DrivingCarBadge";
 
 import { Button } from "@/components/ui/button";
@@ -75,6 +76,18 @@ export const Route = createFileRoute("/")({
         imageSrcSet: vclassAsset.srcSet,
         imageSizes: HERO_VEHICLE_SIZES,
         fetchPriority: "high",
+      },
+    ],
+    // Sitewide identity graph. Deliberately no Review/AggregateRating markup —
+    // the Trustpilot score is third-party and must not be emitted as our own
+    // review data.
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [organizationSchema(), websiteSchema()],
+        }),
       },
     ],
   }),
@@ -628,8 +641,9 @@ function HomePage() {
         </div>
       </section>
 
-      {/* REVIEWS */}
-      <TestimonialsSection />
+      {/* REVIEWS — verified Trustpilot proof only */}
+      <TrustpilotSection />
+
 
 
       {/* UK COVERAGE */}

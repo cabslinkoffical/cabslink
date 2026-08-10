@@ -7,7 +7,11 @@ import type { Destination } from "@/lib/destinations.functions";
 const BRAND = {
   name: "CabsLink",
   url: "https://cabslink.com",
-  logo: "https://cabslink.com/logo.png",
+  // Must be a URL that actually resolves — `/logo.png` was a 404, which made
+  // the Organization logo unusable for every page emitting this graph.
+  logo: "https://cabslink.com/__l5e/assets-v1/4150bb87-69a7-4e1d-bedb-54293074a958/cabslink-logo-gold.png",
+  /** Verified public profiles only. */
+  sameAs: ["https://www.trustpilot.com/review/cabslink.com"],
 };
 
 export function organizationSchema() {
@@ -17,6 +21,7 @@ export function organizationSchema() {
     name: BRAND.name,
     url: BRAND.url,
     logo: BRAND.logo,
+    sameAs: BRAND.sameAs,
   };
 }
 
@@ -26,6 +31,7 @@ export function websiteSchema() {
     "@type": "WebSite",
     name: BRAND.name,
     url: BRAND.url,
+    inLanguage: "en-GB",
     potentialAction: {
       "@type": "SearchAction",
       target: `${BRAND.url}/search?q={search_term_string}`,
@@ -33,6 +39,7 @@ export function websiteSchema() {
     },
   };
 }
+
 
 export function breadcrumbSchema(items: Array<{ name: string; url: string }>) {
   return {
