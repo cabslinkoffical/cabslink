@@ -1,36 +1,23 @@
 /**
- * Trustpilot proof section.
+ * Trustpilot proof section for the homepage.
  *
- * Shows only figures published on the real Cabslink Trustpilot profile, read
- * from `src/lib/trustpilot.ts`, with the read date and a visible link back to
- * the profile. It deliberately renders NO review quotes, names or avatars, and
- * NO Review/AggregateRating structured data — third-party review scores must
- * not be marked up as first-party review data.
+ * Shows only what the real public Cabslink Trustpilot profile displays, read
+ * from `src/lib/trustpilot.ts`, with the read date and visible links back to
+ * the profile.
+ *
+ * Deliberate omissions:
+ *  - NO Review / AggregateRating structured data. Google's rules do not allow a
+ *    site to mark up third-party review scores as its own review data, so the
+ *    proof here is a visible Trustpilot link and attribution instead.
+ *  - NO wording implying the reviews are verified, invited or representative
+ *    while Trustpilot's "no recent history of asking for reviews" notice is up.
+ *  - NO review text unless a verbatim excerpt has been copied into the data
+ *    file; cards render name, score, date and topic on their own until then.
  */
 import { motion } from "motion/react";
-import { Star, ExternalLink } from "lucide-react";
+import { ArrowUpRight, ExternalLink } from "lucide-react";
 import { TRUSTPILOT, trustpilotVerifiedOnLabel } from "@/lib/trustpilot";
-
-function Stars({ rating }: { rating: number }) {
-  return (
-    <div className="flex items-center gap-1" aria-hidden="true">
-      {[1, 2, 3, 4, 5].map((i) => (
-        <span
-          key={i}
-          className="relative inline-block h-5 w-5 md:h-6 md:w-6"
-        >
-          <Star className="absolute inset-0 h-full w-full text-[var(--navy)]/15" fill="currentColor" strokeWidth={0} />
-          <span
-            className="absolute inset-0 overflow-hidden"
-            style={{ width: `${Math.max(0, Math.min(1, rating - (i - 1))) * 100}%` }}
-          >
-            <Star className="h-full w-[1.25rem] md:w-[1.5rem] text-[var(--gold)]" fill="currentColor" strokeWidth={0} />
-          </span>
-        </span>
-      ))}
-    </div>
-  );
-}
+import { TrustpilotStars, TrustpilotWordmark } from "./TrustpilotMark";
 
 export function TrustpilotSection() {
   const t = TRUSTPILOT;
@@ -44,11 +31,11 @@ export function TrustpilotSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="mx-auto max-w-[560px] text-center"
+          className="mx-auto max-w-[600px] text-center"
         >
           <div className="inline-flex rounded-full border border-[var(--navy)]/15 px-4 py-1.5">
             <span className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[var(--gold-ink)]">
-              Verified Reviews
+              Independent Reviews
             </span>
           </div>
 
@@ -59,36 +46,35 @@ export function TrustpilotSection() {
             Rated <span className="text-[var(--gold-ink)]">{t.ratingLabel}</span> on Trustpilot.
           </h2>
           <p className="mt-4 text-sm leading-relaxed text-[var(--navy)]/60 md:text-base">
-            Every review below is left by a real Cabslink passenger on our independent Trustpilot
-            profile — not collected or edited by us.
+            Our reviews sit on Trustpilot, not on this page — so you can read them in full, unedited,
+            wherever they land.
           </p>
         </motion.div>
 
-        <div className="mx-auto mt-12 grid max-w-4xl gap-6 md:grid-cols-5">
-          {/* Score card */}
-          <div className="md:col-span-2 rounded-2xl border border-[var(--navy)]/10 bg-white p-7 text-center shadow-[0_1px_2px_rgba(14,24,44,0.04)]">
-            <div className="font-display text-5xl font-bold text-[var(--navy)]">
+        {/* Score + distribution */}
+        <div className="mx-auto mt-12 grid max-w-4xl gap-6 sm:grid-cols-5">
+          <div className="sm:col-span-2 rounded-2xl border border-[var(--navy)]/10 bg-white p-6 text-center shadow-[0_1px_2px_rgba(14,24,44,0.04)] md:p-7">
+            <div className="font-display text-5xl font-bold leading-none text-[var(--navy)]">
               {t.rating.toFixed(1)}
               <span className="text-2xl text-[var(--navy)]/35"> / 5</span>
             </div>
-            <div className="mt-3 flex justify-center">
-              <Stars rating={t.rating} />
+            <div className="mt-4 flex justify-center">
+              <TrustpilotStars rating={t.rating} size="md" />
             </div>
             <p className="mt-3 text-sm font-semibold text-[var(--navy)]">{t.ratingLabel}</p>
             <p className="mt-1 text-xs text-[var(--navy)]/55">
-              Based on {t.reviewCount} Trustpilot reviews
+              {t.reviewCount} reviews on Trustpilot
             </p>
           </div>
 
-          {/* Distribution */}
-          <div className="md:col-span-3 rounded-2xl border border-[var(--navy)]/10 bg-white p-7 shadow-[0_1px_2px_rgba(14,24,44,0.04)]">
+          <div className="sm:col-span-3 rounded-2xl border border-[var(--navy)]/10 bg-white p-6 shadow-[0_1px_2px_rgba(14,24,44,0.04)] md:p-7">
             <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--navy)]/45">
               Review breakdown
             </p>
             <ul className="mt-5 space-y-3">
               {t.distribution.map((d) => (
                 <li key={d.stars} className="flex items-center gap-3">
-                  <span className="w-16 shrink-0 text-xs font-medium text-[var(--navy)]/70">
+                  <span className="w-14 shrink-0 text-xs font-medium text-[var(--navy)]/70">
                     {d.stars}-star
                   </span>
                   <span className="h-2 flex-1 overflow-hidden rounded-full bg-[var(--navy)]/8">
@@ -97,28 +83,78 @@ export function TrustpilotSection() {
                       style={{ width: `${d.percent}%` }}
                     />
                   </span>
-                  <span className="w-10 shrink-0 text-right text-xs font-semibold text-[var(--navy)]">
+                  <span className="w-9 shrink-0 text-right text-xs font-semibold text-[var(--navy)]">
                     {d.percent}%
                   </span>
                 </li>
               ))}
             </ul>
-
-            <div className="mt-7 flex flex-col gap-3 border-t border-[var(--navy)]/10 pt-5 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-[11px] leading-relaxed text-[var(--navy)]/50">
-                Source: Trustpilot, as shown on {verified}.
-              </p>
+            <div className="mt-6 border-t border-[var(--navy)]/10 pt-5">
               <a
                 href={t.profileUrl}
                 target="_blank"
                 rel="noopener noreferrer nofollow"
-                className="inline-flex shrink-0 items-center gap-2 rounded-full bg-[var(--navy)] px-5 py-2.5 text-xs font-semibold text-white transition-opacity hover:opacity-90"
+                className="inline-flex items-center gap-2 rounded-full bg-[var(--navy)] px-5 py-2.5 text-xs font-semibold text-white transition-opacity hover:opacity-90"
               >
-                Read reviews on Trustpilot
+                Read all {t.reviewCount} reviews
                 <ExternalLink className="h-3.5 w-3.5" />
               </a>
             </div>
           </div>
+        </div>
+
+        {/* Individual reviews — a short row, not a review wall */}
+        <ul className="mx-auto mt-6 grid max-w-4xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {t.reviews.map((r) => (
+            <li
+              key={`${r.author}-${r.date}`}
+              className="flex flex-col rounded-2xl border border-[var(--navy)]/10 bg-white p-5 shadow-[0_1px_2px_rgba(14,24,44,0.04)]"
+            >
+              <TrustpilotStars
+                rating={r.stars}
+                size="sm"
+                label={`${r.author} rated Cabslink ${r.stars} out of 5 on Trustpilot`}
+              />
+              {r.excerpt ? (
+                <blockquote className="mt-3 text-sm leading-relaxed text-[var(--navy)]/75">
+                  “{r.excerpt}”
+                </blockquote>
+              ) : (
+                <p className="mt-3 text-sm font-medium leading-relaxed text-[var(--navy)]/75">
+                  {r.topic}
+                </p>
+              )}
+              <div className="mt-auto pt-4">
+                <p className="text-xs font-semibold text-[var(--navy)]">{r.author}</p>
+                <p className="text-[11px] text-[var(--navy)]/50">{r.date} · Trustpilot</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+
+        {/* Attribution + the caveat Trustpilot itself displays */}
+        <div className="mx-auto mt-8 max-w-4xl rounded-2xl bg-[var(--navy)]/[0.03] p-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <TrustpilotWordmark className="text-sm text-[var(--navy)]" />
+            <a
+              href={t.profileUrl}
+              target="_blank"
+              rel="noopener noreferrer nofollow"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--navy)] underline decoration-[var(--gold)] decoration-2 underline-offset-4 hover:text-[var(--gold-ink)]"
+            >
+              View the Cabslink profile on Trustpilot
+              <ArrowUpRight className="h-3.5 w-3.5" />
+            </a>
+          </div>
+          <p className="mt-3 text-[11px] leading-relaxed text-[var(--navy)]/50">
+            Ratings, review counts and reviewer names shown above are as displayed on Trustpilot on{" "}
+            {verified}; this is a dated snapshot, not a live feed.
+            {t.noRecentInviteHistory
+              ? " Trustpilot currently notes that this profile has no recent history of asking customers for reviews, so these reviews were left independently and may not represent all Cabslink journeys."
+              : ""}{" "}
+            Trustpilot is a registered trademark of Trustpilot A/S and is not affiliated with
+            Cabslink.
+          </p>
         </div>
       </div>
     </section>
