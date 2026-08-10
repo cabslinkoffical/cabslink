@@ -365,6 +365,7 @@ export function buildJourney(slug: string): JourneyContent | null {
       `Pre-booked ${pair} transfers: ${j.miles} miles via ${j.via}, about ${hours} door to door. Fixed price, professional driver, 24/7 UK support.`,
       `Pre-booked ${pair} transfers: ${j.miles} miles via ${j.via}, about ${hours} door to door. Fixed price, professional driver.`,
       `${pair} transfers: ${j.miles} miles via ${j.via}, about ${hours} door to door. Fixed price, professional driver.`,
+      `${pair} transfers: ${j.miles} miles, about ${hours} door to door. Fixed price, professional driver.`,
     ]),
     canonicalPath: journeyPath(j.slug),
     hours,

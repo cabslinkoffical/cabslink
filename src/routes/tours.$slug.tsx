@@ -48,7 +48,8 @@ export const Route = createFileRoute("/tours/$slug")({
         `${d.name} | Cabslink`,
         `${shortName} Private Tour | Cabslink`,
         `${shortName} | Cabslink`,
-      ].find((t) => t.length <= 60) ?? `${shortName} | Cabslink`;
+      ].find((t) => t.length <= 60) ??
+      `${shortName.slice(0, 47).replace(/[\s,.;:—-]+\S*$/, "")} | Cabslink`;
 
     // Tour blurbs in the CMS are often a single short line (~50-70 chars), which
     // is too thin for a meta description. Top up with factual route detail until
