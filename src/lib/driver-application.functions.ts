@@ -47,6 +47,17 @@ export async function submitDriverApplicationImpl(
     console.error("driver application insert failed", error);
     throw new Error("Could not submit. Please try again.");
   }
+
+  const { notifyEnquiry } = await import("@/lib/notifications.server");
+  await notifyEnquiry({
+    kind: "driver",
+    name: parsed.name,
+    email: parsed.email,
+    phone: parsed.phone,
+    subject: "Driver / Partner Application",
+    message: parsed.message,
+  });
+
   return { ok: true };
 }
 

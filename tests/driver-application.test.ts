@@ -3,6 +3,9 @@ import { _resetAllLimits } from "@/lib/rate-limit.server";
 import fs from "node:fs";
 
 const insertSpy = vi.fn();
+vi.mock("@/lib/notifications.server", () => ({
+  notifyEnquiry: vi.fn(async () => {}),
+}));
 vi.mock("@/integrations/supabase/client.server", () => ({
   supabaseAdmin: { from: () => ({ insert: (row: any) => { insertSpy(row); return Promise.resolve({ error: null }); } }) },
 }));
