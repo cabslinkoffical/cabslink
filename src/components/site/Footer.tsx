@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Mail, Phone, MapPin } from "lucide-react";
 import { Logo } from "./Logo";
 import { SITE } from "@/lib/site";
+import { TRUSTPILOT } from "@/lib/trustpilot";
 
 const services = [
   { to: "/airport-transfers", label: "Airport Transfers" },
