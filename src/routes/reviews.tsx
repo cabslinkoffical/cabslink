@@ -47,6 +47,26 @@ export const Route = createFileRoute("/reviews")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: URL }],
+    // Organization + Breadcrumb only. No Review/AggregateRating markup: the
+    // scores below are third-party Trustpilot data, which Google does not
+    // allow a site to mark up as its own review data.
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Home", item: "https://cabslink.com/" },
+            { "@type": "ListItem", position: 2, name: "Reviews", item: URL },
+          ],
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify(organizationSchema()),
+      },
+    ],
   }),
   component: ReviewsPage,
 });
