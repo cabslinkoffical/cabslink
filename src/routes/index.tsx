@@ -835,8 +835,9 @@ const faqItems = [
   { q: "How far in advance should I book?", a: "You can book anytime — even minutes ahead — but we recommend 2+ hours for airport pickups to guarantee your preferred vehicle." },
   { q: "Do you track my flight?", a: "Yes. Every airport transfer includes automatic flight tracking, and we adjust pickup times for delays or early arrivals at no extra cost." },
   { q: "Is there a meet & greet at arrivals?", a: "Absolutely. Your driver waits inside the terminal with a name board and helps with your luggage — included as standard." },
-  { q: "What if I need to cancel?", a: "Free cancellation up to 24 hours before pickup. Same-day cancellations may incur a small fee — full terms shown at booking." },
-  { q: "How do I pay?", a: "Pay securely online by card at booking, or set up a business account for monthly invoicing on corporate travel." },
+  { q: "What if I need to cancel?", a: "Tell us as early as you can and we'll cancel free of charge. Late cancellations or no-shows may be charged for the reserved driver time — see our booking & cancellation policy." },
+  { q: "How do I pay?", a: "Nothing is charged online. You choose a payment method when booking — card, bank transfer or a business account — and our team confirms availability and payment arrangements with you directly." },
+
   { q: "Do you cover the whole UK?", a: "Yes — Edinburgh, London (Heathrow, Gatwick, Stansted, Luton, City), Manchester, Glasgow, Birmingham and 120+ UK destinations." },
 ];
 
