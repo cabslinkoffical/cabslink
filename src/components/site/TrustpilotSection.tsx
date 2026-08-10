@@ -116,12 +116,32 @@ export function TrustpilotSection() {
           </div>
         </div>
 
-        {/* Latest reviews — a short row, not a review wall */}
-        <ul className="mx-auto mt-6 grid max-w-4xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {reviews.map((r) => (
-            <ReviewCard key={r.id} review={r} />
-          ))}
-        </ul>
+        {/* Latest Trustpilot reviews — scrolling columns, not a review wall */}
+        <div className="mt-10 flex justify-center gap-6 overflow-hidden [mask-image:linear-gradient(to_bottom,transparent,black_18%,black_82%,transparent)] max-h-[560px]">
+          <TestimonialsColumn testimonials={columns[0]} duration={17} />
+          <TestimonialsColumn testimonials={columns[1]} className="hidden md:block" duration={21} />
+          <TestimonialsColumn testimonials={columns[2]} className="hidden lg:block" duration={19} />
+        </div>
+
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+          <Link
+            to="/reviews"
+            className="inline-flex items-center gap-2 rounded-full bg-[var(--navy)] px-6 py-3 text-xs font-semibold text-white transition-opacity hover:opacity-90"
+          >
+            See the latest reviews
+            <ArrowUpRight className="h-3.5 w-3.5" />
+          </Link>
+          <a
+            href={t.profileUrl}
+            target="_blank"
+            rel="noopener noreferrer nofollow"
+            className="inline-flex items-center gap-2 rounded-full border border-[var(--navy)]/20 px-6 py-3 text-xs font-semibold text-[var(--navy)] transition-colors hover:border-[var(--gold)]"
+          >
+            Read all {t.reviewCount} reviews on Trustpilot
+            <ExternalLink className="h-3.5 w-3.5" />
+          </a>
+        </div>
+
 
         {/* Attribution + the caveat Trustpilot itself displays */}
         <div className="mx-auto mt-8 max-w-4xl rounded-2xl bg-[var(--navy)]/[0.03] p-5">
