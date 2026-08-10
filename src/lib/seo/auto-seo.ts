@@ -38,7 +38,15 @@ export function buildAutoHead(loaded: LoadedDestination | undefined | null): Hea
   const tpl = getTemplate(d.type);
   const quality = evaluateQuality(d);
   const title = tpl.titleTemplate(d);
-  const description = tpl.descriptionStem(d).slice(0, 160);
+  // Template stems can be as short as ~60 characters, which Google renders as a
+  // thin snippet. Top up with the standing service promise, then cap at 155.
+  const stem = tpl.descriptionStem(d).trim();
+  const description = (
+    stem.length >= 110
+      ? stem
+      : `${stem.replace(/\.$/, "")}. Fixed fares, flight tracking and 24/7 dispatch — quoted before you travel.`
+  ).slice(0, 155);
+
   const canonical = `${SITE_URL}${destinationHref(d)}`;
 
   const meta: Array<Record<string, string>> = [
