@@ -5,9 +5,9 @@ export const Route = createFileRoute("/cookies")({
   head: () => ({
     meta: [
       { title: "Cookie Policy — Cabslink" },
-      { name: "description", content: "How Cabslink uses cookies and similar technologies." },
+      { name: "description", content: "How Cabslink uses cookies and similar technologies, which categories we set, and how you can control or clear them in your browser." },
       { property: "og:title", content: "Cookie Policy — Cabslink" },
-      { property: "og:description", content: "How Cabslink uses cookies and similar technologies." },
+      { property: "og:description", content: "How Cabslink uses cookies and similar technologies, which categories we set, and how you can control or clear them in your browser." },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://cabslink.com/cookies" },
       { name: "twitter:card", content: "summary_large_image" },
