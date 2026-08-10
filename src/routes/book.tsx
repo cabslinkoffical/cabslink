@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { cloneElement, isValidElement, useEffect, useId, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { saveDraft, loadDraft, clearDraft } from "@/lib/booking-draft";
 import {
@@ -1743,12 +1743,17 @@ function PaymentStep({ value, onChange, grandTotal, onBack, onSubmit, submitting
 }
 
 function Field({ label, icon, children }: { label: string; icon?: React.ReactNode; children: React.ReactNode }) {
+  // Associate the visible label with its control so screen readers announce it.
+  const autoId = useId();
+  const control = isValidElement<{ id?: string }>(children)
+    ? cloneElement(children, { id: children.props.id ?? autoId })
+    : children;
   return (
     <div>
-      <Label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5 mb-1.5">
+      <Label htmlFor={autoId} className="text-xs font-medium text-muted-foreground flex items-center gap-1.5 mb-1.5">
         {icon}{label}
       </Label>
-      {children}
+      {control}
     </div>
   );
 }

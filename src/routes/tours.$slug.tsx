@@ -26,9 +26,12 @@ const tourDetailQuery = (slug: string) =>
   });
 
 export const Route = createFileRoute("/tours/$slug")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    enquire: search.enquire === true || search.enquire === "true" || search.enquire === "1" ? true : undefined,
-  }),
+  // Omit the key entirely when absent, otherwise every <Link to="/tours/$slug">
+  // in the app is forced to pass `search` explicitly.
+  validateSearch: (search: Record<string, unknown>): { enquire?: true } =>
+    search.enquire === true || search.enquire === "true" || search.enquire === "1"
+      ? { enquire: true }
+      : {},
   loader: ({ params, context }) => context.queryClient.ensureQueryData(tourDetailQuery(params.slug)),
 
   head: ({ loaderData }) => {

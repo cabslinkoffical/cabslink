@@ -1,4 +1,4 @@
-import { createFileRoute, useSearch } from "@tanstack/react-router";
+import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
 import { useSuspenseQuery, useMutation, useQueryClient, queryOptions, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { listBookings, updateBooking, softDeleteBooking, deleteBooking, listDrivers } from "@/lib/admin.functions";
@@ -28,7 +28,8 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/bookin
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
-  validateSearch: (s: Record<string, unknown>) => ({ tab: (s.tab as string) ?? "all" }),
+  validateSearch: (s: Record<string, unknown>): { tab?: string } =>
+    typeof s.tab === "string" && s.tab.length > 0 ? { tab: s.tab } : {},
   loader: ({ context }) => context.queryClient.ensureQueryData(opts),
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
   notFoundComponent: () => <div className="p-8">Not found</div>,
@@ -63,7 +64,7 @@ function matchTab(b: any, tab: string) {
 }
 
 function BookingsPage() {
-  const { tab } = useSearch({ from: "/_authenticated/cabs-booking-pannel/bookings" });
+  const { tab = "all" } = useSearch({ from: "/_authenticated/cabs-booking-pannel/bookings" });
   const { data: bookings } = useSuspenseQuery(opts);
   const { data: drivers = [] } = useQuery(driverOpts);
   const qc = useQueryClient();
@@ -121,7 +122,13 @@ function BookingsPage() {
         <TabsList className="w-full justify-start overflow-x-auto h-auto p-1">
           {TABS.map(t => (
             <TabsTrigger key={t.id} value={t.id} asChild>
-              <a href={`/admin/bookings?tab=${t.id}`} className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">{t.label}</a>
+              <Link
+                to="/cabs-booking-pannel/bookings"
+                search={{ tab: t.id }}
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
+                {t.label}
+              </Link>
             </TabsTrigger>
           ))}
         </TabsList>

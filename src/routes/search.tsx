@@ -8,9 +8,10 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 type Result = Awaited<ReturnType<typeof searchDestinations>>[number];
 
 export const Route = createFileRoute("/search")({
-  validateSearch: (s: Record<string, unknown>) => ({
-    q: typeof s.q === "string" ? s.q : "",
-  }),
+  // Only emit `q` when present — a default of "" made bare /search 307-redirect
+  // to /search?q= on every crawl.
+  validateSearch: (s: Record<string, unknown>): { q?: string } =>
+    typeof s.q === "string" && s.q.length > 0 ? { q: s.q } : {},
   head: ({ match }) => {
     const q = (match.search as { q?: string }).q ?? "";
     const title = q ? `Search: ${q} — CabsLink` : "Search — CabsLink";
@@ -26,7 +27,7 @@ export const Route = createFileRoute("/search")({
 });
 
 function SearchPage() {
-  const initial = Route.useSearch().q;
+  const initial = Route.useSearch().q ?? "";
   const [q, setQ] = useState(initial);
   const [results, setResults] = useState<Result[]>([]);
   const [loading, setLoading] = useState(false);
