@@ -20,6 +20,7 @@ import { ArrowUpRight, ExternalLink, Clock, Video, MessageSquareQuote, Star } fr
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { ReviewCard } from "@/components/site/ReviewCard";
 import { TrustpilotStars, TrustpilotWordmark } from "@/components/site/TrustpilotMark";
+import { organizationSchema } from "@/components/seo/schema";
 import { TRUSTPILOT, trustpilotVerifiedOnLabel } from "@/lib/trustpilot";
 import {
   REVIEW_CHANNELS,
