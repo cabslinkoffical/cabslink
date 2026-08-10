@@ -20,14 +20,26 @@ import { motion } from "motion/react";
 import { Link } from "@tanstack/react-router";
 import { ArrowUpRight, ExternalLink } from "lucide-react";
 import { TRUSTPILOT, trustpilotVerifiedOnLabel } from "@/lib/trustpilot";
-import { latestReviews } from "@/lib/reviews";
+import { latestReviews, reviewChannel } from "@/lib/reviews";
 import { TrustpilotStars, TrustpilotWordmark } from "./TrustpilotMark";
-import { ReviewCard } from "./ReviewCard";
+import { TestimonialsColumn, type TestimonialColumnItem } from "@/components/ui/testimonials-columns-1";
 
 export function TrustpilotSection() {
   const t = TRUSTPILOT;
   const verified = trustpilotVerifiedOnLabel(t);
-  const reviews = latestReviews(4);
+  const reviews = latestReviews(6);
+
+  // Newest-first reviews, dealt round-robin into three scrolling columns so the
+  // most recent entries are visible in every column set.
+  const items: TestimonialColumnItem[] = reviews.map((r) => ({
+    text: r.excerpt ? `\u201C${r.excerpt}\u201D` : r.topic,
+    name: r.author,
+    role: `${reviewChannel(r.channel).name} \u00B7 ${r.dateLabel}`,
+    href: r.url,
+    meta: <TrustpilotStars rating={r.stars} size="sm" />,
+  }));
+  const columns: TestimonialColumnItem[][] = [[], [], []];
+  items.forEach((item, i) => columns[i % 3]!.push(item));
 
   return (
     <section className="section-y bg-white" aria-labelledby="trustpilot-heading">
@@ -109,7 +121,7 @@ export function TrustpilotSection() {
                 to="/reviews"
                 className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--navy)] underline decoration-[var(--gold)] decoration-2 underline-offset-4 hover:text-[var(--gold-ink)]"
               >
-                All reviews on Cabslink
+                Latest reviews on Cabslink
                 <ArrowUpRight className="h-3.5 w-3.5" />
               </Link>
             </div>
