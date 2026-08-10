@@ -840,27 +840,8 @@ function HomePage() {
         </div>
       </section>
 
-      {/* CLOSING CTA */}
-      <section className="bg-[var(--navy)] border-t border-white/10">
-        <div className="container-x py-14 md:py-20 text-center">
-          <p className="eyebrow-gold text-[11px]">— Ready when you are</p>
-          <h2 className="mx-auto mt-4 max-w-3xl font-display text-3xl md:text-5xl font-bold leading-[1.05] tracking-[-0.02em] text-white">
-            Get a fixed fare for your <span className="text-[var(--gold)]">next journey.</span>
-          </h2>
-          <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-white/70">
-            Airport transfers, private day tours and hourly hire across the UK — quoted upfront,
-            confirmed by our team, driven by vetted local drivers.
-          </p>
-          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Button asChild size="lg" className="rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] hover:brightness-110">
-              <Link to="/book">Book a transfer <ArrowRight className="size-4" /></Link>
-            </Button>
-            <Button asChild size="lg" variant="outline" className="rounded-full border-white/25 bg-transparent text-white hover:border-[var(--gold)] hover:text-[var(--gold)]">
-              <Link to="/tours">Browse private tours</Link>
-            </Button>
-          </div>
-        </div>
-      </section>
+      {/* Closing CTA is rendered by SiteLayout (FinalCta) */}
+
 
 
 
