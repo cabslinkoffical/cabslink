@@ -273,7 +273,7 @@ export const SERVICE_PILLARS: Record<string, PillarContent> = {
     subtitle:
       "Door-to-ship travel to Greenock, Rosyth, Leith, Invergordon and Southampton, timed around your boarding window.",
     breadcrumbLabel: "Cruise Transfers",
-    metaTitle: "Cruise Port Transfers Scotland — Greenock & Rosyth | Cabslink",
+    metaTitle: "Cruise Port Transfers — Greenock & Rosyth | Cabslink",
     metaDescription:
       "Private cruise transfers to Scottish and UK ports. Greenock, Rosyth, Leith, Invergordon and Southampton with cruise-luggage space and boarding-time planning.",
     image: airportImg.url,
