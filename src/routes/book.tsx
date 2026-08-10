@@ -167,7 +167,7 @@ const contactSchema = z.object({
 
 function BookPage() {
   const { q } = Route.useSearch();
-  const pre = readPrefill(q);
+  const pre = readPrefill(q ?? "");
   const navigate = useNavigate({ from: "/book" });
   const [step, setStep] = useState<Step>("vehicle");
   const [chosen, setChosen] = useState<QuoteCard | null>(null);
