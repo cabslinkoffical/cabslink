@@ -93,7 +93,20 @@ describe("email adapter — not-configured state", () => {
   beforeEach(() => _setEmailAdapterForTests(null));
 
   it("default adapter reports not configured and never claims success", async () => {
+    // Simulate a deployment with no provider credentials present.
+    const saved = {
+      provider: process.env["EMAIL_PROVIDER"],
+      key: process.env["RESEND_API_KEY"],
+      from: process.env["EMAIL_FROM_ADDRESS"],
+    };
+    delete process.env["EMAIL_PROVIDER"];
+    delete process.env["RESEND_API_KEY"];
+    delete process.env["EMAIL_FROM_ADDRESS"];
+    _setEmailAdapterForTests(null);
     const a = getEmailAdapter();
+    if (saved.provider !== undefined) process.env["EMAIL_PROVIDER"] = saved.provider;
+    if (saved.key !== undefined) process.env["RESEND_API_KEY"] = saved.key;
+    if (saved.from !== undefined) process.env["EMAIL_FROM_ADDRESS"] = saved.from;
     expect(a.configured).toBe(false);
     const res = await a.send({ to: "x@example.com", subject: "s", html: "<p>h</p>", text: "t" });
     expect(res.ok).toBe(false);
