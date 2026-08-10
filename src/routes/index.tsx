@@ -560,7 +560,8 @@ function HomePage() {
 
       {/* POPULAR TOURS */}
       {popularTours.length > 0 && (
-      <section className="section-y bg-[var(--surface-2)]">
+      <section className="section-y bg-white">
+
         <div className="container-x">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
             <div className="max-w-2xl">
