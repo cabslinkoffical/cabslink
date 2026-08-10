@@ -3,7 +3,7 @@ import { Crown, Sparkles, ShieldCheck, Briefcase } from "lucide-react";
 import { SportsServicePage, sportsFaqSchema, type SportsServiceContent } from "@/components/site/SportsServicePage";
 import vipImg from "@/assets/services/vip.jpg.asset.json";
 
-const TITLE = "VIP Sports Hospitality Travel — Corporate Event Cars | Cabslink";
+const TITLE = "VIP Sports Hospitality Travel — Event Cars | Cabslink";
 const DESC =
   "VIP sports hospitality travel across the UK. Executive vehicles and discreet drivers for corporate guests at The Open, Six Nations, race days and cup finals.";
 const URL = "https://cabslink.com/vip-sports-hospitality";

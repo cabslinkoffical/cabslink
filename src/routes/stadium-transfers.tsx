@@ -3,7 +3,7 @@ import { Car, MapPin, Clock, Users } from "lucide-react";
 import { SportsServicePage, sportsFaqSchema, type SportsServiceContent } from "@/components/site/SportsServicePage";
 import eventsImg from "@/assets/services/events.jpg.asset.json";
 
-const TITLE = "Stadium Transfers — Hampden, Murrayfield & UK Grounds | Cabslink";
+const TITLE = "Stadium Transfers — Hampden & Murrayfield | Cabslink";
 const DESC =
   "Private stadium transfers to Hampden, Murrayfield and grounds across the UK. Pre-agreed drop-off points, fixed pricing and drivers waiting after full time.";
 const URL = "https://cabslink.com/stadium-transfers";
