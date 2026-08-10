@@ -6,6 +6,8 @@ import type { Destination, DestinationType } from "@/lib/destinations.functions"
 import { destinationHref } from "@/lib/destinations.functions";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { FaqSection, LongFormSections } from "@/components/site/ContentSections";
+import { HUB_CONTENT } from "@/lib/hub-content";
 
 export function HubPage({
   title,
@@ -13,6 +15,7 @@ export function HubPage({
   longIntro,
   notes,
   destinations,
+  contentKey,
 }: {
   title: string;
   intro: string;
@@ -20,7 +23,10 @@ export function HubPage({
   notes?: { title: string; body: string }[];
   destinations: Destination[];
   type?: DestinationType;
+  /** Key into HUB_CONTENT for the long-form prose + FAQ blocks. */
+  contentKey?: string;
 }) {
+  const content = contentKey ? HUB_CONTENT[contentKey] : undefined;
   const grouped = new Map<string, Destination[]>();
   for (const d of destinations) {
     const key = d.region ?? "United Kingdom";
@@ -98,6 +104,12 @@ export function HubPage({
         </div>
       )}
     </div>
+      {content && (
+        <>
+          <LongFormSections sections={content.sections} heading={`About ${title.toLowerCase()}`} />
+          <FaqSection faqs={content.faqs} />
+        </>
+      )}
     </SiteLayout>
   );
 }
