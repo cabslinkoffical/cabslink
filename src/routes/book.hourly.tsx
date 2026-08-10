@@ -46,7 +46,7 @@ const uuid = () =>
         return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
       });
 
-function parsePrefill(q: string) {
+function parsePrefill(q: string | undefined) {
   const p = new URLSearchParams(q || "");
   const today = new Date().toISOString().slice(0, 10);
   const pickupPlaceId = p.get("pickupPlaceId") || "";
