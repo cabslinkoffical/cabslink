@@ -63,7 +63,7 @@ export const Route = createFileRoute("/about")({
           ],
           address: { "@type": "PostalAddress", addressRegion: "Scotland", addressCountry: "GB" },
           knowsAbout: [
-            "Airport transfers", "Executive chauffeur", "Corporate travel",
+            "Airport transfers", "Executive travel", "Corporate travel",
             "Cruise transfers", "University transfers", "Hospital transfers",
             "Group transport", "Wedding transport", "Distillery tours",
           ],
