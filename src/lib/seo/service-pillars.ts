@@ -62,7 +62,7 @@ export const SERVICE_PILLARS: Record<string, PillarContent> = {
     subtitle:
       "Premium saloons and MPVs for business travel, client collections and any journey where comfort, quiet and punctuality are non-negotiable.",
     breadcrumbLabel: "Executive Transfers",
-    metaTitle: "Executive Transfers Scotland — Premium Business Travel | Cabslink",
+    metaTitle: "Executive Transfers Scotland — Business Travel | Cabslink",
     metaDescription:
       "Executive car transfers across Scotland and the UK. Mercedes E-Class and V-Class vehicles, professional drivers, flight tracking and account billing.",
     image: corporateImg.url,
@@ -228,7 +228,7 @@ export const SERVICE_PILLARS: Record<string, PillarContent> = {
     subtitle:
       "Conferences, weddings, sports clubs and school groups moved in one comfortable coach with luggage holds and a professional driver.",
     breadcrumbLabel: "Coach Hire",
-    metaTitle: "Coach Hire Scotland — 25 to 55 Seat Coaches With Driver | Cabslink",
+    metaTitle: "Coach Hire Scotland — 25 to 55 Seats With Driver | Cabslink",
     metaDescription:
       "Coach hire with driver across Scotland and the UK. 25, 35 and 55-seat coaches for conferences, weddings, sports and school groups. Fixed quotes.",
     image: eventsImg.url,
@@ -273,7 +273,7 @@ export const SERVICE_PILLARS: Record<string, PillarContent> = {
     subtitle:
       "Door-to-ship travel to Greenock, Rosyth, Leith, Invergordon and Southampton, timed around your boarding window.",
     breadcrumbLabel: "Cruise Transfers",
-    metaTitle: "Cruise Port Transfers Scotland — Greenock, Rosyth, Leith | Cabslink",
+    metaTitle: "Cruise Port Transfers Scotland — Greenock & Rosyth | Cabslink",
     metaDescription:
       "Private cruise transfers to Scottish and UK ports. Greenock, Rosyth, Leith, Invergordon and Southampton with cruise-luggage space and boarding-time planning.",
     image: airportImg.url,
@@ -363,7 +363,7 @@ export const SERVICE_PILLARS: Record<string, PillarContent> = {
     subtitle:
       "Non-emergency, pre-booked travel to clinics and hospitals across Scotland, with patient drivers and door-to-door assistance.",
     breadcrumbLabel: "Hospital Transfers",
-    metaTitle: "Hospital Transfers Scotland — Appointment & Discharge Travel | Cabslink",
+    metaTitle: "Hospital Transfers Scotland — Appointment Travel | Cabslink",
     metaDescription:
       "Non-emergency hospital transfers across Scotland. Pre-booked appointment and discharge travel with patient drivers, door assistance and fixed prices.",
     image: stationImg.url,
@@ -415,7 +415,7 @@ export const SERVICE_PILLARS: Record<string, PillarContent> = {
     subtitle:
       "Bridal cars, guest shuttles and end-of-night runs, timed to a written schedule so nobody is waiting outside a church.",
     breadcrumbLabel: "Wedding Transport",
-    metaTitle: "Wedding Transport Scotland — Bridal Cars & Guest Shuttles | Cabslink",
+    metaTitle: "Wedding Transport Scotland — Bridal Cars | Cabslink",
     metaDescription:
       "Wedding transport across Scotland. Bridal cars, guest minibus shuttles and late-night returns on a written schedule with a dedicated coordinator.",
     image: vipImg.url,
@@ -460,7 +460,7 @@ export const SERVICE_PILLARS: Record<string, PillarContent> = {
     subtitle:
       "Multi-vehicle scheduled movement around a dated event — delegates, artists, crew and VIP guests, all landed on time.",
     breadcrumbLabel: "Event Transport",
-    metaTitle: "Event Transport Scotland — Conference & Festival Travel | Cabslink",
+    metaTitle: "Event Transport Scotland — Conference Travel | Cabslink",
     metaDescription:
       "Event transport across Scotland. Delegate shuttles, artist and crew runs and VIP arrivals with scheduled multi-vehicle planning and one point of contact.",
     image: eventsImg.url,

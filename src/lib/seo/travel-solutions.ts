@@ -32,7 +32,7 @@ export const TRAVEL_SOLUTIONS: Record<string, SolutionContent> = {
     breadcrumbLabel: "Business travel",
     hubTitle: "Business travel",
     hubBlurb: "Account billing, priority dispatch and client-ready vehicles for teams.",
-    metaTitle: "Business Travel Scotland — Account Transfers & Executive Cars | Cabslink",
+    metaTitle: "Business Travel Scotland — Account Transfers | Cabslink",
     metaDescription:
       "Business travel across Scotland and the UK: account billing, executive vehicles, airport meet & greet and priority dispatch for teams and visiting clients.",
     image: corporateImg.url,
@@ -91,7 +91,7 @@ export const TRAVEL_SOLUTIONS: Record<string, SolutionContent> = {
     breadcrumbLabel: "Student travel",
     hubTitle: "Student travel",
     hubBlurb: "Airport-to-campus runs with luggage space and prepaid fixed fares.",
-    metaTitle: "Student Airport Transfers Scotland — Campus Travel | Cabslink",
+    metaTitle: "Student Airport Transfers — Campus Travel | Cabslink",
     metaDescription:
       "Student travel across Scotland: airport-to-campus transfers, term-start moves and end-of-term journeys with luggage space and fixed prepaid fares.",
     image: stationImg.url,
@@ -150,7 +150,7 @@ export const TRAVEL_SOLUTIONS: Record<string, SolutionContent> = {
     breadcrumbLabel: "Family travel",
     hubTitle: "Family travel",
     hubBlurb: "Child seats, pram space and door-to-door holiday airport runs.",
-    metaTitle: "Family Airport Transfers Scotland — Child Seats & MPVs | Cabslink",
+    metaTitle: "Family Airport Transfers — Child Seats & MPVs | Cabslink",
     metaDescription:
       "Family travel across Scotland: airport transfers with child and booster seats, MPV space for prams and cases, and fixed door-to-door prices.",
     image: airportImg.url,
@@ -209,7 +209,7 @@ export const TRAVEL_SOLUTIONS: Record<string, SolutionContent> = {
     breadcrumbLabel: "Group travel",
     hubTitle: "Group travel",
     hubBlurb: "8 to 55 seats with drivers, coordinated as one movement.",
-    metaTitle: "Group Travel Scotland — Minibus & Coach Hire With Driver | Cabslink",
+    metaTitle: "Group Travel Scotland — Minibus & Coach Hire | Cabslink",
     metaDescription:
       "Group travel across Scotland: minibus, coaster and coach hire with professional drivers for 8 to 55 passengers, quoted as one fixed price.",
     image: toursImg.url,
@@ -268,7 +268,7 @@ export const TRAVEL_SOLUTIONS: Record<string, SolutionContent> = {
     breadcrumbLabel: "Event travel",
     hubTitle: "Event travel",
     hubBlurb: "Weddings, sport and conferences with scheduled shuttles.",
-    metaTitle: "Event Transport Scotland — Wedding, Sport & Concert Travel | Cabslink",
+    metaTitle: "Event Travel Scotland — Wedding & Concert Cars | Cabslink",
     metaDescription:
       "Event travel across Scotland: wedding cars, guest shuttles, stadium and concert transfers and conference transport scheduled around closures and crowds.",
     image: eventsImg.url,

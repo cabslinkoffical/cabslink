@@ -276,7 +276,7 @@ const SERVICE_ANGLES: Record<string, ServiceAngle> = {
     h1: (n) => `Executive transfers in ${n}.`,
     subtitle: (n) =>
       `Premium saloons and MPVs with a professional driver for meetings, client collections and airport runs across ${n}.`,
-    metaTitle: (n) => `Executive Transfers ${n} — Premium Cars & Drivers | Cabslink`,
+    metaTitle: (n) => `Executive Transfers ${n} — Premium Cars | Cabslink`,
     metaDescription: (n) =>
       `Executive car transfers in ${n}. Mercedes-class vehicles, professional drivers, flight tracking and account billing for business travel.`,
     intro: (n) =>
