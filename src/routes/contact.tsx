@@ -5,6 +5,7 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { Mail, Phone, MapPin, Clock, ArrowRight } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { TrustpilotStrip } from "@/components/site/TrustpilotStrip";
 import { PageHero } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -126,10 +127,12 @@ function ContactPage() {
               <Button type="submit" variant="gold" disabled={loading} className="rounded-full">
                 {loading ? "Sending…" : <>Send message <ArrowRight className="size-4" /></>}
               </Button>
+              <TrustpilotStrip className="mt-2" />
             </div>
           </form>
         </div>
       </section>
+
     </SiteLayout>
   );
 }
