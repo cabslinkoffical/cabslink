@@ -34,7 +34,7 @@ export const TRAVEL_SOLUTIONS: Record<string, SolutionContent> = {
     hubBlurb: "Account billing, priority dispatch and client-ready vehicles for teams.",
     metaTitle: "Business Travel Scotland — Account Transfers | Cabslink",
     metaDescription:
-      "Business travel across Scotland and the UK: account billing, executive vehicles, airport meet & greet and priority dispatch for teams and visiting clients.",
+      "Business travel across the UK: account billing, executive vehicles, airport meet & greet and priority dispatch for visiting clients.",
     image: corporateImg.url,
     imageAlt: "Executive saloon collecting a business traveller outside a city office",
     intro: {
