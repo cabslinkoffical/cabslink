@@ -34,7 +34,11 @@ import { VehicleAllocationNotice } from "@/components/site/VehicleAllocationNoti
 import { fleetImageFor } from "@/assets/fleet";
 
 export const Route = createFileRoute("/book")({
-  validateSearch: (search: Record<string, unknown>) => ({ q: typeof search.q === "string" ? search.q : "" }),
+  // Return `q` only when it is actually present. Defaulting it to "" made the
+  // router rewrite bare `/book` to `/book?q=`, so every crawl of the linked and
+  // sitemapped `/book` URL answered 307 instead of 200.
+  validateSearch: (search: Record<string, unknown>): { q?: string } =>
+    typeof search.q === "string" && search.q.length > 0 ? { q: search.q } : {},
   head: () => ({
     meta: [
       { title: "Book Now — Cabslink UK Airport Transfer & Driver" },

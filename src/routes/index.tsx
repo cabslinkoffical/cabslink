@@ -11,7 +11,7 @@ import {
 
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { BookingWidget } from "@/components/site/BookingWidget";
-import { TestimonialsSection } from "@/components/site/TestimonialsSection";
+import { TrustpilotSection } from "@/components/site/TrustpilotSection";
 import { DrivingCarBadge } from "@/components/site/DrivingCarBadge";
 
 import { Button } from "@/components/ui/button";
@@ -628,8 +628,9 @@ function HomePage() {
         </div>
       </section>
 
-      {/* REVIEWS */}
-      <TestimonialsSection />
+      {/* REVIEWS — verified Trustpilot proof only */}
+      <TrustpilotSection />
+
 
 
       {/* UK COVERAGE */}
