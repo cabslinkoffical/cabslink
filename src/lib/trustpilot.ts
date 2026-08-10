@@ -88,7 +88,7 @@ export const TRUSTPILOT: TrustpilotSnapshot = {
       date: "13 March 2026",
       dateIso: "2026-03-13",
       topic: "Response & issue resolution",
-      excerpt: "Great experience! Able to sort any issues really quick and rapid response time!",
+      excerpt: "Great experience! Able to sort any issues really quick and rapid response time! Highly recommend.",
     },
     {
       author: "Emanuele Vitale",
@@ -96,7 +96,7 @@ export const TRUSTPILOT: TrustpilotSnapshot = {
       date: "26 September 2025",
       dateIso: "2025-09-26",
       topic: "Airport pickup",
-      excerpt: "We arrived without any internet connection but he manage to find us anyway.",
+      excerpt: "Khaver was great, really. We arrived without any internet connection but he manage to find us anyway.",
     },
     {
       author: "Glen Snedden",
@@ -120,7 +120,7 @@ export const TRUSTPILOT: TrustpilotSnapshot = {
       date: "1 September 2024",
       dateIso: "2024-09-01",
       topic: "Punctuality & comfort",
-      excerpt: "Everything on time. Driver very friendly and helpful",
+      excerpt: "Everything on time. Driver very friendly and helpful Car was very high standard; clean and comfortable.",
     },
   ],
   noRecentInviteHistory: true,
