@@ -30,6 +30,12 @@ export type TrustpilotReview = {
   /** Month and year as displayed on the profile, e.g. "March 2026". */
   date: string;
   /**
+   * The same month as an ISO date (first of the month — Trustpilot only shows
+   * month precision on the profile). Used ONLY for sorting newest-first; never
+   * displayed, because it would imply a day we cannot see.
+   */
+  dateIso: string;
+  /**
    * Short topic label describing what the review covers. This is neutral
    * descriptive metadata for the card — NOT a paraphrase or a claim, and never
    * presented as the reviewer's words.
