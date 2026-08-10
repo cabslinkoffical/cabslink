@@ -36,7 +36,15 @@ const routes: Route[] = routeFiles.map((file) => {
 const EXEMPT = (rel: string) =>
   rel.startsWith("_authenticated") || rel.startsWith("auth.") || rel === "auth.tsx" || rel.startsWith("api");
 
-const contentRoutes = routes.filter((r) => !EXEMPT(r.rel));
+/**
+ * Pathless/parent layout routes only mount children via <Outlet /> and own no
+ * URL of their own, so they are not metadata surfaces (e.g. `book.tsx`, whose
+ * page lives in `book.index.tsx`).
+ */
+const IS_LAYOUT_ONLY = (src: string) =>
+  /component:\s*\(\)\s*=>\s*<Outlet\s*\/>/.test(src) && !/\bhead\s*:\s*\(/.test(src);
+
+const contentRoutes = routes.filter((r) => !EXEMPT(r.rel) && !IS_LAYOUT_ONLY(r.src));
 
 function extractMeta(src: string, key: string, kind: "name" | "property") {
   const re = new RegExp(`\\{\\s*${kind}:\\s*["']${key}["']\\s*,\\s*content:\\s*["\`]([^"\`]*)["\`]`, "g");
