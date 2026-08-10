@@ -33,7 +33,7 @@ import {
 
 const TITLE = "Cabslink Reviews — Ratings, Written Reviews & Video Feedback";
 const DESCRIPTION =
-  "Every Cabslink review in one place: our independent Trustpilot rating, written reviews from real journeys, and the channels where you can review us next.";
+  "Cabslink reviews: our independent Trustpilot rating, a selection of the latest written reviews, and every channel where you can review us next.";
 const URL = "https://cabslink.com/reviews";
 
 export const Route = createFileRoute("/reviews")({
@@ -97,7 +97,7 @@ function ReviewsPage() {
               </span>
             </div>
             <h1 className="mt-6 font-display text-4xl font-bold leading-[1.05] text-white md:text-6xl">
-              What our passengers say — <span className="text-[var(--gold)]">in their own words.</span>
+              Cabslink reviews — <span className="text-[var(--gold)]">on platforms we do not control.</span>
             </h1>
             <p className="mt-5 max-w-2xl text-sm leading-relaxed text-white/70 md:text-base">
               We would rather point you at reviews we do not control than write our own. Our rating
@@ -165,11 +165,12 @@ function ReviewsPage() {
               id="written-reviews-heading"
               className="font-display text-3xl font-bold text-[var(--navy)] md:text-4xl"
             >
-              Written reviews
+              Latest Trustpilot reviews
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-[var(--navy)]/60">
-              Newest first, across every live review channel. Each card links back to the platform
-              hosting it so you can read the review in full and check it is genuine.
+              A selection of {totals.shownOnPage} of the {t.reviewCount} reviews published on
+              Cabslink’s independent Trustpilot profile, newest first. Each card links to the
+              profile so you can read it in full — the complete set stays on Trustpilot.
             </p>
           </div>
 
@@ -190,7 +191,8 @@ function ReviewsPage() {
               <ExternalLink className="h-3.5 w-3.5" />
             </a>
             <p className="text-xs text-[var(--navy)]/50">
-              We show a selection here; Trustpilot holds the complete, unedited set.
+              We show {totals.shownOnPage} here; Trustpilot holds the complete, unedited set of
+              {" "}{t.reviewCount}.
             </p>
           </div>
         </div>

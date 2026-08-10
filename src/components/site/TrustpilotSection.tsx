@@ -64,8 +64,8 @@ export function TrustpilotSection() {
             Rated <span className="text-[var(--gold-ink)]">{t.ratingLabel}</span> on Trustpilot.
           </h2>
           <p className="mt-4 text-sm leading-relaxed text-[var(--navy)]/60 md:text-base">
-            Our reviews sit on Trustpilot, not on this page — so you can read them in full, unedited,
-            wherever they land.
+            A selection of the latest reviews published on Cabslink’s independent Trustpilot profile.
+            The complete set of {t.reviewCount} stays on Trustpilot, unedited.
           </p>
         </motion.div>
 
@@ -130,9 +130,9 @@ export function TrustpilotSection() {
 
         {/* Latest Trustpilot reviews — scrolling columns, not a review wall */}
         <div className="mt-10 flex justify-center gap-6 overflow-hidden [mask-image:linear-gradient(to_bottom,transparent,black_18%,black_82%,transparent)] max-h-[560px]">
-          <TestimonialsColumn testimonials={columns[0]} duration={17} />
-          <TestimonialsColumn testimonials={columns[1]} className="hidden md:block" duration={21} />
-          <TestimonialsColumn testimonials={columns[2]} className="hidden lg:block" duration={19} />
+          <TestimonialsColumn testimonials={columns[0]!} duration={17} />
+          <TestimonialsColumn testimonials={columns[1]!} className="hidden md:block" duration={21} />
+          <TestimonialsColumn testimonials={columns[2]!} className="hidden lg:block" duration={19} />
         </div>
 
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
