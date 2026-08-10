@@ -11,6 +11,13 @@ import { PUBLIC_ROUTES } from "@/lib/sitemap-routes";
 
 const BASE_URL = "https://cabslink.com";
 
+/** URL prefixes served by the per-destination-type sub-sitemaps. */
+const DESTINATION_OWNED_PREFIXES = [
+  "/areas/", "/airports/", "/stations/", "/cruise-ports/", "/universities/",
+  "/hospitals/", "/corporate/", "/attractions/", "/distilleries/", "/guides/",
+];
+
+
 export const Route = createFileRoute("/sitemap-core.xml")({
   server: {
     handlers: {
@@ -23,8 +30,13 @@ export const Route = createFileRoute("/sitemap-core.xml")({
         let seoPaths: string[] = [];
         try {
           const rows = await listPublishedSeoPaths();
-          seoPaths = rows.map((r: { path: string }) => r.path);
+          // Destination-backed URLs are advertised by the per-type
+          // sub-sitemaps; listing them here too would duplicate entries.
+          seoPaths = rows
+            .map((r: { path: string }) => r.path)
+            .filter((p) => !DESTINATION_OWNED_PREFIXES.some((pre) => p.startsWith(pre)));
         } catch { seoPaths = []; }
+
         let blogPaths: string[] = [];
         try { blogPaths = await listPublishedBlogPathsImpl(); } catch { blogPaths = []; }
         const paths = [...PUBLIC_ROUTES, ...tourPaths, ...seoPaths, ...blogPaths];

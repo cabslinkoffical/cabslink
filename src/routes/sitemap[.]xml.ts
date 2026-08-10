@@ -2,7 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
-import { DESTINATION_TYPES, type DestinationType } from "@/lib/destinations.functions";
+import { DESTINATION_TYPES, type Destination, type DestinationType } from "@/lib/destinations.functions";
+import { evaluateQuality } from "@/lib/seo/quality";
+
 import { PUBLIC_ROUTES } from "@/lib/sitemap-routes";
 
 const BASE_URL = "https://cabslink.com";
@@ -38,16 +40,23 @@ export const Route = createFileRoute("/sitemap.xml")({
           const sb = serverPublicClient();
           const { data } = await sb
             .from("destinations")
-            .select("type")
+            .select("*")
             .eq("active", true)
-            .lte("seo_tier", 2)
+            .eq("seo_tier", 1)
             .eq("noindex", false)
             .limit(50000);
-          const present = new Set((data ?? []).map((r) => r.type as DestinationType));
+          // Mirror the renderer's quality gate so we never advertise a
+          // sub-sitemap whose pages all render `noindex`.
+          const present = new Set(
+            (data ?? [])
+              .filter((r) => !evaluateQuality(r as unknown as Destination).effectiveNoindex)
+              .map((r) => r.type as DestinationType),
+          );
           types = DESTINATION_TYPES.filter((t) => present.has(t));
         } catch {
           types = [];
         }
+
 
         const indexXml = [
           `<?xml version="1.0" encoding="UTF-8"?>`,

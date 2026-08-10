@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 
 import {
-  ArrowRight, Plane, ShieldCheck, Star, CalendarCheck, Phone,
+  ArrowRight, Plane, ShieldCheck, CalendarCheck, Phone,
   Briefcase, Users, Award, BadgePoundSterling, Headset, Car, Building2, Gem,
   Route as RouteIcon, CheckCircle2, Sparkles, MessageSquare, CreditCard, Quote,
   Plus, Minus, MapPin, Clock, Globe2, Compass, Wallet, Timer, Mail, BadgeCheck, PlaneTakeoff
@@ -98,12 +98,8 @@ const trustStats = [
 ];
 
 
-const popularRoutes = [
-  { from: "London Heathrow", to: "Central London", distance: "24 mi", duration: "45 min", price: "£65", img: eclassAsset.url },
-  { from: "Manchester Airport", to: "Liverpool", distance: "36 mi", duration: "55 min", price: "£95", img: sclassAsset.url },
-  { from: "Edinburgh", to: "Fort William", distance: "133 mi", duration: "3 h", price: "£340", img: vclassAsset.url },
-  { from: "Gatwick", to: "Brighton", distance: "28 mi", duration: "40 min", price: "£75", img: rangeroverAsset.url },
-];
+
+
 
 const services = [
   { icon: Plane, title: "Airport Transfers", desc: "Fixed-fare pickups from every UK airport with live flight tracking.", to: "/airport-transfers" },
@@ -128,14 +124,9 @@ const features = [
   { icon: Gem, title: "Executive Fleet", desc: "Immaculate Mercedes and luxury SUV vehicles." },
   { icon: Headset, title: "24/7 Support", desc: "Live dispatch every day of the year." },
   { icon: CreditCard, title: "Secure Booking", desc: "Encrypted payments and instant confirmation." },
-  { icon: Award, title: "Professional Service", desc: "The calm, consistent standard trusted by thousands." },
+  { icon: Award, title: "Professional Service", desc: "A calm, consistent standard on every single journey." },
 ];
 
-const fleet = [
-  { name: "Mercedes-Benz S-Class", note: "Signature", img: sclassAsset.url, srcSet: sclassAsset.srcSet, passengers: 3, luggage: 3, from: "£95", best: "Executive travel" },
-  { name: "Mercedes-Benz E-Class", note: "Executive", img: eclassAsset.url, srcSet: eclassAsset.srcSet, passengers: 3, luggage: 3, from: "£65", best: "Airport transfers" },
-  { name: "Mercedes-Benz V-Class", note: "First class", img: vclassAsset.url, srcSet: vclassAsset.srcSet, passengers: 7, luggage: 7, from: "£120", best: "Families & small groups" },
-];
 
 const ukAirports = [
   { code: "LHR", name: "Heathrow", city: "London" },
@@ -599,15 +590,15 @@ function HomePage() {
             <div className="sm:col-span-2 lg:row-span-2 rounded-[28px] bg-[var(--navy)] text-white p-7 md:p-8 shadow-dark-raised flex flex-col justify-between relative overflow-hidden group">
               <div aria-hidden className="absolute -right-10 -top-10 w-48 h-48 rounded-full bg-[var(--gold)]/10 blur-3xl group-hover:bg-[var(--gold)]/15 transition-colors duration-700" />
               <div className="relative">
-                <div className="flex items-center gap-1 text-[var(--gold)]">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="size-5 fill-current" />
-                  ))}
+                <div className="flex items-center gap-2 text-[var(--gold)]">
+                  <ShieldCheck className="size-5" />
+                  <span className="text-xs font-semibold uppercase tracking-[0.18em]">Licensed &amp; insured</span>
                 </div>
-                <p className="mt-5 font-display text-3xl md:text-4xl font-semibold leading-tight">Rated 4.9 / 5 by travellers</p>
+                <p className="mt-5 font-display text-3xl md:text-4xl font-semibold leading-tight">Fixed quotes, vetted UK drivers</p>
                 <p className="mt-3 text-sm leading-relaxed text-white/70 max-w-sm">
-                  Thousands of airport transfers completed across the UK — on time, every time.
+                  Every journey is quoted up front, driven by a licensed private-hire driver and monitored against your flight.
                 </p>
+
               </div>
               <div className="relative mt-8">
                 <Button asChild variant="gold" className="rounded-lg">
