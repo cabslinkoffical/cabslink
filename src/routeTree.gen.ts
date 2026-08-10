@@ -20,6 +20,7 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SitemapCoreDotxmlRouteImport } from './routes/sitemap-core[.]xml'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as SearchRouteImport } from './routes/search'
+import { Route as ReviewsRouteImport } from './routes/reviews'
 import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as MinibusHireRouteImport } from './routes/minibus-hire'
@@ -182,6 +183,11 @@ const ServicesRoute = ServicesRouteImport.update({
 const SearchRoute = SearchRouteImport.update({
   id: '/search',
   path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReviewsRoute = ReviewsRouteImport.update({
+  id: '/reviews',
+  path: '/reviews',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RefundPolicyRoute = RefundPolicyRouteImport.update({
@@ -791,6 +797,7 @@ export interface FileRoutesByFullPath {
   '/minibus-hire': typeof MinibusHireRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
+  '/reviews': typeof ReviewsRoute
   '/search': typeof SearchRoute
   '/services': typeof ServicesRoute
   '/sitemap-core.xml': typeof SitemapCoreDotxmlRoute
@@ -911,6 +918,7 @@ export interface FileRoutesByTo {
   '/minibus-hire': typeof MinibusHireRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
+  '/reviews': typeof ReviewsRoute
   '/search': typeof SearchRoute
   '/services': typeof ServicesRoute
   '/sitemap-core.xml': typeof SitemapCoreDotxmlRoute
@@ -1032,6 +1040,7 @@ export interface FileRoutesById {
   '/minibus-hire': typeof MinibusHireRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
+  '/reviews': typeof ReviewsRoute
   '/search': typeof SearchRoute
   '/services': typeof ServicesRoute
   '/sitemap-core.xml': typeof SitemapCoreDotxmlRoute
@@ -1154,6 +1163,7 @@ export interface FileRouteTypes {
     | '/minibus-hire'
     | '/privacy'
     | '/refund-policy'
+    | '/reviews'
     | '/search'
     | '/services'
     | '/sitemap-core.xml'
@@ -1274,6 +1284,7 @@ export interface FileRouteTypes {
     | '/minibus-hire'
     | '/privacy'
     | '/refund-policy'
+    | '/reviews'
     | '/search'
     | '/services'
     | '/sitemap-core.xml'
@@ -1394,6 +1405,7 @@ export interface FileRouteTypes {
     | '/minibus-hire'
     | '/privacy'
     | '/refund-policy'
+    | '/reviews'
     | '/search'
     | '/services'
     | '/sitemap-core.xml'
@@ -1516,6 +1528,7 @@ export interface RootRouteChildren {
   MinibusHireRoute: typeof MinibusHireRoute
   PrivacyRoute: typeof PrivacyRoute
   RefundPolicyRoute: typeof RefundPolicyRoute
+  ReviewsRoute: typeof ReviewsRoute
   SearchRoute: typeof SearchRoute
   ServicesRoute: typeof ServicesRoute
   SitemapCoreDotxmlRoute: typeof SitemapCoreDotxmlRoute
@@ -1649,6 +1662,13 @@ declare module '@tanstack/react-router' {
       path: '/search'
       fullPath: '/search'
       preLoaderRoute: typeof SearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reviews': {
+      id: '/reviews'
+      path: '/reviews'
+      fullPath: '/reviews'
+      preLoaderRoute: typeof ReviewsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/refund-policy': {
@@ -2598,6 +2618,7 @@ const rootRouteChildren: RootRouteChildren = {
   MinibusHireRoute: MinibusHireRoute,
   PrivacyRoute: PrivacyRoute,
   RefundPolicyRoute: RefundPolicyRoute,
+  ReviewsRoute: ReviewsRoute,
   SearchRoute: SearchRoute,
   ServicesRoute: ServicesRoute,
   SitemapCoreDotxmlRoute: SitemapCoreDotxmlRoute,

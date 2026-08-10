@@ -30,6 +30,12 @@ export type TrustpilotReview = {
   /** Month and year as displayed on the profile, e.g. "March 2026". */
   date: string;
   /**
+   * The same month as an ISO date (first of the month — Trustpilot only shows
+   * month precision on the profile). Used ONLY for sorting newest-first; never
+   * displayed, because it would imply a day we cannot see.
+   */
+  dateIso: string;
+  /**
    * Short topic label describing what the review covers. This is neutral
    * descriptive metadata for the card — NOT a paraphrase or a claim, and never
    * presented as the reviewer's words.
@@ -80,10 +86,10 @@ export const TRUSTPILOT: TrustpilotSnapshot = {
     { stars: 4, percent: 4 },
   ],
   reviews: [
-    { author: "Cam Burley", stars: 5, date: "March 2026", topic: "Response & issue resolution" },
-    { author: "Karen Resendez", stars: 5, date: "April 2025", topic: "Booking & drivers" },
-    { author: "Glen Snedden", stars: 5, date: "May 2025", topic: "Communication & vehicle" },
-    { author: "Hannah climber", stars: 4, date: "September 2024", topic: "Punctuality & comfort" },
+    { author: "Cam Burley", stars: 5, date: "March 2026", dateIso: "2026-03-01", topic: "Response & issue resolution" },
+    { author: "Glen Snedden", stars: 5, date: "May 2025", dateIso: "2025-05-01", topic: "Communication & vehicle" },
+    { author: "Karen Resendez", stars: 5, date: "April 2025", dateIso: "2025-04-01", topic: "Booking & drivers" },
+    { author: "Hannah climber", stars: 4, date: "September 2024", dateIso: "2024-09-01", topic: "Punctuality & comfort" },
   ],
   noRecentInviteHistory: true,
   profileUrl: "https://www.trustpilot.com/review/cabslink.com",

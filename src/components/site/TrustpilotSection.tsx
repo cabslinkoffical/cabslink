@@ -1,9 +1,11 @@
 /**
- * Trustpilot proof section for the homepage.
+ * Reviews proof section for the homepage.
  *
- * Shows only what the real public Cabslink Trustpilot profile displays, read
- * from `src/lib/trustpilot.ts`, with the read date and visible links back to
- * the profile.
+ * Keeps the layout that was signed off — score card, breakdown, a short row of
+ * review cards, attribution — but the cards now come from the shared review
+ * registry (`src/lib/reviews.ts`) sorted newest-first, so the homepage always
+ * shows the latest reviews and picks up new channels automatically as they go
+ * live. The full set lives on /reviews.
  *
  * Deliberate omissions:
  *  - NO Review / AggregateRating structured data. Google's rules do not allow a
@@ -15,13 +17,17 @@
  *    file; cards render name, score, date and topic on their own until then.
  */
 import { motion } from "motion/react";
+import { Link } from "@tanstack/react-router";
 import { ArrowUpRight, ExternalLink } from "lucide-react";
 import { TRUSTPILOT, trustpilotVerifiedOnLabel } from "@/lib/trustpilot";
+import { latestReviews } from "@/lib/reviews";
 import { TrustpilotStars, TrustpilotWordmark } from "./TrustpilotMark";
+import { ReviewCard } from "./ReviewCard";
 
 export function TrustpilotSection() {
   const t = TRUSTPILOT;
   const verified = trustpilotVerifiedOnLabel(t);
+  const reviews = latestReviews(4);
 
   return (
     <section className="section-y bg-white" aria-labelledby="trustpilot-heading">
@@ -89,7 +95,7 @@ export function TrustpilotSection() {
                 </li>
               ))}
             </ul>
-            <div className="mt-6 border-t border-[var(--navy)]/10 pt-5">
+            <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-[var(--navy)]/10 pt-5">
               <a
                 href={t.profileUrl}
                 target="_blank"
@@ -99,36 +105,21 @@ export function TrustpilotSection() {
                 Read all {t.reviewCount} reviews
                 <ExternalLink className="h-3.5 w-3.5" />
               </a>
+              <Link
+                to="/reviews"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--navy)] underline decoration-[var(--gold)] decoration-2 underline-offset-4 hover:text-[var(--gold-ink)]"
+              >
+                All reviews on Cabslink
+                <ArrowUpRight className="h-3.5 w-3.5" />
+              </Link>
             </div>
           </div>
         </div>
 
-        {/* Individual reviews — a short row, not a review wall */}
+        {/* Latest reviews — a short row, not a review wall */}
         <ul className="mx-auto mt-6 grid max-w-4xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {t.reviews.map((r) => (
-            <li
-              key={`${r.author}-${r.date}`}
-              className="flex flex-col rounded-2xl border border-[var(--navy)]/10 bg-white p-5 shadow-[0_1px_2px_rgba(14,24,44,0.04)]"
-            >
-              <TrustpilotStars
-                rating={r.stars}
-                size="sm"
-                label={`${r.author} rated Cabslink ${r.stars} out of 5 on Trustpilot`}
-              />
-              {r.excerpt ? (
-                <blockquote className="mt-3 text-sm leading-relaxed text-[var(--navy)]/75">
-                  “{r.excerpt}”
-                </blockquote>
-              ) : (
-                <p className="mt-3 text-sm font-medium leading-relaxed text-[var(--navy)]/75">
-                  {r.topic}
-                </p>
-              )}
-              <div className="mt-auto pt-4">
-                <p className="text-xs font-semibold text-[var(--navy)]">{r.author}</p>
-                <p className="text-[11px] text-[var(--navy)]/50">{r.date} · Trustpilot</p>
-              </div>
-            </li>
+          {reviews.map((r) => (
+            <ReviewCard key={r.id} review={r} />
           ))}
         </ul>
 
