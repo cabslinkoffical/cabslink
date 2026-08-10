@@ -12,6 +12,7 @@ import {
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { BookingWidget } from "@/components/site/BookingWidget";
 import { TrustpilotSection } from "@/components/site/TrustpilotSection";
+import { organizationSchema, websiteSchema } from "@/components/seo/schema";
 import { DrivingCarBadge } from "@/components/site/DrivingCarBadge";
 
 import { Button } from "@/components/ui/button";
