@@ -86,8 +86,17 @@ export function Footer() {
           </ul>
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
             <p>© {new Date().getFullYear()} Cabslink. All rights reserved.</p>
+            <a
+              href={TRUSTPILOT.profileUrl}
+              target="_blank"
+              rel="noopener noreferrer nofollow"
+              className="hover:text-[var(--gold)]"
+            >
+              Reviews on Trustpilot
+            </a>
             <p>Edinburgh · London · UK Wide</p>
           </div>
+
         </div>
       </div>
     </footer>
