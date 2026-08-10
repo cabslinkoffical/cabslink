@@ -25,6 +25,11 @@ import {
   normaliseEmail,
   type BookingEmailContext,
 } from "@/lib/email/templates.server";
+import {
+  adminEnquiryEmail,
+  customerEnquiryAckEmail,
+  type EnquiryContext,
+} from "@/lib/email/enquiry.server";
 import type { BookingStatus } from "@/lib/booking-lifecycle";
 
 type LogStatus = "sent" | "failed" | "pending" | "not_configured";
@@ -396,4 +401,57 @@ export async function retryNotificationById(logId: string): Promise<{
     .eq("id", logId);
 
   return { ok: send.ok, alreadySent: false, providerConfigured: true };
+}
+
+// ============ Non-booking enquiries (forms) ============
+
+/**
+ * Notify the team about a form submission and acknowledge the sender.
+ * Best-effort: never throws, so a failed email cannot fail the form.
+ */
+export async function notifyEnquiry(ctx: EnquiryContext): Promise<void> {
+  try {
+    const adminEmail = await getAdminNotificationEmail();
+    const adminTpl = adminEnquiryEmail(ctx);
+    if (adminEmail) {
+      await sendAndLog({
+        bookingId: null,
+        eventKey: null,
+        notificationType: `admin_enquiry_${ctx.kind}`,
+        recipientCategory: "admin",
+        recipient: adminEmail,
+        subject: adminTpl.subject,
+        html: adminTpl.html,
+        text: adminTpl.text,
+      });
+    } else {
+      await upsertLog({
+        booking_id: null,
+        event_key: null,
+        channel: "email",
+        recipient: "(admin recipient not configured)",
+        subject: adminTpl.subject,
+        status: "not_configured",
+        notification_type: `admin_enquiry_${ctx.kind}`,
+        recipient_category: "admin",
+        error_category: "config_missing",
+        error: "admin_recipient_missing",
+      });
+    }
+
+    const ackTpl = customerEnquiryAckEmail(ctx);
+    await sendAndLog({
+      bookingId: null,
+      eventKey: null,
+      notificationType: `customer_enquiry_ack_${ctx.kind}`,
+      recipientCategory: "customer",
+      recipient: ctx.email,
+      subject: ackTpl.subject,
+      html: ackTpl.html,
+      text: ackTpl.text,
+    });
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error("notifyEnquiry failed", err);
+  }
 }

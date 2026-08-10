@@ -49,6 +49,18 @@ export async function submitCorporateInquiryImpl(
     console.error("corporate insert failed", error);
     throw new Error("Could not submit. Please try again.");
   }
+
+  const { notifyEnquiry } = await import("@/lib/notifications.server");
+  await notifyEnquiry({
+    kind: "corporate",
+    name: parsed.name,
+    email: parsed.email,
+    phone: parsed.phone,
+    subject: "Corporate Account Enquiry",
+    message: parsed.needs,
+    extra: [{ label: "Company", value: parsed.company }],
+  });
+
   return { ok: true };
 }
 

@@ -55,14 +55,91 @@ class NotConfiguredAdapter implements EmailAdapter {
   }
 }
 
+/**
+ * Resend adapter — routed through the Lovable connector gateway so no raw
+ * provider key is handled here (the gateway swaps `X-Connection-Api-Key`
+ * for the upstream Resend key). Requires:
+ *   LOVABLE_API_KEY  (auto-provisioned)
+ *   RESEND_API_KEY   (connector connection key)
+ *   EMAIL_FROM_ADDRESS on a domain verified in Resend
+ */
+class ResendAdapter implements EmailAdapter {
+  readonly name = "resend";
+  readonly configured = true;
+
+  constructor(
+    private readonly lovableKey: string,
+    private readonly connectionKey: string,
+    private readonly from: string,
+  ) {}
+
+  async send(input: EmailSendInput): Promise<EmailSendResult> {
+    let res: Response;
+    try {
+      res = await fetch("https://connector-gateway.lovable.dev/resend/emails", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${this.lovableKey}`,
+          "X-Connection-Api-Key": this.connectionKey,
+        },
+        body: JSON.stringify({
+          from: this.from,
+          to: [input.to],
+          subject: input.subject,
+          html: input.html,
+          text: input.text,
+          ...(input.replyTo ? { reply_to: input.replyTo } : {}),
+        }),
+      });
+    } catch {
+      return { ok: false, errorCategory: "provider_unavailable", providerMessageId: null };
+    }
+
+    if (res.ok) {
+      let id: string | null = null;
+      try {
+        const body: any = await res.json();
+        id = typeof body?.id === "string" ? body.id : null;
+      } catch { /* accepted but unparsable body */ }
+      return { ok: true, providerMessageId: id };
+    }
+
+    // Surface the provider's status/body in logs; never swallow it.
+    let detail = "";
+    try { detail = (await res.text()).slice(0, 500); } catch { /* ignore */ }
+    // eslint-disable-next-line no-console
+    console.error(`resend send failed [${res.status}]: ${detail}`);
+    const category: EmailErrorCategory =
+      res.status === 429 ? "rate_limited"
+        : res.status === 401 || res.status === 403 ? "config_missing"
+          : res.status === 422 || res.status === 400 ? "invalid_recipient"
+            : res.status >= 500 ? "provider_unavailable"
+              : "unknown";
+    return { ok: false, errorCategory: category, providerMessageId: null };
+  }
+}
+
 let cached: EmailAdapter | null = null;
 
 /** Returns the configured email adapter. Provider selection happens here. */
 export function getEmailAdapter(): EmailAdapter {
   if (cached) return cached;
-  // Future: when process.env[EMAIL_PROVIDER_ENV_VARS.provider] === "resend"
-  // and process.env[EMAIL_PROVIDER_ENV_VARS.resendApiKey] is present,
-  // return a ResendAdapter. Until then, use the not-configured stub.
+  // Read env inside the call — env is injected per request on the server
+  // runtime, so a module-scope read would be undefined.
+  const provider = (process.env[EMAIL_PROVIDER_ENV_VARS.provider] ?? "resend").toLowerCase();
+  const lovableKey = process.env["LOVABLE_API_KEY"];
+  const connectionKey = process.env[EMAIL_PROVIDER_ENV_VARS.resendApiKey];
+  const address = process.env[EMAIL_PROVIDER_ENV_VARS.fromAddress];
+  const fromName = process.env[EMAIL_PROVIDER_ENV_VARS.fromName];
+
+  if (provider === "resend" && lovableKey && connectionKey && address) {
+    const from = fromName ? `${fromName} <${address}>` : address;
+    cached = new ResendAdapter(lovableKey, connectionKey, from);
+    return cached;
+  }
+
+  // Anything missing → never pretend to send.
   cached = new NotConfiguredAdapter();
   return cached;
 }

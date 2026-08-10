@@ -54,5 +54,17 @@ export const submitContactMessage = createServerFn({ method: "POST" })
       console.error("contact insert failed", error);
       throw new Error("Could not send. Please try again.");
     }
+
+    const { notifyEnquiry } = await import("@/lib/notifications.server");
+    const isTour = (data.subject ?? "").toLowerCase().includes("tour");
+    await notifyEnquiry({
+      kind: isTour ? "tour" : "contact",
+      name: data.name,
+      email: data.email,
+      phone: data.phone || null,
+      subject: data.subject || null,
+      message: data.message,
+    });
+
     return { ok: true };
   });
