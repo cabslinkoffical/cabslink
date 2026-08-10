@@ -86,10 +86,22 @@ export const Route = createFileRoute("/")({
         type: "application/ld+json",
         children: JSON.stringify({
           "@context": "https://schema.org",
-          "@graph": [organizationSchema(), websiteSchema()],
+          "@graph": [
+            organizationSchema(),
+            websiteSchema(),
+            {
+              "@type": "FAQPage",
+              mainEntity: faqItems.map((f) => ({
+                "@type": "Question",
+                name: f.q,
+                acceptedAnswer: { "@type": "Answer", text: f.a },
+              })),
+            },
+          ],
         }),
       },
     ],
+
   }),
   // Prefetch on the server so the vehicle-class cards are present in the very
   // first render instead of popping in after hydration.
