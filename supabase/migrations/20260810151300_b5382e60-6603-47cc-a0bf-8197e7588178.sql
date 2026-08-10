@@ -1,0 +1,1 @@
+UPDATE public.blog_posts SET seo_title = 'Group Travel in Scotland — Vans, Coasters & Coaches' WHERE slug = 'group-travel-scotland-vans-coasters-coaches';
