@@ -20,7 +20,10 @@ import { calculateHourlyQuotes, createHourlyBooking, type HourlyCard } from "@/l
 import { fleetImageFor } from "@/assets/fleet";
 
 export const Route = createFileRoute("/book/hourly")({
-  validateSearch: (search: Record<string, unknown>) => ({ q: typeof search.q === "string" ? search.q : "" }),
+  // Only emit `q` when it is actually present — defaulting to "" made the
+  // router rewrite bare /book/hourly to /book/hourly?q= (a 307 on every crawl).
+  validateSearch: (search: Record<string, unknown>): { q?: string } =>
+    typeof search.q === "string" && search.q.length > 0 ? { q: search.q } : {},
   head: () => ({
     meta: [
       { title: "Hourly Car & Driver Hire — Book by the Hour | Cabslink" },
