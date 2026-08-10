@@ -5,9 +5,9 @@ export const Route = createFileRoute("/privacy")({
   head: () => ({
     meta: [
       { title: "Privacy Policy — Cabslink" },
-      { name: "description", content: "How Cabslink collects, uses and protects your personal information." },
+      { name: "description", content: "How Cabslink collects, uses, stores and protects your personal information when you book UK airport transfers, tours or hourly hire." },
       { property: "og:title", content: "Privacy Policy — Cabslink" },
-      { property: "og:description", content: "How Cabslink collects, uses and protects your personal information." },
+      { property: "og:description", content: "How Cabslink collects, uses, stores and protects your personal information when you book UK airport transfers, tours or hourly hire." },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://cabslink.com/privacy" },
       { name: "twitter:card", content: "summary_large_image" },

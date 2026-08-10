@@ -61,7 +61,7 @@ export const TEMPLATES: Record<DestinationType, TemplateConfig> = {
     hubLabel: "Cities",
     hubSegment: "areas",
     titleTemplate: (d) => `${d.display_name ?? d.name} Private Travel & Airport Transfers — CabsLink`,
-    descriptionStem: (d) => `Chauffeured private travel and airport transfers in ${d.display_name ?? d.name}${d.region ? `, ${d.region}` : ""}.`,
+    descriptionStem: (d) => `Private-driver travel and airport transfers in ${d.display_name ?? d.name}${d.region ? `, ${d.region}` : ""}.`,
     typeSchema: (d) => [localBusinessSchema(d)],
     sections: commonSections,
   },

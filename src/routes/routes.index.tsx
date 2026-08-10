@@ -7,7 +7,7 @@ import { populatedCategories, journeyPath, JOURNEYS } from "@/lib/seo/journeys";
 const ORIGIN = "https://cabslink.com";
 const TITLE = "Popular UK Routes — Fixed-Price Private Transfers | Cabslink";
 const DESCRIPTION =
-  "Browse Cabslink's most-booked journeys — airport runs, city-to-city transfers, golf and Highland routes — with real distances, drive times and fixed prices.";
+  "Cabslink's most-booked UK journeys — airport runs, city transfers, golf and Highland routes with real distances and fixed prices.";
 
 export const Route = createFileRoute("/routes/")({
   head: () => ({

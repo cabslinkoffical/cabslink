@@ -48,11 +48,28 @@ export const Route = createFileRoute("/tours/$slug")({
         `${d.name} | Cabslink`,
         `${shortName} Private Tour | Cabslink`,
         `${shortName} | Cabslink`,
-      ].find((t) => t.length <= 60) ?? `${shortName} | Cabslink`;
+      ].find((t) => t.length <= 60) ??
+      `${shortName.slice(0, 47).replace(/[\s,.;:—-]+\S*$/, "")} | Cabslink`;
 
-    const desc =
-      d.short_description ??
-      `Private driver tour: ${d.origin_label} to ${d.destination_label}. Book with Cabslink.`;
+    // Tour blurbs in the CMS are often a single short line (~50-70 chars), which
+    // is too thin for a meta description. Top up with factual route detail until
+    // it lands inside the 110-155 character window, then trim on a word boundary.
+    const base = (d.short_description ?? `Private driver tour of ${d.name}.`).trim();
+    const extras = [
+      d.origin_label && d.destination_label
+        ? `Private driver tour from ${d.origin_label} to ${d.destination_label}.`
+        : null,
+      d.long_day ? "Full-day itinerary with flexible stop times." : "Flexible stop times at every point of interest.",
+      "Door-to-door pickup, fixed quote before you travel.",
+    ].filter(Boolean) as string[];
+    let desc = base;
+    for (const part of extras) {
+      if (desc.length >= 110) break;
+      if (desc.toLowerCase().includes(part.slice(0, 18).toLowerCase())) continue;
+      desc = `${desc.replace(/\.$/, "")}. ${part}`;
+    }
+    if (desc.length > 155) desc = `${desc.slice(0, 152).replace(/[\s,.;:—-]+\S*$/, "")}…`;
+
     const url = `https://cabslink.com/tours/${d.slug}`;
     const meta: Array<Record<string, string>> = [
       { title },

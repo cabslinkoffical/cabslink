@@ -31,7 +31,7 @@ import {
   reviewTotals,
 } from "@/lib/reviews";
 
-const TITLE = "Cabslink Reviews — Ratings, Written Reviews & Video Feedback";
+const TITLE = "Cabslink Reviews — Ratings & Customer Feedback";
 const DESCRIPTION =
   "Cabslink reviews: our independent Trustpilot rating, a selection of the latest written reviews, and every channel where you can review us next.";
 const URL = "https://cabslink.com/reviews";

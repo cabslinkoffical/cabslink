@@ -5,9 +5,9 @@ export const Route = createFileRoute("/booking-policy")({
   head: () => ({
     meta: [
       { title: "Booking & Cancellation Policy — Cabslink" },
-      { name: "description", content: "How Cabslink bookings, changes and cancellations work." },
+      { name: "description", content: "How Cabslink bookings are confirmed, how to change or cancel a journey, waiting-time allowances and no-show handling." },
       { property: "og:title", content: "Booking & Cancellation Policy — Cabslink" },
-      { property: "og:description", content: "How Cabslink bookings, changes and cancellations work." },
+      { property: "og:description", content: "How Cabslink bookings are confirmed, how to change or cancel a journey, waiting-time allowances and no-show handling." },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://cabslink.com/booking-policy" },
       { name: "twitter:card", content: "summary_large_image" },

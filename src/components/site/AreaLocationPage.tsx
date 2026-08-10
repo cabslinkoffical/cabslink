@@ -1,7 +1,7 @@
 /**
  * AreaLocationPage — the authoritative Local SEO location page.
  * Consolidates all keyword variations (taxi, cab, airport transfer, private
- * hire, executive car, chauffeur, luxury transfer, minibus, coach, etc.) into
+ * hire, executive car, private driver, luxury transfer, minibus, coach, etc.) into
  * one comprehensive, entity-rich page per location.
  */
 import { Link } from "@tanstack/react-router";
@@ -80,7 +80,7 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
           {heroSub && <p className="mt-2 text-white/60 text-sm">{heroSub}</p>}
           <p className="mt-5 max-w-3xl text-white/80 leading-relaxed">
             Cabslink provides reliable airport transfers, private hire, executive cars, corporate
-            transport, luxury chauffeur services and minibus hire in <strong>{locName}</strong>.
+            transport, luxury private-driver travel and minibus hire in <strong>{locName}</strong>.
             Book a fixed-price taxi or cab from {locName} to Edinburgh, Glasgow or any UK airport —
             with 24/7 availability, meet-and-greet, and door-to-door service.
           </p>

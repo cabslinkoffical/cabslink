@@ -16,7 +16,7 @@ export const Route = createFileRoute("/blog/")({
   loader: ({ context }) => context.queryClient.ensureQueryData(homeQuery),
   head: () => ({
     meta: [
-      { title: "Blog — Airport Transfer & Scotland Travel Guides | Cabslink" },
+      { title: "Travel Guides & Airport Transfer Tips | Cabslink" },
       { name: "description", content: "Expert guides on UK airport transfers, Scotland day tours, executive travel and city guides. Trusted advice from Cabslink's editorial team." },
       { property: "og:title", content: "Cabslink Blog — Travel Guides & Airport Transfer Tips" },
       { property: "og:description", content: "Expert guides on UK airport transfers, Scotland day tours, executive travel and city guides." },

@@ -59,7 +59,7 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Cabslink | UK Airport Transfers & Luxury Travel Platform" },
-      { name: "description", content: "Plan premium UK journeys with Cabslink — fixed-fare airport transfers, private tours and executive travel. Flight tracking, meet & greet, Mercedes fleet, 24/7." },
+      { name: "description", content: "Fixed-fare UK airport transfers, private tours and executive travel with Cabslink. Flight tracking, meet & greet and 24/7 dispatch." },
       { name: "keywords", content: "UK airport transfers, luxury travel UK, private driver, Edinburgh airport taxi, Heathrow transfer, Mercedes V-Class hire, executive car service, Scotland tours" },
       { property: "og:title", content: "Cabslink | UK Airport Transfers & Luxury Travel Platform" },
       { property: "og:description", content: "Plan premium UK journeys — fixed-fare transfers, private tours, executive travel. Flight tracking, meet & greet, Mercedes fleet." },
@@ -86,10 +86,22 @@ export const Route = createFileRoute("/")({
         type: "application/ld+json",
         children: JSON.stringify({
           "@context": "https://schema.org",
-          "@graph": [organizationSchema(), websiteSchema()],
+          "@graph": [
+            organizationSchema(),
+            websiteSchema(),
+            {
+              "@type": "FAQPage",
+              mainEntity: faqItems.map((f) => ({
+                "@type": "Question",
+                name: f.q,
+                acceptedAnswer: { "@type": "Answer", text: f.a },
+              })),
+            },
+          ],
         }),
       },
     ],
+
   }),
   // Prefetch on the server so the vehicle-class cards are present in the very
   // first render instead of popping in after hydration.
@@ -405,30 +417,6 @@ function HomePage() {
       </section>
 
 
-      {/* POPULAR TOURS */}
-      {popularTours.length > 0 && (
-      <section className="section-y bg-[var(--surface-2)]">
-        <div className="container-x">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
-            <div className="max-w-2xl">
-              <p className="eyebrow-gold text-[11px]">— Popular Tours</p>
-              <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold text-[var(--navy)] leading-[1.05] tracking-[-0.02em]">
-                Curated journeys, <span className="text-[var(--gold-ink)]">crafted your way.</span>
-              </h2>
-            </div>
-            <Button asChild variant="outline" className="rounded-full border-[var(--navy)]/20 text-[var(--navy)] hover:border-[var(--gold)] hover:text-[var(--gold-ink)] self-start md:self-auto">
-              <Link to="/tours">Explore all tours <ArrowRight className="size-4" /></Link>
-            </Button>
-          </div>
-
-          <div className="grid items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {popularTours.map((t) => (
-              <TourCard key={t.slug} tour={t} />
-            ))}
-          </div>
-        </div>
-      </section>
-      )}
 
       {/* SERVICES BENTO */}
       <section className="section-y bg-[var(--surface-2)]">
@@ -581,6 +569,32 @@ function HomePage() {
         </div>
       </section>
 
+
+      {/* POPULAR TOURS */}
+      {popularTours.length > 0 && (
+      <section className="section-y bg-white">
+
+        <div className="container-x">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
+            <div className="max-w-2xl">
+              <p className="eyebrow-gold text-[11px]">— Popular Tours</p>
+              <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold text-[var(--navy)] leading-[1.05] tracking-[-0.02em]">
+                Curated journeys, <span className="text-[var(--gold-ink)]">crafted your way.</span>
+              </h2>
+            </div>
+            <Button asChild variant="outline" className="rounded-full border-[var(--navy)]/20 text-[var(--navy)] hover:border-[var(--gold)] hover:text-[var(--gold-ink)] self-start md:self-auto">
+              <Link to="/tours">Explore all tours <ArrowRight className="size-4" /></Link>
+            </Button>
+          </div>
+
+          <div className="grid items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {popularTours.map((t) => (
+              <TourCard key={t.slug} tour={t} />
+            ))}
+          </div>
+        </div>
+      </section>
+      )}
 
       {/* WHY CHOOSE */}
       <section className="section-y bg-[var(--surface-2)]">
@@ -826,6 +840,11 @@ function HomePage() {
         </div>
       </section>
 
+      {/* Closing CTA is rendered by SiteLayout (FinalCta) */}
+
+
+
+
 
     </SiteLayout>
   );
@@ -835,8 +854,9 @@ const faqItems = [
   { q: "How far in advance should I book?", a: "You can book anytime — even minutes ahead — but we recommend 2+ hours for airport pickups to guarantee your preferred vehicle." },
   { q: "Do you track my flight?", a: "Yes. Every airport transfer includes automatic flight tracking, and we adjust pickup times for delays or early arrivals at no extra cost." },
   { q: "Is there a meet & greet at arrivals?", a: "Absolutely. Your driver waits inside the terminal with a name board and helps with your luggage — included as standard." },
-  { q: "What if I need to cancel?", a: "Free cancellation up to 24 hours before pickup. Same-day cancellations may incur a small fee — full terms shown at booking." },
-  { q: "How do I pay?", a: "Pay securely online by card at booking, or set up a business account for monthly invoicing on corporate travel." },
+  { q: "What if I need to cancel?", a: "Tell us as early as you can and we'll cancel free of charge. Late cancellations or no-shows may be charged for the reserved driver time — see our booking & cancellation policy." },
+  { q: "How do I pay?", a: "Nothing is charged online. You choose a payment method when booking — card, bank transfer or a business account — and our team confirms availability and payment arrangements with you directly." },
+
   { q: "Do you cover the whole UK?", a: "Yes — Edinburgh, London (Heathrow, Gatwick, Stansted, Luton, City), Manchester, Glasgow, Birmingham and 120+ UK destinations." },
 ];
 

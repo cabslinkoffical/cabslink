@@ -153,8 +153,20 @@ export async function listPublishedToursImpl(): Promise<PublicTourListItem[]> {
 
 export const listPublishedTours = createServerFn({ method: "GET" }).handler(listPublishedToursImpl);
 
+// Cooldown guard: the refresh runs on an unauthenticated public read path, so a
+// tour whose price cannot be computed (missing distance, pricing gap) must not
+// re-trigger a Maps call + admin write on every single page view.
+const refreshCooldown = new Map<string, number>();
+const REFRESH_COOLDOWN_MS = 10 * 60_000;
+
 async function refreshStartingPriceCache(templateId: string): Promise<{ price_pence: number | null; currency: string; distance: number | null; duration: number | null }> {
+  const last = refreshCooldown.get(templateId) ?? 0;
+  if (Date.now() - last < REFRESH_COOLDOWN_MS) {
+    return { price_pence: null, currency: "GBP", distance: null, duration: null };
+  }
+  refreshCooldown.set(templateId, Date.now());
   try {
+
     const { computeStartingPriceForTemplate } = await import("@/lib/tours-pricing.server");
     const result = await computeStartingPriceForTemplate(templateId);
     if (!result) return { price_pence: null, currency: "GBP", distance: null, duration: null };
