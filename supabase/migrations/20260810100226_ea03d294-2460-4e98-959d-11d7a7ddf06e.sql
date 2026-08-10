@@ -1,0 +1,3 @@
+UPDATE public.blog_posts SET seo_title = 'Glasgow to Edinburgh — Train vs Private Car | CabsLink' WHERE slug = 'glasgow-to-edinburgh-best-ways-to-travel';
+UPDATE public.blog_posts SET seo_title = 'Corporate Travel Scotland — Executive Guide | CabsLink' WHERE slug = 'corporate-travel-in-scotland-complete-guide';
+UPDATE public.blog_posts SET seo_title = 'Scotland Cruise Transfers — Rosyth & Leith | CabsLink' WHERE slug = 'cruise-transfers-edinburgh-glasgow';

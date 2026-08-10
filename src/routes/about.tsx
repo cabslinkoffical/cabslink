@@ -29,7 +29,7 @@ export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
       { title: "About Cabslink — Scotland's Trusted Airport Transfer Company" },
-      { name: "description", content: "Scotland-based airport transfer and private transport company: fixed prices, flight monitoring, executive vehicles and 24/7 service across Edinburgh, Glasgow and the UK." },
+      { name: "description", content: "Scotland-based airport transfer company: fixed prices, flight monitoring, executive vehicles and 24/7 service across Edinburgh, Glasgow and the UK." },
       { property: "og:title", content: "About Cabslink — Scotland's Trusted Airport Transfer Company" },
       { property: "og:description", content: "Reliable pre-booked airport transfers, executive travel, cruise, corporate and group transport across Scotland — with fixed prices and flight monitoring." },
       { property: "og:url", content: CANONICAL },
@@ -216,11 +216,25 @@ function AboutPage() {
         <div className="container-x">
           <SectionHeader eyebrow="Our coverage" title="Scotland-wide, UK-ready." subtitle="From our Edinburgh base we cover every major city, airport, station and cruise port in Scotland — with long-distance transfers into England and Wales on request." center />
           <div className="mt-10 grid gap-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-5">
-            {["Edinburgh","Glasgow","Livingston","Stirling","Dundee","Perth","St Andrews","Falkirk","Fife","Borders"].map(city => (
-              <Link key={city} to="/areas/$slug" params={{ slug: city.toLowerCase().replace(/\s+/g, "-") }} className="rounded-xl border border-border bg-card px-4 py-3 text-sm font-semibold text-[var(--navy)] hover:border-[var(--gold)]/60 hover:text-[var(--gold-ink)] transition-colors">
-                <MapPin className="inline size-3.5 mr-1.5 text-[var(--gold-ink)]" />{city}
+            {/* Every entry below points at a page that exists — city pages live at
+                /areas/:slug, wider areas at /areas/region/:slug. */}
+            {([
+              { label: "Edinburgh", to: "/areas/$slug", params: { slug: "edinburgh" } },
+              { label: "Glasgow", to: "/areas/$slug", params: { slug: "glasgow" } },
+              { label: "Livingston", to: "/areas/$slug", params: { slug: "livingston" } },
+              { label: "Stirling", to: "/areas/$slug", params: { slug: "stirling" } },
+              { label: "Dundee", to: "/areas/$slug", params: { slug: "dundee" } },
+              { label: "Perth", to: "/areas/$slug", params: { slug: "perth" } },
+              { label: "St Andrews", to: "/areas/$slug", params: { slug: "st-andrews" } },
+              { label: "Falkirk", to: "/areas/$slug", params: { slug: "falkirk" } },
+              { label: "Aberdeen", to: "/areas/$slug", params: { slug: "aberdeen" } },
+              { label: "Fife", to: "/areas/region/$slug", params: { slug: "fife" } },
+            ] as const).map((area) => (
+              <Link key={area.label} to={area.to} params={area.params} className="rounded-xl border border-border bg-card px-4 py-3 text-sm font-semibold text-[var(--navy)] hover:border-[var(--gold)]/60 hover:text-[var(--gold-ink)] transition-colors">
+                <MapPin className="inline size-3.5 mr-1.5 text-[var(--gold-ink)]" />{area.label}
               </Link>
             ))}
+
           </div>
           <div className="mt-8 text-center">
             <Button asChild variant="outline" className="rounded-full"><Link to="/areas">Explore all locations <ArrowRight className="ml-1.5 size-4" /></Link></Button>

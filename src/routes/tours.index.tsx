@@ -18,7 +18,7 @@ export const Route = createFileRoute("/tours/")({
   head: () => ({
     meta: [
       { title: "Scotland & UK Private Driver Tours — Cabslink" },
-      { name: "description", content: "Private private tours across Scotland and the UK. Curated multi-stop itineraries with transparent per-mile pricing and hand-picked famous stops." },
+      { name: "description", content: "Private driver tours across Scotland and the UK. Curated multi-stop itineraries with transparent per-mile pricing and hand-picked stops." },
       { property: "og:title", content: "Private UK Driver Tours — Cabslink" },
       { property: "og:description", content: "Curated multi-stop driver tours. See Scotland's icons with a private driver, transparent pricing, no hidden fees." },
       { property: "og:url", content: "https://cabslink.com/tours" },
@@ -45,12 +45,13 @@ export const Route = createFileRoute("/tours/")({
 
 function ToursPage() {
   const { data: allTours } = useSuspenseQuery(toursQuery);
-  // Day trips only — exclude long-day / multi-day itineraries.
-  // Featured tours first, but every card renders identically.
-  const tours = allTours
-    .filter((t) => !t.long_day)
-    .slice()
-    .sort((a, b) => Number(b.featured) - Number(a.featured));
+  // Day trips first; long-day itineraries get their own section below so every
+  // published tour page is reachable from this hub (no orphan pages).
+  const byFeatured = (a: { featured: boolean }, b: { featured: boolean }) =>
+    Number(b.featured) - Number(a.featured);
+  const tours = allTours.filter((t) => !t.long_day).slice().sort(byFeatured);
+  const longDayTours = allTours.filter((t) => t.long_day).slice().sort(byFeatured);
+
 
 
 
@@ -97,6 +98,27 @@ function ToursPage() {
           )}
         </div>
       </section>
+
+      {longDayTours.length > 0 && (
+        <section className="section-y bg-[var(--surface)]/60">
+          <div className="container-x">
+            <SectionHeader
+              eyebrow="Full-day & long-distance"
+              title="Longer itineraries for"
+              titleAccent="bigger days out"
+              subtitle="These routes cover more ground — expect an early start, a longer day with your driver and more time at each stop. Mileage and hours are quoted before you commit."
+            />
+            <div className="mt-10 grid items-stretch gap-5 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {longDayTours.map((t) => (
+                <Reveal key={t.slug} className="h-full">
+                  <TourCard tour={t} />
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
 
       <CtaBand
         eyebrow="Private tours"

@@ -6,9 +6,9 @@ const KEY = "distilleries" as const;
 export const Route = createFileRoute("/distilleries/")({
   head: () => ({ meta: [
     { title: `${HUBS[KEY].title} — CabsLink` },
-    { name: "description", content: HUBS[KEY].intro },
+    { name: "description", content: HUBS[KEY].metaDescription },
     { property: "og:title", content: `${HUBS[KEY].title} — CabsLink` },
-    { property: "og:description", content: HUBS[KEY].intro },
+    { property: "og:description", content: HUBS[KEY].metaDescription },
     { property: "og:type", content: "website" },
     { property: "og:url", content: "https://cabslink.com/distilleries" },
     { name: "twitter:card", content: "summary_large_image" },
@@ -16,6 +16,6 @@ export const Route = createFileRoute("/distilleries/")({
   loader: ({ context }) => context.queryClient.ensureQueryData(hubQueryOptions(KEY)),
   component: () => {
     const { data } = useSuspenseQuery(hubQueryOptions(KEY));
-    return <HubPage title={HUBS[KEY].title} intro={HUBS[KEY].intro} destinations={data} />;
+    return <HubPage title={HUBS[KEY].title} intro={HUBS[KEY].intro} longIntro={HUBS[KEY].longIntro} notes={HUBS[KEY].notes} destinations={data} />;
   },
 });

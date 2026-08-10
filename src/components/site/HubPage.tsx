@@ -10,10 +10,14 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 export function HubPage({
   title,
   intro,
+  longIntro,
+  notes,
   destinations,
 }: {
   title: string;
   intro: string;
+  longIntro?: string;
+  notes?: { title: string; body: string }[];
   destinations: Destination[];
   type?: DestinationType;
 }) {
@@ -30,8 +34,26 @@ export function HubPage({
       <Breadcrumbs items={[{ name: "Home", href: "/" }, { name: title, href: "#" }]} />
       <header className="mt-4 mb-8">
         <h1 className="text-4xl font-bold tracking-tight text-[var(--navy)]">{title}</h1>
-        <p className="mt-2 max-w-3xl text-[var(--navy)]/70">{intro}</p>
+        <p className="mt-2 max-w-3xl text-lg text-[var(--navy)]/70">{intro}</p>
+        {longIntro && (
+          <p className="mt-4 max-w-3xl leading-relaxed text-[var(--navy)]/70">{longIntro}</p>
+        )}
       </header>
+      {notes && notes.length > 0 && (
+        <section className="mb-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <h2 className="sr-only">What to expect</h2>
+          {notes.map((n) => (
+            <div
+              key={n.title}
+              className="rounded-2xl border border-[var(--navy)]/10 bg-white p-5 shadow-raised"
+            >
+              <h3 className="font-semibold text-[var(--navy)]">{n.title}</h3>
+              <p className="mt-1.5 text-sm leading-relaxed text-[var(--navy)]/70">{n.body}</p>
+            </div>
+          ))}
+        </section>
+      )}
+
       {destinations.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-[var(--navy)]/20 bg-white p-8 text-center shadow-raised">
           <p className="text-[var(--navy)]/70">

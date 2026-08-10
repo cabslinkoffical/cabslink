@@ -736,8 +736,9 @@ function HomePage() {
             </h2>
             <p className="mt-5 text-[var(--navy)]/65 leading-relaxed">
               Dedicated account management, monthly consolidated invoicing and priority
-              dispatch — the executive travel programme trusted by UK companies.
+              dispatch — one executive travel programme for the whole company.
             </p>
+
             <ul className="mt-8 grid gap-4 sm:grid-cols-2">
               {[
                 { i: Wallet, t: "Monthly invoicing" },
@@ -758,7 +759,7 @@ function HomePage() {
                 <Link to="/corporate-booking">Open Corporate Account <ArrowRight className="size-4" /></Link>
               </Button>
               <Button asChild variant="outline" className="rounded-full border-[var(--navy)]/20 text-[var(--navy)]">
-                <Link to="/corporate-travel">Learn more</Link>
+                <Link to="/corporate-travel">How corporate accounts work</Link>
               </Button>
             </div>
           </div>
@@ -770,14 +771,15 @@ function HomePage() {
                 <span className="text-[11px] uppercase tracking-[0.24em] text-white/70 font-semibold">Enterprise Ready</span>
               </div>
               <div>
-                <div className="font-display text-6xl md:text-7xl font-bold text-[var(--gold)] leading-none tracking-[-0.03em]">
-                  200+
+                <div className="font-display text-4xl md:text-5xl font-bold text-[var(--gold)] leading-tight tracking-[-0.02em]">
+                  One account.<br />Every journey.
                 </div>
                 <p className="mt-4 text-white/75 max-w-sm">
-                  UK companies rely on Cabslink for business travel — from single executive
-                  transfers to global client visits.
+                  Open a Cabslink corporate account and book on invoice — single executive
+                  transfers, airport runs and client visits, all on one monthly statement.
                 </p>
               </div>
+
               <div className="flex items-center gap-4 pt-6 border-t border-white/10">
                 <div className="flex items-center gap-2 text-white/80 text-xs">
                   <Mail className="size-3.5 text-[var(--gold)]" /> {SITE.email}

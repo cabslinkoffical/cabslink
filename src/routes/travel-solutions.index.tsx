@@ -8,9 +8,10 @@ import { publishedServices } from "@/lib/seo/service-registry";
 import { SITE } from "@/lib/site";
 
 const URL = "https://cabslink.com/travel-solutions";
-const TITLE = "Travel Solutions — Business, Student, Family & Group Travel | Cabslink";
+const TITLE = "Travel Solutions — Business, Student & Group | Cabslink";
 const DESCRIPTION =
-  "Travel solutions for every kind of passenger: business accounts, student airport-to-campus runs, family transfers with child seats, group minibus hire and event shuttles across Scotland.";
+  "Travel for every passenger: business accounts, student airport-to-campus runs, family transfers with child seats, group minibus hire and event shuttles.";
+
 
 const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   "business-travel": Briefcase,
