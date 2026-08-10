@@ -20,6 +20,7 @@ import { ArrowUpRight, ExternalLink, Clock, Video, MessageSquareQuote, Star } fr
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { ReviewCard } from "@/components/site/ReviewCard";
 import { TrustpilotStars, TrustpilotWordmark } from "@/components/site/TrustpilotMark";
+import { organizationSchema } from "@/components/seo/schema";
 import { TRUSTPILOT, trustpilotVerifiedOnLabel } from "@/lib/trustpilot";
 import {
   REVIEW_CHANNELS,
@@ -47,6 +48,26 @@ export const Route = createFileRoute("/reviews")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: URL }],
+    // Organization + Breadcrumb only. No Review/AggregateRating markup: the
+    // scores below are third-party Trustpilot data, which Google does not
+    // allow a site to mark up as its own review data.
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Home", item: "https://cabslink.com/" },
+            { "@type": "ListItem", position: 2, name: "Reviews", item: URL },
+          ],
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify(organizationSchema()),
+      },
+    ],
   }),
   component: ReviewsPage,
 });

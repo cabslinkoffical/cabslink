@@ -27,13 +27,9 @@ export type TrustpilotReview = {
   author: string;
   /** Star rating the reviewer gave, 1–5. */
   stars: number;
-  /** Month and year as displayed on the profile, e.g. "March 2026". */
+  /** Review date exactly as displayed on the profile, e.g. "13 March 2026". */
   date: string;
-  /**
-   * The same month as an ISO date (first of the month — Trustpilot only shows
-   * month precision on the profile). Used ONLY for sorting newest-first; never
-   * displayed, because it would imply a day we cannot see.
-   */
+  /** Same date in ISO form. Used for sorting newest-first. */
   dateIso: string;
   /**
    * Short topic label describing what the review covers. This is neutral
@@ -86,10 +82,46 @@ export const TRUSTPILOT: TrustpilotSnapshot = {
     { stars: 4, percent: 4 },
   ],
   reviews: [
-    { author: "Cam Burley", stars: 5, date: "March 2026", dateIso: "2026-03-01", topic: "Response & issue resolution" },
-    { author: "Glen Snedden", stars: 5, date: "May 2025", dateIso: "2025-05-01", topic: "Communication & vehicle" },
-    { author: "Karen Resendez", stars: 5, date: "April 2025", dateIso: "2025-04-01", topic: "Booking & drivers" },
-    { author: "Hannah climber", stars: 4, date: "September 2024", dateIso: "2024-09-01", topic: "Punctuality & comfort" },
+    {
+      author: "Cam Burley",
+      stars: 5,
+      date: "13 March 2026",
+      dateIso: "2026-03-13",
+      topic: "Response & issue resolution",
+      excerpt: "Great experience! Able to sort any issues really quick and rapid response time!",
+    },
+    {
+      author: "Emanuele Vitale",
+      stars: 5,
+      date: "26 September 2025",
+      dateIso: "2025-09-26",
+      topic: "Airport pickup",
+      excerpt: "We arrived without any internet connection but he manage to find us anyway.",
+    },
+    {
+      author: "Glen Snedden",
+      stars: 5,
+      date: "16 May 2025",
+      dateIso: "2025-05-16",
+      topic: "Communication & vehicle",
+      excerpt: "Great communication on arrival, perfect vehicle for our large group.",
+    },
+    {
+      author: "Karen Resendez",
+      stars: 5,
+      date: "26 April 2025",
+      dateIso: "2025-04-26",
+      topic: "Booking & drivers",
+      excerpt: "Very easy to book. Friendly drivers. Would recommend to anyone.",
+    },
+    {
+      author: "Hannah climber",
+      stars: 4,
+      date: "1 September 2024",
+      dateIso: "2024-09-01",
+      topic: "Punctuality & comfort",
+      excerpt: "Everything on time. Driver very friendly and helpful",
+    },
   ],
   noRecentInviteHistory: true,
   profileUrl: "https://www.trustpilot.com/review/cabslink.com",
