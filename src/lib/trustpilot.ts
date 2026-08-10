@@ -27,13 +27,9 @@ export type TrustpilotReview = {
   author: string;
   /** Star rating the reviewer gave, 1–5. */
   stars: number;
-  /** Month and year as displayed on the profile, e.g. "March 2026". */
+  /** Review date exactly as displayed on the profile, e.g. "13 March 2026". */
   date: string;
-  /**
-   * The same month as an ISO date (first of the month — Trustpilot only shows
-   * month precision on the profile). Used ONLY for sorting newest-first; never
-   * displayed, because it would imply a day we cannot see.
-   */
+  /** Same date in ISO form. Used for sorting newest-first. */
   dateIso: string;
   /**
    * Short topic label describing what the review covers. This is neutral
