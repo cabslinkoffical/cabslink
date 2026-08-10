@@ -15,6 +15,7 @@ import {
   Shield, Package, CalendarClock, Landmark, Banknote, Sparkles,
 } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { TrustpilotStrip } from "@/components/site/TrustpilotStrip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -1005,10 +1006,14 @@ function Sidebar({ pre, onEdit, onStartAgain, route, price }: {
 
       {price && <div className="hidden lg:block"><PriceBreakdown price={price} /></div>}
 
+      {/* Independent rating, shown where the decision is actually made. */}
+      <TrustpilotStrip className="hidden lg:block" />
+
       <div className="hidden lg:block bg-card rounded-2xl border border-border p-5 shadow-sm space-y-2.5">
         <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)] mb-1">Why Cabslink</p>
         {[
-          "10,000+ passengers transferred",
+          // No passenger-volume claim here — we have no verified figure to cite.
+          "Licensed and insured UK operator",
           "Team confirms availability quickly",
           "All-inclusive fixed pricing",
           "Pay by card or on account after we confirm",

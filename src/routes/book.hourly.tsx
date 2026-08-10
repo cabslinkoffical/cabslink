@@ -8,6 +8,7 @@ import {
   CheckCircle2, ShieldCheck, Sparkles, User, Mail, Phone, MessageSquare,
 } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { TrustpilotStrip } from "@/components/site/TrustpilotStrip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -351,22 +352,25 @@ function HourlyBookPage() {
           </div>
 
           {/* ---------------- Summary sidebar ---------------- */}
-          <aside className="hidden lg:block sticky top-28 rounded-2xl border border-border bg-card p-5">
-            <h3 className="font-display font-bold text-sm uppercase tracking-[0.18em] text-[var(--navy)]">Trip summary</h3>
-            <div className="mt-4 space-y-2 text-sm">
-              <SummaryLine label="Hourly hire" value={selected ? `${selected.chargedHours} h` : `${hours} h`} />
-              <SummaryLine label="Vehicle" value={selected?.name ?? "Not selected"} />
-              <SummaryLine label="Base" value={selected ? `${symbol}${selected.total.toFixed(2)}` : "—"} />
-              {childSeats > 0 && <SummaryLine label={`Child seats × ${childSeats}`} value={`${symbol}${(childSeats * childSeatFee).toFixed(2)}`} />}
-              {meetGreet && <SummaryLine label="Meet & greet" value={`${symbol}${meetGreetFee.toFixed(2)}`} />}
-              <div className="border-t border-border pt-3 mt-3 flex items-center justify-between">
-                <span className="font-bold">Total</span>
-                <span className="font-display text-xl font-bold text-[var(--navy)]">
-                  {selected ? `${symbol}${grandTotal.toFixed(2)}` : "—"}
-                </span>
+          <div className="hidden lg:block sticky top-28 space-y-4">
+            <aside className="rounded-2xl border border-border bg-card p-5">
+              <h3 className="font-display font-bold text-sm uppercase tracking-[0.18em] text-[var(--navy)]">Trip summary</h3>
+              <div className="mt-4 space-y-2 text-sm">
+                <SummaryLine label="Hourly hire" value={selected ? `${selected.chargedHours} h` : `${hours} h`} />
+                <SummaryLine label="Vehicle" value={selected?.name ?? "Not selected"} />
+                <SummaryLine label="Base" value={selected ? `${symbol}${selected.total.toFixed(2)}` : "—"} />
+                {childSeats > 0 && <SummaryLine label={`Child seats × ${childSeats}`} value={`${symbol}${(childSeats * childSeatFee).toFixed(2)}`} />}
+                {meetGreet && <SummaryLine label="Meet & greet" value={`${symbol}${meetGreetFee.toFixed(2)}`} />}
+                <div className="border-t border-border pt-3 mt-3 flex items-center justify-between">
+                  <span className="font-bold">Total</span>
+                  <span className="font-display text-xl font-bold text-[var(--navy)]">
+                    {selected ? `${symbol}${grandTotal.toFixed(2)}` : "—"}
+                  </span>
+                </div>
               </div>
-            </div>
-          </aside>
+            </aside>
+            <TrustpilotStrip />
+          </div>
         </div>
       </section>
 
