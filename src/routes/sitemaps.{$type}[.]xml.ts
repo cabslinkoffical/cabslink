@@ -7,7 +7,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
-import { destinationHref, DESTINATION_TYPES, type DestinationType } from "@/lib/destinations.functions";
+import { destinationHref, DESTINATION_TYPES, type Destination, type DestinationType } from "@/lib/destinations.functions";
+import { evaluateQuality } from "@/lib/seo/quality";
+
 
 const BASE_URL = "https://cabslink.com";
 
@@ -35,14 +37,20 @@ export const Route = createFileRoute("/sitemaps/{$type}.xml")({
         const sb = serverPublicClient();
         const { data } = await sb
           .from("destinations")
-          .select("type,slug,updated_at,noindex")
+          .select("*")
           .eq("type", type)
           .eq("active", true)
-          .lte("seo_tier", 2)
           .eq("noindex", false)
+          .eq("seo_tier", 1)
           .limit(50000);
 
-        const rows = data ?? [];
+        // Only advertise URLs the page itself renders as indexable — the same
+        // quality gate the head builder uses, so the sitemap can never
+        // contradict a `noindex` directive.
+        const rows = (data ?? []).filter(
+          (r) => !evaluateQuality(r as unknown as Destination).effectiveNoindex,
+        );
+
         const xml = [
           `<?xml version="1.0" encoding="UTF-8"?>`,
           `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`,
