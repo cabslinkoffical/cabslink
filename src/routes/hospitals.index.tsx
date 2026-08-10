@@ -16,6 +16,6 @@ export const Route = createFileRoute("/hospitals/")({
   loader: ({ context }) => context.queryClient.ensureQueryData(hubQueryOptions(KEY)),
   component: () => {
     const { data } = useSuspenseQuery(hubQueryOptions(KEY));
-    return <HubPage title={HUBS[KEY].title} intro={HUBS[KEY].intro} destinations={data} />;
+    return <HubPage title={HUBS[KEY].title} intro={HUBS[KEY].intro} longIntro={HUBS[KEY].longIntro} notes={HUBS[KEY].notes} destinations={data} />;
   },
 });
