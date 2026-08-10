@@ -6,9 +6,9 @@ const KEY = "cruise-ports" as const;
 export const Route = createFileRoute("/cruise-ports/")({
   head: () => ({ meta: [
     { title: `${HUBS[KEY].title} — CabsLink` },
-    { name: "description", content: HUBS[KEY].intro },
+    { name: "description", content: HUBS[KEY].metaDescription },
     { property: "og:title", content: `${HUBS[KEY].title} — CabsLink` },
-    { property: "og:description", content: HUBS[KEY].intro },
+    { property: "og:description", content: HUBS[KEY].metaDescription },
     { property: "og:type", content: "website" },
     { property: "og:url", content: "https://cabslink.com/cruise-ports" },
     { name: "twitter:card", content: "summary_large_image" },

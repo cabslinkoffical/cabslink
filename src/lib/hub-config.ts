@@ -7,6 +7,8 @@ import {
 } from "@/lib/destinations.functions";
 
 type HubExtras = {
+  /** Search-result description (aim 120-160 chars). Falls back to `intro`. */
+  metaDescription?: string;
   /** Two or three sentences of genuine context, rendered under the intro. */
   longIntro?: string;
   /** Short factual "what to expect" points, rendered as a list. */
@@ -34,6 +36,7 @@ export const HUBS = {
     type: "city" as const,
     types: ["location", "city", "town", "village"] as DestinationType[],
     title: "Areas We Cover",
+    metaDescription: "Private car travel across the UK. Browse the towns and cities we cover for airport runs, station transfers, day trips and corporate account travel.",
     intro: "Private travel across the United Kingdom.",
     longIntro:
       "Each area page below covers the journeys we run most often from that town or city: airport runs, station transfers, day trips and account travel. Pages list typical routes, driving times and the vehicle classes that fit the roads and parking in that area.",
@@ -42,6 +45,7 @@ export const HUBS = {
   stations: {
     type: "station" as const,
     title: "Train Stations",
+    metaDescription: "Private transfers to UK mainline stations. Pre-booked pick-up points, train-delay tracking and fixed pricing for onward journeys with luggage.",
     intro: "Station transfers to every mainline UK rail hub.",
     longIntro:
       "Rail stations are the hardest places to arrange a car: taxi ranks move, drop-off bays are timed, and platforms change late. Every station page below records where our drivers wait, how long the run takes from the surrounding area, and what happens when a train is delayed or cancelled.",
@@ -60,6 +64,7 @@ export const HUBS = {
   "cruise-ports": {
     type: "cruise_port" as const,
     title: "Cruise Ports",
+    metaDescription: "Private transfers to UK cruise terminals. Timed to your boarding window, sized for cruise luggage and quoted at a fixed price before you travel.",
     intro: "Direct transfers to UK cruise terminals.",
     longIntro:
       "Cruise travel runs to a fixed boarding window, and most UK terminals sit well outside the nearest city. The port pages below cover the drive from the main airports and city centres, the terminal each line uses, and how far in advance we recommend leaving on embarkation day.",
@@ -78,6 +83,7 @@ export const HUBS = {
   universities: {
     type: "university" as const,
     title: "Universities",
+    metaDescription: "Private transfers for UK universities: move-in and move-out loads, airport and station runs, and bookings a parent or department can pay for.",
     intro: "Move-in, term travel and campus transfers.",
     longIntro:
       "Term-start weekends, reading weeks and end-of-year move-outs all mean travelling with far more luggage than a normal transfer. Each university page below covers the campus and halls we drive to, the airport and station runs students use most, and how parents can pay for a journey they are not travelling on.",
@@ -96,6 +102,7 @@ export const HUBS = {
   hospitals: {
     type: "hospital" as const,
     title: "Hospitals",
+    metaDescription: "Private transport to UK hospitals for appointments and discharges. Accessible vehicles, drivers who wait and open-time return journeys.",
     intro: "Medical appointment transport, UK-wide.",
     longIntro:
       "Appointment travel has different priorities from a normal transfer: arriving with time to spare, a driver who waits, and a car that is easy to get in and out of. The hospital pages below cover the site entrances we use, the drive from the surrounding towns, and how return journeys work when a discharge time is not known in advance.",
@@ -114,6 +121,7 @@ export const HUBS = {
   corporate: {
     type: "corporate" as const,
     title: "Corporate Locations",
+    metaDescription: "Business travel to UK offices, campuses and business parks. Agreed pick-up points, airport runs and monthly invoicing on a corporate account.",
     intro: "Business travel for teams and offices.",
     longIntro:
       "Business parks, campuses and financial districts each have their own access rules, barriers and visitor bays. The location pages below cover where drivers can legitimately pick up, the airport runs that feed each site, and how account travel is billed for teams booking repeatedly.",
@@ -132,6 +140,7 @@ export const HUBS = {
   attractions: {
     type: "attraction" as const,
     title: "Attractions",
+    metaDescription: "Private driver travel to UK landmarks and attractions. Your car waits while you visit, and stops can be combined into one full private day out.",
     intro: "Guided private travel to UK landmarks.",
     longIntro:
       "Visiting landmarks by private car is mostly about parking, timing and how long you actually want on site. Each attraction page below covers the drive from the nearest cities, the drop-off point, and whether it works better as a single stop or part of a longer day with the driver waiting.",
@@ -150,6 +159,7 @@ export const HUBS = {
   distilleries: {
     type: "distillery" as const,
     title: "Distilleries",
+    metaDescription: "Private distillery day tours with a driver, so every passenger can taste. Realistic itineraries of two to three distilleries with tour timings.",
     intro: "Whisky trail and distillery day tours.",
     longIntro:
       "The point of a private driver on a distillery day is simple: everyone in the group can taste. The pages below cover the distilleries we drive to, the realistic number of visits in a day given the roads between them, and how tour and tasting timings shape the route.",
@@ -168,6 +178,7 @@ export const HUBS = {
   guides: {
     type: "guide" as const,
     title: "Travel Guides",
+    metaDescription: "Travel guides written around journeys we actually drive: real route timings, when roads and airports are busiest, and stops worth making.",
     intro: "Editorial travel guides across the UK.",
     longIntro:
       "These guides are written around journeys we actually drive: how long routes really take, when roads and airports are busiest, and what is worth stopping for on the way. They are reference reading rather than booking pages — every guide links through to the relevant transfer or tour.",
