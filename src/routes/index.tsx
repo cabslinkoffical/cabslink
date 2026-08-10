@@ -77,6 +77,18 @@ export const Route = createFileRoute("/")({
         fetchPriority: "high",
       },
     ],
+    // Sitewide identity graph. Deliberately no Review/AggregateRating markup —
+    // the Trustpilot score is third-party and must not be emitted as our own
+    // review data.
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [organizationSchema(), websiteSchema()],
+        }),
+      },
+    ],
   }),
   // Prefetch on the server so the vehicle-class cards are present in the very
   // first render instead of popping in after hydration.
