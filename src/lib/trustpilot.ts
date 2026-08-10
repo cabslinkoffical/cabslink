@@ -2,23 +2,50 @@
  * Trustpilot proof data for Cabslink.
  *
  * SINGLE SOURCE OF TRUTH — update the values below when the public Trustpilot
- * profile changes. Nothing here may be invented: every number must be visible
+ * profile changes. Nothing here may be invented: every value must be visible
  * on https://www.trustpilot.com/review/cabslink.com at the time of the update.
  *
- * There is no Trustpilot API credential configured for this project, so the
- * figures are recorded manually together with the date they were read. The
- * UI always renders `verifiedOn` next to the rating so the snapshot is
- * transparent rather than implied to be live.
+ * There is no Trustpilot API credential or official widget configured for this
+ * project, and Trustpilot blocks automated fetching of the public profile, so
+ * the figures are recorded manually together with the date they were read. The
+ * UI always renders `verifiedOn` next to the rating so the snapshot reads as a
+ * dated snapshot rather than a live feed.
  *
- * If Trustpilot Business API access is added later, replace `TRUSTPILOT`
- * with a server-function fetch that returns the same shape — every consumer
- * reads this object only.
+ * If Trustpilot Business API access or the official widget is added later,
+ * replace `TRUSTPILOT` with a server-function fetch returning the same shape —
+ * every consumer reads this object only.
  */
 export type TrustpilotStarShare = {
   /** 1–5 */
   stars: number;
   /** Whole-percent share of reviews at this star level, as shown on the profile. */
   percent: number;
+};
+
+export type TrustpilotReview = {
+  /** Reviewer display name exactly as shown on Trustpilot. */
+  author: string;
+  /** Star rating the reviewer gave, 1–5. */
+  stars: number;
+  /** Month and year as displayed on the profile, e.g. "March 2026". */
+  date: string;
+  /**
+   * Short topic label describing what the review covers. This is neutral
+   * descriptive metadata for the card — NOT a paraphrase or a claim, and never
+   * presented as the reviewer's words.
+   */
+  topic: string;
+  /**
+   * A SHORT VERBATIM excerpt, copied character-for-character from the review on
+   * Trustpilot. Leave empty until someone has copied the real wording from the
+   * profile — the UI renders the card without a quote when this is empty.
+   *
+   * RULES when filling this in:
+   *  - Copy exactly. Never paraphrase, tidy up, or strengthen the wording.
+   *  - Keep it to roughly one sentence; link out for the rest.
+   *  - If you cannot see the review on the profile, leave it empty.
+   */
+  excerpt?: string;
 };
 
 export type TrustpilotSnapshot = {
@@ -30,6 +57,14 @@ export type TrustpilotSnapshot = {
   reviewCount: number;
   /** Star distribution exactly as published. Levels with 0% are omitted. */
   distribution: TrustpilotStarShare[];
+  /** Individual reviews referenced on the site. */
+  reviews: TrustpilotReview[];
+  /**
+   * True while Trustpilot displays its notice that the profile has no recent
+   * history of asking customers for reviews. When true the UI must not describe
+   * the reviews as verified, invited, or representative.
+   */
+  noRecentInviteHistory: boolean;
   /** Public profile URL — always linked so visitors can verify. */
   profileUrl: string;
   /** ISO date the figures above were read from the public profile. */
@@ -44,6 +79,13 @@ export const TRUSTPILOT: TrustpilotSnapshot = {
     { stars: 5, percent: 96 },
     { stars: 4, percent: 4 },
   ],
+  reviews: [
+    { author: "Cam Burley", stars: 5, date: "March 2026", topic: "Response & issue resolution" },
+    { author: "Karen Resendez", stars: 5, date: "April 2025", topic: "Booking & drivers" },
+    { author: "Glen Snedden", stars: 5, date: "May 2025", topic: "Communication & vehicle" },
+    { author: "Hannah climber", stars: 4, date: "September 2024", topic: "Punctuality & comfort" },
+  ],
+  noRecentInviteHistory: true,
   profileUrl: "https://www.trustpilot.com/review/cabslink.com",
   verifiedOn: "2026-08-10",
 };
