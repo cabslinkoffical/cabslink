@@ -349,17 +349,38 @@ export function buildJourney(slug: string): JourneyContent | null {
     .map((r) => ({ label: `${r.from.name} to ${r.to.name}`, to: journeyPath(r.slug) }));
 
   const pair = `${j.from.name} to ${j.to.name}`;
+  const hours = formatDuration(j.mins);
 
   return {
     ...j,
     h1: `${pair} private transfer.`,
-    metaTitle: `${pair} Transfer — Fixed Price Private Car | Cabslink`,
-    metaDescription: `Pre-booked ${pair} transfers: ${j.miles} miles via ${j.via}, about ${formatDuration(
-      j.mins,
-    )} door to door. Fixed price, professional driver, 24/7 UK support.`,
+    // Titles are kept inside ~60 characters so Google renders them in full:
+    // the richest variant that fits wins, longest pairs fall back to the short one.
+    metaTitle: pickWithin(60, [
+      `${pair} Transfer — Fixed Price Private Car | Cabslink`,
+      `${pair} Transfer — Fixed Price | Cabslink`,
+      `${pair} Transfer | Cabslink`,
+    ]),
+    metaDescription: pickWithin(160, [
+      `Pre-booked ${pair} transfers: ${j.miles} miles via ${j.via}, about ${hours} door to door. Fixed price, professional driver, 24/7 UK support.`,
+      `Pre-booked ${pair} transfers: ${j.miles} miles via ${j.via}, about ${hours} door to door. Fixed price, professional driver.`,
+      `${pair} transfers: ${j.miles} miles via ${j.via}, about ${hours} door to door. Fixed price, professional driver.`,
+    ]),
     canonicalPath: journeyPath(j.slug),
-    hours: formatDuration(j.mins),
+    hours,
     services,
     relatedJourneys: related,
   };
 }
+
+/**
+ * Returns the first variant within `limit` characters, or the shortest one when
+ * every variant is too long (better a slightly long title than a truncated word).
+ */
+function pickWithin(limit: number, variants: string[]): string {
+  return (
+    variants.find((v) => v.length <= limit) ??
+    variants.reduce((a, b) => (b.length < a.length ? b : a))
+  );
+}
+

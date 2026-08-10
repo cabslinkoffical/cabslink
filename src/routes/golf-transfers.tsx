@@ -3,9 +3,10 @@ import { Target, Clock, Luggage, MapPin } from "lucide-react";
 import { SportsServicePage, sportsFaqSchema, type SportsServiceContent } from "@/components/site/SportsServicePage";
 import eventsImg from "@/assets/services/events.jpg.asset.json";
 
-const TITLE = "Golf Transfers Scotland — St Andrews & Course Travel | Cabslink";
+const TITLE = "Golf Transfers Scotland — St Andrews & Courses | Cabslink";
 const DESC =
-  "Private golf transfers across Scotland and the UK. Door-to-door travel to St Andrews, Carnoustie, Turnberry and Gleneagles with room for clubs and fixed pricing.";
+  "Private golf transfers across Scotland. Door-to-door travel to St Andrews, Carnoustie, Turnberry and Gleneagles, with room for clubs and fixed pricing.";
+
 const URL = "https://cabslink.com/golf-transfers";
 
 const faqs = [

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/corporate-travel/")({
   head: () => ({
     meta: [
-      { title: "Corporate Travel — Cabslink Business Business Travel Accounts" },
+      { title: "Corporate Travel Accounts — Cabslink Business Travel" },
       { name: "description", content: "Account-managed corporate travel with punctual drivers, monthly invoicing, dedicated support and full reporting." },
       { property: "og:title", content: "Corporate Travel — Cabslink" },
       { property: "og:description", content: "Account-managed corporate travel with punctual drivers, monthly invoicing, dedicated support and full reporting." },

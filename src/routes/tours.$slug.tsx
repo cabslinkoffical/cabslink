@@ -36,15 +36,21 @@ export const Route = createFileRoute("/tours/$slug")({
     if (!d) {
       return { meta: [{ title: "Tour not found — Cabslink" }, { name: "robots", content: "noindex" }] };
     }
-    const title = `${d.name} — Private Driver Tour | Cabslink`;
-    const desc = d.short_description ?? `Private private tour: ${d.origin_label} to ${d.destination_label}. Book with Cabslink.`;
+    // Tour names are long, so only add the descriptor when the title still fits
+    // inside the ~60 characters Google renders.
+    const long = `${d.name} — Private Driver Tour | Cabslink`;
+    const title = long.length <= 60 ? long : `${d.name} | Cabslink`;
+    const desc =
+      d.short_description ??
+      `Private driver tour: ${d.origin_label} to ${d.destination_label}. Book with Cabslink.`;
+    const url = `https://cabslink.com/tours/${d.slug}`;
     const meta: Array<Record<string, string>> = [
       { title },
       { name: "description", content: desc },
       { property: "og:title", content: title },
       { property: "og:description", content: desc },
       { property: "og:type", content: "article" },
-      { property: "og:url", content: `/tours/${d.slug}` },
+      { property: "og:url", content: url },
     ];
     if (d.hero_image_url) {
       meta.push({ property: "og:image", content: d.hero_image_url });
@@ -52,7 +58,8 @@ export const Route = createFileRoute("/tours/$slug")({
     }
     return {
       meta,
-      links: [{ rel: "canonical", href: `/tours/${d.slug}` }],
+      links: [{ rel: "canonical", href: url }],
+
       scripts: [
         {
           type: "application/ld+json",

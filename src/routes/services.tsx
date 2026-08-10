@@ -47,7 +47,7 @@ export const Route = createFileRoute("/services")({
   head: () => ({
     meta: [
       { title: "Services — Cabslink UK Airport Transfers, Golf & Sports Travel" },
-      { name: "description", content: "Every Cabslink service: airport, station and cruise transfers, golf and football travel, day tours, hourly hire, corporate accounts, VIP and group travel across the UK." },
+      { name: "description", content: "Every Cabslink service: airport, station and cruise transfers, golf and football travel, day tours, hourly hire, corporate accounts and group travel." },
       { property: "og:title", content: "Cabslink Services — UK Airport Transfers, Golf & Sports Travel" },
       { property: "og:description", content: "Airport, station and cruise transfers, golf and football travel, sports events, day tours, hourly hire, corporate accounts, VIP and group travel across the UK." },
       { property: "og:type", content: "website" },
@@ -286,8 +286,9 @@ function ServicesPage() {
                   <h3 className="mt-3 font-display text-xl font-semibold text-white">{s.title}</h3>
                   <p className="mt-1.5 text-xs leading-relaxed text-white/70">{s.desc}</p>
                   <p className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[var(--gold)] transition-all group-hover:gap-3">
-                    Learn more <ArrowRight className="size-3.5" />
+                    View {s.title} <ArrowRight className="size-3.5" />
                   </p>
+
                 </div>
               </Link>
             ))}
