@@ -22,6 +22,12 @@ import { TourCard } from "@/components/site/TourCard";
 import { listPublicVehicleClasses } from "@/lib/vehicle-classes.functions";
 import { listDestinationsByTypes } from "@/lib/destinations.functions";
 
+const publishedToursQuery = queryOptions({
+  queryKey: ["published-tours"],
+  queryFn: () => listPublishedTours(),
+  staleTime: 60_000,
+});
+
 const locationsDirectoryQuery = queryOptions({
   queryKey: ["destinations", "locations-directory"],
   queryFn: () => listDestinationsByTypes({ data: { types: ["city", "town"], tiers: [1, 2, 3] } }),
@@ -120,6 +126,7 @@ export const Route = createFileRoute("/")({
         staleTime: 5 * 60_000,
       }),
       context.queryClient.ensureQueryData(locationsDirectoryQuery),
+      context.queryClient.ensureQueryData(publishedToursQuery),
     ]);
   },
   component: HomePage,
@@ -182,11 +189,7 @@ function HomePage() {
   const [active, setActive] = useState(0);
   const [dir, setDir] = useState<1 | -1>(1);
   const [paused, setPaused] = useState(false);
-  const { data: publishedTours = [] } = useQuery({
-    queryKey: ["published-tours"],
-    queryFn: () => listPublishedTours(),
-    staleTime: 60_000,
-  });
+  const { data: publishedTours = [] } = useSuspenseQuery(publishedToursQuery);
   const popularTours = useMemo(() => {
     const featured = publishedTours.filter((t) => t.featured);
     return (featured.length >= 4 ? featured : publishedTours).slice(0, 4);
