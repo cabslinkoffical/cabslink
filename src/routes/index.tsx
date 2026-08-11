@@ -489,43 +489,8 @@ function HomePage() {
         </div>
       </section>
 
-      {/* AIRPORT TRANSFERS */}
-      <section className="section-y bg-white">
-        <div className="container-x">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
-            <div className="max-w-2xl">
-              <p className="eyebrow-gold text-[11px]">— Airport Transfers</p>
-              <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold text-[var(--navy)] leading-[1.05]">
-                Every major UK <span className="text-[var(--gold-ink)]">airport.</span>
-              </h2>
-            </div>
-            <Button asChild variant="outline" className="rounded-full border-[var(--navy)]/20 text-[var(--navy)] hover:border-[var(--gold)] hover:text-[var(--gold-ink)] self-start md:self-auto">
-              <Link to="/airports">All airports <ArrowRight className="size-4" /></Link>
-            </Button>
-          </div>
-
-          <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
-            {ukAirports.map((a) => (
-              <Link
-                key={a.code}
-                to="/airports/$iata"
-                params={{ iata: a.code.toLowerCase() }}
-                className="group relative overflow-hidden rounded-[20px] border border-[var(--navy)]/10 bg-white p-6 shadow-raised hover:shadow-raised-hover hover:border-[var(--gold)] hover:-translate-y-1.5 transition-all"
-              >
-                <div className="flex items-start justify-between">
-                  <Plane className="size-6 text-[var(--gold-ink)]" />
-                  <span className="font-mono text-[10px] text-[var(--navy)]/40 tracking-widest">{a.code}</span>
-                </div>
-                <h3 className="mt-6 font-display text-lg font-semibold text-[var(--navy)]">{a.name}</h3>
-                <p className="text-xs text-[var(--navy)]/55">{a.city}</p>
-                <span className="mt-5 inline-flex items-center gap-1 text-xs font-semibold text-[var(--navy)] group-hover:text-[var(--gold-ink)] group-hover:gap-2 transition-all">
-                  Book transfer <ArrowRight className="size-3" />
-                </span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* UK COVERAGE + AIRPORTS (single merged section) */}
+      <CoverageSection />
 
 
       {/* VEHICLE CLASSES */}
