@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 
 import {
   ArrowRight, Plane, ShieldCheck, CalendarCheck, Phone,
@@ -21,6 +21,12 @@ import { listPublishedTours } from "@/lib/tours.functions";
 import { TourCard } from "@/components/site/TourCard";
 import { listPublicVehicleClasses } from "@/lib/vehicle-classes.functions";
 import { listDestinationsByTypes } from "@/lib/destinations.functions";
+
+const locationsDirectoryQuery = queryOptions({
+  queryKey: ["destinations", "locations-directory"],
+  queryFn: () => listDestinationsByTypes({ data: { types: ["city", "town"], tiers: [1, 2, 3] } }),
+  staleTime: 10 * 60_000,
+});
 import { fleetImageFor } from "@/assets/fleet";
 
 import sclassAsset from "@/assets/fleet/sclass.png.asset.json";
@@ -1058,11 +1064,7 @@ function FleetClassesSection() {
  * homepage links directly into each destination instead of only /areas.
  */
 function LocationsDirectory() {
-  const { data: cities = [] } = useQuery({
-    queryKey: ["destinations", "locations-directory"],
-    queryFn: () => listDestinationsByTypes({ data: { types: ["city", "town"], tiers: [1, 2, 3] } }),
-    staleTime: 10 * 60_000,
-  });
+  const { data: cities = [] } = useSuspenseQuery(locationsDirectoryQuery);
 
   const items = useMemo(
     () =>
