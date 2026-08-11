@@ -1020,7 +1020,7 @@ function CoverageSection() {
     () =>
       [...cities]
         .sort((a, b) => (a.seo_tier ?? 9) - (b.seo_tier ?? 9) || a.name.localeCompare(b.name))
-        .slice(0, 12),
+        .slice(0, 18),
     [cities],
   );
 
