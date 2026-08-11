@@ -172,14 +172,14 @@ const features = [
 
 
 const ukAirports = [
+  { code: "EDI", name: "Edinburgh", city: "Scotland" },
+  { code: "GLA", name: "Glasgow", city: "Scotland" },
   { code: "LHR", name: "Heathrow", city: "London" },
   { code: "LGW", name: "Gatwick", city: "London" },
-  { code: "MAN", name: "Manchester", city: "Manchester" },
-  { code: "BHX", name: "Birmingham", city: "Birmingham" },
   { code: "STN", name: "Stansted", city: "London" },
   { code: "LTN", name: "Luton", city: "London" },
-  { code: "EDI", name: "Edinburgh", city: "Edinburgh" },
-  { code: "GLA", name: "Glasgow", city: "Glasgow" },
+  { code: "MAN", name: "Manchester", city: "North West" },
+  { code: "BHX", name: "Birmingham", city: "Midlands" },
 ];
 
 
