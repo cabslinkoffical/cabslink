@@ -840,7 +840,12 @@ function HomePage() {
         </div>
       </section>
 
+      {/* LOCATION DIRECTORY — deep links into the area pages */}
+      <LocationsDirectory />
+
       {/* Closing CTA is rendered by SiteLayout (FinalCta) */}
+
+
 
 
 
