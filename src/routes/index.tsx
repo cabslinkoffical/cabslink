@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { queryOptions, useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 
 import {
   ArrowRight, Plane, ShieldCheck, CalendarCheck, Phone,
@@ -21,6 +21,12 @@ import { listPublishedTours } from "@/lib/tours.functions";
 import { TourCard } from "@/components/site/TourCard";
 import { listPublicVehicleClasses } from "@/lib/vehicle-classes.functions";
 import { listDestinationsByTypes } from "@/lib/destinations.functions";
+
+const publishedToursQuery = queryOptions({
+  queryKey: ["published-tours"],
+  queryFn: () => listPublishedTours(),
+  staleTime: 60_000,
+});
 
 const locationsDirectoryQuery = queryOptions({
   queryKey: ["destinations", "locations-directory"],
@@ -120,6 +126,7 @@ export const Route = createFileRoute("/")({
         staleTime: 5 * 60_000,
       }),
       context.queryClient.ensureQueryData(locationsDirectoryQuery),
+      context.queryClient.ensureQueryData(publishedToursQuery),
     ]);
   },
   component: HomePage,
@@ -175,10 +182,6 @@ const ukAirports = [
   { code: "GLA", name: "Glasgow", city: "Glasgow" },
 ];
 
-const ukCities = [
-  "London", "Edinburgh", "Manchester", "Glasgow", "Birmingham",
-  "Liverpool", "Leeds", "Bristol", "Cardiff", "Newcastle", "Oxford", "Cambridge",
-];
 
 
 
@@ -186,11 +189,7 @@ function HomePage() {
   const [active, setActive] = useState(0);
   const [dir, setDir] = useState<1 | -1>(1);
   const [paused, setPaused] = useState(false);
-  const { data: publishedTours = [] } = useQuery({
-    queryKey: ["published-tours"],
-    queryFn: () => listPublishedTours(),
-    staleTime: 60_000,
-  });
+  const { data: publishedTours = [] } = useSuspenseQuery(publishedToursQuery);
   const popularTours = useMemo(() => {
     const featured = publishedTours.filter((t) => t.featured);
     return (featured.length >= 4 ? featured : publishedTours).slice(0, 4);
@@ -489,43 +488,8 @@ function HomePage() {
         </div>
       </section>
 
-      {/* AIRPORT TRANSFERS */}
-      <section className="section-y bg-white">
-        <div className="container-x">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
-            <div className="max-w-2xl">
-              <p className="eyebrow-gold text-[11px]">— Airport Transfers</p>
-              <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold text-[var(--navy)] leading-[1.05]">
-                Every major UK <span className="text-[var(--gold-ink)]">airport.</span>
-              </h2>
-            </div>
-            <Button asChild variant="outline" className="rounded-full border-[var(--navy)]/20 text-[var(--navy)] hover:border-[var(--gold)] hover:text-[var(--gold-ink)] self-start md:self-auto">
-              <Link to="/airports">All airports <ArrowRight className="size-4" /></Link>
-            </Button>
-          </div>
-
-          <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
-            {ukAirports.map((a) => (
-              <Link
-                key={a.code}
-                to="/airports/$iata"
-                params={{ iata: a.code.toLowerCase() }}
-                className="group relative overflow-hidden rounded-[20px] border border-[var(--navy)]/10 bg-white p-6 shadow-raised hover:shadow-raised-hover hover:border-[var(--gold)] hover:-translate-y-1.5 transition-all"
-              >
-                <div className="flex items-start justify-between">
-                  <Plane className="size-6 text-[var(--gold-ink)]" />
-                  <span className="font-mono text-[10px] text-[var(--navy)]/40 tracking-widest">{a.code}</span>
-                </div>
-                <h3 className="mt-6 font-display text-lg font-semibold text-[var(--navy)]">{a.name}</h3>
-                <p className="text-xs text-[var(--navy)]/55">{a.city}</p>
-                <span className="mt-5 inline-flex items-center gap-1 text-xs font-semibold text-[var(--navy)] group-hover:text-[var(--gold-ink)] group-hover:gap-2 transition-all">
-                  Book transfer <ArrowRight className="size-3" />
-                </span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* UK COVERAGE + AIRPORTS (single merged section) */}
+      <CoverageSection />
 
 
       {/* VEHICLE CLASSES */}
@@ -670,86 +634,8 @@ function HomePage() {
       <TrustpilotSection />
 
 
+      {/* Coverage + airports are merged into one section above */}
 
-      {/* UK COVERAGE */}
-      <section className="section-y bg-white">
-        <div className="container-x grid lg:grid-cols-12 gap-12 items-center">
-          <div className="lg:col-span-5">
-            <span className="eyebrow-gold text-[11px]">UK Coverage</span>
-            <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold text-[var(--navy)] leading-[1.05]">
-              From the Highlands <br />
-              <span className="text-[var(--gold-ink)]">to the Channel.</span>
-            </h2>
-            <p className="mt-5 text-[var(--navy)]/65 leading-relaxed">
-              120+ towns and cities. Every major airport. One trusted travel platform
-              across England, Scotland and Wales — with local drivers who know the roads.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Button asChild variant="gold" className="rounded-full">
-                <Link to="/areas">Explore Locations <ArrowRight className="size-4" /></Link>
-              </Button>
-              <Button asChild variant="outline" className="rounded-full border-[var(--navy)]/20 text-[var(--navy)] hover:border-[var(--gold)] hover:text-[var(--gold-ink)]">
-                <Link to="/airport-transfers">All airports</Link>
-              </Button>
-            </div>
-            <dl className="mt-10 grid grid-cols-3 gap-6 max-w-md">
-              {[
-                { k: "120+", v: "Towns & cities" },
-                { k: "25+", v: "UK airports" },
-                { k: "24/7", v: "Dispatch" },
-              ].map((s) => (
-                <div key={s.v}>
-                  <dt className="font-display text-3xl font-bold text-[var(--navy)]">{s.k}</dt>
-                  <dd className="text-xs text-[var(--navy)]/60 mt-1">{s.v}</dd>
-                </div>
-              ))}
-            </dl>
-          </div>
-
-          <div className="lg:col-span-7">
-            <div className="rounded-[28px] border border-[var(--navy)]/10 bg-white p-6 md:p-8 shadow-raised">
-              <div className="flex items-center justify-between gap-3 pb-5 border-b border-[var(--navy)]/10">
-                <div className="flex items-center gap-3">
-                  <Globe2 className="size-5 text-[var(--gold-ink)]" />
-                  <span className="font-display text-lg font-semibold text-[var(--navy)]">Cities we serve</span>
-                </div>
-                <Link to="/areas" className="hidden sm:inline-flex items-center gap-1 text-xs font-semibold text-[var(--navy)]/60 hover:text-[var(--gold-ink)]">
-                  View all <ArrowRight className="size-3" />
-                </Link>
-              </div>
-              <div className="mt-5 flex flex-wrap gap-2">
-                {ukCities.map((c) => (
-                  <Link
-                    key={c}
-                    to="/areas"
-                    className="inline-flex items-center gap-1.5 rounded-full border border-[var(--navy)]/12 bg-white px-3.5 py-1.5 text-xs font-semibold text-[var(--navy)] hover:border-[var(--gold)] hover:text-[var(--gold-ink)] hover:-translate-y-0.5 transition-all"
-                  >
-                    <MapPin className="size-3 text-[var(--gold-ink)]" /> {c}
-                  </Link>
-                ))}
-                <Link
-                  to="/areas"
-                  className="inline-flex items-center gap-1 rounded-full bg-[var(--navy)] text-white px-3.5 py-1.5 text-xs font-semibold hover:bg-[var(--gold)] hover:text-[var(--navy)] transition-colors"
-                >
-                  + 108 more <ArrowRight className="size-3" />
-                </Link>
-              </div>
-
-              <div className="mt-6 pt-5 border-t border-[var(--navy)]/10 grid grid-cols-3 gap-3 text-center">
-                {["England", "Scotland", "Wales"].map((r) => (
-                  <Link
-                    key={r}
-                    to="/areas"
-                    className="rounded-xl border border-[var(--navy)]/10 bg-[var(--surface-2)] px-3 py-3 text-xs font-semibold text-[var(--navy)] hover:border-[var(--gold)] hover:text-[var(--gold-ink)] transition"
-                  >
-                    {r}
-                  </Link>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* CORPORATE TRAVEL */}
       <section className="section-y bg-[var(--surface-2)]">
@@ -1117,6 +1003,124 @@ function LocationsDirectory() {
             </li>
           ))}
         </ul>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * UK coverage — airports and locations in ONE section, so the homepage states
+ * where we operate once instead of twice. Airport cards link to the IATA
+ * pages; city chips link to their real /areas/{slug} pages.
+ */
+function CoverageSection() {
+  const { data: cities = [] } = useSuspenseQuery(locationsDirectoryQuery);
+
+  const chips = useMemo(
+    () =>
+      [...cities]
+        .sort((a, b) => (a.seo_tier ?? 9) - (b.seo_tier ?? 9) || a.name.localeCompare(b.name))
+        .slice(0, 12),
+    [cities],
+  );
+
+  return (
+    <section className="section-y bg-white">
+      <div className="container-x">
+        <div className="grid lg:grid-cols-12 gap-12 items-start">
+          <div className="lg:col-span-5">
+            <p className="eyebrow-gold text-[11px]">— UK Coverage</p>
+            <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold text-[var(--navy)] leading-[1.05]">
+              From the Highlands <br />
+              <span className="text-[var(--gold-ink)]">to the Channel.</span>
+            </h2>
+            <p className="mt-5 text-[var(--navy)]/65 leading-relaxed">
+              Every major UK airport and a growing list of towns and cities — one
+              platform, fixed fares and local drivers who know the roads.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Button asChild variant="gold" className="rounded-full">
+                <Link to="/areas">Explore locations <ArrowRight className="size-4" /></Link>
+              </Button>
+              <Button
+                asChild
+                variant="outline"
+                className="rounded-full border-[var(--navy)]/20 text-[var(--navy)] hover:border-[var(--gold)] hover:text-[var(--gold-ink)]"
+              >
+                <Link to="/airports">All airports</Link>
+              </Button>
+            </div>
+
+            <div className="mt-10 rounded-[24px] border border-[var(--navy)]/10 bg-[var(--surface-2)] p-6">
+              <div className="flex items-center justify-between gap-3 pb-4 border-b border-[var(--navy)]/10">
+                <div className="flex items-center gap-3">
+                  <Globe2 className="size-5 text-[var(--gold-ink)]" />
+                  <span className="font-display text-base font-semibold text-[var(--navy)]">
+                    Towns &amp; cities we serve
+                  </span>
+                </div>
+                <Link
+                  to="/areas"
+                  className="hidden sm:inline-flex items-center gap-1 text-xs font-semibold text-[var(--navy)]/60 hover:text-[var(--gold-ink)]"
+                >
+                  View all <ArrowRight className="size-3" />
+                </Link>
+              </div>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {chips.map((c) => (
+                  <Link
+                    key={c.slug}
+                    to="/areas/$slug"
+                    params={{ slug: c.slug }}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-[var(--navy)]/12 bg-white px-3.5 py-1.5 text-xs font-semibold text-[var(--navy)] hover:border-[var(--gold)] hover:text-[var(--gold-ink)] hover:-translate-y-0.5 transition-all"
+                  >
+                    <MapPin className="size-3 text-[var(--gold-ink)]" /> {c.name}
+                  </Link>
+                ))}
+                <Link
+                  to="/areas"
+                  className="inline-flex items-center gap-1 rounded-full bg-[var(--navy)] text-white px-3.5 py-1.5 text-xs font-semibold hover:bg-[var(--gold)] hover:text-[var(--navy)] transition-colors"
+                >
+                  All areas <ArrowRight className="size-3" />
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          <div className="lg:col-span-7">
+            <div className="flex items-center justify-between gap-4 mb-5">
+              <h3 className="font-display text-xl font-semibold text-[var(--navy)]">
+                Every major UK <span className="text-[var(--gold-ink)]">airport</span>
+              </h3>
+              <Link
+                to="/airports"
+                className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--navy)]/60 hover:text-[var(--gold-ink)]"
+              >
+                All airports <ArrowRight className="size-3" />
+              </Link>
+            </div>
+            <div className="grid gap-4 grid-cols-2 lg:grid-cols-3">
+              {ukAirports.map((a) => (
+                <Link
+                  key={a.code}
+                  to="/airports/$iata"
+                  params={{ iata: a.code.toLowerCase() }}
+                  className="group relative overflow-hidden rounded-[20px] border border-[var(--navy)]/10 bg-white p-5 shadow-raised hover:shadow-raised-hover hover:border-[var(--gold)] hover:-translate-y-1.5 transition-all"
+                >
+                  <div className="flex items-start justify-between">
+                    <Plane className="size-5 text-[var(--gold-ink)]" />
+                    <span className="font-mono text-[10px] text-[var(--navy)]/40 tracking-widest">{a.code}</span>
+                  </div>
+                  <h4 className="mt-5 font-display text-base font-semibold text-[var(--navy)]">{a.name}</h4>
+                  <p className="text-xs text-[var(--navy)]/55">{a.city}</p>
+                  <span className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-[var(--navy)] group-hover:text-[var(--gold-ink)] group-hover:gap-2 transition-all">
+                    Book transfer <ArrowRight className="size-3" />
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );
