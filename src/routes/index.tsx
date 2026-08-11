@@ -6,7 +6,7 @@ import {
   ArrowRight, Plane, ShieldCheck, CalendarCheck, Phone,
   Briefcase, Users, Award, BadgePoundSterling, Headset, Car, Building2, Gem,
   Route as RouteIcon, CheckCircle2, Sparkles, MessageSquare, CreditCard, Quote,
-  Plus, Minus, MapPin, Clock, Globe2, Compass, Wallet, Timer, Mail, BadgeCheck, PlaneTakeoff
+  Plus, Minus, Clock, Compass, Wallet, Timer, Mail, BadgeCheck, PlaneTakeoff
 } from "lucide-react";
 
 import { SiteLayout } from "@/components/site/SiteLayout";
@@ -171,16 +171,6 @@ const features = [
 ];
 
 
-const ukAirports = [
-  { code: "EDI", name: "Edinburgh", city: "Scotland" },
-  { code: "GLA", name: "Glasgow", city: "Scotland" },
-  { code: "LHR", name: "Heathrow", city: "London" },
-  { code: "LGW", name: "Gatwick", city: "London" },
-  { code: "STN", name: "Stansted", city: "London" },
-  { code: "LTN", name: "Luton", city: "London" },
-  { code: "MAN", name: "Manchester", city: "North West" },
-  { code: "BHX", name: "Birmingham", city: "Midlands" },
-];
 
 
 
@@ -488,8 +478,7 @@ function HomePage() {
         </div>
       </section>
 
-      {/* UK COVERAGE + AIRPORTS (single merged section) */}
-      <CoverageSection />
+
 
 
       {/* VEHICLE CLASSES */}
