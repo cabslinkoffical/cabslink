@@ -175,10 +175,6 @@ const ukAirports = [
   { code: "GLA", name: "Glasgow", city: "Glasgow" },
 ];
 
-const ukCities = [
-  "London", "Edinburgh", "Manchester", "Glasgow", "Birmingham",
-  "Liverpool", "Leeds", "Bristol", "Cardiff", "Newcastle", "Oxford", "Cambridge",
-];
 
 
 
