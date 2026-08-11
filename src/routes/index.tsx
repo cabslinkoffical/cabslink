@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { queryOptions, useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 
 import {
   ArrowRight, Plane, ShieldCheck, CalendarCheck, Phone,
