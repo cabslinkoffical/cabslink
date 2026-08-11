@@ -20,6 +20,7 @@ import { SITE } from "@/lib/site";
 import { listPublishedTours } from "@/lib/tours.functions";
 import { TourCard } from "@/components/site/TourCard";
 import { listPublicVehicleClasses } from "@/lib/vehicle-classes.functions";
+import { listDestinationsByTypes } from "@/lib/destinations.functions";
 import { fleetImageFor } from "@/assets/fleet";
 
 import sclassAsset from "@/assets/fleet/sclass.png.asset.json";
@@ -1045,5 +1046,72 @@ function FleetClassesSection() {
       )}
     </section>
 
+  );
+}
+
+/**
+ * LOCATIONS directory — a plain, crawlable list of the area pages so the
+ * homepage links directly into each destination instead of only /areas.
+ */
+function LocationsDirectory() {
+  const { data: cities = [] } = useQuery({
+    queryKey: ["destinations", "locations-directory"],
+    queryFn: () => listDestinationsByTypes({ data: { types: ["city", "town"], tiers: [1, 2, 3] } }),
+    staleTime: 10 * 60_000,
+  });
+
+  const items = useMemo(
+    () =>
+      [...cities]
+        .sort((a, b) => (a.seo_tier ?? 9) - (b.seo_tier ?? 9) || a.name.localeCompare(b.name))
+        .slice(0, 16),
+    [cities],
+  );
+
+  if (items.length === 0) return null;
+
+  return (
+    <section className="section-y bg-[var(--navy)] text-white">
+      <div className="container-x">
+        <div className="flex flex-wrap items-end justify-between gap-6">
+          <div>
+            <p className="eyebrow-gold text-[11px]">— Locations</p>
+            <h2 className="mt-3 font-display text-4xl md:text-5xl font-bold leading-[1.05]">
+              Where we <span className="text-[var(--gold)]">drive.</span>
+            </h2>
+          </div>
+          <Link
+            to="/areas"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-white/70 hover:text-[var(--gold)] transition-colors"
+          >
+            All locations <ArrowRight className="size-4" />
+          </Link>
+        </div>
+
+        <ul className="mt-10 grid gap-x-12 md:grid-cols-2">
+          {items.map((d) => (
+            <li key={d.slug} className="border-b border-white/12">
+              <Link
+                to="/areas/$slug"
+                params={{ slug: d.slug }}
+                className="group flex items-center justify-between gap-6 py-4"
+              >
+                <span className="min-w-0">
+                  <span className="font-display text-lg md:text-xl font-semibold text-white group-hover:text-[var(--gold)] transition-colors">
+                    {d.name}
+                  </span>
+                  {d.region ? (
+                    <span className="ml-3 text-xs uppercase tracking-[0.14em] text-white/45">{d.region}</span>
+                  ) : null}
+                </span>
+                <span className="grid size-9 shrink-0 place-items-center rounded-full border border-white/20 text-white/80 transition-all group-hover:border-[var(--gold)] group-hover:bg-[var(--gold)] group-hover:text-[var(--gold-foreground)]">
+                  <ArrowRight className="size-4 -rotate-45 group-hover:rotate-0 transition-transform" />
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
   );
 }
