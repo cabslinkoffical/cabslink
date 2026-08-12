@@ -133,7 +133,7 @@ export function BookingWidget({
   return (
     <div className="@container w-full max-w-6xl mx-auto">
       {/* Tabs above the pill */}
-      <div className="flex items-center gap-1 mb-3 px-2">
+      <div className="flex items-center gap-0.5 mb-3 px-2 -mx-1 overflow-x-auto no-scrollbar @[420px]:gap-1 @[420px]:mx-0">
         <TabButton tone={tone} active={tab === "quote"} onClick={() => setTab("quote")} icon={<Car className="w-4 h-4" />}>
           Transfers
         </TabButton>
@@ -539,7 +539,7 @@ function TabButton({ active, onClick, icon, children, tone = "dark" }: { active:
     <button
       type="button"
       onClick={onClick}
-      className={`inline-flex items-center gap-2 px-4 py-2.5 text-sm font-bold font-display tracking-wide transition-colors border-b-2 ${
+      className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap px-3 py-2.5 text-[13px] @[420px]:px-4 @[420px]:text-sm font-bold font-display tracking-wide transition-colors border-b-2 ${
         active ? activeCls : idleCls
       }`}
     >
