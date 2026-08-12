@@ -55,7 +55,7 @@ export function LocationsDirectory({
           </div>
           <Link
             to="/areas"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--navy)]/70 hover:text-[var(--gold-ink)] transition-colors"
+            className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-[var(--navy)]/70 hover:text-[var(--gold-ink)] transition-colors"
           >
             All locations <ArrowRight className="size-4" />
           </Link>

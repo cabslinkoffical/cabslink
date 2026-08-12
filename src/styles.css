@@ -525,3 +525,10 @@ input[type="time"] {
     transparent 6px 12px
   );
 }
+
+/* Hide scrollbars on horizontally scrollable mobile strips */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar { display: none; }
+}

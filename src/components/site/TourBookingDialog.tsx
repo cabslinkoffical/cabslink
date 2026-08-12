@@ -313,7 +313,7 @@ function Field({
         {icon}
       </div>
       <div className="min-w-0 flex-1">
-        <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-foreground/45 truncate">
+        <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-foreground/45 truncate">
           {label}
         </div>
         <div className="[&_input::-webkit-calendar-picker-indicator]:opacity-0 [&_input::-webkit-calendar-picker-indicator]:absolute [&_input::-webkit-calendar-picker-indicator]:inset-0 [&_input::-webkit-calendar-picker-indicator]:w-full [&_input::-webkit-calendar-picker-indicator]:h-full [&_input::-webkit-calendar-picker-indicator]:cursor-pointer relative">

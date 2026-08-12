@@ -133,7 +133,7 @@ export function BookingWidget({
   return (
     <div className="@container w-full max-w-6xl mx-auto">
       {/* Tabs above the pill */}
-      <div className="flex items-center gap-1 mb-3 px-2">
+      <div className="flex items-center gap-0.5 mb-3 px-2 -mx-1 overflow-x-auto no-scrollbar @[420px]:gap-1 @[420px]:mx-0">
         <TabButton tone={tone} active={tab === "quote"} onClick={() => setTab("quote")} icon={<Car className="w-4 h-4" />}>
           Transfers
         </TabButton>
@@ -453,7 +453,7 @@ export function BookingWidget({
                 </div>
 
                 <div className="min-w-0 flex-1">
-                  <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/70">Stop {i + 1}</div>
+                  <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/70">Stop {i + 1}</div>
                   <PlaceAutocomplete
                     value={s}
                     onChange={(v) => {
@@ -499,7 +499,7 @@ export function BookingWidget({
               >
                 <Calendar className="w-4 h-4 text-[var(--gold-ink)]" />
                 <div className="min-w-0 flex-1">
-                  <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/70">Date</div>
+                  <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/70">Date</div>
                   <input type="date" min={date || today} value={returnDate} onChange={(e) => setReturnDate(e.target.value)} className="w-full bg-transparent border-0 outline-none text-sm font-semibold" />
                 </div>
               </div>
@@ -509,7 +509,7 @@ export function BookingWidget({
               >
                 <Clock className="w-4 h-4 text-[var(--gold-ink)]" />
                 <div className="min-w-0 flex-1">
-                  <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/70">Time</div>
+                  <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/70">Time</div>
                   <input type="time" value={returnTime} onChange={(e) => setReturnTime(e.target.value)} className="w-full bg-transparent border-0 outline-none text-sm font-semibold" />
                 </div>
               </div>
@@ -539,7 +539,7 @@ function TabButton({ active, onClick, icon, children, tone = "dark" }: { active:
     <button
       type="button"
       onClick={onClick}
-      className={`inline-flex items-center gap-2 px-4 py-2.5 text-sm font-bold font-display tracking-wide transition-colors border-b-2 ${
+      className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap px-3 py-2.5 text-[13px] @[420px]:px-4 @[420px]:text-sm font-bold font-display tracking-wide transition-colors border-b-2 ${
         active ? activeCls : idleCls
       }`}
     >
@@ -558,7 +558,7 @@ function FieldCell({ icon, label, children, compact, invalid }: { icon: React.Re
     >
       <div className="shrink-0">{icon}</div>
       <div className="min-w-0 flex-1">
-        <div className={`text-[9px] font-bold uppercase tracking-[0.18em] truncate ${invalid ? "text-destructive" : "text-[var(--navy)]/70"}`}>{label}</div>
+        <div className={`text-[10px] font-bold uppercase tracking-[0.18em] truncate ${invalid ? "text-destructive" : "text-[var(--navy)]/70"}`}>{label}</div>
         <div className="[&_input::-webkit-calendar-picker-indicator]:opacity-0 [&_input::-webkit-calendar-picker-indicator]:absolute [&_input::-webkit-calendar-picker-indicator]:inset-0 [&_input::-webkit-calendar-picker-indicator]:w-full [&_input::-webkit-calendar-picker-indicator]:cursor-pointer relative min-w-0">
 
           {children}
@@ -629,7 +629,7 @@ function PillButton({ onClick, children, icon, tone = "dark" }: { onClick: () =>
     <button
       type="button"
       onClick={onClick}
-      className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all backdrop-blur ${
+      className={`inline-flex min-h-9 items-center gap-2 px-3.5 py-2 rounded-full text-xs font-bold transition-all backdrop-blur ${
         tone === "light"
           ? "bg-[var(--navy)]/6 text-[var(--navy)] ring-1 ring-[var(--navy)]/12 hover:bg-[var(--navy)]/12"
           : "bg-white/10 text-white hover:bg-white/20"
