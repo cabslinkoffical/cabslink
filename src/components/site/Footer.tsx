@@ -54,21 +54,21 @@ export function Footer() {
         </div>
         <div>
           <h4 className="text-sm font-semibold uppercase tracking-wider text-[var(--gold)]">Quick Links</h4>
-          <ul className="mt-5 space-y-3 text-sm text-white/75">
+          <ul className="mt-5 space-y-1 text-sm text-white/75 md:space-y-3">
             {links.map(l => (
               <li key={l.to}>{l.to.includes("#") ? (
-                <a href={l.to} className="hover:text-[var(--gold)]">{l.label}</a>
+                <a href={l.to} className="inline-flex min-h-11 items-center hover:text-[var(--gold)] md:min-h-0">{l.label}</a>
               ) : (
-                <Link to={l.to} className="hover:text-[var(--gold)]">{l.label}</Link>
+                <Link to={l.to} className="inline-flex min-h-11 items-center hover:text-[var(--gold)] md:min-h-0">{l.label}</Link>
               )}</li>
             ))}
           </ul>
         </div>
         <div>
           <h4 className="text-sm font-semibold uppercase tracking-wider text-[var(--gold)]">Services</h4>
-          <ul className="mt-5 space-y-3 text-sm text-white/75">
+          <ul className="mt-5 space-y-1 text-sm text-white/75 md:space-y-3">
             {services.map(s => (
-              <li key={s.to}><Link to={s.to} className="hover:text-[var(--gold)]">{s.label}</Link></li>
+              <li key={s.to}><Link to={s.to} className="inline-flex min-h-11 items-center hover:text-[var(--gold)] md:min-h-0">{s.label}</Link></li>
             ))}
           </ul>
         </div>
@@ -76,8 +76,8 @@ export function Footer() {
           <h4 className="text-sm font-semibold uppercase tracking-wider text-[var(--gold)]">Contact</h4>
           <ul className="mt-5 space-y-4 text-sm text-white/80">
             <li className="flex gap-3"><MapPin className="size-4 shrink-0 mt-0.5 text-[var(--gold)]" /><span>{SITE.address}</span></li>
-            <li className="flex gap-3"><Phone className="size-4 shrink-0 mt-0.5 text-[var(--gold)]" /><div><a href={`tel:${SITE.phoneUK.replace(/\s/g,"")}`} className="block hover:text-[var(--gold)]">{SITE.phoneUK}</a><a href={`tel:${SITE.phoneUS.replace(/[^\d+]/g,"")}`} className="block hover:text-[var(--gold)]">{SITE.phoneUS}</a></div></li>
-            <li className="flex gap-3"><Mail className="size-4 shrink-0 mt-0.5 text-[var(--gold)]" /><a href={`mailto:${SITE.email}`} className="hover:text-[var(--gold)]">{SITE.email}</a></li>
+            <li className="flex gap-3"><Phone className="size-4 shrink-0 mt-0.5 text-[var(--gold)]" /><div><a href={`tel:${SITE.phoneUK.replace(/\s/g,"")}`} className="flex min-h-10 items-center hover:text-[var(--gold)] md:min-h-0">{SITE.phoneUK}</a><a href={`tel:${SITE.phoneUS.replace(/[^\d+]/g,"")}`} className="flex min-h-10 items-center hover:text-[var(--gold)] md:min-h-0">{SITE.phoneUS}</a></div></li>
+            <li className="flex gap-3"><Mail className="size-4 shrink-0 mt-0.5 text-[var(--gold)]" /><a href={`mailto:${SITE.email}`} className="inline-flex min-h-10 items-center hover:text-[var(--gold)] md:min-h-0">{SITE.email}</a></li>
           </ul>
         </div>
       </div>
@@ -85,7 +85,7 @@ export function Footer() {
         <div className="container-x py-5 flex flex-col gap-4 text-xs text-white/60">
           <ul className="flex flex-wrap justify-center gap-x-5 gap-y-2">
             {legal.map(l => (
-              <li key={l.to}><Link to={l.to} className="hover:text-[var(--gold)]">{l.label}</Link></li>
+              <li key={l.to}><Link to={l.to} className="inline-flex min-h-10 items-center hover:text-[var(--gold)] md:min-h-0">{l.label}</Link></li>
             ))}
           </ul>
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3">

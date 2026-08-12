@@ -905,7 +905,7 @@ function FleetClassesSection() {
                   <div className="mt-auto flex items-center justify-between gap-3 pt-2 border-t border-[var(--navy)]/10">
                     <Link
                       to="/fleet"
-                      className="text-sm font-medium text-[var(--navy)]/80 hover:text-[var(--gold-ink)] transition-colors"
+                      className="inline-flex min-h-11 items-center text-sm font-medium text-[var(--navy)]/80 hover:text-[var(--gold-ink)] transition-colors"
                     >
                       View class
                     </Link>

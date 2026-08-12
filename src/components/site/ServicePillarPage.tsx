@@ -194,7 +194,7 @@ export function ServicePillarPage({ content }: { content: PillarContent }) {
           />
           <ul className="mt-8 flex flex-wrap gap-3">
             {content.coverage.map((c) => (
-              <li key={c.to}>
+              <li key={`${c.to}-${c.label}`}>
                 <Link
                   to={c.to}
                   className="inline-flex items-center gap-2 rounded-lg border bg-background px-4 py-2 text-sm font-medium shadow-[var(--shadow-raised)] hover:border-[var(--gold)]"
