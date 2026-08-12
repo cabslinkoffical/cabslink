@@ -504,7 +504,7 @@ function BookPage() {
                 />
               )}
               <Stepper step={step} />
-              <div className="mt-8 grid lg:grid-cols-[340px_1fr] gap-6 items-start pb-24 lg:pb-0">
+              <div className="mt-8 grid min-w-0 grid-cols-1 lg:grid-cols-[340px_minmax(0,1fr)] gap-6 items-start pb-24 lg:pb-0">
                 <Sidebar
                   pre={pre}
                   onEdit={() => setEditOpen(true)}
@@ -919,7 +919,7 @@ function Sidebar({ pre, onEdit, onStartAgain, route, price }: {
 
 }) {
   return (
-    <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
+    <aside className="min-w-0 space-y-4 lg:sticky lg:top-24 lg:self-start">
       <details className="group relative bg-card rounded-2xl border border-border shadow-[0_10px_40px_-20px_rgba(14,24,44,0.25)] overflow-hidden lg:!open" open>
         <summary className="lg:hidden list-none cursor-pointer select-none flex items-center justify-between gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden">
           <div className="min-w-0 flex items-center gap-2">
