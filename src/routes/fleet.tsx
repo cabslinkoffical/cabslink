@@ -139,21 +139,21 @@ function FleetCard({ klass }: { klass: PublicVehicleClass }) {
 
         <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
           {klass.badge ? (
-            <span className="rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest shadow-sm">
+            <span className="rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest shadow-sm">
               {klass.badge}
             </span>
           ) : klass.featured ? (
-            <span className="rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest shadow-sm">
+            <span className="rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest shadow-sm">
               Featured
             </span>
           ) : null}
           {klass.fuel_type === "electric" && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-white text-[var(--navy)] px-2 py-1 text-[9px] font-bold uppercase tracking-widest border border-[var(--navy)]/10 shadow-sm">
+            <span className="inline-flex items-center gap-1 rounded-full bg-white text-[var(--navy)] px-2 py-1 text-[10px] font-bold uppercase tracking-widest border border-[var(--navy)]/10 shadow-sm">
               <Zap className="size-2.5 text-[var(--gold)]" /> Zero emission
             </span>
           )}
           {klass.wheelchair_accessible && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-white text-[var(--navy)] px-2 py-1 text-[9px] font-bold uppercase tracking-widest border border-[var(--navy)]/10 shadow-sm">
+            <span className="inline-flex items-center gap-1 rounded-full bg-white text-[var(--navy)] px-2 py-1 text-[10px] font-bold uppercase tracking-widest border border-[var(--navy)]/10 shadow-sm">
               <Accessibility className="size-2.5 text-[var(--gold)]" /> WAV
             </span>
           )}
@@ -163,7 +163,7 @@ function FleetCard({ klass }: { klass: PublicVehicleClass }) {
       {/* Body */}
       <div className="flex flex-1 flex-col gap-4 p-5">
         <div>
-          <p className="text-[9px] font-semibold uppercase tracking-[0.28em] text-[var(--gold-ink)]">Vehicle Class</p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[var(--gold-ink)]">Vehicle Class</p>
           <h3 className="mt-1 font-display text-xl font-semibold leading-tight text-[var(--navy)]">{klass.name}</h3>
           <p className="mt-2 text-sm leading-relaxed text-[var(--navy)]/70">
             {klass.short_description || klass.long_description}

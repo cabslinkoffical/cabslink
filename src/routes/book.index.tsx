@@ -969,7 +969,7 @@ function Sidebar({ pre, onEdit, onStartAgain, route, price }: {
               <div className="bg-[var(--surface)] rounded-xl p-3 border border-border/60">
                 <div className="flex items-center gap-1.5 text-[var(--gold-ink)]">
                   <MapPin className="size-3.5" />
-                  <span className="text-[9px] font-bold uppercase tracking-[0.2em]">Distance</span>
+                  <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Distance</span>
                 </div>
                 <p className="mt-1 font-display text-xl font-bold text-foreground tabular-nums leading-none">
                   {route.miles.toFixed(1)}<span className="text-xs font-semibold text-muted-foreground ml-1">mi</span>
@@ -978,7 +978,7 @@ function Sidebar({ pre, onEdit, onStartAgain, route, price }: {
               <div className="bg-[var(--surface)] rounded-xl p-3 border border-border/60">
                 <div className="flex items-center gap-1.5 text-[var(--gold-ink)]">
                   <Clock className="size-3.5" />
-                  <span className="text-[9px] font-bold uppercase tracking-[0.2em]">Duration</span>
+                  <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Duration</span>
                 </div>
                 <p className="mt-1 font-display text-xl font-bold text-foreground tabular-nums leading-none">
                   {route.minutes}<span className="text-xs font-semibold text-muted-foreground ml-1">min</span>
@@ -1244,7 +1244,7 @@ function VehicleCard({ card, klass, best, qty, minQty, disabled, disabledReason,
               This vehicle fits {card.passengers} passenger{card.passengers === 1 ? "" : "s"} &amp; {card.luggage} bag{card.luggage === 1 ? "" : "s"}. You&apos;ll need <span className="font-bold">{minQty} vehicles</span> for your party — set the quantity below to continue.
             </div>
           )}
-          <p className="mt-5 text-[9px] font-mono uppercase tracking-[0.3em] text-muted-foreground/70">
+          <p className="mt-5 text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground/70">
             No. {serial} · Cabslink Pass
           </p>
         </div>
@@ -1292,7 +1292,7 @@ function VehicleCard({ card, klass, best, qty, minQty, disabled, disabledReason,
         <div className="w-full mt-5 space-y-3">
           {!quoteOnly && (
             <div className="w-full">
-              <Label className="text-[9px] font-bold uppercase tracking-[0.25em] text-muted-foreground">
+              <Label className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground">
                 Vehicles{minQty > 1 ? ` · min ${minQty}` : ""}
               </Label>
               <Select value={String(qty)} onValueChange={(v) => onQtyChange(Number(v))}>
@@ -1932,7 +1932,7 @@ function ScenicPoiPanel({
 function ItineraryRow({ label, value, bold }: { label: string; value: string; bold?: boolean }) {
   return (
     <div className="rounded-lg bg-[var(--surface)] px-3 py-2">
-      <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-foreground/45">{label}</div>
+      <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-foreground/45">{label}</div>
       <div className={`text-sm ${bold ? "font-bold" : "font-semibold"} text-foreground`}>{value}</div>
     </div>
   );

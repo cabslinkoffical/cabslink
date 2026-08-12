@@ -453,7 +453,7 @@ export function BookingWidget({
                 </div>
 
                 <div className="min-w-0 flex-1">
-                  <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/70">Stop {i + 1}</div>
+                  <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/70">Stop {i + 1}</div>
                   <PlaceAutocomplete
                     value={s}
                     onChange={(v) => {
@@ -499,7 +499,7 @@ export function BookingWidget({
               >
                 <Calendar className="w-4 h-4 text-[var(--gold-ink)]" />
                 <div className="min-w-0 flex-1">
-                  <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/70">Date</div>
+                  <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/70">Date</div>
                   <input type="date" min={date || today} value={returnDate} onChange={(e) => setReturnDate(e.target.value)} className="w-full bg-transparent border-0 outline-none text-sm font-semibold" />
                 </div>
               </div>
@@ -509,7 +509,7 @@ export function BookingWidget({
               >
                 <Clock className="w-4 h-4 text-[var(--gold-ink)]" />
                 <div className="min-w-0 flex-1">
-                  <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/70">Time</div>
+                  <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/70">Time</div>
                   <input type="time" value={returnTime} onChange={(e) => setReturnTime(e.target.value)} className="w-full bg-transparent border-0 outline-none text-sm font-semibold" />
                 </div>
               </div>
@@ -558,7 +558,7 @@ function FieldCell({ icon, label, children, compact, invalid }: { icon: React.Re
     >
       <div className="shrink-0">{icon}</div>
       <div className="min-w-0 flex-1">
-        <div className={`text-[9px] font-bold uppercase tracking-[0.18em] truncate ${invalid ? "text-destructive" : "text-[var(--navy)]/70"}`}>{label}</div>
+        <div className={`text-[10px] font-bold uppercase tracking-[0.18em] truncate ${invalid ? "text-destructive" : "text-[var(--navy)]/70"}`}>{label}</div>
         <div className="[&_input::-webkit-calendar-picker-indicator]:opacity-0 [&_input::-webkit-calendar-picker-indicator]:absolute [&_input::-webkit-calendar-picker-indicator]:inset-0 [&_input::-webkit-calendar-picker-indicator]:w-full [&_input::-webkit-calendar-picker-indicator]:cursor-pointer relative min-w-0">
 
           {children}

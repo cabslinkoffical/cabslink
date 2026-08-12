@@ -857,11 +857,11 @@ function FleetClassesSection() {
 
                   <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
                     {k.badge ? (
-                      <span className="rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest shadow-sm">
+                      <span className="rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest shadow-sm">
                         {k.badge}
                       </span>
                     ) : k.featured ? (
-                      <span className="rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest shadow-sm">
+                      <span className="rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest shadow-sm">
                         Featured
                       </span>
                     ) : null}
@@ -871,7 +871,7 @@ function FleetClassesSection() {
                 {/* Body */}
                 <div className="flex flex-1 min-h-0 flex-col gap-3 p-5">
                   <div>
-                    <p className="text-[9px] font-semibold uppercase tracking-[0.28em] text-[var(--gold-ink)]">Vehicle Class</p>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[var(--gold-ink)]">Vehicle Class</p>
                     <h3 className="mt-1 line-clamp-1 font-display text-xl font-semibold leading-tight text-[var(--navy)]">{k.name}</h3>
                     <p className="mt-2 h-10 text-sm leading-relaxed text-[var(--navy)]/70 line-clamp-2">
                       {k.short_description || k.long_description}
