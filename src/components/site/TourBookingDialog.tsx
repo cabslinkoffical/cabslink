@@ -145,6 +145,7 @@ export function TourBookingDialog({ tour, trigger, autoOpen = false }: Props) {
               <div className="grid grid-cols-2 gap-3">
                 <Field icon={<Calendar className="size-4" />} label="Tour date">
                   <input
+                    aria-label="Tour date"
                     required
                     type="date"
                     min={today}
@@ -155,6 +156,7 @@ export function TourBookingDialog({ tour, trigger, autoOpen = false }: Props) {
                 </Field>
                 <Field icon={<Clock className="size-4" />} label="Start time">
                   <input
+                    aria-label="Tour start time"
                     required
                     type="time"
                     value={time}
@@ -164,6 +166,7 @@ export function TourBookingDialog({ tour, trigger, autoOpen = false }: Props) {
                 </Field>
                 <Field icon={<Users className="size-4" />} label="Passengers">
                   <input
+                    aria-label="Number of passengers"
                     type="number"
                     min={1}
                     max={16}
@@ -174,6 +177,7 @@ export function TourBookingDialog({ tour, trigger, autoOpen = false }: Props) {
                 </Field>
                 <Field icon={<Briefcase className="size-4" />} label="Luggage">
                   <input
+                    aria-label="Number of luggage items"
                     type="number"
                     min={0}
                     max={16}
@@ -188,6 +192,7 @@ export function TourBookingDialog({ tour, trigger, autoOpen = false }: Props) {
               <div className="grid grid-cols-2 gap-3">
                 <Field icon={<Plane className="size-4" />} label="Flight (optional)">
                   <input
+                    aria-label="Flight number (optional)"
                     value={flight}
                     onChange={(e) => setFlight(e.target.value)}
                     placeholder="e.g. BA1448"
@@ -196,6 +201,7 @@ export function TourBookingDialog({ tour, trigger, autoOpen = false }: Props) {
                 </Field>
                 <Field icon={<MapPin className="size-4" />} label="Hotel / drop-off (optional)">
                   <input
+                    aria-label="Hotel or drop-off address (optional)"
                     value={hotel}
                     onChange={(e) => setHotel(e.target.value)}
                     placeholder="Hotel name in Edinburgh"

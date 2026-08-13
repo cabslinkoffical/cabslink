@@ -185,6 +185,7 @@ function HourlyBookPage() {
                     <div>
                       <Label className="text-xs">Duration</Label>
                       <select
+                        aria-label="Hire duration in hours"
                         value={hours}
                         onChange={(e) => { setHours(Number(e.target.value)); setSelected(null); }}
                         className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
