@@ -116,14 +116,14 @@ function ContactPage() {
             </div>
             <div className="mt-6 grid gap-4">
               <div className="grid sm:grid-cols-2 gap-4">
-                <div><Label>Name</Label><Input name="name" required maxLength={100} className="mt-1.5" /></div>
-                <div><Label>Email</Label><Input name="email" type="email" required maxLength={255} className="mt-1.5" /></div>
+                <div><Label htmlFor="contact-name">Name</Label><Input id="contact-name" name="name" required maxLength={100} className="mt-1.5" /></div>
+                <div><Label htmlFor="contact-email">Email</Label><Input id="contact-email" name="email" type="email" required maxLength={255} className="mt-1.5" /></div>
               </div>
               <div className="grid sm:grid-cols-2 gap-4">
-                <div><Label>Phone (optional)</Label><div className="mt-1.5"><PhoneInput name="phone" value={phone} onChange={setPhone} /></div></div>
-                <div><Label>Subject (optional)</Label><Input name="subject" maxLength={150} className="mt-1.5" /></div>
+                <div><Label htmlFor="contact-phone">Phone (optional)</Label><div className="mt-1.5"><PhoneInput id="contact-phone" name="phone" value={phone} onChange={setPhone} /></div></div>
+                <div><Label htmlFor="contact-subject">Subject (optional)</Label><Input id="contact-subject" name="subject" maxLength={150} className="mt-1.5" /></div>
               </div>
-              <div><Label>Message</Label><Textarea name="message" required maxLength={1500} rows={6} className="mt-1.5" /></div>
+              <div><Label htmlFor="contact-message">Message</Label><Textarea id="contact-message" name="message" required maxLength={1500} rows={6} className="mt-1.5" /></div>
               <Button type="submit" variant="gold" disabled={loading} className="rounded-full">
                 {loading ? "Sending…" : <>Send message <ArrowRight className="size-4" /></>}
               </Button>

@@ -90,13 +90,13 @@ function CorporateBookingPage() {
           <form onSubmit={onSubmit} className="rounded-3xl border border-border bg-card p-6 md:p-8 shadow-sm h-fit">
             <div className="flex items-center gap-3"><Building2 className="size-6 text-[var(--gold-ink)]" /><h3 className="font-display text-2xl font-semibold">Corporate enquiry</h3></div>
             <div className="mt-6 grid gap-4">
-              <div><Label>Company</Label><Input name="company" required maxLength={120} className="mt-1.5" /></div>
+              <div><Label htmlFor="corp-company">Company</Label><Input id="corp-company" name="company" required maxLength={120} className="mt-1.5" /></div>
               <div className="grid sm:grid-cols-2 gap-4">
-                <div><Label>Your name</Label><Input name="name" required maxLength={100} className="mt-1.5" /></div>
-                <div><Label>Phone</Label><div className="mt-1.5"><PhoneInput name="phone" value={phone} onChange={setPhone} required /></div></div>
+                <div><Label htmlFor="corp-name">Your name</Label><Input id="corp-name" name="name" required maxLength={100} className="mt-1.5" /></div>
+                <div><Label htmlFor="corp-phone">Phone</Label><div className="mt-1.5"><PhoneInput id="corp-phone" name="phone" value={phone} onChange={setPhone} required /></div></div>
               </div>
-              <div><Label>Email</Label><Input name="email" type="email" required maxLength={255} className="mt-1.5" /></div>
-              <div><Label>Your travel needs</Label><Textarea name="needs" required maxLength={1500} rows={5} className="mt-1.5" placeholder="Team size, monthly volume, airports, billing preferences…" /></div>
+              <div><Label htmlFor="corp-email">Email</Label><Input id="corp-email" name="email" type="email" required maxLength={255} className="mt-1.5" /></div>
+              <div><Label htmlFor="corp-needs">Your travel needs</Label><Textarea id="corp-needs" name="needs" required maxLength={1500} rows={5} className="mt-1.5" placeholder="Team size, monthly volume, airports, billing preferences…" /></div>
               <div className="absolute -left-[9999px]" aria-hidden="true">
                 <label htmlFor="corp-website">Website</label>
                 <input id="corp-website" name="website" type="text" tabIndex={-1} autoComplete="off" />
