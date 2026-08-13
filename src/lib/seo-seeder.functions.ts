@@ -33,7 +33,7 @@ export const seedSeoPagesFromEntities = createServerFn({ method: "POST" })
       .select("id, name, slug, nation, region, county")
       .in("operational_status", ["active", "partner"]);
     for (const l of locs ?? []) {
-      const path = `/locations/${l.slug}`;
+      const path = `/areas/${l.slug}`;
       const { data: existing } = await sb.from("seo_pages").select("id").eq("path", path).maybeSingle();
       if (existing) { skipped++; continue; }
       const region = l.region || l.nation || "the UK";
