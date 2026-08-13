@@ -116,10 +116,10 @@ function PoisPage() {
                     </span>
                   </td>
                   <td className="px-3 py-2 text-right">
-                    <Button variant="ghost" size="icon" onClick={() => setForm({ ...empty, ...p })}>
+                    <Button aria-label="Edit" variant="ghost" size="icon" onClick={() => setForm({ ...empty, ...p })}>
                       <Edit className="size-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" onClick={() => remove(p.id)}>
+                    <Button aria-label="Delete" variant="ghost" size="icon" onClick={() => remove(p.id)}>
                       <Trash2 className="size-4 text-destructive" />
                     </Button>
                   </td>

@@ -153,7 +153,7 @@ function Page() {
                     <td className="px-4 py-3"><StatusBadge status={r.active ? "active" : "inactive"} /></td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex justify-end gap-1">
-                        <Button size="icon" variant="ghost" onClick={() => setForm({
+                        <Button aria-label="Edit" size="icon" variant="ghost" onClick={() => setForm({
                           ...empty, ...r,
                           from_place_id: r.from_place_id ?? "",
                           to_place_id: r.to_place_id ?? "",
@@ -165,7 +165,7 @@ function Page() {
                           notes: r.notes ?? "",
                         })}><Edit className="size-4" /></Button>
                         <AlertDialog>
-                          <AlertDialogTrigger asChild><Button size="icon" variant="ghost"><Trash2 className="size-4 text-destructive" /></Button></AlertDialogTrigger>
+                          <AlertDialogTrigger asChild><Button aria-label="Delete" size="icon" variant="ghost"><Trash2 className="size-4 text-destructive" /></Button></AlertDialogTrigger>
                           <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Delete pricing rule?</AlertDialogTitle></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => remove.mutate(r.id)} className="bg-destructive">Delete</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
                         </AlertDialog>
                       </div>

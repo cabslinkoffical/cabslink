@@ -160,7 +160,7 @@ function VehicleClassesPage() {
                     {models.map((m) => (
                       <span key={m.id} className="group inline-flex items-center gap-1 rounded-full bg-[var(--navy)]/5 text-[var(--navy)]/80 px-2 py-0.5 text-[11px]">
                         {m.name}
-                        <button className="opacity-40 hover:opacity-100" onClick={() => delModelMut.mutate(m.id)}><X className="size-3" /></button>
+                        <button aria-label="Remove" className="opacity-40 hover:opacity-100" onClick={() => delModelMut.mutate(m.id)}><X className="size-3" /></button>
                       </span>
                     ))}
                     <Button size="sm" variant="ghost" className="h-6 px-2 text-[11px]" onClick={() => setModelForm({ vehicle_class_id: c.id, name: "", manufacturer: "", active: true, display_order: 0 })}>
@@ -169,10 +169,10 @@ function VehicleClassesPage() {
                   </div>
                 </div>
                 <div className="flex flex-row md:flex-col gap-2 shrink-0">
-                  <Button size="sm" variant="outline" onClick={() => openEdit(c)}><Edit className="size-4" /></Button>
+                  <Button aria-label="Edit" size="sm" variant="outline" onClick={() => openEdit(c)}><Edit className="size-4" /></Button>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button size="sm" variant="outline" className="text-destructive"><Trash2 className="size-4" /></Button>
+                      <Button aria-label="Delete" size="sm" variant="outline" className="text-destructive"><Trash2 className="size-4" /></Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>

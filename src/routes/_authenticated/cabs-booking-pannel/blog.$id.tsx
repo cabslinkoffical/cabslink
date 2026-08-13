@@ -248,7 +248,7 @@ function PostEditor() {
                     <Input value={f.q} placeholder="Question" onChange={(e) => {
                       const next = [...form.faqs]; next[i] = { ...next[i], q: e.target.value }; setForm({ ...form, faqs: next });
                     }} />
-                    <Button variant="ghost" size="icon" onClick={() => setForm({ ...form, faqs: form.faqs.filter((_, j) => j !== i) })}>
+                    <Button aria-label="Remove" variant="ghost" size="icon" onClick={() => setForm({ ...form, faqs: form.faqs.filter((_, j) => j !== i) })}>
                       <X className="size-4" />
                     </Button>
                   </div>
@@ -380,7 +380,7 @@ function ListEditor({ label, items, onChange, placeholder }: { label: string; it
       <div className="flex items-center gap-2">
         <Input value={draft} onChange={(e) => setDraft(e.target.value)} placeholder={placeholder}
           onKeyDown={(e) => { if (e.key === "Enter" && draft.trim()) { e.preventDefault(); onChange([...items, draft.trim()]); setDraft(""); } }} />
-        <Button size="sm" variant="outline" onClick={() => { if (draft.trim()) { onChange([...items, draft.trim()]); setDraft(""); } }}>
+        <Button aria-label="Add" size="sm" variant="outline" onClick={() => { if (draft.trim()) { onChange([...items, draft.trim()]); setDraft(""); } }}>
           <Plus className="size-4" />
         </Button>
       </div>
@@ -389,7 +389,7 @@ function ListEditor({ label, items, onChange, placeholder }: { label: string; it
           {items.map((it, i) => (
             <span key={i} className="inline-flex items-center gap-1 rounded-full bg-muted px-3 py-1 text-xs">
               {it}
-              <button type="button" onClick={() => onChange(items.filter((_, j) => j !== i))} className="text-muted-foreground hover:text-destructive">
+              <button aria-label="Remove" type="button" onClick={() => onChange(items.filter((_, j) => j !== i))} className="text-muted-foreground hover:text-destructive">
                 <X className="size-3" />
               </button>
             </span>

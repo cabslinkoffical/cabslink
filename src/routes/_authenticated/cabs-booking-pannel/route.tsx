@@ -153,7 +153,7 @@ function AdminLayout() {
       >
         <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between">
           <Logo />
-          <button className="md:hidden text-white/55" onClick={() => setMobileOpen(false)}>
+          <button aria-label="Close menu" className="md:hidden text-white/55" onClick={() => setMobileOpen(false)}>
             <X className="size-5" />
           </button>
         </div>
@@ -173,7 +173,7 @@ function AdminLayout() {
       {/* Main */}
       <div className="flex-1 flex flex-col min-w-0 md:ml-64">
         <header className="sticky top-0 z-20 bg-card border-b border-border h-14 flex items-center px-4 gap-3">
-          <button className="md:hidden p-2 -ml-2 text-foreground" onClick={() => setMobileOpen(true)}>
+          <button aria-label="Open menu" className="md:hidden p-2 -ml-2 text-foreground" onClick={() => setMobileOpen(true)}>
             <Menu className="size-5" />
           </button>
           <Breadcrumbs />

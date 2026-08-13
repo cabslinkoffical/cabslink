@@ -63,9 +63,9 @@ function Page() {
                   <td className="px-4 py-3 text-xs text-muted-foreground">{new Date(b.created_at).toLocaleDateString()}</td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex justify-end gap-1">
-                      <Button size="icon" variant="ghost" onClick={() => setForm({ ...empty, ...b })}><Edit className="size-4" /></Button>
+                      <Button aria-label="Edit" size="icon" variant="ghost" onClick={() => setForm({ ...empty, ...b })}><Edit className="size-4" /></Button>
                       <AlertDialog>
-                        <AlertDialogTrigger asChild><Button size="icon" variant="ghost"><Trash2 className="size-4 text-destructive" /></Button></AlertDialogTrigger>
+                        <AlertDialogTrigger asChild><Button aria-label="Delete" size="icon" variant="ghost"><Trash2 className="size-4 text-destructive" /></Button></AlertDialogTrigger>
                         <AlertDialogContent>
                           <AlertDialogHeader><AlertDialogTitle>Remove ban?</AlertDialogTitle></AlertDialogHeader>
                           <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => remove.mutate(b.id)} className="bg-destructive">Delete</AlertDialogAction></AlertDialogFooter>
