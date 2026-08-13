@@ -1,5 +1,6 @@
-import { Mail, Phone, Facebook, Instagram, Twitter, Linkedin } from "lucide-react";
+import { Mail, Phone } from "lucide-react";
 import { SITE } from "@/lib/site";
+import { SOCIALS } from "@/lib/social";
 
 export function TopBar() {
   return (
@@ -14,10 +15,18 @@ export function TopBar() {
           </a>
         </div>
         <div className="flex items-center gap-3 opacity-80">
-          <a href={SITE.social.facebook} aria-label="Facebook" className="hover:text-[var(--gold)]"><Facebook className="size-3.5" /></a>
-          <a href={SITE.social.instagram} aria-label="Instagram" className="hover:text-[var(--gold)]"><Instagram className="size-3.5" /></a>
-          <a href={SITE.social.twitter} aria-label="Twitter" className="hover:text-[var(--gold)]"><Twitter className="size-3.5" /></a>
-          <a href={SITE.social.linkedin} aria-label="LinkedIn" className="hover:text-[var(--gold)]"><Linkedin className="size-3.5" /></a>
+          {SOCIALS.map(({ key, label, url, Icon }) => (
+            <a
+              key={key}
+              href={url}
+              aria-label={label}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-[var(--gold)]"
+            >
+              <Icon className="size-3.5" />
+            </a>
+          ))}
         </div>
       </div>
     </div>

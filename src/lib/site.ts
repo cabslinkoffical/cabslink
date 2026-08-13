@@ -6,10 +6,10 @@ export const SITE = {
   phoneUS: "+1 (315) 961-8102",
   address: "263a Leith Walk, Edinburgh, Scotland, EH6 8NY",
   social: {
-    facebook: "https://facebook.com/",
-    instagram: "https://instagram.com/",
-    twitter: "https://twitter.com/",
-    linkedin: "https://linkedin.com/",
+    instagram: "https://www.instagram.com/cabs_link/",
+    facebook: "https://web.facebook.com/profile.php?id=61592930561866",
+    tiktok: "https://www.tiktok.com/@cabslink",
+    youtube: "https://www.youtube.com/@Cabslink",
   },
 };
 

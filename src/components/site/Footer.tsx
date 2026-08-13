@@ -3,6 +3,7 @@ import { Mail, Phone, MapPin } from "lucide-react";
 import { Logo } from "./Logo";
 import { SITE } from "@/lib/site";
 import { TRUSTPILOT } from "@/lib/trustpilot";
+import { SOCIALS } from "@/lib/social";
 
 const services = [
   { to: "/airport-transfers", label: "Airport Transfers" },
@@ -50,7 +51,21 @@ export function Footer() {
             Premium UK airport transfers and airport travel services — punctual,
             professional and effortlessly comfortable, around the clock.
           </p>
-          {/* Social links intentionally hidden until real profile URLs are configured. */}
+          <ul className="mt-6 flex items-center gap-3">
+            {SOCIALS.map(({ key, label, url, Icon }) => (
+              <li key={key}>
+                <a
+                  href={url}
+                  aria-label={label}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="grid size-10 place-items-center rounded-full border border-white/15 text-white/80 transition-colors hover:border-[var(--gold)] hover:text-[var(--gold)]"
+                >
+                  <Icon className="size-4" />
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
         <div>
           <h4 className="text-sm font-semibold uppercase tracking-wider text-[var(--gold)]">Quick Links</h4>

@@ -11,7 +11,13 @@ const BRAND = {
   // the Organization logo unusable for every page emitting this graph.
   logo: "https://cabslink.com/__l5e/assets-v1/4150bb87-69a7-4e1d-bedb-54293074a958/cabslink-logo-gold.png",
   /** Verified public profiles only. */
-  sameAs: ["https://www.trustpilot.com/review/cabslink.com"],
+  sameAs: [
+    "https://www.trustpilot.com/review/cabslink.com",
+    "https://www.instagram.com/cabs_link/",
+    "https://web.facebook.com/profile.php?id=61592930561866",
+    "https://www.tiktok.com/@cabslink",
+    "https://www.youtube.com/@Cabslink",
+  ],
 };
 
 export function organizationSchema() {
