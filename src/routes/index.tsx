@@ -585,6 +585,10 @@ function HomePage() {
             </Link>
           </div>
 
+          {/* How to book any service */}
+          <div className="mt-16">
+            <FeatureStepsDemo />
+          </div>
         </div>
       </section>
 
