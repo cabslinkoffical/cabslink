@@ -24,6 +24,7 @@ import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as MinibusHireRouteImport } from './routes/minibus-hire'
 import { Route as LongDistanceTransfersRouteImport } from './routes/long-distance-transfers'
+import { Route as ImageCreditsRouteImport } from './routes/image-credits'
 import { Route as HospitalTransfersRouteImport } from './routes/hospital-transfers'
 import { Route as GroupTransfersRouteImport } from './routes/group-transfers'
 import { Route as GolfTransfersRouteImport } from './routes/golf-transfers'
@@ -203,6 +204,11 @@ const MinibusHireRoute = MinibusHireRouteImport.update({
 const LongDistanceTransfersRoute = LongDistanceTransfersRouteImport.update({
   id: '/long-distance-transfers',
   path: '/long-distance-transfers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ImageCreditsRoute = ImageCreditsRouteImport.update({
+  id: '/image-credits',
+  path: '/image-credits',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HospitalTransfersRoute = HospitalTransfersRouteImport.update({
@@ -793,6 +799,7 @@ export interface FileRoutesByFullPath {
   '/golf-transfers': typeof GolfTransfersRoute
   '/group-transfers': typeof GroupTransfersRoute
   '/hospital-transfers': typeof HospitalTransfersRoute
+  '/image-credits': typeof ImageCreditsRoute
   '/long-distance-transfers': typeof LongDistanceTransfersRoute
   '/minibus-hire': typeof MinibusHireRoute
   '/privacy': typeof PrivacyRoute
@@ -913,6 +920,7 @@ export interface FileRoutesByTo {
   '/golf-transfers': typeof GolfTransfersRoute
   '/group-transfers': typeof GroupTransfersRoute
   '/hospital-transfers': typeof HospitalTransfersRoute
+  '/image-credits': typeof ImageCreditsRoute
   '/long-distance-transfers': typeof LongDistanceTransfersRoute
   '/minibus-hire': typeof MinibusHireRoute
   '/privacy': typeof PrivacyRoute
@@ -1035,6 +1043,7 @@ export interface FileRoutesById {
   '/golf-transfers': typeof GolfTransfersRoute
   '/group-transfers': typeof GroupTransfersRoute
   '/hospital-transfers': typeof HospitalTransfersRoute
+  '/image-credits': typeof ImageCreditsRoute
   '/long-distance-transfers': typeof LongDistanceTransfersRoute
   '/minibus-hire': typeof MinibusHireRoute
   '/privacy': typeof PrivacyRoute
@@ -1158,6 +1167,7 @@ export interface FileRouteTypes {
     | '/golf-transfers'
     | '/group-transfers'
     | '/hospital-transfers'
+    | '/image-credits'
     | '/long-distance-transfers'
     | '/minibus-hire'
     | '/privacy'
@@ -1278,6 +1288,7 @@ export interface FileRouteTypes {
     | '/golf-transfers'
     | '/group-transfers'
     | '/hospital-transfers'
+    | '/image-credits'
     | '/long-distance-transfers'
     | '/minibus-hire'
     | '/privacy'
@@ -1399,6 +1410,7 @@ export interface FileRouteTypes {
     | '/golf-transfers'
     | '/group-transfers'
     | '/hospital-transfers'
+    | '/image-credits'
     | '/long-distance-transfers'
     | '/minibus-hire'
     | '/privacy'
@@ -1522,6 +1534,7 @@ export interface RootRouteChildren {
   GolfTransfersRoute: typeof GolfTransfersRoute
   GroupTransfersRoute: typeof GroupTransfersRoute
   HospitalTransfersRoute: typeof HospitalTransfersRoute
+  ImageCreditsRoute: typeof ImageCreditsRoute
   LongDistanceTransfersRoute: typeof LongDistanceTransfersRoute
   MinibusHireRoute: typeof MinibusHireRoute
   PrivacyRoute: typeof PrivacyRoute
@@ -1687,6 +1700,13 @@ declare module '@tanstack/react-router' {
       path: '/long-distance-transfers'
       fullPath: '/long-distance-transfers'
       preLoaderRoute: typeof LongDistanceTransfersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/image-credits': {
+      id: '/image-credits'
+      path: '/image-credits'
+      fullPath: '/image-credits'
+      preLoaderRoute: typeof ImageCreditsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/hospital-transfers': {
@@ -2613,6 +2633,7 @@ const rootRouteChildren: RootRouteChildren = {
   GolfTransfersRoute: GolfTransfersRoute,
   GroupTransfersRoute: GroupTransfersRoute,
   HospitalTransfersRoute: HospitalTransfersRoute,
+  ImageCreditsRoute: ImageCreditsRoute,
   LongDistanceTransfersRoute: LongDistanceTransfersRoute,
   MinibusHireRoute: MinibusHireRoute,
   PrivacyRoute: PrivacyRoute,

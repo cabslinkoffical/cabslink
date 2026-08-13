@@ -37,6 +37,7 @@ const legal = [
   { to: "/booking-policy", label: "Booking & Cancellation" },
   { to: "/refund-policy", label: "Refund Policy" },
   { to: "/accessibility", label: "Accessibility" },
+  { to: "/image-credits", label: "Image Credits" },
 ];
 
 export function Footer() {
