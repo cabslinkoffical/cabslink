@@ -216,7 +216,7 @@ function AirportPage() {
               "Families with luggage, prams and child seats sorted in advance",
               "Cruise passengers connecting to and from UK cruise ports",
               "Groups of up to 16 in our V-Class, minibus and coaster fleet",
-              "Wedding parties and event guests with coordinated pickups",
+              "Event guests and group parties with coordinated pickups",
               "VIP clients requiring discreet meet & greet and NDA drivers",
             ].map((line) => (
               <li key={line} className="flex items-start gap-3 rounded-xl border border-[var(--navy)]/10 bg-white p-4">

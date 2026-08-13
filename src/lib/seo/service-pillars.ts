@@ -188,11 +188,11 @@ export const SERVICE_PILLARS: Record<string, PillarContent> = {
     eyebrow: "Minibus hire",
     h1: "Minibus hire with a driver, 8 to 24 seats.",
     subtitle:
-      "Airport runs, wedding shuttles, golf trips and day tours in a modern minibus with a professional driver and proper luggage space.",
+      "Airport runs, group shuttles, golf trips and day tours in a modern minibus with a professional driver and proper luggage space.",
     breadcrumbLabel: "Minibus Hire",
     metaTitle: "Minibus Hire With Driver Scotland — 8 to 24 Seats | Cabslink",
     metaDescription:
-      "Minibus hire with a driver across Scotland. 8, 16 and 24-seat vehicles for airports, weddings, golf and tours with fixed prices and luggage space.",
+      "Minibus hire with a driver across Scotland. 8, 16 and 24-seat vehicles for airports, events, golf and tours with fixed prices and luggage space.",
     image: eventsImg.url,
     imageAlt: "Modern 16-seat minibus ready for a private group transfer",
     intro: {
@@ -226,11 +226,11 @@ export const SERVICE_PILLARS: Record<string, PillarContent> = {
     eyebrow: "Coach hire",
     h1: "Coach hire with a driver for 25 to 55 passengers.",
     subtitle:
-      "Conferences, weddings, sports clubs and school groups moved in one comfortable coach with luggage holds and a professional driver.",
+      "Conferences, events, sports clubs and school groups moved in one comfortable coach with luggage holds and a professional driver.",
     breadcrumbLabel: "Coach Hire",
     metaTitle: "Coach Hire Scotland — 25 to 55 Seats With Driver | Cabslink",
     metaDescription:
-      "Coach hire with driver across Scotland and the UK. 25, 35 and 55-seat coaches for conferences, weddings, sports and school groups. Fixed quotes.",
+      "Coach hire with driver across Scotland and the UK. 25, 35 and 55-seat coaches for conferences, events, sports and school groups. Fixed quotes.",
     image: eventsImg.url,
     imageAlt: "Full-size touring coach parked ready to board a large group",
     intro: {
@@ -405,51 +405,6 @@ export const SERVICE_PILLARS: Record<string, PillarContent> = {
       { q: "Is this an ambulance service?", a: "No. We provide non-emergency, pre-booked passenger travel only. For medical emergencies always call 999." },
       { q: "What if the discharge time changes?", a: "Tell us as soon as you know and we re-time the collection at no charge. We build flexibility into every hospital booking." },
       { q: "Can a wheelchair user travel?", a: "Yes — request a wheelchair-accessible vehicle when booking and we allocate one." },
-    ],
-  },
-
-  "wedding-transport": {
-    id: "wedding-transport",
-    eyebrow: "Weddings",
-    h1: "Wedding transport for the couple and every guest.",
-    subtitle:
-      "Bridal cars, guest shuttles and end-of-night runs, timed to a written schedule so nobody is waiting outside a church.",
-    breadcrumbLabel: "Wedding Transport",
-    metaTitle: "Wedding Transport Scotland — Bridal Cars | Cabslink",
-    metaDescription:
-      "Wedding transport across Scotland. Bridal cars, guest minibus shuttles and late-night returns on a written schedule with a dedicated coordinator.",
-    image: vipImg.url,
-    imageAlt: "Luxury wedding car decorated and waiting outside a Scottish venue",
-    intro: {
-      title: "A schedule, not a hope",
-      body: "Wedding travel fails on timing, not on cars. We build a written movement plan around your ceremony time — bridal party, guests, photographs and the last shuttle home — and give you one coordinator who owns it on the day.",
-    },
-    features: [
-      { icon: "sparkles", title: "Bridal vehicles", desc: "Premium saloons and luxury classes for the couple and party." },
-      { icon: "bus", title: "Guest shuttles", desc: "Minibuses and coaches looping between hotel, venue and home." },
-      { icon: "calendar", title: "Written timing plan", desc: "Every movement documented and confirmed a week ahead." },
-      { icon: "phone", title: "Day-of coordinator", desc: "One number for the wedding party, not per-driver chasing." },
-    ],
-    steps: [
-      { title: "Share the running order", desc: "Ceremony, reception, photo stops and guest hotels." },
-      { title: "We build the plan", desc: "Vehicles and timings for every leg, priced as one quote." },
-      { title: "Confirm a week out", desc: "Final headcounts and any last-minute changes locked in." },
-      { title: "We run the day", desc: "Coordinated drivers, including late-night returns." },
-    ],
-    included: [
-      "Written movement schedule for the whole day",
-      "Dedicated coordinator on the wedding day",
-      "Bridal vehicle held exclusively for your booking",
-      "Guest shuttle loops between venue and hotels",
-      "Late-night return runs",
-      "One consolidated invoice",
-    ],
-    coverage: DEFAULT_COVERAGE,
-    related: ["event-transport", "group-transfers", "vip-transfers"],
-    faqs: [
-      { q: "How far ahead should we book wedding transport?", a: "Six to nine months for summer Saturdays in Scotland; peak dates and larger guest shuttles go first." },
-      { q: "Can you shuttle guests between the hotel and venue?", a: "Yes. We plan looping shuttles so guests arrive in waves and can leave when they choose." },
-      { q: "Is the bridal car exclusive to us?", a: "It is. The vehicle and driver are held for your day only and do not take other bookings around it." },
     ],
   },
 
