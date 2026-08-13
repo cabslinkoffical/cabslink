@@ -6,8 +6,15 @@ import {
   ArrowRight, Plane, ShieldCheck, CalendarCheck, Phone,
   Briefcase, Users, Award, BadgePoundSterling, Headset, Car, Building2, Gem,
   Route as RouteIcon, CheckCircle2, Sparkles, MessageSquare, CreditCard, Quote,
-  Plus, Minus, Clock, Compass, Wallet, Timer, Mail, BadgeCheck, PlaneTakeoff
+  Plus, Minus, Clock, Compass, Wallet, Timer, Mail, BadgeCheck, PlaneTakeoff, Trophy
 } from "lucide-react";
+
+import svcAirportImg from "@/assets/services/airport.jpg.asset.json";
+import svcCorporateImg from "@/assets/services/corporate.jpg.asset.json";
+import svcToursImg from "@/assets/services/tours.jpg.asset.json";
+import svcSportsImg from "@/assets/services/sports.jpg";
+import svcGroupImg from "@/assets/services/group.jpg";
+
 
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { BookingWidget } from "@/components/site/BookingWidget";
