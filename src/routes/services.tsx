@@ -1,9 +1,9 @@
+import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Plane,
   Train,
   Hotel,
-  PartyPopper,
   Crown,
   Building2,
   ShoppingBag,
@@ -30,6 +30,8 @@ import {
   Trophy,
   Target,
   Circle,
+  Plus,
+  Minus,
 } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { CtaBand } from "@/components/site/CtaBand";
@@ -38,9 +40,8 @@ import { Button } from "@/components/ui/button";
 import airportImg from "@/assets/services/airport.jpg.asset.json";
 import corporateImg from "@/assets/services/corporate.jpg.asset.json";
 import toursImg from "@/assets/services/tours.jpg.asset.json";
-import stationImg from "@/assets/services/station.jpg.asset.json";
-import eventsImg from "@/assets/services/events.jpg.asset.json";
-import vipImg from "@/assets/services/vip.jpg.asset.json";
+import groupImg from "@/assets/services/group.jpg";
+import sportsImg from "@/assets/services/sports.jpg";
 
 export const Route = createFileRoute("/services")({
   head: () => ({
@@ -49,7 +50,6 @@ export const Route = createFileRoute("/services")({
       { name: "description", content: "Every Cabslink service: airport, station and cruise transfers, golf and football travel, day tours, hourly hire, corporate accounts and group travel." },
       { property: "og:title", content: "Services — UK Airport, Golf & Sports Travel | Cabslink" },
       { property: "og:description", content: "Airport, station and cruise transfers, golf and football travel, day tours, hourly hire, corporate accounts and group travel across the UK." },
-
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { property: "og:url", content: "https://cabslink.com/services" },
@@ -59,55 +59,51 @@ export const Route = createFileRoute("/services")({
   component: ServicesPage,
 });
 
-const featured = [
+type Sub = { icon: typeof Plane; title: string; desc: string; to: string };
+
+type MainService = {
+  id: string;
+  eyebrow: string;
+  title: string;
+  blurb: string;
+  img: string;
+  icon: typeof Plane;
+  to: string;
+  highlights: string[];
+  subs: Sub[];
+};
+
+const MAIN_SERVICES: MainService[] = [
   {
-    icon: Plane,
-    title: "Airport Transfers",
-    desc: "On-time transfers to and from every major UK airport, with live flight tracking, free waiting time and meet & greet inside the terminal.",
-    to: "/airport-transfers",
+    id: "airport",
+    eyebrow: "Most booked",
+    title: "Airport & travel hub transfers",
+    blurb:
+      "Every arrival and departure point in the UK — airports, rail terminals and cruise ports — with tracked schedules, free waiting time and fixed all-in fares.",
     img: airportImg.url,
-    tag: "Most booked",
-    points: ["Flight tracking included", "Meet & greet at arrivals", "Fixed, all-in pricing"],
-  },
-  {
-    icon: Gem,
-    title: "Private Day Tours",
-    desc: "Bespoke driver-led days out across Scotland and the wider UK — castles, distilleries, coastlines and film locations, entirely at your pace.",
-    to: "/tours",
-    img: toursImg.url,
-    tag: "Signature",
-    points: ["Full-day itineraries", "Local expert drivers", "Price on request"],
-  },
-];
-
-const showcase = [
-  { icon: Crown, title: "VIP Transfers", desc: "Discreet, high-end travel for dignitaries and discerning clients.", to: "/vip-transfers", img: vipImg.url },
-  { icon: Building2, title: "Corporate Travel", desc: "Account-managed, invoiced business travel with priority support.", to: "/corporate-travel", img: corporateImg.url },
-  { icon: Train, title: "Station Transfers", desc: "Reliable transfers to and from UK rail terminals, on your schedule.", to: "/stations", img: stationImg.url },
-  { icon: Trophy, title: "Events & Sports", desc: "Premieres, golf days and football fixtures — arrive in style, on time.", to: "/event-transport", img: eventsImg.url },
-];
-
-type Item = { icon: typeof Plane; title: string; desc: string; to: string };
-
-const groups: { eyebrow: string; heading: string; blurb: string; items: Item[] }[] = [
-  {
-    eyebrow: "Travel hubs",
-    heading: "Airports, stations & ports",
-    blurb: "Every arrival and departure point in the UK, with tracked schedules and fixed fares.",
-    items: [
+    icon: Plane,
+    to: "/airport-transfers",
+    highlights: ["Live flight tracking", "Meet & greet at arrivals", "Fixed, all-in pricing"],
+    subs: [
       { icon: Plane, title: "Airport Transfers", desc: "All major UK airports with flight tracking and meet & greet.", to: "/airport-transfers" },
       { icon: PlaneLanding, title: "Airport Directory", desc: "Terminal guides, pickup points and fares for each airport.", to: "/airports" },
       { icon: Train, title: "Train Station Transfers", desc: "Kerbside pickup at UK rail terminals, timed to your train.", to: "/stations" },
       { icon: Ship, title: "Cruise Port Transfers", desc: "Embarkation and disembarkation transfers with luggage space.", to: "/cruise-transfers" },
-      { icon: Hotel, title: "Minibus Hire", desc: "8, 16 and 24-seat minibuses with a professional driver.", to: "/minibus-hire" },
       { icon: RouteIcon, title: "Long Distance Travel", desc: "City-to-city UK drives in modern, comfortable vehicles.", to: "/long-distance-transfers" },
+      { icon: Car, title: "Private Hire", desc: "Licensed pre-booked cars for any point-to-point journey.", to: "/private-hire" },
     ],
   },
   {
+    id: "corporate",
     eyebrow: "Business",
-    heading: "Corporate & professional travel",
-    blurb: "Invoiced accounts, dedicated support and drivers who understand a schedule.",
-    items: [
+    title: "Corporate & executive travel",
+    blurb:
+      "Account-managed business travel with monthly invoicing, cost centres and drivers who understand how a schedule works.",
+    img: corporateImg.url,
+    icon: Building2,
+    to: "/corporate-travel",
+    highlights: ["Invoiced accounts", "Priority 24/7 support", "Executive vehicle classes"],
+    subs: [
       { icon: Building2, title: "Corporate Transportation", desc: "Managed business travel with monthly invoicing.", to: "/corporate-travel" },
       { icon: Briefcase, title: "Open a Corporate Account", desc: "Set up billing, cost centres and approved travellers.", to: "/corporate-booking" },
       { icon: Landmark, title: "Business Park Transfers", desc: "Recurring runs to offices, campuses and business parks.", to: "/corporate" },
@@ -117,41 +113,60 @@ const groups: { eyebrow: string; heading: string; blurb: string; items: Item[] }
     ],
   },
   {
-    eyebrow: "Leisure",
-    heading: "Tours, days out & experiences",
-    blurb: "Curated Scottish itineraries, or build your own route from scratch.",
-    items: [
+    id: "tours",
+    eyebrow: "Signature",
+    title: "Private tours & days out",
+    blurb:
+      "Driver-led days across Scotland and the wider UK — castles, distilleries, coastlines and film locations, entirely at your pace.",
+    img: toursImg.url,
+    icon: Gem,
+    to: "/tours",
+    highlights: ["Full-day itineraries", "Local expert drivers", "Waiting time included"],
+    subs: [
       { icon: Gem, title: "Private Tours", desc: "Full-day and multi-day driver-led tours, price on request.", to: "/tours" },
       { icon: Wine, title: "Distillery Tours", desc: "Whisky trails across Speyside, Islay and the Highlands.", to: "/distilleries" },
       { icon: Landmark, title: "Attraction Transfers", desc: "Castles, lochs and landmarks with waiting time included.", to: "/attractions" },
-      { icon: BookOpen, title: "Travel Guides", desc: "Route notes, timings and tips before you book.", to: "/guides" },
       { icon: Map, title: "Scenic Routes", desc: "NC500, Glencoe and Loch Ness drives with photo stops.", to: "/tours" },
-      { icon: ShoppingBag, title: "Coach Hire", desc: "25 to 55-seat coaches with driver, luggage holds included.", to: "/coach-hire" },
+      { icon: BookOpen, title: "Travel Guides", desc: "Route notes, timings and tips before you book.", to: "/guides" },
+      { icon: Crown, title: "VIP Transfers", desc: "Discreet, high-end travel for dignitaries and private clients.", to: "/vip-transfers" },
     ],
   },
   {
-    eyebrow: "Specialist",
-    heading: "Group, accessible & occasion travel",
-    blurb: "Larger parties and sensitive journeys, handled with the same care.",
-    items: [
-      { icon: Users, title: "Group Transfers", desc: "MPVs, minibuses and coaches for 5–55 passengers, planned as one job.", to: "/group-transfers" },
-      { icon: Accessibility, title: "Wheelchair Accessible", desc: "Ramp-equipped vehicles with trained drivers.", to: "/accessibility" },
-      { icon: Stethoscope, title: "Hospital Transfers", desc: "Appointment and discharge travel with door-to-door assistance.", to: "/hospital-transfers" },
-      { icon: GraduationCap, title: "University Transfers", desc: "Term-start, campus and student arrival transfers.", to: "/university-transfers" },
-      { icon: Car, title: "Private Hire", desc: "Licensed pre-booked cars for any point-to-point journey.", to: "/private-hire" },
-    ],
-  },
-  {
+    id: "sports",
     eyebrow: "Sporting events",
-    heading: "Golf, football & sports travel",
-    blurb: "Dedicated transport for golfers, fans, teams and VIP hospitality — across Scotland and the UK.",
-    items: [
+    title: "Golf, football & sports travel",
+    blurb:
+      "Dedicated transport for golfers, fans, squads and hospitality guests — from St Andrews tee times to match-day stadium runs.",
+    img: sportsImg,
+    icon: Trophy,
+    to: "/golf-transfers",
+    highlights: ["Clubs & kit space", "Match-day timing plans", "Hospitality-grade vehicles"],
+    subs: [
       { icon: Target, title: "Golf Transfers", desc: "Door-to-door transfers to St Andrews, Carnoustie, Turnberry and top courses.", to: "/golf-transfers" },
       { icon: Circle, title: "Football Transfers", desc: "Match-day transport to stadiums and away fixtures for fans and groups.", to: "/football-transfers" },
       { icon: Car, title: "Stadium Transfers", desc: "Reliable drop-off and pickup at Hampden, Murrayfield and UK grounds.", to: "/stadium-transfers" },
-      { icon: Trophy, title: "Major Sporting Events", desc: "The Open, Six Nations, cup finals and race days — travel arranged end to end.", to: "/vip-sports-hospitality" },
+      { icon: Trophy, title: "Major Sporting Events", desc: "The Open, Six Nations, cup finals and race days, arranged end to end.", to: "/vip-sports-hospitality" },
       { icon: Users, title: "Team Sports Travel", desc: "Minibuses and coaches for squads, kit and supporters travelling together.", to: "/team-sports-travel" },
       { icon: Crown, title: "VIP Sports Hospitality", desc: "Premium vehicles and discreet drivers for corporate hospitality days.", to: "/vip-sports-hospitality" },
+    ],
+  },
+  {
+    id: "group",
+    eyebrow: "Specialist",
+    title: "Group, accessible & care travel",
+    blurb:
+      "Larger parties and sensitive journeys handled with the same care — from 55-seat coaches to single hospital appointments.",
+    img: groupImg,
+    icon: Users,
+    to: "/group-transfers",
+    highlights: ["5–55 passengers", "Ramp-equipped vehicles", "Door-to-door assistance"],
+    subs: [
+      { icon: Users, title: "Group Transfers", desc: "MPVs, minibuses and coaches for 5–55 passengers, planned as one job.", to: "/group-transfers" },
+      { icon: Hotel, title: "Minibus Hire", desc: "8, 16 and 24-seat minibuses with a professional driver.", to: "/minibus-hire" },
+      { icon: ShoppingBag, title: "Coach Hire", desc: "25 to 55-seat coaches with driver, luggage holds included.", to: "/coach-hire" },
+      { icon: Accessibility, title: "Wheelchair Accessible", desc: "Ramp-equipped vehicles with trained drivers.", to: "/accessibility" },
+      { icon: Stethoscope, title: "Hospital Transfers", desc: "Appointment and discharge travel with door-to-door assistance.", to: "/hospital-transfers" },
+      { icon: GraduationCap, title: "University Transfers", desc: "Term-start, campus and student arrival transfers.", to: "/university-transfers" },
     ],
   },
 ];
@@ -163,13 +178,113 @@ const promises = [
   { icon: PlaneLanding, label: "Flight tracking", copy: "We adjust to delays automatically at no extra cost." },
 ];
 
+function MainServiceCard({ service, open, onToggle }: { service: MainService; open: boolean; onToggle: () => void }) {
+  const Icon = service.icon;
+  const panelId = `svc-panel-${service.id}`;
+
+  return (
+    <article
+      className={`overflow-hidden rounded-3xl border bg-card shadow-raised transition-all ${
+        open ? "border-[var(--gold)]/50 shadow-raised-hover" : "border-border"
+      }`}
+    >
+      <div className="grid lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
+        {/* Image */}
+        <div className="relative min-h-56 overflow-hidden lg:min-h-full">
+          <img
+            src={service.img}
+            alt={service.title}
+            width={1280}
+            height={960}
+            loading="lazy"
+            className="absolute inset-0 size-full object-cover transition-transform duration-700 hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[var(--navy)]/85 via-[var(--navy)]/25 to-transparent lg:bg-gradient-to-r lg:from-[var(--navy)]/70 lg:via-[var(--navy)]/10 lg:to-transparent" />
+          <span className="absolute left-5 top-5 rounded-full bg-[var(--gold)] px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-[var(--navy)]">
+            {service.eyebrow}
+          </span>
+          <span className="absolute bottom-5 left-5 grid size-12 place-items-center rounded-2xl bg-white/10 text-[var(--gold)] backdrop-blur-sm">
+            <Icon className="size-6" />
+          </span>
+        </div>
+
+        {/* Copy */}
+        <div className="p-6 sm:p-8">
+          <h3 className="font-display text-2xl font-semibold text-[var(--navy)] sm:text-3xl">{service.title}</h3>
+          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{service.blurb}</p>
+
+          <ul className="mt-5 flex flex-wrap gap-2">
+            {service.highlights.map((h) => (
+              <li
+                key={h}
+                className="rounded-full border border-[var(--gold)]/30 bg-[var(--gold)]/10 px-3 py-1 text-xs font-semibold text-[var(--gold-ink)]"
+              >
+                {h}
+              </li>
+            ))}
+          </ul>
+
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <Button asChild size="sm" className="rounded-full">
+              <Link to={service.to}>
+                Open service <ArrowRight className="size-4" />
+              </Link>
+            </Button>
+            <button
+              type="button"
+              onClick={onToggle}
+              aria-expanded={open}
+              aria-controls={panelId}
+              className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-semibold text-[var(--navy)] transition-colors hover:border-[var(--gold)] hover:bg-[var(--gold)]/10"
+            >
+              {open ? <Minus className="size-4" /> : <Plus className="size-4" />}
+              {open ? "Hide" : "View"} {service.subs.length} sub-services
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Sub-services */}
+      <div
+        id={panelId}
+        hidden={!open}
+        className="border-t border-border bg-muted/40 p-6 sm:p-8"
+      >
+        <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-[var(--gold-ink)]">
+          Inside {service.title}
+        </p>
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {service.subs.map((s) => (
+            <Link
+              key={service.id + s.title}
+              to={s.to}
+              className="group flex items-start gap-3 rounded-2xl border border-border bg-background p-4 transition-all hover:-translate-y-0.5 hover:border-[var(--gold)]/50 hover:shadow-raised"
+            >
+              <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-[var(--gold)]/12 text-[var(--gold-ink)] transition-colors group-hover:bg-[var(--gold)] group-hover:text-[var(--navy)]">
+                <s.icon className="size-5" />
+              </span>
+              <div className="min-w-0">
+                <h4 className="text-sm font-semibold">{s.title}</h4>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{s.desc}</p>
+              </div>
+              <ArrowRight className="mt-1 size-4 shrink-0 text-[var(--gold-ink)] opacity-0 transition-opacity group-hover:opacity-100" />
+            </Link>
+          ))}
+        </div>
+      </div>
+    </article>
+  );
+}
+
 function ServicesPage() {
+  const [openId, setOpenId] = useState<string | null>(MAIN_SERVICES[0]!.id);
+
   return (
     <SiteLayout>
       <PageHero
         eyebrow="Our Services"
         title="A complete premium transport service — wherever you're going."
-        subtitle="From a quick airport transfer to multi-day private tours, every Cabslink service is built on punctuality, comfort and professionalism."
+        subtitle="Five main services, thirty specialist journeys. Open a service to see everything it covers."
         breadcrumbs={[{ label: "Home", to: "/" }, { label: "Services" }]}
       />
 
@@ -190,151 +305,48 @@ function ServicesPage() {
         </div>
       </section>
 
-      {/* Featured services */}
-      <section className="section-y">
-        <div className="container-x">
-          <div className="max-w-2xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--gold-ink)]">Where we shine</p>
-            <h2 className="mt-3 font-display text-3xl font-semibold sm:text-4xl">Signature services</h2>
-          </div>
-
-          <div className="mt-8 grid gap-6 lg:grid-cols-2">
-            {featured.map((f) => (
-              <Link
-                key={f.title}
-                to={f.to}
-                className="group relative overflow-hidden rounded-3xl border border-border bg-card shadow-raised transition-all hover:-translate-y-1 hover:shadow-raised-hover"
-              >
-                <div className="relative aspect-[16/10] overflow-hidden">
-                  <img
-                    src={f.img}
-                    alt={f.title}
-                    width={1280}
-                    height={960}
-                    loading="lazy"
-                    className="size-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[var(--navy)] via-[var(--navy)]/25 to-transparent" />
-                  <span className="absolute left-5 top-5 rounded-full bg-[var(--gold)] px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-[var(--navy)]">
-                    {f.tag}
-                  </span>
-                  <div className="absolute inset-x-5 bottom-5 flex items-center gap-3">
-                    <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-white/10 text-[var(--gold)] backdrop-blur-sm">
-                      <f.icon className="size-5" />
-                    </span>
-                    <h3 className="font-display text-2xl font-semibold text-white">{f.title}</h3>
-                  </div>
-                </div>
-                <div className="p-6 sm:p-7">
-                  <p className="text-sm leading-relaxed text-muted-foreground">{f.desc}</p>
-                  <ul className="mt-5 grid gap-2">
-                    {f.points.map((pt) => (
-                      <li key={pt} className="flex items-center gap-2 text-sm text-foreground/80">
-                        <span className="size-1.5 rounded-full bg-[var(--gold)]" />
-                        {pt}
-                      </li>
-                    ))}
-                  </ul>
-                  <p className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--gold-ink)] transition-all group-hover:gap-3">
-                    Explore service <ArrowRight className="size-4" />
-                  </p>
-                </div>
-              </Link>
-            ))}
-          </div>
+      {/* Quick jump */}
+      <section className="border-b border-border bg-background">
+        <div className="container-x flex flex-wrap items-center gap-2 py-5">
+          <span className="mr-1 text-xs font-bold uppercase tracking-[0.28em] text-[var(--gold-ink)]">Jump to</span>
+          {MAIN_SERVICES.map((s) => (
+            <button
+              key={s.id}
+              type="button"
+              onClick={() => {
+                setOpenId(s.id);
+                document.getElementById(`svc-${s.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+              }}
+              className="rounded-full border border-border px-3.5 py-1.5 text-xs font-semibold text-[var(--navy)] transition-colors hover:border-[var(--gold)] hover:bg-[var(--gold)]/10"
+            >
+              {s.title.split(" ")[0]}
+            </button>
+          ))}
         </div>
       </section>
 
-      <CtaBand
-        eyebrow="Any service, one booking"
-        title="Need a driver for one of these services?"
-        subtitle="Get a fixed price in under two minutes — or call our 24/7 reservations team."
-        tone="navy"
-      />
-
-
-
-      {/* Image showcase grid */}
-      <section className="section-y bg-muted/40">
-        <div className="container-x">
-          <div className="max-w-2xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--gold-ink)]">Tailored travel</p>
-            <h2 className="mt-3 font-display text-3xl font-semibold sm:text-4xl">Built around the occasion</h2>
-          </div>
-
-          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {showcase.map((s) => (
-              <Link
-                key={s.title}
-                to={s.to}
-                className="group relative flex h-72 flex-col justify-end overflow-hidden rounded-2xl shadow-raised transition-all hover:-translate-y-1 hover:shadow-raised-hover"
-              >
-                <img
-                  src={s.img}
-                  alt={s.title}
-                  width={1280}
-                  height={960}
-                  loading="lazy"
-                  className="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[var(--navy)] via-[var(--navy)]/55 to-[var(--navy)]/5" />
-                <div className="relative p-5">
-                  <span className="grid size-10 place-items-center rounded-lg bg-[var(--gold)]/20 text-[var(--gold)]">
-                    <s.icon className="size-5" />
-                  </span>
-                  <h3 className="mt-3 font-display text-xl font-semibold text-white">{s.title}</h3>
-                  <p className="mt-1.5 text-xs leading-relaxed text-white/70">{s.desc}</p>
-                  <p className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[var(--gold)] transition-all group-hover:gap-3">
-                    View {s.title} <ArrowRight className="size-3.5" />
-                  </p>
-
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Full service catalogue */}
+      {/* Main services with expandable sub-services */}
       <section className="section-y">
         <div className="container-x">
           <div className="max-w-2xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--gold-ink)]">Full catalogue</p>
-            <h2 className="mt-3 font-display text-3xl font-semibold sm:text-4xl">Every service we operate</h2>
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--gold-ink)]">Main services</p>
+            <h2 className="mt-3 font-display text-3xl font-semibold sm:text-4xl">
+              Choose a main service, then the journey inside it
+            </h2>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Thirty services across five travel categories. If your journey isn't listed, we'll still quote it — just ask.
+              Each main service groups the specialist journeys we run most. Open one to see every sub-service, or head
+              straight to its landing page.
             </p>
           </div>
 
-          <div className="mt-12 space-y-14">
-            {groups.map((g) => (
-              <div key={g.heading}>
-                <div className="flex flex-col gap-2 border-b border-border pb-5 md:flex-row md:items-end md:justify-between">
-                  <div>
-                    <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-[var(--gold-ink)]">{g.eyebrow}</p>
-                    <h3 className="mt-2 font-display text-2xl font-semibold text-[var(--navy)]">{g.heading}</h3>
-                  </div>
-                  <p className="max-w-md text-sm leading-relaxed text-muted-foreground">{g.blurb}</p>
-                </div>
-
-                <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {g.items.map((s) => (
-                    <Link
-                      key={g.heading + s.title}
-                      to={s.to}
-                      className="group flex items-start gap-4 rounded-2xl border border-border bg-card p-5 shadow-raised transition-all hover:-translate-y-0.5 hover:border-[var(--gold)]/40 hover:shadow-raised-hover"
-                    >
-                      <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-[var(--gold)]/12 text-[var(--gold-ink)] transition-colors group-hover:bg-[var(--gold)] group-hover:text-[var(--navy)]">
-                        <s.icon className="size-5" />
-                      </span>
-                      <div className="min-w-0">
-                        <h4 className="font-semibold">{s.title}</h4>
-                        <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{s.desc}</p>
-                      </div>
-                      <ArrowRight className="mt-1 size-4 shrink-0 text-[var(--gold-ink)] opacity-0 transition-opacity group-hover:opacity-100" />
-                    </Link>
-                  ))}
-                </div>
+          <div className="mt-10 space-y-8">
+            {MAIN_SERVICES.map((s) => (
+              <div key={s.id} id={`svc-${s.id}`} className="scroll-mt-28">
+                <MainServiceCard
+                  service={s}
+                  open={openId === s.id}
+                  onToggle={() => setOpenId((cur) => (cur === s.id ? null : s.id))}
+                />
               </div>
             ))}
           </div>
@@ -357,6 +369,13 @@ function ServicesPage() {
           </div>
         </div>
       </section>
+
+      <CtaBand
+        eyebrow="Any service, one booking"
+        title="Need a driver for one of these services?"
+        subtitle="Get a fixed price in under two minutes — or call our 24/7 reservations team."
+        tone="navy"
+      />
     </SiteLayout>
   );
 }
