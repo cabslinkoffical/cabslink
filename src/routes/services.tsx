@@ -63,6 +63,7 @@ type Sub = { icon: typeof Plane; title: string; desc: string; to: string };
 
 type MainService = {
   id: string;
+  short: string;
   eyebrow: string;
   title: string;
   blurb: string;
@@ -76,6 +77,7 @@ type MainService = {
 const MAIN_SERVICES: MainService[] = [
   {
     id: "airport",
+    short: "Airports & hubs",
     eyebrow: "Most booked",
     title: "Airport & travel hub transfers",
     blurb:
@@ -95,6 +97,7 @@ const MAIN_SERVICES: MainService[] = [
   },
   {
     id: "corporate",
+    short: "Corporate",
     eyebrow: "Business",
     title: "Corporate & executive travel",
     blurb:
@@ -114,6 +117,7 @@ const MAIN_SERVICES: MainService[] = [
   },
   {
     id: "tours",
+    short: "Tours",
     eyebrow: "Signature",
     title: "Private tours & days out",
     blurb:
@@ -133,6 +137,7 @@ const MAIN_SERVICES: MainService[] = [
   },
   {
     id: "sports",
+    short: "Sports",
     eyebrow: "Sporting events",
     title: "Golf, football & sports travel",
     blurb:
@@ -152,6 +157,7 @@ const MAIN_SERVICES: MainService[] = [
   },
   {
     id: "group",
+    short: "Group & care",
     eyebrow: "Specialist",
     title: "Group, accessible & care travel",
     blurb:
@@ -319,7 +325,7 @@ function ServicesPage() {
               }}
               className="rounded-full border border-border px-3.5 py-1.5 text-xs font-semibold text-[var(--navy)] transition-colors hover:border-[var(--gold)] hover:bg-[var(--gold)]/10"
             >
-              {s.title.split(" ")[0]}
+              {s.short}
             </button>
           ))}
         </div>
