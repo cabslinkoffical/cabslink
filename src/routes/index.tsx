@@ -144,7 +144,7 @@ const services = [
   { icon: Building2, title: "Corporate Travel", desc: "Account-managed executive travel with monthly invoicing.", to: "/corporate-travel" },
   { icon: Gem, title: "VIP & Executive", desc: "Discreet, refined travel for VIPs and dignitaries.", to: "/vip-transfers" },
   { icon: RouteIcon, title: "Private Tours", desc: "Bespoke Scotland and UK day tours with local drivers.", to: "/tours" },
-  { icon: Award, title: "Events & Weddings", desc: "Weddings, ceremonies and red-carpet arrivals in style.", to: "/services" },
+  { icon: Award, title: "Events & Occasions", desc: "Ceremonies, premieres and red-carpet arrivals in style.", to: "/event-transport" },
   { icon: Car, title: "Long Distance", desc: "City-to-city UK journeys with total comfort.", to: "/services" },
 ];
 

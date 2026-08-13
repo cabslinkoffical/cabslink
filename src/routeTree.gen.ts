@@ -9,7 +9,6 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as WeddingTransportRouteImport } from './routes/wedding-transport'
 import { Route as VipTransfersRouteImport } from './routes/vip-transfers'
 import { Route as VipSportsHospitalityRouteImport } from './routes/vip-sports-hospitality'
 import { Route as UniversityTransfersRouteImport } from './routes/university-transfers'
@@ -131,11 +130,6 @@ import { Route as AuthenticatedCabsBookingPannelBlogAuthorsRouteImport } from '.
 import { Route as AuthenticatedCabsBookingPannelBlogIdRouteImport } from './routes/_authenticated/cabs-booking-pannel/blog.$id'
 import { Route as AuthenticatedCabsBookingPannelSeoPagesIdSectionsRouteImport } from './routes/_authenticated/cabs-booking-pannel/seo.pages.$id.sections'
 
-const WeddingTransportRoute = WeddingTransportRouteImport.update({
-  id: '/wedding-transport',
-  path: '/wedding-transport',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const VipTransfersRoute = VipTransfersRouteImport.update({
   id: '/vip-transfers',
   path: '/vip-transfers',
@@ -814,7 +808,6 @@ export interface FileRoutesByFullPath {
   '/university-transfers': typeof UniversityTransfersRoute
   '/vip-sports-hospitality': typeof VipSportsHospitalityRoute
   '/vip-transfers': typeof VipTransfersRoute
-  '/wedding-transport': typeof WeddingTransportRoute
   '/cabs-booking-pannel': typeof AuthenticatedCabsBookingPannelRouteRouteWithChildren
   '/airport-transfers/$location': typeof AirportTransfersLocationRoute
   '/airports/$iata': typeof AirportsIataRoute
@@ -935,7 +928,6 @@ export interface FileRoutesByTo {
   '/university-transfers': typeof UniversityTransfersRoute
   '/vip-sports-hospitality': typeof VipSportsHospitalityRoute
   '/vip-transfers': typeof VipTransfersRoute
-  '/wedding-transport': typeof WeddingTransportRoute
   '/airport-transfers/$location': typeof AirportTransfersLocationRoute
   '/airports/$iata': typeof AirportsIataRoute
   '/areas/$slug': typeof AreasSlugRoute
@@ -1058,7 +1050,6 @@ export interface FileRoutesById {
   '/university-transfers': typeof UniversityTransfersRoute
   '/vip-sports-hospitality': typeof VipSportsHospitalityRoute
   '/vip-transfers': typeof VipTransfersRoute
-  '/wedding-transport': typeof WeddingTransportRoute
   '/_authenticated/cabs-booking-pannel': typeof AuthenticatedCabsBookingPannelRouteRouteWithChildren
   '/airport-transfers/$location': typeof AirportTransfersLocationRoute
   '/airports/$iata': typeof AirportsIataRoute
@@ -1182,7 +1173,6 @@ export interface FileRouteTypes {
     | '/university-transfers'
     | '/vip-sports-hospitality'
     | '/vip-transfers'
-    | '/wedding-transport'
     | '/cabs-booking-pannel'
     | '/airport-transfers/$location'
     | '/airports/$iata'
@@ -1303,7 +1293,6 @@ export interface FileRouteTypes {
     | '/university-transfers'
     | '/vip-sports-hospitality'
     | '/vip-transfers'
-    | '/wedding-transport'
     | '/airport-transfers/$location'
     | '/airports/$iata'
     | '/areas/$slug'
@@ -1425,7 +1414,6 @@ export interface FileRouteTypes {
     | '/university-transfers'
     | '/vip-sports-hospitality'
     | '/vip-transfers'
-    | '/wedding-transport'
     | '/_authenticated/cabs-booking-pannel'
     | '/airport-transfers/$location'
     | '/airports/$iata'
@@ -1549,7 +1537,6 @@ export interface RootRouteChildren {
   UniversityTransfersRoute: typeof UniversityTransfersRoute
   VipSportsHospitalityRoute: typeof VipSportsHospitalityRoute
   VipTransfersRoute: typeof VipTransfersRoute
-  WeddingTransportRoute: typeof WeddingTransportRoute
   AirportTransfersLocationRoute: typeof AirportTransfersLocationRoute
   AirportsIataRoute: typeof AirportsIataRoute
   AreasSlugRoute: typeof AreasSlugRoute
@@ -1597,13 +1584,6 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/wedding-transport': {
-      id: '/wedding-transport'
-      path: '/wedding-transport'
-      fullPath: '/wedding-transport'
-      preLoaderRoute: typeof WeddingTransportRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/vip-transfers': {
       id: '/vip-transfers'
       path: '/vip-transfers'
@@ -2648,7 +2628,6 @@ const rootRouteChildren: RootRouteChildren = {
   UniversityTransfersRoute: UniversityTransfersRoute,
   VipSportsHospitalityRoute: VipSportsHospitalityRoute,
   VipTransfersRoute: VipTransfersRoute,
-  WeddingTransportRoute: WeddingTransportRoute,
   AirportTransfersLocationRoute: AirportTransfersLocationRoute,
   AirportsIataRoute: AirportsIataRoute,
   AreasSlugRoute: AreasSlugRoute,

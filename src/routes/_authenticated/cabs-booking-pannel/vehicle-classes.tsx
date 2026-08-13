@@ -44,7 +44,7 @@ const FUEL_TYPES = [
 const REC_KEYS: [string, string][] = [
   ["airport", "Airport transfers"], ["corporate", "Corporate"],
   ["long_distance", "Long distance"], ["tours", "Tours"],
-  ["weddings", "Weddings"], ["executive", "Executive"],
+  ["executive", "Executive"],
 ];
 
 const emptyClass: any = {

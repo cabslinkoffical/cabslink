@@ -47,7 +47,6 @@ const RECOMMENDED_LABELS: Record<string, string> = {
   corporate: "Corporate travel",
   long_distance: "Long distance",
   tours: "Private tours",
-  weddings: "Weddings",
   executive: "Executive travel",
 };
 

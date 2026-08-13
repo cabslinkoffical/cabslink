@@ -65,7 +65,7 @@ export const Route = createFileRoute("/about")({
           knowsAbout: [
             "Airport transfers", "Executive travel", "Corporate travel",
             "Cruise transfers", "University transfers", "Hospital transfers",
-            "Group transport", "Wedding transport", "Distillery tours",
+            "Group transport", "Event transport", "Distillery tours",
           ],
         }),
       },
@@ -188,7 +188,6 @@ function AboutPage() {
               { to: "/universities", icon: GraduationCap, t: "University Transfers" },
               { to: "/hospitals", icon: Hospital, t: "Hospital Transfers" },
               { to: "/tours", icon: MapPin, t: "Golf & Distillery Tours" },
-              { to: "/services", icon: Heart, t: "Wedding Transport" },
               { to: "/fleet", icon: Bus, t: "Minibus Hire" },
               { to: "/fleet", icon: Bus, t: "Coach Hire" },
               { to: "/services", icon: RouteIcon, t: "Long Distance Transfers" },

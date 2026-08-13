@@ -264,13 +264,13 @@ export const TRAVEL_SOLUTIONS: Record<string, SolutionContent> = {
     eyebrow: "Event travel",
     h1: "Event travel timed to doors, kick-off and last orders.",
     subtitle:
-      "Weddings, matches, concerts and conferences — scheduled vehicles that work around road closures and end-of-night crowds.",
+      "Matches, concerts, ceremonies and conferences — scheduled vehicles that work around road closures and end-of-night crowds.",
     breadcrumbLabel: "Event travel",
     hubTitle: "Event travel",
-    hubBlurb: "Weddings, sport and conferences with scheduled shuttles.",
-    metaTitle: "Event Travel Scotland — Wedding & Concert Cars | Cabslink",
+    hubBlurb: "Sport, concerts and conferences with scheduled shuttles.",
+    metaTitle: "Event Travel Scotland — Concert & Stadium Cars | Cabslink",
     metaDescription:
-      "Event travel across Scotland: wedding cars, guest shuttles, stadium and concert transfers and conference transport scheduled around closures and crowds.",
+      "Event travel across Scotland: guest shuttles, stadium and concert transfers and conference transport scheduled around closures and crowds.",
     image: eventsImg.url,
     imageAlt: "Guests arriving at an evening event venue by private car",
     intro: {
@@ -294,18 +294,18 @@ export const TRAVEL_SOLUTIONS: Record<string, SolutionContent> = {
           "Return vehicles are held and allocated a meeting point, so you're not competing for a car at 11pm.",
       },
       {
-        need: "The wedding car has to be right.",
+        need: "The lead car has to be right.",
         answer:
-          "Presentation vehicles for the couple plus guest transport, coordinated on one timeline with your venue.",
+          "Presentation vehicles for the principal guests plus group transport, coordinated on one timeline with your venue.",
       },
     ],
-    services: ["event-transport", "wedding-transport", "stadium-transfers", "football-transfers", "vip-sports-hospitality", "coach-hire"],
+    services: ["event-transport", "stadium-transfers", "football-transfers", "vip-sports-hospitality", "coach-hire"],
     included: [...baseIncluded, "Written travel schedule shared before the event"],
     coverage: DEFAULT_COVERAGE,
     faqs: [
       {
         q: "How far ahead should event travel be booked?",
-        a: "For weddings and multi-vehicle events, four to six weeks gives the best vehicle choice. Match days and concerts should be booked as soon as tickets are confirmed.",
+        a: "For multi-vehicle events, four to six weeks gives the best vehicle choice. Match days and concerts should be booked as soon as tickets are confirmed.",
       },
       {
         q: "Can you run a shuttle rather than single journeys?",

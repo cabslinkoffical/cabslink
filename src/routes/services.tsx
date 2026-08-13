@@ -22,7 +22,6 @@ import {
   Timer,
   Accessibility,
   Users,
-  Heart,
   Route as RouteIcon,
   Landmark,
   Wine,
@@ -85,7 +84,7 @@ const showcase = [
   { icon: Crown, title: "VIP Transfers", desc: "Discreet, high-end travel for dignitaries and discerning clients.", to: "/vip-transfers", img: vipImg.url },
   { icon: Building2, title: "Corporate Travel", desc: "Account-managed, invoiced business travel with priority support.", to: "/corporate-travel", img: corporateImg.url },
   { icon: Train, title: "Station Transfers", desc: "Reliable transfers to and from UK rail terminals, on your schedule.", to: "/stations", img: stationImg.url },
-  { icon: Trophy, title: "Events & Sports", desc: "Weddings, premieres, golf days and football fixtures — arrive in style, on time.", to: "/event-transport", img: eventsImg.url },
+  { icon: Trophy, title: "Events & Sports", desc: "Premieres, golf days and football fixtures — arrive in style, on time.", to: "/event-transport", img: eventsImg.url },
 ];
 
 type Item = { icon: typeof Plane; title: string; desc: string; to: string };
@@ -139,7 +138,6 @@ const groups: { eyebrow: string; heading: string; blurb: string; items: Item[] }
       { icon: Accessibility, title: "Wheelchair Accessible", desc: "Ramp-equipped vehicles with trained drivers.", to: "/accessibility" },
       { icon: Stethoscope, title: "Hospital Transfers", desc: "Appointment and discharge travel with door-to-door assistance.", to: "/hospital-transfers" },
       { icon: GraduationCap, title: "University Transfers", desc: "Term-start, campus and student arrival transfers.", to: "/university-transfers" },
-      { icon: Heart, title: "Wedding Transport", desc: "Bridal cars and guest shuttles on a written timing plan.", to: "/wedding-transport" },
       { icon: Car, title: "Private Hire", desc: "Licensed pre-booked cars for any point-to-point journey.", to: "/private-hire" },
     ],
   },

@@ -220,18 +220,6 @@ export const SERVICE_REGISTRY: ServiceRecord[] = [
     intent: "Travel for golf itineraries where clubs, bags and tee times drive the vehicle choice.",
   },
   {
-    id: "wedding-transport",
-    name: "Wedding Transport",
-    slug: "wedding-transport",
-    url: "/wedding-transport",
-    routeExists: true,
-    localPattern: null,
-    aliases: ["wedding car", "bridal car hire", "wedding guest transport"],
-    redirectFrom: [],
-    publication: "published",
-    intent: "Wedding-day vehicles and guest shuttles on a fixed schedule.",
-  },
-  {
     id: "event-transport",
     name: "Event Transport",
     slug: "event-transport",

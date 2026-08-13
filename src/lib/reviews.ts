@@ -89,7 +89,7 @@ export const REVIEW_CHANNELS: ReviewChannel[] = [
     status: "planned",
     blurb: "Recommendations from the Cabslink page",
     detail:
-      "Planned. Facebook Recommendations will let travellers vouch for us to their own network, which matters for group and wedding bookings.",
+      "Planned. Facebook Recommendations will let travellers vouch for us to their own network, which matters for group and event bookings.",
     brandColor: "#1877F2",
   },
   {
