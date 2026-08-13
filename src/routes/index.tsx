@@ -6,8 +6,15 @@ import {
   ArrowRight, Plane, ShieldCheck, CalendarCheck, Phone,
   Briefcase, Users, Award, BadgePoundSterling, Headset, Car, Building2, Gem,
   Route as RouteIcon, CheckCircle2, Sparkles, MessageSquare, CreditCard, Quote,
-  Plus, Minus, Clock, Compass, Wallet, Timer, Mail, BadgeCheck, PlaneTakeoff
+  Plus, Minus, Clock, Compass, Wallet, Timer, Mail, BadgeCheck, PlaneTakeoff, Trophy
 } from "lucide-react";
+
+import svcAirportImg from "@/assets/services/airport.jpg.asset.json";
+import svcCorporateImg from "@/assets/services/corporate.jpg.asset.json";
+import svcToursImg from "@/assets/services/tours.jpg.asset.json";
+import svcSportsImg from "@/assets/services/sports.jpg";
+import svcGroupImg from "@/assets/services/group.jpg";
+
 
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { BookingWidget } from "@/components/site/BookingWidget";
@@ -140,13 +147,58 @@ const trustStats = [
 
 
 const services = [
-  { icon: Plane, title: "Airport Transfers", desc: "Fixed-fare pickups from every UK airport with live flight tracking.", to: "/airport-transfers" },
-  { icon: Building2, title: "Corporate Travel", desc: "Account-managed executive travel with monthly invoicing.", to: "/corporate-travel" },
-  { icon: Gem, title: "VIP & Executive", desc: "Discreet, refined travel for VIPs and dignitaries.", to: "/vip-transfers" },
-  { icon: RouteIcon, title: "Private Tours", desc: "Bespoke Scotland and UK day tours with local drivers.", to: "/tours" },
-  { icon: Award, title: "Events & Occasions", desc: "Ceremonies, premieres and red-carpet arrivals in style.", to: "/event-transport" },
-  { icon: Car, title: "Long Distance", desc: "City-to-city UK journeys with total comfort.", to: "/services" },
+  {
+    icon: Plane,
+    eyebrow: "Most booked",
+    title: "Airport & travel hub transfers",
+    desc: "Airports, rail terminals and cruise ports with tracked schedules, free waiting time and fixed all-in fares.",
+    img: svcAirportImg.url,
+    to: "/airport-transfers",
+    chips: ["Live flight tracking", "Meet & greet", "Fixed pricing"],
+    count: 6,
+  },
+  {
+    icon: Building2,
+    eyebrow: "Business",
+    title: "Corporate & executive travel",
+    desc: "Account-managed business travel with monthly invoicing and cost centres.",
+    img: svcCorporateImg.url,
+    to: "/corporate-travel",
+    chips: ["Invoiced accounts", "Priority 24/7"],
+    count: 6,
+  },
+  {
+    icon: Gem,
+    eyebrow: "Signature",
+    title: "Private tours & days out",
+    desc: "Driver-led days across Scotland and the UK — castles, distilleries and coastlines.",
+    img: svcToursImg.url,
+    to: "/tours",
+    chips: ["Full-day itineraries", "Local drivers"],
+    count: 6,
+  },
+  {
+    icon: Trophy,
+    eyebrow: "Sporting events",
+    title: "Golf, football & sports travel",
+    desc: "Transport for golfers, fans, squads and hospitality guests across the UK.",
+    img: svcSportsImg,
+    to: "/golf-transfers",
+    chips: ["Clubs & kit space", "Match-day timing"],
+    count: 6,
+  },
+  {
+    icon: Users,
+    eyebrow: "Specialist",
+    title: "Group, accessible & care travel",
+    desc: "From 55-seat coaches to single hospital appointments, handled with the same care.",
+    img: svcGroupImg,
+    to: "/group-transfers",
+    chips: ["5–55 passengers", "Ramp-equipped"],
+    count: 6,
+  },
 ];
+
 
 const steps = [
   { icon: MessageSquare, title: "Plan Journey", desc: "Enter pickup, destination and travel details in 30 seconds." },
@@ -450,76 +502,71 @@ function HomePage() {
             </div>
           </div>
 
-          <div className="mt-12 grid gap-4 sm:gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {/* Featured — full width, navy */}
-            {(() => {
-              const f = services[0]!;
+          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {services.map((s, i) => {
+              const featured = i === 0;
               return (
                 <Link
-                  to={f.to}
-                  className="group relative overflow-hidden rounded-3xl navy-scene p-7 shadow-raised transition-all duration-300 hover:-translate-y-1 hover:shadow-raised-hover sm:col-span-2 lg:col-span-3 md:p-10"
+                  key={s.title}
+                  to={s.to}
+                  className={`group relative flex flex-col overflow-hidden rounded-3xl bg-white ring-1 ring-[var(--navy)]/8 shadow-raised transition-all duration-300 hover:-translate-y-1 hover:shadow-raised-hover hover:ring-[var(--gold)]/45 ${
+                    featured ? "sm:col-span-2 lg:col-span-2 lg:row-span-2" : ""
+                  }`}
                 >
-                  <span
-                    aria-hidden
-                    className="pointer-events-none absolute -right-16 -top-24 size-72 rounded-full bg-[var(--gold)]/20 blur-3xl transition-opacity duration-500 group-hover:opacity-80"
-                  />
-                  <div className="relative flex flex-col gap-7 md:flex-row md:items-center md:justify-between md:gap-10">
-                    <div className="flex items-start gap-5 md:items-center md:gap-6">
-                      <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-[var(--gold)] text-[var(--navy)] md:size-16">
-                        <f.icon className="size-7 md:size-8" />
-                      </span>
-                      <span className="min-w-0">
-                        <span className="inline-flex items-center rounded-full border border-[var(--gold)]/40 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--gold)]">
-                          Most booked
+                  <div className={`relative overflow-hidden ${featured ? "h-56 lg:h-80" : "h-44"}`}>
+                    <img
+                      src={s.img}
+                      alt={s.title}
+                      width={1280}
+                      height={860}
+                      loading="lazy"
+                      className="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[var(--navy)]/85 via-[var(--navy)]/25 to-transparent" />
+                    <span className="absolute left-5 top-5 rounded-full bg-[var(--gold)] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--navy)]">
+                      {s.eyebrow}
+                    </span>
+                    <span className="absolute bottom-5 left-5 grid size-12 place-items-center rounded-2xl bg-white/12 text-[var(--gold)] backdrop-blur-sm">
+                      <s.icon className="size-6" />
+                    </span>
+                  </div>
+
+                  <div className={`flex flex-1 flex-col p-6 ${featured ? "md:p-8" : ""}`}>
+                    <h3
+                      className={`font-display font-semibold leading-tight text-[var(--navy)] ${
+                        featured ? "text-2xl md:text-3xl" : "text-xl"
+                      }`}
+                    >
+                      {s.title}
+                    </h3>
+                    <p className="mt-2.5 text-sm leading-relaxed text-[var(--navy)]/62">{s.desc}</p>
+
+                    <ul className="mt-4 flex flex-wrap gap-2">
+                      {s.chips.map((c) => (
+                        <li
+                          key={c}
+                          className="rounded-full border border-[var(--gold)]/30 bg-[var(--gold)]/10 px-3 py-1 text-[11px] font-semibold text-[var(--gold-ink)]"
+                        >
+                          {c}
+                        </li>
+                      ))}
+                    </ul>
+
+                    <span className="mt-auto pt-6">
+                      <span className="block h-px w-full bg-[var(--navy)]/8" />
+                      <span className="mt-4 flex items-center justify-between gap-3">
+                        <span className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--navy)] transition-all group-hover:gap-3 group-hover:text-[var(--gold-ink)]">
+                          Open service <ArrowRight className="size-4" />
                         </span>
-                        <h3 className="mt-2.5 font-display text-2xl font-bold leading-tight text-white md:text-3xl">
-                          {f.title}
-                        </h3>
-                        <p className="mt-2 max-w-xl text-sm leading-relaxed text-white/70 md:text-base">
-                          {f.desc}
-                        </p>
+                        <span className="text-xs font-semibold text-[var(--navy)]/45">
+                          {s.count} sub-services
+                        </span>
                       </span>
-                    </div>
-                    <span className="inline-flex shrink-0 items-center gap-2 rounded-full bg-[var(--gold)] px-5 py-3 text-sm font-semibold text-[var(--navy)] transition-all group-hover:gap-3">
-                      Get a fixed fare <ArrowRight className="size-4" />
                     </span>
                   </div>
                 </Link>
               );
-            })()}
-
-            {services.slice(1).map((s, i) => (
-              <Link
-                key={s.title}
-                to={s.to}
-                className="group relative flex h-full flex-col overflow-hidden rounded-3xl bg-white p-7 ring-1 ring-[var(--navy)]/8 shadow-raised transition-all duration-300 hover:-translate-y-1 hover:shadow-raised-hover hover:ring-[var(--gold)]/45 md:p-8"
-              >
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute -right-10 -top-10 size-32 rounded-full bg-[var(--gold)]/12 opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100"
-                />
-
-                <span className="absolute right-6 top-6 font-mono text-[11px] tracking-widest text-[var(--navy)]/25 transition-colors group-hover:text-[var(--gold-ink)]">
-                  0{i + 2}
-                </span>
-
-                <div className="grid size-14 shrink-0 place-items-center rounded-2xl bg-[var(--gold)]/12 text-[var(--gold-ink)] ring-1 ring-[var(--gold)]/30 transition-all duration-300 group-hover:bg-[var(--gold)] group-hover:text-[var(--navy)] group-hover:ring-[var(--gold)]">
-                  <s.icon className="size-6" />
-                </div>
-
-                <h3 className="mt-6 font-display text-xl font-semibold leading-tight text-[var(--navy)]">
-                  {s.title}
-                </h3>
-                <p className="mt-2.5 text-sm leading-relaxed text-[var(--navy)]/62">
-                  {s.desc}
-                </p>
-
-                <span className="mt-6 h-px w-full bg-[var(--navy)]/8" />
-                <span className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[var(--navy)] transition-all group-hover:gap-3 group-hover:text-[var(--gold-ink)]">
-                  Explore <ArrowRight className="size-4" />
-                </span>
-              </Link>
-            ))}
+            })}
 
             {/* Directory tile */}
             <Link
@@ -543,6 +590,7 @@ function HomePage() {
               </span>
             </Link>
           </div>
+
         </div>
       </section>
 
