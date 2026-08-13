@@ -1,23 +1,11 @@
 {
   "version": 1,
-  "asset_id": "3b6aa79a-f78f-4bf7-8085-c9a5b157f9fb",
+  "asset_id": "891e8009-2b61-4069-96ea-30ef7b6b374d",
   "project_id": "e2d845db-9efd-4dac-bae6-365b62867b96",
-  "url": "/__l5e/assets-v1/dae092fe-6d00-41b7-adb8-a2b3cee88287/eclass-1200.webp",
-  "r2_key": "a/v1/e2d845db-9efd-4dac-bae6-365b62867b96/3b6aa79a-f78f-4bf7-8085-c9a5b157f9fb/eclass.png",
-  "original_filename": "eclass-1200.webp",
-  "size": 49562,
-  "content_type": "image/webp",
-  "created_at": "2026-07-10T14:16:33Z",
-  "srcSet": "/__l5e/assets-v1/b043d0ed-d167-4ffd-b854-8348d651968e/eclass-400.webp 400w, /__l5e/assets-v1/dae092fe-6d00-41b7-adb8-a2b3cee88287/eclass-1200.webp 1200w",
-  "fallbackUrl": "/__l5e/assets-v1/3b6aa79a-f78f-4bf7-8085-c9a5b157f9fb/eclass.png",
-  "variants": {
-    "400": {
-      "url": "/__l5e/assets-v1/b043d0ed-d167-4ffd-b854-8348d651968e/eclass-400.webp",
-      "size": 15222
-    },
-    "1200": {
-      "url": "/__l5e/assets-v1/dae092fe-6d00-41b7-adb8-a2b3cee88287/eclass-1200.webp",
-      "size": 49562
-    }
-  }
+  "url": "/__l5e/assets-v1/891e8009-2b61-4069-96ea-30ef7b6b374d/eclass.jpg",
+  "r2_key": "a/v1/e2d845db-9efd-4dac-bae6-365b62867b96/891e8009-2b61-4069-96ea-30ef7b6b374d/eclass.jpg",
+  "original_filename": "eclass.jpg",
+  "size": 235032,
+  "content_type": "image/jpeg",
+  "created_at": "2026-08-13T12:36:28Z"
 }

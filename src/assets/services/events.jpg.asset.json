@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "asset_id": "d8e4b098-49b4-4978-97d4-1b63078631fb",
+  "asset_id": "d71ba44d-dc3c-40ae-96bc-abea15798b3e",
   "project_id": "e2d845db-9efd-4dac-bae6-365b62867b96",
-  "url": "/__l5e/assets-v1/d8e4b098-49b4-4978-97d4-1b63078631fb/svc-events.jpg",
-  "r2_key": "a/v1/e2d845db-9efd-4dac-bae6-365b62867b96/d8e4b098-49b4-4978-97d4-1b63078631fb/svc-events.jpg",
-  "original_filename": "svc-events.jpg",
-  "size": 110698,
+  "url": "/__l5e/assets-v1/d71ba44d-dc3c-40ae-96bc-abea15798b3e/events.jpg",
+  "r2_key": "a/v1/e2d845db-9efd-4dac-bae6-365b62867b96/d71ba44d-dc3c-40ae-96bc-abea15798b3e/events.jpg",
+  "original_filename": "events.jpg",
+  "size": 339856,
   "content_type": "image/jpeg",
-  "created_at": "2026-07-30T00:05:36Z"
+  "created_at": "2026-08-13T12:35:11Z"
 }
