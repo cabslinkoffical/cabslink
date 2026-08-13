@@ -145,41 +145,45 @@ export function TourBookingDialog({ tour, trigger, autoOpen = false }: Props) {
               <div className="grid grid-cols-2 gap-3">
                 <Field icon={<Calendar className="size-4" />} label="Tour date">
                   <input
+                    aria-label="Tour date"
                     required
                     type="date"
                     min={today}
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
-                    className="w-full bg-transparent border-0 outline-none text-sm font-semibold"
+                    className="w-full bg-transparent border-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)] text-sm font-semibold"
                   />
                 </Field>
                 <Field icon={<Clock className="size-4" />} label="Start time">
                   <input
+                    aria-label="Tour start time"
                     required
                     type="time"
                     value={time}
                     onChange={(e) => setTime(e.target.value)}
-                    className="w-full bg-transparent border-0 outline-none text-sm font-semibold"
+                    className="w-full bg-transparent border-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)] text-sm font-semibold"
                   />
                 </Field>
                 <Field icon={<Users className="size-4" />} label="Passengers">
                   <input
+                    aria-label="Number of passengers"
                     type="number"
                     min={1}
                     max={16}
                     value={passengers}
                     onChange={(e) => setPassengers(Number(e.target.value))}
-                    className="w-full bg-transparent border-0 outline-none text-sm font-semibold"
+                    className="w-full bg-transparent border-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)] text-sm font-semibold"
                   />
                 </Field>
                 <Field icon={<Briefcase className="size-4" />} label="Luggage">
                   <input
+                    aria-label="Number of luggage items"
                     type="number"
                     min={0}
                     max={16}
                     value={luggage}
                     onChange={(e) => setLuggage(Number(e.target.value))}
-                    className="w-full bg-transparent border-0 outline-none text-sm font-semibold"
+                    className="w-full bg-transparent border-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)] text-sm font-semibold"
                   />
                 </Field>
               </div>
@@ -188,18 +192,20 @@ export function TourBookingDialog({ tour, trigger, autoOpen = false }: Props) {
               <div className="grid grid-cols-2 gap-3">
                 <Field icon={<Plane className="size-4" />} label="Flight (optional)">
                   <input
+                    aria-label="Flight number (optional)"
                     value={flight}
                     onChange={(e) => setFlight(e.target.value)}
                     placeholder="e.g. BA1448"
-                    className="w-full bg-transparent border-0 outline-none text-sm font-semibold placeholder:font-normal placeholder:text-foreground/40"
+                    className="w-full bg-transparent border-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)] text-sm font-semibold placeholder:font-normal placeholder:text-foreground/40"
                   />
                 </Field>
                 <Field icon={<MapPin className="size-4" />} label="Hotel / drop-off (optional)">
                   <input
+                    aria-label="Hotel or drop-off address (optional)"
                     value={hotel}
                     onChange={(e) => setHotel(e.target.value)}
                     placeholder="Hotel name in Edinburgh"
-                    className="w-full bg-transparent border-0 outline-none text-sm font-semibold placeholder:font-normal placeholder:text-foreground/40"
+                    className="w-full bg-transparent border-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)] text-sm font-semibold placeholder:font-normal placeholder:text-foreground/40"
                   />
                 </Field>
               </div>

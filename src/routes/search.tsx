@@ -64,6 +64,7 @@ function SearchPage() {
         className="mb-8 flex gap-2"
       >
         <input
+          aria-label="Search destinations"
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Type an area, airport, station, attraction…"

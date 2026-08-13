@@ -257,8 +257,8 @@ function MileageEditor({ pricing, setPricing }: { pricing: typeof emptyPricing; 
           <div key={i} className="grid grid-cols-12 gap-3 items-center">
             <div className="col-span-2 flex items-center gap-1">
               <div className="flex flex-col -ml-0.5">
-                <button type="button" onClick={() => move(i, -1)} className="text-muted-foreground hover:text-foreground"><ArrowUp className="size-3" /></button>
-                <button type="button" onClick={() => move(i, 1)} className="text-muted-foreground hover:text-foreground"><ArrowDown className="size-3" /></button>
+                <button aria-label="Move up" type="button" onClick={() => move(i, -1)} className="text-muted-foreground hover:text-foreground"><ArrowUp className="size-3" /></button>
+                <button aria-label="Move down" type="button" onClick={() => move(i, 1)} className="text-muted-foreground hover:text-foreground"><ArrowDown className="size-3" /></button>
               </div>
               <span className="text-xs font-medium text-muted-foreground tabular-nums">{rangeLabel}</span>
             </div>
@@ -288,7 +288,7 @@ function MileageEditor({ pricing, setPricing }: { pricing: typeof emptyPricing; 
               </div>
             </div>
             <div className="col-span-1 flex justify-end">
-              <Button type="button" size="icon" variant="ghost" className="text-destructive hover:text-destructive"
+              <Button aria-label="Delete" type="button" size="icon" variant="ghost" className="text-destructive hover:text-destructive"
                 onClick={() => {
                   const tiers = pricing.tiers.filter((_, k) => k !== i);
                   tiers.forEach((x, k) => (x.sort_order = k + 1));

@@ -208,7 +208,7 @@ function ClassImageCard({
           placeholder="…or paste an image URL"
           className="h-9 text-xs"
         />
-        <Button
+        <Button aria-label="Set as primary image"
           type="button"
           size="sm"
           variant="secondary"

@@ -172,6 +172,9 @@ export function PlaceAutocomplete({
         aria-controls={listboxId}
         aria-autocomplete="list"
         aria-activedescendant={activeIdx >= 0 ? `${listboxId}-opt-${activeIdx}` : undefined}
+        // Some layouts render the visual label as plain text (not a <label>),
+        // so mirror the placeholder as the accessible name.
+        aria-label={placeholder}
         placeholder={placeholder}
         className={cn(
           "pl-11 pr-9 h-[52px] text-sm text-[var(--navy)] placeholder:text-[var(--navy)]/55 caret-[var(--gold)]",

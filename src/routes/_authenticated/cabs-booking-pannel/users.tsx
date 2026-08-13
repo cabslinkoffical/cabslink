@@ -83,7 +83,7 @@ function UsersPage() {
                       />
                     </td>
                     <td className="p-3 text-right">
-                      <Button size="sm" variant="ghost" className="text-destructive" disabled={isSelf} onClick={() => confirm(`Delete ${u.email}?`) && del.mutate({ data: { userId: u.id } })}>
+                      <Button aria-label="Delete" size="sm" variant="ghost" className="text-destructive" disabled={isSelf} onClick={() => confirm(`Delete ${u.email}?`) && del.mutate({ data: { userId: u.id } })}>
                         <Trash2 className="size-4" />
                       </Button>
                     </td>

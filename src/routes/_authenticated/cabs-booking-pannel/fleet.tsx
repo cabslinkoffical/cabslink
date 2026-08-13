@@ -175,8 +175,8 @@ function FleetPage() {
                 </div>
                 {form.image_url ? (
                   <div className="relative inline-block">
-                    <img src={form.image_url} alt="" className="h-32 object-cover rounded border border-border" />
-                    <Button type="button" size="icon" variant="destructive" className="absolute -top-2 -right-2 size-6 rounded-full" onClick={() => setForm({ ...form, image_url: "" })}>
+                    <img src={form.image_url} alt="Selected vehicle photo preview" className="h-32 object-cover rounded border border-border" />
+                    <Button aria-label="Remove" type="button" size="icon" variant="destructive" className="absolute -top-2 -right-2 size-6 rounded-full" onClick={() => setForm({ ...form, image_url: "" })}>
                       <X className="size-3" />
                     </Button>
                   </div>
@@ -251,9 +251,9 @@ function VehicleCard({ v, profile, onEdit, onDelete }: { v: any; profile: any; o
             <ChevronDown className={`size-4 transition-transform ${open ? "rotate-180" : ""}`} />
             <span className="hidden sm:inline">{open ? "Hide" : "Details"}</span>
           </Button>
-          <Button size="icon" variant="ghost" onClick={onEdit}><Edit className="size-4" /></Button>
+          <Button aria-label="Edit" size="icon" variant="ghost" onClick={onEdit}><Edit className="size-4" /></Button>
           <AlertDialog>
-            <AlertDialogTrigger asChild><Button size="icon" variant="ghost"><Trash2 className="size-4 text-destructive" /></Button></AlertDialogTrigger>
+            <AlertDialogTrigger asChild><Button aria-label="Delete" size="icon" variant="ghost"><Trash2 className="size-4 text-destructive" /></Button></AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader><AlertDialogTitle>Delete vehicle?</AlertDialogTitle><AlertDialogDescription>{v.name} will be removed permanently.</AlertDialogDescription></AlertDialogHeader>
               <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={onDelete} className="bg-destructive">Delete</AlertDialogAction></AlertDialogFooter>

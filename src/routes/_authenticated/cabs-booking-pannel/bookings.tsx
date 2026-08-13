@@ -181,16 +181,16 @@ function BookingsPage() {
                     <td className="px-4 py-3"><StatusBadge status={statusLabel(b.status)} /></td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-1">
-                        <Button size="icon" variant="ghost" onClick={() => { setEditing(b); setReason(""); }} title="View / edit"><Eye className="size-4" /></Button>
+                        <Button aria-label="View details" size="icon" variant="ghost" onClick={() => { setEditing(b); setReason(""); }} title="View / edit"><Eye className="size-4" /></Button>
                         {b.deleted_at ? (
-                          <Button size="icon" variant="ghost" onClick={() => delMut.mutate({ id: b.id, restore: true })} title="Restore"><RotateCcw className="size-4" /></Button>
+                          <Button aria-label="Restore" size="icon" variant="ghost" onClick={() => delMut.mutate({ id: b.id, restore: true })} title="Restore"><RotateCcw className="size-4" /></Button>
                         ) : (
-                          <Button size="icon" variant="ghost" onClick={() => delMut.mutate({ id: b.id })} title="Soft delete"><Trash2 className="size-4 text-warning" /></Button>
+                          <Button aria-label="Delete" size="icon" variant="ghost" onClick={() => delMut.mutate({ id: b.id })} title="Soft delete"><Trash2 className="size-4 text-warning" /></Button>
                         )}
                         {b.deleted_at && (
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
-                              <Button size="icon" variant="ghost" title="Permanently delete"><Trash2 className="size-4 text-destructive" /></Button>
+                              <Button aria-label="Delete" size="icon" variant="ghost" title="Permanently delete"><Trash2 className="size-4 text-destructive" /></Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>

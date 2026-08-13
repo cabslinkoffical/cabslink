@@ -100,10 +100,10 @@ function DrivePage() {
             <h3 className="font-display text-2xl font-semibold">Apply now</h3>
             <p className="text-sm text-muted-foreground mt-1">Tell us a little about yourself — we'll be in touch within 24 hours.</p>
             <div className="mt-6 grid gap-4">
-              <div><Label>Full name</Label><Input name="name" required maxLength={100} className="mt-1.5" /></div>
-              <div><Label>Email</Label><Input name="email" type="email" required maxLength={255} className="mt-1.5" /></div>
-              <div><Label>Phone</Label><div className="mt-1.5"><PhoneInput name="phone" value={phone} onChange={setPhone} required /></div></div>
-              <div><Label>Tell us about yourself</Label><Textarea name="message" required maxLength={1000} rows={5} className="mt-1.5" placeholder="Years driving, licence, vehicle, area covered…" /></div>
+              <div><Label htmlFor="driver-name">Full name</Label><Input id="driver-name" name="name" required maxLength={100} className="mt-1.5" /></div>
+              <div><Label htmlFor="driver-email">Email</Label><Input id="driver-email" name="email" type="email" required maxLength={255} className="mt-1.5" /></div>
+              <div><Label htmlFor="driver-phone">Phone</Label><div className="mt-1.5"><PhoneInput id="driver-phone" name="phone" value={phone} onChange={setPhone} required /></div></div>
+              <div><Label htmlFor="driver-message">Tell us about yourself</Label><Textarea id="driver-message" name="message" required maxLength={1000} rows={5} className="mt-1.5" placeholder="Years driving, licence, vehicle, area covered…" /></div>
               <div className="absolute -left-[9999px]" aria-hidden="true">
                 <label htmlFor="drv-website">Website</label>
                 <input id="drv-website" name="website" type="text" tabIndex={-1} autoComplete="off" />
