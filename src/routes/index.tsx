@@ -503,89 +503,82 @@ function HomePage() {
           </div>
 
           <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {services.map((s, i) => {
-              const featured = i === 0;
-              return (
-                <Link
-                  key={s.title}
-                  to={s.to}
-                  className={`group relative flex flex-col overflow-hidden rounded-3xl bg-white ring-1 ring-[var(--navy)]/8 shadow-raised transition-all duration-300 hover:-translate-y-1 hover:shadow-raised-hover hover:ring-[var(--gold)]/45 ${
-                    featured ? "sm:col-span-2 lg:col-span-2 lg:row-span-2" : ""
-                  }`}
-                >
-                  <div className={`relative overflow-hidden ${featured ? "h-56 lg:h-80" : "h-44"}`}>
-                    <img
-                      src={s.img}
-                      alt={s.title}
-                      width={1280}
-                      height={860}
-                      loading="lazy"
-                      className="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[var(--navy)]/85 via-[var(--navy)]/25 to-transparent" />
-                    <span className="absolute left-5 top-5 rounded-full bg-[var(--gold)] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--navy)]">
-                      {s.eyebrow}
-                    </span>
-                    <span className="absolute bottom-5 left-5 grid size-12 place-items-center rounded-2xl bg-white/12 text-[var(--gold)] backdrop-blur-sm">
-                      <s.icon className="size-6" />
-                    </span>
-                  </div>
+            {services.map((s) => (
+              <Link
+                key={s.title}
+                to={s.to}
+                className="group relative flex h-full flex-col overflow-hidden rounded-3xl bg-white ring-1 ring-[var(--navy)]/8 shadow-raised transition-all duration-300 hover:-translate-y-1 hover:shadow-raised-hover hover:ring-[var(--gold)]/45"
+              >
+                <div className="relative h-44 overflow-hidden">
+                  <img
+                    src={s.img}
+                    alt={s.title}
+                    width={800}
+                    height={520}
+                    loading="lazy"
+                    className="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[var(--navy)]/80 via-[var(--navy)]/20 to-transparent" />
+                  <span className="absolute left-5 top-5 rounded-full bg-[var(--gold)] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--navy)]">
+                    {s.eyebrow}
+                  </span>
+                  <span className="absolute bottom-4 left-5 grid size-11 place-items-center rounded-xl bg-white/12 text-[var(--gold)] backdrop-blur-sm">
+                    <s.icon className="size-5" />
+                  </span>
+                </div>
 
-                  <div className={`flex flex-1 flex-col p-6 ${featured ? "md:p-8" : ""}`}>
-                    <h3
-                      className={`font-display font-semibold leading-tight text-[var(--navy)] ${
-                        featured ? "text-2xl md:text-3xl" : "text-xl"
-                      }`}
-                    >
-                      {s.title}
-                    </h3>
-                    <p className="mt-2.5 text-sm leading-relaxed text-[var(--navy)]/62">{s.desc}</p>
+                <div className="flex flex-1 flex-col p-6">
+                  <h3 className="font-display text-lg font-semibold leading-snug text-[var(--navy)]">
+                    {s.title}
+                  </h3>
+                  <p className="mt-2 text-sm leading-relaxed text-[var(--navy)]/65 line-clamp-2">
+                    {s.desc}
+                  </p>
 
-                    <ul className="mt-4 flex flex-wrap gap-2">
-                      {s.chips.map((c) => (
-                        <li
-                          key={c}
-                          className="rounded-full border border-[var(--gold)]/30 bg-[var(--gold)]/10 px-3 py-1 text-[11px] font-semibold text-[var(--gold-ink)]"
-                        >
-                          {c}
-                        </li>
-                      ))}
-                    </ul>
+                  <ul className="mt-4 flex flex-wrap gap-2">
+                    {s.chips.slice(0, 3).map((c) => (
+                      <li
+                        key={c}
+                        className="rounded-full border border-[var(--gold)]/30 bg-[var(--gold)]/10 px-2.5 py-1 text-[11px] font-semibold text-[var(--gold-ink)]"
+                      >
+                        {c}
+                      </li>
+                    ))}
+                  </ul>
 
-                    <span className="mt-auto pt-6">
-                      <span className="block h-px w-full bg-[var(--navy)]/8" />
-                      <span className="mt-4 flex items-center justify-between gap-3">
-                        <span className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--navy)] transition-all group-hover:gap-3 group-hover:text-[var(--gold-ink)]">
-                          Open service <ArrowRight className="size-4" />
-                        </span>
-                        <span className="text-xs font-semibold text-[var(--navy)]/45">
-                          {s.count} sub-services
-                        </span>
+                  <span className="mt-auto pt-5">
+                    <span className="block h-px w-full bg-[var(--navy)]/8" />
+                    <span className="mt-4 flex items-center justify-between gap-3">
+                      <span className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--navy)] transition-all group-hover:gap-3 group-hover:text-[var(--gold-ink)]">
+                        Open service <ArrowRight className="size-4" />
+                      </span>
+                      <span className="text-xs font-semibold text-[var(--navy)]/45">
+                        {s.count} sub-services
                       </span>
                     </span>
-                  </div>
-                </Link>
-              );
-            })}
+                  </span>
+                </div>
+              </Link>
+            ))}
 
             {/* Directory tile */}
             <Link
               to="/services"
-              className="group relative flex h-full flex-col justify-between overflow-hidden rounded-3xl border border-dashed border-[var(--navy)]/20 bg-white/60 p-7 transition-all duration-300 hover:-translate-y-1 hover:border-[var(--gold)] hover:bg-white md:p-8"
+              className="group relative flex h-full min-h-[340px] flex-col justify-between overflow-hidden rounded-3xl border border-dashed border-[var(--navy)]/20 bg-white/60 p-6 transition-all duration-300 hover:-translate-y-1 hover:border-[var(--gold)] hover:bg-white sm:min-h-0"
             >
-              <span className="grid size-14 place-items-center rounded-2xl bg-[var(--navy)] text-[var(--gold)]">
-                <ArrowRight className="size-6 transition-transform group-hover:translate-x-0.5" />
+              <span className="grid size-12 place-items-center rounded-2xl bg-[var(--navy)] text-[var(--gold)]">
+                <ArrowRight className="size-5 transition-transform group-hover:translate-x-0.5" />
               </span>
               <span>
-                <h3 className="mt-6 font-display text-xl font-semibold leading-tight text-[var(--navy)]">
+                <h3 className="mt-5 font-display text-lg font-semibold leading-snug text-[var(--navy)]">
                   Full service directory
                 </h3>
-                <p className="mt-2.5 text-sm leading-relaxed text-[var(--navy)]/62">
+                <p className="mt-2 text-sm leading-relaxed text-[var(--navy)]/65">
                   Cruise ports, hospitals, universities, sports, minibus and coach hire — see every
                   journey we cover.
                 </p>
                 <span className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[var(--gold-ink)]">
-                  View all services
+                  View all services <ArrowRight className="size-4" />
                 </span>
               </span>
             </Link>
