@@ -22,7 +22,6 @@ import {
   Timer,
   Accessibility,
   Users,
-  Heart,
   Route as RouteIcon,
   Landmark,
   Wine,
