@@ -203,7 +203,7 @@ export function BookingWidget({
 
               <div className="border-t border-black/5 @[980px]:border-0" data-invalid={attempted && !!hourlyErrors.date}>
                 <FieldCell icon={<Calendar className="w-4 h-4 text-[var(--gold-ink)]" />} label="Date" compact invalid={attempted && !!hourlyErrors.date}>
-                  <input aria-label="Hourly hire date" required type="date" min={today} value={date} onChange={(e) => setDate(e.target.value)} className="w-full bg-transparent border-0 outline-none text-sm font-semibold text-foreground" />
+                  <input aria-label="Hourly hire date" required type="date" min={today} value={date} onChange={(e) => setDate(e.target.value)} className="w-full bg-transparent border-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)] text-sm font-semibold text-foreground" />
                 </FieldCell>
               </div>
 
@@ -211,7 +211,7 @@ export function BookingWidget({
 
               <div className="border-t border-black/5 @[600px]:border-t-0 @[600px]:border-l @[600px]:border-black/5 @[980px]:border-l-0 @[980px]:border-0" data-invalid={attempted && !!hourlyErrors.time}>
                 <FieldCell icon={<Clock className="w-4 h-4 text-[var(--gold-ink)]" />} label="Start time" compact invalid={attempted && !!hourlyErrors.time}>
-                  <input aria-label="Hourly hire start time" required type="time" value={time} onChange={(e) => setTime(e.target.value)} className="w-full bg-transparent border-0 outline-none text-sm font-semibold text-foreground" />
+                  <input aria-label="Hourly hire start time" required type="time" value={time} onChange={(e) => setTime(e.target.value)} className="w-full bg-transparent border-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)] text-sm font-semibold text-foreground" />
                 </FieldCell>
               </div>
 
@@ -224,7 +224,7 @@ export function BookingWidget({
                     aria-label="Hire duration in hours"
                     value={hours ?? ""}
                     onChange={(e) => setHours(e.target.value ? Number(e.target.value) : null)}
-                    className="w-full bg-transparent border-0 outline-none text-sm font-semibold text-foreground"
+                    className="w-full bg-transparent border-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)] text-sm font-semibold text-foreground"
                   >
                     <option value="">Select hours</option>
                     {Array.from({ length: 12 }, (_, i) => i + 3).map((h) => (
@@ -342,7 +342,7 @@ export function BookingWidget({
                   min={today}
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  className="w-full bg-transparent border-0 outline-none text-sm font-semibold text-foreground"
+                  className="w-full bg-transparent border-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)] text-sm font-semibold text-foreground"
                 />
               </FieldCell>
             </div>
@@ -358,7 +358,7 @@ export function BookingWidget({
                   type="time"
                   value={time}
                   onChange={(e) => setTime(e.target.value)}
-                  className="w-full bg-transparent border-0 outline-none text-sm font-semibold text-foreground"
+                  className="w-full bg-transparent border-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)] text-sm font-semibold text-foreground"
                 />
               </FieldCell>
             </div>
@@ -503,7 +503,7 @@ export function BookingWidget({
                 <Calendar className="w-4 h-4 text-[var(--gold-ink)]" />
                 <div className="min-w-0 flex-1">
                   <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/70">Date</div>
-                  <input aria-label="Return date" type="date" min={date || today} value={returnDate} onChange={(e) => setReturnDate(e.target.value)} className="w-full bg-transparent border-0 outline-none text-sm font-semibold" />
+                  <input aria-label="Return date" type="date" min={date || today} value={returnDate} onChange={(e) => setReturnDate(e.target.value)} className="w-full bg-transparent border-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)] text-sm font-semibold" />
                 </div>
               </div>
               <div
@@ -513,7 +513,7 @@ export function BookingWidget({
                 <Clock className="w-4 h-4 text-[var(--gold-ink)]" />
                 <div className="min-w-0 flex-1">
                   <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/70">Time</div>
-                  <input aria-label="Return time" type="time" value={returnTime} onChange={(e) => setReturnTime(e.target.value)} className="w-full bg-transparent border-0 outline-none text-sm font-semibold" />
+                  <input aria-label="Return time" type="time" value={returnTime} onChange={(e) => setReturnTime(e.target.value)} className="w-full bg-transparent border-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)] text-sm font-semibold" />
                 </div>
               </div>
             </div>

@@ -175,7 +175,7 @@ function FleetPage() {
                 </div>
                 {form.image_url ? (
                   <div className="relative inline-block">
-                    <img src={form.image_url} alt="" className="h-32 object-cover rounded border border-border" />
+                    <img src={form.image_url} alt="Selected vehicle photo preview" className="h-32 object-cover rounded border border-border" />
                     <Button aria-label="Remove" type="button" size="icon" variant="destructive" className="absolute -top-2 -right-2 size-6 rounded-full" onClick={() => setForm({ ...form, image_url: "" })}>
                       <X className="size-3" />
                     </Button>

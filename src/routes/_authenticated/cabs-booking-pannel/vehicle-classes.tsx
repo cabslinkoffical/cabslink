@@ -214,7 +214,7 @@ function VehicleClassesPage() {
                     />
                   </div>
                   {form.hero_image && (
-                    <img src={form.hero_image} alt="" className="mt-2 h-24 rounded border object-cover" />
+                    <img src={form.hero_image} alt="Selected vehicle class hero image preview" className="mt-2 h-24 rounded border object-cover" />
                   )}
                 </div>
                 <div className="sm:col-span-2"><Label>Short description</Label><Input value={form.short_description ?? ""} onChange={(e) => setForm((f: any) => ({ ...f, short_description: e.target.value }))} /></div>
