@@ -23,9 +23,9 @@ export const PUBLIC_ROUTES = [
   "/private-hire", "/executive-transfers", "/long-distance-transfers", "/group-transfers", "/minibus-hire", "/coach-hire", "/cruise-transfers", "/university-transfers", "/hospital-transfers", "/event-transport",
   "/travel-solutions", "/travel-solutions/business-travel", "/travel-solutions/student-travel", "/travel-solutions/family-travel", "/travel-solutions/group-travel", "/travel-solutions/event-travel",
   "/blog",
-  "/areas", "/stations", "/cruise-ports", "/universities",
+  "/areas", "/airports", "/stations", "/cruise-ports", "/universities",
   "/hospitals", "/corporate", "/attractions", "/distilleries", "/guides",
-  "/routes",
+  "/routes", "/distance", "/image-credits",
   ...JOURNEY_ROUTES,
   ...SERVICE_LOCATION_ROUTES,
 
