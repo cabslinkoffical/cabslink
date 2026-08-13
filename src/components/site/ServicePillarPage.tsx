@@ -105,28 +105,62 @@ export function ServicePillarPage({ content }: { content: PillarContent }) {
         ]}
       />
 
+      {/* Trust strip */}
+      <section className="bg-[var(--navy)]">
+        <div className="container-x grid grid-cols-2 gap-x-6 gap-y-6 py-7 lg:grid-cols-4">
+          {[
+            { icon: ShieldCheck, label: "Licensed & insured" },
+            { icon: Clock, label: "24/7 availability" },
+            { icon: Wallet, label: "Fixed, all-in pricing" },
+            { icon: BadgeCheck, label: "Vetted professional drivers" },
+          ].map((t) => (
+            <div key={t.label} className="flex min-w-0 items-center gap-3">
+              <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[var(--gold)]/15 text-[var(--gold)]">
+                <t.icon className="size-4" />
+              </span>
+              <p className="text-sm font-semibold text-white">{t.label}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* Intro + features */}
       <section className="section-y">
         <div className="container-x grid items-center gap-12 lg:grid-cols-2">
-          <img
-            src={content.image}
-            alt={content.imageAlt}
-            width={1280}
-            height={960}
-            loading="lazy"
-            className="aspect-[4/3] w-full rounded-3xl object-cover shadow-[var(--shadow-elegant)]"
-          />
+          <div className="relative">
+            <div className="absolute -inset-3 -z-10 rounded-[2rem] bg-[var(--gold)]/10" aria-hidden />
+            <img
+              src={content.image}
+              alt={content.imageAlt}
+              width={1280}
+              height={960}
+              loading="lazy"
+              className="aspect-[4/3] w-full rounded-3xl object-cover shadow-[var(--shadow-elegant)]"
+            />
+            <div className="absolute -bottom-5 left-5 right-5 flex items-center justify-between gap-4 rounded-2xl border border-[var(--gold)]/30 bg-background/95 p-4 shadow-[var(--shadow-raised)] backdrop-blur sm:left-8 sm:right-auto sm:pr-8">
+              <div>
+                <p className="font-display text-xl font-semibold text-[var(--navy)]">4.7 / 5</p>
+                <p className="text-xs text-muted-foreground">Rated by real travellers</p>
+              </div>
+              <span className="grid size-10 place-items-center rounded-xl bg-[var(--gold)]/15 text-[var(--gold-ink)]">
+                <Sparkles className="size-5" />
+              </span>
+            </div>
+          </div>
           <div>
             <SectionHeader eyebrow={content.eyebrow} title={content.intro.title} subtitle={content.intro.body} />
-            <ul className="mt-6 space-y-4">
+            <ul className="mt-6 grid gap-4 sm:grid-cols-2">
               {content.features.map((f) => {
                 const Icon = ICONS[f.icon];
                 return (
-                  <li key={f.title} className="flex gap-4">
+                  <li
+                    key={f.title}
+                    className="flex gap-4 rounded-2xl border bg-background p-4 shadow-[var(--shadow-raised)]"
+                  >
                     <div className="grid size-11 shrink-0 place-items-center rounded-xl bg-[var(--gold)]/15 text-[var(--gold-ink)]">
                       <Icon className="size-5" />
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <h3 className="font-semibold">{f.title}</h3>
                       <p className="mt-1 text-sm text-muted-foreground">{f.desc}</p>
                     </div>
@@ -145,6 +179,7 @@ export function ServicePillarPage({ content }: { content: PillarContent }) {
           </div>
         </div>
       </section>
+
 
       {/* How it works */}
       <section className="bg-[var(--navy)] text-[var(--navy-foreground)] section-y">
