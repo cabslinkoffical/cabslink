@@ -22,6 +22,7 @@ import { TrustpilotSection } from "@/components/site/TrustpilotSection";
 import { organizationSchema, websiteSchema } from "@/components/seo/schema";
 import { DrivingCarBadge } from "@/components/site/DrivingCarBadge";
 import { locationsDirectoryQuery } from "@/components/site/LocationsDirectory";
+import { FeatureStepsDemo } from "@/components/site/FeatureStepsDemo";
 
 import { Button } from "@/components/ui/button";
 import { SITE } from "@/lib/site";
@@ -584,6 +585,10 @@ function HomePage() {
             </Link>
           </div>
 
+          {/* How to book any service */}
+          <div className="mt-16">
+            <FeatureStepsDemo />
+          </div>
         </div>
       </section>
 
