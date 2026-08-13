@@ -1,23 +1,11 @@
 {
   "version": 1,
-  "asset_id": "fd2849a4-049b-49ae-b3dc-076bfc909159",
+  "asset_id": "25145a55-19ce-42cd-9c7b-776ffb7bdcc2",
   "project_id": "e2d845db-9efd-4dac-bae6-365b62867b96",
-  "url": "/__l5e/assets-v1/bb044949-1f44-4540-b70f-83d8b7aa943e/coach-1200.webp",
-  "r2_key": "a/v1/e2d845db-9efd-4dac-bae6-365b62867b96/fd2849a4-049b-49ae-b3dc-076bfc909159/coach.png",
-  "original_filename": "coach-1200.webp",
-  "size": 47380,
-  "content_type": "image/webp",
-  "created_at": "2026-07-10T14:16:47Z",
-  "srcSet": "/__l5e/assets-v1/6c06e2f3-ef36-45c6-bcde-3f66869170c1/coach-400.webp 400w, /__l5e/assets-v1/bb044949-1f44-4540-b70f-83d8b7aa943e/coach-1200.webp 1200w",
-  "fallbackUrl": "/__l5e/assets-v1/fd2849a4-049b-49ae-b3dc-076bfc909159/coach.png",
-  "variants": {
-    "400": {
-      "url": "/__l5e/assets-v1/6c06e2f3-ef36-45c6-bcde-3f66869170c1/coach-400.webp",
-      "size": 16480
-    },
-    "1200": {
-      "url": "/__l5e/assets-v1/bb044949-1f44-4540-b70f-83d8b7aa943e/coach-1200.webp",
-      "size": 47380
-    }
-  }
+  "url": "/__l5e/assets-v1/25145a55-19ce-42cd-9c7b-776ffb7bdcc2/coach.jpg",
+  "r2_key": "a/v1/e2d845db-9efd-4dac-bae6-365b62867b96/25145a55-19ce-42cd-9c7b-776ffb7bdcc2/coach.jpg",
+  "original_filename": "coach.jpg",
+  "size": 316905,
+  "content_type": "image/jpeg",
+  "created_at": "2026-08-13T12:37:33Z"
 }

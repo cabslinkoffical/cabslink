@@ -22,3 +22,9 @@ export function fleetImageProps(asset: FleetAssetPointer, sizes: string) {
 export function fleetThumbnailUrl(asset: FleetAssetPointer): string {
   return asset.variants?.["400"]?.url ?? asset.url;
 }
+
+// Pointer JSON written by the assets CLI has no srcSet/variants keys, so TS
+// narrows the import to a literal type. Widen it back to FleetAssetPointer.
+export function asFleetAsset(asset: { url: string }): FleetAssetPointer {
+  return asset as FleetAssetPointer;
+}

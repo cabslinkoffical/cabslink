@@ -46,7 +46,7 @@ import minibusAsset from "@/assets/fleet/minibus.png.asset.json";
 import rollsAsset from "@/assets/fleet/rolls.png.asset.json";
 import coachAsset from "@/assets/fleet/coach.png.asset.json";
 import coasterAsset from "@/assets/fleet/coaster.png.asset.json";
-import { fleetThumbnailUrl } from "@/lib/fleet-image";
+import { fleetThumbnailUrl, asFleetAsset } from "@/lib/fleet-image";
 
 type HeroVehicle = {
   key: string;
@@ -59,14 +59,14 @@ type HeroVehicle = {
 };
 
 const fallbackHeroVehicles: HeroVehicle[] = [
-  { key: "vclass", name: "Mercedes V-Class", tag: "First-class · 7 seats", img: vclassAsset.url, srcSet: vclassAsset.srcSet, thumbnail: fleetThumbnailUrl(vclassAsset), seats: 7 },
-  { key: "sclass", name: "Mercedes S-Class", tag: "Flagship saloon · 3 seats", img: sclassAsset.url, srcSet: sclassAsset.srcSet, thumbnail: fleetThumbnailUrl(sclassAsset), seats: 3 },
-  { key: "eclass", name: "Mercedes E-Class", tag: "Executive · 3 seats", img: eclassAsset.url, srcSet: eclassAsset.srcSet, thumbnail: fleetThumbnailUrl(eclassAsset), seats: 3 },
-  { key: "rangerover", name: "Range Rover", tag: "Luxury SUV · 4 seats", img: rangeroverAsset.url, srcSet: rangeroverAsset.srcSet, thumbnail: fleetThumbnailUrl(rangeroverAsset), seats: 4 },
-  { key: "rolls", name: "Rolls-Royce Bentley", tag: "Ultra-luxury · 3 seats", img: rollsAsset.url, srcSet: rollsAsset.srcSet, thumbnail: fleetThumbnailUrl(rollsAsset), seats: 3 },
-  { key: "minibus", name: "Executive Minibus", tag: "Groups · 16 seats", img: minibusAsset.url, srcSet: minibusAsset.srcSet, thumbnail: fleetThumbnailUrl(minibusAsset), seats: 16 },
-  { key: "coaster", name: "Coaster Bus", tag: "Mid-group · 24 seats", img: coasterAsset.url, srcSet: coasterAsset.srcSet, thumbnail: fleetThumbnailUrl(coasterAsset), seats: 24 },
-  { key: "coach", name: "Coach Bus", tag: "Large group · 55 seats", img: coachAsset.url, srcSet: coachAsset.srcSet, thumbnail: fleetThumbnailUrl(coachAsset), seats: 55 },
+  { key: "vclass", name: "Mercedes V-Class", tag: "First-class · 7 seats", img: vclassAsset.url, srcSet: asFleetAsset(vclassAsset).srcSet, thumbnail: fleetThumbnailUrl(vclassAsset), seats: 7 },
+  { key: "sclass", name: "Mercedes S-Class", tag: "Flagship saloon · 3 seats", img: sclassAsset.url, srcSet: asFleetAsset(sclassAsset).srcSet, thumbnail: fleetThumbnailUrl(sclassAsset), seats: 3 },
+  { key: "eclass", name: "Mercedes E-Class", tag: "Executive · 3 seats", img: eclassAsset.url, srcSet: asFleetAsset(eclassAsset).srcSet, thumbnail: fleetThumbnailUrl(eclassAsset), seats: 3 },
+  { key: "rangerover", name: "Range Rover", tag: "Luxury SUV · 4 seats", img: rangeroverAsset.url, srcSet: asFleetAsset(rangeroverAsset).srcSet, thumbnail: fleetThumbnailUrl(rangeroverAsset), seats: 4 },
+  { key: "rolls", name: "Rolls-Royce Bentley", tag: "Ultra-luxury · 3 seats", img: rollsAsset.url, srcSet: asFleetAsset(rollsAsset).srcSet, thumbnail: fleetThumbnailUrl(rollsAsset), seats: 3 },
+  { key: "minibus", name: "Executive Minibus", tag: "Groups · 16 seats", img: minibusAsset.url, srcSet: asFleetAsset(minibusAsset).srcSet, thumbnail: fleetThumbnailUrl(minibusAsset), seats: 16 },
+  { key: "coaster", name: "Coaster Bus", tag: "Mid-group · 24 seats", img: coasterAsset.url, srcSet: asFleetAsset(coasterAsset).srcSet, thumbnail: fleetThumbnailUrl(coasterAsset), seats: 24 },
+  { key: "coach", name: "Coach Bus", tag: "Large group · 55 seats", img: coachAsset.url, srcSet: asFleetAsset(coachAsset).srcSet, thumbnail: fleetThumbnailUrl(coachAsset), seats: 55 },
 ];
 
 const HERO_VEHICLE_SIZES = "(max-width: 1024px) 92vw, 600px";
@@ -89,7 +89,7 @@ export const Route = createFileRoute("/")({
         rel: "preload",
         as: "image",
         href: vclassAsset.url,
-        imageSrcSet: vclassAsset.srcSet,
+        imageSrcSet: asFleetAsset(vclassAsset).srcSet,
         imageSizes: HERO_VEHICLE_SIZES,
         fetchPriority: "high",
       },

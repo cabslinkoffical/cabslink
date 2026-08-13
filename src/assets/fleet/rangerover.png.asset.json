@@ -1,23 +1,11 @@
 {
   "version": 1,
-  "asset_id": "4d0f565c-352e-43d1-ae5e-25c3ad62da26",
+  "asset_id": "16ac0d75-b6d5-467e-abbd-21e9ec76591a",
   "project_id": "e2d845db-9efd-4dac-bae6-365b62867b96",
-  "url": "/__l5e/assets-v1/ddb8115d-9873-4881-ac22-c0157459b75d/rangerover-1200.webp",
-  "r2_key": "a/v1/e2d845db-9efd-4dac-bae6-365b62867b96/4d0f565c-352e-43d1-ae5e-25c3ad62da26/rangerover.png",
-  "original_filename": "rangerover-1200.webp",
-  "size": 52360,
-  "content_type": "image/webp",
-  "created_at": "2026-07-10T14:16:38Z",
-  "srcSet": "/__l5e/assets-v1/ed4842cb-5efd-442a-bac2-ae270a6d41b6/rangerover-400.webp 400w, /__l5e/assets-v1/ddb8115d-9873-4881-ac22-c0157459b75d/rangerover-1200.webp 1200w",
-  "fallbackUrl": "/__l5e/assets-v1/4d0f565c-352e-43d1-ae5e-25c3ad62da26/rangerover.png",
-  "variants": {
-    "400": {
-      "url": "/__l5e/assets-v1/ed4842cb-5efd-442a-bac2-ae270a6d41b6/rangerover-400.webp",
-      "size": 16202
-    },
-    "1200": {
-      "url": "/__l5e/assets-v1/ddb8115d-9873-4881-ac22-c0157459b75d/rangerover-1200.webp",
-      "size": 52360
-    }
-  }
+  "url": "/__l5e/assets-v1/16ac0d75-b6d5-467e-abbd-21e9ec76591a/rangerover.jpg",
+  "r2_key": "a/v1/e2d845db-9efd-4dac-bae6-365b62867b96/16ac0d75-b6d5-467e-abbd-21e9ec76591a/rangerover.jpg",
+  "original_filename": "rangerover.jpg",
+  "size": 387273,
+  "content_type": "image/jpeg",
+  "created_at": "2026-08-13T12:36:54Z"
 }
