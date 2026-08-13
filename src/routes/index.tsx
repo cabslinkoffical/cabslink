@@ -140,13 +140,58 @@ const trustStats = [
 
 
 const services = [
-  { icon: Plane, title: "Airport Transfers", desc: "Fixed-fare pickups from every UK airport with live flight tracking.", to: "/airport-transfers" },
-  { icon: Building2, title: "Corporate Travel", desc: "Account-managed executive travel with monthly invoicing.", to: "/corporate-travel" },
-  { icon: Gem, title: "VIP & Executive", desc: "Discreet, refined travel for VIPs and dignitaries.", to: "/vip-transfers" },
-  { icon: RouteIcon, title: "Private Tours", desc: "Bespoke Scotland and UK day tours with local drivers.", to: "/tours" },
-  { icon: Award, title: "Events & Occasions", desc: "Ceremonies, premieres and red-carpet arrivals in style.", to: "/event-transport" },
-  { icon: Car, title: "Long Distance", desc: "City-to-city UK journeys with total comfort.", to: "/services" },
+  {
+    icon: Plane,
+    eyebrow: "Most booked",
+    title: "Airport & travel hub transfers",
+    desc: "Airports, rail terminals and cruise ports with tracked schedules, free waiting time and fixed all-in fares.",
+    img: svcAirportImg.url,
+    to: "/airport-transfers",
+    chips: ["Live flight tracking", "Meet & greet", "Fixed pricing"],
+    count: 6,
+  },
+  {
+    icon: Building2,
+    eyebrow: "Business",
+    title: "Corporate & executive travel",
+    desc: "Account-managed business travel with monthly invoicing and cost centres.",
+    img: svcCorporateImg.url,
+    to: "/corporate-travel",
+    chips: ["Invoiced accounts", "Priority 24/7"],
+    count: 6,
+  },
+  {
+    icon: Gem,
+    eyebrow: "Signature",
+    title: "Private tours & days out",
+    desc: "Driver-led days across Scotland and the UK — castles, distilleries and coastlines.",
+    img: svcToursImg.url,
+    to: "/tours",
+    chips: ["Full-day itineraries", "Local drivers"],
+    count: 6,
+  },
+  {
+    icon: Trophy,
+    eyebrow: "Sporting events",
+    title: "Golf, football & sports travel",
+    desc: "Transport for golfers, fans, squads and hospitality guests across the UK.",
+    img: svcSportsImg,
+    to: "/golf-transfers",
+    chips: ["Clubs & kit space", "Match-day timing"],
+    count: 6,
+  },
+  {
+    icon: Users,
+    eyebrow: "Specialist",
+    title: "Group, accessible & care travel",
+    desc: "From 55-seat coaches to single hospital appointments, handled with the same care.",
+    img: svcGroupImg,
+    to: "/group-transfers",
+    chips: ["5–55 passengers", "Ramp-equipped"],
+    count: 6,
+  },
 ];
+
 
 const steps = [
   { icon: MessageSquare, title: "Plan Journey", desc: "Enter pickup, destination and travel details in 30 seconds." },
