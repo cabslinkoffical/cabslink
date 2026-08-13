@@ -312,7 +312,7 @@ function FleetCard({ klass }: { klass: PublicVehicleClass }) {
         ) : (
           <span className="grid size-full place-items-center text-xs text-white/50">Image coming soon</span>
         )}
-        <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[var(--navy)]/70 via-transparent to-[var(--navy)]/20" />
+        <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[var(--navy)] via-[var(--navy)]/45 to-transparent" />
 
         <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
           {klass.badge || klass.featured ? (
