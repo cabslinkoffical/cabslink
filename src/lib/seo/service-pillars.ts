@@ -6,6 +6,13 @@ import eventsImg from "@/assets/services/events.jpg.asset.json";
 import stationImg from "@/assets/services/station.jpg.asset.json";
 import toursImg from "@/assets/services/tours.jpg.asset.json";
 import vipImg from "@/assets/services/vip.jpg.asset.json";
+import minibusImg from "@/assets/services/minibus.jpg";
+import coachImg from "@/assets/services/coach.jpg";
+import cruiseImg from "@/assets/services/cruise.jpg";
+import hospitalImg from "@/assets/services/hospital.jpg";
+import universityImg from "@/assets/services/university.jpg";
+import longDistanceImg from "@/assets/services/long-distance.jpg";
+import groupImg from "@/assets/services/group.jpg";
 
 const commonIncluded = [
   "Fixed price confirmed before you travel",
@@ -27,7 +34,7 @@ export const SERVICE_PILLARS: Record<string, PillarContent> = {
     metaTitle: "Private Hire Scotland — Licensed Pre-Booked Cars | Cabslink",
     metaDescription:
       "Pre-booked licensed private hire across Scotland and the UK. Fixed prices, professional drivers and 24/7 booking for any journey, airport or not.",
-    image: stationImg.url,
+    image: airportImg.url,
     imageAlt: "Licensed private hire car waiting at a Scottish city kerbside",
     intro: {
       title: "Pre-booked travel, priced before you get in",
@@ -65,7 +72,7 @@ export const SERVICE_PILLARS: Record<string, PillarContent> = {
     metaTitle: "Executive Transfers Scotland — Business Travel | Cabslink",
     metaDescription:
       "Executive car transfers across Scotland and the UK. Mercedes E-Class and V-Class vehicles, professional drivers, flight tracking and account billing.",
-    image: corporateImg.url,
+    image: vipImg.url,
     imageAlt: "Executive saloon with driver waiting outside a modern office building",
     intro: {
       title: "A quiet office on wheels",
@@ -110,7 +117,7 @@ export const SERVICE_PILLARS: Record<string, PillarContent> = {
     metaTitle: "Long Distance Taxi & Transfers UK — Fixed Price | Cabslink",
     metaDescription:
       "Long-distance transfers across the UK with a fixed door-to-door price. Comfortable vehicles, comfort stops, luggage space and no per-mile surprises.",
-    image: toursImg.url,
+    image: longDistanceImg,
     imageAlt: "Vehicle travelling a long-distance route through the Scottish countryside",
     intro: {
       title: "Better than changing trains three times",
@@ -148,7 +155,7 @@ export const SERVICE_PILLARS: Record<string, PillarContent> = {
     metaTitle: "Group Transfers Scotland — Multi-Vehicle Travel | Cabslink",
     metaDescription:
       "Group transfers across Scotland and the UK. Minibuses, coaches and multi-car convoys with one coordinator, one quote and one arrival time.",
-    image: eventsImg.url,
+    image: groupImg,
     imageAlt: "Group of travellers boarding a minibus for a private transfer",
     intro: {
       title: "One coordinator, one arrival time",
@@ -193,7 +200,7 @@ export const SERVICE_PILLARS: Record<string, PillarContent> = {
     metaTitle: "Minibus Hire With Driver Scotland — 8 to 24 Seats | Cabslink",
     metaDescription:
       "Minibus hire with a driver across Scotland. 8, 16 and 24-seat vehicles for airports, events, golf and tours with fixed prices and luggage space.",
-    image: eventsImg.url,
+    image: minibusImg,
     imageAlt: "Modern 16-seat minibus ready for a private group transfer",
     intro: {
       title: "The right size between a car and a coach",
@@ -231,7 +238,7 @@ export const SERVICE_PILLARS: Record<string, PillarContent> = {
     metaTitle: "Coach Hire Scotland — 25 to 55 Seats With Driver | Cabslink",
     metaDescription:
       "Coach hire with driver across Scotland and the UK. 25, 35 and 55-seat coaches for conferences, events, sports and school groups. Fixed quotes.",
-    image: eventsImg.url,
+    image: coachImg,
     imageAlt: "Full-size touring coach parked ready to board a large group",
     intro: {
       title: "One vehicle for the whole party",
@@ -276,7 +283,7 @@ export const SERVICE_PILLARS: Record<string, PillarContent> = {
     metaTitle: "Cruise Port Transfers — Greenock & Rosyth | Cabslink",
     metaDescription:
       "Private cruise transfers to Scottish and UK ports. Greenock, Rosyth, Leith, Invergordon and Southampton with cruise-luggage space and boarding-time planning.",
-    image: airportImg.url,
+    image: cruiseImg,
     imageAlt: "Private transfer vehicle at a cruise terminal with luggage being loaded",
     intro: {
       title: "Cruise luggage needs a bigger boot",
@@ -321,7 +328,7 @@ export const SERVICE_PILLARS: Record<string, PillarContent> = {
     metaTitle: "University Transfers Scotland — Airport to Campus | Cabslink",
     metaDescription:
       "University transfers across Scotland. Airport-to-halls travel for Edinburgh, Glasgow, St Andrews, Dundee and Aberdeen students with luggage space.",
-    image: stationImg.url,
+    image: universityImg,
     imageAlt: "Student arriving at university halls with luggage from a private transfer",
     intro: {
       title: "First arrival, last departure, and everything between",
@@ -366,7 +373,7 @@ export const SERVICE_PILLARS: Record<string, PillarContent> = {
     metaTitle: "Hospital Transfers Scotland — Appointment Travel | Cabslink",
     metaDescription:
       "Non-emergency hospital transfers across Scotland. Pre-booked appointment and discharge travel with patient drivers, door assistance and fixed prices.",
-    image: stationImg.url,
+    image: hospitalImg,
     imageAlt: "Private car waiting at a hospital main entrance for a patient transfer",
     intro: {
       title: "Calm, unhurried travel on a difficult day",
