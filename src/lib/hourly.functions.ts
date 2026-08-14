@@ -7,101 +7,29 @@ import {
   assertAdmin,
   loadActiveProfiles,
   loadQuoteSettings,
-  type LoadedProfile,
+  loadRuleSets,
+  loadJourneyCoords,
 } from "@/lib/pricing-helpers.server";
+import {
+  loadActiveHourlyRates,
+  buildHourlyCards,
+  round2,
+  hourlyJourneyContext,
+  applyHourlyRules,
+  type HourlyCard,
+} from "@/lib/hourly-pricing.server";
 import { placeIdSchema, placeLabelSchema } from "@/lib/place-id";
 import { checkLimit } from "@/lib/rate-limit.server";
 
-// -------------------------------------------------------------------
-// Hourly / day-tour hire — vehicle is booked by the hour, "as directed".
-// -------------------------------------------------------------------
-
-export type HourlyCard = {
-  vehicleId: string;
-  name: string;
-  category: string;
-  imageUrl: string;
-  passengers: number;
-  luggage: number;
-  handLuggage: number;
-  pricePerHour: number;
-  minHours: number;
-  maxHours: number;
-  chargedHours: number;
-  total: number;
-  minimumApplied: boolean;
-  quoteOnRequest: boolean;
-  classSlug: string;
-  classDisplayOrder: number;
-};
-
-type RateRow = {
-  vehicle_id: string;
-  price_per_hour: number;
-  min_hours: number;
-  max_hours: number;
-  active: boolean;
-  display_order: number | null;
-};
-
-const round2 = (n: number) => Math.round(n * 100) / 100;
-
-async function loadActiveHourlyRates(): Promise<Map<string, RateRow>> {
-  const client = publicClient();
-  const { data, error } = await client
-    .from("hourly_rates")
-    .select("vehicle_id, price_per_hour, min_hours, max_hours, active, display_order")
-    .eq("active", true);
-  if (error) throw new Error(error.message);
-  const map = new Map<string, RateRow>();
-  for (const r of (data ?? []) as any[]) {
-    if (r.vehicle_id) map.set(r.vehicle_id as string, r as RateRow);
-  }
-  return map;
-}
-
-function buildCards(
-  profiles: LoadedProfile[],
-  rates: Map<string, RateRow>,
-  hours: number,
-): HourlyCard[] {
-  const cards: HourlyCard[] = [];
-  for (const p of profiles) {
-    const rate = rates.get(p.vehicle.id);
-    if (!rate) continue;
-    const min = Math.max(1, Number(rate.min_hours) || 1);
-    const max = Math.max(min, Number(rate.max_hours) || 24);
-    if (hours > max) continue;
-    const chargedHours = Math.max(hours, min);
-    const perHour = Math.max(0, Number(rate.price_per_hour) || 0);
-    cards.push({
-      vehicleId: p.vehicle.id,
-      name: p.vehicle.name,
-      category: p.vehicle.category,
-      imageUrl: p.vehicle.image_url,
-      passengers: p.vehicle.passengers,
-      luggage: p.vehicle.luggage,
-      handLuggage: p.vehicle.hand_luggage,
-      pricePerHour: perHour,
-      minHours: min,
-      maxHours: max,
-      chargedHours,
-      total: round2(perHour * chargedHours),
-      minimumApplied: chargedHours > hours,
-      quoteOnRequest: p.vehicle.class_quote_on_request,
-      classSlug: p.vehicle.class_slug,
-      classDisplayOrder: p.vehicle.class_display_order,
-    });
-  }
-  return cards.sort(
-    (a, b) => a.classDisplayOrder - b.classDisplayOrder || a.total - b.total,
-  );
-}
+export type { HourlyCard };
 
 const hourlyQuoteInput = z.object({
   hours: z.number().int().min(1).max(24),
   passengers: z.number().int().min(1).max(60).optional().default(1),
   luggage: z.number().int().min(0).max(60).optional().default(0),
+  pickupPlaceId: z.string().trim().max(300).optional().nullable(),
+  pickupDate: z.string().trim().max(20).optional().nullable(),
+  pickupTime: z.string().trim().max(10).optional().nullable(),
 });
 
 export const calculateHourlyQuotes = createServerFn({ method: "POST" })
@@ -115,15 +43,35 @@ export const calculateHourlyQuotes = createServerFn({ method: "POST" })
     }
 
     const client = publicClient();
-    const [profiles, rates, settings] = await Promise.all([
+    const [profiles, rates, settings, ruleSets] = await Promise.all([
       loadActiveProfiles(client),
       loadActiveHourlyRates(),
       loadQuoteSettings(client),
+      loadRuleSets(client).catch((err) => {
+        console.error("loadRuleSets failed for hourly quote", err);
+        return null;
+      }),
     ]);
+
+    const pickupPlaceId = data.pickupPlaceId?.trim() || "";
+    let pickupCoord: { lat: number; lng: number } | null = null;
+    if (pickupPlaceId) {
+      const coords = await loadJourneyCoords(client, [pickupPlaceId]);
+      pickupCoord = coords.get(pickupPlaceId) ?? null;
+    }
 
     return {
       hours: data.hours,
-      quotes: buildCards(profiles, rates, data.hours),
+      quotes: buildHourlyCards({
+        profiles,
+        rates,
+        hours: data.hours,
+        ruleSets,
+        pickupPlaceId,
+        pickupCoord,
+        date: data.pickupDate?.trim() || undefined,
+        time: data.pickupTime?.trim() || undefined,
+      }),
       childSeatFeePence: settings.childSeatFeePence,
       meetGreetFeePence: settings.meetGreetFeePence,
       currencySymbol: settings.currencySymbol,
@@ -135,6 +83,7 @@ export const calculateHourlyQuotes = createServerFn({ method: "POST" })
       },
     };
   });
+
 
 // -------------------------------------------------------------------
 // Create an hourly hire booking (server-authoritative price)
@@ -222,10 +171,15 @@ export const createHourlyBooking = createServerFn({ method: "POST" })
 
     // --- Authoritative recompute --------------------------------------
     const client = publicClient();
-    const [profiles, rates, settings] = await Promise.all([
+    const [profiles, rates, settings, ruleSets, coords] = await Promise.all([
       loadActiveProfiles(client),
       loadActiveHourlyRates(),
       loadQuoteSettings(client),
+      loadRuleSets(client).catch((err) => {
+        console.error("loadRuleSets failed for hourly booking", err);
+        return null;
+      }),
+      loadJourneyCoords(client, [data.pickupPlaceId]),
     ]);
     const profile = profiles.find((p) => p.vehicle.id === data.vehicleId);
     const rate = rates.get(data.vehicleId);
@@ -247,7 +201,33 @@ export const createHourlyBooking = createServerFn({ method: "POST" })
     const childSeatFee = round2((settings.childSeatFeePence * childSeatCount) / 100);
     const meetGreetFee = data.meet_greet ? round2(settings.meetGreetFeePence / 100) : 0;
     const base = round2(perHour * chargedHours * qty);
-    const price = round2(base + childSeatFee + meetGreetFee);
+
+    let ruledTotal = base;
+    let adjustments: Array<{ label: string; amount: number }> = [];
+    let discountLines: Array<{ label: string; amount: number }> = [];
+    let appliedRules: unknown[] = [];
+    if (ruleSets) {
+      const ctx = hourlyJourneyContext({
+        profile,
+        pickupPlaceId: data.pickupPlaceId,
+        pickupCoord: coords.get(data.pickupPlaceId) ?? null,
+        date: data.pickupDate,
+        time: data.pickupTime,
+      });
+      const outcome = applyHourlyRules({ ruleSets, ctx, base });
+      if (!outcome.available) {
+        console.warn("hourly booking blocked by availability rule", outcome.availabilityAdminReason);
+        try { setResponseStatus(409); } catch {}
+        throw new Error(outcome.availabilityMessage ?? "This vehicle isn't available for the selected date and time.");
+      }
+      ruledTotal = outcome.total;
+      adjustments = outcome.adjustments;
+      discountLines = outcome.discountLines;
+      appliedRules = outcome.appliedRules;
+    }
+
+    const price = round2(ruledTotal + childSeatFee + meetGreetFee);
+
 
     const refRpc: any = await supabaseAdmin.rpc("generate_booking_ref");
     if (refRpc.error) {
@@ -292,11 +272,18 @@ export const createHourlyBooking = createServerFn({ method: "POST" })
         hours_charged: chargedHours,
         price_per_hour: perHour,
         vehicle_count: qty,
+        base_total: base,
+        rule_adjustments: adjustments,
+        rule_discounts: discountLines,
+        subtotal_after_rules: ruledTotal,
         child_seat_fee: childSeatFee,
         meet_greet_fee: meetGreetFee,
         final_total: price,
         cancellation_policy: data.cancellation_policy,
       },
+      pricing_source: "hourly",
+      applied_rules: appliedRules,
+
       child_seat: childSeatCount > 0,
       child_seat_count: childSeatCount,
       meet_greet: !!data.meet_greet,
