@@ -1,5 +1,27 @@
 import { createClient } from "@supabase/supabase-js";
-import { ENGINE_VERSION, runPricingEngine, type PricingProfile, type QuoteResult } from "@/lib/pricing";
+import {
+  ENGINE_VERSION,
+  runPricingEngine,
+  type EngineModifier,
+  type PricingProfile,
+  type QuoteResult,
+} from "@/lib/pricing";
+import {
+  detectFixedRouteConflicts,
+  matchDiscounts,
+  matchFixedRoute,
+  matchLocationPricing,
+  matchModifiers,
+  matchSurcharges,
+  type AvailabilityRule,
+  type Coord,
+  type DiscountRule,
+  type FixedRouteRule,
+  type JourneyContext,
+  type LocationPricingRule,
+  type ModifierRule,
+  type SurchargeRule,
+} from "@/lib/pricing-rules";
 import { computeRoute } from "@/lib/route-distance.server";
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
@@ -58,6 +80,8 @@ export type QuoteSettings = {
   taxRate: number;      // 0..1
   taxEnabled: boolean;
   taxLabel: string;
+  taxMode: "exclusive" | "inclusive";
+  taxEffectiveFrom: string | null;
   currency: string;
   currencySymbol: string;
   childSeatFeePence: number;
@@ -72,7 +96,7 @@ export type QuoteSettings = {
 export async function loadQuoteSettings(client: ReturnType<typeof publicClient>): Promise<QuoteSettings> {
   const { data } = await client
     .from("site_settings")
-    .select("tax_enabled, tax_percentage, tax_label, currency, currency_symbol, child_seat_fee_pence, meet_greet_fee_pence, return_journey_fee_pence, policy_non_refundable_percent, policy_non_refundable_min_pence, policy_flexible_percent, policy_flexible_min_pence")
+    .select("tax_enabled, tax_percentage, tax_label, tax_mode, tax_effective_from, currency, currency_symbol, child_seat_fee_pence, meet_greet_fee_pence, return_journey_fee_pence, policy_non_refundable_percent, policy_non_refundable_min_pence, policy_flexible_percent, policy_flexible_min_pence")
     .eq("id", 1)
     .maybeSingle();
   const row: any = data ?? {};
@@ -82,6 +106,8 @@ export async function loadQuoteSettings(client: ReturnType<typeof publicClient>)
     taxEnabled: enabled,
     taxRate: enabled ? pct / 100 : 0,
     taxLabel: (row.tax_label as string) || "VAT",
+    taxMode: row.tax_mode === "inclusive" ? "inclusive" : "exclusive",
+    taxEffectiveFrom: (row.tax_effective_from as string) ?? null,
     currency: (row.currency as string) || "GBP",
     currencySymbol: (row.currency_symbol as string) || "£",
     childSeatFeePence: Math.max(0, Number(row.child_seat_fee_pence) || 0),
@@ -273,6 +299,302 @@ export async function loadFixedPriceForRoute(
 }
 
 // -------------------------------------------------------------------
+// Rule sets — one parallel load per quote, shared across every vehicle.
+// -------------------------------------------------------------------
+export type RuleSets = {
+  fixedRoutes: FixedRouteRule[];
+  locationRules: LocationPricingRule[];
+  surchargeRules: SurchargeRule[];
+  modifiers: ModifierRule[];
+  discountRules: DiscountRule[];
+  availabilityRules: AvailabilityRule[];
+};
+
+export const EMPTY_RULE_SETS: RuleSets = {
+  fixedRoutes: [],
+  locationRules: [],
+  surchargeRules: [],
+  modifiers: [],
+  discountRules: [],
+  availabilityRules: [],
+};
+
+const num = (v: unknown) => (v == null ? null : Number(v));
+
+export async function loadRuleSets(client: ReturnType<typeof publicClient>): Promise<RuleSets> {
+  const [fixed, loc, sur, mod, disc, avail] = await Promise.all([
+    client.from("pricing_rules").select("*").eq("active", true),
+    client.from("location_pricing_rules" as any).select("*").eq("active", true),
+    client.from("surcharges").select("*").eq("active", true),
+    client.from("pricing_modifiers" as any).select("*").eq("active", true),
+    client.from("discount_rules" as any).select("*").eq("active", true),
+    client.from("availability_rules" as any).select("*").eq("active", true),
+  ]);
+
+  return {
+    fixedRoutes: ((fixed.data ?? []) as any[]).map((r) => ({
+      id: r.id,
+      vehicle_id: r.vehicle_id ?? null,
+      vehicle_class_id: r.vehicle_class_id ?? null,
+      price: Number(r.price),
+      from_place_id: r.from_place_id ?? null,
+      to_place_id: r.to_place_id ?? null,
+      from_lat: num(r.from_lat),
+      from_lng: num(r.from_lng),
+      to_lat: num(r.to_lat),
+      to_lng: num(r.to_lng),
+      from_radius_miles: Number(r.from_radius_miles ?? 0),
+      to_radius_miles: Number(r.to_radius_miles ?? 0),
+      bidirectional: !!r.bidirectional,
+      valid_for_return: r.valid_for_return !== false,
+      priority: Number(r.priority ?? 100),
+      valid_from: r.valid_from ?? null,
+      valid_to: r.valid_to ?? null,
+      active: r.active !== false,
+    })),
+    locationRules: ((loc.data ?? []) as any[]).map((r) => ({
+      id: r.id,
+      name: r.name,
+      place_id: r.place_id ?? null,
+      lat: num(r.lat),
+      lng: num(r.lng),
+      radius_miles: Number(r.radius_miles ?? 0),
+      included_distance_miles: Number(r.included_distance_miles ?? 0),
+      price_type: r.price_type === "base" ? "base" : "fixed",
+      price: Number(r.price ?? 0),
+      extra_per_mile: Number(r.extra_per_mile ?? 0),
+      scope: r.scope ?? "pickup",
+      vehicle_class_id: r.vehicle_class_id ?? null,
+      priority: Number(r.priority ?? 100),
+      active: r.active !== false,
+    })),
+    surchargeRules: ((sur.data ?? []) as any[]).map((r) => ({
+      id: r.id,
+      name: r.name,
+      charge_type: r.charge_type ?? "fixed",
+      amount: Number(r.amount ?? 0),
+      applies_to: r.applies_to ?? null,
+      vehicle_id: r.vehicle_id ?? null,
+      vehicle_class_id: r.vehicle_class_id ?? null,
+      starts_at: r.starts_at ?? null,
+      ends_at: r.ends_at ?? null,
+      days_of_week: r.days_of_week ?? null,
+      time_from: r.time_from ?? null,
+      time_to: r.time_to ?? null,
+      priority: Number(r.priority ?? 100),
+      active: r.active !== false,
+    })),
+    modifiers: ((mod.data ?? []) as any[]).map((r) => ({
+      id: r.id,
+      name: r.name,
+      modifier_type: r.modifier_type === "fixed" ? "fixed" : "percent",
+      value: Number(r.value ?? 0),
+      vehicle_class_id: r.vehicle_class_id ?? null,
+      service_types: r.service_types ?? null,
+      place_id: r.place_id ?? null,
+      lat: num(r.lat),
+      lng: num(r.lng),
+      radius_miles: num(r.radius_miles),
+      scope: r.scope ?? "either",
+      date_from: r.date_from ?? null,
+      date_to: r.date_to ?? null,
+      days_of_week: r.days_of_week ?? null,
+      time_from: r.time_from ?? null,
+      time_to: r.time_to ?? null,
+      stackable: !!r.stackable,
+      priority: Number(r.priority ?? 100),
+      active: r.active !== false,
+    })),
+    discountRules: ((disc.data ?? []) as any[]).map((r) => ({
+      id: r.id,
+      name: r.name,
+      basis: r.basis ?? "vehicle_class",
+      discount_type: r.discount_type === "fixed" ? "fixed" : "percent",
+      value: Number(r.value ?? 0),
+      event_name: r.event_name ?? null,
+      place_id: r.place_id ?? null,
+      lat: num(r.lat),
+      lng: num(r.lng),
+      radius_miles: num(r.radius_miles),
+      scope: r.scope ?? "either",
+      starts_at: r.starts_at ?? null,
+      ends_at: r.ends_at ?? null,
+      vehicle_class_ids: r.vehicle_class_ids ?? null,
+      service_types: r.service_types ?? null,
+      max_discount: num(r.max_discount),
+      stackable: !!r.stackable,
+      priority: Number(r.priority ?? 100),
+      active: r.active !== false,
+    })),
+    availabilityRules: ((avail.data ?? []) as any[]).map((r) => ({
+      id: r.id,
+      name: r.name,
+      rule_scope: r.rule_scope ?? "global",
+      vehicle_class_id: r.vehicle_class_id ?? null,
+      vehicle_id: r.vehicle_id ?? null,
+      service_types: r.service_types ?? null,
+      effect: r.effect === "allow" ? "allow" : "block",
+      date_from: r.date_from ?? null,
+      date_to: r.date_to ?? null,
+      days_of_week: r.days_of_week ?? null,
+      time_from: r.time_from ?? null,
+      time_to: r.time_to ?? null,
+      place_id: r.place_id ?? null,
+      lat: num(r.lat),
+      lng: num(r.lng),
+      radius_miles: num(r.radius_miles),
+      scope: r.scope ?? "either",
+      reason: r.reason ?? null,
+      priority: Number(r.priority ?? 100),
+      active: r.active !== false,
+    })),
+  };
+}
+
+/** Resolve pickup/destination Place IDs to coordinates for radius matching. */
+export async function loadJourneyCoords(
+  client: ReturnType<typeof publicClient>,
+  placeIds: string[],
+): Promise<Map<string, Coord>> {
+  try {
+    const { resolveCoords } = await import("@/lib/place-coords.server");
+    return await resolveCoords(client as any, placeIds);
+  } catch (err) {
+    console.warn("journey coord resolution failed:", (err as Error).message);
+    return new Map();
+  }
+}
+
+// -------------------------------------------------------------------
+// Per-vehicle rule resolution: chooses the base pricing source and
+// gathers modifiers / rule discounts / applied-rule provenance.
+// -------------------------------------------------------------------
+export type AppliedRule = {
+  stage: "fixed_route" | "location_pricing" | "surcharge" | "modifier" | "discount" | "coupon" | "availability";
+  rule_id: string;
+  label: string;
+  amount?: number;
+  detail?: string;
+};
+
+export type ResolvedRules = {
+  pricingSource: "fixed_route" | "location" | "mileage";
+  fixedPrice: number | null;
+  locationPrice: number | null;
+  extraSurcharges: Array<{ label: string; amount: number }>;
+  modifiers: EngineModifier[];
+  discountLines: Array<{ label: string; amount: number }>;
+  discountRuleTotal: number;
+  appliedRules: AppliedRule[];
+  reasons: string[];
+  conflicts: string[];
+};
+
+export function resolveRulesForVehicle(args: {
+  ruleSets: RuleSets;
+  ctx: JourneyContext;
+  /** Pre-discount base used to size percentage discounts. */
+  discountBase: number;
+  /** Legacy exact-match fixed price (kept so nothing regresses if rule sets are empty). */
+  legacyFixedPrice?: number | null;
+}): ResolvedRules {
+  const { ruleSets, ctx } = args;
+  const appliedRules: AppliedRule[] = [];
+  const reasons: string[] = [];
+  const conflicts: string[] = [];
+
+  // --- 1 & 2: fixed route -------------------------------------------------
+  const fixedResult = matchFixedRoute(ruleSets.fixedRoutes, ctx);
+  reasons.push(...fixedResult.reasons);
+  let fixedPrice: number | null = args.legacyFixedPrice ?? null;
+  if (fixedResult.match) {
+    fixedPrice = fixedResult.match.price;
+    appliedRules.push({
+      stage: "fixed_route",
+      rule_id: fixedResult.match.rule.id,
+      label: `Fixed route (${fixedResult.match.kind}${fixedResult.match.reversed ? ", reverse" : ""})`,
+      amount: fixedResult.match.price,
+    });
+    for (const c of detectFixedRouteConflicts(fixedResult.candidates)) {
+      conflicts.push(`Fixed route ${c.rule.id} ties with the winning rule at the same priority and radius but a different price.`);
+    }
+  }
+
+  // --- 3: location / radius pricing --------------------------------------
+  let locationPrice: number | null = null;
+  if (fixedPrice == null) {
+    const locResult = matchLocationPricing(ruleSets.locationRules, ctx);
+    reasons.push(...locResult.reasons);
+    if (locResult.match) {
+      locationPrice = locResult.match.amount;
+      appliedRules.push({
+        stage: "location_pricing",
+        rule_id: locResult.match.rule.id,
+        label: `Location pricing: ${locResult.match.rule.name}`,
+        amount: locResult.match.amount,
+      });
+    }
+  } else {
+    reasons.push("Location pricing skipped: a fixed-route rule takes precedence.");
+  }
+
+  const pricingSource: ResolvedRules["pricingSource"] =
+    fixedPrice != null ? "fixed_route" : locationPrice != null ? "location" : "mileage";
+
+  // --- surcharge rules (previously admin-only, now live) ------------------
+  const extraSurcharges: Array<{ label: string; amount: number }> = [];
+  const baseForPercent = fixedPrice ?? locationPrice ?? 0;
+  for (const s of matchSurcharges(ruleSets.surchargeRules, ctx)) {
+    const amount =
+      s.charge_type === "percentage"
+        ? round2((baseForPercent * Number(s.amount)) / 100)
+        : round2(Number(s.amount));
+    if (amount <= 0) continue;
+    extraSurcharges.push({ label: s.name, amount });
+    appliedRules.push({ stage: "surcharge", rule_id: s.id, label: s.name, amount });
+  }
+
+  // --- modifiers ---------------------------------------------------------
+  const modResult = matchModifiers(ruleSets.modifiers, ctx);
+  reasons.push(...modResult.reasons);
+  const modifiers: EngineModifier[] = modResult.applied.map((m) => ({
+    label: m.name,
+    type: m.modifier_type,
+    value: Number(m.value),
+  }));
+  for (const m of modResult.applied) {
+    appliedRules.push({
+      stage: "modifier",
+      rule_id: m.id,
+      label: m.name,
+      detail: `${m.modifier_type === "percent" ? `${m.value}%` : m.value} (priority ${m.priority}${m.stackable ? ", stackable" : ""})`,
+    });
+  }
+
+  // --- rule discounts ----------------------------------------------------
+  const discResult = matchDiscounts(ruleSets.discountRules, ctx, args.discountBase);
+  reasons.push(...discResult.reasons);
+  const discountLines = discResult.applied.map((d) => ({ label: d.rule.name, amount: d.amount }));
+  for (const d of discResult.applied) {
+    appliedRules.push({ stage: "discount", rule_id: d.rule.id, label: d.rule.name, amount: d.amount, detail: d.rule.basis });
+  }
+  const discountRuleTotal = round2(discountLines.reduce((s, d) => s + d.amount, 0));
+
+  return {
+    pricingSource,
+    fixedPrice,
+    locationPrice,
+    extraSurcharges,
+    modifiers,
+    discountLines,
+    discountRuleTotal,
+    appliedRules,
+    reasons,
+    conflicts,
+  };
+}
+
+// -------------------------------------------------------------------
 // Compute a single vehicle's authoritative quote (engine + fixed-price
 // override + tax + vehicle count) and build a stable snapshot.
 // This is THE canonical entry point — calculateQuotes, createBooking,
@@ -281,6 +603,7 @@ export async function loadFixedPriceForRoute(
 export type PricingSnapshot = {
   engine_version: string;
   vehicle_id: string;
+  vehicle_class_id?: string | null;
   profile_id: string | null;
   distance_miles: number;
   base_price: number;
@@ -288,14 +611,26 @@ export type PricingSnapshot = {
   mileage_total: number;
   fixed_price_applied: boolean;
   fixed_price_amount: number | null;
+  location_price_applied?: boolean;
+  location_price_amount?: number | null;
+  pricing_source?: string;
+  applied_rules?: AppliedRule[];
+  unmatched_reasons?: string[];
+  rule_conflicts?: string[];
   pickup_surcharge: number;
   dropoff_surcharge: number;
+  rule_surcharges?: Array<{ label: string; amount: number }>;
   via_stops: number;
   via_price: number;
   time_extra: number;
+  modifier_total?: number;
   discount: number;
+  coupon_code?: string | null;
+  coupon_discount?: number;
   tax_rate: number;
+  tax_mode?: string;
   tax_amount: number;
+  net_total?: number;
   subtotal: number;
   per_vehicle_total: number;
   vehicle_count: number;
@@ -315,6 +650,9 @@ export type ComputedVehicleQuote = {
   snapshot: PricingSnapshot;
   fixedPriceApplied: boolean;
   fixedPriceAmount: number | null;
+  pricingSource: string;
+  appliedRules: AppliedRule[];
+  unmatchedReasons: string[];
 };
 
 export function computeVehicleQuote(args: {
@@ -327,29 +665,56 @@ export function computeVehicleQuote(args: {
   discountAmount?: number;
   settings: QuoteSettings;
   vehicleCount?: number;
+  /** Optional rule-engine output. Omitted → identical behaviour to before. */
+  resolved?: ResolvedRules | null;
+  /** Validated coupon discount, applied after rule discounts. */
+  couponCode?: string | null;
+  couponDiscount?: number;
 }): ComputedVehicleQuote {
   const {
     profile, distanceMiles, viaStops, pickupTime,
     areaSurcharges, fixedPrice, discountAmount = 0, settings, vehicleCount = 1,
+    resolved = null,
   } = args;
 
   const pickup = areaSurcharges.find((a) => a.side === "pickup")?.amount ?? 0;
   const dropoff = areaSurcharges.find((a) => a.side === "dropoff")?.amount ?? 0;
 
-  // Feed the pricing engine. When fixed price applies, base+mileage are
-  // replaced by a synthetic profile that has fixed_price as base and no tiers.
-  const fixedApplied = fixedPrice != null;
+  // Base price source. Fixed route wins, then location pricing, then mileage.
+  const effectiveFixed = resolved?.fixedPrice ?? fixedPrice;
+  const locationPrice = effectiveFixed == null ? (resolved?.locationPrice ?? null) : null;
+  const fixedApplied = effectiveFixed != null;
+  const locationApplied = !fixedApplied && locationPrice != null;
+
   const engineProfile: PricingProfile = fixedApplied
-    ? { ...profile, base_price: fixedPrice!, tiers: [] }
-    : profile;
+    ? { ...profile, base_price: effectiveFixed!, tiers: [] }
+    : locationApplied
+      ? { ...profile, base_price: locationPrice!, tiers: [] }
+      : profile;
+
+  const surchargeLines = [
+    ...areaSurcharges.map((a) => ({ label: a.label, amount: a.amount })),
+    ...(resolved?.extraSurcharges ?? []),
+  ];
+
+  const couponDiscount = round2(Math.max(0, args.couponDiscount ?? 0));
+  const discountLines = [
+    ...(resolved?.discountLines ?? []),
+    ...(couponDiscount > 0
+      ? [{ label: args.couponCode ? `Promo code ${args.couponCode}` : "Promo code", amount: couponDiscount }]
+      : []),
+  ];
 
   const engine = runPricingEngine(engineProfile, {
     distanceMiles,
     viaStops,
     pickupTime: pickupTime || undefined,
-    surcharges: areaSurcharges.map((a) => ({ label: a.label, amount: a.amount })),
+    surcharges: surchargeLines,
+    modifiers: resolved?.modifiers ?? [],
     discountAmount,
+    discountLines,
     taxRate: settings.taxRate,
+    taxMode: settings.taxMode,
   });
 
   const qty = Math.max(1, vehicleCount);
@@ -365,24 +730,40 @@ export function computeVehicleQuote(args: {
       amount: b.amount as number,
     }));
 
+  const pricingSource = fixedApplied ? "fixed_route" : locationApplied ? "location" : "mileage";
+  const appliedRules = resolved?.appliedRules ?? [];
+
   const snapshot: PricingSnapshot = {
     engine_version: ENGINE_VERSION,
     vehicle_id: profile.vehicle.id,
+    vehicle_class_id: profile.vehicle.class_id ?? null,
     profile_id: ((profile as any).id as string) ?? null,
     distance_miles: round2(distanceMiles),
     base_price: engine.basePrice,
     mileage_tiers: mileageLines,
     mileage_total: engine.mileagePrice,
     fixed_price_applied: fixedApplied,
-    fixed_price_amount: fixedApplied ? round2(fixedPrice!) : null,
+    fixed_price_amount: fixedApplied ? round2(effectiveFixed!) : null,
+    location_price_applied: locationApplied,
+    location_price_amount: locationApplied ? round2(locationPrice!) : null,
+    pricing_source: pricingSource,
+    applied_rules: appliedRules,
+    unmatched_reasons: resolved?.reasons ?? [],
+    rule_conflicts: resolved?.conflicts ?? [],
     pickup_surcharge: round2(pickup),
     dropoff_surcharge: round2(dropoff),
+    rule_surcharges: resolved?.extraSurcharges ?? [],
     via_stops: viaStops,
     via_price: engine.viaPrice,
     time_extra: engine.timeExtraPrice,
+    modifier_total: engine.modifierPrice,
     discount: engine.discountPrice,
+    coupon_code: args.couponCode ?? null,
+    coupon_discount: couponDiscount,
     tax_rate: settings.taxRate,
+    tax_mode: engine.taxMode,
     tax_amount: engine.taxPrice,
+    net_total: engine.netPrice,
     subtotal: engine.subtotal,
     per_vehicle_total: round2(perVehicleTotal),
     vehicle_count: qty,
@@ -401,6 +782,10 @@ export function computeVehicleQuote(args: {
     engine,
     snapshot,
     fixedPriceApplied: fixedApplied,
-    fixedPriceAmount: fixedApplied ? round2(fixedPrice!) : null,
+    fixedPriceAmount: fixedApplied ? round2(effectiveFixed!) : null,
+    pricingSource,
+    appliedRules,
+    unmatchedReasons: resolved?.reasons ?? [],
   };
 }
+

@@ -16,12 +16,25 @@ import {
   loadAreaSurcharges,
   loadFixedPriceForRoute,
   loadQuoteSettings,
+  loadRuleSets,
+  loadJourneyCoords,
+  resolveRulesForVehicle,
   computeVehicleQuote,
+  EMPTY_RULE_SETS,
   type LoadedProfile,
   type AreaSurcharge,
   type QuoteSettings,
   type PricingSnapshot,
+  type RuleSets,
+  type ResolvedRules,
 } from "@/lib/pricing-helpers.server";
+import {
+  resolveAvailability,
+  validateCoupon,
+  type Coord,
+  type CouponRow,
+  type JourneyContext,
+} from "@/lib/pricing-rules";
 import { placeIdSchema, placeLabelSchema } from "@/lib/place-id";
 import { checkLimit } from "@/lib/rate-limit.server";
 import { RouteTimeoutError, RouteNotFoundError, RouteUnavailableError } from "@/lib/route-distance.server";
@@ -35,9 +48,12 @@ type AuthoritativeInput = {
   destinationPlaceId: string;
   destinationLabel: string;
   stops: Array<{ placeId: string; label: string }>;
+  pickupDate?: string;
   pickupTime: string;
   passengers: number;
   luggage: number;
+  serviceType?: string;
+  isReturn?: boolean;
 };
 
 type AuthoritativeQuote = {
@@ -48,11 +64,15 @@ type AuthoritativeQuote = {
   fixedByVehicle: Map<string, number>;
   fixedAny: number | null;
   settings: QuoteSettings;
+  ruleSets: RuleSets;
+  pickupCoord: Coord | null;
+  destinationCoord: Coord | null;
+  input: AuthoritativeInput;
 };
 
 async function computeAuthoritative(inp: AuthoritativeInput): Promise<AuthoritativeQuote> {
   const client = publicClient();
-  const [distance, profiles, areaSurcharges, fixed, settings] = await Promise.all([
+  const [distance, profiles, areaSurcharges, fixed, settings, ruleSets, coords] = await Promise.all([
     realDistanceMiles(inp.pickupPlaceId, inp.destinationPlaceId, inp.stops.map((s) => s.placeId)),
     loadActiveProfiles(client),
     loadAreaSurcharges(client, inp.pickupLabel, inp.destinationLabel, {
@@ -61,6 +81,12 @@ async function computeAuthoritative(inp: AuthoritativeInput): Promise<Authoritat
     }),
     loadFixedPriceForRoute(client, inp.pickupPlaceId, inp.destinationPlaceId),
     loadQuoteSettings(client),
+    loadRuleSets(client).catch((err) => {
+      // Rule tables must never break a quote — fall back to legacy behaviour.
+      console.error("loadRuleSets failed, falling back to mileage-only rules", err);
+      return EMPTY_RULE_SETS;
+    }),
+    loadJourneyCoords(client, [inp.pickupPlaceId, inp.destinationPlaceId]),
   ]);
 
   const fixedByVehicle = new Map<string, number>();
@@ -77,7 +103,104 @@ async function computeAuthoritative(inp: AuthoritativeInput): Promise<Authoritat
     fixedByVehicle,
     fixedAny,
     settings,
+    ruleSets,
+    pickupCoord: coords.get(inp.pickupPlaceId) ?? null,
+    destinationCoord: coords.get(inp.destinationPlaceId) ?? null,
+    input: inp,
   };
+}
+
+/** Journey context for the rule matchers, per vehicle class. */
+function journeyContext(auth: AuthoritativeQuote, profile: LoadedProfile): JourneyContext {
+  return {
+    pickupPlaceId: auth.input.pickupPlaceId,
+    destinationPlaceId: auth.input.destinationPlaceId,
+    pickupCoord: auth.pickupCoord,
+    destinationCoord: auth.destinationCoord,
+    vehicleId: profile.vehicle.id,
+    vehicleClassId: profile.vehicle.class_id,
+    date: auth.input.pickupDate || undefined,
+    time: auth.input.pickupTime || undefined,
+    serviceType: auth.input.serviceType,
+    distanceMiles: auth.distanceMiles,
+    isReturn: auth.input.isReturn,
+  };
+}
+
+/**
+ * Resolve every rule stage for one vehicle. `discountBase` is approximated
+ * from the pre-discount engine subtotal, which is why we run the engine
+ * twice: once to size percentage discounts, once for the final number.
+ */
+function resolveForProfile(auth: AuthoritativeQuote, profile: LoadedProfile): { resolved: ResolvedRules; ctx: JourneyContext } {
+  const ctx = journeyContext(auth, profile);
+  const legacyFixed = auth.fixedByVehicle.get(profile.vehicle.id) ?? auth.fixedAny ?? null;
+
+  // Pass 1 — no discounts, to establish the base the discounts apply to.
+  const pass1 = resolveRulesForVehicle({ ruleSets: auth.ruleSets, ctx, discountBase: 0, legacyFixedPrice: legacyFixed });
+  const probe = computeVehicleQuote({
+    profile,
+    distanceMiles: auth.distanceMiles,
+    viaStops: auth.input.stops.length,
+    pickupTime: auth.input.pickupTime,
+    areaSurcharges: auth.areaSurcharges,
+    fixedPrice: legacyFixed,
+    settings: { ...auth.settings, taxRate: 0 },
+    vehicleCount: 1,
+    resolved: { ...pass1, discountLines: [], discountRuleTotal: 0 },
+  });
+
+  // Pass 2 — size discounts against the pre-discount, pre-tax subtotal.
+  const resolved = resolveRulesForVehicle({
+    ruleSets: auth.ruleSets,
+    ctx,
+    discountBase: probe.engine.subtotal,
+    legacyFixedPrice: legacyFixed,
+  });
+  return { resolved, ctx };
+}
+
+/**
+ * Server-side coupon lookup + validation. Reads the coupon and this email's
+ * prior redemptions, then defers to the pure `validateCoupon` rules.
+ */
+async function validateCouponForRequest(args: {
+  code: string;
+  base: number;
+  date?: string;
+  vehicleClassId?: string | null;
+  classSlug?: string | null;
+  serviceType?: string;
+  email?: string | null;
+}) {
+  const client = publicClient();
+  const code = args.code.trim().toUpperCase();
+  const { data: coupon } = await client
+    .from("coupons")
+    .select(
+      "id, code, discount_type, discount_value, min_booking_amount, usage_limit, used_count, starts_at, expires_at, active, applicable_vehicle_classes, applies_to_service_types, max_discount, per_customer_limit, stackable",
+    )
+    .ilike("code", code)
+    .maybeSingle();
+
+  let customerRedemptions = 0;
+  if (coupon && args.email) {
+    const { count } = await client
+      .from("coupon_redemptions")
+      .select("id", { count: "exact", head: true })
+      .eq("coupon_id", (coupon as { id: string }).id)
+      .ilike("customer_email", args.email.trim());
+    customerRedemptions = count ?? 0;
+  }
+
+  return validateCoupon(coupon as CouponRow | null, {
+    base: args.base,
+    date: args.date,
+    vehicleClassId: args.vehicleClassId,
+    classSlug: args.classSlug,
+    serviceType: args.serviceType,
+    customerRedemptions,
+  });
 }
 
 function mapRouteError(err: unknown): Error {
@@ -129,10 +252,14 @@ export type QuoteCard = {
   pricing: QuoteResult;
   snapshot: PricingSnapshot;
   fixedPriceApplied: boolean;
+  pricingSource: string;
   classId: string;
   classSlug: string;
   classDisplayOrder: number;
   quoteOnRequest: boolean;
+  /** Availability engine verdict — customer-safe. */
+  unavailable: boolean;
+  unavailableMessage: string | null;
 };
 
 export const calculateQuotes = createServerFn({ method: "POST" })
@@ -154,9 +281,11 @@ export const calculateQuotes = createServerFn({ method: "POST" })
         destinationPlaceId: data.destinationPlaceId,
         destinationLabel: data.destinationLabel,
         stops: data.stops,
+        pickupDate: data.pickupDate,
         pickupTime: data.pickupTime,
         passengers: data.passengers,
         luggage: data.luggage,
+        serviceType: data.stops.length > 0 ? undefined : "direct_transfer",
       });
     } catch (err) {
       throw mapRouteError(err);
@@ -169,6 +298,8 @@ export const calculateQuotes = createServerFn({ method: "POST" })
     const cards: QuoteCard[] = auth.profiles
       .map((p: LoadedProfile) => {
         const fixed = auth.fixedByVehicle.get(p.vehicle.id) ?? auth.fixedAny;
+        const { resolved, ctx } = resolveForProfile(auth, p);
+        const verdict = resolveAvailability(auth.ruleSets.availabilityRules, ctx);
         const q = computeVehicleQuote({
           profile: p,
           distanceMiles: auth.distanceMiles,
@@ -178,6 +309,7 @@ export const calculateQuotes = createServerFn({ method: "POST" })
           fixedPrice: fixed ?? null,
           settings: auth.settings,
           vehicleCount: 1,
+          resolved,
         });
         return {
           vehicleId: p.vehicle.id,
@@ -193,12 +325,17 @@ export const calculateQuotes = createServerFn({ method: "POST" })
           pricing: q.engine,
           snapshot: q.snapshot,
           fixedPriceApplied: q.fixedPriceApplied,
+          pricingSource: q.pricingSource,
           classId: p.vehicle.class_id,
           classSlug: p.vehicle.class_slug,
           classDisplayOrder: p.vehicle.class_display_order,
           quoteOnRequest: p.vehicle.class_quote_on_request,
+          unavailable: !verdict.available,
+          unavailableMessage: verdict.message,
         };
       })
+      // A hard availability block removes the class from customer quotes.
+      .filter((c: QuoteCard) => !c.unavailable)
       .sort((a: QuoteCard, b: QuoteCard) => a.classDisplayOrder - b.classDisplayOrder || a.finalPrice - b.finalPrice);
 
     return {
@@ -256,6 +393,7 @@ const createBookingInput = z
     return_journey: z.boolean().optional().default(false),
     cancellation_policy: z.enum(["standard", "non_refundable", "flexible"]).optional().default("standard"),
     templateSlug: z.string().trim().min(1).max(120).optional().nullable(),
+    couponCode: z.string().trim().min(1).max(40).optional().nullable(),
   })
   .refine((v) => v.pickupPlaceId !== v.destinationPlaceId, {
     message: "Pickup and destination cannot be the same location.",
@@ -339,9 +477,12 @@ export const createBooking = createServerFn({ method: "POST" })
         destinationPlaceId: data.destinationPlaceId,
         destinationLabel: data.destinationLabel,
         stops: data.stops,
+        pickupDate: data.pickupDate,
         pickupTime: data.pickupTime,
         passengers: data.passengers,
         luggage: data.luggage,
+        serviceType: data.stops.length > 0 ? undefined : "direct_transfer",
+        isReturn: !!data.return_journey,
       });
     } catch (err) {
       throw mapRouteError(err);
@@ -355,6 +496,51 @@ export const createBooking = createServerFn({ method: "POST" })
     }
 
     const fixed = auth.fixedByVehicle.get(profile.vehicle.id) ?? auth.fixedAny;
+    const { resolved, ctx: journeyCtx } = resolveForProfile(auth, profile);
+
+    // Hard availability gate — the customer only ever sees the safe message.
+    const verdict = resolveAvailability(auth.ruleSets.availabilityRules, journeyCtx);
+    if (!verdict.available) {
+      console.warn("booking blocked by availability rule", verdict.adminReason);
+      try { setResponseStatus(409); } catch {}
+      throw new Error(verdict.message ?? "That vehicle isn't available for the selected journey.");
+    }
+
+    // Coupon: validated server-side against the pre-VAT subtotal. Stacks with
+    // the selected rule discount, capped so total discount ≤ subtotal.
+    let couponRow: CouponRow | null = null;
+    let couponDiscount = 0;
+    let couponError = "";
+    if (data.couponCode) {
+      const probe = computeVehicleQuote({
+        profile,
+        distanceMiles: auth.distanceMiles,
+        viaStops: data.stops.length,
+        pickupTime: data.pickupTime,
+        areaSurcharges: auth.areaSurcharges,
+        fixedPrice: fixed ?? null,
+        settings: { ...auth.settings, taxRate: 0 },
+        vehicleCount: 1,
+        resolved,
+      });
+      const res = await validateCouponForRequest({
+        code: data.couponCode,
+        base: probe.engine.subtotal,
+        date: data.pickupDate,
+        vehicleClassId: profile.vehicle.class_id,
+        classSlug: profile.vehicle.class_slug,
+        email: data.email,
+      });
+      if (res.ok) {
+        couponRow = res.coupon;
+        couponDiscount = res.amount;
+      } else {
+        couponError = res.reason;
+        try { setResponseStatus(400); } catch {}
+        throw new Error(couponError);
+      }
+    }
+
     const q = computeVehicleQuote({
       profile,
       distanceMiles: auth.distanceMiles,
@@ -364,6 +550,9 @@ export const createBooking = createServerFn({ method: "POST" })
       fixedPrice: fixed ?? null,
       settings: auth.settings,
       vehicleCount: qty,
+      resolved,
+      couponCode: couponRow?.code ?? null,
+      couponDiscount,
     });
     let price = q.finalTotal;
     const pricingSnapshot = q.snapshot;
@@ -556,6 +745,8 @@ export const createBooking = createServerFn({ method: "POST" })
       vehicle_capacity_snapshot: capacitySnapshot,
       pricing_profile_id_snapshot: pricingProfileIdSnapshot,
       pricing_snapshot: pricingSnapshot,
+      pricing_source: q.pricingSource,
+      applied_rules: q.appliedRules ?? [],
       engine_version: ENGINE_VERSION,
       child_seat: !!data.child_seat || childSeatCount > 0,
       child_seat_count: childSeatCount,
@@ -618,6 +809,32 @@ export const createBooking = createServerFn({ method: "POST" })
     }
 
     const insertedId = (insertRes.data as any).id as string;
+
+    // Coupon redemption — unique (coupon_id, booking_id) prevents double
+    // counting; the used_count bump only happens when the row is new.
+    if (couponRow && couponDiscount > 0) {
+      try {
+        const red = await supabaseAdmin
+          .from("coupon_redemptions")
+          .insert({
+            coupon_id: couponRow.id,
+            booking_id: insertedId,
+            customer_email: data.email.trim().toLowerCase(),
+            discount_amount: couponDiscount,
+          } as any)
+          .select("id")
+          .single();
+        if (!red.error) {
+          await supabaseAdmin
+            .from("coupons")
+            .update({ used_count: Number(couponRow.used_count ?? 0) + 1 } as any)
+            .eq("id", couponRow.id);
+        }
+      } catch (err) {
+        console.error("coupon redemption failed", err);
+      }
+    }
+
 
     // Derive the deterministic confirmation token now that we have the id.
     // Missing BOOKING_TOKEN_SECRET must not break booking creation — log and
@@ -934,6 +1151,9 @@ const previewInput = z.object({
   pickupDate: z.string().max(20).optional().default(""),
   pickupTime: z.string().max(10).optional().default(""),
   discountAmount: z.coerce.number().min(0).max(100000).optional().default(0),
+  serviceType: z.string().trim().max(60).optional(),
+  isReturn: z.boolean().optional().default(false),
+  couponCode: z.string().trim().max(40).optional().nullable(),
 });
 
 export const adminPreviewQuote = createServerFn({ method: "POST" })
@@ -943,7 +1163,8 @@ export const adminPreviewQuote = createServerFn({ method: "POST" })
     await assertAdmin(context);
     const client = publicClient();
 
-    // Distance: prefer explicit override, else call routes API.
+    // Distance: prefer explicit override (tests/edge verification), else the
+    // same Routes API path production uses.
     let distanceMiles = data.distanceMiles ?? 0;
     let durationMinutes = 0;
     if (data.distanceMiles == null) {
@@ -956,7 +1177,7 @@ export const adminPreviewQuote = createServerFn({ method: "POST" })
       }
     }
 
-    const [profiles, areaSurcharges, fixed, settings] = await Promise.all([
+    const [profiles, areaSurcharges, fixed, settings, ruleSets, coords] = await Promise.all([
       loadActiveProfiles(client),
       loadAreaSurcharges(client, data.pickupLabel, data.destinationLabel, {
         pickupPlaceId: data.pickupPlaceId,
@@ -964,6 +1185,8 @@ export const adminPreviewQuote = createServerFn({ method: "POST" })
       }),
       loadFixedPriceForRoute(client, data.pickupPlaceId, data.destinationPlaceId),
       loadQuoteSettings(client),
+      loadRuleSets(client),
+      loadJourneyCoords(client, [data.pickupPlaceId, data.destinationPlaceId]),
     ]);
 
     const profile = profiles.find((p) => p.vehicle.id === data.vehicleId);
@@ -976,7 +1199,68 @@ export const adminPreviewQuote = createServerFn({ method: "POST" })
       if (r.vehicle_id) fixedByVehicle.set(r.vehicle_id, r.price);
       else if (fixedAny === null) fixedAny = r.price;
     }
-    const fixedPrice = fixedByVehicle.get(profile.vehicle.id) ?? fixedAny;
+    const fixedPrice = fixedByVehicle.get(profile.vehicle.id) ?? fixedAny ?? null;
+
+    const auth: AuthoritativeQuote = {
+      distanceMiles,
+      durationMinutes,
+      areaSurcharges,
+      profiles,
+      fixedByVehicle,
+      fixedAny,
+      settings,
+      ruleSets,
+      pickupCoord: coords.get(data.pickupPlaceId) ?? null,
+      destinationCoord: coords.get(data.destinationPlaceId) ?? null,
+      input: {
+        pickupPlaceId: data.pickupPlaceId,
+        pickupLabel: data.pickupLabel,
+        destinationPlaceId: data.destinationPlaceId,
+        destinationLabel: data.destinationLabel,
+        stops: [],
+        pickupDate: data.pickupDate,
+        pickupTime: data.pickupTime,
+        passengers: 1,
+        luggage: 0,
+        serviceType: data.serviceType,
+        isReturn: data.isReturn,
+      },
+    };
+
+    const { resolved, ctx } = resolveForProfile(auth, profile);
+    const availability = resolveAvailability(ruleSets.availabilityRules, ctx);
+
+    // Coupon debug — never redeemed here, only validated.
+    let couponDiscount = 0;
+    let couponCode: string | null = null;
+    let couponReason: string | null = null;
+    if (data.couponCode) {
+      const probe = computeVehicleQuote({
+        profile,
+        distanceMiles,
+        viaStops: data.viaStops,
+        pickupTime: data.pickupTime,
+        areaSurcharges,
+        fixedPrice,
+        settings: { ...settings, taxRate: 0 },
+        vehicleCount: 1,
+        resolved,
+      });
+      const res = await validateCouponForRequest({
+        code: data.couponCode,
+        base: probe.engine.subtotal,
+        date: data.pickupDate,
+        vehicleClassId: profile.vehicle.class_id,
+        classSlug: profile.vehicle.class_slug,
+        serviceType: data.serviceType,
+      });
+      if (res.ok) {
+        couponDiscount = res.amount;
+        couponCode = res.coupon.code;
+      } else {
+        couponReason = res.reason;
+      }
+    }
 
     const q = computeVehicleQuote({
       profile,
@@ -984,10 +1268,13 @@ export const adminPreviewQuote = createServerFn({ method: "POST" })
       viaStops: data.viaStops,
       pickupTime: data.pickupTime,
       areaSurcharges,
-      fixedPrice: fixedPrice ?? null,
+      fixedPrice,
       discountAmount: data.discountAmount,
       settings,
       vehicleCount: data.vehicleCount,
+      resolved,
+      couponCode,
+      couponDiscount,
     });
 
     return {
@@ -997,6 +1284,58 @@ export const adminPreviewQuote = createServerFn({ method: "POST" })
       breakdown: q.breakdown,
       engine: q.engine,
       settings,
+      // Pricing-debug payload (admin only).
+      debug: {
+        pricingSource: q.pricingSource,
+        appliedRules: q.appliedRules,
+        unmatchedReasons: q.unmatchedReasons,
+        conflicts: resolved.conflicts,
+        modifiers: resolved.modifiers,
+        ruleDiscounts: resolved.discountLines,
+        ruleSurcharges: resolved.extraSurcharges,
+        legacyFixedPrice: fixedPrice,
+        taxMode: settings.taxMode,
+        taxRate: settings.taxRate,
+        coupon: { code: couponCode, discount: couponDiscount, reason: couponReason },
+        availability: {
+          available: availability.available,
+          adminReason: availability.adminReason,
+          ruleId: availability.rule?.id ?? null,
+          conflicts: availability.conflicts.map((r) => ({ id: r.id, name: r.name ?? null })),
+        },
+        pickupCoord: auth.pickupCoord,
+        destinationCoord: auth.destinationCoord,
+      },
     };
   });
+
+// -------------------------------------------------------------------
+// Public: validate a promo code for the booking form (no redemption).
+// -------------------------------------------------------------------
+const promoInput = z.object({
+  code: z.string().trim().min(1).max(40),
+  subtotal: z.coerce.number().min(0).max(1000000),
+  pickupDate: z.string().max(20).optional().default(""),
+  vehicleClassId: z.string().uuid().optional().nullable(),
+});
+
+export const validatePromoCode = createServerFn({ method: "POST" })
+  .inputValidator((data: z.infer<typeof promoInput>) => promoInput.parse(data))
+  .handler(async ({ data }) => {
+    let ip = "unknown";
+    try { ip = getRequestIP({ xForwardedFor: true }) ?? "unknown"; } catch {}
+    if (!checkLimit({ name: "promo", windowMs: 60_000, max: 15 }, ip).ok) {
+      try { setResponseStatus(429); } catch {}
+      throw new Error("Too many attempts. Please wait a moment and try again.");
+    }
+    const res = await validateCouponForRequest({
+      code: data.code,
+      base: data.subtotal,
+      date: data.pickupDate,
+      vehicleClassId: data.vehicleClassId ?? null,
+    });
+    if (!res.ok) return { ok: false as const, reason: res.reason };
+    return { ok: true as const, code: res.coupon.code, discount: res.amount };
+  });
+
 
