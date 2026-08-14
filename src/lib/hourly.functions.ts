@@ -171,10 +171,15 @@ export const createHourlyBooking = createServerFn({ method: "POST" })
 
     // --- Authoritative recompute --------------------------------------
     const client = publicClient();
-    const [profiles, rates, settings] = await Promise.all([
+    const [profiles, rates, settings, ruleSets, coords] = await Promise.all([
       loadActiveProfiles(client),
       loadActiveHourlyRates(),
       loadQuoteSettings(client),
+      loadRuleSets(client).catch((err) => {
+        console.error("loadRuleSets failed for hourly booking", err);
+        return null;
+      }),
+      loadJourneyCoords(client, [data.pickupPlaceId]),
     ]);
     const profile = profiles.find((p) => p.vehicle.id === data.vehicleId);
     const rate = rates.get(data.vehicleId);
@@ -196,7 +201,33 @@ export const createHourlyBooking = createServerFn({ method: "POST" })
     const childSeatFee = round2((settings.childSeatFeePence * childSeatCount) / 100);
     const meetGreetFee = data.meet_greet ? round2(settings.meetGreetFeePence / 100) : 0;
     const base = round2(perHour * chargedHours * qty);
-    const price = round2(base + childSeatFee + meetGreetFee);
+
+    let ruledTotal = base;
+    let adjustments: Array<{ label: string; amount: number }> = [];
+    let discountLines: Array<{ label: string; amount: number }> = [];
+    let appliedRules: unknown[] = [];
+    if (ruleSets) {
+      const ctx = hourlyJourneyContext({
+        profile,
+        pickupPlaceId: data.pickupPlaceId,
+        pickupCoord: coords.get(data.pickupPlaceId) ?? null,
+        date: data.pickupDate,
+        time: data.pickupTime,
+      });
+      const outcome = applyHourlyRules({ ruleSets, ctx, base });
+      if (!outcome.available) {
+        console.warn("hourly booking blocked by availability rule", outcome.availabilityAdminReason);
+        try { setResponseStatus(409); } catch {}
+        throw new Error(outcome.availabilityMessage ?? "This vehicle isn't available for the selected date and time.");
+      }
+      ruledTotal = outcome.total;
+      adjustments = outcome.adjustments;
+      discountLines = outcome.discountLines;
+      appliedRules = outcome.appliedRules;
+    }
+
+    const price = round2(ruledTotal + childSeatFee + meetGreetFee);
+
 
     const refRpc: any = await supabaseAdmin.rpc("generate_booking_ref");
     if (refRpc.error) {
