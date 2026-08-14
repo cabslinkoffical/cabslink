@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PageHeader } from "@/components/admin/ui";
 import { PlaceAutocomplete, type SelectedPlace } from "@/components/site/PlaceAutocomplete";
@@ -171,14 +170,14 @@ function Page() {
           ) : (
             <div className="space-y-2 text-sm">
               <div className="flex flex-wrap items-center gap-2 pb-2">
-                <Badge variant="outline">Source: {dbg?.pricingSource ?? "mileage"}</Badge>
-                <Badge variant="outline">{Number(r!.distanceMiles).toFixed(1)} mi</Badge>
-                {r!.durationMinutes > 0 && <Badge variant="outline">{r!.durationMinutes} min</Badge>}
-                <Badge variant="outline">VAT {dbg?.taxMode ?? "exclusive"}</Badge>
+                <Chip>Source: {dbg?.pricingSource ?? "mileage"}</Chip>
+                <Chip>{Number(r!.distanceMiles).toFixed(1)} mi</Chip>
+                {r!.durationMinutes > 0 && <Chip>{r!.durationMinutes} min</Chip>}
+                <Chip>VAT {dbg?.taxMode ?? "exclusive"}</Chip>
                 {dbg?.availability?.available === false ? (
-                  <Badge variant="destructive" className="gap-1"><XCircle className="size-3" /> Blocked</Badge>
+                  <Chip tone="danger"><XCircle className="size-3" /> Blocked</Chip>
                 ) : (
-                  <Badge className="gap-1 bg-emerald-600 text-white hover:bg-emerald-600"><CheckCircle2 className="size-3" /> Available</Badge>
+                  <Chip tone="ok"><CheckCircle2 className="size-3" /> Available</Chip>
                 )}
               </div>
 
@@ -259,6 +258,19 @@ function Page() {
         </div>
       </div>
     </div>
+  );
+}
+
+function Chip({ children, tone = "muted" }: { children: React.ReactNode; tone?: "muted" | "ok" | "danger" }) {
+  const tones = {
+    muted: "border-border text-muted-foreground",
+    ok: "border-emerald-600/40 bg-emerald-600/10 text-emerald-700 dark:text-emerald-400",
+    danger: "border-destructive/40 bg-destructive/10 text-destructive",
+  } as const;
+  return (
+    <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium ${tones[tone]}`}>
+      {children}
+    </span>
   );
 }
 
