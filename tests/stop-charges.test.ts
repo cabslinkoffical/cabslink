@@ -55,8 +55,8 @@ describe("computeStopCharges", () => {
     expect(r.breakdown.some((b) => b.kind === "scenic_fee")).toBe(true);
   });
 
-  it("engine version bumped to 2026.07.2", async () => {
+  it("engine version bumped to 2026.08.1", async () => {
     const { ENGINE_VERSION } = await import("@/lib/pricing");
-    expect(ENGINE_VERSION).toBe("2026.07.2");
+    expect(ENGINE_VERSION).toBe("2026.08.1");
   });
 });

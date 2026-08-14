@@ -6,7 +6,7 @@
  * snapshots can be interpreted correctly.
  */
 
-export const ENGINE_VERSION = "2026.07.2" as const;
+export const ENGINE_VERSION = "2026.08.1" as const;
 
 export type PricingTier = {
   id?: string;
@@ -36,6 +36,7 @@ export type BreakdownLine =
   | { kind: "via"; label: string; count: number; amount: number }
   | { kind: "surcharge"; label: string; amount: number }
   | { kind: "time_extra"; label: string; amount: number }
+  | { kind: "modifier"; label: string; amount: number }
   | { kind: "discount"; label: string; amount: number }
   | { kind: "tax"; label: string; rate: number; amount: number }
   | { kind: "stop_fee"; label: string; count: number; amount: number }
@@ -43,13 +44,32 @@ export type BreakdownLine =
   | { kind: "parking"; label: string; amount: number }
   | { kind: "scenic_fee"; label: string; amount: number };
 
+/** A modifier adjusts the pre-discount subtotal. Percent is relative to
+ *  (base + mileage + via + time extra + surcharges). */
+export type EngineModifier = {
+  label: string;
+  type: "percent" | "fixed";
+  value: number;
+};
+
+export type EngineDiscount = { label: string; amount: number };
+
+export type TaxMode = "exclusive" | "inclusive";
+
 export type QuoteOptions = {
   distanceMiles: number;
   viaStops?: number;
   pickupTime?: string; // "HH:MM"
   surcharges?: { label: string; amount: number }[];
+  /** Percentage / fixed adjustments applied before discounts. */
+  modifiers?: EngineModifier[];
   discountAmount?: number;
+  /** Labelled discount lines; summed together with `discountAmount`. */
+  discountLines?: EngineDiscount[];
   taxRate?: number; // 0–1
+  /** `exclusive` (default) adds tax on top. `inclusive` treats the subtotal
+   *  as already containing tax and only derives the net/VAT split. */
+  taxMode?: TaxMode;
 };
 
 export type QuoteResult = {
@@ -58,8 +78,12 @@ export type QuoteResult = {
   viaPrice: number;
   surchargePrice: number;
   timeExtraPrice: number;
+  modifierPrice: number;
   discountPrice: number;
   taxPrice: number;
+  taxMode: TaxMode;
+  /** Total excluding tax. Equals `subtotal` in exclusive mode. */
+  netPrice: number;
   subtotal: number;
   finalPrice: number;
   breakdown: BreakdownLine[];
@@ -137,21 +161,60 @@ export function runPricingEngine(profile: PricingProfile, opts: QuoteOptions): Q
   }
   surchargePrice = round2(surchargePrice);
 
-  const discountPrice = round2(Math.max(0, opts.discountAmount ?? 0));
+  // Modifiers: percentages resolve against the pre-modifier subtotal so the
+  // order in which stackable modifiers are listed does not change the total.
+  const modifierBase = round2(basePrice + mileagePrice + viaPrice + timeExtraPrice + surchargePrice);
+  let modifierPrice = 0;
+  for (const m of opts.modifiers ?? []) {
+    const value = Number(m.value) || 0;
+    if (value === 0) continue;
+    const amount = m.type === "percent" ? round2((modifierBase * value) / 100) : round2(value);
+    if (amount === 0) continue;
+    modifierPrice += amount;
+    breakdown.push({ kind: "modifier", label: m.label, amount });
+  }
+  modifierPrice = round2(modifierPrice);
+
+  let discountPrice = round2(Math.max(0, opts.discountAmount ?? 0));
   if (discountPrice > 0) {
     breakdown.push({ kind: "discount", label: "Discount", amount: -discountPrice });
   }
-
-  const subtotal = round2(
-    basePrice + mileagePrice + viaPrice + timeExtraPrice + surchargePrice - discountPrice,
-  );
-  const taxRate = Math.max(0, Math.min(1, opts.taxRate ?? 0));
-  const taxPrice = round2(subtotal * taxRate);
-  if (taxPrice > 0) {
-    breakdown.push({ kind: "tax", label: `Tax (${(taxRate * 100).toFixed(0)}%)`, rate: taxRate, amount: taxPrice });
+  for (const d of opts.discountLines ?? []) {
+    const amt = round2(Math.max(0, Number(d.amount) || 0));
+    if (amt <= 0) continue;
+    discountPrice = round2(discountPrice + amt);
+    breakdown.push({ kind: "discount", label: d.label, amount: -amt });
   }
 
-  const finalPrice = round2(subtotal + taxPrice);
+  // Never let discounts push the pre-tax total below zero.
+  const preDiscount = round2(modifierBase + modifierPrice);
+  if (discountPrice > preDiscount) discountPrice = preDiscount;
+
+  const subtotal = round2(preDiscount - discountPrice);
+  const taxRate = Math.max(0, Math.min(1, opts.taxRate ?? 0));
+  const taxMode: TaxMode = opts.taxMode === "inclusive" ? "inclusive" : "exclusive";
+
+  let taxPrice: number;
+  let netPrice: number;
+  let finalPrice: number;
+  if (taxMode === "inclusive") {
+    // Subtotal already contains tax — split it, never add on top.
+    netPrice = round2(subtotal / (1 + taxRate));
+    taxPrice = round2(subtotal - netPrice);
+    finalPrice = subtotal;
+  } else {
+    netPrice = subtotal;
+    taxPrice = round2(subtotal * taxRate);
+    finalPrice = round2(subtotal + taxPrice);
+  }
+  if (taxPrice > 0) {
+    breakdown.push({
+      kind: "tax",
+      label: `Tax (${(taxRate * 100).toFixed(0)}%${taxMode === "inclusive" ? " incl." : ""})`,
+      rate: taxRate,
+      amount: taxPrice,
+    });
+  }
 
   return {
     basePrice: round2(basePrice),
@@ -159,13 +222,17 @@ export function runPricingEngine(profile: PricingProfile, opts: QuoteOptions): Q
     viaPrice,
     surchargePrice,
     timeExtraPrice,
+    modifierPrice,
     discountPrice,
     taxPrice,
+    taxMode,
+    netPrice,
     subtotal,
     finalPrice,
     breakdown,
   };
 }
+
 
 // ---------------------------------------------------------------------------
 // Stop charges — pure, isomorphic.

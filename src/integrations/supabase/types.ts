@@ -92,6 +92,99 @@ export type Database = {
         }
         Relationships: []
       }
+      availability_rules: {
+        Row: {
+          active: boolean
+          created_at: string
+          date_from: string | null
+          date_to: string | null
+          days_of_week: number[] | null
+          effect: string
+          id: string
+          lat: number | null
+          lng: number | null
+          name: string
+          place_id: string | null
+          place_label: string | null
+          priority: number
+          radius_miles: number | null
+          reason: string | null
+          rule_scope: string
+          scope: string
+          service_types: string[] | null
+          time_from: string | null
+          time_to: string | null
+          updated_at: string
+          vehicle_class_id: string | null
+          vehicle_id: string | null
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          date_from?: string | null
+          date_to?: string | null
+          days_of_week?: number[] | null
+          effect?: string
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          name: string
+          place_id?: string | null
+          place_label?: string | null
+          priority?: number
+          radius_miles?: number | null
+          reason?: string | null
+          rule_scope?: string
+          scope?: string
+          service_types?: string[] | null
+          time_from?: string | null
+          time_to?: string | null
+          updated_at?: string
+          vehicle_class_id?: string | null
+          vehicle_id?: string | null
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          date_from?: string | null
+          date_to?: string | null
+          days_of_week?: number[] | null
+          effect?: string
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          name?: string
+          place_id?: string | null
+          place_label?: string | null
+          priority?: number
+          radius_miles?: number | null
+          reason?: string | null
+          rule_scope?: string
+          scope?: string
+          service_types?: string[] | null
+          time_from?: string | null
+          time_to?: string | null
+          updated_at?: string
+          vehicle_class_id?: string | null
+          vehicle_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "availability_rules_vehicle_class_id_fkey"
+            columns: ["vehicle_class_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "availability_rules_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       banned_addresses: {
         Row: {
           active: boolean
@@ -424,6 +517,7 @@ export type Database = {
       bookings: {
         Row: {
           admin_notes: string | null
+          applied_rules: Json | null
           assigned_at: string | null
           booking_ref: string | null
           cancellation_reason: string | null
@@ -462,6 +556,7 @@ export type Database = {
           price: number | null
           pricing_profile_id_snapshot: string | null
           pricing_snapshot: Json | null
+          pricing_source: string | null
           quote_expires_at: string | null
           quote_id: string | null
           return_journey: boolean
@@ -483,6 +578,7 @@ export type Database = {
         }
         Insert: {
           admin_notes?: string | null
+          applied_rules?: Json | null
           assigned_at?: string | null
           booking_ref?: string | null
           cancellation_reason?: string | null
@@ -521,6 +617,7 @@ export type Database = {
           price?: number | null
           pricing_profile_id_snapshot?: string | null
           pricing_snapshot?: Json | null
+          pricing_source?: string | null
           quote_expires_at?: string | null
           quote_id?: string | null
           return_journey?: boolean
@@ -542,6 +639,7 @@ export type Database = {
         }
         Update: {
           admin_notes?: string | null
+          applied_rules?: Json | null
           assigned_at?: string | null
           booking_ref?: string | null
           cancellation_reason?: string | null
@@ -580,6 +678,7 @@ export type Database = {
           price?: number | null
           pricing_profile_id_snapshot?: string | null
           pricing_snapshot?: Json | null
+          pricing_source?: string | null
           quote_expires_at?: string | null
           quote_id?: string | null
           return_journey?: boolean
@@ -629,6 +728,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      bulk_import_jobs: {
+        Row: {
+          actor_email: string | null
+          actor_id: string | null
+          created_at: string
+          created_rows: number
+          entity: string
+          error_report: Json | null
+          error_rows: number
+          filename: string | null
+          id: string
+          mode: string
+          status: string
+          total_rows: number
+          updated_rows: number
+        }
+        Insert: {
+          actor_email?: string | null
+          actor_id?: string | null
+          created_at?: string
+          created_rows?: number
+          entity: string
+          error_report?: Json | null
+          error_rows?: number
+          filename?: string | null
+          id?: string
+          mode?: string
+          status?: string
+          total_rows?: number
+          updated_rows?: number
+        }
+        Update: {
+          actor_email?: string | null
+          actor_id?: string | null
+          created_at?: string
+          created_rows?: number
+          entity?: string
+          error_report?: Json | null
+          error_rows?: number
+          filename?: string | null
+          id?: string
+          mode?: string
+          status?: string
+          total_rows?: number
+          updated_rows?: number
+        }
+        Relationships: []
       }
       contact_messages: {
         Row: {
@@ -696,18 +843,64 @@ export type Database = {
         }
         Relationships: []
       }
+      coupon_redemptions: {
+        Row: {
+          amount: number
+          booking_id: string | null
+          coupon_id: string
+          created_at: string
+          email: string | null
+          id: string
+        }
+        Insert: {
+          amount?: number
+          booking_id?: string | null
+          coupon_id: string
+          created_at?: string
+          email?: string | null
+          id?: string
+        }
+        Update: {
+          amount?: number
+          booking_id?: string | null
+          coupon_id?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coupon_redemptions_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coupon_redemptions_coupon_id_fkey"
+            columns: ["coupon_id"]
+            isOneToOne: false
+            referencedRelation: "coupons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       coupons: {
         Row: {
           active: boolean
           applicable_vehicle_classes: string[] | null
+          applies_to_service_types: string[] | null
           code: string
           created_at: string
           discount_type: Database["public"]["Enums"]["discount_type"]
           discount_value: number
           expires_at: string | null
           id: string
+          max_discount: number | null
           min_booking_amount: number | null
           notes: string | null
+          per_customer_limit: number | null
+          stackable: boolean
           starts_at: string | null
           updated_at: string
           usage_limit: number | null
@@ -716,14 +909,18 @@ export type Database = {
         Insert: {
           active?: boolean
           applicable_vehicle_classes?: string[] | null
+          applies_to_service_types?: string[] | null
           code: string
           created_at?: string
           discount_type?: Database["public"]["Enums"]["discount_type"]
           discount_value: number
           expires_at?: string | null
           id?: string
+          max_discount?: number | null
           min_booking_amount?: number | null
           notes?: string | null
+          per_customer_limit?: number | null
+          stackable?: boolean
           starts_at?: string | null
           updated_at?: string
           usage_limit?: number | null
@@ -732,14 +929,18 @@ export type Database = {
         Update: {
           active?: boolean
           applicable_vehicle_classes?: string[] | null
+          applies_to_service_types?: string[] | null
           code?: string
           created_at?: string
           discount_type?: Database["public"]["Enums"]["discount_type"]
           discount_value?: number
           expires_at?: string | null
           id?: string
+          max_discount?: number | null
           min_booking_amount?: number | null
           notes?: string | null
+          per_customer_limit?: number | null
+          stackable?: boolean
           starts_at?: string | null
           updated_at?: string
           usage_limit?: number | null
@@ -1076,6 +1277,84 @@ export type Database = {
           },
         ]
       }
+      discount_rules: {
+        Row: {
+          active: boolean
+          basis: string
+          created_at: string
+          discount_type: string
+          ends_at: string | null
+          event_name: string | null
+          id: string
+          lat: number | null
+          lng: number | null
+          max_discount: number | null
+          name: string
+          notes: string | null
+          place_id: string | null
+          place_label: string | null
+          priority: number
+          radius_miles: number | null
+          scope: string
+          service_types: string[] | null
+          stackable: boolean
+          starts_at: string | null
+          updated_at: string
+          value: number
+          vehicle_class_ids: string[] | null
+        }
+        Insert: {
+          active?: boolean
+          basis?: string
+          created_at?: string
+          discount_type?: string
+          ends_at?: string | null
+          event_name?: string | null
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          max_discount?: number | null
+          name: string
+          notes?: string | null
+          place_id?: string | null
+          place_label?: string | null
+          priority?: number
+          radius_miles?: number | null
+          scope?: string
+          service_types?: string[] | null
+          stackable?: boolean
+          starts_at?: string | null
+          updated_at?: string
+          value?: number
+          vehicle_class_ids?: string[] | null
+        }
+        Update: {
+          active?: boolean
+          basis?: string
+          created_at?: string
+          discount_type?: string
+          ends_at?: string | null
+          event_name?: string | null
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          max_discount?: number | null
+          name?: string
+          notes?: string | null
+          place_id?: string | null
+          place_label?: string | null
+          priority?: number
+          radius_miles?: number | null
+          scope?: string
+          service_types?: string[] | null
+          stackable?: boolean
+          starts_at?: string | null
+          updated_at?: string
+          value?: number
+          vehicle_class_ids?: string[] | null
+        }
+        Relationships: []
+      }
       drivers: {
         Row: {
           address: string | null
@@ -1137,47 +1416,146 @@ export type Database = {
           active: boolean
           created_at: string
           currency: string
+          daily_price: number | null
           display_order: number
+          extra_mile_rate: number | null
           id: string
+          included_hours_per_day: number | null
+          included_miles_per_day: number | null
+          included_miles_per_hour: number | null
           max_hours: number
           min_hours: number
           notes: string | null
           price_per_hour: number
+          priority: number
           updated_at: string
+          vehicle_class_id: string | null
           vehicle_id: string | null
         }
         Insert: {
           active?: boolean
           created_at?: string
           currency?: string
+          daily_price?: number | null
           display_order?: number
+          extra_mile_rate?: number | null
           id?: string
+          included_hours_per_day?: number | null
+          included_miles_per_day?: number | null
+          included_miles_per_hour?: number | null
           max_hours?: number
           min_hours?: number
           notes?: string | null
           price_per_hour: number
+          priority?: number
           updated_at?: string
+          vehicle_class_id?: string | null
           vehicle_id?: string | null
         }
         Update: {
           active?: boolean
           created_at?: string
           currency?: string
+          daily_price?: number | null
           display_order?: number
+          extra_mile_rate?: number | null
           id?: string
+          included_hours_per_day?: number | null
+          included_miles_per_day?: number | null
+          included_miles_per_hour?: number | null
           max_hours?: number
           min_hours?: number
           notes?: string | null
           price_per_hour?: number
+          priority?: number
           updated_at?: string
+          vehicle_class_id?: string | null
           vehicle_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "hourly_rates_vehicle_class_id_fkey"
+            columns: ["vehicle_class_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_classes"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "hourly_rates_vehicle_id_fkey"
             columns: ["vehicle_id"]
             isOneToOne: false
             referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      location_pricing_rules: {
+        Row: {
+          active: boolean
+          created_at: string
+          extra_per_mile: number
+          id: string
+          included_distance_miles: number
+          lat: number | null
+          lng: number | null
+          name: string
+          notes: string | null
+          place_id: string | null
+          place_label: string | null
+          price: number
+          price_type: string
+          priority: number
+          radius_miles: number
+          scope: string
+          updated_at: string
+          vehicle_class_id: string | null
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          extra_per_mile?: number
+          id?: string
+          included_distance_miles?: number
+          lat?: number | null
+          lng?: number | null
+          name: string
+          notes?: string | null
+          place_id?: string | null
+          place_label?: string | null
+          price?: number
+          price_type?: string
+          priority?: number
+          radius_miles?: number
+          scope?: string
+          updated_at?: string
+          vehicle_class_id?: string | null
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          extra_per_mile?: number
+          id?: string
+          included_distance_miles?: number
+          lat?: number | null
+          lng?: number | null
+          name?: string
+          notes?: string | null
+          place_id?: string | null
+          place_label?: string | null
+          price?: number
+          price_type?: string
+          priority?: number
+          radius_miles?: number
+          scope?: string
+          updated_at?: string
+          vehicle_class_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "location_pricing_rules_vehicle_class_id_fkey"
+            columns: ["vehicle_class_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_classes"
             referencedColumns: ["id"]
           },
         ]
@@ -1444,6 +1822,92 @@ export type Database = {
         }
         Relationships: []
       }
+      pricing_modifiers: {
+        Row: {
+          active: boolean
+          created_at: string
+          date_from: string | null
+          date_to: string | null
+          days_of_week: number[] | null
+          id: string
+          lat: number | null
+          lng: number | null
+          modifier_type: string
+          name: string
+          notes: string | null
+          place_id: string | null
+          place_label: string | null
+          priority: number
+          radius_miles: number | null
+          scope: string
+          service_types: string[] | null
+          stackable: boolean
+          time_from: string | null
+          time_to: string | null
+          updated_at: string
+          value: number
+          vehicle_class_id: string | null
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          date_from?: string | null
+          date_to?: string | null
+          days_of_week?: number[] | null
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          modifier_type?: string
+          name: string
+          notes?: string | null
+          place_id?: string | null
+          place_label?: string | null
+          priority?: number
+          radius_miles?: number | null
+          scope?: string
+          service_types?: string[] | null
+          stackable?: boolean
+          time_from?: string | null
+          time_to?: string | null
+          updated_at?: string
+          value?: number
+          vehicle_class_id?: string | null
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          date_from?: string | null
+          date_to?: string | null
+          days_of_week?: number[] | null
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          modifier_type?: string
+          name?: string
+          notes?: string | null
+          place_id?: string | null
+          place_label?: string | null
+          priority?: number
+          radius_miles?: number | null
+          scope?: string
+          service_types?: string[] | null
+          stackable?: boolean
+          time_from?: string | null
+          time_to?: string | null
+          updated_at?: string
+          value?: number
+          vehicle_class_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pricing_modifiers_vehicle_class_id_fkey"
+            columns: ["vehicle_class_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pricing_rules: {
         Row: {
           active: boolean
@@ -1451,17 +1915,26 @@ export type Database = {
           created_at: string
           currency: string
           from_address: string
+          from_lat: number | null
+          from_lng: number | null
           from_place_id: string | null
           from_place_label: string | null
+          from_radius_miles: number
           id: string
           notes: string | null
           price: number
+          priority: number
           to_address: string
+          to_lat: number | null
+          to_lng: number | null
           to_place_id: string | null
           to_place_label: string | null
+          to_radius_miles: number
           updated_at: string
+          valid_for_return: boolean
           valid_from: string | null
           valid_to: string | null
+          vehicle_class_id: string | null
           vehicle_id: string | null
         }
         Insert: {
@@ -1470,17 +1943,26 @@ export type Database = {
           created_at?: string
           currency?: string
           from_address: string
+          from_lat?: number | null
+          from_lng?: number | null
           from_place_id?: string | null
           from_place_label?: string | null
+          from_radius_miles?: number
           id?: string
           notes?: string | null
           price: number
+          priority?: number
           to_address: string
+          to_lat?: number | null
+          to_lng?: number | null
           to_place_id?: string | null
           to_place_label?: string | null
+          to_radius_miles?: number
           updated_at?: string
+          valid_for_return?: boolean
           valid_from?: string | null
           valid_to?: string | null
+          vehicle_class_id?: string | null
           vehicle_id?: string | null
         }
         Update: {
@@ -1489,20 +1971,36 @@ export type Database = {
           created_at?: string
           currency?: string
           from_address?: string
+          from_lat?: number | null
+          from_lng?: number | null
           from_place_id?: string | null
           from_place_label?: string | null
+          from_radius_miles?: number
           id?: string
           notes?: string | null
           price?: number
+          priority?: number
           to_address?: string
+          to_lat?: number | null
+          to_lng?: number | null
           to_place_id?: string | null
           to_place_label?: string | null
+          to_radius_miles?: number
           updated_at?: string
+          valid_for_return?: boolean
           valid_from?: string | null
           valid_to?: string | null
+          vehicle_class_id?: string | null
           vehicle_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "pricing_rules_vehicle_class_id_fkey"
+            columns: ["vehicle_class_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_classes"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "pricing_rules_vehicle_id_fkey"
             columns: ["vehicle_id"]
@@ -1538,6 +2036,7 @@ export type Database = {
       }
       quote_calculations: {
         Row: {
+          applied_rules: Json | null
           base_price: number
           calculation_breakdown: Json | null
           classification_reason: string | null
@@ -1562,6 +2061,7 @@ export type Database = {
           pickup_surcharge: number | null
           planned_stop_duration_seconds: number
           polyline_ref: string | null
+          pricing_source: string | null
           profile_id: string | null
           route_legs: Json
           route_mode: string
@@ -1581,6 +2081,7 @@ export type Database = {
           via_stops: number | null
         }
         Insert: {
+          applied_rules?: Json | null
           base_price?: number
           calculation_breakdown?: Json | null
           classification_reason?: string | null
@@ -1605,6 +2106,7 @@ export type Database = {
           pickup_surcharge?: number | null
           planned_stop_duration_seconds?: number
           polyline_ref?: string | null
+          pricing_source?: string | null
           profile_id?: string | null
           route_legs?: Json
           route_mode?: string
@@ -1624,6 +2126,7 @@ export type Database = {
           via_stops?: number | null
         }
         Update: {
+          applied_rules?: Json | null
           base_price?: number
           calculation_breakdown?: Json | null
           classification_reason?: string | null
@@ -1648,6 +2151,7 @@ export type Database = {
           pickup_surcharge?: number | null
           planned_stop_duration_seconds?: number
           polyline_ref?: string | null
+          pricing_source?: string | null
           profile_id?: string | null
           route_legs?: Json
           route_mode?: string
@@ -2658,8 +3162,10 @@ export type Database = {
           primary_color: string
           return_journey_fee_pence: number
           sightseeing_threshold_minutes: number
+          tax_effective_from: string | null
           tax_enabled: boolean
           tax_label: string
+          tax_mode: string
           tax_percentage: number
           timezone: string
           tour_conversion_wording: string
@@ -2702,8 +3208,10 @@ export type Database = {
           primary_color?: string
           return_journey_fee_pence?: number
           sightseeing_threshold_minutes?: number
+          tax_effective_from?: string | null
           tax_enabled?: boolean
           tax_label?: string
+          tax_mode?: string
           tax_percentage?: number
           timezone?: string
           tour_conversion_wording?: string
@@ -2746,8 +3254,10 @@ export type Database = {
           primary_color?: string
           return_journey_fee_pence?: number
           sightseeing_threshold_minutes?: number
+          tax_effective_from?: string | null
           tax_enabled?: boolean
           tax_label?: string
+          tax_mode?: string
           tax_percentage?: number
           timezone?: string
           tour_conversion_wording?: string
@@ -2770,10 +3280,12 @@ export type Database = {
           id: string
           name: string
           notes: string | null
+          priority: number
           starts_at: string | null
           time_from: string | null
           time_to: string | null
           updated_at: string
+          vehicle_class_id: string | null
           vehicle_id: string | null
         }
         Insert: {
@@ -2787,10 +3299,12 @@ export type Database = {
           id?: string
           name: string
           notes?: string | null
+          priority?: number
           starts_at?: string | null
           time_from?: string | null
           time_to?: string | null
           updated_at?: string
+          vehicle_class_id?: string | null
           vehicle_id?: string | null
         }
         Update: {
@@ -2804,13 +3318,22 @@ export type Database = {
           id?: string
           name?: string
           notes?: string | null
+          priority?: number
           starts_at?: string | null
           time_from?: string | null
           time_to?: string | null
           updated_at?: string
+          vehicle_class_id?: string | null
           vehicle_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "surcharges_vehicle_class_id_fkey"
+            columns: ["vehicle_class_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_classes"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "surcharges_vehicle_id_fkey"
             columns: ["vehicle_id"]
@@ -3117,6 +3640,7 @@ export type Database = {
           time_extra_type: string
           updated_at: string
           vehicle_add_price_enabled: boolean
+          vehicle_class_id: string | null
           vehicle_id: string
           via_price: number
         }
@@ -3131,6 +3655,7 @@ export type Database = {
           time_extra_type?: string
           updated_at?: string
           vehicle_add_price_enabled?: boolean
+          vehicle_class_id?: string | null
           vehicle_id: string
           via_price?: number
         }
@@ -3145,10 +3670,18 @@ export type Database = {
           time_extra_type?: string
           updated_at?: string
           vehicle_add_price_enabled?: boolean
+          vehicle_class_id?: string | null
           vehicle_id?: string
           via_price?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "vehicle_pricing_profiles_vehicle_class_id_fkey"
+            columns: ["vehicle_class_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_classes"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "vehicle_pricing_profiles_vehicle_id_fkey"
             columns: ["vehicle_id"]
