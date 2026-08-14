@@ -53,9 +53,13 @@ const NAV: SidebarEntry[] = [
       { to: "/cabs-booking-pannel/hourly-rates", label: "Hourly Rates", icon: Gauge },
 
       { to: "/cabs-booking-pannel/pricing", label: "Route Pricing", icon: Tag },
+      { to: "/cabs-booking-pannel/location-pricing", label: "Location Pricing", icon: MapPin },
+      { to: "/cabs-booking-pannel/pricing-modifiers", label: "Pricing Modifiers", icon: Percent },
+      { to: "/cabs-booking-pannel/availability", label: "Availability Rules", icon: Ban },
       { to: "/cabs-booking-pannel/pricing-preview", label: "Quote Preview", icon: Gauge },
       { to: "/cabs-booking-pannel/surcharges", label: "Surcharges", icon: Percent },
       { to: "/cabs-booking-pannel/coupons", label: "Coupons", icon: Ticket },
+
     ],
   },
   {
