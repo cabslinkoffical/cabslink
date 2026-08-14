@@ -81,6 +81,16 @@ function Page() {
   const upsert = useServerFn(upsertAvailabilityRule);
   const del = useServerFn(deleteAvailabilityRule);
   const [form, setForm] = useState<any>(null);
+  const [view, setView] = useState<"list" | "calendar">("list");
+
+  const openEdit = (r: any) => setForm({
+    ...empty, ...r,
+    service_types: r.service_types ?? [],
+    days_of_week: r.days_of_week ?? [],
+    date_from: r.date_from ?? "", date_to: r.date_to ?? "",
+    time_from: r.time_from ?? "", time_to: r.time_to ?? "",
+    reason: r.reason ?? "",
+  });
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ["admin", "availability-rules"] });
   const save = useMutation({
