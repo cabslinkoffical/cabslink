@@ -88,11 +88,22 @@ function HourlyBookPage() {
   const createFn = useServerFn(createHourlyBooking);
 
   const quotesQuery = useQuery({
-    queryKey: ["hourly-quotes", hours, passengers, luggage],
-    queryFn: () => quotesFn({ data: { hours, passengers, luggage } }),
+    queryKey: ["hourly-quotes", hours, passengers, luggage, pickup?.placeId ?? "", date, time],
+    queryFn: () =>
+      quotesFn({
+        data: {
+          hours,
+          passengers,
+          luggage,
+          pickupPlaceId: pickup?.placeId ?? null,
+          pickupDate: date || null,
+          pickupTime: time || null,
+        },
+      }),
   });
 
-  const quotes = quotesQuery.data?.quotes ?? [];
+  const quotes: HourlyCard[] = quotesQuery.data?.quotes ?? [];
+
   const symbol = quotesQuery.data?.currencySymbol ?? "£";
   const childSeatFee = (quotesQuery.data?.childSeatFeePence ?? 0) / 100;
   const meetGreetFee = (quotesQuery.data?.meetGreetFeePence ?? 0) / 100;
