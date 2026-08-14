@@ -16,10 +16,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Plus, Edit, Trash2, Ban, CheckCircle2 } from "lucide-react";
+import { Plus, Edit, Trash2, Ban, CheckCircle2, List, CalendarDays } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
 import { GeoFields, Chips, DayPicker, SERVICE_TYPE_OPTIONS, DAYS } from "@/components/admin/RuleFields";
+import { AvailabilityCalendar } from "@/components/admin/AvailabilityCalendar";
 
 const opts = queryOptions({ queryKey: ["admin", "availability-rules"], queryFn: () => listAvailabilityRules() });
 const classOpts = queryOptions({ queryKey: ["admin", "vehicle-classes"], queryFn: () => listVehicleClassesAdmin() });
@@ -80,6 +81,16 @@ function Page() {
   const upsert = useServerFn(upsertAvailabilityRule);
   const del = useServerFn(deleteAvailabilityRule);
   const [form, setForm] = useState<any>(null);
+  const [view, setView] = useState<"list" | "calendar">("list");
+
+  const openEdit = (r: any) => setForm({
+    ...empty, ...r,
+    service_types: r.service_types ?? [],
+    days_of_week: r.days_of_week ?? [],
+    date_from: r.date_from ?? "", date_to: r.date_to ?? "",
+    time_from: r.time_from ?? "", time_to: r.time_to ?? "",
+    reason: r.reason ?? "",
+  });
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ["admin", "availability-rules"] });
   const save = useMutation({
@@ -108,10 +119,22 @@ function Page() {
         title="Availability Rules"
         description="Block or explicitly allow bookings by vehicle, class, service, area, date or time. The most specific matching rule wins; ties break to block."
       >
-        <Button onClick={() => setForm({ ...empty })}><Plus className="size-4 mr-1" /> New rule</Button>
+        <div className="flex items-center gap-2">
+          <div className="inline-flex rounded-md border border-border p-0.5">
+            <Button size="sm" variant={view === "list" ? "secondary" : "ghost"} onClick={() => setView("list")}>
+              <List className="size-4 mr-1" /> List
+            </Button>
+            <Button size="sm" variant={view === "calendar" ? "secondary" : "ghost"} onClick={() => setView("calendar")}>
+              <CalendarDays className="size-4 mr-1" /> Calendar
+            </Button>
+          </div>
+          <Button onClick={() => setForm({ ...empty })}><Plus className="size-4 mr-1" /> New rule</Button>
+        </div>
       </PageHeader>
 
-      {data.length === 0 ? (
+      {view === "calendar" ? (
+        <AvailabilityCalendar rules={data as any} onSelectRule={openEdit} />
+      ) : data.length === 0 ? (
         <EmptyState title="No availability rules" hint="Everything is bookable. Add a rule to close a date, area or vehicle." />
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
