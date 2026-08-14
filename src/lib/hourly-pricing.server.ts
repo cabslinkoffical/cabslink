@@ -148,3 +148,96 @@ export function applyHourlyRules(args: {
     reasons,
   };
 }
+
+export type HourlyCard = {
+  vehicleId: string;
+  name: string;
+  category: string;
+  imageUrl: string;
+  passengers: number;
+  luggage: number;
+  handLuggage: number;
+  pricePerHour: number;
+  minHours: number;
+  maxHours: number;
+  chargedHours: number;
+  /** Base before rule adjustments (hours × per-hour). */
+  baseTotal: number;
+  /** Rule-driven uplifts / reductions applied to the base. */
+  adjustments: Array<{ label: string; amount: number }>;
+  discountLines: Array<{ label: string; amount: number }>;
+  total: number;
+  minimumApplied: boolean;
+  quoteOnRequest: boolean;
+  classSlug: string;
+  classDisplayOrder: number;
+};
+
+/**
+ * Build customer-facing hourly cards. Classes blocked by an availability rule
+ * are omitted entirely, matching the transfer quote behaviour.
+ */
+export function buildHourlyCards(args: {
+  profiles: LoadedProfile[];
+  rates: Map<string, HourlyRateRow>;
+  hours: number;
+  ruleSets: RuleSets | null;
+  pickupPlaceId?: string;
+  pickupCoord?: { lat: number; lng: number } | null;
+  date?: string;
+  time?: string;
+}): HourlyCard[] {
+  const cards: HourlyCard[] = [];
+  for (const p of args.profiles) {
+    const rate = args.rates.get(p.vehicle.id);
+    if (!rate) continue;
+    const min = Math.max(1, Number(rate.min_hours) || 1);
+    const max = Math.max(min, Number(rate.max_hours) || 24);
+    if (args.hours > max) continue;
+    const chargedHours = Math.max(args.hours, min);
+    const perHour = Math.max(0, Number(rate.price_per_hour) || 0);
+    const baseTotal = round2(perHour * chargedHours);
+
+    let total = baseTotal;
+    let adjustments: Array<{ label: string; amount: number }> = [];
+    let discountLines: Array<{ label: string; amount: number }> = [];
+
+    if (args.ruleSets) {
+      const ctx = hourlyJourneyContext({
+        profile: p,
+        pickupPlaceId: args.pickupPlaceId ?? "",
+        pickupCoord: args.pickupCoord ?? null,
+        date: args.date,
+        time: args.time,
+      });
+      const outcome = applyHourlyRules({ ruleSets: args.ruleSets, ctx, base: baseTotal });
+      if (!outcome.available) continue;
+      total = outcome.total;
+      adjustments = outcome.adjustments;
+      discountLines = outcome.discountLines;
+    }
+
+    cards.push({
+      vehicleId: p.vehicle.id,
+      name: p.vehicle.name,
+      category: p.vehicle.category,
+      imageUrl: p.vehicle.image_url,
+      passengers: p.vehicle.passengers,
+      luggage: p.vehicle.luggage,
+      handLuggage: p.vehicle.hand_luggage,
+      pricePerHour: perHour,
+      minHours: min,
+      maxHours: max,
+      chargedHours,
+      baseTotal,
+      adjustments,
+      discountLines,
+      total,
+      minimumApplied: chargedHours > args.hours,
+      quoteOnRequest: p.vehicle.class_quote_on_request,
+      classSlug: p.vehicle.class_slug,
+      classDisplayOrder: p.vehicle.class_display_order,
+    });
+  }
+  return cards.sort((a, b) => a.classDisplayOrder - b.classDisplayOrder || a.total - b.total);
+}
