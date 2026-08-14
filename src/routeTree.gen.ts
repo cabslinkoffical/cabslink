@@ -106,6 +106,7 @@ import { Route as AuthenticatedCabsBookingPannelPaymentsRouteImport } from './ro
 import { Route as AuthenticatedCabsBookingPannelMileagePricingRouteImport } from './routes/_authenticated/cabs-booking-pannel/mileage-pricing'
 import { Route as AuthenticatedCabsBookingPannelMessagesRouteImport } from './routes/_authenticated/cabs-booking-pannel/messages'
 import { Route as AuthenticatedCabsBookingPannelLogsRouteImport } from './routes/_authenticated/cabs-booking-pannel/logs'
+import { Route as AuthenticatedCabsBookingPannelLocationPricingRouteImport } from './routes/_authenticated/cabs-booking-pannel/location-pricing'
 import { Route as AuthenticatedCabsBookingPannelHourlyRatesRouteImport } from './routes/_authenticated/cabs-booking-pannel/hourly-rates'
 import { Route as AuthenticatedCabsBookingPannelFleetImagesRouteImport } from './routes/_authenticated/cabs-booking-pannel/fleet-images'
 import { Route as AuthenticatedCabsBookingPannelFleetRouteImport } from './routes/_authenticated/cabs-booking-pannel/fleet'
@@ -634,6 +635,12 @@ const AuthenticatedCabsBookingPannelLogsRoute =
     path: '/logs',
     getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
+const AuthenticatedCabsBookingPannelLocationPricingRoute =
+  AuthenticatedCabsBookingPannelLocationPricingRouteImport.update({
+    id: '/location-pricing',
+    path: '/location-pricing',
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
+  } as any)
 const AuthenticatedCabsBookingPannelHourlyRatesRoute =
   AuthenticatedCabsBookingPannelHourlyRatesRouteImport.update({
     id: '/hourly-rates',
@@ -866,6 +873,7 @@ export interface FileRoutesByFullPath {
   '/cabs-booking-pannel/fleet': typeof AuthenticatedCabsBookingPannelFleetRoute
   '/cabs-booking-pannel/fleet-images': typeof AuthenticatedCabsBookingPannelFleetImagesRoute
   '/cabs-booking-pannel/hourly-rates': typeof AuthenticatedCabsBookingPannelHourlyRatesRoute
+  '/cabs-booking-pannel/location-pricing': typeof AuthenticatedCabsBookingPannelLocationPricingRoute
   '/cabs-booking-pannel/logs': typeof AuthenticatedCabsBookingPannelLogsRoute
   '/cabs-booking-pannel/messages': typeof AuthenticatedCabsBookingPannelMessagesRoute
   '/cabs-booking-pannel/mileage-pricing': typeof AuthenticatedCabsBookingPannelMileagePricingRoute
@@ -986,6 +994,7 @@ export interface FileRoutesByTo {
   '/cabs-booking-pannel/fleet': typeof AuthenticatedCabsBookingPannelFleetRoute
   '/cabs-booking-pannel/fleet-images': typeof AuthenticatedCabsBookingPannelFleetImagesRoute
   '/cabs-booking-pannel/hourly-rates': typeof AuthenticatedCabsBookingPannelHourlyRatesRoute
+  '/cabs-booking-pannel/location-pricing': typeof AuthenticatedCabsBookingPannelLocationPricingRoute
   '/cabs-booking-pannel/logs': typeof AuthenticatedCabsBookingPannelLogsRoute
   '/cabs-booking-pannel/messages': typeof AuthenticatedCabsBookingPannelMessagesRoute
   '/cabs-booking-pannel/mileage-pricing': typeof AuthenticatedCabsBookingPannelMileagePricingRoute
@@ -1110,6 +1119,7 @@ export interface FileRoutesById {
   '/_authenticated/cabs-booking-pannel/fleet': typeof AuthenticatedCabsBookingPannelFleetRoute
   '/_authenticated/cabs-booking-pannel/fleet-images': typeof AuthenticatedCabsBookingPannelFleetImagesRoute
   '/_authenticated/cabs-booking-pannel/hourly-rates': typeof AuthenticatedCabsBookingPannelHourlyRatesRoute
+  '/_authenticated/cabs-booking-pannel/location-pricing': typeof AuthenticatedCabsBookingPannelLocationPricingRoute
   '/_authenticated/cabs-booking-pannel/logs': typeof AuthenticatedCabsBookingPannelLogsRoute
   '/_authenticated/cabs-booking-pannel/messages': typeof AuthenticatedCabsBookingPannelMessagesRoute
   '/_authenticated/cabs-booking-pannel/mileage-pricing': typeof AuthenticatedCabsBookingPannelMileagePricingRoute
@@ -1234,6 +1244,7 @@ export interface FileRouteTypes {
     | '/cabs-booking-pannel/fleet'
     | '/cabs-booking-pannel/fleet-images'
     | '/cabs-booking-pannel/hourly-rates'
+    | '/cabs-booking-pannel/location-pricing'
     | '/cabs-booking-pannel/logs'
     | '/cabs-booking-pannel/messages'
     | '/cabs-booking-pannel/mileage-pricing'
@@ -1354,6 +1365,7 @@ export interface FileRouteTypes {
     | '/cabs-booking-pannel/fleet'
     | '/cabs-booking-pannel/fleet-images'
     | '/cabs-booking-pannel/hourly-rates'
+    | '/cabs-booking-pannel/location-pricing'
     | '/cabs-booking-pannel/logs'
     | '/cabs-booking-pannel/messages'
     | '/cabs-booking-pannel/mileage-pricing'
@@ -1477,6 +1489,7 @@ export interface FileRouteTypes {
     | '/_authenticated/cabs-booking-pannel/fleet'
     | '/_authenticated/cabs-booking-pannel/fleet-images'
     | '/_authenticated/cabs-booking-pannel/hourly-rates'
+    | '/_authenticated/cabs-booking-pannel/location-pricing'
     | '/_authenticated/cabs-booking-pannel/logs'
     | '/_authenticated/cabs-booking-pannel/messages'
     | '/_authenticated/cabs-booking-pannel/mileage-pricing'
@@ -2276,6 +2289,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCabsBookingPannelLogsRouteImport
       parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
+    '/_authenticated/cabs-booking-pannel/location-pricing': {
+      id: '/_authenticated/cabs-booking-pannel/location-pricing'
+      path: '/location-pricing'
+      fullPath: '/cabs-booking-pannel/location-pricing'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelLocationPricingRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
+    }
     '/_authenticated/cabs-booking-pannel/hourly-rates': {
       id: '/_authenticated/cabs-booking-pannel/hourly-rates'
       path: '/hourly-rates'
@@ -2472,6 +2492,7 @@ interface AuthenticatedCabsBookingPannelRouteRouteChildren {
   AuthenticatedCabsBookingPannelFleetRoute: typeof AuthenticatedCabsBookingPannelFleetRoute
   AuthenticatedCabsBookingPannelFleetImagesRoute: typeof AuthenticatedCabsBookingPannelFleetImagesRoute
   AuthenticatedCabsBookingPannelHourlyRatesRoute: typeof AuthenticatedCabsBookingPannelHourlyRatesRoute
+  AuthenticatedCabsBookingPannelLocationPricingRoute: typeof AuthenticatedCabsBookingPannelLocationPricingRoute
   AuthenticatedCabsBookingPannelLogsRoute: typeof AuthenticatedCabsBookingPannelLogsRoute
   AuthenticatedCabsBookingPannelMessagesRoute: typeof AuthenticatedCabsBookingPannelMessagesRoute
   AuthenticatedCabsBookingPannelMileagePricingRoute: typeof AuthenticatedCabsBookingPannelMileagePricingRoute
@@ -2523,6 +2544,8 @@ const AuthenticatedCabsBookingPannelRouteRouteChildren: AuthenticatedCabsBooking
       AuthenticatedCabsBookingPannelFleetImagesRoute,
     AuthenticatedCabsBookingPannelHourlyRatesRoute:
       AuthenticatedCabsBookingPannelHourlyRatesRoute,
+    AuthenticatedCabsBookingPannelLocationPricingRoute:
+      AuthenticatedCabsBookingPannelLocationPricingRoute,
     AuthenticatedCabsBookingPannelLogsRoute:
       AuthenticatedCabsBookingPannelLogsRoute,
     AuthenticatedCabsBookingPannelMessagesRoute:

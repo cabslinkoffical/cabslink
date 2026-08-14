@@ -87,7 +87,7 @@ function Page() {
       </PageHeader>
 
       {data.length === 0 ? (
-        <EmptyState title="No location pricing rules" description="Add a rule to price all journeys touching a specific area." />
+        <EmptyState title="No location pricing rules" hint="Add a rule to price all journeys touching a specific area." />
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {data.map((r: any) => (
