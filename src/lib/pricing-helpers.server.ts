@@ -670,6 +670,10 @@ export function computeVehicleQuote(args: {
   /** Validated coupon discount, applied after rule discounts. */
   couponCode?: string | null;
   couponDiscount?: number;
+  /** Service type — drives the scheme's airport pickup fee. */
+  serviceType?: string;
+  /** Job connects to another booking → the scheme's connecting-job discount. */
+  isConnectingJob?: boolean;
 }): ComputedVehicleQuote {
   const {
     profile, distanceMiles, viaStops, pickupTime,
