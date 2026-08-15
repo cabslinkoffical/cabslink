@@ -50,10 +50,12 @@ export function AdminMapEditor({
   origin,
   destination = null,
   radiusMiles = null,
+  destinationRadiusMiles = null,
   onClearOrigin,
   onClearDestination,
   onReverse,
   onCoords,
+  onRoute,
   className,
   height = 320,
 }: Props) {
@@ -62,6 +64,7 @@ export function AdminMapEditor({
   const originMarker = useRef<any>(null);
   const destMarker = useRef<any>(null);
   const circleRef = useRef<any>(null);
+  const destCircleRef = useRef<any>(null);
   const lineRef = useRef<any>(null);
 
   const resolveCoordsFn = useServerFn(adminResolvePlaceCoords);
