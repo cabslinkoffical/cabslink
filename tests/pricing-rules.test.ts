@@ -4,6 +4,7 @@ import {
   haversineMiles,
   locationRuleAmount,
   matchDiscounts,
+  bothWays,
   matchFixedRoute,
   matchLocationPricing,
   matchModifiers,
