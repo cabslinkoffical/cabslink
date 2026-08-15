@@ -141,6 +141,7 @@ export const getPricingScheme = createServerFn({ method: "GET" })
         airportPickupFee: Number(profile?.airport_pickup_fee ?? 0),
         connectingJobDiscountPercent: Number(profile?.connecting_job_discount_percent ?? 0),
         live: profile ? !!profile.status : false,
+        finalTierOpenEnded: !!profile?.final_tier_open_ended,
         tiers: tiers.map((t) => ({
           tierName: t.tier_name as string,
           miles: Number(t.miles),
@@ -167,7 +168,10 @@ export const getPricingScheme = createServerFn({ method: "GET" })
 
 const overviewSchema = z.object({
   classId: uuid,
-  vehicleId: uuid,
+  /** Legacy compatibility only — the class is the source of truth and the
+   *  internal pricing record is resolved (or created) server-side. */
+  vehicleId: uuid.optional(),
+  finalTierOpenEnded: z.boolean().default(false),
   cityFixedPrice: money,
   cityIncludedMiles: miles,
   bands: z
@@ -206,69 +210,36 @@ export const saveSchemeOverview = createServerFn({ method: "POST" })
     await assertAdmin(context);
     if (data.maxHours < data.minHours) throw new Error("Maximum hours must be at least the minimum hours.");
 
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // The vehicle class is authoritative. The legacy `vehicles` row is an
+    // internal compatibility record for the canonical engine tables and is
+    // created on demand, so pricing can always be saved from the class.
+    const { ensureClassPricingVehicle } = await import("@/lib/pricing-schemes.server");
+    const vehicleId = await ensureClassPricingVehicle(data.classId);
 
-    const existing = await supabaseAdmin
-      .from("vehicle_pricing_profiles")
-      .select("id")
-      .eq("vehicle_id", data.vehicleId)
-      .maybeSingle();
+    // One all-or-nothing database routine: profile upsert + mileage bands +
+    // hourly rates. A failure anywhere leaves the previous pricing intact.
+    const { data: profileId, error } = await (context.supabase as any).rpc("save_pricing_scheme_base", {
+      _payload: {
+        class_id: data.classId,
+        vehicle_id: vehicleId,
+        base_price: data.cityFixedPrice,
+        city_included_miles: data.cityIncludedMiles,
+        via_price: data.additionalPickupFee,
+        waiting_fee_per_minute: data.waitingFeePerMinute,
+        airport_pickup_fee: data.airportPickupFee,
+        connecting_job_discount_percent: data.connectingJobDiscountPercent,
+        final_tier_open_ended: data.finalTierOpenEnded,
+        status: data.live,
+        bands: data.bands.map((b) => ({ name: b.name, miles: b.miles, per_mile: b.perMile })),
+        price_per_hour: data.pricePerHour,
+        min_hours: data.minHours,
+        max_hours: data.maxHours,
+        hourly_active: data.hourlyActive,
+      },
+    });
+    if (error) throw new Error(error.message);
 
-    const profilePayload: any = {
-      vehicle_id: data.vehicleId,
-      vehicle_class_id: data.classId,
-      base_price: data.cityFixedPrice,
-      city_included_miles: data.cityIncludedMiles,
-      via_price: data.additionalPickupFee,
-      waiting_fee_per_minute: data.waitingFeePerMinute,
-      airport_pickup_fee: data.airportPickupFee,
-      connecting_job_discount_percent: data.connectingJobDiscountPercent,
-      status: data.live,
-    };
-
-    let profileId: string;
-    if (existing.data) {
-      profileId = (existing.data as any).id;
-      const { error } = await supabaseAdmin.from("vehicle_pricing_profiles").update(profilePayload).eq("id", profileId);
-      if (error) throw new Error(error.message);
-    } else {
-      const { data: created, error } = await supabaseAdmin
-        .from("vehicle_pricing_profiles")
-        .insert(profilePayload)
-        .select("id")
-        .single();
-      if (error) throw new Error(error.message);
-      profileId = (created as any).id;
-    }
-
-    const bands = [
-      { tier_name: "City transfer (included)", miles: data.cityIncludedMiles, cost_per_mile: 0 },
-      ...data.bands.map((b) => ({ tier_name: b.name, miles: b.miles, cost_per_mile: b.perMile })),
-    ]
-      .filter((b) => b.miles > 0)
-      .map((b, i) => ({ ...b, pricing_profile_id: profileId, sort_order: i + 1 }));
-
-    const del = await supabaseAdmin.from("vehicle_mileage_tiers").delete().eq("pricing_profile_id", profileId);
-    if (del.error) throw new Error(del.error.message);
-    if (bands.length > 0) {
-      const ins = await supabaseAdmin.from("vehicle_mileage_tiers").insert(bands as any);
-      if (ins.error) throw new Error(ins.error.message);
-    }
-
-    const hourly = await supabaseAdmin.from("hourly_rates").select("id").eq("vehicle_id", data.vehicleId).maybeSingle();
-    const hourlyPayload: any = {
-      vehicle_id: data.vehicleId,
-      price_per_hour: data.pricePerHour,
-      min_hours: data.minHours,
-      max_hours: data.maxHours,
-      active: data.hourlyActive,
-    };
-    const hRes = hourly.data
-      ? await supabaseAdmin.from("hourly_rates").update(hourlyPayload).eq("id", (hourly.data as any).id)
-      : await supabaseAdmin.from("hourly_rates").insert(hourlyPayload);
-    if (hRes.error) throw new Error(hRes.error.message);
-
-    return { ok: true, profileId };
+    return { ok: true, profileId: profileId as string, vehicleId };
   });
 
 // ===================================================================
