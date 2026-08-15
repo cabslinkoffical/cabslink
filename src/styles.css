@@ -665,6 +665,10 @@ input[type="time"] {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
 }
+.tour-marquee {
+  overflow-x: hidden;
+  overflow-y: visible;
+}
 .tour-marquee-track {
   animation: tourMarquee 70s linear infinite;
   will-change: transform;
