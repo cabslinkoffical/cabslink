@@ -14,6 +14,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Plus, Edit, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
+import { BulkTools } from "@/components/admin/BulkTools";
 
 const opts = queryOptions({ queryKey: ["admin", "coupons"], queryFn: () => listCoupons() });
 export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/coupons")({
@@ -45,6 +46,7 @@ function Page() {
   return (
     <div className="p-6 md:p-8 space-y-6">
       <PageHeader title="Coupons & Discounts" description="Create promo codes with limits and validity windows.">
+        <BulkTools entity="coupons" onChanged={() => qc.invalidateQueries({ queryKey: ["admin", "coupons"] })} />
         <Button onClick={() => setForm({ ...empty })}><Plus className="size-4 mr-1" /> New coupon</Button>
       </PageHeader>
 

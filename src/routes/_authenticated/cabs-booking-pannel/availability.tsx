@@ -19,6 +19,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Plus, Edit, Trash2, Ban, CheckCircle2, List, CalendarDays } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
+import { BulkTools } from "@/components/admin/BulkTools";
 import { GeoFields, Chips, DayPicker, SERVICE_TYPE_OPTIONS, DAYS } from "@/components/admin/RuleFields";
 import { AvailabilityCalendar } from "@/components/admin/AvailabilityCalendar";
 
@@ -119,6 +120,7 @@ function Page() {
         title="Availability Rules"
         description="Block or explicitly allow bookings by vehicle, class, service, area, date or time. The most specific matching rule wins; ties break to block."
       >
+        <BulkTools entity="availability_rules" onChanged={() => qc.invalidateQueries({ queryKey: ["admin", "availability-rules"] })} />
         <div className="flex items-center gap-2">
           <div className="inline-flex rounded-md border border-border p-0.5">
             <Button size="sm" variant={view === "list" ? "secondary" : "ghost"} onClick={() => setView("list")}>

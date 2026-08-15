@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { BulkTools } from "@/components/admin/BulkTools";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -195,9 +196,12 @@ export function SchemeModifiersTab({ classId, modifiers }: { classId: string; mo
       </SchemeSection>
 
       <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
-        <div className="border-b border-border px-5 py-4">
+        <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border px-5 py-4">
+          <div>
           <h3 className="font-display text-base font-semibold">Modifiers in this scheme</h3>
-        </div>
+                    </div>
+          <BulkTools entity="pricing_modifiers" label="Bulk CSV" onChanged={invalidate} />
+</div>
         {modifiers.length === 0 ? (
           <p className="px-5 py-8 text-center text-sm text-muted-foreground">No modifiers yet.</p>
         ) : (

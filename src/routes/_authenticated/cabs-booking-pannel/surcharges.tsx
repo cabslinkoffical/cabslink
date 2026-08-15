@@ -14,6 +14,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Plus, Edit, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
+import { BulkTools } from "@/components/admin/BulkTools";
 
 const opts = queryOptions({ queryKey: ["admin", "surcharges"], queryFn: () => listSurcharges() });
 const vOpts = queryOptions({ queryKey: ["admin", "vehicles"], queryFn: () => listVehiclesAdmin() });
@@ -54,6 +55,7 @@ function Page() {
   return (
     <div className="p-6 md:p-8 space-y-6">
       <PageHeader title="Surcharges" description="Extra fees applied at quote time — late night, holidays, specific vehicles.">
+        <BulkTools entity="surcharges" onChanged={() => qc.invalidateQueries({ queryKey: ["admin", "surcharges"] })} />
         <Button onClick={() => setForm({ ...empty })}><Plus className="size-4 mr-1" /> New surcharge</Button>
       </PageHeader>
 

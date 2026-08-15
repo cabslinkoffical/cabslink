@@ -10,7 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { PageHeader } from "@/components/admin/ui";
-import { SeoTable, PublishedPill } from "@/components/admin/SeoTable";
+import { SeoTable, PublishedPill, useBulkSelection } from "@/components/admin/SeoTable";
+import { BulkTools, BulkActionBar } from "@/components/admin/BulkTools";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
 
@@ -38,6 +39,7 @@ const empty: any = {
 
 function Page() {
   const { data } = useSuspenseQuery(opts);
+  const selection = useBulkSelection(data.rows);
   const qc = useQueryClient();
   const upsert = useServerFn(upsertSeoService);
   const del = useServerFn(deleteSeoService);
@@ -66,10 +68,14 @@ function Page() {
   return (
     <div className="p-6 space-y-4">
       <PageHeader title="SEO Services" description="Reusable service entities used across landing pages (airport transfers, executive, corporate, tours…).">
+        <BulkTools entity="seo_services" onChanged={() => qc.invalidateQueries({ queryKey: ["admin", "seo"] })} />
         <Button onClick={() => setForm({ ...empty })}><Plus className="size-4 mr-2" />New service</Button>
       </PageHeader>
 
+      <BulkActionBar entity="seo_services" ids={selection.selected} onClear={selection.clear} onChanged={() => qc.invalidateQueries({ queryKey: ["admin", "seo"] })} />
+
       <SeoTable
+        selection={selection}
         rows={data.rows}
         onEdit={r => setForm({ ...empty, ...r, features: (r as any).features?.join("\n") ?? "", fleet_categories: (r as any).fleet_categories?.join(", ") ?? "" })}
         onDelete={remove}

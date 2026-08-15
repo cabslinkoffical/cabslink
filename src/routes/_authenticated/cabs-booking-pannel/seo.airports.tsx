@@ -11,7 +11,8 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { PageHeader } from "@/components/admin/ui";
-import { SeoTable, PublishedPill } from "@/components/admin/SeoTable";
+import { SeoTable, PublishedPill, useBulkSelection } from "@/components/admin/SeoTable";
+import { BulkTools, BulkActionBar } from "@/components/admin/BulkTools";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
 
@@ -47,6 +48,7 @@ const empty: any = {
 
 function Page() {
   const { data } = useSuspenseQuery(opts);
+  const selection = useBulkSelection(data.rows);
   const { data: locs } = useSuspenseQuery(locsOpts);
   const qc = useQueryClient();
   const upsert = useServerFn(upsertSeoAirport);
@@ -75,10 +77,14 @@ function Page() {
   return (
     <div className="p-6 space-y-4">
       <PageHeader title="Airports" description="UK airports with terminal, pickup and meet-and-greet information.">
+        <BulkTools entity="seo_airports" onChanged={() => qc.invalidateQueries({ queryKey: ["admin", "seo"] })} />
         <Button onClick={() => setForm({ ...empty })}><Plus className="size-4 mr-2" />New airport</Button>
       </PageHeader>
 
+      <BulkActionBar entity="seo_airports" ids={selection.selected} onClear={selection.clear} onChanged={() => qc.invalidateQueries({ queryKey: ["admin", "seo"] })} />
+
       <SeoTable
+        selection={selection}
         rows={data.rows}
         onEdit={r => setForm({ ...empty, ...r })}
         onDelete={remove}

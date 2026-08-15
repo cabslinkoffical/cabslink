@@ -103,7 +103,6 @@ const NAV: SidebarEntry[] = [
   {
     label: "System", icon: SettingsIcon, items: [
       { to: "/cabs-booking-pannel/settings", label: "Settings", icon: SettingsIcon },
-      { to: "/cabs-booking-pannel/bulk", label: "Bulk Import/Export", icon: UploadCloud },
       { to: "/cabs-booking-pannel/logs", label: "Activity Logs", icon: History },
     ],
   },

@@ -11,6 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { PageHeader, EmptyState } from "@/components/admin/ui";
+import { BulkTools } from "@/components/admin/BulkTools";
 import { Plus, Edit, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -81,6 +82,7 @@ function PoisPage() {
   return (
     <div className="p-6">
       <PageHeader title="Points of Interest" description="Curated sightseeing stops used by scenic route templates.">
+        <BulkTools entity="points_of_interest" onChanged={() => qc.invalidateQueries({ queryKey: ["admin", "pois"] })} />
         <Button onClick={() => setForm({ ...empty })}><Plus className="size-4 mr-2" />New POI</Button>
       </PageHeader>
 

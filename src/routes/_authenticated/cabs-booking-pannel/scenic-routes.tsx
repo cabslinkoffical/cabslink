@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PageHeader, EmptyState } from "@/components/admin/ui";
+import { BulkTools } from "@/components/admin/BulkTools";
 import { toast } from "sonner";
 import { Loader2, RefreshCw } from "lucide-react";
 
@@ -70,6 +71,7 @@ function ScenicRoutesPage() {
         title="Scenic Route Templates"
         description="Curated multi-stop templates. Activate first, then publish to expose the tour on the public site."
       />
+      <BulkTools entity="scenic_route_templates" onChanged={() => qc.invalidateQueries({ queryKey: ["admin", "scenic-templates"] })} />
       {data.templates.length === 0 ? (
         <EmptyState title="No templates yet" />
       ) : (
