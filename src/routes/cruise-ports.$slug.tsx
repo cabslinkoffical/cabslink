@@ -3,14 +3,13 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { DestinationPage, buildBreadcrumbs } from "@/components/site/DestinationPage";
 import { buildAutoHead } from "@/lib/seo/auto-seo";
 import { destinationQueryOptions, HUBS } from "@/lib/hub-config";
-const KEY = "cruise-ports" as const;
 export const Route = createFileRoute("/cruise-ports/$slug")({
   head: ({ loaderData }: { loaderData?: import("@/components/site/DestinationPage").LoadedDestination }) =>
     buildAutoHead(loaderData),
-  loader: ({ params, context }: { params: { slug: string }, context: any }) => context.queryClient.ensureQueryData(destinationQueryOptions(KEY, params.slug)),
+  loader: ({ params, context }: { params: { slug: string }, context: any }) => context.queryClient.ensureQueryData(destinationQueryOptions(("cruise-ports" as const), params.slug)),
   component: () => {
     const { slug } = Route.useParams();
-    const { data } = useSuspenseQuery(destinationQueryOptions(KEY, slug));
-    return <DestinationPage data={data} breadcrumbs={buildBreadcrumbs(data.destination, `/${KEY}`, HUBS[KEY].title)} />;
+    const { data } = useSuspenseQuery(destinationQueryOptions(("cruise-ports" as const), slug));
+    return <DestinationPage data={data} breadcrumbs={buildBreadcrumbs(data.destination, `/${("cruise-ports" as const)}`, HUBS[("cruise-ports" as const)].title)} />;
   },
 });
