@@ -53,7 +53,12 @@ export function loadGoogleMaps(): Promise<void> {
   const channel = import.meta.env["VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID"] as string | undefined;
 
   loadPromise = new Promise<void>((resolve, reject) => {
+    window.gm_authFailure = () => {
+      authFailed = true;
+      authListeners.forEach((cb) => cb());
+    };
     window.__cabslinkMapsReady = () => resolve();
+
     const script = document.createElement("script");
     const params = new URLSearchParams({
       key,
