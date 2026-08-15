@@ -191,6 +191,65 @@ export const setVehicleClassHeroImage = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+/**
+ * Every vehicle class carries its pricing on an internal pricing record
+ * (legacy `vehicles` row). Admins never manage these separately — this
+ * ensures one exists for the class and returns its id.
+ */
+export const ensureClassPricingRecord = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ classId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: cls, error: clsErr } = await supabaseAdmin
+      .from("vehicle_classes")
+      .select("id, name, hero_image, passengers, large_luggage, hand_luggage, display_order, active, pricing_vehicle_id")
+      .eq("id", data.classId)
+      .maybeSingle();
+    if (clsErr) throw new Error(clsErr.message);
+    if (!cls) throw new Error("Vehicle class not found");
+    const c = cls as any;
+    if (c.pricing_vehicle_id) {
+      await supabaseAdmin
+        .from("vehicles")
+        .update({
+          name: c.name,
+          image_url: c.hero_image ?? "class",
+          passengers: c.passengers ?? 3,
+          luggage: c.large_luggage ?? 2,
+          hand_luggage: c.hand_luggage ?? 0,
+          active: c.active ?? true,
+          display_order: c.display_order ?? 0,
+        })
+        .eq("id", c.pricing_vehicle_id);
+      return { vehicleId: c.pricing_vehicle_id as string, created: false };
+    }
+    const { data: created, error } = await supabaseAdmin
+      .from("vehicles")
+      .insert({
+        name: c.name,
+        category: "Executive",
+        image_url: c.hero_image ?? "class",
+        description: "",
+        passengers: c.passengers ?? 3,
+        luggage: c.large_luggage ?? 2,
+        hand_luggage: c.hand_luggage ?? 0,
+        display_order: c.display_order ?? 0,
+        active: c.active ?? true,
+      })
+      .select("id")
+      .single();
+    if (error) throw new Error(error.message);
+    const vehicleId = (created as any).id as string;
+    const { error: linkErr } = await supabaseAdmin
+      .from("vehicle_classes")
+      .update({ pricing_vehicle_id: vehicleId })
+      .eq("id", c.id);
+    if (linkErr) throw new Error(linkErr.message);
+    return { vehicleId, created: true };
+  });
+
 export const deleteVehicleClass = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))

@@ -15,6 +15,7 @@ import { StatusBadge } from "@/components/admin/ui";
 import { emptyPricing, ExtrasEditor, HeroImageUploader, MileageEditor, type PricingForm } from "@/components/admin/PricingEditors";
 import {
   listVehicleClassesAdmin, upsertVehicleClass, upsertVehicleModel, deleteVehicleModel,
+  ensureClassPricingRecord,
 } from "@/lib/vehicle-classes.functions";
 import { listVehiclesAdmin } from "@/lib/admin.functions";
 import { adminListPricingProfiles, adminSavePricingProfile } from "@/lib/pricing.functions";
@@ -79,6 +80,7 @@ function EditorPage() {
   const { data: availRules } = useSuspenseQuery(availOpts);
 
   const saveClassFn = useServerFn(upsertVehicleClass);
+  const ensurePricingFn = useServerFn(ensureClassPricingRecord);
   const savePricingFn = useServerFn(adminSavePricingProfile);
   const saveHourlyFn = useServerFn(adminSaveHourlyRate);
   const saveModelFn = useServerFn(upsertVehicleModel);
@@ -149,7 +151,15 @@ function EditorPage() {
       const res: any = await saveClassFn({ data: payload });
       const classId = res?.id ?? id;
 
-      if (linkedVehicleId) {
+      // Pricing lives on the class; provision/refresh its internal pricing record.
+      let pricingId: string | null = linkedVehicleId;
+      if (!form.quote_on_request && classId) {
+        const ensured: any = await ensurePricingFn({ data: { classId } });
+        pricingId = ensured?.vehicleId ?? null;
+      }
+
+      if (pricingId) {
+        const linkedVehicleId = pricingId;
         if (pricing.tiers.length) {
           await savePricingFn({
             data: {
@@ -334,24 +344,14 @@ function EditorPage() {
 
           {/* ---------------- PRICING ---------------- */}
           <TabsContent value="pricing" className="space-y-6 max-w-4xl">
-            <Section title="How this class is priced">
-              <div className="space-y-4">
-                <Toggle label="Quote on request only (no automatic price)" checked={!!form.quote_on_request}
-                  onChange={(v) => setForm((f: any) => ({ ...f, quote_on_request: v }))} />
-                <Field label="Priced from vehicle record" hint="All vehicles in this class inherit this pricing.">
-                  <Select value={linkedVehicleId ?? "none"}
-                    onValueChange={(v) => setForm((f: any) => ({ ...f, pricing_vehicle_id: v === "none" ? null : v }))}>
-                    <SelectTrigger className="max-w-sm"><SelectValue placeholder="Select a vehicle" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">Not priced (quote on request)</SelectItem>
-                      {(vehicles as any[]).map((v) => <SelectItem key={v.id} value={v.id}>{v.name}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </Field>
-              </div>
+            <Section title="How this class is priced" hint="Prices live on the class itself — there is no separate vehicle record to link.">
+              <Toggle label="Quote on request only (no automatic price)" checked={!!form.quote_on_request}
+                onChange={(v) => setForm((f: any) => ({ ...f, quote_on_request: v }))} />
             </Section>
 
-            {linkedVehicleId ? (
+            {form.quote_on_request ? (
+              <p className="text-sm text-muted-foreground">This class is quote-on-request, so automatic pricing is switched off.</p>
+            ) : (
               <>
                 <Section title="Distance pricing">
                   <MileageEditor pricing={pricing} setPricing={setPricing} />
@@ -368,8 +368,6 @@ function EditorPage() {
                   </div>
                 </Section>
               </>
-            ) : (
-              <p className="text-sm text-muted-foreground">Link a vehicle record above to set distance, extras and hourly pricing.</p>
             )}
           </TabsContent>
 
