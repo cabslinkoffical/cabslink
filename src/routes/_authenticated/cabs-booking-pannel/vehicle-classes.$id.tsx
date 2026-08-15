@@ -419,8 +419,8 @@ function EditorPage() {
               )}
             </Section>
           </TabsContent>
-        </Tabs>
-      </div>
+        </div>
+      </Tabs>
     </div>
   );
 }
