@@ -28,23 +28,25 @@ export type OverviewState = {
   live: boolean;
 };
 
-/** Rebuild the four Overview bands from the stored consecutive mileage tiers. */
+/** Rebuild the Overview mileage bands from the stored consecutive mileage tiers. */
 export function overviewFromScheme(data: any): OverviewState {
   const tiers: any[] = data.base.tiers ?? [];
-  const band = (name: string) => tiers.find((t) => t.tierName?.toLowerCase().startsWith(name));
-  const short = band("short");
-  const medium = band("medium");
-  const long = band("long");
   const paid = tiers.filter((t) => Number(t.costPerMile) > 0);
+  const bands: Band[] = paid.map((t, i) => ({
+    name: String(t.tierName ?? `Band ${i + 1}`),
+    miles: Number(t.miles ?? 0),
+    perMile: Number(t.costPerMile ?? 0),
+  }));
   return {
     cityFixedPrice: data.base.cityFixedPrice,
     cityIncludedMiles: data.base.cityIncludedMiles || Number(tiers.find((t) => Number(t.costPerMile) === 0)?.miles ?? 0),
-    shortMiles: Number(short?.miles ?? paid[0]?.miles ?? 0),
-    shortPerMile: Number(short?.costPerMile ?? paid[0]?.costPerMile ?? 0),
-    mediumMiles: Number(medium?.miles ?? paid[1]?.miles ?? 0),
-    mediumPerMile: Number(medium?.costPerMile ?? paid[1]?.costPerMile ?? 0),
-    longMiles: Number(long?.miles ?? paid[2]?.miles ?? 0),
-    longPerMile: Number(long?.costPerMile ?? paid[2]?.costPerMile ?? 0),
+    bands: bands.length
+      ? bands
+      : [
+          { name: "Short transfer", miles: 0, perMile: 0 },
+          { name: "Medium transfer", miles: 0, perMile: 0 },
+          { name: "Long transfer", miles: 0, perMile: 0 },
+        ],
     additionalPickupFee: data.base.additionalPickupFee,
     waitingFeePerMinute: data.base.waitingFeePerMinute,
     airportPickupFee: data.base.airportPickupFee,
