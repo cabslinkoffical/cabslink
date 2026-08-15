@@ -84,7 +84,7 @@ function VehicleClassesPage() {
                     navigate({ to: "/cabs-booking-pannel/vehicle-classes/$id", params: { id: c.id } });
                   }
                 }}
-                className="rounded-2xl border border-border bg-card p-4 flex items-center gap-4 cursor-pointer hover:border-primary/40 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="admin-card p-4 flex items-center gap-4 cursor-pointer hover:border-primary/40 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <div className="w-24 h-16 rounded-lg bg-[var(--surface)] flex items-center justify-center overflow-hidden shrink-0">
                   {img ? <img src={img} alt={`${c.name} vehicle class`} className="w-full h-full object-contain p-1" />

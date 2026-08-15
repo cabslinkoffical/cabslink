@@ -194,7 +194,7 @@ function TemplateCard({
       : "Not calculated";
 
   return (
-    <div className="rounded-xl border border-border bg-card p-4">
+    <div className="admin-card p-4">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div className="min-w-0">
           <div className="flex items-center gap-2 flex-wrap">

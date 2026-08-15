@@ -48,7 +48,7 @@ function UsersPage() {
         <p className="text-sm text-muted-foreground">{users.length} users · {users.filter((u: any) => u.roles.includes("admin")).length} admins</p>
       </div>
 
-      <div className="rounded-xl border border-border bg-card overflow-hidden">
+      <div className="admin-card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">

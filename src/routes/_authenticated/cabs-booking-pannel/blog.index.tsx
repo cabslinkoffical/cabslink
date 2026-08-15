@@ -57,7 +57,7 @@ function AdminBlogList() {
           No posts yet. Click <strong>New post</strong> to start writing.
         </div>
       ) : (
-        <div className="rounded-xl border border-border bg-card overflow-hidden">
+        <div className="admin-card overflow-hidden">
           <table className="w-full text-sm">
             <thead className="bg-muted/40 text-xs uppercase tracking-wide text-muted-foreground">
               <tr>

@@ -53,7 +53,7 @@ function MessagesPage() {
         <p className="text-sm text-muted-foreground">{data.length} total · {data.filter((m: any) => m.status === "new").length} unread</p>
       </div>
 
-      <div className="rounded-xl border border-border bg-card divide-y divide-border">
+      <div className="admin-card divide-y divide-border">
         {data.length === 0 && <div className="p-8 text-center text-muted-foreground">No messages yet.</div>}
         {data.map((m: any) => (
           <div
