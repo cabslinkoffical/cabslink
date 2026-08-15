@@ -145,10 +145,12 @@ export function AdminMapEditor({
   useEffect(() => {
     if (mode !== "route" || !origin?.placeId || !destination?.placeId) {
       setRoute(null);
+      onRoute?.(null);
       return;
     }
     if (origin.placeId === destination.placeId) {
       setRoute(null);
+      onRoute?.(null);
       setError("Start and end must be different locations.");
       return;
     }
@@ -162,6 +164,7 @@ export function AdminMapEditor({
           minutes: Number(r.durationMinutes),
           path: r.encodedPolyline ? decodePolyline(r.encodedPolyline) : [],
         });
+        onRoute?.({ miles: Number(r.distanceMiles), minutes: Number(r.durationMinutes) });
       })
       .catch((e: any) => !cancelled && setError(e?.message ?? "Route preview unavailable."))
       .finally(() => !cancelled && setBusy(false));
