@@ -3,6 +3,7 @@ import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { ChevronRight, MapPin, Percent, Route as RouteIcon, SlidersHorizontal } from "lucide-react";
 import { PageHeader, EmptyState } from "@/components/admin/ui";
 import { listPricingSchemes } from "@/lib/pricing-schemes.functions";
+import { ViewToggle, useViewMode } from "@/components/admin/ViewToggle";
 
 const opts = queryOptions({
   queryKey: ["admin", "pricing-schemes"],
@@ -33,6 +34,7 @@ function Count({ icon: Icon, n, label }: { icon: any; n: number; label: string }
 function PricingSchemesPage() {
   const { data } = useSuspenseQuery(opts);
   const schemes = data ?? [];
+  const [view, setView] = useViewMode("pricing-schemes");
 
   return (
     <div className="space-y-6">
@@ -40,6 +42,7 @@ function PricingSchemesPage() {
         title="Pricing Schemes"
         description="One scheme per vehicle class. Everything that prices a journey for that class lives inside it."
       >
+        <ViewToggle mode={view} onChange={setView} />
         <Link
             to="/cabs-booking-pannel/pricing-preview"
             className="inline-flex items-center gap-2 rounded-full border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-4 py-2 text-sm font-semibold text-[var(--gold)] transition hover:bg-[var(--gold)]/20"
@@ -51,15 +54,17 @@ function PricingSchemesPage() {
       {schemes.length === 0 ? (
         <EmptyState title="No vehicle classes yet" hint="Create a vehicle class first, then price it here." />
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className={view === "grid" ? "grid gap-4 md:grid-cols-2 xl:grid-cols-3" : "grid gap-2"}>
           {schemes.map((s: any) => (
             <Link
               key={s.id}
               to="/cabs-booking-pannel/pricing-schemes/$id"
               params={{ id: s.id }}
-              className="group rounded-2xl border border-border bg-card p-5 shadow-sm transition hover:border-primary/50 hover:shadow-md"
+              className={`group rounded-2xl border border-border bg-card shadow-sm transition hover:border-primary/50 hover:shadow-md ${
+                view === "grid" ? "block p-5" : "flex flex-wrap items-center gap-4 px-5 py-3"
+              }`}
             >
-              <div className="flex items-start gap-3">
+              <div className={view === "grid" ? "flex items-start gap-3" : "flex min-w-[14rem] flex-1 items-center gap-3"}>
                 <div className="min-w-0">
                   <h3 className="truncate font-display text-base font-semibold">{s.name}</h3>
                   <p className="mt-0.5 text-xs text-muted-foreground">
@@ -72,14 +77,14 @@ function PricingSchemesPage() {
                 <ChevronRight className="size-4 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-primary" />
               </div>
 
-              <div className="mt-4 flex flex-wrap items-center gap-4">
+              <div className={view === "grid" ? "mt-4 flex flex-wrap items-center gap-4" : "flex flex-wrap items-center gap-4"}>
                 <Count icon={RouteIcon} n={s.counts.routes} label="Fixed routes" />
                 <Count icon={MapPin} n={s.counts.locations} label="Location rules" />
                 <Count icon={Percent} n={s.counts.discounts} label="Discounts" />
                 <Count icon={SlidersHorizontal} n={s.counts.modifiers} label="Modifiers" />
               </div>
 
-              <div className="mt-4 flex flex-wrap gap-2">
+              <div className={view === "grid" ? "mt-4 flex flex-wrap gap-2" : "flex flex-wrap gap-2"}>
                 <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${s.pricingLive ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"}`}>
                   {s.pricingLive ? "Pricing live" : "Pricing off"}
                 </span>
