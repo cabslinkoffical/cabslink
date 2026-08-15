@@ -14,6 +14,8 @@ import { getBulkEntity, type BulkEntity, type BulkField } from "@/lib/bulk-entit
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type SupabaseLike = any;
 
+export type BulkCell = string | number | boolean | null | string[] | number[];
+
 async function assertAdmin(context: { supabase: unknown; userId: string }) {
   const sb = context.supabase as SupabaseLike;
   const { data, error } = await sb.rpc("has_role", { _user_id: context.userId, _role: "admin" });
@@ -80,10 +82,10 @@ export type BulkValidation = {
   counts: { new: number; update: number; invalid: number };
   rows: BulkRowReport[];
   /** Cleaned payloads for the rows that passed, in file order. */
-  payloads: Record<string, unknown>[];
+  payloads: Record<string, BulkCell>[];
 };
 
-function labelOf(entity: BulkEntity, row: Record<string, unknown>): string {
+function labelOf(entity: BulkEntity, row: Record<string, BulkCell>): string {
   const key = entity.naturalKey ?? entity.fields[1]?.name ?? "id";
   return String(row[key] ?? row["id"] ?? "(row)");
 }
@@ -108,11 +110,11 @@ async function buildValidation(
 
   const seen = new Set<string>();
   const reports: BulkRowReport[] = [];
-  const payloads: Record<string, unknown>[] = [];
+  const payloads: Record<string, BulkCell>[] = [];
 
   rows.forEach((raw, index) => {
     const errors: string[] = [];
-    const payload: Record<string, unknown> = {};
+    const payload: Record<string, BulkCell> = {};
     for (const field of entity.fields) {
       const has = Object.prototype.hasOwnProperty.call(raw, field.name);
       const cell = has ? raw[field.name] : undefined;
@@ -123,7 +125,7 @@ async function buildValidation(
       }
       const out = coerce(field, cell);
       if ("error" in out) errors.push(out.error);
-      else payload[field.name] = out.value;
+      else payload[field.name] = out.value as BulkCell;
     }
 
     let status: BulkRowReport["status"] = "new";
@@ -171,7 +173,7 @@ const rowsInput = z.object({
 export const exportBulkEntity = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => z.object({ entity: z.string().min(1) }).parse(i))
-  .handler(async ({ data, context }): Promise<{ entity: string; rows: Record<string, unknown>[] }> => {
+  .handler(async ({ data, context }): Promise<{ entity: string; rows: Record<string, BulkCell>[] }> => {
     await assertAdmin(context);
     const entity = getBulkEntity(data.entity);
     if (!entity) throw new Error("Unknown entity");
@@ -185,10 +187,10 @@ export const exportBulkEntity = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     // Flatten arrays to comma lists so the CSV round-trips through the importer.
     const flat = (rows ?? []).map((r: Record<string, unknown>) => {
-      const out: Record<string, unknown> = {};
+      const out: Record<string, BulkCell> = {};
       for (const f of entity.fields) {
         const v = r[f.name];
-        out[f.name] = Array.isArray(v) ? v.join(",") : (v ?? "");
+        out[f.name] = Array.isArray(v) ? v.join(",") : ((v ?? "") as BulkCell);
       }
       return out;
     });
