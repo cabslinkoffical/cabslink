@@ -62,7 +62,7 @@ export function overviewFromScheme(data: any): OverviewState {
 
 const num = (v: string) => (v === "" ? 0 : Number(v));
 
-export function SchemeOverviewTab({ scheme, data }: { scheme: Scheme; data: any }) {
+export function SchemeOverviewTab({ scheme, data, section = "base" }: { scheme: Scheme; data: any; section?: "base" | "time" }) {
   const qc = useQueryClient();
   const save = useServerFn(saveSchemeOverview);
   const [form, setForm] = useState<OverviewState>(() => overviewFromScheme(data));
@@ -101,6 +101,7 @@ export function SchemeOverviewTab({ scheme, data }: { scheme: Scheme; data: any 
         </div>
       )}
 
+      {section === "base" && (<>
       <SchemeSection title="Base pricing" hint="The fixed city fare plus consecutive per-mile bands. Distances are statute miles.">
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Scheme name">
@@ -140,6 +141,9 @@ export function SchemeOverviewTab({ scheme, data }: { scheme: Scheme; data: any 
         </p>
       </SchemeSection>
 
+      </>)}
+
+      {section === "time" && (
       <SchemeSection title="Time pricing" hint="Used by hourly hire and as-directed bookings for this class.">
         <div className="grid gap-4 sm:grid-cols-3">
           <Field label="Price per hour (£)">
@@ -161,6 +165,9 @@ export function SchemeOverviewTab({ scheme, data }: { scheme: Scheme; data: any 
         </p>
       </SchemeSection>
 
+      )}
+
+      {section === "base" && (
       <SchemeSection title="Core fees" hint="Applied by the same server engine that prices public quotes.">
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Additional pickup fee (£ per extra pickup)">
@@ -183,9 +190,11 @@ export function SchemeOverviewTab({ scheme, data }: { scheme: Scheme; data: any 
         </div>
       </SchemeSection>
 
+      )}
+
       <div className="flex justify-end">
         <Button onClick={() => mutation.mutate()} disabled={mutation.isPending || !scheme.pricingVehicleId}>
-          {mutation.isPending && <Loader2 className="mr-1.5 size-4 animate-spin" />}Save base pricing
+          {mutation.isPending && <Loader2 className="mr-1.5 size-4 animate-spin" />}Save {section === "base" ? "base pricing" : "time pricing"}
         </Button>
       </div>
     </div>
