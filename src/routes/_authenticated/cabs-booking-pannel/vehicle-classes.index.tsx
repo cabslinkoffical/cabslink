@@ -116,14 +116,18 @@ function VehicleClassesPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
-                  <Button
-                    size="sm"
-                    variant={c.active ? "outline" : "default"}
-                    disabled={activeMut.isPending}
-                    onClick={() => activeMut.mutate({ id: c.id, active: !c.active })}
-                  >
-                    {c.active ? <><PowerOff className="size-4 mr-1.5" />Deactivate</> : <><Power className="size-4 mr-1.5" />Activate</>}
-                  </Button>
+                  <div className="flex items-center gap-2 px-2">
+                    <Switch
+                      id={`active-${c.id}`}
+                      checked={c.active}
+                      disabled={activeMut.isPending}
+                      onCheckedChange={(checked) => activeMut.mutate({ id: c.id, active: checked })}
+                      aria-label={`Toggle ${c.name} active state`}
+                    />
+                    <label htmlFor={`active-${c.id}`} className="text-xs font-medium cursor-pointer select-none">
+                      {c.active ? "Active" : "Inactive"}
+                    </label>
+                  </div>
                   <Button asChild size="sm" variant="outline">
                     <Link to="/cabs-booking-pannel/vehicle-classes/$id" params={{ id: c.id }}>
                       <Pencil className="size-4 mr-1.5" />Edit
