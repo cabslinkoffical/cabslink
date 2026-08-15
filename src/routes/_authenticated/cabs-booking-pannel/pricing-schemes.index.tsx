@@ -39,15 +39,14 @@ function PricingSchemesPage() {
       <PageHeader
         title="Pricing Schemes"
         description="One scheme per vehicle class. Everything that prices a journey for that class lives inside it."
-        actions={
-          <Link
+      >
+        <Link
             to="/cabs-booking-pannel/pricing-preview"
             className="inline-flex items-center gap-2 rounded-full border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-4 py-2 text-sm font-semibold text-[var(--gold)] transition hover:bg-[var(--gold)]/20"
           >
-            Price a test journey
-          </Link>
-        }
-      />
+          Price a test journey
+        </Link>
+      </PageHeader>
 
       {schemes.length === 0 ? (
         <EmptyState title="No vehicle classes yet" hint="Create a vehicle class first, then price it here." />
