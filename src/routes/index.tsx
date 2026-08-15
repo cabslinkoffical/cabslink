@@ -811,6 +811,64 @@ function HomePage() {
         </div>
       </section>
 
+      {/* DRIVE WITH US — driver / fleet partner recruitment */}
+      <section className="section-y bg-white">
+        <div className="container-x">
+          <div className="relative overflow-hidden rounded-[28px] navy-scene p-8 md:p-12">
+            <div aria-hidden className="absolute -right-16 -top-16 size-64 rounded-full bg-[var(--gold)]/10 blur-3xl" />
+            <div className="relative grid lg:grid-cols-12 gap-10 items-center">
+              <div className="lg:col-span-7">
+                <p className="text-[11px] uppercase tracking-[0.24em] font-semibold text-[var(--gold)]">— Drive With Cabslink</p>
+                <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold text-white leading-[1.05]">
+                  Are you a driver or <span className="text-[var(--gold)]">fleet partner?</span>
+                </h2>
+                <p className="mt-5 text-white/75 leading-relaxed max-w-xl">
+                  Join our UK network and get steady premium work from a respected brand —
+                  vetted passengers, corporate accounts and real 24/7 dispatch support.
+                  Apply in two minutes and our team will be in touch within 24 hours.
+                </p>
+                <ul className="mt-8 grid gap-4 sm:grid-cols-2 max-w-xl">
+                  {[
+                    { i: Car, t: "Steady premium work" },
+                    { i: Users, t: "Vetted passengers" },
+                    { i: Briefcase, t: "Corporate & event jobs" },
+                    { i: Headset, t: "24/7 driver support" },
+                  ].map((b) => (
+                    <li key={b.t} className="flex items-center gap-3">
+                      <span className="grid size-10 place-items-center rounded-xl bg-[var(--gold)]/15 border border-[var(--gold)]/30 text-[var(--gold)]">
+                        <b.i className="size-4" />
+                      </span>
+                      <span className="text-sm font-semibold text-white">{b.t}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="lg:col-span-5">
+                <div className="rounded-[24px] bg-white/[0.06] border border-white/10 p-7 md:p-8 backdrop-blur-sm">
+                  <div className="flex items-center gap-2 text-[var(--gold)]">
+                    <BadgeCheck className="size-5" />
+                    <span className="text-xs font-semibold uppercase tracking-[0.18em]">Now onboarding</span>
+                  </div>
+                  <p className="mt-4 font-display text-2xl font-semibold text-white leading-tight">
+                    Apply to join as a driver or licensed operator
+                  </p>
+                  <ul className="mt-5 space-y-2 text-sm text-white/70">
+                    {["Valid UK PCO / private hire licence", "Modern, clean vehicle", "Right to work in the UK"].map((r) => (
+                      <li key={r} className="flex gap-2"><CheckCircle2 className="size-4 shrink-0 text-[var(--gold)]" /> {r}</li>
+                    ))}
+                  </ul>
+                  <Button asChild variant="gold" className="mt-7 w-full rounded-full">
+                    <Link to="/drive-with-us">Apply to drive with us <ArrowRight className="size-4" /></Link>
+                  </Button>
+                  <p className="mt-3 text-center text-[11px] text-white/50">Takes ~2 minutes · Reply within 24 hours</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
 
       {/* FAQ */}
       <section className="section-y bg-white">
