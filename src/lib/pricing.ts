@@ -91,6 +91,27 @@ export type QuoteResult = {
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
+/**
+ * THE single tax rule for the whole app. `exclusive` adds tax on top of a net
+ * amount; `inclusive` treats the amount as already containing tax and only
+ * derives the split. Used by the transfer engine, the hourly funnel and the
+ * extras gross-up so nothing is ever taxed twice or left untaxed.
+ */
+export function applyTaxTo(
+  amount: number,
+  taxRate = 0,
+  taxMode: TaxMode = "exclusive",
+): { net: number; tax: number; gross: number } {
+  const rate = Math.max(0, Math.min(1, Number(taxRate) || 0));
+  const value = round2(Math.max(0, Number(amount) || 0));
+  if (taxMode === "inclusive") {
+    const net = round2(value / (1 + rate));
+    return { net, tax: round2(value - net), gross: value };
+  }
+  const tax = round2(value * rate);
+  return { net: value, tax, gross: round2(value + tax) };
+}
+
 function timeInWindow(time: string, from: string | null, to: string | null) {
   if (!from || !to) return false;
   const [h, m] = time.split(":").map(Number);
