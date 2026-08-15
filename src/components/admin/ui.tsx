@@ -27,15 +27,16 @@ export function StatCard({
 
 export function PageHeader({ title, description, children }: { title: string; description?: string; children?: React.ReactNode }) {
   return (
-    <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
-      <div>
-        <h1 className="text-2xl md:text-[1.7rem] font-display font-semibold tracking-tight admin-title-rule">{title}</h1>
-        {description && <p className="text-sm text-muted-foreground mt-2.5">{description}</p>}
+    <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div className="min-w-0">
+        <h1 className="text-xl md:text-[1.7rem] font-display font-semibold tracking-tight admin-title-rule">{title}</h1>
+        {description && <p className="text-sm text-muted-foreground mt-2.5 max-w-2xl">{description}</p>}
       </div>
-      {children && <div className="flex items-center gap-2">{children}</div>}
+      {children && <div className="flex flex-wrap items-center gap-2 shrink-0">{children}</div>}
     </div>
   );
 }
+
 
 export function StatusBadge({ status, color }: { status: string; color?: string }) {
   const gold = "bg-surface-gold text-gold-ink ring-1 ring-gold/30";
