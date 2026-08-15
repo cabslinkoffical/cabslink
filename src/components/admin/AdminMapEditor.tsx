@@ -80,8 +80,12 @@ export function AdminMapEditor({
   // ---- Load the shared Maps JS API instance --------------------------------
   useEffect(() => {
     let cancelled = false;
+    let unsubscribe: (() => void) | undefined;
     import("@/lib/maps-loader")
-      .then((m) => m.loadGoogleMaps())
+      .then((m) => {
+        unsubscribe = m.onMapsAuthFailure(() => !cancelled && setError(m.MAPS_AUTH_HELP));
+        return m.loadGoogleMaps();
+      })
       .then(() => {
         if (cancelled || !divRef.current) return;
         mapRef.current = new window.google.maps.Map(divRef.current, {
@@ -97,8 +101,10 @@ export function AdminMapEditor({
       .catch((e: Error) => !cancelled && setError(e.message));
     return () => {
       cancelled = true;
+      unsubscribe?.();
     };
   }, []);
+
 
   // ---- Resolve Place IDs → coordinates ------------------------------------
   const ids = useMemo(
