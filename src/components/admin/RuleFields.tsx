@@ -113,20 +113,22 @@ export function GeoFields({
           <option value="destination">Destination only</option>
         </select>
       </div>
-      <div className="col-span-2">
-        <AdminMapEditor
-          mode="radius"
-          origin={form.place_id ? { placeId: form.place_id, label: form.place_label ?? "" } : null}
-          radiusMiles={form.radius_miles ?? null}
-          onClearOrigin={() => setForm({ ...form, place_id: null, place_label: null, lat: null, lng: null })}
-          onCoords={(c) => {
-            if (c.origin && (form.lat !== c.origin.lat || form.lng !== c.origin.lng)) {
-              setForm({ ...form, lat: c.origin.lat, lng: c.origin.lng });
-            }
-          }}
-          height={260}
-        />
-      </div>
+      {showMap && (
+        <div className="col-span-2">
+          <AdminMapEditor
+            mode="radius"
+            origin={form.place_id ? { placeId: form.place_id, label: form.place_label ?? "" } : null}
+            radiusMiles={form.radius_miles ?? null}
+            onClearOrigin={() => setForm({ ...form, place_id: null, place_label: null, lat: null, lng: null })}
+            onCoords={(c) => {
+              if (c.origin && (form.lat !== c.origin.lat || form.lng !== c.origin.lng)) {
+                setForm({ ...form, lat: c.origin.lat, lng: c.origin.lng });
+              }
+            }}
+            height={260}
+          />
+        </div>
+      )}
     </>
   );
 }
