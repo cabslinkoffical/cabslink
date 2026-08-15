@@ -712,24 +712,26 @@ export function computeVehicleQuote(args: {
   ];
 
   const couponDiscount = round2(Math.max(0, args.couponDiscount ?? 0));
-  const connectingPercent = Math.max(0, Math.min(100, Number((profile as any).connecting_job_discount_percent ?? 0) || 0));
-  const connectingDiscount = args.isConnectingJob === true && connectingPercent > 0
-    ? round2(((resolved?.fixedPrice ?? fixedPrice ?? 0) === 0 ? 0 : 0)) // sized below against the subtotal
-    : 0;
   const discountLines = [
     ...(resolved?.discountLines ?? []),
     ...(couponDiscount > 0
       ? [{ label: args.couponCode ? `Promo code ${args.couponCode}` : "Promo code", amount: couponDiscount }]
       : []),
-    ...(connectingDiscount > 0 ? [{ label: "Connecting job discount", amount: connectingDiscount }] : []),
   ];
+
+  // Connecting-job discount is a negative percentage modifier so the engine
+  // sizes it against the pre-discount subtotal — no separate arithmetic path.
+  const connectingPercent = Math.max(0, Math.min(100, Number((profile as any).connecting_job_discount_percent ?? 0) || 0));
+  const schemeModifiers = args.isConnectingJob === true && connectingPercent > 0
+    ? [{ label: "Connecting job discount", type: "percent" as const, value: -connectingPercent }]
+    : [];
 
   const engine = runPricingEngine(engineProfile, {
     distanceMiles,
     viaStops,
     pickupTime: pickupTime || undefined,
     surcharges: surchargeLines,
-    modifiers: resolved?.modifiers ?? [],
+    modifiers: [...(resolved?.modifiers ?? []), ...schemeModifiers],
     discountAmount,
     discountLines,
     taxRate: settings.taxRate,
