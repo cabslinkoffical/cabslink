@@ -149,7 +149,15 @@ function EditorPage() {
       const res: any = await saveClassFn({ data: payload });
       const classId = res?.id ?? id;
 
-      if (linkedVehicleId) {
+      // Pricing lives on the class; provision/refresh its internal pricing record.
+      let pricingId: string | null = linkedVehicleId;
+      if (!form.quote_on_request && classId) {
+        const ensured: any = await ensurePricingFn({ data: { classId } });
+        pricingId = ensured?.vehicleId ?? null;
+      }
+
+      if (pricingId) {
+        const linkedVehicleId = pricingId;
         if (pricing.tiers.length) {
           await savePricingFn({
             data: {
