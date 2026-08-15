@@ -75,31 +75,31 @@ function Dashboard() {
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 rounded-xl border border-border bg-card p-5">
-          <h2 className="font-semibold mb-1">Bookings — last 30 days</h2>
+        <div className="lg:col-span-2 admin-card p-5">
+          <h2 className="font-display font-semibold mb-1">Bookings — last 30 days</h2>
           <p className="text-xs text-muted-foreground mb-4">Daily booking creation trend.</p>
           <div className="h-64">
             <ResponsiveContainer>
               <LineChart data={seriesDaily}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(14,24,44,0.10)" />
                 <XAxis dataKey="date" tick={{ fontSize: 10 }} tickFormatter={d => d.slice(5)} />
                 <YAxis allowDecimals={false} tick={{ fontSize: 10 }} />
-                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }} />
-                <Line type="monotone" dataKey="count" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
+                <Tooltip contentStyle={{ background: "#ffffff", border: "1px solid rgba(14,24,44,0.12)", borderRadius: 12, boxShadow: "0 18px 40px -24px rgba(14,24,44,0.45)", fontSize: 12 }} />
+                <Line type="monotone" dataKey="count" stroke="#deae25" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        <div className="rounded-xl border border-border bg-card p-5">
-          <h2 className="font-semibold mb-4">Booking Status</h2>
+        <div className="admin-card p-5">
+          <h2 className="font-display font-semibold mb-4">Booking Status</h2>
           <div className="h-64">
             <ResponsiveContainer>
               <PieChart>
                 <Pie data={pieData} dataKey="value" nameKey="name" innerRadius={50} outerRadius={85} paddingAngle={2}>
                   {pieData.map((d, i) => <Cell key={i} fill={d.fill} />)}
                 </Pie>
-                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }} />
+                <Tooltip contentStyle={{ background: "#ffffff", border: "1px solid rgba(14,24,44,0.12)", borderRadius: 12, boxShadow: "0 18px 40px -24px rgba(14,24,44,0.45)", fontSize: 12 }} />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -116,31 +116,31 @@ function Dashboard() {
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">
-        <div className="rounded-xl border border-border bg-card p-5">
-          <h2 className="font-semibold mb-4">Revenue — last 6 months</h2>
+        <div className="admin-card p-5">
+          <h2 className="font-display font-semibold mb-4">Revenue — last 6 months</h2>
           <div className="h-56">
             <ResponsiveContainer>
               <BarChart data={monthly}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(14,24,44,0.10)" />
                 <XAxis dataKey="month" tick={{ fontSize: 11 }} />
                 <YAxis tick={{ fontSize: 11 }} />
-                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }} formatter={(v: any) => fmt(Number(v))} />
-                <Bar dataKey="revenue" radius={[6, 6, 0, 0]} fill="hsl(var(--primary))" />
+                <Tooltip contentStyle={{ background: "#ffffff", border: "1px solid rgba(14,24,44,0.12)", borderRadius: 12, boxShadow: "0 18px 40px -24px rgba(14,24,44,0.45)", fontSize: 12 }} formatter={(v: any) => fmt(Number(v))} />
+                <Bar dataKey="revenue" radius={[6, 6, 0, 0]} fill="#0e182c" />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        <div className="rounded-xl border border-border bg-card p-5">
-          <h2 className="font-semibold mb-4">Most Booked Vehicles</h2>
+        <div className="admin-card p-5">
+          <h2 className="font-display font-semibold mb-4">Most Booked Vehicles</h2>
           <div className="h-56">
             <ResponsiveContainer>
               <BarChart data={byVehicle.slice(0, 6)} layout="vertical" margin={{ left: 80 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(14,24,44,0.10)" />
                 <XAxis type="number" allowDecimals={false} tick={{ fontSize: 10 }} />
                 <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={140} />
-                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }} />
-                <Bar dataKey="count" radius={[0, 6, 6, 0]} fill="hsl(var(--primary))" />
+                <Tooltip contentStyle={{ background: "#ffffff", border: "1px solid rgba(14,24,44,0.12)", borderRadius: 12, boxShadow: "0 18px 40px -24px rgba(14,24,44,0.45)", fontSize: 12 }} />
+                <Bar dataKey="count" radius={[0, 6, 6, 0]} fill="#0e182c" />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -150,9 +150,9 @@ function Dashboard() {
       <div className="grid lg:grid-cols-3 gap-6">
         <ListCard title="Top Pickup Locations" icon={MapPin} items={topPickups} />
         <ListCard title="Top Dropoff Locations" icon={MapPin} items={topDropoffs} />
-        <div className="rounded-xl border border-border bg-card p-5">
+        <div className="admin-card p-5">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="font-semibold">Recent Bookings</h2>
+            <h2 className="font-display font-semibold">Recent Bookings</h2>
             <Link to="/cabs-booking-pannel/bookings" className="text-xs text-primary hover:underline">View all →</Link>
           </div>
           <div className="divide-y divide-border">
@@ -175,8 +175,8 @@ function Dashboard() {
 
 function ListCard({ title, icon: Icon, items }: { title: string; icon: any; items: { name: string; count: number }[] }) {
   return (
-    <div className="rounded-xl border border-border bg-card p-5">
-      <h2 className="font-semibold mb-3 flex items-center gap-2"><Icon className="size-4 text-primary" /> {title}</h2>
+    <div className="admin-card p-5">
+      <h2 className="font-display font-semibold mb-3 flex items-center gap-2"><Icon className="size-4 text-primary" /> {title}</h2>
       <div className="space-y-2">
         {items.length === 0 && <p className="text-sm text-muted-foreground">No data yet.</p>}
         {items.map(item => (
