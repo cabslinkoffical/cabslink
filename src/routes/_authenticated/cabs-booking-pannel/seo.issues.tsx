@@ -37,27 +37,43 @@ function SeoIssuesPage() {
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [running, setRunning] = useState(false);
-  const [stats, setStats] = useState<any>(null);
+  const [meta, setMeta] = useState<any>(null);
+  const [pagesScanned, setPagesScanned] = useState<number | null>(null);
 
   async function refresh() {
     setLoading(true);
-    try { setRows((await list()).rows); }
-    catch (e: any) { toast.error(e.message); }
+    try {
+      const res: any = await list();
+      setRows(res.rows);
+      setMeta(res);
+      return res;
+    } catch (e: any) { toast.error(e.message); return null; }
     finally { setLoading(false); }
   }
-  useEffect(() => { refresh(); }, []);
 
-  async function onAudit() {
+  async function onAudit(silent = false) {
     setRunning(true);
     try {
       const res = await runAudit({ data: { similarityThreshold: 0.8 } });
-      setStats(res);
-      toast.success(`Audit complete — ${res.total} issues (${res.blockers} blockers).`);
+      setPagesScanned(res.pages);
+      if (!silent) toast.success(`Audit complete — ${res.total} issues (${res.blockers} blockers).`);
       await refresh();
       router.invalidate();
     } catch (e: any) { toast.error(e.message); }
     finally { setRunning(false); }
   }
+
+  // Always show current data: if the stored report predates the latest content
+  // edit (or was never generated), re-run the audit automatically on open.
+  useEffect(() => {
+    let done = false;
+    (async () => {
+      const res = await refresh();
+      if (done) return;
+      if (res?.stale) await onAudit(true);
+    })();
+    return () => { done = true; };
+  }, []);
 
   async function onResolve(id: string) {
     try { await resolve({ data: { id } }); toast.success("Marked resolved."); refresh(); }
@@ -71,19 +87,28 @@ function SeoIssuesPage() {
           <h1 className="text-2xl font-semibold">SEO Content Quality</h1>
           <p className="text-sm text-muted-foreground">Duplicate content, thin pages, orphans, and metadata issues.</p>
         </div>
-        <Button onClick={onAudit} disabled={running}>
+        <Button onClick={() => onAudit(false)} disabled={running}>
           {running ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Auditing…</> : "Run full audit"}
         </Button>
       </div>
 
-      {stats && (
-        <Card><CardContent className="py-4 text-sm flex gap-6">
-          <span><b>{stats.pages}</b> pages scanned</span>
-          <span className="text-destructive"><b>{stats.blockers}</b> blockers</span>
-          <span className="text-warning"><b>{stats.warnings}</b> warnings</span>
-          <span className="text-info"><b>{stats.info}</b> info</span>
-        </CardContent></Card>
-      )}
+      <Card><CardContent className="py-4 text-sm flex flex-wrap gap-x-6 gap-y-2 items-center">
+        {pagesScanned !== null && <span><b>{pagesScanned}</b> pages scanned</span>}
+        <span className="text-destructive"><b>{meta?.counts?.blockers ?? 0}</b> blockers</span>
+        <span className="text-warning"><b>{meta?.counts?.warnings ?? 0}</b> warnings</span>
+        <span className="text-info"><b>{meta?.counts?.info ?? 0}</b> info</span>
+        <span className="text-muted-foreground">
+          {running ? "Refreshing report…"
+            : meta?.lastAuditAt
+              ? `Last audited ${new Date(meta.lastAuditAt).toLocaleString()}`
+              : "Never audited"}
+        </span>
+        {!running && meta?.stale && (
+          <span className="inline-flex items-center gap-1 rounded-md bg-warning/10 px-2 py-0.5 text-xs font-medium text-warning">
+            <AlertTriangle className="h-3 w-3" /> Content changed since last audit
+          </span>
+        )}
+      </CardContent></Card>
 
       <Card>
         <CardHeader><CardTitle>Open issues ({rows.length})</CardTitle></CardHeader>

@@ -123,14 +123,54 @@ export const listSeoIssues = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
-    const { data, error } = await context.supabase
+    const supabase = context.supabase;
+    const { data, error } = await supabase
       .from("seo_publication_issues")
       .select("*, seo_pages:page_id(path, seo_title, publication_status)")
       .eq("resolved", false)
       .order("severity", { ascending: true })
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
-    return { rows: data ?? [] };
+    const rows = data ?? [];
+
+    // Freshness: newest issue timestamp = last audit run; compare against the
+    // most recent edit across pages and sections so stale reports are obvious.
+    const { data: lastIssue } = await supabase
+      .from("seo_publication_issues")
+      .select("created_at")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const { data: lastPage } = await supabase
+      .from("seo_pages")
+      .select("updated_at")
+      .order("updated_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const { data: lastSection } = await supabase
+      .from("seo_page_sections")
+      .select("updated_at")
+      .order("updated_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    const lastAuditAt: string | null = lastIssue?.created_at ?? null;
+    const contentTimes = [lastPage?.updated_at, lastSection?.updated_at].filter(Boolean) as string[];
+    const contentChangedAt = contentTimes.length
+      ? contentTimes.sort().slice(-1)[0]
+      : null;
+    const stale =
+      !lastAuditAt ||
+      (!!contentChangedAt && new Date(contentChangedAt).getTime() > new Date(lastAuditAt).getTime());
+
+    const counts = {
+      blockers: rows.filter((r: any) => r.severity === "blocker").length,
+      warnings: rows.filter((r: any) => r.severity === "warning").length,
+      info: rows.filter((r: any) => r.severity === "info").length,
+      total: rows.length,
+    };
+
+    return { rows, lastAuditAt, contentChangedAt, stale, counts };
   });
 
 export const resolveSeoIssue = createServerFn({ method: "POST" })
