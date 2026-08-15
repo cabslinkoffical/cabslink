@@ -569,7 +569,7 @@ function BookPage() {
                       meetGreetFee={meetGreetFee}
                       returnFee={returnFee}
                       meetGreetFeePence={meetGreetFeePence}
-                      returnJourneyFeePence={returnJourneyFeePence}
+                      returnJourneyFeePence={0}
                       policyCfg={policyCfg}
                       onBack={() => setStep("details")}
                       onNext={() => { track("booking_step", { step: "payment", value: grandTotal / 100, currency: "GBP" }); setStep("payment"); }}
