@@ -70,11 +70,13 @@ export function GeoFields({
   form,
   setForm,
   radiusRequired = false,
+  showMap = true,
 }: {
   id: string;
   form: any;
   setForm: (f: any) => void;
   radiusRequired?: boolean;
+  showMap?: boolean;
 }) {
   return (
     <>
