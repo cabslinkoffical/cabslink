@@ -35,25 +35,25 @@ function DirectoryColumn({
 
   return (
     <div>
-      <h3 className="text-[11px] font-bold uppercase tracking-[0.28em] text-[var(--gold-ink)]">
+      <h3 className="text-[10px] font-bold uppercase tracking-[0.24em] text-[var(--gold-ink)]">
         {title}
       </h3>
-      <ul className="mt-5">
+      <ul className="mt-3">
         {items.map((it) => (
           <li key={it.key} className="border-b border-[var(--navy)]/10">
-            <Link to={it.to} className="group flex items-center justify-between gap-4 py-4">
+            <Link to={it.to} className="group flex items-center justify-between gap-3 py-2.5">
               <span className="min-w-0">
-                <span className="block truncate font-display text-lg font-semibold text-[var(--navy)] transition-colors group-hover:text-[var(--gold-ink)]">
+                <span className="block truncate font-display text-[15px] font-semibold sm:text-base text-[var(--navy)] transition-colors group-hover:text-[var(--gold-ink)]">
                   {it.label}
                 </span>
                 {it.meta ? (
-                  <span className="mt-0.5 block text-[11px] uppercase tracking-[0.14em] text-[var(--navy)]/45">
+                  <span className="mt-0.5 block truncate text-[10px] uppercase tracking-[0.12em] text-[var(--navy)]/45">
                     {it.meta}
                   </span>
                 ) : null}
               </span>
-              <span className="grid size-9 shrink-0 place-items-center rounded-full border border-[var(--navy)]/15 text-[var(--navy)]/70 transition-all group-hover:border-[var(--gold)] group-hover:bg-[var(--gold)] group-hover:text-[var(--gold-foreground)]">
-                <ArrowRight className="size-4 -rotate-45 transition-transform group-hover:rotate-0" />
+              <span className="grid size-8 shrink-0 place-items-center rounded-full border border-[var(--navy)]/15 text-[var(--navy)]/70 transition-all group-hover:border-[var(--gold)] group-hover:bg-[var(--gold)] group-hover:text-[var(--gold-foreground)]">
+                <ArrowRight className="size-3.5 -rotate-45 transition-transform group-hover:rotate-0" />
               </span>
             </Link>
           </li>
@@ -61,7 +61,7 @@ function DirectoryColumn({
       </ul>
       <Link
         to={ctaTo}
-        className="mt-5 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-[var(--navy)] transition-all hover:gap-3 hover:text-[var(--gold-ink)]"
+        className="mt-3 inline-flex min-h-11 items-center gap-2 text-[13px] font-semibold text-[var(--navy)] transition-all hover:gap-3 hover:text-[var(--gold-ink)]"
       >
         {ctaLabel} <ArrowRight className="size-4" />
       </Link>
@@ -131,20 +131,20 @@ export function LocationsDirectory({
   }
 
   return (
-    <section className="section-y bg-background">
+    <section className="bg-background py-12 md:py-16">
       <div className="container-x">
         <div className="max-w-2xl">
           <p className="eyebrow-gold text-[11px]">{eyebrow}</p>
-          <h2 className="mt-3 font-display text-4xl font-bold leading-[1.05] text-[var(--navy)] md:text-5xl">
+          <h2 className="mt-2.5 font-display text-3xl font-bold leading-[1.05] text-[var(--navy)] sm:text-4xl">
             {heading}
             <span className="text-[var(--gold-ink)]">{headingAccent}</span>
           </h2>
           {intro ? (
-            <p className="mt-4 leading-relaxed text-[var(--navy)]/65">{intro}</p>
+            <p className="mt-3 text-sm leading-relaxed text-[var(--navy)]/65">{intro}</p>
           ) : null}
         </div>
 
-        <div className="mt-10 grid gap-10 md:grid-cols-2 lg:grid-cols-3 lg:gap-x-14">
+        <div className="mt-7 grid gap-7 sm:grid-cols-2 sm:gap-x-8 lg:grid-cols-3 lg:gap-x-12">
           <DirectoryColumn
             title="Popular locations"
             items={locationItems}
