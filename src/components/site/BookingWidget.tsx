@@ -510,11 +510,11 @@ export function BookingWidget({
 
         {/* Add stop / add return pills — floating outside the white sheet */}
         <div className="flex flex-wrap items-center gap-2 mt-3 px-1">
-          <PillButton tone="light" icon={<Plus className="w-3 h-3" strokeWidth={3} />} onClick={() => setStops([...stops, { placeId: "", label: "" }])}>
+          <PillButton tone="white" icon={<Plus className="w-3 h-3" strokeWidth={3} />} onClick={() => setStops([...stops, { placeId: "", label: "" }])}>
             Add stop
           </PillButton>
           {!showReturn && (
-            <PillButton tone="light" icon={<Repeat className="w-3 h-3" strokeWidth={3} />} onClick={() => setShowReturn(true)}>
+            <PillButton tone="white" icon={<Repeat className="w-3 h-3" strokeWidth={3} />} onClick={() => setShowReturn(true)}>
               Add return
             </PillButton>
           )}
@@ -628,16 +628,18 @@ function StepperRow({
 }
 
 
-function PillButton({ onClick, children, icon, tone = "dark" }: { onClick: () => void; children: React.ReactNode; icon: React.ReactNode; tone?: "dark" | "light" }) {
+function PillButton({ onClick, children, icon, tone = "dark" }: { onClick: () => void; children: React.ReactNode; icon: React.ReactNode; tone?: "dark" | "light" | "white" }) {
+  const toneCls =
+    tone === "light"
+      ? "bg-[var(--navy)]/6 text-[var(--navy)] ring-1 ring-[var(--navy)]/12 hover:bg-[var(--navy)]/12"
+      : tone === "white"
+        ? "bg-white text-[var(--navy)] ring-1 ring-white/40 shadow-sm hover:bg-white/90"
+        : "bg-white/10 text-white hover:bg-white/20";
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`inline-flex min-h-9 items-center gap-2 px-3.5 py-2 rounded-full text-xs font-bold transition-all backdrop-blur ${
-        tone === "light"
-          ? "bg-[var(--navy)]/6 text-[var(--navy)] ring-1 ring-[var(--navy)]/12 hover:bg-[var(--navy)]/12"
-          : "bg-white/10 text-white hover:bg-white/20"
-      }`}
+      className={`inline-flex min-h-9 items-center gap-2 px-3.5 py-2 rounded-full text-xs font-bold transition-all backdrop-blur ${toneCls}`}
     >
       <span className="w-4 h-4 rounded-full bg-[var(--gold)]/25 text-[var(--gold)] flex items-center justify-center">
         {icon}
