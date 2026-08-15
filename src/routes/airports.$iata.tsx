@@ -93,7 +93,17 @@ export const Route = createFileRoute("/airports/$iata")({
 
 function AirportPage() {
   const data = Route.useLoaderData();
-  if (data.mode === "cms") return <SeoPageRenderer page={data.page} related={data.related} />;
+  const cmsAirportKey = Route.useParams().iata.toLowerCase();
+  if (data.mode === "cms") {
+    return (
+      <>
+        <SeoPageRenderer page={data.page} related={data.related} />
+        <div className="container-x pb-16">
+          <InternalLinkHub kind="airport" slug={cmsAirportKey} heading="Where to next" />
+        </div>
+      </>
+    );
+  }
 
   const { airport, airports } = data;
   const iata = (airport.meta?.iata as string | undefined) ?? "";
