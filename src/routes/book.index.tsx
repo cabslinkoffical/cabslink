@@ -1507,9 +1507,12 @@ function ExtrasStep(props: {
               checked={meetGreet} onChange={onMeetGreet}
             />
             <Toggle
-              label={returnJourneyFeePence > 0 ? `Add return journey (+£${(returnJourneyFeePence / 100).toFixed(2)})` : "Add return journey"}
+              label={baseRideTotal > 0
+                ? `Add return journey (+£${baseRideTotal.toFixed(2)} — same fare again)`
+                : "Add return journey"}
               checked={returnJourney} onChange={onReturnJourney}
             />
+
           </div>
         </div>
       </ExtrasCard>
