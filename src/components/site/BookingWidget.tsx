@@ -509,11 +509,7 @@ export function BookingWidget({
         )}
 
         {/* Add stop / add return pills — inside the same white sheet, closing it off */}
-        <div
-          className={`flex flex-wrap items-center gap-2 bg-white border-x border-t border-black/5 px-3 py-2.5 shadow-[var(--shadow-elegant)] ${
-            hasExtension ? "rounded-b-3xl @[980px]:rounded-b-[2rem] border-b" : "rounded-b-3xl @[980px]:rounded-b-[2rem] border-b"
-          }`}
-        >
+        <div className="flex flex-wrap items-center gap-2 bg-white border border-black/5 border-t-black/5 px-3 py-2.5 rounded-b-3xl @[980px]:rounded-b-[2rem] shadow-[var(--shadow-elegant)]">
           <PillButton tone="light" icon={<Plus className="w-3 h-3" strokeWidth={3} />} onClick={() => setStops([...stops, { placeId: "", label: "" }])}>
             Add stop
           </PillButton>
