@@ -181,7 +181,7 @@ function Page() {
       )}
 
       <Dialog open={!!form} onOpenChange={o => !o && setForm(null)}>
-        <DialogContent>
+        <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{form?.id ? "Edit pricing rule" : "New pricing rule"}</DialogTitle></DialogHeader>
           {form && (
             <div className="grid grid-cols-2 gap-3">
