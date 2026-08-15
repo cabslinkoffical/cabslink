@@ -81,14 +81,16 @@ const SCOPE_LABEL: Record<string, string> = {
   location: "Location",
 };
 
-const TABS: { key: string; label: string; hint: string; scopes: string[]; newScope: string }[] = [
-  { key: "all", label: "All rules", hint: "Every availability rule across the booking system.", scopes: [], newScope: "global" },
-  { key: "vehicle", label: "Vehicles", hint: "Turn a vehicle or a whole vehicle class off for chosen dates, days, times or areas.", scopes: ["vehicle", "vehicle_class"], newScope: "vehicle_class" },
-  { key: "route", label: "Routes", hint: "Close a specific route (from area → to area) for chosen dates, days or times. Matches both directions.", scopes: ["route"], newScope: "route" },
-  { key: "location", label: "Locations", hint: "Block pickups and/or drop-offs inside an area, optionally only on certain dates, days or times.", scopes: ["location"], newScope: "location" },
-  { key: "service", label: "Services", hint: "Close specific service types, e.g. airport transfers or tours.", scopes: ["service"], newScope: "service" },
-  { key: "global", label: "Global", hint: "Close the whole booking system for a date range, day or time window.", scopes: ["global"], newScope: "global" },
+const TABS: { key: string; label: string; hint: string; scopes: string[]; newScope: string | null; addLabel?: string }[] = [
+  { key: "all", label: "All rules", hint: "Every availability rule across the booking system. Use a tab to add a specific kind of rule.", scopes: [], newScope: null },
+  { key: "vehicle", label: "Vehicles", hint: "Turn a single vehicle off for chosen dates, days, times or areas.", scopes: ["vehicle"], newScope: "vehicle", addLabel: "Add vehicle rule" },
+  { key: "vehicle_class", label: "Vehicle classes", hint: "Turn a whole vehicle class off for chosen dates, days, times or areas.", scopes: ["vehicle_class"], newScope: "vehicle_class", addLabel: "Add class rule" },
+  { key: "route", label: "Routes", hint: "Close a specific route (from area → to area) for chosen dates, days or times. Matches both directions.", scopes: ["route"], newScope: "route", addLabel: "Add route rule" },
+  { key: "location", label: "Locations", hint: "Block pickups and/or drop-offs inside an area, optionally only on certain dates, days or times.", scopes: ["location"], newScope: "location", addLabel: "Add location rule" },
+  { key: "service", label: "Services", hint: "Close specific service types, e.g. airport transfers or tours.", scopes: ["service"], newScope: "service", addLabel: "Add service rule" },
+  { key: "global", label: "Global", hint: "Close the whole booking system for a date range, day or time window.", scopes: ["global"], newScope: "global", addLabel: "Add global rule" },
 ];
+
 
 function Page() {
   const { data } = useSuspenseQuery(opts);
