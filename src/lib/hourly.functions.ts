@@ -20,6 +20,9 @@ import {
 } from "@/lib/hourly-pricing.server";
 import { placeIdSchema, placeLabelSchema } from "@/lib/place-id";
 import { checkLimit } from "@/lib/rate-limit.server";
+import { loadExtrasCatalogue } from "@/lib/extras-pricing.server";
+import { extraPence, type ExtrasCatalogue } from "@/lib/extras-pricing";
+import { computeHourlyBase } from "@/lib/hourly-base";
 
 export type { HourlyCard };
 
@@ -43,13 +46,17 @@ export const calculateHourlyQuotes = createServerFn({ method: "POST" })
     }
 
     const client = publicClient();
-    const [profiles, rates, settings, ruleSets] = await Promise.all([
+    const [profiles, rates, settings, ruleSets, extrasCatalogue] = await Promise.all([
       loadActiveProfiles(client),
       loadActiveHourlyRates(),
       loadQuoteSettings(client),
       loadRuleSets(client).catch((err) => {
         console.error("loadRuleSets failed for hourly quote", err);
         return null;
+      }),
+      loadExtrasCatalogue(client).catch((err) => {
+        console.error("loadExtrasCatalogue failed for hourly quote", err);
+        return [] as ExtrasCatalogue;
       }),
     ]);
 
@@ -60,9 +67,7 @@ export const calculateHourlyQuotes = createServerFn({ method: "POST" })
       pickupCoord = coords.get(pickupPlaceId) ?? null;
     }
 
-    return {
-      hours: data.hours,
-      quotes: buildHourlyCards({
+    const cards = buildHourlyCards({
         profiles,
         rates,
         hours: data.hours,
@@ -73,7 +78,23 @@ export const calculateHourlyQuotes = createServerFn({ method: "POST" })
         time: data.pickupTime?.trim() || undefined,
         taxRate: settings.taxRate,
         taxMode: settings.taxMode,
-      }),
+    });
+
+    // Canonical Extras (with class overrides) — site_settings is a fallback.
+    const extrasByClass: Record<string, { childSeatPence: number; meetGreetPence: number }> = {};
+    for (const p of profiles) {
+      const cid = p.vehicle.class_id;
+      if (!cid || extrasByClass[cid]) continue;
+      extrasByClass[cid] = {
+        childSeatPence: extraPence(extrasCatalogue, "child_seat", cid, settings.childSeatFeePence),
+        meetGreetPence: extraPence(extrasCatalogue, "meet_greet", cid, settings.meetGreetFeePence),
+      };
+    }
+
+    return {
+      hours: data.hours,
+      quotes: cards,
+      extrasByClass,
       childSeatFeePence: settings.childSeatFeePence,
       meetGreetFeePence: settings.meetGreetFeePence,
       currencySymbol: settings.currencySymbol,
@@ -174,7 +195,7 @@ export const createHourlyBooking = createServerFn({ method: "POST" })
 
     // --- Authoritative recompute --------------------------------------
     const client = publicClient();
-    const [profiles, rates, settings, ruleSets, coords] = await Promise.all([
+    const [profiles, rates, settings, ruleSets, coords, extrasCatalogue] = await Promise.all([
       loadActiveProfiles(client),
       loadActiveHourlyRates(),
       loadQuoteSettings(client),
@@ -183,6 +204,7 @@ export const createHourlyBooking = createServerFn({ method: "POST" })
         return null;
       }),
       loadJourneyCoords(client, [data.pickupPlaceId]),
+      loadExtrasCatalogue(client).catch(() => [] as ExtrasCatalogue),
     ]);
     const profile = profiles.find((p) => p.vehicle.id === data.vehicleId);
     const rate = rates.get(data.vehicleId);
@@ -201,9 +223,18 @@ export const createHourlyBooking = createServerFn({ method: "POST" })
     const chargedHours = Math.max(data.hours, minHours);
     const perHour = Math.max(0, Number(rate.price_per_hour) || 0);
     const childSeatCount = Math.max(0, data.child_seat_count ?? 0);
-    const childSeatFee = round2((settings.childSeatFeePence * childSeatCount) / 100);
-    const meetGreetFee = data.meet_greet ? round2(settings.meetGreetFeePence / 100) : 0;
-    const base = round2(perHour * chargedHours * qty);
+    const classId = profile.vehicle.class_id;
+    const childSeatPence = extraPence(extrasCatalogue, "child_seat", classId, settings.childSeatFeePence);
+    const meetGreetPence = extraPence(extrasCatalogue, "meet_greet", classId, settings.meetGreetFeePence);
+    const childSeatFee = round2((childSeatPence * childSeatCount) / 100);
+    const meetGreetFee = data.meet_greet ? round2(meetGreetPence / 100) : 0;
+    const baseCalc = computeHourlyBase({
+      perHour,
+      chargedHours,
+      dailyPrice: rate.daily_price,
+      includedHoursPerDay: rate.included_hours_per_day,
+    });
+    const base = round2(baseCalc.total * qty);
 
     let ruledTotal = base;
     let adjustments: Array<{ label: string; amount: number }> = [];
@@ -279,6 +310,10 @@ export const createHourlyBooking = createServerFn({ method: "POST" })
         hours_requested: data.hours,
         hours_charged: chargedHours,
         price_per_hour: perHour,
+        price_basis: baseCalc.basis,
+        daily_price: rate.daily_price === null || rate.daily_price === undefined ? null : Number(rate.daily_price),
+        billed_days: baseCalc.days,
+        billed_hours: baseCalc.hours,
         vehicle_count: qty,
         base_total: base,
         rule_adjustments: adjustments,

@@ -37,6 +37,9 @@ import {
 import { placeIdSchema, placeLabelSchema } from "@/lib/place-id";
 import { checkLimit } from "@/lib/rate-limit.server";
 import { RouteTimeoutError, RouteNotFoundError, RouteUnavailableError } from "@/lib/route-distance.server";
+import { loadExtrasCatalogue } from "@/lib/extras-pricing.server";
+import { extraPence, type ExtrasCatalogue } from "@/lib/extras-pricing";
+
 
 // -------------------------------------------------------------------
 // Shared: authoritative quote computation (server-only, Place-ID input)
@@ -66,12 +69,14 @@ type AuthoritativeQuote = {
   ruleSets: RuleSets;
   pickupCoord: Coord | null;
   destinationCoord: Coord | null;
+  /** Canonical admin Extras catalogue (source of truth for add-on prices). */
+  extrasCatalogue: ExtrasCatalogue;
   input: AuthoritativeInput;
 };
 
 async function computeAuthoritative(inp: AuthoritativeInput): Promise<AuthoritativeQuote> {
   const client = publicClient();
-  const [distance, profiles, areaSurcharges, fixed, settings, ruleSets, coords] = await Promise.all([
+  const [distance, profiles, areaSurcharges, fixed, settings, ruleSets, coords, extrasCatalogue] = await Promise.all([
     realDistanceMiles(inp.pickupPlaceId, inp.destinationPlaceId, inp.stops.map((s) => s.placeId)),
     loadActiveProfiles(client),
     loadAreaSurcharges(client, inp.pickupLabel, inp.destinationLabel, {
@@ -86,6 +91,10 @@ async function computeAuthoritative(inp: AuthoritativeInput): Promise<Authoritat
       return EMPTY_RULE_SETS;
     }),
     loadJourneyCoords(client, [inp.pickupPlaceId, inp.destinationPlaceId]),
+    loadExtrasCatalogue(client).catch((err) => {
+      console.error("loadExtrasCatalogue failed, falling back to legacy extra fees", err);
+      return [] as ExtrasCatalogue;
+    }),
   ]);
 
   const fixedByVehicle = new Map<string, number>();
@@ -105,9 +114,11 @@ async function computeAuthoritative(inp: AuthoritativeInput): Promise<Authoritat
     ruleSets,
     pickupCoord: coords.get(inp.pickupPlaceId) ?? null,
     destinationCoord: coords.get(inp.destinationPlaceId) ?? null,
+    extrasCatalogue,
     input: inp,
   };
 }
+
 
 /** Journey context for the rule matchers, per vehicle class. */
 function journeyContext(auth: AuthoritativeQuote, profile: LoadedProfile): JourneyContext {
@@ -339,13 +350,25 @@ export const calculateQuotes = createServerFn({ method: "POST" })
       .filter((c: QuoteCard) => !c.unavailable)
       .sort((a: QuoteCard, b: QuoteCard) => a.classDisplayOrder - b.classDisplayOrder || a.finalPrice - b.finalPrice);
 
+    // Per-class extras prices resolved from the canonical Extras catalogue
+    // (class overrides included). site_settings is only a legacy fallback.
+    const extrasByClass: Record<string, { childSeatPence: number; meetGreetPence: number }> = {};
+    for (const c of cards) {
+      extrasByClass[c.classId] = {
+        childSeatPence: extraPence(auth.extrasCatalogue, "child_seat", c.classId, auth.settings.childSeatFeePence),
+        meetGreetPence: extraPence(auth.extrasCatalogue, "meet_greet", c.classId, auth.settings.meetGreetFeePence),
+      };
+    }
+
     return {
       distanceMiles: auth.distanceMiles,
       durationMinutes: auth.durationMinutes,
       quotes: cards,
+      extrasByClass,
       childSeatFeePence: auth.settings.childSeatFeePence,
       meetGreetFeePence: auth.settings.meetGreetFeePence,
       returnJourneyFeePence: auth.settings.returnJourneyFeePence,
+
       // Tax config so the client shows exactly what the server will charge.
       tax: {
         rate: auth.settings.taxRate,
@@ -567,11 +590,17 @@ export const createBooking = createServerFn({ method: "POST" })
     const pricingSnapshot = q.snapshot;
     const pricingProfileIdSnapshot = q.profileId;
 
-    // Child seat fee — configurable per seat, added on top of the vehicle total.
+    // Extras come from the canonical admin Extras catalogue, resolved for this
+    // vehicle class (class-specific override wins). site_settings values are
+    // only used when no active canonical extra with that key exists.
+    const classId = profile.vehicle.class_id;
+    const childSeatPence = extraPence(auth.extrasCatalogue, "child_seat", classId, auth.settings.childSeatFeePence);
+    const meetGreetPence = extraPence(auth.extrasCatalogue, "meet_greet", classId, auth.settings.meetGreetFeePence);
     const childSeatCount = Math.max(0, data.child_seat_count ?? 0);
     const childSeatFee = childSeatCount > 0
-      ? Number(((auth.settings.childSeatFeePence * childSeatCount) / 100).toFixed(2))
+      ? Number(((childSeatPence * childSeatCount) / 100).toFixed(2))
       : 0;
+
 
     // ---------------------------------------------------------------
     // Multi-stop / scenic verification.
@@ -697,7 +726,7 @@ export const createBooking = createServerFn({ method: "POST" })
     // configuration as the fare, so nothing escapes VAT and nothing is taxed
     // twice. Added last so they apply to direct, scenic and multi-stop rides.
     const { applyTaxTo } = await import("@/lib/pricing");
-    const meetGreetFee = data.meet_greet ? auth.settings.meetGreetFeePence / 100 : 0;
+    const meetGreetFee = data.meet_greet ? meetGreetPence / 100 : 0;
     const extrasNet = Number((childSeatFee + meetGreetFee).toFixed(2));
     if (extrasNet > 0) {
       const extrasTaxed = applyTaxTo(extrasNet, auth.settings.taxRate, auth.settings.taxMode);
@@ -826,7 +855,13 @@ export const createBooking = createServerFn({ method: "POST" })
     // Coupon redemption — a single locking DB routine records the redemption
     // and bumps used_count atomically, so concurrent bookings can never push a
     // coupon past its usage limit (no read-modify-write race).
+    //
+    // A discounted booking must never survive a failed redemption, otherwise
+    // the coupon would be under-counted. If the routine errors or rejects, we
+    // roll the booking back and ask the customer to retry without the code.
     if (couponRow && couponDiscount > 0) {
+      let redeemed = false;
+      let redeemMessage = "That promo code could no longer be applied. Please book again without it.";
       try {
         const red: any = await supabaseAdmin.rpc("redeem_coupon" as any, {
           _coupon_id: couponRow.id,
@@ -834,14 +869,28 @@ export const createBooking = createServerFn({ method: "POST" })
           _email: data.email.trim().toLowerCase(),
           _amount: couponDiscount,
         } as any);
-        if (red.error) console.error("coupon redemption failed", red.error);
-        else if (red.data === false) {
+        if (red.error) {
+          console.error("coupon redemption failed", red.error);
+        } else if (red.data === false) {
           console.warn("coupon redemption rejected (limit reached or duplicate)", couponRow.code);
+          redeemMessage = "That promo code has reached its usage limit. Please book again without it.";
+        } else {
+          redeemed = true;
         }
       } catch (err) {
         console.error("coupon redemption failed", err);
       }
+
+      if (!redeemed) {
+        // Roll back the discounted booking so nothing is stored at a price the
+        // coupon rules didn't actually allow.
+        const undo = await supabaseAdmin.from("bookings").delete().eq("id", insertedId);
+        if (undo.error) console.error("failed to roll back unredeemed discounted booking", undo.error);
+        try { setResponseStatus(409); } catch {}
+        throw new Error(redeemMessage);
+      }
     }
+
 
 
     // Derive the deterministic confirmation token now that we have the id.
@@ -1140,7 +1189,7 @@ export const adminPreviewQuote = createServerFn({ method: "POST" })
       }
     }
 
-    const [profiles, areaSurcharges, fixed, settings, ruleSets, coords] = await Promise.all([
+    const [profiles, areaSurcharges, fixed, settings, ruleSets, coords, extrasCatalogue] = await Promise.all([
       loadActiveProfiles(client),
       loadAreaSurcharges(client, data.pickupLabel, data.destinationLabel, {
         pickupPlaceId: data.pickupPlaceId,
@@ -1150,7 +1199,9 @@ export const adminPreviewQuote = createServerFn({ method: "POST" })
       loadQuoteSettings(client),
       loadRuleSets(client),
       loadJourneyCoords(client, [data.pickupPlaceId, data.destinationPlaceId]),
+      loadExtrasCatalogue(client).catch(() => [] as ExtrasCatalogue),
     ]);
+
 
     const profile = profiles.find((p) => p.vehicle.id === data.vehicleId);
     if (!profile) {
@@ -1175,6 +1226,8 @@ export const adminPreviewQuote = createServerFn({ method: "POST" })
       ruleSets,
       pickupCoord: coords.get(data.pickupPlaceId) ?? null,
       destinationCoord: coords.get(data.destinationPlaceId) ?? null,
+      extrasCatalogue,
+
       input: {
         pickupPlaceId: data.pickupPlaceId,
         pickupLabel: data.pickupLabel,
