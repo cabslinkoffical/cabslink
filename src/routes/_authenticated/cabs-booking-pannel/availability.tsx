@@ -261,14 +261,11 @@ function Page() {
               <DayPicker selected={form.days_of_week ?? []} onToggle={toggleDay} />
             </div>
 
-            <div>
-              <Label htmlFor="av-priority">Priority</Label>
-              <Input id="av-priority" type="number" min="0" value={form.priority} onChange={(e) => setForm({ ...form, priority: Number(e.target.value) })} />
-            </div>
-            <div className="flex items-end gap-2 pb-1">
+            <div className="col-span-2 flex items-end gap-2 pb-1">
               <Switch id="av-active" checked={form.active} onCheckedChange={(v) => setForm({ ...form, active: v })} />
               <Label htmlFor="av-active">Active</Label>
             </div>
+
 
             <div className="col-span-2">
               <Label htmlFor="av-reason">Reason (shown to staff only)</Label>
