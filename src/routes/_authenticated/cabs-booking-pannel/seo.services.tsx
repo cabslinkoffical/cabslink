@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { PageHeader } from "@/components/admin/ui";
-import { SeoTable, PublishedPill useBulkSelection } from "@/components/admin/SeoTable";
+import { SeoTable, PublishedPill, useBulkSelection } from "@/components/admin/SeoTable";
 import { BulkTools, BulkActionBar } from "@/components/admin/BulkTools";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
