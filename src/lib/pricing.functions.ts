@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { getRequestIP, setResponseStatus } from "@tanstack/react-start/server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import { redeemCouponOrRollback } from "@/lib/coupon-redemption";
 import {
   ENGINE_VERSION,
   type PricingProfile,
@@ -860,36 +861,18 @@ export const createBooking = createServerFn({ method: "POST" })
     // the coupon would be under-counted. If the routine errors or rejects, we
     // roll the booking back and ask the customer to retry without the code.
     if (couponRow && couponDiscount > 0) {
-      let redeemed = false;
-      let redeemMessage = "That promo code could no longer be applied. Please book again without it.";
-      try {
-        const red: any = await supabaseAdmin.rpc("redeem_coupon" as any, {
-          _coupon_id: couponRow.id,
-          _booking_id: insertedId,
-          _email: data.email.trim().toLowerCase(),
-          _amount: couponDiscount,
-        } as any);
-        if (red.error) {
-          console.error("coupon redemption failed", red.error);
-        } else if (red.data === false) {
-          console.warn("coupon redemption rejected (limit reached or duplicate)", couponRow.code);
-          redeemMessage = "That promo code has reached its usage limit. Please book again without it.";
-        } else {
-          redeemed = true;
-        }
-      } catch (err) {
-        console.error("coupon redemption failed", err);
-      }
-
-      if (!redeemed) {
-        // Roll back the discounted booking so nothing is stored at a price the
-        // coupon rules didn't actually allow.
-        const undo = await supabaseAdmin.from("bookings").delete().eq("id", insertedId);
-        if (undo.error) console.error("failed to roll back unredeemed discounted booking", undo.error);
+      const outcome = await redeemCouponOrRollback(supabaseAdmin as any, {
+        couponId: couponRow.id,
+        bookingId: insertedId,
+        email: data.email,
+        discount: couponDiscount,
+      });
+      if (!outcome.ok) {
         try { setResponseStatus(409); } catch {}
-        throw new Error(redeemMessage);
+        throw new Error(outcome.message);
       }
     }
+
 
 
 
