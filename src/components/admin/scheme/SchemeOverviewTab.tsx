@@ -121,28 +121,40 @@ export function SchemeOverviewTab({ scheme, data, section = "base" }: { scheme: 
               onChange={(e) => set("cityIncludedMiles", num(e.target.value))} />
           </Field>
           <div className="hidden sm:block" />
-
-          <Field label="Short transfer — next miles">
-            <Input type="number" step="0.1" min="0" value={form.shortMiles} onChange={(e) => set("shortMiles", num(e.target.value))} />
-          </Field>
-          <Field label="Short transfer — £ per mile">
-            <Input type="number" step="0.01" min="0" value={form.shortPerMile} onChange={(e) => set("shortPerMile", num(e.target.value))} />
-          </Field>
-          <Field label="Medium transfer — next miles">
-            <Input type="number" step="0.1" min="0" value={form.mediumMiles} onChange={(e) => set("mediumMiles", num(e.target.value))} />
-          </Field>
-          <Field label="Medium transfer — £ per mile">
-            <Input type="number" step="0.01" min="0" value={form.mediumPerMile} onChange={(e) => set("mediumPerMile", num(e.target.value))} />
-          </Field>
-          <Field label="Long transfer — next miles" hint="Make this generous so long journeys never run out of bands.">
-            <Input type="number" step="0.1" min="0" value={form.longMiles} onChange={(e) => set("longMiles", num(e.target.value))} />
-          </Field>
-          <Field label="Long transfer — £ per mile">
-            <Input type="number" step="0.01" min="0" value={form.longPerMile} onChange={(e) => set("longPerMile", num(e.target.value))} />
-          </Field>
         </div>
+
+        <div className="mt-6 space-y-3">
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-medium">Mileage bands</p>
+            <Button type="button" variant="outline" size="sm" onClick={addBand}>
+              <Plus className="mr-1.5 size-4" /> Add band
+            </Button>
+          </div>
+
+          {form.bands.length === 0 && (
+            <p className="text-xs text-muted-foreground">No bands yet — add one to charge per mile beyond the included distance.</p>
+          )}
+
+          {form.bands.map((b, i) => (
+            <div key={i} className="grid gap-3 rounded-lg border border-border p-3 sm:grid-cols-[1fr_140px_140px_auto] sm:items-end">
+              <Field label={`Band ${i + 1} name`}>
+                <Input value={b.name} onChange={(e) => setBand(i, { name: e.target.value })} />
+              </Field>
+              <Field label="Next miles">
+                <Input type="number" step="0.1" min="0" value={b.miles} onChange={(e) => setBand(i, { miles: num(e.target.value) })} />
+              </Field>
+              <Field label="£ per mile">
+                <Input type="number" step="0.01" min="0" value={b.perMile} onChange={(e) => setBand(i, { perMile: num(e.target.value) })} />
+              </Field>
+              <Button type="button" variant="ghost" size="icon" aria-label={`Remove band ${i + 1}`} onClick={() => removeBand(i)}>
+                <Trash2 className="size-4" />
+              </Button>
+            </div>
+          ))}
+        </div>
+
         <p className="mt-3 text-xs text-muted-foreground tabular-nums">
-          Bands cover the first {coveredMiles.toFixed(1)} miles. Anything beyond that is not charged per mile — increase the long band if needed.
+          Bands cover the first {coveredMiles.toFixed(1)} miles. Anything beyond that is not charged per mile — add another band or extend the last one.
         </p>
       </SchemeSection>
 
