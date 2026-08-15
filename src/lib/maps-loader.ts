@@ -15,8 +15,31 @@ declare global {
   interface Window {
     google?: any;
     __cabslinkMapsReady?: () => void;
+    gm_authFailure?: () => void;
   }
 }
+
+/**
+ * Google rejects the key for the current page (referrer restriction, key
+ * disabled, billing off). Google paints its own grey "Something went wrong"
+ * panel over the map, so consumers subscribe here to show a useful message.
+ */
+let authFailed = false;
+const authListeners = new Set<() => void>();
+
+export function mapsAuthFailed() {
+  return authFailed;
+}
+
+export function onMapsAuthFailure(cb: () => void): () => void {
+  authListeners.add(cb);
+  if (authFailed) cb();
+  return () => authListeners.delete(cb);
+}
+
+export const MAPS_AUTH_HELP =
+  "Google rejected the Maps browser key for this address. In Google Cloud Console → Credentials, add these HTTP referrers to the key: https://*.lovable.app/*, https://*.lovableproject.com/*, https://cabslink.com/*, https://www.cabslink.com/* — and make sure Maps JavaScript API is enabled with billing active.";
+
 
 let loadPromise: Promise<void> | null = null;
 
