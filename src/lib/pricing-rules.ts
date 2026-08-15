@@ -633,7 +633,7 @@ export function validateCoupon(
 export type AvailabilityRule = {
   id: string;
   name: string;
-  rule_scope: "global" | "service" | "vehicle_class" | "vehicle";
+  rule_scope: "global" | "service" | "vehicle_class" | "vehicle" | "route" | "location";
   vehicle_class_id: string | null;
   vehicle_id: string | null;
   service_types: string[] | null;
@@ -647,18 +647,50 @@ export type AvailabilityRule = {
   lat: number | null;
   lng: number | null;
   radius_miles: number | null;
+  /** Route scope: the "to" side of the journey. */
+  to_place_id?: string | null;
+  to_lat?: number | null;
+  to_lng?: number | null;
+  to_radius_miles?: number | null;
   scope: GeoScope;
   reason: string | null;
+  /** Optional customer-facing explanation shown when the rule blocks a booking. */
+  customer_message?: string | null;
   priority: number;
   active: boolean;
 };
 
 const SPECIFICITY: Record<AvailabilityRule["rule_scope"], number> = {
-  vehicle: 4,
-  vehicle_class: 3,
+  vehicle: 5,
+  vehicle_class: 4,
+  route: 3,
   service: 2,
+  location: 2,
   global: 1,
 };
+
+/** Route rules match when one end sits in the "from" area and the other in the "to" area. */
+function routeMatches(r: AvailabilityRule, ctx: JourneyContext): boolean {
+  const from = { lat: r.lat, lng: r.lng, radius_miles: r.radius_miles, place_id: r.place_id };
+  const to = { lat: r.to_lat, lng: r.to_lng, radius_miles: r.to_radius_miles, place_id: r.to_place_id };
+  const hit = (
+    side: { lat?: number | null; lng?: number | null; radius_miles?: number | null; place_id?: string | null },
+    placeId: string | null | undefined,
+    coord: Coord | null | undefined,
+  ) => {
+    const hasGeo = (side.lat != null && side.lng != null && Number(side.radius_miles) > 0) || !!side.place_id;
+    if (!hasGeo) return true;
+    if (side.place_id && side.place_id === placeId) return true;
+    const centre = side.lat != null && side.lng != null ? { lat: Number(side.lat), lng: Number(side.lng) } : null;
+    return withinRadius(coord ?? null, centre, side.radius_miles ?? null);
+  };
+  const forward =
+    hit(from, ctx.pickupPlaceId, ctx.pickupCoord) && hit(to, ctx.destinationPlaceId, ctx.destinationCoord);
+  const reverse =
+    hit(from, ctx.destinationPlaceId, ctx.destinationCoord) && hit(to, ctx.pickupPlaceId, ctx.pickupCoord);
+  return forward || reverse;
+}
+
 
 function windowWidth(r: AvailabilityRule): number {
   const from = minutes(r.time_from);
