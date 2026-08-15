@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Loader2, Plus, Pencil, Trash2 } from "lucide-react";
 import { listExtrasAdmin, upsertExtra, deleteExtra, setExtraActive } from "@/lib/extras.functions";
 import { PageHeader, EmptyState } from "@/components/admin/ui";
+import { BulkTools } from "@/components/admin/BulkTools";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -123,6 +124,7 @@ function ExtrasPage() {
         title="Extras"
         description="Every bookable add-on lives here once. Pricing Schemes reference these records — they never redefine them."
       >
+        <BulkTools entity="extras" onChanged={() => qc.invalidateQueries({ queryKey: ["admin", "extras"] })} />
         <Button onClick={() => setForm({ ...blank })}><Plus className="size-4 mr-1" /> New extra</Button>
       </PageHeader>
 
