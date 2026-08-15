@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Loader2, Plus, Pencil, Trash2 } from "lucide-react";
 import { listExtrasAdmin, upsertExtra, deleteExtra, setExtraActive } from "@/lib/extras.functions";
 import { PageHeader, EmptyState } from "@/components/admin/ui";
+import { ViewToggle, useViewMode } from "@/components/admin/ViewToggle";
 import { BulkTools } from "@/components/admin/BulkTools";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -116,6 +117,7 @@ function ExtrasPage() {
   });
 
   const classNames = new Map(data.classes.map((c: any) => [c.id, c.name]));
+  const [view, setView] = useViewMode("extras");
   const canSave = !!form && form.name.trim().length > 1 && /^[a-z0-9_]+$/.test(form.key.trim());
 
   return (
@@ -124,6 +126,7 @@ function ExtrasPage() {
         title="Extras"
         description="Every bookable add-on lives here once. Pricing Schemes reference these records — they never redefine them."
       >
+        <ViewToggle mode={view} onChange={setView} />
         <BulkTools entity="extras" onChanged={() => qc.invalidateQueries({ queryKey: ["admin", "extras"] })} />
         <Button onClick={() => setForm({ ...blank })}><Plus className="size-4 mr-1" /> New extra</Button>
       </PageHeader>
@@ -131,10 +134,10 @@ function ExtrasPage() {
       {data.extras.length === 0 ? (
         <EmptyState title="No extras yet" hint="Create Child Seat, Meet & Greet or any other add-on." />
       ) : (
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        <div className={view === "grid" ? "grid gap-3 md:grid-cols-2 xl:grid-cols-3" : "grid gap-2"}>
           {data.extras.map((e: any) => (
-            <div key={e.id} className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-              <div className="flex items-start gap-3">
+            <div key={e.id} className={`rounded-2xl border border-border bg-card shadow-sm ${view === "grid" ? "p-5" : "flex flex-wrap items-center gap-4 px-5 py-3"}`}>
+              <div className={view === "grid" ? "flex items-start gap-3" : "flex min-w-[14rem] flex-1 items-center gap-3"}>
                 <div className="min-w-0">
                   <h3 className="font-display text-base font-semibold truncate">{e.name}</h3>
                   <p className="mt-0.5 font-mono text-[11px] text-muted-foreground">{e.key}</p>
@@ -146,22 +149,22 @@ function ExtrasPage() {
                   aria-label={`Toggle ${e.name}`}
                 />
               </div>
-              {e.description && <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">{e.description}</p>}
-              <p className="mt-3 text-sm font-semibold tabular-nums">
+              {e.description && view === "grid" && <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">{e.description}</p>}
+              <p className={view === "grid" ? "mt-3 text-sm font-semibold tabular-nums" : "text-sm font-semibold tabular-nums"}>
                 £{(e.price_pence / 100).toFixed(2)}{" "}
                 <span className="text-xs font-normal text-muted-foreground">{BASIS_LABEL[e.price_basis]}</span>
                 {e.price_basis === "per_unit" && (
                   <span className="text-xs font-normal text-muted-foreground"> · max {e.max_quantity}</span>
                 )}
               </p>
-              <p className="mt-2 text-xs text-muted-foreground">
+              <p className={view === "grid" ? "mt-2 text-xs text-muted-foreground" : "text-xs text-muted-foreground"}>
                 {e.applies_to_all_classes
                   ? "Applies to all vehicle classes"
                   : e.class_ids.length
                     ? `Classes: ${e.class_ids.map((c: string) => classNames.get(c) ?? "—").join(", ")}`
                     : "No vehicle classes selected"}
               </p>
-              <div className="mt-4 flex justify-end gap-1">
+              <div className={view === "grid" ? "mt-4 flex justify-end gap-1" : "flex gap-1"}>
                 <Button
                   size="icon" variant="ghost" aria-label="Edit"
                   onClick={() => setForm({
