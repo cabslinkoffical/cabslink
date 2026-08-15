@@ -6,6 +6,7 @@ import { Loader2, Plus, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { BulkTools } from "@/components/admin/BulkTools";
+import { ViewToggle, useViewMode } from "@/components/admin/ViewToggle";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -38,6 +39,7 @@ const empty: Draft = {
 export function SchemeLocationsTab({ classId, locations }: { classId: string; locations: any[] }) {
   const qc = useQueryClient();
   const [draft, setDraft] = useState<Draft>(empty);
+  const [view, setView] = useViewMode("scheme-locations", "list");
   const upsert = useServerFn(upsertSchemeLocation);
   const remove = useServerFn(deleteSchemeLocation);
 
@@ -166,11 +168,14 @@ export function SchemeLocationsTab({ classId, locations }: { classId: string; lo
           <div>
           <h3 className="font-display text-base font-semibold">Location pricing in this scheme</h3>
                     </div>
-          <BulkTools entity="location_pricing_rules" label="Bulk CSV" onChanged={invalidate} />
+          <div className="flex items-center gap-2">
+            <ViewToggle mode={view} onChange={setView} />
+            <BulkTools entity="location_pricing_rules" label="Bulk CSV" onChanged={invalidate} />
+          </div>
 </div>
         {locations.length === 0 ? (
           <p className="px-5 py-8 text-center text-sm text-muted-foreground">No location rules yet.</p>
-        ) : (
+        ) : view === "list" ? (
           <ul className="divide-y divide-border">
             {locations.map((l) => (
               <li key={l.id} className="flex flex-wrap items-center gap-3 px-5 py-3">
@@ -201,6 +206,39 @@ export function SchemeLocationsTab({ classId, locations }: { classId: string; lo
               </li>
             ))}
           </ul>
+        ) : (
+          <div className="grid gap-3 p-5 sm:grid-cols-2 xl:grid-cols-3">
+            {locations.map((l) => (
+              <button
+                key={l.id}
+                onClick={() => setDraft({
+                  id: l.id,
+                  name: l.name ?? "",
+                  place: l.place_id ? { placeId: l.place_id, label: l.place_label ?? l.name } : null,
+                  radius: Number(l.radius_miles ?? 5),
+                  scope: (l.scope ?? "either") as Scope,
+                  price: Number(l.price ?? 0),
+                  includedMiles: Number(l.included_distance_miles ?? 0),
+                  extraPerMile: Number(l.extra_per_mile ?? 0),
+                  priority: Number(l.priority ?? 100),
+                  notes: l.notes ?? "",
+                  active: !!l.active,
+                })}
+                className="rounded-xl border border-border bg-background p-4 text-left transition hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <p className="truncate text-sm font-medium">{l.name}</p>
+                  <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold ${l.active ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"}`}>
+                    {l.active ? "Active" : "Paused"}
+                  </span>
+                </div>
+                <p className="mt-2 font-display text-xl font-semibold tabular-nums">£{Number(l.price).toFixed(2)}</p>
+                <p className="mt-1 text-xs text-muted-foreground tabular-nums">
+                  {Number(l.radius_miles ?? 0)} mi · {l.scope} · priority {Number(l.priority ?? 100)}
+                </p>
+              </button>
+            ))}
+          </div>
         )}
       </div>
     </div>

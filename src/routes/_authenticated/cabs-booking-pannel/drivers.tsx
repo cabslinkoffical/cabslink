@@ -15,6 +15,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Plus, Edit, Trash2, Mail, Phone } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
+import { ViewToggle, useViewMode } from "@/components/admin/ViewToggle";
 import { PhoneInput } from "@/components/site/PhoneInput";
 
 const opts = queryOptions({ queryKey: ["admin", "drivers"], queryFn: () => listDrivers() });
@@ -42,6 +43,7 @@ function Page() {
   const upsert = useServerFn(upsertDriver);
   const del = useServerFn(deleteDriver);
   const [form, setForm] = useState<any>(null);
+  const [view, setView] = useViewMode("drivers", "grid");
 
   const save = useMutation({ mutationFn: (v: any) => upsert({ data: v }), onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin", "drivers"] }); toast.success("Saved"); setForm(null); }, onError: (e: any) => toast.error(e.message) });
   const remove = useMutation({ mutationFn: (id: string) => del({ data: { id } }), onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin", "drivers"] }); toast.success("Deleted"); }, onError: (e: any) => toast.error(e.message) });
@@ -49,14 +51,15 @@ function Page() {
   return (
     <div className="p-6 md:p-8 space-y-6">
       <PageHeader title="Drivers" description="Manage your driver roster, availability, and vehicle assignments.">
+        <ViewToggle mode={view} onChange={setView} />
         <Button onClick={() => setForm({ ...empty })}><Plus className="size-4 mr-1" /> Add driver</Button>
       </PageHeader>
 
       {drivers.length === 0 ? <EmptyState title="No drivers yet" action={<Button onClick={() => setForm({ ...empty })}><Plus className="size-4 mr-1" /> Add driver</Button>} /> : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className={view === "grid" ? "grid md:grid-cols-2 lg:grid-cols-3 gap-4" : "grid gap-3"}>
           {drivers.map((d: any) => (
-            <div key={d.id} className="border border-border rounded-xl bg-card p-4">
-              <div className="flex items-start gap-3">
+            <div key={d.id} className={`border border-border rounded-xl bg-card p-4 ${view === "list" ? "flex flex-wrap items-center gap-4" : ""}`}>
+              <div className="flex min-w-[220px] flex-1 items-start gap-3">
                 <Avatar className="size-12"><AvatarImage src={d.photo_url ?? undefined} /><AvatarFallback className="bg-primary text-primary-foreground">{d.full_name.split(" ").map((w: string) => w[0]).slice(0, 2).join("")}</AvatarFallback></Avatar>
                 <div className="min-w-0 flex-1">
                   <div className="font-semibold truncate">{d.full_name}</div>
@@ -64,10 +67,10 @@ function Page() {
                   <div className="text-xs text-muted-foreground truncate flex items-center gap-1"><Phone className="size-3" /> {d.phone ?? "—"}</div>
                 </div>
               </div>
-              <div className="flex gap-2 mt-3"><StatusBadge status={d.status} />{d.available ? <StatusBadge status="active" color="bg-success/12 text-success" /> : null}</div>
-              <div className="text-xs text-muted-foreground mt-2">Vehicle: <span className="text-foreground">{d.vehicle?.name ?? "—"}</span></div>
+              <div className={view === "list" ? "flex gap-2" : "flex gap-2 mt-3"}><StatusBadge status={d.status} />{d.available ? <StatusBadge status="active" color="bg-success/12 text-success" /> : null}</div>
+              <div className={`text-xs text-muted-foreground ${view === "list" ? "" : "mt-2"}`}>Vehicle: <span className="text-foreground">{d.vehicle?.name ?? "—"}</span></div>
               <div className="text-xs text-muted-foreground">License: <span className="text-foreground font-mono">{d.license_number ?? "—"}</span></div>
-              <div className="flex justify-end gap-1 mt-3 pt-3 border-t border-border">
+              <div className={view === "list" ? "flex justify-end gap-1" : "flex justify-end gap-1 mt-3 pt-3 border-t border-border"}>
                 <Button size="sm" variant="ghost" onClick={() => setForm({ ...empty, ...d })}><Edit className="size-3.5 mr-1" /> Edit</Button>
                 <AlertDialog>
                   <AlertDialogTrigger asChild><Button size="sm" variant="ghost" className="text-destructive"><Trash2 className="size-3.5 mr-1" /> Delete</Button></AlertDialogTrigger>
