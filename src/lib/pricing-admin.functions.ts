@@ -244,6 +244,16 @@ export const upsertAvailabilityRule = createServerFn({ method: "POST" })
       reason: data.reason || null,
       customer_message: data.customer_message || null,
     });
+    if (payload.to_place_id) {
+      const { resolveCoords } = await import("@/lib/place-coords.server");
+      const map = await resolveCoords(context.supabase as any, [payload.to_place_id]);
+      const c = map.get(payload.to_place_id);
+      payload.to_lat = c?.lat ?? null;
+      payload.to_lng = c?.lng ?? null;
+    } else {
+      payload.to_lat = null;
+      payload.to_lng = null;
+    }
     if (payload.id) {
       const { id, ...patch } = payload;
       const { error } = await context.supabase.from("availability_rules").update(patch).eq("id", id);
