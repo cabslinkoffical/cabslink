@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { submitDriverApplication } from "@/lib/driver-application.functions";
+import { useCaptcha } from "@/components/site/Captcha";
 import { PhoneInput } from "@/components/site/PhoneInput";
 
 export const Route = createFileRoute("/drive-with-us")({
@@ -39,6 +40,7 @@ function DrivePage() {
   const [done, setDone] = useState(false);
   const [phone, setPhone] = useState("");
   const submit = useServerFn(submitDriverApplication);
+  const captcha = useCaptcha("driver-application");
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -47,15 +49,18 @@ function DrivePage() {
     const data = Object.fromEntries(fd);
     const parsed = schema.safeParse(data);
     if (!parsed.success) { toast.error("Please fill out all fields correctly."); return; }
+    if (!captcha.ready) { toast.error("Please complete the security check below."); return; }
     setLoading(true);
     try {
-      await submit({ data: { ...parsed.data, website: (fd.get("website") ?? "").toString() } });
+      await submit({ data: { ...parsed.data, website: (fd.get("website") ?? "").toString(), captchaToken: captcha.token } });
       setDone(true);
       toast.success("Application received — we'll be in touch.");
       form.reset();
       setPhone("");
-    } catch {
-      toast.error("Could not submit. Please try again.");
+      captcha.reset();
+    } catch (err) {
+      captcha.reset();
+      toast.error(err instanceof Error ? err.message : "Could not submit. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -108,7 +113,8 @@ function DrivePage() {
                 <label htmlFor="drv-website">Website</label>
                 <input id="drv-website" name="website" type="text" tabIndex={-1} autoComplete="off" />
               </div>
-              <Button type="submit" variant="gold" disabled={loading} className="rounded-full">
+              {captcha.widget}
+              <Button type="submit" variant="gold" disabled={loading || !captcha.ready} className="rounded-full">
                 {loading ? "Submitting…" : <>Submit application <ArrowRight className="size-4" /></>}
               </Button>
               {done && <p className="text-sm text-[var(--gold-ink)] text-center">Thanks — your application has been received.</p>}

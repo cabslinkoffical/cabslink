@@ -37,12 +37,39 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
   });
 }
 
+/**
+ * Baseline security response headers.
+ *
+ * Deliberately omitted: X-Frame-Options / frame-ancestors (the Lovable editor
+ * renders the app inside an iframe) and a full Content-Security-Policy, which
+ * would need an allowlist for Google Maps, Turnstile and analytics.
+ */
+const SECURITY_HEADERS: Record<string, string> = {
+  "x-content-type-options": "nosniff",
+  "referrer-policy": "strict-origin-when-cross-origin",
+  "permissions-policy": "camera=(), microphone=(), payment=(), usb=()",
+  "cross-origin-opener-policy": "same-origin-allow-popups",
+  "strict-transport-security": "max-age=31536000; includeSubDomains",
+};
+
+function withSecurityHeaders(response: Response): Response {
+  // Streamed SSR bodies must not be re-read; mutate headers in place instead.
+  try {
+    for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
+      if (!response.headers.has(name)) response.headers.set(name, value);
+    }
+  } catch {
+    /* immutable headers (e.g. redirects from caches) — safe to skip */
+  }
+  return response;
+}
+
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
-      return await normalizeCatastrophicSsrResponse(response);
+      return withSecurityHeaders(await normalizeCatastrophicSsrResponse(response));
     } catch (error) {
       console.error(error);
       return new Response(renderErrorPage(), {

@@ -37,6 +37,7 @@ import {
 } from "@/lib/pricing-rules";
 import { placeIdSchema, placeLabelSchema } from "@/lib/place-id";
 import { checkLimit } from "@/lib/rate-limit.server";
+import { assertCaptcha } from "@/lib/captcha.server";
 import { RouteTimeoutError, RouteNotFoundError, RouteUnavailableError } from "@/lib/route-distance.server";
 import { loadExtrasCatalogue } from "@/lib/extras-pricing.server";
 import { extraPence, type ExtrasCatalogue } from "@/lib/extras-pricing";
@@ -425,6 +426,8 @@ const createBookingInput = z
     cancellation_policy: z.enum(["standard", "non_refundable", "flexible"]).optional().default("standard"),
     templateSlug: z.string().trim().min(1).max(120).optional().nullable(),
     couponCode: z.string().trim().min(1).max(40).optional().nullable(),
+    /** Cloudflare Turnstile token; required only when captcha is configured. */
+    captchaToken: z.string().trim().max(4096).optional().nullable(),
   })
   .refine((v) => v.pickupPlaceId !== v.destinationPlaceId, {
     message: "Pickup and destination cannot be the same location.",
@@ -441,6 +444,8 @@ export const createBooking = createServerFn({ method: "POST" })
       try { setResponseStatus(429); } catch {}
       throw new Error("You've made too many booking attempts. Please wait a few minutes and try again.");
     }
+
+    await assertCaptcha(data.captchaToken, ip, setResponseStatus);
 
     // Compute canonical request fingerprint (authoritative inputs only —
     // never client-supplied price or distance).

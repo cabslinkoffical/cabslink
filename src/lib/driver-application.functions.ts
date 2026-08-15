@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { getRequestIP, setResponseStatus } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { checkLimit } from "@/lib/rate-limit.server";
+import { assertCaptcha } from "@/lib/captcha.server";
 
 const input = z.object({
   name: z.string().trim().min(2).max(100),
@@ -9,6 +10,8 @@ const input = z.object({
   phone: z.string().trim().min(6).max(30),
   message: z.string().trim().min(10).max(1000),
   website: z.string().trim().max(500).optional().default(""),
+  /** Cloudflare Turnstile token; required only when captcha is configured. */
+  captchaToken: z.string().trim().max(4096).optional().nullable(),
 });
 
 export type DriverApplicationInput = z.infer<typeof input>;
@@ -66,5 +69,6 @@ export const submitDriverApplication = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     let ip = "unknown";
     try { ip = getRequestIP({ xForwardedFor: true }) ?? "unknown"; } catch {}
+    await assertCaptcha(data.captchaToken, ip, setResponseStatus);
     return submitDriverApplicationImpl(data, { ip, setStatus: setResponseStatus });
   });

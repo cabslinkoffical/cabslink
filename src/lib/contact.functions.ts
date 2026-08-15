@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { getRequestIP, setResponseStatus } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { checkLimit } from "@/lib/rate-limit.server";
+import { assertCaptcha } from "@/lib/captcha.server";
 
 const contactInput = z.object({
   name: z.string().trim().min(2).max(100),
@@ -11,6 +12,8 @@ const contactInput = z.object({
   message: z.string().trim().min(10).max(1500),
   /** Honeypot — must be empty. If filled we accept and drop silently. */
   website: z.string().trim().max(500).optional().default(""),
+  /** Cloudflare Turnstile token; required only when captcha is configured. */
+  captchaToken: z.string().trim().max(4096).optional().nullable(),
 });
 
 // Short recent-dup cache so a rapid double-submit of the same message is
@@ -34,6 +37,8 @@ export const submitContactMessage = createServerFn({ method: "POST" })
       try { setResponseStatus(429); } catch {}
       throw new Error("You've sent several messages already. Please try again in a few minutes.");
     }
+
+    await assertCaptcha(data.captchaToken, ip, setResponseStatus);
 
     const now = Date.now();
     // Sweep expired

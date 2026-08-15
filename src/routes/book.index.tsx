@@ -26,6 +26,7 @@ import { PlaceAutocomplete, type SelectedPlace } from "@/components/site/PlaceAu
 import { PhoneInput } from "@/components/site/PhoneInput";
 
 import { calculateQuotes, createBooking, type QuoteCard } from "@/lib/pricing.functions";
+import { useCaptcha } from "@/components/site/Captcha";
 import { track } from "@/lib/tracking";
 import { listPoisForRoute, type PoiSuggestion, type RouteTemplateSummary } from "@/lib/pois.functions";
 import { calculateMultiStopQuote, type MultiStopQuoteResult } from "@/lib/scenic-quote.functions";
@@ -412,11 +413,13 @@ function BookPage() {
   const grandTotal = Math.max(0, extrasBase + policyDelta);
 
   const bookFn = useServerFn(createBooking);
+  const captcha = useCaptcha("booking");
   const submitBooking = async () => {
     if (inflight.current || !chosen) return;
     if (!pre.pickup || !pre.dropoff) { toast.error("Journey is missing pickup or destination."); return; }
     const parsed = contactSchema.safeParse(contact);
     if (!parsed.success) { toast.error("Missing contact details."); setStep("details"); return; }
+    if (!captcha.ready) { toast.error("Please complete the security check before submitting."); return; }
     inflight.current = true;
     setSubmitting(true);
     try {
@@ -464,6 +467,7 @@ function BookPage() {
           return_journey: returnJourney,
           cancellation_policy: policy,
           templateSlug: pre.templateSlug || null,
+          captchaToken: captcha.token,
         },
       });
       track("booking_submitted", {
@@ -477,11 +481,13 @@ function BookPage() {
       });
       toast.success("Booking request received.");
       idempotencyKey.current = crypto.randomUUID();
+      captcha.reset();
       clearDraft();
       const token = (res as any)?.token ?? null;
       if (token) navigate({ to: "/booking/$token", params: { token } });
       else setStep("review");
     } catch (err) {
+      captcha.reset();
       toast.error(err instanceof Error ? err.message : "Couldn't save booking. Try again or call us.");
     } finally {
       setSubmitting(false);
@@ -592,6 +598,8 @@ function BookPage() {
                       onBack={() => setStep("extras")}
                       onSubmit={submitBooking}
                       submitting={submitting}
+                      captchaWidget={captcha.widget}
+                      captchaReady={captcha.ready}
                     />
                   )}
 
@@ -1668,9 +1676,10 @@ function PolicyTiers({ value, onChange, base, cfg }: {
 // ---------------------------------------------------------------
 // Step 04 — Payment method
 // ---------------------------------------------------------------
-function PaymentStep({ value, onChange, grandTotal, onBack, onSubmit, submitting }: {
+function PaymentStep({ value, onChange, grandTotal, onBack, onSubmit, submitting, captchaWidget, captchaReady }: {
   value: PaymentMethod; onChange: (v: PaymentMethod) => void;
   grandTotal: number; onBack: () => void; onSubmit: () => void; submitting: boolean;
+  captchaWidget?: React.ReactNode; captchaReady?: boolean;
 }) {
   const options: Array<{ id: PaymentMethod; icon: React.ReactNode; title: string; body: string; badge?: string }> = [
     {
@@ -1740,11 +1749,13 @@ function PaymentStep({ value, onChange, grandTotal, onBack, onSubmit, submitting
         arrangements. Online card payments are not enabled at this time.
       </p>
 
+      {captchaWidget}
+
       <div id="step-actions" className="flex flex-wrap gap-3 scroll-mt-24">
         <Button type="button" variant="outline" onClick={onBack} className="gap-2">
           <ArrowLeft className="size-4" /> Back
         </Button>
-        <Button type="button" onClick={onSubmit} disabled={submitting}
+        <Button type="button" onClick={onSubmit} disabled={submitting || captchaReady === false}
           variant="gold" className="ml-auto tracking-wider px-8 gap-2">
           {submitting ? "Sending…" : <>Submit booking request <ArrowRight className="size-4" /></>}
         </Button>
