@@ -221,7 +221,10 @@ export const saveSchemeOverview = createServerFn({ method: "POST" })
     // compatibility pricing record, links it to the class, and writes the
     // profile, mileage bands and hourly/day rates in a single transaction, so a
     // failure anywhere leaves the previous pricing (and link) untouched.
-    const { data: profileId, error } = await (context.supabase as any).rpc("save_pricing_scheme_base", {
+    // Caller is a verified admin above; the routine itself is not callable by
+    // signed-in accounts, only by trusted server code.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: profileId, error } = await (supabaseAdmin as any).rpc("save_pricing_scheme_base", {
       _payload: {
         class_id: data.classId,
         base_price: data.cityFixedPrice,
