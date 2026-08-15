@@ -231,7 +231,7 @@ function Page() {
                 <p className="col-span-2 text-xs text-muted-foreground">Route rules match in both directions.</p>
               </>
             ) : (
-              <GeoFields id="av-place" form={form} setForm={setForm} radiusRequired={form.rule_scope === "location"} />
+              <GeoFields id="av-place" form={form} setForm={setForm} radiusRequired={form.rule_scope === "location"} showMap={false} />
             )}
 
             <div>
