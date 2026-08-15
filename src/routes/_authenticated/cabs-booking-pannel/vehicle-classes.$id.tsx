@@ -427,7 +427,7 @@ function EditorPage() {
 
 function Section({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-2xl border border-border bg-card p-5 space-y-4">
+    <section className="admin-card p-5 space-y-4">
       <div>
         <h2 className="font-semibold">{title}</h2>
         {hint && <p className="text-xs text-muted-foreground mt-0.5">{hint}</p>}

@@ -278,7 +278,7 @@ function PostEditor() {
 
         {/* Sidebar */}
         <div className="space-y-4">
-          <div className="rounded-xl border border-border bg-card p-4 space-y-3">
+          <div className="admin-card p-4 space-y-3">
             <div>
               <Label>Status</Label>
               <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v as any })}>
@@ -324,7 +324,7 @@ function PostEditor() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-border bg-card p-4 space-y-3">
+          <div className="admin-card p-4 space-y-3">
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Tags</p>
             <div className="flex flex-wrap gap-2">
               {(tags.data ?? []).map((t: any) => {
@@ -341,7 +341,7 @@ function PostEditor() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-border bg-card p-4 space-y-3">
+          <div className="admin-card p-4 space-y-3">
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">SEO</p>
             <div>
               <Label>SEO title</Label>

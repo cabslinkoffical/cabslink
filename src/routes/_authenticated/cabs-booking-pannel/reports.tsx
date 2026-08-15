@@ -95,7 +95,7 @@ function Page() {
           </div>
 
           <div className="grid lg:grid-cols-2 gap-4">
-            <div className="rounded-xl border border-border bg-card p-4">
+            <div className="admin-card p-4">
               <h3 className="font-semibold mb-3">Revenue</h3>
               <ResponsiveContainer width="100%" height={260}>
                 <LineChart data={r.revenueSeries}>
@@ -107,7 +107,7 @@ function Page() {
                 </LineChart>
               </ResponsiveContainer>
             </div>
-            <div className="rounded-xl border border-border bg-card p-4">
+            <div className="admin-card p-4">
               <h3 className="font-semibold mb-3">Bookings</h3>
               <ResponsiveContainer width="100%" height={260}>
                 <BarChart data={r.bookingsSeries}>
@@ -122,7 +122,7 @@ function Page() {
                 </BarChart>
               </ResponsiveContainer>
             </div>
-            <div className="rounded-xl border border-border bg-card p-4">
+            <div className="admin-card p-4">
               <h3 className="font-semibold mb-3">Top vehicles</h3>
               <ResponsiveContainer width="100%" height={260}>
                 <BarChart data={r.topVehicles} layout="vertical">
@@ -134,7 +134,7 @@ function Page() {
                 </BarChart>
               </ResponsiveContainer>
             </div>
-            <div className="rounded-xl border border-border bg-card p-4">
+            <div className="admin-card p-4">
               <h3 className="font-semibold mb-3">Top routes</h3>
               <div className="space-y-2">
                 {r.topRoutes.length === 0 && <p className="text-sm text-muted-foreground">No data</p>}

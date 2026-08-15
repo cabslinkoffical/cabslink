@@ -87,7 +87,7 @@ function PoisPage() {
       {data.pois.length === 0 ? (
         <EmptyState title="No POIs yet" hint="Create a POI, add a Google Place ID, then activate it." />
       ) : (
-        <div className="rounded-xl border border-border bg-card overflow-hidden">
+        <div className="admin-card overflow-hidden">
           <table className="w-full text-sm">
             <thead className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
               <tr>

@@ -78,7 +78,7 @@ export function AvailabilityCalendar({ rules, onSelectRule }: { rules: Rule[]; o
         </div>
       </div>
 
-      <div className="rounded-xl border border-border bg-card overflow-hidden">
+      <div className="admin-card overflow-hidden">
         <div className="grid grid-cols-7 bg-muted/50 text-[11px] uppercase tracking-wide text-muted-foreground">
           {DAY_LABELS.map((d) => <div key={d} className="p-2 text-center">{d}</div>)}
         </div>
@@ -123,7 +123,7 @@ export function AvailabilityCalendar({ rules, onSelectRule }: { rules: Rule[]; o
       </div>
 
       {selected && (
-        <div className="rounded-xl border border-border bg-card p-4">
+        <div className="admin-card p-4">
           <div className="text-sm font-semibold">{new Date(`${selected}T12:00:00`).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</div>
           {selectedRules.length === 0 ? (
             <p className="mt-1 text-sm text-muted-foreground">Fully bookable — no active rules match this date.</p>

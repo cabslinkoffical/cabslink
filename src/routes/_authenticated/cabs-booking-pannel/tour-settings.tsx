@@ -75,7 +75,7 @@ function TourSettingsPage() {
   return (
     <div className="p-6 max-w-3xl">
       <PageHeader title="Tour Settings" description="Thresholds and pricing for sightseeing and private tours." />
-      <div className="rounded-xl border border-border bg-card p-5 space-y-5">
+      <div className="admin-card p-5 space-y-5">
         <section>
           <h2 className="text-sm font-semibold mb-3">Classification thresholds</h2>
           <div className="grid grid-cols-2 gap-4">

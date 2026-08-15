@@ -49,7 +49,7 @@ function AdminBlogCategories() {
       </PageHeader>
 
       {editing && (
-        <div className="mb-6 rounded-xl border border-border bg-card p-4 space-y-3">
+        <div className="mb-6 admin-card p-4 space-y-3">
           <div className="grid md:grid-cols-2 gap-3">
             <div><Label>Slug</Label><Input value={editing.slug} onChange={(e) => setEditing({ ...editing, slug: e.target.value })} /></div>
             <div><Label>Name</Label><Input value={editing.name} onChange={(e) => setEditing({ ...editing, name: e.target.value })} /></div>

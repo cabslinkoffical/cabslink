@@ -20,7 +20,7 @@ export function SeoTable<T extends { id: string }>({
     return <div className="rounded-xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">No records yet.</div>;
   }
   return (
-    <div className="rounded-xl border border-border bg-card overflow-hidden">
+    <div className="admin-card overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-muted/40 text-xs uppercase tracking-wide text-muted-foreground">

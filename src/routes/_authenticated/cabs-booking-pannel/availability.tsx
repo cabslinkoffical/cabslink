@@ -139,7 +139,7 @@ function Page() {
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {data.map((r: any) => (
-            <div key={r.id} className="rounded-xl border border-border bg-card p-4">
+            <div key={r.id} className="admin-card p-4">
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <div className="font-semibold flex items-center gap-1.5">

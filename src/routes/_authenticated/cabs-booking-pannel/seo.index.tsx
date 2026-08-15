@@ -71,7 +71,7 @@ function SeoOverview() {
           </Link>
         ))}
       </div>
-      <div className="rounded-xl border border-border bg-card p-5">
+      <div className="admin-card p-5">
         <h2 className="font-semibold mb-3">SEO pages by status</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {Object.entries(data.pages.byStatus).map(([k, v]) => (

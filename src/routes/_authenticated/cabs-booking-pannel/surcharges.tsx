@@ -60,7 +60,7 @@ function Page() {
       {data.length === 0 ? <EmptyState title="No surcharges" /> : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {data.map((s: any) => (
-            <div key={s.id} className="rounded-xl border border-border bg-card p-4">
+            <div key={s.id} className="admin-card p-4">
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <div className="font-semibold">{s.name}</div>
