@@ -31,11 +31,11 @@ function LinkItem({ item, active, indent = false }: { item: NavItem; active: boo
         "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition group",
         indent && "pl-9",
         active
-          ? "bg-primary text-primary-foreground font-medium shadow-sm"
-          : "text-white/70 hover:bg-white/5 hover:text-white"
+          ? "admin-nav-active font-semibold"
+          : "text-white/65 hover:bg-white/[0.07] hover:text-white"
       )}
     >
-      <item.icon className={cn("size-4 shrink-0", active ? "" : "text-white/55 group-hover:text-white")} />
+      <item.icon className={cn("size-4 shrink-0", active ? "text-gold" : "text-white/45 group-hover:text-gold")} />
       <span className="truncate">{item.label}</span>
     </Link>
   );
@@ -51,13 +51,14 @@ function Group({ group, pathname }: { group: NavGroup; pathname: string }) {
         onClick={() => setOpen(o => !o)}
         className={cn(
           "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition",
-          hasActive ? "text-white" : "text-white/70 hover:bg-white/5 hover:text-white"
+          hasActive ? "text-white font-medium" : "text-white/65 hover:bg-white/[0.07] hover:text-white"
         )}
       >
-        <group.icon className="size-4 shrink-0 text-white/55" />
+        <group.icon className={cn("size-4 shrink-0", hasActive ? "text-gold" : "text-white/45")} />
         <span className="flex-1 text-left truncate">{group.label}</span>
         <ChevronDown className={cn("size-3.5 transition-transform", open && "rotate-180")} />
       </button>
+
       {open && (
         <div className="mt-0.5 space-y-0.5">
           {group.items.map(it => (
