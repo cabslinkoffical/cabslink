@@ -118,6 +118,7 @@ import { Route as AuthenticatedCabsBookingPannelAddressesRouteImport } from './r
 import { Route as AuthenticatedCabsBookingPannelVehicleClassesIndexRouteImport } from './routes/_authenticated/cabs-booking-pannel/vehicle-classes.index'
 import { Route as AuthenticatedCabsBookingPannelSeoIndexRouteImport } from './routes/_authenticated/cabs-booking-pannel/seo.index'
 import { Route as AuthenticatedCabsBookingPannelBlogIndexRouteImport } from './routes/_authenticated/cabs-booking-pannel/blog.index'
+import { Route as AuthenticatedCabsBookingPannelVehicleClassesIdRouteImport } from './routes/_authenticated/cabs-booking-pannel/vehicle-classes.$id'
 import { Route as AuthenticatedCabsBookingPannelSeoServicesRouteImport } from './routes/_authenticated/cabs-booking-pannel/seo.services'
 import { Route as AuthenticatedCabsBookingPannelSeoRoutesRouteImport } from './routes/_authenticated/cabs-booking-pannel/seo.routes'
 import { Route as AuthenticatedCabsBookingPannelSeoRedirectsRouteImport } from './routes/_authenticated/cabs-booking-pannel/seo.redirects'
@@ -707,6 +708,12 @@ const AuthenticatedCabsBookingPannelBlogIndexRoute =
     path: '/blog/',
     getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
+const AuthenticatedCabsBookingPannelVehicleClassesIdRoute =
+  AuthenticatedCabsBookingPannelVehicleClassesIdRouteImport.update({
+    id: '/vehicle-classes/$id',
+    path: '/vehicle-classes/$id',
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
+  } as any)
 const AuthenticatedCabsBookingPannelSeoServicesRoute =
   AuthenticatedCabsBookingPannelSeoServicesRouteImport.update({
     id: '/seo/services',
@@ -904,6 +911,7 @@ export interface FileRoutesByFullPath {
   '/cabs-booking-pannel/seo/redirects': typeof AuthenticatedCabsBookingPannelSeoRedirectsRoute
   '/cabs-booking-pannel/seo/routes': typeof AuthenticatedCabsBookingPannelSeoRoutesRoute
   '/cabs-booking-pannel/seo/services': typeof AuthenticatedCabsBookingPannelSeoServicesRoute
+  '/cabs-booking-pannel/vehicle-classes/$id': typeof AuthenticatedCabsBookingPannelVehicleClassesIdRoute
   '/cabs-booking-pannel/blog/': typeof AuthenticatedCabsBookingPannelBlogIndexRoute
   '/cabs-booking-pannel/seo/': typeof AuthenticatedCabsBookingPannelSeoIndexRoute
   '/cabs-booking-pannel/vehicle-classes/': typeof AuthenticatedCabsBookingPannelVehicleClassesIndexRoute
@@ -1025,6 +1033,7 @@ export interface FileRoutesByTo {
   '/cabs-booking-pannel/seo/redirects': typeof AuthenticatedCabsBookingPannelSeoRedirectsRoute
   '/cabs-booking-pannel/seo/routes': typeof AuthenticatedCabsBookingPannelSeoRoutesRoute
   '/cabs-booking-pannel/seo/services': typeof AuthenticatedCabsBookingPannelSeoServicesRoute
+  '/cabs-booking-pannel/vehicle-classes/$id': typeof AuthenticatedCabsBookingPannelVehicleClassesIdRoute
   '/cabs-booking-pannel/blog': typeof AuthenticatedCabsBookingPannelBlogIndexRoute
   '/cabs-booking-pannel/seo': typeof AuthenticatedCabsBookingPannelSeoIndexRoute
   '/cabs-booking-pannel/vehicle-classes': typeof AuthenticatedCabsBookingPannelVehicleClassesIndexRoute
@@ -1150,6 +1159,7 @@ export interface FileRoutesById {
   '/_authenticated/cabs-booking-pannel/seo/redirects': typeof AuthenticatedCabsBookingPannelSeoRedirectsRoute
   '/_authenticated/cabs-booking-pannel/seo/routes': typeof AuthenticatedCabsBookingPannelSeoRoutesRoute
   '/_authenticated/cabs-booking-pannel/seo/services': typeof AuthenticatedCabsBookingPannelSeoServicesRoute
+  '/_authenticated/cabs-booking-pannel/vehicle-classes/$id': typeof AuthenticatedCabsBookingPannelVehicleClassesIdRoute
   '/_authenticated/cabs-booking-pannel/blog/': typeof AuthenticatedCabsBookingPannelBlogIndexRoute
   '/_authenticated/cabs-booking-pannel/seo/': typeof AuthenticatedCabsBookingPannelSeoIndexRoute
   '/_authenticated/cabs-booking-pannel/vehicle-classes/': typeof AuthenticatedCabsBookingPannelVehicleClassesIndexRoute
@@ -1275,6 +1285,7 @@ export interface FileRouteTypes {
     | '/cabs-booking-pannel/seo/redirects'
     | '/cabs-booking-pannel/seo/routes'
     | '/cabs-booking-pannel/seo/services'
+    | '/cabs-booking-pannel/vehicle-classes/$id'
     | '/cabs-booking-pannel/blog/'
     | '/cabs-booking-pannel/seo/'
     | '/cabs-booking-pannel/vehicle-classes/'
@@ -1396,6 +1407,7 @@ export interface FileRouteTypes {
     | '/cabs-booking-pannel/seo/redirects'
     | '/cabs-booking-pannel/seo/routes'
     | '/cabs-booking-pannel/seo/services'
+    | '/cabs-booking-pannel/vehicle-classes/$id'
     | '/cabs-booking-pannel/blog'
     | '/cabs-booking-pannel/seo'
     | '/cabs-booking-pannel/vehicle-classes'
@@ -1520,6 +1532,7 @@ export interface FileRouteTypes {
     | '/_authenticated/cabs-booking-pannel/seo/redirects'
     | '/_authenticated/cabs-booking-pannel/seo/routes'
     | '/_authenticated/cabs-booking-pannel/seo/services'
+    | '/_authenticated/cabs-booking-pannel/vehicle-classes/$id'
     | '/_authenticated/cabs-booking-pannel/blog/'
     | '/_authenticated/cabs-booking-pannel/seo/'
     | '/_authenticated/cabs-booking-pannel/vehicle-classes/'
@@ -2373,6 +2386,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCabsBookingPannelBlogIndexRouteImport
       parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
+    '/_authenticated/cabs-booking-pannel/vehicle-classes/$id': {
+      id: '/_authenticated/cabs-booking-pannel/vehicle-classes/$id'
+      path: '/vehicle-classes/$id'
+      fullPath: '/cabs-booking-pannel/vehicle-classes/$id'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelVehicleClassesIdRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
+    }
     '/_authenticated/cabs-booking-pannel/seo/services': {
       id: '/_authenticated/cabs-booking-pannel/seo/services'
       path: '/seo/services'
@@ -2519,6 +2539,7 @@ interface AuthenticatedCabsBookingPannelRouteRouteChildren {
   AuthenticatedCabsBookingPannelSeoRedirectsRoute: typeof AuthenticatedCabsBookingPannelSeoRedirectsRoute
   AuthenticatedCabsBookingPannelSeoRoutesRoute: typeof AuthenticatedCabsBookingPannelSeoRoutesRoute
   AuthenticatedCabsBookingPannelSeoServicesRoute: typeof AuthenticatedCabsBookingPannelSeoServicesRoute
+  AuthenticatedCabsBookingPannelVehicleClassesIdRoute: typeof AuthenticatedCabsBookingPannelVehicleClassesIdRoute
   AuthenticatedCabsBookingPannelBlogIndexRoute: typeof AuthenticatedCabsBookingPannelBlogIndexRoute
   AuthenticatedCabsBookingPannelSeoIndexRoute: typeof AuthenticatedCabsBookingPannelSeoIndexRoute
   AuthenticatedCabsBookingPannelVehicleClassesIndexRoute: typeof AuthenticatedCabsBookingPannelVehicleClassesIndexRoute
@@ -2598,6 +2619,8 @@ const AuthenticatedCabsBookingPannelRouteRouteChildren: AuthenticatedCabsBooking
       AuthenticatedCabsBookingPannelSeoRoutesRoute,
     AuthenticatedCabsBookingPannelSeoServicesRoute:
       AuthenticatedCabsBookingPannelSeoServicesRoute,
+    AuthenticatedCabsBookingPannelVehicleClassesIdRoute:
+      AuthenticatedCabsBookingPannelVehicleClassesIdRoute,
     AuthenticatedCabsBookingPannelBlogIndexRoute:
       AuthenticatedCabsBookingPannelBlogIndexRoute,
     AuthenticatedCabsBookingPannelSeoIndexRoute:

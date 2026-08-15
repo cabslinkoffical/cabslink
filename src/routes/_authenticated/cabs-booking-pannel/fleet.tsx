@@ -116,7 +116,7 @@ function FleetPage() {
       <PageHeader title="Pricing Vehicles" description="These vehicles carry mileage pricing profiles that Vehicle Classes inherit from. Manage customer-facing classes at Fleet → Vehicle Classes.">
         <div className="flex gap-2">
           <Button variant="outline" asChild><Link to="/cabs-booking-pannel/vehicle-classes"><Car className="size-4 mr-1" /> Vehicle Classes</Link></Button>
-          <Button variant="outline" asChild><Link to="/cabs-booking-pannel/mileage-pricing"><Gauge className="size-4 mr-1" /> Mileage pricing</Link></Button>
+          <Button variant="outline" asChild><Link to="/cabs-booking-pannel/vehicle-classes"><Gauge className="size-4 mr-1" /> Class pricing</Link></Button>
           <Button onClick={openNew}><Plus className="size-4 mr-1" /> Add vehicle</Button>
         </div>
       </PageHeader>
@@ -292,7 +292,7 @@ function VehicleCard({ v, profile, onEdit, onDelete }: { v: any; profile: any; o
               <div className="text-xs text-muted-foreground italic">No pricing profile yet.</div>
             )}
             <Button size="sm" variant="outline" asChild className="mt-2">
-              <Link to="/cabs-booking-pannel/mileage-pricing">Manage mileage pricing</Link>
+              <Link to="/cabs-booking-pannel/vehicle-classes">Manage class pricing</Link>
             </Button>
           </div>
 
