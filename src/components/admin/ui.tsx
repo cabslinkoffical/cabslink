@@ -9,7 +9,7 @@ export function StatCard({
   return (
     <div className="admin-card admin-card-hover admin-accent-top p-4">
       <div className="flex items-center justify-between gap-2">
-        <span className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground font-semibold">{label}</span>
+        <span className="text-[10.5px] leading-tight uppercase tracking-[0.14em] text-muted-foreground font-semibold">{label}</span>
         <div
           className={cn(
             "size-9 rounded-xl flex items-center justify-center bg-surface-gold ring-1 ring-gold/25 text-gold-ink",
