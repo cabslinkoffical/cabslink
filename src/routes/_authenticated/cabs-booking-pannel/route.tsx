@@ -55,7 +55,7 @@ const NAV: SidebarEntry[] = [
       { to: "/cabs-booking-pannel/surcharges", label: "Surcharges", icon: Percent },
       { to: "/cabs-booking-pannel/coupons", label: "Coupons", icon: Ticket },
       { to: "/cabs-booking-pannel/availability", label: "Availability Rules", icon: Ban },
-      { to: "/cabs-booking-pannel/pricing-preview", label: "Test a Quote", icon: Gauge },
+      
     ],
   },
   {
