@@ -539,3 +539,77 @@ input[type="time"] {
   -ms-overflow-style: none;
   &::-webkit-scrollbar { display: none; }
 }
+
+/* ── Admin console polish ─────────────────────────────────────
+   Brand-locked: navy, gold, white only. */
+@utility admin-shell {
+  background:
+    radial-gradient(60rem 30rem at 100% -10%, color-mix(in oklab, var(--gold) 10%, transparent), transparent 70%),
+    radial-gradient(50rem 26rem at -10% 0%, color-mix(in oklab, var(--navy) 7%, transparent), transparent 70%),
+    color-mix(in oklab, var(--navy) 4%, #ffffff);
+}
+
+@utility admin-sidebar {
+  background:
+    linear-gradient(180deg, color-mix(in oklab, #ffffff 8%, var(--navy)) 0%, var(--navy) 45%, color-mix(in oklab, #000 12%, var(--navy)) 100%);
+  box-shadow: inset -1px 0 0 color-mix(in oklab, var(--gold) 18%, transparent), 0 20px 60px -30px color-mix(in oklab, #000 60%, transparent);
+}
+
+@utility admin-topbar {
+  background: color-mix(in oklab, #ffffff 82%, transparent);
+  backdrop-filter: blur(14px) saturate(1.1);
+  border-bottom: 1px solid color-mix(in oklab, var(--navy) 10%, transparent);
+  box-shadow: 0 1px 0 color-mix(in oklab, var(--gold) 22%, transparent), 0 10px 30px -24px color-mix(in oklab, var(--navy) 55%, transparent);
+}
+
+@utility admin-card {
+  position: relative;
+  background: #ffffff;
+  border: 1px solid color-mix(in oklab, var(--navy) 9%, transparent);
+  border-radius: var(--radius-xl);
+  box-shadow:
+    0 1px 2px color-mix(in oklab, var(--navy) 6%, transparent),
+    0 18px 40px -30px color-mix(in oklab, var(--navy) 40%, transparent);
+  transition: box-shadow .3s ease, transform .3s ease, border-color .3s ease;
+}
+
+@utility admin-card-hover {
+  &:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in oklab, var(--gold) 40%, transparent);
+    box-shadow:
+      0 1px 2px color-mix(in oklab, var(--navy) 6%, transparent),
+      0 26px 60px -30px color-mix(in oklab, var(--navy) 50%, transparent);
+  }
+}
+
+/* Gold hairline across the top of a stat card */
+@utility admin-accent-top {
+  &::before {
+    content: "";
+    position: absolute;
+    left: 1rem; right: 1rem; top: 0;
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--gold) 85%, transparent), transparent);
+    opacity: .8;
+  }
+}
+
+@utility admin-nav-active {
+  background: linear-gradient(90deg, color-mix(in oklab, var(--gold) 22%, transparent), color-mix(in oklab, var(--gold) 8%, transparent));
+  color: #ffffff;
+  box-shadow: inset 2px 0 0 var(--gold);
+}
+
+@utility admin-title-rule {
+  &::after {
+    content: "";
+    display: block;
+    margin-top: .55rem;
+    width: 2.75rem;
+    height: 3px;
+    border-radius: 3px;
+    background: var(--gold);
+  }
+}
