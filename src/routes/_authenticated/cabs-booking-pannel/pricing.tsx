@@ -15,6 +15,8 @@ import { Plus, Edit, Trash2, Search, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
 import { PlaceAutocomplete, type SelectedPlace } from "@/components/site/PlaceAutocomplete";
+import { AdminMapEditor } from "@/components/admin/AdminMapEditor";
+
 
 const opts = queryOptions({ queryKey: ["admin", "pricing"], queryFn: () => listPricingRules() });
 const vOpts = queryOptions({ queryKey: ["admin", "vehicles"], queryFn: () => listVehiclesAdmin() });
