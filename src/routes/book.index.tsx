@@ -384,8 +384,13 @@ function BookPage() {
     nonRefundablePercent: 5, nonRefundableMinPence: 200,
     flexiblePercent: 12, flexibleMinPence: 400,
   };
-  const seatFee = (childSeatFeePence / 100) * childSeatCount;
-  const meetGreetFee = meetGreet ? meetGreetFeePence / 100 : 0;
+  // Extras are grossed up with the same site tax rule the server applies, so
+  // the displayed total always matches the charged total.
+  const taxCfg = quoteQuery.data?.tax ?? { rate: 0, mode: "exclusive" as const, label: "VAT" };
+  const grossUp = (net: number) =>
+    taxCfg.mode === "inclusive" ? net : Math.round(net * (1 + (taxCfg.rate || 0)) * 100) / 100;
+  const seatFee = grossUp((childSeatFeePence / 100) * childSeatCount);
+  const meetGreetFee = grossUp(meetGreet ? meetGreetFeePence / 100 : 0);
   const perVehiclePrice = chosen
     ? (mq?.vehicles.find((v) => v.vehicle_id === chosen.vehicleId)?.per_vehicle_total ?? chosen.finalPrice)
     : 0;

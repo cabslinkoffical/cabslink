@@ -3928,6 +3928,15 @@ export type Database = {
         }
         Returns: boolean
       }
+      redeem_coupon: {
+        Args: {
+          _amount: number
+          _booking_id: string
+          _coupon_id: string
+          _email: string
+        }
+        Returns: boolean
+      }
       search_bookable_destinations: {
         Args: { _limit?: number; _q: string }
         Returns: {
