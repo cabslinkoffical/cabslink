@@ -14,6 +14,7 @@ import {
   resolveAvailability,
   type JourneyContext,
 } from "@/lib/pricing-rules";
+import { applyTaxTo, type TaxMode } from "@/lib/pricing";
 
 export const HOURLY_SERVICE_TYPE = "hourly_hire";
 
@@ -166,6 +167,10 @@ export type HourlyCard = {
   /** Rule-driven uplifts / reductions applied to the base. */
   adjustments: Array<{ label: string; amount: number }>;
   discountLines: Array<{ label: string; amount: number }>;
+  /** Net of tax (equals `total` when tax is exclusive and 0%). */
+  netTotal: number;
+  taxAmount: number;
+  /** Gross payable for the hire, tax applied per the site tax mode. */
   total: number;
   minimumApplied: boolean;
   quoteOnRequest: boolean;
@@ -186,6 +191,8 @@ export function buildHourlyCards(args: {
   pickupCoord?: { lat: number; lng: number } | null;
   date?: string;
   time?: string;
+  taxRate?: number;
+  taxMode?: TaxMode;
 }): HourlyCard[] {
   const cards: HourlyCard[] = [];
   for (const p of args.profiles) {
@@ -217,6 +224,8 @@ export function buildHourlyCards(args: {
       discountLines = outcome.discountLines;
     }
 
+    const taxed = applyTaxTo(total, args.taxRate ?? 0, args.taxMode ?? "exclusive");
+
     cards.push({
       vehicleId: p.vehicle.id,
       name: p.vehicle.name,
@@ -232,7 +241,9 @@ export function buildHourlyCards(args: {
       baseTotal,
       adjustments,
       discountLines,
-      total,
+      netTotal: taxed.net,
+      taxAmount: taxed.tax,
+      total: taxed.gross,
       minimumApplied: chargedHours > args.hours,
       quoteOnRequest: p.vehicle.class_quote_on_request,
       classSlug: p.vehicle.class_slug,
