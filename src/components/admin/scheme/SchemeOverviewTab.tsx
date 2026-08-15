@@ -194,7 +194,7 @@ export function SchemeOverviewTab({ scheme, data, section = "base" }: { scheme: 
 
       <div className="flex justify-end">
         <Button onClick={() => mutation.mutate()} disabled={mutation.isPending || !scheme.pricingVehicleId}>
-          {mutation.isPending && <Loader2 className="mr-1.5 size-4 animate-spin" />}Save base pricing
+          {mutation.isPending && <Loader2 className="mr-1.5 size-4 animate-spin" />}Save {section === "base" ? "base pricing" : "time pricing"}
         </Button>
       </div>
     </div>
