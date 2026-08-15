@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { getRequestIP, setResponseStatus } from "@tanstack/react-start/server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import { redeemCouponOrRollback } from "@/lib/coupon-redemption";
 import {
   ENGINE_VERSION,
   type PricingProfile,
