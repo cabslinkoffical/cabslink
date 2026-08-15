@@ -146,6 +146,7 @@ function resolveForProfile(auth: AuthoritativeQuote, profile: LoadedProfile): { 
     fixedPrice: legacyFixed,
     settings: { ...auth.settings, taxRate: 0 },
     vehicleCount: 1,
+    serviceType: auth.input.serviceType,
     resolved: { ...pass1, discountLines: [], discountRuleTotal: 0 },
   });
 
@@ -308,6 +309,7 @@ export const calculateQuotes = createServerFn({ method: "POST" })
           fixedPrice: fixed ?? null,
           settings: auth.settings,
           vehicleCount: 1,
+          serviceType: data.serviceType,
           resolved,
         });
         return {
@@ -520,6 +522,7 @@ export const createBooking = createServerFn({ method: "POST" })
         fixedPrice: fixed ?? null,
         settings: { ...auth.settings, taxRate: 0 },
         vehicleCount: 1,
+        serviceType: data.serviceType,
         resolved,
       });
       const res = await validateCouponForRequest({
@@ -549,6 +552,7 @@ export const createBooking = createServerFn({ method: "POST" })
       fixedPrice: fixed ?? null,
       settings: auth.settings,
       vehicleCount: qty,
+      serviceType: data.serviceType,
       resolved,
       couponCode: couponRow?.code ?? null,
       couponDiscount,
@@ -1198,6 +1202,7 @@ export const adminPreviewQuote = createServerFn({ method: "POST" })
         fixedPrice,
         settings: { ...settings, taxRate: 0 },
         vehicleCount: 1,
+        serviceType: data.serviceType,
         resolved,
       });
       const res = await validateCouponForRequest({
@@ -1226,6 +1231,7 @@ export const adminPreviewQuote = createServerFn({ method: "POST" })
       discountAmount: data.discountAmount,
       settings,
       vehicleCount: data.vehicleCount,
+      serviceType: data.serviceType,
       resolved,
       couponCode,
       couponDiscount,
