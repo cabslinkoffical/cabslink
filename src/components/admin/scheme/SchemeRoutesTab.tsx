@@ -6,6 +6,7 @@ import { ArrowLeftRight, Loader2, Plus, Trash2, TriangleAlert } from "lucide-rea
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { BulkTools } from "@/components/admin/BulkTools";
+import { ViewToggle, useViewMode } from "@/components/admin/ViewToggle";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { PlaceAutocomplete, type SelectedPlace } from "@/components/site/PlaceAutocomplete";
@@ -56,6 +57,7 @@ export function SchemeRoutesTab({ classId, routes }: { classId: string; routes: 
   const qc = useQueryClient();
   const [draft, setDraft] = useState<Draft>(emptyDraft);
   const [liveRoute, setLiveRoute] = useState<{ miles: number; minutes: number } | null>(null);
+  const [view, setView] = useViewMode("scheme-routes", "list");
 
   const upsert = useServerFn(upsertSchemeRoute);
   const remove = useServerFn(deleteSchemeRoute);
