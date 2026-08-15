@@ -11,15 +11,12 @@ import { saveSchemeOverview } from "@/lib/pricing-schemes.functions";
 
 type Scheme = { classId: string; name: string; pricingVehicleId: string | null };
 
+export type Band = { name: string; miles: number; perMile: number };
+
 export type OverviewState = {
   cityFixedPrice: number;
   cityIncludedMiles: number;
-  shortMiles: number;
-  shortPerMile: number;
-  mediumMiles: number;
-  mediumPerMile: number;
-  longMiles: number;
-  longPerMile: number;
+  bands: Band[];
   additionalPickupFee: number;
   waitingFeePerMinute: number;
   airportPickupFee: number;
