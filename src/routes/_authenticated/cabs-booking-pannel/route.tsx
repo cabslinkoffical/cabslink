@@ -49,6 +49,7 @@ const NAV: SidebarEntry[] = [
   {
     label: "Fleet & Pricing", icon: Car, items: [
       { to: "/cabs-booking-pannel/vehicle-classes", label: "Vehicle Classes", icon: Car },
+      { to: "/cabs-booking-pannel/pricing-schemes", label: "Pricing Schemes", icon: Gauge },
       { to: "/cabs-booking-pannel/pricing", label: "Route Pricing", icon: Tag },
       { to: "/cabs-booking-pannel/coupons", label: "Coupons", icon: Ticket },
       { to: "/cabs-booking-pannel/pricing-preview", label: "Test a Quote", icon: Gauge },
