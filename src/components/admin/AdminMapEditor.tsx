@@ -275,7 +275,7 @@ export function AdminMapEditor({
 
     if (hasBounds) {
       map.fitBounds(bounds, 48);
-      if (!showCircle && !route?.path.length && originCoord && !destCoord) {
+      if (!showCircle && !showDestCircle && !route?.path.length && originCoord && !destCoord) {
         map.setCenter(originCoord);
         map.setZoom(12);
       }
@@ -283,7 +283,7 @@ export function AdminMapEditor({
       map.setCenter(UK_CENTER);
       map.setZoom(6);
     }
-  }, [ready, originCoord, destCoord, radiusMiles, route, mode, origin?.label, destination?.label]);
+  }, [ready, originCoord, destCoord, radiusMiles, destinationRadiusMiles, route, mode, origin?.label, destination?.label]);
 
   const missingCoords = !!origin?.placeId && !originCoord && !busy;
 
