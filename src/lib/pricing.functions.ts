@@ -346,6 +346,12 @@ export const calculateQuotes = createServerFn({ method: "POST" })
       childSeatFeePence: auth.settings.childSeatFeePence,
       meetGreetFeePence: auth.settings.meetGreetFeePence,
       returnJourneyFeePence: auth.settings.returnJourneyFeePence,
+      // Tax config so the client shows exactly what the server will charge.
+      tax: {
+        rate: auth.settings.taxRate,
+        mode: auth.settings.taxMode,
+        label: auth.settings.taxLabel,
+      },
       policy: {
         nonRefundablePercent: auth.settings.policyNonRefundablePercent,
         nonRefundableMinPence: auth.settings.policyNonRefundableMinPence,
@@ -687,15 +693,15 @@ export const createBooking = createServerFn({ method: "POST" })
       price = Number((price * 2).toFixed(2));
     }
 
-    // Add child seat fee last so it applies whether the ride is a direct
-    // transfer or a scenic/multi-stop recompute.
-    if (childSeatFee > 0) {
-      price = Number((price + childSeatFee).toFixed(2));
-    }
-
-    // Meet & greet extra (admin-configurable in Fleet & Pricing → Extras).
-    if (data.meet_greet && auth.settings.meetGreetFeePence > 0) {
-      price = Number((price + auth.settings.meetGreetFeePence / 100).toFixed(2));
+    // Extras (Fleet & Pricing → Extras) are grossed up with the SAME site tax
+    // configuration as the fare, so nothing escapes VAT and nothing is taxed
+    // twice. Added last so they apply to direct, scenic and multi-stop rides.
+    const { applyTaxTo } = await import("@/lib/pricing");
+    const meetGreetFee = data.meet_greet ? auth.settings.meetGreetFeePence / 100 : 0;
+    const extrasNet = Number((childSeatFee + meetGreetFee).toFixed(2));
+    if (extrasNet > 0) {
+      const extrasTaxed = applyTaxTo(extrasNet, auth.settings.taxRate, auth.settings.taxMode);
+      price = Number((price + extrasTaxed.gross).toFixed(2));
     }
 
 
