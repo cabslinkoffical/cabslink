@@ -6,6 +6,7 @@ import { getPublicSeoPageByPath } from "@/lib/seo-public.functions";
 import { getRelatedSeoLinks } from "@/lib/seo-related.functions";
 import { SeoPageRenderer, buildSeoHead } from "@/components/seo/SeoPageRenderer";
 import { listDestinationsByType, type Destination } from "@/lib/destinations.functions";
+import { InternalLinkHub } from "@/components/seo/InternalLinkHub";
 
 const ORIGIN = "https://cabslink.com";
 
@@ -270,6 +271,13 @@ function AirportPage() {
           </div>
         </section>
       )}
+
+      {/* Automated services ↔ areas ↔ airports cross-links */}
+      <section className="section-y">
+        <div className="container-x">
+          <InternalLinkHub kind="airport" slug={airport.slug} className="" heading={`${shortName} transfers — where to next`} />
+        </div>
+      </section>
 
       {/* JSON-LD */}
       <script
