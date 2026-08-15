@@ -89,7 +89,13 @@ export function SchemeOverviewTab({ scheme, data, section = "base" }: { scheme: 
     onError: (e: any) => toast.error(e?.message ?? "Save failed"),
   });
 
-  const coveredMiles = form.cityIncludedMiles + form.shortMiles + form.mediumMiles + form.longMiles;
+  const coveredMiles = form.cityIncludedMiles + form.bands.reduce((s, b) => s + (Number(b.miles) || 0), 0);
+
+  const setBand = (i: number, patch: Partial<Band>) =>
+    setForm((f) => ({ ...f, bands: f.bands.map((b, idx) => (idx === i ? { ...b, ...patch } : b)) }));
+  const addBand = () =>
+    setForm((f) => ({ ...f, bands: [...f.bands, { name: `Band ${f.bands.length + 1}`, miles: 0, perMile: 0 }] }));
+  const removeBand = (i: number) => setForm((f) => ({ ...f, bands: f.bands.filter((_, idx) => idx !== i) }));
 
   return (
     <div className="space-y-6 max-w-5xl">
