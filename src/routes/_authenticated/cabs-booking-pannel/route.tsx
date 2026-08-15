@@ -5,7 +5,7 @@ import {
   LayoutDashboard, CalendarCheck, MapPin, Ban, Car, Tag, UserCog, Users,
   CreditCard, Ticket, FileText, BarChart3, Shield, Settings as SettingsIcon, History,
   LogOut, ExternalLink, Sun, Moon, Menu, X, Inbox, Gauge, Percent,
-  Plane, Wrench, Route as RouteIcon, ArrowLeftRight, Globe, UploadCloud,
+  Plane, Plus, Wrench, Route as RouteIcon, ArrowLeftRight, Globe, UploadCloud,
 } from "lucide-react";
 import { SidebarNav, type SidebarEntry } from "@/components/admin/SidebarNav";
 import { Breadcrumbs } from "@/components/admin/Breadcrumbs";
@@ -51,9 +51,7 @@ const NAV: SidebarEntry[] = [
       { to: "/cabs-booking-pannel/vehicle-classes", label: "Vehicle Classes", icon: Car },
       { to: "/cabs-booking-pannel/fleet", label: "Vehicle Records", icon: Wrench },
       { to: "/cabs-booking-pannel/pricing-schemes", label: "Pricing Schemes", icon: Gauge },
-      { to: "/cabs-booking-pannel/pricing", label: "Route Pricing", icon: Tag },
-      { to: "/cabs-booking-pannel/location-pricing", label: "Location Pricing", icon: MapPin },
-      { to: "/cabs-booking-pannel/pricing-modifiers", label: "Pricing Modifiers", icon: Percent },
+      { to: "/cabs-booking-pannel/extras", label: "Extras", icon: Plus },
       { to: "/cabs-booking-pannel/surcharges", label: "Surcharges", icon: Percent },
       { to: "/cabs-booking-pannel/coupons", label: "Coupons", icon: Ticket },
       { to: "/cabs-booking-pannel/availability", label: "Availability Rules", icon: Ban },
