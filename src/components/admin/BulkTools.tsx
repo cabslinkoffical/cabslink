@@ -51,8 +51,6 @@ export function BulkTools({
   const [skipInvalid, setSkipInvalid] = useState(true);
   const [parsing, setParsing] = useState(false);
 
-  if (!entity) return null;
-
   const exportMut = useMutation({
     mutationFn: async () => {
       const res = await exportBulkEntity({ data: { entity: entityKey } });
@@ -86,6 +84,8 @@ export function BulkTools({
     },
     onError: (e: unknown) => toast.error((e as Error).message ?? "Import failed"),
   });
+
+  if (!entity) return null;
 
   async function onFile(file: File | undefined) {
     if (!file) return;
