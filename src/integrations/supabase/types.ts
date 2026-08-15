@@ -96,6 +96,7 @@ export type Database = {
         Row: {
           active: boolean
           created_at: string
+          customer_message: string | null
           date_from: string | null
           date_to: string | null
           days_of_week: number[] | null
@@ -114,6 +115,11 @@ export type Database = {
           service_types: string[] | null
           time_from: string | null
           time_to: string | null
+          to_lat: number | null
+          to_lng: number | null
+          to_place_id: string | null
+          to_place_label: string | null
+          to_radius_miles: number | null
           updated_at: string
           vehicle_class_id: string | null
           vehicle_id: string | null
@@ -121,6 +127,7 @@ export type Database = {
         Insert: {
           active?: boolean
           created_at?: string
+          customer_message?: string | null
           date_from?: string | null
           date_to?: string | null
           days_of_week?: number[] | null
@@ -139,6 +146,11 @@ export type Database = {
           service_types?: string[] | null
           time_from?: string | null
           time_to?: string | null
+          to_lat?: number | null
+          to_lng?: number | null
+          to_place_id?: string | null
+          to_place_label?: string | null
+          to_radius_miles?: number | null
           updated_at?: string
           vehicle_class_id?: string | null
           vehicle_id?: string | null
@@ -146,6 +158,7 @@ export type Database = {
         Update: {
           active?: boolean
           created_at?: string
+          customer_message?: string | null
           date_from?: string | null
           date_to?: string | null
           days_of_week?: number[] | null
@@ -164,6 +177,11 @@ export type Database = {
           service_types?: string[] | null
           time_from?: string | null
           time_to?: string | null
+          to_lat?: number | null
+          to_lng?: number | null
+          to_place_id?: string | null
+          to_place_label?: string | null
+          to_radius_miles?: number | null
           updated_at?: string
           vehicle_class_id?: string | null
           vehicle_id?: string | null
