@@ -94,12 +94,22 @@ export type QuoteSettings = {
 };
 
 export async function loadQuoteSettings(client: ReturnType<typeof publicClient>): Promise<QuoteSettings> {
-  const { data } = await client
-    .from("site_settings")
-    .select("tax_enabled, tax_percentage, tax_label, tax_mode, tax_effective_from, currency, currency_symbol, child_seat_fee_pence, meet_greet_fee_pence, return_journey_fee_pence, policy_non_refundable_percent, policy_non_refundable_min_pence, policy_flexible_percent, policy_flexible_min_pence")
-    .eq("id", 1)
-    .maybeSingle();
+  const [{ data }, extras] = await Promise.all([
+    client
+      .from("site_settings")
+      .select("tax_enabled, tax_percentage, tax_label, tax_mode, tax_effective_from, currency, currency_symbol, child_seat_fee_pence, meet_greet_fee_pence, return_journey_fee_pence, policy_non_refundable_percent, policy_non_refundable_min_pence, policy_flexible_percent, policy_flexible_min_pence")
+      .eq("id", 1)
+      .maybeSingle(),
+    // Canonical Extras catalogue (admin → Extras) is the source of truth for
+    // add-on prices; site_settings only remains as a legacy fallback.
+    client.from("extras").select("key, price_pence, active").eq("active", true),
+  ]);
   const row: any = data ?? {};
+  const extraPence = new Map<string, number>(
+    (extras.data ?? []).map((e: any) => [String(e.key), Math.max(0, Number(e.price_pence) || 0)]),
+  );
+  const feeFor = (key: string, legacy: unknown) =>
+    extraPence.has(key) ? extraPence.get(key)! : Math.max(0, Number(legacy) || 0);
   const enabled = !!row.tax_enabled;
   const pct = Math.max(0, Math.min(100, Number(row.tax_percentage) || 0));
   return {
@@ -110,14 +120,15 @@ export async function loadQuoteSettings(client: ReturnType<typeof publicClient>)
     taxEffectiveFrom: (row.tax_effective_from as string) ?? null,
     currency: (row.currency as string) || "GBP",
     currencySymbol: (row.currency_symbol as string) || "£",
-    childSeatFeePence: Math.max(0, Number(row.child_seat_fee_pence) || 0),
-    meetGreetFeePence: Math.max(0, Number(row.meet_greet_fee_pence) || 0),
-    returnJourneyFeePence: Math.max(0, Number(row.return_journey_fee_pence) || 0),
+    childSeatFeePence: feeFor("child_seat", row.child_seat_fee_pence),
+    meetGreetFeePence: feeFor("meet_greet", row.meet_greet_fee_pence),
+    returnJourneyFeePence: feeFor("return_journey", row.return_journey_fee_pence),
     policyNonRefundablePercent: Math.max(0, Math.min(100, Number(row.policy_non_refundable_percent) || 0)),
     policyNonRefundableMinPence: Math.max(0, Number(row.policy_non_refundable_min_pence) || 0),
     policyFlexiblePercent: Math.max(0, Math.min(100, Number(row.policy_flexible_percent) || 0)),
     policyFlexibleMinPence: Math.max(0, Number(row.policy_flexible_min_pence) || 0),
   };
+
 }
 
 // -------------------------------------------------------------------
