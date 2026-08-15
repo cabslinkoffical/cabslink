@@ -161,8 +161,10 @@ export type FixedRouteRule = {
   to_lng: number | null;
   from_radius_miles: number;
   to_radius_miles: number;
+  /** CANONICAL: the rule applies in both directions, including return legs. */
   bidirectional: boolean;
-  valid_for_return: boolean;
+  /** Legacy alias of `bidirectional`, read only when `bidirectional` is unset. */
+  valid_for_return?: boolean;
   priority: number;
   valid_from: string | null;
   valid_to: string | null;
@@ -177,6 +179,11 @@ export type FixedRouteMatch = {
   price: number;
   reversed: boolean;
 };
+
+/** One source of truth for "this fixed route works in both directions". */
+export function bothWays(r: { bidirectional?: boolean | null; valid_for_return?: boolean | null }): boolean {
+  return (r.bidirectional ?? r.valid_for_return) === true;
+}
 
 function endpointHit(
   placeId: string | null,
@@ -211,7 +218,7 @@ export function matchFixedRoute(
       reasons.push(`Fixed route "${r.id}" skipped: outside its valid date range.`);
       continue;
     }
-    if (ctx.isReturn && r.valid_for_return === false) {
+    if (ctx.isReturn && !bothWays(r)) {
       reasons.push(`Fixed route "${r.id}" skipped: not valid for return journeys.`);
       continue;
     }
@@ -229,7 +236,7 @@ export function matchFixedRoute(
       continue;
     }
 
-    if (r.bidirectional === true) {
+    if (bothWays(r)) {
       const revFrom = endpointHit(r.from_place_id, r.from_lat, r.from_lng, r.from_radius_miles, ctx.destinationPlaceId, ctx.destinationCoord);
       const revTo = endpointHit(r.to_place_id, r.to_lat, r.to_lng, r.to_radius_miles, ctx.pickupPlaceId, ctx.pickupCoord);
       if (revFrom.hit && revTo.hit) {

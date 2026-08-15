@@ -256,7 +256,7 @@ const routeSchema = z.object({
   to_place_label: z.string().trim().min(1).max(500),
   to_radius_miles: miles.default(0),
   price: money,
-  valid_for_return: z.boolean().default(true),
+  bidirectional: z.boolean().default(true),
   priority: z.coerce.number().int().min(0).max(1000).default(100),
   notes: z.string().trim().max(1000).nullable().optional(),
   active: z.boolean().default(true),
@@ -295,8 +295,9 @@ export const upsertSchemeRoute = createServerFn({ method: "POST" })
       price: data.price,
       currency: "GBP",
       // One bidirectional record — never a duplicated reverse row.
-      bidirectional: data.valid_for_return,
-      valid_for_return: data.valid_for_return,
+      // `bidirectional` is canonical; `valid_for_return` kept in sync for legacy readers.
+      bidirectional: data.bidirectional,
+      valid_for_return: data.bidirectional,
       priority: data.priority,
       notes: data.notes || null,
       active: data.active,
@@ -338,7 +339,7 @@ export const previewRouteConflicts = createServerFn({ method: "POST" })
       to_radius_miles: miles.default(0),
       price: money,
       priority: z.coerce.number().int().min(0).max(1000).default(100),
-      valid_for_return: z.boolean().default(true),
+      bidirectional: z.boolean().default(true),
     }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -366,8 +367,9 @@ export const previewRouteConflicts = createServerFn({ method: "POST" })
       from_lat: from.lat, from_lng: from.lng, to_lat: to.lat, to_lng: to.lng,
       from_radius_miles: data.from_radius_miles,
       to_radius_miles: data.to_radius_miles,
-      bidirectional: data.valid_for_return,
-      valid_for_return: data.valid_for_return,
+      // `bidirectional` is canonical; `valid_for_return` kept in sync for legacy readers.
+      bidirectional: data.bidirectional,
+      valid_for_return: data.bidirectional,
       priority: data.priority,
       valid_from: null, valid_to: null, active: true,
     };
@@ -385,7 +387,6 @@ export const previewRouteConflicts = createServerFn({ method: "POST" })
         from_radius_miles: Number(r.from_radius_miles ?? 0),
         to_radius_miles: Number(r.to_radius_miles ?? 0),
         bidirectional: !!r.bidirectional,
-        valid_for_return: r.valid_for_return !== false,
         priority: Number(r.priority ?? 100),
         valid_from: r.valid_from, valid_to: r.valid_to, active: !!r.active,
         _label: `${r.from_place_label ?? r.from_address} → ${r.to_place_label ?? r.to_address}`,
