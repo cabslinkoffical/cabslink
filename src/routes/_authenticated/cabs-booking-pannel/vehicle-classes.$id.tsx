@@ -15,6 +15,7 @@ import { StatusBadge } from "@/components/admin/ui";
 import { emptyPricing, ExtrasEditor, HeroImageUploader, MileageEditor, type PricingForm } from "@/components/admin/PricingEditors";
 import {
   listVehicleClassesAdmin, upsertVehicleClass, upsertVehicleModel, deleteVehicleModel,
+  ensureClassPricingRecord,
 } from "@/lib/vehicle-classes.functions";
 import { listVehiclesAdmin } from "@/lib/admin.functions";
 import { adminListPricingProfiles, adminSavePricingProfile } from "@/lib/pricing.functions";
@@ -79,6 +80,7 @@ function EditorPage() {
   const { data: availRules } = useSuspenseQuery(availOpts);
 
   const saveClassFn = useServerFn(upsertVehicleClass);
+  const ensurePricingFn = useServerFn(ensureClassPricingRecord);
   const savePricingFn = useServerFn(adminSavePricingProfile);
   const saveHourlyFn = useServerFn(adminSaveHourlyRate);
   const saveModelFn = useServerFn(upsertVehicleModel);
