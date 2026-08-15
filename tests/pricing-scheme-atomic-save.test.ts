@@ -13,6 +13,9 @@ vi.mock("@tanstack/react-start", () => {
 });
 vi.mock("@tanstack/react-start/server", () => ({ getRequestIP: () => "1.1.1.1", setResponseStatus: () => {} }));
 vi.mock("@/integrations/supabase/auth-middleware", () => ({ requireSupabaseAuth: {} }));
+// The save routine is no longer callable by signed-in accounts; the server
+// function verifies the admin role, then calls it with the trusted client.
+vi.mock("@/integrations/supabase/client.server", () => ({ get supabaseAdmin() { return fakeSupabase; } }));
 
 const rpcCalls: Array<{ name: string; args: any }> = [];
 const tableWrites: Array<{ table: string; op: string }> = [];
