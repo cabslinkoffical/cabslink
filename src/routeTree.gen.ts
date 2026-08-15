@@ -128,6 +128,7 @@ import { Route as AuthenticatedCabsBookingPannelSeoLocationsRouteImport } from '
 import { Route as AuthenticatedCabsBookingPannelSeoIssuesRouteImport } from './routes/_authenticated/cabs-booking-pannel/seo.issues'
 import { Route as AuthenticatedCabsBookingPannelSeoImportRouteImport } from './routes/_authenticated/cabs-booking-pannel/seo.import'
 import { Route as AuthenticatedCabsBookingPannelSeoAirportsRouteImport } from './routes/_authenticated/cabs-booking-pannel/seo.airports'
+import { Route as AuthenticatedCabsBookingPannelPricingSchemesIdRouteImport } from './routes/_authenticated/cabs-booking-pannel/pricing-schemes.$id'
 import { Route as AuthenticatedCabsBookingPannelBlogTagsRouteImport } from './routes/_authenticated/cabs-booking-pannel/blog.tags'
 import { Route as AuthenticatedCabsBookingPannelBlogCategoriesRouteImport } from './routes/_authenticated/cabs-booking-pannel/blog.categories'
 import { Route as AuthenticatedCabsBookingPannelBlogAuthorsRouteImport } from './routes/_authenticated/cabs-booking-pannel/blog.authors'
@@ -769,6 +770,12 @@ const AuthenticatedCabsBookingPannelSeoAirportsRoute =
     path: '/seo/airports',
     getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
+const AuthenticatedCabsBookingPannelPricingSchemesIdRoute =
+  AuthenticatedCabsBookingPannelPricingSchemesIdRouteImport.update({
+    id: '/pricing-schemes/$id',
+    path: '/pricing-schemes/$id',
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
+  } as any)
 const AuthenticatedCabsBookingPannelBlogTagsRoute =
   AuthenticatedCabsBookingPannelBlogTagsRouteImport.update({
     id: '/blog/tags',
@@ -910,6 +917,7 @@ export interface FileRoutesByFullPath {
   '/cabs-booking-pannel/blog/authors': typeof AuthenticatedCabsBookingPannelBlogAuthorsRoute
   '/cabs-booking-pannel/blog/categories': typeof AuthenticatedCabsBookingPannelBlogCategoriesRoute
   '/cabs-booking-pannel/blog/tags': typeof AuthenticatedCabsBookingPannelBlogTagsRoute
+  '/cabs-booking-pannel/pricing-schemes/$id': typeof AuthenticatedCabsBookingPannelPricingSchemesIdRoute
   '/cabs-booking-pannel/seo/airports': typeof AuthenticatedCabsBookingPannelSeoAirportsRoute
   '/cabs-booking-pannel/seo/import': typeof AuthenticatedCabsBookingPannelSeoImportRoute
   '/cabs-booking-pannel/seo/issues': typeof AuthenticatedCabsBookingPannelSeoIssuesRoute
@@ -1033,6 +1041,7 @@ export interface FileRoutesByTo {
   '/cabs-booking-pannel/blog/authors': typeof AuthenticatedCabsBookingPannelBlogAuthorsRoute
   '/cabs-booking-pannel/blog/categories': typeof AuthenticatedCabsBookingPannelBlogCategoriesRoute
   '/cabs-booking-pannel/blog/tags': typeof AuthenticatedCabsBookingPannelBlogTagsRoute
+  '/cabs-booking-pannel/pricing-schemes/$id': typeof AuthenticatedCabsBookingPannelPricingSchemesIdRoute
   '/cabs-booking-pannel/seo/airports': typeof AuthenticatedCabsBookingPannelSeoAirportsRoute
   '/cabs-booking-pannel/seo/import': typeof AuthenticatedCabsBookingPannelSeoImportRoute
   '/cabs-booking-pannel/seo/issues': typeof AuthenticatedCabsBookingPannelSeoIssuesRoute
@@ -1160,6 +1169,7 @@ export interface FileRoutesById {
   '/_authenticated/cabs-booking-pannel/blog/authors': typeof AuthenticatedCabsBookingPannelBlogAuthorsRoute
   '/_authenticated/cabs-booking-pannel/blog/categories': typeof AuthenticatedCabsBookingPannelBlogCategoriesRoute
   '/_authenticated/cabs-booking-pannel/blog/tags': typeof AuthenticatedCabsBookingPannelBlogTagsRoute
+  '/_authenticated/cabs-booking-pannel/pricing-schemes/$id': typeof AuthenticatedCabsBookingPannelPricingSchemesIdRoute
   '/_authenticated/cabs-booking-pannel/seo/airports': typeof AuthenticatedCabsBookingPannelSeoAirportsRoute
   '/_authenticated/cabs-booking-pannel/seo/import': typeof AuthenticatedCabsBookingPannelSeoImportRoute
   '/_authenticated/cabs-booking-pannel/seo/issues': typeof AuthenticatedCabsBookingPannelSeoIssuesRoute
@@ -1287,6 +1297,7 @@ export interface FileRouteTypes {
     | '/cabs-booking-pannel/blog/authors'
     | '/cabs-booking-pannel/blog/categories'
     | '/cabs-booking-pannel/blog/tags'
+    | '/cabs-booking-pannel/pricing-schemes/$id'
     | '/cabs-booking-pannel/seo/airports'
     | '/cabs-booking-pannel/seo/import'
     | '/cabs-booking-pannel/seo/issues'
@@ -1410,6 +1421,7 @@ export interface FileRouteTypes {
     | '/cabs-booking-pannel/blog/authors'
     | '/cabs-booking-pannel/blog/categories'
     | '/cabs-booking-pannel/blog/tags'
+    | '/cabs-booking-pannel/pricing-schemes/$id'
     | '/cabs-booking-pannel/seo/airports'
     | '/cabs-booking-pannel/seo/import'
     | '/cabs-booking-pannel/seo/issues'
@@ -1536,6 +1548,7 @@ export interface FileRouteTypes {
     | '/_authenticated/cabs-booking-pannel/blog/authors'
     | '/_authenticated/cabs-booking-pannel/blog/categories'
     | '/_authenticated/cabs-booking-pannel/blog/tags'
+    | '/_authenticated/cabs-booking-pannel/pricing-schemes/$id'
     | '/_authenticated/cabs-booking-pannel/seo/airports'
     | '/_authenticated/cabs-booking-pannel/seo/import'
     | '/_authenticated/cabs-booking-pannel/seo/issues'
@@ -2469,6 +2482,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCabsBookingPannelSeoAirportsRouteImport
       parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
+    '/_authenticated/cabs-booking-pannel/pricing-schemes/$id': {
+      id: '/_authenticated/cabs-booking-pannel/pricing-schemes/$id'
+      path: '/pricing-schemes/$id'
+      fullPath: '/cabs-booking-pannel/pricing-schemes/$id'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelPricingSchemesIdRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
+    }
     '/_authenticated/cabs-booking-pannel/blog/tags': {
       id: '/_authenticated/cabs-booking-pannel/blog/tags'
       path: '/blog/tags'
@@ -2551,6 +2571,7 @@ interface AuthenticatedCabsBookingPannelRouteRouteChildren {
   AuthenticatedCabsBookingPannelBlogAuthorsRoute: typeof AuthenticatedCabsBookingPannelBlogAuthorsRoute
   AuthenticatedCabsBookingPannelBlogCategoriesRoute: typeof AuthenticatedCabsBookingPannelBlogCategoriesRoute
   AuthenticatedCabsBookingPannelBlogTagsRoute: typeof AuthenticatedCabsBookingPannelBlogTagsRoute
+  AuthenticatedCabsBookingPannelPricingSchemesIdRoute: typeof AuthenticatedCabsBookingPannelPricingSchemesIdRoute
   AuthenticatedCabsBookingPannelSeoAirportsRoute: typeof AuthenticatedCabsBookingPannelSeoAirportsRoute
   AuthenticatedCabsBookingPannelSeoImportRoute: typeof AuthenticatedCabsBookingPannelSeoImportRoute
   AuthenticatedCabsBookingPannelSeoIssuesRoute: typeof AuthenticatedCabsBookingPannelSeoIssuesRoute
@@ -2624,6 +2645,8 @@ const AuthenticatedCabsBookingPannelRouteRouteChildren: AuthenticatedCabsBooking
       AuthenticatedCabsBookingPannelBlogCategoriesRoute,
     AuthenticatedCabsBookingPannelBlogTagsRoute:
       AuthenticatedCabsBookingPannelBlogTagsRoute,
+    AuthenticatedCabsBookingPannelPricingSchemesIdRoute:
+      AuthenticatedCabsBookingPannelPricingSchemesIdRoute,
     AuthenticatedCabsBookingPannelSeoAirportsRoute:
       AuthenticatedCabsBookingPannelSeoAirportsRoute,
     AuthenticatedCabsBookingPannelSeoImportRoute:
