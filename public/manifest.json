@@ -1,0 +1,22 @@
+{
+  "name": "Cabslink — UK Airport Transfers",
+  "short_name": "Cabslink",
+  "description": "Book premium UK airport transfers, private tours and hourly hire with Cabslink.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0E182C",
+  "theme_color": "#0E182C",
+  "lang": "en-GB",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Book a transfer", "url": "/book" },
+    { "name": "Private tours", "url": "/tours" }
+  ]
+}

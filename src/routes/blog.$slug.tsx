@@ -61,7 +61,7 @@ export const Route = createFileRoute("/blog/$slug")({
       publisher: {
         "@type": "Organization",
         name: "Cabslink",
-        logo: { "@type": "ImageObject", url: `${BASE}/favicon.ico` },
+        logo: { "@type": "ImageObject", url: `${BASE}/icons/icon-512.png` },
       },
       articleSection: p.category?.name,
       keywords: p.tags.map((t) => t.name).join(", ") || undefined,
