@@ -136,7 +136,179 @@ function Page() {
     setForm({ ...form, days_of_week: cur.includes(d) ? cur.filter((x) => x !== d) : [...cur, d].sort() });
   }
 
+  if (form) {
+    const isRoute = form.rule_scope === "route";
+    return (
+      <div className="p-6 md:p-8 space-y-6">
+        <PageHeader
+          title={form.id ? "Edit availability rule" : "New availability rule"}
+          description="Set what this rule applies to, when it applies, and what the customer sees if it blocks their journey."
+        >
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={() => setForm(null)}><ArrowLeft className="size-4 mr-1" /> Back to rules</Button>
+            <Button onClick={() => save.mutate(form)} disabled={save.isPending}>Save rule</Button>
+          </div>
+        </PageHeader>
+
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] items-start">
+          <div className="admin-card p-5 grid grid-cols-2 gap-3">
+            <div className="col-span-2">
+              <Label htmlFor="av-name">Name *</Label>
+              <Input id="av-name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+            </div>
+            <div>
+              <Label htmlFor="av-scope">Applies to</Label>
+              <select id="av-scope" className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={form.rule_scope} onChange={(e) => setForm({ ...form, rule_scope: e.target.value })}>
+                <option value="global">Everything (global)</option>
+                <option value="service">Specific service types</option>
+                <option value="vehicle_class">Specific vehicle class</option>
+                <option value="vehicle">Single vehicle</option>
+                <option value="route">Route (from → to)</option>
+                <option value="location">Location / area</option>
+              </select>
+            </div>
+            <div>
+              <Label htmlFor="av-effect">Effect</Label>
+              <select id="av-effect" className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={form.effect} onChange={(e) => setForm({ ...form, effect: e.target.value })}>
+                <option value="block">Block bookings</option>
+                <option value="allow">Allow (override a broader block)</option>
+              </select>
+            </div>
+
+            {form.rule_scope === "vehicle" && (
+              <div className="col-span-2">
+                <Label htmlFor="av-vehicle">Vehicle *</Label>
+                <select id="av-vehicle" className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={form.vehicle_id ?? ""} onChange={(e) => setForm({ ...form, vehicle_id: e.target.value || null })}>
+                  <option value="">Select vehicle</option>
+                  {vehicles.map((v: any) => <option key={v.id} value={v.id}>{v.name}</option>)}
+                </select>
+              </div>
+            )}
+            {form.rule_scope === "vehicle_class" && (
+              <div className="col-span-2">
+                <Label htmlFor="av-class">Vehicle class *</Label>
+                <select id="av-class" className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={form.vehicle_class_id ?? ""} onChange={(e) => setForm({ ...form, vehicle_class_id: e.target.value || null })}>
+                  <option value="">Select class</option>
+                  {classData.classes.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+              </div>
+            )}
+            <div className="col-span-2">
+              <Label>Service types {form.rule_scope === "service" ? "*" : "(empty = all)"}</Label>
+              <Chips options={SERVICE_TYPE_OPTIONS} selected={form.service_types ?? []} onToggle={toggleService} />
+            </div>
+
+            {isRoute ? (
+              <>
+                <div className="col-span-2">
+                  <Label htmlFor="av-from-place">From location *</Label>
+                  <PlaceAutocomplete
+                    id="av-from-place"
+                    value={form.place_id ? { placeId: form.place_id, label: form.place_label ?? "" } : null}
+                    onChange={(p: any) => setForm({ ...form, place_id: p?.placeId ?? null, place_label: p?.label ?? null, lat: null, lng: null })}
+                    placeholder="Search the start town, airport or postcode"
+                  />
+                </div>
+                <div className="col-span-2">
+                  <Label htmlFor="av-to-place">To location *</Label>
+                  <PlaceAutocomplete
+                    id="av-to-place"
+                    value={form.to_place_id ? { placeId: form.to_place_id, label: form.to_place_label ?? "" } : null}
+                    onChange={(p: any) => setForm({ ...form, to_place_id: p?.placeId ?? null, to_place_label: p?.label ?? null })}
+                    placeholder="Search the destination town, airport or postcode"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="av-from-radius">From radius (miles)</Label>
+                  <Input id="av-from-radius" type="number" step="0.5" min="0" value={form.radius_miles ?? ""}
+                    onChange={(e) => setForm({ ...form, radius_miles: e.target.value === "" ? null : Number(e.target.value) })} />
+                </div>
+                <div>
+                  <Label htmlFor="av-to-radius">To radius (miles)</Label>
+                  <Input id="av-to-radius" type="number" step="0.5" min="0" value={form.to_radius_miles ?? ""}
+                    onChange={(e) => setForm({ ...form, to_radius_miles: e.target.value === "" ? null : Number(e.target.value) })} />
+                </div>
+                <p className="col-span-2 text-xs text-muted-foreground">Route rules match in both directions.</p>
+              </>
+            ) : (
+              <GeoFields id="av-place" form={form} setForm={setForm} radiusRequired={form.rule_scope === "location"} />
+            )}
+
+            <div>
+              <Label htmlFor="av-from">Date from</Label>
+              <Input id="av-from" type="date" value={form.date_from} onChange={(e) => setForm({ ...form, date_from: e.target.value })} />
+            </div>
+            <div>
+              <Label htmlFor="av-to">Date to</Label>
+              <Input id="av-to" type="date" value={form.date_to} onChange={(e) => setForm({ ...form, date_to: e.target.value })} />
+            </div>
+            <div>
+              <Label htmlFor="av-tfrom">Time from</Label>
+              <Input id="av-tfrom" type="time" value={form.time_from} onChange={(e) => setForm({ ...form, time_from: e.target.value })} />
+            </div>
+            <div>
+              <Label htmlFor="av-tto">Time to</Label>
+              <Input id="av-tto" type="time" value={form.time_to} onChange={(e) => setForm({ ...form, time_to: e.target.value })} />
+            </div>
+            <div className="col-span-2">
+              <Label>Days of week (empty = all)</Label>
+              <DayPicker selected={form.days_of_week ?? []} onToggle={toggleDay} />
+            </div>
+
+            <div>
+              <Label htmlFor="av-priority">Priority</Label>
+              <Input id="av-priority" type="number" min="0" value={form.priority} onChange={(e) => setForm({ ...form, priority: Number(e.target.value) })} />
+            </div>
+            <div className="flex items-end gap-2 pb-1">
+              <Switch id="av-active" checked={form.active} onCheckedChange={(v) => setForm({ ...form, active: v })} />
+              <Label htmlFor="av-active">Active</Label>
+            </div>
+
+            <div className="col-span-2">
+              <Label htmlFor="av-reason">Reason (shown to staff only)</Label>
+              <Textarea id="av-reason" rows={2} value={form.reason ?? ""} onChange={(e) => setForm({ ...form, reason: e.target.value })} />
+            </div>
+            <div className="col-span-2">
+              <Label htmlFor="av-cust">Reason shown to the customer (optional)</Label>
+              <Textarea id="av-cust" rows={2} maxLength={400} placeholder="e.g. This vehicle is fully booked for your selected date — please pick another class or contact us."
+                value={form.customer_message ?? ""} onChange={(e) => setForm({ ...form, customer_message: e.target.value })} />
+              <p className="mt-1 text-xs text-muted-foreground">Shown on the booking form when this rule blocks a journey. Leave empty to use the default message.</p>
+            </div>
+            <div className="col-span-2 flex justify-end gap-2 border-t border-border pt-3">
+              <Button variant="outline" onClick={() => setForm(null)}>Cancel</Button>
+              <Button onClick={() => save.mutate(form)} disabled={save.isPending}>Save rule</Button>
+            </div>
+          </div>
+
+          <div className="admin-card p-5 lg:sticky lg:top-6">
+            <h3 className="font-semibold mb-1">Coverage map</h3>
+            <p className="text-xs text-muted-foreground mb-3">
+              {isRoute ? "Live route between the start and end areas, with both radius circles." : "Live marker and radius circle for the selected area."}
+            </p>
+            <AdminMapEditor
+              mode={isRoute ? "route" : "radius"}
+              origin={form.place_id ? { placeId: form.place_id, label: form.place_label ?? "" } : null}
+              destination={isRoute && form.to_place_id ? { placeId: form.to_place_id, label: form.to_place_label ?? "" } : null}
+              radiusMiles={form.radius_miles ?? null}
+              destinationRadiusMiles={form.to_radius_miles ?? null}
+              height={420}
+              onClearOrigin={() => setForm({ ...form, place_id: null, place_label: null })}
+              onClearDestination={isRoute ? () => setForm({ ...form, to_place_id: null, to_place_label: null }) : undefined}
+              onReverse={isRoute ? () => setForm({
+                ...form,
+                place_id: form.to_place_id, place_label: form.to_place_label,
+                to_place_id: form.place_id, to_place_label: form.place_label,
+                radius_miles: form.to_radius_miles, to_radius_miles: form.radius_miles,
+              }) : undefined}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
+
     <div className="p-6 md:p-8 space-y-6">
       <PageHeader
         title="Availability Rules"
