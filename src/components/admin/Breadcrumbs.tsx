@@ -31,7 +31,6 @@ const LABELS: Record<string, string> = {
   airports: "Airports",
   services: "Services",
   routes: "Routes",
-  issues: "Issues",
   redirects: "Redirects",
   import: "Import",
   reports: "Reports",
