@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { resolveExtra, extraPence, type ExtrasCatalogue } from "@/lib/extras-pricing";
 import { computeHourlyBase } from "@/lib/hourly-base";
+import { bothWays } from "@/lib/pricing-rules";
 
 const CLASS_A = "11111111-1111-4111-8111-111111111111";
 const CLASS_B = "22222222-2222-4222-8222-222222222222";
@@ -80,5 +81,45 @@ describe("hourly / day-hire base", () => {
     const r = computeHourlyBase({ perHour: 40, chargedHours: 8, dailyPrice: 500, includedHoursPerDay: 8 });
     expect(r.total).toBe(320);
     expect(r.basis).toBe("hourly");
+  });
+});
+
+describe("legacy bidirectional / valid_for_return semantics", () => {
+  it("treats a legacy row with only valid_for_return=true as both-ways", () => {
+    expect(bothWays({ bidirectional: null, valid_for_return: true })).toBe(true);
+  });
+
+  it("does not silently flip a legacy mismatch row to one-way", () => {
+    // Post-migration these rows carry bidirectional=true; the reader must agree.
+    expect(bothWays({ bidirectional: true, valid_for_return: true })).toBe(true);
+  });
+
+  it("keeps genuinely one-way rules one-way", () => {
+    expect(bothWays({ bidirectional: false, valid_for_return: false })).toBe(false);
+    expect(bothWays({ bidirectional: null, valid_for_return: null })).toBe(false);
+  });
+
+  it("prefers the canonical field when both are present", () => {
+    expect(bothWays({ bidirectional: true, valid_for_return: false })).toBe(true);
+  });
+});
+
+describe("admin extras override changes the customer quote", () => {
+  const legacyChildSeat = 1500;
+  it("an active admin extra with a class override sets the charged amount, not site settings", () => {
+    const cat: ExtrasCatalogue = [
+      {
+        key: "child_seat",
+        active: true,
+        price_pence: 800,
+        applies_to_all_classes: true,
+        class_prices: { [CLASS_B]: 2500 },
+      },
+    ];
+    const quoteWithLegacyOnly = extraPence([], "child_seat", CLASS_B, legacyChildSeat);
+    const quoteWithAdminExtra = extraPence(cat, "child_seat", CLASS_B, legacyChildSeat);
+    expect(quoteWithLegacyOnly).toBe(1500);
+    expect(quoteWithAdminExtra).toBe(2500);
+    expect(quoteWithAdminExtra).not.toBe(quoteWithLegacyOnly);
   });
 });
