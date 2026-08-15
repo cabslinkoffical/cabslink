@@ -1191,6 +1191,7 @@ export type Database = {
           parent_id: string | null
           place_id: string | null
           popular_route_ids: string[]
+          published: boolean
           region: string | null
           related_service_ids: string[]
           search_vector: unknown
@@ -1220,6 +1221,7 @@ export type Database = {
           parent_id?: string | null
           place_id?: string | null
           popular_route_ids?: string[]
+          published?: boolean
           region?: string | null
           related_service_ids?: string[]
           search_vector?: unknown
@@ -1249,6 +1251,7 @@ export type Database = {
           parent_id?: string | null
           place_id?: string | null
           popular_route_ids?: string[]
+          published?: boolean
           region?: string | null
           related_service_ids?: string[]
           search_vector?: unknown
