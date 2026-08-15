@@ -22,6 +22,7 @@ import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
 import { BulkTools } from "@/components/admin/BulkTools";
 import { GeoFields, Chips, DayPicker, SERVICE_TYPE_OPTIONS, DAYS } from "@/components/admin/RuleFields";
 import { AvailabilityCalendar } from "@/components/admin/AvailabilityCalendar";
+import { PlaceAutocomplete } from "@/components/site/PlaceAutocomplete";
 
 const opts = queryOptions({ queryKey: ["admin", "availability-rules"], queryFn: () => listAvailabilityRules() });
 const classOpts = queryOptions({ queryKey: ["admin", "vehicle-classes"], queryFn: () => listVehicleClassesAdmin() });
@@ -60,10 +61,14 @@ const empty = {
   time_to: "",
   place_id: null as string | null,
   place_label: null as string | null,
+  to_place_id: null as string | null,
+  to_place_label: null as string | null,
+  to_radius_miles: 10,
   radius_miles: 10,
   scope: "either",
   priority: 100,
   reason: "",
+  customer_message: "",
   active: true,
 };
 
@@ -72,7 +77,18 @@ const SCOPE_LABEL: Record<string, string> = {
   service: "Service",
   vehicle_class: "Vehicle class",
   vehicle: "Single vehicle",
+  route: "Route",
+  location: "Location",
 };
+
+const TABS: { key: string; label: string; hint: string; scopes: string[]; newScope: string }[] = [
+  { key: "all", label: "All rules", hint: "Every availability rule across the booking system.", scopes: [], newScope: "global" },
+  { key: "vehicle", label: "Vehicles", hint: "Turn a vehicle or a whole vehicle class off for chosen dates, days, times or areas.", scopes: ["vehicle", "vehicle_class"], newScope: "vehicle_class" },
+  { key: "route", label: "Routes", hint: "Close a specific route (from area → to area) for chosen dates, days or times. Matches both directions.", scopes: ["route"], newScope: "route" },
+  { key: "location", label: "Locations", hint: "Block pickups and/or drop-offs inside an area, optionally only on certain dates, days or times.", scopes: ["location"], newScope: "location" },
+  { key: "service", label: "Services", hint: "Close specific service types, e.g. airport transfers or tours.", scopes: ["service"], newScope: "service" },
+  { key: "global", label: "Global", hint: "Close the whole booking system for a date range, day or time window.", scopes: ["global"], newScope: "global" },
+];
 
 function Page() {
   const { data } = useSuspenseQuery(opts);
@@ -83,6 +99,11 @@ function Page() {
   const del = useServerFn(deleteAvailabilityRule);
   const [form, setForm] = useState<any>(null);
   const [view, setView] = useState<"list" | "calendar">("list");
+  const [tab, setTab] = useState<string>("all");
+  const activeTab = TABS.find((t) => t.key === tab) ?? TABS[0]!;
+  const rules = (data as any[]).filter((r) =>
+    activeTab.scopes.length === 0 ? true : activeTab.scopes.includes(r.rule_scope),
+  );
 
   const openEdit = (r: any) => setForm({
     ...empty, ...r,
@@ -91,6 +112,7 @@ function Page() {
     date_from: r.date_from ?? "", date_to: r.date_to ?? "",
     time_from: r.time_from ?? "", time_to: r.time_to ?? "",
     reason: r.reason ?? "",
+    customer_message: r.customer_message ?? "",
   });
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ["admin", "availability-rules"] });
@@ -118,7 +140,7 @@ function Page() {
     <div className="p-6 md:p-8 space-y-6">
       <PageHeader
         title="Availability Rules"
-        description="Block or explicitly allow bookings by vehicle, class, service, area, date or time. The most specific matching rule wins; ties break to block."
+        description="Block or explicitly allow bookings by vehicle, route, location, service or globally — down to the date, day and time. The most specific matching rule wins; ties break to block."
       >
         <BulkTools entity="availability_rules" onChanged={() => qc.invalidateQueries({ queryKey: ["admin", "availability-rules"] })} />
         <div className="flex items-center gap-2">
@@ -130,17 +152,32 @@ function Page() {
               <CalendarDays className="size-4 mr-1" /> Calendar
             </Button>
           </div>
-          <Button onClick={() => setForm({ ...empty })}><Plus className="size-4 mr-1" /> New rule</Button>
+          <Button onClick={() => setForm({ ...empty, rule_scope: activeTab.newScope })}><Plus className="size-4 mr-1" /> New rule</Button>
         </div>
       </PageHeader>
 
+      <div className="space-y-2">
+        <div className="flex flex-wrap gap-1 rounded-lg border border-border bg-muted/40 p-1">
+          {TABS.map((t) => {
+            const count = t.scopes.length === 0 ? (data as any[]).length : (data as any[]).filter((r) => t.scopes.includes(r.rule_scope)).length;
+            return (
+              <Button key={t.key} size="sm" variant={tab === t.key ? "secondary" : "ghost"} onClick={() => setTab(t.key)}>
+                {t.label}
+                <span className="ml-1.5 text-xs text-muted-foreground">{count}</span>
+              </Button>
+            );
+          })}
+        </div>
+        <p className="text-sm text-muted-foreground">{activeTab.hint}</p>
+      </div>
+
       {view === "calendar" ? (
-        <AvailabilityCalendar rules={data as any} onSelectRule={openEdit} />
-      ) : data.length === 0 ? (
-        <EmptyState title="No availability rules" hint="Everything is bookable. Add a rule to close a date, area or vehicle." />
+        <AvailabilityCalendar rules={rules as any} onSelectRule={openEdit} />
+      ) : rules.length === 0 ? (
+        <EmptyState title="No rules in this tab" hint="Everything here is bookable. Use New rule to close a date, area, route or vehicle." />
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {data.map((r: any) => (
+          {rules.map((r: any) => (
             <div key={r.id} className="admin-card p-4">
               <div className="flex items-start justify-between gap-2">
                 <div>
@@ -158,21 +195,17 @@ function Page() {
                 {r.vehicle?.name && <div>Vehicle: {r.vehicle.name}</div>}
                 {r.vehicle_class?.name && <div>Class: {r.vehicle_class.name}</div>}
                 {r.service_types?.length > 0 && <div>Services: {r.service_types.join(", ")}</div>}
-                {r.place_label && <div>{r.place_label} · {Number(r.radius_miles)} mi · {r.scope}</div>}
+                {r.rule_scope === "route"
+                  ? (r.place_label || r.to_place_label) && <div>{r.place_label ?? "—"} → {r.to_place_label ?? "—"}</div>
+                  : r.place_label && <div>{r.place_label} · {Number(r.radius_miles)} mi · {r.scope}</div>}
                 {(r.date_from || r.date_to) && <div>{r.date_from ?? "—"} → {r.date_to ?? "—"}</div>}
                 {(r.time_from || r.time_to) && <div>{r.time_from ?? "00:00"} – {r.time_to ?? "23:59"}</div>}
                 {r.days_of_week?.length > 0 && <div>{r.days_of_week.map((d: number) => DAYS[d]).join(", ")}</div>}
                 {r.reason && <div className="italic">{r.reason}</div>}
+                {r.customer_message && <div className="text-[var(--gold)]">Customer sees: “{r.customer_message}”</div>}
               </div>
               <div className="mt-3 flex justify-end gap-1">
-                <Button aria-label="Edit" size="sm" variant="ghost" onClick={() => setForm({
-                  ...empty, ...r,
-                  service_types: r.service_types ?? [],
-                  days_of_week: r.days_of_week ?? [],
-                  date_from: r.date_from ?? "", date_to: r.date_to ?? "",
-                  time_from: r.time_from ?? "", time_to: r.time_to ?? "",
-                  reason: r.reason ?? "",
-                })}><Edit className="size-4" /></Button>
+                <Button aria-label="Edit" size="sm" variant="ghost" onClick={() => openEdit(r)}><Edit className="size-4" /></Button>
                 <AlertDialog>
                   <AlertDialogTrigger asChild><Button aria-label="Delete" size="sm" variant="ghost"><Trash2 className="size-4 text-destructive" /></Button></AlertDialogTrigger>
                   <AlertDialogContent>
@@ -202,6 +235,8 @@ function Page() {
                   <option value="service">Specific service types</option>
                   <option value="vehicle_class">Specific vehicle class</option>
                   <option value="vehicle">Single vehicle</option>
+                  <option value="route">Route (from → to)</option>
+                  <option value="location">Location / area</option>
                 </select>
               </div>
               <div>
@@ -235,7 +270,41 @@ function Page() {
                 <Chips options={SERVICE_TYPE_OPTIONS} selected={form.service_types ?? []} onToggle={toggleService} />
               </div>
 
-              <GeoFields id="av-place" form={form} setForm={setForm} />
+              {form.rule_scope === "route" ? (
+                <>
+                  <div className="col-span-2">
+                    <Label htmlFor="av-from-place">From location *</Label>
+                    <PlaceAutocomplete
+                      id="av-from-place"
+                      value={form.place_id ? { placeId: form.place_id, label: form.place_label ?? "" } : null}
+                      onChange={(p: any) => setForm({ ...form, place_id: p?.placeId ?? null, place_label: p?.label ?? null, lat: null, lng: null })}
+                      placeholder="Search the start town, airport or postcode"
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <Label htmlFor="av-to-place">To location *</Label>
+                    <PlaceAutocomplete
+                      id="av-to-place"
+                      value={form.to_place_id ? { placeId: form.to_place_id, label: form.to_place_label ?? "" } : null}
+                      onChange={(p: any) => setForm({ ...form, to_place_id: p?.placeId ?? null, to_place_label: p?.label ?? null })}
+                      placeholder="Search the destination town, airport or postcode"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="av-from-radius">From radius (miles)</Label>
+                    <Input id="av-from-radius" type="number" step="0.5" min="0" value={form.radius_miles ?? ""}
+                      onChange={(e) => setForm({ ...form, radius_miles: e.target.value === "" ? null : Number(e.target.value) })} />
+                  </div>
+                  <div>
+                    <Label htmlFor="av-to-radius">To radius (miles)</Label>
+                    <Input id="av-to-radius" type="number" step="0.5" min="0" value={form.to_radius_miles ?? ""}
+                      onChange={(e) => setForm({ ...form, to_radius_miles: e.target.value === "" ? null : Number(e.target.value) })} />
+                  </div>
+                  <p className="col-span-2 text-xs text-muted-foreground">Route rules match in both directions.</p>
+                </>
+              ) : (
+                <GeoFields id="av-place" form={form} setForm={setForm} radiusRequired={form.rule_scope === "location"} />
+              )}
 
               <div>
                 <Label htmlFor="av-from">Date from</Label>
@@ -270,6 +339,12 @@ function Page() {
               <div className="col-span-2">
                 <Label htmlFor="av-reason">Reason (shown to staff only)</Label>
                 <Textarea id="av-reason" rows={2} value={form.reason ?? ""} onChange={(e) => setForm({ ...form, reason: e.target.value })} />
+              </div>
+              <div className="col-span-2">
+                <Label htmlFor="av-cust">Reason shown to the customer (optional)</Label>
+                <Textarea id="av-cust" rows={2} maxLength={400} placeholder="e.g. This vehicle is fully booked for your selected date — please pick another class or contact us."
+                  value={form.customer_message ?? ""} onChange={(e) => setForm({ ...form, customer_message: e.target.value })} />
+                <p className="mt-1 text-xs text-muted-foreground">Shown on the booking form when this rule blocks a journey. Leave empty to use the default message.</p>
               </div>
               <div className="col-span-2 flex justify-end gap-2">
                 <Button variant="outline" onClick={() => setForm(null)}>Cancel</Button>
