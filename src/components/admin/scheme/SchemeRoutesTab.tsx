@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { ArrowLeftRight, Loader2, Plus, Trash2, TriangleAlert } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { BulkTools } from "@/components/admin/BulkTools";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { PlaceAutocomplete, type SelectedPlace } from "@/components/site/PlaceAutocomplete";
@@ -225,6 +226,7 @@ export function SchemeRoutesTab({ classId, routes }: { classId: string; routes: 
       <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
         <div className="border-b border-border px-5 py-4">
           <h3 className="font-display text-base font-semibold">Fixed routes in this scheme</h3>
+          <BulkTools entity="pricing_rules" label="Bulk CSV" onChanged={invalidate} />
           <p className="mt-0.5 text-xs text-muted-foreground">Fixed routes beat location pricing and per-mile bands.</p>
         </div>
         {sorted.length === 0 ? (
