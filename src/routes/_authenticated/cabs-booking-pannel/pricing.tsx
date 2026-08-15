@@ -15,6 +15,8 @@ import { Plus, Edit, Trash2, Search, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
 import { PlaceAutocomplete, type SelectedPlace } from "@/components/site/PlaceAutocomplete";
+import { AdminMapEditor } from "@/components/admin/AdminMapEditor";
+
 
 const opts = queryOptions({ queryKey: ["admin", "pricing"], queryFn: () => listPricingRules() });
 const vOpts = queryOptions({ queryKey: ["admin", "vehicles"], queryFn: () => listVehiclesAdmin() });
@@ -179,7 +181,7 @@ function Page() {
       )}
 
       <Dialog open={!!form} onOpenChange={o => !o && setForm(null)}>
-        <DialogContent>
+        <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{form?.id ? "Edit pricing rule" : "New pricing rule"}</DialogTitle></DialogHeader>
           {form && (
             <div className="grid grid-cols-2 gap-3">
@@ -213,6 +215,26 @@ function Page() {
                   inputClassName="pl-9"
                 />
               </div>
+              <div className="col-span-2">
+                <AdminMapEditor
+                  mode="route"
+                  origin={pickupPlace}
+                  destination={dropoffPlace}
+                  onClearOrigin={() => setForm({ ...form, from_place_id: "", from_place_label: "", active: false })}
+                  onClearDestination={() => setForm({ ...form, to_place_id: "", to_place_label: "", active: false })}
+                  onReverse={() => setForm({
+                    ...form,
+                    from_place_id: form.to_place_id,
+                    from_place_label: form.to_place_label,
+                    from_address: form.to_address,
+                    to_place_id: form.from_place_id,
+                    to_place_label: form.from_place_label,
+                    to_address: form.from_address,
+                  })}
+                  height={260}
+                />
+              </div>
+
               <div className="col-span-2 flex items-center gap-2">
                 <Switch checked={!!form.bidirectional} onCheckedChange={v => setForm({ ...form, bidirectional: v })} />
                 <Label>Also apply for the reverse route (Dropoff → Pickup)</Label>
