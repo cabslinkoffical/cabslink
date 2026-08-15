@@ -71,6 +71,8 @@ export const calculateHourlyQuotes = createServerFn({ method: "POST" })
         pickupCoord,
         date: data.pickupDate?.trim() || undefined,
         time: data.pickupTime?.trim() || undefined,
+        taxRate: settings.taxRate,
+        taxMode: settings.taxMode,
       }),
       childSeatFeePence: settings.childSeatFeePence,
       meetGreetFeePence: settings.meetGreetFeePence,
@@ -226,7 +228,12 @@ export const createHourlyBooking = createServerFn({ method: "POST" })
       appliedRules = outcome.appliedRules;
     }
 
-    const price = round2(ruledTotal + childSeatFee + meetGreetFee);
+    // Tax: hourly hire uses the SAME site tax configuration as transfers.
+    // Hire fare and extras are both grossed up so nothing escapes VAT.
+    const { applyTaxTo } = await import("@/lib/pricing");
+    const hireTaxed = applyTaxTo(ruledTotal, settings.taxRate, settings.taxMode);
+    const extrasTaxed = applyTaxTo(childSeatFee + meetGreetFee, settings.taxRate, settings.taxMode);
+    const price = round2(hireTaxed.gross + extrasTaxed.gross);
 
 
     const refRpc: any = await supabaseAdmin.rpc("generate_booking_ref");
@@ -278,6 +285,10 @@ export const createHourlyBooking = createServerFn({ method: "POST" })
         subtotal_after_rules: ruledTotal,
         child_seat_fee: childSeatFee,
         meet_greet_fee: meetGreetFee,
+        tax_rate: settings.taxRate,
+        tax_mode: settings.taxMode,
+        tax_amount: round2(hireTaxed.tax + extrasTaxed.tax),
+        net_total: round2(hireTaxed.net + extrasTaxed.net),
         final_total: price,
         cancellation_policy: data.cancellation_policy,
       },
