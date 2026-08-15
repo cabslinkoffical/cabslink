@@ -614,6 +614,52 @@ input[type="time"] {
   }
 }
 
+/* Thin brand scrollbar for the sidebar and long admin panes. */
+@utility admin-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklab, var(--gold) 45%, transparent) transparent;
+  &::-webkit-scrollbar { width: 6px; height: 6px; }
+  &::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, var(--gold) 40%, transparent);
+    border-radius: 999px;
+  }
+}
+
+/* Global table ergonomics for every admin view: sticky headers,
+   quiet column labels, readable row hover, comfortable numerics. */
+.admin-shell table { width: 100%; }
+.admin-shell thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: color-mix(in oklab, var(--navy) 4%, #ffffff);
+  backdrop-filter: blur(6px);
+  font-size: .7rem;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--navy) 55%, #ffffff);
+  border-bottom: 1px solid color-mix(in oklab, var(--navy) 10%, transparent);
+  white-space: nowrap;
+}
+.admin-shell tbody tr {
+  border-bottom: 1px solid color-mix(in oklab, var(--navy) 6%, transparent);
+  transition: background-color .15s ease;
+}
+.admin-shell tbody tr:last-child { border-bottom: 0; }
+.admin-shell tbody tr:hover { background: color-mix(in oklab, var(--gold) 7%, transparent); }
+.admin-shell td, .admin-shell th { vertical-align: middle; }
+.admin-shell input[type="number"],
+.admin-shell td:has(> .font-mono) { font-variant-numeric: tabular-nums; }
+
+/* Consistent focus ring across the console. */
+.admin-shell :is(button, a, input, select, textarea, [role="tab"]):focus-visible {
+  outline: 2px solid color-mix(in oklab, var(--gold) 80%, transparent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+
 /* Popular-tours marquee: track is duplicated, so -50% is one full loop. */
 @keyframes tourMarquee {
   from { transform: translateX(0); }
