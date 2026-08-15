@@ -1088,50 +1088,7 @@ export const adminDuplicatePricingProfile = createServerFn({ method: "POST" })
   });
 
 // -------------------------------------------------------------------
-// Admin: test calculator (no DB write)
-// -------------------------------------------------------------------
-const testInput = z.object({
-  vehicle_id: z.string().uuid(),
-  distance_miles: z.coerce.number().min(0).max(99999),
-  pickup_time: z.string().optional().default(""),
-  via_stops: z.coerce.number().int().min(0).max(20).optional().default(0),
-});
 
-export const adminTestQuote = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((data: z.infer<typeof testInput>) => testInput.parse(data))
-  .handler(async ({ data, context }) => {
-    await assertAdmin(context);
-    const { data: profile, error } = await context.supabase
-      .from("vehicle_pricing_profiles" as any)
-      .select("*")
-      .eq("vehicle_id", data.vehicle_id)
-      .single();
-    if (error || !profile) throw new Error("No pricing profile for this vehicle yet.");
-    const { data: tiers } = await context.supabase
-      .from("vehicle_mileage_tiers" as any)
-      .select("*")
-      .eq("pricing_profile_id", (profile as any).id)
-      .order("sort_order");
-
-    const result = runPricingEngine(
-      {
-        ...(profile as any),
-        tiers: (tiers ?? []).map((t: any) => ({
-          tier_name: t.tier_name,
-          miles: Number(t.miles),
-          cost_per_mile: Number(t.cost_per_mile),
-          sort_order: t.sort_order,
-        })),
-      } as PricingProfile,
-      {
-        distanceMiles: data.distance_miles,
-        viaStops: data.via_stops,
-        pickupTime: data.pickup_time || undefined,
-      },
-    );
-    return result;
-  });
 
 // -------------------------------------------------------------------
 // Admin: full end-to-end quote preview (runs the REAL production
