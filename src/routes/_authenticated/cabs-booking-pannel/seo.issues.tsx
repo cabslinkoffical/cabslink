@@ -37,27 +37,43 @@ function SeoIssuesPage() {
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [running, setRunning] = useState(false);
-  const [stats, setStats] = useState<any>(null);
+  const [meta, setMeta] = useState<any>(null);
+  const [pagesScanned, setPagesScanned] = useState<number | null>(null);
 
   async function refresh() {
     setLoading(true);
-    try { setRows((await list()).rows); }
-    catch (e: any) { toast.error(e.message); }
+    try {
+      const res: any = await list();
+      setRows(res.rows);
+      setMeta(res);
+      return res;
+    } catch (e: any) { toast.error(e.message); return null; }
     finally { setLoading(false); }
   }
-  useEffect(() => { refresh(); }, []);
 
-  async function onAudit() {
+  async function onAudit(silent = false) {
     setRunning(true);
     try {
       const res = await runAudit({ data: { similarityThreshold: 0.8 } });
-      setStats(res);
-      toast.success(`Audit complete — ${res.total} issues (${res.blockers} blockers).`);
+      setPagesScanned(res.pages);
+      if (!silent) toast.success(`Audit complete — ${res.total} issues (${res.blockers} blockers).`);
       await refresh();
       router.invalidate();
     } catch (e: any) { toast.error(e.message); }
     finally { setRunning(false); }
   }
+
+  // Always show current data: if the stored report predates the latest content
+  // edit (or was never generated), re-run the audit automatically on open.
+  useEffect(() => {
+    let done = false;
+    (async () => {
+      const res = await refresh();
+      if (done) return;
+      if (res?.stale) await onAudit(true);
+    })();
+    return () => { done = true; };
+  }, []);
 
   async function onResolve(id: string) {
     try { await resolve({ data: { id } }); toast.success("Marked resolved."); refresh(); }
