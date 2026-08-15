@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
+import { ViewToggle, useViewMode } from "@/components/admin/ViewToggle";
 import { fleetImageFor } from "@/assets/fleet";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -32,6 +33,7 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/vehicl
 
 function VehicleClassesPage() {
   const { data } = useSuspenseQuery(opts);
+  const [view, setView] = useViewMode("vehicle-classes", "list");
   const qc = useQueryClient();
   const navigate = useNavigate();
   const deleteFn = useServerFn(deleteVehicleClass);
@@ -68,6 +70,7 @@ function VehicleClassesPage() {
         title="Vehicle Classes"
         description="One place per class: details, photo, models, pricing, hourly hire and availability."
       >
+        <ViewToggle mode={view} onChange={setView} />
         <Button asChild>
           <Link to="/cabs-booking-pannel/vehicle-classes/$id" params={{ id: "new" }}>
             <Plus className="size-4 mr-1.5" />New class
@@ -78,7 +81,7 @@ function VehicleClassesPage() {
       {classes.length === 0 ? (
         <EmptyState title="No vehicle classes yet" hint="Create your first vehicle class to get started." />
       ) : (
-        <div className="grid gap-3">
+        <div className={view === "grid" ? "grid gap-4 md:grid-cols-2 xl:grid-cols-3" : "grid gap-3"}>
           {classes.map((c) => {
             const linked = vehicles.find((v) => v.id === c.pricing_vehicle_id);
             const profile = linked ? profiles.find((p) => p.vehicle_id === linked.id) : null;
@@ -95,9 +98,11 @@ function VehicleClassesPage() {
                     navigate({ to: "/cabs-booking-pannel/vehicle-classes/$id", params: { id: c.id } });
                   }
                 }}
-                className="admin-card p-4 flex items-center gap-4 cursor-pointer hover:border-primary/40 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className={`admin-card p-4 cursor-pointer hover:border-primary/40 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                  view === "grid" ? "flex flex-col gap-3" : "flex items-center gap-4"
+                }`}
               >
-                <div className="w-24 h-16 rounded-lg bg-[var(--surface)] flex items-center justify-center overflow-hidden shrink-0">
+                <div className={view === "grid" ? "w-full h-32 rounded-lg bg-[var(--surface)] flex items-center justify-center overflow-hidden shrink-0" : "w-24 h-16 rounded-lg bg-[var(--surface)] flex items-center justify-center overflow-hidden shrink-0"}>
                   {img ? <img src={img} alt={`${c.name} vehicle class`} className="w-full h-full object-contain p-1" />
                        : <span className="text-[10px] text-muted-foreground">No photo</span>}
                 </div>
@@ -115,7 +120,7 @@ function VehicleClassesPage() {
                     </span>
                   </div>
                 </div>
-                <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+                <div className={view === "grid" ? "flex flex-wrap items-center gap-1" : "flex items-center gap-1 shrink-0"} onClick={(e) => e.stopPropagation()}>
                   <div className="flex items-center gap-2 px-2">
                     <Switch
                       id={`active-${c.id}`}
