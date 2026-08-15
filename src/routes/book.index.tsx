@@ -380,19 +380,20 @@ function BookPage() {
   // ---- Pricing math (single source used by extras/payment/review) ----
   const childSeatFeePence = quoteQuery.data?.childSeatFeePence ?? 0;
   const meetGreetFeePence = quoteQuery.data?.meetGreetFeePence ?? 0;
-  const returnJourneyFeePence = quoteQuery.data?.returnJourneyFeePence ?? 0;
   const policyCfg = quoteQuery.data?.policy ?? {
     nonRefundablePercent: 5, nonRefundableMinPence: 200,
     flexiblePercent: 12, flexibleMinPence: 400,
   };
   const seatFee = (childSeatFeePence / 100) * childSeatCount;
   const meetGreetFee = meetGreet ? meetGreetFeePence / 100 : 0;
-  const returnFee = returnJourney ? returnJourneyFeePence / 100 : 0;
   const perVehiclePrice = chosen
     ? (mq?.vehicles.find((v) => v.vehicle_id === chosen.vehicleId)?.per_vehicle_total ?? chosen.finalPrice)
     : 0;
   const rideTotal = perVehiclePrice * qty;
+  // A return journey is the same trip priced again — not a flat add-on fee.
+  const returnFee = returnJourney ? rideTotal : 0;
   const extrasBase = rideTotal + seatFee + meetGreetFee + returnFee;
+
   const policyDelta =
     policy === "non_refundable"
       ? -Math.max(policyCfg.nonRefundableMinPence / 100, Math.round(extrasBase * (policyCfg.nonRefundablePercent / 100) * 100) / 100)
