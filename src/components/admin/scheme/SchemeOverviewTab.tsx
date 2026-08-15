@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Loader2, TriangleAlert } from "lucide-react";
+import { Loader2, Plus, Trash2, TriangleAlert } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
@@ -11,15 +11,12 @@ import { saveSchemeOverview } from "@/lib/pricing-schemes.functions";
 
 type Scheme = { classId: string; name: string; pricingVehicleId: string | null };
 
+export type Band = { name: string; miles: number; perMile: number };
+
 export type OverviewState = {
   cityFixedPrice: number;
   cityIncludedMiles: number;
-  shortMiles: number;
-  shortPerMile: number;
-  mediumMiles: number;
-  mediumPerMile: number;
-  longMiles: number;
-  longPerMile: number;
+  bands: Band[];
   additionalPickupFee: number;
   waitingFeePerMinute: number;
   airportPickupFee: number;
@@ -31,23 +28,25 @@ export type OverviewState = {
   live: boolean;
 };
 
-/** Rebuild the four Overview bands from the stored consecutive mileage tiers. */
+/** Rebuild the Overview mileage bands from the stored consecutive mileage tiers. */
 export function overviewFromScheme(data: any): OverviewState {
   const tiers: any[] = data.base.tiers ?? [];
-  const band = (name: string) => tiers.find((t) => t.tierName?.toLowerCase().startsWith(name));
-  const short = band("short");
-  const medium = band("medium");
-  const long = band("long");
   const paid = tiers.filter((t) => Number(t.costPerMile) > 0);
+  const bands: Band[] = paid.map((t, i) => ({
+    name: String(t.tierName ?? `Band ${i + 1}`),
+    miles: Number(t.miles ?? 0),
+    perMile: Number(t.costPerMile ?? 0),
+  }));
   return {
     cityFixedPrice: data.base.cityFixedPrice,
     cityIncludedMiles: data.base.cityIncludedMiles || Number(tiers.find((t) => Number(t.costPerMile) === 0)?.miles ?? 0),
-    shortMiles: Number(short?.miles ?? paid[0]?.miles ?? 0),
-    shortPerMile: Number(short?.costPerMile ?? paid[0]?.costPerMile ?? 0),
-    mediumMiles: Number(medium?.miles ?? paid[1]?.miles ?? 0),
-    mediumPerMile: Number(medium?.costPerMile ?? paid[1]?.costPerMile ?? 0),
-    longMiles: Number(long?.miles ?? paid[2]?.miles ?? 0),
-    longPerMile: Number(long?.costPerMile ?? paid[2]?.costPerMile ?? 0),
+    bands: bands.length
+      ? bands
+      : [
+          { name: "Short transfer", miles: 0, perMile: 0 },
+          { name: "Medium transfer", miles: 0, perMile: 0 },
+          { name: "Long transfer", miles: 0, perMile: 0 },
+        ],
     additionalPickupFee: data.base.additionalPickupFee,
     waitingFeePerMinute: data.base.waitingFeePerMinute,
     airportPickupFee: data.base.airportPickupFee,
@@ -90,7 +89,13 @@ export function SchemeOverviewTab({ scheme, data, section = "base" }: { scheme: 
     onError: (e: any) => toast.error(e?.message ?? "Save failed"),
   });
 
-  const coveredMiles = form.cityIncludedMiles + form.shortMiles + form.mediumMiles + form.longMiles;
+  const coveredMiles = form.cityIncludedMiles + form.bands.reduce((s, b) => s + (Number(b.miles) || 0), 0);
+
+  const setBand = (i: number, patch: Partial<Band>) =>
+    setForm((f) => ({ ...f, bands: f.bands.map((b, idx) => (idx === i ? { ...b, ...patch } : b)) }));
+  const addBand = () =>
+    setForm((f) => ({ ...f, bands: [...f.bands, { name: `Band ${f.bands.length + 1}`, miles: 0, perMile: 0 }] }));
+  const removeBand = (i: number) => setForm((f) => ({ ...f, bands: f.bands.filter((_, idx) => idx !== i) }));
 
   return (
     <div className="space-y-6 max-w-5xl">
@@ -116,28 +121,40 @@ export function SchemeOverviewTab({ scheme, data, section = "base" }: { scheme: 
               onChange={(e) => set("cityIncludedMiles", num(e.target.value))} />
           </Field>
           <div className="hidden sm:block" />
-
-          <Field label="Short transfer — next miles">
-            <Input type="number" step="0.1" min="0" value={form.shortMiles} onChange={(e) => set("shortMiles", num(e.target.value))} />
-          </Field>
-          <Field label="Short transfer — £ per mile">
-            <Input type="number" step="0.01" min="0" value={form.shortPerMile} onChange={(e) => set("shortPerMile", num(e.target.value))} />
-          </Field>
-          <Field label="Medium transfer — next miles">
-            <Input type="number" step="0.1" min="0" value={form.mediumMiles} onChange={(e) => set("mediumMiles", num(e.target.value))} />
-          </Field>
-          <Field label="Medium transfer — £ per mile">
-            <Input type="number" step="0.01" min="0" value={form.mediumPerMile} onChange={(e) => set("mediumPerMile", num(e.target.value))} />
-          </Field>
-          <Field label="Long transfer — next miles" hint="Make this generous so long journeys never run out of bands.">
-            <Input type="number" step="0.1" min="0" value={form.longMiles} onChange={(e) => set("longMiles", num(e.target.value))} />
-          </Field>
-          <Field label="Long transfer — £ per mile">
-            <Input type="number" step="0.01" min="0" value={form.longPerMile} onChange={(e) => set("longPerMile", num(e.target.value))} />
-          </Field>
         </div>
+
+        <div className="mt-6 space-y-3">
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-medium">Mileage bands</p>
+            <Button type="button" variant="outline" size="sm" onClick={addBand}>
+              <Plus className="mr-1.5 size-4" /> Add band
+            </Button>
+          </div>
+
+          {form.bands.length === 0 && (
+            <p className="text-xs text-muted-foreground">No bands yet — add one to charge per mile beyond the included distance.</p>
+          )}
+
+          {form.bands.map((b, i) => (
+            <div key={i} className="grid gap-3 rounded-lg border border-border p-3 sm:grid-cols-[1fr_140px_140px_auto] sm:items-end">
+              <Field label={`Band ${i + 1} name`}>
+                <Input value={b.name} onChange={(e) => setBand(i, { name: e.target.value })} />
+              </Field>
+              <Field label="Next miles">
+                <Input type="number" step="0.1" min="0" value={b.miles} onChange={(e) => setBand(i, { miles: num(e.target.value) })} />
+              </Field>
+              <Field label="£ per mile">
+                <Input type="number" step="0.01" min="0" value={b.perMile} onChange={(e) => setBand(i, { perMile: num(e.target.value) })} />
+              </Field>
+              <Button type="button" variant="ghost" size="icon" aria-label={`Remove band ${i + 1}`} onClick={() => removeBand(i)}>
+                <Trash2 className="size-4" />
+              </Button>
+            </div>
+          ))}
+        </div>
+
         <p className="mt-3 text-xs text-muted-foreground tabular-nums">
-          Bands cover the first {coveredMiles.toFixed(1)} miles. Anything beyond that is not charged per mile — increase the long band if needed.
+          Bands cover the first {coveredMiles.toFixed(1)} miles. Anything beyond that is not charged per mile — add another band or extend the last one.
         </p>
       </SchemeSection>
 
