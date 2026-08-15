@@ -230,8 +230,9 @@ function HomePage() {
   const { data: publishedTours = [] } = useSuspenseQuery(publishedToursQuery);
   const popularTours = useMemo(() => {
     const featured = publishedTours.filter((t) => t.featured);
-    return (featured.length >= 4 ? featured : publishedTours).slice(0, 4);
+    return (featured.length >= 10 ? featured : publishedTours).slice(0, 12);
   }, [publishedTours]);
+
 
   // Same key the route loader primes → hero renders the real classes on the
   // first paint instead of flashing the static fallback vehicles.
