@@ -196,10 +196,12 @@ export function SchemeModifiersTab({ classId, modifiers }: { classId: string; mo
       </SchemeSection>
 
       <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
-        <div className="border-b border-border px-5 py-4">
+        <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border px-5 py-4">
+          <div>
           <h3 className="font-display text-base font-semibold">Modifiers in this scheme</h3>
+                    </div>
           <BulkTools entity="pricing_modifiers" label="Bulk CSV" onChanged={invalidate} />
-        </div>
+</div>
         {modifiers.length === 0 ? (
           <p className="px-5 py-8 text-center text-sm text-muted-foreground">No modifiers yet.</p>
         ) : (

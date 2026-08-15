@@ -224,10 +224,12 @@ export function SchemeRoutesTab({ classId, routes }: { classId: string; routes: 
       />
 
       <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
-        <div className="border-b border-border px-5 py-4">
+        <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border px-5 py-4">
+          <div>
           <h3 className="font-display text-base font-semibold">Fixed routes in this scheme</h3>
-          <BulkTools entity="pricing_rules" label="Bulk CSV" onChanged={invalidate} />
           <p className="mt-0.5 text-xs text-muted-foreground">Fixed routes beat location pricing and per-mile bands.</p>
+          </div>
+          <BulkTools entity="pricing_rules" label="Bulk CSV" onChanged={invalidate} />
         </div>
         {sorted.length === 0 ? (
           <p className="px-5 py-8 text-center text-sm text-muted-foreground">No fixed routes yet.</p>
