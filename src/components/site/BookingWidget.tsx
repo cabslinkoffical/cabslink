@@ -436,21 +436,9 @@ export function BookingWidget({
         </div>
 
 
-        {/* Secondary row: stops / return / multi-city pills */}
-        <div className="flex flex-wrap items-center gap-2 mt-3 px-2">
-          <PillButton tone={tone} icon={<Plus className="w-3 h-3" strokeWidth={3} />} onClick={() => setStops([...stops, { placeId: "", label: "" }])}>
-            Add stop
-          </PillButton>
-          {!showReturn && (
-            <PillButton tone={tone} icon={<Repeat className="w-3 h-3" strokeWidth={3} />} onClick={() => setShowReturn(true)}>
-              Add return
-            </PillButton>
-          )}
-        </div>
-
-        {/* Stops list (appears when added) */}
+        {/* Stops list — attached extension of the bar above */}
         {stops.length > 0 && (
-          <div className="mt-3 bg-white rounded-2xl border border-border p-2 space-y-1">
+          <div className="bg-white border-x border-black/5 border-t border-t-black/5 p-2 space-y-1 shadow-[var(--shadow-elegant)]">
             {stops.map((s, i) => (
               <div
                 key={i}
