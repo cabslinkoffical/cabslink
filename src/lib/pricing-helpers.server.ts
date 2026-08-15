@@ -696,17 +696,32 @@ export function computeVehicleQuote(args: {
       ? { ...profile, base_price: locationPrice!, tiers: [] }
       : profile;
 
+  // Pricing-scheme core fees held on the profile row (see Pricing Scheme →
+  // Overview). Airport fee applies once for airport services; the additional
+  // pickup fee is `via_price`, already handled by the engine's via stops.
+  const airportFee = round2(Number((profile as any).airport_pickup_fee ?? 0) || 0);
+  const isAirport = /airport/i.test(args.serviceType ?? "");
+  const schemeFees = airportFee > 0 && isAirport
+    ? [{ label: "Airport pickup fee", amount: airportFee }]
+    : [];
+
   const surchargeLines = [
     ...areaSurcharges.map((a) => ({ label: a.label, amount: a.amount })),
     ...(resolved?.extraSurcharges ?? []),
+    ...schemeFees,
   ];
 
   const couponDiscount = round2(Math.max(0, args.couponDiscount ?? 0));
+  const connectingPercent = Math.max(0, Math.min(100, Number((profile as any).connecting_job_discount_percent ?? 0) || 0));
+  const connectingDiscount = args.isConnectingJob === true && connectingPercent > 0
+    ? round2(((resolved?.fixedPrice ?? fixedPrice ?? 0) === 0 ? 0 : 0)) // sized below against the subtotal
+    : 0;
   const discountLines = [
     ...(resolved?.discountLines ?? []),
     ...(couponDiscount > 0
       ? [{ label: args.couponCode ? `Promo code ${args.couponCode}` : "Promo code", amount: couponDiscount }]
       : []),
+    ...(connectingDiscount > 0 ? [{ label: "Connecting job discount", amount: connectingDiscount }] : []),
   ];
 
   const engine = runPricingEngine(engineProfile, {
