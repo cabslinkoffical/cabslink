@@ -218,18 +218,14 @@ export const saveSchemeOverview = createServerFn({ method: "POST" })
     await assertAdmin(context);
     if (data.maxHours < data.minHours) throw new Error("Maximum hours must be at least the minimum hours.");
 
-    // The vehicle class is authoritative. The legacy `vehicles` row is an
-    // internal compatibility record for the canonical engine tables and is
-    // created on demand, so pricing can always be saved from the class.
-    const { ensureClassPricingVehicle } = await import("@/lib/pricing-schemes.server");
-    const vehicleId = await ensureClassPricingVehicle(data.classId);
-
-    // One all-or-nothing database routine: profile upsert + mileage bands +
-    // hourly rates. A failure anywhere leaves the previous pricing intact.
+    // The vehicle class is authoritative and is the only identity sent. One
+    // all-or-nothing database routine resolves/creates the internal
+    // compatibility pricing record, links it to the class, and writes the
+    // profile, mileage bands and hourly/day rates in a single transaction, so a
+    // failure anywhere leaves the previous pricing (and link) untouched.
     const { data: profileId, error } = await (context.supabase as any).rpc("save_pricing_scheme_base", {
       _payload: {
         class_id: data.classId,
-        vehicle_id: vehicleId,
         base_price: data.cityFixedPrice,
         city_included_miles: data.cityIncludedMiles,
         via_price: data.additionalPickupFee,
@@ -251,7 +247,7 @@ export const saveSchemeOverview = createServerFn({ method: "POST" })
     });
     if (error) throw new Error(error.message);
 
-    return { ok: true, profileId: profileId as string, vehicleId };
+    return { ok: true, profileId: profileId as string };
   });
 
 // ===================================================================
