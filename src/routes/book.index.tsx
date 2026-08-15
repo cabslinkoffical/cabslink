@@ -380,19 +380,20 @@ function BookPage() {
   // ---- Pricing math (single source used by extras/payment/review) ----
   const childSeatFeePence = quoteQuery.data?.childSeatFeePence ?? 0;
   const meetGreetFeePence = quoteQuery.data?.meetGreetFeePence ?? 0;
-  const returnJourneyFeePence = quoteQuery.data?.returnJourneyFeePence ?? 0;
   const policyCfg = quoteQuery.data?.policy ?? {
     nonRefundablePercent: 5, nonRefundableMinPence: 200,
     flexiblePercent: 12, flexibleMinPence: 400,
   };
   const seatFee = (childSeatFeePence / 100) * childSeatCount;
   const meetGreetFee = meetGreet ? meetGreetFeePence / 100 : 0;
-  const returnFee = returnJourney ? returnJourneyFeePence / 100 : 0;
   const perVehiclePrice = chosen
     ? (mq?.vehicles.find((v) => v.vehicle_id === chosen.vehicleId)?.per_vehicle_total ?? chosen.finalPrice)
     : 0;
   const rideTotal = perVehiclePrice * qty;
+  // A return journey is the same trip priced again — not a flat add-on fee.
+  const returnFee = returnJourney ? rideTotal : 0;
   const extrasBase = rideTotal + seatFee + meetGreetFee + returnFee;
+
   const policyDelta =
     policy === "non_refundable"
       ? -Math.max(policyCfg.nonRefundableMinPence / 100, Math.round(extrasBase * (policyCfg.nonRefundablePercent / 100) * 100) / 100)
@@ -568,7 +569,6 @@ function BookPage() {
                       meetGreetFee={meetGreetFee}
                       returnFee={returnFee}
                       meetGreetFeePence={meetGreetFeePence}
-                      returnJourneyFeePence={returnJourneyFeePence}
                       policyCfg={policyCfg}
                       onBack={() => setStep("details")}
                       onNext={() => { track("booking_step", { step: "payment", value: grandTotal / 100, currency: "GBP" }); setStep("payment"); }}
@@ -1424,7 +1424,6 @@ function ExtrasStep(props: {
   meetGreetFee: number;
   returnFee: number;
   meetGreetFeePence: number;
-  returnJourneyFeePence: number;
   policyCfg: { nonRefundablePercent: number; nonRefundableMinPence: number; flexiblePercent: number; flexibleMinPence: number };
   onBack: () => void;
   onNext: () => void;
@@ -1436,7 +1435,7 @@ function ExtrasStep(props: {
     childSeatFeePence, childSeatCount, onChildSeatCount,
     meetGreet, onMeetGreet, returnJourney, onReturnJourney,
     policy, onPolicy, baseRideTotal, seatFee, meetGreetFee, returnFee,
-    meetGreetFeePence, returnJourneyFeePence, policyCfg, onBack, onNext,
+    meetGreetFeePence, policyCfg, onBack, onNext,
   } = props;
 
   return (
@@ -1506,9 +1505,12 @@ function ExtrasStep(props: {
               checked={meetGreet} onChange={onMeetGreet}
             />
             <Toggle
-              label={returnJourneyFeePence > 0 ? `Add return journey (+£${(returnJourneyFeePence / 100).toFixed(2)})` : "Add return journey"}
+              label={baseRideTotal > 0
+                ? `Add return journey (+£${baseRideTotal.toFixed(2)} — same fare again)`
+                : "Add return journey"}
               checked={returnJourney} onChange={onReturnJourney}
             />
+
           </div>
         </div>
       </ExtrasCard>
