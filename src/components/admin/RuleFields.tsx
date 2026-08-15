@@ -1,6 +1,8 @@
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { PlaceAutocomplete } from "@/components/site/PlaceAutocomplete";
+import { AdminMapEditor } from "@/components/admin/AdminMapEditor";
+
 
 export const SERVICE_TYPE_OPTIONS = [
   { value: "direct_transfer", label: "Direct transfer" },
