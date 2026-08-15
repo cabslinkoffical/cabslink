@@ -817,25 +817,20 @@ export const createBooking = createServerFn({ method: "POST" })
 
     const insertedId = (insertRes.data as any).id as string;
 
-    // Coupon redemption — unique (coupon_id, booking_id) prevents double
-    // counting; the used_count bump only happens when the row is new.
+    // Coupon redemption — a single locking DB routine records the redemption
+    // and bumps used_count atomically, so concurrent bookings can never push a
+    // coupon past its usage limit (no read-modify-write race).
     if (couponRow && couponDiscount > 0) {
       try {
-        const red = await supabaseAdmin
-          .from("coupon_redemptions")
-          .insert({
-            coupon_id: couponRow.id,
-            booking_id: insertedId,
-            customer_email: data.email.trim().toLowerCase(),
-            discount_amount: couponDiscount,
-          } as any)
-          .select("id")
-          .single();
-        if (!red.error) {
-          await supabaseAdmin
-            .from("coupons")
-            .update({ used_count: Number(couponRow.used_count ?? 0) + 1 } as any)
-            .eq("id", couponRow.id);
+        const red: any = await supabaseAdmin.rpc("redeem_coupon" as any, {
+          _coupon_id: couponRow.id,
+          _booking_id: insertedId,
+          _email: data.email.trim().toLowerCase(),
+          _amount: couponDiscount,
+        } as any);
+        if (red.error) console.error("coupon redemption failed", red.error);
+        else if (red.data === false) {
+          console.warn("coupon redemption rejected (limit reached or duplicate)", couponRow.code);
         }
       } catch (err) {
         console.error("coupon redemption failed", err);
