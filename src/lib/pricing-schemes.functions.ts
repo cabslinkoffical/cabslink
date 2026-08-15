@@ -170,12 +170,16 @@ const overviewSchema = z.object({
   vehicleId: uuid,
   cityFixedPrice: money,
   cityIncludedMiles: miles,
-  shortMiles: miles,
-  shortPerMile: money,
-  mediumMiles: miles,
-  mediumPerMile: money,
-  longMiles: miles,
-  longPerMile: money,
+  bands: z
+    .array(
+      z.object({
+        name: z.string().trim().min(1).max(120),
+        miles: miles,
+        perMile: money,
+      }),
+    )
+    .max(30)
+    .default([]),
   additionalPickupFee: money,
   waitingFeePerMinute: money,
   airportPickupFee: money,
