@@ -296,7 +296,7 @@ export function BookingWidget({
       <form onSubmit={submit} noValidate>
 
         {/* Main container: rounded card on mobile/tablet, horizontal pill on wide desktop (xl+) */}
-        <div className="bg-white shadow-[var(--shadow-elegant)] border border-black/5 border-b-0 overflow-visible p-2 @[980px]:p-1.5 rounded-3xl @[980px]:rounded-[2rem] rounded-b-none @[980px]:rounded-b-none">
+        <div className={`bg-white shadow-[var(--shadow-elegant)] border border-black/5 overflow-visible p-2 @[980px]:p-1.5 rounded-3xl @[980px]:rounded-[2rem] ${stops.length === 0 && !showReturn ? "rounded-b-3xl @[980px]:rounded-b-[2rem]" : "rounded-b-none @[980px]:rounded-b-none"}`}>
           <div className="grid grid-cols-1 @[600px]:grid-cols-2 @[980px]:flex @[980px]:items-stretch gap-1 @[980px]:gap-0">
             {/* Pickup */}
             <div className="@[600px]:col-span-2 @[980px]:flex-1 @[980px]:min-w-0" data-invalid={attempted && !!errors.pickup}>
@@ -432,7 +432,7 @@ export function BookingWidget({
 
         {/* Stops list — attached extension of the bar above */}
         {stops.length > 0 && (
-          <div className="bg-white border-x border-black/5 border-t border-t-black/5 p-2 space-y-1 shadow-[var(--shadow-elegant)]">
+          <div className={`bg-white border-x border-black/5 border-t border-t-black/5 p-2 space-y-1 shadow-[var(--shadow-elegant)] ${!showReturn ? "rounded-b-3xl @[980px]:rounded-b-[2rem]" : "rounded-b-none @[980px]:rounded-b-none"}`}>
             {stops.map((s, i) => (
               <div
                 key={i}
@@ -472,7 +472,7 @@ export function BookingWidget({
 
         {/* Return journey — attached extension of the bar above */}
         {showReturn && (
-          <div className="bg-white border-x border-t border-black/5 p-3 @[600px]:p-4 shadow-[var(--shadow-elegant)]">
+          <div className="bg-white border-x border-t border-black/5 p-3 @[600px]:p-4 rounded-b-3xl @[980px]:rounded-b-[2rem] shadow-[var(--shadow-elegant)]">
             <div className="flex items-center justify-between mb-3">
               <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--gold-ink)]">Return Journey</p>
               <button
@@ -508,8 +508,8 @@ export function BookingWidget({
           </div>
         )}
 
-        {/* Add stop / add return pills — inside the same white sheet, closing it off */}
-        <div className="flex flex-wrap items-center gap-2 bg-white border border-black/5 border-t-black/5 px-3 py-2.5 rounded-b-3xl @[980px]:rounded-b-[2rem] shadow-[var(--shadow-elegant)]">
+        {/* Add stop / add return pills — floating outside the white sheet */}
+        <div className="flex flex-wrap items-center gap-2 mt-3 px-1">
           <PillButton tone="light" icon={<Plus className="w-3 h-3" strokeWidth={3} />} onClick={() => setStops([...stops, { placeId: "", label: "" }])}>
             Add stop
           </PillButton>
