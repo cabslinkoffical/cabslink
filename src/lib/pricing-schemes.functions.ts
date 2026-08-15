@@ -507,3 +507,136 @@ export const deleteSchemeDiscount = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+// ===================================================================
+// Modifiers (date / day / time uplifts scoped to the scheme)
+// ===================================================================
+
+const modifierSchema = z.object({
+  id: uuid.optional(),
+  classId: uuid,
+  name: z.string().trim().min(2).max(160),
+  modifier_type: z.enum(["percent", "fixed"]).default("percent"),
+  value: z.coerce.number().min(-100_000).max(100_000),
+  date_from: z.string().trim().min(1).nullable().optional(),
+  date_to: z.string().trim().min(1).nullable().optional(),
+  days_of_week: z.array(z.coerce.number().int().min(0).max(6)).default([]),
+  time_from: z.string().trim().min(1).nullable().optional(),
+  time_to: z.string().trim().min(1).nullable().optional(),
+  service_types: z.array(z.string().trim().min(1).max(60)).default([]),
+  priority: z.coerce.number().int().min(0).max(1000).default(100),
+  stackable: z.boolean().default(true),
+  notes: z.string().trim().max(1000).nullable().optional(),
+  active: z.boolean().default(true),
+});
+
+export const upsertSchemeModifier = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => modifierSchema.parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    if (data.date_from && data.date_to && data.date_to < data.date_from) {
+      throw new Error("The end date must be on or after the start date.");
+    }
+    const payload: any = {
+      vehicle_class_id: data.classId,
+      name: data.name,
+      modifier_type: data.modifier_type,
+      value: data.value,
+      scope: "journey",
+      date_from: data.date_from || null,
+      date_to: data.date_to || null,
+      days_of_week: data.days_of_week.length ? data.days_of_week : null,
+      time_from: data.time_from || null,
+      time_to: data.time_to || null,
+      service_types: data.service_types.length ? data.service_types : null,
+      priority: data.priority,
+      stackable: data.stackable,
+      notes: data.notes || null,
+      active: data.active,
+    };
+    if (data.id) {
+      const { error } = await context.supabase.from("pricing_modifiers").update(payload).eq("id", data.id);
+      if (error) throw new Error(error.message);
+      return { id: data.id };
+    }
+    const { data: created, error } = await context.supabase.from("pricing_modifiers").insert(payload).select("id").single();
+    if (error) throw new Error(error.message);
+    return { id: (created as any)?.id as string };
+  });
+
+export const deleteSchemeModifier = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: uuid }).parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { error } = await context.supabase.from("pricing_modifiers").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+// ===================================================================
+// Locations (zone pricing scoped to the scheme)
+// ===================================================================
+
+const locationSchema = z.object({
+  id: uuid.optional(),
+  classId: uuid,
+  name: z.string().trim().min(2).max(160),
+  place_id: z.string().trim().min(1).max(300),
+  place_label: z.string().trim().min(1).max(500),
+  radius_miles: z.coerce.number().min(0.1).max(200),
+  scope: z.enum(["pickup", "dropoff", "either"]).default("either"),
+  price: money,
+  included_distance_miles: miles.default(0),
+  extra_per_mile: money.default(0),
+  priority: z.coerce.number().int().min(0).max(1000).default(100),
+  notes: z.string().trim().max(1000).nullable().optional(),
+  active: z.boolean().default(true),
+});
+
+export const upsertSchemeLocation = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => locationSchema.parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const coords = await coordsFor(context, [data.place_id]);
+    const c = coords.get(data.place_id);
+    if (!c) throw new Error("Could not resolve coordinates for that location. Re-select it and try again.");
+
+    const payload: any = {
+      vehicle_class_id: data.classId,
+      name: data.name,
+      place_id: data.place_id,
+      place_label: data.place_label,
+      lat: c.lat,
+      lng: c.lng,
+      radius_miles: data.radius_miles,
+      scope: data.scope,
+      price_type: "fixed",
+      price: data.price,
+      included_distance_miles: data.included_distance_miles,
+      extra_per_mile: data.extra_per_mile,
+      priority: data.priority,
+      notes: data.notes || null,
+      active: data.active,
+    };
+    if (data.id) {
+      const { error } = await context.supabase.from("location_pricing_rules").update(payload).eq("id", data.id);
+      if (error) throw new Error(error.message);
+      return { id: data.id };
+    }
+    const { data: created, error } = await context.supabase.from("location_pricing_rules").insert(payload).select("id").single();
+    if (error) throw new Error(error.message);
+    return { id: (created as any)?.id as string };
+  });
+
+export const deleteSchemeLocation = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: uuid }).parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { error } = await context.supabase.from("location_pricing_rules").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
