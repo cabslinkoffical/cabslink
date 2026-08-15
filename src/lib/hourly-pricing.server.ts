@@ -185,6 +185,7 @@ export type HourlyCard = {
   total: number;
   minimumApplied: boolean;
   quoteOnRequest: boolean;
+  classId: string;
   classSlug: string;
   classDisplayOrder: number;
 };
@@ -271,6 +272,7 @@ export function buildHourlyCards(args: {
       total: taxed.gross,
       minimumApplied: chargedHours > args.hours,
       quoteOnRequest: p.vehicle.class_quote_on_request,
+      classId: p.vehicle.class_id,
       classSlug: p.vehicle.class_slug,
       classDisplayOrder: p.vehicle.class_display_order,
     });

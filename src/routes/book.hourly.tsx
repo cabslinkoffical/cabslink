@@ -109,9 +109,7 @@ function HourlyBookPage() {
   const grossUp = (net: number) =>
     taxCfg.mode === "inclusive" ? net : Math.round(net * (1 + (taxCfg.rate || 0)) * 100) / 100;
   // Canonical Extras resolved for the chosen class (fallback: flat values).
-  const selectedClassId = selected
-    ? (quotes.find((q) => q.vehicleId === selected.vehicleId) as any)?.classId ?? null
-    : null;
+  const selectedClassId = selected?.classId ?? null;
   const hourlyClassExtras = selectedClassId
     ? quotesQuery.data?.extrasByClass?.[selectedClassId]
     : undefined;
