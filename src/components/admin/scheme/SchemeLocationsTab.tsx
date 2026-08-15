@@ -39,6 +39,7 @@ const empty: Draft = {
 export function SchemeLocationsTab({ classId, locations }: { classId: string; locations: any[] }) {
   const qc = useQueryClient();
   const [draft, setDraft] = useState<Draft>(empty);
+  const [view, setView] = useViewMode("scheme-locations", "list");
   const upsert = useServerFn(upsertSchemeLocation);
   const remove = useServerFn(deleteSchemeLocation);
 
