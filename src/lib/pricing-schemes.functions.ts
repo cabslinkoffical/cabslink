@@ -243,9 +243,7 @@ export const saveSchemeOverview = createServerFn({ method: "POST" })
 
     const bands = [
       { tier_name: "City transfer (included)", miles: data.cityIncludedMiles, cost_per_mile: 0 },
-      { tier_name: "Short transfer", miles: data.shortMiles, cost_per_mile: data.shortPerMile },
-      { tier_name: "Medium transfer", miles: data.mediumMiles, cost_per_mile: data.mediumPerMile },
-      { tier_name: "Long transfer", miles: data.longMiles, cost_per_mile: data.longPerMile },
+      ...data.bands.map((b) => ({ tier_name: b.name, miles: b.miles, cost_per_mile: b.perMile })),
     ]
       .filter((b) => b.miles > 0)
       .map((b, i) => ({ ...b, pricing_profile_id: profileId, sort_order: i + 1 }));
