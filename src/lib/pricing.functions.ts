@@ -681,19 +681,23 @@ export const createBooking = createServerFn({ method: "POST" })
       }
     }
 
+    // Return journey is NOT a flat add-on: it is the same journey priced
+    // again (outbound + inbound), so the fare simply doubles.
+    if (data.return_journey) {
+      price = Number((price * 2).toFixed(2));
+    }
+
     // Add child seat fee last so it applies whether the ride is a direct
     // transfer or a scenic/multi-stop recompute.
     if (childSeatFee > 0) {
       price = Number((price + childSeatFee).toFixed(2));
     }
 
-    // Meet & greet + return journey extras (admin-configurable per site_settings).
+    // Meet & greet extra (admin-configurable in Fleet & Pricing → Extras).
     if (data.meet_greet && auth.settings.meetGreetFeePence > 0) {
       price = Number((price + auth.settings.meetGreetFeePence / 100).toFixed(2));
     }
-    if (data.return_journey && auth.settings.returnJourneyFeePence > 0) {
-      price = Number((price + auth.settings.returnJourneyFeePence / 100).toFixed(2));
-    }
+
 
     // Cancellation-policy delta (admin-configurable percent + minimum).
     {
