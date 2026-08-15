@@ -229,11 +229,14 @@ export function SchemeRoutesTab({ classId, routes }: { classId: string; routes: 
           <h3 className="font-display text-base font-semibold">Fixed routes in this scheme</h3>
           <p className="mt-0.5 text-xs text-muted-foreground">Fixed routes beat location pricing and per-mile bands.</p>
           </div>
-          <BulkTools entity="pricing_rules" label="Bulk CSV" onChanged={invalidate} />
+          <div className="flex items-center gap-2">
+            <ViewToggle mode={view} onChange={setView} />
+            <BulkTools entity="pricing_rules" label="Bulk CSV" onChanged={invalidate} />
+          </div>
         </div>
         {sorted.length === 0 ? (
           <p className="px-5 py-8 text-center text-sm text-muted-foreground">No fixed routes yet.</p>
-        ) : (
+        ) : view === "list" ? (
           <ul className="divide-y divide-border">
             {sorted.map((r) => (
               <li key={r.id} className="flex flex-wrap items-center gap-3 px-5 py-3">
@@ -255,6 +258,33 @@ export function SchemeRoutesTab({ classId, routes }: { classId: string; routes: 
               </li>
             ))}
           </ul>
+        ) : (
+          <div className="grid gap-3 p-5 sm:grid-cols-2 xl:grid-cols-3">
+            {sorted.map((r) => (
+              <button
+                key={r.id}
+                onClick={() => { setDraft(rowToDraft(r)); setLiveRoute(null); }}
+                className="rounded-xl border border-border bg-background p-4 text-left transition hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <p className="text-sm font-medium">
+                    {r.from_place_label ?? r.from_address}
+                    {(r.bidirectional ?? r.valid_for_return) !== false ? <ArrowLeftRight className="mx-1.5 inline size-3.5 text-primary" /> : " → "}
+                    {r.to_place_label ?? r.to_address}
+                  </p>
+                  <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold ${r.active ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"}`}>
+                    {r.active ? "Active" : "Paused"}
+                  </span>
+                </div>
+                <p className="mt-2 font-display text-xl font-semibold tabular-nums">£{Number(r.price).toFixed(2)}</p>
+                <p className="mt-1 text-xs text-muted-foreground tabular-nums">
+                  Priority {Number(r.priority ?? 100)}
+                  {Number(r.from_radius_miles ?? 0) > 0 && ` · start ${Number(r.from_radius_miles)} mi`}
+                  {Number(r.to_radius_miles ?? 0) > 0 && ` · end ${Number(r.to_radius_miles)} mi`}
+                </p>
+              </button>
+            ))}
+          </div>
         )}
       </div>
     </div>
