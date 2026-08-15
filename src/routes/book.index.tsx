@@ -569,7 +569,6 @@ function BookPage() {
                       meetGreetFee={meetGreetFee}
                       returnFee={returnFee}
                       meetGreetFeePence={meetGreetFeePence}
-                      returnJourneyFeePence={0}
                       policyCfg={policyCfg}
                       onBack={() => setStep("details")}
                       onNext={() => { track("booking_step", { step: "payment", value: grandTotal / 100, currency: "GBP" }); setStep("payment"); }}
@@ -1425,7 +1424,6 @@ function ExtrasStep(props: {
   meetGreetFee: number;
   returnFee: number;
   meetGreetFeePence: number;
-  returnJourneyFeePence: number;
   policyCfg: { nonRefundablePercent: number; nonRefundableMinPence: number; flexiblePercent: number; flexibleMinPence: number };
   onBack: () => void;
   onNext: () => void;
@@ -1437,7 +1435,7 @@ function ExtrasStep(props: {
     childSeatFeePence, childSeatCount, onChildSeatCount,
     meetGreet, onMeetGreet, returnJourney, onReturnJourney,
     policy, onPolicy, baseRideTotal, seatFee, meetGreetFee, returnFee,
-    meetGreetFeePence, returnJourneyFeePence, policyCfg, onBack, onNext,
+    meetGreetFeePence, policyCfg, onBack, onNext,
   } = props;
 
   return (
