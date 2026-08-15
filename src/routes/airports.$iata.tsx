@@ -6,6 +6,7 @@ import { getPublicSeoPageByPath } from "@/lib/seo-public.functions";
 import { getRelatedSeoLinks } from "@/lib/seo-related.functions";
 import { SeoPageRenderer, buildSeoHead } from "@/components/seo/SeoPageRenderer";
 import { listDestinationsByType, type Destination } from "@/lib/destinations.functions";
+import { InternalLinkHub } from "@/components/seo/InternalLinkHub";
 
 const ORIGIN = "https://cabslink.com";
 
@@ -92,7 +93,17 @@ export const Route = createFileRoute("/airports/$iata")({
 
 function AirportPage() {
   const data = Route.useLoaderData();
-  if (data.mode === "cms") return <SeoPageRenderer page={data.page} related={data.related} />;
+  const cmsAirportKey = Route.useParams().iata.toLowerCase();
+  if (data.mode === "cms") {
+    return (
+      <>
+        <SeoPageRenderer page={data.page} related={data.related} />
+        <div className="container-x pb-16">
+          <InternalLinkHub kind="airport" slug={cmsAirportKey} heading="Where to next" />
+        </div>
+      </>
+    );
+  }
 
   const { airport, airports } = data;
   const iata = (airport.meta?.iata as string | undefined) ?? "";
@@ -270,6 +281,13 @@ function AirportPage() {
           </div>
         </section>
       )}
+
+      {/* Automated services ↔ areas ↔ airports cross-links */}
+      <section className="section-y">
+        <div className="container-x">
+          <InternalLinkHub kind="airport" slug={airport.slug} className="" heading={`${shortName} transfers — where to next`} />
+        </div>
+      </section>
 
       {/* JSON-LD */}
       <script

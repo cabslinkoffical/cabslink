@@ -10,6 +10,7 @@ import { PageHero, SectionHeader } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
 import { getService } from "@/lib/seo/service-registry";
 import type { ServiceLocationContent } from "@/lib/seo/service-locations";
+import { InternalLinkHub } from "@/components/seo/InternalLinkHub";
 import { SITE } from "@/lib/site";
 
 export function ServiceLocationPage({ content }: { content: ServiceLocationContent }) {
@@ -178,6 +179,13 @@ export function ServiceLocationPage({ content }: { content: ServiceLocationConte
               ))}
             </ul>
           )}
+        </div>
+      </section>
+
+      {/* Automated services ↔ airports ↔ locations cross-links */}
+      <section className="section-y bg-muted/40">
+        <div className="container-x">
+          <InternalLinkHub kind="location" slug={loc.slug} className="" heading={`More travel options in ${loc.name}`} />
         </div>
       </section>
 
