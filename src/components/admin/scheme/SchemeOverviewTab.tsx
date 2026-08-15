@@ -62,7 +62,7 @@ export function overviewFromScheme(data: any): OverviewState {
 
 const num = (v: string) => (v === "" ? 0 : Number(v));
 
-export function SchemeOverviewTab({ scheme, data }: { scheme: Scheme; data: any }) {
+export function SchemeOverviewTab({ scheme, data, section = "base" }: { scheme: Scheme; data: any; section?: "base" | "time" }) {
   const qc = useQueryClient();
   const save = useServerFn(saveSchemeOverview);
   const [form, setForm] = useState<OverviewState>(() => overviewFromScheme(data));
