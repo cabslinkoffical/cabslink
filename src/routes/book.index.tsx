@@ -378,8 +378,12 @@ function BookPage() {
   const needsAck = isConverted && !tourAckAt;
 
   // ---- Pricing math (single source used by extras/payment/review) ----
-  const childSeatFeePence = quoteQuery.data?.childSeatFeePence ?? 0;
-  const meetGreetFeePence = quoteQuery.data?.meetGreetFeePence ?? 0;
+  // Extras prices come from the canonical Extras catalogue, resolved for the
+  // chosen vehicle class (class-specific overrides included). The flat values
+  // are only a fallback for classes without a resolved entry.
+  const classExtras = chosen ? quoteQuery.data?.extrasByClass?.[chosen.classId] : undefined;
+  const childSeatFeePence = classExtras?.childSeatPence ?? quoteQuery.data?.childSeatFeePence ?? 0;
+  const meetGreetFeePence = classExtras?.meetGreetPence ?? quoteQuery.data?.meetGreetFeePence ?? 0;
   const policyCfg = quoteQuery.data?.policy ?? {
     nonRefundablePercent: 5, nonRefundableMinPence: 200,
     flexiblePercent: 12, flexibleMinPence: 400,

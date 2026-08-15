@@ -108,8 +108,17 @@ function HourlyBookPage() {
   const taxCfg = quotesQuery.data?.tax ?? { rate: 0, mode: "exclusive" as const, label: "VAT" };
   const grossUp = (net: number) =>
     taxCfg.mode === "inclusive" ? net : Math.round(net * (1 + (taxCfg.rate || 0)) * 100) / 100;
-  const childSeatFee = grossUp((quotesQuery.data?.childSeatFeePence ?? 0) / 100);
-  const meetGreetFee = grossUp((quotesQuery.data?.meetGreetFeePence ?? 0) / 100);
+  // Canonical Extras resolved for the chosen class (fallback: flat values).
+  const selectedClassId = selected?.classId ?? null;
+  const hourlyClassExtras = selectedClassId
+    ? quotesQuery.data?.extrasByClass?.[selectedClassId]
+    : undefined;
+  const childSeatFee = grossUp(
+    (hourlyClassExtras?.childSeatPence ?? quotesQuery.data?.childSeatFeePence ?? 0) / 100,
+  );
+  const meetGreetFee = grossUp(
+    (hourlyClassExtras?.meetGreetPence ?? quotesQuery.data?.meetGreetFeePence ?? 0) / 100,
+  );
   const fits = (c: HourlyCard) => c.passengers >= passengers && c.luggage >= luggage;
 
   const extrasTotal = childSeats * childSeatFee + (meetGreet ? meetGreetFee : 0);

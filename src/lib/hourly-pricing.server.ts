@@ -15,6 +15,7 @@ import {
   type JourneyContext,
 } from "@/lib/pricing-rules";
 import { applyTaxTo, type TaxMode } from "@/lib/pricing";
+import { computeHourlyBase } from "@/lib/hourly-base";
 
 export const HOURLY_SERVICE_TYPE = "hourly_hire";
 
@@ -27,13 +28,17 @@ export type HourlyRateRow = {
   max_hours: number;
   active: boolean;
   display_order: number | null;
+  /** Optional day rate (admin → Pricing scheme → Time). */
+  daily_price: number | null;
+  included_hours_per_day: number | null;
+  included_miles_per_day: number | null;
 };
 
 export async function loadActiveHourlyRates(): Promise<Map<string, HourlyRateRow>> {
   const client = publicClient();
   const { data, error } = await client
     .from("hourly_rates")
-    .select("vehicle_id, price_per_hour, min_hours, max_hours, active, display_order")
+    .select("vehicle_id, price_per_hour, min_hours, max_hours, active, display_order, daily_price, included_hours_per_day, included_miles_per_day")
     .eq("active", true);
   if (error) throw new Error(error.message);
   const map = new Map<string, HourlyRateRow>();
@@ -162,7 +167,13 @@ export type HourlyCard = {
   minHours: number;
   maxHours: number;
   chargedHours: number;
-  /** Base before rule adjustments (hours × per-hour). */
+  /** Day rate applied, when the class has one and it beats the hourly total. */
+  dailyPrice: number | null;
+  includedHoursPerDay: number | null;
+  billedDays: number;
+  billedHours: number;
+  priceBasis: "hourly" | "daily";
+  /** Base before rule adjustments (day rate and/or hours × per-hour). */
   baseTotal: number;
   /** Rule-driven uplifts / reductions applied to the base. */
   adjustments: Array<{ label: string; amount: number }>;
@@ -174,6 +185,7 @@ export type HourlyCard = {
   total: number;
   minimumApplied: boolean;
   quoteOnRequest: boolean;
+  classId: string;
   classSlug: string;
   classDisplayOrder: number;
 };
@@ -203,7 +215,13 @@ export function buildHourlyCards(args: {
     if (args.hours > max) continue;
     const chargedHours = Math.max(args.hours, min);
     const perHour = Math.max(0, Number(rate.price_per_hour) || 0);
-    const baseTotal = round2(perHour * chargedHours);
+    const baseCalc = computeHourlyBase({
+      perHour,
+      chargedHours,
+      dailyPrice: rate.daily_price,
+      includedHoursPerDay: rate.included_hours_per_day,
+    });
+    const baseTotal = baseCalc.total;
 
     let total = baseTotal;
     let adjustments: Array<{ label: string; amount: number }> = [];
@@ -238,6 +256,14 @@ export function buildHourlyCards(args: {
       minHours: min,
       maxHours: max,
       chargedHours,
+      dailyPrice: rate.daily_price === null || rate.daily_price === undefined ? null : Number(rate.daily_price),
+      includedHoursPerDay:
+        rate.included_hours_per_day === null || rate.included_hours_per_day === undefined
+          ? null
+          : Number(rate.included_hours_per_day),
+      billedDays: baseCalc.days,
+      billedHours: baseCalc.hours,
+      priceBasis: baseCalc.basis,
       baseTotal,
       adjustments,
       discountLines,
@@ -246,6 +272,7 @@ export function buildHourlyCards(args: {
       total: taxed.gross,
       minimumApplied: chargedHours > args.hours,
       quoteOnRequest: p.vehicle.class_quote_on_request,
+      classId: p.vehicle.class_id,
       classSlug: p.vehicle.class_slug,
       classDisplayOrder: p.vehicle.class_display_order,
     });

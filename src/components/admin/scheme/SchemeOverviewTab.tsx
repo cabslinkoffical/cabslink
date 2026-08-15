@@ -24,6 +24,10 @@ export type OverviewState = {
   pricePerHour: number;
   minHours: number;
   maxHours: number;
+  dailyPrice: number;
+  includedHoursPerDay: number;
+  includedMilesPerDay: number;
+  extraMileRate: number;
   hourlyActive: boolean;
   finalTierOpenEnded: boolean;
   live: boolean;
@@ -55,6 +59,10 @@ export function overviewFromScheme(data: any): OverviewState {
     pricePerHour: data.time.pricePerHour,
     minHours: data.time.minHours,
     maxHours: data.time.maxHours,
+    dailyPrice: data.time.dailyPrice ?? 0,
+    includedHoursPerDay: data.time.includedHoursPerDay ?? 0,
+    includedMilesPerDay: data.time.includedMilesPerDay ?? 0,
+    extraMileRate: data.time.extraMileRate ?? 0,
     hourlyActive: data.time.active,
     finalTierOpenEnded: !!data.base.finalTierOpenEnded,
     live: data.base.live,
@@ -177,12 +185,29 @@ export function SchemeOverviewTab({ scheme, data, section = "base" }: { scheme: 
             <Input type="number" min="1" value={form.maxHours} onChange={(e) => set("maxHours", num(e.target.value))} />
           </Field>
         </div>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <Field label="Day price (£)" hint="Leave 0 to price day hire purely by the hour.">
+            <Input type="number" step="0.01" min="0" value={form.dailyPrice} onChange={(e) => set("dailyPrice", num(e.target.value))} />
+          </Field>
+          <Field label="Hours included in a day" hint="Hours a day price covers, e.g. 8 or 10.">
+            <Input type="number" step="0.5" min="0" value={form.includedHoursPerDay} onChange={(e) => set("includedHoursPerDay", num(e.target.value))} />
+          </Field>
+          <Field label="Miles included per day" hint="Reference allowance shown to drivers/ops.">
+            <Input type="number" step="1" min="0" value={form.includedMilesPerDay} onChange={(e) => set("includedMilesPerDay", num(e.target.value))} />
+          </Field>
+          <Field label="Extra mile rate (£)" hint="Charged beyond the daily mileage allowance.">
+            <Input type="number" step="0.01" min="0" value={form.extraMileRate} onChange={(e) => set("extraMileRate", num(e.target.value))} />
+          </Field>
+        </div>
         <div className="mt-4 flex items-center gap-3 rounded-lg border border-border px-4 py-3">
           <Switch id="hourly-active" checked={form.hourlyActive} onCheckedChange={(v) => set("hourlyActive", v)} />
           <label htmlFor="hourly-active" className="text-sm">Offer hourly hire for this class</label>
         </div>
         <p className="mt-2 text-xs text-muted-foreground tabular-nums">
           A full day at the maximum hours costs £{(form.pricePerHour * form.maxHours).toFixed(2)}.
+          {form.dailyPrice > 0 && form.includedHoursPerDay > 0
+            ? ` A ${form.includedHoursPerDay}-hour day is billed at £${form.dailyPrice.toFixed(2)} whenever that is cheaper than the hourly total.`
+            : ""}
         </p>
       </SchemeSection>
 
