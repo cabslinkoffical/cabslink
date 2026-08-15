@@ -633,7 +633,7 @@ export function validateCoupon(
 export type AvailabilityRule = {
   id: string;
   name: string;
-  rule_scope: "global" | "service" | "vehicle_class" | "vehicle";
+  rule_scope: "global" | "service" | "vehicle_class" | "vehicle" | "route" | "location";
   vehicle_class_id: string | null;
   vehicle_id: string | null;
   service_types: string[] | null;
@@ -647,18 +647,50 @@ export type AvailabilityRule = {
   lat: number | null;
   lng: number | null;
   radius_miles: number | null;
+  /** Route scope: the "to" side of the journey. */
+  to_place_id?: string | null;
+  to_lat?: number | null;
+  to_lng?: number | null;
+  to_radius_miles?: number | null;
   scope: GeoScope;
   reason: string | null;
+  /** Optional customer-facing explanation shown when the rule blocks a booking. */
+  customer_message?: string | null;
   priority: number;
   active: boolean;
 };
 
 const SPECIFICITY: Record<AvailabilityRule["rule_scope"], number> = {
-  vehicle: 4,
-  vehicle_class: 3,
+  vehicle: 5,
+  vehicle_class: 4,
+  route: 3,
   service: 2,
+  location: 2,
   global: 1,
 };
+
+/** Route rules match when one end sits in the "from" area and the other in the "to" area. */
+function routeMatches(r: AvailabilityRule, ctx: JourneyContext): boolean {
+  const from = { lat: r.lat, lng: r.lng, radius_miles: r.radius_miles, place_id: r.place_id };
+  const to = { lat: r.to_lat, lng: r.to_lng, radius_miles: r.to_radius_miles, place_id: r.to_place_id };
+  const hit = (
+    side: { lat?: number | null; lng?: number | null; radius_miles?: number | null; place_id?: string | null },
+    placeId: string | null | undefined,
+    coord: Coord | null | undefined,
+  ) => {
+    const hasGeo = (side.lat != null && side.lng != null && Number(side.radius_miles) > 0) || !!side.place_id;
+    if (!hasGeo) return true;
+    if (side.place_id && side.place_id === placeId) return true;
+    const centre = side.lat != null && side.lng != null ? { lat: Number(side.lat), lng: Number(side.lng) } : null;
+    return withinRadius(coord ?? null, centre, side.radius_miles ?? null);
+  };
+  const forward =
+    hit(from, ctx.pickupPlaceId, ctx.pickupCoord) && hit(to, ctx.destinationPlaceId, ctx.destinationCoord);
+  const reverse =
+    hit(from, ctx.destinationPlaceId, ctx.destinationCoord) && hit(to, ctx.pickupPlaceId, ctx.pickupCoord);
+  return forward || reverse;
+}
+
 
 function windowWidth(r: AvailabilityRule): number {
   const from = minutes(r.time_from);
@@ -691,12 +723,17 @@ export function resolveAvailability(rules: readonly AvailabilityRule[], ctx: Jou
       if (r.rule_scope === "vehicle") return !!r.vehicle_id && r.vehicle_id === ctx.vehicleId;
       if (r.rule_scope === "vehicle_class") return !!r.vehicle_class_id && r.vehicle_class_id === ctx.vehicleClassId;
       if (r.rule_scope === "service") return serviceMatches(r.service_types, ctx) && !!r.service_types?.length;
+      if (r.rule_scope === "route") return routeMatches(r, ctx);
       return true;
     })
     .filter((r) => dateWithin(ctx.date, r.date_from, r.date_to))
     .filter((r) => dowMatches(r.days_of_week, ctx.date))
     .filter((r) => timeWithin(ctx.time, r.time_from, r.time_to))
-    .filter((r) => geoMatches({ lat: r.lat, lng: r.lng, radius_miles: r.radius_miles, place_id: r.place_id, scope: r.scope }, ctx));
+    .filter((r) =>
+      r.rule_scope === "route"
+        ? true
+        : geoMatches({ lat: r.lat, lng: r.lng, radius_miles: r.radius_miles, place_id: r.place_id, scope: r.scope }, ctx),
+    );
 
   if (matching.length === 0) {
     return { available: true, rule: null, message: null, adminReason: null, conflicts: [] };
@@ -726,7 +763,7 @@ export function resolveAvailability(rules: readonly AvailabilityRule[], ctx: Jou
   return {
     available: !blocked,
     rule: winner,
-    message: blocked ? CUSTOMER_UNAVAILABLE : null,
+    message: blocked ? (winner.customer_message?.trim() || CUSTOMER_UNAVAILABLE) : null,
     adminReason: `${winner.effect === "block" ? "Blocked" : "Allowed"} by "${winner.name}" (${winner.rule_scope}, priority ${winner.priority})${winner.reason ? `: ${winner.reason}` : ""}`,
     conflicts,
   };

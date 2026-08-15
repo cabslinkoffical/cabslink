@@ -178,7 +178,7 @@ export const deletePricingModifier = createServerFn({ method: "POST" })
 const availabilitySchema = z.object({
   id: z.string().uuid().optional(),
   name: z.string().trim().min(2).max(160),
-  rule_scope: z.enum(["global", "service", "vehicle_class", "vehicle"]).default("global"),
+  rule_scope: z.enum(["global", "service", "vehicle_class", "vehicle", "route", "location"]).default("global"),
   effect: z.enum(["block", "allow"]).default("block"),
   vehicle_id: z.string().uuid().nullable().optional(),
   vehicle_class_id: z.string().uuid().nullable().optional(),
@@ -191,9 +191,13 @@ const availabilitySchema = z.object({
   place_id: z.string().trim().min(1).nullable().optional(),
   place_label: z.string().trim().max(300).nullable().optional(),
   radius_miles: z.number().min(0).max(200).nullable().optional(),
+  to_place_id: z.string().trim().min(1).nullable().optional(),
+  to_place_label: z.string().trim().max(300).nullable().optional(),
+  to_radius_miles: z.number().min(0).max(200).nullable().optional(),
   scope: geoScope.default("either"),
   priority: z.number().int().min(0).max(1000).default(100),
   reason: nullableStr,
+  customer_message: z.string().trim().max(400).nullable().optional(),
   active: z.boolean().default(true),
 });
 
@@ -218,6 +222,8 @@ export const upsertAvailabilityRule = createServerFn({ method: "POST" })
     if (data.rule_scope === "vehicle" && !data.vehicle_id) throw new Error("Pick a vehicle for a vehicle-scoped rule.");
     if (data.rule_scope === "vehicle_class" && !data.vehicle_class_id) throw new Error("Pick a vehicle class for a class-scoped rule.");
     if (data.rule_scope === "service" && !data.service_types?.length) throw new Error("Pick at least one service type for a service-scoped rule.");
+    if (data.rule_scope === "location" && !data.place_id) throw new Error("Pick a location for a location-scoped rule.");
+    if (data.rule_scope === "route" && (!data.place_id || !data.to_place_id)) throw new Error("Pick both a from and a to location for a route rule.");
 
     const payload: any = await withCoords(context, {
       ...data,
@@ -232,8 +238,22 @@ export const upsertAvailabilityRule = createServerFn({ method: "POST" })
       time_from: data.time_from || null,
       time_to: data.time_to || null,
       radius_miles: data.place_id ? (data.radius_miles ?? 10) : null,
+      to_place_id: data.rule_scope === "route" ? data.to_place_id || null : null,
+      to_place_label: data.rule_scope === "route" ? data.to_place_label || null : null,
+      to_radius_miles: data.rule_scope === "route" ? (data.to_radius_miles ?? 10) : null,
       reason: data.reason || null,
+      customer_message: data.customer_message || null,
     });
+    if (payload.to_place_id) {
+      const { resolveCoords } = await import("@/lib/place-coords.server");
+      const map = await resolveCoords(context.supabase as any, [payload.to_place_id]);
+      const c = map.get(payload.to_place_id);
+      payload.to_lat = c?.lat ?? null;
+      payload.to_lng = c?.lng ?? null;
+    } else {
+      payload.to_lat = null;
+      payload.to_lng = null;
+    }
     if (payload.id) {
       const { id, ...patch } = payload;
       const { error } = await context.supabase.from("availability_rules").update(patch).eq("id", id);
