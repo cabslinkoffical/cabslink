@@ -208,29 +208,32 @@ function EditorPage() {
 
   return (
     <div className="pb-24">
-      {/* Sticky action bar */}
-      <div className="sticky top-14 z-10 bg-card/95 backdrop-blur border-b border-border px-4 md:px-8 py-3 flex items-center gap-3">
-        <Button asChild variant="ghost" size="icon" aria-label="Back to classes">
-          <Link to="/cabs-booking-pannel/vehicle-classes"><ArrowLeft className="size-4" /></Link>
-        </Button>
-        <div className="min-w-0">
-          <h1 className="font-display text-lg font-semibold truncate">{form.name || (isNew ? "New vehicle class" : "Vehicle class")}</h1>
-          <p className="text-xs text-muted-foreground">Everything for this class — details, pricing, hourly hire and availability.</p>
-        </div>
-        <div className="flex-1" />
-        {!isNew && <StatusBadge status={form.active ? "active" : "inactive"} />}
-        <Button onClick={saveAll} disabled={saving}>
-          {saving && <Loader2 className="size-4 mr-1.5 animate-spin" />}Save
-        </Button>
-      </div>
-
-      <div className="p-4 md:p-8">
-        <Tabs defaultValue="details">
-          <TabsList className="mb-6">
+      <Tabs defaultValue="details">
+        {/* Sticky action bar + tabs */}
+        <div className="sticky top-14 z-10 bg-card/95 backdrop-blur border-b border-border px-4 md:px-8 pt-3">
+          <div className="flex items-center gap-3">
+            <Button asChild variant="ghost" size="icon" aria-label="Back to classes">
+              <Link to="/cabs-booking-pannel/vehicle-classes"><ArrowLeft className="size-4" /></Link>
+            </Button>
+            <div className="min-w-0">
+              <h1 className="font-display text-lg font-semibold truncate">{form.name || (isNew ? "New vehicle class" : "Vehicle class")}</h1>
+              <p className="hidden sm:block text-xs text-muted-foreground">Everything for this class — details, pricing, hourly hire and availability.</p>
+            </div>
+            <div className="flex-1" />
+            {!isNew && <StatusBadge status={form.active ? "active" : "inactive"} />}
+            <Button onClick={saveAll} disabled={saving}>
+              {saving && <Loader2 className="size-4 mr-1.5 animate-spin" />}Save
+            </Button>
+          </div>
+          <TabsList className="mt-3">
             <TabsTrigger value="details">Details</TabsTrigger>
             <TabsTrigger value="pricing">Pricing</TabsTrigger>
             <TabsTrigger value="availability">Availability</TabsTrigger>
           </TabsList>
+        </div>
+
+        <div className="p-4 md:p-8">
+
 
           {/* ---------------- DETAILS ---------------- */}
           <TabsContent value="details" className="space-y-6 max-w-4xl">
