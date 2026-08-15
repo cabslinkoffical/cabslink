@@ -115,6 +115,14 @@ function VehicleClassesPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+                  <Button
+                    size="sm"
+                    variant={c.active ? "outline" : "default"}
+                    disabled={activeMut.isPending}
+                    onClick={() => activeMut.mutate({ id: c.id, active: !c.active })}
+                  >
+                    {c.active ? <><PowerOff className="size-4 mr-1.5" />Deactivate</> : <><Power className="size-4 mr-1.5" />Activate</>}
+                  </Button>
                   <Button asChild size="sm" variant="outline">
                     <Link to="/cabs-booking-pannel/vehicle-classes/$id" params={{ id: c.id }}>
                       <Pencil className="size-4 mr-1.5" />Edit
