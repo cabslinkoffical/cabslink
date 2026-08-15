@@ -20,7 +20,7 @@ import { listVehiclesAdmin } from "@/lib/admin.functions";
 
 const opts = queryOptions({ queryKey: ["admin", "vehicle-classes"], queryFn: () => listVehicleClassesAdmin() });
 
-export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/vehicle-classes")({
+export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/vehicle-classes/")({
   head: () => ({
     meta: [
       { title: "Vehicle Classes — Cabslink Admin" },
