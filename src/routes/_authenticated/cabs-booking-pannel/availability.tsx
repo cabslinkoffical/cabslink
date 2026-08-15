@@ -318,28 +318,37 @@ function Page() {
         description="Block or explicitly allow bookings by vehicle, route, location, service or globally — down to the date, day and time. The most specific matching rule wins; ties break to block."
       >
         <BulkTools entity="availability_rules" onChanged={() => qc.invalidateQueries({ queryKey: ["admin", "availability-rules"] })} />
-        <div className="flex items-center gap-2">
-          <div className="inline-flex rounded-md border border-border p-0.5">
-            <Button size="sm" variant={view === "list" ? "secondary" : "ghost"} onClick={() => setView("list")}>
-              <List className="size-4 mr-1" /> List
-            </Button>
-            <Button size="sm" variant={view === "calendar" ? "secondary" : "ghost"} onClick={() => setView("calendar")}>
-              <CalendarDays className="size-4 mr-1" /> Calendar
-            </Button>
-          </div>
-          <Button onClick={() => setForm({ ...empty, rule_scope: activeTab.newScope })}><Plus className="size-4 mr-1" /> New rule</Button>
+        <div className="inline-flex rounded-md border border-border p-0.5">
+          <Button size="sm" variant={view === "list" ? "secondary" : "ghost"} onClick={() => setView("list")}>
+            <List className="size-4 mr-1" /> List
+          </Button>
+          <Button size="sm" variant={view === "calendar" ? "secondary" : "ghost"} onClick={() => setView("calendar")}>
+            <CalendarDays className="size-4 mr-1" /> Calendar
+          </Button>
         </div>
       </PageHeader>
 
       <div className="space-y-2">
-        <div className="flex flex-wrap gap-1 rounded-lg border border-border bg-muted/40 p-1">
+        <div className="flex flex-wrap items-center gap-1 rounded-lg border border-border bg-muted/40 p-1">
           {TABS.map((t) => {
             const count = t.scopes.length === 0 ? (data as any[]).length : (data as any[]).filter((r) => t.scopes.includes(r.rule_scope)).length;
+            const isActive = tab === t.key;
             return (
-              <Button key={t.key} size="sm" variant={tab === t.key ? "secondary" : "ghost"} onClick={() => setTab(t.key)}>
-                {t.label}
-                <span className="ml-1.5 text-xs text-muted-foreground">{count}</span>
-              </Button>
+              <div key={t.key} className="flex items-center">
+                <Button size="sm" variant={isActive ? "secondary" : "ghost"} onClick={() => setTab(t.key)}>
+                  {t.label}
+                  <span className="ml-1.5 text-xs text-muted-foreground">{count}</span>
+                </Button>
+                {isActive && t.newScope && (
+                  <Button
+                    size="sm"
+                    className="ml-1"
+                    onClick={() => setForm({ ...empty, rule_scope: t.newScope! })}
+                  >
+                    <Plus className="size-4 mr-1" /> {t.addLabel ?? "Add rule"}
+                  </Button>
+                )}
+              </div>
             );
           })}
         </div>
@@ -349,7 +358,8 @@ function Page() {
       {view === "calendar" ? (
         <AvailabilityCalendar rules={rules as any} onSelectRule={openEdit} />
       ) : rules.length === 0 ? (
-        <EmptyState title="No rules in this tab" hint="Everything here is bookable. Use New rule to close a date, area, route or vehicle." />
+        <EmptyState title="No rules in this tab" hint={activeTab.newScope ? `Nothing blocked here yet — use ${activeTab.addLabel} to create one.` : "Pick a tab (Vehicles, Routes, Locations, Services, Global) to add a rule."} />
+
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {rules.map((r: any) => (
