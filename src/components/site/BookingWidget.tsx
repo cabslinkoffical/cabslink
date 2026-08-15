@@ -296,13 +296,7 @@ export function BookingWidget({
       <form onSubmit={submit} noValidate>
 
         {/* Main container: rounded card on mobile/tablet, horizontal pill on wide desktop (xl+) */}
-        <div
-          className={`bg-white shadow-[var(--shadow-elegant)] border border-black/5 overflow-visible p-2 @[980px]:p-1.5 ${
-            hasExtension
-              ? "rounded-3xl @[980px]:rounded-[2rem] rounded-b-none @[980px]:rounded-b-none border-b-0"
-              : "rounded-3xl @[980px]:rounded-full"
-          }`}
-        >
+        <div className="bg-white shadow-[var(--shadow-elegant)] border border-black/5 border-b-0 overflow-visible p-2 @[980px]:p-1.5 rounded-3xl @[980px]:rounded-[2rem] rounded-b-none @[980px]:rounded-b-none">
           <div className="grid grid-cols-1 @[600px]:grid-cols-2 @[980px]:flex @[980px]:items-stretch gap-1 @[980px]:gap-0">
             {/* Pickup */}
             <div className="@[600px]:col-span-2 @[980px]:flex-1 @[980px]:min-w-0" data-invalid={attempted && !!errors.pickup}>
