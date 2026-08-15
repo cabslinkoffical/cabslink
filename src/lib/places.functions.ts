@@ -97,7 +97,16 @@ export const placesAutocomplete = createServerFn({ method: "POST" })
           ...(data.sessionToken ? { sessionToken: data.sessionToken } : {}),
         }),
       });
-      if (!res.ok) return { suggestions: [] };
+      if (!res.ok) {
+        const body = await res.text().catch(() => "");
+        console.error(`Places autocomplete failed [${res.status}]: ${body.slice(0, 500)}`);
+        if (res.status === 403 && /API_KEY_HTTP_REFERRER_BLOCKED/.test(body)) {
+          console.error(
+            "Google Maps server key is referrer-restricted. Set the server key's application restrictions to \"None\" or \"IP addresses\" in Google Cloud Console.",
+          );
+        }
+        return { suggestions: [] };
+      }
       const json = (await res.json()) as {
         suggestions?: Array<{
           placePrediction?: {
