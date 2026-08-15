@@ -664,15 +664,16 @@ function HomePage() {
         </div>
 
         {/* Smooth infinite marquee of featured tours */}
-        <div className="tour-marquee overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)]">
-          <div className="tour-marquee-track flex w-max items-stretch gap-6">
+        <div className="tour-marquee [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)]">
+          <div className="tour-marquee-track flex w-max items-stretch gap-6 px-6 py-6">
             {[...popularTours, ...popularTours].map((t, i) => (
-              <div key={`${t.slug}-${i}`} className="w-[300px] shrink-0 sm:w-[330px]">
+              <div key={`${t.slug}-${i}`} className="flex w-[300px] shrink-0 sm:w-[330px]">
                 <TourCard tour={t} />
               </div>
             ))}
           </div>
         </div>
+
 
       </section>
       )}
