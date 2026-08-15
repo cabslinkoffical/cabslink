@@ -661,13 +661,19 @@ function HomePage() {
               <Link to="/tours">Explore all tours <ArrowRight className="size-4" /></Link>
             </Button>
           </div>
+        </div>
 
-          <div className="grid items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {popularTours.map((t) => (
-              <TourCard key={t.slug} tour={t} />
+        {/* Smooth infinite marquee of featured tours */}
+        <div className="tour-marquee overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)]">
+          <div className="tour-marquee-track flex w-max items-stretch gap-6">
+            {[...popularTours, ...popularTours].map((t, i) => (
+              <div key={`${t.slug}-${i}`} className="w-[300px] shrink-0 sm:w-[330px]">
+                <TourCard tour={t} />
+              </div>
             ))}
           </div>
         </div>
+
       </section>
       )}
 
