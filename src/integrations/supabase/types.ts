@@ -1411,6 +1411,90 @@ export type Database = {
           },
         ]
       }
+      extra_vehicle_classes: {
+        Row: {
+          created_at: string
+          extra_id: string
+          id: string
+          price_pence: number | null
+          vehicle_class_id: string
+        }
+        Insert: {
+          created_at?: string
+          extra_id: string
+          id?: string
+          price_pence?: number | null
+          vehicle_class_id: string
+        }
+        Update: {
+          created_at?: string
+          extra_id?: string
+          id?: string
+          price_pence?: number | null
+          vehicle_class_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "extra_vehicle_classes_extra_id_fkey"
+            columns: ["extra_id"]
+            isOneToOne: false
+            referencedRelation: "extras"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "extra_vehicle_classes_vehicle_class_id_fkey"
+            columns: ["vehicle_class_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      extras: {
+        Row: {
+          active: boolean
+          applies_to_all_classes: boolean
+          created_at: string
+          description: string | null
+          id: string
+          key: string
+          max_quantity: number
+          name: string
+          price_basis: string
+          price_pence: number
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          applies_to_all_classes?: boolean
+          created_at?: string
+          description?: string | null
+          id?: string
+          key: string
+          max_quantity?: number
+          name: string
+          price_basis?: string
+          price_pence?: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          applies_to_all_classes?: boolean
+          created_at?: string
+          description?: string | null
+          id?: string
+          key?: string
+          max_quantity?: number
+          name?: string
+          price_basis?: string
+          price_pence?: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       hourly_rates: {
         Row: {
           active: boolean
