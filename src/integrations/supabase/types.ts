@@ -3740,6 +3740,7 @@ export type Database = {
           city_included_miles: number
           connecting_job_discount_percent: number
           created_at: string
+          final_tier_open_ended: boolean
           id: string
           status: boolean
           time_extra_amount: number
@@ -3759,6 +3760,7 @@ export type Database = {
           city_included_miles?: number
           connecting_job_discount_percent?: number
           created_at?: string
+          final_tier_open_ended?: boolean
           id?: string
           status?: boolean
           time_extra_amount?: number
@@ -3778,6 +3780,7 @@ export type Database = {
           city_included_miles?: number
           connecting_job_discount_percent?: number
           created_at?: string
+          final_tier_open_ended?: boolean
           id?: string
           status?: boolean
           time_extra_amount?: number
@@ -3937,6 +3940,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      save_pricing_scheme_base: { Args: { _payload: Json }; Returns: string }
       search_bookable_destinations: {
         Args: { _limit?: number; _q: string }
         Returns: {

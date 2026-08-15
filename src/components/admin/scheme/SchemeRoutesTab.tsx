@@ -45,7 +45,7 @@ function rowToDraft(r: RouteRow): Draft {
     to: r.to_place_id ? { placeId: r.to_place_id, label: r.to_place_label ?? r.to_address } : null,
     toRadius: Number(r.to_radius_miles ?? 0),
     price: Number(r.price ?? 0),
-    validForReturn: r.valid_for_return !== false,
+    validForReturn: (r.bidirectional ?? r.valid_for_return) !== false,
     priority: Number(r.priority ?? 100),
     notes: r.notes ?? "",
     active: !!r.active,
@@ -80,7 +80,7 @@ export function SchemeRoutesTab({ classId, routes }: { classId: string; routes: 
         to_radius_miles: draft.toRadius,
         price: draft.price,
         priority: draft.priority,
-        valid_for_return: draft.validForReturn,
+        bidirectional: draft.validForReturn,
       } as any,
     }),
   });
@@ -106,7 +106,7 @@ export function SchemeRoutesTab({ classId, routes }: { classId: string; routes: 
           to_place_label: draft.to.label,
           to_radius_miles: draft.toRadius,
           price: draft.price,
-          valid_for_return: draft.validForReturn,
+          bidirectional: draft.validForReturn,
           priority: draft.priority,
           notes: draft.notes || null,
           active: draft.active,
@@ -240,7 +240,7 @@ export function SchemeRoutesTab({ classId, routes }: { classId: string; routes: 
                 <button className="min-w-0 flex-1 text-left" onClick={() => { setDraft(rowToDraft(r)); setLiveRoute(null); }}>
                   <p className="truncate text-sm font-medium">
                     {r.from_place_label ?? r.from_address}
-                    {r.valid_for_return !== false ? <ArrowLeftRight className="mx-1.5 inline size-3.5 text-primary" /> : " → "}
+                    {(r.bidirectional ?? r.valid_for_return) !== false ? <ArrowLeftRight className="mx-1.5 inline size-3.5 text-primary" /> : " → "}
                     {r.to_place_label ?? r.to_address}
                   </p>
                   <p className="mt-0.5 text-xs text-muted-foreground tabular-nums">

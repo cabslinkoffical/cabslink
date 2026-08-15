@@ -141,6 +141,7 @@ export const getPricingScheme = createServerFn({ method: "GET" })
         airportPickupFee: Number(profile?.airport_pickup_fee ?? 0),
         connectingJobDiscountPercent: Number(profile?.connecting_job_discount_percent ?? 0),
         live: profile ? !!profile.status : false,
+        finalTierOpenEnded: !!profile?.final_tier_open_ended,
         tiers: tiers.map((t) => ({
           tierName: t.tier_name as string,
           miles: Number(t.miles),
@@ -167,7 +168,10 @@ export const getPricingScheme = createServerFn({ method: "GET" })
 
 const overviewSchema = z.object({
   classId: uuid,
-  vehicleId: uuid,
+  /** Legacy compatibility only — the class is the source of truth and the
+   *  internal pricing record is resolved (or created) server-side. */
+  vehicleId: uuid.optional(),
+  finalTierOpenEnded: z.boolean().default(false),
   cityFixedPrice: money,
   cityIncludedMiles: miles,
   bands: z
@@ -206,69 +210,36 @@ export const saveSchemeOverview = createServerFn({ method: "POST" })
     await assertAdmin(context);
     if (data.maxHours < data.minHours) throw new Error("Maximum hours must be at least the minimum hours.");
 
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // The vehicle class is authoritative. The legacy `vehicles` row is an
+    // internal compatibility record for the canonical engine tables and is
+    // created on demand, so pricing can always be saved from the class.
+    const { ensureClassPricingVehicle } = await import("@/lib/pricing-schemes.server");
+    const vehicleId = await ensureClassPricingVehicle(data.classId);
 
-    const existing = await supabaseAdmin
-      .from("vehicle_pricing_profiles")
-      .select("id")
-      .eq("vehicle_id", data.vehicleId)
-      .maybeSingle();
+    // One all-or-nothing database routine: profile upsert + mileage bands +
+    // hourly rates. A failure anywhere leaves the previous pricing intact.
+    const { data: profileId, error } = await (context.supabase as any).rpc("save_pricing_scheme_base", {
+      _payload: {
+        class_id: data.classId,
+        vehicle_id: vehicleId,
+        base_price: data.cityFixedPrice,
+        city_included_miles: data.cityIncludedMiles,
+        via_price: data.additionalPickupFee,
+        waiting_fee_per_minute: data.waitingFeePerMinute,
+        airport_pickup_fee: data.airportPickupFee,
+        connecting_job_discount_percent: data.connectingJobDiscountPercent,
+        final_tier_open_ended: data.finalTierOpenEnded,
+        status: data.live,
+        bands: data.bands.map((b) => ({ name: b.name, miles: b.miles, per_mile: b.perMile })),
+        price_per_hour: data.pricePerHour,
+        min_hours: data.minHours,
+        max_hours: data.maxHours,
+        hourly_active: data.hourlyActive,
+      },
+    });
+    if (error) throw new Error(error.message);
 
-    const profilePayload: any = {
-      vehicle_id: data.vehicleId,
-      vehicle_class_id: data.classId,
-      base_price: data.cityFixedPrice,
-      city_included_miles: data.cityIncludedMiles,
-      via_price: data.additionalPickupFee,
-      waiting_fee_per_minute: data.waitingFeePerMinute,
-      airport_pickup_fee: data.airportPickupFee,
-      connecting_job_discount_percent: data.connectingJobDiscountPercent,
-      status: data.live,
-    };
-
-    let profileId: string;
-    if (existing.data) {
-      profileId = (existing.data as any).id;
-      const { error } = await supabaseAdmin.from("vehicle_pricing_profiles").update(profilePayload).eq("id", profileId);
-      if (error) throw new Error(error.message);
-    } else {
-      const { data: created, error } = await supabaseAdmin
-        .from("vehicle_pricing_profiles")
-        .insert(profilePayload)
-        .select("id")
-        .single();
-      if (error) throw new Error(error.message);
-      profileId = (created as any).id;
-    }
-
-    const bands = [
-      { tier_name: "City transfer (included)", miles: data.cityIncludedMiles, cost_per_mile: 0 },
-      ...data.bands.map((b) => ({ tier_name: b.name, miles: b.miles, cost_per_mile: b.perMile })),
-    ]
-      .filter((b) => b.miles > 0)
-      .map((b, i) => ({ ...b, pricing_profile_id: profileId, sort_order: i + 1 }));
-
-    const del = await supabaseAdmin.from("vehicle_mileage_tiers").delete().eq("pricing_profile_id", profileId);
-    if (del.error) throw new Error(del.error.message);
-    if (bands.length > 0) {
-      const ins = await supabaseAdmin.from("vehicle_mileage_tiers").insert(bands as any);
-      if (ins.error) throw new Error(ins.error.message);
-    }
-
-    const hourly = await supabaseAdmin.from("hourly_rates").select("id").eq("vehicle_id", data.vehicleId).maybeSingle();
-    const hourlyPayload: any = {
-      vehicle_id: data.vehicleId,
-      price_per_hour: data.pricePerHour,
-      min_hours: data.minHours,
-      max_hours: data.maxHours,
-      active: data.hourlyActive,
-    };
-    const hRes = hourly.data
-      ? await supabaseAdmin.from("hourly_rates").update(hourlyPayload).eq("id", (hourly.data as any).id)
-      : await supabaseAdmin.from("hourly_rates").insert(hourlyPayload);
-    if (hRes.error) throw new Error(hRes.error.message);
-
-    return { ok: true, profileId };
+    return { ok: true, profileId: profileId as string, vehicleId };
   });
 
 // ===================================================================
@@ -285,7 +256,7 @@ const routeSchema = z.object({
   to_place_label: z.string().trim().min(1).max(500),
   to_radius_miles: miles.default(0),
   price: money,
-  valid_for_return: z.boolean().default(true),
+  bidirectional: z.boolean().default(true),
   priority: z.coerce.number().int().min(0).max(1000).default(100),
   notes: z.string().trim().max(1000).nullable().optional(),
   active: z.boolean().default(true),
@@ -324,8 +295,9 @@ export const upsertSchemeRoute = createServerFn({ method: "POST" })
       price: data.price,
       currency: "GBP",
       // One bidirectional record — never a duplicated reverse row.
-      bidirectional: data.valid_for_return,
-      valid_for_return: data.valid_for_return,
+      // `bidirectional` is canonical; `valid_for_return` kept in sync for legacy readers.
+      bidirectional: data.bidirectional,
+      valid_for_return: data.bidirectional,
       priority: data.priority,
       notes: data.notes || null,
       active: data.active,
@@ -367,7 +339,7 @@ export const previewRouteConflicts = createServerFn({ method: "POST" })
       to_radius_miles: miles.default(0),
       price: money,
       priority: z.coerce.number().int().min(0).max(1000).default(100),
-      valid_for_return: z.boolean().default(true),
+      bidirectional: z.boolean().default(true),
     }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -395,8 +367,9 @@ export const previewRouteConflicts = createServerFn({ method: "POST" })
       from_lat: from.lat, from_lng: from.lng, to_lat: to.lat, to_lng: to.lng,
       from_radius_miles: data.from_radius_miles,
       to_radius_miles: data.to_radius_miles,
-      bidirectional: data.valid_for_return,
-      valid_for_return: data.valid_for_return,
+      // `bidirectional` is canonical; `valid_for_return` kept in sync for legacy readers.
+      bidirectional: data.bidirectional,
+      valid_for_return: data.bidirectional,
       priority: data.priority,
       valid_from: null, valid_to: null, active: true,
     };
@@ -414,7 +387,6 @@ export const previewRouteConflicts = createServerFn({ method: "POST" })
         from_radius_miles: Number(r.from_radius_miles ?? 0),
         to_radius_miles: Number(r.to_radius_miles ?? 0),
         bidirectional: !!r.bidirectional,
-        valid_for_return: r.valid_for_return !== false,
         priority: Number(r.priority ?? 100),
         valid_from: r.valid_from, valid_to: r.valid_to, active: !!r.active,
         _label: `${r.from_place_label ?? r.from_address} → ${r.to_place_label ?? r.to_address}`,

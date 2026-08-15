@@ -27,6 +27,9 @@ export type PricingProfile = {
   time_extra_amount: number;
   time_extra_type: "fixed" | "percent";
   status: boolean;
+  /** When true, distance beyond the final band keeps charging that band's
+   *  per-mile rate instead of being silently unpriced. */
+  final_tier_open_ended?: boolean;
   tiers: PricingTier[];
 };
 
@@ -148,6 +151,24 @@ export function runPricingEngine(profile: PricingProfile, opts: QuoteOptions): Q
       amount,
     });
     remaining -= milesInTier;
+  }
+  // Open-ended final band: anything past the last configured band keeps
+  // charging that band's rate, so long journeys are never left unpriced.
+  if (remaining > 0 && profile.final_tier_open_ended) {
+    const lastPaid = [...tiers].reverse().find((t) => (Number(t.cost_per_mile) || 0) > 0);
+    const rate = Number(lastPaid?.cost_per_mile) || 0;
+    if (rate > 0) {
+      const amount = round2(remaining * rate);
+      mileagePrice += amount;
+      breakdown.push({
+        kind: "mileage",
+        label: `${lastPaid?.tier_name ?? "Long distance"} (beyond final band)`,
+        miles: round2(remaining),
+        rate,
+        amount,
+      });
+      remaining = 0;
+    }
   }
   mileagePrice = round2(mileagePrice);
 
