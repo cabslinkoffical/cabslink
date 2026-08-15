@@ -125,23 +125,16 @@ function Page() {
         <TabsContent value="extras" className="space-y-4 mt-4">
           <Card>
             <p className="text-sm text-muted-foreground -mt-1">
-              These fees appear on step 3 (Extras) of the booking form and are applied server-side to
-              the final booking price. Enter amounts in pence (e.g. 500 = £5.00). Set a fee to 0 to
-              hide its price and treat it as a free option.
+              Bookable add-ons (child seats, meet &amp; greet, additional pickups, waiting time) are
+              managed in one place under <span className="font-semibold text-foreground">Fleet &amp; Pricing → Extras</span>,
+              where you set the price, price basis and which vehicle classes each extra applies to.
+              Those prices are what the booking form and the server-side quote use.
             </p>
-            <Row label="Child seat fee (pence, per seat)">
-              <Input type="number" min={0} step={1} value={form.child_seat_fee_pence ?? 0}
-                onChange={e => set("child_seat_fee_pence", e.target.value)} />
-            </Row>
-            <Row label="Meet & greet fee (pence)">
-              <Input type="number" min={0} step={1} value={form.meet_greet_fee_pence ?? 0}
-                onChange={e => set("meet_greet_fee_pence", e.target.value)} />
-            </Row>
-            <Row label="Return journey fee (pence)">
-              <Input type="number" min={0} step={1} value={form.return_journey_fee_pence ?? 0}
-                onChange={e => set("return_journey_fee_pence", e.target.value)} />
-            </Row>
+            <a href="/cabs-booking-pannel/extras" className="text-sm font-semibold text-primary underline">
+              Open Extras →
+            </a>
           </Card>
+
           <Card>
             <p className="text-sm text-muted-foreground -mt-1">
               Cancellation-cover pricing. The discount / surcharge is calculated as a percent of the
