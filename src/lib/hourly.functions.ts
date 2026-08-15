@@ -77,6 +77,7 @@ export const calculateHourlyQuotes = createServerFn({ method: "POST" })
       childSeatFeePence: settings.childSeatFeePence,
       meetGreetFeePence: settings.meetGreetFeePence,
       currencySymbol: settings.currencySymbol,
+      tax: { rate: settings.taxRate, mode: settings.taxMode, label: settings.taxLabel },
       policy: {
         nonRefundablePercent: settings.policyNonRefundablePercent,
         nonRefundableMinPence: settings.policyNonRefundableMinPence,
