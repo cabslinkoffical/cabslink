@@ -723,12 +723,17 @@ export function resolveAvailability(rules: readonly AvailabilityRule[], ctx: Jou
       if (r.rule_scope === "vehicle") return !!r.vehicle_id && r.vehicle_id === ctx.vehicleId;
       if (r.rule_scope === "vehicle_class") return !!r.vehicle_class_id && r.vehicle_class_id === ctx.vehicleClassId;
       if (r.rule_scope === "service") return serviceMatches(r.service_types, ctx) && !!r.service_types?.length;
+      if (r.rule_scope === "route") return routeMatches(r, ctx);
       return true;
     })
     .filter((r) => dateWithin(ctx.date, r.date_from, r.date_to))
     .filter((r) => dowMatches(r.days_of_week, ctx.date))
     .filter((r) => timeWithin(ctx.time, r.time_from, r.time_to))
-    .filter((r) => geoMatches({ lat: r.lat, lng: r.lng, radius_miles: r.radius_miles, place_id: r.place_id, scope: r.scope }, ctx));
+    .filter((r) =>
+      r.rule_scope === "route"
+        ? true
+        : geoMatches({ lat: r.lat, lng: r.lng, radius_miles: r.radius_miles, place_id: r.place_id, scope: r.scope }, ctx),
+    );
 
   if (matching.length === 0) {
     return { available: true, rule: null, message: null, adminReason: null, conflicts: [] };
@@ -758,7 +763,7 @@ export function resolveAvailability(rules: readonly AvailabilityRule[], ctx: Jou
   return {
     available: !blocked,
     rule: winner,
-    message: blocked ? CUSTOMER_UNAVAILABLE : null,
+    message: blocked ? (winner.customer_message?.trim() || CUSTOMER_UNAVAILABLE) : null,
     adminReason: `${winner.effect === "block" ? "Blocked" : "Allowed"} by "${winner.name}" (${winner.rule_scope}, priority ${winner.priority})${winner.reason ? `: ${winner.reason}` : ""}`,
     conflicts,
   };
