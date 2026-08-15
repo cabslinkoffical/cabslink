@@ -87,19 +87,28 @@ function SeoIssuesPage() {
           <h1 className="text-2xl font-semibold">SEO Content Quality</h1>
           <p className="text-sm text-muted-foreground">Duplicate content, thin pages, orphans, and metadata issues.</p>
         </div>
-        <Button onClick={onAudit} disabled={running}>
+        <Button onClick={() => onAudit(false)} disabled={running}>
           {running ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Auditing…</> : "Run full audit"}
         </Button>
       </div>
 
-      {stats && (
-        <Card><CardContent className="py-4 text-sm flex gap-6">
-          <span><b>{stats.pages}</b> pages scanned</span>
-          <span className="text-destructive"><b>{stats.blockers}</b> blockers</span>
-          <span className="text-warning"><b>{stats.warnings}</b> warnings</span>
-          <span className="text-info"><b>{stats.info}</b> info</span>
-        </CardContent></Card>
-      )}
+      <Card><CardContent className="py-4 text-sm flex flex-wrap gap-x-6 gap-y-2 items-center">
+        {pagesScanned !== null && <span><b>{pagesScanned}</b> pages scanned</span>}
+        <span className="text-destructive"><b>{meta?.counts?.blockers ?? 0}</b> blockers</span>
+        <span className="text-warning"><b>{meta?.counts?.warnings ?? 0}</b> warnings</span>
+        <span className="text-info"><b>{meta?.counts?.info ?? 0}</b> info</span>
+        <span className="text-muted-foreground">
+          {running ? "Refreshing report…"
+            : meta?.lastAuditAt
+              ? `Last audited ${new Date(meta.lastAuditAt).toLocaleString()}`
+              : "Never audited"}
+        </span>
+        {!running && meta?.stale && (
+          <span className="inline-flex items-center gap-1 rounded-md bg-warning/10 px-2 py-0.5 text-xs font-medium text-warning">
+            <AlertTriangle className="h-3 w-3" /> Content changed since last audit
+          </span>
+        )}
+      </CardContent></Card>
 
       <Card>
         <CardHeader><CardTitle>Open issues ({rows.length})</CardTitle></CardHeader>
