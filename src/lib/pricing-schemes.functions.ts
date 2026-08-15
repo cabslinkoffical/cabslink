@@ -171,10 +171,8 @@ export const getPricingScheme = createServerFn({ method: "GET" })
 // ===================================================================
 
 const overviewSchema = z.object({
+  /** The vehicle class is the only pricing identity accepted here. */
   classId: uuid,
-  /** Legacy compatibility only — the class is the source of truth and the
-   *  internal pricing record is resolved (or created) server-side. */
-  vehicleId: uuid.optional(),
   finalTierOpenEnded: z.boolean().default(false),
   cityFixedPrice: money,
   cityIncludedMiles: miles,
