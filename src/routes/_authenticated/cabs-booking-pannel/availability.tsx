@@ -140,11 +140,13 @@ function Page() {
 
   if (form) {
     const isRoute = form.rule_scope === "route";
+    const scopeLabel = SCOPE_LABEL[form.rule_scope] ?? form.rule_scope;
+    const showGeo = form.rule_scope === "location" || form.rule_scope === "vehicle" || form.rule_scope === "vehicle_class" || form.rule_scope === "service";
     return (
       <div className="p-6 md:p-8 space-y-6">
         <PageHeader
-          title={form.id ? "Edit availability rule" : "New availability rule"}
-          description="Set what this rule applies to, when it applies, and what the customer sees if it blocks their journey."
+          title={`${form.id ? "Edit" : "New"} ${scopeLabel.toLowerCase()} rule`}
+          description="This rule only applies to the type you picked. Set when it applies and what the customer sees if it blocks their journey."
         >
           <div className="flex items-center gap-2">
             <Button variant="outline" onClick={() => setForm(null)}><ArrowLeft className="size-4 mr-1" /> Back to rules</Button>
@@ -154,20 +156,14 @@ function Page() {
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] items-start">
           <div className="admin-card p-5 grid grid-cols-2 gap-3">
+            <div className="col-span-2 flex items-center gap-2">
+              <span className="rounded-md border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-2 py-0.5 text-xs font-medium text-[var(--gold-ink)]">
+                {scopeLabel} rule
+              </span>
+            </div>
             <div className="col-span-2">
               <Label htmlFor="av-name">Name *</Label>
               <Input id="av-name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-            </div>
-            <div>
-              <Label htmlFor="av-scope">Applies to</Label>
-              <select id="av-scope" className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={form.rule_scope} onChange={(e) => setForm({ ...form, rule_scope: e.target.value })}>
-                <option value="global">Everything (global)</option>
-                <option value="service">Specific service types</option>
-                <option value="vehicle_class">Specific vehicle class</option>
-                <option value="vehicle">Single vehicle</option>
-                <option value="route">Route (from → to)</option>
-                <option value="location">Location / area</option>
-              </select>
             </div>
             <div>
               <Label htmlFor="av-effect">Effect</Label>
@@ -175,6 +171,10 @@ function Page() {
                 <option value="block">Block bookings</option>
                 <option value="allow">Allow (override a broader block)</option>
               </select>
+            </div>
+            <div>
+              <Label htmlFor="av-priority">Priority</Label>
+              <Input id="av-priority" type="number" min="0" value={form.priority} onChange={(e) => setForm({ ...form, priority: Number(e.target.value) })} />
             </div>
 
             {form.rule_scope === "vehicle" && (
@@ -195,12 +195,14 @@ function Page() {
                 </select>
               </div>
             )}
-            <div className="col-span-2">
-              <Label>Service types {form.rule_scope === "service" ? "*" : "(empty = all)"}</Label>
-              <Chips options={SERVICE_TYPE_OPTIONS} selected={form.service_types ?? []} onToggle={toggleService} />
-            </div>
+            {form.rule_scope === "service" && (
+              <div className="col-span-2">
+                <Label>Service types *</Label>
+                <Chips options={SERVICE_TYPE_OPTIONS} selected={form.service_types ?? []} onToggle={toggleService} />
+              </div>
+            )}
 
-            {isRoute ? (
+            {isRoute && (
               <>
                 <div className="col-span-2">
                   <Label htmlFor="av-from-place">From location *</Label>
@@ -232,9 +234,11 @@ function Page() {
                 </div>
                 <p className="col-span-2 text-xs text-muted-foreground">Route rules match in both directions.</p>
               </>
-            ) : (
+            )}
+            {showGeo && (
               <GeoFields id="av-place" form={form} setForm={setForm} radiusRequired={form.rule_scope === "location"} showMap={false} />
             )}
+
 
             <div>
               <Label htmlFor="av-from">Date from</Label>
