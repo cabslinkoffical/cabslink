@@ -309,7 +309,7 @@ export const calculateQuotes = createServerFn({ method: "POST" })
           fixedPrice: fixed ?? null,
           settings: auth.settings,
           vehicleCount: 1,
-          serviceType: data.serviceType,
+          serviceType: auth.input.serviceType,
           resolved,
         });
         return {
@@ -522,7 +522,7 @@ export const createBooking = createServerFn({ method: "POST" })
         fixedPrice: fixed ?? null,
         settings: { ...auth.settings, taxRate: 0 },
         vehicleCount: 1,
-        serviceType: data.serviceType,
+        serviceType: auth.input.serviceType,
         resolved,
       });
       const res = await validateCouponForRequest({
@@ -552,7 +552,7 @@ export const createBooking = createServerFn({ method: "POST" })
       fixedPrice: fixed ?? null,
       settings: auth.settings,
       vehicleCount: qty,
-      serviceType: data.serviceType,
+      serviceType: auth.input.serviceType,
       resolved,
       couponCode: couponRow?.code ?? null,
       couponDiscount,
