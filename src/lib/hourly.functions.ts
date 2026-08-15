@@ -20,6 +20,7 @@ import {
 } from "@/lib/hourly-pricing.server";
 import { placeIdSchema, placeLabelSchema } from "@/lib/place-id";
 import { checkLimit } from "@/lib/rate-limit.server";
+import { assertCaptcha } from "@/lib/captcha.server";
 import { loadExtrasCatalogue } from "@/lib/extras-pricing.server";
 import { extraPence, type ExtrasCatalogue } from "@/lib/extras-pricing";
 import { computeHourlyBase } from "@/lib/hourly-base";
@@ -141,6 +142,8 @@ const createHourlyBookingInput = z.object({
   child_seat_count: z.number().int().min(0).max(10).optional().default(0),
   meet_greet: z.boolean().optional().default(false),
   cancellation_policy: z.enum(["standard", "non_refundable", "flexible"]).optional().default("standard"),
+  /** Cloudflare Turnstile token; required only when captcha is configured. */
+  captchaToken: z.string().trim().max(4096).optional().nullable(),
 });
 
 export const createHourlyBooking = createServerFn({ method: "POST" })
@@ -152,6 +155,8 @@ export const createHourlyBooking = createServerFn({ method: "POST" })
       try { setResponseStatus(429); } catch {}
       throw new Error("You've made too many booking attempts. Please wait a few minutes and try again.");
     }
+
+    await assertCaptcha(data.captchaToken, ip, setResponseStatus);
 
     const { bookingRequestHash } = await import("@/lib/booking-fingerprint");
     const requestHash = await bookingRequestHash({

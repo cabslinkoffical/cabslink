@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { SITE } from "@/lib/site";
 import { submitContactMessage } from "@/lib/contact.functions";
+import { useCaptcha } from "@/components/site/Captcha";
 import { PhoneInput } from "@/components/site/PhoneInput";
 
 export const Route = createFileRoute("/contact")({
@@ -44,6 +45,7 @@ function ContactPage() {
   const [phone, setPhone] = useState("");
   const inflight = useRef(false);
   const submit = useServerFn(submitContactMessage);
+  const captcha = useCaptcha("contact");
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -57,6 +59,7 @@ function ContactPage() {
     }
     const parsed = schema.safeParse(Object.fromEntries(fd));
     if (!parsed.success) { toast.error("Please fill out the required fields."); return; }
+    if (!captcha.ready) { toast.error("Please complete the security check below."); return; }
     inflight.current = true;
     setLoading(true);
     try {
@@ -68,12 +71,15 @@ function ContactPage() {
           subject: parsed.data.subject || null,
           message: parsed.data.message,
           website: "",
+          captchaToken: captcha.token,
         },
       });
       toast.success("Message sent — we'll respond shortly.");
       (e.currentTarget as HTMLFormElement).reset();
       setPhone("");
+      captcha.reset();
     } catch (err) {
+      captcha.reset();
       toast.error(err instanceof Error ? err.message : "Could not send. Please try again.");
     } finally {
       setLoading(false);
@@ -124,7 +130,8 @@ function ContactPage() {
                 <div><Label htmlFor="contact-subject">Subject (optional)</Label><Input id="contact-subject" name="subject" maxLength={150} className="mt-1.5" /></div>
               </div>
               <div><Label htmlFor="contact-message">Message</Label><Textarea id="contact-message" name="message" required maxLength={1500} rows={6} className="mt-1.5" /></div>
-              <Button type="submit" variant="gold" disabled={loading} className="rounded-full">
+              {captcha.widget}
+              <Button type="submit" variant="gold" disabled={loading || !captcha.ready} className="rounded-full">
                 {loading ? "Sending…" : <>Send message <ArrowRight className="size-4" /></>}
               </Button>
               <TrustpilotStrip className="mt-2" />

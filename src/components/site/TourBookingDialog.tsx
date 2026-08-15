@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { submitContactMessage } from "@/lib/contact.functions";
+import { useCaptcha } from "@/components/site/Captcha";
 import { PhoneInput } from "@/components/site/PhoneInput";
 import { toast } from "sonner";
 
@@ -56,6 +57,7 @@ export function TourBookingDialog({ tour, trigger, autoOpen = false }: Props) {
   const [notes, setNotes] = useState("");
   const [done, setDone] = useState(false);
 
+  const captcha = useCaptcha("tour-enquiry");
   const submit = useMutation({
     mutationFn: async () => {
       const msg = [
@@ -85,6 +87,7 @@ export function TourBookingDialog({ tour, trigger, autoOpen = false }: Props) {
           subject: `Tour booking: ${tour.name}`,
           message: msg,
           website: "",
+          captchaToken: captcha.token,
         },
       });
     },
@@ -92,12 +95,15 @@ export function TourBookingDialog({ tour, trigger, autoOpen = false }: Props) {
       setDone(true);
       toast.success("Tour enquiry sent — we'll confirm within a few hours.");
     },
-    onError: (e: Error) => toast.error(e.message ?? "Could not send. Please try again."),
+    onError: (e: Error) => {
+      captcha.reset();
+      toast.error(e.message ?? "Could not send. Please try again.");
+    },
   });
 
   const canSubmit = useMemo(
-    () => name.length >= 2 && /.+@.+\..+/.test(email) && date && time,
-    [name, email, date, time],
+    () => Boolean(name.length >= 2 && /.+@.+\..+/.test(email) && date && time && captcha.ready),
+    [name, email, date, time, captcha.ready],
   );
 
   return (
@@ -276,6 +282,8 @@ export function TourBookingDialog({ tour, trigger, autoOpen = false }: Props) {
                   />
                 </div>
               </div>
+
+              {captcha.widget}
 
               <div className="flex items-center justify-between gap-3 pt-2 border-t border-border">
                 <p className="text-xs text-muted-foreground">

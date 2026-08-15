@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { submitCorporateInquiry } from "@/lib/corporate.functions";
+import { useCaptcha } from "@/components/site/Captcha";
 import { PhoneInput } from "@/components/site/PhoneInput";
 
 export const Route = createFileRoute("/corporate-booking")({
@@ -39,6 +40,7 @@ function CorporateBookingPage() {
   const [loading, setLoading] = useState(false);
   const [phone, setPhone] = useState("");
   const submit = useServerFn(submitCorporateInquiry);
+  const captcha = useCaptcha("corporate");
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -47,14 +49,17 @@ function CorporateBookingPage() {
     const data = Object.fromEntries(fd);
     const parsed = schema.safeParse(data);
     if (!parsed.success) { toast.error("Please complete all fields."); return; }
+    if (!captcha.ready) { toast.error("Please complete the security check below."); return; }
     setLoading(true);
     try {
-      await submit({ data: { ...parsed.data, website: (fd.get("website") ?? "").toString() } });
+      await submit({ data: { ...parsed.data, website: (fd.get("website") ?? "").toString(), captchaToken: captcha.token } });
       toast.success("Enquiry sent — our team will reply within 24 hours.");
       form.reset();
       setPhone("");
-    } catch {
-      toast.error("Could not submit. Please try again.");
+      captcha.reset();
+    } catch (err) {
+      captcha.reset();
+      toast.error(err instanceof Error ? err.message : "Could not submit. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -101,7 +106,8 @@ function CorporateBookingPage() {
                 <label htmlFor="corp-website">Website</label>
                 <input id="corp-website" name="website" type="text" tabIndex={-1} autoComplete="off" />
               </div>
-              <Button type="submit" variant="gold" disabled={loading} className="rounded-full">
+              {captcha.widget}
+              <Button type="submit" variant="gold" disabled={loading || !captcha.ready} className="rounded-full">
                 {loading ? "Sending…" : <>Request proposal <ArrowRight className="size-4" /></>}
               </Button>
             </div>

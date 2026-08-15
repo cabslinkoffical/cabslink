@@ -17,6 +17,7 @@ import { Switch } from "@/components/ui/switch";
 import { PlaceAutocomplete, type SelectedPlace } from "@/components/site/PlaceAutocomplete";
 import { PhoneInput } from "@/components/site/PhoneInput";
 import { calculateHourlyQuotes, createHourlyBooking, type HourlyCard } from "@/lib/hourly.functions";
+import { useCaptcha } from "@/components/site/Captcha";
 import { fleetImageFor } from "@/assets/fleet";
 
 export const Route = createFileRoute("/book/hourly")({
@@ -86,6 +87,7 @@ function HourlyBookPage() {
 
   const quotesFn = useServerFn(calculateHourlyQuotes);
   const createFn = useServerFn(createHourlyBooking);
+  const captcha = useCaptcha("hourly-booking");
 
   const quotesQuery = useQuery({
     queryKey: ["hourly-quotes", hours, passengers, luggage, pickup?.placeId ?? "", date, time],
@@ -130,6 +132,7 @@ function HourlyBookPage() {
       toast.error("Please complete your name, email and phone number.");
       return;
     }
+    if (!captcha.ready) { toast.error("Please complete the security check before submitting."); return; }
     setSubmitting(true);
     try {
       const res = await createFn({
@@ -152,11 +155,13 @@ function HourlyBookPage() {
           child_seat_count: childSeats,
           meet_greet: meetGreet,
           cancellation_policy: "standard",
+          captchaToken: captcha.token,
         },
       });
       toast.success(`Booking ${res.ref} received — we'll confirm shortly.`);
       if (res.token) navigate({ to: "/booking/$token", params: { token: res.token } });
     } catch (err: any) {
+      captcha.reset();
       toast.error(err?.message || "Couldn't save your booking. Please try again.");
     } finally {
       setSubmitting(false);
@@ -368,9 +373,11 @@ function HourlyBookPage() {
                   </p>
                 </div>
 
+                {captcha.widget}
+
                 <div className="flex justify-between">
                   <Button variant="outline" onClick={() => setStep(2)}><ArrowLeft className="w-4 h-4 mr-2" />Back</Button>
-                  <Button disabled={submitting} onClick={submit} variant="gold">
+                  <Button disabled={submitting || !captcha.ready} onClick={submit} variant="gold">
                     {submitting ? "Sending…" : "Confirm booking"} <CheckCircle2 className="w-4 h-4 ml-2" />
                   </Button>
                 </div>
@@ -411,7 +418,7 @@ function HourlyBookPage() {
           {step < 3 ? (
             <Button onClick={() => setStep(step + 1)} variant="gold">Continue</Button>
           ) : (
-            <Button disabled={submitting} onClick={submit} variant="gold">
+            <Button disabled={submitting || !captcha.ready} onClick={submit} variant="gold">
               {submitting ? "Sending…" : "Confirm"}
             </Button>
           )}
