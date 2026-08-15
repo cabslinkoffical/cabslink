@@ -25,8 +25,10 @@ type Props = {
   mode: "radius" | "route";
   origin: MapPoint;
   destination?: MapPoint;
-  /** Radius in statute miles (mode="radius"). */
+  /** Radius in statute miles around the origin (both modes). */
   radiusMiles?: number | null;
+  /** Radius in statute miles around the destination (mode="route"). */
+  destinationRadiusMiles?: number | null;
   onClearOrigin?: () => void;
   onClearDestination?: () => void;
   onReverse?: () => void;
@@ -35,6 +37,8 @@ type Props = {
     origin: { lat: number; lng: number } | null;
     destination: { lat: number; lng: number } | null;
   }) => void;
+  /** Reports live route distance/duration so the parent can show a readonly field. */
+  onRoute?: (r: { miles: number; minutes: number } | null) => void;
   className?: string;
   height?: number;
 };
