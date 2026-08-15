@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Crown, ShieldCheck, Sparkles, Star, ArrowRight } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { InternalLinkHub } from "@/components/seo/InternalLinkHub";
 import { FaqSection, LongFormSections, faqJsonLd } from "@/components/site/ContentSections";
 import { PageHero, SectionHeader } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
@@ -108,6 +109,12 @@ function VipPage() {
       </section>
       <LongFormSections sections={VIP_SECTIONS} heading="How VIP travel is arranged" />
       <FaqSection faqs={VIP_FAQS} />
+      {/* Automated services ↔ airports ↔ locations cross-links */}
+      <section className="section-y">
+        <div className="container-x">
+          <InternalLinkHub kind="service" slug="vip-transfers" className="" />
+        </div>
+      </section>
     </SiteLayout>
   );
 }
