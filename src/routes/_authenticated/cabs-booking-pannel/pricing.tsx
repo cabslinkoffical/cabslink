@@ -213,6 +213,26 @@ function Page() {
                   inputClassName="pl-9"
                 />
               </div>
+              <div className="col-span-2">
+                <AdminMapEditor
+                  mode="route"
+                  origin={pickupPlace}
+                  destination={dropoffPlace}
+                  onClearOrigin={() => setForm({ ...form, from_place_id: "", from_place_label: "", active: false })}
+                  onClearDestination={() => setForm({ ...form, to_place_id: "", to_place_label: "", active: false })}
+                  onReverse={() => setForm({
+                    ...form,
+                    from_place_id: form.to_place_id,
+                    from_place_label: form.to_place_label,
+                    from_address: form.to_address,
+                    to_place_id: form.from_place_id,
+                    to_place_label: form.from_place_label,
+                    to_address: form.from_address,
+                  })}
+                  height={260}
+                />
+              </div>
+
               <div className="col-span-2 flex items-center gap-2">
                 <Switch checked={!!form.bidirectional} onCheckedChange={v => setForm({ ...form, bidirectional: v })} />
                 <Label>Also apply for the reverse route (Dropoff → Pickup)</Label>
