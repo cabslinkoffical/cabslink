@@ -25,8 +25,10 @@ type Props = {
   mode: "radius" | "route";
   origin: MapPoint;
   destination?: MapPoint;
-  /** Radius in statute miles (mode="radius"). */
+  /** Radius in statute miles around the origin (both modes). */
   radiusMiles?: number | null;
+  /** Radius in statute miles around the destination (mode="route"). */
+  destinationRadiusMiles?: number | null;
   onClearOrigin?: () => void;
   onClearDestination?: () => void;
   onReverse?: () => void;
@@ -35,6 +37,8 @@ type Props = {
     origin: { lat: number; lng: number } | null;
     destination: { lat: number; lng: number } | null;
   }) => void;
+  /** Reports live route distance/duration so the parent can show a readonly field. */
+  onRoute?: (r: { miles: number; minutes: number } | null) => void;
   className?: string;
   height?: number;
 };
@@ -46,10 +50,12 @@ export function AdminMapEditor({
   origin,
   destination = null,
   radiusMiles = null,
+  destinationRadiusMiles = null,
   onClearOrigin,
   onClearDestination,
   onReverse,
   onCoords,
+  onRoute,
   className,
   height = 320,
 }: Props) {
@@ -58,6 +64,7 @@ export function AdminMapEditor({
   const originMarker = useRef<any>(null);
   const destMarker = useRef<any>(null);
   const circleRef = useRef<any>(null);
+  const destCircleRef = useRef<any>(null);
   const lineRef = useRef<any>(null);
 
   const resolveCoordsFn = useServerFn(adminResolvePlaceCoords);
@@ -138,10 +145,12 @@ export function AdminMapEditor({
   useEffect(() => {
     if (mode !== "route" || !origin?.placeId || !destination?.placeId) {
       setRoute(null);
+      onRoute?.(null);
       return;
     }
     if (origin.placeId === destination.placeId) {
       setRoute(null);
+      onRoute?.(null);
       setError("Start and end must be different locations.");
       return;
     }
@@ -155,6 +164,7 @@ export function AdminMapEditor({
           minutes: Number(r.durationMinutes),
           path: r.encodedPolyline ? decodePolyline(r.encodedPolyline) : [],
         });
+        onRoute?.({ miles: Number(r.distanceMiles), minutes: Number(r.durationMinutes) });
       })
       .catch((e: any) => !cancelled && setError(e?.message ?? "Route preview unavailable."))
       .finally(() => !cancelled && setBusy(false));
@@ -207,30 +217,43 @@ export function AdminMapEditor({
     setMarker(originMarker, originCoord, "A", "#DEAE25", origin?.label ?? "Start");
     setMarker(destMarker, mode === "route" ? destCoord : null, "B", "#FFFFFF", destination?.label ?? "End");
 
-    // Radius circle — the exact area the rule covers.
-    const showCircle = mode === "radius" && originCoord && radiusMiles != null && radiusMiles > 0;
-    if (showCircle) {
-      if (!circleRef.current) {
-        circleRef.current = new g.Circle({
+    // Radius circles — the exact areas the rule covers. Both endpoints get one
+    // in route mode; the anchor gets one in radius mode.
+    const drawCircle = (
+      ref: React.MutableRefObject<any>,
+      centre: { lat: number; lng: number } | null,
+      r: number | null | undefined,
+      colour: string,
+    ) => {
+      if (!centre || r == null || !(r > 0)) {
+        ref.current?.setMap(null);
+        ref.current = null;
+        return false;
+      }
+      if (!ref.current) {
+        ref.current = new g.Circle({
           map,
-          strokeColor: "#DEAE25",
+          strokeColor: colour,
           strokeOpacity: 0.9,
           strokeWeight: 2,
-          fillColor: "#DEAE25",
+          fillColor: colour,
           fillOpacity: 0.14,
         });
       }
-      circleRef.current.setCenter(originCoord);
-      circleRef.current.setRadius(milesToMetres(radiusMiles!));
-      const cb = circleRef.current.getBounds();
+      ref.current.setCenter(centre);
+      ref.current.setRadius(milesToMetres(r));
+      const cb = ref.current.getBounds();
       if (cb) {
         bounds.union(cb);
         hasBounds = true;
       }
-    } else {
-      circleRef.current?.setMap(null);
-      circleRef.current = null;
-    }
+      return true;
+    };
+
+    const showCircle = drawCircle(circleRef, originCoord, radiusMiles, "#DEAE25");
+    const showDestCircle = mode === "route"
+      ? drawCircle(destCircleRef, destCoord, destinationRadiusMiles, "#0E182C")
+      : drawCircle(destCircleRef, null, null, "#0E182C");
 
     // Route polyline.
     if (mode === "route" && route?.path.length) {
@@ -252,7 +275,7 @@ export function AdminMapEditor({
 
     if (hasBounds) {
       map.fitBounds(bounds, 48);
-      if (!showCircle && !route?.path.length && originCoord && !destCoord) {
+      if (!showCircle && !showDestCircle && !route?.path.length && originCoord && !destCoord) {
         map.setCenter(originCoord);
         map.setZoom(12);
       }
@@ -260,7 +283,7 @@ export function AdminMapEditor({
       map.setCenter(UK_CENTER);
       map.setZoom(6);
     }
-  }, [ready, originCoord, destCoord, radiusMiles, route, mode, origin?.label, destination?.label]);
+  }, [ready, originCoord, destCoord, radiusMiles, destinationRadiusMiles, route, mode, origin?.label, destination?.label]);
 
   const missingCoords = !!origin?.placeId && !originCoord && !busy;
 

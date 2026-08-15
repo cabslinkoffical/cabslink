@@ -670,6 +670,10 @@ export function computeVehicleQuote(args: {
   /** Validated coupon discount, applied after rule discounts. */
   couponCode?: string | null;
   couponDiscount?: number;
+  /** Service type — drives the scheme's airport pickup fee. */
+  serviceType?: string;
+  /** Job connects to another booking → the scheme's connecting-job discount. */
+  isConnectingJob?: boolean;
 }): ComputedVehicleQuote {
   const {
     profile, distanceMiles, viaStops, pickupTime,
@@ -692,9 +696,19 @@ export function computeVehicleQuote(args: {
       ? { ...profile, base_price: locationPrice!, tiers: [] }
       : profile;
 
+  // Pricing-scheme core fees held on the profile row (see Pricing Scheme →
+  // Overview). Airport fee applies once for airport services; the additional
+  // pickup fee is `via_price`, already handled by the engine's via stops.
+  const airportFee = round2(Number((profile as any).airport_pickup_fee ?? 0) || 0);
+  const isAirport = /airport/i.test(args.serviceType ?? "");
+  const schemeFees = airportFee > 0 && isAirport
+    ? [{ label: "Airport pickup fee", amount: airportFee }]
+    : [];
+
   const surchargeLines = [
     ...areaSurcharges.map((a) => ({ label: a.label, amount: a.amount })),
     ...(resolved?.extraSurcharges ?? []),
+    ...schemeFees,
   ];
 
   const couponDiscount = round2(Math.max(0, args.couponDiscount ?? 0));
@@ -705,12 +719,19 @@ export function computeVehicleQuote(args: {
       : []),
   ];
 
+  // Connecting-job discount is a negative percentage modifier so the engine
+  // sizes it against the pre-discount subtotal — no separate arithmetic path.
+  const connectingPercent = Math.max(0, Math.min(100, Number((profile as any).connecting_job_discount_percent ?? 0) || 0));
+  const schemeModifiers = args.isConnectingJob === true && connectingPercent > 0
+    ? [{ label: "Connecting job discount", type: "percent" as const, value: -connectingPercent }]
+    : [];
+
   const engine = runPricingEngine(engineProfile, {
     distanceMiles,
     viaStops,
     pickupTime: pickupTime || undefined,
     surcharges: surchargeLines,
-    modifiers: resolved?.modifiers ?? [],
+    modifiers: [...(resolved?.modifiers ?? []), ...schemeModifiers],
     discountAmount,
     discountLines,
     taxRate: settings.taxRate,
