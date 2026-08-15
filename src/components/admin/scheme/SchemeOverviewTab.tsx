@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Loader2, Plus, Trash2, TriangleAlert } from "lucide-react";
+import { Loader2, Plus, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,7 @@ export type OverviewState = {
   minHours: number;
   maxHours: number;
   hourlyActive: boolean;
+  finalTierOpenEnded: boolean;
   live: boolean;
 };
 
@@ -55,6 +56,7 @@ export function overviewFromScheme(data: any): OverviewState {
     minHours: data.time.minHours,
     maxHours: data.time.maxHours,
     hourlyActive: data.time.active,
+    finalTierOpenEnded: !!data.base.finalTierOpenEnded,
     live: data.base.live,
   };
 }
@@ -72,8 +74,7 @@ export function SchemeOverviewTab({ scheme, data, section = "base" }: { scheme: 
 
   const mutation = useMutation({
     mutationFn: () => {
-      if (!scheme.pricingVehicleId) throw new Error("Link a pricing vehicle to this class first (Vehicle Classes → Details).");
-      return save({ data: { classId: scheme.classId, vehicleId: scheme.pricingVehicleId, ...form } as any });
+      return save({ data: { classId: scheme.classId, ...form } as any });
     },
     onSuccess: async () => {
       await Promise.all([
@@ -99,13 +100,6 @@ export function SchemeOverviewTab({ scheme, data, section = "base" }: { scheme: 
 
   return (
     <div className="space-y-6 max-w-5xl">
-      {!scheme.pricingVehicleId && (
-        <div className="flex items-start gap-2 rounded-xl border border-warning/40 bg-warning/10 px-4 py-3 text-sm">
-          <TriangleAlert className="mt-0.5 size-4 shrink-0 text-warning" />
-          <span>This class has no pricing vehicle linked yet, so base pricing cannot be stored. Link one in Vehicle Classes → Details.</span>
-        </div>
-      )}
-
       {section === "base" && (<>
       <SchemeSection title="Base pricing" hint="The fixed city fare plus consecutive per-mile bands. Distances are statute miles.">
         <div className="grid gap-4 sm:grid-cols-2">
@@ -153,8 +147,18 @@ export function SchemeOverviewTab({ scheme, data, section = "base" }: { scheme: 
           ))}
         </div>
 
+        <div className="mt-4 flex items-center gap-3 rounded-lg border border-border px-4 py-3">
+          <Switch id="open-ended-band" checked={form.finalTierOpenEnded}
+            onCheckedChange={(v) => set("finalTierOpenEnded", v)} />
+          <label htmlFor="open-ended-band" className="text-sm">
+            Keep charging the last band's rate beyond {coveredMiles.toFixed(1)} miles
+          </label>
+        </div>
         <p className="mt-3 text-xs text-muted-foreground tabular-nums">
-          Bands cover the first {coveredMiles.toFixed(1)} miles. Anything beyond that is not charged per mile — add another band or extend the last one.
+          Bands cover the first {coveredMiles.toFixed(1)} miles.{" "}
+          {form.finalTierOpenEnded
+            ? "Longer journeys continue at the final band's per-mile rate."
+            : "Anything beyond that is not charged per mile — add another band, extend the last one, or switch on the open-ended band above."}
         </p>
       </SchemeSection>
 
@@ -210,7 +214,7 @@ export function SchemeOverviewTab({ scheme, data, section = "base" }: { scheme: 
       )}
 
       <div className="flex justify-end">
-        <Button onClick={() => mutation.mutate()} disabled={mutation.isPending || !scheme.pricingVehicleId}>
+        <Button onClick={() => mutation.mutate()} disabled={mutation.isPending}>
           {mutation.isPending && <Loader2 className="mr-1.5 size-4 animate-spin" />}Save {section === "base" ? "base pricing" : "time pricing"}
         </Button>
       </div>
