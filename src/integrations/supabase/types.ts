@@ -3630,7 +3630,10 @@ export type Database = {
       }
       vehicle_pricing_profiles: {
         Row: {
+          airport_pickup_fee: number
           base_price: number
+          city_included_miles: number
+          connecting_job_discount_percent: number
           created_at: string
           id: string
           status: boolean
@@ -3643,9 +3646,13 @@ export type Database = {
           vehicle_class_id: string | null
           vehicle_id: string
           via_price: number
+          waiting_fee_per_minute: number
         }
         Insert: {
+          airport_pickup_fee?: number
           base_price?: number
+          city_included_miles?: number
+          connecting_job_discount_percent?: number
           created_at?: string
           id?: string
           status?: boolean
@@ -3658,9 +3665,13 @@ export type Database = {
           vehicle_class_id?: string | null
           vehicle_id: string
           via_price?: number
+          waiting_fee_per_minute?: number
         }
         Update: {
+          airport_pickup_fee?: number
           base_price?: number
+          city_included_miles?: number
+          connecting_job_discount_percent?: number
           created_at?: string
           id?: string
           status?: boolean
@@ -3673,6 +3684,7 @@ export type Database = {
           vehicle_class_id?: string | null
           vehicle_id?: string
           via_price?: number
+          waiting_fee_per_minute?: number
         }
         Relationships: [
           {
