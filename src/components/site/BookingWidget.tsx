@@ -296,7 +296,7 @@ export function BookingWidget({
       <form onSubmit={submit} noValidate>
 
         {/* Main container: rounded card on mobile/tablet, horizontal pill on wide desktop (xl+) */}
-        <div className="bg-white shadow-[var(--shadow-elegant)] border border-black/5 rounded-3xl @[980px]:rounded-full overflow-visible p-2 @[980px]:p-1.5">
+        <div className="bg-white shadow-[var(--shadow-elegant)] border border-black/5 border-b-0 overflow-visible p-2 @[980px]:p-1.5 rounded-3xl @[980px]:rounded-[2rem] rounded-b-none @[980px]:rounded-b-none">
           <div className="grid grid-cols-1 @[600px]:grid-cols-2 @[980px]:flex @[980px]:items-stretch gap-1 @[980px]:gap-0">
             {/* Pickup */}
             <div className="@[600px]:col-span-2 @[980px]:flex-1 @[980px]:min-w-0" data-invalid={attempted && !!errors.pickup}>
@@ -430,21 +430,9 @@ export function BookingWidget({
         </div>
 
 
-        {/* Secondary row: stops / return / multi-city pills */}
-        <div className="flex flex-wrap items-center gap-2 mt-3 px-2">
-          <PillButton tone={tone} icon={<Plus className="w-3 h-3" strokeWidth={3} />} onClick={() => setStops([...stops, { placeId: "", label: "" }])}>
-            Add stop
-          </PillButton>
-          {!showReturn && (
-            <PillButton tone={tone} icon={<Repeat className="w-3 h-3" strokeWidth={3} />} onClick={() => setShowReturn(true)}>
-              Add return
-            </PillButton>
-          )}
-        </div>
-
-        {/* Stops list (appears when added) */}
+        {/* Stops list — attached extension of the bar above */}
         {stops.length > 0 && (
-          <div className="mt-3 bg-white rounded-2xl border border-border p-2 space-y-1">
+          <div className="bg-white border-x border-black/5 border-t border-t-black/5 p-2 space-y-1 shadow-[var(--shadow-elegant)]">
             {stops.map((s, i) => (
               <div
                 key={i}
@@ -482,9 +470,9 @@ export function BookingWidget({
           </div>
         )}
 
-        {/* Return journey */}
+        {/* Return journey — attached extension of the bar above */}
         {showReturn && (
-          <div className="mt-3 bg-white rounded-2xl border border-border p-3 @[600px]:p-4">
+          <div className="bg-white border-x border-t border-black/5 p-3 @[600px]:p-4 shadow-[var(--shadow-elegant)]">
             <div className="flex items-center justify-between mb-3">
               <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--gold-ink)]">Return Journey</p>
               <button
@@ -495,30 +483,43 @@ export function BookingWidget({
                 <X className="w-3.5 h-3.5" /> Remove
               </button>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 @[600px]:grid-cols-2 gap-3">
               <div
                 data-invalid={attempted && !!errors.returnDate}
                 className={`flex items-center gap-2 px-3 h-[54px] rounded-xl border ${attempted && errors.returnDate ? "border-destructive bg-destructive/5" : "border-border"}`}
               >
-                <Calendar className="w-4 h-4 text-[var(--gold-ink)]" />
+                <Calendar className="w-4 h-4 text-[var(--gold-ink)] shrink-0" />
                 <div className="min-w-0 flex-1">
                   <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/70">Date</div>
-                  <input aria-label="Return date" type="date" min={date || today} value={returnDate} onChange={(e) => setReturnDate(e.target.value)} className="w-full bg-transparent border-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)] text-sm font-semibold" />
+                  <input aria-label="Return date" type="date" min={date || today} value={returnDate} onChange={(e) => setReturnDate(e.target.value)} className="w-full bg-transparent border-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)] text-sm font-semibold text-[var(--navy)]" />
                 </div>
               </div>
               <div
                 data-invalid={attempted && !!errors.returnTime}
                 className={`flex items-center gap-2 px-3 h-[54px] rounded-xl border ${attempted && errors.returnTime ? "border-destructive bg-destructive/5" : "border-border"}`}
               >
-                <Clock className="w-4 h-4 text-[var(--gold-ink)]" />
+                <Clock className="w-4 h-4 text-[var(--gold-ink)] shrink-0" />
                 <div className="min-w-0 flex-1">
                   <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/70">Time</div>
-                  <input aria-label="Return time" type="time" value={returnTime} onChange={(e) => setReturnTime(e.target.value)} className="w-full bg-transparent border-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)] text-sm font-semibold" />
+                  <input aria-label="Return time" type="time" value={returnTime} onChange={(e) => setReturnTime(e.target.value)} className="w-full bg-transparent border-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)] text-sm font-semibold text-[var(--navy)]" />
                 </div>
               </div>
             </div>
           </div>
         )}
+
+        {/* Add stop / add return pills — inside the same white sheet, closing it off */}
+        <div className="flex flex-wrap items-center gap-2 bg-white border border-black/5 border-t-black/5 px-3 py-2.5 rounded-b-3xl @[980px]:rounded-b-[2rem] shadow-[var(--shadow-elegant)]">
+          <PillButton tone="light" icon={<Plus className="w-3 h-3" strokeWidth={3} />} onClick={() => setStops([...stops, { placeId: "", label: "" }])}>
+            Add stop
+          </PillButton>
+          {!showReturn && (
+            <PillButton tone="light" icon={<Repeat className="w-3 h-3" strokeWidth={3} />} onClick={() => setShowReturn(true)}>
+              Add return
+            </PillButton>
+          )}
+        </div>
+
 
         {attempted && errorList.length > 0 && (
           <span className="sr-only" role="alert">{errorList.join(" ")}</span>
