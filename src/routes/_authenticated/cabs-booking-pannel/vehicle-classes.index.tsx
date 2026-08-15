@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { queryOptions, useMutation, useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Power, PowerOff } from "lucide-react";
 import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
 import { fleetImageFor } from "@/assets/fleet";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
   AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { listVehicleClassesAdmin, deleteVehicleClass } from "@/lib/vehicle-classes.functions";
+import { listVehicleClassesAdmin, deleteVehicleClass, setVehicleClassActive } from "@/lib/vehicle-classes.functions";
 import { listVehiclesAdmin } from "@/lib/admin.functions";
 import { adminListPricingProfiles } from "@/lib/pricing.functions";
 
@@ -34,10 +34,20 @@ function VehicleClassesPage() {
   const qc = useQueryClient();
   const navigate = useNavigate();
   const deleteFn = useServerFn(deleteVehicleClass);
+  const setActiveFn = useServerFn(setVehicleClassActive);
   const vehiclesQ = useQuery({ queryKey: ["admin", "vehicles"], queryFn: () => listVehiclesAdmin() });
   const profilesQ = useQuery({ queryKey: ["pricing-profiles"], queryFn: () => adminListPricingProfiles() });
   const vehicles: any[] = vehiclesQ.data ?? [];
   const profiles: any[] = (profilesQ.data as any)?.profiles ?? [];
+
+  const activeMut = useMutation({
+    mutationFn: (v: { id: string; active: boolean }) => setActiveFn({ data: v }),
+    onSuccess: async (_r, v) => {
+      await qc.invalidateQueries({ queryKey: ["admin", "vehicle-classes"] });
+      toast.success(v.active ? "Class activated" : "Class deactivated");
+    },
+    onError: (e: any) => toast.error(e.message ?? "Update failed"),
+  });
 
   const delMut = useMutation({
     mutationFn: (id: string) => deleteFn({ data: { id } }),
@@ -105,6 +115,14 @@ function VehicleClassesPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+                  <Button
+                    size="sm"
+                    variant={c.active ? "outline" : "default"}
+                    disabled={activeMut.isPending}
+                    onClick={() => activeMut.mutate({ id: c.id, active: !c.active })}
+                  >
+                    {c.active ? <><PowerOff className="size-4 mr-1.5" />Deactivate</> : <><Power className="size-4 mr-1.5" />Activate</>}
+                  </Button>
                   <Button asChild size="sm" variant="outline">
                     <Link to="/cabs-booking-pannel/vehicle-classes/$id" params={{ id: c.id }}>
                       <Pencil className="size-4 mr-1.5" />Edit
