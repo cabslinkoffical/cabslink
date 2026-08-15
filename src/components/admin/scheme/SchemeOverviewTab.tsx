@@ -101,6 +101,7 @@ export function SchemeOverviewTab({ scheme, data, section = "base" }: { scheme: 
         </div>
       )}
 
+      {section === "base" && (<>
       <SchemeSection title="Base pricing" hint="The fixed city fare plus consecutive per-mile bands. Distances are statute miles.">
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Scheme name">
@@ -140,6 +141,9 @@ export function SchemeOverviewTab({ scheme, data, section = "base" }: { scheme: 
         </p>
       </SchemeSection>
 
+      </>)}
+
+      {section === "time" && (
       <SchemeSection title="Time pricing" hint="Used by hourly hire and as-directed bookings for this class.">
         <div className="grid gap-4 sm:grid-cols-3">
           <Field label="Price per hour (£)">
@@ -161,6 +165,9 @@ export function SchemeOverviewTab({ scheme, data, section = "base" }: { scheme: 
         </p>
       </SchemeSection>
 
+      )}
+
+      {section === "base" && (
       <SchemeSection title="Core fees" hint="Applied by the same server engine that prices public quotes.">
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Additional pickup fee (£ per extra pickup)">
@@ -182,6 +189,8 @@ export function SchemeOverviewTab({ scheme, data, section = "base" }: { scheme: 
           <label htmlFor="scheme-live" className="text-sm">Scheme live — quote this class on the website</label>
         </div>
       </SchemeSection>
+
+      )}
 
       <div className="flex justify-end">
         <Button onClick={() => mutation.mutate()} disabled={mutation.isPending || !scheme.pricingVehicleId}>
