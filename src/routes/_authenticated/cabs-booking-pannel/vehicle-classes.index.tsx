@@ -34,10 +34,20 @@ function VehicleClassesPage() {
   const qc = useQueryClient();
   const navigate = useNavigate();
   const deleteFn = useServerFn(deleteVehicleClass);
+  const setActiveFn = useServerFn(setVehicleClassActive);
   const vehiclesQ = useQuery({ queryKey: ["admin", "vehicles"], queryFn: () => listVehiclesAdmin() });
   const profilesQ = useQuery({ queryKey: ["pricing-profiles"], queryFn: () => adminListPricingProfiles() });
   const vehicles: any[] = vehiclesQ.data ?? [];
   const profiles: any[] = (profilesQ.data as any)?.profiles ?? [];
+
+  const activeMut = useMutation({
+    mutationFn: (v: { id: string; active: boolean }) => setActiveFn({ data: v }),
+    onSuccess: async (_r, v) => {
+      await qc.invalidateQueries({ queryKey: ["admin", "vehicle-classes"] });
+      toast.success(v.active ? "Class activated" : "Class deactivated");
+    },
+    onError: (e: any) => toast.error(e.message ?? "Update failed"),
+  });
 
   const delMut = useMutation({
     mutationFn: (id: string) => deleteFn({ data: { id } }),
