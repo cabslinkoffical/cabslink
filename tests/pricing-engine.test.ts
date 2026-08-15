@@ -132,3 +132,39 @@ describe("pricing engine — Task 7 acceptance", () => {
     expect(ENGINE_VERSION.length).toBeGreaterThan(0);
   });
 });
+
+describe("open-ended final mileage band", () => {
+  const profile: any = {
+    vehicle_id: "v1",
+    base_price: 10,
+    via_price: 0,
+    vehicle_add_price_enabled: false,
+    time_extra_from: null,
+    time_extra_to: null,
+    time_extra_amount: 0,
+    time_extra_type: "fixed",
+    status: true,
+    tiers: [
+      { tier_name: "Included", miles: 5, cost_per_mile: 0, sort_order: 1 },
+      { tier_name: "Short", miles: 15, cost_per_mile: 2, sort_order: 2 },
+      { tier_name: "Long", miles: 30, cost_per_mile: 1, sort_order: 3 },
+    ],
+  };
+
+  it("prices exactly at the final boundary identically with or without the flag", () => {
+    const off = runPricingEngine(profile, { distanceMiles: 50 });
+    const on = runPricingEngine({ ...profile, final_tier_open_ended: true }, { distanceMiles: 50 });
+    expect(off.finalPrice).toBe(on.finalPrice);
+    expect(off.mileagePrice).toBe(60); // 15*2 + 30*1
+  });
+
+  it("leaves distance beyond the final band unpriced when the flag is off (legacy behaviour)", () => {
+    expect(runPricingEngine(profile, { distanceMiles: 120 }).mileagePrice).toBe(60);
+  });
+
+  it("charges the final band rate beyond the last band when enabled", () => {
+    const r = runPricingEngine({ ...profile, final_tier_open_ended: true }, { distanceMiles: 120 });
+    expect(r.mileagePrice).toBe(60 + 70); // 70 extra miles at £1
+    expect(r.breakdown.some((l: any) => String(l.label).includes("beyond final band"))).toBe(true);
+  });
+});

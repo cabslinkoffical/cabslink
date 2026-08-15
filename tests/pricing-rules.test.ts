@@ -441,3 +441,12 @@ describe("availability precedence", () => {
     expect(resolveAvailability([nearPickup], ctx()).available).toBe(false);
   });
 });
+
+describe("bidirectional is the single source of truth", () => {
+  it("treats bidirectional as canonical and valid_for_return as a legacy alias", () => {
+    expect(bothWays({ bidirectional: true, valid_for_return: false })).toBe(true);
+    expect(bothWays({ bidirectional: false, valid_for_return: true })).toBe(false);
+    expect(bothWays({ valid_for_return: true })).toBe(true);
+    expect(bothWays({})).toBe(false);
+  });
+});
