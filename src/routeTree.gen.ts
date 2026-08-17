@@ -51,6 +51,7 @@ import { Route as ToursIndexRouteImport } from './routes/tours.index'
 import { Route as StationsIndexRouteImport } from './routes/stations.index'
 import { Route as RoutesIndexRouteImport } from './routes/routes.index'
 import { Route as PrivateHireIndexRouteImport } from './routes/private-hire.index'
+import { Route as LocationsIndexRouteImport } from './routes/locations.index'
 import { Route as HospitalsIndexRouteImport } from './routes/hospitals.index'
 import { Route as GuidesIndexRouteImport } from './routes/guides.index'
 import { Route as ExecutiveTransfersIndexRouteImport } from './routes/executive-transfers.index'
@@ -337,6 +338,11 @@ const RoutesIndexRoute = RoutesIndexRouteImport.update({
 const PrivateHireIndexRoute = PrivateHireIndexRouteImport.update({
   id: '/private-hire/',
   path: '/private-hire/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LocationsIndexRoute = LocationsIndexRouteImport.update({
+  id: '/locations/',
+  path: '/locations/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HospitalsIndexRoute = HospitalsIndexRouteImport.update({
@@ -844,6 +850,7 @@ export interface FileRoutesByFullPath {
   '/executive-transfers/': typeof ExecutiveTransfersIndexRoute
   '/guides/': typeof GuidesIndexRoute
   '/hospitals/': typeof HospitalsIndexRoute
+  '/locations/': typeof LocationsIndexRoute
   '/private-hire/': typeof PrivateHireIndexRoute
   '/routes/': typeof RoutesIndexRoute
   '/stations/': typeof StationsIndexRoute
@@ -963,6 +970,7 @@ export interface FileRoutesByTo {
   '/executive-transfers': typeof ExecutiveTransfersIndexRoute
   '/guides': typeof GuidesIndexRoute
   '/hospitals': typeof HospitalsIndexRoute
+  '/locations': typeof LocationsIndexRoute
   '/private-hire': typeof PrivateHireIndexRoute
   '/routes': typeof RoutesIndexRoute
   '/stations': typeof StationsIndexRoute
@@ -1086,6 +1094,7 @@ export interface FileRoutesById {
   '/executive-transfers/': typeof ExecutiveTransfersIndexRoute
   '/guides/': typeof GuidesIndexRoute
   '/hospitals/': typeof HospitalsIndexRoute
+  '/locations/': typeof LocationsIndexRoute
   '/private-hire/': typeof PrivateHireIndexRoute
   '/routes/': typeof RoutesIndexRoute
   '/stations/': typeof StationsIndexRoute
@@ -1209,6 +1218,7 @@ export interface FileRouteTypes {
     | '/executive-transfers/'
     | '/guides/'
     | '/hospitals/'
+    | '/locations/'
     | '/private-hire/'
     | '/routes/'
     | '/stations/'
@@ -1328,6 +1338,7 @@ export interface FileRouteTypes {
     | '/executive-transfers'
     | '/guides'
     | '/hospitals'
+    | '/locations'
     | '/private-hire'
     | '/routes'
     | '/stations'
@@ -1450,6 +1461,7 @@ export interface FileRouteTypes {
     | '/executive-transfers/'
     | '/guides/'
     | '/hospitals/'
+    | '/locations/'
     | '/private-hire/'
     | '/routes/'
     | '/stations/'
@@ -1570,6 +1582,7 @@ export interface RootRouteChildren {
   ExecutiveTransfersIndexRoute: typeof ExecutiveTransfersIndexRoute
   GuidesIndexRoute: typeof GuidesIndexRoute
   HospitalsIndexRoute: typeof HospitalsIndexRoute
+  LocationsIndexRoute: typeof LocationsIndexRoute
   PrivateHireIndexRoute: typeof PrivateHireIndexRoute
   RoutesIndexRoute: typeof RoutesIndexRoute
   StationsIndexRoute: typeof StationsIndexRoute
@@ -1876,6 +1889,13 @@ declare module '@tanstack/react-router' {
       path: '/private-hire'
       fullPath: '/private-hire/'
       preLoaderRoute: typeof PrivateHireIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/locations/': {
+      id: '/locations/'
+      path: '/locations'
+      fullPath: '/locations/'
+      preLoaderRoute: typeof LocationsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/hospitals/': {
@@ -2659,6 +2679,7 @@ const rootRouteChildren: RootRouteChildren = {
   ExecutiveTransfersIndexRoute: ExecutiveTransfersIndexRoute,
   GuidesIndexRoute: GuidesIndexRoute,
   HospitalsIndexRoute: HospitalsIndexRoute,
+  LocationsIndexRoute: LocationsIndexRoute,
   PrivateHireIndexRoute: PrivateHireIndexRoute,
   RoutesIndexRoute: RoutesIndexRoute,
   StationsIndexRoute: StationsIndexRoute,
