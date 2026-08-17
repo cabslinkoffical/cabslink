@@ -106,7 +106,7 @@ export const JOURNEYS: JourneyRecord[] = [
   {
     slug: "edinburgh-airport-to-st-andrews",
     category: "golf",
-    from: { name: "Edinburgh Airport", path: "/airports/edi" },
+    from: { name: "Edinburgh Airport", path: "/airports/edinburgh-airport" },
     to: { name: "St Andrews" },
     miles: 48,
     mins: 80,
@@ -129,7 +129,7 @@ export const JOURNEYS: JourneyRecord[] = [
   {
     slug: "glasgow-airport-to-loch-lomond",
     category: "airport",
-    from: { name: "Glasgow Airport", path: "/airports/gla" },
+    from: { name: "Glasgow Airport", path: "/airports/glasgow-airport" },
     to: { name: "Loch Lomond" },
     miles: 20,
     mins: 35,
@@ -176,7 +176,7 @@ export const JOURNEYS: JourneyRecord[] = [
     slug: "glasgow-to-edinburgh-airport",
     category: "airport",
     from: { name: "Glasgow", path: "/areas/glasgow" },
-    to: { name: "Edinburgh Airport", path: "/airports/edi" },
+    to: { name: "Edinburgh Airport", path: "/airports/edinburgh-airport" },
     miles: 55,
     mins: 75,
     via: "M8 eastbound to Newbridge",
@@ -221,7 +221,7 @@ export const JOURNEYS: JourneyRecord[] = [
   {
     slug: "edinburgh-airport-to-gleneagles",
     category: "golf",
-    from: { name: "Edinburgh Airport", path: "/airports/edi" },
+    from: { name: "Edinburgh Airport", path: "/airports/edinburgh-airport" },
     to: { name: "Gleneagles" },
     miles: 40,
     mins: 55,
