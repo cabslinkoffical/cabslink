@@ -80,8 +80,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:description", content: "Fixed-fare UK airport transfers, private tours and executive travel with Cabslink. Flight tracking, meet & greet and 24/7 dispatch." },
       { name: "twitter:description", content: "Fixed-fare UK airport transfers, private tours and executive travel with Cabslink. Flight tracking, meet & greet and 24/7 dispatch." },
       { property: "og:url", content: "https://cabslink.com/" },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/NfUvXcpm6DbLcc40gpTySSnGjlC3/social-images/social-1786800106425-social-image.webp" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/NfUvXcpm6DbLcc40gpTySSnGjlC3/social-images/social-1786800106425-social-image.webp" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
