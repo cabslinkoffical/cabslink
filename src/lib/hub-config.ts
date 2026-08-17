@@ -120,6 +120,10 @@ export const HUBS = {
   },
   corporate: {
     type: "corporate" as const,
+    // Business parks live under the same /corporate/:slug hub, so both types
+    // must resolve or their pages 404 while still being linked internally.
+    types: ["corporate", "business_park"] as DestinationType[],
+
     title: "Corporate Locations",
     metaDescription: "Business travel to UK offices, campuses and business parks. Agreed pick-up points, airport runs and monthly invoicing on a corporate account.",
     intro: "Business travel for teams and offices.",
