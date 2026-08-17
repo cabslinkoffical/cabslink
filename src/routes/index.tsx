@@ -82,6 +82,8 @@ export const Route = createFileRoute("/")({
       { property: "og:url", content: "https://cabslink.com/" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/NfUvXcpm6DbLcc40gpTySSnGjlC3/social-images/social-1786800106425-social-image.webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/NfUvXcpm6DbLcc40gpTySSnGjlC3/social-images/social-1786800106425-social-image.webp" },
     ],
     links: [
       { rel: "canonical", href: "https://cabslink.com/" },
