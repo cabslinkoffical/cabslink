@@ -29,6 +29,7 @@ import { Route as ImageCreditsRouteImport } from './routes/image-credits'
 import { Route as HospitalTransfersRouteImport } from './routes/hospital-transfers'
 import { Route as GroupTransfersRouteImport } from './routes/group-transfers'
 import { Route as GolfTransfersRouteImport } from './routes/golf-transfers'
+import { Route as GetAQuoteRouteImport } from './routes/get-a-quote'
 import { Route as FootballTransfersRouteImport } from './routes/football-transfers'
 import { Route as FleetRouteImport } from './routes/fleet'
 import { Route as EventTransportRouteImport } from './routes/event-transport'
@@ -232,6 +233,11 @@ const GroupTransfersRoute = GroupTransfersRouteImport.update({
 const GolfTransfersRoute = GolfTransfersRouteImport.update({
   id: '/golf-transfers',
   path: '/golf-transfers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GetAQuoteRoute = GetAQuoteRouteImport.update({
+  id: '/get-a-quote',
+  path: '/get-a-quote',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FootballTransfersRoute = FootballTransfersRouteImport.update({
@@ -815,6 +821,7 @@ export interface FileRoutesByFullPath {
   '/event-transport': typeof EventTransportRoute
   '/fleet': typeof FleetRoute
   '/football-transfers': typeof FootballTransfersRoute
+  '/get-a-quote': typeof GetAQuoteRoute
   '/golf-transfers': typeof GolfTransfersRoute
   '/group-transfers': typeof GroupTransfersRoute
   '/hospital-transfers': typeof HospitalTransfersRoute
@@ -939,6 +946,7 @@ export interface FileRoutesByTo {
   '/event-transport': typeof EventTransportRoute
   '/fleet': typeof FleetRoute
   '/football-transfers': typeof FootballTransfersRoute
+  '/get-a-quote': typeof GetAQuoteRoute
   '/golf-transfers': typeof GolfTransfersRoute
   '/group-transfers': typeof GroupTransfersRoute
   '/hospital-transfers': typeof HospitalTransfersRoute
@@ -1065,6 +1073,7 @@ export interface FileRoutesById {
   '/event-transport': typeof EventTransportRoute
   '/fleet': typeof FleetRoute
   '/football-transfers': typeof FootballTransfersRoute
+  '/get-a-quote': typeof GetAQuoteRoute
   '/golf-transfers': typeof GolfTransfersRoute
   '/group-transfers': typeof GroupTransfersRoute
   '/hospital-transfers': typeof HospitalTransfersRoute
@@ -1192,6 +1201,7 @@ export interface FileRouteTypes {
     | '/event-transport'
     | '/fleet'
     | '/football-transfers'
+    | '/get-a-quote'
     | '/golf-transfers'
     | '/group-transfers'
     | '/hospital-transfers'
@@ -1316,6 +1326,7 @@ export interface FileRouteTypes {
     | '/event-transport'
     | '/fleet'
     | '/football-transfers'
+    | '/get-a-quote'
     | '/golf-transfers'
     | '/group-transfers'
     | '/hospital-transfers'
@@ -1441,6 +1452,7 @@ export interface FileRouteTypes {
     | '/event-transport'
     | '/fleet'
     | '/football-transfers'
+    | '/get-a-quote'
     | '/golf-transfers'
     | '/group-transfers'
     | '/hospital-transfers'
@@ -1568,6 +1580,7 @@ export interface RootRouteChildren {
   EventTransportRoute: typeof EventTransportRoute
   FleetRoute: typeof FleetRoute
   FootballTransfersRoute: typeof FootballTransfersRoute
+  GetAQuoteRoute: typeof GetAQuoteRoute
   GolfTransfersRoute: typeof GolfTransfersRoute
   GroupTransfersRoute: typeof GroupTransfersRoute
   HospitalTransfersRoute: typeof HospitalTransfersRoute
@@ -1774,6 +1787,13 @@ declare module '@tanstack/react-router' {
       path: '/golf-transfers'
       fullPath: '/golf-transfers'
       preLoaderRoute: typeof GolfTransfersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/get-a-quote': {
+      id: '/get-a-quote'
+      path: '/get-a-quote'
+      fullPath: '/get-a-quote'
+      preLoaderRoute: typeof GetAQuoteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/football-transfers': {
@@ -2689,6 +2709,7 @@ const rootRouteChildren: RootRouteChildren = {
   EventTransportRoute: EventTransportRoute,
   FleetRoute: FleetRoute,
   FootballTransfersRoute: FootballTransfersRoute,
+  GetAQuoteRoute: GetAQuoteRoute,
   GolfTransfersRoute: GolfTransfersRoute,
   GroupTransfersRoute: GroupTransfersRoute,
   HospitalTransfersRoute: HospitalTransfersRoute,
