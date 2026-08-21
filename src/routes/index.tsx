@@ -152,13 +152,14 @@ const trustStats = [
 
 
 const serviceTiles = [
-  { name: "Airport", kicker: "Transport", img: svcAirportImg.url, to: "/airport-transfers", icon: Plane },
-  { name: "Cruiseport", kicker: "Transport", img: svcCruiseImg, to: "/cruise-transfers", icon: Compass },
-  { name: "Station", kicker: "Transport", img: svcStationImg.url, to: "/stations", icon: RouteIcon },
-  { name: "Corporate", kicker: "Transport", img: svcCorporateImg.url, to: "/corporate-travel", icon: Building2 },
-  { name: "Group", kicker: "Transport", img: svcGroupImg, to: "/group-transfers", icon: Users },
-  { name: "Sightseeing", kicker: "Transport", img: svcToursImg.url, to: "/tours", icon: Gem },
+  { name: "Airport Transfers", kicker: "Most booked", desc: "Flight-tracked pickups and meet & greet at every UK airport.", img: svcAirportImg.url, to: "/airport-transfers", icon: Plane },
+  { name: "Cruise Ports", kicker: "Embarkation", desc: "Timed port transfers with room for every case and trunk.", img: svcCruiseImg, to: "/cruise-transfers", icon: Compass },
+  { name: "Rail Stations", kicker: "City to city", desc: "Kerbside pickups at UK terminals, timed to your train.", img: svcStationImg.url, to: "/stations", icon: RouteIcon },
+  { name: "Corporate Travel", kicker: "Business", desc: "Account-managed journeys with invoicing and priority support.", img: svcCorporateImg.url, to: "/corporate-travel", icon: Building2 },
+  { name: "Group Travel", kicker: "5–55 seats", desc: "MPVs, minibuses and coaches planned as a single job.", img: svcGroupImg, to: "/group-transfers", icon: Users },
+  { name: "Private Tours", kicker: "Signature", desc: "Driver-led days across Scotland, entirely at your pace.", img: svcToursImg.url, to: "/tours", icon: Gem },
 ];
+
 
 
 
@@ -466,53 +467,51 @@ function HomePage() {
             </div>
           </div>
 
-          {/* Arch-cap service tiles */}
-          <div className="mt-12 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-6">
-            {serviceTiles.map((t) => (
+          {/* Editorial service cards */}
+          <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+            {serviceTiles.map((t, i) => (
               <Link
                 key={t.name}
                 to={t.to}
-                className="group relative flex h-[300px] flex-col overflow-hidden rounded-2xl bg-[var(--navy)] shadow-raised transition-all duration-300 hover:-translate-y-1.5 hover:shadow-raised-hover sm:h-[360px] lg:h-[400px]"
+                className={`group relative isolate flex flex-col justify-end overflow-hidden rounded-3xl bg-[var(--navy)] shadow-raised ring-1 ring-[var(--navy)]/10 transition-all duration-500 hover:-translate-y-1 hover:shadow-raised-hover ${
+                  i === 0 ? "min-h-[320px] sm:col-span-2 sm:min-h-[380px] lg:col-span-2" : "min-h-[300px] sm:min-h-[340px]"
+                }`}
               >
-                {/* Navy cap with curved base */}
-                <div className="relative z-10 shrink-0 pt-6 pb-9 text-center sm:pt-7">
-                  <h3 className="font-display text-xl font-bold tracking-[-0.01em] text-[var(--gold)] sm:text-2xl">
+                <img
+                  src={t.img}
+                  alt={`${t.name} by Cabslink`}
+                  width={900}
+                  height={700}
+                  loading="lazy"
+                  className="absolute inset-0 -z-10 size-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.07]"
+                />
+                <div
+                  aria-hidden
+                  className="absolute inset-0 -z-10 bg-gradient-to-t from-[var(--navy)] via-[var(--navy)]/70 to-[var(--navy)]/10"
+                />
+
+                <span className="absolute left-5 top-5 inline-flex items-center gap-2 rounded-full border border-[var(--gold)]/40 bg-[var(--navy)]/55 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--gold)] backdrop-blur-sm">
+                  <t.icon className="size-3.5" />
+                  {t.kicker}
+                </span>
+
+                <div className="relative p-5 sm:p-6">
+                  <h3 className="font-display text-2xl font-bold leading-tight tracking-[-0.01em] text-white sm:text-[1.7rem]">
                     {t.name}
                   </h3>
-                  <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-white/75">
-                    {t.kicker}
-                  </p>
                   <span
                     aria-hidden
-                    className="absolute inset-x-[-22%] bottom-[-40px] h-24 rounded-b-[100%] border-b-[3px] border-[var(--gold)]/55 bg-[var(--navy)]"
+                    className="mt-3 block h-[2px] w-10 bg-[var(--gold)] transition-all duration-500 group-hover:w-20"
                   />
-
-                </div>
-
-                {/* Image */}
-                <div className="relative flex-1 overflow-hidden">
-                  <img
-                    src={t.img}
-                    alt={`${t.name} transport by Cabslink`}
-                    width={600}
-                    height={800}
-                    loading="lazy"
-                    className="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[var(--navy)]/85 via-[var(--navy)]/10 to-transparent" />
-
-                  <span className="absolute bottom-4 left-1/2 -translate-x-1/2 translate-y-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--gold)] px-4 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--navy)]">
-                      View <ArrowRight className="size-3.5" />
-                    </span>
-                  </span>
-                  <span className="absolute bottom-4 left-1/2 -translate-x-1/2 grid size-9 place-items-center rounded-full bg-white/12 text-[var(--gold)] backdrop-blur-sm transition-opacity duration-300 group-hover:opacity-0">
-                    <t.icon className="size-4" />
+                  <p className="mt-3 max-w-sm text-sm leading-relaxed text-white/70">{t.desc}</p>
+                  <span className="mt-4 inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--gold)] transition-all duration-300 group-hover:gap-3">
+                    Explore <ArrowRight className="size-3.5" />
                   </span>
                 </div>
               </Link>
             ))}
           </div>
+
 
           <div className="mt-8 flex justify-center">
             <Button asChild size="lg" variant="outline" className="rounded-full border-[var(--navy)]/20">
