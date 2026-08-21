@@ -484,7 +484,7 @@ function HomePage() {
                   </p>
                   <span
                     aria-hidden
-                    className="absolute inset-x-[-14%] bottom-[-34px] h-16 rounded-b-[100%] border-b-[3px] border-[var(--gold)]/55 bg-[var(--navy)]"
+                    className="absolute inset-x-[-22%] bottom-[-40px] h-24 rounded-b-[100%] border-b-[3px] border-[var(--gold)]/55 bg-[var(--navy)]"
                   />
 
                 </div>
