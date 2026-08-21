@@ -205,6 +205,17 @@ const services = [
   },
 ];
 
+const serviceTiles = [
+  { name: "Airport", kicker: "Transport", img: svcAirportImg.url, to: "/airport-transfers", icon: Plane },
+  { name: "Cruiseport", kicker: "Transport", img: svcCruiseImg, to: "/cruise-transfers", icon: Compass },
+  { name: "Station", kicker: "Transport", img: svcStationImg.url, to: "/stations", icon: RouteIcon },
+  { name: "Corporate", kicker: "Transport", img: svcCorporateImg.url, to: "/corporate-travel", icon: Building2 },
+  { name: "Group", kicker: "Transport", img: svcGroupImg, to: "/group-transfers", icon: Users },
+  { name: "Sightseeing", kicker: "Transport", img: svcToursImg.url, to: "/tours", icon: Gem },
+];
+
+
+
 
 const steps = [
   { icon: MessageSquare, title: "Plan Journey", desc: "Enter pickup, destination and travel details in 30 seconds." },
