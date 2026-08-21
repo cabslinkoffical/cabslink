@@ -6,13 +6,12 @@ import {
   ArrowRight, Plane, ShieldCheck, CalendarCheck, Phone,
   Briefcase, Users, Award, BadgePoundSterling, Headset, Car, Building2, Gem,
   Route as RouteIcon, CheckCircle2, Sparkles, MessageSquare, CreditCard, Quote,
-  Plus, Minus, Clock, Compass, Wallet, Timer, Mail, BadgeCheck, PlaneTakeoff, Trophy
+  Plus, Minus, Clock, Compass, Wallet, Timer, Mail, BadgeCheck, PlaneTakeoff
 } from "lucide-react";
 
 import svcAirportImg from "@/assets/services/airport.jpg.asset.json";
 import svcCorporateImg from "@/assets/services/corporate.jpg.asset.json";
 import svcToursImg from "@/assets/services/tours.jpg.asset.json";
-import svcSportsImg from "@/assets/services/sports.jpg";
 import svcGroupImg from "@/assets/services/group.jpg";
 import svcCruiseImg from "@/assets/services/cruise.jpg";
 import svcStationImg from "@/assets/services/station.jpg.asset.json";
@@ -151,59 +150,6 @@ const trustStats = [
 
 
 
-
-const services = [
-  {
-    icon: Plane,
-    eyebrow: "Most booked",
-    title: "Airport & travel hub transfers",
-    desc: "Airports, rail terminals and cruise ports with tracked schedules, free waiting time and fixed all-in fares.",
-    img: svcAirportImg.url,
-    to: "/airport-transfers",
-    chips: ["Live flight tracking", "Meet & greet", "Fixed pricing"],
-    count: 6,
-  },
-  {
-    icon: Building2,
-    eyebrow: "Business",
-    title: "Corporate & executive travel",
-    desc: "Account-managed business travel with monthly invoicing and cost centres.",
-    img: svcCorporateImg.url,
-    to: "/corporate-travel",
-    chips: ["Invoiced accounts", "Priority 24/7"],
-    count: 6,
-  },
-  {
-    icon: Gem,
-    eyebrow: "Signature",
-    title: "Private tours & days out",
-    desc: "Driver-led days across Scotland and the UK — castles, distilleries and coastlines.",
-    img: svcToursImg.url,
-    to: "/tours",
-    chips: ["Full-day itineraries", "Local drivers"],
-    count: 6,
-  },
-  {
-    icon: Trophy,
-    eyebrow: "Sporting events",
-    title: "Golf, football & sports travel",
-    desc: "Transport for golfers, fans, squads and hospitality guests across the UK.",
-    img: svcSportsImg,
-    to: "/golf-transfers",
-    chips: ["Clubs & kit space", "Match-day timing"],
-    count: 6,
-  },
-  {
-    icon: Users,
-    eyebrow: "Specialist",
-    title: "Group, accessible & care travel",
-    desc: "From 55-seat coaches to single hospital appointments, handled with the same care.",
-    img: svcGroupImg,
-    to: "/group-transfers",
-    chips: ["5–55 passengers", "Ramp-equipped"],
-    count: 6,
-  },
-];
 
 const serviceTiles = [
   { name: "Airport", kicker: "Transport", img: svcAirportImg.url, to: "/airport-transfers", icon: Plane },
