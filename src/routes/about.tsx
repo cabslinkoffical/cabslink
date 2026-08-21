@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Shield, Award, Heart, Sparkles, Plane, Briefcase, Ship, GraduationCap,
   Hospital, Users, Building2, Bus, Car, Clock, MapPin, CreditCard,
-  BadgeCheck, PhoneCall, Luggage, Baby, HandCoins, Route as RouteIcon,
+  BadgeCheck, Luggage, Baby, HandCoins, Route as RouteIcon,
   CheckCircle2, ArrowRight,
 } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
