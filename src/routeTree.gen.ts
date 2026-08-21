@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WeddingTransportRouteImport } from './routes/wedding-transport'
 import { Route as VipTransfersRouteImport } from './routes/vip-transfers'
 import { Route as VipSportsHospitalityRouteImport } from './routes/vip-sports-hospitality'
 import { Route as UniversityTransfersRouteImport } from './routes/university-transfers'
@@ -22,12 +23,14 @@ import { Route as SearchRouteImport } from './routes/search'
 import { Route as ReviewsRouteImport } from './routes/reviews'
 import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as OurServicesRouteImport } from './routes/our-services'
 import { Route as MinibusHireRouteImport } from './routes/minibus-hire'
 import { Route as LongDistanceTransfersRouteImport } from './routes/long-distance-transfers'
 import { Route as ImageCreditsRouteImport } from './routes/image-credits'
 import { Route as HospitalTransfersRouteImport } from './routes/hospital-transfers'
 import { Route as GroupTransfersRouteImport } from './routes/group-transfers'
 import { Route as GolfTransfersRouteImport } from './routes/golf-transfers'
+import { Route as GetAQuoteRouteImport } from './routes/get-a-quote'
 import { Route as FootballTransfersRouteImport } from './routes/football-transfers'
 import { Route as FleetRouteImport } from './routes/fleet'
 import { Route as EventTransportRouteImport } from './routes/event-transport'
@@ -36,12 +39,15 @@ import { Route as DistanceRouteImport } from './routes/distance'
 import { Route as CruiseTransfersRouteImport } from './routes/cruise-transfers'
 import { Route as CorporateBookingRouteImport } from './routes/corporate-booking'
 import { Route as CookiesRouteImport } from './routes/cookies'
+import { Route as ContactUsRouteImport } from './routes/contact-us'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CoachHireRouteImport } from './routes/coach-hire'
 import { Route as BookingPolicyRouteImport } from './routes/booking-policy'
 import { Route as BookRouteImport } from './routes/book'
+import { Route as BecomeADriverRouteImport } from './routes/become-a-driver'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AccessibilityRouteImport } from './routes/accessibility'
+import { Route as AboutUsRouteImport } from './routes/about-us'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
@@ -131,6 +137,11 @@ import { Route as AuthenticatedCabsBookingPannelBlogAuthorsRouteImport } from '.
 import { Route as AuthenticatedCabsBookingPannelBlogIdRouteImport } from './routes/_authenticated/cabs-booking-pannel/blog.$id'
 import { Route as AuthenticatedCabsBookingPannelSeoPagesIdSectionsRouteImport } from './routes/_authenticated/cabs-booking-pannel/seo.pages.$id.sections'
 
+const WeddingTransportRoute = WeddingTransportRouteImport.update({
+  id: '/wedding-transport',
+  path: '/wedding-transport',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VipTransfersRoute = VipTransfersRouteImport.update({
   id: '/vip-transfers',
   path: '/vip-transfers',
@@ -196,6 +207,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
   path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OurServicesRoute = OurServicesRouteImport.update({
+  id: '/our-services',
+  path: '/our-services',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MinibusHireRoute = MinibusHireRouteImport.update({
   id: '/minibus-hire',
   path: '/minibus-hire',
@@ -224,6 +240,11 @@ const GroupTransfersRoute = GroupTransfersRouteImport.update({
 const GolfTransfersRoute = GolfTransfersRouteImport.update({
   id: '/golf-transfers',
   path: '/golf-transfers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GetAQuoteRoute = GetAQuoteRouteImport.update({
+  id: '/get-a-quote',
+  path: '/get-a-quote',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FootballTransfersRoute = FootballTransfersRouteImport.update({
@@ -266,6 +287,11 @@ const CookiesRoute = CookiesRouteImport.update({
   path: '/cookies',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ContactUsRoute = ContactUsRouteImport.update({
+  id: '/contact-us',
+  path: '/contact-us',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
@@ -286,6 +312,11 @@ const BookRoute = BookRouteImport.update({
   path: '/book',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BecomeADriverRoute = BecomeADriverRouteImport.update({
+  id: '/become-a-driver',
+  path: '/become-a-driver',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -294,6 +325,11 @@ const AuthRoute = AuthRouteImport.update({
 const AccessibilityRoute = AccessibilityRouteImport.update({
   id: '/accessibility',
   path: '/accessibility',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutUsRoute = AboutUsRouteImport.update({
+  id: '/about-us',
+  path: '/about-us',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -781,12 +817,15 @@ const AuthenticatedCabsBookingPannelSeoPagesIdSectionsRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/about-us': typeof AboutUsRoute
   '/accessibility': typeof AccessibilityRoute
   '/auth': typeof AuthRoute
+  '/become-a-driver': typeof BecomeADriverRoute
   '/book': typeof BookRouteWithChildren
   '/booking-policy': typeof BookingPolicyRoute
   '/coach-hire': typeof CoachHireRoute
   '/contact': typeof ContactRoute
+  '/contact-us': typeof ContactUsRoute
   '/cookies': typeof CookiesRoute
   '/corporate-booking': typeof CorporateBookingRoute
   '/cruise-transfers': typeof CruiseTransfersRoute
@@ -795,12 +834,14 @@ export interface FileRoutesByFullPath {
   '/event-transport': typeof EventTransportRoute
   '/fleet': typeof FleetRoute
   '/football-transfers': typeof FootballTransfersRoute
+  '/get-a-quote': typeof GetAQuoteRoute
   '/golf-transfers': typeof GolfTransfersRoute
   '/group-transfers': typeof GroupTransfersRoute
   '/hospital-transfers': typeof HospitalTransfersRoute
   '/image-credits': typeof ImageCreditsRoute
   '/long-distance-transfers': typeof LongDistanceTransfersRoute
   '/minibus-hire': typeof MinibusHireRoute
+  '/our-services': typeof OurServicesRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/reviews': typeof ReviewsRoute
@@ -814,6 +855,7 @@ export interface FileRoutesByFullPath {
   '/university-transfers': typeof UniversityTransfersRoute
   '/vip-sports-hospitality': typeof VipSportsHospitalityRoute
   '/vip-transfers': typeof VipTransfersRoute
+  '/wedding-transport': typeof WeddingTransportRoute
   '/cabs-booking-pannel': typeof AuthenticatedCabsBookingPannelRouteRouteWithChildren
   '/airport-transfers/$location': typeof AirportTransfersLocationRoute
   '/airports/$iata': typeof AirportsIataRoute
@@ -903,11 +945,14 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/about-us': typeof AboutUsRoute
   '/accessibility': typeof AccessibilityRoute
   '/auth': typeof AuthRoute
+  '/become-a-driver': typeof BecomeADriverRoute
   '/booking-policy': typeof BookingPolicyRoute
   '/coach-hire': typeof CoachHireRoute
   '/contact': typeof ContactRoute
+  '/contact-us': typeof ContactUsRoute
   '/cookies': typeof CookiesRoute
   '/corporate-booking': typeof CorporateBookingRoute
   '/cruise-transfers': typeof CruiseTransfersRoute
@@ -916,12 +961,14 @@ export interface FileRoutesByTo {
   '/event-transport': typeof EventTransportRoute
   '/fleet': typeof FleetRoute
   '/football-transfers': typeof FootballTransfersRoute
+  '/get-a-quote': typeof GetAQuoteRoute
   '/golf-transfers': typeof GolfTransfersRoute
   '/group-transfers': typeof GroupTransfersRoute
   '/hospital-transfers': typeof HospitalTransfersRoute
   '/image-credits': typeof ImageCreditsRoute
   '/long-distance-transfers': typeof LongDistanceTransfersRoute
   '/minibus-hire': typeof MinibusHireRoute
+  '/our-services': typeof OurServicesRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/reviews': typeof ReviewsRoute
@@ -935,6 +982,7 @@ export interface FileRoutesByTo {
   '/university-transfers': typeof UniversityTransfersRoute
   '/vip-sports-hospitality': typeof VipSportsHospitalityRoute
   '/vip-transfers': typeof VipTransfersRoute
+  '/wedding-transport': typeof WeddingTransportRoute
   '/airport-transfers/$location': typeof AirportTransfersLocationRoute
   '/airports/$iata': typeof AirportsIataRoute
   '/areas/$slug': typeof AreasSlugRoute
@@ -1025,12 +1073,15 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/about': typeof AboutRoute
+  '/about-us': typeof AboutUsRoute
   '/accessibility': typeof AccessibilityRoute
   '/auth': typeof AuthRoute
+  '/become-a-driver': typeof BecomeADriverRoute
   '/book': typeof BookRouteWithChildren
   '/booking-policy': typeof BookingPolicyRoute
   '/coach-hire': typeof CoachHireRoute
   '/contact': typeof ContactRoute
+  '/contact-us': typeof ContactUsRoute
   '/cookies': typeof CookiesRoute
   '/corporate-booking': typeof CorporateBookingRoute
   '/cruise-transfers': typeof CruiseTransfersRoute
@@ -1039,12 +1090,14 @@ export interface FileRoutesById {
   '/event-transport': typeof EventTransportRoute
   '/fleet': typeof FleetRoute
   '/football-transfers': typeof FootballTransfersRoute
+  '/get-a-quote': typeof GetAQuoteRoute
   '/golf-transfers': typeof GolfTransfersRoute
   '/group-transfers': typeof GroupTransfersRoute
   '/hospital-transfers': typeof HospitalTransfersRoute
   '/image-credits': typeof ImageCreditsRoute
   '/long-distance-transfers': typeof LongDistanceTransfersRoute
   '/minibus-hire': typeof MinibusHireRoute
+  '/our-services': typeof OurServicesRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/reviews': typeof ReviewsRoute
@@ -1058,6 +1111,7 @@ export interface FileRoutesById {
   '/university-transfers': typeof UniversityTransfersRoute
   '/vip-sports-hospitality': typeof VipSportsHospitalityRoute
   '/vip-transfers': typeof VipTransfersRoute
+  '/wedding-transport': typeof WeddingTransportRoute
   '/_authenticated/cabs-booking-pannel': typeof AuthenticatedCabsBookingPannelRouteRouteWithChildren
   '/airport-transfers/$location': typeof AirportTransfersLocationRoute
   '/airports/$iata': typeof AirportsIataRoute
@@ -1149,12 +1203,15 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/about-us'
     | '/accessibility'
     | '/auth'
+    | '/become-a-driver'
     | '/book'
     | '/booking-policy'
     | '/coach-hire'
     | '/contact'
+    | '/contact-us'
     | '/cookies'
     | '/corporate-booking'
     | '/cruise-transfers'
@@ -1163,12 +1220,14 @@ export interface FileRouteTypes {
     | '/event-transport'
     | '/fleet'
     | '/football-transfers'
+    | '/get-a-quote'
     | '/golf-transfers'
     | '/group-transfers'
     | '/hospital-transfers'
     | '/image-credits'
     | '/long-distance-transfers'
     | '/minibus-hire'
+    | '/our-services'
     | '/privacy'
     | '/refund-policy'
     | '/reviews'
@@ -1182,6 +1241,7 @@ export interface FileRouteTypes {
     | '/university-transfers'
     | '/vip-sports-hospitality'
     | '/vip-transfers'
+    | '/wedding-transport'
     | '/cabs-booking-pannel'
     | '/airport-transfers/$location'
     | '/airports/$iata'
@@ -1271,11 +1331,14 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/about-us'
     | '/accessibility'
     | '/auth'
+    | '/become-a-driver'
     | '/booking-policy'
     | '/coach-hire'
     | '/contact'
+    | '/contact-us'
     | '/cookies'
     | '/corporate-booking'
     | '/cruise-transfers'
@@ -1284,12 +1347,14 @@ export interface FileRouteTypes {
     | '/event-transport'
     | '/fleet'
     | '/football-transfers'
+    | '/get-a-quote'
     | '/golf-transfers'
     | '/group-transfers'
     | '/hospital-transfers'
     | '/image-credits'
     | '/long-distance-transfers'
     | '/minibus-hire'
+    | '/our-services'
     | '/privacy'
     | '/refund-policy'
     | '/reviews'
@@ -1303,6 +1368,7 @@ export interface FileRouteTypes {
     | '/university-transfers'
     | '/vip-sports-hospitality'
     | '/vip-transfers'
+    | '/wedding-transport'
     | '/airport-transfers/$location'
     | '/airports/$iata'
     | '/areas/$slug'
@@ -1392,12 +1458,15 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/about'
+    | '/about-us'
     | '/accessibility'
     | '/auth'
+    | '/become-a-driver'
     | '/book'
     | '/booking-policy'
     | '/coach-hire'
     | '/contact'
+    | '/contact-us'
     | '/cookies'
     | '/corporate-booking'
     | '/cruise-transfers'
@@ -1406,12 +1475,14 @@ export interface FileRouteTypes {
     | '/event-transport'
     | '/fleet'
     | '/football-transfers'
+    | '/get-a-quote'
     | '/golf-transfers'
     | '/group-transfers'
     | '/hospital-transfers'
     | '/image-credits'
     | '/long-distance-transfers'
     | '/minibus-hire'
+    | '/our-services'
     | '/privacy'
     | '/refund-policy'
     | '/reviews'
@@ -1425,6 +1496,7 @@ export interface FileRouteTypes {
     | '/university-transfers'
     | '/vip-sports-hospitality'
     | '/vip-transfers'
+    | '/wedding-transport'
     | '/_authenticated/cabs-booking-pannel'
     | '/airport-transfers/$location'
     | '/airports/$iata'
@@ -1516,12 +1588,15 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
+  AboutUsRoute: typeof AboutUsRoute
   AccessibilityRoute: typeof AccessibilityRoute
   AuthRoute: typeof AuthRoute
+  BecomeADriverRoute: typeof BecomeADriverRoute
   BookRoute: typeof BookRouteWithChildren
   BookingPolicyRoute: typeof BookingPolicyRoute
   CoachHireRoute: typeof CoachHireRoute
   ContactRoute: typeof ContactRoute
+  ContactUsRoute: typeof ContactUsRoute
   CookiesRoute: typeof CookiesRoute
   CorporateBookingRoute: typeof CorporateBookingRoute
   CruiseTransfersRoute: typeof CruiseTransfersRoute
@@ -1530,12 +1605,14 @@ export interface RootRouteChildren {
   EventTransportRoute: typeof EventTransportRoute
   FleetRoute: typeof FleetRoute
   FootballTransfersRoute: typeof FootballTransfersRoute
+  GetAQuoteRoute: typeof GetAQuoteRoute
   GolfTransfersRoute: typeof GolfTransfersRoute
   GroupTransfersRoute: typeof GroupTransfersRoute
   HospitalTransfersRoute: typeof HospitalTransfersRoute
   ImageCreditsRoute: typeof ImageCreditsRoute
   LongDistanceTransfersRoute: typeof LongDistanceTransfersRoute
   MinibusHireRoute: typeof MinibusHireRoute
+  OurServicesRoute: typeof OurServicesRoute
   PrivacyRoute: typeof PrivacyRoute
   RefundPolicyRoute: typeof RefundPolicyRoute
   ReviewsRoute: typeof ReviewsRoute
@@ -1549,6 +1626,7 @@ export interface RootRouteChildren {
   UniversityTransfersRoute: typeof UniversityTransfersRoute
   VipSportsHospitalityRoute: typeof VipSportsHospitalityRoute
   VipTransfersRoute: typeof VipTransfersRoute
+  WeddingTransportRoute: typeof WeddingTransportRoute
   AirportTransfersLocationRoute: typeof AirportTransfersLocationRoute
   AirportsIataRoute: typeof AirportsIataRoute
   AreasSlugRoute: typeof AreasSlugRoute
@@ -1597,6 +1675,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/wedding-transport': {
+      id: '/wedding-transport'
+      path: '/wedding-transport'
+      fullPath: '/wedding-transport'
+      preLoaderRoute: typeof WeddingTransportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/vip-transfers': {
       id: '/vip-transfers'
       path: '/vip-transfers'
@@ -1688,6 +1773,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/our-services': {
+      id: '/our-services'
+      path: '/our-services'
+      fullPath: '/our-services'
+      preLoaderRoute: typeof OurServicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/minibus-hire': {
       id: '/minibus-hire'
       path: '/minibus-hire'
@@ -1728,6 +1820,13 @@ declare module '@tanstack/react-router' {
       path: '/golf-transfers'
       fullPath: '/golf-transfers'
       preLoaderRoute: typeof GolfTransfersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/get-a-quote': {
+      id: '/get-a-quote'
+      path: '/get-a-quote'
+      fullPath: '/get-a-quote'
+      preLoaderRoute: typeof GetAQuoteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/football-transfers': {
@@ -1786,6 +1885,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CookiesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/contact-us': {
+      id: '/contact-us'
+      path: '/contact-us'
+      fullPath: '/contact-us'
+      preLoaderRoute: typeof ContactUsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/contact': {
       id: '/contact'
       path: '/contact'
@@ -1814,6 +1920,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/become-a-driver': {
+      id: '/become-a-driver'
+      path: '/become-a-driver'
+      fullPath: '/become-a-driver'
+      preLoaderRoute: typeof BecomeADriverRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -1826,6 +1939,13 @@ declare module '@tanstack/react-router' {
       path: '/accessibility'
       fullPath: '/accessibility'
       preLoaderRoute: typeof AccessibilityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about-us': {
+      id: '/about-us'
+      path: '/about-us'
+      fullPath: '/about-us'
+      preLoaderRoute: typeof AboutUsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -2613,12 +2733,15 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AboutRoute: AboutRoute,
+  AboutUsRoute: AboutUsRoute,
   AccessibilityRoute: AccessibilityRoute,
   AuthRoute: AuthRoute,
+  BecomeADriverRoute: BecomeADriverRoute,
   BookRoute: BookRouteWithChildren,
   BookingPolicyRoute: BookingPolicyRoute,
   CoachHireRoute: CoachHireRoute,
   ContactRoute: ContactRoute,
+  ContactUsRoute: ContactUsRoute,
   CookiesRoute: CookiesRoute,
   CorporateBookingRoute: CorporateBookingRoute,
   CruiseTransfersRoute: CruiseTransfersRoute,
@@ -2627,12 +2750,14 @@ const rootRouteChildren: RootRouteChildren = {
   EventTransportRoute: EventTransportRoute,
   FleetRoute: FleetRoute,
   FootballTransfersRoute: FootballTransfersRoute,
+  GetAQuoteRoute: GetAQuoteRoute,
   GolfTransfersRoute: GolfTransfersRoute,
   GroupTransfersRoute: GroupTransfersRoute,
   HospitalTransfersRoute: HospitalTransfersRoute,
   ImageCreditsRoute: ImageCreditsRoute,
   LongDistanceTransfersRoute: LongDistanceTransfersRoute,
   MinibusHireRoute: MinibusHireRoute,
+  OurServicesRoute: OurServicesRoute,
   PrivacyRoute: PrivacyRoute,
   RefundPolicyRoute: RefundPolicyRoute,
   ReviewsRoute: ReviewsRoute,
@@ -2646,6 +2771,7 @@ const rootRouteChildren: RootRouteChildren = {
   UniversityTransfersRoute: UniversityTransfersRoute,
   VipSportsHospitalityRoute: VipSportsHospitalityRoute,
   VipTransfersRoute: VipTransfersRoute,
+  WeddingTransportRoute: WeddingTransportRoute,
   AirportTransfersLocationRoute: AirportTransfersLocationRoute,
   AirportsIataRoute: AirportsIataRoute,
   AreasSlugRoute: AreasSlugRoute,

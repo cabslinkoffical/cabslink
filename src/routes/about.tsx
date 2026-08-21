@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Shield, Award, Heart, Sparkles, Plane, Briefcase, Ship, GraduationCap,
   Hospital, Users, Building2, Bus, Car, Clock, MapPin, CreditCard,
-  BadgeCheck, PhoneCall, Luggage, Baby, HandCoins, Route as RouteIcon,
+  BadgeCheck, Luggage, Baby, HandCoins, Route as RouteIcon,
   CheckCircle2, ArrowRight,
 } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
@@ -96,16 +96,8 @@ function AboutPage() {
         breadcrumbs={[{ label: "Home", to: "/" }, { label: "About" }]}
       />
 
-      {/* CTA row directly under hero */}
-      <section className="border-b border-border">
-        <div className="container-x py-6 flex flex-wrap items-center gap-3">
-          <Button asChild variant="gold" className="rounded-full"><Link to="/book">Book Now</Link></Button>
-          <Button asChild variant="outline" className="rounded-full"><Link to="/distance">Get a Quote</Link></Button>
-          <a href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`} className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--navy)] hover:text-[var(--gold-ink)]">
-            <PhoneCall className="size-4" /> {SITE.phoneUK}
-          </a>
-        </div>
-      </section>
+
+
 
       {/* Who we are */}
       <section className="section-y">
