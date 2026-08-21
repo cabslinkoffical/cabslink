@@ -31,6 +31,11 @@ export const Route = createFileRoute("/airports/$iata")({
       null;
 
     if (!matched) throw notFound();
+    // IATA-code URLs (e.g. /airports/edi) duplicated the canonical slug page.
+    // Send a single-hop 301 so only one URL per airport returns HTTP 200.
+    if (matched.slug !== key) {
+      throw redirect({ to: "/airports/$iata", params: { iata: matched.slug }, statusCode: 301, throw: true });
+    }
     return { mode: "detail" as const, airport: matched, airports };
   },
   head: ({ loaderData }) => {
