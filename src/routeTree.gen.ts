@@ -43,6 +43,7 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CoachHireRouteImport } from './routes/coach-hire'
 import { Route as BookingPolicyRouteImport } from './routes/booking-policy'
 import { Route as BookRouteImport } from './routes/book'
+import { Route as BecomeADriverRouteImport } from './routes/become-a-driver'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AccessibilityRouteImport } from './routes/accessibility'
 import { Route as AboutUsRouteImport } from './routes/about-us'
@@ -303,6 +304,11 @@ const BookingPolicyRoute = BookingPolicyRouteImport.update({
 const BookRoute = BookRouteImport.update({
   id: '/book',
   path: '/book',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BecomeADriverRoute = BecomeADriverRouteImport.update({
+  id: '/become-a-driver',
+  path: '/become-a-driver',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -808,6 +814,7 @@ export interface FileRoutesByFullPath {
   '/about-us': typeof AboutUsRoute
   '/accessibility': typeof AccessibilityRoute
   '/auth': typeof AuthRoute
+  '/become-a-driver': typeof BecomeADriverRoute
   '/book': typeof BookRouteWithChildren
   '/booking-policy': typeof BookingPolicyRoute
   '/coach-hire': typeof CoachHireRoute
@@ -934,6 +941,7 @@ export interface FileRoutesByTo {
   '/about-us': typeof AboutUsRoute
   '/accessibility': typeof AccessibilityRoute
   '/auth': typeof AuthRoute
+  '/become-a-driver': typeof BecomeADriverRoute
   '/booking-policy': typeof BookingPolicyRoute
   '/coach-hire': typeof CoachHireRoute
   '/contact': typeof ContactRoute
@@ -1060,6 +1068,7 @@ export interface FileRoutesById {
   '/about-us': typeof AboutUsRoute
   '/accessibility': typeof AccessibilityRoute
   '/auth': typeof AuthRoute
+  '/become-a-driver': typeof BecomeADriverRoute
   '/book': typeof BookRouteWithChildren
   '/booking-policy': typeof BookingPolicyRoute
   '/coach-hire': typeof CoachHireRoute
@@ -1188,6 +1197,7 @@ export interface FileRouteTypes {
     | '/about-us'
     | '/accessibility'
     | '/auth'
+    | '/become-a-driver'
     | '/book'
     | '/booking-policy'
     | '/coach-hire'
@@ -1314,6 +1324,7 @@ export interface FileRouteTypes {
     | '/about-us'
     | '/accessibility'
     | '/auth'
+    | '/become-a-driver'
     | '/booking-policy'
     | '/coach-hire'
     | '/contact'
@@ -1439,6 +1450,7 @@ export interface FileRouteTypes {
     | '/about-us'
     | '/accessibility'
     | '/auth'
+    | '/become-a-driver'
     | '/book'
     | '/booking-policy'
     | '/coach-hire'
@@ -1567,6 +1579,7 @@ export interface RootRouteChildren {
   AboutUsRoute: typeof AboutUsRoute
   AccessibilityRoute: typeof AccessibilityRoute
   AuthRoute: typeof AuthRoute
+  BecomeADriverRoute: typeof BecomeADriverRoute
   BookRoute: typeof BookRouteWithChildren
   BookingPolicyRoute: typeof BookingPolicyRoute
   CoachHireRoute: typeof CoachHireRoute
@@ -1885,6 +1898,13 @@ declare module '@tanstack/react-router' {
       path: '/book'
       fullPath: '/book'
       preLoaderRoute: typeof BookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/become-a-driver': {
+      id: '/become-a-driver'
+      path: '/become-a-driver'
+      fullPath: '/become-a-driver'
+      preLoaderRoute: typeof BecomeADriverRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -2696,6 +2716,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutUsRoute: AboutUsRoute,
   AccessibilityRoute: AccessibilityRoute,
   AuthRoute: AuthRoute,
+  BecomeADriverRoute: BecomeADriverRoute,
   BookRoute: BookRouteWithChildren,
   BookingPolicyRoute: BookingPolicyRoute,
   CoachHireRoute: CoachHireRoute,
