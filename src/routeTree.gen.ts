@@ -36,6 +36,7 @@ import { Route as DistanceRouteImport } from './routes/distance'
 import { Route as CruiseTransfersRouteImport } from './routes/cruise-transfers'
 import { Route as CorporateBookingRouteImport } from './routes/corporate-booking'
 import { Route as CookiesRouteImport } from './routes/cookies'
+import { Route as ContactUsRouteImport } from './routes/contact-us'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CoachHireRouteImport } from './routes/coach-hire'
 import { Route as BookingPolicyRouteImport } from './routes/booking-policy'
@@ -265,6 +266,11 @@ const CorporateBookingRoute = CorporateBookingRouteImport.update({
 const CookiesRoute = CookiesRouteImport.update({
   id: '/cookies',
   path: '/cookies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactUsRoute = ContactUsRouteImport.update({
+  id: '/contact-us',
+  path: '/contact-us',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -794,6 +800,7 @@ export interface FileRoutesByFullPath {
   '/booking-policy': typeof BookingPolicyRoute
   '/coach-hire': typeof CoachHireRoute
   '/contact': typeof ContactRoute
+  '/contact-us': typeof ContactUsRoute
   '/cookies': typeof CookiesRoute
   '/corporate-booking': typeof CorporateBookingRoute
   '/cruise-transfers': typeof CruiseTransfersRoute
@@ -916,6 +923,7 @@ export interface FileRoutesByTo {
   '/booking-policy': typeof BookingPolicyRoute
   '/coach-hire': typeof CoachHireRoute
   '/contact': typeof ContactRoute
+  '/contact-us': typeof ContactUsRoute
   '/cookies': typeof CookiesRoute
   '/corporate-booking': typeof CorporateBookingRoute
   '/cruise-transfers': typeof CruiseTransfersRoute
@@ -1040,6 +1048,7 @@ export interface FileRoutesById {
   '/booking-policy': typeof BookingPolicyRoute
   '/coach-hire': typeof CoachHireRoute
   '/contact': typeof ContactRoute
+  '/contact-us': typeof ContactUsRoute
   '/cookies': typeof CookiesRoute
   '/corporate-booking': typeof CorporateBookingRoute
   '/cruise-transfers': typeof CruiseTransfersRoute
@@ -1165,6 +1174,7 @@ export interface FileRouteTypes {
     | '/booking-policy'
     | '/coach-hire'
     | '/contact'
+    | '/contact-us'
     | '/cookies'
     | '/corporate-booking'
     | '/cruise-transfers'
@@ -1287,6 +1297,7 @@ export interface FileRouteTypes {
     | '/booking-policy'
     | '/coach-hire'
     | '/contact'
+    | '/contact-us'
     | '/cookies'
     | '/corporate-booking'
     | '/cruise-transfers'
@@ -1410,6 +1421,7 @@ export interface FileRouteTypes {
     | '/booking-policy'
     | '/coach-hire'
     | '/contact'
+    | '/contact-us'
     | '/cookies'
     | '/corporate-booking'
     | '/cruise-transfers'
@@ -1535,6 +1547,7 @@ export interface RootRouteChildren {
   BookingPolicyRoute: typeof BookingPolicyRoute
   CoachHireRoute: typeof CoachHireRoute
   ContactRoute: typeof ContactRoute
+  ContactUsRoute: typeof ContactUsRoute
   CookiesRoute: typeof CookiesRoute
   CorporateBookingRoute: typeof CorporateBookingRoute
   CruiseTransfersRoute: typeof CruiseTransfersRoute
@@ -1797,6 +1810,13 @@ declare module '@tanstack/react-router' {
       path: '/cookies'
       fullPath: '/cookies'
       preLoaderRoute: typeof CookiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact-us': {
+      id: '/contact-us'
+      path: '/contact-us'
+      fullPath: '/contact-us'
+      preLoaderRoute: typeof ContactUsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -2640,6 +2660,7 @@ const rootRouteChildren: RootRouteChildren = {
   BookingPolicyRoute: BookingPolicyRoute,
   CoachHireRoute: CoachHireRoute,
   ContactRoute: ContactRoute,
+  ContactUsRoute: ContactUsRoute,
   CookiesRoute: CookiesRoute,
   CorporateBookingRoute: CorporateBookingRoute,
   CruiseTransfersRoute: CruiseTransfersRoute,
