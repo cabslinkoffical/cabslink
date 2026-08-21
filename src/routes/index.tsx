@@ -152,13 +152,14 @@ const trustStats = [
 
 
 const serviceTiles = [
-  { name: "Airport", kicker: "Transport", img: svcAirportImg.url, to: "/airport-transfers", icon: Plane },
-  { name: "Cruiseport", kicker: "Transport", img: svcCruiseImg, to: "/cruise-transfers", icon: Compass },
-  { name: "Station", kicker: "Transport", img: svcStationImg.url, to: "/stations", icon: RouteIcon },
-  { name: "Corporate", kicker: "Transport", img: svcCorporateImg.url, to: "/corporate-travel", icon: Building2 },
-  { name: "Group", kicker: "Transport", img: svcGroupImg, to: "/group-transfers", icon: Users },
-  { name: "Sightseeing", kicker: "Transport", img: svcToursImg.url, to: "/tours", icon: Gem },
+  { name: "Airport Transfers", kicker: "Most booked", desc: "Flight-tracked pickups and meet & greet at every UK airport.", img: svcAirportImg.url, to: "/airport-transfers", icon: Plane },
+  { name: "Cruise Ports", kicker: "Embarkation", desc: "Timed port transfers with room for every case and trunk.", img: svcCruiseImg, to: "/cruise-transfers", icon: Compass },
+  { name: "Rail Stations", kicker: "City to city", desc: "Kerbside pickups at UK terminals, timed to your train.", img: svcStationImg.url, to: "/stations", icon: RouteIcon },
+  { name: "Corporate Travel", kicker: "Business", desc: "Account-managed journeys with invoicing and priority support.", img: svcCorporateImg.url, to: "/corporate-travel", icon: Building2 },
+  { name: "Group Travel", kicker: "5–55 seats", desc: "MPVs, minibuses and coaches planned as a single job.", img: svcGroupImg, to: "/group-transfers", icon: Users },
+  { name: "Private Tours", kicker: "Signature", desc: "Driver-led days across Scotland, entirely at your pace.", img: svcToursImg.url, to: "/tours", icon: Gem },
 ];
+
 
 
 
