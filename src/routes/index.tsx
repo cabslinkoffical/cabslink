@@ -14,6 +14,9 @@ import svcCorporateImg from "@/assets/services/corporate.jpg.asset.json";
 import svcToursImg from "@/assets/services/tours.jpg.asset.json";
 import svcSportsImg from "@/assets/services/sports.jpg";
 import svcGroupImg from "@/assets/services/group.jpg";
+import svcCruiseImg from "@/assets/services/cruise.jpg";
+import svcStationImg from "@/assets/services/station.jpg.asset.json";
+
 
 
 import { SiteLayout } from "@/components/site/SiteLayout";
