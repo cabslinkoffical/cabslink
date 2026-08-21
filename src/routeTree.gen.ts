@@ -22,6 +22,7 @@ import { Route as SearchRouteImport } from './routes/search'
 import { Route as ReviewsRouteImport } from './routes/reviews'
 import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as OurServicesRouteImport } from './routes/our-services'
 import { Route as MinibusHireRouteImport } from './routes/minibus-hire'
 import { Route as LongDistanceTransfersRouteImport } from './routes/long-distance-transfers'
 import { Route as ImageCreditsRouteImport } from './routes/image-credits'
@@ -196,6 +197,11 @@ const RefundPolicyRoute = RefundPolicyRouteImport.update({
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OurServicesRoute = OurServicesRouteImport.update({
+  id: '/our-services',
+  path: '/our-services',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MinibusHireRoute = MinibusHireRouteImport.update({
@@ -815,6 +821,7 @@ export interface FileRoutesByFullPath {
   '/image-credits': typeof ImageCreditsRoute
   '/long-distance-transfers': typeof LongDistanceTransfersRoute
   '/minibus-hire': typeof MinibusHireRoute
+  '/our-services': typeof OurServicesRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/reviews': typeof ReviewsRoute
@@ -938,6 +945,7 @@ export interface FileRoutesByTo {
   '/image-credits': typeof ImageCreditsRoute
   '/long-distance-transfers': typeof LongDistanceTransfersRoute
   '/minibus-hire': typeof MinibusHireRoute
+  '/our-services': typeof OurServicesRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/reviews': typeof ReviewsRoute
@@ -1063,6 +1071,7 @@ export interface FileRoutesById {
   '/image-credits': typeof ImageCreditsRoute
   '/long-distance-transfers': typeof LongDistanceTransfersRoute
   '/minibus-hire': typeof MinibusHireRoute
+  '/our-services': typeof OurServicesRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/reviews': typeof ReviewsRoute
@@ -1189,6 +1198,7 @@ export interface FileRouteTypes {
     | '/image-credits'
     | '/long-distance-transfers'
     | '/minibus-hire'
+    | '/our-services'
     | '/privacy'
     | '/refund-policy'
     | '/reviews'
@@ -1312,6 +1322,7 @@ export interface FileRouteTypes {
     | '/image-credits'
     | '/long-distance-transfers'
     | '/minibus-hire'
+    | '/our-services'
     | '/privacy'
     | '/refund-policy'
     | '/reviews'
@@ -1436,6 +1447,7 @@ export interface FileRouteTypes {
     | '/image-credits'
     | '/long-distance-transfers'
     | '/minibus-hire'
+    | '/our-services'
     | '/privacy'
     | '/refund-policy'
     | '/reviews'
@@ -1562,6 +1574,7 @@ export interface RootRouteChildren {
   ImageCreditsRoute: typeof ImageCreditsRoute
   LongDistanceTransfersRoute: typeof LongDistanceTransfersRoute
   MinibusHireRoute: typeof MinibusHireRoute
+  OurServicesRoute: typeof OurServicesRoute
   PrivacyRoute: typeof PrivacyRoute
   RefundPolicyRoute: typeof RefundPolicyRoute
   ReviewsRoute: typeof ReviewsRoute
@@ -1712,6 +1725,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/our-services': {
+      id: '/our-services'
+      path: '/our-services'
+      fullPath: '/our-services'
+      preLoaderRoute: typeof OurServicesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/minibus-hire': {
@@ -2675,6 +2695,7 @@ const rootRouteChildren: RootRouteChildren = {
   ImageCreditsRoute: ImageCreditsRoute,
   LongDistanceTransfersRoute: LongDistanceTransfersRoute,
   MinibusHireRoute: MinibusHireRoute,
+  OurServicesRoute: OurServicesRoute,
   PrivacyRoute: PrivacyRoute,
   RefundPolicyRoute: RefundPolicyRoute,
   ReviewsRoute: ReviewsRoute,
