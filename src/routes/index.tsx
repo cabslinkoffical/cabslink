@@ -520,87 +520,65 @@ function HomePage() {
             </div>
           </div>
 
-          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {services.map((s) => (
+          {/* Arch-cap service tiles */}
+          <div className="mt-12 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-6">
+            {serviceTiles.map((t) => (
               <Link
-                key={s.title}
-                to={s.to}
-                className="group relative flex h-full flex-col overflow-hidden rounded-3xl bg-white ring-1 ring-[var(--navy)]/8 shadow-raised transition-all duration-300 hover:-translate-y-1 hover:shadow-raised-hover hover:ring-[var(--gold)]/45"
+                key={t.name}
+                to={t.to}
+                className="group relative flex h-[300px] flex-col overflow-hidden rounded-2xl bg-[var(--navy)] shadow-raised transition-all duration-300 hover:-translate-y-1.5 hover:shadow-raised-hover sm:h-[360px] lg:h-[400px]"
               >
-                <div className="relative h-44 overflow-hidden">
-                  <img
-                    src={s.img}
-                    alt={s.title}
-                    width={800}
-                    height={520}
-                    loading="lazy"
-                    className="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-105"
+                {/* Navy cap with curved base */}
+                <div className="relative z-10 shrink-0 pt-6 pb-9 text-center sm:pt-7">
+                  <h3 className="font-display text-xl font-bold tracking-[-0.01em] text-[var(--gold)] sm:text-2xl">
+                    {t.name}
+                  </h3>
+                  <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-white/75">
+                    {t.kicker}
+                  </p>
+                  <span
+                    aria-hidden
+                    className="absolute inset-x-[-12%] bottom-[-28px] h-14 rounded-b-[100%] bg-[var(--navy)]"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[var(--navy)]/80 via-[var(--navy)]/20 to-transparent" />
-                  <span className="absolute left-5 top-5 rounded-full bg-[var(--gold)] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--navy)]">
-                    {s.eyebrow}
-                  </span>
-                  <span className="absolute bottom-4 left-5 grid size-11 place-items-center rounded-xl bg-white/12 text-[var(--gold)] backdrop-blur-sm">
-                    <s.icon className="size-5" />
-                  </span>
+                  <span
+                    aria-hidden
+                    className="absolute inset-x-[-12%] bottom-[-30px] h-14 rounded-b-[100%] border-b-2 border-[var(--gold)]/45"
+                  />
                 </div>
 
-                <div className="flex flex-1 flex-col p-6">
-                  <h3 className="font-display text-lg font-semibold leading-snug text-[var(--navy)]">
-                    {s.title}
-                  </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-[var(--navy)]/65 line-clamp-2">
-                    {s.desc}
-                  </p>
+                {/* Image */}
+                <div className="relative flex-1 overflow-hidden">
+                  <img
+                    src={t.img}
+                    alt={`${t.name} transport by Cabslink`}
+                    width={600}
+                    height={800}
+                    loading="lazy"
+                    className="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[var(--navy)]/85 via-[var(--navy)]/10 to-transparent" />
 
-                  <ul className="mt-4 flex flex-wrap gap-2">
-                    {s.chips.slice(0, 3).map((c) => (
-                      <li
-                        key={c}
-                        className="rounded-full border border-[var(--gold)]/30 bg-[var(--gold)]/10 px-2.5 py-1 text-[11px] font-semibold text-[var(--gold-ink)]"
-                      >
-                        {c}
-                      </li>
-                    ))}
-                  </ul>
-
-                  <span className="mt-auto pt-5">
-                    <span className="block h-px w-full bg-[var(--navy)]/8" />
-                    <span className="mt-4 flex items-center justify-between gap-3">
-                      <span className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--navy)] transition-all group-hover:gap-3 group-hover:text-[var(--gold-ink)]">
-                        Open service <ArrowRight className="size-4" />
-                      </span>
-                      <span className="text-xs font-semibold text-[var(--navy)]/45">
-                        {s.count} sub-services
-                      </span>
+                  <span className="absolute bottom-4 left-1/2 -translate-x-1/2 translate-y-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--gold)] px-4 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--navy)]">
+                      View <ArrowRight className="size-3.5" />
                     </span>
+                  </span>
+                  <span className="absolute bottom-4 left-1/2 -translate-x-1/2 grid size-9 place-items-center rounded-full bg-white/12 text-[var(--gold)] backdrop-blur-sm transition-opacity duration-300 group-hover:opacity-0">
+                    <t.icon className="size-4" />
                   </span>
                 </div>
               </Link>
             ))}
-
-            {/* Directory tile */}
-            <Link
-              to="/services"
-              className="group relative flex h-full min-h-[340px] flex-col justify-between overflow-hidden rounded-3xl border border-dashed border-[var(--navy)]/20 bg-white/60 p-6 transition-all duration-300 hover:-translate-y-1 hover:border-[var(--gold)] hover:bg-white sm:min-h-0"
-            >
-              <span className="grid size-12 place-items-center rounded-2xl bg-[var(--navy)] text-[var(--gold)]">
-                <ArrowRight className="size-5 transition-transform group-hover:translate-x-0.5" />
-              </span>
-              <span>
-                <h3 className="mt-5 font-display text-lg font-semibold leading-snug text-[var(--navy)]">
-                  Full service directory
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-[var(--navy)]/65">
-                  Cruise ports, hospitals, universities, sports, minibus and coach hire — see every
-                  journey we cover.
-                </p>
-                <span className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[var(--gold-ink)]">
-                  View all services <ArrowRight className="size-4" />
-                </span>
-              </span>
-            </Link>
           </div>
+
+          <div className="mt-8 flex justify-center">
+            <Button asChild size="lg" variant="outline" className="rounded-full border-[var(--navy)]/20">
+              <Link to="/services">
+                Full service directory <ArrowRight className="size-4" />
+              </Link>
+            </Button>
+          </div>
+
         </div>
       </section>
 
