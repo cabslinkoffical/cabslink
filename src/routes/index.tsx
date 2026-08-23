@@ -430,97 +430,60 @@ function HomePage() {
 
 
 
-      {/* SERVICES BENTO */}
-      <section className="relative overflow-hidden section-y bg-[var(--surface-2)]">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-[0.05]"
-          style={{
-            backgroundImage:
-              "radial-gradient(55% 60% at 100% 0%, var(--gold) 0%, transparent 70%), radial-gradient(45% 55% at 0% 100%, var(--navy) 0%, transparent 70%)",
-          }}
-        />
-        <div className="container-x relative">
-          <div className="grid lg:grid-cols-12 gap-8 lg:gap-10 items-end">
-            <div className="lg:col-span-7">
-              <div className="flex items-center gap-3">
-                <span aria-hidden className="h-px w-8 bg-[var(--gold)]" />
-                <p className="eyebrow-gold text-[11px]">Our Services</p>
-              </div>
-              <h2 className="mt-4 font-display text-4xl md:text-6xl font-bold leading-[1.02] tracking-[-0.02em] text-[var(--navy)]">
-                A complete travel <br className="hidden md:block" />
-                <span className="text-[var(--gold-ink)]">platform.</span>
-              </h2>
-            </div>
-            <div className="lg:col-span-5">
-              <p className="text-[var(--navy)]/70 leading-relaxed text-base md:text-lg">
-                From airport pickups to multi-day private tours — one trusted standard,
-                every journey. Every ride includes flight tracking, meet &amp; greet
-                and a professional Mercedes fleet.
-              </p>
-              <Link
-                to="/services"
-                className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[var(--navy)] transition-all hover:gap-3 hover:text-[var(--gold-ink)]"
-              >
-                Browse all services <ArrowRight className="size-4" />
-              </Link>
-            </div>
+      {/* SERVICES */}
+      <section className="section-y bg-background">
+        <div className="container-x">
+          <div className="max-w-2xl">
+            <p className="eyebrow-gold text-[11px]">Our services</p>
+            <h2 className="mt-3 font-display text-4xl font-semibold leading-tight text-foreground md:text-5xl">
+              Travel, made simple.
+            </h2>
+            <p className="mt-4 max-w-xl text-sm leading-7 text-muted-foreground md:text-base">
+              Reliable private travel for airport arrivals, business journeys, groups and tours.
+            </p>
           </div>
 
-          {/* Editorial service cards */}
-          <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+          <div className="mt-10 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
             {serviceTiles.map((t, i) => (
-              <Link
-                key={t.name}
-                to={t.to}
-                className={`group relative isolate flex flex-col justify-end overflow-hidden rounded-3xl bg-[var(--navy)] shadow-raised ring-1 ring-[var(--navy)]/10 transition-all duration-500 hover:-translate-y-1 hover:shadow-raised-hover ${
-                  i === 0 ? "min-h-[320px] sm:col-span-2 sm:min-h-[380px] lg:col-span-2" : "min-h-[300px] sm:min-h-[340px]"
-                }`}
-              >
-                <img
-                  src={t.img}
-                  alt={`${t.name} by Cabslink`}
-                  width={900}
-                  height={700}
-                  loading="lazy"
-                  className="absolute inset-0 -z-10 size-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.07]"
-                />
-                <div
-                  aria-hidden
-                  className="absolute inset-0 -z-10 bg-gradient-to-t from-[var(--navy)] via-[var(--navy)]/70 to-[var(--navy)]/10"
-                />
-
-                <span className="absolute left-5 top-5 inline-flex items-center gap-2 rounded-full border border-[var(--gold)]/40 bg-[var(--navy)]/55 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--gold)] backdrop-blur-sm">
-                  <t.icon className="size-3.5" />
-                  {t.kicker}
-                </span>
-
-                <div className="relative p-5 sm:p-6">
-                  <h3 className="font-display text-2xl font-bold leading-tight tracking-[-0.01em] text-white sm:text-[1.7rem]">
-                    {t.name}
-                  </h3>
-                  <span
-                    aria-hidden
-                    className="mt-3 block h-[2px] w-10 bg-[var(--gold)] transition-all duration-500 group-hover:w-20"
+              <Link key={t.name} to={t.to} className="group block min-w-0">
+                <div className="relative aspect-[4/3] overflow-hidden rounded-lg bg-muted">
+                  <img
+                    src={t.img}
+                    alt={`${t.name} by Cabslink`}
+                    width={900}
+                    height={675}
+                    loading="lazy"
+                    className="size-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.035]"
                   />
-                  <p className="mt-3 max-w-sm text-sm leading-relaxed text-white/70">{t.desc}</p>
-                  <span className="mt-4 inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--gold)] transition-all duration-300 group-hover:gap-3">
-                    Explore <ArrowRight className="size-3.5" />
+                  <span className="absolute left-0 top-0 flex size-10 items-center justify-center bg-primary text-xs font-semibold text-primary-foreground">
+                    {String(i + 1).padStart(2, "0")}
                   </span>
+                </div>
+
+                <div className="border-b border-border py-5 transition-colors duration-300 group-hover:border-accent">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0">
+                      <div className="mb-2 flex items-center gap-2 text-accent">
+                        <t.icon className="size-4 shrink-0" aria-hidden />
+                        <span className="text-[10px] font-semibold uppercase tracking-[0.18em]">{t.kicker}</span>
+                      </div>
+                      <h3 className="font-display text-xl font-semibold text-foreground md:text-2xl">{t.name}</h3>
+                    </div>
+                    <ArrowRight className="mt-1 size-5 shrink-0 text-foreground transition-transform duration-300 group-hover:translate-x-1" aria-hidden />
+                  </div>
+                  <p className="mt-3 text-sm leading-6 text-muted-foreground">{t.desc}</p>
                 </div>
               </Link>
             ))}
           </div>
 
-
-          <div className="mt-8 flex justify-center">
-            <Button asChild size="lg" variant="outline" className="rounded-full border-[var(--navy)]/20">
+          <div className="mt-10 border-t border-border pt-6">
+            <Button asChild variant="link" className="h-auto px-0 text-foreground hover:text-accent">
               <Link to="/services">
-                Full service directory <ArrowRight className="size-4" />
+                View all services <ArrowRight className="size-4" />
               </Link>
             </Button>
           </div>
-
         </div>
       </section>
 
