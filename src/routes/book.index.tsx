@@ -158,6 +158,21 @@ const emptyContact: Contact = {
   customer_name: "", email: "", phone: "", whatsapp: "", flight_number: "", notes: "",
 };
 
+/** Field-level messages so the passenger step can show what is actually wrong. */
+function contactErrors(c: Contact): Partial<Record<keyof Contact, string>> {
+  const e: Partial<Record<keyof Contact, string>> = {};
+  const name = c.customer_name.trim();
+  if (!name) e.customer_name = "Enter the lead passenger's full name.";
+  else if (name.length < 2) e.customer_name = "Name must be at least 2 characters.";
+  const email = c.email.trim();
+  if (!email) e.email = "Enter an email address so we can send your confirmation.";
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) e.email = "Enter a valid email address.";
+  const phone = c.phone.replace(/\s/g, "");
+  if (!phone) e.phone = "Enter a contact phone number.";
+  else if (phone.replace(/\D/g, "").length < 6) e.phone = "Enter a valid phone number.";
+  return e;
+}
+
 const contactSchema = z.object({
   customer_name: z.string().trim().min(2).max(100),
   email: z.string().trim().email().max(255),
@@ -189,6 +204,7 @@ function BookPage() {
   const [returnJourney, setReturnJourney] = useState(pre.ret);
   // Contact + payment
   const [contact, setContact] = useState<Contact>(emptyContact);
+  const [contactAttempted, setContactAttempted] = useState(false);
   const [payment, setPayment] = useState<PaymentMethod>("card_on_confirmation");
   const [submitting, setSubmitting] = useState(false);
   const inflight = useRef(false);
@@ -198,7 +214,9 @@ function BookPage() {
   const hasValidRoute = !!pre.pickup?.placeId && !!pre.dropoff?.placeId
     && pre.pickup.placeId !== pre.dropoff.placeId;
 
-  // Hydrate wizard from session-stored draft — one-shot, URL always wins.
+  // A saved draft is *offered*, never auto-applied: silently rewriting the URL
+  // meant a saved quote could replace the journey the customer just entered.
+  const [resumable, setResumable] = useState<Prefill | null>(null);
   useEffect(() => {
     if (didHydrateRef.current) return;
     didHydrateRef.current = true;
@@ -222,9 +240,9 @@ function BookPage() {
       templateSlug: "",
 
     };
-    if (next.pickup || next.dropoff) {
-      navigate({ search: { q: encodePrefill(next) }, replace: true });
-    }
+    // Drop drafts whose travel date has already passed.
+    if (next.date && next.date < new Date().toISOString().slice(0, 10)) { clearDraft(); return; }
+    if (next.pickup && next.dropoff) setResumable(next);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -505,7 +523,29 @@ function BookPage() {
 
         <div className="container-x relative">
           {!hasValidRoute ? (
-            <JourneyForm initial={pre} onSubmit={applyEdit} />
+            <>
+              {resumable && (
+                <div className="max-w-2xl mx-auto mb-4 rounded-2xl border border-[var(--gold)]/40 bg-[var(--gold)]/10 p-4 flex flex-wrap items-center gap-3">
+                  <p className="text-sm text-foreground flex-1 min-w-[14rem]">
+                    Continue your saved trip — <span className="font-semibold">{resumable.pickup?.label}</span> to{" "}
+                    <span className="font-semibold">{resumable.dropoff?.label}</span>?
+                  </p>
+                  <Button
+                    type="button"
+                    variant="gold"
+                    size="sm"
+                    onClick={() => { setResumable(null); navigate({ search: { q: encodePrefill(resumable) }, replace: true }); }}
+                  >
+                    Resume
+                  </Button>
+                  <Button type="button" variant="outline" size="sm" onClick={() => { setResumable(null); clearDraft(); }}>
+                    Start fresh
+                  </Button>
+                </div>
+              )}
+              <JourneyForm initial={pre} onSubmit={applyEdit} />
+            </>
+
 
           ) : (
             <>
@@ -545,10 +585,19 @@ function BookPage() {
                     <ContactStep
                       contact={contact}
                       onChange={setContact}
+                      attempted={contactAttempted}
                       onBack={() => setStep("vehicle")}
                       onNext={() => {
                         const parsed = contactSchema.safeParse(contact);
-                        if (!parsed.success) { toast.error("Please fill name, email and phone."); return; }
+                        if (!parsed.success) {
+                          setContactAttempted(true);
+                          toast.error("Check the highlighted passenger details.");
+                          const first = document.querySelector<HTMLElement>('[data-invalid="true"] input');
+                          first?.focus();
+                          first?.scrollIntoView({ block: "center", behavior: "smooth" });
+                          return;
+                        }
+                        setContactAttempted(false);
                         setStep("extras");
                       }}
                     />
@@ -712,7 +761,15 @@ function EditTripDialog({
   onSave: (next: Prefill) => void;
 }) {
   const [form, setForm] = useState<Prefill>(initial);
-  useMemo(() => { if (open) setForm(initial); }, [open, initial]);
+  // `initial` is rebuilt on every parent render, so keying this on the object
+  // identity used to schedule a render-phase setState on every render — an
+  // infinite loop that tore the dialog down as soon as it opened. Re-seed the
+  // form only on the open transition.
+  const initialRef = useRef(initial);
+  initialRef.current = initial;
+  useEffect(() => {
+    if (open) setForm(initialRef.current);
+  }, [open]);
   const set = <K extends keyof Prefill>(k: K, v: Prefill[K]) => setForm((f) => ({ ...f, [k]: v }));
 
   const canSave =
@@ -1356,11 +1413,13 @@ function Feature({ icon, children }: { icon: React.ReactNode; children: React.Re
 // ---------------------------------------------------------------
 // Step 02 — Passenger contact details (no extras, no submit)
 // ---------------------------------------------------------------
-function ContactStep({ contact, onChange, onBack, onNext }: {
+function ContactStep({ contact, onChange, onBack, onNext, attempted }: {
   contact: Contact; onChange: (c: Contact) => void;
-  onBack: () => void; onNext: () => void;
+  onBack: () => void; onNext: () => void; attempted: boolean;
 }) {
   const set = <K extends keyof Contact>(k: K, v: Contact[K]) => onChange({ ...contact, [k]: v });
+  const errors = contactErrors(contact);
+  const show = (k: keyof Contact) => (attempted ? errors[k] ?? "" : "");
   return (
     <div className="bg-card rounded-2xl border border-border shadow-sm p-6 md:p-8 space-y-6">
       <div>
@@ -1372,15 +1431,15 @@ function ContactStep({ contact, onChange, onBack, onNext }: {
       </div>
 
       <div className="grid sm:grid-cols-2 gap-4">
-        <Field label="Full name" icon={<User className="size-4" />}>
+        <Field label="Full name" icon={<User className="size-4" />} error={show("customer_name")}>
           <Input value={contact.customer_name} onChange={(e) => set("customer_name", e.target.value)} required maxLength={100} />
         </Field>
-        <Field label="Phone" icon={<Phone className="size-4" />}>
+        <Field label="Phone" icon={<Phone className="size-4" />} error={show("phone")}>
           <PhoneInput value={contact.phone} onChange={(v) => set("phone", v)} required />
         </Field>
       </div>
       <div className="grid sm:grid-cols-2 gap-4">
-        <Field label="Email" icon={<Mail className="size-4" />}>
+        <Field label="Email" icon={<Mail className="size-4" />} error={show("email")}>
           <Input type="email" value={contact.email} onChange={(e) => set("email", e.target.value)} required maxLength={255} />
         </Field>
         <Field label="WhatsApp number (optional)" icon={<MessageSquare className="size-4" />}>
@@ -1764,18 +1823,23 @@ function PaymentStep({ value, onChange, grandTotal, onBack, onSubmit, submitting
   );
 }
 
-function Field({ label, icon, children }: { label: string; icon?: React.ReactNode; children: React.ReactNode }) {
+function Field({ label, icon, children, error }: { label: string; icon?: React.ReactNode; children: React.ReactNode; error?: string }) {
   // Associate the visible label with its control so screen readers announce it.
   const autoId = useId();
-  const control = isValidElement<{ id?: string }>(children)
-    ? cloneElement(children, { id: children.props.id ?? autoId })
+  const errId = `${autoId}-error`;
+  const control = isValidElement<{ id?: string; "aria-invalid"?: boolean; "aria-describedby"?: string }>(children)
+    ? cloneElement(children, {
+        id: children.props.id ?? autoId,
+        ...(error ? { "aria-invalid": true, "aria-describedby": errId } : {}),
+      })
     : children;
   return (
-    <div>
+    <div data-invalid={error ? "true" : undefined} className={error ? "[&_input]:border-destructive [&_input]:ring-1 [&_input]:ring-destructive/40" : undefined}>
       <Label htmlFor={autoId} className="text-xs font-medium text-muted-foreground flex items-center gap-1.5 mb-1.5">
         {icon}{label}
       </Label>
       {control}
+      {error && <p id={errId} role="alert" className="mt-1.5 text-xs font-medium text-destructive">{error}</p>}
     </div>
   );
 }

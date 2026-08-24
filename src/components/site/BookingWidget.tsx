@@ -34,6 +34,25 @@ export function BookingWidget({
   const [attempted, setAttempted] = useState(false);
   const [paxOpen, setPaxOpen] = useState(false);
   const paxRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  // Values entered into the server-rendered form before React hydrates exist
+  // only in the DOM. Adopt them on mount so an early date/time pick is not
+  // silently reset once the page becomes interactive.
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    const fields: Array<[string, (v: string) => void]> = [
+      ["date", setDate],
+      ["time", setTime],
+      ["returnDate", setReturnDate],
+      ["returnTime", setReturnTime],
+    ];
+    for (const [name, set] of fields) {
+      const el = root.querySelector<HTMLInputElement>(`input[data-field="${name}"]`);
+      if (el?.value) set(el.value);
+    }
+  }, []);
 
   useEffect(() => {
     function onDoc(e: MouseEvent) {
@@ -131,7 +150,7 @@ export function BookingWidget({
 
 
   return (
-    <div className="@container w-full max-w-6xl mx-auto">
+    <div ref={rootRef} className="@container w-full max-w-6xl mx-auto">
       {/* Tabs above the pill */}
       <div className="flex items-center gap-0.5 mb-3 px-2 -mx-1 overflow-x-auto no-scrollbar @[420px]:gap-1 @[420px]:mx-0">
         <TabButton tone={tone} active={tab === "quote"} onClick={() => setTab("quote")} icon={<Car className="w-4 h-4" />}>
@@ -203,7 +222,7 @@ export function BookingWidget({
 
               <div className="border-t border-black/5 @[980px]:border-0" data-invalid={attempted && !!hourlyErrors.date}>
                 <FieldCell icon={<Calendar className="w-4 h-4 text-[var(--gold-ink)]" />} label="Date" compact invalid={attempted && !!hourlyErrors.date}>
-                  <input aria-label="Hourly hire date" required type="date" min={today} value={date} onChange={(e) => setDate(e.target.value)} className="w-full bg-transparent border-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)] text-sm font-semibold text-foreground" />
+                  <input data-field="date" aria-label="Hourly hire date" required type="date" min={today} value={date} onChange={(e) => setDate(e.target.value)} className="w-full bg-transparent border-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)] text-sm font-semibold text-foreground" />
                 </FieldCell>
               </div>
 
@@ -211,7 +230,7 @@ export function BookingWidget({
 
               <div className="border-t border-black/5 @[600px]:border-t-0 @[600px]:border-l @[600px]:border-black/5 @[980px]:border-l-0 @[980px]:border-0" data-invalid={attempted && !!hourlyErrors.time}>
                 <FieldCell icon={<Clock className="w-4 h-4 text-[var(--gold-ink)]" />} label="Start time" compact invalid={attempted && !!hourlyErrors.time}>
-                  <input aria-label="Hourly hire start time" required type="time" value={time} onChange={(e) => setTime(e.target.value)} className="w-full bg-transparent border-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)] text-sm font-semibold text-foreground" />
+                  <input data-field="time" aria-label="Hourly hire start time" required type="time" value={time} onChange={(e) => setTime(e.target.value)} className="w-full bg-transparent border-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)] text-sm font-semibold text-foreground" />
                 </FieldCell>
               </div>
 
@@ -336,6 +355,7 @@ export function BookingWidget({
             <div className="border-t border-black/5 @[980px]:border-0" data-invalid={attempted && !!errors.date}>
               <FieldCell icon={<Calendar className="w-4 h-4 text-[var(--gold-ink)]" />} label="Date" compact invalid={attempted && !!errors.date}>
                 <input
+                  data-field="date"
                   aria-label="Pickup date"
                   required
                   type="date"
@@ -353,6 +373,7 @@ export function BookingWidget({
             <div className="border-t border-black/5 @[600px]:border-t-0 @[600px]:border-l @[600px]:border-black/5 @[980px]:border-l-0 @[980px]:border-0" data-invalid={attempted && !!errors.time}>
               <FieldCell icon={<Clock className="w-4 h-4 text-[var(--gold-ink)]" />} label="Time" compact invalid={attempted && !!errors.time}>
                 <input
+                  data-field="time"
                   aria-label="Pickup time"
                   required
                   type="time"
@@ -491,7 +512,7 @@ export function BookingWidget({
                 <Calendar className="w-4 h-4 text-[var(--gold-ink)] shrink-0" />
                 <div className="min-w-0 flex-1">
                   <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/70">Date</div>
-                  <input aria-label="Return date" type="date" min={date || today} value={returnDate} onChange={(e) => setReturnDate(e.target.value)} className="w-full bg-transparent border-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)] text-sm font-semibold text-[var(--navy)]" />
+                  <input data-field="returnDate" aria-label="Return date" type="date" min={date || today} value={returnDate} onChange={(e) => setReturnDate(e.target.value)} className="w-full bg-transparent border-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)] text-sm font-semibold text-[var(--navy)]" />
                 </div>
               </div>
               <div
@@ -501,7 +522,7 @@ export function BookingWidget({
                 <Clock className="w-4 h-4 text-[var(--gold-ink)] shrink-0" />
                 <div className="min-w-0 flex-1">
                   <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/70">Time</div>
-                  <input aria-label="Return time" type="time" value={returnTime} onChange={(e) => setReturnTime(e.target.value)} className="w-full bg-transparent border-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)] text-sm font-semibold text-[var(--navy)]" />
+                  <input data-field="returnTime" aria-label="Return time" type="time" value={returnTime} onChange={(e) => setReturnTime(e.target.value)} className="w-full bg-transparent border-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)] text-sm font-semibold text-[var(--navy)]" />
                 </div>
               </div>
             </div>
