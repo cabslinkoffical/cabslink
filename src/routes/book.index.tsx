@@ -1407,15 +1407,15 @@ function ContactStep({ contact, onChange, onBack, onNext, attempted }: {
       </div>
 
       <div className="grid sm:grid-cols-2 gap-4">
-        <Field label="Full name" icon={<User className="size-4" />}>
+        <Field label="Full name" icon={<User className="size-4" />} error={show("customer_name")}>
           <Input value={contact.customer_name} onChange={(e) => set("customer_name", e.target.value)} required maxLength={100} />
         </Field>
-        <Field label="Phone" icon={<Phone className="size-4" />}>
+        <Field label="Phone" icon={<Phone className="size-4" />} error={show("phone")}>
           <PhoneInput value={contact.phone} onChange={(v) => set("phone", v)} required />
         </Field>
       </div>
       <div className="grid sm:grid-cols-2 gap-4">
-        <Field label="Email" icon={<Mail className="size-4" />}>
+        <Field label="Email" icon={<Mail className="size-4" />} error={show("email")}>
           <Input type="email" value={contact.email} onChange={(e) => set("email", e.target.value)} required maxLength={255} />
         </Field>
         <Field label="WhatsApp number (optional)" icon={<MessageSquare className="size-4" />}>
@@ -1799,18 +1799,23 @@ function PaymentStep({ value, onChange, grandTotal, onBack, onSubmit, submitting
   );
 }
 
-function Field({ label, icon, children }: { label: string; icon?: React.ReactNode; children: React.ReactNode }) {
+function Field({ label, icon, children, error }: { label: string; icon?: React.ReactNode; children: React.ReactNode; error?: string }) {
   // Associate the visible label with its control so screen readers announce it.
   const autoId = useId();
-  const control = isValidElement<{ id?: string }>(children)
-    ? cloneElement(children, { id: children.props.id ?? autoId })
+  const errId = `${autoId}-error`;
+  const control = isValidElement<{ id?: string; "aria-invalid"?: boolean; "aria-describedby"?: string }>(children)
+    ? cloneElement(children, {
+        id: children.props.id ?? autoId,
+        ...(error ? { "aria-invalid": true, "aria-describedby": errId } : {}),
+      })
     : children;
   return (
-    <div>
+    <div data-invalid={error ? "true" : undefined} className={error ? "[&_input]:border-destructive [&_input]:ring-1 [&_input]:ring-destructive/40" : undefined}>
       <Label htmlFor={autoId} className="text-xs font-medium text-muted-foreground flex items-center gap-1.5 mb-1.5">
         {icon}{label}
       </Label>
       {control}
+      {error && <p id={errId} role="alert" className="mt-1.5 text-xs font-medium text-destructive">{error}</p>}
     </div>
   );
 }
