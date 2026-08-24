@@ -6,6 +6,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
+import { SERVICE_REGISTRY } from "@/lib/seo/service-registry";
 
 function serverPublicClient() {
   const key = process.env.SUPABASE_PUBLISHABLE_KEY!;
@@ -70,11 +71,20 @@ export const getRelatedSeoLinks = createServerFn({ method: "GET" })
       .eq("published", true)
       .order("display_priority", { ascending: true })
       .limit(6);
-    bundle.services = (services ?? []).map((s: any) => ({
-      label: s.name,
-      href: `/services/${s.slug}`,
-      description: s.short_description ?? undefined,
-    }));
+    // `/services/:slug` is not a real route — resolve each service to its
+    // canonical top-level URL from the registry, and drop anything unknown so
+    // we never emit a link that 404s.
+    bundle.services = (services ?? []).flatMap((s: any) => {
+      const rec = SERVICE_REGISTRY.find(
+        (r) => r.slug === s.slug || r.id === s.slug || r.aliases.includes(String(s.slug ?? "").toLowerCase()),
+      );
+      if (!rec) return [];
+      return [{
+        label: s.name ?? rec.name,
+        href: rec.url,
+        description: s.short_description ?? undefined,
+      }];
+    });
 
     let center: { lat: number; lng: number } | null = null;
     let selfId: string = data.entityId;

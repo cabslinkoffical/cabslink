@@ -158,6 +158,21 @@ const emptyContact: Contact = {
   customer_name: "", email: "", phone: "", whatsapp: "", flight_number: "", notes: "",
 };
 
+/** Field-level messages so the passenger step can show what is actually wrong. */
+function contactErrors(c: Contact): Partial<Record<keyof Contact, string>> {
+  const e: Partial<Record<keyof Contact, string>> = {};
+  const name = c.customer_name.trim();
+  if (!name) e.customer_name = "Enter the lead passenger's full name.";
+  else if (name.length < 2) e.customer_name = "Name must be at least 2 characters.";
+  const email = c.email.trim();
+  if (!email) e.email = "Enter an email address so we can send your confirmation.";
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) e.email = "Enter a valid email address.";
+  const phone = c.phone.replace(/\s/g, "");
+  if (!phone) e.phone = "Enter a contact phone number.";
+  else if (phone.replace(/\D/g, "").length < 6) e.phone = "Enter a valid phone number.";
+  return e;
+}
+
 const contactSchema = z.object({
   customer_name: z.string().trim().min(2).max(100),
   email: z.string().trim().email().max(255),
@@ -712,7 +727,15 @@ function EditTripDialog({
   onSave: (next: Prefill) => void;
 }) {
   const [form, setForm] = useState<Prefill>(initial);
-  useMemo(() => { if (open) setForm(initial); }, [open, initial]);
+  // `initial` is rebuilt on every parent render, so keying this on the object
+  // identity used to schedule a render-phase setState on every render — an
+  // infinite loop that tore the dialog down as soon as it opened. Re-seed the
+  // form only on the open transition.
+  const initialRef = useRef(initial);
+  initialRef.current = initial;
+  useEffect(() => {
+    if (open) setForm(initialRef.current);
+  }, [open]);
   const set = <K extends keyof Prefill>(k: K, v: Prefill[K]) => setForm((f) => ({ ...f, [k]: v }));
 
   const canSave =
@@ -1356,11 +1379,13 @@ function Feature({ icon, children }: { icon: React.ReactNode; children: React.Re
 // ---------------------------------------------------------------
 // Step 02 — Passenger contact details (no extras, no submit)
 // ---------------------------------------------------------------
-function ContactStep({ contact, onChange, onBack, onNext }: {
+function ContactStep({ contact, onChange, onBack, onNext, attempted }: {
   contact: Contact; onChange: (c: Contact) => void;
-  onBack: () => void; onNext: () => void;
+  onBack: () => void; onNext: () => void; attempted: boolean;
 }) {
   const set = <K extends keyof Contact>(k: K, v: Contact[K]) => onChange({ ...contact, [k]: v });
+  const errors = contactErrors(contact);
+  const show = (k: keyof Contact) => (attempted ? errors[k] ?? "" : "");
   return (
     <div className="bg-card rounded-2xl border border-border shadow-sm p-6 md:p-8 space-y-6">
       <div>

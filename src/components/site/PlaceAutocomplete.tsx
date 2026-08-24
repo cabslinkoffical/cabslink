@@ -58,6 +58,7 @@ export function PlaceAutocomplete({
   const [loading, setLoading] = useState(false);
   const [activeIdx, setActiveIdx] = useState(-1);
   const wrapRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const sessionToken = useMemo(() => crypto.randomUUID(), []);
 
   const reqSeq = useRef(0);
@@ -69,6 +70,14 @@ export function PlaceAutocomplete({
   useEffect(() => {
     setText(value?.label ?? "");
   }, [value?.placeId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Text typed into the server-rendered input before hydration lives only in
+  // the DOM; React's first client render would otherwise wipe it. Adopt
+  // whatever the field already holds on mount.
+  useEffect(() => {
+    const dom = inputRef.current?.value;
+    if (dom) setText((t) => (t ? t : dom));
+  }, []);
 
   useEffect(() => {
     const raw = text.trim();
@@ -164,6 +173,7 @@ export function PlaceAutocomplete({
         )}
       />
       <Input
+        ref={inputRef}
         id={inputId}
         required={required}
         autoComplete="off"
