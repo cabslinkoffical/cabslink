@@ -34,12 +34,12 @@ export const Route = createFileRoute("/areas/region/$slug")({
   component: RegionPage,
   notFoundComponent: () => (
     <SiteLayout>
-      <main className="container-x py-24 text-center">
+      <section className="container-x py-24 text-center">
         <h1 className="text-3xl font-bold">Region not found</h1>
         <p className="mt-2 text-[var(--navy)]/70">
           Try the <Link to="/areas" className="underline">Locations directory</Link>.
         </p>
-      </main>
+      </section>
     </SiteLayout>
   ),
 });
