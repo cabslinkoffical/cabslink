@@ -560,10 +560,19 @@ function BookPage() {
                     <ContactStep
                       contact={contact}
                       onChange={setContact}
+                      attempted={contactAttempted}
                       onBack={() => setStep("vehicle")}
                       onNext={() => {
                         const parsed = contactSchema.safeParse(contact);
-                        if (!parsed.success) { toast.error("Please fill name, email and phone."); return; }
+                        if (!parsed.success) {
+                          setContactAttempted(true);
+                          toast.error("Check the highlighted passenger details.");
+                          const first = document.querySelector<HTMLElement>('[data-invalid="true"] input');
+                          first?.focus();
+                          first?.scrollIntoView({ block: "center", behavior: "smooth" });
+                          return;
+                        }
+                        setContactAttempted(false);
                         setStep("extras");
                       }}
                     />
