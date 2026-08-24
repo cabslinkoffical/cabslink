@@ -523,7 +523,29 @@ function BookPage() {
 
         <div className="container-x relative">
           {!hasValidRoute ? (
-            <JourneyForm initial={pre} onSubmit={applyEdit} />
+            <>
+              {resumable && (
+                <div className="max-w-2xl mx-auto mb-4 rounded-2xl border border-[var(--gold)]/40 bg-[var(--gold)]/10 p-4 flex flex-wrap items-center gap-3">
+                  <p className="text-sm text-foreground flex-1 min-w-[14rem]">
+                    Continue your saved trip — <span className="font-semibold">{resumable.pickup?.label}</span> to{" "}
+                    <span className="font-semibold">{resumable.dropoff?.label}</span>?
+                  </p>
+                  <Button
+                    type="button"
+                    variant="gold"
+                    size="sm"
+                    onClick={() => { setResumable(null); navigate({ search: { q: encodePrefill(resumable) }, replace: true }); }}
+                  >
+                    Resume
+                  </Button>
+                  <Button type="button" variant="outline" size="sm" onClick={() => { setResumable(null); clearDraft(); }}>
+                    Start fresh
+                  </Button>
+                </div>
+              )}
+              <JourneyForm initial={pre} onSubmit={applyEdit} />
+            </>
+
 
           ) : (
             <>
