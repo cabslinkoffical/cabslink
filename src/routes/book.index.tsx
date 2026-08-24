@@ -204,6 +204,7 @@ function BookPage() {
   const [returnJourney, setReturnJourney] = useState(pre.ret);
   // Contact + payment
   const [contact, setContact] = useState<Contact>(emptyContact);
+  const [contactAttempted, setContactAttempted] = useState(false);
   const [payment, setPayment] = useState<PaymentMethod>("card_on_confirmation");
   const [submitting, setSubmitting] = useState(false);
   const inflight = useRef(false);
