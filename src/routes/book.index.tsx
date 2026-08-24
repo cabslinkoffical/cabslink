@@ -214,7 +214,9 @@ function BookPage() {
   const hasValidRoute = !!pre.pickup?.placeId && !!pre.dropoff?.placeId
     && pre.pickup.placeId !== pre.dropoff.placeId;
 
-  // Hydrate wizard from session-stored draft — one-shot, URL always wins.
+  // A saved draft is *offered*, never auto-applied: silently rewriting the URL
+  // meant a saved quote could replace the journey the customer just entered.
+  const [resumable, setResumable] = useState<Prefill | null>(null);
   useEffect(() => {
     if (didHydrateRef.current) return;
     didHydrateRef.current = true;
@@ -238,9 +240,9 @@ function BookPage() {
       templateSlug: "",
 
     };
-    if (next.pickup || next.dropoff) {
-      navigate({ search: { q: encodePrefill(next) }, replace: true });
-    }
+    // Drop drafts whose travel date has already passed.
+    if (next.date && next.date < new Date().toISOString().slice(0, 10)) { clearDraft(); return; }
+    if (next.pickup && next.dropoff) setResumable(next);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
