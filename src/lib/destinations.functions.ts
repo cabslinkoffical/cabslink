@@ -6,6 +6,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
+import { SERVICE_REGISTRY } from "@/lib/seo/service-registry";
 
 function serverPublicClient() {
   const key = process.env.SUPABASE_PUBLISHABLE_KEY!;
@@ -66,6 +67,15 @@ const FIELDS =
 /** URL for a destination based on type + slug. */
 export function destinationHref(d: Pick<Destination, "type" | "slug">): string {
   const t = d.type;
+  // Services have no `/services/:slug` route — resolve to the canonical
+  // top-level service URL, falling back to the services hub.
+  if (t === "service") {
+    const slug = String(d.slug ?? "").toLowerCase();
+    const rec = SERVICE_REGISTRY.find(
+      (r) => r.slug === slug || r.id === slug || r.redirectFrom.includes(`/services/${slug}`),
+    );
+    return rec ? rec.url : "/services";
+  }
   const seg =
     t === "airport" ? "airports" :
     t === "route" ? "routes" :
@@ -78,13 +88,13 @@ export function destinationHref(d: Pick<Destination, "type" | "slug">): string {
     t === "attraction" ? "attractions" :
     t === "distillery" ? "distilleries" :
     t === "business_park" ? "corporate" :
-    t === "service" ? "services" :
     t === "guide" ? "guides" :
     t === "region" ? "areas" :
     t === "council" ? "areas" :
     "areas";
   return `/${seg}/${d.slug}`;
 }
+
 
 /** Get a single destination by type + slug. Returns null for missing / draft. */
 export const getDestination = createServerFn({ method: "GET" })
