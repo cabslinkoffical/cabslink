@@ -6,6 +6,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
+import { SERVICE_REGISTRY } from "@/lib/seo/service-registry";
 
 function serverPublicClient() {
   const key = process.env.SUPABASE_PUBLISHABLE_KEY!;
