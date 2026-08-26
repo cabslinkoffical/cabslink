@@ -1771,15 +1771,16 @@ function PaymentStep({ value, onChange, grandTotal, onBack, onSubmit, submitting
         </div>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-3" role="radiogroup" aria-label="Payment method">
         {options.map((o) => {
           const selected = value === o.id;
           return (
             <button key={o.id} type="button" onClick={() => onChange(o.id)}
+              role="radio" aria-checked={selected} tabIndex={selected ? 0 : -1}
               className={`w-full text-left rounded-2xl border-2 p-5 transition-all flex items-start gap-4 ${
                 selected ? "border-[var(--gold)] bg-[var(--gold)]/5" : "border-border bg-background hover:border-[var(--gold)]/40"
               }`}>
-              <span className={`size-10 rounded-xl grid place-items-center shrink-0 ${
+              <span aria-hidden="true" className={`size-10 rounded-xl grid place-items-center shrink-0 ${
                 selected ? "bg-[var(--gold)] text-[var(--gold-foreground)]" : "bg-[var(--surface)] text-foreground/70"
               }`}>{o.icon}</span>
               <div className="flex-1 min-w-0">
@@ -1793,7 +1794,7 @@ function PaymentStep({ value, onChange, grandTotal, onBack, onSubmit, submitting
                 </div>
                 <p className="text-sm text-muted-foreground mt-1">{o.body}</p>
               </div>
-              <span className={`size-5 mt-1 rounded-full border-2 grid place-items-center shrink-0 ${
+              <span aria-hidden="true" className={`size-5 mt-1 rounded-full border-2 grid place-items-center shrink-0 ${
                 selected ? "border-[var(--gold)]" : "border-muted-foreground/40"
               }`}>
                 {selected && <span className="size-2.5 rounded-full bg-[var(--gold)]" />}
@@ -1802,6 +1803,7 @@ function PaymentStep({ value, onChange, grandTotal, onBack, onSubmit, submitting
           );
         })}
       </div>
+
 
       <p className="text-xs text-muted-foreground">
         Submitting sends your journey to our team. Our office will confirm availability and payment
