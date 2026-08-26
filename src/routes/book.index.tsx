@@ -1182,9 +1182,9 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
       <div className="mb-6 flex items-end justify-between flex-wrap gap-3">
         <div>
           <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)]">Step 01 — Choose Your Class</p>
-          <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground mt-1">
+          <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground mt-1">
             Select a vehicle class · {pre.ret ? "Return" : "One Way"}
-          </h2>
+          </h1>
           <p className="text-sm text-muted-foreground mt-1">
             You're booking a vehicle class — the exact model is allocated by our dispatch team on the day.
           </p>
