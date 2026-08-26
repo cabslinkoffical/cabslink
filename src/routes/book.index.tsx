@@ -72,6 +72,9 @@ type Prefill = {
   rtime: string;
   mode: "quote" | "hourly";
   templateSlug: string;
+  /** Advertised text from a landing page — seeds the input, not a selection. */
+  pickupText: string;
+  dropoffText: string;
 };
 
 function decodeStops(raw: string): PrefillStop[] {
@@ -114,6 +117,8 @@ function readPrefill(q: string): Prefill {
     rtime: p.get("rtime") ?? "",
     mode: (p.get("mode") as "quote" | "hourly") ?? "quote",
     templateSlug: p.get("templateSlug") ?? "",
+    pickupText: p.get("pickupText") ?? pickupLabel,
+    dropoffText: p.get("dropoffText") ?? dropoffLabel,
   };
 }
 
@@ -137,6 +142,8 @@ function encodePrefill(pre: Prefill): string {
     if (pre.rtime) p.set("rtime", pre.rtime);
   }
   if (pre.templateSlug) p.set("templateSlug", pre.templateSlug);
+  if (!pre.pickup && pre.pickupText) p.set("pickupText", pre.pickupText);
+  if (!pre.dropoff && pre.dropoffText) p.set("dropoffText", pre.dropoffText);
   return p.toString();
 }
 
@@ -702,6 +709,7 @@ function JourneyForm({ initial, onSubmit }: { initial: Prefill; onSubmit: (next:
         <div className="grid gap-1.5">
           <Label htmlFor="jf-pickup">Pickup</Label>
           <PlaceAutocomplete id="jf-pickup" value={form.pickup} onChange={(v) => set("pickup", v)}
+            initialText={initial.pickupText}
             placeholder="Enter UK airport, postcode or address" iconClassName="left-3" inputClassName="pl-9" />
           {touched && !form.pickup?.placeId && (
             <p className="text-xs text-destructive">Choose a pickup location from the suggestions.</p>
@@ -710,6 +718,7 @@ function JourneyForm({ initial, onSubmit }: { initial: Prefill; onSubmit: (next:
         <div className="grid gap-1.5">
           <Label htmlFor="jf-dropoff">Destination</Label>
           <PlaceAutocomplete id="jf-dropoff" value={form.dropoff} onChange={(v) => set("dropoff", v)}
+            initialText={initial.dropoffText}
             placeholder="Enter UK destination" iconClassName="left-3" inputClassName="pl-9" />
           {touched && !form.dropoff?.placeId && (
             <p className="text-xs text-destructive">Choose a destination from the suggestions.</p>
