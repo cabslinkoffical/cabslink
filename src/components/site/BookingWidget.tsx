@@ -632,7 +632,7 @@ function StepperRow({
           className="w-10 text-center text-sm font-bold tabular-nums text-[var(--navy)] border-x border-border py-1.5"
           aria-live="polite"
         >
-          {value === null ? "—" : value}
+          {value === null ? (min === 0 ? 0 : "—") : value}
         </span>
         <button
           type="button"
