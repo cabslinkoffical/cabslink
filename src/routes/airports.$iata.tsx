@@ -77,8 +77,8 @@ export const Route = createFileRoute("/airports/$iata")({
   notFoundComponent: () => (
     <SiteLayout>
       <section className="container-x py-24 text-center">
-        <h1 className="text-3xl font-bold text-[var(--navy)]">Airport not published yet</h1>
-        <p className="mt-3 text-[var(--navy)]/70">We still cover this airport — get a fixed-fare quote in seconds.</p>
+        <h1 className="text-3xl font-bold text-[var(--navy)]">Page not found</h1>
+        <p className="mt-3 text-[var(--navy)]/70">We could not find this airport page. Browse all UK airports or get a fixed-fare quote in seconds.</p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <Link to="/book" className="rounded-full bg-[var(--gold)] px-6 py-3 font-semibold text-[var(--navy)]">Get an instant quote</Link>
           <Link to="/airports" className="rounded-full border border-[var(--navy)]/20 px-6 py-3 font-semibold text-[var(--navy)]">All UK airports</Link>
