@@ -15,6 +15,7 @@ import { SITE } from "@/lib/site";
 import { submitContactMessage } from "@/lib/contact.functions";
 import { useCaptcha } from "@/components/site/Captcha";
 import { PhoneInput } from "@/components/site/PhoneInput";
+import { contactPageSchema } from "@/components/seo/schema";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -28,6 +29,19 @@ export const Route = createFileRoute("/contact")({
       { property: "og:url", content: "https://cabslink.com/contact" },
     ],
     links: [{ rel: "canonical", href: "https://cabslink.com/contact" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify(
+          contactPageSchema({
+            url: "/contact",
+            email: SITE.email,
+            phones: [SITE.phoneUK, SITE.phoneUS],
+            address: SITE.address,
+          }),
+        ),
+      },
+    ],
   }),
   component: ContactPage,
 });

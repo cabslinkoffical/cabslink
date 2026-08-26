@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { listPublicVehicleClasses, type PublicVehicleClass } from "@/lib/vehicle-classes.functions";
 import { fleetImageFor } from "@/assets/fleet";
 import { supabase } from "@/integrations/supabase/client";
+import { collectionPageSchema } from "@/components/seo/schema";
 
 const fleetQuery = queryOptions({
   queryKey: ["public-vehicle-classes"],
@@ -40,6 +41,19 @@ export const Route = createFileRoute("/fleet")({
       { property: "og:url", content: "https://cabslink.com/fleet" },
     ],
     links: [{ rel: "canonical", href: "https://cabslink.com/fleet" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify(
+          collectionPageSchema({
+            name: "Cabslink Fleet — Vehicle Classes",
+            description: "Executive Saloons, Luxury Class, Premium MPVs, Vans and Coaches. Book by class with guaranteed allocation.",
+            url: "/fleet",
+            breadcrumbs: [{ name: "Home", url: "/" }, { name: "Fleet", url: "/fleet" }],
+          }),
+        ),
+      },
+    ],
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(fleetQuery),
   errorComponent: () => (
