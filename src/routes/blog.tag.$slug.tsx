@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
@@ -14,7 +14,13 @@ const q = (slug: string) =>
   });
 
 export const Route = createFileRoute("/blog/tag/$slug")({
-  loader: ({ params, context }) => context.queryClient.ensureQueryData(q(params.slug)),
+  loader: async ({ params, context }) => {
+    const data = await context.queryClient.ensureQueryData(q(params.slug));
+    // A tag with no published articles is not a real public page — 404 it so
+    // QA/orphan tags never become indexable thin pages.
+    if (!data.tag || data.posts.length === 0) throw notFound();
+    return data;
+  },
   head: ({ params, loaderData }) => {
     const tag = loaderData?.tag;
     const title = tag ? `#${tag.name} — Cabslink Blog` : "Tag — Cabslink Blog";
