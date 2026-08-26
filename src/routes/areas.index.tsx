@@ -12,6 +12,7 @@ import { CoverageMap } from "@/components/seo/CoverageMap";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
 import { exploreOverviewQuery } from "@/lib/explore.functions";
+import { collectionPageSchema } from "@/components/seo/schema";
 
 const TITLE = "Locations We Cover — UK Airport Transfers | Cabslink";
 const DESC =
@@ -29,6 +30,19 @@ export const Route = createFileRoute("/areas/")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: "https://cabslink.com/areas" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify(
+          collectionPageSchema({
+            name: TITLE,
+            description: DESC,
+            url: "/areas",
+            breadcrumbs: [{ name: "Home", url: "/" }, { name: "Locations", url: "/areas" }],
+          }),
+        ),
+      },
+    ],
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(exploreOverviewQuery()),
   component: LocationsPage,

@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
@@ -14,7 +14,12 @@ const q = (slug: string) =>
   });
 
 export const Route = createFileRoute("/blog/category/$slug")({
-  loader: ({ params, context }) => context.queryClient.ensureQueryData(q(params.slug)),
+  loader: async ({ params, context }) => {
+    const data = await context.queryClient.ensureQueryData(q(params.slug));
+    // Inactive or empty categories must not render a generic empty page.
+    if (!data.category || data.posts.length === 0) throw notFound();
+    return data;
+  },
   head: ({ params, loaderData }) => {
     const cat = loaderData?.category;
     const title = cat ? `${cat.seo_title ?? cat.name} — Cabslink Blog` : "Category — Cabslink Blog";

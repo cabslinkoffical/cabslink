@@ -42,6 +42,7 @@ import corporateImg from "@/assets/services/corporate.jpg.asset.json";
 import toursImg from "@/assets/services/tours.jpg.asset.json";
 import groupImg from "@/assets/services/group.jpg";
 import sportsImg from "@/assets/services/sports.jpg";
+import { collectionPageSchema } from "@/components/seo/schema";
 
 export const Route = createFileRoute("/services")({
   head: () => ({
@@ -55,6 +56,19 @@ export const Route = createFileRoute("/services")({
       { property: "og:url", content: "https://cabslink.com/services" },
     ],
     links: [{ rel: "canonical", href: "https://cabslink.com/services" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify(
+          collectionPageSchema({
+            name: "Cabslink Services",
+            description: "Airport, station and cruise transfers, golf and football travel, day tours, hourly hire, corporate accounts and group travel across the UK.",
+            url: "/services",
+            breadcrumbs: [{ name: "Home", url: "/" }, { name: "Services", url: "/services" }],
+          }),
+        ),
+      },
+    ],
   }),
   component: ServicesPage,
 });

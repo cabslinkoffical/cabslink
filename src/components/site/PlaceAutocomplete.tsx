@@ -20,6 +20,9 @@ type Props = {
   className?: string;
   iconClassName?: string;
   inputClassName?: string;
+  /** Seed the visible text (e.g. a route page's advertised origin) without
+   * claiming a selection — the user still picks a Google suggestion. */
+  initialText?: string;
 };
 
 const DEBOUNCE_MS = 250;
@@ -46,13 +49,14 @@ export function PlaceAutocomplete({
   className,
   iconClassName,
   inputClassName,
+  initialText,
 }: Props) {
   const autoId = useId();
   const inputId = id ?? autoId;
   const listboxId = `${inputId}-listbox`;
   const call = useServerFn(placesAutocomplete);
 
-  const [text, setText] = useState(value?.label ?? "");
+  const [text, setText] = useState(value?.label ?? initialText ?? "");
   const [suggestions, setSuggestions] = useState<PlaceSuggestion[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);

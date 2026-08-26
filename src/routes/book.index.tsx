@@ -72,6 +72,9 @@ type Prefill = {
   rtime: string;
   mode: "quote" | "hourly";
   templateSlug: string;
+  /** Advertised text from a landing page — seeds the input, not a selection. */
+  pickupText: string;
+  dropoffText: string;
 };
 
 function decodeStops(raw: string): PrefillStop[] {
@@ -114,6 +117,8 @@ function readPrefill(q: string): Prefill {
     rtime: p.get("rtime") ?? "",
     mode: (p.get("mode") as "quote" | "hourly") ?? "quote",
     templateSlug: p.get("templateSlug") ?? "",
+    pickupText: p.get("pickupText") ?? pickupLabel,
+    dropoffText: p.get("dropoffText") ?? dropoffLabel,
   };
 }
 
@@ -137,6 +142,8 @@ function encodePrefill(pre: Prefill): string {
     if (pre.rtime) p.set("rtime", pre.rtime);
   }
   if (pre.templateSlug) p.set("templateSlug", pre.templateSlug);
+  if (!pre.pickup && pre.pickupText) p.set("pickupText", pre.pickupText);
+  if (!pre.dropoff && pre.dropoffText) p.set("dropoffText", pre.dropoffText);
   return p.toString();
 }
 
@@ -702,6 +709,7 @@ function JourneyForm({ initial, onSubmit }: { initial: Prefill; onSubmit: (next:
         <div className="grid gap-1.5">
           <Label htmlFor="jf-pickup">Pickup</Label>
           <PlaceAutocomplete id="jf-pickup" value={form.pickup} onChange={(v) => set("pickup", v)}
+            initialText={initial.pickupText}
             placeholder="Enter UK airport, postcode or address" iconClassName="left-3" inputClassName="pl-9" />
           {touched && !form.pickup?.placeId && (
             <p className="text-xs text-destructive">Choose a pickup location from the suggestions.</p>
@@ -710,6 +718,7 @@ function JourneyForm({ initial, onSubmit }: { initial: Prefill; onSubmit: (next:
         <div className="grid gap-1.5">
           <Label htmlFor="jf-dropoff">Destination</Label>
           <PlaceAutocomplete id="jf-dropoff" value={form.dropoff} onChange={(v) => set("dropoff", v)}
+            initialText={initial.dropoffText}
             placeholder="Enter UK destination" iconClassName="left-3" inputClassName="pl-9" />
           {touched && !form.dropoff?.placeId && (
             <p className="text-xs text-destructive">Choose a destination from the suggestions.</p>
@@ -1182,9 +1191,9 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
       <div className="mb-6 flex items-end justify-between flex-wrap gap-3">
         <div>
           <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)]">Step 01 — Choose Your Class</p>
-          <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground mt-1">
+          <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground mt-1">
             Select a vehicle class · {pre.ret ? "Return" : "One Way"}
-          </h2>
+          </h1>
           <p className="text-sm text-muted-foreground mt-1">
             You're booking a vehicle class — the exact model is allocated by our dispatch team on the day.
           </p>
@@ -1771,15 +1780,16 @@ function PaymentStep({ value, onChange, grandTotal, onBack, onSubmit, submitting
         </div>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-3" role="radiogroup" aria-label="Payment method">
         {options.map((o) => {
           const selected = value === o.id;
           return (
             <button key={o.id} type="button" onClick={() => onChange(o.id)}
+              role="radio" aria-checked={selected} tabIndex={selected ? 0 : -1}
               className={`w-full text-left rounded-2xl border-2 p-5 transition-all flex items-start gap-4 ${
                 selected ? "border-[var(--gold)] bg-[var(--gold)]/5" : "border-border bg-background hover:border-[var(--gold)]/40"
               }`}>
-              <span className={`size-10 rounded-xl grid place-items-center shrink-0 ${
+              <span aria-hidden="true" className={`size-10 rounded-xl grid place-items-center shrink-0 ${
                 selected ? "bg-[var(--gold)] text-[var(--gold-foreground)]" : "bg-[var(--surface)] text-foreground/70"
               }`}>{o.icon}</span>
               <div className="flex-1 min-w-0">
@@ -1793,7 +1803,7 @@ function PaymentStep({ value, onChange, grandTotal, onBack, onSubmit, submitting
                 </div>
                 <p className="text-sm text-muted-foreground mt-1">{o.body}</p>
               </div>
-              <span className={`size-5 mt-1 rounded-full border-2 grid place-items-center shrink-0 ${
+              <span aria-hidden="true" className={`size-5 mt-1 rounded-full border-2 grid place-items-center shrink-0 ${
                 selected ? "border-[var(--gold)]" : "border-muted-foreground/40"
               }`}>
                 {selected && <span className="size-2.5 rounded-full bg-[var(--gold)]" />}
@@ -1802,6 +1812,7 @@ function PaymentStep({ value, onChange, grandTotal, onBack, onSubmit, submitting
           );
         })}
       </div>
+
 
       <p className="text-xs text-muted-foreground">
         Submitting sends your journey to our team. Our office will confirm availability and payment

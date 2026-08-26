@@ -4,6 +4,7 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
 import { BlogPostCard } from "@/components/site/BlogPostCard";
 import { listBlogHome } from "@/lib/blog.functions";
+import { collectionPageSchema } from "@/components/seo/schema";
 
 const BASE = "https://cabslink.com";
 
@@ -24,6 +25,19 @@ export const Route = createFileRoute("/blog/")({
       { property: "og:url", content: `${BASE}/blog` },
     ],
     links: [{ rel: "canonical", href: `${BASE}/blog` }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify(
+          collectionPageSchema({
+            name: "Cabslink Blog — Travel Guides & Airport Transfer Tips",
+            description: "Expert guides on UK airport transfers, Scotland day tours, executive travel and city guides.",
+            url: "/blog",
+            breadcrumbs: [{ name: "Home", url: "/" }, { name: "Blog", url: "/blog" }],
+          }),
+        ),
+      },
+    ],
   }),
   component: BlogHome,
 });
