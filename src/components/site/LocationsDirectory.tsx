@@ -20,6 +20,24 @@ const directoryToursQuery = queryOptions({
 
 type Item = { key: string; label: string; meta?: string; to: string };
 
+/**
+ * Static fallbacks so all three columns render on every page, including the
+ * server-rendered HTML before the live location/tour queries resolve.
+ */
+const FALLBACK_LOCATIONS: Item[] = [
+  { key: "edinburgh", label: "Edinburgh", meta: "Lothian", to: "/areas/edinburgh" },
+  { key: "glasgow", label: "Glasgow", meta: "Strathclyde", to: "/areas/glasgow" },
+  { key: "aberdeen", label: "Aberdeen", meta: "Aberdeenshire", to: "/areas/aberdeen" },
+  { key: "inverness", label: "Inverness", meta: "Highlands", to: "/areas/inverness" },
+];
+
+const FALLBACK_TOURS: Item[] = [
+  { key: "loch-ness-and-the-highlands", label: "Loch Ness & the Highlands", meta: "Full day", to: "/tours" },
+  { key: "st-andrews-and-fife-coast", label: "St Andrews & the Fife Coast", meta: "Full day", to: "/tours" },
+  { key: "loch-lomond-and-the-trossachs", label: "Loch Lomond & the Trossachs", meta: "Half day", to: "/tours" },
+  { key: "speyside-whisky-trail", label: "Speyside Whisky Trail", meta: "Full day", to: "/tours" },
+];
+
 function DirectoryColumn({
   title,
   items,
