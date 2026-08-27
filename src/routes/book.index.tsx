@@ -220,8 +220,11 @@ function BookPage() {
   const idempotencyKey = useRef<string>(crypto.randomUUID());
   const didHydrateRef = useRef(false);
 
+  // Date and time are part of a valid journey: without them the quote step is
+  // not shown, so nothing is ever priced against a guessed date.
   const hasValidRoute = !!pre.pickup?.placeId && !!pre.dropoff?.placeId
-    && pre.pickup.placeId !== pre.dropoff.placeId;
+    && pre.pickup.placeId !== pre.dropoff.placeId
+    && !!pre.date && !!pre.time;
 
   // A saved draft is *offered*, never auto-applied: silently rewriting the URL
   // meant a saved quote could replace the journey the customer just entered.
