@@ -15,6 +15,11 @@ const ORIGIN = "https://cabslink.com";
 
 export function JourneyPage({ content: c }: { content: JourneyContent }) {
   const pair = `${c.from.name} to ${c.to.name}`;
+  // Carry the advertised journey into the booking form so the customer does
+  // not have to retype the route this page is about.
+  const bookSearch = {
+    q: new URLSearchParams({ pickupText: c.from.name, dropoffText: c.to.name }).toString(),
+  };
 
   return (
     <SiteLayout>
