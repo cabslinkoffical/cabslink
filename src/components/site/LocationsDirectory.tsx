@@ -109,7 +109,9 @@ export function LocationsDirectory({
 
   const locationItems = useMemo<Item[]>(
     () =>
-      [...cities]
+      cities.length === 0
+        ? FALLBACK_LOCATIONS.slice(0, limit)
+        : [...cities]
         .sort((a, b) => (a.seo_tier ?? 9) - (b.seo_tier ?? 9) || a.name.localeCompare(b.name))
         .slice(0, limit)
         .map((d) => ({
