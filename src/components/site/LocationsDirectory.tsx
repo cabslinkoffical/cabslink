@@ -135,6 +135,7 @@ export function LocationsDirectory({
   );
 
   const tourItems = useMemo<Item[]>(() => {
+    if (tours.length === 0) return FALLBACK_TOURS.slice(0, limit);
     const sorted = [...tours].sort(
       (a, b) => Number(b.featured) - Number(a.featured) || a.name.localeCompare(b.name),
     );
