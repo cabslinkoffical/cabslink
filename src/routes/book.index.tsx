@@ -108,8 +108,10 @@ function readPrefill(q: string): Prefill {
     pickup: pickupId && pickupLabel ? { placeId: pickupId, label: pickupLabel } : null,
     dropoff: dropoffId && dropoffLabel ? { placeId: dropoffId, label: dropoffLabel } : null,
     stops: decodeStops(p.get("stops") ?? ""),
-    date: p.get("date") ?? new Date().toISOString().slice(0, 10),
-    time: p.get("time") ?? "12:00",
+    // Never invent a date/time: a silent default meant the quote could be
+    // priced for a different day than the customer chose.
+    date: p.get("date") ?? "",
+    time: p.get("time") ?? "",
     passengers: Math.max(1, Number(p.get("passengers")) || 1),
     luggage: Math.max(0, Number(p.get("luggage")) || 0),
     ret: p.get("ret") === "1",
