@@ -247,7 +247,8 @@ function BookPage() {
       rtime: d.returnJourney?.time ?? "",
       mode: "quote",
       templateSlug: "",
-
+      pickupText: d.pickupLabel ?? "",
+      dropoffText: d.dropoffLabel ?? "",
     };
     // Drop drafts whose travel date has already passed.
     if (next.date && next.date < new Date().toISOString().slice(0, 10)) { clearDraft(); return; }
