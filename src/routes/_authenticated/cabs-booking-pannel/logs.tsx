@@ -12,7 +12,17 @@ import { Search, ChevronRight, ChevronDown } from "lucide-react";
 import { PageHeader, EmptyState } from "@/components/admin/ui";
 import { toast } from "sonner";
 
-const ENTITIES = ["bookings", "vehicles", "drivers", "coupons", "addresses", "payments", "pricing_rules", "hourly_rates", "surcharges", "content_blocks", "site_settings"];
+const ENTITIES = [
+  "bookings", "vehicles", "vehicle_classes", "vehicle_models", "vehicle_pricing_profiles",
+  "vehicle_mileage_tiers", "extras", "extra_vehicle_classes", "drivers", "coupons", "addresses",
+  "payments", "pricing_rules", "pricing_modifiers", "location_pricing_rules", "discount_rules",
+  "hourly_rates", "surcharges", "availability_rules", "content_blocks", "site_settings",
+  "blog_posts", "blog_categories", "blog_tags", "blog_authors",
+  "seo_pages", "seo_page_sections", "seo_locations", "seo_airports", "seo_services",
+  "seo_popular_routes", "seo_redirects", "destinations", "destination_seo",
+  "points_of_interest", "scenic_route_templates", "scenic_route_template_pois",
+  "notification_templates", "banned_addresses",
+];
 
 export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/logs")({
   head: () => ({

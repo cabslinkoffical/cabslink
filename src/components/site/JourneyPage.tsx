@@ -15,6 +15,11 @@ const ORIGIN = "https://cabslink.com";
 
 export function JourneyPage({ content: c }: { content: JourneyContent }) {
   const pair = `${c.from.name} to ${c.to.name}`;
+  // Carry the advertised journey into the booking form so the customer does
+  // not have to retype the route this page is about.
+  const bookSearch = {
+    q: new URLSearchParams({ pickupText: c.from.name, dropoffText: c.to.name }).toString(),
+  };
 
   return (
     <SiteLayout>
@@ -46,7 +51,7 @@ export function JourneyPage({ content: c }: { content: JourneyContent }) {
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button asChild variant="gold" className="rounded-lg">
-                <Link to="/book">
+                <Link to="/book" search={bookSearch}>
                   Book this journey <ArrowRight className="size-4" />
                 </Link>
               </Button>
@@ -190,7 +195,7 @@ export function JourneyPage({ content: c }: { content: JourneyContent }) {
           </div>
           <div className="mt-10 flex flex-wrap gap-3">
             <Button asChild variant="gold" className="rounded-lg">
-              <Link to="/book">Get a quote</Link>
+              <Link to="/book" search={bookSearch}>Get a quote</Link>
             </Button>
             <Button asChild variant="outline" className="rounded-lg">
               <a href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}>

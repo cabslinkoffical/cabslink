@@ -108,8 +108,10 @@ function readPrefill(q: string): Prefill {
     pickup: pickupId && pickupLabel ? { placeId: pickupId, label: pickupLabel } : null,
     dropoff: dropoffId && dropoffLabel ? { placeId: dropoffId, label: dropoffLabel } : null,
     stops: decodeStops(p.get("stops") ?? ""),
-    date: p.get("date") ?? new Date().toISOString().slice(0, 10),
-    time: p.get("time") ?? "12:00",
+    // Never invent a date/time: a silent default meant the quote could be
+    // priced for a different day than the customer chose.
+    date: p.get("date") ?? "",
+    time: p.get("time") ?? "",
     passengers: Math.max(1, Number(p.get("passengers")) || 1),
     luggage: Math.max(0, Number(p.get("luggage")) || 0),
     ret: p.get("ret") === "1",
@@ -218,8 +220,11 @@ function BookPage() {
   const idempotencyKey = useRef<string>(crypto.randomUUID());
   const didHydrateRef = useRef(false);
 
+  // Date and time are part of a valid journey: without them the quote step is
+  // not shown, so nothing is ever priced against a guessed date.
   const hasValidRoute = !!pre.pickup?.placeId && !!pre.dropoff?.placeId
-    && pre.pickup.placeId !== pre.dropoff.placeId;
+    && pre.pickup.placeId !== pre.dropoff.placeId
+    && !!pre.date && !!pre.time;
 
   // A saved draft is *offered*, never auto-applied: silently rewriting the URL
   // meant a saved quote could replace the journey the customer just entered.
@@ -236,8 +241,8 @@ function BookPage() {
       pickup: d.pickupPlaceId && d.pickupLabel ? { placeId: d.pickupPlaceId, label: d.pickupLabel } : null,
       dropoff: d.dropoffPlaceId && d.dropoffLabel ? { placeId: d.dropoffPlaceId, label: d.dropoffLabel } : null,
       stops: (d.stops ?? []).flatMap((s) => (s.placeId && s.label ? [{ placeId: s.placeId, label: s.label }] : [])),
-      date: d.date ?? new Date().toISOString().slice(0, 10),
-      time: d.time ?? "12:00",
+      date: d.date ?? "",
+      time: d.time ?? "",
       passengers: d.passengers ?? 1,
       luggage: d.luggage ?? 0,
       ret: d.returnJourney?.enabled ?? false,
@@ -245,7 +250,8 @@ function BookPage() {
       rtime: d.returnJourney?.time ?? "",
       mode: "quote",
       templateSlug: "",
-
+      pickupText: d.pickupLabel ?? "",
+      dropoffText: d.dropoffLabel ?? "",
     };
     // Drop drafts whose travel date has already passed.
     if (next.date && next.date < new Date().toISOString().slice(0, 10)) { clearDraft(); return; }
