@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   LayoutDashboard, CalendarCheck, MapPin, Ban, Car, Tag, UserCog, Users,
   CreditCard, Ticket, FileText, BarChart3, Shield, Settings as SettingsIcon, History,
-  LogOut, ExternalLink, Sun, Moon, Menu, X, Inbox, Gauge, Percent,
+  LogOut, ExternalLink, Sun, Moon, Menu, X, Inbox, Gauge,
   Plane, Plus, Wrench, Route as RouteIcon, ArrowLeftRight, Globe, UploadCloud,
 } from "lucide-react";
 import { SidebarNav, type SidebarEntry } from "@/components/admin/SidebarNav";
