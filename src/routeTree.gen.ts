@@ -102,7 +102,6 @@ import { Route as AreasRegionSlugRouteImport } from './routes/areas.region.$slug
 import { Route as AreasALetterRouteImport } from './routes/areas.a.$letter'
 import { Route as AuthenticatedCabsBookingPannelUsersRouteImport } from './routes/_authenticated/cabs-booking-pannel/users'
 import { Route as AuthenticatedCabsBookingPannelTourSettingsRouteImport } from './routes/_authenticated/cabs-booking-pannel/tour-settings'
-import { Route as AuthenticatedCabsBookingPannelSurchargesRouteImport } from './routes/_authenticated/cabs-booking-pannel/surcharges'
 import { Route as AuthenticatedCabsBookingPannelSettingsRouteImport } from './routes/_authenticated/cabs-booking-pannel/settings'
 import { Route as AuthenticatedCabsBookingPannelScenicRoutesRouteImport } from './routes/_authenticated/cabs-booking-pannel/scenic-routes'
 import { Route as AuthenticatedCabsBookingPannelReportsRouteImport } from './routes/_authenticated/cabs-booking-pannel/reports'
@@ -609,12 +608,6 @@ const AuthenticatedCabsBookingPannelTourSettingsRoute =
     path: '/tour-settings',
     getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
-const AuthenticatedCabsBookingPannelSurchargesRoute =
-  AuthenticatedCabsBookingPannelSurchargesRouteImport.update({
-    id: '/surcharges',
-    path: '/surcharges',
-    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
-  } as any)
 const AuthenticatedCabsBookingPannelSettingsRoute =
   AuthenticatedCabsBookingPannelSettingsRouteImport.update({
     id: '/settings',
@@ -922,7 +915,6 @@ export interface FileRoutesByFullPath {
   '/cabs-booking-pannel/reports': typeof AuthenticatedCabsBookingPannelReportsRoute
   '/cabs-booking-pannel/scenic-routes': typeof AuthenticatedCabsBookingPannelScenicRoutesRoute
   '/cabs-booking-pannel/settings': typeof AuthenticatedCabsBookingPannelSettingsRoute
-  '/cabs-booking-pannel/surcharges': typeof AuthenticatedCabsBookingPannelSurchargesRoute
   '/cabs-booking-pannel/tour-settings': typeof AuthenticatedCabsBookingPannelTourSettingsRoute
   '/cabs-booking-pannel/users': typeof AuthenticatedCabsBookingPannelUsersRoute
   '/areas/a/$letter': typeof AreasALetterRoute
@@ -1049,7 +1041,6 @@ export interface FileRoutesByTo {
   '/cabs-booking-pannel/reports': typeof AuthenticatedCabsBookingPannelReportsRoute
   '/cabs-booking-pannel/scenic-routes': typeof AuthenticatedCabsBookingPannelScenicRoutesRoute
   '/cabs-booking-pannel/settings': typeof AuthenticatedCabsBookingPannelSettingsRoute
-  '/cabs-booking-pannel/surcharges': typeof AuthenticatedCabsBookingPannelSurchargesRoute
   '/cabs-booking-pannel/tour-settings': typeof AuthenticatedCabsBookingPannelTourSettingsRoute
   '/cabs-booking-pannel/users': typeof AuthenticatedCabsBookingPannelUsersRoute
   '/areas/a/$letter': typeof AreasALetterRoute
@@ -1180,7 +1171,6 @@ export interface FileRoutesById {
   '/_authenticated/cabs-booking-pannel/reports': typeof AuthenticatedCabsBookingPannelReportsRoute
   '/_authenticated/cabs-booking-pannel/scenic-routes': typeof AuthenticatedCabsBookingPannelScenicRoutesRoute
   '/_authenticated/cabs-booking-pannel/settings': typeof AuthenticatedCabsBookingPannelSettingsRoute
-  '/_authenticated/cabs-booking-pannel/surcharges': typeof AuthenticatedCabsBookingPannelSurchargesRoute
   '/_authenticated/cabs-booking-pannel/tour-settings': typeof AuthenticatedCabsBookingPannelTourSettingsRoute
   '/_authenticated/cabs-booking-pannel/users': typeof AuthenticatedCabsBookingPannelUsersRoute
   '/areas/a/$letter': typeof AreasALetterRoute
@@ -1311,7 +1301,6 @@ export interface FileRouteTypes {
     | '/cabs-booking-pannel/reports'
     | '/cabs-booking-pannel/scenic-routes'
     | '/cabs-booking-pannel/settings'
-    | '/cabs-booking-pannel/surcharges'
     | '/cabs-booking-pannel/tour-settings'
     | '/cabs-booking-pannel/users'
     | '/areas/a/$letter'
@@ -1438,7 +1427,6 @@ export interface FileRouteTypes {
     | '/cabs-booking-pannel/reports'
     | '/cabs-booking-pannel/scenic-routes'
     | '/cabs-booking-pannel/settings'
-    | '/cabs-booking-pannel/surcharges'
     | '/cabs-booking-pannel/tour-settings'
     | '/cabs-booking-pannel/users'
     | '/areas/a/$letter'
@@ -1568,7 +1556,6 @@ export interface FileRouteTypes {
     | '/_authenticated/cabs-booking-pannel/reports'
     | '/_authenticated/cabs-booking-pannel/scenic-routes'
     | '/_authenticated/cabs-booking-pannel/settings'
-    | '/_authenticated/cabs-booking-pannel/surcharges'
     | '/_authenticated/cabs-booking-pannel/tour-settings'
     | '/_authenticated/cabs-booking-pannel/users'
     | '/areas/a/$letter'
@@ -2339,13 +2326,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCabsBookingPannelTourSettingsRouteImport
       parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
-    '/_authenticated/cabs-booking-pannel/surcharges': {
-      id: '/_authenticated/cabs-booking-pannel/surcharges'
-      path: '/surcharges'
-      fullPath: '/cabs-booking-pannel/surcharges'
-      preLoaderRoute: typeof AuthenticatedCabsBookingPannelSurchargesRouteImport
-      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
-    }
     '/_authenticated/cabs-booking-pannel/settings': {
       id: '/_authenticated/cabs-booking-pannel/settings'
       path: '/settings'
@@ -2619,7 +2599,6 @@ interface AuthenticatedCabsBookingPannelRouteRouteChildren {
   AuthenticatedCabsBookingPannelReportsRoute: typeof AuthenticatedCabsBookingPannelReportsRoute
   AuthenticatedCabsBookingPannelScenicRoutesRoute: typeof AuthenticatedCabsBookingPannelScenicRoutesRoute
   AuthenticatedCabsBookingPannelSettingsRoute: typeof AuthenticatedCabsBookingPannelSettingsRoute
-  AuthenticatedCabsBookingPannelSurchargesRoute: typeof AuthenticatedCabsBookingPannelSurchargesRoute
   AuthenticatedCabsBookingPannelTourSettingsRoute: typeof AuthenticatedCabsBookingPannelTourSettingsRoute
   AuthenticatedCabsBookingPannelUsersRoute: typeof AuthenticatedCabsBookingPannelUsersRoute
   AuthenticatedCabsBookingPannelIndexRoute: typeof AuthenticatedCabsBookingPannelIndexRoute
@@ -2676,8 +2655,6 @@ const AuthenticatedCabsBookingPannelRouteRouteChildren: AuthenticatedCabsBooking
       AuthenticatedCabsBookingPannelScenicRoutesRoute,
     AuthenticatedCabsBookingPannelSettingsRoute:
       AuthenticatedCabsBookingPannelSettingsRoute,
-    AuthenticatedCabsBookingPannelSurchargesRoute:
-      AuthenticatedCabsBookingPannelSurchargesRoute,
     AuthenticatedCabsBookingPannelTourSettingsRoute:
       AuthenticatedCabsBookingPannelTourSettingsRoute,
     AuthenticatedCabsBookingPannelUsersRoute:
