@@ -772,62 +772,6 @@ export const deletePricingRule = createServerFn({ method: "POST" })
 
 
 // =================================================================
-// Phase 2: Surcharges
-// =================================================================
-export const listSurcharges = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    await assertAdmin(context);
-    const { data, error } = await context.supabase.from("surcharges").select("*, vehicle:vehicles(id, name)").order("created_at", { ascending: false });
-    if (error) throw new Error(error.message);
-    return data ?? [];
-  });
-
-const surchargeSchema = z.object({
-  id: z.string().uuid().optional(),
-  name: z.string().min(1).max(120),
-  charge_type: z.enum(["fixed", "percent"]).default("fixed"),
-  amount: z.number().min(0),
-  applies_to: z.enum(["all", "vehicle", "time_window", "date_range"]).default("all"),
-  vehicle_id: z.string().uuid().nullable().optional(),
-  starts_at: z.string().nullable().optional(),
-  ends_at: z.string().nullable().optional(),
-  days_of_week: z.array(z.number().int().min(0).max(6)).nullable().optional(),
-  time_from: z.string().nullable().optional(),
-  time_to: z.string().nullable().optional(),
-  notes: z.string().max(1000).nullable().optional(),
-  active: z.boolean().default(true),
-});
-
-export const upsertSurcharge = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => surchargeSchema.parse(i))
-  .handler(async ({ data, context }) => {
-    await assertAdmin(context);
-    const payload: any = { ...data, starts_at: data.starts_at || null, ends_at: data.ends_at || null, time_from: data.time_from || null, time_to: data.time_to || null };
-    if (data.id) {
-      const { id, ...patch } = payload;
-      const { error } = await context.supabase.from("surcharges").update(patch).eq("id", id);
-      if (error) throw new Error(error.message);
-    } else {
-      const { error } = await context.supabase.from("surcharges").insert(payload);
-      if (error) throw new Error(error.message);
-    }
-    return { ok: true };
-  });
-
-export const deleteSurcharge = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
-  .handler(async ({ data, context }) => {
-    await assertAdmin(context);
-    const { error } = await context.supabase.from("surcharges").delete().eq("id", data.id);
-    if (error) throw new Error(error.message);
-    return { ok: true };
-  });
-
-
-// =================================================================
 // Phase 2: Reports
 // =================================================================
 const reportInput = z.object({

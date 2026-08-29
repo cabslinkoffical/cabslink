@@ -9,7 +9,6 @@ const LABELS: Record<string, string> = {
   "vehicle-classes": "Vehicle Classes",
   "pricing-schemes": "Pricing Schemes",
   extras: "Extras",
-  surcharges: "Surcharges",
   coupons: "Coupons",
   availability: "Availability Rules",
   drivers: "Drivers",
