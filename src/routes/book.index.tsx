@@ -1081,7 +1081,7 @@ function Sidebar({ pre, onEdit, onStartAgain, route, price }: {
               <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-1">
                 <CalendarDays className="size-3 text-[var(--gold-ink)]" /> Date
               </p>
-              <p className="text-sm font-semibold text-foreground mt-0.5">{pre.date || "—"}</p>
+              <p className="text-sm font-semibold text-foreground mt-0.5">{formatTripDate(pre.date)}</p>
             </div>
             <div>
               <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-1">
