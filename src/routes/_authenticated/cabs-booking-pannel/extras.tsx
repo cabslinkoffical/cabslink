@@ -100,7 +100,7 @@ function ExtrasPage() {
           class_ids: f.applies_to_all_classes ? [] : f.class_ids,
         },
       }),
-    onSuccess: async () => { await refresh(); toast.success("Extra saved"); setForm(null); },
+    onSuccess: () => { setForm(null); toast.success("Extra saved"); void refresh(); },
     onError: (e: any) => toast.error(e?.message ?? "Save failed"),
   });
 
