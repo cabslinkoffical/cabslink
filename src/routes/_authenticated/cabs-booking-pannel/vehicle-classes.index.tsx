@@ -116,7 +116,11 @@ function VehicleClassesPage() {
                     <span>{c.passengers} passengers · {c.large_luggage + c.cabin_bags} bags</span>
                     <span>{modelCount(c.id)} models</span>
                     <span>
-                      {profile ? `From £${Number(profile.base_price).toFixed(2)} · ${(profile.tiers ?? []).length} mileage tiers` : "Pricing not set"}
+                      {profile
+                        ? `From £${Number(profile.base_price).toFixed(2)} · ${(profile.tiers ?? []).length} mileage tiers`
+                        : c.quote_on_request
+                          ? "Priced on request"
+                          : "Add pricing"}
                     </span>
                   </div>
                 </div>
