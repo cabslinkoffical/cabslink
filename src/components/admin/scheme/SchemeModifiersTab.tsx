@@ -30,11 +30,12 @@ type Draft = {
   stackable: boolean;
   notes: string;
   active: boolean;
+  allClasses: boolean;
 };
 
 const empty: Draft = {
   name: "", type: "percent", value: 10, dateFrom: "", dateTo: "", days: [],
-  timeFrom: "", timeTo: "", services: [], priority: 100, stackable: true, notes: "", active: true,
+  timeFrom: "", timeTo: "", services: [], priority: 100, stackable: true, notes: "", active: true, allClasses: false,
 };
 
 export function SchemeModifiersTab({ classId, modifiers }: { classId: string; modifiers: any[] }) {
@@ -60,6 +61,7 @@ export function SchemeModifiersTab({ classId, modifiers }: { classId: string; mo
         data: {
           id: draft.id,
           classId,
+          all_classes: draft.allClasses,
           name: draft.name.trim(),
           modifier_type: draft.type,
           value: draft.value,
@@ -90,7 +92,7 @@ export function SchemeModifiersTab({ classId, modifiers }: { classId: string; mo
     <div className="space-y-6 max-w-5xl">
       <SchemeSection
         title={draft.id ? "Edit modifier" : "Add modifier"}
-        hint="Date, day, time and service-type uplifts. Percentages are sized against the pre-tax subtotal."
+        hint="The one place for surcharges and uplifts: date, day, time and service-type rules. Percentages are sized against the pre-tax subtotal."
       >
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Modifier name">
@@ -176,6 +178,15 @@ export function SchemeModifiersTab({ classId, modifiers }: { classId: string; mo
               <Switch checked={draft.active} onCheckedChange={(v) => set("active", v)} />
               <span className="text-sm">Active</span>
             </div>
+            <div className="flex items-center gap-3 rounded-lg border border-border px-3 py-2 sm:col-span-2">
+              <Switch checked={draft.allClasses} onCheckedChange={(v) => set("allClasses", v)} />
+              <span className="text-sm">
+                Applies to every vehicle class
+                <span className="block text-xs text-muted-foreground">
+                  Use this for global surcharges such as late-night or holiday uplifts.
+                </span>
+              </span>
+            </div>
           </div>
         </div>
 
@@ -198,7 +209,8 @@ export function SchemeModifiersTab({ classId, modifiers }: { classId: string; mo
       <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
         <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border px-5 py-4">
           <div>
-          <h3 className="font-display text-base font-semibold">Modifiers in this scheme</h3>
+          <h3 className="font-display text-base font-semibold">Modifiers &amp; surcharges</h3>
+            <p className="mt-0.5 text-xs text-muted-foreground">This class plus any rule that applies to every class.</p>
                     </div>
           <BulkTools entity="pricing_modifiers" label="Bulk CSV" onChanged={invalidate} />
 </div>
@@ -225,6 +237,7 @@ export function SchemeModifiersTab({ classId, modifiers }: { classId: string; mo
                     stackable: m.stackable !== false,
                     notes: m.notes ?? "",
                     active: !!m.active,
+                    allClasses: !m.vehicle_class_id,
                   })}
                 >
                   <p className="truncate text-sm font-medium">{m.name}</p>
@@ -234,6 +247,7 @@ export function SchemeModifiersTab({ classId, modifiers }: { classId: string; mo
                     {Array.isArray(m.days_of_week) && m.days_of_week.length > 0 && ` · ${m.days_of_week.map((d: number) => DAYS[d]).join(", ")}`}
                     {m.time_from && ` · ${String(m.time_from).slice(0, 5)}–${String(m.time_to ?? "").slice(0, 5)}`}
                     {` · priority ${Number(m.priority ?? 100)}`}
+                    {!m.vehicle_class_id && " · all vehicle classes"}
                   </p>
                 </button>
                 <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${m.active ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"}`}>
