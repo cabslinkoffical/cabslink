@@ -1087,7 +1087,7 @@ function Sidebar({ pre, onEdit, onStartAgain, route, price }: {
               <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-1">
                 <Clock className="size-3 text-[var(--gold-ink)]" /> Time
               </p>
-              <p className="text-sm font-semibold text-foreground mt-0.5">{pre.time || "—"}</p>
+              <p className="text-sm font-semibold text-foreground mt-0.5">{formatTripTime(pre.time)}</p>
             </div>
           </div>
         </div>
@@ -1117,6 +1117,23 @@ function Sidebar({ pre, onEdit, onStartAgain, route, price }: {
   );
 }
 
+
+function formatTripDate(iso?: string) {
+  if (!iso) return "—";
+  const d = new Date(`${iso}T00:00:00`);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+}
+
+function formatTripTime(hhmm?: string) {
+  if (!hhmm) return "—";
+  const [h, m] = hhmm.split(":");
+  const hour = Number(h);
+  if (!Number.isFinite(hour)) return hhmm;
+  const suffix = hour < 12 ? "am" : "pm";
+  const display = hour % 12 === 0 ? 12 : hour % 12;
+  return `${display}:${(m ?? "00").padStart(2, "0")} ${suffix}`;
+}
 
 function TourConversionBanner({ from, to, reason, acked, onAck }: {
   from: string; to: string; reason: string; acked: boolean; onAck: () => void;
