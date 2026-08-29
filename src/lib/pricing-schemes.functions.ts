@@ -105,7 +105,7 @@ export const getPricingScheme = createServerFn({ method: "GET" })
         : Promise.resolve({ data: null, error: null } as any),
       context.supabase.from("pricing_rules").select("*").eq("vehicle_class_id", data.classId).order("priority", { ascending: false }),
       context.supabase.from("location_pricing_rules").select("*").eq("vehicle_class_id", data.classId).order("priority", { ascending: false }),
-      context.supabase.from("pricing_modifiers").select("*").eq("vehicle_class_id", data.classId).order("priority", { ascending: false }),
+      context.supabase.from("pricing_modifiers").select("*").or(`vehicle_class_id.eq.${data.classId},vehicle_class_id.is.null`).order("priority", { ascending: false }),
       context.supabase.from("discount_rules").select("*").contains("vehicle_class_ids", [data.classId]).order("priority", { ascending: false }),
       vehicleId
         ? context.supabase.from("hourly_rates").select("*").eq("vehicle_id", vehicleId).maybeSingle()
@@ -498,6 +498,7 @@ export const deleteSchemeDiscount = createServerFn({ method: "POST" })
 const modifierSchema = z.object({
   id: uuid.optional(),
   classId: uuid,
+  all_classes: z.boolean().default(false),
   name: z.string().trim().min(2).max(160),
   modifier_type: z.enum(["percent", "fixed"]).default("percent"),
   value: z.coerce.number().min(-100_000).max(100_000),
@@ -522,7 +523,7 @@ export const upsertSchemeModifier = createServerFn({ method: "POST" })
       throw new Error("The end date must be on or after the start date.");
     }
     const payload: any = {
-      vehicle_class_id: data.classId,
+      vehicle_class_id: data.all_classes ? null : data.classId,
       name: data.name,
       modifier_type: data.modifier_type,
       value: data.value,
