@@ -13,7 +13,6 @@ import {
   matchTourByRoute, corridorPoiOptions, searchPoiOptions, type PoiOption,
 } from "@/lib/custom-tour.functions";
 import { cn } from "@/lib/utils";
-import { track } from "@/lib/tracking";
 
 type BuilderStop = {
   placeId: string;
@@ -114,7 +113,6 @@ export function CustomTourBuilder() {
         source: "tour" as const,
       })),
     );
-    track("custom_tour_matched", { slug: m.tour.slug, direction: m.kind });
   }, [routeKey, routeReady, matchQuery.data, prefilledFor]);
 
   // A changed route pair invalidates a previously matched template.
@@ -172,7 +170,6 @@ export function CustomTourBuilder() {
             },
           ],
     );
-    track("custom_tour_stop_added", { poi: p.slug, source });
   };
 
   const addManual = () => {
@@ -188,7 +185,6 @@ export function CustomTourBuilder() {
         : [...prev, { placeId: manualStop.placeId, label: manualStop.label, minutes: 30, source: "manual" }],
     );
     setManualStop(null);
-    track("custom_tour_stop_added", { poi: "manual", source: "manual" });
   };
 
   const removeStop = (placeId: string) =>
@@ -240,7 +236,6 @@ export function CustomTourBuilder() {
       );
     }
     if (matchedSlug) p.set("templateSlug", matchedSlug);
-    track("custom_tour_continue", { stops: stops.length, matched: matchedSlug || "none" });
     navigate({ to: "/book", search: { q: p.toString() } });
   };
 
