@@ -199,7 +199,7 @@ function ToursPage() {
         primaryLabel="Book now"
         secondaryLabel="Talk to us"
         secondaryTo="/contact"
-        tone="navy"
+        tone="gold"
       />
 
       <section className="section-y bg-[var(--surface)]/60">

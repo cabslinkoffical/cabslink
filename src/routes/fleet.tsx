@@ -299,6 +299,7 @@ function FleetPage() {
         eyebrow="Guaranteed allocation"
         title="Book the class that fits your journey"
         subtitle="Choose a vehicle class and we allocate the model — or a complimentary upgrade."
+        tone="gold"
       />
     </SiteLayout>
   );
