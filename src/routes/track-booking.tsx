@@ -14,9 +14,9 @@ export const Route = createFileRoute("/track-booking")({
   head: () => ({
     meta: [
       { title: `Track your booking — ${SITE.name}` },
-      { name: "description", content: "Find your Cabslink booking status using your booking reference and email or phone number." },
+      { name: "description", content: "Find your Cabslink booking status using your booking reference." },
       { property: "og:title", content: `Track your booking — ${SITE.name}` },
-      { property: "og:description", content: "Find your Cabslink booking status using your booking reference and email or phone number." },
+      { property: "og:description", content: "Find your Cabslink booking status using your booking reference." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
