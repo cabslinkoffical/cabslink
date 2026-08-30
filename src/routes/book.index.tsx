@@ -940,6 +940,58 @@ function EditTripDialog({
             <PlaceAutocomplete id="edit-dropoff" value={form.dropoff} onChange={(v) => set("dropoff", v)}
               placeholder="Enter UK destination" iconClassName="left-3" inputClassName="pl-9" />
           </div>
+
+          {/* Stops along the way */}
+          {form.stops.map((s, i) => (
+            <div key={i} className="grid gap-1.5">
+              <div className="flex items-center justify-between">
+                <Label htmlFor={`edit-stop-${i}`}>Stop {i + 1}</Label>
+                <button type="button" className="text-xs text-muted-foreground hover:text-destructive"
+                  onClick={() => set("stops", form.stops.filter((_, idx) => idx !== i))}>
+                  Remove
+                </button>
+              </div>
+              <PlaceAutocomplete id={`edit-stop-${i}`} value={s.placeId ? { placeId: s.placeId, label: s.label } : null}
+                onChange={(v) => {
+                  const next = [...form.stops];
+                  next[i] = v ? { ...next[i], placeId: v.placeId, label: v.label } : { placeId: "", label: "" };
+                  set("stops", next);
+                }}
+                placeholder="Add a stop on the way" iconClassName="left-3" inputClassName="pl-9" />
+            </div>
+          ))}
+          <div className="flex flex-wrap gap-2">
+            <button type="button"
+              className="inline-flex items-center gap-1.5 rounded-full border border-[var(--gold)]/40 px-3 py-1.5 text-xs font-semibold text-[var(--gold-ink)] hover:bg-[var(--gold)]/10 transition"
+              onClick={() => set("stops", [...form.stops, { placeId: "", label: "" }])}>
+              <Plus className="size-3.5" /> Add stop
+            </button>
+            {!form.ret ? (
+              <button type="button"
+                className="inline-flex items-center gap-1.5 rounded-full border border-[var(--gold)]/40 px-3 py-1.5 text-xs font-semibold text-[var(--gold-ink)] hover:bg-[var(--gold)]/10 transition"
+                onClick={() => setForm((f) => ({ ...f, ret: true, rdate: f.rdate || f.date, rtime: f.rtime || f.time }))}>
+                <Repeat className="size-3.5" /> Add return
+              </button>
+            ) : (
+              <button type="button"
+                className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:text-destructive transition"
+                onClick={() => setForm((f) => ({ ...f, ret: false, rdate: "", rtime: "" }))}>
+                <X className="size-3.5" /> Remove return
+              </button>
+            )}
+          </div>
+          {form.ret && (
+            <div className="grid grid-cols-2 gap-3 rounded-xl border border-[var(--gold)]/30 bg-[var(--gold)]/5 p-3">
+              <div className="grid gap-1.5">
+                <Label htmlFor="edit-rdate">Return date</Label>
+                <Input id="edit-rdate" type="date" min={form.date} value={form.rdate} onChange={(e) => set("rdate", e.target.value)} />
+              </div>
+              <div className="grid gap-1.5">
+                <Label htmlFor="edit-rtime">Return time</Label>
+                <Input id="edit-rtime" type="time" value={form.rtime} onChange={(e) => set("rtime", e.target.value)} />
+              </div>
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-3">
             <div className="grid gap-1.5">
               <Label htmlFor="edit-date">Date</Label>
