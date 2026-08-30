@@ -152,11 +152,11 @@ function TrackBookingPage() {
                   <Fact icon={<Mail className="size-3" />} label="Email" value={result.customerEmail} />
                 </dl>
 
-                {result.notes && (
-                  <div className="rounded-lg bg-muted px-4 py-3 text-sm">
-                    <span className="font-semibold">Notes: </span>{result.notes}
-                  </div>
-                )}
+                <p className="text-xs text-muted-foreground">
+                  For privacy, contact details and full addresses are partly hidden here. Open the secure link in your
+                  confirmation email for complete booking details.
+                </p>
+
 
                 <div className="flex flex-wrap gap-3 pt-2">
                   <Button asChild variant="outline"><Link to="/">Back to home</Link></Button>
