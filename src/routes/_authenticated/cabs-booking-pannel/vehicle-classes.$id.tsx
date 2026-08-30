@@ -1,48 +1,33 @@
 import { createFileRoute, Link, useNavigate, useParams } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { queryOptions, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { ArrowLeft, Loader2, Plus, Trash2, X } from "lucide-react";
+import { ArrowLeft, Loader2, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StatusBadge } from "@/components/admin/ui";
-import { emptyPricing, ExtrasEditor, HeroImageUploader, MileageEditor, type PricingForm } from "@/components/admin/PricingEditors";
+import { HeroImageUploader } from "@/components/admin/PricingEditors";
 import {
   listVehicleClassesAdmin, upsertVehicleClass, upsertVehicleModel, deleteVehicleModel,
   ensureClassPricingRecord,
 } from "@/lib/vehicle-classes.functions";
-import { listVehiclesAdmin } from "@/lib/admin.functions";
-import { adminListPricingProfiles, adminSavePricingProfile } from "@/lib/pricing.functions";
-import { adminListHourlyRates, adminSaveHourlyRate } from "@/lib/hourly.functions";
-import { listAvailabilityRules, upsertAvailabilityRule, deleteAvailabilityRule } from "@/lib/pricing-admin.functions";
 
 const classOpts = queryOptions({ queryKey: ["admin", "vehicle-classes"], queryFn: () => listVehicleClassesAdmin() });
-const vehicleOpts = queryOptions({ queryKey: ["admin", "vehicles"], queryFn: () => listVehiclesAdmin() });
-const profileOpts = queryOptions({ queryKey: ["pricing-profiles"], queryFn: () => adminListPricingProfiles() });
-const hourlyOpts = queryOptions({ queryKey: ["admin", "hourly-rates"], queryFn: () => adminListHourlyRates() });
-const availOpts = queryOptions({ queryKey: ["admin", "availability-rules"], queryFn: () => listAvailabilityRules() });
 
 export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/vehicle-classes/$id")({
   head: () => ({
     meta: [
       { title: "Edit Vehicle Class — Cabslink Admin" },
-      { name: "description", content: "Cabslink staff console: edit a vehicle class, its pricing and availability in one place." },
+      { name: "description", content: "Cabslink staff console: edit a vehicle class, its models and listing details." },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
-  loader: ({ context }) => Promise.all([
-    context.queryClient.ensureQueryData(classOpts),
-    context.queryClient.ensureQueryData(vehicleOpts),
-    context.queryClient.ensureQueryData(profileOpts),
-    context.queryClient.ensureQueryData(hourlyOpts),
-    context.queryClient.ensureQueryData(availOpts),
-  ]),
+  loader: ({ context }) => context.queryClient.ensureQueryData(classOpts),
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
   component: EditorPage,
 });
@@ -74,19 +59,11 @@ function EditorPage() {
   const qc = useQueryClient();
 
   const { data: classData } = useSuspenseQuery(classOpts);
-  const { data: vehicles } = useSuspenseQuery(vehicleOpts);
-  const { data: profileData } = useSuspenseQuery(profileOpts);
-  const { data: hourlyRows } = useSuspenseQuery(hourlyOpts);
-  const { data: availRules } = useSuspenseQuery(availOpts);
 
   const saveClassFn = useServerFn(upsertVehicleClass);
   const ensurePricingFn = useServerFn(ensureClassPricingRecord);
-  const savePricingFn = useServerFn(adminSavePricingProfile);
-  const saveHourlyFn = useServerFn(adminSaveHourlyRate);
   const saveModelFn = useServerFn(upsertVehicleModel);
   const delModelFn = useServerFn(deleteVehicleModel);
-  const saveRuleFn = useServerFn(upsertAvailabilityRule);
-  const delRuleFn = useServerFn(deleteAvailabilityRule);
 
   const existing = useMemo(
     () => (classData.classes as any[]).find((c) => c.id === id) ?? null,
@@ -95,51 +72,11 @@ function EditorPage() {
 
   const [form, setForm] = useState<any>(() =>
     isNew ? { ...emptyClass } : { ...emptyClass, ...(existing ?? {}), recommended_for: existing?.recommended_for ?? {} });
-  const [pricing, setPricing] = useState<PricingForm>(emptyPricing);
-  const [hourly, setHourly] = useState({ pricePerHour: 0, minHours: 3, maxHours: 12, active: false });
   const [saving, setSaving] = useState(false);
-
-  const linkedVehicleId: string | null = form.pricing_vehicle_id ?? null;
-  const profiles: any[] = (profileData as any)?.profiles ?? [];
-
-  // Hydrate pricing + hourly for the linked representative vehicle.
-  useEffect(() => {
-    if (!linkedVehicleId) { setPricing(emptyPricing); return; }
-    const p = profiles.find((x) => x.vehicle_id === linkedVehicleId);
-    setPricing(p
-      ? {
-          id: p.id,
-          base_price: Number(p.base_price),
-          via_price: Number(p.via_price),
-          vehicle_add_price_enabled: !!p.vehicle_add_price_enabled,
-          time_extra_from: p.time_extra_from ?? "",
-          time_extra_to: p.time_extra_to ?? "",
-          time_extra_amount: Number(p.time_extra_amount),
-          time_extra_type: p.time_extra_type,
-          status: !!p.status,
-          tiers: (p.tiers ?? []).map((t: any) => ({
-            tier_name: t.tier_name, miles: Number(t.miles),
-            cost_per_mile: Number(t.cost_per_mile), sort_order: t.sort_order,
-          })),
-        }
-      : emptyPricing);
-    const h = (hourlyRows as any[]).find((r) => r.vehicleId === linkedVehicleId);
-    setHourly({
-      pricePerHour: Number(h?.pricePerHour ?? 0),
-      minHours: Number(h?.minHours ?? 3),
-      maxHours: Number(h?.maxHours ?? 12),
-      active: !!h?.active,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [linkedVehicleId, profileData, hourlyRows]);
 
   const models = useMemo(
     () => (classData.models as any[]).filter((m) => m.vehicle_class_id === id),
     [classData.models, id],
-  );
-  const rules = useMemo(
-    () => (availRules as any[]).filter((r) => r.vehicle_class_id === id),
-    [availRules, id],
   );
 
   async function saveAll() {
@@ -151,44 +88,9 @@ function EditorPage() {
       const res: any = await saveClassFn({ data: payload });
       const classId = res?.id ?? id;
 
-      // Pricing lives on the class; provision/refresh its internal pricing record.
-      let pricingId: string | null = linkedVehicleId;
+      // Make sure the class has a pricing record so its pricing scheme can be edited.
       if (!form.quote_on_request && classId) {
-        const ensured: any = await ensurePricingFn({ data: { classId } });
-        pricingId = ensured?.vehicleId ?? null;
-      }
-
-      if (pricingId) {
-        const linkedVehicleId = pricingId;
-        if (pricing.tiers.length) {
-          await savePricingFn({
-            data: {
-              id: pricing.id,
-              vehicle_id: linkedVehicleId,
-              base_price: pricing.base_price,
-              via_price: pricing.via_price,
-              vehicle_add_price_enabled: pricing.vehicle_add_price_enabled,
-              time_extra_from: pricing.time_extra_from || null,
-              time_extra_to: pricing.time_extra_to || null,
-              time_extra_amount: pricing.time_extra_amount,
-              time_extra_type: pricing.time_extra_type,
-              status: pricing.status,
-              tiers: pricing.tiers.map((t, i) => ({
-                tier_name: t.tier_name || `Next ${t.miles} miles`,
-                miles: t.miles, cost_per_mile: t.cost_per_mile, sort_order: i + 1,
-              })),
-            } as any,
-          });
-        }
-        await saveHourlyFn({
-          data: {
-            vehicleId: linkedVehicleId,
-            pricePerHour: Number(hourly.pricePerHour) || 0,
-            minHours: Number(hourly.minHours) || 1,
-            maxHours: Number(hourly.maxHours) || 12,
-            active: hourly.active,
-          },
-        });
+        await ensurePricingFn({ data: { classId } });
       }
 
       await Promise.all([
@@ -218,16 +120,16 @@ function EditorPage() {
 
   return (
     <div className="pb-24">
-      <Tabs defaultValue="details">
-        {/* Sticky action bar + tabs */}
-        <div className="sticky top-14 z-10 bg-card/95 backdrop-blur border-b border-border px-4 md:px-8 pt-3">
+      <div>
+        {/* Sticky action bar */}
+        <div className="sticky top-14 z-10 bg-card/95 backdrop-blur border-b border-border px-4 md:px-8 py-3">
           <div className="flex items-center gap-3">
             <Button asChild variant="ghost" size="icon" aria-label="Back to classes">
               <Link to="/cabs-booking-pannel/vehicle-classes"><ArrowLeft className="size-4" /></Link>
             </Button>
             <div className="min-w-0">
               <h1 className="font-display text-lg font-semibold truncate">{form.name || (isNew ? "New vehicle class" : "Vehicle class")}</h1>
-              <p className="hidden sm:block text-xs text-muted-foreground">Everything for this class — details, pricing, hourly hire and availability.</p>
+              <p className="hidden sm:block text-xs text-muted-foreground">Class details and models. Pricing and availability are managed in their own sections.</p>
             </div>
             <div className="flex-1" />
             {!isNew && <StatusBadge status={form.active ? "active" : "inactive"} />}
@@ -235,18 +137,10 @@ function EditorPage() {
               {saving && <Loader2 className="size-4 mr-1.5 animate-spin" />}Save
             </Button>
           </div>
-          <TabsList className="mt-3">
-            <TabsTrigger value="details">Details</TabsTrigger>
-            <TabsTrigger value="pricing">Pricing</TabsTrigger>
-            <TabsTrigger value="availability">Availability</TabsTrigger>
-          </TabsList>
         </div>
 
         <div className="p-4 md:p-8">
-
-
-          {/* ---------------- DETAILS ---------------- */}
-          <TabsContent value="details" className="space-y-6 max-w-4xl">
+          <div className="space-y-6 max-w-4xl">
             <Section title="Basics">
               <div className="grid sm:grid-cols-2 gap-4">
                 <Field label="Name">
@@ -340,85 +234,28 @@ function EditorPage() {
                 </div>
               </div>
             </Section>
-          </TabsContent>
-
-          {/* ---------------- PRICING ---------------- */}
-          <TabsContent value="pricing" className="space-y-6 max-w-4xl">
-            <Section title="How this class is priced" hint="Prices live on the class itself — there is no separate vehicle record to link.">
+            <Section title="Automatic pricing" hint="Switch off to make this class quote-on-request.">
               <Toggle label="Quote on request only (no automatic price)" checked={!!form.quote_on_request}
                 onChange={(v) => setForm((f: any) => ({ ...f, quote_on_request: v }))} />
             </Section>
 
-            {form.quote_on_request ? (
-              <p className="text-sm text-muted-foreground">This class is quote-on-request, so automatic pricing is switched off.</p>
-            ) : (
-              <>
-                <Section title="Distance pricing">
-                  <MileageEditor pricing={pricing} setPricing={setPricing} />
-                </Section>
-                <Section title="Extras & peak times">
-                  <ExtrasEditor pricing={pricing} setPricing={setPricing} />
-                </Section>
-                <Section title="Hourly hire">
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 items-end">
-                    <Field label="£ per hour"><Input type="number" step="0.5" min={0} value={hourly.pricePerHour} onChange={(e) => setHourly((h) => ({ ...h, pricePerHour: Number(e.target.value) }))} /></Field>
-                    <Field label="Min hours"><Input type="number" min={1} max={24} value={hourly.minHours} onChange={(e) => setHourly((h) => ({ ...h, minHours: Number(e.target.value) }))} /></Field>
-                    <Field label="Max hours"><Input type="number" min={1} max={24} value={hourly.maxHours} onChange={(e) => setHourly((h) => ({ ...h, maxHours: Number(e.target.value) }))} /></Field>
-                    <Toggle label="Offer hourly hire" checked={hourly.active} onChange={(v) => setHourly((h) => ({ ...h, active: v }))} />
-                  </div>
-                </Section>
-              </>
-            )}
-          </TabsContent>
-
-          {/* ---------------- AVAILABILITY ---------------- */}
-          <TabsContent value="availability" className="space-y-6 max-w-4xl">
-            <Section title="When this class can't be booked" hint="Add a date range to close this class. Leave dates blank to close it entirely.">
+            <Section title="Pricing & availability" hint="These live in their own sections so each setting has exactly one place to be edited.">
               {isNew ? (
-                <p className="text-sm text-muted-foreground">Save the class first, then add availability blocks.</p>
+                <p className="text-sm text-muted-foreground">Save the class first, then set up its pricing scheme and availability rules.</p>
               ) : (
-                <>
-                  <div className="space-y-2">
-                    {rules.length === 0 && <p className="text-sm text-muted-foreground">No blocks — this class is always bookable.</p>}
-                    {rules.map((r: any) => (
-                      <div key={r.id} className="flex items-center gap-3 rounded-lg border border-border p-3">
-                        <div className="min-w-0 flex-1">
-                          <div className="text-sm font-medium truncate">{r.name}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {r.effect === "block" ? "Blocked" : "Allowed"}
-                            {r.date_from || r.date_to ? ` · ${r.date_from ?? "any"} → ${r.date_to ?? "any"}` : " · all dates"}
-                            {r.reason ? ` · ${r.reason}` : ""}
-                          </div>
-                        </div>
-                        <StatusBadge status={r.active ? "active" : "inactive"} />
-                        <Button aria-label={`Delete ${r.name}`} size="icon" variant="ghost" className="text-destructive"
-                          onClick={async () => {
-                            await delRuleFn({ data: { id: r.id } });
-                            qc.invalidateQueries({ queryKey: ["admin", "availability-rules"] });
-                            toast.success("Block removed");
-                          }}>
-                          <Trash2 className="size-4" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                  <AddBlock onAdd={async (v) => {
-                    await saveRuleFn({
-                      data: {
-                        name: v.name, rule_scope: "vehicle_class", effect: "block",
-                        vehicle_class_id: id, date_from: v.date_from || null, date_to: v.date_to || null,
-                        reason: v.reason || null, priority: 100, active: true, scope: "either",
-                      } as any,
-                    });
-                    qc.invalidateQueries({ queryKey: ["admin", "availability-rules"] });
-                    toast.success("Block added");
-                  }} />
-                </>
+                <div className="flex flex-wrap gap-2">
+                  <Button asChild variant="outline">
+                    <Link to="/cabs-booking-pannel/pricing-schemes/$id" params={{ id }}>Edit pricing scheme</Link>
+                  </Button>
+                  <Button asChild variant="outline">
+                    <Link to="/cabs-booking-pannel/availability">Availability rules</Link>
+                  </Button>
+                </div>
               )}
             </Section>
-          </TabsContent>
+          </div>
         </div>
-      </Tabs>
+      </div>
     </div>
   );
 }
@@ -470,27 +307,6 @@ function AddModel({ classId, onAdded }: { classId: string; onAdded: (name: strin
           finally { setBusy(false); }
         }}>
         <Plus className="size-4 mr-1.5" />Add
-      </Button>
-    </div>
-  );
-}
-
-function AddBlock({ onAdd }: { onAdd: (v: { name: string; date_from: string; date_to: string; reason: string }) => Promise<void> }) {
-  const [v, setV] = useState({ name: "", date_from: "", date_to: "", reason: "" });
-  const [busy, setBusy] = useState(false);
-  return (
-    <div className="grid sm:grid-cols-4 gap-3 items-end pt-2 border-t border-border">
-      <Field label="Block name"><Input value={v.name} placeholder="e.g. Christmas closure" onChange={(e) => setV({ ...v, name: e.target.value })} /></Field>
-      <Field label="From"><Input type="date" value={v.date_from} onChange={(e) => setV({ ...v, date_from: e.target.value })} /></Field>
-      <Field label="To"><Input type="date" value={v.date_to} onChange={(e) => setV({ ...v, date_to: e.target.value })} /></Field>
-      <Button variant="outline" disabled={v.name.trim().length < 2 || busy}
-        onClick={async () => {
-          setBusy(true);
-          try { await onAdd(v); setV({ name: "", date_from: "", date_to: "", reason: "" }); }
-          catch (e: any) { toast.error(e.message ?? "Could not add block"); }
-          finally { setBusy(false); }
-        }}>
-        <Plus className="size-4 mr-1.5" />Add block
       </Button>
     </div>
   );
