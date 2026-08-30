@@ -71,7 +71,7 @@ function matchesQuery(t: PublicTourListItem, needle: string) {
 function ToursPage() {
   const { data: allTours } = useSuspenseQuery(toursQuery);
   const { q = "", theme = "" } = Route.useSearch();
-  const navigate = useNavigate({ from: "/tours" });
+  const navigate = useNavigate({ from: "/tours/" });
 
   const setSearch = (next: { q?: string; theme?: string }) =>
     navigate({
