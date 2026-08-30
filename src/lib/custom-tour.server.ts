@@ -187,7 +187,7 @@ export async function corridorPoiOptionsImpl(
   if (error || !data) return { pois: [], corridor: false };
   const rows = data as any[];
 
-  const coords = await coordsForPlaceIds([pickupPlaceId, destinationPlaceId]);
+  const coords = await coordsForPlaceIds(client, [pickupPlaceId, destinationPlaceId]);
   const a = coords.get(pickupPlaceId);
   const b = coords.get(destinationPlaceId);
   if (!a || !b) {
