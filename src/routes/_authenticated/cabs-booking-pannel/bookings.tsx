@@ -186,7 +186,7 @@ function BookingsPage() {
       ) : (
         <div className="border border-border rounded-xl bg-card overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full min-w-[1080px] text-sm">
               <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">
                 <tr>
                   <th className="text-left px-2 py-3"><span className="sr-only">View</span></th>
@@ -209,13 +209,13 @@ function BookingsPage() {
                     <td className="px-2 py-3">
                       <Button aria-label="View details" size="icon" variant="ghost" onClick={() => { setEditing(b); setReason(""); }} title="View / edit"><Eye className="size-4" /></Button>
                     </td>
-                    <td className="px-4 py-3 font-mono text-xs">{b.booking_ref ?? "—"}</td>
+                    <td className="px-4 py-3 font-mono text-xs whitespace-nowrap">{b.booking_ref ?? "—"}</td>
                     <td className="px-4 py-3">
                       <div className="font-medium">{b.customer_name}</div>
                       <div className="text-xs text-muted-foreground">{b.email}</div>
                     </td>
-                    <td className="px-4 py-3 max-w-[160px] truncate" title={b.pickup_address}>{b.pickup_address}</td>
-                    <td className="px-4 py-3 max-w-[160px] truncate" title={b.dropoff_address}>{b.dropoff_address}</td>
+                    <td className="px-4 py-3 max-w-[200px] truncate" title={b.pickup_address}>{b.pickup_address}</td>
+                    <td className="px-4 py-3 max-w-[200px] truncate" title={b.dropoff_address}>{b.dropoff_address}</td>
                     <td className="px-4 py-3 whitespace-nowrap">{b.pickup_date} · {b.pickup_time}</td>
                     <td className="px-4 py-3 whitespace-nowrap">{b.vehicle_type}</td>
                     <td className="px-4 py-3 whitespace-nowrap text-xs">{b.driver?.full_name ?? <span className="text-muted-foreground">—</span>}</td>
