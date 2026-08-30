@@ -164,7 +164,7 @@ function TrackBookingPage() {
                   <Fact icon={<Clock className="size-3" />} label="Time" value={result.pickupTime} />
                   <Fact icon={<Car className="size-3" />} label="Vehicle" value={result.vehicleType} />
                   <Fact icon={<User className="size-3" />} label="Passengers" value={String(result.passengers)} />
-                  <Fact icon={<Route className="size-3" />} label="Distance" value={result.distanceMiles != null ? `${result.distanceMiles.toFixed(1)} mi` : "—"} />
+                  <Fact icon={<RouteIcon className="size-3" />} label="Distance" value={result.distanceMiles != null ? `${result.distanceMiles.toFixed(1)} mi` : "—"} />
                   <Fact icon={<Phone className="size-3" />} label="Phone" value={result.customerPhone} />
                   <Fact icon={<Mail className="size-3" />} label="Email" value={result.customerEmail} />
                 </dl>
