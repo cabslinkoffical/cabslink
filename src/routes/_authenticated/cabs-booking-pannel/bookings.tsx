@@ -176,6 +176,7 @@ function BookingsPage() {
             <table className="w-full text-sm">
               <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">
                 <tr>
+                  <th className="text-left px-2 py-3"><span className="sr-only">View</span></th>
                   <th className="text-left px-4 py-3">Ref</th>
                   <th className="text-left px-4 py-3">Customer</th>
                   <th className="text-left px-4 py-3">Pickup</th>
