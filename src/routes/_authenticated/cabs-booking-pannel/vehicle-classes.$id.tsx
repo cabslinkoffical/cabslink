@@ -74,19 +74,11 @@ function EditorPage() {
   const qc = useQueryClient();
 
   const { data: classData } = useSuspenseQuery(classOpts);
-  const { data: vehicles } = useSuspenseQuery(vehicleOpts);
-  const { data: profileData } = useSuspenseQuery(profileOpts);
-  const { data: hourlyRows } = useSuspenseQuery(hourlyOpts);
-  const { data: availRules } = useSuspenseQuery(availOpts);
 
   const saveClassFn = useServerFn(upsertVehicleClass);
   const ensurePricingFn = useServerFn(ensureClassPricingRecord);
-  const savePricingFn = useServerFn(adminSavePricingProfile);
-  const saveHourlyFn = useServerFn(adminSaveHourlyRate);
   const saveModelFn = useServerFn(upsertVehicleModel);
   const delModelFn = useServerFn(deleteVehicleModel);
-  const saveRuleFn = useServerFn(upsertAvailabilityRule);
-  const delRuleFn = useServerFn(deleteAvailabilityRule);
 
   const existing = useMemo(
     () => (classData.classes as any[]).find((c) => c.id === id) ?? null,
@@ -95,51 +87,11 @@ function EditorPage() {
 
   const [form, setForm] = useState<any>(() =>
     isNew ? { ...emptyClass } : { ...emptyClass, ...(existing ?? {}), recommended_for: existing?.recommended_for ?? {} });
-  const [pricing, setPricing] = useState<PricingForm>(emptyPricing);
-  const [hourly, setHourly] = useState({ pricePerHour: 0, minHours: 3, maxHours: 12, active: false });
   const [saving, setSaving] = useState(false);
-
-  const linkedVehicleId: string | null = form.pricing_vehicle_id ?? null;
-  const profiles: any[] = (profileData as any)?.profiles ?? [];
-
-  // Hydrate pricing + hourly for the linked representative vehicle.
-  useEffect(() => {
-    if (!linkedVehicleId) { setPricing(emptyPricing); return; }
-    const p = profiles.find((x) => x.vehicle_id === linkedVehicleId);
-    setPricing(p
-      ? {
-          id: p.id,
-          base_price: Number(p.base_price),
-          via_price: Number(p.via_price),
-          vehicle_add_price_enabled: !!p.vehicle_add_price_enabled,
-          time_extra_from: p.time_extra_from ?? "",
-          time_extra_to: p.time_extra_to ?? "",
-          time_extra_amount: Number(p.time_extra_amount),
-          time_extra_type: p.time_extra_type,
-          status: !!p.status,
-          tiers: (p.tiers ?? []).map((t: any) => ({
-            tier_name: t.tier_name, miles: Number(t.miles),
-            cost_per_mile: Number(t.cost_per_mile), sort_order: t.sort_order,
-          })),
-        }
-      : emptyPricing);
-    const h = (hourlyRows as any[]).find((r) => r.vehicleId === linkedVehicleId);
-    setHourly({
-      pricePerHour: Number(h?.pricePerHour ?? 0),
-      minHours: Number(h?.minHours ?? 3),
-      maxHours: Number(h?.maxHours ?? 12),
-      active: !!h?.active,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [linkedVehicleId, profileData, hourlyRows]);
 
   const models = useMemo(
     () => (classData.models as any[]).filter((m) => m.vehicle_class_id === id),
     [classData.models, id],
-  );
-  const rules = useMemo(
-    () => (availRules as any[]).filter((r) => r.vehicle_class_id === id),
-    [availRules, id],
   );
 
   async function saveAll() {
