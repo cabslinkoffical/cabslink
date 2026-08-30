@@ -193,6 +193,9 @@ function BookingsPage() {
               <tbody className="divide-y divide-border">
                 {filtered.map((b: any) => (
                   <tr key={b.id} className="hover:bg-muted/30">
+                    <td className="px-2 py-3">
+                      <Button aria-label="View details" size="icon" variant="ghost" onClick={() => { setEditing(b); setReason(""); }} title="View / edit"><Eye className="size-4" /></Button>
+                    </td>
                     <td className="px-4 py-3 font-mono text-xs">{b.booking_ref ?? "—"}</td>
                     <td className="px-4 py-3">
                       <div className="font-medium">{b.customer_name}</div>
