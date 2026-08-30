@@ -17,6 +17,19 @@ import { Search, Trash2, RotateCcw, Eye, RefreshCw, MailCheck, MailX, MailWarnin
 import { bookingsToCsv, downloadCsv, bookingExportFilename } from "@/lib/booking-export";
 import { toast } from "sonner";
 import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
+import { CannedEmailComposer } from "@/components/admin/CannedEmailComposer";
+
+/** Pre-selects the most likely pre-written email for the booking's status. */
+const TEMPLATE_FOR_STATUS: Partial<Record<BookingStatus, string>> = {
+  confirmed: "booking_confirmed",
+  assigned: "driver_assigned",
+  on_way: "on_the_way",
+  driver_en_route: "on_the_way",
+  awaiting_payment: "payment_reminder",
+  completed: "booking_completed",
+  cancelled: "booking_cancelled",
+  rejected: "booking_cancelled",
+};
 
 const opts = queryOptions({ queryKey: ["admin", "bookings"], queryFn: () => listBookings() });
 const driverOpts = queryOptions({ queryKey: ["admin", "drivers-pick"], queryFn: () => listDrivers() });
@@ -321,7 +334,28 @@ function BookingsPage() {
                   {editing.notes && <Info label="Customer notes" value={editing.notes} />}
                 </div>
 
+                <div className="border-t border-border pt-4">
+                  <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold mb-3">Tell the customer</p>
+                  <CannedEmailComposer
+                    scope="booking"
+                    targetId={editing.id}
+                    defaultTemplateId={TEMPLATE_FOR_STATUS[editing.status as BookingStatus]}
+                    vars={{
+                      name: editing.customer_name,
+                      ref: editing.booking_ref,
+                      pickup: editing.pickup_address,
+                      dropoff: editing.dropoff_address,
+                      date: editing.pickup_date,
+                      time: editing.pickup_time,
+                      vehicle: editing.vehicle_type,
+                      reason: editing.cancellation_reason ?? "",
+                    }}
+                    onSent={() => qc.invalidateQueries({ queryKey: ["admin", "booking-notifications", editing.id] })}
+                  />
+                </div>
+
                 <NotificationsPanel bookingId={editing.id} />
+
 
                 <div className="flex justify-end gap-2 pt-2">
                   <Button variant="outline" onClick={() => { setEditing(null); setReason(""); }}>Close</Button>
