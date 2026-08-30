@@ -1132,12 +1132,18 @@ function TourBanner({ slug, name, loading, missing, mismatch, onStartAgain }: {
   );
 }
 
-function Sidebar({ pre, onEdit, onStartAgain, route, price }: {
+function Sidebar({ pre, onEdit, onStartAgain, route, price, extraStops = [], returnEnabled }: {
   pre: Prefill; onEdit: () => void; onStartAgain?: () => void;
   route: { miles: number; minutes: number } | null;
   price: PriceSummary | null;
-
+  extraStops?: { label: string; minutes?: number }[];
+  returnEnabled?: boolean;
 }) {
+  const isReturn = returnEnabled ?? pre.ret;
+  const allStops = [
+    ...pre.stops.map((s) => ({ label: s.label, minutes: s.minutes })),
+    ...extraStops,
+  ].filter((s) => !!s.label);
   return (
     <aside className="min-w-0 space-y-4 lg:sticky lg:top-24 lg:self-start">
       <details className="group relative bg-card rounded-2xl border border-border shadow-[0_10px_40px_-20px_rgba(14,24,44,0.25)] overflow-hidden lg:!open" open>
@@ -1146,11 +1152,14 @@ function Sidebar({ pre, onEdit, onStartAgain, route, price }: {
             <MapPin className="size-4 text-[var(--gold-ink)] shrink-0" />
             <span className="text-sm font-semibold text-foreground truncate">
               {pre.pickup?.label || "Pickup"} → {pre.dropoff?.label || "Dropoff"}
+              {allStops.length > 0 && ` · ${allStops.length} stop${allStops.length > 1 ? "s" : ""}`}
+              {isReturn && " · Return"}
             </span>
           </div>
           <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--gold-ink)] group-open:hidden shrink-0">View</span>
           <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground hidden group-open:inline shrink-0">Hide</span>
         </summary>
+
         <div className="p-5 lg:p-6 pt-0 lg:pt-6">
           <div className="absolute -top-16 -right-16 size-40 rounded-full bg-[var(--gold)]/10 blur-2xl pointer-events-none" aria-hidden />
           <div className="relative flex items-center justify-between mb-5">
