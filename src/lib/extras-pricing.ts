@@ -17,6 +17,8 @@ export type ExtraCatalogueEntry = {
   active: boolean;
   price_pence: number;
   applies_to_all_classes: boolean;
+  /** How the price multiplies against the chosen quantity. */
+  price_basis?: "per_unit" | "per_booking" | "per_hour";
   /** classId → override pence (null = use the extra's own price). */
   class_prices: Record<string, number | null>;
 };

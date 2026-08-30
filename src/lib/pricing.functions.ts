@@ -422,6 +422,12 @@ const createBookingInput = z
     child_seat: z.boolean().optional().default(false),
     child_seat_count: z.number().int().min(0).max(10).optional().default(0),
     meet_greet: z.boolean().optional().default(false),
+    /** Catalogue extras chosen by the customer (admin Extras section). */
+    extras: z
+      .array(z.object({ key: z.string().trim().min(1).max(60), quantity: z.number().int().min(0).max(20) }))
+      .max(20)
+      .optional()
+      .default([]),
     return_journey: z.boolean().optional().default(false),
     cancellation_policy: z.enum(["standard", "non_refundable", "flexible"]).optional().default("standard"),
     templateSlug: z.string().trim().min(1).max(120).optional().nullable(),
@@ -732,8 +738,23 @@ export const createBooking = createServerFn({ method: "POST" })
     // configuration as the fare, so nothing escapes VAT and nothing is taxed
     // twice. Added last so they apply to direct, scenic and multi-stop rides.
     const { applyTaxTo } = await import("@/lib/pricing");
+    const { resolveExtra } = await import("@/lib/extras-pricing");
     const meetGreetFee = data.meet_greet ? meetGreetPence / 100 : 0;
-    const extrasNet = Number((childSeatFee + meetGreetFee).toFixed(2));
+    // Every other extra the customer selected, re-priced server-side from the
+    // canonical catalogue so the charged total matches what was displayed.
+    let addonsNet = 0;
+    for (const sel of data.extras ?? []) {
+      if (sel.key === "child_seat" || sel.key === "meet_greet") continue;
+      if (sel.quantity <= 0) continue;
+      const entry = auth.extrasCatalogue.find((e) => e.key === sel.key && e.active);
+      if (!entry) continue;
+      const resolved = resolveExtra(auth.extrasCatalogue, sel.key, classId, 0);
+      if (!resolved.available || resolved.pence <= 0) continue;
+      const units = entry.price_basis === "per_booking" ? 1 : sel.quantity;
+      addonsNet += (resolved.pence * units) / 100;
+    }
+    addonsNet = Number(addonsNet.toFixed(2));
+    const extrasNet = Number((childSeatFee + meetGreetFee + addonsNet).toFixed(2));
     if (extrasNet > 0) {
       const extrasTaxed = applyTaxTo(extrasNet, auth.settings.taxRate, auth.settings.taxMode);
       price = Number((price + extrasTaxed.gross).toFixed(2));
