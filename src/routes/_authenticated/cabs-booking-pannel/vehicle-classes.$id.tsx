@@ -103,44 +103,9 @@ function EditorPage() {
       const res: any = await saveClassFn({ data: payload });
       const classId = res?.id ?? id;
 
-      // Pricing lives on the class; provision/refresh its internal pricing record.
-      let pricingId: string | null = linkedVehicleId;
+      // Make sure the class has a pricing record so its pricing scheme can be edited.
       if (!form.quote_on_request && classId) {
-        const ensured: any = await ensurePricingFn({ data: { classId } });
-        pricingId = ensured?.vehicleId ?? null;
-      }
-
-      if (pricingId) {
-        const linkedVehicleId = pricingId;
-        if (pricing.tiers.length) {
-          await savePricingFn({
-            data: {
-              id: pricing.id,
-              vehicle_id: linkedVehicleId,
-              base_price: pricing.base_price,
-              via_price: pricing.via_price,
-              vehicle_add_price_enabled: pricing.vehicle_add_price_enabled,
-              time_extra_from: pricing.time_extra_from || null,
-              time_extra_to: pricing.time_extra_to || null,
-              time_extra_amount: pricing.time_extra_amount,
-              time_extra_type: pricing.time_extra_type,
-              status: pricing.status,
-              tiers: pricing.tiers.map((t, i) => ({
-                tier_name: t.tier_name || `Next ${t.miles} miles`,
-                miles: t.miles, cost_per_mile: t.cost_per_mile, sort_order: i + 1,
-              })),
-            } as any,
-          });
-        }
-        await saveHourlyFn({
-          data: {
-            vehicleId: linkedVehicleId,
-            pricePerHour: Number(hourly.pricePerHour) || 0,
-            minHours: Number(hourly.minHours) || 1,
-            maxHours: Number(hourly.maxHours) || 12,
-            active: hourly.active,
-          },
-        });
+        await ensurePricingFn({ data: { classId } });
       }
 
       await Promise.all([
