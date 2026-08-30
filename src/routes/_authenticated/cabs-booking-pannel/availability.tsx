@@ -143,7 +143,7 @@ function Page() {
     const scopeLabel = SCOPE_LABEL[form.rule_scope] ?? form.rule_scope;
     const showGeo = form.rule_scope === "location" || form.rule_scope === "vehicle" || form.rule_scope === "vehicle_class" || form.rule_scope === "service";
     return (
-      <div className="p-6 md:p-8 space-y-6">
+      <div className="space-y-6">
         <PageHeader
           title={`${form.id ? "Edit" : "New"} ${scopeLabel.toLowerCase()} rule`}
           description="This rule only applies to the type you picked. Set when it applies and what the customer sees if it blocks their journey."
@@ -312,7 +312,7 @@ function Page() {
 
   return (
 
-    <div className="p-6 md:p-8 space-y-6">
+    <div className="space-y-6">
       <PageHeader
         title="Availability Rules"
         description="Block or explicitly allow bookings by vehicle, route, location, service or globally — down to the date, day and time. The most specific matching rule wins; ties break to block."
@@ -358,7 +358,15 @@ function Page() {
       {view === "calendar" ? (
         <AvailabilityCalendar rules={rules as any} onSelectRule={openEdit} />
       ) : rules.length === 0 ? (
-        <EmptyState title="No rules in this tab" hint={activeTab.newScope ? `Nothing blocked here yet — use ${activeTab.addLabel} to create one.` : "Pick a tab (Vehicles, Routes, Locations, Services, Global) to add a rule."} />
+        <EmptyState
+          title="No rules in this tab"
+          hint={activeTab.newScope ? `Nothing blocked here yet — use ${activeTab.addLabel} to create one.` : "Nothing is blocked anywhere yet. Start with a rule, then refine its scope."}
+          action={
+            <Button size="sm" onClick={() => setForm({ ...empty, rule_scope: activeTab.newScope ?? "vehicle" })}>
+              <Plus className="size-4 mr-1" /> {activeTab.addLabel ?? "New rule"}
+            </Button>
+          }
+        />
 
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">

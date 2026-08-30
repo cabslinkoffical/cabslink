@@ -66,7 +66,7 @@ function ScenicRoutesPage() {
   };
 
   return (
-    <div className="p-6">
+    <div className="">
       <PageHeader
         title="Scenic Route Templates"
         description="Curated multi-stop templates. Activate first, then publish to expose the tour on the public site."

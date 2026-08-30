@@ -73,7 +73,7 @@ function TourSettingsPage() {
   );
 
   return (
-    <div className="p-6 max-w-3xl">
+    <div className="max-w-3xl">
       <PageHeader title="Tour Settings" description="Thresholds and pricing for sightseeing and private tours." />
       <div className="admin-card p-5 space-y-5">
         <section>

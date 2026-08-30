@@ -129,7 +129,7 @@ function BookingsPage() {
   const statusChanged = stagedStatus && stagedStatus !== originalStatus;
 
   return (
-    <div className="p-6 md:p-8 space-y-6">
+    <div className="space-y-6">
       <PageHeader title="Bookings" description="Manage bookings, assignments, and notifications." />
 
       <Tabs value={tab} className="w-full">

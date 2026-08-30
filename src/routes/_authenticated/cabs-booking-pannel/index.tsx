@@ -9,7 +9,7 @@ import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
   BarChart, Bar, Cell, PieChart, Pie,
 } from "recharts";
-import { StatCard, PageHeader, StatusBadge } from "@/components/admin/ui";
+import { StatCard, MiniStat, PageHeader, StatusBadge } from "@/components/admin/ui";
 
 const statsOpts = queryOptions({ queryKey: ["admin", "stats"], queryFn: () => getDashboardStats() });
 
@@ -43,34 +43,43 @@ function Dashboard() {
   const { totals, seriesDaily, monthly, byVehicle, byStatus, topPickups, topDropoffs, recentBookings } = data;
 
   const kpis = [
-    { label: "Total Cars", value: totals.vehiclesTotal, icon: Car, accent: "text-info" },
     { label: "Total Bookings", value: totals.bookings, icon: CalendarCheck, accent: "text-primary" },
+    { label: "New Today", value: totals.newToday, icon: CalendarCheck, accent: "text-primary" },
     { label: "Upcoming", value: totals.upcoming, icon: Clock, accent: "text-warning" },
-    { label: "Completed", value: totals.completed, icon: CheckCircle2, accent: "text-success" },
-    { label: "Cancelled", value: totals.cancelled, icon: Ban, accent: "text-destructive" },
-    { label: "Pending Allocation", value: totals.pendingAllocation, icon: AlertCircle, accent: "text-warning" },
-    { label: "Allocated", value: totals.allocated, icon: UserCog, accent: "text-info" },
-    { label: "In Progress", value: totals.inProgress, icon: Activity, accent: "text-info" },
-    { label: "Bidding", value: totals.bidding, icon: Tag, accent: "text-info" },
-    { label: "Deleted", value: totals.deleted, icon: X, accent: "text-muted-foreground" },
     { label: "Total Revenue", value: fmt(totals.totalRevenue), icon: Wallet, accent: "text-success" },
     { label: "Today's Revenue", value: fmt(totals.todayRevenue), icon: TrendingUp, accent: "text-success" },
-    { label: "Monthly Revenue", value: fmt(totals.monthRevenue), icon: TrendingUp, accent: "text-success" },
-    { label: "Pending Payments", value: fmt(totals.pendingPayments), icon: CreditCard, accent: "text-warning" },
-    { label: "Active Drivers", value: totals.driversActive, icon: UserCog, accent: "text-info" },
-    { label: "Active Customers", value: totals.customersActive, icon: Users, accent: "text-info" },
-    { label: "New Bookings Today", value: totals.newToday, icon: CalendarCheck, accent: "text-primary" },
+    { label: "This Month", value: fmt(totals.monthRevenue), icon: TrendingUp, accent: "text-success" },
   ];
+
+  const pipeline = [
+    { label: "Pending allocation", value: totals.pendingAllocation, icon: AlertCircle },
+    { label: "Allocated", value: totals.allocated, icon: UserCog },
+    { label: "In progress", value: totals.inProgress, icon: Activity },
+    { label: "Bidding", value: totals.bidding, icon: Tag },
+    { label: "Completed", value: totals.completed, icon: CheckCircle2 },
+    { label: "Cancelled", value: totals.cancelled, icon: Ban },
+    { label: "Deleted", value: totals.deleted, icon: X },
+    { label: "Pending payments", value: fmt(totals.pendingPayments), icon: CreditCard },
+    { label: "Fleet vehicles", value: totals.vehiclesTotal, icon: Car },
+    { label: "Active drivers", value: totals.driversActive, icon: UserCog },
+    { label: "Customers", value: totals.customersActive, icon: Users },
+  ];
+
 
   const pieData = Object.entries(byStatus).map(([name, value]) => ({ name: name.replace(/_/g, " "), value, fill: STATUS_COLORS[name] ?? "#0e182c" }));
 
   return (
-    <div className="p-6 md:p-8 space-y-6">
+    <div className="space-y-6">
       <PageHeader title="Dashboard" description="Real-time overview of CabsLink operations." />
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
         {kpis.map(k => <StatCard key={k.label} {...k} />)}
       </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
+        {pipeline.map(p => <MiniStat key={p.label} {...p} />)}
+      </div>
+
 
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 admin-card p-5">

@@ -66,7 +66,7 @@ function Page() {
   }
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="space-y-4">
       <PageHeader title="SEO Services" description="Reusable service entities used across landing pages (airport transfers, executive, corporate, tours…).">
         <BulkTools entity="seo_services" onChanged={() => qc.invalidateQueries({ queryKey: ["admin", "seo"] })} />
         <Button onClick={() => setForm({ ...empty })}><Plus className="size-4 mr-2" />New service</Button>

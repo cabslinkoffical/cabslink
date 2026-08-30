@@ -107,7 +107,7 @@ function Page() {
   }
 
   return (
-    <div className="p-6 md:p-8 space-y-6">
+    <div className="space-y-6">
       <PageHeader
         title="Analytics"
         description="Live performance from your own booking data, with every figure compared to the previous period of the same length."

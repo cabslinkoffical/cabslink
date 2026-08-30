@@ -51,7 +51,7 @@ function Page() {
   const remove = useMutation({ mutationFn: (id: string) => del({ data: { id } }), onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin", "payments"] }); toast.success("Deleted"); }, onError: (e: any) => toast.error(e.message) });
 
   return (
-    <div className="p-6 md:p-8 space-y-6">
+    <div className="space-y-6">
       <PageHeader title="Payments & Invoices" description="Track payments collected against bookings.">
         <Button onClick={() => setForm({ ...empty })}><Plus className="size-4 mr-1" /> Record payment</Button>
       </PageHeader>

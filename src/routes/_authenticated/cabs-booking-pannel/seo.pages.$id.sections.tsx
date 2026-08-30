@@ -64,7 +64,7 @@ function Page() {
   }
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="space-y-4">
       <Link to="/cabs-booking-pannel/seo/pages" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground"><ChevronLeft className="size-4" /> Back to pages</Link>
       <PageHeader title="Page sections" description="Structured content blocks rendered on the public page in order.">
         <Button onClick={() => setForm({ ...empty })}><Plus className="size-4 mr-2" />New section</Button>

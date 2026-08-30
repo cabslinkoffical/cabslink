@@ -58,7 +58,7 @@ function Page() {
   }
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="space-y-4">
       <PageHeader title="Redirects" description="301/308 redirects with loop and single-hop chain protection.">
         <Button onClick={() => setForm({ ...empty })}><Plus className="size-4 mr-2" />New redirect</Button>
       </PageHeader>

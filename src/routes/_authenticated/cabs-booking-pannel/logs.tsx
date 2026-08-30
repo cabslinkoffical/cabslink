@@ -60,7 +60,7 @@ function Page() {
   }
 
   return (
-    <div className="p-6 md:p-8 space-y-6">
+    <div className="space-y-6">
       <PageHeader title="Activity Logs" description="Every admin action across the system, with before/after diffs." />
 
       <div className="flex flex-wrap gap-3 items-end p-4 border border-border rounded-xl bg-card">

@@ -33,7 +33,7 @@ function Page() {
   ), [data, search]);
 
   return (
-    <div className="p-6 md:p-8 space-y-6">
+    <div className="space-y-6">
       <PageHeader title="Customers" description="Customers derived from booking history. View bookings, spend and contact info." />
       <div className="flex items-center gap-3">
         <div className="relative max-w-md flex-1">

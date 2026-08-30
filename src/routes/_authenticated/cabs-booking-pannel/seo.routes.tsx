@@ -96,7 +96,7 @@ function Page() {
   }
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="space-y-4">
       <PageHeader title="Popular Routes" description="Canonical origin→destination pairs powering city-to-city and airport-route pages.">
         <BulkTools entity="seo_popular_routes" onChanged={() => qc.invalidateQueries({ queryKey: ["admin", "seo"] })} />
         <Button onClick={() => setForm({ ...empty })}><Plus className="size-4 mr-2" />New route</Button>
