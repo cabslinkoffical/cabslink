@@ -299,6 +299,7 @@ function BookPage() {
 
   const applyEdit = (next: Prefill) => {
     setChosen(null);
+    setReturnJourney(next.ret);
     setStep("vehicle");
     navigate({ search: { q: encodePrefill(next) }, replace: true });
     setEditOpen(false);
