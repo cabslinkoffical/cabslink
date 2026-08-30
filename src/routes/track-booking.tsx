@@ -26,8 +26,6 @@ export const Route = createFileRoute("/track-booking")({
 
 function TrackBookingPage() {
   const [ref, setRef] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<Awaited<ReturnType<typeof getBookingByReference>> | null>(null);
@@ -40,7 +38,7 @@ function TrackBookingPage() {
     setResult(null);
     setLoading(true);
     try {
-      const data = await fetchFn({ data: { bookingRef: ref, email, phone } });
+      const data = await fetchFn({ data: { bookingRef: ref } });
       setResult(data);
     } catch (err: any) {
       setError(err?.message ?? "Something went wrong. Please try again.");
