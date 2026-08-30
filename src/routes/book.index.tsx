@@ -12,7 +12,7 @@ import {
   CheckCircle2, ArrowRight, ArrowLeft, MapPin, CalendarDays, Edit3, Star,
   Users, Briefcase, Luggage, BadgeCheck, Clock, DoorOpen, UserCheck, Award,
   ShieldCheck, CreditCard, User, Mail, Phone, MessageSquare, RefreshCw,
-  Shield, Package, CalendarClock, Landmark, Banknote, Sparkles,
+  Shield, Package, CalendarClock, Landmark, Banknote, Sparkles, Plus, Repeat, X,
 } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { TrustpilotStrip } from "@/components/site/TrustpilotStrip";
