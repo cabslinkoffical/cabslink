@@ -208,8 +208,13 @@ function ConfirmationPage() {
 
                 <div className="mt-4 flex gap-2 print:hidden">
                   <Button size="sm" variant="outline" onClick={copyRef} className="h-8 flex-1 gap-1 text-xs"><Copy className="size-3" /> Copy</Button>
-                  <Button size="sm" variant="outline" onClick={printPage} className="h-8 flex-1 gap-1 text-xs"><Printer className="size-3" /> Print</Button>
+                  <Button size="sm" variant="outline" onClick={downloadSlip} disabled={downloading} className="h-8 flex-1 gap-1 text-xs">
+                    {downloading ? <Loader2 className="size-3 animate-spin" /> : <Download className="size-3" />} Download
+                  </Button>
                 </div>
+                <p className="mt-2 text-[10px] leading-snug text-muted-foreground print:hidden">
+                  Saves a PDF booking slip to your device.
+                </p>
               </div>
             </div>
 
