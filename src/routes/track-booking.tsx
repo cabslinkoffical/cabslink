@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { statusLabel, type BookingStatus } from "@/lib/booking-lifecycle";
 import { SITE } from "@/lib/site";
-import { Search, ArrowLeft, CalendarDays, Car, Clock, MapPin, Phone, Mail, User, Route } from "lucide-react";
+import { Search, ArrowLeft, CalendarDays, Car, Clock, MapPin, Phone, Mail, User, Route as RouteIcon } from "lucide-react";
 
 export const Route = createFileRoute("/track-booking")({
   head: () => ({
