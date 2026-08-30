@@ -139,6 +139,7 @@ function AirportsIndex() {
         eyebrow="Airport transfers"
         title="Book a meet & greet airport transfer"
         subtitle="Flight tracking, free waiting time and fixed fares to every UK airport."
+        tone="gold"
       />
       <LongFormSections sections={AP_SECTIONS} heading="Booking a UK airport transfer" />
       <FaqSection faqs={AP_FAQS} />
