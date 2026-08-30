@@ -13,7 +13,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Trash2, RotateCcw, Eye, RefreshCw, MailCheck, MailX, MailWarning } from "lucide-react";
+import { Search, Trash2, RotateCcw, Eye, RefreshCw, MailCheck, MailX, MailWarning, Download } from "lucide-react";
+import { bookingsToCsv, downloadCsv, bookingExportFilename } from "@/lib/booking-export";
 import { toast } from "sonner";
 import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
 
@@ -140,6 +141,31 @@ function BookingsPage() {
           <Input placeholder="Search by name, ref, address…" value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
         </div>
         <span className="text-sm text-muted-foreground">{filtered.length} bookings</span>
+        <div className="ml-auto flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={filtered.length === 0}
+            onClick={() => {
+              downloadCsv(bookingExportFilename(tab === "all" && !search ? "all" : `${tab}-view`), bookingsToCsv(filtered));
+              toast.success(`Exported ${filtered.length} booking(s)`);
+            }}
+          >
+            <Download className="size-4 mr-2" />
+            Export this view
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            disabled={bookings.length === 0}
+            onClick={() => {
+              downloadCsv(bookingExportFilename("all"), bookingsToCsv(bookings));
+              toast.success(`Exported all ${bookings.length} booking(s)`);
+            }}
+          >
+            Export all
+          </Button>
+        </div>
       </div>
 
       {filtered.length === 0 ? (
