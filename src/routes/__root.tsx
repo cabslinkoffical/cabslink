@@ -120,10 +120,12 @@ function RootShell({ children }: { children: ReactNode }) {
 }
 
 function RootComponent() {
-  const { queryClient } = Route.useRouteContext();
+  const ctx = Route.useRouteContext() as { queryClient: QueryClient; maintenance?: { maintenance: boolean; company_name: string | null } };
   return (
-    <QueryClientProvider client={queryClient}>
-      <Outlet />
+    <QueryClientProvider client={ctx.queryClient}>
+      {ctx.maintenance?.maintenance
+        ? <MaintenanceScreen companyName={ctx.maintenance.company_name} />
+        : <Outlet />}
     </QueryClientProvider>
   );
 }
