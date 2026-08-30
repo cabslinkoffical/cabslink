@@ -254,27 +254,101 @@ export function CustomTourBuilder({ search }: { search?: TourSearchControls }) {
       ref={panelRef}
       className="rounded-3xl border border-[var(--gold)]/30 bg-[var(--surface)] p-5 sm:p-7 shadow-[0_20px_60px_-30px_rgba(0,0,0,0.6)]"
     >
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="flex items-start gap-3">
-          <span className="grid size-11 place-items-center rounded-2xl bg-[var(--gold)]/15 text-[var(--gold-ink)]">
-            <Wand2 className="size-5" />
-          </span>
-          <div>
-            <h2 className="font-display text-xl sm:text-2xl font-semibold">Build your own tour</h2>
-            <p className="mt-1 text-sm text-muted-foreground max-w-xl">
-              Tell us where you start and finish. If we already run that tour we'll load the itinerary
-              for you to edit — otherwise we'll suggest famous stops along the way.
-            </p>
-          </div>
+      <div className="flex items-start gap-3">
+        <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-[var(--gold)]/15 text-[var(--gold-ink)]">
+          <Sparkles className="size-5" />
+        </span>
+        <div>
+          <h2 className="font-display text-xl sm:text-2xl font-semibold">Find or build your tour</h2>
+          <p className="mt-1 text-sm text-muted-foreground max-w-xl">
+            Search our ready-made tours, or start from your own two points — if we already run that
+            route we'll load the itinerary for you to edit, otherwise we'll suggest famous stops along
+            the way.
+          </p>
         </div>
-        <Button
-          variant={open ? "outline" : "default"}
-          onClick={() => setOpen((v) => !v)}
-          aria-expanded={open}
-        >
-          {open ? "Close builder" : "Create a custom tour"}
-        </Button>
       </div>
+
+      {search && (
+        <div className="mt-5 rounded-2xl border border-white/10 bg-background/40 p-4 sm:p-5">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+            <div className="relative flex-1">
+              <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-[var(--gold-ink)]" />
+              <Input
+                value={search.q}
+                onChange={(e) => search.onQ(e.target.value)}
+                placeholder="Search tours — e.g. Loch Ness, whisky, Edinburgh"
+                aria-label="Search tours"
+                className="h-12 rounded-full pl-11 pr-11 text-base"
+              />
+              {search.q && (
+                <button
+                  type="button"
+                  aria-label="Clear tour search"
+                  onClick={() => search.onQ("")}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  <X className="size-4" />
+                </button>
+              )}
+            </div>
+            <Button
+              variant={open ? "outline" : "default"}
+              size="lg"
+              className="rounded-full"
+              onClick={() => setOpen((v) => !v)}
+              aria-expanded={open}
+            >
+              <Wand2 className="size-4 mr-1.5" />
+              {open ? "Close builder" : "Build a custom tour"}
+            </Button>
+          </div>
+
+          {search.themes.length > 0 && (
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => search.onTheme("")}
+                className={cn(
+                  "rounded-full border px-3.5 py-1.5 text-xs font-medium transition",
+                  !search.theme
+                    ? "border-[var(--gold)] bg-[var(--gold)]/15 text-[var(--gold-ink)]"
+                    : "border-white/15 hover:border-[var(--gold)]/50",
+                )}
+              >
+                All themes
+              </button>
+              {search.themes.map((th) => (
+                <button
+                  key={th}
+                  type="button"
+                  onClick={() => search.onTheme(search.theme === th ? "" : th)}
+                  className={cn(
+                    "rounded-full border px-3.5 py-1.5 text-xs font-medium capitalize transition",
+                    search.theme === th
+                      ? "border-[var(--gold)] bg-[var(--gold)]/15 text-[var(--gold-ink)]"
+                      : "border-white/15 hover:border-[var(--gold)]/50",
+                  )}
+                >
+                  {th.replace(/[-_]/g, " ")}
+                </button>
+              ))}
+              <span className="ml-auto text-xs text-muted-foreground" aria-live="polite">
+                {search.resultCount} tour{search.resultCount === 1 ? "" : "s"}
+                {search.q.trim() || search.theme ? " match" : " available"}
+              </span>
+            </div>
+          )}
+        </div>
+      )}
+
+      {!search && (
+        <div className="mt-5">
+          <Button variant={open ? "outline" : "default"} onClick={() => setOpen((v) => !v)} aria-expanded={open}>
+            {open ? "Close builder" : "Create a custom tour"}
+          </Button>
+        </div>
+      )}
+
 
       {open && (
         <div className="mt-6 space-y-6">
