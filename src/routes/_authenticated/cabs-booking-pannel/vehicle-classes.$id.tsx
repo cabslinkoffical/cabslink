@@ -353,6 +353,7 @@ function EditorPage() {
             </Section>
           </div>
         </div>
+      </div>
     </div>
   );
 }
