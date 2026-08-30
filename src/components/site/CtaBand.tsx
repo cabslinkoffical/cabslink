@@ -24,8 +24,45 @@ export function CtaBand({
   primaryTo?: string;
   secondaryLabel?: string;
   secondaryTo?: string;
-  tone?: "navy" | "light";
+  tone?: "navy" | "light" | "gold";
 }) {
+  if (tone === "gold") {
+    return (
+      <section className="bg-[var(--gold)]">
+        <div className="container-x py-10 md:py-12">
+          <div className="flex flex-col gap-6 rounded-2xl border border-[var(--navy)]/10 bg-[var(--gold)] p-6 shadow-glow md:flex-row md:items-center md:justify-between md:p-8">
+            <div className="min-w-0">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[var(--navy)]/70">{eyebrow}</p>
+              <h2 className="mt-2 font-display text-2xl font-semibold leading-tight text-[var(--navy)] md:text-3xl">
+                {title}
+              </h2>
+              <p className="mt-2 text-sm text-[var(--navy)]/80">{subtitle}</p>
+            </div>
+
+            <div className="flex shrink-0 flex-wrap items-center gap-3">
+              <Button asChild className="rounded-full bg-[var(--navy)] px-6 text-white hover:bg-[var(--navy)]/90">
+                <Link to={primaryTo}>
+                  {primaryLabel} <ArrowRight className="size-4" />
+                </Link>
+              </Button>
+              {secondaryLabel && secondaryTo ? (
+                <Button asChild variant="outline" className="rounded-full border-[var(--navy)]/25 bg-transparent px-6 text-[var(--navy)] hover:bg-[var(--navy)]/10">
+                  <Link to={secondaryTo}>{secondaryLabel}</Link>
+                </Button>
+              ) : (
+                <Button asChild variant="outline" className="rounded-full border-[var(--navy)]/25 bg-transparent px-6 text-[var(--navy)] hover:bg-[var(--navy)]/10">
+                  <a href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}>
+                    <Phone className="size-4" /> {SITE.phoneUK}
+                  </a>
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   const dark = tone === "navy";
   return (
     <section className={dark ? "bg-[var(--navy)]" : "bg-[var(--surface-2)]"}>
