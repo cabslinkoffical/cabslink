@@ -1,12 +1,17 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
+import { Search, X } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { CtaBand } from "@/components/site/CtaBand";
 import { PageHero, SectionHeader } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { TourCard } from "@/components/site/TourCard";
-import { listPublishedTours } from "@/lib/tours.functions";
+import { CustomTourBuilder } from "@/components/site/CustomTourBuilder";
+import { listPublishedTours, type PublicTourListItem } from "@/lib/tours.functions";
+import { cn } from "@/lib/utils";
 
 const toursQuery = queryOptions({
   queryKey: ["published-tours"],
@@ -15,12 +20,19 @@ const toursQuery = queryOptions({
 });
 
 export const Route = createFileRoute("/tours/")({
+  // Keys are omitted when empty so bare `/tours` stays a 200 (no 307 rewrite).
+  validateSearch: (search: Record<string, unknown>): { q?: string; theme?: string } => {
+    const out: { q?: string; theme?: string } = {};
+    if (typeof search.q === "string" && search.q.length > 0) out.q = search.q.slice(0, 80);
+    if (typeof search.theme === "string" && search.theme.length > 0) out.theme = search.theme.slice(0, 60);
+    return out;
+  },
   head: () => ({
     meta: [
       { title: "Scotland & UK Private Driver Tours — Cabslink" },
-      { name: "description", content: "Private driver tours across Scotland and the UK. Curated multi-stop itineraries with transparent per-mile pricing and hand-picked stops." },
+      { name: "description", content: "Search private driver tours across Scotland and the UK, or build a custom tour with your own start, finish and stops. Transparent per-mile pricing." },
       { property: "og:title", content: "Private UK Driver Tours — Cabslink" },
-      { property: "og:description", content: "Curated multi-stop driver tours. See Scotland's icons with a private driver, transparent pricing, no hidden fees." },
+      { property: "og:description", content: "Search curated multi-stop driver tours or build your own itinerary with famous stops along the way." },
       { property: "og:url", content: "https://cabslink.com/tours" },
     ],
     links: [{ rel: "canonical", href: "https://cabslink.com/tours" }],
@@ -37,6 +49,19 @@ export const Route = createFileRoute("/tours/")({
   notFoundComponent: () => null,
   component: ToursPage,
 });
+
+function matchesQuery(t: PublicTourListItem, needle: string) {
+  if (!needle) return true;
+  const hay = [t.name, t.short_description, t.origin_label, t.destination_label, t.theme]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+  return needle
+    .toLowerCase()
+    .split(/\s+/)
+    .filter(Boolean)
+    .every((w) => hay.includes(w));
+}
 
 
 
