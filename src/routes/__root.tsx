@@ -13,6 +13,8 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { resolvePublicRedirect } from "../lib/seo-public.functions";
+import { getSiteStatus } from "../lib/site-status.functions";
+import { MaintenanceScreen } from "../components/site/MaintenanceScreen";
 
 function NotFoundComponent() {
   return (
@@ -49,10 +51,19 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   beforeLoad: async ({ location }) => {
-    // Skip static assets, API routes, and admin — cheap short-circuit before RPC.
     const p = location.pathname;
-    if (!p || p === "/" || p.startsWith("/api/") || p.startsWith("/cabs-booking-pannel") ||
-        p.startsWith("/_") || /\.[a-z0-9]{2,5}$/i.test(p)) return;
+    // Admin, auth and API stay reachable so the switch can be turned back off.
+    const isExempt = !p || p.startsWith("/api/") || p.startsWith("/cabs-booking-pannel") ||
+      p.startsWith("/auth") || p.startsWith("/_") || /\.[a-z0-9]{2,5}$/i.test(p);
+
+    let maintenance: { maintenance: boolean; company_name: string | null } = { maintenance: false, company_name: null };
+    if (!isExempt) {
+      maintenance = await getSiteStatus();
+      if (maintenance.maintenance) return { maintenance };
+    }
+
+    // Legacy-path redirects. Skip static assets, API routes, and admin.
+    if (isExempt || p === "/") return { maintenance };
     try {
       const row = await resolvePublicRedirect({ data: { path: p } });
       if (row?.to_path && row.to_path !== p) {
@@ -63,6 +74,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       // Rethrow router redirects; swallow lookup errors so the site keeps loading.
       if (e && (e.isRedirect || e.status === 301 || e.status === 302)) throw e;
     }
+    return { maintenance };
   },
   head: () => ({
     meta: [
@@ -108,10 +120,12 @@ function RootShell({ children }: { children: ReactNode }) {
 }
 
 function RootComponent() {
-  const { queryClient } = Route.useRouteContext();
+  const ctx = Route.useRouteContext() as { queryClient: QueryClient; maintenance?: { maintenance: boolean; company_name: string | null } };
   return (
-    <QueryClientProvider client={queryClient}>
-      <Outlet />
+    <QueryClientProvider client={ctx.queryClient}>
+      {ctx.maintenance?.maintenance
+        ? <MaintenanceScreen companyName={ctx.maintenance.company_name} />
+        : <Outlet />}
     </QueryClientProvider>
   );
 }
