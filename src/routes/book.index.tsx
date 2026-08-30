@@ -421,9 +421,12 @@ function BookPage() {
     enabled: !!chosen,
     staleTime: 5 * 60_000,
   });
+  // The Onboard extras card owns these keys, so they must never be repeated in
+  // the Add-ons catalogue (that used to charge the same thing twice).
   const catalogueExtras: PublicExtra[] = (extrasQuery.data ?? []).filter(
-    (e) => e.key !== "child_seat" && e.key !== "meet_greet",
+    (e) => !ONBOARD_EXTRA_KEYS.has(e.key),
   );
+
 
   // ---- Pricing math (single source used by extras/payment/review) ----
   // Extras prices come from the canonical Extras catalogue, resolved for the
