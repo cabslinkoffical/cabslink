@@ -75,22 +75,15 @@ export const getBookingByToken = createServerFn({ method: "POST" })
     };
   });
 
-// ---------------- Public: track booking by reference + email/phone ----------------
+// ---------------- Public: track booking by reference ----------------
 const trackBookingSchema = z.object({
   bookingRef: z.string().trim().min(1).max(50),
-  email: z.string().trim().email().max(254).optional().or(z.literal("")),
-  phone: z.string().trim().min(1).max(40).optional().or(z.literal("")),
 });
 
 export const getBookingByReference = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => trackBookingSchema.parse(input))
   .handler(async ({ data }) => {
     applyConfirmationHeaders();
-
-    const contact = (data.email ?? "").trim() || (data.phone ?? "").trim();
-    if (!contact) {
-      throw new Error("Please enter the email address or phone number used for the booking.");
-    }
 
     let ip = "unknown";
     try { ip = getRequestIP({ xForwardedFor: true }) ?? "unknown"; } catch {}
@@ -111,12 +104,6 @@ export const getBookingByReference = createServerFn({ method: "POST" })
     }
 
     const row = res.data;
-    const emailMatch = !!data.email && row.email && row.email.toLowerCase().trim() === data.email.toLowerCase().trim();
-    const phoneMatch = !!data.phone && row.phone && row.phone.replace(/\D/g, "") === data.phone.replace(/\D/g, "");
-
-    if (!emailMatch && !phoneMatch) {
-      throw new Error("The contact details you entered do not match this booking.");
-    }
 
     return {
       bookingRef: row.booking_ref,
