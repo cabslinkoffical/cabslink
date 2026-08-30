@@ -179,9 +179,6 @@ function AdminLayout() {
 
           {/* Global admin search is not yet wired to a backend index — hidden until implemented. */}
           {/* Notification bell is not yet wired to a real notification stream — hidden until implemented. */}
-          <Button variant="ghost" size="icon" onClick={toggleTheme} className="text-muted-foreground" aria-label="Toggle theme">
-            {dark ? <Sun className="size-4" /> : <Moon className="size-4" />}
-          </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-muted">
