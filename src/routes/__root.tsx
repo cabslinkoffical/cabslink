@@ -9,12 +9,15 @@ import {
   redirect,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
+import { useRouterState } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { resolvePublicRedirect } from "../lib/seo-public.functions";
 import { getSiteStatus } from "../lib/site-status.functions";
 import { MaintenanceScreen } from "../components/site/MaintenanceScreen";
+import { ConsentBanner } from "../components/site/ConsentBanner";
+import { initAnalytics, isMeasurablePath, trackPageView } from "../lib/analytics-ga";
 
 function NotFoundComponent() {
   return (
