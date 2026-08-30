@@ -176,6 +176,7 @@ function BookingsPage() {
             <table className="w-full text-sm">
               <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">
                 <tr>
+                  <th className="text-left px-2 py-3"><span className="sr-only">View</span></th>
                   <th className="text-left px-4 py-3">Ref</th>
                   <th className="text-left px-4 py-3">Customer</th>
                   <th className="text-left px-4 py-3">Pickup</th>
@@ -192,6 +193,9 @@ function BookingsPage() {
               <tbody className="divide-y divide-border">
                 {filtered.map((b: any) => (
                   <tr key={b.id} className="hover:bg-muted/30">
+                    <td className="px-2 py-3">
+                      <Button aria-label="View details" size="icon" variant="ghost" onClick={() => { setEditing(b); setReason(""); }} title="View / edit"><Eye className="size-4" /></Button>
+                    </td>
                     <td className="px-4 py-3 font-mono text-xs">{b.booking_ref ?? "—"}</td>
                     <td className="px-4 py-3">
                       <div className="font-medium">{b.customer_name}</div>
@@ -207,7 +211,6 @@ function BookingsPage() {
                     <td className="px-4 py-3"><StatusBadge status={statusLabel(b.status)} /></td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-1">
-                        <Button aria-label="View details" size="icon" variant="ghost" onClick={() => { setEditing(b); setReason(""); }} title="View / edit"><Eye className="size-4" /></Button>
                         {b.deleted_at ? (
                           <Button aria-label="Restore" size="icon" variant="ghost" onClick={() => delMut.mutate({ id: b.id, restore: true })} title="Restore"><RotateCcw className="size-4" /></Button>
                         ) : (
