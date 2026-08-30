@@ -117,6 +117,7 @@ import { Route as AuthenticatedCabsBookingPannelCouponsRouteImport } from './rou
 import { Route as AuthenticatedCabsBookingPannelBookingsRouteImport } from './routes/_authenticated/cabs-booking-pannel/bookings'
 import { Route as AuthenticatedCabsBookingPannelBannedAddressesRouteImport } from './routes/_authenticated/cabs-booking-pannel/banned-addresses'
 import { Route as AuthenticatedCabsBookingPannelAvailabilityRouteImport } from './routes/_authenticated/cabs-booking-pannel/availability'
+import { Route as AuthenticatedCabsBookingPannelAnalyticsRouteImport } from './routes/_authenticated/cabs-booking-pannel/analytics'
 import { Route as AuthenticatedCabsBookingPannelAddressesRouteImport } from './routes/_authenticated/cabs-booking-pannel/addresses'
 import { Route as AuthenticatedCabsBookingPannelVehicleClassesIndexRouteImport } from './routes/_authenticated/cabs-booking-pannel/vehicle-classes.index'
 import { Route as AuthenticatedCabsBookingPannelSeoIndexRouteImport } from './routes/_authenticated/cabs-booking-pannel/seo.index'
@@ -698,6 +699,12 @@ const AuthenticatedCabsBookingPannelAvailabilityRoute =
     path: '/availability',
     getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
+const AuthenticatedCabsBookingPannelAnalyticsRoute =
+  AuthenticatedCabsBookingPannelAnalyticsRouteImport.update({
+    id: '/analytics',
+    path: '/analytics',
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
+  } as any)
 const AuthenticatedCabsBookingPannelAddressesRoute =
   AuthenticatedCabsBookingPannelAddressesRouteImport.update({
     id: '/addresses',
@@ -900,6 +907,7 @@ export interface FileRoutesByFullPath {
   '/travel-solutions/': typeof TravelSolutionsIndexRoute
   '/universities/': typeof UniversitiesIndexRoute
   '/cabs-booking-pannel/addresses': typeof AuthenticatedCabsBookingPannelAddressesRoute
+  '/cabs-booking-pannel/analytics': typeof AuthenticatedCabsBookingPannelAnalyticsRoute
   '/cabs-booking-pannel/availability': typeof AuthenticatedCabsBookingPannelAvailabilityRoute
   '/cabs-booking-pannel/banned-addresses': typeof AuthenticatedCabsBookingPannelBannedAddressesRoute
   '/cabs-booking-pannel/bookings': typeof AuthenticatedCabsBookingPannelBookingsRoute
@@ -1026,6 +1034,7 @@ export interface FileRoutesByTo {
   '/travel-solutions': typeof TravelSolutionsIndexRoute
   '/universities': typeof UniversitiesIndexRoute
   '/cabs-booking-pannel/addresses': typeof AuthenticatedCabsBookingPannelAddressesRoute
+  '/cabs-booking-pannel/analytics': typeof AuthenticatedCabsBookingPannelAnalyticsRoute
   '/cabs-booking-pannel/availability': typeof AuthenticatedCabsBookingPannelAvailabilityRoute
   '/cabs-booking-pannel/banned-addresses': typeof AuthenticatedCabsBookingPannelBannedAddressesRoute
   '/cabs-booking-pannel/bookings': typeof AuthenticatedCabsBookingPannelBookingsRoute
@@ -1156,6 +1165,7 @@ export interface FileRoutesById {
   '/travel-solutions/': typeof TravelSolutionsIndexRoute
   '/universities/': typeof UniversitiesIndexRoute
   '/_authenticated/cabs-booking-pannel/addresses': typeof AuthenticatedCabsBookingPannelAddressesRoute
+  '/_authenticated/cabs-booking-pannel/analytics': typeof AuthenticatedCabsBookingPannelAnalyticsRoute
   '/_authenticated/cabs-booking-pannel/availability': typeof AuthenticatedCabsBookingPannelAvailabilityRoute
   '/_authenticated/cabs-booking-pannel/banned-addresses': typeof AuthenticatedCabsBookingPannelBannedAddressesRoute
   '/_authenticated/cabs-booking-pannel/bookings': typeof AuthenticatedCabsBookingPannelBookingsRoute
@@ -1286,6 +1296,7 @@ export interface FileRouteTypes {
     | '/travel-solutions/'
     | '/universities/'
     | '/cabs-booking-pannel/addresses'
+    | '/cabs-booking-pannel/analytics'
     | '/cabs-booking-pannel/availability'
     | '/cabs-booking-pannel/banned-addresses'
     | '/cabs-booking-pannel/bookings'
@@ -1412,6 +1423,7 @@ export interface FileRouteTypes {
     | '/travel-solutions'
     | '/universities'
     | '/cabs-booking-pannel/addresses'
+    | '/cabs-booking-pannel/analytics'
     | '/cabs-booking-pannel/availability'
     | '/cabs-booking-pannel/banned-addresses'
     | '/cabs-booking-pannel/bookings'
@@ -1541,6 +1553,7 @@ export interface FileRouteTypes {
     | '/travel-solutions/'
     | '/universities/'
     | '/_authenticated/cabs-booking-pannel/addresses'
+    | '/_authenticated/cabs-booking-pannel/analytics'
     | '/_authenticated/cabs-booking-pannel/availability'
     | '/_authenticated/cabs-booking-pannel/banned-addresses'
     | '/_authenticated/cabs-booking-pannel/bookings'
@@ -2431,6 +2444,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCabsBookingPannelAvailabilityRouteImport
       parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
+    '/_authenticated/cabs-booking-pannel/analytics': {
+      id: '/_authenticated/cabs-booking-pannel/analytics'
+      path: '/analytics'
+      fullPath: '/cabs-booking-pannel/analytics'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelAnalyticsRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
+    }
     '/_authenticated/cabs-booking-pannel/addresses': {
       id: '/_authenticated/cabs-booking-pannel/addresses'
       path: '/addresses'
@@ -2584,6 +2604,7 @@ const AuthenticatedCabsBookingPannelSeoPagesRouteWithChildren =
 
 interface AuthenticatedCabsBookingPannelRouteRouteChildren {
   AuthenticatedCabsBookingPannelAddressesRoute: typeof AuthenticatedCabsBookingPannelAddressesRoute
+  AuthenticatedCabsBookingPannelAnalyticsRoute: typeof AuthenticatedCabsBookingPannelAnalyticsRoute
   AuthenticatedCabsBookingPannelAvailabilityRoute: typeof AuthenticatedCabsBookingPannelAvailabilityRoute
   AuthenticatedCabsBookingPannelBannedAddressesRoute: typeof AuthenticatedCabsBookingPannelBannedAddressesRoute
   AuthenticatedCabsBookingPannelBookingsRoute: typeof AuthenticatedCabsBookingPannelBookingsRoute
@@ -2625,6 +2646,8 @@ const AuthenticatedCabsBookingPannelRouteRouteChildren: AuthenticatedCabsBooking
   {
     AuthenticatedCabsBookingPannelAddressesRoute:
       AuthenticatedCabsBookingPannelAddressesRoute,
+    AuthenticatedCabsBookingPannelAnalyticsRoute:
+      AuthenticatedCabsBookingPannelAnalyticsRoute,
     AuthenticatedCabsBookingPannelAvailabilityRoute:
       AuthenticatedCabsBookingPannelAvailabilityRoute,
     AuthenticatedCabsBookingPannelBannedAddressesRoute:
