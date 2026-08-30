@@ -13,6 +13,8 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { resolvePublicRedirect } from "../lib/seo-public.functions";
+import { getSiteStatus } from "../lib/site-status.functions";
+import { MaintenanceScreen } from "../components/site/MaintenanceScreen";
 
 function NotFoundComponent() {
   return (
