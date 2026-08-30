@@ -4,7 +4,7 @@ import type { LucideIcon } from "lucide-react";
 export function StatCard({
   label, value, icon: Icon, accent = "text-primary", hint,
 }: {
-  label: string; value: string | number; icon: LucideIcon; accent?: string; hint?: string;
+  label: string; value: string | number; icon: LucideIcon; accent?: string; hint?: React.ReactNode;
 }) {
   return (
     <div className="admin-card admin-card-hover admin-accent-top p-4">
