@@ -438,10 +438,10 @@ export function BookingWidget({
             </div>
 
 
-            {/* Search button */}
+            {/* Desktop search button — stays inside horizontal pill */}
             <button
               type="submit"
-              className={`@[600px]:col-span-2 @[980px]:col-span-1 group cta-search inline-flex items-center justify-center gap-2 bg-[var(--gold)] text-[var(--gold-foreground)] rounded-2xl @[980px]:rounded-full px-6 @[980px]:px-8 py-4 @[980px]:py-2.5 font-display font-bold uppercase tracking-[0.18em] text-xs shrink-0 ${errorList.length === 0 ? "cta-search-ready" : ""}`}
+              className={`hidden @[980px]:inline-flex group cta-search items-center justify-center gap-2 bg-[var(--gold)] text-[var(--gold-foreground)] rounded-full px-8 py-2.5 font-display font-bold uppercase tracking-[0.18em] text-xs shrink-0 ${errorList.length === 0 ? "cta-search-ready" : ""}`}
             >
               <Search className="w-4 h-4 transition-transform duration-200 group-hover:scale-110" strokeWidth={2.5} />
               <span>Search</span>
@@ -540,6 +540,15 @@ export function BookingWidget({
             </PillButton>
           )}
         </div>
+
+        {/* Mobile/tablet search button — anchored at the bottom of the form */}
+        <button
+          type="submit"
+          className={`w-full mt-4 @[980px]:hidden group cta-search inline-flex items-center justify-center gap-2 bg-[var(--gold)] text-[var(--gold-foreground)] rounded-2xl px-6 py-4 font-display font-bold uppercase tracking-[0.18em] text-xs ${errorList.length === 0 ? "cta-search-ready" : ""}`}
+        >
+          <Search className="w-4 h-4 transition-transform duration-200 group-hover:scale-110" strokeWidth={2.5} />
+          <span>Search</span>
+        </button>
 
 
         {attempted && errorList.length > 0 && (
