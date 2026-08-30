@@ -340,85 +340,27 @@ function EditorPage() {
                 </div>
               </div>
             </Section>
-          </TabsContent>
-
-          {/* ---------------- PRICING ---------------- */}
-          <TabsContent value="pricing" className="space-y-6 max-w-4xl">
-            <Section title="How this class is priced" hint="Prices live on the class itself — there is no separate vehicle record to link.">
+            <Section title="Automatic pricing" hint="Switch off to make this class quote-on-request.">
               <Toggle label="Quote on request only (no automatic price)" checked={!!form.quote_on_request}
                 onChange={(v) => setForm((f: any) => ({ ...f, quote_on_request: v }))} />
             </Section>
 
-            {form.quote_on_request ? (
-              <p className="text-sm text-muted-foreground">This class is quote-on-request, so automatic pricing is switched off.</p>
-            ) : (
-              <>
-                <Section title="Distance pricing">
-                  <MileageEditor pricing={pricing} setPricing={setPricing} />
-                </Section>
-                <Section title="Extras & peak times">
-                  <ExtrasEditor pricing={pricing} setPricing={setPricing} />
-                </Section>
-                <Section title="Hourly hire">
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 items-end">
-                    <Field label="£ per hour"><Input type="number" step="0.5" min={0} value={hourly.pricePerHour} onChange={(e) => setHourly((h) => ({ ...h, pricePerHour: Number(e.target.value) }))} /></Field>
-                    <Field label="Min hours"><Input type="number" min={1} max={24} value={hourly.minHours} onChange={(e) => setHourly((h) => ({ ...h, minHours: Number(e.target.value) }))} /></Field>
-                    <Field label="Max hours"><Input type="number" min={1} max={24} value={hourly.maxHours} onChange={(e) => setHourly((h) => ({ ...h, maxHours: Number(e.target.value) }))} /></Field>
-                    <Toggle label="Offer hourly hire" checked={hourly.active} onChange={(v) => setHourly((h) => ({ ...h, active: v }))} />
-                  </div>
-                </Section>
-              </>
-            )}
-          </TabsContent>
-
-          {/* ---------------- AVAILABILITY ---------------- */}
-          <TabsContent value="availability" className="space-y-6 max-w-4xl">
-            <Section title="When this class can't be booked" hint="Add a date range to close this class. Leave dates blank to close it entirely.">
+            <Section title="Pricing & availability" hint="These live in their own sections so each setting has exactly one place to be edited.">
               {isNew ? (
-                <p className="text-sm text-muted-foreground">Save the class first, then add availability blocks.</p>
+                <p className="text-sm text-muted-foreground">Save the class first, then set up its pricing scheme and availability rules.</p>
               ) : (
-                <>
-                  <div className="space-y-2">
-                    {rules.length === 0 && <p className="text-sm text-muted-foreground">No blocks — this class is always bookable.</p>}
-                    {rules.map((r: any) => (
-                      <div key={r.id} className="flex items-center gap-3 rounded-lg border border-border p-3">
-                        <div className="min-w-0 flex-1">
-                          <div className="text-sm font-medium truncate">{r.name}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {r.effect === "block" ? "Blocked" : "Allowed"}
-                            {r.date_from || r.date_to ? ` · ${r.date_from ?? "any"} → ${r.date_to ?? "any"}` : " · all dates"}
-                            {r.reason ? ` · ${r.reason}` : ""}
-                          </div>
-                        </div>
-                        <StatusBadge status={r.active ? "active" : "inactive"} />
-                        <Button aria-label={`Delete ${r.name}`} size="icon" variant="ghost" className="text-destructive"
-                          onClick={async () => {
-                            await delRuleFn({ data: { id: r.id } });
-                            qc.invalidateQueries({ queryKey: ["admin", "availability-rules"] });
-                            toast.success("Block removed");
-                          }}>
-                          <Trash2 className="size-4" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                  <AddBlock onAdd={async (v) => {
-                    await saveRuleFn({
-                      data: {
-                        name: v.name, rule_scope: "vehicle_class", effect: "block",
-                        vehicle_class_id: id, date_from: v.date_from || null, date_to: v.date_to || null,
-                        reason: v.reason || null, priority: 100, active: true, scope: "either",
-                      } as any,
-                    });
-                    qc.invalidateQueries({ queryKey: ["admin", "availability-rules"] });
-                    toast.success("Block added");
-                  }} />
-                </>
+                <div className="flex flex-wrap gap-2">
+                  <Button asChild variant="outline">
+                    <Link to="/cabs-booking-pannel/pricing-schemes/$id" params={{ id }}>Edit pricing scheme</Link>
+                  </Button>
+                  <Button asChild variant="outline">
+                    <Link to="/cabs-booking-pannel/availability">Availability rules</Link>
+                  </Button>
+                </div>
               )}
             </Section>
-          </TabsContent>
+          </div>
         </div>
-      </Tabs>
     </div>
   );
 }
