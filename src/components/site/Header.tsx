@@ -85,6 +85,13 @@ export function Header() {
               </Link>
             )}
 
+            <Link
+              to="/track-booking"
+              className="hidden md:inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-[12px] font-bold tracking-wide text-white/80 hover:text-[var(--gold)] transition-colors"
+            >
+              <MapPin className="size-3.5" /> Track
+            </Link>
+
             <a
               href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}
               className="group hidden 2xl:inline-flex items-center gap-2 rounded-full px-3 py-2 text-[12px] font-bold tracking-wide text-[var(--gold)] hover:text-white transition-colors"
