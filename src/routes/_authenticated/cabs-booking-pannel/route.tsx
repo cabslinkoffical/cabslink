@@ -97,6 +97,7 @@ const NAV: SidebarEntry[] = [
       { to: "/cabs-booking-pannel/seo/import", label: "Import", icon: UploadCloud },
     ],
   },
+  { to: "/cabs-booking-pannel/analytics", label: "Analytics", icon: TrendingUp },
   { to: "/cabs-booking-pannel/reports", label: "Reports", icon: BarChart3 },
   {
     label: "System", icon: SettingsIcon, items: [
