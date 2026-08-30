@@ -32,6 +32,7 @@ import { listPoisForRoute, type PoiSuggestion, type RouteTemplateSummary } from 
 import { calculateMultiStopQuote, type MultiStopQuoteResult } from "@/lib/scenic-quote.functions";
 import { resolveTourTemplate } from "@/lib/tours.functions";
 import { listPublicVehicleClasses, type PublicVehicleClass } from "@/lib/vehicle-classes.functions";
+import { listPublicExtras, type PublicExtra } from "@/lib/extras-public.functions";
 import { VehicleAllocationNotice } from "@/components/site/VehicleAllocationNotice";
 import { fleetImageFor } from "@/assets/fleet";
 
@@ -210,6 +211,8 @@ function BookPage() {
   const [tourAckAt, setTourAckAt] = useState<string | null>(null);
   const [meetGreet, setMeetGreet] = useState(true);
   const [childSeatCount, setChildSeatCount] = useState(0);
+  // Catalogue extras (admin Extras section) → key/quantity chosen by the customer.
+  const [extraQty, setExtraQty] = useState<Record<string, number>>({});
   const [returnJourney, setReturnJourney] = useState(pre.ret);
   // Contact + payment
   const [contact, setContact] = useState<Contact>(emptyContact);
@@ -409,6 +412,18 @@ function BookPage() {
   const isConverted = !!mq && mq.service_type !== mq.original_service_type;
   const needsAck = isConverted && !tourAckAt;
 
+  // Catalogue extras offered for the chosen class (admin Extras section is the
+  // single source of truth; class overrides already resolved server-side).
+  const extrasQuery = useQuery({
+    queryKey: ["public-extras", chosen?.classId ?? null],
+    queryFn: () => listPublicExtras({ data: { classId: chosen?.classId ?? null } }),
+    enabled: !!chosen,
+    staleTime: 5 * 60_000,
+  });
+  const catalogueExtras: PublicExtra[] = (extrasQuery.data ?? []).filter(
+    (e) => e.key !== "child_seat" && e.key !== "meet_greet",
+  );
+
   // ---- Pricing math (single source used by extras/payment/review) ----
   // Extras prices come from the canonical Extras catalogue, resolved for the
   // chosen vehicle class (class-specific overrides included). The flat values
@@ -426,6 +441,14 @@ function BookPage() {
   const grossUp = (net: number) =>
     taxCfg.mode === "inclusive" ? net : Math.round(net * (1 + (taxCfg.rate || 0)) * 100) / 100;
   const seatFee = grossUp((childSeatFeePence / 100) * childSeatCount);
+  const addonLines = catalogueExtras
+    .filter((e) => (extraQty[e.key] ?? 0) > 0)
+    .map((e) => {
+      const n = extraQty[e.key] ?? 0;
+      const units = e.price_basis === "per_booking" ? 1 : n;
+      return { key: e.key, name: e.name, quantity: n, amount: grossUp((e.price_pence / 100) * units) };
+    });
+  const addonsFee = Number(addonLines.reduce((t, l) => t + l.amount, 0).toFixed(2));
   const meetGreetFee = grossUp(meetGreet ? meetGreetFeePence / 100 : 0);
   const perVehiclePrice = chosen
     ? (mq?.vehicles.find((v) => v.vehicle_id === chosen.vehicleId)?.per_vehicle_total ?? chosen.finalPrice)
@@ -433,7 +456,7 @@ function BookPage() {
   const rideTotal = perVehiclePrice * qty;
   // A return journey is the same trip priced again — not a flat add-on fee.
   const returnFee = returnJourney ? rideTotal : 0;
-  const extrasBase = rideTotal + seatFee + meetGreetFee + returnFee;
+  const extrasBase = rideTotal + seatFee + meetGreetFee + returnFee + addonsFee;
 
   const policyDelta =
     policy === "non_refundable"
@@ -489,6 +512,7 @@ function BookPage() {
             parts.push(`Payment method: ${paymentLabel}`);
             if (parsed.data.whatsapp) parts.push(`WhatsApp: ${parsed.data.whatsapp}`);
             if (childSeatCount > 0) parts.push(`Child seats requested: ${childSeatCount}`);
+            for (const l of addonLines) parts.push(`Extra: ${l.name} × ${l.quantity}`);
             if (parsed.data.notes) parts.push(parsed.data.notes);
             return parts.join("\n");
           })(),
@@ -497,6 +521,7 @@ function BookPage() {
           meet_greet: meetGreet,
           return_journey: returnJourney,
           cancellation_policy: policy,
+          extras: addonLines.map((l) => ({ key: l.key, quantity: l.quantity })),
           templateSlug: pre.templateSlug || null,
           captchaToken: captcha.token,
         },
@@ -579,7 +604,7 @@ function BookPage() {
                   onEdit={() => setEditOpen(true)}
                   onStartAgain={startAgain}
                   route={quoteQuery.data ? { miles: quoteQuery.data.distanceMiles, minutes: quoteQuery.data.durationMinutes } : null}
-                  price={chosen ? { vehicleName: chosen.name, perVehicle: perVehiclePrice, qty, rideTotal, seatFee, seatCount: childSeatCount, meetGreetFee, returnFee, policy, policyDelta, grandTotal } : null}
+                  price={chosen ? { vehicleName: chosen.name, perVehicle: perVehiclePrice, qty, rideTotal, seatFee, seatCount: childSeatCount, meetGreetFee, returnFee, addonsFee, addonLines, policy, policyDelta, grandTotal } : null}
                 />
 
                 <div className="min-w-0 space-y-6">
@@ -646,6 +671,10 @@ function BookPage() {
                       meetGreetFee={meetGreetFee}
                       returnFee={returnFee}
                       meetGreetFeePence={meetGreetFeePence}
+                      catalogueExtras={catalogueExtras}
+                      extraQty={extraQty}
+                      onExtraQty={(k, n) => setExtraQty((prev) => ({ ...prev, [k]: n }))}
+                      addonsFee={addonsFee}
                       policyCfg={policyCfg}
                       onBack={() => setStep("details")}
                       onNext={() => { track("booking_step", { step: "payment", value: grandTotal / 100, currency: "GBP" }); setStep("payment"); }}
@@ -675,7 +704,7 @@ function BookPage() {
         </div>
       </section>
       {chosen && step !== "review" && (
-        <MobilePriceBar price={{ vehicleName: chosen.name, perVehicle: perVehiclePrice, qty, rideTotal, seatFee, seatCount: childSeatCount, meetGreetFee, returnFee, policy, policyDelta, grandTotal }} />
+        <MobilePriceBar price={{ vehicleName: chosen.name, perVehicle: perVehiclePrice, qty, rideTotal, seatFee, seatCount: childSeatCount, meetGreetFee, returnFee, addonsFee, addonLines, policy, policyDelta, grandTotal }} />
       )}
       <EditTripDialog open={editOpen} onOpenChange={setEditOpen} initial={pre} onSave={applyEdit} />
     </SiteLayout>
@@ -907,6 +936,8 @@ type PriceSummary = {
   seatCount: number;
   meetGreetFee: number;
   returnFee: number;
+  addonsFee: number;
+  addonLines: { key: string; name: string; quantity: number; amount: number }[];
   policy: Policy;
   policyDelta: number;
   grandTotal: number;
@@ -923,6 +954,7 @@ function PriceBreakdown({ price }: { price: PriceSummary }) {
     ...(price.seatCount > 0 ? [`Child seats ${fmtGBP(price.seatFee)}`] : []),
     ...(price.meetGreetFee > 0 ? [`Meet & greet ${fmtGBP(price.meetGreetFee)}`] : []),
     ...(price.returnFee > 0 ? [`Return ${fmtGBP(price.returnFee)}`] : []),
+    ...price.addonLines.map((l) => `${l.name}${l.quantity > 1 ? ` ×${l.quantity}` : ""} ${fmtGBP(l.amount)}`),
     `Cancellation cover: ${policyLabel}`,
   ];
   return (
@@ -1532,6 +1564,10 @@ function ExtrasStep(props: {
   meetGreetFee: number;
   returnFee: number;
   meetGreetFeePence: number;
+  catalogueExtras: PublicExtra[];
+  extraQty: Record<string, number>;
+  onExtraQty: (key: string, n: number) => void;
+  addonsFee: number;
   policyCfg: { nonRefundablePercent: number; nonRefundableMinPence: number; flexiblePercent: number; flexibleMinPence: number };
   onBack: () => void;
   onNext: () => void;
@@ -1544,6 +1580,7 @@ function ExtrasStep(props: {
     meetGreet, onMeetGreet, returnJourney, onReturnJourney,
     policy, onPolicy, baseRideTotal, seatFee, meetGreetFee, returnFee,
     meetGreetFeePence, policyCfg, onBack, onNext,
+    catalogueExtras, extraQty, onExtraQty, addonsFee,
   } = props;
 
   return (
@@ -1623,13 +1660,60 @@ function ExtrasStep(props: {
         </div>
       </ExtrasCard>
 
+      {/* --- Everything defined in the admin Extras section --- */}
+      {catalogueExtras.length > 0 && (
+        <ExtrasCard
+          icon={<Package className="size-4" />}
+          eyebrow="Add-ons"
+          title="Available extras"
+          subtitle="Every extra we offer for this vehicle class. Anything you add here is included in your total."
+        >
+          <div className="grid gap-3 sm:grid-cols-2">
+            {catalogueExtras.map((e) => {
+              const n = extraQty[e.key] ?? 0;
+              const priceLabel = `£${(e.price_pence / 100).toFixed(2)}${
+                e.price_basis === "per_hour" ? " per hour" : e.price_basis === "per_booking" ? "" : " each"
+              }`;
+              const single = e.price_basis === "per_booking" || e.max_quantity <= 1;
+              return (
+                <div key={e.id} className="rounded-xl border border-border p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold">{e.name}</p>
+                      {e.description && <p className="mt-0.5 text-xs text-muted-foreground">{e.description}</p>}
+                      <p className="mt-1 text-xs font-semibold text-[var(--gold-ink)]">+{priceLabel}</p>
+                    </div>
+                    {single ? (
+                      <Switch
+                        checked={n > 0}
+                        onCheckedChange={(v) => onExtraQty(e.key, v ? 1 : 0)}
+                        aria-label={`Add ${e.name}`}
+                      />
+                    ) : (
+                      <Select value={String(n)} onValueChange={(v) => onExtraQty(e.key, Number(v))}>
+                        <SelectTrigger className="w-24 shrink-0"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {Array.from({ length: e.max_quantity + 1 }, (_, i) => i).map((i) => (
+                            <SelectItem key={i} value={String(i)}>{i === 0 ? "None" : i}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </ExtrasCard>
+      )}
+
       {/* --- Cancellation policy tiers --- */}
       <ExtrasCard
         icon={<Shield className="size-4" />}
         eyebrow="Cancellation cover"
         title="Choose how flexible you want to be"
       >
-        <PolicyTiers value={policy} onChange={onPolicy} base={baseRideTotal + seatFee + meetGreetFee + returnFee} cfg={policyCfg} />
+        <PolicyTiers value={policy} onChange={onPolicy} base={baseRideTotal + seatFee + meetGreetFee + returnFee + addonsFee} cfg={policyCfg} />
       </ExtrasCard>
 
       {/* --- Running total (desktop only; mobile shows sticky bar) --- */}
@@ -1641,13 +1725,14 @@ function ExtrasStep(props: {
             {seatFee > 0 && <> · Child seats £{seatFee.toFixed(2)}</>}
             {meetGreetFee > 0 && <> · Meet &amp; greet £{meetGreetFee.toFixed(2)}</>}
             {returnFee > 0 && <> · Return £{returnFee.toFixed(2)}</>}
+            {addonsFee > 0 && <> · Extras £{addonsFee.toFixed(2)}</>}
             {" · "}Cancellation cover: <span className="font-semibold text-foreground/80">{policy === "non_refundable" ? "Non-refundable" : policy === "flexible" ? "Flexible" : "Standard"}</span>
           </p>
         </div>
         <div className="text-right">
           <p className="font-display text-3xl font-bold text-[var(--gold-ink)] tabular-nums">
             £{(() => {
-              const base = baseRideTotal + seatFee + meetGreetFee + returnFee;
+              const base = baseRideTotal + seatFee + meetGreetFee + returnFee + addonsFee;
               const delta = policy === "non_refundable"
                 ? -Math.max(policyCfg.nonRefundableMinPence / 100, Math.round(base * (policyCfg.nonRefundablePercent / 100) * 100) / 100)
                 : policy === "flexible"
