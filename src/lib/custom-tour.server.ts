@@ -39,6 +39,16 @@ export type TourRouteMatch = {
   tour: PublicTourDetail | null;
 };
 
+/** Endpoints within this straight-line distance count as the same place. */
+const ENDPOINT_MATCH_MILES = 8;
+
+type TemplateRow = {
+  slug: string;
+  origin_place_id: string;
+  destination_place_id: string;
+  bidirectional: boolean | null;
+};
+
 export async function matchTourByRouteImpl(
   pickupPlaceId: string,
   destinationPlaceId: string,
@@ -47,23 +57,60 @@ export async function matchTourByRouteImpl(
   const { data, error } = await client
     .from("scenic_route_templates")
     .select("slug, origin_place_id, destination_place_id, bidirectional, featured, display_order")
-    .or(
-      `and(origin_place_id.eq.${pickupPlaceId},destination_place_id.eq.${destinationPlaceId}),` +
-        `and(origin_place_id.eq.${destinationPlaceId},destination_place_id.eq.${pickupPlaceId},bidirectional.eq.true)`,
-    )
     .order("featured", { ascending: false })
     .order("display_order", { ascending: true })
-    .limit(1);
+    .limit(300);
   if (error || !data || data.length === 0) return { kind: "none", tour: null };
+  const rows = data as unknown as TemplateRow[];
 
-  const row = data[0] as {
-    slug: string;
-    origin_place_id: string;
-    destination_place_id: string;
-  };
-  const tour = await getPublishedTourBySlugImpl(row.slug);
+  // 1. Exact Place-ID match (cheapest, most precise).
+  let hit = rows.find(
+    (r) => r.origin_place_id === pickupPlaceId && r.destination_place_id === destinationPlaceId,
+  );
+  let reversed = false;
+  if (!hit) {
+    hit = rows.find(
+      (r) =>
+        r.bidirectional === true &&
+        r.origin_place_id === destinationPlaceId &&
+        r.destination_place_id === pickupPlaceId,
+    );
+    reversed = !!hit;
+  }
+
+  // 2. Fallback: proximity match. Customers rarely pick the exact same Place ID
+  //    the template was built with ("Edinburgh" vs "Edinburgh City Centre"), so
+  //    treat endpoints within a few miles of each other as the same place.
+  if (!hit) {
+    const ids = new Set<string>([pickupPlaceId, destinationPlaceId]);
+    for (const r of rows) {
+      ids.add(r.origin_place_id);
+      ids.add(r.destination_place_id);
+    }
+    const coords = await resolveCoords(client as never, Array.from(ids));
+    const from = coords.get(pickupPlaceId);
+    const to = coords.get(destinationPlaceId);
+    if (from && to) {
+      const near = (a: { lat: number; lng: number } | undefined, b: { lat: number; lng: number }) =>
+        !!a && haversineMiles(a.lat, a.lng, b.lat, b.lng) <= ENDPOINT_MATCH_MILES;
+      hit = rows.find(
+        (r) => near(coords.get(r.origin_place_id), from) && near(coords.get(r.destination_place_id), to),
+      );
+      if (!hit) {
+        hit = rows.find(
+          (r) =>
+            r.bidirectional === true &&
+            near(coords.get(r.origin_place_id), to) &&
+            near(coords.get(r.destination_place_id), from),
+        );
+        reversed = !!hit;
+      }
+    }
+  }
+
+  if (!hit) return { kind: "none", tour: null };
+  const tour = await getPublishedTourBySlugImpl(hit.slug);
   if (!tour) return { kind: "none", tour: null };
-  const reversed = row.origin_place_id !== pickupPlaceId;
   return { kind: reversed ? "reversed" : "exact", tour };
 }
 
