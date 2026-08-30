@@ -55,6 +55,16 @@ export const Route = createFileRoute("/book/")({
   component: BookPage,
 });
 
+// Extras whose controls live in the "Onboard extras" card. They are charged by
+// the dedicated pricing fields, so they are excluded from the Add-ons list to
+// avoid duplicate rows and double charging.
+const ONBOARD_EXTRA_KEYS = new Set([
+  "child_seat",
+  "additional_child_seat",
+  "meet_greet",
+  "return_journey",
+]);
+
 // -------------------------------------------------------------------
 // Prefill parsing — Place-IDs are required for a real quote.
 // stops encoding: `placeId::label` OR `placeId::label::minutes` (optional).
@@ -421,9 +431,12 @@ function BookPage() {
     enabled: !!chosen,
     staleTime: 5 * 60_000,
   });
+  // The Onboard extras card owns these keys, so they must never be repeated in
+  // the Add-ons catalogue (that used to charge the same thing twice).
   const catalogueExtras: PublicExtra[] = (extrasQuery.data ?? []).filter(
-    (e) => e.key !== "child_seat" && e.key !== "meet_greet",
+    (e) => !ONBOARD_EXTRA_KEYS.has(e.key),
   );
+
 
   // ---- Pricing math (single source used by extras/payment/review) ----
   // Extras prices come from the canonical Extras catalogue, resolved for the
@@ -1837,7 +1850,7 @@ function ExtrasStep(props: {
           </Field>
           <div className="grid gap-3">
             <Toggle
-              label={meetGreetFeePence > 0 ? `Meet & greet at arrivals (+£${(meetGreetFeePence / 100).toFixed(2)})` : "Meet & greet at arrivals"}
+              label={meetGreetFeePence > 0 ? `Meet & greet at arrivals (+£${(meetGreetFeePence / 100).toFixed(2)})` : "Meet & greet at arrivals (included)"}
               checked={meetGreet} onChange={onMeetGreet}
             />
             <Toggle
