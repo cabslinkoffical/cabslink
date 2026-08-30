@@ -1,17 +1,15 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
-import { Search, X } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { CtaBand } from "@/components/site/CtaBand";
 import { PageHero, SectionHeader } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { TourCard } from "@/components/site/TourCard";
 import { CustomTourBuilder } from "@/components/site/CustomTourBuilder";
 import { listPublishedTours, type PublicTourListItem } from "@/lib/tours.functions";
-import { cn } from "@/lib/utils";
+
 
 const toursQuery = queryOptions({
   queryKey: ["published-tours"],
@@ -120,7 +118,16 @@ function ToursPage() {
 
       <section className="pt-8 sm:pt-10">
         <div className="container-x">
-          <CustomTourBuilder />
+          <CustomTourBuilder
+            search={{
+              q,
+              onQ: (v) => setSearch({ q: v }),
+              theme,
+              onTheme: (v) => setSearch({ theme: v }),
+              themes,
+              resultCount: filtered.length,
+            }}
+          />
         </div>
       </section>
 
@@ -130,67 +137,9 @@ function ToursPage() {
             eyebrow="Choose your route"
             title="Tours ready to book"
             titleAccent="today"
-            subtitle="Each tour includes a suggested itinerary. Search by place, name or theme — then edit the stops when you book."
+            subtitle="Each tour includes a suggested itinerary. Search above by place, name or theme — then edit the stops when you book."
           />
 
-          {/* Search + theme filters */}
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <div className="relative flex-1">
-              <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                value={q}
-                onChange={(e) => setSearch({ q: e.target.value })}
-                placeholder="Search tours — e.g. Loch Ness, whisky, Edinburgh"
-                aria-label="Search tours"
-                className="h-12 pl-10 pr-10"
-              />
-              {q && (
-                <button
-                  type="button"
-                  aria-label="Clear tour search"
-                  onClick={() => setSearch({ q: "" })}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                >
-                  <X className="size-4" />
-                </button>
-              )}
-            </div>
-            {themes.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => setSearch({ theme: "" })}
-                  className={cn(
-                    "rounded-full border px-3.5 py-2 text-xs font-medium transition",
-                    !theme
-                      ? "border-[var(--gold)] bg-[var(--gold)]/15 text-[var(--gold-ink)]"
-                      : "border-white/15 hover:border-[var(--gold)]/50",
-                  )}
-                >
-                  All themes
-                </button>
-                {themes.map((th) => (
-                  <button
-                    key={th}
-                    type="button"
-                    onClick={() => setSearch({ theme: theme === th ? "" : th })}
-                    className={cn(
-                      "rounded-full border px-3.5 py-2 text-xs font-medium capitalize transition",
-                      theme === th
-                        ? "border-[var(--gold)] bg-[var(--gold)]/15 text-[var(--gold-ink)]"
-                        : "border-white/15 hover:border-[var(--gold)]/50",
-                    )}
-                  >
-                    {th.replace(/[-_]/g, " ")}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-          <p className="mt-3 text-sm text-muted-foreground" aria-live="polite">
-            {filtered.length} tour{filtered.length === 1 ? "" : "s"}
-            {isFiltering ? " match your search" : " available"}.
-          </p>
 
           {tours.length === 0 && longDayTours.length === 0 ? (
             <div className="mt-10 rounded-3xl border border-white/10 bg-[var(--surface)] p-10 text-center">
