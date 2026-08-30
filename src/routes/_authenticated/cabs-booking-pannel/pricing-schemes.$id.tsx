@@ -1,14 +1,13 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { ArrowLeft, Clock, MapPin, Percent, PlusCircle, Route as RouteIcon, SlidersHorizontal, Wallet } from "lucide-react";
+import { ArrowLeft, Clock, MapPin, Percent, Route as RouteIcon, SlidersHorizontal, Wallet } from "lucide-react";
 import { getPricingScheme } from "@/lib/pricing-schemes.functions";
 import { SchemeOverviewTab } from "@/components/admin/scheme/SchemeOverviewTab";
 import { SchemeRoutesTab } from "@/components/admin/scheme/SchemeRoutesTab";
 import { SchemeLocationsTab } from "@/components/admin/scheme/SchemeLocationsTab";
 import { SchemeDiscountsTab } from "@/components/admin/scheme/SchemeDiscountsTab";
 import { SchemeModifiersTab } from "@/components/admin/scheme/SchemeModifiersTab";
-import { SchemeExtrasTab } from "@/components/admin/scheme/SchemeExtrasTab";
 
 const schemeOpts = (classId: string) =>
   queryOptions({
@@ -33,7 +32,6 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/pricin
 const TABS = [
   { key: "base", label: "Base", icon: Wallet },
   { key: "time", label: "Time", icon: Clock },
-  { key: "extras", label: "Extras", icon: PlusCircle },
   { key: "locations", label: "Locations", icon: MapPin },
   { key: "routes", label: "Routes", icon: RouteIcon },
   { key: "discounts", label: "Discounts", icon: Percent },
@@ -50,7 +48,6 @@ function PricingSchemePage() {
   const counts: Record<TabKey, number | null> = {
     base: null,
     time: null,
-    extras: null,
     locations: data.locations.length,
     routes: data.routes.length,
     discounts: data.discounts.length,
@@ -104,7 +101,6 @@ function PricingSchemePage() {
 
       {tab === "base" && <SchemeOverviewTab scheme={data.scheme} data={data} section="base" />}
       {tab === "time" && <SchemeOverviewTab scheme={data.scheme} data={data} section="time" />}
-      {tab === "extras" && <SchemeExtrasTab classId={id} />}
       {tab === "locations" && <SchemeLocationsTab classId={id} locations={data.locations} />}
       {tab === "routes" && <SchemeRoutesTab classId={id} routes={data.routes} />}
       {tab === "discounts" && <SchemeDiscountsTab classId={id} discounts={data.discounts} />}
