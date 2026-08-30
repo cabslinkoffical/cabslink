@@ -163,29 +163,17 @@ function Page() {
       {r && k && (
         <>
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            <StatCard label="Revenue collected" value={money(k.revenue)} icon={PoundSterling} hint="" />
-            <StatCard label="Bookings" value={k.bookings} icon={BarChart3} />
-            <StatCard label="Quotes priced" value={k.quotes} icon={FileSearch} />
-            <StatCard label="Quote → booking" value={`${k.conversion.toFixed(1)}%`} icon={Percent} />
-          </div>
-          <div className="grid grid-cols-2 gap-3 text-xs md:grid-cols-4">
-            <div><Delta change={k.revenueChange} /></div>
-            <div><Delta change={k.bookingsChange} /></div>
-            <div><Delta change={k.quotesChange} /></div>
-            <div><Delta change={k.conversionChange} /></div>
+            <StatCard label="Revenue collected" value={money(k.revenue)} icon={PoundSterling} hint={<Delta change={k.revenueChange} />} />
+            <StatCard label="Bookings" value={k.bookings} icon={BarChart3} hint={<Delta change={k.bookingsChange} />} />
+            <StatCard label="Quotes priced" value={k.quotes} icon={FileSearch} hint={<Delta change={k.quotesChange} />} />
+            <StatCard label="Quote → booking" value={`${k.conversion.toFixed(1)}%`} icon={Percent} hint={<Delta change={k.conversionChange} />} />
           </div>
 
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            <StatCard label="Average fare" value={money(k.avgFare)} icon={Calculator} hint="" />
-            <StatCard label="Completed" value={k.completed} icon={CheckCircle2} />
-            <StatCard label="Cancelled" value={`${k.cancelled} (${k.cancelRate.toFixed(1)}%)`} icon={XCircle} accent="text-muted-foreground" />
-            <StatCard label="Enquiries" value={k.enquiries} icon={Inbox} />
-          </div>
-          <div className="grid grid-cols-2 gap-3 text-xs md:grid-cols-4">
-            <div><Delta change={k.avgFareChange} /></div>
-            <div />
-            <div><Delta change={k.cancelledChange} invert /></div>
-            <div><Delta change={k.enquiriesChange} /></div>
+            <StatCard label="Average fare" value={money(k.avgFare)} icon={Calculator} hint={<Delta change={k.avgFareChange} />} />
+            <StatCard label="Completed" value={k.completed} icon={CheckCircle2} hint={<Delta change={k.completedChange} />} />
+            <StatCard label="Cancelled" value={`${k.cancelled} (${k.cancelRate.toFixed(1)}%)`} icon={XCircle} accent="text-muted-foreground" hint={<Delta change={k.cancelledChange} invert />} />
+            <StatCard label="Enquiries" value={k.enquiries} icon={Inbox} hint={<Delta change={k.enquiriesChange} />} />
           </div>
 
           <div className="grid gap-4 lg:grid-cols-2">

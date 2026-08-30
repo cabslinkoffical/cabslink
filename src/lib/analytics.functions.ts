@@ -88,6 +88,7 @@ export const getSiteAnalytics = createServerFn({ method: "POST" })
     const revenue = payments.reduce((s, p) => s + num(p.amount), 0);
     const prevRevenue = prevPayments.reduce((s, p) => s + num(p.amount), 0);
     const completed = bookings.filter(b => b.status === "completed").length;
+    const prevCompleted = prevBookings.filter(b => b.status === "completed").length;
     const cancelled = bookings.filter(b => b.status === "cancelled" || b.status === "rejected").length;
     const prevCancelled = prevBookings.filter(b => b.status === "cancelled" || b.status === "rejected").length;
     const avgFare = bookings.length ? bookings.reduce((s, b) => s + num(b.price), 0) / bookings.length : 0;
@@ -151,7 +152,7 @@ export const getSiteAnalytics = createServerFn({ method: "POST" })
         quotes: quotes.length, quotesChange: pct(quotes.length, prevQuotes.length),
         conversion, conversionChange: pct(conversion, prevConversion),
         avgFare, avgFareChange: pct(avgFare, prevAvgFare),
-        completed,
+        completed, completedChange: pct(completed, prevCompleted),
         cancelled, cancelledChange: pct(cancelled, prevCancelled),
         cancelRate: bookings.length ? (cancelled / bookings.length) * 100 : 0,
         paidBookings,
