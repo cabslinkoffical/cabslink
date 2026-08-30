@@ -1186,12 +1186,38 @@ function Sidebar({ pre, onEdit, onStartAgain, route, price, extraStops = [], ret
               <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Pickup</p>
               <p className="text-sm font-semibold text-foreground leading-snug mt-0.5">{pre.pickup?.label || "—"}</p>
             </div>
+            {allStops.map((s, i) => (
+              <div key={`${s.label}-${i}`} className="relative mt-6">
+                <div className="absolute -left-6 top-1.5 size-4 rounded-full border-2 border-[var(--gold)]/60 bg-[var(--gold)]/20 flex items-center justify-center">
+                  <span className="text-[8px] font-bold text-[var(--gold-ink)] leading-none">{i + 1}</span>
+                </div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+                  Stop {i + 1}{s.minutes ? ` · ${s.minutes} min` : ""}
+                </p>
+                <p className="text-sm font-semibold text-foreground leading-snug mt-0.5">{s.label}</p>
+              </div>
+            ))}
             <div className="relative mt-6">
               <div className="absolute -left-6 top-1.5 size-4 rounded-full border-2 border-[var(--gold)] bg-card" />
               <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Dropoff</p>
               <p className="text-sm font-semibold text-foreground leading-snug mt-0.5">{pre.dropoff?.label || "—"}</p>
             </div>
+            {isReturn && (
+              <div className="relative mt-6">
+                <div className="absolute -left-6 top-1.5 size-4 rounded-full bg-[var(--gold)]/70 ring-4 ring-[var(--gold)]/15" />
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Return</p>
+                <p className="text-sm font-semibold text-foreground leading-snug mt-0.5">
+                  {pre.dropoff?.label || "—"} → {pre.pickup?.label || "—"}
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {pre.rdate || pre.rtime
+                    ? `${formatTripDate(pre.rdate || pre.date)} · ${formatTripTime(pre.rtime || pre.time)}`
+                    : "Return time to confirm"}
+                </p>
+              </div>
+            )}
           </div>
+
 
           {route && (
             <div className="relative mt-5 grid grid-cols-2 gap-2">
