@@ -158,20 +158,14 @@ function distanceToCorridorMiles(
   return Math.sqrt((px - cx) ** 2 + (py - cy) ** 2);
 }
 
-async function coordsForPlaceIds(placeIds: string[]) {
-  const client = serverPublicClient();
-  const out = new Map<string, { lat: number; lng: number }>();
-  const unique = Array.from(new Set(placeIds.filter(Boolean)));
-  if (unique.length === 0) return out;
-  const { data } = await client
-    .from("place_coords")
-    .select("place_id, lat, lng")
-    .in("place_id", unique);
-  for (const r of (data ?? []) as any[]) {
-    if (r.lat != null && r.lng != null) out.set(r.place_id, { lat: Number(r.lat), lng: Number(r.lng) });
-  }
-  return out;
+async function coordsForPlaceIds(
+  client: ReturnType<typeof serverPublicClient>,
+  placeIds: string[],
+) {
+  const { resolveCoords } = await import("@/lib/place-coords.server");
+  return resolveCoords(client as any, Array.from(new Set(placeIds.filter(Boolean))));
 }
+
 
 /**
  * POIs ranked by how little they detour the direct pickup→dropoff line.
