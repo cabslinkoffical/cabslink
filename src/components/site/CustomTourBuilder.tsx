@@ -37,8 +37,18 @@ function formatMinutes(m: number) {
   return r ? `${h}h ${r}m` : `${h}h`;
 }
 
-export function CustomTourBuilder() {
+export type TourSearchControls = {
+  q: string;
+  onQ: (v: string) => void;
+  theme: string;
+  onTheme: (v: string) => void;
+  themes: string[];
+  resultCount: number;
+};
+
+export function CustomTourBuilder({ search }: { search?: TourSearchControls }) {
   const navigate = useNavigate();
+
   const [open, setOpen] = useState(false);
   const [pickup, setPickup] = useState<SelectedPlace | null>(null);
   const [dropoff, setDropoff] = useState<SelectedPlace | null>(null);
