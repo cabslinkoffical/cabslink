@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { getBookingByReference } from "@/lib/booking.functions";
 import { Button } from "@/components/ui/button";
@@ -29,6 +29,7 @@ function TrackBookingPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<Awaited<ReturnType<typeof getBookingByReference>> | null>(null);
+  const resultRef = useRef<HTMLDivElement | null>(null);
 
   const fetchFn = useServerFn(getBookingByReference);
 
@@ -38,14 +39,22 @@ function TrackBookingPage() {
     setResult(null);
     setLoading(true);
     try {
-      const data = await fetchFn({ data: { bookingRef: ref } });
-      setResult(data);
+      const data = await fetchFn({ data: { bookingRef: ref.trim().toUpperCase() } });
+      if (!data) {
+        setError("We couldn't find a booking with that reference. Please check it and try again.");
+      } else {
+        setResult(data);
+        requestAnimationFrame(() => {
+          resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      }
     } catch (err: any) {
       setError(err?.message ?? "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <SiteLayout>
@@ -104,7 +113,8 @@ function TrackBookingPage() {
           </div>
 
           {result && (
-            <div className="mt-6 overflow-hidden rounded-2xl border border-[var(--navy)]/10 bg-card shadow-raised">
+            <div ref={resultRef} className="mt-6 scroll-mt-24 overflow-hidden rounded-2xl border border-[var(--navy)]/10 bg-card shadow-raised">
+
               <div className="flex items-center justify-between gap-3 bg-[color-mix(in_oklab,var(--gold)_10%,transparent)] px-6 py-4">
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">Booking reference</p>
