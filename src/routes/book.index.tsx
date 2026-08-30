@@ -1850,7 +1850,7 @@ function ExtrasStep(props: {
           </Field>
           <div className="grid gap-3">
             <Toggle
-              label={meetGreetFeePence > 0 ? `Meet & greet at arrivals (+£${(meetGreetFeePence / 100).toFixed(2)})` : "Meet & greet at arrivals"}
+              label={meetGreetFeePence > 0 ? `Meet & greet at arrivals (+£${(meetGreetFeePence / 100).toFixed(2)})` : "Meet & greet at arrivals (included)"}
               checked={meetGreet} onChange={onMeetGreet}
             />
             <Toggle
