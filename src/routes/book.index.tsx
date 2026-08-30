@@ -299,6 +299,7 @@ function BookPage() {
 
   const applyEdit = (next: Prefill) => {
     setChosen(null);
+    setReturnJourney(next.ret);
     setStep("vehicle");
     navigate({ search: { q: encodePrefill(next) }, replace: true });
     setEditOpen(false);
@@ -603,6 +604,8 @@ function BookPage() {
                   pre={pre}
                   onEdit={() => setEditOpen(true)}
                   onStartAgain={startAgain}
+                  extraStops={orderedSelected.map((s) => ({ label: s.label, minutes: s.minutes }))}
+                  returnEnabled={returnJourney}
                   route={quoteQuery.data ? { miles: quoteQuery.data.distanceMiles, minutes: quoteQuery.data.durationMinutes } : null}
                   price={chosen ? { vehicleName: chosen.name, perVehicle: perVehiclePrice, qty, rideTotal, seatFee, seatCount: childSeatCount, meetGreetFee, returnFee, addonsFee, addonLines, policy, policyDelta, grandTotal } : null}
                 />
@@ -918,7 +921,9 @@ function EditTripDialog({
   const canSave =
     !!form.pickup?.placeId && !!form.dropoff?.placeId
     && form.pickup.placeId !== form.dropoff.placeId
-    && !!form.date && !!form.time;
+    && !!form.date && !!form.time
+    && form.stops.every((s) => !!s.placeId)
+    && (!form.ret || (!!form.rdate && !!form.rtime && form.rdate >= form.date));
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -938,6 +943,58 @@ function EditTripDialog({
             <PlaceAutocomplete id="edit-dropoff" value={form.dropoff} onChange={(v) => set("dropoff", v)}
               placeholder="Enter UK destination" iconClassName="left-3" inputClassName="pl-9" />
           </div>
+
+          {/* Stops along the way */}
+          {form.stops.map((s, i) => (
+            <div key={i} className="grid gap-1.5">
+              <div className="flex items-center justify-between">
+                <Label htmlFor={`edit-stop-${i}`}>Stop {i + 1}</Label>
+                <button type="button" className="text-xs text-muted-foreground hover:text-destructive"
+                  onClick={() => set("stops", form.stops.filter((_, idx) => idx !== i))}>
+                  Remove
+                </button>
+              </div>
+              <PlaceAutocomplete id={`edit-stop-${i}`} value={s.placeId ? { placeId: s.placeId, label: s.label } : null}
+                onChange={(v) => {
+                  const next = [...form.stops];
+                  next[i] = v ? { ...next[i], placeId: v.placeId, label: v.label } : { placeId: "", label: "" };
+                  set("stops", next);
+                }}
+                placeholder="Add a stop on the way" iconClassName="left-3" inputClassName="pl-9" />
+            </div>
+          ))}
+          <div className="flex flex-wrap gap-2">
+            <button type="button"
+              className="inline-flex items-center gap-1.5 rounded-full border border-[var(--gold)]/40 px-3 py-1.5 text-xs font-semibold text-[var(--gold-ink)] hover:bg-[var(--gold)]/10 transition"
+              onClick={() => set("stops", [...form.stops, { placeId: "", label: "" }])}>
+              <Plus className="size-3.5" /> Add stop
+            </button>
+            {!form.ret ? (
+              <button type="button"
+                className="inline-flex items-center gap-1.5 rounded-full border border-[var(--gold)]/40 px-3 py-1.5 text-xs font-semibold text-[var(--gold-ink)] hover:bg-[var(--gold)]/10 transition"
+                onClick={() => setForm((f) => ({ ...f, ret: true, rdate: f.rdate || f.date, rtime: f.rtime || f.time }))}>
+                <Repeat className="size-3.5" /> Add return
+              </button>
+            ) : (
+              <button type="button"
+                className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:text-destructive transition"
+                onClick={() => setForm((f) => ({ ...f, ret: false, rdate: "", rtime: "" }))}>
+                <X className="size-3.5" /> Remove return
+              </button>
+            )}
+          </div>
+          {form.ret && (
+            <div className="grid grid-cols-2 gap-3 rounded-xl border border-[var(--gold)]/30 bg-[var(--gold)]/5 p-3">
+              <div className="grid gap-1.5">
+                <Label htmlFor="edit-rdate">Return date</Label>
+                <Input id="edit-rdate" type="date" min={form.date} value={form.rdate} onChange={(e) => set("rdate", e.target.value)} />
+              </div>
+              <div className="grid gap-1.5">
+                <Label htmlFor="edit-rtime">Return time</Label>
+                <Input id="edit-rtime" type="time" value={form.rtime} onChange={(e) => set("rtime", e.target.value)} />
+              </div>
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-3">
             <div className="grid gap-1.5">
               <Label htmlFor="edit-date">Date</Label>
@@ -1132,12 +1189,18 @@ function TourBanner({ slug, name, loading, missing, mismatch, onStartAgain }: {
   );
 }
 
-function Sidebar({ pre, onEdit, onStartAgain, route, price }: {
+function Sidebar({ pre, onEdit, onStartAgain, route, price, extraStops = [], returnEnabled }: {
   pre: Prefill; onEdit: () => void; onStartAgain?: () => void;
   route: { miles: number; minutes: number } | null;
   price: PriceSummary | null;
-
+  extraStops?: { label: string; minutes?: number }[];
+  returnEnabled?: boolean;
 }) {
+  const isReturn = returnEnabled ?? pre.ret;
+  const allStops = [
+    ...pre.stops.map((s) => ({ label: s.label, minutes: s.minutes })),
+    ...extraStops,
+  ].filter((s) => !!s.label);
   return (
     <aside className="min-w-0 space-y-4 lg:sticky lg:top-24 lg:self-start">
       <details className="group relative bg-card rounded-2xl border border-border shadow-[0_10px_40px_-20px_rgba(14,24,44,0.25)] overflow-hidden lg:!open" open>
@@ -1146,11 +1209,14 @@ function Sidebar({ pre, onEdit, onStartAgain, route, price }: {
             <MapPin className="size-4 text-[var(--gold-ink)] shrink-0" />
             <span className="text-sm font-semibold text-foreground truncate">
               {pre.pickup?.label || "Pickup"} → {pre.dropoff?.label || "Dropoff"}
+              {allStops.length > 0 && ` · ${allStops.length} stop${allStops.length > 1 ? "s" : ""}`}
+              {isReturn && " · Return"}
             </span>
           </div>
           <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--gold-ink)] group-open:hidden shrink-0">View</span>
           <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground hidden group-open:inline shrink-0">Hide</span>
         </summary>
+
         <div className="p-5 lg:p-6 pt-0 lg:pt-6">
           <div className="absolute -top-16 -right-16 size-40 rounded-full bg-[var(--gold)]/10 blur-2xl pointer-events-none" aria-hidden />
           <div className="relative flex items-center justify-between mb-5">
@@ -1177,12 +1243,38 @@ function Sidebar({ pre, onEdit, onStartAgain, route, price }: {
               <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Pickup</p>
               <p className="text-sm font-semibold text-foreground leading-snug mt-0.5">{pre.pickup?.label || "—"}</p>
             </div>
+            {allStops.map((s, i) => (
+              <div key={`${s.label}-${i}`} className="relative mt-6">
+                <div className="absolute -left-6 top-1.5 size-4 rounded-full border-2 border-[var(--gold)]/60 bg-[var(--gold)]/20 flex items-center justify-center">
+                  <span className="text-[8px] font-bold text-[var(--gold-ink)] leading-none">{i + 1}</span>
+                </div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+                  Stop {i + 1}{s.minutes ? ` · ${s.minutes} min` : ""}
+                </p>
+                <p className="text-sm font-semibold text-foreground leading-snug mt-0.5">{s.label}</p>
+              </div>
+            ))}
             <div className="relative mt-6">
               <div className="absolute -left-6 top-1.5 size-4 rounded-full border-2 border-[var(--gold)] bg-card" />
               <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Dropoff</p>
               <p className="text-sm font-semibold text-foreground leading-snug mt-0.5">{pre.dropoff?.label || "—"}</p>
             </div>
+            {isReturn && (
+              <div className="relative mt-6">
+                <div className="absolute -left-6 top-1.5 size-4 rounded-full bg-[var(--gold)]/70 ring-4 ring-[var(--gold)]/15" />
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Return</p>
+                <p className="text-sm font-semibold text-foreground leading-snug mt-0.5">
+                  {pre.dropoff?.label || "—"} → {pre.pickup?.label || "—"}
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {pre.rdate || pre.rtime
+                    ? `${formatTripDate(pre.rdate || pre.date)} · ${formatTripTime(pre.rtime || pre.time)}`
+                    : "Return time to confirm"}
+                </p>
+              </div>
+            )}
           </div>
+
 
           {route && (
             <div className="relative mt-5 grid grid-cols-2 gap-2">
