@@ -29,6 +29,7 @@ function TrackBookingPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<Awaited<ReturnType<typeof getBookingByReference>> | null>(null);
+  const resultRef = useRef<HTMLDivElement | null>(null);
 
   const fetchFn = useServerFn(getBookingByReference);
 
@@ -38,14 +39,22 @@ function TrackBookingPage() {
     setResult(null);
     setLoading(true);
     try {
-      const data = await fetchFn({ data: { bookingRef: ref } });
-      setResult(data);
+      const data = await fetchFn({ data: { bookingRef: ref.trim().toUpperCase() } });
+      if (!data) {
+        setError("We couldn't find a booking with that reference. Please check it and try again.");
+      } else {
+        setResult(data);
+        requestAnimationFrame(() => {
+          resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      }
     } catch (err: any) {
       setError(err?.message ?? "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <SiteLayout>
