@@ -174,7 +174,7 @@ async function loadCorridorSettings(
   client: ReturnType<typeof serverPublicClient>,
 ): Promise<CorridorSettings> {
   const { data } = await client
-    .from("site_settings")
+    .from("site_settings_public" as any)
     .select("poi_corridor_enabled, poi_corridor_radius_miles, poi_corridor_max_pois")
     .eq("id", 1)
     .maybeSingle();

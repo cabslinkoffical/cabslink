@@ -25,7 +25,7 @@ export const getSiteStatus = createServerFn({ method: "GET" }).handler(async ():
       },
     });
     const { data } = await client
-      .from("site_settings")
+      .from("site_settings_public" as any)
       .select("maintenance_mode, company_name")
       .eq("id", 1)
       .maybeSingle();

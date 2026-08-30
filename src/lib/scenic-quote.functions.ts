@@ -131,7 +131,7 @@ export async function loadPoiFeesByPlaceId(placeIds: string[]) {
 export async function loadThresholds() {
   const client = serverPublicClient();
   const { data } = await client
-    .from("site_settings")
+    .from("site_settings_public" as any)
     .select(
       "sightseeing_threshold_minutes, tour_threshold_minutes, tour_threshold_stops, included_stop_minutes, price_per_extra_15min_pence, max_selected_stops",
     )

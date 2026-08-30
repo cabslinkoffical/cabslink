@@ -96,7 +96,7 @@ export type QuoteSettings = {
 export async function loadQuoteSettings(client: ReturnType<typeof publicClient>): Promise<QuoteSettings> {
   const [{ data }, extras] = await Promise.all([
     client
-      .from("site_settings")
+      .from("site_settings_public" as any)
       .select("tax_enabled, tax_percentage, tax_label, tax_mode, tax_effective_from, currency, currency_symbol, child_seat_fee_pence, meet_greet_fee_pence, return_journey_fee_pence, policy_non_refundable_percent, policy_non_refundable_min_pence, policy_flexible_percent, policy_flexible_min_pence")
       .eq("id", 1)
       .maybeSingle(),
@@ -153,9 +153,8 @@ export type LoadedProfile = PricingProfile & {
 
 export async function loadActiveProfiles(client: ReturnType<typeof publicClient>): Promise<LoadedProfile[]> {
   const { data: profiles, error: pErr } = await client
-    .from("vehicle_pricing_profiles" as any)
-    .select("*")
-    .eq("status", true);
+    .from("vehicle_pricing_profiles_public" as any)
+    .select("*");
   if (pErr) throw new Error(pErr.message);
 
   const ids = (profiles ?? []).map((p: any) => p.id);
@@ -163,7 +162,7 @@ export async function loadActiveProfiles(client: ReturnType<typeof publicClient>
 
   const [tiersRes, vehiclesRes, classesRes] = await Promise.all([
     client
-      .from("vehicle_mileage_tiers" as any)
+      .from("vehicle_mileage_tiers_public" as any)
       .select("*")
       .in("pricing_profile_id", ids.length ? ids : ["00000000-0000-0000-0000-000000000000"])
       .order("sort_order", { ascending: true }),

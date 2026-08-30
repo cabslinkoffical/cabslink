@@ -3687,6 +3687,13 @@ export type Database = {
             referencedRelation: "vehicle_pricing_profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "vehicle_mileage_tiers_pricing_profile_id_fkey"
+            columns: ["pricing_profile_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_pricing_profiles_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       vehicle_models: {
@@ -3894,7 +3901,191 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      site_settings_public: {
+        Row: {
+          child_seat_fee_pence: number | null
+          company_name: string | null
+          currency: string | null
+          currency_symbol: string | null
+          id: number | null
+          included_stop_minutes: number | null
+          maintenance_mode: boolean | null
+          max_selected_stops: number | null
+          meet_greet_fee_pence: number | null
+          poi_corridor_enabled: boolean | null
+          poi_corridor_max_pois: number | null
+          poi_corridor_radius_miles: number | null
+          policy_flexible_min_pence: number | null
+          policy_flexible_percent: number | null
+          policy_non_refundable_min_pence: number | null
+          policy_non_refundable_percent: number | null
+          price_per_extra_15min_pence: number | null
+          return_journey_fee_pence: number | null
+          sightseeing_threshold_minutes: number | null
+          tax_effective_from: string | null
+          tax_enabled: boolean | null
+          tax_label: string | null
+          tax_mode: string | null
+          tax_percentage: number | null
+          tour_threshold_minutes: number | null
+          tour_threshold_stops: number | null
+        }
+        Insert: {
+          child_seat_fee_pence?: number | null
+          company_name?: string | null
+          currency?: string | null
+          currency_symbol?: string | null
+          id?: number | null
+          included_stop_minutes?: number | null
+          maintenance_mode?: boolean | null
+          max_selected_stops?: number | null
+          meet_greet_fee_pence?: number | null
+          poi_corridor_enabled?: boolean | null
+          poi_corridor_max_pois?: number | null
+          poi_corridor_radius_miles?: number | null
+          policy_flexible_min_pence?: number | null
+          policy_flexible_percent?: number | null
+          policy_non_refundable_min_pence?: number | null
+          policy_non_refundable_percent?: number | null
+          price_per_extra_15min_pence?: number | null
+          return_journey_fee_pence?: number | null
+          sightseeing_threshold_minutes?: number | null
+          tax_effective_from?: string | null
+          tax_enabled?: boolean | null
+          tax_label?: string | null
+          tax_mode?: string | null
+          tax_percentage?: number | null
+          tour_threshold_minutes?: number | null
+          tour_threshold_stops?: number | null
+        }
+        Update: {
+          child_seat_fee_pence?: number | null
+          company_name?: string | null
+          currency?: string | null
+          currency_symbol?: string | null
+          id?: number | null
+          included_stop_minutes?: number | null
+          maintenance_mode?: boolean | null
+          max_selected_stops?: number | null
+          meet_greet_fee_pence?: number | null
+          poi_corridor_enabled?: boolean | null
+          poi_corridor_max_pois?: number | null
+          poi_corridor_radius_miles?: number | null
+          policy_flexible_min_pence?: number | null
+          policy_flexible_percent?: number | null
+          policy_non_refundable_min_pence?: number | null
+          policy_non_refundable_percent?: number | null
+          price_per_extra_15min_pence?: number | null
+          return_journey_fee_pence?: number | null
+          sightseeing_threshold_minutes?: number | null
+          tax_effective_from?: string | null
+          tax_enabled?: boolean | null
+          tax_label?: string | null
+          tax_mode?: string | null
+          tax_percentage?: number | null
+          tour_threshold_minutes?: number | null
+          tour_threshold_stops?: number | null
+        }
+        Relationships: []
+      }
+      vehicle_mileage_tiers_public: {
+        Row: {
+          cost_per_mile: number | null
+          id: string | null
+          miles: number | null
+          pricing_profile_id: string | null
+          sort_order: number | null
+          tier_name: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_mileage_tiers_pricing_profile_id_fkey"
+            columns: ["pricing_profile_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_pricing_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicle_mileage_tiers_pricing_profile_id_fkey"
+            columns: ["pricing_profile_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_pricing_profiles_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vehicle_pricing_profiles_public: {
+        Row: {
+          airport_pickup_fee: number | null
+          base_price: number | null
+          city_included_miles: number | null
+          connecting_job_discount_percent: number | null
+          final_tier_open_ended: boolean | null
+          id: string | null
+          status: boolean | null
+          time_extra_amount: number | null
+          time_extra_from: string | null
+          time_extra_to: string | null
+          time_extra_type: string | null
+          vehicle_add_price_enabled: boolean | null
+          vehicle_class_id: string | null
+          vehicle_id: string | null
+          via_price: number | null
+          waiting_fee_per_minute: number | null
+        }
+        Insert: {
+          airport_pickup_fee?: number | null
+          base_price?: number | null
+          city_included_miles?: number | null
+          connecting_job_discount_percent?: number | null
+          final_tier_open_ended?: boolean | null
+          id?: string | null
+          status?: boolean | null
+          time_extra_amount?: number | null
+          time_extra_from?: string | null
+          time_extra_to?: string | null
+          time_extra_type?: string | null
+          vehicle_add_price_enabled?: boolean | null
+          vehicle_class_id?: string | null
+          vehicle_id?: string | null
+          via_price?: number | null
+          waiting_fee_per_minute?: number | null
+        }
+        Update: {
+          airport_pickup_fee?: number | null
+          base_price?: number | null
+          city_included_miles?: number | null
+          connecting_job_discount_percent?: number | null
+          final_tier_open_ended?: boolean | null
+          id?: string | null
+          status?: boolean | null
+          time_extra_amount?: number | null
+          time_extra_from?: string | null
+          time_extra_to?: string | null
+          time_extra_type?: string | null
+          vehicle_add_price_enabled?: boolean | null
+          vehicle_class_id?: string | null
+          vehicle_id?: string | null
+          via_price?: number | null
+          waiting_fee_per_minute?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_pricing_profiles_vehicle_class_id_fkey"
+            columns: ["vehicle_class_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicle_pricing_profiles_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: true
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       generate_booking_ref: { Args: never; Returns: string }
