@@ -13,6 +13,7 @@ import { Route as WeddingTransportRouteImport } from './routes/wedding-transport
 import { Route as VipTransfersRouteImport } from './routes/vip-transfers'
 import { Route as VipSportsHospitalityRouteImport } from './routes/vip-sports-hospitality'
 import { Route as UniversityTransfersRouteImport } from './routes/university-transfers'
+import { Route as TrackBookingRouteImport } from './routes/track-booking'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TeamSportsTravelRouteImport } from './routes/team-sports-travel'
 import { Route as StadiumTransfersRouteImport } from './routes/stadium-transfers'
@@ -156,6 +157,11 @@ const VipSportsHospitalityRoute = VipSportsHospitalityRouteImport.update({
 const UniversityTransfersRoute = UniversityTransfersRouteImport.update({
   id: '/university-transfers',
   path: '/university-transfers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TrackBookingRoute = TrackBookingRouteImport.update({
+  id: '/track-booking',
+  path: '/track-booking',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TermsRoute = TermsRouteImport.update({
@@ -859,6 +865,7 @@ export interface FileRoutesByFullPath {
   '/stadium-transfers': typeof StadiumTransfersRoute
   '/team-sports-travel': typeof TeamSportsTravelRoute
   '/terms': typeof TermsRoute
+  '/track-booking': typeof TrackBookingRoute
   '/university-transfers': typeof UniversityTransfersRoute
   '/vip-sports-hospitality': typeof VipSportsHospitalityRoute
   '/vip-transfers': typeof VipTransfersRoute
@@ -987,6 +994,7 @@ export interface FileRoutesByTo {
   '/stadium-transfers': typeof StadiumTransfersRoute
   '/team-sports-travel': typeof TeamSportsTravelRoute
   '/terms': typeof TermsRoute
+  '/track-booking': typeof TrackBookingRoute
   '/university-transfers': typeof UniversityTransfersRoute
   '/vip-sports-hospitality': typeof VipSportsHospitalityRoute
   '/vip-transfers': typeof VipTransfersRoute
@@ -1117,6 +1125,7 @@ export interface FileRoutesById {
   '/stadium-transfers': typeof StadiumTransfersRoute
   '/team-sports-travel': typeof TeamSportsTravelRoute
   '/terms': typeof TermsRoute
+  '/track-booking': typeof TrackBookingRoute
   '/university-transfers': typeof UniversityTransfersRoute
   '/vip-sports-hospitality': typeof VipSportsHospitalityRoute
   '/vip-transfers': typeof VipTransfersRoute
@@ -1248,6 +1257,7 @@ export interface FileRouteTypes {
     | '/stadium-transfers'
     | '/team-sports-travel'
     | '/terms'
+    | '/track-booking'
     | '/university-transfers'
     | '/vip-sports-hospitality'
     | '/vip-transfers'
@@ -1376,6 +1386,7 @@ export interface FileRouteTypes {
     | '/stadium-transfers'
     | '/team-sports-travel'
     | '/terms'
+    | '/track-booking'
     | '/university-transfers'
     | '/vip-sports-hospitality'
     | '/vip-transfers'
@@ -1505,6 +1516,7 @@ export interface FileRouteTypes {
     | '/stadium-transfers'
     | '/team-sports-travel'
     | '/terms'
+    | '/track-booking'
     | '/university-transfers'
     | '/vip-sports-hospitality'
     | '/vip-transfers'
@@ -1636,6 +1648,7 @@ export interface RootRouteChildren {
   StadiumTransfersRoute: typeof StadiumTransfersRoute
   TeamSportsTravelRoute: typeof TeamSportsTravelRoute
   TermsRoute: typeof TermsRoute
+  TrackBookingRoute: typeof TrackBookingRoute
   UniversityTransfersRoute: typeof UniversityTransfersRoute
   VipSportsHospitalityRoute: typeof VipSportsHospitalityRoute
   VipTransfersRoute: typeof VipTransfersRoute
@@ -1714,6 +1727,13 @@ declare module '@tanstack/react-router' {
       path: '/university-transfers'
       fullPath: '/university-transfers'
       preLoaderRoute: typeof UniversityTransfersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/track-booking': {
+      id: '/track-booking'
+      path: '/track-booking'
+      fullPath: '/track-booking'
+      preLoaderRoute: typeof TrackBookingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/terms': {
@@ -2789,6 +2809,7 @@ const rootRouteChildren: RootRouteChildren = {
   StadiumTransfersRoute: StadiumTransfersRoute,
   TeamSportsTravelRoute: TeamSportsTravelRoute,
   TermsRoute: TermsRoute,
+  TrackBookingRoute: TrackBookingRoute,
   UniversityTransfersRoute: UniversityTransfersRoute,
   VipSportsHospitalityRoute: VipSportsHospitalityRoute,
   VipTransfersRoute: VipTransfersRoute,

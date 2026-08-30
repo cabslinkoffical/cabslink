@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Menu, X, Phone, ShieldCheck } from "lucide-react";
+import { Menu, X, Phone, ShieldCheck, MapPin } from "lucide-react";
 import { Logo } from "./Logo";
 import { NAV, SITE } from "@/lib/site";
 import { supabase } from "@/integrations/supabase/client";
@@ -85,6 +85,13 @@ export function Header() {
               </Link>
             )}
 
+            <Link
+              to="/track-booking"
+              className="hidden md:inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-[12px] font-bold tracking-wide text-white/80 hover:text-[var(--gold)] transition-colors"
+            >
+              <MapPin className="size-3.5" /> Track
+            </Link>
+
             <a
               href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}
               className="group hidden 2xl:inline-flex items-center gap-2 rounded-full px-3 py-2 text-[12px] font-bold tracking-wide text-[var(--gold)] hover:text-white transition-colors"
@@ -147,6 +154,13 @@ export function Header() {
                   );
                 })}
               </nav>
+
+              <Link
+                to="/track-booking"
+                className="mt-2 inline-flex items-center justify-center gap-2 rounded-full border border-[var(--gold)]/40 py-3 text-[12px] font-bold uppercase tracking-[0.14em] text-[var(--gold)]"
+              >
+                <MapPin className="size-3.5" /> Track your booking
+              </Link>
 
               <Link
                 to="/book"
