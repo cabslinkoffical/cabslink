@@ -1,0 +1,1 @@
+GRANT SELECT (id, company_name, currency, currency_symbol, maintenance_mode) ON public.site_settings TO anon;
