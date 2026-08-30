@@ -75,6 +75,74 @@ export const getBookingByToken = createServerFn({ method: "POST" })
     };
   });
 
+// ---------------- Public: track booking by reference + email/phone ----------------
+const trackBookingSchema = z.object({
+  bookingRef: z.string().trim().min(1).max(50),
+  email: z.string().trim().email().max(254).optional().or(z.literal("")),
+  phone: z.string().trim().min(1).max(40).optional().or(z.literal("")),
+});
+
+export const getBookingByReference = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => trackBookingSchema.parse(input))
+  .handler(async ({ data }) => {
+    applyConfirmationHeaders();
+
+    const contact = (data.email ?? "").trim() || (data.phone ?? "").trim();
+    if (!contact) {
+      throw new Error("Please enter the email address or phone number used for the booking.");
+    }
+
+    let ip = "unknown";
+    try { ip = getRequestIP({ xForwardedFor: true }) ?? "unknown"; } catch {}
+    if (!checkLimit({ name: "bookingTrackLookup", windowMs: 60_000, max: 20 }, ip).ok) {
+      throw new Error("Too many requests. Please try again in a moment.");
+    }
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const res: any = await supabaseAdmin
+      .from("bookings")
+      .select("booking_ref, status, payment_status, customer_name, email, phone, pickup_address, dropoff_address, pickup_date, pickup_time, passengers, luggage, vehicle_type, flight_number, child_seat, meet_greet, return_journey, price, distance_miles, notes, created_at")
+      .eq("booking_ref", data.bookingRef.trim().toUpperCase())
+      .maybeSingle();
+
+    if (res.error) throw new Error("Unable to look up booking. Please try again.");
+    if (!res.data) {
+      throw new Error("We couldn't find a booking with that reference. Please check and try again.");
+    }
+
+    const row = res.data;
+    const emailMatch = !!data.email && row.email && row.email.toLowerCase().trim() === data.email.toLowerCase().trim();
+    const phoneMatch = !!data.phone && row.phone && row.phone.replace(/\D/g, "") === data.phone.replace(/\D/g, "");
+
+    if (!emailMatch && !phoneMatch) {
+      throw new Error("The contact details you entered do not match this booking.");
+    }
+
+    return {
+      bookingRef: row.booking_ref,
+      status: row.status,
+      paymentStatus: row.payment_status,
+      customerName: row.customer_name,
+      customerEmail: row.email,
+      customerPhone: row.phone,
+      pickupAddress: row.pickup_address,
+      dropoffAddress: row.dropoff_address,
+      pickupDate: row.pickup_date,
+      pickupTime: row.pickup_time,
+      passengers: row.passengers,
+      luggage: row.luggage,
+      vehicleType: row.vehicle_type,
+      flightNumber: row.flight_number,
+      childSeat: !!row.child_seat,
+      meetGreet: !!row.meet_greet,
+      returnJourney: !!row.return_journey,
+      price: row.price == null ? null : Number(row.price),
+      distanceMiles: row.distance_miles == null ? null : Number(row.distance_miles),
+      notes: row.notes,
+      createdAt: row.created_at,
+    };
+  });
+
 // ---------------- Admin: list notifications for a booking ----------------
 export const listBookingNotifications = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
