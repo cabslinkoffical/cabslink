@@ -16,10 +16,10 @@ export function MaintenanceScreen({ companyName }: { companyName?: string | null
         </p>
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <a
-            href={`tel:${SITE.phone.replace(/\s/g, "")}`}
+            href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}
             className="inline-flex items-center justify-center rounded-full bg-[var(--gold)] px-6 py-3 text-sm font-semibold text-[var(--gold-foreground)]"
           >
-            Call {SITE.phone}
+            Call {SITE.phoneUK}
           </a>
           <a
             href={`mailto:${SITE.email}`}
