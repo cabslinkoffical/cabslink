@@ -148,13 +148,13 @@ function BookingsPage() {
         </TabsList>
       </Tabs>
 
-      <div className="flex gap-3 items-center">
-        <div className="relative flex-1 max-w-md">
+      <div className="flex flex-wrap gap-3 items-center">
+        <div className="relative w-full sm:w-auto sm:flex-1 sm:max-w-md">
           <Search className="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <Input placeholder="Search by name, ref, address…" value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
         </div>
-        <span className="text-sm text-muted-foreground">{filtered.length} bookings</span>
-        <div className="ml-auto flex items-center gap-2">
+        <span className="text-sm text-muted-foreground whitespace-nowrap">{filtered.length} bookings</span>
+        <div className="flex flex-wrap items-center gap-2 sm:ml-auto">
           <Button
             variant="outline"
             size="sm"
