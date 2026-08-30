@@ -12,7 +12,7 @@ import {
   CheckCircle2, ArrowRight, ArrowLeft, MapPin, CalendarDays, Edit3, Star,
   Users, Briefcase, Luggage, BadgeCheck, Clock, DoorOpen, UserCheck, Award,
   ShieldCheck, CreditCard, User, Mail, Phone, MessageSquare, RefreshCw,
-  Shield, Package, CalendarClock, Landmark, Banknote, Sparkles,
+  Shield, Package, CalendarClock, Landmark, Banknote, Sparkles, Plus, Repeat, X,
 } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { TrustpilotStrip } from "@/components/site/TrustpilotStrip";
@@ -716,9 +716,16 @@ function JourneyForm({ initial, onSubmit }: { initial: Prefill; onSubmit: (next:
   const [form, setForm] = useState<Prefill>(initial);
   const [touched, setTouched] = useState(false);
   const set = <K extends keyof Prefill>(k: K, v: Prefill[K]) => setForm((f) => ({ ...f, [k]: v }));
+  const today = new Date().toISOString().slice(0, 10);
 
   const sameSpot = !!form.pickup?.placeId && form.pickup.placeId === form.dropoff?.placeId;
-  const canSubmit = !!form.pickup?.placeId && !!form.dropoff?.placeId && !sameSpot && !!form.date && !!form.time;
+  const emptyStop = form.stops.some((s) => !s?.placeId);
+  const returnIncomplete = form.ret && (!form.rdate || !form.rtime);
+  const canSubmit =
+    !!form.pickup?.placeId && !!form.dropoff?.placeId && !sameSpot && !!form.date && !!form.time
+    && !emptyStop && !returnIncomplete;
+
+  const setStops = (next: PrefillStop[]) => set("stops", next);
 
   return (
     <form
@@ -750,6 +757,43 @@ function JourneyForm({ initial, onSubmit }: { initial: Prefill; onSubmit: (next:
             <p className="text-xs text-destructive">Choose a pickup location from the suggestions.</p>
           )}
         </div>
+
+        {/* Extra stops along the way */}
+        {form.stops.length > 0 && (
+          <div className="grid gap-3 rounded-2xl border border-[var(--gold)]/30 bg-[var(--gold)]/5 p-3">
+            {form.stops.map((s, i) => (
+              <div key={i} className="grid gap-1.5">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor={`jf-stop-${i}`}>Stop {i + 1}</Label>
+                  <button
+                    type="button"
+                    onClick={() => setStops(form.stops.filter((_, idx) => idx !== i))}
+                    aria-label={`Remove stop ${i + 1}`}
+                    className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+                  >
+                    <X className="size-3.5" /> Remove
+                  </button>
+                </div>
+                <PlaceAutocomplete
+                  id={`jf-stop-${i}`}
+                  value={s.placeId ? { placeId: s.placeId, label: s.label } : null}
+                  onChange={(v) => {
+                    const next = [...form.stops];
+                    next[i] = v ? { placeId: v.placeId, label: v.label } : { placeId: "", label: "" };
+                    setStops(next);
+                  }}
+                  placeholder="Add a stop along the way"
+                  iconClassName="left-3"
+                  inputClassName="pl-9"
+                />
+                {touched && !s.placeId && (
+                  <p className="text-xs text-destructive">Choose this stop from the suggestions or remove it.</p>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
         <div className="grid gap-1.5">
           <Label htmlFor="jf-dropoff">Destination</Label>
           <PlaceAutocomplete id="jf-dropoff" value={form.dropoff} onChange={(v) => set("dropoff", v)}
@@ -759,10 +803,31 @@ function JourneyForm({ initial, onSubmit }: { initial: Prefill; onSubmit: (next:
             <p className="text-xs text-destructive">Choose a destination from the suggestions.</p>
           )}
         </div>
+
+        {/* Add stop / add return pills */}
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setStops([...form.stops, { placeId: "", label: "" }])}
+            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3.5 py-2 text-xs font-semibold hover:border-[var(--gold)]/60"
+          >
+            <Plus className="size-3.5" strokeWidth={3} /> Add stop
+          </button>
+          {!form.ret && (
+            <button
+              type="button"
+              onClick={() => setForm((f) => ({ ...f, ret: true, rdate: f.rdate || f.date, rtime: f.rtime || f.time }))}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3.5 py-2 text-xs font-semibold hover:border-[var(--gold)]/60"
+            >
+              <Repeat className="size-3.5" strokeWidth={3} /> Add return
+            </button>
+          )}
+        </div>
+
         <div className="grid grid-cols-2 gap-3">
           <div className="grid gap-1.5">
             <Label htmlFor="jf-date">Date</Label>
-            <Input id="jf-date" type="date" value={form.date} onChange={(e) => set("date", e.target.value)} />
+            <Input id="jf-date" type="date" min={today} value={form.date} onChange={(e) => set("date", e.target.value)} />
             {touched && !form.date && <p className="text-xs text-destructive">Pick a date.</p>}
           </div>
           <div className="grid gap-1.5">
@@ -771,6 +836,39 @@ function JourneyForm({ initial, onSubmit }: { initial: Prefill; onSubmit: (next:
             {touched && !form.time && <p className="text-xs text-destructive">Pick a time.</p>}
           </div>
         </div>
+
+        {/* Return journey */}
+        {form.ret && (
+          <div className="rounded-2xl border border-[var(--gold)]/40 bg-[var(--gold)]/5 p-4">
+            <div className="flex items-center justify-between">
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--gold-ink)]">Return journey</p>
+              <button
+                type="button"
+                onClick={() => setForm((f) => ({ ...f, ret: false, rdate: "", rtime: "" }))}
+                className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+              >
+                <X className="size-3.5" /> Remove
+              </button>
+            </div>
+            <div className="mt-3 grid grid-cols-2 gap-3">
+              <div className="grid gap-1.5">
+                <Label htmlFor="jf-rdate">Return date</Label>
+                <Input id="jf-rdate" type="date" min={form.date || today} value={form.rdate}
+                  onChange={(e) => set("rdate", e.target.value)} />
+                {touched && !form.rdate && <p className="text-xs text-destructive">Pick a return date.</p>}
+              </div>
+              <div className="grid gap-1.5">
+                <Label htmlFor="jf-rtime">Return time</Label>
+                <Input id="jf-rtime" type="time" value={form.rtime} onChange={(e) => set("rtime", e.target.value)} />
+                {touched && !form.rtime && <p className="text-xs text-destructive">Pick a return time.</p>}
+              </div>
+            </div>
+            <p className="mt-3 text-xs text-muted-foreground">
+              The return leg is priced as a second journey and added to your total.
+            </p>
+          </div>
+        )}
+
         <div className="grid grid-cols-2 gap-3">
           <div className="grid gap-1.5">
             <Label htmlFor="jf-pax">Passengers</Label>
@@ -794,6 +892,7 @@ function JourneyForm({ initial, onSubmit }: { initial: Prefill; onSubmit: (next:
     </form>
   );
 }
+
 
 
 function EditTripDialog({
