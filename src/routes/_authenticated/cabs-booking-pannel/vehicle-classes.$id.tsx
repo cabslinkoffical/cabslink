@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { queryOptions, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { ArrowLeft, Loader2, Plus, Trash2, X } from "lucide-react";
+import { ArrowLeft, Loader2, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
