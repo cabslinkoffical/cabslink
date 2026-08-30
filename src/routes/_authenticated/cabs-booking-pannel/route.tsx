@@ -112,7 +112,6 @@ function AdminLayout() {
   const router = useRouter();
   const pathname = useRouterState({ select: s => s.location.pathname });
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [dark, setDark] = useState(false);
   const [email, setEmail] = useState<string>("");
 
   useEffect(() => {
@@ -122,18 +121,10 @@ function AdminLayout() {
   useEffect(() => { setMobileOpen(false); }, [pathname]);
 
   useEffect(() => {
-    const stored = localStorage.getItem("admin-theme");
-    const isDark = stored === "dark";
-    setDark(isDark);
-    document.documentElement.classList.toggle("dark", isDark);
+    localStorage.removeItem("admin-theme");
+    document.documentElement.classList.remove("dark");
   }, []);
 
-  function toggleTheme() {
-    const next = !dark;
-    setDark(next);
-    document.documentElement.classList.toggle("dark", next);
-    localStorage.setItem("admin-theme", next ? "dark" : "light");
-  }
 
   async function signOut() {
     await supabase.auth.signOut();
