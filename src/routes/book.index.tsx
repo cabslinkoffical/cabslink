@@ -921,7 +921,9 @@ function EditTripDialog({
   const canSave =
     !!form.pickup?.placeId && !!form.dropoff?.placeId
     && form.pickup.placeId !== form.dropoff.placeId
-    && !!form.date && !!form.time;
+    && !!form.date && !!form.time
+    && form.stops.every((s) => !!s.placeId)
+    && (!form.ret || (!!form.rdate && !!form.rtime && form.rdate >= form.date));
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
