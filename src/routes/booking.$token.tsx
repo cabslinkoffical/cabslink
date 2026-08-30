@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
-import { BadgeCheck, CalendarDays, Car, Clock, MapPin, Phone, Mail, ShieldCheck, User, Users, Briefcase, Info, Copy, Printer } from "lucide-react";
+import { BadgeCheck, CalendarDays, Car, Clock, MapPin, Phone, Mail, ShieldCheck, User, Users, Briefcase, Info, Copy, Download, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { getBookingByToken } from "@/lib/booking.functions";
@@ -52,6 +52,7 @@ function ConfirmationPage() {
     retry: false,
     staleTime: 60_000,
   });
+  const [downloading, setDownloading] = useState(false);
 
   const fired = useRef(false);
   useEffect(() => {
@@ -91,13 +92,45 @@ function ConfirmationPage() {
       toast.error("Could not copy — please write it down");
     }
   };
-  const printPage = () => { try { window.print(); } catch { /* ignore */ } };
-
   const extras = [
     b.meetGreet ? "Meet & greet" : null,
     b.childSeat ? "Child seat" : null,
     b.returnJourney ? "Return journey" : null,
   ].filter(Boolean) as string[];
+
+  const downloadSlip = async () => {
+    setDownloading(true);
+    try {
+      const { downloadBookingSlip } = await import("@/lib/booking-slip");
+      await downloadBookingSlip({
+        bookingRef: b.bookingRef,
+        status: b.status,
+        statusLabel: statusLabel(b.status),
+        pickupAddress: b.pickupAddress,
+        dropoffAddress: b.dropoffAddress,
+        pickupDate: b.pickupDate,
+        pickupTime: b.pickupTime,
+        vehicleType: b.vehicleType,
+        passengers: b.passengers,
+        luggage: b.luggage,
+        distanceMiles: b.distanceMiles,
+        flightNumber: b.flightNumber,
+        customerName: b.customerName,
+        customerPhone: b.customerPhone,
+        customerEmail: b.customerEmail,
+        price: b.price,
+        paymentStatus: b.paymentStatus,
+        extras,
+        nextStep: nextStep,
+      });
+      toast.success("Booking slip downloaded");
+    } catch {
+      toast.error("Could not create the file — please try again");
+    } finally {
+      setDownloading(false);
+    }
+  };
+
 
   return (
     <SiteLayout>
@@ -176,8 +209,13 @@ function ConfirmationPage() {
 
                 <div className="mt-4 flex gap-2 print:hidden">
                   <Button size="sm" variant="outline" onClick={copyRef} className="h-8 flex-1 gap-1 text-xs"><Copy className="size-3" /> Copy</Button>
-                  <Button size="sm" variant="outline" onClick={printPage} className="h-8 flex-1 gap-1 text-xs"><Printer className="size-3" /> Print</Button>
+                  <Button size="sm" variant="outline" onClick={downloadSlip} disabled={downloading} className="h-8 flex-1 gap-1 text-xs">
+                    {downloading ? <Loader2 className="size-3 animate-spin" /> : <Download className="size-3" />} Download
+                  </Button>
                 </div>
+                <p className="mt-2 text-[10px] leading-snug text-muted-foreground print:hidden">
+                  Saves a PDF booking slip to your device.
+                </p>
               </div>
             </div>
 
