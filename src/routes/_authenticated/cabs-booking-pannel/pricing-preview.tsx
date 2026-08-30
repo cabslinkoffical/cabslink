@@ -95,7 +95,7 @@ function Page() {
   const ready = !!pickup?.placeId && !!destination?.placeId && !!form.vehicleId;
 
   return (
-    <div className="p-6 md:p-8 space-y-6 max-w-6xl">
+    <div className="space-y-6 max-w-6xl">
       <PageHeader
         title="Quote Preview"
         description="Runs the real production pricing engine — the same server path as the customer booking widget — and explains which rule won."

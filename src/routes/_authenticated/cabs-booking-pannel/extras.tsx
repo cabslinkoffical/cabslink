@@ -132,7 +132,7 @@ function ExtrasPage() {
   const canSave = !!form && form.name.trim().length > 1 && /^[a-z0-9_]+$/.test(form.key.trim());
 
   return (
-    <div className="p-6 md:p-8 space-y-6">
+    <div className="space-y-6">
       <PageHeader
         title="Extras"
         description="Every bookable add-on lives here once. Pricing Schemes reference these records — they never redefine them."
@@ -147,7 +147,7 @@ function ExtrasPage() {
       ) : (
         <div className={view === "grid" ? "grid gap-3 md:grid-cols-2 xl:grid-cols-3" : "grid gap-2"}>
           {data.extras.map((e: any) => (
-            <div key={e.id} className={`rounded-2xl border border-border bg-card shadow-sm ${view === "grid" ? "p-5" : "flex flex-wrap items-center gap-4 px-5 py-3"}`}>
+            <div key={e.id} className={`rounded-2xl border border-border bg-card shadow-sm ${view === "grid" ? "flex h-full flex-col p-5" : "flex flex-wrap items-center gap-4 px-5 py-3"}`}>
               <div className={view === "grid" ? "flex items-start gap-3" : "flex min-w-[14rem] flex-1 items-center gap-3"}>
                 <div className="min-w-0">
                   <h3 className="font-display text-base font-semibold truncate">{e.name}</h3>
@@ -175,7 +175,7 @@ function ExtrasPage() {
                     ? `Classes: ${e.class_ids.map((c: string) => classNames.get(c) ?? "—").join(", ")}`
                     : "No vehicle classes selected"}
               </p>
-              <div className={view === "grid" ? "mt-4 flex justify-end gap-1" : "flex gap-1"}>
+              <div className={view === "grid" ? "mt-auto pt-4 flex justify-end gap-1" : "flex gap-1"}>
                 <Button
                   size="icon" variant="ghost" aria-label="Edit"
                   onClick={() => setForm({

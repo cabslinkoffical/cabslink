@@ -139,7 +139,7 @@ function EditorPage() {
           </div>
         </div>
 
-        <div className="p-4 md:p-8">
+        <div className="">
           <div className="space-y-6 max-w-4xl">
             <Section title="Basics">
               <div className="grid sm:grid-cols-2 gap-4">

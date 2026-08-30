@@ -75,7 +75,7 @@ function Page() {
   }
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="space-y-4">
       <PageHeader title="Airports" description="UK airports with terminal, pickup and meet-and-greet information.">
         <BulkTools entity="seo_airports" onChanged={() => qc.invalidateQueries({ queryKey: ["admin", "seo"] })} />
         <Button onClick={() => setForm({ ...empty })}><Plus className="size-4 mr-2" />New airport</Button>

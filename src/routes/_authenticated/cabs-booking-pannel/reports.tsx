@@ -63,7 +63,7 @@ function Page() {
   }
 
   return (
-    <div className="p-6 md:p-8 space-y-6">
+    <div className="space-y-6">
       <PageHeader title="Reports" description="Revenue, bookings, vehicle and route insights.">
         <Button variant="outline" onClick={download} disabled={!r}><Download className="size-4 mr-1" /> Export CSV</Button>
       </PageHeader>

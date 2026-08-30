@@ -25,6 +25,21 @@ export function StatCard({
   );
 }
 
+/** Compact single-line metric for dense secondary strips. */
+export function MiniStat({ label, value, icon: Icon }: { label: string; value: string | number; icon?: LucideIcon }) {
+  return (
+    <div className="admin-card px-3 py-2.5 flex items-center gap-2.5 min-w-0">
+      {Icon && (
+        <span className="size-7 shrink-0 rounded-lg bg-muted text-muted-foreground flex items-center justify-center">
+          <Icon className="size-3.5" />
+        </span>
+      )}
+      <span className="text-xs text-muted-foreground truncate">{label}</span>
+      <span className="ml-auto text-sm font-semibold tabular-nums whitespace-nowrap">{value}</span>
+    </div>
+  );
+}
+
 export function PageHeader({ title, description, children }: { title: string; description?: string; children?: React.ReactNode }) {
   return (
     <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">

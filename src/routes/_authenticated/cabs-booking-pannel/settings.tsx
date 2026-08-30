@@ -43,7 +43,7 @@ function Page() {
   function set(k: string, v: any) { setForm((f: any) => ({ ...f, [k]: v })); }
 
   return (
-    <div className="p-6 md:p-8 space-y-6">
+    <div className="space-y-6">
       <PageHeader title="Settings" description="Business-wide configuration.">
         <Button onClick={() => mut.mutate({
           company_name: form.company_name, logo_url: form.logo_url, favicon_url: form.favicon_url,

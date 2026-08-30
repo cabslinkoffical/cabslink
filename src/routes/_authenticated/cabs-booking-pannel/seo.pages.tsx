@@ -89,7 +89,7 @@ function Page() {
   }
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="space-y-4">
       <PageHeader title="SEO Pages" description="Every programmatic landing page — draft, review or publish, with quality gates.">
         <Button onClick={() => { setCheck(null); setForm({ ...empty }); }}><Plus className="size-4 mr-2" />New page</Button>
       </PageHeader>

@@ -41,7 +41,7 @@ function SeoOverview() {
     { label: "Redirects", value: `${data.redirects.active}/${data.redirects.total}`, icon: ArrowLeftRight, accent: "text-destructive", to: "/cabs-booking-pannel/seo/redirects" },
   ];
   return (
-    <div className="p-6 md:p-8 space-y-6">
+    <div className="space-y-6">
       <PageHeader title="SEO System" description="Programmatic SEO entities, landing pages and redirects. Published counts shown as live/total.">
         <Button onClick={() => seed.mutate()} disabled={seed.isPending} className="gap-2">
           <Sparkles className="h-4 w-4" />

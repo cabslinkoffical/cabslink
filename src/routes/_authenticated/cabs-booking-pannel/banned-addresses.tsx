@@ -42,7 +42,7 @@ function Page() {
   const remove = useMutation({ mutationFn: (id: string) => del({ data: { id } }), onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin", "banned"] }); toast.success("Deleted"); }, onError: (e: any) => toast.error(e.message) });
 
   return (
-    <div className="p-6 md:p-8 space-y-6">
+    <div className="space-y-6">
       <PageHeader title="Banned Addresses" description="Block specific pickup or dropoff locations from being booked.">
         <Button onClick={() => setForm({ ...empty })}><Plus className="size-4 mr-1" /> Ban address</Button>
       </PageHeader>

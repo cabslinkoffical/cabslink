@@ -116,7 +116,7 @@ function SeoImportPage() {
   const previewCols = preview.length ? Object.keys(preview[0]).slice(0, 8) : [];
 
   return (
-    <div className="p-6 md:p-8 space-y-6">
+    <div className="space-y-6">
       <PageHeader
         title="SEO Data Import"
         description="Universal import pipeline for destinations, keywords, tags, search intents and relationships. Validates before writing. Nothing becomes indexable until you promote it in the Publishing engine."

@@ -69,7 +69,7 @@ function RuleChip({ icon: Icon, n, label }: { icon: any; n: number; label: strin
 
 function StateDot({ live }: { live: boolean }) {
   return (
-    <span className={cn("inline-flex items-center gap-1.5 text-[11px] font-semibold", live ? "text-gold-ink" : "text-muted-foreground")}>
+    <span className={cn("inline-flex items-center gap-1.5 whitespace-nowrap text-[11px] font-semibold", live ? "text-gold-ink" : "text-muted-foreground")}>
       <span className={cn("size-1.5 rounded-full", live ? "bg-gold" : "bg-muted-foreground/50")} />
       {live ? "Pricing live" : "Pricing off"}
     </span>
@@ -187,7 +187,7 @@ function PricingSchemesPage() {
                 ))}
               </div>
 
-              <div className="mt-4 flex items-center justify-between gap-2 border-t border-border pt-3">
+              <div className="mt-auto pt-4 flex items-center justify-between gap-2 border-t border-border">
                 <div className="flex flex-wrap gap-1.5">
                   <span className={cn(
                     "rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1",

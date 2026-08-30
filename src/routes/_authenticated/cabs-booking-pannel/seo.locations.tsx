@@ -69,7 +69,7 @@ function Page() {
   }
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="space-y-4">
       <PageHeader title="Locations" description="UK countries, regions, counties, cities and towns used across the SEO system.">
         <BulkTools entity="seo_locations" onChanged={() => qc.invalidateQueries({ queryKey: ["admin", "seo"] })} />
         <Button onClick={() => setForm({ ...empty })}><Plus className="size-4 mr-2" />New location</Button>

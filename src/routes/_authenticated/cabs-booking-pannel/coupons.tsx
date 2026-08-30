@@ -44,7 +44,7 @@ function Page() {
   const remove = useMutation({ mutationFn: (id: string) => del({ data: { id } }), onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin", "coupons"] }); toast.success("Deleted"); }, onError: (e: any) => toast.error(e.message) });
 
   return (
-    <div className="p-6 md:p-8 space-y-6">
+    <div className="space-y-6">
       <PageHeader title="Coupons & Discounts" description="Create promo codes with limits and validity windows.">
         <BulkTools entity="coupons" onChanged={() => qc.invalidateQueries({ queryKey: ["admin", "coupons"] })} />
         <Button onClick={() => setForm({ ...empty })}><Plus className="size-4 mr-1" /> New coupon</Button>

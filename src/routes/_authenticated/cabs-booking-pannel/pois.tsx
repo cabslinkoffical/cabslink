@@ -80,7 +80,7 @@ function PoisPage() {
   }
 
   return (
-    <div className="p-6">
+    <div className="">
       <PageHeader title="Points of Interest" description="Curated sightseeing stops used by scenic route templates.">
         <BulkTools entity="points_of_interest" onChanged={() => qc.invalidateQueries({ queryKey: ["admin", "pois"] })} />
         <Button onClick={() => setForm({ ...empty })}><Plus className="size-4 mr-2" />New POI</Button>

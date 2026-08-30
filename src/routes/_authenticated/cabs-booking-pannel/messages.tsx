@@ -80,7 +80,7 @@ function MessagesPage() {
   };
 
   return (
-    <div className="p-6 md:p-8 space-y-5">
+    <div className="space-y-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="font-display text-3xl font-semibold">Messages</h1>

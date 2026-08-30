@@ -42,7 +42,7 @@ function UsersPage() {
   });
 
   return (
-    <div className="p-6 md:p-8 space-y-5">
+    <div className="space-y-5">
       <div>
         <h1 className="font-display text-3xl font-semibold">Users</h1>
         <p className="text-sm text-muted-foreground">{users.length} users · {users.filter((u: any) => u.roles.includes("admin")).length} admins</p>

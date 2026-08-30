@@ -65,7 +65,7 @@ function VehicleClassesPage() {
   const modelCount = (classId: string) => (data.models as any[]).filter((m) => m.vehicle_class_id === classId).length;
 
   return (
-    <div className="p-6 md:p-8 space-y-6">
+    <div className="space-y-6">
       <PageHeader
         title="Vehicle Classes"
         description="One place per class: details, photo, models, pricing, hourly hire and availability."

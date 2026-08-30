@@ -65,7 +65,7 @@ function AddressesPage() {
   });
 
   return (
-    <div className="p-6 md:p-8 space-y-6">
+    <div className="space-y-6">
       <PageHeader title="Addresses" description="Pickup and dropoff address library with comparable values and surcharges.">
         <Button onClick={() => setForm({ ...empty })}><Plus className="size-4 mr-1" /> Add address</Button>
       </PageHeader>
