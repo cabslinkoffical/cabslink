@@ -14,6 +14,7 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { getPublishedTourBySlugImpl, type PublicTourDetail } from "@/lib/tours.functions";
+import { resolveCoords } from "@/lib/place-coords.server";
 
 function serverPublicClient() {
   const key = process.env.SUPABASE_PUBLISHABLE_KEY!;
