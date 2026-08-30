@@ -5,7 +5,7 @@ import {
   LayoutDashboard, CalendarCheck, MapPin, Ban, Car, Tag, UserCog, Users,
   CreditCard, Ticket, FileText, BarChart3, Shield, Settings as SettingsIcon, History,
   LogOut, ExternalLink, Sun, Moon, Menu, X, Inbox, Gauge,
-  Plane, Plus, Wrench, Route as RouteIcon, ArrowLeftRight, Globe, UploadCloud,
+  Plane, Plus, Wrench, Route as RouteIcon, ArrowLeftRight, Globe, UploadCloud, TrendingUp,
 } from "lucide-react";
 import { SidebarNav, type SidebarEntry } from "@/components/admin/SidebarNav";
 import { Breadcrumbs } from "@/components/admin/Breadcrumbs";
@@ -97,6 +97,7 @@ const NAV: SidebarEntry[] = [
       { to: "/cabs-booking-pannel/seo/import", label: "Import", icon: UploadCloud },
     ],
   },
+  { to: "/cabs-booking-pannel/analytics", label: "Analytics", icon: TrendingUp },
   { to: "/cabs-booking-pannel/reports", label: "Reports", icon: BarChart3 },
   {
     label: "System", icon: SettingsIcon, items: [

@@ -9,12 +9,15 @@ import {
   redirect,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
+import { useRouterState } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { resolvePublicRedirect } from "../lib/seo-public.functions";
 import { getSiteStatus } from "../lib/site-status.functions";
 import { MaintenanceScreen } from "../components/site/MaintenanceScreen";
+import { ConsentBanner } from "../components/site/ConsentBanner";
+import { initAnalytics, isMeasurablePath, trackPageView } from "../lib/analytics-ga";
 
 function NotFoundComponent() {
   return (
@@ -121,11 +124,21 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const ctx = Route.useRouteContext() as { queryClient: QueryClient; maintenance?: { maintenance: boolean; company_name: string | null } };
+  const pathname = useRouterState({ select: s => s.location.pathname });
+  const measurable = isMeasurablePath(pathname);
+
+  // Analytics: install once (consent-gated), then a page view per route change.
+  useEffect(() => {
+    initAnalytics(pathname);
+    trackPageView(pathname);
+  }, [pathname]);
+
   return (
     <QueryClientProvider client={ctx.queryClient}>
       {ctx.maintenance?.maintenance
         ? <MaintenanceScreen companyName={ctx.maintenance.company_name} />
         : <Outlet />}
+      {measurable && <ConsentBanner />}
     </QueryClientProvider>
   );
 }

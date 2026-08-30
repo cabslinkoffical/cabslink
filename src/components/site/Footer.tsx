@@ -1,3 +1,4 @@
+import { resetConsent } from "@/lib/consent";
 import { Link } from "@tanstack/react-router";
 import { Mail, Phone, MapPin } from "lucide-react";
 import { Logo } from "./Logo";
@@ -103,6 +104,15 @@ export function Footer() {
             {legal.map(l => (
               <li key={l.to}><Link to={l.to} className="inline-flex min-h-10 items-center hover:text-[var(--gold)] md:min-h-0">{l.label}</Link></li>
             ))}
+            <li>
+              <button
+                type="button"
+                onClick={() => resetConsent()}
+                className="inline-flex min-h-10 items-center hover:text-[var(--gold)] md:min-h-0"
+              >
+                Cookie settings
+              </button>
+            </li>
           </ul>
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
             <p>© {new Date().getFullYear()} Cabslink. All rights reserved.</p>
