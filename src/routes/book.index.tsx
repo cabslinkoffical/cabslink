@@ -55,6 +55,16 @@ export const Route = createFileRoute("/book/")({
   component: BookPage,
 });
 
+// Extras whose controls live in the "Onboard extras" card. They are charged by
+// the dedicated pricing fields, so they are excluded from the Add-ons list to
+// avoid duplicate rows and double charging.
+const ONBOARD_EXTRA_KEYS = new Set([
+  "child_seat",
+  "additional_child_seat",
+  "meet_greet",
+  "return_journey",
+]);
+
 // -------------------------------------------------------------------
 // Prefill parsing — Place-IDs are required for a real quote.
 // stops encoding: `placeId::label` OR `placeId::label::minutes` (optional).
