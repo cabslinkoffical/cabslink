@@ -190,6 +190,10 @@ function ExtrasPage() {
                     active: e.active,
                     sort_order: e.sort_order,
                     class_ids: e.class_ids,
+                    class_prices: Object.fromEntries(
+                      Object.entries((e.class_prices ?? {}) as Record<string, number | null>)
+                        .map(([cid, pence]) => [cid, pence == null ? "" : (Number(pence) / 100).toFixed(2)]),
+                    ),
                   })}
                 >
                   <Pencil className="size-4" />
