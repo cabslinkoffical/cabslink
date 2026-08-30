@@ -17,6 +17,19 @@ import { Search, Trash2, RotateCcw, Eye, RefreshCw, MailCheck, MailX, MailWarnin
 import { bookingsToCsv, downloadCsv, bookingExportFilename } from "@/lib/booking-export";
 import { toast } from "sonner";
 import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
+import { CannedEmailComposer } from "@/components/admin/CannedEmailComposer";
+
+/** Pre-selects the most likely pre-written email for the booking's status. */
+const TEMPLATE_FOR_STATUS: Partial<Record<BookingStatus, string>> = {
+  confirmed: "booking_confirmed",
+  assigned: "driver_assigned",
+  on_way: "on_the_way",
+  driver_en_route: "on_the_way",
+  awaiting_payment: "payment_reminder",
+  completed: "booking_completed",
+  cancelled: "booking_cancelled",
+  rejected: "booking_cancelled",
+};
 
 const opts = queryOptions({ queryKey: ["admin", "bookings"], queryFn: () => listBookings() });
 const driverOpts = queryOptions({ queryKey: ["admin", "drivers-pick"], queryFn: () => listDrivers() });
