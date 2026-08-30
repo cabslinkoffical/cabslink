@@ -541,6 +541,15 @@ export function BookingWidget({
           )}
         </div>
 
+        {/* Mobile/tablet search button — anchored at the bottom of the form */}
+        <button
+          type="submit"
+          className={`w-full mt-4 @[980px]:hidden group cta-search inline-flex items-center justify-center gap-2 bg-[var(--gold)] text-[var(--gold-foreground)] rounded-2xl px-6 py-4 font-display font-bold uppercase tracking-[0.18em] text-xs ${errorList.length === 0 ? "cta-search-ready" : ""}`}
+        >
+          <Search className="w-4 h-4 transition-transform duration-200 group-hover:scale-110" strokeWidth={2.5} />
+          <span>Search</span>
+        </button>
+
 
         {attempted && errorList.length > 0 && (
           <span className="sr-only" role="alert">{errorList.join(" ")}</span>
