@@ -52,6 +52,7 @@ function ConfirmationPage() {
     retry: false,
     staleTime: 60_000,
   });
+  const [downloading, setDownloading] = useState(false);
 
   const fired = useRef(false);
   useEffect(() => {
