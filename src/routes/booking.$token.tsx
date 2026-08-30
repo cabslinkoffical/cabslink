@@ -91,13 +91,45 @@ function ConfirmationPage() {
       toast.error("Could not copy — please write it down");
     }
   };
-  const printPage = () => { try { window.print(); } catch { /* ignore */ } };
-
   const extras = [
     b.meetGreet ? "Meet & greet" : null,
     b.childSeat ? "Child seat" : null,
     b.returnJourney ? "Return journey" : null,
   ].filter(Boolean) as string[];
+
+  const downloadSlip = async () => {
+    setDownloading(true);
+    try {
+      const { downloadBookingSlip } = await import("@/lib/booking-slip");
+      await downloadBookingSlip({
+        bookingRef: b.bookingRef,
+        status: b.status,
+        statusLabel: statusLabel(b.status),
+        pickupAddress: b.pickupAddress,
+        dropoffAddress: b.dropoffAddress,
+        pickupDate: b.pickupDate,
+        pickupTime: b.pickupTime,
+        vehicleType: b.vehicleType,
+        passengers: b.passengers,
+        luggage: b.luggage,
+        distanceMiles: b.distanceMiles,
+        flightNumber: b.flightNumber,
+        customerName: b.customerName,
+        customerPhone: b.customerPhone,
+        customerEmail: b.customerEmail,
+        price: b.price,
+        paymentStatus: b.paymentStatus,
+        extras,
+        nextStep: nextStep,
+      });
+      toast.success("Booking slip downloaded");
+    } catch {
+      toast.error("Could not create the file — please try again");
+    } finally {
+      setDownloading(false);
+    }
+  };
+
 
   return (
     <SiteLayout>
