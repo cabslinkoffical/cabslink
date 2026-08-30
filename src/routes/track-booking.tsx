@@ -113,7 +113,8 @@ function TrackBookingPage() {
           </div>
 
           {result && (
-            <div className="mt-6 overflow-hidden rounded-2xl border border-[var(--navy)]/10 bg-card shadow-raised">
+            <div ref={resultRef} className="mt-6 scroll-mt-24 overflow-hidden rounded-2xl border border-[var(--navy)]/10 bg-card shadow-raised">
+
               <div className="flex items-center justify-between gap-3 bg-[color-mix(in_oklab,var(--gold)_10%,transparent)] px-6 py-4">
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">Booking reference</p>
