@@ -603,6 +603,8 @@ function BookPage() {
                   pre={pre}
                   onEdit={() => setEditOpen(true)}
                   onStartAgain={startAgain}
+                  extraStops={orderedSelected.map((s) => ({ label: s.label, minutes: s.minutes }))}
+                  returnEnabled={returnJourney}
                   route={quoteQuery.data ? { miles: quoteQuery.data.distanceMiles, minutes: quoteQuery.data.durationMinutes } : null}
                   price={chosen ? { vehicleName: chosen.name, perVehicle: perVehiclePrice, qty, rideTotal, seatFee, seatCount: childSeatCount, meetGreetFee, returnFee, addonsFee, addonLines, policy, policyDelta, grandTotal } : null}
                 />
