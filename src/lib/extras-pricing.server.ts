@@ -6,7 +6,7 @@ import type { ExtrasCatalogue } from "@/lib/extras-pricing";
 
 export async function loadExtrasCatalogue(client: any): Promise<ExtrasCatalogue> {
   const [extras, links] = await Promise.all([
-    client.from("extras").select("key, price_pence, active, applies_to_all_classes, id").eq("active", true),
+    client.from("extras").select("key, price_pence, active, applies_to_all_classes, price_basis, id").eq("active", true),
     client.from("extra_vehicle_classes").select("extra_id, vehicle_class_id, price_pence"),
   ]);
   if (extras.error) throw new Error(extras.error.message);
@@ -18,6 +18,7 @@ export async function loadExtrasCatalogue(client: any): Promise<ExtrasCatalogue>
       active: !!e.active,
       price_pence: Math.max(0, Number(e.price_pence) || 0),
       applies_to_all_classes: !!e.applies_to_all_classes,
+      price_basis: (e.price_basis ?? "per_unit") as "per_unit" | "per_booking" | "per_hour",
       class_prices: {},
     });
   }

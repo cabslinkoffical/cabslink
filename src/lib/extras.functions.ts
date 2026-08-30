@@ -34,6 +34,8 @@ const ExtraInput = z.object({
   active: z.boolean(),
   sort_order: z.coerce.number().int().min(0).max(9999),
   class_ids: z.array(z.string().uuid()).max(50).optional(),
+  /** classId → override price in pence (null = use the extra's own price). */
+  class_prices: z.record(z.string().uuid(), pence.nullable()).optional(),
 });
 
 export const listExtrasAdmin = createServerFn({ method: "GET" })
@@ -52,6 +54,11 @@ export const listExtrasAdmin = createServerFn({ method: "GET" })
       extras: (extras.data ?? []).map((e: any) => ({
         ...e,
         class_ids: (links.data ?? []).filter((l: any) => l.extra_id === e.id).map((l: any) => l.vehicle_class_id),
+        class_prices: Object.fromEntries(
+          (links.data ?? [])
+            .filter((l: any) => l.extra_id === e.id)
+            .map((l: any) => [l.vehicle_class_id, l.price_pence ?? null]),
+        ),
       })),
       links: links.data ?? [],
       classes: classes.data ?? [],
@@ -63,7 +70,7 @@ export const upsertExtra = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => ExtraInput.parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    const { id, class_ids, ...row } = data;
+    const { id, class_ids, class_prices, ...row } = data;
     const res = id
       ? await context.supabase.from("extras").update(row).eq("id", id).select("id").single()
       : await context.supabase.from("extras").insert(row).select("id").single();
@@ -76,7 +83,11 @@ export const upsertExtra = createServerFn({ method: "POST" })
       if (!row.applies_to_all_classes && class_ids.length) {
         const ins = await context.supabase
           .from("extra_vehicle_classes")
-          .insert(class_ids.map((c) => ({ extra_id: extraId, vehicle_class_id: c })));
+          .insert(class_ids.map((c) => ({
+            extra_id: extraId,
+            vehicle_class_id: c,
+            price_pence: class_prices?.[c] ?? null,
+          })));
         if (ins.error) throw new Error(ins.error.message);
       }
     }

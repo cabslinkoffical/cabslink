@@ -54,6 +54,8 @@ type FormState = {
   active: boolean;
   sort_order: number;
   class_ids: string[];
+  /** classId → override price in £ ("" = use the default price). */
+  class_prices: Record<string, string>;
 };
 
 const blank: FormState = {
@@ -67,6 +69,7 @@ const blank: FormState = {
   active: true,
   sort_order: 100,
   class_ids: [],
+  class_prices: {},
 };
 
 function ExtrasPage() {
@@ -98,6 +101,14 @@ function ExtrasPage() {
           active: f.active,
           sort_order: f.sort_order,
           class_ids: f.applies_to_all_classes ? [] : f.class_ids,
+          class_prices: f.applies_to_all_classes
+            ? {}
+            : Object.fromEntries(
+                f.class_ids.map((c) => {
+                  const raw = (f.class_prices[c] ?? "").trim();
+                  return [c, raw === "" ? null : Math.round(Number(raw) * 100)];
+                }),
+              ),
         },
       }),
     onSuccess: () => { setForm(null); toast.success("Extra saved"); void refresh(); },
@@ -179,6 +190,10 @@ function ExtrasPage() {
                     active: e.active,
                     sort_order: e.sort_order,
                     class_ids: e.class_ids,
+                    class_prices: Object.fromEntries(
+                      Object.entries((e.class_prices ?? {}) as Record<string, number | null>)
+                        .map(([cid, pence]) => [cid, pence == null ? "" : (Number(pence) / 100).toFixed(2)]),
+                    ),
                   })}
                 >
                   <Pencil className="size-4" />
@@ -250,20 +265,35 @@ function ExtrasPage() {
               {!form.applies_to_all_classes && (
                 <div className="rounded-lg border border-border p-4">
                   <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Vehicle classes</p>
+                  <p className="mb-3 text-xs text-muted-foreground">Leave the price blank to use the default price above.</p>
                   <div className="grid gap-2 sm:grid-cols-2">
                     {data.classes.map((c: any) => {
                       const on = form.class_ids.includes(c.id);
                       return (
-                        <label key={c.id} className="flex items-center gap-2 text-sm">
-                          <input
-                            type="checkbox" checked={on}
-                            onChange={() => setForm({
-                              ...form,
-                              class_ids: on ? form.class_ids.filter((x) => x !== c.id) : [...form.class_ids, c.id],
-                            })}
-                          />
-                          {c.name}
-                        </label>
+                        <div key={c.id} className="flex items-center gap-2 text-sm">
+                          <label className="flex flex-1 items-center gap-2">
+                            <input
+                              type="checkbox" checked={on}
+                              onChange={() => setForm({
+                                ...form,
+                                class_ids: on ? form.class_ids.filter((x) => x !== c.id) : [...form.class_ids, c.id],
+                              })}
+                            />
+                            {c.name}
+                          </label>
+                          {on && (
+                            <Input
+                              className="h-8 w-24"
+                              type="number" step="0.01" min="0"
+                              placeholder={`£${form.price.toFixed(2)}`}
+                              value={form.class_prices[c.id] ?? ""}
+                              onChange={(e) => setForm({
+                                ...form,
+                                class_prices: { ...form.class_prices, [c.id]: e.target.value },
+                              })}
+                            />
+                          )}
+                        </div>
                       );
                     })}
                   </div>
