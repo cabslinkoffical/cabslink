@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate, useParams } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { queryOptions, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -10,39 +10,24 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StatusBadge } from "@/components/admin/ui";
-import { emptyPricing, ExtrasEditor, HeroImageUploader, MileageEditor, type PricingForm } from "@/components/admin/PricingEditors";
+import { HeroImageUploader } from "@/components/admin/PricingEditors";
 import {
   listVehicleClassesAdmin, upsertVehicleClass, upsertVehicleModel, deleteVehicleModel,
   ensureClassPricingRecord,
 } from "@/lib/vehicle-classes.functions";
-import { listVehiclesAdmin } from "@/lib/admin.functions";
-import { adminListPricingProfiles, adminSavePricingProfile } from "@/lib/pricing.functions";
-import { adminListHourlyRates, adminSaveHourlyRate } from "@/lib/hourly.functions";
-import { listAvailabilityRules, upsertAvailabilityRule, deleteAvailabilityRule } from "@/lib/pricing-admin.functions";
 
 const classOpts = queryOptions({ queryKey: ["admin", "vehicle-classes"], queryFn: () => listVehicleClassesAdmin() });
-const vehicleOpts = queryOptions({ queryKey: ["admin", "vehicles"], queryFn: () => listVehiclesAdmin() });
-const profileOpts = queryOptions({ queryKey: ["pricing-profiles"], queryFn: () => adminListPricingProfiles() });
-const hourlyOpts = queryOptions({ queryKey: ["admin", "hourly-rates"], queryFn: () => adminListHourlyRates() });
-const availOpts = queryOptions({ queryKey: ["admin", "availability-rules"], queryFn: () => listAvailabilityRules() });
 
 export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/vehicle-classes/$id")({
   head: () => ({
     meta: [
       { title: "Edit Vehicle Class — Cabslink Admin" },
-      { name: "description", content: "Cabslink staff console: edit a vehicle class, its pricing and availability in one place." },
+      { name: "description", content: "Cabslink staff console: edit a vehicle class, its models and listing details." },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
-  loader: ({ context }) => Promise.all([
-    context.queryClient.ensureQueryData(classOpts),
-    context.queryClient.ensureQueryData(vehicleOpts),
-    context.queryClient.ensureQueryData(profileOpts),
-    context.queryClient.ensureQueryData(hourlyOpts),
-    context.queryClient.ensureQueryData(availOpts),
-  ]),
+  loader: ({ context }) => context.queryClient.ensureQueryData(classOpts),
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
   component: EditorPage,
 });
@@ -322,27 +307,6 @@ function AddModel({ classId, onAdded }: { classId: string; onAdded: (name: strin
           finally { setBusy(false); }
         }}>
         <Plus className="size-4 mr-1.5" />Add
-      </Button>
-    </div>
-  );
-}
-
-function AddBlock({ onAdd }: { onAdd: (v: { name: string; date_from: string; date_to: string; reason: string }) => Promise<void> }) {
-  const [v, setV] = useState({ name: "", date_from: "", date_to: "", reason: "" });
-  const [busy, setBusy] = useState(false);
-  return (
-    <div className="grid sm:grid-cols-4 gap-3 items-end pt-2 border-t border-border">
-      <Field label="Block name"><Input value={v.name} placeholder="e.g. Christmas closure" onChange={(e) => setV({ ...v, name: e.target.value })} /></Field>
-      <Field label="From"><Input type="date" value={v.date_from} onChange={(e) => setV({ ...v, date_from: e.target.value })} /></Field>
-      <Field label="To"><Input type="date" value={v.date_to} onChange={(e) => setV({ ...v, date_to: e.target.value })} /></Field>
-      <Button variant="outline" disabled={v.name.trim().length < 2 || busy}
-        onClick={async () => {
-          setBusy(true);
-          try { await onAdd(v); setV({ name: "", date_from: "", date_to: "", reason: "" }); }
-          catch (e: any) { toast.error(e.message ?? "Could not add block"); }
-          finally { setBusy(false); }
-        }}>
-        <Plus className="size-4 mr-1.5" />Add block
       </Button>
     </div>
   );
