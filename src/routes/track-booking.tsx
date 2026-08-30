@@ -62,7 +62,7 @@ function TrackBookingPage() {
             <div className="bg-[var(--navy)] px-6 py-5 text-[var(--navy-foreground)]">
               <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-[var(--gold)]">{SITE.name}</p>
               <h1 className="mt-1 font-display text-xl font-bold md:text-2xl">Track your booking</h1>
-              <p className="mt-1 text-sm text-white/70">Enter your booking reference and the email or phone number used when booking.</p>
+              <p className="mt-1 text-sm text-white/70">Enter your booking reference to see your live journey status.</p>
             </div>
 
             <form onSubmit={handleSubmit} className="p-6 space-y-5">
@@ -79,31 +79,6 @@ function TrackBookingPage() {
                 />
               </div>
 
-              <div className="grid gap-5 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email address</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@example.com"
-                    autoComplete="email"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Phone number</Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+44 333 888 2991"
-                    autoComplete="tel"
-                  />
-                </div>
-              </div>
-
               {error && (
                 <div className="rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">
                   {error}
@@ -112,7 +87,7 @@ function TrackBookingPage() {
 
               <Button
                 type="submit"
-                disabled={loading || !ref.trim() || (!email.trim() && !phone.trim())}
+                disabled={loading || !ref.trim()}
                 className="w-full gap-2 bg-[var(--gold)] text-[var(--navy)] hover:bg-[var(--gold)]/90"
               >
                 {loading ? (
