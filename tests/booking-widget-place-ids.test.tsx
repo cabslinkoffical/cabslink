@@ -42,7 +42,7 @@ describe("BookingWidget — Place-ID gating", () => {
   it("blocks submit and shows validation when no places are selected", async () => {
     const user = userEvent.setup();
     render(<BookingWidget />);
-    await user.click(screen.getByRole("button", { name: /Search/i }));
+    await user.click(screen.getAllByRole("button", { name: /Search/i })[0]);
     expect(navigateMock).not.toHaveBeenCalled();
     expect(await screen.findByText(/Select a pickup location from the suggestions/i)).toBeTruthy();
   });
@@ -63,7 +63,7 @@ describe("BookingWidget — Place-ID gating", () => {
     await user.click(screen.getByRole("button", { name: /Passengers/i }));
     await user.click(screen.getByLabelText(/Increase Passengers/i));
     await user.click(screen.getByLabelText(/Increase Luggage/i));
-    await user.click(screen.getByRole("button", { name: /Search/i }));
+    await user.click(screen.getAllByRole("button", { name: /Search/i })[0]);
     expect(navigateMock).toHaveBeenCalledTimes(1);
     const arg = navigateMock.mock.calls[0][0];
     const params = new URLSearchParams(arg.search.q);
@@ -81,7 +81,7 @@ describe("BookingWidget — Place-ID gating", () => {
     render(<BookingWidget />);
     await user.click(screen.getByTestId("widget-pickup-pick-a"));
     await user.click(screen.getByTestId("widget-dropoff-pick-a"));
-    await user.click(screen.getByRole("button", { name: /Search/i }));
+    await user.click(screen.getAllByRole("button", { name: /Search/i })[0]);
     expect(navigateMock).not.toHaveBeenCalled();
     expect(await screen.findByText(/cannot be the same as pickup/i)).toBeTruthy();
   });
