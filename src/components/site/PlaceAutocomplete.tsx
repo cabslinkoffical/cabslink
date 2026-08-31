@@ -229,7 +229,7 @@ export function PlaceAutocomplete({
         <ul
           id={listboxId}
           role="listbox"
-          className="absolute z-[60] mt-2 w-full min-w-[275px] max-h-72 overflow-auto rounded-2xl border border-[var(--border)] bg-[var(--popover)] text-[var(--popover-foreground)] shadow-[var(--shadow-elegant)]"
+          className="absolute z-[60] mt-2 w-full min-w-[275px] max-h-72 overflow-auto rounded-md border border-[var(--border)] bg-[var(--popover)] text-[var(--popover-foreground)] shadow-[var(--shadow-elegant)]"
         >
           {suggestions.map((s, i) => (
             <li
