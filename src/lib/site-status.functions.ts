@@ -24,11 +24,11 @@ export const getSiteStatus = createServerFn({ method: "GET" }).handler(async ():
         },
       },
     });
-    const { data } = await client
+    const { data } = (await client
       .from("site_settings_public" as any)
-      .select("maintenance_mode, company_name")
+      .select("*")
       .eq("id", 1)
-      .maybeSingle();
+      .maybeSingle()) as { data: { maintenance_mode?: boolean; company_name?: string } | null };
     return {
       maintenance: !!data?.maintenance_mode,
       company_name: data?.company_name ?? null,
