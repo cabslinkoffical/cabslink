@@ -20,6 +20,7 @@ export const Route = createFileRoute("/track-booking")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
+    links: [{ rel: "canonical", href: "https://cabslink.com/track-booking" }],
   }),
   component: TrackBookingPage,
 });
