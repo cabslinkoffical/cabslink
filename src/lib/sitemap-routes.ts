@@ -4,12 +4,16 @@
  */
 import { publishedCombinations } from "@/lib/seo/service-locations";
 import { publishedJourneyPaths } from "@/lib/seo/journeys";
+import { publishedGuidePaths } from "@/lib/seo/guides";
 
 /** Published service + location combination pages (facts-gated). */
 export const SERVICE_LOCATION_ROUTES = publishedCombinations().map((c) => c.path);
 
 /** Published journey (route) pages (facts-gated). */
 export const JOURNEY_ROUTES = publishedJourneyPaths();
+
+/** Published code-defined editorial guides. */
+export const GUIDE_ROUTES = publishedGuidePaths();
 
 export const PUBLIC_ROUTES = [
 
@@ -27,6 +31,7 @@ export const PUBLIC_ROUTES = [
   "/hospitals", "/corporate", "/attractions", "/distilleries", "/guides",
   "/routes", "/distance", "/image-credits",
   ...JOURNEY_ROUTES,
+  ...GUIDE_ROUTES,
   ...SERVICE_LOCATION_ROUTES,
 
 ];
