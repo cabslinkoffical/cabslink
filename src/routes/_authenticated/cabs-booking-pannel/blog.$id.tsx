@@ -353,10 +353,13 @@ function PostEditor() {
               <Textarea rows={3} value={form.meta_description} onChange={(e) => setForm({ ...form, meta_description: e.target.value })} />
               <p className="mt-1 text-[11px] text-muted-foreground">{form.meta_description.length}/160 recommended</p>
             </div>
-            <div>
-              <Label>OG image URL</Label>
-              <Input value={form.og_image_url} onChange={(e) => setForm({ ...form, og_image_url: e.target.value })} />
-            </div>
+            <ImageUploadField
+              label="Social share (OG) image"
+              folder="og"
+              value={form.og_image_url}
+              onChange={(url) => setForm((f) => ({ ...f, og_image_url: url }))}
+            />
+
             <div>
               <Label>Canonical override</Label>
               <Input value={form.canonical_override} onChange={(e) => setForm({ ...form, canonical_override: e.target.value })} placeholder="Leave blank for default" />
