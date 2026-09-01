@@ -118,6 +118,18 @@ export function JourneyPage({
         </div>
       </section>
 
+      {/* Published fares: an AI answer or searcher can only quote a price we
+          actually put on the page. Omitted entirely when the engine cannot
+          produce a reliable figure for this route. */}
+      {fares && fares.fares.length > 0 && (
+        <section className="section-y border-t">
+          <div className="container-x max-w-4xl">
+            <RouteFareTable data={fares} routeName={`${c.from.name} to ${c.to.name}`} />
+          </div>
+        </section>
+      )}
+
+
       <section className="bg-[var(--navy)] text-[var(--navy-foreground)] section-y">
         <div className="container-x">
           <p className="text-xs uppercase tracking-[0.3em] text-[var(--gold)]">Planning</p>
