@@ -79,10 +79,10 @@ function nearest(rows: Row[], center: { lat: number; lng: number } | null, limit
 }
 
 const label = (r: Row) => r.display_name ?? r.name;
-const airportHref = (r: Row) => {
-  const iata = (r.meta?.["iata"] as string | undefined) ?? "";
-  return `/airports/${(iata || r.slug).toLowerCase()}`;
-};
+// Always emit the canonical full-slug URL. `/airports/:iata` still exists but
+// 301-redirects, so internal links must never point at it.
+const airportHref = (r: Row) => `/airports/${r.slug.toLowerCase()}`;
+
 const airportLabel = (r: Row) => {
   const iata = (r.meta?.["iata"] as string | undefined) ?? "";
   const n = label(r);

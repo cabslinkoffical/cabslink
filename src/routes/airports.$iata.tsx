@@ -269,7 +269,7 @@ function AirportPage() {
                   <Link
                     key={a.id}
                     to="/airports/$iata"
-                    params={{ iata: oi.toLowerCase() || a.slug }}
+                    params={{ iata: a.slug }}
                     className="rounded-xl border border-[var(--navy)]/10 bg-white p-4 hover:border-[var(--gold)]"
                   >
                     <div className="flex items-center justify-between">

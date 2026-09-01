@@ -101,19 +101,26 @@ function normalizeSummary(row: any): BlogPostSummary {
 
 export const listBlogHome = createServerFn({ method: "GET" }).handler(async () => {
   const supabase = serverPublicClient();
-  const [categoriesRes, latestRes, featuredRes, pillarsRes] = await Promise.all([
+  const [categoriesRes, latestRes, featuredRes, pillarsRes, catCountsRes] = await Promise.all([
     supabase.from("blog_categories").select("*").eq("active", true).order("sort_order", { ascending: true }),
     supabase.from("blog_posts").select(POST_LIST_SELECT).eq("status", "published").order("published_at", { ascending: false }).limit(12),
     supabase.from("blog_posts").select(POST_LIST_SELECT).eq("status", "published").eq("featured", true).order("published_at", { ascending: false }).limit(3),
     supabase.from("blog_posts").select(POST_LIST_SELECT).eq("status", "published").eq("pillar", true).order("published_at", { ascending: false }).limit(6),
+    supabase.from("blog_posts").select("category_id").eq("status", "published"),
   ]);
+  // Only surface categories that actually have published posts — empty ones
+  // 404 on /blog/category/:slug and waste crawl budget.
+  const populated = new Set(
+    (catCountsRes.data ?? []).map((r: { category_id: string | null }) => r.category_id).filter(Boolean) as string[],
+  );
   return {
-    categories: (categoriesRes.data ?? []) as BlogCategory[],
+    categories: ((categoriesRes.data ?? []) as BlogCategory[]).filter((c) => populated.has(c.id)),
     latest: (latestRes.data ?? []).map(normalizeSummary),
     featured: (featuredRes.data ?? []).map(normalizeSummary),
     pillars: (pillarsRes.data ?? []).map(normalizeSummary),
   };
 });
+
 
 export const listPostsByCategory = createServerFn({ method: "GET" })
   .inputValidator((i: unknown) => z.object({ slug: z.string().min(1) }).parse(i))
