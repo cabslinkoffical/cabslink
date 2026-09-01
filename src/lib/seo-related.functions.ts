@@ -124,7 +124,7 @@ export const getRelatedSeoLinks = createServerFn({ method: "GET" })
         .slice(0, 4);
       bundle.nearby_airports = scored.map(({ a, d }) => ({
         label: `${a.name} (${String(a.iata_code).toUpperCase()})`,
-        href: `/airports/${String(a.iata_code).toLowerCase()}`,
+        href: `/airports/${String(a.slug).toLowerCase()}`,
         description: `${d.toFixed(0)} mi away`,
       }));
 
