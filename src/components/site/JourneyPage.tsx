@@ -11,6 +11,9 @@ import { Button } from "@/components/ui/button";
 import type { JourneyContent } from "@/lib/seo/journeys";
 import type { RouteFareTable as RouteFareTableData } from "@/lib/seo/route-fares.functions";
 import { RouteFareTable } from "@/components/seo/RouteFareTable";
+import { TransportComparison } from "@/components/seo/TransportComparison";
+import { getJourneyTransport } from "@/lib/seo/transport-modes";
+
 import { SITE } from "@/lib/site";
 
 const ORIGIN = "https://cabslink.com";
