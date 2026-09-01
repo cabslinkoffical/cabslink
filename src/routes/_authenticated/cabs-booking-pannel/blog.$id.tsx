@@ -2,6 +2,8 @@ import { createFileRoute, useRouter, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { PageHeader } from "@/components/admin/ui";
+import { ImageUploadField } from "@/components/admin/ImageUploadField";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -207,14 +209,16 @@ function PostEditor() {
             <Label>Excerpt (used in list previews & meta fallback)</Label>
             <Textarea rows={2} value={form.excerpt} onChange={(e) => setForm({ ...form, excerpt: e.target.value })} />
           </div>
-          <div>
-            <Label>Featured image URL</Label>
-            <Input value={form.featured_image_url} onChange={(e) => setForm({ ...form, featured_image_url: e.target.value })} placeholder="https://…" />
-          </div>
+          <ImageUploadField
+            label="Featured image"
+            value={form.featured_image_url}
+            onChange={(url) => setForm((f) => ({ ...f, featured_image_url: url }))}
+          />
           <div>
             <Label>Featured image alt</Label>
             <Input value={form.featured_image_alt} onChange={(e) => setForm({ ...form, featured_image_alt: e.target.value })} />
           </div>
+
 
           <div>
             <Label>Body (Markdown)</Label>
@@ -353,10 +357,13 @@ function PostEditor() {
               <Textarea rows={3} value={form.meta_description} onChange={(e) => setForm({ ...form, meta_description: e.target.value })} />
               <p className="mt-1 text-[11px] text-muted-foreground">{form.meta_description.length}/160 recommended</p>
             </div>
-            <div>
-              <Label>OG image URL</Label>
-              <Input value={form.og_image_url} onChange={(e) => setForm({ ...form, og_image_url: e.target.value })} />
-            </div>
+            <ImageUploadField
+              label="Social share (OG) image"
+              folder="og"
+              value={form.og_image_url}
+              onChange={(url) => setForm((f) => ({ ...f, og_image_url: url }))}
+            />
+
             <div>
               <Label>Canonical override</Label>
               <Input value={form.canonical_override} onChange={(e) => setForm({ ...form, canonical_override: e.target.value })} placeholder="Leave blank for default" />
