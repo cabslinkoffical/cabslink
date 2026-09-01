@@ -129,6 +129,18 @@ export function JourneyPage({
         </section>
       )}
 
+      {/* Honest multi-modal comparison. Only rendered for journeys where we
+          hold verified operator fares and times. */}
+      {transport && (
+        <section className="section-y border-t">
+          <div className="container-x max-w-5xl">
+            <TransportComparison data={transport} routeName={pair} />
+          </div>
+        </section>
+      )}
+
+
+
 
       <section className="bg-[var(--navy)] text-[var(--navy-foreground)] section-y">
         <div className="container-x">
