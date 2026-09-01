@@ -12,6 +12,8 @@ import { Button } from "@/components/ui/button";
 import { TourBookingDialog, type TourForBooking } from "@/components/site/TourBookingDialog";
 import { getPublishedTourBySlug, type PublicPoiCard, type PublicTourDetail } from "@/lib/tours.functions";
 import { calculateMultiStopQuote } from "@/lib/scenic-quote.functions";
+import { DraftTourPage } from "@/components/site/DraftTourPage";
+import { draftTour, tourSeo } from "@/lib/seo/tour-seo";
 
 
 const tourDetailQuery = (slug: string) =>
@@ -32,43 +34,93 @@ export const Route = createFileRoute("/tours/$slug")({
     search.enquire === true || search.enquire === "true" || search.enquire === "1"
       ? { enquire: true }
       : {},
-  loader: ({ params, context }) => context.queryClient.ensureQueryData(tourDetailQuery(params.slug)),
+  // Code-defined draft tours never hit the CMS query.
+  loader: ({ params, context }) =>
+    draftTour(params.slug) ? null : context.queryClient.ensureQueryData(tourDetailQuery(params.slug)),
 
-  head: ({ loaderData }) => {
+
+  head: ({ params, loaderData }) => {
+    // ---- Code-defined draft tours: noindex until signed off, no Offer schema ----
+    const draft = draftTour(params.slug);
+    if (draft) {
+      const url = `https://cabslink.com/tours/${draft.slug}`;
+      return {
+        meta: [
+          { title: draft.metaTitle },
+          { name: "description", content: draft.metaDescription },
+          { name: "robots", content: "noindex, nofollow" },
+          { property: "og:title", content: draft.metaTitle },
+          { property: "og:description", content: draft.metaDescription },
+          { property: "og:type", content: "article" },
+          { property: "og:url", content: url },
+          { name: "twitter:card", content: "summary_large_image" },
+        ],
+        links: [{ rel: "canonical", href: url }],
+        scripts: [
+          {
+            type: "application/ld+json",
+            children: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "TouristTrip",
+              name: draft.h1,
+              description: draft.metaDescription,
+              touristType: "Private driver tour",
+              provider: { "@type": "Organization", name: "CabsLink", url: "https://cabslink.com" },
+            }),
+          },
+          {
+            type: "application/ld+json",
+            children: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              mainEntity: draft.faqs.map((f) => ({
+                "@type": "Question",
+                name: f.q,
+                acceptedAnswer: { "@type": "Answer", text: f.a },
+              })),
+            }),
+          },
+        ],
+      };
+    }
+
     const d = loaderData as PublicTourDetail | undefined;
     if (!d) {
       return { meta: [{ title: "Tour not found — Cabslink" }, { name: "robots", content: "noindex" }] };
     }
-    // Tour names are long, so pick the richest title that still fits inside the
-    // ~60 characters Google renders — dropping the descriptor, then the subtitle.
+
+    // The product name in the CMS is editorial; the searched phrase lives in
+    // src/lib/seo/tour-seo.ts and owns the title tag, H1 and description.
+    const seo = tourSeo(d.slug);
     const shortName = d.name.split(":")[0].trim();
     const title =
-      [
+      seo?.metaTitle ??
+      ([
         `${d.name} — Private Driver Tour | Cabslink`,
         `${d.name} | Cabslink`,
         `${shortName} Private Tour | Cabslink`,
         `${shortName} | Cabslink`,
       ].find((t) => t.length <= 60) ??
-      `${shortName.slice(0, 47).replace(/[\s,.;:—-]+\S*$/, "")} | Cabslink`;
+        `${shortName.slice(0, 47).replace(/[\s,.;:—-]+\S*$/, "")} | Cabslink`);
 
-    // Tour blurbs in the CMS are often a single short line (~50-70 chars), which
-    // is too thin for a meta description. Top up with factual route detail until
-    // it lands inside the 110-155 character window, then trim on a word boundary.
-    const base = (d.short_description ?? `Private driver tour of ${d.name}.`).trim();
-    const extras = [
-      d.origin_label && d.destination_label
-        ? `Private driver tour from ${d.origin_label} to ${d.destination_label}.`
-        : null,
-      d.long_day ? "Full-day itinerary with flexible stop times." : "Flexible stop times at every point of interest.",
-      "Door-to-door pickup, fixed quote before you travel.",
-    ].filter(Boolean) as string[];
-    let desc = base;
-    for (const part of extras) {
-      if (desc.length >= 110) break;
-      if (desc.toLowerCase().includes(part.slice(0, 18).toLowerCase())) continue;
-      desc = `${desc.replace(/\.$/, "")}. ${part}`;
+    let desc = seo?.metaDescription ?? "";
+    if (!desc) {
+      // Fallback only for tours with no override yet: CMS blurbs are often a
+      // single short line, so top up to the 110-155 window on a word boundary.
+      const base = (d.short_description ?? `Private driver tour of ${d.name}.`).trim();
+      const extras = [
+        d.long_day ? "Full-day itinerary with flexible stop times." : "Flexible stop times at every point of interest.",
+        "Door-to-door pickup, quoted before you travel.",
+      ];
+      desc = base;
+      for (const part of extras) {
+        if (desc.length >= 110) break;
+        if (desc.toLowerCase().includes(part.slice(0, 18).toLowerCase())) continue;
+        desc = `${desc.replace(/\.$/, "")}. ${part}`;
+      }
+      if (desc.length > 155) desc = `${desc.slice(0, 152).replace(/[\s,.;:—-]+\S*$/, "")}…`;
     }
-    if (desc.length > 155) desc = `${desc.slice(0, 152).replace(/[\s,.;:—-]+\S*$/, "")}…`;
+
 
     const url = `https://cabslink.com/tours/${d.slug}`;
     const meta: Array<Record<string, string>> = [
@@ -93,7 +145,7 @@ export const Route = createFileRoute("/tours/$slug")({
           children: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "TouristTrip",
-            name: d.name,
+            name: seo?.h1 ?? d.name,
             description: desc,
             image: d.hero_image_url ?? undefined,
             touristType: "Private driver tour",
@@ -124,8 +176,15 @@ export const Route = createFileRoute("/tours/$slug")({
       </div>
     </SiteLayout>
   ),
-  component: TourDetailPage,
+  component: TourRoute,
 });
+
+/** Draft tours are rendered from code; everything else from the CMS. */
+function TourRoute() {
+  const { slug } = Route.useParams();
+  const draft = draftTour(slug);
+  return draft ? <DraftTourPage record={draft} /> : <TourDetailPage />;
+}
 
 function formatDuration(seconds: number | null | undefined): string | null {
   if (!seconds || seconds <= 0) return null;
@@ -144,6 +203,7 @@ function TourDetailPage() {
   const { enquire } = Route.useSearch();
 
   const { data: d } = useSuspenseQuery(tourDetailQuery(slug));
+  const seo = tourSeo(slug);
 
   // ---- Selection state (mandatory stops are always selected) ----
   const [selected, setSelected] = useState<Record<string, number>>(() => {
@@ -243,15 +303,18 @@ function TourDetailPage() {
     <SiteLayout>
       <PageHero
         eyebrow="Private Driver Tour"
-        title={d.name}
+        title={seo?.h1 ?? d.name}
         subtitle={d.short_description ?? undefined}
-        breadcrumbs={[{ label: "Home", to: "/" }, { label: "Tours", to: "/tours" }, { label: d.name }]}
+        breadcrumbs={[{ label: "Home", to: "/" }, { label: "Tours", to: "/tours" }, { label: seo?.h1 ?? d.name }]}
       />
 
       <section className="section-y">
         <div className="container-x grid lg:grid-cols-[1fr_360px] gap-10">
           {/* MAIN */}
           <div>
+            {/* The editorial product name stays on the page as the H2 — the H1
+                above carries the phrase people actually search for. */}
+            {seo && <h2 className="font-display text-2xl font-semibold mb-5">{d.name}</h2>}
             {d.hero_image_url && (
               <Reveal>
                 <img

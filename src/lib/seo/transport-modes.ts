@@ -15,8 +15,8 @@
  *  4. Where a public option is cheaper or faster than a private car, the copy
  *     says so. This file is not marketing.
  *
- * Verified 2 September 2026 against:
- *  - airlink100.co.uk (Airlink 100 return £8.50 / child £4.25 / family £22.00)
+ * Verified 1 September 2026 against:
+ *  - airlink100.co.uk (Airlink 100 return £8.50 / child single £3.00 / child return £4.25 / family return £22.00)
  *  - lothianbuses.com/news/2026/01/fares-revision (Airlink single and return
  *    unchanged at the 22 February 2026 fares revision; single £6.00)
  *  - edinburghtrams.com/tickets/ticket-options (Airport Single £7.90, Airport
@@ -62,13 +62,13 @@ export type JourneyTransportComparison = {
   carSuitsWhen: string[];
 };
 
-const LAST_CHECKED = "2026-09-02";
+const LAST_CHECKED = "2026-09-01";
 
 const AIRLINK: TransportOption = {
   kind: "bus",
   operator: "Lothian Buses",
   service: "Airlink 100",
-  fare: "£6.00 adult single, £8.50 return (child £4.25, family return £22.00)",
+  fare: "£6.00 adult single, £8.50 adult return (child £3.00 single, £4.25 return; family return £22.00)",
   duration: "About 30 minutes to Waverley Bridge",
   frequency: "Up to every 10 minutes (04:12–01:00), up to every 20 minutes overnight",
   firstLast: "Runs 24 hours a day, every day",
