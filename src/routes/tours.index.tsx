@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { TourCard } from "@/components/site/TourCard";
 import { CustomTourBuilder } from "@/components/site/CustomTourBuilder";
 import { listPublishedTours, type PublicTourListItem } from "@/lib/tours.functions";
+import { collectionPageSchema } from "@/components/seo/schema";
+import { itemListSchema } from "@/lib/seo/hub-head";
 
 
 const toursQuery = queryOptions({
