@@ -63,7 +63,8 @@ export const Route = createFileRoute("/routes/$slug")({
 
 function RoutePage() {
   const { journey, page, related, fares } = Route.useLoaderData();
-  if (journey) return <JourneyPage content={journey} />;
+  if (journey) return <JourneyPage content={journey} fares={fares} />;
   return <SeoPageRenderer page={page!} related={related} fares={fares} />;
 }
+
 
