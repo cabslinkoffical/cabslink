@@ -145,7 +145,7 @@ export const Route = createFileRoute("/tours/$slug")({
           children: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "TouristTrip",
-            name: d.name,
+            name: seo?.h1 ?? d.name,
             description: desc,
             image: d.hero_image_url ?? undefined,
             touristType: "Private driver tour",
@@ -176,8 +176,15 @@ export const Route = createFileRoute("/tours/$slug")({
       </div>
     </SiteLayout>
   ),
-  component: TourDetailPage,
+  component: TourRoute,
 });
+
+/** Draft tours are rendered from code; everything else from the CMS. */
+function TourRoute() {
+  const { slug } = Route.useParams();
+  const draft = draftTour(slug);
+  return draft ? <DraftTourPage record={draft} /> : <TourDetailPage />;
+}
 
 function formatDuration(seconds: number | null | undefined): string | null {
   if (!seconds || seconds <= 0) return null;
@@ -196,6 +203,7 @@ function TourDetailPage() {
   const { enquire } = Route.useSearch();
 
   const { data: d } = useSuspenseQuery(tourDetailQuery(slug));
+  const seo = tourSeo(slug);
 
   // ---- Selection state (mandatory stops are always selected) ----
   const [selected, setSelected] = useState<Record<string, number>>(() => {
@@ -295,15 +303,18 @@ function TourDetailPage() {
     <SiteLayout>
       <PageHero
         eyebrow="Private Driver Tour"
-        title={d.name}
+        title={seo?.h1 ?? d.name}
         subtitle={d.short_description ?? undefined}
-        breadcrumbs={[{ label: "Home", to: "/" }, { label: "Tours", to: "/tours" }, { label: d.name }]}
+        breadcrumbs={[{ label: "Home", to: "/" }, { label: "Tours", to: "/tours" }, { label: seo?.h1 ?? d.name }]}
       />
 
       <section className="section-y">
         <div className="container-x grid lg:grid-cols-[1fr_360px] gap-10">
           {/* MAIN */}
           <div>
+            {/* The editorial product name stays on the page as the H2 — the H1
+                above carries the phrase people actually search for. */}
+            {seo && <h2 className="font-display text-2xl font-semibold mb-5">{d.name}</h2>}
             {d.hero_image_url && (
               <Reveal>
                 <img
