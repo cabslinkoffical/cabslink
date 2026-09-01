@@ -539,7 +539,7 @@ export const JOURNEYS: JourneyRecord[] = [
     slug: "newcastle-to-edinburgh-airport",
     review: true,
     category: "long-distance",
-    from: { name: "Newcastle", path: "/areas/newcastle" },
+    from: { name: "Newcastle" },
     to: { name: "Edinburgh Airport", path: "/airports/edinburgh-airport" },
     miles: 131,
     mins: 175,
