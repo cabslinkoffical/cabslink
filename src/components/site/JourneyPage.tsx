@@ -207,12 +207,13 @@ export function JourneyPage({
         <div className="container-x max-w-3xl">
           <SectionHeader eyebrow="FAQs" title={`${pair} — questions`} />
           <div className="mt-8 space-y-6">
-            {c.faqs.map((f) => (
+            {resolveFaqs(c, fares).map((f) => (
               <div key={f.q}>
                 <h3 className="font-semibold">{f.q}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">{f.a}</p>
               </div>
             ))}
+
           </div>
           <div className="mt-10 flex flex-wrap gap-3">
             <Button asChild variant="gold" className="rounded-lg">
