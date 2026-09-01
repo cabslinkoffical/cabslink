@@ -48,6 +48,30 @@ const commonSections: SectionKey[] = [
   "popular_routes", "nearby", "related_services", "faq", "book_cta",
 ];
 
+/** Destination display name, preferring the override. */
+const nameOf = (d: Destination) => d.display_name ?? d.name;
+
+/**
+ * Many destination names already end with the category noun the template is
+ * about to append ("Edinburgh Waverley Station", "The Macallan Distillery"),
+ * which produced titles like "… Station Station Taxis". This appends the noun
+ * only when the name does not already carry it.
+ */
+export function withNoun(name: string, noun: string): string {
+  const n = name.trim();
+  if (n.toLowerCase().endsWith(noun.toLowerCase())) return n;
+  return `${n} ${noun}`;
+}
+
+/**
+ * Composes `${base}${tail}` with the " — CabsLink" suffix only when the whole
+ * title still fits inside 60 characters, so nothing is truncated by Google.
+ */
+export function titleWithin(base: string, limit = 60, suffix = " — CabsLink"): string {
+  return base.length + suffix.length <= limit ? `${base}${suffix}` : base;
+}
+
+
 export const TEMPLATES: Record<DestinationType, TemplateConfig> = {
   location: {
     hubLabel: "Areas We Cover",
