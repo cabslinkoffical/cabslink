@@ -63,6 +63,20 @@ export function DraftTourPage({ record }: { record: DraftTourRecord }) {
                       ))}
                     </ul>
                   )}
+                  {s.links && s.links.length > 0 && (
+                    <ul className="mt-4 flex flex-wrap gap-2">
+                      {s.links.map((l) => (
+                        <li key={l.to}>
+                          <a
+                            href={l.to}
+                            className="inline-flex items-center gap-1 rounded-full border border-white/10 px-3 py-1.5 text-sm hover:border-[var(--gold)]/50 hover:text-[var(--gold-ink)]"
+                          >
+                            {l.label}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
               </Reveal>
             ))}

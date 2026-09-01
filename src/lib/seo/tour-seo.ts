@@ -182,6 +182,8 @@ export type DraftTourSection = {
   heading: string;
   body: string[];
   bullets?: string[];
+  /** Internal links rendered as chips under the section. */
+  links?: { label: string; to: string }[];
 };
 
 export type DraftTourRecord = {
@@ -394,7 +396,7 @@ export const DRAFT_TOURS: DraftTourRecord[] = [
           "Auchentoshan sits on the other side of the central belt near Glasgow, so the two Lowland distilleries pair into an easy day. Speyside — Aberlour, The Glenlivet, Glenfiddich, The Macallan — is three hours plus each way and works far better as an overnight than a sprint.",
           "The Islay names, Ardbeg, Laphroaig and Bowmore, involve a ferry and are not day trips from Edinburgh in any honest sense. We will drive you to Kennacraig and arrange the crossing, but plan two or three days.",
         ],
-        bullets: DISTILLERY_LINKS.map((d) => `${d.label} — see ${d.to}`),
+        links: DISTILLERY_LINKS,
       },
       {
         heading: "How the day is timed",
