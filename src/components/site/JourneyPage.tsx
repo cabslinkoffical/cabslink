@@ -302,7 +302,7 @@ export function journeySchema(c: JourneyContent, fares?: RouteFareTableData | nu
   };
 }
 
-export function journeyHead(c: JourneyContent) {
+export function journeyHead(c: JourneyContent, fares?: RouteFareTableData | null) {
   const url = `${ORIGIN}${c.canonicalPath}`;
   return {
     meta: [
@@ -315,6 +315,7 @@ export function journeyHead(c: JourneyContent) {
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: url }],
-    scripts: [{ type: "application/ld+json", children: JSON.stringify(journeySchema(c)) }],
+    scripts: [{ type: "application/ld+json", children: JSON.stringify(journeySchema(c, fares)) }],
+
   };
 }
