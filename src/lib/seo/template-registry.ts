@@ -52,16 +52,17 @@ const commonSections: SectionKey[] = [
 const nameOf = (d: Destination) => d.display_name ?? d.name;
 
 /**
- * Many destination names already end with the category noun the template is
- * about to append ("Edinburgh Waverley Station", "The Macallan Distillery"),
- * which produced titles like "… Station Station Taxis". This appends the noun
- * only when the name does not already carry it.
+ * Many destination names already carry the category noun the template is about
+ * to append ("Edinburgh Waverley Station", "University of Edinburgh"), which
+ * produced titles like "… Station Station Taxis". This appends the noun only
+ * when the name does not already contain it as a whole word.
  */
 export function withNoun(name: string, noun: string): string {
   const n = name.trim();
-  if (n.toLowerCase().endsWith(noun.toLowerCase())) return n;
+  if (new RegExp(`\\b${noun}\\b`, "i").test(n)) return n;
   return `${n} ${noun}`;
 }
+
 
 /**
  * Composes `${base}${tail}` with the " — CabsLink" suffix only when the whole
