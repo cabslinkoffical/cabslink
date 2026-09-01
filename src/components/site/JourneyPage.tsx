@@ -9,11 +9,20 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero, SectionHeader } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
 import type { JourneyContent } from "@/lib/seo/journeys";
+import type { RouteFareTable as RouteFareTableData } from "@/lib/seo/route-fares.functions";
+import { RouteFareTable } from "@/components/seo/RouteFareTable";
 import { SITE } from "@/lib/site";
 
 const ORIGIN = "https://cabslink.com";
 
-export function JourneyPage({ content: c }: { content: JourneyContent }) {
+export function JourneyPage({
+  content: c,
+  fares,
+}: {
+  content: JourneyContent;
+  fares?: RouteFareTableData | null;
+}) {
+
   const pair = `${c.from.name} to ${c.to.name}`;
   // Carry the advertised journey into the booking form so the customer does
   // not have to retype the route this page is about.
@@ -109,6 +118,18 @@ export function JourneyPage({ content: c }: { content: JourneyContent }) {
         </div>
       </section>
 
+      {/* Published fares: an AI answer or searcher can only quote a price we
+          actually put on the page. Omitted entirely when the engine cannot
+          produce a reliable figure for this route. */}
+      {fares && fares.fares.length > 0 && (
+        <section className="section-y border-t">
+          <div className="container-x max-w-4xl">
+            <RouteFareTable data={fares} routeName={`${c.from.name} to ${c.to.name}`} />
+          </div>
+        </section>
+      )}
+
+
       <section className="bg-[var(--navy)] text-[var(--navy-foreground)] section-y">
         <div className="container-x">
           <p className="text-xs uppercase tracking-[0.3em] text-[var(--gold)]">Planning</p>
@@ -186,12 +207,13 @@ export function JourneyPage({ content: c }: { content: JourneyContent }) {
         <div className="container-x max-w-3xl">
           <SectionHeader eyebrow="FAQs" title={`${pair} — questions`} />
           <div className="mt-8 space-y-6">
-            {c.faqs.map((f) => (
+            {resolveFaqs(c, fares).map((f) => (
               <div key={f.q}>
                 <h3 className="font-semibold">{f.q}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">{f.a}</p>
               </div>
             ))}
+
           </div>
           <div className="mt-10 flex flex-wrap gap-3">
             <Button asChild variant="gold" className="rounded-lg">
@@ -209,12 +231,64 @@ export function JourneyPage({ content: c }: { content: JourneyContent }) {
   );
 }
 
-/** TravelAction + FAQPage + BreadcrumbList graph for a journey page. */
-export function journeySchema(c: JourneyContent) {
+/**
+ * FAQ answers may reference the real saloon fare with `{{saloonFare}}` rather
+ * than a hardcoded figure. The token is filled from the live pricing engine;
+ * if no fare is available the question is dropped rather than shipped with a
+ * placeholder or a vague "price on request".
+ */
+function resolveFaqs(c: JourneyContent, fares?: RouteFareTableData | null) {
+  const cheapest = fares?.fares.length
+    ? fares.fares.reduce((a, b) => (b.price < a.price ? b : a))
+    : null;
+  const saloon =
+    fares?.fares.find((f) => /^saloon$/i.test(f.className) || f.classSlug === "saloon") ?? cheapest;
+  const value = saloon && fares ? `${fares.currencySymbol}${saloon.price.toFixed(2)}` : null;
+
+  return c.faqs
+    .map((f) => ({ ...f, a: value ? f.a.replaceAll("{{saloonFare}}", value) : f.a }))
+    .filter((f) => !f.a.includes("{{"));
+}
+
+
+
+/** TravelAction + Offer + FAQPage + BreadcrumbList graph for a journey page. */
+export function journeySchema(c: JourneyContent, fares?: RouteFareTableData | null) {
   const url = `${ORIGIN}${c.canonicalPath}`;
+  const pair = `${c.from.name} to ${c.to.name}`;
+  const currency = fares?.currency || "GBP";
   return {
     "@context": "https://schema.org",
     "@graph": [
+      ...(fares && fares.fares.length
+        ? [
+            {
+              "@type": "Offer",
+              name: `${pair} fixed-price taxi transfer`,
+              url,
+              priceCurrency: currency,
+              // Headline price = cheapest publishable vehicle class.
+              price: Math.min(...fares.fares.map((f) => f.price)).toFixed(2),
+              availability: "https://schema.org/InStock",
+              priceValidUntil: new Date(Date.now() + 30 * 864e5).toISOString().slice(0, 10),
+              areaServed: { "@type": "Country", name: "United Kingdom" },
+              priceSpecification: fares.fares.map((f) => ({
+                "@type": "UnitPriceSpecification",
+                name: f.className,
+                price: f.price.toFixed(2),
+                priceCurrency: currency,
+                valueAddedTaxIncluded: fares.taxIncluded,
+              })),
+              itemOffered: {
+                "@type": "Service",
+                name: `${pair} private transfer`,
+                serviceType: "Taxi and private transfer",
+                provider: { "@type": "Organization", name: "Cabslink", url: ORIGIN },
+              },
+            },
+          ]
+        : []),
+
       {
         "@type": "TravelAction",
         name: `${c.from.name} to ${c.to.name} private transfer`,
@@ -227,11 +301,12 @@ export function journeySchema(c: JourneyContent) {
       },
       {
         "@type": "FAQPage",
-        mainEntity: c.faqs.map((f) => ({
+        mainEntity: resolveFaqs(c, fares).map((f) => ({
           "@type": "Question",
           name: f.q,
           acceptedAnswer: { "@type": "Answer", text: f.a },
         })),
+
       },
       {
         "@type": "BreadcrumbList",
@@ -250,7 +325,7 @@ export function journeySchema(c: JourneyContent) {
   };
 }
 
-export function journeyHead(c: JourneyContent) {
+export function journeyHead(c: JourneyContent, fares?: RouteFareTableData | null) {
   const url = `${ORIGIN}${c.canonicalPath}`;
   return {
     meta: [
@@ -261,8 +336,12 @@ export function journeyHead(c: JourneyContent) {
       { property: "og:type", content: "website" },
       { property: "og:url", content: url },
       { name: "twitter:card", content: "summary_large_image" },
+      // Awaiting sign-off: viewable for review, never indexable yet.
+      ...(c.review ? [{ name: "robots", content: "noindex,follow" }] : []),
     ],
+
     links: [{ rel: "canonical", href: url }],
-    scripts: [{ type: "application/ld+json", children: JSON.stringify(journeySchema(c)) }],
+    scripts: [{ type: "application/ld+json", children: JSON.stringify(journeySchema(c, fares)) }],
+
   };
 }
