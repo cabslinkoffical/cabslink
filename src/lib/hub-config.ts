@@ -7,6 +7,8 @@ import {
 } from "@/lib/destinations.functions";
 
 type HubExtras = {
+  /** Full <title> as served. Falls back to `${title} — CabsLink`. */
+  seoTitle?: string;
   /** Search-result description (aim 120-160 chars). Falls back to `intro`. */
   metaDescription?: string;
   /** Two or three sentences of genuine context, rendered under the intro. */
@@ -45,6 +47,7 @@ export const HUBS = {
   stations: {
     type: "station" as const,
     title: "Train Stations",
+    seoTitle: "Scotland Train Station Taxis & Transfers",
     metaDescription: "Private transfers to UK mainline stations. Pre-booked pick-up points, train-delay tracking and fixed pricing for onward journeys with luggage.",
     intro: "Station transfers to every mainline UK rail hub.",
     longIntro:
@@ -64,6 +67,7 @@ export const HUBS = {
   "cruise-ports": {
     type: "cruise_port" as const,
     title: "Cruise Ports",
+    seoTitle: "Scottish Cruise Port Transfers & Taxis",
     metaDescription: "Private transfers to UK cruise terminals. Timed to your boarding window, sized for cruise luggage and quoted at a fixed price before you travel.",
     intro: "Direct transfers to UK cruise terminals.",
     longIntro:
@@ -83,6 +87,7 @@ export const HUBS = {
   universities: {
     type: "university" as const,
     title: "Universities",
+    seoTitle: "Scottish University Transfers for Students",
     metaDescription: "Private transfers for UK universities: move-in and move-out loads, airport and station runs, and bookings a parent or department can pay for.",
     intro: "Move-in, term travel and campus transfers.",
     longIntro:
@@ -102,6 +107,7 @@ export const HUBS = {
   hospitals: {
     type: "hospital" as const,
     title: "Hospitals",
+    seoTitle: "Hospital Transport & Patient Transfers Scotland",
     metaDescription: "Private transport to UK hospitals for appointments and discharges. Accessible vehicles, drivers who wait and open-time return journeys.",
     intro: "Medical appointment transport, UK-wide.",
     longIntro:
@@ -144,6 +150,7 @@ export const HUBS = {
   attractions: {
     type: "attraction" as const,
     title: "Attractions",
+    seoTitle: "Private Tours to Scotland's Top Attractions",
     metaDescription: "Private driver travel to UK landmarks and attractions. Your car waits while you visit, and stops can be combined into one full private day out.",
     intro: "Guided private travel to UK landmarks.",
     longIntro:
@@ -163,6 +170,7 @@ export const HUBS = {
   distilleries: {
     type: "distillery" as const,
     title: "Distilleries",
+    seoTitle: "Whisky Distillery Tours & Transfers in Scotland",
     metaDescription: "Private distillery day tours with a driver, so every passenger can taste. Realistic itineraries of two to three distilleries with tour timings.",
     intro: "Whisky trail and distillery day tours.",
     longIntro:
@@ -182,6 +190,7 @@ export const HUBS = {
   guides: {
     type: "guide" as const,
     title: "Travel Guides",
+    seoTitle: "Scotland Travel & Airport Transfer Guides",
     metaDescription: "Travel guides written around journeys we actually drive: real route timings, when roads and airports are busiest, and stops worth making.",
     intro: "Editorial travel guides across the UK.",
     longIntro:

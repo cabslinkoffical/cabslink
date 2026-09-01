@@ -532,25 +532,33 @@ export function buildJourney(slug: string): JourneyContent | null {
   return {
     ...j,
     h1: `${pair} private transfer.`,
-    // Titles are kept inside ~60 characters so Google renders them in full:
-    // the richest variant that fits wins, longest pairs fall back to the short one.
-    metaTitle: pickWithin(60, [
-      `${pair} Transfer — Fixed Price Private Car | Cabslink`,
-      `${pair} Transfer — Fixed Price | Cabslink`,
-      `${pair} Transfer | Cabslink`,
-    ]),
-    metaDescription: pickWithin(155, [
-      `Pre-booked ${pair} transfers: ${j.miles} miles via ${j.via}, about ${hours} door to door. Fixed price, professional driver, 24/7 UK support.`,
-      `Pre-booked ${pair} transfers: ${j.miles} miles via ${j.via}, about ${hours} door to door. Fixed price, professional driver.`,
-      `${pair} transfers: ${j.miles} miles via ${j.via}, about ${hours} door to door. Fixed price, professional driver.`,
-      `${pair} transfers: ${j.miles} miles, about ${hours} door to door. Fixed price, professional driver.`,
-    ]),
+    // Journey records are the single source of truth for these pages — the
+    // `seo_pages` mirror row is synced from here, never authored separately.
+    metaTitle: journeyMetaTitle(j),
+
+    metaDescription: journeyMetaDescription(j),
     canonicalPath: journeyPath(j.slug),
     hours,
     services,
     relatedJourneys: related,
   };
 }
+
+/** Shared so the `seo_pages` mirror can be generated from the same string. */
+export function journeyMetaDescription(j: JourneyRecord): string {
+  return `How much is a taxi from ${j.from.name} to ${j.to.name}? Fixed fares by vehicle class, flight tracking and no meter. Book online with CabsLink.`;
+}
+
+/** Title exactly as served, for mirror sync and tests. */
+export function journeyMetaTitle(j: JourneyRecord): string {
+  const pair = `${j.from.name} to ${j.to.name}`;
+  return pickWithin(60, [
+    `${pair} Taxi | Fixed Price Transfer`,
+    `${pair} Taxi | Fixed Price`,
+    `${pair} Taxi`,
+  ]);
+}
+
 
 /**
  * Returns the first variant within `limit` characters, or the shortest one when

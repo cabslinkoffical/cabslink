@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { TourCard } from "@/components/site/TourCard";
 import { CustomTourBuilder } from "@/components/site/CustomTourBuilder";
 import { listPublishedTours, type PublicTourListItem } from "@/lib/tours.functions";
+import { collectionPageSchema } from "@/components/seo/schema";
+import { itemListSchema } from "@/lib/seo/hub-head";
 
 
 const toursQuery = queryOptions({
@@ -25,16 +27,55 @@ export const Route = createFileRoute("/tours/")({
     if (typeof search.theme === "string" && search.theme.length > 0) out.theme = search.theme.slice(0, 60);
     return out;
   },
-  head: () => ({
-    meta: [
-      { title: "Scotland & UK Private Driver Tours — Cabslink" },
-      { name: "description", content: "Search private driver tours across Scotland and the UK, or build a custom tour with your own start, finish and stops. Transparent per-mile pricing." },
-      { property: "og:title", content: "Private UK Driver Tours — Cabslink" },
-      { property: "og:description", content: "Search curated multi-stop driver tours or build your own itinerary with famous stops along the way." },
-      { property: "og:url", content: "https://cabslink.com/tours" },
-    ],
-    links: [{ rel: "canonical", href: "https://cabslink.com/tours" }],
-  }),
+  head: ({ loaderData }) => {
+    const title = "Private Day Tours from Edinburgh & Scotland — CabsLink";
+    const description =
+      "Private day tours and day trips from Edinburgh and across Scotland with your own driver. Search ready-made itineraries or build a custom tour with fixed pricing.";
+    const url = "https://cabslink.com/tours";
+    const tours = (loaderData ?? []) as PublicTourListItem[];
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: "Private Day Tours from Edinburgh & Scotland" },
+        { property: "og:description", content: description },
+        { property: "og:type", content: "website" },
+        { property: "og:url", content: url },
+        { name: "twitter:card", content: "summary_large_image" },
+      ],
+      links: [{ rel: "canonical", href: url }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify(
+            collectionPageSchema({
+              name: title,
+              description,
+              url,
+              breadcrumbs: [
+                { name: "Home", url: "/" },
+                { name: "Tours", url: "/tours" },
+              ],
+            }),
+          ),
+        },
+        ...(tours.length > 0
+          ? [
+              {
+                type: "application/ld+json",
+                children: JSON.stringify(
+                  itemListSchema(
+                    "Private driver tours",
+                    tours.map((t) => ({ name: t.name, url: `/tours/${t.slug}` })),
+                  ),
+                ),
+              },
+            ]
+          : []),
+      ],
+    };
+  },
+
   loader: ({ context }) => context.queryClient.ensureQueryData(toursQuery),
   errorComponent: () => (
     <SiteLayout>
