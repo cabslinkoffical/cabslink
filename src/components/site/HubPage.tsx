@@ -16,6 +16,7 @@ export function HubPage({
   notes,
   destinations,
   contentKey,
+  featured,
 }: {
   title: string;
   intro: string;
@@ -25,7 +26,10 @@ export function HubPage({
   type?: DestinationType;
   /** Key into HUB_CONTENT for the long-form prose + FAQ blocks. */
   contentKey?: string;
+  /** Hand-written pages promoted above the destination grid. */
+  featured?: { title: string; blurb: string; href: string }[];
 }) {
+
   const content = contentKey ? HUB_CONTENT[contentKey] : undefined;
   const grouped = new Map<string, Destination[]>();
   for (const d of destinations) {
@@ -59,6 +63,27 @@ export function HubPage({
           ))}
         </section>
       )}
+
+      {featured && featured.length > 0 && (
+        <section className="mb-10">
+          <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--gold-ink)]">
+            Featured guides
+          </h2>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            {featured.map((f) => (
+              <Link
+                key={f.href}
+                to={f.href}
+                className="rounded-2xl border border-[var(--navy)]/10 bg-white p-5 shadow-raised hover:border-[var(--gold)]"
+              >
+                <h3 className="font-semibold text-[var(--navy)]">{f.title}</h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-[var(--navy)]/70">{f.blurb}</p>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
 
       {destinations.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-[var(--navy)]/20 bg-white p-8 text-center shadow-raised">

@@ -11,6 +11,9 @@ import { Button } from "@/components/ui/button";
 import type { JourneyContent } from "@/lib/seo/journeys";
 import type { RouteFareTable as RouteFareTableData } from "@/lib/seo/route-fares.functions";
 import { RouteFareTable } from "@/components/seo/RouteFareTable";
+import { TransportComparison } from "@/components/seo/TransportComparison";
+import { getJourneyTransport } from "@/lib/seo/transport-modes";
+
 import { SITE } from "@/lib/site";
 
 const ORIGIN = "https://cabslink.com";
@@ -24,6 +27,8 @@ export function JourneyPage({
 }) {
 
   const pair = `${c.from.name} to ${c.to.name}`;
+  const transport = getJourneyTransport(c.slug);
+
   // Carry the advertised journey into the booking form so the customer does
   // not have to retype the route this page is about.
   const bookSearch = {
@@ -128,6 +133,18 @@ export function JourneyPage({
           </div>
         </section>
       )}
+
+      {/* Honest multi-modal comparison. Only rendered for journeys where we
+          hold verified operator fares and times. */}
+      {transport && (
+        <section className="section-y border-t">
+          <div className="container-x max-w-5xl">
+            <TransportComparison data={transport} routeName={pair} />
+          </div>
+        </section>
+      )}
+
+
 
 
       <section className="bg-[var(--navy)] text-[var(--navy-foreground)] section-y">
