@@ -287,7 +287,178 @@ export const JOURNEYS: JourneyRecord[] = [
       { q: "Can you continue to Skye?", a: "Yes. Fort William to Skye is a common continuation and is quoted with the main leg." },
     ],
   },
+  // ---------------------------------------------------------------------
+  // Edinburgh Airport corridor. Distances and durations below are real
+  // Google Routes API figures, not estimates. Held back from the sitemap and
+  // the /routes index (`review: true`) until signed off.
+  // ---------------------------------------------------------------------
+  {
+    slug: "dundee-to-edinburgh-airport",
+    review: true,
+    category: "airport",
+    from: { name: "Dundee", path: "/areas/dundee" },
+    to: { name: "Edinburgh Airport", path: "/airports/edinburgh-airport" },
+    miles: 50,
+    mins: 70,
+    via: "A90, M90 and the Queensferry Crossing",
+    note:
+      "Dundee to Edinburgh Airport is a 50-mile run down the A90 from the Kingsway, across the Tay at Dundee and through Fife on the M90 past Glenrothes and Kinross before the Queensferry Crossing drops you onto the airport spur at Junction 1a. The genuinely unpredictable part is the Halbeath to Ferrytoll stretch, which queues on weekday mornings, so a 06:00 flight is collected before 04:00 rather than on a 70-minute map estimate. There is no rail alternative that reaches the terminal directly — the train requires a change and a tram at Haymarket — which is why most Dundee passengers with early departures book a car door to door.",
+    planning: [
+      "Add 20 minutes for weekday collections passing Ferrytoll between 07:00 and 09:00.",
+      "Bridge wind restrictions on the Queensferry Crossing are checked before departure; the Kincardine diversion adds around 25 minutes.",
+      "University of Dundee and Ninewells collections are set to a named building entrance, as both campuses have controlled access.",
+    ],
+    stops: ["Dundee city centre", "Glenrothes", "Kinross", "Ferrytoll"],
+    serviceIds: ["airport-transfers", "long-distance-transfers", "executive-transfers"],
+    faqs: [
+      {
+        q: "How much is a taxi from Dundee to Edinburgh Airport?",
+        a: "A taxi from Dundee to Edinburgh Airport costs {{saloonFare}} in a standard saloon and takes about 70 minutes for the 50-mile drive. The price is fixed before you travel — there is no meter and no airport surcharge added afterwards.",
+      },
+      {
+        q: "How long does it take?",
+        a: "About 70 minutes off-peak for 50 miles via the A90, M90 and Queensferry Crossing, and closer to 90 minutes if you pass Ferrytoll during the weekday morning peak.",
+      },
+      {
+        q: "What happens if my flight is delayed?",
+        a: "Arrivals into Edinburgh are tracked against your flight number, so the driver is re-timed automatically. The first 60 minutes of waiting on international arrivals and 30 minutes on domestic are included at no extra cost.",
+      },
+    ],
+  },
+  {
+    slug: "stirling-to-edinburgh-airport",
+    review: true,
+    category: "airport",
+    from: { name: "Stirling", path: "/areas/stirling" },
+    to: { name: "Edinburgh Airport", path: "/airports/edinburgh-airport" },
+    miles: 28,
+    mins: 38,
+    via: "M9 eastbound to Newbridge",
+    note:
+      "Stirling sits 28 miles from Edinburgh Airport and the M9 runs almost the whole way, leaving the city past the Wallace Monument and joining the airport spur at Newbridge — one motorway, no city driving at either end, which makes this one of the most reliable airport runs in central Scotland at around 38 minutes. The pinch point is local rather than motorway: Craigs Roundabout and the A9 approach out of central Stirling back up on weekday mornings, so we collect from the door with that built in. Castle-side and Old Town hotel pickups are confirmed to an accessible street because several of the wynds above Broad Street are too narrow for an MPV.",
+    planning: [
+      "Bridge of Allan and University of Stirling collections join the M9 at Junction 11, not through the city.",
+      "Allow an extra 15 minutes when leaving central Stirling before 08:30 on a weekday.",
+      "Group bookings for the Stirling area are quoted per vehicle, so eight passengers travel as one van rather than two saloons.",
+    ],
+    stops: ["Bridge of Allan", "Falkirk", "Linlithgow", "Newbridge"],
+    serviceIds: ["airport-transfers", "executive-transfers", "group-transfers"],
+    faqs: [
+      {
+        q: "How much is a taxi from Stirling to Edinburgh Airport?",
+        a: "A taxi from Stirling to Edinburgh Airport costs {{saloonFare}} in a standard saloon and takes about 38 minutes for the 28-mile drive on the M9. The fare is fixed at booking for the whole vehicle, not per passenger.",
+      },
+      {
+        q: "How long does it take?",
+        a: "Around 38 minutes for 28 miles via the M9 eastbound to Newbridge, rising to roughly 55 minutes if you leave central Stirling in the weekday morning peak.",
+      },
+      {
+        q: "What happens if my flight is delayed?",
+        a: "We track the inbound flight and move the pickup time to match the actual landing. Waiting time is included for the first hour after an international arrival, so a delay does not cost you extra.",
+      },
+    ],
+  },
+  {
+    slug: "dunfermline-to-edinburgh-airport",
+    review: true,
+    category: "airport",
+    from: { name: "Dunfermline", path: "/areas/dunfermline" },
+    to: { name: "Edinburgh Airport", path: "/airports/edinburgh-airport" },
+    miles: 12,
+    mins: 23,
+    via: "M90 south over the Queensferry Crossing",
+    note:
+      "Dunfermline is the closest Fife town to Edinburgh Airport — 12 miles, and only about 23 minutes because the M90 runs south from Halbeath straight over the Queensferry Crossing to the airport spur, with no city-centre driving in between. Being that short changes the practicalities rather than the price: passengers regularly book 05:00 collections for the first easyJet and Ryanair departures, and a short run still needs a driver who will actually turn out at that hour. High-wind closures on the Queensferry Crossing are the one genuine risk, and the Forth Road Bridge or Kincardine diversion turns 23 minutes into closer to 45.",
+    planning: [
+      "For departures before 07:00 we confirm the driver the night before and collect from the door.",
+      "Queensferry Crossing wind restrictions are checked before every crossing; the diversion adds around 20 minutes.",
+      "Halbeath Park & Ride and Dunfermline City station pickups are set at a named bay so you are not looking for the car.",
+    ],
+    stops: ["Halbeath", "Inverkeithing", "Ferrytoll", "Queensferry Crossing"],
+    serviceIds: ["airport-transfers", "private-hire", "executive-transfers"],
+    faqs: [
+      {
+        q: "How much is a taxi from Dunfermline to Edinburgh Airport?",
+        a: "A taxi from Dunfermline to Edinburgh Airport costs {{saloonFare}} in a standard saloon and takes about 23 minutes for the 12-mile drive over the Queensferry Crossing. Bridge tolls do not apply and nothing is added on arrival.",
+      },
+      {
+        q: "How long does it take?",
+        a: "About 23 minutes for 12 miles on the M90, making Dunfermline one of the quickest Fife towns to reach Edinburgh Airport from. Allow 40 minutes if the Queensferry Crossing is under a wind diversion.",
+      },
+      {
+        q: "What happens if my flight is delayed?",
+        a: "Your flight is tracked, so a late landing simply moves the pickup. Because the run is short we hold the driver locally in Fife rather than dispatching from Edinburgh, and the first hour of international waiting is included.",
+      },
+    ],
+  },
+  {
+    slug: "livingston-to-edinburgh-airport",
+    review: true,
+    category: "airport",
+    from: { name: "Livingston", path: "/areas/livingston" },
+    to: { name: "Edinburgh Airport", path: "/airports/edinburgh-airport" },
+    miles: 11,
+    mins: 23,
+    via: "M8 eastbound and the A8 airport spur",
+    note:
+      "Livingston to Edinburgh Airport is 11 miles and about 23 minutes: out of the town's roundabout network onto the M8 at Junction 3, east past Newbridge and into the terminal from the A8 spur. Most of the variability is inside Livingston itself rather than on the motorway, because Almondvale, Deans, Craigshill and Eliburn each add or save several minutes depending on which junction serves them — so the pickup time is set from your actual street, not from the town centre. The corridor also serves the business parks at Kirkton Campus and Houstoun, where early-morning collections for a first flight are routine and account bookings are invoiced monthly rather than paid in the car.",
+    planning: [
+      "Pickups are timed from your specific Livingston district, as junction choice changes the run by several minutes.",
+      "Kirkton Campus and Houstoun Industrial Estate collections can be placed on a corporate account with monthly invoicing.",
+      "Late-evening arrivals into Edinburgh are met inside the terminal on request, with the driver waiting airside of the exit doors.",
+    ],
+    stops: ["Almondvale", "Newbridge", "Ratho Station"],
+    serviceIds: ["airport-transfers", "corporate-travel", "private-hire"],
+    faqs: [
+      {
+        q: "How much is a taxi from Livingston to Edinburgh Airport?",
+        a: "A taxi from Livingston to Edinburgh Airport costs {{saloonFare}} in a standard saloon and takes about 23 minutes for the 11-mile drive on the M8. The fare covers the whole car, including luggage and the airport approach.",
+      },
+      {
+        q: "How long does it take?",
+        a: "Roughly 23 minutes for 11 miles via the M8 and the A8 airport spur. Weekday collections between 07:30 and 09:00 are nearer 35 minutes, mostly because of local Livingston traffic rather than the motorway.",
+      },
+      {
+        q: "What happens if my flight is delayed?",
+        a: "Flight numbers are tracked and the driver is re-timed to the real landing time. Waiting is free for the first hour on international arrivals and the first 30 minutes on domestic flights.",
+      },
+    ],
+  },
+  {
+    slug: "edinburgh-airport-to-city-centre",
+    review: true,
+    category: "airport",
+    from: { name: "Edinburgh Airport", path: "/airports/edinburgh-airport" },
+    to: { name: "Edinburgh City Centre", path: "/areas/edinburgh" },
+    miles: 10,
+    mins: 33,
+    via: "A8 Glasgow Road and the West End",
+    note:
+      "The terminal is only 10 miles from Princes Street, but this is the one Edinburgh journey where distance tells you almost nothing: the A8 in through Corstorphine and Haymarket, tram works, and the Old Town's setted streets mean 33 minutes is realistic and an hour is possible during the August festival. A car goes to your actual door, which matters here because the tram stops at St Andrew Square and leaves you with a suitcase on cobbles if you are staying in the Grassmarket, Royal Mile or Stockbridge. During festival month we confirm a drop-off street that is genuinely open rather than the hotel address on your booking, since large sections of the Old Town are closed to traffic.",
+    planning: [
+      "Old Town and Royal Mile drops are confirmed to an open street — several are closed or setted, particularly in August.",
+      "Meet & greet in the arrivals hall with a name board is available, otherwise pickups use the short-stay bays rather than the drop-off loop.",
+      "Late arrivals after the last tram are covered 24/7, including flights landing after midnight.",
+    ],
+    stops: ["Corstorphine", "Haymarket", "West End"],
+    serviceIds: ["airport-transfers", "executive-transfers", "private-hire"],
+    faqs: [
+      {
+        q: "How much is a taxi from Edinburgh Airport to the city centre?",
+        a: "A taxi from Edinburgh Airport to Edinburgh city centre costs {{saloonFare}} in a standard saloon and takes about 33 minutes for the 10-mile drive. The price is fixed when you book, so festival traffic does not change what you pay.",
+      },
+      {
+        q: "How long does it take?",
+        a: "Typically 33 minutes for 10 miles via the A8 and the West End. Expect 45 to 60 minutes at rush hour or during the August festival, when Old Town access is restricted.",
+      },
+      {
+        q: "What happens if my flight is delayed?",
+        a: "We track your flight and adjust the pickup to the actual landing time at no extra charge, with the first hour of waiting included on international arrivals and 30 minutes on domestic.",
+      },
+    ],
+  },
 ];
+
 
 export function getJourney(slug: string): JourneyRecord | undefined {
   return JOURNEYS.find((j) => j.slug === slug);
