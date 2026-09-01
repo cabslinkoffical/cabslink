@@ -27,6 +27,8 @@ export function JourneyPage({
 }) {
 
   const pair = `${c.from.name} to ${c.to.name}`;
+  const transport = getJourneyTransport(c.slug);
+
   // Carry the advertised journey into the booking form so the customer does
   // not have to retype the route this page is about.
   const bookSearch = {
