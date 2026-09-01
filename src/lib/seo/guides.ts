@@ -13,7 +13,7 @@
  *    unverifiable is left out, not estimated.
  *  - `lastChecked` is surfaced on the page, with a note that prices change.
  */
-import type { JourneyTransportComparison } from "@/lib/seo/transport-modes";
+import { JOURNEY_TRANSPORT, type JourneyTransportComparison } from "@/lib/seo/transport-modes";
 
 export type GuideSection = {
   heading: string;
