@@ -280,11 +280,12 @@ export function journeySchema(c: JourneyContent, fares?: RouteFareTableData | nu
       },
       {
         "@type": "FAQPage",
-        mainEntity: c.faqs.map((f) => ({
+        mainEntity: resolveFaqs(c, fares).map((f) => ({
           "@type": "Question",
           name: f.q,
           acceptedAnswer: { "@type": "Answer", text: f.a },
         })),
+
       },
       {
         "@type": "BreadcrumbList",
