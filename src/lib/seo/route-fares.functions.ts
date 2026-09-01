@@ -38,26 +38,44 @@ export type RouteFareTable = {
 
 export const getRouteFares = createServerFn({ method: "GET" })
   .inputValidator((i: unknown) =>
-    z.object({ slug: z.string().trim().min(1).max(160) }).parse(i),
+    z
+      .object({
+        slug: z.string().trim().min(1).max(160),
+        // Code-defined journey pages (src/lib/seo/journeys.ts) hold their own
+        // verified road distance/duration, so they pass it in directly instead
+        // of depending on a seo_popular_routes row.
+        miles: z.number().positive().max(1200).optional(),
+        minutes: z.number().positive().max(2000).optional(),
+      })
+      .parse(i),
   )
   .handler(async ({ data }): Promise<RouteFareTable | null> => {
     const client = publicClient();
 
-    const { data: route } = await client
-      .from("seo_popular_routes")
-      .select("slug, direct_distance_miles_cache, direct_duration_seconds_cache")
-      .eq("slug", data.slug)
-      .eq("published", true)
-      .maybeSingle();
-
-    const distanceMiles = Number((route as any)?.direct_distance_miles_cache);
-    // No genuine distance → no fare table on this route. Never guess.
-    if (!route || !Number.isFinite(distanceMiles) || distanceMiles <= 0) return null;
-
-    const durationSeconds = Number((route as any).direct_duration_seconds_cache);
-    const durationMinutes = Number.isFinite(durationSeconds) && durationSeconds > 0
-      ? Math.round(durationSeconds / 60)
+    let distanceMiles = Number(data.miles);
+    let durationMinutes: number | null = Number.isFinite(Number(data.minutes))
+      ? Math.round(Number(data.minutes))
       : null;
+
+    if (!Number.isFinite(distanceMiles) || distanceMiles <= 0) {
+      const { data: route } = await client
+        .from("seo_popular_routes")
+        .select("slug, direct_distance_miles_cache, direct_duration_seconds_cache")
+        .eq("slug", data.slug)
+        .eq("published", true)
+        .maybeSingle();
+
+      distanceMiles = Number((route as any)?.direct_distance_miles_cache);
+      // No genuine distance → no fare table on this route. Never guess.
+      if (!route || !Number.isFinite(distanceMiles) || distanceMiles <= 0) return null;
+
+      const durationSeconds = Number((route as any).direct_duration_seconds_cache);
+      durationMinutes =
+        Number.isFinite(durationSeconds) && durationSeconds > 0
+          ? Math.round(durationSeconds / 60)
+          : null;
+    }
+
 
     let settings: Awaited<ReturnType<typeof loadQuoteSettings>>;
     let profiles: Awaited<ReturnType<typeof loadActiveProfiles>>;
