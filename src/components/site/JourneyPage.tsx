@@ -336,7 +336,10 @@ export function journeyHead(c: JourneyContent, fares?: RouteFareTableData | null
       { property: "og:type", content: "website" },
       { property: "og:url", content: url },
       { name: "twitter:card", content: "summary_large_image" },
+      // Awaiting sign-off: viewable for review, never indexable yet.
+      ...(c.review ? [{ name: "robots", content: "noindex,follow" }] : []),
     ],
+
     links: [{ rel: "canonical", href: url }],
     scripts: [{ type: "application/ld+json", children: JSON.stringify(journeySchema(c, fares)) }],
 
