@@ -36,6 +36,12 @@ export type JourneyEnd = {
 
 export type JourneyRecord = {
   slug: string;
+  /**
+   * Awaiting sign-off: the page renders so it can be reviewed, but it is kept
+   * out of the sitemap and the /routes index until the flag is removed.
+   */
+  review?: boolean;
+
   category: JourneyCategory;
   from: JourneyEnd;
   to: JourneyEnd;
