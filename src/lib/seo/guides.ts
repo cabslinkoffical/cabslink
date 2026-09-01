@@ -71,7 +71,7 @@ export type GuideRecord = {
   related?: { label: string; to: string }[];
 };
 
-const LAST_CHECKED = "2026-09-02";
+const LAST_CHECKED = "2026-09-01";
 
 export const GUIDES: GuideRecord[] = [
   {
@@ -127,7 +127,7 @@ export const GUIDES: GuideRecord[] = [
       },
       {
         q: "How much is the Airlink bus?",
-        a: "The Airlink 100 is £6.00 for an adult single and £8.50 return, with child singles at £4.25 and a family return at £22.00. It takes about 30 minutes to Waverley Bridge and runs 24 hours a day.",
+        a: "The Airlink 100 is £6.00 for an adult single and £8.50 return, with child fares of £3.00 single and £4.25 return, and a family return at £22.00. It takes about 30 minutes to Waverley Bridge and runs 24 hours a day.",
       },
       {
         q: "Is the tram or the bus better?",
