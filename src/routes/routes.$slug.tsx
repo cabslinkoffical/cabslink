@@ -13,7 +13,13 @@ export const Route = createFileRoute("/routes/$slug")({
   loader: async ({ params }) => {
     // Code-defined, facts-gated journey pages take precedence.
     const journey = buildJourney(params.slug);
-    if (journey) return { journey, page: null, related: null, fares: null };
+    if (journey) {
+      // Journeys carry their own verified road distance/duration.
+      const fares = await getRouteFares({
+        data: { slug: params.slug, miles: journey.miles, minutes: journey.mins },
+      }).catch(() => null);
+      return { journey, page: null, related: null, fares };
+    }
 
     const page = await getPublicSeoPageByPath({ data: { path: `/routes/${params.slug}` } });
     if (!page) throw notFound();
@@ -33,11 +39,12 @@ export const Route = createFileRoute("/routes/$slug")({
   },
   head: ({ loaderData }) => {
     if (!loaderData) return {};
-    if (loaderData.journey) return journeyHead(loaderData.journey);
+    if (loaderData.journey) return journeyHead(loaderData.journey, loaderData.fares);
     return loaderData.page
       ? buildSeoHead(loaderData.page, ORIGIN, loaderData.related, loaderData.fares)
       : {};
   },
+
 
   component: RoutePage,
   notFoundComponent: () => (
