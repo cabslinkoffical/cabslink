@@ -1,6 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import type { PublicSeoPage, PublicSeoSection } from "@/lib/seo-public.functions";
 import type { RelatedBundle, RelatedLink } from "@/lib/seo-related.functions";
+import type { RouteFareTable as RouteFareTableData } from "@/lib/seo/route-fares.functions";
+import { RouteFareTable } from "@/components/seo/RouteFareTable";
 import { Button } from "@/components/ui/button";
 import { SiteLayout } from "@/components/site/SiteLayout";
 
@@ -12,10 +14,13 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 export function SeoPageRenderer({
   page,
   related,
+  fares,
 }: {
   page: PublicSeoPage;
   related?: RelatedBundle | null;
+  fares?: RouteFareTableData | null;
 }) {
+
   const hero = page.featured_image_url || page.og_image_url || page.entity?.hero_image_url || null;
 
   // Merge CMS sections with auto-injected related sections (only if not already present)
@@ -65,10 +70,14 @@ export function SeoPageRenderer({
       </section>
 
       <div className="container mx-auto px-4 py-12 space-y-12 max-w-4xl">
+        {fares && fares.fares.length > 0 && (
+          <RouteFareTable data={fares} routeName={page.h1.replace(/\s+—.*$/, "")} />
+        )}
         {allSections.map((s) => (
           <SectionBlock key={s.id} section={s} />
         ))}
       </div>
+
     </div>
     </SiteLayout>
   );
@@ -200,7 +209,9 @@ export function buildSeoHead(
   page: PublicSeoPage,
   origin: string,
   related?: RelatedBundle | null,
+  fares?: RouteFareTableData | null,
 ) {
+
   const url = `${origin}${page.canonical_override || page.path}`;
   const image = page.og_image_url || page.featured_image_url || page.entity?.hero_image_url || null;
   const meta: Array<Record<string, string>> = [
@@ -246,6 +257,37 @@ export function buildSeoHead(
     const travel = buildTravelActionLd(page, related, url);
     if (travel) graph.push(travel);
   }
+
+  // Published fares make the page citable: an AI answer can only quote a
+  // price we have actually put on the page. Headline price = cheapest class.
+  if (fares && fares.fares.length) {
+    const prices = fares.fares.map((f) => f.price);
+    const routeName = page.h1.replace(/\s+—.*$/, "");
+    graph.push({
+      "@type": "Offer",
+      name: `${routeName} fixed-price taxi transfer`,
+      url,
+      priceCurrency: fares.currency || "GBP",
+      price: Math.min(...prices).toFixed(2),
+      availability: "https://schema.org/InStock",
+      priceValidUntil: new Date(Date.now() + 30 * 864e5).toISOString().slice(0, 10),
+      offeredBy: { "@id": "https://cabslink.com/#business" },
+      priceSpecification: fares.fares.map((f) => ({
+        "@type": "UnitPriceSpecification",
+        name: f.className,
+        price: f.price.toFixed(2),
+        priceCurrency: fares.currency || "GBP",
+        valueAddedTaxIncluded: fares.taxIncluded,
+      })),
+      itemOffered: {
+        "@type": "Service",
+        name: `${routeName} private transfer`,
+        serviceType: "Airport taxi transfer",
+        provider: { "@id": "https://cabslink.com/#business" },
+      },
+    });
+  }
+
 
   return {
     meta,
@@ -330,16 +372,20 @@ function buildFaqLd(page: PublicSeoPage) {
   };
 }
 
-function buildTravelActionLd(page: PublicSeoPage, related: RelatedBundle, url: string) {
-  if (page.page_type !== "route") return null;
-  const first = related.popular_routes[0];
-  if (!first) return null;
+function buildTravelActionLd(page: PublicSeoPage, _related: RelatedBundle, url: string) {
+  // Route page types stored in seo_pages: city_to_city_route / airport_route.
+  if (!/route/.test(page.page_type)) return null;
+  // The route's own H1 is the reliable origin/destination source
+  // ("Dundee to Edinburgh Airport — Private Transfer").
+  const [from, to] = page.h1.replace(/\s+—.*$/, "").split(/\s+to\s+/i);
+  if (!from || !to) return null;
   return {
     "@type": "TravelAction",
     name: page.h1,
     url,
     agent: { "@id": "https://cabslink.com/#business" },
-    fromLocation: { "@type": "Place", name: first.label.split("→")[0]?.trim() ?? "Origin" },
-    toLocation: { "@type": "Place", name: first.label.split("→")[1]?.trim() ?? "Destination" },
+    fromLocation: { "@type": "Place", name: from.trim() },
+    toLocation: { "@type": "Place", name: to.trim() },
+
   };
 }

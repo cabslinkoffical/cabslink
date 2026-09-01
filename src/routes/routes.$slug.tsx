@@ -1,6 +1,7 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { getPublicSeoPageByPath } from "@/lib/seo-public.functions";
 import { getRelatedSeoLinks } from "@/lib/seo-related.functions";
+import { getRouteFares } from "@/lib/seo/route-fares.functions";
 import { SeoPageRenderer, buildSeoHead } from "@/components/seo/SeoPageRenderer";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { JourneyPage, journeyHead } from "@/components/site/JourneyPage";
@@ -12,24 +13,30 @@ export const Route = createFileRoute("/routes/$slug")({
   loader: async ({ params }) => {
     // Code-defined, facts-gated journey pages take precedence.
     const journey = buildJourney(params.slug);
-    if (journey) return { journey, page: null, related: null };
+    if (journey) return { journey, page: null, related: null, fares: null };
 
     const page = await getPublicSeoPageByPath({ data: { path: `/routes/${params.slug}` } });
     if (!page) throw notFound();
     // Route pages: use origin entity as the anchor for nearby links
     const entityType = page.primary_entity_type as any;
-    const related =
+    const [related, fares] = await Promise.all([
       entityType === "location" || entityType === "airport" || entityType === "service"
-        ? await getRelatedSeoLinks({
+        ? getRelatedSeoLinks({
             data: { entityType, entityId: page.primary_entity_id },
           }).catch(() => null)
-        : null;
-    return { journey: null, page, related };
+        : Promise.resolve(null),
+      // Real fares from the live pricing engine; null when the route has no
+      // reliable distance, in which case the table is simply omitted.
+      getRouteFares({ data: { slug: params.slug } }).catch(() => null),
+    ]);
+    return { journey: null, page, related, fares };
   },
   head: ({ loaderData }) => {
     if (!loaderData) return {};
     if (loaderData.journey) return journeyHead(loaderData.journey);
-    return loaderData.page ? buildSeoHead(loaderData.page, ORIGIN, loaderData.related) : {};
+    return loaderData.page
+      ? buildSeoHead(loaderData.page, ORIGIN, loaderData.related, loaderData.fares)
+      : {};
   },
 
   component: RoutePage,
@@ -48,8 +55,8 @@ export const Route = createFileRoute("/routes/$slug")({
 });
 
 function RoutePage() {
-  const { journey, page, related } = Route.useLoaderData();
+  const { journey, page, related, fares } = Route.useLoaderData();
   if (journey) return <JourneyPage content={journey} />;
-  return <SeoPageRenderer page={page!} related={related} />;
-
+  return <SeoPageRenderer page={page!} related={related} fares={fares} />;
 }
+
