@@ -206,19 +206,20 @@ export const TEMPLATES: Record<DestinationType, TemplateConfig> = {
   attraction: {
     hubLabel: "Attractions",
     hubSegment: "attractions",
-    titleTemplate: (d) => `${d.display_name ?? d.name} Private Tours & Transfers — CabsLink`,
-    descriptionStem: (d) => `Guided private travel to ${d.display_name ?? d.name}${d.region ? `, ${d.region}` : ""}.`,
+    titleTemplate: (d) => titleWithin(`${nameOf(d)} Private Tours & Transfers`),
+    descriptionStem: (d) => `Guided private travel to ${nameOf(d)}${d.region ? `, ${d.region}` : ""}.`,
     typeSchema: (d) => [touristAttractionSchema(d)],
     sections: ["summary", "attraction_info", "facts", "popular_routes", "nearby", "faq", "book_cta"],
   },
   distillery: {
     hubLabel: "Distilleries",
     hubSegment: "distilleries",
-    titleTemplate: (d) => `${d.display_name ?? d.name} Distillery Tours & Transfers — CabsLink`,
-    descriptionStem: (d) => `Whisky-trail transfers to ${d.display_name ?? d.name}.`,
+    titleTemplate: (d) => titleWithin(`${withNoun(nameOf(d), "Distillery")} Tours & Transfers`),
+    descriptionStem: (d) => `Whisky-trail transfers to ${nameOf(d)}.`,
     typeSchema: (d) => [touristAttractionSchema(d)],
     sections: ["summary", "attraction_info", "facts", "popular_routes", "nearby", "faq", "book_cta"],
   },
+
   service: {
     hubLabel: "Services",
     hubSegment: "services",
