@@ -230,12 +230,43 @@ export function JourneyPage({
   );
 }
 
-/** TravelAction + FAQPage + BreadcrumbList graph for a journey page. */
-export function journeySchema(c: JourneyContent) {
+/** TravelAction + Offer + FAQPage + BreadcrumbList graph for a journey page. */
+export function journeySchema(c: JourneyContent, fares?: RouteFareTableData | null) {
   const url = `${ORIGIN}${c.canonicalPath}`;
+  const pair = `${c.from.name} to ${c.to.name}`;
+  const currency = fares?.currency || "GBP";
   return {
     "@context": "https://schema.org",
     "@graph": [
+      ...(fares && fares.fares.length
+        ? [
+            {
+              "@type": "Offer",
+              name: `${pair} fixed-price taxi transfer`,
+              url,
+              priceCurrency: currency,
+              // Headline price = cheapest publishable vehicle class.
+              price: Math.min(...fares.fares.map((f) => f.price)).toFixed(2),
+              availability: "https://schema.org/InStock",
+              priceValidUntil: new Date(Date.now() + 30 * 864e5).toISOString().slice(0, 10),
+              areaServed: { "@type": "Country", name: "United Kingdom" },
+              priceSpecification: fares.fares.map((f) => ({
+                "@type": "UnitPriceSpecification",
+                name: f.className,
+                price: f.price.toFixed(2),
+                priceCurrency: currency,
+                valueAddedTaxIncluded: fares.taxIncluded,
+              })),
+              itemOffered: {
+                "@type": "Service",
+                name: `${pair} private transfer`,
+                serviceType: "Taxi and private transfer",
+                provider: { "@type": "Organization", name: "Cabslink", url: ORIGIN },
+              },
+            },
+          ]
+        : []),
+
       {
         "@type": "TravelAction",
         name: `${c.from.name} to ${c.to.name} private transfer`,
