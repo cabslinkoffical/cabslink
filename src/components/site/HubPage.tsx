@@ -16,6 +16,7 @@ export function HubPage({
   notes,
   destinations,
   contentKey,
+  featured,
 }: {
   title: string;
   intro: string;
@@ -25,7 +26,10 @@ export function HubPage({
   type?: DestinationType;
   /** Key into HUB_CONTENT for the long-form prose + FAQ blocks. */
   contentKey?: string;
+  /** Hand-written pages promoted above the destination grid. */
+  featured?: { title: string; blurb: string; href: string }[];
 }) {
+
   const content = contentKey ? HUB_CONTENT[contentKey] : undefined;
   const grouped = new Map<string, Destination[]>();
   for (const d of destinations) {
