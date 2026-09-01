@@ -4,6 +4,7 @@ import { HubPage } from "@/components/site/HubPage";
 import { HUBS, hubQueryOptions } from "@/lib/hub-config";
 import { hubHead } from "@/lib/seo/hub-head";
 import { destinationHref, type Destination } from "@/lib/destinations.functions";
+import { publishedGuides, guidePath } from "@/lib/seo/guides";
 
 const KEY = "guides" as const;
 
@@ -11,7 +12,10 @@ export const Route = createFileRoute("/guides/")({
   head: ({ loaderData }) =>
     hubHead(
       KEY,
-      ((loaderData ?? []) as Destination[]).map((d) => ({ name: d.display_name ?? d.name, url: destinationHref(d) })),
+      [
+        ...publishedGuides().map((g) => ({ name: g.cardTitle, url: guidePath(g.slug) })),
+        ...((loaderData ?? []) as Destination[]).map((d) => ({ name: d.display_name ?? d.name, url: destinationHref(d) })),
+      ],
     ),
   loader: ({ context }) => context.queryClient.ensureQueryData(hubQueryOptions(KEY)),
   component: () => {
@@ -24,6 +28,7 @@ export const Route = createFileRoute("/guides/")({
         notes={HUBS[KEY].notes}
         destinations={data}
         contentKey={KEY}
+        featured={publishedGuides().map((g) => ({ title: g.cardTitle, blurb: g.cardBlurb, href: guidePath(g.slug) }))}
       />
     );
   },
