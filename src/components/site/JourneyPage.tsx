@@ -231,6 +231,27 @@ export function JourneyPage({
   );
 }
 
+/**
+ * FAQ answers may reference the real saloon fare with `{{saloonFare}}` rather
+ * than a hardcoded figure. The token is filled from the live pricing engine;
+ * if no fare is available the question is dropped rather than shipped with a
+ * placeholder or a vague "price on request".
+ */
+function resolveFaqs(c: JourneyContent, fares?: RouteFareTableData | null) {
+  const cheapest = fares?.fares.length
+    ? fares.fares.reduce((a, b) => (b.price < a.price ? b : a))
+    : null;
+  const saloon =
+    fares?.fares.find((f) => /^saloon$/i.test(f.className) || f.classSlug === "saloon") ?? cheapest;
+  const value = saloon && fares ? `${fares.currencySymbol}${saloon.price.toFixed(2)}` : null;
+
+  return c.faqs
+    .map((f) => ({ ...f, a: value ? f.a.replaceAll("{{saloonFare}}", value) : f.a }))
+    .filter((f) => !f.a.includes("{{"));
+}
+
+
+
 /** TravelAction + Offer + FAQPage + BreadcrumbList graph for a journey page. */
 export function journeySchema(c: JourneyContent, fares?: RouteFareTableData | null) {
   const url = `${ORIGIN}${c.canonicalPath}`;
