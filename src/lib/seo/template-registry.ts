@@ -141,43 +141,51 @@ export const TEMPLATES: Record<DestinationType, TemplateConfig> = {
   airport: {
     hubLabel: "Airports",
     hubSegment: "airports",
-    titleTemplate: (d) => `${d.display_name ?? d.name} Taxi & Airport Transfers — CabsLink`,
-    descriptionStem: (d) => `Fixed-price taxis and private transfers to and from ${d.display_name ?? d.name}. Meet & greet, flight tracking, 24/7 UK support.`,
+    titleTemplate: (d) => titleWithin(`${withNoun(nameOf(d), "Airport")} Taxi & Transfers`),
+    descriptionStem: (d) => `Fixed-price taxis and private transfers to and from ${nameOf(d)}. Meet & greet, flight tracking, 24/7 UK support.`,
     typeSchema: (d) => [airportSchema(d)],
     sections: ["summary", "airport_info", "facts", "popular_routes", "nearby", "faq", "book_cta"],
   },
   station: {
     hubLabel: "Train Stations",
     hubSegment: "stations",
-    titleTemplate: (d) => `${d.display_name ?? d.name} Station Taxis & Transfers — CabsLink`,
-    descriptionStem: (d) => `Pre-booked transfers to and from ${d.display_name ?? d.name} rail station.`,
+    titleTemplate: (d) => titleWithin(`${withNoun(nameOf(d), "Station")} Taxis & Transfers`),
+    descriptionStem: (d) => `Pre-booked transfers to and from ${nameOf(d)} rail station.`,
     typeSchema: (d) => [localBusinessSchema(d)],
     sections: commonSections,
   },
   cruise_port: {
     hubLabel: "Cruise Ports",
     hubSegment: "cruise-ports",
-    titleTemplate: (d) => `${d.display_name ?? d.name} Cruise Transfers — CabsLink`,
-    descriptionStem: (d) => `Private transfers to the ${d.display_name ?? d.name} cruise terminal.`,
+    titleTemplate: (d) => {
+      const n = nameOf(d).trim();
+      // "… Cruise Terminal" / "… Cruise Anchorage" already carry the noun.
+      const base = /\b(cruise (terminal|anchorage|port)|terminal|harbour|port)$/i.test(n)
+        ? `${n} Transfers`
+        : `${n} Cruise Transfers`;
+      return titleWithin(base);
+    },
+    descriptionStem: (d) => `Private transfers to the ${nameOf(d)} cruise terminal.`,
     typeSchema: (d) => [localBusinessSchema(d)],
     sections: commonSections,
   },
   university: {
     hubLabel: "Universities",
     hubSegment: "universities",
-    titleTemplate: (d) => `${d.display_name ?? d.name} Student Taxis & Transfers — CabsLink`,
-    descriptionStem: (d) => `Term travel, move-in and airport runs for ${d.display_name ?? d.name}.`,
+    titleTemplate: (d) => titleWithin(`${withNoun(nameOf(d), "University")} Student Taxis & Transfers`),
+    descriptionStem: (d) => `Term travel, move-in and airport runs for ${nameOf(d)}.`,
     typeSchema: (d) => [localBusinessSchema(d)],
     sections: commonSections,
   },
   hospital: {
     hubLabel: "Hospitals",
     hubSegment: "hospitals",
-    titleTemplate: (d) => `${d.display_name ?? d.name} Hospital Transport — CabsLink`,
-    descriptionStem: (d) => `Reliable private transport for appointments at ${d.display_name ?? d.name}.`,
+    titleTemplate: (d) => titleWithin(`${withNoun(nameOf(d), "Hospital")} Transport`),
+    descriptionStem: (d) => `Reliable private transport for appointments at ${nameOf(d)}.`,
     typeSchema: (d) => [localBusinessSchema(d)],
     sections: commonSections,
   },
+
   corporate: {
     hubLabel: "Corporate Locations",
     hubSegment: "corporate",
