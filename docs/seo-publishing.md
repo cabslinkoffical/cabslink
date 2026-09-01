@@ -1,9 +1,24 @@
 # CabsLink SEO Publishing Engine — Operator Guide
 
+> **Accuracy note (read first).** This guide describes the `destinations`
+> pipeline only, and the server functions it names live in
+> `src/lib/seo/import.functions.ts` / `src/lib/seo-quality.functions.ts` —
+> there is no `publishing.functions.ts`.
+>
+> **Route (`/routes/*`) pages are NOT in this pipeline.** They are
+> facts-gated code records in `src/lib/seo/journeys.ts`, mirrored by a
+> `seo_pages` row (`city_to_city_route` / `airport_route`) plus a
+> `seo_popular_routes` row that stores the real cached distance and duration.
+> A journey marked `review: true` renders for sign-off but is kept out of the
+> sitemap and the `/routes` index and is served `noindex,follow`. Fares shown
+> on those pages come from the live engine via
+> `src/lib/seo/route-fares.functions.ts` — never hardcode a price.
+
 Everything a destination needs to become an indexable page lives in **one row**
 of the `destinations` table plus a small set of shared modules. There is no
 per-page CMS work, no template duplication, and no path that lets low-quality
 content leak into Google.
+
 
 ## The four tiers
 
