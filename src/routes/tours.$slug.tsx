@@ -12,6 +12,8 @@ import { Button } from "@/components/ui/button";
 import { TourBookingDialog, type TourForBooking } from "@/components/site/TourBookingDialog";
 import { getPublishedTourBySlug, type PublicPoiCard, type PublicTourDetail } from "@/lib/tours.functions";
 import { calculateMultiStopQuote } from "@/lib/scenic-quote.functions";
+import { DraftTourPage } from "@/components/site/DraftTourPage";
+import { draftTour, tourSeo } from "@/lib/seo/tour-seo";
 
 
 const tourDetailQuery = (slug: string) =>
@@ -32,7 +34,10 @@ export const Route = createFileRoute("/tours/$slug")({
     search.enquire === true || search.enquire === "true" || search.enquire === "1"
       ? { enquire: true }
       : {},
-  loader: ({ params, context }) => context.queryClient.ensureQueryData(tourDetailQuery(params.slug)),
+  // Code-defined draft tours never hit the CMS query.
+  loader: ({ params, context }) =>
+    draftTour(params.slug) ? null : context.queryClient.ensureQueryData(tourDetailQuery(params.slug)),
+
 
   head: ({ loaderData }) => {
     const d = loaderData as PublicTourDetail | undefined;
