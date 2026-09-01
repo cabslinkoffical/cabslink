@@ -106,7 +106,8 @@ export function GuidePage({ guide: g }: { guide: GuideRecord }) {
                   <div className="mt-5 flex flex-wrap gap-3 pt-1">
                     {t.tourSlug && (
                       <Link
-                        to={`/tours/${t.tourSlug}`}
+                        to="/tours/$slug"
+                        params={{ slug: t.tourSlug }}
                         className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--gold-ink)] hover:underline"
                       >
                         <MapPin className="size-4" /> Our tour that goes here
@@ -114,7 +115,8 @@ export function GuidePage({ guide: g }: { guide: GuideRecord }) {
                     )}
                     {t.routeSlug && (
                       <Link
-                        to={`/routes/${t.routeSlug}`}
+                        to="/routes/$slug"
+                        params={{ slug: t.routeSlug }}
                         className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--gold-ink)] hover:underline"
                       >
                         <Car className="size-4" /> Transfer prices
