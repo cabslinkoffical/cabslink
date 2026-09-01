@@ -534,12 +534,8 @@ export function buildJourney(slug: string): JourneyContent | null {
     h1: `${pair} private transfer.`,
     // Journey records are the single source of truth for these pages — the
     // `seo_pages` mirror row is synced from here, never authored separately.
-    // Titles are kept inside 60 characters so Google renders them in full.
-    metaTitle: pickWithin(60, [
-      `${pair} Taxi | Fixed Price Transfer`,
-      `${pair} Taxi | Fixed Price`,
-      `${pair} Taxi`,
-    ]),
+    metaTitle: journeyMetaTitle(j),
+
     metaDescription: journeyMetaDescription(j),
     canonicalPath: journeyPath(j.slug),
     hours,
