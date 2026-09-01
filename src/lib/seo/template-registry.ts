@@ -52,32 +52,32 @@ export const TEMPLATES: Record<DestinationType, TemplateConfig> = {
   location: {
     hubLabel: "Areas We Cover",
     hubSegment: "areas",
-    titleTemplate: (d) => `${d.display_name ?? d.name} Private Travel — CabsLink`,
-    descriptionStem: (d) => `Pre-booked private cars, taxis and airport transfers in ${d.display_name ?? d.name}${d.region ? `, ${d.region}` : ""}.`,
+    titleTemplate: (d) => `${d.display_name ?? d.name} Taxis & Private Transfers — Fixed Fares`,
+    descriptionStem: (d) => `Pre-booked taxis and airport transfers serving ${d.display_name ?? d.name}. Fixed fares, professional drivers, book online or by phone.`,
     typeSchema: (d) => [localBusinessSchema(d)],
     sections: commonSections,
   },
   city: {
     hubLabel: "Cities",
     hubSegment: "areas",
-    titleTemplate: (d) => `${d.display_name ?? d.name} Private Travel & Airport Transfers — CabsLink`,
-    descriptionStem: (d) => `Private-driver travel and airport transfers in ${d.display_name ?? d.name}${d.region ? `, ${d.region}` : ""}.`,
+    titleTemplate: (d) => `${d.display_name ?? d.name} Taxis & Airport Transfers — Fixed Fares`,
+    descriptionStem: (d) => `Pre-booked taxis, private hire and airport transfers in ${d.display_name ?? d.name}. Fixed prices by vehicle class, no meter, 24/7.`,
     typeSchema: (d) => [localBusinessSchema(d)],
     sections: commonSections,
   },
   town: {
     hubLabel: "Towns",
     hubSegment: "areas",
-    titleTemplate: (d) => `${d.display_name ?? d.name} Private Travel — CabsLink`,
-    descriptionStem: (d) => `Pre-booked private cars and airport transfers in ${d.display_name ?? d.name}${d.region ? `, ${d.region}` : ""}.`,
+    titleTemplate: (d) => `${d.display_name ?? d.name} Taxis & Private Transfers — Fixed Fares`,
+    descriptionStem: (d) => `Pre-booked taxis and airport transfers serving ${d.display_name ?? d.name}. Fixed fares, professional drivers, book online or by phone.`,
     typeSchema: (d) => [localBusinessSchema(d)],
     sections: commonSections,
   },
   village: {
     hubLabel: "Villages",
     hubSegment: "areas",
-    titleTemplate: (d) => `${d.display_name ?? d.name} Private Travel — CabsLink`,
-    descriptionStem: (d) => `Pre-booked private cars serving ${d.display_name ?? d.name}${d.region ? `, ${d.region}` : ""}.`,
+    titleTemplate: (d) => `${d.display_name ?? d.name} Taxis & Private Transfers — Fixed Fares`,
+    descriptionStem: (d) => `Pre-booked taxis and airport transfers serving ${d.display_name ?? d.name}. Fixed fares, professional drivers, book online or by phone.`,
     typeSchema: (d) => [localBusinessSchema(d)],
     sections: commonSections,
   },
@@ -102,11 +102,11 @@ export const TEMPLATES: Record<DestinationType, TemplateConfig> = {
     hubSegment: "routes",
     titleTemplate: (d) => {
       const m = d.meta as { from_name?: string; to_name?: string };
-      return `${m.from_name ?? "From"} to ${m.to_name ?? "Destination"} Private Transfer — CabsLink`;
+      return `${m.from_name ?? "From"} to ${m.to_name ?? "Destination"} Taxi | Fixed Price Transfer`;
     },
     descriptionStem: (d) => {
       const m = d.meta as { from_name?: string; to_name?: string };
-      return `Fixed-price private transfers from ${m.from_name ?? ""} to ${m.to_name ?? ""}. Book in advance with CabsLink.`;
+      return `How much is a taxi from ${m.from_name ?? ""} to ${m.to_name ?? ""}? Fixed fares by vehicle class, flight tracking and no meter. Book online with CabsLink.`;
     },
     typeSchema: (d) => {
       const m = d.meta as { from_name?: string; to_name?: string };
@@ -117,15 +117,15 @@ export const TEMPLATES: Record<DestinationType, TemplateConfig> = {
   airport: {
     hubLabel: "Airports",
     hubSegment: "airports",
-    titleTemplate: (d) => `${d.display_name ?? d.name} Airport Transfers — CabsLink`,
-    descriptionStem: (d) => `Airport transfers to and from ${d.display_name ?? d.name}. Meet & greet, fixed prices, 24/7 UK support.`,
+    titleTemplate: (d) => `${d.display_name ?? d.name} Taxi & Airport Transfers — CabsLink`,
+    descriptionStem: (d) => `Fixed-price taxis and private transfers to and from ${d.display_name ?? d.name}. Meet & greet, flight tracking, 24/7 UK support.`,
     typeSchema: (d) => [airportSchema(d)],
     sections: ["summary", "airport_info", "facts", "popular_routes", "nearby", "faq", "book_cta"],
   },
   station: {
     hubLabel: "Train Stations",
     hubSegment: "stations",
-    titleTemplate: (d) => `${d.display_name ?? d.name} Station Transfers — CabsLink`,
+    titleTemplate: (d) => `${d.display_name ?? d.name} Station Taxis & Transfers — CabsLink`,
     descriptionStem: (d) => `Pre-booked transfers to and from ${d.display_name ?? d.name} rail station.`,
     typeSchema: (d) => [localBusinessSchema(d)],
     sections: commonSections,
@@ -133,7 +133,7 @@ export const TEMPLATES: Record<DestinationType, TemplateConfig> = {
   cruise_port: {
     hubLabel: "Cruise Ports",
     hubSegment: "cruise-ports",
-    titleTemplate: (d) => `${d.display_name ?? d.name} Cruise Port Transfers — CabsLink`,
+    titleTemplate: (d) => `${d.display_name ?? d.name} Cruise Transfers — CabsLink`,
     descriptionStem: (d) => `Private transfers to the ${d.display_name ?? d.name} cruise terminal.`,
     typeSchema: (d) => [localBusinessSchema(d)],
     sections: commonSections,
@@ -141,7 +141,7 @@ export const TEMPLATES: Record<DestinationType, TemplateConfig> = {
   university: {
     hubLabel: "Universities",
     hubSegment: "universities",
-    titleTemplate: (d) => `${d.display_name ?? d.name} Transfers — CabsLink`,
+    titleTemplate: (d) => `${d.display_name ?? d.name} Student Taxis & Transfers — CabsLink`,
     descriptionStem: (d) => `Term travel, move-in and airport runs for ${d.display_name ?? d.name}.`,
     typeSchema: (d) => [localBusinessSchema(d)],
     sections: commonSections,
@@ -149,7 +149,7 @@ export const TEMPLATES: Record<DestinationType, TemplateConfig> = {
   hospital: {
     hubLabel: "Hospitals",
     hubSegment: "hospitals",
-    titleTemplate: (d) => `${d.display_name ?? d.name} Transport — CabsLink`,
+    titleTemplate: (d) => `${d.display_name ?? d.name} Hospital Transport — CabsLink`,
     descriptionStem: (d) => `Reliable private transport for appointments at ${d.display_name ?? d.name}.`,
     typeSchema: (d) => [localBusinessSchema(d)],
     sections: commonSections,
@@ -173,7 +173,7 @@ export const TEMPLATES: Record<DestinationType, TemplateConfig> = {
   attraction: {
     hubLabel: "Attractions",
     hubSegment: "attractions",
-    titleTemplate: (d) => `${d.display_name ?? d.name} Private Tours — CabsLink`,
+    titleTemplate: (d) => `${d.display_name ?? d.name} Private Tours & Transfers — CabsLink`,
     descriptionStem: (d) => `Guided private travel to ${d.display_name ?? d.name}${d.region ? `, ${d.region}` : ""}.`,
     typeSchema: (d) => [touristAttractionSchema(d)],
     sections: ["summary", "attraction_info", "facts", "popular_routes", "nearby", "faq", "book_cta"],
@@ -181,7 +181,7 @@ export const TEMPLATES: Record<DestinationType, TemplateConfig> = {
   distillery: {
     hubLabel: "Distilleries",
     hubSegment: "distilleries",
-    titleTemplate: (d) => `${d.display_name ?? d.name} Distillery Tours — CabsLink`,
+    titleTemplate: (d) => `${d.display_name ?? d.name} Distillery Tours & Transfers — CabsLink`,
     descriptionStem: (d) => `Whisky-trail transfers to ${d.display_name ?? d.name}.`,
     typeSchema: (d) => [touristAttractionSchema(d)],
     sections: ["summary", "attraction_info", "facts", "popular_routes", "nearby", "faq", "book_cta"],
