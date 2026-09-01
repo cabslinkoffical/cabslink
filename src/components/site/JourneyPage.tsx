@@ -9,11 +9,20 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero, SectionHeader } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
 import type { JourneyContent } from "@/lib/seo/journeys";
+import type { RouteFareTable as RouteFareTableData } from "@/lib/seo/route-fares.functions";
+import { RouteFareTable } from "@/components/seo/RouteFareTable";
 import { SITE } from "@/lib/site";
 
 const ORIGIN = "https://cabslink.com";
 
-export function JourneyPage({ content: c }: { content: JourneyContent }) {
+export function JourneyPage({
+  content: c,
+  fares,
+}: {
+  content: JourneyContent;
+  fares?: RouteFareTableData | null;
+}) {
+
   const pair = `${c.from.name} to ${c.to.name}`;
   // Carry the advertised journey into the booking form so the customer does
   // not have to retype the route this page is about.
