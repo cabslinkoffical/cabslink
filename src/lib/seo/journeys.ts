@@ -475,12 +475,13 @@ export function journeyPath(slug: string): string {
 }
 
 export function publishedJourneyPaths(): string[] {
-  return JOURNEYS.map((j) => journeyPath(j.slug));
+  return JOURNEYS.filter((j) => !j.review).map((j) => journeyPath(j.slug));
 }
 
 export function journeysByCategory(category: JourneyCategory): JourneyRecord[] {
-  return JOURNEYS.filter((j) => j.category === category);
+  return JOURNEYS.filter((j) => j.category === category && !j.review);
 }
+
 
 /** Categories that actually contain journeys — never render an empty category. */
 export function populatedCategories() {
