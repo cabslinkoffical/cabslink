@@ -3,7 +3,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { HubPage } from "@/components/site/HubPage";
 import { HUBS, hubQueryOptions } from "@/lib/hub-config";
 import { hubHead } from "@/lib/seo/hub-head";
-import { destinationHref } from "@/lib/destinations.functions";
+import { destinationHref, type Destination } from "@/lib/destinations.functions";
 
 const KEY = "cruise-ports" as const;
 
@@ -11,7 +11,7 @@ export const Route = createFileRoute("/cruise-ports/")({
   head: ({ loaderData }) =>
     hubHead(
       KEY,
-      (loaderData ?? []).map((d) => ({ name: d.display_name ?? d.name, url: destinationHref(d) })),
+      ((loaderData ?? []) as Destination[]).map((d) => ({ name: d.display_name ?? d.name, url: destinationHref(d) })),
     ),
   loader: ({ context }) => context.queryClient.ensureQueryData(hubQueryOptions(KEY)),
   component: () => {
