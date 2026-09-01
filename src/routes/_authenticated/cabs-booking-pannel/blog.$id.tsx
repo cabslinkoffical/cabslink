@@ -207,14 +207,16 @@ function PostEditor() {
             <Label>Excerpt (used in list previews & meta fallback)</Label>
             <Textarea rows={2} value={form.excerpt} onChange={(e) => setForm({ ...form, excerpt: e.target.value })} />
           </div>
-          <div>
-            <Label>Featured image URL</Label>
-            <Input value={form.featured_image_url} onChange={(e) => setForm({ ...form, featured_image_url: e.target.value })} placeholder="https://…" />
-          </div>
+          <ImageUploadField
+            label="Featured image"
+            value={form.featured_image_url}
+            onChange={(url) => setForm((f) => ({ ...f, featured_image_url: url }))}
+          />
           <div>
             <Label>Featured image alt</Label>
             <Input value={form.featured_image_alt} onChange={(e) => setForm({ ...form, featured_image_alt: e.target.value })} />
           </div>
+
 
           <div>
             <Label>Body (Markdown)</Label>
