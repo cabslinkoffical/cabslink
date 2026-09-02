@@ -12,8 +12,9 @@ import {
   CheckCircle2, ArrowRight, ArrowLeft, MapPin, CalendarDays, Edit3, Star,
   Users, Briefcase, Luggage, BadgeCheck, Clock, DoorOpen, UserCheck, Award,
   ShieldCheck, CreditCard, User, Mail, Phone, MessageSquare, RefreshCw,
-  Shield, Package, CalendarClock, Landmark, Sparkles, Plus, Repeat, X,
+  Shield, Package, CalendarClock, Landmark, Sparkles, Plus, Repeat, X, AlertCircle,
 } from "lucide-react";
+
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { TrustpilotStrip } from "@/components/site/TrustpilotStrip";
 import { Button } from "@/components/ui/button";
@@ -1705,6 +1706,7 @@ function ContactStep({ contact, onChange, onBack, onNext, attempted }: {
   const set = <K extends keyof Contact>(k: K, v: Contact[K]) => onChange({ ...contact, [k]: v });
   const errors = contactErrors(contact);
   const show = (k: keyof Contact) => (attempted ? errors[k] ?? "" : "");
+  const requiredRemaining = Object.values(errors).filter(Boolean).length;
   return (
     <div className="bg-card rounded-2xl border border-border shadow-sm p-6 md:p-8 space-y-6">
       <div>
@@ -1715,7 +1717,15 @@ function ContactStep({ contact, onChange, onBack, onNext, attempted }: {
         </p>
       </div>
 
+      {attempted && requiredRemaining > 0 && (
+        <div className="flex items-center gap-2 rounded-lg bg-destructive px-3 py-2.5 text-xs font-bold text-white" role="alert">
+          <AlertCircle className="h-4 w-4 shrink-0" />
+          <span>Please fill the required data to continue ({requiredRemaining} remaining)</span>
+        </div>
+      )}
+
       <div className="grid sm:grid-cols-2 gap-4">
+
         <Field label="Full name" icon={<User className="size-4" />} error={show("customer_name")}>
           <Input value={contact.customer_name} onChange={(e) => set("customer_name", e.target.value)} required maxLength={100} />
         </Field>
@@ -2181,15 +2191,16 @@ function Field({ label, icon, children, error }: { label: string; icon?: React.R
       })
     : children;
   return (
-    <div data-invalid={error ? "true" : undefined} className={error ? "[&_input]:border-destructive [&_input]:ring-1 [&_input]:ring-destructive/40" : undefined}>
-      <Label htmlFor={autoId} className="text-xs font-medium text-muted-foreground flex items-center gap-1.5 mb-1.5">
-        {icon}{label}
+    <div data-invalid={error ? "true" : undefined} className={error ? "rounded-lg border border-destructive bg-destructive/5 p-3 -m-3" : undefined}>
+      <Label htmlFor={autoId} className={`text-xs font-bold flex items-center gap-1.5 mb-1.5 ${error ? "text-destructive" : "text-muted-foreground"}`}>
+        {icon}{label}{error && <AlertCircle className="ml-auto w-3.5 h-3.5 text-destructive" aria-hidden="true" />}
       </Label>
       {control}
-      {error && <p id={errId} role="alert" className="mt-1.5 text-xs font-medium text-destructive">{error}</p>}
+      {error && <p id={errId} role="alert" className="mt-1.5 text-xs font-semibold text-destructive">{error}</p>}
     </div>
   );
 }
+
 
 function Toggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
   return (

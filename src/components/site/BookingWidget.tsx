@@ -1,8 +1,20 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Plus, X, Minus, Search, Flag, MapPin, Calendar, Clock, Users, Briefcase, Repeat, Car, Palmtree } from "lucide-react";
+import { Plus, X, Minus, Search, Flag, MapPin, Calendar, Clock, Users, Briefcase, Repeat, Car, Palmtree, AlertCircle } from "lucide-react";
 import { PlaceAutocomplete, type SelectedPlace } from "@/components/site/PlaceAutocomplete";
 import { track } from "@/lib/tracking";
+
+
+function FormNotice({ visible, children }: { visible: boolean; children: React.ReactNode }) {
+  if (!visible) return null;
+  return (
+    <div className="mb-3 flex items-center gap-2 rounded-lg bg-destructive px-3 py-2.5 text-xs font-bold text-white shadow-sm" role="alert">
+      <AlertCircle className="h-4 w-4 shrink-0" />
+      <span>{children}</span>
+    </div>
+  );
+}
+
 
 
 type Tab = "quote" | "hourly";
@@ -202,7 +214,10 @@ export function BookingWidget({
           }}
 
         >
+        <>
+          <FormNotice visible={attempted && hourlyErrorList.length > 0}>Please fill the required data to continue</FormNotice>
           <div className="bg-white shadow-[var(--shadow-elegant)] border border-black/5 rounded-3xl @[980px]:rounded-full overflow-visible p-2 @[980px]:p-1.5">
+
             <div className="grid grid-cols-1 @[600px]:grid-cols-2 @[980px]:flex @[980px]:items-stretch gap-1 @[980px]:gap-0">
               <div className="@[600px]:col-span-2 @[980px]:flex-1 @[980px]:min-w-0" data-invalid={attempted && !!hourlyErrors.pickup}>
                 <FieldCell icon={<MapPin className="w-4 h-4 text-[var(--gold-ink)]" />} label="Pickup" invalid={attempted && !!hourlyErrors.pickup}>
@@ -237,10 +252,11 @@ export function BookingWidget({
 
               <Divider />
 
-              <div className="border-t border-black/5 @[980px]:border-0 @[980px]:w-[150px] shrink-0">
-                <FieldCell icon={<Clock className="w-4 h-4 text-[var(--gold-ink)]" />} label="Duration" compact>
+              <div className="border-t border-black/5 @[980px]:border-0 @[980px]:w-[150px] shrink-0" data-invalid={attempted && !!hourlyErrors.hours}>
+                <FieldCell icon={<Clock className="w-4 h-4 text-[var(--gold-ink)]" />} label="Duration" compact invalid={attempted && !!hourlyErrors.hours}>
                   <select
                     aria-label="Hire duration in hours"
+                    required
                     value={hours ?? ""}
                     onChange={(e) => setHours(e.target.value ? Number(e.target.value) : null)}
                     className="w-full bg-transparent border-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)] text-sm font-semibold text-foreground"
@@ -252,6 +268,7 @@ export function BookingWidget({
                   </select>
                 </FieldCell>
               </div>
+
 
               <Divider />
 
@@ -300,21 +317,16 @@ export function BookingWidget({
           <p className={`text-xs mt-3 px-2 ${tone === "light" ? "text-[var(--navy)]/70" : "text-white/70"}`}>
             Car and driver at your disposal — travel as directed, multiple stops included.
           </p>
-          {attempted && hourlyErrorList.length > 0 && (
-            <ul className="mt-2 space-y-1 text-xs text-destructive text-center" role="alert">
-              {hourlyErrorList.map((msg) => (
-                <li key={msg}>{msg}</li>
-              ))}
-            </ul>
-          )}
-
+        </>
         </form>
       )}
 
       {tab === "quote" && (
       <form onSubmit={submit} noValidate>
+        <FormNotice visible={attempted && errorList.length > 0}>Please fill the required data to continue</FormNotice>
 
         {/* Main container: rounded card on mobile/tablet, horizontal pill on wide desktop (xl+) */}
+
         <div className={`bg-white shadow-[var(--shadow-elegant)] border border-black/5 overflow-visible p-2 @[980px]:p-1.5 rounded-3xl @[980px]:rounded-[2rem] ${stops.length === 0 && !showReturn ? "rounded-b-3xl @[980px]:rounded-b-[2rem]" : "rounded-b-none @[980px]:rounded-b-none"}`}>
           <div className="grid grid-cols-1 @[600px]:grid-cols-2 @[980px]:flex @[980px]:items-stretch gap-1 @[980px]:gap-0">
             {/* Pickup */}
@@ -586,8 +598,8 @@ function TabButton({ active, onClick, icon, children, tone = "dark" }: { active:
 function FieldCell({ icon, label, children, compact, invalid }: { icon: React.ReactNode; label: string; children: React.ReactNode; compact?: boolean; invalid?: boolean }) {
   return (
     <div
-      className={`flex items-center gap-2.5 px-4 py-2 min-w-0 flex-1 rounded-md transition-colors ${compact ? "@[980px]:w-[152px] @[980px]:max-w-[152px] @[980px]:flex-none" : ""} ${
-        invalid ? "bg-destructive/5 ring-1 ring-destructive/60" : ""
+      className={`flex items-center gap-2.5 px-4 py-2 min-w-0 flex-1 rounded-md border transition-colors ${compact ? "@[980px]:w-[152px] @[980px]:max-w-[152px] @[980px]:flex-none" : ""} ${
+        invalid ? "border-destructive bg-destructive/5 ring-1 ring-destructive/60" : "border-transparent"
       }`}
     >
       <div className="shrink-0">{icon}</div>
@@ -598,9 +610,11 @@ function FieldCell({ icon, label, children, compact, invalid }: { icon: React.Re
           {children}
         </div>
       </div>
+      {invalid && <AlertCircle className="w-4 h-4 text-destructive shrink-0" aria-hidden="true" />}
     </div>
   );
 }
+
 
 
 function Divider() {
