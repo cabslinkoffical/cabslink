@@ -12,6 +12,10 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/booking/$token")({
+  validateSearch: (search: Record<string, unknown>): { session_id?: string } =>
+    typeof search.session_id === "string" && search.session_id.length > 0
+      ? { session_id: search.session_id }
+      : {},
   head: () => ({
     meta: [
       { title: `Booking confirmation — ${SITE.name}` },
@@ -23,6 +27,7 @@ export const Route = createFileRoute("/booking/$token")({
   component: ConfirmationPage,
   notFoundComponent: () => <ExpiredPage />,
 });
+
 
 function ExpiredPage() {
   return (
