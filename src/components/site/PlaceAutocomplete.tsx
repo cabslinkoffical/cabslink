@@ -23,6 +23,9 @@ type Props = {
   /** Seed the visible text (e.g. a route page's advertised origin) without
    * claiming a selection — the user still picks a Google suggestion. */
   initialText?: string;
+  /** Forwarded by Field wrappers for validation styling. */
+  "aria-invalid"?: boolean;
+  "aria-describedby"?: string;
 };
 
 const DEBOUNCE_MS = 250;
