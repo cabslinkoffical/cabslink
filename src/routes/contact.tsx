@@ -9,13 +9,13 @@ import { TrustpilotStrip } from "@/components/site/TrustpilotStrip";
 import { PageHero } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { SITE } from "@/lib/site";
 import { submitContactMessage } from "@/lib/contact.functions";
 import { useCaptcha } from "@/components/site/Captcha";
 import { PhoneInput } from "@/components/site/PhoneInput";
 import { contactPageSchema } from "@/components/seo/schema";
+import { FormNotice, FormField, focusFirstInvalid, zodFieldErrors } from "@/components/site/FormValidation";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -57,6 +57,7 @@ const schema = z.object({
 function ContactPage() {
   const [loading, setLoading] = useState(false);
   const [phone, setPhone] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const inflight = useRef(false);
   const submit = useServerFn(submitContactMessage);
   const captcha = useCaptcha("contact");
@@ -72,7 +73,16 @@ function ContactPage() {
       return;
     }
     const parsed = schema.safeParse(Object.fromEntries(fd));
-    if (!parsed.success) { toast.error("Please fill out the required fields."); return; }
+    if (!parsed.success) {
+      setErrors(zodFieldErrors(parsed.error, {
+        name: "Enter your full name (at least 2 characters).",
+        email: "Enter a valid email address.",
+        message: "Tell us how we can help (at least 10 characters).",
+      }));
+      focusFirstInvalid(e.currentTarget);
+      return;
+    }
+    setErrors({});
     if (!captcha.ready) { toast.error("Please complete the security check below."); return; }
     inflight.current = true;
     setLoading(true);
@@ -135,15 +145,26 @@ function ContactPage() {
               <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" />
             </div>
             <div className="mt-6 grid gap-4">
+              <FormNotice visible={Object.keys(errors).length > 0} />
               <div className="grid sm:grid-cols-2 gap-4">
-                <div><Label htmlFor="contact-name">Name</Label><Input id="contact-name" name="name" required maxLength={100} className="mt-1.5" /></div>
-                <div><Label htmlFor="contact-email">Email</Label><Input id="contact-email" name="email" type="email" required maxLength={255} className="mt-1.5" /></div>
+                <FormField label="Name" htmlFor="contact-name" error={errors.name}>
+                  <Input id="contact-name" name="name" required maxLength={100} aria-invalid={!!errors.name} />
+                </FormField>
+                <FormField label="Email" htmlFor="contact-email" error={errors.email}>
+                  <Input id="contact-email" name="email" type="email" required maxLength={255} aria-invalid={!!errors.email} />
+                </FormField>
               </div>
               <div className="grid sm:grid-cols-2 gap-4">
-                <div><Label htmlFor="contact-phone">Phone (optional)</Label><div className="mt-1.5"><PhoneInput id="contact-phone" name="phone" value={phone} onChange={setPhone} /></div></div>
-                <div><Label htmlFor="contact-subject">Subject (optional)</Label><Input id="contact-subject" name="subject" maxLength={150} className="mt-1.5" /></div>
+                <FormField label="Phone (optional)" htmlFor="contact-phone" error={errors.phone}>
+                  <PhoneInput id="contact-phone" name="phone" value={phone} onChange={setPhone} />
+                </FormField>
+                <FormField label="Subject (optional)" htmlFor="contact-subject" error={errors.subject}>
+                  <Input id="contact-subject" name="subject" maxLength={150} />
+                </FormField>
               </div>
-              <div><Label htmlFor="contact-message">Message</Label><Textarea id="contact-message" name="message" required maxLength={1500} rows={6} className="mt-1.5" /></div>
+              <FormField label="Message" htmlFor="contact-message" error={errors.message}>
+                <Textarea id="contact-message" name="message" required maxLength={1500} rows={6} aria-invalid={!!errors.message} />
+              </FormField>
               {captcha.widget}
               <Button type="submit" variant="gold" disabled={loading || !captcha.ready} className="rounded-full">
                 {loading ? "Sending…" : <>Send message <ArrowRight className="size-4" /></>}

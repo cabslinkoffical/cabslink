@@ -10,6 +10,7 @@ import { CreditCard, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { FormNotice } from "@/components/site/FormValidation";
 import { statusLabel, type BookingStatus } from "@/lib/booking-lifecycle";
 import { SITE } from "@/lib/site";
 import { Search, ArrowLeft, CalendarDays, Car, Clock, MapPin, Phone, Mail, User, Route as RouteIcon } from "lucide-react";
@@ -66,6 +67,10 @@ function TrackBookingPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!ref.trim()) {
+      setError("Enter your booking reference to continue.");
+      return;
+    }
     await lookup(ref);
   };
 
@@ -115,29 +120,25 @@ function TrackBookingPage() {
               <p className="mt-1 text-sm text-white/70">Enter your booking reference to see your live journey status.</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6 space-y-5">
-              <div className="space-y-2">
-                <Label htmlFor="bookingRef">Booking reference</Label>
+            <form onSubmit={handleSubmit} className="p-6 space-y-5" noValidate>
+              <FormNotice visible={!!error}>{error}</FormNotice>
+              <div className="space-y-2" data-invalid={!!error || undefined}>
+                <Label htmlFor="bookingRef" className={error ? "text-destructive" : undefined}>Booking reference</Label>
                 <Input
                   id="bookingRef"
                   value={ref}
-                  onChange={(e) => setRef(e.target.value.toUpperCase())}
+                  onChange={(e) => { setRef(e.target.value.toUpperCase()); if (error) setError(null); }}
                   placeholder="e.g. CL-260830-A3B9"
                   autoComplete="off"
                   required
-                  className="font-mono uppercase"
+                  aria-invalid={!!error}
+                  className={`font-mono uppercase ${error ? "border-destructive ring-1 ring-destructive/50" : ""}`}
                 />
               </div>
 
-              {error && (
-                <div className="rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">
-                  {error}
-                </div>
-              )}
-
               <Button
                 type="submit"
-                disabled={loading || !ref.trim()}
+                disabled={loading}
                 className="w-full gap-2 bg-[var(--gold)] text-[var(--navy)] hover:bg-[var(--gold)]/90"
               >
                 {loading ? (
