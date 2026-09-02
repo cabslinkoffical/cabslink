@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { BadgeCheck, CalendarDays, Car, Clock, MapPin, Phone, Mail, ShieldCheck, User, Users, Briefcase, Info, Copy, Download, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { SiteLayout } from "@/components/site/SiteLayout";
@@ -10,8 +10,15 @@ import { paymentNextStepMessage, statusLabel, type BookingStatus, type PaymentMo
 import { SITE } from "@/lib/site";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { confirmBookingPayment } from "@/lib/payments.functions";
+import { getStripeEnvironment } from "@/lib/stripe";
+import { BookingCardPayment } from "@/components/site/BookingCardPayment";
 
 export const Route = createFileRoute("/booking/$token")({
+  validateSearch: (search: Record<string, unknown>): { session_id?: string } =>
+    typeof search.session_id === "string" && search.session_id.length > 0
+      ? { session_id: search.session_id }
+      : {},
   head: () => ({
     meta: [
       { title: `Booking confirmation — ${SITE.name}` },
@@ -23,6 +30,7 @@ export const Route = createFileRoute("/booking/$token")({
   component: ConfirmationPage,
   notFoundComponent: () => <ExpiredPage />,
 });
+
 
 function ExpiredPage() {
   return (
@@ -45,7 +53,10 @@ function ExpiredPage() {
 
 function ConfirmationPage() {
   const { token } = Route.useParams();
+  const { session_id: sessionId } = Route.useSearch();
   const fetchFn = useServerFn(getBookingByToken);
+  const confirmFn = useServerFn(confirmBookingPayment);
+  const queryClient = useQueryClient();
   const q = useQuery({
     queryKey: ["booking-confirmation", token],
     queryFn: () => fetchFn({ data: { token } }),
@@ -53,6 +64,31 @@ function ConfirmationPage() {
     staleTime: 60_000,
   });
   const [downloading, setDownloading] = useState(false);
+  const [payOpen, setPayOpen] = useState(false);
+  const [verifying, setVerifying] = useState(!!sessionId);
+
+  // A Stripe redirect is not proof of payment: verify the session server-side
+  // before the booking is treated as confirmed.
+  const verified = useRef(false);
+  useEffect(() => {
+    if (verified.current || !sessionId || !q.data) return;
+    verified.current = true;
+    (async () => {
+      try {
+        const res = await confirmFn({
+          data: { sessionId, bookingRef: q.data.bookingRef, environment: getStripeEnvironment() },
+        });
+        if ("error" in res) toast.error(res.error);
+        else if (res.paid) toast.success("Payment received — your booking is confirmed.");
+        else toast.error("We haven't received your payment yet. Please try again.");
+        await queryClient.invalidateQueries({ queryKey: ["booking-confirmation", token] });
+      } catch {
+        toast.error("We could not verify your payment. Please contact us with your reference.");
+      } finally {
+        setVerifying(false);
+      }
+    })();
+  }, [sessionId, q.data, confirmFn, queryClient, token]);
 
   const fired = useRef(false);
   useEffect(() => {
@@ -80,9 +116,23 @@ function ConfirmationPage() {
   }
 
   const b = q.data;
-  const paymentMode: PaymentMode = "manual"; // Online payment not connected yet.
-  const nextStep = paymentNextStepMessage(paymentMode, b.status as BookingStatus);
-  const heading = b.status === "confirmed" ? "Booking confirmed" : "Booking request received";
+  const isPaid = b.paymentStatus === "paid";
+  const paymentMode: PaymentMode = isPaid ? "online" : "manual";
+  const amountPence = b.price != null ? Math.round(b.price * 100) : 0;
+  const needsPayment = !isPaid && amountPence >= 100;
+  const nextStep = needsPayment
+    ? "Your booking is not confirmed yet — complete your card payment below to secure it."
+    : paymentNextStepMessage(paymentMode, b.status as BookingStatus);
+  const heading = verifying
+    ? "Checking your payment…"
+    : isPaid
+      ? "Booking confirmed — payment received"
+      : "Payment required to confirm";
+  const returnUrl =
+    typeof window !== "undefined"
+      ? `${window.location.origin}/booking/${token}?session_id={CHECKOUT_SESSION_ID}`
+      : `https://cabslink.com/booking/${token}?session_id={CHECKOUT_SESSION_ID}`;
+
 
   const copyRef = async () => {
     try {
@@ -201,7 +251,9 @@ function ConfirmationPage() {
                 <div className="mt-4 border-t border-dashed border-[var(--navy)]/20 pt-3">
                   <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">Estimated fare</p>
                   <p className="font-display text-2xl font-bold">{b.price != null ? `£${b.price.toFixed(2)}` : "—"}</p>
-                  <p className="mt-0.5 text-[10px] text-muted-foreground">{b.paymentStatus ?? "unpaid"} · pay on arrangement</p>
+                  <p className="mt-0.5 text-[10px] font-semibold text-muted-foreground">
+                    {isPaid ? "Paid in full" : "Unpaid — payment required"}
+                  </p>
                 </div>
 
                 {/* Barcode flourish */}
@@ -225,6 +277,42 @@ function ConfirmationPage() {
             </div>
           </div>
           {/* ===== /TICKET ===== */}
+
+          {needsPayment && (
+            <div className="mt-6 rounded-2xl border border-[var(--gold)]/45 bg-card p-5 md:p-7 shadow-sm">
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)]">Payment pending</p>
+                  <h2 className="mt-1 font-display text-xl md:text-2xl font-bold">Continue to payment</h2>
+                  <p className="mt-2 max-w-xl text-sm text-muted-foreground">
+                    Booking <span className="font-semibold text-foreground">{b.bookingRef}</span> is held but not
+                    confirmed. Pay by card to confirm it — we'll email your confirmation as soon as payment clears.
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground">Amount due</p>
+                  <p className="font-display text-3xl font-bold tabular-nums text-[var(--gold-ink)]">
+                    £{(amountPence / 100).toFixed(2)}
+                  </p>
+                </div>
+              </div>
+
+              {payOpen ? (
+                <div className="mt-5">
+                  <BookingCardPayment
+                    amountPence={amountPence}
+                    bookingRef={b.bookingRef}
+                    email={b.customerEmail || undefined}
+                    returnUrl={returnUrl}
+                  />
+                </div>
+              ) : (
+                <Button className="mt-5 gap-2" size="lg" onClick={() => setPayOpen(true)}>
+                  Continue to payment
+                </Button>
+              )}
+            </div>
+          )}
 
           <div className="mt-6 flex flex-wrap items-center gap-3 print:hidden">
             <Button asChild variant="outline" rel="noreferrer"><Link to="/">Back to home</Link></Button>

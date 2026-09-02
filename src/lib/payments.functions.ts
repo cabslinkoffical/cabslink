@@ -48,3 +48,53 @@ export const createBookingCheckout = createServerFn({ method: "POST" })
       return { error: getStripeErrorMessage(error) };
     }
   });
+
+export type PaymentConfirmResult =
+  | { paid: boolean; status: string; paymentStatus: string }
+  | { error: string };
+
+/**
+ * Verifies a completed Stripe Checkout session against the saved booking and
+ * only then marks the booking paid + confirmed. The booking is never treated
+ * as confirmed on the strength of a redirect alone.
+ */
+export const confirmBookingPayment = createServerFn({ method: "POST" })
+  .inputValidator((data: { sessionId: string; bookingRef: string; environment: StripeEnv }) => {
+    if (!/^cs_[A-Za-z0-9_-]{10,200}$/.test(data.sessionId)) throw new Error("Invalid session");
+    if (!/^[A-Za-z0-9-]{3,40}$/.test(data.bookingRef)) throw new Error("Invalid booking reference");
+    return data;
+  })
+  .handler(async ({ data }): Promise<PaymentConfirmResult> => {
+    try {
+      const stripe = createStripeClient(data.environment);
+      const session = await stripe.checkout.sessions.retrieve(data.sessionId);
+      const ref = (session.metadata?.booking_ref ?? "").toUpperCase();
+      if (ref !== data.bookingRef.toUpperCase()) return { error: "This payment does not match the booking." };
+      const paid = session.payment_status === "paid";
+
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      if (paid) {
+        const upd: any = await supabaseAdmin
+          .from("bookings")
+          .update({ payment_status: "paid", status: "confirmed" } as any)
+          .eq("booking_ref", data.bookingRef.toUpperCase())
+          .select("status, payment_status")
+          .maybeSingle();
+        if (upd.error) return { error: "Payment received, but the booking could not be updated. Please contact us." };
+        return { paid: true, status: upd.data?.status ?? "confirmed", paymentStatus: upd.data?.payment_status ?? "paid" };
+      }
+
+      const cur: any = await supabaseAdmin
+        .from("bookings")
+        .select("status, payment_status")
+        .eq("booking_ref", data.bookingRef.toUpperCase())
+        .maybeSingle();
+      return {
+        paid: false,
+        status: cur?.data?.status ?? "new",
+        paymentStatus: cur?.data?.payment_status ?? "unpaid",
+      };
+    } catch (error) {
+      return { error: getStripeErrorMessage(error) };
+    }
+  });

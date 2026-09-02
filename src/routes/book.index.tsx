@@ -2133,8 +2133,9 @@ function PayNowStep({ bookingRef, token, amountPence, email }: {
 }) {
   const returnUrl =
     typeof window !== "undefined"
-      ? `${window.location.origin}/booking/${token}?paid=1`
-      : `https://cabslink.com/booking/${token}?paid=1`;
+      ? `${window.location.origin}/booking/${token}?session_id={CHECKOUT_SESSION_ID}`
+      : `https://cabslink.com/booking/${token}?session_id={CHECKOUT_SESSION_ID}`;
+
   return (
     <div className="bg-card rounded-2xl border border-border shadow-sm p-6 md:p-8 space-y-6">
       <div className="flex items-start justify-between gap-4 flex-wrap">
