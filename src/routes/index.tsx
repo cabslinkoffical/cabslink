@@ -818,7 +818,7 @@ const faqItems = [
   { q: "Do you track my flight?", a: "Yes. Every airport transfer includes automatic flight tracking, and we adjust pickup times for delays or early arrivals at no extra cost." },
   { q: "Is there a meet & greet at arrivals?", a: "Absolutely. Your driver waits inside the terminal with a name board and helps with your luggage — included as standard." },
   { q: "What if I need to cancel?", a: "Tell us as early as you can and we'll cancel free of charge. Late cancellations or no-shows may be charged for the reserved driver time — see our booking & cancellation policy." },
-  { q: "How do I pay?", a: "Nothing is charged online. You choose a payment method when booking — card, bank transfer or a business account — and our team confirms availability and payment arrangements with you directly." },
+  { q: "How do I pay?", a: "We accept card payments only. You pay securely by debit or credit card at the end of booking, and your journey is confirmed as soon as the payment succeeds." },
 
   { q: "Do you cover the whole UK?", a: "Yes — Edinburgh, London (Heathrow, Gatwick, Stansted, Luton, City), Manchester, Glasgow, Birmingham and 120+ UK destinations." },
 ];

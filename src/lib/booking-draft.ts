@@ -9,7 +9,7 @@ const StopSchema = z.object({
   durationMin: z.number().int().min(0).max(24 * 60).optional(),
 });
 
-const StepSchema = z.enum(["vehicle", "details", "extras", "payment", "review"]);
+const StepSchema = z.enum(["vehicle", "details", "extras", "payment", "pay", "review"]);
 
 const DraftSchema = z.object({
   pickupPlaceId: z.string().max(200).optional(),
