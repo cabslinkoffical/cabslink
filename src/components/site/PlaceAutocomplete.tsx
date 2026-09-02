@@ -53,6 +53,8 @@ export function PlaceAutocomplete({
   iconClassName,
   inputClassName,
   initialText,
+  "aria-invalid": ariaInvalid,
+  "aria-describedby": ariaDescribedBy,
 }: Props) {
   const autoId = useId();
   const inputId = id ?? autoId;
