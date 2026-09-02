@@ -50,7 +50,10 @@ function ExpiredPage() {
 
 function ConfirmationPage() {
   const { token } = Route.useParams();
+  const { session_id: sessionId } = Route.useSearch();
   const fetchFn = useServerFn(getBookingByToken);
+  const confirmFn = useServerFn(confirmBookingPayment);
+  const queryClient = useQueryClient();
   const q = useQuery({
     queryKey: ["booking-confirmation", token],
     queryFn: () => fetchFn({ data: { token } }),
@@ -58,6 +61,31 @@ function ConfirmationPage() {
     staleTime: 60_000,
   });
   const [downloading, setDownloading] = useState(false);
+  const [payOpen, setPayOpen] = useState(false);
+  const [verifying, setVerifying] = useState(!!sessionId);
+
+  // A Stripe redirect is not proof of payment: verify the session server-side
+  // before the booking is treated as confirmed.
+  const verified = useRef(false);
+  useEffect(() => {
+    if (verified.current || !sessionId || !q.data) return;
+    verified.current = true;
+    (async () => {
+      try {
+        const res = await confirmFn({
+          data: { sessionId, bookingRef: q.data.bookingRef, environment: getStripeEnvironment() },
+        });
+        if ("error" in res) toast.error(res.error);
+        else if (res.paid) toast.success("Payment received — your booking is confirmed.");
+        else toast.error("We haven't received your payment yet. Please try again.");
+        await queryClient.invalidateQueries({ queryKey: ["booking-confirmation", token] });
+      } catch {
+        toast.error("We could not verify your payment. Please contact us with your reference.");
+      } finally {
+        setVerifying(false);
+      }
+    })();
+  }, [sessionId, q.data, confirmFn, queryClient, token]);
 
   const fired = useRef(false);
   useEffect(() => {
@@ -85,9 +113,23 @@ function ConfirmationPage() {
   }
 
   const b = q.data;
-  const paymentMode: PaymentMode = "manual"; // Online payment not connected yet.
-  const nextStep = paymentNextStepMessage(paymentMode, b.status as BookingStatus);
-  const heading = b.status === "confirmed" ? "Booking confirmed" : "Booking request received";
+  const isPaid = b.paymentStatus === "paid";
+  const paymentMode: PaymentMode = isPaid ? "online" : "manual";
+  const amountPence = b.price != null ? Math.round(b.price * 100) : 0;
+  const needsPayment = !isPaid && amountPence >= 100;
+  const nextStep = needsPayment
+    ? "Your booking is not confirmed yet — complete your card payment below to secure it."
+    : paymentNextStepMessage(paymentMode, b.status as BookingStatus);
+  const heading = verifying
+    ? "Checking your payment…"
+    : isPaid
+      ? "Booking confirmed — payment received"
+      : "Payment required to confirm";
+  const returnUrl =
+    typeof window !== "undefined"
+      ? `${window.location.origin}/booking/${token}?session_id={CHECKOUT_SESSION_ID}`
+      : `https://cabslink.com/booking/${token}?session_id={CHECKOUT_SESSION_ID}`;
+
 
   const copyRef = async () => {
     try {
