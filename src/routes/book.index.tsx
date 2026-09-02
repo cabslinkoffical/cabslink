@@ -12,7 +12,7 @@ import {
   CheckCircle2, ArrowRight, ArrowLeft, MapPin, CalendarDays, Edit3, Star,
   Users, Briefcase, Luggage, BadgeCheck, Clock, DoorOpen, UserCheck, Award,
   ShieldCheck, CreditCard, User, Mail, Phone, MessageSquare, RefreshCw,
-  Shield, Package, CalendarClock, Landmark, Banknote, Sparkles, Plus, Repeat, X,
+  Shield, Package, CalendarClock, Landmark, Sparkles, Plus, Repeat, X,
 } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { TrustpilotStrip } from "@/components/site/TrustpilotStrip";
@@ -34,6 +34,7 @@ import { resolveTourTemplate } from "@/lib/tours.functions";
 import { listPublicVehicleClasses, type PublicVehicleClass } from "@/lib/vehicle-classes.functions";
 import { listPublicExtras, type PublicExtra } from "@/lib/extras-public.functions";
 import { VehicleAllocationNotice } from "@/components/site/VehicleAllocationNotice";
+import { BookingCardPayment } from "@/components/site/BookingCardPayment";
 import { fleetImageFor } from "@/assets/fleet";
 
 export const Route = createFileRoute("/book/")({
@@ -161,9 +162,9 @@ function encodePrefill(pre: Prefill): string {
 }
 
 
-type Step = "vehicle" | "details" | "extras" | "payment" | "review";
+type Step = "vehicle" | "details" | "extras" | "payment" | "pay" | "review";
 type Policy = "non_refundable" | "standard" | "flexible";
-type PaymentMethod = "card_on_confirmation" | "bank_transfer" | "pay_on_account";
+
 
 type Contact = {
   customer_name: string;
@@ -224,11 +225,12 @@ function BookPage() {
   // Catalogue extras (admin Extras section) → key/quantity chosen by the customer.
   const [extraQty, setExtraQty] = useState<Record<string, number>>({});
   const [returnJourney, setReturnJourney] = useState(pre.ret);
-  // Contact + payment
+  // Contact + payment (card only)
   const [contact, setContact] = useState<Contact>(emptyContact);
   const [contactAttempted, setContactAttempted] = useState(false);
-  const [payment, setPayment] = useState<PaymentMethod>("card_on_confirmation");
+  const [payFor, setPayFor] = useState<{ ref: string; token: string; amountPence: number } | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
   const inflight = useRef(false);
   const idempotencyKey = useRef<string>(crypto.randomUUID());
   const didHydrateRef = useRef(false);
@@ -494,10 +496,8 @@ function BookPage() {
       const mergedStops = orderedSelected.length > 0
         ? orderedSelected.map((s) => ({ placeId: s.place_id, label: s.label, minutes: s.minutes, category: s.category ?? null }))
         : pre.stops.map((s) => ({ placeId: s.placeId, label: s.label, minutes: 0 }));
-      const paymentLabel =
-        payment === "card_on_confirmation" ? "Card (details shared on confirmation)"
-        : payment === "bank_transfer" ? "Bank transfer"
-        : "Pay on account";
+      const paymentLabel = "Card payment (online)";
+
       const policyLabel = policy === "non_refundable" ? "Non-refundable" : policy === "flexible" ? "Flexible" : "Standard";
       const res = await bookFn({
         data: {
@@ -546,16 +546,25 @@ function BookPage() {
         value: grandTotal / 100,
         currency: "GBP",
         stops: mergedStops.length,
-        payment_method: payment,
+        payment_method: "card",
         cancellation_policy: policy,
       });
-      toast.success("Booking request received.");
+      toast.success("Booking saved — complete your card payment to confirm.");
       idempotencyKey.current = crypto.randomUUID();
       captcha.reset();
       clearDraft();
       const token = (res as any)?.token ?? null;
-      if (token) navigate({ to: "/booking/$token", params: { token } });
+      const ref = (res as any)?.ref ?? null;
+      const serverPrice = Number((res as any)?.price);
+      const amountPence = Math.round(
+        (Number.isFinite(serverPrice) && serverPrice > 0 ? serverPrice : grandTotal) * 100,
+      );
+      if (token && ref) {
+        setPayFor({ ref, token, amountPence });
+        setStep("pay");
+      } else if (token) navigate({ to: "/booking/$token", params: { token } });
       else setStep("review");
+
     } catch (err) {
       captcha.reset();
       toast.error(err instanceof Error ? err.message : "Couldn't save booking. Try again or call us.");
@@ -699,8 +708,6 @@ function BookPage() {
 
                   {step === "payment" && chosen && (
                     <PaymentStep
-                      value={payment}
-                      onChange={setPayment}
                       grandTotal={grandTotal}
                       onBack={() => setStep("extras")}
                       onSubmit={submitBooking}
@@ -709,6 +716,16 @@ function BookPage() {
                       captchaReady={captcha.ready}
                     />
                   )}
+
+                  {step === "pay" && payFor && (
+                    <PayNowStep
+                      bookingRef={payFor.ref}
+                      token={payFor.token}
+                      amountPence={payFor.amountPence}
+                      email={contact.email.trim() || undefined}
+                    />
+                  )}
+
 
                   {step === "review" && chosen && (
                     <AlreadySubmittedStep card={chosen} qty={qty} onBack={() => setStep("payment")} />
@@ -2054,36 +2071,21 @@ function PolicyTiers({ value, onChange, base, cfg }: {
 }
 
 // ---------------------------------------------------------------
-// Step 04 — Payment method
+// Step 04 — Card payment (card is the only accepted method)
 // ---------------------------------------------------------------
-function PaymentStep({ value, onChange, grandTotal, onBack, onSubmit, submitting, captchaWidget, captchaReady }: {
-  value: PaymentMethod; onChange: (v: PaymentMethod) => void;
+function PaymentStep({ grandTotal, onBack, onSubmit, submitting, captchaWidget, captchaReady }: {
   grandTotal: number; onBack: () => void; onSubmit: () => void; submitting: boolean;
   captchaWidget?: React.ReactNode; captchaReady?: boolean;
 }) {
-  const options: Array<{ id: PaymentMethod; icon: React.ReactNode; title: string; body: string; badge?: string }> = [
-    {
-      id: "card_on_confirmation", icon: <CreditCard className="size-5" />, title: "Card payment",
-      body: "Our team will contact you to arrange a secure payment once we've confirmed availability.",
-      badge: "Most popular",
-    },
-    {
-      id: "bank_transfer", icon: <Landmark className="size-5" />, title: "Bank transfer",
-      body: "We'll share our UK bank details when we confirm your booking.",
-    },
-    {
-      id: "pay_on_account", icon: <Banknote className="size-5" />, title: "Pay on account",
-      body: "For corporate customers with an approved Cabslink account.",
-    },
-  ];
   return (
     <div className="bg-card rounded-2xl border border-border shadow-sm p-6 md:p-8 space-y-6">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)]">Step 04 — Payment</p>
-          <h2 className="mt-1 font-display text-2xl md:text-3xl font-bold">How would you like to pay?</h2>
+          <h2 className="mt-1 font-display text-2xl md:text-3xl font-bold">Pay securely by card</h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            Choose a payment method — nothing is charged until our team confirms your booking.
+            Card is the only payment method we accept — your booking is confirmed as soon as the
+            payment succeeds.
           </p>
         </div>
         <div className="text-right">
@@ -2092,43 +2094,22 @@ function PaymentStep({ value, onChange, grandTotal, onBack, onSubmit, submitting
         </div>
       </div>
 
-      <div className="space-y-3" role="radiogroup" aria-label="Payment method">
-        {options.map((o) => {
-          const selected = value === o.id;
-          return (
-            <button key={o.id} type="button" onClick={() => onChange(o.id)}
-              role="radio" aria-checked={selected} tabIndex={selected ? 0 : -1}
-              className={`w-full text-left rounded-2xl border-2 p-5 transition-all flex items-start gap-4 ${
-                selected ? "border-[var(--gold)] bg-[var(--gold)]/5" : "border-border bg-background hover:border-[var(--gold)]/40"
-              }`}>
-              <span aria-hidden="true" className={`size-10 rounded-xl grid place-items-center shrink-0 ${
-                selected ? "bg-[var(--gold)] text-[var(--gold-foreground)]" : "bg-[var(--surface)] text-foreground/70"
-              }`}>{o.icon}</span>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-display font-bold">{o.title}</span>
-                  {o.badge && (
-                    <span className="text-[10px] font-bold uppercase tracking-widest rounded-full px-2 py-0.5 bg-[var(--gold)] text-[var(--gold-foreground)]">
-                      {o.badge}
-                    </span>
-                  )}
-                </div>
-                <p className="text-sm text-muted-foreground mt-1">{o.body}</p>
-              </div>
-              <span aria-hidden="true" className={`size-5 mt-1 rounded-full border-2 grid place-items-center shrink-0 ${
-                selected ? "border-[var(--gold)]" : "border-muted-foreground/40"
-              }`}>
-                {selected && <span className="size-2.5 rounded-full bg-[var(--gold)]" />}
-              </span>
-            </button>
-          );
-        })}
+      <div className="rounded-2xl border-2 border-[var(--gold)] bg-[var(--gold)]/5 p-5 flex items-start gap-4">
+        <span aria-hidden="true" className="size-10 rounded-xl grid place-items-center shrink-0 bg-[var(--gold)] text-[var(--gold-foreground)]">
+          <CreditCard className="size-5" />
+        </span>
+        <div className="flex-1 min-w-0">
+          <p className="font-display font-bold">Debit or credit card</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            Visa, Mastercard and American Express. Payments are processed on an encrypted,
+            PCI-compliant page — we never see or store your card details.
+          </p>
+        </div>
       </div>
 
-
       <p className="text-xs text-muted-foreground">
-        Submitting sends your journey to our team. Our office will confirm availability and payment
-        arrangements. Online card payments are not enabled at this time.
+        Continuing saves your journey and opens the secure card form. Nothing is charged until you
+        confirm the payment.
       </p>
 
       {captchaWidget}
@@ -2139,12 +2120,54 @@ function PaymentStep({ value, onChange, grandTotal, onBack, onSubmit, submitting
         </Button>
         <Button type="button" onClick={onSubmit} disabled={submitting || captchaReady === false}
           variant="gold" className="ml-auto tracking-wider px-8 gap-2">
-          {submitting ? "Sending…" : <>Submit booking request <ArrowRight className="size-4" /></>}
+          {submitting ? "Preparing…" : <>Continue to card payment <ArrowRight className="size-4" /></>}
         </Button>
       </div>
     </div>
   );
 }
+
+/** Step 05 — inline card checkout for the saved booking. */
+function PayNowStep({ bookingRef, token, amountPence, email }: {
+  bookingRef: string; token: string; amountPence: number; email?: string;
+}) {
+  const returnUrl =
+    typeof window !== "undefined"
+      ? `${window.location.origin}/booking/${token}?paid=1`
+      : `https://cabslink.com/booking/${token}?paid=1`;
+  return (
+    <div className="bg-card rounded-2xl border border-border shadow-sm p-6 md:p-8 space-y-6">
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)]">Step 05 — Card payment</p>
+          <h2 className="mt-1 font-display text-2xl md:text-3xl font-bold">Complete your payment</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Booking <span className="font-semibold text-foreground">{bookingRef}</span> is saved.
+            Pay by card below to confirm it.
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground">Amount</p>
+          <p className="font-display text-3xl font-bold text-[var(--gold-ink)] tabular-nums">£{(amountPence / 100).toFixed(2)}</p>
+        </div>
+      </div>
+
+      <BookingCardPayment
+        amountPence={amountPence}
+        bookingRef={bookingRef}
+        email={email}
+        returnUrl={returnUrl}
+      />
+
+      <div className="flex flex-wrap gap-3">
+        <Button asChild variant="outline" className="gap-2">
+          <Link to="/booking/$token" params={{ token }}>View booking without paying now</Link>
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 
 function Field({ label, icon, children, error }: { label: string; icon?: React.ReactNode; children: React.ReactNode; error?: string }) {
   // Associate the visible label with its control so screen readers announce it.
