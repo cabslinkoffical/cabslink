@@ -36,15 +36,19 @@ function TrackBookingPage() {
   const [result, setResult] = useState<Awaited<ReturnType<typeof getBookingByReference>> | null>(null);
   const resultRef = useRef<HTMLDivElement | null>(null);
 
-  const fetchFn = useServerFn(getBookingByReference);
+  const [payOpen, setPayOpen] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const fetchFn = useServerFn(getBookingByReference);
+  const confirmFn = useServerFn(confirmBookingPayment);
+
+  const lookup = async (value: string) => {
     setError(null);
     setResult(null);
+    setPayOpen(false);
     setLoading(true);
     try {
-      const data = await fetchFn({ data: { bookingRef: ref.trim().toUpperCase() } });
+      const data = await fetchFn({ data: { bookingRef: value.trim().toUpperCase() } });
       if (!data) {
         setError("We couldn't find a booking with that reference. Please check it and try again.");
       } else {
@@ -59,6 +63,38 @@ function TrackBookingPage() {
       setLoading(false);
     }
   };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await lookup(ref);
+  };
+
+  // Returning from Stripe: verify the session server-side (which marks the
+  // booking paid + confirmed for the admin panel), then reload the status.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const sessionId = params.get("session_id");
+    const paidRef = params.get("ref");
+    if (!sessionId || !paidRef) return;
+    window.history.replaceState({}, "", "/track-booking");
+    setRef(paidRef.toUpperCase());
+    (async () => {
+      try {
+        const res = await confirmFn({
+          data: { sessionId, bookingRef: paidRef.toUpperCase(), environment: getStripeEnvironment() },
+        });
+        if ("error" in res) setNotice(res.error);
+        else if (res.paid) setNotice("Payment received — your booking is now confirmed.");
+        else setNotice("We haven't received your payment yet. You can try again below.");
+      } catch {
+        setNotice("We couldn't verify that payment. Please contact us with your booking reference.");
+      }
+      await lookup(paidRef);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+
 
 
   return (
