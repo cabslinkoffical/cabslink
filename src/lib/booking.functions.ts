@@ -146,6 +146,7 @@ export const getBookingByReference = createServerFn({ method: "POST" })
     return {
       bookingRef: row.booking_ref,
       status: row.status,
+      paymentStatus: (row.payment_status ?? "unpaid") as string,
       customerName: maskName(row.customer_name),
       customerEmail: maskEmail(row.email),
       customerPhone: maskPhone(row.phone),
