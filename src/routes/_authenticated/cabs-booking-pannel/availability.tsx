@@ -107,10 +107,40 @@ function Page() {
     activeTab.scopes.length === 0 ? true : activeTab.scopes.includes(r.rule_scope),
   );
 
+  /** Bookable vehicles = the pricing vehicle behind each vehicle class, labelled by class. */
+  const vehicleOptions = useMemo(() => {
+    const byId = new Map((vehicles as any[]).map((v) => [v.id, v]));
+    const seen = new Set<string>();
+    const bookable: { value: string; label: string }[] = [];
+    for (const c of (classData as any).classes as any[]) {
+      if (!c.pricing_vehicle_id || seen.has(c.pricing_vehicle_id)) continue;
+      const v: any = byId.get(c.pricing_vehicle_id);
+      seen.add(c.pricing_vehicle_id);
+      bookable.push({
+        value: c.pricing_vehicle_id,
+        label: `${c.name}${v?.name && v.name !== c.name ? ` · ${v.name}` : ""}${c.active ? "" : " (class off)"}`,
+      });
+    }
+    const other = (vehicles as any[])
+      .filter((v) => !seen.has(v.id))
+      .map((v) => ({ value: v.id, label: `${v.name} (no class linked)` }));
+    return [...bookable, ...other];
+  }, [vehicles, classData]);
+
+  const classOptions = useMemo(
+    () => ((classData as any).classes as any[]).map((c) => ({ value: c.id, label: `${c.name}${c.active ? "" : " (off)"}` })),
+    [classData],
+  );
+
+  const labelOf = (options: { value: string; label: string }[], id: string) =>
+    options.find((o) => o.value === id)?.label ?? id;
+
   const openEdit = (r: any) => setForm({
     ...empty, ...r,
     service_types: r.service_types ?? [],
     days_of_week: r.days_of_week ?? [],
+    vehicle_ids: r.vehicle_id ? [r.vehicle_id] : [],
+    class_ids: r.vehicle_class_id ? [r.vehicle_class_id] : [],
     date_from: r.date_from ?? "", date_to: r.date_to ?? "",
     time_from: r.time_from ?? "", time_to: r.time_to ?? "",
     reason: r.reason ?? "",
@@ -119,8 +149,31 @@ function Page() {
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ["admin", "availability-rules"] });
   const save = useMutation({
-    mutationFn: (v: any) => upsert({ data: v }),
-    onSuccess: () => { invalidate(); toast.success("Rule saved"); setForm(null); },
+    mutationFn: async (v: any) => {
+      const { vehicle_ids = [], class_ids = [], ...base } = v;
+      const isVehicle = v.rule_scope === "vehicle";
+      const isClass = v.rule_scope === "vehicle_class";
+      if (!isVehicle && !isClass) {
+        await upsert({ data: { ...base, vehicle_id: null, vehicle_class_id: null } });
+        return 1;
+      }
+      const ids: string[] = isVehicle ? vehicle_ids : class_ids;
+      if (ids.length === 0) throw new Error(isVehicle ? "Pick at least one vehicle." : "Pick at least one vehicle class.");
+      if (v.id && ids.length > 1) throw new Error("An existing rule covers one item. Keep a single selection, or create a new rule for the others.");
+      const options = isVehicle ? vehicleOptions : classOptions;
+      for (const id of ids) {
+        await upsert({
+          data: {
+            ...base,
+            name: ids.length > 1 ? `${v.name} — ${labelOf(options, id)}` : v.name,
+            vehicle_id: isVehicle ? id : null,
+            vehicle_class_id: isClass ? id : null,
+          },
+        });
+      }
+      return ids.length;
+    },
+    onSuccess: (n) => { invalidate(); toast.success(n && n > 1 ? `${n} rules saved` : "Rule saved"); setForm(null); },
     onError: (e: any) => toast.error(e.message),
   });
   const remove = useMutation({
@@ -137,6 +190,11 @@ function Page() {
     const cur: number[] = form.days_of_week ?? [];
     setForm({ ...form, days_of_week: cur.includes(d) ? cur.filter((x) => x !== d) : [...cur, d].sort() });
   }
+  function toggleIn(key: "vehicle_ids" | "class_ids", id: string) {
+    const cur: string[] = form[key] ?? [];
+    setForm({ ...form, [key]: cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id] });
+  }
+
 
   if (form) {
     const isRoute = form.rule_scope === "route";
