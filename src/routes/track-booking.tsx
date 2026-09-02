@@ -1,8 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { getBookingByReference } from "@/lib/booking.functions";
+import { confirmBookingPayment } from "@/lib/payments.functions";
+import { TrackedBookingPayment } from "@/components/site/TrackedBookingPayment";
+import { getStripeEnvironment, paymentsConfigured } from "@/lib/stripe";
+import { CreditCard, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,15 +36,19 @@ function TrackBookingPage() {
   const [result, setResult] = useState<Awaited<ReturnType<typeof getBookingByReference>> | null>(null);
   const resultRef = useRef<HTMLDivElement | null>(null);
 
-  const fetchFn = useServerFn(getBookingByReference);
+  const [payOpen, setPayOpen] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const fetchFn = useServerFn(getBookingByReference);
+  const confirmFn = useServerFn(confirmBookingPayment);
+
+  const lookup = async (value: string) => {
     setError(null);
     setResult(null);
+    setPayOpen(false);
     setLoading(true);
     try {
-      const data = await fetchFn({ data: { bookingRef: ref.trim().toUpperCase() } });
+      const data = await fetchFn({ data: { bookingRef: value.trim().toUpperCase() } });
       if (!data) {
         setError("We couldn't find a booking with that reference. Please check it and try again.");
       } else {
@@ -55,6 +63,38 @@ function TrackBookingPage() {
       setLoading(false);
     }
   };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await lookup(ref);
+  };
+
+  // Returning from Stripe: verify the session server-side (which marks the
+  // booking paid + confirmed for the admin panel), then reload the status.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const sessionId = params.get("session_id");
+    const paidRef = params.get("ref");
+    if (!sessionId || !paidRef) return;
+    window.history.replaceState({}, "", "/track-booking");
+    setRef(paidRef.toUpperCase());
+    (async () => {
+      try {
+        const res = await confirmFn({
+          data: { sessionId, bookingRef: paidRef.toUpperCase(), environment: getStripeEnvironment() },
+        });
+        if ("error" in res) setNotice(res.error);
+        else if (res.paid) setNotice("Payment received — your booking is now confirmed.");
+        else setNotice("We haven't received your payment yet. You can try again below.");
+      } catch {
+        setNotice("We couldn't verify that payment. Please contact us with your booking reference.");
+      }
+      await lookup(paidRef);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+
 
 
   return (
@@ -121,7 +161,10 @@ function TrackBookingPage() {
                   <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">Booking reference</p>
                   <p className="font-mono text-lg font-bold tracking-wider">{result.bookingRef}</p>
                 </div>
-                <StatusBadge status={result.status as BookingStatus} />
+                <div className="flex flex-col items-end gap-1.5">
+                  <StatusBadge status={result.status as BookingStatus} />
+                  <PaymentBadge paymentStatus={result.paymentStatus} />
+                </div>
               </div>
 
               <div className="p-6 space-y-5">
@@ -157,6 +200,39 @@ function TrackBookingPage() {
                   For privacy, contact details and full addresses are partly hidden here. Open the secure link in your
                   confirmation email for complete booking details.
                 </p>
+
+                {notice && (
+                  <div className="rounded-lg border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-4 py-3 text-sm font-medium">
+                    {notice}
+                  </div>
+                )}
+
+                {result.paymentStatus === "paid" ? (
+                  <div className="flex items-center gap-2 rounded-lg bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-800">
+                    <CheckCircle2 className="size-4" /> Payment received — nothing left to pay.
+                  </div>
+                ) : result.status === "cancelled" || result.status === "rejected" ? null : (
+                  <div className="space-y-3 rounded-xl border border-[var(--navy)]/15 bg-[var(--surface-2)] p-4">
+                    <p className="text-sm font-semibold">Payment required to confirm this booking</p>
+                    <p className="text-xs text-muted-foreground">
+                      Your journey is only confirmed once payment is received. Pay securely by card below.
+                    </p>
+                    {payOpen ? (
+                      <TrackedBookingPayment
+                        bookingRef={result.bookingRef}
+                        returnUrl={`${window.location.origin}/track-booking?ref=${encodeURIComponent(result.bookingRef)}&session_id={CHECKOUT_SESSION_ID}`}
+                      />
+                    ) : (
+                      <Button
+                        onClick={() => setPayOpen(true)}
+                        disabled={!paymentsConfigured()}
+                        className="w-full gap-2 bg-[var(--gold)] text-[var(--navy)] hover:bg-[var(--gold)]/90"
+                      >
+                        <CreditCard className="size-4" /> Pay now by card
+                      </Button>
+                    )}
+                  </div>
+                )}
 
 
                 <div className="flex flex-wrap gap-3 pt-2">
@@ -196,5 +272,20 @@ function Fact({ icon, label, value }: { icon: React.ReactNode; label: string; va
       </dt>
       <dd className="mt-0.5 truncate text-sm font-semibold" title={value}>{value}</dd>
     </div>
+  );
+}
+
+function PaymentBadge({ paymentStatus }: { paymentStatus: string }) {
+  const paid = paymentStatus === "paid";
+  const color = paid
+    ? "bg-emerald-100 text-emerald-800"
+    : paymentStatus === "refunded" || paymentStatus === "failed"
+    ? "bg-red-100 text-red-800"
+    : "bg-[var(--gold)]/25 text-[var(--navy)]";
+  const label = paid ? "Paid" : paymentStatus === "partial" ? "Part paid" : paymentStatus === "refunded" ? "Refunded" : paymentStatus === "failed" ? "Payment failed" : "Unpaid";
+  return (
+    <span className={`rounded-md px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] ${color}`}>
+      {label}
+    </span>
   );
 }

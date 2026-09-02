@@ -128,7 +128,7 @@ export const getBookingByReference = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const res: any = await supabaseAdmin
       .from("bookings")
-      .select("booking_ref, status, customer_name, email, phone, pickup_address, dropoff_address, pickup_date, pickup_time, passengers, vehicle_type, distance_miles")
+      .select("booking_ref, status, payment_status, customer_name, email, phone, pickup_address, dropoff_address, pickup_date, pickup_time, passengers, vehicle_type, distance_miles")
       .eq("booking_ref", data.bookingRef.trim().toUpperCase())
       .maybeSingle();
 
@@ -146,6 +146,7 @@ export const getBookingByReference = createServerFn({ method: "POST" })
     return {
       bookingRef: row.booking_ref,
       status: row.status,
+      paymentStatus: (row.payment_status ?? "unpaid") as string,
       customerName: maskName(row.customer_name),
       customerEmail: maskEmail(row.email),
       customerPhone: maskPhone(row.phone),

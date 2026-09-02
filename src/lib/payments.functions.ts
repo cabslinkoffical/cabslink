@@ -49,6 +49,56 @@ export const createBookingCheckout = createServerFn({ method: "POST" })
     }
   });
 
+/**
+ * Checkout started from the public "track your booking" page. The amount is
+ * read from the saved booking server-side, so the fare is never exposed to (or
+ * accepted from) the client, and already-paid bookings are refused.
+ */
+export const createTrackedBookingCheckout = createServerFn({ method: "POST" })
+  .inputValidator((data: { bookingRef: string; returnUrl: string; environment: StripeEnv }) => {
+    if (!/^[A-Za-z0-9-]{3,40}$/.test(data.bookingRef)) throw new Error("Invalid booking reference");
+    return data;
+  })
+  .handler(async ({ data }): Promise<CheckoutResult> => {
+    try {
+      const ref = data.bookingRef.toUpperCase();
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const res: any = await supabaseAdmin
+        .from("bookings")
+        .select("price, email, payment_status")
+        .eq("booking_ref", ref)
+        .maybeSingle();
+      if (res.error || !res.data) return { error: "We couldn't find that booking." };
+      if (res.data.payment_status === "paid") return { error: "This booking is already paid." };
+      const pence = Math.round(Number(res.data.price ?? 0) * 100);
+      if (!Number.isFinite(pence) || pence < 100) {
+        return { error: "This booking has no payable fare yet. Please contact us." };
+      }
+
+      const stripe = createStripeClient(data.environment);
+      const session = await stripe.checkout.sessions.create({
+        mode: "payment",
+        ui_mode: "embedded_page",
+        return_url: data.returnUrl,
+        payment_method_types: ["card"],
+        line_items: [{
+          price_data: {
+            currency: "gbp",
+            unit_amount: pence,
+            product_data: { name: `Cabslink booking ${ref}` },
+          },
+          quantity: 1,
+        }],
+        payment_intent_data: { description: `Cabslink booking ${ref}` },
+        ...(res.data.email ? { customer_email: res.data.email as string } : {}),
+        metadata: { booking_ref: ref },
+      });
+      return { clientSecret: session.client_secret ?? "" };
+    } catch (error) {
+      return { error: getStripeErrorMessage(error) };
+    }
+  });
+
 export type PaymentConfirmResult =
   | { paid: boolean; status: string; paymentStatus: string }
   | { error: string };
