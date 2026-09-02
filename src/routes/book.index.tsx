@@ -1,4 +1,4 @@
-import { cloneElement, isValidElement, useEffect, useId, useMemo, useRef, useState } from "react";
+import { cloneElement, isValidElement, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { saveDraft, loadDraft, clearDraft } from "@/lib/booking-draft";
 import {
@@ -575,6 +575,31 @@ function BookPage() {
     }
   };
 
+  const goToExtras = useCallback(() => {
+    const parsed = contactSchema.safeParse(contact);
+    if (!parsed.success) {
+      setContactAttempted(true);
+      toast.error("Check the highlighted passenger details.");
+      const first = document.querySelector<HTMLElement>('[data-invalid="true"] input');
+      first?.focus();
+      first?.scrollIntoView({ block: "center", behavior: "smooth" });
+      return;
+    }
+    setContactAttempted(false);
+    setStep("extras");
+  }, [contact]);
+
+  const goToPayment = useCallback(() => {
+    track("booking_step", { step: "payment", value: grandTotal / 100, currency: "GBP" });
+    setStep("payment");
+  }, [grandTotal]);
+
+  const mobileContinue = useCallback(() => {
+    if (step === "details") goToExtras();
+    else if (step === "extras") goToPayment();
+    else if (step === "payment") submitBooking();
+  }, [step, goToExtras, goToPayment, submitBooking]);
+
   return (
     <SiteLayout>
       <section className="relative bg-[var(--surface)] py-10 md:py-14 min-h-[80vh] overflow-hidden">
@@ -651,19 +676,7 @@ function BookPage() {
                       onChange={setContact}
                       attempted={contactAttempted}
                       onBack={() => setStep("vehicle")}
-                      onNext={() => {
-                        const parsed = contactSchema.safeParse(contact);
-                        if (!parsed.success) {
-                          setContactAttempted(true);
-                          toast.error("Check the highlighted passenger details.");
-                          const first = document.querySelector<HTMLElement>('[data-invalid="true"] input');
-                          first?.focus();
-                          first?.scrollIntoView({ block: "center", behavior: "smooth" });
-                          return;
-                        }
-                        setContactAttempted(false);
-                        setStep("extras");
-                      }}
+                      onNext={goToExtras}
                     />
                   )}
 
@@ -703,7 +716,7 @@ function BookPage() {
                       addonsFee={addonsFee}
                       policyCfg={policyCfg}
                       onBack={() => setStep("details")}
-                      onNext={() => { track("booking_step", { step: "payment", value: grandTotal / 100, currency: "GBP" }); setStep("payment"); }}
+                      onNext={goToPayment}
                     />
                   )}
 
@@ -737,8 +750,8 @@ function BookPage() {
           )}
         </div>
       </section>
-      {chosen && step !== "review" && (
-        <MobilePriceBar price={{ vehicleName: chosen.name, perVehicle: perVehiclePrice, qty, rideTotal, seatFee, seatCount: childSeatCount, meetGreetFee, returnFee, addonsFee, addonLines, policy, policyDelta, grandTotal }} />
+      {chosen && (step === "details" || step === "extras" || step === "payment") && (
+        <MobilePriceBar onContinue={mobileContinue} price={{ vehicleName: chosen.name, perVehicle: perVehiclePrice, qty, rideTotal, seatFee, seatCount: childSeatCount, meetGreetFee, returnFee, addonsFee, addonLines, policy, policyDelta, grandTotal }} />
       )}
       <EditTripDialog open={editOpen} onOpenChange={setEditOpen} initial={pre} onSave={applyEdit} />
     </SiteLayout>
@@ -1161,7 +1174,7 @@ function PriceBreakdown({ price }: { price: PriceSummary }) {
   );
 }
 
-function MobilePriceBar({ price }: { price: PriceSummary }) {
+function MobilePriceBar({ price, onContinue }: { price: PriceSummary; onContinue?: () => void }) {
   return (
     <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-border bg-card/95 backdrop-blur px-4 py-3 shadow-[0_-8px_24px_-12px_rgba(14,24,44,0.25)]">
       <div className="flex items-center justify-between gap-3">
@@ -1169,12 +1182,14 @@ function MobilePriceBar({ price }: { price: PriceSummary }) {
           <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Total incl. VAT</p>
           <p className="font-display text-xl font-bold text-foreground tabular-nums leading-tight">{fmtGBP(price.grandTotal)}</p>
         </div>
-        <a
-          href="#step-actions"
-          className="inline-flex items-center gap-2 rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] px-5 py-2.5 text-sm font-bold shadow-[var(--shadow-glow)]"
+        <button
+          type="button"
+          onClick={onContinue}
+          disabled={!onContinue}
+          className="inline-flex items-center gap-2 rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] px-5 py-2.5 text-sm font-bold shadow-[var(--shadow-glow)] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Continue <ArrowRight className="size-4" />
-        </a>
+        </button>
       </div>
     </div>
   );
@@ -1745,7 +1760,7 @@ function ContactStep({ contact, onChange, onBack, onNext, attempted }: {
         <Textarea value={contact.notes} onChange={(e) => set("notes", e.target.value)} rows={4} maxLength={1000} placeholder="Anything our driver should know" />
       </Field>
 
-      <div id="step-actions" className="flex flex-wrap gap-3 pt-2 scroll-mt-24">
+      <div id="step-actions" className="hidden lg:flex flex-wrap gap-3 pt-2 scroll-mt-24">
         <Button type="button" variant="outline" onClick={onBack} className="gap-2">
           <ArrowLeft className="size-4" /> Back
         </Button>
@@ -1972,7 +1987,7 @@ function ExtrasStep(props: {
         </div>
       </div>
 
-      <div id="step-actions" className="flex flex-wrap gap-3 pt-2 scroll-mt-24">
+      <div id="step-actions" className="hidden lg:flex flex-wrap gap-3 pt-2 scroll-mt-24">
         <Button type="button" variant="outline" onClick={onBack} className="gap-2">
           <ArrowLeft className="size-4" /> Back
         </Button>
@@ -2121,7 +2136,7 @@ function PaymentStep({ grandTotal, onBack, onSubmit, submitting, captchaWidget, 
 
       {captchaWidget}
 
-      <div id="step-actions" className="flex flex-wrap gap-3 scroll-mt-24">
+      <div id="step-actions" className="hidden lg:flex flex-wrap gap-3 scroll-mt-24">
         <Button type="button" variant="outline" onClick={onBack} className="gap-2">
           <ArrowLeft className="size-4" /> Back
         </Button>
