@@ -378,8 +378,8 @@ function Page() {
 
     <div className="space-y-6">
       <PageHeader
-        title="Availability Rules"
-        description="Block or explicitly allow bookings by vehicle, route, location, service or globally — down to the date, day and time. The most specific matching rule wins; ties break to block."
+        title="Availability & Blocks"
+        description="Stop taking bookings — across the whole system, a specific area or route, chosen vehicles or classes, on set dates, days or times. The most specific matching rule wins; ties break to block."
       >
         <BulkTools entity="availability_rules" onChanged={() => qc.invalidateQueries({ queryKey: ["admin", "availability-rules"] })} />
         <div className="inline-flex rounded-md border border-border p-0.5">
