@@ -104,7 +104,7 @@ function CorporateBookingPage() {
               ))}
             </ol>
           </div>
-          <form onSubmit={onSubmit} className="rounded-3xl border border-border bg-card p-6 md:p-8 shadow-sm h-fit">
+          <form noValidate onSubmit={onSubmit} className="rounded-3xl border border-border bg-card p-6 md:p-8 shadow-sm h-fit">
             <div className="flex items-center gap-3"><Building2 className="size-6 text-[var(--gold-ink)]" /><h3 className="font-display text-2xl font-semibold">Corporate enquiry</h3></div>
             <div className="mt-6 grid gap-4">
               <FormNotice visible={Object.keys(errors).length > 0} />

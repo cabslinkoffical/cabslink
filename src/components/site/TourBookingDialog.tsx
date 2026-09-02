@@ -18,6 +18,7 @@ import { submitContactMessage } from "@/lib/contact.functions";
 import { useCaptcha } from "@/components/site/Captcha";
 import { PhoneInput } from "@/components/site/PhoneInput";
 import { toast } from "sonner";
+import { FormNotice, focusFirstInvalid } from "@/components/site/FormValidation";
 
 type Stop = { name: string; time: string; blurb: string };
 export type TourForBooking = {
@@ -56,6 +57,7 @@ export function TourBookingDialog({ tour, trigger, autoOpen = false }: Props) {
   );
   const [notes, setNotes] = useState("");
   const [done, setDone] = useState(false);
+  const [attempted, setAttempted] = useState(false);
 
   const captcha = useCaptcha("tour-enquiry");
   const submit = useMutation({
@@ -101,9 +103,16 @@ export function TourBookingDialog({ tour, trigger, autoOpen = false }: Props) {
     },
   });
 
+  const errors = {
+    date: !date ? "Choose a tour date." : "",
+    time: !time ? "Choose a start time." : "",
+    name: name.trim().length < 2 ? "Enter your full name." : "",
+    email: !/.+@.+\..+/.test(email.trim()) ? "Enter a valid email address." : "",
+  };
+  const errorCount = Object.values(errors).filter(Boolean).length;
   const canSubmit = useMemo(
-    () => Boolean(name.length >= 2 && /.+@.+\..+/.test(email) && date && time && captcha.ready),
-    [name, email, date, time, captcha.ready],
+    () => Boolean(errorCount === 0 && captcha.ready),
+    [errorCount, captcha.ready],
   );
 
   return (
@@ -143,13 +152,21 @@ export function TourBookingDialog({ tour, trigger, autoOpen = false }: Props) {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
+                setAttempted(true);
+                if (errorCount > 0) {
+                  focusFirstInvalid(e.currentTarget);
+                  return;
+                }
                 if (canSubmit) submit.mutate();
               }}
+              noValidate
               className="space-y-5"
             >
+              <FormNotice visible={attempted && errorCount > 0} />
+
               {/* When & who */}
               <div className="grid grid-cols-2 gap-3">
-                <Field icon={<Calendar className="size-4" />} label="Tour date">
+                <Field icon={<Calendar className="size-4" />} label="Tour date" invalid={attempted && !!errors.date}>
                   <input
                     aria-label="Tour date"
                     required
@@ -160,7 +177,7 @@ export function TourBookingDialog({ tour, trigger, autoOpen = false }: Props) {
                     className="w-full bg-transparent border-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)] text-sm font-semibold"
                   />
                 </Field>
-                <Field icon={<Clock className="size-4" />} label="Start time">
+                <Field icon={<Clock className="size-4" />} label="Start time" invalid={attempted && !!errors.time}>
                   <input
                     aria-label="Tour start time"
                     required
@@ -253,19 +270,30 @@ export function TourBookingDialog({ tour, trigger, autoOpen = false }: Props) {
 
               {/* Contact */}
               <div className="grid sm:grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label htmlFor="tb-name">Full name</Label>
-                  <Input id="tb-name" required value={name} onChange={(e) => setName(e.target.value)} />
+                <div className="space-y-1.5" data-invalid={(attempted && !!errors.name) || undefined}>
+                  <Label htmlFor="tb-name" className={attempted && errors.name ? "text-destructive" : undefined}>Full name</Label>
+                  <Input
+                    id="tb-name"
+                    required
+                    aria-invalid={attempted && !!errors.name}
+                    className={attempted && errors.name ? "border-destructive ring-1 ring-destructive/50" : undefined}
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                  />
+                  {attempted && errors.name && <p className="text-xs font-semibold text-destructive">{errors.name}</p>}
                 </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="tb-email">Email</Label>
+                <div className="space-y-1.5" data-invalid={(attempted && !!errors.email) || undefined}>
+                  <Label htmlFor="tb-email" className={attempted && errors.email ? "text-destructive" : undefined}>Email</Label>
                   <Input
                     id="tb-email"
                     type="email"
                     required
+                    aria-invalid={attempted && !!errors.email}
+                    className={attempted && errors.email ? "border-destructive ring-1 ring-destructive/50" : undefined}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
+                  {attempted && errors.email && <p className="text-xs font-semibold text-destructive">{errors.email}</p>}
                 </div>
                 <div className="space-y-1.5 sm:col-span-2">
                   <Label htmlFor="tb-phone">Phone (optional)</Label>
@@ -293,7 +321,7 @@ export function TourBookingDialog({ tour, trigger, autoOpen = false }: Props) {
                   type="submit"
                   variant="gold"
                   className="rounded-full min-w-[160px]"
-                  disabled={!canSubmit || submit.isPending}
+                  disabled={submit.isPending || !captcha.ready}
                 >
                   {submit.isPending ? (
                     <>
@@ -316,18 +344,29 @@ function Field({
   icon,
   label,
   children,
+  invalid,
 }: {
   icon: React.ReactNode;
   label: string;
   children: React.ReactNode;
+  invalid?: boolean;
 }) {
   return (
-    <div className="flex items-center gap-2.5 px-3 h-[60px] rounded-2xl border border-border bg-background">
+    <div
+      data-invalid={invalid || undefined}
+      className={`flex items-center gap-2.5 px-3 h-[60px] rounded-2xl border bg-background ${
+        invalid ? "border-destructive ring-1 ring-destructive/50" : "border-border"
+      }`}
+    >
       <div className="w-8 h-8 rounded-full bg-[var(--surface)] shrink-0 flex items-center justify-center text-[var(--gold-ink)]">
         {icon}
       </div>
       <div className="min-w-0 flex-1">
-        <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-foreground/45 truncate">
+        <div
+          className={`text-[10px] font-bold uppercase tracking-[0.18em] truncate ${
+            invalid ? "text-destructive" : "text-foreground/45"
+          }`}
+        >
           {label}
         </div>
         <div className="[&_input::-webkit-calendar-picker-indicator]:opacity-0 [&_input::-webkit-calendar-picker-indicator]:absolute [&_input::-webkit-calendar-picker-indicator]:inset-0 [&_input::-webkit-calendar-picker-indicator]:w-full [&_input::-webkit-calendar-picker-indicator]:h-full [&_input::-webkit-calendar-picker-indicator]:cursor-pointer relative">
