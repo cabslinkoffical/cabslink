@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery, useMutation, useQueryClient, queryOptions } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   listAvailabilityRules,
   upsertAvailabilityRule,
@@ -53,6 +53,8 @@ const empty = {
   effect: "block",
   vehicle_id: null as string | null,
   vehicle_class_id: null as string | null,
+  vehicle_ids: [] as string[],
+  class_ids: [] as string[],
   service_types: [] as string[],
   date_from: "",
   date_to: "",
@@ -237,20 +239,24 @@ function Page() {
 
             {form.rule_scope === "vehicle" && (
               <div className="col-span-2">
-                <Label htmlFor="av-vehicle">Vehicle *</Label>
-                <select id="av-vehicle" className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={form.vehicle_id ?? ""} onChange={(e) => setForm({ ...form, vehicle_id: e.target.value || null })}>
-                  <option value="">Select vehicle</option>
-                  {vehicles.map((v: any) => <option key={v.id} value={v.id}>{v.name}</option>)}
-                </select>
+                <Label>Vehicles * <span className="font-normal text-muted-foreground">(select one or more)</span></Label>
+                <Chips options={vehicleOptions} selected={form.vehicle_ids ?? []} onToggle={(id) => toggleIn("vehicle_ids", id)} />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {form.id
+                    ? "This rule covers one vehicle. To block more, create another rule."
+                    : "Selecting several vehicles creates one rule per vehicle, so you can edit or lift them individually."}
+                </p>
               </div>
             )}
             {form.rule_scope === "vehicle_class" && (
               <div className="col-span-2">
-                <Label htmlFor="av-class">Vehicle class *</Label>
-                <select id="av-class" className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={form.vehicle_class_id ?? ""} onChange={(e) => setForm({ ...form, vehicle_class_id: e.target.value || null })}>
-                  <option value="">Select class</option>
-                  {classData.classes.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </select>
+                <Label>Vehicle classes * <span className="font-normal text-muted-foreground">(select one or more)</span></Label>
+                <Chips options={classOptions} selected={form.class_ids ?? []} onToggle={(id) => toggleIn("class_ids", id)} />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {form.id
+                    ? "This rule covers one class. To block more, create another rule."
+                    : "Selecting several classes creates one rule per class."}
+                </p>
               </div>
             )}
             {form.rule_scope === "service" && (
