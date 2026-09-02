@@ -1,8 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { getBookingByReference } from "@/lib/booking.functions";
+import { confirmBookingPayment } from "@/lib/payments.functions";
+import { TrackedBookingPayment } from "@/components/site/TrackedBookingPayment";
+import { getStripeEnvironment, paymentsConfigured } from "@/lib/stripe";
+import { CreditCard, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
