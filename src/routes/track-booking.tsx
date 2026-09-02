@@ -274,3 +274,18 @@ function Fact({ icon, label, value }: { icon: React.ReactNode; label: string; va
     </div>
   );
 }
+
+function PaymentBadge({ paymentStatus }: { paymentStatus: string }) {
+  const paid = paymentStatus === "paid";
+  const color = paid
+    ? "bg-emerald-100 text-emerald-800"
+    : paymentStatus === "refunded" || paymentStatus === "failed"
+    ? "bg-red-100 text-red-800"
+    : "bg-[var(--gold)]/25 text-[var(--navy)]";
+  const label = paid ? "Paid" : paymentStatus === "partial" ? "Part paid" : paymentStatus === "refunded" ? "Refunded" : paymentStatus === "failed" ? "Payment failed" : "Unpaid";
+  return (
+    <span className={`rounded-md px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] ${color}`}>
+      {label}
+    </span>
+  );
+}
