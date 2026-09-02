@@ -161,7 +161,10 @@ function TrackBookingPage() {
                   <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">Booking reference</p>
                   <p className="font-mono text-lg font-bold tracking-wider">{result.bookingRef}</p>
                 </div>
-                <StatusBadge status={result.status as BookingStatus} />
+                <div className="flex flex-col items-end gap-1.5">
+                  <StatusBadge status={result.status as BookingStatus} />
+                  <PaymentBadge paymentStatus={result.paymentStatus} />
+                </div>
               </div>
 
               <div className="p-6 space-y-5">
