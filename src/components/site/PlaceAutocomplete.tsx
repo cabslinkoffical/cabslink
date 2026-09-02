@@ -23,6 +23,9 @@ type Props = {
   /** Seed the visible text (e.g. a route page's advertised origin) without
    * claiming a selection — the user still picks a Google suggestion. */
   initialText?: string;
+  /** Forwarded by Field wrappers for validation styling. */
+  "aria-invalid"?: boolean;
+  "aria-describedby"?: string;
 };
 
 const DEBOUNCE_MS = 250;
@@ -50,6 +53,8 @@ export function PlaceAutocomplete({
   iconClassName,
   inputClassName,
   initialText,
+  "aria-invalid": ariaInvalid,
+  "aria-describedby": ariaDescribedBy,
 }: Props) {
   const autoId = useId();
   const inputId = id ?? autoId;
@@ -186,6 +191,8 @@ export function PlaceAutocomplete({
         aria-controls={listboxId}
         aria-autocomplete="list"
         aria-activedescendant={activeIdx >= 0 ? `${listboxId}-opt-${activeIdx}` : undefined}
+        aria-invalid={ariaInvalid}
+        aria-describedby={ariaDescribedBy}
         // Some layouts render the visual label as plain text (not a <label>),
         // so mirror the placeholder as the accessible name.
         aria-label={placeholder}

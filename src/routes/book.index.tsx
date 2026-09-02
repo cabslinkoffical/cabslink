@@ -12,8 +12,9 @@ import {
   CheckCircle2, ArrowRight, ArrowLeft, MapPin, CalendarDays, Edit3, Star,
   Users, Briefcase, Luggage, BadgeCheck, Clock, DoorOpen, UserCheck, Award,
   ShieldCheck, CreditCard, User, Mail, Phone, MessageSquare, RefreshCw,
-  Shield, Package, CalendarClock, Landmark, Sparkles, Plus, Repeat, X,
+  Shield, Package, CalendarClock, Landmark, Sparkles, Plus, Repeat, X, AlertCircle,
 } from "lucide-react";
+
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { TrustpilotStrip } from "@/components/site/TrustpilotStrip";
 import { Button } from "@/components/ui/button";
@@ -760,15 +761,32 @@ function JourneyForm({ initial, onSubmit }: { initial: Prefill; onSubmit: (next:
 
   const setStops = (next: PrefillStop[]) => set("stops", next);
 
+  const errors = {
+    pickup: !form.pickup?.placeId ? "Choose a pickup location from the suggestions." : "",
+    dropoff: !form.dropoff?.placeId
+      ? "Choose a destination from the suggestions."
+      : sameSpot
+        ? "Pickup and destination cannot be the same location."
+        : "",
+    date: !form.date ? "Pick a date." : "",
+    time: !form.time ? "Pick a time." : "",
+    rdate: form.ret && !form.rdate ? "Pick a return date." : "",
+    rtime: form.ret && !form.rtime ? "Pick a return time." : "",
+    stops: emptyStop ? "Complete or remove empty stops." : "",
+  };
+  const show = (k: keyof typeof errors) => (touched ? errors[k] : "");
+  const requiredRemaining = Object.values(errors).filter(Boolean).length;
+
   return (
     <form
       data-testid="book-journey-form"
+      noValidate
       onSubmit={(e) => {
         e.preventDefault();
         setTouched(true);
         if (canSubmit) onSubmit(form);
       }}
-      className="max-w-2xl mx-auto mt-6 md:mt-10 rounded-3xl border border-border bg-card p-6 md:p-8 shadow-raised"
+      className="max-w-2xl mx-auto mt-6 md:mt-10 rounded-3xl border border-border bg-card p-6 md:p-8 shadow-raised space-y-6"
     >
       <div className="flex items-center gap-3">
         <span className="grid place-items-center size-10 rounded-full bg-[var(--gold)]/15 text-[var(--gold-ink)]">
@@ -780,62 +798,54 @@ function JourneyForm({ initial, onSubmit }: { initial: Prefill; onSubmit: (next:
         </div>
       </div>
 
-      <div className="mt-6 grid gap-4">
-        <div className="grid gap-1.5">
-          <Label htmlFor="jf-pickup">Pickup</Label>
-          <PlaceAutocomplete id="jf-pickup" value={form.pickup} onChange={(v) => set("pickup", v)}
-            initialText={initial.pickupText}
-            placeholder="Enter UK airport, postcode or address" iconClassName="left-3" inputClassName="pl-9" />
-          {touched && !form.pickup?.placeId && (
-            <p className="text-xs text-destructive">Choose a pickup location from the suggestions.</p>
-          )}
+      {touched && requiredRemaining > 0 && (
+        <div className="flex items-center gap-2 rounded-lg bg-destructive px-3 py-2.5 text-xs font-bold text-white" role="alert">
+          <AlertCircle className="h-4 w-4 shrink-0" />
+          <span>Please fill the required data to continue ({requiredRemaining} remaining)</span>
         </div>
+      )}
+
+      <div className="grid gap-4">
+        <Field label="Pickup" icon={<MapPin className="size-4" />} error={show("pickup")}>
+          <PlaceAutocomplete value={form.pickup} onChange={(v) => set("pickup", v)}
+            initialText={initial.pickupText} placeholder="Enter UK airport, postcode or address" iconClassName="left-3" inputClassName="pl-9" required />
+        </Field>
 
         {/* Extra stops along the way */}
         {form.stops.length > 0 && (
           <div className="grid gap-3 rounded-2xl border border-[var(--gold)]/30 bg-[var(--gold)]/5 p-3">
             {form.stops.map((s, i) => (
-              <div key={i} className="grid gap-1.5">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor={`jf-stop-${i}`}>Stop {i + 1}</Label>
+              <Field key={i} label={`Stop ${i + 1}`} icon={<MapPin className="size-4" />} error={show("stops")}>
+                <div className="flex items-center gap-2">
+                  <PlaceAutocomplete
+                    value={s.placeId ? { placeId: s.placeId, label: s.label } : null}
+                    onChange={(v) => {
+                      const next = [...form.stops];
+                      next[i] = v ? { placeId: v.placeId, label: v.label } : { placeId: "", label: "" };
+                      setStops(next);
+                    }}
+                    placeholder="Add a stop along the way"
+                    iconClassName="left-3"
+                    inputClassName="pl-9"
+                  />
                   <button
                     type="button"
                     onClick={() => setStops(form.stops.filter((_, idx) => idx !== i))}
                     aria-label={`Remove stop ${i + 1}`}
-                    className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+                    className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground shrink-0"
                   >
                     <X className="size-3.5" /> Remove
                   </button>
                 </div>
-                <PlaceAutocomplete
-                  id={`jf-stop-${i}`}
-                  value={s.placeId ? { placeId: s.placeId, label: s.label } : null}
-                  onChange={(v) => {
-                    const next = [...form.stops];
-                    next[i] = v ? { placeId: v.placeId, label: v.label } : { placeId: "", label: "" };
-                    setStops(next);
-                  }}
-                  placeholder="Add a stop along the way"
-                  iconClassName="left-3"
-                  inputClassName="pl-9"
-                />
-                {touched && !s.placeId && (
-                  <p className="text-xs text-destructive">Choose this stop from the suggestions or remove it.</p>
-                )}
-              </div>
+              </Field>
             ))}
           </div>
         )}
 
-        <div className="grid gap-1.5">
-          <Label htmlFor="jf-dropoff">Destination</Label>
-          <PlaceAutocomplete id="jf-dropoff" value={form.dropoff} onChange={(v) => set("dropoff", v)}
-            initialText={initial.dropoffText}
-            placeholder="Enter UK destination" iconClassName="left-3" inputClassName="pl-9" />
-          {touched && !form.dropoff?.placeId && (
-            <p className="text-xs text-destructive">Choose a destination from the suggestions.</p>
-          )}
-        </div>
+        <Field label="Destination" icon={<MapPin className="size-4" />} error={show("dropoff")}>
+          <PlaceAutocomplete value={form.dropoff} onChange={(v) => set("dropoff", v)}
+            initialText={initial.dropoffText} placeholder="Enter UK destination" iconClassName="left-3" inputClassName="pl-9" required />
+        </Field>
 
         {/* Add stop / add return pills */}
         <div className="flex flex-wrap items-center gap-2">
@@ -857,17 +867,13 @@ function JourneyForm({ initial, onSubmit }: { initial: Prefill; onSubmit: (next:
           )}
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div className="grid gap-1.5">
-            <Label htmlFor="jf-date">Date</Label>
-            <Input id="jf-date" type="date" min={today} value={form.date} onChange={(e) => set("date", e.target.value)} />
-            {touched && !form.date && <p className="text-xs text-destructive">Pick a date.</p>}
-          </div>
-          <div className="grid gap-1.5">
-            <Label htmlFor="jf-time">Time</Label>
-            <Input id="jf-time" type="time" value={form.time} onChange={(e) => set("time", e.target.value)} />
-            {touched && !form.time && <p className="text-xs text-destructive">Pick a time.</p>}
-          </div>
+        <div className="grid grid-cols-2 gap-4">
+          <Field label="Date" icon={<CalendarDays className="size-4" />} error={show("date")}>
+            <Input type="date" min={today} value={form.date} onChange={(e) => set("date", e.target.value)} />
+          </Field>
+          <Field label="Time" icon={<Clock className="size-4" />} error={show("time")}>
+            <Input type="time" value={form.time} onChange={(e) => set("time", e.target.value)} />
+          </Field>
         </div>
 
         {/* Return journey */}
@@ -883,18 +889,13 @@ function JourneyForm({ initial, onSubmit }: { initial: Prefill; onSubmit: (next:
                 <X className="size-3.5" /> Remove
               </button>
             </div>
-            <div className="mt-3 grid grid-cols-2 gap-3">
-              <div className="grid gap-1.5">
-                <Label htmlFor="jf-rdate">Return date</Label>
-                <Input id="jf-rdate" type="date" min={form.date || today} value={form.rdate}
-                  onChange={(e) => set("rdate", e.target.value)} />
-                {touched && !form.rdate && <p className="text-xs text-destructive">Pick a return date.</p>}
-              </div>
-              <div className="grid gap-1.5">
-                <Label htmlFor="jf-rtime">Return time</Label>
-                <Input id="jf-rtime" type="time" value={form.rtime} onChange={(e) => set("rtime", e.target.value)} />
-                {touched && !form.rtime && <p className="text-xs text-destructive">Pick a return time.</p>}
-              </div>
+            <div className="mt-3 grid grid-cols-2 gap-4">
+              <Field label="Return date" icon={<CalendarDays className="size-4" />} error={show("rdate")}>
+                <Input type="date" min={form.date || today} value={form.rdate} onChange={(e) => set("rdate", e.target.value)} />
+              </Field>
+              <Field label="Return time" icon={<Clock className="size-4" />} error={show("rtime")}>
+                <Input type="time" value={form.rtime} onChange={(e) => set("rtime", e.target.value)} />
+              </Field>
             </div>
             <p className="mt-3 text-xs text-muted-foreground">
               The return leg is priced as a second journey and added to your total.
@@ -902,7 +903,7 @@ function JourneyForm({ initial, onSubmit }: { initial: Prefill; onSubmit: (next:
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-4">
           <div className="grid gap-1.5">
             <Label htmlFor="jf-pax">Passengers</Label>
             <Input id="jf-pax" type="number" min={1} max={60} value={form.passengers}
@@ -914,12 +915,9 @@ function JourneyForm({ initial, onSubmit }: { initial: Prefill; onSubmit: (next:
               onChange={(e) => set("luggage", Math.max(0, Number(e.target.value) || 0))} />
           </div>
         </div>
-        {sameSpot && (
-          <p className="text-xs text-destructive">Pickup and destination cannot be the same location.</p>
-        )}
       </div>
 
-      <Button type="submit" variant="gold" className="mt-6 w-full rounded-full h-12 text-base">
+      <Button type="submit" variant="gold" className="w-full rounded-full h-12 text-base">
         Continue to vehicles
       </Button>
     </form>
@@ -1705,6 +1703,7 @@ function ContactStep({ contact, onChange, onBack, onNext, attempted }: {
   const set = <K extends keyof Contact>(k: K, v: Contact[K]) => onChange({ ...contact, [k]: v });
   const errors = contactErrors(contact);
   const show = (k: keyof Contact) => (attempted ? errors[k] ?? "" : "");
+  const requiredRemaining = Object.values(errors).filter(Boolean).length;
   return (
     <div className="bg-card rounded-2xl border border-border shadow-sm p-6 md:p-8 space-y-6">
       <div>
@@ -1715,7 +1714,15 @@ function ContactStep({ contact, onChange, onBack, onNext, attempted }: {
         </p>
       </div>
 
+      {attempted && requiredRemaining > 0 && (
+        <div className="flex items-center gap-2 rounded-lg bg-destructive px-3 py-2.5 text-xs font-bold text-white" role="alert">
+          <AlertCircle className="h-4 w-4 shrink-0" />
+          <span>Please fill the required data to continue ({requiredRemaining} remaining)</span>
+        </div>
+      )}
+
       <div className="grid sm:grid-cols-2 gap-4">
+
         <Field label="Full name" icon={<User className="size-4" />} error={show("customer_name")}>
           <Input value={contact.customer_name} onChange={(e) => set("customer_name", e.target.value)} required maxLength={100} />
         </Field>
@@ -2181,15 +2188,16 @@ function Field({ label, icon, children, error }: { label: string; icon?: React.R
       })
     : children;
   return (
-    <div data-invalid={error ? "true" : undefined} className={error ? "[&_input]:border-destructive [&_input]:ring-1 [&_input]:ring-destructive/40" : undefined}>
-      <Label htmlFor={autoId} className="text-xs font-medium text-muted-foreground flex items-center gap-1.5 mb-1.5">
-        {icon}{label}
+    <div data-invalid={error ? "true" : undefined} className={error ? "rounded-lg border border-destructive bg-destructive/5 p-3 -m-3" : undefined}>
+      <Label htmlFor={autoId} className={`text-xs font-bold flex items-center gap-1.5 mb-1.5 ${error ? "text-destructive" : "text-muted-foreground"}`}>
+        {icon}{label}{error && <AlertCircle className="ml-auto w-3.5 h-3.5 text-destructive" aria-hidden="true" />}
       </Label>
       {control}
-      {error && <p id={errId} role="alert" className="mt-1.5 text-xs font-medium text-destructive">{error}</p>}
+      {error && <p id={errId} role="alert" className="mt-1.5 text-xs font-semibold text-destructive">{error}</p>}
     </div>
   );
 }
+
 
 function Toggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
   return (
