@@ -580,9 +580,16 @@ function BookPage() {
     if (!parsed.success) {
       setContactAttempted(true);
       toast.error("Check the highlighted passenger details.");
-      const first = document.querySelector<HTMLElement>('[data-invalid="true"] input');
-      first?.focus();
-      first?.scrollIntoView({ block: "center", behavior: "smooth" });
+      const focusInvalid = () => {
+        const first = document.querySelector<HTMLElement>('[data-invalid="true"] input, [data-invalid="true"] textarea, [data-invalid="true"] select');
+        if (first) {
+          first.focus();
+          first.scrollIntoView({ block: "center", behavior: "smooth" });
+        } else {
+          document.querySelector<HTMLElement>('[id="step-02"], [id="contact-section"]')?.scrollIntoView({ block: "start", behavior: "smooth" });
+        }
+      };
+      requestAnimationFrame(() => setTimeout(focusInvalid, 0));
       return;
     }
     setContactAttempted(false);
