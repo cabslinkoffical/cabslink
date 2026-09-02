@@ -38,10 +38,16 @@ export function BookingCardPayment({
 
   return (
     <div className="space-y-3">
+      {import.meta.env.VITE_PAYMENTS_CLIENT_TOKEN?.startsWith("pk_test_") && (
+        <p className="rounded-xl border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-4 py-2 text-xs font-medium text-foreground">
+          Test mode — card payments made here are not real charges.
+        </p>
+      )}
       <p className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
         <ShieldCheck className="size-4 text-[var(--gold-ink)]" />
         Secure card payment — Visa, Mastercard and American Express.
       </p>
+
       <div id="checkout" className="rounded-2xl border border-border bg-background p-2 md:p-4">
         <EmbeddedCheckoutProvider stripe={getStripe()} options={{ fetchClientSecret }}>
           <EmbeddedCheckout />
