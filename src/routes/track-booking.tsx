@@ -10,6 +10,7 @@ import { CreditCard, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { FormNotice } from "@/components/site/FormValidation";
 import { statusLabel, type BookingStatus } from "@/lib/booking-lifecycle";
 import { SITE } from "@/lib/site";
 import { Search, ArrowLeft, CalendarDays, Car, Clock, MapPin, Phone, Mail, User, Route as RouteIcon } from "lucide-react";
