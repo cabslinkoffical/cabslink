@@ -9,7 +9,6 @@ import { TrustpilotStrip } from "@/components/site/TrustpilotStrip";
 import { PageHero } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { SITE } from "@/lib/site";
 import { submitContactMessage } from "@/lib/contact.functions";

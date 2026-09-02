@@ -8,11 +8,11 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero, SectionHeader } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { submitCorporateInquiry } from "@/lib/corporate.functions";
 import { useCaptcha } from "@/components/site/Captcha";
 import { PhoneInput } from "@/components/site/PhoneInput";
+import { FormNotice, FormField, focusFirstInvalid, zodFieldErrors } from "@/components/site/FormValidation";
 
 export const Route = createFileRoute("/corporate-booking")({
   head: () => ({
@@ -39,6 +39,7 @@ const schema = z.object({
 function CorporateBookingPage() {
   const [loading, setLoading] = useState(false);
   const [phone, setPhone] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const submit = useServerFn(submitCorporateInquiry);
   const captcha = useCaptcha("corporate");
 
@@ -48,7 +49,18 @@ function CorporateBookingPage() {
     const fd = new FormData(form);
     const data = Object.fromEntries(fd);
     const parsed = schema.safeParse(data);
-    if (!parsed.success) { toast.error("Please complete all fields."); return; }
+    if (!parsed.success) {
+      setErrors(zodFieldErrors(parsed.error, {
+        company: "Enter your company name.",
+        name: "Enter your full name.",
+        email: "Enter a valid work email address.",
+        phone: "Enter a contact phone number.",
+        needs: "Describe your travel needs (at least 10 characters).",
+      }));
+      focusFirstInvalid(form);
+      return;
+    }
+    setErrors({});
     if (!captcha.ready) { toast.error("Please complete the security check below."); return; }
     setLoading(true);
     try {
@@ -95,13 +107,24 @@ function CorporateBookingPage() {
           <form onSubmit={onSubmit} className="rounded-3xl border border-border bg-card p-6 md:p-8 shadow-sm h-fit">
             <div className="flex items-center gap-3"><Building2 className="size-6 text-[var(--gold-ink)]" /><h3 className="font-display text-2xl font-semibold">Corporate enquiry</h3></div>
             <div className="mt-6 grid gap-4">
-              <div><Label htmlFor="corp-company">Company</Label><Input id="corp-company" name="company" required maxLength={120} className="mt-1.5" /></div>
+              <FormNotice visible={Object.keys(errors).length > 0} />
+              <FormField label="Company" htmlFor="corp-company" error={errors.company}>
+                <Input id="corp-company" name="company" required maxLength={120} aria-invalid={!!errors.company} />
+              </FormField>
               <div className="grid sm:grid-cols-2 gap-4">
-                <div><Label htmlFor="corp-name">Your name</Label><Input id="corp-name" name="name" required maxLength={100} className="mt-1.5" /></div>
-                <div><Label htmlFor="corp-phone">Phone</Label><div className="mt-1.5"><PhoneInput id="corp-phone" name="phone" value={phone} onChange={setPhone} required /></div></div>
+                <FormField label="Your name" htmlFor="corp-name" error={errors.name}>
+                  <Input id="corp-name" name="name" required maxLength={100} aria-invalid={!!errors.name} />
+                </FormField>
+                <FormField label="Phone" htmlFor="corp-phone" error={errors.phone}>
+                  <PhoneInput id="corp-phone" name="phone" value={phone} onChange={setPhone} required />
+                </FormField>
               </div>
-              <div><Label htmlFor="corp-email">Email</Label><Input id="corp-email" name="email" type="email" required maxLength={255} className="mt-1.5" /></div>
-              <div><Label htmlFor="corp-needs">Your travel needs</Label><Textarea id="corp-needs" name="needs" required maxLength={1500} rows={5} className="mt-1.5" placeholder="Team size, monthly volume, airports, billing preferences…" /></div>
+              <FormField label="Email" htmlFor="corp-email" error={errors.email}>
+                <Input id="corp-email" name="email" type="email" required maxLength={255} aria-invalid={!!errors.email} />
+              </FormField>
+              <FormField label="Your travel needs" htmlFor="corp-needs" error={errors.needs}>
+                <Textarea id="corp-needs" name="needs" required maxLength={1500} rows={5} placeholder="Team size, monthly volume, airports, billing preferences…" aria-invalid={!!errors.needs} />
+              </FormField>
               <div className="absolute -left-[9999px]" aria-hidden="true">
                 <label htmlFor="corp-website">Website</label>
                 <input id="corp-website" name="website" type="text" tabIndex={-1} autoComplete="off" />

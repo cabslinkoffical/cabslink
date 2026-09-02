@@ -8,11 +8,11 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero, SectionHeader } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { submitDriverApplication } from "@/lib/driver-application.functions";
 import { useCaptcha } from "@/components/site/Captcha";
 import { PhoneInput } from "@/components/site/PhoneInput";
+import { FormNotice, FormField, focusFirstInvalid, zodFieldErrors } from "@/components/site/FormValidation";
 
 export const Route = createFileRoute("/drive-with-us")({
   head: () => ({
@@ -39,6 +39,7 @@ function DrivePage() {
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [phone, setPhone] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const submit = useServerFn(submitDriverApplication);
   const captcha = useCaptcha("driver-application");
 
@@ -48,7 +49,17 @@ function DrivePage() {
     const fd = new FormData(form);
     const data = Object.fromEntries(fd);
     const parsed = schema.safeParse(data);
-    if (!parsed.success) { toast.error("Please fill out all fields correctly."); return; }
+    if (!parsed.success) {
+      setErrors(zodFieldErrors(parsed.error, {
+        name: "Enter your full name.",
+        email: "Enter a valid email address.",
+        phone: "Enter a contact phone number.",
+        message: "Tell us about yourself (at least 10 characters).",
+      }));
+      focusFirstInvalid(form);
+      return;
+    }
+    setErrors({});
     if (!captcha.ready) { toast.error("Please complete the security check below."); return; }
     setLoading(true);
     try {
@@ -101,14 +112,23 @@ function DrivePage() {
               </ul>
             </div>
           </div>
-          <form onSubmit={onSubmit} className="rounded-3xl border border-border bg-card p-6 md:p-8 shadow-sm h-fit">
+          <form noValidate onSubmit={onSubmit} className="rounded-3xl border border-border bg-card p-6 md:p-8 shadow-sm h-fit">
             <h3 className="font-display text-2xl font-semibold">Apply now</h3>
             <p className="text-sm text-muted-foreground mt-1">Tell us a little about yourself — we'll be in touch within 24 hours.</p>
             <div className="mt-6 grid gap-4">
-              <div><Label htmlFor="driver-name">Full name</Label><Input id="driver-name" name="name" required maxLength={100} className="mt-1.5" /></div>
-              <div><Label htmlFor="driver-email">Email</Label><Input id="driver-email" name="email" type="email" required maxLength={255} className="mt-1.5" /></div>
-              <div><Label htmlFor="driver-phone">Phone</Label><div className="mt-1.5"><PhoneInput id="driver-phone" name="phone" value={phone} onChange={setPhone} required /></div></div>
-              <div><Label htmlFor="driver-message">Tell us about yourself</Label><Textarea id="driver-message" name="message" required maxLength={1000} rows={5} className="mt-1.5" placeholder="Years driving, licence, vehicle, area covered…" /></div>
+              <FormNotice visible={Object.keys(errors).length > 0} />
+              <FormField label="Full name" htmlFor="driver-name" error={errors.name}>
+                <Input id="driver-name" name="name" required maxLength={100} aria-invalid={!!errors.name} />
+              </FormField>
+              <FormField label="Email" htmlFor="driver-email" error={errors.email}>
+                <Input id="driver-email" name="email" type="email" required maxLength={255} aria-invalid={!!errors.email} />
+              </FormField>
+              <FormField label="Phone" htmlFor="driver-phone" error={errors.phone}>
+                <PhoneInput id="driver-phone" name="phone" value={phone} onChange={setPhone} required />
+              </FormField>
+              <FormField label="Tell us about yourself" htmlFor="driver-message" error={errors.message}>
+                <Textarea id="driver-message" name="message" required maxLength={1000} rows={5} placeholder="Years driving, licence, vehicle, area covered…" aria-invalid={!!errors.message} />
+              </FormField>
               <div className="absolute -left-[9999px]" aria-hidden="true">
                 <label htmlFor="drv-website">Website</label>
                 <input id="drv-website" name="website" type="text" tabIndex={-1} autoComplete="off" />
