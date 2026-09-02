@@ -201,6 +201,39 @@ function TrackBookingPage() {
                   confirmation email for complete booking details.
                 </p>
 
+                {notice && (
+                  <div className="rounded-lg border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-4 py-3 text-sm font-medium">
+                    {notice}
+                  </div>
+                )}
+
+                {result.paymentStatus === "paid" ? (
+                  <div className="flex items-center gap-2 rounded-lg bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-800">
+                    <CheckCircle2 className="size-4" /> Payment received — nothing left to pay.
+                  </div>
+                ) : result.status === "cancelled" || result.status === "rejected" ? null : (
+                  <div className="space-y-3 rounded-xl border border-[var(--navy)]/15 bg-[var(--surface-2)] p-4">
+                    <p className="text-sm font-semibold">Payment required to confirm this booking</p>
+                    <p className="text-xs text-muted-foreground">
+                      Your journey is only confirmed once payment is received. Pay securely by card below.
+                    </p>
+                    {payOpen ? (
+                      <TrackedBookingPayment
+                        bookingRef={result.bookingRef}
+                        returnUrl={`${window.location.origin}/track-booking?ref=${encodeURIComponent(result.bookingRef)}&session_id={CHECKOUT_SESSION_ID}`}
+                      />
+                    ) : (
+                      <Button
+                        onClick={() => setPayOpen(true)}
+                        disabled={!paymentsConfigured()}
+                        className="w-full gap-2 bg-[var(--gold)] text-[var(--navy)] hover:bg-[var(--gold)]/90"
+                      >
+                        <CreditCard className="size-4" /> Pay now by card
+                      </Button>
+                    )}
+                  </div>
+                )}
+
 
                 <div className="flex flex-wrap gap-3 pt-2">
                   <Button asChild variant="outline"><Link to="/">Back to home</Link></Button>
