@@ -12,7 +12,7 @@ import {
   CheckCircle2, ArrowRight, ArrowLeft, MapPin, CalendarDays, Edit3, Star,
   Users, Briefcase, Luggage, BadgeCheck, Clock, DoorOpen, UserCheck, Award,
   ShieldCheck, CreditCard, User, Mail, Phone, MessageSquare, RefreshCw,
-  Shield, Package, CalendarClock, Landmark, Sparkles, Plus, Repeat, X, AlertCircle,
+  Shield, Package, CalendarClock, Landmark, Sparkles, Plus, Repeat, X, AlertCircle, Info,
 } from "lucide-react";
 
 import { SiteLayout } from "@/components/site/SiteLayout";
@@ -593,19 +593,14 @@ function BookPage() {
       return;
     }
     setContactAttempted(false);
-    setStep("extras");
-  }, [contact]);
-
-  const goToPayment = useCallback(() => {
-    track("booking_step", { step: "payment", value: grandTotal / 100, currency: "GBP" });
+    track("booking_step", { step: "payment" });
     setStep("payment");
-  }, [grandTotal]);
+  }, [contact]);
 
   const mobileContinue = useCallback(() => {
     if (step === "details") goToExtras();
-    else if (step === "extras") goToPayment();
     else if (step === "payment") submitBooking();
-  }, [step, goToExtras, goToPayment, submitBooking]);
+  }, [step, goToExtras, submitBooking]);
 
   return (
     <SiteLayout>
@@ -678,59 +673,57 @@ function BookPage() {
                   )}
 
                   {step === "details" && chosen && (
-                    <ContactStep
-                      contact={contact}
-                      onChange={setContact}
-                      attempted={contactAttempted}
-                      onBack={() => setStep("vehicle")}
-                      onNext={goToExtras}
-                    />
-                  )}
-
-                  {step === "extras" && chosen && (
-                    <ExtrasStep
-                      pois={poisQuery.data?.pois ?? []}
-                      template={poisQuery.data?.template ?? null}
-                      poisLoading={poisQuery.isLoading}
-                      selectedStops={selectedStops}
-                      onToggleStop={toggleStop}
-                      onStopMinutes={setStopMinutes}
-                      routeMode={routeMode}
-                      onRouteModeChange={changeRouteMode}
-                      multiQuote={mq}
-                      multiLoading={multiStopQuery.isFetching}
-                      multiError={multiStopQuery.error as Error | null}
-                      converted={isConverted}
-                      needsAck={needsAck}
-                      onAck={() => setTourAckAt(new Date().toISOString())}
-                      childSeatFeePence={childSeatFeePence}
-                      childSeatCount={childSeatCount}
-                      onChildSeatCount={setChildSeatCount}
-                      meetGreet={meetGreet}
-                      onMeetGreet={setMeetGreet}
-                      returnJourney={returnJourney}
-                      onReturnJourney={setReturnJourney}
-                      policy={policy}
-                      onPolicy={setPolicy}
-                      baseRideTotal={rideTotal}
-                      seatFee={seatFee}
-                      meetGreetFee={meetGreetFee}
-                      returnFee={returnFee}
-                      meetGreetFeePence={meetGreetFeePence}
-                      catalogueExtras={catalogueExtras}
-                      extraQty={extraQty}
-                      onExtraQty={(k, n) => setExtraQty((prev) => ({ ...prev, [k]: n }))}
-                      addonsFee={addonsFee}
-                      policyCfg={policyCfg}
-                      onBack={() => setStep("details")}
-                      onNext={goToPayment}
-                    />
+                    <>
+                      <ContactStep
+                        contact={contact}
+                        onChange={setContact}
+                        attempted={contactAttempted}
+                        onBack={() => setStep("vehicle")}
+                      />
+                      <ExtrasStep
+                        pois={poisQuery.data?.pois ?? []}
+                        template={poisQuery.data?.template ?? null}
+                        poisLoading={poisQuery.isLoading}
+                        selectedStops={selectedStops}
+                        onToggleStop={toggleStop}
+                        onStopMinutes={setStopMinutes}
+                        routeMode={routeMode}
+                        onRouteModeChange={changeRouteMode}
+                        multiQuote={mq}
+                        multiLoading={multiStopQuery.isFetching}
+                        multiError={multiStopQuery.error as Error | null}
+                        converted={isConverted}
+                        needsAck={needsAck}
+                        onAck={() => setTourAckAt(new Date().toISOString())}
+                        childSeatFeePence={childSeatFeePence}
+                        childSeatCount={childSeatCount}
+                        onChildSeatCount={setChildSeatCount}
+                        meetGreet={meetGreet}
+                        onMeetGreet={setMeetGreet}
+                        returnJourney={returnJourney}
+                        onReturnJourney={setReturnJourney}
+                        policy={policy}
+                        onPolicy={setPolicy}
+                        baseRideTotal={rideTotal}
+                        seatFee={seatFee}
+                        meetGreetFee={meetGreetFee}
+                        returnFee={returnFee}
+                        meetGreetFeePence={meetGreetFeePence}
+                        catalogueExtras={catalogueExtras}
+                        extraQty={extraQty}
+                        onExtraQty={(k, n) => setExtraQty((prev) => ({ ...prev, [k]: n }))}
+                        addonsFee={addonsFee}
+                        policyCfg={policyCfg}
+                        onBack={() => setStep("vehicle")}
+                        onNext={goToExtras}
+                      />
+                    </>
                   )}
 
                   {step === "payment" && chosen && (
                     <PaymentStep
                       grandTotal={grandTotal}
-                      onBack={() => setStep("extras")}
+                      onBack={() => setStep("details")}
                       onSubmit={submitBooking}
                       submitting={submitting}
                       captchaWidget={captcha.widget}
@@ -757,7 +750,7 @@ function BookPage() {
           )}
         </div>
       </section>
-      {chosen && (step === "details" || step === "extras" || step === "payment") && (
+      {chosen && (step === "details" || step === "payment") && (
         <MobilePriceBar onContinue={mobileContinue} price={{ vehicleName: chosen.name, perVehicle: perVehiclePrice, qty, rideTotal, seatFee, seatCount: childSeatCount, meetGreetFee, returnFee, addonsFee, addonLines, policy, policyDelta, grandTotal }} />
       )}
       <EditTripDialog open={editOpen} onOpenChange={setEditOpen} initial={pre} onSave={applyEdit} />
@@ -1081,13 +1074,12 @@ function EditTripDialog({
 function Stepper({ step }: { step: Step }) {
   const items: { id: Step; label: string }[] = [
     { id: "vehicle", label: "Vehicle" },
-    { id: "details", label: "Details" },
-    { id: "extras", label: "Extras" },
+    { id: "details", label: "Trip details" },
     { id: "payment", label: "Payment" },
-    { id: "review", label: "Done" },
   ];
 
-  const idx = items.findIndex((x) => x.id === step);
+  const normalised: Step = step === "pay" || step === "review" ? "payment" : step;
+  const idx = items.findIndex((x) => x.id === normalised);
   const current = items[Math.max(0, idx)];
   return (
     <>
@@ -1095,7 +1087,7 @@ function Stepper({ step }: { step: Step }) {
       <div className="md:hidden flex items-center justify-between gap-3 rounded-full bg-card border border-border px-4 py-2.5 shadow-sm">
         <div className="min-w-0 flex items-baseline gap-2">
           <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--gold-ink)]">
-            Step 0{Math.max(1, idx + 1)}/5
+            Step 0{Math.max(1, idx + 1)}/3
           </span>
           <span className="text-sm font-bold text-foreground truncate">{current?.label}</span>
         </div>
@@ -1491,7 +1483,7 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
             Select a vehicle class · {pre.ret ? "Return" : "One Way"}
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            You're booking a vehicle class — the exact model is allocated by our dispatch team on the day.
+            Pick a class below — tap the info icon on any ticket for what&apos;s included.
           </p>
         </div>
         {data && (
@@ -1501,8 +1493,6 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
           </div>
         )}
       </div>
-
-      <VehicleAllocationNotice className="mb-6" compact />
 
       <div className="space-y-6">
         {(isLoading || vehicleClassesLoading) && (
@@ -1530,7 +1520,7 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
             : null;
           const klass = classByVehicleId.get(q.vehicleId);
           return (
-            <VehicleCard key={q.vehicleId} card={q} klass={klass} best={i === 0 && minQtyFor(q) <= 1} qty={qty}
+            <VehicleCard key={q.vehicleId} card={q} klass={klass} trip={pre} best={i === 0 && minQtyFor(q) <= 1} qty={qty}
               minQty={minQty}
               disabled={capacityShort}
               disabledReason={reason}
@@ -1549,160 +1539,225 @@ function isQuoteOnRequest(name: string): boolean {
   return /coaster|coach\s*bus|24-?seater|55-?seater/i.test(name);
 }
 
-function VehicleCard({ card, klass, best, qty, minQty, disabled, disabledReason, onQtyChange, onSelect }: {
-  card: QuoteCard; klass?: PublicVehicleClass; best: boolean; qty: number; minQty: number;
+function VehicleCard({ card, klass, trip, best, qty, minQty, disabled, disabledReason, onQtyChange, onSelect }: {
+  card: QuoteCard; klass?: PublicVehicleClass; trip: Prefill; best: boolean; qty: number; minQty: number;
   disabled?: boolean; disabledReason?: string | null;
   onQtyChange: (n: number) => void; onSelect: () => void;
 }) {
+  const [infoOpen, setInfoOpen] = useState(false);
   const total = card.finalPrice * qty;
   const serial = card.vehicleId.slice(0, 8).toUpperCase();
   const quoteOnly = klass?.quote_on_request ?? card.quoteOnRequest ?? isQuoteOnRequest(card.name);
   const displayName = klass?.name ?? card.name;
   const displayImage = (klass ? fleetImageFor(klass.slug, klass.hero_image) : undefined) ?? card.imageUrl;
+  const shortPlace = (label?: string) => (label ? label.split(",")[0]!.trim() : "—");
+  const dateLabel = trip.date ? new Date(`${trip.date}T00:00:00`).toLocaleDateString("en-GB", { day: "2-digit", month: "short" }) : "—";
+
   return (
-    <div className={`relative flex flex-col md:flex-row bg-card rounded-2xl shadow-[0_10px_40px_-20px_rgba(14,24,44,0.25)] border transition-all duration-500 hover:shadow-[0_20px_60px_-20px_rgba(223,175,38,0.35)] ${best ? "border-[var(--gold)]/60" : minQty > 1 ? "border-warning/50" : "border-border"}`}>
-      {best && (
-        <div className="absolute -top-3 left-6 z-10 inline-flex items-center gap-1.5 bg-[var(--gold)] text-[var(--gold-foreground)] text-[10px] font-bold uppercase tracking-[0.2em] px-3 py-1.5 rounded-md shadow-md">
-          <Award className="size-3" /> Best Value
-        </div>
-      )}
-      {!best && minQty > 1 && (
-        <div className="absolute -top-3 left-6 z-10 inline-flex items-center gap-1.5 bg-warning text-warning-foreground text-[10px] font-bold uppercase tracking-[0.2em] px-3 py-1.5 rounded-md shadow-md">
-          Needs {minQty} vehicles
-        </div>
-      )}
-
-      <div className="flex-1 min-w-0 p-5 md:p-6 flex flex-col md:flex-row gap-5 md:gap-6">
-        <div className="w-full md:w-44 lg:w-48 flex-shrink-0 flex items-center justify-center bg-[var(--surface)] rounded-xl p-3">
-          <img src={displayImage} alt={displayName} className="w-full aspect-[3/2] object-contain" loading="lazy" />
-        </div>
-        <div className="flex-1 min-w-0 flex flex-col justify-between">
-          <div>
-            <div className="flex justify-between items-start gap-3">
-              <div className="min-w-0 flex-1">
-                <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--gold-ink)]">
-                  <BadgeCheck className="size-3" /> Vehicle Class
-                </span>
-                <h3 className="mt-1.5 font-display text-lg md:text-xl font-bold uppercase tracking-tight text-foreground leading-tight break-words">
-                  {displayName}
-                </h3>
-                {klass?.short_description && (
-                  <p className="mt-1 text-[12px] text-muted-foreground line-clamp-2">{klass.short_description}</p>
-                )}
-                {klass && klass.models.length > 0 && (
-                  <div className="mt-2 flex flex-wrap gap-1">
-                    <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground mr-1 self-center">Includes:</span>
-                    {klass.models.slice(0, 4).map((m) => (
-                      <span key={m.id} className="rounded-full bg-[var(--navy)]/5 text-[var(--navy)]/80 px-2 py-0.5 text-[10.5px] font-medium">
-                        {m.name}
-                      </span>
-                    ))}
-                    {klass.models.length > 4 && (
-                      <span className="text-[10.5px] text-muted-foreground self-center">+{klass.models.length - 4}</span>
-                    )}
-                  </div>
-                )}
-              </div>
-              <div className="flex gap-0.5 text-[var(--gold-ink)] shrink-0 pt-1">
-                {Array.from({ length: 5 }).map((_, i) => (<Star key={i} className="size-3 fill-current" />))}
-              </div>
-            </div>
-
-            <ul className="mt-4 grid grid-cols-2 gap-x-3 gap-y-1.5 text-[13px]">
-              <Feature icon={<Users className="size-3.5" />}>{card.passengers * qty} Passengers</Feature>
-              <Feature icon={<Briefcase className="size-3.5" />}>{card.luggage * qty} Luggage</Feature>
-              <Feature icon={<Luggage className="size-3.5" />}>{card.handLuggage * qty} Hand Bag</Feature>
-              <Feature icon={<BadgeCheck className="size-3.5" />}>Meet &amp; Greet</Feature>
-              <Feature icon={<Clock className="size-3.5" />}>Free Waiting</Feature>
-              <Feature icon={<DoorOpen className="size-3.5" />}>Door to Door</Feature>
-              <Feature icon={<UserCheck className="size-3.5" />}>Pro Driver</Feature>
-            </ul>
+    <article
+      className={`relative flex flex-col md:flex-row bg-card rounded-2xl overflow-hidden shadow-[0_10px_40px_-20px_rgba(14,24,44,0.25)] border transition-all duration-300 hover:shadow-[0_20px_60px_-20px_rgba(223,175,38,0.35)] ${best ? "border-[var(--gold)]/60" : minQty > 1 ? "border-warning/50" : "border-border"}`}
+    >
+      {/* ---- ticket body ---- */}
+      <div className="flex-1 min-w-0">
+        {/* stub header — airline boarding-pass strip */}
+        <div className="flex items-center justify-between gap-3 bg-[var(--navy)] px-4 md:px-6 py-2.5">
+          <div className="min-w-0 flex items-center gap-2">
+            <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)]">Cabslink</span>
+            <span className="h-3 w-px bg-white/20" />
+            <span className="truncate text-[10px] font-semibold uppercase tracking-[0.22em] text-white/70">
+              {trip.ret ? "Return journey" : "One way"} · {dateLabel} {trip.time || ""}
+            </span>
           </div>
-          {minQty > 1 && (
-            <div className="mt-4 rounded-lg border border-warning/50 bg-warning/12 px-3 py-2 text-[12px] text-warning leading-snug">
-              This vehicle fits {card.passengers} passenger{card.passengers === 1 ? "" : "s"} &amp; {card.luggage} bag{card.luggage === 1 ? "" : "s"}. You&apos;ll need <span className="font-bold">{minQty} vehicles</span> for your party — set the quantity below to continue.
+          <div className="flex items-center gap-2 shrink-0">
+            {best && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-[var(--gold)] px-2.5 py-0.5 text-[9.5px] font-bold uppercase tracking-[0.18em] text-[var(--gold-foreground)]">
+                <Award className="size-3" /> Best value
+              </span>
+            )}
+            {!best && minQty > 1 && (
+              <span className="inline-flex items-center rounded-full bg-warning px-2.5 py-0.5 text-[9.5px] font-bold uppercase tracking-[0.18em] text-warning-foreground">
+                Needs {minQty}
+              </span>
+            )}
+            <button
+              type="button"
+              onClick={() => setInfoOpen(true)}
+              aria-label={`What's included with ${displayName}`}
+              className="grid size-7 place-items-center rounded-full border border-white/25 text-white/80 transition hover:border-[var(--gold)] hover:text-[var(--gold)]"
+            >
+              <Info className="size-3.5" />
+            </button>
+          </div>
+        </div>
+
+        <div className="p-4 md:p-6 flex flex-col sm:flex-row gap-4 md:gap-6">
+          <div className="w-full sm:w-40 lg:w-44 shrink-0 flex items-center justify-center rounded-xl bg-[var(--surface)] p-3">
+            <img src={displayImage} alt={displayName} className="w-full aspect-[3/2] object-contain" loading="lazy" />
+          </div>
+
+          <div className="min-w-0 flex-1">
+            <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--gold-ink)]">
+              <BadgeCheck className="size-3" /> Vehicle class
+            </span>
+            <h3 className="mt-1 font-display text-lg md:text-xl font-bold uppercase tracking-tight leading-tight break-words">
+              {displayName}
+            </h3>
+
+            {/* route line, like a ticket's origin → destination */}
+            <div className="mt-3 flex items-center gap-2 text-[12.5px] font-semibold text-foreground/80">
+              <span className="truncate">{shortPlace(trip.pickup?.label)}</span>
+              <span className="flex-1 border-t border-dashed border-[var(--gold)]/50 min-w-4" aria-hidden />
+              <ArrowRight className="size-3.5 text-[var(--gold-ink)] shrink-0" aria-hidden />
+              <span className="truncate text-right">{shortPlace(trip.dropoff?.label)}</span>
             </div>
-          )}
-          <p className="mt-5 text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground/70">
-            No. {serial} · Cabslink Pass
-          </p>
+
+            {/* only the three facts that change the decision */}
+            <dl className="mt-3 flex flex-wrap gap-2">
+              {[
+                { icon: <Users className="size-3.5" />, label: "Seats", value: card.passengers * qty },
+                { icon: <Briefcase className="size-3.5" />, label: "Cases", value: card.luggage * qty },
+                { icon: <Luggage className="size-3.5" />, label: "Hand bags", value: card.handLuggage * qty },
+              ].map((f) => (
+                <div key={f.label} className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--surface)] px-2.5 py-1.5">
+                  <span className="text-[var(--gold-ink)]">{f.icon}</span>
+                  <span className="text-[13px] font-bold tabular-nums">{f.value}</span>
+                  <span className="text-[11px] text-muted-foreground">{f.label}</span>
+                </div>
+              ))}
+            </dl>
+
+            <button
+              type="button"
+              onClick={() => setInfoOpen(true)}
+              className="mt-3 inline-flex items-center gap-1.5 text-[11.5px] font-bold uppercase tracking-[0.16em] text-[var(--gold-ink)] underline-offset-4 hover:underline"
+            >
+              <Info className="size-3.5" /> What&apos;s included
+            </button>
+
+            <p className="mt-3 text-[9.5px] font-mono uppercase tracking-[0.3em] text-muted-foreground/60">
+              No. {serial}
+            </p>
+          </div>
         </div>
       </div>
 
+      {/* ---- perforation ---- */}
       <div className="relative hidden md:flex flex-col items-center justify-center px-1">
-        <div className="absolute -top-3 w-6 h-6 rounded-full bg-[var(--surface)]"></div>
-        <div className="h-[calc(100%-2rem)] w-px border-l-2 border-dashed border-[var(--gold)]/40"></div>
-        <div className="absolute -bottom-3 w-6 h-6 rounded-full bg-[var(--surface)]"></div>
+        <div className="absolute -top-3 size-6 rounded-full bg-[var(--surface)]" />
+        <div className="h-[calc(100%-2rem)] w-px border-l-2 border-dashed border-[var(--gold)]/40" />
+        <div className="absolute -bottom-3 size-6 rounded-full bg-[var(--surface)]" />
       </div>
       <div className="relative md:hidden flex items-center justify-center py-1">
-        <div className="absolute -left-3 w-6 h-6 rounded-full bg-[var(--surface)]"></div>
-        <div className="w-[calc(100%-2rem)] h-px border-t-2 border-dashed border-[var(--gold)]/40"></div>
-        <div className="absolute -right-3 w-6 h-6 rounded-full bg-[var(--surface)]"></div>
+        <div className="absolute -left-3 size-6 rounded-full bg-[var(--surface)]" />
+        <div className="w-[calc(100%-2rem)] h-px border-t-2 border-dashed border-[var(--gold)]/40" />
+        <div className="absolute -right-3 size-6 rounded-full bg-[var(--surface)]" />
       </div>
 
-      <div className="w-full md:w-60 lg:w-64 shrink-0 bg-gradient-to-br from-[var(--gold)]/10 via-[var(--surface)] to-[var(--gold)]/5 md:rounded-r-2xl rounded-b-2xl md:rounded-b-none p-5 md:p-6 flex flex-col justify-between items-center text-center">
+      {/* ---- price stub ---- */}
+      <div className="w-full md:w-56 lg:w-60 shrink-0 bg-gradient-to-br from-[var(--gold)]/10 via-[var(--surface)] to-[var(--gold)]/5 p-4 md:p-5 flex flex-col justify-between gap-4 text-center">
         {quoteOnly ? (
           <div>
-            <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground font-bold">Group Vehicle</p>
-            <p className="mt-2 font-display text-xl md:text-2xl font-bold text-[var(--gold-ink)] leading-tight">Quote on request</p>
-            <p className="mt-2 text-[12px] text-muted-foreground leading-snug">
-               Pricing for {displayName.toLowerCase().includes("coach") ? "coach" : "coaster"} bookings depends on route, timings and availability. Contact us and we'll confirm the fare and reserve this vehicle for you.
-            </p>
-            <div className="mt-3 text-[11px] text-muted-foreground space-y-1">
-              <p className="flex items-center justify-center gap-1.5"><ShieldCheck className="size-3 text-[var(--gold-ink)]" /> No obligation quote</p>
-              <p className="flex items-center justify-center gap-1.5"><Clock className="size-3 text-[var(--gold-ink)]" /> Fast response, 24/7</p>
-            </div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground">Group vehicle</p>
+            <p className="mt-2 font-display text-xl font-bold leading-tight text-[var(--gold-ink)]">Quote on request</p>
           </div>
         ) : (
           <div>
-            <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground font-bold">From</p>
-            <div className="mt-2 flex items-baseline justify-center gap-0.5 text-foreground">
-              <span className="text-lg font-display font-bold text-[var(--gold-ink)]">£</span>
-              <span className="text-3xl md:text-4xl font-display font-bold tabular-nums tracking-tight">{total.toFixed(2)}</span>
+            <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground">Total incl. VAT</p>
+            <div className="mt-1.5 flex items-baseline justify-center gap-0.5">
+              <span className="font-display text-lg font-bold text-[var(--gold-ink)]">£</span>
+              <span className="font-display text-3xl md:text-4xl font-bold tabular-nums tracking-tight">{total.toFixed(2)}</span>
             </div>
-            {qty > 1 && (<p className="text-[11px] text-muted-foreground mt-1">{qty} × £{card.finalPrice.toFixed(2)}</p>)}
-            <div className="mt-3 text-[11px] text-muted-foreground space-y-1">
-              <p className="flex items-center justify-center gap-1.5"><ShieldCheck className="size-3 text-[var(--gold-ink)]" /> No hidden cost</p>
-              <p className="flex items-center justify-center gap-1.5"><Clock className="size-3 text-[var(--gold-ink)]" /> Free cancellation option</p>
-            </div>
+            {qty > 1 && <p className="mt-1 text-[11px] text-muted-foreground">{qty} × £{card.finalPrice.toFixed(2)}</p>}
           </div>
         )}
 
-        <div className="w-full mt-5 space-y-3">
+        <div className="w-full space-y-2.5">
           {!quoteOnly && (
-            <div className="w-full">
-              <Label className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground">
-                Vehicles{minQty > 1 ? ` · min ${minQty}` : ""}
-              </Label>
-              <Select value={String(qty)} onValueChange={(v) => onQtyChange(Number(v))}>
-                <SelectTrigger className={`mt-1 h-10 bg-card ${qty < minQty ? "border-warning" : "border-[var(--gold)]/50"}`}><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
-                    <SelectItem key={n} value={String(n)}>
-                      {n} × Vehicle{n < minQty ? " — not enough" : ""}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <Select value={String(qty)} onValueChange={(v) => onQtyChange(Number(v))}>
+              <SelectTrigger className={`h-10 bg-card ${qty < minQty ? "border-warning" : "border-[var(--gold)]/50"}`} aria-label="Number of vehicles">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+                  <SelectItem key={n} value={String(n)}>
+                    {n} × Vehicle{n < minQty ? " — not enough" : ""}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           )}
           {quoteOnly ? (
             <Button asChild variant="navy" className="w-full h-12 rounded-lg uppercase tracking-[0.2em] text-[11px] shadow-md">
               <a href={`/contact?subject=${encodeURIComponent(`Group quote — ${displayName}`)}`}>
-                Request Quote <ArrowRight className="size-3.5 ml-1" />
+                Request quote <ArrowRight className="size-3.5 ml-1" />
               </a>
             </Button>
           ) : (
             <Button onClick={onSelect} disabled={!!disabled} variant="navy" className="w-full h-12 rounded-lg uppercase tracking-[0.2em] text-[11px] shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
-              Continue <ArrowRight className="size-3.5 ml-1" />
+              Select <ArrowRight className="size-3.5 ml-1" />
             </Button>
           )}
           {!quoteOnly && disabled && disabledReason && (
-            <p className="text-[11px] text-muted-foreground mt-2 leading-snug">{disabledReason}</p>
+            <p className="text-[11px] text-muted-foreground leading-snug">{disabledReason}</p>
           )}
         </div>
       </div>
-    </div>
+
+      {/* ---- everything else lives behind the info icon ---- */}
+      <Dialog open={infoOpen} onOpenChange={setInfoOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="font-display uppercase tracking-tight">{displayName}</DialogTitle>
+            <DialogDescription>
+              {klass?.short_description ?? "Everything included with this vehicle class."}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-5 text-sm">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--gold-ink)]">Included as standard</p>
+              <ul className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1.5">
+                <Feature icon={<BadgeCheck className="size-3.5" />}>Meet &amp; greet</Feature>
+                <Feature icon={<Clock className="size-3.5" />}>Free waiting time</Feature>
+                <Feature icon={<DoorOpen className="size-3.5" />}>Door to door</Feature>
+                <Feature icon={<UserCheck className="size-3.5" />}>Professional driver</Feature>
+                <Feature icon={<ShieldCheck className="size-3.5" />}>No hidden cost</Feature>
+                <Feature icon={<Star className="size-3.5" />}>5-star rated service</Feature>
+              </ul>
+            </div>
+
+            {klass && klass.models.length > 0 && (
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--gold-ink)]">Typical models</p>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {klass.models.map((m) => (
+                    <span key={m.id} className="rounded-full bg-[var(--navy)]/5 px-2.5 py-0.5 text-[11.5px] font-medium text-[var(--navy)]/80">
+                      {m.name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--gold-ink)]">Capacity per vehicle</p>
+              <p className="mt-2 text-muted-foreground">
+                {card.passengers} passenger{card.passengers === 1 ? "" : "s"} · {card.luggage} suitcase{card.luggage === 1 ? "" : "s"} · {card.handLuggage} hand bag{card.handLuggage === 1 ? "" : "s"}
+              </p>
+              {minQty > 1 && (
+                <p className="mt-2 rounded-lg border border-warning/50 bg-warning/12 px-3 py-2 text-[12px] leading-snug text-warning">
+                  Your party needs <span className="font-bold">{minQty} vehicles</span> of this class.
+                </p>
+              )}
+            </div>
+
+            <VehicleAllocationNotice compact />
+
+            <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground/70">Ticket no. {serial}</p>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </article>
   );
 }
 
@@ -1718,9 +1773,9 @@ function Feature({ icon, children }: { icon: React.ReactNode; children: React.Re
 // ---------------------------------------------------------------
 // Step 02 — Passenger contact details (no extras, no submit)
 // ---------------------------------------------------------------
-function ContactStep({ contact, onChange, onBack, onNext, attempted }: {
+function ContactStep({ contact, onChange, onBack, attempted }: {
   contact: Contact; onChange: (c: Contact) => void;
-  onBack: () => void; onNext: () => void; attempted: boolean;
+  onBack: () => void; attempted: boolean;
 }) {
   const set = <K extends keyof Contact>(k: K, v: Contact[K]) => onChange({ ...contact, [k]: v });
   const errors = contactErrors(contact);
@@ -1729,7 +1784,7 @@ function ContactStep({ contact, onChange, onBack, onNext, attempted }: {
   return (
     <div className="bg-card rounded-2xl border border-border shadow-sm p-6 md:p-8 space-y-6">
       <div>
-        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)]">Step 02 — Passenger details</p>
+        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)]">Step 02 — Trip details</p>
         <h2 className="mt-1 font-display text-2xl md:text-3xl font-bold">Who is travelling?</h2>
         <p className="mt-2 text-sm text-muted-foreground">
           We'll use these details to confirm your booking and keep you updated.
@@ -1767,13 +1822,9 @@ function ContactStep({ contact, onChange, onBack, onNext, attempted }: {
         <Textarea value={contact.notes} onChange={(e) => set("notes", e.target.value)} rows={4} maxLength={1000} placeholder="Anything our driver should know" />
       </Field>
 
-      <div id="step-actions" className="hidden lg:flex flex-wrap gap-3 pt-2 scroll-mt-24">
+      <div className="hidden lg:flex pt-2">
         <Button type="button" variant="outline" onClick={onBack} className="gap-2">
-          <ArrowLeft className="size-4" /> Back
-        </Button>
-        <Button type="button" onClick={onNext}
-          variant="gold" className="ml-auto tracking-wider px-8 gap-2">
-          Continue to extras <ArrowRight className="size-4" />
+          <ArrowLeft className="size-4" /> Change vehicle
         </Button>
       </div>
     </div>
@@ -1781,7 +1832,7 @@ function ContactStep({ contact, onChange, onBack, onNext, attempted }: {
 }
 
 // ---------------------------------------------------------------
-// Step 03 — Extras (stops + child seats + meet & greet + return + policy)
+// Step 02b — Extras (stops + child seats + meet & greet + return + policy)
 // ---------------------------------------------------------------
 type ScenicStop = { place_id: string; label: string; minutes: number; category?: string | null };
 
@@ -1836,7 +1887,7 @@ function ExtrasStep(props: {
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)]">Step 03 — Extras</p>
+        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)]">Step 02 — Extras &amp; options</p>
         <h2 className="mt-1 font-display text-2xl md:text-3xl font-bold">Personalise your journey</h2>
         <p className="mt-2 text-sm text-muted-foreground">
           Add scenic stops, child seats, meet &amp; greet, a return trip and pick your cancellation cover — all in one place.
@@ -2100,7 +2151,7 @@ function PolicyTiers({ value, onChange, base, cfg }: {
 }
 
 // ---------------------------------------------------------------
-// Step 04 — Card payment (card is the only accepted method)
+// Step 03 — Card payment (card is the only accepted method)
 // ---------------------------------------------------------------
 function PaymentStep({ grandTotal, onBack, onSubmit, submitting, captchaWidget, captchaReady }: {
   grandTotal: number; onBack: () => void; onSubmit: () => void; submitting: boolean;
@@ -2110,7 +2161,7 @@ function PaymentStep({ grandTotal, onBack, onSubmit, submitting, captchaWidget, 
     <div className="bg-card rounded-2xl border border-border shadow-sm p-6 md:p-8 space-y-6">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)]">Step 04 — Payment</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)]">Step 03 — Payment</p>
           <h2 className="mt-1 font-display text-2xl md:text-3xl font-bold">Pay securely by card</h2>
           <p className="mt-2 text-sm text-muted-foreground">
             Card is the only payment method we accept — your booking is confirmed as soon as the
@@ -2156,7 +2207,7 @@ function PaymentStep({ grandTotal, onBack, onSubmit, submitting, captchaWidget, 
   );
 }
 
-/** Step 05 — inline card checkout for the saved booking. */
+/** Step 03b — inline card checkout for the saved booking. */
 function PayNowStep({ bookingRef, token, amountPence, email }: {
   bookingRef: string; token: string; amountPence: number; email?: string;
 }) {
@@ -2169,7 +2220,7 @@ function PayNowStep({ bookingRef, token, amountPence, email }: {
     <div className="bg-card rounded-2xl border border-border shadow-sm p-6 md:p-8 space-y-6">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)]">Step 05 — Card payment</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)]">Step 03 — Card payment</p>
           <h2 className="mt-1 font-display text-2xl md:text-3xl font-bold">Complete your payment</h2>
           <p className="mt-2 text-sm text-muted-foreground">
             Booking <span className="font-semibold text-foreground">{bookingRef}</span> is saved.
