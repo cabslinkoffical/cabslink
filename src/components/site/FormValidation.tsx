@@ -94,3 +94,43 @@ export function zodFieldErrors(
   }
   return out;
 }
+
+/**
+ * Sticky bottom action bar for phones and tablets. Mirrors the booking flow so
+ * every public form submits from the same place on small screens. Render it
+ * inside the <form> (it submits natively) and hide the inline submit button
+ * with `hidden lg:inline-flex`.
+ */
+export function StickyFormSubmit({
+  label,
+  loadingLabel,
+  loading = false,
+  disabled = false,
+  invalid = false,
+  notice = "Please fill the required data to continue",
+}: {
+  label: React.ReactNode;
+  loadingLabel?: React.ReactNode;
+  loading?: boolean;
+  disabled?: boolean;
+  invalid?: boolean;
+  notice?: React.ReactNode;
+}) {
+  return (
+    <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-border bg-card/95 backdrop-blur px-4 py-3 shadow-[0_-8px_24px_-12px_rgba(14,24,44,0.25)]">
+      {invalid && (
+        <p role="alert" className="mb-2 flex items-center gap-1.5 text-xs font-bold text-destructive">
+          <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+          {notice}
+        </p>
+      )}
+      <button
+        type="submit"
+        disabled={loading || disabled}
+        className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] px-5 py-3 text-sm font-bold shadow-[var(--shadow-glow)] disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {loading ? (loadingLabel ?? label) : label}
+      </button>
+    </div>
+  );
+}

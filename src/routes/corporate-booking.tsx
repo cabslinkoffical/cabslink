@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { submitCorporateInquiry } from "@/lib/corporate.functions";
 import { useCaptcha } from "@/components/site/Captcha";
 import { PhoneInput } from "@/components/site/PhoneInput";
-import { FormNotice, FormField, focusFirstInvalid, zodFieldErrors } from "@/components/site/FormValidation";
+import { FormNotice, FormField, focusFirstInvalid, zodFieldErrors, StickyFormSubmit } from "@/components/site/FormValidation";
 
 export const Route = createFileRoute("/corporate-booking")({
   head: () => ({
@@ -104,7 +104,7 @@ function CorporateBookingPage() {
               ))}
             </ol>
           </div>
-          <form noValidate onSubmit={onSubmit} className="rounded-3xl border border-border bg-card p-6 md:p-8 shadow-sm h-fit">
+          <form noValidate onSubmit={onSubmit} className="rounded-3xl border border-border bg-card p-6 md:p-8 pb-28 lg:pb-8 shadow-sm h-fit">
             <div className="flex items-center gap-3"><Building2 className="size-6 text-[var(--gold-ink)]" /><h3 className="font-display text-2xl font-semibold">Corporate enquiry</h3></div>
             <div className="mt-6 grid gap-4">
               <FormNotice visible={Object.keys(errors).length > 0} />
@@ -130,9 +130,10 @@ function CorporateBookingPage() {
                 <input id="corp-website" name="website" type="text" tabIndex={-1} autoComplete="off" />
               </div>
               {captcha.widget}
-              <Button type="submit" variant="gold" disabled={loading || !captcha.ready} className="rounded-full">
+              <Button type="submit" variant="gold" disabled={loading || !captcha.ready} className="rounded-full hidden lg:inline-flex">
                 {loading ? "Sending…" : <>Request proposal <ArrowRight className="size-4" /></>}
               </Button>
+              <StickyFormSubmit label={<>Request proposal <ArrowRight className="size-4" /></>} loadingLabel="Sending…" loading={loading} disabled={!captcha.ready} invalid={Object.keys(errors).length > 0} />
             </div>
           </form>
         </div>

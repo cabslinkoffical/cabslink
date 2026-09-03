@@ -410,7 +410,7 @@ function HourlyBookPage() {
 
       {/* Mobile total bar */}
       {selected && (
-        <div className="lg:hidden sticky bottom-0 z-40 bg-white border-t border-border px-4 py-3 flex items-center justify-between">
+        <div className="lg:hidden fixed inset-x-0 bottom-0 z-40 bg-card/95 backdrop-blur border-t border-border px-4 py-3 flex items-center justify-between shadow-[0_-8px_24px_-12px_rgba(14,24,44,0.25)]">
           <div>
             <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Total</div>
             <div className="font-display text-lg font-bold text-[var(--navy)]">{symbol}{grandTotal.toFixed(2)}</div>
