@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Menu, X, Phone, ShieldCheck, MapPin } from "lucide-react";
+import { Menu, X, Phone, ShieldCheck } from "lucide-react";
 import { Logo } from "./Logo";
 import { NAV, SITE } from "@/lib/site";
 import { supabase } from "@/integrations/supabase/client";
+
 
 export function Header() {
   const [open, setOpen] = useState(false);
@@ -85,14 +86,8 @@ export function Header() {
               </Link>
             )}
 
-            <Link
-              to="/track-booking"
-              className="hidden xl:inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-2 text-[12px] font-bold tracking-wide text-white/80 hover:text-[var(--gold)] transition-colors"
-            >
-              <MapPin className="size-3.5" /> Track booking
-            </Link>
-
             <a
+
               href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}
               className="group hidden 2xl:inline-flex items-center gap-2 rounded-full px-3 py-2 text-[12px] font-bold tracking-wide text-[var(--gold)] hover:text-white transition-colors"
             >
@@ -156,21 +151,15 @@ export function Header() {
               </nav>
 
               <Link
-                to="/track-booking"
-                className="mt-2 inline-flex items-center justify-center gap-2 rounded-full border border-[var(--gold)]/40 py-3 text-[12px] font-bold uppercase tracking-[0.14em] text-[var(--gold)]"
-              >
-                <MapPin className="size-3.5" /> Track your booking
-              </Link>
 
-              <Link
                 to="/book"
                 className="mt-2 inline-flex items-center justify-center gap-2 rounded-full bg-[var(--gold)] py-3 text-[12px] font-extrabold uppercase tracking-[0.16em] text-[var(--navy)] shadow-[0_10px_28px_-10px_rgba(223,175,38,0.9)]"
               >
                 Book Now
               </Link>
 
-
               {isAdmin && (
+
                 <Link
                   to="/cabs-booking-pannel"
                   className="mt-2 inline-flex items-center justify-center gap-1.5 rounded-full border border-[var(--gold)]/40 py-2.5 text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--gold)]"
