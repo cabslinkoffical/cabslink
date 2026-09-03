@@ -52,12 +52,32 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   );
 }
 
+/**
+ * Legacy PHP URLs from the previous site. Googlebot still crawls these, so they
+ * must answer with a real server-side 301 (not a client navigation) to carry
+ * ranking signals over. Keys are lowercase, query strings are ignored.
+ */
+const LEGACY_PHP_REDIRECTS: Record<string, string> = {
+  "/index.php": "/",
+  "/about-us.php": "/about",
+  "/fleet.php": "/fleet",
+  "/contact-us.php": "/contact",
+  "/get-a-quote.php": "/get-a-quote",
+};
+
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   beforeLoad: async ({ location }) => {
     const p = location.pathname;
+
+    // Must run before anything else: the catch-all `/$` route otherwise owns
+    // these paths and would answer 404.
+    const legacy = LEGACY_PHP_REDIRECTS[p.toLowerCase().replace(/\/+$/, "") || "/"];
+    if (legacy) throw redirect({ href: legacy, statusCode: 301 });
+
     // Admin, auth and API stay reachable so the switch can be turned back off.
     const isExempt = !p || p.startsWith("/api/") || p.startsWith("/cabs-booking-pannel") ||
       p.startsWith("/auth") || p.startsWith("/_") || /\.[a-z0-9]{2,5}$/i.test(p);
+
 
     let maintenance: { maintenance: boolean; company_name: string | null } = { maintenance: false, company_name: null };
     if (!isExempt) {

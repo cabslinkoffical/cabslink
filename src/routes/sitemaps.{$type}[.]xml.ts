@@ -56,10 +56,16 @@ export const Route = createFileRoute("/sitemaps/{$type}.xml")({
           `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`,
           ...rows.map((r) => {
             const href = destinationHref({ type: r.type as DestinationType, slug: r.slug });
-            return `  <url><loc>${BASE_URL}${href}</loc><lastmod>${r.updated_at}</lastmod></url>`;
+            // W3C date form; Google reads lastmod, not changefreq.
+            const lastmod = new Date(r.updated_at as string);
+            const day = Number.isNaN(lastmod.getTime())
+              ? new Date().toISOString().slice(0, 10)
+              : lastmod.toISOString().slice(0, 10);
+            return `  <url><loc>${BASE_URL}${href}</loc><lastmod>${day}</lastmod></url>`;
           }),
           `</urlset>`,
         ].join("\n");
+
         return new Response(xml, {
           headers: { "Content-Type": "application/xml", "Cache-Control": "public, max-age=3600" },
         });
