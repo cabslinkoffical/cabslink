@@ -12,7 +12,7 @@ async function assertAdmin(ctx: { supabase: any; userId: string }) {
 
 export type AdminNotification = {
   id: string;
-  kind: "booking" | "message" | "driver";
+  kind: "booking" | "message";
   title: string;
   subtitle: string;
   createdAt: string;
@@ -29,25 +29,18 @@ export const listAdminNotifications = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     await assertAdmin(context);
 
-    const [bookings, messages, drivers] = await Promise.all([
+    const [bookings, messages] = await Promise.all([
       context.supabase
         .from("bookings")
         .select("id, booking_ref, customer_name, pickup_address, dropoff_address, status, created_at")
         .is("deleted_at", null)
         .order("created_at", { ascending: false })
-        .limit(15),
+        .limit(20),
       context.supabase
         .from("contact_messages")
         .select("id, name, subject, message, status, created_at")
         .order("created_at", { ascending: false })
-        .limit(15),
-      context.supabase
-        .from("driver_applications")
-        .select("id, full_name, status, created_at")
-        .order("created_at", { ascending: false })
-        .limit(10)
-        .then((r: any) => r)
-        .catch(() => ({ data: [] as any[] })),
+        .limit(20),
     ]);
 
     const items: AdminNotification[] = [];
@@ -74,17 +67,6 @@ export const listAdminNotifications = createServerFn({ method: "GET" })
         subtitle: [m.name, (m.message ?? "").replace(/\s+/g, " ")].filter(Boolean).join(" · ").slice(0, 120),
         createdAt: m.created_at,
         href: "/cabs-booking-pannel/messages",
-      });
-    }
-
-    for (const d of ((drivers as any)?.data ?? []) as any[]) {
-      items.push({
-        id: `driver:${d.id}`,
-        kind: "driver",
-        title: "Driver application",
-        subtitle: `${d.full_name ?? "Applicant"} · ${d.status ?? "new"}`,
-        createdAt: d.created_at,
-        href: "/cabs-booking-pannel/drivers",
       });
     }
 
