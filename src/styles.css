@@ -78,9 +78,8 @@
 :root {
   --radius: 0.75rem;
 
-  /* Strict brand palette — ONLY these values:
-     navy #0E182C, gold #DEAE25, white #ffffff.
-     Surfaces are the same hues at reduced alpha, never new shades. */
+  /* Strict brand palette for brand UI. Semantic validation errors use red so
+     required-field failures remain immediately recognisable and accessible. */
   --background: #ffffff;
   --foreground: #0e182c;
   --surface: #ffffff;
@@ -113,7 +112,7 @@
   --accent: #deae25;
   --accent-foreground: #0e182c;
 
-  --destructive: #0e182c;
+  --destructive: #dc2626;
   --destructive-foreground: #ffffff;
 
   --border: rgba(14, 24, 44, 0.12);
