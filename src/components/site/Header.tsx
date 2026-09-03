@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Menu, X, Phone, ShieldCheck, MapPin } from "lucide-react";
+import { Menu, X, Phone, ShieldCheck } from "lucide-react";
 import { Logo } from "./Logo";
 import { NAV, SITE } from "@/lib/site";
 import { supabase } from "@/integrations/supabase/client";
+
 
 export function Header() {
   const [open, setOpen] = useState(false);
