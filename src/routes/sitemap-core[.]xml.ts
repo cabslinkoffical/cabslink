@@ -98,9 +98,6 @@ export const Route = createFileRoute("/sitemap-core.xml")({
             `  <url><loc>${BASE_URL}${p}</loc>${lastmod ? `<lastmod>${lastmod}</lastmod>` : ""}</url>`),
           `</urlset>`,
         ].join("\n");
-
-          `</urlset>`,
-        ].join("\n");
         return new Response(xml, {
           headers: { "Content-Type": "application/xml", "Cache-Control": "public, max-age=3600" },
         });
