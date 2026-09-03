@@ -152,12 +152,20 @@ export function Header() {
               </nav>
 
               <Link
+                to="/track-booking"
+                className="mt-2 inline-flex items-center justify-center gap-2 rounded-full border border-[var(--gold)]/40 py-3 text-[12px] font-bold uppercase tracking-[0.14em] text-[var(--gold)]"
+              >
+                <MapPin className="size-4" /> Track booking
+              </Link>
+
+              <Link
 
                 to="/book"
                 className="mt-2 inline-flex items-center justify-center gap-2 rounded-full bg-[var(--gold)] py-3 text-[12px] font-extrabold uppercase tracking-[0.16em] text-[var(--navy)] shadow-[0_10px_28px_-10px_rgba(223,175,38,0.9)]"
               >
                 Book Now
               </Link>
+
 
               {isAdmin && (
 
