@@ -209,7 +209,7 @@ export function BookingWidget({
               hours: hours ?? 0,
               passengers: passengers ?? 0,
               luggage,
-      hand_luggage: handLuggage,
+              hand_luggage: handLuggage,
               source: "booking_widget",
             });
             navigate({ to: "/book/hourly", search: { q: params.toString() } as never });
