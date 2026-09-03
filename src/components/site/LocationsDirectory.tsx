@@ -1,10 +1,29 @@
 import { useMemo } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { useQuery, queryOptions } from "@tanstack/react-query";
 import { ArrowRight } from "lucide-react";
 import { listDestinationsByTypes } from "@/lib/destinations.functions";
 import { listPublishedTours } from "@/lib/tours.functions";
 import { JOURNEYS, journeyPath } from "@/lib/seo/journeys";
+
+/**
+ * Stable hash of the current path so every page surfaces a different slice of
+ * the directory — the section is an internal-linking hub, so repeating the same
+ * four rows site-wide wastes it.
+ */
+function pathSeed(path: string): number {
+  let h = 0;
+  for (let i = 0; i < path.length; i++) h = (h * 31 + path.charCodeAt(i)) % 100003;
+  return h;
+}
+
+/** Rotating window over a list; wraps around so it is always `count` long. */
+function rotate<T>(list: T[], seed: number, count: number): T[] {
+  if (list.length === 0) return [];
+  const start = seed % list.length;
+  return Array.from({ length: Math.min(count, list.length) }, (_, i) => list[(start + i) % list.length]!);
+}
+
 
 export const locationsDirectoryQuery = {
   queryKey: ["destinations", "locations-directory"] as const,
@@ -107,45 +126,53 @@ export function LocationsDirectory({
   const { data: cities = [] } = useQuery(locationsDirectoryQuery);
   const { data: tours = [] } = useQuery(directoryToursQuery);
 
-  const locationItems = useMemo<Item[]>(
-    () =>
-      cities.length === 0
-        ? FALLBACK_LOCATIONS.slice(0, limit)
-        : [...cities]
-        .sort((a, b) => (a.seo_tier ?? 9) - (b.seo_tier ?? 9) || a.name.localeCompare(b.name))
-        .slice(0, limit)
-        .map((d) => ({
-          key: d.slug,
-          label: d.name,
-          meta: d.region ?? undefined,
-          to: `/areas/${d.slug}`,
-        })),
-    [cities, limit],
-  );
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const seed = useMemo(() => pathSeed(pathname), [pathname]);
+
+  const locationItems = useMemo<Item[]>(() => {
+    if (cities.length === 0) return rotate(FALLBACK_LOCATIONS, seed, limit);
+    const sorted = [...cities].sort(
+      (a, b) => (a.seo_tier ?? 9) - (b.seo_tier ?? 9) || a.name.localeCompare(b.name),
+    );
+    // Never link the page you are already on.
+    const pool = sorted.filter((d) => `/areas/${d.slug}` !== pathname);
+    return rotate(pool, seed, limit).map((d) => ({
+      key: d.slug,
+      label: d.name,
+      meta: d.region ?? undefined,
+      to: `/areas/${d.slug}`,
+    }));
+  }, [cities, limit, seed, pathname]);
 
   const transferItems = useMemo<Item[]>(
     () =>
-      JOURNEYS.slice(0, limit).map((j) => ({
+      rotate(
+        JOURNEYS.filter((j) => journeyPath(j.slug) !== pathname),
+        seed,
+        limit,
+      ).map((j) => ({
         key: j.slug,
         label: `${j.from.name} to ${j.to.name}`,
         meta: `${j.miles} miles · ${j.via}`,
         to: journeyPath(j.slug),
       })),
-    [limit],
+    [limit, seed, pathname],
   );
 
   const tourItems = useMemo<Item[]>(() => {
-    if (tours.length === 0) return FALLBACK_TOURS.slice(0, limit);
+    if (tours.length === 0) return rotate(FALLBACK_TOURS, seed, limit);
     const sorted = [...tours].sort(
       (a, b) => Number(b.featured) - Number(a.featured) || a.name.localeCompare(b.name),
     );
-    return sorted.slice(0, limit).map((t) => ({
+    const pool = sorted.filter((t) => `/tours/${t.slug}` !== pathname);
+    return rotate(pool, seed, limit).map((t) => ({
       key: t.slug,
       label: t.name,
       meta: t.theme ?? t.origin_label ?? undefined,
       to: `/tours/${t.slug}`,
     }));
-  }, [tours, limit]);
+  }, [tours, limit, seed, pathname]);
+
 
   if (locationItems.length === 0 && transferItems.length === 0 && tourItems.length === 0) {
     return null;
