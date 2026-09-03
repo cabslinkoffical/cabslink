@@ -1,10 +1,29 @@
 import { useMemo } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { useQuery, queryOptions } from "@tanstack/react-query";
 import { ArrowRight } from "lucide-react";
 import { listDestinationsByTypes } from "@/lib/destinations.functions";
 import { listPublishedTours } from "@/lib/tours.functions";
 import { JOURNEYS, journeyPath } from "@/lib/seo/journeys";
+
+/**
+ * Stable hash of the current path so every page surfaces a different slice of
+ * the directory — the section is an internal-linking hub, so repeating the same
+ * four rows site-wide wastes it.
+ */
+function pathSeed(path: string): number {
+  let h = 0;
+  for (let i = 0; i < path.length; i++) h = (h * 31 + path.charCodeAt(i)) % 100003;
+  return h;
+}
+
+/** Rotating window over a list; wraps around so it is always `count` long. */
+function rotate<T>(list: T[], seed: number, count: number): T[] {
+  if (list.length === 0) return [];
+  const start = seed % list.length;
+  return Array.from({ length: Math.min(count, list.length) }, (_, i) => list[(start + i) % list.length]!);
+}
+
 
 export const locationsDirectoryQuery = {
   queryKey: ["destinations", "locations-directory"] as const,
