@@ -554,7 +554,7 @@ input[type="time"] {
 @utility ticket-punch-y {
   background-image: radial-gradient(
     circle at center,
-    var(--surface) 0 3px,
+    color-mix(in oklab, var(--navy) 22%, transparent) 0 3px,
     transparent 3.5px
   );
   background-size: 100% 14px;
@@ -565,7 +565,7 @@ input[type="time"] {
 @utility ticket-punch-x {
   background-image: radial-gradient(
     circle at center,
-    var(--surface) 0 3px,
+    color-mix(in oklab, var(--navy) 22%, transparent) 0 3px,
     transparent 3.5px
   );
   background-size: 14px 100%;
