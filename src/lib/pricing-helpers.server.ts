@@ -172,7 +172,7 @@ export async function loadActiveProfiles(client: ReturnType<typeof publicClient>
       .in("id", vehicleIds.length ? vehicleIds : ["00000000-0000-0000-0000-000000000000"]),
     client
       .from("vehicle_classes")
-      .select("id, name, slug, hero_image, passengers, large_luggage, hand_luggage, quote_on_request, display_order, pricing_vehicle_id, active")
+      .select("id, name, slug, hero_image, passengers, large_luggage, cabin_bags, hand_luggage, quote_on_request, display_order, pricing_vehicle_id, active")
       .eq("active", true)
       .in("pricing_vehicle_id", vehicleIds.length ? vehicleIds : ["00000000-0000-0000-0000-000000000000"]),
   ]);
