@@ -53,7 +53,7 @@ export function FormField({
       <div
         className={
           invalid
-            ? "mt-1.5 [&_input]:border-destructive [&_input]:ring-1 [&_input]:ring-destructive/50 [&_textarea]:border-destructive [&_textarea]:ring-1 [&_textarea]:ring-destructive/50"
+            ? "mt-1.5 [&_input]:border-destructive [&_input]:ring-1 [&_input]:ring-destructive/50 [&_textarea]:border-destructive [&_textarea]:ring-1 [&_textarea]:ring-destructive/50 [&_button[role=combobox]]:border-destructive [&_button[role=combobox]]:ring-1 [&_button[role=combobox]]:ring-destructive/50"
             : "mt-1.5"
         }
       >
