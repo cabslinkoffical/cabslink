@@ -54,10 +54,11 @@ export const Route = createFileRoute("/sitemap-core.xml")({
   server: {
     handlers: {
       GET: async () => {
-        // path -> lastmod (YYYY-MM-DD). Static routes fall back to BUILD_DATE.
-        const entries = new Map<string, string>();
+        // path -> lastmod (YYYY-MM-DD) or null when no trustworthy
+        // page-specific timestamp exists (then <lastmod> is omitted).
+        const entries = new Map<string, string | null>();
 
-        for (const p of PUBLIC_ROUTES) entries.set(p, BUILD_DATE);
+        for (const p of PUBLIC_ROUTES) entries.set(p, null);
 
         const sb = serverPublicClient();
 
@@ -66,7 +67,7 @@ export const Route = createFileRoute("/sitemap-core.xml")({
             .from("scenic_route_templates")
             .select("slug, updated_at");
           for (const t of (data ?? []) as { slug: string; updated_at: string | null }[]) {
-            entries.set(`/tours/${t.slug}`, isoDay(t.updated_at) ?? BUILD_DATE);
+            entries.set(`/tours/${t.slug}`, isoDay(t.updated_at));
           }
         } catch { /* keep serving the static surface */ }
 
@@ -76,7 +77,7 @@ export const Route = createFileRoute("/sitemap-core.xml")({
           // sub-sitemaps; listing them here too would duplicate entries.
           for (const r of rows) {
             if (DESTINATION_OWNED_PREFIXES.some((pre) => r.path.startsWith(pre))) continue;
-            entries.set(r.path, isoDay(r.updated_at) ?? BUILD_DATE);
+            entries.set(r.path, isoDay(r.updated_at));
           }
         } catch { /* ignore */ }
 
@@ -86,7 +87,7 @@ export const Route = createFileRoute("/sitemap-core.xml")({
             .select("slug, updated_at")
             .eq("status", "published");
           for (const b of (data ?? []) as { slug: string; updated_at: string | null }[]) {
-            entries.set(`/blog/${b.slug}`, isoDay(b.updated_at) ?? BUILD_DATE);
+            entries.set(`/blog/${b.slug}`, isoDay(b.updated_at));
           }
         } catch { /* ignore */ }
 
@@ -94,7 +95,10 @@ export const Route = createFileRoute("/sitemap-core.xml")({
           `<?xml version="1.0" encoding="UTF-8"?>`,
           `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`,
           ...[...entries].map(([p, lastmod]) =>
-            `  <url><loc>${BASE_URL}${p}</loc><lastmod>${lastmod}</lastmod></url>`),
+            `  <url><loc>${BASE_URL}${p}</loc>${lastmod ? `<lastmod>${lastmod}</lastmod>` : ""}</url>`),
+          `</urlset>`,
+        ].join("\n");
+
           `</urlset>`,
         ].join("\n");
         return new Response(xml, {
