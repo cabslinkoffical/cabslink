@@ -20,6 +20,7 @@ import {
   DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { AdminNotifications } from "@/components/admin/NotificationBell";
 
 export const Route = createFileRoute("/_authenticated/cabs-booking-pannel")({
   head: () => ({
@@ -170,7 +171,7 @@ function AdminLayout() {
           <div className="flex-1" />
 
           {/* Global admin search is not yet wired to a backend index — hidden until implemented. */}
-          {/* Notification bell is not yet wired to a real notification stream — hidden until implemented. */}
+          <AdminNotifications />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-muted">
