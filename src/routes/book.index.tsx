@@ -593,19 +593,14 @@ function BookPage() {
       return;
     }
     setContactAttempted(false);
-    setStep("extras");
-  }, [contact]);
-
-  const goToPayment = useCallback(() => {
-    track("booking_step", { step: "payment", value: grandTotal / 100, currency: "GBP" });
+    track("booking_step", { step: "payment" });
     setStep("payment");
-  }, [grandTotal]);
+  }, [contact]);
 
   const mobileContinue = useCallback(() => {
     if (step === "details") goToExtras();
-    else if (step === "extras") goToPayment();
     else if (step === "payment") submitBooking();
-  }, [step, goToExtras, goToPayment, submitBooking]);
+  }, [step, goToExtras, submitBooking]);
 
   return (
     <SiteLayout>
@@ -755,7 +750,7 @@ function BookPage() {
           )}
         </div>
       </section>
-      {chosen && (step === "details" || step === "extras" || step === "payment") && (
+      {chosen && (step === "details" || step === "payment") && (
         <MobilePriceBar onContinue={mobileContinue} price={{ vehicleName: chosen.name, perVehicle: perVehiclePrice, qty, rideTotal, seatFee, seatCount: childSeatCount, meetGreetFee, returnFee, addonsFee, addonLines, policy, policyDelta, grandTotal }} />
       )}
       <EditTripDialog open={editOpen} onOpenChange={setEditOpen} initial={pre} onSave={applyEdit} />
@@ -1079,10 +1074,8 @@ function EditTripDialog({
 function Stepper({ step }: { step: Step }) {
   const items: { id: Step; label: string }[] = [
     { id: "vehicle", label: "Vehicle" },
-    { id: "details", label: "Details" },
-    { id: "extras", label: "Extras" },
+    { id: "details", label: "Trip details" },
     { id: "payment", label: "Payment" },
-    { id: "review", label: "Done" },
   ];
 
   const idx = items.findIndex((x) => x.id === step);
@@ -1093,7 +1086,7 @@ function Stepper({ step }: { step: Step }) {
       <div className="md:hidden flex items-center justify-between gap-3 rounded-full bg-card border border-border px-4 py-2.5 shadow-sm">
         <div className="min-w-0 flex items-baseline gap-2">
           <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--gold-ink)]">
-            Step 0{Math.max(1, idx + 1)}/5
+            Step 0{Math.max(1, idx + 1)}/3
           </span>
           <span className="text-sm font-bold text-foreground truncate">{current?.label}</span>
         </div>
@@ -1716,9 +1709,9 @@ function Feature({ icon, children }: { icon: React.ReactNode; children: React.Re
 // ---------------------------------------------------------------
 // Step 02 — Passenger contact details (no extras, no submit)
 // ---------------------------------------------------------------
-function ContactStep({ contact, onChange, onBack, onNext, attempted }: {
+function ContactStep({ contact, onChange, onBack, attempted }: {
   contact: Contact; onChange: (c: Contact) => void;
-  onBack: () => void; onNext: () => void; attempted: boolean;
+  onBack: () => void; attempted: boolean;
 }) {
   const set = <K extends keyof Contact>(k: K, v: Contact[K]) => onChange({ ...contact, [k]: v });
   const errors = contactErrors(contact);
@@ -1765,13 +1758,9 @@ function ContactStep({ contact, onChange, onBack, onNext, attempted }: {
         <Textarea value={contact.notes} onChange={(e) => set("notes", e.target.value)} rows={4} maxLength={1000} placeholder="Anything our driver should know" />
       </Field>
 
-      <div id="step-actions" className="hidden lg:flex flex-wrap gap-3 pt-2 scroll-mt-24">
+      <div className="hidden lg:flex pt-2">
         <Button type="button" variant="outline" onClick={onBack} className="gap-2">
-          <ArrowLeft className="size-4" /> Back
-        </Button>
-        <Button type="button" onClick={onNext}
-          variant="gold" className="ml-auto tracking-wider px-8 gap-2">
-          Continue to extras <ArrowRight className="size-4" />
+          <ArrowLeft className="size-4" /> Change vehicle
         </Button>
       </div>
     </div>
