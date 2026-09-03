@@ -1575,51 +1575,49 @@ function VehicleCard({ card, klass, trip, best, qty, minQty, disabled, disabledR
 
   return (
     <article
-      className={`relative flex flex-col md:flex-row ticket-paper rounded-[10px] overflow-hidden shadow-[0_14px_40px_-24px_rgba(14,24,44,0.45)] border-2 transition-all duration-300 hover:shadow-[0_22px_60px_-24px_rgba(223,175,38,0.45)] ${best ? "border-[var(--gold)]" : minQty > 1 ? "border-warning/60" : "border-[var(--navy)]/15"}`}
+      className={`relative flex flex-col ticket-paper rounded-[14px] overflow-hidden shadow-[0_14px_40px_-24px_rgba(14,24,44,0.45)] border transition-all duration-300 hover:shadow-[0_22px_60px_-24px_rgba(223,175,38,0.35)] ${best ? "border-[var(--gold)]" : minQty > 1 ? "border-warning/60" : "border-[var(--navy)]/15"}`}
     >
-      {/* ---- left rail: printed spine, like a real issued ticket ---- */}
-      <div className="hidden lg:flex w-9 shrink-0 items-center justify-center bg-[var(--navy)]">
-        <span className="[writing-mode:vertical-rl] rotate-180 text-[9px] font-bold uppercase tracking-[0.45em] text-[var(--gold)]/85">
-          Passenger ticket
-        </span>
+      {/* ---- full-width printed header bar ---- */}
+      <div className="relative flex items-center justify-between gap-3 bg-[var(--navy)] px-4 md:px-6 py-3">
+        <div className="min-w-0 flex items-center gap-2">
+          <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)]">Cabslink</span>
+          <span className="h-3 w-px bg-white/20" />
+          <span className="hidden sm:inline text-[9.5px] font-bold uppercase tracking-[0.32em] text-white/45">
+            Passenger ticket
+          </span>
+          <span className="hidden sm:inline h-3 w-px bg-white/20" />
+          <span className="truncate text-[10px] font-semibold uppercase tracking-[0.22em] text-white/70">
+            {trip.ret ? "Return journey" : "One way"} · {dateLabel} {trip.time || ""}
+          </span>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          {best && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-[var(--gold)] px-2.5 py-0.5 text-[9.5px] font-bold uppercase tracking-[0.18em] text-[var(--gold-foreground)]">
+              <Award className="size-3" /> Best value
+            </span>
+          )}
+          {!best && minQty > 1 && (
+            <span className="inline-flex items-center rounded-full bg-warning px-2.5 py-0.5 text-[9.5px] font-bold uppercase tracking-[0.18em] text-warning-foreground">
+              Needs {minQty}
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={() => setInfoOpen(true)}
+            aria-label={`What's included with ${displayName}`}
+            className="grid size-7 place-items-center rounded-full border border-white/25 text-white/80 transition hover:border-[var(--gold)] hover:text-[var(--gold)]"
+          >
+            <Info className="size-3.5" />
+          </button>
+        </div>
+        <span className="absolute inset-x-0 bottom-0 h-px bg-[var(--gold)]/50" aria-hidden />
       </div>
 
+      <div className="flex flex-col md:flex-row bg-card/0">
       {/* ---- ticket body ---- */}
       <div className="flex-1 min-w-0">
-        {/* stub header — issued-ticket strip */}
-        <div className="relative flex items-center justify-between gap-3 bg-[var(--navy)] px-4 md:px-6 py-2.5">
-          <div className="min-w-0 flex items-center gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)]">Cabslink</span>
-            <span className="h-3 w-px bg-white/20" />
-            <span className="truncate text-[10px] font-semibold uppercase tracking-[0.22em] text-white/70">
-              {trip.ret ? "Return journey" : "One way"} · {dateLabel} {trip.time || ""}
-            </span>
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            {best && (
-              <span className="inline-flex items-center gap-1 rounded-sm bg-[var(--gold)] px-2.5 py-0.5 text-[9.5px] font-bold uppercase tracking-[0.18em] text-[var(--gold-foreground)]">
-                <Award className="size-3" /> Best value
-              </span>
-            )}
-            {!best && minQty > 1 && (
-              <span className="inline-flex items-center rounded-sm bg-warning px-2.5 py-0.5 text-[9.5px] font-bold uppercase tracking-[0.18em] text-warning-foreground">
-                Needs {minQty}
-              </span>
-            )}
-            <button
-              type="button"
-              onClick={() => setInfoOpen(true)}
-              aria-label={`What's included with ${displayName}`}
-              className="grid size-7 place-items-center rounded-full border border-white/25 text-white/80 transition hover:border-[var(--gold)] hover:text-[var(--gold)]"
-            >
-              <Info className="size-3.5" />
-            </button>
-          </div>
-          <span className="absolute inset-x-0 bottom-0 h-px bg-[var(--gold)]/50" aria-hidden />
-        </div>
-
         <div className="p-4 md:p-6 flex flex-col sm:flex-row gap-4 md:gap-6">
-          <div className="w-full sm:w-40 lg:w-44 shrink-0 flex items-center justify-center border border-dashed border-[var(--navy)]/15 bg-white/70 p-3">
+          <div className="w-full sm:w-40 lg:w-44 shrink-0 flex items-center justify-center rounded-md border border-dashed border-[var(--navy)]/15 bg-white/70 p-3">
             <img src={displayImage} alt={displayName} className="w-full aspect-[3/2] object-contain" loading="lazy" />
           </div>
 
@@ -1651,7 +1649,7 @@ function VehicleCard({ card, klass, trip, best, qty, minQty, disabled, disabledR
             </div>
 
             {/* only the three facts that change the decision */}
-            <dl className="mt-3 grid grid-cols-3 divide-x divide-dashed divide-[var(--navy)]/15 border border-dashed border-[var(--navy)]/15">
+            <dl className="mt-3 grid grid-cols-3 divide-x divide-dashed divide-[var(--navy)]/15 rounded-md border border-dashed border-[var(--navy)]/15">
               {[
                 { icon: <Users className="size-3.5" />, label: "Seats", value: card.passengers * qty },
                 { icon: <Briefcase className="size-3.5" />, label: "Cases", value: card.luggage * qty },
@@ -1685,14 +1683,14 @@ function VehicleCard({ card, klass, trip, best, qty, minQty, disabled, disabledR
 
       {/* ---- perforation: punched tear line with cut-out notches ---- */}
       <div className="relative hidden md:flex w-6 shrink-0 items-stretch justify-center">
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2 size-6 rounded-full bg-[var(--surface)] border-2 border-[var(--navy)]/15" />
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2 size-5 rounded-full bg-[var(--surface)] border border-[var(--navy)]/15" />
         <div className="ticket-punch-y my-4 w-2" aria-hidden />
-        <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 size-6 rounded-full bg-[var(--surface)] border-2 border-[var(--navy)]/15" />
+        <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 size-5 rounded-full bg-[var(--surface)] border border-[var(--navy)]/15" />
       </div>
       <div className="relative md:hidden h-6 flex items-center justify-center">
-        <div className="absolute -left-3 top-1/2 -translate-y-1/2 size-6 rounded-full bg-[var(--surface)] border-2 border-[var(--navy)]/15" />
+        <div className="absolute -left-3 top-1/2 -translate-y-1/2 size-5 rounded-full bg-[var(--surface)] border border-[var(--navy)]/15" />
         <div className="ticket-punch-x mx-4 h-2 w-full" aria-hidden />
-        <div className="absolute -right-3 top-1/2 -translate-y-1/2 size-6 rounded-full bg-[var(--surface)] border-2 border-[var(--navy)]/15" />
+        <div className="absolute -right-3 top-1/2 -translate-y-1/2 size-5 rounded-full bg-[var(--surface)] border border-[var(--navy)]/15" />
       </div>
 
       {/* ---- price stub ---- */}
