@@ -1744,6 +1744,9 @@ function VehicleCard({ card, klass, trip, best, qty, minQty, disabled, disabledR
           )}
         </div>
       </div>
+      </div>
+
+
 
 
       {/* ---- everything else lives behind the info icon ---- */}
