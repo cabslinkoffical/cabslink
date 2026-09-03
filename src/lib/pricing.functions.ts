@@ -414,6 +414,7 @@ const createBookingInput = z
     pickupTime: z.string().trim().min(1).max(10),
     passengers: z.number().int().min(1).max(200),
     luggage: z.number().int().min(0).max(200),
+    handLuggage: z.number().int().min(0).max(200).optional().default(0),
     customer_name: z.string().trim().min(1).max(120),
     email: z.string().trim().email().max(255),
     phone: z.string().trim().min(5).max(30),
@@ -533,7 +534,11 @@ export const createBooking = createServerFn({ method: "POST" })
     const profile = auth.profiles.find((p: LoadedProfile) => p.vehicle.id === data.vehicleId);
     if (!profile) throw new Error("Selected vehicle is unavailable.");
     const qty = Math.max(1, data.vehicleCount ?? 1);
-    if (profile.vehicle.passengers * qty < data.passengers || profile.vehicle.luggage * qty < data.luggage) {
+    if (
+      profile.vehicle.passengers * qty < data.passengers ||
+      profile.vehicle.luggage * qty < data.luggage ||
+      (profile.vehicle.hand_luggage > 0 && profile.vehicle.hand_luggage * qty < data.handLuggage)
+    ) {
       throw new Error("Selected vehicles cannot fit the requested passengers/luggage.");
     }
 
@@ -808,6 +813,7 @@ export const createBooking = createServerFn({ method: "POST" })
       flight_number: data.flight_number || null,
       passengers: data.passengers,
       luggage: data.luggage,
+      hand_luggage: data.handLuggage,
       vehicle_type: qty > 1 ? `${qty} × ${profile.vehicle.name}` : profile.vehicle.name,
       vehicle_id: profile.vehicle.id,
       vehicle_name_snapshot: profile.vehicle.name,
