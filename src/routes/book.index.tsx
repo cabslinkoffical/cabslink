@@ -678,59 +678,57 @@ function BookPage() {
                   )}
 
                   {step === "details" && chosen && (
-                    <ContactStep
-                      contact={contact}
-                      onChange={setContact}
-                      attempted={contactAttempted}
-                      onBack={() => setStep("vehicle")}
-                      onNext={goToExtras}
-                    />
-                  )}
-
-                  {step === "extras" && chosen && (
-                    <ExtrasStep
-                      pois={poisQuery.data?.pois ?? []}
-                      template={poisQuery.data?.template ?? null}
-                      poisLoading={poisQuery.isLoading}
-                      selectedStops={selectedStops}
-                      onToggleStop={toggleStop}
-                      onStopMinutes={setStopMinutes}
-                      routeMode={routeMode}
-                      onRouteModeChange={changeRouteMode}
-                      multiQuote={mq}
-                      multiLoading={multiStopQuery.isFetching}
-                      multiError={multiStopQuery.error as Error | null}
-                      converted={isConverted}
-                      needsAck={needsAck}
-                      onAck={() => setTourAckAt(new Date().toISOString())}
-                      childSeatFeePence={childSeatFeePence}
-                      childSeatCount={childSeatCount}
-                      onChildSeatCount={setChildSeatCount}
-                      meetGreet={meetGreet}
-                      onMeetGreet={setMeetGreet}
-                      returnJourney={returnJourney}
-                      onReturnJourney={setReturnJourney}
-                      policy={policy}
-                      onPolicy={setPolicy}
-                      baseRideTotal={rideTotal}
-                      seatFee={seatFee}
-                      meetGreetFee={meetGreetFee}
-                      returnFee={returnFee}
-                      meetGreetFeePence={meetGreetFeePence}
-                      catalogueExtras={catalogueExtras}
-                      extraQty={extraQty}
-                      onExtraQty={(k, n) => setExtraQty((prev) => ({ ...prev, [k]: n }))}
-                      addonsFee={addonsFee}
-                      policyCfg={policyCfg}
-                      onBack={() => setStep("details")}
-                      onNext={goToPayment}
-                    />
+                    <>
+                      <ContactStep
+                        contact={contact}
+                        onChange={setContact}
+                        attempted={contactAttempted}
+                        onBack={() => setStep("vehicle")}
+                      />
+                      <ExtrasStep
+                        pois={poisQuery.data?.pois ?? []}
+                        template={poisQuery.data?.template ?? null}
+                        poisLoading={poisQuery.isLoading}
+                        selectedStops={selectedStops}
+                        onToggleStop={toggleStop}
+                        onStopMinutes={setStopMinutes}
+                        routeMode={routeMode}
+                        onRouteModeChange={changeRouteMode}
+                        multiQuote={mq}
+                        multiLoading={multiStopQuery.isFetching}
+                        multiError={multiStopQuery.error as Error | null}
+                        converted={isConverted}
+                        needsAck={needsAck}
+                        onAck={() => setTourAckAt(new Date().toISOString())}
+                        childSeatFeePence={childSeatFeePence}
+                        childSeatCount={childSeatCount}
+                        onChildSeatCount={setChildSeatCount}
+                        meetGreet={meetGreet}
+                        onMeetGreet={setMeetGreet}
+                        returnJourney={returnJourney}
+                        onReturnJourney={setReturnJourney}
+                        policy={policy}
+                        onPolicy={setPolicy}
+                        baseRideTotal={rideTotal}
+                        seatFee={seatFee}
+                        meetGreetFee={meetGreetFee}
+                        returnFee={returnFee}
+                        meetGreetFeePence={meetGreetFeePence}
+                        catalogueExtras={catalogueExtras}
+                        extraQty={extraQty}
+                        onExtraQty={(k, n) => setExtraQty((prev) => ({ ...prev, [k]: n }))}
+                        addonsFee={addonsFee}
+                        policyCfg={policyCfg}
+                        onBack={() => setStep("vehicle")}
+                        onNext={goToExtras}
+                      />
+                    </>
                   )}
 
                   {step === "payment" && chosen && (
                     <PaymentStep
                       grandTotal={grandTotal}
-                      onBack={() => setStep("extras")}
+                      onBack={() => setStep("details")}
                       onSubmit={submitBooking}
                       submitting={submitting}
                       captchaWidget={captcha.widget}
