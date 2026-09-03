@@ -51,20 +51,28 @@ export const Route = createFileRoute("/sitemaps/{$type}.xml")({
           (r) => !evaluateQuality(r as unknown as Destination).effectiveNoindex,
         );
 
+        // Guard: never emit an epoch/garbage date — omit <lastmod> instead.
+        const MIN_LASTMOD = "2020-01-01";
+        const isoDay = (value: string | null | undefined): string | null => {
+          if (!value) return null;
+          const d = new Date(value);
+          if (Number.isNaN(d.getTime())) return null;
+          const day = d.toISOString().slice(0, 10);
+          return day < MIN_LASTMOD ? null : day;
+        };
+
         const xml = [
           `<?xml version="1.0" encoding="UTF-8"?>`,
           `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`,
           ...rows.map((r) => {
             const href = destinationHref({ type: r.type as DestinationType, slug: r.slug });
             // W3C date form; Google reads lastmod, not changefreq.
-            const lastmod = new Date(r.updated_at as string);
-            const day = Number.isNaN(lastmod.getTime())
-              ? new Date().toISOString().slice(0, 10)
-              : lastmod.toISOString().slice(0, 10);
-            return `  <url><loc>${BASE_URL}${href}</loc><lastmod>${day}</lastmod></url>`;
+            const day = isoDay(r.updated_at as string | null);
+            return `  <url><loc>${BASE_URL}${href}</loc>${day ? `<lastmod>${day}</lastmod>` : ""}</url>`;
           }),
           `</urlset>`,
         ].join("\n");
+
 
         return new Response(xml, {
           headers: { "Content-Type": "application/xml", "Cache-Control": "public, max-age=3600" },
