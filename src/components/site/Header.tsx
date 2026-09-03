@@ -48,7 +48,7 @@ export function Header() {
           </div>
 
           {/* Center nav */}
-          <nav className="hidden lg:flex items-center gap-5 xl:gap-7 absolute left-1/2 -translate-x-1/2" aria-label="Primary">
+          <nav className="hidden lg:flex flex-1 min-w-0 items-center justify-center gap-3 xl:gap-5 2xl:gap-7" aria-label="Primary">
             {NAV.map(item => {
               const active =
                 item.to === "/"
@@ -58,7 +58,7 @@ export function Header() {
                 <Link
                   key={item.to}
                   to={item.to}
-                  className={`group relative py-1 text-[13px] font-semibold tracking-[0.02em] transition-colors duration-200 ${
+                  className={`group relative py-1 whitespace-nowrap text-[12.5px] xl:text-[13px] font-semibold tracking-[0.02em] transition-colors duration-200 ${
                     active ? "text-[var(--gold)]" : "text-white/80 hover:text-white"
                   }`}
                 >
@@ -75,11 +75,11 @@ export function Header() {
           </nav>
 
           {/* Right actions */}
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 md:gap-2 shrink-0">
             {isAdmin && (
               <Link
                 to="/cabs-booking-pannel"
-                className="hidden md:inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-white/80 hover:text-[var(--gold)] transition-colors"
+                className="hidden xl:inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-white/80 hover:text-[var(--gold)] transition-colors"
               >
                 <ShieldCheck className="size-3.5" /> Admin
               </Link>
@@ -87,7 +87,7 @@ export function Header() {
 
             <Link
               to="/track-booking"
-              className="hidden md:inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-[12px] font-bold tracking-wide text-white/80 hover:text-[var(--gold)] transition-colors"
+              className="hidden xl:inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-2 text-[12px] font-bold tracking-wide text-white/80 hover:text-[var(--gold)] transition-colors"
             >
               <MapPin className="size-3.5" /> Track booking
             </Link>
@@ -102,7 +102,7 @@ export function Header() {
 
             <Link
               to="/book"
-              className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-[var(--gold)] px-5 md:px-6 py-2.5 text-[12px] font-extrabold uppercase tracking-[0.14em] text-[var(--navy)] shadow-[0_10px_28px_-10px_rgba(223,175,38,0.9)] hover:shadow-[0_14px_36px_-8px_rgba(223,175,38,0.95)] hover:-translate-y-px transition-all duration-200"
+              className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-[var(--gold)] px-4 md:px-5 py-2.5 text-[11.5px] md:text-[12px] font-extrabold uppercase tracking-[0.12em] whitespace-nowrap text-[var(--navy)] shadow-[0_10px_28px_-10px_rgba(223,175,38,0.9)] hover:shadow-[0_14px_36px_-8px_rgba(223,175,38,0.95)] hover:-translate-y-px transition-all duration-200"
             >
               <span aria-hidden className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 skew-x-12 bg-white/30 blur-sm transition-transform duration-700 group-hover:translate-x-[500%]" />
               <span className="relative">Book Now</span>
