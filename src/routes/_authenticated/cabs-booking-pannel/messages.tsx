@@ -9,6 +9,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Mail, Trash2, CheckCircle2, List, LayoutGrid, Search } from "lucide-react";
 import { toast } from "sonner";
 import { CannedEmailComposer } from "@/components/admin/CannedEmailComposer";
+import { isTourEnquiry } from "@/lib/tour-enquiries";
 
 const opts = queryOptions({ queryKey: ["admin", "messages"], queryFn: () => listMessages() });
 
@@ -35,7 +36,9 @@ const STATUS_BADGE: Record<string, string> = {
 const VIEW_KEY = "admin-messages-view";
 
 function MessagesPage() {
-  const { data } = useSuspenseQuery(opts);
+  const { data: allMessages } = useSuspenseQuery(opts);
+  // Tour enquiries live in the Bookings console ("Tours booking" tab), not the inbox.
+  const data = useMemo(() => (allMessages as any[]).filter((m) => !isTourEnquiry(m)), [allMessages]);
   const qc = useQueryClient();
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: ["admin", "messages"] });

@@ -18,6 +18,7 @@ import { bookingsToCsv, downloadCsv, bookingExportFilename } from "@/lib/booking
 import { toast } from "sonner";
 import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
 import { CannedEmailComposer } from "@/components/admin/CannedEmailComposer";
+import { TourEnquiries } from "@/components/admin/TourEnquiries";
 
 /** Pre-selects the most likely pre-written email for the booking's status. */
 const TEMPLATE_FOR_STATUS: Partial<Record<BookingStatus, string>> = {
@@ -42,8 +43,10 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/bookin
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
-  validateSearch: (s: Record<string, unknown>): { tab?: string } =>
-    typeof s.tab === "string" && s.tab.length > 0 ? { tab: s.tab } : {},
+  validateSearch: (s: Record<string, unknown>): { tab?: string; view?: "bookings" | "tours" } => ({
+    ...(typeof s.tab === "string" && s.tab.length > 0 ? { tab: s.tab } : {}),
+    ...(s.view === "tours" ? { view: "tours" as const } : {}),
+  }),
   loader: ({ context }) => context.queryClient.ensureQueryData(opts),
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
   notFoundComponent: () => <div className="p-8">Not found</div>,
@@ -78,7 +81,7 @@ function matchTab(b: any, tab: string) {
 }
 
 function BookingsPage() {
-  const { tab = "all" } = useSearch({ from: "/_authenticated/cabs-booking-pannel/bookings" });
+  const { tab = "all", view = "bookings" } = useSearch({ from: "/_authenticated/cabs-booking-pannel/bookings" });
   const { data: bookings } = useSuspenseQuery(opts);
   const { data: drivers = [] } = useQuery(driverOpts);
   const qc = useQueryClient();
@@ -130,7 +133,24 @@ function BookingsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Bookings" description="Manage bookings, assignments, and notifications." />
+      <PageHeader title="Bookings" description="Manage bookings, tour enquiries, assignments, and notifications." />
+
+      <Tabs value={view} className="w-full">
+        <TabsList className="h-auto p-1">
+          <TabsTrigger value="bookings" asChild>
+            <Link to="/cabs-booking-pannel/bookings" search={{ tab }} className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              Booking
+            </Link>
+          </TabsTrigger>
+          <TabsTrigger value="tours" asChild>
+            <Link to="/cabs-booking-pannel/bookings" search={{ view: "tours" }} className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              Tours booking
+            </Link>
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
+
+      {view === "tours" ? <TourEnquiries /> : <>
 
       <Tabs value={tab} className="w-full">
         <TabsList className="w-full justify-start overflow-x-auto h-auto p-1">
@@ -372,6 +392,7 @@ function BookingsPage() {
           )}
         </SheetContent>
       </Sheet>
+      </>}
     </div>
   );
 }
