@@ -35,6 +35,7 @@ import { resolveTourTemplate } from "@/lib/tours.functions";
 import { listPublicVehicleClasses, type PublicVehicleClass } from "@/lib/vehicle-classes.functions";
 import { listPublicExtras, type PublicExtra } from "@/lib/extras-public.functions";
 import { VehicleAllocationNotice } from "@/components/site/VehicleAllocationNotice";
+import { JourneyMap } from "@/components/site/JourneyMap";
 import { BookingCardPayment } from "@/components/site/BookingCardPayment";
 import { fleetImageFor } from "@/assets/fleet";
 
