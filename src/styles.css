@@ -532,6 +532,62 @@ input[type="time"] {
   );
 }
 
+/* ── Real-ticket paper treatment ────────────────────────────── */
+
+/* Faint guilloché security print, like a printed travel ticket */
+@utility ticket-paper {
+  background-color: var(--card);
+  background-image:
+    repeating-linear-gradient(
+      45deg,
+      color-mix(in oklab, var(--navy) 4%, transparent) 0 1px,
+      transparent 1px 7px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      color-mix(in oklab, var(--gold) 5%, transparent) 0 1px,
+      transparent 1px 9px
+    );
+}
+
+/* Punched holes along a tear line (vertical) */
+@utility ticket-punch-y {
+  background-image: radial-gradient(
+    circle at center,
+    var(--surface) 0 3px,
+    transparent 3.5px
+  );
+  background-size: 100% 14px;
+  background-repeat: repeat-y;
+}
+
+/* Punched holes along a tear line (horizontal) */
+@utility ticket-punch-x {
+  background-image: radial-gradient(
+    circle at center,
+    var(--surface) 0 3px,
+    transparent 3.5px
+  );
+  background-size: 14px 100%;
+  background-repeat: repeat-x;
+}
+
+/* Scannable barcode strip — uses currentColor so it themes cleanly */
+@utility ticket-barcode {
+  background-image: repeating-linear-gradient(
+    to right,
+    currentColor 0 1px,
+    transparent 1px 3px,
+    currentColor 3px 5px,
+    transparent 5px 6px,
+    currentColor 6px 8px,
+    transparent 8px 11px,
+    currentColor 11px 12px,
+    transparent 12px 16px
+  );
+}
+
+
 /* Hide scrollbars on horizontally scrollable mobile strips */
 @utility no-scrollbar {
   scrollbar-width: none;
