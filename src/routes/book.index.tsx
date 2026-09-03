@@ -35,6 +35,7 @@ import { resolveTourTemplate } from "@/lib/tours.functions";
 import { listPublicVehicleClasses, type PublicVehicleClass } from "@/lib/vehicle-classes.functions";
 import { listPublicExtras, type PublicExtra } from "@/lib/extras-public.functions";
 import { VehicleAllocationNotice } from "@/components/site/VehicleAllocationNotice";
+import { JourneyMap } from "@/components/site/JourneyMap";
 import { BookingCardPayment } from "@/components/site/BookingCardPayment";
 import { fleetImageFor } from "@/assets/fleet";
 
@@ -660,6 +661,7 @@ function BookPage() {
                   onEdit={() => setEditOpen(true)}
                   onStartAgain={startAgain}
                   extraStops={orderedSelected.map((s) => ({ label: s.label, minutes: s.minutes }))}
+                  extraStopPlaceIds={orderedSelected.map((s) => s.place_id)}
                   returnEnabled={returnJourney}
                   route={quoteQuery.data ? { miles: quoteQuery.data.distanceMiles, minutes: quoteQuery.data.durationMinutes } : null}
                   price={chosen ? { vehicleName: chosen.name, perVehicle: perVehiclePrice, qty, rideTotal, seatFee, seatCount: childSeatCount, meetGreetFee, returnFee, addonsFee, addonLines, policy, policyDelta, grandTotal } : null}
@@ -1248,11 +1250,12 @@ function TourBanner({ slug, name, loading, missing, mismatch, onStartAgain }: {
   );
 }
 
-function Sidebar({ pre, onEdit, onStartAgain, route, price, extraStops = [], returnEnabled }: {
+function Sidebar({ pre, onEdit, onStartAgain, route, price, extraStops = [], extraStopPlaceIds = [], returnEnabled }: {
   pre: Prefill; onEdit: () => void; onStartAgain?: () => void;
   route: { miles: number; minutes: number } | null;
   price: PriceSummary | null;
   extraStops?: { label: string; minutes?: number }[];
+  extraStopPlaceIds?: string[];
   returnEnabled?: boolean;
 }) {
   const isReturn = returnEnabled ?? pre.ret;
@@ -1334,6 +1337,16 @@ function Sidebar({ pre, onEdit, onStartAgain, route, price, extraStops = [], ret
             )}
           </div>
 
+
+          <JourneyMap
+            className="relative mt-5"
+            pickupPlaceId={pre.pickup?.placeId}
+            dropoffPlaceId={pre.dropoff?.placeId}
+            stopPlaceIds={[
+              ...pre.stops.map((s) => s.placeId),
+              ...extraStopPlaceIds,
+            ].filter(Boolean)}
+          />
 
           {route && (
             <div className="relative mt-5 grid grid-cols-2 gap-2">
