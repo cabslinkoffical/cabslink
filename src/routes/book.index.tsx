@@ -1661,22 +1661,27 @@ function VehicleCard({ card, klass, trip, best, qty, minQty, disabled, disabledR
               </div>
             </div>
 
-            {/* only the three facts that change the decision */}
+            {/* what the passenger actually booked, with the class allowance beside it */}
             <dl className="mt-3 grid grid-cols-3 divide-x divide-dashed divide-[var(--navy)]/15 rounded-md border border-dashed border-[var(--navy)]/15">
               {[
-                { icon: <Users className="size-3.5" />, label: "Seats", value: card.passengers * qty },
-                { icon: <Briefcase className="size-3.5" />, label: "Cases", value: card.luggage * qty },
-                { icon: <Luggage className="size-3.5" />, label: "Hand bags", value: card.handLuggage * qty },
+                { icon: <Users className="size-3.5" />, label: "Passengers", value: trip.passengers, cap: card.passengers * qty },
+                { icon: <Briefcase className="size-3.5" />, label: "Suitcases", value: trip.luggage, cap: card.luggage * qty },
+                { icon: <Luggage className="size-3.5" />, label: "Hand bags", value: trip.handLuggage, cap: card.handLuggage * qty },
               ].map((f) => (
                 <div key={f.label} className="px-2 py-2 text-center">
                   <span className="inline-flex items-center gap-1 text-[var(--gold-ink)]">
                     {f.icon}
                     <span className="text-[14px] font-bold tabular-nums text-foreground">{f.value}</span>
+                    <span className="text-[10px] font-semibold tabular-nums text-muted-foreground">/ {f.cap}</span>
                   </span>
                   <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{f.label}</p>
                 </div>
               ))}
             </dl>
+            <p className="mt-1 text-center text-[8.5px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/60">
+              Your booking / capacity of this class
+            </p>
+
 
             <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
               <button
