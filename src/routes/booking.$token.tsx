@@ -163,6 +163,7 @@ function ConfirmationPage() {
         vehicleType: b.vehicleType,
         passengers: b.passengers,
         luggage: b.luggage,
+        handLuggage: b.handLuggage,
         distanceMiles: b.distanceMiles,
         flightNumber: b.flightNumber,
         customerName: b.customerName,
@@ -232,7 +233,7 @@ function ConfirmationPage() {
                   <Fact icon={<Clock className="size-3" />} label="Time" value={b.pickupTime} />
                   <Fact icon={<Car className="size-3" />} label="Vehicle" value={b.vehicleType} />
                   <Fact icon={<Users className="size-3" />} label="Passengers" value={String(b.passengers)} />
-                  <Fact icon={<Briefcase className="size-3" />} label="Luggage" value={String(b.luggage)} />
+                  <Fact icon={<Briefcase className="size-3" />} label="Luggage" value={`${b.luggage} case${b.luggage === 1 ? "" : "s"} · ${b.handLuggage} hand`} />
                   {b.distanceMiles != null && <Fact icon={<MapPin className="size-3" />} label="Distance" value={`${b.distanceMiles.toFixed(1)} mi`} />}
                   {b.flightNumber && <Fact icon={<Info className="size-3" />} label="Flight" value={b.flightNumber} />}
                   <Fact icon={<User className="size-3" />} label="Booked by" value={b.customerName} />

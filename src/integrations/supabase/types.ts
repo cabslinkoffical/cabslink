@@ -554,6 +554,7 @@ export type Database = {
           email: string
           engine_version: string | null
           flight_number: string | null
+          hand_luggage: number
           hourly_hours: number | null
           hourly_rate_per_hour: number | null
           id: string
@@ -615,6 +616,7 @@ export type Database = {
           email: string
           engine_version?: string | null
           flight_number?: string | null
+          hand_luggage?: number
           hourly_hours?: number | null
           hourly_rate_per_hour?: number | null
           id?: string
@@ -676,6 +678,7 @@ export type Database = {
           email?: string
           engine_version?: string | null
           flight_number?: string | null
+          hand_luggage?: number
           hourly_hours?: number | null
           hourly_rate_per_hour?: number | null
           id?: string

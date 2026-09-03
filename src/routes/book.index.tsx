@@ -80,6 +80,7 @@ type Prefill = {
   time: string;
   passengers: number;
   luggage: number;
+  handLuggage: number;
   ret: boolean;
   rdate: string;
   rtime: string;
@@ -127,6 +128,7 @@ function readPrefill(q: string): Prefill {
     time: p.get("time") ?? "",
     passengers: Math.max(1, Number(p.get("passengers")) || 1),
     luggage: Math.max(0, Number(p.get("luggage")) || 0),
+    handLuggage: Math.max(0, Number(p.get("handLuggage")) || 0),
     ret: p.get("ret") === "1",
     rdate: p.get("rdate") ?? "",
     rtime: p.get("rtime") ?? "",
@@ -144,6 +146,7 @@ function encodePrefill(pre: Prefill): string {
   p.set("date", pre.date); p.set("time", pre.time);
   p.set("passengers", String(pre.passengers));
   p.set("luggage", String(pre.luggage));
+  p.set("handLuggage", String(pre.handLuggage));
   p.set("mode", pre.mode);
   if (pre.stops.length) {
     p.set("stops", pre.stops.map((s) => {
@@ -261,6 +264,7 @@ function BookPage() {
       time: d.time ?? "",
       passengers: d.passengers ?? 1,
       luggage: d.luggage ?? 0,
+      handLuggage: 0,
       ret: d.returnJourney?.enabled ?? false,
       rdate: d.returnJourney?.date ?? "",
       rtime: d.returnJourney?.time ?? "",
@@ -517,6 +521,7 @@ function BookPage() {
           pickupTime: pre.time,
           passengers: pre.passengers,
           luggage: pre.luggage,
+          handLuggage: pre.handLuggage,
           customer_name: parsed.data.customer_name,
           email: parsed.data.email,
           phone: parsed.data.phone,
@@ -926,6 +931,13 @@ function JourneyForm({ initial, onSubmit }: { initial: Prefill; onSubmit: (next:
             <Label htmlFor="jf-lug">Luggage</Label>
             <Input id="jf-lug" type="number" min={0} max={60} value={form.luggage}
               onChange={(e) => set("luggage", Math.max(0, Number(e.target.value) || 0))} />
+            <p className="text-[11px] text-muted-foreground">Large cases — 0 is fine</p>
+          </div>
+          <div className="grid gap-1.5">
+            <Label htmlFor="jf-hand">Hand luggage</Label>
+            <Input id="jf-hand" type="number" min={0} max={60} value={form.handLuggage}
+              onChange={(e) => set("handLuggage", Math.max(0, Number(e.target.value) || 0))} />
+            <p className="text-[11px] text-muted-foreground">Cabin / small bags — 0 is fine</p>
           </div>
         </div>
       </div>
@@ -1056,6 +1068,11 @@ function EditTripDialog({
               <Label htmlFor="edit-lug">Luggage</Label>
               <Input id="edit-lug" type="number" min={0} max={60} value={form.luggage}
                 onChange={(e) => set("luggage", Math.max(0, Number(e.target.value) || 0))} />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="edit-hand">Hand luggage</Label>
+              <Input id="edit-hand" type="number" min={0} max={60} value={form.handLuggage}
+                onChange={(e) => set("handLuggage", Math.max(0, Number(e.target.value) || 0))} />
             </div>
           </div>
           {form.pickup && form.dropoff && form.pickup.placeId === form.dropoff.placeId && (
@@ -1441,12 +1458,15 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
 }) {
   const [qtyMap, setQtyMap] = useState<Record<string, number>>({});
 
-  const minQtyFor = (v: { passengers: number; luggage: number }) => {
+  const minQtyFor = (v: { passengers: number; luggage: number; handLuggage?: number }) => {
     const paxNeed = Math.max(1, pre.passengers);
     const lugNeed = Math.max(0, pre.luggage);
+    const handNeed = Math.max(0, pre.handLuggage);
     const paxQty = v.passengers > 0 ? Math.ceil(paxNeed / v.passengers) : 1;
     const lugQty = v.luggage > 0 ? Math.ceil(lugNeed / v.luggage) : (lugNeed > 0 ? 99 : 1);
-    return Math.max(1, paxQty, lugQty);
+    const handCap = v.handLuggage ?? 0;
+    const handQty = handCap > 0 ? Math.ceil(handNeed / handCap) : (handNeed > 0 ? 1 : 1);
+    return Math.max(1, paxQty, lugQty, handQty);
   };
 
   const orderedQuotes = useMemo(() => {

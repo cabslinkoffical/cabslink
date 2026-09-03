@@ -21,6 +21,7 @@ export type BookingSlipData = {
   vehicleType: string;
   passengers: number;
   luggage: number;
+  handLuggage?: number;
   distanceMiles?: number | null;
   flightNumber?: string | null;
   customerName: string;
@@ -105,7 +106,8 @@ export async function downloadBookingSlip(b: BookingSlipData) {
   heading("Vehicle & passengers");
   row("Vehicle", b.vehicleType);
   row("Passengers", String(b.passengers));
-  row("Luggage", String(b.luggage));
+  row("Luggage", `${b.luggage} case${b.luggage === 1 ? "" : "s"}`);
+  row("Hand luggage", String(b.handLuggage ?? 0));
   if (b.extras.length > 0) row("Extras", b.extras.join(" · "));
 
   y += 10;

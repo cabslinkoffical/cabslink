@@ -271,7 +271,7 @@ function BookingsPage() {
                   <Info label="Date" value={editing.pickup_date} />
                   <Info label="Time" value={editing.pickup_time} />
                   <Info label="Vehicle" value={editing.vehicle_type} />
-                  <Info label="Passengers / Luggage" value={`${editing.passengers} / ${editing.luggage}`} />
+                  <Info label="Passengers / Luggage / Hand" value={`${editing.passengers} / ${editing.luggage} / ${(editing as { hand_luggage?: number }).hand_luggage ?? 0}`} />
                   {editing.distance_miles != null && <Info label="Distance (mi)" value={Number(editing.distance_miles).toFixed(1)} />}
                   {editing.flight_number && <Info label="Flight" value={editing.flight_number} />}
                   <Info label="Meet & Greet" value={editing.meet_greet ? "Yes" : "No"} />
