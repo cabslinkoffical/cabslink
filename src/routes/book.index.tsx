@@ -1248,11 +1248,12 @@ function TourBanner({ slug, name, loading, missing, mismatch, onStartAgain }: {
   );
 }
 
-function Sidebar({ pre, onEdit, onStartAgain, route, price, extraStops = [], returnEnabled }: {
+function Sidebar({ pre, onEdit, onStartAgain, route, price, extraStops = [], extraStopPlaceIds = [], returnEnabled }: {
   pre: Prefill; onEdit: () => void; onStartAgain?: () => void;
   route: { miles: number; minutes: number } | null;
   price: PriceSummary | null;
   extraStops?: { label: string; minutes?: number }[];
+  extraStopPlaceIds?: string[];
   returnEnabled?: boolean;
 }) {
   const isReturn = returnEnabled ?? pre.ret;
