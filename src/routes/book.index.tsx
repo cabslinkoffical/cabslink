@@ -1336,6 +1336,16 @@ function Sidebar({ pre, onEdit, onStartAgain, route, price, extraStops = [], ext
           </div>
 
 
+          <JourneyMap
+            className="relative mt-5"
+            pickupPlaceId={pre.pickup?.placeId}
+            dropoffPlaceId={pre.dropoff?.placeId}
+            stopPlaceIds={[
+              ...pre.stops.map((s) => s.placeId),
+              ...extraStopPlaceIds,
+            ].filter(Boolean)}
+          />
+
           {route && (
             <div className="relative mt-5 grid grid-cols-2 gap-2">
               <div className="bg-[var(--surface)] rounded-xl p-3 border border-border/60">
