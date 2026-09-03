@@ -193,7 +193,7 @@ function AdminLayout() {
           <Outlet />
         </main>
       </div>
-      <Toaster richColors position="top-right" offset="76px" />
+      <Toaster richColors position="bottom-right" />
     </div>
   );
 }
