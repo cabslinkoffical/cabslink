@@ -1,4 +1,5 @@
-import { Mail, Phone } from "lucide-react";
+import { Mail, Phone, MapPin } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { SITE } from "@/lib/site";
 import { SOCIALS } from "@/lib/social";
 
@@ -14,7 +15,14 @@ export function TopBar() {
             <Phone className="size-3.5" /> {SITE.phoneUK}
           </a>
         </div>
-        <div className="flex items-center gap-3 opacity-80">
+        <div className="flex items-center gap-5 opacity-80">
+          <Link
+            to="/track-booking"
+            className="flex items-center gap-1.5 hover:text-[var(--gold)] transition"
+          >
+            <MapPin className="size-3.5" /> Track booking
+          </Link>
+          <div className="h-4 w-px bg-white/20" />
           {SOCIALS.map(({ key, label, url, Icon }) => (
             <a
               key={key}
@@ -32,3 +40,4 @@ export function TopBar() {
     </div>
   );
 }
+
