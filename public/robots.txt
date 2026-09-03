@@ -7,4 +7,8 @@ Disallow: /auth
 Disallow: /booking/
 Disallow: /book/confirm
 
+# Parameterised quote URLs create unlimited crawl combinations
+Disallow: /book?
+
+
 Sitemap: https://cabslink.com/sitemap.xml
