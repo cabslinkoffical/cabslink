@@ -2,10 +2,11 @@
  * Core sitemap — the sitemap-index at /sitemap.xml points here for static
  * routes (home, services, legal, hubs) plus tour and legacy CMS paths.
  *
- * Every <url> carries a <lastmod> (W3C YYYY-MM-DD) instead of <changefreq>:
- * Google ignores changefreq and uses lastmod to schedule recrawls. Database
- * backed URLs use their row's real `updated_at`; only code-defined static
- * routes fall back to the build date.
+ * <changefreq> is never emitted: Google ignores it and uses <lastmod> to
+ * schedule recrawls. Database-backed URLs carry their row's real `updated_at`;
+ * code-defined static routes have no page-specific timestamp, so they are
+ * emitted with <loc> only (valid, and better than a fabricated date).
+ * Any date earlier than MIN_LASTMOD is treated as malformed and dropped.
  */
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
@@ -16,15 +17,17 @@ import { PUBLIC_ROUTES } from "@/lib/sitemap-routes";
 
 const BASE_URL = "https://cabslink.com";
 
-/** Evaluated once when the server bundle boots — i.e. the deployment date. */
-const BUILD_DATE = isoDay(new Date().toISOString())!;
+/** Guard against epoch/garbage timestamps reaching Google. */
+const MIN_LASTMOD = "2020-01-01";
 
 function isoDay(value: string | null | undefined): string | null {
   if (!value) return null;
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return null;
-  return d.toISOString().slice(0, 10);
+  const day = d.toISOString().slice(0, 10);
+  return day < MIN_LASTMOD ? null : day;
 }
+
 
 function serverPublicClient() {
   const key = process.env.SUPABASE_PUBLISHABLE_KEY!;
