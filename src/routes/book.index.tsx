@@ -1575,12 +1575,19 @@ function VehicleCard({ card, klass, trip, best, qty, minQty, disabled, disabledR
 
   return (
     <article
-      className={`relative flex flex-col md:flex-row bg-card rounded-2xl overflow-hidden shadow-[0_10px_40px_-20px_rgba(14,24,44,0.25)] border transition-all duration-300 hover:shadow-[0_20px_60px_-20px_rgba(223,175,38,0.35)] ${best ? "border-[var(--gold)]/60" : minQty > 1 ? "border-warning/50" : "border-border"}`}
+      className={`relative flex flex-col md:flex-row ticket-paper rounded-[10px] overflow-hidden shadow-[0_14px_40px_-24px_rgba(14,24,44,0.45)] border-2 transition-all duration-300 hover:shadow-[0_22px_60px_-24px_rgba(223,175,38,0.45)] ${best ? "border-[var(--gold)]" : minQty > 1 ? "border-warning/60" : "border-[var(--navy)]/15"}`}
     >
+      {/* ---- left rail: printed spine, like a real issued ticket ---- */}
+      <div className="hidden lg:flex w-9 shrink-0 items-center justify-center bg-[var(--navy)]">
+        <span className="[writing-mode:vertical-rl] rotate-180 text-[9px] font-bold uppercase tracking-[0.45em] text-[var(--gold)]/85">
+          Passenger ticket
+        </span>
+      </div>
+
       {/* ---- ticket body ---- */}
       <div className="flex-1 min-w-0">
-        {/* stub header — airline boarding-pass strip */}
-        <div className="flex items-center justify-between gap-3 bg-[var(--navy)] px-4 md:px-6 py-2.5">
+        {/* stub header — issued-ticket strip */}
+        <div className="relative flex items-center justify-between gap-3 bg-[var(--navy)] px-4 md:px-6 py-2.5">
           <div className="min-w-0 flex items-center gap-2">
             <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)]">Cabslink</span>
             <span className="h-3 w-px bg-white/20" />
@@ -1590,12 +1597,12 @@ function VehicleCard({ card, klass, trip, best, qty, minQty, disabled, disabledR
           </div>
           <div className="flex items-center gap-2 shrink-0">
             {best && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-[var(--gold)] px-2.5 py-0.5 text-[9.5px] font-bold uppercase tracking-[0.18em] text-[var(--gold-foreground)]">
+              <span className="inline-flex items-center gap-1 rounded-sm bg-[var(--gold)] px-2.5 py-0.5 text-[9.5px] font-bold uppercase tracking-[0.18em] text-[var(--gold-foreground)]">
                 <Award className="size-3" /> Best value
               </span>
             )}
             {!best && minQty > 1 && (
-              <span className="inline-flex items-center rounded-full bg-warning px-2.5 py-0.5 text-[9.5px] font-bold uppercase tracking-[0.18em] text-warning-foreground">
+              <span className="inline-flex items-center rounded-sm bg-warning px-2.5 py-0.5 text-[9.5px] font-bold uppercase tracking-[0.18em] text-warning-foreground">
                 Needs {minQty}
               </span>
             )}
@@ -1608,73 +1615,88 @@ function VehicleCard({ card, klass, trip, best, qty, minQty, disabled, disabledR
               <Info className="size-3.5" />
             </button>
           </div>
+          <span className="absolute inset-x-0 bottom-0 h-px bg-[var(--gold)]/50" aria-hidden />
         </div>
 
         <div className="p-4 md:p-6 flex flex-col sm:flex-row gap-4 md:gap-6">
-          <div className="w-full sm:w-40 lg:w-44 shrink-0 flex items-center justify-center rounded-xl bg-[var(--surface)] p-3">
+          <div className="w-full sm:w-40 lg:w-44 shrink-0 flex items-center justify-center border border-dashed border-[var(--navy)]/15 bg-white/70 p-3">
             <img src={displayImage} alt={displayName} className="w-full aspect-[3/2] object-contain" loading="lazy" />
           </div>
 
           <div className="min-w-0 flex-1">
-            <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--gold-ink)]">
-              <BadgeCheck className="size-3" /> Vehicle class
-            </span>
+            <div className="flex items-baseline justify-between gap-3">
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--gold-ink)]">
+                <BadgeCheck className="size-3" /> Class
+              </span>
+              <span className="font-mono text-[9.5px] uppercase tracking-[0.28em] text-muted-foreground/70">
+                Seat class {serial.slice(0, 4)}
+              </span>
+            </div>
             <h3 className="mt-1 font-display text-lg md:text-xl font-bold uppercase tracking-tight leading-tight break-words">
               {displayName}
             </h3>
 
-            {/* route line, like a ticket's origin → destination */}
-            <div className="mt-3 flex items-center gap-2 text-[12.5px] font-semibold text-foreground/80">
-              <span className="truncate">{shortPlace(trip.pickup?.label)}</span>
-              <span className="flex-1 border-t border-dashed border-[var(--gold)]/50 min-w-4" aria-hidden />
-              <ArrowRight className="size-3.5 text-[var(--gold-ink)] shrink-0" aria-hidden />
-              <span className="truncate text-right">{shortPlace(trip.dropoff?.label)}</span>
+            {/* route line — origin → destination, as printed on a ticket */}
+            <div className="mt-3 border-y border-dashed border-[var(--navy)]/20 py-2.5">
+              <div className="flex items-center gap-2 text-[12.5px] font-semibold text-foreground/85">
+                <span className="truncate">{shortPlace(trip.pickup?.label)}</span>
+                <span className="flex-1 border-t border-dotted border-[var(--navy)]/35 min-w-4" aria-hidden />
+                <ArrowRight className="size-3.5 text-[var(--gold-ink)] shrink-0" aria-hidden />
+                <span className="truncate text-right">{shortPlace(trip.dropoff?.label)}</span>
+              </div>
+              <div className="mt-1 flex items-center justify-between text-[9px] font-bold uppercase tracking-[0.28em] text-muted-foreground/70">
+                <span>From</span>
+                <span>To</span>
+              </div>
             </div>
 
             {/* only the three facts that change the decision */}
-            <dl className="mt-3 flex flex-wrap gap-2">
+            <dl className="mt-3 grid grid-cols-3 divide-x divide-dashed divide-[var(--navy)]/15 border border-dashed border-[var(--navy)]/15">
               {[
                 { icon: <Users className="size-3.5" />, label: "Seats", value: card.passengers * qty },
                 { icon: <Briefcase className="size-3.5" />, label: "Cases", value: card.luggage * qty },
                 { icon: <Luggage className="size-3.5" />, label: "Hand bags", value: card.handLuggage * qty },
               ].map((f) => (
-                <div key={f.label} className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--surface)] px-2.5 py-1.5">
-                  <span className="text-[var(--gold-ink)]">{f.icon}</span>
-                  <span className="text-[13px] font-bold tabular-nums">{f.value}</span>
-                  <span className="text-[11px] text-muted-foreground">{f.label}</span>
+                <div key={f.label} className="px-2 py-2 text-center">
+                  <span className="inline-flex items-center gap-1 text-[var(--gold-ink)]">
+                    {f.icon}
+                    <span className="text-[14px] font-bold tabular-nums text-foreground">{f.value}</span>
+                  </span>
+                  <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{f.label}</p>
                 </div>
               ))}
             </dl>
 
-            <button
-              type="button"
-              onClick={() => setInfoOpen(true)}
-              className="mt-3 inline-flex items-center gap-1.5 text-[11.5px] font-bold uppercase tracking-[0.16em] text-[var(--gold-ink)] underline-offset-4 hover:underline"
-            >
-              <Info className="size-3.5" /> What&apos;s included
-            </button>
-
-            <p className="mt-3 text-[9.5px] font-mono uppercase tracking-[0.3em] text-muted-foreground/60">
-              No. {serial}
-            </p>
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+              <button
+                type="button"
+                onClick={() => setInfoOpen(true)}
+                className="inline-flex items-center gap-1.5 text-[11.5px] font-bold uppercase tracking-[0.16em] text-[var(--gold-ink)] underline-offset-4 hover:underline"
+              >
+                <Info className="size-3.5" /> What&apos;s included
+              </button>
+              <p className="font-mono text-[9.5px] uppercase tracking-[0.3em] text-muted-foreground/60">
+                No. {serial}
+              </p>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* ---- perforation ---- */}
-      <div className="relative hidden md:flex flex-col items-center justify-center px-1">
-        <div className="absolute -top-3 size-6 rounded-full bg-[var(--surface)]" />
-        <div className="h-[calc(100%-2rem)] w-px border-l-2 border-dashed border-[var(--gold)]/40" />
-        <div className="absolute -bottom-3 size-6 rounded-full bg-[var(--surface)]" />
+      {/* ---- perforation: punched tear line with cut-out notches ---- */}
+      <div className="relative hidden md:flex w-6 shrink-0 items-stretch justify-center">
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2 size-6 rounded-full bg-[var(--surface)] border-2 border-[var(--navy)]/15" />
+        <div className="ticket-punch-y my-4 w-2" aria-hidden />
+        <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 size-6 rounded-full bg-[var(--surface)] border-2 border-[var(--navy)]/15" />
       </div>
-      <div className="relative md:hidden flex items-center justify-center py-1">
-        <div className="absolute -left-3 size-6 rounded-full bg-[var(--surface)]" />
-        <div className="w-[calc(100%-2rem)] h-px border-t-2 border-dashed border-[var(--gold)]/40" />
-        <div className="absolute -right-3 size-6 rounded-full bg-[var(--surface)]" />
+      <div className="relative md:hidden h-6 flex items-center justify-center">
+        <div className="absolute -left-3 top-1/2 -translate-y-1/2 size-6 rounded-full bg-[var(--surface)] border-2 border-[var(--navy)]/15" />
+        <div className="ticket-punch-x mx-4 h-2 w-full" aria-hidden />
+        <div className="absolute -right-3 top-1/2 -translate-y-1/2 size-6 rounded-full bg-[var(--surface)] border-2 border-[var(--navy)]/15" />
       </div>
 
       {/* ---- price stub ---- */}
-      <div className="w-full md:w-56 lg:w-60 shrink-0 bg-gradient-to-br from-[var(--gold)]/10 via-[var(--surface)] to-[var(--gold)]/5 p-4 md:p-5 flex flex-col justify-between gap-4 text-center">
+      <div className="w-full md:w-56 lg:w-60 shrink-0 bg-[color-mix(in_oklab,var(--gold)_10%,var(--card))] p-4 md:p-5 flex flex-col justify-between gap-4 text-center">
         {quoteOnly ? (
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground">Group vehicle</p>
@@ -1682,19 +1704,21 @@ function VehicleCard({ card, klass, trip, best, qty, minQty, disabled, disabledR
           </div>
         ) : (
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground">Total incl. VAT</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground">Fare incl. VAT</p>
             <div className="mt-1.5 flex items-baseline justify-center gap-0.5">
               <span className="font-display text-lg font-bold text-[var(--gold-ink)]">£</span>
               <span className="font-display text-3xl md:text-4xl font-bold tabular-nums tracking-tight">{total.toFixed(2)}</span>
             </div>
             {qty > 1 && <p className="mt-1 text-[11px] text-muted-foreground">{qty} × £{card.finalPrice.toFixed(2)}</p>}
+            <div className="ticket-barcode mx-auto mt-3 h-8 w-32 text-[var(--navy)]/75" aria-hidden />
+            <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.35em] text-muted-foreground/70">{serial}</p>
           </div>
         )}
 
         <div className="w-full space-y-2.5">
           {!quoteOnly && (
             <Select value={String(qty)} onValueChange={(v) => onQtyChange(Number(v))}>
-              <SelectTrigger className={`h-10 bg-card ${qty < minQty ? "border-warning" : "border-[var(--gold)]/50"}`} aria-label="Number of vehicles">
+              <SelectTrigger className={`h-10 bg-card rounded-sm ${qty < minQty ? "border-warning" : "border-[var(--navy)]/25"}`} aria-label="Number of vehicles">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -1707,14 +1731,14 @@ function VehicleCard({ card, klass, trip, best, qty, minQty, disabled, disabledR
             </Select>
           )}
           {quoteOnly ? (
-            <Button asChild variant="navy" className="w-full h-12 rounded-lg uppercase tracking-[0.2em] text-[11px] shadow-md">
+            <Button asChild variant="navy" className="w-full h-12 rounded-sm uppercase tracking-[0.2em] text-[11px] shadow-md">
               <a href={`/contact?subject=${encodeURIComponent(`Group quote — ${displayName}`)}`}>
                 Request quote <ArrowRight className="size-3.5 ml-1" />
               </a>
             </Button>
           ) : (
-            <Button onClick={onSelect} disabled={!!disabled} variant="navy" className="w-full h-12 rounded-lg uppercase tracking-[0.2em] text-[11px] shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
-              Select <ArrowRight className="size-3.5 ml-1" />
+            <Button onClick={onSelect} disabled={!!disabled} variant="navy" className="w-full h-12 rounded-sm uppercase tracking-[0.2em] text-[11px] shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
+              Board this class <ArrowRight className="size-3.5 ml-1" />
             </Button>
           )}
           {!quoteOnly && disabled && disabledReason && (
@@ -1722,6 +1746,7 @@ function VehicleCard({ card, klass, trip, best, qty, minQty, disabled, disabledR
           )}
         </div>
       </div>
+
 
       {/* ---- everything else lives behind the info icon ---- */}
       <Dialog open={infoOpen} onOpenChange={setInfoOpen}>
