@@ -1078,7 +1078,8 @@ function Stepper({ step }: { step: Step }) {
     { id: "payment", label: "Payment" },
   ];
 
-  const idx = items.findIndex((x) => x.id === step);
+  const normalised: Step = step === "pay" || step === "review" ? "payment" : step;
+  const idx = items.findIndex((x) => x.id === normalised);
   const current = items[Math.max(0, idx)];
   return (
     <>
@@ -1720,7 +1721,7 @@ function ContactStep({ contact, onChange, onBack, attempted }: {
   return (
     <div className="bg-card rounded-2xl border border-border shadow-sm p-6 md:p-8 space-y-6">
       <div>
-        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)]">Step 02 — Passenger details</p>
+        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)]">Step 02 — Trip details</p>
         <h2 className="mt-1 font-display text-2xl md:text-3xl font-bold">Who is travelling?</h2>
         <p className="mt-2 text-sm text-muted-foreground">
           We'll use these details to confirm your booking and keep you updated.
@@ -1768,7 +1769,7 @@ function ContactStep({ contact, onChange, onBack, attempted }: {
 }
 
 // ---------------------------------------------------------------
-// Step 03 — Extras (stops + child seats + meet & greet + return + policy)
+// Step 02b — Extras (stops + child seats + meet & greet + return + policy)
 // ---------------------------------------------------------------
 type ScenicStop = { place_id: string; label: string; minutes: number; category?: string | null };
 
@@ -1823,7 +1824,7 @@ function ExtrasStep(props: {
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)]">Step 03 — Extras</p>
+        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)]">Step 02 — Extras &amp; options</p>
         <h2 className="mt-1 font-display text-2xl md:text-3xl font-bold">Personalise your journey</h2>
         <p className="mt-2 text-sm text-muted-foreground">
           Add scenic stops, child seats, meet &amp; greet, a return trip and pick your cancellation cover — all in one place.
@@ -2087,7 +2088,7 @@ function PolicyTiers({ value, onChange, base, cfg }: {
 }
 
 // ---------------------------------------------------------------
-// Step 04 — Card payment (card is the only accepted method)
+// Step 03 — Card payment (card is the only accepted method)
 // ---------------------------------------------------------------
 function PaymentStep({ grandTotal, onBack, onSubmit, submitting, captchaWidget, captchaReady }: {
   grandTotal: number; onBack: () => void; onSubmit: () => void; submitting: boolean;
@@ -2097,7 +2098,7 @@ function PaymentStep({ grandTotal, onBack, onSubmit, submitting, captchaWidget, 
     <div className="bg-card rounded-2xl border border-border shadow-sm p-6 md:p-8 space-y-6">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)]">Step 04 — Payment</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)]">Step 03 — Payment</p>
           <h2 className="mt-1 font-display text-2xl md:text-3xl font-bold">Pay securely by card</h2>
           <p className="mt-2 text-sm text-muted-foreground">
             Card is the only payment method we accept — your booking is confirmed as soon as the
@@ -2143,7 +2144,7 @@ function PaymentStep({ grandTotal, onBack, onSubmit, submitting, captchaWidget, 
   );
 }
 
-/** Step 05 — inline card checkout for the saved booking. */
+/** Step 03b — inline card checkout for the saved booking. */
 function PayNowStep({ bookingRef, token, amountPence, email }: {
   bookingRef: string; token: string; amountPence: number; email?: string;
 }) {
@@ -2156,7 +2157,7 @@ function PayNowStep({ bookingRef, token, amountPence, email }: {
     <div className="bg-card rounded-2xl border border-border shadow-sm p-6 md:p-8 space-y-6">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)]">Step 05 — Card payment</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)]">Step 03 — Card payment</p>
           <h2 className="mt-1 font-display text-2xl md:text-3xl font-bold">Complete your payment</h2>
           <p className="mt-2 text-sm text-muted-foreground">
             Booking <span className="font-semibold text-foreground">{bookingRef}</span> is saved.
