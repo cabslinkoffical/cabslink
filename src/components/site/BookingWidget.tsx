@@ -37,7 +37,8 @@ export function BookingWidget({
   const [date, setDate] = useState("");
   const [time, setTime] = useState<string>("");
   const [passengers, setPassengers] = useState<number | null>(null);
-  const [luggage, setLuggage] = useState<number | null>(null);
+  const [luggage, setLuggage] = useState<number>(0);
+  const [handLuggage, setHandLuggage] = useState<number>(0);
   const [hours, setHours] = useState<number | null>(null);
 
   const [showReturn, setShowReturn] = useState(false);
@@ -101,7 +102,6 @@ export function BookingWidget({
           : ""
       : "",
     passengers: passengers === null ? "Select the number of passengers." : "",
-    luggage: luggage === null ? "Select how many bags you have." : "",
     stops: stops.some((s) => !s?.placeId) ? "Complete or remove empty stops." : "",
   };
   const errorList = Object.values(errors).filter(Boolean);
@@ -129,6 +129,7 @@ export function BookingWidget({
     params.set("time", time);
     params.set("passengers", String(passengers));
     params.set("luggage", String(luggage));
+    params.set("handLuggage", String(handLuggage));
     params.set("ret", showReturn ? "1" : "0");
     params.set("mode", "quote");
     if (showReturn) {
@@ -141,7 +142,8 @@ export function BookingWidget({
       pickup: pickup!.label,
       dropoff: dropoff!.label,
       passengers: passengers ?? 0,
-      luggage: luggage ?? 0,
+      luggage,
+      hand_luggage: handLuggage,
       stops: validStops.length,
       return_leg: showReturn,
       source: "booking_widget",
@@ -156,7 +158,6 @@ export function BookingWidget({
     time: !time ? "Choose a start time." : isPastDateTime(date, time) ? "Start time cannot be in the past." : "",
     hours: hours === null ? "Choose how many hours you need." : "",
     passengers: passengers === null ? "Select the number of passengers." : "",
-    luggage: luggage === null ? "Select how many bags you have." : "",
   };
   const hourlyErrorList = Object.values(hourlyErrors).filter(Boolean);
 
@@ -202,11 +203,13 @@ export function BookingWidget({
             params.set("hours", String(hours));
             params.set("passengers", String(passengers));
             params.set("luggage", String(luggage));
+            params.set("handLuggage", String(handLuggage));
             track("hourly_quote_start", {
               pickup: pickup!.label,
               hours: hours ?? 0,
               passengers: passengers ?? 0,
-              luggage: luggage ?? 0,
+              luggage,
+      hand_luggage: handLuggage,
               source: "booking_widget",
             });
             navigate({ to: "/book/hourly", search: { q: params.toString() } as never });
@@ -287,8 +290,8 @@ export function BookingWidget({
                   <span className="w-px h-4 bg-black/10" />
                   <span className="inline-flex items-center gap-1.5">
                     <Briefcase className="w-4 h-4 text-[var(--gold-ink)] shrink-0" />
-                    <span className={`text-sm font-bold tabular-nums ${luggage === null ? "text-[var(--navy)]/45 font-normal" : "text-[var(--navy)]"}`}>
-                      {luggage === null ? "Bags" : luggage}
+                    <span className="text-sm font-bold tabular-nums text-[var(--navy)]">
+                      {luggage + handLuggage}
                     </span>
                   </span>
                 </button>
@@ -299,6 +302,9 @@ export function BookingWidget({
                     </div>
                     <div className="pt-2">
                       <StepperRow label="Luggage" hint="Large cases" value={luggage} min={0} max={10} onChange={setLuggage} />
+                    </div>
+                    <div className="pt-2">
+                      <StepperRow label="Hand luggage" hint="Cabin / small bags" value={handLuggage} min={0} max={10} onChange={setHandLuggage} />
                     </div>
                   </div>
                 )}
@@ -403,13 +409,13 @@ export function BookingWidget({
             <div
               className="relative @[600px]:col-span-2 @[980px]:col-span-1 @[980px]:flex-shrink-0 @[980px]:w-[190px] border-t border-black/5 @[980px]:border-0"
               ref={paxRef}
-              data-invalid={attempted && (!!errors.passengers || !!errors.luggage)}
+              data-invalid={attempted && !!errors.passengers}
             >
               <button
                 type="button"
                 onClick={() => setPaxOpen((v) => !v)}
                 className={`w-full h-full flex items-center justify-center gap-3 px-4 py-3 @[980px]:py-2.5 rounded-2xl @[980px]:rounded-full hover:bg-black/[0.03] transition-colors ${
-                  attempted && (errors.passengers || errors.luggage) ? "bg-destructive/5 ring-1 ring-destructive/60" : ""
+                  attempted && errors.passengers ? "bg-destructive/5 ring-1 ring-destructive/60" : ""
                 }`}
               >
                 <span className="inline-flex items-center gap-1.5">
@@ -426,14 +432,8 @@ export function BookingWidget({
                 <span className="w-px h-4 bg-black/10" />
                 <span className="inline-flex items-center gap-1.5">
                   <Briefcase className="w-4 h-4 text-[var(--gold-ink)] shrink-0" />
-                  {luggage === null ? (
-                    <span className="text-sm text-[var(--navy)]/45">Bags</span>
-                  ) : (
-                    <>
-                      <span className="text-sm font-bold tabular-nums text-[var(--navy)]">{luggage}</span>
-                      <span className="text-[11px] font-semibold text-[var(--navy)]/60">{luggage === 1 ? "Bag" : "Bags"}</span>
-                    </>
-                  )}
+                  <span className="text-sm font-bold tabular-nums text-[var(--navy)]">{luggage + handLuggage}</span>
+                  <span className="text-[11px] font-semibold text-[var(--navy)]/60">{luggage + handLuggage === 1 ? "Bag" : "Bags"}</span>
                 </span>
               </button>
               {paxOpen && (
@@ -443,6 +443,9 @@ export function BookingWidget({
                   </div>
                   <div className="pt-2">
                     <StepperRow label="Luggage" hint="Large cases" value={luggage} min={0} max={10} onChange={setLuggage} />
+                  </div>
+                  <div className="pt-2">
+                    <StepperRow label="Hand luggage" hint="Cabin / small bags" value={handLuggage} min={0} max={10} onChange={setHandLuggage} />
                   </div>
                 </div>
               )}
