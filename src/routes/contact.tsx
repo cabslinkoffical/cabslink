@@ -15,7 +15,7 @@ import { submitContactMessage } from "@/lib/contact.functions";
 import { useCaptcha } from "@/components/site/Captcha";
 import { PhoneInput } from "@/components/site/PhoneInput";
 import { contactPageSchema } from "@/components/seo/schema";
-import { FormNotice, FormField, focusFirstInvalid, zodFieldErrors } from "@/components/site/FormValidation";
+import { FormNotice, FormField, focusFirstInvalid, zodFieldErrors, StickyFormSubmit } from "@/components/site/FormValidation";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -137,7 +137,7 @@ function ContactPage() {
               </div>
             ))}
           </div>
-          <form onSubmit={onSubmit} className="lg:col-span-3 rounded-3xl border border-border bg-card p-6 md:p-8 shadow-raised" noValidate>
+          <form onSubmit={onSubmit} className="lg:col-span-3 rounded-3xl border border-border bg-card p-6 md:p-8 pb-28 lg:pb-8 shadow-raised" noValidate>
             <h3 className="font-display text-2xl font-semibold">Send us a message</h3>
             {/* Honeypot: must remain empty; hidden from users, tempting to bots. */}
             <div className="absolute -left-[9999px]" aria-hidden="true">
@@ -166,9 +166,10 @@ function ContactPage() {
                 <Textarea id="contact-message" name="message" required maxLength={1500} rows={6} aria-invalid={!!errors.message} />
               </FormField>
               {captcha.widget}
-              <Button type="submit" variant="gold" disabled={loading || !captcha.ready} className="rounded-full">
+              <Button type="submit" variant="gold" disabled={loading || !captcha.ready} className="rounded-full hidden lg:inline-flex">
                 {loading ? "Sending…" : <>Send message <ArrowRight className="size-4" /></>}
               </Button>
+              <StickyFormSubmit label={<>Send message <ArrowRight className="size-4" /></>} loadingLabel="Sending…" loading={loading} disabled={!captcha.ready} invalid={Object.keys(errors).length > 0} />
               <TrustpilotStrip className="mt-2" />
             </div>
           </form>

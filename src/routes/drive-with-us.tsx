@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { submitDriverApplication } from "@/lib/driver-application.functions";
 import { useCaptcha } from "@/components/site/Captcha";
 import { PhoneInput } from "@/components/site/PhoneInput";
-import { FormNotice, FormField, focusFirstInvalid, zodFieldErrors } from "@/components/site/FormValidation";
+import { FormNotice, FormField, focusFirstInvalid, zodFieldErrors, StickyFormSubmit } from "@/components/site/FormValidation";
 
 export const Route = createFileRoute("/drive-with-us")({
   head: () => ({
@@ -112,7 +112,7 @@ function DrivePage() {
               </ul>
             </div>
           </div>
-          <form noValidate onSubmit={onSubmit} className="rounded-3xl border border-border bg-card p-6 md:p-8 shadow-sm h-fit">
+          <form noValidate onSubmit={onSubmit} className="rounded-3xl border border-border bg-card p-6 md:p-8 pb-28 lg:pb-8 shadow-sm h-fit">
             <h3 className="font-display text-2xl font-semibold">Apply now</h3>
             <p className="text-sm text-muted-foreground mt-1">Tell us a little about yourself — we'll be in touch within 24 hours.</p>
             <div className="mt-6 grid gap-4">
@@ -134,9 +134,10 @@ function DrivePage() {
                 <input id="drv-website" name="website" type="text" tabIndex={-1} autoComplete="off" />
               </div>
               {captcha.widget}
-              <Button type="submit" variant="gold" disabled={loading || !captcha.ready} className="rounded-full">
+              <Button type="submit" variant="gold" disabled={loading || !captcha.ready} className="rounded-full hidden lg:inline-flex">
                 {loading ? "Submitting…" : <>Submit application <ArrowRight className="size-4" /></>}
               </Button>
+              <StickyFormSubmit label={<>Submit application <ArrowRight className="size-4" /></>} loadingLabel="Submitting…" loading={loading} disabled={!captcha.ready} invalid={Object.keys(errors).length > 0} />
               {done && <p className="text-sm text-[var(--gold-ink)] text-center">Thanks — your application has been received.</p>}
             </div>
           </form>
