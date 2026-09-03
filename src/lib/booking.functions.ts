@@ -63,6 +63,7 @@ export const getBookingByToken = createServerFn({ method: "POST" })
       pickupTime: row.pickup_time,
       passengers: row.passengers,
       luggage: row.luggage,
+      handLuggage: (row as { hand_luggage?: number }).hand_luggage ?? 0,
       vehicleType: row.vehicle_type,
       flightNumber: row.flight_number,
       childSeat: !!row.child_seat,
