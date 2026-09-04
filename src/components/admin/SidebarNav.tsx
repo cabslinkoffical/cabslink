@@ -103,8 +103,8 @@ function LinkItem({ item, active, indent = false }: { item: NavItem; active: boo
   );
 }
 
-function Group({ group, pathname, forceOpen }: { group: NavGroup; pathname: string; forceOpen?: boolean }) {
-  const hasActive = group.items.some(i => isActive(i, pathname));
+function Group({ group, pathname, search, forceOpen }: { group: NavGroup; pathname: string; search?: Record<string, unknown>; forceOpen?: boolean }) {
+  const hasActive = group.items.some(i => isActive(i, pathname, search));
   const [open, setOpen] = useState(hasActive);
   useEffect(() => { if (hasActive) setOpen(true); }, [hasActive]);
   const expanded = forceOpen || open;
