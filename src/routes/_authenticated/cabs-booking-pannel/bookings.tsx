@@ -206,44 +206,65 @@ function BookingsPage() {
       ) : (
         <div className="border border-border rounded-xl bg-card overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[1080px] text-sm">
+            <table className="w-full min-w-[880px] text-sm">
               <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">
                 <tr>
-                  <th className="text-left px-2 py-3"><span className="sr-only">View</span></th>
-                  <th className="text-left px-4 py-3">Ref</th>
-                  <th className="text-left px-4 py-3">Customer</th>
-                  <th className="text-left px-4 py-3">Pickup</th>
-                  <th className="text-left px-4 py-3">Dropoff</th>
+                  <th className="text-left px-4 py-3">Booking</th>
+                  <th className="text-left px-4 py-3">Journey</th>
                   <th className="text-left px-4 py-3">Date / Time</th>
-                  <th className="text-left px-4 py-3">Vehicle</th>
-                  <th className="text-left px-4 py-3">Driver</th>
                   <th className="text-left px-4 py-3">Price</th>
-                  <th className="text-left px-4 py-3">Payment</th>
-                  <th className="text-left px-4 py-3">Status</th>
+                  <th className="text-left px-4 py-3 w-[190px]">Status</th>
                   <th className="text-right px-4 py-3">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
                 {filtered.map((b: any) => (
                   <tr key={b.id} className="hover:bg-muted/30">
-                    <td className="px-2 py-3">
-                      <Button aria-label="View details" size="icon" variant="ghost" onClick={() => { setEditing(b); setReason(""); }} title="View / edit"><Eye className="size-4" /></Button>
-                    </td>
-                    <td className="px-4 py-3 font-mono text-xs whitespace-nowrap">{b.booking_ref ?? "—"}</td>
                     <td className="px-4 py-3">
-                      <div className="font-medium">{b.customer_name}</div>
-                      <div className="text-xs text-muted-foreground">{b.email}</div>
+                      <button
+                        type="button"
+                        onClick={() => { setEditing(b); setReason(""); }}
+                        className="text-left group"
+                        title="Open details"
+                      >
+                        <div className="font-medium group-hover:text-primary transition">{b.customer_name}</div>
+                        <div className="font-mono text-[11px] text-muted-foreground">{b.booking_ref ?? "—"}</div>
+                      </button>
                     </td>
-                    <td className="px-4 py-3 max-w-[200px] truncate" title={b.pickup_address}>{b.pickup_address}</td>
-                    <td className="px-4 py-3 max-w-[200px] truncate" title={b.dropoff_address}>{b.dropoff_address}</td>
-                    <td className="px-4 py-3 whitespace-nowrap">{b.pickup_date} · {b.pickup_time}</td>
-                    <td className="px-4 py-3 whitespace-nowrap">{b.vehicle_type}</td>
-                    <td className="px-4 py-3 whitespace-nowrap text-xs">{b.driver?.full_name ?? <span className="text-muted-foreground">—</span>}</td>
+                    <td className="px-4 py-3 max-w-[280px]">
+                      <div className="truncate" title={b.pickup_address}>{b.pickup_address}</div>
+                      <div className="truncate text-xs text-muted-foreground" title={b.dropoff_address}>→ {b.dropoff_address}</div>
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap">{b.pickup_date}<div className="text-xs text-muted-foreground">{b.pickup_time}</div></td>
                     <td className="px-4 py-3 whitespace-nowrap">{b.price ? `£${Number(b.price).toFixed(2)}` : "—"}</td>
-                    <td className="px-4 py-3"><StatusBadge status={b.payment_status} /></td>
-                    <td className="px-4 py-3"><StatusBadge status={statusLabel(b.status)} /></td>
+                    <td className="px-4 py-3">
+                      {b.deleted_at ? (
+                        <StatusBadge status={statusLabel(b.status)} />
+                      ) : (
+                        <Select
+                          value={b.status}
+                          onValueChange={(v) => {
+                            if (["cancelled", "rejected"].includes(v)) {
+                              setEditing({ ...b, _staged_status: v });
+                              setReason("");
+                              toast.info("Add a reason to cancel or reject");
+                              return;
+                            }
+                            statusMut.mutate({ id: b.id, status: v as BookingStatus, reason: null });
+                          }}
+                        >
+                          <SelectTrigger className="h-8 text-xs" aria-label="Change status"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {(Object.keys(STATUS_META) as BookingStatus[])
+                              .filter(s => STATUS_META[s].adminSelectable || s === b.status)
+                              .map(s => <SelectItem key={s} value={s} className="capitalize">{STATUS_META[s].label}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    </td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-1">
+                        <Button aria-label="View details" size="icon" variant="ghost" onClick={() => { setEditing(b); setReason(""); }} title="View / edit"><Eye className="size-4" /></Button>
                         {b.deleted_at ? (
                           <Button aria-label="Restore" size="icon" variant="ghost" onClick={() => delMut.mutate({ id: b.id, restore: true })} title="Restore"><RotateCcw className="size-4" /></Button>
                         ) : (
