@@ -298,85 +298,110 @@ function BookingsPage() {
       )}
 
       <Sheet open={!!editing} onOpenChange={o => !o && (setEditing(null), setReason(""))}>
-        <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
+        <SheetContent className="w-full sm:max-w-xl overflow-y-auto p-0">
           {editing && (
             <>
-              <SheetHeader>
-                <SheetTitle>Booking {editing.booking_ref}</SheetTitle>
-                <SheetDescription>{editing.customer_name} · {editing.email} · {editing.phone}</SheetDescription>
+              <SheetHeader className="sticky top-0 z-10 bg-card/95 backdrop-blur border-b border-border px-6 py-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <SheetTitle className="truncate">{editing.customer_name}</SheetTitle>
+                    <SheetDescription className="font-mono text-[11px]">{editing.booking_ref}</SheetDescription>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-1.5 justify-end">
+                    <StatusBadge status={statusLabel(editing.status)} />
+                    <StatusBadge status={editing.payment_status} />
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground pt-1">
+                  <a className="hover:text-primary" href={`mailto:${editing.email}`}>{editing.email}</a>
+                  <a className="hover:text-primary" href={`tel:${editing.phone}`}>{editing.phone}</a>
+                </div>
               </SheetHeader>
-              <div className="space-y-4 mt-6 text-sm">
-                <div className="grid grid-cols-2 gap-3">
-                  <Info label="Pickup" value={editing.pickup_address} />
-                  <Info label="Dropoff" value={editing.dropoff_address} />
-                  <Info label="Date" value={editing.pickup_date} />
-                  <Info label="Time" value={editing.pickup_time} />
-                  <Info label="Vehicle" value={editing.vehicle_type} />
-                  <Info label="Passengers / Luggage / Hand" value={`${editing.passengers} / ${editing.luggage} / ${(editing as { hand_luggage?: number }).hand_luggage ?? 0}`} />
-                  {editing.distance_miles != null && <Info label="Distance (mi)" value={Number(editing.distance_miles).toFixed(1)} />}
-                  {editing.flight_number && <Info label="Flight" value={editing.flight_number} />}
-                  <Info label="Meet & Greet" value={editing.meet_greet ? "Yes" : "No"} />
-                  <Info label="Child seat" value={editing.child_seat ? "Yes" : "No"} />
-                  {editing.cancellation_reason && <Info label="Cancellation reason" value={editing.cancellation_reason} />}
-                </div>
 
-                <div className="border-t border-border pt-4 space-y-3">
-                  <div>
-                    <Label>Status</Label>
-                    <Select value={effectiveStatus ?? "new"} onValueChange={v => setEditing({ ...editing, _staged_status: v })}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        {(Object.keys(STATUS_META) as BookingStatus[])
-                          .filter(s => STATUS_META[s].adminSelectable)
-                          .map(s => <SelectItem key={s} value={s} className="capitalize">{STATUS_META[s].label}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                    {needsReason && (
-                      <div className="mt-2">
-                        <Label className="text-xs">Reason (required — visible to customer)</Label>
-                        <Textarea value={reason} onChange={e => setReason(e.target.value)} rows={2} maxLength={1000} />
-                      </div>
-                    )}
-                    {statusChanged && (
-                      <Button
-                        size="sm"
-                        className="mt-2"
-                        disabled={statusMut.isPending || (needsReason && !reason.trim())}
-                        onClick={() => statusMut.mutate({ id: editing.id, status: stagedStatus!, reason: reason || null })}
-                      >
-                        Apply status change
-                      </Button>
-                    )}
+              <div className="space-y-5 px-6 py-5 text-sm">
+                <Section title="Journey">
+                  <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-2">
+                    <div className="flex gap-2">
+                      <span className="mt-1 size-2 rounded-full bg-primary shrink-0" />
+                      <div className="min-w-0"><div className="text-[11px] uppercase tracking-wider text-muted-foreground">Pickup</div><div className="font-medium">{editing.pickup_address}</div></div>
+                    </div>
+                    <div className="flex gap-2">
+                      <span className="mt-1 size-2 rounded-full bg-foreground/70 shrink-0" />
+                      <div className="min-w-0"><div className="text-[11px] uppercase tracking-wider text-muted-foreground">Drop-off</div><div className="font-medium">{editing.dropoff_address}</div></div>
+                    </div>
                   </div>
+                  <div className="grid grid-cols-2 gap-3 pt-3">
+                    <Info label="Date" value={editing.pickup_date} />
+                    <Info label="Time" value={editing.pickup_time} />
+                    <Info label="Vehicle" value={editing.vehicle_type} />
+                    <Info label="Fare" value={editing.price ? `£${Number(editing.price).toFixed(2)}` : "—"} />
+                    <Info label="Passengers" value={String(editing.passengers)} />
+                    <Info label="Suitcases / hand bags" value={`${editing.luggage} / ${(editing as { hand_luggage?: number }).hand_luggage ?? 0}`} />
+                    {editing.distance_miles != null && <Info label="Distance (mi)" value={Number(editing.distance_miles).toFixed(1)} />}
+                    {editing.flight_number && <Info label="Flight" value={editing.flight_number} />}
+                    <Info label="Meet & greet" value={editing.meet_greet ? "Yes" : "No"} />
+                    <Info label="Child seat" value={editing.child_seat ? "Yes" : "No"} />
+                    {editing.cancellation_reason && <Info label="Cancellation reason" value={editing.cancellation_reason} />}
+                    {editing.notes && <Info label="Customer notes" value={editing.notes} />}
+                  </div>
+                </Section>
 
-                  <div>
-                    <Label>Payment status</Label>
-                    <Select value={editing.payment_status} onValueChange={v => setEditing({ ...editing, payment_status: v })}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        {["unpaid", "paid", "partial", "refunded", "failed"].map(s => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Assign driver</Label>
-                    <Select value={editing.driver_id ?? "none"} onValueChange={v => setEditing({ ...editing, driver_id: v === "none" ? null : v })}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="none">Unassigned</SelectItem>
-                        {drivers.map((d: any) => <SelectItem key={d.id} value={d.id}>{d.full_name}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Admin notes</Label>
-                    <Textarea value={editing.admin_notes ?? ""} onChange={e => setEditing({ ...editing, admin_notes: e.target.value })} rows={3} />
-                  </div>
-                  {editing.notes && <Info label="Customer notes" value={editing.notes} />}
-                </div>
+                <Section title="Status">
+                  <Select value={effectiveStatus ?? "new"} onValueChange={v => setEditing({ ...editing, _staged_status: v })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {(Object.keys(STATUS_META) as BookingStatus[])
+                        .filter(s => STATUS_META[s].adminSelectable)
+                        .map(s => <SelectItem key={s} value={s} className="capitalize">{STATUS_META[s].label}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  {needsReason && (
+                    <div className="mt-2">
+                      <Label className="text-xs">Reason (required — visible to customer)</Label>
+                      <Textarea value={reason} onChange={e => setReason(e.target.value)} rows={2} maxLength={1000} />
+                    </div>
+                  )}
+                  {statusChanged && (
+                    <Button
+                      size="sm"
+                      className="mt-2"
+                      disabled={statusMut.isPending || (needsReason && !reason.trim())}
+                      onClick={() => statusMut.mutate({ id: editing.id, status: stagedStatus!, reason: reason || null })}
+                    >
+                      Apply status change
+                    </Button>
+                  )}
+                </Section>
 
-                <div className="border-t border-border pt-4">
-                  <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold mb-3">Tell the customer</p>
+                <Section title="Payment & driver">
+                  <div className="space-y-3">
+                    <div>
+                      <Label>Payment status</Label>
+                      <Select value={editing.payment_status} onValueChange={v => setEditing({ ...editing, payment_status: v })}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {["unpaid", "paid", "partial", "refunded", "failed"].map(s => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>Assign driver</Label>
+                      <Select value={editing.driver_id ?? "none"} onValueChange={v => setEditing({ ...editing, driver_id: v === "none" ? null : v })}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">Unassigned</SelectItem>
+                          {drivers.map((d: any) => <SelectItem key={d.id} value={d.id}>{d.full_name}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>Admin notes</Label>
+                      <Textarea value={editing.admin_notes ?? ""} onChange={e => setEditing({ ...editing, admin_notes: e.target.value })} rows={3} />
+                    </div>
+                  </div>
+                </Section>
+
+                <Section title="Tell the customer">
                   <CannedEmailComposer
                     scope="booking"
                     targetId={editing.id}
