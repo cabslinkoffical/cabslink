@@ -4,7 +4,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
 import type { LucideIcon } from "lucide-react";
 
-export type NavItem = { to: string; label: string; icon: LucideIcon; exact?: boolean };
+export type NavItem = { to: string; label: string; icon: LucideIcon; exact?: boolean; search?: Record<string, string> };
 export type NavGroup = { label: string; icon: LucideIcon; items: NavItem[] };
 export type SidebarEntry = NavItem | NavGroup;
 
@@ -12,11 +12,16 @@ function isGroup(e: SidebarEntry): e is NavGroup {
   return "items" in e;
 }
 
-const isActive = (item: NavItem, pathname: string) =>
-  item.exact ? pathname === item.to : pathname.startsWith(item.to);
+const isActive = (item: NavItem, pathname: string, search?: Record<string, unknown>) => {
+  const pathMatches = item.exact ? pathname === item.to : pathname.startsWith(item.to);
+  if (!pathMatches) return false;
+  if (!item.search) return true;
+  return Object.entries(item.search).every(([k, v]) => String((search ?? {})[k] ?? "") === v);
+};
 
 export function SidebarNav({ entries }: { entries: SidebarEntry[] }) {
   const pathname = useRouterState({ select: s => s.location.pathname });
+  const search = useRouterState({ select: s => s.location.search as Record<string, unknown> });
   const [query, setQuery] = useState("");
   const q = query.trim().toLowerCase();
 
@@ -61,9 +66,9 @@ export function SidebarNav({ entries }: { entries: SidebarEntry[] }) {
       <nav className="flex-1 overflow-y-auto admin-scroll px-2 py-3 space-y-0.5">
         {filtered.map((e, i) =>
           isGroup(e) ? (
-            <Group key={e.label} group={e} pathname={pathname} forceOpen={!!q} />
+            <Group key={e.label} group={e} pathname={pathname} search={search} forceOpen={!!q} />
           ) : (
-            <LinkItem key={i} item={e} active={isActive(e, pathname)} />
+            <LinkItem key={i} item={e} active={isActive(e, pathname, search)} />
           )
         )}
         {q && filtered.length === 0 && (
@@ -78,6 +83,11 @@ function LinkItem({ item, active, indent = false }: { item: NavItem; active: boo
   return (
     <Link
       to={item.to as any}
+      search={
+        item.search
+          ? (Object.fromEntries(Object.entries(item.search).filter(([, v]) => v !== "")) as any)
+          : undefined
+      }
       aria-current={active ? "page" : undefined}
       className={cn(
         "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition group",
@@ -93,8 +103,8 @@ function LinkItem({ item, active, indent = false }: { item: NavItem; active: boo
   );
 }
 
-function Group({ group, pathname, forceOpen }: { group: NavGroup; pathname: string; forceOpen?: boolean }) {
-  const hasActive = group.items.some(i => isActive(i, pathname));
+function Group({ group, pathname, search, forceOpen }: { group: NavGroup; pathname: string; search?: Record<string, unknown>; forceOpen?: boolean }) {
+  const hasActive = group.items.some(i => isActive(i, pathname, search));
   const [open, setOpen] = useState(hasActive);
   useEffect(() => { if (hasActive) setOpen(true); }, [hasActive]);
   const expanded = forceOpen || open;
@@ -117,7 +127,7 @@ function Group({ group, pathname, forceOpen }: { group: NavGroup; pathname: stri
       {expanded && (
         <div className="mt-0.5 space-y-0.5">
           {group.items.map(it => (
-            <LinkItem key={it.to} item={it} active={isActive(it, pathname)} indent />
+            <LinkItem key={it.label} item={it} active={isActive(it, pathname, search)} indent />
           ))}
         </div>
       )}
