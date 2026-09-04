@@ -44,7 +44,12 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel")({
 
 const NAV: SidebarEntry[] = [
   { to: "/cabs-booking-pannel", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { to: "/cabs-booking-pannel/bookings", label: "Bookings", icon: CalendarCheck },
+  {
+    label: "Bookings", icon: CalendarCheck, items: [
+      { to: "/cabs-booking-pannel/bookings", label: "Booking", icon: CalendarCheck, search: { view: "" } },
+      { to: "/cabs-booking-pannel/bookings", label: "Tours booking", icon: RouteIcon, search: { view: "tours" } },
+    ],
+  },
   { to: "/cabs-booking-pannel/messages", label: "Messages", icon: Inbox },
   { to: "/cabs-booking-pannel/payments", label: "Payments", icon: CreditCard },
   { to: "/cabs-booking-pannel/availability", label: "Availability & Blocks", icon: Ban },
