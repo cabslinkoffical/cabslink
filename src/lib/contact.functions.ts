@@ -48,20 +48,22 @@ export const submitContactMessage = createServerFn({ method: "POST" })
     recentHashes.set(key, now);
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.from("contact_messages").insert({
+    const isTour = (data.subject ?? "").toLowerCase().includes("tour");
+    const insert: any = {
       name: data.name,
       email: data.email,
       phone: data.phone || null,
       subject: data.subject || null,
       message: data.message,
-    } as any);
+    };
+    if (isTour) insert.tour_status = "new";
+    const { error } = await supabaseAdmin.from("contact_messages").insert(insert);
     if (error) {
       console.error("contact insert failed", error);
       throw new Error("Could not send. Please try again.");
     }
 
     const { notifyEnquiry } = await import("@/lib/notifications.server");
-    const isTour = (data.subject ?? "").toLowerCase().includes("tour");
     await notifyEnquiry({
       kind: isTour ? "tour" : "contact",
       name: data.name,

@@ -37,7 +37,7 @@ export const getDashboardStats = createServerFn({ method: "GET" })
 
     const [bookingsRes, messagesRes, vehiclesRes, driversRes, paymentsRes, recentRes] = await Promise.all([
       context.supabase.from("bookings").select("id, status, vehicle_type, pickup_address, dropoff_address, created_at, pickup_date, price, payment_status, deleted_at"),
-      context.supabase.from("contact_messages").select("id, status"),
+      context.supabase.from("contact_messages").select("id, status").not("subject", "ilike", "Tour booking:%"),
       context.supabase.from("vehicles").select("id, active"),
       context.supabase.from("drivers").select("id, status"),
       context.supabase.from("payments").select("id, amount, status, created_at, paid_at"),
