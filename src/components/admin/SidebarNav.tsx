@@ -127,7 +127,7 @@ function Group({ group, pathname, search, forceOpen }: { group: NavGroup; pathna
       {expanded && (
         <div className="mt-0.5 space-y-0.5">
           {group.items.map(it => (
-            <LinkItem key={it.to} item={it} active={isActive(it, pathname)} indent />
+            <LinkItem key={it.label} item={it} active={isActive(it, pathname, search)} indent />
           ))}
         </div>
       )}
