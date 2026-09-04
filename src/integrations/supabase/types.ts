@@ -808,6 +808,7 @@ export type Database = {
           phone: string | null
           status: Database["public"]["Enums"]["message_status"]
           subject: string | null
+          tour_status: Database["public"]["Enums"]["tour_booking_status"]
         }
         Insert: {
           created_at?: string
@@ -818,6 +819,7 @@ export type Database = {
           phone?: string | null
           status?: Database["public"]["Enums"]["message_status"]
           subject?: string | null
+          tour_status?: Database["public"]["Enums"]["tour_booking_status"]
         }
         Update: {
           created_at?: string
@@ -828,6 +830,7 @@ export type Database = {
           phone?: string | null
           status?: Database["public"]["Enums"]["message_status"]
           subject?: string | null
+          tour_status?: Database["public"]["Enums"]["tour_booking_status"]
         }
         Relationships: []
       }
@@ -4319,6 +4322,15 @@ export type Database = {
         | "corporate_travel_info"
         | "accessibility"
         | "custom_rich_text"
+      tour_booking_status:
+        | "new"
+        | "read"
+        | "pending"
+        | "booked"
+        | "paid"
+        | "confirmed"
+        | "resolved"
+        | "cancelled"
       vehicle_class:
         | "economy"
         | "business"
@@ -4592,6 +4604,16 @@ export const Constants = {
         "corporate_travel_info",
         "accessibility",
         "custom_rich_text",
+      ],
+      tour_booking_status: [
+        "new",
+        "read",
+        "pending",
+        "booked",
+        "paid",
+        "confirmed",
+        "resolved",
+        "cancelled",
       ],
       vehicle_class: [
         "economy",

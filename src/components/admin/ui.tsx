@@ -77,6 +77,9 @@ export function StatusBadge({ status, color }: { status: string; color?: string 
     partial: gold,
     read: navy,
     resolved: navy,
+    pending: gold,
+    booked: navy,
+    // 'cancelled' already mapped above
   };
   return (
     <span className={cn("inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold capitalize whitespace-nowrap", color ?? palette[status] ?? soft)}>

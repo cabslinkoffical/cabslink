@@ -37,7 +37,7 @@ export const getDashboardStats = createServerFn({ method: "GET" })
 
     const [bookingsRes, messagesRes, vehiclesRes, driversRes, paymentsRes, recentRes] = await Promise.all([
       context.supabase.from("bookings").select("id, status, vehicle_type, pickup_address, dropoff_address, created_at, pickup_date, price, payment_status, deleted_at"),
-      context.supabase.from("contact_messages").select("id, status"),
+      context.supabase.from("contact_messages").select("id, status").not("subject", "ilike", "Tour booking:%"),
       context.supabase.from("vehicles").select("id, active"),
       context.supabase.from("drivers").select("id, status"),
       context.supabase.from("payments").select("id, amount, status, created_at, paid_at"),
@@ -196,12 +196,29 @@ export const listMessages = createServerFn({ method: "GET" })
     return data ?? [];
   });
 
+const tourBookingStatusSchema = z.enum([
+  "new", "read", "pending", "booked", "paid", "confirmed", "resolved", "cancelled",
+]);
+
 export const updateMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid(), status: z.enum(["new", "read", "resolved"]) }).parse(i))
+  .inputValidator((i: unknown) =>
+    z.object({
+      id: z.string().uuid(),
+      status: z.enum(["new", "read", "resolved"]).optional(),
+      tour_status: tourBookingStatusSchema.optional(),
+    })
+      .refine((d) => d.status !== undefined || d.tour_status !== undefined, {
+        message: "Either status or tour_status is required",
+      })
+      .parse(i)
+  )
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    const { error } = await context.supabase.from("contact_messages").update({ status: data.status }).eq("id", data.id);
+    const patch: any = {};
+    if (data.status !== undefined) patch.status = data.status;
+    if (data.tour_status !== undefined) patch.tour_status = data.tour_status;
+    const { error } = await context.supabase.from("contact_messages").update(patch).eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
