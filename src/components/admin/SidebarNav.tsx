@@ -66,9 +66,9 @@ export function SidebarNav({ entries }: { entries: SidebarEntry[] }) {
       <nav className="flex-1 overflow-y-auto admin-scroll px-2 py-3 space-y-0.5">
         {filtered.map((e, i) =>
           isGroup(e) ? (
-            <Group key={e.label} group={e} pathname={pathname} forceOpen={!!q} />
+            <Group key={e.label} group={e} pathname={pathname} search={search} forceOpen={!!q} />
           ) : (
-            <LinkItem key={i} item={e} active={isActive(e, pathname)} />
+            <LinkItem key={i} item={e} active={isActive(e, pathname, search)} />
           )
         )}
         {q && filtered.length === 0 && (
