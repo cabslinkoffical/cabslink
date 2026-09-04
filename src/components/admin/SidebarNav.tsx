@@ -83,6 +83,11 @@ function LinkItem({ item, active, indent = false }: { item: NavItem; active: boo
   return (
     <Link
       to={item.to as any}
+      search={
+        item.search
+          ? (Object.fromEntries(Object.entries(item.search).filter(([, v]) => v !== "")) as any)
+          : undefined
+      }
       aria-current={active ? "page" : undefined}
       className={cn(
         "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition group",
