@@ -418,21 +418,20 @@ function BookingsPage() {
                     }}
                     onSent={() => qc.invalidateQueries({ queryKey: ["admin", "booking-notifications", editing.id] })}
                   />
-                </div>
+                </Section>
 
                 <NotificationsPanel bookingId={editing.id} />
+              </div>
 
-
-                <div className="flex justify-end gap-2 pt-2">
-                  <Button variant="outline" onClick={() => { setEditing(null); setReason(""); }}>Close</Button>
-                  <Button
-                    disabled={patchMut.isPending}
-                    onClick={() => patchMut.mutate({ id: editing.id, patch: {
-                      payment_status: editing.payment_status,
-                      driver_id: editing.driver_id, admin_notes: editing.admin_notes,
-                    } })}
-                  >Save other changes</Button>
-                </div>
+              <div className="sticky bottom-0 flex justify-end gap-2 border-t border-border bg-card/95 backdrop-blur px-6 py-3">
+                <Button variant="outline" onClick={() => { setEditing(null); setReason(""); }}>Close</Button>
+                <Button
+                  disabled={patchMut.isPending}
+                  onClick={() => patchMut.mutate({ id: editing.id, patch: {
+                    payment_status: editing.payment_status,
+                    driver_id: editing.driver_id, admin_notes: editing.admin_notes,
+                  } })}
+                >Save changes</Button>
               </div>
             </>
           )}
