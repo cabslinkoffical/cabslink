@@ -93,7 +93,7 @@ export function TourEnquiries() {
                       <div className="text-xs text-muted-foreground">{m.email}{m.phone ? ` · ${m.phone}` : ""}</div>
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-xs text-muted-foreground">{new Date(m.created_at).toLocaleString()}</td>
-                    <td className="px-4 py-3"><StatusBadge status={tourStatusLabel(tourStatus(m))} /></td>
+                    <td className="px-4 py-3"><StatusBadge status={tourStatus(m)} /></td>
                     <td className="px-4 py-3">
                       <Select value={tourStatus(m)} onValueChange={(v) => statusMut.mutate({ id: m.id, tour_status: v })}>
                         <SelectTrigger className="w-[150px] h-9"><SelectValue /></SelectTrigger>
