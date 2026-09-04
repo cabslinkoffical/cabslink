@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { listMessages, updateMessage, deleteMessage } from "@/lib/admin.functions";
-import { isTourEnquiry, tourNameFrom } from "@/lib/tour-enquiries";
+import { isTourEnquiry, tourNameFrom, TOUR_STATUSES, tourStatusLabel } from "@/lib/tour-enquiries";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -12,9 +12,11 @@ import { toast } from "sonner";
 import { EmptyState, StatusBadge } from "@/components/admin/ui";
 import { CannedEmailComposer } from "@/components/admin/CannedEmailComposer";
 
-const STATUSES = ["new", "read", "resolved"] as const;
+function tourStatus(m: any): string {
+  return m.tour_status ?? "new";
+}
 
-/** Tour booking enquiries, managed alongside bookings with the same status flow. */
+/** Tour booking enquiries, managed alongside bookings with a dedicated booking status flow. */
 export function TourEnquiries() {
   const qc = useQueryClient();
   const { data = [], isLoading } = useQuery({ queryKey: ["admin", "messages"], queryFn: () => listMessages() });
@@ -25,7 +27,7 @@ export function TourEnquiries() {
     qc.invalidateQueries({ queryKey: ["admin", "stats"] });
   };
   const statusMut = useMutation({
-    mutationFn: (vars: { id: string; status: string }) => upd({ data: vars }),
+    mutationFn: (vars: { id: string; tour_status: string }) => upd({ data: vars }),
     onSuccess: () => { invalidate(); toast.success("Status updated"); },
     onError: (e: any) => toast.error(e.message),
   });
@@ -81,7 +83,7 @@ export function TourEnquiries() {
               </thead>
               <tbody className="divide-y divide-border">
                 {rows.map((m) => (
-                  <tr key={m.id} className={`hover:bg-muted/30 ${m.status === "new" ? "bg-warning/5" : ""}`}>
+                  <tr key={m.id} className={`hover:bg-muted/30 ${tourStatus(m) === "new" ? "bg-warning/5" : ""}`}>
                     <td className="px-2 py-3">
                       <Button aria-label="View enquiry" size="icon" variant="ghost" onClick={() => setOpenId(m.id)}><Eye className="size-4" /></Button>
                     </td>
@@ -91,12 +93,12 @@ export function TourEnquiries() {
                       <div className="text-xs text-muted-foreground">{m.email}{m.phone ? ` · ${m.phone}` : ""}</div>
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-xs text-muted-foreground">{new Date(m.created_at).toLocaleString()}</td>
-                    <td className="px-4 py-3"><StatusBadge status={m.status} /></td>
+                    <td className="px-4 py-3"><StatusBadge status={tourStatusLabel(tourStatus(m))} /></td>
                     <td className="px-4 py-3">
-                      <Select value={m.status} onValueChange={(v) => statusMut.mutate({ id: m.id, status: v })}>
+                      <Select value={tourStatus(m)} onValueChange={(v) => statusMut.mutate({ id: m.id, tour_status: v })}>
                         <SelectTrigger className="w-[150px] h-9"><SelectValue /></SelectTrigger>
                         <SelectContent>
-                          {STATUSES.map((s) => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
+                          {TOUR_STATUSES.map((s) => <SelectItem key={s} value={s} className="capitalize">{tourStatusLabel(s)}</SelectItem>)}
                         </SelectContent>
                       </Select>
                     </td>
@@ -123,10 +125,10 @@ export function TourEnquiries() {
                 <p className="text-xs text-muted-foreground">{new Date(active.created_at).toLocaleString()}</p>
                 <div className="flex items-center gap-2">
                   <span className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Status</span>
-                  <Select value={active.status} onValueChange={(v) => statusMut.mutate({ id: active.id, status: v })}>
+                  <Select value={tourStatus(active)} onValueChange={(v) => statusMut.mutate({ id: active.id, tour_status: v })}>
                     <SelectTrigger className="w-[160px] h-9"><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      {STATUSES.map((s) => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
+                      {TOUR_STATUSES.map((s) => <SelectItem key={s} value={s} className="capitalize">{tourStatusLabel(s)}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
