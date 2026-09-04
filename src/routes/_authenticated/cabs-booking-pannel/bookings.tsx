@@ -135,21 +135,6 @@ function BookingsPage() {
     <div className="space-y-6">
       <PageHeader title="Bookings" description="Manage bookings, tour enquiries, assignments, and notifications." />
 
-      <Tabs value={view} className="w-full">
-        <TabsList className="h-auto p-1">
-          <TabsTrigger value="bookings" asChild>
-            <Link to="/cabs-booking-pannel/bookings" search={{ tab }} className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              Booking
-            </Link>
-          </TabsTrigger>
-          <TabsTrigger value="tours" asChild>
-            <Link to="/cabs-booking-pannel/bookings" search={{ view: "tours" }} className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              Tours booking
-            </Link>
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
-
       {view === "tours" ? <TourEnquiries /> : <>
 
       <Tabs value={tab} className="w-full">
