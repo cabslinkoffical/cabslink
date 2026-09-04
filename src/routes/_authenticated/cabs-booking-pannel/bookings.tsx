@@ -442,6 +442,15 @@ function BookingsPage() {
   );
 }
 
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="rounded-xl border border-border bg-card p-4">
+      <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold mb-3">{title}</p>
+      {children}
+    </section>
+  );
+}
+
 function Info({ label, value }: { label: string; value: string }) {
   return (
     <div>
