@@ -206,44 +206,65 @@ function BookingsPage() {
       ) : (
         <div className="border border-border rounded-xl bg-card overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[1080px] text-sm">
+            <table className="w-full min-w-[880px] text-sm">
               <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">
                 <tr>
-                  <th className="text-left px-2 py-3"><span className="sr-only">View</span></th>
-                  <th className="text-left px-4 py-3">Ref</th>
-                  <th className="text-left px-4 py-3">Customer</th>
-                  <th className="text-left px-4 py-3">Pickup</th>
-                  <th className="text-left px-4 py-3">Dropoff</th>
+                  <th className="text-left px-4 py-3">Booking</th>
+                  <th className="text-left px-4 py-3">Journey</th>
                   <th className="text-left px-4 py-3">Date / Time</th>
-                  <th className="text-left px-4 py-3">Vehicle</th>
-                  <th className="text-left px-4 py-3">Driver</th>
                   <th className="text-left px-4 py-3">Price</th>
-                  <th className="text-left px-4 py-3">Payment</th>
-                  <th className="text-left px-4 py-3">Status</th>
+                  <th className="text-left px-4 py-3 w-[190px]">Status</th>
                   <th className="text-right px-4 py-3">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
                 {filtered.map((b: any) => (
                   <tr key={b.id} className="hover:bg-muted/30">
-                    <td className="px-2 py-3">
-                      <Button aria-label="View details" size="icon" variant="ghost" onClick={() => { setEditing(b); setReason(""); }} title="View / edit"><Eye className="size-4" /></Button>
-                    </td>
-                    <td className="px-4 py-3 font-mono text-xs whitespace-nowrap">{b.booking_ref ?? "—"}</td>
                     <td className="px-4 py-3">
-                      <div className="font-medium">{b.customer_name}</div>
-                      <div className="text-xs text-muted-foreground">{b.email}</div>
+                      <button
+                        type="button"
+                        onClick={() => { setEditing(b); setReason(""); }}
+                        className="text-left group"
+                        title="Open details"
+                      >
+                        <div className="font-medium group-hover:text-primary transition">{b.customer_name}</div>
+                        <div className="font-mono text-[11px] text-muted-foreground">{b.booking_ref ?? "—"}</div>
+                      </button>
                     </td>
-                    <td className="px-4 py-3 max-w-[200px] truncate" title={b.pickup_address}>{b.pickup_address}</td>
-                    <td className="px-4 py-3 max-w-[200px] truncate" title={b.dropoff_address}>{b.dropoff_address}</td>
-                    <td className="px-4 py-3 whitespace-nowrap">{b.pickup_date} · {b.pickup_time}</td>
-                    <td className="px-4 py-3 whitespace-nowrap">{b.vehicle_type}</td>
-                    <td className="px-4 py-3 whitespace-nowrap text-xs">{b.driver?.full_name ?? <span className="text-muted-foreground">—</span>}</td>
+                    <td className="px-4 py-3 max-w-[280px]">
+                      <div className="truncate" title={b.pickup_address}>{b.pickup_address}</div>
+                      <div className="truncate text-xs text-muted-foreground" title={b.dropoff_address}>→ {b.dropoff_address}</div>
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap">{b.pickup_date}<div className="text-xs text-muted-foreground">{b.pickup_time}</div></td>
                     <td className="px-4 py-3 whitespace-nowrap">{b.price ? `£${Number(b.price).toFixed(2)}` : "—"}</td>
-                    <td className="px-4 py-3"><StatusBadge status={b.payment_status} /></td>
-                    <td className="px-4 py-3"><StatusBadge status={statusLabel(b.status)} /></td>
+                    <td className="px-4 py-3">
+                      {b.deleted_at ? (
+                        <StatusBadge status={statusLabel(b.status)} />
+                      ) : (
+                        <Select
+                          value={b.status}
+                          onValueChange={(v) => {
+                            if (["cancelled", "rejected"].includes(v)) {
+                              setEditing({ ...b, _staged_status: v });
+                              setReason("");
+                              toast.info("Add a reason to cancel or reject");
+                              return;
+                            }
+                            statusMut.mutate({ id: b.id, status: v as BookingStatus, reason: null });
+                          }}
+                        >
+                          <SelectTrigger className="h-8 text-xs" aria-label="Change status"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {(Object.keys(STATUS_META) as BookingStatus[])
+                              .filter(s => STATUS_META[s].adminSelectable || s === b.status)
+                              .map(s => <SelectItem key={s} value={s} className="capitalize">{STATUS_META[s].label}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    </td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-1">
+                        <Button aria-label="View details" size="icon" variant="ghost" onClick={() => { setEditing(b); setReason(""); }} title="View / edit"><Eye className="size-4" /></Button>
                         {b.deleted_at ? (
                           <Button aria-label="Restore" size="icon" variant="ghost" onClick={() => delMut.mutate({ id: b.id, restore: true })} title="Restore"><RotateCcw className="size-4" /></Button>
                         ) : (
@@ -277,85 +298,110 @@ function BookingsPage() {
       )}
 
       <Sheet open={!!editing} onOpenChange={o => !o && (setEditing(null), setReason(""))}>
-        <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
+        <SheetContent className="w-full sm:max-w-xl overflow-y-auto p-0">
           {editing && (
             <>
-              <SheetHeader>
-                <SheetTitle>Booking {editing.booking_ref}</SheetTitle>
-                <SheetDescription>{editing.customer_name} · {editing.email} · {editing.phone}</SheetDescription>
+              <SheetHeader className="sticky top-0 z-10 bg-card/95 backdrop-blur border-b border-border px-6 py-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <SheetTitle className="truncate">{editing.customer_name}</SheetTitle>
+                    <SheetDescription className="font-mono text-[11px]">{editing.booking_ref}</SheetDescription>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-1.5 justify-end">
+                    <StatusBadge status={statusLabel(editing.status)} />
+                    <StatusBadge status={editing.payment_status} />
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground pt-1">
+                  <a className="hover:text-primary" href={`mailto:${editing.email}`}>{editing.email}</a>
+                  <a className="hover:text-primary" href={`tel:${editing.phone}`}>{editing.phone}</a>
+                </div>
               </SheetHeader>
-              <div className="space-y-4 mt-6 text-sm">
-                <div className="grid grid-cols-2 gap-3">
-                  <Info label="Pickup" value={editing.pickup_address} />
-                  <Info label="Dropoff" value={editing.dropoff_address} />
-                  <Info label="Date" value={editing.pickup_date} />
-                  <Info label="Time" value={editing.pickup_time} />
-                  <Info label="Vehicle" value={editing.vehicle_type} />
-                  <Info label="Passengers / Luggage / Hand" value={`${editing.passengers} / ${editing.luggage} / ${(editing as { hand_luggage?: number }).hand_luggage ?? 0}`} />
-                  {editing.distance_miles != null && <Info label="Distance (mi)" value={Number(editing.distance_miles).toFixed(1)} />}
-                  {editing.flight_number && <Info label="Flight" value={editing.flight_number} />}
-                  <Info label="Meet & Greet" value={editing.meet_greet ? "Yes" : "No"} />
-                  <Info label="Child seat" value={editing.child_seat ? "Yes" : "No"} />
-                  {editing.cancellation_reason && <Info label="Cancellation reason" value={editing.cancellation_reason} />}
-                </div>
 
-                <div className="border-t border-border pt-4 space-y-3">
-                  <div>
-                    <Label>Status</Label>
-                    <Select value={effectiveStatus ?? "new"} onValueChange={v => setEditing({ ...editing, _staged_status: v })}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        {(Object.keys(STATUS_META) as BookingStatus[])
-                          .filter(s => STATUS_META[s].adminSelectable)
-                          .map(s => <SelectItem key={s} value={s} className="capitalize">{STATUS_META[s].label}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                    {needsReason && (
-                      <div className="mt-2">
-                        <Label className="text-xs">Reason (required — visible to customer)</Label>
-                        <Textarea value={reason} onChange={e => setReason(e.target.value)} rows={2} maxLength={1000} />
-                      </div>
-                    )}
-                    {statusChanged && (
-                      <Button
-                        size="sm"
-                        className="mt-2"
-                        disabled={statusMut.isPending || (needsReason && !reason.trim())}
-                        onClick={() => statusMut.mutate({ id: editing.id, status: stagedStatus!, reason: reason || null })}
-                      >
-                        Apply status change
-                      </Button>
-                    )}
+              <div className="space-y-5 px-6 py-5 text-sm">
+                <Section title="Journey">
+                  <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-2">
+                    <div className="flex gap-2">
+                      <span className="mt-1 size-2 rounded-full bg-primary shrink-0" />
+                      <div className="min-w-0"><div className="text-[11px] uppercase tracking-wider text-muted-foreground">Pickup</div><div className="font-medium">{editing.pickup_address}</div></div>
+                    </div>
+                    <div className="flex gap-2">
+                      <span className="mt-1 size-2 rounded-full bg-foreground/70 shrink-0" />
+                      <div className="min-w-0"><div className="text-[11px] uppercase tracking-wider text-muted-foreground">Drop-off</div><div className="font-medium">{editing.dropoff_address}</div></div>
+                    </div>
                   </div>
+                  <div className="grid grid-cols-2 gap-3 pt-3">
+                    <Info label="Date" value={editing.pickup_date} />
+                    <Info label="Time" value={editing.pickup_time} />
+                    <Info label="Vehicle" value={editing.vehicle_type} />
+                    <Info label="Fare" value={editing.price ? `£${Number(editing.price).toFixed(2)}` : "—"} />
+                    <Info label="Passengers" value={String(editing.passengers)} />
+                    <Info label="Suitcases / hand bags" value={`${editing.luggage} / ${(editing as { hand_luggage?: number }).hand_luggage ?? 0}`} />
+                    {editing.distance_miles != null && <Info label="Distance (mi)" value={Number(editing.distance_miles).toFixed(1)} />}
+                    {editing.flight_number && <Info label="Flight" value={editing.flight_number} />}
+                    <Info label="Meet & greet" value={editing.meet_greet ? "Yes" : "No"} />
+                    <Info label="Child seat" value={editing.child_seat ? "Yes" : "No"} />
+                    {editing.cancellation_reason && <Info label="Cancellation reason" value={editing.cancellation_reason} />}
+                    {editing.notes && <Info label="Customer notes" value={editing.notes} />}
+                  </div>
+                </Section>
 
-                  <div>
-                    <Label>Payment status</Label>
-                    <Select value={editing.payment_status} onValueChange={v => setEditing({ ...editing, payment_status: v })}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        {["unpaid", "paid", "partial", "refunded", "failed"].map(s => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Assign driver</Label>
-                    <Select value={editing.driver_id ?? "none"} onValueChange={v => setEditing({ ...editing, driver_id: v === "none" ? null : v })}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="none">Unassigned</SelectItem>
-                        {drivers.map((d: any) => <SelectItem key={d.id} value={d.id}>{d.full_name}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Admin notes</Label>
-                    <Textarea value={editing.admin_notes ?? ""} onChange={e => setEditing({ ...editing, admin_notes: e.target.value })} rows={3} />
-                  </div>
-                  {editing.notes && <Info label="Customer notes" value={editing.notes} />}
-                </div>
+                <Section title="Status">
+                  <Select value={effectiveStatus ?? "new"} onValueChange={v => setEditing({ ...editing, _staged_status: v })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {(Object.keys(STATUS_META) as BookingStatus[])
+                        .filter(s => STATUS_META[s].adminSelectable)
+                        .map(s => <SelectItem key={s} value={s} className="capitalize">{STATUS_META[s].label}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  {needsReason && (
+                    <div className="mt-2">
+                      <Label className="text-xs">Reason (required — visible to customer)</Label>
+                      <Textarea value={reason} onChange={e => setReason(e.target.value)} rows={2} maxLength={1000} />
+                    </div>
+                  )}
+                  {statusChanged && (
+                    <Button
+                      size="sm"
+                      className="mt-2"
+                      disabled={statusMut.isPending || (needsReason && !reason.trim())}
+                      onClick={() => statusMut.mutate({ id: editing.id, status: stagedStatus!, reason: reason || null })}
+                    >
+                      Apply status change
+                    </Button>
+                  )}
+                </Section>
 
-                <div className="border-t border-border pt-4">
-                  <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold mb-3">Tell the customer</p>
+                <Section title="Payment & driver">
+                  <div className="space-y-3">
+                    <div>
+                      <Label>Payment status</Label>
+                      <Select value={editing.payment_status} onValueChange={v => setEditing({ ...editing, payment_status: v })}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {["unpaid", "paid", "partial", "refunded", "failed"].map(s => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>Assign driver</Label>
+                      <Select value={editing.driver_id ?? "none"} onValueChange={v => setEditing({ ...editing, driver_id: v === "none" ? null : v })}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">Unassigned</SelectItem>
+                          {drivers.map((d: any) => <SelectItem key={d.id} value={d.id}>{d.full_name}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>Admin notes</Label>
+                      <Textarea value={editing.admin_notes ?? ""} onChange={e => setEditing({ ...editing, admin_notes: e.target.value })} rows={3} />
+                    </div>
+                  </div>
+                </Section>
+
+                <Section title="Tell the customer">
                   <CannedEmailComposer
                     scope="booking"
                     targetId={editing.id}
@@ -372,21 +418,20 @@ function BookingsPage() {
                     }}
                     onSent={() => qc.invalidateQueries({ queryKey: ["admin", "booking-notifications", editing.id] })}
                   />
-                </div>
+                </Section>
 
                 <NotificationsPanel bookingId={editing.id} />
+              </div>
 
-
-                <div className="flex justify-end gap-2 pt-2">
-                  <Button variant="outline" onClick={() => { setEditing(null); setReason(""); }}>Close</Button>
-                  <Button
-                    disabled={patchMut.isPending}
-                    onClick={() => patchMut.mutate({ id: editing.id, patch: {
-                      payment_status: editing.payment_status,
-                      driver_id: editing.driver_id, admin_notes: editing.admin_notes,
-                    } })}
-                  >Save other changes</Button>
-                </div>
+              <div className="sticky bottom-0 flex justify-end gap-2 border-t border-border bg-card/95 backdrop-blur px-6 py-3">
+                <Button variant="outline" onClick={() => { setEditing(null); setReason(""); }}>Close</Button>
+                <Button
+                  disabled={patchMut.isPending}
+                  onClick={() => patchMut.mutate({ id: editing.id, patch: {
+                    payment_status: editing.payment_status,
+                    driver_id: editing.driver_id, admin_notes: editing.admin_notes,
+                  } })}
+                >Save changes</Button>
               </div>
             </>
           )}
@@ -394,6 +439,15 @@ function BookingsPage() {
       </Sheet>
       </>}
     </div>
+  );
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="rounded-xl border border-border bg-card p-4">
+      <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold mb-3">{title}</p>
+      {children}
+    </section>
   );
 }
 
