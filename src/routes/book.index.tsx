@@ -2304,11 +2304,12 @@ function PayNowStep({ bookingRef, token, amountPence, email }: {
         returnUrl={returnUrl}
       />
 
-      <div className="flex flex-wrap gap-3">
-        <Button asChild variant="outline" className="gap-2">
-          <Link to="/booking/$token" params={{ token }}>View booking without paying now</Link>
-        </Button>
-      </div>
+      <p className="text-xs text-muted-foreground">
+        Your booking is only confirmed once the card payment succeeds. If you close this page,
+        you can pay later from Track booking using reference{" "}
+        <span className="font-semibold text-foreground">{bookingRef}</span>.
+      </p>
+
     </div>
   );
 }
