@@ -264,7 +264,11 @@ export function PlaceAutocomplete({
         <ul
           id={listboxId}
           role="listbox"
-          className="absolute z-[60] mt-2 w-full min-w-[275px] max-h-72 overflow-auto rounded-md border border-[var(--border)] bg-[var(--popover)] text-[var(--popover-foreground)] shadow-[var(--shadow-elegant)]"
+          style={{ maxHeight: maxH }}
+          className={cn(
+            "absolute z-[90] w-full min-w-[275px] overflow-auto rounded-md border border-[var(--border)] bg-[var(--popover)] text-[var(--popover-foreground)] shadow-[var(--shadow-elegant)]",
+            dropUp ? "bottom-full mb-2" : "top-full mt-2",
+          )}
         >
           {suggestions.map((s, i) => (
             <li
