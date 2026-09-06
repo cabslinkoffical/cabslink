@@ -26,6 +26,7 @@ import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as OurServicesRouteImport } from './routes/our-services'
 import { Route as MinibusHireRouteImport } from './routes/minibus-hire'
+import { Route as ManageBookingRouteImport } from './routes/manage-booking'
 import { Route as LongDistanceTransfersRouteImport } from './routes/long-distance-transfers'
 import { Route as ImageCreditsRouteImport } from './routes/image-credits'
 import { Route as HospitalTransfersRouteImport } from './routes/hospital-transfers'
@@ -222,6 +223,11 @@ const OurServicesRoute = OurServicesRouteImport.update({
 const MinibusHireRoute = MinibusHireRouteImport.update({
   id: '/minibus-hire',
   path: '/minibus-hire',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManageBookingRoute = ManageBookingRouteImport.update({
+  id: '/manage-booking',
+  path: '/manage-booking',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LongDistanceTransfersRoute = LongDistanceTransfersRouteImport.update({
@@ -853,6 +859,7 @@ export interface FileRoutesByFullPath {
   '/hospital-transfers': typeof HospitalTransfersRoute
   '/image-credits': typeof ImageCreditsRoute
   '/long-distance-transfers': typeof LongDistanceTransfersRoute
+  '/manage-booking': typeof ManageBookingRoute
   '/minibus-hire': typeof MinibusHireRoute
   '/our-services': typeof OurServicesRoute
   '/privacy': typeof PrivacyRoute
@@ -982,6 +989,7 @@ export interface FileRoutesByTo {
   '/hospital-transfers': typeof HospitalTransfersRoute
   '/image-credits': typeof ImageCreditsRoute
   '/long-distance-transfers': typeof LongDistanceTransfersRoute
+  '/manage-booking': typeof ManageBookingRoute
   '/minibus-hire': typeof MinibusHireRoute
   '/our-services': typeof OurServicesRoute
   '/privacy': typeof PrivacyRoute
@@ -1113,6 +1121,7 @@ export interface FileRoutesById {
   '/hospital-transfers': typeof HospitalTransfersRoute
   '/image-credits': typeof ImageCreditsRoute
   '/long-distance-transfers': typeof LongDistanceTransfersRoute
+  '/manage-booking': typeof ManageBookingRoute
   '/minibus-hire': typeof MinibusHireRoute
   '/our-services': typeof OurServicesRoute
   '/privacy': typeof PrivacyRoute
@@ -1245,6 +1254,7 @@ export interface FileRouteTypes {
     | '/hospital-transfers'
     | '/image-credits'
     | '/long-distance-transfers'
+    | '/manage-booking'
     | '/minibus-hire'
     | '/our-services'
     | '/privacy'
@@ -1374,6 +1384,7 @@ export interface FileRouteTypes {
     | '/hospital-transfers'
     | '/image-credits'
     | '/long-distance-transfers'
+    | '/manage-booking'
     | '/minibus-hire'
     | '/our-services'
     | '/privacy'
@@ -1504,6 +1515,7 @@ export interface FileRouteTypes {
     | '/hospital-transfers'
     | '/image-credits'
     | '/long-distance-transfers'
+    | '/manage-booking'
     | '/minibus-hire'
     | '/our-services'
     | '/privacy'
@@ -1636,6 +1648,7 @@ export interface RootRouteChildren {
   HospitalTransfersRoute: typeof HospitalTransfersRoute
   ImageCreditsRoute: typeof ImageCreditsRoute
   LongDistanceTransfersRoute: typeof LongDistanceTransfersRoute
+  ManageBookingRoute: typeof ManageBookingRoute
   MinibusHireRoute: typeof MinibusHireRoute
   OurServicesRoute: typeof OurServicesRoute
   PrivacyRoute: typeof PrivacyRoute
@@ -1818,6 +1831,13 @@ declare module '@tanstack/react-router' {
       path: '/minibus-hire'
       fullPath: '/minibus-hire'
       preLoaderRoute: typeof MinibusHireRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manage-booking': {
+      id: '/manage-booking'
+      path: '/manage-booking'
+      fullPath: '/manage-booking'
+      preLoaderRoute: typeof ManageBookingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/long-distance-transfers': {
@@ -2797,6 +2817,7 @@ const rootRouteChildren: RootRouteChildren = {
   HospitalTransfersRoute: HospitalTransfersRoute,
   ImageCreditsRoute: ImageCreditsRoute,
   LongDistanceTransfersRoute: LongDistanceTransfersRoute,
+  ManageBookingRoute: ManageBookingRoute,
   MinibusHireRoute: MinibusHireRoute,
   OurServicesRoute: OurServicesRoute,
   PrivacyRoute: PrivacyRoute,
