@@ -158,6 +158,30 @@ export function PlaceAutocomplete({
     return () => document.removeEventListener("mousedown", onDoc);
   }, []);
 
+  useEffect(() => {
+    if (!open || suggestions.length === 0) return;
+    const measure = () => {
+      const el = inputRef.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      const gap = 8;
+      const pad = 16;
+      const below = window.innerHeight - r.bottom - gap - pad;
+      const above = r.top - gap - pad;
+      const wanted = Math.min(288, suggestions.length * 58 + 34);
+      const up = below < wanted && above > below;
+      setDropUp(up);
+      setMaxH(Math.max(140, Math.min(288, up ? above : below)));
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    window.addEventListener("scroll", measure, true);
+    return () => {
+      window.removeEventListener("resize", measure);
+      window.removeEventListener("scroll", measure, true);
+    };
+  }, [open, suggestions.length]);
+
   const pick = useCallback(
     (s: PlaceSuggestion) => {
       const currentQuery = normalizeQuery(text);
