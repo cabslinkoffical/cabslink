@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Plus, X, Minus, Search, Flag, MapPin, Calendar, Clock, Users, Briefcase, Repeat, Car, Palmtree, AlertCircle } from "lucide-react";
+import { Plus, X, Minus, Search, Flag, MapPin, Calendar, Clock, Users, Briefcase, Repeat, Car, Palmtree, AlertCircle, LifeBuoy } from "lucide-react";
 import { PlaceAutocomplete, type SelectedPlace } from "@/components/site/PlaceAutocomplete";
 import { track } from "@/lib/tracking";
 
@@ -182,6 +182,14 @@ export function BookingWidget({
           icon={<Palmtree className="w-4 h-4" />}
         >
           Day Tours
+        </TabButton>
+        <TabButton
+          tone={tone}
+          active={false}
+          onClick={() => navigate({ to: "/manage-booking" })}
+          icon={<LifeBuoy className="w-4 h-4" />}
+        >
+          Manage Booking
         </TabButton>
       </div>
 
