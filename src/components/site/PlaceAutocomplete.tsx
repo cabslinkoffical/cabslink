@@ -66,6 +66,10 @@ export function PlaceAutocomplete({
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [activeIdx, setActiveIdx] = useState(-1);
+  // Short viewports (and the cookie notice pinned to the bottom) can hide a
+  // downward list entirely, so flip it above the field when space is tight.
+  const [dropUp, setDropUp] = useState(false);
+  const [maxH, setMaxH] = useState(288);
   const wrapRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const sessionToken = useMemo(() => crypto.randomUUID(), []);
