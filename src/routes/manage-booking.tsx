@@ -138,10 +138,11 @@ function ManageBookingPage() {
     e.preventDefault();
     setCancelAttempted(true);
     setCancelError(null);
-    if (!reason) {
+    if (!reason || (reason === "Other" && details.trim().length < 3)) {
       focusFirstInvalid(e.currentTarget);
       return;
     }
+
     setCancelling(true);
     try {
       const res = await cancelFn({
