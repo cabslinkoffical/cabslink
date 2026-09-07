@@ -215,7 +215,7 @@ export const ensureClassPricingRecord = createServerFn({ method: "POST" })
         .from("vehicles")
         .update({
           name: c.name,
-          image_url: c.hero_image ?? "class",
+          image_url: c.hero_image ?? "",
           passengers: c.passengers ?? 3,
           luggage: c.large_luggage ?? 2,
           hand_luggage: c.hand_luggage ?? 0,
@@ -230,7 +230,7 @@ export const ensureClassPricingRecord = createServerFn({ method: "POST" })
       .insert({
         name: c.name,
         category: "Executive",
-        image_url: c.hero_image ?? "class",
+        image_url: c.hero_image ?? "",
         description: "",
         passengers: c.passengers ?? 3,
         luggage: c.large_luggage ?? 2,
