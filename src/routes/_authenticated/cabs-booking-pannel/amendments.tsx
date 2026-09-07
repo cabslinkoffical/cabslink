@@ -32,8 +32,9 @@ const opts = queryOptions({
 export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/amendments")({
   head: () => ({
     meta: [
-      { title: "Changes & Refunds — Cabslink Admin" },
+      { title: "Booking Changes — Cabslink Admin" },
       { name: "description", content: "Cabslink staff console: booking change requests, top-up payments and refunds." },
+
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
