@@ -560,9 +560,14 @@ function CancelForm({
           </Select>
         </FormField>
 
-        <FormField label="Anything else we should know? (optional)" htmlFor="mb-details">
-          <Textarea id="mb-details" value={details} onChange={(e) => setDetails(e.target.value)} maxLength={600} rows={3} placeholder={booking.cancellation.tier === "unpaid" ? "Optional — a short note helps our team." : "Optional — a short note helps us process your refund faster."} />
+        <FormField
+          label={reason === "Other" ? "Please tell us your reason" : "Anything else we should know? (optional)"}
+          htmlFor="mb-details"
+          error={attempted && reason === "Other" && details.trim().length < 3 ? "Please write your reason." : ""}
+        >
+          <Textarea id="mb-details" value={details} onChange={(e) => setDetails(e.target.value)} maxLength={600} rows={3} aria-invalid={attempted && reason === "Other" && details.trim().length < 3} placeholder={reason === "Other" ? "Tell us briefly why you're cancelling" : booking.cancellation.tier === "unpaid" ? "Optional — a short note helps our team." : "Optional — a short note helps us process your refund faster."} />
         </FormField>
+
 
         <div className="rounded-xl border border-[var(--navy)]/12 bg-[var(--surface-2)] p-4">
           <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[var(--navy)]">
