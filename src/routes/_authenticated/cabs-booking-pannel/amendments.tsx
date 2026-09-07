@@ -216,9 +216,10 @@ function AmendmentsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Changes & Refunds"
+        title="Booking Changes"
         description="Every booking change a customer makes lands here with the before and after, the fare difference, and whether money is owed either way."
       />
+
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <MiniStat label="Needs action" value={counts.open ?? 0} icon={Clock} />
