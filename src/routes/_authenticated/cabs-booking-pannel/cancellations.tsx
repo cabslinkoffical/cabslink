@@ -16,12 +16,11 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PageHeader, MiniStat, EmptyState } from "@/components/admin/ui";
+import { EmptyState } from "@/components/admin/ui";
 import { CannedEmailComposer } from "@/components/admin/CannedEmailComposer";
 import {
-  Search, Eye, Trash2, Phone, Mail, MapPin, CalendarClock, BadgePoundSterling,
-  CircleSlash2, Clock, ShieldCheck,
+  Search, Trash2, Phone, Mail, MapPin, CalendarClock, BadgePoundSterling,
+  CircleSlash2, Clock, ShieldCheck, ChevronRight,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -40,6 +39,10 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/cancel
     meta: [
       { title: "Cancellations & Refunds — Cabslink Admin" },
       { name: "description", content: "Cabslink staff console: cancellation and refund requests." },
+      { property: "og:title", content: "Cancellations & Refunds — Cabslink Admin" },
+      { property: "og:description", content: "Cabslink staff console: cancellation and refund requests." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
@@ -121,7 +124,8 @@ function CancellationsPage() {
     onError: (e: any) => toast.error(e.message),
   });
 
-  const [tab, setTab] = useState<"open" | Status | "all">("open");
+  type QueueView = "open" | "approved" | "refunded" | "closed" | "all";
+  const [tab, setTab] = useState<QueueView>("open");
   const [q, setQ] = useState("");
 
   const counts = useMemo(() => {
@@ -144,7 +148,9 @@ function CancellationsPage() {
     const term = q.trim().toLowerCase();
     return rowsAll.filter((r) => {
       if (tab === "open" && !(r.status === "pending" || r.status === "in_review")) return false;
-      if (tab !== "open" && tab !== "all" && r.status !== tab) return false;
+      if (tab === "approved" && r.status !== "approved") return false;
+      if (tab === "refunded" && r.status !== "refunded") return false;
+      if (tab === "closed" && !(r.status === "declined" || r.status === "completed")) return false;
       if (!term) return true;
       return [r.booking_ref, r.customer_name, r.email, r.phone, r.reason, r.pickup_address, r.dropoff_address]
         .some((f) => String(f ?? "").toLowerCase().includes(term));
@@ -180,107 +186,122 @@ function CancellationsPage() {
     } as any);
   };
 
+  const queueViews: Array<{ value: QueueView; label: string; count: number }> = [
+    { value: "open", label: "Open", count: counts.open ?? 0 },
+    { value: "approved", label: "Approved", count: counts.approved ?? 0 },
+    { value: "refunded", label: "Refunded", count: counts.refunded ?? 0 },
+    { value: "closed", label: "Closed", count: (counts.declined ?? 0) + (counts.completed ?? 0) },
+    { value: "all", label: "All", count: counts.all },
+  ];
+
+  const quickUpdate = (id: string, nextStatus: Status) => {
+    upd.mutate({ data: { id, status: nextStatus } } as any);
+  };
+
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Cancellations & Refunds"
-        description="Every customer cancellation or refund request lands here with the full booking detail, so you can approve, refund or decline it."
-      />
+    <div className="space-y-8">
+      <section className="overflow-hidden rounded-lg border border-border bg-card shadow-[var(--shadow-card)]">
+        <header className="flex flex-col gap-4 bg-navy px-5 py-5 text-navy-foreground sm:px-7 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h1 className="font-display text-2xl font-semibold">Cancellations & Refunds</h1>
+            <p className="mt-1 text-sm text-navy-foreground/70">Review customer requests, record decisions and track refunds.</p>
+          </div>
+          <Button variant="gold" onClick={() => document.getElementById("cancelled-bookings-history")?.scrollIntoView({ behavior: "smooth" })}>
+            Cancelled bookings history
+          </Button>
+        </header>
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <MiniStat label="Open requests" value={counts.open ?? 0} icon={Clock} />
-        <MiniStat label="Refund approved" value={counts.approved ?? 0} icon={ShieldCheck} />
-        <MiniStat label="Refunded" value={counts.refunded ?? 0} icon={BadgePoundSterling} />
-        <MiniStat label="Approved value" value={money(refundDue)} icon={BadgePoundSterling} />
-      </div>
-
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <Tabs value={tab} onValueChange={(v) => setTab(v as any)}>
-          <TabsList className="flex-wrap">
-            <TabsTrigger value="open">Open ({counts.open ?? 0})</TabsTrigger>
-            {STATUSES.map((s) => (
-              <TabsTrigger key={s} value={s}>{STATUS_LABELS[s]} ({counts[s] ?? 0})</TabsTrigger>
-            ))}
-            <TabsTrigger value="all">All ({counts.all})</TabsTrigger>
-          </TabsList>
-        </Tabs>
-        <div className="relative w-full lg:w-72">
-          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Reference, name, email…" className="pl-9" />
+        <div className="grid grid-cols-2 border-b border-border lg:grid-cols-4">
+          {[
+            { label: "Open requests", value: counts.open ?? 0, icon: Clock },
+            { label: "Refund approved", value: counts.approved ?? 0, icon: ShieldCheck },
+            { label: "Refunded", value: counts.refunded ?? 0, icon: BadgePoundSterling },
+            { label: "Approved value", value: money(refundDue), icon: BadgePoundSterling },
+          ].map(({ label, value, icon: Icon }, index) => (
+            <div key={label} className={`px-5 py-4 ${index % 2 === 0 ? "border-r border-border" : ""} lg:border-r lg:last:border-r-0`}>
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase text-muted-foreground">
+                <Icon className="size-3.5 text-gold-ink" />{label}
+              </div>
+              <div className="mt-2 font-display text-2xl font-semibold tabular-nums text-foreground">{value}</div>
+            </div>
+          ))}
         </div>
-      </div>
 
-      {rows.length === 0 ? (
-        <EmptyState title="No cancellation requests here" hint="Requests submitted from the Manage Booking page appear in this list." />
-      ) : (
-        <div className="overflow-x-auto rounded-xl border border-border bg-card">
+        <div className="flex flex-col gap-3 border-b border-border px-4 py-4 lg:flex-row lg:items-center lg:justify-between lg:px-6">
+          <div className="flex max-w-full gap-1 overflow-x-auto" role="tablist" aria-label="Cancellation request status">
+            {queueViews.map((view) => (
+              <Button
+                key={view.value}
+                size="sm"
+                variant={tab === view.value ? "navy" : "ghost"}
+                role="tab"
+                aria-selected={tab === view.value}
+                onClick={() => setTab(view.value)}
+              >
+                {view.label} <span className="tabular-nums opacity-70">{view.count}</span>
+              </Button>
+            ))}
+          </div>
+          <div className="relative w-full lg:w-80">
+            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search reference, customer or route" className="pl-9" />
+          </div>
+        </div>
+
+        {rows.length === 0 ? (
+          <div className="p-6"><EmptyState title="No requests in this view" hint="Try another status or clear your search." /></div>
+        ) : (
+          <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-muted/50 text-left text-xs uppercase tracking-wide text-muted-foreground">
               <tr>
-                <th className="px-4 py-3">Booking</th>
-                <th className="px-4 py-3">Customer</th>
+                 <th className="px-6 py-3">Request</th>
+                 <th className="px-4 py-3">Customer & booking</th>
                 <th className="px-4 py-3">Reason</th>
                 <th className="px-4 py-3">Refund</th>
-                <th className="px-4 py-3">Requested</th>
                 <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3 text-right">Actions</th>
+                 <th className="px-6 py-3 text-right">Action</th>
               </tr>
             </thead>
             <tbody>
               {rows.map((r) => (
-                <tr key={r.id} className="border-t border-border/70 hover:bg-muted/30">
-                  <td className="px-4 py-3">
+                 <tr key={r.id} className="group cursor-pointer border-t border-border/70 hover:bg-muted/40" onClick={() => setOpenId(r.id)}>
+                   <td className="px-6 py-4">
                     <div className="font-semibold">{r.booking_ref}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {r.pickup_date ?? "—"} {r.pickup_time ?? ""}
-                    </div>
+                     <div className="mt-0.5 text-xs text-muted-foreground">{dt(r.created_at)}</div>
                   </td>
-                  <td className="px-4 py-3">
-                    <div>{r.customer_name ?? "—"}</div>
-                    <div className="text-xs text-muted-foreground">{r.email ?? "—"}</div>
+                   <td className="px-4 py-4">
+                     <div className="font-medium">{r.customer_name ?? "—"}</div>
+                     <div className="text-xs text-muted-foreground">{r.email ?? r.phone ?? "No contact details"}</div>
+                     <div className="mt-1 text-xs text-muted-foreground">{r.pickup_date ?? "—"} {r.pickup_time ?? ""}{r.hours_until_pickup != null ? ` · ${r.hours_until_pickup}h notice` : ""}</div>
                   </td>
-                  <td className="px-4 py-3 max-w-[16rem]">
-                    <div className="truncate">{r.reason}</div>
+                   <td className="max-w-[18rem] px-4 py-4">
+                     <div className="line-clamp-2">{r.reason}</div>
+                     {r.details && <div className="mt-1 line-clamp-1 text-xs text-muted-foreground">{r.details}</div>}
                   </td>
-                  <td className="px-4 py-3">
+                   <td className="px-4 py-4">
                     <div className="text-xs font-medium">{TIER_LABELS[r.refund_tier] ?? r.refund_tier}</div>
-                    <div className="text-xs text-muted-foreground">
+                     <div className="mt-1 font-semibold tabular-nums">
                       {money(r.refund_amount ?? r.price_at_request)}
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-xs text-muted-foreground">{dt(r.created_at)}</td>
-                  <td className="px-4 py-3">
-                    <Select
-                      value={r.status}
-                      onValueChange={(v) => upd.mutate({ data: { id: r.id, status: v } } as any)}
-                    >
-                      <SelectTrigger className="h-8 w-[9.5rem] text-xs"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        {STATUSES.map((s) => <SelectItem key={s} value={s}>{STATUS_LABELS[s]}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
+                   <td className="px-4 py-4">
+                     <Pill status={r.status} />
                   </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center justify-end gap-1">
-                      <Button size="icon" variant="ghost" aria-label="Open request" onClick={() => setOpenId(r.id)}>
-                        <Eye className="size-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        aria-label="Delete request"
-                        onClick={() => { if (confirm(`Remove the cancellation request for ${r.booking_ref}?`)) del.mutate({ data: { id: r.id } } as any); }}
-                      >
-                        <Trash2 className="size-4 text-destructive" />
-                      </Button>
+                   <td className="px-6 py-4">
+                     <div className="flex items-center justify-end gap-2" onClick={(event) => event.stopPropagation()}>
+                       {r.status === "pending" && <Button size="sm" variant="outline" onClick={() => quickUpdate(r.id, "in_review")}>Mark reviewing</Button>}
+                       {r.status === "in_review" && <Button size="sm" variant="gold" onClick={() => quickUpdate(r.id, "approved")}>Approve</Button>}
+                       <Button size="sm" variant="navy" onClick={() => setOpenId(r.id)}>Review <ChevronRight className="size-3.5" /></Button>
                     </div>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
+         </div>
       )}
+      </section>
 
       <CancelledBookings />
 
@@ -418,10 +439,10 @@ function CancelledBookings() {
   }, [data, q]);
 
   return (
-    <section className="space-y-3">
+    <section id="cancelled-bookings-history" className="scroll-mt-6 space-y-3">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <h2 className="text-lg font-semibold">Cancelled bookings</h2>
+          <h2 className="font-display text-lg font-semibold">Cancelled bookings history</h2>
           <p className="text-sm text-muted-foreground">
             Every booking that has been cancelled or rejected, whether the customer asked or your team did it.
           </p>
