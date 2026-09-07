@@ -174,6 +174,22 @@ function ManageBookingPage() {
     setCancelAttempted(false);
   };
 
+  const identity = {
+    bookingRef: bookingRef.trim().toUpperCase(),
+    email: email.trim(),
+    lastName: lastName.trim(),
+  };
+
+  /** Silently re-reads the booking so the card shows the amended details. */
+  const refreshBooking = async () => {
+    try {
+      const data = await lookupFn({ data: identity });
+      setBooking(data);
+    } catch {
+      /* the visible card stays as-is; the change itself already succeeded */
+    }
+  };
+
   return (
     <SiteLayout>
       <section className="section-y bg-[var(--surface-2)]">
