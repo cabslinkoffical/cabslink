@@ -509,9 +509,9 @@ function CancelForm({
           <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[var(--navy)]">
             <Phone className="size-3.5 text-[var(--gold-ink)]" /> We'll call you on your registered number
           </p>
-          <p className="mt-1.5 font-mono text-sm font-bold">{booking.phone ?? "—"}</p>
+          <p className="mt-1.5 font-mono text-sm font-bold">••••••••••••</p>
           <p className="mt-1.5 text-xs text-muted-foreground">
-            This is the number you gave when booking. For your security we only discuss this booking on that number — if it
+            For your security we never display the full number here. We only discuss this booking on the number you gave when booking — if it
             has changed, please call us from it or email {SITE.email} so we can update it.
           </p>
         </div>
