@@ -561,7 +561,7 @@ function CancellationDone({ ref_, tier, registeredPhone }: { ref_: string; tier:
       </div>
       <div className="space-y-4 p-6 text-sm">
         <ol className="space-y-2 text-muted-foreground">
-          <li><span className="font-semibold text-foreground">1.</span> Our team calls you on your registered number within 2 hours to confirm it is really you.</li>
+          <li><span className="font-semibold text-foreground">1.</span> Our team calls you on your registered number{registeredPhone ? <> (<span className="font-mono font-semibold text-foreground">{maskPhone(registeredPhone)}</span>)</> : null} within 24 hours to confirm it is really you.</li>
           <li><span className="font-semibold text-foreground">2.</span> You receive a confirmation email once the booking is cancelled.</li>
           {tier === "unpaid" ? (
             <li><span className="font-semibold text-foreground">3.</span> Nothing will be charged to your card — no payment was taken for this booking.</li>
@@ -573,8 +573,9 @@ function CancellationDone({ ref_, tier, registeredPhone }: { ref_: string; tier:
         <div className="rounded-xl border border-[var(--gold)]/35 bg-[color-mix(in_oklab,var(--gold)_8%,transparent)] p-4">
           <p className="font-semibold">In a hurry? Confirm it yourself now</p>
           <p className="mt-1 text-xs text-muted-foreground">
-            For security, contact us <span className="font-semibold text-foreground">from the same number you used when booking</span>.
-            Messages or calls from another number can't be used to confirm a cancellation.
+            For security, contact us <span className="font-semibold text-foreground">from the same number you used when booking</span>
+            {registeredPhone ? <> (<span className="font-mono font-semibold text-foreground">{maskPhone(registeredPhone)}</span>)</> : null}. Messages or calls from
+            another number can't be used to confirm a cancellation.
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             <a
