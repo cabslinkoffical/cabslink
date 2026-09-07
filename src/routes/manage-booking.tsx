@@ -566,12 +566,20 @@ function CancellationDone({ ref_, tier, registeredPhone }: { ref_: string; tier:
         <h2 className="mt-2 font-display text-xl font-bold">Cancellation request received</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Reference <span className="font-mono font-bold">{ref_}</span> —{" "}
-          {tier === "unpaid"
-            ? "logged for cancellation. No payment was taken, so there is nothing to refund."
-            : tier === "full"
+          {tier === "full"
             ? "logged for a full refund."
-            : "logged as a partial-refund claim."}
+            : tier === "partial"
+            ? "logged as a partial-refund claim."
+            : "logged for cancellation."}
         </p>
+        {tier === "unpaid" && (
+          <div className="mx-auto mt-4 flex max-w-lg items-start gap-3 rounded-xl border border-[var(--gold)]/50 bg-[color-mix(in_oklab,var(--gold)_18%,transparent)] p-3.5 text-left shadow-sm">
+            <Info className="mt-0.5 size-5 shrink-0 text-[var(--gold-ink)]" />
+            <p className="text-sm font-bold text-[var(--navy)]">
+              No payment has been taken for this booking, so there is nothing to refund — cancelling is free.
+            </p>
+          </div>
+        )}
       </div>
       <div className="space-y-4 p-6 text-sm">
         <ol className="space-y-2 text-muted-foreground">
