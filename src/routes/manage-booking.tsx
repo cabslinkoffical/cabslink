@@ -275,7 +275,9 @@ function ManageBookingPage() {
 
             ) : booking ? (
               <>
+                {isClosed(booking) && <ClosedNotice booking={booking} />}
                 <BookingCard booking={booking} />
+
                 {mode === "pay" && (
                   <div className="mt-4 rounded-2xl border border-[var(--gold)]/40 bg-card p-5 shadow-raised">
                     <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
