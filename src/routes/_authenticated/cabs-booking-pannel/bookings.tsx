@@ -69,9 +69,11 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/bookin
 const TABS = [
   { id: "all", label: "All" },
   { id: "upcoming", label: "Upcoming" },
-  { id: "pending", label: "Pending" },
-  { id: "allocated", label: "Allocated" },
-  { id: "in_progress", label: "In Progress" },
+  { id: "new", label: "New" },
+  { id: "awaiting_payment", label: "Awaiting payment" },
+  { id: "confirmed", label: "Confirmed" },
+  { id: "assigned", label: "Driver assigned" },
+  { id: "on_road", label: "On the road" },
   { id: "completed", label: "Completed" },
   { id: "deleted", label: "Deleted" },
 ];
@@ -84,14 +86,17 @@ function matchTab(b: any, tab: string) {
   if (["cancelled", "rejected"].includes(b.status)) return false;
   switch (tab) {
     case "all": return true;
-    case "upcoming": return b.pickup_date >= today && !["completed", "cancelled", "rejected"].includes(b.status);
-    case "pending": return ["new", "pending_allocation", "awaiting_payment"].includes(b.status);
-    case "allocated": return ["assigned", "confirmed"].includes(b.status);
-    case "in_progress": return ["in_progress", "on_way", "driver_en_route", "passenger_on_board"].includes(b.status);
+    case "upcoming": return b.pickup_date >= today && b.status !== "completed";
+    case "new": return ["new", "pending_allocation", "bidding"].includes(b.status);
+    case "awaiting_payment": return b.status === "awaiting_payment";
+    case "confirmed": return b.status === "confirmed";
+    case "assigned": return b.status === "assigned";
+    case "on_road": return ["driver_en_route", "on_way", "passenger_on_board", "in_progress"].includes(b.status);
     case "completed": return b.status === "completed";
     default: return true;
   }
 }
+
 
 function BookingsPage() {
   const { tab = "all", view = "bookings" } = useSearch({ from: "/_authenticated/cabs-booking-pannel/bookings" });
