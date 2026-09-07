@@ -303,7 +303,23 @@ function ManageBookingPage() {
                     />
                   </div>
                 )}
-                {mode === "track" && needsPayment(booking) && (
+                {mode === "track" && booking.cancellation.requested && !isClosed(booking) && (
+                  <div className="mt-4 rounded-2xl border border-[var(--navy)]/15 bg-[color-mix(in_oklab,var(--gold)_8%,transparent)] p-5 shadow-raised">
+                    <p className="font-display text-lg font-bold">Cancellation requested</p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      We've received your cancellation request{booking.cancellation.requestedAt ? ` on ${new Date(booking.cancellation.requestedAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}` : ""}. Our team is reviewing it and will confirm by email. Nothing further is needed from you.
+                    </p>
+                    <div className="mt-4">
+                      <Button asChild variant="ghost" className="gap-2 pl-0 text-[var(--gold-ink)] hover:bg-transparent hover:text-[var(--gold-ink)]/80">
+                        <a href={`tel:${SITE.phoneUK.replace(/\s+/g, "")}`}>
+                          <Phone className="size-4" /> Call {SITE.phoneUK}
+                        </a>
+                      </Button>
+                    </div>
+                  </div>
+                )}
+                {mode === "track" && !booking.cancellation.requested && needsPayment(booking) && (
+
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--gold)]/50 bg-[color-mix(in_oklab,var(--gold)_10%,transparent)] p-5 shadow-raised">
                     <div>
                       <p className="text-sm font-bold">Payment outstanding</p>
