@@ -46,10 +46,11 @@ const NAV: SidebarEntry[] = [
   { to: "/cabs-booking-pannel", label: "Dashboard", icon: LayoutDashboard, exact: true },
   {
     label: "Bookings", icon: CalendarCheck, items: [
-      { to: "/cabs-booking-pannel/bookings", label: "Booking", icon: CalendarCheck, search: { view: "" } },
-      { to: "/cabs-booking-pannel/bookings", label: "Tours booking", icon: RouteIcon, search: { view: "tours" } },
-      { to: "/cabs-booking-pannel/amendments", label: "Changes & Refunds", icon: PencilLine },
+      { to: "/cabs-booking-pannel/bookings", label: "Transfer Bookings", icon: CalendarCheck, search: { view: "" } },
+      { to: "/cabs-booking-pannel/bookings", label: "Tour Enquiries", icon: RouteIcon, search: { view: "tours" } },
+      { to: "/cabs-booking-pannel/amendments", label: "Booking Changes", icon: PencilLine },
       { to: "/cabs-booking-pannel/cancellations", label: "Cancellations & Refunds", icon: CircleSlash2 },
+
     ],
   },
   { to: "/cabs-booking-pannel/messages", label: "Messages", icon: Inbox },

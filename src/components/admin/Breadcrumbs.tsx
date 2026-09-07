@@ -5,7 +5,7 @@ const LABELS: Record<string, string> = {
   "cabs-booking-pannel": "Dashboard",
   bookings: "Bookings",
   cancellations: "Cancellations & Refunds",
-  amendments: "Changes & Refunds",
+  amendments: "Booking Changes",
   messages: "Messages",
   payments: "Payments",
   "vehicle-classes": "Vehicle Classes",
