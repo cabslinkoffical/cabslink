@@ -200,15 +200,66 @@ function project(row: any): ManagedBooking {
     flightNumber: row.flight_number ?? null,
     meetGreet: !!row.meet_greet,
     childSeat: !!row.child_seat,
+    childSeatCount: row.child_seat_count ?? (row.child_seat ? 1 : 0),
     returnJourney: !!row.return_journey,
+    notes: row.notes ?? null,
     price: row.price == null ? null : Number(row.price),
     distanceMiles: row.distance_miles == null ? null : Number(row.distance_miles),
     createdAt: row.created_at,
     cancellationReason: row.cancellation_reason ?? null,
     serviceType: row.service_type ?? null,
     cancellation: cancellationFacts(row),
+    amendment: amendmentFacts(row),
   };
 }
+
+/**
+ * What the customer may change themselves. Self-service amendments are
+ * limited to straightforward point-to-point bookings that are still a safe
+ * distance from pickup — anything else routes to the team by phone.
+ */
+const AMEND_MIN_HOURS = 6;
+
+function amendmentFacts(row: any, now = Date.now()): ManagedBooking["amendment"] {
+  const status = String(row.status ?? "");
+  if (TERMINAL.has(status)) {
+    return {
+      allowed: false,
+      blockedReason:
+        status === "cancelled"
+          ? "This booking is cancelled, so it can no longer be changed."
+          : status === "completed"
+          ? "This journey has already been completed."
+          : "This booking is no longer active. Please contact us if you need help.",
+    };
+  }
+  const pois = Array.isArray(row.selected_pois) ? row.selected_pois : [];
+  if (pois.length > 0 || (row.service_type && row.service_type !== "direct_transfer")) {
+    return {
+      allowed: false,
+      blockedReason: `Tours and journeys with stops are re-priced by our team. Please call ${SITE.phoneUK} and we'll make the change for you.`,
+    };
+  }
+  if (!row.pickup_place_id || !row.dropoff_place_id || !row.vehicle_id) {
+    return {
+      allowed: false,
+      blockedReason: `We can't re-price this booking automatically. Please call ${SITE.phoneUK} and we'll change it for you.`,
+    };
+  }
+  const pickupMs = pickupTimestamp(row.pickup_date, row.pickup_time);
+  const hours = pickupMs == null ? null : (pickupMs - now) / 3_600_000;
+  if (hours != null && hours < AMEND_MIN_HOURS) {
+    return {
+      allowed: false,
+      blockedReason:
+        hours < 0
+          ? `The pickup time has already passed. Please call us on ${SITE.phoneUK}.`
+          : `Your pickup is less than ${AMEND_MIN_HOURS} hours away, so changes are handled by our team. Please call ${SITE.phoneUK}.`,
+    };
+  }
+  return { allowed: true, blockedReason: null };
+}
+
 
 // ---------------- Verified lookup ----------------
 export const findMyBooking = createServerFn({ method: "POST" })
