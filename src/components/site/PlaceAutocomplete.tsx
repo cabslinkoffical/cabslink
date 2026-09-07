@@ -30,7 +30,7 @@ type Props = {
 
 const DEBOUNCE_MS = 250;
 const MIN_CHARS = 2;
-const REQUEST_TIMEOUT_MS = 4_000;
+const REQUEST_TIMEOUT_MS = 12_000;
 
 function normalizeQuery(q: string) {
   return q.trim().replace(/\s+/g, " ").toLowerCase();
