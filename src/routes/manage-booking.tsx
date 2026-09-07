@@ -54,7 +54,6 @@ function ManageBookingPage() {
   // Cancellation
   const [reason, setReason] = useState<string>("");
   const [details, setDetails] = useState("");
-  const [callbackPhone, setCallbackPhone] = useState("");
   const [cancelAttempted, setCancelAttempted] = useState(false);
   const [cancelError, setCancelError] = useState<string | null>(null);
   const [cancelling, setCancelling] = useState(false);
@@ -118,7 +117,7 @@ function ManageBookingPage() {
           lastName: lastName.trim(),
           reason: reason as (typeof CANCELLATION_REASONS)[number],
           details: details.trim(),
-          callbackPhone: callbackPhone.trim(),
+          callbackPhone: "",
         },
       });
       setSubmitted({ ref: res.bookingRef, tier: res.tier });
