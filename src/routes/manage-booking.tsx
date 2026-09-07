@@ -1,9 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft, CalendarDays, Car, CheckCircle2, Clock, Luggage, Mail, MapPin, Phone,
-  Route as RouteIcon, ShieldCheck, User, XCircle, Info, Briefcase, PlaneTakeoff, MessageCircle,
+  CreditCard, Route as RouteIcon, ShieldCheck, User, XCircle, Info, Briefcase, PlaneTakeoff, MessageCircle,
 } from "lucide-react";
 
 import { SiteLayout } from "@/components/site/SiteLayout";
@@ -17,8 +17,17 @@ import { statusLabel, type BookingStatus } from "@/lib/booking-lifecycle";
 import {
   findMyBooking, requestBookingCancellation, CANCELLATION_REASONS, type ManagedBooking,
 } from "@/lib/manage-booking.functions";
+import { confirmBookingPayment } from "@/lib/payments.functions";
+import { getStripeEnvironment } from "@/lib/stripe";
+import { TrackedBookingPayment } from "@/components/site/TrackedBookingPayment";
+
 
 export const Route = createFileRoute("/manage-booking")({
+  validateSearch: (search: Record<string, unknown>): { session_id?: string; ref?: string } => ({
+    ...(typeof search.session_id === "string" ? { session_id: search.session_id } : {}),
+    ...(typeof search.ref === "string" ? { ref: search.ref } : {}),
+  }),
+
   head: () => ({
     meta: [
       { title: `Track my booking — ${SITE.name}` },
@@ -34,10 +43,38 @@ export const Route = createFileRoute("/manage-booking")({
   component: ManageBookingPage,
 });
 
-type Mode = "track" | "cancel";
+type Mode = "track" | "cancel" | "pay";
 
 function ManageBookingPage() {
+  const search = Route.useSearch();
   const [mode, setMode] = useState<Mode>("track");
+  const confirmFn = useServerFn(confirmBookingPayment);
+  const [payConfirm, setPayConfirm] = useState<
+    { state: "checking" } | { state: "paid"; ref: string } | { state: "failed"; message: string } | null
+  >(search.session_id && search.ref ? { state: "checking" } : null);
+
+  useEffect(() => {
+    const sessionId = search.session_id;
+    const ref = search.ref;
+    if (!sessionId || !ref) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await confirmFn({
+          data: { sessionId, bookingRef: ref, environment: getStripeEnvironment() },
+        });
+        if (cancelled) return;
+        if ("error" in res) setPayConfirm({ state: "failed", message: res.error });
+        else if (res.paid) setPayConfirm({ state: "paid", ref });
+        else setPayConfirm({ state: "failed", message: "Your payment was not completed. Please try again." });
+      } catch (err: any) {
+        if (!cancelled) setPayConfirm({ state: "failed", message: err?.message ?? "We couldn't verify that payment." });
+      }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search.session_id, search.ref]);
+
 
   // Identity
   const [bookingRef, setBookingRef] = useState("");
@@ -205,6 +242,32 @@ function ManageBookingPage() {
             </form>
           </div>
 
+          {/* Payment return banner */}
+          {payConfirm ? (
+            <div
+              className={`mt-6 rounded-2xl border p-5 shadow-raised ${
+                payConfirm.state === "paid"
+                  ? "border-[var(--gold)]/50 bg-[color-mix(in_oklab,var(--gold)_10%,transparent)]"
+                  : "border-[var(--navy)]/10 bg-card"
+              }`}
+            >
+              {payConfirm.state === "checking" ? (
+                <p className="text-sm font-semibold">Confirming your payment…</p>
+              ) : payConfirm.state === "paid" ? (
+                <>
+                  <p className="flex items-center gap-2 text-sm font-bold">
+                    <CheckCircle2 className="size-4 text-[var(--gold-ink)]" /> Payment received — booking {payConfirm.ref} is confirmed.
+                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    A confirmation email is on its way. Look your booking up below to see the updated status.
+                  </p>
+                </>
+              ) : (
+                <p className="text-sm font-semibold text-destructive">{payConfirm.message}</p>
+              )}
+            </div>
+          ) : null}
+
           {/* Result */}
           <div ref={resultRef} className="scroll-mt-24">
             {submitted ? (
@@ -213,6 +276,48 @@ function ManageBookingPage() {
             ) : booking ? (
               <>
                 <BookingCard booking={booking} />
+                {mode === "pay" && (
+                  <div className="mt-4 rounded-2xl border border-[var(--gold)]/40 bg-card p-5 shadow-raised">
+                    <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <p className="font-display text-lg font-bold">Pay for booking {booking.bookingRef}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {booking.price != null ? `Amount due £${booking.price.toFixed(2)}` : "Amount due as quoted"}
+                        </p>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={() => switchMode("track")}
+                        className="gap-2 text-[var(--gold-ink)] hover:bg-transparent hover:text-[var(--gold-ink)]/80"
+                      >
+                        <ArrowLeft className="size-4" /> Back to booking details
+                      </Button>
+                    </div>
+                    <TrackedBookingPayment
+                      bookingRef={booking.bookingRef}
+                      returnUrl={`${typeof window !== "undefined" ? window.location.origin : "https://cabslink.com"}/manage-booking?ref=${encodeURIComponent(booking.bookingRef)}&session_id={CHECKOUT_SESSION_ID}`}
+                    />
+                  </div>
+                )}
+                {mode === "track" && needsPayment(booking) && (
+                  <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--gold)]/50 bg-[color-mix(in_oklab,var(--gold)_10%,transparent)] p-5 shadow-raised">
+                    <div>
+                      <p className="text-sm font-bold">Payment outstanding</p>
+                      <p className="text-sm text-muted-foreground">
+                        {booking.paymentStatus === "partial"
+                          ? "Part of this fare is still unpaid. Settle the balance to secure your vehicle."
+                          : booking.paymentStatus === "failed"
+                          ? "Your last card payment did not go through. Please try again to secure your vehicle."
+                          : "This booking is not paid yet. Pay now by card to confirm your journey."}
+                      </p>
+                    </div>
+                    <Button onClick={() => switchMode("pay")} className="gap-2 bg-[var(--gold)] text-[var(--navy)] hover:bg-[var(--gold)]/90">
+                      <CreditCard className="size-4" /> Pay now
+                    </Button>
+                  </div>
+                )}
+
                 {mode === "cancel" && (
                   <>
                     <Button
@@ -264,6 +369,11 @@ function ManageBookingPage() {
       </section>
     </SiteLayout>
   );
+}
+
+function needsPayment(b: ManagedBooking) {
+  const cancelled = b.status === "cancelled" || b.status === "rejected";
+  return !cancelled && (b.paymentStatus === "unpaid" || b.paymentStatus === "failed" || b.paymentStatus === "partial");
 }
 
 function BookingCard({ booking: b }: { booking: ManagedBooking }) {
