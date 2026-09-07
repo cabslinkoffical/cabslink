@@ -3,7 +3,20 @@ import { useSuspenseQuery, useMutation, useQueryClient, queryOptions, useQuery }
 import { useServerFn } from "@tanstack/react-start";
 import { listBookings, updateBooking, softDeleteBooking, deleteBooking, listDrivers } from "@/lib/admin.functions";
 import { setBookingStatusFn, listBookingNotifications, retryBookingNotification } from "@/lib/booking.functions";
-import { STATUS_META, statusLabel, type BookingStatus } from "@/lib/booking-lifecycle";
+import { STATUS_META, ADMIN_STATUS_OPTIONS, statusLabel, type BookingStatus } from "@/lib/booking-lifecycle";
+
+/**
+ * Statuses staff may pick, plus the booking's own status when it is a legacy
+ * one, so the dropdown always shows where the booking actually stands.
+ */
+function statusOptionsFor(current?: string | null): BookingStatus[] {
+  const list = [...ADMIN_STATUS_OPTIONS];
+  if (current && !list.includes(current as BookingStatus) && current in STATUS_META) {
+    list.unshift(current as BookingStatus);
+  }
+  return list;
+}
+
 import { useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -56,9 +69,11 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/bookin
 const TABS = [
   { id: "all", label: "All" },
   { id: "upcoming", label: "Upcoming" },
-  { id: "pending", label: "Pending" },
-  { id: "allocated", label: "Allocated" },
-  { id: "in_progress", label: "In Progress" },
+  { id: "new", label: "New" },
+  { id: "awaiting_payment", label: "Awaiting payment" },
+  { id: "confirmed", label: "Confirmed" },
+  { id: "assigned", label: "Driver assigned" },
+  { id: "on_road", label: "On the road" },
   { id: "completed", label: "Completed" },
   { id: "deleted", label: "Deleted" },
 ];
@@ -71,14 +86,17 @@ function matchTab(b: any, tab: string) {
   if (["cancelled", "rejected"].includes(b.status)) return false;
   switch (tab) {
     case "all": return true;
-    case "upcoming": return b.pickup_date >= today && !["completed", "cancelled", "rejected"].includes(b.status);
-    case "pending": return ["new", "pending_allocation", "awaiting_payment"].includes(b.status);
-    case "allocated": return ["assigned", "confirmed"].includes(b.status);
-    case "in_progress": return ["in_progress", "on_way", "driver_en_route", "passenger_on_board"].includes(b.status);
+    case "upcoming": return b.pickup_date >= today && b.status !== "completed";
+    case "new": return ["new", "pending_allocation", "bidding"].includes(b.status);
+    case "awaiting_payment": return b.status === "awaiting_payment";
+    case "confirmed": return b.status === "confirmed";
+    case "assigned": return b.status === "assigned";
+    case "on_road": return ["driver_en_route", "on_way", "passenger_on_board", "in_progress"].includes(b.status);
     case "completed": return b.status === "completed";
     default: return true;
   }
 }
+
 
 function BookingsPage() {
   const { tab = "all", view = "bookings" } = useSearch({ from: "/_authenticated/cabs-booking-pannel/bookings" });
@@ -248,9 +266,9 @@ function BookingsPage() {
                         >
                           <SelectTrigger className="h-8 text-xs" aria-label="Change status"><SelectValue /></SelectTrigger>
                           <SelectContent>
-                            {(Object.keys(STATUS_META) as BookingStatus[])
-                              .filter(s => STATUS_META[s].adminSelectable || s === b.status)
-                              .map(s => <SelectItem key={s} value={s} className="capitalize">{STATUS_META[s].label}</SelectItem>)}
+                            {statusOptionsFor(b.status)
+                              .map(s => <SelectItem key={s} value={s}>{STATUS_META[s].label}</SelectItem>)}
+
                           </SelectContent>
                         </Select>
                       )}
@@ -343,9 +361,9 @@ function BookingsPage() {
                   <Select value={effectiveStatus ?? "new"} onValueChange={v => setEditing({ ...editing, _staged_status: v })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      {(Object.keys(STATUS_META) as BookingStatus[])
-                        .filter(s => STATUS_META[s].adminSelectable)
-                        .map(s => <SelectItem key={s} value={s} className="capitalize">{STATUS_META[s].label}</SelectItem>)}
+                      {statusOptionsFor(effectiveStatus)
+                        .map(s => <SelectItem key={s} value={s}>{STATUS_META[s].label}</SelectItem>)}
+
                     </SelectContent>
                   </Select>
                   {needsReason && (
