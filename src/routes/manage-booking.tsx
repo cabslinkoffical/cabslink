@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useRef, useState } from "react";
 import {
   ArrowLeft, CalendarDays, Car, CheckCircle2, Clock, Luggage, Mail, MapPin, Phone,
-  Route as RouteIcon, Search, ShieldCheck, User, XCircle, Info, Briefcase, PlaneTakeoff, MessageCircle,
+  Route as RouteIcon, ShieldCheck, User, XCircle, Info, Briefcase, PlaneTakeoff, MessageCircle,
 } from "lucide-react";
 
 import { SiteLayout } from "@/components/site/SiteLayout";
