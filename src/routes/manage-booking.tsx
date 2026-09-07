@@ -266,24 +266,6 @@ function ManageBookingPage() {
   );
 }
 
-function ModeTab({ active, onClick, icon, children }: { active: boolean; onClick: () => void; icon: React.ReactNode; children: React.ReactNode }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={active}
-      className={`inline-flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition ${
-        active
-          ? "bg-[var(--navy)] text-[var(--navy-foreground)] shadow-sm"
-          : "text-[var(--navy)]/70 hover:bg-white hover:text-[var(--navy)]"
-      }`}
-    >
-      {icon}
-      {children}
-    </button>
-  );
-}
-
 function BookingCard({ booking: b }: { booking: ManagedBooking }) {
   return (
     <div className="mt-6 overflow-hidden rounded-2xl border border-[var(--navy)]/10 bg-card shadow-raised">
