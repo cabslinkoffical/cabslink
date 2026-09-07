@@ -264,6 +264,7 @@ export const setBookingStatusFn = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const newStatus = data.status as BookingStatus;
     const meta = STATUS_META[newStatus];
     if (!meta) throw new Error("Unknown status");
@@ -271,7 +272,7 @@ export const setBookingStatusFn = createServerFn({ method: "POST" })
       throw new Error("This status can only be set with an explicit override.");
     }
     const callRpc = (override: boolean) =>
-      context.supabase.rpc("set_booking_status", {
+      supabaseAdmin.rpc("set_booking_status", {
         _booking_id: data.id,
         _new_status: newStatus,
         _actor_id: context.userId,
