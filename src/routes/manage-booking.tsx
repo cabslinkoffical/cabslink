@@ -19,14 +19,12 @@ import {
 } from "@/lib/manage-booking.functions";
 
 export const Route = createFileRoute("/manage-booking")({
-  validateSearch: (search: Record<string, unknown>): { tab?: "track" | "cancel" } =>
-    search.tab === "cancel" ? { tab: "cancel" } : {},
   head: () => ({
     meta: [
-      { title: `Manage your booking — track or cancel — ${SITE.name}` },
-      { name: "description", content: "Track your Cabslink journey or request a cancellation. Verify with your last name plus your booking reference or email — full refund up to 24 hours before pickup." },
-      { property: "og:title", content: `Manage your booking — ${SITE.name}` },
-      { property: "og:description", content: "Track your journey status or request a cancellation and refund in a couple of steps." },
+      { title: `Track my booking — ${SITE.name}` },
+      { name: "description", content: "Track your Cabslink journey in real time. Verify with your last name plus your booking reference or email. Need to cancel? Look up your booking first and request cancellation from the same page." },
+      { property: "og:title", content: `Track my booking — ${SITE.name}` },
+      { property: "og:description", content: "Look up your Cabslink booking status with your last name and reference or email." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, follow" },
