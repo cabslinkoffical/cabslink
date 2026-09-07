@@ -22,7 +22,7 @@ export const Route = createFileRoute("/manage-booking")({
   head: () => ({
     meta: [
       { title: `Track my booking — ${SITE.name}` },
-      { name: "description", content: "Track your Cabslink journey in real time. Verify with your last name plus your booking reference or email. Need to cancel? Look up your booking first and request cancellation from the same page." },
+      { name: "description", content: "Track your Cabslink journey in real time. Verify with your last name and booking reference or email, then request cancellation if needed." },
       { property: "og:title", content: `Track my booking — ${SITE.name}` },
       { property: "og:description", content: "Look up your Cabslink booking status with your last name and reference or email." },
       { property: "og:type", content: "website" },
