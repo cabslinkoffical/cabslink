@@ -91,7 +91,11 @@ export type ManagedBooking = {
     withinBookingGrace: boolean;
     policyLabel: string;
     policyDetail: string;
+    /** A cancellation request from the customer is already open. */
+    requested: boolean;
+    requestedAt: string | null;
   };
+
   /** Amendment window facts (what the customer may change themselves). */
   amendment: {
     allowed: boolean;
