@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useRef, useState } from "react";
 import {
   ArrowLeft, CalendarDays, Car, CheckCircle2, Clock, Luggage, Mail, MapPin, Phone,
-  Route as RouteIcon, Search, ShieldCheck, User, XCircle, Info, Briefcase, PlaneTakeoff, MessageCircle,
+  Route as RouteIcon, ShieldCheck, User, XCircle, Info, Briefcase, PlaneTakeoff, MessageCircle,
 } from "lucide-react";
 
 import { SiteLayout } from "@/components/site/SiteLayout";
@@ -19,14 +19,12 @@ import {
 } from "@/lib/manage-booking.functions";
 
 export const Route = createFileRoute("/manage-booking")({
-  validateSearch: (search: Record<string, unknown>): { tab?: "track" | "cancel" } =>
-    search.tab === "cancel" ? { tab: "cancel" } : {},
   head: () => ({
     meta: [
-      { title: `Manage your booking — track or cancel — ${SITE.name}` },
-      { name: "description", content: "Track your Cabslink journey or request a cancellation. Verify with your last name plus your booking reference or email — full refund up to 24 hours before pickup." },
-      { property: "og:title", content: `Manage your booking — ${SITE.name}` },
-      { property: "og:description", content: "Track your journey status or request a cancellation and refund in a couple of steps." },
+      { title: `Track my booking — ${SITE.name}` },
+      { name: "description", content: "Track your Cabslink journey in real time. Verify with your last name and booking reference or email, then request cancellation if needed." },
+      { property: "og:title", content: `Track my booking — ${SITE.name}` },
+      { property: "og:description", content: "Look up your Cabslink booking status with your last name and reference or email." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, follow" },
@@ -39,8 +37,7 @@ export const Route = createFileRoute("/manage-booking")({
 type Mode = "track" | "cancel";
 
 function ManageBookingPage() {
-  const { tab } = Route.useSearch();
-  const [mode, setMode] = useState<Mode>(tab === "cancel" ? "cancel" : "track");
+  const [mode, setMode] = useState<Mode>("track");
 
   // Identity
   const [bookingRef, setBookingRef] = useState("");
@@ -146,21 +143,11 @@ function ManageBookingPage() {
           <div className="mt-6 overflow-hidden rounded-2xl border border-[var(--navy)]/10 bg-card shadow-raised">
             <div className="bg-[var(--navy)] px-6 py-6 text-[var(--navy-foreground)]">
               <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-[var(--gold)]">{SITE.name}</p>
-              <h1 className="mt-1 font-display text-2xl font-bold md:text-3xl">Manage your booking</h1>
+              <h1 className="mt-1 font-display text-2xl font-bold md:text-3xl">Track my booking</h1>
               <p className="mt-1.5 text-sm text-white/70">
-                Check your live journey status or request a cancellation. Your last name is always required, plus either your
-                booking reference or the email you booked with.
+                Enter your last name and either your booking reference or the email you booked with. Once we find your booking,
+                you can request a cancellation from the same page.
               </p>
-            </div>
-
-            {/* Mode switch */}
-            <div className="flex gap-1 border-b border-[var(--navy)]/10 bg-[color-mix(in_oklab,var(--navy)_4%,transparent)] p-2">
-              <ModeTab active={mode === "track"} onClick={() => switchMode("track")} icon={<Search className="size-4" />}>
-                Track my booking
-              </ModeTab>
-              <ModeTab active={mode === "cancel"} onClick={() => switchMode("cancel")} icon={<XCircle className="size-4" />}>
-                Cancel a booking
-              </ModeTab>
             </div>
 
             <form onSubmit={submitLookup} className="space-y-5 p-6" noValidate>
@@ -207,7 +194,7 @@ function ManageBookingPage() {
                     <span className="size-4 animate-spin rounded-full border-2 border-[var(--navy)]/30 border-t-[var(--navy)]" /> Checking…
                   </span>
                 ) : (
-                  <><ShieldCheck className="size-4" /> {mode === "cancel" ? "Find booking to cancel" : "Find my booking"}</>
+                  <><ShieldCheck className="size-4" /> Find my booking</>
                 )}
               </Button>
 
@@ -227,22 +214,32 @@ function ManageBookingPage() {
               <>
                 <BookingCard booking={booking} />
                 {mode === "cancel" && (
-                  <CancelForm
-                    booking={booking}
-                    reason={reason}
-                    setReason={setReason}
-                    details={details}
-                    setDetails={setDetails}
-                    attempted={cancelAttempted}
-                    error={cancelError}
-                    submitting={cancelling}
-                    onSubmit={submitCancellation}
-                  />
+                  <>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => switchMode("track")}
+                      className="mt-4 gap-2 pl-0 text-[var(--gold-ink)] hover:bg-transparent hover:text-[var(--gold-ink)]/80"
+                    >
+                      <ArrowLeft className="size-4" /> Back to booking details
+                    </Button>
+                    <CancelForm
+                      booking={booking}
+                      reason={reason}
+                      setReason={setReason}
+                      details={details}
+                      setDetails={setDetails}
+                      attempted={cancelAttempted}
+                      error={cancelError}
+                      submitting={cancelling}
+                      onSubmit={submitCancellation}
+                    />
+                  </>
                 )}
                 {mode === "track" && booking.cancellation.allowed && (
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--navy)]/10 bg-card p-5 shadow-raised">
                     <p className="text-sm text-muted-foreground">Need to cancel this journey?</p>
-                    <Button variant="outline" onClick={() => switchMode("cancel")} className="gap-2">
+                    <Button variant="outline" onClick={() => switchMode("cancel")} className="gap-2 border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive">
                       <XCircle className="size-4" /> Cancel this booking
                     </Button>
                   </div>
@@ -266,24 +263,6 @@ function ManageBookingPage() {
         </div>
       </section>
     </SiteLayout>
-  );
-}
-
-function ModeTab({ active, onClick, icon, children }: { active: boolean; onClick: () => void; icon: React.ReactNode; children: React.ReactNode }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={active}
-      className={`inline-flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition ${
-        active
-          ? "bg-[var(--navy)] text-[var(--navy-foreground)] shadow-sm"
-          : "text-[var(--navy)]/70 hover:bg-white hover:text-[var(--navy)]"
-      }`}
-    >
-      {icon}
-      {children}
-    </button>
   );
 }
 
