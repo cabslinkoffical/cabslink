@@ -1,6 +1,6 @@
 import { resetConsent } from "@/lib/consent";
 import { Link } from "@tanstack/react-router";
-import { Mail, Phone, MapPin } from "lucide-react";
+import { Mail, Phone, MapPin, CalendarSearch, Ban } from "lucide-react";
 import { Logo } from "./Logo";
 import { SITE } from "@/lib/site";
 import { TRUSTPILOT } from "@/lib/trustpilot";
