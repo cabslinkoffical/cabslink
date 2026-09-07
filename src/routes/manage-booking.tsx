@@ -374,9 +374,51 @@ function ManageBookingPage() {
 }
 
 function needsPayment(b: ManagedBooking) {
-  const cancelled = b.status === "cancelled" || b.status === "rejected";
-  return !cancelled && (b.paymentStatus === "unpaid" || b.paymentStatus === "failed" || b.paymentStatus === "partial");
+  return !isClosed(b) && (b.paymentStatus === "unpaid" || b.paymentStatus === "failed" || b.paymentStatus === "partial");
 }
+
+/** Cancelled, rejected or completed bookings can't be changed or paid for. */
+function isClosed(b: ManagedBooking) {
+  return b.status === "cancelled" || b.status === "rejected" || b.status === "completed";
+}
+
+/** Explains a closed booking and offers a fresh booking instead. */
+function ClosedNotice({ booking: b }: { booking: ManagedBooking }) {
+  const cancelled = b.status === "cancelled";
+  const rejected = b.status === "rejected";
+  const heading = cancelled
+    ? "This booking is cancelled"
+    : rejected
+    ? "This booking was not accepted"
+    : "This journey is complete";
+  const detail = cancelled
+    ? "Nothing further is needed from you. If you still need this journey, you can book a new one in a couple of minutes."
+    : rejected
+    ? `We weren't able to take this journey on. Book again with different details, or call us on ${SITE.phoneUK} and we'll help.`
+    : "Thanks for travelling with us. Your journey details stay here for your records.";
+
+  return (
+    <div className="mt-6 rounded-2xl border border-[var(--navy)]/15 bg-[color-mix(in_oklab,var(--gold)_8%,transparent)] p-5 shadow-raised">
+      <p className="font-display text-lg font-bold">{heading}</p>
+      {b.cancellationReason && cancelled && (
+        <p className="mt-1 text-sm text-muted-foreground">Reason recorded: {b.cancellationReason}</p>
+      )}
+      <p className="mt-1 text-sm text-muted-foreground">{detail}</p>
+      {b.paymentStatus === "refunded" && (
+        <p className="mt-1 text-sm text-muted-foreground">Your refund has been issued back to the card you paid with.</p>
+      )}
+      <div className="mt-4 flex flex-wrap items-center gap-3">
+        <Button asChild className="gap-2 bg-[var(--gold)] text-[var(--navy)] hover:bg-[var(--gold)]/90">
+          <Link to="/book">Book a new journey</Link>
+        </Button>
+        <Button asChild variant="ghost" className="text-[var(--gold-ink)] hover:bg-transparent hover:text-[var(--gold-ink)]/80">
+          <a href={`tel:${SITE.phoneUK.replace(/\s+/g, "")}`}>Call {SITE.phoneUK}</a>
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 
 function BookingCard({ booking: b }: { booking: ManagedBooking }) {
   return (
