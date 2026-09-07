@@ -1,6 +1,6 @@
 import { resetConsent } from "@/lib/consent";
 import { Link } from "@tanstack/react-router";
-import { Mail, Phone, MapPin, CalendarSearch, CalendarDays } from "lucide-react";
+import { Mail, Phone, MapPin } from "lucide-react";
 import { Logo } from "./Logo";
 import { SITE } from "@/lib/site";
 import { TRUSTPILOT } from "@/lib/trustpilot";
@@ -24,6 +24,7 @@ const links = [
   { to: "/routes", label: "Popular Routes" },
   { to: "/reviews", label: "Reviews" },
   { to: "/corporate-booking", label: "Corporate Booking" },
+  { to: "/manage-booking", label: "Manage booking" },
   { to: "/contact", label: "Contact" },
   { to: "/book", label: "Book Now" },
 ];
@@ -42,38 +43,7 @@ export function Footer() {
   return (
     <footer className="navy-scene">
 
-      <div className="container-x pt-14">
-        <div className="relative overflow-hidden rounded-2xl border border-[var(--gold)]/30 bg-gradient-to-br from-[var(--gold)]/10 to-transparent p-6 sm:p-8">
-          <div className="absolute -right-10 -top-10 size-40 rounded-full bg-[var(--gold)]/10 blur-3xl" />
-          <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <h3 className="text-lg font-semibold text-white">Manage your booking</h3>
-              <p className="mt-1 max-w-md text-sm text-white/70">
-                Already booked with us? Track your ride or manage your booking details in seconds.
-              </p>
-            </div>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <Link
-                to="/manage-booking"
-                search={{ tab: "track" }}
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--gold)] px-6 py-3 text-sm font-semibold text-[var(--navy)] shadow-lg shadow-[var(--gold)]/20 transition-transform hover:scale-[1.02] active:scale-[0.98]"
-              >
-                <CalendarSearch className="size-4" />
-                Track booking
-              </Link>
-              <Link
-                to="/manage-booking"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--gold)] px-6 py-3 text-sm font-semibold text-[var(--navy)] shadow-lg shadow-[var(--gold)]/20 transition-transform hover:scale-[1.02] active:scale-[0.98]"
-              >
-                <CalendarDays className="size-4" />
-                Manage booking
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="container-x py-16 grid gap-12 md:grid-cols-2 lg:grid-cols-4">
+      <div className="container-x pt-14 pb-16 grid gap-12 md:grid-cols-2 lg:grid-cols-4">
 
         <div>
           <Logo variant="gold" />
