@@ -29,7 +29,7 @@ const identitySchema = z
 type Identity = z.infer<typeof identitySchema>;
 
 const SELECT =
-  "id, booking_ref, status, payment_status, customer_name, email, phone, pickup_address, dropoff_address, pickup_date, pickup_time, passengers, luggage, hand_luggage, vehicle_type, vehicle_class_name_snapshot, flight_number, meet_greet, child_seat, return_journey, price, distance_miles, created_at, cancellation_reason, service_type";
+  "id, booking_ref, status, payment_status, customer_name, email, phone, pickup_address, dropoff_address, pickup_place_id, dropoff_place_id, pickup_date, pickup_time, passengers, luggage, hand_luggage, vehicle_type, vehicle_id, vehicle_class_name_snapshot, vehicle_capacity_snapshot, flight_number, meet_greet, child_seat, child_seat_count, return_journey, notes, selected_pois, price, distance_miles, created_at, cancellation_reason, service_type, admin_notes";
 
 function noStore() {
   try {
