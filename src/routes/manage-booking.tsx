@@ -47,7 +47,7 @@ export const Route = createFileRoute("/manage-booking")({
   component: ManageBookingPage,
 });
 
-type Mode = "track" | "cancel" | "pay";
+type Mode = "track" | "cancel" | "pay" | "amend";
 
 function ManageBookingPage() {
   const search = Route.useSearch();
