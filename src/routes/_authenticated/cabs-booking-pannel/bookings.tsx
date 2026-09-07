@@ -133,7 +133,15 @@ function BookingsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Bookings" description="Manage bookings, tour enquiries, assignments, and notifications." />
+      <PageHeader
+        title={view === "tours" ? "Tour Enquiries" : "Transfer Bookings"}
+        description={
+          view === "tours"
+            ? "Custom tour and day-trip enquiries waiting to be quoted, confirmed or closed."
+            : "Live transfer bookings: assign drivers, update status and notify customers. Cancelled bookings live in Cancellations & Refunds."
+        }
+      />
+
 
       {view === "tours" ? <TourEnquiries /> : <>
 
