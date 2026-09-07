@@ -24,7 +24,7 @@ export const Route = createFileRoute("/manage-booking")({
   head: () => ({
     meta: [
       { title: `Manage your booking — track or cancel — ${SITE.name}` },
-      { name: "description", content: "Track your Cabslink journey or request a cancellation. Verify with your surname plus your booking reference or email — full refund up to 24 hours before pickup." },
+      { name: "description", content: "Track your Cabslink journey or request a cancellation. Verify with your last name plus your booking reference or email — full refund up to 24 hours before pickup." },
       { property: "og:title", content: `Manage your booking — ${SITE.name}` },
       { property: "og:description", content: "Track your journey status or request a cancellation and refund in a couple of steps." },
       { property: "og:type", content: "website" },
@@ -66,9 +66,9 @@ function ManageBookingPage() {
 
   const idErrors = {
     lastName: !lastName.trim()
-      ? "Enter the surname used on the booking."
+      ? "Enter the last name used on the booking."
       : lastName.trim().length < 2
-      ? "Surname must be at least 2 characters."
+      ? "Last name must be at least 2 characters."
       : "",
     bookingRef:
       !bookingRef.trim() && !email.trim() ? "Enter your booking reference or the email you booked with." : "",
@@ -149,7 +149,7 @@ function ManageBookingPage() {
               <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-[var(--gold)]">{SITE.name}</p>
               <h1 className="mt-1 font-display text-2xl font-bold md:text-3xl">Manage your booking</h1>
               <p className="mt-1.5 text-sm text-white/70">
-                Check your live journey status or request a cancellation. Your surname is always required, plus either your
+                Check your live journey status or request a cancellation. Your last name is always required, plus either your
                 booking reference or the email you booked with.
               </p>
             </div>
@@ -192,7 +192,7 @@ function ManageBookingPage() {
                 </FormField>
               </div>
 
-              <FormField label="Surname on the booking (required)" htmlFor="mb-last" error={attempted ? idErrors.lastName : ""}>
+              <FormField label="Last name on the booking (required)" htmlFor="mb-last" error={attempted ? idErrors.lastName : ""}>
                 <Input
                   id="mb-last"
                   value={lastName}
@@ -214,7 +214,7 @@ function ManageBookingPage() {
 
               <p className="flex items-start gap-2 text-xs text-muted-foreground">
                 <Info className="mt-0.5 size-3.5 shrink-0 text-[var(--gold-ink)]" />
-                We only ever show a booking when the surname matches, so nobody else can look up your journey.
+                We only ever show a booking when the last name matches, so nobody else can look up your journey.
               </p>
             </form>
           </div>
