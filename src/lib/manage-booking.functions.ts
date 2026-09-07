@@ -318,7 +318,7 @@ export const findMyBooking = createServerFn({ method: "POST" })
     }
     const row = await findBooking(data);
     if (!row) throw new Error(GENERIC_NOT_FOUND);
-    return project(row);
+    return withOpenRequest(project(row), await openCancellationRequest(row.booking_ref));
   });
 
 // ---------------- Cancellation request ----------------
