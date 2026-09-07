@@ -29,7 +29,7 @@ const identitySchema = z
 type Identity = z.infer<typeof identitySchema>;
 
 const SELECT =
-  "booking_ref, status, payment_status, customer_name, email, phone, pickup_address, dropoff_address, pickup_date, pickup_time, passengers, luggage, hand_luggage, vehicle_type, vehicle_class_name_snapshot, flight_number, meet_greet, child_seat, return_journey, price, distance_miles, created_at, cancellation_reason, service_type";
+  "id, booking_ref, status, payment_status, customer_name, email, phone, pickup_address, dropoff_address, pickup_date, pickup_time, passengers, luggage, hand_luggage, vehicle_type, vehicle_class_name_snapshot, flight_number, meet_greet, child_seat, return_journey, price, distance_miles, created_at, cancellation_reason, service_type";
 
 function noStore() {
   try {
@@ -271,12 +271,24 @@ export const requestBookingCancellation = createServerFn({ method: "POST" })
       .filter(Boolean)
       .join("\n");
 
-    const { error } = await supabaseAdmin.from("contact_messages").insert({
-      name: row.customer_name,
+    const { error } = await supabaseAdmin.from("cancellation_requests").insert({
+      booking_id: row.id ?? null,
+      booking_ref: row.booking_ref,
+      customer_name: row.customer_name,
       email: row.email,
-      phone: data.callbackPhone || row.phone || null,
-      subject: `Cancellation request: ${row.booking_ref} (${facts.tier === "full" ? "full refund" : "partial claim"})`,
-      message,
+      phone: row.phone ?? null,
+      reason: data.reason,
+      details: data.details || null,
+      callback_phone: data.callbackPhone || null,
+      refund_tier: facts.tier,
+      hours_until_pickup: facts.hoursUntilPickup,
+      price_at_request: row.price ?? null,
+      payment_status_at_request: row.payment_status ?? null,
+      pickup_date: row.pickup_date ?? null,
+      pickup_time: row.pickup_time ?? null,
+      pickup_address: row.pickup_address ?? null,
+      dropoff_address: row.dropoff_address ?? null,
+      status: "pending",
     });
     if (error) {
       console.error("cancellation request insert failed", error);

@@ -798,6 +798,95 @@ export type Database = {
         }
         Relationships: []
       }
+      cancellation_requests: {
+        Row: {
+          admin_notes: string | null
+          booking_id: string | null
+          booking_ref: string
+          callback_phone: string | null
+          created_at: string
+          customer_name: string | null
+          details: string | null
+          dropoff_address: string | null
+          email: string | null
+          handled_at: string | null
+          handled_by: string | null
+          hours_until_pickup: number | null
+          id: string
+          payment_status_at_request: string | null
+          phone: string | null
+          pickup_address: string | null
+          pickup_date: string | null
+          pickup_time: string | null
+          price_at_request: number | null
+          reason: string
+          refund_amount: number | null
+          refund_tier: string
+          status: Database["public"]["Enums"]["cancellation_request_status"]
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          booking_id?: string | null
+          booking_ref: string
+          callback_phone?: string | null
+          created_at?: string
+          customer_name?: string | null
+          details?: string | null
+          dropoff_address?: string | null
+          email?: string | null
+          handled_at?: string | null
+          handled_by?: string | null
+          hours_until_pickup?: number | null
+          id?: string
+          payment_status_at_request?: string | null
+          phone?: string | null
+          pickup_address?: string | null
+          pickup_date?: string | null
+          pickup_time?: string | null
+          price_at_request?: number | null
+          reason: string
+          refund_amount?: number | null
+          refund_tier?: string
+          status?: Database["public"]["Enums"]["cancellation_request_status"]
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          booking_id?: string | null
+          booking_ref?: string
+          callback_phone?: string | null
+          created_at?: string
+          customer_name?: string | null
+          details?: string | null
+          dropoff_address?: string | null
+          email?: string | null
+          handled_at?: string | null
+          handled_by?: string | null
+          hours_until_pickup?: number | null
+          id?: string
+          payment_status_at_request?: string | null
+          phone?: string | null
+          pickup_address?: string | null
+          pickup_date?: string | null
+          pickup_time?: string | null
+          price_at_request?: number | null
+          reason?: string
+          refund_amount?: number | null
+          refund_tier?: string
+          status?: Database["public"]["Enums"]["cancellation_request_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cancellation_requests_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_messages: {
         Row: {
           created_at: string
@@ -4212,6 +4301,13 @@ export type Database = {
         | "driver_en_route"
         | "passenger_on_board"
         | "rejected"
+      cancellation_request_status:
+        | "pending"
+        | "in_review"
+        | "approved"
+        | "refunded"
+        | "declined"
+        | "completed"
       destination_relationship_type:
         | "nearby"
         | "serves"
@@ -4487,6 +4583,14 @@ export const Constants = {
         "driver_en_route",
         "passenger_on_board",
         "rejected",
+      ],
+      cancellation_request_status: [
+        "pending",
+        "in_review",
+        "approved",
+        "refunded",
+        "declined",
+        "completed",
       ],
       destination_relationship_type: [
         "nearby",

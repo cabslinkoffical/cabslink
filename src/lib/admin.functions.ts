@@ -892,3 +892,68 @@ export const listActivityLogs = createServerFn({ method: "POST" })
     return rows ?? [];
   });
 
+
+// =================================================================
+// Cancellations & refund requests
+// =================================================================
+const cancellationStatusSchema = z.enum([
+  "pending", "in_review", "approved", "refunded", "declined", "completed",
+]);
+
+export const listCancellationRequests = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { data, error } = await context.supabase
+      .from("cancellation_requests")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+export const updateCancellationRequest = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({
+      id: z.string().uuid(),
+      status: cancellationStatusSchema.optional(),
+      refund_amount: z.number().min(0).max(100000).nullable().optional(),
+      admin_notes: z.string().max(4000).nullable().optional(),
+      cancel_booking: z.boolean().optional(),
+    }).parse(i)
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const patch: any = { handled_by: context.userId, handled_at: new Date().toISOString() };
+    if (data.status !== undefined) patch.status = data.status;
+    if (data.refund_amount !== undefined) patch.refund_amount = data.refund_amount;
+    if (data.admin_notes !== undefined) patch.admin_notes = data.admin_notes;
+
+    const { data: row, error } = await context.supabase
+      .from("cancellation_requests")
+      .update(patch)
+      .eq("id", data.id)
+      .select("booking_id, booking_ref")
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+
+    if (data.cancel_booking && row?.booking_ref) {
+      const { error: bErr } = await context.supabase
+        .from("bookings")
+        .update({ status: "cancelled" })
+        .eq("booking_ref", row.booking_ref);
+      if (bErr) throw new Error(`Request saved, but the booking could not be cancelled: ${bErr.message}`);
+    }
+    return { ok: true };
+  });
+
+export const deleteCancellationRequest = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { error } = await context.supabase.from("cancellation_requests").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
