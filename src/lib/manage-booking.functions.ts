@@ -358,6 +358,11 @@ export const requestBookingCancellation = createServerFn({ method: "POST" })
     const facts = cancellationFacts(row);
     if (!facts.allowed) throw new Error(facts.blockedReason ?? "This booking can no longer be cancelled online.");
 
+    if (await openCancellationRequest(row.booking_ref)) {
+      throw new Error("You have already requested cancellation of this booking. Our team is reviewing it and will confirm by email.");
+    }
+
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const message = [
