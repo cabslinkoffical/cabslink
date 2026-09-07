@@ -380,6 +380,50 @@ function ManageBookingPage() {
                     />
                   </>
                 )}
+                {mode === "amend" && (
+                  <>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => switchMode("track")}
+                      className="mt-4 gap-2 pl-0 text-[var(--gold-ink)] hover:bg-transparent hover:text-[var(--gold-ink)]/80"
+                    >
+                      <ArrowLeft className="size-4" /> Back to booking details
+                    </Button>
+                    <AmendPanel
+                      booking={booking}
+                      identity={identity}
+                      onApplied={async () => { await refreshBooking(); }}
+                      onPayNow={async () => { await refreshBooking(); switchMode("pay"); }}
+                      onClose={() => switchMode("track")}
+                    />
+                  </>
+                )}
+
+                {mode === "track" && !booking.cancellation.requested && !isClosed(booking) && (
+                  <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--navy)]/10 bg-card p-5 shadow-raised">
+                    <div>
+                      <p className="text-sm font-bold">Need to change something?</p>
+                      <p className="text-sm text-muted-foreground">
+                        {booking.amendment.allowed
+                          ? "Update your date, time, passengers, luggage, flight or extras — we'll show the new fare before you confirm."
+                          : booking.amendment.blockedReason}
+                      </p>
+                    </div>
+                    {booking.amendment.allowed ? (
+                      <Button variant="outline" onClick={() => switchMode("amend")} className="gap-2 border-[var(--navy)]/20">
+                        <PencilLine className="size-4" /> Change this booking
+                      </Button>
+                    ) : (
+                      <Button asChild variant="outline" className="gap-2 border-[var(--navy)]/20">
+                        <a href={`tel:${SITE.phoneUK.replace(/\s+/g, "")}`}>
+                          <Phone className="size-4" /> Call {SITE.phoneUK}
+                        </a>
+                      </Button>
+                    )}
+                  </div>
+                )}
+
                 {mode === "track" && booking.cancellation.allowed && (
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--navy)]/10 bg-card p-5 shadow-raised">
                     <p className="text-sm text-muted-foreground">Need to cancel this journey?</p>
