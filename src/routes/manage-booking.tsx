@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useRef, useState } from "react";
 import {
   ArrowLeft, CalendarDays, Car, CheckCircle2, Clock, Luggage, Mail, MapPin, Phone,
-  Route as RouteIcon, Search, ShieldCheck, User, XCircle, Info, Briefcase, PlaneTakeoff,
+  Route as RouteIcon, Search, ShieldCheck, User, XCircle, Info, Briefcase, PlaneTakeoff, MessageCircle,
 } from "lucide-react";
 
 import { SiteLayout } from "@/components/site/SiteLayout";
@@ -54,7 +54,6 @@ function ManageBookingPage() {
   // Cancellation
   const [reason, setReason] = useState<string>("");
   const [details, setDetails] = useState("");
-  const [callbackPhone, setCallbackPhone] = useState("");
   const [cancelAttempted, setCancelAttempted] = useState(false);
   const [cancelError, setCancelError] = useState<string | null>(null);
   const [cancelling, setCancelling] = useState(false);
@@ -118,7 +117,7 @@ function ManageBookingPage() {
           lastName: lastName.trim(),
           reason: reason as (typeof CANCELLATION_REASONS)[number],
           details: details.trim(),
-          callbackPhone: callbackPhone.trim(),
+          callbackPhone: "",
         },
       });
       setSubmitted({ ref: res.bookingRef, tier: res.tier });
@@ -222,7 +221,8 @@ function ManageBookingPage() {
           {/* Result */}
           <div ref={resultRef} className="scroll-mt-24">
             {submitted ? (
-              <CancellationDone ref_={submitted.ref} tier={submitted.tier} />
+              <CancellationDone ref_={submitted.ref} tier={submitted.tier} registeredPhone={booking?.phone ?? null} />
+
             ) : booking ? (
               <>
                 <BookingCard booking={booking} />
@@ -233,8 +233,6 @@ function ManageBookingPage() {
                     setReason={setReason}
                     details={details}
                     setDetails={setDetails}
-                    callbackPhone={callbackPhone}
-                    setCallbackPhone={setCallbackPhone}
                     attempted={cancelAttempted}
                     error={cancelError}
                     submitting={cancelling}
@@ -363,15 +361,13 @@ function BookingCard({ booking: b }: { booking: ManagedBooking }) {
 }
 
 function CancelForm({
-  booking, reason, setReason, details, setDetails, callbackPhone, setCallbackPhone, attempted, error, submitting, onSubmit,
+  booking, reason, setReason, details, setDetails, attempted, error, submitting, onSubmit,
 }: {
   booking: ManagedBooking;
   reason: string;
   setReason: (v: string) => void;
   details: string;
   setDetails: (v: string) => void;
-  callbackPhone: string;
-  setCallbackPhone: (v: string) => void;
   attempted: boolean;
   error: string | null;
   submitting: boolean;
@@ -420,23 +416,35 @@ function CancelForm({
           <Textarea id="mb-details" value={details} onChange={(e) => setDetails(e.target.value)} maxLength={600} rows={3} placeholder={booking.cancellation.tier === "unpaid" ? "Optional — a short note helps our team." : "Optional — a short note helps us process your refund faster."} />
         </FormField>
 
-        <FormField label="Best number to call you back (optional)" htmlFor="mb-phone">
-          <Input id="mb-phone" value={callbackPhone} onChange={(e) => setCallbackPhone(e.target.value)} placeholder={booking.phone ?? "+44 …"} autoComplete="tel" />
-        </FormField>
+        <div className="rounded-xl border border-[var(--navy)]/12 bg-[var(--surface-2)] p-4">
+          <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[var(--navy)]">
+            <Phone className="size-3.5 text-[var(--gold-ink)]" /> We'll call you on your registered number
+          </p>
+          <p className="mt-1.5 font-mono text-sm font-bold">{booking.phone ?? "—"}</p>
+          <p className="mt-1.5 text-xs text-muted-foreground">
+            This is the number you gave when booking. For your security we only discuss this booking on that number — if it
+            has changed, please call us from it or email {SITE.email} so we can update it.
+          </p>
+        </div>
 
         <Button type="submit" disabled={submitting} variant="destructive" className="w-full gap-2">
           {submitting ? "Submitting…" : <><XCircle className="size-4" /> Submit cancellation request</>}
         </Button>
         <p className="text-center text-xs text-muted-foreground">
-          Submitting sends the request to our operations team straight away. You'll get an email confirmation, and you can
-          call us on {SITE.phoneUK} at any point.
+          Submitting sends the request to our operations team straight away. You'll get an email confirmation, and our team
+          calls your registered number within 2 hours.
         </p>
+
       </div>
     </form>
   );
 }
 
-function CancellationDone({ ref_, tier }: { ref_: string; tier: string }) {
+function CancellationDone({ ref_, tier, registeredPhone }: { ref_: string; tier: string; registeredPhone: string | null }) {
+  const waNumber = SITE.phoneUK.replace(/[^\d]/g, "");
+  const waText = encodeURIComponent(
+    `Hello Cabslink, I have submitted a cancellation request for booking ${ref_}. I am messaging from the number registered on the booking. Please confirm the cancellation.`,
+  );
   return (
     <div className="mt-6 overflow-hidden rounded-2xl border border-[var(--gold)]/40 bg-card shadow-raised">
       <div className="bg-[color-mix(in_oklab,var(--gold)_12%,transparent)] px-6 py-6 text-center">
@@ -453,25 +461,45 @@ function CancellationDone({ ref_, tier }: { ref_: string; tier: string }) {
       </div>
       <div className="space-y-4 p-6 text-sm">
         <ol className="space-y-2 text-muted-foreground">
-          <li><span className="font-semibold text-foreground">1.</span> Our operations team reviews your request (usually within 30 minutes, 24/7).</li>
+          <li><span className="font-semibold text-foreground">1.</span> Our team calls you on your registered number{registeredPhone ? <> (<span className="font-mono font-semibold text-foreground">{registeredPhone}</span>)</> : null} within 2 hours to confirm it is really you.</li>
           <li><span className="font-semibold text-foreground">2.</span> You receive a confirmation email once the booking is cancelled.</li>
           {tier === "unpaid" ? (
             <li><span className="font-semibold text-foreground">3.</span> Nothing will be charged to your card — no payment was taken for this booking.</li>
           ) : (
             <li><span className="font-semibold text-foreground">3.</span> Any refund is returned to your original payment method, typically in 5–10 working days.</li>
           )}
-
         </ol>
-        <div className="rounded-xl bg-[var(--surface-2)] p-4">
-          <p className="font-semibold">Travelling soon? Call us to confirm immediately.</p>
-          <a href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`} className="mt-3 inline-flex items-center gap-2 rounded-full bg-[var(--navy)] px-4 py-2.5 text-sm font-bold text-[var(--navy-foreground)]">
-            <Phone className="size-4" /> Call {SITE.phoneUK}
-          </a>
+
+        <div className="rounded-xl border border-[var(--gold)]/35 bg-[color-mix(in_oklab,var(--gold)_8%,transparent)] p-4">
+          <p className="font-semibold">In a hurry? Confirm it yourself now</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            For security, contact us <span className="font-semibold text-foreground">from the same number you used when booking</span>
+            {registeredPhone ? <> (<span className="font-mono font-semibold text-foreground">{registeredPhone}</span>)</> : null}. Messages or calls from
+            another number can't be used to confirm a cancellation.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <a
+              href={`https://wa.me/${waNumber}?text=${waText}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-full bg-[var(--navy)] px-4 py-2.5 text-sm font-bold text-[var(--navy-foreground)]"
+            >
+              <MessageCircle className="size-4" /> Confirm on WhatsApp
+            </a>
+            <a
+              href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}
+              className="inline-flex items-center gap-2 rounded-full border border-[var(--navy)]/20 px-4 py-2.5 text-sm font-bold"
+            >
+              <Phone className="size-4" /> Call {SITE.phoneUK}
+            </a>
+          </div>
         </div>
+
         <Link to="/" className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--gold-ink)]">
           <ArrowLeft className="size-4" /> Back to home
         </Link>
       </div>
+
     </div>
   );
 }
