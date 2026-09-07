@@ -37,7 +37,7 @@ const VIEW_KEY = "admin-messages-view";
 
 function MessagesPage() {
   const { data: allMessages } = useSuspenseQuery(opts);
-  // Tour enquiries live in the Bookings console ("Tours booking" tab), not the inbox.
+  // Tour enquiries live in the Bookings console ("Tour Enquiries"), not the inbox.
   const data = useMemo(() => (allMessages as any[]).filter((m) => !isTourEnquiry(m) && !/^cancellation request:/i.test(String(m.subject ?? ""))), [allMessages]);
   const qc = useQueryClient();
   const invalidate = () => {
