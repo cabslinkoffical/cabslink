@@ -49,9 +49,13 @@ export function Header() {
             <Logo variant="gold" />
           </div>
 
-          {/* Center nav */}
-          <nav className="hidden lg:flex flex-1 min-w-0 items-center justify-center gap-3 xl:gap-5 2xl:gap-7" aria-label="Primary">
+          {/* Center nav — absolutely centred so spacing is identical on both sides */}
+          <nav
+            className="hidden lg:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 items-center justify-center gap-2.5 xl:gap-4 2xl:gap-6"
+            aria-label="Primary"
+          >
             {NAV.map(item => {
+
               const active =
                 item.to === "/"
                   ? pathname === "/"
