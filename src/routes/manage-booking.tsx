@@ -4,18 +4,22 @@ import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft, CalendarDays, Car, CheckCircle2, Clock, Luggage, Mail, MapPin, Phone,
   CreditCard, Route as RouteIcon, ShieldCheck, User, XCircle, Info, Briefcase, PlaneTakeoff, MessageCircle,
+  PencilLine, RefreshCw,
 } from "lucide-react";
 
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FormNotice, FormField, focusFirstInvalid } from "@/components/site/FormValidation";
 import { SITE } from "@/lib/site";
 import { statusLabel, type BookingStatus } from "@/lib/booking-lifecycle";
 import {
   findMyBooking, requestBookingCancellation, CANCELLATION_REASONS, type ManagedBooking,
+  quoteBookingAmendment, submitBookingAmendment,
+  type AmendChanges, type AmendmentQuote, type AmendmentResult,
 } from "@/lib/manage-booking.functions";
 import { confirmBookingPayment } from "@/lib/payments.functions";
 import { getStripeEnvironment } from "@/lib/stripe";
