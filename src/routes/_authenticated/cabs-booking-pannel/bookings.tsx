@@ -60,7 +60,6 @@ const TABS = [
   { id: "allocated", label: "Allocated" },
   { id: "in_progress", label: "In Progress" },
   { id: "completed", label: "Completed" },
-  { id: "cancelled", label: "Cancelled" },
   { id: "deleted", label: "Deleted" },
 ];
 
@@ -68,6 +67,8 @@ function matchTab(b: any, tab: string) {
   const today = new Date().toISOString().slice(0, 10);
   if (tab === "deleted") return !!b.deleted_at;
   if (b.deleted_at) return false;
+  // Cancelled and rejected bookings live in Cancellations & Refunds only.
+  if (["cancelled", "rejected"].includes(b.status)) return false;
   switch (tab) {
     case "all": return true;
     case "upcoming": return b.pickup_date >= today && !["completed", "cancelled", "rejected"].includes(b.status);
@@ -75,7 +76,6 @@ function matchTab(b: any, tab: string) {
     case "allocated": return ["assigned", "confirmed"].includes(b.status);
     case "in_progress": return ["in_progress", "on_way", "driver_en_route", "passenger_on_board"].includes(b.status);
     case "completed": return b.status === "completed";
-    case "cancelled": return ["cancelled", "rejected"].includes(b.status);
     default: return true;
   }
 }

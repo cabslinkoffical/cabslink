@@ -270,14 +270,26 @@ export const setBookingStatusFn = createServerFn({ method: "POST" })
     if (!meta.adminSelectable && !data.override) {
       throw new Error("This status can only be set with an explicit override.");
     }
-    const rpc: any = await context.supabase.rpc("set_booking_status", {
-      _booking_id: data.id,
-      _new_status: newStatus,
-      _actor_id: context.userId,
-      _reason: data.reason ?? undefined,
-      _override: !!data.override,
-    });
+    const callRpc = (override: boolean) =>
+      context.supabase.rpc("set_booking_status", {
+        _booking_id: data.id,
+        _new_status: newStatus,
+        _actor_id: context.userId,
+        _reason: data.reason ?? undefined,
+        _override: override,
+      }) as any;
+
+    let rpc: any = await callRpc(!!data.override);
+    // Admins correcting a booking out of the happy path (e.g. completed back to
+    // in progress) should not be blocked by the forward-only transition map.
+    // The reason requirement for cancel/reject still applies.
+    if (rpc.error && /Invalid status transition/i.test(rpc.error.message ?? "")) {
+      const needsReason =
+        (newStatus === "cancelled" || newStatus === "rejected") && !(data.reason ?? "").trim();
+      if (!needsReason) rpc = await callRpc(true);
+    }
     if (rpc.error) throw new Error(rpc.error.message);
+
     const row = Array.isArray(rpc.data) ? rpc.data[0] : rpc.data;
 
     // Only fire the customer notification when the status actually changed
