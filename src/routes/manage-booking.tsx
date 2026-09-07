@@ -234,8 +234,6 @@ function ManageBookingPage() {
                     setReason={setReason}
                     details={details}
                     setDetails={setDetails}
-                    callbackPhone={callbackPhone}
-                    setCallbackPhone={setCallbackPhone}
                     attempted={cancelAttempted}
                     error={cancelError}
                     submitting={cancelling}
