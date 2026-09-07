@@ -35,27 +35,47 @@ type Meta = {
 
 export const STATUS_META: Record<BookingStatus, Meta> = {
   new:                { label: "New",                  adminSelectable: true,  notifyCustomer: false, active: true,  requiresReason: false, terminal: false },
-  pending_allocation: { label: "Pending allocation",   adminSelectable: true,  notifyCustomer: false, active: true,  requiresReason: false, terminal: false },
   awaiting_payment:   { label: "Awaiting payment",     adminSelectable: true,  notifyCustomer: false, active: true,  requiresReason: false, terminal: false },
   confirmed:          { label: "Confirmed",            adminSelectable: true,  notifyCustomer: true,  active: true,  requiresReason: false, terminal: false },
-  assigned:           { label: "Driver assigned",   adminSelectable: true,  notifyCustomer: true,  active: true,  requiresReason: false, terminal: false },
+  assigned:           { label: "Driver assigned",      adminSelectable: true,  notifyCustomer: true,  active: true,  requiresReason: false, terminal: false },
   driver_en_route:    { label: "Driver en route",      adminSelectable: true,  notifyCustomer: true,  active: true,  requiresReason: false, terminal: false },
-  on_way:             { label: "Driver en route",      adminSelectable: false, notifyCustomer: true,  active: true,  requiresReason: false, terminal: false },
   passenger_on_board: { label: "Passenger on board",   adminSelectable: true,  notifyCustomer: false, active: true,  requiresReason: false, terminal: false },
-  in_progress:        { label: "In progress",          adminSelectable: false, notifyCustomer: false, active: true,  requiresReason: false, terminal: false },
   completed:          { label: "Completed",            adminSelectable: true,  notifyCustomer: true,  active: false, requiresReason: false, terminal: true  },
   cancelled:          { label: "Cancelled",            adminSelectable: true,  notifyCustomer: true,  active: false, requiresReason: true,  terminal: true  },
   rejected:           { label: "Rejected",             adminSelectable: true,  notifyCustomer: true,  active: false, requiresReason: true,  terminal: true  },
-  bidding:            { label: "Bidding",              adminSelectable: true,  notifyCustomer: false, active: true,  requiresReason: false, terminal: false },
+  // Legacy / system-only states. They still exist on older rows and in the
+  // database enum, so they must render, but staff never pick them by hand
+  // because each duplicates one of the statuses above.
+  pending_allocation: { label: "Awaiting driver",       adminSelectable: false, notifyCustomer: false, active: true,  requiresReason: false, terminal: false },
+  on_way:             { label: "Driver en route",       adminSelectable: false, notifyCustomer: true,  active: true,  requiresReason: false, terminal: false },
+  in_progress:        { label: "Passenger on board",    adminSelectable: false, notifyCustomer: false, active: true,  requiresReason: false, terminal: false },
+  bidding:            { label: "Out to drivers",        adminSelectable: false, notifyCustomer: false, active: true,  requiresReason: false, terminal: false },
 };
+
+/**
+ * The only statuses staff choose by hand, in the order a journey actually
+ * progresses. Everything else in `STATUS_META` is a legacy alias kept for
+ * display of older bookings.
+ */
+export const ADMIN_STATUS_OPTIONS: BookingStatus[] = [
+  "new",
+  "awaiting_payment",
+  "confirmed",
+  "assigned",
+  "driver_en_route",
+  "passenger_on_board",
+  "completed",
+  "cancelled",
+  "rejected",
+];
 
 /** Allowed forward transitions. Kept in sync with the DB `set_booking_status` function. */
 export const ALLOWED_TRANSITIONS: Record<BookingStatus, BookingStatus[]> = {
   new:                ["awaiting_payment", "confirmed", "assigned", "cancelled", "rejected", "pending_allocation"],
   pending_allocation: ["awaiting_payment", "confirmed", "assigned", "cancelled", "rejected"],
-  awaiting_payment:   ["confirmed", "cancelled", "rejected"],
-  confirmed:          ["assigned", "cancelled"],
-  assigned:           ["driver_en_route", "on_way", "in_progress", "cancelled", "confirmed"],
+  awaiting_payment:   ["confirmed", "assigned", "cancelled", "rejected"],
+  confirmed:          ["assigned", "awaiting_payment", "cancelled"],
+  assigned:           ["driver_en_route", "on_way", "in_progress", "passenger_on_board", "cancelled", "confirmed"],
   on_way:             ["driver_en_route", "passenger_on_board", "in_progress", "completed", "cancelled"],
   driver_en_route:    ["passenger_on_board", "in_progress", "completed", "cancelled"],
   passenger_on_board: ["in_progress", "completed", "cancelled"],
@@ -65,6 +85,7 @@ export const ALLOWED_TRANSITIONS: Record<BookingStatus, BookingStatus[]> = {
   rejected:           [],
   bidding:            ["assigned", "cancelled", "rejected", "new", "pending_allocation"],
 };
+
 
 export function isValidTransition(from: BookingStatus, to: BookingStatus): boolean {
   if (from === to) return true;
