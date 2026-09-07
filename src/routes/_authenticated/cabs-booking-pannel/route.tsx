@@ -5,7 +5,7 @@ import {
   LayoutDashboard, CalendarCheck, MapPin, Ban, Car, Tag, UserCog, Users,
   CreditCard, Ticket, FileText, BarChart3, Shield, Settings as SettingsIcon, History,
   LogOut, ExternalLink,  Menu, X, Inbox, Gauge,
-  Plane, Plus, Wrench, CircleSlash2, Route as RouteIcon, ArrowLeftRight, Globe, UploadCloud, TrendingUp,
+  Plane, Plus, Wrench, CircleSlash2, PencilLine, Route as RouteIcon, ArrowLeftRight, Globe, UploadCloud, TrendingUp,
 } from "lucide-react";
 import { SidebarNav, type SidebarEntry } from "@/components/admin/SidebarNav";
 import { Breadcrumbs } from "@/components/admin/Breadcrumbs";
