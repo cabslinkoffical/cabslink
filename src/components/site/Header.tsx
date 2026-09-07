@@ -51,7 +51,7 @@ export function Header() {
 
           {/* Center nav — absolutely centred so spacing is identical on both sides */}
           <nav
-            className="hidden lg:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 items-center justify-center gap-2.5 xl:gap-4 2xl:gap-6"
+            className="hidden lg:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 items-center justify-center gap-5 xl:gap-7 2xl:gap-9"
             aria-label="Primary"
           >
             {NAV.map(item => {
@@ -64,7 +64,7 @@ export function Header() {
                 <Link
                   key={item.to}
                   to={item.to}
-                  className={`group relative py-1 whitespace-nowrap text-[12.5px] xl:text-[13px] font-semibold tracking-[0.02em] transition-colors duration-200 ${
+                  className={`group relative px-1 py-1 whitespace-nowrap text-[12.5px] xl:text-[13px] font-semibold tracking-[0.04em] transition-colors duration-200 ${
                     active ? "text-[var(--gold)]" : "text-white/80 hover:text-white"
                   }`}
                 >
