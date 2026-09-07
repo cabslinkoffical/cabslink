@@ -369,8 +369,6 @@ function CancelForm({
   setReason: (v: string) => void;
   details: string;
   setDetails: (v: string) => void;
-  callbackPhone: string;
-  setCallbackPhone: (v: string) => void;
   attempted: boolean;
   error: string | null;
   submitting: boolean;
