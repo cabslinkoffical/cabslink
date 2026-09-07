@@ -394,7 +394,9 @@ function CancelForm({
       <div className="border-b border-destructive/15 bg-[color-mix(in_oklab,var(--destructive)_6%,transparent)] px-6 py-4">
         <p className="font-display text-lg font-bold">Cancel booking {booking.bookingRef}</p>
         <p className="mt-1 text-sm text-muted-foreground">
-          {booking.cancellation.tier === "full"
+          {booking.cancellation.tier === "unpaid"
+            ? "No payment has been taken for this booking, so there is nothing to refund — cancelling is free."
+            : booking.cancellation.tier === "full"
             ? "You qualify for a full refund of anything already paid."
             : "You can submit a partial-refund claim — our team confirms the amount by email."}
         </p>
@@ -415,7 +417,7 @@ function CancelForm({
         </FormField>
 
         <FormField label="Anything else we should know? (optional)" htmlFor="mb-details">
-          <Textarea id="mb-details" value={details} onChange={(e) => setDetails(e.target.value)} maxLength={600} rows={3} placeholder="Optional — a short note helps us process your refund faster." />
+          <Textarea id="mb-details" value={details} onChange={(e) => setDetails(e.target.value)} maxLength={600} rows={3} placeholder={booking.cancellation.tier === "unpaid" ? "Optional — a short note helps our team." : "Optional — a short note helps us process your refund faster."} />
         </FormField>
 
         <FormField label="Best number to call you back (optional)" htmlFor="mb-phone">
@@ -442,14 +444,23 @@ function CancellationDone({ ref_, tier }: { ref_: string; tier: string }) {
         <h2 className="mt-2 font-display text-xl font-bold">Cancellation request received</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Reference <span className="font-mono font-bold">{ref_}</span> —{" "}
-          {tier === "full" ? "logged for a full refund." : "logged as a partial-refund claim."}
+          {tier === "unpaid"
+            ? "logged for cancellation. No payment was taken, so there is nothing to refund."
+            : tier === "full"
+            ? "logged for a full refund."
+            : "logged as a partial-refund claim."}
         </p>
       </div>
       <div className="space-y-4 p-6 text-sm">
         <ol className="space-y-2 text-muted-foreground">
           <li><span className="font-semibold text-foreground">1.</span> Our operations team reviews your request (usually within 30 minutes, 24/7).</li>
           <li><span className="font-semibold text-foreground">2.</span> You receive a confirmation email once the booking is cancelled.</li>
-          <li><span className="font-semibold text-foreground">3.</span> Any refund is returned to your original payment method, typically in 5–10 working days.</li>
+          {tier === "unpaid" ? (
+            <li><span className="font-semibold text-foreground">3.</span> Nothing will be charged to your card — no payment was taken for this booking.</li>
+          ) : (
+            <li><span className="font-semibold text-foreground">3.</span> Any refund is returned to your original payment method, typically in 5–10 working days.</li>
+          )}
+
         </ol>
         <div className="rounded-xl bg-[var(--surface-2)] p-4">
           <p className="font-semibold">Travelling soon? Call us to confirm immediately.</p>
