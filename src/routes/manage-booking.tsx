@@ -271,7 +271,7 @@ function ManageBookingPage() {
           {/* Result */}
           <div ref={resultRef} className="scroll-mt-24">
             {submitted ? (
-              <CancellationDone ref_={submitted.ref} tier={submitted.tier} registeredPhone={booking?.phone ?? null} />
+              <CancellationDone ref_={submitted.ref} tier={submitted.tier} />
 
             ) : booking ? (
               <>
@@ -509,9 +509,9 @@ function CancelForm({
           <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[var(--navy)]">
             <Phone className="size-3.5 text-[var(--gold-ink)]" /> We'll call you on your registered number
           </p>
-          <p className="mt-1.5 font-mono text-sm font-bold">{booking.phone ?? "—"}</p>
+          <p className="mt-1.5 font-mono text-sm font-bold">••••••••••••</p>
           <p className="mt-1.5 text-xs text-muted-foreground">
-            This is the number you gave when booking. For your security we only discuss this booking on that number — if it
+            For your security we never display the full number here. We only discuss this booking on the number you gave when booking — if it
             has changed, please call us from it or email {SITE.email} so we can update it.
           </p>
         </div>
@@ -529,7 +529,7 @@ function CancelForm({
   );
 }
 
-function CancellationDone({ ref_, tier, registeredPhone }: { ref_: string; tier: string; registeredPhone: string | null }) {
+function CancellationDone({ ref_, tier }: { ref_: string; tier: string }) {
   const waNumber = SITE.phoneUK.replace(/[^\d]/g, "");
   const waText = encodeURIComponent(
     `Hello Cabslink, I have submitted a cancellation request for booking ${ref_}. I am messaging from the number registered on the booking. Please confirm the cancellation.`,
@@ -550,7 +550,7 @@ function CancellationDone({ ref_, tier, registeredPhone }: { ref_: string; tier:
       </div>
       <div className="space-y-4 p-6 text-sm">
         <ol className="space-y-2 text-muted-foreground">
-          <li><span className="font-semibold text-foreground">1.</span> Our team calls you on your registered number{registeredPhone ? <> (<span className="font-mono font-semibold text-foreground">{registeredPhone}</span>)</> : null} within 2 hours to confirm it is really you.</li>
+          <li><span className="font-semibold text-foreground">1.</span> Our team calls you on your registered number within 2 hours to confirm it is really you.</li>
           <li><span className="font-semibold text-foreground">2.</span> You receive a confirmation email once the booking is cancelled.</li>
           {tier === "unpaid" ? (
             <li><span className="font-semibold text-foreground">3.</span> Nothing will be charged to your card — no payment was taken for this booking.</li>
@@ -562,9 +562,8 @@ function CancellationDone({ ref_, tier, registeredPhone }: { ref_: string; tier:
         <div className="rounded-xl border border-[var(--gold)]/35 bg-[color-mix(in_oklab,var(--gold)_8%,transparent)] p-4">
           <p className="font-semibold">In a hurry? Confirm it yourself now</p>
           <p className="mt-1 text-xs text-muted-foreground">
-            For security, contact us <span className="font-semibold text-foreground">from the same number you used when booking</span>
-            {registeredPhone ? <> (<span className="font-mono font-semibold text-foreground">{registeredPhone}</span>)</> : null}. Messages or calls from
-            another number can't be used to confirm a cancellation.
+            For security, contact us <span className="font-semibold text-foreground">from the same number you used when booking</span>.
+            Messages or calls from another number can't be used to confirm a cancellation.
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             <a
