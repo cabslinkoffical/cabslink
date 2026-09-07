@@ -261,9 +261,9 @@ function BookingsPage() {
                         >
                           <SelectTrigger className="h-8 text-xs" aria-label="Change status"><SelectValue /></SelectTrigger>
                           <SelectContent>
-                            {(Object.keys(STATUS_META) as BookingStatus[])
-                              .filter(s => STATUS_META[s].adminSelectable || s === b.status)
-                              .map(s => <SelectItem key={s} value={s} className="capitalize">{STATUS_META[s].label}</SelectItem>)}
+                            {statusOptionsFor(b.status)
+                              .map(s => <SelectItem key={s} value={s}>{STATUS_META[s].label}</SelectItem>)}
+
                           </SelectContent>
                         </Select>
                       )}
