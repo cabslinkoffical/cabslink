@@ -140,7 +140,8 @@ export const placesAutocomplete = createServerFn({ method: "POST" })
       const value = { suggestions };
       cache.set(key, { value, expiresAt: now + CACHE_TTL_MS });
       return value;
-    } catch {
+    } catch (e: any) {
+      console.error(`[places] fetch threw: ${e?.name} ${e?.message}`);
       return { suggestions: [] };
     } finally {
       clearTimeout(timer);
