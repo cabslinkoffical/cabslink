@@ -24,6 +24,7 @@ const links = [
   { to: "/routes", label: "Popular Routes" },
   { to: "/reviews", label: "Reviews" },
   { to: "/corporate-booking", label: "Corporate Booking" },
+  { to: "/manage-booking", label: "Manage booking" },
   { to: "/contact", label: "Contact" },
   { to: "/book", label: "Book Now" },
 ];
