@@ -72,7 +72,9 @@ export type ManagedBooking = {
   flightNumber: string | null;
   meetGreet: boolean;
   childSeat: boolean;
+  childSeatCount: number;
   returnJourney: boolean;
+  notes: string | null;
   price: number | null;
   distanceMiles: number | null;
   createdAt: string;
@@ -90,7 +92,13 @@ export type ManagedBooking = {
     policyLabel: string;
     policyDetail: string;
   };
+  /** Amendment window facts (what the customer may change themselves). */
+  amendment: {
+    allowed: boolean;
+    blockedReason: string | null;
+  };
 };
+
 
 /** Combine pickup date + "HH:MM" into a UTC-ish timestamp for window maths. */
 function pickupTimestamp(date: string | null, time: string | null): number | null {
