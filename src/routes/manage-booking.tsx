@@ -529,7 +529,7 @@ function CancelForm({
   );
 }
 
-function CancellationDone({ ref_, tier, registeredPhone }: { ref_: string; tier: string; registeredPhone: string | null }) {
+function CancellationDone({ ref_, tier }: { ref_: string; tier: string }) {
   const waNumber = SITE.phoneUK.replace(/[^\d]/g, "");
   const waText = encodeURIComponent(
     `Hello Cabslink, I have submitted a cancellation request for booking ${ref_}. I am messaging from the number registered on the booking. Please confirm the cancellation.`,
