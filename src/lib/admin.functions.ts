@@ -957,3 +957,71 @@ export const deleteCancellationRequest = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+
+// =================================================================
+// Change (amendment) requests & top-ups / refunds
+// =================================================================
+const amendmentStatusSchema = z.enum([
+  "pending_payment", "awaiting_refund", "applied", "declined",
+]);
+
+export const listBookingAmendments = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { data, error } = await context.supabase
+      .from("booking_amendments")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+export const updateBookingAmendment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({
+      id: z.string().uuid(),
+      status: amendmentStatusSchema.optional(),
+      refund_amount: z.number().min(0).max(100000).nullable().optional(),
+      admin_notes: z.string().max(4000).nullable().optional(),
+      mark_paid: z.boolean().optional(),
+    }).parse(i)
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const patch: any = {};
+    if (data.status !== undefined) patch.status = data.status;
+    if (data.refund_amount !== undefined) patch.refund_amount = data.refund_amount;
+    if (data.admin_notes !== undefined) patch.admin_notes = data.admin_notes;
+    if (data.mark_paid) patch.top_up_paid_at = new Date().toISOString();
+
+    const { data: row, error } = await context.supabase
+      .from("booking_amendments")
+      .update(patch)
+      .eq("id", data.id)
+      .select("booking_ref")
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+
+    // Settling a top-up or paying out a refund leaves the booking fully paid.
+    if ((data.mark_paid || data.status === "applied") && row?.booking_ref) {
+      const { error: bErr } = await context.supabase
+        .from("bookings")
+        .update({ payment_status: "paid" })
+        .eq("booking_ref", row.booking_ref);
+      if (bErr) throw new Error(`Request saved, but the booking payment status could not be updated: ${bErr.message}`);
+    }
+    return { ok: true };
+  });
+
+export const deleteBookingAmendment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { error } = await context.supabase.from("booking_amendments").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
