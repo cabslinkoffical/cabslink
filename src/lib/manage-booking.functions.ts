@@ -1,7 +1,7 @@
 // Public "Manage booking" server functions: verified lookup (track) and
 // customer-initiated cancellation requests.
 //
-// Verification rule: the surname used on the booking is ALWAYS required, plus
+// Verification rule: the last name used on the booking is ALWAYS required, plus
 // at least one of booking reference or email. That means a guessed reference
 // alone reveals nothing, so a verified lookup can safely return the customer's
 // own full journey details (unlike the masked reference-only tracker).
@@ -13,13 +13,13 @@ import { checkLimit } from "@/lib/rate-limit.server";
 import { SITE } from "@/lib/site";
 
 const GENERIC_NOT_FOUND =
-  "We couldn't match those details to a booking. Check the surname exactly as it was entered when booking, and either the reference or the email address used.";
+  "We couldn't match those details to a booking. Check the last name exactly as it was entered when booking, and either the reference or the email address used.";
 
 const identitySchema = z
   .object({
     bookingRef: z.string().trim().max(50).optional().or(z.literal("")),
     email: z.string().trim().max(255).optional().or(z.literal("")),
-    lastName: z.string().trim().min(2, "Enter the surname used on the booking").max(80),
+    lastName: z.string().trim().min(2, "Enter the last name used on the booking").max(80),
   })
   .refine((v) => !!(v.bookingRef && v.bookingRef.trim()) || !!(v.email && v.email.trim()), {
     message: "Enter your booking reference or the email address used to book.",
@@ -43,7 +43,7 @@ function ipOf(): string {
   try { return getRequestIP({ xForwardedFor: true }) ?? "unknown"; } catch { return "unknown"; }
 }
 
-/** Surname match: the supplied value must equal one of the name's words. */
+/** Last-name match: the supplied value must equal one of the name's words. */
 function surnameMatches(fullName: string | null, supplied: string): boolean {
   if (!fullName) return false;
   const want = supplied.trim().toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "");
