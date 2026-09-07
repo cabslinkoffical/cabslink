@@ -343,9 +343,9 @@ function BookingsPage() {
                   <Select value={effectiveStatus ?? "new"} onValueChange={v => setEditing({ ...editing, _staged_status: v })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      {(Object.keys(STATUS_META) as BookingStatus[])
-                        .filter(s => STATUS_META[s].adminSelectable)
-                        .map(s => <SelectItem key={s} value={s} className="capitalize">{STATUS_META[s].label}</SelectItem>)}
+                      {statusOptionsFor(effectiveStatus)
+                        .map(s => <SelectItem key={s} value={s}>{STATUS_META[s].label}</SelectItem>)}
+
                     </SelectContent>
                   </Select>
                   {needsReason && (
