@@ -394,7 +394,9 @@ function CancelForm({
       <div className="border-b border-destructive/15 bg-[color-mix(in_oklab,var(--destructive)_6%,transparent)] px-6 py-4">
         <p className="font-display text-lg font-bold">Cancel booking {booking.bookingRef}</p>
         <p className="mt-1 text-sm text-muted-foreground">
-          {booking.cancellation.tier === "full"
+          {booking.cancellation.tier === "unpaid"
+            ? "No payment has been taken for this booking, so there is nothing to refund — cancelling is free."
+            : booking.cancellation.tier === "full"
             ? "You qualify for a full refund of anything already paid."
             : "You can submit a partial-refund claim — our team confirms the amount by email."}
         </p>
@@ -415,7 +417,7 @@ function CancelForm({
         </FormField>
 
         <FormField label="Anything else we should know? (optional)" htmlFor="mb-details">
-          <Textarea id="mb-details" value={details} onChange={(e) => setDetails(e.target.value)} maxLength={600} rows={3} placeholder="Optional — a short note helps us process your refund faster." />
+          <Textarea id="mb-details" value={details} onChange={(e) => setDetails(e.target.value)} maxLength={600} rows={3} placeholder={booking.cancellation.tier === "unpaid" ? "Optional — a short note helps our team." : "Optional — a short note helps us process your refund faster."} />
         </FormField>
 
         <FormField label="Best number to call you back (optional)" htmlFor="mb-phone">

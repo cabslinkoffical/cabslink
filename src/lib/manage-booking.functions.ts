@@ -52,7 +52,7 @@ function surnameMatches(fullName: string | null, supplied: string): boolean {
   return words.includes(want);
 }
 
-export type RefundTier = "full" | "partial" | "none";
+export type RefundTier = "unpaid" | "full" | "partial" | "none";
 
 export type ManagedBooking = {
   bookingRef: string;
@@ -125,12 +125,28 @@ function cancellationFacts(row: any, now = Date.now()): ManagedBooking["cancella
   }
 
   const farFromPickup = hoursUntilPickup == null ? true : hoursUntilPickup >= 24;
-  const tier: RefundTier = !allowed ? "none" : withinBookingGrace || farFromPickup ? "full" : "partial";
+  const paymentStatus = String(row.payment_status ?? "unpaid");
+  const nothingPaid = paymentStatus === "unpaid" || paymentStatus === "failed";
+  const tier: RefundTier = !allowed
+    ? "none"
+    : nothingPaid
+    ? "unpaid"
+    : withinBookingGrace || farFromPickup
+    ? "full"
+    : "partial";
 
   const policyLabel =
-    tier === "full" ? "Eligible for a full refund" : tier === "partial" ? "Eligible for a partial refund claim" : "Refund review required";
+    tier === "unpaid"
+      ? "No payment taken — nothing to refund"
+      : tier === "full"
+      ? "Eligible for a full refund"
+      : tier === "partial"
+      ? "Eligible for a partial refund claim"
+      : "Refund review required";
   const policyDetail =
-    tier === "full"
+    tier === "unpaid"
+      ? "We have not charged you for this booking yet, so cancelling costs you nothing and there is no refund to process. We'll release the vehicle and confirm by email."
+      : tier === "full"
       ? withinBookingGrace
         ? "You booked less than 24 hours ago, so cancelling now qualifies for a full refund of anything you have paid."
         : "Your pickup is more than 24 hours away, so cancelling now qualifies for a full refund of anything you have paid."
@@ -242,7 +258,7 @@ export const requestBookingCancellation = createServerFn({ method: "POST" })
 
     const message = [
       `Cancellation request for booking ${row.booking_ref}.`,
-      `Refund tier assessed: ${facts.tier === "full" ? "FULL REFUND" : "PARTIAL REFUND CLAIM"}.`,
+      `Refund tier assessed: ${facts.tier === "unpaid" ? "NO PAYMENT TAKEN — nothing to refund" : facts.tier === "full" ? "FULL REFUND" : "PARTIAL REFUND CLAIM"}.`,
       facts.hoursUntilPickup != null ? `Hours until pickup at request time: ${facts.hoursUntilPickup}.` : "",
       `Booked at: ${row.created_at}.`,
       `Journey: ${row.pickup_address} → ${row.dropoff_address} on ${row.pickup_date} ${row.pickup_time}.`,
