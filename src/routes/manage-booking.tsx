@@ -143,21 +143,11 @@ function ManageBookingPage() {
           <div className="mt-6 overflow-hidden rounded-2xl border border-[var(--navy)]/10 bg-card shadow-raised">
             <div className="bg-[var(--navy)] px-6 py-6 text-[var(--navy-foreground)]">
               <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-[var(--gold)]">{SITE.name}</p>
-              <h1 className="mt-1 font-display text-2xl font-bold md:text-3xl">Manage your booking</h1>
+              <h1 className="mt-1 font-display text-2xl font-bold md:text-3xl">Track my booking</h1>
               <p className="mt-1.5 text-sm text-white/70">
-                Check your live journey status or request a cancellation. Your last name is always required, plus either your
-                booking reference or the email you booked with.
+                Enter your last name and either your booking reference or the email you booked with. Once we find your booking,
+                you can request a cancellation from the same page.
               </p>
-            </div>
-
-            {/* Mode switch */}
-            <div className="flex gap-1 border-b border-[var(--navy)]/10 bg-[color-mix(in_oklab,var(--navy)_4%,transparent)] p-2">
-              <ModeTab active={mode === "track"} onClick={() => switchMode("track")} icon={<Search className="size-4" />}>
-                Track my booking
-              </ModeTab>
-              <ModeTab active={mode === "cancel"} onClick={() => switchMode("cancel")} icon={<XCircle className="size-4" />}>
-                Cancel a booking
-              </ModeTab>
             </div>
 
             <form onSubmit={submitLookup} className="space-y-5 p-6" noValidate>
@@ -204,7 +194,7 @@ function ManageBookingPage() {
                     <span className="size-4 animate-spin rounded-full border-2 border-[var(--navy)]/30 border-t-[var(--navy)]" /> Checking…
                   </span>
                 ) : (
-                  <><ShieldCheck className="size-4" /> {mode === "cancel" ? "Find booking to cancel" : "Find my booking"}</>
+                  <><ShieldCheck className="size-4" /> Find my booking</>
                 )}
               </Button>
 
