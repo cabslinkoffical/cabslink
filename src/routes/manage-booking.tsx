@@ -441,7 +441,11 @@ function CancelForm({
   );
 }
 
-function CancellationDone({ ref_, tier }: { ref_: string; tier: string }) {
+function CancellationDone({ ref_, tier, registeredPhone }: { ref_: string; tier: string; registeredPhone: string | null }) {
+  const waNumber = SITE.phoneUK.replace(/[^\d]/g, "");
+  const waText = encodeURIComponent(
+    `Hello Cabslink, I have submitted a cancellation request for booking ${ref_}. I am messaging from the number registered on the booking. Please confirm the cancellation.`,
+  );
   return (
     <div className="mt-6 overflow-hidden rounded-2xl border border-[var(--gold)]/40 bg-card shadow-raised">
       <div className="bg-[color-mix(in_oklab,var(--gold)_12%,transparent)] px-6 py-6 text-center">
@@ -458,25 +462,45 @@ function CancellationDone({ ref_, tier }: { ref_: string; tier: string }) {
       </div>
       <div className="space-y-4 p-6 text-sm">
         <ol className="space-y-2 text-muted-foreground">
-          <li><span className="font-semibold text-foreground">1.</span> Our operations team reviews your request (usually within 30 minutes, 24/7).</li>
+          <li><span className="font-semibold text-foreground">1.</span> Our team calls you on your registered number{registeredPhone ? <> (<span className="font-mono font-semibold text-foreground">{registeredPhone}</span>)</> : null} within 2 hours to confirm it is really you.</li>
           <li><span className="font-semibold text-foreground">2.</span> You receive a confirmation email once the booking is cancelled.</li>
           {tier === "unpaid" ? (
             <li><span className="font-semibold text-foreground">3.</span> Nothing will be charged to your card — no payment was taken for this booking.</li>
           ) : (
             <li><span className="font-semibold text-foreground">3.</span> Any refund is returned to your original payment method, typically in 5–10 working days.</li>
           )}
-
         </ol>
-        <div className="rounded-xl bg-[var(--surface-2)] p-4">
-          <p className="font-semibold">Travelling soon? Call us to confirm immediately.</p>
-          <a href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`} className="mt-3 inline-flex items-center gap-2 rounded-full bg-[var(--navy)] px-4 py-2.5 text-sm font-bold text-[var(--navy-foreground)]">
-            <Phone className="size-4" /> Call {SITE.phoneUK}
-          </a>
+
+        <div className="rounded-xl border border-[var(--gold)]/35 bg-[color-mix(in_oklab,var(--gold)_8%,transparent)] p-4">
+          <p className="font-semibold">In a hurry? Confirm it yourself now</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            For security, contact us <span className="font-semibold text-foreground">from the same number you used when booking</span>
+            {registeredPhone ? <> (<span className="font-mono font-semibold text-foreground">{registeredPhone}</span>)</> : null}. Messages or calls from
+            another number can't be used to confirm a cancellation.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <a
+              href={`https://wa.me/${waNumber}?text=${waText}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-full bg-[var(--navy)] px-4 py-2.5 text-sm font-bold text-[var(--navy-foreground)]"
+            >
+              <MessageCircle className="size-4" /> Confirm on WhatsApp
+            </a>
+            <a
+              href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}
+              className="inline-flex items-center gap-2 rounded-full border border-[var(--navy)]/20 px-4 py-2.5 text-sm font-bold"
+            >
+              <Phone className="size-4" /> Call {SITE.phoneUK}
+            </a>
+          </div>
         </div>
+
         <Link to="/" className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--gold-ink)]">
           <ArrowLeft className="size-4" /> Back to home
         </Link>
       </div>
+
     </div>
   );
 }
