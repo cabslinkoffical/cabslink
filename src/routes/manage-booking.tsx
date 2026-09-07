@@ -17,6 +17,10 @@ import { statusLabel, type BookingStatus } from "@/lib/booking-lifecycle";
 import {
   findMyBooking, requestBookingCancellation, CANCELLATION_REASONS, type ManagedBooking,
 } from "@/lib/manage-booking.functions";
+import { confirmBookingPayment } from "@/lib/payments.functions";
+import { getStripeEnvironment } from "@/lib/stripe";
+import { TrackedBookingPayment } from "@/components/site/TrackedBookingPayment";
+
 
 export const Route = createFileRoute("/manage-booking")({
   validateSearch: (search: Record<string, unknown>): { session_id?: string; ref?: string } => ({
