@@ -3,7 +3,20 @@ import { useSuspenseQuery, useMutation, useQueryClient, queryOptions, useQuery }
 import { useServerFn } from "@tanstack/react-start";
 import { listBookings, updateBooking, softDeleteBooking, deleteBooking, listDrivers } from "@/lib/admin.functions";
 import { setBookingStatusFn, listBookingNotifications, retryBookingNotification } from "@/lib/booking.functions";
-import { STATUS_META, statusLabel, type BookingStatus } from "@/lib/booking-lifecycle";
+import { STATUS_META, ADMIN_STATUS_OPTIONS, statusLabel, type BookingStatus } from "@/lib/booking-lifecycle";
+
+/**
+ * Statuses staff may pick, plus the booking's own status when it is a legacy
+ * one, so the dropdown always shows where the booking actually stands.
+ */
+function statusOptionsFor(current?: string | null): BookingStatus[] {
+  const list = [...ADMIN_STATUS_OPTIONS];
+  if (current && !list.includes(current as BookingStatus) && current in STATUS_META) {
+    list.unshift(current as BookingStatus);
+  }
+  return list;
+}
+
 import { useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
