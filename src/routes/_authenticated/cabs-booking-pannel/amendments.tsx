@@ -444,7 +444,6 @@ function AmendmentsPage() {
                       scope="booking"
                       targetId={active.booking_id}
                       vars={{ name: active.customer_name, ref: active.booking_ref }}
-                      email={active.email ?? ""}
                     />
                   </div>
                 )}
