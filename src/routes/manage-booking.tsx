@@ -19,10 +19,11 @@ import {
 } from "@/lib/manage-booking.functions";
 
 export const Route = createFileRoute("/manage-booking")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    session_id: typeof search.session_id === "string" ? search.session_id : undefined,
-    ref: typeof search.ref === "string" ? search.ref : undefined,
+  validateSearch: (search: Record<string, unknown>): { session_id?: string; ref?: string } => ({
+    ...(typeof search.session_id === "string" ? { session_id: search.session_id } : {}),
+    ...(typeof search.ref === "string" ? { ref: search.ref } : {}),
   }),
+
   head: () => ({
     meta: [
       { title: `Track my booking — ${SITE.name}` },
