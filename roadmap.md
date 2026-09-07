@@ -7,3 +7,5 @@
 - [x] Manage booking: cancelled/rejected/completed lookup shows a clear notice + "Book a new journey"
 - [x] Fix database permission blocking admin booking status changes
 - [x] Simplify Cancellations & Refunds so requests are easy to review and action
+- [ ] Deep end-to-end test of every public + admin flow (in progress)
+- [ ] Dispatch link: secure automatic data feed so a separate driver-dispatch project (own domain) can read bookings and assign drivers without manual export
