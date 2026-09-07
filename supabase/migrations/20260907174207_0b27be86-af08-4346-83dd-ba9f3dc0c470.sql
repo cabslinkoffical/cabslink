@@ -1,0 +1,2 @@
+REVOKE EXECUTE ON FUNCTION public.set_booking_status(uuid, public.booking_status, uuid, text, boolean) FROM authenticated;
+GRANT EXECUTE ON FUNCTION public.set_booking_status(uuid, public.booking_status, uuid, text, boolean) TO service_role;
