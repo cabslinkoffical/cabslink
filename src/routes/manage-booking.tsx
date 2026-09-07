@@ -421,17 +421,25 @@ function CancelForm({
           <Textarea id="mb-details" value={details} onChange={(e) => setDetails(e.target.value)} maxLength={600} rows={3} placeholder={booking.cancellation.tier === "unpaid" ? "Optional — a short note helps our team." : "Optional — a short note helps us process your refund faster."} />
         </FormField>
 
-        <FormField label="Best number to call you back (optional)" htmlFor="mb-phone">
-          <Input id="mb-phone" value={callbackPhone} onChange={(e) => setCallbackPhone(e.target.value)} placeholder={booking.phone ?? "+44 …"} autoComplete="tel" />
-        </FormField>
+        <div className="rounded-xl border border-[var(--navy)]/12 bg-[var(--surface-2)] p-4">
+          <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[var(--navy)]">
+            <Phone className="size-3.5 text-[var(--gold-ink)]" /> We'll call you on your registered number
+          </p>
+          <p className="mt-1.5 font-mono text-sm font-bold">{booking.phone ?? "—"}</p>
+          <p className="mt-1.5 text-xs text-muted-foreground">
+            This is the number you gave when booking. For your security we only discuss this booking on that number — if it
+            has changed, please call us from it or email {SITE.email} so we can update it.
+          </p>
+        </div>
 
         <Button type="submit" disabled={submitting} variant="destructive" className="w-full gap-2">
           {submitting ? "Submitting…" : <><XCircle className="size-4" /> Submit cancellation request</>}
         </Button>
         <p className="text-center text-xs text-muted-foreground">
-          Submitting sends the request to our operations team straight away. You'll get an email confirmation, and you can
-          call us on {SITE.phoneUK} at any point.
+          Submitting sends the request to our operations team straight away. You'll get an email confirmation, and our team
+          calls your registered number within 2 hours.
         </p>
+
       </div>
     </form>
   );
