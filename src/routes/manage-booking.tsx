@@ -4,18 +4,22 @@ import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft, CalendarDays, Car, CheckCircle2, Clock, Luggage, Mail, MapPin, Phone,
   CreditCard, Route as RouteIcon, ShieldCheck, User, XCircle, Info, Briefcase, PlaneTakeoff, MessageCircle,
+  PencilLine, RefreshCw,
 } from "lucide-react";
 
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FormNotice, FormField, focusFirstInvalid } from "@/components/site/FormValidation";
 import { SITE } from "@/lib/site";
 import { statusLabel, type BookingStatus } from "@/lib/booking-lifecycle";
 import {
   findMyBooking, requestBookingCancellation, CANCELLATION_REASONS, type ManagedBooking,
+  quoteBookingAmendment, submitBookingAmendment,
+  type AmendChanges, type AmendmentQuote, type AmendmentResult,
 } from "@/lib/manage-booking.functions";
 import { confirmBookingPayment } from "@/lib/payments.functions";
 import { getStripeEnvironment } from "@/lib/stripe";
@@ -43,7 +47,7 @@ export const Route = createFileRoute("/manage-booking")({
   component: ManageBookingPage,
 });
 
-type Mode = "track" | "cancel" | "pay";
+type Mode = "track" | "cancel" | "pay" | "amend";
 
 function ManageBookingPage() {
   const search = Route.useSearch();
@@ -168,6 +172,22 @@ function ManageBookingPage() {
     setMode(next);
     setCancelError(null);
     setCancelAttempted(false);
+  };
+
+  const identity = {
+    bookingRef: bookingRef.trim().toUpperCase(),
+    email: email.trim(),
+    lastName: lastName.trim(),
+  };
+
+  /** Silently re-reads the booking so the card shows the amended details. */
+  const refreshBooking = async () => {
+    try {
+      const data = await lookupFn({ data: identity });
+      setBooking(data);
+    } catch {
+      /* the visible card stays as-is; the change itself already succeeded */
+    }
   };
 
   return (
@@ -360,6 +380,50 @@ function ManageBookingPage() {
                     />
                   </>
                 )}
+                {mode === "amend" && (
+                  <>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => switchMode("track")}
+                      className="mt-4 gap-2 pl-0 text-[var(--gold-ink)] hover:bg-transparent hover:text-[var(--gold-ink)]/80"
+                    >
+                      <ArrowLeft className="size-4" /> Back to booking details
+                    </Button>
+                    <AmendPanel
+                      booking={booking}
+                      identity={identity}
+                      onApplied={async () => { await refreshBooking(); }}
+                      onPayNow={async () => { await refreshBooking(); switchMode("pay"); }}
+                      onClose={() => switchMode("track")}
+                    />
+                  </>
+                )}
+
+                {mode === "track" && !booking.cancellation.requested && !isClosed(booking) && (
+                  <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--navy)]/10 bg-card p-5 shadow-raised">
+                    <div>
+                      <p className="text-sm font-bold">Need to change something?</p>
+                      <p className="text-sm text-muted-foreground">
+                        {booking.amendment.allowed
+                          ? "Update your date, time, passengers, luggage, flight or extras — we'll show the new fare before you confirm."
+                          : booking.amendment.blockedReason}
+                      </p>
+                    </div>
+                    {booking.amendment.allowed ? (
+                      <Button variant="outline" onClick={() => switchMode("amend")} className="gap-2 border-[var(--navy)]/20">
+                        <PencilLine className="size-4" /> Change this booking
+                      </Button>
+                    ) : (
+                      <Button asChild variant="outline" className="gap-2 border-[var(--navy)]/20">
+                        <a href={`tel:${SITE.phoneUK.replace(/\s+/g, "")}`}>
+                          <Phone className="size-4" /> Call {SITE.phoneUK}
+                        </a>
+                      </Button>
+                    )}
+                  </div>
+                )}
+
                 {mode === "track" && booking.cancellation.allowed && (
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--navy)]/10 bg-card p-5 shadow-raised">
                     <p className="text-sm text-muted-foreground">Need to cancel this journey?</p>
@@ -716,5 +780,255 @@ function Fact({ icon, label, value }: { icon: React.ReactNode; label: string; va
       </dt>
       <dd className="mt-0.5 truncate text-sm font-semibold" title={value}>{value}</dd>
     </div>
+  );
+}
+
+/**
+ * Customer-initiated change request. The new fare is always recomputed on the
+ * server, so the customer only ever chooses journey details — never a price.
+ */
+function AmendPanel({
+  booking, identity, onApplied, onPayNow, onClose,
+}: {
+  booking: ManagedBooking;
+  identity: { bookingRef: string; email: string; lastName: string };
+  onApplied: () => Promise<void> | void;
+  onPayNow: () => Promise<void> | void;
+  onClose: () => void;
+}) {
+  const quoteFn = useServerFn(quoteBookingAmendment);
+  const submitFn = useServerFn(submitBookingAmendment);
+
+  const [form, setForm] = useState<AmendChanges>({
+    pickupDate: booking.pickupDate,
+    pickupTime: booking.pickupTime,
+    passengers: booking.passengers,
+    luggage: booking.luggage,
+    handLuggage: booking.handLuggage,
+    flightNumber: booking.flightNumber ?? "",
+    meetGreet: booking.meetGreet,
+    childSeatCount: booking.childSeatCount,
+    returnJourney: booking.returnJourney,
+    notes: booking.notes ?? "",
+  });
+  const [quote, setQuote] = useState<AmendmentQuote | null>(null);
+  const [applied, setApplied] = useState<AmendmentResult | null>(null);
+  const [attempted, setAttempted] = useState(false);
+  const [busy, setBusy] = useState<"quote" | "submit" | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const set = <K extends keyof AmendChanges>(key: K, value: AmendChanges[K]) => {
+    setForm((f) => ({ ...f, [key]: value }));
+    setQuote(null);
+    setError(null);
+  };
+
+  if (!booking.amendment.allowed) {
+    return (
+      <div className="mt-4 rounded-2xl border border-[var(--navy)]/10 bg-card p-6 shadow-raised">
+        <p className="text-sm font-semibold">This booking can't be changed online</p>
+        <p className="mt-1 text-sm text-muted-foreground">{booking.amendment.blockedReason}</p>
+        <a href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`} className="mt-3 inline-flex items-center gap-2 rounded-full bg-[var(--navy)] px-4 py-2 text-xs font-bold text-[var(--navy-foreground)]">
+          <Phone className="size-3.5" /> Call {SITE.phoneUK}
+        </a>
+      </div>
+    );
+  }
+
+  const changed =
+    form.pickupDate !== booking.pickupDate ||
+    form.pickupTime !== booking.pickupTime ||
+    form.passengers !== booking.passengers ||
+    form.luggage !== booking.luggage ||
+    form.handLuggage !== booking.handLuggage ||
+    (form.flightNumber ?? "") !== (booking.flightNumber ?? "") ||
+    form.meetGreet !== booking.meetGreet ||
+    form.childSeatCount !== booking.childSeatCount ||
+    form.returnJourney !== booking.returnJourney ||
+    (form.notes ?? "") !== (booking.notes ?? "");
+
+  const errors = {
+    pickupDate: !form.pickupDate ? "Choose a pickup date." : "",
+    pickupTime: !/^\d{1,2}:\d{2}$/.test(form.pickupTime) ? "Choose a pickup time." : "",
+    passengers: form.passengers < 1 ? "At least one passenger." : "",
+    changed: changed ? "" : "Change at least one detail to continue.",
+  };
+  const invalid = Object.values(errors).some(Boolean);
+
+  const runQuote = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setAttempted(true);
+    setError(null);
+    if (invalid) { focusFirstInvalid(e.currentTarget); return; }
+    setBusy("quote");
+    try {
+      setQuote(await quoteFn({ data: { ...identity, changes: form } }));
+    } catch (err: any) {
+      setError(err?.message ?? "We couldn't price that change. Please call us and we'll do it for you.");
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const confirm = async () => {
+    setError(null);
+    setBusy("submit");
+    try {
+      const res = await submitFn({ data: { ...identity, changes: form } });
+      setApplied(res);
+      await onApplied();
+    } catch (err: any) {
+      setError(err?.message ?? "We couldn't apply that change. Please call us and we'll do it for you.");
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  if (applied) {
+    return (
+      <div className="mt-4 rounded-2xl border border-[var(--gold)]/50 bg-card p-6 shadow-raised">
+        <p className="flex items-center gap-2 font-display text-lg font-bold">
+          <CheckCircle2 className="size-5 text-[var(--gold-ink)]" /> Your booking is updated
+        </p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Booking {applied.bookingRef} now shows your new details, and a confirmation email is on its way.
+        </p>
+        <ul className="mt-3 space-y-1 text-sm">
+          {applied.changedLines.map((line) => (
+            <li key={line} className="flex gap-2"><span className="text-[var(--gold-ink)]">•</span>{line}</li>
+          ))}
+        </ul>
+        <p className="mt-3 text-sm font-semibold">
+          New fare £{applied.newPrice.toFixed(2)}
+          {applied.delta !== 0 ? ` (was £${applied.currentPrice.toFixed(2)})` : ""}
+        </p>
+        {applied.outcome === "refund" ? (
+          <p className="mt-1 text-sm text-muted-foreground">
+            Your new fare is lower, so a refund of £{applied.refundDue.toFixed(2)} is due. Our team processes it back to your
+            card and confirms by email.
+          </p>
+        ) : applied.amountDue > 0 ? (
+          <p className="mt-1 text-sm text-muted-foreground">
+            There's £{applied.amountDue.toFixed(2)} left to pay to secure your vehicle.
+          </p>
+        ) : null}
+        <div className="mt-4 flex flex-wrap gap-3">
+          {applied.amountDue > 0 && (
+            <Button onClick={() => void onPayNow()} className="gap-2 bg-[var(--gold)] text-[var(--navy)] hover:bg-[var(--gold)]/90">
+              <CreditCard className="size-4" /> Pay £{applied.amountDue.toFixed(2)} now
+            </Button>
+          )}
+          <Button variant="outline" onClick={onClose} className="gap-2 border-[var(--navy)]/20">
+            Back to booking details
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={runQuote} noValidate className="mt-4 overflow-hidden rounded-2xl border border-[var(--navy)]/12 bg-card shadow-raised">
+      <div className="border-b border-[var(--navy)]/10 bg-[color-mix(in_oklab,var(--gold)_8%,transparent)] px-6 py-4">
+        <p className="font-display text-lg font-bold">Change booking {booking.bookingRef}</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Update what you need, then check the new price. Nothing changes until you confirm. Pickup and destination stay the
+          same — for a different route please call {SITE.phoneUK}.
+        </p>
+      </div>
+
+      <div className="space-y-5 p-6">
+        <FormNotice visible={attempted && (invalid || !!error)}>
+          {error ?? (errors.changed || "Please fill the required data to continue")}
+        </FormNotice>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <FormField label="Pickup date" htmlFor="am-date" error={attempted ? errors.pickupDate : ""}>
+            <Input id="am-date" type="date" value={form.pickupDate} onChange={(e) => set("pickupDate", e.target.value)} />
+          </FormField>
+          <FormField label="Pickup time" htmlFor="am-time" error={attempted ? errors.pickupTime : ""}>
+            <Input id="am-time" type="time" value={form.pickupTime} onChange={(e) => set("pickupTime", e.target.value)} />
+          </FormField>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-3">
+          <FormField label="Passengers" htmlFor="am-pax" error={attempted ? errors.passengers : ""}>
+            <Input id="am-pax" type="number" min={1} max={60} value={form.passengers}
+              onChange={(e) => set("passengers", Math.max(1, Number(e.target.value) || 1))} />
+          </FormField>
+          <FormField label="Suitcases" htmlFor="am-lug">
+            <Input id="am-lug" type="number" min={0} max={60} value={form.luggage}
+              onChange={(e) => set("luggage", Math.max(0, Number(e.target.value) || 0))} />
+          </FormField>
+          <FormField label="Hand bags" htmlFor="am-hand">
+            <Input id="am-hand" type="number" min={0} max={60} value={form.handLuggage}
+              onChange={(e) => set("handLuggage", Math.max(0, Number(e.target.value) || 0))} />
+          </FormField>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <FormField label="Flight number (optional)" htmlFor="am-flight">
+            <Input id="am-flight" value={form.flightNumber ?? ""} maxLength={20}
+              onChange={(e) => set("flightNumber", e.target.value.toUpperCase())} placeholder="e.g. BA1234" />
+          </FormField>
+          <FormField label="Child seats" htmlFor="am-child">
+            <Input id="am-child" type="number" min={0} max={6} value={form.childSeatCount}
+              onChange={(e) => set("childSeatCount", Math.min(6, Math.max(0, Number(e.target.value) || 0)))} />
+          </FormField>
+        </div>
+
+        <div className="space-y-3 rounded-xl border border-[var(--navy)]/12 bg-[var(--surface-2)] p-4">
+          <label className="flex items-start gap-3 text-sm font-semibold">
+            <Checkbox checked={form.meetGreet} onCheckedChange={(v) => set("meetGreet", v === true)} className="mt-0.5" />
+            <span>Meet &amp; greet at arrivals<span className="block text-xs font-normal text-muted-foreground">Your driver waits inside with a name board.</span></span>
+          </label>
+          <label className="flex items-start gap-3 text-sm font-semibold">
+            <Checkbox checked={form.returnJourney} onCheckedChange={(v) => set("returnJourney", v === true)} className="mt-0.5" />
+            <span>Include a return journey<span className="block text-xs font-normal text-muted-foreground">We'll confirm the return time with you by email.</span></span>
+          </label>
+        </div>
+
+        <FormField label="Notes for your driver (optional)" htmlFor="am-notes">
+          <Textarea id="am-notes" rows={3} maxLength={600} value={form.notes ?? ""}
+            onChange={(e) => set("notes", e.target.value)} placeholder="Anything we should know about this change" />
+        </FormField>
+
+        {quote ? (
+          <div className="rounded-xl border border-[var(--gold)]/50 bg-[color-mix(in_oklab,var(--gold)_10%,transparent)] p-4">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--navy)]">New price for your change</p>
+            <ul className="mt-2 space-y-1 text-sm">
+              {quote.changedLines.map((line) => (
+                <li key={line} className="flex gap-2"><span className="text-[var(--gold-ink)]">•</span>{line}</li>
+              ))}
+            </ul>
+            <p className="mt-3 text-sm font-bold">
+              £{quote.currentPrice.toFixed(2)} → £{quote.newPrice.toFixed(2)}
+              {quote.delta !== 0 ? ` (${quote.delta > 0 ? "+" : "−"}£${Math.abs(quote.delta).toFixed(2)})` : " (no change)"}
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {quote.outcome === "topup"
+                ? `You'll have £${quote.amountDue.toFixed(2)} to pay by card after confirming.`
+                : quote.outcome === "refund"
+                ? `A refund of £${quote.refundDue.toFixed(2)} will be arranged back to your card.`
+                : quote.outcome === "pay_full"
+                ? `This booking is still unpaid — the amount payable becomes £${quote.newPrice.toFixed(2)}.`
+                : "Your fare stays the same."}
+            </p>
+            <Button type="button" onClick={() => void confirm()} disabled={busy === "submit"}
+              className="mt-4 w-full gap-2 bg-[var(--gold)] text-[var(--navy)] hover:bg-[var(--gold)]/90">
+              {busy === "submit" ? "Applying…" : <><CheckCircle2 className="size-4" /> Confirm this change</>}
+            </Button>
+          </div>
+        ) : (
+          <Button type="submit" disabled={busy === "quote"} className="w-full gap-2 bg-[var(--navy)] text-[var(--navy-foreground)] hover:bg-[var(--navy)]/90">
+            {busy === "quote" ? "Checking price…" : <><RefreshCw className="size-4" /> Check the new price</>}
+          </Button>
+        )}
+
+        <p className="text-center text-xs text-muted-foreground">
+          Changes are allowed up to 6 hours before pickup. Closer to pickup, or for a different route or a tour, please call{" "}
+          {SITE.phoneUK}.
+        </p>
+      </div>
+    </form>
   );
 }
