@@ -474,17 +474,31 @@ function CancelForm({
     );
   }
 
+  const unpaid = booking.cancellation.tier === "unpaid";
+
   return (
     <form onSubmit={onSubmit} noValidate className="mt-4 overflow-hidden rounded-2xl border border-destructive/25 bg-card shadow-raised">
       <div className="border-b border-destructive/15 bg-[color-mix(in_oklab,var(--destructive)_6%,transparent)] px-6 py-4">
         <p className="font-display text-lg font-bold">Cancel booking {booking.bookingRef}</p>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {booking.cancellation.tier === "unpaid"
-            ? "No payment has been taken for this booking, so there is nothing to refund — cancelling is free."
-            : booking.cancellation.tier === "full"
-            ? "You qualify for a full refund of anything already paid."
-            : "You can submit a partial-refund claim — our team confirms the amount by email."}
-        </p>
+        {unpaid ? (
+          <div className="mt-3 flex items-start gap-3 rounded-xl border border-[var(--gold)]/50 bg-[color-mix(in_oklab,var(--gold)_15%,transparent)] p-3.5 shadow-sm">
+            <Info className="mt-0.5 size-5 shrink-0 text-[var(--gold-ink)]" />
+            <div>
+              <p className="text-sm font-bold text-[var(--navy)]">
+                No payment has been taken for this booking, so there is nothing to refund — cancelling is free.
+              </p>
+              <p className="mt-0.5 text-xs text-[var(--navy)]/80">
+                Your booking is still unpaid, so you can cancel without any charge.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <p className="mt-1 text-sm text-muted-foreground">
+            {booking.cancellation.tier === "full"
+              ? "You qualify for a full refund of anything already paid."
+              : "You can submit a partial-refund claim — our team confirms the amount by email."}
+          </p>
+        )}
       </div>
 
       <div className="space-y-5 p-6">
