@@ -19,6 +19,10 @@ import {
 } from "@/lib/manage-booking.functions";
 
 export const Route = createFileRoute("/manage-booking")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    session_id: typeof search.session_id === "string" ? search.session_id : undefined,
+    ref: typeof search.ref === "string" ? search.ref : undefined,
+  }),
   head: () => ({
     meta: [
       { title: `Track my booking — ${SITE.name}` },
@@ -34,10 +38,38 @@ export const Route = createFileRoute("/manage-booking")({
   component: ManageBookingPage,
 });
 
-type Mode = "track" | "cancel";
+type Mode = "track" | "cancel" | "pay";
 
 function ManageBookingPage() {
+  const search = Route.useSearch();
   const [mode, setMode] = useState<Mode>("track");
+  const confirmFn = useServerFn(confirmBookingPayment);
+  const [payConfirm, setPayConfirm] = useState<
+    { state: "checking" } | { state: "paid"; ref: string } | { state: "failed"; message: string } | null
+  >(search.session_id && search.ref ? { state: "checking" } : null);
+
+  useEffect(() => {
+    const sessionId = search.session_id;
+    const ref = search.ref;
+    if (!sessionId || !ref) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await confirmFn({
+          data: { sessionId, bookingRef: ref, environment: getStripeEnvironment() },
+        });
+        if (cancelled) return;
+        if ("error" in res) setPayConfirm({ state: "failed", message: res.error });
+        else if (res.paid) setPayConfirm({ state: "paid", ref });
+        else setPayConfirm({ state: "failed", message: "Your payment was not completed. Please try again." });
+      } catch (err: any) {
+        if (!cancelled) setPayConfirm({ state: "failed", message: err?.message ?? "We couldn't verify that payment." });
+      }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search.session_id, search.ref]);
+
 
   // Identity
   const [bookingRef, setBookingRef] = useState("");
