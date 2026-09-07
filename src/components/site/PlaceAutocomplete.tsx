@@ -30,7 +30,7 @@ type Props = {
 
 const DEBOUNCE_MS = 250;
 const MIN_CHARS = 2;
-const REQUEST_TIMEOUT_MS = 4_000;
+const REQUEST_TIMEOUT_MS = 12_000;
 
 function normalizeQuery(q: string) {
   return q.trim().replace(/\s+/g, " ").toLowerCase();
@@ -122,14 +122,13 @@ export function PlaceAutocomplete({
       inflightAbort.current?.abort();
       const controller = new AbortController();
       inflightAbort.current = controller;
-      let timeoutId: ReturnType<typeof setTimeout> | undefined;
+      // Slow links (and proxied preview URLs) can take several seconds; never
+      // discard a request that is still on its way — just stop the spinner.
+      let timeoutId: ReturnType<typeof setTimeout> | undefined = setTimeout(() => {
+        if (seq === latestSeq.current) setLoading(false);
+      }, REQUEST_TIMEOUT_MS);
       try {
-        const res = await Promise.race([
-          call({ data: { input: raw, sessionToken, mode } }),
-          new Promise<{ suggestions: PlaceSuggestion[] }>((resolve) => {
-            timeoutId = setTimeout(() => resolve({ suggestions: [] }), REQUEST_TIMEOUT_MS);
-          }),
-        ]);
+        const res = await call({ data: { input: raw, sessionToken, mode } });
         if (controller.signal.aborted) return;
         if (seq !== latestSeq.current) return;
         lastQuery.current = norm;
