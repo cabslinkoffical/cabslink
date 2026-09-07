@@ -799,6 +799,24 @@ function AmendPanel({
   const quoteFn = useServerFn(quoteBookingAmendment);
   const submitFn = useServerFn(submitBookingAmendment);
 
+  const INTERNAL_NOTE_PREFIXES = [
+    "Cancellation policy:",
+    "Payment method:",
+    "WhatsApp:",
+    "Child seats requested:",
+    "Extra:",
+  ];
+  const allNoteLines = (booking.notes ?? "").split("\n");
+  const internalNoteLines = allNoteLines.filter((l) =>
+    INTERNAL_NOTE_PREFIXES.some((p) => l.trim().startsWith(p)),
+  );
+  const customerNote = allNoteLines
+    .filter((l) => !INTERNAL_NOTE_PREFIXES.some((p) => l.trim().startsWith(p)))
+    .join("\n")
+    .trim();
+  const composeNotes = (note: string) =>
+    [...internalNoteLines, note.trim()].filter(Boolean).join("\n");
+
   const [form, setForm] = useState<AmendChanges>({
     pickupDate: booking.pickupDate,
     pickupTime: booking.pickupTime,
@@ -809,8 +827,9 @@ function AmendPanel({
     meetGreet: booking.meetGreet,
     childSeatCount: booking.childSeatCount,
     returnJourney: booking.returnJourney,
-    notes: booking.notes ?? "",
+    notes: customerNote,
   });
+
   const [quote, setQuote] = useState<AmendmentQuote | null>(null);
   const [applied, setApplied] = useState<AmendmentResult | null>(null);
   const [attempted, setAttempted] = useState(false);
