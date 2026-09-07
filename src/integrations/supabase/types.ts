@@ -491,6 +491,80 @@ export type Database = {
         }
         Relationships: []
       }
+      booking_amendments: {
+        Row: {
+          admin_notes: string | null
+          booking_id: string | null
+          booking_ref: string
+          changes: Json
+          created_at: string
+          customer_name: string | null
+          customer_note: string | null
+          delta: number | null
+          email: string | null
+          id: string
+          new_price: number | null
+          old_price: number | null
+          payment_status_at_request: string | null
+          phone: string | null
+          previous: Json
+          refund_amount: number | null
+          status: Database["public"]["Enums"]["amendment_status"]
+          top_up_paid_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          booking_id?: string | null
+          booking_ref: string
+          changes?: Json
+          created_at?: string
+          customer_name?: string | null
+          customer_note?: string | null
+          delta?: number | null
+          email?: string | null
+          id?: string
+          new_price?: number | null
+          old_price?: number | null
+          payment_status_at_request?: string | null
+          phone?: string | null
+          previous?: Json
+          refund_amount?: number | null
+          status?: Database["public"]["Enums"]["amendment_status"]
+          top_up_paid_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          booking_id?: string | null
+          booking_ref?: string
+          changes?: Json
+          created_at?: string
+          customer_name?: string | null
+          customer_note?: string | null
+          delta?: number | null
+          email?: string | null
+          id?: string
+          new_price?: number | null
+          old_price?: number | null
+          payment_status_at_request?: string | null
+          phone?: string | null
+          previous?: Json
+          refund_amount?: number | null
+          status?: Database["public"]["Enums"]["amendment_status"]
+          top_up_paid_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_amendments_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       booking_status_transitions: {
         Row: {
           actor_id: string | null
@@ -4280,6 +4354,11 @@ export type Database = {
       }
     }
     Enums: {
+      amendment_status:
+        | "pending_payment"
+        | "awaiting_refund"
+        | "applied"
+        | "declined"
       app_role: "admin" | "user"
       blog_post_status:
         | "draft"
@@ -4561,6 +4640,12 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      amendment_status: [
+        "pending_payment",
+        "awaiting_refund",
+        "applied",
+        "declined",
+      ],
       app_role: ["admin", "user"],
       blog_post_status: [
         "draft",

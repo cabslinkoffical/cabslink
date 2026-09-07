@@ -1371,4 +1371,118 @@ export const validatePromoCode = createServerFn({ method: "POST" })
     return { ok: true as const, code: res.coupon.code, discount: res.amount };
   });
 
+// -------------------------------------------------------------------
+// Server-only: re-price an EXISTING direct booking after a customer
+// amendment. Same engine as createBooking (fare → return → extras →
+// tax) so the amended fare is directly comparable with the original.
+// Not a server function: called from manage-booking amendment handlers
+// via dynamic import so it never reaches the client bundle.
+// -------------------------------------------------------------------
+export type RepriceResult = {
+  price: number;
+  distanceMiles: number;
+  vehicleName: string;
+  capacity: { passengers: number; luggage: number; handLuggage: number; vehicleCount: number };
+  extrasNet: number;
+};
+
+export async function repriceExistingBooking(args: {
+  pickupPlaceId: string;
+  pickupLabel: string;
+  destinationPlaceId: string;
+  destinationLabel: string;
+  pickupDate: string;
+  pickupTime: string;
+  passengers: number;
+  luggage: number;
+  handLuggage: number;
+  vehicleId: string;
+  vehicleCount?: number;
+  meetGreet: boolean;
+  childSeatCount: number;
+  returnJourney: boolean;
+}): Promise<RepriceResult> {
+  let auth: AuthoritativeQuote;
+  try {
+    auth = await computeAuthoritative({
+      pickupPlaceId: args.pickupPlaceId,
+      pickupLabel: args.pickupLabel,
+      destinationPlaceId: args.destinationPlaceId,
+      destinationLabel: args.destinationLabel,
+      stops: [],
+      pickupDate: args.pickupDate,
+      pickupTime: args.pickupTime,
+      passengers: args.passengers,
+      luggage: args.luggage,
+      serviceType: "direct_transfer",
+      isReturn: args.returnJourney,
+    });
+  } catch (err) {
+    throw mapRouteError(err);
+  }
+
+  const profile = auth.profiles.find((p: LoadedProfile) => p.vehicle.id === args.vehicleId);
+  if (!profile) throw new Error("The vehicle on this booking is no longer bookable online. Please call us so we can change it for you.");
+
+  const qty = Math.max(1, args.vehicleCount ?? 1);
+  if (
+    profile.vehicle.passengers * qty < args.passengers ||
+    profile.vehicle.luggage * qty < args.luggage ||
+    (profile.vehicle.hand_luggage > 0 && profile.vehicle.hand_luggage * qty < args.handLuggage)
+  ) {
+    throw new Error(
+      `Your ${profile.vehicle.name} seats ${profile.vehicle.passengers * qty} with ${profile.vehicle.luggage * qty} suitcases. Please reduce the numbers or call us to move to a larger vehicle.`,
+    );
+  }
+
+  const fixed = auth.fixedByVehicle.get(profile.vehicle.id) ?? auth.fixedAny;
+  const { resolved, ctx } = resolveForProfile(auth, profile);
+
+  const verdict = resolveAvailability(auth.ruleSets.availabilityRules, ctx);
+  if (!verdict.available) {
+    throw new Error(verdict.message ?? "That date and time isn't available for this vehicle. Please choose another slot.");
+  }
+
+  const q = computeVehicleQuote({
+    profile,
+    distanceMiles: auth.distanceMiles,
+    viaStops: 0,
+    pickupTime: args.pickupTime,
+    areaSurcharges: auth.areaSurcharges,
+    fixedPrice: fixed ?? null,
+    settings: auth.settings,
+    vehicleCount: qty,
+    serviceType: auth.input.serviceType,
+    resolved,
+  });
+
+  let price = q.finalTotal;
+  if (args.returnJourney) price = Number((price * 2).toFixed(2));
+
+  const classId = profile.vehicle.class_id;
+  const childSeatPence = extraPence(auth.extrasCatalogue, "child_seat", classId, auth.settings.childSeatFeePence);
+  const meetGreetPence = extraPence(auth.extrasCatalogue, "meet_greet", classId, auth.settings.meetGreetFeePence);
+  const childSeatCount = Math.max(0, args.childSeatCount ?? 0);
+  const extrasNet = Number(
+    (((childSeatPence * childSeatCount) / 100) + (args.meetGreet ? meetGreetPence / 100 : 0)).toFixed(2),
+  );
+  if (extrasNet > 0) {
+    const { applyTaxTo } = await import("@/lib/pricing");
+    const taxed = applyTaxTo(extrasNet, auth.settings.taxRate, auth.settings.taxMode);
+    price = Number((price + taxed.gross).toFixed(2));
+  }
+
+  return {
+    price: Number(price.toFixed(2)),
+    distanceMiles: auth.distanceMiles,
+    vehicleName: profile.vehicle.name,
+    capacity: {
+      passengers: profile.vehicle.passengers * qty,
+      luggage: profile.vehicle.luggage * qty,
+      handLuggage: profile.vehicle.hand_luggage * qty,
+      vehicleCount: qty,
+    },
+    extrasNet,
+  };
+}
 
