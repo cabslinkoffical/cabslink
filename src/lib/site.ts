@@ -19,10 +19,12 @@ export const NAV = [
   { to: "/services", label: "Services" },
   { to: "/fleet", label: "Fleet" },
   { to: "/tours", label: "Tours" },
+  { to: "/manage-booking", label: "Manage Booking" },
   { to: "/corporate-booking", label: "Corporate" },
   { to: "/blog", label: "Blog" },
   { to: "/contact", label: "Contact" },
 ] as const;
+
 
 export const VEHICLE_TYPES = [
   "Mercedes-Benz E-Class",
