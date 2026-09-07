@@ -152,7 +152,7 @@ export function Header() {
               </nav>
 
               <Link
-                to="/track-booking"
+                to="/manage-booking"
                 className="mt-2 inline-flex items-center justify-center gap-2 rounded-full border border-[var(--gold)]/40 py-3 text-[12px] font-bold uppercase tracking-[0.14em] text-[var(--gold)]"
               >
                 <MapPin className="size-4" /> Track booking
