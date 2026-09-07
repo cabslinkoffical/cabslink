@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft, CalendarDays, Car, CheckCircle2, Clock, Luggage, Mail, MapPin, Phone,
-  Route as RouteIcon, ShieldCheck, User, XCircle, Info, Briefcase, PlaneTakeoff, MessageCircle,
+  CreditCard, Route as RouteIcon, ShieldCheck, User, XCircle, Info, Briefcase, PlaneTakeoff, MessageCircle,
 } from "lucide-react";
 
 import { SiteLayout } from "@/components/site/SiteLayout";
@@ -369,6 +369,11 @@ function ManageBookingPage() {
       </section>
     </SiteLayout>
   );
+}
+
+function needsPayment(b: ManagedBooking) {
+  const cancelled = b.status === "cancelled" || b.status === "rejected";
+  return !cancelled && (b.paymentStatus === "unpaid" || b.paymentStatus === "failed" || b.paymentStatus === "partial");
 }
 
 function BookingCard({ booking: b }: { booking: ManagedBooking }) {
