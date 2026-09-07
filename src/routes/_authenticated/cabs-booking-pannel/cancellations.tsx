@@ -1,11 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useSuspenseQuery, useMutation, useQueryClient, queryOptions } from "@tanstack/react-query";
+import { useSuspenseQuery, useMutation, useQueryClient, queryOptions, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState, useEffect } from "react";
 import {
   listCancellationRequests,
   updateCancellationRequest,
   deleteCancellationRequest,
+  listBookings,
 } from "@/lib/admin.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,6 +28,11 @@ import { toast } from "sonner";
 const opts = queryOptions({
   queryKey: ["admin", "cancellations"],
   queryFn: () => listCancellationRequests(),
+});
+
+const cancelledBookingOpts = queryOptions({
+  queryKey: ["admin", "bookings"],
+  queryFn: () => listBookings(),
 });
 
 export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/cancellations")({
@@ -276,6 +282,8 @@ function CancellationsPage() {
         </div>
       )}
 
+      <CancelledBookings />
+
       <Sheet open={!!active} onOpenChange={(o) => !o && setOpenId(null)}>
         <SheetContent className="w-full overflow-y-auto sm:max-w-xl">
           {active && (
@@ -394,5 +402,79 @@ function CancellationsPage() {
         </SheetContent>
       </Sheet>
     </div>
+  );
+}
+
+/** Every booking that ended up cancelled or rejected, wherever it was cancelled from. */
+function CancelledBookings() {
+  const { data = [] } = useQuery(cancelledBookingOpts);
+  const [q, setQ] = useState("");
+  const rows = useMemo(() => {
+    const term = q.trim().toLowerCase();
+    return (data as any[])
+      .filter((b) => !b.deleted_at && ["cancelled", "rejected"].includes(b.status))
+      .filter((b) => !term || [b.booking_ref, b.customer_name, b.email, b.phone, b.pickup_address, b.dropoff_address]
+        .some((f) => String(f ?? "").toLowerCase().includes(term)));
+  }, [data, q]);
+
+  return (
+    <section className="space-y-3">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <h2 className="text-lg font-semibold">Cancelled bookings</h2>
+          <p className="text-sm text-muted-foreground">
+            Every booking that has been cancelled or rejected, whether the customer asked or your team did it.
+          </p>
+        </div>
+        <div className="relative w-full lg:w-72">
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Reference, name, address…" className="pl-9" />
+        </div>
+      </div>
+
+      {rows.length === 0 ? (
+        <EmptyState title="No cancelled bookings" hint="Cancelled and rejected bookings collect here." />
+      ) : (
+        <div className="overflow-x-auto rounded-xl border border-border bg-card">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/50 text-left text-xs uppercase tracking-wide text-muted-foreground">
+              <tr>
+                <th className="px-4 py-3">Booking</th>
+                <th className="px-4 py-3">Customer</th>
+                <th className="px-4 py-3">Journey</th>
+                <th className="px-4 py-3">Fare</th>
+                <th className="px-4 py-3">Reason</th>
+                <th className="px-4 py-3">Payment</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((b) => (
+                <tr key={b.id} className="border-t border-border/70 hover:bg-muted/30">
+                  <td className="px-4 py-3">
+                    <div className="font-semibold">{b.booking_ref ?? "—"}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {b.pickup_date ?? "—"} {b.pickup_time ?? ""} · {b.status === "rejected" ? "Rejected" : "Cancelled"}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div>{b.customer_name ?? "—"}</div>
+                    <div className="text-xs text-muted-foreground">{b.email ?? "—"}</div>
+                  </td>
+                  <td className="px-4 py-3 max-w-[18rem]">
+                    <div className="truncate">{b.pickup_address ?? "—"}</div>
+                    <div className="truncate text-xs text-muted-foreground">→ {b.dropoff_address ?? "—"}</div>
+                  </td>
+                  <td className="px-4 py-3">{money(b.price)}</td>
+                  <td className="px-4 py-3 max-w-[14rem]">
+                    <div className="truncate text-xs text-muted-foreground">{b.cancellation_reason ?? "—"}</div>
+                  </td>
+                  <td className="px-4 py-3 text-xs">{b.payment_status ?? "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </section>
   );
 }
