@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Menu, X, Phone, ShieldCheck, MapPin } from "lucide-react";
+import { Menu, X, Phone, ShieldCheck } from "lucide-react";
 import { Logo } from "./Logo";
 import { NAV, SITE } from "@/lib/site";
 import { supabase } from "@/integrations/supabase/client";
@@ -49,9 +49,13 @@ export function Header() {
             <Logo variant="gold" />
           </div>
 
-          {/* Center nav */}
-          <nav className="hidden lg:flex flex-1 min-w-0 items-center justify-center gap-3 xl:gap-5 2xl:gap-7" aria-label="Primary">
+          {/* Center nav — absolutely centred so spacing is identical on both sides */}
+          <nav
+            className="hidden lg:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 items-center justify-center gap-2.5 xl:gap-4 2xl:gap-6"
+            aria-label="Primary"
+          >
             {NAV.map(item => {
+
               const active =
                 item.to === "/"
                   ? pathname === "/"
@@ -151,12 +155,8 @@ export function Header() {
                 })}
               </nav>
 
-              <Link
-                to="/manage-booking"
-                className="mt-2 inline-flex items-center justify-center gap-2 rounded-full border border-[var(--gold)]/40 py-3 text-[12px] font-bold uppercase tracking-[0.14em] text-[var(--gold)]"
-              >
-                <MapPin className="size-4" /> Track booking
-              </Link>
+
+
 
               <Link
 
