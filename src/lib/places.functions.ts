@@ -73,7 +73,10 @@ export const placesAutocomplete = createServerFn({ method: "POST" })
 
     const apiKey = process.env.GOOGLE_MAPS_API_KEY;
     const lovableKey = process.env.LOVABLE_API_KEY;
-    if (!apiKey || !lovableKey) return { suggestions: [] };
+    if (!apiKey || !lovableKey) {
+      console.error(`[places] missing keys mapsKey=${!!apiKey} lovableKey=${!!lovableKey}`);
+      return { suggestions: [] };
+    }
 
     const includedPrimaryTypes =
       data.mode === "areas" ? AREA_TYPES : data.mode === "addresses" ? ADDRESS_TYPES : undefined;
