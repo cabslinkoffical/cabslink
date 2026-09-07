@@ -166,8 +166,49 @@ function cancellationFacts(row: any, now = Date.now()): ManagedBooking["cancella
       ? "Your pickup is less than 24 hours away. Cancelling now is treated as a partial-refund claim — our team reviews driver and allocation costs already committed and confirms the amount by email."
       : "Our team will review this booking manually and reply by email.";
 
-  return { allowed, blockedReason, tier, hoursUntilPickup, withinBookingGrace, policyLabel, policyDetail };
+  return { allowed, blockedReason, tier, hoursUntilPickup, withinBookingGrace, policyLabel, policyDetail, requested: false, requestedAt: null };
 }
+
+/**
+ * An open (pending / in-review) cancellation request from the customer. While
+ * one exists the tracker only reports progress — no pay or cancel actions.
+ */
+async function openCancellationRequest(bookingRef: string) {
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const res: any = await supabaseAdmin
+      .from("cancellation_requests")
+      .select("status, created_at")
+      .eq("booking_ref", bookingRef)
+      .in("status", ["pending", "in_review"])
+      .order("created_at", { ascending: false })
+      .limit(1);
+    return res.data?.[0] ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/** Fold an open request into the projection so the UI hides extra actions. */
+function withOpenRequest(b: ManagedBooking, req: { created_at?: string } | null): ManagedBooking {
+  if (!req) return b;
+  return {
+    ...b,
+    cancellation: {
+      ...b.cancellation,
+      allowed: false,
+      requested: true,
+      requestedAt: req.created_at ?? null,
+      blockedReason:
+        "You have already requested cancellation of this booking. Our team is reviewing it and will confirm by email.",
+    },
+    amendment: {
+      allowed: false,
+      blockedReason: "A cancellation request is being reviewed for this booking, so it can't be changed right now.",
+    },
+  };
+}
+
 
 async function findBooking(id: Identity) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
