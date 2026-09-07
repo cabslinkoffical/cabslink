@@ -864,7 +864,7 @@ function AmendPanel({
     form.meetGreet !== booking.meetGreet ||
     form.childSeatCount !== booking.childSeatCount ||
     form.returnJourney !== booking.returnJourney ||
-    (form.notes ?? "") !== (booking.notes ?? "");
+    (form.notes ?? "").trim() !== customerNote;
 
   const errors = {
     pickupDate: !form.pickupDate ? "Choose a pickup date." : "",
@@ -881,7 +881,7 @@ function AmendPanel({
     if (invalid) { focusFirstInvalid(e.currentTarget); return; }
     setBusy("quote");
     try {
-      setQuote(await quoteFn({ data: { ...identity, changes: form } }));
+      setQuote(await quoteFn({ data: { ...identity, changes: { ...form, notes: composeNotes(form.notes ?? "") } } }));
     } catch (err: any) {
       setError(err?.message ?? "We couldn't price that change. Please call us and we'll do it for you.");
     } finally {
@@ -893,7 +893,7 @@ function AmendPanel({
     setError(null);
     setBusy("submit");
     try {
-      const res = await submitFn({ data: { ...identity, changes: form } });
+      const res = await submitFn({ data: { ...identity, changes: { ...form, notes: composeNotes(form.notes ?? "") } } });
       setApplied(res);
       await onApplied();
     } catch (err: any) {
