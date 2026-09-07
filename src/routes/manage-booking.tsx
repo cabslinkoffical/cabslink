@@ -214,22 +214,32 @@ function ManageBookingPage() {
               <>
                 <BookingCard booking={booking} />
                 {mode === "cancel" && (
-                  <CancelForm
-                    booking={booking}
-                    reason={reason}
-                    setReason={setReason}
-                    details={details}
-                    setDetails={setDetails}
-                    attempted={cancelAttempted}
-                    error={cancelError}
-                    submitting={cancelling}
-                    onSubmit={submitCancellation}
-                  />
+                  <>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => switchMode("track")}
+                      className="mt-4 gap-2 pl-0 text-[var(--gold-ink)] hover:bg-transparent hover:text-[var(--gold-ink)]/80"
+                    >
+                      <ArrowLeft className="size-4" /> Back to booking details
+                    </Button>
+                    <CancelForm
+                      booking={booking}
+                      reason={reason}
+                      setReason={setReason}
+                      details={details}
+                      setDetails={setDetails}
+                      attempted={cancelAttempted}
+                      error={cancelError}
+                      submitting={cancelling}
+                      onSubmit={submitCancellation}
+                    />
+                  </>
                 )}
                 {mode === "track" && booking.cancellation.allowed && (
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--navy)]/10 bg-card p-5 shadow-raised">
                     <p className="text-sm text-muted-foreground">Need to cancel this journey?</p>
-                    <Button variant="outline" onClick={() => switchMode("cancel")} className="gap-2">
+                    <Button variant="outline" onClick={() => switchMode("cancel")} className="gap-2 border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive">
                       <XCircle className="size-4" /> Cancel this booking
                     </Button>
                   </div>
