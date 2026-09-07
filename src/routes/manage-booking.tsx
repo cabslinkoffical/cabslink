@@ -529,7 +529,18 @@ function CancelForm({
   );
 }
 
-function CancellationDone({ ref_, tier }: { ref_: string; tier: string }) {
+function maskPhone(phone: string | null | undefined) {
+  if (!phone) return "••••••••••••";
+  const digits = phone.replace(/\D/g, "");
+  if (digits.startsWith("44") && digits.length > 2) {
+    return `+44${"•".repeat(Math.max(6, digits.length - 2))}`;
+  }
+  const match = phone.match(/^(\+\d{2})/);
+  if (match) return `${match[1]}${"•".repeat(Math.max(6, digits.length - 2))}`;
+  return "•".repeat(Math.max(8, digits.length));
+}
+
+function CancellationDone({ ref_, tier, registeredPhone }: { ref_: string; tier: string; registeredPhone: string | null }) {
   const waNumber = SITE.phoneUK.replace(/[^\d]/g, "");
   const waText = encodeURIComponent(
     `Hello Cabslink, I have submitted a cancellation request for booking ${ref_}. I am messaging from the number registered on the booking. Please confirm the cancellation.`,
