@@ -17,7 +17,7 @@ export function TopBar() {
         </div>
         <div className="flex items-center gap-5 opacity-80">
           <Link
-            to="/track-booking"
+            to="/manage-booking"
             className="flex items-center gap-1.5 hover:text-[var(--gold)] transition"
           >
             <MapPin className="size-3.5" /> Track booking
