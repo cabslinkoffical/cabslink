@@ -37,8 +37,7 @@ export const Route = createFileRoute("/manage-booking")({
 type Mode = "track" | "cancel";
 
 function ManageBookingPage() {
-  const { tab } = Route.useSearch();
-  const [mode, setMode] = useState<Mode>(tab === "cancel" ? "cancel" : "track");
+  const [mode, setMode] = useState<Mode>("track");
 
   // Identity
   const [bookingRef, setBookingRef] = useState("");
