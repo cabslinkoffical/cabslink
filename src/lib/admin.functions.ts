@@ -925,7 +925,7 @@ export const updateCancellationRequest = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    const patch: Record<string, unknown> = { handled_by: context.userId, handled_at: new Date().toISOString() };
+    const patch: any = { handled_by: context.userId, handled_at: new Date().toISOString() };
     if (data.status !== undefined) patch.status = data.status;
     if (data.refund_amount !== undefined) patch.refund_amount = data.refund_amount;
     if (data.admin_notes !== undefined) patch.admin_notes = data.admin_notes;

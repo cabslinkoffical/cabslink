@@ -369,14 +369,25 @@ function CancellationsPage() {
                   </Button>
                 </div>
 
-                <div className="rounded-xl border border-border p-4">
-                  <div className="mb-2 text-[11px] uppercase tracking-wide text-muted-foreground">Reply to customer</div>
-                  <CannedEmailComposer
-                    to={active.email ?? ""}
-                    name={active.customer_name ?? ""}
-                    subject={`Your cancellation request — ${active.booking_ref}`}
-                  />
-                </div>
+                {active.booking_id && (
+                  <div className="rounded-xl border border-border p-4">
+                    <div className="mb-2 text-[11px] uppercase tracking-wide text-muted-foreground">Reply to customer</div>
+                    <CannedEmailComposer
+                      scope="booking"
+                      targetId={active.booking_id}
+                      vars={{
+                        name: active.customer_name,
+                        ref: active.booking_ref,
+                        pickup: active.pickup_address,
+                        dropoff: active.dropoff_address,
+                        date: active.pickup_date,
+                        time: active.pickup_time,
+                        reason: active.reason,
+                      }}
+                    />
+                  </div>
+                )}
+
               </div>
             </>
           )}
