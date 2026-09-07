@@ -509,9 +509,9 @@ function CancelForm({
           <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[var(--navy)]">
             <Phone className="size-3.5 text-[var(--gold-ink)]" /> We'll call you on your registered number
           </p>
-          <p className="mt-1.5 font-mono text-sm font-bold">••••••••••••</p>
+          <p className="mt-1.5 font-mono text-sm font-bold">{maskPhone(booking.phone)}</p>
           <p className="mt-1.5 text-xs text-muted-foreground">
-            For your security we never display the full number here. We only discuss this booking on the number you gave when booking — if it
+            For your security we only show part of the number here. We only discuss this booking on the number you gave when booking — if it
             has changed, please call us from it or email {SITE.email} so we can update it.
           </p>
         </div>
@@ -521,7 +521,7 @@ function CancelForm({
         </Button>
         <p className="text-center text-xs text-muted-foreground">
           Submitting sends the request to our operations team straight away. You'll get an email confirmation, and our team
-          calls your registered number within 2 hours.
+          calls your registered number within 24 hours.
         </p>
 
       </div>
