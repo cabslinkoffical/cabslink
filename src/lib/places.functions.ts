@@ -61,6 +61,7 @@ export const placesAutocomplete = createServerFn({ method: "POST" })
     let ip = "unknown";
     try { ip = getRequestIP({ xForwardedFor: true }) ?? "unknown"; } catch {}
     if (!checkLimit({ name: "placesAutocomplete", windowMs: 60_000, max: 60 }, ip).ok) {
+      console.error(`[places] rate limited ip=${ip}`);
       try { setResponseStatus(429); } catch {}
       return { suggestions: [] as PlaceSuggestion[] };
     }
