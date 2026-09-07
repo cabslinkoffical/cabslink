@@ -362,7 +362,7 @@ function BookingCard({ booking: b }: { booking: ManagedBooking }) {
 }
 
 function CancelForm({
-  booking, reason, setReason, details, setDetails, callbackPhone, setCallbackPhone, attempted, error, submitting, onSubmit,
+  booking, reason, setReason, details, setDetails, attempted, error, submitting, onSubmit,
 }: {
   booking: ManagedBooking;
   reason: string;
