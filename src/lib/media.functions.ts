@@ -187,8 +187,12 @@ export const deleteMedia = createServerFn({ method: "POST" })
       }
     }
 
-    const { error: rmErr } = await context.supabase.storage.from(MEDIA_BUCKET).remove(assets.map((a) => a.path));
-    if (rmErr) throw new Error(rmErr.message);
+    // Entries indexed from other buckets / external URLs have no object in the media bucket.
+    const ownedPaths = assets.filter((a) => !a.path.includes("/") === false && !a.path.startsWith("external/") && !a.path.includes("-images/")).map((a) => a.path);
+    if (ownedPaths.length) {
+      const { error: rmErr } = await context.supabase.storage.from(MEDIA_BUCKET).remove(ownedPaths);
+      if (rmErr) throw new Error(rmErr.message);
+    }
 
     const { error: delErr } = await context.supabase.from("media_assets").delete().in(
       "id",
