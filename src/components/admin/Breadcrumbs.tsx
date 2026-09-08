@@ -38,6 +38,7 @@ const LABELS: Record<string, string> = {
   settings: "Settings",
   logs: "Activity Logs",
   media: "Media Library",
+  dispatch: "Dispatch Link",
   new: "New",
 };
 
