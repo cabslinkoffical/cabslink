@@ -4403,6 +4403,7 @@ export type Database = {
       }
     }
     Functions: {
+      dispatch_wake_delivery: { Args: never; Returns: undefined }
       generate_booking_ref: { Args: never; Returns: string }
       get_booking_by_confirmation_hash: {
         Args: { _hash: string }
