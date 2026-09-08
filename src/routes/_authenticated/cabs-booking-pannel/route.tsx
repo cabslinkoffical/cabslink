@@ -93,9 +93,9 @@ const NAV: SidebarEntry[] = [
       { to: "/cabs-booking-pannel/blog/categories", label: "Categories", icon: Tag },
       { to: "/cabs-booking-pannel/blog/tags", label: "Tags", icon: Tag },
       { to: "/cabs-booking-pannel/blog/authors", label: "Authors", icon: UserCog },
-      { to: "/cabs-booking-pannel/media", label: "Media Library", icon: ImageIcon },
     ],
   },
+  { to: "/cabs-booking-pannel/media", label: "Media Library", icon: ImageIcon },
   {
     label: "SEO", icon: Globe, items: [
       { to: "/cabs-booking-pannel/seo", label: "Overview", icon: Globe, exact: true },
