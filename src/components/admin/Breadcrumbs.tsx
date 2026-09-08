@@ -37,6 +37,7 @@ const LABELS: Record<string, string> = {
   reports: "Reports",
   settings: "Settings",
   logs: "Activity Logs",
+  media: "Media Library",
   new: "New",
 };
 

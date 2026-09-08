@@ -11,6 +11,7 @@ import { SeoTable, PublishedPill } from "@/components/admin/SeoTable";
 import { toast } from "sonner";
 import { ArrowLeft, Plus } from "lucide-react";
 import { listCategoriesAdmin, upsertCategory, deleteCategory } from "@/lib/blog-admin.functions";
+import { MediaUrlInput } from "@/components/admin/media/MediaPicker";
 
 export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/blog/categories")({
   head: () => ({
@@ -60,7 +61,7 @@ function AdminBlogCategories() {
             <div><Label>Sort order</Label><Input type="number" value={editing.sort_order} onChange={(e) => setEditing({ ...editing, sort_order: Number(e.target.value) })} /></div>
           </div>
           <div><Label>Meta description</Label><Textarea rows={2} value={editing.meta_description ?? ""} onChange={(e) => setEditing({ ...editing, meta_description: e.target.value })} /></div>
-          <div><Label>Hero image URL</Label><Input value={editing.hero_image_url ?? ""} onChange={(e) => setEditing({ ...editing, hero_image_url: e.target.value })} /></div>
+          <div><Label>Hero image</Label><MediaUrlInput folder="blog" value={editing.hero_image_url ?? ""} onChange={(url) => setEditing({ ...editing, hero_image_url: url })} /></div>
           <label className="flex items-center gap-2 text-sm">
             <Switch checked={editing.active} onCheckedChange={(v) => setEditing({ ...editing, active: v })} /> Active
           </label>

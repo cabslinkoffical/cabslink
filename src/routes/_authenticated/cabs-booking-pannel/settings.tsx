@@ -11,6 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/admin/ui";
+import { MediaUrlInput } from "@/components/admin/media/MediaPicker";
 
 const opts = queryOptions({ queryKey: ["admin", "settings"], queryFn: () => getSettings() });
 export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/settings")({
@@ -93,8 +94,8 @@ function Page() {
 
         <TabsContent value="branding" className="space-y-4 mt-4">
           <Card>
-            <Row label="Logo URL"><Input value={form.logo_url ?? ""} onChange={e => set("logo_url", e.target.value)} placeholder="https://…" /></Row>
-            <Row label="Favicon URL"><Input value={form.favicon_url ?? ""} onChange={e => set("favicon_url", e.target.value)} /></Row>
+            <Row label="Logo"><MediaUrlInput folder="branding" value={form.logo_url ?? ""} onChange={(url) => set("logo_url", url)} /></Row>
+            <Row label="Favicon"><MediaUrlInput folder="branding" value={form.favicon_url ?? ""} onChange={(url) => set("favicon_url", url)} /></Row>
             <Row label="Primary color"><div className="flex gap-2"><Input type="color" value={form.primary_color ?? "#0e182c"} onChange={e => set("primary_color", e.target.value)} className="w-20 h-10 p-1" /><Input value={form.primary_color ?? ""} onChange={e => set("primary_color", e.target.value)} /></div></Row>
           </Card>
         </TabsContent>

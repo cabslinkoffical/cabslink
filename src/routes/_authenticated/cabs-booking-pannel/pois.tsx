@@ -14,6 +14,7 @@ import { PageHeader, EmptyState } from "@/components/admin/ui";
 import { BulkTools } from "@/components/admin/BulkTools";
 import { Plus, Edit, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { MediaUrlInput } from "@/components/admin/media/MediaPicker";
 
 const opts = queryOptions({ queryKey: ["admin", "pois"], queryFn: () => listPois() });
 
@@ -151,7 +152,7 @@ function PoisPage() {
               <div><Label>Google Place ID</Label><Input value={form.place_id ?? ""} onChange={(e) => setForm({ ...form, place_id: e.target.value })} placeholder="ChIJ…" /></div>
               <div className="col-span-2"><Label>Short description</Label><Textarea rows={2} value={form.short_description ?? ""} onChange={(e) => setForm({ ...form, short_description: e.target.value })} /></div>
               <div className="col-span-2"><Label>Address label</Label><Input value={form.address_label ?? ""} onChange={(e) => setForm({ ...form, address_label: e.target.value })} /></div>
-              <div className="col-span-2"><Label>Image URL</Label><Input value={form.image_url ?? ""} onChange={(e) => setForm({ ...form, image_url: e.target.value })} /></div>
+              <div className="col-span-2"><Label>Image</Label><MediaUrlInput folder="tours" value={form.image_url ?? ""} onChange={(url) => setForm({ ...form, image_url: url })} /></div>
               <div><Label>Scenic score (0–10)</Label><Input type="number" step="0.1" value={form.scenic_score} onChange={(e) => setForm({ ...form, scenic_score: Number(e.target.value) })} /></div>
               <div><Label>Admin priority</Label><Input type="number" value={form.admin_priority} onChange={(e) => setForm({ ...form, admin_priority: Number(e.target.value) })} /></div>
               <div><Label>Recommended minutes</Label><Input type="number" value={form.recommended_visit_minutes} onChange={(e) => setForm({ ...form, recommended_visit_minutes: Number(e.target.value) })} /></div>

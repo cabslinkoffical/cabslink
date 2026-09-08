@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
 import { ViewToggle, useViewMode } from "@/components/admin/ViewToggle";
 import { PhoneInput } from "@/components/site/PhoneInput";
+import { MediaUrlInput } from "@/components/admin/media/MediaPicker";
 
 const opts = queryOptions({ queryKey: ["admin", "drivers"], queryFn: () => listDrivers() });
 const vOpts = queryOptions({ queryKey: ["admin", "vehicles"], queryFn: () => listVehiclesAdmin() });
@@ -110,7 +111,7 @@ function Page() {
                 </Select>
               </div>
               <div className="flex items-center gap-2 pt-6"><Switch checked={form.available} onCheckedChange={v => setForm({ ...form, available: v })} /><Label>Available</Label></div>
-              <div className="sm:col-span-2"><Label>Photo URL</Label><Input value={form.photo_url ?? ""} onChange={e => setForm({ ...form, photo_url: e.target.value })} placeholder="https://…" /></div>
+              <div className="sm:col-span-2"><Label>Photo</Label><MediaUrlInput folder="people" value={form.photo_url ?? ""} onChange={(url) => setForm({ ...form, photo_url: url })} /></div>
               <div className="sm:col-span-2"><Label>Notes</Label><Textarea value={form.notes ?? ""} onChange={e => setForm({ ...form, notes: e.target.value })} rows={2} /></div>
               <div className="sm:col-span-2 flex justify-end gap-2"><Button variant="outline" onClick={() => setForm(null)}>Cancel</Button><Button onClick={() => save.mutate(form)} disabled={save.isPending}>Save</Button></div>
             </div>

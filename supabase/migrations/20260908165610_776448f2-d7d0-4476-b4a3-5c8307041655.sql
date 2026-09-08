@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.dispatch_guard_booking_update() FROM PUBLIC, anon, authenticated;

@@ -15,6 +15,7 @@ import { SeoTable, PublishedPill, useBulkSelection } from "@/components/admin/Se
 import { BulkTools, BulkActionBar } from "@/components/admin/BulkTools";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
+import { MediaUrlInput } from "@/components/admin/media/MediaPicker";
 
 const opts = queryOptions({ queryKey: ["admin", "seo", "airports"], queryFn: () => listSeoAirports() });
 const locsOpts = queryOptions({ queryKey: ["admin", "seo", "locations"], queryFn: () => listSeoLocations() });
@@ -124,7 +125,7 @@ function Page() {
               <Field label="Waiting time policy" className="col-span-2"><Textarea rows={2} value={form.waiting_time_policy ?? ""} onChange={e => setForm({ ...form, waiting_time_policy: e.target.value })} /></Field>
               <Field label="Parking information" className="col-span-2"><Textarea rows={2} value={form.parking_information ?? ""} onChange={e => setForm({ ...form, parking_information: e.target.value })} /></Field>
               <Field label="Accessibility notes" className="col-span-2"><Textarea rows={2} value={form.accessibility_notes ?? ""} onChange={e => setForm({ ...form, accessibility_notes: e.target.value })} /></Field>
-              <Field label="Hero image URL" className="col-span-2"><Input value={form.hero_image_url ?? ""} onChange={e => setForm({ ...form, hero_image_url: e.target.value })} /></Field>
+              <Field label="Hero image" className="col-span-2"><MediaUrlInput folder="pages" value={form.hero_image_url ?? ""} onChange={(url) => setForm({ ...form, hero_image_url: url })} /></Field>
               <Field label="Flight tracking available"><Switch checked={form.flight_tracking_available} onCheckedChange={v => setForm({ ...form, flight_tracking_available: v })} /></Field>
               <Field label="Display priority"><Input type="number" value={form.display_priority} onChange={e => setForm({ ...form, display_priority: Number(e.target.value) })} /></Field>
               <Field label="Featured"><Switch checked={form.featured} onCheckedChange={v => setForm({ ...form, featured: v })} /></Field>
