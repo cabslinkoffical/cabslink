@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Copy, Eye, EyeOff, Plus, RefreshCw, Send, Trash2, RotateCcw } from "lucide-react";
 import { Breadcrumbs } from "@/components/admin/Breadcrumbs";
@@ -25,6 +24,16 @@ import {
   saveDispatchEndpoint,
   sendDispatchTest,
 } from "@/lib/dispatch.functions";
+
+function Chip({ tone = "muted", children }: { tone?: "muted" | "ok" | "bad"; children: React.ReactNode }) {
+  const cls =
+    tone === "ok"
+      ? "bg-primary/10 text-primary"
+      : tone === "bad"
+        ? "bg-destructive/10 text-destructive"
+        : "bg-muted text-muted-foreground";
+  return <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${cls}`}>{children}</span>;
+}
 
 export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/dispatch")({
   component: DispatchPage,
@@ -119,10 +128,10 @@ function DispatchPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     {ep.last_delivery_at ? (
-                      <Badge variant={ep.last_delivery_ok ? "secondary" : "destructive"}>
+                      <Chip tone={ep.last_delivery_ok ? "ok" : "bad"}>
                         {ep.last_delivery_ok ? "Last send OK" : "Last send failed"}
-                      </Badge>
-                    ) : <Badge variant="outline">Never used</Badge>}
+                      </Chip>
+                    ) : <Chip>Never used</Chip>}
                     <div className="flex items-center gap-1.5 text-sm">
                       <Switch
                         checked={ep.active}
@@ -218,9 +227,9 @@ function DispatchPage() {
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge variant={ev.status === "delivered" ? "secondary" : ev.status === "failed" ? "destructive" : "outline"}>
+                    <Chip tone={ev.status === "delivered" ? "ok" : ev.status === "failed" ? "bad" : "muted"}>
                       {ev.status}
-                    </Badge>
+                    </Chip>
                     {ev.status !== "delivered" ? (
                       <Button variant="outline" size="sm" onClick={async () => { await retry({ data: { id: ev.id } }); invalidate(); }}>Retry</Button>
                     ) : null}
