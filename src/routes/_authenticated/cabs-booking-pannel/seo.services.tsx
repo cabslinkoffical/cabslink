@@ -14,6 +14,7 @@ import { SeoTable, PublishedPill, useBulkSelection } from "@/components/admin/Se
 import { BulkTools, BulkActionBar } from "@/components/admin/BulkTools";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
+import { MediaUrlInput } from "@/components/admin/media/MediaPicker";
 
 const opts = queryOptions({ queryKey: ["admin", "seo", "services"], queryFn: () => listSeoServices() });
 
@@ -99,7 +100,7 @@ function Page() {
               <Field label="Features (one per line)" className="col-span-2"><Textarea rows={3} value={form.features} onChange={e => setForm({ ...form, features: e.target.value })} /></Field>
               <Field label="Fleet categories (comma-separated)" className="col-span-2"><Input value={form.fleet_categories} onChange={e => setForm({ ...form, fleet_categories: e.target.value })} /></Field>
               <Field label="Eligibility" className="col-span-2"><Textarea rows={2} value={form.eligibility ?? ""} onChange={e => setForm({ ...form, eligibility: e.target.value })} /></Field>
-              <Field label="Hero image URL"><Input value={form.hero_image_url ?? ""} onChange={e => setForm({ ...form, hero_image_url: e.target.value })} /></Field>
+              <Field label="Hero image"><MediaUrlInput folder="pages" value={form.hero_image_url ?? ""} onChange={(url) => setForm({ ...form, hero_image_url: url })} /></Field>
               <Field label="Legacy route path"><Input placeholder="/services/executive" value={form.legacy_route_path ?? ""} onChange={e => setForm({ ...form, legacy_route_path: e.target.value })} /></Field>
               <Field label="Display priority"><Input type="number" value={form.display_priority} onChange={e => setForm({ ...form, display_priority: Number(e.target.value) })} /></Field>
               <Field label="Published"><Switch checked={form.published} onCheckedChange={v => setForm({ ...form, published: v })} /></Field>

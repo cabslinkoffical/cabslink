@@ -11,6 +11,7 @@ import { SeoTable, PublishedPill } from "@/components/admin/SeoTable";
 import { toast } from "sonner";
 import { ArrowLeft, Plus } from "lucide-react";
 import { listAuthorsAdmin, upsertAuthor, deleteAuthor } from "@/lib/blog-admin.functions";
+import { MediaUrlInput } from "@/components/admin/media/MediaPicker";
 
 export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/blog/authors")({
   head: () => ({
@@ -54,7 +55,7 @@ function AdminBlogAuthors() {
             <div><Label>Slug</Label><Input value={editing.slug} onChange={(e) => setEditing({ ...editing, slug: e.target.value })} /></div>
             <div><Label>Name</Label><Input value={editing.name} onChange={(e) => setEditing({ ...editing, name: e.target.value })} /></div>
             <div><Label>Role</Label><Input value={editing.role ?? ""} onChange={(e) => setEditing({ ...editing, role: e.target.value })} /></div>
-            <div><Label>Avatar URL</Label><Input value={editing.avatar_url ?? ""} onChange={(e) => setEditing({ ...editing, avatar_url: e.target.value })} /></div>
+            <div><Label>Avatar</Label><MediaUrlInput folder="people" value={editing.avatar_url ?? ""} onChange={(url) => setEditing({ ...editing, avatar_url: url })} /></div>
           </div>
           <div><Label>Bio</Label><Textarea rows={3} value={editing.bio ?? ""} onChange={(e) => setEditing({ ...editing, bio: e.target.value })} /></div>
           <label className="flex items-center gap-2 text-sm">

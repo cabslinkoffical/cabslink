@@ -17,6 +17,7 @@ import { PageHeader, EmptyState } from "@/components/admin/ui";
 import { BulkTools } from "@/components/admin/BulkTools";
 import { toast } from "sonner";
 import { Loader2, RefreshCw } from "lucide-react";
+import { MediaUrlInput } from "@/components/admin/media/MediaPicker";
 
 const opts = queryOptions({
   queryKey: ["admin", "scenic-templates"],
@@ -249,12 +250,8 @@ function TemplateCard({
 
       <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
         <div>
-          <Label className="text-xs">Hero image URL</Label>
-          <Input
-            value={hero}
-            onChange={(e) => setHero(e.target.value)}
-            placeholder="https://…/hero.jpg"
-          />
+          <Label className="text-xs">Hero image</Label>
+          <MediaUrlInput folder="tours" value={hero} onChange={setHero} />
         </div>
         <div>
           <Label className="text-xs">Theme</Label>

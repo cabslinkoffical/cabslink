@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { StatusBadge } from "@/components/admin/ui";
-import { HeroImageUploader } from "@/components/admin/PricingEditors";
+import { MediaPickerButton } from "@/components/admin/media/MediaPicker";
 import {
   listVehicleClassesAdmin, upsertVehicleClass, upsertVehicleModel, deleteVehicleModel,
   ensureClassPricingRecord,
@@ -155,11 +155,11 @@ function EditorPage() {
                 <Field label="Full description" className="sm:col-span-2">
                   <Textarea rows={3} value={form.long_description ?? ""} onChange={(e) => setForm((f: any) => ({ ...f, long_description: e.target.value }))} />
                 </Field>
-                <Field label="Photo" className="sm:col-span-2" hint="Paste an image URL or upload one.">
+                <Field label="Photo" className="sm:col-span-2" hint="Pick from the media library, upload a new photo, or paste an image link.">
                   <div className="flex gap-2">
                     <Input value={form.hero_image ?? ""} placeholder="https://…"
                       onChange={(e) => setForm((f: any) => ({ ...f, hero_image: e.target.value }))} />
-                    <HeroImageUploader slug={form.slug || "class"} onUploaded={(url) => setForm((f: any) => ({ ...f, hero_image: url }))} />
+                    <MediaPickerButton folder="fleet" onSelect={(url) => setForm((f: any) => ({ ...f, hero_image: url }))} />
                   </div>
                   {form.hero_image && <img src={form.hero_image} alt={`${form.name || "Vehicle class"} photo preview`} className="mt-2 h-24 rounded border object-cover" />}
                 </Field>

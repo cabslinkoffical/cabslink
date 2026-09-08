@@ -111,9 +111,11 @@ import { Route as AuthenticatedCabsBookingPannelPricingPreviewRouteImport } from
 import { Route as AuthenticatedCabsBookingPannelPoisRouteImport } from './routes/_authenticated/cabs-booking-pannel/pois'
 import { Route as AuthenticatedCabsBookingPannelPaymentsRouteImport } from './routes/_authenticated/cabs-booking-pannel/payments'
 import { Route as AuthenticatedCabsBookingPannelMessagesRouteImport } from './routes/_authenticated/cabs-booking-pannel/messages'
+import { Route as AuthenticatedCabsBookingPannelMediaRouteImport } from './routes/_authenticated/cabs-booking-pannel/media'
 import { Route as AuthenticatedCabsBookingPannelLogsRouteImport } from './routes/_authenticated/cabs-booking-pannel/logs'
 import { Route as AuthenticatedCabsBookingPannelExtrasRouteImport } from './routes/_authenticated/cabs-booking-pannel/extras'
 import { Route as AuthenticatedCabsBookingPannelDriversRouteImport } from './routes/_authenticated/cabs-booking-pannel/drivers'
+import { Route as AuthenticatedCabsBookingPannelDispatchRouteImport } from './routes/_authenticated/cabs-booking-pannel/dispatch'
 import { Route as AuthenticatedCabsBookingPannelCustomersRouteImport } from './routes/_authenticated/cabs-booking-pannel/customers'
 import { Route as AuthenticatedCabsBookingPannelCouponsRouteImport } from './routes/_authenticated/cabs-booking-pannel/coupons'
 import { Route as AuthenticatedCabsBookingPannelCancellationsRouteImport } from './routes/_authenticated/cabs-booking-pannel/cancellations'
@@ -127,6 +129,7 @@ import { Route as AuthenticatedCabsBookingPannelVehicleClassesIndexRouteImport }
 import { Route as AuthenticatedCabsBookingPannelSeoIndexRouteImport } from './routes/_authenticated/cabs-booking-pannel/seo.index'
 import { Route as AuthenticatedCabsBookingPannelPricingSchemesIndexRouteImport } from './routes/_authenticated/cabs-booking-pannel/pricing-schemes.index'
 import { Route as AuthenticatedCabsBookingPannelBlogIndexRouteImport } from './routes/_authenticated/cabs-booking-pannel/blog.index'
+import { Route as ApiPublicDispatchDrainRouteImport } from './routes/api/public/dispatch/drain'
 import { Route as AuthenticatedCabsBookingPannelVehicleClassesIdRouteImport } from './routes/_authenticated/cabs-booking-pannel/vehicle-classes.$id'
 import { Route as AuthenticatedCabsBookingPannelSeoServicesRouteImport } from './routes/_authenticated/cabs-booking-pannel/seo.services'
 import { Route as AuthenticatedCabsBookingPannelSeoRoutesRouteImport } from './routes/_authenticated/cabs-booking-pannel/seo.routes'
@@ -665,6 +668,12 @@ const AuthenticatedCabsBookingPannelMessagesRoute =
     path: '/messages',
     getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
+const AuthenticatedCabsBookingPannelMediaRoute =
+  AuthenticatedCabsBookingPannelMediaRouteImport.update({
+    id: '/media',
+    path: '/media',
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
+  } as any)
 const AuthenticatedCabsBookingPannelLogsRoute =
   AuthenticatedCabsBookingPannelLogsRouteImport.update({
     id: '/logs',
@@ -681,6 +690,12 @@ const AuthenticatedCabsBookingPannelDriversRoute =
   AuthenticatedCabsBookingPannelDriversRouteImport.update({
     id: '/drivers',
     path: '/drivers',
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
+  } as any)
+const AuthenticatedCabsBookingPannelDispatchRoute =
+  AuthenticatedCabsBookingPannelDispatchRouteImport.update({
+    id: '/dispatch',
+    path: '/dispatch',
     getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
 const AuthenticatedCabsBookingPannelCustomersRoute =
@@ -761,6 +776,11 @@ const AuthenticatedCabsBookingPannelBlogIndexRoute =
     path: '/blog/',
     getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
+const ApiPublicDispatchDrainRoute = ApiPublicDispatchDrainRouteImport.update({
+  id: '/api/public/dispatch/drain',
+  path: '/api/public/dispatch/drain',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedCabsBookingPannelVehicleClassesIdRoute =
   AuthenticatedCabsBookingPannelVehicleClassesIdRouteImport.update({
     id: '/vehicle-classes/$id',
@@ -943,9 +963,11 @@ export interface FileRoutesByFullPath {
   '/cabs-booking-pannel/cancellations': typeof AuthenticatedCabsBookingPannelCancellationsRoute
   '/cabs-booking-pannel/coupons': typeof AuthenticatedCabsBookingPannelCouponsRoute
   '/cabs-booking-pannel/customers': typeof AuthenticatedCabsBookingPannelCustomersRoute
+  '/cabs-booking-pannel/dispatch': typeof AuthenticatedCabsBookingPannelDispatchRoute
   '/cabs-booking-pannel/drivers': typeof AuthenticatedCabsBookingPannelDriversRoute
   '/cabs-booking-pannel/extras': typeof AuthenticatedCabsBookingPannelExtrasRoute
   '/cabs-booking-pannel/logs': typeof AuthenticatedCabsBookingPannelLogsRoute
+  '/cabs-booking-pannel/media': typeof AuthenticatedCabsBookingPannelMediaRoute
   '/cabs-booking-pannel/messages': typeof AuthenticatedCabsBookingPannelMessagesRoute
   '/cabs-booking-pannel/payments': typeof AuthenticatedCabsBookingPannelPaymentsRoute
   '/cabs-booking-pannel/pois': typeof AuthenticatedCabsBookingPannelPoisRoute
@@ -973,6 +995,7 @@ export interface FileRoutesByFullPath {
   '/cabs-booking-pannel/seo/routes': typeof AuthenticatedCabsBookingPannelSeoRoutesRoute
   '/cabs-booking-pannel/seo/services': typeof AuthenticatedCabsBookingPannelSeoServicesRoute
   '/cabs-booking-pannel/vehicle-classes/$id': typeof AuthenticatedCabsBookingPannelVehicleClassesIdRoute
+  '/api/public/dispatch/drain': typeof ApiPublicDispatchDrainRoute
   '/cabs-booking-pannel/blog/': typeof AuthenticatedCabsBookingPannelBlogIndexRoute
   '/cabs-booking-pannel/pricing-schemes/': typeof AuthenticatedCabsBookingPannelPricingSchemesIndexRoute
   '/cabs-booking-pannel/seo/': typeof AuthenticatedCabsBookingPannelSeoIndexRoute
@@ -1074,9 +1097,11 @@ export interface FileRoutesByTo {
   '/cabs-booking-pannel/cancellations': typeof AuthenticatedCabsBookingPannelCancellationsRoute
   '/cabs-booking-pannel/coupons': typeof AuthenticatedCabsBookingPannelCouponsRoute
   '/cabs-booking-pannel/customers': typeof AuthenticatedCabsBookingPannelCustomersRoute
+  '/cabs-booking-pannel/dispatch': typeof AuthenticatedCabsBookingPannelDispatchRoute
   '/cabs-booking-pannel/drivers': typeof AuthenticatedCabsBookingPannelDriversRoute
   '/cabs-booking-pannel/extras': typeof AuthenticatedCabsBookingPannelExtrasRoute
   '/cabs-booking-pannel/logs': typeof AuthenticatedCabsBookingPannelLogsRoute
+  '/cabs-booking-pannel/media': typeof AuthenticatedCabsBookingPannelMediaRoute
   '/cabs-booking-pannel/messages': typeof AuthenticatedCabsBookingPannelMessagesRoute
   '/cabs-booking-pannel/payments': typeof AuthenticatedCabsBookingPannelPaymentsRoute
   '/cabs-booking-pannel/pois': typeof AuthenticatedCabsBookingPannelPoisRoute
@@ -1104,6 +1129,7 @@ export interface FileRoutesByTo {
   '/cabs-booking-pannel/seo/routes': typeof AuthenticatedCabsBookingPannelSeoRoutesRoute
   '/cabs-booking-pannel/seo/services': typeof AuthenticatedCabsBookingPannelSeoServicesRoute
   '/cabs-booking-pannel/vehicle-classes/$id': typeof AuthenticatedCabsBookingPannelVehicleClassesIdRoute
+  '/api/public/dispatch/drain': typeof ApiPublicDispatchDrainRoute
   '/cabs-booking-pannel/blog': typeof AuthenticatedCabsBookingPannelBlogIndexRoute
   '/cabs-booking-pannel/pricing-schemes': typeof AuthenticatedCabsBookingPannelPricingSchemesIndexRoute
   '/cabs-booking-pannel/seo': typeof AuthenticatedCabsBookingPannelSeoIndexRoute
@@ -1209,9 +1235,11 @@ export interface FileRoutesById {
   '/_authenticated/cabs-booking-pannel/cancellations': typeof AuthenticatedCabsBookingPannelCancellationsRoute
   '/_authenticated/cabs-booking-pannel/coupons': typeof AuthenticatedCabsBookingPannelCouponsRoute
   '/_authenticated/cabs-booking-pannel/customers': typeof AuthenticatedCabsBookingPannelCustomersRoute
+  '/_authenticated/cabs-booking-pannel/dispatch': typeof AuthenticatedCabsBookingPannelDispatchRoute
   '/_authenticated/cabs-booking-pannel/drivers': typeof AuthenticatedCabsBookingPannelDriversRoute
   '/_authenticated/cabs-booking-pannel/extras': typeof AuthenticatedCabsBookingPannelExtrasRoute
   '/_authenticated/cabs-booking-pannel/logs': typeof AuthenticatedCabsBookingPannelLogsRoute
+  '/_authenticated/cabs-booking-pannel/media': typeof AuthenticatedCabsBookingPannelMediaRoute
   '/_authenticated/cabs-booking-pannel/messages': typeof AuthenticatedCabsBookingPannelMessagesRoute
   '/_authenticated/cabs-booking-pannel/payments': typeof AuthenticatedCabsBookingPannelPaymentsRoute
   '/_authenticated/cabs-booking-pannel/pois': typeof AuthenticatedCabsBookingPannelPoisRoute
@@ -1239,6 +1267,7 @@ export interface FileRoutesById {
   '/_authenticated/cabs-booking-pannel/seo/routes': typeof AuthenticatedCabsBookingPannelSeoRoutesRoute
   '/_authenticated/cabs-booking-pannel/seo/services': typeof AuthenticatedCabsBookingPannelSeoServicesRoute
   '/_authenticated/cabs-booking-pannel/vehicle-classes/$id': typeof AuthenticatedCabsBookingPannelVehicleClassesIdRoute
+  '/api/public/dispatch/drain': typeof ApiPublicDispatchDrainRoute
   '/_authenticated/cabs-booking-pannel/blog/': typeof AuthenticatedCabsBookingPannelBlogIndexRoute
   '/_authenticated/cabs-booking-pannel/pricing-schemes/': typeof AuthenticatedCabsBookingPannelPricingSchemesIndexRoute
   '/_authenticated/cabs-booking-pannel/seo/': typeof AuthenticatedCabsBookingPannelSeoIndexRoute
@@ -1344,9 +1373,11 @@ export interface FileRouteTypes {
     | '/cabs-booking-pannel/cancellations'
     | '/cabs-booking-pannel/coupons'
     | '/cabs-booking-pannel/customers'
+    | '/cabs-booking-pannel/dispatch'
     | '/cabs-booking-pannel/drivers'
     | '/cabs-booking-pannel/extras'
     | '/cabs-booking-pannel/logs'
+    | '/cabs-booking-pannel/media'
     | '/cabs-booking-pannel/messages'
     | '/cabs-booking-pannel/payments'
     | '/cabs-booking-pannel/pois'
@@ -1374,6 +1405,7 @@ export interface FileRouteTypes {
     | '/cabs-booking-pannel/seo/routes'
     | '/cabs-booking-pannel/seo/services'
     | '/cabs-booking-pannel/vehicle-classes/$id'
+    | '/api/public/dispatch/drain'
     | '/cabs-booking-pannel/blog/'
     | '/cabs-booking-pannel/pricing-schemes/'
     | '/cabs-booking-pannel/seo/'
@@ -1475,9 +1507,11 @@ export interface FileRouteTypes {
     | '/cabs-booking-pannel/cancellations'
     | '/cabs-booking-pannel/coupons'
     | '/cabs-booking-pannel/customers'
+    | '/cabs-booking-pannel/dispatch'
     | '/cabs-booking-pannel/drivers'
     | '/cabs-booking-pannel/extras'
     | '/cabs-booking-pannel/logs'
+    | '/cabs-booking-pannel/media'
     | '/cabs-booking-pannel/messages'
     | '/cabs-booking-pannel/payments'
     | '/cabs-booking-pannel/pois'
@@ -1505,6 +1539,7 @@ export interface FileRouteTypes {
     | '/cabs-booking-pannel/seo/routes'
     | '/cabs-booking-pannel/seo/services'
     | '/cabs-booking-pannel/vehicle-classes/$id'
+    | '/api/public/dispatch/drain'
     | '/cabs-booking-pannel/blog'
     | '/cabs-booking-pannel/pricing-schemes'
     | '/cabs-booking-pannel/seo'
@@ -1609,9 +1644,11 @@ export interface FileRouteTypes {
     | '/_authenticated/cabs-booking-pannel/cancellations'
     | '/_authenticated/cabs-booking-pannel/coupons'
     | '/_authenticated/cabs-booking-pannel/customers'
+    | '/_authenticated/cabs-booking-pannel/dispatch'
     | '/_authenticated/cabs-booking-pannel/drivers'
     | '/_authenticated/cabs-booking-pannel/extras'
     | '/_authenticated/cabs-booking-pannel/logs'
+    | '/_authenticated/cabs-booking-pannel/media'
     | '/_authenticated/cabs-booking-pannel/messages'
     | '/_authenticated/cabs-booking-pannel/payments'
     | '/_authenticated/cabs-booking-pannel/pois'
@@ -1639,6 +1676,7 @@ export interface FileRouteTypes {
     | '/_authenticated/cabs-booking-pannel/seo/routes'
     | '/_authenticated/cabs-booking-pannel/seo/services'
     | '/_authenticated/cabs-booking-pannel/vehicle-classes/$id'
+    | '/api/public/dispatch/drain'
     | '/_authenticated/cabs-booking-pannel/blog/'
     | '/_authenticated/cabs-booking-pannel/pricing-schemes/'
     | '/_authenticated/cabs-booking-pannel/seo/'
@@ -1736,6 +1774,7 @@ export interface RootRouteChildren {
   AreasRegionSlugRoute: typeof AreasRegionSlugRoute
   BlogCategorySlugRoute: typeof BlogCategorySlugRoute
   BlogTagSlugRoute: typeof BlogTagSlugRoute
+  ApiPublicDispatchDrainRoute: typeof ApiPublicDispatchDrainRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -2454,6 +2493,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCabsBookingPannelMessagesRouteImport
       parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
+    '/_authenticated/cabs-booking-pannel/media': {
+      id: '/_authenticated/cabs-booking-pannel/media'
+      path: '/media'
+      fullPath: '/cabs-booking-pannel/media'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelMediaRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
+    }
     '/_authenticated/cabs-booking-pannel/logs': {
       id: '/_authenticated/cabs-booking-pannel/logs'
       path: '/logs'
@@ -2473,6 +2519,13 @@ declare module '@tanstack/react-router' {
       path: '/drivers'
       fullPath: '/cabs-booking-pannel/drivers'
       preLoaderRoute: typeof AuthenticatedCabsBookingPannelDriversRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
+    }
+    '/_authenticated/cabs-booking-pannel/dispatch': {
+      id: '/_authenticated/cabs-booking-pannel/dispatch'
+      path: '/dispatch'
+      fullPath: '/cabs-booking-pannel/dispatch'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelDispatchRouteImport
       parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
     '/_authenticated/cabs-booking-pannel/customers': {
@@ -2565,6 +2618,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/cabs-booking-pannel/blog/'
       preLoaderRoute: typeof AuthenticatedCabsBookingPannelBlogIndexRouteImport
       parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
+    }
+    '/api/public/dispatch/drain': {
+      id: '/api/public/dispatch/drain'
+      path: '/api/public/dispatch/drain'
+      fullPath: '/api/public/dispatch/drain'
+      preLoaderRoute: typeof ApiPublicDispatchDrainRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/cabs-booking-pannel/vehicle-classes/$id': {
       id: '/_authenticated/cabs-booking-pannel/vehicle-classes/$id'
@@ -2692,9 +2752,11 @@ interface AuthenticatedCabsBookingPannelRouteRouteChildren {
   AuthenticatedCabsBookingPannelCancellationsRoute: typeof AuthenticatedCabsBookingPannelCancellationsRoute
   AuthenticatedCabsBookingPannelCouponsRoute: typeof AuthenticatedCabsBookingPannelCouponsRoute
   AuthenticatedCabsBookingPannelCustomersRoute: typeof AuthenticatedCabsBookingPannelCustomersRoute
+  AuthenticatedCabsBookingPannelDispatchRoute: typeof AuthenticatedCabsBookingPannelDispatchRoute
   AuthenticatedCabsBookingPannelDriversRoute: typeof AuthenticatedCabsBookingPannelDriversRoute
   AuthenticatedCabsBookingPannelExtrasRoute: typeof AuthenticatedCabsBookingPannelExtrasRoute
   AuthenticatedCabsBookingPannelLogsRoute: typeof AuthenticatedCabsBookingPannelLogsRoute
+  AuthenticatedCabsBookingPannelMediaRoute: typeof AuthenticatedCabsBookingPannelMediaRoute
   AuthenticatedCabsBookingPannelMessagesRoute: typeof AuthenticatedCabsBookingPannelMessagesRoute
   AuthenticatedCabsBookingPannelPaymentsRoute: typeof AuthenticatedCabsBookingPannelPaymentsRoute
   AuthenticatedCabsBookingPannelPoisRoute: typeof AuthenticatedCabsBookingPannelPoisRoute
@@ -2744,12 +2806,16 @@ const AuthenticatedCabsBookingPannelRouteRouteChildren: AuthenticatedCabsBooking
       AuthenticatedCabsBookingPannelCouponsRoute,
     AuthenticatedCabsBookingPannelCustomersRoute:
       AuthenticatedCabsBookingPannelCustomersRoute,
+    AuthenticatedCabsBookingPannelDispatchRoute:
+      AuthenticatedCabsBookingPannelDispatchRoute,
     AuthenticatedCabsBookingPannelDriversRoute:
       AuthenticatedCabsBookingPannelDriversRoute,
     AuthenticatedCabsBookingPannelExtrasRoute:
       AuthenticatedCabsBookingPannelExtrasRoute,
     AuthenticatedCabsBookingPannelLogsRoute:
       AuthenticatedCabsBookingPannelLogsRoute,
+    AuthenticatedCabsBookingPannelMediaRoute:
+      AuthenticatedCabsBookingPannelMediaRoute,
     AuthenticatedCabsBookingPannelMessagesRoute:
       AuthenticatedCabsBookingPannelMessagesRoute,
     AuthenticatedCabsBookingPannelPaymentsRoute:
@@ -2925,6 +2991,7 @@ const rootRouteChildren: RootRouteChildren = {
   AreasRegionSlugRoute: AreasRegionSlugRoute,
   BlogCategorySlugRoute: BlogCategorySlugRoute,
   BlogTagSlugRoute: BlogTagSlugRoute,
+  ApiPublicDispatchDrainRoute: ApiPublicDispatchDrainRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -13,6 +13,7 @@ import { PageHeader } from "@/components/admin/ui";
 import { SeoTable } from "@/components/admin/SeoTable";
 import { Plus, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
+import { MediaUrlInput } from "@/components/admin/media/MediaPicker";
 
 const opts = queryOptions({ queryKey: ["admin", "seo", "pages"], queryFn: () => listSeoPages() });
 
@@ -142,8 +143,8 @@ function Page() {
               </Field>
               <Field label="H1" className="col-span-2"><Input value={form.h1} onChange={e => setForm({ ...form, h1: e.target.value })} /></Field>
               <Field label="Short intro" className="col-span-2"><Textarea rows={3} value={form.short_intro ?? ""} onChange={e => setForm({ ...form, short_intro: e.target.value })} /></Field>
-              <Field label="Featured image URL"><Input value={form.featured_image_url ?? ""} onChange={e => setForm({ ...form, featured_image_url: e.target.value })} /></Field>
-              <Field label="OG image URL"><Input value={form.og_image_url ?? ""} onChange={e => setForm({ ...form, og_image_url: e.target.value })} /></Field>
+              <Field label="Featured image"><MediaUrlInput folder="pages" value={form.featured_image_url ?? ""} onChange={(url) => setForm({ ...form, featured_image_url: url })} /></Field>
+              <Field label="Share (OG) image"><MediaUrlInput folder="pages" value={form.og_image_url ?? ""} onChange={(url) => setForm({ ...form, og_image_url: url })} /></Field>
               <Field label="Canonical override"><Input value={form.canonical_override ?? ""} onChange={e => setForm({ ...form, canonical_override: e.target.value })} /></Field>
               <Field label="Robots"><Input value={form.robots_status} onChange={e => setForm({ ...form, robots_status: e.target.value })} /></Field>
               <Field label="Display priority"><Input type="number" value={form.display_priority} onChange={e => setForm({ ...form, display_priority: Number(e.target.value) })} /></Field>

@@ -620,6 +620,7 @@ export type Database = {
           created_at: string
           customer_name: string
           deleted_at: string | null
+          dispatch_notes: string | null
           distance_miles: number | null
           driver_id: string | null
           driving_duration_seconds: number | null
@@ -682,6 +683,7 @@ export type Database = {
           created_at?: string
           customer_name: string
           deleted_at?: string | null
+          dispatch_notes?: string | null
           distance_miles?: number | null
           driver_id?: string | null
           driving_duration_seconds?: number | null
@@ -744,6 +746,7 @@ export type Database = {
           created_at?: string
           customer_name?: string
           deleted_at?: string | null
+          dispatch_notes?: string | null
           distance_miles?: number | null
           driver_id?: string | null
           driving_duration_seconds?: number | null
@@ -1545,6 +1548,101 @@ export type Database = {
         }
         Relationships: []
       }
+      dispatch_endpoints: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          last_delivery_at: string | null
+          last_delivery_ok: boolean | null
+          last_error: string | null
+          name: string
+          secret: string
+          secret_name: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          last_delivery_at?: string | null
+          last_delivery_ok?: boolean | null
+          last_error?: string | null
+          name: string
+          secret?: string
+          secret_name?: string
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          last_delivery_at?: string | null
+          last_delivery_ok?: boolean | null
+          last_error?: string | null
+          name?: string
+          secret?: string
+          secret_name?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
+      dispatch_events: {
+        Row: {
+          attempts: number
+          booking_id: string | null
+          created_at: string
+          delivered_at: string | null
+          endpoint_id: string | null
+          event_type: string
+          id: string
+          last_error: string | null
+          next_attempt_at: string
+          payload: Json
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          attempts?: number
+          booking_id?: string | null
+          created_at?: string
+          delivered_at?: string | null
+          endpoint_id?: string | null
+          event_type: string
+          id?: string
+          last_error?: string | null
+          next_attempt_at?: string
+          payload?: Json
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          attempts?: number
+          booking_id?: string | null
+          created_at?: string
+          delivered_at?: string | null
+          endpoint_id?: string | null
+          event_type?: string
+          id?: string
+          last_error?: string | null
+          next_attempt_at?: string
+          payload?: Json
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dispatch_events_endpoint_id_fkey"
+            columns: ["endpoint_id"]
+            isOneToOne: false
+            referencedRelation: "dispatch_endpoints"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       drivers: {
         Row: {
           address: string | null
@@ -1833,6 +1931,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      media_assets: {
+        Row: {
+          alt_text: string | null
+          bytes: number | null
+          created_at: string
+          file_name: string
+          folder: string
+          height: number | null
+          id: string
+          mime_type: string | null
+          path: string
+          updated_at: string
+          uploaded_by: string | null
+          url: string
+          width: number | null
+        }
+        Insert: {
+          alt_text?: string | null
+          bytes?: number | null
+          created_at?: string
+          file_name: string
+          folder?: string
+          height?: number | null
+          id?: string
+          mime_type?: string | null
+          path: string
+          updated_at?: string
+          uploaded_by?: string | null
+          url: string
+          width?: number | null
+        }
+        Update: {
+          alt_text?: string | null
+          bytes?: number | null
+          created_at?: string
+          file_name?: string
+          folder?: string
+          height?: number | null
+          id?: string
+          mime_type?: string | null
+          path?: string
+          updated_at?: string
+          uploaded_by?: string | null
+          url?: string
+          width?: number | null
+        }
+        Relationships: []
       }
       notification_log: {
         Row: {
@@ -4257,6 +4403,7 @@ export type Database = {
       }
     }
     Functions: {
+      dispatch_wake_delivery: { Args: never; Returns: undefined }
       generate_booking_ref: { Args: never; Returns: string }
       get_booking_by_confirmation_hash: {
         Args: { _hash: string }
@@ -4359,7 +4506,7 @@ export type Database = {
         | "awaiting_refund"
         | "applied"
         | "declined"
-      app_role: "admin" | "user"
+      app_role: "admin" | "user" | "dispatch"
       blog_post_status:
         | "draft"
         | "review"
@@ -4646,7 +4793,7 @@ export const Constants = {
         "applied",
         "declined",
       ],
-      app_role: ["admin", "user"],
+      app_role: ["admin", "user", "dispatch"],
       blog_post_status: [
         "draft",
         "review",
