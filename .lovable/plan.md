@@ -1,126 +1,78 @@
-# Admin Pricing, Discounts & Availability Upgrade
+# Media Library + Automatic Dispatch Link
 
-Goal: extend the existing single pricing engine into a complete, admin-configurable commercial engine (fixed routes, radius pricing, hourly/daily, modifiers, discounts/events, coupons, VAT modes, availability) plus bulk import/export and a real pricing debugger — without creating a second engine and without changing historical booking prices.
+Two pieces of work. Part 1 gives the admin panel one shared image library. Part 2 connects a separate dispatch site (own domain, own project) to this site's live booking data, with no manual export.
 
-## A. Current architecture findings
+---
 
-Pricing engine (single, already authoritative):
-- `src/lib/pricing.ts` — pure engine `runPricingEngine()` (base + progressive mileage tiers + via stops + time-window extra + surcharges − discount + tax), `computeStopCharges()`, `ENGINE_VERSION = 2026.07.2`.
-- `src/lib/pricing-helpers.server.ts` — the real orchestration: `publicClient()`, `assertAdmin()`, `realDistanceMiles()` (Google Routes via `route-distance.server.ts`, DB-cached in `route_distance_cache`), `loadActiveProfiles()`, `loadAreaSurcharges()`, `loadFixedPriceForRoute()`, `loadQuoteSettings()`, and `computeVehicleQuote()` — the single funnel that builds the `PricingSnapshot`.
-- `src/lib/pricing.functions.ts` — `calculateQuotes` (public), `createBooking` (public, recomputes server-side, rate-limited, idempotent), `adminListPricingProfiles`, `adminSavePricingProfile`, `adminDuplicatePricingProfile`, `adminTestQuote`, `adminPreviewQuote`. Admin fns already use `requireSupabaseAuth` + `assertAdmin`.
-- `src/lib/hourly.functions.ts` — separate hourly path reading `hourly_rates` (per-hour only, min/max hours), does **not** go through `computeVehicleQuote`.
-- `src/lib/tours-pricing.server.ts`, `scenic-quote.functions.ts` — stops/scenic add-ons layered in `createBooking`.
-- Snapshots persisted to `quote_calculations` (41 columns incl. `snapshot`, `engine_version`) and `bookings.price` — historical pricing is already snapshot-based.
+## Part 1 — Media Library
 
-Class/model/vehicle relationships:
-- `vehicle_classes` is the customer-facing entity and carries `pricing_vehicle_id` → a single proxy row in `vehicles`. All pricing (`vehicle_pricing_profiles.vehicle_id`, `hourly_rates.vehicle_id`, `pricing_rules.vehicle_id`, `surcharges.vehicle_id`) keys off that proxy vehicle id.
-- `vehicle_models` (`vehicle_class_id`) are display-only models under a class.
-- Consequence: "pricing by Vehicle Class" already effectively exists via the proxy vehicle, but the schema doesn't say so. This is the main modelling debt.
+### One place for every image
 
-Existing rule tables:
-- `pricing_rules` — fixed routes. Has `from/to_place_id`, `from/to_place_label`, legacy `from/to_address`, `vehicle_id`, `price`, `valid_from/to`, `bidirectional`, `active`. **Missing: radius, priority, vehicle_class_id.** Matching is exact Place-ID pair only (`loadFixedPriceForRoute`), guarded by triggers `pricing_rules_require_place_ids_when_active`, `pricing_rule_prevent_bidirectional_conflict`.
-- `addresses` — pickup/dropoff area charges, matched by Place ID then fuzzy label substring (`loadAreaSurcharges`). No radius; label fallback is the fragile text matching the brief flags.
-- `surcharges` — full schema (`charge_type`, `amount`, `applies_to`, `vehicle_id`, `starts_at/ends_at`, `days_of_week`, `time_from/to`, `active`) but **only admin CRUD in `admin.functions.ts`; never read by the pricing engine.** No priority.
-- `coupons` — full schema (`discount_type`, `discount_value`, `min_booking_amount`, `usage_limit`, `used_count`, `starts_at/expires_at`, `applicable_vehicle_classes`, `active`) but **only admin CRUD; not referenced anywhere in quote/booking flow.** Confirmed by search: no coupon read outside `admin.functions.ts`.
-- `hourly_rates` — per-hour + min/max hours only. No daily rate, no included/extra mileage.
-- `site_settings` — `tax_enabled`, `tax_percentage`, `tax_label`, plus child-seat/meet-greet/return fees and cancellation policy percentages. Tax is exclusive-only; no inclusive mode, no effective date.
-- No table anywhere for: location/radius pricing, percentage/date/day modifiers as first-class rules, events, availability rules. Confirmed missing.
+- A single storage folder holds every image used anywhere on the site (blog covers, vehicle class photos, page/SEO images, tour images).
+- A new admin page **Media** (under Content in the sidebar) shows all images as a grid with search, newest-first, and infinite/paged loading.
+- Each image tile shows a thumbnail, file name, size, dimensions, upload date, and a "copy link" button.
 
-Supporting infra that already exists and should be reused:
-- `place_coords` (Place ID → lat/lng, cached) via `src/lib/place-coords.server.ts` — the correct basis for all radius maths.
-- `route_distance_cache` + Google Routes wrapper.
-- Activity logging: `log_admin_action()` trigger already on `pricing_rules`, `surcharges`, `coupons`, `addresses`, `vehicles`, `vehicle_classes`, `hourly_rates`, `bookings`, `site_settings`; plus `activity_logs` insert helper used by `set_booking_status`.
-- Bulk import machinery already built for SEO: `src/lib/seo/import-parser.ts` (CSV/TSV/JSON/XLSX via papaparse + xlsx, `reportToCsv`) and `src/lib/seo/import.functions.ts` (`validateImport` → `commitImport` pattern) with UI at `cabs-booking-pannel/seo.import.tsx`. This is the template for the new generic bulk system.
-- Admin nav: `src/components/admin/SidebarNav.tsx` (`NavGroup`/`NavItem`), 40 route files under `src/routes/_authenticated/cabs-booking-pannel/`, gated by `_authenticated/route.tsx`.
-- Existing pricing preview: `pricing-preview.tsx` already calls `adminPreviewQuote`, but takes manual Place IDs and a manual distance override, and shows only the mileage/fixed snapshot.
+### Picking and uploading
 
-## B. Extend, don't rebuild
-- Keep `runPricingEngine` maths and `computeVehicleQuote` as the single funnel; add stages around it rather than a parallel engine.
-- Extend `pricing_rules` (radius, priority, class) instead of a new fixed-route table.
-- Extend `surcharges` (priority, class, location scope) and finally **read** it in the engine.
-- Wire existing `coupons` in; no new coupon table.
-- Extend `hourly_rates` with daily/mileage fields; route hourly through the shared funnel.
-- Reuse `place_coords` for all geo; reuse `import-parser.ts` for bulk.
-- Reuse `log_admin_action` triggers for new tables.
+- Every place in the admin that currently offers "Upload" gets one button: **Choose image**.
+- That opens a dialog with two tabs:
+  - **Library** — pick any existing image (single click to select, Insert to confirm).
+  - **Upload** — drag-and-drop or file picker, multiple files at once, auto-compressed to WebP using the existing optimiser; uploaded files land in the library and are selected immediately.
+- Images can also be uploaded straight from the Media page.
 
-## C. Database changes (migrations)
-1. `vehicle_classes` linkage: add `vehicle_class_id` (FK) to `vehicle_pricing_profiles`, `hourly_rates`, `pricing_rules`, `surcharges`; backfill from `vehicle_classes.pricing_vehicle_id`. Keep `vehicle_id` for compatibility so existing behaviour is unchanged; class becomes the preferred key, vehicle the operational override.
-2. `pricing_rules`: add `from_radius_miles`, `to_radius_miles`, `from_lat/from_lng/to_lat/to_lng` (backfilled from `place_coords`), `priority int not null default 100`, `valid_for_return boolean`. Relax the "active requires exact place ids" trigger to "active requires (place id) or (coords + radius)".
-3. New `location_pricing_rules`: place_id/label/lat/lng, `radius_miles`, `included_distance_miles`, `price_type` (fixed|base), `price`, `extra_per_mile`, `scope` (pickup|destination|either), `vehicle_class_id`, `priority`, `active`, timestamps + updated_at trigger + `log_admin_action`.
-4. New `pricing_modifiers`: name, `modifier_type` (percent|fixed), `value`, scope columns (`vehicle_class_id`, `service_type`, `place_id`/lat/lng/`radius_miles`, `scope`), `date_from/date_to`, `days_of_week smallint[]`, `time_from/time_to`, `stackable boolean`, `priority`, `active`.
-5. New `discount_rules`: name, `discount_type` (fixed|percent), `value`, `basis` (radius|vehicle_class|location|event), event fields (`event_name`, place/lat/lng/`radius_miles`, `starts_at`, `ends_at` timestamptz), `vehicle_class_ids uuid[]`, `service_types text[]`, `scope` (pickup|destination|either), `max_discount`, `stackable`, `priority`, `active`. No hard-coded events — all rows are admin data.
-6. `coupons`: add `applies_to_service_types text[]`, `max_discount`, `per_customer_limit`, `stackable boolean default false`. New `coupon_redemptions` (coupon_id, booking_id, email, amount, created_at) so `used_count` is auditable and enforceable.
-7. `hourly_rates`: add `daily_price`, `included_miles_per_hour`, `included_miles_per_day`, `extra_mile_rate`, `vehicle_class_id`, `priority`.
-8. VAT: add to `site_settings` → `tax_mode` (`exclusive`|`inclusive`), `tax_effective_from date`. Default `exclusive` so current behaviour is identical.
-9. New `availability_rules`: `rule_scope` (global|service|vehicle_class|vehicle), `vehicle_class_id`, `vehicle_id`, `service_types text[]`, `effect` (block|allow), `date_from/date_to`, `days_of_week smallint[]`, `time_from/time_to`, location scope (place_id/lat/lng/radius/scope), `reason text`, `priority`, `active`.
-10. New `bulk_import_jobs`: entity, filename, row counts, status, `error_report jsonb`, actor, created_at — for auditing bulk ops.
-11. `bookings`/`quote_calculations`: add `pricing_source text` (fixed_route|location|mileage|hourly|daily) and `applied_rules jsonb` so a booking explains itself forever. Existing rows untouched.
-All new public tables get GRANTs (`authenticated` + `service_role`; `anon` SELECT only where the public quote path needs it — location pricing, modifiers, discount rules, availability rules, coupons validation is server-side only), RLS enabled, admin-write / read policies mirroring `pricing_rules`, `set_updated_at` trigger and `log_admin_action` trigger. `ENGINE_VERSION` bumps once per behaviour-changing phase.
+### Deleting safely
 
-## D. Server / business logic changes
-- New `src/lib/pricing-rules.server.ts`: pure, unit-testable matchers — `matchFixedRoute()`, `matchLocationPricing()`, `matchModifiers()`, `matchDiscounts()`, `validateCoupon()`, `haversineMiles()`. Geo input is always coords resolved from `place_coords` (`resolvePlaceCoords`), never address text.
-- `pricing-helpers.server.ts`: replace `loadFixedPriceForRoute` with a richer loader returning matched-rule metadata + non-match reasons; add loaders for location pricing, modifiers, discounts, availability; extend `loadQuoteSettings` with `taxMode`/effective date.
-- `computeVehicleQuote()` gains optional stages (source selection, modifiers, discounts, coupon, VAT mode) and returns `pricing_source`, `applied_rules[]`, `unmatched_reasons[]` in the snapshot. Defaults reproduce today's numbers exactly.
-- `src/lib/pricing.ts`: add inclusive-VAT handling (`taxMode`) and modifier/discount line kinds to `BreakdownLine`. Inclusive mode derives net = gross / (1+rate) and never adds tax on top.
-- `calculateQuotes` / `createBooking`: pass the new stages; `createBooking` validates and records coupon redemption transactionally and stores `pricing_source`/`applied_rules`.
-- Hourly: `hourly.functions.ts` calls the shared funnel for surcharges/modifiers/discounts/VAT instead of raw multiplication; adds daily-rate and included/extra-mileage handling.
-- `assertAvailability()` new server helper called by `calculateQuotes` (soft: marks classes unavailable + reason) and `createBooking` (hard: rejects with reason).
-- New `src/lib/bulk.functions.ts` + `src/lib/bulk/schemas.ts`: `bulkValidate` (parse+zod+dry-run diff), `bulkCommit` (transactional via a `SECURITY DEFINER` RPC or batched upsert with rollback), `bulkExport`, `bulkTemplate`. All admin-only, all logged to `bulk_import_jobs` + `activity_logs`.
-- Booking status logic is left alone; the known `updateBooking` bypass is documented, not changed, in this project.
+- Before delete, the system checks where the image is used (blog posts, vehicle classes, SEO pages, tours).
+- If it is in use, the dialog lists exactly which items use it and asks for confirmation; deleting removes it from storage and clears the reference so nothing shows a broken image.
+- Unused images delete after a simple confirm. Bulk-select and delete is supported.
 
-## E. Admin UI / navigation
-New sidebar group **Pricing & Rules**: Mileage Profiles (existing), Fixed Routes (upgraded `pricing.tsx` with radius/priority/class), Location Pricing (new), Hourly & Daily (upgraded `hourly-rates.tsx`), Surcharges & Fees (existing, now labelled as live), Modifiers (new), Discounts & Events (new), Coupons (existing + scope/limits + redemption log), VAT & Tax (in `settings.tsx`).
-New group **Availability**: Rules list, plus an availability calendar/grid page (month grid × vehicle class, cell shows blocked/allowed + reason, click for the winning rule).
-New group **Data**: Bulk Import/Export (single page, entity picker, template download, Upload → Parse → Validate → Preview diff → Confirm → summary + failed-row CSV), reusing the SEO import UI patterns.
-Upgraded **Pricing Preview**: Place autocomplete instead of raw Place IDs, booking-type toggle (transfer / hourly / daily), extras, coupon field, date/time; result panel shows route distance/time, chosen pricing source, matched fixed-route/location rule ids, mileage tiers, modifiers, discounts, coupon, VAT net/VAT/gross, availability verdict, and a "why not matched" list. Uses the same server fn path as customers.
+### Existing images
 
-## F. Pricing precedence & stacking (needs your approval)
-Proposed order, reconciled with current code:
-1. Validate inputs → resolve Place IDs to coords → Vehicle Class.
-2. Route distance/time (Google Routes, cached).
-3. Availability check (soft on quotes, hard on booking).
-4. **Base price source, first match wins:** exact fixed route (Place-ID pair) → radius fixed route → location/radius pricing → mileage tiers (today's default). Within a category: highest `priority`, then most specific (smallest radius), then lowest price. This preserves today's "fixed overrides mileage".
-5. Add-ons on top of the base source (unchanged behaviour): via stops, stop fees/parking/scenic, additional pickups, waiting, airport fee, child seat/meet & greet/return.
-6. `surcharges` table rules matching date/day/time/class — additive, sorted by priority.
-7. Modifiers — percentage applied to (base + add-ons + surcharges); non-stackable modifiers: only the highest-priority match applies; stackable ones apply sequentially in priority order.
-8. Discounts: **best-single-discount by default** across radius/class/location/event rules; a rule flagged `stackable` may combine with other stackable rules. Coupon applies after rule discounts, capped so total discount never exceeds the pre-VAT subtotal.
-9. VAT last: exclusive → add rate to subtotal; inclusive → subtotal already contains VAT, display net/VAT/gross only (never double-tax).
-10. Vehicle count multiplier last (as today, after tax).
-Decisions I want confirmed: (a) location pricing ranks below fixed route but above mileage; (b) discounts default to best-single, not stacking; (c) coupon can stack with one rule discount; (d) `tax_mode` defaults to `exclusive` to preserve current totals.
+- Photos already uploaded before this change (blog and vehicle images) are indexed into the library on first load, so they appear in the picker straight away and keep working on live pages.
 
-## G. Availability precedence
-Specificity ladder, most specific wins: individual vehicle > vehicle class > service > global. Within the same specificity: `block` beats `allow`, then highest `priority`, then narrowest window. The resolver always returns the single winning rule id + reason (surfaced in admin and as a customer-safe message); overlapping equal-specificity rules are reported as a conflict in the admin UI rather than silently resolved.
+---
 
-## H. Bulk import/export
-- Entities: vehicle classes, vehicles, models, mileage profiles + tiers, fixed routes, location pricing, hourly/daily rates, surcharges, modifiers, discounts/events, coupons, availability rules, addresses/areas, POIs.
-- Per entity: a zod row schema + a template CSV/XLSX generator + a natural key for upsert (e.g. fixed route = from_place_id + to_place_id + class; class = slug; coupon = code).
-- Flow: upload → `parseImportFile` (CSV/TSV/JSON/XLSX) → normalise → zod validate row-by-row → resolve references (class slug → id, place id → coords via `place_coords`) → preview diff (create / update / unchanged / error counts, first N rows) → confirm → transactional commit → summary + downloadable failed-row CSV with reasons.
-- Export: current filtered admin list → CSV/XLSX with the same column set as the template, so export → edit → re-import round-trips.
-- Every validate/commit writes a `bulk_import_jobs` row and an `activity_logs` entry.
+## Part 2 — Automatic Dispatch Link
 
-## I. Testing & regression risks
-- Regression lock first: golden-file tests asserting current totals for representative quotes (mileage-only, fixed route, area surcharge, via stops, tax on/off, vehicle count) so no phase silently changes prices. Existing `tests/pricing-engine.test.ts`, `fixed-price-place-id.test.ts`, `multi-stop-quote.test.ts`, `stop-charges.test.ts`, `create-booking.test.ts`, `admin-pricing-active-guard.test.ts` must stay green.
-- New unit tests: haversine/radius matching, precedence resolution, modifier stacking, discount best-single vs stackable, coupon validation + usage limits, inclusive vs exclusive VAT, availability specificity, bulk row validation and rollback.
-- Risks: (1) precedence change accidentally altering live prices — mitigated by defaults-off flags per phase; (2) `pricing_vehicle_id` proxy modelling — mitigated by keeping `vehicle_id` populated; (3) extra DB reads per quote — mitigated by parallel loads and existing caches; (4) coupon double-spend — mitigated by redemption table + unique constraint; (5) historical snapshots — new columns are additive, snapshots stay immutable.
+### What you want
 
-## J. Phased order
-1. Foundations: class linkage columns, `pricing_source`/`applied_rules`, regression golden tests, matcher module with unit tests. No behaviour change.
-2. Fixed routes + location/radius pricing (schema, matchers, precedence, admin pages).
-3. Surcharges/fees actually wired into the engine + waiting/airport/additional-pickup/connecting-job fees.
-4. Modifiers + discounts/events + coupons wired into quote & booking, with stacking policy.
-5. VAT modes (inclusive/exclusive, effective date) + net/VAT/gross display everywhere.
-6. Hourly & daily through the shared funnel.
-7. Availability engine + admin calendar/grid.
-8. Bulk import/export for all entities + audit.
-9. Pricing Preview upgrade as the central debugger, then full regression + production verification.
-Each phase ends with tests green and a status report before the next begins.
+A second project on its own domain that always has the current bookings and can assign drivers, without anyone copying data.
 
-## K. Questions to resolve before coding
-1. Confirm the section F precedence and stacking decisions (a)–(d).
-2. Should pricing keys migrate fully to `vehicle_class_id` (deprecating the `pricing_vehicle_id` proxy over time), or keep the proxy indefinitely?
-3. "Connecting-job discount" — define the trigger: same customer/date within X minutes, or admin-linked bookings?
-4. Waiting charges — free minutes then per-15-min rate, per class or global?
-5. Daily pricing — is a "day" a fixed hour count (e.g. 10h) with extra-hour rate, or a calendar day?
-6. Should availability blocks hide a class from customer quotes entirely, or show it as "on request"?
-7. Bulk import: allow deletes/deactivations via import, or create/update only?
-8. VAT inclusive mode: apply globally, or per pricing rule?
+### The honest options
+
+1. **Shared backend (recommended, and what actually works with no sync delay).** The dispatch project talks to *this* site's database directly using its own restricted key. There is one set of data, so a booking created here is instantly visible there, and a driver assigned there is instantly visible here. No polling, no duplicate records, no drift.
+2. **Signed API feed.** This site exposes read/write endpoints; the dispatch project calls them with a shared secret. Also real, but every screen needs an endpoint, and the dispatch project holds a copy of nothing — it must re-fetch constantly.
+
+Plan: build option 1, and add a small number of signed endpoints from option 2 only for events that must be pushed (new booking alert), so the dispatch panel updates instantly rather than waiting for a refresh.
+
+### What gets built here
+
+- A **dispatch role** with tightly scoped permissions: it can read bookings and drivers, and update only the driver assignment and job status fields. It cannot read payment card data or touch pricing, settings, or customers beyond what a dispatcher needs.
+- Access rules (row-level policies) plus grants for that role on the exact tables it needs.
+- A **Dispatch access** page in the admin panel: create/revoke access keys for the dispatch project, see last-used time.
+- A signed webhook that fires on new booking and on cancellation, so the dispatch panel can show a live alert.
+- Live updates enabled on bookings so both panels reflect changes within a second.
+
+### What happens in the other project
+
+- It connects to this same backend with the dispatch key (no service key, no database password shared).
+- It builds its own dispatch screens: job board, driver allocation, live status.
+- Assignments write back to the same booking rows, so this admin panel shows the assigned driver immediately.
+
+### Order of work
+
+1. Media library (storage, admin page, picker, safe delete, index existing images).
+2. Dispatch role, permissions, access keys page.
+3. Webhook + live updates, then a test proving an assignment made outside this site appears here.
+
+---
+
+## Technical notes
+
+- Storage: one public bucket `media` (public read for fast, permanently valid URLs — no more 10-year signed links), admin-only write/delete via policies. New table `media_assets` (path, url, file name, mime, bytes, width, height, folder, alt text, uploaded_by, created_at) with admin-only RLS + grants.
+- Server functions in `src/lib/media.functions.ts`: `listMedia`, `registerUpload`, `deleteMedia` (with usage scan), `reindexLegacyMedia`.
+- New components: `src/components/admin/MediaPicker.tsx` (dialog), `src/components/admin/MediaGrid.tsx`; `ImageUploadField` and `HeroImageUploader` are rewritten to delegate to the picker so existing call sites keep working.
+- Upload path keeps `src/lib/optimize-image.ts` for client-side WebP conversion.
+- Dispatch: new Postgres role/claim `dispatch` in the existing `user_roles`/`has_role` pattern; policies use `has_role(auth.uid(),'dispatch')`; column-level grants restrict updates to `driver_id`, `status`, `dispatch_notes`. Access keys are dispatch-user accounts created in this panel, not raw service keys.
+- Webhook: `src/routes/api/public/dispatch-events.ts` for inbound acks and an outbound HMAC-signed POST to a configurable dispatch URL; shared secret stored as a project secret.
+- Realtime enabled on `bookings` for the dispatch role only.
