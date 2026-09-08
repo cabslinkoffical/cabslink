@@ -187,8 +187,14 @@ export const deleteMedia = createServerFn({ method: "POST" })
       }
     }
 
-    const { error: rmErr } = await context.supabase.storage.from(MEDIA_BUCKET).remove(assets.map((a) => a.path));
-    if (rmErr) throw new Error(rmErr.message);
+    // Entries indexed from other buckets / external URLs have no object in the media bucket.
+    const ownedPaths = assets
+      .filter((a) => !a.path.startsWith("external/") && !a.path.startsWith("blog-images/") && !a.path.startsWith("vehicle-images/"))
+      .map((a) => a.path);
+    if (ownedPaths.length) {
+      const { error: rmErr } = await context.supabase.storage.from(MEDIA_BUCKET).remove(ownedPaths);
+      if (rmErr) throw new Error(rmErr.message);
+    }
 
     const { error: delErr } = await context.supabase.from("media_assets").delete().in(
       "id",
@@ -241,5 +247,41 @@ export const importLegacyMedia = createServerFn({ method: "POST" })
         }
       }
     }
+
+    // Also index any image URL already referenced anywhere on the site
+    // (pages, tours, fleet, blog, stops, people) so the library reflects the live site.
+    const { data: known } = await context.supabase.from("media_assets").select("url");
+    const seen = new Set(((known ?? []) as any[]).map((r) => r.url));
+
+    for (const m of USAGE_MAP) {
+      const { data: rows } = await (context.supabase as any)
+        .from(m.table)
+        .select(`${m.column}`)
+        .not(m.column, "is", null)
+        .limit(500);
+      for (const row of (rows ?? []) as any[]) {
+        const url = String(row[m.column] ?? "").trim();
+        if (!url || !/^https?:\/\//i.test(url) || seen.has(url)) continue;
+        seen.add(url);
+        const fileName = decodeURIComponent(url.split("?")[0]!.split("/").pop() || "image");
+        const { error } = await context.supabase.from("media_assets").insert({
+          path: `external/${fileName}-${Math.random().toString(36).slice(2, 8)}`,
+          url,
+          file_name: fileName,
+          folder: m.table.startsWith("blog")
+            ? "blog"
+            : m.table.startsWith("vehicle")
+              ? "fleet"
+              : m.table.startsWith("seo")
+                ? "pages"
+                : m.table === "scenic_route_templates" || m.table === "points_of_interest"
+                  ? "tours"
+                  : "general",
+          uploaded_by: context.userId,
+        });
+        if (!error) imported++;
+      }
+    }
+
     return { imported };
   });
