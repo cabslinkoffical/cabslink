@@ -8,4 +8,5 @@
 - [x] Fix database permission blocking admin booking status changes
 - [x] Simplify Cancellations & Refunds so requests are easy to review and action
 - [ ] Deep end-to-end test of every public + admin flow (in progress)
-- [ ] Dispatch link: secure automatic data feed so a separate driver-dispatch project (own domain) can read bookings and assign drivers without manual export
+- [x] Media Library: one shared image library with picker on every admin image field
+- [x] Dispatch link: signed automatic booking feed + restricted dispatch logins that can assign drivers
