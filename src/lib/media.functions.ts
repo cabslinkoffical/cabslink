@@ -183,9 +183,9 @@ export const deleteMedia = createServerFn({ method: "POST" })
   )
   .handler(async ({ context, data }) => {
     await assertAdmin(context);
-    const { data: rows, error } = await context.supabase.from("media_assets").select("id, path, url").in("id", data.ids);
+    const { data: rows, error } = await context.supabase.from("media_assets").select("id, path, url, source_kind").in("id", data.ids);
     if (error) throw new Error(error.message);
-    const assets = (rows ?? []) as { id: string; path: string; url: string }[];
+    const assets = (rows ?? []) as { id: string; path: string; url: string; source_kind: string }[];
 
     let cleared = 0;
     for (const a of assets) {
@@ -205,7 +205,7 @@ export const deleteMedia = createServerFn({ method: "POST" })
 
     // Entries indexed from other buckets / external URLs have no object in the media bucket.
     const ownedPaths = assets
-      .filter((a) => !a.path.startsWith("external/") && !a.path.startsWith("blog-images/") && !a.path.startsWith("vehicle-images/"))
+      .filter((a) => a.source_kind === "upload")
       .map((a) => a.path);
     if (ownedPaths.length) {
       const { error: rmErr } = await context.supabase.storage.from(MEDIA_BUCKET).remove(ownedPaths);
