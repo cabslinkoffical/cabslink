@@ -69,7 +69,7 @@ const NAV: SidebarEntry[] = [
 
   {
     label: "People", icon: Users, items: [
-      { to: "/cabs-booking-pannel/drivers", label: "Drivers", icon: UserCog },
+      { to: "/cabs-booking-pannel/drivers", label: "Driver applications", icon: UserCog },
       { to: "/cabs-booking-pannel/customers", label: "Customers", icon: Users },
       { to: "/cabs-booking-pannel/users", label: "Admin Users", icon: Shield },
     ],
