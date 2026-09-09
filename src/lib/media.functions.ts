@@ -28,6 +28,11 @@ export type MediaAsset = {
   folder: string;
   alt_text: string | null;
   created_at: string;
+  source_kind: "upload" | "legacy_storage" | "database_url" | "bundled_asset";
+  optimized_at: string | null;
+  original_bytes: number | null;
+  optimization_status: "pending" | "optimized" | "already_optimized" | "skipped" | "failed";
+  usage_locations: { label: string; title: string; href?: string }[];
 };
 
 /** Tables/columns that can hold a library image URL. */
@@ -49,6 +54,8 @@ const USAGE_MAP: { table: string; column: string; label: string; titleCol: strin
 ];
 
 export type MediaUsage = { table: string; column: string; label: string; title: string; id: string };
+
+const MEDIA_SELECT = "id, path, url, file_name, mime_type, bytes, width, height, folder, alt_text, created_at, source_kind, optimized_at, original_bytes, optimization_status, usage_locations";
 
 async function scanUsage(supabase: any, url: string): Promise<MediaUsage[]> {
   const found: MediaUsage[] = [];
@@ -81,7 +88,7 @@ export const listMedia = createServerFn({ method: "GET" })
     await assertAdmin(context);
     let q = context.supabase
       .from("media_assets")
-      .select("id, path, url, file_name, mime_type, bytes, width, height, folder, alt_text, created_at", { count: "exact" })
+      .select(MEDIA_SELECT, { count: "exact" })
       .order("created_at", { ascending: false })
       .range(data.offset, data.offset + data.limit - 1);
     if (data.search) q = q.ilike("file_name", `%${data.search}%`);
@@ -110,6 +117,9 @@ export const registerUpload = createServerFn({ method: "POST" })
         height: z.coerce.number().int().min(0).nullable().optional(),
         folder: z.string().trim().min(1).max(60).default("general"),
         alt_text: z.string().trim().max(200).nullable().optional(),
+        source_kind: z.enum(["upload", "legacy_storage", "database_url", "bundled_asset"]).default("upload"),
+        optimization_status: z.enum(["pending", "optimized", "already_optimized", "skipped", "failed"]).default("pending"),
+        original_bytes: z.coerce.number().int().min(0).nullable().optional(),
       })
       .parse(i),
   )
@@ -118,10 +128,10 @@ export const registerUpload = createServerFn({ method: "POST" })
     const { data: row, error } = await context.supabase
       .from("media_assets")
       .upsert({ ...data, uploaded_by: context.userId }, { onConflict: "path" })
-      .select("id, path, url, file_name, mime_type, bytes, width, height, folder, alt_text, created_at")
+      .select(MEDIA_SELECT)
       .single();
     if (error) throw new Error(error.message);
-    return row as MediaAsset;
+    return row as unknown as MediaAsset;
   });
 
 // ============ UPDATE (alt text / folder) ============
@@ -154,7 +164,13 @@ export const getMediaUsage = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     const result: Record<string, MediaUsage[]> = {};
     for (const r of (rows ?? []) as any[]) {
-      result[r.id] = await scanUsage(context.supabase, r.url);
+      const scanned = await scanUsage(context.supabase, r.url);
+      const { data: asset } = await context.supabase.from("media_assets").select("usage_locations").eq("id", r.id).maybeSingle();
+      const known = Array.isArray(asset?.usage_locations) ? asset.usage_locations : [];
+      result[r.id] = [
+        ...scanned,
+        ...known.map((u: any, index: number) => ({ table: "website", column: "asset", id: `${r.id}-${index}`, ...u })),
+      ];
     }
     return result;
   });
@@ -242,6 +258,8 @@ export const importLegacyMedia = createServerFn({ method: "POST" })
             bytes: f.metadata?.size ?? null,
             folder: src.folder,
             uploaded_by: context.userId,
+            source_kind: "legacy_storage",
+            optimization_status: /webp|avif/i.test(f.metadata?.mimetype ?? f.name) ? "already_optimized" : "pending",
           });
           if (!error) imported++;
         }
@@ -278,10 +296,86 @@ export const importLegacyMedia = createServerFn({ method: "POST" })
                   ? "tours"
                   : "general",
           uploaded_by: context.userId,
+          source_kind: "database_url",
+          optimization_status: /\.(webp|avif)(\?|$)/i.test(url) ? "already_optimized" : "pending",
         });
         if (!error) imported++;
       }
     }
 
     return { imported };
+  });
+
+// ============ CATALOGUE BUILT-IN WEBSITE ASSETS ============
+export const catalogueBundledMedia = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ assets: z.array(z.object({
+    path: z.string().min(3).max(500),
+    url: z.string().min(1).max(2000),
+    file_name: z.string().min(1).max(200),
+    folder: z.string().min(1).max(60),
+    bytes: z.number().int().min(0).nullable(),
+    mime_type: z.string().max(120).nullable(),
+    usage_locations: z.array(z.object({ label: z.string(), title: z.string(), href: z.string().optional() })).max(30),
+  })).max(150) }).parse(i))
+  .handler(async ({ context, data }) => {
+    await assertAdmin(context);
+    let imported = 0;
+    for (const asset of data.assets) {
+      const { data: existing } = await context.supabase.from("media_assets").select("id").eq("path", asset.path).maybeSingle();
+      const payload = { ...asset, source_kind: "bundled_asset", optimization_status: "already_optimized", optimized_at: new Date().toISOString(), uploaded_by: context.userId };
+      const { error } = existing
+        ? await context.supabase.from("media_assets").update(payload).eq("id", existing.id)
+        : await context.supabase.from("media_assets").insert(payload);
+      if (!error && !existing) imported++;
+    }
+    return { imported, catalogued: data.assets.length };
+  });
+
+export const listOptimizationCandidates = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { data, error } = await context.supabase
+      .from("media_assets")
+      .select(MEDIA_SELECT)
+      .eq("optimization_status", "pending")
+      .neq("source_kind", "bundled_asset")
+      .limit(200);
+    if (error) throw new Error(error.message);
+    return (data ?? []) as unknown as MediaAsset[];
+  });
+
+export const finishMediaOptimization = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({
+    id: z.string().uuid(),
+    status: z.enum(["optimized", "already_optimized", "skipped", "failed"]),
+    url: z.string().url().optional(),
+    path: z.string().max(400).optional(),
+    file_name: z.string().max(200).optional(),
+    mime_type: z.string().max(120).optional(),
+    bytes: z.number().int().min(0).optional(),
+    original_bytes: z.number().int().min(0).nullable().optional(),
+  }).parse(i))
+  .handler(async ({ context, data }) => {
+    await assertAdmin(context);
+    const { data: current, error } = await context.supabase.from("media_assets").select("id, url, bytes").eq("id", data.id).single();
+    if (error) throw new Error(error.message);
+    if (data.url && data.url !== current.url) {
+      const usage = await scanUsage(context.supabase, current.url);
+      for (const u of usage) {
+        await (context.supabase as any).from(u.table).update({ [u.column]: data.url }).eq("id", u.id);
+      }
+    }
+    const { id, status, ...changes } = data;
+    const patch = {
+      ...changes,
+      optimization_status: status,
+      optimized_at: status === "failed" ? null : new Date().toISOString(),
+      original_bytes: data.original_bytes ?? current.bytes ?? null,
+    };
+    const { error: updateError } = await context.supabase.from("media_assets").update(patch).eq("id", id);
+    if (updateError) throw new Error(updateError.message);
+    return { ok: true };
   });

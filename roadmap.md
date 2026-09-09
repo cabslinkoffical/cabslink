@@ -9,7 +9,7 @@
 - [x] Simplify Cancellations & Refunds so requests are easy to review and action
 - [ ] Deep end-to-end test of every public + admin flow (in progress)
 - [x] Media Library: one shared image library with picker on every admin image field
-- [ ] Media Library: auto-catalogue all website images, show usage, and optimize new images once
+- [~] Media Library: auto-catalogue all website images, show usage, and optimize new images once
 - [x] Dispatch link: signed automatic booking feed + restricted dispatch logins that can assign drivers
 - [ ] Redesign Scenic Routes admin page for clearer daily management
 - [ ] Scenic Routes: list-first selection, edit/save one route, and Add New action at top

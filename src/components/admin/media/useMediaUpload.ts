@@ -72,6 +72,9 @@ export function useMediaUpload(folder = "general") {
               width: dim.width,
               height: dim.height,
               folder,
+              source_kind: "upload",
+              optimization_status: file.type === "image/webp" || file.type === "image/avif" ? "optimized" : "already_optimized",
+              original_bytes: raw.size,
             },
           });
           uploaded.push({ url: signed.signedUrl, file_name: file.name });
