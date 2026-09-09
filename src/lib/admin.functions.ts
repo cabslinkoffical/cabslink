@@ -234,6 +234,23 @@ export const deleteMessage = createServerFn({ method: "POST" })
   });
 
 // =================================================================
+// Driver applications received through the website
+// =================================================================
+export const listDriverApplications = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { data, error } = await context.supabase
+      .from("contact_messages")
+      .select("id, name, email, phone, message, status, created_at")
+      .ilike("subject", "%Driver%")
+      .order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+
+// =================================================================
 // Vehicles
 // =================================================================
 export const listVehiclesAdmin = createServerFn({ method: "GET" })

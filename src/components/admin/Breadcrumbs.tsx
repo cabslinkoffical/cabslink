@@ -13,7 +13,7 @@ const LABELS: Record<string, string> = {
   extras: "Extras",
   coupons: "Coupons",
   availability: "Availability Rules",
-  drivers: "Drivers",
+  drivers: "Driver applications",
   customers: "Customers",
   users: "Admin Users",
   "scenic-routes": "Tour Routes",
