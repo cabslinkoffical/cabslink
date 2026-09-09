@@ -201,22 +201,50 @@ function DispatchPage() {
                 {(users.data ?? []).length === 0 ? (
                   <p className="p-4 text-sm text-muted-foreground">No dispatch logins yet.</p>
                 ) : (users.data ?? []).map((u: any) => (
-                  <div key={u.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 p-3 text-sm">
-                    <div className="min-w-0">
-                      <span className="block truncate">{u.email}</span>
-                      <span className={u.confirmed ? "text-xs text-primary" : "text-xs text-warning"}>{u.confirmed ? "Login ready" : "Password setup required"}</span>
+                  <div key={u.id} className="space-y-2 p-3 text-sm">
+                    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+                      <div className="min-w-0">
+                        <span className="block truncate">{u.email}</span>
+                        <span className={u.confirmed ? "text-xs text-primary" : "text-xs text-warning"}>{u.confirmed ? "Login ready" : "Password setup required"}</span>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-1">
+                        <Button variant="outline" size="sm" onClick={async () => {
+                          try {
+                            await sendPasswordSetup({ data: { userId: u.user_id } });
+                            toast.success(`Password setup sent to ${u.email}`);
+                          } catch (e: any) { toast.error(e?.message ?? "Could not send password setup"); }
+                        }}>
+                          <KeyRound className="mr-1.5 size-4" /> {u.confirmed ? "Email reset link" : "Email setup link"}
+                        </Button>
+                        <Button variant="ghost" size="sm" className="text-destructive" onClick={async () => { await revoke({ data: { id: u.id } }); qc.invalidateQueries({ queryKey: ["dispatch-users"] }); }}>
+                          Remove
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex shrink-0 items-center gap-1">
-                      <Button variant="outline" size="sm" onClick={async () => {
-                        try {
-                          await sendPasswordSetup({ data: { userId: u.user_id } });
-                          toast.success(`Password setup sent to ${u.email}`);
-                        } catch (e: any) { toast.error(e?.message ?? "Could not send password setup"); }
-                      }}>
-                        <KeyRound className="mr-1.5 size-4" /> {u.confirmed ? "Reset password" : "Send setup"}
-                      </Button>
-                      <Button variant="ghost" size="sm" className="text-destructive" onClick={async () => { await revoke({ data: { id: u.id } }); qc.invalidateQueries({ queryKey: ["dispatch-users"] }); }}>
-                        Remove
+                    <div className="flex flex-wrap items-end gap-2">
+                      <div className="min-w-[220px] flex-1">
+                        <Label className="text-xs">Or set a password here (min 10 characters)</Label>
+                        <Input
+                          type="text"
+                          value={pw[u.user_id] ?? ""}
+                          onChange={(e) => setPw((s) => ({ ...s, [u.user_id]: e.target.value }))}
+                          placeholder="New password"
+                          autoComplete="off"
+                        />
+                      </div>
+                      <Button
+                        size="sm"
+                        disabled={(pw[u.user_id] ?? "").length < 10}
+                        onClick={async () => {
+                          try {
+                            await setPassword({ data: { userId: u.user_id, password: pw[u.user_id] ?? "" } });
+                            setPw((s) => ({ ...s, [u.user_id]: "" }));
+                            qc.invalidateQueries({ queryKey: ["dispatch-users"] });
+                            toast.success(`Password set for ${u.email}. Share it securely.`);
+                          } catch (e: any) { toast.error(e?.message ?? "Could not set the password"); }
+                        }}
+                      >
+                        Save password
                       </Button>
                     </div>
                   </div>
