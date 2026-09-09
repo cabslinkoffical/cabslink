@@ -216,3 +216,27 @@ export const sendDispatchPasswordSetup = createServerFn({ method: "POST" })
     if (!sent.ok) throw new Error("The setup email could not be sent. Check the configured email service and try again.");
     return { ok: true, email };
   });
+
+export const setDispatchPassword = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z.object({ userId: z.string().uuid(), password: z.string().min(10).max(72) }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: hasRole, error: roleError } = await (supabaseAdmin as any).rpc("has_role", {
+      _user_id: data.userId,
+      _role: "dispatch",
+    });
+    if (roleError || !hasRole) throw new Error("This account does not have dispatch access.");
+    const { data: userResult } = await supabaseAdmin.auth.admin.getUserById(data.userId);
+    const email = userResult?.user?.email;
+    if (!email) throw new Error("Dispatch account not found.");
+    const { error } = await supabaseAdmin.auth.admin.updateUserById(data.userId, {
+      password: data.password,
+      email_confirm: true,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true, email };
+  });
