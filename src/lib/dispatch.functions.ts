@@ -135,10 +135,15 @@ export const listDispatchUsers = createServerFn({ method: "GET" })
       .select("id, user_id, role")
       .eq("role", "dispatch");
     if (error) throw new Error(error.message);
-    const out: { id: string; user_id: string; email: string }[] = [];
+    const out: { id: string; user_id: string; email: string; confirmed: boolean }[] = [];
     for (const r of roles ?? []) {
       const { data: u } = await supabaseAdmin.auth.admin.getUserById(r.user_id);
-      out.push({ id: r.id, user_id: r.user_id, email: u?.user?.email ?? "unknown" });
+      out.push({
+        id: r.id,
+        user_id: r.user_id,
+        email: u?.user?.email ?? "unknown",
+        confirmed: Boolean(u?.user?.email_confirmed_at),
+      });
     }
     return out;
   });
@@ -179,4 +184,35 @@ export const revokeDispatchAccess = createServerFn({ method: "POST" })
     const { error } = await (supabaseAdmin as any).from("user_roles").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
+  });
+
+export const sendDispatchPasswordSetup = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ userId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: hasRole, error: roleError } = await (supabaseAdmin as any).rpc("has_role", {
+      _user_id: data.userId,
+      _role: "dispatch",
+    });
+    if (roleError || !hasRole) throw new Error("This account does not have dispatch access.");
+    const { data: userResult, error: userError } = await supabaseAdmin.auth.admin.getUserById(data.userId);
+    const email = userResult?.user?.email;
+    if (userError || !email) throw new Error("Dispatch account not found.");
+    const { data: link, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+      type: "recovery",
+      email,
+      options: { redirectTo: "https://www.cabslink.com/auth?setup=dispatch" },
+    });
+    if (linkError || !link?.properties?.action_link) throw new Error(linkError?.message ?? "Could not create the setup link.");
+    const { getEmailAdapter } = await import("@/lib/email/adapter.server");
+    const sent = await getEmailAdapter().send({
+      to: email,
+      subject: "Set up your CabsLink Dispatch password",
+      text: `Set your CabsLink Dispatch password using this secure one-time link: ${link.properties.action_link}\n\nAfter setting it, sign in at https://cabs-flow-dispatch.lovable.app`,
+      html: `<p>Your CabsLink Dispatch access is ready.</p><p><a href="${link.properties.action_link}">Set your password</a></p><p>After setting it, sign in at <a href="https://cabs-flow-dispatch.lovable.app">CabsLink Dispatch Board</a>.</p>`,
+    });
+    if (!sent.ok) throw new Error("The setup email could not be sent. Check the configured email service and try again.");
+    return { ok: true, email };
   });

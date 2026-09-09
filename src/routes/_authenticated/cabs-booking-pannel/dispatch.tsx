@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Copy, Eye, EyeOff, Plus, RefreshCw, Send, Trash2, RotateCcw } from "lucide-react";
+import { Copy, Eye, EyeOff, Plus, RefreshCw, Send, Trash2, RotateCcw, KeyRound } from "lucide-react";
 import { Breadcrumbs } from "@/components/admin/Breadcrumbs";
 import {
   deleteDispatchEndpoint,
@@ -23,6 +23,7 @@ import {
   runDispatchDelivery,
   saveDispatchEndpoint,
   sendDispatchTest,
+  sendDispatchPasswordSetup,
 } from "@/lib/dispatch.functions";
 
 function Chip({ tone = "muted", children }: { tone?: "muted" | "ok" | "bad"; children: React.ReactNode }) {
@@ -58,6 +59,7 @@ function DispatchPage() {
   const runNow = useServerFn(runDispatchDelivery);
   const grant = useServerFn(grantDispatchAccess);
   const revoke = useServerFn(revokeDispatchAccess);
+  const sendPasswordSetup = useServerFn(sendDispatchPasswordSetup);
 
   const endpoints = useQuery({ queryKey: ["dispatch-endpoints"], queryFn: () => fetchEndpoints() });
   const events = useQuery({ queryKey: ["dispatch-events"], queryFn: () => fetchEvents(), refetchInterval: 20000 });
@@ -199,11 +201,24 @@ function DispatchPage() {
                 {(users.data ?? []).length === 0 ? (
                   <p className="p-4 text-sm text-muted-foreground">No dispatch logins yet.</p>
                 ) : (users.data ?? []).map((u: any) => (
-                  <div key={u.id} className="flex items-center justify-between p-3 text-sm">
-                    <span>{u.email}</span>
-                    <Button variant="ghost" size="sm" className="text-destructive" onClick={async () => { await revoke({ data: { id: u.id } }); qc.invalidateQueries({ queryKey: ["dispatch-users"] }); }}>
-                      Remove
-                    </Button>
+                  <div key={u.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 p-3 text-sm">
+                    <div className="min-w-0">
+                      <span className="block truncate">{u.email}</span>
+                      <span className={u.confirmed ? "text-xs text-primary" : "text-xs text-warning"}>{u.confirmed ? "Login ready" : "Password setup required"}</span>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-1">
+                      <Button variant="outline" size="sm" onClick={async () => {
+                        try {
+                          await sendPasswordSetup({ data: { userId: u.user_id } });
+                          toast.success(`Password setup sent to ${u.email}`);
+                        } catch (e: any) { toast.error(e?.message ?? "Could not send password setup"); }
+                      }}>
+                        <KeyRound className="mr-1.5 size-4" /> {u.confirmed ? "Reset password" : "Send setup"}
+                      </Button>
+                      <Button variant="ghost" size="sm" className="text-destructive" onClick={async () => { await revoke({ data: { id: u.id } }); qc.invalidateQueries({ queryKey: ["dispatch-users"] }); }}>
+                        Remove
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>
