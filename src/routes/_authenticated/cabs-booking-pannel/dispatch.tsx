@@ -24,6 +24,7 @@ import {
   saveDispatchEndpoint,
   sendDispatchTest,
   sendDispatchPasswordSetup,
+  setDispatchPassword,
 } from "@/lib/dispatch.functions";
 
 function Chip({ tone = "muted", children }: { tone?: "muted" | "ok" | "bad"; children: React.ReactNode }) {
@@ -60,6 +61,7 @@ function DispatchPage() {
   const grant = useServerFn(grantDispatchAccess);
   const revoke = useServerFn(revokeDispatchAccess);
   const sendPasswordSetup = useServerFn(sendDispatchPasswordSetup);
+  const setPassword = useServerFn(setDispatchPassword);
 
   const endpoints = useQuery({ queryKey: ["dispatch-endpoints"], queryFn: () => fetchEndpoints() });
   const events = useQuery({ queryKey: ["dispatch-events"], queryFn: () => fetchEvents(), refetchInterval: 20000 });
@@ -69,6 +71,7 @@ function DispatchPage() {
   const [url, setUrl] = useState("");
   const [email, setEmail] = useState("");
   const [shown, setShown] = useState<Record<string, boolean>>({});
+  const [pw, setPw] = useState<Record<string, string>>({});
 
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: ["dispatch-endpoints"] });
