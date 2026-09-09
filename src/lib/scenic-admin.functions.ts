@@ -120,6 +120,37 @@ export const listScenicTemplates = createServerFn({ method: "GET" })
     return { templates: tpl.data ?? [], template_pois: tplPois.data ?? [] };
   });
 
+const createScenicTemplateSchema = z.object({
+  name: z.string().trim().min(3).max(200),
+  slug: z.string().trim().min(3).max(120).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use lowercase words separated by hyphens"),
+  theme: z.string().trim().max(80).nullable().optional(),
+  short_description: z.string().trim().max(500).nullable().optional(),
+});
+
+export const createScenicTemplate = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => createScenicTemplateSchema.parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { data: row, error } = await context.supabase
+      .from("scenic_route_templates")
+      .insert({
+        name: data.name,
+        slug: data.slug,
+        theme: data.theme?.trim() || null,
+        short_description: data.short_description?.trim() || null,
+        active: false,
+        published: false,
+      })
+      .select("id")
+      .single();
+    if (error) {
+      if (error.code === "23505") throw new Error("That route URL is already in use.");
+      throw new Error(error.message);
+    }
+    return { id: row.id };
+  });
+
 export const setScenicTemplateActive = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) =>

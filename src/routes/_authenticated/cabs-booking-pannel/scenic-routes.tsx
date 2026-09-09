@@ -9,6 +9,7 @@ import {
   ImageIcon,
   Loader2,
   MapPinned,
+  Plus,
   RefreshCw,
   Search,
   SlidersHorizontal,
@@ -17,13 +18,14 @@ import { toast } from "sonner";
 
 import { BulkTools } from "@/components/admin/BulkTools";
 import { MediaUrlInput } from "@/components/admin/media/MediaPicker";
-import { EmptyState } from "@/components/admin/ui";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   listScenicTemplates,
+  createScenicTemplate,
   publishScenicTemplate,
   refreshScenicTemplateStartingPrice,
   setScenicTemplateActive,
@@ -62,10 +64,17 @@ function ScenicRoutesPage() {
   const togglePublish = useServerFn(publishScenicTemplate);
   const updateMeta = useServerFn(updateScenicTemplateMeta);
   const refreshPrice = useServerFn(refreshScenicTemplateStartingPrice);
+  const createTemplate = useServerFn(createScenicTemplate);
   const [pending, setPending] = useState<Record<string, boolean>>({});
   const [selectedId, setSelectedId] = useState<string | null>(data.templates[0]?.id ?? null);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<StatusFilter>("all");
+  const [createOpen, setCreateOpen] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newSlug, setNewSlug] = useState("");
+  const [newTheme, setNewTheme] = useState("");
+  const [newDescription, setNewDescription] = useState("");
 
   const poisByTpl = useMemo(() => {
     const map = new Map<string, any[]>();
@@ -150,20 +159,40 @@ function ScenicRoutesPage() {
       }
     });
 
-  if (data.templates.length === 0) {
-    return (
-      <div>
-        <div className="mb-5 flex items-start justify-between gap-4">
-          <div>
-            <h1 className="font-display text-2xl font-bold">Scenic Routes</h1>
-            <p className="mt-1 text-sm text-muted-foreground">Build and publish curated day tours.</p>
-          </div>
-          <BulkTools entity="scenic_route_templates" onChanged={invalidate} />
-        </div>
-        <EmptyState title="No route templates yet" />
-      </div>
-    );
-  }
+  const handleNewName = (value: string) => {
+    setNewName(value);
+    setNewSlug(value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""));
+  };
+
+  const handleCreate = async () => {
+    if (newName.trim().length < 3 || newSlug.trim().length < 3) {
+      toast.error("Enter a route name and URL name.");
+      return;
+    }
+    setCreating(true);
+    try {
+      const result = await createTemplate({ data: {
+        name: newName.trim(),
+        slug: newSlug.trim(),
+        theme: newTheme.trim() || null,
+        short_description: newDescription.trim() || null,
+      } });
+      await invalidate();
+      setSelectedId(result.id);
+      setFilter("all");
+      setSearch("");
+      setCreateOpen(false);
+      setNewName("");
+      setNewSlug("");
+      setNewTheme("");
+      setNewDescription("");
+      toast.success("New draft route created. Add its route details and stops before publishing.");
+    } catch (error: any) {
+      toast.error(error.message ?? "Unable to create route");
+    } finally {
+      setCreating(false);
+    }
+  };
 
   return (
     <div className="-m-4 flex min-h-[calc(100vh-7.5rem)] flex-col overflow-hidden bg-muted md:-m-6">
@@ -177,7 +206,10 @@ function ScenicRoutesPage() {
             {data.templates.length} templates · {liveCount} live · {attentionCount} need attention
           </p>
         </div>
-        <BulkTools entity="scenic_route_templates" onChanged={invalidate} />
+        <div className="flex shrink-0 flex-wrap items-center gap-2">
+          <Button onClick={() => setCreateOpen(true)}><Plus className="size-4" /> Add New Route</Button>
+          <BulkTools entity="scenic_route_templates" onChanged={invalidate} />
+        </div>
       </header>
 
       <div className="grid flex-1 grid-cols-1 overflow-hidden lg:grid-cols-[22rem_minmax(0,1fr)]">
@@ -300,6 +332,40 @@ function ScenicRoutesPage() {
           )}
         </main>
       </div>
+
+      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Add New Scenic Route</DialogTitle>
+            <DialogDescription>Create a private draft first. You can add route details, images and stops before publishing it.</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="new-route-name">Route name</Label>
+              <Input id="new-route-name" value={newName} onChange={(event) => handleNewName(event.target.value)} placeholder="Loch Lomond & Trossachs" autoFocus />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="new-route-slug">Website URL name</Label>
+              <Input id="new-route-slug" value={newSlug} onChange={(event) => setNewSlug(event.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))} placeholder="loch-lomond-trossachs" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="new-route-theme">Theme</Label>
+              <Input id="new-route-theme" value={newTheme} onChange={(event) => setNewTheme(event.target.value)} placeholder="Lochs and Highlands" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="new-route-description">Short description</Label>
+              <Input id="new-route-description" value={newDescription} onChange={(event) => setNewDescription(event.target.value)} placeholder="One-line summary shown in tour listings" />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCreateOpen(false)} disabled={creating}>Cancel</Button>
+            <Button onClick={() => void handleCreate()} disabled={creating || newName.trim().length < 3 || newSlug.trim().length < 3}>
+              {creating ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}
+              Create draft
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
