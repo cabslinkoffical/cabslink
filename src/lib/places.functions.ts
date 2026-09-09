@@ -46,7 +46,7 @@ function classify(types: string[] | undefined): "area" | "address" {
 }
 
 // Short-lived cache for identical normalized queries (per Worker isolate).
-type CacheEntry = { value: { suggestions: PlaceSuggestion[] }; expiresAt: number };
+type CacheEntry = { value: { suggestions: PlaceSuggestion[]; ok: boolean }; expiresAt: number };
 const CACHE_TTL_MS = 60_000;
 const cache = new Map<string, CacheEntry>();
 
@@ -55,7 +55,7 @@ function cacheKey(d: z.infer<typeof acInput>) {
 }
 
 export const placesAutocomplete = createServerFn({ method: "POST" })
-  .validator((data: z.infer<typeof acInput>) => acInput.parse(data))
+  .validator((data: unknown) => acInput.parse(data))
   .handler(async ({ data }) => {
     // Per-IP sliding-window rate limit: 60 queries / minute.
     let ip = "unknown";
@@ -63,7 +63,7 @@ export const placesAutocomplete = createServerFn({ method: "POST" })
     if (!checkLimit({ name: "placesAutocomplete", windowMs: 60_000, max: 60 }, ip).ok) {
       console.error(`[places] rate limited ip=${ip}`);
       try { setResponseStatus(429); } catch {}
-      return { suggestions: [] as PlaceSuggestion[] };
+      return { suggestions: [] as PlaceSuggestion[], ok: false };
     }
 
     const key = cacheKey(data);
@@ -75,7 +75,7 @@ export const placesAutocomplete = createServerFn({ method: "POST" })
     const lovableKey = process.env.LOVABLE_API_KEY;
     if (!apiKey || !lovableKey) {
       console.error(`[places] missing keys mapsKey=${!!apiKey} lovableKey=${!!lovableKey}`);
-      return { suggestions: [] };
+      return { suggestions: [], ok: false };
     }
 
     const includedPrimaryTypes =
@@ -109,7 +109,7 @@ export const placesAutocomplete = createServerFn({ method: "POST" })
             "Google Maps server key is referrer-restricted. Set the server key's application restrictions to \"None\" or \"IP addresses\" in Google Cloud Console.",
           );
         }
-        return { suggestions: [] };
+        return { suggestions: [], ok: false };
       }
       const json = (await res.json()) as {
         suggestions?: Array<{
@@ -137,12 +137,88 @@ export const placesAutocomplete = createServerFn({ method: "POST" })
       if (data.mode === "all") {
         suggestions.sort((a, b) => (a.kind === b.kind ? 0 : a.kind === "area" ? -1 : 1));
       }
-      const value = { suggestions };
+      const value = { suggestions, ok: true };
       cache.set(key, { value, expiresAt: now + CACHE_TTL_MS });
       return value;
     } catch (e: any) {
       console.error(`[places] fetch threw: ${e?.name} ${e?.message}`);
-      return { suggestions: [] };
+      return { suggestions: [], ok: false };
+    } finally {
+      clearTimeout(timer);
+    }
+  });
+
+const resolveInput = z.object({ input: z.string().trim().min(3).max(120) });
+
+/**
+ * Resilience path: turn a free-typed address into a real Place ID when the
+ * autocomplete list is unavailable (API hiccup, timeout, rate limit). Pricing
+ * needs a Place ID, so a text search keeps the booking flow usable instead of
+ * leaving the customer with a field they can never satisfy.
+ */
+export const resolvePlaceText = createServerFn({ method: "POST" })
+  .validator((data: unknown) => resolveInput.parse(data))
+  .handler(async ({ data }) => {
+    let ip = "unknown";
+    try { ip = getRequestIP({ xForwardedFor: true }) ?? "unknown"; } catch {}
+    if (!checkLimit({ name: "resolvePlaceText", windowMs: 60_000, max: 30 }, ip).ok) {
+      try { setResponseStatus(429); } catch {}
+      return { place: null as PlaceSuggestion | null };
+    }
+
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+    const lovableKey = process.env.LOVABLE_API_KEY;
+    if (!apiKey || !lovableKey) return { place: null as PlaceSuggestion | null };
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 8_000);
+    try {
+      const res = await fetch(`${GATEWAY_URL}/places/v1/places:searchText`, {
+        method: "POST",
+        signal: controller.signal,
+        headers: {
+          Authorization: `Bearer ${lovableKey}`,
+          "X-Connection-Api-Key": apiKey,
+          "Content-Type": "application/json",
+          "X-Goog-FieldMask": "places.id,places.displayName,places.formattedAddress,places.types",
+        },
+        body: JSON.stringify({
+          textQuery: data.input,
+          languageCode: "en-GB",
+          regionCode: "GB",
+          includedRegionCodes: ["gb"],
+          maxResultCount: 1,
+        }),
+      });
+      if (!res.ok) {
+        const body = await res.text().catch(() => "");
+        console.error(`Places searchText failed [${res.status}]: ${body.slice(0, 500)}`);
+        return { place: null as PlaceSuggestion | null };
+      }
+      const json = (await res.json()) as {
+        places?: Array<{
+          id: string;
+          types?: string[];
+          displayName?: { text?: string };
+          formattedAddress?: string;
+        }>;
+      };
+      const first = json.places?.[0];
+      if (!first?.id) return { place: null as PlaceSuggestion | null };
+      const primary = first.displayName?.text ?? first.formattedAddress ?? data.input;
+      const full = first.formattedAddress ?? primary;
+      return {
+        place: {
+          placeId: first.id,
+          primary,
+          secondary: first.formattedAddress && first.formattedAddress !== primary ? first.formattedAddress : "",
+          full,
+          kind: classify(first.types),
+        } as PlaceSuggestion,
+      };
+    } catch (e: any) {
+      console.error(`[places] searchText threw: ${e?.name} ${e?.message}`);
+      return { place: null as PlaceSuggestion | null };
     } finally {
       clearTimeout(timer);
     }

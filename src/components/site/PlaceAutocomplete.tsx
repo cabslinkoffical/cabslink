@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { placesAutocomplete, type PlaceSuggestion } from "@/lib/places.functions";
+import { placesAutocomplete, resolvePlaceText, type PlaceSuggestion } from "@/lib/places.functions";
 import { Input } from "@/components/ui/input";
 import { MapPin, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -60,12 +60,17 @@ export function PlaceAutocomplete({
   const inputId = id ?? autoId;
   const listboxId = `${inputId}-listbox`;
   const call = useServerFn(placesAutocomplete);
+  const resolveText = useServerFn(resolvePlaceText);
 
   const [text, setText] = useState(value?.label ?? initialText ?? "");
   const [suggestions, setSuggestions] = useState<PlaceSuggestion[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [activeIdx, setActiveIdx] = useState(-1);
+  // Set when the lookup service itself failed (not merely "no matches"), so the
+  // field can fall back to a plain text search instead of blocking the booking.
+  const [lookupFailed, setLookupFailed] = useState(false);
+  const [unverified, setUnverified] = useState(false);
   // Short viewports (and the cookie notice pinned to the bottom) can hide a
   // downward list entirely, so flip it above the field when space is tight.
   const [dropUp, setDropUp] = useState(false);
@@ -85,12 +90,19 @@ export function PlaceAutocomplete({
   }, [value?.placeId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Text typed into the server-rendered input before hydration lives only in
-  // the DOM; React's first client render would otherwise wipe it. Adopt
-  // whatever the field already holds on mount.
+  // the DOM, and keystrokes landing mid-hydration never reach React at all —
+  // that left the field spinning forever with no lookup ever sent. Adopt the
+  // DOM value on mount and keep re-checking briefly while hydration settles.
   useEffect(() => {
-    const dom = inputRef.current?.value;
-    if (dom) setText((t) => (t ? t : dom));
+    const sync = () => {
+      const dom = inputRef.current?.value;
+      if (dom) setText((t) => (dom !== t && dom.length >= t.length ? dom : t));
+    };
+    sync();
+    const timers = [0, 60, 160, 320, 600, 1200].map((ms) => setTimeout(sync, ms));
+    return () => timers.forEach(clearTimeout);
   }, []);
+
 
   useEffect(() => {
     const raw = text.trim();
@@ -135,18 +147,25 @@ export function PlaceAutocomplete({
         suggestionsForQuery.current = norm;
         setSuggestions(res.suggestions);
         setOpen(res.suggestions.length > 0);
+        setLookupFailed(("ok" in res ? !res.ok : false) as boolean);
         setActiveIdx(-1);
       } catch {
         if (seq === latestSeq.current) {
           setSuggestions([]);
           setOpen(false);
+          setLookupFailed(true);
         }
       } finally {
         if (timeoutId) clearTimeout(timeoutId);
         if (seq === latestSeq.current) setLoading(false);
       }
     }, DEBOUNCE_MS);
-    return () => clearTimeout(t);
+    // A pending debounce that is cancelled must also stop the spinner, or the
+    // field stays "loading" forever without a request ever going out.
+    return () => {
+      clearTimeout(t);
+      if (seq === latestSeq.current) setLoading(false);
+    };
   }, [text, sessionToken, mode]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -200,6 +219,29 @@ export function PlaceAutocomplete({
 
   const canSelect = !loading;
 
+  // Resilience: when the suggestion list is unavailable, resolve whatever the
+  // customer typed with a plain text search so the field can still be
+  // satisfied. A quote needs a real location, so we look one up rather than
+  // accepting unusable free text silently.
+  const resolveTyped = useCallback(async () => {
+    const raw = text.trim();
+    if (value || loading || raw.length < 3) return;
+    if (!lookupFailed && suggestions.length > 0) return;
+    try {
+      const res = await resolveText({ data: { input: raw } });
+      if (!res.place) return;
+      const label = res.place.full || res.place.primary;
+      setText(label);
+      setUnverified(true);
+      setOpen(false);
+      setSuggestions([]);
+      lastQuery.current = normalizeQuery(label);
+      onChange({ placeId: res.place.placeId, label });
+    } catch {
+      /* keep the typed text; the form shows its own message */
+    }
+  }, [lookupFailed, loading, onChange, resolveText, suggestions.length, text, value]);
+
   return (
     <div className={cn("relative w-full text-[var(--navy)]", className)} ref={wrapRef}>
       <MapPin
@@ -235,9 +277,17 @@ export function PlaceAutocomplete({
           // Editing invalidates the previous Place ID immediately.
           if (value) onChange(null);
           setSuggestions([]);
+          setUnverified(false);
           suggestionsForQuery.current = "";
           setActiveIdx(-1);
         }}
+        onKeyUp={(e) => {
+          // Guarantees state matches the field even if a change event was
+          // swallowed while the page was still becoming interactive.
+          const v = e.currentTarget.value;
+          if (v !== text) setText(v);
+        }}
+        onBlur={() => { void resolveTyped(); }}
         onFocus={() => suggestions.length && setOpen(true)}
         onKeyDown={(e) => {
           if (!open || !suggestions.length) return;
@@ -258,6 +308,11 @@ export function PlaceAutocomplete({
       />
       {loading && (
         <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
+      )}
+      {unverified && !open && (
+        <p className="mt-1 text-[11px] font-medium leading-snug text-[var(--gold-ink)]">
+          We couldn’t fully verify this address — we matched the closest place and will confirm it with you.
+        </p>
       )}
       {open && suggestions.length > 0 && (
         <ul

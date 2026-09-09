@@ -8,8 +8,10 @@ vi.mock("@tanstack/react-start", () => ({
 }));
 
 const autocompleteMock = vi.fn();
+const resolveTextMock = vi.fn(async () => ({ place: null }));
 vi.mock("@/lib/places.functions", () => ({
   placesAutocomplete: (args: unknown) => autocompleteMock(args),
+  resolvePlaceText: (args: unknown) => resolveTextMock(args as never),
 }));
 
 import { PlaceAutocomplete, type SelectedPlace } from "@/components/site/PlaceAutocomplete";
