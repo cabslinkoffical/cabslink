@@ -424,6 +424,46 @@ export const listDrivers = createServerFn({ method: "GET" })
     return data ?? [];
   });
 
+/**
+ * Read-only view of the drivers created in the dispatch panel, with the
+ * essential details plus how many jobs they currently hold. Admin does not
+ * create or assign drivers — that stays in dispatch.
+ */
+export const listDispatchDrivers = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const [driversRes, jobsRes] = await Promise.all([
+      context.supabase
+        .from("drivers")
+        .select("id, full_name, email, phone, status, available, license_number, photo_url, created_at, vehicle:vehicles(id, name)")
+        .order("created_at", { ascending: false }),
+      context.supabase
+        .from("bookings")
+        .select("driver_id, status, pickup_date")
+        .not("driver_id", "is", null),
+    ]);
+    if (driversRes.error) throw new Error(driversRes.error.message);
+    const jobs = (jobsRes.data ?? []) as Array<{ driver_id: string; status: string; pickup_date: string | null }>;
+    const active = new Set(["assigned", "driver_en_route", "passenger_on_board"]);
+    return (driversRes.data ?? []).map((d: any) => {
+      const mine = jobs.filter((j) => j.driver_id === d.id);
+      const upcoming = mine
+        .filter((j) => active.has(j.status))
+        .map((j) => j.pickup_date)
+        .filter(Boolean)
+        .sort() as string[];
+      return {
+        ...d,
+        vehicleName: d.vehicle?.name ?? null,
+        activeJobs: mine.filter((j) => active.has(j.status)).length,
+        completedJobs: mine.filter((j) => j.status === "completed").length,
+        nextJobDate: upcoming[0] ?? null,
+      };
+    });
+  });
+
+
 const driverSchema = z.object({
   id: z.string().uuid().optional(),
   full_name: z.string().min(1).max(200),
