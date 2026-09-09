@@ -15,4 +15,4 @@
 - [x] Redesign Scenic Routes admin page for clearer daily management
 - [x] Scenic Routes: list-first selection, edit/save one route, and Add New action at top
 - [x] Remove divider bars below Our Services on the homepage
-- [x] Production booking autocomplete: verify connector, harden outage message, and validate cabslink.com end-to-end
+- [ ] Production booking autocomplete: replace obsolete server-function validators, publish, and validate repeated cabslink.com requests

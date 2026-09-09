@@ -55,7 +55,7 @@ function cacheKey(d: z.infer<typeof acInput>) {
 }
 
 export const placesAutocomplete = createServerFn({ method: "POST" })
-  .validator((data: unknown) => acInput.parse(data))
+  .inputValidator((data: unknown) => acInput.parse(data))
   .handler(async ({ data }) => {
     // Per-IP sliding-window rate limit: 60 queries / minute.
     let ip = "unknown";
@@ -157,7 +157,7 @@ const resolveInput = z.object({ input: z.string().trim().min(3).max(120) });
  * leaving the customer with a field they can never satisfy.
  */
 export const resolvePlaceText = createServerFn({ method: "POST" })
-  .validator((data: unknown) => resolveInput.parse(data))
+  .inputValidator((data: unknown) => resolveInput.parse(data))
   .handler(async ({ data }) => {
     let ip = "unknown";
     try { ip = getRequestIP({ xForwardedFor: true }) ?? "unknown"; } catch {}
