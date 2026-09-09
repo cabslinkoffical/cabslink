@@ -137,7 +137,7 @@ function DriverList({ drivers }: { drivers: DispatchDriver[] }) {
       </div>
 
       {rows.length === 0 ? (
-        <EmptyState title="No drivers yet" description="Drivers you add in the dispatch panel will show up here automatically." />
+        <EmptyState title="No drivers yet" hint="Drivers you add in the dispatch panel will show up here automatically." />
       ) : (
         <div className={view === "grid" ? "grid gap-4 md:grid-cols-2 lg:grid-cols-3" : "grid gap-3"}>
           {rows.map((d) => (
