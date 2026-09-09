@@ -1658,6 +1658,7 @@ export type Database = {
           photo_url: string | null
           status: Database["public"]["Enums"]["driver_status"]
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           address?: string | null
@@ -1673,6 +1674,7 @@ export type Database = {
           photo_url?: string | null
           status?: Database["public"]["Enums"]["driver_status"]
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           address?: string | null
@@ -1688,6 +1690,7 @@ export type Database = {
           photo_url?: string | null
           status?: Database["public"]["Enums"]["driver_status"]
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -4418,6 +4421,7 @@ export type Database = {
       }
     }
     Functions: {
+      current_driver_id: { Args: never; Returns: string }
       dispatch_wake_delivery: { Args: never; Returns: undefined }
       generate_booking_ref: { Args: never; Returns: string }
       get_booking_by_confirmation_hash: {
