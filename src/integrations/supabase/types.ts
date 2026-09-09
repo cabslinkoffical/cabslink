@@ -1942,10 +1942,15 @@ export type Database = {
           height: number | null
           id: string
           mime_type: string | null
+          optimization_status: string
+          optimized_at: string | null
+          original_bytes: number | null
           path: string
+          source_kind: string
           updated_at: string
           uploaded_by: string | null
           url: string
+          usage_locations: Json
           width: number | null
         }
         Insert: {
@@ -1957,10 +1962,15 @@ export type Database = {
           height?: number | null
           id?: string
           mime_type?: string | null
+          optimization_status?: string
+          optimized_at?: string | null
+          original_bytes?: number | null
           path: string
+          source_kind?: string
           updated_at?: string
           uploaded_by?: string | null
           url: string
+          usage_locations?: Json
           width?: number | null
         }
         Update: {
@@ -1972,10 +1982,15 @@ export type Database = {
           height?: number | null
           id?: string
           mime_type?: string | null
+          optimization_status?: string
+          optimized_at?: string | null
+          original_bytes?: number | null
           path?: string
+          source_kind?: string
           updated_at?: string
           uploaded_by?: string | null
           url?: string
+          usage_locations?: Json
           width?: number | null
         }
         Relationships: []
