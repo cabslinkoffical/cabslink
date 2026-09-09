@@ -11,7 +11,7 @@
 - [x] Media Library: one shared image library with picker on every admin image field
 - [x] Media Library: auto-catalogue all website images, show usage, and optimize new images once
 - [x] Dispatch link: signed automatic booking feed + restricted dispatch logins that can assign drivers
-- [x] Connect Cabslink Luxury Travel to CabsLink Dispatch Board with working dispatch login and secure live data access
+- [~] Connect Cabslink Luxury Travel to CabsLink Dispatch Board with working dispatch login and secure live data access — Cabslink activation flow ready; Dispatch Board role guard and live email confirmation pending in the separate project
 - [x] Redesign Scenic Routes admin page for clearer daily management
 - [x] Scenic Routes: list-first selection, edit/save one route, and Add New action at top
 - [x] Remove divider bars below Our Services on the homepage
