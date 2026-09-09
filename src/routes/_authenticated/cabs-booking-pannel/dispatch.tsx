@@ -111,7 +111,14 @@ function DispatchPage() {
         </Button>
       </div>
 
-      <Tabs defaultValue="connections">
+      <Tabs
+        value={tab}
+        onValueChange={(v) => {
+          const next = (TABS.includes(v as DispatchTab) ? v : "connections") as DispatchTab;
+          setTab(next);
+          void navigate({ search: { tab: next }, replace: true });
+        }}
+      >
         <TabsList>
           <TabsTrigger value="connections">Connections</TabsTrigger>
           <TabsTrigger value="people">Dispatch logins</TabsTrigger>
