@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -37,8 +37,15 @@ function Chip({ tone = "muted", children }: { tone?: "muted" | "ok" | "bad"; chi
   return <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${cls}`}>{children}</span>;
 }
 
+type DispatchTab = "connections" | "people" | "activity";
+const TABS: DispatchTab[] = ["connections", "people", "activity"];
+
 export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/dispatch")({
   component: DispatchPage,
+  validateSearch: (search: Record<string, unknown>): { tab?: DispatchTab } => {
+    const t = String(search?.tab ?? "");
+    return TABS.includes(t as DispatchTab) ? { tab: t as DispatchTab } : {};
+  },
   head: () => ({
     meta: [
       { title: "Dispatch link | CabsLink admin" },
@@ -48,6 +55,9 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/dispat
 });
 
 function DispatchPage() {
+  const search = Route.useSearch();
+  const navigate = Route.useNavigate();
+  const [tab, setTab] = useState<DispatchTab>(search.tab ?? "connections");
   const qc = useQueryClient();
   const fetchEndpoints = useServerFn(listDispatchEndpoints);
   const fetchEvents = useServerFn(listDispatchEvents);
@@ -72,6 +82,10 @@ function DispatchPage() {
   const [email, setEmail] = useState("");
   const [shown, setShown] = useState<Record<string, boolean>>({});
   const [pw, setPw] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    if (search.tab && search.tab !== tab) setTab(search.tab);
+  }, [search.tab]);
 
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: ["dispatch-endpoints"] });
@@ -101,7 +115,14 @@ function DispatchPage() {
         </Button>
       </div>
 
-      <Tabs defaultValue="connections">
+      <Tabs
+        value={tab}
+        onValueChange={(v) => {
+          const next = (TABS.includes(v as DispatchTab) ? v : "connections") as DispatchTab;
+          setTab(next);
+          void navigate({ search: { tab: next }, replace: true });
+        }}
+      >
         <TabsList>
           <TabsTrigger value="connections">Connections</TabsTrigger>
           <TabsTrigger value="people">Dispatch logins</TabsTrigger>
