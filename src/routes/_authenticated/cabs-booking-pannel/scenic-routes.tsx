@@ -244,7 +244,7 @@ function ScenicRoutesPage() {
                       <span className="mt-1 flex items-center gap-2 text-xs font-normal text-muted-foreground">
                         <span>{stops.length} stops</span>
                         <span aria-hidden>·</span>
-                        <span>{template.starting_price_pence != null ? `£${(template.starting_price_pence / 100).toFixed(0)}` : "No price"}</span>
+                        <span>{template.starting_price_pence_cache != null ? `£${(template.starting_price_pence_cache / 100).toFixed(0)}` : "No price"}</span>
                       </span>
                       {(missing > 0 || (!template.published && !canPublish)) && (
                         <span className="mt-2 flex items-center gap-1 text-[11px] font-medium text-warning">
