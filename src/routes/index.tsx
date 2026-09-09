@@ -460,7 +460,7 @@ function HomePage() {
                   </span>
                 </div>
 
-                <div className="border-b border-border py-5 transition-colors duration-300 group-hover:border-accent">
+                <div className="py-5">
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0">
                       <div className="mb-2 flex items-center gap-2 text-accent">
@@ -477,7 +477,7 @@ function HomePage() {
             ))}
           </div>
 
-          <div className="mt-10 border-t border-border pt-6">
+          <div className="mt-10 pt-6">
             <Button asChild variant="link" className="h-auto px-0 text-foreground hover:text-accent">
               <Link to="/services">
                 View all services <ArrowRight className="size-4" />
