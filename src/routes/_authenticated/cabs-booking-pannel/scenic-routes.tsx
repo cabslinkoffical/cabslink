@@ -18,7 +18,6 @@ import { toast } from "sonner";
 
 import { BulkTools } from "@/components/admin/BulkTools";
 import { MediaUrlInput } from "@/components/admin/media/MediaPicker";
-import { EmptyState } from "@/components/admin/ui";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -194,21 +193,6 @@ function ScenicRoutesPage() {
       setCreating(false);
     }
   };
-
-  if (data.templates.length === 0) {
-    return (
-      <div>
-        <div className="mb-5 flex items-start justify-between gap-4">
-          <div>
-            <h1 className="font-display text-2xl font-bold">Scenic Routes</h1>
-            <p className="mt-1 text-sm text-muted-foreground">Build and publish curated day tours.</p>
-          </div>
-          <Button onClick={() => setCreateOpen(true)}><Plus className="size-4" /> Add New Route</Button>
-        </div>
-        <EmptyState title="No route templates yet" />
-      </div>
-    );
-  }
 
   return (
     <div className="-m-4 flex min-h-[calc(100vh-7.5rem)] flex-col overflow-hidden bg-muted md:-m-6">
