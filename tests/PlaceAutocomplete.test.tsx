@@ -26,7 +26,52 @@ function Harness({ onChange }: { onChange?: (p: SelectedPlace | null) => void } 
   );
 }
 
-beforeEach(() => { autocompleteMock.mockReset(); });
+beforeEach(() => {
+  autocompleteMock.mockReset();
+  resolveTextMock.mockReset();
+  resolveTextMock.mockResolvedValue({ place: null });
+});
+
+describe("PlaceAutocomplete — lookup outage", () => {
+  it("shows a clear message after autocomplete and typed-address resolution both fail", async () => {
+    autocompleteMock.mockResolvedValue({ suggestions: [], ok: false });
+    resolveTextMock.mockResolvedValue({ place: null });
+    const user = userEvent.setup();
+    render(<Harness />);
+
+    const input = screen.getByRole("combobox");
+    await user.type(input, "Manchester Airport");
+    await waitFor(() => expect(autocompleteMock).toHaveBeenCalled());
+    await user.tab();
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      /Address lookup temporarily unavailable — you can still type your address/i,
+    );
+  });
+
+  it("keeps the non-blocking closest-match notice when typed text resolves", async () => {
+    autocompleteMock.mockResolvedValue({ suggestions: [], ok: false });
+    resolveTextMock.mockResolvedValue({
+      place: {
+        placeId: "ChIJ_manchester",
+        primary: "Manchester Airport",
+        secondary: "Manchester",
+        full: "Manchester Airport, Manchester",
+        kind: "address",
+      },
+    });
+    const user = userEvent.setup();
+    render(<Harness />);
+
+    const input = screen.getByRole("combobox");
+    await user.type(input, "Manchester Airport");
+    await waitFor(() => expect(autocompleteMock).toHaveBeenCalled());
+    await user.tab();
+
+    expect(await screen.findByText(/matched the closest place/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Address lookup temporarily unavailable/i)).toBeNull();
+  });
+});
 
 describe("PlaceAutocomplete — editing invalidates selection", () => {
   it("clears the stored Place ID as soon as the user edits after selecting", async () => {

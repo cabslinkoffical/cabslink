@@ -70,6 +70,7 @@ export function PlaceAutocomplete({
   // Set when the lookup service itself failed (not merely "no matches"), so the
   // field can fall back to a plain text search instead of blocking the booking.
   const [lookupFailed, setLookupFailed] = useState(false);
+  const [resolveFailed, setResolveFailed] = useState(false);
   const [unverified, setUnverified] = useState(false);
   // Short viewports (and the cookie notice pinned to the bottom) can hide a
   // downward list entirely, so flip it above the field when space is tight.
@@ -148,6 +149,7 @@ export function PlaceAutocomplete({
         setSuggestions(res.suggestions);
         setOpen(res.suggestions.length > 0);
         setLookupFailed(("ok" in res ? !res.ok : false) as boolean);
+        if ("ok" in res && res.ok) setResolveFailed(false);
         setActiveIdx(-1);
       } catch {
         if (seq === latestSeq.current) {
@@ -229,16 +231,20 @@ export function PlaceAutocomplete({
     if (!lookupFailed && suggestions.length > 0) return;
     try {
       const res = await resolveText({ data: { input: raw } });
-      if (!res.place) return;
+      if (!res.place) {
+        setResolveFailed(true);
+        return;
+      }
       const label = res.place.full || res.place.primary;
       setText(label);
       setUnverified(true);
+      setResolveFailed(false);
       setOpen(false);
       setSuggestions([]);
       lastQuery.current = normalizeQuery(label);
       onChange({ placeId: res.place.placeId, label });
     } catch {
-      /* keep the typed text; the form shows its own message */
+      setResolveFailed(true);
     }
   }, [lookupFailed, loading, onChange, resolveText, suggestions.length, text, value]);
 
@@ -278,6 +284,7 @@ export function PlaceAutocomplete({
           if (value) onChange(null);
           setSuggestions([]);
           setUnverified(false);
+          setResolveFailed(false);
           suggestionsForQuery.current = "";
           setActiveIdx(-1);
         }}
@@ -312,6 +319,11 @@ export function PlaceAutocomplete({
       {unverified && !open && (
         <p className="mt-1 text-[11px] font-medium leading-snug text-[var(--gold-ink)]">
           We couldn’t fully verify this address — we matched the closest place and will confirm it with you.
+        </p>
+      )}
+      {lookupFailed && resolveFailed && !open && (
+        <p role="alert" className="mt-1 text-[11px] font-medium leading-snug text-destructive">
+          Address lookup temporarily unavailable — you can still type your address. We’ll ask you to confirm it before continuing.
         </p>
       )}
       {open && suggestions.length > 0 && (
