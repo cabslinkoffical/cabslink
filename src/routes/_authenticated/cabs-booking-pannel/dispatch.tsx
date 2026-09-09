@@ -83,6 +83,10 @@ function DispatchPage() {
   const [shown, setShown] = useState<Record<string, boolean>>({});
   const [pw, setPw] = useState<Record<string, string>>({});
 
+  useEffect(() => {
+    if (search.tab && search.tab !== tab) setTab(search.tab);
+  }, [search.tab]);
+
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: ["dispatch-endpoints"] });
     qc.invalidateQueries({ queryKey: ["dispatch-events"] });
