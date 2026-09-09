@@ -118,6 +118,106 @@ function Page() {
           )}
         </DialogContent>
       </Dialog>
+
+      <DriverLoginDialog driver={login} onClose={() => setLogin(null)} />
     </div>
+  );
+}
+
+function DriverLoginDialog({ driver, onClose }: { driver: any | null; onClose: () => void }) {
+  const qc = useQueryClient();
+  const { data: logins = [] } = useQuery(loginOpts);
+  const create = useServerFn(createDriverLogin);
+  const setPw = useServerFn(setDriverLoginPassword);
+  const sendLink = useServerFn(sendDriverPasswordSetup);
+  const unlink = useServerFn(unlinkDriverLogin);
+
+  const record = logins.find((l: any) => l.driver_id === driver?.id);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const refresh = () => {
+    qc.invalidateQueries({ queryKey: ["admin", "drivers"] });
+    qc.invalidateQueries({ queryKey: ["admin", "driver-logins"] });
+  };
+
+  const run = async (fn: () => Promise<any>, done: string) => {
+    setBusy(true);
+    try { await fn(); refresh(); toast.success(done); setPassword(""); }
+    catch (e: any) { toast.error(e?.message ?? "Something went wrong"); }
+    finally { setBusy(false); }
+  };
+
+  return (
+    <Dialog open={!!driver} onOpenChange={(o) => { if (!o) { onClose(); setEmail(""); setPassword(""); } }}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader><DialogTitle>Driver login — {driver?.full_name}</DialogTitle></DialogHeader>
+        {driver && (
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              A driver login lets this driver sign in to the driver panel and see only their own assigned jobs.
+              They cannot see prices, other drivers&apos; jobs or any settings.
+            </p>
+
+            {record ? (
+              <div className="space-y-3 rounded-xl border border-border p-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium">{record.email}</p>
+                    <p className={record.confirmed ? "text-xs text-primary" : "text-xs text-warning"}>
+                      {record.confirmed ? "Login ready" : "Password setup required"}
+                    </p>
+                  </div>
+                  <div className="flex gap-1">
+                    <Button variant="outline" size="sm" disabled={busy}
+                      onClick={() => run(() => sendLink({ data: { driverId: driver.id } }), `Password link sent to ${record.email}`)}>
+                      {record.confirmed ? "Email reset link" : "Email setup link"}
+                    </Button>
+                    <Button variant="ghost" size="sm" className="text-destructive" disabled={busy}
+                      onClick={() => run(() => unlink({ data: { driverId: driver.id } }), "Login unlinked")}>
+                      Unlink
+                    </Button>
+                  </div>
+                </div>
+                <div className="flex flex-wrap items-end gap-2">
+                  <div className="min-w-[200px] flex-1">
+                    <Label className="text-xs">Or set a password here (min 10 characters)</Label>
+                    <Input type="text" autoComplete="off" value={password} placeholder="New password"
+                      onChange={(e) => setPassword(e.target.value)} />
+                  </div>
+                  <Button size="sm" disabled={busy || password.length < 10}
+                    onClick={() => run(() => setPw({ data: { driverId: driver.id, password } }), `Password set for ${record.email}. Share it securely.`)}>
+                    Save password
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3 rounded-xl border border-border p-3">
+                <div>
+                  <Label>Driver email</Label>
+                  <Input type="email" value={email || driver.email || ""} placeholder="driver@example.com"
+                    onChange={(e) => setEmail(e.target.value)} />
+                </div>
+                <div>
+                  <Label>Password (optional — min 10 characters)</Label>
+                  <Input type="text" autoComplete="off" value={password} placeholder="Leave blank to email an invite"
+                    onChange={(e) => setPassword(e.target.value)} />
+                </div>
+                <Button
+                  disabled={busy || !(email || driver.email) || (password.length > 0 && password.length < 10)}
+                  onClick={() => run(
+                    () => create({ data: { driverId: driver.id, email: (email || driver.email) as string, ...(password ? { password } : {}) } }),
+                    password ? "Login created — share the email and password with the driver" : "Invitation email sent to the driver",
+                  )}
+                >
+                  Create login
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }
