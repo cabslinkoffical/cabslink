@@ -55,6 +55,9 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/dispat
 });
 
 function DispatchPage() {
+  const search = Route.useSearch();
+  const navigate = Route.useNavigate();
+  const [tab, setTab] = useState<DispatchTab>(search.tab ?? "connections");
   const qc = useQueryClient();
   const fetchEndpoints = useServerFn(listDispatchEndpoints);
   const fetchEvents = useServerFn(listDispatchEvents);
