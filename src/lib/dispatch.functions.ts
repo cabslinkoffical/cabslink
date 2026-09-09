@@ -210,8 +210,8 @@ export const sendDispatchPasswordSetup = createServerFn({ method: "POST" })
     const sent = await getEmailAdapter().send({
       to: email,
       subject: "Set up your CabsLink Dispatch password",
-      text: `Set your CabsLink Dispatch password using this secure one-time link: ${link.properties.action_link}\n\nAfter setting it, sign in at https://cabs-flow-dispatch.lovable.app`,
-      html: `<p>Your CabsLink Dispatch access is ready.</p><p><a href="${link.properties.action_link}">Set your password</a></p><p>After setting it, sign in at <a href="https://cabs-flow-dispatch.lovable.app">CabsLink Dispatch Board</a>.</p>`,
+      text: `Set your CabsLink Dispatch password using this secure one-time link: ${link.properties.action_link}\n\nAfter setting it, use the same email and password to sign in to the CabsLink Dispatch Board.`,
+      html: `<p>Your CabsLink Dispatch access is ready.</p><p><a href="${link.properties.action_link}">Set your password</a></p><p>After setting it, use the same email and password to sign in to the CabsLink Dispatch Board.</p>`,
     });
     if (!sent.ok) throw new Error("The setup email could not be sent. Check the configured email service and try again.");
     return { ok: true, email };
