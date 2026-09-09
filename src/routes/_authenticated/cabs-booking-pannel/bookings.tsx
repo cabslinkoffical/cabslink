@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
 import { useSuspenseQuery, useMutation, useQueryClient, queryOptions, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { listBookings, updateBooking, softDeleteBooking, deleteBooking, listDrivers } from "@/lib/admin.functions";
+import { listBookings, updateBooking, softDeleteBooking, deleteBooking } from "@/lib/admin.functions";
 import { setBookingStatusFn, listBookingNotifications, retryBookingNotification } from "@/lib/booking.functions";
 import { STATUS_META, ADMIN_STATUS_OPTIONS, statusLabel, type BookingStatus } from "@/lib/booking-lifecycle";
 
@@ -46,7 +46,6 @@ const TEMPLATE_FOR_STATUS: Partial<Record<BookingStatus, string>> = {
 };
 
 const opts = queryOptions({ queryKey: ["admin", "bookings"], queryFn: () => listBookings() });
-const driverOpts = queryOptions({ queryKey: ["admin", "drivers-pick"], queryFn: () => listDrivers() });
 
 export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/bookings")({
   head: () => ({
@@ -101,7 +100,6 @@ function matchTab(b: any, tab: string) {
 function BookingsPage() {
   const { tab = "all", view = "bookings" } = useSearch({ from: "/_authenticated/cabs-booking-pannel/bookings" });
   const { data: bookings } = useSuspenseQuery(opts);
-  const { data: drivers = [] } = useQuery(driverOpts);
   const qc = useQueryClient();
   const update = useServerFn(updateBooking);
   const setStatus = useServerFn(setBookingStatusFn);
@@ -156,7 +154,7 @@ function BookingsPage() {
         description={
           view === "tours"
             ? "Custom tour and day-trip enquiries waiting to be quoted, confirmed or closed."
-            : "Live transfer bookings: assign drivers, update status and notify customers. Cancelled bookings live in Cancellations & Refunds."
+            : "Live transfer bookings: update status and notify customers. Drivers are allocated in the dispatch panel. Cancelled bookings live in Cancellations & Refunds."
         }
       />
 
@@ -384,7 +382,7 @@ function BookingsPage() {
                   )}
                 </Section>
 
-                <Section title="Payment & driver">
+                <Section title="Payment & notes">
                   <div className="space-y-3">
                     <div>
                       <Label>Payment status</Label>
@@ -392,16 +390,6 @@ function BookingsPage() {
                         <SelectTrigger><SelectValue /></SelectTrigger>
                         <SelectContent>
                           {["unpaid", "paid", "partial", "refunded", "failed"].map(s => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Assign driver</Label>
-                      <Select value={editing.driver_id ?? "none"} onValueChange={v => setEditing({ ...editing, driver_id: v === "none" ? null : v })}>
-                        <SelectTrigger><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none">Unassigned</SelectItem>
-                          {drivers.map((d: any) => <SelectItem key={d.id} value={d.id}>{d.full_name}</SelectItem>)}
                         </SelectContent>
                       </Select>
                     </div>
@@ -440,7 +428,7 @@ function BookingsPage() {
                   disabled={patchMut.isPending}
                   onClick={() => patchMut.mutate({ id: editing.id, patch: {
                     payment_status: editing.payment_status,
-                    driver_id: editing.driver_id, admin_notes: editing.admin_notes,
+                    admin_notes: editing.admin_notes,
                   } })}
                 >Save changes</Button>
               </div>
