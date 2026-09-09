@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery, useMutation, useQueryClient, queryOptions, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { listDrivers, upsertDriver, deleteDriver, listVehiclesAdmin } from "@/lib/admin.functions";
+import { createDriverLogin, listDriverLogins, sendDriverPasswordSetup, setDriverLoginPassword, unlinkDriverLogin } from "@/lib/driver-logins.functions";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Plus, Edit, Trash2, Mail, Phone } from "lucide-react";
+import { Plus, Edit, Trash2, Mail, Phone, KeyRound } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
 import { ViewToggle, useViewMode } from "@/components/admin/ViewToggle";
@@ -20,6 +21,10 @@ import { PhoneInput } from "@/components/site/PhoneInput";
 import { MediaUrlInput } from "@/components/admin/media/MediaPicker";
 
 const opts = queryOptions({ queryKey: ["admin", "drivers"], queryFn: () => listDrivers() });
+const loginOpts = queryOptions({
+  queryKey: ["admin", "driver-logins"],
+  queryFn: () => listDriverLogins() as Promise<Array<{ driver_id: string; user_id: string; email: string | null; confirmed: boolean }>>,
+});
 const vOpts = queryOptions({ queryKey: ["admin", "vehicles"], queryFn: () => listVehiclesAdmin() });
 export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/drivers")({
   head: () => ({
@@ -44,6 +49,8 @@ function Page() {
   const upsert = useServerFn(upsertDriver);
   const del = useServerFn(deleteDriver);
   const [form, setForm] = useState<any>(null);
+  const [login, setLogin] = useState<any>(null);
+  const { data: logins = [] } = useQuery(loginOpts);
   const [view, setView] = useViewMode("drivers", "grid");
 
   const save = useMutation({ mutationFn: (v: any) => upsert({ data: v }), onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin", "drivers"] }); toast.success("Saved"); setForm(null); }, onError: (e: any) => toast.error(e.message) });
@@ -72,6 +79,9 @@ function Page() {
               <div className={`text-xs text-muted-foreground ${view === "list" ? "" : "mt-2"}`}>Vehicle: <span className="text-foreground">{d.vehicle?.name ?? "—"}</span></div>
               <div className="text-xs text-muted-foreground">License: <span className="text-foreground font-mono">{d.license_number ?? "—"}</span></div>
               <div className={view === "list" ? "flex justify-end gap-1" : "flex justify-end gap-1 mt-3 pt-3 border-t border-border"}>
+                <Button size="sm" variant="ghost" onClick={() => setLogin(d)}>
+                  <KeyRound className="size-3.5 mr-1" /> {logins.some((l) => l.driver_id === d.id) ? "Login" : "Add login"}
+                </Button>
                 <Button size="sm" variant="ghost" onClick={() => setForm({ ...empty, ...d })}><Edit className="size-3.5 mr-1" /> Edit</Button>
                 <AlertDialog>
                   <AlertDialogTrigger asChild><Button size="sm" variant="ghost" className="text-destructive"><Trash2 className="size-3.5 mr-1" /> Delete</Button></AlertDialogTrigger>
