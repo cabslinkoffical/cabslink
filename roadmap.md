@@ -11,4 +11,4 @@
 - [x] Media Library: one shared image library with picker on every admin image field
 - [x] Dispatch link: signed automatic booking feed + restricted dispatch logins that can assign drivers
 - [ ] Redesign Scenic Routes admin page for clearer daily management
-- [ ] Remove divider bars below Our Services on the homepage
+- [x] Remove divider bars below Our Services on the homepage
