@@ -37,8 +37,15 @@ function Chip({ tone = "muted", children }: { tone?: "muted" | "ok" | "bad"; chi
   return <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${cls}`}>{children}</span>;
 }
 
+type DispatchTab = "connections" | "people" | "activity";
+const TABS: DispatchTab[] = ["connections", "people", "activity"];
+
 export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/dispatch")({
   component: DispatchPage,
+  validateSearch: (search: Record<string, unknown>): { tab?: DispatchTab } => {
+    const t = String(search?.tab ?? "");
+    return TABS.includes(t as DispatchTab) ? { tab: t as DispatchTab } : {};
+  },
   head: () => ({
     meta: [
       { title: "Dispatch link | CabsLink admin" },
