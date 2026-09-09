@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery, useMutation, useQueryClient, queryOptions, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { listDrivers, upsertDriver, deleteDriver, listVehiclesAdmin } from "@/lib/admin.functions";
+import { createDriverLogin, listDriverLogins, sendDriverPasswordSetup, setDriverLoginPassword, unlinkDriverLogin } from "@/lib/driver-logins.functions";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Plus, Edit, Trash2, Mail, Phone } from "lucide-react";
+import { Plus, Edit, Trash2, Mail, Phone, KeyRound } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
 import { ViewToggle, useViewMode } from "@/components/admin/ViewToggle";
@@ -20,6 +21,10 @@ import { PhoneInput } from "@/components/site/PhoneInput";
 import { MediaUrlInput } from "@/components/admin/media/MediaPicker";
 
 const opts = queryOptions({ queryKey: ["admin", "drivers"], queryFn: () => listDrivers() });
+const loginOpts = queryOptions({
+  queryKey: ["admin", "driver-logins"],
+  queryFn: () => listDriverLogins() as Promise<Array<{ driver_id: string; user_id: string; email: string | null; confirmed: boolean }>>,
+});
 const vOpts = queryOptions({ queryKey: ["admin", "vehicles"], queryFn: () => listVehiclesAdmin() });
 export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/drivers")({
   head: () => ({
@@ -44,6 +49,8 @@ function Page() {
   const upsert = useServerFn(upsertDriver);
   const del = useServerFn(deleteDriver);
   const [form, setForm] = useState<any>(null);
+  const [login, setLogin] = useState<any>(null);
+  const { data: logins = [] } = useQuery(loginOpts);
   const [view, setView] = useViewMode("drivers", "grid");
 
   const save = useMutation({ mutationFn: (v: any) => upsert({ data: v }), onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin", "drivers"] }); toast.success("Saved"); setForm(null); }, onError: (e: any) => toast.error(e.message) });
@@ -72,6 +79,9 @@ function Page() {
               <div className={`text-xs text-muted-foreground ${view === "list" ? "" : "mt-2"}`}>Vehicle: <span className="text-foreground">{d.vehicle?.name ?? "—"}</span></div>
               <div className="text-xs text-muted-foreground">License: <span className="text-foreground font-mono">{d.license_number ?? "—"}</span></div>
               <div className={view === "list" ? "flex justify-end gap-1" : "flex justify-end gap-1 mt-3 pt-3 border-t border-border"}>
+                <Button size="sm" variant="ghost" onClick={() => setLogin(d)}>
+                  <KeyRound className="size-3.5 mr-1" /> {logins.some((l) => l.driver_id === d.id) ? "Login" : "Add login"}
+                </Button>
                 <Button size="sm" variant="ghost" onClick={() => setForm({ ...empty, ...d })}><Edit className="size-3.5 mr-1" /> Edit</Button>
                 <AlertDialog>
                   <AlertDialogTrigger asChild><Button size="sm" variant="ghost" className="text-destructive"><Trash2 className="size-3.5 mr-1" /> Delete</Button></AlertDialogTrigger>
@@ -118,6 +128,106 @@ function Page() {
           )}
         </DialogContent>
       </Dialog>
+
+      <DriverLoginDialog driver={login} onClose={() => setLogin(null)} />
     </div>
+  );
+}
+
+function DriverLoginDialog({ driver, onClose }: { driver: any | null; onClose: () => void }) {
+  const qc = useQueryClient();
+  const { data: logins = [] } = useQuery(loginOpts);
+  const create = useServerFn(createDriverLogin);
+  const setPw = useServerFn(setDriverLoginPassword);
+  const sendLink = useServerFn(sendDriverPasswordSetup);
+  const unlink = useServerFn(unlinkDriverLogin);
+
+  const record = logins.find((l: any) => l.driver_id === driver?.id);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const refresh = () => {
+    qc.invalidateQueries({ queryKey: ["admin", "drivers"] });
+    qc.invalidateQueries({ queryKey: ["admin", "driver-logins"] });
+  };
+
+  const run = async (fn: () => Promise<any>, done: string) => {
+    setBusy(true);
+    try { await fn(); refresh(); toast.success(done); setPassword(""); }
+    catch (e: any) { toast.error(e?.message ?? "Something went wrong"); }
+    finally { setBusy(false); }
+  };
+
+  return (
+    <Dialog open={!!driver} onOpenChange={(o) => { if (!o) { onClose(); setEmail(""); setPassword(""); } }}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader><DialogTitle>Driver login — {driver?.full_name}</DialogTitle></DialogHeader>
+        {driver && (
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              A driver login lets this driver sign in to the driver panel and see only their own assigned jobs.
+              They cannot see prices, other drivers&apos; jobs or any settings.
+            </p>
+
+            {record ? (
+              <div className="space-y-3 rounded-xl border border-border p-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium">{record.email}</p>
+                    <p className={record.confirmed ? "text-xs text-primary" : "text-xs text-warning"}>
+                      {record.confirmed ? "Login ready" : "Password setup required"}
+                    </p>
+                  </div>
+                  <div className="flex gap-1">
+                    <Button variant="outline" size="sm" disabled={busy}
+                      onClick={() => run(() => sendLink({ data: { driverId: driver.id } }), `Password link sent to ${record.email}`)}>
+                      {record.confirmed ? "Email reset link" : "Email setup link"}
+                    </Button>
+                    <Button variant="ghost" size="sm" className="text-destructive" disabled={busy}
+                      onClick={() => run(() => unlink({ data: { driverId: driver.id } }), "Login unlinked")}>
+                      Unlink
+                    </Button>
+                  </div>
+                </div>
+                <div className="flex flex-wrap items-end gap-2">
+                  <div className="min-w-[200px] flex-1">
+                    <Label className="text-xs">Or set a password here (min 10 characters)</Label>
+                    <Input type="text" autoComplete="off" value={password} placeholder="New password"
+                      onChange={(e) => setPassword(e.target.value)} />
+                  </div>
+                  <Button size="sm" disabled={busy || password.length < 10}
+                    onClick={() => run(() => setPw({ data: { driverId: driver.id, password } }), `Password set for ${record.email}. Share it securely.`)}>
+                    Save password
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3 rounded-xl border border-border p-3">
+                <div>
+                  <Label>Driver email</Label>
+                  <Input type="email" value={email || driver.email || ""} placeholder="driver@example.com"
+                    onChange={(e) => setEmail(e.target.value)} />
+                </div>
+                <div>
+                  <Label>Password (optional — min 10 characters)</Label>
+                  <Input type="text" autoComplete="off" value={password} placeholder="Leave blank to email an invite"
+                    onChange={(e) => setPassword(e.target.value)} />
+                </div>
+                <Button
+                  disabled={busy || !(email || driver.email) || (password.length > 0 && password.length < 10)}
+                  onClick={() => run(
+                    () => create({ data: { driverId: driver.id, email: (email || driver.email) as string, ...(password ? { password } : {}) } }),
+                    password ? "Login created — share the email and password with the driver" : "Invitation email sent to the driver",
+                  )}
+                >
+                  Create login
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }
