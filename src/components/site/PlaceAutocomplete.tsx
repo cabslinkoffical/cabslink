@@ -130,10 +130,22 @@ export function PlaceAutocomplete({
     }
     if (norm === lastQuery.current && suggestions.length > 0) return;
 
+    const hit = clientCache.get(`${mode}|${norm}`);
+    if (hit && Date.now() - hit.at < CLIENT_CACHE_TTL_MS) {
+      lastQuery.current = norm;
+      suggestionsForQuery.current = norm;
+      setSuggestions(hit.suggestions);
+      setOpen(hit.suggestions.length > 0);
+      setLoading(false);
+      setActiveIdx(-1);
+      return;
+    }
+
     const seq = ++reqSeq.current;
     latestSeq.current = seq;
     setLoading(true);
-    setSuggestions([]);
+    // Keep the previous list on screen while the new one loads — clearing it
+    // made the dropdown flicker away on every keystroke and feel slow.
     suggestionsForQuery.current = "";
 
     const t = setTimeout(async () => {
