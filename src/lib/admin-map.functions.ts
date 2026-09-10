@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 import { placeIdSchema } from "@/lib/place-id";
+import { getGoogleMapsApiKey } from "@/lib/google-maps-env";
 
 /**
  * Admin-only geometry helpers for the interactive map editor.
