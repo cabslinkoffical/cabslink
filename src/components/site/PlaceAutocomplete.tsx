@@ -303,7 +303,8 @@ export function PlaceAutocomplete({
           setText(v);
           // Editing invalidates the previous Place ID immediately.
           if (value) onChange(null);
-          setSuggestions([]);
+          // Previous suggestions stay visible until the next list arrives;
+          // pick() still refuses anything that doesn't match the typed query.
           setUnverified(false);
           setResolveFailed(false);
           suggestionsForQuery.current = "";
