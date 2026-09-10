@@ -1643,6 +1643,57 @@ export type Database = {
           },
         ]
       }
+      driver_locations: {
+        Row: {
+          accuracy_m: number | null
+          booking_id: string | null
+          driver_id: string
+          heading_deg: number | null
+          id: number
+          lat: number
+          lng: number
+          recorded_at: string
+          speed_kph: number | null
+        }
+        Insert: {
+          accuracy_m?: number | null
+          booking_id?: string | null
+          driver_id: string
+          heading_deg?: number | null
+          id?: number
+          lat: number
+          lng: number
+          recorded_at?: string
+          speed_kph?: number | null
+        }
+        Update: {
+          accuracy_m?: number | null
+          booking_id?: string | null
+          driver_id?: string
+          heading_deg?: number | null
+          id?: number
+          lat?: number
+          lng?: number
+          recorded_at?: string
+          speed_kph?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "driver_locations_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "driver_locations_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "drivers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       drivers: {
         Row: {
           address: string | null
@@ -4234,6 +4285,35 @@ export type Database = {
       }
     }
     Views: {
+      driver_current_location: {
+        Row: {
+          accuracy_m: number | null
+          booking_id: string | null
+          driver_id: string | null
+          heading_deg: number | null
+          id: number | null
+          lat: number | null
+          lng: number | null
+          recorded_at: string | null
+          speed_kph: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "driver_locations_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "driver_locations_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "drivers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       site_settings_public: {
         Row: {
           child_seat_fee_pence: number | null
