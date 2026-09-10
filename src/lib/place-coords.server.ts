@@ -9,12 +9,14 @@
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_maps";
 
+import { getGoogleMapsApiKey } from "@/lib/google-maps-env";
+
 export type Coord = { lat: number; lng: number };
 
 async function fetchPlaceLatLng(placeId: string): Promise<Coord | null> {
-  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  const apiKey = getGoogleMapsApiKey();
   const lovableKey = process.env.LOVABLE_API_KEY;
-  if (!apiKey || !lovableKey) return null;
+  if (!lovableKey) return null;
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 8_000);

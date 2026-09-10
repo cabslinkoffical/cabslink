@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 import { placeIdSchema } from "@/lib/place-id";
+import { getGoogleMapsApiKey } from "@/lib/google-maps-env";
 
 /**
  * Admin-only geometry helpers for the interactive map editor.
@@ -68,9 +69,9 @@ export const adminRouteGeometry = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<AdminRouteGeometry> => {
     await assertAdmin(context);
 
-    const apiKey = process.env["GOOGLE_MAPS_API_KEY"];
+    const apiKey = getGoogleMapsApiKey();
     const lovableKey = process.env["LOVABLE_API_KEY"];
-    if (!apiKey || !lovableKey) throw new Error("Google Maps is not connected.");
+    if (!lovableKey) throw new Error("Google Maps is not connected.");
 
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 10_000);

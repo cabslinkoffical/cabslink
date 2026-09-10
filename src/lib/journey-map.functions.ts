@@ -10,6 +10,7 @@ import { getRequestIP, setResponseStatus } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { placeIdSchema } from "@/lib/place-id";
 import { checkLimit } from "@/lib/rate-limit.server";
+import { getGoogleMapsApiKey } from "@/lib/google-maps-env";
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_maps";
 
@@ -44,9 +45,9 @@ export const getJourneyMap = createServerFn({ method: "POST" })
       throw new Error("Too many map requests. Please wait a moment.");
     }
 
-    const apiKey = process.env["GOOGLE_MAPS_API_KEY"];
+    const apiKey = getGoogleMapsApiKey();
     const lovableKey = process.env["LOVABLE_API_KEY"];
-    if (!apiKey || !lovableKey) throw new Error("Map service is not configured.");
+    if (!lovableKey) throw new Error("Map service is not configured.");
 
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 10_000);
