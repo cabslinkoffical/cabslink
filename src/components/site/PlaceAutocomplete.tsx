@@ -28,13 +28,18 @@ type Props = {
   "aria-describedby"?: string;
 };
 
-const DEBOUNCE_MS = 250;
+const DEBOUNCE_MS = 140;
 const MIN_CHARS = 2;
 const REQUEST_TIMEOUT_MS = 12_000;
 
 function normalizeQuery(q: string) {
   return q.trim().replace(/\s+/g, " ").toLowerCase();
 }
+
+// Browser-side result cache: typing, backspacing and re-typing the same query
+// (very common) then renders instantly instead of paying another round-trip.
+const CLIENT_CACHE_TTL_MS = 120_000;
+const clientCache = new Map<string, { at: number; suggestions: PlaceSuggestion[] }>();
 
 /**
  * UK-only Places (New) autocomplete. Emits a SelectedPlace only when the
@@ -125,10 +130,22 @@ export function PlaceAutocomplete({
     }
     if (norm === lastQuery.current && suggestions.length > 0) return;
 
+    const hit = clientCache.get(`${mode}|${norm}`);
+    if (hit && Date.now() - hit.at < CLIENT_CACHE_TTL_MS) {
+      lastQuery.current = norm;
+      suggestionsForQuery.current = norm;
+      setSuggestions(hit.suggestions);
+      setOpen(hit.suggestions.length > 0);
+      setLoading(false);
+      setActiveIdx(-1);
+      return;
+    }
+
     const seq = ++reqSeq.current;
     latestSeq.current = seq;
     setLoading(true);
-    setSuggestions([]);
+    // Keep the previous list on screen while the new one loads — clearing it
+    // made the dropdown flicker away on every keystroke and feel slow.
     suggestionsForQuery.current = "";
 
     const t = setTimeout(async () => {
@@ -146,6 +163,10 @@ export function PlaceAutocomplete({
         if (seq !== latestSeq.current) return;
         lastQuery.current = norm;
         suggestionsForQuery.current = norm;
+        if (!("ok" in res) || res.ok) {
+          clientCache.set(`${mode}|${norm}`, { at: Date.now(), suggestions: res.suggestions });
+          if (clientCache.size > 80) clientCache.clear();
+        }
         setSuggestions(res.suggestions);
         setOpen(res.suggestions.length > 0);
         setLookupFailed(("ok" in res ? !res.ok : false) as boolean);
@@ -282,7 +303,8 @@ export function PlaceAutocomplete({
           setText(v);
           // Editing invalidates the previous Place ID immediately.
           if (value) onChange(null);
-          setSuggestions([]);
+          // Previous suggestions stay visible until the next list arrives;
+          // pick() still refuses anything that doesn't match the typed query.
           setUnverified(false);
           setResolveFailed(false);
           suggestionsForQuery.current = "";
