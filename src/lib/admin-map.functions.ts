@@ -68,9 +68,9 @@ export const adminRouteGeometry = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<AdminRouteGeometry> => {
     await assertAdmin(context);
 
-    const apiKey = process.env["GOOGLE_MAPS_API_KEY"];
+    const apiKey = getGoogleMapsApiKey();
     const lovableKey = process.env["LOVABLE_API_KEY"];
-    if (!apiKey || !lovableKey) throw new Error("Google Maps is not connected.");
+    if (!lovableKey) throw new Error("Google Maps is not connected.");
 
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 10_000);

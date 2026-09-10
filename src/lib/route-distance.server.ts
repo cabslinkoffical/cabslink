@@ -12,6 +12,8 @@
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_maps";
 
+import { getGoogleMapsApiKey } from "@/lib/google-maps-env";
+
 export type RouteDistanceResult = {
   distanceMeters: number;
   distanceMiles: number;
@@ -113,9 +115,9 @@ export async function computeRoute(input: ComputeRouteInput): Promise<RouteDista
     return persisted;
   }
 
-  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  const apiKey = getGoogleMapsApiKey();
   const lovableKey = process.env.LOVABLE_API_KEY;
-  if (!apiKey || !lovableKey) throw new RouteUnavailableError();
+  if (!lovableKey) throw new RouteUnavailableError();
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 10_000);
