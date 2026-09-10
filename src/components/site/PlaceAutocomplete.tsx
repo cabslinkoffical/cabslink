@@ -163,6 +163,10 @@ export function PlaceAutocomplete({
         if (seq !== latestSeq.current) return;
         lastQuery.current = norm;
         suggestionsForQuery.current = norm;
+        if (!("ok" in res) || res.ok) {
+          clientCache.set(`${mode}|${norm}`, { at: Date.now(), suggestions: res.suggestions });
+          if (clientCache.size > 80) clientCache.clear();
+        }
         setSuggestions(res.suggestions);
         setOpen(res.suggestions.length > 0);
         setLookupFailed(("ok" in res ? !res.ok : false) as boolean);
