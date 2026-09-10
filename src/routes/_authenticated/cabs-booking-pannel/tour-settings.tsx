@@ -10,7 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { PageHeader } from "@/components/admin/ui";
 import { toast } from "sonner";
 
-const opts = queryOptions({ queryKey: ["admin", "tour-settings"], queryFn: () => getTourSettings() });
+export const opts = queryOptions({ queryKey: ["admin", "tour-settings"], queryFn: () => getTourSettings() });
 
 export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/tour-settings")({
   head: () => ({
