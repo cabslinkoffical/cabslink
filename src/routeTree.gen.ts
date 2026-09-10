@@ -102,6 +102,7 @@ import { Route as BlogTagSlugRouteImport } from './routes/blog.tag.$slug'
 import { Route as BlogCategorySlugRouteImport } from './routes/blog.category.$slug'
 import { Route as AreasRegionSlugRouteImport } from './routes/areas.region.$slug'
 import { Route as AreasALetterRouteImport } from './routes/areas.a.$letter'
+import { Route as ApiPublicStripeWebhookRouteImport } from './routes/api/public/stripe-webhook'
 import { Route as AuthenticatedCabsBookingPannelUsersRouteImport } from './routes/_authenticated/cabs-booking-pannel/users'
 import { Route as AuthenticatedCabsBookingPannelTourSettingsRouteImport } from './routes/_authenticated/cabs-booking-pannel/tour-settings'
 import { Route as AuthenticatedCabsBookingPannelSettingsRouteImport } from './routes/_authenticated/cabs-booking-pannel/settings'
@@ -614,6 +615,11 @@ const AreasALetterRoute = AreasALetterRouteImport.update({
   path: '/areas/a/$letter',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicStripeWebhookRoute = ApiPublicStripeWebhookRouteImport.update({
+  id: '/api/public/stripe-webhook',
+  path: '/api/public/stripe-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedCabsBookingPannelUsersRoute =
   AuthenticatedCabsBookingPannelUsersRouteImport.update({
     id: '/users',
@@ -977,6 +983,7 @@ export interface FileRoutesByFullPath {
   '/cabs-booking-pannel/settings': typeof AuthenticatedCabsBookingPannelSettingsRoute
   '/cabs-booking-pannel/tour-settings': typeof AuthenticatedCabsBookingPannelTourSettingsRoute
   '/cabs-booking-pannel/users': typeof AuthenticatedCabsBookingPannelUsersRoute
+  '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
   '/areas/a/$letter': typeof AreasALetterRoute
   '/areas/region/$slug': typeof AreasRegionSlugRoute
   '/blog/category/$slug': typeof BlogCategorySlugRoute
@@ -1111,6 +1118,7 @@ export interface FileRoutesByTo {
   '/cabs-booking-pannel/settings': typeof AuthenticatedCabsBookingPannelSettingsRoute
   '/cabs-booking-pannel/tour-settings': typeof AuthenticatedCabsBookingPannelTourSettingsRoute
   '/cabs-booking-pannel/users': typeof AuthenticatedCabsBookingPannelUsersRoute
+  '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
   '/areas/a/$letter': typeof AreasALetterRoute
   '/areas/region/$slug': typeof AreasRegionSlugRoute
   '/blog/category/$slug': typeof BlogCategorySlugRoute
@@ -1249,6 +1257,7 @@ export interface FileRoutesById {
   '/_authenticated/cabs-booking-pannel/settings': typeof AuthenticatedCabsBookingPannelSettingsRoute
   '/_authenticated/cabs-booking-pannel/tour-settings': typeof AuthenticatedCabsBookingPannelTourSettingsRoute
   '/_authenticated/cabs-booking-pannel/users': typeof AuthenticatedCabsBookingPannelUsersRoute
+  '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
   '/areas/a/$letter': typeof AreasALetterRoute
   '/areas/region/$slug': typeof AreasRegionSlugRoute
   '/blog/category/$slug': typeof BlogCategorySlugRoute
@@ -1387,6 +1396,7 @@ export interface FileRouteTypes {
     | '/cabs-booking-pannel/settings'
     | '/cabs-booking-pannel/tour-settings'
     | '/cabs-booking-pannel/users'
+    | '/api/public/stripe-webhook'
     | '/areas/a/$letter'
     | '/areas/region/$slug'
     | '/blog/category/$slug'
@@ -1521,6 +1531,7 @@ export interface FileRouteTypes {
     | '/cabs-booking-pannel/settings'
     | '/cabs-booking-pannel/tour-settings'
     | '/cabs-booking-pannel/users'
+    | '/api/public/stripe-webhook'
     | '/areas/a/$letter'
     | '/areas/region/$slug'
     | '/blog/category/$slug'
@@ -1658,6 +1669,7 @@ export interface FileRouteTypes {
     | '/_authenticated/cabs-booking-pannel/settings'
     | '/_authenticated/cabs-booking-pannel/tour-settings'
     | '/_authenticated/cabs-booking-pannel/users'
+    | '/api/public/stripe-webhook'
     | '/areas/a/$letter'
     | '/areas/region/$slug'
     | '/blog/category/$slug'
@@ -1770,6 +1782,7 @@ export interface RootRouteChildren {
   ToursIndexRoute: typeof ToursIndexRoute
   TravelSolutionsIndexRoute: typeof TravelSolutionsIndexRoute
   UniversitiesIndexRoute: typeof UniversitiesIndexRoute
+  ApiPublicStripeWebhookRoute: typeof ApiPublicStripeWebhookRoute
   AreasALetterRoute: typeof AreasALetterRoute
   AreasRegionSlugRoute: typeof AreasRegionSlugRoute
   BlogCategorySlugRoute: typeof BlogCategorySlugRoute
@@ -2430,6 +2443,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AreasALetterRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/stripe-webhook': {
+      id: '/api/public/stripe-webhook'
+      path: '/api/public/stripe-webhook'
+      fullPath: '/api/public/stripe-webhook'
+      preLoaderRoute: typeof ApiPublicStripeWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/cabs-booking-pannel/users': {
       id: '/_authenticated/cabs-booking-pannel/users'
       path: '/users'
@@ -2987,6 +3007,7 @@ const rootRouteChildren: RootRouteChildren = {
   ToursIndexRoute: ToursIndexRoute,
   TravelSolutionsIndexRoute: TravelSolutionsIndexRoute,
   UniversitiesIndexRoute: UniversitiesIndexRoute,
+  ApiPublicStripeWebhookRoute: ApiPublicStripeWebhookRoute,
   AreasALetterRoute: AreasALetterRoute,
   AreasRegionSlugRoute: AreasRegionSlugRoute,
   BlogCategorySlugRoute: BlogCategorySlugRoute,
