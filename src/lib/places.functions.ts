@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { getRequestIP, setResponseStatus } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { checkLimit } from "@/lib/rate-limit.server";
+import { getGoogleMapsApiKey } from "@/lib/google-maps-env";
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_maps";
 
@@ -71,10 +72,10 @@ export const placesAutocomplete = createServerFn({ method: "POST" })
     const cached = cache.get(key);
     if (cached && cached.expiresAt > now) return cached.value;
 
-    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+    const apiKey = getGoogleMapsApiKey();
     const lovableKey = process.env.LOVABLE_API_KEY;
-    if (!apiKey || !lovableKey) {
-      console.error(`[places] missing keys mapsKey=${!!apiKey} lovableKey=${!!lovableKey}`);
+    if (!lovableKey) {
+      console.error(`[places] missing LOVABLE_API_KEY`);
       return { suggestions: [], ok: false };
     }
 
@@ -166,9 +167,9 @@ export const resolvePlaceText = createServerFn({ method: "POST" })
       return { place: null as PlaceSuggestion | null };
     }
 
-    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+    const apiKey = getGoogleMapsApiKey();
     const lovableKey = process.env.LOVABLE_API_KEY;
-    if (!apiKey || !lovableKey) return { place: null as PlaceSuggestion | null };
+    if (!lovableKey) return { place: null as PlaceSuggestion | null };
 
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 8_000);
