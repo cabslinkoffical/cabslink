@@ -10,6 +10,7 @@ import { getRequestIP, setResponseStatus } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { placeIdSchema } from "@/lib/place-id";
 import { checkLimit } from "@/lib/rate-limit.server";
+import { getGoogleMapsApiKey } from "@/lib/google-maps-env";
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_maps";
 
