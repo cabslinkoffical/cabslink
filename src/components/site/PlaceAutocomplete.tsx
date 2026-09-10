@@ -28,13 +28,18 @@ type Props = {
   "aria-describedby"?: string;
 };
 
-const DEBOUNCE_MS = 250;
+const DEBOUNCE_MS = 140;
 const MIN_CHARS = 2;
 const REQUEST_TIMEOUT_MS = 12_000;
 
 function normalizeQuery(q: string) {
   return q.trim().replace(/\s+/g, " ").toLowerCase();
 }
+
+// Browser-side result cache: typing, backspacing and re-typing the same query
+// (very common) then renders instantly instead of paying another round-trip.
+const CLIENT_CACHE_TTL_MS = 120_000;
+const clientCache = new Map<string, { at: number; suggestions: PlaceSuggestion[] }>();
 
 /**
  * UK-only Places (New) autocomplete. Emits a SelectedPlace only when the
