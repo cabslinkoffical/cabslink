@@ -11,6 +11,8 @@
  * through the connector gateway instead; never use the browser key for those.
  */
 
+import { getMapsBrowserKey } from "@/lib/maps-browser-key.functions";
+
 declare global {
   interface Window {
     google?: any;
@@ -43,14 +45,26 @@ export const MAPS_AUTH_HELP =
 
 let loadPromise: Promise<void> | null = null;
 
+/**
+ * Resolve the browser key: the account's own key (works on cabslink.com) first,
+ * falling back to the Lovable-managed key that only covers *.lovable.app.
+ */
+async function resolveBrowserKey(): Promise<{ key: string; channel?: string }> {
+  const fallbackKey = import.meta.env["VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY"] as string | undefined;
+  const fallbackChannel = import.meta.env["VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID"] as string | undefined;
+  try {
+    const res = await getMapsBrowserKey();
+    if (res?.key) return { key: res.key, channel: res.channel || fallbackChannel };
+  } catch {
+    // fall through to the managed key
+  }
+  return { key: fallbackKey ?? "", channel: fallbackChannel };
+}
+
 export function loadGoogleMaps(): Promise<void> {
   if (typeof window === "undefined") return Promise.reject(new Error("Maps can only load in the browser"));
   if (window.google?.maps?.Map) return Promise.resolve();
   if (loadPromise) return loadPromise;
-
-  const key = import.meta.env["VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY"] as string | undefined;
-  if (!key) return Promise.reject(new Error("Google Maps browser key is not configured."));
-  const channel = import.meta.env["VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID"] as string | undefined;
 
   loadPromise = new Promise<void>((resolve, reject) => {
     window.gm_authFailure = () => {
@@ -58,6 +72,14 @@ export function loadGoogleMaps(): Promise<void> {
       authListeners.forEach((cb) => cb());
     };
     window.__cabslinkMapsReady = () => resolve();
+
+    void (async () => {
+    const { key, channel } = await resolveBrowserKey();
+    if (!key) {
+      loadPromise = null;
+      reject(new Error("Google Maps browser key is not configured."));
+      return;
+    }
 
     const script = document.createElement("script");
     const params = new URLSearchParams({
@@ -76,6 +98,7 @@ export function loadGoogleMaps(): Promise<void> {
       reject(new Error("Google Maps failed to load. Check the browser key's allowed referrers."));
     };
     document.head.appendChild(script);
+    })();
   });
 
   return loadPromise;
