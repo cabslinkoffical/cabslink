@@ -294,7 +294,7 @@ export function PlaceAutocomplete({
         aria-label={placeholder}
         placeholder={placeholder}
         className={cn(
-          "relative z-10 rounded-none pl-11 pr-9 h-[52px] text-sm text-[var(--navy)] placeholder:text-[var(--navy)]/55 caret-[var(--gold)] [caret-color:var(--gold)] focus-visible:[caret-color:var(--gold)] selection:rounded-none selection:bg-[var(--gold)] selection:text-[var(--navy)]",
+          "relative z-10 rounded-none pl-11 pr-10 h-[52px] text-sm font-semibold text-[var(--navy)] placeholder:font-normal placeholder:text-[var(--navy)]/55 caret-[var(--navy)] [caret-color:var(--navy)] focus-visible:[caret-color:var(--navy)] selection:rounded-none selection:bg-[var(--gold)] selection:text-[var(--navy)]",
           inputClassName,
         )}
         value={text}
@@ -336,7 +336,10 @@ export function PlaceAutocomplete({
         }}
       />
       {loading && (
-        <Loader2 className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 animate-spin text-[var(--gold-ink)]" />
+        <Loader2
+          strokeWidth={3}
+          className="pointer-events-none absolute right-2.5 top-1/2 z-20 -translate-y-1/2 h-4 w-4 animate-spin text-[var(--navy)]"
+        />
       )}
       {unverified && !open && (
         <p className="mt-1 text-[11px] font-medium leading-snug text-[var(--gold-ink)]">
