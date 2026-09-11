@@ -540,7 +540,7 @@ function BookingCard({ booking: b }: { booking: ManagedBooking }) {
         </div>
 
         <dl className="grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-3">
-          <Fact icon={<CalendarDays className="size-3" />} label="Date" value={b.pickupDate} />
+          {b.pickupDate ? <Fact icon={<CalendarDays className="size-3" />} label="Date" value={b.pickupDate} /> : null}
           <Fact icon={<Clock className="size-3" />} label="Time" value={b.pickupTime} />
           <Fact icon={<Car className="size-3" />} label="Vehicle" value={b.vehicleType ?? "—"} />
           <Fact icon={<User className="size-3" />} label="Passengers" value={String(b.passengers)} />
