@@ -294,7 +294,7 @@ export function PlaceAutocomplete({
         aria-label={placeholder}
         placeholder={placeholder}
         className={cn(
-          "pl-11 pr-9 h-[52px] text-sm text-[var(--navy)] placeholder:text-[var(--navy)]/55 caret-[var(--gold)]",
+          "pl-11 pr-9 h-[52px] text-sm text-[var(--navy)] placeholder:text-[var(--navy)]/55 caret-[var(--navy)] [caret-color:var(--navy)]",
           inputClassName,
         )}
         value={text}
@@ -336,7 +336,7 @@ export function PlaceAutocomplete({
         }}
       />
       {loading && (
-        <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
+        <Loader2 className="pointer-events-none absolute right-0.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 animate-spin text-[var(--gold-ink)]" />
       )}
       {unverified && !open && (
         <p className="mt-1 text-[11px] font-medium leading-snug text-[var(--gold-ink)]">
