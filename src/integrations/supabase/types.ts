@@ -648,6 +648,7 @@ export type Database = {
           pickup_time: string
           planned_stop_duration_seconds: number
           price: number | null
+          price_quoted_at: string | null
           pricing_profile_id_snapshot: string | null
           pricing_snapshot: Json | null
           pricing_source: string | null
@@ -662,6 +663,9 @@ export type Database = {
           stops_fingerprint: string | null
           total_journey_seconds: number | null
           tour_conversion_ack_at: string | null
+          tour_name: string | null
+          tour_slug: string | null
+          tour_stops: Json
           updated_at: string
           vehicle_capacity_snapshot: Json | null
           vehicle_class_id: string | null
@@ -711,6 +715,7 @@ export type Database = {
           pickup_time: string
           planned_stop_duration_seconds?: number
           price?: number | null
+          price_quoted_at?: string | null
           pricing_profile_id_snapshot?: string | null
           pricing_snapshot?: Json | null
           pricing_source?: string | null
@@ -725,6 +730,9 @@ export type Database = {
           stops_fingerprint?: string | null
           total_journey_seconds?: number | null
           tour_conversion_ack_at?: string | null
+          tour_name?: string | null
+          tour_slug?: string | null
+          tour_stops?: Json
           updated_at?: string
           vehicle_capacity_snapshot?: Json | null
           vehicle_class_id?: string | null
@@ -774,6 +782,7 @@ export type Database = {
           pickup_time?: string
           planned_stop_duration_seconds?: number
           price?: number | null
+          price_quoted_at?: string | null
           pricing_profile_id_snapshot?: string | null
           pricing_snapshot?: Json | null
           pricing_source?: string | null
@@ -788,6 +797,9 @@ export type Database = {
           stops_fingerprint?: string | null
           total_journey_seconds?: number | null
           tour_conversion_ack_at?: string | null
+          tour_name?: string | null
+          tour_slug?: string | null
+          tour_stops?: Json
           updated_at?: string
           vehicle_capacity_snapshot?: Json | null
           vehicle_class_id?: string | null

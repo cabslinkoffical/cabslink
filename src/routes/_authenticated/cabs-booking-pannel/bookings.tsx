@@ -32,6 +32,7 @@ import { toast } from "sonner";
 import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
 import { CannedEmailComposer } from "@/components/admin/CannedEmailComposer";
 import { TourEnquiries } from "@/components/admin/TourEnquiries";
+import { TOUR_SERVICE_TYPE } from "@/lib/tour-enquiries";
 
 /** Pre-selects the most likely pre-written email for the booking's status. */
 const TEMPLATE_FOR_STATUS: Partial<Record<BookingStatus, string>> = {
@@ -111,7 +112,9 @@ function BookingsPage() {
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
-    return bookings.filter((b: any) => matchTab(b, tab) && (!q ||
+    // Tour enquiries are bookings too, but they are managed in the Tour
+    // Enquiries view so they don't show twice.
+    return bookings.filter((b: any) => b.service_type !== TOUR_SERVICE_TYPE && matchTab(b, tab) && (!q ||
       [b.customer_name, b.email, b.phone, b.booking_ref, b.pickup_address, b.dropoff_address, b.vehicle_type].some((v: any) => (v ?? "").toLowerCase().includes(q))
     ));
   }, [bookings, tab, search]);

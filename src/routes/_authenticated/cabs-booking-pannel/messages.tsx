@@ -9,7 +9,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Mail, Trash2, CheckCircle2, List, LayoutGrid, Search } from "lucide-react";
 import { toast } from "sonner";
 import { CannedEmailComposer } from "@/components/admin/CannedEmailComposer";
-import { isTourEnquiry } from "@/lib/tour-enquiries";
+
 
 const opts = queryOptions({ queryKey: ["admin", "messages"], queryFn: () => listMessages() });
 
@@ -37,8 +37,16 @@ const VIEW_KEY = "admin-messages-view";
 
 function MessagesPage() {
   const { data: allMessages } = useSuspenseQuery(opts);
-  // Tour enquiries live in the Bookings console ("Tour Enquiries"), not the inbox.
-  const data = useMemo(() => (allMessages as any[]).filter((m) => !isTourEnquiry(m) && !/^cancellation request:/i.test(String(m.subject ?? ""))), [allMessages]);
+  // Tour enquiries are bookings now and live in the Bookings console ("Tour
+  // Enquiries"), so any legacy tour message here stays out of the inbox too.
+  const data = useMemo(
+    () =>
+      (allMessages as any[]).filter((m) => {
+        const subject = String(m.subject ?? "");
+        return !/^tour booking:/i.test(subject) && !/^cancellation request:/i.test(subject);
+      }),
+    [allMessages],
+  );
   const qc = useQueryClient();
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: ["admin", "messages"] });
