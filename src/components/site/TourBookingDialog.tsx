@@ -127,8 +127,7 @@ export function TourBookingDialog({ tour, trigger, autoOpen = false }: Props) {
             ) : null}
             <p className="text-sm text-muted-foreground max-w-md mx-auto">
               Thanks {name.split(" ")[0]}. Our tour desk will confirm availability and a fixed price
-              for <strong>{tour.name}</strong> on {date} at {time} within a few hours. No payment is
-              needed yet.
+              for <strong>{tour.name}</strong> within a few hours. No payment is needed yet.
             </p>
             <p className="text-sm text-muted-foreground max-w-md mx-auto">
               You can track, pay for or cancel this tour any time on the{" "}
