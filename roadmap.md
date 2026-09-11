@@ -17,3 +17,4 @@
 - [x] Remove divider bars below Our Services on the homepage
 - [ ] Production booking autocomplete: replace obsolete server-function validators, publish, and validate repeated cabslink.com requests
 - [x] Drivers admin: two panels (dispatch drivers + website applications), linked by email/phone
+- [x] Booking location fields: make the focused typing/selection indicator visible and square-edged
