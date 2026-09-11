@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { Calendar, Clock, Users, Briefcase, Plane, MapPin, CheckCircle2, Loader2 } from "lucide-react";
+import { Clock, Users, Briefcase, Plane, MapPin, CheckCircle2, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -41,9 +41,6 @@ type Props = {
 export function TourBookingDialog({ tour, trigger, autoOpen = false }: Props) {
   const [open, setOpen] = useState(autoOpen);
 
-  const today = new Date().toISOString().slice(0, 10);
-
-  const [date, setDate] = useState(today);
   const [time, setTime] = useState("09:00");
   const [passengers, setPassengers] = useState(2);
   const [luggage, setLuggage] = useState(2);
@@ -70,7 +67,6 @@ export function TourBookingDialog({ tour, trigger, autoOpen = false }: Props) {
           routeFrom: tour.from,
           routeTo: tour.to,
           summary: `Duration: ${tour.duration} | Distance: ${tour.distance} | ${tour.fromPrice}`,
-          date,
           time,
           passengers,
           luggage,
@@ -97,7 +93,6 @@ export function TourBookingDialog({ tour, trigger, autoOpen = false }: Props) {
   });
 
   const errors = {
-    date: !date ? "Choose a tour date." : "",
     time: !time ? "Choose a start time." : "",
     name: name.trim().length < 2 ? "Enter your full name." : "",
     email: !/.+@.+\..+/.test(email.trim()) ? "Enter a valid email address." : "",
