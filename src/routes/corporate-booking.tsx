@@ -1,11 +1,24 @@
 import { useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Building2, ArrowRight } from "lucide-react";
+import {
+  Building2,
+  ArrowRight,
+  FileText,
+  Headset,
+  ShieldCheck,
+  Users,
+  Clock,
+  PlaneTakeoff,
+  Receipt,
+  BarChart3,
+  Check,
+} from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero, SectionHeader } from "@/components/site/PageHero";
+import { FaqSection, LongFormSections, faqJsonLd } from "@/components/site/ContentSections";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -14,27 +27,47 @@ import { useCaptcha } from "@/components/site/Captcha";
 import { PhoneInput } from "@/components/site/PhoneInput";
 import { FormNotice, FormField, focusFirstInvalid, zodFieldErrors, StickyFormSubmit } from "@/components/site/FormValidation";
 
-export const Route = createFileRoute("/corporate-booking")({
-  head: () => ({
-    meta: [
-      { title: "Corporate Booking — Open a Cabslink Business Account" },
-      { name: "description", content: "Open a corporate account with Cabslink for account-managed UK driver and airport transfer services." },
-      { property: "og:title", content: "Corporate Booking — Cabslink" },
-      { property: "og:description", content: "Open a corporate account with Cabslink for account-managed UK driver and airport transfer services." },
-      { property: "og:url", content: "https://cabslink.com/corporate-booking" },
-    ],
-    links: [{ rel: "canonical", href: "https://cabslink.com/corporate-booking" }],
-  }),
-  component: CorporateBookingPage,
-});
+const CB_FAQS = [
+  { q: "Is there any cost to open an account?", a: "No. Opening an account is free and there is no minimum monthly spend. You are billed only for journeys taken." },
+  { q: "How long does approval take?", a: "Most accounts are approved within one working day of your enquiry. Larger tenders or accounts needing bespoke terms can take a few days." },
+  { q: "How are we invoiced?", a: "One consolidated monthly invoice, with cost-centre, project or purchase-order references shown per journey so finance can reconcile without receipts." },
+  { q: "Can several people book on the account?", a: "Yes. You can nominate as many bookers as you need, and each booking can carry the traveller's own details and a reference of your choosing." },
+  { q: "What are your payment terms?", a: "Standard terms are 14 days from invoice by bank transfer. Longer terms can be agreed for higher-volume accounts." },
+  { q: "Do you cover the whole UK?", a: "Yes. We operate nationwide, including every major UK airport, with airport pickups flight-tracked and met in arrivals." },
+  { q: "Can we cancel or change a booking?", a: "Yes. Changes and cancellations are handled by your account line; free cancellation applies up to 24 hours before pickup on standard account journeys." },
+];
 
-const schema = z.object({
-  company: z.string().trim().min(2).max(120),
-  name: z.string().trim().min(2).max(100),
-  email: z.string().trim().email().max(255),
-  phone: z.string().trim().min(6).max(30),
-  needs: z.string().trim().min(10).max(1500),
-});
+const CB_SECTIONS = [
+  {
+    title: "What your account includes",
+    paragraphs: [
+      "Every account comes with a named account manager, a priority booking line, agreed rates by vehicle class and route, and monthly invoicing with your own reference structure carried on each line.",
+      "Bookers arrange travel for colleagues, candidates and visiting clients without handling payment, and recurring journeys can run on a standing reference rather than being re-entered each week.",
+    ],
+  },
+  {
+    title: "Who it suits",
+    paragraphs: [
+      "Professional services, finance, technology, healthcare, film and events teams use accounts most: anywhere travel is frequent, needs to be booked by someone other than the traveller, and has to be reconciled against a cost centre.",
+      "Accounts also suit hotels, PAs and EAs booking on behalf of guests, and organisations moving delegates between venues and hotels during conferences and roadshows.",
+    ],
+  },
+  {
+    title: "Reporting and compliance",
+    paragraphs: [
+      "Monthly statements break spend down by traveller, cost centre and route, so budget holders can see exactly where travel money goes and where a fixed route rate would save money.",
+      "Drivers are licensed, vetted and insured for private hire work, vehicles are fully insured and maintained, and we hold public liability cover. Certificates are provided with your proposal for procurement files.",
+    ],
+  },
+  {
+    title: "Getting started",
+    paragraphs: [
+      "Send the enquiry form with your sites, airports, rough monthly volume and how invoices must be referenced. We reply with a written proposal covering rates by class and route plus your service levels.",
+      "Once you sign off, your booking line and account references go live, and your first journeys can usually be booked the same day.",
+    ],
+  },
+];
+
 
 function CorporateBookingPage() {
   const [loading, setLoading] = useState(false);
