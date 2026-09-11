@@ -283,12 +283,19 @@ export function BookingWidget({
 
               <Divider />
 
-              <div className="relative @[600px]:col-span-2 @[980px]:col-span-1 @[980px]:flex-shrink-0 @[980px]:w-[170px] border-t border-black/5 @[980px]:border-0">
+              <div
+                ref={paxRef}
+                className="relative min-w-0 @[600px]:col-span-2 @[980px]:col-span-1 @[980px]:flex-shrink-0 @[980px]:w-[168px] border-t border-black/5 @[980px]:border-0"
+                data-invalid={attempted && !!hourlyErrors.passengers}
+              >
                 <button
                   type="button"
                   onClick={() => setPaxOpen((v) => !v)}
-                  className="w-full h-full flex items-center justify-center gap-3 px-4 py-3 @[980px]:py-2.5 rounded-2xl @[980px]:rounded-full hover:bg-black/[0.03] transition-colors"
+                  className={`w-full h-full flex items-center justify-center gap-3 px-4 py-3 @[980px]:py-2.5 overflow-hidden rounded-2xl @[980px]:rounded-full hover:bg-black/[0.03] transition-colors ${
+                    attempted && hourlyErrors.passengers ? "bg-destructive/5 ring-1 ring-destructive/60" : ""
+                  }`}
                 >
+
                   <span className="inline-flex items-center gap-1.5">
                     <Users className="w-4 h-4 text-[var(--gold-ink)] shrink-0" />
                     <span className={`text-sm font-bold tabular-nums ${passengers === null ? "text-[var(--navy)]/45 font-normal" : "text-[var(--navy)]"}`}>
@@ -415,33 +422,35 @@ export function BookingWidget({
 
             {/* Passengers + Luggage popover */}
             <div
-              className="relative @[600px]:col-span-2 @[980px]:col-span-1 @[980px]:flex-shrink-0 @[980px]:w-[190px] border-t border-black/5 @[980px]:border-0"
+              className="relative min-w-0 @[600px]:col-span-2 @[980px]:col-span-1 @[980px]:flex-shrink-0 @[980px]:w-[204px] @[1240px]:w-[236px] border-t border-black/5 @[980px]:border-0"
               ref={paxRef}
               data-invalid={attempted && !!errors.passengers}
             >
               <button
                 type="button"
+                aria-expanded={paxOpen}
+                aria-label="Passengers and luggage"
                 onClick={() => setPaxOpen((v) => !v)}
-                className={`w-full h-full flex items-center justify-center gap-3 px-4 py-3 @[980px]:py-2.5 rounded-2xl @[980px]:rounded-full hover:bg-black/[0.03] transition-colors ${
+                className={`w-full h-full flex items-center justify-center gap-2.5 px-3 py-3 @[980px]:py-2.5 overflow-hidden whitespace-nowrap rounded-2xl @[980px]:rounded-full hover:bg-black/[0.03] transition-colors ${
                   attempted && errors.passengers ? "bg-destructive/5 ring-1 ring-destructive/60" : ""
                 }`}
               >
-                <span className="inline-flex items-center gap-1.5">
+                <span className="inline-flex items-center gap-1.5 min-w-0">
                   <Users className="w-4 h-4 text-[var(--gold-ink)] shrink-0" />
                   {passengers === null ? (
-                    <span className="text-sm text-[var(--navy)]/45">Passengers</span>
+                    <span className="text-sm text-[var(--navy)]/45 truncate">Passengers</span>
                   ) : (
                     <>
                       <span className="text-sm font-bold tabular-nums text-[var(--navy)]">{passengers}</span>
-                      <span className="text-[11px] font-semibold text-[var(--navy)]/60">{passengers === 1 ? "Person" : "People"}</span>
+                      <span className="hidden @[1240px]:inline text-[11px] font-semibold text-[var(--navy)]/60">{passengers === 1 ? "Person" : "People"}</span>
                     </>
                   )}
                 </span>
-                <span className="w-px h-4 bg-black/10" />
-                <span className="inline-flex items-center gap-1.5">
+                <span className="w-px h-4 bg-black/10 shrink-0" />
+                <span className="inline-flex items-center gap-1.5 min-w-0">
                   <Briefcase className="w-4 h-4 text-[var(--gold-ink)] shrink-0" />
                   <span className="text-sm font-bold tabular-nums text-[var(--navy)]">{luggage + handLuggage}</span>
-                  <span className="text-[11px] font-semibold text-[var(--navy)]/60">{luggage + handLuggage === 1 ? "Bag" : "Bags"}</span>
+                  <span className="hidden @[1240px]:inline text-[11px] font-semibold text-[var(--navy)]/60">{luggage + handLuggage === 1 ? "Bag" : "Bags"}</span>
                 </span>
               </button>
               {paxOpen && (

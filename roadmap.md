@@ -18,3 +18,7 @@
 - [ ] Production booking autocomplete: replace obsolete server-function validators, publish, and validate repeated cabslink.com requests
 - [x] Drivers admin: two panels (dispatch drivers + website applications), linked by email/phone
 - [x] Booking location fields: make the focused typing/selection indicator visible and square-edged
+- [ ] Booking widget: full UI + behaviour review (no overlapping fields, popover closes, validation on both tabs)
+- [ ] Corporate booking page: add more detail and sections
+- [ ] Security: full review and hardening pass across the site
+- [x] Google Maps: load maps with the account's own browser key (custom-domain support)
