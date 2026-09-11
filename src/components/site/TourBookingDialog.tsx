@@ -169,17 +169,6 @@ export function TourBookingDialog({ tour, trigger, autoOpen = false }: Props) {
 
               {/* When & who */}
               <div className="grid grid-cols-2 gap-3">
-                <Field icon={<Calendar className="size-4" />} label="Tour date" invalid={attempted && !!errors.date}>
-                  <input
-                    aria-label="Tour date"
-                    required
-                    type="date"
-                    min={today}
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    className="w-full bg-transparent border-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)] text-sm font-semibold"
-                  />
-                </Field>
                 <Field icon={<Clock className="size-4" />} label="Start time" invalid={attempted && !!errors.time}>
                   <input
                     aria-label="Tour start time"
