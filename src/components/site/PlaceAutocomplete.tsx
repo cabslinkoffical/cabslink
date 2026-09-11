@@ -336,7 +336,7 @@ export function PlaceAutocomplete({
         }}
       />
       {loading && (
-        <Loader2 className="pointer-events-none absolute right-0.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 animate-spin text-[var(--gold-ink)]" />
+        <Loader2 className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 animate-spin text-[var(--gold-ink)]" />
       )}
       {unverified && !open && (
         <p className="mt-1 text-[11px] font-medium leading-snug text-[var(--gold-ink)]">
