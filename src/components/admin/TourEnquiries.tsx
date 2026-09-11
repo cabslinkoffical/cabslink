@@ -141,7 +141,7 @@ export function TourEnquiries() {
                   <th className="text-left px-4 py-3">Reference</th>
                   <th className="text-left px-4 py-3">Tour</th>
                   <th className="text-left px-4 py-3">Customer</th>
-                  <th className="text-left px-4 py-3">Tour date</th>
+                  <th className="text-left px-4 py-3">Start time</th>
                   <th className="text-left px-4 py-3">Price</th>
                   <th className="text-left px-4 py-3">Status</th>
                   <th className="text-left px-4 py-3">Change status</th>
