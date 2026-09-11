@@ -294,7 +294,7 @@ export function PlaceAutocomplete({
         aria-label={placeholder}
         placeholder={placeholder}
         className={cn(
-          "pl-11 pr-9 h-[52px] text-sm text-[var(--navy)] placeholder:text-[var(--navy)]/55 caret-[var(--navy)] [caret-color:var(--navy)]",
+          "relative z-10 pl-11 pr-9 h-[52px] text-sm text-[var(--navy)] placeholder:text-[var(--navy)]/55 caret-[var(--gold)] [caret-color:var(--gold)] focus-visible:[caret-color:var(--gold)]",
           inputClassName,
         )}
         value={text}
