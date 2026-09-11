@@ -16,7 +16,6 @@ const tourInput = z.object({
   routeFrom: z.string().trim().max(160).default(""),
   routeTo: z.string().trim().max(160).default(""),
   summary: z.string().trim().max(300).default(""),
-  date: z.string().trim().regex(/^\d{4}-\d{2}-\d{2}$/, "Choose a tour date."),
   time: z.string().trim().regex(/^\d{1,2}:\d{2}$/, "Choose a start time."),
   passengers: z.number().int().min(1).max(60),
   luggage: z.number().int().min(0).max(60),
@@ -57,7 +56,7 @@ export const submitTourEnquiry = createServerFn({ method: "POST" })
 
     const now = Date.now();
     for (const [k, v] of recent) if (v.at + RECENT_TTL_MS <= now) recent.delete(k);
-    const dedupeKey = `${data.email.toLowerCase()}|${data.tourSlug}|${data.date}|${data.time}`;
+    const dedupeKey = `${data.email.toLowerCase()}|${data.tourSlug}|${data.time}`;
     const seen = recent.get(dedupeKey);
     if (seen) return { ok: true, bookingRef: seen.ref };
 
@@ -87,7 +86,7 @@ export const submitTourEnquiry = createServerFn({ method: "POST" })
       phone: data.phone || null,
       pickup_address: data.routeFrom || data.tourName,
       dropoff_address: data.hotel || data.routeTo || data.routeFrom || data.tourName,
-      pickup_date: data.date,
+      pickup_date: null,
       pickup_time: time,
       passengers: data.passengers,
       luggage: data.luggage,
@@ -119,7 +118,6 @@ export const submitTourEnquiry = createServerFn({ method: "POST" })
       email: data.email,
       phone: data.phone || null,
       tourName: data.tourName,
-      pickupDate: data.date,
       pickupTime: time,
       passengers: data.passengers,
       stops: data.stops,

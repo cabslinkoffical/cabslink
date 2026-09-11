@@ -8,7 +8,7 @@ export type TourEmailContext = {
   bookingRef: string;
   customerName: string;
   tourName: string;
-  pickupDate: string;
+  pickupDate: string | null;
   pickupTime: string;
   passengers: number;
   /** Agreed total in GBP. Only present on the confirmation email. */
@@ -45,11 +45,15 @@ function shell(title: string, bodyHtml: string): string {
 </body></html>`;
 }
 
+function dateTimeLabel(ctx: TourEmailContext): string {
+  return ctx.pickupDate ? `${esc(ctx.pickupDate)} at ${esc(ctx.pickupTime)}` : esc(ctx.pickupTime);
+}
+
 function factRows(ctx: TourEmailContext): string {
   const rows: Array<[string, string]> = [
     ["Reference", esc(ctx.bookingRef)],
     ["Tour", esc(ctx.tourName)],
-    ["Date & time", `${esc(ctx.pickupDate)} at ${esc(ctx.pickupTime)}`],
+    ["Start time", dateTimeLabel(ctx)],
     ["Passengers", esc(String(ctx.passengers))],
   ];
   if (ctx.price != null) rows.push(["Agreed total", money(Number(ctx.price))]);
@@ -65,7 +69,7 @@ function factLines(ctx: TourEmailContext): string[] {
   const out = [
     `Reference: ${ctx.bookingRef}`,
     `Tour: ${ctx.tourName}`,
-    `Date & time: ${ctx.pickupDate} at ${ctx.pickupTime}`,
+    ctx.pickupDate ? `Date & time: ${ctx.pickupDate} at ${ctx.pickupTime}` : `Start time: ${ctx.pickupTime}`,
     `Passengers: ${ctx.passengers}`,
   ];
   if (ctx.price != null) out.push(`Agreed total: £${Number(ctx.price).toFixed(2)}`);

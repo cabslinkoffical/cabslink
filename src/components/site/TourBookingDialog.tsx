@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { Calendar, Clock, Users, Briefcase, Plane, MapPin, CheckCircle2, Loader2 } from "lucide-react";
+import { Clock, Users, Briefcase, Plane, MapPin, CheckCircle2, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -41,9 +41,6 @@ type Props = {
 export function TourBookingDialog({ tour, trigger, autoOpen = false }: Props) {
   const [open, setOpen] = useState(autoOpen);
 
-  const today = new Date().toISOString().slice(0, 10);
-
-  const [date, setDate] = useState(today);
   const [time, setTime] = useState("09:00");
   const [passengers, setPassengers] = useState(2);
   const [luggage, setLuggage] = useState(2);
@@ -70,7 +67,6 @@ export function TourBookingDialog({ tour, trigger, autoOpen = false }: Props) {
           routeFrom: tour.from,
           routeTo: tour.to,
           summary: `Duration: ${tour.duration} | Distance: ${tour.distance} | ${tour.fromPrice}`,
-          date,
           time,
           passengers,
           luggage,
@@ -97,7 +93,6 @@ export function TourBookingDialog({ tour, trigger, autoOpen = false }: Props) {
   });
 
   const errors = {
-    date: !date ? "Choose a tour date." : "",
     time: !time ? "Choose a start time." : "",
     name: name.trim().length < 2 ? "Enter your full name." : "",
     email: !/.+@.+\..+/.test(email.trim()) ? "Enter a valid email address." : "",
@@ -132,8 +127,7 @@ export function TourBookingDialog({ tour, trigger, autoOpen = false }: Props) {
             ) : null}
             <p className="text-sm text-muted-foreground max-w-md mx-auto">
               Thanks {name.split(" ")[0]}. Our tour desk will confirm availability and a fixed price
-              for <strong>{tour.name}</strong> on {date} at {time} within a few hours. No payment is
-              needed yet.
+              for <strong>{tour.name}</strong> within a few hours. No payment is needed yet.
             </p>
             <p className="text-sm text-muted-foreground max-w-md mx-auto">
               You can track, pay for or cancel this tour any time on the{" "}
@@ -175,17 +169,6 @@ export function TourBookingDialog({ tour, trigger, autoOpen = false }: Props) {
 
               {/* When & who */}
               <div className="grid grid-cols-2 gap-3">
-                <Field icon={<Calendar className="size-4" />} label="Tour date" invalid={attempted && !!errors.date}>
-                  <input
-                    aria-label="Tour date"
-                    required
-                    type="date"
-                    min={today}
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    className="w-full bg-transparent border-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)] text-sm font-semibold"
-                  />
-                </Field>
                 <Field icon={<Clock className="size-4" />} label="Start time" invalid={attempted && !!errors.time}>
                   <input
                     aria-label="Tour start time"

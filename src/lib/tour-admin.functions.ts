@@ -24,7 +24,7 @@ export type TourEnquiryRow = {
   customer_name: string;
   email: string;
   phone: string | null;
-  pickup_date: string;
+  pickup_date: string | null;
   pickup_time: string;
   passengers: number;
   luggage: number;

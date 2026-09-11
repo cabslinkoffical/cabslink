@@ -141,7 +141,7 @@ export function TourEnquiries() {
                   <th className="text-left px-4 py-3">Reference</th>
                   <th className="text-left px-4 py-3">Tour</th>
                   <th className="text-left px-4 py-3">Customer</th>
-                  <th className="text-left px-4 py-3">Tour date</th>
+                  <th className="text-left px-4 py-3">Start time</th>
                   <th className="text-left px-4 py-3">Price</th>
                   <th className="text-left px-4 py-3">Status</th>
                   <th className="text-left px-4 py-3">Change status</th>
@@ -162,7 +162,7 @@ export function TourEnquiries() {
                       <div className="font-medium">{m.customer_name}</div>
                       <div className="text-xs text-muted-foreground">{m.email}{m.phone ? ` · ${m.phone}` : ""}</div>
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-xs">{m.pickup_date} · {m.pickup_time}</td>
+                    <td className="px-4 py-3 whitespace-nowrap text-xs">{m.pickup_date ? `${m.pickup_date} · ` : ""}{m.pickup_time}</td>
                     <td className="px-4 py-3 whitespace-nowrap font-semibold">{money(m.price)}</td>
                     <td className="px-4 py-3">
                       <div className="flex flex-col gap-1">
@@ -204,7 +204,7 @@ export function TourEnquiries() {
                 <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-1">
                   <p className="font-mono text-base font-bold tracking-wider">{active.booking_ref}</p>
                   <p><strong>{active.customer_name}</strong> · {active.email}{active.phone ? ` · ${active.phone}` : ""}</p>
-                  <p>Tour date: {active.pickup_date} at {active.pickup_time}</p>
+                  <p>Start time: {active.pickup_time}{active.pickup_date ? ` on ${active.pickup_date}` : ""}</p>
                   <p>{active.passengers} passengers · {active.luggage} suitcases{active.flight_number ? ` · Flight ${active.flight_number}` : ""}</p>
                   <p className="text-xs text-muted-foreground">Enquired {new Date(active.created_at).toLocaleString()}</p>
                 </div>
