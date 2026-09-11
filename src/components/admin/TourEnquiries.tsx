@@ -162,7 +162,7 @@ export function TourEnquiries() {
                       <div className="font-medium">{m.customer_name}</div>
                       <div className="text-xs text-muted-foreground">{m.email}{m.phone ? ` · ${m.phone}` : ""}</div>
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-xs">{m.pickup_date} · {m.pickup_time}</td>
+                    <td className="px-4 py-3 whitespace-nowrap text-xs">{m.pickup_date ? `${m.pickup_date} · ` : ""}{m.pickup_time}</td>
                     <td className="px-4 py-3 whitespace-nowrap font-semibold">{money(m.price)}</td>
                     <td className="px-4 py-3">
                       <div className="flex flex-col gap-1">
