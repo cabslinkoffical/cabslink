@@ -238,7 +238,7 @@ export function BookingWidget({
                     onChange={setPickup}
                     placeholder="Pickup location"
                     iconClassName="hidden"
-                    inputClassName="border-0 shadow-none bg-transparent px-0 h-auto py-0 text-sm font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-[var(--navy)]/55"
+                    inputClassName="border-0 shadow-none bg-transparent pl-0 pr-7 h-auto py-0 text-sm font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-[var(--navy)]/55"
                     required
                   />
                 </FieldCell>
@@ -352,7 +352,7 @@ export function BookingWidget({
                   onChange={setPickup}
                   placeholder="Pickup location"
                   iconClassName="hidden"
-                  inputClassName="border-0 shadow-none bg-transparent px-0 h-auto py-0 text-sm font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-[var(--navy)]/55"
+                  inputClassName="border-0 shadow-none bg-transparent pl-0 pr-7 h-auto py-0 text-sm font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-[var(--navy)]/55"
                   required
                 />
               </FieldCell>
@@ -369,7 +369,7 @@ export function BookingWidget({
                   onChange={setDropoff}
                   placeholder="Destination"
                   iconClassName="hidden"
-                  inputClassName="border-0 shadow-none bg-transparent px-0 h-auto py-0 text-sm font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-[var(--navy)]/55"
+                  inputClassName="border-0 shadow-none bg-transparent pl-0 pr-7 h-auto py-0 text-sm font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-[var(--navy)]/55"
                   required
                 />
               </FieldCell>
@@ -498,7 +498,7 @@ export function BookingWidget({
                     }}
                     placeholder="Add stop"
                     iconClassName="hidden"
-                    inputClassName="border-0 shadow-none bg-transparent px-0 h-auto py-0 text-sm font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-[var(--navy)]/55"
+                    inputClassName="border-0 shadow-none bg-transparent pl-0 pr-7 h-auto py-0 text-sm font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-[var(--navy)]/55"
                   />
                 </div>
                 <button
