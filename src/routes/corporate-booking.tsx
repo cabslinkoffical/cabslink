@@ -198,6 +198,100 @@ function CorporateBookingPage() {
           </form>
         </div>
       </section>
+
+      {/* What the account gives you */}
+      <section className="section-y bg-[var(--surface)]">
+        <div className="container-x">
+          <SectionHeader eyebrow="Included as standard" title="Everything an account gives your team" />
+          <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {[
+              { i: Building2, t: "Named account manager", d: "One person who knows your sites, your bookers and your travel patterns." },
+              { i: Receipt, t: "Monthly invoicing", d: "No cards at the roadside. One invoice, your references on every line." },
+              { i: Headset, t: "Priority booking line", d: "A direct line and email inbox answered 24/7 by our dispatch team." },
+              { i: PlaneTakeoff, t: "Flight-tracked airports", d: "Arrivals are met with a name board; delays are absorbed, not charged." },
+              { i: BarChart3, t: "Spend reporting", d: "Monthly breakdown by traveller, cost centre and route." },
+              { i: ShieldCheck, t: "Vetted, insured drivers", d: "Licensed private-hire drivers, maintained vehicles, cover documents on file." },
+            ].map((f) => (
+              <div key={f.t} className="rounded-2xl border border-border bg-card p-7">
+                <div className="grid size-12 place-items-center rounded-xl bg-[var(--gold)]/15 text-[var(--gold-ink)]"><f.i className="size-5" /></div>
+                <h3 className="mt-5 font-display text-xl font-semibold">{f.t}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">{f.d}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Who books with us + service levels */}
+      <section className="section-y">
+        <div className="container-x grid gap-12 lg:grid-cols-2">
+          <div>
+            <SectionHeader eyebrow="Who we look after" title="Travel we handle every week" />
+            <ul className="mt-8 grid gap-3">
+              {[
+                "Executive and board travel between offices, client sites and airports",
+                "Visiting clients, candidates and inspectors met at arrivals",
+                "Conference, AGM and roadshow delegate movements",
+                "Hotel and venue shuttles on a single reference",
+                "Crew, production and event staff transfers",
+                "Late-night and shift-end journeys for staff duty of care",
+              ].map((t) => (
+                <li key={t} className="flex items-start gap-3 rounded-xl border border-border bg-card px-4 py-3">
+                  <Check className="mt-0.5 size-4 shrink-0 text-[var(--gold-ink)]" />
+                  <span className="text-sm text-muted-foreground">{t}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <SectionHeader eyebrow="Service levels" title="What we commit to in writing" />
+            <dl className="mt-8 divide-y divide-border rounded-2xl border border-border bg-card">
+              {[
+                { i: Clock, k: "Enquiry response", v: "Within 1 working day" },
+                { i: Headset, k: "Booking confirmation", v: "Within 30 minutes, 24/7" },
+                { i: PlaneTakeoff, k: "Airport waiting time", v: "60 minutes free after landing" },
+                { i: Users, k: "Driver details shared", v: "The evening before travel" },
+                { i: FileText, k: "Free cancellation", v: "Up to 24 hours before pickup" },
+                { i: Receipt, k: "Invoice terms", v: "14 days from monthly statement" },
+              ].map((r) => (
+                <div key={r.k} className="flex items-center gap-4 px-5 py-4">
+                  <r.i className="size-4 shrink-0 text-[var(--gold-ink)]" />
+                  <dt className="text-sm font-semibold">{r.k}</dt>
+                  <dd className="ml-auto text-right text-sm text-muted-foreground">{r.v}</dd>
+                </div>
+              ))}
+            </dl>
+            <p className="mt-4 text-xs text-muted-foreground">
+              Service levels are confirmed in your proposal and can be tailored to your volume and locations.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <LongFormSections sections={CB_SECTIONS} heading="Corporate accounts in detail" />
+      <FaqSection faqs={CB_FAQS} />
+
+      {/* Closing CTA */}
+      <section className="section-y">
+        <div className="container-x">
+          <div className="flex flex-col items-start gap-8 rounded-3xl bg-[var(--navy)] p-10 text-white md:flex-row md:items-center md:justify-between md:p-14">
+            <div>
+              <h2 className="font-display text-3xl md:text-4xl">Prefer to talk it through first?</h2>
+              <p className="mt-2 max-w-xl text-white/75">
+                Call our team on +44 333 888 2991 or read how corporate travel works with us before you send an enquiry.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Button asChild variant="gold" size="lg" className="rounded-full">
+                <a href="tel:+443338882991">Call the team</a>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="rounded-full bg-transparent text-white">
+                <Link to="/corporate-travel">Corporate travel <ArrowRight className="size-4" /></Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
     </SiteLayout>
   );
 }
