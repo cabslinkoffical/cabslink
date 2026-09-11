@@ -21,3 +21,4 @@
 - [ ] Booking widget: full UI + behaviour review (no overlapping fields, popover closes, validation on both tabs)
 - [ ] Corporate booking page: add more detail and sections
 - [ ] Security: full review and hardening pass across the site
+- [x] Google Maps: load maps with the account's own browser key (custom-domain support)
