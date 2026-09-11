@@ -68,6 +68,33 @@ const CB_SECTIONS = [
   },
 ];
 
+export const Route = createFileRoute("/corporate-booking")({
+  head: () => ({
+    meta: [
+      { title: "Corporate Booking — Open a Cabslink Business Account" },
+      { name: "description", content: "Open a corporate account with Cabslink: agreed rates, priority dispatch, monthly invoicing and a named account manager for UK business travel." },
+      { property: "og:title", content: "Corporate Booking — Cabslink" },
+      { property: "og:description", content: "Open a corporate account with Cabslink: agreed rates, priority dispatch, monthly invoicing and a named account manager for UK business travel." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:url", content: "https://cabslink.com/corporate-booking" },
+    ],
+    links: [{ rel: "canonical", href: "https://cabslink.com/corporate-booking" }],
+    scripts: [faqJsonLd(CB_FAQS)],
+  }),
+  component: CorporateBookingPage,
+});
+
+const schema = z.object({
+  company: z.string().trim().min(2).max(120),
+  name: z.string().trim().min(2).max(100),
+  email: z.string().trim().email().max(255),
+  phone: z.string().trim().min(6).max(30),
+  needs: z.string().trim().min(10).max(1500),
+});
+
+
+
 
 function CorporateBookingPage() {
   const [loading, setLoading] = useState(false);
