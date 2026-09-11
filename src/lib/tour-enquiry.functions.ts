@@ -16,7 +16,6 @@ const tourInput = z.object({
   routeFrom: z.string().trim().max(160).default(""),
   routeTo: z.string().trim().max(160).default(""),
   summary: z.string().trim().max(300).default(""),
-  date: z.string().trim().regex(/^\d{4}-\d{2}-\d{2}$/, "Choose a tour date."),
   time: z.string().trim().regex(/^\d{1,2}:\d{2}$/, "Choose a start time."),
   passengers: z.number().int().min(1).max(60),
   luggage: z.number().int().min(0).max(60),
