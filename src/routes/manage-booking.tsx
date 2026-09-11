@@ -455,6 +455,9 @@ function ManageBookingPage() {
 }
 
 function needsPayment(b: ManagedBooking) {
+  // A tour enquiry has no price until our team quotes it, so there is nothing
+  // to pay yet — don't offer a card payment that checkout would refuse.
+  if (b.price == null) return false;
   return !isClosed(b) && (b.paymentStatus === "unpaid" || b.paymentStatus === "failed" || b.paymentStatus === "partial");
 }
 
