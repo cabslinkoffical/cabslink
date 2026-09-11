@@ -56,7 +56,7 @@ export const submitTourEnquiry = createServerFn({ method: "POST" })
 
     const now = Date.now();
     for (const [k, v] of recent) if (v.at + RECENT_TTL_MS <= now) recent.delete(k);
-    const dedupeKey = `${data.email.toLowerCase()}|${data.tourSlug}|${data.date}|${data.time}`;
+    const dedupeKey = `${data.email.toLowerCase()}|${data.tourSlug}|${data.time}`;
     const seen = recent.get(dedupeKey);
     if (seen) return { ok: true, bookingRef: seen.ref };
 
@@ -86,7 +86,7 @@ export const submitTourEnquiry = createServerFn({ method: "POST" })
       phone: data.phone || null,
       pickup_address: data.routeFrom || data.tourName,
       dropoff_address: data.hotel || data.routeTo || data.routeFrom || data.tourName,
-      pickup_date: data.date,
+      pickup_date: null,
       pickup_time: time,
       passengers: data.passengers,
       luggage: data.luggage,
@@ -118,7 +118,6 @@ export const submitTourEnquiry = createServerFn({ method: "POST" })
       email: data.email,
       phone: data.phone || null,
       tourName: data.tourName,
-      pickupDate: data.date,
       pickupTime: time,
       passengers: data.passengers,
       stops: data.stops,
