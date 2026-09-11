@@ -474,7 +474,7 @@ export type TourEnquiryNotification = {
   email: string;
   phone: string | null;
   tourName: string;
-  pickupDate: string;
+  pickupDate?: string | null;
   pickupTime: string;
   passengers: number;
   stops: string[];
@@ -489,7 +489,7 @@ export async function notifyTourEnquiryReceived(ctx: TourEnquiryNotification): P
       bookingRef: ctx.bookingRef,
       customerName: ctx.customerName,
       tourName: ctx.tourName,
-      pickupDate: ctx.pickupDate,
+      pickupDate: ctx.pickupDate ?? null,
       pickupTime: ctx.pickupTime,
       passengers: ctx.passengers,
       manageUrl: manageBookingUrl(ctx.bookingRef),
@@ -511,7 +511,7 @@ export async function notifyTourEnquiryReceived(ctx: TourEnquiryNotification): P
         `New tour enquiry — ${ctx.tourName}`,
         `Reference: ${ctx.bookingRef}`,
         `Customer: ${ctx.customerName} (${ctx.email}${ctx.phone ? `, ${ctx.phone}` : ""})`,
-        `Date/time: ${ctx.pickupDate} ${ctx.pickupTime}`,
+        ctx.pickupDate ? `Date/time: ${ctx.pickupDate} ${ctx.pickupTime}` : `Start time: ${ctx.pickupTime}`,
         `Passengers: ${ctx.passengers}`,
         ctx.stops.length ? `Stops: ${ctx.stops.join(", ")}` : null,
         ctx.notes ? `Notes: ${ctx.notes}` : null,
@@ -545,7 +545,7 @@ export async function notifyTourQuoted(ctx: {
   customerName: string;
   email: string;
   tourName: string;
-  pickupDate: string;
+  pickupDate?: string | null;
   pickupTime: string;
   passengers: number;
   price: number;
@@ -558,7 +558,7 @@ export async function notifyTourQuoted(ctx: {
       bookingRef: ctx.bookingRef,
       customerName: ctx.customerName,
       tourName: ctx.tourName,
-      pickupDate: ctx.pickupDate,
+      pickupDate: ctx.pickupDate ?? null,
       pickupTime: ctx.pickupTime,
       passengers: ctx.passengers,
       price: ctx.price,
