@@ -11,6 +11,7 @@ import { createServerFn } from "@tanstack/react-start";
  */
 export const getMapsBrowserKey = createServerFn({ method: "GET" }).handler(async () => {
   const key =
+    process.env["GOOGLE_MAPS_PUBLIC_BROWSER_KEY"] ??
     process.env["GOOGLE_MAPS_BROWSER_KEY_1"] ??
     process.env["GOOGLE_MAPS_BROWSER_KEY"] ??
     "";
