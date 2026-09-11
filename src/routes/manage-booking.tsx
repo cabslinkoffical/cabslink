@@ -548,6 +548,22 @@ function BookingCard({ booking: b }: { booking: ManagedBooking }) {
           <Fact icon={<ShieldCheck className="size-3" />} label="Total fare" value={b.price != null ? `£${b.price.toFixed(2)}` : "—"} />
         </dl>
 
+        {b.tourName ? (
+          <div className="rounded-xl border border-[var(--gold)]/40 bg-[color-mix(in_oklab,var(--gold)_8%,transparent)] p-4">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Tour</p>
+            <p className="text-sm font-bold">{b.tourName}</p>
+            {b.tourStops.length ? (
+              <p className="mt-1 text-xs text-muted-foreground">Stops: {b.tourStops.join(" · ")}</p>
+            ) : null}
+            {b.price == null ? (
+              <p className="mt-2 text-xs font-semibold">
+                Our tour desk is confirming availability and will email your fixed price shortly.
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+
+
         {b.cancellationReason ? (
           <p className="rounded-xl bg-[color-mix(in_oklab,var(--destructive)_8%,transparent)] p-3 text-xs font-semibold text-destructive">
             Cancellation note: {b.cancellationReason}

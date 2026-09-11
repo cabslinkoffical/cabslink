@@ -455,3 +455,129 @@ export async function notifyEnquiry(ctx: EnquiryContext): Promise<void> {
     console.error("notifyEnquiry failed", err);
   }
 }
+
+// ---------------------------------------------------------------------------
+// Tour enquiries. These are bookings (service_type = "private_tour") priced by
+// the team after the customer submits, so they get their own two emails:
+// an acknowledgement on submission and a confirmation once a price is set.
+// ---------------------------------------------------------------------------
+
+const PUBLIC_SITE_URL = "https://cabslink.com";
+
+function manageBookingUrl(bookingRef: string): string {
+  return `${PUBLIC_SITE_URL}/manage-booking?ref=${encodeURIComponent(bookingRef)}`;
+}
+
+export type TourEnquiryNotification = {
+  bookingRef: string;
+  customerName: string;
+  email: string;
+  phone: string | null;
+  tourName: string;
+  pickupDate: string;
+  pickupTime: string;
+  passengers: number;
+  stops: string[];
+  notes: string | null;
+};
+
+/** Acknowledgement to the customer + heads-up to the tour desk. */
+export async function notifyTourEnquiryReceived(ctx: TourEnquiryNotification): Promise<void> {
+  try {
+    const { tourEnquiryReceivedEmail } = await import("@/lib/email/tour.server");
+    const tpl = tourEnquiryReceivedEmail({
+      bookingRef: ctx.bookingRef,
+      customerName: ctx.customerName,
+      tourName: ctx.tourName,
+      pickupDate: ctx.pickupDate,
+      pickupTime: ctx.pickupTime,
+      passengers: ctx.passengers,
+      manageUrl: manageBookingUrl(ctx.bookingRef),
+    });
+    await sendAndLog({
+      bookingId: null,
+      eventKey: `tour_ack_${ctx.bookingRef}`,
+      notificationType: "customer_tour_enquiry_ack",
+      recipientCategory: "customer",
+      recipient: ctx.email,
+      subject: tpl.subject,
+      html: tpl.html,
+      text: tpl.text,
+    });
+
+    const adminEmail = await getAdminNotificationEmail();
+    if (adminEmail) {
+      const lines = [
+        `New tour enquiry — ${ctx.tourName}`,
+        `Reference: ${ctx.bookingRef}`,
+        `Customer: ${ctx.customerName} (${ctx.email}${ctx.phone ? `, ${ctx.phone}` : ""})`,
+        `Date/time: ${ctx.pickupDate} ${ctx.pickupTime}`,
+        `Passengers: ${ctx.passengers}`,
+        ctx.stops.length ? `Stops: ${ctx.stops.join(", ")}` : null,
+        ctx.notes ? `Notes: ${ctx.notes}` : null,
+        "",
+        "Add the agreed price in the admin panel to confirm it and email the customer.",
+      ].filter(Boolean) as string[];
+      await sendAndLog({
+        bookingId: null,
+        eventKey: `tour_ack_admin_${ctx.bookingRef}`,
+        notificationType: "admin_tour_enquiry",
+        recipientCategory: "admin",
+        recipient: adminEmail,
+        subject: `New tour enquiry ${ctx.bookingRef} — ${ctx.tourName}`,
+        html: `<pre style="font:14px/1.5 -apple-system,Segoe UI,Helvetica,Arial,sans-serif;white-space:pre-wrap;">${lines
+          .join("\n")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")}</pre>`,
+        text: lines.join("\n"),
+      });
+    }
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error("notifyTourEnquiryReceived failed", err);
+  }
+}
+
+/** Sent when an admin sets the agreed price: tour confirmed, payment due. */
+export async function notifyTourQuoted(ctx: {
+  bookingId: string;
+  bookingRef: string;
+  customerName: string;
+  email: string;
+  tourName: string;
+  pickupDate: string;
+  pickupTime: string;
+  passengers: number;
+  price: number;
+  adminNote?: string | null;
+}): Promise<void> {
+  try {
+    const { tourQuoteConfirmedEmail } = await import("@/lib/email/tour.server");
+    const manageUrl = manageBookingUrl(ctx.bookingRef);
+    const tpl = tourQuoteConfirmedEmail({
+      bookingRef: ctx.bookingRef,
+      customerName: ctx.customerName,
+      tourName: ctx.tourName,
+      pickupDate: ctx.pickupDate,
+      pickupTime: ctx.pickupTime,
+      passengers: ctx.passengers,
+      price: ctx.price,
+      manageUrl,
+      payUrl: manageUrl,
+      adminNote: ctx.adminNote ?? null,
+    });
+    await sendAndLog({
+      bookingId: ctx.bookingId,
+      eventKey: `tour_quote_${ctx.bookingRef}_${ctx.price}`,
+      notificationType: "customer_tour_quote",
+      recipientCategory: "customer",
+      recipient: ctx.email,
+      subject: tpl.subject,
+      html: tpl.html,
+      text: tpl.text,
+    });
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error("notifyTourQuoted failed", err);
+  }
+}

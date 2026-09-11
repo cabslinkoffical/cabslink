@@ -29,7 +29,7 @@ const identitySchema = z
 type Identity = z.infer<typeof identitySchema>;
 
 const SELECT =
-  "id, booking_ref, status, payment_status, customer_name, email, phone, pickup_address, dropoff_address, pickup_place_id, dropoff_place_id, pickup_date, pickup_time, passengers, luggage, hand_luggage, vehicle_type, vehicle_id, vehicle_class_name_snapshot, vehicle_capacity_snapshot, flight_number, meet_greet, child_seat, child_seat_count, return_journey, notes, selected_pois, price, distance_miles, created_at, cancellation_reason, service_type, admin_notes";
+  "id, booking_ref, status, payment_status, customer_name, email, phone, pickup_address, dropoff_address, pickup_place_id, dropoff_place_id, pickup_date, pickup_time, passengers, luggage, hand_luggage, vehicle_type, vehicle_id, vehicle_class_name_snapshot, vehicle_capacity_snapshot, flight_number, meet_greet, child_seat, child_seat_count, return_journey, notes, selected_pois, price, distance_miles, created_at, cancellation_reason, service_type, admin_notes, tour_slug, tour_name, tour_stops";
 
 function noStore() {
   try {
@@ -80,6 +80,10 @@ export type ManagedBooking = {
   createdAt: string;
   cancellationReason: string | null;
   serviceType: string | null;
+  /** Tour details, present only on tour enquiries. */
+  tourName: string | null;
+  tourSlug: string | null;
+  tourStops: string[];
   /** Cancellation window facts, computed server-side (never trust the clock in the browser). */
   cancellation: {
     /** Whether a cancellation request can still be submitted. */
@@ -253,6 +257,11 @@ function project(row: any): ManagedBooking {
     createdAt: row.created_at,
     cancellationReason: row.cancellation_reason ?? null,
     serviceType: row.service_type ?? null,
+    tourName: row.tour_name ?? null,
+    tourSlug: row.tour_slug ?? null,
+    tourStops: Array.isArray(row.tour_stops)
+      ? (row.tour_stops as unknown[]).map((s) => String(s)).filter(Boolean)
+      : [],
     cancellation: cancellationFacts(row),
     amendment: amendmentFacts(row),
   };

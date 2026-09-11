@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { submitContactMessage } from "@/lib/contact.functions";
+import { submitTourEnquiry } from "@/lib/tour-enquiry.functions";
 import { useCaptcha } from "@/components/site/Captcha";
 import { PhoneInput } from "@/components/site/PhoneInput";
 import { toast } from "sonner";
@@ -57,45 +57,38 @@ export function TourBookingDialog({ tour, trigger, autoOpen = false }: Props) {
   );
   const [notes, setNotes] = useState("");
   const [done, setDone] = useState(false);
+  const [bookingRef, setBookingRef] = useState("");
   const [attempted, setAttempted] = useState(false);
 
   const captcha = useCaptcha("tour-enquiry");
   const submit = useMutation({
-    mutationFn: async () => {
-      const msg = [
-        `TOUR ENQUIRY — ${tour.name} (${tour.slug})`,
-        `Route: ${tour.from} → ${tour.to}`,
-        `Duration: ${tour.duration}  |  Distance: ${tour.distance}  |  ${tour.fromPrice}`,
-        ``,
-        `Date/time: ${date} ${time}`,
-        `Passengers: ${passengers}  |  Luggage: ${luggage}`,
-        flight ? `Flight: ${flight}` : null,
-        hotel ? `Hotel / drop-off: ${hotel}` : null,
-        ``,
-        `Selected stops:`,
-        ...tour.stops.map((s) =>
-          `  ${selectedStops.includes(s.name) ? "✓" : "·"} ${s.name} (${s.time})`,
-        ),
-        notes ? `\nNotes: ${notes}` : null,
-      ]
-        .filter(Boolean)
-        .join("\n");
-
-      return submitContactMessage({
+    mutationFn: async () =>
+      submitTourEnquiry({
         data: {
+          tourSlug: tour.slug,
+          tourName: tour.name,
+          routeFrom: tour.from,
+          routeTo: tour.to,
+          summary: `Duration: ${tour.duration} | Distance: ${tour.distance} | ${tour.fromPrice}`,
+          date,
+          time,
+          passengers,
+          luggage,
           name,
           email,
           phone: phone || null,
-          subject: `Tour booking: ${tour.name}`,
-          message: msg,
+          flight: flight || null,
+          hotel: hotel || null,
+          stops: tour.stops.filter((s) => selectedStops.includes(s.name)).map((s) => s.name),
+          notes: notes || null,
           website: "",
           captchaToken: captcha.token,
         },
-      });
-    },
-    onSuccess: () => {
+      }),
+    onSuccess: (res) => {
+      setBookingRef(res.bookingRef ?? "");
       setDone(true);
-      toast.success("Tour enquiry sent — we'll confirm within a few hours.");
+      toast.success("Tour enquiry received — we'll confirm your price shortly.");
     },
     onError: (e: Error) => {
       captcha.reset();
@@ -129,9 +122,25 @@ export function TourBookingDialog({ tour, trigger, autoOpen = false }: Props) {
           <div className="py-8 text-center space-y-4">
             <CheckCircle2 className="size-14 text-[var(--gold-ink)] mx-auto" />
             <h3 className="font-display text-2xl font-bold">Tour enquiry received</h3>
+            {bookingRef ? (
+              <div className="mx-auto max-w-xs rounded-2xl border border-[var(--gold)]/50 bg-[color-mix(in_oklab,var(--gold)_10%,transparent)] px-5 py-3">
+                <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">
+                  Your reference
+                </p>
+                <p className="font-mono text-lg font-bold tracking-wider">{bookingRef}</p>
+              </div>
+            ) : null}
             <p className="text-sm text-muted-foreground max-w-md mx-auto">
               Thanks {name.split(" ")[0]}. Our tour desk will confirm availability and a fixed price
-              for <strong>{tour.name}</strong> on {date} at {time} within a few hours.
+              for <strong>{tour.name}</strong> on {date} at {time} within a few hours. No payment is
+              needed yet.
+            </p>
+            <p className="text-sm text-muted-foreground max-w-md mx-auto">
+              You can track, pay for or cancel this tour any time on the{" "}
+              <a href="/manage-booking" className="font-semibold underline">
+                manage booking
+              </a>{" "}
+              page using your reference and last name.
             </p>
             <Button variant="gold" className="rounded-full" onClick={() => setOpen(false)}>
               Close
