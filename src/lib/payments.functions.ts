@@ -65,12 +65,21 @@ export const createTrackedBookingCheckout = createServerFn({ method: "POST" })
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       const res: any = await supabaseAdmin
         .from("bookings")
-        .select("price, email, payment_status")
+        .select("price, quoted_total, quote_expires_at, email, payment_status")
         .eq("booking_ref", ref)
         .maybeSingle();
       if (res.error || !res.data) return { error: "We couldn't find that booking." };
       if (res.data.payment_status === "paid") return { error: "This booking is already paid." };
-      const pence = Math.round(Number(res.data.price ?? 0) * 100);
+      // Tours are held unpaid with the server-calculated quote; that figure is
+      // payable until the hold expires.
+      if (
+        res.data.price == null &&
+        res.data.quote_expires_at &&
+        new Date(res.data.quote_expires_at).getTime() < Date.now()
+      ) {
+        return { error: "This quote has expired. Please build your tour again to get a fresh price." };
+      }
+      const pence = Math.round(Number(res.data.price ?? res.data.quoted_total ?? 0) * 100);
       if (!Number.isFinite(pence) || pence < 100) {
         return { error: "This booking has no payable fare yet. Please contact us." };
       }
