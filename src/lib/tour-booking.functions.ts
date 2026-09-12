@@ -258,7 +258,17 @@ export const createTourBooking = createServerFn({ method: "POST" })
     const holdMinutes = config.rules.checkout_hold_minutes;
 
     const stopNames = data.stops.map((s) => s.name);
-    const tourName = data.mode === "premade" ? (data.startLabel ? null : null) : null;
+    let tourName: string | null = "Custom day tour";
+    let tourSlug: string | null = null;
+    if (data.mode === "premade" && data.templateId) {
+      const tpl: any = await supabaseAdmin
+        .from("scenic_route_templates")
+        .select("name, slug")
+        .eq("id", data.templateId)
+        .maybeSingle();
+      tourName = tpl.data?.name ?? "Day tour";
+      tourSlug = tpl.data?.slug ?? null;
+    }
 
     const insert: any = {
       booking_ref: bookingRef,
