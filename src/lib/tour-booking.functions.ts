@@ -300,6 +300,7 @@ export const createTourBooking = createServerFn({ method: "POST" })
       vehicle_type: result.vehicleName,
       scenic_template_id: data.templateId ?? null,
       tour_name: tourName,
+      tour_slug: tourSlug,
       tour_stops: stopNames,
       selected_pois: data.stops.map((s) => s.poiId).filter(Boolean),
       booked_hours: data.hours,
