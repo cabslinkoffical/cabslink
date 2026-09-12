@@ -659,6 +659,7 @@ function TourWizard() {
                       </p>
                     </div>
                     <BookingCardPayment
+                      serverPriced
                       amountPence={Math.round(created.total * 100)}
                       bookingRef={created.bookingRef}
                       email={email}
