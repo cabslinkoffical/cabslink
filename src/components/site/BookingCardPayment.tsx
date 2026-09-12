@@ -35,9 +35,13 @@ export function BookingCardPayment({
   }
 
   const fetchClientSecret = async (): Promise<string> => {
-    const res = await checkoutFn({
-      data: { amountPence, bookingRef, email, returnUrl, environment: getStripeEnvironment() },
-    });
+    const res = serverPriced
+      ? await trackedCheckoutFn({
+          data: { bookingRef, returnUrl, environment: getStripeEnvironment() },
+        })
+      : await checkoutFn({
+          data: { amountPence, bookingRef, email, returnUrl, environment: getStripeEnvironment() },
+        });
     if ("error" in res) throw new Error(res.error);
     if (!res.clientSecret) throw new Error("Payment could not be started. Please try again.");
     return res.clientSecret;
