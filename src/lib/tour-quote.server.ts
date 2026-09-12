@@ -1,0 +1,305 @@
+/**
+ * Server-only tour quoting. The browser may show a price, but this file is the
+ * only thing that decides one: config comes from the database, the loop is
+ * measured with the real driving route, and money is computed by the shared
+ * pure engine in `tour-quote.ts`.
+ */
+import { computeRoute } from "@/lib/route-distance.server";
+import { resolveCoords } from "@/lib/place-coords.server";
+import {
+  buildQuote,
+  addHoursOptions,
+  bookableTiers,
+  type AddHoursOption,
+  type ClassRates,
+  type HourTier,
+  type TourQuote,
+  type TourRules,
+} from "@/lib/tour-quote";
+
+export type TourStopInput = {
+  poiId?: string | null;
+  placeId: string;
+  name: string;
+  dwellMinutes?: number | null;
+};
+
+export type TourQuoteInput = {
+  mode: "premade" | "custom";
+  templateId?: string | null;
+  startPlaceId: string;
+  startLabel: string;
+  endPlaceId?: string | null;
+  endLabel?: string | null;
+  hours: number;
+  vehicleClassId: string;
+  passengers: number;
+  luggage: number;
+  stops: TourStopInput[];
+};
+
+export type TourQuoteResult = {
+  quote: TourQuote;
+  addHours: AddHoursOption[];
+  currency: "GBP";
+  tierHours: number[];
+  vehicleName: string;
+};
+
+const DEFAULT_RULES: TourRules = {
+  earliest_start_time: "07:00",
+  latest_finish_time: "22:00",
+  max_bookable_hours: 12,
+  minimum_stop_minutes: 20,
+  pickup_buffer_minutes: 30,
+  mileage_tolerance_miles: 10,
+  minimum_notice_hours: 12,
+  checkout_hold_minutes: 30,
+};
+
+export type TourConfig = {
+  tiers: HourTier[];
+  rules: TourRules;
+  classes: ClassRates[];
+};
+
+export async function loadTourConfig(): Promise<TourConfig> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const [tiers, rules, classes] = await Promise.all([
+    supabaseAdmin.from("tour_hour_tiers").select("hours, included_miles, is_bookable").order("sort_order"),
+    supabaseAdmin.from("tour_rules").select("*").limit(1).maybeSingle(),
+    supabaseAdmin
+      .from("vehicle_classes")
+      .select(
+        "id, name, hourly_rate, extra_hour_rate, extra_mile_rate, min_hours, max_hours, max_passengers, max_luggage, active",
+      ),
+  ]);
+
+  const r: any = rules.data;
+  return {
+    tiers: ((tiers.data ?? []) as any[]).map((t) => ({
+      hours: Number(t.hours),
+      included_miles: Number(t.included_miles),
+      is_bookable: !!t.is_bookable,
+    })),
+    rules: r
+      ? {
+          earliest_start_time: String(r.earliest_start_time).slice(0, 5),
+          latest_finish_time: String(r.latest_finish_time).slice(0, 5),
+          max_bookable_hours: Number(r.max_bookable_hours),
+          minimum_stop_minutes: Number(r.minimum_stop_minutes),
+          pickup_buffer_minutes: Number(r.pickup_buffer_minutes),
+          mileage_tolerance_miles: Number(r.mileage_tolerance_miles),
+          minimum_notice_hours: Number(r.minimum_notice_hours),
+          checkout_hold_minutes: Number(r.checkout_hold_minutes),
+        }
+      : DEFAULT_RULES,
+    classes: ((classes.data ?? []) as any[])
+      .filter((c) => c.active !== false)
+      .map((c) => ({
+        id: c.id,
+        name: c.name,
+        hourly_rate: c.hourly_rate == null ? null : Number(c.hourly_rate),
+        extra_hour_rate: c.extra_hour_rate == null ? null : Number(c.extra_hour_rate),
+        extra_mile_rate: c.extra_mile_rate == null ? null : Number(c.extra_mile_rate),
+        min_hours: c.min_hours == null ? null : Number(c.min_hours),
+        max_hours: c.max_hours == null ? null : Number(c.max_hours),
+        max_passengers: c.max_passengers == null ? null : Number(c.max_passengers),
+        max_luggage: c.max_luggage == null ? null : Number(c.max_luggage),
+      })),
+  };
+}
+
+/** Straight-line miles, used only for estimated stop-insertion costs. */
+export function haversineMiles(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
+  const R = 3958.8;
+  const dLat = ((b.lat - a.lat) * Math.PI) / 180;
+  const dLng = ((b.lng - a.lng) * Math.PI) / 180;
+  const la1 = (a.lat * Math.PI) / 180;
+  const la2 = (b.lat * Math.PI) / 180;
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(la1) * Math.cos(la2) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)));
+}
+
+/** Road miles are longer than the crow flies; this is the usual Scottish factor. */
+const ROAD_FACTOR = 1.28;
+const AVG_MPH = 34;
+
+/**
+ * Measure the loop: start → stops in order → finish. Cached driving data is
+ * reused; if the routing service is unavailable we fall back to a straight-line
+ * estimate so the customer still sees a figure, flagged as estimated.
+ */
+export async function measureLoop(input: {
+  startPlaceId: string;
+  endPlaceId: string;
+  stopPlaceIds: string[];
+}): Promise<{ miles: number; driveMinutes: number; estimated: boolean }> {
+  const { startPlaceId, endPlaceId, stopPlaceIds } = input;
+  try {
+    if (stopPlaceIds.length === 0 && startPlaceId === endPlaceId) {
+      return { miles: 0, driveMinutes: 0, estimated: false };
+    }
+    // A loop back to the same place is measured as start → stops → last stop → start.
+    const sameStart = startPlaceId === endPlaceId;
+    if (sameStart && stopPlaceIds.length > 0) {
+      const out = await computeRoute({
+        originPlaceId: startPlaceId,
+        destinationPlaceId: stopPlaceIds[stopPlaceIds.length - 1]!,
+        waypointPlaceIds: stopPlaceIds.slice(0, -1),
+      });
+      const back = await computeRoute({
+        originPlaceId: stopPlaceIds[stopPlaceIds.length - 1]!,
+        destinationPlaceId: startPlaceId,
+      });
+      return {
+        miles: out.distanceMiles + back.distanceMiles,
+        driveMinutes: (out.durationSeconds + back.durationSeconds) / 60,
+        estimated: false,
+      };
+    }
+    const res = await computeRoute({
+      originPlaceId: startPlaceId,
+      destinationPlaceId: endPlaceId,
+      waypointPlaceIds: stopPlaceIds,
+    });
+    return { miles: res.distanceMiles, driveMinutes: res.durationSeconds / 60, estimated: false };
+  } catch {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const ids = [startPlaceId, ...stopPlaceIds, endPlaceId];
+    const coords = await resolveCoords(supabaseAdmin as any, ids);
+    let miles = 0;
+    for (let i = 1; i < ids.length; i++) {
+      const a = coords.get(ids[i - 1]!);
+      const b = coords.get(ids[i]!);
+      if (a && b) miles += haversineMiles(a, b) * ROAD_FACTOR;
+    }
+    return { miles, driveMinutes: (miles / AVG_MPH) * 60, estimated: true };
+  }
+}
+
+async function templateSettings(templateId: string) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const [tpl, prices, pois] = await Promise.all([
+    supabaseAdmin
+      .from("scenic_route_templates")
+      .select(
+        "id, name, slug, is_bookable, default_duration_hours, min_duration_hours, max_duration_hours, included_miles, start_mode, fixed_start_address, origin_place_id, destination_place_id",
+      )
+      .eq("id", templateId)
+      .maybeSingle(),
+    supabaseAdmin.from("template_fixed_prices").select("vehicle_class_id, price").eq("route_template_id", templateId),
+    supabaseAdmin
+      .from("scenic_route_template_pois")
+      .select("poi_id, stop_order, mandatory, default_selected")
+      .eq("route_template_id", templateId)
+      .order("stop_order"),
+  ]);
+  return { tpl: tpl.data as any, prices: (prices.data ?? []) as any[], pois: (pois.data ?? []) as any[] };
+}
+
+/** Dwell minutes for the chosen stops, defaulting to the rules floor. */
+async function dwellFor(stops: TourStopInput[], rules: TourRules): Promise<number[]> {
+  const poiIds = stops.map((s) => s.poiId).filter((v): v is string => !!v);
+  let map = new Map<string, number>();
+  if (poiIds.length) {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const res: any = await supabaseAdmin
+      .from("points_of_interest")
+      .select("id, recommended_visit_minutes, minimum_visit_minutes")
+      .in("id", poiIds);
+    map = new Map(
+      ((res.data ?? []) as any[]).map((p) => [
+        p.id as string,
+        Number(p.recommended_visit_minutes ?? p.minimum_visit_minutes ?? rules.minimum_stop_minutes),
+      ]),
+    );
+  }
+  return stops.map(
+    (s) => Number(s.dwellMinutes ?? (s.poiId ? map.get(s.poiId) : null) ?? rules.minimum_stop_minutes),
+  );
+}
+
+export async function quoteTourImpl(input: TourQuoteInput): Promise<TourQuoteResult> {
+  const config = await loadTourConfig();
+  const rates = config.classes.find((c) => c.id === input.vehicleClassId);
+  if (!rates) throw new Error("Choose a vehicle for your tour.");
+
+  const tiers = bookableTiers(config.tiers, config.rules);
+  const endPlaceId = input.endPlaceId || input.startPlaceId;
+
+  let fixedPrice: number | null = null;
+  let baseHours = input.hours;
+  let templateIncludedMiles: number | null = null;
+  let startPlaceId = input.startPlaceId;
+
+  if (input.mode === "premade" && input.templateId) {
+    const { tpl, prices } = await templateSettings(input.templateId);
+    if (!tpl || tpl.is_bookable === false) throw new Error("That tour is not available to book online.");
+    const price = prices.find((p) => p.vehicle_class_id === input.vehicleClassId);
+    fixedPrice = price ? Number(price.price) : null;
+    baseHours = Number(tpl.default_duration_hours ?? input.hours);
+    templateIncludedMiles = tpl.included_miles == null ? null : Number(tpl.included_miles);
+    if (tpl.start_mode === "fixed" && tpl.origin_place_id) startPlaceId = tpl.origin_place_id;
+    if (fixedPrice == null) {
+      throw new Error("This tour has no price for that vehicle yet. Please call us and we'll quote it.");
+    }
+  }
+
+  const loop = await measureLoop({
+    startPlaceId,
+    endPlaceId,
+    stopPlaceIds: input.stops.map((s) => s.placeId),
+  });
+  const dwellMinutes = await dwellFor(input.stops, config.rules);
+
+  const quote = buildQuote({
+    mode: input.mode,
+    hours: input.hours,
+    baseHours,
+    fixedPrice,
+    rates,
+    tiers,
+    rules: config.rules,
+    templateIncludedMiles,
+    routeMiles: loop.miles,
+    driveMinutes: loop.driveMinutes,
+    dwellMinutes,
+    vehicleLabel: rates.name,
+  });
+
+  return {
+    quote,
+    addHours: addHoursOptions({
+      current: quote,
+      tiers,
+      rules: config.rules,
+      rates,
+      mode: input.mode,
+      dwellMinutes,
+    }),
+    currency: "GBP",
+    tierHours: tiers.map((t) => t.hours),
+    vehicleName: rates.name,
+  };
+}
+
+/** Remaining tours for a vehicle class on a date, honouring the daily cap. */
+export async function capacityLeft(vehicleClassId: string, date: string): Promise<number | null> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const cap: any = await supabaseAdmin
+    .from("vehicle_class_daily_capacity")
+    .select("max_tours_per_day")
+    .eq("vehicle_class_id", vehicleClassId)
+    .maybeSingle();
+  if (!cap.data) return null;
+  const max = Number(cap.data.max_tours_per_day);
+  const used: any = await supabaseAdmin
+    .from("bookings")
+    .select("id", { count: "exact", head: true })
+    .eq("service_type", "private_tour")
+    .eq("vehicle_class_id", vehicleClassId)
+    .eq("pickup_date", date)
+    .in("status", ["new", "awaiting_payment", "pending_payment", "confirmed", "assigned", "in_progress"]);
+  return Math.max(0, max - Number(used.count ?? 0));
+}
