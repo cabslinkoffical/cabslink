@@ -90,6 +90,7 @@ import { Route as CruisePortsSlugRouteImport } from './routes/cruise-ports.$slug
 import { Route as CorporateSlugRouteImport } from './routes/corporate.$slug'
 import { Route as CorporateTravelLocationRouteImport } from './routes/corporate-travel.$location'
 import { Route as BookingTokenRouteImport } from './routes/booking.$token'
+import { Route as BookTourRouteImport } from './routes/book.tour'
 import { Route as BookHourlyRouteImport } from './routes/book.hourly'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AttractionsSlugRouteImport } from './routes/attractions.$slug'
@@ -553,6 +554,11 @@ const BookingTokenRoute = BookingTokenRouteImport.update({
   path: '/booking/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BookTourRoute = BookTourRouteImport.update({
+  id: '/tour',
+  path: '/tour',
+  getParentRoute: () => BookRoute,
+} as any)
 const BookHourlyRoute = BookHourlyRouteImport.update({
   id: '/hourly',
   path: '/hourly',
@@ -931,6 +937,7 @@ export interface FileRoutesByFullPath {
   '/attractions/$slug': typeof AttractionsSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/book/hourly': typeof BookHourlyRoute
+  '/book/tour': typeof BookTourRoute
   '/booking/$token': typeof BookingTokenRoute
   '/corporate-travel/$location': typeof CorporateTravelLocationRoute
   '/corporate/$slug': typeof CorporateSlugRoute
@@ -1067,6 +1074,7 @@ export interface FileRoutesByTo {
   '/attractions/$slug': typeof AttractionsSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/book/hourly': typeof BookHourlyRoute
+  '/book/tour': typeof BookTourRoute
   '/booking/$token': typeof BookingTokenRoute
   '/corporate-travel/$location': typeof CorporateTravelLocationRoute
   '/corporate/$slug': typeof CorporateSlugRoute
@@ -1207,6 +1215,7 @@ export interface FileRoutesById {
   '/attractions/$slug': typeof AttractionsSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/book/hourly': typeof BookHourlyRoute
+  '/book/tour': typeof BookTourRoute
   '/booking/$token': typeof BookingTokenRoute
   '/corporate-travel/$location': typeof CorporateTravelLocationRoute
   '/corporate/$slug': typeof CorporateSlugRoute
@@ -1347,6 +1356,7 @@ export interface FileRouteTypes {
     | '/attractions/$slug'
     | '/blog/$slug'
     | '/book/hourly'
+    | '/book/tour'
     | '/booking/$token'
     | '/corporate-travel/$location'
     | '/corporate/$slug'
@@ -1483,6 +1493,7 @@ export interface FileRouteTypes {
     | '/attractions/$slug'
     | '/blog/$slug'
     | '/book/hourly'
+    | '/book/tour'
     | '/booking/$token'
     | '/corporate-travel/$location'
     | '/corporate/$slug'
@@ -1622,6 +1633,7 @@ export interface FileRouteTypes {
     | '/attractions/$slug'
     | '/blog/$slug'
     | '/book/hourly'
+    | '/book/tour'
     | '/booking/$token'
     | '/corporate-travel/$location'
     | '/corporate/$slug'
@@ -2372,6 +2384,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BookingTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/book/tour': {
+      id: '/book/tour'
+      path: '/tour'
+      fullPath: '/book/tour'
+      preLoaderRoute: typeof BookTourRouteImport
+      parentRoute: typeof BookRoute
+    }
     '/book/hourly': {
       id: '/book/hourly'
       path: '/hourly'
@@ -2934,11 +2953,13 @@ const AuthenticatedRouteRouteWithChildren =
 
 interface BookRouteChildren {
   BookHourlyRoute: typeof BookHourlyRoute
+  BookTourRoute: typeof BookTourRoute
   BookIndexRoute: typeof BookIndexRoute
 }
 
 const BookRouteChildren: BookRouteChildren = {
   BookHourlyRoute: BookHourlyRoute,
+  BookTourRoute: BookTourRoute,
   BookIndexRoute: BookIndexRoute,
 }
 
