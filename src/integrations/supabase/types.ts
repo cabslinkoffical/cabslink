@@ -608,13 +608,18 @@ export type Database = {
       }
       bookings: {
         Row: {
+          actual_miles: number | null
           admin_notes: string | null
           applied_rules: Json | null
           assigned_at: string | null
+          booked_hours: number | null
+          booking_mode: string | null
           booking_ref: string | null
           cancellation_reason: string | null
           child_seat: boolean
           child_seat_count: number
+          clock_end_at: string | null
+          clock_start_at: string | null
           confirmation_token_expires_at: string | null
           confirmation_token_hash: string | null
           created_at: string
@@ -628,6 +633,12 @@ export type Database = {
           dropoff_place_id: string | null
           email: string
           engine_version: string | null
+          estimated_drive_minutes: number | null
+          estimated_extra_miles: number | null
+          estimated_miles: number | null
+          extra_hours_authorised: number | null
+          final_extra_miles: number | null
+          final_total: number | null
           flight_number: string | null
           hand_luggage: number
           hourly_hours: number | null
@@ -635,11 +646,16 @@ export type Database = {
           id: string
           idempotency_key: string | null
           idempotency_request_hash: string | null
+          included_miles: number | null
           luggage: number
           meet_greet: boolean
           notes: string | null
+          odometer_end: number | null
+          odometer_start: number | null
           original_service_type: string
           passengers: number
+          payment_method_token: string | null
+          payment_reference: string | null
           payment_status: Database["public"]["Enums"]["payment_status"]
           phone: string
           pickup_address: string
@@ -654,6 +670,8 @@ export type Database = {
           pricing_source: string | null
           quote_expires_at: string | null
           quote_id: string | null
+          quoted_total: number | null
+          reconciliation_status: string | null
           return_journey: boolean
           route_legs: Json
           scenic_template_id: string | null
@@ -675,13 +693,18 @@ export type Database = {
           vehicle_type: string
         }
         Insert: {
+          actual_miles?: number | null
           admin_notes?: string | null
           applied_rules?: Json | null
           assigned_at?: string | null
+          booked_hours?: number | null
+          booking_mode?: string | null
           booking_ref?: string | null
           cancellation_reason?: string | null
           child_seat?: boolean
           child_seat_count?: number
+          clock_end_at?: string | null
+          clock_start_at?: string | null
           confirmation_token_expires_at?: string | null
           confirmation_token_hash?: string | null
           created_at?: string
@@ -695,6 +718,12 @@ export type Database = {
           dropoff_place_id?: string | null
           email: string
           engine_version?: string | null
+          estimated_drive_minutes?: number | null
+          estimated_extra_miles?: number | null
+          estimated_miles?: number | null
+          extra_hours_authorised?: number | null
+          final_extra_miles?: number | null
+          final_total?: number | null
           flight_number?: string | null
           hand_luggage?: number
           hourly_hours?: number | null
@@ -702,11 +731,16 @@ export type Database = {
           id?: string
           idempotency_key?: string | null
           idempotency_request_hash?: string | null
+          included_miles?: number | null
           luggage?: number
           meet_greet?: boolean
           notes?: string | null
+          odometer_end?: number | null
+          odometer_start?: number | null
           original_service_type?: string
           passengers?: number
+          payment_method_token?: string | null
+          payment_reference?: string | null
           payment_status?: Database["public"]["Enums"]["payment_status"]
           phone: string
           pickup_address: string
@@ -721,6 +755,8 @@ export type Database = {
           pricing_source?: string | null
           quote_expires_at?: string | null
           quote_id?: string | null
+          quoted_total?: number | null
+          reconciliation_status?: string | null
           return_journey?: boolean
           route_legs?: Json
           scenic_template_id?: string | null
@@ -742,13 +778,18 @@ export type Database = {
           vehicle_type: string
         }
         Update: {
+          actual_miles?: number | null
           admin_notes?: string | null
           applied_rules?: Json | null
           assigned_at?: string | null
+          booked_hours?: number | null
+          booking_mode?: string | null
           booking_ref?: string | null
           cancellation_reason?: string | null
           child_seat?: boolean
           child_seat_count?: number
+          clock_end_at?: string | null
+          clock_start_at?: string | null
           confirmation_token_expires_at?: string | null
           confirmation_token_hash?: string | null
           created_at?: string
@@ -762,6 +803,12 @@ export type Database = {
           dropoff_place_id?: string | null
           email?: string
           engine_version?: string | null
+          estimated_drive_minutes?: number | null
+          estimated_extra_miles?: number | null
+          estimated_miles?: number | null
+          extra_hours_authorised?: number | null
+          final_extra_miles?: number | null
+          final_total?: number | null
           flight_number?: string | null
           hand_luggage?: number
           hourly_hours?: number | null
@@ -769,11 +816,16 @@ export type Database = {
           id?: string
           idempotency_key?: string | null
           idempotency_request_hash?: string | null
+          included_miles?: number | null
           luggage?: number
           meet_greet?: boolean
           notes?: string | null
+          odometer_end?: number | null
+          odometer_start?: number | null
           original_service_type?: string
           passengers?: number
+          payment_method_token?: string | null
+          payment_reference?: string | null
           payment_status?: Database["public"]["Enums"]["payment_status"]
           phone?: string
           pickup_address?: string
@@ -788,6 +840,8 @@ export type Database = {
           pricing_source?: string | null
           quote_expires_at?: string | null
           quote_id?: string | null
+          quoted_total?: number | null
+          reconciliation_status?: string | null
           return_journey?: boolean
           route_legs?: Json
           scenic_template_id?: string | null
@@ -2245,6 +2299,36 @@ export type Database = {
         }
         Relationships: []
       }
+      poi_travel_matrix: {
+        Row: {
+          created_at: string
+          destination_ref: string
+          distance_miles: number
+          drive_minutes: number
+          id: string
+          origin_ref: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          destination_ref: string
+          distance_miles: number
+          drive_minutes: number
+          id?: string
+          origin_ref: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          destination_ref?: string
+          distance_miles?: number
+          drive_minutes?: number
+          id?: string
+          origin_ref?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       points_of_interest: {
         Row: {
           active: boolean
@@ -2788,6 +2872,7 @@ export type Database = {
           admin_notes: string | null
           bidirectional: boolean
           created_at: string
+          default_duration_hours: number | null
           default_order_locked: boolean
           description: string
           destination_label: string
@@ -2797,10 +2882,17 @@ export type Database = {
           display_order: number
           excluded: Json
           featured: boolean
+          fixed_start_address: string | null
+          fixed_start_lat: number | null
+          fixed_start_lng: number | null
           hero_image_url: string | null
           id: string
           included: Json
+          included_miles: number | null
+          is_bookable: boolean
           long_day: boolean
+          max_duration_hours: number | null
+          min_duration_hours: number | null
           name: string
           optimisation_allowed: boolean
           origin_label: string
@@ -2812,6 +2904,7 @@ export type Database = {
           service_type: string
           short_description: string | null
           slug: string
+          start_mode: string
           starting_price_calculated_at: string | null
           starting_price_currency: string | null
           starting_price_pence_cache: number | null
@@ -2825,6 +2918,7 @@ export type Database = {
           admin_notes?: string | null
           bidirectional?: boolean
           created_at?: string
+          default_duration_hours?: number | null
           default_order_locked?: boolean
           description?: string
           destination_label?: string
@@ -2834,10 +2928,17 @@ export type Database = {
           display_order?: number
           excluded?: Json
           featured?: boolean
+          fixed_start_address?: string | null
+          fixed_start_lat?: number | null
+          fixed_start_lng?: number | null
           hero_image_url?: string | null
           id?: string
           included?: Json
+          included_miles?: number | null
+          is_bookable?: boolean
           long_day?: boolean
+          max_duration_hours?: number | null
+          min_duration_hours?: number | null
           name: string
           optimisation_allowed?: boolean
           origin_label?: string
@@ -2849,6 +2950,7 @@ export type Database = {
           service_type?: string
           short_description?: string | null
           slug: string
+          start_mode?: string
           starting_price_calculated_at?: string | null
           starting_price_currency?: string | null
           starting_price_pence_cache?: number | null
@@ -2862,6 +2964,7 @@ export type Database = {
           admin_notes?: string | null
           bidirectional?: boolean
           created_at?: string
+          default_duration_hours?: number | null
           default_order_locked?: boolean
           description?: string
           destination_label?: string
@@ -2871,10 +2974,17 @@ export type Database = {
           display_order?: number
           excluded?: Json
           featured?: boolean
+          fixed_start_address?: string | null
+          fixed_start_lat?: number | null
+          fixed_start_lng?: number | null
           hero_image_url?: string | null
           id?: string
           included?: Json
+          included_miles?: number | null
+          is_bookable?: boolean
           long_day?: boolean
+          max_duration_hours?: number | null
+          min_duration_hours?: number | null
           name?: string
           optimisation_allowed?: boolean
           origin_label?: string
@@ -2886,6 +2996,7 @@ export type Database = {
           service_type?: string
           short_description?: string | null
           slug?: string
+          start_mode?: string
           starting_price_calculated_at?: string | null
           starting_price_currency?: string | null
           starting_price_pence_cache?: number | null
@@ -3928,6 +4039,120 @@ export type Database = {
         }
         Relationships: []
       }
+      template_fixed_prices: {
+        Row: {
+          created_at: string
+          id: string
+          price: number
+          route_template_id: string
+          updated_at: string
+          vehicle_class_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          price: number
+          route_template_id: string
+          updated_at?: string
+          vehicle_class_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          price?: number
+          route_template_id?: string
+          updated_at?: string
+          vehicle_class_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "template_fixed_prices_route_template_id_fkey"
+            columns: ["route_template_id"]
+            isOneToOne: false
+            referencedRelation: "scenic_route_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "template_fixed_prices_vehicle_class_id_fkey"
+            columns: ["vehicle_class_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tour_hour_tiers: {
+        Row: {
+          created_at: string
+          hours: number
+          id: string
+          included_miles: number
+          is_bookable: boolean
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          hours: number
+          id?: string
+          included_miles?: number
+          is_bookable?: boolean
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          hours?: number
+          id?: string
+          included_miles?: number
+          is_bookable?: boolean
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      tour_rules: {
+        Row: {
+          checkout_hold_minutes: number
+          created_at: string
+          earliest_start_time: string
+          id: string
+          latest_finish_time: string
+          max_bookable_hours: number
+          mileage_tolerance_miles: number
+          minimum_notice_hours: number
+          minimum_stop_minutes: number
+          pickup_buffer_minutes: number
+          updated_at: string
+        }
+        Insert: {
+          checkout_hold_minutes?: number
+          created_at?: string
+          earliest_start_time?: string
+          id?: string
+          latest_finish_time?: string
+          max_bookable_hours?: number
+          mileage_tolerance_miles?: number
+          minimum_notice_hours?: number
+          minimum_stop_minutes?: number
+          pickup_buffer_minutes?: number
+          updated_at?: string
+        }
+        Update: {
+          checkout_hold_minutes?: number
+          created_at?: string
+          earliest_start_time?: string
+          id?: string
+          latest_finish_time?: string
+          max_bookable_hours?: number
+          mileage_tolerance_miles?: number
+          minimum_notice_hours?: number
+          minimum_stop_minutes?: number
+          pickup_buffer_minutes?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -3949,6 +4174,38 @@ export type Database = {
         }
         Relationships: []
       }
+      vehicle_class_daily_capacity: {
+        Row: {
+          created_at: string
+          id: string
+          max_tours_per_day: number
+          updated_at: string
+          vehicle_class_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          max_tours_per_day?: number
+          updated_at?: string
+          vehicle_class_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          max_tours_per_day?: number
+          updated_at?: string
+          vehicle_class_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_class_daily_capacity_vehicle_class_id_fkey"
+            columns: ["vehicle_class_id"]
+            isOneToOne: true
+            referencedRelation: "vehicle_classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vehicle_classes: {
         Row: {
           active: boolean
@@ -3957,14 +4214,21 @@ export type Database = {
           child_seats_supported: boolean
           created_at: string
           display_order: number
+          extra_hour_rate: number | null
+          extra_mile_rate: number | null
           featured: boolean
           fuel_type: string
           gallery: Json
           hand_luggage: number
           hero_image: string | null
+          hourly_rate: number | null
           id: string
           large_luggage: number
           long_description: string | null
+          max_hours: number | null
+          max_luggage: number | null
+          max_passengers: number | null
+          min_hours: number | null
           name: string
           passengers: number
           pricing_vehicle_id: string | null
@@ -3985,14 +4249,21 @@ export type Database = {
           child_seats_supported?: boolean
           created_at?: string
           display_order?: number
+          extra_hour_rate?: number | null
+          extra_mile_rate?: number | null
           featured?: boolean
           fuel_type?: string
           gallery?: Json
           hand_luggage?: number
           hero_image?: string | null
+          hourly_rate?: number | null
           id?: string
           large_luggage?: number
           long_description?: string | null
+          max_hours?: number | null
+          max_luggage?: number | null
+          max_passengers?: number | null
+          min_hours?: number | null
           name: string
           passengers?: number
           pricing_vehicle_id?: string | null
@@ -4013,14 +4284,21 @@ export type Database = {
           child_seats_supported?: boolean
           created_at?: string
           display_order?: number
+          extra_hour_rate?: number | null
+          extra_mile_rate?: number | null
           featured?: boolean
           fuel_type?: string
           gallery?: Json
           hand_luggage?: number
           hero_image?: string | null
+          hourly_rate?: number | null
           id?: string
           large_luggage?: number
           long_description?: string | null
+          max_hours?: number | null
+          max_luggage?: number | null
+          max_passengers?: number | null
+          min_hours?: number | null
           name?: string
           passengers?: number
           pricing_vehicle_id?: string | null
@@ -4638,6 +4916,9 @@ export type Database = {
         | "driver_en_route"
         | "passenger_on_board"
         | "rejected"
+        | "pending_payment"
+        | "payment_failed"
+        | "expired"
       cancellation_request_status:
         | "pending"
         | "in_review"
@@ -4926,6 +5207,9 @@ export const Constants = {
         "driver_en_route",
         "passenger_on_board",
         "rejected",
+        "pending_payment",
+        "payment_failed",
+        "expired",
       ],
       cancellation_request_status: [
         "pending",

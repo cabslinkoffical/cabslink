@@ -78,6 +78,7 @@ const NAV: SidebarEntry[] = [
     label: "Tours", icon: RouteIcon, items: [
       { to: "/cabs-booking-pannel/scenic-routes", label: "Tour Routes", icon: RouteIcon },
       { to: "/cabs-booking-pannel/pois", label: "Stops & Landmarks", icon: MapPin },
+      { to: "/cabs-booking-pannel/tour-hours", label: "Tour Hours & Mileage", icon: Gauge },
       { to: "/cabs-booking-pannel/tour-settings", label: "Tour Settings", icon: SettingsIcon },
     ],
   },
