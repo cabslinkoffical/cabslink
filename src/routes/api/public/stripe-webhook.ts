@@ -54,7 +54,7 @@ export const Route = createFileRoute('/api/public/stripe-webhook')({
 
             const { data: booking, error: findError } = await supabaseAdmin
               .from('bookings')
-              .select('id, price, status, payment_status')
+              .select('id, price, quoted_total, status, payment_status')
               .eq('booking_ref', ref)
               .maybeSingle();
 
@@ -63,12 +63,22 @@ export const Route = createFileRoute('/api/public/stripe-webhook')({
               return new Response(`Booking ${ref} not found`, { status: 404 });
             }
 
-            const amount = Math.round(Number(booking.price ?? 0) * 100);
+            // Day tours are saved with no price until payment: the amount charged
+            // is the server-side quote, so that becomes the booking's price.
+            const paidPence = Number(session.amount_total ?? 0);
+            const amount =
+              Math.round(Number(booking.price ?? 0) * 100) ||
+              Math.round(Number((booking as any).quoted_total ?? 0) * 100) ||
+              paidPence;
             const paidAt = new Date().toISOString();
 
             const { error: bookingError } = await supabaseAdmin
               .from('bookings')
-              .update({ payment_status: 'paid', status: 'confirmed' })
+              .update({
+                payment_status: 'paid',
+                status: 'confirmed',
+                ...(booking.price == null ? { price: amount / 100 } : {}),
+              })
               .eq('id', booking.id);
 
             if (bookingError) {
