@@ -2,21 +2,28 @@ import { EmbeddedCheckoutProvider, EmbeddedCheckout } from "@stripe/react-stripe
 import { useServerFn } from "@tanstack/react-start";
 import { ShieldCheck } from "lucide-react";
 import { getStripe, getStripeEnvironment, paymentsConfigured } from "@/lib/stripe";
-import { createBookingCheckout } from "@/lib/payments.functions";
+import { createBookingCheckout, createTrackedBookingCheckout } from "@/lib/payments.functions";
 
-/** Card-only Stripe checkout, rendered inline once a booking has a reference. */
+/**
+ * Card-only Stripe checkout, rendered inline once a booking has a reference.
+ * With `serverPriced`, the amount is read from the saved booking on the server
+ * and never taken from the browser (used by the day-tour flow).
+ */
 export function BookingCardPayment({
   amountPence,
   bookingRef,
   email,
   returnUrl,
+  serverPriced = false,
 }: {
   amountPence: number;
   bookingRef: string;
   email?: string;
   returnUrl: string;
+  serverPriced?: boolean;
 }) {
   const checkoutFn = useServerFn(createBookingCheckout);
+  const trackedCheckoutFn = useServerFn(createTrackedBookingCheckout);
 
   if (!paymentsConfigured()) {
     return (
@@ -28,9 +35,13 @@ export function BookingCardPayment({
   }
 
   const fetchClientSecret = async (): Promise<string> => {
-    const res = await checkoutFn({
-      data: { amountPence, bookingRef, email, returnUrl, environment: getStripeEnvironment() },
-    });
+    const res = serverPriced
+      ? await trackedCheckoutFn({
+          data: { bookingRef, returnUrl, environment: getStripeEnvironment() },
+        })
+      : await checkoutFn({
+          data: { amountPence, bookingRef, email, returnUrl, environment: getStripeEnvironment() },
+        });
     if ("error" in res) throw new Error(res.error);
     if (!res.clientSecret) throw new Error("Payment could not be started. Please try again.");
     return res.clientSecret;
