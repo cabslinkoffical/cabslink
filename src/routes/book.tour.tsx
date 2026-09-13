@@ -136,6 +136,9 @@ function TourWizard() {
     setHours(tiers[0]?.hours ?? 8);
   }
 
+  const includedMiles = hours ? (tiers.find((t) => t.hours === hours)?.included_miles ?? 0) : 0;
+  const liveQuote = quote?.quote ?? null;
+
   const vehicle = classes.find((c) => c.id === vehicleClassId) ?? null;
   const fixedPriceForVehicle =
     template && vehicleClassId
