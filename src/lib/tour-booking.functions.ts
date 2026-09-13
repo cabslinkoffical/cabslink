@@ -69,7 +69,7 @@ export const getTourBookingOptions = createServerFn({ method: "GET" }).handler(
     const [classRows, tplRows, priceRows] = await Promise.all([
       supabaseAdmin
         .from("vehicle_classes")
-        .select("id, name, slug, image_url, display_order, active")
+        .select("id, name, slug, hero_image, display_order, active")
         .order("display_order"),
       supabaseAdmin
         .from("scenic_route_templates")
@@ -107,7 +107,7 @@ export const getTourBookingOptions = createServerFn({ method: "GET" }).handler(
           id: c.id,
           name: c.name,
           slug: meta?.slug ?? null,
-          image_url: meta?.image_url ?? null,
+          image_url: meta?.hero_image ?? null,
           max_passengers: c.max_passengers,
           max_luggage: c.max_luggage,
           min_hours: c.min_hours,
