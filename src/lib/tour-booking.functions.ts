@@ -187,6 +187,28 @@ export const quoteTour = createServerFn({ method: "POST" })
     return quoteTourImpl(data);
   });
 
+/** Stops reachable inside the mileage that comes with the chosen hours. */
+export const getTourStopSuggestions = createServerFn({ method: "POST" })
+  .inputValidator((d: { startPlaceId: string; hours: number; limit?: number }) =>
+    z
+      .object({
+        startPlaceId: placeIdSchema,
+        hours: z.coerce.number().min(1).max(24),
+        limit: z.coerce.number().int().min(1).max(60).optional(),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data }) => {
+    const { includedMilesFor } = await import("@/lib/tour-quote");
+    const { tourPoiSuggestionsImpl } = await import("@/lib/tour-quote.server");
+    const config = await loadTourConfig();
+    return tourPoiSuggestionsImpl({
+      startPlaceId: data.startPlaceId,
+      includedMiles: includedMilesFor(data.hours, config.tiers),
+      limit: data.limit ?? 24,
+    });
+  });
+
 const bookSchema = quoteSchema.extend({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Choose a tour date."),
   time: z.string().regex(/^\d{1,2}:\d{2}$/, "Choose a start time."),
