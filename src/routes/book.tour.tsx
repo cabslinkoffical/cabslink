@@ -27,6 +27,7 @@ import { toast } from "sonner";
 import { minutesLabel } from "@/lib/tour-quote";
 import {
   getTourBookingOptions,
+  getTourStopSuggestions,
   quoteTour,
   createTourBooking,
   type TourBookingOptions,
@@ -136,6 +137,18 @@ function TourWizard() {
     setHours(tiers[0]?.hours ?? 8);
   }
 
+  const includedMiles = hours ? (tiers.find((t) => t.hours === hours)?.included_miles ?? 0) : 0;
+  /** A tour has to start and finish inside the same day's bookable window. */
+  const fitsDay = (() => {
+    if (!hours || !data || !time) return true;
+    const mins = (v: string) => {
+      const [h, m] = v.split(":").map((x) => Number(x));
+      return (h ?? 0) * 60 + (m ?? 0);
+    };
+    return mins(time) + hours * 60 <= mins(data.rules.latest_finish_time);
+  })();
+  const liveQuote = quote?.quote ?? null;
+
   const vehicle = classes.find((c) => c.id === vehicleClassId) ?? null;
   const fixedPriceForVehicle =
     template && vehicleClassId
@@ -202,12 +215,30 @@ function TourWizard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step]);
 
+  // On the stops step, keep the miles and time meter honest as stops change.
+  useEffect(() => {
+    if (step !== 4 || !start || !hours || !vehicleClassId) return;
+    const t = setTimeout(() => priceMutation.mutate(), 450);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, stops, hours, vehicleClassId, sameEnd, end?.placeId]);
+
+  // Curated stops that fit the mileage the chosen hours include.
+  const suggestions = useQuery({
+    queryKey: ["tour-stop-suggestions", start?.placeId ?? "", hours ?? 0],
+    enabled: step === 4 && mode === "custom" && !!start?.placeId && !!hours,
+    staleTime: 5 * 60_000,
+    queryFn: () =>
+      getTourStopSuggestions({ data: { startPlaceId: start!.placeId, hours: hours!, limit: 24 } }),
+  });
+
+
   const today = new Date().toISOString().slice(0, 10);
   const canNext = (() => {
     switch (step) {
       case 0: return mode === "custom" || !!templateId;
       case 1: return !!start && !!date && !!time && (sameEnd || !!end);
-      case 2: return !!hours;
+      case 2: return !!hours && fitsDay;
       case 3: return !!vehicleClassId && passengers > 0;
       case 4: return mode === "premade" || stops.length > 0;
       case 5: return !!quote && !quote.quote.blockedReason;
@@ -382,6 +413,26 @@ function TourWizard() {
                     </button>
                   ))}
                 </div>
+                {hours && time && data && (
+                  <p className={`text-xs ${fitsDay ? "text-muted-foreground" : "font-semibold text-destructive"}`}>
+                    {fitsDay
+                      ? `Starting at ${time}, a ${hours}-hour tour finishes about ${addHoursToTime(time, hours)}. Tours must finish by ${data.rules.latest_finish_time}.`
+                      : `A ${hours}-hour tour starting at ${time} would finish after ${data.rules.latest_finish_time}. Go back and choose an earlier start, or pick fewer hours.`}
+                  </p>
+                )}
+                <div className="rounded-2xl border border-border bg-background p-4">
+                  <p className="text-sm font-semibold">Want more than one day?</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    We book up to {data?.rules.max_bookable_hours ?? 12} hours online. For a tour running
+                    over more than one day, contact us and we'll confirm the full cost with you.
+                  </p>
+                  <Link
+                    to="/contact-us"
+                    className="mt-2 inline-block text-xs font-semibold underline"
+                  >
+                    Contact us about a multi-day tour
+                  </Link>
+                </div>
               </div>
             )}
 
@@ -453,6 +504,68 @@ function TourWizard() {
             {step === 4 && (
               <div className="space-y-5">
                 <StepTitle title="Which stops would you like?" />
+
+                {/* Miles and time, live as stops are chosen */}
+                <div className="rounded-2xl border border-border bg-background p-4">
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <p className="text-sm font-semibold">
+                      Your {hours}-hour tour includes {includedMiles} miles
+                    </p>
+                    {priceMutation.isPending ? (
+                      <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <Loader2 className="size-3 animate-spin" /> Measuring your route…
+                      </span>
+                    ) : liveQuote ? (
+                      <span className="text-xs font-semibold">
+                        {Math.round(liveQuote.routeMiles)} miles so far
+                        {liveQuote.extraMiles > 0
+                          ? ` · ${Math.round(liveQuote.extraMiles)} extra miles at £${liveQuote.extraMileRate.toFixed(2)}`
+                          : " · inside your allowance"}
+                      </span>
+                    ) : null}
+                  </div>
+                  <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-[var(--surface)]">
+                    <div
+                      className={`h-full rounded-full ${
+                        liveQuote && liveQuote.extraMiles > 0 ? "bg-[var(--gold)]" : "bg-[var(--gold-ink)]"
+                      }`}
+                      style={{
+                        width: `${Math.min(
+                          100,
+                          liveQuote && includedMiles > 0
+                            ? (liveQuote.routeMiles / includedMiles) * 100
+                            : 0,
+                        )}%`,
+                      }}
+                    />
+                  </div>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Miles are counted from your pickup, round every stop and back again. Going further is
+                    fine — the extra miles are added to your price and shown before you pay.
+                  </p>
+                  {liveQuote && liveQuote.state !== "comfortable" && (
+                    <div className="mt-3 rounded-xl border border-[var(--gold)]/50 bg-[var(--gold)]/10 p-3">
+                      <p className="flex items-start gap-2 text-xs font-semibold">
+                        <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
+                        {liveQuote.blockedReason ??
+                          `This is a lot of driving for ${hours} hours — about ${Math.max(0, Math.round(liveQuote.perStopMinutes))} minutes at each stop.`}
+                      </p>
+                      {quote?.addHours.map((o) => (
+                        <button
+                          key={o.hours}
+                          type="button"
+                          onClick={() => { setHours(o.hours); setQuote(null); }}
+                          className="mt-2 w-full rounded-lg border border-border bg-background p-2.5 text-left text-xs hover:border-[var(--gold)]"
+                        >
+                          <span className="font-semibold">Make it {o.hours} hours</span> — about{" "}
+                          {Math.round(o.perStopMinutesAfter)} minutes at each stop and{" "}
+                          {o.extraAllowanceMiles} more miles included, £{o.netCost.toFixed(2)} more.
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
                 {mode === "premade" && template ? (
                   <div className="space-y-2">
                     {template.stops
@@ -555,6 +668,87 @@ function TourWizard() {
                       >
                         <Plus className="size-4" /> Add
                       </Button>
+                    </div>
+
+                    {/* Suggested stops inside the mileage the hours include */}
+                    <div className="pt-2">
+                      <p className="text-sm font-semibold">
+                        Places that fit {includedMiles} miles from {start?.label ?? "your pickup"}
+                      </p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        The ones marked as extra miles are further out. You can still choose them — we'll
+                        price the extra mileage for you.
+                      </p>
+                      {suggestions.isLoading ? (
+                        <p className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+                          <Loader2 className="size-3.5 animate-spin" /> Finding places within your miles…
+                        </p>
+                      ) : (suggestions.data?.suggestions.length ?? 0) === 0 ? (
+                        <p className="mt-3 text-xs text-muted-foreground">
+                          No suggestions for this pickup yet — search for any place above and we'll work
+                          out the miles.
+                        </p>
+                      ) : (
+                        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                          {suggestions.data!.suggestions.map((p) => {
+                            const chosen = stops.some((s) => s.poiId === p.id || s.placeId === p.placeId);
+                            return (
+                              <button
+                                key={p.id}
+                                type="button"
+                                onClick={() => {
+                                  setQuote(null);
+                                  setStops((prev) =>
+                                    chosen
+                                      ? prev.filter((s) => s.poiId !== p.id && s.placeId !== p.placeId)
+                                      : prev.length >= 15
+                                        ? prev
+                                        : [
+                                            ...prev,
+                                            {
+                                              poiId: p.id,
+                                              placeId: p.placeId,
+                                              name: p.name,
+                                              dwellMinutes: p.recommendedMinutes,
+                                            },
+                                          ],
+                                  );
+                                }}
+                                className={`flex gap-3 rounded-2xl border p-3 text-left transition ${
+                                  chosen
+                                    ? "border-[var(--gold)] ring-1 ring-[var(--gold)]"
+                                    : "border-border hover:border-[var(--gold)]"
+                                }`}
+                              >
+                                {p.imageUrl && (
+                                  <img
+                                    src={p.imageUrl}
+                                    alt={p.name}
+                                    loading="lazy"
+                                    className="h-16 w-20 shrink-0 rounded-lg object-cover"
+                                  />
+                                )}
+                                <span className="min-w-0">
+                                  <span className="block truncate text-sm font-semibold">{p.name}</span>
+                                  <span className="mt-0.5 block text-xs text-muted-foreground">
+                                    {p.roundTripMiles > 0 ? `${p.roundTripMiles} miles there and back · ` : ""}
+                                    about {p.recommendedMinutes} minutes here
+                                  </span>
+                                  <span
+                                    className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                                      p.withinAllowance
+                                        ? "bg-[var(--surface)] text-[var(--gold-ink)]"
+                                        : "bg-[var(--gold)]/20 text-[var(--gold-ink)]"
+                                    }`}
+                                  >
+                                    {chosen ? "Added" : p.withinAllowance ? "Within your miles" : "Extra miles"}
+                                  </span>
+                                </span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
@@ -780,6 +974,13 @@ function TourWizard() {
       </section>
     </SiteLayout>
   );
+}
+
+/** "09:00" plus 8 hours -> "17:00". */
+function addHoursToTime(time: string, hours: number): string {
+  const [h, m] = time.split(":").map((v) => Number(v));
+  const total = ((h ?? 0) * 60 + (m ?? 0) + Math.round(hours * 60)) % (24 * 60);
+  return `${String(Math.floor(total / 60)).padStart(2, "0")}:${String(total % 60).padStart(2, "0")}`;
 }
 
 function StepTitle({ title }: { title: string }) {

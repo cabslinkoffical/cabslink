@@ -65,15 +65,37 @@ export type TourConfig = {
 
 export async function loadTourConfig(): Promise<TourConfig> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const [tiers, rules, classes] = await Promise.all([
+  const [tiers, rules, classes, hourly, profiles, mileage] = await Promise.all([
     supabaseAdmin.from("tour_hour_tiers").select("hours, included_miles, is_bookable").order("sort_order"),
     supabaseAdmin.from("tour_rules").select("*").limit(1).maybeSingle(),
     supabaseAdmin
       .from("vehicle_classes")
       .select(
-        "id, name, hourly_rate, extra_hour_rate, extra_mile_rate, min_hours, max_hours, max_passengers, max_luggage, active",
+        "id, name, hourly_rate, extra_hour_rate, extra_mile_rate, min_hours, max_hours, max_passengers, max_luggage, passengers, large_luggage, pricing_vehicle_id, active",
       ),
+    // Tour rates are optional: when a class has none, fall back to the hourly
+    // hire rate and mileage rate already configured for that vehicle, so a
+    // tour is never priced at zero or shown as "price on request".
+    supabaseAdmin
+      .from("hourly_rates")
+      .select("vehicle_class_id, price_per_hour, min_hours, max_hours, active")
+      .eq("active", true),
+    supabaseAdmin.from("vehicle_pricing_profiles").select("id, vehicle_id"),
+    supabaseAdmin.from("vehicle_mileage_tiers").select("pricing_profile_id, cost_per_mile, sort_order"),
   ]);
+
+  const hourlyByClass = new Map<string, any>();
+  for (const h of (hourly.data ?? []) as any[]) {
+    if (h.vehicle_class_id && !hourlyByClass.has(h.vehicle_class_id)) hourlyByClass.set(h.vehicle_class_id, h);
+  }
+  const profileByVehicle = new Map<string, string>();
+  for (const p of (profiles.data ?? []) as any[]) {
+    if (p.vehicle_id) profileByVehicle.set(p.vehicle_id, p.id);
+  }
+  const mileByProfile = new Map<string, number>();
+  for (const t of ((mileage.data ?? []) as any[]).slice().sort((a, b) => Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0))) {
+    if (t.pricing_profile_id && t.cost_per_mile != null) mileByProfile.set(t.pricing_profile_id, Number(t.cost_per_mile));
+  }
 
   const r: any = rules.data;
   return {
@@ -96,17 +118,24 @@ export async function loadTourConfig(): Promise<TourConfig> {
       : DEFAULT_RULES,
     classes: ((classes.data ?? []) as any[])
       .filter((c) => c.active !== false)
-      .map((c) => ({
-        id: c.id,
-        name: c.name,
-        hourly_rate: c.hourly_rate == null ? null : Number(c.hourly_rate),
-        extra_hour_rate: c.extra_hour_rate == null ? null : Number(c.extra_hour_rate),
-        extra_mile_rate: c.extra_mile_rate == null ? null : Number(c.extra_mile_rate),
-        min_hours: c.min_hours == null ? null : Number(c.min_hours),
-        max_hours: c.max_hours == null ? null : Number(c.max_hours),
-        max_passengers: c.max_passengers == null ? null : Number(c.max_passengers),
-        max_luggage: c.max_luggage == null ? null : Number(c.max_luggage),
-      })),
+      .map((c) => {
+        const h = hourlyByClass.get(c.id);
+        const profileId = c.pricing_vehicle_id ? profileByVehicle.get(c.pricing_vehicle_id) : undefined;
+        const mile = profileId ? mileByProfile.get(profileId) : undefined;
+        const num = (v: unknown) => (v == null ? null : Number(v));
+        const hourlyRate = num(c.hourly_rate) ?? num(h?.price_per_hour);
+        return {
+          id: c.id,
+          name: c.name,
+          hourly_rate: hourlyRate,
+          extra_hour_rate: num(c.extra_hour_rate) ?? hourlyRate,
+          extra_mile_rate: num(c.extra_mile_rate) ?? (mile ?? null),
+          min_hours: num(c.min_hours) ?? num(h?.min_hours),
+          max_hours: num(c.max_hours) ?? num(h?.max_hours),
+          max_passengers: num(c.max_passengers) ?? num(c.passengers),
+          max_luggage: num(c.max_luggage) ?? num(c.large_luggage),
+        };
+      }),
   };
 }
 
@@ -281,6 +310,82 @@ export async function quoteTourImpl(input: TourQuoteInput): Promise<TourQuoteRes
     currency: "GBP",
     tierHours: tiers.map((t) => t.hours),
     vehicleName: rates.name,
+  };
+}
+
+export type TourPoiSuggestion = {
+  id: string;
+  name: string;
+  placeId: string;
+  category: string | null;
+  shortDescription: string | null;
+  imageUrl: string | null;
+  recommendedMinutes: number;
+  /** Estimated road miles from the pickup point. */
+  milesFromStart: number;
+  /** Estimated miles for the loop out and back to the pickup point. */
+  roundTripMiles: number;
+  /** True when the loop to this stop alone sits inside the mileage allowance. */
+  withinAllowance: boolean;
+};
+
+/**
+ * Curated stops the customer can reach inside the mileage that comes with the
+ * hours they chose. Anything further out is still offered, flagged as extra
+ * mileage, because customers may happily pay for the longer run.
+ */
+export async function tourPoiSuggestionsImpl(args: {
+  startPlaceId: string;
+  includedMiles: number;
+  limit: number;
+}): Promise<{ suggestions: TourPoiSuggestion[]; includedMiles: number; measured: boolean }> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const rows: any = await supabaseAdmin
+    .from("points_of_interest")
+    .select(
+      "id, name, place_id, category, short_description, image_url, recommended_visit_minutes, minimum_visit_minutes, latitude, longitude, featured, active",
+    )
+    .eq("active", true)
+    .limit(500);
+
+  const pois = ((rows.data ?? []) as any[]).filter((p) => p.place_id);
+  const coords = await resolveCoords(supabaseAdmin as any, [args.startPlaceId]);
+  const from = coords.get(args.startPlaceId);
+
+  const mapped = pois.map((p) => {
+    const lat = p.latitude == null ? null : Number(p.latitude);
+    const lng = p.longitude == null ? null : Number(p.longitude);
+    const legMiles =
+      from && lat != null && lng != null && Number.isFinite(lat) && Number.isFinite(lng)
+        ? haversineMiles(from, { lat, lng }) * ROAD_FACTOR
+        : null;
+    const round = legMiles == null ? null : legMiles * 2;
+    return {
+      id: p.id as string,
+      name: p.name as string,
+      placeId: p.place_id as string,
+      category: p.category ?? null,
+      shortDescription: p.short_description ?? null,
+      imageUrl: p.image_url ?? null,
+      recommendedMinutes: Number(p.recommended_visit_minutes ?? p.minimum_visit_minutes ?? 30),
+      milesFromStart: legMiles == null ? 0 : Math.round(legMiles),
+      roundTripMiles: round == null ? 0 : Math.round(round),
+      withinAllowance: round == null ? true : round <= args.includedMiles,
+      _sort: round ?? Number.POSITIVE_INFINITY,
+      _featured: !!p.featured,
+    };
+  });
+
+  mapped.sort((a, b) => {
+    if (a.withinAllowance !== b.withinAllowance) return a.withinAllowance ? -1 : 1;
+    if (a._featured !== b._featured) return a._featured ? -1 : 1;
+    return a._sort - b._sort;
+  });
+
+  return {
+    suggestions: mapped.slice(0, args.limit).map(({ _sort, _featured, ...rest }) => rest),
+    includedMiles: args.includedMiles,
+    measured: !!from,
   };
 }
 

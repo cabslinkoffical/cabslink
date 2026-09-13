@@ -69,7 +69,7 @@ export const getTourBookingOptions = createServerFn({ method: "GET" }).handler(
     const [classRows, tplRows, priceRows] = await Promise.all([
       supabaseAdmin
         .from("vehicle_classes")
-        .select("id, name, slug, image_url, display_order, active")
+        .select("id, name, slug, hero_image, display_order, active")
         .order("display_order"),
       supabaseAdmin
         .from("scenic_route_templates")
@@ -107,7 +107,7 @@ export const getTourBookingOptions = createServerFn({ method: "GET" }).handler(
           id: c.id,
           name: c.name,
           slug: meta?.slug ?? null,
-          image_url: meta?.image_url ?? null,
+          image_url: meta?.hero_image ?? null,
           max_passengers: c.max_passengers,
           max_luggage: c.max_luggage,
           min_hours: c.min_hours,
@@ -187,6 +187,28 @@ export const quoteTour = createServerFn({ method: "POST" })
     return quoteTourImpl(data);
   });
 
+/** Stops reachable inside the mileage that comes with the chosen hours. */
+export const getTourStopSuggestions = createServerFn({ method: "POST" })
+  .inputValidator((d: { startPlaceId: string; hours: number; limit?: number }) =>
+    z
+      .object({
+        startPlaceId: placeIdSchema,
+        hours: z.coerce.number().min(1).max(24),
+        limit: z.coerce.number().int().min(1).max(60).optional(),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data }) => {
+    const { includedMilesFor } = await import("@/lib/tour-quote");
+    const { tourPoiSuggestionsImpl } = await import("@/lib/tour-quote.server");
+    const config = await loadTourConfig();
+    return tourPoiSuggestionsImpl({
+      startPlaceId: data.startPlaceId,
+      includedMiles: includedMilesFor(data.hours, config.tiers),
+      limit: data.limit ?? 24,
+    });
+  });
+
 const bookSchema = quoteSchema.extend({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Choose a tour date."),
   time: z.string().regex(/^\d{1,2}:\d{2}$/, "Choose a start time."),
@@ -238,6 +260,25 @@ export const createTourBooking = createServerFn({ method: "POST" })
     if (data.time < config.rules.earliest_start_time) {
       throw new Error(`Tours start from ${config.rules.earliest_start_time} onwards.`);
     }
+    // A tour has to finish the same day, inside the bookable window.
+    const [sh, sm] = data.time.split(":").map((v) => Number(v));
+    const [lh, lm] = config.rules.latest_finish_time.split(":").map((v) => Number(v));
+    const startMins = (sh ?? 0) * 60 + (sm ?? 0);
+    const latestMins = (lh ?? 22) * 60 + (lm ?? 0);
+    if (startMins + data.hours * 60 > latestMins) {
+      const latestStart = latestMins - data.hours * 60;
+      throw new Error(
+        latestStart >= 0
+          ? `A ${data.hours}-hour tour has to start by ${String(Math.floor(latestStart / 60)).padStart(2, "0")}:${String(latestStart % 60).padStart(2, "0")} so it finishes by ${config.rules.latest_finish_time}. Please choose an earlier start or fewer hours.`
+          : `A ${data.hours}-hour tour runs past ${config.rules.latest_finish_time}. Please call us and we'll arrange a multi-day tour.`,
+      );
+    }
+    if (data.hours > config.rules.max_bookable_hours) {
+      throw new Error(
+        `We book tours online up to ${config.rules.max_bookable_hours} hours. For anything longer please contact us and we'll confirm the cost with you.`,
+      );
+    }
+
 
     const left = await capacityLeft(data.vehicleClassId, data.date);
     if (left !== null && left <= 0) {
