@@ -138,6 +138,15 @@ function TourWizard() {
   }
 
   const includedMiles = hours ? (tiers.find((t) => t.hours === hours)?.included_miles ?? 0) : 0;
+  /** A tour has to start and finish inside the same day's bookable window. */
+  const fitsDay = (() => {
+    if (!hours || !data || !time) return true;
+    const mins = (v: string) => {
+      const [h, m] = v.split(":").map((x) => Number(x));
+      return (h ?? 0) * 60 + (m ?? 0);
+    };
+    return mins(time) + hours * 60 <= mins(data.rules.latest_finish_time);
+  })();
   const liveQuote = quote?.quote ?? null;
 
   const vehicle = classes.find((c) => c.id === vehicleClassId) ?? null;
@@ -229,7 +238,7 @@ function TourWizard() {
     switch (step) {
       case 0: return mode === "custom" || !!templateId;
       case 1: return !!start && !!date && !!time && (sameEnd || !!end);
-      case 2: return !!hours;
+      case 2: return !!hours && fitsDay;
       case 3: return !!vehicleClassId && passengers > 0;
       case 4: return mode === "premade" || stops.length > 0;
       case 5: return !!quote && !quote.quote.blockedReason;
