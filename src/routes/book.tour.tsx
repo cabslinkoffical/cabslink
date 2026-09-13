@@ -205,6 +205,24 @@ function TourWizard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step]);
 
+  // On the stops step, keep the miles and time meter honest as stops change.
+  useEffect(() => {
+    if (step !== 4 || !start || !hours || !vehicleClassId) return;
+    const t = setTimeout(() => priceMutation.mutate(), 450);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, stops, hours, vehicleClassId, sameEnd, end?.placeId]);
+
+  // Curated stops that fit the mileage the chosen hours include.
+  const suggestions = useQuery({
+    queryKey: ["tour-stop-suggestions", start?.placeId ?? "", hours ?? 0],
+    enabled: step === 4 && mode === "custom" && !!start?.placeId && !!hours,
+    staleTime: 5 * 60_000,
+    queryFn: () =>
+      getTourStopSuggestions({ data: { startPlaceId: start!.placeId, hours: hours!, limit: 24 } }),
+  });
+
+
   const today = new Date().toISOString().slice(0, 10);
   const canNext = (() => {
     switch (step) {
