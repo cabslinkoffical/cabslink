@@ -966,6 +966,13 @@ function TourWizard() {
   );
 }
 
+/** "09:00" plus 8 hours -> "17:00". */
+function addHoursToTime(time: string, hours: number): string {
+  const [h, m] = time.split(":").map((v) => Number(v));
+  const total = ((h ?? 0) * 60 + (m ?? 0) + Math.round(hours * 60)) % (24 * 60);
+  return `${String(Math.floor(total / 60)).padStart(2, "0")}:${String(total % 60).padStart(2, "0")}`;
+}
+
 function StepTitle({ title }: { title: string }) {
   return <h2 className="font-display text-xl md:text-2xl font-bold">{title}</h2>;
 }
