@@ -294,6 +294,10 @@ export async function getPublishedTourBySlugImpl(slug: string): Promise<PublicTo
   if (cache.price_pence == null) {
     cache = await refreshStartingPriceCache(t.id);
   }
+  if (cache.price_pence == null) {
+    cache.price_pence = hourlyStartingPricePence(t, await cheapestTourHourlyRate());
+  }
+
 
   // Related slugs — up to 3 other published tours by display order.
   const { data: related } = await client
