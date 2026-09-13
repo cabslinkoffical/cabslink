@@ -289,7 +289,10 @@ function TourDetailPage() {
       to: d.destination_label ?? d.name,
       duration: formatDuration(d.direct_duration_seconds) ?? "—",
       distance: d.direct_distance_miles ? `${Math.round(d.direct_distance_miles)} mi` : "—",
-      fromPrice: "Price on request",
+      fromPrice:
+        d.starting_price_pence != null
+          ? `From £${(d.starting_price_pence / 100).toFixed(0)}`
+          : "Price on request",
       stops,
     };
   }, [d, selected]);
@@ -486,11 +489,16 @@ function TourDetailPage() {
                 {quoteQuery.isFetching && <Loader2 className="size-3.5 animate-spin text-muted-foreground" />}
               </div>
               <p className="font-display text-3xl font-semibold text-[var(--gold-ink)] mt-1">
-                Price on request
+                {d.starting_price_pence != null
+                  ? `From £${(d.starting_price_pence / 100).toFixed(0)}`
+                  : "Price on request"}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
-                Tell us your date, group size and stops — we'll send a tailored quote.
+                {d.starting_price_pence != null
+                  ? "Per vehicle, driver included. Your final price is confirmed before you pay."
+                  : "Tell us your date, group size and stops — we'll send a tailored quote."}
               </p>
+
 
 
               <Button size="lg" variant="gold" className="w-full mt-5" asChild>

@@ -35,7 +35,8 @@ function serverPublicClient() {
 
 // Frozen public projection — every new column MUST be added here explicitly.
 const LIST_FIELDS =
-  "id, slug, name, short_description, hero_image_url, origin_label, destination_label, theme, seasonal_note, featured, long_day, display_order, tour_fee_pence, direct_distance_miles_cache, direct_duration_seconds_cache, starting_price_pence_cache, starting_price_currency";
+  "id, slug, name, short_description, hero_image_url, origin_label, destination_label, theme, seasonal_note, featured, long_day, display_order, tour_fee_pence, default_duration_hours, direct_distance_miles_cache, direct_duration_seconds_cache, starting_price_pence_cache, starting_price_currency";
+
 
 const DETAIL_FIELDS =
   LIST_FIELDS +
@@ -104,6 +105,35 @@ function pickCurrency(row: any): string {
   return (row.starting_price_currency as string | null) ?? "GBP";
 }
 
+// Hourly-model fallback: when a template has no cached transfer-style starting
+// price we show the cheapest vehicle class's hourly day rate for the tour's
+// default day length. This matches what the tour wizard actually charges.
+let hourlyRateCache: { at: number; rate: number | null } | null = null;
+async function cheapestTourHourlyRate(): Promise<number | null> {
+  if (hourlyRateCache && Date.now() - hourlyRateCache.at < 5 * 60_000) return hourlyRateCache.rate;
+  let rate: number | null = null;
+  try {
+    const { loadTourConfig } = await import("@/lib/tour-quote.server");
+    const cfg = await loadTourConfig();
+    const rates = cfg.classes
+      .map((c: any) => Number(c.hourly_rate))
+      .filter((n) => Number.isFinite(n) && n > 0);
+    if (rates.length) rate = Math.min(...rates);
+  } catch (err) {
+    console.error("cheapestTourHourlyRate failed", err);
+  }
+  hourlyRateCache = { at: Date.now(), rate };
+  return rate;
+}
+
+function hourlyStartingPricePence(row: any, hourlyRate: number | null): number | null {
+  if (hourlyRate == null) return null;
+  const hours = Number(row.default_duration_hours);
+  if (!Number.isFinite(hours) || hours <= 0) return null;
+  return Math.round(hourlyRate * hours * 100);
+}
+
+
 function toListItem(row: any, recommendedStopCount: number): PublicTourListItem {
   return {
     slug: row.slug,
@@ -148,7 +178,17 @@ export async function listPublishedToursImpl(): Promise<PublicTourListItem[]> {
       counts.set(r.route_template_id, (counts.get(r.route_template_id) ?? 0) + 1);
     }
   }
-  return (templates ?? []).map((t: any) => toListItem(t, counts.get(t.id) ?? 0));
+  const rows = (templates ?? []) as any[];
+  const needsFallback = rows.some((t) => t.starting_price_pence_cache == null);
+  const hourlyRate = needsFallback ? await cheapestTourHourlyRate() : null;
+  return rows.map((t: any) => {
+    const item = toListItem(t, counts.get(t.id) ?? 0);
+    if (item.starting_price_pence == null) {
+      item.starting_price_pence = hourlyStartingPricePence(t, hourlyRate);
+    }
+    return item;
+  });
+
 }
 
 export const listPublishedTours = createServerFn({ method: "GET" }).handler(listPublishedToursImpl);
@@ -254,6 +294,10 @@ export async function getPublishedTourBySlugImpl(slug: string): Promise<PublicTo
   if (cache.price_pence == null) {
     cache = await refreshStartingPriceCache(t.id);
   }
+  if (cache.price_pence == null) {
+    cache.price_pence = hourlyStartingPricePence(t, await cheapestTourHourlyRate());
+  }
+
 
   // Related slugs — up to 3 other published tours by display order.
   const { data: related } = await client
