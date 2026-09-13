@@ -118,17 +118,24 @@ export async function loadTourConfig(): Promise<TourConfig> {
       : DEFAULT_RULES,
     classes: ((classes.data ?? []) as any[])
       .filter((c) => c.active !== false)
-      .map((c) => ({
-        id: c.id,
-        name: c.name,
-        hourly_rate: c.hourly_rate == null ? null : Number(c.hourly_rate),
-        extra_hour_rate: c.extra_hour_rate == null ? null : Number(c.extra_hour_rate),
-        extra_mile_rate: c.extra_mile_rate == null ? null : Number(c.extra_mile_rate),
-        min_hours: c.min_hours == null ? null : Number(c.min_hours),
-        max_hours: c.max_hours == null ? null : Number(c.max_hours),
-        max_passengers: c.max_passengers == null ? null : Number(c.max_passengers),
-        max_luggage: c.max_luggage == null ? null : Number(c.max_luggage),
-      })),
+      .map((c) => {
+        const h = hourlyByClass.get(c.id);
+        const profileId = c.pricing_vehicle_id ? profileByVehicle.get(c.pricing_vehicle_id) : undefined;
+        const mile = profileId ? mileByProfile.get(profileId) : undefined;
+        const num = (v: unknown) => (v == null ? null : Number(v));
+        const hourlyRate = num(c.hourly_rate) ?? num(h?.price_per_hour);
+        return {
+          id: c.id,
+          name: c.name,
+          hourly_rate: hourlyRate,
+          extra_hour_rate: num(c.extra_hour_rate) ?? hourlyRate,
+          extra_mile_rate: num(c.extra_mile_rate) ?? (mile ?? null),
+          min_hours: num(c.min_hours) ?? num(h?.min_hours),
+          max_hours: num(c.max_hours) ?? num(h?.max_hours),
+          max_passengers: num(c.max_passengers) ?? num(c.passengers),
+          max_luggage: num(c.max_luggage) ?? num(c.large_luggage),
+        };
+      }),
   };
 }
 
