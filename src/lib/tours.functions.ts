@@ -105,6 +105,35 @@ function pickCurrency(row: any): string {
   return (row.starting_price_currency as string | null) ?? "GBP";
 }
 
+// Hourly-model fallback: when a template has no cached transfer-style starting
+// price we show the cheapest vehicle class's hourly day rate for the tour's
+// default day length. This matches what the tour wizard actually charges.
+let hourlyRateCache: { at: number; rate: number | null } | null = null;
+async function cheapestTourHourlyRate(): Promise<number | null> {
+  if (hourlyRateCache && Date.now() - hourlyRateCache.at < 5 * 60_000) return hourlyRateCache.rate;
+  let rate: number | null = null;
+  try {
+    const { loadTourConfig } = await import("@/lib/tour-quote.server");
+    const cfg = await loadTourConfig();
+    const rates = cfg.classes
+      .map((c: any) => Number(c.hourly_rate))
+      .filter((n) => Number.isFinite(n) && n > 0);
+    if (rates.length) rate = Math.min(...rates);
+  } catch (err) {
+    console.error("cheapestTourHourlyRate failed", err);
+  }
+  hourlyRateCache = { at: Date.now(), rate };
+  return rate;
+}
+
+function hourlyStartingPricePence(row: any, hourlyRate: number | null): number | null {
+  if (hourlyRate == null) return null;
+  const hours = Number(row.default_duration_hours);
+  if (!Number.isFinite(hours) || hours <= 0) return null;
+  return Math.round(hourlyRate * hours * 100);
+}
+
+
 function toListItem(row: any, recommendedStopCount: number): PublicTourListItem {
   return {
     slug: row.slug,
