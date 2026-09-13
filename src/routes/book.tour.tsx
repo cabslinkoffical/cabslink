@@ -404,6 +404,25 @@ function TourWizard() {
                     </button>
                   ))}
                 </div>
+                {hours && date && time && data && (
+                  <p className="text-xs text-muted-foreground">
+                    Starting at {time}, a {hours}-hour tour finishes about{" "}
+                    {addHoursToTime(time, hours)}. Tours must finish by {data.rules.latest_finish_time}.
+                  </p>
+                )}
+                <div className="rounded-2xl border border-border bg-background p-4">
+                  <p className="text-sm font-semibold">Want more than one day?</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    We book up to {data?.rules.max_bookable_hours ?? 12} hours online. For a tour running
+                    over more than one day, contact us and we'll confirm the full cost with you.
+                  </p>
+                  <Link
+                    to="/contact-us"
+                    className="mt-2 inline-block text-xs font-semibold underline"
+                  >
+                    Contact us about a multi-day tour
+                  </Link>
+                </div>
               </div>
             )}
 
