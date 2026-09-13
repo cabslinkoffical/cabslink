@@ -640,6 +640,87 @@ function TourWizard() {
                         <Plus className="size-4" /> Add
                       </Button>
                     </div>
+
+                    {/* Suggested stops inside the mileage the hours include */}
+                    <div className="pt-2">
+                      <p className="text-sm font-semibold">
+                        Places that fit {includedMiles} miles from {start?.label ?? "your pickup"}
+                      </p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        The ones marked as extra miles are further out. You can still choose them — we'll
+                        price the extra mileage for you.
+                      </p>
+                      {suggestions.isLoading ? (
+                        <p className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+                          <Loader2 className="size-3.5 animate-spin" /> Finding places within your miles…
+                        </p>
+                      ) : (suggestions.data?.suggestions.length ?? 0) === 0 ? (
+                        <p className="mt-3 text-xs text-muted-foreground">
+                          No suggestions for this pickup yet — search for any place above and we'll work
+                          out the miles.
+                        </p>
+                      ) : (
+                        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                          {suggestions.data!.suggestions.map((p) => {
+                            const chosen = stops.some((s) => s.poiId === p.id || s.placeId === p.placeId);
+                            return (
+                              <button
+                                key={p.id}
+                                type="button"
+                                onClick={() => {
+                                  setQuote(null);
+                                  setStops((prev) =>
+                                    chosen
+                                      ? prev.filter((s) => s.poiId !== p.id && s.placeId !== p.placeId)
+                                      : prev.length >= 15
+                                        ? prev
+                                        : [
+                                            ...prev,
+                                            {
+                                              poiId: p.id,
+                                              placeId: p.placeId,
+                                              name: p.name,
+                                              dwellMinutes: p.recommendedMinutes,
+                                            },
+                                          ],
+                                  );
+                                }}
+                                className={`flex gap-3 rounded-2xl border p-3 text-left transition ${
+                                  chosen
+                                    ? "border-[var(--gold)] ring-1 ring-[var(--gold)]"
+                                    : "border-border hover:border-[var(--gold)]"
+                                }`}
+                              >
+                                {p.imageUrl && (
+                                  <img
+                                    src={p.imageUrl}
+                                    alt={p.name}
+                                    loading="lazy"
+                                    className="h-16 w-20 shrink-0 rounded-lg object-cover"
+                                  />
+                                )}
+                                <span className="min-w-0">
+                                  <span className="block truncate text-sm font-semibold">{p.name}</span>
+                                  <span className="mt-0.5 block text-xs text-muted-foreground">
+                                    {p.roundTripMiles > 0 ? `${p.roundTripMiles} miles there and back · ` : ""}
+                                    about {p.recommendedMinutes} minutes here
+                                  </span>
+                                  <span
+                                    className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                                      p.withinAllowance
+                                        ? "bg-[var(--surface)] text-[var(--gold-ink)]"
+                                        : "bg-[var(--gold)]/20 text-[var(--gold-ink)]"
+                                    }`}
+                                  >
+                                    {chosen ? "Added" : p.withinAllowance ? "Within your miles" : "Extra miles"}
+                                  </span>
+                                </span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
