@@ -284,6 +284,82 @@ export async function quoteTourImpl(input: TourQuoteInput): Promise<TourQuoteRes
   };
 }
 
+export type TourPoiSuggestion = {
+  id: string;
+  name: string;
+  placeId: string;
+  category: string | null;
+  shortDescription: string | null;
+  imageUrl: string | null;
+  recommendedMinutes: number;
+  /** Estimated road miles from the pickup point. */
+  milesFromStart: number;
+  /** Estimated miles for the loop out and back to the pickup point. */
+  roundTripMiles: number;
+  /** True when the loop to this stop alone sits inside the mileage allowance. */
+  withinAllowance: boolean;
+};
+
+/**
+ * Curated stops the customer can reach inside the mileage that comes with the
+ * hours they chose. Anything further out is still offered, flagged as extra
+ * mileage, because customers may happily pay for the longer run.
+ */
+export async function tourPoiSuggestionsImpl(args: {
+  startPlaceId: string;
+  includedMiles: number;
+  limit: number;
+}): Promise<{ suggestions: TourPoiSuggestion[]; includedMiles: number; measured: boolean }> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const rows: any = await supabaseAdmin
+    .from("points_of_interest")
+    .select(
+      "id, name, place_id, category, short_description, image_url, recommended_visit_minutes, minimum_visit_minutes, latitude, longitude, featured, active",
+    )
+    .eq("active", true)
+    .limit(500);
+
+  const pois = ((rows.data ?? []) as any[]).filter((p) => p.place_id);
+  const coords = await resolveCoords(supabaseAdmin as any, [args.startPlaceId]);
+  const from = coords.get(args.startPlaceId);
+
+  const mapped = pois.map((p) => {
+    const lat = p.latitude == null ? null : Number(p.latitude);
+    const lng = p.longitude == null ? null : Number(p.longitude);
+    const legMiles =
+      from && lat != null && lng != null && Number.isFinite(lat) && Number.isFinite(lng)
+        ? haversineMiles(from, { lat, lng }) * ROAD_FACTOR
+        : null;
+    const round = legMiles == null ? null : legMiles * 2;
+    return {
+      id: p.id as string,
+      name: p.name as string,
+      placeId: p.place_id as string,
+      category: p.category ?? null,
+      shortDescription: p.short_description ?? null,
+      imageUrl: p.image_url ?? null,
+      recommendedMinutes: Number(p.recommended_visit_minutes ?? p.minimum_visit_minutes ?? 30),
+      milesFromStart: legMiles == null ? 0 : Math.round(legMiles),
+      roundTripMiles: round == null ? 0 : Math.round(round),
+      withinAllowance: round == null ? true : round <= args.includedMiles,
+      _sort: round ?? Number.POSITIVE_INFINITY,
+      _featured: !!p.featured,
+    };
+  });
+
+  mapped.sort((a, b) => {
+    if (a.withinAllowance !== b.withinAllowance) return a.withinAllowance ? -1 : 1;
+    if (a._featured !== b._featured) return a._featured ? -1 : 1;
+    return a._sort - b._sort;
+  });
+
+  return {
+    suggestions: mapped.slice(0, args.limit).map(({ _sort, _featured, ...rest }) => rest),
+    includedMiles: args.includedMiles,
+    measured: !!from,
+  };
+}
+
 /** Remaining tours for a vehicle class on a date, honouring the daily cap. */
 export async function capacityLeft(vehicleClassId: string, date: string): Promise<number | null> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
