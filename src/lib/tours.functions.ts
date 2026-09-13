@@ -35,7 +35,8 @@ function serverPublicClient() {
 
 // Frozen public projection — every new column MUST be added here explicitly.
 const LIST_FIELDS =
-  "id, slug, name, short_description, hero_image_url, origin_label, destination_label, theme, seasonal_note, featured, long_day, display_order, tour_fee_pence, direct_distance_miles_cache, direct_duration_seconds_cache, starting_price_pence_cache, starting_price_currency";
+  "id, slug, name, short_description, hero_image_url, origin_label, destination_label, theme, seasonal_note, featured, long_day, display_order, tour_fee_pence, default_duration_hours, direct_distance_miles_cache, direct_duration_seconds_cache, starting_price_pence_cache, starting_price_currency";
+
 
 const DETAIL_FIELDS =
   LIST_FIELDS +
