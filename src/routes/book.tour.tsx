@@ -27,6 +27,7 @@ import { toast } from "sonner";
 import { minutesLabel } from "@/lib/tour-quote";
 import {
   getTourBookingOptions,
+  getTourStopSuggestions,
   quoteTour,
   createTourBooking,
   type TourBookingOptions,
