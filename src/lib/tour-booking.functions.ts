@@ -260,6 +260,25 @@ export const createTourBooking = createServerFn({ method: "POST" })
     if (data.time < config.rules.earliest_start_time) {
       throw new Error(`Tours start from ${config.rules.earliest_start_time} onwards.`);
     }
+    // A tour has to finish the same day, inside the bookable window.
+    const [sh, sm] = data.time.split(":").map((v) => Number(v));
+    const [lh, lm] = config.rules.latest_finish_time.split(":").map((v) => Number(v));
+    const startMins = (sh ?? 0) * 60 + (sm ?? 0);
+    const latestMins = (lh ?? 22) * 60 + (lm ?? 0);
+    if (startMins + data.hours * 60 > latestMins) {
+      const latestStart = latestMins - data.hours * 60;
+      throw new Error(
+        latestStart >= 0
+          ? `A ${data.hours}-hour tour has to start by ${String(Math.floor(latestStart / 60)).padStart(2, "0")}:${String(latestStart % 60).padStart(2, "0")} so it finishes by ${config.rules.latest_finish_time}. Please choose an earlier start or fewer hours.`
+          : `A ${data.hours}-hour tour runs past ${config.rules.latest_finish_time}. Please call us and we'll arrange a multi-day tour.`,
+      );
+    }
+    if (data.hours > config.rules.max_bookable_hours) {
+      throw new Error(
+        `We book tours online up to ${config.rules.max_bookable_hours} hours. For anything longer please contact us and we'll confirm the cost with you.`,
+      );
+    }
+
 
     const left = await capacityLeft(data.vehicleClassId, data.date);
     if (left !== null && left <= 0) {
