@@ -413,10 +413,11 @@ function TourWizard() {
                     </button>
                   ))}
                 </div>
-                {hours && date && time && data && (
-                  <p className="text-xs text-muted-foreground">
-                    Starting at {time}, a {hours}-hour tour finishes about{" "}
-                    {addHoursToTime(time, hours)}. Tours must finish by {data.rules.latest_finish_time}.
+                {hours && time && data && (
+                  <p className={`text-xs ${fitsDay ? "text-muted-foreground" : "font-semibold text-destructive"}`}>
+                    {fitsDay
+                      ? `Starting at ${time}, a ${hours}-hour tour finishes about ${addHoursToTime(time, hours)}. Tours must finish by ${data.rules.latest_finish_time}.`
+                      : `A ${hours}-hour tour starting at ${time} would finish after ${data.rules.latest_finish_time}. Go back and choose an earlier start, or pick fewer hours.`}
                   </p>
                 )}
                 <div className="rounded-2xl border border-border bg-background p-4">
