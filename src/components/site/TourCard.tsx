@@ -75,9 +75,19 @@ export function TourCard({ tour }: { tour: PublicTourListItem }) {
           )}
         </div>
 
-        {/* Footer pinned to bottom — view + enquire, no pricing */}
+        {/* Footer pinned to bottom — price + book */}
         <div className="mt-auto pt-5">
           <div className="h-px w-full bg-[var(--navy)]/8" />
+          <div className="mt-4 flex items-baseline justify-between gap-3">
+            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--navy)]/55">
+              From
+            </span>
+            <span className="font-display text-xl font-semibold text-[var(--navy)]">
+              {tour.starting_price_pence != null
+                ? `£${(tour.starting_price_pence / 100).toFixed(0)}`
+                : "Price on request"}
+            </span>
+          </div>
           <div className="mt-4 grid grid-cols-2 gap-3">
             <Link
               to="/tours/$slug"
@@ -87,17 +97,17 @@ export function TourCard({ tour }: { tour: PublicTourListItem }) {
               View tour
             </Link>
             <Link
-              to="/tours/$slug"
-              params={{ slug: tour.slug }}
-              search={{ enquire: true }}
+              to="/book/tour"
+              search={{ tour: tour.slug }}
               className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-[var(--navy)] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[var(--gold)] hover:text-[var(--navy)]"
             >
-              Enquire
+              Book tour
               <ArrowRight className="size-4" />
             </Link>
           </div>
 
         </div>
+
       </div>
     </div>
   );
