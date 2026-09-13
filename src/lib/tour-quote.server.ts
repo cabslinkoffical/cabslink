@@ -65,15 +65,37 @@ export type TourConfig = {
 
 export async function loadTourConfig(): Promise<TourConfig> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const [tiers, rules, classes] = await Promise.all([
+  const [tiers, rules, classes, hourly, profiles, mileage] = await Promise.all([
     supabaseAdmin.from("tour_hour_tiers").select("hours, included_miles, is_bookable").order("sort_order"),
     supabaseAdmin.from("tour_rules").select("*").limit(1).maybeSingle(),
     supabaseAdmin
       .from("vehicle_classes")
       .select(
-        "id, name, hourly_rate, extra_hour_rate, extra_mile_rate, min_hours, max_hours, max_passengers, max_luggage, active",
+        "id, name, hourly_rate, extra_hour_rate, extra_mile_rate, min_hours, max_hours, max_passengers, max_luggage, passengers, large_luggage, pricing_vehicle_id, active",
       ),
+    // Tour rates are optional: when a class has none, fall back to the hourly
+    // hire rate and mileage rate already configured for that vehicle, so a
+    // tour is never priced at zero or shown as "price on request".
+    supabaseAdmin
+      .from("hourly_rates")
+      .select("vehicle_class_id, price_per_hour, min_hours, max_hours, active")
+      .eq("active", true),
+    supabaseAdmin.from("vehicle_pricing_profiles").select("id, vehicle_id"),
+    supabaseAdmin.from("vehicle_mileage_tiers").select("pricing_profile_id, cost_per_mile, sort_order"),
   ]);
+
+  const hourlyByClass = new Map<string, any>();
+  for (const h of (hourly.data ?? []) as any[]) {
+    if (h.vehicle_class_id && !hourlyByClass.has(h.vehicle_class_id)) hourlyByClass.set(h.vehicle_class_id, h);
+  }
+  const profileByVehicle = new Map<string, string>();
+  for (const p of (profiles.data ?? []) as any[]) {
+    if (p.vehicle_id) profileByVehicle.set(p.vehicle_id, p.id);
+  }
+  const mileByProfile = new Map<string, number>();
+  for (const t of ((mileage.data ?? []) as any[]).slice().sort((a, b) => Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0))) {
+    if (t.pricing_profile_id && t.cost_per_mile != null) mileByProfile.set(t.pricing_profile_id, Number(t.cost_per_mile));
+  }
 
   const r: any = rules.data;
   return {
