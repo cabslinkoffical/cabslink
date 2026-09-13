@@ -178,7 +178,17 @@ export async function listPublishedToursImpl(): Promise<PublicTourListItem[]> {
       counts.set(r.route_template_id, (counts.get(r.route_template_id) ?? 0) + 1);
     }
   }
-  return (templates ?? []).map((t: any) => toListItem(t, counts.get(t.id) ?? 0));
+  const rows = (templates ?? []) as any[];
+  const needsFallback = rows.some((t) => t.starting_price_pence_cache == null);
+  const hourlyRate = needsFallback ? await cheapestTourHourlyRate() : null;
+  return rows.map((t: any) => {
+    const item = toListItem(t, counts.get(t.id) ?? 0);
+    if (item.starting_price_pence == null) {
+      item.starting_price_pence = hourlyStartingPricePence(t, hourlyRate);
+    }
+    return item;
+  });
+
 }
 
 export const listPublishedTours = createServerFn({ method: "GET" }).handler(listPublishedToursImpl);
