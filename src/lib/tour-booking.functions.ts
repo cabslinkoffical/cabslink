@@ -76,7 +76,6 @@ export const getTourBookingOptions = createServerFn({ method: "GET" }).handler(
         .select(
           "id, slug, name, hero_image_url, short_description, default_duration_hours, min_duration_hours, max_duration_hours, included_miles, start_mode, fixed_start_address, origin_label, display_order, is_bookable, active, published",
         )
-        .eq("is_bookable", true)
         .order("display_order"),
       supabaseAdmin.from("template_fixed_prices").select("route_template_id, vehicle_class_id, price"),
     ]);

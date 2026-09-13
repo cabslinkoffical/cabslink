@@ -289,7 +289,10 @@ function TourDetailPage() {
       to: d.destination_label ?? d.name,
       duration: formatDuration(d.direct_duration_seconds) ?? "—",
       distance: d.direct_distance_miles ? `${Math.round(d.direct_distance_miles)} mi` : "—",
-      fromPrice: "Price on request",
+      fromPrice:
+        d.starting_price_pence != null
+          ? `From £${(d.starting_price_pence / 100).toFixed(0)}`
+          : "Price on request",
       stops,
     };
   }, [d, selected]);

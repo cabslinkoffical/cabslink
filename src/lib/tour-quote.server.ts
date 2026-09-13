@@ -264,15 +264,15 @@ export async function quoteTourImpl(input: TourQuoteInput): Promise<TourQuoteRes
 
   if (input.mode === "premade" && input.templateId) {
     const { tpl, prices } = await templateSettings(input.templateId);
-    if (!tpl || tpl.is_bookable === false) throw new Error("That tour is not available to book online.");
+    if (!tpl) throw new Error("That tour is not available to book online.");
     const price = prices.find((p) => p.vehicle_class_id === input.vehicleClassId);
     fixedPrice = price ? Number(price.price) : null;
     baseHours = Number(tpl.default_duration_hours ?? input.hours);
     templateIncludedMiles = tpl.included_miles == null ? null : Number(tpl.included_miles);
     if (tpl.start_mode === "fixed" && tpl.origin_place_id) startPlaceId = tpl.origin_place_id;
-    if (fixedPrice == null) {
-      throw new Error("This tour has no price for that vehicle yet. Please call us and we'll quote it.");
-    }
+    // No fixed price set for this vehicle yet: price the day on the hourly
+    // model instead of blocking the booking.
+
   }
 
   const loop = await measureLoop({
