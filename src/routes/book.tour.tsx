@@ -453,6 +453,68 @@ function TourWizard() {
             {step === 4 && (
               <div className="space-y-5">
                 <StepTitle title="Which stops would you like?" />
+
+                {/* Miles and time, live as stops are chosen */}
+                <div className="rounded-2xl border border-border bg-background p-4">
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <p className="text-sm font-semibold">
+                      Your {hours}-hour tour includes {includedMiles} miles
+                    </p>
+                    {priceMutation.isPending ? (
+                      <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <Loader2 className="size-3 animate-spin" /> Measuring your route…
+                      </span>
+                    ) : liveQuote ? (
+                      <span className="text-xs font-semibold">
+                        {Math.round(liveQuote.routeMiles)} miles so far
+                        {liveQuote.extraMiles > 0
+                          ? ` · ${Math.round(liveQuote.extraMiles)} extra miles at £${liveQuote.extraMileRate.toFixed(2)}`
+                          : " · inside your allowance"}
+                      </span>
+                    ) : null}
+                  </div>
+                  <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-[var(--surface)]">
+                    <div
+                      className={`h-full rounded-full ${
+                        liveQuote && liveQuote.extraMiles > 0 ? "bg-[var(--gold)]" : "bg-[var(--gold-ink)]"
+                      }`}
+                      style={{
+                        width: `${Math.min(
+                          100,
+                          liveQuote && includedMiles > 0
+                            ? (liveQuote.routeMiles / includedMiles) * 100
+                            : 0,
+                        )}%`,
+                      }}
+                    />
+                  </div>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Miles are counted from your pickup, round every stop and back again. Going further is
+                    fine — the extra miles are added to your price and shown before you pay.
+                  </p>
+                  {liveQuote && liveQuote.state !== "comfortable" && (
+                    <div className="mt-3 rounded-xl border border-[var(--gold)]/50 bg-[var(--gold)]/10 p-3">
+                      <p className="flex items-start gap-2 text-xs font-semibold">
+                        <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
+                        {liveQuote.blockedReason ??
+                          `This is a lot of driving for ${hours} hours — about ${Math.max(0, Math.round(liveQuote.perStopMinutes))} minutes at each stop.`}
+                      </p>
+                      {quote?.addHours.map((o) => (
+                        <button
+                          key={o.hours}
+                          type="button"
+                          onClick={() => { setHours(o.hours); setQuote(null); }}
+                          className="mt-2 w-full rounded-lg border border-border bg-background p-2.5 text-left text-xs hover:border-[var(--gold)]"
+                        >
+                          <span className="font-semibold">Make it {o.hours} hours</span> — about{" "}
+                          {Math.round(o.perStopMinutesAfter)} minutes at each stop and{" "}
+                          {o.extraAllowanceMiles} more miles included, £{o.netCost.toFixed(2)} more.
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
                 {mode === "premade" && template ? (
                   <div className="space-y-2">
                     {template.stops
