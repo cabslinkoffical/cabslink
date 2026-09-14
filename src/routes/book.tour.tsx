@@ -1049,20 +1049,112 @@ function TourWizard() {
                 )}
               </div>
             )}
-          </div>
-        )}
+            </div>
 
-        {/* Summary strip */}
-        {(templateId || mode === "custom") && step > 0 && (
-          <p className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-            <span className="inline-flex items-center gap-1">
-              <MapPin className="size-3" /> {template ? template.name : "Custom day tour"}
-            </span>
-            {date && <span className="inline-flex items-center gap-1"><CalendarDays className="size-3" /> {date} · {time}</span>}
-            {hours && <span className="inline-flex items-center gap-1"><Clock className="size-3" /> {hours} hours</span>}
-            {vehicle && <span>{vehicle.name}</span>}
-            {fixedPriceForVehicle != null && <span>Fixed tour price £{fixedPriceForVehicle.toFixed(2)}</span>}
-          </p>
+            {/* Running summary of the day — same place as the transfer flow */}
+            <aside className="min-w-0 space-y-4 lg:sticky lg:top-24 lg:self-start">
+              <div className="rounded-3xl border border-border bg-card p-5 shadow-[0_10px_40px_-20px_rgba(14,24,44,0.25)]">
+                <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)]">Your day</p>
+                <h3 className="mt-0.5 font-display text-lg font-bold">
+                  {template ? template.name : "Your own day tour"}
+                </h3>
+
+                <div className="relative mt-4 pl-6">
+                  <div className="absolute bottom-3 left-[9px] top-3 border-l-2 border-dashed border-[var(--gold)]/40" />
+                  <div className="relative">
+                    <div className="absolute -left-6 top-1.5 size-4 rounded-full bg-[var(--gold)] ring-4 ring-[var(--gold)]/20" />
+                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Pickup</p>
+                    <p className="mt-0.5 text-sm font-semibold leading-snug">{start?.label || "—"}</p>
+                  </div>
+                  {stops.map((s, i) => (
+                    <div key={`${s.placeId}-sum-${i}`} className="relative mt-5">
+                      <div className="absolute -left-6 top-1.5 flex size-4 items-center justify-center rounded-full border-2 border-[var(--gold)]/60 bg-[var(--gold)]/20">
+                        <span className="text-[8px] font-bold leading-none text-[var(--gold-ink)]">{i + 1}</span>
+                      </div>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+                        Stop {i + 1} · {s.dwellMinutes ?? minStopMinutes} min
+                      </p>
+                      <p className="mt-0.5 text-sm font-semibold leading-snug">{s.name}</p>
+                    </div>
+                  ))}
+                  <div className="relative mt-5">
+                    <div className="absolute -left-6 top-1.5 size-4 rounded-full border-2 border-[var(--gold)] bg-card" />
+                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Finish</p>
+                    <p className="mt-0.5 text-sm font-semibold leading-snug">
+                      {sameEnd ? start?.label || "Back at your pickup" : end?.label || "—"}
+                    </p>
+                  </div>
+                </div>
+
+                <TourLoopMap
+                  className="mt-4"
+                  startPlaceId={start?.placeId}
+                  startLabel={start?.label}
+                  stops={stops.map((s) => ({ placeId: s.placeId, name: s.name }))}
+                />
+
+                <div className="mt-4 grid grid-cols-2 gap-3 border-t border-border pt-4">
+                  <div>
+                    <p className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+                      <CalendarDays className="size-3 text-[var(--gold-ink)]" /> Date
+                    </p>
+                    <p className="mt-0.5 text-sm font-semibold">{date || "—"}</p>
+                  </div>
+                  <div>
+                    <p className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+                      <Clock className="size-3 text-[var(--gold-ink)]" /> Start
+                    </p>
+                    <p className="mt-0.5 text-sm font-semibold">{time || "—"}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Hours</p>
+                    <p className="mt-0.5 text-sm font-semibold">{hours ? `${hours} hours` : "—"}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Miles</p>
+                    <p className="mt-0.5 text-sm font-semibold">
+                      {liveQuote
+                        ? `${Math.round(liveQuote.routeMiles)} of ${includedMiles}`
+                        : includedMiles
+                          ? `${includedMiles} included`
+                          : "—"}
+                    </p>
+                  </div>
+                </div>
+
+                {(vehicle || liveQuote) && (
+                  <div className="mt-4 space-y-1.5 border-t border-border pt-4 text-sm">
+                    {vehicle && (
+                      <p className="flex items-center justify-between gap-3">
+                        <span className="text-muted-foreground">Vehicle</span>
+                        <span className="font-semibold">{vehicle.name}</span>
+                      </p>
+                    )}
+                    {liveQuote && liveQuote.extraMiles > 0 && (
+                      <p className="flex items-center justify-between gap-3">
+                        <span className="text-muted-foreground">Extra miles</span>
+                        <span className="font-semibold">{Math.round(liveQuote.extraMiles)}</span>
+                      </p>
+                    )}
+                    {fixedPriceForVehicle != null && !liveQuote && (
+                      <p className="flex items-center justify-between gap-3">
+                        <span className="text-muted-foreground">Fixed tour price</span>
+                        <span className="font-semibold">£{fixedPriceForVehicle.toFixed(2)}</span>
+                      </p>
+                    )}
+                    {liveQuote && (
+                      <p className="flex items-baseline justify-between gap-3 pt-1">
+                        <span className="font-semibold">Total</span>
+                        <span className="font-display text-xl font-bold text-[var(--gold-ink)]">
+                          £{liveQuote.total.toFixed(2)}
+                        </span>
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            </aside>
+          </div>
         )}
       </section>
     </SiteLayout>
