@@ -278,6 +278,15 @@ function TourWizard() {
   // Admin-set shortest stay at any stop; customers may ask for longer, never less.
   const minStopMinutes = data?.rules.minimum_stop_minutes ?? 10;
 
+  // Pick a sensible vehicle up front so the miles-and-time meter can measure the
+  // day while stops are chosen; the customer can change it on the next step.
+  useEffect(() => {
+    if (vehicleClassId || !classes.length) return;
+    const fit = classes.find((c) => (c.max_passengers ?? 99) >= passengers) ?? classes[0]!;
+    setVehicleClassId(fit.id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [classes.length, passengers]);
+
   const today = new Date().toISOString().slice(0, 10);
   const canNext = (() => {
     switch (step) {
