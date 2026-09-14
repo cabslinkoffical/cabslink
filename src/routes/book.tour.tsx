@@ -670,7 +670,7 @@ function TourWizard() {
                     </p>
                   ) : null}
                   <p className="mt-2 text-xs text-muted-foreground">
-                    Miles are counted from your pickup, round every stop and back again. Going further is
+                    Miles are measured on the real driving route: your pickup, round every stop in order and back again. Reorder stops to change which one is last. Going further is
                     fine — the extra miles are added to your price and shown before you pay. Every stop is
                     timed too: at least {minStopMinutes} minutes each, and any longer stay you ask for
                     counts towards your hours.
@@ -922,7 +922,7 @@ function TourWizard() {
                                 <span className="min-w-0">
                                   <span className="block truncate text-sm font-semibold">{p.name}</span>
                                   <span className="mt-0.5 block text-xs text-muted-foreground">
-                                    {p.roundTripMiles > 0 ? `${p.roundTripMiles} miles there and back · ` : ""}
+                                    {p.roundTripMiles > 0 ? `about ${p.roundTripMiles} miles there and back · ` : ""}
                                     about {p.recommendedMinutes} minutes here
                                   </span>
                                   <span
