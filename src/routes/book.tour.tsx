@@ -34,7 +34,21 @@ import {
 } from "@/lib/tour-booking.functions";
 import type { TourQuoteResult } from "@/lib/tour-quote.server";
 
-const searchSchema = z.object({ tour: z.string().trim().max(120).optional() });
+/**
+ * `tour` deep-links a premade tour. The rest is the hand-off from the hourly
+ * hire form: the customer has already told us where, when and for how long, so
+ * they land here on the stops-and-tours step with everything filled in.
+ */
+const searchSchema = z.object({
+  tour: z.string().trim().max(120).optional(),
+  pickupPlaceId: z.string().trim().max(300).optional(),
+  pickupLabel: z.string().trim().max(300).optional(),
+  date: z.string().trim().max(20).optional(),
+  time: z.string().trim().max(10).optional(),
+  hours: z.coerce.number().int().min(1).max(24).optional(),
+  passengers: z.coerce.number().int().min(1).max(80).optional(),
+  luggage: z.coerce.number().int().min(0).max(80).optional(),
+});
 
 export const Route = createFileRoute("/book/tour")({
   validateSearch: searchSchema,
@@ -63,7 +77,9 @@ type Stop = { poiId: string | null; placeId: string; name: string; dwellMinutes:
 const STEPS = ["Tour", "Pickup", "Hours", "Vehicle", "Stops", "Price", "Pay"];
 
 function TourWizard() {
-  const { tour: tourParam } = Route.useSearch();
+  const search = Route.useSearch();
+  const { tour: tourParam } = search;
+  const [prefilled, setPrefilled] = useState(false);
   const options = useQuery<TourBookingOptions>({
     queryKey: ["tour-booking-options"],
     queryFn: () => getTourBookingOptions(),
@@ -226,7 +242,7 @@ function TourWizard() {
   // Curated stops that fit the mileage the chosen hours include.
   const suggestions = useQuery({
     queryKey: ["tour-stop-suggestions", start?.placeId ?? "", hours ?? 0],
-    enabled: step === 4 && mode === "custom" && !!start?.placeId && !!hours,
+    enabled: step === 4 && !!start?.placeId && !!hours,
     staleTime: 5 * 60_000,
     queryFn: () =>
       getTourStopSuggestions({ data: { startPlaceId: start!.placeId, hours: hours!, limit: 24 } }),
@@ -566,7 +582,7 @@ function TourWizard() {
                   )}
                 </div>
 
-                {mode === "premade" && template ? (
+                {mode === "premade" && template && (
                   <div className="space-y-2">
                     {template.stops
                       .slice()
@@ -610,9 +626,15 @@ function TourWizard() {
                       at the rest.
                     </p>
                   </div>
-                ) : (
+                )}
                   <div className="space-y-3">
-                    {stops.map((s, i) => (
+                    {stops
+                      .map((s, i) => ({ s, i }))
+                      .filter(
+                        ({ s }) =>
+                          !(mode === "premade" && template?.stops.some((t) => t.poi_id === s.poiId)),
+                      )
+                      .map(({ s, i }) => (
                       <div key={`${s.placeId}-${i}`} className="flex items-center gap-3 rounded-xl border border-border p-3">
                         <MapPin className="size-4 shrink-0 text-[var(--gold-ink)]" />
                         <p className="min-w-0 flex-1 truncate text-sm font-semibold">{s.name}</p>
@@ -751,7 +773,6 @@ function TourWizard() {
                       )}
                     </div>
                   </div>
-                )}
               </div>
             )}
 
