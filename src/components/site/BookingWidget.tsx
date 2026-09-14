@@ -203,15 +203,6 @@ export function BookingWidget({
               focusFirstInvalid(e.currentTarget);
               return;
             }
-            const params = new URLSearchParams();
-            params.set("pickupPlaceId", pickup!.placeId);
-            params.set("pickupLabel", pickup!.label);
-            params.set("date", date);
-            params.set("time", time);
-            params.set("hours", String(hours));
-            params.set("passengers", String(passengers));
-            params.set("luggage", String(luggage));
-            params.set("handLuggage", String(handLuggage));
             track("hourly_quote_start", {
               pickup: pickup!.label,
               hours: hours ?? 0,
@@ -220,7 +211,20 @@ export function BookingWidget({
               hand_luggage: handLuggage,
               source: "booking_widget",
             });
-            navigate({ to: "/book/hourly", search: { q: params.toString() } as never });
+            // Everything the hourly page asks for is already filled in here, so go
+            // straight to choosing the tour and stops.
+            navigate({
+              to: "/book/tour",
+              search: {
+                pickupPlaceId: pickup!.placeId,
+                pickupLabel: pickup!.label,
+                date,
+                time,
+                hours: hours!,
+                passengers: passengers ?? 1,
+                luggage,
+              } as never,
+            });
 
           }}
 
