@@ -343,7 +343,8 @@ function TourWizard() {
             We couldn't load the tour options. Please refresh, or call us and we'll book it for you.
           </p>
         ) : (
-          <div className="mt-8 rounded-3xl border border-border bg-[var(--surface)] p-5 md:p-7">
+          <div className="mt-8 grid min-w-0 grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+            <div className="min-w-0 rounded-3xl border border-border bg-[var(--surface)] p-5 md:p-7">
             {/* 2a. Tour or custom */}
             {step === 1 && (
               <div className="space-y-5">
