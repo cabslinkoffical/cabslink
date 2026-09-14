@@ -428,9 +428,22 @@ export async function tourPoiSuggestionsImpl(args: {
     return a._sort - b._sort;
   });
 
+  // Keep room for map finds, otherwise a well-curated city fills every slot and
+  // the customer never sees the places we found live around their pickup.
+  const mapShare = Math.max(4, Math.round(args.limit / 3));
+  const curated = mapped.filter((m) => m.source === "curated");
+  const fromMap = mapped.filter((m) => m.source === "map");
+  const chosen = fromMap.length
+    ? [...curated.slice(0, Math.max(0, args.limit - Math.min(mapShare, fromMap.length))), ...fromMap.slice(0, mapShare)]
+    : curated;
+
   return {
-    suggestions: mapped
+    suggestions: chosen
       .slice(0, args.limit)
+      .sort((a, b) => {
+        if (a.withinAllowance !== b.withinAllowance) return a.withinAllowance ? -1 : 1;
+        return a._sort - b._sort;
+      })
       .map(({ _sort, _featured, ...rest }) => rest as TourPoiSuggestion),
     includedMiles: args.includedMiles,
     measured: !!from,
