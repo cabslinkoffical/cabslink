@@ -19,6 +19,62 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PlaceAutocomplete, type SelectedPlace } from "@/components/site/PlaceAutocomplete";
 import { getTourBookingOptions, type TourBookingOptions } from "@/lib/tour-booking.functions";
+import { FaqSection, LongFormSections, faqJsonLd, type ContentFaq, type ContentSection } from "@/components/site/ContentSections";
+
+/** City-level copy: this page answers "edinburgh hourly hire" and "glasgow hourly car". */
+const HOURLY_SECTIONS: ContentSection[] = [
+  {
+    title: "Edinburgh hourly hire",
+    paragraphs: [
+      "Hourly car hire with a driver in Edinburgh suits days that don't fit a single A-to-B transfer: a morning of meetings around the New Town and Leith, a wedding, a shopping run, or a day out to the coast and back. Your car and driver stay with you for the hours you book, waiting between stops at no extra cost.",
+      "Every Edinburgh hourly hire starts and finishes at the same address — your hotel, home, the airport or Waverley — and includes a mileage allowance for the length you choose. Popular days from Edinburgh reach Stirling, St Andrews, the Borders and the Highland edge inside the included miles.",
+    ],
+  },
+  {
+    title: "Glasgow hourly car with driver",
+    paragraphs: [
+      "Book an hourly car in Glasgow for city-centre meetings, match days, a night out across the West End, or a run down to Loch Lomond and back. Pricing is by the hour with miles included, so you know the cost before the day starts rather than watching a meter.",
+      "Glasgow hourly hires include waiting time throughout, luggage space for your group and a driver who stays with the vehicle. Longer trips out to Ayrshire, Stirling or the Trossachs are priced with any extra miles shown up front.",
+    ],
+  },
+  {
+    title: "What an hourly hire includes",
+    paragraphs: [
+      "You pay for the hours you book. Included in the hourly rate are the driver, the vehicle, waiting time at every stop, fuel and the mileage allowance for that hire length. Finishing early still counts as the full hire; going past the included miles adds a per-mile charge that is quoted before you pay.",
+      "Choose from saloon, executive, estate, people carrier and minibus classes, so groups from one to sixteen can travel together in the same booking.",
+    ],
+  },
+  {
+    title: "Hourly hire or a day tour?",
+    paragraphs: [
+      "They are the same product. Choose your hours and pickup, then either pick one of our ready-made Scottish tours or build your own day from suggested places within your mileage — castles, lochs, distilleries and viewpoints. The map shows your loop as you add stops.",
+      "If your chosen stops need more driving than your hours allow, we say so and offer a longer hire instead of letting the day run short.",
+    ],
+  },
+];
+
+const HOURLY_FAQS: ContentFaq[] = [
+  {
+    q: "How much is hourly car hire in Edinburgh or Glasgow?",
+    a: "Hourly hire is priced per hour by vehicle class, and each hire length includes a set mileage allowance. Choose your pickup, date and hours to see the exact price for your vehicle before you pay — there are no meters and no hidden waiting charges.",
+  },
+  {
+    q: "What is the minimum hourly hire?",
+    a: "Hires start at the shortest length shown on this page and run up to a full day online. Longer or multi-day hires are arranged by our team on request.",
+  },
+  {
+    q: "Does the driver wait with us between stops?",
+    a: "Yes. The vehicle and driver stay with you for the whole hire, including waiting time at every stop, so you can leave bags in the car and carry on when you're ready.",
+  },
+  {
+    q: "How many miles are included?",
+    a: "Every hire length includes miles, measured from your pickup, round each stop and back to the start. If your day goes further, the extra miles are charged at your vehicle's per-mile rate and shown in the price before payment.",
+  },
+  {
+    q: "Can I book an hourly car for a wedding or match day?",
+    a: "Yes. Weddings, sport, concerts, business days and airport-plus-sightseeing days are all common hourly bookings. Tell us the pickup, hours and passengers, and add any notes for the driver at checkout.",
+  },
+];
 
 export const Route = createFileRoute("/book/hourly")({
   // Only emit `q` when it is actually present — defaulting to "" made the
@@ -27,14 +83,15 @@ export const Route = createFileRoute("/book/hourly")({
     typeof search.q === "string" && search.q.length > 0 ? { q: search.q } : {},
   head: () => ({
     meta: [
-      { title: "Hourly Car & Driver Hire — Book by the Hour | Cabslink" },
-      { name: "description", content: "Hire a car with a professional driver by the hour across Scotland. Each hire includes miles, pick your stops from suggested places, see the full price and pay online." },
-      { property: "og:title", content: "Hourly Car & Driver Hire — Cabslink" },
-      { property: "og:description", content: "Hire a car and driver by the hour with included miles, suggested stops and an itemised price before you pay." },
+      { title: "Hourly Car Hire with Driver — Edinburgh & Glasgow | Cabslink" },
+      { name: "description", content: "Hourly car hire with a driver in Edinburgh, Glasgow and across Scotland. Miles included, waiting time included, fixed price by the hour — book online in minutes." },
+      { property: "og:title", content: "Hourly Car Hire with Driver — Edinburgh & Glasgow" },
+      { property: "og:description", content: "Book a car and driver by the hour in Edinburgh or Glasgow: included miles, included waiting time and an itemised price before you pay." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: "https://cabslink.com/book/hourly" }],
+    scripts: [faqJsonLd(HOURLY_FAQS)],
   }),
   component: HourlyBookPage,
 });
@@ -100,7 +157,9 @@ function HourlyBookPage() {
       <section className="bg-[var(--navy)] text-white">
         <div className="container mx-auto px-4 py-14 md:py-20">
           <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-[var(--gold)]">Hourly hire</p>
-          <h1 className="font-display text-3xl md:text-5xl font-bold mt-3">Car &amp; driver by the hour</h1>
+          <h1 className="font-display text-3xl md:text-5xl font-bold mt-3">
+            Hourly car hire with a driver in Edinburgh &amp; Glasgow
+          </h1>
           <p className="mt-3 max-w-2xl text-white/70 text-sm md:text-base">
             Your vehicle and driver stay with you for the hours you book, and every length of hire
             includes miles. Tell us where to collect you and how long you'd like the car — then choose
@@ -258,6 +317,9 @@ function HourlyBookPage() {
           </div>
         </div>
       </section>
+
+      <LongFormSections sections={HOURLY_SECTIONS} heading="Hourly hire across Scotland" />
+      <FaqSection faqs={HOURLY_FAQS} heading="Hourly car hire questions" />
     </SiteLayout>
   );
 }
