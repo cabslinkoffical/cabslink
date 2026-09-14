@@ -25,3 +25,5 @@
 - [ ] Google Maps: create one fresh user-owned connection — both old links removed; workspace connection deletion awaits user action in Connectors
 - [ ] Tour builder: suggest stops from the map inside the hour's mileage radius, and show chosen stops on a map
 - [ ] Tour booking page (/book/tour): simplify the flow — lighter, clearer, easier to follow
+- [ ] Tour booking: fewer steps (4), custom-tour option shown alongside ready-made tours
+- [ ] SEO: optimise /book/hourly and hourly tour pages for "edinburgh hourly hire", "glasgow hourly car"
