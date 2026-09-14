@@ -301,7 +301,7 @@ function TourWizard() {
 
   return (
     <SiteLayout>
-      <section className="mx-auto max-w-5xl px-4 pt-28 pb-16 md:pt-32">
+      <section className="mx-auto max-w-6xl px-4 pt-28 pb-16 md:pt-32">
         <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--gold-ink)]">
           Private day tours
         </p>
