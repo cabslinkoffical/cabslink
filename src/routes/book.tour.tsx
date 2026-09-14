@@ -12,7 +12,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import {
   ArrowLeft, ArrowRight, CalendarDays, Check, Clock, Loader2, MapPin, Users,
-  Briefcase, AlertTriangle, Plus, Trash2, ShieldCheck,
+  Briefcase, AlertTriangle, Plus, Trash2, ShieldCheck, Route as RouteIcon,
 } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Button } from "@/components/ui/button";
@@ -109,6 +109,7 @@ function TourWizard() {
   const [notes, setNotes] = useState("");
   const [quote, setQuote] = useState<TourQuoteResult | null>(null);
   const [created, setCreated] = useState<{ bookingRef: string; total: number } | null>(null);
+  const [showAllTours, setShowAllTours] = useState(false);
 
   const captcha = useCaptcha("tour-booking");
   const data = options.data;
@@ -346,54 +347,116 @@ function TourWizard() {
           </p>
         ) : (
           <div className="mt-8 grid min-w-0 grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
-            <div className="min-w-0 rounded-3xl border border-border bg-[var(--surface)] p-5 md:p-7">
+            <div className="min-w-0 rounded-2xl border border-border bg-[var(--surface)] p-5 md:p-7">
             {/* 2a. Tour or custom */}
             {step === 1 && (
-              <div className="space-y-5">
-                <StepTitle title="Pick a ready-made tour, or build your own" />
-                <div className="grid gap-4 md:grid-cols-2">
-                  {tours.map((t) => (
-                    <button
-                      key={t.id}
-                      type="button"
-                      onClick={() => { setMode("premade"); selectTemplate(t.id); }}
-                      className={`text-left rounded-2xl border p-4 transition ${
-                        mode === "premade" && templateId === t.id
-                          ? "border-[var(--gold)] ring-1 ring-[var(--gold)]"
-                          : "border-border hover:border-[var(--gold)]"
-                      }`}
-                    >
-                      {t.hero_image_url && (
-                        <img
-                          src={t.hero_image_url}
-                          alt={t.name}
-                          loading="lazy"
-                          className="mb-3 h-32 w-full rounded-xl object-cover"
-                        />
-                      )}
-                      <p className="font-semibold">{t.name}</p>
-                      {t.short_description && (
-                        <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{t.short_description}</p>
-                      )}
-                      <p className="mt-2 text-xs text-muted-foreground">
-                        {t.default_duration_hours ?? "—"} hours · {t.stops.length} stops
-                        {t.included_miles ? ` · ${t.included_miles} miles included` : ""}
-                      </p>
-                    </button>
-                  ))}
+              <div className="space-y-8">
+                <div>
+                  <StepTitle title="Choose how to plan your day" />
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Build a personal route, or start with one of our ready-made Scottish tours.
+                  </p>
+                </div>
+
+                <section aria-labelledby="custom-tour-heading">
                   <button
                     type="button"
                     onClick={chooseCustom}
-                    className={`text-left rounded-2xl border border-dashed p-4 transition ${
-                      mode === "custom" ? "border-[var(--gold)] ring-1 ring-[var(--gold)]" : "border-border hover:border-[var(--gold)]"
+                    className={`group flex w-full flex-col items-start gap-5 rounded-2xl border p-6 text-left shadow-sm transition duration-300 sm:flex-row sm:items-center ${
+                      mode === "custom"
+                        ? "border-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_8%,var(--card))] ring-1 ring-[var(--gold)]"
+                        : "border-border bg-card hover:-translate-y-0.5 hover:border-[var(--gold)] hover:shadow-raised"
                     }`}
                   >
-                    <p className="font-semibold">Build my own day</p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      Start where you like, choose your own stops and we'll work out the miles and time.
-                    </p>
+                    <span className="flex size-14 shrink-0 items-center justify-center rounded-xl bg-[var(--navy)] text-[var(--gold)]">
+                      <RouteIcon className="size-7" aria-hidden="true" />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="mb-2 inline-flex rounded-full bg-[var(--surface-gold)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--gold-ink)]">
+                        Most flexible
+                      </span>
+                      <span id="custom-tour-heading" className="block font-display text-xl font-bold">Build my own tour</span>
+                      <span className="mt-1 block max-w-xl text-sm leading-6 text-muted-foreground">
+                        Choose the places you want to visit. We measure the loop, check what fits in your hours and price any extra miles before payment.
+                      </span>
+                    </span>
+                    <span className={`inline-flex h-11 shrink-0 items-center gap-2 rounded-lg px-5 text-sm font-bold transition ${
+                      mode === "custom"
+                        ? "bg-[var(--gold)] text-[var(--gold-foreground)]"
+                        : "bg-[var(--navy)] text-[var(--navy-foreground)] group-hover:bg-[var(--gold)] group-hover:text-[var(--gold-foreground)]"
+                    }`}>
+                      {mode === "custom" ? <Check className="size-4" /> : <Plus className="size-4" />}
+                      {mode === "custom" ? "Selected" : "Start building"}
+                    </span>
                   </button>
-                </div>
+                </section>
+
+                <section aria-labelledby="ready-made-heading" className="border-t border-border pt-7">
+                  <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
+                    <div>
+                      <h3 id="ready-made-heading" className="font-display text-lg font-bold">Ready-made tours</h3>
+                      <p className="mt-1 text-xs text-muted-foreground">Choose a proven route, then add or remove stops.</p>
+                    </div>
+                    <span className="text-xs font-semibold text-muted-foreground">{tours.length} tours available</span>
+                  </div>
+
+                  <div className="grid gap-3 md:grid-cols-2">
+                    {(showAllTours ? tours : tours.slice(0, 6)).map((t) => {
+                      const selected = mode === "premade" && templateId === t.id;
+                      const startingPrice = t.prices.length
+                        ? Math.min(...t.prices.map((price) => price.price))
+                        : null;
+                      return (
+                        <button
+                          key={t.id}
+                          type="button"
+                          onClick={() => { setMode("premade"); selectTemplate(t.id); }}
+                          className={`group overflow-hidden rounded-xl border bg-card text-left transition duration-200 ${
+                            selected
+                              ? "border-[var(--gold)] ring-1 ring-[var(--gold)]"
+                              : "border-border hover:border-[var(--gold)] hover:shadow-raised"
+                          }`}
+                        >
+                          {t.hero_image_url && (
+                            <img
+                              src={t.hero_image_url}
+                              alt={t.name}
+                              loading="lazy"
+                              className="h-28 w-full object-cover"
+                            />
+                          )}
+                          <span className="block p-4">
+                            <span className="flex items-start justify-between gap-3">
+                              <span className="min-w-0 font-semibold leading-snug">{t.name}</span>
+                              {selected && (
+                                <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-[var(--gold)] text-[var(--gold-foreground)]">
+                                  <Check className="size-3" />
+                                </span>
+                              )}
+                            </span>
+                            <span className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+                              <span>{t.default_duration_hours ?? "—"} hours</span>
+                              <span aria-hidden="true">·</span>
+                              <span>{t.stops.length} stops</span>
+                              {t.included_miles ? <><span aria-hidden="true">·</span><span>{t.included_miles} miles</span></> : null}
+                            </span>
+                            <span className="mt-3 block text-sm font-bold text-[var(--gold-ink)]">
+                              {startingPrice == null ? "Price shown after vehicle selection" : `From £${startingPrice.toFixed(2)}`}
+                            </span>
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {tours.length > 6 && (
+                    <div className="mt-5 flex justify-center">
+                      <Button type="button" variant="outline" className="rounded-full" onClick={() => setShowAllTours((value) => !value)}>
+                        {showAllTours ? "Show fewer tours" : `View all ${tours.length} tours`}
+                      </Button>
+                    </div>
+                  )}
+                </section>
               </div>
             )}
 
