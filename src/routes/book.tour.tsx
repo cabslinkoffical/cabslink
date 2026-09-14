@@ -148,6 +148,8 @@ function TourWizard() {
       setHours(snapped);
     }
     setPrefilled(true);
+    // Everything step 1 asks for is already known, so open on tours and stops.
+    if (search.date && search.time && search.hours) setStep(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, prefilled]);
 
