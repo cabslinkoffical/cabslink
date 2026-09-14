@@ -98,11 +98,17 @@ export type ComputeRouteInput = {
   originPlaceId: string;
   destinationPlaceId: string;
   waypointPlaceIds?: string[];
+  /**
+   * Loops (tours) legitimately start and finish at the same place: the real
+   * driving distance is origin → every stop → back to origin, measured in one
+   * Routes call so the miles always match the line drawn on the map.
+   */
+  allowLoop?: boolean;
 };
 
 export async function computeRoute(input: ComputeRouteInput): Promise<RouteDistanceResult> {
-  const { originPlaceId, destinationPlaceId, waypointPlaceIds = [] } = input;
-  validatePlaceIds(originPlaceId, destinationPlaceId);
+  const { originPlaceId, destinationPlaceId, waypointPlaceIds = [], allowLoop = false } = input;
+  if (!allowLoop) validatePlaceIds(originPlaceId, destinationPlaceId);
 
   const key = normalizeCacheKey(originPlaceId, destinationPlaceId, waypointPlaceIds);
   const cached = cacheGet(key);
