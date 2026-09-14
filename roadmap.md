@@ -27,3 +27,5 @@
 - [x] Tour booking page (/book/tour): simplify the flow — lighter, clearer, easier to follow
 - [x] Tour booking: fewer steps (4), custom-tour option shown alongside ready-made tours
 - [x] SEO: optimise /book/hourly and hourly tour pages for "edinburgh hourly hire", "glasgow hourly car"
+
+- [ ] Redesign /book/tour for clarity and ease of use (user request 14 Sep)
