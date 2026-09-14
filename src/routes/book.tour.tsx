@@ -349,92 +349,83 @@ function TourWizard() {
         ) : (
           <div className="mt-8 grid min-w-0 grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
             <div className="min-w-0 rounded-2xl border border-border bg-[var(--surface)] p-5 md:p-7">
-            {/* 2a. Tour or custom */}
+            {/* 2a. Ready-made or custom — one segmented choice */}
             {step === 1 && (
-              <div className="space-y-8">
-                <div>
-                  <StepTitle title="Choose how to plan your day" />
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Build a personal route, or start with one of our ready-made Scottish tours.
-                  </p>
+              <div className="space-y-6">
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="flex size-8 items-center justify-center rounded-full bg-[var(--navy)] text-sm font-bold text-[var(--gold)]">2</span>
+                  <h2 className="font-display text-2xl font-extrabold">Tour &amp; stops</h2>
+                  <span className="h-px flex-1 bg-border" aria-hidden="true" />
+                  <span className="text-sm text-muted-foreground">Step 2 of 4</span>
                 </div>
 
-                <section aria-labelledby="custom-tour-heading">
+                <div
+                  role="tablist"
+                  aria-label="How to plan your day"
+                  className="flex rounded-xl border border-border bg-card p-1 shadow-sm"
+                >
                   <button
                     type="button"
-                    onClick={chooseCustom}
-                    className={`group flex w-full flex-col items-start gap-5 rounded-2xl border p-6 text-left shadow-sm transition duration-300 sm:flex-row sm:items-center ${
-                      mode === "custom"
-                        ? "border-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_8%,var(--card))] ring-1 ring-[var(--gold)]"
-                        : "border-border bg-card hover:-translate-y-0.5 hover:border-[var(--gold)] hover:shadow-raised"
+                    role="tab"
+                    aria-selected={mode === "premade"}
+                    onClick={() => setMode("premade")}
+                    className={`flex-1 rounded-lg px-4 py-3 text-sm font-semibold transition ${
+                      mode === "premade"
+                        ? "bg-[var(--navy)] text-[var(--navy-foreground)]"
+                        : "text-muted-foreground hover:text-foreground"
                     }`}
                   >
-                    <span className="flex size-14 shrink-0 items-center justify-center rounded-xl bg-[var(--navy)] text-[var(--gold)]">
-                      <RouteIcon className="size-7" aria-hidden="true" />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="mb-2 inline-flex rounded-full bg-[var(--surface-gold)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--gold-ink)]">
-                        Most flexible
-                      </span>
-                      <span id="custom-tour-heading" className="block font-display text-xl font-bold">Build my own tour</span>
-                      <span className="mt-1 block max-w-xl text-sm leading-6 text-muted-foreground">
-                        Choose the places you want to visit. We measure the loop, check what fits in your hours and price any extra miles before payment.
-                      </span>
-                    </span>
-                    <span className={`inline-flex h-11 shrink-0 items-center gap-2 rounded-lg px-5 text-sm font-bold transition ${
-                      mode === "custom"
-                        ? "bg-[var(--gold)] text-[var(--gold-foreground)]"
-                        : "bg-[var(--navy)] text-[var(--navy-foreground)] group-hover:bg-[var(--gold)] group-hover:text-[var(--gold-foreground)]"
-                    }`}>
-                      {mode === "custom" ? <Check className="size-4" /> : <Plus className="size-4" />}
-                      {mode === "custom" ? "Selected" : "Start building"}
-                    </span>
+                    Ready-made tours
                   </button>
-                </section>
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={mode === "custom"}
+                    onClick={chooseCustom}
+                    className={`flex-1 rounded-lg px-4 py-3 text-sm font-semibold transition ${
+                      mode === "custom"
+                        ? "bg-[var(--navy)] text-[var(--navy-foreground)]"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    Build my own
+                  </button>
+                </div>
 
-                <section aria-labelledby="ready-made-heading" className="border-t border-border pt-7">
-                  <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
-                    <div>
-                      <h3 id="ready-made-heading" className="font-display text-lg font-bold">Ready-made tours</h3>
-                      <p className="mt-1 text-xs text-muted-foreground">Choose a proven route, then add or remove stops.</p>
+                {mode === "premade" ? (
+                  <section aria-labelledby="ready-made-heading" className="space-y-4">
+                    <div className="flex flex-wrap items-end justify-between gap-2">
+                      <h3 id="ready-made-heading" className="font-display text-lg font-bold">
+                        Proven Scottish routes
+                      </h3>
+                      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        {tours.length} options available
+                      </span>
                     </div>
-                    <span className="text-xs font-semibold text-muted-foreground">{tours.length} tours available</span>
-                  </div>
 
-                  <div className="grid gap-3 md:grid-cols-2">
-                    {(showAllTours ? tours : tours.slice(0, 6)).map((t) => {
-                      const selected = mode === "premade" && templateId === t.id;
-                      const startingPrice = t.prices.length
-                        ? Math.min(...t.prices.map((price) => price.price))
-                        : null;
-                      return (
-                        <button
-                          key={t.id}
-                          type="button"
-                          onClick={() => { setMode("premade"); selectTemplate(t.id); }}
-                          className={`group overflow-hidden rounded-xl border bg-card text-left transition duration-200 ${
-                            selected
-                              ? "border-[var(--gold)] ring-1 ring-[var(--gold)]"
-                              : "border-border hover:border-[var(--gold)] hover:shadow-raised"
-                          }`}
-                        >
-                          {t.hero_image_url && (
-                            <img
-                              src={t.hero_image_url}
-                              alt={t.name}
-                              loading="lazy"
-                              className="h-28 w-full object-cover"
-                            />
-                          )}
-                          <span className="block p-4">
-                            <span className="flex items-start justify-between gap-3">
-                              <span className="min-w-0 font-semibold leading-snug">{t.name}</span>
-                              {selected && (
-                                <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-[var(--gold)] text-[var(--gold-foreground)]">
-                                  <Check className="size-3" />
-                                </span>
-                              )}
-                            </span>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      {(showAllTours ? tours : tours.slice(0, 6)).map((t) => {
+                        const selected = templateId === t.id;
+                        const startingPrice = t.prices.length
+                          ? Math.min(...t.prices.map((price) => price.price))
+                          : null;
+                        return (
+                          <button
+                            key={t.id}
+                            type="button"
+                            onClick={() => { setMode("premade"); selectTemplate(t.id); }}
+                            className={`relative rounded-xl border bg-card p-4 text-left transition ${
+                              selected
+                                ? "border-[var(--gold)] ring-1 ring-[var(--gold)]"
+                                : "border-border hover:border-[var(--gold)] hover:shadow-raised"
+                            }`}
+                          >
+                            {selected && (
+                              <span className="absolute right-3 top-3 flex size-5 items-center justify-center rounded-full bg-[var(--gold)] text-[var(--gold-foreground)]">
+                                <Check className="size-3" />
+                              </span>
+                            )}
+                            <span className="block pr-7 font-display text-base font-bold leading-snug">{t.name}</span>
                             <span className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
                               <span>{t.default_duration_hours ?? "—"} hours</span>
                               <span aria-hidden="true">·</span>
@@ -442,22 +433,27 @@ function TourWizard() {
                               {t.included_miles ? <><span aria-hidden="true">·</span><span>{t.included_miles} miles</span></> : null}
                             </span>
                             <span className="mt-3 block text-sm font-bold text-[var(--gold-ink)]">
-                              {startingPrice == null ? "Price shown after vehicle selection" : `From £${startingPrice.toFixed(2)}`}
+                              {startingPrice == null ? "Price shown with your vehicle" : `From £${startingPrice.toFixed(2)}`}
                             </span>
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  {tours.length > 6 && (
-                    <div className="mt-5 flex justify-center">
-                      <Button type="button" variant="outline" className="rounded-full" onClick={() => setShowAllTours((value) => !value)}>
-                        {showAllTours ? "Show fewer tours" : `View all ${tours.length} tours`}
-                      </Button>
+                          </button>
+                        );
+                      })}
                     </div>
-                  )}
-                </section>
+
+                    {tours.length > 6 && (
+                      <div className="flex justify-center">
+                        <Button type="button" variant="outline" className="rounded-full" onClick={() => setShowAllTours((value) => !value)}>
+                          {showAllTours ? "Show fewer tours" : `View all ${tours.length} tours`}
+                        </Button>
+                      </div>
+                    )}
+                  </section>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    Add the places you'd like to visit below. We measure the real driving loop from your
+                    pickup, round every stop and back again, then price any extra miles before you pay.
+                  </p>
+                )}
               </div>
             )}
 
@@ -622,31 +618,33 @@ function TourWizard() {
 
             {/* 2b. Stops */}
             {step === 1 && (
-              <div className="space-y-5">
-                <h3 className="font-display text-lg font-bold">Your stops</h3>
-
-                {/* Miles and time, live as stops are chosen */}
-                <div className="rounded-2xl border border-border bg-background p-4">
-                  <div className="flex flex-wrap items-baseline justify-between gap-2">
-                    <p className="text-sm font-semibold">
-                      Your {hours}-hour tour includes {includedMiles} miles
-                    </p>
-                    {priceMutation.isPending ? (
-                      <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                        <Loader2 className="size-3 animate-spin" /> Measuring your route…
-                      </span>
-                    ) : liveQuote ? (
-                      <span className="text-xs font-semibold">
-                        {Math.round(liveQuote.routeMiles)} miles so far
-                        {liveQuote.extraMiles > 0
-                          ? ` · ${Math.round(liveQuote.extraMiles)} extra miles at £${liveQuote.extraMileRate.toFixed(2)}`
-                          : " · inside your allowance"}
-                      </span>
-                    ) : null}
+              <div className="space-y-5 border-t border-border pt-6">
+                {/* Your route: live miles and time as stops change */}
+                <div>
+                  <div className="flex flex-wrap items-end justify-between gap-4">
+                    <h3 className="font-display text-lg font-bold">Your route</h3>
+                    <div className="flex gap-6">
+                      <div className="text-right">
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Distance</p>
+                        <p className="text-sm font-bold">
+                          {liveQuote ? Math.round(liveQuote.routeMiles) : 0} / {includedMiles} mi
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Time used</p>
+                        <p className="text-sm font-bold">
+                          {liveQuote
+                            ? minutesLabel(liveQuote.driveMinutes + liveQuote.dwellTotalMinutes)
+                            : "0h"}{" "}
+                          / {hours}h
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                  <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-[var(--surface)]">
+
+                  <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-[var(--surface)]">
                     <div
-                      className={`h-full rounded-full ${
+                      className={`h-full rounded-full transition-all duration-500 ${
                         liveQuote && liveQuote.extraMiles > 0 ? "bg-[var(--gold)]" : "bg-[var(--gold-ink)]"
                       }`}
                       style={{
@@ -659,21 +657,24 @@ function TourWizard() {
                       }}
                     />
                   </div>
-                  {liveQuote ? (
-                    <p className="mt-2 text-xs font-semibold">
-                      Day so far: {minutesLabel(liveQuote.driveMinutes)} driving +{" "}
-                      {minutesLabel(liveQuote.dwellTotalMinutes)} at your {liveQuote.stopCount} stop
-                      {liveQuote.stopCount === 1 ? "" : "s"}
-                      {liveQuote.spareMinutes >= 0
-                        ? ` · ${minutesLabel(liveQuote.spareMinutes)} spare`
-                        : ` · ${minutesLabel(-liveQuote.spareMinutes)} over your ${hours} hours`}
-                    </p>
-                  ) : null}
+
                   <p className="mt-2 text-xs text-muted-foreground">
-                    Miles are measured on the real driving route: your pickup, round every stop in order and back again. Reorder stops to change which one is last. Going further is
-                    fine — the extra miles are added to your price and shown before you pay. Every stop is
-                    timed too: at least {minStopMinutes} minutes each, and any longer stay you ask for
-                    counts towards your hours.
+                    {priceMutation.isPending ? (
+                      <span className="flex items-center gap-1.5">
+                        <Loader2 className="size-3 animate-spin" /> Measuring your route on the map…
+                      </span>
+                    ) : liveQuote ? (
+                      <>
+                        {liveQuote.extraMiles > 0
+                          ? `${Math.round(liveQuote.extraMiles)} extra miles at £${liveQuote.extraMileRate.toFixed(2)} each`
+                          : "Inside your included miles"}
+                        {liveQuote.spareMinutes >= 0
+                          ? ` · ${minutesLabel(liveQuote.spareMinutes)} spare in the day`
+                          : ` · ${minutesLabel(-liveQuote.spareMinutes)} over your ${hours} hours`}
+                      </>
+                    ) : (
+                      "Add a stop and we'll measure the driving loop from your pickup and back again."
+                    )}
                   </p>
                   {liveQuote && liveQuote.state !== "comfortable" && (
                     <div className="mt-3 rounded-xl border border-[var(--gold)]/50 bg-[var(--gold)]/10 p-3">
@@ -747,6 +748,14 @@ function TourWizard() {
                   </div>
                 )}
                   <div className="space-y-3">
+                    {stops.length > 0 && (
+                      <div className="flex flex-wrap items-baseline justify-between gap-2">
+                        <h4 className="font-display text-base font-bold">Your stops, in order</h4>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                          Use the arrows to reorder · at least {minStopMinutes} minutes each
+                        </span>
+                      </div>
+                    )}
                     {stops
                       .map((s, i) => ({ s, i }))
                       .filter(
@@ -861,14 +870,9 @@ function TourWizard() {
                     </div>
 
                     {/* Suggested stops inside the mileage the hours include */}
-                    <div className="pt-2">
-                      <p className="text-sm font-semibold">
-                        Places that fit {includedMiles} miles from {start?.label ?? "your pickup"}
-                      </p>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        These come from our own tour list plus places we find on the map inside that
-                        radius of your pickup. The ones marked as extra miles are further out. You can still choose them — we'll
-                        price the extra mileage for you.
+                    <div className="pt-3">
+                      <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                        Recommended within {includedMiles} miles of {start?.label ?? "your pickup"}
                       </p>
                       {suggestions.isLoading ? (
                         <p className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
@@ -905,40 +909,28 @@ function TourWizard() {
                                           ],
                                   );
                                 }}
-                                className={`flex gap-3 rounded-2xl border p-3 text-left transition ${
+                                className={`flex items-center justify-between gap-3 rounded-xl border p-3 text-left transition ${
                                   chosen
-                                    ? "border-[var(--gold)] ring-1 ring-[var(--gold)]"
-                                    : "border-border hover:border-[var(--gold)]"
+                                    ? "border-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_8%,var(--card))] ring-1 ring-[var(--gold)]"
+                                    : "border-dashed border-border hover:border-[var(--gold)]"
                                 }`}
                               >
-                                {p.imageUrl && (
-                                  <img
-                                    src={p.imageUrl}
-                                    alt={p.name}
-                                    loading="lazy"
-                                    className="h-16 w-20 shrink-0 rounded-lg object-cover"
-                                  />
-                                )}
                                 <span className="min-w-0">
-                                  <span className="block truncate text-sm font-semibold">{p.name}</span>
-                                  <span className="mt-0.5 block text-xs text-muted-foreground">
-                                    {p.roundTripMiles > 0 ? `about ${p.roundTripMiles} miles there and back · ` : ""}
+                                  <span className="block truncate text-sm font-bold">{p.name}</span>
+                                  <span className="mt-0.5 block text-xs font-medium text-[var(--gold-ink)]">
+                                    {chosen
+                                      ? "Added to your day"
+                                      : p.withinAllowance
+                                        ? "Within your miles"
+                                        : `About ${p.roundTripMiles} miles · extra miles`}
+                                  </span>
+                                  <span className="mt-0.5 block text-[11px] text-muted-foreground">
                                     about {p.recommendedMinutes} minutes here
+                                    {p.source === "map" ? " · found nearby" : ""}
                                   </span>
-                                  <span
-                                    className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
-                                      p.withinAllowance
-                                        ? "bg-[var(--surface)] text-[var(--gold-ink)]"
-                                        : "bg-[var(--gold)]/20 text-[var(--gold-ink)]"
-                                    }`}
-                                  >
-                                    {chosen ? "Added" : p.withinAllowance ? "Within your miles" : "Extra miles"}
-                                  </span>
-                                  {p.source === "map" && !chosen && (
-                                    <span className="mt-1 ml-1.5 inline-block rounded-full bg-[var(--surface)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                                      Found nearby
-                                    </span>
-                                  )}
+                                </span>
+                                <span className="shrink-0 text-[var(--gold-ink)]">
+                                  {chosen ? <Check className="size-5" /> : <Plus className="size-5" />}
                                 </span>
                               </button>
                             );
