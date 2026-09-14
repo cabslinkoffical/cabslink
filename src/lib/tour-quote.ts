@@ -46,6 +46,14 @@ export type TourQuote = {
   extraMileRate: number;
   exploreMinutes: number;
   perStopMinutes: number;
+  /** Minimum time at every stop, from admin settings. */
+  minStopMinutes: number;
+  /** Time spent at stops in total, floored at the admin minimum per stop. */
+  dwellTotalMinutes: number;
+  /** Pickup buffer + driving + time at stops. */
+  committedMinutes: number;
+  /** Hours booked minus everything committed. Negative means it won't fit. */
+  spareMinutes: number;
   stopCount: number;
   state: TimeState;
   lines: QuoteLine[];
@@ -79,14 +87,24 @@ export function bookableTiers(tiers: HourTier[], rules: TourRules): HourTier[] {
 export type TimeCheck = {
   exploreMinutes: number;
   perStopMinutes: number;
+  minStopMinutes: number;
+  dwellTotalMinutes: number;
+  committedMinutes: number;
+  spareMinutes: number;
   state: TimeState;
 };
 
+/** Time at a stop is never below the admin minimum, and the customer may raise it. */
+export function dwellFloor(minutes: number | null | undefined, rules: TourRules): number {
+  const min = Math.max(0, Number(rules.minimum_stop_minutes) || 0);
+  const asked = Number(minutes ?? 0);
+  return Math.max(min, Number.isFinite(asked) ? asked : min);
+}
+
 /**
- * explore = (hours x 60) - pickup buffer - driving minutes
- * per stop = explore / stops
- * Comfortable when every stop gets its recommended dwell, tight down to the
- * minimum, and impossible below it.
+ * The tour clock: pickup buffer + driving time + time at every stop must fit
+ * inside the hours booked. Each stop takes at least the admin minimum, and
+ * whatever longer stay the customer asked for is counted in full.
  */
 export function checkTime(args: {
   hours: number;
@@ -95,19 +113,30 @@ export function checkTime(args: {
   dwellMinutes: number[];
   rules: TourRules;
 }): TimeCheck {
-  const { hours, driveMinutes, stopCount, dwellMinutes, rules } = args;
-  const explore = hours * 60 - rules.pickup_buffer_minutes - driveMinutes;
-  const perStop = stopCount > 0 ? explore / stopCount : explore;
+  const { hours, driveMinutes, dwellMinutes, rules } = args;
+  const stopCount = args.stopCount || dwellMinutes.length;
+  const dwell = dwellMinutes.map((m) => dwellFloor(m, rules));
+  const dwellTotal = dwell.reduce((s, m) => s + m, 0);
 
-  if (explore <= 0) return { exploreMinutes: explore, perStopMinutes: perStop, state: "wont_fit" };
-  if (stopCount === 0) return { exploreMinutes: explore, perStopMinutes: perStop, state: "comfortable" };
+  const available = hours * 60 - rules.pickup_buffer_minutes;
+  const committed = driveMinutes + dwellTotal;
+  const spare = available - committed;
+  const explore = available - driveMinutes;
+  const perStop = stopCount > 0 ? dwellTotal / stopCount : explore;
 
-  const wanted = dwellMinutes.length ? Math.max(...dwellMinutes) : rules.minimum_stop_minutes;
-  if (perStop < rules.minimum_stop_minutes) {
-    return { exploreMinutes: explore, perStopMinutes: perStop, state: "wont_fit" };
-  }
-  if (perStop < wanted) return { exploreMinutes: explore, perStopMinutes: perStop, state: "tight" };
-  return { exploreMinutes: explore, perStopMinutes: perStop, state: "comfortable" };
+  const base = {
+    exploreMinutes: explore,
+    perStopMinutes: perStop,
+    minStopMinutes: Math.max(0, Number(rules.minimum_stop_minutes) || 0),
+    dwellTotalMinutes: dwellTotal,
+    committedMinutes: committed + rules.pickup_buffer_minutes,
+    spareMinutes: spare,
+  };
+
+  if (spare < 0) return { ...base, state: "wont_fit" };
+  // Under 20 minutes of slack across the whole day is a day that runs late.
+  if (spare < 20) return { ...base, state: "tight" };
+  return { ...base, state: "comfortable" };
 }
 
 export function minutesLabel(mins: number): string {
@@ -125,12 +154,15 @@ export function blockedMessage(q: {
   hours: number;
   perStopMinutes: number;
   stopCount: number;
+  dwellTotalMinutes?: number;
+  spareMinutes?: number;
 }): string {
+  const over = Math.abs(Math.round(q.spareMinutes ?? 0));
   return (
-    `This route needs more time. Your stops come to ${Math.round(q.routeMiles)} miles and about ` +
-    `${minutesLabel(q.driveMinutes)} of driving. In a ${q.hours}-hour day that leaves roughly ` +
-    `${Math.max(0, Math.round(q.perStopMinutes))} minutes at each stop, which is a photograph and back in the car. ` +
-    `Add hours, or take a stop off.`
+    `This day needs more time. Your route is ${Math.round(q.routeMiles)} miles, about ` +
+    `${minutesLabel(q.driveMinutes)} of driving, plus ${minutesLabel(q.dwellTotalMinutes ?? 0)} at your ` +
+    `${q.stopCount} stop${q.stopCount === 1 ? "" : "s"} — around ${minutesLabel(over)} more than a ` +
+    `${q.hours}-hour tour allows. Add hours, shorten a stop, or take one off.`
   );
 }
 
@@ -206,6 +238,10 @@ export function buildQuote(args: {
     extraMileRate,
     exploreMinutes: Math.round(time.exploreMinutes),
     perStopMinutes: Math.round(time.perStopMinutes),
+    minStopMinutes: time.minStopMinutes,
+    dwellTotalMinutes: Math.round(time.dwellTotalMinutes),
+    committedMinutes: Math.round(time.committedMinutes),
+    spareMinutes: Math.round(time.spareMinutes),
     stopCount: dwellMinutes.length,
     state: time.state,
     lines,
@@ -218,6 +254,8 @@ export function buildQuote(args: {
             hours,
             perStopMinutes: time.perStopMinutes,
             stopCount: dwellMinutes.length,
+            dwellTotalMinutes: time.dwellTotalMinutes,
+            spareMinutes: time.spareMinutes,
           })
         : null,
   };
@@ -228,6 +266,8 @@ export type AddHoursOption = {
   addedHours: number;
   perStopMinutesNow: number;
   perStopMinutesAfter: number;
+  /** Slack left in the day at this length, with the same stops and stay times. */
+  spareMinutesAfter: number;
   grossCost: number;
   extraAllowanceMiles: number;
   mileageSaving: number;
@@ -273,6 +313,7 @@ export function addHoursOptions(args: {
       addedHours,
       perStopMinutesNow: current.perStopMinutes,
       perStopMinutesAfter: Math.round(time.perStopMinutes),
+      spareMinutesAfter: Math.round(time.spareMinutes),
       grossCost,
       extraAllowanceMiles: round2(Math.max(0, t.included_miles - current.includedMiles)),
       mileageSaving,

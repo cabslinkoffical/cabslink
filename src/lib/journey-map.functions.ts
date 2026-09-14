@@ -116,3 +116,97 @@ export const getJourneyMap = createServerFn({ method: "POST" })
 
     return { polyline, points };
   });
+
+/* ------------------------------------------------------------------ */
+/* Tour loop map: start → stops → back to the start                    */
+/* ------------------------------------------------------------------ */
+
+const loopInput = z.object({
+  startPlaceId: placeIdSchema,
+  stopPlaceIds: z.array(placeIdSchema).min(1).max(10),
+});
+
+/**
+ * Driving geometry for an hourly/tour loop, where pickup and finish are the
+ * same place. Drawn on the booking wizard so customers can see the shape of
+ * the day as they add stops.
+ */
+export const getTourLoopMap = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => loopInput.parse(data))
+  .handler(async ({ data }): Promise<JourneyMapData> => {
+    let ip = "unknown";
+    try { ip = getRequestIP({ xForwardedFor: true }) ?? "unknown"; } catch {}
+    if (!checkLimit({ name: "tour-loop-map", windowMs: 60_000, max: 40 }, ip).ok) {
+      try { setResponseStatus(429); } catch {}
+      throw new Error("Too many map requests. Please wait a moment.");
+    }
+
+    const apiKey = getGoogleMapsApiKey();
+    const lovableKey = process.env["LOVABLE_API_KEY"];
+    if (!lovableKey) throw new Error("Map service is not configured.");
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 10_000);
+    let res: Response;
+    try {
+      res = await fetch(`${GATEWAY_URL}/routes/directions/v2:computeRoutes`, {
+        method: "POST",
+        signal: controller.signal,
+        headers: {
+          Authorization: `Bearer ${lovableKey}`,
+          "X-Connection-Api-Key": apiKey,
+          "Content-Type": "application/json",
+          "X-Goog-FieldMask":
+            "routes.polyline.encodedPolyline,routes.legs.startLocation.latLng,routes.legs.endLocation.latLng",
+        },
+        body: JSON.stringify({
+          origin: { placeId: data.startPlaceId },
+          destination: { placeId: data.startPlaceId },
+          intermediates: data.stopPlaceIds.map((id) => ({ placeId: id })),
+          travelMode: "DRIVE",
+          routingPreference: "TRAFFIC_UNAWARE",
+          computeAlternativeRoutes: false,
+          languageCode: "en-GB",
+          units: "IMPERIAL",
+        }),
+      });
+    } catch (err) {
+      clearTimeout(timer);
+      throw new Error((err as Error).name === "AbortError"
+        ? "Map is taking too long to load. Please try again."
+        : "Map is temporarily unavailable.");
+    }
+    clearTimeout(timer);
+
+    if (!res.ok) {
+      const body = await res.text().catch(() => "");
+      console.error(`Tour loop map Routes API failed [${res.status}]: ${body.slice(0, 400)}`);
+      throw new Error("Map is temporarily unavailable.");
+    }
+
+    const json = (await res.json()) as {
+      routes?: Array<{
+        polyline?: { encodedPolyline?: string };
+        legs?: Array<{
+          startLocation?: { latLng?: { latitude?: number; longitude?: number } };
+          endLocation?: { latLng?: { latitude?: number; longitude?: number } };
+        }>;
+      }>;
+    };
+    const route = json.routes?.[0];
+    const polyline = route?.polyline?.encodedPolyline ?? "";
+    if (!polyline) throw new Error("We could not map a driving route around these stops.");
+
+    const points: JourneyMapPoint[] = [];
+    const push = (p?: { latitude?: number; longitude?: number }) => {
+      if (typeof p?.latitude === "number" && typeof p?.longitude === "number") {
+        points.push({ lat: p.latitude, lng: p.longitude });
+      }
+    };
+    (route?.legs ?? []).forEach((leg, i) => {
+      if (i === 0) push(leg.startLocation?.latLng);
+      push(leg.endLocation?.latLng);
+    });
+
+    return { polyline, points };
+  });

@@ -10,6 +10,7 @@ import {
   buildQuote,
   addHoursOptions,
   bookableTiers,
+  dwellFloor,
   type AddHoursOption,
   type ClassRates,
   type HourTier,
@@ -50,7 +51,7 @@ const DEFAULT_RULES: TourRules = {
   earliest_start_time: "07:00",
   latest_finish_time: "22:00",
   max_bookable_hours: 12,
-  minimum_stop_minutes: 20,
+  minimum_stop_minutes: 10,
   pickup_buffer_minutes: 30,
   mileage_tolerance_miles: 10,
   minimum_notice_hours: 12,
@@ -244,8 +245,9 @@ async function dwellFor(stops: TourStopInput[], rules: TourRules): Promise<numbe
       ]),
     );
   }
-  return stops.map(
-    (s) => Number(s.dwellMinutes ?? (s.poiId ? map.get(s.poiId) : null) ?? rules.minimum_stop_minutes),
+  // Never below the admin minimum: the customer may stay longer, never shorter.
+  return stops.map((s) =>
+    dwellFloor(s.dwellMinutes ?? (s.poiId ? map.get(s.poiId) : null), rules),
   );
 }
 
@@ -327,6 +329,10 @@ export type TourPoiSuggestion = {
   roundTripMiles: number;
   /** True when the loop to this stop alone sits inside the mileage allowance. */
   withinAllowance: boolean;
+  /** Where the suggestion came from: our own tour list, or found live on the map. */
+  source: "curated" | "map";
+  lat?: number;
+  lng?: number;
 };
 
 /**
@@ -352,7 +358,7 @@ export async function tourPoiSuggestionsImpl(args: {
   const coords = await resolveCoords(supabaseAdmin as any, [args.startPlaceId]);
   const from = coords.get(args.startPlaceId);
 
-  const mapped = pois.map((p) => {
+  const mapped: any[] = pois.map((p) => {
     const lat = p.latitude == null ? null : Number(p.latitude);
     const lng = p.longitude == null ? null : Number(p.longitude);
     const legMiles =
@@ -371,19 +377,61 @@ export async function tourPoiSuggestionsImpl(args: {
       milesFromStart: legMiles == null ? 0 : Math.round(legMiles),
       roundTripMiles: round == null ? 0 : Math.round(round),
       withinAllowance: round == null ? true : round <= args.includedMiles,
+      source: "curated" as const,
+      lat: lat ?? undefined,
+      lng: lng ?? undefined,
       _sort: round ?? Number.POSITIVE_INFINITY,
       _featured: !!p.featured,
     };
   });
 
+  // Live map discovery: attractions inside the driving radius the hours pay for.
+  // The allowance is a round trip, so the furthest a stop can sit is half of it.
+  if (from) {
+    const { discoverNearbyPlaces } = await import("@/lib/tour-discovery.server");
+    const radiusMiles = Math.max(3, args.includedMiles / 2 / ROAD_FACTOR);
+    const found = await discoverNearbyPlaces({ centre: from, radiusMiles, limit: 20 });
+    const seen = new Set(mapped.map((m) => m.placeId));
+    for (const place of found) {
+      if (seen.has(place.placeId)) continue;
+      if (place.reviewCount < 25) continue;
+      seen.add(place.placeId);
+      const legMiles = haversineMiles(from, { lat: place.lat, lng: place.lng }) * ROAD_FACTOR;
+      const round = legMiles * 2;
+      mapped.push({
+        id: `map:${place.placeId}`,
+        name: place.name,
+        placeId: place.placeId,
+        category: place.category,
+        shortDescription:
+          place.rating != null
+            ? `${place.rating.toFixed(1)}★ from ${place.reviewCount.toLocaleString("en-GB")} visitor reviews`
+            : null,
+        imageUrl: null,
+        recommendedMinutes: 45,
+        milesFromStart: Math.round(legMiles),
+        roundTripMiles: Math.round(round),
+        withinAllowance: round <= args.includedMiles,
+        source: "map" as const,
+        lat: place.lat,
+        lng: place.lng,
+        _sort: round,
+        _featured: false,
+      });
+    }
+  }
+
   mapped.sort((a, b) => {
     if (a.withinAllowance !== b.withinAllowance) return a.withinAllowance ? -1 : 1;
     if (a._featured !== b._featured) return a._featured ? -1 : 1;
+    if (a.source !== b.source) return a.source === "curated" ? -1 : 1;
     return a._sort - b._sort;
   });
 
   return {
-    suggestions: mapped.slice(0, args.limit).map(({ _sort, _featured, ...rest }) => rest),
+    suggestions: mapped
+      .slice(0, args.limit)
+      .map(({ _sort, _featured, ...rest }) => rest as TourPoiSuggestion),
     includedMiles: args.includedMiles,
     measured: !!from,
   };

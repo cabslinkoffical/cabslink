@@ -23,3 +23,5 @@
 - [ ] Security: full review and hardening pass across the site
 - [x] Google Maps: load maps with the account's own browser key (custom-domain support)
 - [ ] Google Maps: create one fresh user-owned connection — both old links removed; workspace connection deletion awaits user action in Connectors
+- [ ] Tour builder: suggest stops from the map inside the hour's mileage radius, and show chosen stops on a map
+- [ ] Tour booking page (/book/tour): simplify the flow — lighter, clearer, easier to follow

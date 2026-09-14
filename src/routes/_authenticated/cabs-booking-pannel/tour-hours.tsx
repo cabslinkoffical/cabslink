@@ -253,7 +253,7 @@ function RulesTab({ rules }: { rules: TourHoursConfig["rules"] }) {
         <F k="earliest_start_time" label="Earliest start" type="time" />
         <F k="latest_finish_time" label="Latest finish" type="time" />
         <F k="max_bookable_hours" label="Longest bookable day (hours)" hint="Anything longer goes to an enquiry, not a quote." />
-        <F k="minimum_stop_minutes" label="Shortest time at a stop (minutes)" hint="Below this, payment is blocked and the add-hours panel appears." />
+        <F k="minimum_stop_minutes" label="Shortest time at a stop (minutes)" hint="Every stop is costed at least this long in the tour clock. Customers can ask for longer, never shorter." />
         <F k="pickup_buffer_minutes" label="Pick-up buffer (minutes)" />
         <F k="mileage_tolerance_miles" label="Mileage tolerance (miles)" hint="Overage inside this band is not charged after the tour." />
         <F k="minimum_notice_hours" label="Minimum notice (hours)" />
