@@ -13,6 +13,7 @@ import { z } from "zod";
 import {
   ArrowLeft, ArrowRight, CalendarDays, Check, Clock, Loader2, MapPin, Users,
   Briefcase, AlertTriangle, Plus, Trash2, ShieldCheck, Route as RouteIcon,
+  ChevronUp, ChevronDown,
 } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Button } from "@/components/ui/button";
@@ -755,7 +756,51 @@ function TourWizard() {
                       .map(({ s, i }) => (
                       <div key={`${s.placeId}-${i}`} className="flex items-center gap-3 rounded-xl border border-border p-3">
                         <MapPin className="size-4 shrink-0 text-[var(--gold-ink)]" />
-                        <p className="min-w-0 flex-1 truncate text-sm font-semibold">{s.name}</p>
+                        <span className="text-xs font-bold text-muted-foreground">{i + 1}</span>
+                        <p className="min-w-0 flex-1 truncate text-sm font-semibold">
+                          {s.name}
+                          {i === stops.length - 1 && stops.length > 1 && (
+                            <span className="ml-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                              last stop
+                            </span>
+                          )}
+                        </p>
+                        <span className="flex shrink-0 flex-col">
+                          <button
+                            type="button"
+                            aria-label={`Move ${s.name} earlier`}
+                            disabled={i === 0}
+                            onClick={() => {
+                              setQuote(null);
+                              setStops((prev) => {
+                                const next = [...prev];
+                                const [moved] = next.splice(i, 1);
+                                next.splice(i - 1, 0, moved!);
+                                return next;
+                              });
+                            }}
+                            className="text-muted-foreground disabled:opacity-30"
+                          >
+                            <ChevronUp className="size-4" />
+                          </button>
+                          <button
+                            type="button"
+                            aria-label={`Move ${s.name} later`}
+                            disabled={i === stops.length - 1}
+                            onClick={() => {
+                              setQuote(null);
+                              setStops((prev) => {
+                                const next = [...prev];
+                                const [moved] = next.splice(i, 1);
+                                next.splice(i + 1, 0, moved!);
+                                return next;
+                              });
+                            }}
+                            className="text-muted-foreground disabled:opacity-30"
+                          >
+                            <ChevronDown className="size-4" />
+                          </button>
+                        </span>
                         <label className="text-xs text-muted-foreground">
                           minutes here
                           <input
