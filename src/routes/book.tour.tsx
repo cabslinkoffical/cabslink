@@ -1,7 +1,7 @@
 /**
  * /book/tour — the day-tour booking wizard.
  *
- * Seven steps: tour choice, pickup & date, hours, vehicle, stops, price,
+ * Four steps: your day (pickup, date, hours), tour & stops, vehicle & price,
  * details & payment. Prices always come from the server (`quoteTour`); the
  * booking is saved unpaid and then paid with the same card checkout used for
  * transfers.
@@ -75,7 +75,7 @@ export const Route = createFileRoute("/book/tour")({
 
 type Stop = { poiId: string | null; placeId: string; name: string; dwellMinutes: number | null };
 
-const STEPS = ["Tour", "Pickup", "Hours", "Vehicle", "Stops", "Price", "Pay"];
+const STEPS = ["Your day", "Tour & stops", "Vehicle & price", "Details & pay"];
 
 function TourWizard() {
   const search = Route.useSearch();
@@ -123,7 +123,7 @@ function TourWizard() {
     if (match) {
       setMode("premade");
       selectTemplate(match.id);
-      setStep(1);
+      setStep(0);
     }
   }, [tourParam, tours.length]);
 
@@ -241,7 +241,7 @@ function TourWizard() {
     onSuccess: (res) => {
       if (!res.bookingRef) return;
       setCreated({ bookingRef: res.bookingRef, total: res.total });
-      setStep(6);
+      setStep(3);
     },
     onError: (e: Error) => {
       captcha.reset();
@@ -251,7 +251,7 @@ function TourWizard() {
 
   // Ask the server for a price whenever the customer reaches the price step.
   useEffect(() => {
-    if (step === 5 && start && hours && vehicleClassId && !priceMutation.isPending) {
+    if (step === 2 && start && hours && vehicleClassId && !priceMutation.isPending) {
       priceMutation.mutate();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -259,7 +259,7 @@ function TourWizard() {
 
   // On the stops step, keep the miles and time meter honest as stops change.
   useEffect(() => {
-    if (step !== 4 || !start || !hours || !vehicleClassId) return;
+    if (step !== 1 || !start || !hours || !vehicleClassId) return;
     const t = setTimeout(() => priceMutation.mutate(), 450);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -268,7 +268,7 @@ function TourWizard() {
   // Curated stops that fit the mileage the chosen hours include.
   const suggestions = useQuery({
     queryKey: ["tour-stop-suggestions", start?.placeId ?? "", hours ?? 0],
-    enabled: step === 4 && !!start?.placeId && !!hours,
+    enabled: step === 1 && !!start?.placeId && !!hours,
     staleTime: 5 * 60_000,
     queryFn: () =>
       getTourStopSuggestions({ data: { startPlaceId: start!.placeId, hours: hours!, limit: 24 } }),
@@ -281,12 +281,10 @@ function TourWizard() {
   const today = new Date().toISOString().slice(0, 10);
   const canNext = (() => {
     switch (step) {
-      case 0: return mode === "custom" || !!templateId;
-      case 1: return !!start && !!date && !!time && (sameEnd || !!end);
-      case 2: return !!hours && fitsDay;
-      case 3: return !!vehicleClassId && passengers > 0;
-      case 4: return mode === "premade" || stops.length > 0;
-      case 5: return !!quote && !quote.quote.blockedReason;
+      case 0: return !!start && !!date && !!time && (sameEnd || !!end) && !!hours && fitsDay;
+      case 1: return mode === "custom" ? stops.length > 0 : !!templateId;
+      case 2:
+        return !!vehicleClassId && passengers > 0 && !!quote && !quote.quote.blockedReason;
       default: return false;
     }
   })();
@@ -336,10 +334,10 @@ function TourWizard() {
           </p>
         ) : (
           <div className="mt-8 rounded-3xl border border-border bg-[var(--surface)] p-5 md:p-7">
-            {/* 1. Tour or custom */}
-            {step === 0 && (
+            {/* 2a. Tour or custom */}
+            {step === 1 && (
               <div className="space-y-5">
-                <StepTitle title="Choose a tour, or build your own day" />
+                <StepTitle title="Pick a ready-made tour, or build your own" />
                 <div className="grid gap-4 md:grid-cols-2">
                   {tours.map((t) => (
                     <button
@@ -386,10 +384,10 @@ function TourWizard() {
               </div>
             )}
 
-            {/* 2. Pickup, drop-off, date & time */}
-            {step === 1 && (
+            {/* 1a. Pickup, drop-off, date & time */}
+            {step === 0 && (
               <div className="space-y-5">
-                <StepTitle title="Where do we collect you, and when?" />
+                <StepTitle title="Your day: where, when and for how long" />
                 {template?.start_mode === "fixed" && template.fixed_start_address && (
                   <p className="rounded-xl border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-4 py-2 text-xs font-medium">
                     This tour starts at {template.fixed_start_address}. Tell us your address and we'll
@@ -435,10 +433,10 @@ function TourWizard() {
               </div>
             )}
 
-            {/* 3. Hours */}
-            {step === 2 && (
+            {/* 1b. Hours */}
+            {step === 0 && (
               <div className="space-y-5">
-                <StepTitle title="How long would you like the car for?" />
+                <h3 className="font-display text-lg font-bold">How long would you like the car for?</h3>
                 <p className="text-sm text-muted-foreground">
                   Each length includes miles. Go further and the extra miles are charged; the hours
                   themselves are a firm limit.
@@ -481,8 +479,8 @@ function TourWizard() {
               </div>
             )}
 
-            {/* 4. Vehicle & group */}
-            {step === 3 && (
+            {/* 3a. Vehicle & group */}
+            {step === 2 && (
               <div className="space-y-5">
                 <StepTitle title="Which vehicle, and how many of you?" />
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -545,10 +543,10 @@ function TourWizard() {
               </div>
             )}
 
-            {/* 5. Stops */}
-            {step === 4 && (
+            {/* 2b. Stops */}
+            {step === 1 && (
               <div className="space-y-5">
-                <StepTitle title="Which stops would you like?" />
+                <h3 className="font-display text-lg font-bold">Your stops</h3>
 
                 {/* Miles and time, live as stops are chosen */}
                 <div className="rounded-2xl border border-border bg-background p-4">
@@ -835,10 +833,10 @@ function TourWizard() {
               </div>
             )}
 
-            {/* 6. Price */}
-            {step === 5 && (
+            {/* 3b. Price */}
+            {step === 2 && (
               <div className="space-y-5">
-                <StepTitle title="Your price" />
+                <h3 className="font-display text-lg font-bold">Your price</h3>
                 {priceMutation.isPending && !quote ? (
                   <p className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Loader2 className="size-4 animate-spin" /> Working out your day…
@@ -922,8 +920,8 @@ function TourWizard() {
               </div>
             )}
 
-            {/* 7. Details & payment */}
-            {step === 6 && (
+            {/* 4. Details & payment */}
+            {step === 3 && (
               <div className="space-y-5">
                 {created ? (
                   <>
@@ -1012,7 +1010,7 @@ function TourWizard() {
             )}
 
             {/* Navigation */}
-            {!(step === 6 && created) && (
+            {!(step === 3 && created) && (
               <div className="mt-7 flex items-center justify-between gap-3 border-t border-border pt-5">
                 <Button
                   type="button"
@@ -1023,9 +1021,9 @@ function TourWizard() {
                 >
                   <ArrowLeft className="size-4" /> Back
                 </Button>
-                {step < 6 && (
+                {step < 3 && (
                   <div className="flex items-center gap-3">
-                    {step === 5 && quote && (
+                    {step === 2 && quote && (
                       <span className="text-sm font-semibold">£{quote.quote.total.toFixed(2)}</span>
                     )}
                     <Button
@@ -1033,7 +1031,7 @@ function TourWizard() {
                       variant="gold"
                       className="min-w-[150px] rounded-full"
                       disabled={!canNext}
-                      onClick={() => setStep((s) => Math.min(6, s + 1))}
+                      onClick={() => setStep((s) => Math.min(3, s + 1))}
                     >
                       Continue <ArrowRight className="size-4" />
                     </Button>
