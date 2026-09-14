@@ -170,21 +170,19 @@ export async function measureLoop(input: {
     if (stopPlaceIds.length === 0 && startPlaceId === endPlaceId) {
       return { miles: 0, driveMinutes: 0, estimated: false };
     }
-    // A loop back to the same place is measured as start → stops → last stop → start.
+    // A loop back to the same place: pickup → every stop in order → back to the
+    // pickup, measured in ONE Routes call so the miles equal the drawn route.
     const sameStart = startPlaceId === endPlaceId;
     if (sameStart && stopPlaceIds.length > 0) {
-      const out = await computeRoute({
+      const res = await computeRoute({
         originPlaceId: startPlaceId,
-        destinationPlaceId: stopPlaceIds[stopPlaceIds.length - 1]!,
-        waypointPlaceIds: stopPlaceIds.slice(0, -1),
-      });
-      const back = await computeRoute({
-        originPlaceId: stopPlaceIds[stopPlaceIds.length - 1]!,
         destinationPlaceId: startPlaceId,
+        waypointPlaceIds: stopPlaceIds,
+        allowLoop: true,
       });
       return {
-        miles: out.distanceMiles + back.distanceMiles,
-        driveMinutes: (out.durationSeconds + back.durationSeconds) / 60,
+        miles: res.distanceMiles,
+        driveMinutes: res.durationSeconds / 60,
         estimated: false,
       };
     }
