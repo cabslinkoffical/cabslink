@@ -618,31 +618,33 @@ function TourWizard() {
 
             {/* 2b. Stops */}
             {step === 1 && (
-              <div className="space-y-5">
-                <h3 className="font-display text-lg font-bold">Your stops</h3>
-
-                {/* Miles and time, live as stops are chosen */}
-                <div className="rounded-2xl border border-border bg-background p-4">
-                  <div className="flex flex-wrap items-baseline justify-between gap-2">
-                    <p className="text-sm font-semibold">
-                      Your {hours}-hour tour includes {includedMiles} miles
-                    </p>
-                    {priceMutation.isPending ? (
-                      <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                        <Loader2 className="size-3 animate-spin" /> Measuring your route…
-                      </span>
-                    ) : liveQuote ? (
-                      <span className="text-xs font-semibold">
-                        {Math.round(liveQuote.routeMiles)} miles so far
-                        {liveQuote.extraMiles > 0
-                          ? ` · ${Math.round(liveQuote.extraMiles)} extra miles at £${liveQuote.extraMileRate.toFixed(2)}`
-                          : " · inside your allowance"}
-                      </span>
-                    ) : null}
+              <div className="space-y-5 border-t border-border pt-6">
+                {/* Your route: live miles and time as stops change */}
+                <div>
+                  <div className="flex flex-wrap items-end justify-between gap-4">
+                    <h3 className="font-display text-lg font-bold">Your route</h3>
+                    <div className="flex gap-6">
+                      <div className="text-right">
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Distance</p>
+                        <p className="text-sm font-bold">
+                          {liveQuote ? Math.round(liveQuote.routeMiles) : 0} / {includedMiles} mi
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Time used</p>
+                        <p className="text-sm font-bold">
+                          {liveQuote
+                            ? minutesLabel(liveQuote.driveMinutes + liveQuote.dwellTotalMinutes)
+                            : "0h"}{" "}
+                          / {hours}h
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                  <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-[var(--surface)]">
+
+                  <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-[var(--surface)]">
                     <div
-                      className={`h-full rounded-full ${
+                      className={`h-full rounded-full transition-all duration-500 ${
                         liveQuote && liveQuote.extraMiles > 0 ? "bg-[var(--gold)]" : "bg-[var(--gold-ink)]"
                       }`}
                       style={{
@@ -655,21 +657,24 @@ function TourWizard() {
                       }}
                     />
                   </div>
-                  {liveQuote ? (
-                    <p className="mt-2 text-xs font-semibold">
-                      Day so far: {minutesLabel(liveQuote.driveMinutes)} driving +{" "}
-                      {minutesLabel(liveQuote.dwellTotalMinutes)} at your {liveQuote.stopCount} stop
-                      {liveQuote.stopCount === 1 ? "" : "s"}
-                      {liveQuote.spareMinutes >= 0
-                        ? ` · ${minutesLabel(liveQuote.spareMinutes)} spare`
-                        : ` · ${minutesLabel(-liveQuote.spareMinutes)} over your ${hours} hours`}
-                    </p>
-                  ) : null}
+
                   <p className="mt-2 text-xs text-muted-foreground">
-                    Miles are measured on the real driving route: your pickup, round every stop in order and back again. Reorder stops to change which one is last. Going further is
-                    fine — the extra miles are added to your price and shown before you pay. Every stop is
-                    timed too: at least {minStopMinutes} minutes each, and any longer stay you ask for
-                    counts towards your hours.
+                    {priceMutation.isPending ? (
+                      <span className="flex items-center gap-1.5">
+                        <Loader2 className="size-3 animate-spin" /> Measuring your route on the map…
+                      </span>
+                    ) : liveQuote ? (
+                      <>
+                        {liveQuote.extraMiles > 0
+                          ? `${Math.round(liveQuote.extraMiles)} extra miles at £${liveQuote.extraMileRate.toFixed(2)} each`
+                          : "Inside your included miles"}
+                        {liveQuote.spareMinutes >= 0
+                          ? ` · ${minutesLabel(liveQuote.spareMinutes)} spare in the day`
+                          : ` · ${minutesLabel(-liveQuote.spareMinutes)} over your ${hours} hours`}
+                      </>
+                    ) : (
+                      "Add a stop and we'll measure the driving loop from your pickup and back again."
+                    )}
                   </p>
                   {liveQuote && liveQuote.state !== "comfortable" && (
                     <div className="mt-3 rounded-xl border border-[var(--gold)]/50 bg-[var(--gold)]/10 p-3">
