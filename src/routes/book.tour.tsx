@@ -126,6 +126,31 @@ function TourWizard() {
     }
   }, [tourParam, tours.length]);
 
+  // Hand-off from the hourly hire form: pickup, day, hours and party are known,
+  // so fill them in and open on the tours-and-stops choice.
+  useEffect(() => {
+    if (prefilled || !data) return;
+    if (!search.pickupPlaceId) return;
+    setStart({ placeId: search.pickupPlaceId, label: search.pickupLabel || search.pickupPlaceId } as SelectedPlace);
+    if (search.date) setDate(search.date);
+    if (search.time) setTime(search.time);
+    if (search.passengers) setPassengers(search.passengers);
+    if (search.luggage != null) setLuggage(search.luggage);
+    const wanted = search.hours;
+    if (wanted && tiers.length) {
+      // Hours are sold in tiers, each with its own included mileage.
+      const snapped = tiers.reduce(
+        (best, t) => (Math.abs(t.hours - wanted) < Math.abs(best - wanted) ? t.hours : best),
+        tiers[0]!.hours,
+      );
+      setHours(snapped);
+    }
+    setPrefilled(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, prefilled]);
+
+
+
   function selectTemplate(id: string) {
     const t = tours.find((x) => x.id === id);
     setTemplateId(id);
