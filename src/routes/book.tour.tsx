@@ -89,7 +89,7 @@ function TourWizard() {
   });
 
   const [step, setStep] = useState(0);
-  const [mode, setMode] = useState<"premade" | "custom">("premade");
+  const [mode, setMode] = useState<"premade" | "custom">("custom");
   const [templateId, setTemplateId] = useState<string | null>(null);
   const [start, setStart] = useState<SelectedPlace | null>(null);
   const [end, setEnd] = useState<SelectedPlace | null>(null);
@@ -180,7 +180,7 @@ function TourWizard() {
     setTemplateId(null);
     setStops([]);
     setQuote(null);
-    setHours(tiers[0]?.hours ?? 8);
+    if (!hours) setHours(tiers[0]?.hours ?? 8);
   }
 
   const includedMiles = hours ? (tiers.find((t) => t.hours === hours)?.included_miles ?? 0) : 0;
