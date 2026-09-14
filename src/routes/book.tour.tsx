@@ -748,6 +748,14 @@ function TourWizard() {
                   </div>
                 )}
                   <div className="space-y-3">
+                    {stops.length > 0 && (
+                      <div className="flex flex-wrap items-baseline justify-between gap-2">
+                        <h4 className="font-display text-base font-bold">Your stops, in order</h4>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                          Use the arrows to reorder · at least {minStopMinutes} minutes each
+                        </span>
+                      </div>
+                    )}
                     {stops
                       .map((s, i) => ({ s, i }))
                       .filter(
