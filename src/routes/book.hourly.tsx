@@ -9,7 +9,7 @@
  * details and payment.
  */
 import { useState } from "react";
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link, redirect } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Clock, Users, Briefcase, MapPin, CalendarDays, ArrowRight, Loader2, Route as RouteIcon } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
@@ -81,6 +81,28 @@ export const Route = createFileRoute("/book/hourly")({
   // router rewrite bare /book/hourly to /book/hourly?q= (a 307 on every crawl).
   validateSearch: (search: Record<string, unknown>): { q?: string } =>
     typeof search.q === "string" && search.q.length > 0 ? { q: search.q } : {},
+  // When a link (e.g. the home page form) already carries the pickup, day, time
+  // and hours, there is nothing left to ask here — go straight to the stops.
+  beforeLoad: ({ search }) => {
+    const p = new URLSearchParams(search.q || "");
+    const pickupPlaceId = p.get("pickupPlaceId");
+    const date = p.get("date");
+    const time = p.get("time");
+    const hours = Number(p.get("hours"));
+    if (!pickupPlaceId || !date || !time || !hours) return;
+    throw redirect({
+      to: "/book/tour",
+      search: {
+        pickupPlaceId,
+        pickupLabel: p.get("pickupLabel") || pickupPlaceId,
+        date,
+        time,
+        hours: Math.min(24, Math.max(1, hours)),
+        passengers: Math.max(1, Number(p.get("passengers")) || 2),
+        luggage: Math.max(0, Number(p.get("luggage")) || 0),
+      },
+    });
+  },
   head: () => ({
     meta: [
       { title: "Hourly Car Hire with Driver — Edinburgh & Glasgow | Cabslink" },
