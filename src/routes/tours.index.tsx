@@ -28,16 +28,16 @@ export const Route = createFileRoute("/tours/")({
     return out;
   },
   head: ({ loaderData }) => {
-    const title = "Private Day Tours from Edinburgh & Scotland — CabsLink";
+    const title = "Private Day Tours & Hourly Hire — Edinburgh & Glasgow | CabsLink";
     const description =
-      "Private day tours and day trips from Edinburgh and across Scotland with your own driver. Search ready-made itineraries or build a custom tour with fixed pricing.";
+      "Private day tours from Edinburgh and Glasgow with your own driver, booked by the hour with miles included. Choose a ready-made tour or build a custom day with fixed pricing.";
     const url = "https://cabslink.com/tours";
     const tours = (loaderData ?? []) as PublicTourListItem[];
     return {
       meta: [
         { title },
         { name: "description", content: description },
-        { property: "og:title", content: "Private Day Tours from Edinburgh & Scotland" },
+        { property: "og:title", content: "Private Day Tours & Hourly Hire — Edinburgh & Glasgow" },
         { property: "og:description", content: description },
         { property: "og:type", content: "website" },
         { property: "og:url", content: url },
@@ -151,8 +151,8 @@ function ToursPage() {
     <SiteLayout>
       <PageHero
         eyebrow="Private Driver Tours"
-        title="Curated tours. Real drivers. Tailored quotes."
-        subtitle="Search a ready-made tour or build your own — pick your start, finish and the famous stops in between."
+        title="Private day tours and hourly car hire in Scotland"
+        subtitle="Booked by the hour with miles included. Take a ready-made tour from Edinburgh or Glasgow, or build your own day — your start, your stops, your finish."
 
         breadcrumbs={[{ label: "Home", to: "/" }, { label: "Tours" }]}
       />
