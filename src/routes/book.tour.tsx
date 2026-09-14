@@ -632,12 +632,8 @@ function TourWizard() {
                   )}
                 </div>
 
-                {/* The day drawn out: pickup, every stop, and back again */}
-                <TourLoopMap
-                  startPlaceId={start?.placeId}
-                  startLabel={start?.label}
-                  stops={stops.map((s) => ({ placeId: s.placeId, name: s.name }))}
-                />
+                {/* The loop itself is drawn in the summary panel beside this step. */}
+
 
                 {mode === "premade" && template && (
                   <div className="space-y-2">
