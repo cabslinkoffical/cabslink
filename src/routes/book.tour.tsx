@@ -870,14 +870,9 @@ function TourWizard() {
                     </div>
 
                     {/* Suggested stops inside the mileage the hours include */}
-                    <div className="pt-2">
-                      <p className="text-sm font-semibold">
-                        Places that fit {includedMiles} miles from {start?.label ?? "your pickup"}
-                      </p>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        These come from our own tour list plus places we find on the map inside that
-                        radius of your pickup. The ones marked as extra miles are further out. You can still choose them — we'll
-                        price the extra mileage for you.
+                    <div className="pt-3">
+                      <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                        Recommended within {includedMiles} miles of {start?.label ?? "your pickup"}
                       </p>
                       {suggestions.isLoading ? (
                         <p className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
@@ -914,40 +909,28 @@ function TourWizard() {
                                           ],
                                   );
                                 }}
-                                className={`flex gap-3 rounded-2xl border p-3 text-left transition ${
+                                className={`flex items-center justify-between gap-3 rounded-xl border p-3 text-left transition ${
                                   chosen
-                                    ? "border-[var(--gold)] ring-1 ring-[var(--gold)]"
-                                    : "border-border hover:border-[var(--gold)]"
+                                    ? "border-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_8%,var(--card))] ring-1 ring-[var(--gold)]"
+                                    : "border-dashed border-border hover:border-[var(--gold)]"
                                 }`}
                               >
-                                {p.imageUrl && (
-                                  <img
-                                    src={p.imageUrl}
-                                    alt={p.name}
-                                    loading="lazy"
-                                    className="h-16 w-20 shrink-0 rounded-lg object-cover"
-                                  />
-                                )}
                                 <span className="min-w-0">
-                                  <span className="block truncate text-sm font-semibold">{p.name}</span>
-                                  <span className="mt-0.5 block text-xs text-muted-foreground">
-                                    {p.roundTripMiles > 0 ? `about ${p.roundTripMiles} miles there and back · ` : ""}
+                                  <span className="block truncate text-sm font-bold">{p.name}</span>
+                                  <span className="mt-0.5 block text-xs font-medium text-[var(--gold-ink)]">
+                                    {chosen
+                                      ? "Added to your day"
+                                      : p.withinAllowance
+                                        ? "Within your miles"
+                                        : `About ${p.roundTripMiles} miles · extra miles`}
+                                  </span>
+                                  <span className="mt-0.5 block text-[11px] text-muted-foreground">
                                     about {p.recommendedMinutes} minutes here
+                                    {p.source === "map" ? " · found nearby" : ""}
                                   </span>
-                                  <span
-                                    className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
-                                      p.withinAllowance
-                                        ? "bg-[var(--surface)] text-[var(--gold-ink)]"
-                                        : "bg-[var(--gold)]/20 text-[var(--gold-ink)]"
-                                    }`}
-                                  >
-                                    {chosen ? "Added" : p.withinAllowance ? "Within your miles" : "Extra miles"}
-                                  </span>
-                                  {p.source === "map" && !chosen && (
-                                    <span className="mt-1 ml-1.5 inline-block rounded-full bg-[var(--surface)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                                      Found nearby
-                                    </span>
-                                  )}
+                                </span>
+                                <span className="shrink-0 text-[var(--gold-ink)]">
+                                  {chosen ? <Check className="size-5" /> : <Plus className="size-5" />}
                                 </span>
                               </button>
                             );
