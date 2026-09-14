@@ -1,7 +1,7 @@
 /**
  * /book/tour — the day-tour booking wizard.
  *
- * Seven steps: tour choice, pickup & date, hours, vehicle, stops, price,
+ * Four steps: your day (pickup, date, hours), tour & stops, vehicle & price,
  * details & payment. Prices always come from the server (`quoteTour`); the
  * booking is saved unpaid and then paid with the same card checkout used for
  * transfers.
@@ -23,6 +23,7 @@ import { PhoneInput } from "@/components/site/PhoneInput";
 import { PlaceAutocomplete, type SelectedPlace } from "@/components/site/PlaceAutocomplete";
 import { useCaptcha } from "@/components/site/Captcha";
 import { BookingCardPayment } from "@/components/site/BookingCardPayment";
+import { TourLoopMap } from "@/components/site/TourLoopMap";
 import { toast } from "sonner";
 import { minutesLabel } from "@/lib/tour-quote";
 import {
@@ -68,13 +69,14 @@ export const Route = createFileRoute("/book/tour")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: "https://cabslink.com/book/tour" }],
   }),
   component: TourWizard,
 });
 
 type Stop = { poiId: string | null; placeId: string; name: string; dwellMinutes: number | null };
 
-const STEPS = ["Tour", "Pickup", "Hours", "Vehicle", "Stops", "Price", "Pay"];
+const STEPS = ["Your day", "Tour & stops", "Vehicle & price", "Details & pay"];
 
 function TourWizard() {
   const search = Route.useSearch();
@@ -122,7 +124,7 @@ function TourWizard() {
     if (match) {
       setMode("premade");
       selectTemplate(match.id);
-      setStep(1);
+      setStep(0);
     }
   }, [tourParam, tours.length]);
 
@@ -165,7 +167,7 @@ function TourWizard() {
           poiId: s.poi_id,
           placeId: s.place_id,
           name: s.name,
-          dwellMinutes: s.recommended_visit_minutes,
+          dwellMinutes: Math.max(minStopMinutes, s.recommended_visit_minutes ?? minStopMinutes),
         })),
     );
   }
@@ -240,7 +242,7 @@ function TourWizard() {
     onSuccess: (res) => {
       if (!res.bookingRef) return;
       setCreated({ bookingRef: res.bookingRef, total: res.total });
-      setStep(6);
+      setStep(3);
     },
     onError: (e: Error) => {
       captcha.reset();
@@ -250,7 +252,7 @@ function TourWizard() {
 
   // Ask the server for a price whenever the customer reaches the price step.
   useEffect(() => {
-    if (step === 5 && start && hours && vehicleClassId && !priceMutation.isPending) {
+    if (step === 2 && start && hours && vehicleClassId && !priceMutation.isPending) {
       priceMutation.mutate();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -258,7 +260,7 @@ function TourWizard() {
 
   // On the stops step, keep the miles and time meter honest as stops change.
   useEffect(() => {
-    if (step !== 4 || !start || !hours || !vehicleClassId) return;
+    if (step !== 1 || !start || !hours || !vehicleClassId) return;
     const t = setTimeout(() => priceMutation.mutate(), 450);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -267,22 +269,32 @@ function TourWizard() {
   // Curated stops that fit the mileage the chosen hours include.
   const suggestions = useQuery({
     queryKey: ["tour-stop-suggestions", start?.placeId ?? "", hours ?? 0],
-    enabled: step === 4 && !!start?.placeId && !!hours,
+    enabled: step === 1 && !!start?.placeId && !!hours,
     staleTime: 5 * 60_000,
     queryFn: () =>
       getTourStopSuggestions({ data: { startPlaceId: start!.placeId, hours: hours!, limit: 24 } }),
   });
 
 
+  // Admin-set shortest stay at any stop; customers may ask for longer, never less.
+  const minStopMinutes = data?.rules.minimum_stop_minutes ?? 10;
+
+  // Pick a sensible vehicle up front so the miles-and-time meter can measure the
+  // day while stops are chosen; the customer can change it on the next step.
+  useEffect(() => {
+    if (vehicleClassId || !classes.length) return;
+    const fit = classes.find((c) => (c.max_passengers ?? 99) >= passengers) ?? classes[0]!;
+    setVehicleClassId(fit.id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [classes.length, passengers]);
+
   const today = new Date().toISOString().slice(0, 10);
   const canNext = (() => {
     switch (step) {
-      case 0: return mode === "custom" || !!templateId;
-      case 1: return !!start && !!date && !!time && (sameEnd || !!end);
-      case 2: return !!hours && fitsDay;
-      case 3: return !!vehicleClassId && passengers > 0;
-      case 4: return mode === "premade" || stops.length > 0;
-      case 5: return !!quote && !quote.quote.blockedReason;
+      case 0: return !!start && !!date && !!time && (sameEnd || !!end) && !!hours && fitsDay;
+      case 1: return mode === "custom" ? stops.length > 0 : !!templateId;
+      case 2:
+        return !!vehicleClassId && passengers > 0 && !!quote && !quote.quote.blockedReason;
       default: return false;
     }
   })();
@@ -332,10 +344,10 @@ function TourWizard() {
           </p>
         ) : (
           <div className="mt-8 rounded-3xl border border-border bg-[var(--surface)] p-5 md:p-7">
-            {/* 1. Tour or custom */}
-            {step === 0 && (
+            {/* 2a. Tour or custom */}
+            {step === 1 && (
               <div className="space-y-5">
-                <StepTitle title="Choose a tour, or build your own day" />
+                <StepTitle title="Pick a ready-made tour, or build your own" />
                 <div className="grid gap-4 md:grid-cols-2">
                   {tours.map((t) => (
                     <button
@@ -382,10 +394,10 @@ function TourWizard() {
               </div>
             )}
 
-            {/* 2. Pickup, drop-off, date & time */}
-            {step === 1 && (
+            {/* 1a. Pickup, drop-off, date & time */}
+            {step === 0 && (
               <div className="space-y-5">
-                <StepTitle title="Where do we collect you, and when?" />
+                <StepTitle title="Your day: where, when and for how long" />
                 {template?.start_mode === "fixed" && template.fixed_start_address && (
                   <p className="rounded-xl border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-4 py-2 text-xs font-medium">
                     This tour starts at {template.fixed_start_address}. Tell us your address and we'll
@@ -431,10 +443,10 @@ function TourWizard() {
               </div>
             )}
 
-            {/* 3. Hours */}
-            {step === 2 && (
+            {/* 1b. Hours */}
+            {step === 0 && (
               <div className="space-y-5">
-                <StepTitle title="How long would you like the car for?" />
+                <h3 className="font-display text-lg font-bold">How long would you like the car for?</h3>
                 <p className="text-sm text-muted-foreground">
                   Each length includes miles. Go further and the extra miles are charged; the hours
                   themselves are a firm limit.
@@ -477,8 +489,8 @@ function TourWizard() {
               </div>
             )}
 
-            {/* 4. Vehicle & group */}
-            {step === 3 && (
+            {/* 3a. Vehicle & group */}
+            {step === 2 && (
               <div className="space-y-5">
                 <StepTitle title="Which vehicle, and how many of you?" />
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -541,10 +553,10 @@ function TourWizard() {
               </div>
             )}
 
-            {/* 5. Stops */}
-            {step === 4 && (
+            {/* 2b. Stops */}
+            {step === 1 && (
               <div className="space-y-5">
-                <StepTitle title="Which stops would you like?" />
+                <h3 className="font-display text-lg font-bold">Your stops</h3>
 
                 {/* Miles and time, live as stops are chosen */}
                 <div className="rounded-2xl border border-border bg-background p-4">
@@ -580,9 +592,21 @@ function TourWizard() {
                       }}
                     />
                   </div>
+                  {liveQuote ? (
+                    <p className="mt-2 text-xs font-semibold">
+                      Day so far: {minutesLabel(liveQuote.driveMinutes)} driving +{" "}
+                      {minutesLabel(liveQuote.dwellTotalMinutes)} at your {liveQuote.stopCount} stop
+                      {liveQuote.stopCount === 1 ? "" : "s"}
+                      {liveQuote.spareMinutes >= 0
+                        ? ` · ${minutesLabel(liveQuote.spareMinutes)} spare`
+                        : ` · ${minutesLabel(-liveQuote.spareMinutes)} over your ${hours} hours`}
+                    </p>
+                  ) : null}
                   <p className="mt-2 text-xs text-muted-foreground">
                     Miles are counted from your pickup, round every stop and back again. Going further is
-                    fine — the extra miles are added to your price and shown before you pay.
+                    fine — the extra miles are added to your price and shown before you pay. Every stop is
+                    timed too: at least {minStopMinutes} minutes each, and any longer stay you ask for
+                    counts towards your hours.
                   </p>
                   {liveQuote && liveQuote.state !== "comfortable" && (
                     <div className="mt-3 rounded-xl border border-[var(--gold)]/50 bg-[var(--gold)]/10 p-3">
@@ -607,6 +631,13 @@ function TourWizard() {
                   )}
                 </div>
 
+                {/* The day drawn out: pickup, every stop, and back again */}
+                <TourLoopMap
+                  startPlaceId={start?.placeId}
+                  startLabel={start?.label}
+                  stops={stops.map((s) => ({ placeId: s.placeId, name: s.name }))}
+                />
+
                 {mode === "premade" && template && (
                   <div className="space-y-2">
                     {template.stops
@@ -629,7 +660,7 @@ function TourWizard() {
                                   e.target.checked
                                     ? [...prev, {
                                         poiId: s.poi_id, placeId: s.place_id, name: s.name,
-                                        dwellMinutes: s.recommended_visit_minutes,
+                                        dwellMinutes: Math.max(minStopMinutes, s.recommended_visit_minutes ?? minStopMinutes),
                                       }]
                                     : prev.filter((x) => x.poiId !== s.poi_id),
                                 );
@@ -664,18 +695,23 @@ function TourWizard() {
                         <MapPin className="size-4 shrink-0 text-[var(--gold-ink)]" />
                         <p className="min-w-0 flex-1 truncate text-sm font-semibold">{s.name}</p>
                         <label className="text-xs text-muted-foreground">
-                          minutes
+                          minutes here
                           <input
                             type="number"
-                            min={0}
+                            min={minStopMinutes}
+                            step={5}
                             max={600}
-                            value={s.dwellMinutes ?? ""}
+                            value={s.dwellMinutes ?? minStopMinutes}
                             onChange={(e) => {
-                              const v = e.target.value === "" ? null : Number(e.target.value);
+                              const raw = Number(e.target.value);
+                              const v = e.target.value === "" || !Number.isFinite(raw)
+                                ? minStopMinutes
+                                : Math.max(minStopMinutes, Math.min(600, raw));
                               setQuote(null);
                               setStops((prev) => prev.map((x, j) => (j === i ? { ...x, dwellMinutes: v } : x)));
                             }}
                             className="ml-2 w-16 rounded-md border border-border bg-background px-2 py-1 text-sm font-semibold"
+                            title={`At least ${minStopMinutes} minutes`}
                           />
                         </label>
                         <Button
@@ -707,7 +743,7 @@ function TourWizard() {
                               poiId: null,
                               placeId: newStop.placeId,
                               name: newStop.label,
-                              dwellMinutes: data?.rules.minimum_stop_minutes ?? 20,
+                              dwellMinutes: minStopMinutes,
                             },
                           ]);
                           setNewStop(null);
@@ -723,7 +759,8 @@ function TourWizard() {
                         Places that fit {includedMiles} miles from {start?.label ?? "your pickup"}
                       </p>
                       <p className="mt-1 text-xs text-muted-foreground">
-                        The ones marked as extra miles are further out. You can still choose them — we'll
+                        These come from our own tour list plus places we find on the map inside that
+                        radius of your pickup. The ones marked as extra miles are further out. You can still choose them — we'll
                         price the extra mileage for you.
                       </p>
                       {suggestions.isLoading ? (
@@ -753,10 +790,10 @@ function TourWizard() {
                                         : [
                                             ...prev,
                                             {
-                                              poiId: p.id,
+                                              poiId: p.source === "map" ? null : p.id,
                                               placeId: p.placeId,
                                               name: p.name,
-                                              dwellMinutes: p.recommendedMinutes,
+                                              dwellMinutes: Math.max(minStopMinutes, p.recommendedMinutes ?? minStopMinutes),
                                             },
                                           ],
                                   );
@@ -790,6 +827,11 @@ function TourWizard() {
                                   >
                                     {chosen ? "Added" : p.withinAllowance ? "Within your miles" : "Extra miles"}
                                   </span>
+                                  {p.source === "map" && !chosen && (
+                                    <span className="mt-1 ml-1.5 inline-block rounded-full bg-[var(--surface)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                                      Found nearby
+                                    </span>
+                                  )}
                                 </span>
                               </button>
                             );
@@ -801,10 +843,10 @@ function TourWizard() {
               </div>
             )}
 
-            {/* 6. Price */}
-            {step === 5 && (
+            {/* 3b. Price */}
+            {step === 2 && (
               <div className="space-y-5">
-                <StepTitle title="Your price" />
+                <h3 className="font-display text-lg font-bold">Your price</h3>
                 {priceMutation.isPending && !quote ? (
                   <p className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Loader2 className="size-4 animate-spin" /> Working out your day…
@@ -837,7 +879,10 @@ function TourWizard() {
                         label="Miles"
                         value={`${Math.round(quote.quote.routeMiles)} of ${quote.quote.includedMiles} included`}
                       />
-                      <Meter label="Time at stops" value={minutesLabel(quote.quote.exploreMinutes)} />
+                      <Meter
+                        label="Driving + stops"
+                        value={`${minutesLabel(quote.quote.driveMinutes)} driving · ${minutesLabel(quote.quote.dwellTotalMinutes)} at stops`}
+                      />
                     </div>
 
                     {quote.quote.state !== "comfortable" && (
@@ -855,9 +900,11 @@ function TourWizard() {
                                 onClick={() => { setHours(o.hours); setQuote(null); priceMutation.mutate(); }}
                                 className="w-full rounded-xl border border-border bg-background p-3 text-left text-sm hover:border-[var(--gold)]"
                               >
-                                <span className="font-semibold">Make it {o.hours} hours</span> — about{" "}
-                                {Math.round(o.perStopMinutesAfter)} minutes at each stop, {o.extraAllowanceMiles} more
-                                miles included, £{o.netCost.toFixed(2)} more.
+                                <span className="font-semibold">Make it {o.hours} hours</span> —{" "}
+                                {o.spareMinutesAfter >= 0
+                                  ? `${minutesLabel(o.spareMinutesAfter)} spare in the day`
+                                  : "still not quite enough"}
+                                , {o.extraAllowanceMiles} more miles included, £{o.netCost.toFixed(2)} more.
                               </button>
                             ))}
                           </div>
@@ -883,8 +930,8 @@ function TourWizard() {
               </div>
             )}
 
-            {/* 7. Details & payment */}
-            {step === 6 && (
+            {/* 4. Details & payment */}
+            {step === 3 && (
               <div className="space-y-5">
                 {created ? (
                   <>
@@ -973,7 +1020,7 @@ function TourWizard() {
             )}
 
             {/* Navigation */}
-            {!(step === 6 && created) && (
+            {!(step === 3 && created) && (
               <div className="mt-7 flex items-center justify-between gap-3 border-t border-border pt-5">
                 <Button
                   type="button"
@@ -984,9 +1031,9 @@ function TourWizard() {
                 >
                   <ArrowLeft className="size-4" /> Back
                 </Button>
-                {step < 6 && (
+                {step < 3 && (
                   <div className="flex items-center gap-3">
-                    {step === 5 && quote && (
+                    {step === 2 && quote && (
                       <span className="text-sm font-semibold">£{quote.quote.total.toFixed(2)}</span>
                     )}
                     <Button
@@ -994,7 +1041,7 @@ function TourWizard() {
                       variant="gold"
                       className="min-w-[150px] rounded-full"
                       disabled={!canNext}
-                      onClick={() => setStep((s) => Math.min(6, s + 1))}
+                      onClick={() => setStep((s) => Math.min(3, s + 1))}
                     >
                       Continue <ArrowRight className="size-4" />
                     </Button>
