@@ -56,6 +56,9 @@ const DEFAULT_RULES: TourRules = {
   mileage_tolerance_miles: 10,
   minimum_notice_hours: 12,
   checkout_hold_minutes: 30,
+  allow_same_day: true,
+  same_day_cutoff_time: "12:00",
+  poi_radius_factor: 0.5,
 };
 
 export type TourConfig = {
