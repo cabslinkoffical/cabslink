@@ -205,6 +205,7 @@ export const getTourStopSuggestions = createServerFn({ method: "POST" })
       startPlaceId: data.startPlaceId,
       includedMiles: includedMilesFor(data.hours, config.tiers),
       limit: data.limit ?? 24,
+      radiusFactor: config.rules.poi_radius_factor,
     });
   });
 
