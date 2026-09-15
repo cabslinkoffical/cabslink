@@ -118,6 +118,9 @@ export async function loadTourConfig(): Promise<TourConfig> {
           mileage_tolerance_miles: Number(r.mileage_tolerance_miles),
           minimum_notice_hours: Number(r.minimum_notice_hours),
           checkout_hold_minutes: Number(r.checkout_hold_minutes),
+          allow_same_day: r.allow_same_day !== false,
+          same_day_cutoff_time: String(r.same_day_cutoff_time ?? "12:00").slice(0, 5),
+          poi_radius_factor: Number(r.poi_radius_factor ?? 0.5) || 0.5,
         }
       : DEFAULT_RULES,
     classes: ((classes.data ?? []) as any[])
