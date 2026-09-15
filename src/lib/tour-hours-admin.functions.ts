@@ -34,6 +34,9 @@ export type TourHoursConfig = {
     mileage_tolerance_miles: number;
     minimum_notice_hours: number;
     checkout_hold_minutes: number;
+    allow_same_day: boolean;
+    same_day_cutoff_time: string;
+    poi_radius_factor: number;
   } | null;
   classes: Array<{
     id: string;
@@ -108,6 +111,9 @@ export const getTourHoursConfig = createServerFn({ method: "GET" })
             mileage_tolerance_miles: Number(rules.data.mileage_tolerance_miles),
             minimum_notice_hours: Number(rules.data.minimum_notice_hours),
             checkout_hold_minutes: Number(rules.data.checkout_hold_minutes),
+            allow_same_day: rules.data.allow_same_day !== false,
+            same_day_cutoff_time: String(rules.data.same_day_cutoff_time ?? "12:00").slice(0, 5),
+            poi_radius_factor: Number(rules.data.poi_radius_factor ?? 0.5) || 0.5,
           }
         : null,
       classes: (classes.data ?? []).map((c: any) => ({
@@ -185,6 +191,9 @@ const rulesSchema = z.object({
   mileage_tolerance_miles: z.coerce.number().min(0).max(200),
   minimum_notice_hours: z.coerce.number().int().min(0).max(720),
   checkout_hold_minutes: z.coerce.number().int().min(5).max(1440),
+  allow_same_day: z.boolean().default(true),
+  same_day_cutoff_time: z.string().regex(/^\d{2}:\d{2}$/),
+  poi_radius_factor: z.coerce.number().min(0.1).max(1),
 });
 
 export const saveTourRules = createServerFn({ method: "POST" })
