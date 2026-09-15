@@ -257,6 +257,20 @@ export const createTourBooking = createServerFn({ method: "POST" })
         `Tours need at least ${config.rules.minimum_notice_hours} hours' notice. Please call us for anything sooner.`,
       );
     }
+    // Same-day booking window, both set by staff.
+    const now = new Date();
+    const todayISO = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+    if (data.date === todayISO) {
+      if (!config.rules.allow_same_day) {
+        throw new Error("Same-day tours can't be booked online. Please call us and we'll do our best to help.");
+      }
+      const clock = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+      if (clock > config.rules.same_day_cutoff_time) {
+        throw new Error(
+          `Same-day tours can only be booked until ${config.rules.same_day_cutoff_time}. Please choose another date or call us.`,
+        );
+      }
+    }
     if (data.time < config.rules.earliest_start_time) {
       throw new Error(`Tours start from ${config.rules.earliest_start_time} onwards.`);
     }
