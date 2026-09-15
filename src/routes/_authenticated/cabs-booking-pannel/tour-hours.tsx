@@ -258,6 +258,29 @@ function RulesTab({ rules }: { rules: TourHoursConfig["rules"] }) {
         <F k="mileage_tolerance_miles" label="Mileage tolerance (miles)" hint="Overage inside this band is not charged after the tour." />
         <F k="minimum_notice_hours" label="Minimum notice (hours)" />
         <F k="checkout_hold_minutes" label="Checkout hold (minutes)" hint="Unpaid tour bookings expire after this." />
+        <F
+          k="same_day_cutoff_time"
+          label="Same-day booking closes at"
+          type="time"
+          hint="After this time today's tours can no longer be booked online."
+        />
+        <F
+          k="poi_radius_factor"
+          label="Suggested stop radius (share of the miles included)"
+          hint="0.5 suggests places up to half the mileage allowance away, so the round trip still fits."
+        />
+        <div className="sm:col-span-2 flex items-center justify-between rounded-lg border border-border px-4 py-3">
+          <div>
+            <Label>Allow same-day tours</Label>
+            <p className="text-xs text-muted-foreground mt-1">
+              Turn off to stop today's tours being booked online at any time.
+            </p>
+          </div>
+          <Switch
+            checked={form.allow_same_day}
+            onCheckedChange={(v) => setForm({ ...form, allow_same_day: v })}
+          />
+        </div>
       </div>
       <div className="flex justify-end">
         <Button
