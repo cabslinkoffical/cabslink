@@ -395,7 +395,8 @@ export async function tourPoiSuggestionsImpl(args: {
   // The allowance is a round trip, so the furthest a stop can sit is half of it.
   if (from) {
     const { discoverNearbyPlaces } = await import("@/lib/tour-discovery.server");
-    const radiusMiles = Math.max(3, args.includedMiles / 2 / ROAD_FACTOR);
+    const factor = args.radiusFactor && args.radiusFactor > 0 ? args.radiusFactor : 0.5;
+    const radiusMiles = Math.max(3, (args.includedMiles * factor) / ROAD_FACTOR);
     const found = await discoverNearbyPlaces({ centre: from, radiusMiles, limit: 20 });
     const seen = new Set(mapped.map((m) => m.placeId));
     for (const place of found) {
