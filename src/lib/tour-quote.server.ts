@@ -56,6 +56,9 @@ const DEFAULT_RULES: TourRules = {
   mileage_tolerance_miles: 10,
   minimum_notice_hours: 12,
   checkout_hold_minutes: 30,
+  allow_same_day: true,
+  same_day_cutoff_time: "12:00",
+  poi_radius_factor: 0.5,
 };
 
 export type TourConfig = {
@@ -115,6 +118,9 @@ export async function loadTourConfig(): Promise<TourConfig> {
           mileage_tolerance_miles: Number(r.mileage_tolerance_miles),
           minimum_notice_hours: Number(r.minimum_notice_hours),
           checkout_hold_minutes: Number(r.checkout_hold_minutes),
+          allow_same_day: r.allow_same_day !== false,
+          same_day_cutoff_time: String(r.same_day_cutoff_time ?? "12:00").slice(0, 5),
+          poi_radius_factor: Number(r.poi_radius_factor ?? 0.5) || 0.5,
         }
       : DEFAULT_RULES,
     classes: ((classes.data ?? []) as any[])
@@ -342,6 +348,8 @@ export async function tourPoiSuggestionsImpl(args: {
   startPlaceId: string;
   includedMiles: number;
   limit: number;
+  /** Admin-set share of the allowance used as the search radius (default half). */
+  radiusFactor?: number;
 }): Promise<{ suggestions: TourPoiSuggestion[]; includedMiles: number; measured: boolean }> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const rows: any = await supabaseAdmin
@@ -387,7 +395,8 @@ export async function tourPoiSuggestionsImpl(args: {
   // The allowance is a round trip, so the furthest a stop can sit is half of it.
   if (from) {
     const { discoverNearbyPlaces } = await import("@/lib/tour-discovery.server");
-    const radiusMiles = Math.max(3, args.includedMiles / 2 / ROAD_FACTOR);
+    const factor = args.radiusFactor && args.radiusFactor > 0 ? args.radiusFactor : 0.5;
+    const radiusMiles = Math.max(3, (args.includedMiles * factor) / ROAD_FACTOR);
     const found = await discoverNearbyPlaces({ centre: from, radiusMiles, limit: 20 });
     const seen = new Set(mapped.map((m) => m.placeId));
     for (const place of found) {

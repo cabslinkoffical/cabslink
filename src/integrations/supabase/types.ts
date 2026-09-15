@@ -4113,6 +4113,7 @@ export type Database = {
       }
       tour_rules: {
         Row: {
+          allow_same_day: boolean
           checkout_hold_minutes: number
           created_at: string
           earliest_start_time: string
@@ -4123,9 +4124,12 @@ export type Database = {
           minimum_notice_hours: number
           minimum_stop_minutes: number
           pickup_buffer_minutes: number
+          poi_radius_factor: number
+          same_day_cutoff_time: string
           updated_at: string
         }
         Insert: {
+          allow_same_day?: boolean
           checkout_hold_minutes?: number
           created_at?: string
           earliest_start_time?: string
@@ -4136,9 +4140,12 @@ export type Database = {
           minimum_notice_hours?: number
           minimum_stop_minutes?: number
           pickup_buffer_minutes?: number
+          poi_radius_factor?: number
+          same_day_cutoff_time?: string
           updated_at?: string
         }
         Update: {
+          allow_same_day?: boolean
           checkout_hold_minutes?: number
           created_at?: string
           earliest_start_time?: string
@@ -4149,6 +4156,8 @@ export type Database = {
           minimum_notice_hours?: number
           minimum_stop_minutes?: number
           pickup_buffer_minutes?: number
+          poi_radius_factor?: number
+          same_day_cutoff_time?: string
           updated_at?: string
         }
         Relationships: []

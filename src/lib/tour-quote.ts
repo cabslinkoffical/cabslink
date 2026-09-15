@@ -18,6 +18,12 @@ export type TourRules = {
   mileage_tolerance_miles: number;
   minimum_notice_hours: number;
   checkout_hold_minutes: number;
+  /** Whether a tour can be booked for today at all. */
+  allow_same_day: boolean;
+  /** Latest clock time a same-day tour may still be ordered. */
+  same_day_cutoff_time: string;
+  /** Share of the mileage allowance used as the stop-suggestion radius. */
+  poi_radius_factor: number;
 };
 
 export type ClassRates = {
