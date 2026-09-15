@@ -348,6 +348,8 @@ export async function tourPoiSuggestionsImpl(args: {
   startPlaceId: string;
   includedMiles: number;
   limit: number;
+  /** Admin-set share of the allowance used as the search radius (default half). */
+  radiusFactor?: number;
 }): Promise<{ suggestions: TourPoiSuggestion[]; includedMiles: number; measured: boolean }> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const rows: any = await supabaseAdmin
