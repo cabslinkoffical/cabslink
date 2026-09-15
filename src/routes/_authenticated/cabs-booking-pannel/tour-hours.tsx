@@ -233,11 +233,12 @@ function RulesTab({ rules }: { rules: TourHoursConfig["rules"] }) {
 
   if (!form) return <div className="admin-card p-5 text-sm">No tour rules row found.</div>;
 
-  const F = ({ k, label, hint, type = "number" }: any) => (
+  const F = ({ k, label, hint, type = "number", step }: any) => (
     <div>
       <Label>{label}</Label>
       <Input
         type={type}
+        step={step}
         value={(form as any)[k] ?? ""}
         onChange={(e) =>
           setForm({ ...form, [k]: type === "number" ? Number(e.target.value) : e.target.value } as any)
