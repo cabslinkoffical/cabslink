@@ -267,6 +267,7 @@ function RulesTab({ rules }: { rules: TourHoursConfig["rules"] }) {
         />
         <F
           k="poi_radius_factor"
+          step="0.05"
           label="Suggested stop radius (share of the miles included)"
           hint="0.5 suggests places up to half the mileage allowance away, so the round trip still fits."
         />
