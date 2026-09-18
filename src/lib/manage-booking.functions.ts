@@ -76,6 +76,8 @@ export type ManagedBooking = {
   returnJourney: boolean;
   notes: string | null;
   price: number | null;
+  /** Fare the customer built themselves online, held server-side until paid. */
+  quotedTotal: number | null;
   distanceMiles: number | null;
   createdAt: string;
   cancellationReason: string | null;
