@@ -456,8 +456,9 @@ function ManageBookingPage() {
 
 function needsPayment(b: ManagedBooking) {
   // A tour enquiry has no price until our team quotes it, so there is nothing
-  // to pay yet — don't offer a card payment that checkout would refuse.
-  if (b.price == null) return false;
+  // to pay yet — don't offer a card payment that checkout would refuse. Tours
+  // the customer built and priced online carry their own held total.
+  if (b.price == null && b.quotedTotal == null) return false;
   return !isClosed(b) && (b.paymentStatus === "unpaid" || b.paymentStatus === "failed" || b.paymentStatus === "partial");
 }
 
