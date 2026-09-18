@@ -255,6 +255,7 @@ function project(row: any): ManagedBooking {
     returnJourney: !!row.return_journey,
     notes: row.notes ?? null,
     price: row.price == null ? null : Number(row.price),
+    quotedTotal: row.quoted_total == null ? null : Number(row.quoted_total),
     distanceMiles: row.distance_miles == null ? null : Number(row.distance_miles),
     createdAt: row.created_at,
     cancellationReason: row.cancellation_reason ?? null,
