@@ -29,7 +29,7 @@ const identitySchema = z
 type Identity = z.infer<typeof identitySchema>;
 
 const SELECT =
-  "id, booking_ref, status, payment_status, customer_name, email, phone, pickup_address, dropoff_address, pickup_place_id, dropoff_place_id, pickup_date, pickup_time, passengers, luggage, hand_luggage, vehicle_type, vehicle_id, vehicle_class_name_snapshot, vehicle_capacity_snapshot, flight_number, meet_greet, child_seat, child_seat_count, return_journey, notes, selected_pois, price, distance_miles, created_at, cancellation_reason, service_type, admin_notes, tour_slug, tour_name, tour_stops";
+  "id, booking_ref, status, payment_status, customer_name, email, phone, pickup_address, dropoff_address, pickup_place_id, dropoff_place_id, pickup_date, pickup_time, passengers, luggage, hand_luggage, vehicle_type, vehicle_id, vehicle_class_name_snapshot, vehicle_capacity_snapshot, flight_number, meet_greet, child_seat, child_seat_count, return_journey, notes, selected_pois, price, quoted_total, distance_miles, created_at, cancellation_reason, service_type, admin_notes, tour_slug, tour_name, tour_stops";
 
 function noStore() {
   try {
@@ -76,6 +76,8 @@ export type ManagedBooking = {
   returnJourney: boolean;
   notes: string | null;
   price: number | null;
+  /** Fare the customer built themselves online, held server-side until paid. */
+  quotedTotal: number | null;
   distanceMiles: number | null;
   createdAt: string;
   cancellationReason: string | null;
@@ -253,6 +255,7 @@ function project(row: any): ManagedBooking {
     returnJourney: !!row.return_journey,
     notes: row.notes ?? null,
     price: row.price == null ? null : Number(row.price),
+    quotedTotal: row.quoted_total == null ? null : Number(row.quoted_total),
     distanceMiles: row.distance_miles == null ? null : Number(row.distance_miles),
     createdAt: row.created_at,
     cancellationReason: row.cancellation_reason ?? null,

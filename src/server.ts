@@ -47,7 +47,9 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
 const SECURITY_HEADERS: Record<string, string> = {
   "x-content-type-options": "nosniff",
   "referrer-policy": "strict-origin-when-cross-origin",
-  "permissions-policy": "camera=(), microphone=(), payment=(), usb=()",
+  // `payment` must stay allowed for us and Stripe, or card checkout is blocked.
+  "permissions-policy":
+    'camera=(), microphone=(), usb=(), payment=(self "https://js.stripe.com" "https://checkout.stripe.com")',
   "cross-origin-opener-policy": "same-origin-allow-popups",
   "strict-transport-security": "max-age=31536000; includeSubDomains",
 };

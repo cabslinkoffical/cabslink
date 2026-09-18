@@ -456,8 +456,9 @@ function ManageBookingPage() {
 
 function needsPayment(b: ManagedBooking) {
   // A tour enquiry has no price until our team quotes it, so there is nothing
-  // to pay yet — don't offer a card payment that checkout would refuse.
-  if (b.price == null) return false;
+  // to pay yet — don't offer a card payment that checkout would refuse. Tours
+  // the customer built and priced online carry their own held total.
+  if (b.price == null && b.quotedTotal == null) return false;
   return !isClosed(b) && (b.paymentStatus === "unpaid" || b.paymentStatus === "failed" || b.paymentStatus === "partial");
 }
 
@@ -548,7 +549,14 @@ function BookingCard({ booking: b }: { booking: ManagedBooking }) {
           <Fact icon={<Briefcase className="size-3" />} label="Hand bags" value={String(b.handLuggage)} />
           <Fact icon={<RouteIcon className="size-3" />} label="Distance" value={b.distanceMiles != null ? `${b.distanceMiles.toFixed(1)} mi` : "—"} />
           {b.flightNumber ? <Fact icon={<PlaneTakeoff className="size-3" />} label="Flight" value={b.flightNumber} /> : null}
-          <Fact icon={<ShieldCheck className="size-3" />} label="Total fare" value={b.price != null ? `£${b.price.toFixed(2)}` : "—"} />
+          <Fact
+            icon={<ShieldCheck className="size-3" />}
+            label="Total fare"
+            value={(() => {
+              const fare = b.price ?? b.quotedTotal;
+              return fare != null ? `£${fare.toFixed(2)}` : "—";
+            })()}
+          />
         </dl>
 
         {b.tourName ? (
@@ -558,7 +566,7 @@ function BookingCard({ booking: b }: { booking: ManagedBooking }) {
             {b.tourStops.length ? (
               <p className="mt-1 text-xs text-muted-foreground">Stops: {b.tourStops.join(" · ")}</p>
             ) : null}
-            {b.price == null ? (
+            {b.price == null && b.quotedTotal == null ? (
               <p className="mt-2 text-xs font-semibold">
                 Our tour desk is confirming availability and will email your fixed price shortly.
               </p>
