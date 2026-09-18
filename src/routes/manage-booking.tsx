@@ -566,7 +566,7 @@ function BookingCard({ booking: b }: { booking: ManagedBooking }) {
             {b.tourStops.length ? (
               <p className="mt-1 text-xs text-muted-foreground">Stops: {b.tourStops.join(" · ")}</p>
             ) : null}
-            {b.price == null ? (
+            {b.price == null && b.quotedTotal == null ? (
               <p className="mt-2 text-xs font-semibold">
                 Our tour desk is confirming availability and will email your fixed price shortly.
               </p>
