@@ -549,7 +549,14 @@ function BookingCard({ booking: b }: { booking: ManagedBooking }) {
           <Fact icon={<Briefcase className="size-3" />} label="Hand bags" value={String(b.handLuggage)} />
           <Fact icon={<RouteIcon className="size-3" />} label="Distance" value={b.distanceMiles != null ? `${b.distanceMiles.toFixed(1)} mi` : "—"} />
           {b.flightNumber ? <Fact icon={<PlaneTakeoff className="size-3" />} label="Flight" value={b.flightNumber} /> : null}
-          <Fact icon={<ShieldCheck className="size-3" />} label="Total fare" value={b.price != null ? `£${b.price.toFixed(2)}` : "—"} />
+          <Fact
+            icon={<ShieldCheck className="size-3" />}
+            label="Total fare"
+            value={(() => {
+              const fare = b.price ?? b.quotedTotal;
+              return fare != null ? `£${fare.toFixed(2)}` : "—";
+            })()}
+          />
         </dl>
 
         {b.tourName ? (
