@@ -256,7 +256,7 @@ export function PlaceAutocomplete({
         setResolveFailed(true);
         return;
       }
-      const label = res.place.full || res.place.primary;
+      const label = force ? raw : res.place.full || res.place.primary;
       setText(label);
       setUnverified(true);
       setResolveFailed(false);
@@ -340,11 +340,6 @@ export function PlaceAutocomplete({
           strokeWidth={3}
           className="pointer-events-none absolute right-2.5 top-1/2 z-20 -translate-y-1/2 h-4 w-4 animate-spin text-[var(--navy)]"
         />
-      )}
-      {!value && !unverified && !(lookupFailed && resolveFailed) && text.trim().length >= MIN_CHARS && (
-        <p className="mt-1 text-[11px] font-medium leading-snug text-[var(--navy)]/70">
-          Select from the suggested addresses — or type your own address. Must be in the UK.
-        </p>
       )}
       {unverified && !open && (
         <p className="mt-1 text-[11px] font-medium leading-snug text-[var(--gold-ink)]">
