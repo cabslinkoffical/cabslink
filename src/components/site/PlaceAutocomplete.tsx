@@ -246,10 +246,10 @@ export function PlaceAutocomplete({
   // customer typed with a plain text search so the field can still be
   // satisfied. A quote needs a real location, so we look one up rather than
   // accepting unusable free text silently.
-  const resolveTyped = useCallback(async () => {
+  const resolveTyped = useCallback(async (force = false) => {
     const raw = text.trim();
     if (value || loading || raw.length < 3) return;
-    if (!lookupFailed && suggestions.length > 0) return;
+    if (!force && !lookupFailed && suggestions.length > 0) return;
     try {
       const res = await resolveText({ data: { input: raw } });
       if (!res.place) {
@@ -341,6 +341,11 @@ export function PlaceAutocomplete({
           className="pointer-events-none absolute right-2.5 top-1/2 z-20 -translate-y-1/2 h-4 w-4 animate-spin text-[var(--navy)]"
         />
       )}
+      {!value && !unverified && !(lookupFailed && resolveFailed) && text.trim().length >= MIN_CHARS && (
+        <p className="mt-1 text-[11px] font-medium leading-snug text-[var(--navy)]/70">
+          Select from the suggested addresses — or type your own address. Must be in the UK.
+        </p>
+      )}
       {unverified && !open && (
         <p className="mt-1 text-[11px] font-medium leading-snug text-[var(--gold-ink)]">
           We couldn’t fully verify this address — we matched the closest place and will confirm it with you.
@@ -361,6 +366,12 @@ export function PlaceAutocomplete({
             dropUp ? "bottom-full mb-2" : "top-full mt-2",
           )}
         >
+          <li
+            role="presentation"
+            className="border-b border-[var(--border)] bg-[var(--surface-gold)] px-4 py-2 text-[11px] font-semibold leading-snug text-[var(--navy)]/75"
+          >
+            Select one of these addresses — or keep typing your own. UK addresses only.
+          </li>
           {suggestions.map((s, i) => (
             <li
               key={s.placeId}
@@ -387,6 +398,21 @@ export function PlaceAutocomplete({
               )}
             </li>
           ))}
+          {text.trim().length >= 3 && (
+            <li role="presentation" className="border-t border-[var(--border)]">
+              <button
+                type="button"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  setOpen(false);
+                  void resolveTyped(true);
+                }}
+                className="w-full px-4 py-2.5 text-left text-xs font-semibold text-[var(--navy)] hover:bg-[var(--surface-gold)]"
+              >
+                Use the address I typed: “{text.trim()}”
+              </button>
+            </li>
+          )}
           {!hideAttribution && (
             <li className="border-t border-[var(--border)] px-4 py-2 text-right text-[10px] font-semibold text-[var(--navy)]/55">
               Powered by Google
