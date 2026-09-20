@@ -398,6 +398,21 @@ export function PlaceAutocomplete({
               )}
             </li>
           ))}
+          {text.trim().length >= 3 && (
+            <li role="presentation" className="border-t border-[var(--border)]">
+              <button
+                type="button"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  setOpen(false);
+                  void resolveTyped(true);
+                }}
+                className="w-full px-4 py-2.5 text-left text-xs font-semibold text-[var(--navy)] hover:bg-[var(--surface-gold)]"
+              >
+                Use the address I typed: “{text.trim()}”
+              </button>
+            </li>
+          )}
           {!hideAttribution && (
             <li className="border-t border-[var(--border)] px-4 py-2 text-right text-[10px] font-semibold text-[var(--navy)]/55">
               Powered by Google
