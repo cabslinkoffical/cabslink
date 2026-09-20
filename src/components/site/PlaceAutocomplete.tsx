@@ -246,10 +246,10 @@ export function PlaceAutocomplete({
   // customer typed with a plain text search so the field can still be
   // satisfied. A quote needs a real location, so we look one up rather than
   // accepting unusable free text silently.
-  const resolveTyped = useCallback(async () => {
+  const resolveTyped = useCallback(async (force = false) => {
     const raw = text.trim();
     if (value || loading || raw.length < 3) return;
-    if (!lookupFailed && suggestions.length > 0) return;
+    if (!force && !lookupFailed && suggestions.length > 0) return;
     try {
       const res = await resolveText({ data: { input: raw } });
       if (!res.place) {
