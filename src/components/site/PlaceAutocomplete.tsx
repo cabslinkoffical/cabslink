@@ -366,6 +366,12 @@ export function PlaceAutocomplete({
             dropUp ? "bottom-full mb-2" : "top-full mt-2",
           )}
         >
+          <li
+            role="presentation"
+            className="border-b border-[var(--border)] bg-[var(--surface-gold)] px-4 py-2 text-[11px] font-semibold leading-snug text-[var(--navy)]/75"
+          >
+            Select one of these addresses — or keep typing your own. UK addresses only.
+          </li>
           {suggestions.map((s, i) => (
             <li
               key={s.placeId}
