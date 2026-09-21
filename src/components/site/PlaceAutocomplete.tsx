@@ -109,7 +109,6 @@ export function PlaceAutocomplete({
   const [unverified, setUnverified] = useState(false);
   // Short viewports (and the cookie notice pinned to the bottom) can hide a
   // downward list entirely, so flip it above the field when space is tight.
-  const [dropUp, setDropUp] = useState(false);
   const [maxH, setMaxH] = useState(288);
   const [dropdownStyle, setDropdownStyle] = useState<CSSProperties>({});
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -246,7 +245,6 @@ export function PlaceAutocomplete({
       const left = Math.min(Math.max(pad, r.left), window.innerWidth - pad - width);
       const height = Math.max(140, Math.min(288, up ? above : below));
       const visibleHeight = Math.min(wanted, height);
-      setDropUp(up);
       setMaxH(height);
       setDropdownStyle({
         left,
