@@ -18,6 +18,7 @@ import { getSiteStatus } from "../lib/site-status.functions";
 import { MaintenanceScreen } from "../components/site/MaintenanceScreen";
 import { ConsentBanner } from "../components/site/ConsentBanner";
 import { initAnalytics, isMeasurablePath, trackPageView } from "../lib/analytics-ga";
+import { installStaleCacheRecovery } from "../lib/stale-cache-recovery";
 
 function NotFoundComponent() {
   return (
