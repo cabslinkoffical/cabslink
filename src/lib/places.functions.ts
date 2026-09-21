@@ -46,6 +46,24 @@ function classify(types: string[] | undefined): "area" | "address" {
   return "address";
 }
 
+/**
+ * Lower rank = more precise. Customers type a street or building, so exact
+ * addresses must appear above whole towns/cities in the dropdown.
+ */
+function precisionRank(types: string[] | undefined, secondary: string): number {
+  const t = types ?? [];
+  const has = (...names: string[]) => names.some((n) => t.includes(n));
+  if (has("subpremise", "premise", "street_address")) return 0;
+  if (has("airport", "train_station", "transit_station", "bus_station", "lodging")) return 1;
+  if (has("route")) return 2;
+  if (has("postal_code")) return 3;
+  if (has("neighborhood", "sublocality")) return 5;
+  if (has("locality", "postal_town")) return 6;
+  if (has("administrative_area_level_1", "administrative_area_level_2", "administrative_area_level_3")) return 7;
+  // Named places (businesses, landmarks) with a street line are precise enough.
+  return secondary ? 2 : 4;
+}
+
 // Short-lived cache for identical normalized queries (per Worker isolate).
 type CacheEntry = { value: { suggestions: PlaceSuggestion[]; ok: boolean }; expiresAt: number };
 const CACHE_TTL_MS = 60_000;
