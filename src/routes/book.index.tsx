@@ -782,9 +782,9 @@ function JourneyForm({ initial, onSubmit }: { initial: Prefill; onSubmit: (next:
   const setStops = (next: PrefillStop[]) => set("stops", next);
 
   const errors = {
-    pickup: !form.pickup?.placeId ? "Choose a pickup location from the suggestions." : "",
+    pickup: !form.pickup?.placeId ? "Select a pickup address from the list, or use the address you typed." : "",
     dropoff: !form.dropoff?.placeId
-      ? "Choose a destination from the suggestions."
+      ? "Select a drop-off address from the list, or use the address you typed."
       : sameSpot
         ? "Pickup and destination cannot be the same location."
         : "",
