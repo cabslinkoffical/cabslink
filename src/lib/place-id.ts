@@ -8,7 +8,7 @@ import { z } from "zod";
 export const placeIdSchema = z
   .string()
   .trim()
-  .min(1, "Please select a location from the suggestions.")
+  .min(1, "Select a location from the list, or use the address you typed.")
   .max(300, "Invalid location identifier.")
   .refine((v) => !/[\s\x00-\x1f\x7f]/.test(v), "Invalid location identifier.")
   .refine((v) => /^[A-Za-z0-9_\-:.=@]+$/.test(v), "Invalid location identifier.");

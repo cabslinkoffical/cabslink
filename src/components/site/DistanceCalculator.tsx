@@ -97,7 +97,7 @@ export function DistanceCalculator() {
         <p className="text-xs text-destructive text-center">Pickup and destination cannot be the same location.</p>
       )}
       {!ready && (pickup || dest) && !sameLocation && (
-        <p className="text-xs text-muted-foreground text-center">Please select both locations from the suggestions.</p>
+        <p className="text-xs text-muted-foreground text-center">Select an address from the list, or use the address you typed.</p>
       )}
       <p className="text-[10px] text-muted-foreground text-right">Powered by Google</p>
 
