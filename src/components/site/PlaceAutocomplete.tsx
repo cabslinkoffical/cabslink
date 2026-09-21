@@ -7,6 +7,35 @@ import { cn } from "@/lib/utils";
 
 export type SelectedPlace = { placeId: string; label: string };
 
+const UK_POSTCODE = /\b([A-Z]{1,2}\d[A-Z\d]?)\s*(\d[A-Z]{2})\b/i;
+
+/**
+ * Split a Google suggestion into a consistent hierarchy:
+ * line 1 = house number + street (or place name), line 2 = locality/region,
+ * plus the postcode shown separately so every precise address reads the same.
+ */
+export function splitAddress(s: { primary: string; secondary: string; full?: string }): {
+  line1: string;
+  line2: string;
+  postcode: string;
+} {
+  const source = `${s.primary}${s.secondary ? ", " + s.secondary : ""}`;
+  const pc = source.match(UK_POSTCODE);
+  const postcode = pc ? `${pc[1].toUpperCase()} ${pc[2].toUpperCase()}` : "";
+  const strip = (v: string) =>
+    (postcode ? v.replace(UK_POSTCODE, "") : v)
+      .replace(/\s*,\s*/g, ", ")
+      .replace(/(^[,\s]+)|([,\s]+$)/g, "")
+      .replace(/,\s*,/g, ",")
+      .trim();
+  const line1 = strip(s.primary) || s.primary;
+  const rest = strip(s.secondary)
+    .split(",")
+    .map((p) => p.trim())
+    .filter((p) => p && p.toUpperCase() !== "UK" && p.toUpperCase() !== "UNITED KINGDOM");
+  return { line1, line2: rest.join(", "), postcode };
+}
+
 type Props = {
   value: SelectedPlace | null;
   onChange: (place: SelectedPlace | null) => void;
