@@ -44,7 +44,7 @@ describe("BookingWidget — Place-ID gating", () => {
     render(<BookingWidget />);
     await user.click(screen.getAllByRole("button", { name: /Search/i })[0]);
     expect(navigateMock).not.toHaveBeenCalled();
-    expect(await screen.findByText(/Select a pickup location from the suggestions/i)).toBeTruthy();
+    expect(await screen.findByText(/Select a pickup address from the list/i)).toBeTruthy();
   });
 
   it("submits with pickupPlaceId/dropoffPlaceId query params when both selected", async () => {
