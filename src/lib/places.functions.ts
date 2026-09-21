@@ -143,19 +143,31 @@ export const placesAutocomplete = createServerFn({ method: "POST" })
           };
         }>;
       };
-      const suggestions: PlaceSuggestion[] = (json.suggestions ?? [])
+      const ranked = (json.suggestions ?? [])
         .map((s) => s.placePrediction)
         .filter((p): p is NonNullable<typeof p> => !!p)
-        .map((p) => ({
-          placeId: p.placeId,
-          primary: p.structuredFormat?.mainText?.text ?? p.text?.text ?? "",
-          secondary: p.structuredFormat?.secondaryText?.text ?? "",
-          full: p.text?.text ?? "",
-          kind: classify(p.types),
-        }));
-      if (data.mode === "all") {
-        suggestions.sort((a, b) => (a.kind === b.kind ? 0 : a.kind === "area" ? -1 : 1));
+        .map((p, i) => {
+          const primary = p.structuredFormat?.mainText?.text ?? p.text?.text ?? "";
+          const secondary = p.structuredFormat?.secondaryText?.text ?? "";
+          return {
+            order: i,
+            rank: precisionRank(p.types, secondary),
+            place: {
+              placeId: p.placeId,
+              primary,
+              secondary,
+              full: p.text?.text ?? "",
+              kind: classify(p.types),
+            } as PlaceSuggestion,
+          };
+        });
+      if (data.mode === "areas") {
+        ranked.sort((a, b) => b.rank - a.rank || a.order - b.order);
+      } else {
+        // Street-level and building results first; towns/regions last.
+        ranked.sort((a, b) => a.rank - b.rank || a.order - b.order);
       }
+      const suggestions: PlaceSuggestion[] = ranked.map((r) => r.place);
       const value = { suggestions, ok: true };
       cache.set(key, { value, expiresAt: now + CACHE_TTL_MS });
       return value;
