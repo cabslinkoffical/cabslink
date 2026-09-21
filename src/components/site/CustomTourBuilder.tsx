@@ -218,7 +218,7 @@ export function CustomTourBuilder({ search }: { search?: TourSearchControls }) {
 
   const continueToBooking = () => {
     if (!pickup || !dropoff) {
-      setError("Choose a start and end point from the suggestions.");
+      setError("Select a start and drop-off address from the list, or use the address you typed.");
       return;
     }
     if (sameEndpoints) {

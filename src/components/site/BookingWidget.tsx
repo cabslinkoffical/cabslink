@@ -85,9 +85,9 @@ export function BookingWidget({
   const identicalPlaces = !!pickup?.placeId && !!dropoff?.placeId && pickup.placeId === dropoff.placeId;
 
   const errors = {
-    pickup: !pickup?.placeId ? "Select a pickup location from the suggestions." : "",
+    pickup: !pickup?.placeId ? "Select a pickup address from the list, or use the address you typed." : "",
     dropoff: !dropoff?.placeId
-      ? "Select a destination from the suggestions."
+      ? "Select a drop-off address from the list, or use the address you typed."
       : identicalPlaces
         ? "Destination cannot be the same as pickup."
         : "",
@@ -153,7 +153,7 @@ export function BookingWidget({
   };
 
   const hourlyErrors = {
-    pickup: !pickup?.placeId ? "Select a pickup location from the suggestions." : "",
+    pickup: !pickup?.placeId ? "Select a pickup address from the list, or use the address you typed." : "",
     date: !date ? "Choose a travel date." : "",
     time: !time ? "Choose a start time." : isPastDateTime(date, time) ? "Start time cannot be in the past." : "",
     hours: hours === null ? "Choose how many hours you need." : "",
