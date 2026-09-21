@@ -9,15 +9,6 @@ import {
   Plus, Minus, Clock, Compass, Wallet, Timer, Mail, BadgeCheck, PlaneTakeoff
 } from "lucide-react";
 
-import svcAirportImg from "@/assets/services/airport.jpg.asset.json";
-import svcCorporateImg from "@/assets/services/corporate.jpg.asset.json";
-import svcToursImg from "@/assets/services/tours.jpg.asset.json";
-import svcGroupImg from "@/assets/services/group.jpg";
-import svcCruiseImg from "@/assets/services/cruise.jpg";
-import svcStationImg from "@/assets/services/station.jpg.asset.json";
-
-
-
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { BookingWidget } from "@/components/site/BookingWidget";
 import { TrustpilotSection } from "@/components/site/TrustpilotSection";
@@ -49,6 +40,7 @@ import rollsAsset from "@/assets/fleet/rolls.png.asset.json";
 import coachAsset from "@/assets/fleet/coach.png.asset.json";
 import coasterAsset from "@/assets/fleet/coaster.png.asset.json";
 import { fleetThumbnailUrl, asFleetAsset } from "@/lib/fleet-image";
+import { HOME_FLEET_IMAGES, HOME_SERVICE_IMAGES, type ResponsiveImage } from "@/lib/home-image-variants";
 
 type HeroVehicle = {
   key: string;
@@ -152,12 +144,12 @@ const trustStats = [
 
 
 const serviceTiles = [
-  { name: "Airport Transfers", kicker: "Most booked", desc: "Flight-tracked pickups and meet & greet at every UK airport.", img: svcAirportImg.url, to: "/airport-transfers", icon: Plane },
-  { name: "Cruise Ports", kicker: "Embarkation", desc: "Timed port transfers with room for every case and trunk.", img: svcCruiseImg, to: "/cruise-transfers", icon: Compass },
-  { name: "Rail Stations", kicker: "City to city", desc: "Kerbside pickups at UK terminals, timed to your train.", img: svcStationImg.url, to: "/stations", icon: RouteIcon },
-  { name: "Corporate Travel", kicker: "Business", desc: "Account-managed journeys with invoicing and priority support.", img: svcCorporateImg.url, to: "/corporate-travel", icon: Building2 },
-  { name: "Group Travel", kicker: "5–55 seats", desc: "MPVs, minibuses and coaches planned as a single job.", img: svcGroupImg, to: "/group-transfers", icon: Users },
-  { name: "Private Tours", kicker: "Signature", desc: "Driver-led days across Scotland, entirely at your pace.", img: svcToursImg.url, to: "/tours", icon: Gem },
+  { name: "Airport Transfers", kicker: "Most booked", desc: "Flight-tracked pickups and meet & greet at every UK airport.", image: HOME_SERVICE_IMAGES.airport, to: "/airport-transfers", icon: Plane },
+  { name: "Cruise Ports", kicker: "Embarkation", desc: "Timed port transfers with room for every case and trunk.", image: HOME_SERVICE_IMAGES.cruise, to: "/cruise-transfers", icon: Compass },
+  { name: "Rail Stations", kicker: "City to city", desc: "Kerbside pickups at UK terminals, timed to your train.", image: HOME_SERVICE_IMAGES.station, to: "/stations", icon: RouteIcon },
+  { name: "Corporate Travel", kicker: "Business", desc: "Account-managed journeys with invoicing and priority support.", image: HOME_SERVICE_IMAGES.corporate, to: "/corporate-travel", icon: Building2 },
+  { name: "Group Travel", kicker: "5–55 seats", desc: "MPVs, minibuses and coaches planned as a single job.", image: HOME_SERVICE_IMAGES.group, to: "/group-transfers", icon: Users },
+  { name: "Private Tours", kicker: "Signature", desc: "Driver-led days across Scotland, entirely at your pace.", image: HOME_SERVICE_IMAGES.tours, to: "/tours", icon: Gem },
 ];
 
 
@@ -359,6 +351,8 @@ function HomePage() {
                         srcSet={current.srcSet}
                         sizes={HERO_VEHICLE_SIZES}
                         alt=""
+                        width={1200}
+                        height={750}
                         decoding="async"
                         className="pointer-events-none absolute inset-x-0 top-[86%] m-auto w-[92%] h-[45%] object-contain object-top opacity-[0.13] blur-[3px] [transform:scaleY(-1)] [mask-image:linear-gradient(to_bottom,rgba(0,0,0,0.8),transparent)] [-webkit-mask-image:linear-gradient(to_bottom,rgba(0,0,0,0.8),transparent)]"
                       />
@@ -448,11 +442,14 @@ function HomePage() {
               <Link key={t.name} to={t.to} className="group block min-w-0">
                 <div className="relative aspect-[4/3] overflow-hidden rounded-lg bg-muted">
                   <img
-                    src={t.img}
+                    src={t.image.src}
+                    srcSet={t.image.srcSet}
+                    sizes="(max-width: 639px) calc(100vw - 2rem), (max-width: 1023px) calc(50vw - 2.25rem), 341px"
                     alt={`${t.name} by Cabslink`}
-                    width={900}
-                    height={675}
+                    width={t.image.width}
+                    height={t.image.height}
                     loading="lazy"
+                    decoding="async"
                     className="size-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.035]"
                   />
                   <span className="absolute left-0 top-0 flex size-10 items-center justify-center bg-primary text-xs font-semibold text-primary-foreground">
@@ -922,10 +919,15 @@ function FleetClassesSection() {
                 <div className="relative flex aspect-[4/3] shrink-0 items-center justify-center overflow-hidden bg-[var(--surface-2)]">
                   {(() => {
                     const img = fleetImageFor(k.slug, k.hero_image);
+                    const responsiveImage: ResponsiveImage | undefined = HOME_FLEET_IMAGES[k.slug];
                     return img ? (
                       <img
-                        src={img}
+                        src={responsiveImage?.src ?? img}
+                        srcSet={responsiveImage?.srcSet}
+                        sizes="(max-width: 639px) 235px, 251px"
                         alt={k.name}
+                        width={responsiveImage?.width ?? 520}
+                        height={responsiveImage?.height ?? 312}
                         loading="lazy"
                         decoding="async"
                         className="relative z-10 max-h-[78%] max-w-[84%] w-auto h-auto object-contain drop-shadow-[0_12px_18px_rgba(0,0,0,0.25)] transition-transform duration-500 group-hover:scale-[1.05]"
