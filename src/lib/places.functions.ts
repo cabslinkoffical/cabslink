@@ -76,10 +76,11 @@ function cacheKey(d: z.infer<typeof acInput>) {
 export const placesAutocomplete = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => acInput.parse(data))
   .handler(async ({ data }) => {
-    // Per-IP sliding-window rate limit: 60 queries / minute.
+    // A household, office, hotel or mobile carrier can share one public IP.
+    // Keep abuse protection without blocking ordinary customers behind NAT.
     let ip = "unknown";
     try { ip = getRequestIP({ xForwardedFor: true }) ?? "unknown"; } catch {}
-    if (!checkLimit({ name: "placesAutocomplete", windowMs: 60_000, max: 60 }, ip).ok) {
+    if (!checkLimit({ name: "placesAutocomplete", windowMs: 60_000, max: 240 }, ip).ok) {
       console.error(`[places] rate limited ip=${ip}`);
       try { setResponseStatus(429); } catch {}
       return { suggestions: [] as PlaceSuggestion[], ok: false };
