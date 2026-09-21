@@ -5,15 +5,23 @@ import { PlaceAutocomplete, type SelectedPlace } from "@/components/site/PlaceAu
 import { track } from "@/lib/tracking";
 
 
-function FormNotice({ visible, children }: { visible: boolean; children: React.ReactNode }) {
-  if (!visible) return null;
+function FormNotice({ visible, messages }: { visible: boolean; messages: string[] }) {
+  if (!visible || messages.length === 0) return null;
   return (
-    <div className="mb-3 flex items-center gap-2 rounded-lg bg-destructive px-3 py-2.5 text-xs font-bold text-white shadow-sm" role="alert">
-      <AlertCircle className="h-4 w-4 shrink-0" />
-      <span>{children}</span>
+    <div className="mb-3 rounded-lg bg-destructive px-3 py-2.5 text-xs font-bold text-white shadow-sm" role="alert">
+      <div className="flex items-center gap-2">
+        <AlertCircle className="h-4 w-4 shrink-0" />
+        <span>{messages.length === 1 ? "Please fix this to continue:" : `Please fix ${messages.length} things to continue:`}</span>
+      </div>
+      <ul className="mt-1.5 ml-6 list-disc space-y-1 font-semibold">
+        {messages.map((m) => (
+          <li key={m}>{m}</li>
+        ))}
+      </ul>
     </div>
   );
 }
+
 
 
 
@@ -230,12 +238,12 @@ export function BookingWidget({
 
         >
         <>
-          <FormNotice visible={attempted && hourlyErrorList.length > 0}>Please fill the required data to continue</FormNotice>
+          <FormNotice visible={attempted} messages={hourlyErrorList} />
           <div className="bg-white shadow-[var(--shadow-elegant)] border border-black/5 rounded-3xl @[980px]:rounded-full overflow-visible p-2 @[980px]:p-1.5">
 
             <div className="grid grid-cols-1 @[600px]:grid-cols-2 @[980px]:flex @[980px]:items-stretch gap-1 @[980px]:gap-0">
               <div className="@[600px]:col-span-2 @[980px]:flex-1 @[980px]:min-w-0" data-invalid={attempted && !!hourlyErrors.pickup}>
-                <FieldCell icon={<MapPin className="w-4 h-4 text-[var(--gold-ink)]" />} label="Pickup" invalid={attempted && !!hourlyErrors.pickup}>
+                <FieldCell icon={<MapPin className="w-4 h-4 text-[var(--gold-ink)]" />} label="Pickup" invalid={attempted && !!hourlyErrors.pickup} error={hourlyErrors.pickup}>
                   <PlaceAutocomplete
                     id={`${idPrefix}-hourly-pickup`}
                     value={pickup}
@@ -251,7 +259,7 @@ export function BookingWidget({
               <Divider />
 
               <div className="border-t border-black/5 @[980px]:border-0" data-invalid={attempted && !!hourlyErrors.date}>
-                <FieldCell icon={<Calendar className="w-4 h-4 text-[var(--gold-ink)]" />} label="Date" compact invalid={attempted && !!hourlyErrors.date}>
+                <FieldCell icon={<Calendar className="w-4 h-4 text-[var(--gold-ink)]" />} label="Date" compact invalid={attempted && !!hourlyErrors.date} error={hourlyErrors.date}>
                   <input data-field="date" aria-label="Hourly hire date" required type="date" min={today} value={date} onChange={(e) => setDate(e.target.value)} className="w-full bg-transparent border-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)] text-sm font-semibold text-foreground" />
                 </FieldCell>
               </div>
@@ -259,7 +267,7 @@ export function BookingWidget({
               <Divider />
 
               <div className="border-t border-black/5 @[600px]:border-t-0 @[600px]:border-l @[600px]:border-black/5 @[980px]:border-l-0 @[980px]:border-0" data-invalid={attempted && !!hourlyErrors.time}>
-                <FieldCell icon={<Clock className="w-4 h-4 text-[var(--gold-ink)]" />} label="Start time" compact invalid={attempted && !!hourlyErrors.time}>
+                <FieldCell icon={<Clock className="w-4 h-4 text-[var(--gold-ink)]" />} label="Start time" compact invalid={attempted && !!hourlyErrors.time} error={hourlyErrors.time}>
                   <input data-field="time" aria-label="Hourly hire start time" required type="time" value={time} onChange={(e) => setTime(e.target.value)} className="w-full bg-transparent border-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)] text-sm font-semibold text-foreground" />
                 </FieldCell>
               </div>
@@ -268,7 +276,7 @@ export function BookingWidget({
               <Divider />
 
               <div className="border-t border-black/5 @[980px]:border-0 @[980px]:w-[150px] shrink-0" data-invalid={attempted && !!hourlyErrors.hours}>
-                <FieldCell icon={<Clock className="w-4 h-4 text-[var(--gold-ink)]" />} label="Duration" compact invalid={attempted && !!hourlyErrors.hours}>
+                <FieldCell icon={<Clock className="w-4 h-4 text-[var(--gold-ink)]" />} label="Duration" compact invalid={attempted && !!hourlyErrors.hours} error={hourlyErrors.hours}>
                   <select
                     aria-label="Hire duration in hours"
                     required
@@ -348,7 +356,7 @@ export function BookingWidget({
 
       {tab === "quote" && (
       <form onSubmit={submit} noValidate>
-        <FormNotice visible={attempted && errorList.length > 0}>Please fill the required data to continue</FormNotice>
+        <FormNotice visible={attempted} messages={errorList} />
 
         {/* Main container: rounded card on mobile/tablet, horizontal pill on wide desktop (xl+) */}
 
@@ -356,7 +364,7 @@ export function BookingWidget({
           <div className="grid grid-cols-1 @[600px]:grid-cols-2 @[980px]:flex @[980px]:items-stretch gap-1 @[980px]:gap-0">
             {/* Pickup */}
             <div className="@[600px]:col-span-2 @[980px]:flex-1 @[980px]:min-w-0" data-invalid={attempted && !!errors.pickup}>
-              <FieldCell icon={<MapPin className="w-4 h-4 text-[var(--gold-ink)]" />} label="From" invalid={attempted && !!errors.pickup}>
+              <FieldCell icon={<MapPin className="w-4 h-4 text-[var(--gold-ink)]" />} label="From" invalid={attempted && !!errors.pickup} error={errors.pickup}>
                 <PlaceAutocomplete
                   id={`${idPrefix}-pickup`}
                   value={pickup}
@@ -373,7 +381,7 @@ export function BookingWidget({
 
             {/* Dropoff */}
             <div className="@[600px]:col-span-2 @[980px]:flex-1 @[980px]:min-w-0 border-t border-black/5 @[600px]:border-t-0 @[980px]:border-0" data-invalid={attempted && !!errors.dropoff}>
-              <FieldCell icon={<Flag className="w-4 h-4 text-[var(--gold-ink)]" />} label="To" invalid={attempted && !!errors.dropoff}>
+              <FieldCell icon={<Flag className="w-4 h-4 text-[var(--gold-ink)]" />} label="To" invalid={attempted && !!errors.dropoff} error={errors.dropoff}>
                 <PlaceAutocomplete
                   id={`${idPrefix}-dropoff`}
                   value={dropoff}
@@ -390,7 +398,7 @@ export function BookingWidget({
 
             {/* Date */}
             <div className="border-t border-black/5 @[980px]:border-0" data-invalid={attempted && !!errors.date}>
-              <FieldCell icon={<Calendar className="w-4 h-4 text-[var(--gold-ink)]" />} label="Date" compact invalid={attempted && !!errors.date}>
+              <FieldCell icon={<Calendar className="w-4 h-4 text-[var(--gold-ink)]" />} label="Date" compact invalid={attempted && !!errors.date} error={errors.date}>
                 <input
                   data-field="date"
                   aria-label="Pickup date"
@@ -408,7 +416,7 @@ export function BookingWidget({
 
             {/* Time */}
             <div className="border-t border-black/5 @[600px]:border-t-0 @[600px]:border-l @[600px]:border-black/5 @[980px]:border-l-0 @[980px]:border-0" data-invalid={attempted && !!errors.time}>
-              <FieldCell icon={<Clock className="w-4 h-4 text-[var(--gold-ink)]" />} label="Time" compact invalid={attempted && !!errors.time}>
+              <FieldCell icon={<Clock className="w-4 h-4 text-[var(--gold-ink)]" />} label="Time" compact invalid={attempted && !!errors.time} error={errors.time}>
                 <input
                   data-field="time"
                   aria-label="Pickup time"
@@ -619,7 +627,7 @@ function TabButton({ active, onClick, icon, children, tone = "dark" }: { active:
   );
 }
 
-function FieldCell({ icon, label, children, compact, invalid }: { icon: React.ReactNode; label: string; children: React.ReactNode; compact?: boolean; invalid?: boolean }) {
+function FieldCell({ icon, label, children, compact, invalid, error }: { icon: React.ReactNode; label: string; children: React.ReactNode; compact?: boolean; invalid?: boolean; error?: string }) {
   return (
     <div
       className={`flex items-center gap-2.5 px-4 py-2 min-w-0 flex-1 rounded-md border transition-colors ${compact ? "@[980px]:w-[152px] @[980px]:max-w-[152px] @[980px]:flex-none" : ""} ${
@@ -634,7 +642,16 @@ function FieldCell({ icon, label, children, compact, invalid }: { icon: React.Re
           {children}
         </div>
       </div>
-      {invalid && <AlertCircle className="w-4 h-4 text-destructive shrink-0" aria-hidden="true" />}
+      {invalid && (
+        <span className="group/err relative shrink-0" title={error || "This field needs attention"}>
+          <AlertCircle className="w-4 h-4 text-destructive" aria-label={error || "This field needs attention"} />
+          {error && (
+            <span className="pointer-events-none absolute right-0 top-full z-50 mt-2 hidden w-56 rounded-lg bg-destructive px-3 py-2 text-[11px] font-semibold leading-snug text-white shadow-lg group-hover/err:block">
+              {error}
+            </span>
+          )}
+        </span>
+      )}
     </div>
   );
 }
