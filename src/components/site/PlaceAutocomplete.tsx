@@ -61,6 +61,7 @@ type Props = {
 const DEBOUNCE_MS = 140;
 const MIN_CHARS = 2;
 const REQUEST_TIMEOUT_MS = 12_000;
+const RETRY_DELAY_MS = 450;
 
 /**
  * crypto.randomUUID() is missing in older Safari and on any non-HTTPS origin,
@@ -139,6 +140,21 @@ export function PlaceAutocomplete({
   const lastQuery = useRef<string>("");
   const suggestionsForQuery = useRef<string>("");
 
+  const requestSuggestions = useCallback(async (raw: string) => {
+    let lastError: unknown;
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      try {
+        const result = await call({ data: { input: raw, sessionToken, mode } });
+        if (!("ok" in result) || result.ok || attempt === 1) return result;
+      } catch (error) {
+        lastError = error;
+        if (attempt === 1) throw error;
+      }
+      await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
+    }
+    throw lastError ?? new Error("Address lookup failed");
+  }, [call, mode, sessionToken]);
+
   useEffect(() => {
     setText(value?.label ?? "");
   }, [value?.placeId]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -206,7 +222,10 @@ export function PlaceAutocomplete({
         if (seq === latestSeq.current) setLoading(false);
       }, REQUEST_TIMEOUT_MS);
       try {
-        const res = await call({ data: { input: raw, sessionToken, mode } });
+        // A single transient connection failure should not make one browser
+        // look broken while another succeeds. Retry once before using the
+        // typed-address fallback.
+        const res = await requestSuggestions(raw);
         if (controller.signal.aborted) return;
         if (seq !== latestSeq.current) return;
         lastQuery.current = norm;
@@ -237,15 +256,17 @@ export function PlaceAutocomplete({
       clearTimeout(t);
       if (seq === latestSeq.current) setLoading(false);
     };
-  }, [text, sessionToken, mode]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [text, sessionToken, mode, requestSuggestions]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    function onDoc(e: MouseEvent) {
-      if (!wrapRef.current?.contains(e.target as Node)) setOpen(false);
+    function onDoc(e: PointerEvent) {
+      const target = e.target as Node;
+      const listbox = document.getElementById(listboxId);
+      if (!wrapRef.current?.contains(target) && !listbox?.contains(target)) setOpen(false);
     }
-    document.addEventListener("mousedown", onDoc);
-    return () => document.removeEventListener("mousedown", onDoc);
-  }, []);
+    document.addEventListener("pointerdown", onDoc);
+    return () => document.removeEventListener("pointerdown", onDoc);
+  }, [listboxId]);
 
   useEffect(() => {
     if (!open || suggestions.length === 0) return;
@@ -430,7 +451,7 @@ export function PlaceAutocomplete({
               role="option"
               aria-selected={i === activeIdx}
               aria-disabled={!canSelect}
-              onMouseDown={(e) => {
+              onPointerDown={(e) => {
                 e.preventDefault();
                 if (canSelect) pick(s);
               }}
