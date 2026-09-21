@@ -54,6 +54,26 @@ const SECURITY_HEADERS: Record<string, string> = {
   "strict-transport-security": "max-age=31536000; includeSubDomains",
 };
 
+/**
+ * HTML documents must never be cached by the browser: a long-lived profile
+ * otherwise keeps replaying an old document that references deleted hashed
+ * assets, which shows up as "my changes never load" plus chunk load errors.
+ * Hashed assets keep their own immutable caching.
+ */
+function withHtmlRevalidation(response: Response): Response {
+  try {
+    const type = response.headers.get("content-type") ?? "";
+    if (type.includes("text/html")) {
+      response.headers.set("cache-control", "no-cache, no-store, must-revalidate");
+      response.headers.set("pragma", "no-cache");
+      response.headers.set("expires", "0");
+    }
+  } catch {
+    /* immutable headers — safe to skip */
+  }
+  return response;
+}
+
 function withSecurityHeaders(response: Response): Response {
   // Streamed SSR bodies must not be re-read; mutate headers in place instead.
   try {
@@ -71,7 +91,9 @@ export default {
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
-      return withSecurityHeaders(await normalizeCatastrophicSsrResponse(response));
+      return withHtmlRevalidation(
+        withSecurityHeaders(await normalizeCatastrophicSsrResponse(response)),
+      );
     } catch (error) {
       console.error(error);
       return new Response(renderErrorPage(), {
