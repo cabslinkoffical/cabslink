@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
 import { useServerFn } from "@tanstack/react-start";
 import { placesAutocomplete, resolvePlaceText, type PlaceSuggestion } from "@/lib/places.functions";
@@ -111,7 +111,7 @@ export function PlaceAutocomplete({
   // downward list entirely, so flip it above the field when space is tight.
   const [dropUp, setDropUp] = useState(false);
   const [maxH, setMaxH] = useState(288);
-  const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({});
+  const [dropdownStyle, setDropdownStyle] = useState<CSSProperties>({});
   const wrapRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const sessionToken = useMemo(() => crypto.randomUUID(), []);
@@ -399,7 +399,6 @@ export function PlaceAutocomplete({
           style={{ ...dropdownStyle, maxHeight: maxH }}
           className={cn(
             "fixed z-[9999] min-w-[275px] overflow-auto rounded-lg border border-[var(--gold)]/35 bg-[var(--popover)] text-[var(--popover-foreground)] shadow-[0_24px_70px_-22px_color-mix(in_oklab,var(--navy)_55%,transparent)]",
-            dropUp ? "" : "",
           )}
         >
           <li
