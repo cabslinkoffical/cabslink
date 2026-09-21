@@ -145,7 +145,10 @@ export function PlaceAutocomplete({
     for (let attempt = 0; attempt < 2; attempt += 1) {
       try {
         const result = await call({ data: { input: raw, sessionToken, mode } });
-        if (!("ok" in result) || result.ok || attempt === 1) return result;
+        // A completed response (including an upstream outage response) should
+        // immediately enable the typed-address fallback. Retry only when the
+        // browser failed to complete the request at all.
+        return result;
       } catch (error) {
         lastError = error;
         if (attempt === 1) throw error;
