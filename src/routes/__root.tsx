@@ -18,6 +18,7 @@ import { getSiteStatus } from "../lib/site-status.functions";
 import { MaintenanceScreen } from "../components/site/MaintenanceScreen";
 import { ConsentBanner } from "../components/site/ConsentBanner";
 import { initAnalytics, isMeasurablePath, trackPageView } from "../lib/analytics-ga";
+import { installStaleCacheRecovery } from "../lib/stale-cache-recovery";
 
 function NotFoundComponent() {
   return (
@@ -146,6 +147,9 @@ function RootComponent() {
   const ctx = Route.useRouteContext() as { queryClient: QueryClient; maintenance?: { maintenance: boolean; company_name: string | null } };
   const pathname = useRouterState({ select: s => s.location.pathname });
   const measurable = isMeasurablePath(pathname);
+
+  // Clear leftover background caches from older visits in long-lived profiles.
+  useEffect(() => { installStaleCacheRecovery(); }, []);
 
   // Analytics: install once (consent-gated), then a page view per route change.
   useEffect(() => {
