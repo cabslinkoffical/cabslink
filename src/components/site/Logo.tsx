@@ -4,7 +4,13 @@ import logoGold150 from "@/assets/home/logos/cabslink-logo-gold-150.webp";
 import logoDark100 from "@/assets/home/logos/cabslink-logo-dark-100.webp";
 import logoDark150 from "@/assets/home/logos/cabslink-logo-dark-150.webp";
 
-export function Logo({ variant = "auto" }: { variant?: "auto" | "gold" | "dark" }) {
+export function Logo({
+  variant = "auto",
+  priority = true,
+}: {
+  variant?: "auto" | "gold" | "dark";
+  priority?: boolean;
+}) {
   const small = variant === "dark" ? logoDark100 : logoGold100;
   const large = variant === "dark" ? logoDark150 : logoGold150;
   return (
@@ -17,8 +23,9 @@ export function Logo({ variant = "auto" }: { variant?: "auto" | "gold" | "dark" 
         className="h-12 md:h-14 w-auto object-contain transition group-hover:scale-[1.02]"
         width={150}
         height={117}
+        loading={priority ? "eager" : "lazy"}
         decoding="async"
-        fetchPriority="high"
+        fetchPriority={priority ? "high" : "auto"}
       />
     </Link>
   );

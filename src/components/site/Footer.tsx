@@ -46,7 +46,7 @@ export function Footer() {
       <div className="container-x pt-14 pb-16 grid gap-12 md:grid-cols-2 lg:grid-cols-4">
 
         <div>
-          <Logo variant="gold" />
+          <Logo variant="gold" priority={false} />
           <p className="mt-4 text-sm text-white/70 max-w-xs">
             Premium UK airport transfers and airport travel services — punctual,
             professional and effortlessly comfortable, around the clock.
