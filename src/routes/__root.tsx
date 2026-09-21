@@ -148,6 +148,9 @@ function RootComponent() {
   const pathname = useRouterState({ select: s => s.location.pathname });
   const measurable = isMeasurablePath(pathname);
 
+  // Clear leftover background caches from older visits in long-lived profiles.
+  useEffect(() => { installStaleCacheRecovery(); }, []);
+
   // Analytics: install once (consent-gated), then a page view per route change.
   useEffect(() => {
     initAnalytics(pathname);
