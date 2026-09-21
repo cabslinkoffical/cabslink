@@ -242,7 +242,7 @@ export function BookingWidget({
           <div className="bg-white shadow-[var(--shadow-elegant)] border border-black/5 rounded-3xl @[980px]:rounded-full overflow-visible p-2 @[980px]:p-1.5">
 
             <div className="grid grid-cols-1 @[600px]:grid-cols-2 @[980px]:flex @[980px]:items-stretch gap-1 @[980px]:gap-0">
-              <div className="@[600px]:col-span-2 @[980px]:flex-1 @[980px]:min-w-0" data-invalid={attempted && !!hourlyErrors.pickup} error={hourlyErrors.pickup}>
+              <div className="@[600px]:col-span-2 @[980px]:flex-1 @[980px]:min-w-0" data-invalid={attempted && !!hourlyErrors.pickup}>
                 <FieldCell icon={<MapPin className="w-4 h-4 text-[var(--gold-ink)]" />} label="Pickup" invalid={attempted && !!hourlyErrors.pickup} error={hourlyErrors.pickup}>
                   <PlaceAutocomplete
                     id={`${idPrefix}-hourly-pickup`}
@@ -258,7 +258,7 @@ export function BookingWidget({
 
               <Divider />
 
-              <div className="border-t border-black/5 @[980px]:border-0" data-invalid={attempted && !!hourlyErrors.date} error={hourlyErrors.date}>
+              <div className="border-t border-black/5 @[980px]:border-0" data-invalid={attempted && !!hourlyErrors.date}>
                 <FieldCell icon={<Calendar className="w-4 h-4 text-[var(--gold-ink)]" />} label="Date" compact invalid={attempted && !!hourlyErrors.date} error={hourlyErrors.date}>
                   <input data-field="date" aria-label="Hourly hire date" required type="date" min={today} value={date} onChange={(e) => setDate(e.target.value)} className="w-full bg-transparent border-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)] text-sm font-semibold text-foreground" />
                 </FieldCell>
@@ -266,7 +266,7 @@ export function BookingWidget({
 
               <Divider />
 
-              <div className="border-t border-black/5 @[600px]:border-t-0 @[600px]:border-l @[600px]:border-black/5 @[980px]:border-l-0 @[980px]:border-0" data-invalid={attempted && !!hourlyErrors.time} error={hourlyErrors.time}>
+              <div className="border-t border-black/5 @[600px]:border-t-0 @[600px]:border-l @[600px]:border-black/5 @[980px]:border-l-0 @[980px]:border-0" data-invalid={attempted && !!hourlyErrors.time}>
                 <FieldCell icon={<Clock className="w-4 h-4 text-[var(--gold-ink)]" />} label="Start time" compact invalid={attempted && !!hourlyErrors.time} error={hourlyErrors.time}>
                   <input data-field="time" aria-label="Hourly hire start time" required type="time" value={time} onChange={(e) => setTime(e.target.value)} className="w-full bg-transparent border-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)] text-sm font-semibold text-foreground" />
                 </FieldCell>
@@ -275,7 +275,7 @@ export function BookingWidget({
 
               <Divider />
 
-              <div className="border-t border-black/5 @[980px]:border-0 @[980px]:w-[150px] shrink-0" data-invalid={attempted && !!hourlyErrors.hours} error={hourlyErrors.hours}>
+              <div className="border-t border-black/5 @[980px]:border-0 @[980px]:w-[150px] shrink-0" data-invalid={attempted && !!hourlyErrors.hours}>
                 <FieldCell icon={<Clock className="w-4 h-4 text-[var(--gold-ink)]" />} label="Duration" compact invalid={attempted && !!hourlyErrors.hours} error={hourlyErrors.hours}>
                   <select
                     aria-label="Hire duration in hours"
@@ -363,7 +363,7 @@ export function BookingWidget({
         <div className={`bg-white shadow-[var(--shadow-elegant)] border border-black/5 overflow-visible p-2 @[980px]:p-1.5 rounded-3xl @[980px]:rounded-[2rem] ${stops.length === 0 && !showReturn ? "rounded-b-3xl @[980px]:rounded-b-[2rem]" : "rounded-b-none @[980px]:rounded-b-none"}`}>
           <div className="grid grid-cols-1 @[600px]:grid-cols-2 @[980px]:flex @[980px]:items-stretch gap-1 @[980px]:gap-0">
             {/* Pickup */}
-            <div className="@[600px]:col-span-2 @[980px]:flex-1 @[980px]:min-w-0" data-invalid={attempted && !!errors.pickup} error={errors.pickup}>
+            <div className="@[600px]:col-span-2 @[980px]:flex-1 @[980px]:min-w-0" data-invalid={attempted && !!errors.pickup}>
               <FieldCell icon={<MapPin className="w-4 h-4 text-[var(--gold-ink)]" />} label="From" invalid={attempted && !!errors.pickup} error={errors.pickup}>
                 <PlaceAutocomplete
                   id={`${idPrefix}-pickup`}
@@ -380,7 +380,7 @@ export function BookingWidget({
             <Divider />
 
             {/* Dropoff */}
-            <div className="@[600px]:col-span-2 @[980px]:flex-1 @[980px]:min-w-0 border-t border-black/5 @[600px]:border-t-0 @[980px]:border-0" data-invalid={attempted && !!errors.dropoff} error={errors.dropoff}>
+            <div className="@[600px]:col-span-2 @[980px]:flex-1 @[980px]:min-w-0 border-t border-black/5 @[600px]:border-t-0 @[980px]:border-0" data-invalid={attempted && !!errors.dropoff}>
               <FieldCell icon={<Flag className="w-4 h-4 text-[var(--gold-ink)]" />} label="To" invalid={attempted && !!errors.dropoff} error={errors.dropoff}>
                 <PlaceAutocomplete
                   id={`${idPrefix}-dropoff`}
@@ -397,7 +397,7 @@ export function BookingWidget({
             <Divider />
 
             {/* Date */}
-            <div className="border-t border-black/5 @[980px]:border-0" data-invalid={attempted && !!errors.date} error={errors.date}>
+            <div className="border-t border-black/5 @[980px]:border-0" data-invalid={attempted && !!errors.date}>
               <FieldCell icon={<Calendar className="w-4 h-4 text-[var(--gold-ink)]" />} label="Date" compact invalid={attempted && !!errors.date} error={errors.date}>
                 <input
                   data-field="date"
@@ -415,7 +415,7 @@ export function BookingWidget({
             <Divider />
 
             {/* Time */}
-            <div className="border-t border-black/5 @[600px]:border-t-0 @[600px]:border-l @[600px]:border-black/5 @[980px]:border-l-0 @[980px]:border-0" data-invalid={attempted && !!errors.time} error={errors.time}>
+            <div className="border-t border-black/5 @[600px]:border-t-0 @[600px]:border-l @[600px]:border-black/5 @[980px]:border-l-0 @[980px]:border-0" data-invalid={attempted && !!errors.time}>
               <FieldCell icon={<Clock className="w-4 h-4 text-[var(--gold-ink)]" />} label="Time" compact invalid={attempted && !!errors.time} error={errors.time}>
                 <input
                   data-field="time"
