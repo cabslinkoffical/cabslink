@@ -62,6 +62,24 @@ const DEBOUNCE_MS = 140;
 const MIN_CHARS = 2;
 const REQUEST_TIMEOUT_MS = 12_000;
 
+/**
+ * crypto.randomUUID() is missing in older Safari and on any non-HTTPS origin,
+ * where it threw during render and killed the whole field in those browsers.
+ */
+function newSessionToken() {
+  try {
+    const c = globalThis.crypto as Crypto | undefined;
+    if (c && typeof c.randomUUID === "function") return c.randomUUID();
+    if (c && typeof c.getRandomValues === "function") {
+      const b = c.getRandomValues(new Uint8Array(16));
+      return Array.from(b, (x) => x.toString(16).padStart(2, "0")).join("");
+    }
+  } catch {
+    /* fall through to Math.random */
+  }
+  return `${Date.now().toString(16)}${Math.random().toString(16).slice(2)}${Math.random().toString(16).slice(2)}`;
+}
+
 function normalizeQuery(q: string) {
   return q.trim().replace(/\s+/g, " ").toLowerCase();
 }
@@ -113,7 +131,7 @@ export function PlaceAutocomplete({
   const [dropdownStyle, setDropdownStyle] = useState<CSSProperties>({});
   const wrapRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const sessionToken = useMemo(() => crypto.randomUUID(), []);
+  const sessionToken = useMemo(() => newSessionToken(), []);
 
   const reqSeq = useRef(0);
   const latestSeq = useRef(0);
