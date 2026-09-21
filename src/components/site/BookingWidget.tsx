@@ -643,8 +643,8 @@ function FieldCell({ icon, label, children, compact, invalid, error }: { icon: R
         </div>
       </div>
       {invalid && (
-        <span className="group/err relative shrink-0">
-          <AlertCircle className="w-4 h-4 text-destructive" aria-label={error || "This field needs attention"} title={error || "This field needs attention"} />
+        <span className="group/err relative shrink-0" title={error || "This field needs attention"}>
+          <AlertCircle className="w-4 h-4 text-destructive" aria-label={error || "This field needs attention"} />
           {error && (
             <span className="pointer-events-none absolute right-0 top-full z-50 mt-2 hidden w-56 rounded-lg bg-destructive px-3 py-2 text-[11px] font-semibold leading-snug text-white shadow-lg group-hover/err:block">
               {error}
