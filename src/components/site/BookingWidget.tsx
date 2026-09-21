@@ -5,15 +5,23 @@ import { PlaceAutocomplete, type SelectedPlace } from "@/components/site/PlaceAu
 import { track } from "@/lib/tracking";
 
 
-function FormNotice({ visible, children }: { visible: boolean; children: React.ReactNode }) {
-  if (!visible) return null;
+function FormNotice({ visible, messages }: { visible: boolean; messages: string[] }) {
+  if (!visible || messages.length === 0) return null;
   return (
-    <div className="mb-3 flex items-center gap-2 rounded-lg bg-destructive px-3 py-2.5 text-xs font-bold text-white shadow-sm" role="alert">
-      <AlertCircle className="h-4 w-4 shrink-0" />
-      <span>{children}</span>
+    <div className="mb-3 rounded-lg bg-destructive px-3 py-2.5 text-xs font-bold text-white shadow-sm" role="alert">
+      <div className="flex items-center gap-2">
+        <AlertCircle className="h-4 w-4 shrink-0" />
+        <span>{messages.length === 1 ? "Please fix this to continue:" : `Please fix ${messages.length} things to continue:`}</span>
+      </div>
+      <ul className="mt-1.5 ml-6 list-disc space-y-1 font-semibold">
+        {messages.map((m) => (
+          <li key={m}>{m}</li>
+        ))}
+      </ul>
     </div>
   );
 }
+
 
 
 
