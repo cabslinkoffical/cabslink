@@ -7,6 +7,35 @@ import { cn } from "@/lib/utils";
 
 export type SelectedPlace = { placeId: string; label: string };
 
+const UK_POSTCODE = /\b([A-Z]{1,2}\d[A-Z\d]?)\s*(\d[A-Z]{2})\b/i;
+
+/**
+ * Split a Google suggestion into a consistent hierarchy:
+ * line 1 = house number + street (or place name), line 2 = locality/region,
+ * plus the postcode shown separately so every precise address reads the same.
+ */
+export function splitAddress(s: { primary: string; secondary: string; full?: string }): {
+  line1: string;
+  line2: string;
+  postcode: string;
+} {
+  const source = `${s.primary}${s.secondary ? ", " + s.secondary : ""}`;
+  const pc = source.match(UK_POSTCODE);
+  const postcode = pc ? `${pc[1].toUpperCase()} ${pc[2].toUpperCase()}` : "";
+  const strip = (v: string) =>
+    (postcode ? v.replace(UK_POSTCODE, "") : v)
+      .replace(/\s*,\s*/g, ", ")
+      .replace(/(^[,\s]+)|([,\s]+$)/g, "")
+      .replace(/,\s*,/g, ",")
+      .trim();
+  const line1 = strip(s.primary) || s.primary;
+  const rest = strip(s.secondary)
+    .split(",")
+    .map((p) => p.trim())
+    .filter((p) => p && p.toUpperCase() !== "UK" && p.toUpperCase() !== "UNITED KINGDOM");
+  return { line1, line2: rest.join(", "), postcode };
+}
+
 type Props = {
   value: SelectedPlace | null;
   onChange: (place: SelectedPlace | null) => void;
@@ -385,29 +414,31 @@ export function PlaceAutocomplete({
                 !canSelect ? "opacity-60 cursor-not-allowed" : "",
               )}
             >
-              <div className="font-bold leading-tight">{s.primary}</div>
-              {s.secondary && (
-                <div className={cn("mt-1 text-xs leading-tight", i === activeIdx ? "text-[var(--navy)]/80" : "text-[var(--navy)]/65")}>
-                  {s.secondary}
-                </div>
-              )}
+              {(() => {
+                const parts = splitAddress(s);
+                return (
+                  <>
+                    <div className="font-bold leading-tight">{parts.line1}</div>
+                    {(parts.line2 || parts.postcode) && (
+                      <div
+                        className={cn(
+                          "mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs leading-tight",
+                          i === activeIdx ? "text-[var(--navy)]/80" : "text-[var(--navy)]/65",
+                        )}
+                      >
+                        {parts.line2 && <span>{parts.line2}</span>}
+                        {parts.postcode && (
+                          <span className="rounded border border-[var(--navy)]/20 bg-[var(--navy)]/[0.06] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--navy)]">
+                            {parts.postcode}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </li>
           ))}
-          {text.trim().length >= 3 && (
-            <li role="presentation" className="border-t border-[var(--border)]">
-              <button
-                type="button"
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  setOpen(false);
-                  void resolveTyped(true);
-                }}
-                className="w-full px-4 py-2.5 text-left text-xs font-semibold text-[var(--navy)] hover:bg-[var(--surface-gold)]"
-              >
-                Use the address I typed: “{text.trim()}”
-              </button>
-            </li>
-          )}
           {!hideAttribution && (
             <li className="border-t border-[var(--border)] px-4 py-2 text-right text-[10px] font-semibold text-[var(--navy)]/55">
               Powered by Google
