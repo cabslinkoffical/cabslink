@@ -29,3 +29,4 @@
 - [x] SEO: optimise /book/hourly and hourly tour pages for "edinburgh hourly hire", "glasgow hourly car"
 
 - [ ] Redesign /book/tour for clarity and ease of use (user request 14 Sep)
+- [x] Performance 1/3: responsive WebP delivery for homepage service cards, fleet cards, and logo
