@@ -46,6 +46,24 @@ function classify(types: string[] | undefined): "area" | "address" {
   return "address";
 }
 
+/**
+ * Lower rank = more precise. Customers type a street or building, so exact
+ * addresses must appear above whole towns/cities in the dropdown.
+ */
+function precisionRank(types: string[] | undefined, secondary: string): number {
+  const t = types ?? [];
+  const has = (...names: string[]) => names.some((n) => t.includes(n));
+  if (has("subpremise", "premise", "street_address")) return 0;
+  if (has("airport", "train_station", "transit_station", "bus_station", "lodging")) return 1;
+  if (has("route")) return 2;
+  if (has("postal_code")) return 3;
+  if (has("neighborhood", "sublocality")) return 5;
+  if (has("locality", "postal_town")) return 6;
+  if (has("administrative_area_level_1", "administrative_area_level_2", "administrative_area_level_3")) return 7;
+  // Named places (businesses, landmarks) with a street line are precise enough.
+  return secondary ? 2 : 4;
+}
+
 // Short-lived cache for identical normalized queries (per Worker isolate).
 type CacheEntry = { value: { suggestions: PlaceSuggestion[]; ok: boolean }; expiresAt: number };
 const CACHE_TTL_MS = 60_000;
@@ -125,19 +143,31 @@ export const placesAutocomplete = createServerFn({ method: "POST" })
           };
         }>;
       };
-      const suggestions: PlaceSuggestion[] = (json.suggestions ?? [])
+      const ranked = (json.suggestions ?? [])
         .map((s) => s.placePrediction)
         .filter((p): p is NonNullable<typeof p> => !!p)
-        .map((p) => ({
-          placeId: p.placeId,
-          primary: p.structuredFormat?.mainText?.text ?? p.text?.text ?? "",
-          secondary: p.structuredFormat?.secondaryText?.text ?? "",
-          full: p.text?.text ?? "",
-          kind: classify(p.types),
-        }));
-      if (data.mode === "all") {
-        suggestions.sort((a, b) => (a.kind === b.kind ? 0 : a.kind === "area" ? -1 : 1));
+        .map((p, i) => {
+          const primary = p.structuredFormat?.mainText?.text ?? p.text?.text ?? "";
+          const secondary = p.structuredFormat?.secondaryText?.text ?? "";
+          return {
+            order: i,
+            rank: precisionRank(p.types, secondary),
+            place: {
+              placeId: p.placeId,
+              primary,
+              secondary,
+              full: p.text?.text ?? "",
+              kind: classify(p.types),
+            } as PlaceSuggestion,
+          };
+        });
+      if (data.mode === "areas") {
+        ranked.sort((a, b) => b.rank - a.rank || a.order - b.order);
+      } else {
+        // Street-level and building results first; towns/regions last.
+        ranked.sort((a, b) => a.rank - b.rank || a.order - b.order);
       }
+      const suggestions: PlaceSuggestion[] = ranked.map((r) => r.place);
       const value = { suggestions, ok: true };
       cache.set(key, { value, expiresAt: now + CACHE_TTL_MS });
       return value;
