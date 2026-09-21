@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type CSSProperties } from "react";
+import { createPortal } from "react-dom";
 import { useServerFn } from "@tanstack/react-start";
 import { placesAutocomplete, resolvePlaceText, type PlaceSuggestion } from "@/lib/places.functions";
 import { Input } from "@/components/ui/input";
@@ -108,8 +109,8 @@ export function PlaceAutocomplete({
   const [unverified, setUnverified] = useState(false);
   // Short viewports (and the cookie notice pinned to the bottom) can hide a
   // downward list entirely, so flip it above the field when space is tight.
-  const [dropUp, setDropUp] = useState(false);
   const [maxH, setMaxH] = useState(288);
+  const [dropdownStyle, setDropdownStyle] = useState<CSSProperties>({});
   const wrapRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const sessionToken = useMemo(() => crypto.randomUUID(), []);
@@ -240,8 +241,17 @@ export function PlaceAutocomplete({
       const above = r.top - gap - pad;
       const wanted = Math.min(288, suggestions.length * 58 + 34);
       const up = below < wanted && above > below;
-      setDropUp(up);
-      setMaxH(Math.max(140, Math.min(288, up ? above : below)));
+      const width = Math.min(Math.max(275, r.width), window.innerWidth - pad * 2);
+      const left = Math.min(Math.max(pad, r.left), window.innerWidth - pad - width);
+      const height = Math.max(140, Math.min(288, up ? above : below));
+      const visibleHeight = Math.min(wanted, height);
+      setMaxH(height);
+      setDropdownStyle({
+        left,
+        top: up ? Math.max(pad, r.top - gap - visibleHeight) : r.bottom + gap,
+        width,
+        maxHeight: height,
+      });
     };
     measure();
     window.addEventListener("resize", measure);
@@ -380,19 +390,18 @@ export function PlaceAutocomplete({
           Address lookup temporarily unavailable — you can still type your address. We’ll ask you to confirm it before continuing.
         </p>
       )}
-      {open && suggestions.length > 0 && (
+      {open && suggestions.length > 0 && typeof document !== "undefined" && createPortal(
         <ul
           id={listboxId}
           role="listbox"
-          style={{ maxHeight: maxH }}
+          style={{ ...dropdownStyle, maxHeight: maxH }}
           className={cn(
-            "absolute z-[90] w-full min-w-[275px] overflow-auto rounded-md border border-[var(--border)] bg-[var(--popover)] text-[var(--popover-foreground)] shadow-[var(--shadow-elegant)]",
-            dropUp ? "bottom-full mb-2" : "top-full mt-2",
+            "fixed z-[9999] min-w-[275px] overflow-auto rounded-lg border border-[var(--gold)]/35 bg-[var(--popover)] text-[var(--popover-foreground)] shadow-[0_24px_70px_-22px_color-mix(in_oklab,var(--navy)_55%,transparent)]",
           )}
         >
           <li
             role="presentation"
-            className="border-b border-[var(--border)] bg-[var(--surface-gold)] px-4 py-2 text-[11px] font-semibold leading-snug text-[var(--navy)]/75"
+            className="sticky top-0 z-10 border-b border-[var(--gold)]/30 bg-[var(--gold)] px-4 py-2.5 text-[11px] font-extrabold leading-snug text-[var(--navy)]"
           >
             Select one of these addresses.
           </li>
@@ -444,7 +453,8 @@ export function PlaceAutocomplete({
               Powered by Google
             </li>
           )}
-        </ul>
+        </ul>,
+        document.body,
       )}
     </div>
   );
