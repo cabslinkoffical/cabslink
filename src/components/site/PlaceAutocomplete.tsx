@@ -443,6 +443,11 @@ export function PlaceAutocomplete({
           id={listboxId}
           role="listbox"
           style={{ ...dropdownStyle, maxHeight: maxH, pointerEvents: "auto" }}
+          // A modal dialog treats this list as "outside" and would close on the
+          // first press, so the press is kept from reaching the dialog layer.
+          onPointerDownCapture={(e) => e.stopPropagation()}
+          onMouseDownCapture={(e) => e.stopPropagation()}
+          onTouchStartCapture={(e) => e.stopPropagation()}
           className={cn(
             "fixed z-[9999] min-w-[275px] overflow-auto rounded-lg border border-[var(--gold)]/35 bg-[var(--popover)] text-[var(--popover-foreground)] shadow-[0_24px_70px_-22px_color-mix(in_oklab,var(--navy)_55%,transparent)]",
           )}
