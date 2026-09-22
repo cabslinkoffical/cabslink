@@ -147,6 +147,21 @@ export function BulkTools({
             Columns: {entity.fields.map((f) => f.name + (f.required ? "*" : "")).join(", ")}
           </p>
 
+          {entity.refs?.length ? (
+            <div className="rounded-lg border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+              <p className="font-medium text-foreground">No IDs needed</p>
+              <ul className="mt-1 list-disc space-y-0.5 pl-4">
+                {entity.refs.map((r) => (
+                  <li key={r.idField}>
+                    Type the {r.label} name (or its web address name) in{" "}
+                    <span className="font-medium">{r.textFields[0]}</span> and leave{" "}
+                    <span className="font-medium">{r.idField}</span> blank — we match it for you.
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+
           {entity.geo?.length ? (
             <div className="rounded-lg border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
               <p className="font-medium text-foreground">Locations are matched on Google Maps for you</p>
