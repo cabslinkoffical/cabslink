@@ -171,6 +171,10 @@ export async function resolvePlaceTexts(
   return { map, lookups, capped };
 }
 
+export function placeRequestKey(req: PlaceRequest) {
+  return norm(req.text ?? "") || (typeof req.lat === "number" && typeof req.lng === "number" ? `@${req.lat},${req.lng}` : "");
+}
+
 export function placeTextKey(text: string) {
   return norm(text);
 }
