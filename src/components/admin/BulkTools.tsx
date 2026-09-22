@@ -17,7 +17,7 @@ import {
   Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-  Download, FileDown, Layers, Loader2, Play, Trash2, UploadCloud, X,
+  Download, FileDown, Info, Layers, Loader2, Play, Trash2, UploadCloud, X,
 } from "lucide-react";
 import { parseImportFile, reportToCsv, type ParseResult } from "@/lib/seo/import-parser";
 import { getBulkEntity, templateHeaders } from "@/lib/bulk-entities";
@@ -50,6 +50,7 @@ export function BulkTools({
   const [validation, setValidation] = useState<BulkValidation | null>(null);
   const [skipInvalid, setSkipInvalid] = useState(true);
   const [parsing, setParsing] = useState(false);
+  const [showInfo, setShowInfo] = useState(false);
 
   const exportMut = useMutation({
     mutationFn: async () => {
