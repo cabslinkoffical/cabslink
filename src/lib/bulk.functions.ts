@@ -104,15 +104,27 @@ async function buildValidation(
   rows: Record<string, unknown>[],
 ): Promise<BulkValidation> {
   // Existing ids + natural keys, so we can label rows new vs update.
-  const select = entity.naturalKey ? `id, ${entity.naturalKey}` : "id";
+  const identityFields = [entity.naturalKey, ...(entity.matchFields ?? [])].filter(
+    (field): field is string => Boolean(field),
+  );
+  const select = ["id", ...identityFields].filter((field, index, all) => all.indexOf(field) === index).join(", ");
   const { data: existing, error } = await supabase.from(entity.table).select(select).limit(20000);
   if (error) throw new Error(error.message);
   const ids = new Set<string>((existing ?? []).map((r: Record<string, unknown>) => String(r["id"])));
   const byNatural = new Map<string, string>();
+  const byComposite = new Map<string, string>();
   if (entity.naturalKey) {
     for (const r of existing ?? []) {
       const nk = r[entity.naturalKey];
       if (nk != null) byNatural.set(String(nk).toLowerCase(), String(r["id"]));
+    }
+  }
+  if (entity.matchFields?.length) {
+    for (const r of existing ?? []) {
+      const values = entity.matchFields.map((field) => r[field]);
+      if (values.every((value) => value != null && String(value).trim() !== "")) {
+        byComposite.set(values.map((value) => String(value).trim().toLowerCase()).join("\u001f"), String(r["id"]));
+      }
     }
   }
 
@@ -192,6 +204,18 @@ async function buildValidation(
           status = "update";
         }
       }
+    } else if (entity.matchFields?.length) {
+      const values = entity.matchFields.map((field) => payload[field]);
+      if (values.every((value) => value != null && String(value).trim() !== "")) {
+        const composite = values.map((value) => String(value).trim().toLowerCase()).join("\u001f");
+        if (seen.has(composite)) errors.push(`duplicate ${entity.matchFields.join(" + ")} within this file`);
+        seen.add(composite);
+        const match = byComposite.get(composite);
+        if (match) {
+          payload["id"] = match;
+          status = "update";
+        }
+      }
     }
 
     if (errors.length) status = "invalid";
@@ -234,17 +258,24 @@ async function applyRefResolution(
     });
     if (!needed) continue;
 
+    const lookupColumns = ["id", ...spec.matchColumns];
+    if (entity.key === "pricing_rules" && spec.idField === "vehicle_class_id") {
+      lookupColumns.push("pricing_vehicle_id");
+    }
     const { data, error } = await supabase
       .from(spec.table)
-      .select(["id", ...spec.matchColumns].join(", "))
+      .select([...new Set(lookupColumns)].join(", "))
       .limit(5000);
     if (error) throw new Error(error.message);
     const byText = new Map<string, string>();
+    const pricingVehicleByClass = new Map<string, string>();
     for (const row of (data ?? []) as Record<string, unknown>[]) {
+      const rowId = String(row["id"]);
       for (const col of spec.matchColumns) {
         const v = row[col];
-        if (v != null) byText.set(String(v).trim().toLowerCase(), String(row["id"]));
+        if (v != null) byText.set(String(v).trim().toLowerCase(), rowId);
       }
+      if (typeof row["pricing_vehicle_id"] === "string") pricingVehicleByClass.set(rowId, row["pricing_vehicle_id"]);
     }
 
     for (const { payload, errors } of staged) {
@@ -255,7 +286,14 @@ async function applyRefResolution(
         .find((v) => typeof v === "string" && String(v).trim().length > 0);
       if (typeof text !== "string") continue;
       const match = byText.get(text.trim().toLowerCase());
-      if (match) payload[spec.idField] = match;
+      if (match) {
+        payload[spec.idField] = match;
+        if (entity.key === "pricing_rules" && !payload["vehicle_id"]) {
+          const pricingVehicleId = pricingVehicleByClass.get(match);
+          if (pricingVehicleId) payload["vehicle_id"] = pricingVehicleId;
+          else errors.push(`vehicle_id: “${text.trim()}” has no pricing vehicle linked`);
+        }
+      }
       else errors.push(`${spec.idField}: no ${spec.label} called “${text.trim()}”`);
     }
   }
@@ -425,13 +463,29 @@ export const commitBulkImport = createServerFn({ method: "POST" })
     let written = 0;
     const CHUNK = 200;
 
-    // A batched write requires every object in the batch to carry the same keys
-    // (the data API rejects mixed shapes outright), and blank cells legitimately
-    // differ from row to row. Group rows by their exact column signature first,
-    // so every batch is uniform. Rows that resolved to an existing row keep
-    // their id and update; the rest insert.
-    const groups = new Map<string, Record<string, BulkCell>[]>();
+    // Update existing rows explicitly. Sending sparse spreadsheet rows through
+    // UPSERT applies INSERT semantics first, which can reject otherwise valid
+    // updates when the sheet omits database-required fields that already exist.
+    // PATCH-style updates preserve those existing values.
+    const inserts: Record<string, BulkCell>[] = [];
     for (const row of report.payloads) {
+      const id = typeof row["id"] === "string" ? row["id"] : null;
+      if (!id) {
+        inserts.push(row);
+        continue;
+      }
+      const changes = { ...row };
+      delete changes["id"];
+      const { error: updateError } = await supabase.from(entity.table).update(changes).eq("id", id);
+      if (updateError) failures.push(`${labelOf(entity, row)}: ${updateError.message}`);
+      else written += 1;
+    }
+
+    // A batched insert requires every object in the batch to carry the same keys
+    // (the data API rejects mixed shapes outright), and blank cells legitimately
+    // differ from row to row. Group new rows by their exact column signature.
+    const groups = new Map<string, Record<string, BulkCell>[]>();
+    for (const row of inserts) {
       const key = Object.keys(row).sort().join("|");
       const bucket = groups.get(key);
       if (bucket) bucket.push(row);
@@ -441,17 +495,11 @@ export const commitBulkImport = createServerFn({ method: "POST" })
     for (const bucket of groups.values()) {
       for (let i = 0; i < bucket.length; i += CHUNK) {
         const chunk = bucket.slice(i, i + CHUNK);
-        const hasId = chunk[0] && chunk[0]["id"] != null;
-        const write = hasId
-          ? supabase.from(entity.table).upsert(chunk, { onConflict: "id" })
-          : supabase.from(entity.table).insert(chunk);
-        const { error } = await write;
+        const { error } = await supabase.from(entity.table).insert(chunk);
         if (error) {
           // Retry row-by-row so one bad row doesn't discard the whole chunk.
           for (const row of chunk) {
-            const { error: rowError } = row["id"] != null
-              ? await supabase.from(entity.table).upsert(row, { onConflict: "id" })
-              : await supabase.from(entity.table).insert(row);
+            const { error: rowError } = await supabase.from(entity.table).insert(row);
             if (rowError) failures.push(`${labelOf(entity, row)}: ${rowError.message}`);
             else written += 1;
           }

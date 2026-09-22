@@ -69,6 +69,8 @@ export type BulkEntity = {
   table: string;
   /** Natural key used to update existing rows when no id is supplied. */
   naturalKey?: string;
+  /** Multiple columns that together identify an existing row. */
+  matchFields?: string[];
   orderBy: string;
   fields: BulkField[];
   /** Boolean columns that can be flipped for a selection of rows. */
@@ -101,6 +103,7 @@ const windowFields: BulkField[] = [
 export const BULK_ENTITIES: BulkEntity[] = [
   {
     key: "pricing_rules",
+    matchFields: ["vehicle_class_id", "from_place_id", "to_place_id"],
     refs: [vehicleClassRef],
     flags: [{ name: "active", label: "Active" }],
     deletable: true,
