@@ -169,6 +169,16 @@ export function SchemeRoutesTab({ classId, routes }: { classId: string; routes: 
                 <Input type="number" min="0" value={draft.priority} onChange={(e) => set("priority", Number(e.target.value || 0))} />
               </Field>
             </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Start coordinates" hint="Filled automatically from the chosen place.">
+                <Input readOnly className="bg-muted/50 tabular-nums"
+                  value={coords.origin ? `${coords.origin.lat.toFixed(6)}, ${coords.origin.lng.toFixed(6)}` : "—"} />
+              </Field>
+              <Field label="End coordinates" hint="Filled automatically from the chosen place.">
+                <Input readOnly className="bg-muted/50 tabular-nums"
+                  value={coords.destination ? `${coords.destination.lat.toFixed(6)}, ${coords.destination.lng.toFixed(6)}` : "—"} />
+              </Field>
+            </div>
             <Field label="Live route (read only)">
               <Input readOnly className="bg-muted/50 tabular-nums"
                 value={liveRoute ? `${liveRoute.miles.toFixed(1)} mi · ${Math.round(liveRoute.minutes)} min` : "—"} />
