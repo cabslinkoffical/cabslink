@@ -48,6 +48,7 @@ export function BulkTools({
   const [open, setOpen] = useState(false);
   const [parsed, setParsed] = useState<ParseResult | null>(null);
   const [validation, setValidation] = useState<BulkValidation | null>(null);
+  const [commitFailures, setCommitFailures] = useState<string[]>([]);
   const [skipInvalid, setSkipInvalid] = useState(true);
   const [parsing, setParsing] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
@@ -79,8 +80,15 @@ export function BulkTools({
       return commitBulkImport({ data: { entity: entityKey, rows: parsed.rows, skipInvalid } });
     },
     onSuccess: async (r) => {
-      toast.success(`Saved ${r.written} row(s)${r.skipped ? `, skipped ${r.skipped}` : ""}`);
-      if (r.failures.length) toast.error(`${r.failures.length} row(s) rejected — see the report below`);
+      setCommitFailures(r.failures);
+      if (r.written > 0) {
+        toast.success(`Saved ${r.written} row(s)${r.skipped ? `, skipped ${r.skipped}` : ""}`);
+      }
+      if (r.failures.length) {
+        toast.error(`${r.failures.length} row(s) rejected — the exact reasons are shown below`);
+      } else if (r.written === 0) {
+        toast.error("No rows were saved. Check the issues shown below.");
+      }
       await onChanged?.();
     },
     onError: (e: unknown) => toast.error((e as Error).message ?? "Import failed"),
@@ -92,6 +100,7 @@ export function BulkTools({
     if (!file) return;
     setParsing(true);
     setValidation(null);
+    setCommitFailures([]);
     try {
       const result = await parseImportFile(file);
       setParsed(result);
@@ -118,7 +127,7 @@ export function BulkTools({
     : false;
 
   return (
-    <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) { setParsed(null); setValidation(null); } }}>
+    <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) { setParsed(null); setValidation(null); setCommitFailures([]); } }}>
       <DialogTrigger asChild>
         <Button variant="outline"><Layers className="mr-2 size-4" />{label}</Button>
       </DialogTrigger>
@@ -221,6 +230,14 @@ export function BulkTools({
 
           {validation && (
             <div className="space-y-3">
+              {commitFailures.length > 0 && (
+                <div className="rounded-lg border border-destructive/30 bg-destructive/[0.06] px-3 py-2 text-xs">
+                  <p className="font-medium text-destructive">Rows not saved</p>
+                  <ul className="mt-1 max-h-36 list-disc space-y-1 overflow-auto pl-4 text-muted-foreground">
+                    {commitFailures.map((failure, index) => <li key={`${index}-${failure}`}>{failure}</li>)}
+                  </ul>
+                </div>
+              )}
               <div className="flex flex-wrap gap-2 text-xs">
                 <span className="rounded-full bg-success/15 px-2.5 py-1 text-success">New {validation.counts.new}</span>
                 <span className="rounded-full bg-primary/10 px-2.5 py-1 text-primary">Update {validation.counts.update}</span>

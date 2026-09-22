@@ -425,13 +425,29 @@ export const commitBulkImport = createServerFn({ method: "POST" })
     let written = 0;
     const CHUNK = 200;
 
-    // A batched write requires every object in the batch to carry the same keys
-    // (the data API rejects mixed shapes outright), and blank cells legitimately
-    // differ from row to row. Group rows by their exact column signature first,
-    // so every batch is uniform. Rows that resolved to an existing row keep
-    // their id and update; the rest insert.
-    const groups = new Map<string, Record<string, BulkCell>[]>();
+    // Update existing rows explicitly. Sending sparse spreadsheet rows through
+    // UPSERT applies INSERT semantics first, which can reject otherwise valid
+    // updates when the sheet omits database-required fields that already exist.
+    // PATCH-style updates preserve those existing values.
+    const inserts: Record<string, BulkCell>[] = [];
     for (const row of report.payloads) {
+      const id = typeof row["id"] === "string" ? row["id"] : null;
+      if (!id) {
+        inserts.push(row);
+        continue;
+      }
+      const changes = { ...row };
+      delete changes["id"];
+      const { error: updateError } = await supabase.from(entity.table).update(changes).eq("id", id);
+      if (updateError) failures.push(`${labelOf(entity, row)}: ${updateError.message}`);
+      else written += 1;
+    }
+
+    // A batched insert requires every object in the batch to carry the same keys
+    // (the data API rejects mixed shapes outright), and blank cells legitimately
+    // differ from row to row. Group new rows by their exact column signature.
+    const groups = new Map<string, Record<string, BulkCell>[]>();
+    for (const row of inserts) {
       const key = Object.keys(row).sort().join("|");
       const bucket = groups.get(key);
       if (bucket) bucket.push(row);
@@ -441,17 +457,11 @@ export const commitBulkImport = createServerFn({ method: "POST" })
     for (const bucket of groups.values()) {
       for (let i = 0; i < bucket.length; i += CHUNK) {
         const chunk = bucket.slice(i, i + CHUNK);
-        const hasId = chunk[0] && chunk[0]["id"] != null;
-        const write = hasId
-          ? supabase.from(entity.table).upsert(chunk, { onConflict: "id" })
-          : supabase.from(entity.table).insert(chunk);
-        const { error } = await write;
+        const { error } = await supabase.from(entity.table).insert(chunk);
         if (error) {
           // Retry row-by-row so one bad row doesn't discard the whole chunk.
           for (const row of chunk) {
-            const { error: rowError } = row["id"] != null
-              ? await supabase.from(entity.table).upsert(row, { onConflict: "id" })
-              : await supabase.from(entity.table).insert(row);
+            const { error: rowError } = await supabase.from(entity.table).insert(row);
             if (rowError) failures.push(`${labelOf(entity, row)}: ${rowError.message}`);
             else written += 1;
           }
