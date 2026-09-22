@@ -113,6 +113,12 @@ async function buildValidation(
   const seen = new Set<string>();
   const reports: BulkRowReport[] = [];
   const payloads: Record<string, BulkCell>[] = [];
+  const known = new Set(entity.fields.map((f) => f.name));
+  const unknown = new Set<string>();
+  for (const raw of rows) {
+    for (const key of Object.keys(raw)) if (!known.has(key)) unknown.add(key);
+  }
+
 
   rows.forEach((raw, index) => {
     const errors: string[] = [];
@@ -163,6 +169,7 @@ async function buildValidation(
       invalid: reports.filter((r) => r.status === "invalid").length,
     },
     rows: reports,
+    unknownColumns: [...unknown].sort(),
     payloads,
   };
 }
