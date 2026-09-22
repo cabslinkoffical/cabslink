@@ -116,13 +116,23 @@ export function SchemeDiscountsTab({ classId, discounts }: { classId: string; di
           </>
         }
         map={
-          <AdminMapEditor
-            mode="radius"
-            origin={draft.place}
-            radiusMiles={draft.radius}
-            onClearOrigin={() => set("place", null)}
-            height={430}
-          />
+          <div className="space-y-2">
+            <AdminMapEditor
+              mode="radius"
+              origin={draft.place}
+              radiusMiles={draft.radius}
+              onClearOrigin={() => setDraft((d) => ({ ...d, place: null, lat: null, lng: null }))}
+              onCoords={(c) => setDraft((d) => ({ ...d, lat: c.origin?.lat ?? null, lng: c.origin?.lng ?? null }))}
+              height={430}
+            />
+            {draft.place && (
+              <p className="text-xs text-muted-foreground tabular-nums">
+                Coordinates: {draft.lat != null && draft.lng != null
+                  ? `${draft.lat.toFixed(6)}, ${draft.lng.toFixed(6)}`
+                  : "resolving from Google Maps…"}
+              </p>
+            )}
+          </div>
         }
         footer={
           <div className="flex flex-wrap items-center gap-3">
