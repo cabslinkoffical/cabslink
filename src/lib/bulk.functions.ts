@@ -85,6 +85,12 @@ export type BulkValidation = {
   unknownColumns: string[];
   /** Cleaned payloads for the rows that passed, in file order. */
   payloads: Record<string, BulkCell>[];
+  /** Place IDs the importer looked up from address text on the user's behalf. */
+  placesResolved: number;
+  /** Address text that Google could not match to a place. */
+  placesUnresolved: string[];
+  /** True when the file had more addresses to look up than one run allows. */
+  placesCapped: boolean;
 };
 
 function labelOf(entity: BulkEntity, row: Record<string, BulkCell>): string {
