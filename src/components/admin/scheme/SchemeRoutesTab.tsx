@@ -210,6 +210,7 @@ export function SchemeRoutesTab({ classId, routes }: { classId: string; routes: 
             onClearOrigin={() => set("from", null)}
             onClearDestination={() => set("to", null)}
             onReverse={() => setDraft((d) => ({ ...d, from: d.to, to: d.from, fromRadius: d.toRadius, toRadius: d.fromRadius }))}
+            onCoords={setCoords}
             onRoute={setLiveRoute}
             height={430}
           />
