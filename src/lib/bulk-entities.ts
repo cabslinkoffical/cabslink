@@ -57,7 +57,11 @@ const vehicleClassRef: BulkRefSpec = {
   label: "vehicle class",
 };
 
-const vehicleClassRefFields: BulkField[] = [{ name: "vehicle_class", type: "string" }];
+const vehicleClassRefFields: BulkField[] = [
+  { name: "vehicle_class", type: "string", virtual: true },
+  { name: "vehicle_class_name", type: "string", virtual: true },
+  { name: "vehicle_class_slug", type: "string", virtual: true },
+];
 
 export type BulkEntity = {
   key: string;
