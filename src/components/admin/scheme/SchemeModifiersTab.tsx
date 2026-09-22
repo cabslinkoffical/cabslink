@@ -12,6 +12,8 @@ import { BulkTools } from "@/components/admin/BulkTools";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { PlaceAutocomplete, type SelectedPlace } from "@/components/site/PlaceAutocomplete";
+import { AdminMapEditor } from "@/components/admin/AdminMapEditor";
 import { Field, SchemeSection } from "./GeoEditorLayout";
 import { deleteSchemeModifier, upsertSchemeModifier } from "@/lib/pricing-schemes.functions";
 
@@ -23,6 +25,11 @@ type Draft = {
   name: string;
   type: "percent" | "fixed";
   value: number;
+  place: SelectedPlace | null;
+  radius: number;
+  geoScope: "pickup" | "destination" | "either";
+  lat: number | null;
+  lng: number | null;
   dateFrom: string;
   dateTo: string;
   days: number[];
@@ -37,7 +44,8 @@ type Draft = {
 };
 
 const empty: Draft = {
-  name: "", type: "percent", value: 10, dateFrom: "", dateTo: "", days: [],
+  name: "", type: "percent", value: 10, place: null, radius: 5, geoScope: "either", lat: null, lng: null,
+  dateFrom: "", dateTo: "", days: [],
   timeFrom: "", timeTo: "", services: [], priority: 100, stackable: true, notes: "", active: true, allClasses: false,
 };
 
