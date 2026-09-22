@@ -113,6 +113,15 @@ export function GeoFields({
           <option value="destination">Destination only</option>
         </select>
       </div>
+      <div className="col-span-2">
+        <Label htmlFor={`${id}-coords`}>Coordinates (filled automatically)</Label>
+        <Input
+          id={`${id}-coords`}
+          readOnly
+          className="bg-muted/50 tabular-nums"
+          value={form.lat != null && form.lng != null ? `${Number(form.lat).toFixed(6)}, ${Number(form.lng).toFixed(6)}` : "—"}
+        />
+      </div>
       {showMap && (
         <div className="col-span-2">
           <AdminMapEditor
