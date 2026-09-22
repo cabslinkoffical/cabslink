@@ -502,6 +502,12 @@ const modifierSchema = z.object({
   name: z.string().trim().min(2).max(160),
   modifier_type: z.enum(["percent", "fixed"]).default("percent"),
   value: z.coerce.number().min(-100_000).max(100_000),
+  // Optional location anchor: when set, the uplift only applies to journeys
+  // touching the circle around that place.
+  place_id: z.string().trim().min(1).max(300).nullable().optional(),
+  place_label: z.string().trim().min(1).max(500).nullable().optional(),
+  radius_miles: z.coerce.number().min(0.1).max(200).nullable().optional(),
+  geo_scope: z.enum(["pickup", "destination", "either"]).default("either"),
   date_from: z.string().trim().min(1).nullable().optional(),
   date_to: z.string().trim().min(1).nullable().optional(),
   days_of_week: z.array(z.coerce.number().int().min(0).max(6)).default([]),
@@ -522,12 +528,28 @@ export const upsertSchemeModifier = createServerFn({ method: "POST" })
     if (data.date_from && data.date_to && data.date_to < data.date_from) {
       throw new Error("The end date must be on or after the start date.");
     }
+    // Coordinates come from Google for the selected place, so radius matching
+    // works the same way as location pricing and discounts.
+    let lat: number | null = null;
+    let lng: number | null = null;
+    if (data.place_id) {
+      const coords = await coordsFor(context, [data.place_id]);
+      const c = coords.get(data.place_id);
+      if (!c) throw new Error("Could not resolve coordinates for that location. Re-select it and try again.");
+      lat = c.lat;
+      lng = c.lng;
+    }
     const payload: any = {
       vehicle_class_id: data.all_classes ? null : data.classId,
       name: data.name,
       modifier_type: data.modifier_type,
       value: data.value,
-      scope: "journey",
+      place_id: data.place_id || null,
+      place_label: data.place_id ? data.place_label || null : null,
+      lat,
+      lng,
+      radius_miles: data.place_id ? data.radius_miles ?? 5 : null,
+      scope: data.place_id ? data.geo_scope : "journey",
       date_from: data.date_from || null,
       date_to: data.date_to || null,
       days_of_week: data.days_of_week.length ? data.days_of_week : null,

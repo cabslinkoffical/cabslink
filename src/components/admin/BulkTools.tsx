@@ -147,6 +147,21 @@ export function BulkTools({
             Columns: {entity.fields.map((f) => f.name + (f.required ? "*" : "")).join(", ")}
           </p>
 
+          {entity.geo?.length ? (
+            <div className="rounded-lg border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+              <p className="font-medium text-foreground">Locations are matched on Google Maps for you</p>
+              <ul className="mt-1 list-disc space-y-0.5 pl-4">
+                {entity.geo.map((g) => (
+                  <li key={g.placeId}>
+                    Type the place in <span className="font-medium">{g.text.join(" or ")}</span> and leave{" "}
+                    <span className="font-medium">{[g.placeId, g.lat, g.lng].filter(Boolean).join(", ")}</span> blank — we fill them in.
+                    {g.lat && g.lng ? ` If you already know the coordinates, put them in ${g.lat}/${g.lng} for an exact match (they work on their own too).` : ""}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+
           <div className="space-y-1.5">
             <Label htmlFor={`bulk-file-${entityKey}`}>Upload file</Label>
             <Input id={`bulk-file-${entityKey}`} type="file" accept=".csv,.tsv,.json,.xls,.xlsx"

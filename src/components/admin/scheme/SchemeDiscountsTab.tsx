@@ -25,9 +25,12 @@ type Draft = {
   stackable: boolean;
   notes: string;
   active: boolean;
+  /** Resolved from Google for the selected place, shown read-only. */
+  lat: number | null;
+  lng: number | null;
 };
 
-const empty: Draft = { name: "", place: null, radius: 5, value: 10, priority: 100, stackable: false, notes: "", active: true };
+const empty: Draft = { name: "", place: null, radius: 5, value: 10, priority: 100, stackable: false, notes: "", active: true, lat: null, lng: null };
 
 export function SchemeDiscountsTab({ classId, discounts }: { classId: string; discounts: any[] }) {
   const qc = useQueryClient();
@@ -116,13 +119,23 @@ export function SchemeDiscountsTab({ classId, discounts }: { classId: string; di
           </>
         }
         map={
-          <AdminMapEditor
-            mode="radius"
-            origin={draft.place}
-            radiusMiles={draft.radius}
-            onClearOrigin={() => set("place", null)}
-            height={430}
-          />
+          <div className="space-y-2">
+            <AdminMapEditor
+              mode="radius"
+              origin={draft.place}
+              radiusMiles={draft.radius}
+              onClearOrigin={() => setDraft((d) => ({ ...d, place: null, lat: null, lng: null }))}
+              onCoords={(c) => setDraft((d) => ({ ...d, lat: c.origin?.lat ?? null, lng: c.origin?.lng ?? null }))}
+              height={430}
+            />
+            {draft.place && (
+              <p className="text-xs text-muted-foreground tabular-nums">
+                Coordinates: {draft.lat != null && draft.lng != null
+                  ? `${draft.lat.toFixed(6)}, ${draft.lng.toFixed(6)}`
+                  : "resolving from Google Maps…"}
+              </p>
+            )}
+          </div>
         }
         footer={
           <div className="flex flex-wrap items-center gap-3">
@@ -177,6 +190,8 @@ export function SchemeDiscountsTab({ classId, discounts }: { classId: string; di
                     stackable: !!d.stackable,
                     notes: d.notes ?? "",
                     active: !!d.active,
+                    lat: d.lat != null ? Number(d.lat) : null,
+                    lng: d.lng != null ? Number(d.lng) : null,
                   })}
                 >
                   <p className="truncate text-sm font-medium">{d.name}</p>

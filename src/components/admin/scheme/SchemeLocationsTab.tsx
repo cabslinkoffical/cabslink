@@ -32,11 +32,14 @@ type Draft = {
   priority: number;
   notes: string;
   active: boolean;
+  /** Resolved from Google for the selected place, shown read-only. */
+  lat: number | null;
+  lng: number | null;
 };
 
 const empty: Draft = {
   name: "", place: null, radius: 5, scope: "either", price: 0,
-  includedMiles: 0, extraPerMile: 0, priority: 100, notes: "", active: true,
+  includedMiles: 0, extraPerMile: 0, priority: 100, notes: "", active: true, lat: null, lng: null,
 };
 
 export function SchemeLocationsTab({ classId, locations }: { classId: string; locations: any[] }) {
@@ -143,13 +146,23 @@ export function SchemeLocationsTab({ classId, locations }: { classId: string; lo
           </>
         }
         map={
-          <AdminMapEditor
-            mode="radius"
-            origin={draft.place}
-            radiusMiles={draft.radius}
-            onClearOrigin={() => set("place", null)}
-            height={430}
-          />
+          <div className="space-y-2">
+            <AdminMapEditor
+              mode="radius"
+              origin={draft.place}
+              radiusMiles={draft.radius}
+              onClearOrigin={() => setDraft((d) => ({ ...d, place: null, lat: null, lng: null }))}
+              onCoords={(c) => setDraft((d) => ({ ...d, lat: c.origin?.lat ?? null, lng: c.origin?.lng ?? null }))}
+              height={430}
+            />
+            {draft.place && (
+              <p className="text-xs text-muted-foreground tabular-nums">
+                Coordinates: {draft.lat != null && draft.lng != null
+                  ? `${draft.lat.toFixed(6)}, ${draft.lng.toFixed(6)}`
+                  : "resolving from Google Maps…"}
+              </p>
+            )}
+          </div>
         }
         footer={
           <div className="flex flex-wrap items-center gap-3">
@@ -211,6 +224,8 @@ export function SchemeLocationsTab({ classId, locations }: { classId: string; lo
                     priority: Number(l.priority ?? 100),
                     notes: l.notes ?? "",
                     active: !!l.active,
+                    lat: l.lat != null ? Number(l.lat) : null,
+                    lng: l.lng != null ? Number(l.lng) : null,
                   })}
                 >
                   <p className="truncate text-sm font-medium">{l.name}</p>
@@ -251,6 +266,8 @@ export function SchemeLocationsTab({ classId, locations }: { classId: string; lo
                   priority: Number(l.priority ?? 100),
                   notes: l.notes ?? "",
                   active: !!l.active,
+                  lat: l.lat != null ? Number(l.lat) : null,
+                  lng: l.lng != null ? Number(l.lng) : null,
                 })}
                 className="block w-full p-4 pr-10 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >

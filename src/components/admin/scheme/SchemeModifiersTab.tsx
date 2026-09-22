@@ -12,6 +12,8 @@ import { BulkTools } from "@/components/admin/BulkTools";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { PlaceAutocomplete, type SelectedPlace } from "@/components/site/PlaceAutocomplete";
+import { AdminMapEditor } from "@/components/admin/AdminMapEditor";
 import { Field, SchemeSection } from "./GeoEditorLayout";
 import { deleteSchemeModifier, upsertSchemeModifier } from "@/lib/pricing-schemes.functions";
 
@@ -23,6 +25,11 @@ type Draft = {
   name: string;
   type: "percent" | "fixed";
   value: number;
+  place: SelectedPlace | null;
+  radius: number;
+  geoScope: "pickup" | "destination" | "either";
+  lat: number | null;
+  lng: number | null;
   dateFrom: string;
   dateTo: string;
   days: number[];
@@ -37,7 +44,8 @@ type Draft = {
 };
 
 const empty: Draft = {
-  name: "", type: "percent", value: 10, dateFrom: "", dateTo: "", days: [],
+  name: "", type: "percent", value: 10, place: null, radius: 5, geoScope: "either", lat: null, lng: null,
+  dateFrom: "", dateTo: "", days: [],
   timeFrom: "", timeTo: "", services: [], priority: 100, stackable: true, notes: "", active: true, allClasses: false,
 };
 
@@ -71,6 +79,10 @@ export function SchemeModifiersTab({ classId, modifiers }: { classId: string; mo
           name: draft.name.trim(),
           modifier_type: draft.type,
           value: draft.value,
+          place_id: draft.place?.placeId ?? null,
+          place_label: draft.place?.label ?? null,
+          radius_miles: draft.place ? draft.radius : null,
+          geo_scope: draft.geoScope,
           date_from: draft.dateFrom || null,
           date_to: draft.dateTo || null,
           days_of_week: draft.days,
@@ -136,7 +148,55 @@ export function SchemeModifiersTab({ classId, modifiers }: { classId: string; mo
           <Field label="Notes">
             <Textarea rows={2} value={draft.notes} onChange={(e) => set("notes", e.target.value)} placeholder="Internal note (optional)" />
           </Field>
+          <Field label="Location (optional)" hint="Leave blank to apply everywhere. Pick from the suggestions so the exact place is saved.">
+            <PlaceAutocomplete
+              value={draft.place}
+              onChange={(p) => setDraft((d) => ({ ...d, place: p, lat: null, lng: null }))}
+              placeholder="e.g. Edinburgh Airport"
+            />
+          </Field>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Radius (miles)" hint="Used when a location is set.">
+              <Input
+                type="number"
+                step="0.1"
+                min="0.1"
+                value={draft.radius}
+                disabled={!draft.place}
+                onChange={(e) => set("radius", Number(e.target.value || 0))}
+              />
+            </Field>
+            <Field label="Applies to">
+              <Select value={draft.geoScope} onValueChange={(v) => set("geoScope", v as Draft["geoScope"])} disabled={!draft.place}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="either">Pickup or destination</SelectItem>
+                  <SelectItem value="pickup">Pickup only</SelectItem>
+                  <SelectItem value="destination">Destination only</SelectItem>
+                </SelectContent>
+              </Select>
+            </Field>
+          </div>
         </div>
+
+        {draft.place && (
+          <div className="mt-4 space-y-2">
+            <AdminMapEditor
+              mode="radius"
+              origin={draft.place}
+              radiusMiles={draft.radius}
+              onClearOrigin={() => setDraft((d) => ({ ...d, place: null, lat: null, lng: null }))}
+              onCoords={(c) => setDraft((d) => ({ ...d, lat: c.origin?.lat ?? null, lng: c.origin?.lng ?? null }))}
+              height={260}
+            />
+            <p className="text-xs text-muted-foreground tabular-nums">
+              Coordinates: {draft.lat != null && draft.lng != null
+                ? `${draft.lat.toFixed(6)}, ${draft.lng.toFixed(6)}`
+                : "resolving from Google Maps…"}
+            </p>
+          </div>
+        )}
+
 
         <div className="mt-5 space-y-4">
           <Field label="Days of week" hint="None selected = every day.">
@@ -245,6 +305,11 @@ export function SchemeModifiersTab({ classId, modifiers }: { classId: string; mo
                     name: m.name ?? "",
                     type: (m.modifier_type === "fixed" ? "fixed" : "percent"),
                     value: Number(m.value ?? 0),
+                    place: m.place_id ? { placeId: String(m.place_id), label: String(m.place_label ?? m.place_id) } : null,
+                    radius: Number(m.radius_miles ?? 5) || 5,
+                    geoScope: (["pickup", "destination", "either"].includes(String(m.scope)) ? m.scope : "either") as Draft["geoScope"],
+                    lat: m.lat != null ? Number(m.lat) : null,
+                    lng: m.lng != null ? Number(m.lng) : null,
                     dateFrom: m.date_from ?? "",
                     dateTo: m.date_to ?? "",
                     days: Array.isArray(m.days_of_week) ? m.days_of_week.map(Number) : [],
@@ -266,6 +331,7 @@ export function SchemeModifiersTab({ classId, modifiers }: { classId: string; mo
                     {m.time_from && ` · ${String(m.time_from).slice(0, 5)}–${String(m.time_to ?? "").slice(0, 5)}`}
                     {` · priority ${Number(m.priority ?? 100)}`}
                     {!m.vehicle_class_id && " · all vehicle classes"}
+                    {m.place_id && ` · ${m.place_label ?? "set location"} (${Number(m.radius_miles ?? 0)} mi, ${m.scope})`}
                   </p>
                 </button>
                 <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${m.active ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"}`}>

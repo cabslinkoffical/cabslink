@@ -132,6 +132,7 @@ export const BULK_ENTITIES: BulkEntity[] = [
     table: "pricing_modifiers",
     naturalKey: "name",
     orderBy: "priority",
+    geo: [{ placeId: "place_id", text: ["place_label"], label: "place_label", lat: "lat", lng: "lng" }],
     fields: [
       { name: "id", type: "string" },
       { name: "name", type: "string", required: true },
@@ -155,6 +156,7 @@ export const BULK_ENTITIES: BulkEntity[] = [
     table: "availability_rules",
     naturalKey: "name",
     orderBy: "priority",
+    geo: [{ placeId: "place_id", text: ["place_label"], label: "place_label", lat: "lat", lng: "lng" }],
     fields: [
       { name: "id", type: "string" },
       { name: "name", type: "string", required: true },
