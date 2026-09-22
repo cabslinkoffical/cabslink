@@ -353,7 +353,8 @@ export const exportBulkEntity = createServerFn({ method: "POST" })
     const entity = getBulkEntity(data.entity);
     if (!entity) throw new Error("Unknown entity");
     const supabase = context.supabase as SupabaseLike;
-    const cols = entity.fields.map((f) => f.name).join(", ");
+    const real = entity.fields.filter((f) => !f.virtual);
+    const cols = real.map((f) => f.name).join(", ");
     const { data: rows, error } = await supabase
       .from(entity.table)
       .select(cols)
@@ -363,7 +364,7 @@ export const exportBulkEntity = createServerFn({ method: "POST" })
     // Flatten arrays to comma lists so the CSV round-trips through the importer.
     const flat = (rows ?? []).map((r: Record<string, unknown>) => {
       const out: Record<string, BulkCell> = {};
-      for (const f of entity.fields) {
+      for (const f of real) {
         const v = r[f.name];
         out[f.name] = Array.isArray(v) ? v.join(",") : ((v ?? "") as BulkCell);
       }
