@@ -192,8 +192,10 @@ export function SchemeLocationsTab({ classId, locations }: { classId: string; lo
           <p className="px-5 py-8 text-center text-sm text-muted-foreground">No location rules yet.</p>
         ) : view === "list" ? (
           <ul className="divide-y divide-border">
-            {locations.map((l) => (
-              <li key={l.id} className="flex flex-wrap items-center gap-3 px-5 py-3">
+            {locations.map((l) => {
+              const selected = sel.isSelected(String(l.id));
+              return (
+              <li key={l.id} className={`flex flex-wrap items-center gap-3 border-l-4 px-5 py-3 transition-colors ${selected ? "border-l-primary bg-primary/10" : "border-l-transparent"}`}>
                 <Checkbox checked={sel.isSelected(String(l.id))} onCheckedChange={() => sel.toggle(String(l.id))} aria-label="Select location rule" />
                 <button
                   className="min-w-0 flex-1 text-left"
@@ -219,14 +221,24 @@ export function SchemeLocationsTab({ classId, locations }: { classId: string; lo
                 <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${l.active ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"}`}>
                   {l.active ? "Active" : "Paused"}
                 </span>
+                {selected && <span className="text-xs font-semibold text-primary">Selected</span>}
               </li>
-            ))}
+              );
+            })}
           </ul>
         ) : (
           <div className="grid gap-3 p-5 sm:grid-cols-2 xl:grid-cols-3">
-            {locations.map((l) => (
-              <button
+            {locations.map((l) => {
+              const selected = sel.isSelected(String(l.id));
+              return (
+              <div
                 key={l.id}
+                className={`relative rounded-xl border bg-background transition ${selected ? "border-primary bg-primary/10 ring-2 ring-primary/25" : "border-border hover:border-primary/40"}`}
+              >
+                <span className="absolute right-3 top-3 z-10">
+                  <Checkbox checked={selected} onCheckedChange={() => sel.toggle(String(l.id))} aria-label="Select location rule" />
+                </span>
+              <button
                 onClick={() => setDraft({
                   id: l.id,
                   name: l.name ?? "",
@@ -240,7 +252,7 @@ export function SchemeLocationsTab({ classId, locations }: { classId: string; lo
                   notes: l.notes ?? "",
                   active: !!l.active,
                 })}
-                className="rounded-xl border border-border bg-background p-4 text-left transition hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="block w-full p-4 pr-10 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <div className="flex items-start justify-between gap-2">
                   <p className="truncate text-sm font-medium">{l.name}</p>
@@ -253,7 +265,9 @@ export function SchemeLocationsTab({ classId, locations }: { classId: string; lo
                   {Number(l.radius_miles ?? 0)} mi · {l.scope} · priority {Number(l.priority ?? 100)}
                 </p>
               </button>
-            ))}
+              </div>
+              );
+            })}
           </div>
         )}
       </div>
