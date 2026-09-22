@@ -104,15 +104,27 @@ async function buildValidation(
   rows: Record<string, unknown>[],
 ): Promise<BulkValidation> {
   // Existing ids + natural keys, so we can label rows new vs update.
-  const select = entity.naturalKey ? `id, ${entity.naturalKey}` : "id";
+  const identityFields = [entity.naturalKey, ...(entity.matchFields ?? [])].filter(
+    (field): field is string => Boolean(field),
+  );
+  const select = ["id", ...identityFields].filter((field, index, all) => all.indexOf(field) === index).join(", ");
   const { data: existing, error } = await supabase.from(entity.table).select(select).limit(20000);
   if (error) throw new Error(error.message);
   const ids = new Set<string>((existing ?? []).map((r: Record<string, unknown>) => String(r["id"])));
   const byNatural = new Map<string, string>();
+  const byComposite = new Map<string, string>();
   if (entity.naturalKey) {
     for (const r of existing ?? []) {
       const nk = r[entity.naturalKey];
       if (nk != null) byNatural.set(String(nk).toLowerCase(), String(r["id"]));
+    }
+  }
+  if (entity.matchFields?.length) {
+    for (const r of existing ?? []) {
+      const values = entity.matchFields.map((field) => r[field]);
+      if (values.every((value) => value != null && String(value).trim() !== "")) {
+        byComposite.set(values.map((value) => String(value).trim().toLowerCase()).join("\u001f"), String(r["id"]));
+      }
     }
   }
 
@@ -187,6 +199,18 @@ async function buildValidation(
         if (seen.has(k)) errors.push(`duplicate ${entity.naturalKey} within this file`);
         seen.add(k);
         const match = byNatural.get(k);
+        if (match) {
+          payload["id"] = match;
+          status = "update";
+        }
+      }
+    } else if (entity.matchFields?.length) {
+      const values = entity.matchFields.map((field) => payload[field]);
+      if (values.every((value) => value != null && String(value).trim() !== "")) {
+        const composite = values.map((value) => String(value).trim().toLowerCase()).join("\u001f");
+        if (seen.has(composite)) errors.push(`duplicate ${entity.matchFields.join(" + ")} within this file`);
+        seen.add(composite);
+        const match = byComposite.get(composite);
         if (match) {
           payload["id"] = match;
           status = "update";
