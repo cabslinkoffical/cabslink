@@ -13,6 +13,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Plus, Edit, Trash2, Search } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
+import { PlaceAutocomplete, type SelectedPlace } from "@/components/site/PlaceAutocomplete";
 
 const opts = queryOptions({ queryKey: ["admin", "addresses"], queryFn: () => listAddresses() });
 export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/addresses")({
@@ -84,7 +85,7 @@ function AddressesPage() {
               <tr>
                 <th className="text-left px-4 py-3">#</th>
                 <th className="text-left px-4 py-3">Address</th>
-                <th className="text-left px-4 py-3">Comparable</th>
+                <th className="text-left px-4 py-3">Matching</th>
                 <th className="text-left px-4 py-3">Pickup £</th>
                 <th className="text-left px-4 py-3">Dropoff £</th>
                 <th className="text-left px-4 py-3">Status</th>
@@ -97,7 +98,11 @@ function AddressesPage() {
                 <tr key={a.id} className="hover:bg-muted/30">
                   <td className="px-4 py-3 text-muted-foreground">{i + 1}</td>
                   <td className="px-4 py-3 font-medium">{a.name}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{a.comparable_value ?? "—"}</td>
+                  <td className="px-4 py-3 text-muted-foreground">
+                    {a.place_id
+                      ? <span className="rounded-full bg-success/15 px-2.5 py-1 text-xs text-success">Exact place</span>
+                      : <span title="Matches any address containing this text" className="rounded-full bg-destructive/10 px-2.5 py-1 text-xs text-destructive">Text: {a.comparable_value || a.name}</span>}
+                  </td>
                   <td className="px-4 py-3">£{Number(a.pickup_charge).toFixed(2)}</td>
                   <td className="px-4 py-3">£{Number(a.dropoff_charge).toFixed(2)}</td>
                   <td className="px-4 py-3"><StatusBadge status={a.active ? "active" : "inactive"} /></td>
@@ -126,10 +131,39 @@ function AddressesPage() {
           <DialogHeader><DialogTitle>{form?.id ? "Edit address" : "Add address"}</DialogTitle></DialogHeader>
           {form && (
             <div className="space-y-4">
-              <div><Label>Address name / full text *</Label><Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} /></div>
+              <div>
+                <Label>Address *</Label>
+                <PlaceAutocomplete
+                  value={form.place_id ? { placeId: form.place_id, label: form.name || "" } : null}
+                  initialText={form.place_id ? undefined : (form.name || "")}
+                  onChange={(p: SelectedPlace | null) =>
+                    setForm({
+                      ...form,
+                      place_id: p?.placeId ?? "",
+                      name: p?.label ?? "",
+                      // A picked place is matched on its Place ID alone, so the
+                      // loose text fallback is cleared to keep it exact.
+                      comparable_value: p ? "" : (form.comparable_value ?? ""),
+                    })
+                  }
+                  placeholder="Search the exact address, airport or postcode"
+                />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {form.place_id
+                    ? "Locked to this exact place — the charges below apply only when a customer picks this same address."
+                    : "Pick an address from the suggestions so the charge applies to that place only."}
+                </p>
+              </div>
               <div><Label>Short label</Label><Input value={form.label ?? ""} onChange={e => setForm({ ...form, label: e.target.value })} placeholder="e.g. Heathrow T5" /></div>
-              <div><Label>Google Place ID</Label><Input value={form.place_id ?? ""} onChange={e => setForm({ ...form, place_id: e.target.value })} placeholder="ChIJ…" /></div>
-              <div><Label>Comparable / search value</Label><Input value={form.comparable_value ?? ""} onChange={e => setForm({ ...form, comparable_value: e.target.value })} placeholder="Fallback text match (e.g. 'heathrow')" /></div>
+              {!form.place_id && (
+                <div>
+                  <Label>Text match (only if you cannot pick a place)</Label>
+                  <Input value={form.comparable_value ?? ""} onChange={e => setForm({ ...form, comparable_value: e.target.value })} placeholder="e.g. 'heathrow'" />
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Applies to every address containing this text — far less precise than picking a place.
+                  </p>
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-3">
                 <div><Label>Pickup charge (£)</Label><Input type="number" step="0.01" value={form.pickup_charge} onChange={e => setForm({ ...form, pickup_charge: Number(e.target.value) })} /></div>
                 <div><Label>Dropoff charge (£)</Label><Input type="number" step="0.01" value={form.dropoff_charge} onChange={e => setForm({ ...form, dropoff_charge: Number(e.target.value) })} /></div>
