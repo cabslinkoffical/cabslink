@@ -101,6 +101,7 @@ const windowFields: BulkField[] = [
 export const BULK_ENTITIES: BulkEntity[] = [
   {
     key: "pricing_rules",
+    refs: [vehicleClassRef],
     flags: [{ name: "active", label: "Active" }],
     deletable: true,
     label: "Route Pricing (fixed routes)",
@@ -127,6 +128,7 @@ export const BULK_ENTITIES: BulkEntity[] = [
       { name: "to_lng", type: "number" },
       { name: "to_radius_miles", type: "number" },
       { name: "vehicle_class_id", type: "string" },
+      ...vehicleClassRefFields,
       { name: "vehicle_id", type: "string" },
       { name: "bidirectional", type: "boolean" },
       { name: "valid_for_return", type: "boolean" },
@@ -139,6 +141,7 @@ export const BULK_ENTITIES: BulkEntity[] = [
   },
   {
     key: "location_pricing_rules",
+    refs: [vehicleClassRef],
     flags: [{ name: "active", label: "Active" }],
     deletable: true,
     label: "Location Pricing (zones)",
@@ -155,6 +158,7 @@ export const BULK_ENTITIES: BulkEntity[] = [
       { name: "extra_per_mile", type: "number" },
       ...geoFields,
       { name: "vehicle_class_id", type: "string" },
+      ...vehicleClassRefFields,
       { name: "priority", type: "number" },
       { name: "notes", type: "string" },
       { name: "active", type: "boolean" },
@@ -162,6 +166,7 @@ export const BULK_ENTITIES: BulkEntity[] = [
   },
   {
     key: "pricing_modifiers",
+    refs: [vehicleClassRef],
     flags: [{ name: "active", label: "Active" }],
     deletable: true,
     label: "Pricing Modifiers (surge / uplift / discount)",
@@ -178,6 +183,7 @@ export const BULK_ENTITIES: BulkEntity[] = [
       ...windowFields,
       { name: "service_types", type: "strings" },
       { name: "vehicle_class_id", type: "string" },
+      ...vehicleClassRefFields,
       { name: "stackable", type: "boolean" },
       { name: "priority", type: "number" },
       { name: "notes", type: "string" },
@@ -186,6 +192,7 @@ export const BULK_ENTITIES: BulkEntity[] = [
   },
   {
     key: "availability_rules",
+    refs: [vehicleClassRef],
     flags: [{ name: "active", label: "Active" }],
     deletable: true,
     label: "Availability Rules (block / allow)",
@@ -202,6 +209,7 @@ export const BULK_ENTITIES: BulkEntity[] = [
       ...windowFields,
       { name: "service_types", type: "strings" },
       { name: "vehicle_class_id", type: "string" },
+      ...vehicleClassRefFields,
       { name: "vehicle_id", type: "string" },
       { name: "priority", type: "number" },
       { name: "reason", type: "string" },
@@ -210,6 +218,7 @@ export const BULK_ENTITIES: BulkEntity[] = [
   },
   {
     key: "hourly_rates",
+    refs: [vehicleClassRef],
     flags: [{ name: "active", label: "Active" }],
     deletable: true,
     label: "Hourly & Daily Rates",
@@ -227,6 +236,7 @@ export const BULK_ENTITIES: BulkEntity[] = [
       { name: "extra_mile_rate", type: "number" },
       { name: "currency", type: "string" },
       { name: "vehicle_class_id", type: "string" },
+      ...vehicleClassRefFields,
       { name: "vehicle_id", type: "string" },
       { name: "display_order", type: "number" },
       { name: "priority", type: "number" },
