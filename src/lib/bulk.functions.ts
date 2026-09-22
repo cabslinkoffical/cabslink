@@ -216,18 +216,32 @@ async function applyGeoResolution(
     return [...parts, "United Kingdom"].join(", ");
   };
 
-  const wanted: string[] = [];
+  // Coordinates supplied in the sheet make the lookup exact; a row with only
+  // coordinates is resolved by reverse geocoding.
+  const num = (v: BulkCell) => {
+    const n = typeof v === "number" ? v : typeof v === "string" ? Number(v) : NaN;
+    return Number.isFinite(n) ? n : null;
+  };
+  const requestFor = (payload: Record<string, BulkCell>, spec: NonNullable<BulkEntity["geo"]>[number]) => {
+    const text = searchTextFor(payload, spec);
+    const lat = spec.lat ? num(payload[spec.lat]) : null;
+    const lng = spec.lng ? num(payload[spec.lng]) : null;
+    if (!text && (lat == null || lng == null)) return null;
+    return { text: text ?? "", lat, lng };
+  };
+
+  const wanted: Array<{ text: string; lat: number | null; lng: number | null }> = [];
   for (const { payload } of staged) {
     for (const spec of entity.geo) {
       const current = payload[spec.placeId];
       if (typeof current === "string" && current.trim().length > 0) continue;
-      const text = searchTextFor(payload, spec);
-      if (text) wanted.push(text);
+      const req = requestFor(payload, spec);
+      if (req) wanted.push(req);
     }
   }
   if (wanted.length === 0) return { resolved: 0, unresolved: [], capped: false };
 
-  const { resolvePlaceTexts, placeTextKey } = await import("@/lib/place-resolve.server");
+  const { resolvePlaceTexts, placeRequestKey } = await import("@/lib/place-resolve.server");
   const { map, capped } = await resolvePlaceTexts(wanted);
 
   let resolved = 0;
@@ -236,9 +250,10 @@ async function applyGeoResolution(
     for (const spec of entity.geo) {
       const current = payload[spec.placeId];
       if (typeof current === "string" && current.trim().length > 0) continue;
-      const text = searchTextFor(payload, spec);
-      if (!text) continue;
-      const hit = map.get(placeTextKey(text));
+      const req = requestFor(payload, spec);
+      if (!req) continue;
+      const text = req.text || `${req.lat},${req.lng}`;
+      const hit = map.get(placeRequestKey(req));
       if (!hit) {
         unresolved.add(text);
         const field = entity.fields.find((f) => f.name === spec.placeId);
