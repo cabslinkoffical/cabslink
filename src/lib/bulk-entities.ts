@@ -29,6 +29,34 @@ export type BulkGeoSpec = {
   lng?: string;
 };
 
+/**
+ * Tells the importer to fill a uuid column (e.g. `vehicle_class_id`) from a
+ * plain name or slug typed in the spreadsheet, so nobody has to paste IDs.
+ */
+export type BulkRefSpec = {
+  /** Column that receives the uuid. */
+  idField: string;
+  /** Columns that may carry the human name or slug. */
+  textFields: string[];
+  /** Table to look the name up in. */
+  table: string;
+  /** Columns in that table to match against, case-insensitively. */
+  matchColumns: string[];
+  /** Shown in the error when nothing matches. */
+  label: string;
+};
+
+/** Every dataset that hangs off a vehicle class accepts its name or slug. */
+const vehicleClassRef: BulkRefSpec = {
+  idField: "vehicle_class_id",
+  textFields: ["vehicle_class", "vehicle_class_name", "vehicle_class_slug"],
+  table: "vehicle_classes",
+  matchColumns: ["name", "slug"],
+  label: "vehicle class",
+};
+
+const vehicleClassRefFields: BulkField[] = [{ name: "vehicle_class", type: "string" }];
+
 export type BulkEntity = {
   key: string;
   label: string;
