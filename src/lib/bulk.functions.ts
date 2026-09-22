@@ -104,7 +104,11 @@ async function buildValidation(
   rows: Record<string, unknown>[],
 ): Promise<BulkValidation> {
   // Existing ids + natural keys, so we can label rows new vs update.
-  const identityFields = [entity.naturalKey, ...(entity.matchFields ?? [])].filter(
+  const identityFields = [
+    entity.naturalKey,
+    ...(entity.matchFields ?? []),
+    ...(entity.key === "pricing_rules" ? ["vehicle_id", "bidirectional"] : []),
+  ].filter(
     (field): field is string => Boolean(field),
   );
   const select = ["id", ...identityFields].filter((field, index, all) => all.indexOf(field) === index).join(", ");
@@ -210,7 +214,26 @@ async function buildValidation(
         const composite = values.map((value) => String(value).trim().toLowerCase()).join("\u001f");
         if (seen.has(composite)) errors.push(`duplicate ${entity.matchFields.join(" + ")} within this file`);
         seen.add(composite);
-        const match = byComposite.get(composite);
+        let match = byComposite.get(composite);
+
+        // A two-way fixed route is one record, not separate A→B and B→A rows.
+        // Match an existing reversed route when either record is bidirectional,
+        // while still keeping identical routes separate for each vehicle class.
+        if (!match && entity.key === "pricing_rules") {
+          const classId = payload["vehicle_class_id"];
+          const vehicleId = payload["vehicle_id"];
+          const from = payload["from_place_id"];
+          const to = payload["to_place_id"];
+          const incomingBidirectional = payload["bidirectional"] === true;
+          const reversed = (existing ?? []).find((row: Record<string, unknown>) =>
+            String(row["vehicle_class_id"] ?? "") === String(classId ?? "") &&
+            String(row["vehicle_id"] ?? "") === String(vehicleId ?? "") &&
+            String(row["from_place_id"] ?? "") === String(to ?? "") &&
+            String(row["to_place_id"] ?? "") === String(from ?? "") &&
+            (row["bidirectional"] === true || incomingBidirectional),
+          );
+          if (reversed?.["id"] != null) match = String(reversed["id"]);
+        }
         if (match) {
           payload["id"] = match;
           status = "update";
