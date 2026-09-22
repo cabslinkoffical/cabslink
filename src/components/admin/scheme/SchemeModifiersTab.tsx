@@ -179,6 +179,25 @@ export function SchemeModifiersTab({ classId, modifiers }: { classId: string; mo
           </div>
         </div>
 
+        {draft.place && (
+          <div className="mt-4 space-y-2">
+            <AdminMapEditor
+              mode="radius"
+              origin={draft.place}
+              radiusMiles={draft.radius}
+              onClearOrigin={() => setDraft((d) => ({ ...d, place: null, lat: null, lng: null }))}
+              onCoords={(c) => setDraft((d) => ({ ...d, lat: c.origin?.lat ?? null, lng: c.origin?.lng ?? null }))}
+              height={260}
+            />
+            <p className="text-xs text-muted-foreground tabular-nums">
+              Coordinates: {draft.lat != null && draft.lng != null
+                ? `${draft.lat.toFixed(6)}, ${draft.lng.toFixed(6)}`
+                : "resolving from Google Maps…"}
+            </p>
+          </div>
+        )}
+
+
         <div className="mt-5 space-y-4">
           <Field label="Days of week" hint="None selected = every day.">
             <div className="flex flex-wrap gap-2">
