@@ -335,6 +335,7 @@ export const BULK_ENTITIES: BulkEntity[] = [
     table: "points_of_interest",
     naturalKey: "slug",
     orderBy: "admin_priority",
+    geo: [{ placeId: "place_id", text: ["address_label", "name"], context: ["name"], label: "address_label", lat: "latitude", lng: "longitude" }],
     flags: [{ name: "active", label: "Active" }, { name: "featured", label: "Featured" }],
     deletable: true,
     fields: [
@@ -367,6 +368,10 @@ export const BULK_ENTITIES: BulkEntity[] = [
     table: "scenic_route_templates",
     naturalKey: "slug",
     orderBy: "display_order",
+    geo: [
+      { placeId: "origin_place_id", text: ["origin_label"], label: "origin_label" },
+      { placeId: "destination_place_id", text: ["destination_label"], label: "destination_label" },
+    ],
     flags: [{ name: "active", label: "Active" }, { name: "published", label: "Published" }, { name: "featured", label: "Featured" }],
     deletable: true,
     fields: [
@@ -422,6 +427,7 @@ export const BULK_ENTITIES: BulkEntity[] = [
     table: "destinations",
     naturalKey: "slug",
     orderBy: "seo_tier",
+    geo: [{ placeId: "place_id", text: ["name"], context: ["town", "region", "country"], lat: "lat", lng: "lng" }],
     flags: [{ name: "active", label: "Active" }, { name: "noindex", label: "No-index" }],
     deletable: true,
     fields: [
