@@ -126,7 +126,8 @@ async function buildValidation(
   }
 
 
-  rows.forEach((raw, index) => {
+  // Pass 1 — whitelist + coerce every cell.
+  const staged = rows.map((raw) => {
     const errors: string[] = [];
     const payload: Record<string, BulkCell> = {};
     for (const field of entity.fields) {
@@ -141,7 +142,15 @@ async function buildValidation(
       if ("error" in out) errors.push(out.error);
       else payload[field.name] = out.value as BulkCell;
     }
+    return { payload, errors };
+  });
 
+  // Pass 2 — fill any missing Place ID from the address text in the file, so a
+  // spreadsheet never has to carry Google IDs.
+  const geo = await applyGeoResolution(entity, staged);
+
+  // Pass 3 — decide new vs update and collect the report.
+  staged.forEach(({ payload, errors }, index) => {
     let status: BulkRowReport["status"] = "new";
     const id = payload["id"] ? String(payload["id"]) : undefined;
     if (id) {
@@ -177,7 +186,74 @@ async function buildValidation(
     rows: reports,
     unknownColumns: [...unknown].sort(),
     payloads,
+    placesResolved: geo.resolved,
+    placesUnresolved: geo.unresolved,
+    placesCapped: geo.capped,
   };
+}
+
+/**
+ * Looks up a Google Place ID for every row whose Place ID column is blank but
+ * that carries address text, and writes the id, label and coordinates back into
+ * the payload. Rows keep any Place ID they already supplied.
+ */
+async function applyGeoResolution(
+  entity: BulkEntity,
+  staged: Array<{ payload: Record<string, BulkCell>; errors: string[] }>,
+): Promise<{ resolved: number; unresolved: string[]; capped: boolean }> {
+  if (!entity.geo?.length) return { resolved: 0, unresolved: [], capped: false };
+
+  const searchTextFor = (payload: Record<string, BulkCell>, spec: NonNullable<BulkEntity["geo"]>[number]) => {
+    const base = spec.text.map((f) => payload[f]).find((v) => typeof v === "string" && v.trim().length > 1);
+    if (typeof base !== "string") return null;
+    const extra = (spec.context ?? [])
+      .filter((f) => !spec.text.includes(f))
+      .map((f) => payload[f])
+      .filter((v): v is string => typeof v === "string" && v.trim().length > 0);
+    const parts = [base.trim(), ...extra.map((v) => v.trim())].filter(
+      (v, i, arr) => arr.findIndex((o) => o.toLowerCase() === v.toLowerCase()) === i,
+    );
+    return [...parts, "United Kingdom"].join(", ");
+  };
+
+  const wanted: string[] = [];
+  for (const { payload } of staged) {
+    for (const spec of entity.geo) {
+      const current = payload[spec.placeId];
+      if (typeof current === "string" && current.trim().length > 0) continue;
+      const text = searchTextFor(payload, spec);
+      if (text) wanted.push(text);
+    }
+  }
+  if (wanted.length === 0) return { resolved: 0, unresolved: [], capped: false };
+
+  const { resolvePlaceTexts, placeTextKey } = await import("@/lib/place-resolve.server");
+  const { map, capped } = await resolvePlaceTexts(wanted);
+
+  let resolved = 0;
+  const unresolved = new Set<string>();
+  for (const { payload, errors } of staged) {
+    for (const spec of entity.geo) {
+      const current = payload[spec.placeId];
+      if (typeof current === "string" && current.trim().length > 0) continue;
+      const text = searchTextFor(payload, spec);
+      if (!text) continue;
+      const hit = map.get(placeTextKey(text));
+      if (!hit) {
+        unresolved.add(text);
+        const field = entity.fields.find((f) => f.name === spec.placeId);
+        if (field?.required) errors.push(`${spec.placeId}: could not find “${text}” on Google Maps`);
+        continue;
+      }
+      payload[spec.placeId] = hit.placeId;
+      resolved += 1;
+      if (spec.label && !payload[spec.label]) payload[spec.label] = hit.label;
+      if (spec.lat && payload[spec.lat] == null && hit.lat != null) payload[spec.lat] = hit.lat;
+      if (spec.lng && payload[spec.lng] == null && hit.lng != null) payload[spec.lng] = hit.lng;
+    }
+  }
+
+  return { resolved, unresolved: [...unresolved].slice(0, 25), capped };
 }
 
 const rowsInput = z.object({
