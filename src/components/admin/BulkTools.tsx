@@ -92,7 +92,17 @@ export function BulkTools({
     setParsing(true);
     setValidation(null);
     try {
-      setParsed(await parseImportFile(file));
+      const result = await parseImportFile(file);
+      setParsed(result);
+      if (!result.rows.length) {
+        toast.error("That file has no data rows.");
+        return;
+      }
+      // Check the file straight away so the report is on screen before importing.
+      const v = await validateBulkImport({ data: { entity: entityKey, rows: result.rows } });
+      setValidation(v);
+      if (v.counts.invalid > 0) toast.warning(`${v.counts.invalid} of ${v.total} row(s) need attention`);
+      else toast.success(`${v.total} row(s) ready to import`);
     } catch (e) {
       toast.error((e as Error).message ?? "Could not read file");
       setParsed(null);
@@ -100,6 +110,11 @@ export function BulkTools({
       setParsing(false);
     }
   }
+
+  const importable = validation
+    ? (skipInvalid ? validation.total - validation.counts.invalid : validation.total) > 0 &&
+      (skipInvalid || validation.counts.invalid === 0)
+    : false;
 
   return (
     <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) { setParsed(null); setValidation(null); } }}>
