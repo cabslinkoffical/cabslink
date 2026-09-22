@@ -13,6 +13,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Plus, Edit, Trash2, Search } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
+import { PlaceAutocomplete, type SelectedPlace } from "@/components/site/PlaceAutocomplete";
 
 const opts = queryOptions({ queryKey: ["admin", "addresses"], queryFn: () => listAddresses() });
 export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/addresses")({
