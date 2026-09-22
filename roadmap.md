@@ -31,3 +31,4 @@
 - [ ] Redesign /book/tour for clarity and ease of use (user request 14 Sep)
 - [x] Performance 1/3: responsive WebP delivery for homepage service cards, fleet cards, and logo
 - [x] Bulk pricing import: resolve typed From/To locations to Google Place IDs and coordinates
+- [x] Bulk pricing import: match coordinate-resolved routes per vehicle class and update existing two-way routes without false conflicts
