@@ -506,7 +506,7 @@ export function PlaceAutocomplete({
             </li>
           )}
         </ul>,
-        document.body,
+        portalTarget,
       )}
     </div>
   );
