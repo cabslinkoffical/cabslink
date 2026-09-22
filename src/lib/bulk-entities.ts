@@ -12,6 +12,23 @@ export type BulkField = {
   required?: boolean;
 };
 
+/**
+ * Tells the importer to look a Place ID up from plain address text, so a
+ * spreadsheet never has to carry Google IDs.
+ */
+export type BulkGeoSpec = {
+  /** Column that receives the Google Place ID. */
+  placeId: string;
+  /** Address columns to search, first non-empty wins. */
+  text: string[];
+  /** Extra columns appended to the search text for disambiguation. */
+  context?: string[];
+  /** Optional columns filled from the same lookup. */
+  label?: string;
+  lat?: string;
+  lng?: string;
+};
+
 export type BulkEntity = {
   key: string;
   label: string;
@@ -24,6 +41,8 @@ export type BulkEntity = {
   flags?: { name: string; label: string }[];
   /** Whether selected rows may be deleted in bulk. */
   deletable?: boolean;
+  /** Place ID columns the importer fills in automatically from address text. */
+  geo?: BulkGeoSpec[];
 };
 
 const geoFields: BulkField[] = [
