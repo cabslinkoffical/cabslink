@@ -54,6 +54,9 @@ export function SchemeLocationsTab({ classId, locations }: { classId: string; lo
     qc.invalidateQueries({ queryKey: ["quotes"] }),
   ]);
 
+  const allIds = useMemo(() => locations.map((l) => String(l.id)), [locations]);
+  const sel = useRowSelection(allIds);
+
   const save = useMutation({
     mutationFn: () => {
       if (!draft.place) throw new Error("Choose the location this zone is centred on.");

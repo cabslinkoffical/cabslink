@@ -56,6 +56,9 @@ export function SchemeModifiersTab({ classId, modifiers }: { classId: string; mo
     qc.invalidateQueries({ queryKey: ["quotes"] }),
   ]);
 
+  const allIds = useMemo(() => modifiers.map((m) => String(m.id)), [modifiers]);
+  const sel = useRowSelection(allIds);
+
   const save = useMutation({
     mutationFn: () => {
       if (!draft.name.trim()) throw new Error("Give the modifier a name.");
