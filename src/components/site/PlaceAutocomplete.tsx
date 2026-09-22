@@ -442,11 +442,11 @@ export function PlaceAutocomplete({
           Address lookup temporarily unavailable — you can still type your address. We’ll ask you to confirm it before continuing.
         </p>
       )}
-      {open && suggestions.length > 0 && typeof document !== "undefined" && createPortal(
+      {open && suggestions.length > 0 && portalTarget && createPortal(
         <ul
           id={listboxId}
           role="listbox"
-          style={{ ...dropdownStyle, maxHeight: maxH }}
+          style={{ ...dropdownStyle, maxHeight: maxH, pointerEvents: "auto" }}
           className={cn(
             "fixed z-[9999] min-w-[275px] overflow-auto rounded-lg border border-[var(--gold)]/35 bg-[var(--popover)] text-[var(--popover-foreground)] shadow-[0_24px_70px_-22px_color-mix(in_oklab,var(--navy)_55%,transparent)]",
           )}
