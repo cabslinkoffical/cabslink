@@ -120,20 +120,22 @@ async function lookup(text: string, bias?: { lat: number; lng: number }): Promis
  * huge file cannot run away with Maps usage.
  */
 export async function resolvePlaceTexts(
-  texts: string[],
+  requests: Array<string | PlaceRequest>,
   maxLookups = 300,
 ): Promise<{ map: Map<string, ResolvedPlace>; lookups: number; capped: boolean }> {
   const map = new Map<string, ResolvedPlace>();
-  const pending: string[] = [];
-  for (const raw of texts) {
-    const key = norm(raw);
+  const pending: PlaceRequest[] = [];
+  for (const raw of requests) {
+    const req: PlaceRequest = typeof raw === "string" ? { text: raw } : raw;
+    const hasCoords = typeof req.lat === "number" && typeof req.lng === "number";
+    const key = norm(req.text ?? "") || (hasCoords ? `@${req.lat},${req.lng}` : "");
     if (!key) continue;
     if (cache.has(key)) {
       const hit = cache.get(key);
       if (hit) map.set(key, hit);
       continue;
     }
-    if (!pending.includes(key)) pending.push(key);
+    if (!pending.some((p) => (norm(p.text ?? "") || `@${p.lat},${p.lng}`) === key)) pending.push(req);
   }
 
   const capped = pending.length > maxLookups;
@@ -142,8 +144,19 @@ export async function resolvePlaceTexts(
   const CONCURRENCY = 4;
   for (let i = 0; i < todo.length; i += CONCURRENCY) {
     const batch = todo.slice(i, i + CONCURRENCY);
-    const results = await Promise.all(batch.map((t) => lookup(t)));
-    batch.forEach((t, j) => {
+    const results = await Promise.all(
+      batch.map((req) => {
+        const bias =
+          typeof req.lat === "number" && typeof req.lng === "number"
+            ? { lat: req.lat, lng: req.lng }
+            : undefined;
+        const text = norm(req.text ?? "");
+        if (!text && bias) return reverseLookup(bias.lat, bias.lng);
+        return lookup(text, bias);
+      }),
+    );
+    batch.forEach((req, j) => {
+      const t = norm(req.text ?? "") || `@${req.lat},${req.lng}`;
       const r = results[j] ?? null;
       lookups += 1;
       // Cache successful matches only. A temporary Maps error must not poison
