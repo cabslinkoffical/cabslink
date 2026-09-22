@@ -196,6 +196,51 @@ async function buildValidation(
 }
 
 /**
+ * Fills uuid columns (e.g. `vehicle_class_id`) from a plain name or slug typed
+ * in the spreadsheet, so an import never needs database IDs.
+ */
+async function applyRefResolution(
+  supabase: SupabaseLike,
+  entity: BulkEntity,
+  staged: Array<{ payload: Record<string, BulkCell>; errors: string[] }>,
+): Promise<void> {
+  if (!entity.refs?.length) return;
+  for (const spec of entity.refs) {
+    const needed = staged.some(({ payload }) => {
+      const current = payload[spec.idField];
+      const hasId = typeof current === "string" && current.trim().length > 0;
+      return !hasId && spec.textFields.some((f) => typeof payload[f] === "string" && String(payload[f]).trim());
+    });
+    if (!needed) continue;
+
+    const { data, error } = await supabase
+      .from(spec.table)
+      .select(["id", ...spec.matchColumns].join(", "))
+      .limit(5000);
+    if (error) throw new Error(error.message);
+    const byText = new Map<string, string>();
+    for (const row of (data ?? []) as Record<string, unknown>[]) {
+      for (const col of spec.matchColumns) {
+        const v = row[col];
+        if (v != null) byText.set(String(v).trim().toLowerCase(), String(row["id"]));
+      }
+    }
+
+    for (const { payload, errors } of staged) {
+      const current = payload[spec.idField];
+      if (typeof current === "string" && current.trim().length > 0) continue;
+      const text = spec.textFields
+        .map((f) => payload[f])
+        .find((v) => typeof v === "string" && String(v).trim().length > 0);
+      if (typeof text !== "string") continue;
+      const match = byText.get(text.trim().toLowerCase());
+      if (match) payload[spec.idField] = match;
+      else errors.push(`${spec.idField}: no ${spec.label} called “${text.trim()}”`);
+    }
+  }
+}
+
+/**
  * Looks up a Google Place ID for every row whose Place ID column is blank but
  * that carries address text, and writes the id, label and coordinates back into
  * the payload. Rows keep any Place ID they already supplied.
