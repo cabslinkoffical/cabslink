@@ -150,9 +150,8 @@ export function SchemeModifiersTab({ classId, modifiers }: { classId: string; mo
           </Field>
           <Field label="Location (optional)" hint="Leave blank to apply everywhere. Pick from the suggestions so the exact place is saved.">
             <PlaceAutocomplete
-              value={draft.place?.label ?? ""}
-              onSelect={(p) => setDraft((d) => ({ ...d, place: p, lat: null, lng: null }))}
-              onClear={() => setDraft((d) => ({ ...d, place: null, lat: null, lng: null }))}
+              value={draft.place}
+              onChange={(p) => setDraft((d) => ({ ...d, place: p, lat: null, lng: null }))}
               placeholder="e.g. Edinburgh Airport"
             />
           </Field>
