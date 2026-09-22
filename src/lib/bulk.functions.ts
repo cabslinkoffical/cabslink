@@ -340,6 +340,31 @@ async function applyGeoResolution(
   return { resolved, unresolved: [...unresolved].slice(0, 25), capped };
 }
 
+/**
+ * Validating a file costs Google Place lookups, so the report produced for the
+ * "check" step is reused by the import that follows instead of doing the whole
+ * job twice. Keyed by the exact file contents, per running server.
+ */
+const validationCache = new Map<string, BulkValidation>();
+
+function cacheKey(entityKey: string, rows: Record<string, unknown>[]) {
+  return `${entityKey}:${rows.length}:${JSON.stringify(rows)}`;
+}
+
+async function validationFor(
+  supabase: SupabaseLike,
+  entity: BulkEntity,
+  rows: Record<string, unknown>[],
+): Promise<BulkValidation> {
+  const key = cacheKey(entity.key, rows);
+  const hit = validationCache.get(key);
+  if (hit) return hit;
+  const report = await buildValidation(supabase, entity, rows);
+  if (validationCache.size > 8) validationCache.delete(validationCache.keys().next().value as string);
+  validationCache.set(key, report);
+  return report;
+}
+
 const rowsInput = z.object({
   entity: z.string().min(1),
   rows: z.array(z.record(z.string(), z.unknown())).max(20000),
@@ -380,7 +405,7 @@ export const validateBulkImport = createServerFn({ method: "POST" })
     await assertAdmin(context);
     const entity = getBulkEntity(data.entity);
     if (!entity) throw new Error("Unknown entity");
-    return buildValidation(context.supabase as SupabaseLike, entity, data.rows);
+    return validationFor(context.supabase as SupabaseLike, entity, data.rows);
   });
 
 export const commitBulkImport = createServerFn({ method: "POST" })
@@ -391,7 +416,7 @@ export const commitBulkImport = createServerFn({ method: "POST" })
     const entity = getBulkEntity(data.entity);
     if (!entity) throw new Error("Unknown entity");
     const supabase = context.supabase as SupabaseLike;
-    const report = await buildValidation(supabase, entity, data.rows);
+    const report = await validationFor(supabase, entity, data.rows);
     if (report.counts.invalid > 0 && !data.skipInvalid) {
       throw new Error(`${report.counts.invalid} invalid row(s) — fix them or enable "skip invalid rows".`);
     }
@@ -436,5 +461,7 @@ export const commitBulkImport = createServerFn({ method: "POST" })
       }
     }
 
+    // The file has been written — a re-upload should be re-checked fresh.
+    validationCache.delete(cacheKey(entity.key, data.rows));
     return { ok: true, written, skipped: report.counts.invalid, failures: failures.slice(0, 50) };
   });
