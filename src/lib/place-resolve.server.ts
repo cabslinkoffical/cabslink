@@ -11,6 +11,7 @@ import { getGoogleMapsApiKey } from "@/lib/google-maps-env";
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_maps";
 
 export type ResolvedPlace = { placeId: string; label: string; lat: number | null; lng: number | null };
+export type PlaceRequest = { text: string; lat?: number | null; lng?: number | null };
 
 const cache = new Map<string, ResolvedPlace | null>();
 
@@ -18,10 +19,49 @@ function norm(text: string) {
   return text.toLowerCase().replace(/\s+/g, " ").trim();
 }
 
-async function lookup(text: string): Promise<ResolvedPlace | null> {
+function gatewayHeaders(lovableKey: string, apiKey: string, fieldMask: string) {
+  return {
+    Authorization: `Bearer ${lovableKey}`,
+    "X-Connection-Api-Key": apiKey,
+    "Content-Type": "application/json",
+    "X-Goog-FieldMask": fieldMask,
+  };
+}
+
+/**
+ * Reverse geocode a coordinate pair into a Place ID when the sheet supplies
+ * coordinates but no usable address text.
+ */
+async function reverseLookup(lat: number, lng: number): Promise<ResolvedPlace | null> {
   const apiKey = getGoogleMapsApiKey();
   const lovableKey = process.env["LOVABLE_API_KEY"];
   if (!lovableKey) return null;
+  try {
+    const res = await fetch(
+      `${GATEWAY_URL}/maps/api/geocode/json?latlng=${lat},${lng}&region=gb&language=en-GB`,
+      { headers: { Authorization: `Bearer ${lovableKey}`, "X-Connection-Api-Key": apiKey } },
+    );
+    if (!res.ok) {
+      console.error(`[bulk-import] reverse geocode failed [${res.status}]`);
+      return null;
+    }
+    const json = (await res.json()) as {
+      results?: Array<{ place_id?: string; formatted_address?: string }>;
+    };
+    const first = json.results?.[0];
+    if (!first?.place_id) return null;
+    return { placeId: first.place_id, label: first.formatted_address ?? `${lat},${lng}`, lat, lng };
+  } catch (e) {
+    console.error(`[bulk-import] reverse geocode threw: ${(e as Error).message}`);
+    return null;
+  }
+}
+
+async function lookup(text: string, bias?: { lat: number; lng: number }): Promise<ResolvedPlace | null> {
+  const apiKey = getGoogleMapsApiKey();
+  const lovableKey = process.env["LOVABLE_API_KEY"];
+  if (!lovableKey) return null;
+
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 8_000);
