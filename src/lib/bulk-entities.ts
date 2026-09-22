@@ -228,6 +228,7 @@ export const BULK_ENTITIES: BulkEntity[] = [
     table: "seo_locations",
     naturalKey: "slug",
     orderBy: "display_priority",
+    geo: [{ placeId: "google_place_id", text: ["name"], context: ["region", "county", "nation"], lat: "latitude", lng: "longitude" }],
     flags: [{ name: "published", label: "Published" }, { name: "featured", label: "Featured" }],
     deletable: true,
     fields: [
@@ -258,6 +259,7 @@ export const BULK_ENTITIES: BulkEntity[] = [
     table: "seo_airports",
     naturalKey: "slug",
     orderBy: "display_priority",
+    geo: [{ placeId: "google_place_id", text: ["name"], context: ["iata_code"], lat: "latitude", lng: "longitude" }],
     flags: [{ name: "published", label: "Published" }, { name: "featured", label: "Featured" }],
     deletable: true,
     fields: [
