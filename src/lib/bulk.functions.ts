@@ -149,6 +149,9 @@ async function buildValidation(
   // spreadsheet never has to carry Google IDs.
   const geo = await applyGeoResolution(entity, staged);
 
+  // Pass 2b — turn a plain vehicle class name/slug into its uuid.
+  await applyRefResolution(supabase, entity, staged);
+
   // Pass 3 — decide new vs update and collect the report.
   staged.forEach(({ payload, errors }, index) => {
     let status: BulkRowReport["status"] = "new";
