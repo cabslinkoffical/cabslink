@@ -135,12 +135,8 @@ export function PlaceAutocomplete({
   // pointer events close the dialog, so the list must live inside that layer.
   const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
   useEffect(() => {
-    if (!open) return;
-    const host = wrapRef.current?.closest<HTMLElement>(
-      '[role="dialog"],[role="alertdialog"],[data-radix-popper-content-wrapper]',
-    );
-    setPortalTarget(host ?? document.body);
-  }, [open]);
+    if (typeof document !== "undefined") setPortalTarget(document.body);
+  }, []);
   const inputRef = useRef<HTMLInputElement>(null);
   const sessionToken = useMemo(() => newSessionToken(), []);
 
