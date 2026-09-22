@@ -260,8 +260,12 @@ export async function loadAreaSurcharges(
       const exact = rows.find((r) => r.place_id && r.place_id === placeId);
       if (exact) return { row: exact, label: (exact.label || exact.name) as string };
     }
+    // A row saved against a Google place applies to that place only — never to
+    // a name that merely looks similar. Text matching is reserved for rows that
+    // were deliberately saved without a place.
     let best: { row: any; label: string; len: number } | null = null;
     for (const r of rows) {
+      if (r.place_id) continue;
       const keys = [r.comparable_value, r.label, r.name].filter(Boolean) as string[];
       for (const k of keys) {
         const kl = k.toLowerCase();
