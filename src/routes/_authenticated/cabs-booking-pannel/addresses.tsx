@@ -98,7 +98,11 @@ function AddressesPage() {
                 <tr key={a.id} className="hover:bg-muted/30">
                   <td className="px-4 py-3 text-muted-foreground">{i + 1}</td>
                   <td className="px-4 py-3 font-medium">{a.name}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{a.comparable_value ?? "—"}</td>
+                  <td className="px-4 py-3 text-muted-foreground">
+                    {a.place_id
+                      ? <span className="rounded-full bg-success/15 px-2.5 py-1 text-xs text-success">Exact place</span>
+                      : <span title="Matches any address containing this text" className="rounded-full bg-destructive/10 px-2.5 py-1 text-xs text-destructive">Text: {a.comparable_value || a.name}</span>}
+                  </td>
                   <td className="px-4 py-3">£{Number(a.pickup_charge).toFixed(2)}</td>
                   <td className="px-4 py-3">£{Number(a.dropoff_charge).toFixed(2)}</td>
                   <td className="px-4 py-3"><StatusBadge status={a.active ? "active" : "inactive"} /></td>
