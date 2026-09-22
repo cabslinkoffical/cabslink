@@ -10,6 +10,8 @@ export type BulkField = {
   name: string;
   type: BulkFieldType;
   required?: boolean;
+  /** Helper column accepted in the file but never written to the database. */
+  virtual?: boolean;
 };
 
 /**
@@ -29,6 +31,38 @@ export type BulkGeoSpec = {
   lng?: string;
 };
 
+/**
+ * Tells the importer to fill a uuid column (e.g. `vehicle_class_id`) from a
+ * plain name or slug typed in the spreadsheet, so nobody has to paste IDs.
+ */
+export type BulkRefSpec = {
+  /** Column that receives the uuid. */
+  idField: string;
+  /** Columns that may carry the human name or slug. */
+  textFields: string[];
+  /** Table to look the name up in. */
+  table: string;
+  /** Columns in that table to match against, case-insensitively. */
+  matchColumns: string[];
+  /** Shown in the error when nothing matches. */
+  label: string;
+};
+
+/** Every dataset that hangs off a vehicle class accepts its name or slug. */
+const vehicleClassRef: BulkRefSpec = {
+  idField: "vehicle_class_id",
+  textFields: ["vehicle_class", "vehicle_class_name", "vehicle_class_slug"],
+  table: "vehicle_classes",
+  matchColumns: ["name", "slug"],
+  label: "vehicle class",
+};
+
+const vehicleClassRefFields: BulkField[] = [
+  { name: "vehicle_class", type: "string", virtual: true },
+  { name: "vehicle_class_name", type: "string", virtual: true },
+  { name: "vehicle_class_slug", type: "string", virtual: true },
+];
+
 export type BulkEntity = {
   key: string;
   label: string;
@@ -43,6 +77,8 @@ export type BulkEntity = {
   deletable?: boolean;
   /** Place ID columns the importer fills in automatically from address text. */
   geo?: BulkGeoSpec[];
+  /** Uuid columns the importer fills in from a name or slug in the file. */
+  refs?: BulkRefSpec[];
 };
 
 const geoFields: BulkField[] = [
@@ -65,6 +101,7 @@ const windowFields: BulkField[] = [
 export const BULK_ENTITIES: BulkEntity[] = [
   {
     key: "pricing_rules",
+    refs: [vehicleClassRef],
     flags: [{ name: "active", label: "Active" }],
     deletable: true,
     label: "Route Pricing (fixed routes)",
@@ -91,6 +128,7 @@ export const BULK_ENTITIES: BulkEntity[] = [
       { name: "to_lng", type: "number" },
       { name: "to_radius_miles", type: "number" },
       { name: "vehicle_class_id", type: "string" },
+      ...vehicleClassRefFields,
       { name: "vehicle_id", type: "string" },
       { name: "bidirectional", type: "boolean" },
       { name: "valid_for_return", type: "boolean" },
@@ -103,6 +141,7 @@ export const BULK_ENTITIES: BulkEntity[] = [
   },
   {
     key: "location_pricing_rules",
+    refs: [vehicleClassRef],
     flags: [{ name: "active", label: "Active" }],
     deletable: true,
     label: "Location Pricing (zones)",
@@ -119,6 +158,7 @@ export const BULK_ENTITIES: BulkEntity[] = [
       { name: "extra_per_mile", type: "number" },
       ...geoFields,
       { name: "vehicle_class_id", type: "string" },
+      ...vehicleClassRefFields,
       { name: "priority", type: "number" },
       { name: "notes", type: "string" },
       { name: "active", type: "boolean" },
@@ -126,6 +166,7 @@ export const BULK_ENTITIES: BulkEntity[] = [
   },
   {
     key: "pricing_modifiers",
+    refs: [vehicleClassRef],
     flags: [{ name: "active", label: "Active" }],
     deletable: true,
     label: "Pricing Modifiers (surge / uplift / discount)",
@@ -142,6 +183,7 @@ export const BULK_ENTITIES: BulkEntity[] = [
       ...windowFields,
       { name: "service_types", type: "strings" },
       { name: "vehicle_class_id", type: "string" },
+      ...vehicleClassRefFields,
       { name: "stackable", type: "boolean" },
       { name: "priority", type: "number" },
       { name: "notes", type: "string" },
@@ -150,6 +192,7 @@ export const BULK_ENTITIES: BulkEntity[] = [
   },
   {
     key: "availability_rules",
+    refs: [vehicleClassRef],
     flags: [{ name: "active", label: "Active" }],
     deletable: true,
     label: "Availability Rules (block / allow)",
@@ -166,6 +209,7 @@ export const BULK_ENTITIES: BulkEntity[] = [
       ...windowFields,
       { name: "service_types", type: "strings" },
       { name: "vehicle_class_id", type: "string" },
+      ...vehicleClassRefFields,
       { name: "vehicle_id", type: "string" },
       { name: "priority", type: "number" },
       { name: "reason", type: "string" },
@@ -174,6 +218,7 @@ export const BULK_ENTITIES: BulkEntity[] = [
   },
   {
     key: "hourly_rates",
+    refs: [vehicleClassRef],
     flags: [{ name: "active", label: "Active" }],
     deletable: true,
     label: "Hourly & Daily Rates",
@@ -191,6 +236,7 @@ export const BULK_ENTITIES: BulkEntity[] = [
       { name: "extra_mile_rate", type: "number" },
       { name: "currency", type: "string" },
       { name: "vehicle_class_id", type: "string" },
+      ...vehicleClassRefFields,
       { name: "vehicle_id", type: "string" },
       { name: "display_order", type: "number" },
       { name: "priority", type: "number" },
@@ -485,6 +531,69 @@ export const BULK_ENTITIES: BulkEntity[] = [
       { name: "stackable", type: "boolean" },
       { name: "priority", type: "number" },
       { name: "notes", type: "string" },
+      { name: "active", type: "boolean" },
+    ],
+  },
+  {
+    key: "vehicle_classes",
+    label: "Vehicle Classes",
+    table: "vehicle_classes",
+    naturalKey: "slug",
+    orderBy: "display_order",
+    flags: [
+      { name: "active", label: "Active" },
+      { name: "featured", label: "Featured" },
+      { name: "quote_on_request", label: "Quote on request" },
+    ],
+    deletable: true,
+    fields: [
+      { name: "id", type: "string" },
+      { name: "name", type: "string", required: true },
+      { name: "slug", type: "string", required: true },
+      { name: "short_description", type: "string" },
+      { name: "long_description", type: "string" },
+      { name: "hero_image", type: "string" },
+      { name: "passengers", type: "number" },
+      { name: "max_passengers", type: "number" },
+      { name: "large_luggage", type: "number" },
+      { name: "cabin_bags", type: "number" },
+      { name: "hand_luggage", type: "number" },
+      { name: "max_luggage", type: "number" },
+      { name: "child_seats_supported", type: "boolean" },
+      { name: "wheelchair_accessible", type: "boolean" },
+      { name: "fuel_type", type: "string" },
+      { name: "hourly_rate", type: "number" },
+      { name: "extra_hour_rate", type: "number" },
+      { name: "extra_mile_rate", type: "number" },
+      { name: "min_hours", type: "number" },
+      { name: "max_hours", type: "number" },
+      { name: "badge", type: "string" },
+      { name: "display_order", type: "number" },
+      { name: "featured", type: "boolean" },
+      { name: "quote_on_request", type: "boolean" },
+      { name: "seo_title", type: "string" },
+      { name: "seo_description", type: "string" },
+      { name: "seo_keywords", type: "string" },
+      { name: "active", type: "boolean" },
+    ],
+  },
+  {
+    key: "vehicle_models",
+    label: "Vehicle Models (cars in each class)",
+    table: "vehicle_models",
+    naturalKey: "name",
+    orderBy: "display_order",
+    refs: [vehicleClassRef],
+    flags: [{ name: "active", label: "Active" }],
+    deletable: true,
+    fields: [
+      { name: "id", type: "string" },
+      { name: "name", type: "string", required: true },
+      { name: "manufacturer", type: "string" },
+      { name: "vehicle_class_id", type: "string", required: true },
+      ...vehicleClassRefFields,
+      { name: "notes", type: "string" },
+      { name: "display_order", type: "number" },
       { name: "active", type: "boolean" },
     ],
   },

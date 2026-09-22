@@ -126,6 +126,13 @@ async function buildValidation(
   }
 
 
+  // Columns the importer can fill itself (Place IDs, vehicle class IDs) must not
+  // be reported as missing before those lookups have run.
+  const deferred = new Set<string>([
+    ...(entity.geo ?? []).map((g) => g.placeId),
+    ...(entity.refs ?? []).map((r) => r.idField),
+  ]);
+
   // Pass 1 — whitelist + coerce every cell.
   const staged = rows.map((raw) => {
     const errors: string[] = [];
@@ -135,7 +142,7 @@ async function buildValidation(
       const cell = has ? raw[field.name] : undefined;
       const empty = cell === undefined || cell === null || cell === "";
       if (empty) {
-        if (field.required) errors.push(`${field.name} is required`);
+        if (field.required && !deferred.has(field.name)) errors.push(`${field.name} is required`);
         continue;
       }
       const out = coerce(field, cell);
@@ -148,6 +155,23 @@ async function buildValidation(
   // Pass 2 — fill any missing Place ID from the address text in the file, so a
   // spreadsheet never has to carry Google IDs.
   const geo = await applyGeoResolution(entity, staged);
+
+  // Pass 2b — turn a plain vehicle class name/slug into its uuid.
+  await applyRefResolution(supabase, entity, staged);
+
+  // Pass 2c — anything still missing that the file had to supply.
+  for (const { payload, errors } of staged) {
+    for (const name of deferred) {
+      const field = entity.fields.find((f) => f.name === name);
+      if (!field?.required) continue;
+      const v = payload[name];
+      if (v === undefined || v === null || v === "") {
+        if (!errors.some((e) => e.startsWith(`${name}:`))) errors.push(`${name} is required`);
+      }
+    }
+    // Helper columns exist for the lookups only — never write them to the table.
+    for (const field of entity.fields) if (field.virtual) delete payload[field.name];
+  }
 
   // Pass 3 — decide new vs update and collect the report.
   staged.forEach(({ payload, errors }, index) => {
@@ -190,6 +214,51 @@ async function buildValidation(
     placesUnresolved: geo.unresolved,
     placesCapped: geo.capped,
   };
+}
+
+/**
+ * Fills uuid columns (e.g. `vehicle_class_id`) from a plain name or slug typed
+ * in the spreadsheet, so an import never needs database IDs.
+ */
+async function applyRefResolution(
+  supabase: SupabaseLike,
+  entity: BulkEntity,
+  staged: Array<{ payload: Record<string, BulkCell>; errors: string[] }>,
+): Promise<void> {
+  if (!entity.refs?.length) return;
+  for (const spec of entity.refs) {
+    const needed = staged.some(({ payload }) => {
+      const current = payload[spec.idField];
+      const hasId = typeof current === "string" && current.trim().length > 0;
+      return !hasId && spec.textFields.some((f) => typeof payload[f] === "string" && String(payload[f]).trim());
+    });
+    if (!needed) continue;
+
+    const { data, error } = await supabase
+      .from(spec.table)
+      .select(["id", ...spec.matchColumns].join(", "))
+      .limit(5000);
+    if (error) throw new Error(error.message);
+    const byText = new Map<string, string>();
+    for (const row of (data ?? []) as Record<string, unknown>[]) {
+      for (const col of spec.matchColumns) {
+        const v = row[col];
+        if (v != null) byText.set(String(v).trim().toLowerCase(), String(row["id"]));
+      }
+    }
+
+    for (const { payload, errors } of staged) {
+      const current = payload[spec.idField];
+      if (typeof current === "string" && current.trim().length > 0) continue;
+      const text = spec.textFields
+        .map((f) => payload[f])
+        .find((v) => typeof v === "string" && String(v).trim().length > 0);
+      if (typeof text !== "string") continue;
+      const match = byText.get(text.trim().toLowerCase());
+      if (match) payload[spec.idField] = match;
+      else errors.push(`${spec.idField}: no ${spec.label} called “${text.trim()}”`);
+    }
+  }
 }
 
 /**
@@ -284,7 +353,8 @@ export const exportBulkEntity = createServerFn({ method: "POST" })
     const entity = getBulkEntity(data.entity);
     if (!entity) throw new Error("Unknown entity");
     const supabase = context.supabase as SupabaseLike;
-    const cols = entity.fields.map((f) => f.name).join(", ");
+    const real = entity.fields.filter((f) => !f.virtual);
+    const cols = real.map((f) => f.name).join(", ");
     const { data: rows, error } = await supabase
       .from(entity.table)
       .select(cols)
@@ -294,7 +364,7 @@ export const exportBulkEntity = createServerFn({ method: "POST" })
     // Flatten arrays to comma lists so the CSV round-trips through the importer.
     const flat = (rows ?? []).map((r: Record<string, unknown>) => {
       const out: Record<string, BulkCell> = {};
-      for (const f of entity.fields) {
+      for (const f of real) {
         const v = r[f.name];
         out[f.name] = Array.isArray(v) ? v.join(",") : ((v ?? "") as BulkCell);
       }

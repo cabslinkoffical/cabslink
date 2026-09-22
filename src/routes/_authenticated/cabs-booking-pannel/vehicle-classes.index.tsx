@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
 import { ViewToggle, useViewMode } from "@/components/admin/ViewToggle";
+import { BulkTools } from "@/components/admin/BulkTools";
 import { fleetImageFor } from "@/assets/fleet";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -71,6 +72,21 @@ function VehicleClassesPage() {
         description="One place per class: details, photo, models, pricing, hourly hire and availability."
       >
         <ViewToggle mode={view} onChange={setView} />
+        <BulkTools
+          entity="vehicle_classes"
+          label="Bulk classes"
+          onChanged={() => qc.invalidateQueries({ queryKey: ["admin", "vehicle-classes"] })}
+        />
+        <BulkTools
+          entity="vehicle_models"
+          label="Bulk models"
+          onChanged={() => qc.invalidateQueries({ queryKey: ["admin", "vehicle-classes"] })}
+        />
+        <BulkTools
+          entity="hourly_rates"
+          label="Bulk hourly rates"
+          onChanged={() => qc.invalidateQueries({ queryKey: ["admin", "vehicle-classes"] })}
+        />
         <Button asChild>
           <Link to="/cabs-booking-pannel/vehicle-classes/$id" params={{ id: "new" }}>
             <Plus className="size-4 mr-1.5" />New class
