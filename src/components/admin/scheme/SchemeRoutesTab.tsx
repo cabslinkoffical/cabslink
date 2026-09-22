@@ -266,8 +266,13 @@ export function SchemeRoutesTab({ classId, routes }: { classId: string; routes: 
           <p className="px-5 py-8 text-center text-sm text-muted-foreground">No fixed routes yet.</p>
         ) : view === "list" ? (
           <ul className="divide-y divide-border">
-            {sorted.map((r) => (
-              <li key={r.id} className="flex flex-wrap items-center gap-3 px-5 py-3">
+            {sorted.map((r) => {
+              const selected = sel.isSelected(String(r.id));
+              return (
+              <li
+                key={r.id}
+                className={`flex flex-wrap items-center gap-3 border-l-4 px-5 py-3 transition-colors ${selected ? "border-l-primary bg-primary/10" : "border-l-transparent"}`}
+              >
                 <Checkbox checked={sel.isSelected(String(r.id))} onCheckedChange={() => sel.toggle(String(r.id))} aria-label="Select route" />
                 <button className="min-w-0 flex-1 text-left" onClick={() => { setDraft(rowToDraft(r)); setLiveRoute(null); }}>
                   <p className="truncate text-sm font-medium">
@@ -284,13 +289,17 @@ export function SchemeRoutesTab({ classId, routes }: { classId: string; routes: 
                 <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${r.active ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"}`}>
                   {r.active ? "Active" : "Paused"}
                 </span>
+                {selected && <span className="text-xs font-semibold text-primary">Selected</span>}
               </li>
-            ))}
+              );
+            })}
           </ul>
         ) : (
           <div className="grid gap-3 p-5 sm:grid-cols-2 xl:grid-cols-3">
-            {sorted.map((r) => (
-              <div key={r.id} className="relative rounded-xl border border-border bg-background transition hover:border-primary/40">
+            {sorted.map((r) => {
+              const selected = sel.isSelected(String(r.id));
+              return (
+              <div key={r.id} className={`relative rounded-xl border bg-background transition ${selected ? "border-primary bg-primary/10 ring-2 ring-primary/25" : "border-border hover:border-primary/40"}`}>
                 <span className="absolute right-3 top-3">
                   <Checkbox checked={sel.isSelected(String(r.id))} onCheckedChange={() => sel.toggle(String(r.id))} aria-label="Select route" />
                 </span>
@@ -316,7 +325,8 @@ export function SchemeRoutesTab({ classId, routes }: { classId: string; routes: 
                   </p>
                 </button>
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

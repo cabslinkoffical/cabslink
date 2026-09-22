@@ -160,8 +160,10 @@ export function SchemeDiscountsTab({ classId, discounts }: { classId: string; di
           <p className="px-5 py-8 text-center text-sm text-muted-foreground">No discounts yet.</p>
         ) : (
           <ul className="divide-y divide-border">
-            {discounts.map((d) => (
-              <li key={d.id} className="flex flex-wrap items-center gap-3 px-5 py-3">
+            {discounts.map((d) => {
+              const selected = sel.isSelected(String(d.id));
+              return (
+              <li key={d.id} className={`flex flex-wrap items-center gap-3 border-l-4 px-5 py-3 transition-colors ${selected ? "border-l-primary bg-primary/10" : "border-l-transparent"}`}>
                 <Checkbox checked={sel.isSelected(String(d.id))} onCheckedChange={() => sel.toggle(String(d.id))} aria-label="Select discount" />
                 <button
                   className="min-w-0 flex-1 text-left"
@@ -185,8 +187,10 @@ export function SchemeDiscountsTab({ classId, discounts }: { classId: string; di
                 <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${d.active ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"}`}>
                   {d.active ? "Active" : "Paused"}
                 </span>
+                {selected && <span className="text-xs font-semibold text-primary">Selected</span>}
               </li>
-            ))}
+              );
+            })}
           </ul>
         )}
       </div>
