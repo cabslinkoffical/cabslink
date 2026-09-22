@@ -141,41 +141,48 @@ export function BulkTools({
               {exportMut.isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : <Download className="mr-2 size-4" />}
               Export current data
             </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              aria-expanded={showInfo}
+              aria-label="Column help"
+              onClick={() => setShowInfo((v) => !v)}
+            >
+              <Info className="mr-2 size-4" /> Help
+            </Button>
           </div>
 
-          <p className="text-xs text-muted-foreground">
-            Columns: {entity.fields.map((f) => f.name + (f.required ? "*" : "")).join(", ")}
-          </p>
-
-          {entity.refs?.length ? (
-            <div className="rounded-lg border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
-              <p className="font-medium text-foreground">No IDs needed</p>
-              <ul className="mt-1 list-disc space-y-0.5 pl-4">
-                {entity.refs.map((r) => (
-                  <li key={r.idField}>
-                    Type the {r.label} name (or its web address name) in{" "}
-                    <span className="font-medium">{r.textFields[0]}</span> and leave{" "}
-                    <span className="font-medium">{r.idField}</span> blank — we match it for you.
-                  </li>
-                ))}
-              </ul>
+          {showInfo && (
+            <div className="space-y-2 rounded-lg border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+              <p>
+                <span className="font-medium text-foreground">Columns: </span>
+                {entity.fields.map((f) => f.name + (f.required ? "*" : "")).join(", ")}
+              </p>
+              {entity.refs?.length ? (
+                <ul className="list-disc space-y-0.5 pl-4">
+                  {entity.refs.map((r) => (
+                    <li key={r.idField}>
+                      Type the {r.label} name in <span className="font-medium">{r.textFields[0]}</span> and leave{" "}
+                      <span className="font-medium">{r.idField}</span> blank — we match it for you.
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+              {entity.geo?.length ? (
+                <ul className="list-disc space-y-0.5 pl-4">
+                  {entity.geo.map((g) => (
+                    <li key={g.placeId}>
+                      Type the place in <span className="font-medium">{g.text.join(" or ")}</span> and leave{" "}
+                      <span className="font-medium">{[g.placeId, g.lat, g.lng].filter(Boolean).join(", ")}</span> blank —
+                      we look it up on Google Maps.
+                      {g.lat && g.lng ? ` Coordinates in ${g.lat}/${g.lng} make the match exact.` : ""}
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
             </div>
-          ) : null}
+          )}
 
-          {entity.geo?.length ? (
-            <div className="rounded-lg border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
-              <p className="font-medium text-foreground">Locations are matched on Google Maps for you</p>
-              <ul className="mt-1 list-disc space-y-0.5 pl-4">
-                {entity.geo.map((g) => (
-                  <li key={g.placeId}>
-                    Type the place in <span className="font-medium">{g.text.join(" or ")}</span> and leave{" "}
-                    <span className="font-medium">{[g.placeId, g.lat, g.lng].filter(Boolean).join(", ")}</span> blank — we fill them in.
-                    {g.lat && g.lng ? ` If you already know the coordinates, put them in ${g.lat}/${g.lng} for an exact match (they work on their own too).` : ""}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
 
           <div className="space-y-1.5">
             <Label htmlFor={`bulk-file-${entityKey}`}>Upload file</Label>
