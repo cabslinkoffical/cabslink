@@ -195,6 +195,25 @@ export function BulkTools({
                   <span className="font-medium">{validation.unknownColumns.join(", ")}</span>
                 </p>
               )}
+              {validation.placesResolved > 0 && (
+                <p className="rounded-lg border border-primary/30 bg-primary/[0.06] px-3 py-2 text-xs text-muted-foreground">
+                  <span className="font-medium text-foreground">
+                    {validation.placesResolved} address{validation.placesResolved === 1 ? "" : "es"} matched on Google Maps
+                  </span>{" "}
+                  — the map IDs and coordinates are filled in for you, so you never need to type them.
+                </p>
+              )}
+              {validation.placesUnresolved.length > 0 && (
+                <p className="rounded-lg border border-destructive/30 bg-destructive/[0.06] px-3 py-2 text-xs text-muted-foreground">
+                  Google could not find these addresses — make them more specific and re-upload:{" "}
+                  <span className="font-medium">{validation.placesUnresolved.join(" · ")}</span>
+                </p>
+              )}
+              {validation.placesCapped && (
+                <p className="text-xs text-muted-foreground">
+                  This file has a lot of new addresses — only the first 300 were looked up in this run. Import, then re-upload the rest.
+                </p>
+              )}
               <div className="max-h-72 overflow-auto rounded-lg border border-border">
                 <table className="w-full text-sm">
                   <thead className="sticky top-0 bg-muted/70 text-xs text-muted-foreground">
