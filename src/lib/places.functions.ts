@@ -218,7 +218,6 @@ export const resolvePlaceText = createServerFn({ method: "POST" })
           textQuery: data.input,
           languageCode: "en-GB",
           regionCode: "GB",
-          includedRegionCodes: ["gb"],
           maxResultCount: 1,
         }),
       });
