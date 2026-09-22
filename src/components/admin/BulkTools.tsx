@@ -153,7 +153,7 @@ export function BulkTools({
               onChange={(e) => onFile(e.target.files?.[0])} />
           </div>
 
-          {parsing && <p className="text-sm text-muted-foreground"><Loader2 className="mr-1 inline size-4 animate-spin" /> Reading file…</p>}
+          {parsing && <p className="text-sm text-muted-foreground"><Loader2 className="mr-1 inline size-4 animate-spin" /> Reading and checking file…</p>}
           {parsed && (
             <p className="text-sm text-muted-foreground">
               {parsed.rows.length} row(s) parsed from {parsed.source.toUpperCase()}
@@ -164,16 +164,21 @@ export function BulkTools({
           <div className="flex flex-wrap items-center gap-3">
             <Button size="sm" disabled={!parsed || validateMut.isPending} onClick={() => validateMut.mutate()}>
               {validateMut.isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : <Play className="mr-2 size-4" />}
-              Validate
+              Re-check file
             </Button>
             <div className="flex items-center gap-2">
               <Switch id={`skip-${entityKey}`} checked={skipInvalid} onCheckedChange={setSkipInvalid} />
               <Label htmlFor={`skip-${entityKey}`} className="text-sm font-normal">Skip invalid rows</Label>
             </div>
-            <Button size="sm" variant="secondary" disabled={!parsed || commitMut.isPending} onClick={() => commitMut.mutate()}>
+            <Button size="sm" variant="secondary" disabled={!importable || commitMut.isPending} onClick={() => commitMut.mutate()}>
               {commitMut.isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : <UploadCloud className="mr-2 size-4" />}
               Import
             </Button>
+            {validation && !importable && (
+              <span className="text-xs text-muted-foreground">
+                Fix the issues below, or switch on “Skip invalid rows”.
+              </span>
+            )}
           </div>
 
           {validation && (
@@ -184,6 +189,12 @@ export function BulkTools({
                 <span className="rounded-full bg-destructive/10 px-2.5 py-1 text-destructive">Invalid {validation.counts.invalid}</span>
                 <span className="rounded-full bg-muted px-2.5 py-1 text-muted-foreground">Total {validation.total}</span>
               </div>
+              {validation.unknownColumns.length > 0 && (
+                <p className="rounded-lg border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+                  These columns were ignored because this dataset has no matching field:{" "}
+                  <span className="font-medium">{validation.unknownColumns.join(", ")}</span>
+                </p>
+              )}
               <div className="max-h-72 overflow-auto rounded-lg border border-border">
                 <table className="w-full text-sm">
                   <thead className="sticky top-0 bg-muted/70 text-xs text-muted-foreground">
@@ -195,7 +206,7 @@ export function BulkTools({
                     </tr>
                   </thead>
                   <tbody>
-                    {validation.rows.map((r) => (
+                    {validation.rows.slice(0, 300).map((r) => (
                       <tr key={r.index} className="border-t border-border">
                         <td className="px-3 py-1.5 text-muted-foreground">{r.index}</td>
                         <td className="px-3 py-1.5">{r.label}</td>
@@ -206,6 +217,9 @@ export function BulkTools({
                   </tbody>
                 </table>
               </div>
+              {validation.rows.length > 300 && (
+                <p className="text-xs text-muted-foreground">Showing the first 300 of {validation.rows.length} rows.</p>
+              )}
             </div>
           )}
         </div>
