@@ -81,6 +81,8 @@ export type BulkValidation = {
   total: number;
   counts: { new: number; update: number; invalid: number };
   rows: BulkRowReport[];
+  /** Column headers in the file that this dataset does not recognise. */
+  unknownColumns: string[];
   /** Cleaned payloads for the rows that passed, in file order. */
   payloads: Record<string, BulkCell>[];
 };
@@ -111,6 +113,12 @@ async function buildValidation(
   const seen = new Set<string>();
   const reports: BulkRowReport[] = [];
   const payloads: Record<string, BulkCell>[] = [];
+  const known = new Set(entity.fields.map((f) => f.name));
+  const unknown = new Set<string>();
+  for (const raw of rows) {
+    for (const key of Object.keys(raw)) if (!known.has(key)) unknown.add(key);
+  }
+
 
   rows.forEach((raw, index) => {
     const errors: string[] = [];
@@ -161,6 +169,7 @@ async function buildValidation(
       invalid: reports.filter((r) => r.status === "invalid").length,
     },
     rows: reports,
+    unknownColumns: [...unknown].sort(),
     payloads,
   };
 }
@@ -223,18 +232,40 @@ export const commitBulkImport = createServerFn({ method: "POST" })
     const failures: string[] = [];
     let written = 0;
     const CHUNK = 200;
-    for (let i = 0; i < report.payloads.length; i += CHUNK) {
-      const chunk = report.payloads.slice(i, i + CHUNK);
-      const { error } = await supabase.from(entity.table).upsert(chunk, { onConflict: "id" });
-      if (error) {
-        // Retry row-by-row so one bad row doesn't discard the whole chunk.
-        for (const row of chunk) {
-          const { error: rowError } = await supabase.from(entity.table).upsert(row, { onConflict: "id" });
-          if (rowError) failures.push(`${labelOf(entity, row)}: ${rowError.message}`);
-          else written += 1;
+
+    // A batched write requires every object in the batch to carry the same keys
+    // (the data API rejects mixed shapes outright), and blank cells legitimately
+    // differ from row to row. Group rows by their exact column signature first,
+    // so every batch is uniform. Rows that resolved to an existing row keep
+    // their id and update; the rest insert.
+    const groups = new Map<string, Record<string, BulkCell>[]>();
+    for (const row of report.payloads) {
+      const key = Object.keys(row).sort().join("|");
+      const bucket = groups.get(key);
+      if (bucket) bucket.push(row);
+      else groups.set(key, [row]);
+    }
+
+    for (const bucket of groups.values()) {
+      for (let i = 0; i < bucket.length; i += CHUNK) {
+        const chunk = bucket.slice(i, i + CHUNK);
+        const hasId = chunk[0] && chunk[0]["id"] != null;
+        const write = hasId
+          ? supabase.from(entity.table).upsert(chunk, { onConflict: "id" })
+          : supabase.from(entity.table).insert(chunk);
+        const { error } = await write;
+        if (error) {
+          // Retry row-by-row so one bad row doesn't discard the whole chunk.
+          for (const row of chunk) {
+            const { error: rowError } = row["id"] != null
+              ? await supabase.from(entity.table).upsert(row, { onConflict: "id" })
+              : await supabase.from(entity.table).insert(row);
+            if (rowError) failures.push(`${labelOf(entity, row)}: ${rowError.message}`);
+            else written += 1;
+          }
+        } else {
+          written += chunk.length;
         }
-      } else {
-        written += chunk.length;
       }
     }
 
