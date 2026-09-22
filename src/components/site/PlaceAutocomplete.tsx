@@ -131,6 +131,12 @@ export function PlaceAutocomplete({
   const [maxH, setMaxH] = useState(288);
   const [dropdownStyle, setDropdownStyle] = useState<CSSProperties>({});
   const wrapRef = useRef<HTMLDivElement>(null);
+  // Inside a modal dialog/drawer the body is made non-interactive and outside
+  // pointer events close the dialog, so the list must live inside that layer.
+  const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    if (typeof document !== "undefined") setPortalTarget(document.body);
+  }, []);
   const inputRef = useRef<HTMLInputElement>(null);
   const sessionToken = useMemo(() => newSessionToken(), []);
 
@@ -432,11 +438,16 @@ export function PlaceAutocomplete({
           Address lookup temporarily unavailable — you can still type your address. We’ll ask you to confirm it before continuing.
         </p>
       )}
-      {open && suggestions.length > 0 && typeof document !== "undefined" && createPortal(
+      {open && suggestions.length > 0 && portalTarget && createPortal(
         <ul
           id={listboxId}
           role="listbox"
-          style={{ ...dropdownStyle, maxHeight: maxH }}
+          style={{ ...dropdownStyle, maxHeight: maxH, pointerEvents: "auto" }}
+          // A modal dialog treats this list as "outside" and would close on the
+          // first press, so the press is kept from reaching the dialog layer.
+          onPointerDown={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
           className={cn(
             "fixed z-[9999] min-w-[275px] overflow-auto rounded-lg border border-[var(--gold)]/35 bg-[var(--popover)] text-[var(--popover-foreground)] shadow-[0_24px_70px_-22px_color-mix(in_oklab,var(--navy)_55%,transparent)]",
           )}
@@ -496,7 +507,7 @@ export function PlaceAutocomplete({
             </li>
           )}
         </ul>,
-        document.body,
+        portalTarget,
       )}
     </div>
   );
