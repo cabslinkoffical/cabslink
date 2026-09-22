@@ -40,7 +40,6 @@ async function lookup(text: string): Promise<ResolvedPlace | null> {
         textQuery: text,
         languageCode: "en-GB",
         regionCode: "GB",
-        includedRegionCodes: ["gb"],
         maxResultCount: 1,
       }),
     });
@@ -103,9 +102,13 @@ export async function resolvePlaceTexts(
     const results = await Promise.all(batch.map((t) => lookup(t)));
     batch.forEach((t, j) => {
       const r = results[j] ?? null;
-      cache.set(t, r);
       lookups += 1;
-      if (r) map.set(t, r);
+      // Cache successful matches only. A temporary Maps error must not poison
+      // later validation attempts in the same running server.
+      if (r) {
+        cache.set(t, r);
+        map.set(t, r);
+      }
     });
   }
 
