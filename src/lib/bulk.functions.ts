@@ -81,6 +81,8 @@ export type BulkValidation = {
   total: number;
   counts: { new: number; update: number; invalid: number };
   rows: BulkRowReport[];
+  /** Column headers in the file that this dataset does not recognise. */
+  unknownColumns: string[];
   /** Cleaned payloads for the rows that passed, in file order. */
   payloads: Record<string, BulkCell>[];
 };
