@@ -126,6 +126,13 @@ async function buildValidation(
   }
 
 
+  // Columns the importer can fill itself (Place IDs, vehicle class IDs) must not
+  // be reported as missing before those lookups have run.
+  const deferred = new Set<string>([
+    ...(entity.geo ?? []).map((g) => g.placeId),
+    ...(entity.refs ?? []).map((r) => r.idField),
+  ]);
+
   // Pass 1 — whitelist + coerce every cell.
   const staged = rows.map((raw) => {
     const errors: string[] = [];
@@ -135,7 +142,7 @@ async function buildValidation(
       const cell = has ? raw[field.name] : undefined;
       const empty = cell === undefined || cell === null || cell === "";
       if (empty) {
-        if (field.required) errors.push(`${field.name} is required`);
+        if (field.required && !deferred.has(field.name)) errors.push(`${field.name} is required`);
         continue;
       }
       const out = coerce(field, cell);
@@ -151,6 +158,20 @@ async function buildValidation(
 
   // Pass 2b — turn a plain vehicle class name/slug into its uuid.
   await applyRefResolution(supabase, entity, staged);
+
+  // Pass 2c — anything still missing that the file had to supply.
+  for (const { payload, errors } of staged) {
+    for (const name of deferred) {
+      const field = entity.fields.find((f) => f.name === name);
+      if (!field?.required) continue;
+      const v = payload[name];
+      if (v === undefined || v === null || v === "") {
+        if (!errors.some((e) => e.startsWith(`${name}:`))) errors.push(`${name} is required`);
+      }
+    }
+    // Helper columns exist for the lookups only — never write them to the table.
+    for (const field of entity.fields) if (field.virtual) delete payload[field.name];
+  }
 
   // Pass 3 — decide new vs update and collect the report.
   staged.forEach(({ payload, errors }, index) => {
