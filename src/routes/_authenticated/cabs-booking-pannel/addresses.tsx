@@ -132,7 +132,7 @@ function AddressesPage() {
                 <PlaceAutocomplete
                   value={form.place_id ? { placeId: form.place_id, label: form.name || "" } : null}
                   initialText={form.place_id ? undefined : (form.name || "")}
-                  onChange={(p) =>
+                  onChange={(p: SelectedPlace | null) =>
                     setForm({
                       ...form,
                       place_id: p?.placeId ?? "",
