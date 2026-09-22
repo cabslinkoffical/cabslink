@@ -64,7 +64,7 @@ async function lookup(text: string, bias?: { lat: number; lng: number }): Promis
 
 
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 8_000);
+  const timer = setTimeout(() => controller.abort(), 6_000);
   try {
     const res = await fetch(`${GATEWAY_URL}/places/v1/places:searchText`, {
       method: "POST",
@@ -141,7 +141,7 @@ export async function resolvePlaceTexts(
   const capped = pending.length > maxLookups;
   const todo = pending.slice(0, maxLookups);
   let lookups = 0;
-  const CONCURRENCY = 4;
+  const CONCURRENCY = 12;
   for (let i = 0; i < todo.length; i += CONCURRENCY) {
     const batch = todo.slice(i, i + CONCURRENCY);
     const results = await Promise.all(
