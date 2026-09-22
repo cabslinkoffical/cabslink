@@ -70,6 +70,10 @@ export const BULK_ENTITIES: BulkEntity[] = [
     label: "Route Pricing (fixed routes)",
     table: "pricing_rules",
     orderBy: "priority",
+    geo: [
+      { placeId: "from_place_id", text: ["from_place_label", "from_address"], label: "from_place_label", lat: "from_lat", lng: "from_lng" },
+      { placeId: "to_place_id", text: ["to_place_label", "to_address"], label: "to_place_label", lat: "to_lat", lng: "to_lng" },
+    ],
     fields: [
       { name: "id", type: "string" },
       { name: "from_address", type: "string", required: true },
@@ -105,6 +109,7 @@ export const BULK_ENTITIES: BulkEntity[] = [
     table: "location_pricing_rules",
     naturalKey: "name",
     orderBy: "priority",
+    geo: [{ placeId: "place_id", text: ["place_label", "name"], label: "place_label", lat: "lat", lng: "lng" }],
     fields: [
       { name: "id", type: "string" },
       { name: "name", type: "string", required: true },
