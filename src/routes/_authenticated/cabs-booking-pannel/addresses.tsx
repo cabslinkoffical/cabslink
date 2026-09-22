@@ -85,7 +85,7 @@ function AddressesPage() {
               <tr>
                 <th className="text-left px-4 py-3">#</th>
                 <th className="text-left px-4 py-3">Address</th>
-                <th className="text-left px-4 py-3">Comparable</th>
+                <th className="text-left px-4 py-3">Matching</th>
                 <th className="text-left px-4 py-3">Pickup £</th>
                 <th className="text-left px-4 py-3">Dropoff £</th>
                 <th className="text-left px-4 py-3">Status</th>
