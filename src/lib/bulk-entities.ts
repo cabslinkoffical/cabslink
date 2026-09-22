@@ -73,6 +73,8 @@ export type BulkEntity = {
   deletable?: boolean;
   /** Place ID columns the importer fills in automatically from address text. */
   geo?: BulkGeoSpec[];
+  /** Uuid columns the importer fills in from a name or slug in the file. */
+  refs?: BulkRefSpec[];
 };
 
 const geoFields: BulkField[] = [
