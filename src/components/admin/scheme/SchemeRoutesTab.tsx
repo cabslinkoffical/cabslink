@@ -5,7 +5,9 @@ import { toast } from "sonner";
 import { ArrowLeftRight, Loader2, Plus, Trash2, TriangleAlert } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { BulkTools } from "@/components/admin/BulkTools";
+import { BulkTools, BulkActionBar } from "@/components/admin/BulkTools";
+import { useRowSelection } from "@/components/admin/useRowSelection";
+import { Checkbox } from "@/components/ui/checkbox";
 import { ViewToggle, useViewMode } from "@/components/admin/ViewToggle";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
@@ -137,6 +139,8 @@ export function SchemeRoutesTab({ classId, routes }: { classId: string; routes: 
     () => [...routes].sort((a, b) => Number(b.priority ?? 0) - Number(a.priority ?? 0)),
     [routes],
   );
+  const allIds = useMemo(() => sorted.map((r) => String(r.id)), [sorted]);
+  const sel = useRowSelection(allIds);
 
   return (
     <div className="space-y-6">
@@ -236,12 +240,22 @@ export function SchemeRoutesTab({ classId, routes }: { classId: string; routes: 
             <BulkTools entity="pricing_rules" label="Bulk CSV" onChanged={invalidate} />
           </div>
         </div>
+        {sorted.length > 0 && (
+          <div className="space-y-2 border-b border-border px-5 py-3">
+            <label className="flex w-fit items-center gap-2 text-xs font-medium text-muted-foreground">
+              <Checkbox checked={sel.allSelected} onCheckedChange={() => sel.toggleAll()} />
+              Select all {sorted.length}
+            </label>
+            <BulkActionBar entity="pricing_rules" ids={sel.ids} onClear={sel.clear} onChanged={invalidate} />
+          </div>
+        )}
         {sorted.length === 0 ? (
           <p className="px-5 py-8 text-center text-sm text-muted-foreground">No fixed routes yet.</p>
         ) : view === "list" ? (
           <ul className="divide-y divide-border">
             {sorted.map((r) => (
               <li key={r.id} className="flex flex-wrap items-center gap-3 px-5 py-3">
+                <Checkbox checked={sel.isSelected(String(r.id))} onCheckedChange={() => sel.toggle(String(r.id))} aria-label="Select route" />
                 <button className="min-w-0 flex-1 text-left" onClick={() => { setDraft(rowToDraft(r)); setLiveRoute(null); }}>
                   <p className="truncate text-sm font-medium">
                     {r.from_place_label ?? r.from_address}
@@ -263,28 +277,32 @@ export function SchemeRoutesTab({ classId, routes }: { classId: string; routes: 
         ) : (
           <div className="grid gap-3 p-5 sm:grid-cols-2 xl:grid-cols-3">
             {sorted.map((r) => (
-              <button
-                key={r.id}
-                onClick={() => { setDraft(rowToDraft(r)); setLiveRoute(null); }}
-                className="rounded-xl border border-border bg-background p-4 text-left transition hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <p className="text-sm font-medium">
-                    {r.from_place_label ?? r.from_address}
-                    {(r.bidirectional ?? r.valid_for_return) !== false ? <ArrowLeftRight className="mx-1.5 inline size-3.5 text-primary" /> : " → "}
-                    {r.to_place_label ?? r.to_address}
-                  </p>
-                  <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold ${r.active ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"}`}>
+              <div key={r.id} className="relative rounded-xl border border-border bg-background transition hover:border-primary/40">
+                <span className="absolute right-3 top-3">
+                  <Checkbox checked={sel.isSelected(String(r.id))} onCheckedChange={() => sel.toggle(String(r.id))} aria-label="Select route" />
+                </span>
+                <button
+                  onClick={() => { setDraft(rowToDraft(r)); setLiveRoute(null); }}
+                  className="block w-full p-4 pr-10 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="text-sm font-medium">
+                      {r.from_place_label ?? r.from_address}
+                      {(r.bidirectional ?? r.valid_for_return) !== false ? <ArrowLeftRight className="mx-1.5 inline size-3.5 text-primary" /> : " → "}
+                      {r.to_place_label ?? r.to_address}
+                    </p>
+                  </div>
+                  <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                     {r.active ? "Active" : "Paused"}
-                  </span>
-                </div>
-                <p className="mt-2 font-display text-xl font-semibold tabular-nums">£{Number(r.price).toFixed(2)}</p>
-                <p className="mt-1 text-xs text-muted-foreground tabular-nums">
-                  Priority {Number(r.priority ?? 100)}
-                  {Number(r.from_radius_miles ?? 0) > 0 && ` · start ${Number(r.from_radius_miles)} mi`}
-                  {Number(r.to_radius_miles ?? 0) > 0 && ` · end ${Number(r.to_radius_miles)} mi`}
-                </p>
-              </button>
+                  </p>
+                  <p className="mt-2 font-display text-xl font-semibold tabular-nums">£{Number(r.price).toFixed(2)}</p>
+                  <p className="mt-1 text-xs text-muted-foreground tabular-nums">
+                    Priority {Number(r.priority ?? 100)}
+                    {Number(r.from_radius_miles ?? 0) > 0 && ` · start ${Number(r.from_radius_miles)} mi`}
+                    {Number(r.to_radius_miles ?? 0) > 0 && ` · end ${Number(r.to_radius_miles)} mi`}
+                  </p>
+                </button>
+              </div>
             ))}
           </div>
         )}

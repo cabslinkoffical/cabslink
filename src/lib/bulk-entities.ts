@@ -12,6 +12,23 @@ export type BulkField = {
   required?: boolean;
 };
 
+/**
+ * Tells the importer to look a Place ID up from plain address text, so a
+ * spreadsheet never has to carry Google IDs.
+ */
+export type BulkGeoSpec = {
+  /** Column that receives the Google Place ID. */
+  placeId: string;
+  /** Address columns to search, first non-empty wins. */
+  text: string[];
+  /** Extra columns appended to the search text for disambiguation. */
+  context?: string[];
+  /** Optional columns filled from the same lookup. */
+  label?: string;
+  lat?: string;
+  lng?: string;
+};
+
 export type BulkEntity = {
   key: string;
   label: string;
@@ -24,6 +41,8 @@ export type BulkEntity = {
   flags?: { name: string; label: string }[];
   /** Whether selected rows may be deleted in bulk. */
   deletable?: boolean;
+  /** Place ID columns the importer fills in automatically from address text. */
+  geo?: BulkGeoSpec[];
 };
 
 const geoFields: BulkField[] = [
@@ -51,6 +70,10 @@ export const BULK_ENTITIES: BulkEntity[] = [
     label: "Route Pricing (fixed routes)",
     table: "pricing_rules",
     orderBy: "priority",
+    geo: [
+      { placeId: "from_place_id", text: ["from_place_label", "from_address"], label: "from_place_label", lat: "from_lat", lng: "from_lng" },
+      { placeId: "to_place_id", text: ["to_place_label", "to_address"], label: "to_place_label", lat: "to_lat", lng: "to_lng" },
+    ],
     fields: [
       { name: "id", type: "string" },
       { name: "from_address", type: "string", required: true },
@@ -86,6 +109,7 @@ export const BULK_ENTITIES: BulkEntity[] = [
     table: "location_pricing_rules",
     naturalKey: "name",
     orderBy: "priority",
+    geo: [{ placeId: "place_id", text: ["place_label", "name"], label: "place_label", lat: "lat", lng: "lng" }],
     fields: [
       { name: "id", type: "string" },
       { name: "name", type: "string", required: true },
@@ -204,6 +228,7 @@ export const BULK_ENTITIES: BulkEntity[] = [
     table: "seo_locations",
     naturalKey: "slug",
     orderBy: "display_priority",
+    geo: [{ placeId: "google_place_id", text: ["name"], context: ["region", "county", "nation"], lat: "latitude", lng: "longitude" }],
     flags: [{ name: "published", label: "Published" }, { name: "featured", label: "Featured" }],
     deletable: true,
     fields: [
@@ -234,6 +259,7 @@ export const BULK_ENTITIES: BulkEntity[] = [
     table: "seo_airports",
     naturalKey: "slug",
     orderBy: "display_priority",
+    geo: [{ placeId: "google_place_id", text: ["name"], context: ["iata_code"], lat: "latitude", lng: "longitude" }],
     flags: [{ name: "published", label: "Published" }, { name: "featured", label: "Featured" }],
     deletable: true,
     fields: [
@@ -311,6 +337,7 @@ export const BULK_ENTITIES: BulkEntity[] = [
     table: "points_of_interest",
     naturalKey: "slug",
     orderBy: "admin_priority",
+    geo: [{ placeId: "place_id", text: ["address_label", "name"], context: ["name"], label: "address_label", lat: "latitude", lng: "longitude" }],
     flags: [{ name: "active", label: "Active" }, { name: "featured", label: "Featured" }],
     deletable: true,
     fields: [
@@ -343,6 +370,10 @@ export const BULK_ENTITIES: BulkEntity[] = [
     table: "scenic_route_templates",
     naturalKey: "slug",
     orderBy: "display_order",
+    geo: [
+      { placeId: "origin_place_id", text: ["origin_label"], label: "origin_label" },
+      { placeId: "destination_place_id", text: ["destination_label"], label: "destination_label" },
+    ],
     flags: [{ name: "active", label: "Active" }, { name: "published", label: "Published" }, { name: "featured", label: "Featured" }],
     deletable: true,
     fields: [
@@ -398,6 +429,7 @@ export const BULK_ENTITIES: BulkEntity[] = [
     table: "destinations",
     naturalKey: "slug",
     orderBy: "seo_tier",
+    geo: [{ placeId: "place_id", text: ["name"], context: ["town", "region", "country"], lat: "lat", lng: "lng" }],
     flags: [{ name: "active", label: "Active" }, { name: "noindex", label: "No-index" }],
     deletable: true,
     fields: [
@@ -418,6 +450,39 @@ export const BULK_ENTITIES: BulkEntity[] = [
       { name: "synonyms", type: "strings" },
       { name: "seo_tier", type: "number" },
       { name: "noindex", type: "boolean" },
+      { name: "active", type: "boolean" },
+    ],
+  },
+  {
+    key: "discount_rules",
+    label: "Discounts (area / event)",
+    table: "discount_rules",
+    naturalKey: "name",
+    orderBy: "priority",
+    flags: [{ name: "active", label: "Active" }, { name: "stackable", label: "Stackable" }],
+    deletable: true,
+    geo: [{ placeId: "place_id", text: ["place_label", "name"], label: "place_label", lat: "lat", lng: "lng" }],
+    fields: [
+      { name: "id", type: "string" },
+      { name: "name", type: "string", required: true },
+      { name: "basis", type: "string" },
+      { name: "discount_type", type: "string" },
+      { name: "value", type: "number", required: true },
+      { name: "event_name", type: "string" },
+      { name: "place_id", type: "string" },
+      { name: "place_label", type: "string" },
+      { name: "lat", type: "number" },
+      { name: "lng", type: "number" },
+      { name: "radius_miles", type: "number" },
+      { name: "scope", type: "string" },
+      { name: "starts_at", type: "timestamp" },
+      { name: "ends_at", type: "timestamp" },
+      { name: "service_types", type: "strings" },
+      { name: "vehicle_class_ids", type: "strings" },
+      { name: "max_discount", type: "number" },
+      { name: "stackable", type: "boolean" },
+      { name: "priority", type: "number" },
+      { name: "notes", type: "string" },
       { name: "active", type: "boolean" },
     ],
   },
