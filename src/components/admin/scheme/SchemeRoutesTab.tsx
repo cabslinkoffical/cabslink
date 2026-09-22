@@ -59,6 +59,8 @@ export function SchemeRoutesTab({ classId, routes }: { classId: string; routes: 
   const qc = useQueryClient();
   const [draft, setDraft] = useState<Draft>(emptyDraft);
   const [liveRoute, setLiveRoute] = useState<{ miles: number; minutes: number } | null>(null);
+  type Coord = { lat: number; lng: number } | null;
+  const [coords, setCoords] = useState<{ origin: Coord; destination: Coord }>({ origin: null, destination: null });
   const [view, setView] = useViewMode("scheme-routes", "list");
 
   const upsert = useServerFn(upsertSchemeRoute);
