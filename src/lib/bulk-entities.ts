@@ -10,6 +10,8 @@ export type BulkField = {
   name: string;
   type: BulkFieldType;
   required?: boolean;
+  /** Helper column accepted in the file but never written to the database. */
+  virtual?: boolean;
 };
 
 /**
