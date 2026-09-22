@@ -190,6 +190,8 @@ export function SchemeDiscountsTab({ classId, discounts }: { classId: string; di
                     stackable: !!d.stackable,
                     notes: d.notes ?? "",
                     active: !!d.active,
+                    lat: d.lat != null ? Number(d.lat) : null,
+                    lng: d.lng != null ? Number(d.lng) : null,
                   })}
                 >
                   <p className="truncate text-sm font-medium">{d.name}</p>

@@ -224,6 +224,8 @@ export function SchemeLocationsTab({ classId, locations }: { classId: string; lo
                     priority: Number(l.priority ?? 100),
                     notes: l.notes ?? "",
                     active: !!l.active,
+                    lat: l.lat != null ? Number(l.lat) : null,
+                    lng: l.lng != null ? Number(l.lng) : null,
                   })}
                 >
                   <p className="truncate text-sm font-medium">{l.name}</p>
@@ -264,6 +266,8 @@ export function SchemeLocationsTab({ classId, locations }: { classId: string; lo
                   priority: Number(l.priority ?? 100),
                   notes: l.notes ?? "",
                   active: !!l.active,
+                  lat: l.lat != null ? Number(l.lat) : null,
+                  lng: l.lng != null ? Number(l.lng) : null,
                 })}
                 className="block w-full p-4 pr-10 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
