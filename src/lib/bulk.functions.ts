@@ -258,17 +258,24 @@ async function applyRefResolution(
     });
     if (!needed) continue;
 
+    const lookupColumns = ["id", ...spec.matchColumns];
+    if (entity.key === "pricing_rules" && spec.idField === "vehicle_class_id") {
+      lookupColumns.push("pricing_vehicle_id");
+    }
     const { data, error } = await supabase
       .from(spec.table)
-      .select(["id", ...spec.matchColumns].join(", "))
+      .select([...new Set(lookupColumns)].join(", "))
       .limit(5000);
     if (error) throw new Error(error.message);
     const byText = new Map<string, string>();
+    const pricingVehicleByClass = new Map<string, string>();
     for (const row of (data ?? []) as Record<string, unknown>[]) {
+      const rowId = String(row["id"]);
       for (const col of spec.matchColumns) {
         const v = row[col];
-        if (v != null) byText.set(String(v).trim().toLowerCase(), String(row["id"]));
+        if (v != null) byText.set(String(v).trim().toLowerCase(), rowId);
       }
+      if (typeof row["pricing_vehicle_id"] === "string") pricingVehicleByClass.set(rowId, row["pricing_vehicle_id"]);
     }
 
     for (const { payload, errors } of staged) {
@@ -279,7 +286,14 @@ async function applyRefResolution(
         .find((v) => typeof v === "string" && String(v).trim().length > 0);
       if (typeof text !== "string") continue;
       const match = byText.get(text.trim().toLowerCase());
-      if (match) payload[spec.idField] = match;
+      if (match) {
+        payload[spec.idField] = match;
+        if (entity.key === "pricing_rules" && !payload["vehicle_id"]) {
+          const pricingVehicleId = pricingVehicleByClass.get(match);
+          if (pricingVehicleId) payload["vehicle_id"] = pricingVehicleId;
+          else errors.push(`vehicle_id: “${text.trim()}” has no pricing vehicle linked`);
+        }
+      }
       else errors.push(`${spec.idField}: no ${spec.label} called “${text.trim()}”`);
     }
   }
