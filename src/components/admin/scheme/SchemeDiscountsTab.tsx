@@ -37,6 +37,9 @@ export function SchemeDiscountsTab({ classId, discounts }: { classId: string; di
 
   const set = <K extends keyof Draft>(k: K, v: Draft[K]) => setDraft((d) => ({ ...d, [k]: v }));
 
+  const allIds = useMemo(() => discounts.map((d) => String(d.id)), [discounts]);
+  const sel = useRowSelection(allIds);
+
   const invalidate = () => Promise.all([
     qc.invalidateQueries({ queryKey: ["admin", "pricing-scheme", classId] }),
     qc.invalidateQueries({ queryKey: ["admin", "pricing-schemes"] }),
