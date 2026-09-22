@@ -69,18 +69,21 @@ async function lookup(text: string, bias?: { lat: number; lng: number }): Promis
     const res = await fetch(`${GATEWAY_URL}/places/v1/places:searchText`, {
       method: "POST",
       signal: controller.signal,
-      headers: {
-        Authorization: `Bearer ${lovableKey}`,
-        "X-Connection-Api-Key": apiKey,
-        "Content-Type": "application/json",
-        "X-Goog-FieldMask":
-          "places.id,places.displayName,places.formattedAddress,places.location",
-      },
+      headers: gatewayHeaders(
+        lovableKey,
+        apiKey,
+        "places.id,places.displayName,places.formattedAddress,places.location",
+      ),
       body: JSON.stringify({
         textQuery: text,
         languageCode: "en-GB",
         regionCode: "GB",
         maxResultCount: 1,
+        // Coordinates supplied in the sheet pin the search to that exact spot,
+        // so same-named villages cannot resolve to the wrong place.
+        ...(bias
+          ? { locationBias: { circle: { center: { latitude: bias.lat, longitude: bias.lng }, radius: 5000 } } }
+          : {}),
       }),
     });
     if (!res.ok) {
