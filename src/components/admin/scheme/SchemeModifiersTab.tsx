@@ -331,6 +331,7 @@ export function SchemeModifiersTab({ classId, modifiers }: { classId: string; mo
                     {m.time_from && ` · ${String(m.time_from).slice(0, 5)}–${String(m.time_to ?? "").slice(0, 5)}`}
                     {` · priority ${Number(m.priority ?? 100)}`}
                     {!m.vehicle_class_id && " · all vehicle classes"}
+                    {m.place_id && ` · ${m.place_label ?? "set location"} (${Number(m.radius_miles ?? 0)} mi, ${m.scope})`}
                   </p>
                 </button>
                 <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${m.active ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"}`}>
