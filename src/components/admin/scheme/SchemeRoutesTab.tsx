@@ -5,7 +5,9 @@ import { toast } from "sonner";
 import { ArrowLeftRight, Loader2, Plus, Trash2, TriangleAlert } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { BulkTools } from "@/components/admin/BulkTools";
+import { BulkTools, BulkActionBar } from "@/components/admin/BulkTools";
+import { useRowSelection } from "@/components/admin/useRowSelection";
+import { Checkbox } from "@/components/ui/checkbox";
 import { ViewToggle, useViewMode } from "@/components/admin/ViewToggle";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
@@ -137,6 +139,8 @@ export function SchemeRoutesTab({ classId, routes }: { classId: string; routes: 
     () => [...routes].sort((a, b) => Number(b.priority ?? 0) - Number(a.priority ?? 0)),
     [routes],
   );
+  const allIds = useMemo(() => sorted.map((r) => String(r.id)), [sorted]);
+  const sel = useRowSelection(allIds);
 
   return (
     <div className="space-y-6">
