@@ -220,12 +220,22 @@ export function SchemeModifiersTab({ classId, modifiers }: { classId: string; mo
                     </div>
           <BulkTools entity="pricing_modifiers" label="Bulk CSV" onChanged={invalidate} />
 </div>
+        {modifiers.length > 0 && (
+          <div className="space-y-2 border-b border-border px-5 py-3">
+            <label className="flex w-fit items-center gap-2 text-xs font-medium text-muted-foreground">
+              <Checkbox checked={sel.allSelected} onCheckedChange={() => sel.toggleAll()} />
+              Select all {modifiers.length}
+            </label>
+            <BulkActionBar entity="pricing_modifiers" ids={sel.ids} onClear={sel.clear} onChanged={invalidate} />
+          </div>
+        )}
         {modifiers.length === 0 ? (
           <p className="px-5 py-8 text-center text-sm text-muted-foreground">No modifiers yet.</p>
         ) : (
           <ul className="divide-y divide-border">
             {modifiers.map((m) => (
               <li key={m.id} className="flex flex-wrap items-center gap-3 px-5 py-3">
+                <Checkbox checked={sel.isSelected(String(m.id))} onCheckedChange={() => sel.toggle(String(m.id))} aria-label="Select modifier" />
                 <button
                   className="min-w-0 flex-1 text-left"
                   onClick={() => setDraft({

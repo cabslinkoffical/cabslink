@@ -179,12 +179,22 @@ export function SchemeLocationsTab({ classId, locations }: { classId: string; lo
             <BulkTools entity="location_pricing_rules" label="Bulk CSV" onChanged={invalidate} />
           </div>
 </div>
+        {locations.length > 0 && (
+          <div className="space-y-2 border-b border-border px-5 py-3">
+            <label className="flex w-fit items-center gap-2 text-xs font-medium text-muted-foreground">
+              <Checkbox checked={sel.allSelected} onCheckedChange={() => sel.toggleAll()} />
+              Select all {locations.length}
+            </label>
+            <BulkActionBar entity="location_pricing_rules" ids={sel.ids} onClear={sel.clear} onChanged={invalidate} />
+          </div>
+        )}
         {locations.length === 0 ? (
           <p className="px-5 py-8 text-center text-sm text-muted-foreground">No location rules yet.</p>
         ) : view === "list" ? (
           <ul className="divide-y divide-border">
             {locations.map((l) => (
               <li key={l.id} className="flex flex-wrap items-center gap-3 px-5 py-3">
+                <Checkbox checked={sel.isSelected(String(l.id))} onCheckedChange={() => sel.toggle(String(l.id))} aria-label="Select location rule" />
                 <button
                   className="min-w-0 flex-1 text-left"
                   onClick={() => setDraft({
