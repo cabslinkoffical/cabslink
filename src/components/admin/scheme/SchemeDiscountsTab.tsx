@@ -1,4 +1,7 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { BulkTools, BulkActionBar } from "@/components/admin/BulkTools";
+import { useRowSelection } from "@/components/admin/useRowSelection";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -137,15 +140,26 @@ export function SchemeDiscountsTab({ classId, discounts }: { classId: string; di
       />
 
       <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
-        <div className="border-b border-border px-5 py-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-4">
           <h3 className="font-display text-base font-semibold">Discounts in this scheme</h3>
+          <BulkTools entity="discount_rules" label="Bulk CSV" onChanged={invalidate} />
         </div>
+        {discounts.length > 0 && (
+          <div className="space-y-2 border-b border-border px-5 py-3">
+            <label className="flex w-fit items-center gap-2 text-xs font-medium text-muted-foreground">
+              <Checkbox checked={sel.allSelected} onCheckedChange={() => sel.toggleAll()} />
+              Select all {discounts.length}
+            </label>
+            <BulkActionBar entity="discount_rules" ids={sel.ids} onClear={sel.clear} onChanged={invalidate} />
+          </div>
+        )}
         {discounts.length === 0 ? (
           <p className="px-5 py-8 text-center text-sm text-muted-foreground">No discounts yet.</p>
         ) : (
           <ul className="divide-y divide-border">
             {discounts.map((d) => (
               <li key={d.id} className="flex flex-wrap items-center gap-3 px-5 py-3">
+                <Checkbox checked={sel.isSelected(String(d.id))} onCheckedChange={() => sel.toggle(String(d.id))} aria-label="Select discount" />
                 <button
                   className="min-w-0 flex-1 text-left"
                   onClick={() => setDraft({
