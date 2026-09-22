@@ -32,11 +32,14 @@ type Draft = {
   priority: number;
   notes: string;
   active: boolean;
+  /** Resolved from Google for the selected place, shown read-only. */
+  lat: number | null;
+  lng: number | null;
 };
 
 const empty: Draft = {
   name: "", place: null, radius: 5, scope: "either", price: 0,
-  includedMiles: 0, extraPerMile: 0, priority: 100, notes: "", active: true,
+  includedMiles: 0, extraPerMile: 0, priority: 100, notes: "", active: true, lat: null, lng: null,
 };
 
 export function SchemeLocationsTab({ classId, locations }: { classId: string; locations: any[] }) {

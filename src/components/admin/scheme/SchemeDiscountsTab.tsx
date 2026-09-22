@@ -25,9 +25,12 @@ type Draft = {
   stackable: boolean;
   notes: string;
   active: boolean;
+  /** Resolved from Google for the selected place, shown read-only. */
+  lat: number | null;
+  lng: number | null;
 };
 
-const empty: Draft = { name: "", place: null, radius: 5, value: 10, priority: 100, stackable: false, notes: "", active: true };
+const empty: Draft = { name: "", place: null, radius: 5, value: 10, priority: 100, stackable: false, notes: "", active: true, lat: null, lng: null };
 
 export function SchemeDiscountsTab({ classId, discounts }: { classId: string; discounts: any[] }) {
   const qc = useQueryClient();
