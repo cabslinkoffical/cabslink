@@ -131,6 +131,16 @@ export function PlaceAutocomplete({
   const [maxH, setMaxH] = useState(288);
   const [dropdownStyle, setDropdownStyle] = useState<CSSProperties>({});
   const wrapRef = useRef<HTMLDivElement>(null);
+  // Inside a modal dialog/drawer the body is made non-interactive and outside
+  // pointer events close the dialog, so the list must live inside that layer.
+  const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    if (!open) return;
+    const host = wrapRef.current?.closest<HTMLElement>(
+      '[role="dialog"],[role="alertdialog"],[data-radix-popper-content-wrapper]',
+    );
+    setPortalTarget(host ?? document.body);
+  }, [open]);
   const inputRef = useRef<HTMLInputElement>(null);
   const sessionToken = useMemo(() => newSessionToken(), []);
 
