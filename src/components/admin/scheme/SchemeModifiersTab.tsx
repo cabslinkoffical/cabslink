@@ -148,6 +148,36 @@ export function SchemeModifiersTab({ classId, modifiers }: { classId: string; mo
           <Field label="Notes">
             <Textarea rows={2} value={draft.notes} onChange={(e) => set("notes", e.target.value)} placeholder="Internal note (optional)" />
           </Field>
+          <Field label="Location (optional)" hint="Leave blank to apply everywhere. Pick from the suggestions so the exact place is saved.">
+            <PlaceAutocomplete
+              value={draft.place?.label ?? ""}
+              onSelect={(p) => setDraft((d) => ({ ...d, place: p, lat: null, lng: null }))}
+              onClear={() => setDraft((d) => ({ ...d, place: null, lat: null, lng: null }))}
+              placeholder="e.g. Edinburgh Airport"
+            />
+          </Field>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Radius (miles)" hint="Used when a location is set.">
+              <Input
+                type="number"
+                step="0.1"
+                min="0.1"
+                value={draft.radius}
+                disabled={!draft.place}
+                onChange={(e) => set("radius", Number(e.target.value || 0))}
+              />
+            </Field>
+            <Field label="Applies to">
+              <Select value={draft.geoScope} onValueChange={(v) => set("geoScope", v as Draft["geoScope"])} disabled={!draft.place}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="either">Pickup or destination</SelectItem>
+                  <SelectItem value="pickup">Pickup only</SelectItem>
+                  <SelectItem value="destination">Destination only</SelectItem>
+                </SelectContent>
+              </Select>
+            </Field>
+          </div>
         </div>
 
         <div className="mt-5 space-y-4">
