@@ -59,6 +59,8 @@ export function SchemeRoutesTab({ classId, routes }: { classId: string; routes: 
   const qc = useQueryClient();
   const [draft, setDraft] = useState<Draft>(emptyDraft);
   const [liveRoute, setLiveRoute] = useState<{ miles: number; minutes: number } | null>(null);
+  type Coord = { lat: number; lng: number } | null;
+  const [coords, setCoords] = useState<{ origin: Coord; destination: Coord }>({ origin: null, destination: null });
   const [view, setView] = useViewMode("scheme-routes", "list");
 
   const upsert = useServerFn(upsertSchemeRoute);
@@ -169,6 +171,16 @@ export function SchemeRoutesTab({ classId, routes }: { classId: string; routes: 
                 <Input type="number" min="0" value={draft.priority} onChange={(e) => set("priority", Number(e.target.value || 0))} />
               </Field>
             </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Start coordinates" hint="Filled automatically from the chosen place.">
+                <Input readOnly className="bg-muted/50 tabular-nums"
+                  value={coords.origin ? `${coords.origin.lat.toFixed(6)}, ${coords.origin.lng.toFixed(6)}` : "—"} />
+              </Field>
+              <Field label="End coordinates" hint="Filled automatically from the chosen place.">
+                <Input readOnly className="bg-muted/50 tabular-nums"
+                  value={coords.destination ? `${coords.destination.lat.toFixed(6)}, ${coords.destination.lng.toFixed(6)}` : "—"} />
+              </Field>
+            </div>
             <Field label="Live route (read only)">
               <Input readOnly className="bg-muted/50 tabular-nums"
                 value={liveRoute ? `${liveRoute.miles.toFixed(1)} mi · ${Math.round(liveRoute.minutes)} min` : "—"} />
@@ -198,6 +210,7 @@ export function SchemeRoutesTab({ classId, routes }: { classId: string; routes: 
             onClearOrigin={() => set("from", null)}
             onClearDestination={() => set("to", null)}
             onReverse={() => setDraft((d) => ({ ...d, from: d.to, to: d.from, fromRadius: d.toRadius, toRadius: d.fromRadius }))}
+            onCoords={setCoords}
             onRoute={setLiveRoute}
             height={430}
           />
