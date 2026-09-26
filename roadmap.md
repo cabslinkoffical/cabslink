@@ -35,3 +35,12 @@
 - [x] Add RatingFacts (ratingfacts.com) as a live review channel on /reviews
 - [x] Remove the ADMIN label from the public site header (admin panel stays reachable by URL)
 - [x] Own first-party analytics + admin tabs (Own analytics / Bookings & revenue / Google Analytics)
+
+## SEO strategy (uploaded plan, 26 Sep) — phased
+- [x] Phase 1: technical fixes (brand "Cabslink", footer H3, /contact links, lowercase + trailing-slash 301s, /book/tour in sitemap, clean /book links, noindex thin region/blog-category pages)
+- [ ] Phase 1 leftover: homepage title/H1 and conflicting facts (needs owner confirmation of vehicles/prices)
+- [ ] Phase 2: rebuild Edinburgh Airport + 57 thin location pages
+- [ ] Phase 3: restore 10 thin blog posts (needs original text)
+- [ ] Phase 4: speed (hero image), accessibility, structured data
+- [ ] Phase 5-6: keyword + content plan pages
+- [ ] Off-site (owner): backlinks, Google Business Profile, reviews, resubmit sitemap in Search Console
