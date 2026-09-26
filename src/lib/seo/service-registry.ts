@@ -90,7 +90,7 @@ export const SERVICE_REGISTRY: ServiceRecord[] = [
     redirectFrom: [],
     publication: "published",
     intent:
-      "Premium saloon/MPV travel with a professional driver for business and high-comfort journeys. Canonical target for all executive-car wording.",
+      "Premium saloon/MPV travel with a professional driver for business and high-comfort journeys.",
   },
   {
     id: "vip-transfers",
@@ -255,7 +255,7 @@ export const SERVICE_REGISTRY: ServiceRecord[] = [
     redirectFrom: [],
     publication: "published",
     intent:
-      "Multi-stop leisure itineraries with a driver. Canonical target for all sightseeing wording — no separate /sightseeing-tours page.",
+      "Multi-stop leisure itineraries with a driver.",
   },
   {
     id: "football-transfers",
