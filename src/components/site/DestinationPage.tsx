@@ -20,7 +20,9 @@ import { getTemplate } from "@/lib/seo/template-registry";
 import { evaluateQuality } from "@/lib/seo/quality";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Link } from "@tanstack/react-router";
-import { MapPin, Clock, Car, Phone } from "lucide-react";
+import { MapPin, Clock, Car, Phone, PoundSterling } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { getFromFare } from "@/lib/from-fare.functions";
 
 export type LoadedDestination = {
   destination: Destination;
@@ -103,6 +105,12 @@ export function DestinationPage({
   const drives = hasGeo
     ? ORIGINS.map((o) => ({ from: o.name, ...estimateDrive(d.lat as number, d.lng as number, o) }))
     : [];
+  const fare = useQuery({
+    queryKey: ["from-fare", d.lat, d.lng],
+    queryFn: () => getFromFare({ data: { lat: d.lat as number, lng: d.lng as number } }),
+    enabled: hasGeo,
+    staleTime: 10 * 60_000,
+  }).data;
 
   return (
     <SiteLayout>
@@ -131,6 +139,12 @@ export function DestinationPage({
             Private, pre-booked car to or from {name}. Fixed fare confirmed before you pay, with a
             professional driver collecting you at the pickup address you choose.
           </p>
+          {fare && (
+            <p className="mt-5 inline-flex items-center gap-2 rounded-full border border-[var(--gold)]/50 bg-white/5 px-4 py-2 text-sm">
+              <PoundSterling className="size-4 text-[var(--gold)]" />
+              From <strong className="text-[var(--gold)]">{fare.symbol}{fare.amount}</strong> from Edinburgh · {fare.vehicle}
+            </p>
+          )}
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
               to="/book"
