@@ -94,6 +94,23 @@ export default {
         reqUrl.hostname = "cabslink.com";
         return Response.redirect(reqUrl.toString(), 301);
       }
+      // Canonical page paths: lowercase, no trailing slash (301). Skip files,
+      // built assets and API endpoints, whose names can be case-sensitive.
+      const p = reqUrl.pathname;
+      if (
+        (request.method === "GET" || request.method === "HEAD") &&
+        !p.startsWith("/api/") &&
+        !p.startsWith("/assets/") &&
+        !p.includes(".")
+      ) {
+        const caseSensitive = /^\/(booking|manage-booking|track-booking|cabs-booking-pannel|auth)(\/|$)/.test(p);
+        let clean = caseSensitive ? p : p.toLowerCase();
+        if (clean.length > 1 && clean.endsWith("/")) clean = clean.replace(/\/+$/, "") || "/";
+        if (clean !== p) {
+          reqUrl.pathname = clean;
+          return Response.redirect(reqUrl.toString(), 301);
+        }
+      }
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       return withHtmlRevalidation(

@@ -28,133 +28,133 @@ export type TourSeo = {
 export const TOUR_SEO: Record<string, TourSeo> = {
   "outlander-classic-highlights": {
     h1: "Outlander Tours from Edinburgh",
-    metaTitle: "Outlander Tours from Edinburgh | CabsLink",
+    metaTitle: "Outlander Tours from Edinburgh | Cabslink",
     metaDescription:
       "Lallybroch, Blackness, Doune, Culross and Falkland in one day with your own driver. Filming locations in a sensible order, as long as you like at each.",
   },
   "lallybroch-outlander-half-day": {
     h1: "Outlander Half-Day Tour from Edinburgh",
-    metaTitle: "Outlander Half-Day Tour from Edinburgh | CabsLink",
+    metaTitle: "Outlander Half-Day Tour from Edinburgh | Cabslink",
     metaDescription:
       "Three key Outlander filming locations in an afternoon, door to door from your Edinburgh address. The short version for a tight itinerary or an early flight.",
   },
   "outlander-castles-and-history": {
     h1: "Outlander Castle Tour from Edinburgh",
-    metaTitle: "Outlander Castle Tour from Edinburgh | CabsLink",
+    metaTitle: "Outlander Castle Tour from Edinburgh | Cabslink",
     metaDescription:
       "Four castles behind the series in a single private day — the real history alongside the scenes, with your driver handling the roads and the parking.",
   },
   "highlands-escape-loch-lomond-trossachs": {
     h1: "Highland Day Tours from Edinburgh",
-    metaTitle: "Highland Day Tours from Edinburgh | CabsLink",
+    metaTitle: "Highland Day Tours from Edinburgh | Cabslink",
     metaDescription:
       "The Kelpies, Stirling, Aberfoyle and Loch Lomond in one unhurried loop from Edinburgh. Your first taste of the Highlands without an overnight stay.",
   },
   "west-highland-grand-tour": {
     h1: "Scotland Tours from Edinburgh",
-    metaTitle: "Scotland Tours from Edinburgh | CabsLink",
+    metaTitle: "Scotland Tours from Edinburgh | Cabslink",
     metaDescription:
       "Loch Lomond, Glencoe, Fort William and Glenfinnan across one long West Highland day. The widest sweep of Scotland you can see and still sleep in Edinburgh.",
   },
   "glencoe-highlands-private-day": {
     h1: "Glencoe Tours from Edinburgh",
-    metaTitle: "Glencoe Tours from Edinburgh | CabsLink",
+    metaTitle: "Glencoe Tours from Edinburgh | Cabslink",
     metaDescription:
       "Callander, Loch Lubnaig and the Three Sisters of Glencoe, with stops wherever the light is good. Around nine hours door to door from Edinburgh.",
   },
   "loch-lomond-trossachs-explorer": {
     h1: "Loch Lomond Tours from Edinburgh",
-    metaTitle: "Loch Lomond Tours from Edinburgh | CabsLink",
+    metaTitle: "Loch Lomond Tours from Edinburgh | Cabslink",
     metaDescription:
       "A full day in Loch Lomond and the Trossachs National Park — lochside viewpoints, village stops and time to walk, at whatever pace suits you.",
   },
   "jacobite-legacy-glenfinnan-glencoe": {
     h1: "Glenfinnan Viaduct Tour from Edinburgh",
-    metaTitle: "Glenfinnan Viaduct Tour from Edinburgh | CabsLink",
+    metaTitle: "Glenfinnan Viaduct Tour from Edinburgh | Cabslink",
     metaDescription:
       "Glenfinnan Viaduct, Fort William and Glencoe in one long Jacobite day. We time the viaduct stop around the steam train where the timetable allows.",
   },
   "harry-potter-highland-expedition": {
     h1: "Harry Potter Tour from Edinburgh",
-    metaTitle: "Harry Potter Tour from Edinburgh | CabsLink",
+    metaTitle: "Harry Potter Tour from Edinburgh | Cabslink",
     metaDescription:
       "The Glenfinnan Viaduct, Glencoe and Fort William in one Highland day — the real filming country, with a driver who knows the viewing spots.",
   },
   "stirling-and-doune-castles-day": {
     h1: "Stirling Castle Tours from Edinburgh",
-    metaTitle: "Stirling Castle Tours from Edinburgh | CabsLink",
+    metaTitle: "Stirling Castle Tours from Edinburgh | Cabslink",
     metaDescription:
       "Stirling Castle and Doune Castle in one private day, roughly an hour from Edinburgh. Enough time inside both without a coach party schedule.",
   },
   "edinburgh-castles-heritage-trail": {
     h1: "Castle Tours from Edinburgh",
-    metaTitle: "Castle Tours from Edinburgh | CabsLink",
+    metaTitle: "Castle Tours from Edinburgh | Cabslink",
     metaDescription:
       "Four historic castles within easy reach of Edinburgh in one day — Forth-side fortresses and royal strongholds, with driving and parking handled.",
   },
   "braveheart-wallace-trail": {
     h1: "Braveheart & Wallace Tour from Edinburgh",
-    metaTitle: "Braveheart & Wallace Tour from Edinburgh | CabsLink",
+    metaTitle: "Braveheart & Wallace Tour from Edinburgh | Cabslink",
     metaDescription:
       "Follow William Wallace and Robert the Bruce across Stirling, Doune and Blackness — battlefield ground, the monument and the castles, in one day.",
   },
   "royal-palaces-of-scotland": {
     h1: "Royal Palaces Tour from Edinburgh",
-    metaTitle: "Royal Palaces Tour from Edinburgh | CabsLink",
+    metaTitle: "Royal Palaces Tour from Edinburgh | Cabslink",
     metaDescription:
       "Linlithgow, Stirling and Falkland in a single private day — three Stewart palaces, the birthplaces and the tennis court, with time inside each.",
   },
   "trossachs-villages-discovery": {
     h1: "Trossachs Tours from Edinburgh",
-    metaTitle: "Trossachs Tours from Edinburgh | CabsLink",
+    metaTitle: "Trossachs Tours from Edinburgh | Cabslink",
     metaDescription:
       "Callander, Aberfoyle and the quieter Trossachs villages at a slow pace — lochside coffee stops, short walks and no fixed turnaround time.",
   },
   "photographers-highland-lochs": {
     h1: "Highland Lochs Photography Tour from Edinburgh",
-    metaTitle: "Highland Lochs Photo Tour from Edinburgh | CabsLink",
+    metaTitle: "Highland Lochs Photo Tour from Edinburgh | Cabslink",
     metaDescription:
       "A day built around light rather than mileage: unhurried loch stops across the Trossachs, early starts on request and time to set up a tripod.",
   },
   "monty-python-movie-locations": {
     h1: "Doune Castle & Film Locations Tour from Edinburgh",
-    metaTitle: "Doune Castle Film Tour from Edinburgh | CabsLink",
+    metaTitle: "Doune Castle Film Tour from Edinburgh | Cabslink",
     metaDescription:
       "Doune Castle plus the Glencoe film viewpoints — the Holy Grail, Outlander and Game of Thrones locations in one private day from Edinburgh.",
   },
   "fife-coastal-heritage": {
     h1: "Fife Day Tour from Edinburgh — Culross & Falkland",
-    metaTitle: "Fife Day Tour from Edinburgh: Culross | CabsLink",
+    metaTitle: "Fife Day Tour from Edinburgh: Culross | Cabslink",
     metaDescription:
       "Cobbled Culross, the royal palace at Falkland and the Fife coast at a relaxed pace — an easy day out across the Forth with your own driver.",
   },
   "kelpies-wheel-safari-family-day": {
     h1: "Family Day Tour from Edinburgh — Kelpies & Safari Park",
-    metaTitle: "Family Day Tour: Kelpies & Safari | CabsLink",
+    metaTitle: "Family Day Tour: Kelpies & Safari | Cabslink",
     metaDescription:
       "The Kelpies, the Falkirk Wheel and Blair Drummond Safari Park in one family day — fitted child seats, short drives and boot space for the buggy.",
   },
   "safari-and-stirling-family-day": {
     h1: "Blair Drummond Safari Tour from Edinburgh",
-    metaTitle: "Blair Drummond Safari Tour from Edinburgh | CabsLink",
+    metaTitle: "Blair Drummond Safari Tour from Edinburgh | Cabslink",
     metaDescription:
       "Scotland's only safari park plus historic Stirling in one private day — around an hour each way, with fitted child seats and no timetable to catch.",
   },
   "falkirk-icons-half-day": {
     h1: "Kelpies & Falkirk Wheel Half-Day Tour from Edinburgh",
-    metaTitle: "Kelpies & Falkirk Wheel Half-Day Tour | CabsLink",
+    metaTitle: "Kelpies & Falkirk Wheel Half-Day Tour | Cabslink",
     metaDescription:
       "The Kelpies, the Falkirk Wheel and two nearby royal castles in an afternoon — the best short day out from Edinburgh if you only have half a day.",
   },
   "forth-coast-bridges-kelpies": {
     h1: "Forth Bridges & Kelpies Tour from Edinburgh",
-    metaTitle: "Forth Bridges & Kelpies Tour from Edinburgh | CabsLink",
+    metaTitle: "Forth Bridges & Kelpies Tour from Edinburgh | Cabslink",
     metaDescription:
       "The three Forth bridges, Blackness Castle, Culross and the Kelpies along the Forth shore — a day of big engineering and old harbours.",
   },
   "edinburgh-fort-william-scenic": {
     h1: "Edinburgh to Fort William Private Transfer",
-    metaTitle: "Edinburgh to Fort William Private Transfer | CabsLink",
+    metaTitle: "Edinburgh to Fort William Private Transfer | Cabslink",
     metaDescription:
       "A one-way private transfer to Fort William through Loch Lomond and Glencoe, with photo stops on the way. Luggage in the boot, no coach changes.",
   },
@@ -227,7 +227,7 @@ export const DRAFT_TOURS: DraftTourRecord[] = [
     eyebrow: "Private Driver Tour",
     productName: "Isle of Skye Private Journey",
     h1: "Isle of Skye Tours from Edinburgh",
-    metaTitle: "Isle of Skye Tours from Edinburgh | CabsLink",
+    metaTitle: "Isle of Skye Tours from Edinburgh | Cabslink",
     metaDescription:
       "Skye is around five hours each way from Edinburgh. We drive it as a two-day trip so you actually see the island, and explain why one day rarely works.",
     intro: [
@@ -300,7 +300,7 @@ export const DRAFT_TOURS: DraftTourRecord[] = [
     eyebrow: "Private Driver Tour",
     productName: "Loch Ness & Great Glen Private Day",
     h1: "Loch Ness Tours from Edinburgh",
-    metaTitle: "Loch Ness Tours from Edinburgh | CabsLink",
+    metaTitle: "Loch Ness Tours from Edinburgh | Cabslink",
     metaDescription:
       "Urquhart Castle, the loch shore and an optional cruise, driven door to door from Edinburgh. Around 11 hours in total — here is the honest timing.",
     intro: [
@@ -374,7 +374,7 @@ export const DRAFT_TOURS: DraftTourRecord[] = [
     eyebrow: "Private Driver Tour",
     productName: "Private Whisky Distillery Day",
     h1: "Whisky Tours from Edinburgh",
-    metaTitle: "Whisky Tours from Edinburgh | CabsLink",
+    metaTitle: "Whisky Tours from Edinburgh | Cabslink",
     metaDescription:
       "Your driver is the designated driver, so everyone in the car can taste. Two or three distilleries in a day, booked around real tour and tasting times.",
     intro: [

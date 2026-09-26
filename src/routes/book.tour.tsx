@@ -56,13 +56,13 @@ export const Route = createFileRoute("/book/tour")({
   validateSearch: searchSchema,
   head: () => ({
     meta: [
-      { title: "Book a Private Day Tour in Scotland | CabsLink" },
+      { title: "Book a Private Day Tour in Scotland | Cabslink" },
       {
         name: "description",
         content:
           "Build your Scottish day tour by the hour: choose a tour or your own stops, pick your hours and vehicle, see an itemised price and pay online.",
       },
-      { property: "og:title", content: "Book a Private Day Tour in Scotland | CabsLink" },
+      { property: "og:title", content: "Book a Private Day Tour in Scotland | Cabslink" },
       {
         property: "og:description",
         content: "Hourly private day tours with included mileage, itemised pricing and secure online payment.",
@@ -543,7 +543,7 @@ function TourWizard() {
                     over more than one day, contact us and we'll confirm the full cost with you.
                   </p>
                   <Link
-                    to="/contact-us"
+                    to="/contact"
                     className="mt-2 inline-block text-xs font-semibold underline"
                   >
                     Contact us about a multi-day tour

@@ -91,7 +91,7 @@ export function Header() {
             {/* Compact call icon when the full phone number is hidden */}
             <a
               href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}
-              aria-label="Call CabsLink"
+              aria-label="Call Cabslink"
               className="2xl:hidden grid size-10 place-items-center rounded-full bg-white/10 text-[var(--gold)] hover:bg-white/15"
             >
               <Phone className="size-4" />

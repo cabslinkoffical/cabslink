@@ -65,10 +65,10 @@ export function withNoun(name: string, noun: string): string {
 
 
 /**
- * Composes `${base}${tail}` with the " — CabsLink" suffix only when the whole
+ * Composes `${base}${tail}` with the " — Cabslink" suffix only when the whole
  * title still fits inside 60 characters, so nothing is truncated by Google.
  */
-export function titleWithin(base: string, limit = 60, suffix = " — CabsLink"): string {
+export function titleWithin(base: string, limit = 60, suffix = " — Cabslink"): string {
   return base.length + suffix.length <= limit ? `${base}${suffix}` : base;
 }
 
@@ -109,7 +109,7 @@ export const TEMPLATES: Record<DestinationType, TemplateConfig> = {
   region: {
     hubLabel: "Regions",
     hubSegment: "areas",
-    titleTemplate: (d) => `${d.name} Private Travel — CabsLink`,
+    titleTemplate: (d) => `${d.name} Private Travel — Cabslink`,
     descriptionStem: (d) => `Private travel across the ${d.name} region.`,
     typeSchema: (d) => [localBusinessSchema(d)],
     sections: commonSections,
@@ -117,7 +117,7 @@ export const TEMPLATES: Record<DestinationType, TemplateConfig> = {
   council: {
     hubLabel: "Councils",
     hubSegment: "areas",
-    titleTemplate: (d) => `${d.name} Private Travel — CabsLink`,
+    titleTemplate: (d) => `${d.name} Private Travel — Cabslink`,
     descriptionStem: (d) => `Private travel throughout ${d.name}${d.region ? `, ${d.region}` : ""}.`,
     typeSchema: (d) => [localBusinessSchema(d)],
     sections: commonSections,
@@ -131,7 +131,7 @@ export const TEMPLATES: Record<DestinationType, TemplateConfig> = {
     },
     descriptionStem: (d) => {
       const m = d.meta as { from_name?: string; to_name?: string };
-      return `How much is a taxi from ${m.from_name ?? ""} to ${m.to_name ?? ""}? Fixed fares by vehicle class, flight tracking and no meter. Book online with CabsLink.`;
+      return `How much is a taxi from ${m.from_name ?? ""} to ${m.to_name ?? ""}? Fixed fares by vehicle class, flight tracking and no meter. Book online with Cabslink.`;
     },
     typeSchema: (d) => {
       const m = d.meta as { from_name?: string; to_name?: string };
@@ -190,7 +190,7 @@ export const TEMPLATES: Record<DestinationType, TemplateConfig> = {
   corporate: {
     hubLabel: "Corporate Locations",
     hubSegment: "corporate",
-    titleTemplate: (d) => `${d.display_name ?? d.name} Business Travel — CabsLink`,
+    titleTemplate: (d) => `${d.display_name ?? d.name} Business Travel — Cabslink`,
     descriptionStem: (d) => `Executive and team transfers serving ${d.display_name ?? d.name}.`,
     typeSchema: (d) => [localBusinessSchema(d)],
     sections: commonSections,
@@ -198,7 +198,7 @@ export const TEMPLATES: Record<DestinationType, TemplateConfig> = {
   business_park: {
     hubLabel: "Business Parks",
     hubSegment: "corporate",
-    titleTemplate: (d) => `${d.display_name ?? d.name} Business Travel — CabsLink`,
+    titleTemplate: (d) => `${d.display_name ?? d.name} Business Travel — Cabslink`,
     descriptionStem: (d) => `Corporate transfers to ${d.display_name ?? d.name}.`,
     typeSchema: (d) => [localBusinessSchema(d)],
     sections: commonSections,
@@ -223,10 +223,10 @@ export const TEMPLATES: Record<DestinationType, TemplateConfig> = {
   service: {
     hubLabel: "Services",
     hubSegment: "services",
-    titleTemplate: (d) => `${d.display_name ?? d.name} — CabsLink`,
+    titleTemplate: (d) => `${d.display_name ?? d.name} — Cabslink`,
     descriptionStem: (d) => {
       const m = d.meta as { summary?: string };
-      return m.summary ? m.summary.slice(0, 155) : `${d.display_name ?? d.name} from CabsLink.`;
+      return m.summary ? m.summary.slice(0, 155) : `${d.display_name ?? d.name} from Cabslink.`;
     },
     typeSchema: (d) => [serviceSchema(d)],
     sections: ["summary", "facts", "faq", "book_cta"],
@@ -234,7 +234,7 @@ export const TEMPLATES: Record<DestinationType, TemplateConfig> = {
   guide: {
     hubLabel: "Travel Guides",
     hubSegment: "guides",
-    titleTemplate: (d) => `${d.display_name ?? d.name} — CabsLink Guide`,
+    titleTemplate: (d) => `${d.display_name ?? d.name} — Cabslink Guide`,
     descriptionStem: (d) => {
       const m = d.meta as { summary?: string };
       return m.summary ? m.summary.slice(0, 155) : `Travel guide: ${d.display_name ?? d.name}.`;

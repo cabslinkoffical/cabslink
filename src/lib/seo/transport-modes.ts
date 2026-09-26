@@ -166,7 +166,7 @@ export const JOURNEY_TRANSPORT: Record<string, JourneyTransportComparison> = {
       AIRLINK,
       {
         kind: "car",
-        operator: "CabsLink",
+        operator: "Cabslink",
         service: "Private car, door to door",
         fare: "Fixed price per car, quoted before you book — see the fare table above",
         duration: "About 33 minutes for the 10 miles via the A8, longer in festival traffic",
@@ -196,7 +196,7 @@ export const JOURNEY_TRANSPORT: Record<string, JourneyTransportComparison> = {
       { ...TRAM, stops: "No Waverley stop. The nearest is St Andrew Square, from which you walk down to the station.", tradeOff: "Level boarding and traffic-proof, but it does not reach Waverley — plan for a walk with your cases at the end, and remember the last tram from the airport is 22:52." },
       {
         kind: "car",
-        operator: "CabsLink",
+        operator: "Cabslink",
         service: "Private car, terminal to station entrance",
         fare: "Fixed price per car, quoted before you book — see the fare table above",
         duration: "About 30 minutes for 9 miles",
@@ -237,7 +237,7 @@ export const JOURNEY_TRANSPORT: Record<string, JourneyTransportComparison> = {
       },
       {
         kind: "car",
-        operator: "CabsLink",
+        operator: "Cabslink",
         service: "Private car, door to terminal",
         fare: "Fixed price per car — see the fare table above",
         duration: "About 1 hour 15 minutes for 50 miles on the M8",
@@ -279,7 +279,7 @@ export const JOURNEY_TRANSPORT: Record<string, JourneyTransportComparison> = {
       { ...EMBER_E1, duration: "Direct to the terminal; Ember publishes live times on ember.to", firstLast: "Hourly through the day, with overnight departures" },
       {
         kind: "car",
-        operator: "CabsLink",
+        operator: "Cabslink",
         service: "Private car, door to terminal",
         fare: "Fixed price per car — see the fare table above",
         duration: "About 1 hour 20 minutes for 60 miles via the M90",
@@ -320,7 +320,7 @@ export const JOURNEY_TRANSPORT: Record<string, JourneyTransportComparison> = {
       },
       {
         kind: "car",
-        operator: "CabsLink",
+        operator: "Cabslink",
         service: "Private car, door to terminal",
         fare: "Fixed price per car — see the fare table above",
         duration: "About 2 hours 35 minutes for 124 miles via the A90 and M90",
@@ -360,7 +360,7 @@ export const JOURNEY_TRANSPORT: Record<string, JourneyTransportComparison> = {
       },
       {
         kind: "car",
-        operator: "CabsLink",
+        operator: "Cabslink",
         service: "Private car, Halbeath or your door to the terminal",
         fare: "Fixed price per car — see the fare table above",
         duration: "About 25 minutes for 16 miles via the M90 and the Queensferry Crossing",
@@ -400,7 +400,7 @@ export const JOURNEY_TRANSPORT: Record<string, JourneyTransportComparison> = {
       },
       {
         kind: "car",
-        operator: "CabsLink",
+        operator: "Cabslink",
         service: "Private car, terminal to Edinburgh door",
         fare: "Fixed price per car — see the fare table above",
         duration: "About 1 hour 20 minutes for 55 miles via the M8",

@@ -70,7 +70,7 @@ function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Dashboard" description="Real-time overview of CabsLink operations." />
+      <PageHeader title="Dashboard" description="Real-time overview of Cabslink operations." />
 
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
         {kpis.map(k => <StatCard key={k.label} {...k} />)}

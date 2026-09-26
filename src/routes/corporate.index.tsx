@@ -4,9 +4,9 @@ import { HubPage } from "@/components/site/HubPage";
 import { HUBS, hubQueryOptions } from "@/lib/hub-config";
 export const Route = createFileRoute("/corporate/")({
   head: () => ({ meta: [
-    { title: `${HUBS[("corporate" as const)].title} — CabsLink` },
+    { title: `${HUBS[("corporate" as const)].title} — Cabslink` },
     { name: "description", content: HUBS[("corporate" as const)].metaDescription },
-    { property: "og:title", content: `${HUBS[("corporate" as const)].title} — CabsLink` },
+    { property: "og:title", content: `${HUBS[("corporate" as const)].title} — Cabslink` },
     { property: "og:description", content: HUBS[("corporate" as const)].metaDescription },
     { property: "og:type", content: "website" },
     { property: "og:url", content: "https://cabslink.com/corporate" },

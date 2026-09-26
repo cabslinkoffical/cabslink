@@ -44,11 +44,11 @@ function buildSummarySentences(loaded: LoadedDestination): string[] {
   if (d.type === "route") {
     const m = d.meta as { from_name?: string; to_name?: string };
     if (m.from_name && m.to_name) {
-      s.push(`CabsLink provides fixed-price private transfers from ${m.from_name} to ${m.to_name}.`);
+      s.push(`Cabslink provides fixed-price private transfers from ${m.from_name} to ${m.to_name}.`);
     }
   } else if (d.type === "airport") {
     const iata = (d.meta as { iata?: string })?.iata;
-    s.push(`CabsLink operates pre-booked transfers to and from ${name}${iata ? ` (${iata})` : ""}.`);
+    s.push(`Cabslink operates pre-booked transfers to and from ${name}${iata ? ` (${iata})` : ""}.`);
   } else if (d.type === "service") {
     const sum = (d.meta as { summary?: string })?.summary;
     if (sum) s.push(sum);
@@ -87,7 +87,7 @@ function buildFaqs(loaded: LoadedDestination): Array<{ q: string; a: string }> {
 
   items.push({
     q: `Can I pre-book a private car to ${name}?`,
-    a: `Yes. CabsLink accepts advance bookings 24/7 with fixed all-inclusive fares.`,
+    a: `Yes. Cabslink accepts advance bookings 24/7 with fixed all-inclusive fares.`,
   });
 
   if (d.type === "airport") {
@@ -189,7 +189,7 @@ export function buildSections(loaded: LoadedDestination, allowed: SectionKey[]):
   }
 
   if (set.has("book_cta")) {
-    out.push({ key: "book_cta", label: `Book a ride to ${name}`, href: `/book?to=${encodeURIComponent(name)}` });
+    out.push({ key: "book_cta", label: `Book a ride to ${name}`, href: "/book" });
   }
   return out;
 }

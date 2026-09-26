@@ -14,11 +14,11 @@ export const Route = createFileRoute("/search")({
     typeof s.q === "string" && s.q.length > 0 ? { q: s.q } : {},
   head: ({ match }) => {
     const q = (match.search as { q?: string }).q ?? "";
-    const title = q ? `Search: ${q} — CabsLink` : "Search — CabsLink";
+    const title = q ? `Search: ${q} — Cabslink` : "Search — Cabslink";
     return {
       meta: [
         { title },
-        { name: "description", content: "Search every UK destination CabsLink covers." },
+        { name: "description", content: "Search every UK destination Cabslink covers." },
         { name: "robots", content: "noindex" },
       ],
     };
@@ -101,7 +101,7 @@ function SearchPage() {
                 </Link>
               ) : (
                 <a
-                  href={`/book?to=${encodeURIComponent(r.display_name ?? r.name)}`}
+                  href="/book"
                   className="rounded-full bg-[var(--gold)] px-4 py-1.5 text-sm font-semibold text-[var(--navy)]"
                 >
                   Book to here

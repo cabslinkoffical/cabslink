@@ -30,7 +30,7 @@ export const JOURNEY_CATEGORIES: { id: JourneyCategory; label: string; blurb: st
 
 export type JourneyEnd = {
   name: string;
-  /** Canonical CabsLink page for this end, when one exists. */
+  /** Canonical Cabslink page for this end, when one exists. */
   path?: string;
 };
 
@@ -823,7 +823,7 @@ export function buildJourney(slug: string): JourneyContent | null {
 
 /** Shared so the `seo_pages` mirror can be generated from the same string. */
 export function journeyMetaDescription(j: JourneyRecord): string {
-  return `How much is a taxi from ${j.from.name} to ${j.to.name}? Fixed fares by vehicle class, flight tracking and no meter. Book online with CabsLink.`;
+  return `How much is a taxi from ${j.from.name} to ${j.to.name}? Fixed fares by vehicle class, flight tracking and no meter. Book online with Cabslink.`;
 }
 
 /** Title exactly as served, for mirror sync and tests. */
