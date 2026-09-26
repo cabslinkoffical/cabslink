@@ -42,7 +42,7 @@ export const getFromFare = createServerFn({ method: "GET" })
       }
       return best ? { amount: Math.round(best.amount), symbol: settings.currencySymbol || "£", vehicle: best.vehicle, miles } : null;
     } catch (e) {
-      console.error("[from-fare]", e);
+      
       return null;
     }
   });
