@@ -39,7 +39,7 @@
 ## SEO strategy (uploaded plan, 26 Sep) — phased
 - [x] Phase 1: technical fixes (brand "Cabslink", footer H3, /contact links, lowercase + trailing-slash 301s, /book/tour in sitemap, clean /book links, noindex thin region/blog-category pages)
 - [ ] Phase 1 leftover: homepage title/H1 and conflicting facts (needs owner confirmation of vehicles/prices)
-- [ ] Phase 2: rebuild Edinburgh Airport + 57 thin location pages
+- [~] Phase 2: 57 location pages moved to branded design (hero, drive times, pickup, no boilerplate) — pending owner: "from £X" fares, real photos, Edinburgh Airport meeting point/waiting/luggage facts
 - [ ] Phase 3: restore 10 thin blog posts (needs original text)
 - [ ] Phase 4: speed (hero image), accessibility, structured data
 - [ ] Phase 5-6: keyword + content plan pages
