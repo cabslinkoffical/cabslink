@@ -15,8 +15,6 @@
  * keeps these older than Trustpilot reviews, and the stable sort preserves the
  * profile's own display order within the group.
  */
-import type { TrustpilotSnapshot } from "./trustpilot";
-
 export type RatingFactsReview = {
   /** Reviewer display name exactly as shown on RatingFacts. */
   author: string;
@@ -38,11 +36,21 @@ export type RatingFactsReview = {
   excerpt?: string;
 };
 
-export type RatingFactsSnapshot = Pick<
-  TrustpilotSnapshot,
-  "rating" | "ratingLabel" | "reviewCount" | "distribution" | "reviews" | "profileUrl" | "verifiedOn"
-> & {
+export type RatingFactsSnapshot = {
+  /** Displayed rating on the public profile. */
+  rating: number;
+  /** Word the profile displays for the rating band. */
+  ratingLabel: string;
+  /** Total number of reviews shown on the public profile. */
+  reviewCount: number;
+  /** Star distribution exactly as published. Levels with 0% are omitted. */
+  distribution: Array<{ stars: number; percent: number }>;
+  /** Individual reviews referenced on the site. */
   reviews: RatingFactsReview[];
+  /** Public profile URL — always linked so visitors can verify. */
+  profileUrl: string;
+  /** ISO date the figures above were read from the public profile. */
+  verifiedOn: string;
 };
 
 export const RATINGFACTS: RatingFactsSnapshot = {
