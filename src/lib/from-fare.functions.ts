@@ -12,7 +12,7 @@ const EDINBURGH = { lat: 55.9533, lng: -3.1883 };
 let cache: { at: number; data: unknown } | null = null;
 
 export const getFromFare = createServerFn({ method: "GET" })
-  .inputValidator((d: { lat: number; lng: number }) =>
+  .validator((d: { lat: number; lng: number }) =>
     z.object({ lat: z.number().min(-90).max(90), lng: z.number().min(-180).max(180) }).parse(d),
   )
   .handler(async ({ data }): Promise<{ amount: number; symbol: string; vehicle: string; miles: number } | null> => {
@@ -41,7 +41,8 @@ export const getFromFare = createServerFn({ method: "GET" })
         }
       }
       return best ? { amount: Math.round(best.amount), symbol: settings.currencySymbol || "£", vehicle: best.vehicle, miles } : null;
-    } catch {
+    } catch (e) {
+      console.error("[from-fare]", e);
       return null;
     }
   });
