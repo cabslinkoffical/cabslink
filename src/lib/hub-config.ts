@@ -7,7 +7,7 @@ import {
 } from "@/lib/destinations.functions";
 
 type HubExtras = {
-  /** Full <title> as served. Falls back to `${title} — CabsLink`. */
+  /** Full <title> as served. Falls back to `${title} — Cabslink`. */
   seoTitle?: string;
   /** Search-result description (aim 120-160 chars). Falls back to `intro`. */
   metaDescription?: string;

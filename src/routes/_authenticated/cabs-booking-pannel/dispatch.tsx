@@ -48,8 +48,8 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/dispat
   },
   head: () => ({
     meta: [
-      { title: "Dispatch link | CabsLink admin" },
-      { name: "description", content: "Connect a separate driver dispatch system to CabsLink bookings." },
+      { title: "Dispatch link | Cabslink admin" },
+      { name: "description", content: "Connect a separate driver dispatch system to Cabslink bookings." },
     ],
   }),
 });

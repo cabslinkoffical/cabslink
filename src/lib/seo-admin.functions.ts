@@ -1,5 +1,5 @@
 /**
- * Admin CRUD + validation for the CabsLink SEO system (Phase B).
+ * Admin CRUD + validation for the Cabslink SEO system (Phase B).
  * All handlers require the admin role. Uses RLS-authenticated Supabase client.
  */
 import { createServerFn } from "@tanstack/react-start";

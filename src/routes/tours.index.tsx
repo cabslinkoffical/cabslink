@@ -28,7 +28,7 @@ export const Route = createFileRoute("/tours/")({
     return out;
   },
   head: ({ loaderData }) => {
-    const title = "Private Day Tours & Hourly Hire — Edinburgh & Glasgow | CabsLink";
+    const title = "Private Day Tours & Hourly Hire — Edinburgh & Glasgow | Cabslink";
     const description =
       "Private day tours from Edinburgh and Glasgow with your own driver, booked by the hour with miles included. Choose a ready-made tour or build a custom day with fixed pricing.";
     const url = "https://cabslink.com/tours";

@@ -65,7 +65,7 @@ export const Route = createFileRoute("/tours/$slug")({
               name: draft.h1,
               description: draft.metaDescription,
               touristType: "Private driver tour",
-              provider: { "@type": "Organization", name: "CabsLink", url: "https://cabslink.com" },
+              provider: { "@type": "Organization", name: "Cabslink", url: "https://cabslink.com" },
             }),
           },
           {

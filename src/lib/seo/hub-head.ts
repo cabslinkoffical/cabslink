@@ -13,7 +13,7 @@ export type HubListItem = { name: string; url: string };
 
 export function hubTitle(key: HubKey): string {
   const cfg = HUBS[key] as { title: string; seoTitle?: string };
-  return cfg.seoTitle ?? `${cfg.title} — CabsLink`;
+  return cfg.seoTitle ?? `${cfg.title} — Cabslink`;
 }
 
 export function itemListSchema(name: string, items: HubListItem[]) {

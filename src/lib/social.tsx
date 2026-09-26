@@ -19,7 +19,7 @@ export type SocialProfile = {
   Icon: LucideIcon | typeof TikTokIcon;
 };
 
-/** Verified CabsLink profiles — used in nav, footer, social section and JSON-LD sameAs. */
+/** Verified Cabslink profiles — used in nav, footer, social section and JSON-LD sameAs. */
 export const SOCIALS: SocialProfile[] = [
   {
     key: "instagram",
@@ -32,7 +32,7 @@ export const SOCIALS: SocialProfile[] = [
   {
     key: "facebook",
     label: "Facebook",
-    handle: "CabsLink",
+    handle: "Cabslink",
     url: "https://web.facebook.com/profile.php?id=61592930561866",
     blurb: "Service updates, travel notices and customer questions answered.",
     Icon: Facebook,

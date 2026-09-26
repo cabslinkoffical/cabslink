@@ -135,7 +135,7 @@ export const GUIDES: GuideRecord[] = [
       },
       {
         q: "How much is a taxi from Edinburgh Airport to the city centre?",
-        a: "CabsLink quotes a fixed price per vehicle before you book, shown on our Edinburgh Airport route page. It is more than a £6.00 bus fare for a solo traveller — the case for it is groups, early or late flights, child seats and addresses the tram and bus do not reach.",
+        a: "Cabslink quotes a fixed price per vehicle before you book, shown on our Edinburgh Airport route page. It is more than a £6.00 bus fare for a solo traveller — the case for it is groups, early or late flights, child seats and addresses the tram and bus do not reach.",
       },
       {
         q: "How long does it take to get from Edinburgh Airport to the city centre?",

@@ -68,7 +68,7 @@ export function Footer() {
           </ul>
         </div>
         <div>
-          <h4 className="text-sm font-semibold uppercase tracking-wider text-[var(--gold)]">Quick Links</h4>
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--gold)]">Quick Links</h3>
           <ul className="mt-5 space-y-1 text-sm text-white/75 md:space-y-3">
             {links.map(l => (
               <li key={l.to}>{l.to.includes("#") ? (
@@ -80,7 +80,7 @@ export function Footer() {
           </ul>
         </div>
         <div>
-          <h4 className="text-sm font-semibold uppercase tracking-wider text-[var(--gold)]">Services</h4>
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--gold)]">Services</h3>
           <ul className="mt-5 space-y-1 text-sm text-white/75 md:space-y-3">
             {services.map(s => (
               <li key={s.to}><Link to={s.to} className="inline-flex min-h-11 items-center hover:text-[var(--gold)] md:min-h-0">{s.label}</Link></li>
@@ -88,7 +88,7 @@ export function Footer() {
           </ul>
         </div>
         <div>
-          <h4 className="text-sm font-semibold uppercase tracking-wider text-[var(--gold)]">Contact</h4>
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--gold)]">Contact</h3>
           <ul className="mt-5 space-y-4 text-sm text-white/80">
             <li className="flex gap-3"><MapPin className="size-4 shrink-0 mt-0.5 text-[var(--gold)]" /><span>{SITE.address}</span></li>
             <li className="flex gap-3"><Phone className="size-4 shrink-0 mt-0.5 text-[var(--gold)]" /><div><a href={`tel:${SITE.phoneUK.replace(/\s/g,"")}`} className="flex min-h-10 items-center hover:text-[var(--gold)] md:min-h-0">{SITE.phoneUK}</a><a href={`tel:${SITE.phoneUS.replace(/[^\d+]/g,"")}`} className="flex min-h-10 items-center hover:text-[var(--gold)] md:min-h-0">{SITE.phoneUS}</a></div></li>

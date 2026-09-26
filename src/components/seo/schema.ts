@@ -5,7 +5,7 @@
 import type { Destination } from "@/lib/destinations.functions";
 
 const BRAND = {
-  name: "CabsLink",
+  name: "Cabslink",
   url: "https://cabslink.com",
   // Must be a URL that actually resolves — `/logo.png` was a 404, which made
   // the Organization logo unusable for every page emitting this graph.

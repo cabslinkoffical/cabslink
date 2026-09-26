@@ -6,7 +6,7 @@ import { SOCIALS } from "@/lib/social";
  * section and never blends into the navy footer below it.
  */
 export function SocialSection({
-  eyebrow = "— Follow CabsLink",
+  eyebrow = "— Follow Cabslink",
   heading = "Travel with us on ",
   headingAccent = "social.",
   intro = "Route notes, fleet updates and the places we drive to most — shared daily across our channels.",

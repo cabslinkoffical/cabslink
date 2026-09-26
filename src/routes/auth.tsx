@@ -81,7 +81,7 @@ function AuthPage() {
              {mode === "signin" ? "Admin sign in" : mode === "reset" ? "Set your password" : "Create account"}
           </h1>
           <p className="text-sm text-muted-foreground text-center mt-1">
-             {mode === "signin" ? "Access the Cabslink admin panel" : mode === "reset" ? "Create the password you will use on CabsLink Dispatch" : "An admin must grant you access after sign up"}
+             {mode === "signin" ? "Access the Cabslink admin panel" : mode === "reset" ? "Create the password you will use on Cabslink Dispatch" : "An admin must grant you access after sign up"}
           </p>
           <form onSubmit={onSubmit} className="mt-6 space-y-4">
              {mode !== "reset" ? <div className="space-y-1.5">

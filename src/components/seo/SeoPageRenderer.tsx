@@ -197,7 +197,7 @@ function SectionBlock({ section }: { section: PublicSeoSection }) {
 const ORG_JSONLD = {
   "@type": "LocalBusiness",
   "@id": "https://cabslink.com/#business",
-  name: "CabsLink",
+  name: "Cabslink",
   url: "https://cabslink.com",
   image: "https://cabslink.com/og-image.png",
   priceRange: "££",

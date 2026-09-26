@@ -262,7 +262,7 @@ function HourlyBookPage() {
                 </p>
               ) : tiers.length === 0 ? (
                 <p className="mt-3 text-sm text-muted-foreground">
-                  We couldn't load hire lengths. <Link to="/contact-us" className="underline">Contact us</Link> and
+                  We couldn't load hire lengths. <Link to="/contact" className="underline">Contact us</Link> and
                   we'll book it for you.
                 </p>
               ) : (
@@ -301,7 +301,7 @@ function HourlyBookPage() {
                 We book up to {rules?.max_bookable_hours ?? 12} hours online. For hires running over more
                 than one day, contact us and we'll confirm the full cost with you.
               </p>
-              <Link to="/contact-us" className="mt-2 inline-block text-xs font-semibold underline">
+              <Link to="/contact" className="mt-2 inline-block text-xs font-semibold underline">
                 Contact us about a multi-day hire
               </Link>
             </div>
