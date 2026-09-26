@@ -202,7 +202,7 @@ const ORG_JSONLD = {
   image: "https://cabslink.com/og-image.png",
   priceRange: "££",
   areaServed: { "@type": "Country", name: "United Kingdom" },
-  telephone: "+44",
+  telephone: "+44 333 888 2991",
 };
 
 export function buildSeoHead(
