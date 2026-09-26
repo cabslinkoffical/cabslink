@@ -21,6 +21,8 @@ export const Route = createFileRoute("/areas/region/$slug")({
     return {
       meta: [
         { title },
+        // Thin listing page: keep out of the index until it has a real intro.
+        { name: "robots", content: "noindex,follow" },
         { name: "description", content: desc },
         { property: "og:title", content: title },
         { property: "og:description", content: desc },
