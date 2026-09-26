@@ -19,6 +19,8 @@ import { MaintenanceScreen } from "../components/site/MaintenanceScreen";
 import { ConsentBanner } from "../components/site/ConsentBanner";
 import { initAnalytics, isMeasurablePath, trackPageView } from "../lib/analytics-ga";
 import { installStaleCacheRecovery } from "../lib/stale-cache-recovery";
+import { ownPageView, refreshOwnConsent } from "../lib/own-analytics";
+import { onConsentChange } from "../lib/consent";
 
 function NotFoundComponent() {
   return (
@@ -155,7 +157,9 @@ function RootComponent() {
   useEffect(() => {
     initAnalytics(pathname);
     trackPageView(pathname);
+    void ownPageView(pathname);
   }, [pathname]);
+  useEffect(() => onConsentChange(() => refreshOwnConsent()), []);
 
   return (
     <QueryClientProvider client={ctx.queryClient}>
