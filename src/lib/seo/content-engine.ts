@@ -65,10 +65,6 @@ function buildSummarySentences(loaded: LoadedDestination): string[] {
     const preview = popularRoutes.slice(0, 3).map((r) => r.display_name ?? r.name);
     s.push(`Popular pre-booked routes include ${joinList(preview)}.`);
   }
-  if (nearby.length && d.type !== "route") {
-    const preview = nearby.slice(0, 3).map((n) => n.display_name ?? n.name);
-    s.push(`Nearby destinations we also cover: ${joinList(preview)}.`);
-  }
   if (relatedServices.length && (d.type === "service" || d.type === "guide" || d.type === "location")) {
     const preview = relatedServices.slice(0, 3).map((r) => r.display_name ?? r.name);
     s.push(`Related services: ${joinList(preview)}.`);
