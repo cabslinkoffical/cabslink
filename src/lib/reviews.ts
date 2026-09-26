@@ -22,8 +22,15 @@
  *     is a visible link and correct attribution instead.
  */
 import { TRUSTPILOT, type TrustpilotSnapshot } from "./trustpilot";
+import { RATINGFACTS } from "./ratingfacts";
 
-export type ReviewChannelId = "trustpilot" | "google" | "youtube" | "facebook" | "direct";
+export type ReviewChannelId =
+  | "trustpilot"
+  | "ratingfacts"
+  | "google"
+  | "youtube"
+  | "facebook"
+  | "direct";
 
 /**
  * "live"    — real public reviews exist on this channel right now.
@@ -64,6 +71,16 @@ export const REVIEW_CHANNELS: ReviewChannel[] = [
       "Our main public review profile. Reviews are hosted and moderated by Trustpilot, not by us, so we cannot edit or remove them.",
     url: TRUSTPILOT.profileUrl,
     brandColor: "#00B67A",
+  },
+  {
+    id: "ratingfacts",
+    name: "RatingFacts",
+    status: "live",
+    blurb: "Independent ratings snapshot",
+    detail:
+      "A second independent review platform. Ratings and reviews are hosted and moderated by RatingFacts, not by us, so we cannot edit or remove them.",
+    url: RATINGFACTS.profileUrl,
+    brandColor: "#0E7C66",
   },
   {
     id: "google",
@@ -178,18 +195,41 @@ function trustpilotReviews(snapshot: TrustpilotSnapshot = TRUSTPILOT): UnifiedRe
  * surface on the site then picks them up without further changes.
  */
 export function allReviews(): UnifiedReview[] {
-  return [...trustpilotReviews()].sort((a, b) => b.dateIso.localeCompare(a.dateIso));
+  return [
+    ...trustpilotReviews(),
+    ...ratingfactsReviews(),
+  ].sort((a, b) => b.dateIso.localeCompare(a.dateIso));
 }
 
-/** The newest `count` reviews — used by the homepage section. */
-export function latestReviews(count = 4): UnifiedReview[] {
-  return allReviews().slice(0, count);
+/** Written reviews from RatingFacts, normalised into the shared shape. */
+function ratingfactsReviews(snapshot = RATINGFACTS): UnifiedReview[] {
+  return snapshot.reviews.map((r) => ({
+    id: `ratingfacts-${r.author}-${r.dateIso}`,
+    channel: "ratingfacts" as const,
+    author: r.author,
+    stars: r.stars,
+    dateLabel: r.dateLabel,
+    dateIso: r.dateIso,
+    topic: r.topic,
+    excerpt: r.excerpt,
+    url: snapshot.profileUrl,
+  }));
 }
 
-/** Totals for the reviews page header. Trustpilot's own count is authoritative. */
+/** The newest `count` reviews, optionally limited to one channel. */
+export function latestReviews(count = 4, channel?: ReviewChannelId): UnifiedReview[] {
+  const list = channel ? allReviews().filter((r) => r.channel === channel) : allReviews();
+  return list.slice(0, count);
+}
+
+/** Totals for the reviews page header. Each platform's own count is authoritative. */
 export function reviewTotals() {
   return {
-    written: TRUSTPILOT.reviewCount,
+    written: TRUSTPILOT.reviewCount + RATINGFACTS.reviewCount,
+    writtenByPlatform: {
+      trustpilot: TRUSTPILOT.reviewCount,
+      ratingfacts: RATINGFACTS.reviewCount,
+    },
     shownOnPage: allReviews().length,
     video: VIDEO_REVIEWS.length,
     liveChannels: liveReviewChannels().length,
