@@ -32,3 +32,5 @@
 - [x] Performance 1/3: responsive WebP delivery for homepage service cards, fleet cards, and logo
 - [x] Bulk pricing import: resolve typed From/To locations to Google Place IDs and coordinates
 - [x] Bulk pricing import: match coordinate-resolved routes per vehicle class and update existing two-way routes without false conflicts
+- [x] Add RatingFacts (ratingfacts.com) as a live review channel on /reviews
+- [x] Remove the ADMIN label from the public site header (admin panel stays reachable by URL)

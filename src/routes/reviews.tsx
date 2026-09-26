@@ -22,6 +22,7 @@ import { ReviewCard } from "@/components/site/ReviewCard";
 import { TrustpilotStars, TrustpilotWordmark } from "@/components/site/TrustpilotMark";
 import { organizationSchema } from "@/components/seo/schema";
 import { TRUSTPILOT, trustpilotVerifiedOnLabel } from "@/lib/trustpilot";
+import { RATINGFACTS, ratingfactsVerifiedOnLabel } from "@/lib/ratingfacts";
 import {
   REVIEW_CHANNELS,
   VIDEO_REVIEWS,
@@ -33,7 +34,7 @@ import {
 
 const TITLE = "Cabslink Reviews — Ratings & Customer Feedback";
 const DESCRIPTION =
-  "Cabslink reviews: our independent Trustpilot rating, a selection of the latest written reviews, and every channel where you can review us next.";
+  "Cabslink reviews: ratings from independent platforms including Trustpilot and RatingFacts, the latest written reviews, and every channel where you can review us next.";
 const URL = "https://cabslink.com/reviews";
 
 export const Route = createFileRoute("/reviews")({
@@ -75,6 +76,7 @@ export const Route = createFileRoute("/reviews")({
 function ReviewsPage() {
   const t = TRUSTPILOT;
   const verified = trustpilotVerifiedOnLabel(t);
+  const rVerified = ratingfactsVerifiedOnLabel(RATINGFACTS);
   const reviews = allReviews();
   const totals = reviewTotals();
   const live = liveReviewChannels();
@@ -100,14 +102,14 @@ function ReviewsPage() {
               Cabslink reviews — <span className="text-[var(--gold)]">on platforms we do not control.</span>
             </h1>
             <p className="mt-5 max-w-2xl text-sm leading-relaxed text-white/70 md:text-base">
-              We would rather point you at reviews we do not control than write our own. Our rating
-              lives on Trustpilot, and we are opening more ways to review a journey — including short
-              video reviews on YouTube and star ratings on Google.
+              We would rather point you at reviews we do not control than write our own. Our ratings
+              live on Trustpilot and RatingFacts, and we are opening more ways to review a journey —
+              including short video reviews on YouTube and star ratings on Google.
             </p>
           </motion.div>
 
           {/* Score summary */}
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             <div className="rounded-2xl border border-white/12 bg-white/[0.04] p-5">
               <div className="font-display text-4xl font-bold leading-none text-white">
                 {t.rating.toFixed(1)}
@@ -121,6 +123,24 @@ function ReviewsPage() {
               </p>
             </div>
             <div className="rounded-2xl border border-white/12 bg-white/[0.04] p-5">
+              <div className="font-display text-4xl font-bold leading-none text-white">
+                {RATINGFACTS.rating.toFixed(1)}
+                <span className="text-xl text-white/40"> / 5</span>
+              </div>
+              <div className="mt-3 flex items-center gap-0.5">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <Star
+                    key={i}
+                    className="h-3.5 w-3.5 fill-[var(--gold)] text-[var(--gold)]"
+                    aria-hidden="true"
+                  />
+                ))}
+              </div>
+              <p className="mt-2 text-xs text-white/60">
+                {RATINGFACTS.ratingLabel} on RatingFacts · {RATINGFACTS.reviewCount} reviews
+              </p>
+            </div>
+            <div className="rounded-2xl border border-white/12 bg-white/[0.04] p-5">
               <p className="font-display text-4xl font-bold leading-none text-white">
                 {totals.shownOnPage}
               </p>
@@ -128,7 +148,7 @@ function ReviewsPage() {
                 Written reviews shown
               </p>
               <p className="mt-2 text-xs text-white/60">
-                Read the full set of {t.reviewCount} on Trustpilot.
+                The latest from Trustpilot and RatingFacts.
               </p>
             </div>
             <div className="rounded-2xl border border-white/12 bg-white/[0.04] p-5">
@@ -165,12 +185,12 @@ function ReviewsPage() {
               id="written-reviews-heading"
               className="font-display text-3xl font-bold text-[var(--navy)] md:text-4xl"
             >
-              Latest Trustpilot reviews
+              Latest written reviews
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-[var(--navy)]/60">
-              A selection of {totals.shownOnPage} of the {t.reviewCount} reviews published on
-              Cabslink’s independent Trustpilot profile, newest first. Each card links to the
-              profile so you can read it in full — the complete set stays on Trustpilot.
+              A selection of {totals.shownOnPage} reviews from Cabslink’s independent Trustpilot
+              and RatingFacts profiles, newest first. Each card links to the platform it came from
+              so you can read it in full — the complete set stays there.
             </p>
           </div>
 
@@ -190,9 +210,18 @@ function ReviewsPage() {
               Read all {t.reviewCount} reviews on Trustpilot
               <ExternalLink className="h-3.5 w-3.5" />
             </a>
+            <a
+              href={RATINGFACTS.profileUrl}
+              target="_blank"
+              rel="noopener noreferrer nofollow"
+              className="inline-flex items-center gap-2 rounded-full border border-[var(--navy)]/20 px-6 py-3 text-xs font-semibold text-[var(--navy)] transition-colors hover:border-[var(--gold)]"
+            >
+              See all {RATINGFACTS.reviewCount} reviews on RatingFacts
+              <ExternalLink className="h-3.5 w-3.5" />
+            </a>
             <p className="text-xs text-[var(--navy)]/50">
-              We show {totals.shownOnPage} here; Trustpilot holds the complete, unedited set of
-              {" "}{t.reviewCount}.
+              We show {totals.shownOnPage} here; each platform holds its complete, unedited set —
+              {" "}{t.reviewCount} on Trustpilot and {RATINGFACTS.reviewCount} on RatingFacts.
             </p>
           </div>
         </div>
@@ -358,7 +387,8 @@ function ReviewsPage() {
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-[var(--navy)]/65">
               Good or bad, a review on an independent platform is worth more to the next traveller
-              than anything we could write about ourselves. Trustpilot is the fastest way today.
+              than anything we could write about ourselves. Trustpilot and RatingFacts are the
+              fastest ways today.
             </p>
             <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
               <a
@@ -369,6 +399,15 @@ function ReviewsPage() {
               >
                 <Star className="h-4 w-4" aria-hidden="true" />
                 Review us on Trustpilot
+              </a>
+              <a
+                href={RATINGFACTS.profileUrl}
+                target="_blank"
+                rel="noopener noreferrer nofollow"
+                className="inline-flex items-center gap-2 rounded-full border border-[var(--navy)]/20 px-6 py-3 text-sm font-semibold text-[var(--navy)] transition-colors hover:border-[var(--gold)]"
+              >
+                <Star className="h-4 w-4" aria-hidden="true" />
+                Rate us on RatingFacts
               </a>
               <Link
                 to="/contact"
@@ -395,14 +434,16 @@ function ReviewsPage() {
             </div>
             <p className="mt-3 text-[11px] leading-relaxed text-[var(--navy)]/50">
               Ratings, review counts, reviewer names and dates on this page are as displayed on
-              Trustpilot on {verified}; this is a dated snapshot, not a live feed.
+              Trustpilot on {verified} and on RatingFacts on {rVerified}; these are dated snapshots,
+              not live feeds.
               {t.noRecentInviteHistory
                 ? " Trustpilot currently notes that this profile has no recent history of asking customers for reviews, so these reviews were left independently and may not represent all Cabslink journeys."
                 : ""}{" "}
               Where a review has no quotation, no one has copied the reviewer's exact wording across
               yet — follow the link to read it in full rather than relying on our summary. Trustpilot
-              is a registered trademark of Trustpilot A/S and is not affiliated with Cabslink; Google,
-              YouTube and Facebook are trademarks of their respective owners.
+              is a registered trademark of Trustpilot A/S, and RatingFacts is an independent review
+              platform; neither is affiliated with Cabslink. Google, YouTube and Facebook are
+              trademarks of their respective owners.
             </p>
             <p className="mt-2 text-[11px] leading-relaxed text-[var(--navy)]/40">
               Live channels: {live.map((c) => c.name).join(", ")}. Coming soon:{" "}

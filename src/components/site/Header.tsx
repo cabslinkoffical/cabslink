@@ -1,16 +1,14 @@
 import { useEffect, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Menu, X, Phone, ShieldCheck } from "lucide-react";
+import { Menu, X, Phone } from "lucide-react";
 import { Logo } from "./Logo";
 import { NAV, SITE } from "@/lib/site";
-import { supabase } from "@/integrations/supabase/client";
 
 
 
 export function Header() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
   const pathname = useRouterState({ select: s => s.location.pathname });
 
   useEffect(() => {
@@ -22,16 +20,6 @@ export function Header() {
 
   useEffect(() => { setOpen(false); }, [pathname]);
 
-  useEffect(() => {
-    const check = async (userId: string | undefined) => {
-      if (!userId) { setIsAdmin(false); return; }
-      const { data } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
-      setIsAdmin(!!data);
-    };
-    supabase.auth.getSession().then(({ data }) => check(data.session?.user.id));
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => check(session?.user.id));
-    return () => sub.subscription.unsubscribe();
-  }, []);
 
   return (
     <div className={`sticky lg:static top-0 z-50 transition-all duration-300 navy-scene ${scrolled ? "pt-2 md:pt-3 pb-2 md:pb-3" : "pt-4 md:pt-6 pb-4 md:pb-6"}`}>
@@ -82,14 +70,6 @@ export function Header() {
 
           {/* Right actions */}
           <div className="flex items-center gap-1.5 md:gap-2 shrink-0">
-            {isAdmin && (
-              <Link
-                to="/cabs-booking-pannel"
-                className="hidden xl:inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-white/80 hover:text-[var(--gold)] transition-colors"
-              >
-                <ShieldCheck className="size-3.5" /> Admin
-              </Link>
-            )}
 
             <a
 
@@ -167,15 +147,6 @@ export function Header() {
               </Link>
 
 
-              {isAdmin && (
-
-                <Link
-                  to="/cabs-booking-pannel"
-                  className="mt-2 inline-flex items-center justify-center gap-1.5 rounded-full border border-[var(--gold)]/40 py-2.5 text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--gold)]"
-                >
-                  <ShieldCheck className="size-3.5" /> Admin Panel
-                </Link>
-              )}
             </div>
           </div>
         )}

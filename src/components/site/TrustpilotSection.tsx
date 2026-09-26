@@ -27,7 +27,9 @@ import { TestimonialsColumn, type TestimonialColumnItem } from "@/components/ui/
 export function TrustpilotSection() {
   const t = TRUSTPILOT;
   const verified = trustpilotVerifiedOnLabel(t);
-  const reviews = latestReviews(6);
+  // Homepage section is Trustpilot-branded, so only Trustpilot reviews appear
+  // here; the full multi-platform set lives on /reviews.
+  const reviews = latestReviews(6, "trustpilot");
 
   // Newest-first reviews, dealt round-robin into three scrolling columns so the
   // most recent entries are visible in every column set.
