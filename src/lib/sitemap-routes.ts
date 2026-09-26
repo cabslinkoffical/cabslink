@@ -21,7 +21,7 @@ export const PUBLIC_ROUTES = [
   "/golf-transfers", "/football-transfers", "/stadium-transfers",
   "/team-sports-travel", "/vip-sports-hospitality",
   "/corporate-travel", "/tours", "/fleet", "/drive-with-us",
-  "/corporate-booking", "/contact", "/book", "/book/hourly", "/reviews",
+  "/corporate-booking", "/contact", "/book", "/book/hourly", "/book/tour", "/reviews",
   "/privacy", "/terms", "/cookies",
   "/booking-policy", "/refund-policy", "/accessibility",
   "/private-hire", "/executive-transfers", "/long-distance-transfers", "/group-transfers", "/minibus-hire", "/coach-hire", "/cruise-transfers", "/university-transfers", "/hospital-transfers", "/event-transport",

@@ -103,7 +103,8 @@ export default {
         !p.startsWith("/assets/") &&
         !p.includes(".")
       ) {
-        let clean = p.toLowerCase();
+        const caseSensitive = /^\/(booking|manage-booking|track-booking|cabs-booking-pannel|auth)(\/|$)/.test(p);
+        let clean = caseSensitive ? p : p.toLowerCase();
         if (clean.length > 1 && clean.endsWith("/")) clean = clean.replace(/\/+$/, "") || "/";
         if (clean !== p) {
           reqUrl.pathname = clean;
