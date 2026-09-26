@@ -35,6 +35,7 @@ export function track(event: ConversionEvent, payload: Payload = {}): void {
     w.dataLayer = w.dataLayer ?? [];
     w.dataLayer.push(data);
     w.gtag?.("event", event, clean(payload));
+    void import("./own-analytics").then(m => m.ownEvent(event, clean(payload))).catch(() => {});
   } catch {
     // Analytics must never break a booking.
   }

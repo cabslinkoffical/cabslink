@@ -12,6 +12,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PageHeader, StatCard, EmptyState } from "@/components/admin/ui";
 import { getSiteAnalytics } from "@/lib/analytics.functions";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { OwnAnalyticsTab, GoogleAnalyticsTab } from "@/components/admin/OwnAnalyticsTabs";
 import { GA_MEASUREMENT_ID } from "@/lib/analytics-ga";
 import {
   BarChart3, PoundSterling, Calculator, Percent, XCircle, CheckCircle2, Inbox,
@@ -28,7 +30,7 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/analyt
   }),
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
   notFoundComponent: () => <div className="p-8">Not found</div>,
-  component: Page,
+  component: AnalyticsPage,
 });
 
 const GOLD = "#deae25";
@@ -61,6 +63,21 @@ function Panel({ title, children, action }: { title: string; children: React.Rea
       </div>
       {children}
     </div>
+  );
+}
+
+function AnalyticsPage() {
+  return (
+    <Tabs defaultValue="own" className="space-y-6">
+      <TabsList>
+        <TabsTrigger value="own">Own analytics</TabsTrigger>
+        <TabsTrigger value="business">Bookings &amp; revenue</TabsTrigger>
+        <TabsTrigger value="google">Google Analytics</TabsTrigger>
+      </TabsList>
+      <TabsContent value="own"><OwnAnalyticsTab /></TabsContent>
+      <TabsContent value="business"><Page /></TabsContent>
+      <TabsContent value="google"><GoogleAnalyticsTab /></TabsContent>
+    </Tabs>
   );
 }
 

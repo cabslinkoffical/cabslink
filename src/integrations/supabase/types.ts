@@ -3739,6 +3739,63 @@ export type Database = {
         }
         Relationships: []
       }
+      site_events: {
+        Row: {
+          browser: string | null
+          country: string | null
+          created_at: string
+          device: string | null
+          id: string
+          kind: string
+          name: string
+          os: string | null
+          path: string
+          props: Json
+          referrer_host: string | null
+          session_id: string | null
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          visitor_id: string | null
+        }
+        Insert: {
+          browser?: string | null
+          country?: string | null
+          created_at?: string
+          device?: string | null
+          id?: string
+          kind: string
+          name: string
+          os?: string | null
+          path: string
+          props?: Json
+          referrer_host?: string | null
+          session_id?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          visitor_id?: string | null
+        }
+        Update: {
+          browser?: string | null
+          country?: string | null
+          created_at?: string
+          device?: string | null
+          id?: string
+          kind?: string
+          name?: string
+          os?: string | null
+          path?: string
+          props?: Json
+          referrer_host?: string | null
+          session_id?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          visitor_id?: string | null
+        }
+        Relationships: []
+      }
       site_settings: {
         Row: {
           allowed_stop_duration_minutes: number[]

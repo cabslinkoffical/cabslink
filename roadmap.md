@@ -34,3 +34,4 @@
 - [x] Bulk pricing import: match coordinate-resolved routes per vehicle class and update existing two-way routes without false conflicts
 - [x] Add RatingFacts (ratingfacts.com) as a live review channel on /reviews
 - [x] Remove the ADMIN label from the public site header (admin panel stays reachable by URL)
+- [x] Own first-party analytics + admin tabs (Own analytics / Bookings & revenue / Google Analytics)
