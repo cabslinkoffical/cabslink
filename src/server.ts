@@ -100,6 +100,10 @@ export default {
       if (
         (request.method === "GET" || request.method === "HEAD") &&
         !p.startsWith("/api/") &&
+        !p.startsWith("/_") &&
+        !p.startsWith("/@") &&
+        !p.startsWith("/node_modules/") &&
+        !p.startsWith("/src/") &&
         !p.startsWith("/assets/") &&
         !p.includes(".")
       ) {
