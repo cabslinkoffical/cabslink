@@ -101,7 +101,7 @@ function SearchPage() {
                 </Link>
               ) : (
                 <a
-                  href={`/book?to=${encodeURIComponent(r.display_name ?? r.name)}`}
+                  href="/book"
                   className="rounded-full bg-[var(--gold)] px-4 py-1.5 text-sm font-semibold text-[var(--navy)]"
                 >
                   Book to here

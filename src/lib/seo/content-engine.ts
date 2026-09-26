@@ -189,7 +189,7 @@ export function buildSections(loaded: LoadedDestination, allowed: SectionKey[]):
   }
 
   if (set.has("book_cta")) {
-    out.push({ key: "book_cta", label: `Book a ride to ${name}`, href: `/book?to=${encodeURIComponent(name)}` });
+    out.push({ key: "book_cta", label: `Book a ride to ${name}`, href: "/book" });
   }
   return out;
 }
