@@ -9,4 +9,4 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
-- Admin route access checks reuse the browser session validated by the managed authenticated layout; private data operations remain protected server-side. This avoids fresh-login bearer handoff races.
+- Protected-route navigation reads the persisted browser session to avoid transient remote-check redirect loops; server functions still validate bearer tokens and roles for private operations.
