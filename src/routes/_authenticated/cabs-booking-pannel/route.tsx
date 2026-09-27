@@ -1,5 +1,4 @@
 import { createFileRoute, Link, Outlet, redirect, useRouter, useRouterState } from "@tanstack/react-router";
-import { isAdmin } from "@/lib/admin.functions";
 import { supabase } from "@/integrations/supabase/client";
 import {
   LayoutDashboard, CalendarCheck, MapPin, Ban, Car, Tag, UserCog, Users,
@@ -30,14 +29,19 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel")({
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
-  beforeLoad: async () => {
-    try {
-      const res = await isAdmin();
-      if (!res.isAdmin) throw redirect({ to: "/" });
-    } catch (e) {
-      if ((e as any)?.to) throw e;
-      throw redirect({ to: "/auth" });
-    }
+  beforeLoad: async ({ context }) => {
+    const user = context.user;
+    if (!user) throw redirect({ to: "/auth" });
+
+    // The parent route already validated this browser session. Check the role
+    // with that same session instead of making a second server-function hop,
+    // which can race token persistence immediately after sign-in.
+    const { data: hasAdminRole, error } = await supabase.rpc("has_role", {
+      _user_id: user.id,
+      _role: "admin",
+    });
+    if (error) throw error;
+    if (!hasAdminRole) throw redirect({ to: "/" });
   },
   component: AdminLayout,
 });

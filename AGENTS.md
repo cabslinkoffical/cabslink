@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Admin route access checks reuse the browser session validated by the managed authenticated layout; private data operations remain protected server-side. This avoids fresh-login bearer handoff races.
