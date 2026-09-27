@@ -50,10 +50,11 @@ function AuthPage() {
         setMode("signin");
         setPassword("");
       } else if (mode === "signin") {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
+        if (!data.user || !data.session) throw new Error("Sign-in did not create a session. Please try again.");
         toast.success("Signed in");
-        navigate({ to: "/cabs-booking-pannel" });
+        await navigate({ to: "/cabs-booking-pannel", replace: true });
       } else {
         const { error } = await supabase.auth.signUp({
           email,

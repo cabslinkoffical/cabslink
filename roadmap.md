@@ -21,6 +21,7 @@
 - [ ] Booking widget: full UI + behaviour review (no overlapping fields, popover closes, validation on both tabs)
 - [ ] Corporate booking page: add more detail and sections
 - [ ] Security: full review and hardening pass across the site
+- [x] Fix live admin sign-in loop by removing the fresh-session server-function race from the admin route guard
 - [x] Google Maps: load maps with the account's own browser key (custom-domain support)
 - [ ] Google Maps: create one fresh user-owned connection — both old links removed; workspace connection deletion awaits user action in Connectors
 - [x] Tour builder: suggest stops from the map inside the hour's mileage radius, and show chosen stops on a map
