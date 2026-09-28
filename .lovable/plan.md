@@ -1,19 +1,24 @@
-# Complete the outstanding SEO content work
+# Strengthen existing SEO pages
 
 ## Scope
-- Keep every existing route page.
-- Strengthen and publish the five priority airport-route pages: Dundee, Stirling, Dunfermline, Livingston, and Edinburgh Airport to the city centre.
-- Review the other completed hidden journey pages and publish those that already meet the same factual-content standard; retain `noindex` only where a page still lacks reliable content.
-- Fix the remaining agreed content issues: broken St Andrews article links, destination wording that implies a local office, fleet capacity contradictions, and tour-list labels, controls, dates, and booking links.
-- Preserve existing URLs and add relevant internal links so the improved pages remain discoverable.
+- Keep every existing page; do not delete route, destination, tour, fleet, or blog URLs.
+- Publish the five priority route pages only after expanding their route-specific FAQs from facts already present in the project: Dundee, Stirling, Dunfermline, Livingston, and Edinburgh Airport to city centre.
+- Keep the other unfinished route drafts available but hidden from indexing until their content is equally specific.
+- Ensure the routes directory and structured data list only published routes.
+- Replace destination `LocalBusiness` markup that implies offices at every location with service-area markup using `areaServed`.
+- Improve small tour itinerary checkbox and plus/minus touch targets without changing booking logic.
+- Correct the homepage driver-recruitment wording.
+- Fix the confirmed Standard MPV and Seven-Seater MPV capacity-description conflicts using their live configured capacities.
+- Correct any confirmed broken internal links in the two audited St Andrews articles; leave valid links unchanged.
+- Keep truthful publication dates and structured-data dates aligned; do not invent new dates.
 
-## Quality and verification
-- Use only facts already verified in the project; do not invent prices, airport policies, meeting points, or operating claims.
-- Keep unique titles, descriptions, canonical links, social metadata, and structured data on every page.
-- Verify the route pages are indexable and included in the route directory/sitemap where appropriate.
-- Run targeted SEO, sitemap, and interface tests, then check the live preview and current build status.
+## Quality rules
+- Use only facts already verified in route data or live admin content.
+- Do not invent airport waiting, luggage, meeting-point, office, or fleet claims.
+- Do not replace shortened blog text without the original source copy.
+- Preserve page URLs, booking behavior, visual hierarchy, and existing responsive image choices.
 
-## Not included
-- No page deletion or URL removal.
-- Airport-specific facts that still require owner confirmation remain pending.
-- Restoring shortened blog articles remains pending until their original text is supplied.
+## Verification
+- Run focused route/schema tests plus the project test suite.
+- Confirm published routes appear in the route directory and sitemap while unfinished drafts remain excluded.
+- Check the affected public pages for correct content, links, schema, and mobile controls.
