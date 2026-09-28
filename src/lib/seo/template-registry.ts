@@ -5,7 +5,7 @@
 import type { Destination, DestinationType } from "@/lib/destinations.functions";
 import {
   airportSchema,
-  localBusinessSchema,
+  serviceAreaSchema,
   serviceSchema,
   touristAttractionSchema,
   travelActionSchema,
@@ -79,7 +79,7 @@ export const TEMPLATES: Record<DestinationType, TemplateConfig> = {
     hubSegment: "areas",
     titleTemplate: (d) => `${d.display_name ?? d.name} Taxis & Private Transfers — Fixed Fares`,
     descriptionStem: (d) => `Pre-booked taxis and airport transfers serving ${d.display_name ?? d.name}. Fixed fares, professional drivers, book online or by phone.`,
-    typeSchema: (d) => [localBusinessSchema(d)],
+    typeSchema: (d) => [serviceAreaSchema(d)],
     sections: commonSections,
   },
   city: {
@@ -87,7 +87,7 @@ export const TEMPLATES: Record<DestinationType, TemplateConfig> = {
     hubSegment: "areas",
     titleTemplate: (d) => `${d.display_name ?? d.name} Taxis & Airport Transfers — Fixed Fares`,
     descriptionStem: (d) => `Pre-booked taxis, private hire and airport transfers in ${d.display_name ?? d.name}. Fixed prices by vehicle class, no meter, 24/7.`,
-    typeSchema: (d) => [localBusinessSchema(d)],
+    typeSchema: (d) => [serviceAreaSchema(d)],
     sections: commonSections,
   },
   town: {
@@ -95,7 +95,7 @@ export const TEMPLATES: Record<DestinationType, TemplateConfig> = {
     hubSegment: "areas",
     titleTemplate: (d) => `${d.display_name ?? d.name} Taxis & Private Transfers — Fixed Fares`,
     descriptionStem: (d) => `Pre-booked taxis and airport transfers serving ${d.display_name ?? d.name}. Fixed fares, professional drivers, book online or by phone.`,
-    typeSchema: (d) => [localBusinessSchema(d)],
+    typeSchema: (d) => [serviceAreaSchema(d)],
     sections: commonSections,
   },
   village: {
@@ -103,7 +103,7 @@ export const TEMPLATES: Record<DestinationType, TemplateConfig> = {
     hubSegment: "areas",
     titleTemplate: (d) => `${d.display_name ?? d.name} Taxis & Private Transfers — Fixed Fares`,
     descriptionStem: (d) => `Pre-booked taxis and airport transfers serving ${d.display_name ?? d.name}. Fixed fares, professional drivers, book online or by phone.`,
-    typeSchema: (d) => [localBusinessSchema(d)],
+    typeSchema: (d) => [serviceAreaSchema(d)],
     sections: commonSections,
   },
   region: {
@@ -111,7 +111,7 @@ export const TEMPLATES: Record<DestinationType, TemplateConfig> = {
     hubSegment: "areas",
     titleTemplate: (d) => `${d.name} Private Travel — Cabslink`,
     descriptionStem: (d) => `Private travel across the ${d.name} region.`,
-    typeSchema: (d) => [localBusinessSchema(d)],
+    typeSchema: (d) => [serviceAreaSchema(d)],
     sections: commonSections,
   },
   council: {
@@ -119,7 +119,7 @@ export const TEMPLATES: Record<DestinationType, TemplateConfig> = {
     hubSegment: "areas",
     titleTemplate: (d) => `${d.name} Private Travel — Cabslink`,
     descriptionStem: (d) => `Private travel throughout ${d.name}${d.region ? `, ${d.region}` : ""}.`,
-    typeSchema: (d) => [localBusinessSchema(d)],
+    typeSchema: (d) => [serviceAreaSchema(d)],
     sections: commonSections,
   },
   route: {
@@ -152,7 +152,7 @@ export const TEMPLATES: Record<DestinationType, TemplateConfig> = {
     hubSegment: "stations",
     titleTemplate: (d) => titleWithin(`${withNoun(nameOf(d), "Station")} Taxis & Transfers`),
     descriptionStem: (d) => `Pre-booked transfers to and from ${nameOf(d)} rail station.`,
-    typeSchema: (d) => [localBusinessSchema(d)],
+    typeSchema: (d) => [serviceAreaSchema(d)],
     sections: commonSections,
   },
   cruise_port: {
@@ -167,7 +167,7 @@ export const TEMPLATES: Record<DestinationType, TemplateConfig> = {
       return titleWithin(base);
     },
     descriptionStem: (d) => `Private transfers to the ${nameOf(d)} cruise terminal.`,
-    typeSchema: (d) => [localBusinessSchema(d)],
+    typeSchema: (d) => [serviceAreaSchema(d)],
     sections: commonSections,
   },
   university: {
@@ -175,7 +175,7 @@ export const TEMPLATES: Record<DestinationType, TemplateConfig> = {
     hubSegment: "universities",
     titleTemplate: (d) => titleWithin(`${withNoun(nameOf(d), "University")} Student Taxis & Transfers`),
     descriptionStem: (d) => `Term travel, move-in and airport runs for ${nameOf(d)}.`,
-    typeSchema: (d) => [localBusinessSchema(d)],
+    typeSchema: (d) => [serviceAreaSchema(d)],
     sections: commonSections,
   },
   hospital: {
@@ -183,7 +183,7 @@ export const TEMPLATES: Record<DestinationType, TemplateConfig> = {
     hubSegment: "hospitals",
     titleTemplate: (d) => titleWithin(`${withNoun(nameOf(d), "Hospital")} Transport`),
     descriptionStem: (d) => `Reliable private transport for appointments at ${nameOf(d)}.`,
-    typeSchema: (d) => [localBusinessSchema(d)],
+    typeSchema: (d) => [serviceAreaSchema(d)],
     sections: commonSections,
   },
 
@@ -192,7 +192,7 @@ export const TEMPLATES: Record<DestinationType, TemplateConfig> = {
     hubSegment: "corporate",
     titleTemplate: (d) => `${d.display_name ?? d.name} Business Travel — Cabslink`,
     descriptionStem: (d) => `Executive and team transfers serving ${d.display_name ?? d.name}.`,
-    typeSchema: (d) => [localBusinessSchema(d)],
+    typeSchema: (d) => [serviceAreaSchema(d)],
     sections: commonSections,
   },
   business_park: {
@@ -200,7 +200,7 @@ export const TEMPLATES: Record<DestinationType, TemplateConfig> = {
     hubSegment: "corporate",
     titleTemplate: (d) => `${d.display_name ?? d.name} Business Travel — Cabslink`,
     descriptionStem: (d) => `Corporate transfers to ${d.display_name ?? d.name}.`,
-    typeSchema: (d) => [localBusinessSchema(d)],
+    typeSchema: (d) => [serviceAreaSchema(d)],
     sections: commonSections,
   },
   attraction: {

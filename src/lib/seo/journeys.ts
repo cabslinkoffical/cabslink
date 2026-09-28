@@ -300,7 +300,6 @@ export const JOURNEYS: JourneyRecord[] = [
   // ---------------------------------------------------------------------
   {
     slug: "dundee-to-edinburgh-airport",
-    review: true,
     category: "airport",
     from: { name: "Dundee", path: "/areas/dundee" },
     to: { name: "Edinburgh Airport", path: "/airports/edinburgh-airport" },
@@ -329,11 +328,14 @@ export const JOURNEYS: JourneyRecord[] = [
         q: "What happens if my flight is delayed?",
         a: "Arrivals into Edinburgh are tracked against your flight number, so the driver is re-timed automatically. The first 60 minutes of waiting on international arrivals and 30 minutes on domestic are included at no extra cost.",
       },
+      {
+        q: "Is there a direct train from Dundee to Edinburgh Airport?",
+        a: "No. A rail journey requires a change to the tram at Haymarket, while a private transfer runs door to door from Dundee, the University of Dundee or Ninewells to the terminal.",
+      },
     ],
   },
   {
     slug: "stirling-to-edinburgh-airport",
-    review: true,
     category: "airport",
     from: { name: "Stirling", path: "/areas/stirling" },
     to: { name: "Edinburgh Airport", path: "/airports/edinburgh-airport" },
@@ -362,11 +364,14 @@ export const JOURNEYS: JourneyRecord[] = [
         q: "What happens if my flight is delayed?",
         a: "We track the inbound flight and move the pickup time to match the actual landing. Waiting time is included for the first hour after an international arrival, so a delay does not cost you extra.",
       },
+      {
+        q: "Do you collect from the University of Stirling and the Old Town?",
+        a: "Yes. University and Bridge of Allan pickups join the M9 at Junction 11. For Old Town hotels, the pickup is agreed at an accessible street because some narrow wynds cannot take larger vehicles.",
+      },
     ],
   },
   {
     slug: "dunfermline-to-edinburgh-airport",
-    review: true,
     category: "airport",
     from: { name: "Dunfermline", path: "/areas/dunfermline" },
     to: { name: "Edinburgh Airport", path: "/airports/edinburgh-airport" },
@@ -395,11 +400,14 @@ export const JOURNEYS: JourneyRecord[] = [
         q: "What happens if my flight is delayed?",
         a: "Your flight is tracked, so a late landing simply moves the pickup. Because the run is short we hold the driver locally in Fife rather than dispatching from Edinburgh, and the first hour of international waiting is included.",
       },
+      {
+        q: "Where will my driver collect me in Dunfermline?",
+        a: "Door-to-door collection is available. At Halbeath Park & Ride or Dunfermline City station, the booking is assigned a named bay so the meeting point is clear.",
+      },
     ],
   },
   {
     slug: "livingston-to-edinburgh-airport",
-    review: true,
     category: "airport",
     from: { name: "Livingston", path: "/areas/livingston" },
     to: { name: "Edinburgh Airport", path: "/airports/edinburgh-airport" },
@@ -428,11 +436,14 @@ export const JOURNEYS: JourneyRecord[] = [
         q: "What happens if my flight is delayed?",
         a: "Flight numbers are tracked and the driver is re-timed to the real landing time. Waiting is free for the first hour on international arrivals and the first 30 minutes on domestic flights.",
       },
+      {
+        q: "Which parts of Livingston do you collect from?",
+        a: "Collections cover Almondvale, Deans, Craigshill, Eliburn and surrounding districts. Pickup time is calculated from the actual street because the best M8 junction varies across the town.",
+      },
     ],
   },
   {
     slug: "edinburgh-airport-to-city-centre",
-    review: true,
     category: "airport",
     from: { name: "Edinburgh Airport", path: "/airports/edinburgh-airport" },
     to: { name: "Edinburgh City Centre", path: "/areas/edinburgh" },
@@ -460,6 +471,10 @@ export const JOURNEYS: JourneyRecord[] = [
       {
         q: "What happens if my flight is delayed?",
         a: "We track your flight and adjust the pickup to the actual landing time at no extra charge, with the first hour of waiting included on international arrivals and 30 minutes on domestic.",
+      },
+      {
+        q: "Can you drop me at an Old Town hotel during the festivals?",
+        a: "Yes, although temporary closures can prevent access to the hotel door. We confirm the nearest open street for Royal Mile, Grassmarket and other Old Town addresses before travel.",
       },
     ],
   },

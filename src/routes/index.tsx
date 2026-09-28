@@ -721,13 +721,13 @@ function HomePage() {
                 </h2>
                 <p className="mt-5 text-white/75 leading-relaxed max-w-xl">
                   Join our UK network and get steady premium work from a respected brand —
-                  vetted passengers, corporate accounts and real 24/7 dispatch support.
+                  pre-booked journeys, corporate accounts and real 24/7 dispatch support.
                   Apply in two minutes and our team will be in touch within 24 hours.
                 </p>
                 <ul className="mt-8 grid gap-4 sm:grid-cols-2 max-w-xl">
                   {[
                     { i: Car, t: "Steady premium work" },
-                    { i: Users, t: "Vetted passengers" },
+                    { i: Users, t: "Pre-booked passengers" },
                     { i: Briefcase, t: "Corporate & event jobs" },
                     { i: Headset, t: "24/7 driver support" },
                   ].map((b) => (

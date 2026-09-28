@@ -712,7 +712,7 @@ function TourWizard() {
                         return (
                           <label
                             key={s.poi_id}
-                            className="flex cursor-pointer items-start gap-3 rounded-xl border border-border p-3"
+                            className="flex min-h-14 cursor-pointer items-start gap-3 rounded-xl border border-border p-3"
                           >
                             <input
                               type="checkbox"
@@ -729,7 +729,7 @@ function TourWizard() {
                                     : prev.filter((x) => x.poiId !== s.poi_id),
                                 );
                               }}
-                              className="mt-1 accent-[var(--gold)]"
+                              className="mt-0.5 size-5 shrink-0 accent-[var(--gold)]"
                             />
                             <div className="min-w-0 flex-1">
                               <p className="text-sm font-semibold">{s.name}</p>
