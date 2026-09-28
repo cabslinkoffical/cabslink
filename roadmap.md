@@ -42,7 +42,7 @@
 - [ ] Phase 1 leftover: homepage title/H1 and conflicting facts (needs owner confirmation of vehicles/prices)
 - [~] Phase 2: 57 location pages moved to branded design (hero, drive times, pickup, no boilerplate) — "from £X" live fares from pricing rules added; pending owner: real photos, Edinburgh Airport meeting point/waiting/luggage facts
 - [ ] Phase 3: restore 10 thin blog posts (needs original text)
-- [ ] Phase 4: speed (hero image), accessibility, structured data
+- [~] Phase 4: homepage images optimised; route/destination structured data and tour control accessibility corrected; broader accessibility review remains
 - [ ] Phase 5-6: keyword + content plan pages
 - [ ] Off-site (owner): backlinks, Google Business Profile, reviews, resubmit sitemap in Search Console
 - [x] Fix: lowercase redirect no longer catches the site's background requests (was breaking quotes/data)

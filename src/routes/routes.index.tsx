@@ -28,7 +28,7 @@ export const Route = createFileRoute("/routes/")({
           "@context": "https://schema.org",
           "@type": "ItemList",
           name: "Popular Cabslink routes",
-          itemListElement: JOURNEYS.map((j, i) => ({
+          itemListElement: JOURNEYS.filter((j) => !j.review).map((j, i) => ({
             "@type": "ListItem",
             position: i + 1,
             name: `${j.from.name} to ${j.to.name}`,

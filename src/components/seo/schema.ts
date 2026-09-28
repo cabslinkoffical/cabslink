@@ -80,16 +80,21 @@ export function speakableSchema(cssSelectors: string[]) {
   };
 }
 
-export function localBusinessSchema(d: Destination) {
+/** Describes Cabslink's coverage without implying a branch office at the destination. */
+export function serviceAreaSchema(d: Destination) {
+  const areaName = d.display_name ?? d.name;
   return {
     "@context": "https://schema.org",
-    "@type": "LocalBusiness",
-    name: `${BRAND.name} — ${d.display_name ?? d.name}`,
-    url: `${BRAND.url}/`,
-    ...(d.lat && d.lng
-      ? { geo: { "@type": "GeoCoordinates", latitude: d.lat, longitude: d.lng } }
-      : {}),
-    areaServed: [d.town, d.council, d.region].filter(Boolean),
+    "@type": "Service",
+    name: `${areaName} private transport service`,
+    serviceType: "Pre-booked private transport",
+    url: BRAND.url,
+    provider: { "@type": "Organization", name: BRAND.name, url: BRAND.url },
+    areaServed: {
+      "@type": "Place",
+      name: areaName,
+      ...(d.region ? { containedInPlace: { "@type": "AdministrativeArea", name: d.region } } : {}),
+    },
   };
 }
 

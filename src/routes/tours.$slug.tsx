@@ -394,13 +394,13 @@ function TourDetailPage() {
                                 {p.mandatory ? (
                                   <span className="rounded-full bg-[var(--gold)]/20 text-[var(--gold-ink)] text-[10px] px-2 py-0.5">Included</span>
                                 ) : (
-                                  <label className="inline-flex items-center gap-2 cursor-pointer select-none">
+                                  <label className="inline-flex min-h-11 items-center gap-2 cursor-pointer select-none px-1">
                                     <span className="text-[11px] text-muted-foreground">{active ? "In tour" : "Add"}</span>
                                     <input
                                       type="checkbox"
                                       checked={active}
                                       onChange={() => toggle(p)}
-                                      className="size-4 accent-[var(--gold)] cursor-pointer"
+                                      className="size-5 shrink-0 accent-[var(--gold)] cursor-pointer"
                                       aria-label={active ? `Remove ${p.name}` : `Add ${p.name}`}
                                     />
                                   </label>
@@ -416,22 +416,22 @@ function TourDetailPage() {
                                 <div className="inline-flex items-center gap-1 rounded-full border border-white/10 px-2 py-0.5">
                                   <button
                                     type="button"
-                                    className="p-1 hover:text-[var(--gold-ink)] disabled:opacity-30"
+                                    className="grid size-10 place-items-center hover:text-[var(--gold-ink)] disabled:opacity-30"
                                     onClick={() => bumpMinutes(p, -15)}
                                     disabled={minutes <= p.minimum_visit_minutes}
                                     aria-label={`Reduce time at ${p.name}`}
                                   >
-                                    <Minus className="size-3" />
+                                    <Minus className="size-4" />
                                   </button>
                                   <span className="min-w-[54px] text-center text-foreground"><Clock className="inline size-3 mr-1" />{minutes} min</span>
                                   <button
                                     type="button"
-                                    className="p-1 hover:text-[var(--gold-ink)] disabled:opacity-30"
+                                    className="grid size-10 place-items-center hover:text-[var(--gold-ink)] disabled:opacity-30"
                                     onClick={() => bumpMinutes(p, 15)}
                                     disabled={minutes >= p.maximum_visit_minutes}
                                     aria-label={`Add time at ${p.name}`}
                                   >
-                                    <Plus className="size-3" />
+                                    <Plus className="size-4" />
                                   </button>
                                 </div>
                               ) : (
