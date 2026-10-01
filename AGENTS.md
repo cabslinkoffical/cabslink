@@ -10,3 +10,4 @@
 <!-- LOVABLE:END -->
 
 - Protected-route navigation reads the persisted browser session to avoid transient remote-check redirect loops; server functions still validate bearer tokens and roles for private operations.
+- Destination hub pages use the shared navy `PageHero` and `HubPage` patterns so headings, breadcrumbs, and content ordering stay consistent.
