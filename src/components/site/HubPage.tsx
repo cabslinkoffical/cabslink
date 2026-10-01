@@ -7,6 +7,7 @@ import { destinationHref } from "@/lib/destinations.functions";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { FaqSection, LongFormSections } from "@/components/site/ContentSections";
+import { PageHero } from "@/components/site/PageHero";
 import { HUB_CONTENT } from "@/lib/hub-content";
 
 export function HubPage({
@@ -40,28 +41,15 @@ export function HubPage({
   }
   return (
     <SiteLayout>
-    <div className="mx-auto max-w-6xl px-4 py-10">
-      <Breadcrumbs items={[{ name: "Home", href: "/" }, { name: title, href: "#" }]} />
-      <header className="mt-4 mb-8">
-        <h1 className="text-4xl font-bold tracking-tight text-[var(--navy)]">{title}</h1>
-        <p className="mt-2 max-w-3xl text-lg text-[var(--navy)]/70">{intro}</p>
-        {longIntro && (
-          <p className="mt-4 max-w-3xl leading-relaxed text-[var(--navy)]/70">{longIntro}</p>
-        )}
-      </header>
-      {notes && notes.length > 0 && (
-        <section className="mb-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <h2 className="sr-only">What to expect</h2>
-          {notes.map((n) => (
-            <div
-              key={n.title}
-              className="rounded-2xl border border-[var(--navy)]/10 bg-white p-5 shadow-raised"
-            >
-              <h3 className="font-semibold text-[var(--navy)]">{n.title}</h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-[var(--navy)]/70">{n.body}</p>
-            </div>
-          ))}
-        </section>
+      <PageHero
+        eyebrow="Destinations"
+        title={title}
+        subtitle={intro}
+        breadcrumbs={[{ label: "Home", to: "/" }, { label: title }]}
+      />
+      <div className="mx-auto max-w-6xl px-4 py-10">
+      {longIntro && (
+        <p className="mb-8 max-w-3xl leading-relaxed text-[var(--navy)]/70">{longIntro}</p>
       )}
 
       {featured && featured.length > 0 && (
@@ -128,13 +116,25 @@ export function HubPage({
           ))}
         </div>
       )}
-    </div>
-      {content && (
-        <>
-          <LongFormSections sections={content.sections} heading={`About ${title.toLowerCase()}`} />
-          <FaqSection faqs={content.faqs} />
-        </>
+      </div>
+      {content && <LongFormSections sections={content.sections} heading={`About ${title.toLowerCase()}`} />}
+      {notes && notes.length > 0 && (
+        <section className="section-y pt-0">
+          <div className="container-x grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <h2 className="sr-only">What to expect</h2>
+            {notes.map((n) => (
+              <div
+                key={n.title}
+                className="rounded-2xl border border-[var(--navy)]/10 bg-white p-5 shadow-raised"
+              >
+                <h3 className="font-semibold text-[var(--navy)]">{n.title}</h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-[var(--navy)]/70">{n.body}</p>
+              </div>
+            ))}
+          </div>
+        </section>
       )}
+      {content && <FaqSection faqs={content.faqs} />}
     </SiteLayout>
   );
 }

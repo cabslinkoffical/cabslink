@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Menu, X, Phone } from "lucide-react";
+import { ChevronDown, Menu, X, Phone } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Logo } from "./Logo";
 import { NAV, SITE } from "@/lib/site";
 
@@ -10,6 +17,7 @@ export function Header() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = useRouterState({ select: s => s.location.pathname });
+  const destinationActive = DESTINATIONS.some((item) => pathname === item.to || pathname.startsWith(item.to + "/"));
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -49,8 +57,8 @@ export function Header() {
                   ? pathname === "/"
                   : pathname === item.to || pathname.startsWith(item.to + "/");
               return (
+                <div key={item.to} className="contents">
                 <Link
-                  key={item.to}
                   to={item.to}
                   className={`group relative px-1 py-1 whitespace-nowrap text-[12.5px] xl:text-[13px] font-semibold tracking-[0.04em] transition-colors duration-200 ${
                     active ? "text-[var(--gold)]" : "text-white/80 hover:text-white"
@@ -64,6 +72,28 @@ export function Header() {
                     }`}
                   />
                 </Link>
+                {item.to === "/services" && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className={`group relative h-auto rounded-none px-1 py-1 text-[12.5px] xl:text-[13px] font-semibold tracking-[0.04em] shadow-none hover:bg-transparent ${
+                          destinationActive ? "text-[var(--gold)]" : "text-[var(--navy-foreground)]/80 hover:text-[var(--navy-foreground)]"
+                        }`}
+                      >
+                        Destinations <ChevronDown className="size-3.5 transition-transform group-data-[state=open]:rotate-180" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="center" sideOffset={14} className="w-56 border-[var(--navy)]/10 bg-background p-2 shadow-xl">
+                      {DESTINATIONS.map((destination) => (
+                        <DropdownMenuItem key={destination.to} asChild className="cursor-pointer rounded-md px-3 py-2 focus:bg-secondary">
+                          <Link to={destination.to}>{destination.label}</Link>
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
+                </div>
               );
             })}
           </nav>
@@ -121,8 +151,8 @@ export function Header() {
                       ? pathname === "/"
                       : pathname === item.to || pathname.startsWith(item.to + "/");
                   return (
+                    <div key={item.to}>
                     <Link
-                      key={item.to}
                       to={item.to}
                       className={`flex items-center gap-3 py-3 px-3 rounded-xl text-[14px] font-semibold ${
                         active ? "bg-white/10 text-[var(--gold)]" : "text-white/80 hover:bg-white/5"
@@ -131,6 +161,22 @@ export function Header() {
                       <span className={`h-1.5 w-1.5 rounded-full ${active ? "bg-[var(--gold)]" : "bg-white/25"}`} />
                       {item.label}
                     </Link>
+                    {item.to === "/services" && (
+                      <details className="group px-3">
+                        <summary className={`flex cursor-pointer list-none items-center justify-between rounded-xl px-3 py-3 text-[14px] font-semibold ${destinationActive ? "bg-white/10 text-[var(--gold)]" : "text-white/80 hover:bg-white/5"}`}>
+                          Destinations
+                          <ChevronDown className="size-4 transition-transform group-open:rotate-180" />
+                        </summary>
+                        <div className="grid grid-cols-2 gap-1 pb-2 pt-1">
+                          {DESTINATIONS.map((destination) => (
+                            <Link key={destination.to} to={destination.to} className="rounded-lg px-3 py-2 text-[13px] text-white/75 hover:bg-white/5 hover:text-[var(--gold)]">
+                              {destination.label}
+                            </Link>
+                          ))}
+                        </div>
+                      </details>
+                    )}
+                    </div>
                   );
                 })}
               </nav>

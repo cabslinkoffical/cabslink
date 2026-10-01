@@ -44,7 +44,7 @@ export function RegionGrid({ regions }: { regions: RegionCard[] }) {
               <span className="text-[var(--navy)]/40">Regional coverage</span>
             )}
             <span className="inline-flex items-center gap-1 font-semibold text-[var(--navy)]/70 group-hover:text-[var(--gold-ink)]">
-              View <ArrowRight className="size-3.5" />
+              View {r.name} <ArrowRight className="size-3.5" />
             </span>
           </div>
         </Link>

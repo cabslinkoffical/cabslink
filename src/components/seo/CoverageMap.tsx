@@ -14,9 +14,7 @@ export function CoverageMap() {
   return (
     <div>
       <p className="mb-8 max-w-2xl text-sm text-[var(--navy)]/70">
-        {totals.locations} core locations, {totals.servicePages} local service pages and{" "}
-        {totals.journeys} fixed-price journeys — every page below is written from real local
-        detail, not a template.
+        Dozens of fixed-price journeys across the UK — every page below is written from real local detail, not a template.
       </p>
 
       <div className="grid gap-6 lg:grid-cols-2">

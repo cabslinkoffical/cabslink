@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
-import { ChevronRight, ArrowRight, Phone } from "lucide-react";
+import { ArrowRight, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SITE } from "@/lib/site";
 
@@ -59,7 +59,7 @@ export function PageHero({
             {breadcrumbs.map((c, i) => (
               <span key={i} className="flex items-center gap-1">
                 {c.to ? <Link to={c.to} className="hover:text-[var(--gold)]">{c.label}</Link> : <span className="text-[var(--navy-foreground)]">{c.label}</span>}
-                {i < breadcrumbs.length - 1 && <ChevronRight className="size-3.5" />}
+                {i < breadcrumbs.length - 1 && <span aria-hidden>/</span>}
               </span>
             ))}
           </nav>
