@@ -102,6 +102,33 @@ export const Route = createFileRoute("/")({
             organizationSchema(),
             websiteSchema(),
             {
+              // Uses the business address already published on the site.
+              "@type": "LocalBusiness",
+              "@id": "https://cabslink.com/#localbusiness",
+              name: "Cabslink",
+              description: "Fixed-fare airport transfers, private tours and executive travel across the UK.",
+              url: "https://cabslink.com",
+              telephone: "+443338882991",
+              email: "info@cabslink.com",
+              address: {
+                "@type": "PostalAddress",
+                streetAddress: "263a Leith Walk",
+                addressLocality: "Edinburgh",
+                addressRegion: "Scotland",
+                postalCode: "EH6 8NY",
+                addressCountry: "GB",
+              },
+              openingHoursSpecification: {
+                "@type": "OpeningHoursSpecification",
+                dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+                opens: "00:00",
+                closes: "23:59",
+              },
+              priceRange: "££",
+              areaServed: { "@type": "Country", name: "United Kingdom" },
+              hasMap: "https://maps.google.com/?q=263a+Leith+Walk+Edinburgh+EH6+8NY",
+            },
+            {
               "@type": "FAQPage",
               mainEntity: faqItems.map((f) => ({
                 "@type": "Question",
@@ -270,8 +297,8 @@ function HomePage() {
                 className="mt-4 font-display font-bold text-white leading-[0.95] tracking-[-0.03em] text-[2rem] sm:text-5xl lg:text-[3.2rem] xl:text-[3.8rem] opacity-0"
                 style={{ animation: "fadeInUp 800ms cubic-bezier(.2,.7,.2,1) 200ms forwards" }}
               >
-                Plan your{" "}
-                <span className="text-[var(--gold)]">journey.</span>
+                Edinburgh Airport Transfers{" "}
+                <span className="text-[var(--gold)]">&amp; UK Private Hire.</span>
               </h1>
 
               <p
