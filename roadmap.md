@@ -19,7 +19,7 @@
 - [x] Drivers admin: two panels (dispatch drivers + website applications), linked by email/phone
 - [x] Booking location fields: make the focused typing/selection indicator visible and square-edged
 - [ ] Booking widget: full UI + behaviour review (no overlapping fields, popover closes, validation on both tabs)
-- [ ] Corporate booking page: add more detail and sections
+- [x] Corporate booking page: add more detail and sections
 - [ ] Security: full review and hardening pass across the site
 - [x] Fix live admin sign-in loop by removing the fresh-session server-function race from the admin route guard
 - [x] Google Maps: load maps with the account's own browser key (custom-domain support)
