@@ -23,6 +23,7 @@ import { TrustpilotStars, TrustpilotWordmark } from "@/components/site/Trustpilo
 import { organizationSchema } from "@/components/seo/schema";
 import { TRUSTPILOT, trustpilotVerifiedOnLabel } from "@/lib/trustpilot";
 import { RATINGFACTS, ratingfactsVerifiedOnLabel } from "@/lib/ratingfacts";
+import { getGoogleReviews } from "@/lib/google-reviews.functions";
 import {
   REVIEW_CHANNELS,
   VIDEO_REVIEWS,
@@ -70,6 +71,7 @@ export const Route = createFileRoute("/reviews")({
       },
     ],
   }),
+  loader: async () => ({ google: await getGoogleReviews().catch(() => null) }),
   component: ReviewsPage,
 });
 
@@ -77,8 +79,11 @@ function ReviewsPage() {
   const t = TRUSTPILOT;
   const verified = trustpilotVerifiedOnLabel(t);
   const rVerified = ratingfactsVerifiedOnLabel(RATINGFACTS);
-  const reviews = allReviews();
-  const totals = reviewTotals();
+  const { google } = Route.useLoaderData();
+  const reviews = [...(google?.reviews ?? []), ...allReviews()].sort((a, b) =>
+    b.dateIso.localeCompare(a.dateIso),
+  );
+  const totals = { ...reviewTotals(), shownOnPage: reviews.length };
   const live = liveReviewChannels();
   const planned = plannedReviewChannels();
 
@@ -109,7 +114,27 @@ function ReviewsPage() {
           </motion.div>
 
           {/* Score summary */}
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+            {google && google.reviewCount > 0 ? (
+              <div className="rounded-2xl border border-white/12 bg-white/[0.04] p-5">
+                <div className="font-display text-4xl font-bold leading-none text-white">
+                  {google.rating.toFixed(1)}
+                  <span className="text-xl text-white/40"> / 5</span>
+                </div>
+                <div className="mt-3 flex items-center gap-0.5">
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <Star
+                      key={i}
+                      className={i <= Math.round(google.rating) ? "h-3.5 w-3.5 fill-[var(--gold)] text-[var(--gold)]" : "h-3.5 w-3.5 text-white/25"}
+                      aria-hidden="true"
+                    />
+                  ))}
+                </div>
+                <p className="mt-2 text-xs text-white/60">
+                  On Google · {google.reviewCount} review{google.reviewCount === 1 ? "" : "s"}
+                </p>
+              </div>
+            ) : null}
             <div className="rounded-2xl border border-white/12 bg-white/[0.04] p-5">
               <div className="font-display text-4xl font-bold leading-none text-white">
                 {t.rating.toFixed(1)}
@@ -210,6 +235,17 @@ function ReviewsPage() {
               Read all {t.reviewCount} reviews on Trustpilot
               <ExternalLink className="h-3.5 w-3.5" />
             </a>
+            {google ? (
+              <a
+                href={google.profileUrl}
+                target="_blank"
+                rel="noopener noreferrer nofollow"
+                className="inline-flex items-center gap-2 rounded-full border border-[var(--navy)]/20 px-6 py-3 text-xs font-semibold text-[var(--navy)] transition-colors hover:border-[var(--gold)]"
+              >
+                See all reviews on Google
+                <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+            ) : null}
             <a
               href={RATINGFACTS.profileUrl}
               target="_blank"
@@ -409,6 +445,15 @@ function ReviewsPage() {
                 <Star className="h-4 w-4" aria-hidden="true" />
                 Rate us on RatingFacts
               </a>
+              <a
+                href="https://share.google/eVCAo7I5A17ZPE0pk"
+                target="_blank"
+                rel="noopener noreferrer nofollow"
+                className="inline-flex items-center gap-2 rounded-full border border-[var(--navy)]/20 px-6 py-3 text-sm font-semibold text-[var(--navy)] transition-colors hover:border-[var(--gold)]"
+              >
+                <Star className="h-4 w-4" aria-hidden="true" />
+                Review us on Google
+              </a>
               <Link
                 to="/contact"
                 className="inline-flex items-center gap-2 rounded-full border border-[var(--navy)]/20 px-6 py-3 text-sm font-semibold text-[var(--navy)] transition-colors hover:border-[var(--gold)]"
@@ -434,8 +479,8 @@ function ReviewsPage() {
             </div>
             <p className="mt-3 text-[11px] leading-relaxed text-[var(--navy)]/50">
               Ratings, review counts, reviewer names and dates on this page are as displayed on
-              Trustpilot on {verified} and on RatingFacts on {rVerified}; these are dated snapshots,
-              not live feeds.
+              Trustpilot on {verified} and on RatingFacts on {rVerified} (dated snapshots); Google
+              reviews are pulled live from our Google Business Profile.
               {t.noRecentInviteHistory
                 ? " Trustpilot currently notes that this profile has no recent history of asking customers for reviews, so these reviews were left independently and may not represent all Cabslink journeys."
                 : ""}{" "}
