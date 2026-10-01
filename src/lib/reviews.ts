@@ -85,10 +85,11 @@ export const REVIEW_CHANNELS: ReviewChannel[] = [
   {
     id: "google",
     name: "Google Business Profile",
-    status: "planned",
+    status: "live",
     blurb: "Star ratings on Google Maps & Search",
     detail:
-      "Being set up. Once it is live you will be able to rate a journey straight from Google Maps or Search, and those ratings will show here alongside Trustpilot.",
+      "Rate a journey straight from Google Maps or Search. New Google reviews appear on this page automatically.",
+    url: "https://share.google/eVCAo7I5A17ZPE0pk",
     brandColor: "#4285F4",
   },
   {
