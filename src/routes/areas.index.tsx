@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { InstantSearch } from "@/components/explore/InstantSearch";
 import { AlphaBar } from "@/components/explore/AlphaBar";
@@ -6,8 +6,8 @@ import { RegionGrid } from "@/components/explore/RegionGrid";
 import { CategoryGrid } from "@/components/explore/CategoryGrid";
 import { EntityGrid } from "@/components/explore/EntityCard";
 import { FaqBlock } from "@/components/seo/FaqBlock";
-import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { CoverageMap } from "@/components/seo/CoverageMap";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
@@ -72,30 +72,34 @@ function LocationsPage() {
         </div>
       </section>
 
-      {data.categories.length > 0 && (
-        <section className="section-y">
-          <div className="container-x">
-            <SectionHeader eyebrow="Browse" title="By category" />
-            <CategoryGrid categories={data.categories} />
-          </div>
-        </section>
-      )}
-
-      <section className="section-y bg-[var(--navy)]/[0.03]">
+      <section className="section-y">
         <div className="container-x">
-          <SectionHeader eyebrow="Browse" title="By region" />
-          <RegionGrid regions={data.regions} />
+          <SectionHeader eyebrow="Coverage map" title="Where we run — and the pages for each" />
+          <CoverageMap />
         </div>
       </section>
 
-      {data.popular.length > 0 && (
-        <section className="section-y">
-          <div className="container-x">
-            <SectionHeader eyebrow="Trending" title="Popular locations" />
-            <EntityGrid items={data.popular} />
-          </div>
-        </section>
-      )}
+      <section className="section-y bg-[var(--navy)]/[0.03]">
+        <div className="container-x">
+          <SectionHeader eyebrow="Browse" title="Explore our coverage" />
+          <Tabs defaultValue="category" className="mt-8">
+            <TabsList className="h-11 rounded-lg border border-[var(--navy)]/10 bg-white p-1 shadow-sm">
+              <TabsTrigger value="category" className="h-9 px-5 data-[state=active]:bg-[var(--navy)] data-[state=active]:text-[var(--navy-foreground)]">
+                By category
+              </TabsTrigger>
+              <TabsTrigger value="region" className="h-9 px-5 data-[state=active]:bg-[var(--navy)] data-[state=active]:text-[var(--navy-foreground)]">
+                By region
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="category" className="mt-6">
+              <CategoryGrid categories={data.categories} />
+            </TabsContent>
+            <TabsContent value="region" className="mt-6">
+              <RegionGrid regions={data.regions} />
+            </TabsContent>
+          </Tabs>
+        </div>
+      </section>
 
       {data.popularRoutes.length > 0 && (
         <section className="section-y bg-[var(--navy)]/[0.03]">
@@ -105,13 +109,6 @@ function LocationsPage() {
           </div>
         </section>
       )}
-
-      <section className="section-y">
-        <div className="container-x">
-          <SectionHeader eyebrow="Coverage map" title="Where we run — and the pages for each" />
-          <CoverageMap />
-        </div>
-      </section>
 
       {data.letters.length > 0 && (
         <section className="section-y bg-[var(--navy)]/[0.03]">
@@ -132,12 +129,6 @@ function LocationsPage() {
               { q: "Do you cover the whole UK?", a: "Yes — we cover every UK postcode. This directory highlights named hubs, but our booking system accepts any address." },
             ]}
           />
-        </div>
-      </section>
-
-      <section className="section-y">
-        <div className="container-x">
-          <Breadcrumbs items={[{ name: "Home", href: "/" }, { name: "Locations", href: "/areas" }]} />
         </div>
       </section>
 

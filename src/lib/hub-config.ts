@@ -46,7 +46,7 @@ export const HUBS = {
   },
   stations: {
     type: "station" as const,
-    title: "Train Stations",
+    title: "Train Station Transfers Across the UK",
     seoTitle: "Scotland Train Station Taxis & Transfers",
     metaDescription: "Private transfers to UK mainline stations. Pre-booked pick-up points, train-delay tracking and fixed pricing for onward journeys with luggage.",
     intro: "Station transfers to every mainline UK rail hub.",
@@ -66,7 +66,7 @@ export const HUBS = {
   },
   "cruise-ports": {
     type: "cruise_port" as const,
-    title: "Cruise Ports",
+    title: "Cruise Port Transfers in Scotland & the UK",
     seoTitle: "Scottish Cruise Port Transfers & Taxis",
     metaDescription: "Private transfers to UK cruise terminals. Timed to your boarding window, sized for cruise luggage and quoted at a fixed price before you travel.",
     intro: "Direct transfers to UK cruise terminals.",
@@ -86,7 +86,7 @@ export const HUBS = {
   },
   universities: {
     type: "university" as const,
-    title: "Universities",
+    title: "Student & Campus Transfers to UK Universities",
     seoTitle: "Scottish University Transfers for Students",
     metaDescription: "Private transfers for UK universities: move-in and move-out loads, airport and station runs, and bookings a parent or department can pay for.",
     intro: "Move-in, term travel and campus transfers.",
@@ -106,7 +106,7 @@ export const HUBS = {
   },
   hospitals: {
     type: "hospital" as const,
-    title: "Hospitals",
+    title: "Hospital Transfers & Patient Transport UK",
     seoTitle: "Hospital Transport & Patient Transfers Scotland",
     metaDescription: "Private transport to UK hospitals for appointments and discharges. Accessible vehicles, drivers who wait and open-time return journeys.",
     intro: "Medical appointment transport, UK-wide.",
@@ -149,7 +149,7 @@ export const HUBS = {
   },
   attractions: {
     type: "attraction" as const,
-    title: "Attractions",
+    title: "Private Tours to Scotland's Top Attractions",
     seoTitle: "Private Tours to Scotland's Top Attractions",
     metaDescription: "Private driver travel to UK landmarks and attractions. Your car waits while you visit, and stops can be combined into one full private day out.",
     intro: "Guided private travel to UK landmarks.",
@@ -169,7 +169,7 @@ export const HUBS = {
   },
   distilleries: {
     type: "distillery" as const,
-    title: "Distilleries",
+    title: "Scottish Distillery Tours & Private Transfers",
     seoTitle: "Whisky Distillery Tours & Transfers in Scotland",
     metaDescription: "Private distillery day tours with a driver, so every passenger can taste. Realistic itineraries of two to three distilleries with tour timings.",
     intro: "Whisky trail and distillery day tours.",
@@ -189,7 +189,7 @@ export const HUBS = {
   },
   guides: {
     type: "guide" as const,
-    title: "Travel Guides",
+    title: "UK Travel Guides for Visitors & Tourists",
     seoTitle: "Scotland Travel & Airport Transfer Guides",
     metaDescription: "Travel guides written around journeys we actually drive: real route timings, when roads and airports are busiest, and stops worth making.",
     intro: "Editorial travel guides across the UK.",

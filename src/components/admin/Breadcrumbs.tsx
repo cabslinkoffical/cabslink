@@ -1,5 +1,4 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { ChevronRight } from "lucide-react";
 
 const LABELS: Record<string, string> = {
   "cabs-booking-pannel": "Dashboard",
@@ -59,7 +58,7 @@ export function Breadcrumbs() {
         const last = i === crumbs.length - 1;
         return (
           <span key={c.href} className={`flex items-center gap-1 ${last ? "min-w-0" : "hidden sm:flex"}`}>
-            {i > 0 && <ChevronRight className="size-3 shrink-0" />}
+            {i > 0 && <span aria-hidden className="shrink-0">/</span>}
             {last ? (
               <span className="truncate text-foreground font-medium capitalize">{c.label}</span>
             ) : (

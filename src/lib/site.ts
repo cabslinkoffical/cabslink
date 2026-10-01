@@ -24,6 +24,19 @@ export const NAV = [
   { to: "/contact", label: "Contact" },
 ] as const;
 
+export const DESTINATIONS = [
+  { to: "/airports", label: "Airports" },
+  { to: "/routes", label: "Routes" },
+  { to: "/attractions", label: "Attractions" },
+  { to: "/distilleries", label: "Distilleries" },
+  { to: "/cruise-ports", label: "Cruise Ports" },
+  { to: "/hospitals", label: "Hospitals" },
+  { to: "/universities", label: "Universities" },
+  { to: "/stations", label: "Train Stations" },
+  { to: "/guides", label: "Travel Guides" },
+  { to: "/distance", label: "Distance Calculator" },
+] as const;
+
 
 export const VEHICLE_TYPES = [
   "Mercedes-Benz E-Class",
