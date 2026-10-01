@@ -120,13 +120,12 @@ export function HubPage({
         </div>
       )}
       </div>
-      </div>
+      {content && <LongFormSections sections={content.sections} heading={`About ${title.toLowerCase()}`} />}
       {notesAfterDestinations && notes && notes.length > 0 && (
         <section className="section-y pt-0">
           <div className="container-x"><BenefitCards notes={notes} /></div>
         </section>
       )}
-      {content && <LongFormSections sections={content.sections} heading={`About ${title.toLowerCase()}`} />}
       {content && <FaqSection faqs={content.faqs} />}
     </SiteLayout>
   );
