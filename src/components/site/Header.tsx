@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Logo } from "./Logo";
-import { NAV, SITE } from "@/lib/site";
+import { DESTINATIONS, NAV, SITE } from "@/lib/site";
 
 
 
@@ -47,7 +47,7 @@ export function Header() {
 
           {/* Center nav — absolutely centred so spacing is identical on both sides */}
           <nav
-            className="hidden lg:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 items-center justify-center gap-5 xl:gap-7 2xl:gap-9"
+            className="hidden lg:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 items-center justify-center gap-3 xl:gap-4 2xl:gap-6"
             aria-label="Primary"
           >
             {NAV.map(item => {
@@ -60,7 +60,7 @@ export function Header() {
                 <div key={item.to} className="contents">
                 <Link
                   to={item.to}
-                  className={`group relative px-1 py-1 whitespace-nowrap text-[12.5px] xl:text-[13px] font-semibold tracking-[0.04em] transition-colors duration-200 ${
+                  className={`group relative px-1 py-1 whitespace-nowrap text-[11.5px] xl:text-[12.5px] font-semibold tracking-[0.04em] transition-colors duration-200 ${
                     active ? "text-[var(--gold)]" : "text-white/80 hover:text-white"
                   }`}
                 >
@@ -77,7 +77,7 @@ export function Header() {
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="ghost"
-                        className={`group relative h-auto rounded-none px-1 py-1 text-[12.5px] xl:text-[13px] font-semibold tracking-[0.04em] shadow-none hover:bg-transparent ${
+                        className={`group relative h-auto rounded-none px-1 py-1 text-[11.5px] xl:text-[12.5px] font-semibold tracking-[0.04em] shadow-none hover:bg-transparent ${
                           destinationActive ? "text-[var(--gold)]" : "text-[var(--navy-foreground)]/80 hover:text-[var(--navy-foreground)]"
                         }`}
                       >
@@ -128,14 +128,17 @@ export function Header() {
             </a>
 
             {/* Mobile trigger */}
-            <button
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
               aria-label="Menu"
               aria-expanded={open}
               onClick={() => setOpen(v => !v)}
-              className="grid size-10 place-items-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/15 lg:hidden"
+              className="grid size-10 place-items-center rounded-full bg-white/10 text-[var(--navy-foreground)] hover:bg-white/15 hover:text-[var(--navy-foreground)] lg:hidden"
             >
               {open ? <X className="size-5" /> : <Menu className="size-5" />}
-            </button>
+            </Button>
           </div>
         </header>
 

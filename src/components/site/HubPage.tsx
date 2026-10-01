@@ -4,7 +4,6 @@
 import { Link } from "@tanstack/react-router";
 import type { Destination, DestinationType } from "@/lib/destinations.functions";
 import { destinationHref } from "@/lib/destinations.functions";
-import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { FaqSection, LongFormSections } from "@/components/site/ContentSections";
 import { PageHero } from "@/components/site/PageHero";
@@ -18,6 +17,7 @@ export function HubPage({
   destinations,
   contentKey,
   featured,
+  notesAfterDestinations = false,
 }: {
   title: string;
   intro: string;
@@ -29,6 +29,7 @@ export function HubPage({
   contentKey?: string;
   /** Hand-written pages promoted above the destination grid. */
   featured?: { title: string; blurb: string; href: string }[];
+  notesAfterDestinations?: boolean;
 }) {
 
   const content = contentKey ? HUB_CONTENT[contentKey] : undefined;
@@ -51,6 +52,8 @@ export function HubPage({
       {longIntro && (
         <p className="mb-8 max-w-3xl leading-relaxed text-[var(--navy)]/70">{longIntro}</p>
       )}
+
+      {!notesAfterDestinations && notes && notes.length > 0 && <BenefitCards notes={notes} />}
 
       {featured && featured.length > 0 && (
         <section className="mb-10">
@@ -117,24 +120,28 @@ export function HubPage({
         </div>
       )}
       </div>
-      {content && <LongFormSections sections={content.sections} heading={`About ${title.toLowerCase()}`} />}
-      {notes && notes.length > 0 && (
+      </div>
+      {notesAfterDestinations && notes && notes.length > 0 && (
         <section className="section-y pt-0">
-          <div className="container-x grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <h2 className="sr-only">What to expect</h2>
-            {notes.map((n) => (
-              <div
-                key={n.title}
-                className="rounded-2xl border border-[var(--navy)]/10 bg-white p-5 shadow-raised"
-              >
-                <h3 className="font-semibold text-[var(--navy)]">{n.title}</h3>
-                <p className="mt-1.5 text-sm leading-relaxed text-[var(--navy)]/70">{n.body}</p>
-              </div>
-            ))}
-          </div>
+          <div className="container-x"><BenefitCards notes={notes} /></div>
         </section>
       )}
+      {content && <LongFormSections sections={content.sections} heading={`About ${title.toLowerCase()}`} />}
       {content && <FaqSection faqs={content.faqs} />}
     </SiteLayout>
+  );
+}
+
+function BenefitCards({ notes }: { notes: { title: string; body: string }[] }) {
+  return (
+    <section className="mb-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <h2 className="sr-only">What to expect</h2>
+      {notes.map((n) => (
+        <div key={n.title} className="rounded-2xl border border-[var(--navy)]/10 bg-white p-5 shadow-raised">
+          <h3 className="font-semibold text-[var(--navy)]">{n.title}</h3>
+          <p className="mt-1.5 text-sm leading-relaxed text-[var(--navy)]/70">{n.body}</p>
+        </div>
+      ))}
+    </section>
   );
 }

@@ -22,6 +22,7 @@ export const Route = createFileRoute("/cruise-ports/")({
         intro={HUBS[KEY].intro}
         longIntro={HUBS[KEY].longIntro}
         notes={HUBS[KEY].notes}
+        notesAfterDestinations
         destinations={data}
         contentKey={KEY}
       />

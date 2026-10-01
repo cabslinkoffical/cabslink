@@ -4,11 +4,10 @@
  */
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, MapPin } from "lucide-react";
-import { coverageByRegion, coverageTotals } from "@/lib/seo/coverage";
+import { coverageByRegion } from "@/lib/seo/coverage";
 
 export function CoverageMap() {
   const regions = coverageByRegion();
-  const totals = coverageTotals();
   if (regions.length === 0) return null;
 
   return (

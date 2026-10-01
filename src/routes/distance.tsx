@@ -11,6 +11,8 @@ export const Route = createFileRoute("/distance")({
       { property: "og:title", content: "UK Driving Distance Calculator" },
       { property: "og:description", content: "Enter a pickup and destination to see the real driving-route distance in miles." },
       { property: "og:url", content: "https://cabslink.com/distance" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: "https://cabslink.com/distance" }],
   }),
