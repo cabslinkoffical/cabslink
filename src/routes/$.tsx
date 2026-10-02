@@ -24,8 +24,8 @@ export const Route = createFileRoute("/$")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  notFoundComponent: NotFound,
-  component: NotFound,
+  notFoundComponent: () => <NotFound />,
+  component: () => <NotFound />,
 });
 
 const LINKS = [
