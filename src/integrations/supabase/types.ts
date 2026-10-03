@@ -2232,12 +2232,19 @@ export type Database = {
         Row: {
           amount: number
           booking_id: string | null
+          card_brand: string | null
+          card_last4: string | null
           created_at: string
           currency: string
+          environment: string | null
           id: string
           method: string | null
           notes: string | null
           paid_at: string | null
+          payer_email: string | null
+          payer_name: string | null
+          payment_intent_id: string | null
+          processor_status: string | null
           reference: string | null
           status: Database["public"]["Enums"]["payment_status"]
           updated_at: string
@@ -2245,12 +2252,19 @@ export type Database = {
         Insert: {
           amount: number
           booking_id?: string | null
+          card_brand?: string | null
+          card_last4?: string | null
           created_at?: string
           currency?: string
+          environment?: string | null
           id?: string
           method?: string | null
           notes?: string | null
           paid_at?: string | null
+          payer_email?: string | null
+          payer_name?: string | null
+          payment_intent_id?: string | null
+          processor_status?: string | null
           reference?: string | null
           status?: Database["public"]["Enums"]["payment_status"]
           updated_at?: string
@@ -2258,12 +2272,19 @@ export type Database = {
         Update: {
           amount?: number
           booking_id?: string | null
+          card_brand?: string | null
+          card_last4?: string | null
           created_at?: string
           currency?: string
+          environment?: string | null
           id?: string
           method?: string | null
           notes?: string | null
           paid_at?: string | null
+          payer_email?: string | null
+          payer_name?: string | null
+          payment_intent_id?: string | null
+          processor_status?: string | null
           reference?: string | null
           status?: Database["public"]["Enums"]["payment_status"]
           updated_at?: string
