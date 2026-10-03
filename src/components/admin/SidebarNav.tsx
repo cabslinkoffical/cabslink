@@ -90,14 +90,14 @@ function LinkItem({ item, active, indent = false }: { item: NavItem; active: boo
       }
       aria-current={active ? "page" : undefined}
       className={cn(
-        "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition group",
+        "flex items-center gap-3 px-3 py-2.5 rounded-lg text-[15px] transition group",
         indent && "pl-9",
         active
           ? "admin-nav-active font-semibold"
-          : "text-white/65 hover:bg-white/[0.07] hover:text-white"
+          : "text-white/85 hover:bg-white/[0.08] hover:text-white"
       )}
     >
-      <item.icon className={cn("size-4 shrink-0", active ? "text-gold" : "text-white/45 group-hover:text-gold")} />
+      <item.icon className={cn("size-4 shrink-0", active ? "text-gold" : "text-white/70 group-hover:text-gold")} />
       <span className="truncate">{item.label}</span>
     </Link>
   );
@@ -115,8 +115,8 @@ function Group({ group, pathname, search, forceOpen }: { group: NavGroup; pathna
         onClick={() => setOpen(o => !o)}
         aria-expanded={expanded}
         className={cn(
-          "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition",
-          hasActive ? "text-white font-medium" : "text-white/65 hover:bg-white/[0.07] hover:text-white"
+          "w-full flex items-center gap-3 px-3 py-2.5 mt-2 rounded-lg text-xs font-bold uppercase tracking-wider transition",
+          hasActive ? "text-white font-medium" : "text-white/85 hover:bg-white/[0.08] hover:text-white"
         )}
       >
         <group.icon className={cn("size-4 shrink-0", hasActive ? "text-gold" : "text-white/45")} />
