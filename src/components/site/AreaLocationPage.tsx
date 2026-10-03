@@ -55,82 +55,89 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
 
   return (
     <SiteLayout>
-    <div className="container-x py-10">
-      <Breadcrumbs
-        items={[
-          { name: "Home", href: "/" },
-          { name: "Locations", href: "/areas" },
-          // Region crumb points at its own region page so no two crumbs share a href.
-          ...(region
-            ? [{ name: region, href: `/areas/region/${region.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}` }]
-            : []),
-          { name: locName, href: `/areas/${d.slug}` },
-        ]}
-      />
-
-
-      {/* Hero */}
-      <section className="mt-6 rounded-3xl bg-[var(--navy)] px-6 py-14 text-white sm:px-12">
-        <div className="mx-auto max-w-4xl">
-          <p className="text-xs font-bold uppercase tracking-[0.22em] text-[var(--gold)]">
+      <section className="bg-navy text-navy-foreground">
+        <div className="container-x py-12 md:py-20">
+          <Breadcrumbs
+            items={[
+              { name: "Home", href: "/" },
+              { name: "Locations", href: "/areas" },
+              ...(region
+                ? [{ name: region, href: `/areas/region/${region.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}` }]
+                : []),
+              { name: locName, href: `/areas/${d.slug}` },
+            ]}
+            dark
+          />
+          <div className="mt-12 grid gap-10 lg:grid-cols-[minmax(0,1.6fr)_minmax(15rem,0.65fr)] lg:items-end">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.22em] text-gold">
             {region ? `${region} · Airport Travel` : "UK Airport Travel"}
-          </p>
-          <h1 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">
-            Professional Airport Taxi &amp; Private Transfer Services in {locName}
-          </h1>
-          {heroSub && <p className="mt-2 text-white/60 text-sm">{heroSub}</p>}
-          <p className="mt-5 max-w-3xl text-white/80 leading-relaxed">
-            Cabslink provides reliable airport transfers, private hire, executive cars, corporate
-            transport, luxury private-driver travel and minibus hire in <strong>{locName}</strong>.
-            Book a fixed-price taxi or cab from {locName} to Edinburgh, Glasgow or any UK airport —
-            with 24/7 availability, meet-and-greet, and door-to-door service.
-          </p>
-          <div className="mt-7 flex flex-wrap gap-3">
-            <Link
-              to="/book"
-              className="inline-flex items-center gap-2 rounded-full bg-[var(--gold)] px-6 py-3 text-sm font-bold uppercase tracking-[0.14em] text-[var(--navy)]"
-            >
-              Get instant quote <ArrowRight className="size-4" />
-            </Link>
-            <Link
-              to="/contact"
-              className="inline-flex items-center gap-2 rounded-full border border-white/25 px-6 py-3 text-sm font-semibold text-white hover:bg-white/10"
-            >
-              Speak to us
-            </Link>
+              </p>
+              <h1 className="mt-4 max-w-4xl font-display text-4xl font-semibold leading-[1.04] sm:text-6xl">
+                Professional Airport Taxi &amp; Private Transfer Services in {locName}
+              </h1>
+              <p className="mt-6 max-w-3xl text-base leading-relaxed text-navy-foreground/72">
+                Cabslink provides reliable airport transfers, private hire, executive cars, corporate
+                transport, luxury private-driver travel and minibus hire in <strong>{locName}</strong>.
+                Book a fixed-price taxi or cab from {locName} to Edinburgh, Glasgow or any UK airport —
+                with 24/7 availability, meet-and-greet, and door-to-door service.
+              </p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Link
+                  to="/book"
+                  className="inline-flex items-center gap-2 rounded-full bg-gold px-6 py-3 text-sm font-bold uppercase tracking-[0.14em] text-gold-foreground"
+                >
+                  Get instant quote <ArrowRight className="size-4" />
+                </Link>
+                <Link
+                  to="/contact"
+                  className="inline-flex items-center gap-2 rounded-full border border-navy-foreground/25 px-6 py-3 text-sm font-semibold text-navy-foreground hover:bg-navy-foreground/10"
+                >
+                  Speak to us
+                </Link>
+              </div>
+            </div>
+            <div className="border-l border-gold/40 pl-6">
+              <p className="text-xs uppercase tracking-[0.2em] text-navy-foreground/45">Location</p>
+              <p className="mt-2 font-display text-2xl font-semibold">{locName}</p>
+              {heroSub && <p className="mt-2 text-sm leading-relaxed text-navy-foreground/60">{heroSub}</p>}
+              <p className="mt-6 text-xs uppercase tracking-[0.2em] text-gold">Available 24/7</p>
+            </div>
           </div>
         </div>
       </section>
 
+      <div className="container-x py-16 md:py-24">
+
       {/* Why choose */}
-      <section className="mt-14">
+      <section className="border-t border-border pt-8">
         <SectionHeader eyebrow="Why Cabslink" title={`Why book with us in ${locName}`} />
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {WHY.map((w) => (
-            <div key={w.title} className="rounded-2xl border border-[var(--navy)]/10 bg-white p-5 shadow-raised">
-              <w.icon className="size-6 text-[var(--gold-ink)]" />
-              <div className="mt-3 font-semibold text-[var(--navy)]">{w.title}</div>
-              <div className="mt-1 text-sm text-[var(--navy)]/70">{w.text}</div>
+            <div key={w.title} className="border-t border-gold/50 bg-card py-5">
+              <w.icon className="size-6 text-gold" />
+              <div className="mt-4 font-display text-lg font-semibold text-foreground">{w.title}</div>
+              <div className="mt-1 text-sm leading-relaxed text-muted-foreground">{w.text}</div>
             </div>
           ))}
         </div>
       </section>
 
       {/* Services */}
-      <section className="mt-14">
+      <section className="mt-20">
         <SectionHeader eyebrow="Our services" title={`Airport travel services in ${locName}`} />
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {SERVICES.map((s) => (
             <a
               key={s.href}
               href={s.href}
-              className="group flex flex-col justify-between rounded-2xl border border-[var(--navy)]/10 bg-white p-5 transition hover:border-[var(--gold)] shadow-raised hover:shadow-raised-hover"
+              className="group flex min-h-40 flex-col justify-between border-t border-border bg-card py-5 transition hover:border-gold"
             >
               <div>
-                <div className="font-semibold text-[var(--navy)]">{s.label}</div>
-                <div className="mt-1 text-sm text-[var(--navy)]/65">{s.blurb}</div>
+                <div className="font-display text-xl font-semibold text-foreground">{s.label}</div>
+                <div className="mt-2 text-sm leading-relaxed text-muted-foreground">{s.blurb}</div>
               </div>
-              <span className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-[var(--gold-ink)]">
+              <span className="mt-4 inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-gold">
                 Learn more <ArrowRight className="size-3.5" />
               </span>
             </a>
@@ -149,7 +156,7 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
       )}
 
       {/* Vehicles callout */}
-      <section className="mt-14 rounded-3xl border border-[var(--navy)]/10 bg-white p-8 shadow-raised">
+      <section className="mt-20 border-y border-border py-8">
         <SectionHeader eyebrow="Our fleet" title="Vehicles available" />
         <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 text-sm text-[var(--navy)]/80">
           {[
@@ -209,12 +216,13 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
 
 
       {/* CTA */}
-      <section className="mt-14 rounded-3xl bg-[var(--navy)] p-10 text-center text-white">
-        <h2 className="text-3xl font-bold">Book your {locName} transfer</h2>
-        <p className="mt-2 text-white/70">Instant fixed-price quote. No hidden fees. 24/7 support.</p>
+      <section className="mt-20 bg-navy p-8 text-center text-navy-foreground md:p-12">
+        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-gold">Plan your journey</p>
+        <h2 className="mt-3 font-display text-3xl font-semibold md:text-4xl">Book your {locName} transfer</h2>
+        <p className="mt-3 text-navy-foreground/70">Instant fixed-price quote. No hidden fees. 24/7 support.</p>
         <Link
           to="/book"
-          className="mt-6 inline-flex items-center gap-2 rounded-full bg-[var(--gold)] px-7 py-3 text-sm font-bold uppercase tracking-[0.14em] text-[var(--navy)]"
+          className="mt-7 inline-flex items-center gap-2 rounded-full bg-gold px-7 py-3 text-sm font-bold uppercase tracking-[0.14em] text-gold-foreground"
         >
           Get a quote <ArrowRight className="size-4" />
         </Link>
@@ -230,7 +238,7 @@ function SectionHeader({ eyebrow, title }: { eyebrow: string; title: string }) {
       <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--gold-ink)]">
         {eyebrow}
       </div>
-      <h2 className="mt-1 text-2xl font-bold text-[var(--navy)] sm:text-3xl">{title}</h2>
+      <h2 className="mt-2 font-display text-2xl font-semibold text-foreground sm:text-3xl">{title}</h2>
     </div>
   );
 }
@@ -245,10 +253,10 @@ function NearbySection({
   items: Destination[];
 }) {
   return (
-    <section className="mt-12">
-      <div className="mb-4 flex items-center gap-2">
-        <Icon className="size-5 text-[var(--gold-ink)]" />
-        <h2 className="text-xl font-bold text-[var(--navy)] sm:text-2xl">{title}</h2>
+    <section className="mt-16 grid gap-6 border-t border-border pt-7 lg:grid-cols-[minmax(14rem,0.7fr)_2fr]">
+      <div>
+        <Icon className="size-5 text-gold" />
+        <h2 className="mt-3 font-display text-xl font-semibold text-foreground sm:text-2xl">{title}</h2>
       </div>
       <EntityGrid items={items} />
     </section>
