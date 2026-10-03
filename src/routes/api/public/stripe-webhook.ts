@@ -86,28 +86,12 @@ export const Route = createFileRoute('/api/public/stripe-webhook')({
               return new Response('Failed to update booking', { status: 500 });
             }
 
-            const { data: existingPayment } = await supabaseAdmin
-              .from('payments')
-              .select('id')
-              .eq('reference', session.id)
-              .maybeSingle();
-
-            if (!existingPayment) {
-              const { error: paymentError } = await supabaseAdmin.from('payments').insert({
-                booking_id: booking.id,
-                amount: amount / 100,
-                currency: (session.currency ?? 'gbp').toUpperCase(),
-                method: session.payment_method_types?.[0] ?? 'card',
-                status: 'paid',
-                reference: session.id,
-                notes: `Stripe Checkout session ${session.id} (${env})`,
-                paid_at: paidAt,
-              });
-
-              if (paymentError) {
-                console.error(`[stripe-webhook] Failed to insert payment for ${ref}:`, paymentError.message);
-                return new Response('Failed to record payment', { status: 500 });
-              }
+            void paidAt;
+            const { recordStripePayment } = await import('@/lib/stripe-payments.server');
+            const { error: paymentError } = await recordStripePayment(stripe, session, env, booking.id, amount / 100);
+            if (paymentError) {
+              console.error(`[stripe-webhook] Failed to record payment for ${ref}:`, paymentError.message);
+              return new Response('Failed to record payment', { status: 500 });
             }
 
             console.log(`[stripe-webhook] Booking ${ref} marked as paid and confirmed`);

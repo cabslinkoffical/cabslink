@@ -537,7 +537,7 @@ export const listPayments = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
-    const { data, error } = await context.supabase.from("payments").select("*, booking:bookings(id, booking_ref, customer_name)").order("created_at", { ascending: false });
+    const { data, error } = await context.supabase.from("payments").select("*, booking:bookings(id, booking_ref, customer_name, email, phone, pickup_address, dropoff_address, pickup_date, pickup_time, status, payment_status)").order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
     return data ?? [];
   });
