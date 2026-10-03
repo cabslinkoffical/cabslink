@@ -50,57 +50,52 @@ const NAV: SidebarEntry[] = [
   { to: "/cabs-booking-pannel", label: "Dashboard", icon: LayoutDashboard, exact: true },
   {
     label: "Bookings", icon: CalendarCheck, items: [
-      { to: "/cabs-booking-pannel/bookings", label: "Transfer Bookings", icon: CalendarCheck, search: { view: "" } },
-      { to: "/cabs-booking-pannel/bookings", label: "Tour Enquiries", icon: RouteIcon, search: { view: "tours" } },
-      { to: "/cabs-booking-pannel/amendments", label: "Booking Changes", icon: PencilLine },
-      { to: "/cabs-booking-pannel/cancellations", label: "Cancellations & Refunds", icon: CircleSlash2 },
-
+      { to: "/cabs-booking-pannel/bookings", label: "All bookings", icon: CalendarCheck, search: { view: "", tab: "" } },
+      { to: "/cabs-booking-pannel/bookings", label: "Upcoming", icon: CalendarCheck, search: { view: "", tab: "upcoming" } },
+      { to: "/cabs-booking-pannel/bookings", label: "Confirmed", icon: CalendarCheck, search: { view: "", tab: "confirmed" } },
+      { to: "/cabs-booking-pannel/bookings", label: "Cancelled", icon: CircleSlash2, search: { view: "", tab: "cancelled" } },
+      { to: "/cabs-booking-pannel/bookings", label: "History", icon: History, search: { view: "", tab: "history" } },
+      { to: "/cabs-booking-pannel/bookings", label: "Tour enquiries", icon: RouteIcon, search: { view: "tours" } },
+      { to: "/cabs-booking-pannel/amendments", label: "Change requests", icon: PencilLine },
+      { to: "/cabs-booking-pannel/cancellations", label: "Refunds", icon: CircleSlash2 },
     ],
   },
-  { to: "/cabs-booking-pannel/messages", label: "Messages", icon: Inbox },
-  { to: "/cabs-booking-pannel/payments", label: "Payments", icon: CreditCard },
-  { to: "/cabs-booking-pannel/availability", label: "Availability & Blocks", icon: Ban },
   {
-    label: "Fleet & Pricing", icon: Car, items: [
-      { to: "/cabs-booking-pannel/vehicle-classes", label: "Vehicle Classes", icon: Car },
-      
-      { to: "/cabs-booking-pannel/pricing-schemes", label: "Pricing Schemes", icon: Gauge },
+    label: "Money & customers", icon: CreditCard, items: [
+      { to: "/cabs-booking-pannel/payments", label: "Payments", icon: CreditCard },
+      { to: "/cabs-booking-pannel/messages", label: "Messages", icon: Inbox },
+      { to: "/cabs-booking-pannel/customers", label: "Customers", icon: Users },
+      { to: "/cabs-booking-pannel/drivers", label: "Driver applications", icon: UserCog },
+    ],
+  },
+  {
+    label: "Prices & vehicles", icon: Car, items: [
+      { to: "/cabs-booking-pannel/vehicle-classes", label: "Vehicles", icon: Car },
+      { to: "/cabs-booking-pannel/pricing-schemes", label: "Prices", icon: Gauge },
       { to: "/cabs-booking-pannel/extras", label: "Extras", icon: Plus },
       { to: "/cabs-booking-pannel/coupons", label: "Coupons", icon: Ticket },
-      
-    ],
-  },
-
-  {
-    label: "People", icon: Users, items: [
-      { to: "/cabs-booking-pannel/drivers", label: "Driver applications", icon: UserCog },
-      { to: "/cabs-booking-pannel/customers", label: "Customers", icon: Users },
-      { to: "/cabs-booking-pannel/users", label: "Admin Users", icon: Shield },
+      { to: "/cabs-booking-pannel/availability", label: "Blocked dates", icon: Ban },
+      { to: "/cabs-booking-pannel/addresses", label: "Addresses", icon: MapPin },
+      { to: "/cabs-booking-pannel/banned-addresses", label: "Banned addresses", icon: Ban },
     ],
   },
   {
     label: "Tours", icon: RouteIcon, items: [
-      { to: "/cabs-booking-pannel/scenic-routes", label: "Tour Routes", icon: RouteIcon },
-      { to: "/cabs-booking-pannel/pois", label: "Stops & Landmarks", icon: MapPin },
-      { to: "/cabs-booking-pannel/tour-hours", label: "Tour Hours & Mileage", icon: Gauge },
-      { to: "/cabs-booking-pannel/tour-settings", label: "Tour Settings", icon: SettingsIcon },
+      { to: "/cabs-booking-pannel/scenic-routes", label: "Tour routes", icon: RouteIcon },
+      { to: "/cabs-booking-pannel/pois", label: "Stops & landmarks", icon: MapPin },
+      { to: "/cabs-booking-pannel/tour-hours", label: "Hours & mileage", icon: Gauge },
+      { to: "/cabs-booking-pannel/tour-settings", label: "Tour settings", icon: SettingsIcon },
     ],
   },
   {
-    label: "Places", icon: MapPin, items: [
-      { to: "/cabs-booking-pannel/addresses", label: "Addresses", icon: MapPin },
-      { to: "/cabs-booking-pannel/banned-addresses", label: "Banned Addresses", icon: Ban },
+    label: "Website content", icon: FileText, items: [
+      { to: "/cabs-booking-pannel/blog", label: "Blog posts", icon: FileText, exact: true },
+      { to: "/cabs-booking-pannel/blog/categories", label: "Blog categories", icon: Tag },
+      { to: "/cabs-booking-pannel/blog/tags", label: "Blog tags", icon: Tag },
+      { to: "/cabs-booking-pannel/blog/authors", label: "Blog authors", icon: UserCog },
+      { to: "/cabs-booking-pannel/media", label: "Media library", icon: ImageIcon },
     ],
   },
-  {
-    label: "Blog", icon: FileText, items: [
-      { to: "/cabs-booking-pannel/blog", label: "Posts", icon: FileText, exact: true },
-      { to: "/cabs-booking-pannel/blog/categories", label: "Categories", icon: Tag },
-      { to: "/cabs-booking-pannel/blog/tags", label: "Tags", icon: Tag },
-      { to: "/cabs-booking-pannel/blog/authors", label: "Authors", icon: UserCog },
-    ],
-  },
-  { to: "/cabs-booking-pannel/media", label: "Media Library", icon: ImageIcon },
   {
     label: "SEO", icon: Globe, items: [
       { to: "/cabs-booking-pannel/seo", label: "Overview", icon: Globe, exact: true },
@@ -113,13 +108,18 @@ const NAV: SidebarEntry[] = [
       { to: "/cabs-booking-pannel/seo/import", label: "Import", icon: UploadCloud },
     ],
   },
-  { to: "/cabs-booking-pannel/analytics", label: "Analytics", icon: TrendingUp },
-  { to: "/cabs-booking-pannel/reports", label: "Reports", icon: BarChart3 },
   {
-    label: "System", icon: SettingsIcon, items: [
-      { to: "/cabs-booking-pannel/settings", label: "Settings", icon: SettingsIcon },
-      { to: "/cabs-booking-pannel/dispatch", label: "Dispatch Link", icon: RouteIcon },
-      { to: "/cabs-booking-pannel/logs", label: "Activity Logs", icon: History },
+    label: "Reports", icon: BarChart3, items: [
+      { to: "/cabs-booking-pannel/analytics", label: "Analytics", icon: TrendingUp },
+      { to: "/cabs-booking-pannel/reports", label: "Reports", icon: BarChart3 },
+    ],
+  },
+  {
+    label: "Settings", icon: SettingsIcon, items: [
+      { to: "/cabs-booking-pannel/settings", label: "General settings", icon: SettingsIcon },
+      { to: "/cabs-booking-pannel/users", label: "Admin users", icon: Shield },
+      { to: "/cabs-booking-pannel/dispatch", label: "Dispatch link", icon: RouteIcon },
+      { to: "/cabs-booking-pannel/logs", label: "Activity logs", icon: History },
     ],
   },
 ];
