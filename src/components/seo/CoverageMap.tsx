@@ -12,19 +12,19 @@ export function CoverageMap() {
 
   return (
     <div>
-      <p className="mb-8 max-w-2xl text-sm text-[var(--navy)]/70">
+      <p className="mb-8 max-w-2xl text-sm leading-relaxed text-muted-foreground">
         Dozens of fixed-price journeys across the UK — every page below is written from real local detail, not a template.
       </p>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-x-12 gap-y-10 lg:grid-cols-2">
         {regions.map((r) => (
           <section
             key={r.region}
-            className="rounded-2xl border border-[var(--navy)]/10 bg-white p-6 shadow-raised"
+            className="border-t border-border pt-5"
           >
             <div className="flex items-center gap-2">
-              <MapPin className="size-4 text-[var(--gold-ink)]" />
-              <h3 className="font-display text-lg font-semibold text-[var(--navy)]">{r.region}</h3>
+              <MapPin className="size-4 text-gold" />
+              <h3 className="font-display text-xl font-semibold text-foreground">{r.region}</h3>
             </div>
 
             <ul className="mt-4 space-y-5">
@@ -32,7 +32,7 @@ export function CoverageMap() {
                 <li key={loc.slug}>
                   <Link
                     to={loc.areaPath}
-                    className="group inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--navy)] hover:text-[var(--gold-ink)]"
+                    className="group inline-flex items-center gap-1.5 text-sm font-semibold text-foreground hover:text-gold"
                   >
                     {loc.name}
                     <ArrowRight className="size-3.5 transition group-hover:translate-x-0.5" />
@@ -44,7 +44,7 @@ export function CoverageMap() {
                         <Link
                           key={s.to}
                           to={s.to}
-                          className="rounded-md border border-[var(--navy)]/10 bg-[var(--navy)]/[0.03] px-2 py-1 text-[11px] font-medium text-[var(--navy)]/80 transition hover:border-[var(--gold)] hover:text-[var(--navy)]"
+                          className="border-b border-border px-1 py-1 text-[11px] font-medium text-muted-foreground transition hover:border-gold hover:text-foreground"
                         >
                           {s.label}
                         </Link>
@@ -53,7 +53,7 @@ export function CoverageMap() {
                         <Link
                           key={j.to}
                           to={j.to}
-                          className="rounded-md border border-dashed border-[var(--navy)]/15 px-2 py-1 text-[11px] font-medium text-[var(--gold-ink)] transition hover:border-[var(--gold)]"
+                          className="border-b border-dashed border-border px-1 py-1 text-[11px] font-medium text-gold transition hover:border-gold"
                         >
                           {j.label}
                         </Link>
