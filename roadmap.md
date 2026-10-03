@@ -1,6 +1,7 @@
 # Roadmap
 
 - [x] Standardize destination hubs: exact H1s, Destinations menu, `/areas` tabs/order, benefit-card order, `/` breadcrumbs, navy heroes
+- [x] Redesign `/areas`, region directories, and individual location pages with the selected navy editorial travel direction
 
 - [x] Admin: Changes & Refunds list for amendment requests (top-ups / refunds)
 - [x] Fix admin status change not applying (invalid-transition block)
