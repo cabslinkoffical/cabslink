@@ -59,6 +59,7 @@ export function InstantSearch({ placeholder = "Search cities, airports, routes, 
       <div className="flex min-h-16 items-center gap-3 border-b border-navy-foreground/30 bg-transparent px-1 focus-within:border-gold">
         <Search className="size-5 text-gold" />
         <input
+          suppressHydrationWarning
           value={q}
           onChange={(e) => {
             setQ(e.target.value);

@@ -71,7 +71,7 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
           <div className="mt-12 grid gap-10 lg:grid-cols-[minmax(0,1.6fr)_minmax(15rem,0.65fr)] lg:items-end">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.22em] text-gold">
-            {region ? `${region} · Airport Travel` : "UK Airport Travel"}
+                {region ? `${region} · Airport Travel` : "UK Airport Travel"}
               </p>
               <h1 className="mt-4 max-w-4xl font-display text-4xl font-semibold leading-[1.04] sm:text-6xl">
                 Professional Airport Taxi &amp; Private Transfer Services in {locName}
