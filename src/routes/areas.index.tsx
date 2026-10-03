@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { InstantSearch } from "@/components/explore/InstantSearch";
 import { AlphaBar } from "@/components/explore/AlphaBar";
@@ -10,8 +10,7 @@ import { CoverageMap } from "@/components/seo/CoverageMap";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { SiteLayout } from "@/components/site/SiteLayout";
-import { Link } from "@tanstack/react-router";
-import { ArrowDown, ArrowRight } from "lucide-react";
+import { ArrowDown } from "lucide-react";
 import { exploreOverviewQuery } from "@/lib/explore.functions";
 import { collectionPageSchema } from "@/components/seo/schema";
 

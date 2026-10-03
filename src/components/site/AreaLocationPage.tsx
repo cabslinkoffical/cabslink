@@ -303,11 +303,11 @@ function LocalPagesSection({ slug, name }: { slug: string; name: string }) {
   if (services.length === 0 && journeys.length === 0) return null;
 
   return (
-    <section className="mt-14 rounded-3xl border border-[var(--navy)]/10 bg-white p-8 shadow-raised">
+    <section className="mt-16 border-y border-border py-8">
       <SectionHeader eyebrow="Local pages" title={`More on travel in ${name}`} />
       {services.length > 0 && (
         <div className="mt-2">
-          <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/50">
+          <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
             Services in {name}
           </div>
           <ul className="mt-3 flex flex-wrap gap-2">
@@ -315,9 +315,9 @@ function LocalPagesSection({ slug, name }: { slug: string; name: string }) {
               <li key={s.to}>
                 <Link
                   to={s.to}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--navy)]/10 bg-[var(--navy)]/[0.03] px-3 py-2 text-sm font-medium text-[var(--navy)] transition hover:border-[var(--gold)]"
+                  className="inline-flex items-center gap-1.5 border-b border-border px-1 py-2 text-sm font-medium text-foreground transition hover:border-gold"
                 >
-                  {s.label} <ArrowRight className="size-3.5 text-[var(--gold-ink)]" />
+                  {s.label} <ArrowRight className="size-3.5 text-gold" />
                 </Link>
               </li>
             ))}
@@ -326,7 +326,7 @@ function LocalPagesSection({ slug, name }: { slug: string; name: string }) {
       )}
       {journeys.length > 0 && (
         <div className="mt-6">
-          <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/50">
+          <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
             Fixed-price journeys
           </div>
           <ul className="mt-3 flex flex-wrap gap-2">
@@ -334,9 +334,9 @@ function LocalPagesSection({ slug, name }: { slug: string; name: string }) {
               <li key={j.to}>
                 <Link
                   to={j.to}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-[var(--navy)]/20 px-3 py-2 text-sm font-medium text-[var(--navy)] transition hover:border-[var(--gold)]"
+                  className="inline-flex items-center gap-1.5 border-b border-dashed border-border px-1 py-2 text-sm font-medium text-foreground transition hover:border-gold"
                 >
-                  {j.label} <ArrowRight className="size-3.5 text-[var(--gold-ink)]" />
+                  {j.label} <ArrowRight className="size-3.5 text-gold" />
                 </Link>
               </li>
             ))}

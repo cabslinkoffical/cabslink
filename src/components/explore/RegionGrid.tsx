@@ -5,7 +5,7 @@ import type { RegionCard } from "@/lib/explore.functions";
 export function RegionGrid({ regions }: { regions: RegionCard[] }) {
   if (!regions.length) {
     return (
-      <p className="rounded-2xl border border-dashed border-[var(--navy)]/20 bg-white p-8 text-center text-[var(--navy)]/60 shadow-raised">
+      <p className="rounded-lg border border-dashed border-border bg-card p-8 text-center text-muted-foreground">
         Regions will appear here as destinations are added.
       </p>
     );
