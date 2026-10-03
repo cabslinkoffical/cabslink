@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Search, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { destinationHref, searchDestinations, type Destination } from "@/lib/destinations.functions";
 
 type Result = Destination & { href: string; hasPage: boolean };
@@ -54,10 +55,11 @@ export function InstantSearch({ placeholder = "Search cities, airports, routes, 
   }, [results]);
 
   return (
-    <div ref={boxRef} className="relative w-full max-w-2xl">
-      <div className="flex items-center gap-3 rounded-full border border-[var(--navy)]/12 bg-white px-5 py-3.5 shadow-[0_20px_60px_-30px_rgba(14,24,44,0.4)] focus-within:border-[var(--gold)]">
-        <Search className="size-5 text-[var(--navy)]/75" />
+    <div ref={boxRef} className="relative w-full">
+      <div className="flex min-h-16 items-center gap-3 border-b border-navy-foreground/30 bg-transparent px-1 focus-within:border-gold">
+        <Search className="size-5 text-gold" />
         <input
+          suppressHydrationWarning
           value={q}
           onChange={(e) => {
             setQ(e.target.value);
@@ -65,30 +67,33 @@ export function InstantSearch({ placeholder = "Search cities, airports, routes, 
           }}
           onFocus={() => setOpen(true)}
           placeholder={placeholder}
-          className="flex-1 bg-transparent text-[15px] text-[var(--navy)] placeholder:text-[var(--navy)]/40 focus:outline-none"
+          className="flex-1 bg-transparent text-base text-navy-foreground placeholder:text-navy-foreground/45 focus:outline-none"
           aria-label="Search destinations"
         />
         {q && (
-          <button
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
             onClick={() => setQ("")}
-            className="grid size-6 place-items-center rounded-full text-[var(--navy)]/50 hover:text-[var(--navy)]"
+            className="text-navy-foreground/60 hover:bg-navy-foreground/10 hover:text-navy-foreground"
             aria-label="Clear"
           >
             <X className="size-4" />
-          </button>
+          </Button>
         )}
       </div>
 
       {open && q.trim().length >= 2 && (
-        <div className="absolute inset-x-0 top-full z-40 mt-2 max-h-[70vh] overflow-auto rounded-2xl border border-[var(--navy)]/10 bg-white p-2 shadow-[0_30px_80px_-30px_rgba(14,24,44,0.45)]">
-          {loading && <div className="p-4 text-sm text-[var(--navy)]/60">Searching…</div>}
+        <div className="absolute inset-x-0 top-full z-40 mt-2 max-h-[70vh] overflow-auto rounded-lg border border-border bg-popover p-2 shadow-raised-hover">
+          {loading && <div className="p-4 text-sm text-muted-foreground">Searching…</div>}
           {!loading && results.length === 0 && (
-            <div className="p-4 text-sm text-[var(--navy)]/60">No matches. Try a town, airport code or route.</div>
+            <div className="p-4 text-sm text-muted-foreground">No matches. Try a town, airport code or route.</div>
           )}
           {!loading &&
             grouped.map(([type, items]) => (
               <div key={type} className="mb-1 last:mb-0">
-                <div className="px-3 pt-2 text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--navy)]/45">
+                <div className="px-3 pt-2 text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
                   {type.replace(/_/g, " ")}
                 </div>
                 <ul>
@@ -97,12 +102,12 @@ export function InstantSearch({ placeholder = "Search cities, airports, routes, 
                       <Link
                         to={destinationHref(r)}
                         onClick={() => setOpen(false)}
-                        className="flex items-center justify-between gap-3 rounded-lg px-3 py-2 hover:bg-[var(--navy)]/5"
+                        className="flex items-center justify-between gap-3 rounded-md px-3 py-2 hover:bg-muted"
                       >
-                        <span className="min-w-0 truncate text-sm font-medium text-[var(--navy)]">
+                        <span className="min-w-0 truncate text-sm font-medium text-foreground">
                           {r.display_name ?? r.name}
                         </span>
-                        <span className="shrink-0 text-xs text-[var(--navy)]/50">
+                        <span className="shrink-0 text-xs text-muted-foreground">
                           {[r.town, r.region].filter(Boolean).join(", ")}
                         </span>
                       </Link>

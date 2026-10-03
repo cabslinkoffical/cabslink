@@ -5,45 +5,46 @@ import type { RegionCard } from "@/lib/explore.functions";
 export function RegionGrid({ regions }: { regions: RegionCard[] }) {
   if (!regions.length) {
     return (
-      <p className="rounded-2xl border border-dashed border-[var(--navy)]/20 bg-white p-8 text-center text-[var(--navy)]/60 shadow-raised">
+      <p className="rounded-lg border border-dashed border-border bg-card p-8 text-center text-muted-foreground">
         Regions will appear here as destinations are added.
       </p>
     );
   }
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
       {regions.map((r) => (
         <Link
           key={r.slug}
           to="/areas/region/$slug"
           params={{ slug: r.slug }}
-          className="group flex flex-col justify-between rounded-2xl border border-[var(--navy)]/10 bg-white p-5 transition hover:border-[var(--gold)] shadow-raised hover:shadow-raised-hover"
+          className="group relative flex min-h-72 flex-col justify-end overflow-hidden rounded-lg border border-gold/20 bg-navy p-6 text-navy-foreground shadow-dark-raised transition duration-500 hover:-translate-y-1 hover:border-gold/60 hover:shadow-dark-raised-hover"
         >
-          <div>
+          <div className="absolute inset-x-0 top-0 h-px bg-gold/60" aria-hidden />
+          <div className="relative">
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-2">
-                <MapPin className="size-4 text-[var(--gold-ink)]" />
-                <h3 className="text-lg font-semibold text-[var(--navy)]">{r.name}</h3>
+                <MapPin className="size-4 text-gold" />
+                <h3 className="font-display text-2xl font-semibold text-navy-foreground">{r.name}</h3>
               </div>
-              <span className="rounded-full bg-[var(--navy)]/6 px-2.5 py-0.5 text-xs font-semibold tabular-nums text-[var(--navy)]/70">
+              <span className="border border-navy-foreground/15 px-2.5 py-1 text-xs font-semibold tabular-nums text-navy-foreground/70">
                 {r.count}
               </span>
             </div>
             {r.popularTowns.length > 0 && (
-              <p className="mt-3 text-sm text-[var(--navy)]/70 line-clamp-2">
+              <p className="mt-3 text-sm leading-relaxed text-navy-foreground/65 line-clamp-2">
                 {r.popularTowns.join(" · ")}
               </p>
             )}
           </div>
-          <div className="mt-4 flex items-center justify-between text-xs">
+          <div className="relative mt-6 flex items-center justify-between border-t border-navy-foreground/15 pt-4 text-xs">
             {r.hasAirports ? (
-              <span className="inline-flex items-center gap-1 font-semibold text-[var(--gold-ink)]">
+              <span className="inline-flex items-center gap-1 font-semibold text-gold">
                 <Plane className="size-3.5" /> Airport routes
               </span>
             ) : (
-              <span className="text-[var(--navy)]/40">Regional coverage</span>
+              <span className="text-navy-foreground/50">Regional coverage</span>
             )}
-            <span className="inline-flex items-center gap-1 font-semibold text-[var(--navy)]/70 group-hover:text-[var(--gold-ink)]">
+            <span className="inline-flex items-center gap-1 font-semibold text-navy-foreground transition group-hover:text-gold">
               View {r.name} <ArrowRight className="size-3.5" />
             </span>
           </div>

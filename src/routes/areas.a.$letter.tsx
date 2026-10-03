@@ -38,12 +38,19 @@ function LetterPage() {
           { label: L },
         ]}
       />
-      <section className="section-y">
+      <section className="section-y bg-background">
         <div className="container-x">
           {data.length ? (
-            <EntityGrid items={data} />
+            <div className="grid gap-8 border-t border-border pt-8 lg:grid-cols-[minmax(13rem,0.7fr)_2fr]">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">Directory / {L}</p>
+                <h2 className="mt-3 font-display text-2xl font-semibold text-foreground">All locations</h2>
+                <p className="mt-2 text-sm text-muted-foreground">{data.length} result{data.length === 1 ? "" : "s"}</p>
+              </div>
+              <EntityGrid items={data} />
+            </div>
           ) : (
-            <p className="rounded-2xl border border-dashed border-[var(--navy)]/20 bg-white p-8 text-center text-[var(--navy)]/60">
+            <p className="rounded-lg border border-dashed border-border bg-card p-8 text-center text-muted-foreground">
               No destinations here yet. <Link to="/areas" className="underline">Back to directory</Link>.
             </p>
           )}

@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { InstantSearch } from "@/components/explore/InstantSearch";
 import { AlphaBar } from "@/components/explore/AlphaBar";
@@ -10,7 +10,7 @@ import { CoverageMap } from "@/components/seo/CoverageMap";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { SiteLayout } from "@/components/site/SiteLayout";
-import { PageHero } from "@/components/site/PageHero";
+import { ArrowDown } from "lucide-react";
 import { exploreOverviewQuery } from "@/lib/explore.functions";
 import { collectionPageSchema } from "@/components/seo/schema";
 
@@ -54,40 +54,45 @@ function LocationsPage() {
 
   return (
     <SiteLayout>
-      <PageHero
-        eyebrow="Locations we cover"
-        title="Find your pickup or destination"
-        subtitle={
-          count > 0
-            ? `Search ${count.toLocaleString()} destinations across the UK — airports, stations, universities, hospitals, attractions and more.`
-            : "Search every destination Cabslink covers — airports, stations, universities, hospitals, attractions and more."
-        }
-        breadcrumbs={[{ label: "Home", to: "/" }, { label: "Locations" }]}
-      />
-
-      {/* Search bar in a lifted card, overlapping the hero */}
-      <section className="container-x -mt-10 md:-mt-14 relative z-10">
-        <div className="rounded-2xl border border-[var(--navy)]/10 bg-white p-4 md:p-6 shadow-raised">
-          <InstantSearch />
+      <section className="relative overflow-hidden bg-navy text-navy-foreground">
+        <div className="container-x py-16 md:py-24 lg:py-28">
+          <nav className="mb-10 flex justify-center gap-2 text-xs uppercase tracking-[0.16em] text-navy-foreground/50">
+            <Link to="/" className="transition hover:text-gold">Home</Link><span>/</span><span className="text-navy-foreground">Locations</span>
+          </nav>
+          <div className="mx-auto max-w-4xl text-center">
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-gold">Explore our reach</p>
+            <h1 className="mt-5 font-display text-5xl font-semibold leading-[0.98] md:text-7xl">Areas we cover</h1>
+            <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-navy-foreground/70 md:text-lg">
+              {count > 0
+                ? `Search ${count.toLocaleString()} destinations across the UK — airports, stations, universities, hospitals, attractions and more.`
+                : "Search every destination Cabslink covers — airports, stations, universities, hospitals, attractions and more."}
+            </p>
+            <div className="mx-auto mt-10 max-w-3xl text-left">
+              <InstantSearch placeholder="Where would you like to travel?" />
+            </div>
+          </div>
+          <a href="#coverage" aria-label="Explore coverage" className="mx-auto mt-12 grid size-10 place-items-center border border-navy-foreground/20 text-navy-foreground/65 transition hover:border-gold hover:text-gold">
+            <ArrowDown className="size-4" />
+          </a>
         </div>
       </section>
 
-      <section className="section-y">
+      <section id="coverage" className="section-y">
         <div className="container-x">
-          <SectionHeader eyebrow="Coverage map" title="Where we run — and the pages for each" />
+          <EditorialHeader index="01" eyebrow="Coverage map" title="Where we run" subtitle="Dozens of fixed-price journeys connect the UK's key cities, airports, and regional destinations." />
           <CoverageMap />
         </div>
       </section>
 
-      <section className="section-y bg-[var(--navy)]/[0.03]">
+      <section className="section-y bg-surface-2">
         <div className="container-x">
-          <SectionHeader eyebrow="Browse" title="Explore our coverage" />
-          <Tabs defaultValue="category" className="mt-8">
-            <TabsList className="h-11 rounded-lg border border-[var(--navy)]/10 bg-white p-1 shadow-sm">
-              <TabsTrigger value="category" className="h-9 px-5 data-[state=active]:bg-[var(--navy)] data-[state=active]:text-[var(--navy-foreground)]">
+          <EditorialHeader index="02" eyebrow="Browse" title="Explore our coverage" subtitle="Choose how you want to navigate the network." />
+          <Tabs defaultValue="category" className="mt-10">
+            <TabsList className="h-auto rounded-none border-b border-border bg-transparent p-0">
+              <TabsTrigger value="category" className="rounded-none border-b-2 border-transparent px-5 py-3 data-[state=active]:border-gold data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none">
                 By category
               </TabsTrigger>
-              <TabsTrigger value="region" className="h-9 px-5 data-[state=active]:bg-[var(--navy)] data-[state=active]:text-[var(--navy-foreground)]">
+              <TabsTrigger value="region" className="rounded-none border-b-2 border-transparent px-5 py-3 data-[state=active]:border-gold data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none">
                 By region
               </TabsTrigger>
             </TabsList>
@@ -102,25 +107,28 @@ function LocationsPage() {
       </section>
 
       {data.popularRoutes.length > 0 && (
-        <section className="section-y bg-[var(--navy)]/[0.03]">
+        <section className="section-y">
           <div className="container-x">
-            <SectionHeader eyebrow="Trending" title="Popular routes" />
+            <EditorialHeader index="03" eyebrow="Journeys" title="Popular routes" />
             <EntityGrid items={data.popularRoutes} />
           </div>
         </section>
       )}
 
       {data.letters.length > 0 && (
-        <section className="section-y bg-[var(--navy)]/[0.03]">
+        <section className="section-y bg-navy text-navy-foreground">
           <div className="container-x">
-            <SectionHeader eyebrow="Directory" title="Browse alphabetically" />
+            <div className="mb-10 grid gap-6 border-b border-navy-foreground/15 pb-8 md:grid-cols-[1fr_2fr] md:items-end">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-gold">04 / Directory</p>
+              <h2 className="font-display text-3xl font-semibold md:text-5xl">Browse alphabetically</h2>
+            </div>
             <AlphaBar available={data.letters} />
           </div>
         </section>
       )}
 
 
-      <section className="section-y bg-[var(--navy)]/[0.03]">
+      <section className="section-y bg-surface-2">
         <div className="container-x max-w-3xl">
           <FaqBlock
             items={[
@@ -136,11 +144,14 @@ function LocationsPage() {
   );
 }
 
-function SectionHeader({ eyebrow, title }: { eyebrow: string; title: string }) {
+function EditorialHeader({ index, eyebrow, title, subtitle }: { index: string; eyebrow: string; title: string; subtitle?: string }) {
   return (
-    <div className="mb-8">
-      <div className="text-[11px] font-bold uppercase tracking-[0.22em] text-[var(--gold-ink)]">{eyebrow}</div>
-      <h2 className="mt-2 font-display text-3xl md:text-4xl font-semibold text-[var(--navy)]">{title}</h2>
+    <div className="mb-10 grid gap-5 border-b border-border pb-8 md:grid-cols-[1fr_2fr] md:items-end">
+      <div className="text-xs font-semibold uppercase tracking-[0.24em] text-gold">{index} / {eyebrow}</div>
+      <div>
+        <h2 className="font-display text-3xl font-semibold text-foreground md:text-5xl">{title}</h2>
+        {subtitle && <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">{subtitle}</p>}
+      </div>
     </div>
   );
 }
