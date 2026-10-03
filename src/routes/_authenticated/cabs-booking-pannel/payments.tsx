@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery, useMutation, useQueryClient, queryOptions, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { listPayments, upsertPayment, deletePayment, listBookings } from "@/lib/admin.functions";
-import { useState, useMemo } from "react";
+import { useState, useMemo, Fragment } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { Plus, Edit, Trash2, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
 
@@ -39,6 +39,7 @@ function Page() {
   const upsert = useServerFn(upsertPayment);
   const del = useServerFn(deletePayment);
   const [form, setForm] = useState<any>(null);
+  const [detail, setDetail] = useState<any>(null);
   const [tab, setTab] = useState("all");
   const { data: bookings = [] } = useQuery(bOpts);
 
@@ -66,20 +67,23 @@ function Page() {
         <div className="border border-border rounded-xl bg-card overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">
-              <tr><th className="text-left px-4 py-3">Ref</th><th className="text-left px-4 py-3">Booking</th><th className="text-left px-4 py-3">Customer</th><th className="text-right px-4 py-3">Amount</th><th className="text-left px-4 py-3">Method</th><th className="text-left px-4 py-3">Status</th><th className="text-left px-4 py-3">Date</th><th className="text-right px-4 py-3">Actions</th></tr>
+              <tr><th className="text-left px-4 py-3">Booking</th><th className="text-left px-4 py-3">Paid by</th><th className="text-right px-4 py-3">Amount</th><th className="text-left px-4 py-3">Card</th><th className="text-left px-4 py-3">Status</th><th className="text-left px-4 py-3">Paid</th><th className="text-right px-4 py-3">Actions</th></tr>
             </thead>
             <tbody className="divide-y divide-border">
               {filtered.map((p: any) => (
                 <tr key={p.id} className="hover:bg-muted/30">
-                  <td className="px-4 py-3 font-mono text-xs">{p.reference ?? p.id.slice(0, 8)}</td>
                   <td className="px-4 py-3 font-mono text-xs">{p.booking?.booking_ref ?? "—"}</td>
-                  <td className="px-4 py-3">{p.booking?.customer_name ?? "—"}</td>
+                  <td className="px-4 py-3">
+                    <div className="font-medium">{p.payer_name ?? p.booking?.customer_name ?? "—"}</div>
+                    <div className="text-xs text-muted-foreground">{p.payer_email ?? p.booking?.email ?? ""}</div>
+                  </td>
                   <td className="px-4 py-3 text-right font-semibold">{p.currency} {Number(p.amount).toFixed(2)}</td>
-                  <td className="px-4 py-3 capitalize">{p.method ?? "—"}</td>
+                  <td className="px-4 py-3 capitalize">{p.card_brand ? `${p.card_brand} •••• ${p.card_last4 ?? ""}` : (p.method ?? "—")}</td>
                   <td className="px-4 py-3"><StatusBadge status={p.status} /></td>
-                  <td className="px-4 py-3 text-xs text-muted-foreground">{new Date(p.created_at).toLocaleDateString()}</td>
+                  <td className="px-4 py-3 text-xs text-muted-foreground">{new Date(p.paid_at ?? p.created_at).toLocaleString()}</td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex justify-end gap-1">
+                      <Button aria-label="Details" size="icon" variant="ghost" onClick={() => setDetail(p)}><Eye className="size-4" /></Button>
                       <Button aria-label="Edit" size="icon" variant="ghost" onClick={() => setForm({ ...empty, ...p })}><Edit className="size-4" /></Button>
                       <AlertDialog>
                         <AlertDialogTrigger asChild><Button aria-label="Delete" size="icon" variant="ghost"><Trash2 className="size-4 text-destructive" /></Button></AlertDialogTrigger>
@@ -93,6 +97,36 @@ function Page() {
           </table>
         </div>
       )}
+
+      <Dialog open={!!detail} onOpenChange={o => !o && setDetail(null)}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Payment details</DialogTitle></DialogHeader>
+          {detail && (
+            <dl className="grid grid-cols-[9rem_1fr] gap-x-3 gap-y-2 text-sm">
+              {([
+                ["Booking", detail.booking?.booking_ref],
+                ["Paid by", detail.payer_name ?? detail.booking?.customer_name],
+                ["Payer email", detail.payer_email ?? detail.booking?.email],
+                ["Phone", detail.booking?.phone],
+                ["Amount", `${detail.currency} ${Number(detail.amount).toFixed(2)}`],
+                ["Card", detail.card_brand ? `${detail.card_brand} •••• ${detail.card_last4 ?? ""}` : detail.method],
+                ["Payment status", detail.status],
+                ["Processor status", detail.processor_status],
+                ["Paid at", detail.paid_at ? new Date(detail.paid_at).toLocaleString() : null],
+                ["Mode", detail.environment === "sandbox" ? "Test" : detail.environment === "live" ? "Live" : null],
+                ["Checkout session", detail.reference],
+                ["Payment ID", detail.payment_intent_id],
+                ["Journey", detail.booking ? `${detail.booking.pickup_address ?? ""} → ${detail.booking.dropoff_address ?? ""}` : null],
+                ["Pickup", detail.booking?.pickup_date ? `${detail.booking.pickup_date} ${detail.booking.pickup_time ?? ""}` : null],
+                ["Booking status", detail.booking?.status],
+                ["Notes", detail.notes],
+              ] as [string, any][]).map(([k, v]) => (
+                <Fragment key={k}><dt className="text-muted-foreground">{k}</dt><dd className="break-all">{v || "—"}</dd></Fragment>
+              ))}
+            </dl>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={!!form} onOpenChange={o => !o && setForm(null)}>
         <DialogContent>

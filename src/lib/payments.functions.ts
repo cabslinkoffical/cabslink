@@ -137,9 +137,15 @@ export const confirmBookingPayment = createServerFn({ method: "POST" })
           .from("bookings")
           .update({ payment_status: "paid", status: "confirmed" } as any)
           .eq("booking_ref", data.bookingRef.toUpperCase())
-          .select("status, payment_status")
+          .select("id, price, status, payment_status")
           .maybeSingle();
         if (upd.error) return { error: "Payment received, but the booking could not be updated. Please contact us." };
+        if (upd.data?.id) {
+          try {
+            const { recordStripePayment } = await import("@/lib/stripe-payments.server");
+            await recordStripePayment(stripe, session, data.environment, upd.data.id, Number(upd.data.price ?? 0));
+          } catch (e) { console.error("[payments] could not record payment", e); }
+        }
         return { paid: true, status: upd.data?.status ?? "confirmed", paymentStatus: upd.data?.payment_status ?? "paid" };
       }
 
