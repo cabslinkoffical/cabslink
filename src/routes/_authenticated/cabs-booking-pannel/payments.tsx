@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery, useMutation, useQueryClient, queryOptions, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { listPayments, upsertPayment, deletePayment, listBookings } from "@/lib/admin.functions";
-import { useState, useMemo } from "react";
+import { useState, useMemo, Fragment } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -121,7 +121,7 @@ function Page() {
                 ["Booking status", detail.booking?.status],
                 ["Notes", detail.notes],
               ] as [string, any][]).map(([k, v]) => (
-                <><dt key={k + "k"} className="text-muted-foreground">{k}</dt><dd key={k + "v"} className="break-all">{v || "—"}</dd></>
+                <Fragment key={k}><dt className="text-muted-foreground">{k}</dt><dd className="break-all">{v || "—"}</dd></Fragment>
               ))}
             </dl>
           )}
