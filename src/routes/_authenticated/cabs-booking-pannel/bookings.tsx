@@ -75,6 +75,8 @@ const TABS = [
   { id: "assigned", label: "Driver assigned" },
   { id: "on_road", label: "On the road" },
   { id: "completed", label: "Completed" },
+  { id: "cancelled", label: "Cancelled" },
+  { id: "history", label: "History (past)" },
   { id: "deleted", label: "Deleted" },
 ];
 
@@ -82,7 +84,8 @@ function matchTab(b: any, tab: string) {
   const today = new Date().toISOString().slice(0, 10);
   if (tab === "deleted") return !!b.deleted_at;
   if (b.deleted_at) return false;
-  // Cancelled and rejected bookings live in Cancellations & Refunds only.
+  if (tab === "cancelled") return ["cancelled", "rejected"].includes(b.status);
+  if (tab === "history") return b.pickup_date < today || ["completed", "cancelled", "rejected"].includes(b.status);
   if (["cancelled", "rejected"].includes(b.status)) return false;
   switch (tab) {
     case "all": return true;
@@ -165,18 +168,22 @@ function BookingsPage() {
       {view === "tours" ? <TourEnquiries /> : <>
 
       <Tabs value={tab} className="w-full">
-        <TabsList className="w-full justify-start overflow-x-auto h-auto p-1">
-          {TABS.map(t => (
-            <TabsTrigger key={t.id} value={t.id} asChild>
-              <Link
-                to="/cabs-booking-pannel/bookings"
-                search={{ tab: t.id }}
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-              >
-                {t.label}
-              </Link>
-            </TabsTrigger>
-          ))}
+        <TabsList className="w-full justify-start overflow-x-auto h-auto p-1 gap-1">
+          {TABS.map(t => {
+            const count = bookings.filter((b: any) => b.service_type !== TOUR_SERVICE_TYPE && matchTab(b, t.id)).length;
+            return (
+              <TabsTrigger key={t.id} value={t.id} asChild>
+                <Link
+                  to="/cabs-booking-pannel/bookings"
+                  search={{ tab: t.id }}
+                  className="gap-2 px-3 py-2 text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                >
+                  {t.label}
+                  <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-semibold text-foreground">{count}</span>
+                </Link>
+              </TabsTrigger>
+            );
+          })}
         </TabsList>
       </Tabs>
 
