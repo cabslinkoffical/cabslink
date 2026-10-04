@@ -76,7 +76,7 @@ function ConfirmationPage() {
     (async () => {
       try {
         const res = await confirmFn({
-          data: { sessionId, bookingRef: q.data.bookingRef, environment: getStripeEnvironment() },
+          data: { sessionId, bookingRef: q.data.bookingRef },
         });
         if ("error" in res) toast.error(res.error);
         else if (res.paid) toast.success("Payment received — your booking is confirmed.");
