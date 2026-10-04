@@ -25,13 +25,13 @@ const TTL = 5 * 60_000;
 /** Pure handler — safe to call directly from tests. */
 export async function submitCorporateInquiryImpl(
   data: CorporateInput,
-  opts: { ip?: string; setStatus?: (n: number) => void } = {},
+  opts: { ip?: string; setStatus?: (n: number) => void; rateLimited?: boolean } = {},
 ): Promise<{ ok: true }> {
   const parsed = input.parse(data);
   if (parsed.website && parsed.website.trim() !== "") return { ok: true };
 
   const ip = opts.ip ?? "unknown";
-  if (!(await hitRateLimit(LIMITS.corporate, ip))) {
+  if (!opts.rateLimited && !(await hitRateLimit(LIMITS.corporate, ip))) {
     try { opts.setStatus?.(429); } catch {}
     throw new Error("Too many submissions. Please try again in a few minutes.");
   }
@@ -74,6 +74,11 @@ export const submitCorporateInquiry = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     let ip = "unknown";
     try { ip = (await getClientIp()) ?? "unknown"; } catch {}
+    // Rate limit first, so a flood never reaches the captcha verifier.
+    if (!(await hitRateLimit(LIMITS.corporate, ip))) {
+      try { setResponseStatus(429); } catch {}
+      throw new Error("Too many submissions. Please try again in a few minutes.");
+    }
     await assertCaptcha(data.captchaToken, ip, setResponseStatus);
-    return submitCorporateInquiryImpl(data, { ip, setStatus: setResponseStatus });
+    return submitCorporateInquiryImpl(data, { ip, setStatus: setResponseStatus, rateLimited: true });
   });
