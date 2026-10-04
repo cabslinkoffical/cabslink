@@ -11,7 +11,6 @@ import { SITE } from "@/lib/site";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { confirmBookingPayment } from "@/lib/payments.functions";
-import { getStripeEnvironment } from "@/lib/stripe";
 import { BookingCardPayment } from "@/components/site/BookingCardPayment";
 
 export const Route = createFileRoute("/booking/$token")({

@@ -22,7 +22,6 @@ import {
   type AmendChanges, type AmendmentQuote, type AmendmentResult,
 } from "@/lib/manage-booking.functions";
 import { confirmBookingPayment } from "@/lib/payments.functions";
-import { getStripeEnvironment } from "@/lib/stripe";
 import { TrackedBookingPayment } from "@/components/site/TrackedBookingPayment";
 
 
