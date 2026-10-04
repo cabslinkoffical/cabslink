@@ -45,7 +45,8 @@ export async function verifyCaptcha(
   if (!secret) return lenient("not-configured");
 
   const t = (token ?? "").trim();
-  if (!t) return { ok: false, reason: "missing" };
+  // Preview/dev hosts never show the widget (see captcha.functions.ts).
+  if (!t) return production || opts.production === false ? { ok: false, reason: "missing" } : { ok: true };
   if (t.length > 4096) return { ok: false, reason: "malformed" };
 
   const body = new URLSearchParams({ secret, response: t });
