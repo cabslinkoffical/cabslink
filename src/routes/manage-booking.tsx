@@ -34,7 +34,7 @@ export const Route = createFileRoute("/manage-booking")({
   head: () => ({
     meta: [
       { title: `Track my booking — ${SITE.name}` },
-      { name: "description", content: "Track your Cabslink journey in real time. Verify with your last name and booking reference or email, then request cancellation if needed." },
+      { name: "description", content: "Track your Cabslink journey in real time. Verify with your booking reference, booking email and last name, then request cancellation if needed." },
       { property: "og:title", content: `Track my booking — ${SITE.name}` },
       { property: "og:description", content: "Look up your Cabslink booking status with your last name and reference or email." },
       { property: "og:type", content: "website" },
@@ -106,10 +106,12 @@ function ManageBookingPage() {
       : lastName.trim().length < 2
       ? "Last name must be at least 2 characters."
       : "",
-    bookingRef:
-      !bookingRef.trim() && !email.trim() ? "Enter your booking reference or the email you booked with." : "",
-    email:
-      email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim()) ? "Enter a valid email address." : "",
+    bookingRef: !bookingRef.trim() ? "Enter your booking reference." : "",
+    email: !email.trim()
+      ? "Enter the email you booked with."
+      : !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim())
+      ? "Enter a valid email address."
+      : "",
   };
   const idInvalid = Object.values(idErrors).some(Boolean);
 
@@ -202,7 +204,7 @@ function ManageBookingPage() {
               <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-[var(--gold)]">{SITE.name}</p>
               <h1 className="mt-1 font-display text-2xl font-bold md:text-3xl">Track my booking</h1>
               <p className="mt-1.5 text-sm text-white/70">
-                Enter your last name and either your booking reference or the email you booked with. Once we find your booking,
+                Enter your booking reference, the email you booked with and your last name. Once we find your booking,
                 you can request a cancellation from the same page.
               </p>
             </div>
@@ -223,7 +225,7 @@ function ManageBookingPage() {
                     className="font-mono uppercase"
                   />
                 </FormField>
-                <FormField label="Or the email you booked with" htmlFor="mb-email" error={attempted ? idErrors.email : ""}>
+                <FormField label="Email you booked with" htmlFor="mb-email" error={attempted ? idErrors.email : ""}>
                   <Input
                     id="mb-email"
                     type="email"

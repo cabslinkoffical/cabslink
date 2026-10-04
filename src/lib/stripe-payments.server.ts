@@ -37,7 +37,7 @@ const BOOKING_COLUMNS =
 /** Booking statuses that can never be paid for again. */
 export const CHECKOUT_BLOCKED_STATUSES = ["cancelled", "rejected", "completed", "expired"] as const;
 /** The only statuses a successful payment may move to `confirmed`. */
-export const CONFIRMABLE_FROM_STATUSES = ["new", "pending_payment"] as const;
+export const CONFIRMABLE_FROM_STATUSES = ["new", "pending_payment", "awaiting_payment"] as const;
 
 // ---------------------------------------------------------------- environment
 
@@ -359,6 +359,12 @@ export async function handleChargeRefunded(charge: Stripe.Charge, env: StripeEnv
         .select("booking_id")
     : { data: [] };
   const bookingId = (res?.data?.[0]?.booking_id as string | undefined) ?? null;
+  if (bookingId) {
+    await deps.db
+      .from("bookings")
+      .update({ payment_status: full ? "refunded" : "partially_refunded" })
+      .eq("id", bookingId);
+  }
   await logPaymentActivity(deps.db, "payment_refunded", bookingId, {
     charge_id: charge.id, payment_intent_id: piId, amount_refunded_pence: charge.amount_refunded,
     amount_pence: charge.amount, full, environment: env,
