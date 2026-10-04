@@ -30,7 +30,9 @@ describe("captcha verification", () => {
   it("rejects a submission with no token once configured", async () => {
     process.env["TURNSTILE_SECRET_KEY"] = "secret";
     expect(isCaptchaEnabled()).toBe(true);
-    await expect(verifyCaptcha("")).resolves.toEqual({ ok: false, reason: "missing" });
+    await expect(verifyCaptcha("", undefined, { production: true })).resolves.toEqual({ ok: false, reason: "missing" });
+    // Preview hosts never show the widget, so a missing token passes there.
+    await expect(verifyCaptcha("")).resolves.toEqual({ ok: true });
   });
 
   it("accepts a token the verifier confirms", async () => {
