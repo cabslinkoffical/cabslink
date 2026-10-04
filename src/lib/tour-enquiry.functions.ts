@@ -83,7 +83,7 @@ export const submitTourEnquiry = createServerFn({ method: "POST" })
     const insert: any = {
       booking_ref: bookingRef,
       customer_name: data.name,
-      email: data.email,
+      email: data.email.trim().toLowerCase(),
       phone: data.phone || null,
       pickup_address: data.routeFrom || data.tourName,
       dropoff_address: data.hotel || data.routeTo || data.routeFrom || data.tourName,

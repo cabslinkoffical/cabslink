@@ -327,7 +327,7 @@ export const createTourBooking = createServerFn({ method: "POST" })
     const insert: any = {
       booking_ref: bookingRef,
       customer_name: data.name,
-      email: data.email,
+      email: data.email.trim().toLowerCase(),
       phone: data.phone,
       pickup_address: data.startLabel,
       dropoff_address: data.endLabel || data.startLabel,

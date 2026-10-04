@@ -816,7 +816,7 @@ export const createBooking = createServerFn({ method: "POST" })
 
     const insertPayload = {
       customer_name: data.customer_name,
-      email: data.email,
+      email: data.email.trim().toLowerCase(),
       phone: data.phone,
       pickup_address: data.pickupLabel,
       dropoff_address: data.destinationLabel,
