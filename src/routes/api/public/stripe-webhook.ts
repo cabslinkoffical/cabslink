@@ -1,108 +1,83 @@
 import { createFileRoute } from '@tanstack/react-router';
-import Stripe from 'stripe';
+import type Stripe from 'stripe';
 import { createStripeClient, type StripeEnv } from '@/lib/stripe.server';
 
-const WEBHOOK_SECRET_ENV: Record<StripeEnv, string> = {
-  sandbox: 'PAYMENTS_SANDBOX_WEBHOOK_SECRET',
-  live: 'PAYMENTS_LIVE_WEBHOOK_SECRET',
-};
+/**
+ * Stripe webhook. The environment is not taken from the URL: the event is
+ * accepted only if its signature verifies against the live or sandbox signing
+ * secret, and sandbox events are ignored on production hosts.
+ */
+function verifyEvent(payload: string, signature: string): { event: Stripe.Event; env: StripeEnv; stripe: Stripe } | null {
+  const candidates: Array<[StripeEnv, string | undefined]> = [
+    ['live', process.env['PAYMENTS_LIVE_WEBHOOK_SECRET']],
+    ['sandbox', process.env['PAYMENTS_SANDBOX_WEBHOOK_SECRET']],
+  ];
+  for (const [env, secret] of candidates) {
+    if (!secret) continue;
+    try {
+      const stripe = createStripeClient(env);
+      const event = stripe.webhooks.constructEvent(payload, signature, secret);
+      return { event, env, stripe };
+    } catch {
+      /* try the next secret */
+    }
+  }
+  return null;
+}
 
 export const Route = createFileRoute('/api/public/stripe-webhook')({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const url = new URL(request.url);
-        const env: StripeEnv = url.searchParams.get('env') === 'live' ? 'live' : 'sandbox';
-        const secretName = WEBHOOK_SECRET_ENV[env];
-        const secret = process.env[secretName];
-
-        if (!secret) {
-          console.error(`[stripe-webhook] ${secretName} is not configured for ${env}`);
-          return new Response(`Webhook secret not configured for ${env}`, { status: 500 });
-        }
-
         const signature = request.headers.get('stripe-signature');
-        if (!signature) {
-          console.error('[stripe-webhook] Missing stripe-signature header');
-          return new Response('Missing stripe-signature header', { status: 400 });
-        }
+        if (!signature) return new Response('Missing stripe-signature header', { status: 400 });
 
         const payload = await request.text();
-        const stripe = createStripeClient(env);
+        const verified = verifyEvent(payload, signature);
+        if (!verified) {
+          console.error('[stripe-webhook] Signature verification failed');
+          return new Response('Webhook signature verification failed', { status: 400 });
+        }
+        const { event, env, stripe } = verified;
 
-        let event: Stripe.Event;
-        try {
-          event = stripe.webhooks.constructEvent(payload, signature, secret);
-        } catch (err: any) {
-          console.error(`[stripe-webhook] Signature verification failed: ${err.message}`);
-          return new Response(`Webhook signature verification failed: ${err.message}`, { status: 400 });
+        const lib = await import('@/lib/stripe-payments.server');
+        if (env === 'sandbox' && lib.resolveStripeEnvForHost(lib.hostFromRequest(request)) === 'live') {
+          console.warn(`[stripe-webhook] Ignoring sandbox ${event.type} on a production host`);
+          return new Response('ignored', { status: 200 });
         }
 
         console.log(`[stripe-webhook] Received ${event.type} (${env})`);
-
-        if (event.type === 'checkout.session.completed') {
-          const session = event.data.object as Stripe.Checkout.Session;
-          const ref = (session.metadata?.booking_ref ?? '').toUpperCase();
-
-          if (!ref) {
-            console.error('[stripe-webhook] checkout.session.completed missing booking_ref metadata');
-            return new Response('Missing booking_ref in session metadata', { status: 400 });
+        try {
+          const deps = await lib.defaultPaymentDeps();
+          switch (event.type) {
+            case 'checkout.session.completed':
+            case 'checkout.session.async_payment_succeeded': {
+              const res = await lib.applyPaidSession(
+                { session: event.data.object as Stripe.Checkout.Session, env, stripe, eventCreated: event.created },
+                deps,
+              );
+              if (!res.applied && res.reason === 'update_failed') {
+                return new Response('Failed to update booking', { status: 500 });
+              }
+              break;
+            }
+            case 'checkout.session.expired':
+              await lib.handleSessionExpired(event.data.object as Stripe.Checkout.Session, env, deps);
+              break;
+            case 'charge.refunded':
+              await lib.handleChargeRefunded(event.data.object as Stripe.Charge, env, deps);
+              break;
+            case 'charge.dispute.created':
+              await lib.handleDisputeCreated(event.data.object as Stripe.Dispute, env, deps);
+              break;
+            default:
+              break;
           }
-
-          try {
-            const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
-
-            const { data: booking, error: findError } = await supabaseAdmin
-              .from('bookings')
-              .select('id, price, quoted_total, status, payment_status')
-              .eq('booking_ref', ref)
-              .maybeSingle();
-
-            if (findError || !booking) {
-              console.error(`[stripe-webhook] Booking ${ref} not found`, findError?.message);
-              return new Response(`Booking ${ref} not found`, { status: 404 });
-            }
-
-            // Day tours are saved with no price until payment: the amount charged
-            // is the server-side quote, so that becomes the booking's price.
-            const paidPence = Number(session.amount_total ?? 0);
-            const amount =
-              Math.round(Number(booking.price ?? 0) * 100) ||
-              Math.round(Number((booking as any).quoted_total ?? 0) * 100) ||
-              paidPence;
-            const paidAt = new Date().toISOString();
-
-            const { error: bookingError } = await supabaseAdmin
-              .from('bookings')
-              .update({
-                payment_status: 'paid',
-                status: 'confirmed',
-                ...(booking.price == null ? { price: amount / 100 } : {}),
-              })
-              .eq('id', booking.id);
-
-            if (bookingError) {
-              console.error(`[stripe-webhook] Failed to update booking ${ref}:`, bookingError.message);
-              return new Response('Failed to update booking', { status: 500 });
-            }
-
-            void paidAt;
-            const { recordStripePayment } = await import('@/lib/stripe-payments.server');
-            const { error: paymentError } = await recordStripePayment(stripe, session, env, booking.id, amount / 100);
-            if (paymentError) {
-              console.error(`[stripe-webhook] Failed to record payment for ${ref}:`, paymentError.message);
-              return new Response('Failed to record payment', { status: 500 });
-            }
-
-            console.log(`[stripe-webhook] Booking ${ref} marked as paid and confirmed`);
-            return new Response('ok', { status: 200 });
-          } catch (err: any) {
-            console.error('[stripe-webhook] Error processing checkout.session.completed:', err.message);
-            return new Response('Internal error', { status: 500 });
-          }
+          return new Response('ok', { status: 200 });
+        } catch (err: any) {
+          console.error(`[stripe-webhook] Error processing ${event.type}:`, err?.message);
+          return new Response('Internal error', { status: 500 });
         }
-
-        return new Response('ok', { status: 200 });
       },
     },
   },

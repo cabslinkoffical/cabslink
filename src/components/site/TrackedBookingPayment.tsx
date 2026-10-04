@@ -28,10 +28,11 @@ export function TrackedBookingPayment({
   }
 
   const fetchClientSecret = async (): Promise<string> => {
-    const res = await checkoutFn({
-      data: { bookingRef, returnUrl, environment: getStripeEnvironment() },
-    });
+    const res = await checkoutFn({ data: { bookingRef, returnUrl } });
     if ("error" in res) throw new Error(res.error);
+    if (res.environment !== getStripeEnvironment()) {
+      throw new Error("Card payment is misconfigured on this site. Please contact us to pay.");
+    }
     if (!res.clientSecret) throw new Error("Payment could not be started. Please try again.");
     return res.clientSecret;
   };
