@@ -1,5 +1,6 @@
+import { getClientIp } from "@/lib/client-ip.server";
 import { createServerFn } from "@tanstack/react-start";
-import { getRequestIP, setResponseStatus } from "@tanstack/react-start/server";
+import { setResponseStatus } from "@tanstack/react-start/server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 import {
@@ -40,7 +41,7 @@ export const calculateHourlyQuotes = createServerFn({ method: "POST" })
   .inputValidator((data: z.infer<typeof hourlyQuoteInput>) => hourlyQuoteInput.parse(data))
   .handler(async ({ data }) => {
     let ip = "unknown";
-    try { ip = getRequestIP({ xForwardedFor: true }) ?? "unknown"; } catch {}
+    try { ip = (await getClientIp()) ?? "unknown"; } catch {}
     if (!checkLimit({ name: "hourlyQuote", windowMs: 60_000, max: 30 }, ip).ok) {
       try { setResponseStatus(429); } catch {}
       throw new Error("You've made too many requests. Please wait a moment and try again.");
@@ -150,7 +151,7 @@ export const createHourlyBooking = createServerFn({ method: "POST" })
   .inputValidator((data: z.infer<typeof createHourlyBookingInput>) => createHourlyBookingInput.parse(data))
   .handler(async ({ data }) => {
     let ip = "unknown";
-    try { ip = getRequestIP({ xForwardedFor: true }) ?? "unknown"; } catch {}
+    try { ip = (await getClientIp()) ?? "unknown"; } catch {}
     if (!checkLimit({ name: "createBooking", windowMs: 10 * 60_000, max: 10 }, ip).ok) {
       try { setResponseStatus(429); } catch {}
       throw new Error("You've made too many booking attempts. Please wait a few minutes and try again.");

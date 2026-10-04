@@ -1,5 +1,6 @@
+import { getClientIp } from "@/lib/client-ip.server";
 import { createServerFn } from "@tanstack/react-start";
-import { getRequestIP, setResponseStatus } from "@tanstack/react-start/server";
+import { setResponseStatus } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { checkLimit } from "@/lib/rate-limit.server";
 import { getGoogleMapsApiKey } from "@/lib/google-maps-env";
@@ -79,7 +80,7 @@ export const placesAutocomplete = createServerFn({ method: "POST" })
     // A household, office, hotel or mobile carrier can share one public IP.
     // Keep abuse protection without blocking ordinary customers behind NAT.
     let ip = "unknown";
-    try { ip = getRequestIP({ xForwardedFor: true }) ?? "unknown"; } catch {}
+    try { ip = (await getClientIp()) ?? "unknown"; } catch {}
     if (!checkLimit({ name: "placesAutocomplete", windowMs: 60_000, max: 240 }, ip).ok) {
       console.error(`[places] rate limited ip=${ip}`);
       try { setResponseStatus(429); } catch {}
@@ -192,7 +193,7 @@ export const resolvePlaceText = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => resolveInput.parse(data))
   .handler(async ({ data }) => {
     let ip = "unknown";
-    try { ip = getRequestIP({ xForwardedFor: true }) ?? "unknown"; } catch {}
+    try { ip = (await getClientIp()) ?? "unknown"; } catch {}
     if (!checkLimit({ name: "resolvePlaceText", windowMs: 60_000, max: 30 }, ip).ok) {
       try { setResponseStatus(429); } catch {}
       return { place: null as PlaceSuggestion | null };

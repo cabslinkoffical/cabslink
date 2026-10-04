@@ -15,6 +15,13 @@
       "when": 1791118136967,
       "tag": "0001_payments_reference_unique_for_upsert",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791118975808,
+      "tag": "0002_rate_limits_and_booking_ref_v2",
+      "breakpoints": true
     }
   ]
 }

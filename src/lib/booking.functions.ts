@@ -1,3 +1,4 @@
+import { getClientIp } from "@/lib/client-ip.server";
 // Public + admin server functions for the booking lifecycle.
 
 import { createServerFn } from "@tanstack/react-start";
@@ -6,7 +7,7 @@ import { z } from "zod";
 import { hashConfirmationToken, isConfirmationTokenShape } from "@/lib/booking-confirmation.server";
 import { notifyStatusChange, retryNotificationById } from "@/lib/notifications.server";
 import { checkLimit } from "@/lib/rate-limit.server";
-import { getRequestIP, setResponseHeader } from "@tanstack/react-start/server";
+import { setResponseHeader } from "@tanstack/react-start/server";
 import { BOOKING_STATUSES, STATUS_META, type BookingStatus } from "@/lib/booking-lifecycle";
 
 async function assertAdmin(ctx: { supabase: any; userId: string }) {
@@ -40,7 +41,7 @@ export const getBookingByToken = createServerFn({ method: "POST" })
       throw new Error(GENERIC);
     }
     let ip = "unknown";
-    try { ip = getRequestIP({ xForwardedFor: true }) ?? "unknown"; } catch {}
+    try { ip = (await getClientIp()) ?? "unknown"; } catch {}
     if (!checkLimit({ name: "confirmationLookup", windowMs: 60_000, max: 30 }, ip).ok) {
       throw new Error("Too many requests. Please try again in a moment.");
     }
@@ -78,8 +79,10 @@ export const getBookingByToken = createServerFn({ method: "POST" })
 
 // ---------------- Public: track booking by reference ----------------
 const trackBookingSchema = z.object({
-  bookingRef: z.string().trim().min(1).max(50),
+  bookingRef: z.string().max(200),
+  email: z.string().max(400),
 });
+const TRACK_NOT_FOUND = "We couldn't find a booking with those details. Please check and try again.";
 
 /** j***@e***.com — enough for the owner to recognise, useless to a scraper. */
 function maskEmail(v: string | null): string {
@@ -121,22 +124,24 @@ export const getBookingByReference = createServerFn({ method: "POST" })
     applyConfirmationHeaders();
 
     let ip = "unknown";
-    try { ip = getRequestIP({ xForwardedFor: true }) ?? "unknown"; } catch {}
-    if (!checkLimit({ name: "bookingTrackLookup", windowMs: 60_000, max: 10 }, ip).ok) {
-      throw new Error("Too many requests. Please try again in a moment.");
-    }
+    try { ip = (await getClientIp()) ?? "unknown"; } catch {}
+    const { enforceRateLimit, LIMITS } = await import("@/lib/db-rate-limit.server");
+    await enforceRateLimit(LIMITS.trackLookup, ip, TRACK_NOT_FOUND);
 
+    const ref = data.bookingRef.trim().toUpperCase();
+    const email = data.email.trim().toLowerCase();
+    if (!/^[A-Z0-9-]{3,40}$/.test(ref) || !z.string().email().safeParse(email).success || /[%_*]/.test(email)) {
+      throw new Error(TRACK_NOT_FOUND);
+    }
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const res: any = await supabaseAdmin
       .from("bookings")
       .select("booking_ref, status, payment_status, customer_name, email, phone, pickup_address, dropoff_address, pickup_date, pickup_time, passengers, vehicle_type, distance_miles")
-      .eq("booking_ref", data.bookingRef.trim().toUpperCase())
+      .eq("booking_ref", ref)
+      .eq("email", email)
       .maybeSingle();
 
-    if (res.error) throw new Error("Unable to look up booking. Please try again.");
-    if (!res.data) {
-      throw new Error("We couldn't find a booking with that reference. Please check and try again.");
-    }
+    if (res.error || !res.data) throw new Error(TRACK_NOT_FOUND);
 
     const row = res.data;
 

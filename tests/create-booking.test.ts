@@ -12,6 +12,7 @@ vi.mock("@tanstack/react-start", () => {
   });
   return { createServerFn: (_opts?: any) => chain(), useServerFn: (fn: any) => fn };
 });
+vi.mock("@/lib/captcha.server", () => ({ assertCaptcha: async () => {}, verifyCaptcha: async () => ({ ok: true }), isCaptchaEnabled: () => false }));
 vi.mock("@tanstack/react-start/server", () => ({
   getRequestIP: () => "9.9.9.9",
   setResponseStatus: () => {},

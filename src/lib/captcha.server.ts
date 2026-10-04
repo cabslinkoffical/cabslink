@@ -1,9 +1,11 @@
 /**
  * Cloudflare Turnstile verification (server-only).
  *
- * Behaviour when TURNSTILE_SECRET_KEY is not configured: verification is a
- * no-op so every public form keeps working. Add the secret (and the matching
- * site key) to switch protection on with no further code changes.
+ * Production (live hosts such as cabslink.com) FAILS CLOSED: a missing
+ * secret, an unreachable verifier, a non-200 reply or a configuration error
+ * all reject the submission. Preview/dev/localhost keep the old lenient
+ * behaviour so testing is never blocked. Callers must run their rate limit
+ * BEFORE calling this, so a flood never reaches Cloudflare.
  */
 
 const VERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
@@ -17,14 +19,30 @@ export function isCaptchaEnabled(): boolean {
 }
 
 export type CaptchaCheck = { ok: boolean; reason?: string };
+export type CaptchaOptions = { production?: boolean };
+
+/** Production = the request is served from a live (non-preview) host. */
+async function isProductionRequest(): Promise<boolean> {
+  try {
+    const { getRequest } = await import("@tanstack/react-start/server");
+    const req = getRequest();
+    if (!req) return false;
+    const { resolveStripeEnvForHost, hostFromRequest } = await import("@/lib/stripe-payments.server");
+    return resolveStripeEnvForHost(hostFromRequest(req)) === "live";
+  } catch {
+    return false;
+  }
+}
 
 export async function verifyCaptcha(
   token: string | null | undefined,
   ip?: string,
+  opts: CaptchaOptions = {},
 ): Promise<CaptchaCheck> {
+  const production = opts.production ?? (await isProductionRequest());
+  const lenient = (reason: string): CaptchaCheck => (production ? { ok: false, reason } : { ok: true });
   const secret = captchaSecret();
-  // Not configured → skip (documented fail-open, see file header).
-  if (!secret) return { ok: true };
+  if (!secret) return lenient("not-configured");
 
   const t = (token ?? "").trim();
   if (!t) return { ok: false, reason: "missing" };
@@ -41,8 +59,7 @@ export async function verifyCaptcha(
     });
     if (!res.ok) {
       console.error("turnstile siteverify http", res.status);
-      // Verifier unreachable: do not block genuine customers.
-      return { ok: true };
+      return lenient("verifier-http-" + res.status);
     }
     const json = (await res.json()) as {
       success?: boolean;
@@ -51,18 +68,18 @@ export async function verifyCaptcha(
     if (json.success) return { ok: true };
     const codes = json["error-codes"] ?? [];
     console.warn("turnstile rejected", codes);
-    // Configuration problems on our side must not block customers.
+    // Configuration problems on our side: lenient outside production only.
     if (
       codes.includes("invalid-input-secret") ||
       codes.includes("missing-input-secret") ||
       codes.includes("internal-error")
     ) {
-      return { ok: true };
+      return lenient(codes[0]!);
     }
     return { ok: false, reason: codes[0] ?? "failed" };
   } catch (err) {
     console.error("turnstile siteverify failed", err);
-    return { ok: true };
+    return lenient("verifier-unreachable");
   }
 }
 
@@ -73,8 +90,9 @@ export async function assertCaptcha(
   token: string | null | undefined,
   ip?: string,
   setStatus?: (code: number) => void,
+  opts: CaptchaOptions = {},
 ): Promise<void> {
-  const result = await verifyCaptcha(token, ip);
+  const result = await verifyCaptcha(token, ip, opts);
   if (result.ok) return;
   try {
     setStatus?.(400);

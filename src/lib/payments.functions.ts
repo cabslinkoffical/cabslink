@@ -27,7 +27,20 @@ async function serverStripeEnv(): Promise<StripeEnv> {
   return resolveStripeEnvForHost(hostFromRequest(getRequest()));
 }
 
+async function limitOrError(rule: "checkout" | "confirmPayment"): Promise<{ error: string } | null> {
+  const { hitRateLimit, LIMITS } = await import("@/lib/db-rate-limit.server");
+  const { getClientIp } = await import("@/lib/client-ip.server");
+  if (await hitRateLimit(LIMITS[rule], await getClientIp())) return null;
+  try {
+    const { setResponseStatus } = await import("@tanstack/react-start/server");
+    setResponseStatus(429);
+  } catch { /* not in a request */ }
+  return { error: "Too many attempts. Please wait a few minutes and try again." };
+}
+
 async function startCheckout(data: z.infer<typeof checkoutInputSchema>): Promise<CheckoutResult> {
+  const limited = await limitOrError("checkout");
+  if (limited) return limited;
   try {
     const env = await serverStripeEnv();
     const { createCheckoutForBooking, defaultPaymentDeps } = await import("@/lib/stripe-payments.server");
@@ -61,6 +74,8 @@ export type PaymentConfirmResult =
 export const confirmBookingPayment = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => confirmInputSchema.parse(data))
   .handler(async ({ data }): Promise<PaymentConfirmResult> => {
+    const limited = await limitOrError("confirmPayment");
+    if (limited) return limited;
     try {
       const env = await serverStripeEnv();
       const stripe = createStripeClient(env);
