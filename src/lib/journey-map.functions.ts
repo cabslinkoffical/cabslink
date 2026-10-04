@@ -1,3 +1,4 @@
+import { getClientIp } from "@/lib/client-ip.server";
 /**
  * Journey map data — driving polyline + leg endpoints for the booking page map.
  *
@@ -6,7 +7,7 @@
  * (Routes API) and the browser only draws the returned polyline.
  */
 import { createServerFn } from "@tanstack/react-start";
-import { getRequestIP, setResponseStatus } from "@tanstack/react-start/server";
+import { setResponseStatus } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { placeIdSchema } from "@/lib/place-id";
 import { checkLimit } from "@/lib/rate-limit.server";
@@ -39,7 +40,7 @@ export const getJourneyMap = createServerFn({ method: "POST" })
   })
   .handler(async ({ data }): Promise<JourneyMapData> => {
     let ip = "unknown";
-    try { ip = getRequestIP({ xForwardedFor: true }) ?? "unknown"; } catch {}
+    try { ip = (await getClientIp()) ?? "unknown"; } catch {}
     if (!checkLimit({ name: "journey-map", windowMs: 60_000, max: 30 }, ip).ok) {
       try { setResponseStatus(429); } catch {}
       throw new Error("Too many map requests. Please wait a moment.");
@@ -135,7 +136,7 @@ export const getTourLoopMap = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => loopInput.parse(data))
   .handler(async ({ data }): Promise<JourneyMapData> => {
     let ip = "unknown";
-    try { ip = getRequestIP({ xForwardedFor: true }) ?? "unknown"; } catch {}
+    try { ip = (await getClientIp()) ?? "unknown"; } catch {}
     if (!checkLimit({ name: "tour-loop-map", windowMs: 60_000, max: 40 }, ip).ok) {
       try { setResponseStatus(429); } catch {}
       throw new Error("Too many map requests. Please wait a moment.");

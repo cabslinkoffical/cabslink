@@ -1,10 +1,11 @@
+import { getClientIp } from "@/lib/client-ip.server";
 // Public tour enquiry submission. A tour enquiry is a real booking row
 // (service_type = "private_tour") so it gets a reference, Manage Booking
 // tracking, the shared cancellation flow and the same admin lifecycle as a
 // transfer — the team just adds the price afterwards.
 
 import { createServerFn } from "@tanstack/react-start";
-import { getRequestIP, setResponseStatus } from "@tanstack/react-start/server";
+import { setResponseStatus } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { checkLimit } from "@/lib/rate-limit.server";
 import { assertCaptcha } from "@/lib/captcha.server";
@@ -46,7 +47,7 @@ export const submitTourEnquiry = createServerFn({ method: "POST" })
     }
 
     let ip = "unknown";
-    try { ip = getRequestIP({ xForwardedFor: true }) ?? "unknown"; } catch { /* no request ip */ }
+    try { ip = (await getClientIp()) ?? "unknown"; } catch { /* no request ip */ }
     if (!checkLimit({ name: "tour-enquiry", windowMs: 10 * 60_000, max: 5 }, ip).ok) {
       try { setResponseStatus(429); } catch { /* headers already sent */ }
       throw new Error("You've sent several enquiries already. Please try again in a few minutes.");

@@ -1,3 +1,4 @@
+import { sanitizeSearchTerm } from "@/lib/search-sanitize";
 /**
  * Public Content Hub — read-only server functions for /blog surfaces.
  * Uses the anon-friendly publishable client and depends on RLS.
@@ -196,7 +197,8 @@ export const searchBlog = createServerFn({ method: "GET" })
   .inputValidator((i: unknown) => z.object({ q: z.string().trim().min(1).max(80) }).parse(i))
   .handler(async ({ data }) => {
     const supabase = serverPublicClient();
-    const q = data.q.replace(/[%_]/g, " ").trim();
+    const q = sanitizeSearchTerm(data.q);
+    if (!q) return [];
     const { data: rows } = await supabase.from("blog_posts").select(POST_LIST_SELECT)
       .eq("status", "published")
       .or(`title.ilike.%${q}%,excerpt.ilike.%${q}%`)

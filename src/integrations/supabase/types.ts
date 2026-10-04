@@ -2800,6 +2800,24 @@ export type Database = {
           },
         ]
       }
+      rate_limits: {
+        Row: {
+          hits: number
+          key: string
+          window_start: string
+        }
+        Insert: {
+          hits?: number
+          key: string
+          window_start?: string
+        }
+        Update: {
+          hits?: number
+          key?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
       route_distance_cache: {
         Row: {
           cache_key: string
@@ -4914,6 +4932,15 @@ export type Database = {
         }
         Returns: boolean
       }
+      rate_limit_hit: {
+        Args: { _key: string; _max: number; _window_seconds: number }
+        Returns: {
+          allowed: boolean
+          hits: number
+          reset_at: string
+        }[]
+      }
+      rate_limits_cleanup: { Args: never; Returns: undefined }
       redeem_coupon: {
         Args: {
           _amount: number

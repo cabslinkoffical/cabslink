@@ -1,5 +1,6 @@
+import { getClientIp } from "@/lib/client-ip.server";
 import { createServerFn } from "@tanstack/react-start";
-import { getRequestIP, setResponseStatus } from "@tanstack/react-start/server";
+import { setResponseStatus } from "@tanstack/react-start/server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 import { redeemCouponOrRollback } from "@/lib/coupon-redemption";
@@ -37,6 +38,7 @@ import {
 } from "@/lib/pricing-rules";
 import { placeIdSchema, placeLabelSchema } from "@/lib/place-id";
 import { checkLimit } from "@/lib/rate-limit.server";
+import { enforceRateLimit, LIMITS } from "@/lib/db-rate-limit.server";
 import { assertCaptcha } from "@/lib/captcha.server";
 import { RouteTimeoutError, RouteNotFoundError, RouteUnavailableError } from "@/lib/route-distance.server";
 import { loadExtrasCatalogue } from "@/lib/extras-pricing.server";
@@ -177,6 +179,38 @@ function resolveForProfile(auth: AuthoritativeQuote, profile: LoadedProfile): { 
  * Server-side coupon lookup + validation. Reads the coupon and this email's
  * prior redemptions, then defers to the pure `validateCoupon` rules.
  */
+/**
+ * Exact coupon lookup: eq on the upper-cased code, redemptions by eq on the
+ * lower-cased email. Uses the service-role client because the coupons table
+ * is admin-only under RLS (anonymous visitors could otherwise never match).
+ */
+export async function findCouponExact(
+  client: { from: (t: string) => any },
+  rawCode: string,
+  rawEmail?: string | null,
+): Promise<{ coupon: any | null; customerRedemptions: number }> {
+  const code = rawCode.trim().toUpperCase();
+  if (!code || /[%_*\\,()]/.test(code)) return { coupon: null, customerRedemptions: 0 };
+  const { data: coupon } = await client
+    .from("coupons")
+    .select(
+      "id, code, discount_type, discount_value, min_booking_amount, usage_limit, used_count, starts_at, expires_at, active, applicable_vehicle_classes, applies_to_service_types, max_discount, per_customer_limit, stackable",
+    )
+    .eq("code", code)
+    .maybeSingle();
+  let customerRedemptions = 0;
+  const email = (rawEmail ?? "").trim().toLowerCase();
+  if (coupon && email) {
+    const { count } = await client
+      .from("coupon_redemptions")
+      .select("id", { count: "exact", head: true })
+      .eq("coupon_id", (coupon as { id: string }).id)
+      .eq("customer_email", email);
+    customerRedemptions = count ?? 0;
+  }
+  return { coupon: coupon ?? null, customerRedemptions };
+}
+
 async function validateCouponForRequest(args: {
   code: string;
   base: number;
@@ -186,25 +220,8 @@ async function validateCouponForRequest(args: {
   serviceType?: string;
   email?: string | null;
 }) {
-  const client = publicClient();
-  const code = args.code.trim().toUpperCase();
-  const { data: coupon } = await client
-    .from("coupons")
-    .select(
-      "id, code, discount_type, discount_value, min_booking_amount, usage_limit, used_count, starts_at, expires_at, active, applicable_vehicle_classes, applies_to_service_types, max_discount, per_customer_limit, stackable",
-    )
-    .ilike("code", code)
-    .maybeSingle();
-
-  let customerRedemptions = 0;
-  if (coupon && args.email) {
-    const { count } = await client
-      .from("coupon_redemptions")
-      .select("id", { count: "exact", head: true })
-      .eq("coupon_id", (coupon as { id: string }).id)
-      .ilike("customer_email", args.email.trim());
-    customerRedemptions = count ?? 0;
-  }
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { coupon, customerRedemptions } = await findCouponExact(supabaseAdmin as any, args.code, args.email);
 
   return validateCoupon(coupon as CouponRow | null, {
     base: args.base,
@@ -280,7 +297,7 @@ export const calculateQuotes = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     // Light per-IP quote rate limit (defense-in-depth against scraping).
     let ip = "unknown";
-    try { ip = getRequestIP({ xForwardedFor: true }) ?? "unknown"; } catch {}
+    try { ip = (await getClientIp()) ?? "unknown"; } catch {}
     if (!checkLimit({ name: "quote", windowMs: 60_000, max: 30 }, ip).ok) {
       try { setResponseStatus(429); } catch {}
       throw new Error("You've made too many requests. Please wait a moment and try again.");
@@ -446,11 +463,8 @@ export const createBooking = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     // Per-IP sliding-window rate limit: 10 attempts / 10 min.
     let ip = "unknown";
-    try { ip = getRequestIP({ xForwardedFor: true }) ?? "unknown"; } catch {}
-    if (!checkLimit({ name: "createBooking", windowMs: 10 * 60_000, max: 10 }, ip).ok) {
-      try { setResponseStatus(429); } catch {}
-      throw new Error("You've made too many booking attempts. Please wait a few minutes and try again.");
-    }
+    try { ip = (await getClientIp()) ?? "unknown"; } catch {}
+    await enforceRateLimit(LIMITS.createBooking, ip, "You've made too many booking attempts. Please wait a few minutes and try again.");
 
     await assertCaptcha(data.captchaToken, ip, setResponseStatus);
 
@@ -1356,7 +1370,7 @@ export const validatePromoCode = createServerFn({ method: "POST" })
   .inputValidator((data: z.infer<typeof promoInput>) => promoInput.parse(data))
   .handler(async ({ data }) => {
     let ip = "unknown";
-    try { ip = getRequestIP({ xForwardedFor: true }) ?? "unknown"; } catch {}
+    try { ip = (await getClientIp()) ?? "unknown"; } catch {}
     if (!checkLimit({ name: "promo", windowMs: 60_000, max: 15 }, ip).ok) {
       try { setResponseStatus(429); } catch {}
       throw new Error("Too many attempts. Please wait a moment and try again.");

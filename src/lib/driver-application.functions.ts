@@ -1,5 +1,6 @@
+import { getClientIp } from "@/lib/client-ip.server";
 import { createServerFn } from "@tanstack/react-start";
-import { getRequestIP, setResponseStatus } from "@tanstack/react-start/server";
+import { setResponseStatus } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { checkLimit } from "@/lib/rate-limit.server";
 import { assertCaptcha } from "@/lib/captcha.server";
@@ -68,7 +69,7 @@ export const submitDriverApplication = createServerFn({ method: "POST" })
   .inputValidator((data: DriverApplicationInput) => input.parse(data))
   .handler(async ({ data }) => {
     let ip = "unknown";
-    try { ip = getRequestIP({ xForwardedFor: true }) ?? "unknown"; } catch {}
+    try { ip = (await getClientIp()) ?? "unknown"; } catch {}
     await assertCaptcha(data.captchaToken, ip, setResponseStatus);
     return submitDriverApplicationImpl(data, { ip, setStatus: setResponseStatus });
   });

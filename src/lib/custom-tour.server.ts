@@ -1,3 +1,4 @@
+import { sanitizeSearchTerm } from "@/lib/search-sanitize";
 /**
  * Custom-tour builder — server-only implementation.
  *
@@ -159,7 +160,7 @@ function toOption(row: any, detourMiles: number | null): PoiOption {
 /** Free-text search over curated POIs (name / category / description). */
 export async function searchPoiOptionsImpl(q: string, limit: number): Promise<PoiOption[]> {
   const client = serverPublicClient();
-  const safe = q.replace(/[,()%]/g, " ").trim();
+  const safe = sanitizeSearchTerm(q);
   if (!safe) return [];
   const { data, error } = await client
     .from("points_of_interest")

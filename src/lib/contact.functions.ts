@@ -1,5 +1,6 @@
+import { getClientIp } from "@/lib/client-ip.server";
 import { createServerFn } from "@tanstack/react-start";
-import { getRequestIP, setResponseStatus } from "@tanstack/react-start/server";
+import { setResponseStatus } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { checkLimit } from "@/lib/rate-limit.server";
 import { assertCaptcha } from "@/lib/captcha.server";
@@ -32,7 +33,7 @@ export const submitContactMessage = createServerFn({ method: "POST" })
     if (data.website && data.website.trim() !== "") return { ok: true };
 
     let ip = "unknown";
-    try { ip = getRequestIP({ xForwardedFor: true }) ?? "unknown"; } catch {}
+    try { ip = (await getClientIp()) ?? "unknown"; } catch {}
     if (!checkLimit({ name: "contact", windowMs: 10 * 60_000, max: 5 }, ip).ok) {
       try { setResponseStatus(429); } catch {}
       throw new Error("You've sent several messages already. Please try again in a few minutes.");

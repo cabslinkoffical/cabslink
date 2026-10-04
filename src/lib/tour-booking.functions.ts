@@ -1,3 +1,4 @@
+import { getClientIp } from "@/lib/client-ip.server";
 /**
  * Public server functions for the day-tour booking flow.
  *
@@ -5,10 +6,11 @@
  * pays, the price stored on the booking is the one this file computed.
  */
 import { createServerFn } from "@tanstack/react-start";
-import { getRequestIP, setResponseStatus } from "@tanstack/react-start/server";
+import { setResponseStatus } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { placeIdSchema } from "@/lib/place-id";
 import { checkLimit } from "@/lib/rate-limit.server";
+import { enforceRateLimit, LIMITS } from "@/lib/db-rate-limit.server";
 import { assertCaptcha } from "@/lib/captcha.server";
 import { TOUR_SERVICE_TYPE } from "@/lib/tour-enquiries";
 import {
@@ -178,7 +180,7 @@ export const quoteTour = createServerFn({ method: "POST" })
   .inputValidator((d: TourQuoteRequest) => quoteSchema.parse(d))
   .handler(async ({ data }): Promise<TourQuoteResult> => {
     let ip = "unknown";
-    try { ip = getRequestIP({ xForwardedFor: true }) ?? "unknown"; } catch { /* no request ip */ }
+    try { ip = (await getClientIp()) ?? "unknown"; } catch { /* no request ip */ }
     if (!checkLimit({ name: "tour-quote", windowMs: 60_000, max: 40 }, ip).ok) {
       try { setResponseStatus(429); } catch { /* headers sent */ }
       throw new Error("Too many price checks. Please wait a moment and try again.");
@@ -240,11 +242,8 @@ export const createTourBooking = createServerFn({ method: "POST" })
     }
 
     let ip = "unknown";
-    try { ip = getRequestIP({ xForwardedFor: true }) ?? "unknown"; } catch { /* no request ip */ }
-    if (!checkLimit({ name: "tour-booking", windowMs: 10 * 60_000, max: 6 }, ip).ok) {
-      try { setResponseStatus(429); } catch { /* headers sent */ }
-      throw new Error("You've started several tour bookings already. Please try again shortly.");
-    }
+    try { ip = (await getClientIp()) ?? "unknown"; } catch { /* no request ip */ }
+    await enforceRateLimit(LIMITS.tourBooking, ip, "You've started several tour bookings already. Please try again shortly.");
     await assertCaptcha(data.captchaToken, ip, setResponseStatus);
 
     const config = await loadTourConfig();
@@ -383,16 +382,23 @@ export type TourPaymentAmount = { amountPence: number; total: number; bookingRef
  * checkout session itself is created by the shared booking payment function.
  */
 export const getTourPaymentAmount = createServerFn({ method: "POST" })
-  .inputValidator((d: { bookingRef: string }) =>
-    z.object({ bookingRef: z.string().trim().regex(/^[A-Za-z0-9-]{3,40}$/) }).parse(d),
+  .inputValidator((d: { bookingRef: string; email: string }) =>
+    z.object({ bookingRef: z.string().max(200), email: z.string().max(400) }).parse(d),
   )
   .handler(async ({ data }): Promise<TourPaymentAmount> => {
+    await enforceRateLimit(LIMITS.tourPaymentAmount, await getClientIp(), "We couldn't find that tour booking.");
+    const ref = data.bookingRef.trim().toUpperCase();
+    const email = data.email.trim().toLowerCase();
+    // Reference AND exact email are required before any price or paid state is returned.
+    if (!/^[A-Z0-9-]{3,40}$/.test(ref) || !z.string().email().safeParse(email).success || /[%_*]/.test(email)) {
+      return { error: "We couldn't find that tour booking." };
+    }
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const ref = data.bookingRef.toUpperCase();
     const res: any = await supabaseAdmin
       .from("bookings")
       .select("booking_ref, quoted_total, price, payment_status, quote_expires_at, status")
       .eq("booking_ref", ref)
+      .eq("email", email)
       .maybeSingle();
     if (res.error || !res.data) return { error: "We couldn't find that tour booking." };
     if (res.data.payment_status === "paid") return { error: "This tour is already paid." };

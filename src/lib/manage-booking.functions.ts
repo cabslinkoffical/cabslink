@@ -1,3 +1,4 @@
+import { getClientIp } from "@/lib/client-ip.server";
 // Public "Manage booking" server functions: verified lookup (track) and
 // customer-initiated cancellation requests.
 //
@@ -7,26 +8,45 @@
 // own full journey details (unlike the masked reference-only tracker).
 
 import { createServerFn } from "@tanstack/react-start";
-import { getRequestIP, setResponseHeader, setResponseStatus } from "@tanstack/react-start/server";
+import { setResponseHeader, setResponseStatus } from "@tanstack/react-start/server";
 import { z } from "zod";
-import { checkLimit } from "@/lib/rate-limit.server";
+import { enforceRateLimit, LIMITS } from "@/lib/db-rate-limit.server";
 import { SITE } from "@/lib/site";
 
-const GENERIC_NOT_FOUND =
-  "We couldn't match those details to a booking. Check the last name exactly as it was entered when booking, and either the reference or the email address used.";
+/**
+ * One generic message for EVERY lookup failure (bad format, unknown
+ * reference, wrong email, wrong name, rate limited) so responses never reveal
+ * whether a reference exists.
+ */
+export const GENERIC_NOT_FOUND =
+  "We couldn't match those details to a booking. Check your booking reference, the email address used and the last name on the booking.";
 
-const identitySchema = z
-  .object({
-    bookingRef: z.string().trim().max(50).optional().or(z.literal("")),
-    email: z.string().trim().max(255).optional().or(z.literal("")),
-    lastName: z.string().trim().min(2, "Enter the last name used on the booking").max(80),
-  })
-  .refine((v) => !!(v.bookingRef && v.bookingRef.trim()) || !!(v.email && v.email.trim()), {
-    message: "Enter your booking reference or the email address used to book.",
-    path: ["bookingRef"],
-  });
+/** Lookup needs BOTH the reference and a valid email (last name, if sent, must match too). */
+const identitySchema = z.object({
+  bookingRef: z.string().max(200).optional().nullable(),
+  email: z.string().max(400).optional().nullable(),
+  lastName: z.string().max(200).optional().nullable(),
+}).passthrough();
 
-type Identity = z.infer<typeof identitySchema>;
+type Identity = { bookingRef?: string | null; email?: string | null; lastName?: string | null };
+
+const REF_FORMAT = /^[A-Z0-9-]{3,40}$/;
+const EMAIL_FORMAT = z.string().email().max(255);
+
+/** Normalised identity, or null when the format is invalid. */
+export function normaliseIdentity(id: Identity): { ref: string; email: string; lastName: string } | null {
+  const ref = (id.bookingRef ?? "").trim().toUpperCase();
+  const email = (id.email ?? "").trim().toLowerCase();
+  const lastName = (id.lastName ?? "").trim();
+  if (!REF_FORMAT.test(ref)) return null;
+  if (!EMAIL_FORMAT.safeParse(email).success) return null;
+  if (/[%_*\\]/.test(email)) return null;
+  return { ref, email, lastName };
+}
+
+function genericFail(): never {
+  throw new Error(GENERIC_NOT_FOUND);
+}
 
 const SELECT =
   "id, booking_ref, status, payment_status, customer_name, email, phone, pickup_address, dropoff_address, pickup_place_id, dropoff_place_id, pickup_date, pickup_time, passengers, luggage, hand_luggage, vehicle_type, vehicle_id, vehicle_class_name_snapshot, vehicle_capacity_snapshot, flight_number, meet_greet, child_seat, child_seat_count, return_journey, notes, selected_pois, price, quoted_total, distance_miles, created_at, cancellation_reason, service_type, admin_notes, tour_slug, tour_name, tour_stops";
@@ -39,8 +59,8 @@ function noStore() {
   } catch { /* not available in every context */ }
 }
 
-function ipOf(): string {
-  try { return getRequestIP({ xForwardedFor: true }) ?? "unknown"; } catch { return "unknown"; }
+async function ipOf(): Promise<string> {
+  try { return (await getClientIp()) ?? "unknown"; } catch { return "unknown"; }
 }
 
 /** Last-name match: the supplied value must equal one of the name's words. */
@@ -216,20 +236,29 @@ function withOpenRequest(b: ManagedBooking, req: { created_at?: string } | null)
 }
 
 
-async function findBooking(id: Identity) {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const ref = (id.bookingRef ?? "").trim().toUpperCase();
-  const email = (id.email ?? "").trim().toLowerCase();
+export type BookingQueryClient = { from: (t: string) => any };
 
-  let query = supabaseAdmin.from("bookings").select(SELECT).is("deleted_at", null);
-  if (ref) query = query.eq("booking_ref", ref);
-  if (email) query = query.ilike("email", email);
-
-  const res: any = await query.order("created_at", { ascending: false }).limit(5);
-  if (res.error) throw new Error("Unable to look up your booking right now. Please try again.");
-  const rows: any[] = res.data ?? [];
-  const match = rows.find((r) => surnameMatches(r.customer_name, id.lastName));
-  return match ?? null;
+/**
+ * Exact match on reference AND lower-cased email (eq, never ilike, so
+ * wildcards in the email can never widen the match). Returns null on any
+ * failure — callers turn that into GENERIC_NOT_FOUND.
+ */
+export async function findBooking(id: Identity, client?: BookingQueryClient) {
+  const norm = normaliseIdentity(id);
+  if (!norm) return null;
+  const db = client ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
+  const res: any = await db
+    .from("bookings")
+    .select(SELECT)
+    .is("deleted_at", null)
+    .eq("booking_ref", norm.ref)
+    .eq("email", norm.email)
+    .limit(1);
+  if (res.error) return null;
+  const row = (res.data ?? [])[0] ?? null;
+  if (!row) return null;
+  if (norm.lastName && !surnameMatches(row.customer_name, norm.lastName)) return null;
+  return row;
 }
 
 function project(row: any): ManagedBooking {
@@ -323,13 +352,10 @@ export const findMyBooking = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => identitySchema.parse(input))
   .handler(async ({ data }) => {
     noStore();
-    const ip = ipOf();
-    if (!checkLimit({ name: "manageBookingLookup", windowMs: 10 * 60_000, max: 15 }, ip).ok) {
-      try { setResponseStatus(429); } catch {}
-      throw new Error("Too many attempts. Please wait a few minutes and try again.");
-    }
+    const ip = await ipOf();
+    await enforceRateLimit(LIMITS.bookingLookup, ip, GENERIC_NOT_FOUND);
     const row = await findBooking(data);
-    if (!row) throw new Error(GENERIC_NOT_FOUND);
+    if (!row) genericFail();
     return withOpenRequest(project(row), await openCancellationRequest(row.booking_ref));
   });
 
@@ -358,14 +384,11 @@ export const requestBookingCancellation = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => cancelInput.parse(input))
   .handler(async ({ data }) => {
     noStore();
-    const ip = ipOf();
-    if (!checkLimit({ name: "manageBookingCancel", windowMs: 10 * 60_000, max: 5 }, ip).ok) {
-      try { setResponseStatus(429); } catch {}
-      throw new Error("Too many requests. Please wait a few minutes or call us instead.");
-    }
+    const ip = await ipOf();
+    await enforceRateLimit(LIMITS.cancel, ip, GENERIC_NOT_FOUND);
 
-    const row = await findBooking({ bookingRef: data.bookingRef, email: data.email, lastName: data.lastName } as Identity);
-    if (!row) throw new Error(GENERIC_NOT_FOUND);
+    const row = await findBooking({ bookingRef: data.bookingRef, email: data.email, lastName: data.lastName });
+    if (!row) genericFail();
 
     const facts = cancellationFacts(row);
     if (!facts.allowed) throw new Error(facts.blockedReason ?? "This booking can no longer be cancelled online.");
@@ -537,7 +560,7 @@ function outcomeFor(paymentStatus: string, delta: number): AmendmentOutcome {
 /** Shared: verify identity, gate the amendment window, re-price. */
 async function amendmentContext(data: z.infer<typeof amendInput>) {
   const row = await findBooking({ bookingRef: data.bookingRef, email: data.email, lastName: data.lastName });
-  if (!row) throw new Error(GENERIC_NOT_FOUND);
+  if (!row) genericFail();
 
   const facts = amendmentFacts(row);
   if (!facts.allowed) throw new Error(facts.blockedReason ?? "This booking can't be changed online.");
@@ -594,11 +617,8 @@ export const quoteBookingAmendment = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => amendInput.parse(input))
   .handler(async ({ data }): Promise<AmendmentQuote> => {
     noStore();
-    const ip = ipOf();
-    if (!checkLimit({ name: "amendQuote", windowMs: 10 * 60_000, max: 25 }, ip).ok) {
-      try { setResponseStatus(429); } catch {}
-      throw new Error("Too many attempts. Please wait a few minutes and try again.");
-    }
+    const ip = await ipOf();
+    await enforceRateLimit(LIMITS.amendQuote, ip);
     const { quote } = await amendmentContext(data);
     return quote;
   });
@@ -610,11 +630,8 @@ export const submitBookingAmendment = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => amendInput.parse(input))
   .handler(async ({ data }): Promise<AmendmentResult> => {
     noStore();
-    const ip = ipOf();
-    if (!checkLimit({ name: "amendSubmit", windowMs: 10 * 60_000, max: 10 }, ip).ok) {
-      try { setResponseStatus(429); } catch {}
-      throw new Error("Too many attempts. Please wait a few minutes and try again.");
-    }
+    const ip = await ipOf();
+    await enforceRateLimit(LIMITS.amendSubmit, ip);
 
     const { row, quote, changes: c } = await amendmentContext(data);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

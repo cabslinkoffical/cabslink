@@ -1,5 +1,6 @@
+import { getClientIp } from "@/lib/client-ip.server";
 import { createServerFn } from "@tanstack/react-start";
-import { getRequestIP, setResponseStatus } from "@tanstack/react-start/server";
+import { setResponseStatus } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { placeIdSchema } from "@/lib/place-id";
 import {
@@ -30,7 +31,7 @@ export const calculateRouteDistance = createServerFn({ method: "POST" })
   .handler(async ({ data }): Promise<RouteDistanceResult> => {
     let ip = "unknown";
     try {
-      ip = getRequestIP({ xForwardedFor: true }) ?? "unknown";
+      ip = (await getClientIp()) ?? "unknown";
     } catch {
       /* not in request context (e.g. tests) */
     }
