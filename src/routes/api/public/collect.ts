@@ -6,6 +6,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import { checkLimit } from "@/lib/rate-limit.server";
+import { hitRateLimit, LIMITS } from "@/lib/db-rate-limit.server";
 
 const str = (n: number) => z.string().max(n).optional().nullable();
 const eventSchema = z.object({
@@ -48,7 +49,7 @@ export const Route = createFileRoute("/api/public/collect")({
         const ua = request.headers.get("user-agent") ?? "";
         if (!ua || BOT.test(ua)) return new Response(null, { status: 204 });
         const ip = request.headers.get("cf-connecting-ip") ?? request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
-        if (!checkLimit({ name: "collect", windowMs: 60_000, max: 120 }, ip).ok) return new Response(null, { status: 429 });
+        if (!(await hitRateLimit(LIMITS.collect, ip))) return new Response(null, { status: 429 });
 
         let parsed;
         try {

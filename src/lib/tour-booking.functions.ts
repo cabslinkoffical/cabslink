@@ -10,6 +10,7 @@ import { setResponseStatus } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { placeIdSchema } from "@/lib/place-id";
 import { checkLimit } from "@/lib/rate-limit.server";
+import { hitRateLimit, LIMITS } from "@/lib/db-rate-limit.server";
 import { enforceRateLimit, LIMITS } from "@/lib/db-rate-limit.server";
 import { assertCaptcha } from "@/lib/captcha.server";
 import { TOUR_SERVICE_TYPE } from "@/lib/tour-enquiries";
@@ -181,7 +182,7 @@ export const quoteTour = createServerFn({ method: "POST" })
   .handler(async ({ data }): Promise<TourQuoteResult> => {
     let ip = "unknown";
     try { ip = (await getClientIp()) ?? "unknown"; } catch { /* no request ip */ }
-    if (!checkLimit({ name: "tour-quote", windowMs: 60_000, max: 40 }, ip).ok) {
+    if (!(await hitRateLimit(LIMITS.tourQuote, ip))) {
       try { setResponseStatus(429); } catch { /* headers sent */ }
       throw new Error("Too many price checks. Please wait a moment and try again.");
     }

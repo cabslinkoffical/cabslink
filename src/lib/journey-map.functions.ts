@@ -11,6 +11,7 @@ import { setResponseStatus } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { placeIdSchema } from "@/lib/place-id";
 import { checkLimit } from "@/lib/rate-limit.server";
+import { hitRateLimit, LIMITS } from "@/lib/db-rate-limit.server";
 import { getGoogleMapsApiKey } from "@/lib/google-maps-env";
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_maps";
@@ -41,7 +42,7 @@ export const getJourneyMap = createServerFn({ method: "POST" })
   .handler(async ({ data }): Promise<JourneyMapData> => {
     let ip = "unknown";
     try { ip = (await getClientIp()) ?? "unknown"; } catch {}
-    if (!checkLimit({ name: "journey-map", windowMs: 60_000, max: 30 }, ip).ok) {
+    if (!(await hitRateLimit(LIMITS.journeyMap, ip))) {
       try { setResponseStatus(429); } catch {}
       throw new Error("Too many map requests. Please wait a moment.");
     }
@@ -137,7 +138,7 @@ export const getTourLoopMap = createServerFn({ method: "POST" })
   .handler(async ({ data }): Promise<JourneyMapData> => {
     let ip = "unknown";
     try { ip = (await getClientIp()) ?? "unknown"; } catch {}
-    if (!checkLimit({ name: "tour-loop-map", windowMs: 60_000, max: 40 }, ip).ok) {
+    if (!(await hitRateLimit(LIMITS.tourLoopMap, ip))) {
       try { setResponseStatus(429); } catch {}
       throw new Error("Too many map requests. Please wait a moment.");
     }

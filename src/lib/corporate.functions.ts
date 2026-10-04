@@ -3,6 +3,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { setResponseStatus } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { checkLimit } from "@/lib/rate-limit.server";
+import { hitRateLimit, LIMITS } from "@/lib/db-rate-limit.server";
 import { assertCaptcha } from "@/lib/captcha.server";
 
 const input = z.object({
@@ -30,7 +31,7 @@ export async function submitCorporateInquiryImpl(
   if (parsed.website && parsed.website.trim() !== "") return { ok: true };
 
   const ip = opts.ip ?? "unknown";
-  if (!checkLimit({ name: "corporate", windowMs: 10 * 60_000, max: 5 }, ip).ok) {
+  if (!(await hitRateLimit(LIMITS.corporate, ip))) {
     try { opts.setStatus?.(429); } catch {}
     throw new Error("Too many submissions. Please try again in a few minutes.");
   }

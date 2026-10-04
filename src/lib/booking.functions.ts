@@ -7,6 +7,7 @@ import { z } from "zod";
 import { hashConfirmationToken, isConfirmationTokenShape } from "@/lib/booking-confirmation.server";
 import { notifyStatusChange, retryNotificationById } from "@/lib/notifications.server";
 import { checkLimit } from "@/lib/rate-limit.server";
+import { hitRateLimit, LIMITS } from "@/lib/db-rate-limit.server";
 import { setResponseHeader } from "@tanstack/react-start/server";
 import { BOOKING_STATUSES, STATUS_META, type BookingStatus } from "@/lib/booking-lifecycle";
 
@@ -42,7 +43,7 @@ export const getBookingByToken = createServerFn({ method: "POST" })
     }
     let ip = "unknown";
     try { ip = (await getClientIp()) ?? "unknown"; } catch {}
-    if (!checkLimit({ name: "confirmationLookup", windowMs: 60_000, max: 30 }, ip).ok) {
+    if (!(await hitRateLimit(LIMITS.confirmationLookup, ip))) {
       throw new Error("Too many requests. Please try again in a moment.");
     }
     const hash = hashConfirmationToken(data.token);
