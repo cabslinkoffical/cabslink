@@ -41,13 +41,29 @@ export const CONFIRMABLE_FROM_STATUSES = ["new", "pending_payment", "awaiting_pa
 
 // ---------------------------------------------------------------- environment
 
+export type AppEnv = "production" | "preview" | "development";
+
 /**
- * The server alone decides which Stripe account is used. Only clearly
- * non-production hosts (editor preview, local dev) use the sandbox; every other
- * host — including any new custom domain — uses live, so the sandbox key is
- * never used in production.
+ * Deployment environment from the server-only `APP_ENV` secret. When it is
+ * `production`, the sandbox is never used. When unset, the request's own URL
+ * host decides (see resolveStripeEnvForHost); client headers are never read.
+ */
+export function appEnv(): AppEnv | null {
+  const v = (process.env["APP_ENV"] ?? "").trim().toLowerCase();
+  return v === "production" || v === "preview" || v === "development" ? v : null;
+}
+
+export function isProductionAppEnv(): boolean {
+  return appEnv() === "production";
+}
+
+/**
+ * The server alone decides which Stripe account is used. With
+ * APP_ENV=production it is always live. Otherwise only clearly non-production
+ * hosts (editor preview, local dev) use the sandbox; every other host uses live.
  */
 export function resolveStripeEnvForHost(host: string | null | undefined): StripeEnv {
+  if (isProductionAppEnv()) return "live";
   const h = (host ?? "").toLowerCase().split(":")[0].trim();
   if (!h) return "live";
   if (h === "localhost" || h === "127.0.0.1" || h === "0.0.0.0") return "sandbox";
@@ -57,15 +73,18 @@ export function resolveStripeEnvForHost(host: string | null | undefined): Stripe
   return "live";
 }
 
-/** Host of an incoming request, honouring the edge proxy's forwarded host. */
-export function hostFromRequest(request: Request): string {
-  const fwd = request.headers.get("x-forwarded-host");
-  if (fwd) return fwd.split(",")[0].trim();
+/** Host of an incoming request: ONLY the request URL. Client headers such as x-forwarded-host are ignored. */
+export function hostFromRequest(request: Request | null | undefined): string {
   try {
-    return new URL(request.url).host;
+    return request ? new URL(request.url).host : "";
   } catch {
     return "";
   }
+}
+
+/** True when a sandbox session must be refused (production deployment). */
+export function sandboxRejected(env: StripeEnv): boolean {
+  return env === "sandbox" && isProductionAppEnv();
 }
 
 // ---------------------------------------------------------------- pure rules
@@ -231,6 +250,12 @@ export async function applyPaidSession(
   const { session } = opts;
   const ref = (session.metadata?.booking_ref ?? "").toUpperCase();
   const booking = ref ? await findBookingByRef(deps.db, ref) : null;
+  if (sandboxRejected(opts.env)) {
+    await logPaymentActivity(deps.db, "payment_sandbox_rejected", booking?.id ?? null, {
+      session_id: session.id, booking_ref: ref || null, environment: opts.env,
+    });
+    return { applied: false, reason: "sandbox_rejected", bookingId: booking?.id, status: booking?.status, paymentStatus: booking?.payment_status };
+  }
   const check: SessionCheck = booking ? verifyPaidSession(session, booking) : { ok: false, reason: "ref_mismatch" };
 
   if (!check.ok) {
@@ -362,7 +387,7 @@ export async function handleChargeRefunded(charge: Stripe.Charge, env: StripeEnv
   if (bookingId) {
     await deps.db
       .from("bookings")
-      .update({ payment_status: full ? "refunded" : "partially_refunded" })
+      .update({ payment_status: full ? "refunded" : "partial" })
       .eq("id", bookingId);
   }
   await logPaymentActivity(deps.db, "payment_refunded", bookingId, {

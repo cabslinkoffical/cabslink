@@ -21,6 +21,7 @@ import {
 } from "@/lib/hourly-pricing.server";
 import { placeIdSchema, placeLabelSchema } from "@/lib/place-id";
 import { checkLimit } from "@/lib/rate-limit.server";
+import { hitRateLimit, LIMITS } from "@/lib/db-rate-limit.server";
 import { assertCaptcha } from "@/lib/captcha.server";
 import { loadExtrasCatalogue } from "@/lib/extras-pricing.server";
 import { extraPence, type ExtrasCatalogue } from "@/lib/extras-pricing";
@@ -42,7 +43,7 @@ export const calculateHourlyQuotes = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     let ip = "unknown";
     try { ip = (await getClientIp()) ?? "unknown"; } catch {}
-    if (!checkLimit({ name: "hourlyQuote", windowMs: 60_000, max: 30 }, ip).ok) {
+    if (!(await hitRateLimit(LIMITS.hourlyQuote, ip))) {
       try { setResponseStatus(429); } catch {}
       throw new Error("You've made too many requests. Please wait a moment and try again.");
     }
@@ -152,7 +153,7 @@ export const createHourlyBooking = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     let ip = "unknown";
     try { ip = (await getClientIp()) ?? "unknown"; } catch {}
-    if (!checkLimit({ name: "createBooking", windowMs: 10 * 60_000, max: 10 }, ip).ok) {
+    if (!(await hitRateLimit(LIMITS.hourlyBooking, ip))) {
       try { setResponseStatus(429); } catch {}
       throw new Error("You've made too many booking attempts. Please wait a few minutes and try again.");
     }
@@ -291,7 +292,7 @@ export const createHourlyBooking = createServerFn({ method: "POST" })
 
     const insertPayload = {
       customer_name: data.customer_name,
-      email: data.email,
+      email: data.email.trim().toLowerCase(),
       phone: data.phone,
       pickup_address: data.pickupLabel,
       dropoff_address: data.dropoffLabel?.trim() || "As directed (hourly hire)",

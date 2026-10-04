@@ -8,6 +8,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { setResponseStatus } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { checkLimit } from "@/lib/rate-limit.server";
+import { hitRateLimit, LIMITS } from "@/lib/db-rate-limit.server";
 import { assertCaptcha } from "@/lib/captcha.server";
 import { TOUR_SERVICE_TYPE } from "@/lib/tour-enquiries";
 
@@ -48,7 +49,7 @@ export const submitTourEnquiry = createServerFn({ method: "POST" })
 
     let ip = "unknown";
     try { ip = (await getClientIp()) ?? "unknown"; } catch { /* no request ip */ }
-    if (!checkLimit({ name: "tour-enquiry", windowMs: 10 * 60_000, max: 5 }, ip).ok) {
+    if (!(await hitRateLimit(LIMITS.tourEnquiry, ip))) {
       try { setResponseStatus(429); } catch { /* headers already sent */ }
       throw new Error("You've sent several enquiries already. Please try again in a few minutes.");
     }
@@ -83,7 +84,7 @@ export const submitTourEnquiry = createServerFn({ method: "POST" })
     const insert: any = {
       booking_ref: bookingRef,
       customer_name: data.name,
-      email: data.email,
+      email: data.email.trim().toLowerCase(),
       phone: data.phone || null,
       pickup_address: data.routeFrom || data.tourName,
       dropoff_address: data.hotel || data.routeTo || data.routeFrom || data.tourName,

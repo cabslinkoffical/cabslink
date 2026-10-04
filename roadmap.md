@@ -49,3 +49,7 @@
 - [ ] Phase 5-6: keyword + content plan pages
 - [ ] Off-site (owner): backlinks, Google Business Profile, reviews, resubmit sitemap in Search Console
 - [x] Fix: lowercase redirect no longer catches the site's background requests (was breaking quotes/data)
+
+## Cabslink fix plan (uploaded 4 Oct)
+- [x] Phase 2B: payment/lookup holes (APP_ENV, URL-only host, partial refund status, lowercase emails, shared limiter everywhere, repeat-safe migrations)
+- [ ] Phases 3–10 — waiting for owner go-ahead per phase

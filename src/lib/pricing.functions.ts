@@ -38,7 +38,7 @@ import {
 } from "@/lib/pricing-rules";
 import { placeIdSchema, placeLabelSchema } from "@/lib/place-id";
 import { checkLimit } from "@/lib/rate-limit.server";
-import { enforceRateLimit, LIMITS } from "@/lib/db-rate-limit.server";
+import { enforceRateLimit, hitRateLimit, LIMITS } from "@/lib/db-rate-limit.server";
 import { assertCaptcha } from "@/lib/captcha.server";
 import { RouteTimeoutError, RouteNotFoundError, RouteUnavailableError } from "@/lib/route-distance.server";
 import { loadExtrasCatalogue } from "@/lib/extras-pricing.server";
@@ -298,7 +298,7 @@ export const calculateQuotes = createServerFn({ method: "POST" })
     // Light per-IP quote rate limit (defense-in-depth against scraping).
     let ip = "unknown";
     try { ip = (await getClientIp()) ?? "unknown"; } catch {}
-    if (!checkLimit({ name: "quote", windowMs: 60_000, max: 30 }, ip).ok) {
+    if (!(await hitRateLimit(LIMITS.quote, ip))) {
       try { setResponseStatus(429); } catch {}
       throw new Error("You've made too many requests. Please wait a moment and try again.");
     }
@@ -816,7 +816,7 @@ export const createBooking = createServerFn({ method: "POST" })
 
     const insertPayload = {
       customer_name: data.customer_name,
-      email: data.email,
+      email: data.email.trim().toLowerCase(),
       phone: data.phone,
       pickup_address: data.pickupLabel,
       dropoff_address: data.destinationLabel,
@@ -1371,7 +1371,7 @@ export const validatePromoCode = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     let ip = "unknown";
     try { ip = (await getClientIp()) ?? "unknown"; } catch {}
-    if (!checkLimit({ name: "promo", windowMs: 60_000, max: 15 }, ip).ok) {
+    if (!(await hitRateLimit(LIMITS.promo, ip))) {
       try { setResponseStatus(429); } catch {}
       throw new Error("Too many attempts. Please wait a moment and try again.");
     }

@@ -3,6 +3,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { setResponseStatus } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { checkLimit } from "@/lib/rate-limit.server";
+import { hitRateLimit, LIMITS } from "@/lib/db-rate-limit.server";
 import { getGoogleMapsApiKey } from "@/lib/google-maps-env";
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_maps";
@@ -81,7 +82,7 @@ export const placesAutocomplete = createServerFn({ method: "POST" })
     // Keep abuse protection without blocking ordinary customers behind NAT.
     let ip = "unknown";
     try { ip = (await getClientIp()) ?? "unknown"; } catch {}
-    if (!checkLimit({ name: "placesAutocomplete", windowMs: 60_000, max: 240 }, ip).ok) {
+    if (!(await hitRateLimit(LIMITS.placesAutocomplete, ip))) {
       console.error(`[places] rate limited ip=${ip}`);
       try { setResponseStatus(429); } catch {}
       return { suggestions: [] as PlaceSuggestion[], ok: false };
@@ -194,7 +195,7 @@ export const resolvePlaceText = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     let ip = "unknown";
     try { ip = (await getClientIp()) ?? "unknown"; } catch {}
-    if (!checkLimit({ name: "resolvePlaceText", windowMs: 60_000, max: 30 }, ip).ok) {
+    if (!(await hitRateLimit(LIMITS.resolvePlaceText, ip))) {
       try { setResponseStatus(429); } catch {}
       return { place: null as PlaceSuggestion | null };
     }

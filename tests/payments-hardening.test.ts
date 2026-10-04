@@ -211,6 +211,6 @@ describe("refunds", () => {
       "live",
       { db, notifyAdmin: async () => {} },
     );
-    expect(writes.find((w) => w.table === "bookings")?.payload).toEqual({ payment_status: "partially_refunded" });
+    expect(writes.find((w) => w.table === "bookings")?.payload).toEqual({ payment_status: "partial" });
   });
 });
