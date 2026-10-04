@@ -42,6 +42,19 @@ async function startCheckout(data: z.infer<typeof checkoutInputSchema>): Promise
   const limited = await limitOrError("checkout");
   if (limited) return limited;
   try {
+    // The return address must point back at the site serving this request, so a
+    // forged returnUrl can never send a customer (or their session id) elsewhere.
+    const { getRequest } = await import("@tanstack/react-start/server");
+    const { hostFromRequest } = await import("@/lib/stripe-payments.server");
+    const requestHost = (hostFromRequest(getRequest()) ?? "").toLowerCase().split(":")[0];
+    let returnHost = "";
+    try {
+      returnHost = new URL(data.returnUrl).hostname.toLowerCase();
+    } catch {
+      return { error: "Invalid return address." };
+    }
+    if (!requestHost || returnHost !== requestHost) return { error: "Invalid return address." };
+
     const env = await serverStripeEnv();
     const { createCheckoutForBooking, defaultPaymentDeps } = await import("@/lib/stripe-payments.server");
     return await createCheckoutForBooking(

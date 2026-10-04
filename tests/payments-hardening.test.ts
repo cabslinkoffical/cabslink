@@ -163,4 +163,54 @@ describe("late or repeated events", () => {
   it("a refunded booking is not flipped back to paid", () => {
     expect(bookingUpdateForPayment(booking({ status: "confirmed", payment_status: "refunded" }), 8500)).toBeNull();
   });
+
+  it("confirms a booking that was awaiting payment", () => {
+    expect(bookingUpdateForPayment(booking({ status: "awaiting_payment" }), 8500)?.status).toBe("confirmed");
+  });
+});
+
+describe("refunds", () => {
+  it("marks the booking refunded when Stripe refunds the charge in full", async () => {
+    const { handleChargeRefunded } = await import("@/lib/stripe-payments.server");
+    const writes: Array<{ table: string; payload?: any }> = [];
+    const db: any = {
+      from(table: string) {
+        const builder: any = {
+          update: (p: any) => { writes.push({ table, payload: p }); return builder; },
+          eq: () => builder,
+          select: () => Promise.resolve({ data: table === "payments" ? [{ booking_id: "b1" }] : [] }),
+          insert: () => Promise.resolve({ error: null }),
+        };
+        return builder;
+      },
+    };
+    await handleChargeRefunded(
+      { id: "ch_1", payment_intent: "pi_1", amount: 8500, amount_refunded: 8500 } as any,
+      "live",
+      { db, notifyAdmin: async () => {} },
+    );
+    expect(writes.find((w) => w.table === "bookings")?.payload).toEqual({ payment_status: "refunded" });
+  });
+
+  it("marks the booking partially refunded for a partial refund", async () => {
+    const { handleChargeRefunded } = await import("@/lib/stripe-payments.server");
+    const writes: Array<{ table: string; payload?: any }> = [];
+    const db: any = {
+      from(table: string) {
+        const builder: any = {
+          update: (p: any) => { writes.push({ table, payload: p }); return builder; },
+          eq: () => builder,
+          select: () => Promise.resolve({ data: table === "payments" ? [{ booking_id: "b1" }] : [] }),
+          insert: () => Promise.resolve({ error: null }),
+        };
+        return builder;
+      },
+    };
+    await handleChargeRefunded(
+      { id: "ch_2", payment_intent: "pi_2", amount: 8500, amount_refunded: 2000 } as any,
+      "live",
+      { db, notifyAdmin: async () => {} },
+    );
+    expect(writes.find((w) => w.table === "bookings")?.payload).toEqual({ payment_status: "partially_refunded" });
+  });
 });
