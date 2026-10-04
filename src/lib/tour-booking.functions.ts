@@ -10,8 +10,7 @@ import { setResponseStatus } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { placeIdSchema } from "@/lib/place-id";
 import { checkLimit } from "@/lib/rate-limit.server";
-import { hitRateLimit, LIMITS } from "@/lib/db-rate-limit.server";
-import { enforceRateLimit, LIMITS } from "@/lib/db-rate-limit.server";
+import { enforceRateLimit, hitRateLimit, LIMITS } from "@/lib/db-rate-limit.server";
 import { assertCaptcha } from "@/lib/captcha.server";
 import { TOUR_SERVICE_TYPE } from "@/lib/tour-enquiries";
 import {

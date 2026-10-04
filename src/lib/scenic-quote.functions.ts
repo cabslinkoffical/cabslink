@@ -153,11 +153,8 @@ export const calculateMultiStopQuote = createServerFn({ method: "POST" })
   .handler(async ({ data }): Promise<MultiStopQuoteResult> => {
     const { getClientIp } = await import("@/lib/client-ip.server");
     const ip = await getClientIp();
-    const rl = checkLimit(
-      { name: "multi-stop-quote", windowMs: 60_000, max: 30 },
-      ip,
-    );
-    if (!rl.ok) {
+    const { hitRateLimit, LIMITS } = await import("@/lib/db-rate-limit.server");
+    if (!(await hitRateLimit(LIMITS.scenicQuote, ip))) {
       setResponseStatus(429);
       throw new Error("Too many quote requests, please slow down.");
     }
