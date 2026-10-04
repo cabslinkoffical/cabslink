@@ -41,8 +41,12 @@ export const Route = createFileRoute('/api/public/stripe-webhook')({
         const { event, env, stripe } = verified;
 
         const lib = await import('@/lib/stripe-payments.server');
-        if (env === 'sandbox' && lib.resolveStripeEnvForHost(lib.hostFromRequest(request)) === 'live') {
-          console.warn(`[stripe-webhook] Ignoring sandbox ${event.type} on a production host`);
+        if (lib.sandboxRejected(env) || (env === 'sandbox' && lib.resolveStripeEnvForHost(lib.hostFromRequest(request)) === 'live')) {
+          console.warn(`[stripe-webhook] Ignoring sandbox ${event.type} in production`);
+          const deps = await lib.defaultPaymentDeps();
+          await lib.logPaymentActivity(deps.db, 'payment_sandbox_rejected', null, {
+            event_id: event.id, event_type: event.type, environment: env,
+          });
           return new Response('ignored', { status: 200 });
         }
 

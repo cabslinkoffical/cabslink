@@ -21,8 +21,13 @@ export function isCaptchaEnabled(): boolean {
 export type CaptchaCheck = { ok: boolean; reason?: string };
 export type CaptchaOptions = { production?: boolean };
 
-/** Production = the request is served from a live (non-preview) host. */
+/**
+ * Production = APP_ENV is "production", or (when APP_ENV is unset) the
+ * request URL's own host is a live host. Client headers are never consulted.
+ */
 async function isProductionRequest(): Promise<boolean> {
+  const { isProductionAppEnv } = await import("@/lib/stripe-payments.server");
+  if (isProductionAppEnv()) return true;
   try {
     const { getRequest } = await import("@tanstack/react-start/server");
     const req = getRequest();
