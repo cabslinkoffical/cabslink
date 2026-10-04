@@ -15,7 +15,7 @@
  */
 
 import { createServerFn } from "@tanstack/react-start";
-import { getRequestIP, setResponseStatus } from "@tanstack/react-start/server";
+import { setResponseStatus } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
@@ -151,13 +151,8 @@ export async function loadThresholds() {
 export const calculateMultiStopQuote = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => inputSchema.parse(input))
   .handler(async ({ data }): Promise<MultiStopQuoteResult> => {
-    const ip = (() => {
-      try {
-        return getRequestIP() ?? "0.0.0.0";
-      } catch {
-        return "0.0.0.0";
-      }
-    })();
+    const { getClientIp } = await import("@/lib/client-ip.server");
+    const ip = await getClientIp();
     const rl = checkLimit(
       { name: "multi-stop-quote", windowMs: 60_000, max: 30 },
       ip,

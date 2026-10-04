@@ -22,7 +22,6 @@ import {
   type AmendChanges, type AmendmentQuote, type AmendmentResult,
 } from "@/lib/manage-booking.functions";
 import { confirmBookingPayment } from "@/lib/payments.functions";
-import { getStripeEnvironment } from "@/lib/stripe";
 import { TrackedBookingPayment } from "@/components/site/TrackedBookingPayment";
 
 
@@ -65,7 +64,7 @@ function ManageBookingPage() {
     (async () => {
       try {
         const res = await confirmFn({
-          data: { sessionId, bookingRef: ref, environment: getStripeEnvironment() },
+          data: { sessionId, bookingRef: ref },
         });
         if (cancelled) return;
         if ("error" in res) setPayConfirm({ state: "failed", message: res.error });

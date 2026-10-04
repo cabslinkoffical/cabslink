@@ -11,7 +11,6 @@ import { SITE } from "@/lib/site";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { confirmBookingPayment } from "@/lib/payments.functions";
-import { getStripeEnvironment } from "@/lib/stripe";
 import { BookingCardPayment } from "@/components/site/BookingCardPayment";
 
 export const Route = createFileRoute("/booking/$token")({
@@ -76,7 +75,7 @@ function ConfirmationPage() {
     (async () => {
       try {
         const res = await confirmFn({
-          data: { sessionId, bookingRef: q.data.bookingRef, environment: getStripeEnvironment() },
+          data: { sessionId, bookingRef: q.data.bookingRef },
         });
         if ("error" in res) toast.error(res.error);
         else if (res.paid) toast.success("Payment received — your booking is confirmed.");
