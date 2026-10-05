@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Car, CheckCircle2, ArrowRight, Shield } from "lucide-react";
+import { Car, ArrowRight, Shield } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { CtaBand } from "@/components/site/CtaBand";
 import { PageHero, SectionHeader } from "@/components/site/PageHero";
@@ -171,7 +171,6 @@ function AboutPage() {
               Read the full booking &amp; cancellation policy <ArrowRight className="size-3.5" />
             </Link>
           </p>
-          <p className="sr-only"><CheckCircle2 aria-hidden /></p>
         </div>
       </section>
     </SiteLayout>
