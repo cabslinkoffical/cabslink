@@ -429,7 +429,7 @@ function TourWizard() {
                             <span className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
                               <span>{t.default_duration_hours ?? "—"} hours</span>
                               <span aria-hidden="true">·</span>
-                              <span>{t.stops.length} stops</span>
+                              <span>{t.stops.length} {t.stops.length === 1 ? "stop" : "stops"}</span>
                               {t.included_miles ? <><span aria-hidden="true">·</span><span>{t.included_miles} miles</span></> : null}
                             </span>
                             <span className="mt-3 block text-sm font-bold text-[var(--gold-ink)]">
