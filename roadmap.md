@@ -52,4 +52,6 @@
 
 ## Cabslink fix plan (uploaded 4 Oct)
 - [x] Phase 2B: payment/lookup holes (APP_ENV, URL-only host, partial refund status, lowercase emails, shared limiter everywhere, repeat-safe migrations)
-- [ ] Phases 3–10 — waiting for owner go-ahead per phase
+- [x] Phase 3: admin and auth hardening (public image storage blocked by workspace setting)
+- [x] Phase 4: one source of truth for business facts (owner TODOs listed)
+- [ ] Phases 5–10 — waiting for owner go-ahead per phase
