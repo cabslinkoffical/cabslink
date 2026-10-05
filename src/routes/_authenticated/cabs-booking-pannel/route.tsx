@@ -46,6 +46,8 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel")({
   component: AdminLayout,
 });
 
+const ADMIN_ROLE_RECHECK_MS = 5 * 60 * 1000;
+
 const NAV: SidebarEntry[] = [
   { to: "/cabs-booking-pannel", label: "Dashboard", icon: LayoutDashboard, exact: true },
   {
@@ -136,6 +138,31 @@ function AdminLayout() {
   }, []);
 
   useEffect(() => { setMobileOpen(false); }, [pathname]);
+
+  // Re-check the admin role every 5 minutes and when the window regains focus;
+  // a removed role signs the user out instead of leaving the panel open.
+  useEffect(() => {
+    let stopped = false;
+    async function recheck() {
+      const { data: s } = await supabase.auth.getSession();
+      const uid = s.session?.user.id;
+      if (!uid) return;
+      const { data: ok, error } = await supabase.rpc("has_role", { _user_id: uid, _role: "admin" });
+      if (stopped || error) return;
+      if (!ok) {
+        await supabase.auth.signOut();
+        toast.error("Your admin access has been removed.");
+        router.navigate({ to: "/auth" });
+      }
+    }
+    const timer = window.setInterval(recheck, ADMIN_ROLE_RECHECK_MS);
+    window.addEventListener("focus", recheck);
+    return () => {
+      stopped = true;
+      window.clearInterval(timer);
+      window.removeEventListener("focus", recheck);
+    };
+  }, [router]);
 
   useEffect(() => {
     localStorage.removeItem("admin-theme");
