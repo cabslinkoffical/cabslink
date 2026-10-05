@@ -7,7 +7,7 @@
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { listPublicVehicleClasses } from "@/lib/vehicle-classes.functions";
-import { FACTS, FACT_TEXT } from "@/lib/site-facts";
+import { FACT_TEXT } from "@/lib/site-facts";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { FaqBlock } from "@/components/seo/FaqBlock";
 import { EntityGrid } from "@/components/explore/EntityCard";
@@ -53,6 +53,12 @@ const WHY = [
 export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
   const d = data.destination;
   const locName = d.display_name ?? d.name;
+  // Same query key as the fleet page, so the cache is shared.
+  const { data: vehicleClasses } = useQuery({
+    queryKey: ["public-vehicle-classes"],
+    queryFn: () => listPublicVehicleClasses(),
+    staleTime: 60_000,
+  });
   const region = d.region;
   const heroSub = [d.town, d.council, region].filter(Boolean).join(" · ");
 

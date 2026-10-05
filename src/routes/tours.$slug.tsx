@@ -1,5 +1,5 @@
 import { useMemo, useState, useDeferredValue } from "react";
-import { FACTS, FACT_TEXT } from "@/lib/site-facts";
+import { FACT_TEXT } from "@/lib/site-facts";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { queryOptions, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";

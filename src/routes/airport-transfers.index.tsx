@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { FACTS, FACT_TEXT } from "@/lib/site-facts";
+import { FACT_TEXT } from "@/lib/site-facts";
 import { Plane, ShieldCheck, Clock, MapPin, ArrowRight } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { FaqSection, LongFormSections, faqJsonLd } from "@/components/site/ContentSections";

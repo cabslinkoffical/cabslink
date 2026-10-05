@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { FACTS, FACT_TEXT } from "@/lib/site-facts";
+import { FACT_TEXT } from "@/lib/site-facts";
 import { useEffect, useMemo, useState } from "react";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 
