@@ -192,3 +192,24 @@ cd <repository-name>
 npm i
 npm run dev
 ```
+
+## Database functions with SECURITY DEFINER
+
+These run with the owner's rights, so who may call them matters. "Triggers only" means no API role can call them directly.
+
+| Function | Purpose | Who can execute |
+| --- | --- | --- |
+| `current_driver_id()` | Driver id of the signed-in user (used in policies) | authenticated, service_role |
+| `get_booking_by_confirmation_hash(_hash)` | Customer confirmation page lookup | service_role (server only) |
+| `rate_limit_hit(_key, _max, _window_seconds)` | Atomic rate-limit counter | service_role (server only) |
+| `rate_limits_cleanup()` | Daily removal of old rate-limit rows | service_role / scheduled job |
+| `redeem_coupon(...)` | Records a coupon use with locking | service_role (server only) |
+| `save_pricing_scheme_base(_payload)` | Atomic pricing save; re-checks admin role for other callers | service_role (server only) |
+| `set_booking_status(...)` | Validated status change + audit row | service_role (server only) |
+| `dispatch_wake_delivery()` | Pings the dispatch drain endpoint | service_role; called by trigger |
+| `dispatch_enqueue_booking_event()` | Queues booking events for dispatch | Triggers only |
+| `dispatch_guard_booking_update()` | Limits what dispatch/drivers may change | Triggers only |
+| `log_admin_action()` | Writes admin changes to activity_logs | Triggers only |
+
+`has_role(_user_id, _role)` is not SECURITY DEFINER. Check the live list with:
+`select proname, proacl from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public' and prosecdef;`
