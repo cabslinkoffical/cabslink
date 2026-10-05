@@ -35,6 +35,21 @@ const STATUS_BADGE: Record<string, string> = {
 
 const VIEW_KEY = "admin-messages-view";
 
+/** Which website form a message came from. */
+const SOURCES: Record<string, { label: string; cls: string }> = {
+  contact: { label: "Contact form", cls: "bg-info/15 text-info" },
+  corporate: { label: "Corporate enquiry", cls: "bg-[var(--gold)]/20 text-[var(--navy)]" },
+  driver: { label: "Driver application", cls: "bg-success/15 text-success" },
+  tour: { label: "Tour enquiry", cls: "bg-warning/15 text-warning" },
+  other: { label: "Other", cls: "bg-muted text-muted-foreground" },
+};
+const sourceOf = (m: any) => (SOURCES[m.source] ? m.source : "other");
+
+function SourceBadge({ m }: { m: any }) {
+  const s = SOURCES[sourceOf(m)];
+  return <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap ${s.cls}`}>{s.label}</span>;
+}
+
 function MessagesPage() {
   const { data: allMessages } = useSuspenseQuery(opts);
   // Tour enquiries are bookings now and live in the Bookings console ("Tour
@@ -74,10 +89,22 @@ function MessagesPage() {
   };
 
   const [q, setQ] = useState("");
+  const [source, setSource] = useState<string>("all");
+  const counts = useMemo(() => {
+    const c: Record<string, { total: number; unread: number }> = {};
+    for (const m of data as any[]) {
+      const k = sourceOf(m);
+      c[k] ??= { total: 0, unread: 0 };
+      c[k].total++;
+      if (m.status === "new") c[k].unread++;
+    }
+    return c;
+  }, [data]);
   const rows = useMemo(() => {
     const term = q.trim().toLowerCase();
-    if (!term) return data;
-    return data.filter((m: any) =>
+    const bySource = source === "all" ? data : data.filter((m: any) => sourceOf(m) === source);
+    if (!term) return bySource;
+    return bySource.filter((m: any) =>
       [m.name, m.email, m.subject, m.message, m.phone].some((f: any) => String(f ?? "").toLowerCase().includes(term)),
     );
   }, [data, q]);
@@ -115,6 +142,22 @@ function MessagesPage() {
         </div>
       </div>
 
+      <div className="flex flex-wrap gap-2" role="tablist" aria-label="Filter by where the message came from">
+        {[["all", "All"], ...Object.entries(SOURCES).map(([k, v]) => [k, v.label])]
+          .filter(([k]) => k === "all" || counts[k]?.total)
+          .map(([k, label]) => {
+            const c = k === "all" ? { total: data.length, unread: data.filter((m: any) => m.status === "new").length } : counts[k];
+            const on = source === k;
+            return (
+              <button key={k} type="button" role="tab" aria-selected={on} onClick={() => setSource(k)}
+                className={`rounded-full border px-3 py-1.5 text-sm transition ${on ? "border-[var(--gold)] bg-[var(--gold)] text-[var(--navy)] font-semibold" : "border-border text-muted-foreground hover:bg-muted/40"}`}>
+                {label} <span className="opacity-70">{c.total}</span>
+                {c.unread > 0 && <span className="ml-1.5 rounded-full bg-warning/20 px-1.5 text-[11px] font-semibold text-warning">{c.unread} new</span>}
+              </button>
+            );
+          })}
+      </div>
+
       {rows.length === 0 && <div className="admin-card p-8 text-center text-muted-foreground">No messages found.</div>}
 
       {rows.length > 0 && view === "list" && (
@@ -142,7 +185,7 @@ function MessagesPage() {
                     <div className={m.status === "new" ? "font-semibold" : ""}>{m.name}</div>
                     <div className="text-xs text-muted-foreground">{m.email}</div>
                   </td>
-                  <td className="px-4 py-3 max-w-[220px] truncate">{m.subject || "(no subject)"}</td>
+                  <td className="px-4 py-3 max-w-[260px]"><div className="flex flex-col gap-1"><SourceBadge m={m} /><span className="truncate">{m.subject || "(no subject)"}</span></div></td>
                   <td className="px-4 py-3 hidden lg:table-cell max-w-[320px] truncate text-muted-foreground">{m.message}</td>
                   <td className="px-4 py-3 whitespace-nowrap text-xs text-muted-foreground">{new Date(m.created_at).toLocaleString()}</td>
                   <td className="px-4 py-3">
@@ -171,7 +214,7 @@ function MessagesPage() {
                   <p className={`truncate ${m.status === "new" ? "font-semibold" : ""}`}>{m.name} <span className="text-xs text-muted-foreground">· {m.email}</span></p>
                   <span className={`text-xs px-2 py-0.5 rounded-full capitalize ${STATUS_BADGE[m.status]}`}>{m.status}</span>
                 </div>
-                <p className="text-sm font-medium truncate">{m.subject || "(no subject)"}</p>
+                <div className="flex items-center gap-2"><SourceBadge m={m} /><p className="text-sm font-medium truncate">{m.subject || "(no subject)"}</p></div>
                 <p className="text-xs text-muted-foreground line-clamp-1">{m.message}</p>
                 <p className="text-xs text-muted-foreground mt-1">{new Date(m.created_at).toLocaleString()}</p>
               </div>
@@ -184,7 +227,13 @@ function MessagesPage() {
         <SheetContent className="w-full sm:max-w-xl overflow-y-auto">
           {active && (
             <>
-              <SheetHeader><SheetTitle>{active.subject || "Message"}</SheetTitle></SheetHeader>
+              <SheetHeader>
+                <SheetTitle>{active.subject || "Message"}</SheetTitle>
+                <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                  <SourceBadge m={active} />
+                  {active.source_page && <span>Sent from <span className="font-mono">{active.source_page}</span></span>}
+                </div>
+              </SheetHeader>
               <div className="mt-4 space-y-3 text-sm">
                 <p><strong>{active.name}</strong> · {active.email}{active.phone ? ` · ${active.phone}` : ""}</p>
                 <p className="text-xs text-muted-foreground">{new Date(active.created_at).toLocaleString()}</p>

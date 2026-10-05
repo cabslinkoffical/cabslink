@@ -47,6 +47,8 @@ export async function submitDriverApplicationImpl(
     phone: parsed.phone,
     subject: "Driver / Partner Application",
     message: parsed.message,
+    source: "driver",
+    source_page: await (await import("@/lib/message-source.server")).sourcePageFromRequest(),
   } as any);
   if (error) {
     console.error("driver application insert failed", error);
