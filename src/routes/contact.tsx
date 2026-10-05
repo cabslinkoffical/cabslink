@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -44,7 +44,12 @@ export const Route = createFileRoute("/contact")({
       },
     ],
   }),
-  validateSearch: (s: Record<string, unknown>): { tab?: "driver" } => (s.tab === "driver" ? { tab: "driver" } : {}),
+  beforeLoad: ({ search }) => {
+    // Legacy link: the driver application now lives on its own page.
+    if ((search as Record<string, unknown>).tab === "driver") {
+      throw redirect({ to: "/drive-with-us", statusCode: 301 });
+    }
+  },
   component: ContactPage,
 });
 
