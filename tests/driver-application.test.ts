@@ -12,7 +12,7 @@ vi.mock("@/integrations/supabase/client.server", () => ({
 
 async function importFn() {
   vi.resetModules();
-  const mod = await import("@/lib/driver-application.functions");
+  const mod = await import("@/lib/driver-application.server");
   return (data: any) => mod.submitDriverApplicationImpl(data, { ip: "5.6.7.8" });
 }
 
