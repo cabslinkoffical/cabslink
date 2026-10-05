@@ -778,7 +778,7 @@ function HomePage() {
                     ))}
                   </ul>
                   <Button asChild variant="gold" className="mt-7 w-full rounded-full">
-                    <Link to="/drive-with-us">Apply to drive with us <ArrowRight className="size-4" /></Link>
+                    <Link to="/contact" search={{ tab: "driver" }}>Apply to drive with us <ArrowRight className="size-4" /></Link>
                   </Button>
                   <p className="mt-3 text-center text-[11px] text-white/50">Takes ~2 minutes · Reply within 24 hours</p>
                 </div>
