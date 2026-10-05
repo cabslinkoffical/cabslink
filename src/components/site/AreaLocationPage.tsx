@@ -5,6 +5,8 @@
  * one comprehensive, entity-rich page per location.
  */
 import { Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { listPublicVehicleClasses } from "@/lib/vehicle-classes.functions";
 import { FACTS, FACT_TEXT } from "@/lib/site-facts";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { FaqBlock } from "@/components/seo/FaqBlock";
@@ -160,17 +162,9 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
       <section className="mt-20 border-y border-border py-8">
         <SectionHeader eyebrow="Our fleet" title="Vehicles available" />
         <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 text-sm text-[var(--navy)]/80">
-          {[
-            "Executive Saloon (Mercedes-Benz E-Class)",
-            "Luxury Saloon (Mercedes-Benz S-Class)",
-            "Executive MPV (Mercedes-Benz V-Class)",
-            "Range Rover",
-            "Mini Bus (16-seater)",
-            "Coaster Bus (24-seater)",
-            "Coach Bus (55-seater)",
-          ].map((v) => (
-            <li key={v} className="flex items-center gap-2">
-              <CheckCircle2 className="size-4 text-[var(--gold-ink)]" /> {v}
+          {(vehicleClasses ?? []).map((c) => (
+            <li key={c.id} className="flex items-center gap-2">
+              <CheckCircle2 className="size-4 text-[var(--gold-ink)]" /> {c.name} · {c.passengers} passengers · {c.large_bags} large bags
             </li>
           ))}
         </ul>
@@ -284,8 +278,8 @@ function buildFaqs(ctx: AreaSeoContext): { q: string; a: string }[] {
       a: `Yes. ${FACT_TEXT.meetGreet} ${FACT_TEXT.airportWait}`,
     },
     {
-      q: `Can I book a Mercedes V-Class or minibus in ${name}?`,
-      a: `Yes. We offer executive Mercedes V-Class, 16-seater minibus, 24-seater coaster and 55-seater coach for group and family transfers.`,
+      q: `Can I book a larger vehicle for a group in ${name}?`,
+      a: `Yes. MPVs and eight-seater vans are available for group and family transfers. Exact seats and bags for every class are listed on our fleet page.`,
     },
     {
       q: `Are child seats available?`,
