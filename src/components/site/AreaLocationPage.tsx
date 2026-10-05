@@ -5,6 +5,7 @@
  * one comprehensive, entity-rich page per location.
  */
 import { Link } from "@tanstack/react-router";
+import { FACTS, FACT_TEXT } from "@/lib/site-facts";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { FaqBlock } from "@/components/seo/FaqBlock";
 import { EntityGrid } from "@/components/explore/EntityCard";
@@ -36,7 +37,7 @@ const SERVICES = [
   { href: "/vip-transfers", label: "Executive & VIP Cars", blurb: "Discreet luxury travel for VIPs." },
   { href: "/corporate-travel", label: "Corporate Transport", blurb: "Business accounts and monthly billing." },
   { href: "/tours", label: "Private Tours", blurb: "Custom driver-guided day tours." },
-  { href: "/fleet", label: "Minibus & Coach Hire", blurb: "Groups from 7 to 55 passengers." },
+  { href: "/fleet", label: "Group Transfers", blurb: "MPVs and eight-seater vans for groups." },
   { href: "/services", label: "All Services", blurb: "Full list of what we cover." },
 ] as const;
 
@@ -78,7 +79,7 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
               </h1>
               <p className="mt-6 max-w-3xl text-base leading-relaxed text-navy-foreground/72">
                 Cabslink provides reliable airport transfers, private hire, executive cars, corporate
-                transport, luxury private-driver travel and minibus hire in <strong>{locName}</strong>.
+                transport, luxury private-driver travel and group transfers in <strong>{locName}</strong>.
                 Book a fixed-price taxi or cab from {locName} to Edinburgh, Glasgow or any UK airport —
                 with 24/7 availability, meet-and-greet, and door-to-door service.
               </p>
@@ -280,7 +281,7 @@ function buildFaqs(ctx: AreaSeoContext): { q: string; a: string }[] {
     },
     {
       q: `Do you offer meet and greet at the airport?`,
-      a: `Yes. Our driver waits in the arrivals hall with a name-board, tracks your flight, and includes free waiting time.`,
+      a: `Yes. ${FACT_TEXT.meetGreet} ${FACT_TEXT.airportWait}`,
     },
     {
       q: `Can I book a Mercedes V-Class or minibus in ${name}?`,

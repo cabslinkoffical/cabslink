@@ -1,4 +1,5 @@
 import { useMemo, useState, useDeferredValue } from "react";
+import { FACTS, FACT_TEXT } from "@/lib/site-facts";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { queryOptions, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -522,7 +523,7 @@ function TourDetailPage() {
                 <li className="flex items-center gap-2"><Check className="size-4 text-[var(--gold-ink)]" />{orderedStops.length || d.recommended_stop_count} stops selected</li>
                 {totalJourneySecs && <li className="flex items-center gap-2"><Check className="size-4 text-[var(--gold-ink)]" />~{formatDuration(totalJourneySecs)} total journey</li>}
                 <li className="flex items-center gap-2"><Check className="size-4 text-[var(--gold-ink)]" />Professional driver</li>
-                <li className="flex items-center gap-2"><Check className="size-4 text-[var(--gold-ink)]" />Free cancellation options at checkout</li>
+                <li className="flex items-center gap-2"><Check className="size-4 text-[var(--gold-ink)]" />{FACT_TEXT.tourCancellationShort}</li>
               </ul>
             </div>
 
