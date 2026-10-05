@@ -15,6 +15,7 @@ import { submitContactMessage } from "@/lib/contact.functions";
 import { useCaptcha } from "@/components/site/Captcha";
 import { PhoneInput } from "@/components/site/PhoneInput";
 import { contactPageSchema } from "@/components/seo/schema";
+import { DriverApplicationForm } from "@/components/site/DriverApplicationForm";
 import { FormNotice, FormField, focusFirstInvalid, zodFieldErrors, StickyFormSubmit } from "@/components/site/FormValidation";
 
 export const Route = createFileRoute("/contact")({
@@ -43,6 +44,7 @@ export const Route = createFileRoute("/contact")({
       },
     ],
   }),
+  validateSearch: (s: Record<string, unknown>): { tab?: "driver" } => (s.tab === "driver" ? { tab: "driver" } : {}),
   component: ContactPage,
 });
 
@@ -55,6 +57,9 @@ const schema = z.object({
 });
 
 function ContactPage() {
+  const { tab } = Route.useSearch();
+  const navigate = Route.useNavigate();
+  const isDriver = tab === "driver";
   const [loading, setLoading] = useState(false);
   const [phone, setPhone] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -137,7 +142,21 @@ function ContactPage() {
               </div>
             ))}
           </div>
-          <form onSubmit={onSubmit} className="lg:col-span-3 rounded-3xl border border-border bg-card p-6 md:p-8 pb-28 lg:pb-8 shadow-raised" noValidate>
+          <div className="lg:col-span-3">
+          <div role="tablist" aria-label="Message type" className="mb-4 inline-flex rounded-full border border-border bg-card p-1 shadow-sm">
+            {([["", "General enquiry"], ["driver", "Become a driver"]] as const).map(([v, l]) => {
+              const active = (v === "driver") === isDriver;
+              return (
+                <button key={l} type="button" role="tab" aria-selected={active}
+                  onClick={() => navigate({ search: v ? { tab: "driver" } : {}, replace: true, resetScroll: false })}
+                  className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${active ? "bg-[var(--gold)] text-[var(--gold-foreground)]" : "text-muted-foreground hover:text-foreground"}`}>
+                  {l}
+                </button>
+              );
+            })}
+          </div>
+          {isDriver ? <DriverApplicationForm /> : (
+          <form onSubmit={onSubmit} className="rounded-3xl border border-border bg-card p-6 md:p-8 pb-28 lg:pb-8 shadow-raised" noValidate>
             <h3 className="font-display text-2xl font-semibold">Send us a message</h3>
             {/* Honeypot: must remain empty; hidden from users, tempting to bots. */}
             <div className="absolute -left-[9999px]" aria-hidden="true">
@@ -173,6 +192,8 @@ function ContactPage() {
               <TrustpilotStrip className="mt-2" />
             </div>
           </form>
+          )}
+          </div>
         </div>
       </section>
 

@@ -69,3 +69,16 @@ describe("driver-application route wiring", () => {
     expect(src).not.toMatch(/supabase\.from\(['"]contact_messages['"]\)/);
   });
 });
+
+describe("detailed driver application", () => {
+  beforeEach(() => { insertSpy.mockClear(); _resetAllLimits(); });
+  it("stores licence and vehicle details in the message", async () => {
+    const fn = await importFn();
+    await fn({ name: "Sam Driver", email: "sam@example.com", phone: "+447700900000", message: "",
+      details: { area: "Edinburgh", rightToWork: "yes", licenceYears: 8, phLicence: "yes", council: "City of Edinburgh",
+        phLicenceNumber: "PH123", phLicenceExpiry: "2027-05-01", hasVehicle: "own", vehicleMakeModel: "Mercedes E-Class",
+        vehicleYear: "2022", vehicleReg: "sk22abc", vehicleSeats: "4", insurance: "yes", experienceYears: 5, availability: "full-time" } });
+    const msg = insertSpy.mock.calls[0][0].message as string;
+    expect(msg).toMatch(/PH123/); expect(msg).toMatch(/SK22ABC/); expect(msg).toMatch(/City of Edinburgh/);
+  });
+});
