@@ -1,7 +1,8 @@
 // Server-only helpers for the confirmation-token flow.
 //
 // Token design (recoverable):
-//   token = HMAC_SHA256(BOOKING_TOKEN_SECRET, `${bookingId}:${bookingRef}`)
+//   token = HMAC_SHA256(BOOKING_TOKEN_SECRET, `${bookingId}:${bookingRef}:${confirmation_salt}`)
+//   (legacy rows with a NULL salt use `${bookingId}:${bookingRef}`)
 //   hash  = SHA256(token)                              (stored in DB)
 //
 // Properties:
@@ -46,14 +47,15 @@ export function isConfirmationTokenShape(v: unknown): v is string {
  * pair and the server secret, this returns the same token on every call —
  * enabling recoverable confirmation access after a lost first response.
  */
-export function deriveConfirmationToken(bookingId: string, bookingRef: string): {
+export function deriveConfirmationToken(bookingId: string, bookingRef: string, salt?: string | null): {
   token: string;
   hash: string;
   expiresAt: string;
 } {
   const secret = getSecret();
   const token = createHmac("sha256", secret)
-    .update(`${String(bookingId)}:${String(bookingRef)}`)
+    // A NULL salt reproduces legacy links issued before confirmation_salt existed.
+    .update(salt ? `${String(bookingId)}:${String(bookingRef)}:${String(salt)}` : `${String(bookingId)}:${String(bookingRef)}`)
     .digest("hex"); // 64 hex chars
   return {
     token,

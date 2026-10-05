@@ -499,7 +499,7 @@ export const createBooking = createServerFn({ method: "POST" })
     const { deriveConfirmationToken } = await import("@/lib/booking-confirmation.server");
     const existing = await supabaseAdmin
       .from("bookings")
-      .select("id, price, booking_ref, idempotency_request_hash")
+      .select("id, price, booking_ref, idempotency_request_hash, confirmation_salt")
       .eq("idempotency_key", data.idempotencyKey)
       .maybeSingle();
     if (existing.data) {
@@ -509,7 +509,7 @@ export const createBooking = createServerFn({ method: "POST" })
         const eref = (existing.data as any).booking_ref as string;
         let recoveredToken: string | null = null;
         try {
-          recoveredToken = deriveConfirmationToken(eid, eref).token;
+          recoveredToken = deriveConfirmationToken(eid, eref, (existing.data as any).confirmation_salt ?? null).token;
         } catch {
           recoveredToken = null;
         }
@@ -863,7 +863,7 @@ export const createBooking = createServerFn({ method: "POST" })
     const insertRes = await supabaseAdmin
       .from("bookings")
       .insert(insertPayload as any)
-      .select("id, price, booking_ref")
+      .select("id, price, booking_ref, confirmation_salt")
       .single();
 
     if (insertRes.error) {
@@ -872,7 +872,7 @@ export const createBooking = createServerFn({ method: "POST" })
       if ((insertRes.error as any).code === "23505") {
         const again = await supabaseAdmin
           .from("bookings")
-          .select("id, price, booking_ref, idempotency_request_hash")
+          .select("id, price, booking_ref, idempotency_request_hash, confirmation_salt")
           .eq("idempotency_key", data.idempotencyKey)
           .maybeSingle();
         if (again.data) {
@@ -881,7 +881,7 @@ export const createBooking = createServerFn({ method: "POST" })
             const raceId = (again.data as any).id as string;
             const raceRef = (again.data as any).booking_ref as string;
             let recoveredToken: string | null = null;
-            try { recoveredToken = deriveConfirmationToken(raceId, raceRef).token; } catch { recoveredToken = null; }
+            try { recoveredToken = deriveConfirmationToken(raceId, raceRef, (again.data as any).confirmation_salt ?? null).token; } catch { recoveredToken = null; }
             return {
               id: raceId,
               price: Number((again.data as any).price),
@@ -928,7 +928,7 @@ export const createBooking = createServerFn({ method: "POST" })
     let confirmationToken: string | null = null;
     let confirmationHash: string | null = null;
     try {
-      const derived = deriveConfirmationToken(insertedId, bookingRef);
+      const derived = deriveConfirmationToken(insertedId, bookingRef, (insertRes.data as any).confirmation_salt ?? null);
       confirmationToken = derived.token;
       confirmationHash = derived.hash;
       await supabaseAdmin
