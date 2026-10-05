@@ -36,7 +36,7 @@ export const Route = createFileRoute("/contact")({
           contactPageSchema({
             url: "/contact",
             email: SITE.email,
-            phones: [SITE.phoneUK, SITE.phoneUS],
+            phones: [SITE.phoneUK],
             address: SITE.address,
           }),
         ),
@@ -123,7 +123,7 @@ function ContactPage() {
         <div className="container-x grid lg:grid-cols-5 gap-10">
           <div className="lg:col-span-2 space-y-5">
             {[
-              { i: Phone, t: "Call us 24/7", lines: [SITE.phoneUK, SITE.phoneUS] },
+              { i: Phone, t: "Call us 24/7", lines: [SITE.phoneUK] },
               { i: Mail, t: "Email", lines: [SITE.email] },
               { i: MapPin, t: "Visit our office", lines: [SITE.address] },
               { i: Clock, t: "Hours", lines: ["Open 365 days a year, 24 hours a day"] },

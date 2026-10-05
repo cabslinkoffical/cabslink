@@ -164,7 +164,7 @@ function AboutPage() {
         <div className="container-x max-w-3xl">
           <SectionHeader eyebrow="FAQ" title="Common questions" center />
           <div className="mt-8">
-            <FaqBlock faqs={ABOUT.faqs.map((f) => ({ q: f.q, a: f.a }))} />
+            <FaqBlock items={ABOUT.faqs.map((f) => ({ q: f.q, a: f.a }))} />
           </div>
           <p className="mt-8 text-center text-sm">
             <Link to="/booking-policy" className="inline-flex items-center gap-1 text-[var(--gold-ink)] hover:underline">
