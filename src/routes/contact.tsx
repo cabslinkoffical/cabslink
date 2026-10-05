@@ -15,7 +15,6 @@ import { submitContactMessage } from "@/lib/contact.functions";
 import { useCaptcha } from "@/components/site/Captcha";
 import { PhoneInput } from "@/components/site/PhoneInput";
 import { contactPageSchema } from "@/components/seo/schema";
-import { DriverApplicationForm } from "@/components/site/DriverApplicationForm";
 import { FormNotice, FormField, focusFirstInvalid, zodFieldErrors, StickyFormSubmit } from "@/components/site/FormValidation";
 
 export const Route = createFileRoute("/contact")({
@@ -190,7 +189,6 @@ function ContactPage() {
               <TrustpilotStrip className="mt-2" />
             </div>
           </form>
-          )}
           </div>
         </div>
       </section>
