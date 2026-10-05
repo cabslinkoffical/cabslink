@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from "react";
+import { isAllowedImageType } from "@/lib/media-types";
 import { toast } from "sonner";
 import { ArrowDown, ArrowUp, Loader2, Plus, Trash2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -202,7 +203,7 @@ export function HeroImageUploader({ slug, onUploaded }: { slug: string; onUpload
   const [busy, setBusy] = useState(false);
 
   const handleFile = async (file: File) => {
-    if (!file.type.startsWith("image/")) { toast.error("Please choose an image file."); return; }
+    if (!isAllowedImageType(file.type)) { toast.error("Only JPG, PNG, WebP and AVIF images can be uploaded."); return; }
     if (file.size > 5 * 1024 * 1024) { toast.error("Image must be under 5MB."); return; }
     setBusy(true);
     try {

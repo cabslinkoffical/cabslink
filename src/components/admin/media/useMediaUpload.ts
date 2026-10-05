@@ -4,10 +4,11 @@ import { useServerFn } from "@tanstack/react-start";
 import { registerUpload } from "@/lib/media.functions";
 import { optimizeImage } from "@/lib/optimize-image";
 import { toast } from "sonner";
+import { isAllowedImageType, MAX_IMAGE_BYTES } from "@/lib/media-types";
 
 const BUCKET = "media";
 const TEN_YEARS = 60 * 60 * 24 * 365 * 10;
-const MAX_BYTES = 15 * 1024 * 1024;
+const MAX_BYTES = MAX_IMAGE_BYTES;
 
 function safeName(name: string) {
   const dot = name.lastIndexOf(".");
@@ -38,9 +39,9 @@ export function useMediaUpload(folder = "general") {
 
   const uploadFiles = useCallback(
     async (files: File[]) => {
-      const images = files.filter((f) => f.type.startsWith("image/"));
+      const images = files.filter((f) => isAllowedImageType(f.type));
+      if (images.length < files.length) toast.error("Only JPG, PNG, WebP and AVIF images can be uploaded.");
       if (!images.length) {
-        toast.error("Please choose image files only.");
         return [];
       }
       setBusy(true);
