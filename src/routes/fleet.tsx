@@ -143,7 +143,7 @@ function FleetPage() {
           <dl className="mt-9 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 sm:grid-cols-4">
             {[
               { v: `${items.length}`, l: "Vehicle classes" },
-              { v: `1–${maxPax || 8}`, l: "Passengers per booking" },
+              { v: maxPax ? `1–${maxPax}` : "—", l: "Passengers per booking" },
               { v: "Fixed", l: "Prices, quoted upfront" },
               { v: "24/7", l: "UK dispatch support" },
             ].map((s) => (
