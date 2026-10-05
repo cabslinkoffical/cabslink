@@ -164,7 +164,7 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
         <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 text-sm text-[var(--navy)]/80">
           {(vehicleClasses ?? []).map((c) => (
             <li key={c.id} className="flex items-center gap-2">
-              <CheckCircle2 className="size-4 text-[var(--gold-ink)]" /> {c.name} · {c.passengers} passengers · {c.large_bags} large bags
+              <CheckCircle2 className="size-4 text-[var(--gold-ink)]" /> {c.name} · {c.passengers} passengers · {c.large_luggage} large bags
             </li>
           ))}
         </ul>
