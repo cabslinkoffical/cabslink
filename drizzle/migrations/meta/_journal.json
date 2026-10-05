@@ -29,6 +29,13 @@
       "when": 1791152064196,
       "tag": "0003_bookings_email_lowercase",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791179810142,
+      "tag": "0004_booking_confirmation_salt",
+      "breakpoints": true
     }
   ]
 }

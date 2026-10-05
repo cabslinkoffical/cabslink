@@ -620,6 +620,7 @@ export type Database = {
           child_seat_count: number
           clock_end_at: string | null
           clock_start_at: string | null
+          confirmation_salt: string | null
           confirmation_token_expires_at: string | null
           confirmation_token_hash: string | null
           created_at: string
@@ -705,6 +706,7 @@ export type Database = {
           child_seat_count?: number
           clock_end_at?: string | null
           clock_start_at?: string | null
+          confirmation_salt?: string | null
           confirmation_token_expires_at?: string | null
           confirmation_token_hash?: string | null
           created_at?: string
@@ -790,6 +792,7 @@ export type Database = {
           child_seat_count?: number
           clock_end_at?: string | null
           clock_start_at?: string | null
+          confirmation_salt?: string | null
           confirmation_token_expires_at?: string | null
           confirmation_token_hash?: string | null
           created_at?: string
