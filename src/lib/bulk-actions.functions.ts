@@ -22,7 +22,10 @@ async function assertAdmin(context: { supabase: unknown; userId: string }) {
 
 async function logBulk(context: { supabase: unknown; userId: string; claims?: any }, action: string, entity: string, diff: Record<string, unknown>) {
   try {
-    await (context.supabase as SupabaseLike).from("activity_logs").insert({
+    // activity_logs has no insert policy for signed-in users; write with the
+    // service role after the caller has already been verified as an admin.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await (supabaseAdmin as any).from("activity_logs").insert({
       actor_id: context.userId,
       actor_email: context.claims?.email ?? null,
       action,
