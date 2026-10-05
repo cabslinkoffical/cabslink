@@ -27,7 +27,7 @@ const PAGE_FILES = [
 ];
 
 const BANNED: { label: string; re: RegExp }[] = [
-  { label: "free waiting minutes", re: /\b60 minutes\b|\b60 min\b|\ban hour of free/i },
+  { label: "free waiting minutes", re: /\b60 min(ute)?s?( of)? (free|wait)|first 60 minutes|an hour of free|free wait[a-z ]{0,10}60/i },
   { label: "waiting rate", re: /£0\.50|£0\.75|\b50p per minute|\b75p per minute/i },
   { label: "cancellation hours", re: /\b(12|48|24) hours before (pickup|the tour)/i },
   { label: "company number", re: /SC814706/ },
