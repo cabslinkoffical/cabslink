@@ -62,9 +62,6 @@ const schema = z.object({
 });
 
 function ContactPage() {
-  const { tab } = Route.useSearch();
-  const navigate = Route.useNavigate();
-  const isDriver = tab === "driver";
   const [loading, setLoading] = useState(false);
   const [phone, setPhone] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
