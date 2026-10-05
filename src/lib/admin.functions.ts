@@ -696,9 +696,38 @@ export const updateSettings = createServerFn({ method: "POST" })
       .from("site_credentials")
       .upsert({ id: 1, smtp_host: smtp_host ?? null, smtp_port: smtp_port ?? null, smtp_user: smtp_user ?? null, google_maps_api_key: google_maps_api_key ?? null }, { onConflict: "id" });
     if (credError) throw new Error(credError.message);
+    await logAdminAction(context, "settings_update", "site_settings", "1", {
+      after: settings,
+      credentials_changed: { smtp_host: smtp_host != null, smtp_port: smtp_port != null, smtp_user: smtp_user != null, google_maps_api_key: google_maps_api_key != null },
+    });
     return { ok: true };
   });
 
+
+/** Best-effort audit row for sensitive admin actions. */
+export async function logAdminAction(
+  context: { supabase: any; userId: string; claims?: any },
+  action: string,
+  entity: string,
+  entityId: string | null,
+  diff: Record<string, unknown>,
+) {
+  try {
+    // activity_logs has no insert policy for signed-in users; write with the
+    // service role after the caller has already been verified as an admin.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await (supabaseAdmin as any).from("activity_logs").insert({
+      actor_id: context.userId,
+      actor_email: context.claims?.email ?? null,
+      action,
+      entity,
+      entity_id: entityId,
+      diff,
+    });
+  } catch (e) {
+    console.error("[admin] activity log failed", action, e);
+  }
+}
 
 // =================================================================
 // Users & roles
@@ -708,8 +737,15 @@ export const listUsersWithRoles = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: usersData, error: usersErr } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 200 });
-    if (usersErr) throw new Error(usersErr.message);
+    const allUsers: any[] = [];
+    for (let page = 1; page <= 500; page++) {
+      const { data: pageData, error: usersErr } = await supabaseAdmin.auth.admin.listUsers({ page, perPage: 200 });
+      if (usersErr) throw new Error(usersErr.message);
+      const batch = pageData?.users ?? [];
+      allUsers.push(...batch);
+      if (batch.length < 200) break;
+    }
+    const usersData = { users: allUsers };
     const { data: rolesData, error: rolesErr } = await context.supabase.from("user_roles").select("user_id, role");
     if (rolesErr) throw new Error(rolesErr.message);
     const roleMap = new Map<string, string[]>();
@@ -741,6 +777,7 @@ export const setUserAdmin = createServerFn({ method: "POST" })
       const { error } = await supabaseAdmin.from("user_roles").delete().eq("user_id", data.userId).eq("role", "admin");
       if (error) throw new Error(error.message);
     }
+    await logAdminAction(context, data.admin ? "role_grant" : "role_revoke", "user_roles", data.userId, { role: "admin", granted: data.admin });
     return { ok: true };
   });
 
@@ -751,9 +788,35 @@ export const deleteUser = createServerFn({ method: "POST" })
     await assertAdmin(context);
     if (data.userId === context.userId) throw new Error("You cannot delete your own account here.");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: before } = await supabaseAdmin.auth.admin.getUserById(data.userId);
     const { error } = await supabaseAdmin.auth.admin.deleteUser(data.userId);
     if (error) throw new Error(error.message);
+    await logAdminAction(context, "user_delete", "auth.users", data.userId, { email: before?.user?.email ?? null });
     return { ok: true };
+  });
+
+/**
+ * Issues a fresh confirmation link for a booking. The old link stops working
+ * immediately because the per-booking salt (and so the stored hash) changes.
+ */
+export const regenerateBookingLink = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ bookingId: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { deriveConfirmationToken } = await import("@/lib/booking-confirmation.server");
+    const { data: b, error } = await (supabaseAdmin as any).from("bookings").select("id, booking_ref").eq("id", data.bookingId).maybeSingle();
+    if (error || !b) throw new Error("Booking not found");
+    const salt = crypto.randomUUID();
+    const derived = deriveConfirmationToken(b.id, b.booking_ref, salt);
+    const { error: upErr } = await (supabaseAdmin as any)
+      .from("bookings")
+      .update({ confirmation_salt: salt, confirmation_token_hash: derived.hash, confirmation_token_expires_at: derived.expiresAt })
+      .eq("id", b.id);
+    if (upErr) throw new Error(upErr.message);
+    await logAdminAction(context, "booking_link_regenerated", "bookings", b.id, { booking_ref: b.booking_ref });
+    return { path: `/booking/${derived.token}`, expiresAt: derived.expiresAt };
   });
 
 // =================================================================

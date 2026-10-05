@@ -6,6 +6,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import { isAllowedImageType, MAX_IMAGE_BYTES } from "@/lib/media-types";
 
 export const MEDIA_BUCKET = "media";
 export const SIGNED_URL_TTL = 60 * 60 * 24 * 365 * 10; // 10 years
@@ -125,6 +126,12 @@ export const registerUpload = createServerFn({ method: "POST" })
   )
   .handler(async ({ context, data }) => {
     await assertAdmin(context);
+    if (data.source_kind === "upload" && !isAllowedImageType(data.mime_type)) {
+      throw new Error("Only JPG, PNG, WebP and AVIF images can be uploaded.");
+    }
+    if (data.source_kind === "upload" && (data.bytes ?? 0) > MAX_IMAGE_BYTES) {
+      throw new Error("Images must be 15MB or smaller.");
+    }
     const { data: row, error } = await context.supabase
       .from("media_assets")
       .upsert({ ...data, uploaded_by: context.userId }, { onConflict: "path" })

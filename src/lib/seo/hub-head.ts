@@ -5,6 +5,7 @@
  * with an optional ItemList of the pages the hub links to.
  */
 import { collectionPageSchema } from "@/components/seo/schema";
+import { safeJsonLd } from "@/lib/safe-json-ld";
 import { HUBS, type HubKey } from "@/lib/hub-config";
 
 const SITE = "https://cabslink.com";
@@ -40,7 +41,7 @@ export function hubHead(key: HubKey, items?: HubListItem[]) {
   const scripts = [
     {
       type: "application/ld+json",
-      children: JSON.stringify(
+      children: safeJsonLd(
         collectionPageSchema({
           name: title,
           description,
@@ -56,7 +57,7 @@ export function hubHead(key: HubKey, items?: HubListItem[]) {
       ? [
           {
             type: "application/ld+json",
-            children: JSON.stringify(itemListSchema(cfg.title, items)),
+            children: safeJsonLd(itemListSchema(cfg.title, items)),
           },
         ]
       : []),

@@ -20,6 +20,24 @@ async function assertAdmin(context: { supabase: unknown; userId: string }) {
   if (error || !data) throw new Error("Forbidden");
 }
 
+async function logBulk(context: { supabase: unknown; userId: string; claims?: any }, action: string, entity: string, diff: Record<string, unknown>) {
+  try {
+    // activity_logs has no insert policy for signed-in users; write with the
+    // service role after the caller has already been verified as an admin.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await (supabaseAdmin as any).from("activity_logs").insert({
+      actor_id: context.userId,
+      actor_email: context.claims?.email ?? null,
+      action,
+      entity,
+      entity_id: null,
+      diff,
+    });
+  } catch (e) {
+    console.error("[bulk] activity log failed", action, e);
+  }
+}
+
 const idsInput = z.object({
   entity: z.string().min(1),
   ids: z.array(z.string().min(1)).min(1).max(2000),
@@ -38,12 +56,15 @@ export const bulkSetFlag = createServerFn({ method: "POST" })
     if (!flag) throw new Error("This field cannot be changed in bulk");
 
     const supabase = context.supabase as SupabaseLike;
-    const { error } = await supabase
+    const { data: rows, error } = await supabase
       .from(entity.table)
       .update({ [flag.name]: data.value })
-      .in("id", data.ids);
+      .in("id", data.ids)
+      .select("id");
     if (error) throw new Error(error.message);
-    return { ok: true, updated: data.ids.length };
+    const updated = (rows ?? []).length;
+    await logBulk(context, "bulk_set_flag", entity.table, { field: flag.name, value: data.value, ids: data.ids, updated });
+    return { ok: true, updated };
   });
 
 export const bulkDeleteRows = createServerFn({ method: "POST" })
@@ -56,7 +77,9 @@ export const bulkDeleteRows = createServerFn({ method: "POST" })
     if (!entity.deletable) throw new Error("This dataset cannot be deleted in bulk");
 
     const supabase = context.supabase as SupabaseLike;
-    const { error } = await supabase.from(entity.table).delete().in("id", data.ids);
+    const { data: rows, error } = await supabase.from(entity.table).delete().in("id", data.ids).select("id");
     if (error) throw new Error(error.message);
-    return { ok: true, deleted: data.ids.length };
+    const deleted = (rows ?? []).length;
+    await logBulk(context, "bulk_delete", entity.table, { requested: data.ids.length, deleted, ids: (rows ?? []).map((r: any) => r.id) });
+    return { ok: true, deleted };
   });

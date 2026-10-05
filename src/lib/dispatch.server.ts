@@ -5,6 +5,33 @@
  */
 
 const MAX_ATTEMPTS = 6;
+const REQUEST_TIMEOUT_MS = 10_000;
+
+export function isHttpsUrl(url: unknown): boolean {
+  try {
+    return new URL(String(url)).protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+async function notifyDispatchFailure(ev: any, ep: any, message: string) {
+  try {
+    const { defaultNotifyAdmin } = await import("@/lib/stripe-payments.server");
+    await defaultNotifyAdmin(
+      "Dispatch delivery failed",
+      [
+        `A booking update could not be delivered to "${ep?.name ?? "dispatch"}" after ${MAX_ATTEMPTS} attempts.`,
+        `Event: ${ev.event_type}`,
+        `Booking: ${ev.payload?.booking_ref ?? ev.booking_id ?? "unknown"}`,
+        `Last error: ${message}`,
+      ],
+      ev.booking_id ?? null,
+    );
+  } catch (e) {
+    console.error("[dispatch] failure notification failed", e);
+  }
+}
 
 async function sign(secret: string, body: string) {
   const key = await crypto.subtle.importKey(
@@ -23,14 +50,29 @@ export async function deliverPendingDispatchEvents(limit = 25) {
   const db = supabaseAdmin as any;
   const nowIso = new Date().toISOString();
 
-  const { data: events, error } = await db
+  const { data: due, error } = await db
     .from("dispatch_events")
-    .select("*, endpoint:dispatch_endpoints(*)")
+    .select("id")
     .eq("status", "pending")
     .lte("next_attempt_at", nowIso)
     .order("created_at", { ascending: true })
     .limit(limit);
   if (error) throw new Error(error.message);
+
+  // Claim before sending: only rows this run moved pending -> sending are
+  // delivered, so overlapping runs never send the same event twice.
+  const ids = (due ?? []).map((r: any) => r.id);
+  let events: any[] = [];
+  if (ids.length) {
+    const { data: claimed, error: claimErr } = await db
+      .from("dispatch_events")
+      .update({ status: "sending" })
+      .in("id", ids)
+      .eq("status", "pending")
+      .select("*, endpoint:dispatch_endpoints(*)");
+    if (claimErr) throw new Error(claimErr.message);
+    events = claimed ?? [];
+  }
 
   let delivered = 0;
   let failed = 0;
@@ -47,6 +89,7 @@ export async function deliverPendingDispatchEvents(limit = 25) {
     const attempts = (ev.attempts ?? 0) + 1;
 
     try {
+      if (!isHttpsUrl(ep.url)) throw new Error("Dispatch address must use https://");
       const signature = await sign(ep.secret, `${timestamp}.${body}`);
       const res = await fetch(ep.url, {
         method: "POST",
@@ -58,6 +101,7 @@ export async function deliverPendingDispatchEvents(limit = 25) {
           "x-cabslink-signature": signature,
         },
         body,
+        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
       });
 
       if (res.ok) {
@@ -91,8 +135,11 @@ export async function deliverPendingDispatchEvents(limit = 25) {
         .from("dispatch_endpoints")
         .update({ last_delivery_at: new Date().toISOString(), last_delivery_ok: false, last_error: message })
         .eq("id", ep.id);
+      if (giveUp) {
+        await notifyDispatchFailure(ev, ep, message);
+      }
     }
   }
 
-  return { processed: (events ?? []).length, delivered, failed };
+  return { processed: events.length, delivered, failed };
 }

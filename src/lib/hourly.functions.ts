@@ -184,7 +184,7 @@ export const createHourlyBooking = createServerFn({ method: "POST" })
 
     const existing = await supabaseAdmin
       .from("bookings")
-      .select("id, price, booking_ref, idempotency_request_hash")
+      .select("id, price, booking_ref, idempotency_request_hash, confirmation_salt")
       .eq("idempotency_key", data.idempotencyKey)
       .maybeSingle();
     if (existing.data) {
@@ -193,7 +193,7 @@ export const createHourlyBooking = createServerFn({ method: "POST" })
         const eid = (existing.data as any).id as string;
         const eref = (existing.data as any).booking_ref as string;
         let token: string | null = null;
-        try { token = deriveConfirmationToken(eid, eref).token; } catch { token = null; }
+        try { token = deriveConfirmationToken(eid, eref, (existing.data as any).confirmation_salt ?? null).token; } catch { token = null; }
         return { id: eid, price: Number((existing.data as any).price), ref: eref, token };
       }
       try { setResponseStatus(409); } catch {}
@@ -358,14 +358,14 @@ export const createHourlyBooking = createServerFn({ method: "POST" })
     const insertRes = await supabaseAdmin
       .from("bookings")
       .insert(insertPayload as any)
-      .select("id, price, booking_ref")
+      .select("id, price, booking_ref, confirmation_salt")
       .single();
 
     if (insertRes.error) {
       if ((insertRes.error as any).code === "23505") {
         const again = await supabaseAdmin
           .from("bookings")
-          .select("id, price, booking_ref, idempotency_request_hash")
+          .select("id, price, booking_ref, idempotency_request_hash, confirmation_salt")
           .eq("idempotency_key", data.idempotencyKey)
           .maybeSingle();
         const stored = (again.data as any)?.idempotency_request_hash as string | null;
@@ -373,7 +373,7 @@ export const createHourlyBooking = createServerFn({ method: "POST" })
           const rid = (again.data as any).id as string;
           const rref = (again.data as any).booking_ref as string;
           let token: string | null = null;
-          try { token = deriveConfirmationToken(rid, rref).token; } catch { token = null; }
+          try { token = deriveConfirmationToken(rid, rref, (again.data as any).confirmation_salt ?? null).token; } catch { token = null; }
           return { id: rid, price: Number((again.data as any).price), ref: rref, token };
         }
         try { setResponseStatus(409); } catch {}
@@ -386,7 +386,7 @@ export const createHourlyBooking = createServerFn({ method: "POST" })
     const insertedId = (insertRes.data as any).id as string;
     let confirmationToken: string | null = null;
     try {
-      const derived = deriveConfirmationToken(insertedId, bookingRef);
+      const derived = deriveConfirmationToken(insertedId, bookingRef, (insertRes.data as any).confirmation_salt ?? null);
       confirmationToken = derived.token;
       await supabaseAdmin
         .from("bookings")
