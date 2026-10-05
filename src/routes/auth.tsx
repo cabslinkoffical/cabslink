@@ -12,7 +12,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useCaptcha } from "@/components/site/Captcha";
 import { verifySignInCaptcha } from "@/lib/auth-captcha.functions";
 
-export const MIN_PASSWORD_LENGTH = 12;
+const MIN_PASSWORD_LENGTH = 12;
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
