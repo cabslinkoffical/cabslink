@@ -57,6 +57,8 @@ export const submitContactMessage = createServerFn({ method: "POST" })
       phone: data.phone || null,
       subject: data.subject || null,
       message: data.message,
+      source: isTour ? "tour" : "contact",
+      source_page: await (await import("@/lib/message-source.server")).sourcePageFromRequest(),
     };
     if (isTour) insert.tour_status = "new";
     const { error } = await supabaseAdmin.from("contact_messages").insert(insert);

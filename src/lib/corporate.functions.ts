@@ -49,6 +49,8 @@ export async function submitCorporateInquiryImpl(
     phone: parsed.phone,
     subject: "Corporate Account Enquiry",
     message: parsed.needs,
+    source: "corporate",
+    source_page: await (await import("@/lib/message-source.server")).sourcePageFromRequest(),
   } as any);
   if (error) {
     console.error("corporate insert failed", error);
