@@ -1,3 +1,4 @@
+import { FACT_TEXT } from "@/lib/site-facts";
 /**
  * Phase E — journey (route) pages: /routes and /routes/:slug.
  *
@@ -120,7 +121,7 @@ export const JOURNEYS: JourneyRecord[] = [
     note:
       "The run north from Edinburgh Airport crosses the Queensferry Crossing then follows the M90 and A91 into Fife, which is a genuine 80 minutes with golf luggage rather than the hour a map suggests. Bags and clubs drive the vehicle class here: four golfers with four full bags need an estate or MPV, not a saloon, and we allocate on that basis at booking.",
     planning: [
-      "Meet & greet inside the terminal is standard, with an hour of free wait time on international arrivals.",
+      `Meet & greet inside the terminal is standard. ${FACT_TEXT.airportWait}`,
       "Clubs are loaded into a vehicle sized for bags plus cases — confirm bag count when booking.",
       "Tee-time departures back to the airport are booked as a fixed return leg, tracked against your flight.",
     ],
@@ -326,7 +327,7 @@ export const JOURNEYS: JourneyRecord[] = [
       },
       {
         q: "What happens if my flight is delayed?",
-        a: "Arrivals into Edinburgh are tracked against your flight number, so the driver is re-timed automatically. The first 60 minutes of waiting on international arrivals and 30 minutes on domestic are included at no extra cost.",
+        a: `Arrivals into Edinburgh are tracked against your flight number, so the driver is re-timed automatically. ${FACT_TEXT.airportWait}`,
       },
       {
         q: "Is there a direct train from Dundee to Edinburgh Airport?",
@@ -362,7 +363,7 @@ export const JOURNEYS: JourneyRecord[] = [
       },
       {
         q: "What happens if my flight is delayed?",
-        a: "We track the inbound flight and move the pickup time to match the actual landing. Waiting time is included for the first hour after an international arrival, so a delay does not cost you extra.",
+        a: `We track the inbound flight and move the pickup time to match the actual landing. ${FACT_TEXT.airportWait}`,
       },
       {
         q: "Do you collect from the University of Stirling and the Old Town?",
@@ -454,7 +455,7 @@ export const JOURNEYS: JourneyRecord[] = [
       "The terminal is only 10 miles from Princes Street, but this is the one Edinburgh journey where distance tells you almost nothing: the A8 in through Corstorphine and Haymarket, tram works, and the Old Town's setted streets mean 33 minutes is realistic and an hour is possible during the August festival. A car goes to your actual door, which matters here because the tram stops at St Andrew Square and leaves you with a suitcase on cobbles if you are staying in the Grassmarket, Royal Mile or Stockbridge. During festival month we confirm a drop-off street that is genuinely open rather than the hotel address on your booking, since large sections of the Old Town are closed to traffic.",
     planning: [
       "Old Town and Royal Mile drops are confirmed to an open street — several are closed or setted, particularly in August.",
-      "Meet & greet in the arrivals hall with a name board is available, otherwise pickups use the short-stay bays rather than the drop-off loop.",
+      FACT_TEXT.meetGreet,
       "Late arrivals after the last tram are covered 24/7, including flights landing after midnight.",
     ],
     stops: ["Corstorphine", "Haymarket", "West End"],
@@ -698,7 +699,7 @@ export const JOURNEYS: JourneyRecord[] = [
     note:
       "There is no through public service from Glasgow Airport to Edinburgh, and that single fact is why this transfer exists. The cheap route is two legs: First's Airport Express 500 into Buchanan Bus Station for £8.50, then a Citylink 900 coach or a train onward — fine with hand luggage, awkward with a family and four cases. By road it is 55 miles on the M8 in about 80 minutes, and the variable part is the eastern end, where the Newbridge junction and the Edinburgh city bypass decide whether you arrive in 75 minutes or 100. Long-haul arrivals at Glasgow connecting to an Edinburgh hotel are the most common booking on this route, so meet & greet in arrivals is worth adding.",
     planning: [
-      "Flights are tracked, with the first 60 minutes of waiting on international arrivals included.",
+      `Flights are tracked. ${FACT_TEXT.airportWait}`,
       "Meet & greet with a name board in the Glasgow arrivals hall avoids the terminal's short drop-off window.",
       "Allow 100 minutes for weekday arrivals into central Edinburgh before 09:30.",
       "Old Town and festival-period drops are confirmed to a street that is genuinely open to traffic.",
