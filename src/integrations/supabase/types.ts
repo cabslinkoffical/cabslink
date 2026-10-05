@@ -1041,6 +1041,8 @@ export type Database = {
           message: string
           name: string
           phone: string | null
+          source: string
+          source_page: string | null
           status: Database["public"]["Enums"]["message_status"]
           subject: string | null
           tour_status: Database["public"]["Enums"]["tour_booking_status"]
@@ -1052,6 +1054,8 @@ export type Database = {
           message: string
           name: string
           phone?: string | null
+          source?: string
+          source_page?: string | null
           status?: Database["public"]["Enums"]["message_status"]
           subject?: string | null
           tour_status?: Database["public"]["Enums"]["tour_booking_status"]
@@ -1063,6 +1067,8 @@ export type Database = {
           message?: string
           name?: string
           phone?: string | null
+          source?: string
+          source_page?: string | null
           status?: Database["public"]["Enums"]["message_status"]
           subject?: string | null
           tour_status?: Database["public"]["Enums"]["tour_booking_status"]
