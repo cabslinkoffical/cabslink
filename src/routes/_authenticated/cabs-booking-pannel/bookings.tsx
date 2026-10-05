@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
 import { useSuspenseQuery, useMutation, useQueryClient, queryOptions, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { listBookings, updateBooking, softDeleteBooking, deleteBooking } from "@/lib/admin.functions";
+import { listBookings, updateBooking, softDeleteBooking, deleteBooking, regenerateBookingLink } from "@/lib/admin.functions";
 import { setBookingStatusFn, listBookingNotifications, retryBookingNotification } from "@/lib/booking.functions";
 import { STATUS_META, ADMIN_STATUS_OPTIONS, statusLabel, type BookingStatus } from "@/lib/booking-lifecycle";
 
@@ -410,6 +410,8 @@ function BookingsPage() {
                   </div>
                 </Section>
 
+                <RegenerateLink bookingId={editing.id} />
+
                 <Section title="Tell the customer">
                   <CannedEmailComposer
                     scope="booking"
@@ -515,5 +517,39 @@ function NotificationsPanel({ bookingId }: { bookingId: string }) {
         ))}
       </ul>
     </div>
+  );
+}
+
+function RegenerateLink({ bookingId }: { bookingId: string }) {
+  const regen = useServerFn(regenerateBookingLink);
+  const [link, setLink] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  return (
+    <Section title="Customer booking link">
+      <p className="text-xs text-muted-foreground">Create a new private link for this booking. The old link stops working straight away.</p>
+      <Button
+        type="button"
+        size="sm"
+        variant="outline"
+        className="mt-2"
+        disabled={busy}
+        onClick={async () => {
+          if (!confirm("Create a new link? The customer's current link will stop working.")) return;
+          setBusy(true);
+          try {
+            const r = await regen({ data: { bookingId } });
+            setLink(window.location.origin + r.path);
+            toast.success("New link created");
+          } catch (e) {
+            toast.error((e as Error).message);
+          } finally {
+            setBusy(false);
+          }
+        }}
+      >
+        New customer link
+      </Button>
+      {link ? <Input readOnly value={link} className="mt-2 font-mono text-xs" onFocus={(e) => e.currentTarget.select()} /> : null}
+    </Section>
   );
 }
