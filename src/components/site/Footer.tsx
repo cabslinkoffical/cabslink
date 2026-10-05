@@ -1,4 +1,5 @@
 import { resetConsent } from "@/lib/consent";
+import { FACT_TEXT } from "@/lib/site-facts";
 import { Link } from "@tanstack/react-router";
 import { Mail, Phone, MapPin } from "lucide-react";
 import { Logo } from "./Logo";
@@ -91,13 +92,14 @@ export function Footer() {
           <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--gold)]">Contact</h3>
           <ul className="mt-5 space-y-4 text-sm text-white/80">
             <li className="flex gap-3"><MapPin className="size-4 shrink-0 mt-0.5 text-[var(--gold)]" /><span>{SITE.address}</span></li>
-            <li className="flex gap-3"><Phone className="size-4 shrink-0 mt-0.5 text-[var(--gold)]" /><div><a href={`tel:${SITE.phoneUK.replace(/\s/g,"")}`} className="flex min-h-10 items-center hover:text-[var(--gold)] md:min-h-0">{SITE.phoneUK}</a><a href={`tel:${SITE.phoneUS.replace(/[^\d+]/g,"")}`} className="flex min-h-10 items-center hover:text-[var(--gold)] md:min-h-0">{SITE.phoneUS}</a></div></li>
+            <li className="flex gap-3"><Phone className="size-4 shrink-0 mt-0.5 text-[var(--gold)]" /><div><a href={`tel:${SITE.phoneUK.replace(/\s/g,"")}`} className="flex min-h-10 items-center hover:text-[var(--gold)] md:min-h-0">{SITE.phoneUK}</a></div></li>
             <li className="flex gap-3"><Mail className="size-4 shrink-0 mt-0.5 text-[var(--gold)]" /><a href={`mailto:${SITE.email}`} className="inline-flex min-h-10 items-center hover:text-[var(--gold)] md:min-h-0">{SITE.email}</a></li>
           </ul>
         </div>
       </div>
       <div className="border-t border-white/10">
         <div className="container-x py-5 flex flex-col gap-4 text-xs text-white/60">
+          <p>{FACT_TEXT.companyLine}</p>
           <ul className="flex flex-wrap justify-center gap-x-5 gap-y-2">
             {legal.map(l => (
               <li key={l.to}><Link to={l.to} className="inline-flex min-h-10 items-center hover:text-[var(--gold)] md:min-h-0">{l.label}</Link></li>

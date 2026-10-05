@@ -3,7 +3,6 @@ export const SITE = {
   tagline: "UK's Trusted & Reliable Airport Transfer Service",
   email: "info@cabslink.com",
   phoneUK: "+44 333 888 2991",
-  phoneUS: "+1 (315) 961-8102",
   address: "263a Leith Walk, Edinburgh, Scotland, EH6 8NY",
   social: {
     instagram: "https://www.instagram.com/cabs_link/",
@@ -37,14 +36,3 @@ export const DESTINATIONS = [
   { to: "/distance", label: "Distance Calculator" },
 ] as const;
 
-
-export const VEHICLE_TYPES = [
-  "Mercedes-Benz E-Class",
-  "Mercedes-Benz S-Class",
-  "Mercedes-Benz V-Class",
-  "Range Rover",
-  "Rolls-Royce Bentley",
-  "Mini Bus (16-seater)",
-  "Coaster Bus (24-seater)",
-  "Coach Bus (55-seater)",
-] as const;

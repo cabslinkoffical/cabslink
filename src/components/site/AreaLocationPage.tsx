@@ -5,6 +5,9 @@
  * one comprehensive, entity-rich page per location.
  */
 import { Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { listPublicVehicleClasses } from "@/lib/vehicle-classes.functions";
+import { FACT_TEXT } from "@/lib/site-facts";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { FaqBlock } from "@/components/seo/FaqBlock";
 import { EntityGrid } from "@/components/explore/EntityCard";
@@ -36,7 +39,7 @@ const SERVICES = [
   { href: "/vip-transfers", label: "Executive & VIP Cars", blurb: "Discreet luxury travel for VIPs." },
   { href: "/corporate-travel", label: "Corporate Transport", blurb: "Business accounts and monthly billing." },
   { href: "/tours", label: "Private Tours", blurb: "Custom driver-guided day tours." },
-  { href: "/fleet", label: "Minibus & Coach Hire", blurb: "Groups from 7 to 55 passengers." },
+  { href: "/fleet", label: "Group Transfers", blurb: "MPVs and eight-seater vans for groups." },
   { href: "/services", label: "All Services", blurb: "Full list of what we cover." },
 ] as const;
 
@@ -50,6 +53,12 @@ const WHY = [
 export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
   const d = data.destination;
   const locName = d.display_name ?? d.name;
+  // Same query key as the fleet page, so the cache is shared.
+  const { data: vehicleClasses } = useQuery({
+    queryKey: ["public-vehicle-classes"],
+    queryFn: () => listPublicVehicleClasses(),
+    staleTime: 60_000,
+  });
   const region = d.region;
   const heroSub = [d.town, d.council, region].filter(Boolean).join(" · ");
 
@@ -78,7 +87,7 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
               </h1>
               <p className="mt-6 max-w-3xl text-base leading-relaxed text-navy-foreground/72">
                 Cabslink provides reliable airport transfers, private hire, executive cars, corporate
-                transport, luxury private-driver travel and minibus hire in <strong>{locName}</strong>.
+                transport, luxury private-driver travel and group transfers in <strong>{locName}</strong>.
                 Book a fixed-price taxi or cab from {locName} to Edinburgh, Glasgow or any UK airport —
                 with 24/7 availability, meet-and-greet, and door-to-door service.
               </p>
@@ -159,17 +168,9 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
       <section className="mt-20 border-y border-border py-8">
         <SectionHeader eyebrow="Our fleet" title="Vehicles available" />
         <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 text-sm text-[var(--navy)]/80">
-          {[
-            "Executive Saloon (Mercedes-Benz E-Class)",
-            "Luxury Saloon (Mercedes-Benz S-Class)",
-            "Executive MPV (Mercedes-Benz V-Class)",
-            "Range Rover",
-            "Mini Bus (16-seater)",
-            "Coaster Bus (24-seater)",
-            "Coach Bus (55-seater)",
-          ].map((v) => (
-            <li key={v} className="flex items-center gap-2">
-              <CheckCircle2 className="size-4 text-[var(--gold-ink)]" /> {v}
+          {(vehicleClasses ?? []).map((c) => (
+            <li key={c.id} className="flex items-center gap-2">
+              <CheckCircle2 className="size-4 text-[var(--gold-ink)]" /> {c.name} · {c.passengers} passengers · {c.large_luggage} large bags
             </li>
           ))}
         </ul>
@@ -280,11 +281,11 @@ function buildFaqs(ctx: AreaSeoContext): { q: string; a: string }[] {
     },
     {
       q: `Do you offer meet and greet at the airport?`,
-      a: `Yes. Our driver waits in the arrivals hall with a name-board, tracks your flight, and includes free waiting time.`,
+      a: `Yes. ${FACT_TEXT.meetGreet} ${FACT_TEXT.airportWait}`,
     },
     {
-      q: `Can I book a Mercedes V-Class or minibus in ${name}?`,
-      a: `Yes. We offer executive Mercedes V-Class, 16-seater minibus, 24-seater coaster and 55-seater coach for group and family transfers.`,
+      q: `Can I book a larger vehicle for a group in ${name}?`,
+      a: `Yes. MPVs and eight-seater vans are available for group and family transfers. Exact seats and bags for every class are listed on our fleet page.`,
     },
     {
       q: `Are child seats available?`,

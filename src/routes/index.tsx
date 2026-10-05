@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { FACT_TEXT } from "@/lib/site-facts";
 import { useEffect, useMemo, useState } from "react";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 
@@ -35,10 +36,7 @@ import sclassAsset from "@/assets/fleet/sclass.png.asset.json";
 import eclassAsset from "@/assets/fleet/eclass.png.asset.json";
 import vclassAsset from "@/assets/fleet/vclass.png.asset.json";
 import rangeroverAsset from "@/assets/fleet/rangerover.png.asset.json";
-import minibusAsset from "@/assets/fleet/minibus.png.asset.json";
 import rollsAsset from "@/assets/fleet/rolls.png.asset.json";
-import coachAsset from "@/assets/fleet/coach.png.asset.json";
-import coasterAsset from "@/assets/fleet/coaster.png.asset.json";
 import { fleetThumbnailUrl, asFleetAsset } from "@/lib/fleet-image";
 import { HOME_FLEET_IMAGES, HOME_SERVICE_IMAGES, type ResponsiveImage } from "@/lib/home-image-variants";
 
@@ -49,18 +47,15 @@ type HeroVehicle = {
   img: string;
   srcSet?: string;
   thumbnail?: string;
-  seats: number;
+  seats?: number;
 };
 
 const fallbackHeroVehicles: HeroVehicle[] = [
-  { key: "vclass", name: "Mercedes V-Class", tag: "First-class · 7 seats", img: vclassAsset.url, srcSet: asFleetAsset(vclassAsset).srcSet, thumbnail: fleetThumbnailUrl(vclassAsset), seats: 7 },
-  { key: "sclass", name: "Mercedes S-Class", tag: "Flagship saloon · 3 seats", img: sclassAsset.url, srcSet: asFleetAsset(sclassAsset).srcSet, thumbnail: fleetThumbnailUrl(sclassAsset), seats: 3 },
-  { key: "eclass", name: "Mercedes E-Class", tag: "Executive · 3 seats", img: eclassAsset.url, srcSet: asFleetAsset(eclassAsset).srcSet, thumbnail: fleetThumbnailUrl(eclassAsset), seats: 3 },
-  { key: "rangerover", name: "Range Rover", tag: "Luxury SUV · 4 seats", img: rangeroverAsset.url, srcSet: asFleetAsset(rangeroverAsset).srcSet, thumbnail: fleetThumbnailUrl(rangeroverAsset), seats: 4 },
-  { key: "rolls", name: "Rolls-Royce Bentley", tag: "Ultra-luxury · 3 seats", img: rollsAsset.url, srcSet: asFleetAsset(rollsAsset).srcSet, thumbnail: fleetThumbnailUrl(rollsAsset), seats: 3 },
-  { key: "minibus", name: "Executive Minibus", tag: "Groups · 16 seats", img: minibusAsset.url, srcSet: asFleetAsset(minibusAsset).srcSet, thumbnail: fleetThumbnailUrl(minibusAsset), seats: 16 },
-  { key: "coaster", name: "Coaster Bus", tag: "Mid-group · 24 seats", img: coasterAsset.url, srcSet: asFleetAsset(coasterAsset).srcSet, thumbnail: fleetThumbnailUrl(coasterAsset), seats: 24 },
-  { key: "coach", name: "Coach Bus", tag: "Large group · 55 seats", img: coachAsset.url, srcSet: asFleetAsset(coachAsset).srcSet, thumbnail: fleetThumbnailUrl(coachAsset), seats: 55 },
+  { key: "vclass", name: "Mercedes V-Class", tag: "First-class", img: vclassAsset.url, srcSet: asFleetAsset(vclassAsset).srcSet, thumbnail: fleetThumbnailUrl(vclassAsset) },
+  { key: "sclass", name: "Mercedes S-Class", tag: "Flagship saloon", img: sclassAsset.url, srcSet: asFleetAsset(sclassAsset).srcSet, thumbnail: fleetThumbnailUrl(sclassAsset) },
+  { key: "eclass", name: "Mercedes E-Class", tag: "Executive", img: eclassAsset.url, srcSet: asFleetAsset(eclassAsset).srcSet, thumbnail: fleetThumbnailUrl(eclassAsset) },
+  { key: "rangerover", name: "Range Rover", tag: "Luxury SUV", img: rangeroverAsset.url, srcSet: asFleetAsset(rangeroverAsset).srcSet, thumbnail: fleetThumbnailUrl(rangeroverAsset) },
+  { key: "rolls", name: "Rolls-Royce Bentley", tag: "Ultra-luxury", img: rollsAsset.url, srcSet: asFleetAsset(rollsAsset).srcSet, thumbnail: fleetThumbnailUrl(rollsAsset) },
 ];
 
 const HERO_VEHICLE_SIZES = "(max-width: 1024px) 92vw, 600px";
@@ -163,7 +158,7 @@ const trustStats = [
   { icon: ShieldCheck, k: "Licensed & insured", v: "Fully vetted UK drivers" },
   { icon: Clock, k: "24/7 availability", v: "Day, night and holidays" },
   { icon: BadgeCheck, k: "Fixed pricing", v: "No hidden surcharges" },
-  { icon: PlaneTakeoff, k: "Flight tracking", v: "Free waiting on delays" },
+  { icon: PlaneTakeoff, k: "Flight tracking", v: FACT_TEXT.airportWaitShort },
 ];
 
 
@@ -175,7 +170,7 @@ const serviceTiles = [
   { name: "Cruise Ports", kicker: "Embarkation", desc: "Timed port transfers with room for every case and trunk.", image: HOME_SERVICE_IMAGES.cruise, to: "/cruise-transfers", icon: Compass },
   { name: "Rail Stations", kicker: "City to city", desc: "Kerbside pickups at UK terminals, timed to your train.", image: HOME_SERVICE_IMAGES.station, to: "/stations", icon: RouteIcon },
   { name: "Corporate Travel", kicker: "Business", desc: "Account-managed journeys with invoicing and priority support.", image: HOME_SERVICE_IMAGES.corporate, to: "/corporate-travel", icon: Building2 },
-  { name: "Group Travel", kicker: "5–55 seats", desc: "MPVs, minibuses and coaches planned as a single job.", image: HOME_SERVICE_IMAGES.group, to: "/group-transfers", icon: Users },
+  { name: "Group Travel", kicker: "Groups", desc: "MPVs and eight-seater vans planned as a single job.", image: HOME_SERVICE_IMAGES.group, to: "/group-transfers", icon: Users },
   { name: "Private Tours", kicker: "Signature", desc: "Driver-led days across Scotland, entirely at your pace.", image: HOME_SERVICE_IMAGES.tours, to: "/tours", icon: Gem },
 ];
 
@@ -840,9 +835,9 @@ function HomePage() {
 const faqItems = [
   { q: "How far in advance should I book?", a: "You can book anytime — even minutes ahead — but we recommend 2+ hours for airport pickups to guarantee your preferred vehicle." },
   { q: "Do you track my flight?", a: "Yes. Every airport transfer includes automatic flight tracking, and we adjust pickup times for delays or early arrivals at no extra cost." },
-  { q: "Is there a meet & greet at arrivals?", a: "Absolutely. Your driver waits inside the terminal with a name board and helps with your luggage — included as standard." },
-  { q: "What if I need to cancel?", a: "Tell us as early as you can and we'll cancel free of charge. Late cancellations or no-shows may be charged for the reserved driver time — see our booking & cancellation policy." },
-  { q: "How do I pay?", a: "We accept card payments only. You pay securely by debit or credit card at the end of booking, and your journey is confirmed as soon as the payment succeeds." },
+  { q: "Is there a meet & greet at arrivals?", a: `Yes. ${FACT_TEXT.meetGreet} ${FACT_TEXT.airportWait}` },
+  { q: "What if I need to cancel?", a: `${FACT_TEXT.transferCancellation} ${FACT_TEXT.tourCancellation} See our booking & cancellation policy.` },
+  { q: "How do I pay?", a: `${FACT_TEXT.payment} Your journey is confirmed as soon as the payment succeeds.` },
 
   { q: "Do you cover the whole UK?", a: "Yes — Edinburgh, London (Heathrow, Gatwick, Stansted, Luton, City), Manchester, Glasgow, Birmingham and 120+ UK destinations." },
 ];
