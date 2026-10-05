@@ -8,6 +8,11 @@ import { Logo } from "@/components/site/Logo";
 import { Toaster } from "@/components/ui/sonner";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
+import { useCaptcha } from "@/components/site/Captcha";
+import { verifySignInCaptcha } from "@/lib/auth-captcha.functions";
+
+export const MIN_PASSWORD_LENGTH = 12;
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -21,10 +26,12 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"signin" | "signup" | "reset">("signin");
+  const [mode, setMode] = useState<"signin" | "reset">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
+  const captcha = useCaptcha("admin_signin");
+  const checkCaptcha = useServerFn(verifySignInCaptcha);
 
   useEffect(() => {
     const isPasswordSetup = new URLSearchParams(window.location.search).get("setup") === "dispatch";
@@ -43,30 +50,26 @@ function AuthPage() {
     setBusy(true);
     try {
       if (mode === "reset") {
+        if (password.length < MIN_PASSWORD_LENGTH) throw new Error(`Use at least ${MIN_PASSWORD_LENGTH} characters.`);
         const { error } = await supabase.auth.updateUser({ password });
         if (error) throw error;
         await supabase.auth.signOut();
         toast.success("Password set. You can now sign in to the Dispatch Board.");
         setMode("signin");
         setPassword("");
-      } else if (mode === "signin") {
+      } else {
+        if (!captcha.ready) throw new Error("Please complete the security check.");
+        const check = await checkCaptcha({ data: { token: captcha.token } });
+        if (!check.ok) throw new Error(check.error);
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         if (!data.user || !data.session) throw new Error("Sign-in did not create a session. Please try again.");
         toast.success("Signed in");
         await navigate({ to: "/cabs-booking-pannel", replace: true });
-      } else {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { emailRedirectTo: window.location.origin + "/auth" },
-        });
-        if (error) throw error;
-        toast.success("Account created. You can sign in now.");
-        setMode("signin");
       }
     } catch (err: any) {
       toast.error(err?.message ?? "Authentication failed");
+      captcha.reset();
     } finally {
       setBusy(false);
     }
@@ -79,10 +82,10 @@ function AuthPage() {
         <div className="flex justify-center mb-6"><Logo /></div>
         <div className="rounded-2xl border border-border/60 bg-card/95 backdrop-blur p-8 shadow-2xl">
           <h1 className="font-display text-2xl font-semibold text-center">
-             {mode === "signin" ? "Admin sign in" : mode === "reset" ? "Set your password" : "Create account"}
+             {mode === "signin" ? "Admin sign in" : "Set your password"}
           </h1>
           <p className="text-sm text-muted-foreground text-center mt-1">
-             {mode === "signin" ? "Access the Cabslink admin panel" : mode === "reset" ? "Create the password you will use on Cabslink Dispatch" : "An admin must grant you access after sign up"}
+             {mode === "signin" ? "Access the Cabslink admin panel" : "Create the password you will use on Cabslink Dispatch"}
           </p>
           <form onSubmit={onSubmit} className="mt-6 space-y-4">
              {mode !== "reset" ? <div className="space-y-1.5">
@@ -91,20 +94,15 @@ function AuthPage() {
              </div> : null}
             <div className="space-y-1.5">
               <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" required minLength={6} autoComplete={mode === "signin" ? "current-password" : "new-password"} value={password} onChange={e => setPassword(e.target.value)} />
+              <Input id="password" type="password" required minLength={mode === "reset" ? MIN_PASSWORD_LENGTH : undefined} autoComplete={mode === "signin" ? "current-password" : "new-password"} value={password} onChange={e => setPassword(e.target.value)} />
             </div>
+            {mode === "signin" ? captcha.widget : null}
             <Button type="submit" variant="gold" className="w-full rounded-full" disabled={busy}>
               {busy && <Loader2 className="size-4 animate-spin" />}
-               {mode === "signin" ? "Sign in" : mode === "reset" ? "Set password" : "Create account"}
+               {mode === "signin" ? "Sign in" : "Set password"}
             </Button>
           </form>
-           {mode !== "reset" ? <button
-            type="button"
-            onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
-            className="mt-5 w-full text-center text-sm text-muted-foreground hover:text-[var(--gold)]"
-          >
-            {mode === "signin" ? "Need an account? Sign up" : "Already have an account? Sign in"}
-           </button> : null}
+
         </div>
         <div className="text-center mt-6">
           <Link to="/" className="text-sm text-white/70 hover:text-[var(--gold)]">← Back to site</Link>
