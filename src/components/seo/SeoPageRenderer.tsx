@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { safeJsonLd } from "@/lib/safe-json-ld";
 import type { PublicSeoPage, PublicSeoSection } from "@/lib/seo-public.functions";
 import type { RelatedBundle, RelatedLink } from "@/lib/seo-related.functions";
 import type { RouteFareTable as RouteFareTableData } from "@/lib/seo/route-fares.functions";
@@ -295,7 +296,7 @@ export function buildSeoHead(
     scripts: [
       {
         type: "application/ld+json",
-        children: JSON.stringify({ "@context": "https://schema.org", "@graph": graph }),
+        children: safeJsonLd({ "@context": "https://schema.org", "@graph": graph }),
       },
     ],
   };

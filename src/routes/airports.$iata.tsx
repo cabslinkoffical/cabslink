@@ -1,4 +1,5 @@
 import { createFileRoute, Link, notFound, redirect } from "@tanstack/react-router";
+import { safeJsonLd } from "@/lib/safe-json-ld";
 import { Plane, MapPin, Clock, ShieldCheck, ArrowRight, Check } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
@@ -298,7 +299,7 @@ function AirportPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: safeJsonLd({
             "@context": "https://schema.org",
             "@type": "Airport",
             name,
