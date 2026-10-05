@@ -229,7 +229,7 @@ export function HeroImageUploader({ slug, onUploaded }: { slug: string; onUpload
 
   return (
     <>
-      <input ref={inputRef} type="file" accept="image/*" className="hidden"
+      <input ref={inputRef} type="file" accept="image/jpeg,image/png,image/webp,image/avif" className="hidden"
         onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} />
       <Button type="button" variant="outline" onClick={() => inputRef.current?.click()} disabled={busy}>
         {busy ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />}
