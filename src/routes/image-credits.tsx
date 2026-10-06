@@ -1,9 +1,10 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { IMAGE_CREDITS } from "@/lib/image-credits";
 
 export const Route = createFileRoute("/image-credits")({
-  head: () => ({
+  head: () => normalizeHead({
     meta: [
       { title: "Image Credits | Cabslink Photography Attribution" },
       {

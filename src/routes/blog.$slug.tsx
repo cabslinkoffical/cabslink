@@ -1,3 +1,4 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute, notFound, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { getBlogPost, type BlogPostFull, type BlogPostSummary } from "@/lib/blog.functions";
@@ -20,7 +21,7 @@ export const Route = createFileRoute("/blog/$slug")({
   },
   head: ({ params, loaderData }) => {
     if (!loaderData) {
-      return { meta: [{ title: "Article not found — Cabslink" }, { name: "robots", content: "noindex" }] };
+      return normalizeHead({ meta: [{ title: "Article not found — Cabslink" }, { name: "robots", content: "noindex" }] });
     }
     const p = loaderData.post;
     const url = `${BASE}/blog/${p.slug}`;
@@ -105,11 +106,11 @@ export const Route = createFileRoute("/blog/$slug")({
       });
     }
 
-    return {
+    return normalizeHead({
       meta,
       links: [{ rel: "canonical", href: canonical }],
       scripts,
-    };
+    });
   },
   notFoundComponent: () => (
     <SiteLayout>

@@ -1,3 +1,4 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { SolutionPage, solutionSchema } from "@/components/site/SolutionPage";
 import { TRAVEL_SOLUTIONS } from "@/lib/seo/travel-solutions";
@@ -11,15 +12,15 @@ export const Route = createFileRoute("/travel-solutions/$slug")({
   head: ({ params }) => {
     const content = TRAVEL_SOLUTIONS[params.slug];
     if (!content) {
-      return {
+      return normalizeHead({
         meta: [
           { title: "Travel solution unavailable | Cabslink" },
           { name: "robots", content: "noindex" },
         ],
-      };
+      });
     }
     const url = `https://cabslink.com/travel-solutions/${content.slug}`;
-    return {
+    return normalizeHead({
       meta: [
         { title: content.metaTitle },
         { name: "description", content: content.metaDescription },
@@ -33,7 +34,7 @@ export const Route = createFileRoute("/travel-solutions/$slug")({
       scripts: [
         { type: "application/ld+json", children: JSON.stringify(solutionSchema(content, url)) },
       ],
-    };
+    });
   },
   component: SolutionRoute,
 });

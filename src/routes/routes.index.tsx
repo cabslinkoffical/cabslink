@@ -1,3 +1,4 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Clock, Route as RouteIcon, Ruler } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
@@ -10,7 +11,7 @@ const DESCRIPTION =
   "Cabslink's most-booked UK journeys — airport runs, city transfers, golf and Highland routes with real distances and fixed prices.";
 
 export const Route = createFileRoute("/routes/")({
-  head: () => ({
+  head: () => normalizeHead({
     meta: [
       { title: TITLE },
       { name: "description", content: DESCRIPTION },

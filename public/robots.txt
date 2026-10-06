@@ -3,7 +3,8 @@ Allow: /
 
 # Private / non-indexable areas
 Disallow: /cabs-booking-pannel
-Disallow: /auth
+Disallow: /auth$
+Disallow: /api/
 Disallow: /booking/
 Disallow: /book/confirm
 

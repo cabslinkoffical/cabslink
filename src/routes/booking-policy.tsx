@@ -1,3 +1,4 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { LegalPage } from "@/components/site/LegalPage";
 import { SITE } from "@/lib/site";
@@ -8,7 +9,7 @@ const TT = FACTS.tourCancellation;
 const W = FACTS.airportWait;
 
 export const Route = createFileRoute("/booking-policy")({
-  head: () => ({
+  head: () => normalizeHead({
     meta: [
       { title: "Booking & Cancellation Policy — Cabslink" },
       { name: "description", content: "How Cabslink bookings are confirmed, how to change or cancel a journey, waiting-time allowances and no-show handling." },

@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
+import { fetchAllPages } from "@/lib/sitemap-routes";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { DESTINATION_TYPES, type Destination, type DestinationType } from "@/lib/destinations.functions";
@@ -38,13 +39,14 @@ export const Route = createFileRoute("/sitemap.xml")({
         let types: DestinationType[] = [];
         try {
           const sb = serverPublicClient();
-          const { data } = await sb
+          const data = await fetchAllPages((from, to) => sb
             .from("destinations")
             .select("*")
             .eq("active", true)
             .eq("seo_tier", 1)
             .eq("noindex", false)
-            .limit(50000);
+            .order("id")
+          .range(from, to));
           // Mirror the renderer's quality gate so we never advertise a
           // sub-sitemap whose pages all render `noindex`.
           const present = new Set(

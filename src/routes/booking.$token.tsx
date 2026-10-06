@@ -1,3 +1,4 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -18,7 +19,7 @@ export const Route = createFileRoute("/booking/$token")({
     typeof search.session_id === "string" && search.session_id.length > 0
       ? { session_id: search.session_id }
       : {},
-  head: () => ({
+  head: () => normalizeHead({
     meta: [
       { title: `Booking confirmation — ${SITE.name}` },
       { name: "description", content: "View your booking details." },

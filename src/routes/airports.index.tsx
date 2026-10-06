@@ -1,3 +1,4 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { Plane, ArrowRight } from "lucide-react";
@@ -14,7 +15,7 @@ const airportsQuery = queryOptions({
 
 export const Route = createFileRoute("/airports/")({
   loader: ({ context }) => context.queryClient.ensureQueryData(airportsQuery),
-  head: () => ({
+  head: () => normalizeHead({
     meta: [
       { title: "UK Airport Transfers — Every Major Airport | Cabslink" },
       { name: "description", content: "Fixed-fare private transfers to every major UK airport. Meet & greet, flight tracking, 24/7 dispatch across England, Scotland, Wales and Northern Ireland." },

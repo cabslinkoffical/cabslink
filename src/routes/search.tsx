@@ -1,3 +1,4 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
@@ -15,13 +16,13 @@ export const Route = createFileRoute("/search")({
   head: ({ match }) => {
     const q = (match.search as { q?: string }).q ?? "";
     const title = q ? `Search: ${q} — Cabslink` : "Search — Cabslink";
-    return {
+    return normalizeHead({
       meta: [
         { title },
         { name: "description", content: "Search every UK destination Cabslink covers." },
         { name: "robots", content: "noindex" },
       ],
-    };
+    });
   },
   component: SearchPage,
 });

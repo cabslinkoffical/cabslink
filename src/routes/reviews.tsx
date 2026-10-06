@@ -14,6 +14,7 @@
  *  - No Review/AggregateRating structured data: these are third-party scores on
  *    third-party platforms, so the proof is a visible link and attribution.
  */
+import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { ArrowUpRight, ExternalLink, Clock, Video, MessageSquareQuote, Star } from "lucide-react";
@@ -39,7 +40,7 @@ const DESCRIPTION =
 const URL = "https://cabslink.com/reviews";
 
 export const Route = createFileRoute("/reviews")({
-  head: () => ({
+  head: () => normalizeHead({
     meta: [
       { title: TITLE },
       { name: "description", content: DESCRIPTION },

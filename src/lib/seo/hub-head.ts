@@ -1,3 +1,4 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 /**
  * Shared head() builder for the destination hub pages (/stations, /distilleries,
  * /attractions, …). Keeps title/description wording in `hub-config.ts` and
@@ -32,7 +33,7 @@ export function itemListSchema(name: string, items: HubListItem[]) {
   };
 }
 
-export function hubHead(key: HubKey, items?: HubListItem[]) {
+function hubHeadRaw(key: HubKey, items?: HubListItem[]) {
   const cfg = HUBS[key] as { title: string; intro: string; metaDescription?: string };
   const title = hubTitle(key);
   const description = cfg.metaDescription ?? cfg.intro;
@@ -76,4 +77,10 @@ export function hubHead(key: HubKey, items?: HubListItem[]) {
     links: [{ rel: "canonical", href: url }],
     scripts,
   };
+}
+
+
+/** Same payload, upgraded to the full canonical/OG/Twitter tag set. */
+export function hubHead(key: HubKey, items?: HubListItem[]) {
+  return normalizeHead(hubHeadRaw(key, items));
 }

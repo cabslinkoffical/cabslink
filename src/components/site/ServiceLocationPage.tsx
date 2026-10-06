@@ -1,3 +1,4 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 /**
  * ServiceLocationPage — shared template for service + location combination
  * pages (e.g. /airport-transfers/edinburgh). Content is facts-gated in
@@ -256,7 +257,7 @@ export function serviceLocationSchema(content: ServiceLocationContent) {
 }
 
 /** head() payload for a combination route. */
-export function serviceLocationHead(content: ServiceLocationContent) {
+function serviceLocationHeadRaw(content: ServiceLocationContent) {
   const url = `${ORIGIN}${content.canonicalPath}`;
   return {
     meta: [
@@ -273,4 +274,10 @@ export function serviceLocationHead(content: ServiceLocationContent) {
       { type: "application/ld+json", children: JSON.stringify(serviceLocationSchema(content)) },
     ],
   };
+}
+
+
+/** Same payload, upgraded to the full canonical/OG/Twitter tag set. */
+export function serviceLocationHead(content: ServiceLocationContent) {
+  return normalizeHead(serviceLocationHeadRaw(content));
 }

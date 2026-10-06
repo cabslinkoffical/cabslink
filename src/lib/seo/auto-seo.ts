@@ -1,3 +1,4 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 /**
  * Auto-SEO head builder. Produces the full head() payload for a leaf
  * destination route: title, meta description, canonical, OG/Twitter,
@@ -26,7 +27,7 @@ export type HeadPayload = {
   scripts: Array<{ type: string; children: string }>;
 };
 
-export function buildAutoHead(loaded: LoadedDestination | undefined | null): HeadPayload {
+function buildAutoHeadRaw(loaded: LoadedDestination | undefined | null): HeadPayload {
   if (!loaded) {
     return {
       meta: [{ title: "Not found" }, { name: "robots", content: "noindex" }],
@@ -98,4 +99,10 @@ function buildBreadcrumbItems(
   if (d.region) items.push({ name: d.region, url: `/${hubSegment}` });
   items.push({ name: d.display_name ?? d.name, url: `/${hubSegment}/${d.slug}` });
   return items;
+}
+
+
+/** Same payload, upgraded to the full canonical/OG/Twitter tag set. */
+export function buildAutoHead(loaded: LoadedDestination | undefined | null): HeadPayload {
+  return normalizeHead(buildAutoHeadRaw(loaded));
 }

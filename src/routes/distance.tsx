@@ -1,10 +1,11 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
 import { DistanceCalculator } from "@/components/site/DistanceCalculator";
 
 export const Route = createFileRoute("/distance")({
-  head: () => ({
+  head: () => normalizeHead({
     meta: [
       { title: "Driving Distance Calculator — Cabslink" },
       { name: "description", content: "Instantly estimate the driving distance in miles between any two UK locations using Google Maps Routes." },

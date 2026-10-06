@@ -1,9 +1,10 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { LegalPage } from "@/components/site/LegalPage";
 import { SITE } from "@/lib/site";
 
 export const Route = createFileRoute("/refund-policy")({
-  head: () => ({
+  head: () => normalizeHead({
     meta: [
       { title: "Refund Policy — Cabslink" },
       { name: "description", content: "How Cabslink handles refunds for airport transfers, private tours and hourly hire, including cancellations, no-shows and payment reversals." },

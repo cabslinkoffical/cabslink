@@ -6,6 +6,7 @@
  * title and metadata. This route owns every unmatched path, returns a real
  * 404 status, and serves a single-H1, `noindex` page.
  */
+import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/SiteLayout";
 
@@ -13,7 +14,7 @@ export const Route = createFileRoute("/$")({
   loader: () => {
     throw notFound();
   },
-  head: () => ({
+  head: () => normalizeHead({
     meta: [
       { title: "Page not found (404) — Cabslink" },
       { name: "description", content: "This Cabslink page doesn't exist or has moved. Browse our transfer services, airports and locations instead." },

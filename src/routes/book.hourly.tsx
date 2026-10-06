@@ -8,6 +8,7 @@
  * tours and suggested stops within the mileage are chosen, followed by vehicle,
  * details and payment.
  */
+import { normalizeHead } from "@/lib/seo/page-head";
 import { useState } from "react";
 import { createFileRoute, useNavigate, Link, redirect } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -103,7 +104,7 @@ export const Route = createFileRoute("/book/hourly")({
       },
     });
   },
-  head: () => ({
+  head: () => normalizeHead({
     meta: [
       { title: "Hourly Car Hire with Driver — Edinburgh & Glasgow | Cabslink" },
       { name: "description", content: "Hourly car hire with a driver in Edinburgh, Glasgow and across Scotland. Miles included, waiting time included, fixed price by the hour — book online in minutes." },

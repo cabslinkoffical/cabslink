@@ -1,3 +1,4 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Crown, ShieldCheck, Sparkles, Star, ArrowRight } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
@@ -8,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import driverImg from "@/assets/chauffeur.jpg";
 
 export const Route = createFileRoute("/vip-transfers")({
-  head: () => ({
+  head: () => normalizeHead({
     meta: [
       { title: "VIP Transfers — Cabslink Luxury Airport Travel Service" },
       { name: "description", content: "Discreet, refined VIP driver transfers across the UK. First-class vehicles, vetted drivers and absolute privacy." },

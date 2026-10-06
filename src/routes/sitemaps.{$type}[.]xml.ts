@@ -5,6 +5,7 @@
  */
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
+import { fetchAllPages } from "@/lib/sitemap-routes";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { destinationHref, DESTINATION_TYPES, type Destination, type DestinationType } from "@/lib/destinations.functions";
@@ -35,14 +36,15 @@ export const Route = createFileRoute("/sitemaps/{$type}.xml")({
         const type = (params as { type: string }).type as DestinationType;
         if (!DESTINATION_TYPES.includes(type)) return new Response("Not found", { status: 404 });
         const sb = serverPublicClient();
-        const { data } = await sb
+        const data = await fetchAllPages((from, to) => sb
           .from("destinations")
           .select("*")
           .eq("type", type)
           .eq("active", true)
           .eq("noindex", false)
           .eq("seo_tier", 1)
-          .limit(50000);
+          .order("id")
+          .range(from, to));
 
         // Only advertise URLs the page itself renders as indexable — the same
         // quality gate the head builder uses, so the sitemap can never

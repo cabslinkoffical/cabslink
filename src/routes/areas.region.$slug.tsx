@@ -1,3 +1,4 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
@@ -18,7 +19,7 @@ export const Route = createFileRoute("/areas/region/$slug")({
     const desc = loaderData
       ? `Explore ${loaderData.total} destinations across ${loaderData.name} — towns, airports, stations, universities, hospitals and attractions.`
       : "Region overview.";
-    return {
+    return normalizeHead({
       meta: [
         { title },
         // Thin listing page: keep out of the index until it has a real intro.
@@ -31,7 +32,7 @@ export const Route = createFileRoute("/areas/region/$slug")({
         { name: "twitter:card", content: "summary_large_image" },
       ],
       links: [{ rel: "canonical", href: canonical }],
-    };
+    });
   },
   component: RegionPage,
   notFoundComponent: () => (

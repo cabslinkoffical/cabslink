@@ -1,3 +1,4 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
@@ -31,7 +32,7 @@ export const Route = createFileRoute("/manage-booking")({
     ...(typeof search.ref === "string" ? { ref: search.ref } : {}),
   }),
 
-  head: () => ({
+  head: () => normalizeHead({
     meta: [
       { title: `Track my booking — ${SITE.name}` },
       { name: "description", content: "Track your Cabslink journey in real time. Verify with your booking reference, booking email and last name, then request cancellation if needed." },

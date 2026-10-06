@@ -67,7 +67,8 @@ describe("SEO gate — every content route declares head metadata", () => {
 
 /** Routes that intentionally opt out of indexing, or delegate head() to a shared builder. */
 const NOINDEX = (src: string) => /["']noindex/.test(src);
-const DELEGATED = (src: string) => /\b(build[A-Za-z]*Head|[a-z][A-Za-z]*Head)\s*\(/.test(src);
+// normalizeHead() only upgrades a head that still declares its own title/description, so it is not delegation.
+const DELEGATED = (src: string) => /\b(?!normalizeHead\b)(build[A-Za-z]*Head|[a-z][A-Za-z]*Head)\s*\(/.test(src.replace(/normalizeHead\(/g, ""));
 
 describe("SEO gate — head metadata completeness", () => {
   const withHead = contentRoutes.filter((r) => r.hasHead && !NOINDEX(r.src) && !DELEGATED(r.src));

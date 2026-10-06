@@ -1,9 +1,10 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { LegalPage } from "@/components/site/LegalPage";
 import { SITE } from "@/lib/site";
 
 export const Route = createFileRoute("/cookies")({
-  head: () => ({
+  head: () => normalizeHead({
     meta: [
       { title: "Cookie Policy — Cabslink" },
       { name: "description", content: "How Cabslink uses cookies and similar technologies, which categories we set, and how you can control or clear them in your browser." },

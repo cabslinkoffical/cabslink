@@ -1,9 +1,10 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { LegalPage } from "@/components/site/LegalPage";
 import { SITE } from "@/lib/site";
 
 export const Route = createFileRoute("/terms")({
-  head: () => ({
+  head: () => normalizeHead({
     meta: [
       { title: "Terms & Conditions — Cabslink" },
       { name: "description", content: "The terms that apply when you use Cabslink to book driver and transfer services." },

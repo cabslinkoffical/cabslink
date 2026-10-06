@@ -1,3 +1,4 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { Link } from "@tanstack/react-router";
 import { safeJsonLd } from "@/lib/safe-json-ld";
 import type { PublicSeoPage, PublicSeoSection } from "@/lib/seo-public.functions";
@@ -206,7 +207,7 @@ const ORG_JSONLD = {
   telephone: "+44 333 888 2991",
 };
 
-export function buildSeoHead(
+function buildSeoHeadRaw(
   page: PublicSeoPage,
   origin: string,
   related?: RelatedBundle | null,
@@ -389,4 +390,15 @@ function buildTravelActionLd(page: PublicSeoPage, _related: RelatedBundle, url: 
     toLocation: { "@type": "Place", name: to.trim() },
 
   };
+}
+
+
+/** Same payload, upgraded to the full canonical/OG/Twitter tag set. */
+export function buildSeoHead(
+  page: PublicSeoPage,
+  origin: string,
+  related?: RelatedBundle | null,
+  fares?: RouteFareTableData | null,
+) {
+  return normalizeHead(buildSeoHeadRaw(page, origin, related, fares));
 }

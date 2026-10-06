@@ -1,3 +1,4 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Car, ArrowRight, Shield } from "lucide-react";
@@ -15,7 +16,7 @@ import edinburghImg from "@/assets/edinburgh.jpg";
 const CANONICAL = "https://cabslink.com/about";
 
 export const Route = createFileRoute("/about")({
-  head: () => ({
+  head: () => normalizeHead({
     meta: [
       { title: "About Cabslink — Airport Transfers from Edinburgh" },
       { name: "description", content: "Cabslink Limited: pre-booked airport transfers, private hire and day tours from Edinburgh, with fixed prices and meet and greet on every airport pickup." },

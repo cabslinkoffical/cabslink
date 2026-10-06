@@ -1,3 +1,4 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { SiteLayout } from "@/components/site/SiteLayout";
@@ -25,7 +26,7 @@ export const Route = createFileRoute("/blog/category/$slug")({
     const title = cat ? `${cat.seo_title ?? cat.name} — Cabslink Blog` : "Category — Cabslink Blog";
     const desc = cat?.meta_description ?? cat?.description ?? "Read the latest Cabslink guides in this category.";
     const url = `${BASE}/blog/category/${params.slug}`;
-    return {
+    return normalizeHead({
       meta: [
         { title },
         // Thin listing page: keep out of the index until it has a real intro.
@@ -37,7 +38,7 @@ export const Route = createFileRoute("/blog/category/$slug")({
         { property: "og:url", content: url },
       ],
       links: [{ rel: "canonical", href: url }],
-    };
+    });
   },
   component: CategoryPage,
 });
