@@ -92,7 +92,7 @@ export const Route = createFileRoute("/airports/$iata")({
     <SiteLayout>
       <section className="container-x py-24 text-center">
         <h1 className="text-2xl font-bold">Something went wrong</h1>
-        <p className="text-[var(--navy)]/70 mt-2">{error.message}</p>
+        <p className="text-[var(--navy)]/70 mt-2">{error instanceof Error ? error.message : String(error)}</p>
       </section>
     </SiteLayout>
   ),

@@ -41,7 +41,7 @@ function NotFoundComponent() {
   );
 }
 
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+function ErrorComponent({ error, reset }: { error: unknown; reset: () => void }) {
   console.error(error);
   const router = useRouter();
   useEffect(() => { reportLovableError(error, { boundary: "tanstack_root_error_component" }); }, [error]);
@@ -100,7 +100,7 @@ async function resolveRedirectTarget(path: string) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  beforeLoad: async ({ location }) => {
+  beforeLoad: async ({ location }): Promise<{ maintenance: SiteStatusValue }> => {
     const p = location.pathname;
 
     // Must run before anything else: the catch-all `/$` route otherwise owns

@@ -21,7 +21,7 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/users"
   loader: async ({ context }) => {
     await Promise.all([context.queryClient.ensureQueryData(opts), context.queryClient.ensureQueryData(meOpts)]);
   },
-  errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
+  errorComponent: ({ error }) => <div className="p-8 text-destructive">{error instanceof Error ? error.message : String(error)}</div>,
   notFoundComponent: () => <div className="p-8">Not found</div>,
   component: UsersPage,
 });

@@ -28,7 +28,7 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/analyt
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
-  errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
+  errorComponent: ({ error }) => <div className="p-8 text-destructive">{error instanceof Error ? error.message : String(error)}</div>,
   notFoundComponent: () => <div className="p-8">Not found</div>,
   component: AnalyticsPage,
 });

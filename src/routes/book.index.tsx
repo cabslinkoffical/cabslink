@@ -38,6 +38,8 @@ import { listPublicExtras, type PublicExtra } from "@/lib/extras-public.function
 import { VehicleAllocationNotice } from "@/components/site/VehicleAllocationNotice";
 import { JourneyMap } from "@/components/site/JourneyMap";
 import { BookingCardPayment } from "@/components/site/BookingCardPayment";
+import { BookingSummaryDisclosure } from "@/components/site/BookingSummaryDisclosure";
+import { useBookingStepScroll } from "@/components/site/useBookingStepScroll";
 import { fleetImageFor } from "@/assets/fleet";
 
 export const Route = createFileRoute("/book/")({
@@ -211,6 +213,7 @@ function BookPage() {
   const pre = readPrefill(q ?? "");
   const navigate = useNavigate({ from: "/book" });
   const [step, setStep] = useState<Step>("vehicle");
+  useBookingStepScroll(`${step}:${q ?? ""}`);
   const [chosen, setChosen] = useState<QuoteCard | null>(null);
   const [qty, setQty] = useState<number>(1);
   const [policy, setPolicy] = useState<Policy>("standard");
@@ -1263,23 +1266,10 @@ function Sidebar({ pre, onEdit, onStartAgain, route, price, extraStops = [], ext
   ].filter((s) => !!s.label);
   return (
     <aside className="min-w-0 space-y-4 lg:sticky lg:top-24 lg:self-start">
-      <details className="group relative bg-card rounded-2xl border border-border shadow-[0_10px_40px_-20px_rgba(14,24,44,0.25)] overflow-hidden lg:!open" open>
-        <summary className="lg:hidden list-none cursor-pointer select-none flex items-center justify-between gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden">
-          <div className="min-w-0 flex items-center gap-2">
-            <MapPin className="size-4 text-[var(--gold-ink)] shrink-0" />
-            <span className="text-sm font-semibold text-foreground truncate">
-              {pre.pickup?.label || "Pickup"} → {pre.dropoff?.label || "Dropoff"}
-              {allStops.length > 0 && ` · ${allStops.length} stop${allStops.length > 1 ? "s" : ""}`}
-              {isReturn && " · Return"}
-            </span>
-          </div>
-          <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--gold-ink)] group-open:hidden shrink-0">View</span>
-          <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground hidden group-open:inline shrink-0">Hide</span>
-        </summary>
-
+      <BookingSummaryDisclosure onEdit={onEdit}>
         <div className="p-5 lg:p-6 pt-0 lg:pt-6">
           <div className="absolute -top-16 -right-16 size-40 rounded-full bg-[var(--gold)]/10 blur-2xl pointer-events-none" aria-hidden />
-          <div className="relative flex items-center justify-between mb-5">
+          <div className="relative hidden lg:flex items-center justify-between mb-5">
             <div>
               <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)]">Your Journey</p>
               <h3 className="font-display font-bold text-lg text-foreground mt-0.5">Trip Summary</h3>
@@ -1290,9 +1280,9 @@ function Sidebar({ pre, onEdit, onStartAgain, route, price, extraStops = [], ext
                   Start again
                 </button>
               )}
-              <button onClick={onEdit} className="size-8 rounded-full border border-border text-muted-foreground hover:text-[var(--gold-ink)] hover:border-[var(--gold)]/40 flex items-center justify-center transition" aria-label="Edit trip">
+              <Button type="button" variant="outline" size="icon" onClick={onEdit} className="size-8 rounded-full" aria-label="Edit trip" title="Edit trip">
                 <Edit3 className="size-3.5" />
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -1384,7 +1374,7 @@ function Sidebar({ pre, onEdit, onStartAgain, route, price, extraStops = [], ext
             </div>
           </div>
         </div>
-      </details>
+      </BookingSummaryDisclosure>
 
       {price && <div className="hidden lg:block"><PriceBreakdown price={price} /></div>}
 

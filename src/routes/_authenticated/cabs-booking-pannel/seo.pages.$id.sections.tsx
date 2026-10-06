@@ -28,7 +28,7 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/seo/pa
   loader: ({ context, params }) => context.queryClient.ensureQueryData(
     queryOptions({ queryKey: ["admin", "seo", "sections", params.id], queryFn: () => listSeoPageSections({ data: { page_id: params.id } }) })
   ),
-  errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
+  errorComponent: ({ error }) => <div className="p-8 text-destructive">{error instanceof Error ? error.message : String(error)}</div>,
   notFoundComponent: () => <div className="p-8">Not found</div>,
   component: Page,
 });
