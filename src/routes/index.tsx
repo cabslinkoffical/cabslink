@@ -66,7 +66,6 @@ export const Route = createFileRoute("/")({
     meta: [
       { title: "Cabslink | UK Airport Transfers & Luxury Travel Platform" },
       { name: "description", content: "Fixed-fare UK airport transfers, private tours and executive travel with Cabslink. Flight tracking, meet & greet and 24/7 dispatch." },
-      { name: "keywords", content: "UK airport transfers, luxury travel UK, private driver, Edinburgh airport taxi, Heathrow transfer, Mercedes V-Class hire, executive car service, Scotland tours" },
       { property: "og:title", content: "Cabslink | UK Airport Transfers & Luxury Travel Platform" },
       { property: "og:description", content: "Fixed-fare UK airport transfers, private tours and executive travel with Cabslink. Flight tracking, meet & greet and 24/7 dispatch." },
       { property: "og:url", content: "https://cabslink.com/" },
