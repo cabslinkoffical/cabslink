@@ -53,7 +53,7 @@ export const Route = createFileRoute("/tours/$slug")({
           { name: "robots", content: "noindex, nofollow" },
           { property: "og:title", content: draft.metaTitle },
           { property: "og:description", content: draft.metaDescription },
-          { property: "og:type", content: "article" },
+          { property: "og:type", content: "website" },
           { property: "og:url", content: url },
           { name: "twitter:card", content: "summary_large_image" },
         ],
@@ -130,7 +130,7 @@ export const Route = createFileRoute("/tours/$slug")({
       { name: "description", content: desc },
       { property: "og:title", content: title },
       { property: "og:description", content: desc },
-      { property: "og:type", content: "article" },
+      { property: "og:type", content: "website" },
       { property: "og:url", content: url },
     ];
     if (d.hero_image_url) {
