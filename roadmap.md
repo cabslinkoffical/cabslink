@@ -69,7 +69,7 @@
 - [x] Phase 6: per-page structured data (tour Offer/breadcrumbs, all JSON-LD escaped); Google Rich Results check needs owner
 - [ ] Phase 7 Thin pages (waiting for go-ahead)
 - [x] Phase 8 Tours (Glencoe 600+ words needs owner-written content)
-- [ ] Phase 9 AI search visibility
+- [x] Phase 9 AI search visibility (needs real named authors with photos)
 - [ ] Phase 10 Polish
 
 - [ ] Phase 7 moved to the end at owner request (blocked: 300-word rule would hide all 74 destination pages)
