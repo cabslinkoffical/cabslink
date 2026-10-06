@@ -145,7 +145,7 @@ function ReviewsPage() {
                 <TrustpilotStars rating={t.rating} size="sm" />
               </div>
               <p className="mt-2 text-xs text-white/60">
-                {t.ratingLabel} on Trustpilot · {t.reviewCount} reviews
+                {t.ratingLabel} on Trustpilot · {t.reviewCount} reviews · as of {verified}
               </p>
             </div>
             <div className="rounded-2xl border border-white/12 bg-white/[0.04] p-5">
@@ -163,7 +163,7 @@ function ReviewsPage() {
                 ))}
               </div>
               <p className="mt-2 text-xs text-white/60">
-                {RATINGFACTS.ratingLabel} on RatingFacts · {RATINGFACTS.reviewCount} reviews
+                {RATINGFACTS.ratingLabel} on RatingFacts · {RATINGFACTS.reviewCount} reviews · as of {rVerified}
               </p>
             </div>
             <div className="rounded-2xl border border-white/12 bg-white/[0.04] p-5">

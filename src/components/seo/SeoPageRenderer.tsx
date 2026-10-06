@@ -67,7 +67,7 @@ export function SeoPageRenderer({
           )}
           <div className="mt-6 flex flex-wrap gap-3">
             <Button asChild size="lg"><Link to="/book">Book now</Link></Button>
-            <Button asChild variant="outline" size="lg"><Link to="/contact">Get a quote</Link></Button>
+            <Button asChild variant="outline" size="lg"><Link to="/book">Get a quote</Link></Button>
           </div>
         </div>
       </section>

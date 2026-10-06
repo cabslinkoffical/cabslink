@@ -85,6 +85,7 @@ export function TrustpilotSection() {
             <p className="mt-1 text-xs text-[var(--navy)]/55">
               {t.reviewCount} reviews on Trustpilot
             </p>
+            <p className="mt-1 text-[11px] text-[var(--navy)]/45">Snapshot taken {verified}</p>
           </div>
 
           <div className="sm:col-span-3 rounded-2xl border border-[var(--navy)]/10 bg-white p-6 shadow-[0_1px_2px_rgba(14,24,44,0.04)] md:p-7">

@@ -1,4 +1,5 @@
 import { normalizeHead } from "@/lib/seo/page-head";
+import { vehicleAlt } from "@/lib/vehicle-alt";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { FACT_TEXT } from "@/lib/site-facts";
 import { useEffect, useMemo, useState } from "react";
@@ -585,7 +586,12 @@ function HomePage() {
         <div className="tour-marquee [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)]">
           <div className="tour-marquee-track flex w-max items-stretch gap-6 py-6">
             {[...popularTours, ...popularTours].map((t, i) => (
-              <div key={`${t.slug}-${i}`} className="flex w-[300px] shrink-0 sm:w-[330px]">
+              <div
+                key={`${t.slug}-${i}`}
+                className={`flex w-[300px] shrink-0 sm:w-[330px] ${i >= popularTours.length ? "marquee-copy" : ""}`}
+                aria-hidden={i >= popularTours.length || undefined}
+                {...(i >= popularTours.length ? { inert: true } : {})}
+              >
                 <TourCard tour={t} />
               </div>
             ))}
@@ -933,6 +939,8 @@ function FleetClassesSection() {
             {track.map((k, i) => (
               <article
                 key={`${k.id}-${i}`}
+                aria-hidden={i >= visible.length || undefined}
+                {...(i >= visible.length ? { inert: true } : {})}
                 className="group flex h-[540px] w-[280px] shrink-0 flex-col overflow-hidden rounded-2xl border border-white/10 bg-white transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_22px_46px_-20px_rgba(0,0,0,0.18)] sm:w-[300px]"
               >
 
@@ -947,7 +955,7 @@ function FleetClassesSection() {
                         src={responsiveImage?.src ?? img}
                         srcSet={responsiveImage?.srcSet}
                         sizes="(max-width: 639px) 235px, 251px"
-                        alt={k.name}
+                        alt={vehicleAlt(k.name, k.models)}
                         width={responsiveImage?.width ?? 520}
                         height={responsiveImage?.height ?? 312}
                         loading="lazy"

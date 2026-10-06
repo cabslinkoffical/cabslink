@@ -69,7 +69,7 @@ const LEGACY_PHP_REDIRECTS: Record<string, string> = {
   "/about-us.php": "/about",
   "/fleet.php": "/fleet",
   "/contact-us.php": "/contact",
-  "/get-a-quote.php": "/get-a-quote",
+  "/get-a-quote.php": "/book",
   "/services.php": "/services",
 };
 
