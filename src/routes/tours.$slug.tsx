@@ -151,11 +151,38 @@ export const Route = createFileRoute("/tours/$slug")({
             description: desc,
             image: d.hero_image_url ?? undefined,
             touristType: "Private driver tour",
-            itinerary: d.pois.map((p) => ({
-              "@type": "TouristAttraction",
-              name: p.name,
-              description: p.short_description ?? undefined,
-            })),
+            provider: { "@id": "https://cabslink.com/#business" },
+            url,
+            itinerary: {
+              "@type": "ItemList",
+              itemListElement: d.pois.map((p, i) => ({
+                "@type": "ListItem",
+                position: i + 1,
+                item: { "@type": "TouristAttraction", name: p.name, description: p.short_description ?? undefined },
+              })),
+            },
+            // Only the "From £" price the page itself shows.
+            offers: d.starting_price_pence != null
+              ? {
+                  "@type": "Offer",
+                  price: (d.starting_price_pence / 100).toFixed(2),
+                  priceCurrency: "GBP",
+                  availability: "https://schema.org/InStock",
+                  url,
+                }
+              : undefined,
+          }),
+        },
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Home", item: "https://cabslink.com/" },
+              { "@type": "ListItem", position: 2, name: "Tours", item: "https://cabslink.com/tours" },
+              { "@type": "ListItem", position: 3, name: seo?.h1 ?? d.name, item: url },
+            ],
           }),
         },
       ],

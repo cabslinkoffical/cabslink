@@ -1,3 +1,4 @@
+import { safeJsonLd } from "@/lib/safe-json-ld";
 /**
  * One builder for every public route's <head> tags: title, description,
  * absolute canonical (query string and hash stripped), Open Graph and Twitter
@@ -96,10 +97,24 @@ export function withPageHead<T extends HeadLike>(
  * buildPageHead. Payloads with no canonical (private/noindex pages) pass
  * through with only the keywords tag removed.
  */
+/** Every JSON-LD block goes out through safeJsonLd, whoever built it. */
+function withSafeJsonLd<T extends HeadLike>(head: T): T {
+  const scripts = (head as { scripts?: Array<Record<string, unknown>> }).scripts;
+  if (!scripts?.length) return head;
+  return {
+    ...head,
+    scripts: scripts.map((sc) => {
+      if (sc.type !== "application/ld+json" || typeof sc.children !== "string") return sc;
+      try { return { ...sc, children: safeJsonLd(JSON.parse(sc.children)) }; } catch { return sc; }
+    }),
+  };
+}
+
 export function normalizeHead<T extends HeadLike>(
   head: T,
   overrides: Partial<PageHeadInput> = {},
 ): T & { meta: HeadTag[]; links: HeadTag[] } {
+  head = withSafeJsonLd(head);
   const meta = head.meta ?? [];
   const links = head.links ?? [];
   const find = (k: string) => meta.find((m) => m.property === k || m.name === k)?.content;
