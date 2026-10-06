@@ -17,6 +17,18 @@ import {
   listCategoriesAdmin, listTagsAdmin, listAuthorsAdmin,
 } from "@/lib/blog-admin.functions";
 
+/** Comparison-table block. Every figure is a TODO until real numbers are supplied. */
+const COMPARISON_TABLE = [
+  "## How do the options compare?",
+  "",
+  "| Option | Typical price | Journey time | Door to door | Luggage |",
+  "| --- | --- | --- | --- | --- |",
+  "| Private transfer (Cabslink) | TODO | TODO | Yes | TODO |",
+  "| Taxi rank | TODO | TODO | Yes | TODO |",
+  "| Bus / tram | TODO | TODO | No | TODO |",
+  "| Train | TODO | TODO | No | TODO |",
+].join("\n");
+
 export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/blog/$id")({
   head: () => ({
     meta: [
@@ -221,7 +233,13 @@ function PostEditor() {
 
 
           <div>
-            <Label>Body (Markdown)</Label>
+            <div className="flex items-center justify-between gap-2">
+              <Label>Body (Markdown)</Label>
+              <Button type="button" variant="outline" size="sm"
+                onClick={() => setForm({ ...form, body_md: `${form.body_md.trimEnd()}\n\n${COMPARISON_TABLE}\n` })}>
+                Insert comparison table
+              </Button>
+            </div>
             <Textarea rows={22} value={form.body_md} onChange={(e) => setForm({ ...form, body_md: e.target.value })}
               className="font-mono text-sm" placeholder={"## Introduction\n\nWrite your article here in Markdown…"} />
             <p className="mt-1 text-xs text-muted-foreground">
