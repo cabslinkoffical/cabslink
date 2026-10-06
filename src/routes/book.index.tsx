@@ -655,7 +655,11 @@ function BookPage() {
                   onStartAgain={startAgain}
                 />
               )}
-              <Stepper step={step} />
+              <Stepper
+                step={step}
+                onPrev={step === "details" ? () => setStep("vehicle") : step === "payment" ? () => setStep("details") : undefined}
+                onNext={step === "vehicle" && chosen ? () => setStep("details") : step === "details" && chosen ? goToExtras : undefined}
+              />
               <div className="mt-8 grid min-w-0 grid-cols-1 lg:grid-cols-[340px_minmax(0,1fr)] gap-6 items-start pb-24 lg:pb-0">
                 <Sidebar
                   pre={pre}
@@ -1091,7 +1095,7 @@ function EditTripDialog({
   );
 }
 
-function Stepper({ step }: { step: Step }) {
+function Stepper({ step, onPrev, onNext }: { step: Step; onPrev?: () => void; onNext?: () => void }) {
   const items: { id: Step; label: string }[] = [
     { id: "vehicle", label: "Vehicle" },
     { id: "details", label: "Trip details" },
@@ -1104,8 +1108,17 @@ function Stepper({ step }: { step: Step }) {
   return (
     <>
       {/* Mobile: compact current-step + dots */}
-      <div className="md:hidden flex items-center justify-between gap-3 rounded-full bg-card border border-border px-4 py-2.5 shadow-sm">
-        <div className="min-w-0 flex items-baseline gap-2">
+      <div className="md:hidden flex items-center justify-between gap-2 rounded-full bg-card border border-border px-2 py-1.5 shadow-sm">
+        <button
+          type="button"
+          onClick={onPrev}
+          disabled={!onPrev}
+          aria-label="Previous step"
+          className="grid size-8 shrink-0 place-items-center rounded-full text-foreground disabled:opacity-30 enabled:hover:bg-muted"
+        >
+          <ArrowLeft className="size-4" />
+        </button>
+        <div className="min-w-0 flex flex-1 items-baseline gap-2">
           <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--gold-ink)]">
             Step 0{Math.max(1, idx + 1)}/3
           </span>
@@ -1121,6 +1134,15 @@ function Stepper({ step }: { step: Step }) {
             />
           ))}
         </div>
+        <button
+          type="button"
+          onClick={onNext}
+          disabled={!onNext}
+          aria-label="Next step"
+          className="grid size-8 shrink-0 place-items-center rounded-full text-foreground disabled:opacity-30 enabled:hover:bg-muted"
+        >
+          <ArrowRight className="size-4" />
+        </button>
       </div>
       {/* md+: full pill stepper */}
       <div className="hidden md:flex items-center justify-center gap-3 md:gap-4 flex-wrap">
