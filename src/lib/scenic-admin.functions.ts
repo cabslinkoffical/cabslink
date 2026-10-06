@@ -254,6 +254,13 @@ export const publishScenicTemplate = createServerFn({ method: "POST" })
       .update({ published: data.published })
       .eq("id", data.id);
     if (error) throw new Error(error.message);
+    if (data.published) {
+      const { data: row } = await context.supabase.from("scenic_route_templates").select("slug").eq("id", data.id).maybeSingle();
+      if (row?.slug) {
+        const { pingIndexNow } = await import("@/lib/seo/indexnow.server");
+        void pingIndexNow([`/tours/${row.slug}`, "/tours", "/llms.txt"]);
+      }
+    }
     return { ok: true };
   });
 
