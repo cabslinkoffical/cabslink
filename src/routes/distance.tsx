@@ -1,10 +1,13 @@
 import { normalizeHead } from "@/lib/seo/page-head";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
 import { DistanceCalculator } from "@/components/site/DistanceCalculator";
 
 export const Route = createFileRoute("/distance")({
+  loader: () => {
+    throw redirect({ to: "/book", statusCode: 301, throw: true });
+  },
   head: () => normalizeHead({
     meta: [
       { title: "Driving Distance Calculator — Cabslink" },

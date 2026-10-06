@@ -33,6 +33,5 @@ export const DESTINATIONS = [
   { to: "/universities", label: "Universities" },
   { to: "/stations", label: "Train Stations" },
   { to: "/guides", label: "Travel Guides" },
-  { to: "/distance", label: "Distance Calculator" },
 ] as const;
 
