@@ -387,7 +387,8 @@ function BookingsPage() {
                         .map(s => <SelectItem key={s} value={s}>{STATUS_META[s].label}</SelectItem>)}
 
                     </SelectContent>
-                  </Select>
+                   </Select>
+                  )}
                   {needsReason && (
                     <div className="mt-2">
                       <Label className="text-xs">Reason (required — visible to customer)</Label>
