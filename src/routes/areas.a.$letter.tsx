@@ -8,7 +8,7 @@ import { PageHero } from "@/components/site/PageHero";
 import { alphaBucketQuery } from "@/lib/explore.functions";
 
 /** A to Z hubs are indexable only when they list at least this many destinations. */
-export const MIN_INDEXABLE_LETTER_COUNT = 8;
+const MIN_INDEXABLE_LETTER_COUNT = 8;
 
 export const Route = createFileRoute("/areas/a/$letter")({
   loader: ({ params, context }) => context.queryClient.ensureQueryData(alphaBucketQuery(params.letter)),
