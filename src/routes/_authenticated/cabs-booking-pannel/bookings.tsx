@@ -4,7 +4,7 @@ import { useSuspenseQuery, useMutation, useQueryClient, queryOptions, useQuery }
 import { useServerFn } from "@tanstack/react-start";
 import { listBookings, updateBooking, softDeleteBooking, deleteBooking, regenerateBookingLink } from "@/lib/admin.functions";
 import { setBookingStatusFn, listBookingNotifications, retryBookingNotification } from "@/lib/booking.functions";
-import { STATUS_META, ADMIN_STATUS_OPTIONS, statusLabel, type BookingStatus } from "@/lib/booking-lifecycle";
+import { STATUS_META, ADMIN_STATUS_OPTIONS, statusLabel, isStatusLocked, type BookingStatus } from "@/lib/booking-lifecycle";
 
 /**
  * Statuses staff may pick, plus the booking's own status when it is a legacy
@@ -258,8 +258,14 @@ function BookingsPage() {
                     <td className="px-4 py-3 whitespace-nowrap">{b.pickup_date}<div className="text-xs text-muted-foreground">{formatTime12(b.pickup_time)}</div></td>
                     <td className="px-4 py-3 whitespace-nowrap">{b.price ? `£${Number(b.price).toFixed(2)}` : "—"}<div className="mt-1"><StatusBadge status={b.payment_status ?? "unpaid"} /></div></td>
                     <td className="px-4 py-3">
-                      {b.deleted_at ? (
-                        <StatusBadge status={statusLabel(b.status)} />
+                      {b.deleted_at || isStatusLocked(b.status, b.payment_status) ? (
+                        <div className="space-y-1">
+                          <StatusBadge status={statusLabel(b.status)} />
+                          <StatusBadge status={b.payment_status ?? "unpaid"} />
+                          {!b.deleted_at && isStatusLocked(b.status, b.payment_status) && (
+                            <div className="text-[10px] text-muted-foreground">Status locked</div>
+                          )}
+                        </div>
                       ) : (
                         <Select
                           value={b.status}
@@ -367,6 +373,13 @@ function BookingsPage() {
                 </Section>
 
                 <Section title="Status">
+                  {isStatusLocked(editing.status, editing.payment_status) ? (
+                    <p className="text-xs text-muted-foreground">
+                      {editing.status === "completed" || editing.status === "cancelled" || editing.status === "rejected"
+                        ? "This booking is final — its status can no longer be changed."
+                        : "This booking is paid — its status can no longer be changed."}
+                    </p>
+                  ) : (
                   <Select value={effectiveStatus ?? "new"} onValueChange={v => setEditing({ ...editing, _staged_status: v })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
@@ -374,7 +387,8 @@ function BookingsPage() {
                         .map(s => <SelectItem key={s} value={s}>{STATUS_META[s].label}</SelectItem>)}
 
                     </SelectContent>
-                  </Select>
+                   </Select>
+                  )}
                   {needsReason && (
                     <div className="mt-2">
                       <Label className="text-xs">Reason (required — visible to customer)</Label>

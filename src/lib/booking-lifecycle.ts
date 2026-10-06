@@ -87,6 +87,16 @@ export const ALLOWED_TRANSITIONS: Record<BookingStatus, BookingStatus[]> = {
 };
 
 
+/**
+ * A booking's status is locked once it is final (completed / cancelled /
+ * rejected) or once money has been taken (paid / partially paid). Kept in
+ * sync with the DB `set_booking_status` guards.
+ */
+export function isStatusLocked(status: string | null | undefined, paymentStatus: string | null | undefined): boolean {
+  if (status === "completed" || status === "cancelled" || status === "rejected") return true;
+  return paymentStatus === "paid" || paymentStatus === "partial";
+}
+
 export function isValidTransition(from: BookingStatus, to: BookingStatus): boolean {
   if (from === to) return true;
   return ALLOWED_TRANSITIONS[from]?.includes(to) ?? false;
