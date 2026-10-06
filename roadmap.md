@@ -73,3 +73,7 @@
 - [~] Phase 10 Polish — links, redirects, alt text, rating dates done; Lighthouse scores + image hosting pending
 
 - [ ] Phase 7 moved to the end at owner request (blocked: 300-word rule would hide all 74 destination pages)
+
+## Later asks
+- [x] Lock booking status once paid, completed or cancelled (DB guard + admin UI)
+- [x] Paid/unpaid badge next to booking status in admin list
