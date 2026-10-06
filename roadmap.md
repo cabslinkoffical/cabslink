@@ -65,3 +65,9 @@
 - [x] Admin: show AM/PM on booking times
 - [x] Admin Extras: two tabs — vehicle class extras / other extras (VAT, cover)
 - [x] Extras: one grouped list (child seats x3, meet & greet, waiting per minute/hour, other), per-class price + limit, VAT & cover on Extras page
+
+- [x] Phase 6: per-page structured data (tour Offer/breadcrumbs, all JSON-LD escaped); Google Rich Results check needs owner
+- [ ] Phase 7 Thin pages (waiting for go-ahead)
+- [ ] Phase 8 Tours
+- [ ] Phase 9 AI search visibility
+- [ ] Phase 10 Polish
