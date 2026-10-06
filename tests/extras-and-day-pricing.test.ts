@@ -123,3 +123,25 @@ describe("admin extras override changes the customer quote", () => {
     expect(quoteWithAdminExtra).not.toBe(quoteWithLegacyOnly);
   });
 });
+
+describe("per-class extra limits", () => {
+  const cat: ExtrasCatalogue = [
+    {
+      key: "toddler_seat", active: true, price_pence: 1000, applies_to_all_classes: true,
+      category: "child_seat", max_quantity: 3,
+      class_prices: { [CLASS_B]: 1500 }, class_max: { [CLASS_B]: 1 },
+    },
+    {
+      key: "waiting_time", active: true, price_pence: 50, applies_to_all_classes: true,
+      price_basis: "per_minute", max_quantity: 120, class_prices: {}, class_max: { [CLASS_B]: 0 },
+    },
+  ];
+  it("uses the default limit, or the class override", () => {
+    expect(resolveExtra(cat, "toddler_seat", CLASS_A, 0)).toMatchObject({ pence: 1000, maxQuantity: 3 });
+    expect(resolveExtra(cat, "toddler_seat", CLASS_B, 0)).toMatchObject({ pence: 1500, maxQuantity: 1 });
+  });
+  it("a class limit of 0 hides the extra for that class", () => {
+    expect(resolveExtra(cat, "waiting_time", CLASS_B, 0).available).toBe(false);
+    expect(resolveExtra(cat, "waiting_time", CLASS_A, 0)).toMatchObject({ available: true, maxQuantity: 120 });
+  });
+});

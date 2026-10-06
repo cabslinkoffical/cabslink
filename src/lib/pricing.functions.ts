@@ -442,7 +442,7 @@ const createBookingInput = z
     meet_greet: z.boolean().optional().default(false),
     /** Catalogue extras chosen by the customer (admin Extras section). */
     extras: z
-      .array(z.object({ key: z.string().trim().min(1).max(60), quantity: z.number().int().min(0).max(20) }))
+      .array(z.object({ key: z.string().trim().min(1).max(60), quantity: z.number().int().min(0).max(600) }))
       .max(20)
       .optional()
       .default([]),
@@ -763,16 +763,27 @@ export const createBooking = createServerFn({ method: "POST" })
     // canonical catalogue so the charged total matches what was displayed.
     let addonsNet = 0;
     for (const sel of data.extras ?? []) {
-      if (sel.key === "child_seat" || sel.key === "meet_greet") continue;
+      // child_seat may arrive here (new form) or via child_seat_count (legacy) — never both.
+      if (sel.key === "meet_greet") continue;
+      if (sel.key === "child_seat" && childSeatCount > 0) continue;
       if (sel.quantity <= 0) continue;
       const entry = auth.extrasCatalogue.find((e) => e.key === sel.key && e.active);
       if (!entry) continue;
       const resolved = resolveExtra(auth.extrasCatalogue, sel.key, classId, 0);
       if (!resolved.available || resolved.pence <= 0) continue;
-      const units = entry.price_basis === "per_booking" ? 1 : sel.quantity;
+      // Admin per-class limit is enforced here, not only in the form.
+      const qty = Math.min(sel.quantity, resolved.maxQuantity ?? sel.quantity);
+      const units = entry.price_basis === "per_booking" ? 1 : qty;
       addonsNet += (resolved.pence * units) / 100;
     }
     addonsNet = Number(addonsNet.toFixed(2));
+    // Every child seat type counts towards the booking's seat total.
+    const seatKeys = new Set(
+      auth.extrasCatalogue.filter((e) => e.category === "child_seat" || e.key === "child_seat").map((e) => e.key),
+    );
+    const recordedSeatCount = childSeatCount + (data.extras ?? [])
+      .filter((x) => seatKeys.has(x.key) && !(x.key === "child_seat" && childSeatCount > 0))
+      .reduce((t, x) => t + Math.max(0, x.quantity), 0);
     const extrasNet = Number((childSeatFee + meetGreetFee + addonsNet).toFixed(2));
     if (extrasNet > 0) {
       const extrasTaxed = applyTaxTo(extrasNet, auth.settings.taxRate, auth.settings.taxMode);
@@ -837,8 +848,8 @@ export const createBooking = createServerFn({ method: "POST" })
       pricing_source: q.pricingSource,
       applied_rules: q.appliedRules ?? [],
       engine_version: ENGINE_VERSION,
-      child_seat: !!data.child_seat || childSeatCount > 0,
-      child_seat_count: childSeatCount,
+      child_seat: !!data.child_seat || recordedSeatCount > 0,
+      child_seat_count: recordedSeatCount,
       meet_greet: !!data.meet_greet,
       return_journey: !!data.return_journey,
       notes: notesWithQty,

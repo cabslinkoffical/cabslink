@@ -1833,6 +1833,7 @@ export type Database = {
           created_at: string
           extra_id: string
           id: string
+          max_quantity: number | null
           price_pence: number | null
           vehicle_class_id: string
         }
@@ -1840,6 +1841,7 @@ export type Database = {
           created_at?: string
           extra_id: string
           id?: string
+          max_quantity?: number | null
           price_pence?: number | null
           vehicle_class_id: string
         }
@@ -1847,6 +1849,7 @@ export type Database = {
           created_at?: string
           extra_id?: string
           id?: string
+          max_quantity?: number | null
           price_pence?: number | null
           vehicle_class_id?: string
         }
@@ -1871,6 +1874,7 @@ export type Database = {
         Row: {
           active: boolean
           applies_to_all_classes: boolean
+          category: string
           created_at: string
           description: string | null
           id: string
@@ -1885,6 +1889,7 @@ export type Database = {
         Insert: {
           active?: boolean
           applies_to_all_classes?: boolean
+          category?: string
           created_at?: string
           description?: string | null
           id?: string
@@ -1899,6 +1904,7 @@ export type Database = {
         Update: {
           active?: boolean
           applies_to_all_classes?: boolean
+          category?: string
           created_at?: string
           description?: string | null
           id?: string
