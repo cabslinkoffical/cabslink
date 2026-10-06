@@ -20,6 +20,15 @@ async function assertAdmin(ctx: { supabase: any; userId: string }) {
   if (!data) throw new Error("Forbidden: admin access required");
 }
 
+/** Built-in extras the booking form depends on: never deleted, type fixed. */
+const FIXED_EXTRAS: Record<string, { category: string; bases: string[] }> = {
+  child_seat: { category: "child_seat", bases: ["per_unit"] },
+  toddler_seat: { category: "child_seat", bases: ["per_unit"] },
+  booster_seat: { category: "child_seat", bases: ["per_unit"] },
+  meet_greet: { category: "meet_greet", bases: ["per_booking"] },
+  waiting_time: { category: "waiting", bases: ["per_minute", "per_hour"] },
+};
+
 const pence = z.coerce.number().int().min(0).max(10_000_000);
 
 const ExtraInput = z.object({
@@ -79,6 +88,15 @@ export const upsertExtra = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { id, class_ids, class_prices, class_max, ...row } = data;
+    if (id) {
+      const cur = await context.supabase.from("extras").select("key").eq("id", id).maybeSingle();
+      const fixed = cur.data ? FIXED_EXTRAS[cur.data.key as string] : undefined;
+      if (fixed) {
+        row.key = cur.data!.key as string;
+        row.category = fixed.category as typeof row.category;
+        if (!fixed.bases.includes(row.price_basis)) row.price_basis = fixed.bases[0] as typeof row.price_basis;
+      }
+    }
     const res = id
       ? await context.supabase.from("extras").update(row).eq("id", id).select("id").single()
       : await context.supabase.from("extras").insert(row).select("id").single();
@@ -122,6 +140,10 @@ export const deleteExtra = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
+    const cur = await context.supabase.from("extras").select("key").eq("id", data.id).maybeSingle();
+    if (cur.data && FIXED_EXTRAS[cur.data.key as string]) {
+      throw new Error("Built-in extras can't be deleted — switch it off instead.");
+    }
     const { data: gone, error } = await context.supabase.from("extras").delete().eq("id", data.id).select("id");
     if (error) throw new Error(error.message);
     // RLS can silently skip the row; report it instead of claiming success.

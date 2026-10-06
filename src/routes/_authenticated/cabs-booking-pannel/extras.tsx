@@ -53,6 +53,48 @@ const CATEGORIES = [
 ] as const;
 type Category = (typeof CATEGORIES)[number]["key"];
 
+/** Built-in extras the booking form depends on: fixed type, cannot be deleted. */
+type Profile = {
+  title: string;
+  category: Category;
+  bases: FormState["price_basis"][];
+  priceLabel: (b: string) => string;
+  maxLabel: ((b: string) => string) | null;
+  maxHint: string;
+  classPriceLabel: string;
+  classMaxLabel: string | null;
+  descHint: string;
+};
+const seat = (title: string): Profile => ({
+  title, category: "child_seat", bases: ["per_unit"],
+  priceLabel: () => "Price per seat (£)",
+  maxLabel: () => "Max seats per booking",
+  maxHint: "How many of this seat a customer can add.",
+  classPriceLabel: "Seat price", classMaxLabel: "Max seats",
+  descHint: "Shown to customers, e.g. which ages or weights the seat suits.",
+});
+const FIXED: Record<string, Profile> = {
+  child_seat: seat("Infant / baby seat"),
+  toddler_seat: seat("Toddler child seat"),
+  booster_seat: seat("High-back booster"),
+  meet_greet: {
+    title: "Meet & greet", category: "meet_greet", bases: ["per_booking"],
+    priceLabel: () => "Price per booking (£)",
+    maxLabel: null, maxHint: "",
+    classPriceLabel: "Price", classMaxLabel: null,
+    descHint: "What the driver does, e.g. waits in arrivals with a name board.",
+  },
+  waiting_time: {
+    title: "Waiting time", category: "waiting", bases: ["per_minute", "per_hour"],
+    priceLabel: (b) => (b === "per_hour" ? "Rate per hour (£)" : "Rate per minute (£)"),
+    maxLabel: (b) => (b === "per_hour" ? "Max hours" : "Max minutes"),
+    maxHint: "Most waiting time a customer can book.",
+    classPriceLabel: "Rate", classMaxLabel: "Max",
+    descHint: "Explain when waiting time is charged.",
+  },
+};
+const profileFor = (key: string): Profile | null => FIXED[key] ?? null;
+
 type FormState = {
   id?: string;
   key: string;
@@ -238,7 +280,7 @@ function ExtrasPage() {
                 >
                   <Pencil className="size-4" />
                 </Button>
-                <AlertDialog>
+                {!profileFor(e.key) && <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button size="icon" variant="ghost" aria-label="Delete"><Trash2 className="size-4 text-destructive" /></Button>
                   </AlertDialogTrigger>
@@ -249,7 +291,7 @@ function ExtrasPage() {
                       <AlertDialogAction className="bg-destructive" onClick={() => delM.mutate(e.id)}>Delete</AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
-                </AlertDialog>
+                </AlertDialog>}
               </div>
             </div>
           ))}
@@ -268,20 +310,32 @@ function ExtrasPage() {
 
       <Dialog open={!!form} onOpenChange={(o) => !o && setForm(null)}>
         <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{form?.id ? "Edit extra" : "New extra"}</DialogTitle></DialogHeader>
-          {form && (
+          <DialogHeader><DialogTitle>{form && profileFor(form.key) ? `Edit ${profileFor(form.key)!.title}` : form?.id ? "Edit extra" : "New extra"}</DialogTitle></DialogHeader>
+          {form && (() => { const prof = profileFor(form.key); return (
             <div className="space-y-4">
+              {prof && (
+                <p className="rounded-lg border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+                  Built-in extra used by the booking form. You can change its name, price and limits, but not its type, and it can’t be deleted — switch it off instead.
+                </p>
+              )}
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="Name">
                   <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
                 </Field>
+                {prof ? (
+                  <Field label="Type">
+                    <Input value={prof.title} disabled />
+                  </Field>
+                ) : (
                 <Field label="Key" hint="Stable identifier, lowercase with underscores.">
                   <Input
                     value={form.key}
                     onChange={(e) => setForm({ ...form, key: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, "_") })}
                   />
                 </Field>
+                )}
               </div>
+              {!prof && (
               <Field label="Group" hint="Where this extra is listed in admin and on the booking form.">
                 <Select value={form.category} onValueChange={(v: any) => setForm({
                   ...form,
@@ -294,15 +348,17 @@ function ExtrasPage() {
                   </SelectContent>
                 </Select>
               </Field>
-              <Field label="Description">
+              )}
+              <Field label="Description" hint={prof?.descHint}>
                 <Textarea rows={2} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
               </Field>
-              <div className="grid gap-4 sm:grid-cols-3">
-                <Field label="Price (£)">
+              <div className={`grid gap-4 ${prof && !prof.maxLabel ? "sm:grid-cols-1" : prof && prof.bases.length === 1 ? "sm:grid-cols-2" : "sm:grid-cols-3"}`}>
+                <Field label={prof ? prof.priceLabel(form.price_basis) : "Price (£)"}>
                   <Input type="number" step="0.01" min="0" value={form.price}
                     onChange={(e) => setForm({ ...form, price: Number(e.target.value) || 0 })} />
                 </Field>
-                <Field label="Charged">
+                {(!prof || prof.bases.length > 1) && (
+                <Field label={prof ? "Charge waiting" : "Charged"} hint={prof ? "Pick one: per minute or per hour." : undefined}>
                   <Select value={form.price_basis} onValueChange={(v: any) => setForm({ ...form, price_basis: v })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
@@ -321,11 +377,14 @@ function ExtrasPage() {
                     </SelectContent>
                   </Select>
                 </Field>
-                <Field label={form.price_basis === "per_minute" ? "Max minutes" : form.price_basis === "per_hour" ? "Max hours" : "Max quantity"}
-                  hint="Default limit a customer can choose.">
+                )}
+                {(!prof || prof.maxLabel) && (
+                <Field label={prof?.maxLabel ? prof.maxLabel(form.price_basis) : form.price_basis === "per_minute" ? "Max minutes" : form.price_basis === "per_hour" ? "Max hours" : "Max quantity"}
+                  hint={prof?.maxHint || "Default limit a customer can choose."}>
                   <Input type="number" min="1" max="600" value={form.max_quantity}
                     onChange={(e) => setForm({ ...form, max_quantity: Math.min(600, Math.max(1, Number(e.target.value) || 1)) })} />
                 </Field>
+                )}
               </div>
 
               <div className="flex items-center gap-3 rounded-lg border border-border px-4 py-3">
@@ -365,13 +424,13 @@ function ExtrasPage() {
                               value={form.class_prices[c.id] ?? ""}
                               onChange={(e) => setForm({ ...form, class_prices: { ...form.class_prices, [c.id]: e.target.value } })}
                             />
-                            <Input
+                            {(!prof || prof.classMaxLabel) && <Input
                               className="h-8 w-24" aria-label={`${c.name} limit`}
                               type="number" step="1" min="0" max="600"
-                              placeholder={`max ${form.max_quantity}`}
+                              placeholder={`${prof?.classMaxLabel ?? "max"} ${form.max_quantity}`}
                               value={form.class_max[c.id] ?? ""}
                               onChange={(e) => setForm({ ...form, class_max: { ...form.class_max, [c.id]: e.target.value } })}
-                            />
+                            />}
                           </>
                         )}
                       </div>
@@ -392,7 +451,7 @@ function ExtrasPage() {
               </div>
 
               <div className="flex justify-end gap-2">
-                {form.id && (
+                {form.id && !prof && (
                   <Button
                     variant="outline"
                     className="mr-auto text-destructive"
@@ -412,7 +471,7 @@ function ExtrasPage() {
                 </Button>
               </div>
             </div>
-          )}
+          ); })()}
         </DialogContent>
       </Dialog>
     </div>
