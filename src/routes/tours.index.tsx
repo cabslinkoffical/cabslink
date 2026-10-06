@@ -127,7 +127,7 @@ function ToursPage() {
 
   const themes = useMemo(
     () =>
-      Array.from(new Set(allTours.map((t) => t.theme).filter((t): t is string => !!t))).sort((a, b) =>
+      Array.from(new Set(allTours.map((t) => t.theme_group).filter((t): t is string => !!t))).sort((a, b) =>
         a.localeCompare(b),
       ),
     [allTours],
@@ -140,7 +140,7 @@ function ToursPage() {
   const filtered = useMemo(
     () =>
       allTours.filter(
-        (t) => matchesQuery(t, q.trim()) && (!theme || (t.theme ?? "").toLowerCase() === theme.toLowerCase()),
+        (t) => matchesQuery(t, q.trim()) && (!theme || (t.theme_group ?? "").toLowerCase() === theme.toLowerCase()),
       ),
     [allTours, q, theme],
   );

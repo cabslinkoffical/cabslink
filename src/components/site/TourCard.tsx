@@ -34,7 +34,7 @@ export function TourCard({ tour }: { tour: PublicTourListItem }) {
         )}
 
         <div className="absolute inset-x-3 top-3 flex items-start justify-between gap-2">
-          {tour.featured ? (
+          {tour.signature ? (
             <span className="inline-flex items-center gap-1 rounded-full bg-[var(--gold)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--navy)] shadow-sm">
               <Star className="size-3 fill-current" /> Signature
             </span>
