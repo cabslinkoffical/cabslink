@@ -1,3 +1,4 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
@@ -10,13 +11,13 @@ export const Route = createFileRoute("/areas/a/$letter")({
   loader: ({ params, context }) => context.queryClient.ensureQueryData(alphaBucketQuery(params.letter)),
   head: ({ params }) => {
     const L = params.letter.toUpperCase();
-    return {
+    return normalizeHead({
       meta: [
         { title: `Locations starting with ${L} — Cabslink` },
         { name: "description", content: `Cabslink destinations starting with the letter ${L}.` },
         { name: "robots", content: "noindex,follow" },
       ],
-    };
+    });
   },
   component: LetterPage,
 });

@@ -1,3 +1,4 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { SiteLayout } from "@/components/site/SiteLayout";
@@ -26,7 +27,7 @@ export const Route = createFileRoute("/blog/tag/$slug")({
     const title = tag ? `#${tag.name} — Cabslink Blog` : "Tag — Cabslink Blog";
     const desc = `Articles tagged with ${tag?.name ?? params.slug} on the Cabslink blog.`;
     const url = `${BASE}/blog/tag/${params.slug}`;
-    return {
+    return normalizeHead({
       meta: [
         { title },
         { name: "description", content: desc },
@@ -36,7 +37,7 @@ export const Route = createFileRoute("/blog/tag/$slug")({
         { property: "og:url", content: url },
       ],
       links: [{ rel: "canonical", href: url }],
-    };
+    });
   },
   component: TagPage,
 });

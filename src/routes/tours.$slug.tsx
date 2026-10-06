@@ -1,3 +1,4 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { useMemo, useState, useDeferredValue } from "react";
 import { FACT_TEXT } from "@/lib/site-facts";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
@@ -45,7 +46,7 @@ export const Route = createFileRoute("/tours/$slug")({
     const draft = draftTour(params.slug);
     if (draft) {
       const url = `https://cabslink.com/tours/${draft.slug}`;
-      return {
+      return normalizeHead({
         meta: [
           { title: draft.metaTitle },
           { name: "description", content: draft.metaDescription },
@@ -82,12 +83,12 @@ export const Route = createFileRoute("/tours/$slug")({
             }),
           },
         ],
-      };
+      });
     }
 
     const d = loaderData as PublicTourDetail | undefined;
     if (!d) {
-      return { meta: [{ title: "Tour not found — Cabslink" }, { name: "robots", content: "noindex" }] };
+      return normalizeHead({ meta: [{ title: "Tour not found — Cabslink" }, { name: "robots", content: "noindex" }] });
     }
 
     // The product name in the CMS is editorial; the searched phrase lives in
@@ -136,7 +137,7 @@ export const Route = createFileRoute("/tours/$slug")({
       meta.push({ property: "og:image", content: d.hero_image_url });
       meta.push({ name: "twitter:image", content: d.hero_image_url });
     }
-    return {
+    return normalizeHead({
       meta,
       links: [{ rel: "canonical", href: url }],
 
@@ -158,7 +159,7 @@ export const Route = createFileRoute("/tours/$slug")({
           }),
         },
       ],
-    };
+    });
   },
   errorComponent: () => (
     <SiteLayout>

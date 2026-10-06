@@ -1,3 +1,4 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
@@ -33,7 +34,7 @@ export const Route = createFileRoute("/tours/")({
       "Private day tours from Edinburgh and Glasgow with your own driver, booked by the hour with miles included. Choose a ready-made tour or build a custom day with fixed pricing.";
     const url = "https://cabslink.com/tours";
     const tours = (loaderData ?? []) as PublicTourListItem[];
-    return {
+    return normalizeHead({
       meta: [
         { title },
         { name: "description", content: description },
@@ -73,7 +74,7 @@ export const Route = createFileRoute("/tours/")({
             ]
           : []),
       ],
-    };
+    });
   },
 
   loader: ({ context }) => context.queryClient.ensureQueryData(toursQuery),

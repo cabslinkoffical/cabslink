@@ -1,3 +1,4 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute, Link, notFound, redirect } from "@tanstack/react-router";
 import { safeJsonLd } from "@/lib/safe-json-ld";
 import { Plane, MapPin, Clock, ShieldCheck, ArrowRight, Check } from "lucide-react";
@@ -50,7 +51,7 @@ export const Route = createFileRoute("/airports/$iata")({
       const desc = `Private transfers to and from ${name}. Fixed fares, meet & greet, live flight tracking, 24/7 dispatch across the UK.`;
       const canonical = `${ORIGIN}/airports/${a.slug}`;
       const image = (a as { hero_image_url?: string | null }).hero_image_url || null;
-      return {
+      return normalizeHead({
         meta: [
           { title },
           { name: "description", content: desc },
@@ -69,10 +70,10 @@ export const Route = createFileRoute("/airports/$iata")({
             : []),
         ],
         links: [{ rel: "canonical", href: canonical }],
-      };
+      });
     }
 
-    return { meta: [{ title: "Airport not found" }, { name: "robots", content: "noindex" }] };
+    return normalizeHead({ meta: [{ title: "Airport not found" }, { name: "robots", content: "noindex" }] });
   },
   component: AirportPage,
   notFoundComponent: () => (
