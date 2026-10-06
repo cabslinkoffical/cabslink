@@ -1,4 +1,5 @@
 import { normalizeHead } from "@/lib/seo/page-head";
+import { vehicleAlt } from "@/lib/vehicle-alt";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
@@ -320,7 +321,9 @@ function FleetCard({ klass }: { klass: PublicVehicleClass }) {
         {img ? (
           <img
             src={img}
-            alt={`${klass.name} vehicle class`}
+            alt={vehicleAlt(klass.name, klass.models)}
+            width={800}
+            height={500}
             loading="lazy"
             decoding="async"
             className="size-full object-cover object-center transition-transform duration-700 group-hover:scale-[1.06]"

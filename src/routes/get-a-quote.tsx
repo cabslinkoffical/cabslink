@@ -4,7 +4,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/get-a-quote")({
   loader: () => {
-    throw redirect({ to: "/distance", statusCode: 301, throw: true });
+    throw redirect({ to: "/book", statusCode: 301, throw: true });
   },
   head: () => normalizeHead({ meta: [{ name: "robots", content: "noindex,follow" }] }),
   component: () => null,

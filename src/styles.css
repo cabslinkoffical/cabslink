@@ -734,4 +734,5 @@ input[type="time"] {
 @media (prefers-reduced-motion: reduce) {
   .tour-marquee-track { animation: none !important; }
   .tour-marquee { overflow-x: auto; }
+  .tour-marquee-track > [aria-hidden="true"], .class-marquee-track > [aria-hidden="true"] { display: none; }
 }

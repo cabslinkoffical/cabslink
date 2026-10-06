@@ -26,7 +26,7 @@ export function SportsServicePage({ content }: { content: SportsServiceContent }
         title={content.h1}
         subtitle={content.subtitle}
         primaryLabel="Get a quote"
-        primaryTo="/contact"
+        primaryTo="/book"
         breadcrumbs={[
           { label: "Home", to: "/" },
           { label: "Services", to: "/services" },
