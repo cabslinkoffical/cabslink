@@ -392,6 +392,20 @@ function ExtrasPage() {
               </div>
 
               <div className="flex justify-end gap-2">
+                {form.id && (
+                  <Button
+                    variant="outline"
+                    className="mr-auto text-destructive"
+                    disabled={delM.isPending}
+                    onClick={() => {
+                      if (window.confirm(`Delete "${form.name}"? This cannot be undone.`)) {
+                        delM.mutate(form.id!, { onSuccess: () => setForm(null) });
+                      }
+                    }}
+                  >
+                    <Trash2 className="mr-1.5 size-4" />Delete
+                  </Button>
+                )}
                 <Button variant="outline" onClick={() => setForm(null)}>Cancel</Button>
                 <Button onClick={() => saveM.mutate(form)} disabled={!canSave || saveM.isPending}>
                   {saveM.isPending && <Loader2 className="mr-1.5 size-4 animate-spin" />}Save extra
