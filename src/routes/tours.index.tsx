@@ -153,7 +153,7 @@ function ToursPage() {
       <PageHero
         eyebrow="Private Driver Tours"
         title="Private day tours and hourly car hire in Scotland"
-        subtitle="Booked by the hour with miles included. Take a ready-made tour from Edinburgh or Glasgow, or build your own day — your start, your stops, your finish."
+        subtitle="Booked by the hour with miles included. Take a ready-made tour from Edinburgh, or build your own day — your start, your stops, your finish."
 
         breadcrumbs={[{ label: "Home", to: "/" }, { label: "Tours" }]}
       />
