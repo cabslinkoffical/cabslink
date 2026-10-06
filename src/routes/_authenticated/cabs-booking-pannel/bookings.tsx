@@ -256,7 +256,7 @@ function BookingsPage() {
                       <div className="truncate text-xs text-muted-foreground" title={b.dropoff_address}>→ {b.dropoff_address}</div>
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap">{b.pickup_date}<div className="text-xs text-muted-foreground">{formatTime12(b.pickup_time)}</div></td>
-                    <td className="px-4 py-3 whitespace-nowrap">{b.price ? `£${Number(b.price).toFixed(2)}` : "—"}</td>
+                    <td className="px-4 py-3 whitespace-nowrap">{b.price ? `£${Number(b.price).toFixed(2)}` : "—"}<div className="mt-1"><StatusBadge status={b.payment_status ?? "unpaid"} /></div></td>
                     <td className="px-4 py-3">
                       {b.deleted_at ? (
                         <StatusBadge status={statusLabel(b.status)} />
