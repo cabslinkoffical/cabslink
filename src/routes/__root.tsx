@@ -15,6 +15,8 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { resolvePublicRedirect } from "../lib/seo-public.functions";
 import { getSiteStatus } from "../lib/site-status.functions";
+import { DEFAULT_TITLE, DEFAULT_DESCRIPTION } from "../lib/seo/page-head";
+import { createTtlCache, followRedirects } from "../lib/seo/redirect-resolver";
 import { MaintenanceScreen } from "../components/site/MaintenanceScreen";
 import { ConsentBanner } from "../components/site/ConsentBanner";
 import { initAnalytics, isMeasurablePath, trackPageView } from "../lib/analytics-ga";
@@ -66,7 +68,34 @@ const LEGACY_PHP_REDIRECTS: Record<string, string> = {
   "/fleet.php": "/fleet",
   "/contact-us.php": "/contact",
   "/get-a-quote.php": "/get-a-quote",
+  "/services.php": "/services",
 };
+
+type SiteStatusValue = { maintenance: boolean; company_name: string | null };
+const OPEN_SITE: SiteStatusValue = { maintenance: false, company_name: null };
+const statusCache = createTtlCache<SiteStatusValue>(30_000);
+const redirectCache = createTtlCache<{ to: string; code: 301 | 302 } | null>(5 * 60_000);
+
+async function cachedSiteStatus(): Promise<SiteStatusValue> {
+  const hit = statusCache.get("status");
+  if (hit) return hit;
+  const value = await getSiteStatus().catch(() => OPEN_SITE);
+  statusCache.set("status", value);
+  return value;
+}
+
+async function resolveRedirectTarget(path: string) {
+  const hit = redirectCache.get(path);
+  if (hit !== undefined) return hit;
+  try {
+    const value = await followRedirects(path, (from) => resolvePublicRedirect({ data: { path: from } }));
+    redirectCache.set(path, value);
+    return value;
+  } catch {
+    // Swallow lookup errors so the site keeps loading.
+    return null;
+  }
+}
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   beforeLoad: async ({ location }) => {
@@ -82,51 +111,32 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       p.startsWith("/auth") || p.startsWith("/_") || /\.[a-z0-9]{2,5}$/i.test(p);
 
 
-    let maintenance: { maintenance: boolean; company_name: string | null } = { maintenance: false, company_name: null };
-    if (!isExempt) {
-      maintenance = await getSiteStatus();
-      if (maintenance.maintenance) return { maintenance };
-    }
-
-    // Legacy-path redirects. Skip static assets, API routes, and admin.
-    if (isExempt || p === "/") return { maintenance };
-    try {
-      const row = await resolvePublicRedirect({ data: { path: p } });
-      if (row?.to_path && row.to_path !== p) {
-        const code = Number(row.status_code) === 302 ? 302 : 301;
-        throw redirect({ href: row.to_path, statusCode: code });
-      }
-    } catch (e: any) {
-      // Rethrow router redirects; swallow lookup errors so the site keeps loading.
-      if (e && (e.isRedirect || e.status === 301 || e.status === 302)) throw e;
-    }
+    // Maintenance flag and redirect lookup run in parallel; both are cached.
+    const [maintenance, target] = await Promise.all([
+      isExempt ? Promise.resolve(OPEN_SITE) : cachedSiteStatus(),
+      isExempt || p === "/" ? Promise.resolve(null) : resolveRedirectTarget(p),
+    ]);
+    if (maintenance.maintenance) return { maintenance };
+    if (target) throw redirect({ href: target.to, statusCode: target.code });
     return { maintenance };
   },
   head: () => ({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Cabslink | UK Airport Transfers & Luxury Travel Platform" },
-      { name: "description", content: "Fixed-fare UK airport transfers, private tours and executive travel with Cabslink. Flight tracking, meet & greet and 24/7 dispatch." },
+      { title: DEFAULT_TITLE },
+      { name: "description", content: DEFAULT_DESCRIPTION },
       { name: "author", content: "Cabslink" },
       { name: "theme-color", content: "#0e182c" },
       { property: "og:site_name", content: "Cabslink" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { property: "og:title", content: "Cabslink | UK Airport Transfers & Luxury Travel Platform" },
-      { name: "twitter:title", content: "Cabslink | UK Airport Transfers & Luxury Travel Platform" },
-      { property: "og:description", content: "Fixed-fare UK airport transfers, private tours and executive travel with Cabslink. Flight tracking, meet & greet and 24/7 dispatch." },
-      { name: "twitter:description", content: "Fixed-fare UK airport transfers, private tours and executive travel with Cabslink. Flight tracking, meet & greet and 24/7 dispatch." },
-      { property: "og:url", content: "https://cabslink.com/" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "icon", type: "image/png", href: "/favicon.png" },
       { rel: "apple-touch-icon", href: "/icons/apple-touch-icon.png" },
       { rel: "manifest", href: "/manifest.json" },
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800&family=Epilogue:wght@400;500;600;700&display=swap" },
     ],
 
   }),
