@@ -70,6 +70,6 @@
 - [ ] Phase 7 Thin pages (waiting for go-ahead)
 - [x] Phase 8 Tours (Glencoe 600+ words needs owner-written content)
 - [x] Phase 9 AI search visibility (needs real named authors with photos)
-- [ ] Phase 10 Polish
+- [~] Phase 10 Polish — links, redirects, alt text, rating dates done; Lighthouse scores + image hosting pending
 
 - [ ] Phase 7 moved to the end at owner request (blocked: 300-word rule would hide all 74 destination pages)
