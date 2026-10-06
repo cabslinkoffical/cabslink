@@ -64,9 +64,9 @@ const HERO_VEHICLE_SIZES = "(max-width: 1024px) 92vw, 600px";
 export const Route = createFileRoute("/")({
   head: () => normalizeHead({
     meta: [
-      { title: "Cabslink | UK Airport Transfers & Luxury Travel Platform" },
+      { title: "Edinburgh Airport Transfers & Private Tours | Cabslink" },
       { name: "description", content: "Fixed-fare UK airport transfers, private tours and executive travel with Cabslink. Flight tracking, meet & greet and 24/7 dispatch." },
-      { property: "og:title", content: "Cabslink | UK Airport Transfers & Luxury Travel Platform" },
+      { property: "og:title", content: "Edinburgh Airport Transfers & Private Tours | Cabslink" },
       { property: "og:description", content: "Fixed-fare UK airport transfers, private tours and executive travel with Cabslink. Flight tracking, meet & greet and 24/7 dispatch." },
       { property: "og:url", content: "https://cabslink.com/" },
       { property: "og:type", content: "website" },
