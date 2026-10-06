@@ -55,7 +55,9 @@
 - [x] Phase 3: admin and auth hardening (public image storage blocked by workspace setting)
 - [x] Phase 4: one source of truth for business facts (owner TODOs listed)
 - [x] Phase 5: head tags, redirects, sitemap, robots, self-hosted fonts
-- [ ] Phases 6–10 — waiting for owner go-ahead per phase
+- [~] Phase 6: site-wide business data done; route/tour/blog structured data pending
+- [ ] Phases 7–10 — waiting for owner go-ahead per phase
 
 - [x] Contact page "Become a driver" tab with detailed driver application (home button links to it)
 - [ ] Phases 5–10 from uploaded plan — continue one at a time
+- [x] Admin: show AM/PM on booking times

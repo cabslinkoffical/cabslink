@@ -1,3 +1,4 @@
+import { formatTime12 } from "@/lib/time-format";
 import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
 import { useSuspenseQuery, useMutation, useQueryClient, queryOptions, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -254,7 +255,7 @@ function BookingsPage() {
                       <div className="truncate" title={b.pickup_address}>{b.pickup_address}</div>
                       <div className="truncate text-xs text-muted-foreground" title={b.dropoff_address}>→ {b.dropoff_address}</div>
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap">{b.pickup_date}<div className="text-xs text-muted-foreground">{b.pickup_time}</div></td>
+                    <td className="px-4 py-3 whitespace-nowrap">{b.pickup_date}<div className="text-xs text-muted-foreground">{formatTime12(b.pickup_time)}</div></td>
                     <td className="px-4 py-3 whitespace-nowrap">{b.price ? `£${Number(b.price).toFixed(2)}` : "—"}</td>
                     <td className="px-4 py-3">
                       {b.deleted_at ? (
@@ -351,7 +352,7 @@ function BookingsPage() {
                   </div>
                   <div className="grid grid-cols-2 gap-3 pt-3">
                     <Info label="Date" value={editing.pickup_date} />
-                    <Info label="Time" value={editing.pickup_time} />
+                    <Info label="Time" value={formatTime12(editing.pickup_time)} />
                     <Info label="Vehicle" value={editing.vehicle_type} />
                     <Info label="Fare" value={editing.price ? `£${Number(editing.price).toFixed(2)}` : "—"} />
                     <Info label="Passengers" value={String(editing.passengers)} />

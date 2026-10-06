@@ -15,6 +15,8 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { resolvePublicRedirect } from "../lib/seo-public.functions";
 import { getSiteStatus } from "../lib/site-status.functions";
+import { businessGraph } from "../lib/seo/business-graph";
+import { safeJsonLd } from "../lib/safe-json-ld";
 import { DEFAULT_TITLE, DEFAULT_DESCRIPTION } from "../lib/seo/page-head";
 import { createTtlCache, followRedirects } from "../lib/seo/redirect-resolver";
 import { MaintenanceScreen } from "../components/site/MaintenanceScreen";
@@ -132,6 +134,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    scripts: [{ type: "application/ld+json", children: safeJsonLd(businessGraph()) }],
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "icon", type: "image/png", href: "/favicon.png" },

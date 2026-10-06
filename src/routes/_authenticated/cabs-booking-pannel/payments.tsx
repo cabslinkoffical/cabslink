@@ -1,3 +1,4 @@
+import { formatTime12 } from "@/lib/time-format";
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery, useMutation, useQueryClient, queryOptions, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -117,7 +118,7 @@ function Page() {
                 ["Checkout session", detail.reference],
                 ["Payment ID", detail.payment_intent_id],
                 ["Journey", detail.booking ? `${detail.booking.pickup_address ?? ""} → ${detail.booking.dropoff_address ?? ""}` : null],
-                ["Pickup", detail.booking?.pickup_date ? `${detail.booking.pickup_date} ${detail.booking.pickup_time ?? ""}` : null],
+                ["Pickup", detail.booking?.pickup_date ? `${detail.booking.pickup_date} ${formatTime12(detail.booking.pickup_time)}` : null],
                 ["Booking status", detail.booking?.status],
                 ["Notes", detail.notes],
               ] as [string, any][]).map(([k, v]) => (
