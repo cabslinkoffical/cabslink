@@ -6,6 +6,7 @@
  * title and metadata. This route owns every unmatched path, returns a real
  * 404 status, and serves a single-H1, `noindex` page.
  */
+import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/SiteLayout";
 

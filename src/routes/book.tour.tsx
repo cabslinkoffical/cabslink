@@ -6,6 +6,7 @@
  * booking is saved unpaid and then paid with the same card checkout used for
  * transfers.
  */
+import { normalizeHead } from "@/lib/seo/page-head";
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";

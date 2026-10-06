@@ -25,6 +25,8 @@ export type PageHeadInput = {
 };
 
 export type HeadTag = Record<string, string>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type HeadLike = { meta?: any[]; links?: any[]; scripts?: any[]; [key: string]: any };
 
 export function absoluteUrl(pathOrUrl: string): string {
   const raw = (pathOrUrl || "/").trim();
@@ -73,7 +75,7 @@ const SOCIAL_KEYS = new Set([
  * Merge page-specific extra tags (robots, article:* …) with the builder output,
  * dropping any duplicate social/title/description tags from the extras.
  */
-export function withPageHead<T extends { meta?: HeadTag[]; links?: HeadTag[] }>(
+export function withPageHead<T extends HeadLike>(
   input: PageHeadInput,
   extra: T = {} as T,
 ): T & { meta: HeadTag[]; links: HeadTag[] } {
@@ -94,7 +96,7 @@ export function withPageHead<T extends { meta?: HeadTag[]; links?: HeadTag[] }>(
  * buildPageHead. Payloads with no canonical (private/noindex pages) pass
  * through with only the keywords tag removed.
  */
-export function normalizeHead<T extends { meta?: HeadTag[]; links?: HeadTag[] }>(
+export function normalizeHead<T extends HeadLike>(
   head: T,
   overrides: Partial<PageHeadInput> = {},
 ): T & { meta: HeadTag[]; links: HeadTag[] } {

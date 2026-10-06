@@ -1,4 +1,5 @@
 /** Legacy path — permanent redirect to the canonical /services page. */
+import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/our-services")({

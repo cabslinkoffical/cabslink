@@ -5,6 +5,7 @@
  *
  * Canonical mapping lives in SEO_REDIRECTS (src/lib/seo/service-registry.ts).
  */
+import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/locations/$slug")({
