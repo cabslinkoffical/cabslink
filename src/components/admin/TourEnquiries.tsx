@@ -1,3 +1,4 @@
+import { formatTime12 } from "@/lib/time-format";
 import { useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -162,7 +163,7 @@ export function TourEnquiries() {
                       <div className="font-medium">{m.customer_name}</div>
                       <div className="text-xs text-muted-foreground">{m.email}{m.phone ? ` · ${m.phone}` : ""}</div>
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-xs">{m.pickup_date ? `${m.pickup_date} · ` : ""}{m.pickup_time}</td>
+                    <td className="px-4 py-3 whitespace-nowrap text-xs">{m.pickup_date ? `${m.pickup_date} · ` : ""}{formatTime12(m.pickup_time)}</td>
                     <td className="px-4 py-3 whitespace-nowrap font-semibold">{money(m.price)}</td>
                     <td className="px-4 py-3">
                       <div className="flex flex-col gap-1">
@@ -204,7 +205,7 @@ export function TourEnquiries() {
                 <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-1">
                   <p className="font-mono text-base font-bold tracking-wider">{active.booking_ref}</p>
                   <p><strong>{active.customer_name}</strong> · {active.email}{active.phone ? ` · ${active.phone}` : ""}</p>
-                  <p>Start time: {active.pickup_time}{active.pickup_date ? ` on ${active.pickup_date}` : ""}</p>
+                  <p>Start time: {formatTime12(active.pickup_time)}{active.pickup_date ? ` on ${active.pickup_date}` : ""}</p>
                   <p>{active.passengers} passengers · {active.luggage} suitcases{active.flight_number ? ` · Flight ${active.flight_number}` : ""}</p>
                   <p className="text-xs text-muted-foreground">Enquired {new Date(active.created_at).toLocaleString()}</p>
                 </div>

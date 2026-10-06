@@ -1,3 +1,4 @@
+import { formatTime12 } from "@/lib/time-format";
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery, useMutation, useQueryClient, queryOptions, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -273,7 +274,7 @@ function CancellationsPage() {
                    <td className="px-4 py-4">
                      <div className="font-medium">{r.customer_name ?? "—"}</div>
                      <div className="text-xs text-muted-foreground">{r.email ?? r.phone ?? "No contact details"}</div>
-                     <div className="mt-1 text-xs text-muted-foreground">{r.pickup_date ?? "—"} {r.pickup_time ?? ""}{r.hours_until_pickup != null ? ` · ${r.hours_until_pickup}h notice` : ""}</div>
+                     <div className="mt-1 text-xs text-muted-foreground">{r.pickup_date ?? "—"} {formatTime12(r.pickup_time)}{r.hours_until_pickup != null ? ` · ${r.hours_until_pickup}h notice` : ""}</div>
                   </td>
                    <td className="max-w-[18rem] px-4 py-4">
                      <div className="line-clamp-2">{r.reason}</div>
@@ -326,7 +327,7 @@ function CancellationsPage() {
                   </div>
                   <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
                     <CalendarClock className="size-3.5" />
-                    {active.pickup_date ?? "—"} {active.pickup_time ?? ""}
+                    {active.pickup_date ?? "—"} {formatTime12(active.pickup_time)}
                     {active.hours_until_pickup != null && <span>· {active.hours_until_pickup}h notice</span>}
                   </div>
                 </div>
@@ -474,7 +475,7 @@ function CancelledBookings() {
                   <td className="px-4 py-3">
                     <div className="font-semibold">{b.booking_ref ?? "—"}</div>
                     <div className="text-xs text-muted-foreground">
-                      {b.pickup_date ?? "—"} {b.pickup_time ?? ""} · {b.status === "rejected" ? "Rejected" : "Cancelled"}
+                      {b.pickup_date ?? "—"} {formatTime12(b.pickup_time)} · {b.status === "rejected" ? "Rejected" : "Cancelled"}
                     </div>
                   </td>
                   <td className="px-4 py-3">
