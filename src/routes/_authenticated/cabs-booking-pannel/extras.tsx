@@ -53,6 +53,48 @@ const CATEGORIES = [
 ] as const;
 type Category = (typeof CATEGORIES)[number]["key"];
 
+/** Built-in extras the booking form depends on: fixed type, cannot be deleted. */
+type Profile = {
+  title: string;
+  category: Category;
+  bases: FormState["price_basis"][];
+  priceLabel: (b: string) => string;
+  maxLabel: ((b: string) => string) | null;
+  maxHint: string;
+  classPriceLabel: string;
+  classMaxLabel: string | null;
+  descHint: string;
+};
+const seat = (title: string): Profile => ({
+  title, category: "child_seat", bases: ["per_unit"],
+  priceLabel: () => "Price per seat (£)",
+  maxLabel: () => "Max seats per booking",
+  maxHint: "How many of this seat a customer can add.",
+  classPriceLabel: "Seat price", classMaxLabel: "Max seats",
+  descHint: "Shown to customers, e.g. which ages or weights the seat suits.",
+});
+const FIXED: Record<string, Profile> = {
+  child_seat: seat("Infant / baby seat"),
+  toddler_seat: seat("Toddler child seat"),
+  booster_seat: seat("High-back booster"),
+  meet_greet: {
+    title: "Meet & greet", category: "meet_greet", bases: ["per_booking"],
+    priceLabel: () => "Price per booking (£)",
+    maxLabel: null, maxHint: "",
+    classPriceLabel: "Price", classMaxLabel: null,
+    descHint: "What the driver does, e.g. waits in arrivals with a name board.",
+  },
+  waiting_time: {
+    title: "Waiting time", category: "waiting", bases: ["per_minute", "per_hour"],
+    priceLabel: (b) => (b === "per_hour" ? "Rate per hour (£)" : "Rate per minute (£)"),
+    maxLabel: (b) => (b === "per_hour" ? "Max hours" : "Max minutes"),
+    maxHint: "Most waiting time a customer can book.",
+    classPriceLabel: "Rate", classMaxLabel: "Max",
+    descHint: "Explain when waiting time is charged.",
+  },
+};
+const profileFor = (key: string): Profile | null => FIXED[key] ?? null;
+
 type FormState = {
   id?: string;
   key: string;
@@ -238,7 +280,7 @@ function ExtrasPage() {
                 >
                   <Pencil className="size-4" />
                 </Button>
-                <AlertDialog>
+                {!profileFor(e.key) && <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button size="icon" variant="ghost" aria-label="Delete"><Trash2 className="size-4 text-destructive" /></Button>
                   </AlertDialogTrigger>
@@ -249,7 +291,7 @@ function ExtrasPage() {
                       <AlertDialogAction className="bg-destructive" onClick={() => delM.mutate(e.id)}>Delete</AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
-                </AlertDialog>
+                </AlertDialog>}
               </div>
             </div>
           ))}
@@ -268,9 +310,14 @@ function ExtrasPage() {
 
       <Dialog open={!!form} onOpenChange={(o) => !o && setForm(null)}>
         <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{form?.id ? "Edit extra" : "New extra"}</DialogTitle></DialogHeader>
-          {form && (
+          <DialogHeader><DialogTitle>{form && profileFor(form.key) ? `Edit ${profileFor(form.key)!.title}` : form?.id ? "Edit extra" : "New extra"}</DialogTitle></DialogHeader>
+          {form && (() => { const prof = profileFor(form.key); return (
             <div className="space-y-4">
+              {prof && (
+                <p className="rounded-lg border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+                  Built-in extra used by the booking form. You can change its name, price and limits, but not its type, and it can’t be deleted — switch it off instead.
+                </p>
+              )}
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="Name">
                   <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
@@ -412,7 +459,7 @@ function ExtrasPage() {
                 </Button>
               </div>
             </div>
-          )}
+          ); })()}
         </DialogContent>
       </Dialog>
     </div>
