@@ -71,3 +71,5 @@
 - [ ] Phase 8 Tours
 - [ ] Phase 9 AI search visibility
 - [ ] Phase 10 Polish
+
+- [ ] Phase 7 moved to the end at owner request (blocked: 300-word rule would hide all 74 destination pages)
