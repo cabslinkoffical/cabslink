@@ -8,6 +8,7 @@ import { Link } from "@tanstack/react-router";
 import { ArrowRight, Check, Clock, MapPin, Phone, Route as RouteIcon, Ruler } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero, SectionHeader } from "@/components/site/PageHero";
+import { DirectAnswer } from "@/components/seo/DirectAnswer";
 import { Button } from "@/components/ui/button";
 import type { JourneyContent } from "@/lib/seo/journeys";
 import type { RouteFareTable as RouteFareTableData } from "@/lib/seo/route-fares.functions";
@@ -50,6 +51,17 @@ export function JourneyPage({
           { label: pair },
         ]}
       />
+
+      <div className="container-x mt-8">
+        <DirectAnswer
+          sentences={[
+            `${c.from.name} to ${c.to.name} is about ${c.miles} miles by road via ${c.via}, roughly ${c.hours} door to door.`,
+            fares?.fares.length
+              ? `A private transfer costs from ${fares.currencySymbol}${Math.min(...fares.fares.map((f) => f.price)).toFixed(2)} per vehicle, fixed before you travel.`
+              : "Every fare is fixed and confirmed before you travel.",
+          ]}
+        />
+      </div>
 
       <section className="section-y">
         <div className="container-x grid gap-12 lg:grid-cols-[1.2fr_1fr]">

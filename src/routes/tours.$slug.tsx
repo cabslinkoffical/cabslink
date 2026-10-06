@@ -16,6 +16,7 @@ import { getPublishedTourBySlug, type PublicPoiCard, type PublicTourDetail } fro
 import { calculateMultiStopQuote } from "@/lib/scenic-quote.functions";
 import { DraftTourPage } from "@/components/site/DraftTourPage";
 import { FaqBlock } from "@/components/seo/FaqBlock";
+import { DirectAnswer } from "@/components/seo/DirectAnswer";
 
 /** Markdown-ish list text → clean lines ("- ", "* ", "1. " prefixes dropped). */
 function mdLines(md: string): string[] {
@@ -400,9 +401,20 @@ function TourDetailPage() {
               )}
             </div>
 
+            <DirectAnswer
+              className="mt-6"
+              sentences={[
+                `${seo?.h1 ?? d.name} is a private${d.duration_hours ? ` ${d.duration_hours}-hour` : ""} day tour${d.origin_label ? ` from ${d.origin_label}` : ""}${d.pois.length ? `, stopping at ${d.pois.filter((p) => p.default_selected).slice(0, 3).map((p) => p.name).join(", ") || d.pois.slice(0, 3).map((p) => p.name).join(", ")}` : ""}.`,
+                d.starting_price_pence != null
+                  ? `Prices start from £${(d.starting_price_pence / 100).toFixed(0)} per vehicle with your driver included.`
+                  : "Your price is confirmed before you pay.",
+              ]}
+              updated={d.updated_at}
+            />
+
             {d.description && (
               <div className="mt-8 prose prose-invert max-w-none">
-                <h2 className="font-display text-2xl font-semibold mb-3">About this tour</h2>
+                <h2 className="font-display text-2xl font-semibold mb-3">What is this tour about?</h2>
                 <p className="text-muted-foreground whitespace-pre-line">{d.description}</p>
               </div>
             )}

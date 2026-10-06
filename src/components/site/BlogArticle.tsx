@@ -8,6 +8,8 @@ import { FaqBlock } from "@/components/seo/FaqBlock";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import type { BlogPostFull, BlogPostSummary } from "@/lib/blog.functions";
 
+import { DirectAnswer, firstSentences } from "@/components/seo/DirectAnswer";
+
 export function BlogArticle({ post, related }: { post: BlogPostFull; related: BlogPostSummary[] }) {
   const publishedDate = post.published_at
     ? new Date(post.published_at).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
@@ -57,6 +59,12 @@ export function BlogArticle({ post, related }: { post: BlogPostFull; related: Bl
             </div>
           </div>
         </header>
+        <div className="container-x mt-8 max-w-4xl">
+          <DirectAnswer
+            sentences={firstSentences(post.excerpt || post.meta_description, 2)}
+            updated={post.last_reviewed_at ?? post.published_at}
+          />
+        </div>
 
         {/* Featured image */}
         {post.featured_image_url && (
