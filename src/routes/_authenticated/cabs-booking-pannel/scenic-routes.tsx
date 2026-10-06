@@ -1,3 +1,4 @@
+import { TourContentEditor } from "@/components/admin/tours/TourContentEditor";
 import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -395,6 +396,7 @@ function RouteEditor({
     recommended_start_time?: string | null;
   }) => void;
   onRefreshPrice: () => void;
+  onContentSaved: () => void;
 }) {
   const [hero, setHero] = useState(t.hero_image_url ?? "");
   const [short, setShort] = useState(t.short_description ?? "");
@@ -490,6 +492,11 @@ function RouteEditor({
             Save route details
           </Button>
         </div>
+      </section>
+
+      <section className="mb-9">
+        <SectionHeading number="01b" icon={SlidersHorizontal} title="Tour page content" />
+        <TourContentEditor key={t.id} t={t} onSaved={onContentSaved} />
       </section>
 
       <section className="mb-9">
