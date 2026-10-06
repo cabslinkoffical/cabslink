@@ -41,7 +41,7 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/availa
     context.queryClient.ensureQueryData(classOpts),
     context.queryClient.ensureQueryData(vOpts),
   ]),
-  errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
+  errorComponent: ({ error }) => <div className="p-8 text-destructive">{error instanceof Error ? error.message : String(error)}</div>,
   notFoundComponent: () => <div className="p-8">Not found</div>,
   component: Page,
 });

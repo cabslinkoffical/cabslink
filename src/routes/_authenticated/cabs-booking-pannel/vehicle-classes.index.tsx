@@ -28,7 +28,7 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/vehicl
     ],
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(opts),
-  errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
+  errorComponent: ({ error }) => <div className="p-8 text-destructive">{error instanceof Error ? error.message : String(error)}</div>,
   component: VehicleClassesPage,
 });
 

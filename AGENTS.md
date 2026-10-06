@@ -10,4 +10,5 @@
 <!-- LOVABLE:END -->
 
 - Protected-route navigation reads the persisted browser session to avoid transient remote-check redirect loops; server functions still validate bearer tokens and roles for private operations.
+- Booking wizards share a step-change scroll hook; summary disclosure uses responsive visibility so mobile starts collapsed while desktop stays visible.
 - Destination hubs use the shared navy `PageHero`/`HubPage` language, while area directories and location pages use one navy-led editorial system so navigation remains consistent.

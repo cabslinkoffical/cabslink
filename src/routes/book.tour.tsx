@@ -25,6 +25,7 @@ import { PhoneInput } from "@/components/site/PhoneInput";
 import { PlaceAutocomplete, type SelectedPlace } from "@/components/site/PlaceAutocomplete";
 import { useCaptcha } from "@/components/site/Captcha";
 import { BookingCardPayment } from "@/components/site/BookingCardPayment";
+import { useBookingStepScroll } from "@/components/site/useBookingStepScroll";
 import { TourLoopMap } from "@/components/site/TourLoopMap";
 import { toast } from "sonner";
 import { minutesLabel } from "@/lib/tour-quote";
@@ -111,6 +112,7 @@ function TourWizard() {
   const [notes, setNotes] = useState("");
   const [quote, setQuote] = useState<TourQuoteResult | null>(null);
   const [created, setCreated] = useState<{ bookingRef: string; total: number } | null>(null);
+  useBookingStepScroll(`${step}:${created?.bookingRef ?? ""}`);
   const [showAllTours, setShowAllTours] = useState(false);
 
   const captcha = useCaptcha("tour-booking");

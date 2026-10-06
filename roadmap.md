@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Booking mobile: label Edit booking, collapsed Trip summary, top-of-page step navigation; verify controls and transitions
+
 - [x] Standardize destination hubs: exact H1s, Destinations menu, `/areas` tabs/order, benefit-card order, `/` breadcrumbs, navy heroes
 - [x] Redesign `/areas`, region directories, and individual location pages with the selected navy editorial travel direction
 

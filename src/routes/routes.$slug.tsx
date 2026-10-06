@@ -56,7 +56,7 @@ export const Route = createFileRoute("/routes/$slug")({
   errorComponent: ({ error }) => (
     <SiteLayout><div className="container mx-auto px-4 py-24 text-center">
       <h1 className="text-2xl font-bold">Something went wrong</h1>
-      <p className="text-muted-foreground mt-2">{error.message}</p>
+      <p className="text-muted-foreground mt-2">{error instanceof Error ? error.message : String(error)}</p>
     </div></SiteLayout>
   ),
 });
