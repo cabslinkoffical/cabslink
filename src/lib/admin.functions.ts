@@ -671,6 +671,7 @@ const settingsSchema = z.object({
   smtp_port: z.number().int().nullable().optional(),
   smtp_user: z.string().nullable().optional(),
   google_maps_api_key: z.string().nullable().optional(),
+  bing_site_verification: z.string().trim().max(200).regex(/^[A-Za-z0-9_-]*$/, "Paste only the code from the Bing tag").nullable().optional(),
   poi_corridor_enabled: z.boolean().default(false),
   poi_corridor_radius_miles: z.coerce.number().min(0).max(200).default(15),
   poi_corridor_max_pois: z.coerce.number().int().min(0).max(50).default(8),
