@@ -4,7 +4,7 @@ import { useSuspenseQuery, useMutation, useQueryClient, queryOptions, useQuery }
 import { useServerFn } from "@tanstack/react-start";
 import { listBookings, updateBooking, softDeleteBooking, deleteBooking, regenerateBookingLink } from "@/lib/admin.functions";
 import { setBookingStatusFn, listBookingNotifications, retryBookingNotification } from "@/lib/booking.functions";
-import { STATUS_META, ADMIN_STATUS_OPTIONS, statusLabel, type BookingStatus } from "@/lib/booking-lifecycle";
+import { STATUS_META, ADMIN_STATUS_OPTIONS, statusLabel, isStatusLocked, type BookingStatus } from "@/lib/booking-lifecycle";
 
 /**
  * Statuses staff may pick, plus the booking's own status when it is a legacy
@@ -373,6 +373,13 @@ function BookingsPage() {
                 </Section>
 
                 <Section title="Status">
+                  {isStatusLocked(editing.status, editing.payment_status) ? (
+                    <p className="text-xs text-muted-foreground">
+                      {editing.status === "completed" || editing.status === "cancelled" || editing.status === "rejected"
+                        ? "This booking is final — its status can no longer be changed."
+                        : "This booking is paid — its status can no longer be changed."}
+                    </p>
+                  ) : (
                   <Select value={effectiveStatus ?? "new"} onValueChange={v => setEditing({ ...editing, _staged_status: v })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
