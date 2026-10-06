@@ -61,3 +61,4 @@
 - [x] Contact page "Become a driver" tab with detailed driver application (home button links to it)
 - [ ] Phases 5–10 from uploaded plan — continue one at a time
 - [x] Admin: show AM/PM on booking times
+- [x] Admin Extras: two tabs — vehicle class extras / other extras (VAT, cover)

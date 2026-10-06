@@ -5,6 +5,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Loader2, Plus, Pencil, Trash2 } from "lucide-react";
 import { listExtrasAdmin, upsertExtra, deleteExtra, setExtraActive } from "@/lib/extras.functions";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ChargeSettingsCard } from "@/components/admin/ChargeSettingsCard";
 import { PageHeader, EmptyState } from "@/components/admin/ui";
 import { ViewToggle, useViewMode } from "@/components/admin/ViewToggle";
 import { BulkTools } from "@/components/admin/BulkTools";
@@ -40,7 +42,16 @@ const BASIS_LABEL: Record<string, string> = {
   per_unit: "per unit",
   per_booking: "per booking",
   per_hour: "per hour",
+  per_minute: "per minute",
 };
+
+const CATEGORIES = [
+  { key: "child_seat", label: "Child seats" },
+  { key: "meet_greet", label: "Meet & greet" },
+  { key: "waiting", label: "Waiting time" },
+  { key: "other", label: "Other extras" },
+] as const;
+type Category = (typeof CATEGORIES)[number]["key"];
 
 type FormState = {
   id?: string;
@@ -48,14 +59,17 @@ type FormState = {
   name: string;
   description: string;
   price: number;
-  price_basis: "per_unit" | "per_booking" | "per_hour";
+  price_basis: "per_unit" | "per_booking" | "per_hour" | "per_minute";
   max_quantity: number;
+  category: Category;
   applies_to_all_classes: boolean;
   active: boolean;
   sort_order: number;
   class_ids: string[];
   /** classId → override price in £ ("" = use the default price). */
   class_prices: Record<string, string>;
+  /** classId → customer limit ("" = use the default limit, "0" = not offered). */
+  class_max: Record<string, string>;
 };
 
 const blank: FormState = {
@@ -65,11 +79,13 @@ const blank: FormState = {
   price: 0,
   price_basis: "per_unit",
   max_quantity: 1,
+  category: "other",
   applies_to_all_classes: true,
   active: true,
   sort_order: 100,
   class_ids: [],
   class_prices: {},
+  class_max: {},
 };
 
 function ExtrasPage() {
@@ -100,15 +116,21 @@ function ExtrasPage() {
           applies_to_all_classes: f.applies_to_all_classes,
           active: f.active,
           sort_order: f.sort_order,
-          class_ids: f.applies_to_all_classes ? [] : f.class_ids,
-          class_prices: f.applies_to_all_classes
-            ? {}
-            : Object.fromEntries(
-                f.class_ids.map((c) => {
-                  const raw = (f.class_prices[c] ?? "").trim();
-                  return [c, raw === "" ? null : Math.round(Number(raw) * 100)];
-                }),
-              ),
+          category: f.category,
+          // Every class keeps its own price/limit; blank means "use the default".
+          class_ids: f.applies_to_all_classes ? data.classes.map((c: any) => c.id) : f.class_ids,
+          class_prices: Object.fromEntries(
+            (f.applies_to_all_classes ? data.classes.map((c: any) => c.id) : f.class_ids).map((c: string) => {
+              const raw = (f.class_prices[c] ?? "").trim();
+              return [c, raw === "" ? null : Math.round(Number(raw) * 100)];
+            }),
+          ),
+          class_max: Object.fromEntries(
+            (f.applies_to_all_classes ? data.classes.map((c: any) => c.id) : f.class_ids).map((c: string) => {
+              const raw = (f.class_max[c] ?? "").trim();
+              return [c, raw === "" ? null : Math.max(0, Math.round(Number(raw)))];
+            }),
+          ),
         },
       }),
     onSuccess: () => { setForm(null); toast.success("Extra saved"); void refresh(); },
@@ -135,18 +157,31 @@ function ExtrasPage() {
     <div className="space-y-6">
       <PageHeader
         title="Extras"
-        description="Every bookable add-on lives here once. Pricing Schemes reference these records — they never redefine them."
+        description="Every add-on, its price for each vehicle class, VAT and cancellation cover — all in one place."
       >
         <ViewToggle mode={view} onChange={setView} />
         <BulkTools entity="extras" onChanged={() => qc.invalidateQueries({ queryKey: ["admin", "extras"] })} />
         <Button onClick={() => setForm({ ...blank })}><Plus className="size-4 mr-1" /> New extra</Button>
       </PageHeader>
 
+      <Tabs defaultValue="class">
+        <TabsList>
+          <TabsTrigger value="class">Vehicle class extras</TabsTrigger>
+          <TabsTrigger value="other">Other extras (VAT &amp; cancellation cover)</TabsTrigger>
+        </TabsList>
+        <TabsContent value="class" className="mt-4">
       {data.extras.length === 0 ? (
         <EmptyState title="No extras yet" hint="Create Child Seat, Meet & Greet or any other add-on." />
       ) : (
+        <div className="space-y-8">
+        {CATEGORIES.map((cat) => {
+          const items = data.extras.filter((e: any) => (e.category ?? "other") === cat.key);
+          if (!items.length) return null;
+          return (
+        <section key={cat.key}>
+        <h2 className="mb-3 font-display text-lg font-semibold">{cat.label}</h2>
         <div className={view === "grid" ? "grid gap-3 md:grid-cols-2 xl:grid-cols-3" : "grid gap-2"}>
-          {data.extras.map((e: any) => (
+          {items.map((e: any) => (
             <div key={e.id} className={`rounded-2xl border border-border bg-card shadow-sm ${view === "grid" ? "flex h-full flex-col p-5" : "flex flex-wrap items-center gap-4 px-5 py-3"}`}>
               <div className={view === "grid" ? "flex items-start gap-3" : "flex min-w-[14rem] flex-1 items-center gap-3"}>
                 <div className="min-w-0">
@@ -164,7 +199,7 @@ function ExtrasPage() {
               <p className={view === "grid" ? "mt-3 text-sm font-semibold tabular-nums" : "text-sm font-semibold tabular-nums"}>
                 £{(e.price_pence / 100).toFixed(2)}{" "}
                 <span className="text-xs font-normal text-muted-foreground">{BASIS_LABEL[e.price_basis]}</span>
-                {e.price_basis === "per_unit" && (
+                {e.price_basis !== "per_booking" && (
                   <span className="text-xs font-normal text-muted-foreground"> · max {e.max_quantity}</span>
                 )}
               </p>
@@ -186,6 +221,7 @@ function ExtrasPage() {
                     price: e.price_pence / 100,
                     price_basis: e.price_basis,
                     max_quantity: e.max_quantity,
+                    category: (e.category ?? "other") as Category,
                     applies_to_all_classes: e.applies_to_all_classes,
                     active: e.active,
                     sort_order: e.sort_order,
@@ -193,6 +229,10 @@ function ExtrasPage() {
                     class_prices: Object.fromEntries(
                       Object.entries((e.class_prices ?? {}) as Record<string, number | null>)
                         .map(([cid, pence]) => [cid, pence == null ? "" : (Number(pence) / 100).toFixed(2)]),
+                    ),
+                    class_max: Object.fromEntries(
+                      Object.entries((e.class_max ?? {}) as Record<string, number | null>)
+                        .map(([cid, m]) => [cid, m == null ? "" : String(m)]),
                     ),
                   })}
                 >
@@ -214,7 +254,17 @@ function ExtrasPage() {
             </div>
           ))}
         </div>
+        </section>
+          );
+        })}
+        </div>
       )}
+
+        </TabsContent>
+        <TabsContent value="other" className="mt-4">
+          <ChargeSettingsCard />
+        </TabsContent>
+      </Tabs>
 
       <Dialog open={!!form} onOpenChange={(o) => !o && setForm(null)}>
         <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
@@ -232,6 +282,18 @@ function ExtrasPage() {
                   />
                 </Field>
               </div>
+              <Field label="Group" hint="Where this extra is listed in admin and on the booking form.">
+                <Select value={form.category} onValueChange={(v: any) => setForm({
+                  ...form,
+                  category: v,
+                  price_basis: v === "waiting" && form.price_basis !== "per_hour" ? "per_minute" : form.price_basis,
+                })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {CATEGORIES.map((c) => <SelectItem key={c.key} value={c.key}>{c.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </Field>
               <Field label="Description">
                 <Textarea rows={2} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
               </Field>
@@ -244,34 +306,46 @@ function ExtrasPage() {
                   <Select value={form.price_basis} onValueChange={(v: any) => setForm({ ...form, price_basis: v })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="per_unit">Per unit</SelectItem>
-                      <SelectItem value="per_booking">Per booking</SelectItem>
-                      <SelectItem value="per_hour">Per hour</SelectItem>
+                      {form.category === "waiting" ? (
+                        <>
+                          <SelectItem value="per_minute">Per minute</SelectItem>
+                          <SelectItem value="per_hour">Per hour</SelectItem>
+                        </>
+                      ) : (
+                        <>
+                          <SelectItem value="per_unit">Per unit</SelectItem>
+                          <SelectItem value="per_booking">Per booking</SelectItem>
+                          <SelectItem value="per_hour">Per hour</SelectItem>
+                        </>
+                      )}
                     </SelectContent>
                   </Select>
                 </Field>
-                <Field label="Max quantity">
-                  <Input type="number" min="1" max="20" value={form.max_quantity}
-                    onChange={(e) => setForm({ ...form, max_quantity: Math.max(1, Number(e.target.value) || 1) })} />
+                <Field label={form.price_basis === "per_minute" ? "Max minutes" : form.price_basis === "per_hour" ? "Max hours" : "Max quantity"}
+                  hint="Default limit a customer can choose.">
+                  <Input type="number" min="1" max="600" value={form.max_quantity}
+                    onChange={(e) => setForm({ ...form, max_quantity: Math.min(600, Math.max(1, Number(e.target.value) || 1)) })} />
                 </Field>
               </div>
 
               <div className="flex items-center gap-3 rounded-lg border border-border px-4 py-3">
                 <Switch checked={form.applies_to_all_classes}
                   onCheckedChange={(v) => setForm({ ...form, applies_to_all_classes: v })} />
-                <span className="text-sm">Available on every vehicle class</span>
+                <span className="text-sm">Available on every vehicle class (otherwise tick the classes below)</span>
               </div>
 
-              {!form.applies_to_all_classes && (
-                <div className="rounded-lg border border-border p-4">
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Vehicle classes</p>
-                  <p className="mb-3 text-xs text-muted-foreground">Leave the price blank to use the default price above.</p>
-                  <div className="grid gap-2 sm:grid-cols-2">
-                    {data.classes.map((c: any) => {
-                      const on = form.class_ids.includes(c.id);
-                      return (
-                        <div key={c.id} className="flex items-center gap-2 text-sm">
-                          <label className="flex flex-1 items-center gap-2">
+              <div className="rounded-lg border border-border p-4">
+                <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Price and limit per vehicle class</p>
+                <p className="mb-3 text-xs text-muted-foreground">
+                  Leave blank to use the defaults above. Set the limit to 0 to hide this extra for that class.
+                </p>
+                <div className="grid gap-2">
+                  {data.classes.map((c: any) => {
+                    const on = form.applies_to_all_classes || form.class_ids.includes(c.id);
+                    return (
+                      <div key={c.id} className="flex flex-wrap items-center gap-2 text-sm">
+                        <label className="flex min-w-[10rem] flex-1 items-center gap-2">
+                          {!form.applies_to_all_classes && (
                             <input
                               type="checkbox" checked={on}
                               onChange={() => setForm({
@@ -279,26 +353,32 @@ function ExtrasPage() {
                                 class_ids: on ? form.class_ids.filter((x) => x !== c.id) : [...form.class_ids, c.id],
                               })}
                             />
-                            {c.name}
-                          </label>
-                          {on && (
+                          )}
+                          {c.name}
+                        </label>
+                        {on && (
+                          <>
                             <Input
-                              className="h-8 w-24"
+                              className="h-8 w-24" aria-label={`${c.name} price`}
                               type="number" step="0.01" min="0"
                               placeholder={`£${form.price.toFixed(2)}`}
                               value={form.class_prices[c.id] ?? ""}
-                              onChange={(e) => setForm({
-                                ...form,
-                                class_prices: { ...form.class_prices, [c.id]: e.target.value },
-                              })}
+                              onChange={(e) => setForm({ ...form, class_prices: { ...form.class_prices, [c.id]: e.target.value } })}
                             />
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
+                            <Input
+                              className="h-8 w-24" aria-label={`${c.name} limit`}
+                              type="number" step="1" min="0" max="600"
+                              placeholder={`max ${form.max_quantity}`}
+                              value={form.class_max[c.id] ?? ""}
+                              onChange={(e) => setForm({ ...form, class_max: { ...form.class_max, [c.id]: e.target.value } })}
+                            />
+                          </>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
-              )}
+              </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="Display order">

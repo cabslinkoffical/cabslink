@@ -15,8 +15,9 @@ export type PublicExtra = {
   name: string;
   description: string | null;
   price_pence: number;
-  price_basis: "per_unit" | "per_booking" | "per_hour";
+  price_basis: "per_unit" | "per_booking" | "per_hour" | "per_minute";
   max_quantity: number;
+  category: "child_seat" | "meet_greet" | "waiting" | "other";
 };
 
 export const listPublicExtras = createServerFn({ method: "GET" })
@@ -32,10 +33,10 @@ export const listPublicExtras = createServerFn({ method: "GET" })
     const [extras, links] = await Promise.all([
       client
         .from("extras")
-        .select("id, key, name, description, price_pence, price_basis, max_quantity, applies_to_all_classes, active, sort_order")
+        .select("id, key, name, description, price_pence, price_basis, max_quantity, applies_to_all_classes, active, sort_order, category")
         .eq("active", true)
         .order("sort_order", { ascending: true }),
-      client.from("extra_vehicle_classes").select("extra_id, vehicle_class_id, price_pence"),
+      client.from("extra_vehicle_classes").select("extra_id, vehicle_class_id, price_pence, max_quantity"),
     ]);
     if (extras.error) return [];
 
@@ -45,6 +46,12 @@ export const listPublicExtras = createServerFn({ method: "GET" })
       active: true,
       price_pence: Math.max(0, Number(e.price_pence) || 0),
       applies_to_all_classes: !!e.applies_to_all_classes,
+      max_quantity: Math.max(1, Number(e.max_quantity) || 1),
+      class_max: Object.fromEntries(
+        ((links.data ?? []) as any[])
+          .filter((l) => String(l.extra_id) === String(e.id))
+          .map((l) => [String(l.vehicle_class_id), l.max_quantity == null ? null : Number(l.max_quantity)]),
+      ),
       class_prices: Object.fromEntries(
         ((links.data ?? []) as any[])
           .filter((l) => String(l.extra_id) === String(e.id))
@@ -62,7 +69,8 @@ export const listPublicExtras = createServerFn({ method: "GET" })
         description: e.description ?? null,
         price_pence: resolved.pence,
         price_basis: (e.price_basis ?? "per_unit") as PublicExtra["price_basis"],
-        max_quantity: Math.max(1, Number(e.max_quantity) || 1),
+        max_quantity: resolved.maxQuantity ?? Math.max(1, Number(e.max_quantity) || 1),
+        category: (e.category ?? "other") as PublicExtra["category"],
       }];
     });
   });

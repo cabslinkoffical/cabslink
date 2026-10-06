@@ -59,12 +59,9 @@ export const Route = createFileRoute("/book/")({
   component: BookPage,
 });
 
-// Extras whose controls live in the "Onboard extras" card. They are charged by
-// the dedicated pricing fields, so they are excluded from the Add-ons list to
-// avoid duplicate rows and double charging.
+// Extras with their own dedicated control (meet & greet toggle, return
+// journey) — excluded from the catalogue list so they are never charged twice.
 const ONBOARD_EXTRA_KEYS = new Set([
-  "child_seat",
-  "additional_child_seat",
   "meet_greet",
   "return_journey",
 ]);
@@ -467,7 +464,7 @@ function BookPage() {
   const addonLines = catalogueExtras
     .filter((e) => (extraQty[e.key] ?? 0) > 0)
     .map((e) => {
-      const n = extraQty[e.key] ?? 0;
+      const n = Math.min(extraQty[e.key] ?? 0, e.max_quantity);
       const units = e.price_basis === "per_booking" ? 1 : n;
       return { key: e.key, name: e.name, quantity: n, amount: grossUp((e.price_pence / 100) * units) };
     });
@@ -1991,87 +1988,82 @@ function ExtrasStep(props: {
         />
       )}
 
-      {/* --- Comfort extras --- */}
+      {/* --- All extras in one card, grouped under headings --- */}
       <ExtrasCard
         icon={<Sparkles className="size-4" />}
         eyebrow="Comfort & assistance"
-        title="Onboard extras"
+        title="Extras"
+        subtitle="Prices shown are for this vehicle class. Anything you add is included in your total."
       >
-        <div className="grid sm:grid-cols-2 gap-4">
-          <Field label={childSeatFeePence > 0 ? `Child seats (£${(childSeatFeePence / 100).toFixed(2)} each)` : "Child seats"}>
-            <Select value={String(childSeatCount)} onValueChange={(v) => onChildSeatCount(Number(v))}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {[0, 1, 2, 3, 4].map((n) => (
-                  <SelectItem key={n} value={String(n)}>
-                    {n === 0 ? "None" : `${n} child seat${n === 1 ? "" : "s"}`}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </Field>
-          <div className="grid gap-3">
-            <Toggle
-              label={meetGreetFeePence > 0 ? `Meet & greet at arrivals (+£${(meetGreetFeePence / 100).toFixed(2)})` : "Meet & greet at arrivals (included)"}
-              checked={meetGreet} onChange={onMeetGreet}
-            />
-            <Toggle
-              label={baseRideTotal > 0
-                ? `Add return journey (+£${baseRideTotal.toFixed(2)} — same fare again)`
-                : "Add return journey"}
-              checked={returnJourney} onChange={onReturnJourney}
-            />
+        <div className="space-y-6">
+          {(
+            [
+              { key: "child_seat", label: "Child seats" },
+              { key: "waiting", label: "Waiting time" },
+              { key: "other", label: "Other extras" },
+            ] as const
+          ).map((group) => {
+            const items = catalogueExtras.filter((e) => (e.category ?? "other") === group.key || (group.key === "other" && e.category === "meet_greet"));
+            if (!items.length) return null;
+            return (
+              <div key={group.key}>
+                <h3 className="mb-3 text-sm font-semibold">{group.label}</h3>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {items.map((e) => {
+                    const n = Math.min(extraQty[e.key] ?? 0, e.max_quantity);
+                    const unit = e.price_basis === "per_hour" ? " per hour" : e.price_basis === "per_minute" ? " per minute" : e.price_basis === "per_booking" ? "" : " each";
+                    const priceLabel = `£${(e.price_pence / 100).toFixed(2)}${unit}`;
+                    const single = e.price_basis === "per_booking" || e.max_quantity <= 1;
+                    // Minutes are offered in 15-minute steps up to the admin limit.
+                    const options = e.price_basis === "per_minute"
+                      ? [0, ...Array.from({ length: Math.floor(e.max_quantity / 15) }, (_, i) => (i + 1) * 15)]
+                      : Array.from({ length: e.max_quantity + 1 }, (_, i) => i);
+                    const optLabel = (i: number) =>
+                      i === 0 ? "None" : e.price_basis === "per_minute" ? `${i} min` : e.price_basis === "per_hour" ? `${i} h` : String(i);
+                    return (
+                      <div key={e.id} className="rounded-xl border border-border p-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold">{e.name}</p>
+                            {e.description && <p className="mt-0.5 text-xs text-muted-foreground">{e.description}</p>}
+                            <p className="mt-1 text-xs font-semibold text-[var(--gold-ink)]">+{priceLabel}</p>
+                          </div>
+                          {single ? (
+                            <Switch checked={n > 0} onCheckedChange={(v) => onExtraQty(e.key, v ? 1 : 0)} aria-label={`Add ${e.name}`} />
+                          ) : (
+                            <Select value={String(n)} onValueChange={(v) => onExtraQty(e.key, Number(v))}>
+                              <SelectTrigger className="w-24 shrink-0" aria-label={`${e.name} quantity`}><SelectValue /></SelectTrigger>
+                              <SelectContent>
+                                {options.map((i) => <SelectItem key={i} value={String(i)}>{optLabel(i)}</SelectItem>)}
+                              </SelectContent>
+                            </Select>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
 
+          <div>
+            <h3 className="mb-3 text-sm font-semibold">Meet &amp; greet and return</h3>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Toggle
+                label={meetGreetFeePence > 0 ? `Meet & greet at arrivals (+£${(meetGreetFeePence / 100).toFixed(2)})` : "Meet & greet at arrivals (included)"}
+                checked={meetGreet} onChange={onMeetGreet}
+              />
+              <Toggle
+                label={baseRideTotal > 0
+                  ? `Add return journey (+£${baseRideTotal.toFixed(2)} — same fare again)`
+                  : "Add return journey"}
+                checked={returnJourney} onChange={onReturnJourney}
+              />
+            </div>
           </div>
         </div>
       </ExtrasCard>
-
-      {/* --- Everything defined in the admin Extras section --- */}
-      {catalogueExtras.length > 0 && (
-        <ExtrasCard
-          icon={<Package className="size-4" />}
-          eyebrow="Add-ons"
-          title="Available extras"
-          subtitle="Every extra we offer for this vehicle class. Anything you add here is included in your total."
-        >
-          <div className="grid gap-3 sm:grid-cols-2">
-            {catalogueExtras.map((e) => {
-              const n = extraQty[e.key] ?? 0;
-              const priceLabel = `£${(e.price_pence / 100).toFixed(2)}${
-                e.price_basis === "per_hour" ? " per hour" : e.price_basis === "per_booking" ? "" : " each"
-              }`;
-              const single = e.price_basis === "per_booking" || e.max_quantity <= 1;
-              return (
-                <div key={e.id} className="rounded-xl border border-border p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold">{e.name}</p>
-                      {e.description && <p className="mt-0.5 text-xs text-muted-foreground">{e.description}</p>}
-                      <p className="mt-1 text-xs font-semibold text-[var(--gold-ink)]">+{priceLabel}</p>
-                    </div>
-                    {single ? (
-                      <Switch
-                        checked={n > 0}
-                        onCheckedChange={(v) => onExtraQty(e.key, v ? 1 : 0)}
-                        aria-label={`Add ${e.name}`}
-                      />
-                    ) : (
-                      <Select value={String(n)} onValueChange={(v) => onExtraQty(e.key, Number(v))}>
-                        <SelectTrigger className="w-24 shrink-0"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          {Array.from({ length: e.max_quantity + 1 }, (_, i) => i).map((i) => (
-                            <SelectItem key={i} value={String(i)}>{i === 0 ? "None" : i}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </ExtrasCard>
-      )}
 
       {/* --- Cancellation policy tiers --- */}
       <ExtrasCard

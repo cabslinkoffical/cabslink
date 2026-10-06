@@ -1,0 +1,13 @@
+ALTER TABLE public.extras DROP CONSTRAINT IF EXISTS extras_price_basis_check;
+ALTER TABLE public.extras ADD CONSTRAINT extras_price_basis_check CHECK (price_basis = ANY (ARRAY['per_unit','per_booking','per_hour','per_minute']));
+ALTER TABLE public.extras DROP CONSTRAINT IF EXISTS extras_max_quantity_check;
+ALTER TABLE public.extras ADD CONSTRAINT extras_max_quantity_check CHECK (max_quantity >= 1 AND max_quantity <= 600);
+ALTER TABLE public.extras ADD COLUMN IF NOT EXISTS category text NOT NULL DEFAULT 'other';
+ALTER TABLE public.extras DROP CONSTRAINT IF EXISTS extras_category_check;
+ALTER TABLE public.extras ADD CONSTRAINT extras_category_check CHECK (category = ANY (ARRAY['child_seat','meet_greet','waiting','other']));
+ALTER TABLE public.extra_vehicle_classes ADD COLUMN IF NOT EXISTS max_quantity integer;
+ALTER TABLE public.extra_vehicle_classes DROP CONSTRAINT IF EXISTS extra_vehicle_classes_max_quantity_check;
+ALTER TABLE public.extra_vehicle_classes ADD CONSTRAINT extra_vehicle_classes_max_quantity_check CHECK (max_quantity IS NULL OR (max_quantity >= 0 AND max_quantity <= 600));
+UPDATE public.extras SET category = 'child_seat' WHERE key IN ('child_seat','additional_child_seat','booster_seat');
+UPDATE public.extras SET category = 'meet_greet' WHERE key = 'meet_greet';
+UPDATE public.extras SET category = 'waiting' WHERE key = 'waiting_time';

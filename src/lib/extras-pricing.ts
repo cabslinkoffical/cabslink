@@ -17,8 +17,13 @@ export type ExtraCatalogueEntry = {
   active: boolean;
   price_pence: number;
   applies_to_all_classes: boolean;
+  category?: string;
   /** How the price multiplies against the chosen quantity. */
-  price_basis?: "per_unit" | "per_booking" | "per_hour";
+  price_basis?: "per_unit" | "per_booking" | "per_hour" | "per_minute";
+  /** Default customer limit (units, hours or minutes). */
+  max_quantity?: number;
+  /** classId → limit override for that class (null = use max_quantity). */
+  class_max?: Record<string, number | null>;
   /** classId → override pence (null = use the extra's own price). */
   class_prices: Record<string, number | null>;
 };
@@ -31,6 +36,8 @@ export type ResolvedExtra = {
   /** False when a canonical extra exists but is not offered for this class. */
   available: boolean;
   source: "canonical" | "legacy";
+  /** Most a customer may choose for this class (undefined = no catalogue limit). */
+  maxQuantity?: number;
 };
 
 /**
@@ -59,7 +66,10 @@ export function resolveExtra(
 
   const override = classId ? entry.class_prices[classId] : undefined;
   const pence = override === null || override === undefined ? base : Math.max(0, Math.round(Number(override) || 0));
-  return { pence, available: true, source: "canonical" };
+  const classMax = classId ? entry.class_max?.[classId] : undefined;
+  const maxQuantity = classMax === null || classMax === undefined ? entry.max_quantity : classMax;
+  if (maxQuantity === 0) return { pence: 0, available: false, source: "canonical", maxQuantity: 0 };
+  return { pence, available: true, source: "canonical", maxQuantity };
 }
 
 /** Convenience: effective pence only (0 when the extra isn't offered). */
