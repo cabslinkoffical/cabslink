@@ -276,6 +276,10 @@ function TourDetailPage() {
     });
   };
 
+  // Admin-written lists win over the legacy array columns.
+  const included = d.included_md ? mdLines(d.included_md) : d.included;
+  const excluded = d.excluded_md ? mdLines(d.excluded_md) : d.excluded;
+
   // Ordered stops for quote (preserve template stop_order)
   const orderedStops = useMemo(
     () =>
