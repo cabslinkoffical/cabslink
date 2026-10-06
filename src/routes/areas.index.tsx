@@ -1,3 +1,4 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { InstantSearch } from "@/components/explore/InstantSearch";
@@ -19,7 +20,7 @@ const DESC =
   "Search every city, town, airport, station, university, hospital and attraction Cabslink serves across the UK. Fixed-price private transfers, 24/7.";
 
 export const Route = createFileRoute("/areas/")({
-  head: () => ({
+  head: () => normalizeHead({
     meta: [
       { title: TITLE },
       { name: "description", content: DESC },

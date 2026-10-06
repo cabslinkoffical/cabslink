@@ -39,7 +39,7 @@ const DESCRIPTION =
 const URL = "https://cabslink.com/reviews";
 
 export const Route = createFileRoute("/reviews")({
-  head: () => ({
+  head: () => normalizeHead({
     meta: [
       { title: TITLE },
       { name: "description", content: DESCRIPTION },

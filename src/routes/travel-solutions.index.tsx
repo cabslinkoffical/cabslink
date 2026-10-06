@@ -1,3 +1,4 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Briefcase, GraduationCap, Users, Heart, CalendarClock, Phone } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
@@ -61,7 +62,7 @@ function schema() {
 }
 
 export const Route = createFileRoute("/travel-solutions/")({
-  head: () => ({
+  head: () => normalizeHead({
     meta: [
       { title: TITLE },
       { name: "description", content: DESCRIPTION },

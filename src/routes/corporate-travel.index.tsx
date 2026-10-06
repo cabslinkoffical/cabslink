@@ -1,3 +1,4 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Building2, FileText, Headset, Users, ShieldCheck, ArrowRight } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
@@ -7,7 +8,7 @@ import { PageHero, SectionHeader } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/corporate-travel/")({
-  head: () => ({
+  head: () => normalizeHead({
     meta: [
       { title: "Corporate Travel Accounts — Cabslink Business Travel" },
       { name: "description", content: "Account-managed corporate travel with punctual drivers, monthly invoicing, dedicated support and full reporting." },

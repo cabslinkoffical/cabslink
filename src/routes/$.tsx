@@ -13,7 +13,7 @@ export const Route = createFileRoute("/$")({
   loader: () => {
     throw notFound();
   },
-  head: () => ({
+  head: () => normalizeHead({
     meta: [
       { title: "Page not found (404) — Cabslink" },
       { name: "description", content: "This Cabslink page doesn't exist or has moved. Browse our transfer services, airports and locations instead." },

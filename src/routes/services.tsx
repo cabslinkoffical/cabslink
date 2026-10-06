@@ -1,3 +1,4 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
@@ -45,7 +46,7 @@ import sportsImg from "@/assets/services/sports.jpg";
 import { collectionPageSchema } from "@/components/seo/schema";
 
 export const Route = createFileRoute("/services")({
-  head: () => ({
+  head: () => normalizeHead({
     meta: [
       { title: "Services — UK Airport, Golf & Sports Travel | Cabslink" },
       { name: "description", content: "Every Cabslink service: airport, station and cruise transfers, golf and football travel, day tours, hourly hire, corporate accounts and group travel." },

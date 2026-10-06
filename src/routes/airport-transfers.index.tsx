@@ -1,3 +1,4 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { FACT_TEXT } from "@/lib/site-facts";
 import { Plane, ShieldCheck, Clock, MapPin, ArrowRight } from "lucide-react";
@@ -9,7 +10,7 @@ import { BookingWidget } from "@/components/site/BookingWidget";
 import { InternalLinkHub } from "@/components/seo/InternalLinkHub";
 
 export const Route = createFileRoute("/airport-transfers/")({
-  head: () => ({
+  head: () => normalizeHead({
     meta: [
       { title: "Airport Transfers — Cabslink UK" },
       { name: "description", content: "Reliable UK airport transfers with flight tracking, meet & greet and fixed transparent fares. Edinburgh, Heathrow, Gatwick, Manchester and more." },

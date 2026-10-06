@@ -16,6 +16,6 @@ export const Route = createFileRoute("/locations/$slug")({
       throw: true,
     });
   },
-  head: () => ({ meta: [{ name: "robots", content: "noindex,follow" }] }),
+  head: () => normalizeHead({ meta: [{ name: "robots", content: "noindex,follow" }] }),
   component: () => null,
 });

@@ -5,6 +5,6 @@ export const Route = createFileRoute("/contact-us")({
   loader: () => {
     throw redirect({ to: "/contact", statusCode: 301, throw: true });
   },
-  head: () => ({ meta: [{ name: "robots", content: "noindex,follow" }] }),
+  head: () => normalizeHead({ meta: [{ name: "robots", content: "noindex,follow" }] }),
   component: () => null,
 });

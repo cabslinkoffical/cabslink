@@ -54,7 +54,7 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute("/book/tour")({
   validateSearch: searchSchema,
-  head: () => ({
+  head: () => normalizeHead({
     meta: [
       { title: "Book a Private Day Tour in Scotland | Cabslink" },
       {

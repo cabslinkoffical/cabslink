@@ -1,3 +1,4 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { SiteLayout } from "@/components/site/SiteLayout";
@@ -15,7 +16,7 @@ const homeQuery = queryOptions({
 
 export const Route = createFileRoute("/blog/")({
   loader: ({ context }) => context.queryClient.ensureQueryData(homeQuery),
-  head: () => ({
+  head: () => normalizeHead({
     meta: [
       { title: "Travel Guides & Airport Transfer Tips | Cabslink" },
       { name: "description", content: "Expert guides on UK airport transfers, Scotland day tours, executive travel and city guides. Trusted advice from Cabslink's editorial team." },

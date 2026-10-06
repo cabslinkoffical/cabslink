@@ -5,6 +5,6 @@ export const Route = createFileRoute("/wedding-transport")({
   loader: () => {
     throw redirect({ to: "/event-transport", statusCode: 301, throw: true });
   },
-  head: () => ({ meta: [{ name: "robots", content: "noindex,follow" }] }),
+  head: () => normalizeHead({ meta: [{ name: "robots", content: "noindex,follow" }] }),
   component: () => null,
 });

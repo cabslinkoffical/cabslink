@@ -1,3 +1,4 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
@@ -30,7 +31,7 @@ const fleetQuery = queryOptions({
 });
 
 export const Route = createFileRoute("/fleet")({
-  head: () => ({
+  head: () => normalizeHead({
     meta: [
       { title: "Our Fleet — Vehicle Classes | Cabslink UK" },
       { name: "description", content: "Explore Cabslink's vehicle classes — Executive Saloons, Luxury Class, Premium MPVs, Vans and Coaches. Book by class, guaranteed allocation." },

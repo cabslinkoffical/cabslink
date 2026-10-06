@@ -1,3 +1,4 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { Users, Luggage, ShieldCheck, RouteIcon } from "lucide-react";
 import { SportsServicePage, sportsFaqSchema, type SportsServiceContent } from "@/components/site/SportsServicePage";
@@ -39,7 +40,7 @@ const content: SportsServiceContent = {
 };
 
 export const Route = createFileRoute("/team-sports-travel")({
-  head: () => ({
+  head: () => normalizeHead({
     meta: [
       { title: TITLE },
       { name: "description", content: DESC },

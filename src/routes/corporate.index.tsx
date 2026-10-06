@@ -1,9 +1,10 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { HubPage } from "@/components/site/HubPage";
 import { HUBS, hubQueryOptions } from "@/lib/hub-config";
 export const Route = createFileRoute("/corporate/")({
-  head: () => ({ meta: [
+  head: () => normalizeHead({ meta: [
     { title: `${HUBS[("corporate" as const)].title} — Cabslink` },
     { name: "description", content: HUBS[("corporate" as const)].metaDescription },
     { property: "og:title", content: `${HUBS[("corporate" as const)].title} — Cabslink` },

@@ -1,3 +1,4 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { cloneElement, isValidElement, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { saveDraft, loadDraft, clearDraft } from "@/lib/booking-draft";
@@ -45,7 +46,7 @@ export const Route = createFileRoute("/book/")({
   // sitemapped `/book` URL answered 307 instead of 200.
   validateSearch: (search: Record<string, unknown>): { q?: string } =>
     typeof search.q === "string" && search.q.length > 0 ? { q: search.q } : {},
-  head: () => ({
+  head: () => normalizeHead({
     meta: [
       { title: "Book Now — Cabslink UK Airport Transfer & Driver" },
       { name: "description", content: "Choose a vehicle and book a premium UK airport transfer with Cabslink. Instant quote, transparent pricing, 24/7 confirmation." },

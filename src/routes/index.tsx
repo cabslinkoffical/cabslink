@@ -1,3 +1,4 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { FACT_TEXT } from "@/lib/site-facts";
 import { useEffect, useMemo, useState } from "react";
@@ -61,7 +62,7 @@ const fallbackHeroVehicles: HeroVehicle[] = [
 const HERO_VEHICLE_SIZES = "(max-width: 1024px) 92vw, 600px";
 
 export const Route = createFileRoute("/")({
-  head: () => ({
+  head: () => normalizeHead({
     meta: [
       { title: "Cabslink | UK Airport Transfers & Luxury Travel Platform" },
       { name: "description", content: "Fixed-fare UK airport transfers, private tours and executive travel with Cabslink. Flight tracking, meet & greet and 24/7 dispatch." },

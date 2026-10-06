@@ -103,7 +103,7 @@ export const Route = createFileRoute("/book/hourly")({
       },
     });
   },
-  head: () => ({
+  head: () => normalizeHead({
     meta: [
       { title: "Hourly Car Hire with Driver — Edinburgh & Glasgow | Cabslink" },
       { name: "description", content: "Hourly car hire with a driver in Edinburgh, Glasgow and across Scotland. Miles included, waiting time included, fixed price by the hour — book online in minutes." },

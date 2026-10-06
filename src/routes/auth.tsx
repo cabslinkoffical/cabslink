@@ -1,3 +1,4 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,7 +16,7 @@ import { verifySignInCaptcha } from "@/lib/auth-captcha.functions";
 const MIN_PASSWORD_LENGTH = 12;
 
 export const Route = createFileRoute("/auth")({
-  head: () => ({
+  head: () => normalizeHead({
     meta: [
       { title: "Sign in — Cabslink Admin" },
       { name: "robots", content: "noindex" },

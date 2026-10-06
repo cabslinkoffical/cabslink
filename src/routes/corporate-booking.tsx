@@ -1,3 +1,4 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -69,7 +70,7 @@ const CB_SECTIONS = [
 ];
 
 export const Route = createFileRoute("/corporate-booking")({
-  head: () => ({
+  head: () => normalizeHead({
     meta: [
       { title: "Corporate Booking — Open a Cabslink Business Account" },
       { name: "description", content: "Open a corporate account with Cabslink: agreed rates, priority dispatch, monthly invoicing and a named account manager for UK business travel." },

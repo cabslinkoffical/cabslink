@@ -1,3 +1,4 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { Briefcase, Car, ShieldCheck, Users } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
@@ -5,7 +6,7 @@ import { PageHero, SectionHeader } from "@/components/site/PageHero";
 import { DriverApplicationForm } from "@/components/site/DriverApplicationForm";
 
 export const Route = createFileRoute("/drive-with-us")({
-  head: () => ({
+  head: () => normalizeHead({
     meta: [
       { title: "Drive With Us — Become a Cabslink Driver or Fleet Partner" },
       { name: "description", content: "Join Cabslink as a professional driver or licensed fleet operator. Steady premium work across the UK with a respected brand." },

@@ -1,9 +1,10 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { LegalPage } from "@/components/site/LegalPage";
 import { SITE } from "@/lib/site";
 
 export const Route = createFileRoute("/privacy")({
-  head: () => ({
+  head: () => normalizeHead({
     meta: [
       { title: "Privacy Policy — Cabslink" },
       { name: "description", content: "How Cabslink collects, uses, stores and protects your personal information when you book UK airport transfers, tours or hourly hire." },

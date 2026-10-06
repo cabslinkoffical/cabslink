@@ -1,9 +1,10 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { LegalPage } from "@/components/site/LegalPage";
 import { SITE } from "@/lib/site";
 
 export const Route = createFileRoute("/accessibility")({
-  head: () => ({
+  head: () => normalizeHead({
     meta: [
       { title: "Accessibility — Cabslink" },
       { name: "description", content: "Cabslink's commitment to an accessible website and inclusive airport travel service." },

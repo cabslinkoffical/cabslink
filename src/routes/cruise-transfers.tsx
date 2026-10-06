@@ -1,3 +1,4 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { ServicePillarPage, pillarSchema } from "@/components/site/ServicePillarPage";
 import { SERVICE_PILLARS } from "@/lib/seo/service-pillars";
@@ -6,7 +7,7 @@ const content = SERVICE_PILLARS["cruise-transfers"]!;
 const URL = "https://cabslink.com/cruise-transfers";
 
 export const Route = createFileRoute("/cruise-transfers")({
-  head: () => ({
+  head: () => normalizeHead({
     meta: [
       { title: content.metaTitle },
       { name: "description", content: content.metaDescription },

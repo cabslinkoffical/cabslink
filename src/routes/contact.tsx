@@ -1,3 +1,4 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { useRef, useState } from "react";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -18,7 +19,7 @@ import { contactPageSchema } from "@/components/seo/schema";
 import { FormNotice, FormField, focusFirstInvalid, zodFieldErrors, StickyFormSubmit } from "@/components/site/FormValidation";
 
 export const Route = createFileRoute("/contact")({
-  head: () => ({
+  head: () => normalizeHead({
     meta: [
       { title: "Contact Cabslink — 24/7 UK Driver & Transfer Booking" },
       { name: "description", content: "Get in touch with Cabslink — 24/7 support, instant quotes and dedicated booking. Email, phone and Edinburgh office." },
