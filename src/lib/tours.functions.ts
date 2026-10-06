@@ -35,12 +35,12 @@ function serverPublicClient() {
 
 // Frozen public projection — every new column MUST be added here explicitly.
 const LIST_FIELDS =
-  "id, slug, name, short_description, hero_image_url, origin_label, destination_label, theme, seasonal_note, featured, long_day, display_order, tour_fee_pence, default_duration_hours, direct_distance_miles_cache, direct_duration_seconds_cache, starting_price_pence_cache, starting_price_currency";
+  "id, slug, name, short_description, hero_image_url, origin_label, destination_label, theme, seasonal_note, featured, long_day, display_order, tour_fee_pence, default_duration_hours, direct_distance_miles_cache, direct_duration_seconds_cache, starting_price_pence_cache, starting_price_currency, signature, theme_group, duration_hours";
 
 
 const DETAIL_FIELDS =
   LIST_FIELDS +
-  ", description, included, excluded, recommended_vehicle_categories, recommended_start_time, origin_place_id, destination_place_id, default_order_locked";
+  ", description, included, excluded, recommended_vehicle_categories, recommended_start_time, origin_place_id, destination_place_id, default_order_locked, itinerary_md, included_md, excluded_md, suits_md, faq, meta_description";
 
 // POI fields we allow into the public projection. Deliberately excludes
 // scenic_score, admin_priority, latitude/longitude, address_label.
@@ -57,6 +57,11 @@ export type PublicTourListItem = {
   theme: string | null;
   seasonal_note: string | null;
   featured: boolean;
+  /** Shows the "Signature" badge — only when an admin flags it. */
+  signature: boolean;
+  /** One of at most 7 filter groups. */
+  theme_group: string | null;
+  duration_hours: number | null;
   long_day: boolean;
   recommended_stop_count: number;
   starting_price_pence: number | null;
@@ -99,7 +104,34 @@ export type PublicTourDetail = PublicTourListItem & {
   default_order_locked: boolean;
   pois: PublicPoiCard[];
   related_slugs: string[];
+  related: { slug: string; name: string }[];
+  itinerary_md: string | null;
+  included_md: string | null;
+  excluded_md: string | null;
+  suits_md: string | null;
+  faq: { q: string; a: string }[];
+  meta_description: string | null;
+  class_prices: { class_id: string; name: string; price_pence: number }[];
+  reviews: { name: string; date: string; stars: number; text: string; source_url: string | null }[];
 };
+
+/**
+ * THE tour "from" price. Home page, tours index and tour page all call this,
+ * so one tour can never show two prices.
+ */
+export function tourStartingPricePence(row: any, rates: ClassRate[]): number | null {
+  const byClass = tourClassPricesPence(row, rates);
+  if (byClass.length) return byClass[0].price_pence;
+  const cached = row.starting_price_pence_cache;
+  return cached != null ? Number(cached) : null;
+}
+
+function cleanFaq(v: unknown): { q: string; a: string }[] {
+  if (!Array.isArray(v)) return [];
+  return v
+    .map((x: any) => ({ q: String(x?.q ?? "").trim(), a: String(x?.a ?? "").trim() }))
+    .filter((x) => x.q && x.a);
+}
 
 function pickCurrency(row: any): string {
   return (row.starting_price_currency as string | null) ?? "GBP";
@@ -108,31 +140,37 @@ function pickCurrency(row: any): string {
 // Hourly-model fallback: when a template has no cached transfer-style starting
 // price we show the cheapest vehicle class's hourly day rate for the tour's
 // default day length. This matches what the tour wizard actually charges.
-let hourlyRateCache: { at: number; rate: number | null } | null = null;
-async function cheapestTourHourlyRate(): Promise<number | null> {
-  if (hourlyRateCache && Date.now() - hourlyRateCache.at < 5 * 60_000) return hourlyRateCache.rate;
-  let rate: number | null = null;
+type ClassRate = { id: string; name: string; hourly_rate: number; min_hours: number | null };
+let classRateCache: { at: number; rates: ClassRate[] } | null = null;
+async function tourClassRates(): Promise<ClassRate[]> {
+  if (classRateCache && Date.now() - classRateCache.at < 5 * 60_000) return classRateCache.rates;
+  let rates: ClassRate[] = [];
   try {
     const { loadTourConfig } = await import("@/lib/tour-quote.server");
     const cfg = await loadTourConfig();
-    const rates = cfg.classes
-      .map((c: any) => Number(c.hourly_rate))
-      .filter((n) => Number.isFinite(n) && n > 0);
-    if (rates.length) rate = Math.min(...rates);
+    rates = cfg.classes
+      .map((c: any) => ({ id: c.id, name: c.name, hourly_rate: Number(c.hourly_rate), min_hours: c.min_hours == null ? null : Number(c.min_hours) }))
+      .filter((c) => Number.isFinite(c.hourly_rate) && c.hourly_rate > 0);
   } catch (err) {
-    console.error("cheapestTourHourlyRate failed", err);
+    console.error("tourClassRates failed", err);
   }
-  hourlyRateCache = { at: Date.now(), rate };
-  return rate;
+  classRateCache = { at: Date.now(), rates };
+  return rates;
 }
 
-function hourlyStartingPricePence(row: any, hourlyRate: number | null): number | null {
-  if (hourlyRate == null) return null;
-  const hours = Number(row.default_duration_hours);
-  if (!Number.isFinite(hours) || hours <= 0) return null;
-  return Math.round(hourlyRate * hours * 100);
+function tourHours(row: any): number | null {
+  const h = Number(row.duration_hours ?? row.default_duration_hours);
+  return Number.isFinite(h) && h > 0 ? h : null;
 }
 
+/** Fixed day price for each vehicle class: hourly rate × tour length (never below the class minimum). */
+export function tourClassPricesPence(row: any, rates: ClassRate[]): { class_id: string; name: string; price_pence: number }[] {
+  const hours = tourHours(row);
+  if (hours == null) return [];
+  return rates
+    .map((c) => ({ class_id: c.id, name: c.name, price_pence: Math.round(c.hourly_rate * Math.max(hours, c.min_hours ?? 0) * 100) }))
+    .sort((a, b) => a.price_pence - b.price_pence);
+}
 
 function toListItem(row: any, recommendedStopCount: number): PublicTourListItem {
   return {
@@ -145,6 +183,9 @@ function toListItem(row: any, recommendedStopCount: number): PublicTourListItem 
     theme: row.theme ?? null,
     seasonal_note: row.seasonal_note ?? null,
     featured: !!row.featured,
+    signature: !!row.signature,
+    theme_group: row.theme_group ?? null,
+    duration_hours: row.duration_hours != null ? Number(row.duration_hours) : row.default_duration_hours != null ? Number(row.default_duration_hours) : null,
     long_day: !!row.long_day,
     recommended_stop_count: recommendedStopCount,
     starting_price_pence: row.starting_price_pence_cache ?? null,
@@ -179,13 +220,10 @@ export async function listPublishedToursImpl(): Promise<PublicTourListItem[]> {
     }
   }
   const rows = (templates ?? []) as any[];
-  const needsFallback = rows.some((t) => t.starting_price_pence_cache == null);
-  const hourlyRate = needsFallback ? await cheapestTourHourlyRate() : null;
+  const rates = await tourClassRates();
   return rows.map((t: any) => {
     const item = toListItem(t, counts.get(t.id) ?? 0);
-    if (item.starting_price_pence == null) {
-      item.starting_price_pence = hourlyStartingPricePence(t, hourlyRate);
-    }
+    item.starting_price_pence = tourStartingPricePence(t, rates);
     return item;
   });
 
@@ -291,21 +329,29 @@ export async function getPublishedTourBySlugImpl(slug: string): Promise<PublicTo
     distance: t.direct_distance_miles_cache as number | null,
     duration: t.direct_duration_seconds_cache as number | null,
   };
-  if (cache.price_pence == null) {
-    cache = await refreshStartingPriceCache(t.id);
-  }
-  if (cache.price_pence == null) {
-    cache.price_pence = hourlyStartingPricePence(t, await cheapestTourHourlyRate());
-  }
+  // Same rule as the lists: cached price, else the hourly day rate. The cache
+  // refresh runs in the background so this view never shows a different price.
+  const rates = await tourClassRates();
+  const classPrices = tourClassPricesPence(t, rates);
+  if (cache.price_pence == null && !classPrices.length) void refreshStartingPriceCache(t.id).catch(() => null);
+  cache.price_pence = tourStartingPricePence(t, rates);
 
 
   // Related slugs — up to 3 other published tours by display order.
   const { data: related } = await client
     .from("scenic_route_templates")
-    .select("slug")
+    .select("slug, name")
     .neq("id", t.id)
     .order("display_order", { ascending: true })
     .limit(3);
+
+  const { data: reviewRows } = await client
+    .from("tour_reviews")
+    .select("reviewer_name, review_date, stars, body, source_url")
+    .eq("template_id", t.id)
+    .eq("published", true)
+    .order("review_date", { ascending: false })
+    .limit(20);
 
   return {
     id: t.id,
@@ -318,6 +364,9 @@ export async function getPublishedTourBySlugImpl(slug: string): Promise<PublicTo
     theme: t.theme ?? null,
     seasonal_note: t.seasonal_note ?? null,
     featured: !!t.featured,
+    signature: !!t.signature,
+    theme_group: t.theme_group ?? null,
+    duration_hours: t.duration_hours != null ? Number(t.duration_hours) : t.default_duration_hours != null ? Number(t.default_duration_hours) : null,
     long_day: !!t.long_day,
     recommended_stop_count: recommendedCount,
     starting_price_pence: cache.price_pence,
@@ -336,6 +385,17 @@ export async function getPublishedTourBySlugImpl(slug: string): Promise<PublicTo
     default_order_locked: !!t.default_order_locked,
     pois,
     related_slugs: (related ?? []).map((r: any) => r.slug as string),
+    related: (related ?? []).map((r: any) => ({ slug: r.slug as string, name: r.name as string })),
+    itinerary_md: t.itinerary_md ?? null,
+    included_md: t.included_md ?? null,
+    excluded_md: t.excluded_md ?? null,
+    suits_md: t.suits_md ?? null,
+    faq: cleanFaq(t.faq),
+    meta_description: t.meta_description ?? null,
+    class_prices: classPrices,
+    reviews: (reviewRows ?? []).map((r: any) => ({
+      name: r.reviewer_name, date: r.review_date, stars: Number(r.stars), text: r.body, source_url: r.source_url ?? null,
+    })),
   };
 }
 

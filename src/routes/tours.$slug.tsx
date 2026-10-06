@@ -15,6 +15,12 @@ import { TourBookingDialog, type TourForBooking } from "@/components/site/TourBo
 import { getPublishedTourBySlug, type PublicPoiCard, type PublicTourDetail } from "@/lib/tours.functions";
 import { calculateMultiStopQuote } from "@/lib/scenic-quote.functions";
 import { DraftTourPage } from "@/components/site/DraftTourPage";
+import { FaqBlock } from "@/components/seo/FaqBlock";
+
+/** Markdown-ish list text → clean lines ("- ", "* ", "1. " prefixes dropped). */
+function mdLines(md: string): string[] {
+  return md.split(/\r?\n/).map((l) => l.replace(/^\s*(?:[-*•]|\d+[.)])\s+/, "").trim()).filter(Boolean);
+}
 import { draftTour, tourSeo } from "@/lib/seo/tour-seo";
 
 
@@ -105,7 +111,7 @@ export const Route = createFileRoute("/tours/$slug")({
       ].find((t) => t.length <= 60) ??
         `${shortName.slice(0, 47).replace(/[\s,.;:—-]+\S*$/, "")} | Cabslink`);
 
-    let desc = seo?.metaDescription ?? "";
+    let desc = d.meta_description?.trim() || seo?.metaDescription || "";
     if (!desc) {
       // Fallback only for tours with no override yet: CMS blurbs are often a
       // single short line, so top up to the 110-155 window on a word boundary.
@@ -173,6 +179,16 @@ export const Route = createFileRoute("/tours/$slug")({
               : undefined,
           }),
         },
+        ...(d.faq.length
+          ? [{
+              type: "application/ld+json",
+              children: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "FAQPage",
+                mainEntity: d.faq.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
+              }),
+            }]
+          : []),
         {
           type: "application/ld+json",
           children: JSON.stringify({
@@ -259,6 +275,10 @@ function TourDetailPage() {
       return { ...prev, [p.id]: next };
     });
   };
+
+  // Admin-written lists win over the legacy array columns.
+  const included = d.included_md ? mdLines(d.included_md) : d.included;
+  const excluded = d.excluded_md ? mdLines(d.excluded_md) : d.excluded;
 
   // Ordered stops for quote (preserve template stop_order)
   const orderedStops = useMemo(
@@ -387,6 +407,49 @@ function TourDetailPage() {
               </div>
             )}
 
+            {(d.duration_hours != null || d.direct_distance_miles != null) && (
+              <dl className="mt-8 grid grid-cols-2 gap-4 sm:max-w-md">
+                {d.duration_hours != null && (
+                  <div className="rounded-2xl border border-white/10 p-4">
+                    <dt className="text-[11px] uppercase tracking-widest text-muted-foreground">Duration</dt>
+                    <dd className="mt-1 font-display text-xl font-semibold">{d.duration_hours} hours</dd>
+                  </div>
+                )}
+                {d.direct_distance_miles != null && (
+                  <div className="rounded-2xl border border-white/10 p-4">
+                    <dt className="text-[11px] uppercase tracking-widest text-muted-foreground">Distance</dt>
+                    <dd className="mt-1 font-display text-xl font-semibold">~{Math.round(d.direct_distance_miles)} miles</dd>
+                  </div>
+                )}
+              </dl>
+            )}
+
+            {d.itinerary_md && (
+              <div className="mt-10">
+                <h2 className="font-display text-2xl font-semibold mb-4">What does the day look like?</h2>
+                <ol className="space-y-3">
+                  {mdLines(d.itinerary_md).map((line, i) => {
+                    const m = line.match(/^(\d{1,2}[:.]\d{2}(?:\s?[ap]m)?)\s*[-–—:]\s*(.+)$/i);
+                    return (
+                      <li key={i} className="flex gap-4 rounded-2xl border border-white/10 p-4 text-sm">
+                        {m && <span className="w-16 shrink-0 font-semibold text-[var(--gold-ink)] tabular-nums">{m[1]}</span>}
+                        <span className="text-muted-foreground">{m ? m[2] : line}</span>
+                      </li>
+                    );
+                  })}
+                </ol>
+              </div>
+            )}
+
+            {d.suits_md && (
+              <div className="mt-10">
+                <h2 className="font-display text-2xl font-semibold mb-3">Who is this tour for?</h2>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  {mdLines(d.suits_md).map((x, i) => <li key={i} className="flex items-start gap-2"><Check className="size-4 text-[var(--gold-ink)] mt-0.5 shrink-0" />{x}</li>)}
+                </ul>
+              </div>
+            )}
+
             {d.pois.length > 0 && (
               <div className="mt-10">
                 <div className="flex items-baseline justify-between gap-3 mb-4">
@@ -480,21 +543,21 @@ function TourDetailPage() {
               </div>
             )}
 
-            {(d.included.length > 0 || d.excluded.length > 0) && (
+            {(included.length > 0 || excluded.length > 0) && (
               <div className="mt-10 grid sm:grid-cols-2 gap-6">
-                {d.included.length > 0 && (
+                {included.length > 0 && (
                   <div className="rounded-2xl border border-white/10 p-5">
                     <h3 className="font-display text-lg font-semibold">What's included</h3>
                     <ul className="mt-3 space-y-2 text-sm">
-                      {d.included.map((x, i) => <li key={i} className="flex items-start gap-2"><Check className="size-4 text-[var(--gold-ink)] mt-0.5 shrink-0" />{x}</li>)}
+                      {included.map((x, i) => <li key={i} className="flex items-start gap-2"><Check className="size-4 text-[var(--gold-ink)] mt-0.5 shrink-0" />{x}</li>)}
                     </ul>
                   </div>
                 )}
-                {d.excluded.length > 0 && (
+                {excluded.length > 0 && (
                   <div className="rounded-2xl border border-white/10 p-5">
                     <h3 className="font-display text-lg font-semibold">Not included</h3>
                     <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-                      {d.excluded.map((x, i) => <li key={i} className="flex items-start gap-2"><X className="size-4 mt-0.5 shrink-0" />{x}</li>)}
+                      {excluded.map((x, i) => <li key={i} className="flex items-start gap-2"><X className="size-4 mt-0.5 shrink-0" />{x}</li>)}
                     </ul>
                   </div>
                 )}
@@ -506,6 +569,53 @@ function TourDetailPage() {
                 <p className="flex items-start gap-2"><Info className="size-4 text-[var(--gold-ink)] mt-0.5 shrink-0" /><span>{d.seasonal_note}</span></p>
               </div>
             )}
+
+            {d.class_prices.length > 0 && (
+              <div className="mt-10">
+                <h2 className="font-display text-2xl font-semibold mb-3">How much does this tour cost?</h2>
+                <div className="overflow-hidden rounded-2xl border border-white/10">
+                  <table className="w-full text-sm">
+                    <thead><tr className="text-left text-[11px] uppercase tracking-widest text-muted-foreground"><th className="p-3">Vehicle</th><th className="p-3 text-right">Fixed price</th></tr></thead>
+                    <tbody>
+                      {d.class_prices.map((c) => (
+                        <tr key={c.class_id} className="border-t border-white/10">
+                          <td className="p-3">{c.name}</td>
+                          <td className="p-3 text-right font-semibold tabular-nums">£{(c.price_pence / 100).toFixed(0)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <p className="mt-2 text-xs text-muted-foreground">Per vehicle for {d.duration_hours} hours, driver included. Extra stops or time are priced before you pay.</p>
+              </div>
+            )}
+
+            {d.faq.length > 0 && (
+              <div className="mt-10"><FaqBlock items={d.faq} /></div>
+            )}
+
+            {d.reviews.length > 0 && (
+              <div className="mt-10">
+                <h2 className="font-display text-2xl font-semibold mb-4">What do guests say?</h2>
+                <ul className="grid gap-4 sm:grid-cols-2">
+                  {d.reviews.map((r, i) => (
+                    <li key={i} className="rounded-2xl border border-white/10 p-5 text-sm">
+                      <p className="text-[var(--gold-ink)]" aria-label={`${r.stars} out of 5 stars`}>{"★".repeat(r.stars)}{"☆".repeat(5 - r.stars)}</p>
+                      <p className="mt-2 text-muted-foreground">{r.text}</p>
+                      <p className="mt-3 text-xs">
+                        <span className="font-semibold">{r.name}</span> · {new Date(r.date).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
+                        {r.source_url && <> · <a href={r.source_url} target="_blank" rel="noopener noreferrer nofollow" className="underline">Source</a></>}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <div className="mt-10 rounded-2xl border border-white/10 p-5 text-sm">
+              <h2 className="font-display text-lg font-semibold mb-2">Booking terms</h2>
+              <p className="text-muted-foreground">{FACT_TEXT.tourCancellation}</p>
+            </div>
           </div>
 
           {/* SIDEBAR */}
@@ -555,14 +665,14 @@ function TourDetailPage() {
               </ul>
             </div>
 
-            {d.related_slugs.length > 0 && (
+            {d.related.length > 0 && (
               <div className="mt-6 rounded-3xl border border-white/10 p-5">
                 <p className="text-[11px] uppercase tracking-widest text-muted-foreground mb-3">Other tours</p>
                 <ul className="space-y-2 text-sm">
-                  {d.related_slugs.map((s) => (
-                    <li key={s}>
-                      <Link to="/tours/$slug" params={{ slug: s }} className="inline-flex items-center gap-1 hover:text-[var(--gold-ink)]">
-                        <ArrowRight className="size-3.5" /> {s.replace(/-/g, " ")}
+                  {d.related.map((r) => (
+                    <li key={r.slug}>
+                      <Link to="/tours/$slug" params={{ slug: r.slug }} className="inline-flex items-center gap-1 hover:text-[var(--gold-ink)]">
+                        <ArrowRight className="size-3.5" /> {r.name}
                       </Link>
                     </li>
                   ))}

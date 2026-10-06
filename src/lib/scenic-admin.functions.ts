@@ -341,3 +341,87 @@ export const updateTourSettings = createServerFn({ method: "POST" })
 
 // Re-export for tests / typing convenience
 export const _placeIdSchema = placeIdSchema;
+
+// ===================================================================
+// Tour page content + real guest reviews (Phase 8)
+// ===================================================================
+
+export const THEME_GROUPS = [
+  "Castles & History", "Outlander & Film", "Highlands & Glencoe", "Lochs & National Park",
+  "Villages & Heritage", "Family Days", "Coast & Landmarks",
+] as const;
+
+const md = z.string().trim().max(8000).nullable().optional();
+const tourContentSchema = z.object({
+  id: z.string().uuid(),
+  itinerary_md: md,
+  included_md: md,
+  excluded_md: md,
+  suits_md: md,
+  meta_description: z.string().trim().max(160).nullable().optional(),
+  duration_hours: z.coerce.number().min(1).max(24).nullable().optional(),
+  theme_group: z.enum(THEME_GROUPS).nullable().optional(),
+  signature: z.boolean().optional(),
+  faq: z.array(z.object({ q: z.string().trim().min(3).max(300), a: z.string().trim().min(3).max(2000) })).max(30).optional(),
+});
+
+export const updateTourContent = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => tourContentSchema.parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { id, ...patch } = data;
+    const cleaned: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(patch)) {
+      if (v === undefined) continue;
+      cleaned[k] = typeof v === "string" && v.length === 0 ? null : v;
+    }
+    const { error } = await context.supabase.from("scenic_route_templates").update(cleaned as any).eq("id", id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const listTourReviews = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ templateId: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { data: rows, error } = await context.supabase
+      .from("tour_reviews").select("*").eq("template_id", data.templateId).order("review_date", { ascending: false });
+    if (error) throw new Error(error.message);
+    return rows ?? [];
+  });
+
+const reviewSchema = z.object({
+  id: z.string().uuid().optional(),
+  template_id: z.string().uuid(),
+  reviewer_name: z.string().trim().min(1).max(120),
+  review_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  stars: z.coerce.number().int().min(1).max(5),
+  body: z.string().trim().min(3).max(3000),
+  source_url: z.string().trim().url().max(500).nullable().optional(),
+  published: z.boolean().default(true),
+});
+
+export const upsertTourReview = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => reviewSchema.parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { id, ...row } = data;
+    const res = id
+      ? await context.supabase.from("tour_reviews").update(row).eq("id", id)
+      : await context.supabase.from("tour_reviews").insert(row);
+    if (res.error) throw new Error(res.error.message);
+    return { ok: true };
+  });
+
+export const deleteTourReview = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { error } = await context.supabase.from("tour_reviews").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });

@@ -50,6 +50,13 @@
       "when": 1791299538842,
       "tag": "0006_extras_per_class_limits_and_categories",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1791317996744,
+      "tag": "0007_phase8_tour_content",
+      "breakpoints": true
     }
   ]
 }

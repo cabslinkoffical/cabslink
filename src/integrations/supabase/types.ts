@@ -2934,7 +2934,10 @@ export type Database = {
           direct_distance_miles_cache: number | null
           direct_duration_seconds_cache: number | null
           display_order: number
+          duration_hours: number | null
           excluded: Json
+          excluded_md: string | null
+          faq: Json
           featured: boolean
           fixed_start_address: string | null
           fixed_start_lat: number | null
@@ -2942,10 +2945,13 @@ export type Database = {
           hero_image_url: string | null
           id: string
           included: Json
+          included_md: string | null
           included_miles: number | null
           is_bookable: boolean
+          itinerary_md: string | null
           long_day: boolean
           max_duration_hours: number | null
+          meta_description: string | null
           min_duration_hours: number | null
           name: string
           optimisation_allowed: boolean
@@ -2957,13 +2963,16 @@ export type Database = {
           seasonal_note: string | null
           service_type: string
           short_description: string | null
+          signature: boolean
           slug: string
           start_mode: string
           starting_price_calculated_at: string | null
           starting_price_currency: string | null
           starting_price_pence_cache: number | null
           starting_price_vehicle_id: string | null
+          suits_md: string | null
           theme: string | null
+          theme_group: string | null
           tour_fee_pence: number
           updated_at: string
         }
@@ -2980,7 +2989,10 @@ export type Database = {
           direct_distance_miles_cache?: number | null
           direct_duration_seconds_cache?: number | null
           display_order?: number
+          duration_hours?: number | null
           excluded?: Json
+          excluded_md?: string | null
+          faq?: Json
           featured?: boolean
           fixed_start_address?: string | null
           fixed_start_lat?: number | null
@@ -2988,10 +3000,13 @@ export type Database = {
           hero_image_url?: string | null
           id?: string
           included?: Json
+          included_md?: string | null
           included_miles?: number | null
           is_bookable?: boolean
+          itinerary_md?: string | null
           long_day?: boolean
           max_duration_hours?: number | null
+          meta_description?: string | null
           min_duration_hours?: number | null
           name: string
           optimisation_allowed?: boolean
@@ -3003,13 +3018,16 @@ export type Database = {
           seasonal_note?: string | null
           service_type?: string
           short_description?: string | null
+          signature?: boolean
           slug: string
           start_mode?: string
           starting_price_calculated_at?: string | null
           starting_price_currency?: string | null
           starting_price_pence_cache?: number | null
           starting_price_vehicle_id?: string | null
+          suits_md?: string | null
           theme?: string | null
+          theme_group?: string | null
           tour_fee_pence?: number
           updated_at?: string
         }
@@ -3026,7 +3044,10 @@ export type Database = {
           direct_distance_miles_cache?: number | null
           direct_duration_seconds_cache?: number | null
           display_order?: number
+          duration_hours?: number | null
           excluded?: Json
+          excluded_md?: string | null
+          faq?: Json
           featured?: boolean
           fixed_start_address?: string | null
           fixed_start_lat?: number | null
@@ -3034,10 +3055,13 @@ export type Database = {
           hero_image_url?: string | null
           id?: string
           included?: Json
+          included_md?: string | null
           included_miles?: number | null
           is_bookable?: boolean
+          itinerary_md?: string | null
           long_day?: boolean
           max_duration_hours?: number | null
+          meta_description?: string | null
           min_duration_hours?: number | null
           name?: string
           optimisation_allowed?: boolean
@@ -3049,13 +3073,16 @@ export type Database = {
           seasonal_note?: string | null
           service_type?: string
           short_description?: string | null
+          signature?: boolean
           slug?: string
           start_mode?: string
           starting_price_calculated_at?: string | null
           starting_price_currency?: string | null
           starting_price_pence_cache?: number | null
           starting_price_vehicle_id?: string | null
+          suits_md?: string | null
           theme?: string | null
+          theme_group?: string | null
           tour_fee_pence?: number
           updated_at?: string
         }
@@ -4221,6 +4248,53 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      tour_reviews: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          published: boolean
+          review_date: string
+          reviewer_name: string
+          source_url: string | null
+          stars: number
+          template_id: string
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          published?: boolean
+          review_date: string
+          reviewer_name: string
+          source_url?: string | null
+          stars: number
+          template_id: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          published?: boolean
+          review_date?: string
+          reviewer_name?: string
+          source_url?: string | null
+          stars?: number
+          template_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tour_reviews_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "scenic_route_templates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tour_rules: {
         Row: {
