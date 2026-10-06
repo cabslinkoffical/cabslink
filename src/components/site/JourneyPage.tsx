@@ -1,3 +1,4 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 /**
  * JourneyPage — shared template for journey (route) pages, e.g.
  * /routes/edinburgh-to-glasgow. Content is facts-gated in
@@ -342,7 +343,7 @@ export function journeySchema(c: JourneyContent, fares?: RouteFareTableData | nu
   };
 }
 
-export function journeyHead(c: JourneyContent, fares?: RouteFareTableData | null) {
+function journeyHeadRaw(c: JourneyContent, fares?: RouteFareTableData | null) {
   const url = `${ORIGIN}${c.canonicalPath}`;
   return {
     meta: [
@@ -361,4 +362,10 @@ export function journeyHead(c: JourneyContent, fares?: RouteFareTableData | null
     scripts: [{ type: "application/ld+json", children: JSON.stringify(journeySchema(c, fares)) }],
 
   };
+}
+
+
+/** Same payload, upgraded to the full canonical/OG/Twitter tag set. */
+export function journeyHead(c: JourneyContent, fares?: RouteFareTableData | null) {
+  return normalizeHead(journeyHeadRaw(c, fares));
 }

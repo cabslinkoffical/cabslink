@@ -1,3 +1,4 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 /**
  * GuidePage — renderer for the code-defined editorial guides in
  * `src/lib/seo/guides.ts`. Content is hand-verified there; this file only
@@ -264,7 +265,7 @@ export function guideSchema(g: GuideRecord) {
   };
 }
 
-export function guideHead(g: GuideRecord) {
+function guideHeadRaw(g: GuideRecord) {
   const url = `${ORIGIN}/guides/${g.slug}`;
   return {
     meta: [
@@ -280,4 +281,10 @@ export function guideHead(g: GuideRecord) {
     links: [{ rel: "canonical", href: url }],
     scripts: [{ type: "application/ld+json", children: JSON.stringify(guideSchema(g)) }],
   };
+}
+
+
+/** Same payload, upgraded to the full canonical/OG/Twitter tag set. */
+export function guideHead(g: GuideRecord) {
+  return normalizeHead(guideHeadRaw(g));
 }
