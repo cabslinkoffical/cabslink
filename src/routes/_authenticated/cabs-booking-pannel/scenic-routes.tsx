@@ -312,6 +312,7 @@ function ScenicRoutesPage() {
                   }
                 })
               }
+              onContentSaved={invalidate}
               onRefreshPrice={() =>
                 withPending(selected.id, "price", async () => {
                   try {
@@ -381,6 +382,7 @@ function RouteEditor({
   onTogglePublish,
   onSaveMeta,
   onRefreshPrice,
+  onContentSaved,
 }: {
   template: any;
   stops: any[];
