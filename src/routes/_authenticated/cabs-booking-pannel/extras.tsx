@@ -424,13 +424,13 @@ function ExtrasPage() {
                               value={form.class_prices[c.id] ?? ""}
                               onChange={(e) => setForm({ ...form, class_prices: { ...form.class_prices, [c.id]: e.target.value } })}
                             />
-                            <Input
+                            {(!prof || prof.classMaxLabel) && <Input
                               className="h-8 w-24" aria-label={`${c.name} limit`}
                               type="number" step="1" min="0" max="600"
                               placeholder={`${prof?.classMaxLabel ?? "max"} ${form.max_quantity}`}
                               value={form.class_max[c.id] ?? ""}
                               onChange={(e) => setForm({ ...form, class_max: { ...form.class_max, [c.id]: e.target.value } })}
-                            />
+                            />}
                           </>
                         )}
                       </div>
