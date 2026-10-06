@@ -258,8 +258,14 @@ function BookingsPage() {
                     <td className="px-4 py-3 whitespace-nowrap">{b.pickup_date}<div className="text-xs text-muted-foreground">{formatTime12(b.pickup_time)}</div></td>
                     <td className="px-4 py-3 whitespace-nowrap">{b.price ? `£${Number(b.price).toFixed(2)}` : "—"}<div className="mt-1"><StatusBadge status={b.payment_status ?? "unpaid"} /></div></td>
                     <td className="px-4 py-3">
-                      {b.deleted_at ? (
-                        <StatusBadge status={statusLabel(b.status)} />
+                      {b.deleted_at || isStatusLocked(b.status, b.payment_status) ? (
+                        <div className="space-y-1">
+                          <StatusBadge status={statusLabel(b.status)} />
+                          <StatusBadge status={b.payment_status ?? "unpaid"} />
+                          {!b.deleted_at && isStatusLocked(b.status, b.payment_status) && (
+                            <div className="text-[10px] text-muted-foreground">Status locked</div>
+                          )}
+                        </div>
                       ) : (
                         <Select
                           value={b.status}
