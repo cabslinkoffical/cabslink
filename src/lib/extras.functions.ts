@@ -122,8 +122,10 @@ export const deleteExtra = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    const { error } = await context.supabase.from("extras").delete().eq("id", data.id);
+    const { data: gone, error } = await context.supabase.from("extras").delete().eq("id", data.id).select("id");
     if (error) throw new Error(error.message);
+    // RLS can silently skip the row; report it instead of claiming success.
+    if (!gone?.length) throw new Error("This extra could not be deleted. Refresh and try again.");
     return { ok: true };
   });
 
