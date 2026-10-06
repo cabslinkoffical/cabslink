@@ -64,6 +64,13 @@
       "when": 1791320984089,
       "tag": "0008_phase9_ai_search",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1791330405615,
+      "tag": "0009_lock_final_and_paid_booking_status",
+      "breakpoints": true
     }
   ]
 }
