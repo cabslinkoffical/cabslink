@@ -9,6 +9,7 @@ import { getRelatedSeoLinks } from "@/lib/seo-related.functions";
 import { SeoPageRenderer, buildSeoHead } from "@/components/seo/SeoPageRenderer";
 import { listDestinationsByType, type Destination } from "@/lib/destinations.functions";
 import { InternalLinkHub } from "@/components/seo/InternalLinkHub";
+import { DirectAnswer } from "@/components/seo/DirectAnswer";
 
 const ORIGIN = "https://cabslink.com";
 
@@ -178,6 +179,16 @@ function AirportPage() {
           </div>
         </div>
       </section>
+
+      <div className="container-x mt-8">
+        <DirectAnswer
+          sentences={[
+            `Cabslink runs pre-booked private transfers to and from ${name}${iata ? ` (${iata})` : ""}${cityLine ? ` in ${cityLine}` : ""}.`,
+            `Fares are fixed before you travel, and meet and greet is included on airport pickups: your driver waits in arrivals with a name board.`,
+          ]}
+          updated={(airport as { updated_at?: string | null }).updated_at ?? null}
+        />
+      </div>
 
       {/* Features */}
       <section className="section-y">

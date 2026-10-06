@@ -57,6 +57,13 @@
       "when": 1791317996744,
       "tag": "0007_phase8_tour_content",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1791320984089,
+      "tag": "0008_phase9_ai_search",
+      "breakpoints": true
     }
   ]
 }

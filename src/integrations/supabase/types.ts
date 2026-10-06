@@ -3880,6 +3880,7 @@ export type Database = {
       site_settings: {
         Row: {
           allowed_stop_duration_minutes: number[]
+          bing_site_verification: string | null
           business_address: string | null
           cancellation_policy: string | null
           child_seat_fee_pence: number
@@ -3892,6 +3893,7 @@ export type Database = {
           favicon_url: string | null
           id: number
           included_stop_minutes: number
+          indexnow_key: string
           logo_url: string | null
           maintenance_mode: boolean
           max_detour_miles: number
@@ -3926,6 +3928,7 @@ export type Database = {
         }
         Insert: {
           allowed_stop_duration_minutes?: number[]
+          bing_site_verification?: string | null
           business_address?: string | null
           cancellation_policy?: string | null
           child_seat_fee_pence?: number
@@ -3938,6 +3941,7 @@ export type Database = {
           favicon_url?: string | null
           id?: number
           included_stop_minutes?: number
+          indexnow_key?: string
           logo_url?: string | null
           maintenance_mode?: boolean
           max_detour_miles?: number
@@ -3972,6 +3976,7 @@ export type Database = {
         }
         Update: {
           allowed_stop_duration_minutes?: number[]
+          bing_site_verification?: string | null
           business_address?: string | null
           cancellation_policy?: string | null
           child_seat_fee_pence?: number
@@ -3984,6 +3989,7 @@ export type Database = {
           favicon_url?: string | null
           id?: number
           included_stop_minutes?: number
+          indexnow_key?: string
           logo_url?: string | null
           maintenance_mode?: boolean
           max_detour_miles?: number
@@ -4800,12 +4806,14 @@ export type Database = {
       }
       site_settings_public: {
         Row: {
+          bing_site_verification: string | null
           child_seat_fee_pence: number | null
           company_name: string | null
           currency: string | null
           currency_symbol: string | null
           id: number | null
           included_stop_minutes: number | null
+          indexnow_key: string | null
           maintenance_mode: boolean | null
           max_selected_stops: number | null
           meet_greet_fee_pence: number | null
@@ -4828,12 +4836,14 @@ export type Database = {
           tour_threshold_stops: number | null
         }
         Insert: {
+          bing_site_verification?: string | null
           child_seat_fee_pence?: number | null
           company_name?: string | null
           currency?: string | null
           currency_symbol?: string | null
           id?: number | null
           included_stop_minutes?: number | null
+          indexnow_key?: string | null
           maintenance_mode?: boolean | null
           max_selected_stops?: number | null
           meet_greet_fee_pence?: number | null
@@ -4856,12 +4866,14 @@ export type Database = {
           tour_threshold_stops?: number | null
         }
         Update: {
+          bing_site_verification?: string | null
           child_seat_fee_pence?: number | null
           company_name?: string | null
           currency?: string | null
           currency_symbol?: string | null
           id?: number | null
           included_stop_minutes?: number | null
+          indexnow_key?: string | null
           maintenance_mode?: boolean | null
           max_selected_stops?: number | null
           meet_greet_fee_pence?: number | null

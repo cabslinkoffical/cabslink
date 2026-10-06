@@ -73,7 +73,7 @@ const LEGACY_PHP_REDIRECTS: Record<string, string> = {
   "/services.php": "/services",
 };
 
-type SiteStatusValue = { maintenance: boolean; company_name: string | null };
+type SiteStatusValue = { maintenance: boolean; company_name: string | null; bing_site_verification?: string | null };
 const OPEN_SITE: SiteStatusValue = { maintenance: false, company_name: null };
 const statusCache = createTtlCache<SiteStatusValue>(30_000);
 const redirectCache = createTtlCache<{ to: string; code: 301 | 302 } | null>(5 * 60_000);
@@ -122,9 +122,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     if (target) throw redirect({ href: target.to, statusCode: target.code });
     return { maintenance };
   },
-  head: () => ({
+  head: ({ match }) => ({
     meta: [
       { charSet: "utf-8" },
+      ...(match.context?.maintenance?.bing_site_verification
+        ? [{ name: "msvalidate.01", content: match.context.maintenance.bing_site_verification }]
+        : []),
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: DEFAULT_TITLE },
       { name: "description", content: DEFAULT_DESCRIPTION },

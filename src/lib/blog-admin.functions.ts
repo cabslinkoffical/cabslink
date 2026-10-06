@@ -75,6 +75,9 @@ export const upsertPost = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { id, tag_ids, ...payload } = data;
+    if (payload.status === "published" && /\|\s*TODO\s*\|/.test(payload.body_md ?? "")) {
+      throw new Error("Replace every TODO in the comparison table with real figures before publishing.");
+    }
     let postId = id;
     if (id) {
       const { error } = await context.supabase.from("blog_posts").update(payload).eq("id", id);
@@ -90,6 +93,10 @@ export const upsertPost = createServerFn({ method: "POST" })
       if (tag_ids.length) {
         await context.supabase.from("blog_post_tags").insert(tag_ids.map((tid) => ({ post_id: postId, tag_id: tid })));
       }
+    }
+    if (payload.status === "published" && payload.slug) {
+      const { pingIndexNow } = await import("@/lib/seo/indexnow.server");
+      void pingIndexNow([`/blog/${payload.slug}`, "/blog", "/llms.txt"]);
     }
     return { ok: true, id: postId };
   });

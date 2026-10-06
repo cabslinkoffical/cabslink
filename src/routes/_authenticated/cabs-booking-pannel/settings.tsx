@@ -56,6 +56,7 @@ function Page() {
           tax_percentage: Number(form.tax_percentage || 0),
           tax_label: form.tax_label || "VAT",
           cancellation_policy: form.cancellation_policy, maintenance_mode: !!form.maintenance_mode,
+          bing_site_verification: (form.bing_site_verification ?? "").trim() || null,
           smtp_host: form.smtp_host, smtp_port: form.smtp_port ? Number(form.smtp_port) : null,
           smtp_user: form.smtp_user, google_maps_api_key: form.google_maps_api_key,
           poi_corridor_enabled: !!form.poi_corridor_enabled,
@@ -186,6 +187,7 @@ function Page() {
         <TabsContent value="advanced" className="space-y-4 mt-4">
           <Card>
             <Row label="Maintenance mode"><div className="flex items-center gap-2"><Switch checked={!!form.maintenance_mode} onCheckedChange={v => set("maintenance_mode", v)} /><span className="text-sm text-muted-foreground">When ON, public website shows maintenance page.</span></div></Row>
+            <Row label="Bing verification code"><div className="space-y-1"><Input value={form.bing_site_verification ?? ""} placeholder="e.g. 1A2B3C4D5E6F…" onChange={e => set("bing_site_verification", e.target.value)} /><p className="text-xs text-muted-foreground">From Bing Webmaster Tools → "HTML Meta Tag". Paste only the content value. Added to every page.</p></div></Row>
           </Card>
         </TabsContent>
       </Tabs>

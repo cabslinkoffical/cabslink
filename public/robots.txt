@@ -1,15 +1,93 @@
-User-agent: *
-Allow: /
+# Search and AI crawlers are welcome; private areas stay closed to all.
 
-# Private / non-indexable areas
+User-agent: OAI-SearchBot
+Allow: /
 Disallow: /cabs-booking-pannel
 Disallow: /auth$
 Disallow: /api/
 Disallow: /booking/
 Disallow: /book/confirm
-
-# Parameterised quote URLs create unlimited crawl combinations
 Disallow: /book?
 
+User-agent: ChatGPT-User
+Allow: /
+Disallow: /cabs-booking-pannel
+Disallow: /auth$
+Disallow: /api/
+Disallow: /booking/
+Disallow: /book/confirm
+Disallow: /book?
+
+User-agent: GPTBot
+Allow: /
+Disallow: /cabs-booking-pannel
+Disallow: /auth$
+Disallow: /api/
+Disallow: /booking/
+Disallow: /book/confirm
+Disallow: /book?
+
+User-agent: ClaudeBot
+Allow: /
+Disallow: /cabs-booking-pannel
+Disallow: /auth$
+Disallow: /api/
+Disallow: /booking/
+Disallow: /book/confirm
+Disallow: /book?
+
+User-agent: Claude-User
+Allow: /
+Disallow: /cabs-booking-pannel
+Disallow: /auth$
+Disallow: /api/
+Disallow: /booking/
+Disallow: /book/confirm
+Disallow: /book?
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /cabs-booking-pannel
+Disallow: /auth$
+Disallow: /api/
+Disallow: /booking/
+Disallow: /book/confirm
+Disallow: /book?
+
+User-agent: Google-Extended
+Allow: /
+Disallow: /cabs-booking-pannel
+Disallow: /auth$
+Disallow: /api/
+Disallow: /booking/
+Disallow: /book/confirm
+Disallow: /book?
+
+User-agent: Applebot-Extended
+Allow: /
+Disallow: /cabs-booking-pannel
+Disallow: /auth$
+Disallow: /api/
+Disallow: /booking/
+Disallow: /book/confirm
+Disallow: /book?
+
+User-agent: Bingbot
+Allow: /
+Disallow: /cabs-booking-pannel
+Disallow: /auth$
+Disallow: /api/
+Disallow: /booking/
+Disallow: /book/confirm
+Disallow: /book?
+
+User-agent: *
+Allow: /
+Disallow: /cabs-booking-pannel
+Disallow: /auth$
+Disallow: /api/
+Disallow: /booking/
+Disallow: /book/confirm
+Disallow: /book?
 
 Sitemap: https://cabslink.com/sitemap.xml

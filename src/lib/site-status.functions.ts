@@ -8,7 +8,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 
-export type SiteStatus = { maintenance: boolean; company_name: string | null };
+export type SiteStatus = { maintenance: boolean; company_name: string | null; bing_site_verification?: string | null };
 
 export const getSiteStatus = createServerFn({ method: "GET" }).handler(async (): Promise<SiteStatus> => {
   try {
@@ -28,10 +28,11 @@ export const getSiteStatus = createServerFn({ method: "GET" }).handler(async ():
       .from("site_settings_public" as any)
       .select("*")
       .eq("id", 1)
-      .maybeSingle()) as { data: { maintenance_mode?: boolean; company_name?: string } | null };
+      .maybeSingle()) as { data: { maintenance_mode?: boolean; company_name?: string; bing_site_verification?: string | null } | null };
     return {
       maintenance: !!data?.maintenance_mode,
       company_name: data?.company_name ?? null,
+      bing_site_verification: data?.bing_site_verification?.trim() || null,
     };
   } catch {
     // Never take the site down because the status lookup failed.

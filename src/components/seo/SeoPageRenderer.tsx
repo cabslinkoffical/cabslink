@@ -1,3 +1,4 @@
+import { DirectAnswer, firstSentences } from "@/components/seo/DirectAnswer";
 import { normalizeHead } from "@/lib/seo/page-head";
 import { Link } from "@tanstack/react-router";
 import { safeJsonLd } from "@/lib/safe-json-ld";
@@ -72,6 +73,15 @@ export function SeoPageRenderer({
       </section>
 
       <div className="container mx-auto px-4 py-12 space-y-12 max-w-4xl">
+        <DirectAnswer
+          sentences={[
+            ...firstSentences(page.short_intro || page.meta_description, fares?.fares.length ? 1 : 2),
+            fares?.fares.length
+              ? `Fixed fares start from ${fares.currencySymbol}${Math.min(...fares.fares.map((f) => f.price)).toFixed(2)} per vehicle for the ${fares.distanceMiles}-mile journey.`
+              : null,
+          ]}
+          updated={(page as { updated_at?: string | null }).updated_at ?? null}
+        />
         {fares && fares.fares.length > 0 && (
           <RouteFareTable data={fares} routeName={page.h1.replace(/\s+—.*$/, "")} />
         )}

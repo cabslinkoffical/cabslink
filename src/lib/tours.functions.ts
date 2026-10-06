@@ -40,7 +40,7 @@ const LIST_FIELDS =
 
 const DETAIL_FIELDS =
   LIST_FIELDS +
-  ", description, included, excluded, recommended_vehicle_categories, recommended_start_time, origin_place_id, destination_place_id, default_order_locked, itinerary_md, included_md, excluded_md, suits_md, faq, meta_description";
+  ", description, included, excluded, recommended_vehicle_categories, recommended_start_time, origin_place_id, destination_place_id, default_order_locked, updated_at, itinerary_md, included_md, excluded_md, suits_md, faq, meta_description";
 
 // POI fields we allow into the public projection. Deliberately excludes
 // scenic_score, admin_priority, latitude/longitude, address_label.
@@ -111,6 +111,7 @@ export type PublicTourDetail = PublicTourListItem & {
   suits_md: string | null;
   faq: { q: string; a: string }[];
   meta_description: string | null;
+  updated_at: string | null;
   class_prices: { class_id: string; name: string; price_pence: number }[];
   reviews: { name: string; date: string; stars: number; text: string; source_url: string | null }[];
 };
@@ -392,6 +393,7 @@ export async function getPublishedTourBySlugImpl(slug: string): Promise<PublicTo
     suits_md: t.suits_md ?? null,
     faq: cleanFaq(t.faq),
     meta_description: t.meta_description ?? null,
+    updated_at: t.updated_at ?? null,
     class_prices: classPrices,
     reviews: (reviewRows ?? []).map((r: any) => ({
       name: r.reviewer_name, date: r.review_date, stars: Number(r.stars), text: r.body, source_url: r.source_url ?? null,
