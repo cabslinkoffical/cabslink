@@ -7,16 +7,23 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
 import { alphaBucketQuery } from "@/lib/explore.functions";
 
+/** A to Z hubs are indexable only when they list at least this many destinations. */
+export const MIN_INDEXABLE_LETTER_COUNT = 8;
+
 export const Route = createFileRoute("/areas/a/$letter")({
   loader: ({ params, context }) => context.queryClient.ensureQueryData(alphaBucketQuery(params.letter)),
-  head: ({ params }) => {
+  head: ({ params, loaderData }) => {
     const L = params.letter.toUpperCase();
+    const count = Array.isArray(loaderData) ? loaderData.length : 0;
+    const indexable = count >= MIN_INDEXABLE_LETTER_COUNT;
+    const path = `/areas/a/${params.letter.toLowerCase()}`;
     return normalizeHead({
       meta: [
         { title: `Locations starting with ${L} — Cabslink` },
         { name: "description", content: `Cabslink destinations starting with the letter ${L}.` },
-        { name: "robots", content: "noindex,follow" },
+        { name: "robots", content: indexable ? "index,follow" : "noindex,follow" },
       ],
+      links: indexable ? [{ rel: "canonical", href: `https://cabslink.com${path}` }] : [],
     });
   },
   component: LetterPage,
