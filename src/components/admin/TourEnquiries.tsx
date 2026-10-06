@@ -168,7 +168,7 @@ export function TourEnquiries() {
                     <td className="px-4 py-3">
                       <div className="flex flex-col gap-1">
                         <StatusBadge status={tourStatusLabel(m.status)} />
-                        <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                        <span className={`text-[10px] uppercase tracking-wide font-semibold ${m.payment_status === "paid" || m.payment_status === "refunded" ? "text-muted-foreground" : "text-destructive"}`}>
                           {m.payment_status === "paid" ? "Paid" : m.payment_status === "refunded" ? "Refunded" : "Unpaid"}
                         </span>
                       </div>

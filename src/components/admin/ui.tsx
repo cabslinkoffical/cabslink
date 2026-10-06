@@ -57,6 +57,7 @@ export function StatusBadge({ status, color }: { status: string; color?: string 
   const gold = "bg-surface-gold text-gold-ink ring-1 ring-gold/30";
   const navy = "bg-navy text-navy-foreground ring-1 ring-navy/20";
   const soft = "bg-secondary text-foreground ring-1 ring-border";
+  const red = "bg-destructive/10 text-destructive ring-1 ring-destructive/30";
   const palette: Record<string, string> = {
     new: gold,
     pending_allocation: gold,
@@ -72,7 +73,7 @@ export function StatusBadge({ status, color }: { status: string; color?: string 
     failed: soft,
     suspended: soft,
     inactive: soft,
-    unpaid: gold,
+    unpaid: red,
     refunded: soft,
     partial: gold,
     read: navy,

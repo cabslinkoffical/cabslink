@@ -490,7 +490,7 @@ function CancelledBookings() {
                   <td className="px-4 py-3 max-w-[14rem]">
                     <div className="truncate text-xs text-muted-foreground">{b.cancellation_reason ?? "—"}</div>
                   </td>
-                  <td className="px-4 py-3 text-xs">{b.payment_status ?? "—"}</td>
+                  <td className={`px-4 py-3 text-xs font-medium ${!b.payment_status || b.payment_status === "unpaid" ? "text-destructive" : ""}`}>{b.payment_status ?? "unpaid"}</td>
                 </tr>
               ))}
             </tbody>
