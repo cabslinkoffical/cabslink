@@ -1,7 +1,7 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useQuery, queryOptions } from "@tanstack/react-query";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ChevronDown } from "lucide-react";
 import { listDestinationsByTypes } from "@/lib/destinations.functions";
 import { listPublishedTours } from "@/lib/tours.functions";
 import { JOURNEYS, journeyPath } from "@/lib/seo/journeys";
@@ -68,47 +68,72 @@ function DirectoryColumn({
   ctaLabel: string;
   ctaTo: string;
 }) {
+  // Mobile: collapsed by default, one tap opens the list. Desktop: always open.
+  const [open, setOpen] = useState(false);
+
   if (items.length === 0) return null;
 
   return (
-    <div>
-      <h3 className="text-[10px] font-bold uppercase tracking-[0.24em] text-[var(--gold-ink)]">
-        {title}
+    <div className="border-b border-[var(--navy)]/10 pb-1 md:border-b-0 md:pb-0">
+      <h3>
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          className="flex w-full items-center justify-between gap-3 py-2.5 text-left md:cursor-default md:py-0 md:px-0"
+        >
+          <span className="text-[10px] font-bold uppercase tracking-[0.24em] text-[var(--gold-ink)]">
+            {title}
+          </span>
+          <ChevronDown
+            aria-hidden
+            className={`size-4 shrink-0 text-[var(--navy)]/60 transition-transform duration-300 md:hidden ${open ? "rotate-180" : ""}`}
+          />
+        </button>
       </h3>
-      <ul className="mt-3">
-        {items.map((it) => (
-          <li key={it.key} className="border-b border-[var(--navy)]/10">
-            <Link to={it.to} className="group flex items-center justify-between gap-3 py-2.5">
-              <span className="min-w-0">
-                <span className="block truncate font-display text-[15px] font-semibold sm:text-base text-[var(--navy)] transition-colors group-hover:text-[var(--gold-ink)]">
-                  {it.label}
-                </span>
-                {it.meta ? (
-                  <span className="mt-0.5 block truncate text-[10px] uppercase tracking-[0.12em] text-[var(--navy)]/45">
-                    {it.meta}
-                  </span>
-                ) : null}
-              </span>
-              <span className="grid size-8 shrink-0 place-items-center rounded-full border border-[var(--navy)]/15 text-[var(--navy)]/70 transition-all group-hover:border-[var(--gold)] group-hover:bg-[var(--gold)] group-hover:text-[var(--gold-foreground)]">
-                <ArrowRight className="size-3.5 -rotate-45 transition-transform group-hover:rotate-0" />
-              </span>
-            </Link>
-          </li>
-        ))}
-      </ul>
-      <Link
-        to={ctaTo}
-        className="mt-3 inline-flex min-h-11 items-center gap-2 text-[13px] font-semibold text-[var(--navy)] transition-all hover:gap-3 hover:text-[var(--gold-ink)]"
+      <div
+        className={`grid transition-[grid-template-rows] duration-300 ease-out md:grid-rows-[1fr] ${
+          open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+        }`}
       >
-        {ctaLabel} <ArrowRight className="size-4" />
-      </Link>
+        <div className="overflow-hidden md:overflow-visible">
+          <ul className="mt-1 md:mt-3">
+            {items.map((it) => (
+              <li key={it.key} className="border-b border-[var(--navy)]/10">
+                <Link to={it.to} className="group flex items-center justify-between gap-3 py-2">
+                  <span className="min-w-0">
+                    <span className="block truncate font-display text-[15px] font-semibold text-[var(--navy)] transition-colors group-hover:text-[var(--gold-ink)] sm:text-base">
+                      {it.label}
+                    </span>
+                    {it.meta ? (
+                      <span className="mt-0.5 block truncate text-[10px] uppercase tracking-[0.12em] text-[var(--navy)]/45">
+                        {it.meta}
+                      </span>
+                    ) : null}
+                  </span>
+                  <span className="grid size-7 shrink-0 place-items-center rounded-full border border-[var(--navy)]/15 text-[var(--navy)]/70 transition-all group-hover:border-[var(--gold)] group-hover:bg-[var(--gold)] group-hover:text-[var(--gold-foreground)]">
+                    <ArrowRight className="size-3 -rotate-45 transition-transform group-hover:rotate-0" />
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <Link
+            to={ctaTo}
+            className="mb-2 mt-2 inline-flex min-h-11 items-center gap-2 text-[13px] font-semibold text-[var(--navy)] transition-all hover:gap-3 hover:text-[var(--gold-ink)] md:mb-0 md:mt-3"
+          >
+            {ctaLabel} <ArrowRight className="size-4" />
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }
 
 /**
  * Site-wide directory — popular locations, transfers and tours as crawlable
- * lists on a light background beneath the closing CTA.
+ * lists on a light background beneath the closing CTA. On mobile each column
+ * collapses to a tap-to-open accordion so the section stays short.
  */
 export function LocationsDirectory({
   eyebrow = "— Popular with our clients",
@@ -179,20 +204,20 @@ export function LocationsDirectory({
   }
 
   return (
-    <section className="bg-background py-12 md:py-16">
+    <section className="bg-background py-8 md:py-12">
       <div className="container-x">
         <div className="max-w-2xl">
           <p className="eyebrow-gold text-[11px]">{eyebrow}</p>
-          <h2 className="mt-2.5 font-display text-3xl font-bold leading-[1.05] text-[var(--navy)] sm:text-4xl">
+          <h2 className="mt-2 font-display text-2xl font-bold leading-[1.05] text-[var(--navy)] sm:text-3xl">
             {heading}
             <span className="text-[var(--gold-ink)]">{headingAccent}</span>
           </h2>
           {intro ? (
-            <p className="mt-3 text-sm leading-relaxed text-[var(--navy)]/65">{intro}</p>
+            <p className="mt-2 text-sm leading-relaxed text-[var(--navy)]/65">{intro}</p>
           ) : null}
         </div>
 
-        <div className="mt-7 grid gap-7 sm:grid-cols-2 sm:gap-x-8 lg:grid-cols-3 lg:gap-x-12">
+        <div className="mt-4 grid gap-4 sm:grid-cols-2 sm:gap-x-8 md:mt-5 lg:grid-cols-3 lg:gap-x-12">
           <DirectoryColumn
             title="Popular locations"
             items={locationItems}
