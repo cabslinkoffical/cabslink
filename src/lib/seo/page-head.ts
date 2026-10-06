@@ -80,6 +80,7 @@ export function withPageHead<T extends HeadLike>(
   input: PageHeadInput,
   extra: T = {} as T,
 ): T & { meta: HeadTag[]; links: HeadTag[] } {
+  extra = withSafeJsonLd(extra);
   const base = buildPageHead(input);
   const meta = (extra.meta ?? []).filter((m) => {
     if ("title" in m) return false;
