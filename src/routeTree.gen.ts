@@ -28,6 +28,8 @@ import { Route as OurServicesRouteImport } from './routes/our-services'
 import { Route as MinibusHireRouteImport } from './routes/minibus-hire'
 import { Route as ManageBookingRouteImport } from './routes/manage-booking'
 import { Route as LongDistanceTransfersRouteImport } from './routes/long-distance-transfers'
+import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
+import { Route as IndexnowKeyDottxtRouteImport } from './routes/indexnow-key[.]txt'
 import { Route as ImageCreditsRouteImport } from './routes/image-credits'
 import { Route as HospitalTransfersRouteImport } from './routes/hospital-transfers'
 import { Route as GroupTransfersRouteImport } from './routes/group-transfers'
@@ -242,6 +244,16 @@ const ManageBookingRoute = ManageBookingRouteImport.update({
 const LongDistanceTransfersRoute = LongDistanceTransfersRouteImport.update({
   id: '/long-distance-transfers',
   path: '/long-distance-transfers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LlmsDottxtRoute = LlmsDottxtRouteImport.update({
+  id: '/llms.txt',
+  path: '/llms.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IndexnowKeyDottxtRoute = IndexnowKeyDottxtRouteImport.update({
+  id: '/indexnow-key.txt',
+  path: '/indexnow-key.txt',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ImageCreditsRoute = ImageCreditsRouteImport.update({
@@ -917,6 +929,8 @@ export interface FileRoutesByFullPath {
   '/group-transfers': typeof GroupTransfersRoute
   '/hospital-transfers': typeof HospitalTransfersRoute
   '/image-credits': typeof ImageCreditsRoute
+  '/indexnow-key.txt': typeof IndexnowKeyDottxtRoute
+  '/llms.txt': typeof LlmsDottxtRoute
   '/long-distance-transfers': typeof LongDistanceTransfersRoute
   '/manage-booking': typeof ManageBookingRoute
   '/minibus-hire': typeof MinibusHireRoute
@@ -1056,6 +1070,8 @@ export interface FileRoutesByTo {
   '/group-transfers': typeof GroupTransfersRoute
   '/hospital-transfers': typeof HospitalTransfersRoute
   '/image-credits': typeof ImageCreditsRoute
+  '/indexnow-key.txt': typeof IndexnowKeyDottxtRoute
+  '/llms.txt': typeof LlmsDottxtRoute
   '/long-distance-transfers': typeof LongDistanceTransfersRoute
   '/manage-booking': typeof ManageBookingRoute
   '/minibus-hire': typeof MinibusHireRoute
@@ -1197,6 +1213,8 @@ export interface FileRoutesById {
   '/group-transfers': typeof GroupTransfersRoute
   '/hospital-transfers': typeof HospitalTransfersRoute
   '/image-credits': typeof ImageCreditsRoute
+  '/indexnow-key.txt': typeof IndexnowKeyDottxtRoute
+  '/llms.txt': typeof LlmsDottxtRoute
   '/long-distance-transfers': typeof LongDistanceTransfersRoute
   '/manage-booking': typeof ManageBookingRoute
   '/minibus-hire': typeof MinibusHireRoute
@@ -1339,6 +1357,8 @@ export interface FileRouteTypes {
     | '/group-transfers'
     | '/hospital-transfers'
     | '/image-credits'
+    | '/indexnow-key.txt'
+    | '/llms.txt'
     | '/long-distance-transfers'
     | '/manage-booking'
     | '/minibus-hire'
@@ -1478,6 +1498,8 @@ export interface FileRouteTypes {
     | '/group-transfers'
     | '/hospital-transfers'
     | '/image-credits'
+    | '/indexnow-key.txt'
+    | '/llms.txt'
     | '/long-distance-transfers'
     | '/manage-booking'
     | '/minibus-hire'
@@ -1618,6 +1640,8 @@ export interface FileRouteTypes {
     | '/group-transfers'
     | '/hospital-transfers'
     | '/image-credits'
+    | '/indexnow-key.txt'
+    | '/llms.txt'
     | '/long-distance-transfers'
     | '/manage-booking'
     | '/minibus-hire'
@@ -1760,6 +1784,8 @@ export interface RootRouteChildren {
   GroupTransfersRoute: typeof GroupTransfersRoute
   HospitalTransfersRoute: typeof HospitalTransfersRoute
   ImageCreditsRoute: typeof ImageCreditsRoute
+  IndexnowKeyDottxtRoute: typeof IndexnowKeyDottxtRoute
+  LlmsDottxtRoute: typeof LlmsDottxtRoute
   LongDistanceTransfersRoute: typeof LongDistanceTransfersRoute
   ManageBookingRoute: typeof ManageBookingRoute
   MinibusHireRoute: typeof MinibusHireRoute
@@ -1961,6 +1987,20 @@ declare module '@tanstack/react-router' {
       path: '/long-distance-transfers'
       fullPath: '/long-distance-transfers'
       preLoaderRoute: typeof LongDistanceTransfersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/llms.txt': {
+      id: '/llms.txt'
+      path: '/llms.txt'
+      fullPath: '/llms.txt'
+      preLoaderRoute: typeof LlmsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/indexnow-key.txt': {
+      id: '/indexnow-key.txt'
+      path: '/indexnow-key.txt'
+      fullPath: '/indexnow-key.txt'
+      preLoaderRoute: typeof IndexnowKeyDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/image-credits': {
@@ -3012,6 +3052,8 @@ const rootRouteChildren: RootRouteChildren = {
   GroupTransfersRoute: GroupTransfersRoute,
   HospitalTransfersRoute: HospitalTransfersRoute,
   ImageCreditsRoute: ImageCreditsRoute,
+  IndexnowKeyDottxtRoute: IndexnowKeyDottxtRoute,
+  LlmsDottxtRoute: LlmsDottxtRoute,
   LongDistanceTransfersRoute: LongDistanceTransfersRoute,
   ManageBookingRoute: ManageBookingRoute,
   MinibusHireRoute: MinibusHireRoute,

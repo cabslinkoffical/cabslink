@@ -91,6 +91,10 @@ export const upsertPost = createServerFn({ method: "POST" })
         await context.supabase.from("blog_post_tags").insert(tag_ids.map((tid) => ({ post_id: postId, tag_id: tid })));
       }
     }
+    if (payload.status === "published" && payload.slug) {
+      const { pingIndexNow } = await import("@/lib/seo/indexnow.server");
+      void pingIndexNow([`/blog/${payload.slug}`, "/blog", "/llms.txt"]);
+    }
     return { ok: true, id: postId };
   });
 

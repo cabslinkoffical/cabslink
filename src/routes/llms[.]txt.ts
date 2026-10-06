@@ -19,15 +19,14 @@ export const Route = createFileRoute("/llms.txt")({
         ]);
         const line = (name: string, url: string, note?: string | null) =>
           `- [${name}](${url})${note ? `: ${note.replace(/\s+/g, " ").trim()}` : ""}`;
-        const f: any = FACTS;
         const out = [
           "# Cabslink",
           "",
           `> Cabslink is a pre-booked private hire and airport transfer company based in Edinburgh, Scotland, offering fixed-fare transfers, private day tours and hourly hire across the UK.`,
           "",
           "## Key facts",
-          f.company ? `- Company: ${f.company.legalName ?? "Cabslink Limited"}${f.company.number ? `, company number ${f.company.number}` : ""}` : null,
-          f.phone?.display ? `- Phone: ${f.phone.display}` : null,
+          `- Company: ${FACTS.company.legalName}, company number ${FACTS.company.companyNumber}, ${FACTS.company.registeredOffice}`,
+          `- Phone: ${FACTS.company.phone}`,
           "- Booking and quotes: " + `${BASE}/book`,
           "- Payment: card through Stripe at the end of booking (Visa, Mastercard, American Express)",
           "",
