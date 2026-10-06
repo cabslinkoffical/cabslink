@@ -87,3 +87,36 @@ export function withPageHead<T extends { meta?: HeadTag[]; links?: HeadTag[] }>(
   const links = (extra.links ?? []).filter((l) => l.rel !== "canonical");
   return { ...extra, meta: [...base.meta, ...meta], links: [...base.links, ...links] };
 }
+
+/**
+ * Upgrade an existing head() payload to the full tag set: reads its title,
+ * description, canonical/og:url, og:image and og:type, then rebuilds through
+ * buildPageHead. Payloads with no canonical (private/noindex pages) pass
+ * through with only the keywords tag removed.
+ */
+export function normalizeHead<T extends { meta?: HeadTag[]; links?: HeadTag[] }>(
+  head: T,
+  overrides: Partial<PageHeadInput> = {},
+): T & { meta: HeadTag[]; links: HeadTag[] } {
+  const meta = head.meta ?? [];
+  const links = head.links ?? [];
+  const find = (k: string) => meta.find((m) => m.property === k || m.name === k)?.content;
+  const title = overrides.title ?? meta.find((m) => "title" in m)?.title;
+  const description = overrides.description ?? find("description");
+  const path = overrides.path ?? links.find((l) => l.rel === "canonical")?.href ?? find("og:url");
+  if (!title || !description || !path) {
+    return { ...head, meta: meta.filter((m) => m.name !== "keywords"), links };
+  }
+  const ogType = find("og:type");
+  return withPageHead(
+    {
+      title,
+      description,
+      path,
+      image: overrides.image ?? find("og:image") ?? null,
+      imageAlt: overrides.imageAlt ?? find("og:image:alt"),
+      type: overrides.type ?? (ogType === "article" ? "article" : "website"),
+    },
+    head,
+  );
+}
