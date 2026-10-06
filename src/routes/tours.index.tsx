@@ -29,16 +29,16 @@ export const Route = createFileRoute("/tours/")({
     return out;
   },
   head: ({ loaderData }) => {
-    const title = "Private Day Tours & Hourly Hire — Edinburgh & Glasgow | Cabslink";
+    const title = "Private Day Tours from Edinburgh & Hourly Hire | Cabslink";
     const description =
-      "Private day tours from Edinburgh and Glasgow with your own driver, booked by the hour with miles included. Choose a ready-made tour or build a custom day with fixed pricing.";
+      "Private day tours from Edinburgh with your own driver, booked by the hour with miles included. Choose a ready-made tour or build a custom day with fixed pricing.";
     const url = "https://cabslink.com/tours";
     const tours = (loaderData ?? []) as PublicTourListItem[];
     return normalizeHead({
       meta: [
         { title },
         { name: "description", content: description },
-        { property: "og:title", content: "Private Day Tours & Hourly Hire — Edinburgh & Glasgow" },
+        { property: "og:title", content: "Private Day Tours from Edinburgh & Hourly Hire" },
         { property: "og:description", content: description },
         { property: "og:type", content: "website" },
         { property: "og:url", content: url },
