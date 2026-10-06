@@ -72,7 +72,7 @@ export function StatusBadge({ status, color }: { status: string; color?: string 
     failed: soft,
     suspended: soft,
     inactive: soft,
-    unpaid: gold,
+    unpaid: red,
     refunded: soft,
     partial: gold,
     read: navy,
