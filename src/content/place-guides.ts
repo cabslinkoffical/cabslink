@@ -61,7 +61,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         paragraphs: [
           "Glasgow Airport (GLA) sits in Paisley, west of the city, which makes it the natural gateway for travellers heading to the west of Scotland. Our most-booked journey from here is the run to Loch Lomond: about 20 miles from the terminal to Balloch along the A82 through Dumbarton, usually about 35 minutes. It is a short enough drive to reach the loch shore within an hour of collecting your bags.",
           "That route has a live fixed fare for every vehicle class, shown below and calculated by the same engine used at checkout.",
-          {
+      {
         heading: "Planning a west-coast arrival",
         paragraphs: [
           "If you are landing late, add your flight number when you book so the driver can follow the arrival time rather than the timetable. For a Loch Lomond stay, give us the exact lodge or cottage address: many properties around Balloch and the loch shore sit down private tracks, and the full address lets us confirm the drop-off before the day.",
@@ -95,7 +95,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         paragraphs: [
           "Aberdeen Airport (ABZ) serves the city of Aberdeen and the north-east of Scotland. Plenty of our passengers here are travelling for work, so the pickup is built around a predictable routine: we follow the flight, the driver waits in arrivals with your name, and you know the fare before you land.",
           "From the terminal, Aberdeen city itself is the most common drop-off, whether that is a hotel, an office or a family home.",
-          {
+      {
         heading: "Tips for a smooth Aberdeen pickup",
         paragraphs: [
           "Add your flight number at booking. If you are flying in for a shift pattern or a site visit, tell us the return date too, so the inbound and outbound cars are arranged together under one booking reference.",
@@ -129,7 +129,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         paragraphs: [
           "Inverness Airport (INV) is the Highlands airport, and for many of our passengers it is the start of a holiday rather than a business trip. The first drive is usually into Inverness itself, where people pick up a hire car, check into a hotel or meet friends before heading further north and west.",
           "Booking a car ahead means you are not relying on a taxi rank after a late flight, and the price is agreed before you set off.",
-          {
+      {
         heading: "Before you fly to Inverness",
         paragraphs: [
           "Give us your flight number and the full address of your first night's stay. Highland guest houses and lodges can be spread out, and the exact address means the fare is accurate and the driver knows where to go.",
@@ -165,7 +165,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         paragraphs: [
           "Dundee Airport (DND) serves Dundee. Many pickups here are drops into the city, but we also connect it with the wider east coast of Scotland.",
           "St Andrews and the University of St Andrews are both linked to this page, and students arriving at the start of term often book a car for themselves and their luggage rather than juggling buses with heavy cases.",
-          {
+      {
         heading: "Planning around term time and tee times",
         paragraphs: [
           "At the start and end of university terms, cars are booked well ahead, so reserve early if you are moving into or out of St Andrews. Give the hall or street address so the driver can stop as close as possible to the door.",
@@ -199,7 +199,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         paragraphs: [
           "Glasgow Prestwick Airport (PIK) is in Prestwick, on the Ayrshire coast, rather than in Glasgow itself. That surprises some first-time visitors, which is one reason people pre-book a car: you know exactly how you are getting from the terminal to where you are staying.",
           "Ayr is linked to this page and is a common first stop for golfers and holidaymakers.",
-          {
+      {
         heading: "Getting the most from a Prestwick arrival",
         paragraphs: [
           "Add your flight number so we can follow the landing. If you are staying in Ayr or further along the Ayrshire coast, the exact hotel or course address lets us confirm the fare before you travel, rather than guessing from a town name.",
@@ -233,7 +233,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         paragraphs: [
           "Newcastle Airport (NCL) serves Newcastle upon Tyne and the north-east of England. For Cabslink it is a cross-border airport: some passengers land here and travel north into Scotland, while others live in the Borders or the Lothians and find a Newcastle flight suits their plans better than one from Edinburgh.",
           "A long drive like this is exactly where a fixed fare helps, because you know the full cost before setting off.",
-          {
+      {
         heading: "Making a cross-border trip easy",
         paragraphs: [
           "Long journeys are best booked early. Give your flight number and the full destination address, whether that is in Newcastle, the Scottish Borders or Edinburgh, and the quote will cover the whole drive.",
@@ -267,7 +267,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         paragraphs: [
           "Manchester Airport (MAN) serves Manchester and the north-west of England, and some Scottish travellers choose it when it offers the flight they need. Cabslink handles this as a pre-booked, long-distance private transfer: one car, one driver and one fixed price from your door to the terminal.",
           "Long-distance bookings are planned in advance, so please book early so we can arrange the driver and vehicle.",
-          {
+      {
         heading: "Planning a Manchester airport run",
         paragraphs: [
           "Choose a pickup time that leaves plenty of margin before check-in, since this is a long drive and traffic varies. Add the flight number so the driver can check its status on the day.",
@@ -301,7 +301,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         paragraphs: [
           "Heathrow Airport (LHR) is in London, and we book it as a long-distance private transfer. It suits travellers who would rather sit in one car than change trains with heavy luggage, and companies moving staff to a long-haul flight on a set schedule.",
           "Because the distance is long, the fixed fare is especially useful: it is confirmed before you pay, with no meter running in traffic.",
-          {
+      {
         heading: "Getting ready for a Heathrow journey",
         paragraphs: [
           "Tell us your terminal and flight number when booking, and choose a pickup time with generous margin before check-in. For a long drive, comfort stops can be added to the booking so the driver plans for them.",
@@ -335,7 +335,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         paragraphs: [
           "Gatwick Airport (LGW) is near Crawley, south of London, and it is a common choice for holiday flights. For Cabslink it is a long-distance booking, arranged in advance with a fixed price and a single driver for the whole journey.",
           "Most people who book us to Gatwick are carrying holiday luggage, so the choice of car matters more than the speed of booking.",
-          {
+      {
         heading: "Booking tips for Gatwick",
         paragraphs: [
           "Add your terminal and flight number when booking. Choose a departure time from home that leaves a generous buffer, because a long drive is more exposed to traffic than a short one.",
@@ -369,7 +369,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         paragraphs: [
           "Birmingham Airport (BHX) serves Birmingham and the wider Midlands. Our bookings here are usually one of two kinds: people from Scotland catching a flight that is only offered from Birmingham, and visitors landing here who need to travel north for a wedding, a funeral or a business meeting.",
           "Either way, it is a long-distance private transfer with one driver and one price confirmed at booking.",
-          {
+      {
         heading: "Arranging a Birmingham trip",
         paragraphs: [
           "For outbound journeys, set a pickup time that gives a comfortable margin before check-in, and add the flight number so we can follow it. Landing at Birmingham and travelling north? Tell us the final address and any stops you need, such as collecting a relative on the way.",
@@ -403,7 +403,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         paragraphs: [
           "Belfast International Airport (BFS) is listed under Northern Ireland on our site. Bookings here are local private transfers to and from your address, arranged in advance with the fare agreed before you travel.",
           "If you are not sure which Belfast airport your flight uses, check your ticket: Belfast City Airport is a separate airport with its own page.",
-          {
+      {
         heading: "Before you book",
         paragraphs: [
           "Check which Belfast airport your ticket names, then add the flight number so the driver can follow the landing time. Give the full address of where you are going; a street name alone is not enough to fix the fare.",
@@ -437,7 +437,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         paragraphs: [
           "Belfast City Airport (BHD) is one of two Belfast airports on our site. For short business trips, a pre-booked car with a fixed price saves waiting at a taxi rank when you have a meeting to reach.",
           "This page is separate from Belfast International Airport, which is also linked here — make sure you choose the right one before booking.",
-          {
+      {
         heading: "Tips for business travellers",
         paragraphs: [
           "Add your flight number and the exact meeting address when booking. If your meeting runs late, you can manage the return booking online using your booking reference and email address.",
@@ -471,7 +471,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         paragraphs: [
           "Leeds Bradford Airport (LBA) serves Leeds, Bradford and the rest of West Yorkshire. We arrange journeys here as pre-booked, long-distance private transfers, quoted as one price for the whole trip.",
           "Travellers usually come to us for this airport because a direct, door-to-door car is simpler than several trains with luggage.",
-          {
+      {
         heading: "Planning a Leeds Bradford journey",
         paragraphs: [
           "Leave a generous margin before check-in when you set your pickup time, and add your flight number so the driver can follow it on the day. Give the full address at both ends; Yorkshire villages can share similar names, and the exact address keeps the fare accurate.",
@@ -505,7 +505,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         paragraphs: [
           "Liverpool Airport (LPL) serves Liverpool and the north-west of England. Cabslink books it as a long-distance private transfer, with a single driver and a fare fixed at the time of booking.",
           "It is a good fit for groups travelling to a football match, a concert or a family celebration who want to arrive together rather than separately.",
-          {
+      {
         heading: "Group travel checklist",
         paragraphs: [
           "List every pickup address when booking, in the order you want to be collected, so one driver can gather the group. Add your flight number so the pickup time follows the real landing.",
