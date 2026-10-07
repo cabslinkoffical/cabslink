@@ -72,7 +72,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
       {
         "heading": "Planning a west-coast arrival",
         "paragraphs": [
-          "If you are landing late, add your flight number when you book so the driver can follow the arrival time rather than the timetable. For a Loch Lomond stay, give us the exact lodge or cottage address: many properties around Balloch and the loch shore sit down private tracks, and the full address lets us confirm the drop-off before the day.",
+          "If you are landing late, add your flight number when you book so the driver can follow the arrival time rather than the timetable. For a Loch Lomond stay, give us the exact lodge or cottage address: the full address lets us confirm the drop-off and the fare before the day, rather than working from the town name alone.",
           "Travelling on to Edinburgh after a few days in the west? Book that second journey at the same time and both fixed fares appear in one place, so the whole trip is costed before you leave home."
         ]
       },
@@ -115,7 +115,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
       {
         "heading": "Whisky country within reach",
         "paragraphs": [
-          "Aberdeen is also a practical starting point for Speyside. Two of the distilleries most often paired with this airport on our site are Glenfiddich and The Macallan, and a private car lets a group visit both without anyone needing to drive after a tasting. We price these as fixed journeys, so ask for a quote with each stop added.",
+          "Aberdeen is also a practical starting point for Speyside. Two distilleries linked to this page are Glenfiddich and The Macallan, and a private car lets a group visit both without anyone needing to drive after a tasting. We price these as fixed journeys, so ask for a quote with each stop added.",
           "Visitors flying in for a whisky trip usually travel light on the way out and heavy on the way back, so it is worth picking a car with spare boot space."
         ]
       },
