@@ -55,8 +55,28 @@ function hasValue(v: unknown): boolean {
   return true;
 }
 
+/** Minimum real visible body words (link text excluded) for Tier 1. */
+export const MIN_BODY_WORDS = 300;
+
+/** Count visible body words, ignoring link text and markup. */
+export function countBodyWords(htmlOrText: string): number {
+  return String(htmlOrText ?? "")
+    .replace(/<(script|style)\b[\s\S]*?<\/\1>/gi, " ")
+    .replace(/<a\b[^>]*>[\s\S]*?<\/a>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .split(/\s+/)
+    .filter((w) => /[A-Za-z0-9£]/.test(w)).length;
+}
+
+export type QualityOptions = {
+  /** Real visible body words on the rendered page (links excluded). */
+  bodyWords?: number;
+  /** True when the page is indexed today; such pages are never switched to noindex by the word rule. */
+  alreadyIndexed?: boolean;
+};
+
 /** Evaluate a destination. */
-export function evaluateQuality(d: Destination): QualityReport {
+export function evaluateQuality(d: Destination, opts: QualityOptions = {}): QualityReport {
   const missing: string[] = [];
   const reasons: string[] = [];
   const spec = REQUIRED_BY_TYPE[d.type];
@@ -95,6 +115,14 @@ export function evaluateQuality(d: Destination): QualityReport {
   if (requiredScore > 0 && score < TIER1_THRESHOLD)
     reasons.push(`Enrichment score ${score} below Tier 1 threshold ${TIER1_THRESHOLD}.`);
 
-  const effectiveNoindex = d.noindex || d.seo_tier !== 1 || !meetsThreshold;
+  // Word rule: counts real body words, not links. Only blocks NEW pages;
+  // a page already indexed keeps its current state.
+  let wordsBlock = false;
+  if (typeof opts.bodyWords === "number" && opts.bodyWords < MIN_BODY_WORDS) {
+    reasons.push(`Body text ${opts.bodyWords} words, below ${MIN_BODY_WORDS}.`);
+    missing.push(`body words (>= ${MIN_BODY_WORDS})`);
+    wordsBlock = !opts.alreadyIndexed;
+  }
+  const effectiveNoindex = d.noindex || d.seo_tier !== 1 || !meetsThreshold || wordsBlock;
   return { score, meetsThreshold, effectiveNoindex, missing, reasons };
 }

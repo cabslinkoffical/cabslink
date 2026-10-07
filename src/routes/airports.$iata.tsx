@@ -10,6 +10,9 @@ import { SeoPageRenderer, buildSeoHead } from "@/components/seo/SeoPageRenderer"
 import { listDestinationsByType, type Destination } from "@/lib/destinations.functions";
 import { InternalLinkHub } from "@/components/seo/InternalLinkHub";
 import { DirectAnswer } from "@/components/seo/DirectAnswer";
+import { guideFor } from "@/content/place-guides";
+import { PlaceGuideBlock } from "@/components/seo/PlaceGuideBlock";
+import { getRouteFares } from "@/lib/seo/route-fares.functions";
 
 const ORIGIN = "https://cabslink.com";
 
@@ -23,7 +26,16 @@ export const Route = createFileRoute("/airports/$iata")({
       const related = await getRelatedSeoLinks({
         data: { entityType: page.primary_entity_type as any, entityId: page.primary_entity_id },
       }).catch(() => null);
-      return { mode: "cms" as const, page, related };
+      const guide = guideFor(`/airports/${key}`);
+      const guideFares = guide?.routeSlugs?.length
+        ? await Promise.all(
+            guide.routeSlugs.map(async (slug) => ({
+              slug,
+              table: await getRouteFares({ data: { slug } }).catch(() => null),
+            })),
+          )
+        : [];
+      return { mode: "cms" as const, page, related, guideFares };
     }
 
     // 2) Resolve destination row: match by slug OR by meta.iata (case-insensitive).
@@ -105,7 +117,14 @@ function AirportPage() {
   if (data.mode === "cms") {
     return (
       <>
-        <SeoPageRenderer page={data.page} related={data.related} />
+        <SeoPageRenderer
+          page={data.page}
+          related={data.related}
+          appendix={(() => {
+            const guide = guideFor(`/airports/${cmsAirportKey}`);
+            return guide ? <PlaceGuideBlock guide={guide} fares={data.guideFares} /> : null;
+          })()}
+        />
         <div className="container-x pb-16">
           <InternalLinkHub kind="airport" slug={cmsAirportKey} heading="Where to next" />
         </div>

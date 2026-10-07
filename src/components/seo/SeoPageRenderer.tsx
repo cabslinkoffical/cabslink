@@ -18,10 +18,13 @@ export function SeoPageRenderer({
   page,
   related,
   fares,
+  appendix,
 }: {
   page: PublicSeoPage;
   related?: RelatedBundle | null;
   fares?: RouteFareTableData | null;
+  /** Extra content rendered after every existing section (Phase 7). */
+  appendix?: import("react").ReactNode;
 }) {
 
   const hero = page.featured_image_url || page.og_image_url || page.entity?.hero_image_url || null;
@@ -88,6 +91,7 @@ export function SeoPageRenderer({
         {allSections.map((s) => (
           <SectionBlock key={s.id} section={s} />
         ))}
+        {appendix}
       </div>
 
     </div>
