@@ -423,7 +423,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         "heading": "Nearby airports we also serve",
         "paragraphs": [
           "Liverpool, Manchester and East Midlands airports are linked from this page. If one of them has a better flight time, you can compare our quotes for each before deciding.",
-          "Corporate clients often book these journeys for teams travelling together, which is cheaper and simpler than several separate train tickets with luggage."
+          "Corporate clients often book these journeys for teams travelling together, so everyone arrives at the same time with their luggage. One booking reference covers the whole group, which keeps the paperwork in one place."
         ]
       },
       {
@@ -506,7 +506,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         "heading": "Business travel made simple",
         "paragraphs": [
           "Day-trip business travellers usually choose the Executive Saloon, which takes four passengers with two large cases. For a client visit, the Luxury Saloon carries three passengers.",
-          "Bookings can include a return journey, and the fare for both legs is shown before you pay."
+          "Bookings can include a return journey, and the fare for both legs is shown before you pay. If your meeting finishes early, contact us and we will try to bring the return pickup forward."
         ]
       }
     ],
@@ -537,7 +537,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         "heading": "Other northern airports",
         "paragraphs": [
           "Newcastle, Manchester and East Midlands airports are linked from this page. If you can fly from more than one, compare the quotes: the closest airport is not always the most convenient once flight times are taken into account.",
-          "Changing the airport on your booking recalculates the price before you confirm."
+          "Changing the airport on your booking recalculates the price before you confirm. That makes it easy to compare two or three options in a few minutes before you commit to a flight."
         ]
       },
       {
@@ -575,7 +575,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         "heading": "Nearby airports",
         "paragraphs": [
           "Birmingham, Manchester and Leeds Bradford airports are linked from this page. If your flight could leave from any of them, we can quote each so you can choose the easiest option for your group.",
-          "Group trips are easier to manage with one booking reference and one driver who knows the whole plan."
+          "Group trips are easier to manage with one booking reference and one driver who knows the whole plan, from the first pickup to the terminal drop-off."
         ]
       },
       {
