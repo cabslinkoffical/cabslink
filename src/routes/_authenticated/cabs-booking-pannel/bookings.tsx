@@ -31,6 +31,7 @@ import { Search, Trash2, RotateCcw, Eye, RefreshCw, MailCheck, MailX, MailWarnin
 import { bookingsToCsv, downloadCsv, bookingExportFilename } from "@/lib/booking-export";
 import { toast } from "sonner";
 import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
+import { BookingStatusCell } from "@/components/admin/BookingStatusCell";
 import { CannedEmailComposer } from "@/components/admin/CannedEmailComposer";
 import { TourEnquiries } from "@/components/admin/TourEnquiries";
 import { TOUR_SERVICE_TYPE } from "@/lib/tour-enquiries";
@@ -54,6 +55,10 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/bookin
     meta: [
       { title: "Bookings — Cabslink Admin" },
       { name: "description", content: "Cabslink staff console: bookings." },
+      { property: "og:title", content: "Bookings — Cabslink Admin" },
+      { property: "og:description", content: "Cabslink staff console: bookings." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
@@ -256,16 +261,11 @@ function BookingsPage() {
                       <div className="truncate text-xs text-muted-foreground" title={b.dropoff_address}>→ {b.dropoff_address}</div>
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap">{b.pickup_date}<div className="text-xs text-muted-foreground">{formatTime12(b.pickup_time)}</div></td>
-                    <td className="px-4 py-3 whitespace-nowrap">{b.price ? `£${Number(b.price).toFixed(2)}` : "—"}<div className="mt-1"><StatusBadge status={b.payment_status ?? "unpaid"} /></div></td>
+                    <td className="px-4 py-3 whitespace-nowrap tabular-nums">{b.price ? `£${Number(b.price).toFixed(2)}` : "—"}</td>
                     <td className="px-4 py-3">
+                      <BookingStatusCell status={statusLabel(b.status)} paymentStatus={b.payment_status} locked={!b.deleted_at && isStatusLocked(b.status, b.payment_status)}>
                       {b.deleted_at || isStatusLocked(b.status, b.payment_status) ? (
-                        <div className="space-y-1">
-                          <StatusBadge status={statusLabel(b.status)} />
-                          <StatusBadge status={b.payment_status ?? "unpaid"} />
-                          {!b.deleted_at && isStatusLocked(b.status, b.payment_status) && (
-                            <div className="text-[10px] text-muted-foreground">Status locked</div>
-                          )}
-                        </div>
+                        <StatusBadge status={statusLabel(b.status)} />
                       ) : (
                         <Select
                           value={b.status}
@@ -279,7 +279,7 @@ function BookingsPage() {
                             statusMut.mutate({ id: b.id, status: v as BookingStatus, reason: null });
                           }}
                         >
-                          <SelectTrigger className="h-8 text-xs" aria-label="Change status"><SelectValue /></SelectTrigger>
+                          <SelectTrigger className="h-7 w-auto min-w-[100px] gap-2 text-xs" aria-label="Change status"><SelectValue /></SelectTrigger>
                           <SelectContent>
                             {statusOptionsFor(b.status)
                               .map(s => <SelectItem key={s} value={s}>{STATUS_META[s].label}</SelectItem>)}
@@ -287,6 +287,7 @@ function BookingsPage() {
                           </SelectContent>
                         </Select>
                       )}
+                      </BookingStatusCell>
                     </td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-1">

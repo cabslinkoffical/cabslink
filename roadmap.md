@@ -75,5 +75,6 @@
 - [ ] Phase 7 moved to the end at owner request (blocked: 300-word rule would hide all 74 destination pages)
 
 ## Later asks
+- [ ] Compact booking status area: remove duplicate payment badges, use one inline payment label and a small lock icon; verify presentation and existing lock rules
 - [x] Lock booking status once paid, completed or cancelled (DB guard + admin UI)
 - [x] Paid/unpaid badge next to booking status in admin list
