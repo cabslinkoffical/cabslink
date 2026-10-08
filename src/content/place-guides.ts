@@ -264,7 +264,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         "heading": "Making a cross-border trip easy",
         "paragraphs": [
           "Long journeys are best booked early. Give your flight number and the full destination address, whether that is in Newcastle, the Scottish Borders or Edinburgh, and the quote will cover the whole drive.",
-          "If you would like a comfort break on the way, add it as a stop when booking so the driver can plan for it. Researchers visiting the BioQuarter and whisky visitors heading for Glenkinchie can book the onward journey in the same order. Business accounts can request a VAT receipt, and every booking comes with an emailed confirmation showing the fixed fare. If your flight is delayed, our flight tracking moves the pickup to match."
+          "If you would like a comfort break on the way, add it as a stop when booking so the driver can plan for it. Researchers visiting the BioQuarter and whisky visitors heading for Glenkinchie can book the onward journey in the same order. Every booking comes with an emailed confirmation showing the fixed fare. If your flight is delayed, our flight tracking moves the pickup to match."
         ]
       },
       {
@@ -340,14 +340,14 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         "heading": "Getting ready for a Heathrow journey",
         "paragraphs": [
           "Tell us your terminal and flight number when booking, and choose a pickup time with generous margin before check-in. For a long drive, comfort stops can be added to the booking so the driver plans for them.",
-          "Companies sending staff to Heathrow can book under a corporate account and request VAT receipts. Families travelling with young children can add the right child seat for each child while booking; the price of every extra is shown before payment. Arriving back at Heathrow? Book the homeward car at the same time and your driver will be waiting in arrivals, with your flight tracked so delays are handled for you."
+          "Families travelling with young children can add the right child seat for each child while booking; the price of every extra is shown before payment. Arriving back at Heathrow? Book the homeward car at the same time and your driver will be waiting in arrivals, with your flight tracked so delays are handled for you."
         ]
       },
       {
         "heading": "London's other airports",
         "paragraphs": [
           "Gatwick, Luton and London City airports are linked from this page. Travellers often have a choice of airports in the London area, and we can quote each one so you can compare the cost of reaching them before you book a flight.",
-          "If you need a car at both ends of a trip, book the outward and return journeys separately so each has its own driver and fixed price."
+          "If you need a return journey, use the Add return option in the booking form."
         ]
       },
       {
@@ -416,7 +416,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         "heading": "Arranging a Birmingham trip",
         "paragraphs": [
           "For outbound journeys, set a pickup time that gives a comfortable margin before check-in, and add the flight number so we can follow it. Landing at Birmingham and travelling north? Tell us the final address and any stops you need, such as collecting a relative on the way.",
-          "Corporate clients can request VAT receipts and keep journeys under one account, which makes expense claims simpler. If you are booking for a wedding or another family event, add every pickup address in the booking so one driver collects everyone in order. The fare for the full route, including extra stops, is shown before you pay, and the confirmation arrives by email."
+          "If you are booking for a wedding or another family event, add every pickup address in the booking so one driver collects everyone in order. The fare for the full route, including extra stops, is shown before you pay, and the confirmation arrives by email."
         ]
       },
       {
@@ -446,34 +446,34 @@ export const PLACE_GUIDES: PlaceGuide[] = [
       {
         "heading": "Belfast International Airport",
         "paragraphs": [
-          "Belfast International Airport (BFS) is listed under Northern Ireland on our site. Bookings here are local private transfers to and from your address, arranged in advance with the fare agreed before you travel.",
-          "If you are not sure which Belfast airport your flight uses, check your ticket: Belfast City Airport is a separate airport with its own page."
+          "Belfast International Airport (BFS) is listed under Northern Ireland on our site. Whether Cabslink can arrange a transfer here is awaiting confirmation from the owner; this guide does not confirm local service availability.",
+          "Belfast City Airport is a separate airport with its own page. Check the airport name and code on your ticket when planning your journey."
         ]
       },
       {
         "heading": "Before you book",
         "paragraphs": [
-          "Check which Belfast airport your ticket names, then add the flight number so the driver can follow the landing time. Give the full address of where you are going; a street name alone is not enough to fix the fare.",
-          "If your visit is part of a longer trip that continues into Scotland, tell us about each leg when you contact us. We would rather confirm what we can arrange than promise a journey we cannot deliver. Every confirmed booking shows the fixed fare and is followed by an email confirmation, and child seats can be added as extras. Business travellers can ask for a VAT receipt for company records."
+          "Before making travel arrangements, check your arrival airport, flight number and destination address. These details distinguish the journey you need from a similarly named airport or location.",
+          "For plans that also include Scotland, contact us with each proposed journey. Northern Ireland operations, fares and terminal pickup arrangements remain unconfirmed, so please do not treat this page as confirmation that a local transfer is available."
         ]
       },
       {
         "heading": "Islay whisky and onward travel",
         "paragraphs": [
-          "Laphroaig and Ardbeg distilleries, on the Scottish island of Islay, are linked from this page for whisky visitors planning a wider trip. Please contact us before booking any journey that involves a ferry, so we can confirm what is possible.",
-          "For a journey that starts or ends in Belfast, we will need both addresses to give a fixed price."
+          "Laphroaig and Ardbeg distilleries on the Scottish island of Islay are linked from this page for visitors researching a wider trip.",
+          "Contact us before planning travel involving a ferry. This guide does not confirm a Belfast-to-Islay service or a fixed fare."
         ]
       },
       {
         "heading": "Who books this airport",
         "paragraphs": [
-          "Visitors arriving for family events, business travellers and holidaymakers returning home use our service here. A single traveller is fine in a saloon, which carries four passengers with two large cases; a family with several cases is better in the Standard MPV, with room for four passengers and four cases.",
-          "Your driver waits in arrivals with a name board."
+          "Families, business travellers and holidaymakers can use the airport links on this page to check which Belfast airport their itinerary names.",
+          "Passenger numbers, luggage and the full destination address are useful details to include in an enquiry. A vehicle or meeting point is not confirmed by this guide."
         ]
       }
     ],
     "needsOwnerFact": [
-      "Whether Cabslink operates in Northern Ireland directly or via a partner",
+      "TODO — owner to confirm whether Cabslink operates in Northern Ireland directly or via a partner",
       "Fixed fares to/from Belfast International (no published route)",
       "Pickup point at the terminal"
     ]
@@ -484,34 +484,34 @@ export const PLACE_GUIDES: PlaceGuide[] = [
       {
         "heading": "Belfast City Airport",
         "paragraphs": [
-          "Belfast City Airport (BHD) is one of two Belfast airports on our site. For short business trips, a pre-booked car with a fixed price saves waiting at a taxi rank when you have a meeting to reach.",
-          "This page is separate from Belfast International Airport, which is also linked here — make sure you choose the right one before booking."
+          "Belfast City Airport (BHD) is one of two Belfast airports listed on our site. Local Cabslink transfer availability is awaiting owner confirmation; the listing alone does not confirm that a service operates here.",
+          "Belfast International Airport has a separate page and is linked here. Check your ticket carefully so an enquiry identifies the right airport."
         ]
       },
       {
         "heading": "Tips for business travellers",
         "paragraphs": [
-          "Add your flight number and the exact meeting address when booking. If your meeting runs late, you can manage the return booking online using your booking reference and email address.",
-          "Teams flying in together can share one car: the Seven-Seater MPV carries six passengers, and the Eight-Seater Van eight. One booking keeps everyone on the same reference, and a VAT receipt can be requested for company accounts. If you are combining a Belfast visit with a whisky trip to Islay, contact us first so we can advise what is possible before you pay. Child seats can also be added during booking for family trips, and the price of every extra is shown upfront."
+          "For a business-travel enquiry, include the flight number, meeting address and any proposed return journey. These are planning details, not confirmation of a driver or fare.",
+          "If several colleagues are travelling, include passenger and luggage numbers. We need owner confirmation of Northern Ireland operations before this guide can describe a local vehicle, pickup arrangement or booking promise."
         ]
       },
       {
         "heading": "Planning a Scottish whisky trip from Belfast",
         "paragraphs": [
-          "Laphroaig and Ardbeg distilleries on Islay are linked from this page. Travel between Belfast and Islay involves a sea crossing, so contact us before you book and we will tell you what we can arrange.",
-          "We do not publish a fixed fare for that kind of trip yet, because it depends on the crossing you choose."
+          "Laphroaig and Ardbeg distilleries on Islay are linked from this page for people researching a Scottish whisky trip.",
+          "Contact us about travel involving a crossing before making arrangements. No Belfast-to-Islay fare or transfer service is confirmed in this guide."
         ]
       },
       {
         "heading": "Business travel made simple",
         "paragraphs": [
-          "Day-trip business travellers usually choose the Executive Saloon, which takes four passengers with two large cases. For a client visit, the Luxury Saloon carries three passengers.",
-          "Bookings can include a return journey, and the fare for both legs is shown before you pay. If your meeting finishes early, contact us and we will try to bring the return pickup forward."
+          "Keep the airport name, flight details and destination address together when preparing your itinerary or asking about a journey.",
+          "Whether Cabslink operates directly in Northern Ireland or through a partner remains an owner question. Until answered, this guide offers airport-identification and enquiry information only."
         ]
       }
     ],
     "needsOwnerFact": [
-      "Whether Cabslink operates in Northern Ireland directly or via a partner",
+      "TODO — owner to confirm whether Cabslink operates in Northern Ireland directly or via a partner",
       "Fixed fares to/from Belfast City Airport (no published route)",
       "Pickup point at the terminal"
     ]
@@ -530,7 +530,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         "heading": "Planning a Leeds Bradford journey",
         "paragraphs": [
           "Leave a generous margin before check-in when you set your pickup time, and add your flight number so the driver can follow it on the day. Give the full address at both ends; Yorkshire villages can share similar names, and the exact address keeps the fare accurate.",
-          "If you are booking for a family, add each child seat during booking and check the luggage capacity of the vehicle you choose. Return trips can be booked at the same time, so your driver is waiting in arrivals when you fly home. Business travellers can request a VAT receipt, and every booking is confirmed by email with the full fixed price. If plans change, contact us before travel and we will update the booking where possible."
+          "If you are booking for a family, add each child seat during booking and check the luggage capacity of the vehicle you choose. Return trips can be booked at the same time, so your driver is waiting in arrivals when you fly home. Every booking is confirmed by email with the full fixed price. If plans change, contact us before travel and we will update the booking where possible."
         ]
       },
       {
