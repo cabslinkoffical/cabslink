@@ -13,7 +13,8 @@ import type {} from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { listPublishedSeoPaths } from "@/lib/seo-public.functions";
-import { PUBLIC_ROUTES } from "@/lib/sitemap-routes";
+import { PUBLIC_ROUTES, fetchAllPages } from "@/lib/sitemap-routes";
+import { indexableAlphaPaths } from "@/lib/seo/alpha-indexing";
 
 const BASE_URL = "https://cabslink.com";
 
@@ -61,6 +62,13 @@ export const Route = createFileRoute("/sitemap-core.xml")({
         for (const p of PUBLIC_ROUTES) entries.set(p, null);
 
         const sb = serverPublicClient();
+
+        try {
+          const rows = await fetchAllPages((from, to) => sb.from("destinations")
+            .select("name").eq("active", true).neq("seo_tier", 4)
+            .order("id").range(from, to));
+          for (const path of indexableAlphaPaths(rows)) entries.set(path, null);
+        } catch { /* keep serving the existing sitemap surface */ }
 
         try {
           const { data } = await sb
