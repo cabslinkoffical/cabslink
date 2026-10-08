@@ -6,9 +6,7 @@ import { EntityGrid } from "@/components/explore/EntityCard";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
 import { alphaBucketQuery } from "@/lib/explore.functions";
-
-/** A to Z hubs are indexable only when they list at least this many destinations. */
-const MIN_INDEXABLE_LETTER_COUNT = 8;
+import { MIN_INDEXABLE_LETTER_COUNT } from "@/lib/seo/alpha-indexing";
 
 export const Route = createFileRoute("/areas/a/$letter")({
   loader: ({ params, context }) => context.queryClient.ensureQueryData(alphaBucketQuery(params.letter)),
