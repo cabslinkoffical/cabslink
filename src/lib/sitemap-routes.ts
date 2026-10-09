@@ -17,9 +17,33 @@ export const GUIDE_ROUTES = publishedGuidePaths();
 
 /** Utility, booking-flow and legal pages that are deliberately not in the sitemap. */
 export const SITEMAP_EXCLUDED = [
-  "/book", "/book/hourly", "/book/tour",
+  "/book", "/book/hourly", "/book/tour", "/distance", "/get-a-quote",
   "/privacy", "/terms", "/cookies", "/image-credits",
 ];
+
+/** Canonical form of a sitemap path: lowercase, single leading slash, no trailing slash. */
+export function canonicalSitemapPath(p: string): string {
+  let s = p.trim().split(/[?#]/)[0].toLowerCase().replace(/\/{2,}/g, "/");
+  if (!s.startsWith("/")) s = `/${s}`;
+  if (s.length > 1) s = s.replace(/\/+$/, "");
+  return s;
+}
+
+/**
+ * Collapse entries that share a canonical URL so each URL is listed once.
+ * Keeps the first-seen position and the most recent lastmod.
+ */
+export function dedupeSitemapEntries(
+  entries: Iterable<[string, string | null]>,
+): Array<[string, string | null]> {
+  const out = new Map<string, string | null>();
+  for (const [raw, lastmod] of entries) {
+    const key = canonicalSitemapPath(raw);
+    const prev = out.get(key);
+    if (!out.has(key) || (lastmod && (!prev || lastmod > prev))) out.set(key, lastmod ?? prev ?? null);
+  }
+  return [...out];
+}
 
 /** Read every row of a query in 1000-row pages (PostgREST caps responses). */
 export async function fetchAllPages<T>(

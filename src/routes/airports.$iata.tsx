@@ -13,6 +13,9 @@ import { DirectAnswer } from "@/components/seo/DirectAnswer";
 import { guideFor } from "@/content/place-guides";
 import { PlaceGuideBlock } from "@/components/seo/PlaceGuideBlock";
 import { getRouteFares } from "@/lib/seo/route-fares.functions";
+import { airportFaqFor } from "@/content/airport-faqs";
+import { FaqBlock } from "@/components/seo/FaqBlock";
+import { faqSchema } from "@/components/seo/schema";
 
 const ORIGIN = "https://cabslink.com";
 
@@ -54,7 +57,16 @@ export const Route = createFileRoute("/airports/$iata")({
     return { mode: "detail" as const, airport: matched, airports };
   },
   head: ({ loaderData }) => {
-    if (loaderData?.mode === "cms") return buildSeoHead(loaderData.page, ORIGIN, loaderData.related);
+    if (loaderData?.mode === "cms") {
+      const head = buildSeoHead(loaderData.page, ORIGIN, loaderData.related);
+      const faqs = airportFaqFor(loaderData.page.path);
+      const hasCmsFaq = loaderData.page.sections.some((s) => s.section_type === "faqs");
+      if (!faqs.length || hasCmsFaq) return head;
+      return {
+        ...head,
+        scripts: [...(head.scripts ?? []), { type: "application/ld+json", children: safeJsonLd(faqSchema(faqs)) }],
+      };
+    }
     if (loaderData?.mode === "detail") {
       const a = loaderData.airport;
       const iata = (a.meta?.iata as string | undefined) ?? "";
@@ -122,7 +134,15 @@ function AirportPage() {
           related={data.related}
           appendix={(() => {
             const guide = guideFor(`/airports/${cmsAirportKey}`);
-            return guide ? <PlaceGuideBlock guide={guide} fares={data.guideFares} /> : null;
+            const faqs = data.page.sections.some((s) => s.section_type === "faqs")
+              ? []
+              : airportFaqFor(data.page.path);
+            return (
+              <>
+                {guide ? <PlaceGuideBlock guide={guide} fares={data.guideFares} /> : null}
+                <FaqBlock items={faqs} />
+              </>
+            );
           })()}
         />
         <div className="container-x pb-16">
