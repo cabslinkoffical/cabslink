@@ -17,7 +17,7 @@ export const GUIDE_ROUTES = publishedGuidePaths();
 
 /** Utility, booking-flow and legal pages that are deliberately not in the sitemap. */
 export const SITEMAP_EXCLUDED = [
-  "/book", "/book/hourly", "/book/tour",
+  "/book", "/book/hourly", "/book/tour", "/distance", "/get-a-quote",
   "/privacy", "/terms", "/cookies", "/image-credits",
 ];
 
