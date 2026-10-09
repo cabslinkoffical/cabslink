@@ -13,7 +13,7 @@ import type {} from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { listPublishedSeoPaths } from "@/lib/seo-public.functions";
-import { PUBLIC_ROUTES, fetchAllPages } from "@/lib/sitemap-routes";
+import { PUBLIC_ROUTES, fetchAllPages, dedupeSitemapEntries } from "@/lib/sitemap-routes";
 import { indexableAlphaPaths } from "@/lib/seo/alpha-indexing";
 
 const BASE_URL = "https://cabslink.com";
@@ -102,7 +102,7 @@ export const Route = createFileRoute("/sitemap-core.xml")({
         const xml = [
           `<?xml version="1.0" encoding="UTF-8"?>`,
           `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`,
-          ...[...entries].map(([p, lastmod]) =>
+          ...dedupeSitemapEntries(entries).map(([p, lastmod]) =>
             `  <url><loc>${BASE_URL}${p}</loc>${lastmod ? `<lastmod>${lastmod}</lastmod>` : ""}</url>`),
           `</urlset>`,
         ].join("\n");
