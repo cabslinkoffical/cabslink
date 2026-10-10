@@ -28,7 +28,7 @@ const content: SportsServiceContent = {
     body: "Your driver plans around the first tee, not the traffic report. Fixed prices, generous club space and local knowledge of every approach road and clubhouse entrance.",
   },
   features: [
-    { icon: Luggage, title: "Space for clubs", desc: "Estates, MPVs and minibuses sized for full golf bags and cases." },
+    { icon: Luggage, title: "Space for clubs", desc: "Estates, MPVs and vans sized for full golf bags and cases." },
     { icon: Clock, title: "Tee-time punctuality", desc: "Pickups timed to arrive comfortably before your first tee." },
     { icon: MapPin, title: "Course knowledge", desc: "Drivers who know clubhouse entrances, ranges and drop-off points." },
     { icon: Target, title: "Multi-course itineraries", desc: "One driver across several days and several courses." },

@@ -6,12 +6,12 @@ import eventsImg from "@/assets/services/events.jpg.asset.json";
 
 const TITLE = "Football Transfers UK — Match Day Travel for Fans | Cabslink";
 const DESC =
-  "Match-day football transfers across Scotland and the UK. Private cars, MPVs and minibuses to home and away fixtures with fixed pricing and post-match pickups.";
+  "Match-day football transfers across Scotland and the UK. Private cars and MPVs to home and away fixtures with fixed pricing and post-match pickups.";
 const URL = "https://cabslink.com/football-transfers";
 
 const faqs = [
   { q: "Do you wait until after the match?", a: "Yes. We agree a post-match pickup point away from the crowds, and your driver holds nearby until the ground clears." },
-  { q: "Can you take groups to away fixtures?", a: "We run minibuses and multi-vehicle convoys to away grounds anywhere in the UK, including overnight trips." },
+  { q: "Can you take groups to away fixtures?", a: "We run multi-vehicle convoys to away grounds anywhere in the UK, including overnight trips." },
   { q: "Is alcohol allowed in the vehicle?", a: "For everyone's comfort we ask that alcohol isn't consumed in the vehicle. Supporter groups are always welcome." },
 ];
 
@@ -21,14 +21,14 @@ const content: SportsServiceContent = {
   subtitle: "Private travel to fixtures across Scotland and the UK — kick-off timed pickups, no parking stress and a driver waiting after the final whistle.",
   breadcrumbLabel: "Football Transfers",
   image: eventsImg.url,
-  imageAlt: "Group travelling by private minibus to a football match",
+  imageAlt: "Group travelling by private car to a football match",
   intro: {
     title: "Get to kick-off without the parking scramble",
     body: "Stadium traffic, road closures and match-day parking make driving yourself the worst part of the day. We handle all of it and drop you close to the turnstiles.",
   },
   features: [
     { icon: Clock, title: "Kick-off timing", desc: "Pickups planned around kick-off and known road closures." },
-    { icon: Users, title: "Groups of any size", desc: "Cars, MPVs, minibuses and coaches for supporter groups." },
+    { icon: Users, title: "Groups of any size", desc: "Cars and MPVs for supporter groups, with multiple vehicles for larger parties." },
     { icon: Circle, title: "Home and away", desc: "Local fixtures or long away days anywhere in the UK." },
     { icon: ShieldCheck, title: "Licensed and insured", desc: "Fully licensed operators with vetted professional drivers." },
   ],

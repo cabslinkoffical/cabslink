@@ -49,13 +49,13 @@ const CT_SECTIONS = [
     title: "Events, roadshows and shuttles",
     paragraphs: [
       "Conferences, AGMs and client events often need several vehicles arriving together, or a shuttle pattern running between a venue and two or three hotels across a day.",
-      "These run on one booking reference with a single point of contact, so a change on the day is handled once rather than car by car. Minibus and coach classes cover delegate movements where cars would be inefficient.",
+      "These run on one booking reference with a single point of contact, so a change on the day is handled once rather than car by car. Larger delegate movements are covered with multiple vehicles where one car would be inefficient.",
     ],
   },
   {
     title: "Vehicle classes for business travel",
     paragraphs: [
-      "Most business journeys use an executive saloon for one or two passengers, or a people carrier where a team travels together with cases. Larger movements step up to minibus and coach classes.",
+      "Most business journeys use an executive saloon for one or two passengers, or a people carrier where a team travels together with cases. Larger movements are planned across several vehicles with one coordinator.",
       "You book a class rather than a specific model, which keeps availability reliable at short notice — the important part for account travel is that a suitable vehicle turns up on time, every time.",
     ],
   },

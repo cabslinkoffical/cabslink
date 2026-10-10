@@ -29,7 +29,7 @@ const content: SportsServiceContent = {
   features: [
     { icon: MapPin, title: "Best drop-off point", desc: "Pre-agreed gates and streets inside the match-day cordon." },
     { icon: Clock, title: "Wait-on-call pickup", desc: "Your driver holds nearby and comes in when you call." },
-    { icon: Users, title: "Any group size", desc: "From two seats to a full coach for corporate or club groups." },
+    { icon: Users, title: "Any group size", desc: "From two seats to multiple vehicles for corporate or club groups." },
     { icon: Car, title: "Fixed prices", desc: "Quoted up front — no surge pricing on event nights." },
   ],
   venues: {

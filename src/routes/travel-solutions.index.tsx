@@ -11,7 +11,7 @@ import { SITE } from "@/lib/site";
 const URL = "https://cabslink.com/travel-solutions";
 const TITLE = "Travel Solutions — Business, Student & Group | Cabslink";
 const DESCRIPTION =
-  "Travel for every passenger: business accounts, student airport-to-campus runs, family transfers with child seats, group minibus hire and event shuttles.";
+  "Travel for every passenger: business accounts, student airport-to-campus runs, family transfers with child seats, group travel and event shuttles.";
 
 
 const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
