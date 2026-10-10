@@ -17,6 +17,8 @@ export function BlogPostCard({ post, compact = false }: { post: BlogPostSummary;
           <img
             src={post.featured_image_url}
             alt={post.featured_image_alt ?? post.title}
+            width={800}
+            height={450}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
           />

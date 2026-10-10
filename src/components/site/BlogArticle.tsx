@@ -73,6 +73,8 @@ export function BlogArticle({ post, related }: { post: BlogPostFull; related: Bl
               <img
                 src={post.featured_image_url}
                 alt={post.featured_image_alt ?? post.title}
+                width={1200}
+                height={600}
                 className="h-full w-full object-cover"
               />
             </div>
@@ -137,7 +139,7 @@ export function BlogArticle({ post, related }: { post: BlogPostFull; related: Bl
             {post.author_full && (
               <div className="mt-12 rounded-2xl border border-[var(--navy)]/10 bg-white p-6 flex items-start gap-4">
                 {post.author_full.avatar_url ? (
-                  <img src={post.author_full.avatar_url} alt={post.author_full.name} className="size-14 rounded-full object-cover" />
+                  <img src={post.author_full.avatar_url} alt={post.author_full.name} width={56} height={56} className="size-14 rounded-full object-cover" />
                 ) : (
                   <div className="size-14 rounded-full bg-[var(--navy)] text-white flex items-center justify-center font-semibold">
                     {post.author_full.name.charAt(0)}

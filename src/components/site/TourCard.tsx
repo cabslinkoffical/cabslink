@@ -25,6 +25,8 @@ export function TourCard({ tour }: { tour: PublicTourListItem }) {
           <img
             src={tour.hero_image_url}
             alt={`${tour.name} private tour`}
+            width={600}
+            height={450}
             loading="lazy"
             decoding="async"
             className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
