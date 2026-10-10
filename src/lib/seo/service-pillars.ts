@@ -48,7 +48,7 @@ export const SERVICE_PILLARS: Record<string, PillarContent> = {
     ],
     steps: [
       { title: "Enter your journey", desc: "Give us the pickup, destination, date and passenger count." },
-      { title: "Choose a vehicle class", desc: "Saloon, estate, MPV or minibus — priced instantly." },
+      { title: "Choose a vehicle class", desc: "Saloon, estate, MPV or van — priced instantly." },
       { title: "Confirm and pay", desc: "Card or account. You get an emailed confirmation immediately." },
       { title: "Travel", desc: "Your driver arrives early and tracks any delay on your side." },
     ],
@@ -154,15 +154,15 @@ export const SERVICE_PILLARS: Record<string, PillarContent> = {
     breadcrumbLabel: "Group Transfers",
     metaTitle: "Group Transfers Scotland — Multi-Vehicle Travel | Cabslink",
     metaDescription:
-      "Group transfers across Scotland and the UK. Minibuses, coaches and multi-car convoys with one coordinator, one quote and one arrival time.",
+      "Group transfers across Scotland and the UK. MPVs, vans and multi-car convoys with one coordinator, one quote and one arrival time.",
     image: groupImg,
-    imageAlt: "Group of travellers boarding a minibus for a private transfer",
+    imageAlt: "Group of travellers boarding private vehicles for a transfer",
     intro: {
       title: "One coordinator, one arrival time",
-      body: "Moving a group is a logistics problem, not just a booking. We work out whether you need one minibus, three MPVs or a coach, stagger pickups so everyone arrives together, and give you a single point of contact on the day.",
+      body: "Moving a group is a logistics problem, not just a booking. We work out whether you need one eight-seater or several vehicles, stagger pickups so everyone arrives together, and give you a single point of contact on the day.",
     },
     features: [
-      { icon: "users", title: "Any group size", desc: "8 to 200+ passengers across minibuses, coaches and car convoys." },
+      { icon: "users", title: "Any group size", desc: "Up to 8 passengers per vehicle, with multiple vehicles for larger parties." },
       { icon: "calendar", title: "Staggered timings", desc: "Multiple pickups planned to converge on one arrival slot." },
       { icon: "phone", title: "Day-of contact", desc: "A named coordinator reachable throughout the movement." },
       { icon: "wallet", title: "Single invoice", desc: "One quote and one payment for the whole group." },
@@ -184,7 +184,7 @@ export const SERVICE_PILLARS: Record<string, PillarContent> = {
     coverage: DEFAULT_COVERAGE,
     related: ["minibus-hire", "coach-hire", "event-transport"],
     faqs: [
-      { q: "How many people fit in one vehicle?", a: "Eight in a large MPV, 16 in a standard minibus, 24 in a coaster and up to 55 in a full coach. Luggage reduces those figures, so we always check bags too." },
+      { q: "How many people fit in one vehicle?", a: "Up to eight in our largest vehicle. For bigger groups we send more than one vehicle, planned as one job with one arrival time. Luggage reduces capacity, so we always check bags too." },
       { q: "Can the group split across several pickups?", a: "Yes. We commonly collect from several hotels or addresses and time each so everyone arrives together." },
       { q: "Do you handle airport groups?", a: "Regularly — including flight tracking on arrivals and staged departures for outbound groups." },
     ],
@@ -447,7 +447,7 @@ export const SERVICE_PILLARS: Record<string, PillarContent> = {
       "Written transport plan per flow and per wave",
       "Coordinator on site or on call for the event",
       "Pre-agreed pickup and drop-off zones",
-      "Mixed vehicle classes from saloon to coach",
+      "Mixed vehicle classes from saloon to eight-seater van",
       "Live re-timing when the run sheet slips",
       "One consolidated invoice with cost centres",
     ],
