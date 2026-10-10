@@ -129,7 +129,7 @@ export const JOURNEYS: JourneyRecord[] = [
     serviceIds: ["golf-transfers", "airport-transfers", "long-distance-transfers"],
     faqs: [
       { q: "How long is Edinburgh Airport to St Andrews?", a: "About 80 minutes for 48 miles via the Queensferry Crossing, M90 and A91." },
-      { q: "Will golf clubs fit?", a: "Yes, when the bag count is confirmed at booking. Four players with clubs and cases are allocated an estate, MPV or minibus." },
+      { q: "Will golf clubs fit?", a: "Yes, when the bag count is confirmed at booking. Four players with clubs and cases are allocated an estate, MPV or van." },
       { q: "Do you wait if my flight is late?", a: "Yes. Arrivals are tracked and the first hour of waiting on international flights is included." },
     ],
   },
@@ -236,7 +236,7 @@ export const JOURNEYS: JourneyRecord[] = [
     note:
       "Gleneagles is 40 miles from the terminal via the M9 and A9, then the A823 into Auchterarder — about 55 minutes with clubs loaded. Arrivals are logged with the resort gatehouse before the car sets off, so a late flight does not turn into a wait at the barrier with your luggage in the boot.",
     planning: [
-      "Golf bags plus cases are allocated an estate, MPV or minibus rather than a saloon.",
+      "Golf bags plus cases are allocated an estate, MPV or van rather than a saloon.",
       "The resort is notified of the vehicle and expected arrival window in advance.",
       "Onward legs to St Andrews or Carnoustie are quoted from the same itinerary.",
     ],
@@ -267,7 +267,7 @@ export const JOURNEYS: JourneyRecord[] = [
     serviceIds: ["golf-transfers", "long-distance-transfers", "group-transfers"],
     faqs: [
       { q: "How long is Glasgow to St Andrews?", a: "Around 1 hour 55 minutes for 82 miles via the M80, M9 and A91." },
-      { q: "Can a group of eight travel together?", a: "Yes — an eight-seat minibus with a luggage trailer or a second vehicle depending on club count." },
+      { q: "Can a group of eight travel together?", a: "Yes — an eight-seater with a luggage trailer or a second vehicle depending on club count." },
       { q: "Do you run the return the same day?", a: "Yes, as a fixed second leg with the driver's return time confirmed at booking." },
     ],
   },

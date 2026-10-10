@@ -273,7 +273,7 @@ function buildFaqs(ctx: AreaSeoContext): { q: string; a: string }[] {
   return [
     {
       q: `How much is a taxi from ${name} to ${airportName}?`,
-      a: `Fares from ${name} to ${airportName} are fixed and quoted instantly on our booking page. Prices depend on vehicle class (executive saloon, MPV, minibus) — start a quote to see the exact total.`,
+      a: `Fares from ${name} to ${airportName} are fixed and quoted instantly on our booking page. Prices depend on vehicle class (executive saloon, MPV, van) — start a quote to see the exact total.`,
     },
     {
       q: `Can I pre-book an airport transfer from ${name}?`,

@@ -283,7 +283,7 @@ function AirportPage() {
               "Business travellers needing quiet, on-time executive travel",
               "Families with luggage, prams and child seats sorted in advance",
               "Cruise passengers connecting to and from UK cruise ports",
-              "Groups of up to 16 in our V-Class, minibus and coaster fleet",
+              "Groups of up to 8 per vehicle, with multiple vehicles for larger parties",
               "Event guests and group parties with coordinated pickups",
               "VIP clients requiring discreet meet & greet and NDA drivers",
             ].map((line) => (

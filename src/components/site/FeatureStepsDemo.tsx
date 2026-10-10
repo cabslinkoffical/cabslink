@@ -15,7 +15,7 @@ const features = [
     step: "Step 2",
     title: "Pick a vehicle class",
     content:
-      "From executive saloons to luxury MPVs and coaches — select the class that fits your party and luggage.",
+      "From executive saloons to luxury MPVs and vans — select the class that fits your party and luggage.",
     image: vehicleImg,
   },
   {

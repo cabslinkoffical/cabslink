@@ -43,7 +43,7 @@ export const HUB_CONTENT: Record<string, HubContent> = {
       {
         title: "Choosing between vehicle classes",
         paragraphs: [
-          "You book a class rather than a specific registration: an executive saloon for one or two passengers with cabin bags, an estate or SUV where cases are larger, a people carrier for four to seven passengers, and minibus or coach classes above that.",
+          "You book a class rather than a specific registration: an executive saloon for one or two passengers with cabin bags, an estate or SUV where cases are larger, a people carrier for four to eight passengers, and multiple vehicles for larger parties.",
           "Tell us the number of large cases as well as the passenger count. Seat capacity and luggage capacity rarely run out at the same time, and luggage is what usually decides the class.",
         ],
       },
@@ -138,7 +138,7 @@ export const HUB_CONTENT: Record<string, HubContent> = {
         title: "Groups sailing together",
         paragraphs: [
           "Family and friend groups usually arrive from different places but need to reach the terminal at the same time. We can run several vehicles on one booking reference so the arrivals are coordinated.",
-          "For larger parties, minibus and coach classes carry the group and their luggage in one movement, which is normally cheaper than three or four cars.",
+          "For larger parties, we send more than one vehicle so the group and their luggage travel in one coordinated movement, which is normally simpler than booking three or four separate cars.",
         ],
       },
     ],
@@ -182,7 +182,7 @@ export const HUB_CONTENT: Record<string, HubContent> = {
       {
         title: "Group and faculty travel",
         paragraphs: [
-          "Sports teams, society trips and field-course groups travel with kit and need one vehicle rather than several. Minibus and coach classes cover these, including return legs late at night after fixtures or events.",
+          "Sports teams, society trips and field-course groups travel with kit and need more space than a single car. We plan these across multiple vehicles, including return legs late at night after fixtures or events.",
           "Departments booking repeatedly can run travel on an account so journeys are consolidated onto a single monthly invoice with cost-centre references.",
         ],
       },
@@ -194,7 +194,7 @@ export const HUB_CONTENT: Record<string, HubContent> = {
       },
       {
         q: "Will one vehicle take a full move-in load?",
-        a: "Tell us what you are bringing and we quote a class sized for it. Full move-in loads normally need a large people carrier or minibus even for a single passenger.",
+        a: "Tell us what you are bringing and we quote a class sized for it. Full move-in loads normally need a large people carrier or van even for a single passenger.",
       },
       QUOTE_FAQ,
       CHANGE_FAQ,
