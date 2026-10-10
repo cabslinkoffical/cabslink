@@ -64,7 +64,7 @@ const AP_SECTIONS = [
   {
     title: "Groups, luggage and vehicle classes",
     paragraphs: [
-      "You choose a vehicle class rather than a specific model: executive saloon, estate or SUV, people carrier for four to seven passengers, then minibus and coach classes for larger parties.",
+      "You choose a vehicle class rather than a specific model: executive saloon, estate or SUV, or a people carrier for four to eight passengers. Larger parties travel in more than one vehicle.",
       "Tell us the number of large cases as well as passengers — on airport work luggage capacity runs out before seating does, and it is the usual reason a booking needs a bigger class.",
     ],
   },

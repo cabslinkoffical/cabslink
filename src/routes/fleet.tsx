@@ -35,7 +35,7 @@ export const Route = createFileRoute("/fleet")({
   head: () => normalizeHead({
     meta: [
       { title: "Our Fleet — Vehicle Classes | Cabslink UK" },
-      { name: "description", content: "Explore Cabslink's vehicle classes — Executive Saloons, Luxury Class, Premium MPVs, Vans and Coaches. Book by class, guaranteed allocation." },
+      { name: "description", content: "Explore Cabslink's vehicle classes — Executive Saloons, Luxury Class, Premium MPVs and Vans. Book by class, guaranteed allocation." },
       { property: "og:title", content: "Our Fleet — Vehicle Classes | Cabslink" },
       { property: "og:description", content: "Executive Saloon, Luxury Class, Premium MPV and more. Book by class, guaranteed allocation." },
       { property: "og:type", content: "website" },
@@ -49,7 +49,7 @@ export const Route = createFileRoute("/fleet")({
         children: JSON.stringify(
           collectionPageSchema({
             name: "Cabslink Fleet — Vehicle Classes",
-            description: "Executive Saloons, Luxury Class, Premium MPVs, Vans and Coaches. Book by class with guaranteed allocation.",
+            description: "Executive Saloons, Luxury Class, Premium MPVs and Vans. Book by class with guaranteed allocation.",
             url: "/fleet",
             breadcrumbs: [{ name: "Home", url: "/" }, { name: "Fleet", url: "/fleet" }],
           }),
@@ -88,7 +88,6 @@ const GROUPS: { key: GroupKey; label: string; match: (c: PublicVehicleClass) => 
     match: (c) => /saloon|estate|sedan/.test(c.slug),
   },
   { key: "mpv", label: "MPVs & Vans", match: (c) => /mpv|van/.test(c.slug) && !/minibus/.test(c.slug) },
-  { key: "group", label: "Minibus & Coach", match: (c) => /minibus|coach|bus/.test(c.slug) },
   { key: "accessible", label: "Accessible", match: (c) => c.wheelchair_accessible },
   { key: "electric", label: "Electric", match: (c) => c.fuel_type === "electric" },
 ];

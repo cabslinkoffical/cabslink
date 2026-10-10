@@ -104,7 +104,7 @@ export const TRAVEL_SOLUTIONS: Record<string, SolutionContent> = {
       {
         need: "I have more luggage than a normal car takes.",
         answer:
-          "Book an estate, MPV or minibus class and tell us the case count — capacity is confirmed before you pay, not guessed on the day.",
+          "Book an estate, MPV or van class and tell us the case count — capacity is confirmed before you pay, not guessed on the day.",
       },
       {
         need: "My parents want to pay from another country.",
@@ -119,7 +119,7 @@ export const TRAVEL_SOLUTIONS: Record<string, SolutionContent> = {
       {
         need: "We're a group of flatmates travelling together.",
         answer:
-          "Split one minibus instead of three cars — usually cheaper per person and everyone arrives at the same time.",
+          "Share one larger vehicle instead of three cars — usually cheaper per person and everyone arrives at the same time.",
       },
     ],
     services: ["university-transfers", "airport-transfers", "minibus-hire", "long-distance-transfers"],
@@ -205,22 +205,22 @@ export const TRAVEL_SOLUTIONS: Record<string, SolutionContent> = {
     eyebrow: "Group travel",
     h1: "Group travel where everyone arrives at the same time.",
     subtitle:
-      "Minibuses, coasters and coaches with drivers for parties of 8 to 55 — one plan, one price, one arrival.",
+      "MPVs and vans with drivers for larger parties — one plan, one price, one arrival. Bigger groups travel in multiple vehicles.",
     breadcrumbLabel: "Group travel",
     hubTitle: "Group travel",
-    hubBlurb: "8 to 55 seats with drivers, coordinated as one movement.",
-    metaTitle: "Group Travel Scotland — Minibus & Coach Hire | Cabslink",
+    hubBlurb: "Up to 8 seats per vehicle, coordinated as one movement.",
+    metaTitle: "Group Travel Scotland — Multi-Vehicle Transfers | Cabslink",
     metaDescription:
-      "Group travel across Scotland: minibus, coaster and coach hire with professional drivers for 8 to 55 passengers, quoted as one fixed price.",
+      "Group travel across Scotland: MPVs, vans and multi-vehicle convoys with professional drivers, quoted as one fixed price.",
     image: toursImg.url,
-    imageAlt: "Group boarding a minibus for a Scottish tour",
+    imageAlt: "Group boarding private vehicles for a Scottish tour",
     intro: {
       title: "One movement, not five separate cars",
       body: "Groups fail on coordination, not vehicles. We work out the right vehicle mix for your headcount and luggage, agree pickup points, and keep the whole party on one itinerary so the last car isn't 40 minutes behind the first.",
     },
     needs: [
       {
-        need: "We don't know whether to book cars or a minibus.",
+        need: "We don't know whether to book one car or several.",
         answer:
           "Give us the headcount and luggage and we model both — usually one larger vehicle beats several cars on cost and on arrival time.",
       },
@@ -230,9 +230,9 @@ export const TRAVEL_SOLUTIONS: Record<string, SolutionContent> = {
           "Multiple pickup points can be built into one route, priced up front rather than added as extras on the day.",
       },
       {
-        need: "Our group is bigger than a minibus.",
+        need: "Our group is bigger than one vehicle.",
         answer:
-          "24-seat coasters and 55-seat coaches are available with drivers, and large vehicles are quoted on request so the price reflects the real itinerary.",
+          "We send multiple vehicles with drivers, planned as one job with one arrival time, so the price reflects the real itinerary.",
       },
       {
         need: "We need the vehicle all day, not just one leg.",

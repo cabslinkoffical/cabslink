@@ -2,6 +2,7 @@ import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute, notFound, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { getBlogPost, type BlogPostFull, type BlogPostSummary } from "@/lib/blog.functions";
+import { BLOG_SEO_OVERRIDES } from "@/lib/seo/blog-seo";
 import { BlogArticle } from "@/components/site/BlogArticle";
 import { SiteLayout } from "@/components/site/SiteLayout";
 
@@ -25,8 +26,9 @@ export const Route = createFileRoute("/blog/$slug")({
     }
     const p = loaderData.post;
     const url = `${BASE}/blog/${p.slug}`;
-    const title = p.seo_title ?? p.title;
-    const desc = p.meta_description ?? p.excerpt ?? "";
+    const override = BLOG_SEO_OVERRIDES[p.slug];
+    const title = override?.title ?? p.seo_title ?? p.title;
+    const desc = override?.description ?? p.meta_description ?? p.excerpt ?? "";
     const image = p.og_image_url ?? p.featured_image_url ?? undefined;
     const meta: Array<Record<string, string>> = [
       { title },

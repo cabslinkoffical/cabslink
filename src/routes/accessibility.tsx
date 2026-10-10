@@ -22,7 +22,7 @@ export const Route = createFileRoute("/accessibility")({
       <p>We want everyone to be able to book with confidence. The site is built with semantic HTML, keyboard-navigable controls, a skip-to-content link, visible focus styles, sufficient colour contrast and descriptive image alt text. We aim to meet WCAG 2.1 level AA and review the site as we add features.</p>
 
       <h2>Booking accessibility</h2>
-      <p>Tell our team in advance if you need step-free access, help with luggage, extra time at the pickup point, or space for a folding wheelchair, walker or mobility scooter. Our MPV and minibus classes carry folding mobility aids in the luggage area, and assistance dogs travel free on every journey.</p>
+      <p>Tell our team in advance if you need step-free access, help with luggage, extra time at the pickup point, or space for a folding wheelchair, walker or mobility scooter. Our MPV and van classes carry folding mobility aids in the luggage area, and assistance dogs travel free on every journey.</p>
       <p>
         For a fully wheelchair-accessible vehicle (WAV), where the passenger travels seated in their wheelchair, please
         request it at least 24 hours ahead. We arrange these through partner operators in each city and will confirm

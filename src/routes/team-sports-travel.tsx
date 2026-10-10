@@ -6,7 +6,7 @@ import eventsImg from "@/assets/services/events.jpg.asset.json";
 
 const TITLE = "Team Sports Travel — Squad & Kit Transport UK | Cabslink";
 const DESC =
-  "Team sports travel across the UK. Minibuses and coaches for squads, coaching staff, kit and supporters, with one account contact and fixed season pricing.";
+  "Team sports travel across the UK. Cars, MPVs and vans for squads, coaching staff, kit and supporters, with one account contact and fixed season pricing.";
 const URL = "https://cabslink.com/team-sports-travel";
 
 const faqs = [
@@ -18,16 +18,16 @@ const faqs = [
 const content: SportsServiceContent = {
   eyebrow: "Team sports travel",
   h1: "Team sports travel for squads, staff and kit.",
-  subtitle: "Minibuses and coaches that move the whole team together — with space for kit, one point of contact and pricing agreed for the season.",
+  subtitle: "Vehicles that move the whole team together — with space for kit, one point of contact and pricing agreed for the season. Larger squads travel in multiple vehicles.",
   breadcrumbLabel: "Team Sports Travel",
   image: eventsImg.url,
-  imageAlt: "Sports team boarding a private minibus with kit bags",
+  imageAlt: "Sports team boarding private vehicles with kit bags",
   intro: {
     title: "One vehicle, one driver, the whole squad",
     body: "Club secretaries have enough to organise. We handle the travel side of fixtures: the right vehicle, on time, every week, on one invoice.",
   },
   features: [
-    { icon: Users, title: "Squads and staff", desc: "8 to 50+ seats across minibuses and coaches." },
+    { icon: Users, title: "Squads and staff", desc: "Up to 8 seats per vehicle, with multiple vehicles for larger squads." },
     { icon: Luggage, title: "Kit and equipment", desc: "Luggage space planned for bags, medical kit and gear." },
     { icon: RouteIcon, title: "Fixture scheduling", desc: "Recurring bookings for a full league season." },
     { icon: ShieldCheck, title: "Vetted drivers", desc: "Licensed, insured and youth-team appropriate." },
