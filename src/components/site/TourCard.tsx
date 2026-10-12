@@ -11,12 +11,15 @@ export function formatTourDuration(seconds: number | null): string | null {
   return `${m}m`;
 }
 
-export function TourCard({ tour }: { tour: PublicTourListItem }) {
+export function TourCard({ tour, decorative = false }: { tour: PublicTourListItem; decorative?: boolean }) {
   const duration = formatTourDuration(tour.direct_duration_seconds);
+  // Loop copies keep the same appearance without duplicating crawlable links or headings.
+  const TourLink = decorative ? "div" : Link;
+  const TourHeading = decorative ? "p" : "h3";
   return (
     <div className="group flex h-full flex-col overflow-hidden rounded-[28px] bg-white ring-1 ring-[var(--navy)]/8 transition-all shadow-raised hover:shadow-raised-hover">
       {/* Media — identical ratio on every card */}
-      <Link
+      <TourLink
         to="/tours/$slug"
         params={{ slug: tour.slug }}
         className="relative block aspect-[4/3] w-full shrink-0 overflow-hidden bg-[var(--navy)]/90"
@@ -49,15 +52,15 @@ export function TourCard({ tour }: { tour: PublicTourListItem }) {
             </span>
           )}
         </div>
-      </Link>
+      </TourLink>
 
       {/* Body */}
       <div className="flex flex-1 flex-col p-5 sm:p-6">
-        <Link to="/tours/$slug" params={{ slug: tour.slug }} className="block">
-          <h3 className="font-display text-lg sm:text-xl font-semibold leading-snug text-[var(--navy)] line-clamp-2 min-h-[3.25rem] group-hover:text-[var(--gold-ink)]">
+        <TourLink to="/tours/$slug" params={{ slug: tour.slug }} className="block">
+          <TourHeading className="font-display text-lg sm:text-xl font-semibold leading-snug text-[var(--navy)] line-clamp-2 min-h-[3.25rem] group-hover:text-[var(--gold-ink)]">
             {tour.name}
-          </h3>
-        </Link>
+          </TourHeading>
+        </TourLink>
         <p className="mt-2 text-sm leading-relaxed text-[var(--navy)]/65 line-clamp-2 min-h-[2.5rem]">
           {tour.short_description ?? "Private door-to-door day tour with a professional driver."}
         </p>
@@ -91,21 +94,22 @@ export function TourCard({ tour }: { tour: PublicTourListItem }) {
             </span>
           </div>
           <div className="mt-4 grid grid-cols-2 gap-3">
-            <Link
+            <TourLink
               to="/tours/$slug"
               params={{ slug: tour.slug }}
               className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-[var(--navy)]/15 bg-white px-4 py-2.5 text-sm font-semibold text-[var(--navy)] transition-all hover:border-[var(--gold)] hover:text-[var(--gold-ink)]"
             >
               View tour
-            </Link>
-            <Link
+            </TourLink>
+            <TourLink
               to="/book/tour"
               search={{ tour: tour.slug }}
+              rel="nofollow"
               className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-[var(--navy)] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[var(--gold)] hover:text-[var(--navy)]"
             >
               Book tour
               <ArrowRight className="size-4" />
-            </Link>
+            </TourLink>
           </div>
 
         </div>

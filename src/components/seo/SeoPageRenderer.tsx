@@ -59,7 +59,7 @@ export function SeoPageRenderer({
       <section className="relative border-b bg-background">
         {hero && (
           <div className="absolute inset-0 -z-10 opacity-30">
-            <img src={hero} alt="" width={1600} height={400} className="h-full w-full object-cover" />
+            <img src={hero} alt={page.entity?.display_name || page.entity?.name || page.h1} width={1600} height={400} className="h-full w-full object-cover" />
           </div>
         )}
         <div className="container mx-auto px-4 py-16 md:py-24">
