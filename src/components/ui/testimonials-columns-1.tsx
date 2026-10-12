@@ -84,7 +84,7 @@ export const TestimonialsColumn = (props: {
                 const cardClass =
                   "block w-full max-w-xs rounded-3xl border border-[var(--navy)]/10 bg-white p-8 shadow-[0_8px_24px_rgba(14,24,44,0.06)] transition-colors hover:border-[var(--gold)]";
 
-                return item.href ? (
+                return item.href && index === 0 ? (
                   <a
                     key={i}
                     href={item.href}
@@ -95,7 +95,7 @@ export const TestimonialsColumn = (props: {
                     {body}
                   </a>
                 ) : (
-                  <div className={cardClass} key={i}>
+                  <div className={cardClass} key={i} aria-hidden={index === 1 || undefined} inert={index === 1 || undefined}>
                     {body}
                   </div>
                 );

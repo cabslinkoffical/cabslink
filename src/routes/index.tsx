@@ -592,7 +592,7 @@ function HomePage() {
                 aria-hidden={i >= popularTours.length || undefined}
                 {...(i >= popularTours.length ? { inert: true } : {})}
               >
-                <TourCard tour={t} />
+                <TourCard tour={t} decorative={i >= popularTours.length} />
               </div>
             ))}
           </div>
@@ -635,7 +635,7 @@ function HomePage() {
               </div>
               <div className="relative mt-8">
                 <Button asChild variant="gold" className="rounded-lg">
-                  <Link to="/book" search={{ q: "" }}>Get an instant quote <ArrowRight className="size-4" /></Link>
+                  <Link to="/book">Get an instant quote <ArrowRight className="size-4" /></Link>
                 </Button>
               </div>
             </div>
@@ -984,7 +984,11 @@ function FleetClassesSection() {
                 <div className="flex flex-1 min-h-0 flex-col gap-3 p-5">
                   <div>
                     <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[var(--gold-ink)]">Vehicle Class</p>
-                    <h3 className="mt-1 line-clamp-1 font-display text-xl font-semibold leading-tight text-[var(--navy)]">{k.name}</h3>
+                    {i >= visible.length ? (
+                      <p className="mt-1 line-clamp-1 font-display text-xl font-semibold leading-tight text-[var(--navy)]">{k.name}</p>
+                    ) : (
+                      <h3 className="mt-1 line-clamp-1 font-display text-xl font-semibold leading-tight text-[var(--navy)]">{k.name}</h3>
+                    )}
                     <p className="mt-2 h-10 text-sm leading-relaxed text-[var(--navy)]/70 line-clamp-2">
                       {k.short_description || k.long_description}
                     </p>
@@ -1015,16 +1019,20 @@ function FleetClassesSection() {
 
                   {/* Footer */}
                   <div className="mt-auto flex items-center justify-between gap-3 pt-2 border-t border-[var(--navy)]/10">
-                    <Link
+                    {i >= visible.length ? (
+                      <span className="inline-flex min-h-11 items-center text-sm font-medium text-[var(--navy)]/80">View class</span>
+                    ) : <Link
                       to="/fleet"
                       className="inline-flex min-h-11 items-center text-sm font-medium text-[var(--navy)]/80 hover:text-[var(--gold-ink)] transition-colors"
                     >
                       View class
-                    </Link>
+                    </Link>}
                     <Button asChild size="sm" variant="gold" className="rounded-full px-5">
-                      <Link to="/book" search={{ q: "" }}>
+                      {i >= visible.length ? <span>
                         {k.quote_on_request ? "Request quote" : "Get quote"} <ArrowRight className="size-3.5" />
-                      </Link>
+                      </span> : <Link to="/book">
+                        {k.quote_on_request ? "Request quote" : "Get quote"} <ArrowRight className="size-3.5" />
+                      </Link>}
                     </Button>
                   </div>
                 </div>
