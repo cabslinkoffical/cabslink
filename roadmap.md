@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Full-site corrections verified: 677 tests pass, build OK; blog titles 44/51 chars, descriptions ~150; fleet offers reworded (only link names to protected /minibus-hire + /coach-hire remain, owner decision pending); sitemap dedupe + /distance //get-a-quote excluded; A–Z letters e,g index,follow and in sitemap, others noindex; 4 owner-blocked airport guides exempted from 300-word rule with facts listed
+
 - [x] Booking mobile: label Edit booking, collapsed Trip summary, top-of-page step navigation; verified real quote → passenger details → payment, mobile toggle/edit and desktop summary
 
 - [x] Standardize destination hubs: exact H1s, Destinations menu, `/areas` tabs/order, benefit-card order, `/` breadcrumbs, navy heroes
