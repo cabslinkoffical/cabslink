@@ -17,7 +17,7 @@ describe("Phase 10 polish", () => {
     // /distance and /get-a-quote redirect to /book, so they must not be listed.
     // They appear in sitemap-routes.ts only inside the exclusion list.
     const src = read("src/lib/sitemap-routes.ts");
-    const excluded = src.match(/SITEMAP_EXCLUDED[^=]*=\s*new Set\(\[([\s\S]*?)\]\)/)?.[1] ?? "";
+    const excluded = src.match(/SITEMAP_EXCLUDED\s*=\s*\[([\s\S]*?)\]/)?.[1] ?? "";
     expect(excluded).toContain('"/distance"');
     expect(excluded).toContain('"/get-a-quote"');
   });
