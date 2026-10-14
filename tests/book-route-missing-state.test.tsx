@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import {
   createRouter, RouterProvider, createMemoryHistory,
 } from "@tanstack/react-router";
@@ -89,5 +90,18 @@ describe("/book — missing-location state (router-aware)", () => {
     await renderAt(`/book?q=${encodeURIComponent(q)}`);
     await screen.findByTestId("book-journey-form");
     expect(calcMock).not.toHaveBeenCalled();
+  });
+
+  it("defers quote requests until the customer confirms passengers", async () => {
+    calcMock.mockResolvedValue({ quotes: [], distanceMiles: 10, durationMinutes: 30 });
+    const q = new URLSearchParams({ pickupPlaceId: "PID_A", pickupLabel: "A", dropoffPlaceId: "PID_B", dropoffLabel: "B", date: "2026-12-01", time: "10:00" });
+    await renderAt(`/book?q=${encodeURIComponent(q.toString())}`);
+    await screen.findByRole("heading", { name: "How many passengers are travelling?" });
+    expect(calcMock).not.toHaveBeenCalled();
+    const user = userEvent.setup();
+    await user.type(screen.getByLabelText("Number of passengers, including children"), "6");
+    await user.click(screen.getByRole("button", { name: "Confirm passengers" }));
+    await screen.findByRole("heading", { name: /Select a vehicle class/ });
+    expect(calcMock).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ passengers: 6, pickupPlaceId: "PID_A", destinationPlaceId: "PID_B" }) }));
   });
 });

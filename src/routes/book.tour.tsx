@@ -17,6 +17,7 @@ import {
   ChevronUp, ChevronDown,
 } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { PassengerConfirmation } from "@/components/site/PassengerConfirmation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -260,11 +261,11 @@ function TourWizard() {
 
   // Ask the server for a price whenever the customer reaches the price step.
   useEffect(() => {
-    if (step === 2 && start && hours && vehicleClassId && !priceMutation.isPending) {
+    if (step === 2 && passengersConfirmed && start && hours && vehicleClassId && !priceMutation.isPending) {
       priceMutation.mutate();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step]);
+  }, [step, passengersConfirmed, passengers, vehicleClassId]);
 
   // On the stops step, keep the miles and time meter honest as stops change.
   useEffect(() => {

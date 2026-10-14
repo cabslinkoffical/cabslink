@@ -59,7 +59,7 @@ describe("BookingWidget — Place-ID gating", () => {
     await user.clear(dateInput);
     await user.type(dateInput, d);
     if (!timeInput.value) await user.type(timeInput, "10:00");
-    // Passengers + luggage are required — open the occupancy popover and set them
+    // An explicitly selected passenger count is preserved in the handoff.
     await user.click(screen.getByRole("button", { name: /Passengers/i }));
     await user.click(screen.getByLabelText(/Increase Passengers/i));
     await user.click(screen.getByLabelText(/Increase Luggage/i));
@@ -84,6 +84,19 @@ describe("BookingWidget — Place-ID gating", () => {
     await user.click(screen.getAllByRole("button", { name: /Search/i })[0]);
     expect(navigateMock).not.toHaveBeenCalled();
     expect((await screen.findAllByText(/cannot be the same as pickup/i)).length).toBeGreaterThan(0);
+  });
+
+  it("allows a transfer search without passengers and omits the count", async () => {
+    const user = userEvent.setup();
+    render(<BookingWidget />);
+    await user.click(screen.getByTestId("widget-pickup-pick-a"));
+    await user.click(screen.getByTestId("widget-dropoff-pick-b"));
+    await user.type(document.querySelector('input[type="date"]') as HTMLInputElement, new Date(Date.now() + 86400000).toISOString().slice(0, 10));
+    await user.type(document.querySelector('input[type="time"]') as HTMLInputElement, "10:00");
+    await user.click(screen.getAllByRole("button", { name: /Search/i })[0]);
+    expect(navigateMock).toHaveBeenCalledTimes(1);
+    expect(new URLSearchParams(navigateMock.mock.calls[0][0].search.q).has("passengers")).toBe(false);
+    expect(screen.queryByText("Select the number of passengers.")).not.toBeInTheDocument();
   });
 });
 
