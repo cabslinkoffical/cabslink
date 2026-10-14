@@ -3,6 +3,8 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { DestinationPage, buildBreadcrumbs } from "@/components/site/DestinationPage";
 import { buildAutoHead } from "@/lib/seo/auto-seo";
 import { destinationQueryOptions, HUBS } from "@/lib/hub-config";
+import { guideFor } from "@/content/place-guides";
+import { PlaceGuideBlock } from "@/components/seo/PlaceGuideBlock";
 export const Route = createFileRoute("/stations/$slug")({
   head: ({ loaderData }: { loaderData?: import("@/components/site/DestinationPage").LoadedDestination }) =>
     buildAutoHead(loaderData),
@@ -10,6 +12,6 @@ export const Route = createFileRoute("/stations/$slug")({
   component: () => {
     const { slug } = Route.useParams();
     const { data } = useSuspenseQuery(destinationQueryOptions(("stations" as const), slug));
-    return <DestinationPage data={data} breadcrumbs={buildBreadcrumbs(data.destination, `/${("stations" as const)}`, HUBS[("stations" as const)].title)} />;
+    return <DestinationPage data={data} breadcrumbs={buildBreadcrumbs(data.destination, `/${("stations" as const)}`, HUBS[("stations" as const)].title)} appendix={(() => { const g = guideFor(`/stations/${slug}`); return g ? <PlaceGuideBlock guide={g} /> : null; })()} />;
   },
 });

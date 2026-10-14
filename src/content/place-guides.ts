@@ -1,3 +1,4 @@
+import { STATION_GUIDES } from "@/content/station-guides";
 /**
  * Phase 7 — hand-written, page-specific guide text appended BELOW the
  * existing content of destination pages. Nothing here replaces a title,
@@ -593,6 +594,8 @@ export const PLACE_GUIDES: PlaceGuide[] = [
     ]
   }
 ];
+
+PLACE_GUIDES.push(...STATION_GUIDES);
 
 export function guideFor(path: string): PlaceGuide | null {
   return PLACE_GUIDES.find((g) => g.path === path) ?? null;
