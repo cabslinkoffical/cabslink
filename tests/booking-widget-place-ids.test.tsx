@@ -44,7 +44,7 @@ describe("BookingWidget — Place-ID gating", () => {
     render(<BookingWidget />);
     await user.click(screen.getAllByRole("button", { name: /Search/i })[0]);
     expect(navigateMock).not.toHaveBeenCalled();
-    expect(await screen.findByText(/Select a pickup address from the list/i)).toBeTruthy();
+    expect((await screen.findAllByText(/Select a pickup address from the list/i)).length).toBeGreaterThan(0);
   });
 
   it("submits with pickupPlaceId/dropoffPlaceId query params when both selected", async () => {
@@ -83,7 +83,7 @@ describe("BookingWidget — Place-ID gating", () => {
     await user.click(screen.getByTestId("widget-dropoff-pick-a"));
     await user.click(screen.getAllByRole("button", { name: /Search/i })[0]);
     expect(navigateMock).not.toHaveBeenCalled();
-    expect(await screen.findByText(/cannot be the same as pickup/i)).toBeTruthy();
+    expect((await screen.findAllByText(/cannot be the same as pickup/i)).length).toBeGreaterThan(0);
   });
 });
 
