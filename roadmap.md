@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Passenger flow: optional initial count; confirm at vehicle selection; verify capacity-aware continuation
+- [x] Passenger flow: initial transfer/hourly forms allow omitted count; shared confirmation at vehicle selection; counts preserved and capacity-aware choices retained. 18 targeted tests pass, build OK; real transfer journey with six passengers verified through boarding and trip details. Nothing published.
 
 - [x] Review display: Google reviews primary on homepage, contact, booking and footer; Trustpilot retained only on /reviews. Verified live Google score (4.9, 9 reviews), reviewer text, no public Trustpilot displays elsewhere, 230 targeted tests pass and build OK; nothing published.
 
