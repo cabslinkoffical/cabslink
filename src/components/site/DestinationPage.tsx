@@ -1,3 +1,4 @@
+import type React from "react";
 /**
  * Shared renderer for every destination-typed route.
  *
@@ -89,9 +90,12 @@ function fmtMins(m: number) {
 export function DestinationPage({
   data,
   breadcrumbs,
+  appendix,
 }: {
   data: LoadedDestination;
   breadcrumbs: Crumb[];
+  /** Phase 7 guide text rendered below all existing content. */
+  appendix?: React.ReactNode;
 }) {
   const d = data.destination;
   const tpl = getTemplate(d.type);
@@ -192,6 +196,7 @@ export function DestinationPage({
         </section>
 
         <DestinationSections sections={sections} loaded={data} />
+        {appendix ? <div className="mt-12">{appendix}</div> : null}
       </div>
     </SiteLayout>
   );
