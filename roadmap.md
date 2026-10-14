@@ -1,6 +1,7 @@
 # Roadmap
 
 - [x] Full-site corrections verified: 677 tests pass, build OK; blog titles 44/51 chars, descriptions ~150; fleet offers reworded (only link names to protected /minibus-hire + /coach-hire remain, owner decision pending); sitemap dedupe + /distance //get-a-quote excluded; A–Z letters e,g index,follow and in sitemap, others noindex; 4 owner-blocked airport guides exempted from 300-word rule with facts listed
+- [x] Screenshot SEO warnings resolved: no duplicate headings on homepage, tour handoff links nofollow, all images have alt (only decorative aria-hidden reflection has empty alt), warm load 0.7-0.8s; airport pages verified with descriptive hero alts
 
 - [x] Booking mobile: label Edit booking, collapsed Trip summary, top-of-page step navigation; verified real quote → passenger details → payment, mobile toggle/edit and desktop summary
 
