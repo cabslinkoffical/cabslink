@@ -6,7 +6,7 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { Mail, Phone, MapPin, Clock, ArrowRight } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
-import { TrustpilotStrip } from "@/components/site/TrustpilotStrip";
+import { GoogleReviewsStrip } from "@/components/site/GoogleReviewsStrip";
 import { PageHero } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -187,7 +187,7 @@ function ContactPage() {
                 {loading ? "Sending…" : <>Send message <ArrowRight className="size-4" /></>}
               </Button>
               <StickyFormSubmit label={<>Send message <ArrowRight className="size-4" /></>} loadingLabel="Sending…" loading={loading} disabled={!captcha.ready} invalid={Object.keys(errors).length > 0} />
-              <TrustpilotStrip className="mt-2" />
+              <GoogleReviewsStrip className="mt-2" />
             </div>
           </form>
           </div>

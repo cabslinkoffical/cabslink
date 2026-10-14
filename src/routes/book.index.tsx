@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 
 import { SiteLayout } from "@/components/site/SiteLayout";
-import { TrustpilotStrip } from "@/components/site/TrustpilotStrip";
+import { GoogleReviewsStrip } from "@/components/site/GoogleReviewsStrip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -55,6 +55,8 @@ export const Route = createFileRoute("/book/")({
       { property: "og:title", content: "Book your ride — Cabslink" },
       { property: "og:description", content: "Choose a vehicle and book a premium UK airport transfer with Cabslink. Instant quote, transparent pricing, 24/7 confirmation." },
       { property: "og:url", content: "https://cabslink.com/book" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: "https://cabslink.com/book" }],
   }),
@@ -1401,7 +1403,7 @@ function Sidebar({ pre, onEdit, onStartAgain, route, price, extraStops = [], ext
       {price && <div className="hidden lg:block"><PriceBreakdown price={price} /></div>}
 
       {/* Independent rating, shown where the decision is actually made. */}
-      <TrustpilotStrip className="hidden lg:block" />
+      <GoogleReviewsStrip className="hidden lg:block" />
 
       <div className="hidden lg:block bg-card rounded-2xl border border-border p-5 shadow-sm space-y-2.5">
         <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)] mb-1">Why Cabslink</p>

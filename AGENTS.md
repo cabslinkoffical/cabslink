@@ -15,3 +15,4 @@
 - Destination hubs use the shared navy `PageHero`/`HubPage` language, while area directories and location pages use one navy-led editorial system so navigation remains consistent.
 - Booking list status presentation uses BookingStatusCell to keep booking state, payment state and lock indication in one compact row without duplicating payment labels in the price column.
 - A–Z sitemap inclusion shares the letter-page threshold helper and the same active/name/tier filters, so advertised directory pages match their existing robots settings.
+- Primary review surfaces share Google review query options and the existing cached server feed; unavailable data shows a Google profile link without fallback scores or other-platform reviews.
