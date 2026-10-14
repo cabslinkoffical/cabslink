@@ -99,7 +99,7 @@ export const Route = createFileRoute("/book/hourly")({
         date,
         time,
         hours: Math.min(24, Math.max(1, hours)),
-        passengers: Math.max(1, Number(p.get("passengers")) || 2),
+        ...(Number(p.get("passengers")) >= 1 ? { passengers: Number(p.get("passengers")) } : {}),
         luggage: Math.max(0, Number(p.get("luggage")) || 0),
       },
     });
@@ -130,7 +130,7 @@ function parsePrefill(q: string | undefined) {
     date: p.get("date") || today,
     time: p.get("time") || "09:00",
     hours: Math.min(24, Math.max(1, Number(p.get("hours")) || 0)),
-    passengers: Math.max(1, Number(p.get("passengers")) || 2),
+    passengers: Number(p.get("passengers")) >= 1 ? Number(p.get("passengers")) : 0,
     luggage: Math.max(0, Number(p.get("luggage")) || 0),
   };
 }
@@ -169,7 +169,7 @@ function HourlyBookPage() {
         date,
         time,
         hours: hours!,
-        passengers,
+        ...(passengers > 0 ? { passengers } : {}),
         luggage,
       },
     });
@@ -229,8 +229,9 @@ function HourlyBookPage() {
                   type="number"
                   min={1}
                   max={80}
-                  value={passengers}
-                  onChange={(e) => setPassengers(Math.max(1, Number(e.target.value) || 1))}
+                  value={passengers || ""}
+                  placeholder="Confirm later"
+                  onChange={(e) => setPassengers(e.target.value === "" ? 0 : Math.max(1, Math.min(80, Number(e.target.value) || 1)))}
                 />
               </div>
               <div>

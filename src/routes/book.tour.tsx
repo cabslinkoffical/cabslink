@@ -17,6 +17,7 @@ import {
   ChevronUp, ChevronDown,
 } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { PassengerConfirmation } from "@/components/site/PassengerConfirmation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -101,7 +102,8 @@ function TourWizard() {
   const [time, setTime] = useState("09:00");
   const [hours, setHours] = useState<number | null>(null);
   const [vehicleClassId, setVehicleClassId] = useState<string | null>(null);
-  const [passengers, setPassengers] = useState(2);
+  const [passengers, setPassengers] = useState(1);
+  const [passengersConfirmed, setPassengersConfirmed] = useState(false);
   const [luggage, setLuggage] = useState(2);
   const [stops, setStops] = useState<Stop[]>([]);
   const [newStop, setNewStop] = useState<SelectedPlace | null>(null);
@@ -141,7 +143,7 @@ function TourWizard() {
     setStart({ placeId: search.pickupPlaceId, label: search.pickupLabel || search.pickupPlaceId } as SelectedPlace);
     if (search.date) setDate(search.date);
     if (search.time) setTime(search.time);
-    if (search.passengers) setPassengers(search.passengers);
+    if (search.passengers) { setPassengers(search.passengers); setPassengersConfirmed(true); }
     if (search.luggage != null) setLuggage(search.luggage);
     const wanted = search.hours;
     if (wanted && tiers.length) {
@@ -259,11 +261,11 @@ function TourWizard() {
 
   // Ask the server for a price whenever the customer reaches the price step.
   useEffect(() => {
-    if (step === 2 && start && hours && vehicleClassId && !priceMutation.isPending) {
+    if (step === 2 && passengersConfirmed && start && hours && vehicleClassId && !priceMutation.isPending) {
       priceMutation.mutate();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step]);
+  }, [step, passengersConfirmed, passengers, vehicleClassId]);
 
   // On the stops step, keep the miles and time meter honest as stops change.
   useEffect(() => {
@@ -301,7 +303,7 @@ function TourWizard() {
       case 0: return !!start && !!date && !!time && (sameEnd || !!end) && !!hours && fitsDay;
       case 1: return mode === "custom" ? stops.length > 0 : !!templateId;
       case 2:
-        return !!vehicleClassId && passengers > 0 && !!quote && !quote.quote.blockedReason;
+        return passengersConfirmed && !!vehicleClassId && (vehicle?.max_passengers ?? 0) >= passengers && passengers > 0 && !!quote && !quote.quote.blockedReason;
       default: return false;
     }
   })();
@@ -556,7 +558,16 @@ function TourWizard() {
             )}
 
             {/* 3a. Vehicle & group */}
-            {step === 2 && (
+            {step === 2 && !passengersConfirmed && (
+              <PassengerConfirmation max={80} onConfirm={(count) => {
+                setPassengers(count);
+                const fit = classes.find((c) => (c.max_passengers ?? 0) >= count);
+                setVehicleClassId(fit?.id ?? null);
+                setQuote(null);
+                setPassengersConfirmed(true);
+              }} />
+            )}
+            {step === 2 && passengersConfirmed && (
               <div className="space-y-5">
                 <StepTitle title="Which vehicle, and how many of you?" />
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -566,7 +577,7 @@ function TourWizard() {
                     value={passengers}
                     min={1}
                     max={80}
-                    onChange={(v) => { setPassengers(v); setQuote(null); }}
+                    onChange={(v) => { setPassengers(v); setVehicleClassId(classes.find((c) => (c.max_passengers ?? 0) >= v)?.id ?? null); setQuote(null); }}
                   />
                   <NumberField
                     icon={<Briefcase className="size-4" />}

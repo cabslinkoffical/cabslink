@@ -109,7 +109,7 @@ export function BookingWidget({
           ? "Return must be after the outbound journey."
           : ""
       : "",
-    passengers: passengers === null ? "Select the number of passengers." : "",
+    passengers: "",
     stops: stops.some((s) => !s?.placeId) ? "Complete or remove empty stops." : "",
   };
   const errorList = Object.values(errors).filter(Boolean);
@@ -135,7 +135,7 @@ export function BookingWidget({
     params.set("dropoffLabel", dropoff!.label);
     params.set("date", date);
     params.set("time", time);
-    params.set("passengers", String(passengers));
+    if (passengers !== null) params.set("passengers", String(passengers));
     params.set("luggage", String(luggage));
     params.set("handLuggage", String(handLuggage));
     params.set("ret", showReturn ? "1" : "0");
@@ -165,7 +165,7 @@ export function BookingWidget({
     date: !date ? "Choose a travel date." : "",
     time: !time ? "Choose a start time." : isPastDateTime(date, time) ? "Start time cannot be in the past." : "",
     hours: hours === null ? "Choose how many hours you need." : "",
-    passengers: passengers === null ? "Select the number of passengers." : "",
+    passengers: "",
   };
   const hourlyErrorList = Object.values(hourlyErrors).filter(Boolean);
 
@@ -229,7 +229,7 @@ export function BookingWidget({
                 date,
                 time,
                 hours: hours!,
-                passengers: passengers ?? 1,
+                ...(passengers !== null ? { passengers } : {}),
                 luggage,
               } as never,
             });
