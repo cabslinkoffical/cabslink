@@ -145,7 +145,7 @@ export const SERVICE_REGISTRY: ServiceRecord[] = [
     redirectFrom: [],
     publication: "published",
     intent:
-      "Coordinating travel for a party too large for one car — vehicle mix and capacity planning. Minibus and coach hire are the vehicle-specific children.",
+      "Coordinating travel for a party too large for one car — we send several vehicles so everyone travels together.",
   },
   {
     id: "minibus-hire",
@@ -157,7 +157,7 @@ export const SERVICE_REGISTRY: ServiceRecord[] = [
     aliases: ["minibus with driver", "16 seater hire", "8 seater minibus", "van hire with driver"],
     redirectFrom: [],
     publication: "published",
-    intent: "Hiring a specific minibus class with a driver for 8–24 passengers.",
+    intent: "Group travel with a driver — larger parties go in several of our vehicles, up to 8 passengers each.",
   },
   {
     id: "coach-hire",
@@ -169,7 +169,7 @@ export const SERVICE_REGISTRY: ServiceRecord[] = [
     aliases: ["coach with driver", "55 seater coach", "bus hire"],
     redirectFrom: [],
     publication: "published",
-    intent: "Hiring a full-size coach with a driver for 25+ passengers.",
+    intent: "Big-party travel with drivers — we coordinate multiple vehicles so the whole group arrives together.",
   },
   {
     id: "cruise-transfers",
