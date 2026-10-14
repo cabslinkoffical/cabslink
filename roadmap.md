@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Passenger flow: optional initial count; confirm at vehicle selection; verify capacity-aware continuation
+
 - [x] Review display: Google reviews primary on homepage, contact, booking and footer; Trustpilot retained only on /reviews. Verified live Google score (4.9, 9 reviews), reviewer text, no public Trustpilot displays elsewhere, 230 targeted tests pass and build OK; nothing published.
 
 - [x] Full-site corrections verified: 677 tests pass, build OK; blog titles 44/51 chars, descriptions ~150; fleet offers reworded (only link names to protected /minibus-hire + /coach-hire remain, owner decision pending); sitemap dedupe + /distance //get-a-quote excluded; A–Z letters e,g index,follow and in sitemap, others noindex; 4 owner-blocked airport guides exempted from 300-word rule with facts listed

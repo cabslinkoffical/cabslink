@@ -18,6 +18,7 @@ import {
 
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { GoogleReviewsStrip } from "@/components/site/GoogleReviewsStrip";
+import { PassengerConfirmation } from "@/components/site/PassengerConfirmation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -129,7 +130,7 @@ function readPrefill(q: string): Prefill {
     // priced for a different day than the customer chose.
     date: p.get("date") ?? "",
     time: p.get("time") ?? "",
-    passengers: Math.max(1, Number(p.get("passengers")) || 1),
+    passengers: Number.isInteger(Number(p.get("passengers"))) && Number(p.get("passengers")) >= 1 && Number(p.get("passengers")) <= 60 ? Number(p.get("passengers")) : 0,
     luggage: Math.max(0, Number(p.get("luggage")) || 0),
     handLuggage: Math.max(0, Number(p.get("handLuggage")) || 0),
     ret: p.get("ret") === "1",
@@ -147,7 +148,7 @@ function encodePrefill(pre: Prefill): string {
   if (pre.pickup) { p.set("pickupPlaceId", pre.pickup.placeId); p.set("pickupLabel", pre.pickup.label); }
   if (pre.dropoff) { p.set("dropoffPlaceId", pre.dropoff.placeId); p.set("dropoffLabel", pre.dropoff.label); }
   p.set("date", pre.date); p.set("time", pre.time);
-  p.set("passengers", String(pre.passengers));
+  if (pre.passengers > 0) p.set("passengers", String(pre.passengers));
   p.set("luggage", String(pre.luggage));
   p.set("handLuggage", String(pre.handLuggage));
   p.set("mode", pre.mode);
@@ -266,7 +267,7 @@ function BookPage() {
       stops: (d.stops ?? []).flatMap((s) => (s.placeId && s.label ? [{ placeId: s.placeId, label: s.label }] : [])),
       date: d.date ?? "",
       time: d.time ?? "",
-      passengers: d.passengers ?? 1,
+      passengers: d.passengers ?? 0,
       luggage: d.luggage ?? 0,
       handLuggage: 0,
       ret: d.returnJourney?.enabled ?? false,
@@ -293,7 +294,7 @@ function BookPage() {
       stops: pre.stops.map((s) => ({ placeId: s.placeId, label: s.label })),
       date: pre.date,
       time: pre.time,
-      passengers: pre.passengers,
+      passengers: pre.passengers || undefined,
       luggage: pre.luggage,
       vehicleSlug: chosen?.vehicleId,
       step,
@@ -330,7 +331,7 @@ function BookPage() {
 
   const quoteFn = useServerFn(calculateQuotes);
   const quoteQuery = useQuery({
-    enabled: hasValidRoute,
+    enabled: hasValidRoute && pre.passengers > 0,
     queryKey: [
       "quotes",
       pre.pickup?.placeId, pre.dropoff?.placeId,
@@ -675,7 +676,10 @@ function BookPage() {
                 />
 
                 <div className="min-w-0 space-y-6">
-                  {step === "vehicle" && (
+                  {step === "vehicle" && pre.passengers === 0 && (
+                    <PassengerConfirmation onConfirm={(passengers) => applyEdit({ ...pre, passengers })} />
+                  )}
+                  {step === "vehicle" && pre.passengers > 0 && (
                     <VehicleStep
                       pre={pre}
                       data={quoteQuery.data}
@@ -933,8 +937,8 @@ function JourneyForm({ initial, onSubmit }: { initial: Prefill; onSubmit: (next:
         <div className="grid grid-cols-2 gap-4">
           <div className="grid gap-1.5">
             <Label htmlFor="jf-pax">Passengers</Label>
-            <Input id="jf-pax" type="number" min={1} max={60} value={form.passengers}
-              onChange={(e) => set("passengers", Math.max(1, Number(e.target.value) || 1))} />
+            <Input id="jf-pax" type="number" min={1} max={60} placeholder="Confirm later" value={form.passengers || ""}
+              onChange={(e) => set("passengers", e.target.value === "" ? 0 : Math.max(1, Math.min(60, Number(e.target.value) || 1)))} />
           </div>
           <div className="grid gap-1.5">
             <Label htmlFor="jf-lug">Luggage</Label>
@@ -1070,8 +1074,8 @@ function EditTripDialog({
           <div className="grid grid-cols-2 gap-3">
             <div className="grid gap-1.5">
               <Label htmlFor="edit-pax">Passengers</Label>
-              <Input id="edit-pax" type="number" min={1} max={60} value={form.passengers}
-                onChange={(e) => set("passengers", Math.max(1, Number(e.target.value) || 1))} />
+              <Input id="edit-pax" type="number" min={1} max={60} placeholder="Confirm later" value={form.passengers || ""}
+                onChange={(e) => set("passengers", e.target.value === "" ? 0 : Math.max(1, Math.min(60, Number(e.target.value) || 1)))} />
             </div>
             <div className="grid gap-1.5">
               <Label htmlFor="edit-lug">Luggage</Label>
