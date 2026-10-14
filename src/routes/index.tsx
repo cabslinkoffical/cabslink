@@ -14,7 +14,8 @@ import {
 
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { BookingWidget } from "@/components/site/BookingWidget";
-import { TrustpilotSection } from "@/components/site/TrustpilotSection";
+import { GoogleReviewsSection } from "@/components/site/GoogleReviewsSection";
+import { googleReviewsQuery } from "@/lib/google-reviews-query";
 import { organizationSchema, websiteSchema } from "@/components/seo/schema";
 import { DrivingCarBadge } from "@/components/site/DrivingCarBadge";
 import { locationsDirectoryQuery } from "@/components/site/LocationsDirectory";
@@ -149,6 +150,7 @@ export const Route = createFileRoute("/")({
       }),
       context.queryClient.ensureQueryData(locationsDirectoryQuery),
       context.queryClient.ensureQueryData(publishedToursQuery),
+      context.queryClient.ensureQueryData(googleReviewsQuery),
     ]);
   },
   component: HomePage,
@@ -661,8 +663,8 @@ function HomePage() {
         </div>
       </section>
 
-      {/* REVIEWS — verified Trustpilot proof only */}
-      <TrustpilotSection />
+      {/* Google reviews are the primary public review proof. */}
+      <GoogleReviewsSection />
 
 
       {/* Coverage + airports are merged into one section above */}

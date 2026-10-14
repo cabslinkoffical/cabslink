@@ -14,7 +14,7 @@ import { createFileRoute, useNavigate, Link, redirect } from "@tanstack/react-ro
 import { useQuery } from "@tanstack/react-query";
 import { Clock, Users, Briefcase, MapPin, CalendarDays, ArrowRight, Loader2, Route as RouteIcon } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
-import { TrustpilotStrip } from "@/components/site/TrustpilotStrip";
+import { GoogleReviewsStrip } from "@/components/site/GoogleReviewsStrip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -336,7 +336,7 @@ function HourlyBookPage() {
                 </li>
               </ul>
             </aside>
-            <TrustpilotStrip />
+            <GoogleReviewsStrip />
           </div>
         </div>
       </section>
