@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { toast } from "sonner";
+import { trackEvent } from "@/lib/analytics-ga";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -125,6 +126,7 @@ export function DriverApplicationForm({ className = "" }: { className?: string }
         },
       });
       setDone(true);
+      trackEvent("generate_lead", { form_name: "driver_application" });
       toast.success("Application received — we'll be in touch.");
       form.reset();
       setPhone(""); setPhLicence(""); setHasVehicle("");

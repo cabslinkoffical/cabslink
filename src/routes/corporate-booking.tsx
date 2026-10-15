@@ -4,6 +4,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { toast } from "sonner";
+import { trackEvent } from "@/lib/analytics-ga";
 import {
   Building2,
   ArrowRight,
@@ -126,6 +127,7 @@ function CorporateBookingPage() {
     setLoading(true);
     try {
       await submit({ data: { ...parsed.data, website: (fd.get("website") ?? "").toString(), captchaToken: captcha.token } });
+      trackEvent("generate_lead", { form_name: "corporate_enquiry" });
       toast.success("Enquiry sent — our team will reply within 24 hours.");
       form.reset();
       setPhone("");
