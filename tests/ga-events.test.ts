@@ -1,5 +1,12 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 
+// The consent module is stubbed so loadTag can run in the arguments-object test.
+vi.mock("@/lib/consent", () => ({
+  analyticsAllowed: vi.fn().mockResolvedValue(true),
+  readConsent: vi.fn().mockReturnValue("granted"),
+  onConsentChange: vi.fn(),
+}));
+
 type W = Window & { gtag?: (...a: unknown[]) => void; __gaLoaded?: boolean };
 
 describe("GA4 event helpers", () => {
