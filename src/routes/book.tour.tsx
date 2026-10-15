@@ -10,6 +10,7 @@ import { normalizeHead } from "@/lib/seo/page-head";
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { rememberCheckout, trackEvent } from "@/lib/analytics-ga";
 import { z } from "zod";
 import {
   ArrowLeft, ArrowRight, CalendarDays, Check, Clock, Loader2, MapPin, Users,
@@ -228,7 +229,12 @@ function TourWizard() {
 
   const priceMutation = useMutation({
     mutationFn: async () => quoteTour({ data: quoteReq() }),
-    onSuccess: (res) => setQuote(res),
+    onSuccess: (res) => {
+      setQuote(res);
+      if (res?.quote && !res.quote.blockedReason && res.quote.total > 0) {
+        trackEvent("view_quote", { service_type: "tour", vehicle_class: vehicle?.name, value: res.quote.total, currency: "GBP" });
+      }
+    },
     onError: (e: Error) => toast.error(e.message || "We couldn't price that tour."),
   });
 
@@ -1154,7 +1160,13 @@ function TourWizard() {
                       variant="gold"
                       className="min-w-[150px] rounded-full"
                       disabled={!canNext}
-                      onClick={() => setStep((s) => Math.min(3, s + 1))}
+                      onClick={() => {
+                        if (step === 2 && quote) {
+                          rememberCheckout({ service_type: "tour", vehicle_class: vehicle?.name });
+                          trackEvent("begin_checkout", { service_type: "tour", vehicle_class: vehicle?.name, value: quote.quote.total, currency: "GBP" });
+                        }
+                        setStep((s) => Math.min(3, s + 1));
+                      }}
                     >
                       Continue <ArrowRight className="size-4" />
                     </Button>

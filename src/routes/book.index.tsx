@@ -31,6 +31,7 @@ import { PhoneInput } from "@/components/site/PhoneInput";
 import { calculateQuotes, createBooking, type QuoteCard } from "@/lib/pricing.functions";
 import { useCaptcha } from "@/components/site/Captcha";
 import { track } from "@/lib/tracking";
+import { rememberCheckout, trackEvent } from "@/lib/analytics-ga";
 import { listPoisForRoute, type PoiSuggestion, type RouteTemplateSummary } from "@/lib/pois.functions";
 import { calculateMultiStopQuote, type MultiStopQuoteResult } from "@/lib/scenic-quote.functions";
 import { resolveTourTemplate } from "@/lib/tours.functions";
@@ -353,6 +354,19 @@ function BookPage() {
         },
       }),
   });
+
+  // GA4: one view_quote per priced journey (lowest priced vehicle shown).
+  const serviceType = pre.mode === "hourly" ? "hourly" : "transfer";
+  const quoteSeen = useRef<string | null>(null);
+  useEffect(() => {
+    const cards = quoteQuery.data?.quotes?.filter((c) => !c.quoteOnRequest && c.finalPrice > 0) ?? [];
+    if (!cards.length) return;
+    const key = quoteQuery.dataUpdatedAt.toString();
+    if (quoteSeen.current === key) return;
+    quoteSeen.current = key;
+    const cheapest = cards.reduce((a, b) => (b.finalPrice < a.finalPrice ? b : a));
+    trackEvent("view_quote", { service_type: serviceType, vehicle_class: cheapest.name, value: cheapest.finalPrice, currency: "GBP" });
+  }, [quoteQuery.data, quoteQuery.dataUpdatedAt, serviceType]);
 
   const poisFn = useServerFn(listPoisForRoute);
   const poisQuery = useQuery({
@@ -686,7 +700,7 @@ function BookPage() {
                       isLoading={quoteQuery.isLoading}
                       error={quoteQuery.error as Error | null}
                       onRetry={() => quoteQuery.refetch()}
-                      onSelect={(card, quantity) => { setChosen(card); setQty(quantity); track("booking_step", { step: "details", vehicle: card.vehicleId, vehicle_count: quantity }); setStep("details"); }}
+                      onSelect={(card, quantity) => { setChosen(card); setQty(quantity); track("booking_step", { step: "details", vehicle: card.vehicleId, vehicle_count: quantity }); rememberCheckout({ service_type: serviceType, vehicle_class: card.name }); trackEvent("begin_checkout", { service_type: serviceType, vehicle_class: card.name, value: card.finalPrice * quantity, currency: "GBP" }); setStep("details"); }}
                     />
                   )}
 
