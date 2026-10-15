@@ -104,7 +104,7 @@ export function trackPageView(path: string): void {
 export type GaEventParams = Record<string, string | number | boolean | undefined>;
 
 /** Keys that could carry personal data — never forwarded to GA. */
-const PII_KEYS = /name|email|phone|tel|address|note|flight/i;
+const PII_KEYS = /^(name|first_name|last_name|customer_name|email|customer_email|phone|customer_phone|tel|address|pickup_address|dropoff_address|notes|flight|flight_number)$/i;
 
 /**
  * Send a GA4 event. Only sends once the consent-gated tag has loaded, on a
