@@ -45,4 +45,21 @@ describe("GA4 event helpers", () => {
     expect(calls).toHaveLength(1);
     expect(calls[0]![2]).toMatchObject({ transaction_id: "CL-261015-ABCDEFGH", currency: "GBP", value: 50 });
   });
+
+  it("queues gtag commands as the native arguments object, not a plain array", async () => {
+    delete (window as W).__gaConsentBound;
+    const { initAnalytics } = await import("@/lib/analytics-ga");
+    initAnalytics("/");
+    const stubbed = (window as W).gtag!;
+    expect(stubbed).toBeTypeOf("function");
+    // A command through the stub must land in dataLayer as `arguments`
+    // (gtag.js ignores plain arrays pushed by a rest-parameter function).
+    stubbed("event", "test_event", { value: 1 });
+    const dl = (window as unknown as { dataLayer: unknown[] }).dataLayer;
+    const last = dl[dl.length - 1];
+    expect(Object.prototype.toString.call(last)).toBe("[object Arguments]");
+    expect(Array.from(last as unknown as unknown[])).toEqual(["event", "test_event", { value: 1 }]);
+    // The config + page_view queued during init must also be arguments objects.
+    expect(Object.prototype.toString.call(dl[0])).toBe("[object Arguments]");
+  });
 });
