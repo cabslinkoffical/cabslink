@@ -100,3 +100,82 @@ export function trackPageView(path: string): void {
     page_title: document.title,
   });
 }
+
+export type GaEventParams = Record<string, string | number | boolean | undefined>;
+
+/** Keys that could carry personal data — never forwarded to GA. */
+const PII_KEYS = /^(name|first_name|last_name|customer_name|email|customer_email|phone|customer_phone|tel|address|pickup_address|dropoff_address|notes|flight|flight_number)$/i;
+
+/**
+ * Send a GA4 event. Only sends once the consent-gated tag has loaded, on a
+ * measurable path, and strips any personal-data keys. Never throws.
+ */
+export function trackEvent(name: string, params: GaEventParams = {}): void {
+  const win = w();
+  if (!win || !GA_MEASUREMENT_ID || !win.__gaLoaded || !win.gtag) return;
+  if (!isMeasurablePath(window.location.pathname)) return;
+  const clean: Record<string, string | number | boolean> = {};
+  for (const [k, v] of Object.entries(params)) {
+    if (v === undefined || PII_KEYS.test(k)) continue;
+    clean[k] = v;
+  }
+  try {
+    win.gtag("event", name, clean);
+  } catch {
+    /* analytics must never break the site */
+  }
+}
+
+/** Where a contact link sits on the page, for click_* events. */
+function linkLocation(el: Element): string {
+  const tagged = el.closest("[data-analytics-location]")?.getAttribute("data-analytics-location");
+  if (tagged) return tagged;
+  if (el.closest("header")) return "header";
+  if (el.closest("footer")) return "footer";
+  return `page:${window.location.pathname}`;
+}
+
+/** One delegated listener for every tel:, mailto: and WhatsApp link. */
+export function installContactClickTracking(): () => void {
+  const win = w();
+  if (!win) return () => {};
+  const handler = (e: MouseEvent) => {
+    const a = (e.target as Element | null)?.closest?.("a[href]") as HTMLAnchorElement | null;
+    if (!a) return;
+    const href = a.getAttribute("href") ?? "";
+    const location = linkLocation(a);
+    if (/^tel:/i.test(href)) trackEvent("click_phone", { location });
+    else if (/^mailto:/i.test(href)) trackEvent("click_email", { location });
+    else if (/^https?:\/\/(wa\.me|api\.whatsapp\.com|(www\.)?whatsapp\.com)\//i.test(href)) trackEvent("click_whatsapp", { location });
+  };
+  document.addEventListener("click", handler, true);
+  return () => document.removeEventListener("click", handler, true);
+}
+
+const CHECKOUT_CTX_KEY = "cabslink_ga_checkout";
+
+/** Remember non-personal checkout context so the confirmation page can report it. */
+export function rememberCheckout(ctx: { service_type: string; vehicle_class?: string }): void {
+  try { window.sessionStorage.setItem(CHECKOUT_CTX_KEY, JSON.stringify(ctx)); } catch { /* ignore */ }
+}
+
+export function readCheckout(): { service_type?: string; vehicle_class?: string } {
+  try { return JSON.parse(window.sessionStorage.getItem(CHECKOUT_CTX_KEY) ?? "{}") ?? {}; } catch { return {}; }
+}
+
+/**
+ * Fire `purchase` at most once per booking reference, surviving refreshes.
+ * Returns true when it was sent now. If the tag is not loaded yet nothing is
+ * recorded, so a later visit can still report it.
+ */
+export function trackPurchaseOnce(ref: string, params: GaEventParams): boolean {
+  const win = w();
+  if (!win || !win.__gaLoaded) return false;
+  const key = `cabslink_ga_purchase_${ref}`;
+  try {
+    if (window.localStorage.getItem(key)) return false;
+    window.localStorage.setItem(key, "1");
+  } catch { /* storage blocked: still send once for this page */ }
+  trackEvent("purchase", { transaction_id: ref, currency: "GBP", ...params });
+  return true;
+}

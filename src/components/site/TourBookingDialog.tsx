@@ -18,6 +18,7 @@ import { submitTourEnquiry } from "@/lib/tour-enquiry.functions";
 import { useCaptcha } from "@/components/site/Captcha";
 import { PhoneInput } from "@/components/site/PhoneInput";
 import { toast } from "sonner";
+import { trackEvent } from "@/lib/analytics-ga";
 import { FormNotice, focusFirstInvalid } from "@/components/site/FormValidation";
 
 type Stop = { name: string; time: string; blurb: string };
@@ -84,6 +85,7 @@ export function TourBookingDialog({ tour, trigger, autoOpen = false }: Props) {
     onSuccess: (res) => {
       setBookingRef(res.bookingRef ?? "");
       setDone(true);
+      trackEvent("generate_lead", { form_name: "tour_enquiry" });
       toast.success("Tour enquiry received — we'll confirm your price shortly.");
     },
     onError: (e: Error) => {

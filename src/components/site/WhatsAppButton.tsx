@@ -19,6 +19,7 @@ export function WhatsAppButton() {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat with Cabslink on WhatsApp"
+      data-analytics-location="floating_button"
       onClick={trackClick("whatsapp_click", { path: pathname })}
       className={cn(
         "fixed right-3 z-40 grid size-12 place-items-center rounded-full bg-[var(--gold)] text-[var(--navy)] shadow-lg ring-1 ring-black/10 transition-all",

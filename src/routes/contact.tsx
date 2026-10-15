@@ -4,6 +4,7 @@ import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { toast } from "sonner";
+import { trackEvent } from "@/lib/analytics-ga";
 import { Mail, Phone, MapPin, Clock, ArrowRight } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { GoogleReviewsStrip } from "@/components/site/GoogleReviewsStrip";
@@ -105,6 +106,7 @@ function ContactPage() {
           captchaToken: captcha.token,
         },
       });
+      trackEvent("generate_lead", { form_name: "contact" });
       toast.success("Message sent — we'll respond shortly.");
       (e.currentTarget as HTMLFormElement).reset();
       setPhone("");

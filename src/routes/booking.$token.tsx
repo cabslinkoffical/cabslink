@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { getBookingByToken } from "@/lib/booking.functions";
 import { track } from "@/lib/tracking";
+import { readCheckout, trackPurchaseOnce } from "@/lib/analytics-ga";
 import { paymentNextStepMessage, statusLabel, type BookingStatus, type PaymentMode } from "@/lib/booking-lifecycle";
 import { SITE } from "@/lib/site";
 import { Button } from "@/components/ui/button";
@@ -98,6 +99,25 @@ function ConfirmationPage() {
       booking_ref: q.data.bookingRef,
       status: q.data.status,
     });
+  }, [q.data]);
+
+  // GA4 purchase: only once paid, once per booking reference (refresh-safe).
+  // Retries briefly because the consent-gated tag may still be loading.
+  useEffect(() => {
+    const d = q.data;
+    if (!d || d.paymentStatus !== "paid" || !d.bookingRef) return;
+    const ctx = readCheckout();
+    const params = {
+      value: d.price ?? undefined,
+      service_type: ctx.service_type ?? "transfer",
+      vehicle_class: d.vehicleType ?? ctx.vehicle_class,
+    };
+    let tries = 0;
+    const id = setInterval(() => {
+      if (trackPurchaseOnce(d.bookingRef, params) || ++tries > 10) clearInterval(id);
+    }, 500);
+    if (trackPurchaseOnce(d.bookingRef, params)) clearInterval(id);
+    return () => clearInterval(id);
   }, [q.data]);
 
   if (q.isLoading) {
