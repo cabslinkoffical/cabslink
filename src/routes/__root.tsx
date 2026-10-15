@@ -21,7 +21,7 @@ import { DEFAULT_TITLE, DEFAULT_DESCRIPTION } from "../lib/seo/page-head";
 import { createTtlCache, followRedirects } from "../lib/seo/redirect-resolver";
 import { MaintenanceScreen } from "../components/site/MaintenanceScreen";
 import { ConsentBanner } from "../components/site/ConsentBanner";
-import { initAnalytics, isMeasurablePath, trackPageView } from "../lib/analytics-ga";
+import { initAnalytics, installContactClickTracking, isMeasurablePath, trackPageView } from "../lib/analytics-ga";
 import { installStaleCacheRecovery } from "../lib/stale-cache-recovery";
 import { ownPageView, refreshOwnConsent } from "../lib/own-analytics";
 import { onConsentChange } from "../lib/consent";
@@ -168,6 +168,7 @@ function RootComponent() {
 
   // Clear leftover background caches from older visits in long-lived profiles.
   useEffect(() => { installStaleCacheRecovery(); }, []);
+  useEffect(() => installContactClickTracking(), []);
 
   // Analytics: install once (consent-gated), then a page view per route change.
   useEffect(() => {
