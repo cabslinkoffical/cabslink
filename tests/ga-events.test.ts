@@ -1,0 +1,41 @@
+import { describe, it, expect, beforeEach, vi } from "vitest";
+
+type W = Window & { gtag?: (...a: unknown[]) => void; __gaLoaded?: boolean };
+
+describe("GA4 event helpers", () => {
+  beforeEach(() => {
+    vi.resetModules();
+    vi.stubEnv("VITE_LOVABLE_CONNECTOR_GOOGLE_ANALYTICS_API_KEY", "G-TEST");
+    delete (window as W).gtag;
+    delete (window as W).__gaLoaded;
+    localStorage.clear();
+  });
+
+  it("does nothing until the tag is loaded", async () => {
+    const { trackEvent } = await import("@/lib/analytics-ga");
+    const calls: unknown[][] = [];
+    (window as W).gtag = (...a) => void calls.push(a);
+    trackEvent("view_quote", { value: 10 });
+    expect(calls).toEqual([]);
+  });
+
+  it("sends once loaded and strips personal keys", async () => {
+    const { trackEvent } = await import("@/lib/analytics-ga");
+    const calls: unknown[][] = [];
+    (window as W).gtag = (...a) => void calls.push(a);
+    (window as W).__gaLoaded = true;
+    trackEvent("generate_lead", { form_name: "contact", email: "a@b.c", customer_name: "X" });
+    expect(calls).toEqual([["event", "generate_lead", { form_name: "contact" }]]);
+  });
+
+  it("sends purchase only once per booking reference", async () => {
+    const { trackPurchaseOnce } = await import("@/lib/analytics-ga");
+    const calls: unknown[][] = [];
+    (window as W).gtag = (...a) => void calls.push(a);
+    (window as W).__gaLoaded = true;
+    expect(trackPurchaseOnce("CL-261015-ABCDEFGH", { value: 50 })).toBe(true);
+    expect(trackPurchaseOnce("CL-261015-ABCDEFGH", { value: 50 })).toBe(false);
+    expect(calls).toHaveLength(1);
+    expect(calls[0]![2]).toMatchObject({ transaction_id: "CL-261015-ABCDEFGH", currency: "GBP", value: 50 });
+  });
+});
