@@ -25,9 +25,11 @@ function w(): GtagWindow | null {
 function ensureGtag(win: GtagWindow) {
   win.dataLayer = win.dataLayer ?? [];
   if (!win.gtag) {
-    win.gtag = function gtag(...args: unknown[]) {
-      win.dataLayer!.push(args);
-    };
+    // gtag.js only accepts the native `arguments` object, never a plain array.
+    win.gtag = function gtag() {
+      // eslint-disable-next-line prefer-rest-params
+      win.dataLayer!.push(arguments);
+    } as (...args: unknown[]) => void;
   }
   return win.gtag!;
 }
