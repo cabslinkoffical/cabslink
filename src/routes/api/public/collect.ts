@@ -11,6 +11,7 @@ import { hitRateLimit, LIMITS } from "@/lib/db-rate-limit.server";
 const str = (n: number) => z.string().max(n).optional().nullable();
 const eventSchema = z.object({
   kind: z.enum(["pageview", "event"]),
+  event_id: z.string().min(8).max(64).optional(),
   name: z.string().min(1).max(64).regex(/^[a-z0-9_:-]+$/i),
   path: z.string().min(1).max(300),
   visitor_id: str(64),
@@ -22,6 +23,8 @@ const eventSchema = z.object({
   props: z.record(z.union([z.string().max(300), z.number(), z.boolean()])).optional(),
 });
 const bodySchema = z.object({ events: z.array(eventSchema).min(1).max(20) });
+
+const LIVE_HOSTS = new Set(["cabslink.com", "www.cabslink.com", "cabslink.lovable.app"]);
 
 const BOT = /bot|crawl|spider|slurp|preview|headless|lighthouse|pingdom|monitor/i;
 
@@ -60,11 +63,17 @@ export const Route = createFileRoute("/api/public/collect")({
         if (!parsed.success) return new Response(null, { status: 400 });
 
         const selfHost = new URL(request.url).hostname;
+        // Only real traffic on the live site counts: preview/editor/local hits are dropped.
+        const src = request.headers.get("origin") ?? request.headers.get("referer") ?? "";
+        let srcHost = "";
+        try { srcHost = new URL(src).hostname; } catch { /* none */ }
+        if (!LIVE_HOSTS.has(srcHost)) return new Response(null, { status: 204 });
         const { device, browser, os } = parseUa(ua);
         const country = request.headers.get("cf-ipcountry") || null;
         const rows = parsed.data.events
           .filter(e => !e.path.startsWith("/cabs-booking-pannel") && !e.path.startsWith("/auth"))
           .map(e => ({
+            event_id: e.event_id ?? null, host: srcHost,
             kind: e.kind, name: e.name, path: e.path.split("?")[0]!.slice(0, 300),
             visitor_id: e.visitor_id ?? null, session_id: e.session_id ?? null,
             referrer_host: hostOf(e.referrer, selfHost),
@@ -75,7 +84,8 @@ export const Route = createFileRoute("/api/public/collect")({
         if (!rows.length) return new Response(null, { status: 204 });
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const { error } = await supabaseAdmin.from("site_events").insert(rows);
+        const { error } = await supabaseAdmin.from("site_events")
+          .upsert(rows, { onConflict: "event_id", ignoreDuplicates: true });
         if (error) console.error("collect insert failed", error.message);
         return new Response(null, { status: 204 });
       },
