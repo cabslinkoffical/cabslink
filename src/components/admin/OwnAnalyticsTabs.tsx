@@ -8,10 +8,11 @@ import { Label } from "@/components/ui/label";
 import { StatCard, EmptyState } from "@/components/admin/ui";
 import { getOwnAnalytics } from "@/lib/own-analytics.functions";
 import { GA_MEASUREMENT_ID } from "@/lib/analytics-ga";
-import { Eye, Users, MousePointerClick, Activity, Repeat, LogOut, Radio, ExternalLink, ShieldCheck } from "lucide-react";
+import { Eye, Users, MousePointerClick, Activity, Repeat, LogOut, Radio, ExternalLink, ShieldCheck, Clock, Target, Phone } from "lucide-react";
 
 const GOLD = "#deae25";
 const NAVY = "#0e182c";
+const fmtDur = (sec: number) => { const m = Math.floor(sec / 60); const s = Math.round(sec % 60); return m ? `${m}m ${s}s` : `${s}s`; };
 const isoDay = (d: Date) => d.toISOString().slice(0, 10);
 const daysAgo = (n: number) => { const d = new Date(); d.setUTCDate(d.getUTCDate() - n); return d; };
 
@@ -61,7 +62,7 @@ export function OwnAnalyticsTab() {
         <div><Label>From</Label><Input type="date" max={to} value={from} onChange={e => setFrom(e.target.value)} /></div>
         <div><Label>To</Label><Input type="date" min={from} value={to} onChange={e => setTo(e.target.value)} /></div>
         <Button variant="outline" onClick={() => q.refetch()} disabled={q.isFetching}>{q.isFetching ? "Refreshing…" : "Refresh"}</Button>
-        <p className="ml-auto flex items-center gap-1 text-xs text-muted-foreground"><ShieldCheck className="size-3.5" /> Tracked by Cabslink itself · no third party · staff pages excluded</p>
+        <p className="ml-auto flex items-center gap-1 text-xs text-muted-foreground"><ShieldCheck className="size-3.5" /> Live site only · duplicates blocked · sessions end after 30 min idle · staff pages excluded</p>
       </div>
 
       {q.isError && <div className="rounded-xl border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">{(q.error as Error).message}</div>}
@@ -79,6 +80,13 @@ export function OwnAnalyticsTab() {
             <StatCard label="Pages per session" value={r.kpi.pagesPerSession.toFixed(2)} icon={Repeat} />
             <StatCard label="Bounce rate" value={`${r.kpi.bounceRate.toFixed(1)}%`} icon={LogOut} />
             <StatCard label="Tracked actions" value={r.kpi.events} icon={MousePointerClick} hint="Quotes, bookings, calls, WhatsApp, buttons" />
+            <StatCard label="Avg. session length" value={fmtDur(r.kpi.avgDurationSec)} icon={Clock} />
+          </div>
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            <StatCard label="Engaged sessions" value={r.kpi.engagedSessions} icon={Activity} hint="More than one page, or an action" />
+            <StatCard label="Returning visitors" value={r.kpi.returningVisitors} icon={Repeat} hint="Came back in another session" />
+            <StatCard label="Booking conversion" value={`${r.kpi.conversionRate.toFixed(1)}%`} icon={Target} hint="Sessions ending in a confirmed booking" />
+            <StatCard label="Sessions that contacted you" value={r.kpi.contactSessions} icon={Phone} hint="Phone, WhatsApp, email or enquiry" />
           </div>
 
           <div className="admin-card p-4">
@@ -96,8 +104,28 @@ export function OwnAnalyticsTab() {
             </ResponsiveContainer>
           </div>
 
+          <div className="admin-card p-4">
+            <h3 className="mb-1 font-semibold">Booking funnel</h3>
+            <p className="mb-3 text-xs text-muted-foreground">How many sessions reached each step. Percentages are of all sessions.</p>
+            <div className="space-y-2 text-sm">
+              {r.funnel.map((f, i) => {
+                const base = r.funnel[0]!.count || 1;
+                const pct = (f.count / base) * 100;
+                return (
+                  <div key={f.step} className="flex items-center gap-3">
+                    <span className="w-44 shrink-0">{i + 1}. {f.step}</span>
+                    <span className="h-3 flex-1 overflow-hidden rounded-full bg-muted"><span className="block h-full rounded-full bg-[var(--gold)]" style={{ width: `${Math.max(f.count ? 2 : 0, pct)}%` }} /></span>
+                    <span className="w-24 text-right tabular-nums"><b>{f.count}</b> · {pct.toFixed(0)}%</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
           <div className="grid gap-4 lg:grid-cols-2">
             <List title="Top pages" items={r.topPages} />
+            <List title="Landing pages (where sessions start)" items={r.entryPages} />
+            <List title="Exit pages (where sessions end)" items={r.exitPages} />
             <List title="Actions taken" items={r.eventNames} />
             <List title="Where visitors came from" items={r.referrers} />
             <List title="Campaigns (UTM)" items={r.campaigns} />

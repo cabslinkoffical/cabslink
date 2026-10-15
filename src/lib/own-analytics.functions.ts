@@ -46,9 +46,40 @@ export const getOwnAnalytics = createServerFn({ method: "POST" })
     const events = rows.filter(r => r.kind === "event");
     const visitors = new Set(views.map(r => r.visitor_id).filter(Boolean));
     const anonViews = views.filter(r => !r.session_id).length;
-    const sessions = new Map<string, number>();
-    for (const v of views) if (v.session_id) sessions.set(v.session_id, (sessions.get(v.session_id) ?? 0) + 1);
-    const bounces = Array.from(sessions.values()).filter(c => c === 1).length;
+
+    // Real sessions: every hit (views + actions) grouped by session id.
+    type S = { first: number; last: number; views: Row[]; events: Row[]; visitor: string | null };
+    const sess = new Map<string, S>();
+    for (const r of rows) {
+      if (!r.session_id) continue;
+      const t = new Date(r.created_at).getTime();
+      let s = sess.get(r.session_id);
+      if (!s) { s = { first: t, last: t, views: [], events: [], visitor: r.visitor_id }; sess.set(r.session_id, s); }
+      s.first = Math.min(s.first, t); s.last = Math.max(s.last, t);
+      (r.kind === "pageview" ? s.views : s.events).push(r);
+    }
+    const sessList = Array.from(sess.values()).filter(s => s.views.length > 0);
+    const bounces = sessList.filter(s => s.views.length === 1 && s.events.length === 0).length;
+    const engaged = sessList.length - bounces;
+    const avgDurationSec = sessList.length ? sessList.reduce((n, s) => n + (s.last - s.first), 0) / sessList.length / 1000 : 0;
+    const sessions = { size: sessList.length };
+    const entry = sessList.map(s => s.views[0]!).filter(Boolean);
+    const exit = sessList.map(s => s.views[s.views.length - 1]!).filter(Boolean);
+
+    // Returning = visitor seen in a session before this range's first session of theirs.
+    const visitorSessions = new Map<string, number>();
+    for (const s of sessList) if (s.visitor) visitorSessions.set(s.visitor, (visitorSessions.get(s.visitor) ?? 0) + 1);
+    const returning = Array.from(visitorSessions.values()).filter(n => n > 1).length;
+
+    const has = (s: S, names: string[]) => s.events.some(e => names.includes(e.name));
+    const funnel = [
+      { step: "Visited the site", count: sessList.length },
+      { step: "Started a quote", count: sessList.filter(s => has(s, ["quote_start", "hourly_quote_start", "tours_interest"]) || s.views.some(v => v.path.startsWith("/book"))).length },
+      { step: "Moved through booking", count: sessList.filter(s => has(s, ["booking_step"])).length },
+      { step: "Sent a booking", count: sessList.filter(s => has(s, ["booking_submitted"])).length },
+      { step: "Booking confirmed", count: sessList.filter(s => has(s, ["booking_confirmed"])).length },
+    ];
+    const contacts = sessList.filter(s => has(s, ["whatsapp_click", "phone_click", "click_phone", "click_whatsapp", "click_email", "quote_request"])).length;
 
     const series = new Map<string, { date: string; views: number; visitors: Set<string>; events: number }>();
     const cur = new Date(start);
@@ -64,7 +95,7 @@ export const getOwnAnalytics = createServerFn({ method: "POST" })
     }
 
     const since = Date.now() - 5 * 60_000;
-    const live = new Set(rows.filter(r => new Date(r.created_at).getTime() >= since).map(r => r.session_id ?? r.created_at)).size;
+    const live = new Set(rows.filter(r => r.session_id && new Date(r.created_at).getTime() >= since).map(r => r.session_id)).size;
 
     return {
       truncated: rows.length >= MAX_ROWS,
@@ -74,12 +105,20 @@ export const getOwnAnalytics = createServerFn({ method: "POST" })
         sessions: sessions.size,
         anonymousViews: anonViews,
         bounceRate: sessions.size ? (bounces / sessions.size) * 100 : 0,
-        pagesPerSession: sessions.size ? (views.length - anonViews) / sessions.size : 0,
+        engagedSessions: engaged,
+        avgDurationSec,
+        returningVisitors: returning,
+        conversionRate: sessions.size ? (funnel[4]!.count / sessions.size) * 100 : 0,
+        contactSessions: contacts,
+        pagesPerSession: sessions.size ? sessList.reduce((n, s) => n + s.views.length, 0) / sessions.size : 0,
         events: events.length,
         liveNow: live,
       },
       series: Array.from(series.values()).map(s => ({ date: s.date, views: s.views, visitors: s.visitors.size, events: s.events })),
       topPages: top(views, r => r.path, 15),
+      entryPages: top(entry, r => r.path),
+      exitPages: top(exit, r => r.path),
+      funnel,
       referrers: top(views, r => r.referrer_host ?? "Direct / none"),
       campaigns: top(views.filter(r => r.utm_source), r => [r.utm_source, r.utm_medium, r.utm_campaign].filter(Boolean).join(" / ")),
       devices: top(views, r => r.device),
