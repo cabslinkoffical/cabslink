@@ -3826,6 +3826,8 @@ export type Database = {
           country: string | null
           created_at: string
           device: string | null
+          event_id: string | null
+          host: string | null
           id: string
           kind: string
           name: string
@@ -3844,6 +3846,8 @@ export type Database = {
           country?: string | null
           created_at?: string
           device?: string | null
+          event_id?: string | null
+          host?: string | null
           id?: string
           kind: string
           name: string
@@ -3862,6 +3866,8 @@ export type Database = {
           country?: string | null
           created_at?: string
           device?: string | null
+          event_id?: string | null
+          host?: string | null
           id?: string
           kind?: string
           name?: string
