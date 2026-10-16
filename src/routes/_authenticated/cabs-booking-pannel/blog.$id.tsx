@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { PageHeader } from "@/components/admin/ui";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
+import { blogFaqsSchema } from "@/lib/blog-content-schema";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,6 +35,10 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/blog/$
     meta: [
       { title: "Edit Article — Cabslink Admin" },
       { name: "description", content: "Cabslink edit blog article." },
+      { property: "og:title", content: "Edit Article — Cabslink Admin" },
+      { property: "og:description", content: "Cabslink edit blog article." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
@@ -137,7 +142,7 @@ function PostEditor() {
         og_image_url: d.og_image_url ?? "", canonical_override: d.canonical_override ?? "",
         robots_status: d.robots_status ?? "index,follow", cluster_key: d.cluster_key ?? "",
         pillar: !!d.pillar, featured: !!d.featured,
-        faqs: Array.isArray(d.faqs) ? d.faqs : [],
+        faqs: blogFaqsSchema.parse(Array.isArray(d.faqs) ? d.faqs : []),
         key_takeaways: Array.isArray(d.key_takeaways) ? d.key_takeaways : [],
         toc: Array.isArray(d.toc) ? d.toc : [],
         related_service_slugs: d.related_service_slugs ?? [],
