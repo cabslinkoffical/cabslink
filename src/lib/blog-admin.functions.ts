@@ -5,6 +5,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import { blogImageSchema, blogFaqsSchema } from "@/lib/blog-content-schema";
 
 async function assertAdmin(ctx: { supabase: any; userId: string }) {
   const { data, error } = await ctx.supabase.rpc("has_role", { _user_id: ctx.userId, _role: "admin" });
@@ -46,18 +47,18 @@ const postSchema = z.object({
   body_md: z.string().default(""),
   category_id: z.string().uuid().nullable().optional(),
   author_id: z.string().uuid().nullable().optional(),
-  featured_image_url: z.string().url().nullable().optional(),
+  featured_image_url: blogImageSchema,
   featured_image_alt: z.string().trim().max(200).nullable().optional(),
   status: z.enum(["draft", "review", "scheduled", "published", "archived"]).default("draft"),
   published_at: z.string().datetime().nullable().optional(),
   reading_minutes: z.coerce.number().int().min(1).max(60).default(3),
   seo_title: z.string().trim().max(200).nullable().optional(),
   meta_description: z.string().trim().max(320).nullable().optional(),
-  og_image_url: z.string().url().nullable().optional(),
+  og_image_url: blogImageSchema,
   canonical_override: z.string().trim().max(500).nullable().optional(),
   robots_status: z.string().max(60).default("index,follow"),
   toc: z.array(z.object({ id: z.string(), text: z.string(), level: z.number() })).default([]),
-  faqs: z.array(z.object({ q: z.string(), a: z.string() })).default([]),
+  faqs: blogFaqsSchema,
   key_takeaways: z.array(z.string()).default([]),
   cluster_key: z.string().trim().max(80).nullable().optional(),
   pillar: z.boolean().default(false),
