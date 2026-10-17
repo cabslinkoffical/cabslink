@@ -62,7 +62,7 @@ const fallbackHeroVehicles: HeroVehicle[] = [
   { key: "rolls", name: "Rolls-Royce Bentley", tag: "Ultra-luxury", img: rollsAsset.url, srcSet: asFleetAsset(rollsAsset).srcSet, thumbnail: fleetThumbnailUrl(rollsAsset) },
 ];
 
-const HERO_VEHICLE_SIZES = "(max-width: 1024px) 92vw, 600px";
+const HERO_VEHICLE_SIZES = "(max-width: 1024px) 92vw, 960px";
 
 export const Route = createFileRoute("/")({
   head: () => normalizeHead({
@@ -278,16 +278,15 @@ function HomePage() {
 
   return (
     <SiteLayout>
-      {/* One booking form: stacked beside the introduction on desktop. */}
-      <section className="home-hero relative z-20 navy-scene">
+      {/* One shared booking form beneath the centred introduction. */}
+      <section className="home-hero relative z-20 bg-background text-foreground">
         <div className="container-x home-hero-grid">
           <div className="home-hero-copy min-w-0">
-            <DrivingCarBadge label="UK's Premium Travel Platform" />
-            <h1 className="home-hero-title font-display text-navy-foreground">
+            <h1 className="home-hero-title font-display text-foreground">
               Airport Transfers{" "}
               <span className="text-gold">&amp; UK Private Hire.</span>
             </h1>
-            <p className="home-hero-description text-navy-foreground/75">
+            <p className="home-hero-description text-muted-foreground">
               Fixed-fare Mercedes-Benz transfers, private tours and executive travel across the UK. Flight tracked, meet &amp; greet, 24/7 dispatch — the calm way to travel.
             </p>
           </div>
@@ -302,6 +301,7 @@ function HomePage() {
             {current && (
               <>
                 <div className="home-hero-vehicle-stage">
+                  <span className="home-hero-wordmark font-display" aria-hidden="true">CABSLINK</span>
                   <img
                     key={current.key}
                     src={current.img}
@@ -318,7 +318,7 @@ function HomePage() {
                 </div>
                 <div className="home-hero-vehicle-caption">
                   <div className="min-w-0">
-                    <p className="font-display text-base font-semibold text-navy-foreground">{current.name}</p>
+                    <p className="font-display text-base font-semibold text-foreground">{current.name}</p>
                     <p className="mt-1 text-[11px] uppercase text-gold">{current.tag}</p>
                   </div>
                   {heroVehicles.length > 1 && (
@@ -345,7 +345,7 @@ function HomePage() {
           </div>
 
           <div id="booking" className="home-hero-booking relative z-50 min-w-0 scroll-mt-24">
-            <BookingWidget />
+            <BookingWidget tone="light" />
           </div>
         </div>
       </section>
