@@ -89,3 +89,6 @@
 - [~] Compact booking status area: duplicate badges removed, inline payment label and lock icon added; 7 tests pass and build clean; signed-in visual check blocked because the requesting user has no app account/session
 - [x] Lock booking status once paid, completed or cancelled (DB guard + admin UI)
 - [x] Paid/unpaid badge next to booking status in admin list
+
+- [x] Homepage hero redesign: text+vehicle left, booking form right, gold glow, sticky-header clearance, mobile fix
+- [x] Hero headline shortened to "Airport Transfers & UK Private Hire."
