@@ -413,7 +413,7 @@ function HomePage() {
                 <div className="py-5">
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0">
-                      <div className="mb-2 flex items-center gap-2 text-accent">
+                      <div className="mb-2 flex items-center gap-2 text-[var(--gold-ink)]">
                         <t.icon className="size-4 shrink-0" aria-hidden />
                         <span className="text-[10px] font-semibold uppercase tracking-[0.18em]">{t.kicker}</span>
                       </div>
@@ -428,7 +428,7 @@ function HomePage() {
           </div>
 
           <div className="mt-10 pt-6">
-            <Button asChild variant="link" className="h-auto px-0 text-foreground hover:text-accent">
+            <Button asChild variant="link" className="h-auto px-0 text-foreground hover:text-[var(--gold-ink)]">
               <Link to="/services">
                 View all services <ArrowRight className="size-4" />
               </Link>
