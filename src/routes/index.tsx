@@ -930,7 +930,7 @@ function FleetClassesSection() {
               </article>
             ))}
           </div>
-        </div>
+        </DraggableMarquee>
       )}
     </section>
 
