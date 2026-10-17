@@ -9,7 +9,7 @@ import { RouteFareTable } from "@/components/seo/RouteFareTable";
 import { Button } from "@/components/ui/button";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { LocalPageHero } from "@/components/site/LocalPageHero";
-import { defaultLocalImage } from "@/lib/local-page";
+import { defaultLocalImage, localEntityMapFocus } from "@/lib/local-page";
 
 /**
  * Renders a published seo_pages record + its sections.
@@ -60,7 +60,6 @@ export function SeoPageRenderer({
   // exist. Nothing is invented for pages without entity data.
   const entityType = page.primary_entity_type as string | null | undefined;
   const entityName = page.entity?.name ?? null;
-  const entityGeo = page.entity as { lat?: number | null; lng?: number | null } | null | undefined;
   const prefill = entityName
     ? entityType === "airport" || entityType === "station"
       ? { pickup: entityName }
@@ -68,10 +67,7 @@ export function SeoPageRenderer({
         ? { dropoff: entityName }
         : undefined
     : undefined;
-  const mapFocus =
-    entityName && typeof entityGeo?.lat === "number" && typeof entityGeo?.lng === "number"
-      ? { lat: entityGeo.lat, lng: entityGeo.lng, label: entityName }
-      : null;
+  const mapFocus = localEntityMapFocus(page.entity);
   const crumbs = buildCrumbs(page).map((c) => ({ name: c.label, href: c.href }));
 
   return (
