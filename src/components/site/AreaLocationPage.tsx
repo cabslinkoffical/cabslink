@@ -17,7 +17,6 @@ import { LocalPageHero } from "@/components/site/LocalPageHero";
 import { areaPrefill, defaultLocalImage } from "@/lib/local-page";
 import { journeyLinksForLocation } from "@/lib/seo/coverage";
 import { servicePagesForLocation } from "@/lib/seo/service-locations";
-import { InternalLinkHub } from "@/components/seo/InternalLinkHub";
 
 import {
   CheckCircle2,

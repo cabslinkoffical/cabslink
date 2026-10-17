@@ -25,7 +25,6 @@ import { PageHero, SectionHeader } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
 import { getService } from "@/lib/seo/service-registry";
 import { localPagesForService } from "@/lib/seo/service-locations";
-import { InternalLinkHub } from "@/components/seo/InternalLinkHub";
 
 import { SITE } from "@/lib/site";
 
@@ -295,12 +294,6 @@ export function ServicePillarPage({ content }: { content: PillarContent }) {
         </section>
       )}
 
-      {/* Automated services ↔ airports ↔ locations cross-links */}
-      <section className="section-y">
-        <div className="container-x">
-          <InternalLinkHub kind="service" slug={content.id} className="" heading={`${content.breadcrumbLabel} — where to next`} />
-        </div>
-      </section>
 
       {/* FAQs */}
       <section className="bg-muted/40 section-y">

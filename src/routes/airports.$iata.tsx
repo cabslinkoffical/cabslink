@@ -10,7 +10,6 @@ import { getPublicSeoPageByPath } from "@/lib/seo-public.functions";
 import { getRelatedSeoLinks } from "@/lib/seo-related.functions";
 import { SeoPageRenderer, buildSeoHead } from "@/components/seo/SeoPageRenderer";
 import { listDestinationsByType, type Destination } from "@/lib/destinations.functions";
-import { InternalLinkHub } from "@/components/seo/InternalLinkHub";
 import { DirectAnswer } from "@/components/seo/DirectAnswer";
 import { guideFor } from "@/content/place-guides";
 import { PlaceGuideBlock } from "@/components/seo/PlaceGuideBlock";
@@ -147,9 +146,6 @@ function AirportPage() {
             );
           })()}
         />
-        <div className="container-x pb-16">
-          <InternalLinkHub kind="airport" slug={cmsAirportKey} heading="Where to next" />
-        </div>
       </>
     );
   }
@@ -316,12 +312,6 @@ function AirportPage() {
         </section>
       )}
 
-      {/* Automated services ↔ areas ↔ airports cross-links */}
-      <section className="section-y">
-        <div className="container-x">
-          <InternalLinkHub kind="airport" slug={airport.slug} className="" heading={`${shortName} transfers — where to next`} />
-        </div>
-      </section>
 
       {/* JSON-LD */}
       <AirportMapSection focus={

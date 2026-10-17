@@ -7,7 +7,6 @@ import { FaqSection, LongFormSections, faqJsonLd } from "@/components/site/Conte
 import { PageHero, SectionHeader } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
 import { BookingWidget } from "@/components/site/BookingWidget";
-import { InternalLinkHub } from "@/components/seo/InternalLinkHub";
 
 export const Route = createFileRoute("/airport-transfers/")({
   head: () => normalizeHead({
@@ -128,12 +127,6 @@ function AirportPage() {
       <LongFormSections sections={AT_SECTIONS} heading="How Cabslink airport transfers work" />
       <FaqSection faqs={AT_FAQS} />
 
-      {/* Automated services ↔ airports ↔ locations cross-links */}
-      <section className="section-y">
-        <div className="container-x">
-          <InternalLinkHub kind="service" slug="airport-transfers" className="" heading="Airport transfers — where to next" />
-        </div>
-      </section>
     </SiteLayout>
   );
 }
