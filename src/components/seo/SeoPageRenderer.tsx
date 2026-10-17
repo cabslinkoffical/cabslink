@@ -9,6 +9,7 @@ import { RouteFareTable } from "@/components/seo/RouteFareTable";
 import { Button } from "@/components/ui/button";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { LocalPageHero } from "@/components/site/LocalPageHero";
+import { AirportMapSection } from "@/components/site/AirportMapSection";
 import { defaultLocalImage, localEntityMapFocus } from "@/lib/local-page";
 
 /**
@@ -81,6 +82,7 @@ export function SeoPageRenderer({
         facts={entityName ? [{ label: "Location", value: entityName }] : []}
         prefill={prefill}
         mapFocus={mapFocus}
+        showMap={entityType !== "airport"}
         image={hero ?? defaultLocalImage(entityType)}
         imageAlt={page.entity?.name || page.h1}
         imageCaption={entityName ? `${entityName} · private transfers` : undefined}
@@ -104,6 +106,8 @@ export function SeoPageRenderer({
         ))}
         {appendix}
       </div>
+
+      {entityType === "airport" && <AirportMapSection focus={mapFocus} />}
 
     </div>
     </SiteLayout>
