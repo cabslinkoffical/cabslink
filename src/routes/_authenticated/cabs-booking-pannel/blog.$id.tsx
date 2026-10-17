@@ -17,18 +17,8 @@ import {
   getAdminPost, upsertPost, deletePost,
   listCategoriesAdmin, listTagsAdmin, listAuthorsAdmin,
 } from "@/lib/blog-admin.functions";
-
-/** Comparison-table block. Every figure is a TODO until real numbers are supplied. */
-const COMPARISON_TABLE = [
-  "## How do the options compare?",
-  "",
-  "| Option | Typical price | Journey time | Door to door | Luggage |",
-  "| --- | --- | --- | --- | --- |",
-  "| Private transfer (Cabslink) | TODO | TODO | Yes | TODO |",
-  "| Taxi rank | TODO | TODO | Yes | TODO |",
-  "| Bus / tram | TODO | TODO | No | TODO |",
-  "| Train | TODO | TODO | No | TODO |",
-].join("\n");
+import { MarkdownEditor } from "@/components/admin/blog/MarkdownEditor";
+import { extractToc, readingMinutes, slugify } from "@/lib/blog-markdown";
 
 export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/blog/$id")({
   head: () => ({
