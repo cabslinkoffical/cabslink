@@ -24,9 +24,10 @@ describe("social links live in the footer only", () => {
     }
     // The footer must drive its links from the shared SOCIALS list, not a copy.
     expect(FOOTER).toContain('import { SOCIALS } from "@/lib/social"');
-    expect(FOOTER).toMatch(
-      /SOCIALS\.map\(\(\{[^}]*\burl\b[^}]*\bhandle\b[^}]*\}\) =>/,
-    );
+    const map = FOOTER.match(/SOCIALS\.map\(\(\{([^}]+)\}\)\s*=>/);
+    expect(map, "footer no longer maps over SOCIALS").not.toBeNull();
+    const props = map![1].split(",").map((s) => s.trim());
+    expect(props).toEqual(expect.arrayContaining(["url", "handle", "label", "Icon"]));
     expect(FOOTER).toContain("href={url}");
     expect(FOOTER).toContain("{handle}");
     expect(FOOTER).toContain("Follow Cabslink");
