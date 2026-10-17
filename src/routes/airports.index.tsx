@@ -3,7 +3,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { DestinationCard } from "@/components/site/DestinationCard";
-import { SiteLayout } from "@/components/site/SiteLayout";
 import { FaqSection, LongFormSections, faqJsonLd } from "@/components/site/ContentSections";
 import { CtaBand } from "@/components/site/CtaBand";
 import { PageHero } from "@/components/site/PageHero";
