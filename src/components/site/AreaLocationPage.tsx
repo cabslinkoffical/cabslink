@@ -189,9 +189,6 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
 
       <LocalPagesSection slug={d.slug} name={locName} />
 
-      {/* Automated services ↔ airports ↔ areas cross-links */}
-      <InternalLinkHub kind="location" slug={d.slug} heading={`More ways to travel from ${locName}`} />
-
       {/* FAQ */}
       <section className="mt-14">
         <FaqBlock items={buildFaqs(data)} />
