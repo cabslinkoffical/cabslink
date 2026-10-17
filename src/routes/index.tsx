@@ -279,14 +279,14 @@ function HomePage() {
   return (
     <SiteLayout>
       {/* One shared booking form beneath the centred introduction. */}
-      <section className="home-hero relative z-20 bg-background text-foreground">
+      <section className="home-hero relative z-20 bg-navy text-navy-foreground">
         <div className="container-x home-hero-grid">
           <div className="home-hero-copy min-w-0">
-            <h1 className="home-hero-title font-display text-foreground">
+            <h1 className="home-hero-title font-display text-navy-foreground">
               Airport Transfers{" "}
               <span className="text-gold">&amp; UK Private Hire.</span>
             </h1>
-            <p className="home-hero-description text-muted-foreground">
+            <p className="home-hero-description text-navy-foreground/75">
               Fixed-fare Mercedes-Benz transfers, private tours and executive travel across the UK. Flight tracked, meet &amp; greet, 24/7 dispatch — the calm way to travel.
             </p>
           </div>
@@ -318,7 +318,7 @@ function HomePage() {
                 </div>
                 <div className="home-hero-vehicle-caption">
                   <div className="min-w-0">
-                    <p className="font-display text-base font-semibold text-foreground">{current.name}</p>
+                    <p className="font-display text-base font-semibold text-navy-foreground">{current.name}</p>
                     <p className="mt-1 text-[11px] uppercase text-gold">{current.tag}</p>
                   </div>
                   {heroVehicles.length > 1 && (
@@ -345,7 +345,7 @@ function HomePage() {
           </div>
 
           <div id="booking" className="home-hero-booking relative z-50 min-w-0 scroll-mt-24">
-            <BookingWidget tone="light" />
+            <BookingWidget tone="dark" />
           </div>
         </div>
       </section>

@@ -877,7 +877,7 @@ input[type="time"] {
   gap: 1.5rem;
   padding-block: 2.5rem 1.5rem;
 }
-.home-hero-copy { text-align: center; }
+.home-hero-copy { grid-row: 1; text-align: center; }
 .home-hero-title {
   max-width: 1050px;
   margin: 0 auto;
@@ -910,7 +910,7 @@ input[type="time"] {
 }
 .home-hero-booking form > div > div.grid > div[data-invalid] > div:first-child { padding-block: .75rem; }
 .home-hero-booking form > div:has(> .grid) { border-radius: 24px; }
-.home-hero-booking form > div.flex > button { box-shadow: none; background: transparent; color: var(--foreground); }
+.home-hero-booking form > div.flex > button { box-shadow: none; background: transparent; color: var(--navy-foreground); }
 .home-hero-booking .cta-search { letter-spacing: 0; border-radius: 999px; }
 .home-hero-vehicle { grid-row: 3; width: 100%; max-width: 1020px; justify-self: center; }
 .home-hero-vehicle-stage { position: relative; height: 210px; isolation: isolate; }
@@ -920,7 +920,7 @@ input[type="time"] {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--surface-cool);
+  color: color-mix(in srgb, var(--navy-foreground) 8%, transparent);
   font-size: 4.25rem;
   font-weight: 800;
   line-height: 1;
@@ -945,10 +945,10 @@ input[type="time"] {
   max-width: 660px;
   margin: 0 auto;
   padding-top: .75rem;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid color-mix(in srgb, var(--navy-foreground) 15%, transparent);
 }
-.home-hero-vehicle-dot { width: 22px; height: 32px; border-radius: 4px; padding: 0; color: var(--foreground); }
-.home-hero-vehicle-dot span { display: block; width: 7px; height: 4px; border-radius: 2px; background: var(--muted-foreground); }
+.home-hero-vehicle-dot { width: 22px; height: 32px; border-radius: 4px; padding: 0; color: var(--navy-foreground); }
+.home-hero-vehicle-dot span { display: block; width: 7px; height: 4px; border-radius: 2px; background: color-mix(in srgb, var(--navy-foreground) 45%, transparent); }
 .home-hero-vehicle-dot[aria-current="true"] span { width: 18px; background: var(--gold); }
 @media (min-width: 640px) {
   .home-hero-title { font-size: 2.75rem; }

@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Restore navy-blue homepage hero with text, centred booking form and vehicle carousel in that order; verify layout and controls without publishing.
 - [x] Homepage reference redesign: centred introduction, horizontal shared booking form, large vehicle and subtle brand lettering; desktop/tablet/mobile checked, return/hourly controls verified, 15 booking tests pass; nothing published.
 - [x] Homepage opening: text and visible vehicle left, stacked booking form right; desktop/mobile checked, Add return and Hourly Hire verified, five booking tests pass, build OK; nothing published.
 
