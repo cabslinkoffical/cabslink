@@ -9,7 +9,7 @@ import {
   ArrowRight, Plane, ShieldCheck, CalendarCheck, Phone,
   Briefcase, Users, Award, BadgePoundSterling, Headset, Car, Building2, Gem,
   Route as RouteIcon, CheckCircle2, Sparkles, MessageSquare, CreditCard, Quote,
-  Plus, Minus, Clock, Compass, Wallet, Timer, Mail, BadgeCheck, PlaneTakeoff
+  Clock, Compass, Wallet, Timer, Mail, BadgeCheck, PlaneTakeoff
 } from "lucide-react";
 
 import { SiteLayout } from "@/components/site/SiteLayout";
