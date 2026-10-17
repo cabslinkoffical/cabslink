@@ -929,6 +929,13 @@ input[type="time"] {
     padding: 0.75em 1em;
   }
   .prose :where(td) { padding: 0.75em 1em; border-top: 1px solid var(--border); }
+  .prose :where(th, td) { overflow-wrap: normal; word-break: normal; hyphens: manual; }
+  @media (min-width: 640px) {
+    .prose :where(th:first-child, td:first-child) { white-space: nowrap; }
+  }
+  @media (max-width: 639px) {
+    .prose :where(th, td) { min-width: 6.5rem; }
+  }
   .prose :where(tbody tr:nth-child(even)) { background: var(--surface-2); }
   .prose :where(img) { border-radius: 1rem; margin: 2em auto; max-width: 100%; height: auto; }
   .prose :where(hr) { border: 0; border-top: 1px solid var(--border); margin: 2.5em 0; }
