@@ -186,13 +186,13 @@ function AdminLayout() {
       >
         <div className="px-5 py-4 border-b border-gold/20 flex items-center justify-between">
           <Logo />
-          <button aria-label="Close menu" className="md:hidden text-white/55" onClick={() => setMobileOpen(false)}>
+          <button aria-label="Close menu" className="md:hidden text-white/70" onClick={() => setMobileOpen(false)}>
             <X className="size-5" />
           </button>
         </div>
         <SidebarNav entries={NAV} />
         <div className="p-3 border-t border-gold/20 space-y-1">
-          <Link to="/" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-white/55 hover:text-gold transition">
+          <Link to="/" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-white/70 hover:text-gold transition">
             <ExternalLink className="size-3.5" /> View website
           </Link>
           <button onClick={signOut} className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm text-white/70 hover:bg-white/[0.07] hover:text-white transition">

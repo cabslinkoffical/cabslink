@@ -120,7 +120,7 @@ function ReviewsPage() {
               <div className="rounded-2xl border border-white/12 bg-white/[0.04] p-5">
                 <div className="font-display text-4xl font-bold leading-none text-white">
                   {google.rating.toFixed(1)}
-                  <span className="text-xl text-white/40"> / 5</span>
+                  <span className="text-xl text-white/60"> / 5</span>
                 </div>
                 <div className="mt-3 flex items-center gap-0.5">
                   {[1, 2, 3, 4, 5].map((i) => (
@@ -139,7 +139,7 @@ function ReviewsPage() {
             <div className="rounded-2xl border border-white/12 bg-white/[0.04] p-5">
               <div className="font-display text-4xl font-bold leading-none text-white">
                 {t.rating.toFixed(1)}
-                <span className="text-xl text-white/40"> / 5</span>
+                <span className="text-xl text-white/60"> / 5</span>
               </div>
               <div className="mt-3">
                 <TrustpilotStars rating={t.rating} size="sm" />
@@ -151,7 +151,7 @@ function ReviewsPage() {
             <div className="rounded-2xl border border-white/12 bg-white/[0.04] p-5">
               <div className="font-display text-4xl font-bold leading-none text-white">
                 {RATINGFACTS.rating.toFixed(1)}
-                <span className="text-xl text-white/40"> / 5</span>
+                <span className="text-xl text-white/60"> / 5</span>
               </div>
               <div className="mt-3 flex items-center gap-0.5">
                 {[1, 2, 3, 4, 5].map((i) => (
@@ -256,7 +256,7 @@ function ReviewsPage() {
               See all {RATINGFACTS.reviewCount} reviews on RatingFacts
               <ExternalLink className="h-3.5 w-3.5" />
             </a>
-            <p className="text-xs text-[var(--navy)]/50">
+            <p className="text-xs text-[var(--navy)]/70">
               We show {totals.shownOnPage} here; each platform holds its complete, unedited set —
               {" "}{t.reviewCount} on Trustpilot and {RATINGFACTS.reviewCount} on RatingFacts.
             </p>
@@ -329,10 +329,10 @@ function ReviewsPage() {
                   <div className="p-5">
                     <p className="font-display text-base font-bold text-[var(--navy)]">{v.title}</p>
                     {v.journey ? (
-                      <p className="mt-1 text-xs text-[var(--navy)]/55">{v.journey}</p>
+                      <p className="mt-1 text-xs text-[var(--navy)]/70">{v.journey}</p>
                     ) : null}
                     <p className="mt-3 text-xs font-semibold text-[var(--navy)]">{v.author}</p>
-                    <p className="mt-0.5 text-[11px] text-[var(--navy)]/50">
+                    <p className="mt-0.5 text-[11px] text-[var(--navy)]/70">
                       {v.dateLabel} · YouTube
                     </p>
                   </div>
@@ -379,7 +379,7 @@ function ReviewsPage() {
                     className={
                       c.status === "live"
                         ? "shrink-0 rounded-full bg-[var(--navy)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white"
-                        : "shrink-0 rounded-full border border-[var(--navy)]/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[var(--navy)]/50"
+                        : "shrink-0 rounded-full border border-[var(--navy)]/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[var(--navy)]/70"
                     }
                   >
                     {c.status === "live" ? "Live" : "Coming soon"}
@@ -400,7 +400,7 @@ function ReviewsPage() {
                     <ArrowUpRight className="h-3.5 w-3.5" />
                   </a>
                 ) : (
-                  <p className="mt-4 inline-flex items-center gap-1.5 text-xs font-medium text-[var(--navy)]/40">
+                  <p className="mt-4 inline-flex items-center gap-1.5 text-xs font-medium text-[var(--navy)]/70">
                     <Clock className="h-3.5 w-3.5" aria-hidden="true" />
                     Not open for reviews yet
                   </p>
@@ -478,7 +478,7 @@ function ReviewsPage() {
                 <ArrowUpRight className="h-3.5 w-3.5" />
               </a>
             </div>
-            <p className="mt-3 text-[11px] leading-relaxed text-[var(--navy)]/50">
+            <p className="mt-3 text-[11px] leading-relaxed text-[var(--navy)]/70">
               Ratings, review counts, reviewer names and dates on this page are as displayed on
               Trustpilot on {verified} and on RatingFacts on {rVerified} (dated snapshots); Google
               reviews are pulled live from our Google Business Profile.
@@ -491,7 +491,7 @@ function ReviewsPage() {
               platform; neither is affiliated with Cabslink. Google, YouTube and Facebook are
               trademarks of their respective owners.
             </p>
-            <p className="mt-2 text-[11px] leading-relaxed text-[var(--navy)]/40">
+            <p className="mt-2 text-[11px] leading-relaxed text-[var(--navy)]/70">
               Live channels: {live.map((c) => c.name).join(", ")}. Coming soon:{" "}
               {planned.map((c) => c.name).join(", ")}.
             </p>

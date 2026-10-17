@@ -213,7 +213,7 @@ export function TourBookingDialog({ tour, trigger, autoOpen = false }: Props) {
                     value={flight}
                     onChange={(e) => setFlight(e.target.value)}
                     placeholder="e.g. BA1448"
-                    className="w-full bg-transparent border-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)] text-sm font-semibold placeholder:font-normal placeholder:text-foreground/40"
+                    className="w-full bg-transparent border-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)] text-sm font-semibold placeholder:font-normal placeholder:text-foreground/60"
                   />
                 </Field>
                 <Field icon={<MapPin className="size-4" />} label="Hotel / drop-off (optional)">
@@ -222,7 +222,7 @@ export function TourBookingDialog({ tour, trigger, autoOpen = false }: Props) {
                     value={hotel}
                     onChange={(e) => setHotel(e.target.value)}
                     placeholder="Hotel name in Edinburgh"
-                    className="w-full bg-transparent border-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)] text-sm font-semibold placeholder:font-normal placeholder:text-foreground/40"
+                    className="w-full bg-transparent border-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)] text-sm font-semibold placeholder:font-normal placeholder:text-foreground/60"
                   />
                 </Field>
               </div>
@@ -358,7 +358,7 @@ function Field({
       <div className="min-w-0 flex-1">
         <div
           className={`text-[10px] font-bold uppercase tracking-[0.18em] truncate ${
-            invalid ? "text-destructive" : "text-foreground/45"
+            invalid ? "text-destructive" : "text-foreground/70"
           }`}
         >
           {label}

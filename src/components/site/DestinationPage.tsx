@@ -155,7 +155,7 @@ export function DestinationPage({
               <p className="mt-1 text-xl font-bold text-[var(--navy)]">
                 approx. {fmtMins(j.mins)} · {j.miles} miles
               </p>
-              <p className="mt-1 text-xs text-[var(--navy)]/55">Estimate — traffic varies. Your quote shows the exact route.</p>
+              <p className="mt-1 text-xs text-[var(--navy)]/70">Estimate — traffic varies. Your quote shows the exact route.</p>
             </div>
           ))}
           <div className="rounded-2xl border border-[var(--navy)]/10 bg-white p-5 shadow-raised">
@@ -164,7 +164,7 @@ export function DestinationPage({
             <p className="mt-1 font-semibold text-[var(--navy)]">
               Your driver meets you at the exact address or entrance you enter when booking.
             </p>
-            <p className="mt-1 text-xs text-[var(--navy)]/55">Add notes (gate, door, flight number) at checkout.</p>
+            <p className="mt-1 text-xs text-[var(--navy)]/70">Add notes (gate, door, flight number) at checkout.</p>
           </div>
         </section>
 

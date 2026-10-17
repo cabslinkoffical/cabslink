@@ -103,7 +103,9 @@
   --navy-foreground: #ffffff;
 
   --gold: #deae25;
-  --gold-ink: #deae25;
+  /* Dark shade of the brand gold for text and icons on light backgrounds.
+     #deae25 on white is only 2.06:1; this shade reaches 5.06:1 (WCAG AA). */
+  --gold-ink: #8a6a12;
   --gold-foreground: #0e182c;
 
   --primary: #0e182c;
@@ -112,7 +114,8 @@
   --secondary-foreground: #0e182c;
 
   --muted: rgba(14, 24, 44, 0.04);
-  --muted-foreground: rgba(14, 24, 44, 0.62);
+  /* 0.68 alpha keeps secondary text at ~5.9:1 on white (WCAG AA). */
+  --muted-foreground: rgba(14, 24, 44, 0.68);
   --accent: #deae25;
   --accent-foreground: #0e182c;
 

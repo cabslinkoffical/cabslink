@@ -200,7 +200,7 @@ export function AdminNotifications() {
                       {isNew && <span className="size-1.5 shrink-0 rounded-full bg-destructive" aria-hidden />}
                     </span>
                     <span className="block truncate text-[11.5px] text-muted-foreground">{n.subtitle}</span>
-                    <span className="block text-[10.5px] uppercase tracking-wider text-muted-foreground/70">{timeAgo(n.createdAt)}</span>
+                    <span className="block text-[10.5px] uppercase tracking-wider text-muted-foreground">{timeAgo(n.createdAt)}</span>
                   </span>
                 </DropdownMenuItem>
               );

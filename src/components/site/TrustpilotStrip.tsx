@@ -21,8 +21,8 @@ export function TrustpilotStrip({ className = "" }: { className?: string }) {
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
         <TrustpilotStars rating={t.rating} size="sm" />
         <p className="text-xs font-semibold text-[var(--navy)]">
-          {t.rating.toFixed(1)}/5 <span className="text-[var(--navy)]/50">·</span> {t.ratingLabel}
-          <span className="ml-1 font-normal text-[var(--navy)]/55">
+          {t.rating.toFixed(1)}/5 <span className="text-[var(--navy)]/70">·</span> {t.ratingLabel}
+          <span className="ml-1 font-normal text-[var(--navy)]/70">
             ({t.reviewCount} reviews)
           </span>
         </p>
@@ -37,7 +37,7 @@ export function TrustpilotStrip({ className = "" }: { className?: string }) {
           <ArrowUpRight className="h-3 w-3" />
         </a>
       </div>
-      <p className="mt-2 text-[10px] leading-relaxed text-[var(--navy)]/45">
+      <p className="mt-2 text-[10px] leading-relaxed text-[var(--navy)]/70">
         As shown on Trustpilot on {trustpilotVerifiedOnLabel(t)}.
         {t.noRecentInviteHistory
           ? " Trustpilot notes this profile has no recent history of asking customers for reviews."

@@ -16,7 +16,7 @@ export function CategoryGrid({ categories }: { categories: CategoryCard[] }) {
             <div className="font-display text-lg font-semibold text-foreground">{c.label}</div>
             <div className="mt-1 text-xs uppercase tracking-[0.16em] text-muted-foreground">{c.count} destination{c.count === 1 ? "" : "s"}</div>
           </div>
-          <ArrowUpRight className="size-5 text-muted-foreground transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-gold" />
+          <ArrowUpRight className="size-5 text-muted-foreground transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[var(--gold-ink)]" />
         </Link>
       ))}
     </div>

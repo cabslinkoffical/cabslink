@@ -82,7 +82,7 @@ function RegionPage() {
             .map((s, index) => (
               <section key={s.title} className="grid gap-8 border-t border-border pt-8 lg:grid-cols-[minmax(13rem,0.7fr)_2fr]">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">{String(index + 1).padStart(2, "0")}</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--gold-ink)]">{String(index + 1).padStart(2, "0")}</p>
                   <h2 className="mt-3 font-display text-2xl font-semibold text-foreground md:text-3xl">{s.title}</h2>
                   <p className="mt-2 text-sm text-muted-foreground">{s.items.length} destination{s.items.length === 1 ? "" : "s"}</p>
                 </div>

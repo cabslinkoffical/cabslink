@@ -54,7 +54,7 @@ export function ReviewCard({ review }: { review: UnifiedReview }) {
 
       <div className="mt-auto pt-4">
         <p className="text-xs font-semibold text-[var(--navy)]">{review.author}</p>
-        <p className="mt-0.5 flex items-center gap-1.5 text-[11px] text-[var(--navy)]/50">
+        <p className="mt-0.5 flex items-center gap-1.5 text-[11px] text-[var(--navy)]/70">
           {review.dateLabel}
           <span aria-hidden="true">·</span>
           <span className="inline-flex items-center gap-1">

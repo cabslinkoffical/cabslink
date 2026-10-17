@@ -10,7 +10,7 @@ export function PassengerConfirmation({ onConfirm, max = 60 }: { onConfirm: (cou
   const valid = Number.isInteger(count) && count >= 1 && count <= max;
   return (
     <form className="mx-auto w-full max-w-lg space-y-6 py-8" onSubmit={(event) => { event.preventDefault(); if (valid) onConfirm(count); }}>
-      <Users className="size-8 text-accent" aria-hidden="true" />
+      <Users className="size-8 text-[var(--gold-ink)]" aria-hidden="true" />
       <h2 className="font-display text-2xl font-bold text-foreground">How many passengers are travelling?</h2>
       <div className="space-y-2">
         <Label htmlFor="confirm-passengers">Number of passengers, including children</Label>

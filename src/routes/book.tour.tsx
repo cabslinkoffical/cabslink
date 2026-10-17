@@ -339,7 +339,7 @@ function TourWizard() {
                     ? "border-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_16%,transparent)]"
                     : i < step
                       ? "border-border text-muted-foreground hover:border-[var(--gold)]"
-                      : "border-border text-muted-foreground/50"
+                      : "border-border text-muted-foreground"
                 }`}
               >
                 {i < step ? <Check className="mr-1 inline size-3" /> : `${i + 1}. `}
@@ -1322,7 +1322,7 @@ function NumberField({
         {icon}
       </div>
       <div className="min-w-0 flex-1">
-        <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-foreground/45">{label}</div>
+        <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-foreground/70">{label}</div>
         <input
           aria-label={label}
           type="number"

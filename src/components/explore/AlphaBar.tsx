@@ -21,7 +21,7 @@ export function AlphaBar({ available }: { available: string[] }) {
           <span
             key={L}
             aria-disabled
-            className="grid aspect-square place-items-center bg-surface-2 text-sm text-muted-foreground/40"
+            className="grid aspect-square place-items-center bg-surface-2 text-sm text-muted-foreground"
           >
             {L}
           </span>

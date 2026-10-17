@@ -301,7 +301,7 @@ function AirportPage() {
                       <span className="font-medium text-[var(--navy)]">
                         {a.short_name ?? a.name.replace(/ Airport$/, "")}
                       </span>
-                      {oi && <span className="font-mono text-[10px] text-[var(--navy)]/40">{oi}</span>}
+                      {oi && <span className="font-mono text-[10px] text-[var(--navy)]/70">{oi}</span>}
                     </div>
                     {a.region && <span className="mt-1 block text-xs text-[var(--navy)]/60">{a.region}</span>}
                   </Link>

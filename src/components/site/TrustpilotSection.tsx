@@ -76,20 +76,20 @@ export function TrustpilotSection() {
           <div className="sm:col-span-2 rounded-2xl border border-[var(--navy)]/10 bg-white p-6 text-center shadow-[0_1px_2px_rgba(14,24,44,0.04)] md:p-7">
             <div className="font-display text-5xl font-bold leading-none text-[var(--navy)]">
               {t.rating.toFixed(1)}
-              <span className="text-2xl text-[var(--navy)]/35"> / 5</span>
+              <span className="text-2xl text-[var(--navy)]/55"> / 5</span>
             </div>
             <div className="mt-4 flex justify-center">
               <TrustpilotStars rating={t.rating} size="md" />
             </div>
             <p className="mt-3 text-sm font-semibold text-[var(--navy)]">{t.ratingLabel}</p>
-            <p className="mt-1 text-xs text-[var(--navy)]/55">
+            <p className="mt-1 text-xs text-[var(--navy)]/70">
               {t.reviewCount} reviews on Trustpilot
             </p>
-            <p className="mt-1 text-[11px] text-[var(--navy)]/45">Snapshot taken {verified}</p>
+            <p className="mt-1 text-[11px] text-[var(--navy)]/70">Snapshot taken {verified}</p>
           </div>
 
           <div className="sm:col-span-3 rounded-2xl border border-[var(--navy)]/10 bg-white p-6 shadow-[0_1px_2px_rgba(14,24,44,0.04)] md:p-7">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--navy)]/45">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--navy)]/70">
               Review breakdown
             </p>
             <ul className="mt-5 space-y-3">
@@ -172,7 +172,7 @@ export function TrustpilotSection() {
               <ArrowUpRight className="h-3.5 w-3.5" />
             </a>
           </div>
-          <p className="mt-3 text-[11px] leading-relaxed text-[var(--navy)]/50">
+          <p className="mt-3 text-[11px] leading-relaxed text-[var(--navy)]/70">
             Ratings, review counts and reviewer names shown above are as displayed on Trustpilot on{" "}
             {verified}; this is a dated snapshot, not a live feed.
             {t.noRecentInviteHistory

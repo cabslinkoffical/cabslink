@@ -80,7 +80,7 @@ function BlogHome() {
                   {hero.title}
                 </h2>
                 {hero.excerpt && <p className="mt-4 text-[var(--navy)]/70">{hero.excerpt}</p>}
-                <p className="mt-6 text-xs text-[var(--navy)]/50">{hero.reading_minutes} min read</p>
+                <p className="mt-6 text-xs text-[var(--navy)]/70">{hero.reading_minutes} min read</p>
               </div>
             </Link>
           </div>
