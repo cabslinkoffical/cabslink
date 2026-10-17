@@ -83,6 +83,7 @@
 - [ ] Phase 7 moved to the end at owner request (blocked: 300-word rule would hide all 74 destination pages)
 
 ## Later asks
+- [ ] Remove the repeated Explore more / Where to next section site-wide, including content appended after footers; preserve other page content.
 - [~] Airport-area maps: moved out of the hero into a shared section near the end of CMS and detail airport pages; verification pending. Live Google Maps rendering requires owner check on an authorized deployed origin; nothing published.
 - [ ] Screenshot SEO warnings first: inspect query links, repeated headings/anchors, external links, missing alt and response time; preserve booking handoff and protected page details
 - [ ] Verify remaining full-site corrections with SEO/sitemap tests and rendered-page checks; report owner-blocked items without publishing
