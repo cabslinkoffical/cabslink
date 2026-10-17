@@ -401,7 +401,7 @@ export function BookingWidget({
         </form>
       )}
 
-      {tab === "quote" && (
+      {tab === "quote" && variant !== "hero" && (
       <form onSubmit={submit} noValidate>
         <FormNotice visible={attempted} messages={errorList} />
 
