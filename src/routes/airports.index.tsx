@@ -1,12 +1,13 @@
 import { normalizeHead } from "@/lib/seo/page-head";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
-import { Plane, ArrowRight } from "lucide-react";
+import { SiteLayout } from "@/components/site/SiteLayout";
+import { DestinationCard } from "@/components/site/DestinationCard";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { FaqSection, LongFormSections, faqJsonLd } from "@/components/site/ContentSections";
 import { CtaBand } from "@/components/site/CtaBand";
 import { PageHero } from "@/components/site/PageHero";
-import { listDestinationsByType, type Destination } from "@/lib/destinations.functions";
+import { listDestinationsByType } from "@/lib/destinations.functions";
 
 const airportsQuery = queryOptions({
   queryKey: ["destinations", "airports", "all"],
