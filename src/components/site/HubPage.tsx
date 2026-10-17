@@ -2,11 +2,11 @@
  * Shared hub renderer — lists all Tier 1/2 destinations of a given type.
  */
 import { Link } from "@tanstack/react-router";
-import type { Destination, DestinationType } from "@/lib/destinations.functions";
-import { destinationHref } from "@/lib/destinations.functions";
+import type { HubDestination, DestinationType } from "@/lib/destinations.functions";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { FaqSection, LongFormSections } from "@/components/site/ContentSections";
 import { PageHero } from "@/components/site/PageHero";
+import { DestinationCard } from "@/components/site/DestinationCard";
 import { HUB_CONTENT } from "@/lib/hub-content";
 
 export function HubPage({
@@ -23,7 +23,7 @@ export function HubPage({
   intro: string;
   longIntro?: string;
   notes?: { title: string; body: string }[];
-  destinations: Destination[];
+  destinations: HubDestination[];
   type?: DestinationType;
   /** Key into HUB_CONTENT for the long-form prose + FAQ blocks. */
   contentKey?: string;
@@ -33,7 +33,7 @@ export function HubPage({
 }) {
 
   const content = contentKey ? HUB_CONTENT[contentKey] : undefined;
-  const grouped = new Map<string, Destination[]>();
+  const grouped = new Map<string, HubDestination[]>();
   for (const d of destinations) {
     const key = d.region ?? "United Kingdom";
     const list = grouped.get(key) ?? [];
@@ -92,26 +92,14 @@ export function HubPage({
           </div>
         </div>
       ) : (
-        <div className="space-y-8">
+        <div className="space-y-10">
           {[...grouped.entries()].map(([region, items]) => (
             <section key={region}>
-              <h2 className="mb-3 text-lg font-semibold text-[var(--navy)]">{region}</h2>
-              <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              <h2 className="mb-4 font-display text-lg font-semibold text-[var(--navy)]">{region}</h2>
+              <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 {items.map((d) => (
                   <li key={d.id}>
-                    <Link
-                      to={destinationHref(d)}
-                      className="block rounded-xl border border-[var(--navy)]/10 bg-white p-4 hover:border-[var(--gold)] shadow-raised hover:shadow-raised-hover"
-                    >
-                      <span className="block font-medium text-[var(--navy)]">
-                        {d.display_name ?? d.name}
-                      </span>
-                      {(d.council || d.town) && (
-                        <span className="block text-xs text-[var(--navy)]/60">
-                          {[d.town, d.council].filter(Boolean).join(", ")}
-                        </span>
-                      )}
-                    </Link>
+                    <DestinationCard d={d} />
                   </li>
                 ))}
               </ul>

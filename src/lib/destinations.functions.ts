@@ -61,6 +61,40 @@ export type Destination = {
   updated_at: string;
 };
 
+/**
+ * Destination enriched with its linked page's real photo + intro — used by hub
+ * cards. Both come from the destination's own published page; nothing is
+ * invented when a page or image is missing.
+ */
+export type HubDestination = Destination & {
+  image: string | null;
+  intro: string | null;
+};
+
+async function attachPageData(
+  sb: ReturnType<typeof serverPublicClient>,
+  rows: Destination[],
+): Promise<HubDestination[]> {
+  const ids = rows.map((r) => r.linked_page_id).filter((id): id is string => !!id);
+  const pages = new Map<string, { image: string | null; intro: string | null }>();
+  if (ids.length) {
+    const { data } = await sb
+      .from("seo_pages")
+      .select("id, featured_image_url, og_image_url, short_intro, meta_description")
+      .in("id", ids);
+    for (const p of data ?? []) {
+      pages.set(p.id, {
+        image: p.featured_image_url ?? p.og_image_url ?? null,
+        intro: p.short_intro ?? p.meta_description ?? null,
+      });
+    }
+  }
+  return rows.map((r) => {
+    const page = r.linked_page_id ? pages.get(r.linked_page_id) : undefined;
+    return { ...r, image: page?.image ?? null, intro: page?.intro ?? null };
+  });
+}
+
 const FIELDS =
   "id,type,slug,name,display_name,short_name,country,region,council,town,parent_id,lat,lng,place_id,keywords,synonyms,nearby_ids,popular_route_ids,related_service_ids,seo_tier,noindex,active,linked_page_id,meta,updated_at";
 
@@ -126,14 +160,14 @@ export const listDestinationsByType = createServerFn({ method: "GET" })
       limit: z.number().int().min(1).max(5000).optional(),
     }).parse(input),
   )
-  .handler(async ({ data }): Promise<Destination[]> => {
+  .handler(async ({ data }): Promise<HubDestination[]> => {
     const sb = serverPublicClient();
     let q = sb.from("destinations").select(FIELDS).eq("type", data.type).eq("active", true);
     if (data.tiers?.length) q = q.in("seo_tier", data.tiers);
     else q = q.neq("seo_tier", 4);
     q = q.order("seo_tier", { ascending: true }).order("name", { ascending: true }).limit(data.limit ?? 500);
     const { data: rows } = await q;
-    return (rows as Destination[]) ?? [];
+    return attachPageData(sb, (rows as Destination[]) ?? []);
   });
 
 /** List destinations across multiple types (hubs like /areas that span city/town/village). */
@@ -145,14 +179,14 @@ export const listDestinationsByTypes = createServerFn({ method: "GET" })
       limit: z.number().int().min(1).max(5000).optional(),
     }).parse(input),
   )
-  .handler(async ({ data }): Promise<Destination[]> => {
+  .handler(async ({ data }): Promise<HubDestination[]> => {
     const sb = serverPublicClient();
     let q = sb.from("destinations").select(FIELDS).in("type", data.types).eq("active", true);
     if (data.tiers?.length) q = q.in("seo_tier", data.tiers);
     else q = q.neq("seo_tier", 4);
     q = q.order("seo_tier", { ascending: true }).order("name", { ascending: true }).limit(data.limit ?? 500);
     const { data: rows } = await q;
-    return (rows as Destination[]) ?? [];
+    return attachPageData(sb, (rows as Destination[]) ?? []);
   });
 
 /** Get several destinations by id (for internal links). */

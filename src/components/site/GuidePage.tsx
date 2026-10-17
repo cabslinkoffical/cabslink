@@ -7,6 +7,7 @@ import { normalizeHead } from "@/lib/seo/page-head";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Bus, Car, Clock, Info, MapPin, Ruler, Ticket } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { FaqAccordion } from "@/components/site/FaqAccordion";
 import { PageHero, SectionHeader } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
 import { TransportComparison } from "@/components/seo/TransportComparison";
@@ -169,14 +170,7 @@ export function GuidePage({ guide: g }: { guide: GuideRecord }) {
         <section className="section-y border-t">
           <div className="container-x max-w-3xl">
             <SectionHeader eyebrow="FAQs" title="Common questions" />
-            <div className="mt-8 space-y-6">
-              {g.faqs.map((f) => (
-                <div key={f.q}>
-                  <h3 className="font-semibold">{f.q}</h3>
-                  <p className="mt-2 text-sm text-muted-foreground">{f.a}</p>
-                </div>
-              ))}
-            </div>
+            <FaqAccordion items={g.faqs} className="mt-8" />
           </div>
         </section>
       )}

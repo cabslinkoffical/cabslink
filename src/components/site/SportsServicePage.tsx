@@ -2,6 +2,7 @@ import type { LucideIcon } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Check } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { FaqAccordion } from "@/components/site/FaqAccordion";
 import { PageHero, SectionHeader } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
 
@@ -87,14 +88,7 @@ export function SportsServicePage({ content }: { content: SportsServiceContent }
       <section className="section-y">
         <div className="container-x max-w-3xl">
           <SectionHeader eyebrow="FAQs" title="Common questions" />
-          <div className="mt-8 space-y-6">
-            {content.faqs.map((f) => (
-              <div key={f.q}>
-                <h3 className="font-semibold">{f.q}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{f.a}</p>
-              </div>
-            ))}
-          </div>
+          <FaqAccordion items={content.faqs} className="mt-8" />
         </div>
       </section>
     </SiteLayout>

@@ -1,12 +1,12 @@
 import { normalizeHead } from "@/lib/seo/page-head";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
-import { Plane, ArrowRight } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { DestinationCard } from "@/components/site/DestinationCard";
 import { FaqSection, LongFormSections, faqJsonLd } from "@/components/site/ContentSections";
 import { CtaBand } from "@/components/site/CtaBand";
 import { PageHero } from "@/components/site/PageHero";
-import { listDestinationsByType, type Destination } from "@/lib/destinations.functions";
+import { listDestinationsByType } from "@/lib/destinations.functions";
 
 const airportsQuery = queryOptions({
   queryKey: ["destinations", "airports", "all"],
@@ -87,7 +87,7 @@ const AP_FAQS = [
 
 function AirportsIndex() {
   const { data: airports } = useSuspenseQuery(airportsQuery);
-  const grouped = new Map<string, Destination[]>();
+  const grouped = new Map<string, typeof airports>();
   for (const a of airports) {
     const key = a.region ?? "United Kingdom";
     const list = grouped.get(key) ?? [];
@@ -106,31 +106,13 @@ function AirportsIndex() {
           {[...grouped.entries()].map(([region, list]) => (
             <div key={region}>
               <h2 className="mb-4 font-display text-2xl font-semibold text-[var(--navy)]">{region}</h2>
-              <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                {list.map((a) => {
-                  const iata = (a.meta?.iata as string | undefined) ?? "";
-                  return (
-                    <Link
-                      key={a.id}
-                      to="/airports/$iata"
-                      params={{ iata: a.slug }}
-                      className="group relative overflow-hidden rounded-[20px] border border-[var(--navy)]/10 bg-white p-6 hover:border-[var(--gold)] hover:-translate-y-1 transition-all shadow-raised hover:shadow-raised-hover"
-                    >
-                      <div className="flex items-start justify-between">
-                        <Plane className="size-6 text-[var(--gold-ink)]" />
-                        {iata && <span className="font-mono text-[10px] text-[var(--navy)]/40 tracking-widest">{iata}</span>}
-                      </div>
-                      <h3 className="mt-6 font-display text-lg font-semibold text-[var(--navy)]">
-                        {a.short_name ?? a.name.replace(/ Airport$/, "")}
-                      </h3>
-                      <p className="text-xs text-[var(--navy)]/55">{a.town ?? a.council ?? a.region}</p>
-                      <span className="mt-5 inline-flex items-center gap-1 text-xs font-semibold text-[var(--navy)] group-hover:text-[var(--gold-ink)] group-hover:gap-2 transition-all">
-                        Book transfer <ArrowRight className="size-3" />
-                      </span>
-                    </Link>
-                  );
-                })}
-              </div>
+              <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {list.map((a) => (
+                  <li key={a.id}>
+                    <DestinationCard d={a} />
+                  </li>
+                ))}
+              </ul>
             </div>
           ))}
         </div>

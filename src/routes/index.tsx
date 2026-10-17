@@ -9,10 +9,11 @@ import {
   ArrowRight, Plane, ShieldCheck, CalendarCheck, Phone,
   Briefcase, Users, Award, BadgePoundSterling, Headset, Car, Building2, Gem,
   Route as RouteIcon, CheckCircle2, Sparkles, MessageSquare, CreditCard, Quote,
-  Plus, Minus, Clock, Compass, Wallet, Timer, Mail, BadgeCheck, PlaneTakeoff
+  Clock, Compass, Wallet, Timer, Mail, BadgeCheck, PlaneTakeoff
 } from "lucide-react";
 
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { FaqAccordion } from "@/components/site/FaqAccordion";
 import { BookingWidget } from "@/components/site/BookingWidget";
 import { GoogleReviewsSection } from "@/components/site/GoogleReviewsSection";
 import { googleReviewsQuery } from "@/lib/google-reviews-query";
@@ -773,46 +774,7 @@ const faqItems = [
 ];
 
 function Faq() {
-  const [open, setOpen] = useState<number | null>(0);
-  return (
-    <div className="divide-y divide-[var(--navy)]/10 border-y border-[var(--navy)]/10">
-      {faqItems.map((f, i) => {
-        const isOpen = open === i;
-        return (
-          <div key={f.q}>
-            <button
-              type="button"
-              onClick={() => setOpen(isOpen ? null : i)}
-              className="w-full flex items-center justify-between gap-4 py-5 text-left group"
-              aria-expanded={isOpen}
-            >
-              <span className="flex items-center gap-4 min-w-0">
-                <span className="font-mono text-xs text-[var(--gold-ink)] tabular-nums">0{i + 1}</span>
-                <span className="font-display text-base md:text-lg font-semibold text-[var(--navy)] group-hover:text-[var(--gold-ink)] transition-colors">
-                  {f.q}
-                </span>
-              </span>
-              <span className={`grid size-9 shrink-0 place-items-center rounded-full border transition-all ${
-                isOpen
-                  ? "bg-[var(--gold)] border-[var(--gold)] text-[var(--gold-foreground)] rotate-0"
-                  : "border-[var(--navy)]/20 text-[var(--navy)]"
-              }`}>
-                {isOpen ? <Minus className="size-4" /> : <Plus className="size-4" />}
-              </span>
-            </button>
-            <div
-              className="overflow-hidden transition-all duration-300"
-              style={{ maxHeight: isOpen ? 200 : 0, opacity: isOpen ? 1 : 0 }}
-            >
-              <p className="pb-6 pl-10 pr-14 text-sm text-[var(--navy)]/70 leading-relaxed">
-                {f.a}
-              </p>
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
+  return <FaqAccordion items={faqItems} />;
 }
 
 function FleetClassesSection() {

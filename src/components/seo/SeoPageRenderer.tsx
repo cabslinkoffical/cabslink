@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { LocalPageHero } from "@/components/site/LocalPageHero";
 import { AirportMapSection } from "@/components/site/AirportMapSection";
+import { FaqAccordion } from "@/components/site/FaqAccordion";
 import { defaultLocalImage, localEntityMapFocus } from "@/lib/local-page";
 
 /**
@@ -154,14 +155,10 @@ function SectionBlock({ section }: { section: PublicSeoSection }) {
     return (
       <section>
         {section.heading && <h2 className="text-2xl font-semibold mb-4">{section.heading}</h2>}
-        <div className="space-y-4">
-          {items.map((it: any, i: number) => (
-            <details key={i} className="rounded-lg border bg-card p-4">
-              <summary className="cursor-pointer font-medium">{it.question}</summary>
-              <p className="mt-2 text-muted-foreground text-sm">{it.answer}</p>
-            </details>
-          ))}
-        </div>
+        <FaqAccordion
+          items={items.map((it: any) => ({ q: it.question, a: it.answer }))}
+          defaultOpen={null}
+        />
       </section>
     );
   }

@@ -7,6 +7,7 @@ import { normalizeHead } from "@/lib/seo/page-head";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Check, MapPin, Phone, Plane, Route as RouteIcon } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { FaqAccordion } from "@/components/site/FaqAccordion";
 import { SectionHeader } from "@/components/site/PageHero";
 import { LocalPageHero } from "@/components/site/LocalPageHero";
 import { serviceLocalImage, serviceLocationPrefill } from "@/lib/local-page";
@@ -194,14 +195,7 @@ export function ServiceLocationPage({ content }: { content: ServiceLocationConte
       <section className="section-y">
         <div className="container-x max-w-3xl">
           <SectionHeader eyebrow="FAQs" title={`${content.serviceName} in ${loc.name} — questions`} />
-          <div className="mt-8 space-y-6">
-            {content.faqs.map((f) => (
-              <div key={f.q}>
-                <h3 className="font-semibold">{f.q}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{f.a}</p>
-              </div>
-            ))}
-          </div>
+          <FaqAccordion items={content.faqs} className="mt-8" />
           <div className="mt-10 flex flex-wrap gap-3">
             <Button asChild variant="gold" className="rounded-lg">
               <Link to="/book">Get a quote</Link>
