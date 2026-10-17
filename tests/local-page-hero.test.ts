@@ -3,6 +3,7 @@ import {
   areaPrefill,
   destinationPrefill,
   journeyPrefill,
+  localMapMode,
   serviceLocationPrefill,
 } from "@/lib/local-page";
 
@@ -12,6 +13,19 @@ import {
  * end and leaves the other for the visitor. Nothing is invented.
  */
 describe("local page prefill rules", () => {
+  it("shows the airport and surrounding area before address resolution or when lookup fails", () => {
+    expect(localMapMode(undefined, undefined, { lat: 57.2, lng: -2.2 })).toBe("location");
+  });
+
+  it("switches to a journey map when both different endpoints are selected", () => {
+    expect(localMapMode("AIRPORT", "DESTINATION", { lat: 57.2, lng: -2.2 })).toBe("route");
+  });
+
+  it("does not invent a location when page coordinates are unavailable", () => {
+    expect(localMapMode("AIRPORT", undefined, null)).toBeNull();
+    expect(localMapMode(undefined, undefined, { lat: NaN, lng: -2.2 })).toBeNull();
+  });
+
   it("fills the pickup for transport hubs (airport, station) — arrivals need collecting", () => {
     expect(destinationPrefill("airport", "Edinburgh Airport")).toEqual({ pickup: "Edinburgh Airport" });
     expect(destinationPrefill("station", "Haymarket")).toEqual({ pickup: "Haymarket" });
