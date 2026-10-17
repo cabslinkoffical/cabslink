@@ -850,15 +850,22 @@ input[type="time"] {
       align-items: start;
     }
     .home-hero-copy { grid-column: 1; grid-row: 1; }
-    .home-hero-vehicle { grid-column: 1; grid-row: 2; align-self: center; }
+    .home-hero-vehicle {
+      grid-column: 1;
+      grid-row: 2;
+      align-self: center;
+      justify-self: center;
+      width: 100%;
+      max-width: 560px;
+    }
     .home-hero-booking { grid-column: 2; grid-row: 1 / 3; }
     .home-hero-title { font-size: 3rem; }
-    .home-hero-vehicle-stage { height: 240px; }
+    .home-hero-vehicle-stage { height: 250px; }
   }
   @media (min-width: 1280px) {
     .home-hero-grid { column-gap: 4rem; }
     .home-hero-title { font-size: 3.25rem; }
-    .home-hero-vehicle-stage { height: 270px; }
+    .home-hero-vehicle-stage { height: 285px; }
   }
   @media (prefers-reduced-motion: reduce) {
     .home-hero-vehicle-image { animation: none; }
