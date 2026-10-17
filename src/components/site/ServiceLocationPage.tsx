@@ -194,14 +194,7 @@ export function ServiceLocationPage({ content }: { content: ServiceLocationConte
       <section className="section-y">
         <div className="container-x max-w-3xl">
           <SectionHeader eyebrow="FAQs" title={`${content.serviceName} in ${loc.name} — questions`} />
-          <div className="mt-8 space-y-6">
-            {content.faqs.map((f) => (
-              <div key={f.q}>
-                <h3 className="font-semibold">{f.q}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{f.a}</p>
-              </div>
-            ))}
-          </div>
+          <FaqAccordion items={content.faqs} className="mt-8" />
           <div className="mt-10 flex flex-wrap gap-3">
             <Button asChild variant="gold" className="rounded-lg">
               <Link to="/book">Get a quote</Link>

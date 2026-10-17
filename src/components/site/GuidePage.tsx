@@ -169,14 +169,7 @@ export function GuidePage({ guide: g }: { guide: GuideRecord }) {
         <section className="section-y border-t">
           <div className="container-x max-w-3xl">
             <SectionHeader eyebrow="FAQs" title="Common questions" />
-            <div className="mt-8 space-y-6">
-              {g.faqs.map((f) => (
-                <div key={f.q}>
-                  <h3 className="font-semibold">{f.q}</h3>
-                  <p className="mt-2 text-sm text-muted-foreground">{f.a}</p>
-                </div>
-              ))}
-            </div>
+            <FaqAccordion items={g.faqs} className="mt-8" />
           </div>
         </section>
       )}

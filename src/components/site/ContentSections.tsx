@@ -1,3 +1,5 @@
+import { FaqAccordion } from "@/components/site/FaqAccordion";
+
 /**
  * Shared long-form content blocks used by hub and service pages.
  *
