@@ -105,3 +105,4 @@
 
 - [x] Hub destination cards: shared DestinationCard (real photo from each destination's own page, name, location badge, expand-arrow detail with page intro) on all hub pages incl. airports; all FAQ surfaces unified to one FaqAccordion theme; verified attractions + airports cards (22 photos) and homepage + airport FAQ render identically; 719 tests pass, build OK; nothing published.
 - [todo] "Emerson" follow-up from Khaver Naeem (10:21 UTC): message unclear — clarify what should be improved ("make him like a better way").
+- [x] Homepage vehicle animation reworked (17 Oct): removed the drive-in on the image, the continuous cruise sway and the gold road-dash strip; vehicle PNG swap is now the animation — outgoing image glides out right while the incoming glides in from the left (850ms). Verified in preview: 0 road elements, swap window shows both images, single image after, no horizontal overflow, build OK.
