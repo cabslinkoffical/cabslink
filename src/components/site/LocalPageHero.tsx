@@ -22,6 +22,7 @@ export function LocalPageHero({
   facts = [],
   prefill,
   mapFocus = null,
+  showMap = true,
   image = null,
   imageAlt,
   imageCaption,
@@ -36,6 +37,7 @@ export function LocalPageHero({
   facts?: LocalPageFact[];
   prefill?: { pickup?: string; dropoff?: string };
   mapFocus?: { lat: number; lng: number; label: string } | null;
+  showMap?: boolean;
   image?: string | null;
   imageAlt?: string;
   imageCaption?: string;
@@ -81,6 +83,7 @@ export function LocalPageHero({
               initialPickupLabel={prefill?.pickup}
               initialDropoffLabel={prefill?.dropoff}
               mapFocus={mapFocus}
+              showMap={showMap}
             />
           </div>
         </div>

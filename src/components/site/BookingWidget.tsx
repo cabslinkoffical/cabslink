@@ -41,6 +41,7 @@ export function BookingWidget({
   initialPickupLabel,
   initialDropoffLabel,
   mapFocus = null,
+  showMap = true,
 }: {
   idPrefix?: string;
   tone?: "dark" | "light";
@@ -52,6 +53,7 @@ export function BookingWidget({
   initialDropoffLabel?: string;
   /** The page's own location, for the marker map when only one end is known. */
   mapFocus?: { lat: number; lng: number; label: string } | null;
+  showMap?: boolean;
 } = {}) {
   const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>("quote");
@@ -866,7 +868,7 @@ export function BookingWidget({
         </form>
       )}
 
-      {variant === "hero" && (
+      {variant === "hero" && showMap && (
         <BookingWidgetMap pickup={pickup} dropoff={dropoff} mapFocus={mapFocus} />
       )}
 

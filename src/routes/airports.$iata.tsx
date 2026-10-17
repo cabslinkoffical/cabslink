@@ -4,6 +4,7 @@ import { safeJsonLd } from "@/lib/safe-json-ld";
 import { Plane, MapPin, Clock, ShieldCheck, ArrowRight, Check } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { LocalPageHero } from "@/components/site/LocalPageHero";
+import { AirportMapSection } from "@/components/site/AirportMapSection";
 import { defaultLocalImage } from "@/lib/local-page";
 import { getPublicSeoPageByPath } from "@/lib/seo-public.functions";
 import { getRelatedSeoLinks } from "@/lib/seo-related.functions";
@@ -184,6 +185,7 @@ function AirportPage() {
           ...(cityLine ? [{ label: "Location", value: cityLine }] : []),
         ]}
         prefill={{ pickup: name }}
+        showMap={false}
         mapFocus={
           typeof airport.lat === "number" && typeof airport.lng === "number"
             ? { lat: airport.lat, lng: airport.lng, label: name }
@@ -322,6 +324,12 @@ function AirportPage() {
       </section>
 
       {/* JSON-LD */}
+      <AirportMapSection focus={
+        typeof airport.lat === "number" && typeof airport.lng === "number"
+          ? { lat: airport.lat, lng: airport.lng, label: name }
+          : null
+      } />
+
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
