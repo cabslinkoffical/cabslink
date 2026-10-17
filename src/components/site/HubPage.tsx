@@ -2,8 +2,7 @@
  * Shared hub renderer — lists all Tier 1/2 destinations of a given type.
  */
 import { Link } from "@tanstack/react-router";
-import type { HubDestination, Destination, DestinationType } from "@/lib/destinations.functions";
-import { destinationHref } from "@/lib/destinations.functions";
+import type { HubDestination, DestinationType } from "@/lib/destinations.functions";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { FaqSection, LongFormSections } from "@/components/site/ContentSections";
 import { PageHero } from "@/components/site/PageHero";

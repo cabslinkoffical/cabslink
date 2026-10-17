@@ -7,6 +7,7 @@ import { normalizeHead } from "@/lib/seo/page-head";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Bus, Car, Clock, Info, MapPin, Ruler, Ticket } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { FaqAccordion } from "@/components/site/FaqAccordion";
 import { PageHero, SectionHeader } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
 import { TransportComparison } from "@/components/seo/TransportComparison";

@@ -8,6 +8,7 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Check, MapPin, Phone, Quote } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { FaqAccordion } from "@/components/site/FaqAccordion";
 import { PageHero, SectionHeader } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
 import { getService } from "@/lib/seo/service-registry";

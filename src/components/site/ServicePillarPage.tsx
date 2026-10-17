@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { FaqAccordion } from "@/components/site/FaqAccordion";
 import {
   ArrowRight,
   BadgeCheck,

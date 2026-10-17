@@ -7,6 +7,7 @@ import { normalizeHead } from "@/lib/seo/page-head";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Check, MapPin, Phone, Plane, Route as RouteIcon } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { FaqAccordion } from "@/components/site/FaqAccordion";
 import { SectionHeader } from "@/components/site/PageHero";
 import { LocalPageHero } from "@/components/site/LocalPageHero";
 import { serviceLocalImage, serviceLocationPrefill } from "@/lib/local-page";
