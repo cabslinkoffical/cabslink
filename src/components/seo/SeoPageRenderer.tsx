@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { LocalPageHero } from "@/components/site/LocalPageHero";
 import { AirportMapSection } from "@/components/site/AirportMapSection";
+import { FaqAccordion } from "@/components/site/FaqAccordion";
 import { defaultLocalImage, localEntityMapFocus } from "@/lib/local-page";
 
 /**
