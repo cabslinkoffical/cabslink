@@ -410,7 +410,7 @@ export function BookingWidget({
 
         {/* Main container: rounded card on mobile/tablet, horizontal pill on wide desktop (xl+) */}
 
-        <div className={`bg-white shadow-[var(--shadow-elegant)] border border-black/5 overflow-visible p-2 @[980px]:p-1.5 rounded-3xl @[980px]:rounded-[2rem] ${stops.length === 0 && !showReturn ? "rounded-b-3xl @[980px]:rounded-b-[2rem]" : "rounded-b-none @[980px]:rounded-b-none"}`}>
+        <div className="bg-white shadow-[var(--shadow-elegant)] border border-black/5 overflow-visible p-2 @[980px]:p-1.5 rounded-3xl @[980px]:rounded-[2rem]">
           <div className="grid grid-cols-1 @[600px]:grid-cols-2 @[980px]:flex @[980px]:items-stretch gap-1 @[980px]:gap-0">
             {/* Pickup */}
             <div className="@[600px]:col-span-2 @[980px]:flex-1 @[980px]:min-w-0" data-invalid={attempted && !!errors.pickup}>
@@ -544,12 +544,10 @@ export function BookingWidget({
             </button>
 
           </div>
-        </div>
 
-
-        {/* Stops list — attached extension of the bar above */}
+        {/* Stops — extra rows inside the same form sheet */}
         {stops.length > 0 && (
-          <div className={`bg-white border-x border-black/5 border-t border-t-black/5 p-2 space-y-1 shadow-[var(--shadow-elegant)] ${!showReturn ? "rounded-b-3xl @[980px]:rounded-b-[2rem]" : "rounded-b-none @[980px]:rounded-b-none"}`}>
+          <div className="mt-1 border-t border-black/5 p-2 space-y-1">
             {stops.map((s, i) => (
               <div
                 key={i}
@@ -587,9 +585,9 @@ export function BookingWidget({
           </div>
         )}
 
-        {/* Return journey — attached extension of the bar above */}
+        {/* Return journey — inside the same form sheet */}
         {showReturn && (
-          <div className="bg-white border-x border-t border-black/5 p-3 @[600px]:p-4 rounded-b-3xl @[980px]:rounded-b-[2rem] shadow-[var(--shadow-elegant)]">
+          <div className="border-t border-black/5 p-3 @[600px]:p-4">
             <div className="flex items-center justify-between mb-3">
               <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--gold-ink)]">Return Journey</p>
               <button
@@ -625,16 +623,17 @@ export function BookingWidget({
           </div>
         )}
 
-        {/* Add stop / add return pills — floating outside the white sheet */}
-        <div className="flex flex-wrap items-center gap-2 mt-3 px-1">
-          <PillButton tone="white" icon={<Plus className="w-3 h-3" strokeWidth={3} />} onClick={() => setStops([...stops, { placeId: "", label: "" }])}>
+        {/* Add stop / add return — inside the same form sheet */}
+        <div className="flex flex-wrap items-center gap-2 border-t border-black/5 p-2">
+          <PillButton tone="light" icon={<Plus className="w-3 h-3" strokeWidth={3} />} onClick={() => setStops([...stops, { placeId: "", label: "" }])}>
             Add stop
           </PillButton>
           {!showReturn && (
-            <PillButton tone="white" icon={<Repeat className="w-3 h-3" strokeWidth={3} />} onClick={() => setShowReturn(true)}>
+            <PillButton tone="light" icon={<Repeat className="w-3 h-3" strokeWidth={3} />} onClick={() => setShowReturn(true)}>
               Add return
             </PillButton>
           )}
+        </div>
         </div>
 
         {/* Mobile/tablet search button — anchored at the bottom of the form */}
