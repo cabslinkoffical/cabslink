@@ -301,19 +301,22 @@ function HomePage() {
               <>
                 <div className="home-hero-vehicle-stage">
                   <span className="home-hero-wordmark font-display" aria-hidden="true">CABSLINK</span>
-                  <img
-                    key={current.key}
-                    src={current.img}
-                    srcSet={current.srcSet}
-                    sizes={HERO_VEHICLE_SIZES}
-                    alt={`${current.name} — luxury travel vehicle`}
-                    width={1200}
-                    height={750}
-                    decoding="async"
-                    fetchPriority={active === 0 ? "high" : "auto"}
-                    data-direction={dir}
-                    className="home-hero-vehicle-image"
-                  />
+                  <span className="home-hero-road" aria-hidden="true" />
+                  <div className="home-hero-vehicle-track">
+                    <img
+                      key={current.key}
+                      src={current.img}
+                      srcSet={current.srcSet}
+                      sizes={HERO_VEHICLE_SIZES}
+                      alt={`${current.name} — luxury travel vehicle`}
+                      width={1200}
+                      height={750}
+                      decoding="async"
+                      fetchPriority={active === 0 ? "high" : "auto"}
+                      data-direction={dir}
+                      className="home-hero-vehicle-image"
+                    />
+                  </div>
                 </div>
               </>
             )}
