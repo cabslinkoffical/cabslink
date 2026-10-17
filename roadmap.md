@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Homepage vehicle-class and tour rows: allow dragging in either direction with touch and mouse, preserving hover pause.
 - [ ] Booking controls: separate transparent Add stop/return actions; added fields extend the original sheet; shared passenger/bag editor with direct entry, steppers and Done.
 - [x] Booking form: adding a stop or a return journey now extends the same form card instead of opening a second white box below it; one card on desktop and mobile, new test added, full suite passes; nothing published.
 - [x] Homepage hero vehicle: drives in from the left on every change, cruises gently with gold road dashes running left-to-right beneath it; reduced-motion respected, desktop/tablet/mobile checked; nothing published.
