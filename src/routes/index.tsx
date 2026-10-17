@@ -15,6 +15,7 @@ import {
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { FaqAccordion } from "@/components/site/FaqAccordion";
 import { BookingWidget } from "@/components/site/BookingWidget";
+import { DraggableMarquee } from "@/components/site/DraggableMarquee";
 import { GoogleReviewsSection } from "@/components/site/GoogleReviewsSection";
 import { googleReviewsQuery } from "@/lib/google-reviews-query";
 import { organizationSchema, websiteSchema } from "@/components/seo/schema";
@@ -512,7 +513,7 @@ function HomePage() {
         </div>
 
         {/* Smooth infinite marquee of featured tours */}
-        <div className="tour-marquee [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)]">
+        <DraggableMarquee label="Popular tours" className="tour-marquee [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)]">
           <div className="tour-marquee-track flex w-max items-stretch gap-6 py-6">
             {[...popularTours, ...popularTours].map((t, i) => (
               <div
@@ -525,7 +526,7 @@ function HomePage() {
               </div>
             ))}
           </div>
-        </div>
+        </DraggableMarquee>
 
 
       </section>
@@ -824,7 +825,7 @@ function FleetClassesSection() {
           ))}
         </div>
       ) : (
-        <div className="class-marquee mt-12 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_6%,black_94%,transparent)]">
+        <DraggableMarquee label="Vehicle classes" className="class-marquee mt-12 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_6%,black_94%,transparent)]">
           <div className="class-marquee-track flex w-max items-stretch gap-5">
             {track.map((k, i) => (
               <article
@@ -929,7 +930,7 @@ function FleetClassesSection() {
               </article>
             ))}
           </div>
-        </div>
+        </DraggableMarquee>
       )}
     </section>
 

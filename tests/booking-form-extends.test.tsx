@@ -63,7 +63,8 @@ describe("Booking form extends one sheet", () => {
     expect(sheet.contains(returnDate)).toBe(true);
 
     const addStop = screen.getByRole("button", { name: /Add stop/i });
-    expect(sheet.contains(addStop)).toBe(true);
+    expect(sheet.contains(addStop)).toBe(false);
+    expect(form.contains(addStop)).toBe(true);
 
     const search = screen
       .getAllByRole("button")
