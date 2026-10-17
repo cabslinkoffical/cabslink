@@ -52,21 +52,11 @@ export function FaqSection({
   if (!faqs.length) return null;
   return (
     <section className="section-y bg-[var(--surface)]">
-      <div className="container-x">
+      <div className="container-x max-w-3xl">
         <h2 className="font-display text-2xl font-semibold text-[var(--navy)] md:text-3xl">
           {heading}
         </h2>
-        <dl className="mt-6 grid gap-4 md:grid-cols-2">
-          {faqs.map((f) => (
-            <div
-              key={f.q}
-              className="rounded-2xl border border-[var(--navy)]/10 bg-white p-5 shadow-raised"
-            >
-              <dt className="font-semibold text-[var(--navy)]">{f.q}</dt>
-              <dd className="mt-2 text-sm leading-relaxed text-[var(--navy)]/70">{f.a}</dd>
-            </div>
-          ))}
-        </dl>
+        <FaqAccordion items={faqs} className="mt-6" />
       </div>
     </section>
   );
