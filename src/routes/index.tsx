@@ -277,153 +277,75 @@ function HomePage() {
 
   return (
     <SiteLayout>
-      {/* HERO — untouched blue background */}
-      <section className="relative z-20 overflow-visible navy-scene">
-        <div className="container-x relative pt-5 md:pt-6 pb-6">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
+      {/* One booking form: stacked beside the introduction on desktop. */}
+      <section className="home-hero relative z-20 navy-scene">
+        <div className="container-x home-hero-grid">
+          <div className="home-hero-copy min-w-0">
+            <DrivingCarBadge label="UK's Premium Travel Platform" />
+            <h1 className="home-hero-title font-display text-navy-foreground">
+              Edinburgh Airport Transfers{" "}
+              <span className="text-gold">&amp; UK Private Hire.</span>
+            </h1>
+            <p className="home-hero-description text-navy-foreground/75">
+              Fixed-fare Mercedes-Benz transfers, private tours and executive travel across the UK. Flight tracked, meet &amp; greet, 24/7 dispatch — the calm way to travel.
+            </p>
+          </div>
 
-            <div className="lg:col-span-6 relative z-10 min-w-0 w-full">
-              <div
-                className="inline-block max-w-full opacity-0"
-                style={{ animation: "fadeInUp 700ms cubic-bezier(.2,.7,.2,1) 100ms forwards" }}
-              >
-                <DrivingCarBadge label="UK's Premium Travel Platform" />
-              </div>
-
-
-              <h1
-                className="mt-4 font-display font-bold text-white leading-[0.95] tracking-[-0.03em] text-[2rem] sm:text-5xl lg:text-[3.2rem] xl:text-[3.8rem] opacity-0"
-                style={{ animation: "fadeInUp 800ms cubic-bezier(.2,.7,.2,1) 200ms forwards" }}
-              >
-                Edinburgh Airport Transfers{" "}
-                <span className="text-[var(--gold)]">&amp; UK Private Hire.</span>
-              </h1>
-
-              <p
-                className="mt-4 max-w-xl text-sm md:text-base text-white/75 opacity-0"
-                style={{ animation: "fadeInUp 800ms cubic-bezier(.2,.7,.2,1) 380ms forwards" }}
-              >
-                Fixed-fare Mercedes-Benz transfers, private tours and executive travel across the UK. Flight tracked, meet &amp; greet, 24/7 dispatch — the calm way to travel.
-              </p>
-
-
-            </div>
-
-            {/* Mobile/tablet: booking form before vehicle */}
-            <div id="booking-mobile" className="lg:hidden scroll-mt-24">
-              <BookingWidget idPrefix="mwidget" />
-            </div>
-
-            <div className="lg:col-span-6 relative">
-
-              {/* Luminous studio stage */}
-              <div
-                aria-hidden
-                className="pointer-events-none absolute -inset-x-10 -inset-y-16 z-0"
-              >
-                <div className="absolute left-1/2 top-1/2 size-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/[0.06] blur-[90px]" />
-              </div>
-
-              <div
-                className="relative z-10 opacity-0"
-                style={{ animation: "fadeInUp 900ms cubic-bezier(.2,.7,.2,1) 300ms forwards" }}
-                onMouseEnter={() => setPaused(true)}
-                onMouseLeave={() => setPaused(false)}
-              >
-                <div aria-hidden className="pointer-events-none absolute inset-0 flex items-center justify-center select-none">
-                  <span
-                    className="font-display font-extrabold leading-none tracking-[-0.06em] text-[16vw] lg:text-[13vw]"
-                    style={{
-                      color: "transparent",
-                      WebkitTextStroke: "1px color-mix(in oklab, #ffffff 7%, transparent)",
-                      backgroundColor: "transparent",
-                    }}
-                  >
-                    CABSLINK
-                  </span>
+          <div
+            className="home-hero-vehicle min-w-0"
+            onMouseEnter={() => setPaused(true)}
+            onMouseLeave={() => setPaused(false)}
+            onFocusCapture={() => setPaused(true)}
+            onBlurCapture={() => setPaused(false)}
+          >
+            {current && (
+              <>
+                <div className="home-hero-vehicle-stage">
+                  <img
+                    key={current.key}
+                    src={current.img}
+                    srcSet={current.srcSet}
+                    sizes={HERO_VEHICLE_SIZES}
+                    alt={`${current.name} — luxury travel vehicle`}
+                    width={1200}
+                    height={750}
+                    decoding="async"
+                    fetchPriority={active === 0 ? "high" : "auto"}
+                    data-direction={dir}
+                    className="home-hero-vehicle-image"
+                  />
                 </div>
-
-                {/* Ground plane + contact shadow */}
-                <div
-                  aria-hidden
-                  className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white/[0.07] to-transparent blur-xl"
-                />
-                <div aria-hidden className="pointer-events-none absolute inset-x-4 bottom-3 h-px bg-gradient-to-r from-transparent via-[var(--gold)]/30 to-transparent" />
-                <div aria-hidden className="pointer-events-none absolute inset-x-16 bottom-1 h-7 rounded-[50%] bg-[color-mix(in_oklab,#000000_55%,transparent)] blur-2xl" />
-
-                <div className="group relative aspect-[16/10] lg:aspect-[16/8.5] lg:max-h-[230px] xl:max-h-[270px]">
-                  {current && (
-                    <>
-                      <img
-                        key={current.key}
-                        src={current.img}
-                        srcSet={current.srcSet}
-                        sizes={HERO_VEHICLE_SIZES}
-                        alt={`${current.name} — luxury travel vehicle`}
-                        width={1200}
-                        height={750}
-                        decoding="async"
-                        fetchPriority={active === 0 ? "high" : "auto"}
-                        className="absolute inset-0 m-auto w-[92%] h-full object-contain drop-shadow-[0_38px_50px_rgba(0,0,0,0.45)] transition-transform duration-700 group-hover:scale-[1.04]"
-                        style={{
-                          animation: `${dir === 1 ? "vehicleSlideInR" : "vehicleSlideInL"} 850ms cubic-bezier(.2,.7,.2,1) both, float-y 6s ease-in-out 1s infinite`,
-                        }}
-                      />
-                      {/* Mirrored floor reflection */}
-                      <img
-                        aria-hidden
-                        src={current.img}
-                        srcSet={current.srcSet}
-                        sizes={HERO_VEHICLE_SIZES}
-                        alt=""
-                        width={1200}
-                        height={750}
-                        decoding="async"
-                        className="pointer-events-none absolute inset-x-0 top-[86%] m-auto w-[92%] h-[45%] object-contain object-top opacity-[0.13] blur-[3px] [transform:scaleY(-1)] [mask-image:linear-gradient(to_bottom,rgba(0,0,0,0.8),transparent)] [-webkit-mask-image:linear-gradient(to_bottom,rgba(0,0,0,0.8),transparent)]"
-                      />
-                    </>
+                <div className="home-hero-vehicle-caption">
+                  <div className="min-w-0">
+                    <p className="font-display text-base font-semibold text-navy-foreground">{current.name}</p>
+                    <p className="mt-1 text-[11px] uppercase text-gold">{current.tag}</p>
+                  </div>
+                  {heroVehicles.length > 1 && (
+                    <div className="flex shrink-0 items-center gap-1" aria-label="Vehicle gallery">
+                      {heroVehicles.map((v, i) => (
+                        <Button
+                          key={v.key}
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => go(i)}
+                          aria-label={`Show ${v.name}`}
+                          aria-current={i === active}
+                          className="home-hero-vehicle-dot"
+                        >
+                          <span aria-hidden />
+                        </Button>
+                      ))}
+                    </div>
                   )}
                 </div>
-
-                {/* Vehicle label + carousel dots */}
-                {current && (
-                  <div className="relative z-10 mt-6 flex flex-col items-center gap-3 lg:mt-8">
-                    <div className="text-center">
-                      <p className="font-display text-base font-semibold text-white sm:text-lg">{current.name}</p>
-                      <p className="mt-0.5 text-[11px] uppercase tracking-[0.18em] text-[var(--gold)]">{current.tag}</p>
-                    </div>
-                    {heroVehicles.length > 1 && (
-                      <div className="flex flex-wrap items-center justify-center gap-2">
-                        {heroVehicles.map((v, i) => (
-                          <button
-                            key={v.key}
-                            type="button"
-                            onClick={() => go(i)}
-                            aria-label={`Show ${v.name}`}
-                            aria-current={i === active}
-                            className={`h-1.5 rounded-full transition-all ${
-                              i === active
-                                ? "w-7 bg-[var(--gold)]"
-                                : "w-3 bg-white/25 hover:bg-white/50"
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-
-
-            </div>
-
+              </>
+            )}
           </div>
 
-          {/* Booking form inside hero (desktop) */}
-          <div id="booking" className="relative z-50 hidden lg:block mt-4 pb-2 scroll-mt-24">
+          <div id="booking" className="home-hero-booking relative z-50 min-w-0 scroll-mt-24">
             <BookingWidget />
           </div>
-
         </div>
       </section>
 
