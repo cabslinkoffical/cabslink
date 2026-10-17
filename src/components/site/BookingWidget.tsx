@@ -934,7 +934,7 @@ function PassengerEditor({ passengers, luggage, handLuggage, onPassengers, onLug
   onHandLuggage: (value: number) => void; onDone: () => void;
 }) {
   return (
-    <div role="dialog" aria-label="Passengers and bags" onKeyDown={(event) => { if (event.key === "Escape") onDone(); }} className="absolute top-full right-0 z-50 mt-2 w-80 max-w-full rounded-lg border border-border bg-popover p-4 text-popover-foreground shadow-elegant">
+    <div role="dialog" aria-label="Passengers and bags" onKeyDown={(event) => { if (event.key === "Escape") onDone(); }} className="absolute top-full right-0 z-50 mt-2 w-[min(20rem,calc(100vw-3rem))] rounded-lg border border-border bg-popover p-4 text-popover-foreground shadow-elegant">
       <div className="mb-3 flex items-center justify-between">
         <h3 className="font-display text-base font-bold">Passengers & bags</h3>
         <Button type="button" variant="ghost" size="icon" className="size-9" aria-label="Close passengers and bags" onClick={onDone}><X /></Button>
