@@ -5,6 +5,8 @@
 @import "@fontsource-variable/epilogue";
 
 @custom-variant dark (&:is(.dark *));
+@custom-variant prose-a (& :where(a));
+@custom-variant prose-headings (& :where(h1, h2, h3, h4, h5, h6));
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
@@ -736,3 +738,113 @@ input[type="time"] {
   .tour-marquee { overflow-x: auto; }
   .tour-marquee-track > [aria-hidden="true"], .class-marquee-track > [aria-hidden="true"] { display: none; }
 }
+
+/* Markdown typography shared by public articles and the writing preview. */
+@layer components {
+  .prose {
+    max-width: 65ch;
+    min-width: 0;
+    font-family: var(--font-sans);
+    font-size: 1.0625rem;
+    line-height: 1.75;
+    color: color-mix(in srgb, var(--navy) 85%, transparent);
+    overflow-wrap: anywhere;
+  }
+  .prose :where(p) { margin: 0 0 1.25em; }
+  .prose :where(h1, h2, h3, h4, h5, h6) {
+    font-family: var(--font-display);
+    color: var(--navy);
+    line-height: 1.3;
+    letter-spacing: 0;
+    scroll-margin-top: 7rem;
+  }
+  .prose :where(h1) { font-size: 2rem; margin: 2em 0 0.75em; font-weight: 700; }
+  .prose :where(h2) { font-size: 1.75rem; font-weight: 700; margin: 2.5em 0 0.75em; }
+  .prose :where(h2)::after {
+    content: "";
+    display: block;
+    width: 2.75rem;
+    height: 3px;
+    margin-top: 0.55rem;
+    border-radius: 3px;
+    background: var(--gold);
+  }
+  .prose :where(h3) { font-size: 1.25rem; font-weight: 600; margin: 1.75em 0 0.5em; }
+  .prose :where(h4, h5, h6) { font-size: 1.0625rem; font-weight: 600; margin: 1.5em 0 0.5em; }
+  .prose > :first-child { margin-top: 0; }
+  .prose :where(ul, ol) { padding-left: 1.4em; margin: 0 0 1.25em; }
+  .prose :where(ul) { list-style-type: disc; }
+  .prose :where(ol) { list-style-type: decimal; }
+  .prose :where(li) { margin: 0.4em 0; }
+  .prose :where(li)::marker { color: var(--gold); }
+  .prose :where(ol > li)::marker { font-weight: 700; }
+  .prose :where(li > ul, li > ol) { margin-top: 0.4em; margin-bottom: 0; }
+  .prose :where(.contains-task-list) { list-style: none; }
+  .prose :where(input[type="checkbox"]) { margin-right: 0.5em; accent-color: var(--gold); }
+  .prose :where(strong) { color: var(--navy); font-weight: 600; }
+  .prose :where(a) { color: var(--gold-ink); text-decoration: none; }
+  .prose :where(a:hover) { text-decoration: underline; text-underline-offset: 0.2em; }
+  .prose :where(blockquote) {
+    margin: 1.75em 0;
+    border-left: 3px solid var(--gold);
+    background: var(--surface-gold);
+    padding: 1em 1.25em;
+    border-radius: 0 0.75rem 0.75rem 0;
+    font-style: normal;
+  }
+  .prose :where(blockquote > :last-child) { margin-bottom: 0; }
+  .prose :where(table) {
+    width: 100%;
+    max-width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    overflow: hidden;
+    font-size: 0.95rem;
+    margin: 1.75em 0;
+  }
+  .prose :where(th) {
+    background: var(--navy);
+    color: var(--navy-foreground);
+    text-align: left;
+    font-weight: 600;
+    padding: 0.75em 1em;
+  }
+  .prose :where(td) { padding: 0.75em 1em; border-top: 1px solid var(--border); }
+  .prose :where(tbody tr:nth-child(even)) { background: var(--surface-2); }
+  .prose :where(img) { border-radius: 1rem; margin: 2em auto; max-width: 100%; height: auto; }
+  .prose :where(hr) { border: 0; border-top: 1px solid var(--border); margin: 2.5em 0; }
+  .prose :where(code) { font-size: 0.9em; border-radius: 0.25rem; background: var(--surface-2); padding: 0.15em 0.4em; }
+  .prose :where(pre) {
+    background: var(--navy);
+    color: var(--navy-foreground);
+    border-radius: 0.75rem;
+    padding: 1em 1.25em;
+    margin: 1.75em 0;
+    overflow-x: auto;
+    max-width: 100%;
+    overflow-wrap: normal;
+  }
+  .prose :where(pre code) { background: transparent; color: inherit; padding: 0; border-radius: 0; }
+  @media (max-width: 639px) {
+    .prose :where(h2) { font-size: 1.5rem; }
+    .prose :where(table) { display: block; overflow-x: auto; }
+  }
+}
+
+/* Keep the console's unlayered table rules out of article previews. */
+.admin-shell .prose table thead th {
+  position: static;
+  background: var(--navy);
+  color: var(--navy-foreground);
+  backdrop-filter: none;
+  font-size: inherit;
+  letter-spacing: 0;
+  text-transform: none;
+  white-space: normal;
+  border-bottom: 0;
+}
+.admin-shell .prose table tbody tr { border-bottom: 0; }
+.admin-shell .prose table tbody tr:hover { background: inherit; }
+.admin-shell .prose table tbody tr:nth-child(even) { background: var(--surface-2); }
