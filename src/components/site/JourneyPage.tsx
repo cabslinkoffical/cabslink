@@ -5,9 +5,11 @@ import { normalizeHead } from "@/lib/seo/page-head";
  * src/lib/seo/journeys.ts; this file only renders it.
  */
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Check, Clock, MapPin, Phone, Route as RouteIcon, Ruler } from "lucide-react";
+import { ArrowRight, Check, MapPin, Phone, Route as RouteIcon } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
-import { PageHero, SectionHeader } from "@/components/site/PageHero";
+import { SectionHeader } from "@/components/site/PageHero";
+import { LocalPageHero } from "@/components/site/LocalPageHero";
+import { defaultLocalImage } from "@/lib/local-page";
 import { DirectAnswer } from "@/components/seo/DirectAnswer";
 import { Button } from "@/components/ui/button";
 import type { JourneyContent } from "@/lib/seo/journeys";
@@ -39,17 +41,24 @@ export function JourneyPage({
 
   return (
     <SiteLayout>
-      <PageHero
+      <LocalPageHero
+        breadcrumbs={[
+          { name: "Home", href: "/" },
+          { name: "Popular routes", href: "/routes" },
+          { name: pair, href: c.canonicalPath },
+        ]}
         eyebrow="Popular journey"
         title={c.h1}
         subtitle={`${c.miles} miles via ${c.via} — about ${c.hours} door to door, at a price fixed before you travel.`}
-        primaryLabel="Get a fixed price"
-        primaryTo="/book"
-        breadcrumbs={[
-          { label: "Home", to: "/" },
-          { label: "Popular routes", to: "/routes" },
-          { label: pair },
+        facts={[
+          { label: "Distance", value: `${c.miles} miles` },
+          { label: "Door to door", value: `about ${c.hours}` },
+          { label: "Route", value: c.via },
         ]}
+        prefill={{ pickup: c.from.name, dropoff: c.to.name }}
+        image={defaultLocalImage("journey")}
+        imageAlt={`Cabslink vehicle for the ${pair} journey`}
+        imageCaption={`${pair} · fixed-price private transfer`}
       />
 
       <div className="container-x mt-8">
@@ -77,11 +86,6 @@ export function JourneyPage({
               does not change what you pay.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Button asChild variant="gold" className="rounded-lg">
-                <Link to="/book" search={bookSearch}>
-                  Book this journey <ArrowRight className="size-4" />
-                </Link>
-              </Button>
               {c.from.path && (
                 <Button asChild variant="outline" className="rounded-lg">
                   <Link to={c.from.path}>About {c.from.name}</Link>
@@ -95,44 +99,18 @@ export function JourneyPage({
             </div>
           </div>
 
-          <aside className="rounded-3xl border bg-background p-6 shadow-[var(--shadow-raised)]">
-            <h2 className="font-display text-lg font-semibold">Journey facts</h2>
-            <ul className="mt-4 space-y-4 text-sm">
-              <li className="flex items-start gap-3">
-                <Ruler className="mt-0.5 size-4 shrink-0 text-[var(--gold-ink)]" />
-                <span>
-                  <span className="font-medium">Distance</span>
-                  <span className="block text-muted-foreground">{c.miles} miles by road</span>
-                </span>
-              </li>
-              <li className="flex items-start gap-3">
-                <Clock className="mt-0.5 size-4 shrink-0 text-[var(--gold-ink)]" />
-                <span>
-                  <span className="font-medium">Typical duration</span>
-                  <span className="block text-muted-foreground">{c.hours} door to door</span>
-                </span>
-              </li>
-              <li className="flex items-start gap-3">
-                <RouteIcon className="mt-0.5 size-4 shrink-0 text-[var(--gold-ink)]" />
-                <span>
-                  <span className="font-medium">Route</span>
-                  <span className="block text-muted-foreground">{c.via}</span>
-                </span>
-              </li>
-            </ul>
-            {c.stops.length > 0 && (
-              <>
-                <h3 className="mt-6 font-display text-lg font-semibold">Along the way</h3>
-                <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-                  {c.stops.map((s) => (
-                    <li key={s} className="flex items-start gap-2">
-                      <MapPin className="mt-0.5 size-4 shrink-0 text-[var(--gold-ink)]" /> {s}
-                    </li>
-                  ))}
-                </ul>
-              </>
-            )}
-          </aside>
+          {c.stops.length > 0 && (
+            <aside className="rounded-3xl border bg-background p-6 shadow-[var(--shadow-raised)]">
+              <h2 className="font-display text-lg font-semibold">Along the way</h2>
+              <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+                {c.stops.map((s) => (
+                  <li key={s} className="flex items-start gap-2">
+                    <MapPin className="mt-0.5 size-4 shrink-0 text-[var(--gold-ink)]" /> {s}
+                  </li>
+                ))}
+              </ul>
+            </aside>
+          )}
         </div>
       </section>
 

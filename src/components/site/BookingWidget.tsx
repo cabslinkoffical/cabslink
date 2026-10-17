@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Plus, X, Minus, Search, Flag, MapPin, Calendar, Clock, Users, Briefcase, Repeat, Car, Palmtree, AlertCircle, LifeBuoy } from "lucide-react";
 import { PlaceAutocomplete, type SelectedPlace } from "@/components/site/PlaceAutocomplete";
+import { resolvePlaceText } from "@/lib/places.functions";
+import { JourneyMap, PlaceMarkerMap } from "@/components/site/JourneyMap";
 import { track } from "@/lib/tracking";
 
 
@@ -34,7 +36,22 @@ function encodePlaces(list: SelectedPlace[]): string {
 export function BookingWidget({
   idPrefix = "widget",
   tone = "dark",
-}: { idPrefix?: string; tone?: "dark" | "light" } = {}) {
+  variant = "default",
+  initialPickupLabel,
+  initialDropoffLabel,
+  mapFocus = null,
+}: {
+  idPrefix?: string;
+  tone?: "dark" | "light";
+  /** "hero" = clean stacked panel for local-page heroes (no tabs, no pill). */
+  variant?: "default" | "hero";
+  /** Prefills the pickup field with this text and resolves it to a place. */
+  initialPickupLabel?: string;
+  /** Prefills the drop-off field with this text and resolves it to a place. */
+  initialDropoffLabel?: string;
+  /** The page's own location, for the marker map when only one end is known. */
+  mapFocus?: { lat: number; lng: number; label: string } | null;
+} = {}) {
   const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>("quote");
   const today = new Date().toISOString().slice(0, 10);
@@ -82,6 +99,33 @@ export function BookingWidget({
     document.addEventListener("mousedown", onDoc);
     return () => document.removeEventListener("mousedown", onDoc);
   }, []);
+
+  // Local pages prefill one or both ends with the page's own locations. The
+  // text shows immediately; it is resolved to a real Place ID in the
+  // background so the form can be submitted without the visitor retyping it.
+  // If resolution fails the text stays and the dropdown still works.
+  useEffect(() => {
+    if (!initialPickupLabel && !initialDropoffLabel) return;
+    let alive = true;
+    const jobs: Array<[string | undefined, (p: SelectedPlace | null) => void]> = [
+      [initialPickupLabel, setPickup],
+      [initialDropoffLabel, setDropoff],
+    ];
+    (async () => {
+      for (const [label, set] of jobs) {
+        if (!label) continue;
+        try {
+          const r = await resolvePlaceText({ data: { input: label } });
+          const p = r?.place;
+          if (alive && p?.placeId) set({ placeId: p.placeId, label: p.full || p.primary || label });
+        } catch {
+          // Keep the prefilled text; the visitor can pick from the dropdown.
+        }
+      }
+    })();
+    return () => { alive = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialPickupLabel, initialDropoffLabel]);
 
   const isPastDateTime = (d: string, t: string) => {
     if (!d || !t) return false;
@@ -172,7 +216,8 @@ export function BookingWidget({
 
   return (
     <div ref={rootRef} className="@container w-full max-w-6xl mx-auto">
-      {/* Tabs above the pill */}
+      {/* Tabs above the pill — local pages show the clean stacked form only. */}
+      {variant !== "hero" && (
       <div className="flex items-center gap-0.5 mb-3 px-2 -mx-1 overflow-x-auto no-scrollbar @[420px]:gap-1 @[420px]:mx-0">
         <TabButton tone={tone} active={tab === "quote"} onClick={() => setTab("quote")} icon={<Car className="w-4 h-4" />}>
           Transfers
@@ -200,6 +245,7 @@ export function BookingWidget({
           Manage Booking
         </TabButton>
       </div>
+      )}
 
       {tab === "hourly" && (
         <form
@@ -249,6 +295,7 @@ export function BookingWidget({
                     value={pickup}
                     onChange={setPickup}
                     placeholder="Pickup location"
+                    initialText={initialPickupLabel}
                     iconClassName="hidden"
                     inputClassName="border-0 shadow-none bg-transparent pl-0 pr-7 h-auto py-0 text-sm font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-[var(--navy)]/55"
                     required
@@ -370,6 +417,7 @@ export function BookingWidget({
                   value={pickup}
                   onChange={setPickup}
                   placeholder="Pickup location"
+                  initialText={initialPickupLabel}
                   iconClassName="hidden"
                   inputClassName="border-0 shadow-none bg-transparent pl-0 pr-7 h-auto py-0 text-sm font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-[var(--navy)]/55"
                   required
@@ -387,6 +435,7 @@ export function BookingWidget({
                   value={dropoff}
                   onChange={setDropoff}
                   placeholder="Destination"
+                  initialText={initialDropoffLabel}
                   iconClassName="hidden"
                   inputClassName="border-0 shadow-none bg-transparent pl-0 pr-7 h-auto py-0 text-sm font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-[var(--navy)]/55"
                   required
@@ -603,6 +652,251 @@ export function BookingWidget({
       </form>
       )}
 
+      {tab === "quote" && variant === "hero" && (
+        <form onSubmit={submit} noValidate>
+          <FormNotice visible={attempted} messages={errorList} />
+
+          {/* Clean stacked panel — no tabs, no pill. One clear row per field. */}
+          <div className="rounded-2xl bg-white border border-black/5 shadow-[var(--shadow-elegant)] overflow-visible">
+            {/* Pickup */}
+            <div className="px-5 py-3.5" data-invalid={attempted && !!errors.pickup}>
+              <div className="flex items-center gap-3">
+                <MapPin className="w-4 h-4 shrink-0 text-[var(--gold-ink)]" />
+                <div className="min-w-0 flex-1">
+                  <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/55">Pickup</div>
+                  <PlaceAutocomplete
+                    id={`${idPrefix}-pickup`}
+                    value={pickup}
+                    onChange={setPickup}
+                    placeholder="Airport, address or postcode"
+                    initialText={initialPickupLabel}
+                    iconClassName="hidden"
+                    inputClassName="border-0 shadow-none bg-transparent p-0 h-auto text-[15px] font-semibold text-foreground focus-visible:ring-0 placeholder:font-normal placeholder:text-[var(--navy)]/40"
+                    required
+                  />
+                </div>
+                {attempted && errors.pickup && (
+                  <AlertCircle className="w-4 h-4 shrink-0 text-destructive" aria-label={errors.pickup} />
+                )}
+              </div>
+            </div>
+
+            <div className="mx-5 h-px bg-black/[0.06]" />
+
+            {/* Drop-off */}
+            <div className="px-5 py-3.5" data-invalid={attempted && !!errors.dropoff}>
+              <div className="flex items-center gap-3">
+                <Flag className="w-4 h-4 shrink-0 text-[var(--gold-ink)]" />
+                <div className="min-w-0 flex-1">
+                  <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/55">Drop-off</div>
+                  <PlaceAutocomplete
+                    id={`${idPrefix}-dropoff`}
+                    value={dropoff}
+                    onChange={setDropoff}
+                    placeholder="Where are you going?"
+                    initialText={initialDropoffLabel}
+                    iconClassName="hidden"
+                    inputClassName="border-0 shadow-none bg-transparent p-0 h-auto text-[15px] font-semibold text-foreground focus-visible:ring-0 placeholder:font-normal placeholder:text-[var(--navy)]/40"
+                    required
+                  />
+                </div>
+                {attempted && errors.dropoff && (
+                  <AlertCircle className="w-4 h-4 shrink-0 text-destructive" aria-label={errors.dropoff} />
+                )}
+              </div>
+            </div>
+
+            {/* Stops */}
+            {stops.length > 0 && (
+              <div className="border-t border-black/[0.06]">
+                {stops.map((s, i) => (
+                  <div key={i} className="flex items-center gap-3 px-5 py-3" data-invalid={attempted && !s?.placeId}>
+                    <div className="flex w-6 h-6 shrink-0 items-center justify-center rounded-full bg-[var(--surface)] text-[10px] font-bold text-[var(--navy)]/70">{i + 1}</div>
+                    <div className="min-w-0 flex-1">
+                      <PlaceAutocomplete
+                        value={s}
+                        onChange={(v) => {
+                          const next = [...stops];
+                          next[i] = v ?? ({ placeId: "", label: "" } as SelectedPlace);
+                          setStops(next);
+                        }}
+                        placeholder="Add stop"
+                        iconClassName="hidden"
+                        inputClassName="border-0 shadow-none bg-transparent p-0 h-auto text-sm font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-[var(--navy)]/45"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setStops(stops.filter((_, idx) => idx !== i))}
+                      aria-label="Remove stop"
+                      className="text-foreground/45 hover:text-foreground"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Return journey */}
+            {showReturn && (
+              <div className="border-t border-black/[0.06]">
+                <div className="flex items-center justify-between px-5 pt-3">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--gold-ink)]">Return journey</p>
+                  <button
+                    type="button"
+                    onClick={() => setShowReturn(false)}
+                    className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+                  >
+                    <X className="w-3 h-3" /> Remove
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 divide-x divide-black/[0.06]">
+                  <div className="px-5 py-3" data-invalid={attempted && !!errors.returnDate}>
+                    <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/55">Date</div>
+                    <input data-field="returnDate" aria-label="Return date" type="date" min={date || today} value={returnDate} onChange={(e) => setReturnDate(e.target.value)} className="w-full bg-transparent border-0 p-0 text-sm font-semibold text-[var(--navy)] outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)]" />
+                  </div>
+                  <div className="px-5 py-3" data-invalid={attempted && !!errors.returnTime}>
+                    <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/55">Time</div>
+                    <input data-field="returnTime" aria-label="Return time" type="time" value={returnTime} onChange={(e) => setReturnTime(e.target.value)} className="w-full bg-transparent border-0 p-0 text-sm font-semibold text-[var(--navy)] outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)]" />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Date + time */}
+            <div className="border-t border-black/[0.06] grid grid-cols-2 divide-x divide-black/[0.06]">
+              <div className="px-5 py-3.5" data-invalid={attempted && !!errors.date}>
+                <div className="flex items-center gap-3">
+                  <Calendar className="w-4 h-4 shrink-0 text-[var(--gold-ink)]" />
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/55">Date</div>
+                    <input data-field="date" aria-label="Pickup date" required type="date" min={today} value={date} onChange={(e) => setDate(e.target.value)} className="w-full bg-transparent border-0 p-0 text-sm font-semibold text-foreground outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)]" />
+                  </div>
+                </div>
+              </div>
+              <div className="px-5 py-3.5" data-invalid={attempted && !!errors.time}>
+                <div className="flex items-center gap-3">
+                  <Clock className="w-4 h-4 shrink-0 text-[var(--gold-ink)]" />
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/55">Time</div>
+                    <input data-field="time" aria-label="Pickup time" required type="time" value={time} onChange={(e) => setTime(e.target.value)} className="w-full bg-transparent border-0 p-0 text-sm font-semibold text-foreground outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)]" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Passengers & luggage */}
+            <div ref={paxRef} className="relative border-t border-black/[0.06]" data-invalid={attempted && !!errors.passengers}>
+              <button
+                type="button"
+                aria-expanded={paxOpen}
+                aria-label="Passengers and luggage"
+                onClick={() => setPaxOpen((v) => !v)}
+                className="flex w-full items-center gap-3 px-5 py-3.5 text-left transition-colors hover:bg-black/[0.02]"
+              >
+                <Users className="w-4 h-4 shrink-0 text-[var(--gold-ink)]" />
+                <div className="min-w-0 flex-1">
+                  <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/55">Passengers & luggage</div>
+                  <div className="text-sm font-semibold text-[var(--navy)]">
+                    {passengers === null ? (
+                      <span className="font-normal text-[var(--navy)]/40">Optional — confirm before choosing a vehicle</span>
+                    ) : (
+                      <>
+                        {passengers} {passengers === 1 ? "person" : "people"} · {luggage + handLuggage} {luggage + handLuggage === 1 ? "bag" : "bags"}
+                      </>
+                    )}
+                  </div>
+                </div>
+                <Briefcase className="w-4 h-4 shrink-0 text-[var(--gold-ink)]" />
+              </button>
+              {paxOpen && (
+                <div className="absolute left-4 right-4 top-full z-50 mt-2 w-auto max-w-xs rounded-xl border border-border bg-white p-4 shadow-[var(--shadow-elegant)] divide-y divide-border">
+                  <div className="pb-2">
+                    <StepperRow label="Passengers" hint="Including children" value={passengers} min={1} max={16} onChange={setPassengers} />
+                  </div>
+                  <div className="pt-2">
+                    <StepperRow label="Luggage" hint="Large cases" value={luggage} min={0} max={10} onChange={setLuggage} />
+                  </div>
+                  <div className="pt-2">
+                    <StepperRow label="Hand luggage" hint="Cabin / small bags" value={handLuggage} min={0} max={10} onChange={setHandLuggage} />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Add stop / add return */}
+            <div className="flex items-center gap-5 border-t border-black/[0.06] px-5 py-2.5">
+              <button type="button" onClick={() => setStops([...stops, { placeId: "", label: "" }])} className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--navy)]/60 transition-colors hover:text-[var(--navy)]">
+                <Plus className="w-3.5 h-3.5" strokeWidth={2.5} /> Add stop
+              </button>
+              {!showReturn && (
+                <button type="button" onClick={() => setShowReturn(true)} className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--navy)]/60 transition-colors hover:text-[var(--navy)]">
+                  <Repeat className="w-3.5 h-3.5" strokeWidth={2.5} /> Add return
+                </button>
+              )}
+            </div>
+
+            {/* Search */}
+            <div className="border-t border-black/[0.06] p-3">
+              <button
+                type="submit"
+                className={`group cta-search flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--gold)] px-6 py-3.5 font-display text-xs font-bold uppercase tracking-[0.18em] text-[var(--gold-foreground)] ${errorList.length === 0 ? "cta-search-ready" : ""}`}
+              >
+                <Search className="w-4 h-4 transition-transform duration-200 group-hover:scale-110" strokeWidth={2.5} />
+                <span>Search</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Quiet links to the other booking flows the tabs used to hold */}
+          <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1 px-2 text-xs">
+            <button type="button" onClick={() => navigate({ to: "/book/hourly" })} className="font-semibold text-white/70 underline-offset-2 hover:text-white hover:underline">Hourly hire</button>
+            <button type="button" onClick={() => { track("tours_interest", { source: "booking_widget_hero_link" }); navigate({ to: "/tours" }); }} className="font-semibold text-white/70 underline-offset-2 hover:text-white hover:underline">Day tours</button>
+            <button type="button" onClick={() => navigate({ to: "/manage-booking" })} className="font-semibold text-white/70 underline-offset-2 hover:text-white hover:underline">Manage booking</button>
+          </div>
+          <p className="mt-3 px-2 text-xs text-white/60">
+            Fixed price confirmed before you pay · No surge pricing
+          </p>
+
+          {attempted && errorList.length > 0 && (
+            <span className="sr-only" role="alert">{errorList.join(" ")}</span>
+          )}
+        </form>
+      )}
+
+      {variant === "hero" && (pickup?.placeId || dropoff?.placeId) && (
+        <BookingWidgetMap pickup={pickup} dropoff={dropoff} mapFocus={mapFocus} />
+      )}
+
+    </div>
+  );
+}
+
+/** Map panel under the booking form: driving route when both ends are known,
+ *  otherwise a location marker for the single known end. */
+function BookingWidgetMap({
+  pickup,
+  dropoff,
+  mapFocus,
+}: {
+  pickup: SelectedPlace | null;
+  dropoff: SelectedPlace | null;
+  mapFocus: { lat: number; lng: number; label: string } | null;
+}) {
+  const routeReady = !!pickup?.placeId && !!dropoff?.placeId && pickup.placeId !== dropoff.placeId;
+  if (routeReady) {
+    return (
+      <div className="mt-4">
+        <JourneyMap pickupPlaceId={pickup!.placeId} dropoffPlaceId={dropoff!.placeId} />
+      </div>
+    );
+  }
+  const single = pickup?.placeId ? pickup : dropoff?.placeId ? dropoff : null;
+  if (!single || !mapFocus) return null;
+  return (
+    <div className="mt-4">
+      <PlaceMarkerMap lat={mapFocus.lat} lng={mapFocus.lng} label={mapFocus.label || single.label} />
     </div>
   );
 }

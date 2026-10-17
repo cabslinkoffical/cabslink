@@ -8,12 +8,13 @@ import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { listPublicVehicleClasses } from "@/lib/vehicle-classes.functions";
 import { FACT_TEXT } from "@/lib/site-facts";
-import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { FaqBlock } from "@/components/seo/FaqBlock";
 import { EntityGrid } from "@/components/explore/EntityCard";
 import type { AreaSeoContext } from "@/lib/explore.functions";
 import type { Destination } from "@/lib/destinations.functions";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { LocalPageHero } from "@/components/site/LocalPageHero";
+import { areaPrefill, defaultLocalImage } from "@/lib/local-page";
 import { journeyLinksForLocation } from "@/lib/seo/coverage";
 import { servicePagesForLocation } from "@/lib/seo/service-locations";
 import { InternalLinkHub } from "@/components/seo/InternalLinkHub";
@@ -64,57 +65,39 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
 
   return (
     <SiteLayout>
-      <section className="bg-navy text-navy-foreground">
-        <div className="container-x py-12 md:py-20">
-          <Breadcrumbs
-            items={[
-              { name: "Home", href: "/" },
-              { name: "Locations", href: "/areas" },
-              ...(region
-                ? [{ name: region, href: `/areas/region/${region.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}` }]
-                : []),
-              { name: locName, href: `/areas/${d.slug}` },
-            ]}
-            dark
-          />
-          <div className="mt-12 grid gap-10 lg:grid-cols-[minmax(0,1.6fr)_minmax(15rem,0.65fr)] lg:items-end">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.22em] text-gold">
-                {region ? `${region} · Airport Travel` : "UK Airport Travel"}
-              </p>
-              <h1 className="mt-4 max-w-4xl font-display text-4xl font-semibold leading-[1.04] sm:text-6xl">
-                Professional Airport Taxi &amp; Private Transfer Services in {locName}
-              </h1>
-              <p className="mt-6 max-w-3xl text-base leading-relaxed text-navy-foreground/72">
-                Cabslink provides reliable airport transfers, private hire, executive cars, corporate
-                transport, luxury private-driver travel and group transfers in <strong>{locName}</strong>.
-                Book a fixed-price taxi or cab from {locName} to Edinburgh, Glasgow or any UK airport —
-                with 24/7 availability, meet-and-greet, and door-to-door service.
-              </p>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <Link
-                  to="/book"
-                  className="inline-flex items-center gap-2 rounded-full bg-gold px-6 py-3 text-sm font-bold uppercase tracking-[0.14em] text-gold-foreground"
-                >
-                  Get instant quote <ArrowRight className="size-4" />
-                </Link>
-                <Link
-                  to="/contact"
-                  className="inline-flex items-center gap-2 rounded-full border border-navy-foreground/25 px-6 py-3 text-sm font-semibold text-navy-foreground hover:bg-navy-foreground/10"
-                >
-                  Speak to us
-                </Link>
-              </div>
-            </div>
-            <div className="border-l border-gold/40 pl-6">
-              <p className="text-xs uppercase tracking-[0.2em] text-navy-foreground/45">Location</p>
-              <p className="mt-2 font-display text-2xl font-semibold">{locName}</p>
-              {heroSub && <p className="mt-2 text-sm leading-relaxed text-navy-foreground/60">{heroSub}</p>}
-              <p className="mt-6 text-xs uppercase tracking-[0.2em] text-gold">Available 24/7</p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <LocalPageHero
+        breadcrumbs={[
+          { name: "Home", href: "/" },
+          { name: "Locations", href: "/areas" },
+          ...(region
+            ? [{ name: region, href: `/areas/region/${region.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}` }]
+            : []),
+          { name: locName, href: `/areas/${d.slug}` },
+        ]}
+        eyebrow={region ? `${region} · Airport Travel` : "UK Airport Travel"}
+        title={`Professional Airport Taxi & Private Transfer Services in ${locName}`}
+        subtitle={
+          <>
+            Cabslink provides reliable airport transfers, private hire, executive cars, corporate
+            transport, luxury private-driver travel and group transfers in <strong>{locName}</strong>.
+            Book a fixed-price taxi or cab from {locName} to Edinburgh, Glasgow or any UK airport —
+            with 24/7 availability, meet-and-greet, and door-to-door service.
+          </>
+        }
+        facts={[
+          ...(heroSub ? [{ label: "Location", value: heroSub }] : []),
+          { label: "Availability", value: "24/7" },
+        ]}
+        prefill={areaPrefill(locName)}
+        mapFocus={
+          typeof d.lat === "number" && typeof d.lng === "number"
+            ? { lat: d.lat, lng: d.lng, label: locName }
+            : null
+        }
+        image={(d as { hero_image_url?: string | null }).hero_image_url ?? defaultLocalImage(d.type)}
+        imageAlt={`Cabslink transfers in ${locName}`}
+        imageCaption={`${locName} · airport transfers & private hire`}
+      />
 
       <div className="container-x py-16 md:py-24">
 

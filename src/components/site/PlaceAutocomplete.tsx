@@ -138,6 +138,9 @@ export function PlaceAutocomplete({
     if (typeof document !== "undefined") setPortalTarget(document.body);
   }, []);
   const inputRef = useRef<HTMLInputElement>(null);
+  // A prefilled initialText is not a search: the dropdown must stay closed
+  // until the visitor actually touches the field.
+  const touchedRef = useRef(false);
   const sessionToken = useMemo(() => newSessionToken(), []);
 
   const reqSeq = useRef(0);
@@ -199,6 +202,12 @@ export function PlaceAutocomplete({
     if (value && raw === value.label) {
       setSuggestions([]);
       setOpen(false);
+      return;
+    }
+    if (!touchedRef.current && initialText && raw === initialText.trim()) {
+      setSuggestions([]);
+      setOpen(false);
+      setLoading(false);
       return;
     }
     if (norm === lastQuery.current && suggestions.length > 0) return;
@@ -387,6 +396,7 @@ export function PlaceAutocomplete({
         value={text}
         onChange={(e) => {
           const v = e.target.value;
+          touchedRef.current = true;
           setText(v);
           // Editing invalidates the previous Place ID immediately.
           if (value) onChange(null);

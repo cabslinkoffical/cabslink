@@ -92,3 +92,5 @@
 
 - [x] Homepage hero redesign: text+vehicle left, booking form right, gold glow, sticky-header clearance, mobile fix
 - [x] Hero headline shortened to "Airport Transfers & UK Private Hire."
+- [ ] Local pages one pattern: same hero on all (routes, airports, stations, towns, areas, service-location, generic SEO) — copy left, clean tab-free booking form right in the same spot, prefilled per page (airport/station → pickup; town/city/etc → dropoff; journey → both), map under the form, image band, identical sections; responsive mobile/tablet/laptop; no duplication; protected SEO untouched; nothing published
+- [ ] Booking form: remove tabs and blocky card look, redesign as a clean accurate panel (user request 17 Oct)
