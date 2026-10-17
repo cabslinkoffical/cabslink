@@ -84,7 +84,7 @@ export function TourCard({ tour, decorative = false }: { tour: PublicTourListIte
         <div className="mt-auto pt-5">
           <div className="h-px w-full bg-[var(--navy)]/8" />
           <div className="mt-4 flex items-baseline justify-between gap-3">
-            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--navy)]/55">
+            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--navy)]/70">
               From
             </span>
             <span className="font-display text-xl font-semibold text-[var(--navy)]">

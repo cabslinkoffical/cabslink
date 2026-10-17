@@ -42,7 +42,7 @@ export function RegionGrid({ regions }: { regions: RegionCard[] }) {
                 <Plane className="size-3.5" /> Airport routes
               </span>
             ) : (
-              <span className="text-navy-foreground/50">Regional coverage</span>
+              <span className="text-navy-foreground/65">Regional coverage</span>
             )}
             <span className="inline-flex items-center gap-1 font-semibold text-navy-foreground transition group-hover:text-gold">
               View {r.name} <ArrowRight className="size-3.5" />

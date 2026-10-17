@@ -23,7 +23,7 @@ export function CoverageMap() {
             className="border-t border-border pt-5"
           >
             <div className="flex items-center gap-2">
-              <MapPin className="size-4 text-gold" />
+              <MapPin className="size-4 text-[var(--gold-ink)]" />
               <h3 className="font-display text-xl font-semibold text-foreground">{r.region}</h3>
             </div>
 
@@ -32,7 +32,7 @@ export function CoverageMap() {
                 <li key={loc.slug}>
                   <Link
                     to={loc.areaPath}
-                    className="group inline-flex items-center gap-1.5 text-sm font-semibold text-foreground hover:text-gold"
+                    className="group inline-flex items-center gap-1.5 text-sm font-semibold text-foreground hover:text-[var(--gold-ink)]"
                   >
                     {loc.name}
                     <ArrowRight className="size-3.5 transition group-hover:translate-x-0.5" />
@@ -53,7 +53,7 @@ export function CoverageMap() {
                         <Link
                           key={j.to}
                           to={j.to}
-                          className="border-b border-dashed border-border px-1 py-1 text-[11px] font-medium text-gold transition hover:border-gold"
+                          className="border-b border-dashed border-border px-1 py-1 text-[11px] font-medium text-[var(--gold-ink)] transition hover:border-gold"
                         >
                           {j.label}
                         </Link>

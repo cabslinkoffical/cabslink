@@ -106,7 +106,7 @@ function DirectoryColumn({
                       {it.label}
                     </span>
                     {it.meta ? (
-                      <span className="mt-0.5 block truncate text-[10px] uppercase tracking-[0.12em] text-[var(--navy)]/45">
+                      <span className="mt-0.5 block truncate text-[10px] uppercase tracking-[0.12em] text-[var(--navy)]/70">
                         {it.meta}
                       </span>
                     ) : null}

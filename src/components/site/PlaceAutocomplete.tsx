@@ -390,7 +390,7 @@ export function PlaceAutocomplete({
         aria-label={placeholder}
         placeholder={placeholder}
         className={cn(
-          "relative z-10 rounded-none pl-11 pr-10 h-[52px] text-sm font-semibold text-[var(--navy)] placeholder:font-normal placeholder:text-[var(--navy)]/55 caret-[var(--navy)] [caret-color:var(--navy)] focus-visible:[caret-color:var(--navy)] selection:rounded-none selection:bg-[var(--gold)] selection:text-[var(--navy)]",
+          "relative z-10 rounded-none pl-11 pr-10 h-[52px] text-sm font-semibold text-[var(--navy)] placeholder:font-normal placeholder:text-[var(--navy)]/70 caret-[var(--navy)] [caret-color:var(--navy)] focus-visible:[caret-color:var(--navy)] selection:rounded-none selection:bg-[var(--gold)] selection:text-[var(--navy)]",
           inputClassName,
         )}
         value={text}
@@ -512,7 +512,7 @@ export function PlaceAutocomplete({
             </li>
           ))}
           {!hideAttribution && (
-            <li className="border-t border-[var(--border)] px-4 py-2 text-right text-[10px] font-semibold text-[var(--navy)]/55">
+            <li className="border-t border-[var(--border)] px-4 py-2 text-right text-[10px] font-semibold text-[var(--navy)]/70">
               Powered by Google
             </li>
           )}

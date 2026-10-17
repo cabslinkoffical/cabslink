@@ -854,7 +854,7 @@ function FleetClassesSection() {
                         className="relative z-10 max-h-[78%] max-w-[84%] w-auto h-auto object-contain drop-shadow-[0_12px_18px_rgba(0,0,0,0.25)] transition-transform duration-500 group-hover:scale-[1.05]"
                       />
                     ) : (
-                      <span className="text-xs text-[var(--navy)]/50">Image coming soon</span>
+                      <span className="text-xs text-[var(--navy)]/70">Image coming soon</span>
                     );
                   })()}
 

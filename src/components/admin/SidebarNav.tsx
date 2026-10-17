@@ -43,20 +43,20 @@ export function SidebarNav({ entries }: { entries: SidebarEntry[] }) {
     <div className="flex-1 min-h-0 flex flex-col">
       <div className="px-3 pt-3">
         <div className="relative">
-          <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-white/40" />
+          <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-white/60" />
           <input
             value={query}
             onChange={e => setQuery(e.target.value)}
             placeholder="Search pages…"
             aria-label="Search admin pages"
-            className="w-full h-9 rounded-lg bg-white/[0.06] border border-white/10 pl-8 pr-8 text-[13px] text-white placeholder:text-white/40 outline-none focus:border-gold/50 focus:bg-white/[0.1] transition"
+            className="w-full h-9 rounded-lg bg-white/[0.06] border border-white/10 pl-8 pr-8 text-[13px] text-white placeholder:text-white/60 outline-none focus:border-gold/50 focus:bg-white/[0.1] transition"
           />
           {query && (
             <button
               type="button"
               aria-label="Clear search"
               onClick={() => setQuery("")}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-white/45 hover:text-white"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-white/60 hover:text-white"
             >
               <X className="size-3.5" />
             </button>
@@ -72,7 +72,7 @@ export function SidebarNav({ entries }: { entries: SidebarEntry[] }) {
           )
         )}
         {q && filtered.length === 0 && (
-          <p className="px-3 py-6 text-xs text-white/45">No pages match “{query}”.</p>
+          <p className="px-3 py-6 text-xs text-white/60">No pages match “{query}”.</p>
         )}
       </nav>
     </div>
@@ -119,7 +119,7 @@ function Group({ group, pathname, search, forceOpen }: { group: NavGroup; pathna
           hasActive ? "text-white font-medium" : "text-white/85 hover:bg-white/[0.08] hover:text-white"
         )}
       >
-        <group.icon className={cn("size-4 shrink-0", hasActive ? "text-gold" : "text-white/45")} />
+        <group.icon className={cn("size-4 shrink-0", hasActive ? "text-gold" : "text-white/60")} />
         <span className="flex-1 text-left truncate">{group.label}</span>
         <ChevronDown className={cn("size-3.5 transition-transform", expanded && "rotate-180")} />
       </button>

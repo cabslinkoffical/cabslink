@@ -1174,7 +1174,7 @@ function Stepper({ step, onPrev, onNext }: { step: Step; onPrev?: () => void; on
               <div className={`px-5 py-2.5 rounded-lg text-sm font-bold uppercase tracking-wider transition ${
                 active ? "bg-[var(--gold)] text-[var(--gold-foreground)] shadow-[var(--shadow-glow)]"
                 : done ? "bg-[var(--navy)] text-[var(--gold)]"
-                : "bg-card text-foreground/55 border border-border"
+                : "bg-card text-foreground/70 border border-border"
               }`}>{`0${i + 1}`} · {it.label}</div>
               {i < items.length - 1 && <div className="w-6 h-px bg-border" />}
             </div>
@@ -1625,7 +1625,7 @@ function VehicleCard({ card, klass, trip, best, qty, minQty, disabled, disabledR
         <div className="min-w-0 flex items-center gap-2">
           <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)]">Cabslink</span>
           <span className="h-3 w-px bg-white/20" />
-          <span className="hidden sm:inline text-[9.5px] font-bold uppercase tracking-[0.32em] text-white/45">
+          <span className="hidden sm:inline text-[9.5px] font-bold uppercase tracking-[0.32em] text-white/60">
             Passenger ticket
           </span>
           <span className="hidden sm:inline h-3 w-px bg-white/20" />
@@ -1669,7 +1669,7 @@ function VehicleCard({ card, klass, trip, best, qty, minQty, disabled, disabledR
               <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--gold-ink)]">
                 <BadgeCheck className="size-3" /> Class
               </span>
-              <span className="font-mono text-[9.5px] uppercase tracking-[0.28em] text-muted-foreground/70">
+              <span className="font-mono text-[9.5px] uppercase tracking-[0.28em] text-muted-foreground">
                 Seat class {serial.slice(0, 4)}
               </span>
             </div>
@@ -1685,7 +1685,7 @@ function VehicleCard({ card, klass, trip, best, qty, minQty, disabled, disabledR
                 <ArrowRight className="size-3.5 text-[var(--gold-ink)] shrink-0" aria-hidden />
                 <span className="truncate text-right">{shortPlace(trip.dropoff?.label)}</span>
               </div>
-              <div className="mt-1 flex items-center justify-between text-[9px] font-bold uppercase tracking-[0.28em] text-muted-foreground/70">
+              <div className="mt-1 flex items-center justify-between text-[9px] font-bold uppercase tracking-[0.28em] text-muted-foreground">
                 <span>From</span>
                 <span>To</span>
               </div>
@@ -1708,7 +1708,7 @@ function VehicleCard({ card, klass, trip, best, qty, minQty, disabled, disabledR
                 </div>
               ))}
             </dl>
-            <p className="mt-1 text-center text-[8.5px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/60">
+            <p className="mt-1 text-center text-[8.5px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
               Your booking / capacity of this class
             </p>
 
@@ -1721,7 +1721,7 @@ function VehicleCard({ card, klass, trip, best, qty, minQty, disabled, disabledR
               >
                 <Info className="size-3.5" /> What&apos;s included
               </button>
-              <p className="font-mono text-[9.5px] uppercase tracking-[0.3em] text-muted-foreground/60">
+              <p className="font-mono text-[9.5px] uppercase tracking-[0.3em] text-muted-foreground">
                 No. {serial}
               </p>
             </div>
@@ -1757,7 +1757,7 @@ function VehicleCard({ card, klass, trip, best, qty, minQty, disabled, disabledR
             </div>
             {qty > 1 && <p className="mt-1 text-[11px] text-muted-foreground">{qty} × £{card.finalPrice.toFixed(2)}</p>}
             <div className="ticket-barcode mx-auto mt-3 h-8 w-32 text-[var(--navy)]/75" aria-hidden />
-            <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.35em] text-muted-foreground/70">{serial}</p>
+            <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.35em] text-muted-foreground">{serial}</p>
           </div>
         )}
 
@@ -1847,7 +1847,7 @@ function VehicleCard({ card, klass, trip, best, qty, minQty, disabled, disabledR
 
             <VehicleAllocationNotice compact />
 
-            <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground/70">Ticket no. {serial}</p>
+            <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">Ticket no. {serial}</p>
           </div>
         </DialogContent>
       </Dialog>
@@ -2536,7 +2536,7 @@ function ScenicPoiPanel({
 function ItineraryRow({ label, value, bold }: { label: string; value: string; bold?: boolean }) {
   return (
     <div className="rounded-lg bg-[var(--surface)] px-3 py-2">
-      <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-foreground/45">{label}</div>
+      <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-foreground/70">{label}</div>
       <div className={`text-sm ${bold ? "font-bold" : "font-semibold"} text-foreground`}>{value}</div>
     </div>
   );

@@ -57,7 +57,7 @@ function LocationsPage() {
     <SiteLayout>
       <section className="relative overflow-hidden bg-navy text-navy-foreground">
         <div className="container-x py-16 md:py-24 lg:py-28">
-          <nav className="mb-10 flex justify-center gap-2 text-xs uppercase tracking-[0.16em] text-navy-foreground/50">
+          <nav className="mb-10 flex justify-center gap-2 text-xs uppercase tracking-[0.16em] text-navy-foreground/65">
             <Link to="/" className="transition hover:text-gold">Home</Link><span>/</span><span className="text-navy-foreground">Locations</span>
           </nav>
           <div className="mx-auto max-w-4xl text-center">
@@ -148,7 +148,7 @@ function LocationsPage() {
 function EditorialHeader({ index, eyebrow, title, subtitle }: { index: string; eyebrow: string; title: string; subtitle?: string }) {
   return (
     <div className="mb-10 grid gap-5 border-b border-border pb-8 md:grid-cols-[1fr_2fr] md:items-end">
-      <div className="text-xs font-semibold uppercase tracking-[0.24em] text-gold">{index} / {eyebrow}</div>
+      <div className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--gold-ink)]">{index} / {eyebrow}</div>
       <div>
         <h2 className="font-display text-3xl font-semibold text-foreground md:text-5xl">{title}</h2>
         {subtitle && <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">{subtitle}</p>}

@@ -5,7 +5,7 @@ export type Crumb = { name: string; href: string };
 export function Breadcrumbs({ items, dark = false }: { items: Crumb[]; dark?: boolean }) {
   if (items.length === 0) return null;
   return (
-    <nav aria-label="Breadcrumb" className={dark ? "text-sm text-navy-foreground/60" : "text-sm text-foreground/70"}>
+    <nav aria-label="Breadcrumb" className={dark ? "text-sm text-navy-foreground/70" : "text-sm text-foreground/70"}>
       <ol className="flex flex-wrap items-center gap-1">
         {items.map((c, i) => (
           <li key={c.href} className="flex items-center gap-1">

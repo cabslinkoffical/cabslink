@@ -181,7 +181,7 @@ function FleetPage() {
                 );
               })}
             </div>
-            <p className="text-xs uppercase tracking-[0.2em] text-white/45">
+            <p className="text-xs uppercase tracking-[0.2em] text-white/60">
               {visible.length} {visible.length === 1 ? "class" : "classes"}
             </p>
           </div>
@@ -367,24 +367,24 @@ function FleetCard({ klass }: { klass: PublicVehicleClass }) {
           <div>
             <Users className="mx-auto size-4 text-[var(--gold-ink)]" />
             <p className="mt-1 text-sm font-semibold text-[var(--navy)]">{klass.passengers}</p>
-            <p className="text-[10px] uppercase tracking-[0.12em] text-[var(--navy)]/55">Pax</p>
+            <p className="text-[10px] uppercase tracking-[0.12em] text-[var(--navy)]/70">Pax</p>
           </div>
           <div className="border-x border-[var(--navy)]/10">
             <Briefcase className="mx-auto size-4 text-[var(--gold-ink)]" />
             <p className="mt-1 text-sm font-semibold text-[var(--navy)]">{klass.large_luggage}</p>
-            <p className="text-[10px] uppercase tracking-[0.12em] text-[var(--navy)]/55">Large</p>
+            <p className="text-[10px] uppercase tracking-[0.12em] text-[var(--navy)]/70">Large</p>
           </div>
           <div>
             <Luggage className="mx-auto size-4 text-[var(--gold-ink)]" />
             <p className="mt-1 text-sm font-semibold text-[var(--navy)]">{klass.cabin_bags}</p>
-            <p className="text-[10px] uppercase tracking-[0.12em] text-[var(--navy)]/55">Cabin</p>
+            <p className="text-[10px] uppercase tracking-[0.12em] text-[var(--navy)]/70">Cabin</p>
           </div>
         </div>
 
         {/* Models */}
         {models.length > 0 && (
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--navy)]/45">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--navy)]/70">
               Typical models
             </p>
             <div className="mt-2 flex flex-wrap gap-1.5">

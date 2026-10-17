@@ -49,7 +49,7 @@ function LetterPage() {
           {data.length ? (
             <div className="grid gap-8 border-t border-border pt-8 lg:grid-cols-[minmax(13rem,0.7fr)_2fr]">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">Directory / {L}</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--gold-ink)]">Directory / {L}</p>
                 <h2 className="mt-3 font-display text-2xl font-semibold text-foreground">All locations</h2>
                 <p className="mt-2 text-sm text-muted-foreground">{data.length} result{data.length === 1 ? "" : "s"}</p>
               </div>

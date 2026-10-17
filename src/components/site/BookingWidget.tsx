@@ -301,7 +301,7 @@ export function BookingWidget({
                     placeholder="Pickup location"
                     initialText={initialPickupLabel}
                     iconClassName="hidden"
-                    inputClassName="border-0 shadow-none bg-transparent pl-0 pr-7 h-auto py-0 text-sm font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-[var(--navy)]/55"
+                    inputClassName="border-0 shadow-none bg-transparent pl-0 pr-7 h-auto py-0 text-sm font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-[var(--navy)]/70"
                     required
                   />
                 </FieldCell>
@@ -364,7 +364,7 @@ export function BookingWidget({
 
                   <span className="inline-flex items-center gap-1.5">
                     <Users className="w-4 h-4 text-[var(--gold-ink)] shrink-0" />
-                    <span className={`text-sm font-bold tabular-nums ${passengers === null ? "text-[var(--navy)]/45 font-normal" : "text-[var(--navy)]"}`}>
+                    <span className={`text-sm font-bold tabular-nums ${passengers === null ? "text-[var(--navy)]/70 font-normal" : "text-[var(--navy)]"}`}>
                       {passengers === null ? "Passengers" : passengers}
                     </span>
                   </span>
@@ -416,7 +416,7 @@ export function BookingWidget({
                   placeholder="Pickup location"
                   initialText={initialPickupLabel}
                   iconClassName="hidden"
-                  inputClassName="border-0 shadow-none bg-transparent pl-0 pr-7 h-auto py-0 text-sm font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-[var(--navy)]/55"
+                  inputClassName="border-0 shadow-none bg-transparent pl-0 pr-7 h-auto py-0 text-sm font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-[var(--navy)]/70"
                   required
                 />
               </FieldCell>
@@ -434,7 +434,7 @@ export function BookingWidget({
                   placeholder="Destination"
                   initialText={initialDropoffLabel}
                   iconClassName="hidden"
-                  inputClassName="border-0 shadow-none bg-transparent pl-0 pr-7 h-auto py-0 text-sm font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-[var(--navy)]/55"
+                  inputClassName="border-0 shadow-none bg-transparent pl-0 pr-7 h-auto py-0 text-sm font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-[var(--navy)]/70"
                   required
                 />
               </FieldCell>
@@ -497,7 +497,7 @@ export function BookingWidget({
                 <span className="inline-flex items-center gap-1.5 min-w-0">
                   <Users className="w-4 h-4 text-[var(--gold-ink)] shrink-0" />
                   {passengers === null ? (
-                    <span className="text-sm text-[var(--navy)]/45 truncate">Passengers</span>
+                    <span className="text-sm text-[var(--navy)]/70 truncate">Passengers</span>
                   ) : (
                     <>
                       <span className="text-sm font-bold tabular-nums text-[var(--navy)]">{passengers}</span>
@@ -554,7 +554,7 @@ export function BookingWidget({
                     }}
                     placeholder="Add stop"
                     iconClassName="hidden"
-                    inputClassName="border-0 shadow-none bg-transparent pl-0 pr-7 h-auto py-0 text-sm font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-[var(--navy)]/55"
+                    inputClassName="border-0 shadow-none bg-transparent pl-0 pr-7 h-auto py-0 text-sm font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-[var(--navy)]/70"
                   />
                 </div>
                 <button
@@ -651,7 +651,7 @@ export function BookingWidget({
               <div className="flex items-center gap-3">
                 <MapPin className="w-4 h-4 shrink-0 text-[var(--gold-ink)]" />
                 <div className="min-w-0 flex-1">
-                  <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/55">Pickup</div>
+                  <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/70">Pickup</div>
                   <PlaceAutocomplete
                     id={`${idPrefix}-pickup`}
                     value={pickup}
@@ -659,7 +659,7 @@ export function BookingWidget({
                     placeholder="Airport, address or postcode"
                     initialText={initialPickupLabel}
                     iconClassName="hidden"
-                    inputClassName="border-0 shadow-none bg-transparent p-0 h-auto text-[15px] font-semibold text-foreground focus-visible:ring-0 placeholder:font-normal placeholder:text-[var(--navy)]/40"
+                    inputClassName="border-0 shadow-none bg-transparent p-0 h-auto text-[15px] font-semibold text-foreground focus-visible:ring-0 placeholder:font-normal placeholder:text-[var(--navy)]/60"
                     required
                   />
                 </div>
@@ -676,7 +676,7 @@ export function BookingWidget({
               <div className="flex items-center gap-3">
                 <Flag className="w-4 h-4 shrink-0 text-[var(--gold-ink)]" />
                 <div className="min-w-0 flex-1">
-                  <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/55">Drop-off</div>
+                  <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/70">Drop-off</div>
                   <PlaceAutocomplete
                     id={`${idPrefix}-dropoff`}
                     value={dropoff}
@@ -684,7 +684,7 @@ export function BookingWidget({
                     placeholder="Where are you going?"
                     initialText={initialDropoffLabel}
                     iconClassName="hidden"
-                    inputClassName="border-0 shadow-none bg-transparent p-0 h-auto text-[15px] font-semibold text-foreground focus-visible:ring-0 placeholder:font-normal placeholder:text-[var(--navy)]/40"
+                    inputClassName="border-0 shadow-none bg-transparent p-0 h-auto text-[15px] font-semibold text-foreground focus-visible:ring-0 placeholder:font-normal placeholder:text-[var(--navy)]/60"
                     required
                   />
                 </div>
@@ -710,14 +710,14 @@ export function BookingWidget({
                         }}
                         placeholder="Add stop"
                         iconClassName="hidden"
-                        inputClassName="border-0 shadow-none bg-transparent p-0 h-auto text-sm font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-[var(--navy)]/45"
+                        inputClassName="border-0 shadow-none bg-transparent p-0 h-auto text-sm font-semibold focus-visible:ring-0 placeholder:font-normal placeholder:text-[var(--navy)]/70"
                       />
                     </div>
                     <button
                       type="button"
                       onClick={() => setStops(stops.filter((_, idx) => idx !== i))}
                       aria-label="Remove stop"
-                      className="text-foreground/45 hover:text-foreground"
+                      className="text-foreground/70 hover:text-foreground"
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -741,11 +741,11 @@ export function BookingWidget({
                 </div>
                 <div className="grid grid-cols-2 divide-x divide-black/[0.06]">
                   <div className="px-5 py-3" data-invalid={attempted && !!errors.returnDate}>
-                    <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/55">Date</div>
+                    <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/70">Date</div>
                     <input data-field="returnDate" aria-label="Return date" type="date" min={date || today} value={returnDate} onChange={(e) => setReturnDate(e.target.value)} className="w-full bg-transparent border-0 p-0 text-sm font-semibold text-[var(--navy)] outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)]" />
                   </div>
                   <div className="px-5 py-3" data-invalid={attempted && !!errors.returnTime}>
-                    <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/55">Time</div>
+                    <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/70">Time</div>
                     <input data-field="returnTime" aria-label="Return time" type="time" value={returnTime} onChange={(e) => setReturnTime(e.target.value)} className="w-full bg-transparent border-0 p-0 text-sm font-semibold text-[var(--navy)] outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)]" />
                   </div>
                 </div>
@@ -758,7 +758,7 @@ export function BookingWidget({
                 <div className="flex items-center gap-3">
                   <Calendar className="w-4 h-4 shrink-0 text-[var(--gold-ink)]" />
                   <div className="min-w-0 flex-1">
-                    <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/55">Date</div>
+                    <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/70">Date</div>
                     <input data-field="date" aria-label="Pickup date" required type="date" min={today} value={date} onChange={(e) => setDate(e.target.value)} className="w-full bg-transparent border-0 p-0 text-sm font-semibold text-foreground outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)]" />
                   </div>
                 </div>
@@ -767,7 +767,7 @@ export function BookingWidget({
                 <div className="flex items-center gap-3">
                   <Clock className="w-4 h-4 shrink-0 text-[var(--gold-ink)]" />
                   <div className="min-w-0 flex-1">
-                    <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/55">Time</div>
+                    <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/70">Time</div>
                     <input data-field="time" aria-label="Pickup time" required type="time" value={time} onChange={(e) => setTime(e.target.value)} className="w-full bg-transparent border-0 p-0 text-sm font-semibold text-foreground outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)]" />
                   </div>
                 </div>
@@ -786,10 +786,10 @@ export function BookingWidget({
               >
                 <Users className="w-4 h-4 shrink-0 text-[var(--gold-ink)]" />
                 <div className="min-w-0 flex-1">
-                  <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/55">Passengers & luggage</div>
+                  <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--navy)]/70">Passengers & luggage</div>
                   <div className="text-sm font-semibold text-[var(--navy)]">
                     {passengers === null ? (
-                      <span className="font-normal text-[var(--navy)]/40">Optional — confirm before choosing a vehicle</span>
+                      <span className="font-normal text-[var(--navy)]/70">Optional — confirm before choosing a vehicle</span>
                     ) : (
                       <>
                         {passengers} {passengers === 1 ? "person" : "people"} · {luggage + handLuggage} {luggage + handLuggage === 1 ? "bag" : "bags"}
@@ -956,7 +956,7 @@ function StepperRow({ icon, label, hint, value, min, max, onChange }: {
   return (
     <div className="flex items-center justify-between gap-2 py-3">
       <div className="flex min-w-0 items-center gap-2">
-        <span className="text-gold [&_svg]:size-4" aria-hidden="true">{icon}</span>
+        <span className="text-[var(--gold-ink)] [&_svg]:size-4" aria-hidden="true">{icon}</span>
         <div><div className="text-xs font-semibold text-foreground">{label}</div><div className="mt-1 text-[10px] text-muted-foreground">{hint}</div></div>
       </div>
       <div className="flex shrink-0 items-center gap-1">
@@ -971,7 +971,7 @@ function StepperRow({ icon, label, hint, value, min, max, onChange }: {
 function PillButton({ onClick, children, icon, tone = "dark" }: { onClick: () => void; children: React.ReactNode; icon: React.ReactNode; tone?: "dark" | "light" | "white" }) {
   return (
     <Button type="button" variant="ghost" onClick={onClick} className={`min-h-10 rounded-full px-3 text-xs font-semibold ${tone === "light" ? "text-foreground hover:bg-secondary" : "text-navy-foreground hover:bg-navy-foreground/10 hover:text-navy-foreground"}`}>
-      <span className="flex size-5 items-center justify-center text-gold [&_svg]:size-3.5">{icon}</span>
+      <span className="flex size-5 items-center justify-center text-[var(--gold-ink)] [&_svg]:size-3.5">{icon}</span>
       {children}
     </Button>
   );

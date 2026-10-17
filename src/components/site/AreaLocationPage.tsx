@@ -106,7 +106,7 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {WHY.map((w) => (
             <div key={w.title} className="border-t border-gold/50 bg-card py-5">
-              <w.icon className="size-6 text-gold" />
+              <w.icon className="size-6 text-[var(--gold-ink)]" />
               <div className="mt-4 font-display text-lg font-semibold text-foreground">{w.title}</div>
               <div className="mt-1 text-sm leading-relaxed text-muted-foreground">{w.text}</div>
             </div>
@@ -128,7 +128,7 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
                 <div className="font-display text-xl font-semibold text-foreground">{s.label}</div>
                 <div className="mt-2 text-sm leading-relaxed text-muted-foreground">{s.blurb}</div>
               </div>
-              <span className="mt-4 inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-gold">
+              <span className="mt-4 inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--gold-ink)]">
                 Learn more <ArrowRight className="size-3.5" />
               </span>
             </a>
@@ -235,7 +235,7 @@ function NearbySection({
   return (
     <section className="mt-16 grid gap-6 border-t border-border pt-7 lg:grid-cols-[minmax(14rem,0.7fr)_2fr]">
       <div>
-        <Icon className="size-5 text-gold" />
+        <Icon className="size-5 text-[var(--gold-ink)]" />
         <h2 className="mt-3 font-display text-xl font-semibold text-foreground sm:text-2xl">{title}</h2>
       </div>
       <EntityGrid items={items} />
@@ -297,7 +297,7 @@ function LocalPagesSection({ slug, name }: { slug: string; name: string }) {
                   to={s.to}
                   className="inline-flex items-center gap-1.5 border-b border-border px-1 py-2 text-sm font-medium text-foreground transition hover:border-gold"
                 >
-                  {s.label} <ArrowRight className="size-3.5 text-gold" />
+                  {s.label} <ArrowRight className="size-3.5 text-[var(--gold-ink)]" />
                 </Link>
               </li>
             ))}
@@ -316,7 +316,7 @@ function LocalPagesSection({ slug, name }: { slug: string; name: string }) {
                   to={j.to}
                   className="inline-flex items-center gap-1.5 border-b border-dashed border-border px-1 py-2 text-sm font-medium text-foreground transition hover:border-gold"
                 >
-                  {j.label} <ArrowRight className="size-3.5 text-gold" />
+                  {j.label} <ArrowRight className="size-3.5 text-[var(--gold-ink)]" />
                 </Link>
               </li>
             ))}

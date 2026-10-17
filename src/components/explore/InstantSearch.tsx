@@ -67,7 +67,7 @@ export function InstantSearch({ placeholder = "Search cities, airports, routes, 
           }}
           onFocus={() => setOpen(true)}
           placeholder={placeholder}
-          className="flex-1 bg-transparent text-base text-navy-foreground placeholder:text-navy-foreground/45 focus:outline-none"
+          className="flex-1 bg-transparent text-base text-navy-foreground placeholder:text-navy-foreground/65 focus:outline-none"
           aria-label="Search destinations"
         />
         {q && (
@@ -76,7 +76,7 @@ export function InstantSearch({ placeholder = "Search cities, airports, routes, 
             variant="ghost"
             size="icon"
             onClick={() => setQ("")}
-            className="text-navy-foreground/60 hover:bg-navy-foreground/10 hover:text-navy-foreground"
+            className="text-navy-foreground/70 hover:bg-navy-foreground/10 hover:text-navy-foreground"
             aria-label="Clear"
           >
             <X className="size-4" />
