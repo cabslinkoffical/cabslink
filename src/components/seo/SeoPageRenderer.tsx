@@ -82,6 +82,7 @@ export function SeoPageRenderer({
         eyebrow={entityType ? entityType.replace(/-/g, " ") : "Cabslink"}
         title={page.h1}
         subtitle={page.short_intro ?? undefined}
+        facts={entityName ? [{ label: "Location", value: entityName }] : []}
         prefill={prefill}
         mapFocus={mapFocus}
         image={hero ?? defaultLocalImage(entityType)}
