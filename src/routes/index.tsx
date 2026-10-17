@@ -2,7 +2,7 @@ import { normalizeHead } from "@/lib/seo/page-head";
 import { vehicleAlt } from "@/lib/vehicle-alt";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { FACT_TEXT } from "@/lib/site-facts";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 
 import {
@@ -270,6 +270,22 @@ function HomePage() {
 
   const current = heroVehicles[Math.min(active, heroVehicles.length - 1)];
 
+  // Vehicle PNG swap: when the carousel changes vehicle the outgoing image
+  // glides out to the right while the incoming one glides in from the left.
+  // The image itself never loops or drives on its own.
+  const [leaving, setLeaving] = useState<HeroVehicle | null>(null);
+  const lastVehicleKeyRef = useRef<string | null>(current?.key ?? null);
+  useEffect(() => {
+    const key = current?.key ?? null;
+    if (key === lastVehicleKeyRef.current) return;
+    const previous = heroVehicles.find((v) => v.key === lastVehicleKeyRef.current) ?? null;
+    lastVehicleKeyRef.current = key;
+    if (!previous) return;
+    setLeaving(previous);
+    const t = window.setTimeout(() => setLeaving(null), 900);
+    return () => window.clearTimeout(t);
+  }, [current?.key, heroVehicles]);
+
 
   return (
     <SiteLayout>
@@ -301,8 +317,21 @@ function HomePage() {
               <>
                 <div className="home-hero-vehicle-stage">
                   <span className="home-hero-wordmark font-display" aria-hidden="true">CABSLINK</span>
-                  <span className="home-hero-road" aria-hidden="true" />
                   <div className="home-hero-vehicle-track">
+                    {leaving && (
+                      <img
+                        key={`out-${leaving.key}`}
+                        src={leaving.img}
+                        srcSet={leaving.srcSet}
+                        sizes={HERO_VEHICLE_SIZES}
+                        alt=""
+                        width={1200}
+                        height={750}
+                        decoding="async"
+                        aria-hidden="true"
+                        className="home-hero-vehicle-image home-hero-vehicle-leave"
+                      />
+                    )}
                     <img
                       key={current.key}
                       src={current.img}
@@ -314,7 +343,7 @@ function HomePage() {
                       decoding="async"
                       fetchPriority={active === 0 ? "high" : "auto"}
                       data-direction={dir}
-                      className="home-hero-vehicle-image"
+                      className="home-hero-vehicle-image home-hero-vehicle-enter"
                     />
                   </div>
                 </div>
