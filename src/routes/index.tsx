@@ -283,7 +283,7 @@ function HomePage() {
           <div className="home-hero-copy min-w-0">
             <DrivingCarBadge label="UK's Premium Travel Platform" />
             <h1 className="home-hero-title font-display text-navy-foreground">
-              Edinburgh Airport Transfers{" "}
+              Airport Transfers{" "}
               <span className="text-gold">&amp; UK Private Hire.</span>
             </h1>
             <p className="home-hero-description text-navy-foreground/75">
