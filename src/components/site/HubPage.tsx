@@ -24,7 +24,7 @@ export function HubPage({
   intro: string;
   longIntro?: string;
   notes?: { title: string; body: string }[];
-  destinations: Destination[];
+  destinations: HubDestination[];
   type?: DestinationType;
   /** Key into HUB_CONTENT for the long-form prose + FAQ blocks. */
   contentKey?: string;
@@ -34,7 +34,7 @@ export function HubPage({
 }) {
 
   const content = contentKey ? HUB_CONTENT[contentKey] : undefined;
-  const grouped = new Map<string, Destination[]>();
+  const grouped = new Map<string, HubDestination[]>();
   for (const d of destinations) {
     const key = d.region ?? "United Kingdom";
     const list = grouped.get(key) ?? [];
