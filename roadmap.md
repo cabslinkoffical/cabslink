@@ -83,8 +83,8 @@
 - [ ] Phase 7 moved to the end at owner request (blocked: 300-word rule would hide all 74 destination pages)
 
 ## Later asks
-- [ ] Remove the repeated Explore more / Where to next section site-wide, including content appended after footers; preserve other page content.
-- [~] Airport-area maps: moved out of the hero into a shared section near the end of CMS and detail airport pages; verification pending. Live Google Maps rendering requires owner check on an authorized deployed origin; nothing published.
+- [x] Remove repeated Explore more / Where to next site-wide: all eight instances and wrappers removed, shared renderer deleted; airport/location/airport-transfer/VIP preview checks show no related section and one footer; no page content after footer (only notification utility). 33 tests pass, build OK; nothing published.
+- [~] Airport-area maps: separate section near the end of CMS and detail airport pages, before the footer; Aberdeen placement checked, no hero map, 33 targeted tests pass, build OK. Live Google Maps rendering remains unverified and requires owner check on an authorized deployed origin; nothing published.
 - [ ] Screenshot SEO warnings first: inspect query links, repeated headings/anchors, external links, missing alt and response time; preserve booking handoff and protected page details
 - [ ] Verify remaining full-site corrections with SEO/sitemap tests and rendered-page checks; report owner-blocked items without publishing
 - [ ] Full-site corrections: fleet copy, airport guide claims, indexable A–Z sitemap, image descriptions/dimensions, two blog metadata lengths; preserve SEO settings/layout/pricing and do not publish
