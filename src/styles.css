@@ -938,20 +938,6 @@ input[type="time"] {
   transform: translateY(-1rem) scale(1.3);
   animation: fade-in-soft 500ms ease both;
 }
-.home-hero-vehicle-caption {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: .5rem;
-  width: 100%;
-  max-width: 660px;
-  margin: 0 auto;
-  padding-top: .75rem;
-  border-top: 1px solid color-mix(in srgb, var(--navy-foreground) 15%, transparent);
-}
-.home-hero-vehicle-dot { width: 22px; height: 32px; border-radius: 4px; padding: 0; color: var(--navy-foreground); }
-.home-hero-vehicle-dot span { display: block; width: 7px; height: 4px; border-radius: 2px; background: color-mix(in srgb, var(--navy-foreground) 45%, transparent); }
-.home-hero-vehicle-dot[aria-current="true"] span { width: 18px; background: var(--gold); }
 @media (min-width: 640px) {
   .home-hero-title { font-size: 2.75rem; }
   .home-hero-booking > div > div:first-child { grid-template-columns: repeat(4, minmax(0, 1fr)); }
@@ -990,9 +976,6 @@ input[type="time"] {
   .home-hero-description { margin-top: .5rem; font-size: .8125rem; line-height: 1.6; }
   .home-hero-vehicle-stage { height: 210px; }
   .home-hero-vehicle-image { transform: translateY(-.5rem) scale(1.3); }
-  .home-hero-vehicle-caption { padding-top: .25rem; }
-  .home-hero-vehicle-caption > div:first-child { display: flex; align-items: center; gap: .75rem; }
-  .home-hero-vehicle-caption p { margin-top: 0; }
   .home-hero-booking form > div > div.grid > div[data-invalid] > div:first-child { padding-block: .5rem; }
   .home-hero-booking form > div > div.grid > .cta-search { padding-block: .75rem; }
   .home-hero-booking > div > div:first-child > button { padding-block: .375rem; }

@@ -1,4 +1,5 @@
 # Roadmap
+- [x] Homepage hero: removed the caption row under the vehicle (name, "Vehicle class · N seats" badge and pagination dots); the car rotates on its own and the fleet section below still lists every class by name; desktop/tablet/mobile checked, build OK; nothing published.
 - [x] Match the latest reference: homepage source order and explicit centred layout are text → form → large vehicle; desktop/tablet/mobile and return/hourly controls verified, 14 tests pass, build OK; nothing published.
 - [x] Restore navy-blue homepage hero with text, centred booking form and vehicle carousel in that order; desktop/tablet/mobile, carousel selection and return/hourly controls verified; five booking tests pass, build OK; nothing published.
 - [x] Homepage reference redesign: centred introduction, horizontal shared booking form, large vehicle and subtle brand lettering; desktop/tablet/mobile checked, return/hourly controls verified, 15 booking tests pass; nothing published.

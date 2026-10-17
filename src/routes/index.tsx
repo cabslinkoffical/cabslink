@@ -267,11 +267,6 @@ function HomePage() {
     setActive((i) => (i >= heroVehicles.length ? 0 : i));
   }, [heroVehicles.length]);
 
-  const go = (next: number) => {
-    if (heroVehicles.length === 0) return;
-    setDir(next >= active ? 1 : -1);
-    setActive(((next % heroVehicles.length) + heroVehicles.length) % heroVehicles.length);
-  };
 
   const current = heroVehicles[Math.min(active, heroVehicles.length - 1)];
 
@@ -319,30 +314,6 @@ function HomePage() {
                     data-direction={dir}
                     className="home-hero-vehicle-image"
                   />
-                </div>
-                <div className="home-hero-vehicle-caption">
-                  <div className="min-w-0">
-                    <p className="font-display text-base font-semibold text-navy-foreground">{current.name}</p>
-                    <p className="mt-1 text-[11px] uppercase text-gold">{current.tag}</p>
-                  </div>
-                  {heroVehicles.length > 1 && (
-                    <div className="flex shrink-0 items-center gap-1" aria-label="Vehicle gallery">
-                      {heroVehicles.map((v, i) => (
-                        <Button
-                          key={v.key}
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => go(i)}
-                          aria-label={`Show ${v.name}`}
-                          aria-current={i === active}
-                          className="home-hero-vehicle-dot"
-                        >
-                          <span aria-hidden />
-                        </Button>
-                      ))}
-                    </div>
-                  )}
                 </div>
               </>
             )}
