@@ -40,7 +40,7 @@ const LINKS = [
 
 function NotFound() {
   return (
-    <SiteLayout hideLocations hideSocial>
+    <SiteLayout hideLocations>
       <section className="container-x py-20 md:py-28 text-center">
         <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)]">Error 404</p>
         <h1 className="mt-3 font-display text-3xl md:text-5xl font-bold">This page doesn&apos;t exist</h1>

@@ -29,3 +29,4 @@
 - BookingWidget layouts share one PassengerEditor for passenger and bag counts so controls and limits remain consistent across transfer, hourly and local-page forms.
 
 - Homepage vehicle and tour loops share DraggableMarquee, which scrubs the existing CSS animation through pointer events and suppresses link activation after dragging.
+- Social profiles render only in the footer, driven by the shared SOCIALS list; no standalone social band section is mounted in SiteLayout, so follow links live in exactly one place.

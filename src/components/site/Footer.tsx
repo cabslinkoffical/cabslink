@@ -1,7 +1,7 @@
 import { resetConsent } from "@/lib/consent";
 import { FACT_TEXT } from "@/lib/site-facts";
 import { Link } from "@tanstack/react-router";
-import { Mail, Phone, MapPin } from "lucide-react";
+import { ArrowUpRight, Mail, Phone, MapPin } from "lucide-react";
 import { Logo } from "./Logo";
 import { SITE } from "@/lib/site";
 import { GOOGLE_PROFILE_URL } from "@/lib/google-reviews.functions";
@@ -52,17 +52,27 @@ export function Footer() {
             Premium UK airport transfers and airport travel services — punctual,
             professional and effortlessly comfortable, around the clock.
           </p>
-          <ul className="mt-6 flex items-center gap-3">
-            {SOCIALS.map(({ key, label, url, Icon }) => (
+          <h3 className="mt-8 text-sm font-semibold uppercase tracking-wider text-[var(--gold)]">
+            Follow Cabslink
+          </h3>
+          <ul className="mt-4 space-y-2">
+            {SOCIALS.map(({ key, label, handle, url, Icon }) => (
               <li key={key}>
                 <a
                   href={url}
-                  aria-label={label}
+                  aria-label={`${label} — ${handle}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="grid size-10 place-items-center rounded-full border border-white/15 text-white/80 transition-colors hover:border-[var(--gold)] hover:text-[var(--gold)]"
+                  className="group flex items-center gap-3 rounded-full border border-white/15 px-3 py-2 transition-colors hover:border-[var(--gold)]"
                 >
-                  <Icon className="size-4" />
+                  <span className="grid size-9 shrink-0 place-items-center rounded-full bg-white/10 text-[var(--gold)] transition-colors group-hover:bg-[var(--gold)] group-hover:text-navy">
+                    <Icon className="size-[18px]" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block font-display text-sm font-semibold text-white/85">{label}</span>
+                    <span className="block truncate text-xs text-white/70">{handle}</span>
+                  </span>
+                  <ArrowUpRight className="size-4 shrink-0 text-white/60 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[var(--gold)]" />
                 </a>
               </li>
             ))}
