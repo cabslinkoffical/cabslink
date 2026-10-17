@@ -3,7 +3,8 @@ import { createFileRoute, Link, notFound, redirect } from "@tanstack/react-route
 import { safeJsonLd } from "@/lib/safe-json-ld";
 import { Plane, MapPin, Clock, ShieldCheck, ArrowRight, Check } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
-import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
+import { LocalPageHero } from "@/components/site/LocalPageHero";
+import { defaultLocalImage } from "@/lib/local-page";
 import { getPublicSeoPageByPath } from "@/lib/seo-public.functions";
 import { getRelatedSeoLinks } from "@/lib/seo-related.functions";
 import { SeoPageRenderer, buildSeoHead } from "@/components/seo/SeoPageRenderer";
@@ -168,56 +169,30 @@ function AirportPage() {
 
   return (
     <SiteLayout>
-      {/* Hero */}
-      <section className="relative bg-[var(--navy)] text-white">
-        <div className="container-x py-16 md:py-24">
-          <Breadcrumbs
-            items={[
-              { name: "Home", href: "/" },
-              { name: "Airports", href: "/airports" },
-              { name: shortName, href: "#" },
-            ]}
-          />
-          <div className="mt-6 flex items-start justify-between gap-6 flex-wrap">
-            <div className="max-w-2xl">
-              <p className="eyebrow-gold text-[11px]">— Airport Transfers</p>
-              <h1 className="mt-4 font-display text-4xl md:text-6xl font-bold leading-[1.05]">
-                {shortName} <span className="text-[var(--gold)]">Transfers</span>
-              </h1>
-              {cityLine && (
-                <p className="mt-4 text-white/70 flex items-center gap-2">
-                  <MapPin className="size-4" /> {cityLine}
-                </p>
-              )}
-              <p className="mt-4 text-lg text-white/80 max-w-xl">
-                Book a private, fixed-fare transfer to or from {name}. Meet & greet, live flight tracking and 24/7
-                dispatch across the UK.
-              </p>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <Link
-                  to="/book"
-                  search={{ to: name } as any}
-                  className="rounded-full bg-[var(--gold)] px-8 py-4 font-semibold text-[var(--navy)] hover:brightness-110"
-                >
-                  Get an instant quote
-                </Link>
-                <Link
-                  to="/contact"
-                  className="rounded-full border border-white/30 px-8 py-4 font-semibold text-white hover:border-[var(--gold)]"
-                >
-                  Talk to us
-                </Link>
-              </div>
-            </div>
-            {iata && (
-              <div className="rounded-2xl border border-white/15 bg-white/5 backdrop-blur px-6 py-5 text-center">
-                <p className="text-[10px] uppercase tracking-widest text-white/50">IATA</p>
-                <p className="mt-1 font-mono text-4xl font-bold text-[var(--gold)]">{iata}</p>
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
+      <LocalPageHero
+        breadcrumbs={[
+          { name: "Home", href: "/" },
+          { name: "Airports", href: "/airports" },
+          { name: shortName, href: `/airports/${airport.slug}` },
+        ]}
+        eyebrow="Airport Transfers"
+        title={shortName}
+        titleAccent="Transfers"
+        subtitle={`Book a private, fixed-fare transfer to or from ${name}. Meet & greet, live flight tracking and 24/7 dispatch across the UK.`}
+        facts={[
+          ...(iata ? [{ label: "IATA", value: iata }] : []),
+          ...(cityLine ? [{ label: "Location", value: cityLine }] : []),
+        ]}
+        prefill={{ pickup: name }}
+        mapFocus={
+          typeof airport.lat === "number" && typeof airport.lng === "number"
+            ? { lat: airport.lat, lng: airport.lng, label: name }
+            : null
+        }
+        image={(airport as { hero_image_url?: string | null }).hero_image_url ?? defaultLocalImage("airport")}
+        imageAlt={`Cabslink ${name} transfers`}
+        imageCaption={`${shortName} · airport transfers`}
+      />
 
       <div className="container-x mt-8">
         <DirectAnswer

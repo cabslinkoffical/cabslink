@@ -76,20 +76,24 @@ async function loadEntity(
   entityType: string,
   entityId: string,
 ) {
-  if (entityType === "location") {
-    const { data } = await supabase.from("seo_locations")
-      .select("name, slug, latitude, longitude").eq("id", entityId).maybeSingle();
-    return data ? { kind: "location", ...data } : null;
-  }
-  if (entityType === "airport") {
-    const { data } = await supabase.from("seo_airports")
-      .select("name, slug, iata_code, hero_image_url, latitude, longitude").eq("id", entityId).maybeSingle();
-    return data ? { kind: "airport", ...data } : null;
-  }
-  if (entityType === "service") {
-    const { data } = await supabase.from("seo_services")
-      .select("name, slug, hero_image_url").eq("id", entityId).maybeSingle();
-    return data ? { kind: "service", ...data } : null;
+  // seo_pages rows reference the site's real destination records. The old
+  // seo_locations/seo_airports/seo_services tables hold different IDs, so
+  // joining against them returned null for every page and silently disabled
+  // entity-powered hero images, prefills and maps.
+  const { data } = await supabase.from("destinations")
+    .select("name, display_name, type, slug, lat, lng")
+    .eq("id", entityId).maybeSingle();
+  if (data) {
+    return {
+      kind: entityType,
+      name: data.display_name ?? data.name,
+      slug: data.slug,
+      // The destinations table carries no hero image; pages fall back to the
+      // type's default image band.
+      hero_image_url: null,
+      latitude: data.lat,
+      longitude: data.lng,
+    };
   }
   return null;
 }

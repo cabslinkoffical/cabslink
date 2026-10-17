@@ -143,3 +143,88 @@ export function JourneyMap({ pickupPlaceId, dropoffPlaceId, stopPlaceIds = [], c
     </div>
   );
 }
+
+/**
+ * Single-location marker map, for local pages that know only one end of the
+ * journey (e.g. an airport or town page). Coordinates come from the page's
+ * own data, never from a client-side geocode.
+ */
+export function PlaceMarkerMap({
+  lat,
+  lng,
+  label,
+  className = "",
+}: {
+  lat?: number;
+  lng?: number;
+  label?: string;
+  className?: string;
+}) {
+  const holder = useRef<HTMLDivElement | null>(null);
+  const [ready, setReady] = useState(false);
+  const [failed, setFailed] = useState<string | null>(null);
+  const enabled = typeof lat === "number" && typeof lng === "number";
+
+  useEffect(() => {
+    if (!enabled) return;
+    let alive = true;
+    const off = onMapsAuthFailure(() => alive && setFailed("Map could not be displayed."));
+    loadGoogleMaps()
+      .then(() => alive && setReady(true))
+      .catch((err: Error) => alive && setFailed(err.message));
+    return () => { alive = false; off(); };
+  }, [enabled]);
+
+  useEffect(() => {
+    if (!ready || !holder.current || !enabled) return;
+    const g = (window as any).google;
+    if (!g?.maps) return;
+    const map = new g.maps.Map(holder.current, {
+      zoom: 11,
+      center: { lat, lng },
+      disableDefaultUI: true,
+      zoomControl: true,
+      gestureHandling: "cooperative",
+      clickableIcons: false,
+    });
+    new g.maps.Marker({
+      map,
+      position: { lat, lng },
+      title: label || undefined,
+      icon: {
+        path: g.maps.SymbolPath.CIRCLE,
+        scale: 8,
+        fillColor: "#deae25",
+        fillOpacity: 1,
+        strokeColor: "#0e182c",
+        strokeWeight: 2.5,
+      },
+    });
+  }, [ready, enabled, lat, lng, label]);
+
+  if (!enabled) return null;
+
+  return (
+    <div className={`relative overflow-hidden rounded-2xl border border-border bg-[var(--surface)] ${className}`}>
+      <div className="flex items-center gap-2 px-4 py-2.5 border-b border-border/70 bg-card">
+        <MapPin className="size-3.5 text-[var(--gold-ink)]" />
+        <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground">
+          {label || "Location map"}
+        </p>
+      </div>
+      <div className="relative h-40 sm:h-48">
+        <div ref={holder} className="absolute inset-0" aria-label={label ? `${label} location map` : "Location map"} role="img" />
+        {!ready && !failed && (
+          <div className="absolute inset-0 flex items-center justify-center gap-2 text-xs text-muted-foreground bg-[var(--surface)]">
+            <Loader2 className="size-4 animate-spin text-[var(--gold-ink)]" /> Loading map…
+          </div>
+        )}
+        {failed && (
+          <div className="absolute inset-0 flex items-center justify-center px-6 text-center text-xs text-muted-foreground bg-[var(--surface)]">
+            {failed}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

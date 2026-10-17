@@ -14,14 +14,15 @@ import {
   type Destination,
   type DestinationType,
 } from "@/lib/destinations.functions";
-import { Breadcrumbs, type Crumb } from "@/components/seo/Breadcrumbs";
+import { type Crumb } from "@/components/seo/Breadcrumbs";
 import { DestinationSections } from "@/components/seo/DestinationSections";
 import { buildSections } from "@/lib/seo/content-engine";
 import { getTemplate } from "@/lib/seo/template-registry";
 import { evaluateQuality } from "@/lib/seo/quality";
 import { SiteLayout } from "@/components/site/SiteLayout";
-import { Link } from "@tanstack/react-router";
-import { MapPin, Clock, Car, Phone, PoundSterling } from "lucide-react";
+import { LocalPageHero } from "@/components/site/LocalPageHero";
+import { defaultLocalImage, destinationPrefill } from "@/lib/local-page";
+import { MapPin, Clock, Car } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getFromFare } from "@/lib/from-fare.functions";
 
@@ -116,56 +117,28 @@ export function DestinationPage({
     staleTime: 10 * 60_000,
   }).data;
 
+  const heroFacts = [
+    ...(place ? [{ label: "Location", value: place }] : []),
+    ...(fare
+      ? [{ label: "From Edinburgh", value: `${fare.symbol}${fare.amount} · ${fare.vehicle}` }]
+      : []),
+  ];
+
   return (
     <SiteLayout>
-      <section className="relative overflow-hidden bg-[var(--navy)] text-white">
-        {image && (
-          <img
-            src={image}
-            alt={name}
-            width={1600}
-            height={700}
-            loading="eager"
-            className="absolute inset-0 h-full w-full object-cover opacity-30"
-          />
-        )}
-        <div className="relative mx-auto max-w-6xl px-4 py-14 md:py-20">
-          <Breadcrumbs items={breadcrumbs} />
-          <h1 className="mt-5 font-display text-4xl font-bold leading-tight md:text-5xl">
-            {name} <span className="text-[var(--gold)]">transfers</span>
-          </h1>
-          {place && (
-            <p className="mt-3 flex items-center gap-2 text-white/75">
-              <MapPin className="size-4" /> {place}
-            </p>
-          )}
-          <p className="mt-4 max-w-2xl text-lg text-white/85">
-            Private, pre-booked car to or from {name}. Fixed fare confirmed before you pay, with a
-            professional driver collecting you at the pickup address you choose.
-          </p>
-          {fare && (
-            <p className="mt-5 inline-flex items-center gap-2 rounded-full border border-[var(--gold)]/50 bg-white/5 px-4 py-2 text-sm">
-              <PoundSterling className="size-4 text-[var(--gold)]" />
-              From <strong className="text-[var(--gold)]">{fare.symbol}{fare.amount}</strong> from Edinburgh · {fare.vehicle}
-            </p>
-          )}
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link
-              to="/book"
-              search={{ to: name } as never}
-              className="rounded-full bg-[var(--gold)] px-7 py-3.5 font-semibold text-[var(--navy)] hover:brightness-110"
-            >
-              Get a price
-            </Link>
-            <a
-              href="tel:+443338882991"
-              className="inline-flex items-center gap-2 rounded-full border border-white/30 px-7 py-3.5 font-semibold text-white hover:border-[var(--gold)]"
-            >
-              <Phone className="size-4" /> +44 333 888 2991
-            </a>
-          </div>
-        </div>
-      </section>
+      <LocalPageHero
+        breadcrumbs={breadcrumbs}
+        eyebrow={d.type === "airport" ? "Airport transfers" : "Private transfers"}
+        title={name}
+        titleAccent="transfers"
+        subtitle={`Private, pre-booked car to or from ${name}. Fixed fare confirmed before you pay, with a professional driver collecting you at the pickup address you choose.`}
+        facts={heroFacts}
+        prefill={destinationPrefill(d.type, name)}
+        mapFocus={hasGeo ? { lat: d.lat as number, lng: d.lng as number, label: name } : null}
+        image={image ?? defaultLocalImage(d.type)}
+        imageAlt={`Cabslink ${name} transfers`}
+        imageCaption={`${name} · private transfers & airport travel`}
+      />
 
       <div className="mx-auto max-w-6xl px-4 py-10">
         {quality.effectiveNoindex && d.seo_tier !== 2 && (

@@ -7,7 +7,9 @@ import { normalizeHead } from "@/lib/seo/page-head";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Check, MapPin, Phone, Plane, Route as RouteIcon } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
-import { PageHero, SectionHeader } from "@/components/site/PageHero";
+import { SectionHeader } from "@/components/site/PageHero";
+import { LocalPageHero } from "@/components/site/LocalPageHero";
+import { serviceLocalImage, serviceLocationPrefill } from "@/lib/local-page";
 import { Button } from "@/components/ui/button";
 import { getService } from "@/lib/seo/service-registry";
 import type { ServiceLocationContent } from "@/lib/seo/service-locations";
@@ -22,17 +24,22 @@ export function ServiceLocationPage({ content }: { content: ServiceLocationConte
 
   return (
     <SiteLayout>
-      <PageHero
+      <LocalPageHero
+        breadcrumbs={[
+          { name: "Home", href: "/" },
+          { name: content.serviceName, href: content.serviceUrl },
+          { name: loc.name, href: content.canonicalPath },
+        ]}
         eyebrow={`${content.eyebrow} — ${loc.name}`}
         title={content.h1}
         subtitle={content.subtitle}
-        primaryLabel="Get a fixed price"
-        primaryTo="/book"
-        breadcrumbs={[
-          { label: "Home", to: "/" },
-          { label: content.serviceName, to: content.serviceUrl },
-          { label: loc.name },
-        ]}
+        facts={loc.airports
+          .slice(0, 3)
+          .map((a) => ({ label: a.code, value: `${a.mins} min · ${a.miles} mi` }))}
+        prefill={serviceLocationPrefill(loc.name)}
+        image={serviceLocalImage(content.serviceUrl)}
+        imageAlt={`Cabslink ${content.serviceName} in ${loc.name}`}
+        imageCaption={`${content.serviceName} — ${loc.name}`}
       />
 
       {/* Local intro + facts */}

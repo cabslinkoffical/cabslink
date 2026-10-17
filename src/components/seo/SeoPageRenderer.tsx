@@ -8,6 +8,8 @@ import type { RouteFareTable as RouteFareTableData } from "@/lib/seo/route-fares
 import { RouteFareTable } from "@/components/seo/RouteFareTable";
 import { Button } from "@/components/ui/button";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { LocalPageHero } from "@/components/site/LocalPageHero";
+import { defaultLocalImage } from "@/lib/local-page";
 
 /**
  * Renders a published seo_pages record + its sections.
@@ -53,27 +55,40 @@ export function SeoPageRenderer({
 
   const allSections = [...page.sections, ...autoSections];
 
+  // Same pattern as every other local page: prefill the booking form from the
+  // page's own entity and show the entity's location map when coordinates
+  // exist. Nothing is invented for pages without entity data.
+  const entityType = page.primary_entity_type as string | null | undefined;
+  const entityName = page.entity?.name ?? null;
+  const entityGeo = page.entity as { lat?: number | null; lng?: number | null } | null | undefined;
+  const prefill = entityName
+    ? entityType === "airport" || entityType === "station"
+      ? { pickup: entityName }
+      : entityType === "location"
+        ? { dropoff: entityName }
+        : undefined
+    : undefined;
+  const mapFocus =
+    entityName && typeof entityGeo?.lat === "number" && typeof entityGeo?.lng === "number"
+      ? { lat: entityGeo.lat, lng: entityGeo.lng, label: entityName }
+      : null;
+  const crumbs = buildCrumbs(page).map((c) => ({ name: c.label, href: c.href }));
+
   return (
     <SiteLayout>
     <div className="min-h-screen bg-background">
-      <section className="relative border-b bg-background">
-        {hero && (
-          <div className="absolute inset-0 -z-10 opacity-30">
-            <img src={hero} alt={page.entity?.name || page.h1} width={1600} height={400} className="h-full w-full object-cover" />
-          </div>
-        )}
-        <div className="container mx-auto px-4 py-16 md:py-24">
-          <Breadcrumbs page={page} />
-          <h1 className="text-3xl md:text-5xl font-bold tracking-tight max-w-3xl mt-2">{page.h1}</h1>
-          {page.short_intro && (
-            <p className="mt-4 text-lg text-muted-foreground max-w-2xl">{page.short_intro}</p>
-          )}
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Button asChild size="lg"><Link to="/book">Book now</Link></Button>
-            <Button asChild variant="outline" size="lg"><Link to="/book">Get a quote</Link></Button>
-          </div>
-        </div>
-      </section>
+      <LocalPageHero
+        breadcrumbs={crumbs}
+        eyebrow={entityType ? entityType.replace(/-/g, " ") : "Cabslink"}
+        title={page.h1}
+        subtitle={page.short_intro ?? undefined}
+        facts={entityName ? [{ label: "Location", value: entityName }] : []}
+        prefill={prefill}
+        mapFocus={mapFocus}
+        image={hero ?? defaultLocalImage(entityType)}
+        imageAlt={page.entity?.name || page.h1}
+        imageCaption={entityName ? `${entityName} · private transfers` : undefined}
+      />
 
       <div className="container mx-auto px-4 py-12 space-y-12 max-w-4xl">
         <DirectAnswer
@@ -113,27 +128,6 @@ function makeLinkSection(
     body: null,
     structured_payload: { items },
   };
-}
-
-function Breadcrumbs({ page }: { page: PublicSeoPage }) {
-  const crumbs = buildCrumbs(page);
-  if (crumbs.length <= 1) return null;
-  return (
-    <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground">
-      <ol className="flex flex-wrap items-center gap-1">
-        {crumbs.map((c, i) => (
-          <li key={i} className="flex items-center gap-1">
-            {i > 0 && <span aria-hidden>/</span>}
-            {i < crumbs.length - 1 ? (
-              <a href={c.href} className="hover:underline">{c.label}</a>
-            ) : (
-              <span className="text-foreground">{c.label}</span>
-            )}
-          </li>
-        ))}
-      </ol>
-    </nav>
-  );
 }
 
 function buildCrumbs(page: PublicSeoPage): Array<{ label: string; href: string }> {
