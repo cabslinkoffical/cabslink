@@ -291,6 +291,10 @@ function HomePage() {
             </p>
           </div>
 
+          <div id="booking" className="home-hero-booking relative z-50 min-w-0 scroll-mt-24">
+            <BookingWidget tone="dark" />
+          </div>
+
           <div
             className="home-hero-vehicle min-w-0"
             onMouseEnter={() => setPaused(true)}
@@ -344,9 +348,6 @@ function HomePage() {
             )}
           </div>
 
-          <div id="booking" className="home-hero-booking relative z-50 min-w-0 scroll-mt-24">
-            <BookingWidget tone="dark" />
-          </div>
         </div>
       </section>
 
