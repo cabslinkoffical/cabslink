@@ -14,11 +14,21 @@ function walk(dir: string): string[] {
 }
 
 describe("social links live in the footer only", () => {
-  it("footer lists every verified profile with its handle", () => {
+  it("footer renders every verified profile from the shared list", () => {
+    expect(SOCIALS.map((s) => s.key).join(",")).toBe(
+      "instagram,facebook,tiktok,youtube",
+    );
     for (const s of SOCIALS) {
-      expect(FOOTER, `${s.label} URL missing from footer`).toContain(s.url);
-      expect(FOOTER, `${s.label} handle missing from footer`).toContain(s.handle);
+      expect(s.url, `${s.label} URL missing`).toMatch(/^https:\/\//);
+      expect(s.handle.length, `${s.label} handle missing`).toBeGreaterThan(0);
     }
+    // The footer must drive its links from the shared SOCIALS list, not a copy.
+    expect(FOOTER).toContain('import { SOCIALS } from "@/lib/social"');
+    expect(FOOTER).toMatch(
+      /SOCIALS\.map\(\(\{[^}]*\burl\b[^}]*\bhandle\b[^}]*\}\) =>/,
+    );
+    expect(FOOTER).toContain("href={url}");
+    expect(FOOTER).toContain("{handle}");
     expect(FOOTER).toContain("Follow Cabslink");
   });
 
