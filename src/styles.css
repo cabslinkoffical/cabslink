@@ -744,6 +744,8 @@ input[type="time"] {
 .local-hero-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "copy" "booking" "vehicle";
+  justify-items: center;
   gap: 1.5rem;
   padding-block: 5.5rem 2.5rem;
 }
@@ -877,7 +879,7 @@ input[type="time"] {
   gap: 1.5rem;
   padding-block: 2.5rem 1.5rem;
 }
-.home-hero-copy { grid-row: 1; text-align: center; }
+.home-hero-copy { grid-area: copy; width: 100%; max-width: 1050px; margin-inline: auto; text-align: center; }
 .home-hero-title {
   max-width: 1050px;
   margin: 0 auto;
@@ -893,7 +895,7 @@ input[type="time"] {
   font-size: .9375rem;
   line-height: 1.7;
 }
-.home-hero-booking { grid-row: 2; width: 100%; max-width: 1180px; justify-self: center; text-align: left; }
+.home-hero-booking { grid-area: booking; width: 100%; max-width: 1080px; margin-inline: auto; justify-self: center; text-align: left; }
 .home-hero-booking > div > div:first-child {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -912,7 +914,7 @@ input[type="time"] {
 .home-hero-booking form > div:has(> .grid) { border-radius: 24px; }
 .home-hero-booking form > div.flex > button { box-shadow: none; background: transparent; color: var(--navy-foreground); }
 .home-hero-booking .cta-search { letter-spacing: 0; border-radius: 999px; }
-.home-hero-vehicle { grid-row: 3; width: 100%; max-width: 1020px; justify-self: center; }
+.home-hero-vehicle { grid-area: vehicle; width: 100%; max-width: 1020px; margin-inline: auto; justify-self: center; }
 .home-hero-vehicle-stage { position: relative; height: 210px; isolation: isolate; }
 .home-hero-wordmark {
   position: absolute;
