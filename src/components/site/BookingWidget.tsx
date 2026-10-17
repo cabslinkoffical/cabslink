@@ -4,6 +4,7 @@ import { Plus, X, Minus, Search, Flag, MapPin, Calendar, Clock, Users, Briefcase
 import { PlaceAutocomplete, type SelectedPlace } from "@/components/site/PlaceAutocomplete";
 import { resolvePlaceText } from "@/lib/places.functions";
 import { JourneyMap, PlaceMarkerMap } from "@/components/site/JourneyMap";
+import { localMapMode } from "@/lib/local-page";
 import { track } from "@/lib/tracking";
 
 
@@ -865,7 +866,7 @@ export function BookingWidget({
         </form>
       )}
 
-      {variant === "hero" && (pickup?.placeId || dropoff?.placeId) && (
+      {variant === "hero" && (
         <BookingWidgetMap pickup={pickup} dropoff={dropoff} mapFocus={mapFocus} />
       )}
 
@@ -884,19 +885,18 @@ function BookingWidgetMap({
   dropoff: SelectedPlace | null;
   mapFocus: { lat: number; lng: number; label: string } | null;
 }) {
-  const routeReady = !!pickup?.placeId && !!dropoff?.placeId && pickup.placeId !== dropoff.placeId;
-  if (routeReady) {
+  const mode = localMapMode(pickup?.placeId, dropoff?.placeId, mapFocus);
+  if (mode === "route" && pickup?.placeId && dropoff?.placeId) {
     return (
       <div className="mt-4">
-        <JourneyMap pickupPlaceId={pickup!.placeId} dropoffPlaceId={dropoff!.placeId} />
+        <JourneyMap pickupPlaceId={pickup.placeId} dropoffPlaceId={dropoff.placeId} />
       </div>
     );
   }
-  const single = pickup?.placeId ? pickup : dropoff?.placeId ? dropoff : null;
-  if (!single || !mapFocus) return null;
+  if (mode !== "location" || !mapFocus) return null;
   return (
     <div className="mt-4">
-      <PlaceMarkerMap lat={mapFocus.lat} lng={mapFocus.lng} label={mapFocus.label || single.label} />
+      <PlaceMarkerMap lat={mapFocus.lat} lng={mapFocus.lng} label={mapFocus.label} />
     </div>
   );
 }

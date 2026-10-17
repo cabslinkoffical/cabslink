@@ -83,6 +83,7 @@
 - [ ] Phase 7 moved to the end at owner request (blocked: 300-word rule would hide all 74 destination pages)
 
 ## Later asks
+- [~] Airport-area maps: corrected CMS latitude/longitude handling and removed address-resolution dependency; 14 targeted tests pass and build OK. Live Google Maps rendering remains unverified: owner check required on an authorized deployed origin; nothing published.
 - [ ] Screenshot SEO warnings first: inspect query links, repeated headings/anchors, external links, missing alt and response time; preserve booking handoff and protected page details
 - [ ] Verify remaining full-site corrections with SEO/sitemap tests and rendered-page checks; report owner-blocked items without publishing
 - [ ] Full-site corrections: fleet copy, airport guide claims, indexable A–Z sitemap, image descriptions/dimensions, two blog metadata lengths; preserve SEO settings/layout/pricing and do not publish

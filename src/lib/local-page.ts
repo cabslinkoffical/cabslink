@@ -15,6 +15,27 @@ import executiveImg from "@/assets/fleet/executive-saloon.jpg";
 
 export type LocalPrefill = { pickup?: string; dropoff?: string };
 
+export function localEntityMapFocus(entity: {
+  name?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+} | null | undefined): { lat: number; lng: number; label: string } | null {
+  if (!entity?.name || typeof entity.latitude !== "number" || typeof entity.longitude !== "number") return null;
+  if (!Number.isFinite(entity.latitude) || !Number.isFinite(entity.longitude)) return null;
+  return { lat: entity.latitude, lng: entity.longitude, label: entity.name };
+}
+
+/** Page coordinates keep the location map available even if address lookup fails. */
+export function localMapMode(
+  pickupPlaceId: string | undefined,
+  dropoffPlaceId: string | undefined,
+  focus: { lat: number; lng: number } | null,
+): "route" | "location" | null {
+  if (pickupPlaceId && dropoffPlaceId && pickupPlaceId !== dropoffPlaceId) return "route";
+  if (focus && Number.isFinite(focus.lat) && Number.isFinite(focus.lng)) return "location";
+  return null;
+}
+
 /**
  * Destination pages carry one known point — the place the page is about.
  * Transport hubs (airports, stations) are filled as the PICKUP: the visitor
