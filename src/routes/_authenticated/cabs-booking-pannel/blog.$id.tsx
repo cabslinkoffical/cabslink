@@ -18,7 +18,7 @@ import {
   listCategoriesAdmin, listTagsAdmin, listAuthorsAdmin,
 } from "@/lib/blog-admin.functions";
 import { MarkdownEditor } from "@/components/admin/blog/MarkdownEditor";
-import { extractToc, readingMinutes, slugify } from "@/lib/blog-markdown";
+import { extractToc, readingMinutes, slugify, type TocItem } from "@/lib/blog-markdown";
 
 export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/blog/$id")({
   head: () => ({
@@ -36,7 +36,6 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/blog/$
 });
 
 type FaqItem = { q: string; a: string };
-type TocItem = { id: string; text: string; level: number };
 
 type FormState = {
   slug: string;
@@ -79,27 +78,6 @@ const empty: FormState = {
   tag_ids: [],
 };
 
-function slugify(s: string) {
-  return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "").slice(0, 100);
-}
-
-function extractToc(md: string): TocItem[] {
-  const lines = md.split("\n");
-  const out: TocItem[] = [];
-  const used = new Set<string>();
-  for (const line of lines) {
-    const m = /^(#{2,3})\s+(.+)$/.exec(line);
-    if (!m) continue;
-    const level = m[1].length;
-    const text = m[2].trim();
-    let base = slugify(text) || `h${out.length}`;
-    let id = base; let i = 1;
-    while (used.has(id)) id = `${base}-${i++}`;
-    used.add(id);
-    out.push({ id, text, level });
-  }
-  return out;
-}
 
 function PostEditor() {
   const { id } = Route.useParams();
@@ -150,7 +128,7 @@ function PostEditor() {
         ...(isNew ? {} : { id }),
         ...form,
         toc: extractToc(form.body_md),
-        reading_minutes: Math.max(1, Math.min(60, Math.round(form.body_md.split(/\s+/).length / 220) || form.reading_minutes)),
+        reading_minutes: readingMinutes(form.body_md),
         category_id: form.category_id || null,
         author_id: form.author_id || null,
         featured_image_url: form.featured_image_url || null,
@@ -228,18 +206,8 @@ function PostEditor() {
 
 
           <div>
-            <div className="flex items-center justify-between gap-2">
-              <Label>Body (Markdown)</Label>
-              <Button type="button" variant="outline" size="sm"
-                onClick={() => setForm({ ...form, body_md: `${form.body_md.trimEnd()}\n\n${COMPARISON_TABLE}\n` })}>
-                Insert comparison table
-              </Button>
-            </div>
-            <Textarea rows={22} value={form.body_md} onChange={(e) => setForm({ ...form, body_md: e.target.value })}
-              className="font-mono text-sm" placeholder={"## Introduction\n\nWrite your article here in Markdown…"} />
-            <p className="mt-1 text-xs text-muted-foreground">
-              Use `## Heading` and `### Subheading` to auto-generate the table of contents. Supports GitHub-flavoured markdown.
-            </p>
+            <Label>Body</Label>
+            <MarkdownEditor value={form.body_md} onChange={(v) => setForm({ ...form, body_md: v })} />
           </div>
 
           {/* Key takeaways */}
