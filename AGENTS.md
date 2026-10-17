@@ -18,3 +18,4 @@
 - Primary review surfaces share Google review query options and the existing cached server feed; unavailable data shows a Google profile link without fallback scores or other-platform reviews.
 - Passenger count is optional in initial booking handoffs; transfer quotes require explicit passenger confirmation, and tour vehicle selection gates continuation on confirmation and capacity without changing server pricing validation.
 - Blog media and FAQ compatibility use shared browser-safe schemas in the editor and save validation, so legacy asset paths and question/answer records remain editable without losing text.
+- The homepage uses one shared BookingWidget instance in a width-constrained column; container queries preserve its stacked layout without duplicating booking state or altering other forms.

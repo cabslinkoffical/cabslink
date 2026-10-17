@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Homepage opening: text and visible vehicle left, stacked booking form right; verify desktop/mobile and existing booking controls without publishing.
 
 - [x] Passenger flow: initial transfer/hourly forms allow omitted count; shared confirmation at vehicle selection; counts preserved and capacity-aware choices retained. 18 targeted tests pass, build OK; real transfer journey with six passengers verified through boarding and trip details. Nothing published.
 
