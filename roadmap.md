@@ -1,5 +1,5 @@
 # Roadmap
-- [ ] Match the latest reference: correct homepage source order and explicit centred layout to text → form → large vehicle; verify all viewport sizes.
+- [x] Match the latest reference: homepage source order and explicit centred layout are text → form → large vehicle; desktop/tablet/mobile and return/hourly controls verified, 14 tests pass, build OK; nothing published.
 - [x] Restore navy-blue homepage hero with text, centred booking form and vehicle carousel in that order; desktop/tablet/mobile, carousel selection and return/hourly controls verified; five booking tests pass, build OK; nothing published.
 - [x] Homepage reference redesign: centred introduction, horizontal shared booking form, large vehicle and subtle brand lettering; desktop/tablet/mobile checked, return/hourly controls verified, 15 booking tests pass; nothing published.
 - [x] Homepage opening: text and visible vehicle left, stacked booking form right; desktop/mobile checked, Add return and Hourly Hire verified, five booking tests pass, build OK; nothing published.
