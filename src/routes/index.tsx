@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { FaqAccordion } from "@/components/site/FaqAccordion";
 import { BookingWidget } from "@/components/site/BookingWidget";
 import { GoogleReviewsSection } from "@/components/site/GoogleReviewsSection";
 import { googleReviewsQuery } from "@/lib/google-reviews-query";
