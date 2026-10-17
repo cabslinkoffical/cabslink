@@ -25,3 +25,5 @@
 - Public page content stays inside SiteLayout before its footer; automated explore-link sections are removed rather than appended outside the layout to prevent duplicate closing content.
 - Every FAQ surface on the site renders through the single shared FaqAccordion (numbered gold list, display-font questions, circular plus/minus toggle); FaqBlock and FaqSection are thin wrappers so no page builds its own FAQ list.
 - Every hub destination grid (attractions, distilleries, airports, stations, cruise ports, universities, hospitals, corporate, guides) renders through the single shared DestinationCard (photo, name, location badge, expand-arrow detail); hub list functions enrich destinations with their linked page's image and intro via attachPageData, never invented copy.
+
+- BookingWidget layouts share one PassengerEditor for passenger and bag counts so controls and limits remain consistent across transfer, hourly and local-page forms.

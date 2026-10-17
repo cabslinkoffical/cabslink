@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { Button } from "@/components/ui/button";
 import { useNavigate } from "@tanstack/react-router";
 import { Plus, X, Minus, Search, Flag, MapPin, Calendar, Clock, Users, Briefcase, Repeat, Car, Palmtree, AlertCircle, LifeBuoy } from "lucide-react";
 import { PlaceAutocomplete, type SelectedPlace } from "@/components/site/PlaceAutocomplete";
@@ -352,7 +353,10 @@ export function BookingWidget({
               >
                 <button
                   type="button"
+                  aria-label="Passengers and luggage"
+                  aria-expanded={paxOpen}
                   onClick={() => setPaxOpen((v) => !v)}
+                  aria-haspopup="dialog"
                   className={`w-full h-full flex items-center justify-center gap-3 px-4 py-3 @[980px]:py-2.5 overflow-hidden rounded-2xl @[980px]:rounded-full hover:bg-black/[0.03] transition-colors ${
                     attempted && hourlyErrors.passengers ? "bg-destructive/5 ring-1 ring-destructive/60" : ""
                   }`}
@@ -373,17 +377,7 @@ export function BookingWidget({
                   </span>
                 </button>
                 {paxOpen && (
-                  <div className="absolute top-full mt-2 right-0 z-50 w-72 bg-white rounded-xl shadow-[var(--shadow-elegant)] border border-border p-4 divide-y divide-border">
-                    <div className="pb-2">
-                      <StepperRow label="Passengers" hint="Including children" value={passengers} min={1} max={16} onChange={setPassengers} />
-                    </div>
-                    <div className="pt-2">
-                      <StepperRow label="Luggage" hint="Large cases" value={luggage} min={0} max={10} onChange={setLuggage} />
-                    </div>
-                    <div className="pt-2">
-                      <StepperRow label="Hand luggage" hint="Cabin / small bags" value={handLuggage} min={0} max={10} onChange={setHandLuggage} />
-                    </div>
-                  </div>
+                  <PassengerEditor passengers={passengers} luggage={luggage} handLuggage={handLuggage} onPassengers={setPassengers} onLuggage={setLuggage} onHandLuggage={setHandLuggage} onDone={() => setPaxOpen(false)} />
                 )}
 
               </div>
@@ -495,6 +489,7 @@ export function BookingWidget({
                 aria-expanded={paxOpen}
                 aria-label="Passengers and luggage"
                 onClick={() => setPaxOpen((v) => !v)}
+                  aria-haspopup="dialog"
                 className={`w-full h-full flex items-center justify-center gap-2.5 px-3 py-3 @[980px]:py-2.5 overflow-hidden whitespace-nowrap rounded-2xl @[980px]:rounded-full hover:bg-black/[0.03] transition-colors ${
                   attempted && errors.passengers ? "bg-destructive/5 ring-1 ring-destructive/60" : ""
                 }`}
@@ -518,18 +513,8 @@ export function BookingWidget({
                 </span>
               </button>
               {paxOpen && (
-                <div className="absolute top-full mt-2 right-0 z-50 w-72 bg-white rounded-xl shadow-[var(--shadow-elegant)] border border-border p-4 divide-y divide-border">
-                  <div className="pb-2">
-                    <StepperRow label="Passengers" hint="Including children" value={passengers} min={1} max={16} onChange={setPassengers} />
-                  </div>
-                  <div className="pt-2">
-                    <StepperRow label="Luggage" hint="Large cases" value={luggage} min={0} max={10} onChange={setLuggage} />
-                  </div>
-                  <div className="pt-2">
-                    <StepperRow label="Hand luggage" hint="Cabin / small bags" value={handLuggage} min={0} max={10} onChange={setHandLuggage} />
-                  </div>
-                </div>
-              )}
+                  <PassengerEditor passengers={passengers} luggage={luggage} handLuggage={handLuggage} onPassengers={setPassengers} onLuggage={setLuggage} onHandLuggage={setHandLuggage} onDone={() => setPaxOpen(false)} />
+                )}
 
             </div>
 
@@ -623,17 +608,18 @@ export function BookingWidget({
           </div>
         )}
 
-        {/* Add stop / add return — inside the same form sheet */}
-        <div className="flex flex-wrap items-center gap-2 border-t border-black/5 p-2">
-          <PillButton tone="light" icon={<Plus className="w-3 h-3" strokeWidth={3} />} onClick={() => setStops([...stops, { placeId: "", label: "" }])}>
+        </div>
+
+        {/* Separate actions; added fields stay in the original sheet. */}
+        <div className="flex flex-wrap items-center gap-2 px-2 pt-3">
+          <PillButton tone={tone} icon={<Plus className="w-3 h-3" strokeWidth={3} />} onClick={() => setStops([...stops, { placeId: "", label: "" }])}>
             Add stop
           </PillButton>
           {!showReturn && (
-            <PillButton tone="light" icon={<Repeat className="w-3 h-3" strokeWidth={3} />} onClick={() => setShowReturn(true)}>
+            <PillButton tone={tone} icon={<Repeat className="w-3 h-3" strokeWidth={3} />} onClick={() => setShowReturn(true)}>
               Add return
             </PillButton>
           )}
-        </div>
         </div>
 
         {/* Mobile/tablet search button — anchored at the bottom of the form */}
@@ -795,6 +781,7 @@ export function BookingWidget({
                 aria-expanded={paxOpen}
                 aria-label="Passengers and luggage"
                 onClick={() => setPaxOpen((v) => !v)}
+                  aria-haspopup="dialog"
                 className="flex w-full items-center gap-3 px-5 py-3.5 text-left transition-colors hover:bg-black/[0.02]"
               >
                 <Users className="w-4 h-4 shrink-0 text-[var(--gold-ink)]" />
@@ -813,30 +800,8 @@ export function BookingWidget({
                 <Briefcase className="w-4 h-4 shrink-0 text-[var(--gold-ink)]" />
               </button>
               {paxOpen && (
-                <div className="absolute left-4 right-4 top-full z-50 mt-2 w-auto max-w-xs rounded-xl border border-border bg-white p-4 shadow-[var(--shadow-elegant)] divide-y divide-border">
-                  <div className="pb-2">
-                    <StepperRow label="Passengers" hint="Including children" value={passengers} min={1} max={16} onChange={setPassengers} />
-                  </div>
-                  <div className="pt-2">
-                    <StepperRow label="Luggage" hint="Large cases" value={luggage} min={0} max={10} onChange={setLuggage} />
-                  </div>
-                  <div className="pt-2">
-                    <StepperRow label="Hand luggage" hint="Cabin / small bags" value={handLuggage} min={0} max={10} onChange={setHandLuggage} />
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Add stop / add return */}
-            <div className="flex items-center gap-5 border-t border-black/[0.06] px-5 py-2.5">
-              <button type="button" onClick={() => setStops([...stops, { placeId: "", label: "" }])} className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--navy)]/60 transition-colors hover:text-[var(--navy)]">
-                <Plus className="w-3.5 h-3.5" strokeWidth={2.5} /> Add stop
-              </button>
-              {!showReturn && (
-                <button type="button" onClick={() => setShowReturn(true)} className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--navy)]/60 transition-colors hover:text-[var(--navy)]">
-                  <Repeat className="w-3.5 h-3.5" strokeWidth={2.5} /> Add return
-                </button>
-              )}
+                  <PassengerEditor passengers={passengers} luggage={luggage} handLuggage={handLuggage} onPassengers={setPassengers} onLuggage={setLuggage} onHandLuggage={setHandLuggage} onDone={() => setPaxOpen(false)} />
+                )}
             </div>
 
             {/* Search */}
@@ -849,6 +814,11 @@ export function BookingWidget({
                 <span>Search</span>
               </button>
             </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 px-2 pt-3">
+            <PillButton tone={tone} icon={<Plus />} onClick={() => setStops([...stops, { placeId: "", label: "" }])}>Add stop</PillButton>
+            {!showReturn && <PillButton tone={tone} icon={<Repeat />} onClick={() => setShowReturn(true)}>Add return</PillButton>}
           </div>
 
           {/* Quiet links to the other booking flows the tabs used to hold */}
@@ -958,73 +928,51 @@ function Divider() {
 }
 
 
-function StepperRow({
-  label,
-  hint,
-  value,
-  min,
-  max,
-  onChange,
-}: { label: string; hint?: string; value: number | null; min: number; max: number; onChange: (v: number) => void }) {
-  const atMin = value !== null && value <= min;
-  const atMax = value !== null && value >= max;
-  const btn =
-    "w-9 h-9 flex items-center justify-center text-[var(--navy)] transition-colors hover:bg-[var(--navy)]/[0.06] active:bg-[var(--navy)]/[0.12] disabled:text-[var(--navy)]/25 disabled:hover:bg-transparent disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold)] focus-visible:ring-inset";
-
+function PassengerEditor({ passengers, luggage, handLuggage, onPassengers, onLuggage, onHandLuggage, onDone }: {
+  passengers: number | null; luggage: number; handLuggage: number;
+  onPassengers: (value: number) => void; onLuggage: (value: number) => void;
+  onHandLuggage: (value: number) => void; onDone: () => void;
+}) {
   return (
-    <div className="flex items-center justify-between gap-4 py-1">
-      <div className="min-w-0">
-        <div className="text-sm font-semibold text-[var(--navy)]">{label}</div>
-        {hint && <div className="text-[11px] text-muted-foreground">{hint}</div>}
+    <div role="dialog" aria-label="Passengers and bags" onKeyDown={(event) => { if (event.key === "Escape") onDone(); }} className="absolute top-full right-0 z-50 mt-2 w-80 max-w-full rounded-lg border border-border bg-popover p-4 text-popover-foreground shadow-elegant">
+      <div className="mb-3 flex items-center justify-between">
+        <h3 className="font-display text-base font-bold">Passengers & bags</h3>
+        <Button type="button" variant="ghost" size="icon" className="size-9" aria-label="Close passengers and bags" onClick={onDone}><X /></Button>
       </div>
-      <div className="flex items-center rounded-lg border border-border overflow-hidden bg-background shrink-0">
-        <button
-          type="button"
-          onClick={() => onChange(value === null ? min : Math.max(min, value - 1))}
-          disabled={atMin}
-          className={btn}
-          aria-label={`Decrease ${label}`}
-        >
-          <Minus className="w-4 h-4" strokeWidth={2.5} />
-        </button>
-        <span
-          className="w-10 text-center text-sm font-bold tabular-nums text-[var(--navy)] border-x border-border py-1.5"
-          aria-live="polite"
-        >
-          {value === null ? (min === 0 ? 0 : "—") : value}
-        </span>
-        <button
-          type="button"
-          onClick={() => onChange(value === null ? Math.max(min, 1) : Math.min(max, value + 1))}
-          disabled={atMax}
-          className={btn}
-          aria-label={`Increase ${label}`}
-        >
-          <Plus className="w-4 h-4" strokeWidth={2.5} />
-        </button>
+      <div className="divide-y divide-border">
+        <StepperRow icon={<Users />} label="Passengers" hint="Including children" value={passengers} min={1} max={16} onChange={onPassengers} />
+        <StepperRow icon={<Briefcase />} label="Luggage" hint="Large cases" value={luggage} min={0} max={10} onChange={onLuggage} />
+        <StepperRow icon={<Briefcase />} label="Hand luggage" hint="Cabin / small bags" value={handLuggage} min={0} max={10} onChange={onHandLuggage} />
+      </div>
+      <Button type="button" variant="gold" className="mt-4 w-full" onClick={onDone}>Done</Button>
+    </div>
+  );
+}
+
+function StepperRow({ icon, label, hint, value, min, max, onChange }: {
+  icon: React.ReactNode; label: string; hint?: string; value: number | null;
+  min: number; max: number; onChange: (value: number) => void;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-2 py-3">
+      <div className="flex min-w-0 items-center gap-2">
+        <span className="text-gold [&_svg]:size-4" aria-hidden="true">{icon}</span>
+        <div><div className="text-xs font-semibold text-foreground">{label}</div><div className="mt-1 text-[10px] text-muted-foreground">{hint}</div></div>
+      </div>
+      <div className="flex shrink-0 items-center gap-1">
+        <Button type="button" variant="outline" size="icon" className="size-9 rounded-full" onClick={() => onChange(value === null ? min : Math.max(min, value - 1))} disabled={value === null || value <= min} aria-label={`Decrease ${label}`}><Minus /></Button>
+        <input type="number" inputMode="numeric" aria-label={label} min={min} max={max} value={value ?? ""} placeholder="—" onChange={(event) => { const count = Number(event.target.value); if (event.target.value && Number.isInteger(count) && count >= min && count <= max) onChange(count); }} className="h-9 w-10 rounded-md border border-input bg-background text-center text-sm font-bold tabular-nums text-foreground [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
+        <Button type="button" variant="outline" size="icon" className="size-9 rounded-full" onClick={() => onChange(value === null ? Math.max(min, 1) : Math.min(max, value + 1))} disabled={value !== null && value >= max} aria-label={`Increase ${label}`}><Plus /></Button>
       </div>
     </div>
   );
 }
 
-
 function PillButton({ onClick, children, icon, tone = "dark" }: { onClick: () => void; children: React.ReactNode; icon: React.ReactNode; tone?: "dark" | "light" | "white" }) {
-  const toneCls =
-    tone === "light"
-      ? "bg-[var(--navy)]/6 text-[var(--navy)] ring-1 ring-[var(--navy)]/12 hover:bg-[var(--navy)]/12"
-      : tone === "white"
-        ? "bg-white text-[var(--navy)] ring-1 ring-white/40 shadow-sm hover:bg-white/90"
-        : "bg-white/10 text-white hover:bg-white/20";
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`inline-flex min-h-9 items-center gap-2 px-3.5 py-2 rounded-full text-xs font-bold transition-all backdrop-blur ${toneCls}`}
-    >
-      <span className="w-4 h-4 rounded-full bg-[var(--gold)]/25 text-[var(--gold)] flex items-center justify-center">
-        {icon}
-      </span>
+    <Button type="button" variant="ghost" onClick={onClick} className={`min-h-10 rounded-full px-3 text-xs font-semibold ${tone === "light" ? "text-foreground hover:bg-secondary" : "text-navy-foreground hover:bg-navy-foreground/10 hover:text-navy-foreground"}`}>
+      <span className="flex size-5 items-center justify-center text-gold [&_svg]:size-3.5">{icon}</span>
       {children}
-    </button>
+    </Button>
   );
 }
