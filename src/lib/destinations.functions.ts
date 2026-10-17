@@ -61,6 +61,40 @@ export type Destination = {
   updated_at: string;
 };
 
+/**
+ * Destination enriched with its linked page's real photo + intro — used by hub
+ * cards. Both come from the destination's own published page; nothing is
+ * invented when a page or image is missing.
+ */
+export type HubDestination = Destination & {
+  image: string | null;
+  intro: string | null;
+};
+
+async function attachPageData(
+  sb: ReturnType<typeof serverPublicClient>,
+  rows: Destination[],
+): Promise<HubDestination[]> {
+  const ids = rows.map((r) => r.linked_page_id).filter((id): id is string => !!id);
+  const pages = new Map<string, { image: string | null; intro: string | null }>();
+  if (ids.length) {
+    const { data } = await sb
+      .from("seo_pages")
+      .select("id, featured_image_url, og_image_url, short_intro, meta_description")
+      .in("id", ids);
+    for (const p of data ?? []) {
+      pages.set(p.id, {
+        image: p.featured_image_url ?? p.og_image_url ?? null,
+        intro: p.short_intro ?? p.meta_description ?? null,
+      });
+    }
+  }
+  return rows.map((r) => {
+    const page = r.linked_page_id ? pages.get(r.linked_page_id) : undefined;
+    return { ...r, image: page?.image ?? null, intro: page?.intro ?? null };
+  });
+}
+
 const FIELDS =
   "id,type,slug,name,display_name,short_name,country,region,council,town,parent_id,lat,lng,place_id,keywords,synonyms,nearby_ids,popular_route_ids,related_service_ids,seo_tier,noindex,active,linked_page_id,meta,updated_at";
 
