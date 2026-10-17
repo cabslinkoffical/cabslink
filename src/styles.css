@@ -422,6 +422,9 @@
   will-change: transform;
 }
 .class-marquee:hover .class-marquee-track { animation-play-state: paused; }
+.draggable-marquee { cursor: grab; touch-action: pan-y; }
+.draggable-marquee[data-dragging="true"] { cursor: grabbing; user-select: none; }
+.draggable-marquee:focus-within > div { animation-play-state: paused; }
 @media (prefers-reduced-motion: reduce) {
   .class-marquee-track { animation: none !important; }
   .class-marquee { overflow-x: auto; }
