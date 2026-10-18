@@ -56,6 +56,7 @@ async function fetchFromGoogle(): Promise<GoogleReviewsSnapshot> {
     if (pageToken) qs.set("pageToken", pageToken);
     const res = await fetch(`${GATEWAY_URL}/my_business/v4/${ACCOUNT}/${LOCATION}/reviews?${qs}`, {
       headers: { Authorization: `Bearer ${lovableKey}`, "X-Connection-Api-Key": connKey },
+      signal: AbortSignal.timeout(2500),
     });
     if (!res.ok) {
       throw new Error(`Google reviews request failed [${res.status}]: ${await res.text()}`);

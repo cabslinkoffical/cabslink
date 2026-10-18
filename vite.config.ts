@@ -14,4 +14,5 @@ export default defineConfig({
     server: { entry: "server" },
   },
   plugins: [imagetools()],
+  vite: { define: { __BUILD_ID__: JSON.stringify(String(Date.now())) } },
 });
