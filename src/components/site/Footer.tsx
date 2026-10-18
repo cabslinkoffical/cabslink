@@ -52,31 +52,6 @@ export function Footer() {
             Premium UK airport transfers and airport travel services — punctual,
             professional and effortlessly comfortable, around the clock.
           </p>
-          <h3 className="mt-8 text-sm font-semibold uppercase tracking-wider text-[var(--gold)]">
-            Follow Cabslink
-          </h3>
-          <ul className="mt-4 space-y-2">
-            {SOCIALS.map(({ key, label, handle, url, Icon }) => (
-              <li key={key}>
-                <a
-                  href={url}
-                  aria-label={`${label} — ${handle}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group flex items-center gap-3 rounded-full border border-white/15 px-3 py-2 transition-colors hover:border-[var(--gold)]"
-                >
-                  <span className="grid size-9 shrink-0 place-items-center rounded-full bg-white/10 text-[var(--gold)] transition-colors group-hover:bg-[var(--gold)] group-hover:text-navy">
-                    <Icon className="size-[18px]" />
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block font-display text-sm font-semibold text-white/85">{label}</span>
-                    <span className="block truncate text-xs text-white/70">{handle}</span>
-                  </span>
-                  <ArrowUpRight className="size-4 shrink-0 text-white/60 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[var(--gold)]" />
-                </a>
-              </li>
-            ))}
-          </ul>
         </div>
         <div>
           <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--gold)]">Quick Links</h3>
@@ -104,6 +79,31 @@ export function Footer() {
             <li className="flex gap-3"><MapPin className="size-4 shrink-0 mt-0.5 text-[var(--gold)]" /><span>{SITE.address}</span></li>
             <li className="flex gap-3"><Phone className="size-4 shrink-0 mt-0.5 text-[var(--gold)]" /><div><a href={`tel:${SITE.phoneUK.replace(/\s/g,"")}`} className="flex min-h-10 items-center hover:text-[var(--gold)] md:min-h-0">{SITE.phoneUK}</a></div></li>
             <li className="flex gap-3"><Mail className="size-4 shrink-0 mt-0.5 text-[var(--gold)]" /><a href={`mailto:${SITE.email}`} className="inline-flex min-h-10 items-center hover:text-[var(--gold)] md:min-h-0">{SITE.email}</a></li>
+          </ul>
+          <h3 className="mt-8 text-sm font-semibold uppercase tracking-wider text-[var(--gold)]">
+            Follow Cabslink
+          </h3>
+          <ul className="mt-4 space-y-2">
+            {SOCIALS.map(({ key, label, handle, url, Icon }) => (
+              <li key={key}>
+                <a
+                  href={url}
+                  aria-label={`${label} — ${handle}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-center gap-3 rounded-full border border-white/15 px-3 py-2 transition-colors hover:border-[var(--gold)]"
+                >
+                  <span className={`grid size-9 shrink-0 place-items-center rounded-full text-white shadow-md transition-transform group-hover:scale-110 social-icon-${key}`}>
+                    <Icon className="size-[18px]" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block font-display text-sm font-semibold text-white/85">{label}</span>
+                    <span className="block truncate text-xs text-white/70">{handle}</span>
+                  </span>
+                  <ArrowUpRight className="size-4 shrink-0 text-white/60 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[var(--gold)]" />
+                </a>
+              </li>
+            ))}
           </ul>
         </div>
       </div>
