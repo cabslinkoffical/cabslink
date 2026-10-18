@@ -2,6 +2,7 @@ import "./lib/error-capture";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
+import { serveWithEdgeCache } from "./lib/html-edge-cache";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -116,10 +117,10 @@ export default {
         }
       }
       const handler = await getServerEntry();
-      const response = await handler.fetch(request, env, ctx);
-      return withHtmlRevalidation(
-        withSecurityHeaders(await normalizeCatastrophicSsrResponse(response)),
+      const response = await serveWithEdgeCache(request, ctx as any, async () =>
+        normalizeCatastrophicSsrResponse(await handler.fetch(request, env, ctx)),
       );
+      return withHtmlRevalidation(withSecurityHeaders(response));
     } catch (error) {
       console.error(error);
       return new Response(renderErrorPage(), {
