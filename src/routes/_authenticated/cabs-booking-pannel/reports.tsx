@@ -117,7 +117,7 @@ function Page() {
                   <Tooltip />
                   <Legend />
                   <Bar dataKey="completed" stackId="a" fill="#0e182c" />
-                  <Bar dataKey="cancelled" stackId="a" fill="#deae25" />
+                  <Bar dataKey="cancelled" stackId="a" fill="#dfaf26" />
                   <Bar dataKey="total" fill="hsl(var(--primary))" />
                 </BarChart>
               </ResponsiveContainer>

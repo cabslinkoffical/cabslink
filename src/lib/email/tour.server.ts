@@ -38,7 +38,7 @@ function shell(title: string, bodyHtml: string): string {
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title></head>
 <body style="margin:0;padding:24px 12px;background:#ffffff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;color:#0e182c;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 12px 40px -20px rgba(14,24,44,.25);">
-    <tr><td style="padding:24px 28px;background:#0e182c;color:#deae25;font-weight:800;letter-spacing:.18em;font-size:14px;text-transform:uppercase;">${esc(SITE.name)}</td></tr>
+    <tr><td style="padding:24px 28px;background:#0e182c;color:#dfaf26;font-weight:800;letter-spacing:.18em;font-size:14px;text-transform:uppercase;">${esc(SITE.name)}</td></tr>
     <tr><td style="padding:28px;">${bodyHtml}</td></tr>
     <tr><td style="padding:18px 28px;background:#ffffff;color:#0e182c;font-size:12px;line-height:1.5;">${esc(SITE.name)} · ${esc(SITE.phoneUK)} · ${esc(SITE.email)}</td></tr>
   </table>
@@ -80,7 +80,7 @@ function factLines(ctx: TourEmailContext): string[] {
 export function tourEnquiryReceivedEmail(ctx: TourEmailContext) {
   const heading = "Tour enquiry received";
   const html = shell(heading, `
-    <p style="margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:.2em;color:#deae25;font-weight:700;">Tour enquiry</p>
+    <p style="margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:.2em;color:#dfaf26;font-weight:700;">Tour enquiry</p>
     <h1 style="margin:0 0 12px;font-size:22px;">Thank you, ${esc(ctx.customerName)}</h1>
     <p style="margin:0 0 20px;line-height:1.55;">We have your tour enquiry and your reference is <strong>${esc(ctx.bookingRef)}</strong>. Our tour desk will confirm availability and send you a fixed price shortly — no payment is needed yet.</p>
     ${factRows(ctx)}
@@ -107,12 +107,12 @@ export function tourEnquiryReceivedEmail(ctx: TourEmailContext) {
 export function tourQuoteConfirmedEmail(ctx: TourEmailContext) {
   const heading = "Your tour is confirmed";
   const html = shell(heading, `
-    <p style="margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:.2em;color:#deae25;font-weight:700;">Tour confirmed — payment due</p>
+    <p style="margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:.2em;color:#dfaf26;font-weight:700;">Tour confirmed — payment due</p>
     <h1 style="margin:0 0 12px;font-size:22px;">Good news, ${esc(ctx.customerName)}</h1>
     <p style="margin:0 0 20px;line-height:1.55;">Your tour is confirmed for the date below. The agreed total is <strong>${ctx.price != null ? money(Number(ctx.price)) : "—"}</strong>. To secure your driver, please complete payment.</p>
     ${factRows(ctx)}
     ${ctx.adminNote ? `<p style="margin:18px 0 0;line-height:1.55;font-size:13px;white-space:pre-wrap;">${esc(ctx.adminNote)}</p>` : ""}
-    ${ctx.payUrl ? `<p style="margin:22px 0 0;"><a href="${esc(ctx.payUrl)}" style="display:inline-block;padding:12px 22px;border-radius:999px;background:#deae25;color:#0e182c;font-weight:800;text-decoration:none;">Pay now</a></p>` : ""}
+    ${ctx.payUrl ? `<p style="margin:22px 0 0;"><a href="${esc(ctx.payUrl)}" style="display:inline-block;padding:12px 22px;border-radius:999px;background:#dfaf26;color:#0e182c;font-weight:800;text-decoration:none;">Pay now</a></p>` : ""}
     <p style="margin:22px 0 0;line-height:1.55;font-size:13px;">Prefer to pay another way, or need a change? Call <strong>${esc(SITE.phoneUK)}</strong> or manage your booking at <a href="${esc(ctx.manageUrl)}" style="color:#0e182c;font-weight:700;">${esc(ctx.manageUrl)}</a>.</p>
   `);
   return {
