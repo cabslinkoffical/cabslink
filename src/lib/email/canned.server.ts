@@ -33,14 +33,14 @@ export function cannedEmail(input: { subject: string; body: string; heading?: st
     <tr><td align="center">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#ffffff;border-radius:14px;overflow:hidden;">
         <tr><td style="background:#0e182c;padding:20px 28px;">
-          <span style="color:#deae25;font-weight:800;letter-spacing:.14em;text-transform:uppercase;font-size:13px;">${esc(SITE.name)}</span>
+          <span style="color:#dfaf26;font-weight:800;letter-spacing:.14em;text-transform:uppercase;font-size:13px;">${esc(SITE.name)}</span>
         </td></tr>
         <tr><td style="padding:28px;">
           <h1 style="margin:0 0 18px;font-size:20px;color:#0e182c;">${esc(heading)}</h1>
           ${paragraphs}
         </td></tr>
         <tr><td style="background:#0e182c;padding:18px 28px;color:#ffffff;font-size:12px;line-height:1.6;">
-          ${esc(SITE.name)} · ${esc(SITE.phoneUK)} · <a href="mailto:${esc(SITE.email)}" style="color:#deae25;">${esc(SITE.email)}</a>
+          ${esc(SITE.name)} · ${esc(SITE.phoneUK)} · <a href="mailto:${esc(SITE.email)}" style="color:#dfaf26;">${esc(SITE.email)}</a>
         </td></tr>
       </table>
     </td></tr>

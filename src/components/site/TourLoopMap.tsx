@@ -23,7 +23,7 @@ type Props = {
 };
 
 const NAVY = "#0e182c";
-const GOLD = "#deae25";
+const GOLD = "#dfaf26";
 
 export function TourLoopMap({ startPlaceId, startLabel, stops, className = "" }: Props) {
   const fetchLoop = useServerFn(getTourLoopMap);

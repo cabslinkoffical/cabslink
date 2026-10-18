@@ -28,10 +28,10 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/")({
 });
 
 const STATUS_COLORS: Record<string, string> = {
-  new: "#deae25", pending_allocation: "#deae25",
+  new: "#dfaf26", pending_allocation: "#dfaf26",
   confirmed: "#0e182c", assigned: "#0e182c",
-  on_way: "#deae25", in_progress: "#deae25",
-  completed: "#0e182c", cancelled: "#deae25", bidding: "#0e182c",
+  on_way: "#dfaf26", in_progress: "#dfaf26",
+  completed: "#0e182c", cancelled: "#dfaf26", bidding: "#0e182c",
 };
 
 function fmt(n: number) {
@@ -92,7 +92,7 @@ function Dashboard() {
                 <XAxis dataKey="date" tick={{ fontSize: 10 }} tickFormatter={d => d.slice(5)} />
                 <YAxis allowDecimals={false} tick={{ fontSize: 10 }} />
                 <Tooltip contentStyle={{ background: "#ffffff", border: "1px solid rgba(14,24,44,0.12)", borderRadius: 12, boxShadow: "0 18px 40px -24px rgba(14,24,44,0.45)", fontSize: 12 }} />
-                <Line type="monotone" dataKey="count" stroke="#deae25" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="count" stroke="#dfaf26" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
           </div>

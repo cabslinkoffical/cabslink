@@ -220,7 +220,7 @@ export function AdminMapEditor({
       hasBounds = true;
     };
 
-    setMarker(originMarker, originCoord, "A", "#DEAE25", origin?.label ?? "Start");
+    setMarker(originMarker, originCoord, "A", "#dfaf26", origin?.label ?? "Start");
     setMarker(destMarker, mode === "route" ? destCoord : null, "B", "#FFFFFF", destination?.label ?? "End");
 
     // Radius circles — the exact areas the rule covers. Both endpoints get one
@@ -256,7 +256,7 @@ export function AdminMapEditor({
       return true;
     };
 
-    const showCircle = drawCircle(circleRef, originCoord, radiusMiles, "#DEAE25");
+    const showCircle = drawCircle(circleRef, originCoord, radiusMiles, "#dfaf26");
     const showDestCircle = mode === "route"
       ? drawCircle(destCircleRef, destCoord, destinationRadiusMiles, "#0E182C")
       : drawCircle(destCircleRef, null, null, "#0E182C");

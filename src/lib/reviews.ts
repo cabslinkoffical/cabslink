@@ -117,7 +117,7 @@ export const REVIEW_CHANNELS: ReviewChannel[] = [
     blurb: "Emailed after your journey",
     detail:
       "Planned. A short post-journey email so every passenger can tell us how it went. We will only publish direct feedback with the passenger's written permission, and it will always be labelled as collected by us rather than by an independent platform.",
-    brandColor: "#DEAE25",
+    brandColor: "#dfaf26",
   },
 ];
 

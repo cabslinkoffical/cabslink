@@ -84,7 +84,7 @@ export function JourneyMap({ pickupPlaceId, dropoffPlaceId, stopPlaceIds = [], c
       path, map, strokeColor: "#0e182c", strokeOpacity: 0.9, strokeWeight: 7, zIndex: 1,
     });
     const line = new g.maps.Polyline({
-      path, map, strokeColor: "#deae25", strokeOpacity: 1, strokeWeight: 3.5, zIndex: 2,
+      path, map, strokeColor: "#dfaf26", strokeOpacity: 1, strokeWeight: 3.5, zIndex: 2,
     });
     drawnRef.current.push(casing, line);
 
@@ -101,9 +101,9 @@ export function JourneyMap({ pickupPlaceId, dropoffPlaceId, stopPlaceIds = [], c
         icon: {
           path: g.maps.SymbolPath.CIRCLE,
           scale: isFirst || isLast ? 8 : 9,
-          fillColor: isFirst ? "#deae25" : isLast ? "#0e182c" : "#f3d689",
+          fillColor: isFirst ? "#dfaf26" : isLast ? "#0e182c" : "#f3d689",
           fillOpacity: 1,
-          strokeColor: isFirst ? "#0e182c" : isLast ? "#deae25" : "#0e182c",
+          strokeColor: isFirst ? "#0e182c" : isLast ? "#dfaf26" : "#0e182c",
           strokeWeight: 2.5,
         },
       });
@@ -194,7 +194,7 @@ export function PlaceMarkerMap({
       icon: {
         path: g.maps.SymbolPath.CIRCLE,
         scale: 8,
-        fillColor: "#deae25",
+        fillColor: "#dfaf26",
         fillOpacity: 1,
         strokeColor: "#0e182c",
         strokeWeight: 2.5,

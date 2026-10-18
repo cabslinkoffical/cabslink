@@ -33,7 +33,7 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/analyt
   component: AnalyticsPage,
 });
 
-const GOLD = "#deae25";
+const GOLD = "#dfaf26";
 const NAVY = "#0e182c";
 const SLICES = [NAVY, GOLD, "#3b4a63", "#b8901c", "#6b7a94", "#8a6c14", "#9fadc4", "#f0cf72"];
 

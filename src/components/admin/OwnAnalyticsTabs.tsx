@@ -10,7 +10,7 @@ import { getOwnAnalytics } from "@/lib/own-analytics.functions";
 import { GA_MEASUREMENT_ID } from "@/lib/analytics-ga";
 import { Eye, Users, MousePointerClick, Activity, Repeat, LogOut, Radio, ExternalLink, ShieldCheck, Clock, Target, Phone } from "lucide-react";
 
-const GOLD = "#deae25";
+const GOLD = "#dfaf26";
 const NAVY = "#0e182c";
 const fmtDur = (sec: number) => { const m = Math.floor(sec / 60); const s = Math.round(sec % 60); return m ? `${m}m ${s}s` : `${s}s`; };
 const isoDay = (d: Date) => d.toISOString().slice(0, 10);
