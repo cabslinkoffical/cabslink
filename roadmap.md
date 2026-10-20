@@ -1,6 +1,6 @@
 # Roadmap
-- [ ] Booking controls: make mode tabs and Add stop/return visibly button-like, retaining one form and verifying desktop/mobile interactions.
-- [ ] Response-time improvements: finish cache tests and measure current live response; deployment effectiveness remains unverified until hosted cache behaviour is confirmed.
+- [x] Booking controls: shared bordered buttons with gold selected state; desktop/mobile interaction checks passed for Transfers, Hourly Hire, Add stop and Add return; one form retained, no overflow or runtime errors; 13 targeted tests pass, build OK.
+- [~] Response-time improvements: 7 cache tests pass, including warm hits, five-minute refresh, unavailable cache and error exclusion; live homepage still measured 7.18s/6.06s. Hosted cache effectiveness remains blocked on confirming the deployed version and cache operation; no publication requested or performed.
 - [x] Homepage vehicle-class and tour rows: allow dragging in either direction with touch and mouse, preserving hover pause.
 - [x] Booking controls: separate transparent Add stop/return actions; added fields extend the original sheet; shared passenger/bag editor with direct entry, steppers and Done.
 - [x] Booking form: adding a stop or a return journey now extends the same form card instead of opening a second white box below it; one card on desktop and mobile, new test added, full suite passes; nothing published.
