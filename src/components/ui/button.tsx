@@ -14,8 +14,8 @@ const buttonVariants = cva(
         outline:
           "border border-input bg-background text-foreground shadow-sm hover:bg-secondary hover:text-foreground hover:border-[var(--gold)]",
         secondary: "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
-        bookingDark: "border border-navy-foreground/25 bg-navy-foreground/5 text-navy-foreground shadow-sm hover:border-gold hover:bg-navy-foreground/10 hover:text-navy-foreground aria-pressed:bg-gold aria-pressed:text-gold-foreground aria-pressed:border-gold",
-        bookingLight: "border border-input bg-card text-card-foreground shadow-sm hover:border-gold-ink hover:bg-secondary aria-pressed:bg-gold aria-pressed:text-gold-foreground aria-pressed:border-gold",
+        bookingDark: "booking-control booking-control-dark border border-navy-foreground/20 text-navy-foreground hover:border-gold/70 hover:text-navy-foreground aria-pressed:text-gold-foreground aria-pressed:border-gold",
+        bookingLight: "booking-control border border-input text-card-foreground hover:border-gold-ink aria-pressed:text-gold-foreground aria-pressed:border-gold",
         ghost: "text-foreground hover:bg-secondary hover:text-foreground",
         link: "text-foreground underline-offset-4 hover:underline hover:text-[var(--gold-ink)]",
         gold: "bg-[var(--gold)] text-[var(--gold-foreground)] shadow-[var(--shadow-glow)] hover:bg-[var(--navy)] hover:text-[var(--navy-foreground)] font-bold",

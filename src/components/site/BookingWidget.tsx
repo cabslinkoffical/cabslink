@@ -879,9 +879,9 @@ function TabButton({ active, onClick, icon, children, tone = "dark" }: { active:
       variant={tone === "light" ? "bookingLight" : "bookingDark"}
       aria-pressed={active}
       onClick={onClick}
-      className="h-11 shrink-0 gap-2 rounded-lg px-3 text-[13px] @[420px]:px-4 @[420px]:text-sm font-bold font-display tracking-normal active:translate-y-px motion-reduce:transform-none"
+      className="h-12 shrink-0 gap-2 rounded-lg px-3 text-[13px] @[420px]:px-4 @[420px]:text-sm font-bold font-display tracking-normal active:translate-y-px motion-reduce:transform-none"
     >
-      {icon}
+      <span className="booking-control-icon">{icon}</span>
       {children}
     </Button>
   );
@@ -966,7 +966,7 @@ function StepperRow({ icon, label, hint, value, min, max, onChange }: {
 function PillButton({ onClick, children, icon, tone = "dark" }: { onClick: () => void; children: React.ReactNode; icon: React.ReactNode; tone?: "dark" | "light" | "white" }) {
   return (
     <Button type="button" variant={tone === "light" ? "bookingLight" : "bookingDark"} onClick={onClick} className="h-11 rounded-lg px-4 text-xs font-semibold active:translate-y-px motion-reduce:transform-none">
-      <span className={`flex size-5 items-center justify-center ${tone === "light" ? "text-gold-ink" : "text-gold"} [&_svg]:size-3.5`}>{icon}</span>
+      <span className="booking-control-icon [&_svg]:size-3.5">{icon}</span>
       {children}
     </Button>
   );
