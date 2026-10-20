@@ -51,7 +51,7 @@ describe("edge cache serving", () => {
   it("serves stale HTML immediately and refreshes after five minutes", async () => {
     const stale = html("old page");
     stale.headers.set("x-cabslink-cached-at", String(Date.now() - 5 * 60_000 - 1));
-    const put = vi.fn(async () => undefined);
+    const put = vi.fn(async (_key: Request, _value: Response) => undefined);
     vi.stubGlobal("caches", { default: { match: async () => stale, put } });
     const jobs: Promise<unknown>[] = [];
     const render = vi.fn(async () => html("new page"));
