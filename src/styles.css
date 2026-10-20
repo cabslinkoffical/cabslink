@@ -909,6 +909,7 @@ input[type="time"] {
   padding: 0;
   max-width: 650px;
   overflow: visible;
+  gap: .5rem;
 }
 .home-hero-booking > div > div:first-child > button {
   justify-content: center;
@@ -918,7 +919,6 @@ input[type="time"] {
 }
 .home-hero-booking form > div > div.grid > div[data-invalid] > div:first-child { padding-block: .75rem; }
 .home-hero-booking form > div:has(> .grid) { border-radius: 24px; }
-.home-hero-booking form > div.flex > button { box-shadow: none; background: transparent; color: var(--navy-foreground); }
 .home-hero-booking .cta-search { letter-spacing: 0; border-radius: 999px; }
 .home-hero-vehicle { grid-area: vehicle; width: 100%; max-width: 1020px; margin-inline: auto; justify-self: center; overflow-x: clip; }
 .home-hero-vehicle-stage { position: relative; height: 210px; isolation: isolate; }
@@ -1023,7 +1023,6 @@ input[type="time"] {
   .home-hero-vehicle-image { --hero-vehicle-y: -.5rem; }
   .home-hero-booking form > div > div.grid > div[data-invalid] > div:first-child { padding-block: .5rem; }
   .home-hero-booking form > div > div.grid > .cta-search { padding-block: .75rem; }
-  .home-hero-booking > div > div:first-child > button { padding-block: .375rem; }
 }
 @media (prefers-reduced-motion: reduce) {
   .home-hero-vehicle-enter,

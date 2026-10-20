@@ -222,7 +222,7 @@ export function BookingWidget({
     <div ref={rootRef} className="@container w-full max-w-6xl mx-auto">
       {/* Tabs above the pill — local pages show the clean stacked form only. */}
       {variant !== "hero" && (
-      <div className="flex items-center gap-0.5 mb-3 px-2 -mx-1 overflow-x-auto no-scrollbar @[420px]:gap-1 @[420px]:mx-0">
+      <div className="flex items-center gap-2 mb-3 px-2 -mx-1 overflow-x-auto no-scrollbar @[420px]:mx-0">
         <TabButton tone={tone} active={tab === "quote"} onClick={() => setTab("quote")} icon={<Car className="w-4 h-4" />}>
           Transfers
         </TabButton>
@@ -873,22 +873,17 @@ function BookingWidgetMap({
 }
 
 function TabButton({ active, onClick, icon, children, tone = "dark" }: { active: boolean; onClick: () => void; icon: React.ReactNode; children: React.ReactNode; tone?: "dark" | "light" }) {
-  const activeCls = tone === "light" ? "text-[var(--navy)] border-[var(--gold)]" : "text-white border-[var(--gold)]";
-  const idleCls =
-    tone === "light"
-      ? "text-[var(--navy)]/60 border-transparent hover:text-[var(--navy)]"
-      : "text-white/60 border-transparent hover:text-white/90";
   return (
-    <button
+    <Button
       type="button"
+      variant={tone === "light" ? "bookingLight" : "bookingDark"}
+      aria-pressed={active}
       onClick={onClick}
-      className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap px-3 py-2.5 text-[13px] @[420px]:px-4 @[420px]:text-sm font-bold font-display tracking-wide transition-colors border-b-2 ${
-        active ? activeCls : idleCls
-      }`}
+      className="h-11 shrink-0 gap-2 rounded-lg px-3 text-[13px] @[420px]:px-4 @[420px]:text-sm font-bold font-display tracking-normal active:translate-y-px motion-reduce:transform-none"
     >
       {icon}
       {children}
-    </button>
+    </Button>
   );
 }
 
@@ -970,8 +965,8 @@ function StepperRow({ icon, label, hint, value, min, max, onChange }: {
 
 function PillButton({ onClick, children, icon, tone = "dark" }: { onClick: () => void; children: React.ReactNode; icon: React.ReactNode; tone?: "dark" | "light" | "white" }) {
   return (
-    <Button type="button" variant="ghost" onClick={onClick} className={`min-h-10 rounded-full px-3 text-xs font-semibold ${tone === "light" ? "text-foreground hover:bg-secondary" : "text-navy-foreground hover:bg-navy-foreground/10 hover:text-navy-foreground"}`}>
-      <span className="flex size-5 items-center justify-center text-[var(--gold-ink)] [&_svg]:size-3.5">{icon}</span>
+    <Button type="button" variant={tone === "light" ? "bookingLight" : "bookingDark"} onClick={onClick} className="h-11 rounded-lg px-4 text-xs font-semibold active:translate-y-px motion-reduce:transform-none">
+      <span className={`flex size-5 items-center justify-center ${tone === "light" ? "text-gold-ink" : "text-gold"} [&_svg]:size-3.5`}>{icon}</span>
       {children}
     </Button>
   );
