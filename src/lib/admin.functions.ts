@@ -1138,10 +1138,17 @@ export const updateCancellationRequest = createServerFn({ method: "POST" })
     if (transitionId && booking?.email) {
       try {
         const { notifyStatusChange } = await import("@/lib/notifications.server");
-        await notifyStatusChange(
-          { bookingRef: booking.booking_ref, customerName: booking.customer_name, customerEmail: booking.email, status: "cancelled" } as any,
-          booking.id, "cancelled" as any, transitionId,
-        );
+        const full: any = (await supabaseAdmin.from("bookings").select("*").eq("id", booking.id).maybeSingle()).data;
+        await notifyStatusChange({
+          bookingRef: full.booking_ref, status: full.status, paymentMode: "manual",
+          customerName: full.customer_name, customerEmail: full.email, customerPhone: full.phone,
+          pickupAddress: full.pickup_address, dropoffAddress: full.dropoff_address,
+          pickupDate: full.pickup_date, pickupTime: full.pickup_time, vehicleType: full.vehicle_type,
+          passengers: full.passengers, luggage: full.luggage, flightNumber: full.flight_number,
+          meetGreet: !!full.meet_greet, childSeat: !!full.child_seat, returnJourney: !!full.return_journey,
+          distanceMiles: full.distance_miles, price: full.price, notes: full.notes,
+          cancellationReason: full.cancellation_reason,
+        } as any, booking.id, "cancelled" as any, transitionId);
       } catch (e) { console.error("cancellation email failed", e); }
     }
     return { ok: true, bookingCancelled: !!transitionId, refundNote };
