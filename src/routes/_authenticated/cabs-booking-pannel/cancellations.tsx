@@ -116,7 +116,7 @@ function CancellationsPage() {
 
   const upd = useMutation({
     mutationFn: useServerFn(updateCancellationRequest),
-    onSuccess: () => { invalidate(); toast.success("Request updated"); },
+    onSuccess: (r: any) => { invalidate(); toast.success(r?.bookingCancelled ? "Saved — booking cancelled and customer emailed" : "Request updated"); if (r?.refundNote) toast.info(r.refundNote); },
     onError: (e: any) => toast.error(e.message),
   });
   const del = useMutation({
@@ -171,7 +171,7 @@ function CancellationsPage() {
     setNotes(active.admin_notes ?? "");
     setAmount(active.refund_amount == null ? "" : String(active.refund_amount));
     setStatus((active.status ?? "pending") as Status);
-    setAlsoCancel(false);
+    setAlsoCancel(true);
   }, [openId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const save = () => {
@@ -392,8 +392,11 @@ function CancellationsPage() {
                   </div>
                   <label className="flex items-center gap-2 text-sm">
                     <input type="checkbox" checked={alsoCancel} onChange={(e) => setAlsoCancel(e.target.checked)} />
-                    Also mark the booking itself as cancelled
+                    Cancel the booking when approved, refunded or completed
                   </label>
+                  <p className="text-xs text-muted-foreground">
+                    Approved cancels the booking. Refunded also sends the money back to the customer's card through Stripe (full fare if the amount is blank). Declined keeps the booking active.
+                  </p>
                   <Button onClick={save} disabled={upd.isPending} className="w-full">
                     {upd.isPending ? "Saving…" : "Save decision"}
                   </Button>

@@ -1046,27 +1046,112 @@ export const updateCancellationRequest = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    const patch: any = { handled_by: context.userId, handled_at: new Date().toISOString() };
-    if (data.status !== undefined) patch.status = data.status;
-    if (data.refund_amount !== undefined) patch.refund_amount = data.refund_amount;
-    if (data.admin_notes !== undefined) patch.admin_notes = data.admin_notes;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { cancellationDecision } = await import("@/lib/cancellation-rules");
 
-    const { data: row, error } = await context.supabase
+    const reqRes: any = await supabaseAdmin.from("cancellation_requests").select("*").eq("id", data.id).maybeSingle();
+    if (reqRes.error || !reqRes.data) throw new Error("Cancellation request not found");
+    const req = reqRes.data;
+    const bRes: any = req.booking_id
+      ? await supabaseAdmin.from("bookings").select("id, booking_ref, status, payment_status, price, customer_name, email").eq("id", req.booking_id).maybeSingle()
+      : await supabaseAdmin.from("bookings").select("id, booking_ref, status, payment_status, price, customer_name, email").eq("booking_ref", req.booking_ref).maybeSingle();
+    const booking = bRes.data ?? null;
+
+    const status = data.status ?? req.status;
+    const decision = cancellationDecision({
+      previousStatus: req.status,
+      nextStatus: status,
+      refundAmount: data.refund_amount ?? req.refund_amount ?? null,
+      bookingPrice: booking?.price == null ? null : Number(booking.price),
+      bookingStatus: booking?.status ?? null,
+      paymentStatus: booking?.payment_status ?? null,
+      cancelBooking: data.cancel_booking,
+    });
+    if (decision.error) throw new Error(decision.error);
+
+    // 1. Refund the card through Stripe when the decision is "refunded".
+    let refundNote: string | null = null;
+    if (decision.issueRefund && booking) {
+      const pay: any = await supabaseAdmin
+        .from("payments")
+        .select("id, payment_intent_id, environment, status")
+        .eq("booking_id", booking.id)
+        .not("payment_intent_id", "is", null)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      const pence = Math.round(decision.refundAmount * 100);
+      if (pay.data?.payment_intent_id && pence > 0) {
+        const { createStripeClient, getStripeErrorMessage } = await import("@/lib/stripe.server");
+        try {
+          const stripe = createStripeClient((pay.data.environment === "sandbox" ? "sandbox" : "live") as any);
+          const refund = await stripe.refunds.create(
+            { payment_intent: pay.data.payment_intent_id, amount: pence },
+            { idempotencyKey: `cancel-${req.id}-${pence}` },
+          );
+          refundNote = `Stripe refund ${refund.id} for £${decision.refundAmount.toFixed(2)}`;
+        } catch (e) {
+          throw new Error(`Stripe refund failed: ${getStripeErrorMessage(e)}`);
+        }
+        await supabaseAdmin.from("payments")
+          .update({ status: decision.fullRefund ? "refunded" : "partial", processor_status: decision.fullRefund ? "refunded" : "partially_refunded" } as any)
+          .eq("id", pay.data.id);
+      } else {
+        refundNote = `Refund of £${decision.refundAmount.toFixed(2)} recorded (no card payment on file — pay back manually)`;
+      }
+      await supabaseAdmin.from("bookings")
+        .update({ payment_status: decision.fullRefund ? "refunded" : "partial" } as any)
+        .eq("id", booking.id);
+    }
+
+    // 2. Cancel the booking itself through the audited status function.
+    let transitionId: string | null = null;
+    if (decision.cancelBooking && booking) {
+      const rpc: any = await supabaseAdmin.rpc("set_booking_status", {
+        _booking_id: booking.id,
+        _new_status: "cancelled",
+        _actor_id: context.userId,
+        _reason: `Customer cancellation: ${req.reason}`,
+        _override: true,
+      });
+      if (rpc.error) throw new Error(`The booking could not be cancelled: ${rpc.error.message}`);
+      const r = Array.isArray(rpc.data) ? rpc.data[0] : rpc.data;
+      transitionId = r?.changed ? r.transition_id : null;
+    }
+
+    // 3. Save the decision on the request.
+    const notes = [data.admin_notes !== undefined ? data.admin_notes : req.admin_notes, refundNote].filter(Boolean).join("\n");
+    const { error } = await supabaseAdmin
       .from("cancellation_requests")
-      .update(patch)
-      .eq("id", data.id)
-      .select("booking_id, booking_ref")
-      .maybeSingle();
+      .update({
+        status,
+        refund_amount: decision.issueRefund || data.refund_amount !== undefined ? decision.refundAmount || data.refund_amount || null : req.refund_amount,
+        admin_notes: notes || null,
+        handled_by: context.userId,
+        handled_at: new Date().toISOString(),
+        booking_id: req.booking_id ?? booking?.id ?? null,
+      } as any)
+      .eq("id", data.id);
     if (error) throw new Error(error.message);
 
-    if (data.cancel_booking && row?.booking_ref) {
-      const { error: bErr } = await context.supabase
-        .from("bookings")
-        .update({ status: "cancelled" })
-        .eq("booking_ref", row.booking_ref);
-      if (bErr) throw new Error(`Request saved, but the booking could not be cancelled: ${bErr.message}`);
+    // 4. Tell the customer their booking is cancelled.
+    if (transitionId && booking?.email) {
+      try {
+        const { notifyStatusChange } = await import("@/lib/notifications.server");
+        const full: any = (await supabaseAdmin.from("bookings").select("*").eq("id", booking.id).maybeSingle()).data;
+        await notifyStatusChange({
+          bookingRef: full.booking_ref, status: full.status, paymentMode: "manual",
+          customerName: full.customer_name, customerEmail: full.email, customerPhone: full.phone,
+          pickupAddress: full.pickup_address, dropoffAddress: full.dropoff_address,
+          pickupDate: full.pickup_date, pickupTime: full.pickup_time, vehicleType: full.vehicle_type,
+          passengers: full.passengers, luggage: full.luggage, flightNumber: full.flight_number,
+          meetGreet: !!full.meet_greet, childSeat: !!full.child_seat, returnJourney: !!full.return_journey,
+          distanceMiles: full.distance_miles, price: full.price, notes: full.notes,
+          cancellationReason: full.cancellation_reason,
+        } as any, booking.id, "cancelled" as any, transitionId);
+      } catch (e) { console.error("cancellation email failed", e); }
     }
-    return { ok: true };
+    return { ok: true, bookingCancelled: !!transitionId, refundNote };
   });
 
 export const deleteCancellationRequest = createServerFn({ method: "POST" })
