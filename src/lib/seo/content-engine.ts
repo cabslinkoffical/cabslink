@@ -9,6 +9,7 @@
 import type { LoadedDestination } from "@/components/site/DestinationPage";
 import type { Destination } from "@/lib/destinations.functions";
 import type { SectionKey } from "@/lib/seo/template-registry";
+import { FACT_TEXT } from "@/lib/site-facts";
 
 export type Section =
   | { key: "summary"; sentences: string[] }
@@ -89,7 +90,7 @@ function buildFaqs(loaded: LoadedDestination): Array<{ q: string; a: string }> {
   if (d.type === "airport") {
     items.push({
       q: `Do you offer meet & greet at ${name}?`,
-      a: `Yes — a named driver meets you inside the terminal on request when booking a private transfer.`,
+      a: `Yes. ${FACT_TEXT.meetGreet}`,
     });
   }
   if (d.type === "route") {

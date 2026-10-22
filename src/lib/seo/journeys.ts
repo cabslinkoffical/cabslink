@@ -1,4 +1,4 @@
-import { FACT_TEXT } from "@/lib/site-facts";
+import { FACTS, FACT_TEXT } from "@/lib/site-facts";
 /**
  * Phase E — journey (route) pages: /routes and /routes/:slug.
  *
@@ -130,7 +130,7 @@ export const JOURNEYS: JourneyRecord[] = [
     faqs: [
       { q: "How long is Edinburgh Airport to St Andrews?", a: "About 80 minutes for 48 miles via the Queensferry Crossing, M90 and A91." },
       { q: "Will golf clubs fit?", a: "Yes, when the bag count is confirmed at booking. Four players with clubs and cases are allocated an estate, MPV or van." },
-      { q: "Do you wait if my flight is late?", a: "Yes. Arrivals are tracked and the first hour of waiting on international flights is included." },
+      { q: "Do you wait if my flight is late?", a: `Yes. Arrivals are tracked, and the first ${FACTS.airportWait.freeMinutes} minutes of waiting from the actual landing time are free on every airport pickup.` },
     ],
   },
   {
@@ -399,7 +399,7 @@ export const JOURNEYS: JourneyRecord[] = [
       },
       {
         q: "What happens if my flight is delayed?",
-        a: "Your flight is tracked, so a late landing simply moves the pickup. Because the run is short we hold the driver locally in Fife rather than dispatching from Edinburgh, and the first hour of international waiting is included.",
+        a: `Your flight is tracked, so a late landing simply moves the pickup. Because the run is short we hold the driver locally in Fife rather than dispatching from Edinburgh, and the first ${FACTS.airportWait.freeMinutes} minutes of waiting from the actual landing time are free.`,
       },
       {
         q: "Where will my driver collect me in Dunfermline?",
@@ -420,7 +420,7 @@ export const JOURNEYS: JourneyRecord[] = [
     planning: [
       "Pickups are timed from your specific Livingston district, as junction choice changes the run by several minutes.",
       "Kirkton Campus and Houstoun Industrial Estate collections can be placed on a corporate account with monthly invoicing.",
-      "Late-evening arrivals into Edinburgh are met inside the terminal on request, with the driver waiting airside of the exit doors.",
+      "Late-evening arrivals into Edinburgh are met inside the terminal with a name board — meet and greet is included on every airport pickup.",
     ],
     stops: ["Almondvale", "Newbridge", "Ratho Station"],
     serviceIds: ["airport-transfers", "corporate-travel", "private-hire"],
@@ -435,7 +435,7 @@ export const JOURNEYS: JourneyRecord[] = [
       },
       {
         q: "What happens if my flight is delayed?",
-        a: "Flight numbers are tracked and the driver is re-timed to the real landing time. Waiting is free for the first hour on international arrivals and the first 30 minutes on domestic flights.",
+        a: `Flight numbers are tracked and the driver is re-timed to the real landing time. Waiting is free for the first ${FACTS.airportWait.freeMinutes} minutes from the actual landing time on every airport pickup.`,
       },
       {
         q: "Which parts of Livingston do you collect from?",
@@ -471,7 +471,7 @@ export const JOURNEYS: JourneyRecord[] = [
       },
       {
         q: "What happens if my flight is delayed?",
-        a: "We track your flight and adjust the pickup to the actual landing time at no extra charge, with the first hour of waiting included on international arrivals and 30 minutes on domestic.",
+        a: `We track your flight and adjust the pickup to the actual landing time at no extra charge, with the first ${FACTS.airportWait.freeMinutes} minutes of waiting from the actual landing time free.`,
       },
       {
         q: "Can you drop me at an Old Town hotel during the festivals?",
