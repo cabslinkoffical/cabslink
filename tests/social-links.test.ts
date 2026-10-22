@@ -50,4 +50,15 @@ describe("social links live in the footer only", () => {
       );
     }
   });
+
+  it("every Facebook link in the codebase points at the current profile", () => {
+    const canonical = SOCIALS.find((s) => s.key === "facebook")!.url;
+    expect(canonical).toBe("https://www.facebook.com/profile.php?id=61593394127202");
+    for (const file of walk("src")) {
+      const src = readFileSync(file, "utf8");
+      for (const url of src.match(/https:\/\/[a-z.]*facebook\.com\/[^\s"'`)]+/g) ?? []) {
+        expect(url, `${file} still links the old Facebook profile`).toBe(canonical);
+      }
+    }
+  });
 });
