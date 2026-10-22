@@ -14,7 +14,7 @@ const BRAND = {
   sameAs: [
     "https://www.trustpilot.com/review/cabslink.com",
     "https://www.instagram.com/cabs_link/",
-    "https://web.facebook.com/profile.php?id=61592930561866",
+    "https://www.facebook.com/profile.php?id=61593394127202",
     "https://www.tiktok.com/@cabslink",
     "https://www.youtube.com/@Cabslink",
   ],
