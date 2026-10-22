@@ -33,7 +33,7 @@ export const SOCIALS: SocialProfile[] = [
     key: "facebook",
     label: "Facebook",
     handle: "Cabslink",
-    url: "https://web.facebook.com/profile.php?id=61592930561866",
+    url: "https://www.facebook.com/profile.php?id=61593394127202",
     blurb: "Service updates, travel notices and customer questions answered.",
     Icon: Facebook,
   },

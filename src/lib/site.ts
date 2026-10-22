@@ -6,7 +6,7 @@ export const SITE = {
   address: "263a Leith Walk, Edinburgh, Scotland, EH6 8NY",
   social: {
     instagram: "https://www.instagram.com/cabs_link/",
-    facebook: "https://web.facebook.com/profile.php?id=61592930561866",
+    facebook: "https://www.facebook.com/profile.php?id=61593394127202",
     tiktok: "https://www.tiktok.com/@cabslink",
     youtube: "https://www.youtube.com/@Cabslink",
   },
