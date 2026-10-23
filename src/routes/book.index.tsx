@@ -639,7 +639,7 @@ function BookPage() {
             <>
               {resumable && (
                 <div className="max-w-2xl mx-auto mb-4 rounded-2xl border border-[var(--gold)]/40 bg-[var(--gold)]/10 p-4 flex flex-wrap items-center gap-3">
-                  <p className="text-sm text-foreground flex-1 min-w-[14rem]">
+                  <p className="text-sm text-foreground basis-full sm:basis-auto flex-1 min-w-0 break-words">
                     Continue your saved trip — <span className="font-semibold">{resumable.pickup?.label}</span> to{" "}
                     <span className="font-semibold">{resumable.dropoff?.label}</span>?
                   </p>

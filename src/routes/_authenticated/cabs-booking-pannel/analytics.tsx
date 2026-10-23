@@ -69,10 +69,10 @@ function Panel({ title, children, action }: { title: string; children: React.Rea
 function AnalyticsPage() {
   return (
     <Tabs defaultValue="own" className="space-y-6">
-      <TabsList>
-        <TabsTrigger value="own">Own analytics</TabsTrigger>
-        <TabsTrigger value="business">Bookings &amp; revenue</TabsTrigger>
-        <TabsTrigger value="google">Google Analytics</TabsTrigger>
+      <TabsList className="w-full justify-start overflow-x-auto">
+        <TabsTrigger className="shrink-0" value="own">Own analytics</TabsTrigger>
+        <TabsTrigger className="shrink-0" value="business">Bookings &amp; revenue</TabsTrigger>
+        <TabsTrigger className="shrink-0" value="google">Google Analytics</TabsTrigger>
       </TabsList>
       <TabsContent value="own"><OwnAnalyticsTab /></TabsContent>
       <TabsContent value="business"><Page /></TabsContent>

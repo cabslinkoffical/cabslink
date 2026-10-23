@@ -201,7 +201,7 @@ function ManageBookingPage() {
           </Link>
 
           <div className="mt-6 overflow-hidden rounded-2xl border border-[var(--navy)]/10 bg-card shadow-raised">
-            <div className="bg-[var(--navy)] px-6 py-6 text-[var(--navy-foreground)]">
+            <div className="bg-[var(--navy)] px-4 sm:px-6 py-6 text-[var(--navy-foreground)]">
               <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-[var(--gold)]">{SITE.name}</p>
               <h1 className="mt-1 font-display text-2xl font-bold md:text-3xl">Track my booking</h1>
               <p className="mt-1.5 text-sm text-white/70">
@@ -210,7 +210,7 @@ function ManageBookingPage() {
               </p>
             </div>
 
-            <form onSubmit={submitLookup} className="space-y-5 p-6" noValidate>
+            <form onSubmit={submitLookup} className="space-y-5 p-4 sm:p-6" noValidate>
               <FormNotice visible={attempted && (idInvalid || !!error)}>
                 {error ?? "Please fill the required data to continue"}
               </FormNotice>
@@ -632,7 +632,7 @@ function CancelForm({
 
   return (
     <form onSubmit={onSubmit} noValidate className="mt-4 overflow-hidden rounded-2xl border border-destructive/25 bg-card shadow-raised">
-      <div className="border-b border-destructive/15 bg-[color-mix(in_oklab,var(--destructive)_6%,transparent)] px-6 py-4">
+      <div className="border-b border-destructive/15 bg-[color-mix(in_oklab,var(--destructive)_6%,transparent)] px-4 sm:px-6 py-4">
         <p className="font-display text-lg font-bold">Cancel booking {booking.bookingRef}</p>
         {unpaid ? (
           <div className="mt-3 flex items-start gap-3 rounded-xl border border-[var(--gold)]/50 bg-[color-mix(in_oklab,var(--gold)_15%,transparent)] p-3.5 shadow-sm">
@@ -655,7 +655,7 @@ function CancelForm({
         )}
       </div>
 
-      <div className="space-y-5 p-6">
+      <div className="space-y-5 p-4 sm:p-6">
         <FormNotice visible={attempted && (!reason || !!error)}>{error ?? "Please choose a reason to continue"}</FormNotice>
 
         <FormField label="Reason for cancelling" htmlFor="mb-reason" error={attempted && !reason ? "Choose a reason." : ""}>
@@ -976,7 +976,7 @@ function AmendPanel({
 
   return (
     <form onSubmit={runQuote} noValidate className="mt-4 overflow-hidden rounded-2xl border border-[var(--navy)]/12 bg-card shadow-raised">
-      <div className="border-b border-[var(--navy)]/10 bg-[color-mix(in_oklab,var(--gold)_8%,transparent)] px-6 py-4">
+      <div className="border-b border-[var(--navy)]/10 bg-[color-mix(in_oklab,var(--gold)_8%,transparent)] px-4 sm:px-6 py-4">
         <p className="font-display text-lg font-bold">Change booking {booking.bookingRef}</p>
         <p className="mt-1 text-sm text-muted-foreground">
           Update what you need, then check the new price. Nothing changes until you confirm. Pickup and destination stay the
@@ -984,7 +984,7 @@ function AmendPanel({
         </p>
       </div>
 
-      <div className="space-y-5 p-6">
+      <div className="space-y-5 p-4 sm:p-6">
         <FormNotice visible={attempted && (invalid || !!error)}>
           {error ?? (errors.changed || "Please fill the required data to continue")}
         </FormNotice>

@@ -1123,7 +1123,7 @@ function TourWizard() {
                       <Button
                         type="submit"
                         variant="gold"
-                        className="min-w-[180px] rounded-full"
+                        className="w-full sm:w-auto sm:min-w-[180px] rounded-full"
                         disabled={bookMutation.isPending || !captcha.ready}
                       >
                         {bookMutation.isPending ? (
@@ -1151,14 +1151,14 @@ function TourWizard() {
                   <ArrowLeft className="size-4" /> Back
                 </Button>
                 {step < 3 && (
-                  <div className="flex items-center gap-3">
+                  <div className="flex min-w-0 flex-wrap justify-end items-center gap-2 sm:gap-3">
                     {step === 2 && quote && (
                       <span className="text-sm font-semibold">£{quote.quote.total.toFixed(2)}</span>
                     )}
                     <Button
                       type="button"
                       variant="gold"
-                      className="min-w-[150px] rounded-full"
+                      className="sm:min-w-[150px] rounded-full"
                       disabled={!canNext}
                       onClick={() => {
                         if (step === 2 && quote) {

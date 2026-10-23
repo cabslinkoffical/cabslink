@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useNavigate } from "@tanstack/react-router";
 import { Plus, X, Minus, Search, Flag, MapPin, Calendar, Clock, Users, Briefcase, Repeat, Car, Palmtree, AlertCircle, LifeBuoy } from "lucide-react";
 import { PlaceAutocomplete, type SelectedPlace } from "@/components/site/PlaceAutocomplete";
@@ -98,6 +99,7 @@ export function BookingWidget({
 
   useEffect(() => {
     function onDoc(e: MouseEvent) {
+      if (e.target instanceof Element && e.target.closest('[data-passenger-editor]')) return;
       if (paxRef.current && !paxRef.current.contains(e.target as Node)) setPaxOpen(false);
     }
     document.addEventListener("mousedown", onDoc);
@@ -929,18 +931,20 @@ function PassengerEditor({ passengers, luggage, handLuggage, onPassengers, onLug
   onHandLuggage: (value: number) => void; onDone: () => void;
 }) {
   return (
-    <div role="dialog" aria-label="Passengers and bags" onKeyDown={(event) => { if (event.key === "Escape") onDone(); }} className="absolute top-full right-0 z-50 mt-2 w-[min(20rem,calc(100vw-3rem))] rounded-lg border border-border bg-popover p-4 text-popover-foreground shadow-elegant">
-      <div className="mb-3 flex items-center justify-between">
-        <h3 className="font-display text-base font-bold">Passengers & bags</h3>
-        <Button type="button" variant="ghost" size="icon" className="size-9" aria-label="Close passengers and bags" onClick={onDone}><X /></Button>
-      </div>
+    <Dialog open onOpenChange={(open) => { if (!open) onDone(); }}>
+    <DialogContent data-passenger-editor className="max-w-sm" aria-label="Passengers and bags">
+      <DialogHeader>
+        <DialogTitle>Passengers & bags</DialogTitle>
+        <DialogDescription>Including children, large cases and cabin bags.</DialogDescription>
+      </DialogHeader>
       <div className="divide-y divide-border">
         <StepperRow icon={<Users />} label="Passengers" hint="Including children" value={passengers} min={1} max={16} onChange={onPassengers} />
         <StepperRow icon={<Briefcase />} label="Luggage" hint="Large cases" value={luggage} min={0} max={10} onChange={onLuggage} />
         <StepperRow icon={<Briefcase />} label="Hand luggage" hint="Cabin / small bags" value={handLuggage} min={0} max={10} onChange={onHandLuggage} />
       </div>
       <Button type="button" variant="gold" className="mt-4 w-full" onClick={onDone}>Done</Button>
-    </div>
+    </DialogContent>
+    </Dialog>
   );
 }
 
@@ -955,9 +959,9 @@ function StepperRow({ icon, label, hint, value, min, max, onChange }: {
         <div><div className="text-xs font-semibold text-foreground">{label}</div><div className="mt-1 text-[10px] text-muted-foreground">{hint}</div></div>
       </div>
       <div className="flex shrink-0 items-center gap-1">
-        <Button type="button" variant="outline" size="icon" className="size-9 rounded-full" onClick={() => onChange(value === null ? min : Math.max(min, value - 1))} disabled={value === null || value <= min} aria-label={`Decrease ${label}`}><Minus /></Button>
-        <input type="number" inputMode="numeric" aria-label={label} min={min} max={max} value={value ?? ""} placeholder="—" onChange={(event) => { const count = Number(event.target.value); if (event.target.value && Number.isInteger(count) && count >= min && count <= max) onChange(count); }} className="h-9 w-10 rounded-md border border-input bg-background text-center text-sm font-bold tabular-nums text-foreground [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
-        <Button type="button" variant="outline" size="icon" className="size-9 rounded-full" onClick={() => onChange(value === null ? Math.max(min, 1) : Math.min(max, value + 1))} disabled={value !== null && value >= max} aria-label={`Increase ${label}`}><Plus /></Button>
+        <Button type="button" variant="outline" size="icon" className="size-11 rounded-full" onClick={() => onChange(value === null ? min : Math.max(min, value - 1))} disabled={value === null || value <= min} aria-label={`Decrease ${label}`}><Minus /></Button>
+        <input type="number" inputMode="numeric" aria-label={label} min={min} max={max} value={value ?? ""} placeholder="—" onChange={(event) => { const count = Number(event.target.value); if (event.target.value && Number.isInteger(count) && count >= min && count <= max) onChange(count); }} className="h-11 w-10 rounded-md border border-input bg-background text-center text-sm font-bold tabular-nums text-foreground [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
+        <Button type="button" variant="outline" size="icon" className="size-11 rounded-full" onClick={() => onChange(value === null ? Math.max(min, 1) : Math.min(max, value + 1))} disabled={value !== null && value >= max} aria-label={`Increase ${label}`}><Plus /></Button>
       </div>
     </div>
   );
