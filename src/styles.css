@@ -998,6 +998,10 @@ input[type="time"] {
   z-index: 1;
   animation: home-hero-vehicle-in 850ms cubic-bezier(.22, .9, .32, 1) both;
 }
+@media (max-width: 639px) {
+  .home-hero-vehicle-image { --hero-vehicle-scale: .92; --hero-vehicle-y: .25rem; }
+  .home-hero-wordmark { align-items: flex-start; padding-top: 1.5rem; font-size: 3.5rem; }
+}
 .home-hero-vehicle-leave {
   z-index: 0;
   animation: home-hero-vehicle-out 850ms cubic-bezier(.22, .9, .32, 1) both;
