@@ -2,6 +2,10 @@ import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { LegalPage } from "@/components/site/LegalPage";
 import { SITE } from "@/lib/site";
+import { FACTS } from "@/lib/site-facts";
+
+const T = FACTS.transferCancellation;
+const TT = FACTS.tourCancellation;
 
 export const Route = createFileRoute("/refund-policy")({
   head: () => normalizeHead({
@@ -18,22 +22,29 @@ export const Route = createFileRoute("/refund-policy")({
   }),
   component: () => (
     <LegalPage eyebrow="Refunds" title="Refund Policy" updated="30 August 2026">
-      <h2>1. When we refund in full</h2>
+      <h2>1. Transfers — when we refund in full</h2>
       <ul>
         <li>Bookings we are unable to fulfil.</li>
-        <li>Cancellations made more than 12 hours before pickup (see the <a href="/booking-policy">Booking &amp; Cancellation Policy</a>).</li>
+        <li>Cancellations made more than {T.freeOverHours} hours before pickup (see the <a href="/booking-policy">Booking &amp; Cancellation Policy</a>).</li>
         <li>Duplicate charges for the same journey.</li>
         <li>Journeys cancelled because your flight was cancelled or significantly delayed, where you notify us promptly.</li>
       </ul>
 
-      <h2>2. Partial refunds</h2>
-      <p>Cancellations between 12 and 3 hours before pickup are refunded at 50% of the fare. Where a journey is shortened at your request after it has begun, the fare already reserved for the booked route remains payable.</p>
+      <h2>2. Transfers — partial refunds</h2>
+      <p>Cancellations between {T.halfToHours} and {T.halfFromHours} hours before pickup are refunded at 50% of the fare. Where a journey is shortened at your request after it has begun, the fare already reserved for the booked route remains payable.</p>
 
-      <h2>3. When we do not refund</h2>
+      <h2>3. Transfers — when we do not refund</h2>
       <ul>
-        <li>No-shows, and cancellations less than 3 hours before pickup or after the driver has been dispatched.</li>
+        <li>No-shows, and cancellations less than {T.halfFromHours} hours before pickup or after the driver has been dispatched.</li>
         <li>Delays caused by circumstances outside our reasonable control, where the journey was still completed.</li>
         <li>Waiting time, extra stops, tolls, airport fees or cleaning charges already incurred.</li>
+      </ul>
+
+      <h2>4. Tours</h2>
+      <ul>
+        <li><strong>More than {TT.freeOverHours} hours before the tour starts</strong> — free cancellation, full refund of anything paid.</li>
+        <li><strong>Between {TT.halfToHours} and {TT.halfFromHours} hours before the start</strong> — 50% of the price is refundable.</li>
+        <li><strong>Less than {TT.halfFromHours} hours before the start, or a no-show</strong> — no refund; the full price is payable.</li>
       </ul>
 
       <h2>4. How refunds are processed</h2>
