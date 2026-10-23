@@ -92,26 +92,22 @@ export const Route = createFileRoute("/")({
         fetchPriority: "high",
       },
     ],
-    // Sitewide identity graph — the ONE business entity comes from
-    // business-graph.ts and is never redeclared. Deliberately no
-    // Review/AggregateRating markup — the Trustpilot score is third-party and
-    // must not be emitted as our own review data.
+    // The business entity and WebSite nodes are declared ONCE in
+    // business-graph.ts and emitted site-wide from __root.tsx — never
+    // redeclared here. Deliberately no Review/AggregateRating markup — the
+    // Trustpilot score is third-party and must not be emitted as our own
+    // review data.
     scripts: [
       {
         type: "application/ld+json",
         children: JSON.stringify({
           "@context": "https://schema.org",
-          "@graph": [
-            ...businessGraph()["@graph"],
-            {
-              "@type": "FAQPage",
-              mainEntity: faqItems.map((f) => ({
-                "@type": "Question",
-                name: f.q,
-                acceptedAnswer: { "@type": "Answer", text: f.a },
-              })),
-            },
-          ],
+          "@type": "FAQPage",
+          mainEntity: faqItems.map((f) => ({
+            "@type": "Question",
+            name: f.q,
+            acceptedAnswer: { "@type": "Answer", text: f.a },
+          })),
         }),
       },
     ],
