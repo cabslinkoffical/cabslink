@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { solutionList } from "@/lib/seo/travel-solutions";
 import { publishedServices } from "@/lib/seo/service-registry";
 import { SITE } from "@/lib/site";
+import { BUSINESS_ID } from "@/lib/seo/business-graph";
 
 const URL = "https://cabslink.com/travel-solutions";
 const TITLE = "Travel Solutions — Business, Student & Group | Cabslink";
