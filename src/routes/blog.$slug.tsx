@@ -61,11 +61,7 @@ export const Route = createFileRoute("/blog/$slug")({
       dateModified: p.last_reviewed_at ?? p.published_at ?? undefined,
       mainEntityOfPage: url,
       author: p.author ? { "@type": "Person", name: p.author.name } : undefined,
-      publisher: {
-        "@type": "Organization",
-        name: "Cabslink",
-        logo: { "@type": "ImageObject", url: `${BASE}/icons/icon-512.png` },
-      },
+      publisher: { "@id": BUSINESS_ID },
       articleSection: p.category?.name,
       keywords: p.tags.map((t) => t.name).join(", ") || undefined,
     };

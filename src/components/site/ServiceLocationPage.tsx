@@ -227,7 +227,7 @@ export function serviceLocationSchema(content: ServiceLocationContent) {
         serviceType: content.serviceName,
         description: content.metaDescription,
         url,
-        provider: { "@type": "Organization", name: "Cabslink", url: ORIGIN },
+        provider: { "@id": BUSINESS_ID },
         areaServed: { "@type": "City", name: loc.name, containedInPlace: { "@type": "AdministrativeArea", name: loc.region } },
       },
       {

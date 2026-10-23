@@ -291,7 +291,7 @@ export function journeySchema(c: JourneyContent, fares?: RouteFareTableData | nu
                 "@type": "Service",
                 name: `${pair} private transfer`,
                 serviceType: "Taxi and private transfer",
-                provider: { "@type": "Organization", name: "Cabslink", url: ORIGIN },
+                provider: { "@id": BUSINESS_ID },
               },
             },
           ]
@@ -305,7 +305,7 @@ export function journeySchema(c: JourneyContent, fares?: RouteFareTableData | nu
         fromLocation: { "@type": "Place", name: c.from.name },
         toLocation: { "@type": "Place", name: c.to.name },
         distance: `${c.miles} mi`,
-        provider: { "@type": "Organization", name: "Cabslink", url: ORIGIN },
+        provider: { "@id": BUSINESS_ID },
       },
       {
         "@type": "FAQPage",

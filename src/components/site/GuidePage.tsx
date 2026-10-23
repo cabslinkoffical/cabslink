@@ -214,8 +214,8 @@ export function guideSchema(g: GuideRecord) {
         description: g.metaDescription,
         url,
         dateModified: g.lastChecked,
-        author: { "@type": "Organization", name: "Cabslink", url: ORIGIN },
-        publisher: { "@type": "Organization", name: "Cabslink", url: ORIGIN },
+        author: { "@id": BUSINESS_ID },
+        publisher: { "@id": BUSINESS_ID },
       },
       ...(g.dayTrips && g.dayTrips.length
         ? [
