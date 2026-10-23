@@ -1,12 +1,15 @@
 /**
- * Site-wide structured data: Organization + TaxiService (one node,
- * @id https://cabslink.com/#business) and WebSite with SearchAction.
+ * Site-wide structured data: ONE business entity
+ * (@id https://cabslink.com/#business, LocalBusiness + TaxiService) and ONE
+ * WebSite node with SearchAction. Emitted once from __root.tsx; every other
+ * page references the business by @id and must not redeclare it.
  * Real facts only — values come from FACTS / SITE.
  */
 import { SITE } from "@/lib/site";
 
 export const BUSINESS_ID = "https://cabslink.com/#business";
 export const WEBSITE_ID = "https://cabslink.com/#website";
+export const SHARE_IMAGE = "https://cabslink.com/og-image.jpg";
 
 export function businessGraph(opts: { googleBusinessProfileUrl?: string | null } = {}) {
   const sameAs = [
@@ -18,12 +21,13 @@ export function businessGraph(opts: { googleBusinessProfileUrl?: string | null }
     "@context": "https://schema.org",
     "@graph": [
       {
-        "@type": ["Organization", "TaxiService"],
+        "@type": ["LocalBusiness", "TaxiService"],
         "@id": BUSINESS_ID,
         name: "Cabslink",
         legalName: "Cabslink Limited",
         url: "https://cabslink.com",
         logo: "https://cabslink.com/__l5e/assets-v1/4150bb87-69a7-4e1d-bedb-54293074a958/cabslink-logo-gold.png",
+        image: SHARE_IMAGE,
         email: SITE.email,
         telephone: SITE.phoneUK,
         identifier: { "@type": "PropertyValue", name: "Companies House number", value: "SC814706" },
@@ -41,7 +45,8 @@ export function businessGraph(opts: { googleBusinessProfileUrl?: string | null }
           opens: "00:00",
           closes: "23:59",
         },
-        areaServed: { "@type": "Country", name: "United Kingdom" },
+        priceRange: "££",
+        areaServed: { "@type": "Country", name: "Scotland" },
         sameAs,
       },
       {
