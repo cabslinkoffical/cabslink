@@ -43,25 +43,6 @@ export const Route = createFileRoute("/about")({
         type: "application/ld+json",
         children: safeJsonLd({
           "@context": "https://schema.org",
-          "@type": "LocalBusiness",
-          "@id": "https://cabslink.com/#organization",
-          name: "Cabslink",
-          legalName: FACTS.company.legalName,
-          url: "https://cabslink.com",
-          telephone: FACTS.company.phone,
-          address: {
-            "@type": "PostalAddress",
-            streetAddress: "263a Leith Walk",
-            addressLocality: "Edinburgh",
-            postalCode: "EH6 8NY",
-            addressCountry: "GB",
-          },
-        }),
-      },
-      {
-        type: "application/ld+json",
-        children: safeJsonLd({
-          "@context": "https://schema.org",
           "@type": "FAQPage",
           mainEntity: ABOUT.faqs.map((f) => ({
             "@type": "Question",

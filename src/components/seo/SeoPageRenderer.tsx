@@ -201,16 +201,6 @@ function SectionBlock({ section }: { section: PublicSeoSection }) {
   );
 }
 
-const ORG_JSONLD = {
-  "@type": "LocalBusiness",
-  "@id": "https://cabslink.com/#business",
-  name: "Cabslink",
-  url: "https://cabslink.com",
-  image: "https://cabslink.com/og-image.png",
-  priceRange: "££",
-  areaServed: { "@type": "Country", name: "United Kingdom" },
-  telephone: "+44 333 888 2991",
-};
 
 function buildSeoHeadRaw(
   page: PublicSeoPage,
@@ -238,8 +228,9 @@ function buildSeoHeadRaw(
     meta.push({ name: "twitter:image", content: image });
   }
 
+  // The business entity is declared once in business-graph.ts and emitted
+  // site-wide from __root.tsx; here we only reference it by @id.
   const graph: any[] = [
-    { ...ORG_JSONLD },
     {
       "@type": "WebPage",
       "@id": `${url}#webpage`,
