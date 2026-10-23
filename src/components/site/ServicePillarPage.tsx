@@ -26,8 +26,11 @@ import { PageHero, SectionHeader } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
 import { getService } from "@/lib/seo/service-registry";
 import { localPagesForService } from "@/lib/seo/service-locations";
+import { useQuery } from "@tanstack/react-query";
+import { googleReviewsQuery } from "@/lib/google-reviews-query";
 
 import { SITE } from "@/lib/site";
+import { BUSINESS_ID } from "@/lib/seo/business-graph";
 
 const ICONS = {
   badge: BadgeCheck,
