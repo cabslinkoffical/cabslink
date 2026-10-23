@@ -8,7 +8,6 @@ import { PageHero, SectionHeader } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
 import { FaqBlock } from "@/components/seo/FaqBlock";
 import { ABOUT } from "@/content/about";
-import { FACTS } from "@/lib/site-facts";
 import { listPublicVehicleClasses } from "@/lib/vehicle-classes.functions";
 import { safeJsonLd } from "@/lib/safe-json-ld";
 import edinburghImg from "@/assets/edinburgh.jpg";
