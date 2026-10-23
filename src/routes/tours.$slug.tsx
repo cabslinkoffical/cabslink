@@ -23,6 +23,7 @@ function mdLines(md: string): string[] {
   return md.split(/\r?\n/).map((l) => l.replace(/^\s*(?:[-*•]|\d+[.)])\s+/, "").trim()).filter(Boolean);
 }
 import { draftTour, tourSeo } from "@/lib/seo/tour-seo";
+import { BUSINESS_ID } from "@/lib/seo/business-graph";
 
 
 const tourDetailQuery = (slug: string) =>
@@ -74,7 +75,7 @@ export const Route = createFileRoute("/tours/$slug")({
               name: draft.h1,
               description: draft.metaDescription,
               touristType: "Private driver tour",
-              provider: { "@type": "Organization", name: "Cabslink", url: "https://cabslink.com" },
+              provider: { "@id": BUSINESS_ID },
             }),
           },
           {

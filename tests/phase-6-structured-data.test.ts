@@ -7,7 +7,9 @@ describe("Phase 6 — business graph", () => {
   const biz = g["@graph"].find((n: any) => n["@id"] === BUSINESS_ID);
   const site = g["@graph"].find((n: any) => n["@type"] === "WebSite");
   it("has required business fields and no rating", () => {
-    expect(biz["@type"]).toEqual(["Organization", "TaxiService"]);
+    expect(biz["@type"]).toEqual(["LocalBusiness", "TaxiService"]);
+    expect(biz.image).toBe("https://cabslink.com/og-image.jpg");
+    expect(biz.priceRange).toBe("££");
     for (const k of ["legalName", "address", "openingHoursSpecification", "areaServed", "sameAs", "telephone"]) expect(biz[k], k).toBeTruthy();
     expect(biz.legalName).toBe("Cabslink Limited");
     expect(biz.sameAs).toContain("https://g.page/x");

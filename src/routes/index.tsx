@@ -18,7 +18,6 @@ import { BookingWidget } from "@/components/site/BookingWidget";
 import { DraggableMarquee } from "@/components/site/DraggableMarquee";
 import { GoogleReviewsSection } from "@/components/site/GoogleReviewsSection";
 import { googleReviewsQuery } from "@/lib/google-reviews-query";
-import { businessGraph } from "@/lib/seo/business-graph";
 import { DrivingCarBadge } from "@/components/site/DrivingCarBadge";
 import { locationsDirectoryQuery } from "@/components/site/LocationsDirectory";
 
@@ -75,8 +74,11 @@ export const Route = createFileRoute("/")({
       { property: "og:url", content: "https://cabslink.com/" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/NfUvXcpm6DbLcc40gpTySSnGjlC3/social-images/social-1786800106425-social-image.webp" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/NfUvXcpm6DbLcc40gpTySSnGjlC3/social-images/social-1786800106425-social-image.webp" },
+      { property: "og:image", content: "https://cabslink.com/og-image.jpg" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { property: "og:locale", content: "en_GB" },
+      { name: "twitter:image", content: "https://cabslink.com/og-image.jpg" },
     ],
     links: [
       { rel: "canonical", href: "https://cabslink.com/" },
@@ -89,26 +91,22 @@ export const Route = createFileRoute("/")({
         fetchPriority: "high",
       },
     ],
-    // Sitewide identity graph — the ONE business entity comes from
-    // business-graph.ts and is never redeclared. Deliberately no
-    // Review/AggregateRating markup — the Trustpilot score is third-party and
-    // must not be emitted as our own review data.
+    // The business entity and WebSite nodes are declared ONCE in
+    // business-graph.ts and emitted site-wide from __root.tsx — never
+    // redeclared here. Deliberately no Review/AggregateRating markup — the
+    // Trustpilot score is third-party and must not be emitted as our own
+    // review data.
     scripts: [
       {
         type: "application/ld+json",
         children: JSON.stringify({
           "@context": "https://schema.org",
-          "@graph": [
-            ...businessGraph()["@graph"],
-            {
-              "@type": "FAQPage",
-              mainEntity: faqItems.map((f) => ({
-                "@type": "Question",
-                name: f.q,
-                acceptedAnswer: { "@type": "Answer", text: f.a },
-              })),
-            },
-          ],
+          "@type": "FAQPage",
+          mainEntity: faqItems.map((f) => ({
+            "@type": "Question",
+            name: f.q,
+            acceptedAnswer: { "@type": "Answer", text: f.a },
+          })),
         }),
       },
     ],

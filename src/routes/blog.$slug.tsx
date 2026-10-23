@@ -5,6 +5,7 @@ import { getBlogPost, type BlogPostFull, type BlogPostSummary } from "@/lib/blog
 import { BLOG_SEO_OVERRIDES } from "@/lib/seo/blog-seo";
 import { BlogArticle } from "@/components/site/BlogArticle";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { BUSINESS_ID } from "@/lib/seo/business-graph";
 
 const BASE = "https://cabslink.com";
 
@@ -61,11 +62,7 @@ export const Route = createFileRoute("/blog/$slug")({
       dateModified: p.last_reviewed_at ?? p.published_at ?? undefined,
       mainEntityOfPage: url,
       author: p.author ? { "@type": "Person", name: p.author.name } : undefined,
-      publisher: {
-        "@type": "Organization",
-        name: "Cabslink",
-        logo: { "@type": "ImageObject", url: `${BASE}/icons/icon-512.png` },
-      },
+      publisher: { "@id": BUSINESS_ID },
       articleSection: p.category?.name,
       keywords: p.tags.map((t) => t.name).join(", ") || undefined,
     };

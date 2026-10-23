@@ -19,6 +19,7 @@ import { TransportComparison } from "@/components/seo/TransportComparison";
 import { getJourneyTransport } from "@/lib/seo/transport-modes";
 
 import { SITE } from "@/lib/site";
+import { BUSINESS_ID } from "@/lib/seo/business-graph";
 
 const ORIGIN = "https://cabslink.com";
 
@@ -291,7 +292,7 @@ export function journeySchema(c: JourneyContent, fares?: RouteFareTableData | nu
                 "@type": "Service",
                 name: `${pair} private transfer`,
                 serviceType: "Taxi and private transfer",
-                provider: { "@type": "Organization", name: "Cabslink", url: ORIGIN },
+                provider: { "@id": BUSINESS_ID },
               },
             },
           ]
@@ -305,7 +306,7 @@ export function journeySchema(c: JourneyContent, fares?: RouteFareTableData | nu
         fromLocation: { "@type": "Place", name: c.from.name },
         toLocation: { "@type": "Place", name: c.to.name },
         distance: `${c.miles} mi`,
-        provider: { "@type": "Organization", name: "Cabslink", url: ORIGIN },
+        provider: { "@id": BUSINESS_ID },
       },
       {
         "@type": "FAQPage",
