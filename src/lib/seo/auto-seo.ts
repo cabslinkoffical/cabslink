@@ -59,16 +59,15 @@ function buildAutoHeadRaw(loaded: LoadedDestination | undefined | null): HeadPay
   if (quality.effectiveNoindex) meta.push({ name: "robots", content: "noindex,follow" });
 
   const graph: Record<string, unknown>[] = [
-    organizationSchema(),
-    websiteSchema(),
     breadcrumbSchema(buildBreadcrumbItems(d, tpl.hubSegment, tpl.hubLabel)),
     ...tpl.typeSchema(d),
   ];
 
-  const faq = faqsFor(loaded);
+  // The FAQPage questions must be exactly the questions shown on the page.
+  // Area pages render buildAreaFaqs; every other destination page renders the
+  // content-engine FAQ section.
+  const faq = loaded.airports?.length ? buildAreaFaqs(loaded) : faqsFor(loaded);
   if (faq.length) graph.push(faqSchema(faq));
-
-  graph.push(speakableSchema([".speakable", "h1"]));
 
   return {
     meta,
