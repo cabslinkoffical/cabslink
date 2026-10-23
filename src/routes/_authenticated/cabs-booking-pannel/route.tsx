@@ -180,7 +180,7 @@ function AdminLayout() {
     <div className="min-h-screen flex admin-shell">
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 w-64 admin-sidebar text-white flex flex-col transition-transform md:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 w-64 max-w-[calc(100%-3rem)] overflow-hidden admin-sidebar text-white flex flex-col transition-transform md:translate-x-0 ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -191,7 +191,7 @@ function AdminLayout() {
           </button>
         </div>
         <SidebarNav entries={NAV} />
-        <div className="p-3 border-t border-gold/20 space-y-1">
+        <div className="shrink-0 p-3 pb-[max(.75rem,env(safe-area-inset-bottom))] border-t border-gold/20 space-y-1">
           <Link to="/" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-white/70 hover:text-gold transition">
             <ExternalLink className="size-3.5" /> View website
           </Link>

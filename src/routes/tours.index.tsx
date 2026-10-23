@@ -253,7 +253,7 @@ function ToursPage() {
             titleAccent="private tour"
             subtitle="Send us your must-see stops and preferred pace. We'll build the itinerary and quote it transparently."
           />
-          <div className="mt-6 flex justify-center gap-3">
+          <div className="mt-6 flex flex-col sm:flex-row justify-center gap-3">
             <Button asChild size="lg"><Link to="/contact">Request a custom tour</Link></Button>
             <Button asChild size="lg" variant="outline"><Link to="/book">Standard transfer</Link></Button>
           </div>
