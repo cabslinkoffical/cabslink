@@ -21,7 +21,7 @@ import { ArrowUpRight, ExternalLink, Clock, Video, MessageSquareQuote, Star } fr
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { ReviewCard } from "@/components/site/ReviewCard";
 import { TrustpilotStars, TrustpilotWordmark } from "@/components/site/TrustpilotMark";
-import { organizationSchema } from "@/components/seo/schema";
+import { businessGraph } from "@/lib/seo/business-graph";
 import { TRUSTPILOT, trustpilotVerifiedOnLabel } from "@/lib/trustpilot";
 import { RATINGFACTS, ratingfactsVerifiedOnLabel } from "@/lib/ratingfacts";
 import { getGoogleReviews } from "@/lib/google-reviews.functions";
@@ -68,7 +68,7 @@ export const Route = createFileRoute("/reviews")({
       },
       {
         type: "application/ld+json",
-        children: JSON.stringify(organizationSchema()),
+        children: JSON.stringify(businessGraph()),
       },
     ],
   }),

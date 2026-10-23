@@ -31,6 +31,11 @@ export type LoadedDestination = {
   nearby: Destination[];
   popularRoutes: Destination[];
   relatedServices: Destination[];
+  /**
+   * Only the area route (/areas/:slug) passes this: the airports serving the
+   * area. auto-seo uses it to build the same FAQs the page shows.
+   */
+  airports?: Destination[];
 };
 
 /** Loader helper — call from route `loader`. Throws notFound() when missing. */

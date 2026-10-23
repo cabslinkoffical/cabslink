@@ -2,22 +2,17 @@ import { normalizeHead } from "@/lib/seo/page-head";
 /**
  * Auto-SEO head builder. Produces the full head() payload for a leaf
  * destination route: title, meta description, canonical, OG/Twitter,
- * robots directive, and a JSON-LD @graph combining Organization + WebSite
- * (with SearchAction) + Breadcrumb + type-specific schema + FAQPage +
- * Speakable.
+ * robots directive, and a JSON-LD @graph combining Breadcrumb + type-specific
+ * schema + FAQPage. The business entity lives once in business-graph.ts
+ * (emitted from __root.tsx); type schemas reference it by @id.
  */
 import type { LoadedDestination } from "@/components/site/DestinationPage";
 import { destinationHref } from "@/lib/destinations.functions";
 import { getTemplate } from "@/lib/seo/template-registry";
 import { evaluateQuality } from "@/lib/seo/quality";
 import { faqsFor } from "@/lib/seo/content-engine";
-import {
-  breadcrumbSchema,
-  faqSchema,
-  organizationSchema,
-  speakableSchema,
-  websiteSchema,
-} from "@/components/seo/schema";
+import { buildAreaFaqs } from "@/lib/seo/area-faqs";
+import { breadcrumbSchema, faqSchema } from "@/components/seo/schema";
 
 const SITE_URL = "https://cabslink.com";
 
@@ -64,16 +59,15 @@ function buildAutoHeadRaw(loaded: LoadedDestination | undefined | null): HeadPay
   if (quality.effectiveNoindex) meta.push({ name: "robots", content: "noindex,follow" });
 
   const graph: Record<string, unknown>[] = [
-    organizationSchema(),
-    websiteSchema(),
     breadcrumbSchema(buildBreadcrumbItems(d, tpl.hubSegment, tpl.hubLabel)),
     ...tpl.typeSchema(d),
   ];
 
-  const faq = faqsFor(loaded);
+  // The FAQPage questions must be exactly the questions shown on the page.
+  // Area pages render buildAreaFaqs; every other destination page renders the
+  // content-engine FAQ section.
+  const faq = loaded.airports?.length ? buildAreaFaqs(loaded) : faqsFor(loaded);
   if (faq.length) graph.push(faqSchema(faq));
-
-  graph.push(speakableSchema([".speakable", "h1"]));
 
   return {
     meta,

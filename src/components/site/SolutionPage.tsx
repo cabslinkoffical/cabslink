@@ -13,6 +13,7 @@ import { PageHero, SectionHeader } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
 import { getService } from "@/lib/seo/service-registry";
 import { SITE } from "@/lib/site";
+import { BUSINESS_ID } from "@/lib/seo/business-graph";
 
 export type SolutionContent = {
   /** URL slug under /travel-solutions. */
@@ -200,14 +201,7 @@ export function solutionSchema(content: SolutionContent, absoluteUrl: string) {
         name: content.metaTitle,
         description: content.metaDescription,
         url: absoluteUrl,
-        about: {
-          "@type": "LocalBusiness",
-          name: SITE.name,
-          telephone: SITE.phoneUK,
-          email: SITE.email,
-          url: "https://cabslink.com",
-          address: { "@type": "PostalAddress", streetAddress: SITE.address },
-        },
+        about: { "@id": BUSINESS_ID },
       },
       {
         "@type": "ItemList",

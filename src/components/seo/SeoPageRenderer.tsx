@@ -201,16 +201,6 @@ function SectionBlock({ section }: { section: PublicSeoSection }) {
   );
 }
 
-const ORG_JSONLD = {
-  "@type": "LocalBusiness",
-  "@id": "https://cabslink.com/#business",
-  name: "Cabslink",
-  url: "https://cabslink.com",
-  image: "https://cabslink.com/og-image.png",
-  priceRange: "££",
-  areaServed: { "@type": "Country", name: "United Kingdom" },
-  telephone: "+44 333 888 2991",
-};
 
 function buildSeoHeadRaw(
   page: PublicSeoPage,
@@ -238,8 +228,9 @@ function buildSeoHeadRaw(
     meta.push({ name: "twitter:image", content: image });
   }
 
+  // The business entity is declared once in business-graph.ts and emitted
+  // site-wide from __root.tsx; here we only reference it by @id.
   const graph: any[] = [
-    { ...ORG_JSONLD },
     {
       "@type": "WebPage",
       "@id": `${url}#webpage`,
@@ -266,31 +257,32 @@ function buildSeoHeadRaw(
   }
 
   // Published fares make the page citable: an AI answer can only quote a
-  // price we have actually put on the page. Headline price = cheapest class.
+  // price we have actually put on the page. The price lives as `offers`
+  // nested inside the Service node — no top-level Offer, no priceValidUntil
+  // and no availability (the fares are re-quoted at booking).
   if (fares && fares.fares.length) {
     const prices = fares.fares.map((f) => f.price);
     const routeName = page.h1.replace(/\s+—.*$/, "");
     graph.push({
-      "@type": "Offer",
-      name: `${routeName} fixed-price taxi transfer`,
+      "@type": "Service",
+      name: `${routeName} private transfer`,
+      serviceType: "Airport taxi transfer",
       url,
-      priceCurrency: fares.currency || "GBP",
-      price: Math.min(...prices).toFixed(2),
-      availability: "https://schema.org/InStock",
-      priceValidUntil: new Date(Date.now() + 30 * 864e5).toISOString().slice(0, 10),
-      offeredBy: { "@id": "https://cabslink.com/#business" },
-      priceSpecification: fares.fares.map((f) => ({
-        "@type": "UnitPriceSpecification",
-        name: f.className,
-        price: f.price.toFixed(2),
+      provider: { "@id": "https://cabslink.com/#business" },
+      offers: {
+        "@type": "Offer",
+        name: `${routeName} fixed-price taxi transfer`,
+        url,
         priceCurrency: fares.currency || "GBP",
-        valueAddedTaxIncluded: fares.taxIncluded,
-      })),
-      itemOffered: {
-        "@type": "Service",
-        name: `${routeName} private transfer`,
-        serviceType: "Airport taxi transfer",
-        provider: { "@id": "https://cabslink.com/#business" },
+        price: Math.min(...prices).toFixed(2),
+        offeredBy: { "@id": "https://cabslink.com/#business" },
+        priceSpecification: fares.fares.map((f) => ({
+          "@type": "UnitPriceSpecification",
+          name: f.className,
+          price: f.price.toFixed(2),
+          priceCurrency: fares.currency || "GBP",
+          valueAddedTaxIncluded: fares.taxIncluded,
+        })),
       },
     });
   }

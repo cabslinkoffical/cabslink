@@ -1,14 +1,19 @@
 /**
  * JSON-LD schema emitters. Return plain objects; callers stringify into a
  * `<script type="application/ld+json">` via route head() `scripts`.
+ *
+ * The business entity itself lives ONCE in src/lib/seo/business-graph.ts
+ * (@id https://cabslink.com/#business) and is emitted site-wide from
+ * __root.tsx. Everything here references it by @id and never redeclares it.
  */
 import type { Destination } from "@/lib/destinations.functions";
+import { BUSINESS_ID } from "@/lib/seo/business-graph";
 
 const BRAND = {
   name: "Cabslink",
   url: "https://cabslink.com",
-  // Must be a URL that actually resolves — `/logo.png` was a 404, which made
-  // the Organization logo unusable for every page emitting this graph.
+  /** Must be a URL that actually resolves — `/logo.png` was a 404, which made
+   * the Organization logo unusable for every page emitting this graph. */
   logo: "https://cabslink.com/__l5e/assets-v1/4150bb87-69a7-4e1d-bedb-54293074a958/cabslink-logo-gold.png",
   /** Verified public profiles only. */
   sameAs: [
@@ -19,33 +24,6 @@ const BRAND = {
     "https://www.youtube.com/@Cabslink",
   ],
 };
-
-export function organizationSchema() {
-  return {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    name: BRAND.name,
-    url: BRAND.url,
-    logo: BRAND.logo,
-    sameAs: BRAND.sameAs,
-  };
-}
-
-export function websiteSchema() {
-  return {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: BRAND.name,
-    url: BRAND.url,
-    inLanguage: "en-GB",
-    potentialAction: {
-      "@type": "SearchAction",
-      target: `${BRAND.url}/search?q={search_term_string}`,
-      "query-input": "required name=search_term_string",
-    },
-  };
-}
-
 
 export function breadcrumbSchema(items: Array<{ name: string; url: string }>) {
   return {
@@ -89,7 +67,7 @@ export function serviceAreaSchema(d: Destination) {
     name: `${areaName} private transport service`,
     serviceType: "Pre-booked private transport",
     url: BRAND.url,
-    provider: { "@type": "Organization", name: BRAND.name, url: BRAND.url },
+    provider: { "@id": BUSINESS_ID },
     areaServed: {
       "@type": "Place",
       name: areaName,
@@ -129,7 +107,7 @@ export function travelActionSchema(fromName: string, toName: string) {
     "@type": "TravelAction",
     fromLocation: { "@type": "Place", name: fromName },
     toLocation: { "@type": "Place", name: toName },
-    provider: { "@type": "Organization", name: BRAND.name, url: BRAND.url },
+    provider: { "@id": BUSINESS_ID },
   };
 }
 
@@ -138,7 +116,7 @@ export function serviceSchema(d: Destination) {
     "@context": "https://schema.org",
     "@type": "Service",
     name: d.display_name ?? d.name,
-    provider: { "@type": "Organization", name: BRAND.name, url: BRAND.url },
+    provider: { "@id": BUSINESS_ID },
     areaServed: "United Kingdom",
   };
 }
@@ -159,15 +137,16 @@ export function collectionPageSchema(input: {
         description: input.description,
         url: input.url.startsWith("http") ? input.url : `${BRAND.url}${input.url}`,
         inLanguage: "en-GB",
-        isPartOf: { "@type": "WebSite", name: BRAND.name, url: BRAND.url },
-        publisher: { "@type": "Organization", name: BRAND.name, url: BRAND.url, logo: BRAND.logo },
+        isPartOf: { "@id": "https://cabslink.com/#website" },
+        about: { "@id": BUSINESS_ID },
+        publisher: { "@id": BUSINESS_ID },
       },
       ...(input.breadcrumbs?.length ? [breadcrumbSchema(input.breadcrumbs)] : []),
     ],
   };
 }
 
-/** ContactPage graph with the brand's real contact points. */
+/** ContactPage graph — the business node is referenced by @id, never redeclared. */
 export function contactPageSchema(input: {
   url: string;
   email: string;
@@ -180,20 +159,6 @@ export function contactPageSchema(input: {
     name: `Contact ${BRAND.name}`,
     url: input.url.startsWith("http") ? input.url : `${BRAND.url}${input.url}`,
     inLanguage: "en-GB",
-    mainEntity: {
-      "@type": "Organization",
-      name: BRAND.name,
-      url: BRAND.url,
-      logo: BRAND.logo,
-      email: input.email,
-      sameAs: BRAND.sameAs,
-      ...(input.address ? { address: { "@type": "PostalAddress", streetAddress: input.address } } : {}),
-      contactPoint: input.phones.map((telephone) => ({
-        "@type": "ContactPoint",
-        telephone,
-        contactType: "customer service",
-        availableLanguage: ["en"],
-      })),
-    },
+    mainEntity: { "@id": BUSINESS_ID },
   };
 }

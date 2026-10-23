@@ -15,12 +15,14 @@ export const Route = createFileRoute("/areas/$slug")({
     if (!loaderData) {
       return { meta: [{ title: "Location not found" }, { name: "robots", content: "noindex" }] };
     }
-    // Reuse the auto-SEO head builder with a slim loaded shape.
+    // Reuse the auto-SEO head builder with a slim loaded shape. The airports
+    // list lets the FAQPage JSON-LD match the FAQs the page renders.
     return buildAutoHead({
       destination: loaderData.destination,
       nearby: loaderData.nearbyAreas,
       popularRoutes: loaderData.popularRoutes,
       relatedServices: loaderData.services,
+      airports: loaderData.airports,
     });
   },
   component: Page,

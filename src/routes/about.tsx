@@ -8,7 +8,6 @@ import { PageHero, SectionHeader } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
 import { FaqBlock } from "@/components/seo/FaqBlock";
 import { ABOUT } from "@/content/about";
-import { FACTS } from "@/lib/site-facts";
 import { listPublicVehicleClasses } from "@/lib/vehicle-classes.functions";
 import { safeJsonLd } from "@/lib/safe-json-ld";
 import edinburghImg from "@/assets/edinburgh.jpg";
@@ -37,25 +36,6 @@ export const Route = createFileRoute("/about")({
             { "@type": "ListItem", position: 1, name: "Home", item: "https://cabslink.com/" },
             { "@type": "ListItem", position: 2, name: "About", item: CANONICAL },
           ],
-        }),
-      },
-      {
-        type: "application/ld+json",
-        children: safeJsonLd({
-          "@context": "https://schema.org",
-          "@type": "LocalBusiness",
-          "@id": "https://cabslink.com/#organization",
-          name: "Cabslink",
-          legalName: FACTS.company.legalName,
-          url: "https://cabslink.com",
-          telephone: FACTS.company.phone,
-          address: {
-            "@type": "PostalAddress",
-            streetAddress: "263a Leith Walk",
-            addressLocality: "Edinburgh",
-            postalCode: "EH6 8NY",
-            addressCountry: "GB",
-          },
         }),
       },
       {
