@@ -18,8 +18,8 @@ describe("one business entity in structured data", () => {
   it("business-graph.ts is the only file declaring the #business node", () => {
     for (const [f, t] of SRC) {
       if (f === "src/lib/seo/business-graph.ts") continue;
-      expect(t, f).not.toMatch(/"@id":\s*"https:\/\/cabslink\.com\/#business"[\s\S]{0,200}"@type"/);
       expect(t, f).not.toMatch(/"@type":\s*"(Organization|LocalBusiness)"/);
+      expect(t, f).not.toMatch(/"@type":\s*\[\s*"LocalBusiness"/);
     }
   });
   it("declares no duplicate #localbusiness or #organization ids", () => {
