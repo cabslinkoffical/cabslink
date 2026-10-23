@@ -47,10 +47,10 @@ export const Route = createFileRoute("/refund-policy")({
         <li><strong>Less than {TT.halfFromHours} hours before the start, or a no-show</strong> — no refund; the full price is payable.</li>
       </ul>
 
-      <h2>4. How refunds are processed</h2>
+      <h2>5. How refunds are processed</h2>
       <p>Refunds are returned to the original payment method. We approve eligible refunds within 3 working days of agreeing them; funds typically appear within 5–10 working days, depending on your card issuer or bank.</p>
 
-      <h2>5. Disputes</h2>
+      <h2>6. Disputes</h2>
       <p>
         Please contact us first with your booking reference at <a href={`mailto:${SITE.email}`}>{SITE.email}</a> or{" "}
         <a href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}>{SITE.phoneUK}</a> so we can resolve the issue directly. We
