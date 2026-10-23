@@ -18,7 +18,7 @@ import { BookingWidget } from "@/components/site/BookingWidget";
 import { DraggableMarquee } from "@/components/site/DraggableMarquee";
 import { GoogleReviewsSection } from "@/components/site/GoogleReviewsSection";
 import { googleReviewsQuery } from "@/lib/google-reviews-query";
-import { organizationSchema, websiteSchema } from "@/components/seo/schema";
+import { businessGraph } from "@/lib/seo/business-graph";
 import { DrivingCarBadge } from "@/components/site/DrivingCarBadge";
 import { locationsDirectoryQuery } from "@/components/site/LocationsDirectory";
 
@@ -89,44 +89,17 @@ export const Route = createFileRoute("/")({
         fetchPriority: "high",
       },
     ],
-    // Sitewide identity graph. Deliberately no Review/AggregateRating markup —
-    // the Trustpilot score is third-party and must not be emitted as our own
-    // review data.
+    // Sitewide identity graph — the ONE business entity comes from
+    // business-graph.ts and is never redeclared. Deliberately no
+    // Review/AggregateRating markup — the Trustpilot score is third-party and
+    // must not be emitted as our own review data.
     scripts: [
       {
         type: "application/ld+json",
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@graph": [
-            organizationSchema(),
-            websiteSchema(),
-            {
-              // Uses the business address already published on the site.
-              "@type": "LocalBusiness",
-              "@id": "https://cabslink.com/#localbusiness",
-              name: "Cabslink",
-              description: "Fixed-fare airport transfers, private tours and executive travel across the UK.",
-              url: "https://cabslink.com",
-              telephone: "+443338882991",
-              email: "info@cabslink.com",
-              address: {
-                "@type": "PostalAddress",
-                streetAddress: "263a Leith Walk",
-                addressLocality: "Edinburgh",
-                addressRegion: "Scotland",
-                postalCode: "EH6 8NY",
-                addressCountry: "GB",
-              },
-              openingHoursSpecification: {
-                "@type": "OpeningHoursSpecification",
-                dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-                opens: "00:00",
-                closes: "23:59",
-              },
-              priceRange: "££",
-              areaServed: { "@type": "Country", name: "United Kingdom" },
-              hasMap: "https://maps.google.com/?q=263a+Leith+Walk+Edinburgh+EH6+8NY",
-            },
+            ...businessGraph()["@graph"],
             {
               "@type": "FAQPage",
               mainEntity: faqItems.map((f) => ({
