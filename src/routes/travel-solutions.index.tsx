@@ -32,13 +32,7 @@ function schema() {
         name: TITLE,
         description: DESCRIPTION,
         url: URL,
-        about: {
-          "@type": "LocalBusiness",
-          name: SITE.name,
-          telephone: SITE.phoneUK,
-          email: SITE.email,
-          url: "https://cabslink.com",
-        },
+        about: { "@id": BUSINESS_ID },
       },
       {
         "@type": "ItemList",

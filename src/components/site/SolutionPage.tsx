@@ -200,14 +200,7 @@ export function solutionSchema(content: SolutionContent, absoluteUrl: string) {
         name: content.metaTitle,
         description: content.metaDescription,
         url: absoluteUrl,
-        about: {
-          "@type": "LocalBusiness",
-          name: SITE.name,
-          telephone: SITE.phoneUK,
-          email: SITE.email,
-          url: "https://cabslink.com",
-          address: { "@type": "PostalAddress", streetAddress: SITE.address },
-        },
+        about: { "@id": BUSINESS_ID },
       },
       {
         "@type": "ItemList",

@@ -88,6 +88,9 @@ export const DEFAULT_COVERAGE: { label: string; to: string }[] = [
 ];
 
 export function ServicePillarPage({ content }: { content: PillarContent }) {
+  // Live Google rating only — no invented score. The card is hidden when the
+  // feed has no data.
+  const { data: googleReviews } = useQuery(googleReviewsQuery);
   const localPages = localPagesForService(content.id);
   const related = content.related
 
@@ -141,15 +144,24 @@ export function ServicePillarPage({ content }: { content: PillarContent }) {
               loading="lazy"
               className="aspect-[4/3] w-full rounded-3xl object-cover shadow-[var(--shadow-elegant)]"
             />
-            <div className="absolute -bottom-5 left-5 right-5 flex items-center justify-between gap-4 rounded-2xl border border-[var(--gold)]/30 bg-background/95 p-4 shadow-[var(--shadow-raised)] backdrop-blur sm:left-8 sm:right-auto sm:pr-8">
-              <div>
-                <p className="font-display text-xl font-semibold text-[var(--navy)]">4.7 / 5</p>
-                <p className="text-xs text-muted-foreground">Rated by real travellers</p>
-              </div>
-              <span className="grid size-10 place-items-center rounded-xl bg-[var(--gold)]/15 text-[var(--gold-ink)]">
-                <Sparkles className="size-5" />
-              </span>
-            </div>
+            {googleReviews && googleReviews.rating > 0 && (
+              <a
+                href={googleReviews.profileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="absolute -bottom-5 left-5 right-5 flex items-center justify-between gap-4 rounded-2xl border border-[var(--gold)]/30 bg-background/95 p-4 shadow-[var(--shadow-raised)] backdrop-blur sm:left-8 sm:right-auto sm:pr-8"
+              >
+                <div>
+                  <p className="font-display text-xl font-semibold text-[var(--navy)]">{googleReviews.rating.toFixed(1)} / 5</p>
+                  <p className="text-xs text-muted-foreground">
+                    Google rating · {googleReviews.reviewCount} reviews
+                  </p>
+                </div>
+                <span className="grid size-10 place-items-center rounded-xl bg-[var(--gold)]/15 text-[var(--gold-ink)]">
+                  <Sparkles className="size-5" />
+                </span>
+              </a>
+            )}
           </div>
           <div>
             <SectionHeader eyebrow={content.eyebrow} title={content.intro.title} subtitle={content.intro.body} />
@@ -335,14 +347,7 @@ export function pillarSchema(content: PillarContent, absoluteUrl: string) {
           { "@type": "Country", name: "United Kingdom" },
           { "@type": "AdministrativeArea", name: "Scotland" },
         ],
-        provider: {
-          "@type": "LocalBusiness",
-          name: SITE.name,
-          telephone: SITE.phoneUK,
-          email: SITE.email,
-          url: "https://cabslink.com",
-          address: { "@type": "PostalAddress", streetAddress: SITE.address },
-        },
+        provider: { "@id": BUSINESS_ID },
       },
       {
         "@type": "FAQPage",
