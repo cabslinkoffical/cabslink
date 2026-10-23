@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { getService } from "@/lib/seo/service-registry";
 import type { ServiceLocationContent } from "@/lib/seo/service-locations";
 import { SITE } from "@/lib/site";
+import { BUSINESS_ID } from "@/lib/seo/business-graph";
 
 export function ServiceLocationPage({ content }: { content: ServiceLocationContent }) {
   const loc = content.location;

@@ -5,6 +5,7 @@ import { getBlogPost, type BlogPostFull, type BlogPostSummary } from "@/lib/blog
 import { BLOG_SEO_OVERRIDES } from "@/lib/seo/blog-seo";
 import { BlogArticle } from "@/components/site/BlogArticle";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { BUSINESS_ID } from "@/lib/seo/business-graph";
 
 const BASE = "https://cabslink.com";
 

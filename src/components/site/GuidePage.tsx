@@ -12,6 +12,7 @@ import { PageHero, SectionHeader } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
 import { TransportComparison } from "@/components/seo/TransportComparison";
 import type { GuideRecord } from "@/lib/seo/guides";
+import { BUSINESS_ID } from "@/lib/seo/business-graph";
 
 const ORIGIN = "https://cabslink.com";
 

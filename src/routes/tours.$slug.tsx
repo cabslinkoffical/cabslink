@@ -23,6 +23,7 @@ function mdLines(md: string): string[] {
   return md.split(/\r?\n/).map((l) => l.replace(/^\s*(?:[-*•]|\d+[.)])\s+/, "").trim()).filter(Boolean);
 }
 import { draftTour, tourSeo } from "@/lib/seo/tour-seo";
+import { BUSINESS_ID } from "@/lib/seo/business-graph";
 
 
 const tourDetailQuery = (slug: string) =>

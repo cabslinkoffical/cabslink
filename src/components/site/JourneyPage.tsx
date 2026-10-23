@@ -19,6 +19,7 @@ import { TransportComparison } from "@/components/seo/TransportComparison";
 import { getJourneyTransport } from "@/lib/seo/transport-modes";
 
 import { SITE } from "@/lib/site";
+import { BUSINESS_ID } from "@/lib/seo/business-graph";
 
 const ORIGIN = "https://cabslink.com";
 
