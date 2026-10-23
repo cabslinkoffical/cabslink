@@ -1,4 +1,6 @@
 # Roadmap
+- [ ] Mobile optimisation: check shared public/admin layouts, booking controls and phone-sized dialogs; fix verified clipping and touch usability issues without changing booking rules or SEO.
+- [ ] Homepage vehicle lettering: outline Cabslink behind the vehicles and reduce transparency.
 - [x] Refine booking buttons: subtle navy/gold tonal finishes, circular icon accents and selected-state depth; desktop/mobile checked, stop/return/hourly interactions pass, no overflow or runtime errors; six booking tests pass and build OK.
 - [x] Booking controls: shared bordered buttons with gold selected state; desktop/mobile interaction checks passed for Transfers, Hourly Hire, Add stop and Add return; one form retained, no overflow or runtime errors; 13 targeted tests pass, build OK.
 - [~] Response-time improvements: 7 cache tests pass, including warm hits, five-minute refresh, unavailable cache and error exclusion; live homepage still measured 7.18s/6.06s. Hosted cache effectiveness remains blocked on confirming the deployed version and cache operation; no publication requested or performed.
