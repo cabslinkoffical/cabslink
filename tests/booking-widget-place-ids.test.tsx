@@ -63,6 +63,7 @@ describe("BookingWidget — Place-ID gating", () => {
     await user.click(screen.getByRole("button", { name: /Passengers/i }));
     await user.click(screen.getByLabelText(/Increase Passengers/i));
     await user.click(screen.getByLabelText(/Increase Luggage/i));
+    await user.click(screen.getByRole("button", { name: "Done" }));
     await user.click(screen.getAllByRole("button", { name: /Search/i })[0]);
     expect(navigateMock).toHaveBeenCalledTimes(1);
     const arg = navigateMock.mock.calls[0][0];
