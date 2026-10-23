@@ -68,7 +68,7 @@ export const Route = createFileRoute("/reviews")({
       },
       {
         type: "application/ld+json",
-        children: JSON.stringify(organizationSchema()),
+        children: JSON.stringify(businessGraph()),
       },
     ],
   }),
