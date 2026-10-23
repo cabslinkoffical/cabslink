@@ -18,7 +18,6 @@ import { BookingWidget } from "@/components/site/BookingWidget";
 import { DraggableMarquee } from "@/components/site/DraggableMarquee";
 import { GoogleReviewsSection } from "@/components/site/GoogleReviewsSection";
 import { googleReviewsQuery } from "@/lib/google-reviews-query";
-import { businessGraph } from "@/lib/seo/business-graph";
 import { DrivingCarBadge } from "@/components/site/DrivingCarBadge";
 import { locationsDirectoryQuery } from "@/components/site/LocationsDirectory";
 
