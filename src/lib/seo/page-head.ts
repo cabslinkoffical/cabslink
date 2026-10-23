@@ -6,9 +6,8 @@ import { safeJsonLd } from "@/lib/safe-json-ld";
  */
 export const SITE_ORIGIN = "https://cabslink.com";
 
-/** Site-wide social preview image used when a page has no image of its own. */
-export const DEFAULT_OG_IMAGE =
-  "https://storage.googleapis.com/gpt-engineer-file-uploads/NfUvXcpm6DbLcc40gpTySSnGjlC3/social-images/social-1786800106425-social-image.webp";
+/** Site-wide social preview image (1200x630) used when a page has no image of its own. */
+export const DEFAULT_OG_IMAGE = "https://cabslink.com/og-image.jpg";
 
 export const DEFAULT_TITLE = "Edinburgh Airport Transfers & Private Tours | Cabslink";
 export const DEFAULT_DESCRIPTION =
@@ -55,7 +54,10 @@ export function buildPageHead(input: PageHeadInput): { meta: HeadTag[]; links: H
       { property: "og:description", content: input.description },
       { property: "og:url", content: url },
       { property: "og:image", content: image },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
       { property: "og:image:alt", content: alt },
+      { property: "og:locale", content: "en_GB" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: input.title },
       { name: "twitter:description", content: input.description },
