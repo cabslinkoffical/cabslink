@@ -8,6 +8,8 @@ import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { listPublicVehicleClasses } from "@/lib/vehicle-classes.functions";
 import { FaqBlock } from "@/components/seo/FaqBlock";
+import { PlaceGuideBlock } from "@/components/seo/PlaceGuideBlock";
+import { guideFor } from "@/content/place-guides";
 import { buildAreaFaqs } from "@/lib/seo/area-faqs";
 import { EntityGrid } from "@/components/explore/EntityCard";
 import type { AreaSeoContext } from "@/lib/explore.functions";
@@ -53,6 +55,7 @@ const WHY = [
 export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
   const d = data.destination;
   const locName = d.display_name ?? d.name;
+  const guide = guideFor(`/areas/${d.slug}`);
   // Same query key as the fleet page, so the cache is shared.
   const { data: vehicleClasses } = useQuery({
     queryKey: ["public-vehicle-classes"],
@@ -207,6 +210,9 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
           Get a quote <ArrowRight className="size-4" />
         </Link>
       </section>
+
+      {/* Phase 7 guide text — added below all existing content. */}
+      {guide ? <div className="mt-16"><PlaceGuideBlock guide={guide} /></div> : null}
     </div>
     </SiteLayout>
   );

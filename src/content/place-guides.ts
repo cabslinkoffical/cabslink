@@ -1,4 +1,5 @@
 import { STATION_GUIDES } from "@/content/station-guides";
+import { AREA_GUIDES } from "@/content/area-guides";
 import { FACT_TEXT } from "@/lib/site-facts";
 /**
  * Phase 7 — hand-written, page-specific guide text appended BELOW the
@@ -891,6 +892,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
 ];
 
 PLACE_GUIDES.push(...STATION_GUIDES);
+PLACE_GUIDES.push(...AREA_GUIDES);
 
 export function guideFor(path: string): PlaceGuide | null {
   return PLACE_GUIDES.find((g) => g.path === path) ?? null;
