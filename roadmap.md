@@ -88,7 +88,8 @@
 - [x] Extras: one grouped list (child seats x3, meet & greet, waiting per minute/hour, other), per-class price + limit, VAT & cover on Extras page
 
 - [x] Phase 6: per-page structured data (tour Offer/breadcrumbs, all JSON-LD escaped); Google Rich Results check needs owner
-- [ ] Phase 7 Thin pages (waiting for go-ahead)
+- [x] Phase 7 Thin pages (waiting for go-ahead)
+- [x] Phase 7 batch 24 Oct: all 22 airports now have 300+ word unique guides — 4 thin ones expanded (Heathrow 290→387, Birmingham 292→377, Belfast International 225→328, Belfast City 213→334) and 7 new guides added (Bristol 332, Cardiff 351, East Midlands 340, London City 344, Luton 314, Southampton 334, Stansted 324) using only page data + FACTS/site-facts (no £ prices, no invented distances); uniqueness ≤40% and no-hardcode tests pass, build OK; needs-owner-fact lists recorded per airport; next batch: 16 area pages (currently template-only, no unique text — also need guide rendering wired into AreaLocationPage)
 - [x] Phase 8 Tours (Glencoe 600+ words needs owner-written content)
 - [x] Phase 9 AI search visibility (needs real named authors with photos)
 - [~] Phase 10 Polish — links, redirects, alt text, rating dates done; Lighthouse scores + image hosting pending
