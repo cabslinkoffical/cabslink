@@ -422,7 +422,8 @@ export const AREA_GUIDES: PlaceGuide[] = [
         heading: "Where Livingston journeys go",
         paragraphs: [
           "The airports, stations and nearby places linked from this page are the trips we handle most often, with one-way transfers to Edinburgh and Glasgow alongside them.",
-          "Early meetings and late finishes are the times a pre-booked car earns its keep — your driver is confirmed the night before, not found on the day. Shopping trips with several bags are just as easy: the car waits at the door rather than a pickup point.",
+          "Early meetings and late finishes are the times a pre-booked car earns its keep — your driver is confirmed the night before, not found on the day. Shopping trips with several bags are just as easy: the car waits at the door rather than a pickup point, and the driver helps with the loading.",
+          "Weekend journeys out to the surrounding West Lothian villages and to the two cities at either end of the corridor are booked the same way, with the price fixed before you travel.",
         ],
       },
       {
