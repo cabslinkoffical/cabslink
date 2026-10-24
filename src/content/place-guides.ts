@@ -621,6 +621,272 @@ export const PLACE_GUIDES: PlaceGuide[] = [
       "Fixed fares to/from Liverpool Airport (no published route)",
       "Pickup point at the terminal"
     ]
+  },
+  {
+    "path": "/airports/bristol-airport",
+    "sections": [
+      {
+        "heading": "Bristol Airport transfers",
+        "paragraphs": [
+          "Bristol Airport (BRS) serves the city of Bristol and the south-west of England. Cabslink books journeys here as pre-arranged private transfers: one driver, one car, and a fare agreed before you travel rather than a meter running at the other end.",
+          "There is no published fixed fare for this route on our site yet, so the booking form is the place to get your price. Enter both addresses and the quote is calculated for your exact journey before you pay."
+        ]
+      },
+      {
+        "heading": "What is included in the price",
+        "paragraphs": [
+          `${FACT_TEXT.meetGreet} On airport pickups we also follow your flight, so the driver times the meeting to the real landing rather than the timetable.`,
+          `Airport pickups include ${FACT_TEXT.airportWaitShort}, and the fare is confirmed when you book — it does not change on the day, whatever the traffic.`
+        ]
+      },
+      {
+        "heading": "Getting ready for a long drive south",
+        "paragraphs": [
+          "A journey from Scotland to Bristol is a long one, so allow a comfortable margin before check-in and add your flight number when you book. Tell us the exact address at both ends — hotels, campuses and business parks in the south-west can share similar names, and the precise address keeps the fare accurate.",
+          "Travelling home again? Book the return in the same order with the Add return option. Both cars then sit under one booking reference, and your driver will be waiting in arrivals with a name board when you land."
+        ]
+      },
+      {
+        "heading": "Choosing the right car",
+        "paragraphs": [
+          "For a couple travelling light, a saloon is comfortable. Families with holiday luggage often prefer the Estate Car, which takes four passengers with three large cases, or the Premium MPV, which carries seven passengers and seven cases. Larger groups fit in the Eight-Seater Van, which takes eight passengers with eight cases.",
+          "Child seats can be added during booking, and extra stops — collecting a relative, for example — are priced into the quote before you confirm."
+        ]
+      }
+    ],
+    "needsOwnerFact": [
+      "Distance and drive time from central Edinburgh",
+      "Fixed fares to/from Bristol Airport (no published route)",
+      "Pickup point at the terminal"
+    ]
+  },
+  {
+    "path": "/airports/cardiff-airport",
+    "sections": [
+      {
+        "heading": "Cardiff Airport and south Wales",
+        "paragraphs": [
+          "Cardiff Airport (CWL) serves the Welsh capital and the surrounding communities of south Wales. Cabslink arranges journeys here as private transfers booked in advance, with one driver for the whole trip and a fare that is fixed when you book.",
+          "No published fare is listed for this airport on the site, so the booking form is where your price comes from: enter the pickup and drop-off addresses and the quote is worked out for the exact journey before you pay."
+        ]
+      },
+      {
+        "heading": "Travelling with the family",
+        "paragraphs": [
+          "Holidaymakers arriving or leaving from Cardiff often travel with young children, and child seats can be added to the booking for each child. The fare is shown for the whole car rather than per seat, so a family of four pays the same whether they book a saloon or a larger vehicle of the same class.",
+          "For the journey home, use the Add return option and both cars are arranged under a single booking reference. Your driver waits in arrivals with a name board on the way back."
+        ]
+      },
+      {
+        "heading": "When the weather slows the roads",
+        "paragraphs": [
+          "Long drives to and from Wales are exposed to the weather, which is one reason a fixed fare suits this journey: rain, wind or roadworks do not change what you pay. Set a pickup time with a generous margin before check-in, and add your flight number so the driver can follow the real arrival.",
+          `${FACT_TEXT.transferCancellation} The booking confirmation email lists the full price, the addresses and any extras, and Manage Booking lets you review the journey online.`
+        ]
+      },
+      {
+        "heading": "Vehicles for every party",
+        "paragraphs": [
+          "A saloon suits one or two travellers with light luggage, while the Estate Car takes four passengers with three large cases. Groups usually choose the Seven-Seater MPV for six passengers, or the Eight-Seater Van for eight passengers and eight cases.",
+          "If you need to collect someone on the way, add the stop in the booking and the driver plans the route around it."
+        ]
+      }
+    ],
+    "needsOwnerFact": [
+      "Distance and drive time from central Edinburgh",
+      "Fixed fares to/from Cardiff Airport (no published route)",
+      "Pickup point at the terminal"
+    ]
+  },
+  {
+    "path": "/airports/east-midlands-airport",
+    "sections": [
+      {
+        "heading": "East Midlands Airport transfers",
+        "paragraphs": [
+          "East Midlands Airport (EMA) sits at Castle Donington, between Derby, Nottingham and Leicester, and serves holiday and business flights across the region. Cabslink books it as a pre-arranged private transfer with a fixed price agreed before travel.",
+          "There is no published fare for this journey on our site yet, so start with the booking form: it prices your exact addresses and shows every vehicle class before you commit."
+        ]
+      },
+      {
+        "heading": "Meeting at the terminal",
+        "paragraphs": [
+          `${FACT_TEXT.meetGreet} We also follow your flight, so a delay in the air does not leave you watching an empty arrivals hall.`,
+          `Airport pickups include ${FACT_TEXT.airportWait} Add your flight number when you book and the pickup is timed to the real landing rather than the schedule.`
+        ]
+      },
+      {
+        "heading": "Planning around flight times",
+        "paragraphs": [
+          "For the journey to the airport, work backwards from check-in and allow a comfortable margin for the long drive. Tell us the full address at both ends — the towns around Castle Donington and the East Midlands can be easy to confuse, and the precise address keeps the quote accurate.",
+          "Travelling as a group? Add every pickup address in the order you want to be collected, and the driver gathers everyone before heading to the terminal. Return journeys can be booked at the same time, under one reference."
+        ]
+      },
+      {
+        "heading": "Choosing the vehicle",
+        "paragraphs": [
+          "Couples and single travellers are comfortable in a saloon, which carries four passengers with two large cases. Families with holiday luggage often pick the Premium MPV for seven passengers and seven cases, and the Eight-Seater Van covers groups of up to eight with eight cases.",
+          `${FACT_TEXT.payment} Child seats are added during booking, and the confirmation email shows the complete plan.`
+        ]
+      }
+    ],
+    "needsOwnerFact": [
+      "Distance and drive time from central Edinburgh",
+      "Fixed fares to/from East Midlands Airport (no published route)",
+      "Pickup point at the terminal"
+    ]
+  },
+  {
+    "path": "/airports/london-city-airport",
+    "sections": [
+      {
+        "heading": "London City Airport for business travel",
+        "paragraphs": [
+          "London City Airport (LCY) is a compact airport close to the heart of London's financial district, and most of our journeys to and from it are for work. Cabslink arranges these as private transfers booked in advance, with one driver and one fixed fare for the whole trip.",
+          "No published fare is listed on this page, so price your journey through the booking form. For business travellers on a schedule, the quote can be prepared the day before travel and confirmed by email."
+        ]
+      },
+      {
+        "heading": "Built around a timetable",
+        "paragraphs": [
+          "When a meeting starts at a fixed time, the car should be the part of the day that cannot slip. Set the pickup with a margin that accounts for city traffic, and add your flight number so an early or late landing is handled without a call.",
+          "Corporate clients can ask about account arrangements and VAT invoices for completed bookings. Manage Booking lets you check or amend a journey online, and changes to the pickup time are free before travel."
+        ]
+      },
+      {
+        "heading": "The right car for the day",
+        "paragraphs": [
+          "For one or two colleagues, the Executive Saloon or Luxury Saloon keeps the journey quiet and discreet; the Luxury Saloon carries three passengers with two large cases. A small team travelling together fits in the Seven-Seater MPV, which takes six passengers with three cases.",
+          `${FACT_TEXT.payment}`
+        ]
+      },
+      {
+        "heading": "Arriving at London City",
+        "paragraphs": [
+          `${FACT_TEXT.meetGreet} ${FACT_TEXT.airportWait}`,
+          "If your day continues to another meeting or hotel after landing, add the stop in the booking and the fare is calculated for the full route. Planning to fly home from a different London airport? We can quote each option so you compare the complete cost of the trip."
+        ]
+      }
+    ],
+    "needsOwnerFact": [
+      "Distance and drive time from central Edinburgh",
+      "Fixed fares to/from London City Airport (no published route)",
+      "Pickup point at the terminal"
+    ]
+  },
+  {
+    "path": "/airports/luton-airport",
+    "sections": [
+      {
+        "heading": "Luton Airport transfers",
+        "paragraphs": [
+          "Luton Airport (LTN) is a busy base for holiday charter flights, and much of what we carry to and from it is families heading off with a season's worth of luggage. Cabslink books these journeys as private transfers, arranged in advance with a fixed fare.",
+          "There is no published fare for this airport on the site yet, so the booking form is where your price comes from — it shows every vehicle class side by side before you pay."
+        ]
+      },
+      {
+        "heading": "Early flights and generous margins",
+        "paragraphs": [
+          "Many Luton departures leave before the sun is up, so we suggest setting the pickup time with real margin rather than the minimum. Add your flight number when you book; for a very early start, book the night before and the confirmation email will carry the full plan.",
+          "The fare is fixed at booking, so an unexpected road closure on the way does not add anything to the price."
+        ]
+      },
+      {
+        "heading": "Luggage first",
+        "paragraphs": [
+          "Holiday luggage is the deciding factor on most Luton bookings. The Standard MPV takes four passengers with four large cases, the Seven-Seater MPV six passengers with three cases, and the Eight-Seater Van eight passengers with eight cases. Child seats can be added for each child in the party.",
+          "If you are flying home from Luton, book the return with the Add return option. Your driver waits in arrivals with a name board, and we follow the flight so a late landing is covered."
+        ]
+      },
+      {
+        "heading": "Before you travel",
+        "paragraphs": [
+          `${FACT_TEXT.transferCancellation} To change the pickup time or address, simply update the booking before the journey — the fare is recalculated if the route changes.`,
+          `${FACT_TEXT.payment}`
+        ]
+      }
+    ],
+    "needsOwnerFact": [
+      "Distance and drive time from central Edinburgh",
+      "Fixed fares to/from Luton Airport (no published route)",
+      "Pickup point at the terminal"
+    ]
+  },
+  {
+    "path": "/airports/southampton-airport",
+    "sections": [
+      {
+        "heading": "Southampton Airport and the south coast",
+        "paragraphs": [
+          "Southampton Airport (SOU) serves the city and the wider south coast, and Cabslink arranges journeys here as pre-booked private transfers. One driver takes you from door to door, and the fare is agreed before travel instead of being run on a meter.",
+          "This page does not list a published fare for the route, so use the booking form to price your exact journey. The quote covers the whole car and is confirmed before you pay."
+        ]
+      },
+      {
+        "heading": "A long drive, planned properly",
+        "paragraphs": [
+          "The journey between Scotland and the south coast is one of the longer trips we plan, so tell us the full address at both ends and allow a comfortable margin before check-in. Add your flight number and the driver can follow the arrival rather than the timetable.",
+          "If you would like a comfort stop on a long journey, add it as a stop in the booking and the driver plans for it. Extra stops are priced into the quote, so there are no surprises on the day."
+        ]
+      },
+      {
+        "heading": "Space for the whole party",
+        "paragraphs": [
+          "A saloon carries four passengers with two large cases, and the Estate Car takes four passengers with three cases for travellers who need a little more room. Families and small groups usually choose the Seven-Seater MPV, which takes six passengers with three large cases.",
+          "Child seats can be added during booking for each child in the party, and the confirmation email lists everything that has been arranged."
+        ]
+      },
+      {
+        "heading": "Coming home again",
+        "paragraphs": [
+          `${FACT_TEXT.meetGreet} ${FACT_TEXT.airportWait}`,
+          "Book the return with the Add return option and both journeys sit under one booking reference. Manage Booking lets you review the whole trip online, and the fixed fare means the price you saw when you booked is the price you pay."
+        ]
+      }
+    ],
+    "needsOwnerFact": [
+      "Distance and drive time from central Edinburgh",
+      "Fixed fares to/from Southampton Airport (no published route)",
+      "Pickup point at the terminal"
+    ]
+  },
+  {
+    "path": "/airports/stansted-airport",
+    "sections": [
+      {
+        "heading": "Stansted Airport transfers",
+        "paragraphs": [
+          "Stansted Airport (STN) handles a large share of the UK's holiday flights, and Cabslink books journeys here as private transfers arranged in advance. The whole party travels together in one car, with one driver and a fixed fare agreed at booking.",
+          "No published fare for this airport appears on the site yet, so the booking form is the place to get your quote. Enter both addresses and the price for every vehicle class is shown before you pay."
+        ]
+      },
+      {
+        "heading": "Groups travel well here",
+        "paragraphs": [
+          "Stansted bookings often carry more than one household: friends going away together, or two families sharing the cost. Add every pickup address in the order you want to be collected, and one driver gathers the whole group before the drive to the terminal.",
+          "For larger parties the Eight-Seater Van takes eight passengers with eight large cases, while the Seven-Seater MPV carries six passengers with three cases. The fare is for the car, so sharing it between households often works out cheaper than everyone travelling separately."
+        ]
+      },
+      {
+        "heading": "Landing back at Stansted",
+        "paragraphs": [
+          `${FACT_TEXT.meetGreet} ${FACT_TEXT.airportWait}`,
+          "Book the return journey in the same order with the Add return option, and your driver will be waiting in arrivals with a name board when you come home. We follow the flight, so a delayed landing is handled without you needing to call."
+        ]
+      },
+      {
+        "heading": "Plans change, and that is fine",
+        "paragraphs": [
+          "There is no fee to move the pickup time or address before travel, and the fixed fare is recalculated if the route has changed. Manage Booking keeps the whole plan in one place.",
+          "The confirmation email follows immediately after booking with the full price, the addresses and any extras such as child seats or additional stops."
+        ]
+      }
+    ],
+    "needsOwnerFact": [
+      "Distance and drive time from central Edinburgh",
+      "Fixed fares to/from Stansted Airport (no published route)",
+      "Pickup point at the terminal"
+    ]
   }
 ];
 
