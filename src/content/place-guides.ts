@@ -1,4 +1,5 @@
 import { STATION_GUIDES } from "@/content/station-guides";
+import { AREA_GUIDES } from "@/content/area-guides";
 import { FACT_TEXT } from "@/lib/site-facts";
 /**
  * Phase 7 — hand-written, page-specific guide text appended BELOW the

@@ -8,6 +8,8 @@ import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { listPublicVehicleClasses } from "@/lib/vehicle-classes.functions";
 import { FaqBlock } from "@/components/seo/FaqBlock";
+import { PlaceGuideBlock } from "@/components/seo/PlaceGuideBlock";
+import { guideFor } from "@/content/place-guides";
 import { buildAreaFaqs } from "@/lib/seo/area-faqs";
 import { EntityGrid } from "@/components/explore/EntityCard";
 import type { AreaSeoContext } from "@/lib/explore.functions";
