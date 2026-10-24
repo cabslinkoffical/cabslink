@@ -124,3 +124,6 @@
 - [ ] Prompt 3 — page speed (fonts, lazy maps, imagetools, edge cache, root beforeLoad, bfcache, motion)
 - [ ] Prompt 4 — templates, breadcrumbs, footer directory SSR, tour links, button→Link, vehicle claims, homepage title (note: conflicts with "no chauffeur" brand rule — resolve with owner), raw errors
 - [ ] Prompt 5 — blog TOC/rehype-slug, pagination, article schema, guide dates; analytics dedupe, /booking token privacy, hourly quote events, server-side purchase
+
+## Dead code audit (24 Oct, report only — awaiting owner approval)
+- [todo] Report delivered: unused files (PricingEditors, FeatureStepsDemo, TrustpilotSection/Strip, hourly.functions, internal-links.functions, seo-quality.functions), ~26 unused npm deps, leftover drizzle/ folder + drizzle-orm/kit, unused env var names. Nothing deleted — waiting for approval before any cleanup.
