@@ -1,4 +1,5 @@
 import { STATION_GUIDES } from "@/content/station-guides";
+import { FACT_TEXT } from "@/lib/site-facts";
 /**
  * Phase 7 — hand-written, page-specific guide text appended BELOW the
  * existing content of destination pages. Nothing here replaces a title,
@@ -357,6 +358,13 @@ export const PLACE_GUIDES: PlaceGuide[] = [
           "Business travellers usually pick the Executive Saloon or Luxury Saloon. The Luxury Saloon carries three passengers with two large cases. Families with luggage for a long holiday often choose the Premium MPV, which takes seven passengers and seven large cases.",
           "Meet and greet is included on airport pickups, and we follow your flight to time the pickup."
         ]
+      },
+      {
+        "heading": "Waiting time and changes to your booking",
+        "paragraphs": [
+          `${FACT_TEXT.airportWait} On arrivals, your driver waits with a name board, and we follow your flight so a delayed landing does not count against you.`,
+          `${FACT_TEXT.transferCancellation} You can review or change the journey online through Manage Booking at any time before travel.`
+        ]
       }
     ],
     "needsOwnerFact": [
@@ -433,6 +441,13 @@ export const PLACE_GUIDES: PlaceGuide[] = [
           "For one or two business travellers, the Executive Saloon carries four passengers with two large cases. For a team, the Seven-Seater MPV carries six passengers, and the Eight-Seater Van eight passengers with eight cases.",
           "Child seats and extra stops can be added while booking, and meet and greet is included on airport pickups."
         ]
+      },
+      {
+        "heading": "If your plans change",
+        "paragraphs": [
+          `${FACT_TEXT.transferCancellation} There is no fee to move the pickup time or address — update the booking before you travel and the fixed fare is recalculated where the route has changed.`,
+          `Airport pickups include ${FACT_TEXT.airportWaitShort}, counted from the actual landing rather than the timetable, and the confirmation email lists every detail of the plan.`
+        ]
       }
     ],
     "needsOwnerFact": [
@@ -471,6 +486,13 @@ export const PLACE_GUIDES: PlaceGuide[] = [
           "Families, business travellers and holidaymakers can use the airport links on this page to check which Belfast airport their itinerary names.",
           "Passenger numbers, luggage and the full destination address are useful details to include in an enquiry. A vehicle or meeting point is not confirmed by this guide."
         ]
+      },
+      {
+        "heading": "What we still need to confirm",
+        "paragraphs": [
+          "This page lists Belfast International Airport, code BFS. Our service to and from this airport has not been confirmed by the owner, so nothing here should be read as a promise of a driver, a pickup point or a price.",
+          "If you would like to be kept informed, send us the details of the journey you are considering — travel dates, flight numbers, passenger numbers and the full destination address. We will hold the enquiry and reply once the Northern Ireland position is settled. Journeys within Scotland, where Cabslink operates today, can be booked in the usual way."
+        ]
       }
     ],
     "needsOwnerFact": [
@@ -508,6 +530,13 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         "paragraphs": [
           "Keep the airport name, flight details and destination address together when preparing your itinerary or asking about a journey.",
           "Whether Cabslink operates directly in Northern Ireland or through a partner remains an owner question. Until answered, this guide offers airport-identification and enquiry information only."
+        ]
+      },
+      {
+        "heading": "Checking your Belfast itinerary",
+        "paragraphs": [
+          "Belfast City Airport carries the code BHD, and Belfast International carries BFS. When you write to us, quote the code and your flight number so the enquiry is matched to the right airport without confusion between the two.",
+          "Whether Cabslink serves Northern Ireland directly or through a partner has not been confirmed by the owner, so we cannot yet describe a driver, a meeting point or a fare for this airport. What we can do today is register your interest, note the journey you have in mind, and come back to you once the position is settled. If your trip also includes Scotland, where we do operate, we are happy to plan that part in the meantime."
         ]
       }
     ],
