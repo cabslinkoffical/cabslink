@@ -892,6 +892,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
 ];
 
 PLACE_GUIDES.push(...STATION_GUIDES);
+PLACE_GUIDES.push(...AREA_GUIDES);
 
 export function guideFor(path: string): PlaceGuide | null {
   return PLACE_GUIDES.find((g) => g.path === path) ?? null;
