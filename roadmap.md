@@ -127,3 +127,10 @@
 
 ## Dead code audit (24 Oct, report only — awaiting owner approval)
 - [done 25 Oct] Cleanup applied: deleted 8 unused files (PricingEditors, FeatureStepsDemo, TrustpilotSection/Strip, hourly.functions, internal-links.functions, seo-quality.functions, ui/feature-section), removed 28 unused npm packages, deleted leftover drizzle/ folder + drizzle.config.ts. Updated 2 tests that referenced deleted files. All 745 tests pass, build OK, key pages verified live. Env var names left alone (auto-managed).
+
+## Payments (25 Oct)
+- [x] Lovable built-in Stripe payments enabled (test environment created). Seller country UK confirmed; recommendation = Stripe (real-world transport service, not Paddle-eligible).
+- [x] Webhook handler moved to the required path src/routes/api/public/payments/webhook.ts (?env=sandbox|live, signature-verified, sandbox rejected on production hosts); old src/routes/api/public/stripe-webhook.ts deleted.
+- [x] End-to-end test card payment verified in preview: booking CL-261015-WEV7K99M, £160.41, visa 4242, processor succeeded; booking confirmed + payment row recorded (booking/request/payment test data restored afterwards).
+- [x] Tax: no tax automation added — fares are quoted inclusive and VAT registration is unconfirmed (owner-blocked); adding automatic tax would change advertised totals and break the amount-match verification.
+- [ ] Go-live (owner action): claim Stripe account and complete onboarding in the Payments tab to accept real money; live keys provision automatically after.
