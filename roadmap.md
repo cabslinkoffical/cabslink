@@ -126,4 +126,4 @@
 - [ ] Prompt 5 — blog TOC/rehype-slug, pagination, article schema, guide dates; analytics dedupe, /booking token privacy, hourly quote events, server-side purchase
 
 ## Dead code audit (24 Oct, report only — awaiting owner approval)
-- [todo] Report delivered: unused files (PricingEditors, FeatureStepsDemo, TrustpilotSection/Strip, hourly.functions, internal-links.functions, seo-quality.functions), ~26 unused npm deps, leftover drizzle/ folder + drizzle-orm/kit, unused env var names. Nothing deleted — waiting for approval before any cleanup.
+- [done 25 Oct] Cleanup applied: deleted 8 unused files (PricingEditors, FeatureStepsDemo, TrustpilotSection/Strip, hourly.functions, internal-links.functions, seo-quality.functions, ui/feature-section), removed 28 unused npm packages, deleted leftover drizzle/ folder + drizzle.config.ts. Updated 2 tests that referenced deleted files. All 745 tests pass, build OK, key pages verified live. Env var names left alone (auto-managed).

@@ -33,7 +33,6 @@ describe("Phase 10 polish", () => {
   });
 
   it("Trustpilot ratings show their snapshot date", () => {
-    expect(read("src/components/site/TrustpilotSection.tsx")).toContain("Snapshot taken {verified}");
     expect(read("src/routes/reviews.tsx")).toContain("as of {verified}");
   });
 });
