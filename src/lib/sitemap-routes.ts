@@ -39,10 +39,17 @@ export function dedupeSitemapEntries(
   const out = new Map<string, string | null>();
   for (const [raw, lastmod] of entries) {
     const key = canonicalSitemapPath(raw);
+    if (!isSitemapHtmlPath(key)) continue;
     const prev = out.get(key);
     if (!out.has(key) || (lastmod && (!prev || lastmod > prev))) out.set(key, lastmod ?? prev ?? null);
   }
   return [...out];
+}
+
+/** File resources and blocked letter indexes are never content sitemap URLs. */
+export function isSitemapHtmlPath(path: string): boolean {
+  return !/\.(?:jpe?g|png|webp|avif|gif|svg|ico|js|css|json|woff2?|ttf|pdf|xml)$/i.test(path) &&
+    !/^\/areas\/a\/[a-z]$/.test(path);
 }
 
 /** Read every row of a query in 1000-row pages (PostgREST caps responses). */
@@ -57,9 +64,9 @@ export async function fetchAllPages<T>(
     if (error) throw error;
     const rows = data ?? [];
     out.push(...rows);
-    if (rows.length < size) break;
+    if (rows.length < size) return out;
   }
-  return out;
+  throw new Error("Public content pagination exceeded its safety limit");
 }
 
 export const PUBLIC_ROUTES = [

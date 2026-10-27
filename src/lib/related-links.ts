@@ -4,7 +4,24 @@
  * rotation of tours, so every listed page gains links from many siblings.
  */
 export type RelatedCandidate = { href: string; label: string; lat?: number | null; lng?: number | null };
-export type RelatedGroups = { airports: RelatedCandidate[]; areas: RelatedCandidate[]; tours: RelatedCandidate[] };
+export type RelatedGroups = { airports: RelatedCandidate[]; areas: RelatedCandidate[]; tours: RelatedCandidate[]; articles?: RelatedCandidate[] };
+
+const COMMON = new Set(["airport", "transfer", "transfers", "private", "tour", "tours", "day", "guide", "cabslink", "scotland", "scottish", "from", "with", "your", "about", "travel", "journey", "booking", "fixed", "fares", "vehicle", "passengers", "payment", "driver", "card", "stripe"]);
+export function contentTokens(text: string): Set<string> {
+  return new Set((text.toLowerCase().match(/[a-z]{4,}/g) ?? []).filter((word) => !COMMON.has(word)));
+}
+
+/** Rank only genuine topic/location matches; never invent a relationship. */
+export function rankRelatedContent<T extends { href: string; label: string; context?: string; theme?: string | null }>(
+  candidates: T[], path: string, context: string, theme?: string | null, limit = 3,
+): T[] {
+  const tokens = contentTokens(context);
+  return candidates.filter((c) => c.href !== path)
+    .map((c) => ({ c, score: [...contentTokens(c.label)].filter((t) => tokens.has(t)).length * 4 + [...contentTokens(c.context ?? "")].filter((t) => tokens.has(t)).length + (theme && c.theme === theme ? 100 : 0) }))
+    .filter((r) => r.score > 0)
+    .sort((a, b) => b.score - a.score || a.c.href.localeCompare(b.c.href))
+    .slice(0, limit).map((r) => r.c);
+}
 
 function hash(s: string): number {
   let h = 2166136261;

@@ -6,22 +6,23 @@ import { EntityGrid } from "@/components/explore/EntityCard";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
 import { alphaBucketQuery } from "@/lib/explore.functions";
-import { MIN_INDEXABLE_LETTER_COUNT } from "@/lib/seo/alpha-indexing";
 
 export const Route = createFileRoute("/areas/a/$letter")({
   loader: ({ params, context }) => context.queryClient.ensureQueryData(alphaBucketQuery(params.letter)),
   head: ({ params, loaderData }) => {
     const L = params.letter.toUpperCase();
-    const count = Array.isArray(loaderData) ? loaderData.length : 0;
-    const indexable = count >= MIN_INDEXABLE_LETTER_COUNT;
     const path = `/areas/a/${params.letter.toLowerCase()}`;
     return normalizeHead({
       meta: [
         { title: `Locations starting with ${L} — Cabslink` },
         { name: "description", content: `Cabslink destinations starting with the letter ${L}.` },
-        { name: "robots", content: indexable ? "index,follow" : "noindex,follow" },
+        { name: "robots", content: "noindex,follow" },
+        { property: "og:title", content: `Locations starting with ${L} — Cabslink` },
+        { property: "og:description", content: `Cabslink destinations starting with the letter ${L}.` },
+        { property: "og:type", content: "website" },
+        { name: "twitter:card", content: "summary" },
       ],
-      links: indexable ? [{ rel: "canonical", href: `https://cabslink.com${path}` }] : [],
+      links: [{ rel: "canonical", href: `https://cabslink.com${path}` }],
     });
   },
   component: LetterPage,

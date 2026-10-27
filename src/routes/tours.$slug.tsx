@@ -679,20 +679,6 @@ function TourDetailPage() {
               </ul>
             </div>
 
-            {d.related.length > 0 && (
-              <div className="mt-6 rounded-3xl border border-white/10 p-5">
-                <p className="text-[11px] uppercase tracking-widest text-muted-foreground mb-3">Other tours</p>
-                <ul className="space-y-2 text-sm">
-                  {d.related.map((r) => (
-                    <li key={r.slug}>
-                      <Link to="/tours/$slug" params={{ slug: r.slug }} className="inline-flex items-center gap-1 hover:text-[var(--gold-ink)]">
-                        <ArrowRight className="size-3.5" /> {r.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
           </aside>
         </div>
       </section>

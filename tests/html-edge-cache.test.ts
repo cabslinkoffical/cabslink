@@ -19,6 +19,7 @@ describe("edge page cache scope", () => {
     expect(isCacheablePageRequest(req("/robots.txt"))).toBe(false);
     expect(isCacheablePageRequest(req("/", { method: "POST" }))).toBe(false);
     expect(isCacheablePageRequest(req("/", { headers: { authorization: "Bearer x" } }))).toBe(false);
+    expect(isCacheablePageRequest(req("/", { headers: { cookie: "session=test" } }))).toBe(false);
   });
 });
 
@@ -80,6 +81,26 @@ describe("edge cache serving", () => {
     await serveWithEdgeCache(req("/"), ctx, async () => new Response("{}", { headers: { "content-type": "application/json" } }));
     await Promise.all(jobs);
     expect(put).not.toHaveBeenCalled();
+  });
+
+  it("never shares session-setting or explicitly private HTML", async () => {
+    const put = vi.fn();
+    vi.stubGlobal("caches", { default: { match: async () => undefined, put } });
+    for (const headers of [{ "set-cookie": "session=test" }, { "cache-control": "private" }, { "cache-control": "no-store" }, { vary: "Cookie" }]) {
+      await serveWithEdgeCache(req("/"), undefined, async () => new Response("private", { headers: { "content-type": "text/html", ...headers } }));
+    }
+    expect(put).not.toHaveBeenCalled();
+  });
+
+  it("expires memory copies after 24 hours rather than serving them forever", async () => {
+    vi.stubGlobal("caches", undefined);
+    const now = Date.now();
+    const clock = vi.spyOn(Date, "now").mockReturnValue(now);
+    const render = vi.fn(async () => html("page"));
+    await serveWithEdgeCache(req("/"), undefined, render);
+    clock.mockReturnValue(now + 24 * 60 * 60_000 + 1);
+    await serveWithEdgeCache(req("/"), undefined, render);
+    expect(render).toHaveBeenCalledTimes(2);
   });
 });
 

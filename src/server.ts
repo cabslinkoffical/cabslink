@@ -3,6 +3,7 @@ import "./lib/error-capture";
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
 import { serveWithEdgeCache } from "./lib/html-edge-cache";
+import { applyResponsePolicy, canonicalRequestUrl } from "./lib/response-policy";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -90,43 +91,19 @@ function withSecurityHeaders(response: Response): Response {
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
-      const reqUrl = new URL(request.url);
-      if (reqUrl.hostname === "www.cabslink.com") {
-        reqUrl.hostname = "cabslink.com";
-        return Response.redirect(reqUrl.toString(), 301);
-      }
-      // Canonical page paths: lowercase, no trailing slash (301). Skip files,
-      // built assets and API endpoints, whose names can be case-sensitive.
-      const p = reqUrl.pathname;
-      if (
-        (request.method === "GET" || request.method === "HEAD") &&
-        !p.startsWith("/api/") &&
-        !p.startsWith("/_") &&
-        !p.startsWith("/@") &&
-        !p.startsWith("/node_modules/") &&
-        !p.startsWith("/src/") &&
-        !p.startsWith("/assets/") &&
-        !p.includes(".")
-      ) {
-        const caseSensitive = /^\/(booking|manage-booking|track-booking|cabs-booking-pannel|auth)(\/|$)/.test(p);
-        let clean = caseSensitive ? p : p.toLowerCase();
-        if (clean.length > 1 && clean.endsWith("/")) clean = clean.replace(/\/+$/, "") || "/";
-        if (clean !== p) {
-          reqUrl.pathname = clean;
-          return Response.redirect(reqUrl.toString(), 301);
-        }
-      }
+      const canonical = canonicalRequestUrl(request);
+      if (canonical) return applyResponsePolicy(request, withSecurityHeaders(Response.redirect(canonical, 301)));
       const handler = await getServerEntry();
       const response = await serveWithEdgeCache(request, ctx as any, async () =>
         normalizeCatastrophicSsrResponse(await handler.fetch(request, env, ctx)),
       );
-      return withHtmlRevalidation(withSecurityHeaders(response));
+      return applyResponsePolicy(request, withHtmlRevalidation(withSecurityHeaders(response)));
     } catch (error) {
       console.error(error);
-      return new Response(renderErrorPage(), {
+      return applyResponsePolicy(request, withSecurityHeaders(new Response(renderErrorPage(), {
         status: 500,
         headers: { "content-type": "text/html; charset=utf-8" },
-      });
+      })));
     }
   },
 };

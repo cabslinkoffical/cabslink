@@ -87,7 +87,7 @@ export type BlogPostFull = BlogPostSummary & {
 const POST_LIST_SELECT =
   "id, slug, title, subtitle, excerpt, featured_image_url, featured_image_alt, reading_minutes, published_at, cluster_key, pillar, featured, category:blog_categories(slug,name), author:blog_authors(slug,name,avatar_url)";
 
-const POST_FULL_SELECT = `id, slug, title, subtitle, excerpt, body_md, featured_image_url, featured_image_alt, reading_minutes, published_at, last_reviewed_at, seo_title, meta_description, og_image_url, canonical_override, robots_status, toc, faqs, key_takeaways, cluster_key, pillar, featured, related_service_slugs, related_location_slugs, related_route_slugs, related_post_ids, category:blog_categories(slug,name), author:blog_authors(slug,name,avatar_url), author_full:blog_authors(*), tags:blog_post_tags(tag:blog_tags(id,slug,name))`;
+const POST_FULL_SELECT = `id, slug, title, subtitle, excerpt, body_md, featured_image_url, featured_image_alt, reading_minutes, published_at, last_reviewed_at, seo_title, meta_description, og_image_url, canonical_override, robots_status, toc, faqs, key_takeaways, cluster_key, pillar, featured, category_id, related_service_slugs, related_location_slugs, related_route_slugs, related_post_ids, category:blog_categories(slug,name), author:blog_authors(slug,name,avatar_url), author_full:blog_authors(*), tags:blog_post_tags(tag:blog_tags(id,slug,name))`;
 
 function normalizeSummary(row: any): BlogPostSummary {
   return {
@@ -178,19 +178,31 @@ export const getBlogPost = createServerFn({ method: "GET" })
     let related: BlogPostSummary[] = [];
     if (post.related_post_ids.length) {
       const { data: rel } = await supabase.from("blog_posts").select(POST_LIST_SELECT)
-        .eq("status", "published").in("id", post.related_post_ids).limit(4);
-      related = (rel ?? []).map(normalizeSummary);
+        .eq("status", "published").neq("id", post.id).in("id", post.related_post_ids);
+      related = post.related_post_ids.flatMap((id) => {
+        const match = (rel ?? []).find((p) => p.id === id);
+        return match ? [normalizeSummary(match)] : [];
+      }).slice(0, 3);
     }
     if (related.length < 3 && post.category) {
       const { data: rel } = await supabase.from("blog_posts").select(POST_LIST_SELECT)
         .eq("status", "published").eq("category_id", (r.category_id ?? r.category?.id ?? ""))
-        .neq("id", post.id).order("published_at", { ascending: false }).limit(4 - related.length);
+        .neq("id", post.id).order("published_at", { ascending: false }).limit(6);
       const existing = new Set(related.map((p) => p.id));
       for (const p of rel ?? []) if (!existing.has((p as any).id)) related.push(normalizeSummary(p));
     }
 
+    if (related.length < 3) {
+      const { rankRelatedContent } = await import("@/lib/related-links");
+      const { data: candidates } = await supabase.from("blog_posts").select(POST_LIST_SELECT)
+        .eq("status", "published").neq("id", post.id).order("published_at", { ascending: false }).limit(100);
+      const matches = rankRelatedContent((candidates ?? []).map((p) => ({ href: `/blog/${p.slug}`, label: p.title, context: p.excerpt ?? "", post: p })), `/blog/${post.slug}`, `${post.title} ${post.excerpt ?? ""} ${post.related_location_slugs.join(" ")}`, null, 3);
+      const existing = new Set(related.map((p) => p.id));
+      for (const match of matches) if (!existing.has(match.post.id)) related.push(normalizeSummary(match.post));
+    }
+
     // Fire-and-forget view increment via anon UPDATE would need policy — skip.
-    return { post, related };
+    return { post, related: related.slice(0, 3) };
   });
 
 export const searchBlog = createServerFn({ method: "GET" })

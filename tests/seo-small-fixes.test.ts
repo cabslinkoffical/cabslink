@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
-import { dedupeSitemapEntries, canonicalSitemapPath, PUBLIC_ROUTES } from "@/lib/sitemap-routes";
+import { dedupeSitemapEntries, canonicalSitemapPath, PUBLIC_ROUTES, fetchAllPages } from "@/lib/sitemap-routes";
 import { airportFaqFor } from "@/content/airport-faqs";
 import { SITE } from "@/lib/site";
 
@@ -45,6 +45,12 @@ describe("sitemap de-duplication", () => {
   it("static routes produce no duplicates", () => {
     const out = dedupeSitemapEntries(PUBLIC_ROUTES.map((p) => [p, null] as [string, null]));
     expect(new Set(out.map(([p]) => p)).size).toBe(out.length);
+  });
+  it("omits file resources and blocked A–Z indexes", () => {
+    expect(dedupeSitemapEntries([["/photo.jpg", null], ["/file.json", null], ["/areas/a/e", null], ["/airports/cardiff-airport", null]])).toEqual([["/airports/cardiff-airport", null]]);
+  });
+  it("surfaces query failures instead of publishing partial content", async () => {
+    await expect(fetchAllPages(async () => ({ data: null, error: new Error("unavailable") }))).rejects.toThrow("unavailable");
   });
 });
 

@@ -1,6 +1,19 @@
 import { Link } from "@tanstack/react-router";
 import type { PlaceGuide } from "@/content/place-guides";
 import type { RouteFareTable } from "@/lib/seo/route-fares.functions";
+import { Suspense } from "react";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { selectedRelatedLinksQuery } from "@/lib/related-links.functions";
+
+function GuideReading({ path }: { path: string }) {
+  const { data } = useSuspenseQuery(selectedRelatedLinksQuery(path, null));
+  return (
+    <div className="space-y-3 text-muted-foreground leading-relaxed">
+      {data.tours.length > 0 && <p>Private tours: {data.tours.map((link, i) => <span key={link.href}>{i > 0 ? "; " : ""}<a href={link.href} className="text-primary underline underline-offset-4">{link.label}</a></span>)}.</p>}
+      {!!data.articles?.length && <p>Related reading: {data.articles.map((link, i) => <span key={link.href}>{i > 0 ? "; " : ""}<a href={link.href} className="text-primary underline underline-offset-4">{link.label}</a></span>)}.</p>}
+    </div>
+  );
+}
 
 /**
  * Phase 7 guide text, rendered BELOW a page's existing content. Live fares
@@ -27,12 +40,14 @@ export function PlaceGuideBlock({
           </div>
         </div>
       ))}
+      <Suspense fallback={null}><GuideReading path={guide.path} /></Suspense>
       {live.length > 0 && (
         <div>
           <h2 className="text-2xl font-semibold mb-3">Live fixed fares from this page's routes</h2>
           <ul className="space-y-2">
             {live.map(({ slug, table }) => {
-              const t = table!;
+              const t = table;
+              if (!t) return null;
               const from = Math.min(...t.fares.map((f) => f.price));
               return (
                 <li key={slug} className="rounded-lg border bg-card p-4 text-sm">

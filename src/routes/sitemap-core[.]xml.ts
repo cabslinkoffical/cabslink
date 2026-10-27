@@ -12,9 +12,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
-import { listPublishedSeoPaths } from "@/lib/seo-public.functions";
 import { PUBLIC_ROUTES, fetchAllPages, dedupeSitemapEntries } from "@/lib/sitemap-routes";
-import { indexableAlphaPaths } from "@/lib/seo/alpha-indexing";
 
 const BASE_URL = "https://cabslink.com";
 
@@ -64,40 +62,32 @@ export const Route = createFileRoute("/sitemap-core.xml")({
         const sb = serverPublicClient();
 
         try {
-          const rows = await fetchAllPages((from, to) => sb.from("destinations")
-            .select("name").eq("active", true).neq("seo_tier", 4)
-            .order("id").range(from, to));
-          for (const path of indexableAlphaPaths(rows)) entries.set(path, null);
-        } catch { /* keep serving the existing sitemap surface */ }
-
-        try {
-          const { data } = await sb
-            .from("scenic_route_templates")
-            .select("slug, updated_at");
-          for (const t of (data ?? []) as { slug: string; updated_at: string | null }[]) {
+          const [tours, seo, blogs] = await Promise.all([
+            fetchAllPages((from, to) => sb.from("scenic_route_templates").select("slug, updated_at").eq("active", true).eq("published", true).order("id").range(from, to)),
+            fetchAllPages((from, to) => sb.from("seo_pages").select("path, updated_at, robots_status, canonical_override").eq("publication_status", "published").order("id").range(from, to)),
+            fetchAllPages((from, to) => sb.from("blog_posts").select("slug, updated_at, robots_status, canonical_override").eq("status", "published").order("id").range(from, to)),
+          ]);
+          for (const t of tours) {
             entries.set(`/tours/${t.slug}`, isoDay(t.updated_at));
           }
-        } catch { /* keep serving the static surface */ }
-
-        try {
-          const rows = (await listPublishedSeoPaths()) as { path: string; updated_at?: string | null }[];
           // Destination-backed URLs are advertised by the per-type
           // sub-sitemaps; listing them here too would duplicate entries.
-          for (const r of rows) {
+          for (const r of seo) {
+            if (r.robots_status.includes("noindex") || r.path.startsWith("/locations/")) continue;
+            if (r.canonical_override && r.canonical_override !== `${BASE_URL}${r.path}` && r.canonical_override !== r.path) continue;
             if (DESTINATION_OWNED_PREFIXES.some((pre) => r.path.startsWith(pre))) continue;
             entries.set(r.path, isoDay(r.updated_at));
           }
-        } catch { /* ignore */ }
-
-        try {
-          const { data } = await sb
-            .from("blog_posts")
-            .select("slug, updated_at")
-            .eq("status", "published");
-          for (const b of (data ?? []) as { slug: string; updated_at: string | null }[]) {
+          for (const b of blogs) {
+            if (b.robots_status.includes("noindex")) continue;
+            const path = `/blog/${b.slug}`;
+            if (b.canonical_override && b.canonical_override !== `${BASE_URL}${path}` && b.canonical_override !== path) continue;
             entries.set(`/blog/${b.slug}`, isoDay(b.updated_at));
           }
-        } catch { /* ignore */ }
+        } catch (error) {
+          console.error("Core sitemap public query failed", error);
+          return new Response("Sitemap temporarily unavailable", { status: 503, headers: { "Cache-Control": "no-store" } });
+        }
 
         const xml = [
           `<?xml version="1.0" encoding="UTF-8"?>`,
