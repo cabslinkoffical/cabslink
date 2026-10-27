@@ -149,8 +149,8 @@ export const HUBS = {
   },
   attractions: {
     type: "attraction" as const,
-    title: "Private Tours to Scotland's Top Attractions",
-    seoTitle: "Private Tours to Scotland's Top Attractions",
+    title: "Explore Scotland's Best Attractions by Private Car",
+    seoTitle: "Private Tours to Scotland's Top Attractions | Cabslink Edinburgh",
     metaDescription: "Private driver travel to UK landmarks and attractions. Your car waits while you visit, and stops can be combined into one full private day out.",
     intro: "Guided private travel to UK landmarks.",
     longIntro:

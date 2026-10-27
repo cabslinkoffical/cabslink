@@ -104,7 +104,6 @@ export function TourCard({ tour, decorative = false }: { tour: PublicTourListIte
             <TourLink
               to="/book/tour"
               search={{ tour: tour.slug }}
-              rel="nofollow"
               className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-[var(--navy)] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[var(--gold)] hover:text-[var(--navy)]"
             >
               Book tour

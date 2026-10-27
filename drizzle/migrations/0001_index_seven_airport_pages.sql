@@ -1,0 +1,1 @@
+UPDATE public.seo_pages SET robots_status='index,follow', updated_at=now() WHERE path IN ('/airports/belfast-city-airport','/airports/cardiff-airport','/airports/east-midlands-airport','/airports/leeds-bradford-airport','/airports/manchester-airport','/airports/newcastle-airport','/airports/southampton-airport') AND robots_status='noindex,follow';

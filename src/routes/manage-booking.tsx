@@ -762,7 +762,7 @@ function CancellationDone({ ref_, tier, registeredPhone }: { ref_: string; tier:
             <a
               href={`https://wa.me/${waNumber}?text=${waText}`}
               target="_blank"
-              rel="noopener noreferrer"
+              rel="nofollow noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-full bg-[var(--navy)] px-4 py-2.5 text-sm font-bold text-[var(--navy-foreground)]"
             >
               <MessageCircle className="size-4" /> Confirm on WhatsApp
