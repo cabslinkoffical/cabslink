@@ -20,7 +20,7 @@ describe("Phase 9 — AI search visibility", () => {
   it("direct answers keep at most two sentences", () => {
     expect(firstSentences("One. Two! Three?", 2)).toEqual(["One.", "Two!"]);
   });
-  it("publish guard requires a named author with bio and photo; TODO tables block publishing", () => {
+  it("TODO tables block publishing", () => {
     expect(readFileSync("src/lib/blog-admin.functions.ts", "utf8")).toMatch(/TODO.*before publishing/);
   });
 });
