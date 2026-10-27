@@ -52,7 +52,7 @@ const SECURITY_HEADERS: Record<string, string> = {
   "permissions-policy":
     'camera=(), microphone=(), usb=(), payment=(self "https://js.stripe.com" "https://checkout.stripe.com")',
   "cross-origin-opener-policy": "same-origin-allow-popups",
-  "strict-transport-security": "max-age=31536000; includeSubDomains",
+  "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
 };
 
 /**

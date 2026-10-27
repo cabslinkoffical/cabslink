@@ -617,7 +617,7 @@ function TourDetailPage() {
                       <p className="mt-2 text-muted-foreground">{r.text}</p>
                       <p className="mt-3 text-xs">
                         <span className="font-semibold">{r.name}</span> · {new Date(r.date).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
-                        {r.source_url && <> · <a href={r.source_url} target="_blank" rel="noopener noreferrer nofollow" className="underline">Source</a></>}
+                        {r.source_url && <> · <a href={r.source_url} target="_blank" rel="noopener noreferrer" className="underline">Source</a></>}
                       </p>
                     </li>
                   ))}

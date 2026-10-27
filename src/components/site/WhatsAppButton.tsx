@@ -17,7 +17,7 @@ export function WhatsAppButton() {
     <a
       href={href}
       target="_blank"
-      rel="noopener noreferrer"
+      rel="nofollow noopener noreferrer"
       aria-label="Chat with Cabslink on WhatsApp"
       data-analytics-location="floating_button"
       onClick={trackClick("whatsapp_click", { path: pathname })}

@@ -1,5 +1,6 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
-import { isCacheablePageRequest, serveWithEdgeCache } from "@/lib/html-edge-cache";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { clearMemoryPageCache, isCacheablePageRequest, serveWithEdgeCache } from "@/lib/html-edge-cache";
+beforeEach(() => clearMemoryPageCache());
 
 const req = (path: string, init?: RequestInit) => new Request(`https://cabslink.com${path}`, init);
 
@@ -79,5 +80,18 @@ describe("edge cache serving", () => {
     await serveWithEdgeCache(req("/"), ctx, async () => new Response("{}", { headers: { "content-type": "application/json" } }));
     await Promise.all(jobs);
     expect(put).not.toHaveBeenCalled();
+  });
+});
+
+describe("memory page cache", () => {
+  it("serves a repeat request without re-rendering when the edge cache never hits", async () => {
+    vi.stubGlobal("caches", { default: { match: async () => undefined, put: async () => undefined } });
+    const render = vi.fn(async () => new Response("<p>page</p>", { headers: { "content-type": "text/html" } }));
+    const r = new Request("https://cabslink.com/areas");
+    await serveWithEdgeCache(r, undefined, render);
+    await new Promise((res) => setTimeout(res, 0));
+    const second = await serveWithEdgeCache(new Request("https://cabslink.com/areas"), undefined, render);
+    expect(await second.text()).toBe("<p>page</p>");
+    expect(render).toHaveBeenCalledTimes(1);
   });
 });

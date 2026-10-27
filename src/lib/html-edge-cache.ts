@@ -30,12 +30,56 @@ export function isCacheablePageRequest(request: Request): boolean {
   return true;
 }
 
+/**
+ * Per-isolate memory layer in front of the edge cache. Some hosting setups
+ * accept cache.put() without ever returning hits, so warm isolates keep their
+ * own small copy of recently rendered pages.
+ */
+const MEMORY_LIMIT = 150;
+const memory = new Map<string, { body: ArrayBuffer; headers: [string, string][] }>();
+
+const memoryCache = {
+  async match(key: Request): Promise<Response | undefined> {
+    const entry = memory.get(key.url);
+    if (!entry) return undefined;
+    memory.delete(key.url);
+    memory.set(key.url, entry);
+    return new Response(entry.body.slice(0), { status: 200, headers: entry.headers });
+  },
+  async put(key: Request, response: Response): Promise<void> {
+    const body = await response.arrayBuffer();
+    memory.delete(key.url);
+    memory.set(key.url, { body, headers: [...response.headers.entries()] });
+    while (memory.size > MEMORY_LIMIT) memory.delete(memory.keys().next().value as string);
+  },
+};
+
+function layeredCache(edge: Cache | null): Cache {
+  return {
+    async match(key: Request) {
+      const local = await memoryCache.match(key);
+      if (local) return local;
+      if (!edge) return undefined;
+      const hit = await edge.match(key);
+      if (hit) await memoryCache.put(key, hit.clone());
+      return hit;
+    },
+    async put(key: Request, response: Response) {
+      const copy = response.clone();
+      await memoryCache.put(key, copy);
+      if (edge) await edge.put(key, response).catch(() => undefined);
+    },
+  } as unknown as Cache;
+}
+
 function edgeCache(): Cache | null {
+  let edge: Cache | null = null;
   try {
-    return (globalThis as any).caches?.default ?? null;
+    edge = (globalThis as any).caches?.default ?? null;
   } catch {
-    return null;
+    edge = null;
   }
+  return layeredCache(edge);
 }
 
 function keyFor(request: Request): Request {
@@ -93,4 +137,9 @@ export async function serveWithEdgeCache(
     if (ctx?.waitUntil) ctx.waitUntil(job);
   }
   return fresh;
+}
+
+/** Test helper: forget the per-isolate page copies. */
+export function clearMemoryPageCache() {
+  memory.clear();
 }
