@@ -1,3 +1,4 @@
+import { RelatedLinks } from "@/components/site/RelatedLinks";
 import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute, Link, notFound, redirect } from "@tanstack/react-router";
 import { safeJsonLd } from "@/lib/safe-json-ld";
@@ -312,6 +313,8 @@ function AirportPage() {
         </section>
       )}
 
+
+      <RelatedLinks center={typeof airport.lat === "number" && typeof airport.lng === "number" ? { lat: airport.lat, lng: airport.lng } : null} />
 
       {/* JSON-LD */}
       <AirportMapSection focus={

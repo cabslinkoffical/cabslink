@@ -35,7 +35,7 @@ function Inner({ center }: Props) {
   if (!picked.airports.length && !picked.areas.length && !picked.tours.length) return null;
   return (
     <section aria-labelledby="related-pages-heading" className="mx-auto mt-16 max-w-6xl px-4 pb-4 sm:px-6">
-      <div className="rounded-3xl border border-[var(--navy)]/10 bg-[var(--alt-bg,#F5F2EA)] p-6 sm:p-8">
+      <div className="rounded-3xl border border-[var(--navy)]/10 bg-[var(--surface-2)] p-6 sm:p-8">
         <h2 id="related-pages-heading" className="font-display text-2xl font-bold text-[var(--navy)]">Related pages</h2>
         <div className="mt-6 grid gap-8 sm:grid-cols-3">
           <Group title="Airports" icon={Plane} links={picked.airports} />

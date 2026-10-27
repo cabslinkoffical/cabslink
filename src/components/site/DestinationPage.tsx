@@ -1,3 +1,4 @@
+import { RelatedLinks } from "@/components/site/RelatedLinks";
 import type React from "react";
 /**
  * Shared renderer for every destination-typed route.
@@ -176,6 +177,7 @@ export function DestinationPage({
         <DestinationSections sections={sections} loaded={data} />
         {appendix ? <div className="mt-12">{appendix}</div> : null}
       </div>
+      <RelatedLinks center={typeof d.lat === "number" && typeof d.lng === "number" ? { lat: d.lat, lng: d.lng } : null} />
     </SiteLayout>
   );
 }
