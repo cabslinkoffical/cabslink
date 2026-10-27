@@ -49,7 +49,7 @@ async function loadPool() {
     areas: rows.filter((r) => r.type !== "airport").map((r) => toCand(r, "areas")),
     tours: tours
       .filter((t) => t.slug && t.name)
-      .map((t) => ({ href: `/tours/${t.slug}`, label: t.name, theme: t.theme_group, context: `${t.origin_label} ${t.destination_label} ${t.short_description ?? ""}` })),
+      .map((t) => ({ href: `/tours/${t.slug}`, label: t.name, theme: t.theme_group, origin: t.origin_label, context: `${t.origin_label} ${t.destination_label} ${t.short_description ?? ""}` })),
     articles: posts.map((p) => ({ href: `/blog/${p.slug}`, label: p.title, context: [...(p.related_location_slugs ?? []), ...(p.related_route_slugs ?? [])].join(" ") })),
   };
 }
@@ -65,10 +65,18 @@ export const getSelectedRelatedLinks = createServerFn({ method: "GET" })
     const context = [data.path, ...(guide?.routeSlugs ?? []), ...(guide?.sections.flatMap((s) => [s.heading, ...s.paragraphs]) ?? [])].join(" ");
     const tour = all.tours.find((t) => t.href === data.path);
     const compact = (c: { href: string; label: string }) => ({ href: c.href, label: c.label });
+    const matchedTours = rankRelatedContent(all.tours, data.path, `${context} ${tour?.context ?? ""}`, tour?.theme);
+    // Same departure region is a verified fallback, not an invented itinerary.
+    if (tour?.origin && matchedTours.length < 3) {
+      for (const candidate of all.tours) {
+        if (candidate.origin === tour.origin && candidate.href !== data.path && !matchedTours.some((t) => t.href === candidate.href)) matchedTours.push(candidate);
+        if (matchedTours.length === 3) break;
+      }
+    }
     return {
       airports: selected.airports.map(compact),
       areas: selected.areas.map(compact),
-      tours: rankRelatedContent(all.tours, data.path, context, tour?.theme).map(compact),
+      tours: matchedTours.map(compact),
       articles: rankRelatedContent(all.articles, data.path, context).map(compact),
     };
   });
