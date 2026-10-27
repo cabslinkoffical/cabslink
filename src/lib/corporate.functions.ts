@@ -1,10 +1,5 @@
-import { getClientIp } from "@/lib/client-ip.server";
 import { createServerFn } from "@tanstack/react-start";
-import { setResponseStatus } from "@tanstack/react-start/server";
 import { z } from "zod";
-import { checkLimit } from "@/lib/rate-limit.server";
-import { hitRateLimit, LIMITS } from "@/lib/db-rate-limit.server";
-import { assertCaptcha } from "@/lib/captcha.server";
 
 const input = z.object({
   company: z.string().trim().min(2).max(120),
@@ -31,6 +26,7 @@ export async function submitCorporateInquiryImpl(
   if (parsed.website && parsed.website.trim() !== "") return { ok: true };
 
   const ip = opts.ip ?? "unknown";
+  const { hitRateLimit, LIMITS } = await import("@/lib/db-rate-limit.server");
   if (!opts.rateLimited && !(await hitRateLimit(LIMITS.corporate, ip))) {
     try { opts.setStatus?.(429); } catch {}
     throw new Error("Too many submissions. Please try again in a few minutes.");
@@ -74,6 +70,10 @@ export async function submitCorporateInquiryImpl(
 export const submitCorporateInquiry = createServerFn({ method: "POST" })
   .inputValidator((data: CorporateInput) => input.parse(data))
   .handler(async ({ data }) => {
+    const { getClientIp } = await import("@/lib/client-ip.server");
+    const { setResponseStatus } = await import("@tanstack/react-start/server");
+    const { hitRateLimit, LIMITS } = await import("@/lib/db-rate-limit.server");
+    const { assertCaptcha } = await import("@/lib/captcha.server");
     let ip = "unknown";
     try { ip = (await getClientIp()) ?? "unknown"; } catch {}
     // Rate limit first, so a flood never reaches the captcha verifier.
