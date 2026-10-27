@@ -138,3 +138,8 @@ export async function serveWithEdgeCache(
   }
   return fresh;
 }
+
+/** Test helper: forget the per-isolate page copies. */
+export function clearMemoryPageCache() {
+  memory.clear();
+}
