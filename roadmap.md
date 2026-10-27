@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Fix blog saving and publishing blocked by the named-person author error; preserve article content and verify the admin save flow.
 - [~] Mobile optimisation: shared viewport-bounded scrollable dialogs, focus-managed passenger editor with larger touch controls, tour CTA stacking, tour navigation wrapping, saved-trip wrapping, Manage Booking spacing, admin sidebar containment and analytics tab scrolling applied; 15 public pages audited at 375px, controls checked at 320/375/430/768/1280, 745 tests pass and build OK. Signed-in admin and complete payment/cancellation journeys remain unverified: no requesting-user app account/session available; nothing published.
 - [x] Homepage vehicle lettering: Cabslink is outlined with 32% opacity behind the vehicles; phone vehicle scale reduced so the entire car fits, screenshots verified at 320px and desktop, build OK.
 - [x] Refine booking buttons: subtle navy/gold tonal finishes, circular icon accents and selected-state depth; desktop/mobile checked, stop/return/hourly interactions pass, no overflow or runtime errors; six booking tests pass and build OK.
