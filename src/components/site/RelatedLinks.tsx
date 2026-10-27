@@ -1,9 +1,9 @@
 import { Suspense } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useLocation } from "@tanstack/react-router";
-import { ArrowRight, MapPin, Plane, Route as RouteIcon } from "lucide-react";
-import { relatedLinkPoolQuery } from "@/lib/related-links.functions";
-import { pickRelatedLinks, type RelatedCandidate } from "@/lib/related-links";
+import { ArrowRight, BookOpen, MapPin, Plane, Route as RouteIcon } from "lucide-react";
+import { selectedRelatedLinksQuery } from "@/lib/related-links.functions";
+import { type RelatedCandidate } from "@/lib/related-links";
 
 type Props = { center?: { lat: number; lng: number } | null };
 
@@ -29,18 +29,18 @@ function Group({ title, icon: Icon, links }: { title: string; icon: typeof Plane
 }
 
 function Inner({ center }: Props) {
-  const { data } = useSuspenseQuery(relatedLinkPoolQuery());
   const path = useLocation({ select: (l) => l.pathname });
-  const picked = pickRelatedLinks(data, path, center ?? null);
+  const { data: picked } = useSuspenseQuery(selectedRelatedLinksQuery(path, center ?? null));
   if (!picked.airports.length && !picked.areas.length && !picked.tours.length) return null;
   return (
     <section aria-labelledby="related-pages-heading" className="mx-auto mt-16 max-w-6xl px-4 pb-4 sm:px-6">
       <div className="rounded-3xl border border-[var(--navy)]/10 bg-[var(--surface-2)] p-6 sm:p-8">
         <h2 id="related-pages-heading" className="font-display text-2xl font-bold text-[var(--navy)]">Related pages</h2>
-        <div className="mt-6 grid gap-8 sm:grid-cols-3">
+        <div className="mt-6 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           <Group title="Airports" icon={Plane} links={picked.airports} />
           <Group title="Areas we cover" icon={MapPin} links={picked.areas} />
           <Group title="Tours" icon={RouteIcon} links={picked.tours} />
+          <Group title="Related articles" icon={BookOpen} links={picked.articles ?? []} />
         </div>
       </div>
     </section>
