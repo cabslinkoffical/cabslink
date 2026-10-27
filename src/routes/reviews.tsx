@@ -36,7 +36,7 @@ import {
 
 const TITLE = "Cabslink Reviews — Ratings & Customer Feedback";
 const DESCRIPTION =
-  "Cabslink reviews: ratings from independent platforms including Trustpilot and RatingFacts, the latest written reviews, and every channel where you can review us next.";
+  "Cabslink reviews: ratings from independent platforms including Trustpilot and RatingFacts, the latest written reviews and where you can review us next.";
 const URL = "https://cabslink.com/reviews";
 
 export const Route = createFileRoute("/reviews")({
