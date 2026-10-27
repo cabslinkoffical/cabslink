@@ -1,3 +1,4 @@
+import { RelatedLinks } from "@/components/site/RelatedLinks";
 import { DirectAnswer, firstSentences } from "@/components/seo/DirectAnswer";
 import { normalizeHead } from "@/lib/seo/page-head";
 import { Link } from "@tanstack/react-router";
@@ -109,6 +110,7 @@ export function SeoPageRenderer({
       </div>
 
       {entityType === "airport" && <AirportMapSection focus={mapFocus} />}
+      <RelatedLinks center={mapFocus ? { lat: mapFocus.lat, lng: mapFocus.lng } : null} />
 
     </div>
     </SiteLayout>

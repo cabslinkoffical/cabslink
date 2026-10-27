@@ -4,6 +4,7 @@
  * hire, executive car, private driver, luxury transfer, minibus, coach, etc.) into
  * one comprehensive, entity-rich page per location.
  */
+import { RelatedLinks } from "@/components/site/RelatedLinks";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { listPublicVehicleClasses } from "@/lib/vehicle-classes.functions";
@@ -213,6 +214,7 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
 
       {/* Phase 7 guide text — added below all existing content. */}
       {guide ? <div className="mt-16"><PlaceGuideBlock guide={guide} /></div> : null}
+      <RelatedLinks center={typeof d.lat === "number" && typeof d.lng === "number" ? { lat: d.lat, lng: d.lng } : null} />
     </div>
     </SiteLayout>
   );

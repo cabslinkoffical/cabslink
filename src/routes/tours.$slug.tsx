@@ -1,3 +1,4 @@
+import { RelatedLinks } from "@/components/site/RelatedLinks";
 import { normalizeHead } from "@/lib/seo/page-head";
 import { useMemo, useState, useDeferredValue } from "react";
 import { FACT_TEXT } from "@/lib/site-facts";
@@ -695,6 +696,7 @@ function TourDetailPage() {
           </aside>
         </div>
       </section>
+      <RelatedLinks />
     </SiteLayout>
   );
 }

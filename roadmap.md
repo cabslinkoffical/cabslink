@@ -135,4 +135,4 @@
 - [x] End-to-end test card payment verified in preview: booking CL-261015-WEV7K99M, £160.41, visa 4242, processor succeeded; booking confirmed + payment row recorded (booking/request/payment test data restored afterwards).
 - [x] Tax: no tax automation added — fares are quoted inclusive and VAT registration is unconfirmed (owner-blocked); adding automatic tax would change advertised totals and break the amount-match verification.
 - [ ] Go-live (owner action): claim Stripe account and complete onboarding in the Payments tab to accept real money; live keys provision automatically after.
-- [ ] Related links on the 37 pages with one internal link (conflicts with "no explore section" preference — confirm with owner)
+- [x] Related links: shared "Related pages" block (nearby airports, areas, tours) on airport, area, destination, CMS and tour pages; SSR-rendered, test added; not published
