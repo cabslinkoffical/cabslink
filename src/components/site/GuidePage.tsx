@@ -129,7 +129,7 @@ export function GuidePage({ guide: g }: { guide: GuideRecord }) {
                       <a
                         href={t.source}
                         target="_blank"
-                        rel="noopener nofollow"
+                        rel="noopener"
                         className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:underline"
                       >
                         Source
