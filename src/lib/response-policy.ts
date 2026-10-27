@@ -11,7 +11,7 @@ export function canonicalRequestUrl(request: Request): string | undefined {
   }
   const p = url.pathname;
   if ((request.method === "GET" || request.method === "HEAD") &&
-      !/^\/(?:api|_|@|node_modules|src|assets)(?:\/|$)/.test(p) && !p.includes(".")) {
+      !/^\/(?:_|@)/.test(p) && !/^\/(?:api|node_modules|src|assets)(?:\/|$)/.test(p) && !p.includes(".")) {
     const sensitive = /^\/(booking|manage-booking|track-booking|cabs-booking-pannel|auth)(\/|$)/.test(p);
     const clean = sensitive ? p : p.toLowerCase();
     url.pathname = clean.length > 1 ? clean.replace(/\/+$/, "") : clean;

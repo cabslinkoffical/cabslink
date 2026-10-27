@@ -10,6 +10,7 @@ describe("canonical redirects", () => {
   it("preserves booking tokens and API paths", () => {
     expect(canonicalRequestUrl(new Request("https://cabslink.com/booking/ABC"))).toBeUndefined();
     expect(canonicalRequestUrl(new Request("https://cabslink.com/api/public/ABC"))).toBeUndefined();
+    expect(canonicalRequestUrl(new Request("https://cabslink.com/_serverFn/ABC"))).toBeUndefined();
   });
 });
 

@@ -62,7 +62,9 @@ export const getSelectedRelatedLinks = createServerFn({ method: "GET" })
     const all = await loadPool();
     const selected = pickRelatedLinks(all, data.path, data.center);
     const guide = guideFor(data.path);
-    const context = [data.path, ...(guide?.routeSlugs ?? []), ...(guide?.sections.flatMap((s) => [s.heading, ...s.paragraphs]) ?? [])].join(" ");
+    // Headings/routes identify locality; shared fleet/payment prose must not
+    // create false relationships between unrelated places.
+    const context = [data.path, ...(guide?.routeSlugs ?? []), ...(guide?.sections.map((s) => s.heading) ?? [])].join(" ");
     const tour = all.tours.find((t) => t.href === data.path);
     const compact = (c: { href: string; label: string }) => ({ href: c.href, label: c.label });
     const matchedTours = rankRelatedContent(all.tours, data.path, `${context} ${tour?.context ?? ""}`, tour?.theme);
