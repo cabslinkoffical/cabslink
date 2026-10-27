@@ -2,6 +2,8 @@
 
 User-agent: OAI-SearchBot
 Allow: /
+Allow: /airports/
+Disallow: /areas/a/
 Disallow: /cabs-booking-pannel
 Disallow: /auth$
 Disallow: /api/
@@ -11,6 +13,8 @@ Disallow: /book?
 
 User-agent: ChatGPT-User
 Allow: /
+Allow: /airports/
+Disallow: /areas/a/
 Disallow: /cabs-booking-pannel
 Disallow: /auth$
 Disallow: /api/
@@ -20,6 +24,8 @@ Disallow: /book?
 
 User-agent: GPTBot
 Allow: /
+Allow: /airports/
+Disallow: /areas/a/
 Disallow: /cabs-booking-pannel
 Disallow: /auth$
 Disallow: /api/
@@ -29,6 +35,8 @@ Disallow: /book?
 
 User-agent: ClaudeBot
 Allow: /
+Allow: /airports/
+Disallow: /areas/a/
 Disallow: /cabs-booking-pannel
 Disallow: /auth$
 Disallow: /api/
@@ -38,6 +46,8 @@ Disallow: /book?
 
 User-agent: Claude-User
 Allow: /
+Allow: /airports/
+Disallow: /areas/a/
 Disallow: /cabs-booking-pannel
 Disallow: /auth$
 Disallow: /api/
@@ -47,6 +57,8 @@ Disallow: /book?
 
 User-agent: PerplexityBot
 Allow: /
+Allow: /airports/
+Disallow: /areas/a/
 Disallow: /cabs-booking-pannel
 Disallow: /auth$
 Disallow: /api/
@@ -56,6 +68,8 @@ Disallow: /book?
 
 User-agent: Google-Extended
 Allow: /
+Allow: /airports/
+Disallow: /areas/a/
 Disallow: /cabs-booking-pannel
 Disallow: /auth$
 Disallow: /api/
@@ -65,6 +79,8 @@ Disallow: /book?
 
 User-agent: Applebot-Extended
 Allow: /
+Allow: /airports/
+Disallow: /areas/a/
 Disallow: /cabs-booking-pannel
 Disallow: /auth$
 Disallow: /api/
@@ -74,6 +90,8 @@ Disallow: /book?
 
 User-agent: Bingbot
 Allow: /
+Allow: /airports/
+Disallow: /areas/a/
 Disallow: /cabs-booking-pannel
 Disallow: /auth$
 Disallow: /api/
@@ -83,6 +101,8 @@ Disallow: /book?
 
 User-agent: *
 Allow: /
+Allow: /airports/
+Disallow: /areas/a/
 Disallow: /cabs-booking-pannel
 Disallow: /auth$
 Disallow: /api/
