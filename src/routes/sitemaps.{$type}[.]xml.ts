@@ -5,7 +5,7 @@
  */
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
-import { fetchAllPages } from "@/lib/sitemap-routes";
+import { fetchAllPages, dedupeSitemapEntries } from "@/lib/sitemap-routes";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { destinationHref, DESTINATION_TYPES, type Destination, type DestinationType } from "@/lib/destinations.functions";
@@ -66,12 +66,12 @@ export const Route = createFileRoute("/sitemaps/{$type}.xml")({
         const xml = [
           `<?xml version="1.0" encoding="UTF-8"?>`,
           `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`,
-          ...rows.map((r) => {
+          ...dedupeSitemapEntries(rows.map((r): [string, string | null] => {
             const href = destinationHref({ type: r.type as DestinationType, slug: r.slug });
             // W3C date form; Google reads lastmod, not changefreq.
             const day = isoDay(r.updated_at as string | null);
-            return `  <url><loc>${BASE_URL}${href}</loc>${day ? `<lastmod>${day}</lastmod>` : ""}</url>`;
-          }),
+            return [href, day];
+          })).map(([href, day]) => `  <url><loc>${BASE_URL}${href}</loc>${day ? `<lastmod>${day}</lastmod>` : ""}</url>`),
           `</urlset>`,
         ].join("\n");
 

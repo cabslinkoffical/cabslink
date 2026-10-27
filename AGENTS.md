@@ -14,7 +14,7 @@
 - Install the query adapter's SSR readiness compatibility through a separate helper after query integration; this preserves streaming and avoids coupling route type inference to the adapter wrapper.
 - Destination hubs use the shared navy `PageHero`/`HubPage` language, while area directories and location pages use one navy-led editorial system so navigation remains consistent.
 - Booking list status presentation uses BookingStatusCell to keep booking state, payment state and lock indication in one compact row without duplicating payment labels in the price column.
-- A–Z sitemap inclusion shares the letter-page threshold helper and the same active/name/tier filters, so advertised directory pages match their existing robots settings.
+- A–Z letter indexes stay noindex and excluded from sitemap output; robots restrictions cover every explicit crawler group, keeping directory crawl decisions consistent.
 - Primary review surfaces share Google review query options and the existing cached server feed; unavailable data shows a Google profile link without fallback scores or other-platform reviews.
 - Passenger count is optional in initial booking handoffs; transfer quotes require explicit passenger confirmation, and tour vehicle selection gates continuation on confirmation and capacity without changing server pricing validation.
 - Blog media and FAQ compatibility use shared browser-safe schemas in the editor and save validation, so legacy asset paths and question/answer records remain editable without losing text.
@@ -33,4 +33,7 @@
 - Homepage vehicle and tour loops share DraggableMarquee, which scrubs the existing CSS animation through pointer events and suppresses link activation after dragging.
 - Social profiles render only in the footer, driven by the shared SOCIALS list; no standalone social band section is mounted in SiteLayout, so follow links live in exactly one place.
 - Shared dialogs use viewport-constrained widths and dynamic-height scrolling; BookingWidget passenger editing uses this modal shell so controls remain visible and focus-managed on phones.
-- Related-pages links render through the shared RelatedLinks block inside page content (never after the footer); picking logic lives in src/lib/related-links.ts so links stay deterministic and self-links are excluded.
+- Related-pages links render inside page content through RelatedLinks and contextual PlaceGuideBlock links; server-side selection returns compact published-only results ranked by verified topics/themes, with self-links excluded and no duplicate tour sections.
+- Response policy combines canonical origin/path normalization in one application redirect and clones headers for security coverage on redirects/errors; hosting-owned forwarding and assets require separate live verification.
+- Public HTML caching bypasses session-bearing requests and private/session-setting responses, caps per-isolate memory by bytes and age, and schedules refreshes through the execution context so booking data is never shared.
+- Sitemap sources paginate public-only reads, surface failures rather than publish partial XML, and deduplicate canonical HTML entries so crawlers see complete content lists.

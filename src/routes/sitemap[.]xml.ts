@@ -55,8 +55,9 @@ export const Route = createFileRoute("/sitemap.xml")({
               .map((r) => r.type as DestinationType),
           );
           types = DESTINATION_TYPES.filter((t) => present.has(t));
-        } catch {
-          types = [];
+        } catch (error) {
+          console.error("Sitemap index public query failed", error);
+          return new Response("Sitemap temporarily unavailable", { status: 503, headers: { "Cache-Control": "no-store" } });
         }
 
 
