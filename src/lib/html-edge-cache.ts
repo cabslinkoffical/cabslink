@@ -27,6 +27,8 @@ export function isCacheablePageRequest(request: Request): boolean {
   if (url.pathname.includes(".")) return false;
   if (PRIVATE.test(url.pathname)) return false;
   if (request.headers.has("authorization")) return false;
+  // A public path can still carry a staff/customer session. Never share its HTML.
+  if (request.headers.has("cookie")) return false;
   return true;
 }
 
@@ -36,21 +38,38 @@ export function isCacheablePageRequest(request: Request): boolean {
  * own small copy of recently rendered pages.
  */
 const MEMORY_LIMIT = 150;
+const MEMORY_BYTES = 24 * 1024 * 1024;
+const MAX_PAGE_BYTES = 2 * 1024 * 1024;
+let memoryBytes = 0;
 const memory = new Map<string, { body: ArrayBuffer; headers: [string, string][] }>();
 
 const memoryCache = {
   async match(key: Request): Promise<Response | undefined> {
     const entry = memory.get(key.url);
     if (!entry) return undefined;
+    const stamp = Number(new Headers(entry.headers).get(STAMP) ?? 0);
+    if (Date.now() - stamp > MAX_AGE_S * 1000) {
+      memory.delete(key.url);
+      memoryBytes -= entry.body.byteLength;
+      return undefined;
+    }
     memory.delete(key.url);
     memory.set(key.url, entry);
     return new Response(entry.body.slice(0), { status: 200, headers: entry.headers });
   },
   async put(key: Request, response: Response): Promise<void> {
     const body = await response.arrayBuffer();
+    if (body.byteLength > MAX_PAGE_BYTES) return;
+    memoryBytes -= memory.get(key.url)?.body.byteLength ?? 0;
     memory.delete(key.url);
     memory.set(key.url, { body, headers: [...response.headers.entries()] });
-    while (memory.size > MEMORY_LIMIT) memory.delete(memory.keys().next().value as string);
+    memoryBytes += body.byteLength;
+    while (memory.size > MEMORY_LIMIT || memoryBytes > MEMORY_BYTES) {
+      const oldest = memory.keys().next().value;
+      if (!oldest) break;
+      memoryBytes -= memory.get(oldest)?.body.byteLength ?? 0;
+      memory.delete(oldest);
+    }
   },
 };
 
@@ -98,6 +117,16 @@ async function store(cache: Cache, key: Request, response: Response) {
   await cache.put(key, new Response(body, { status: 200, headers }));
 }
 
+function isPublicHtml(response: Response): boolean {
+  return response.status === 200 &&
+    (response.headers.get("content-type") ?? "").includes("text/html") &&
+    !response.headers.has("set-cookie") &&
+    !/private|no-store/i.test(response.headers.get("cache-control") ?? "") &&
+    !/(?:cookie|authorization|\*)/i.test(response.headers.get("vary") ?? "");
+}
+
+const refreshing = new Map<string, Promise<unknown>>();
+
 export async function serveWithEdgeCache(
   request: Request,
   ctx: Ctx,
@@ -109,7 +138,7 @@ export async function serveWithEdgeCache(
 
   const refresh = async () => {
     const fresh = await render();
-    if (fresh.status === 200 && (fresh.headers.get("content-type") ?? "").includes("text/html")) {
+    if (isPublicHtml(fresh)) {
       await store(cache, key, fresh.clone());
     }
     return fresh;
@@ -124,17 +153,21 @@ export async function serveWithEdgeCache(
 
   if (hit) {
     const age = Date.now() - Number(hit.headers.get(STAMP) ?? 0);
-    if (age > FRESH_MS) ctx?.waitUntil?.(refresh().catch(() => undefined));
+    if (age > FRESH_MS && ctx?.waitUntil && !refreshing.has(key.url)) {
+      const job = refresh().catch(() => undefined).finally(() => refreshing.delete(key.url));
+      refreshing.set(key.url, job);
+      ctx.waitUntil(job);
+    }
     const headers = new Headers(hit.headers);
     headers.delete(STAMP);
     return new Response(hit.body, { status: 200, headers });
   }
 
   const fresh = await render();
-  if (fresh.status === 200 && (fresh.headers.get("content-type") ?? "").includes("text/html")) {
+  if (isPublicHtml(fresh)) {
     const copy = fresh.clone();
-    const job = store(cache, key, copy).catch(() => undefined);
-    if (ctx?.waitUntil) ctx.waitUntil(job);
+    if (ctx?.waitUntil) ctx.waitUntil(store(cache, key, copy).catch(() => undefined));
+    else await store(cache, key, copy).catch(() => undefined);
   }
   return fresh;
 }
@@ -142,4 +175,6 @@ export async function serveWithEdgeCache(
 /** Test helper: forget the per-isolate page copies. */
 export function clearMemoryPageCache() {
   memory.clear();
+  memoryBytes = 0;
+  refreshing.clear();
 }

@@ -32,7 +32,7 @@ describe("response headers", () => {
       ["/missing.js", new Response("missing", { status: 404 })],
       ["/file.js", new Response("private", { headers: { "set-cookie": "session=test" } })],
     ] as const) {
-      expect(applyResponsePolicy(new Request(`https://cabslink.com${path}`), response).headers.get("cache-control")).not.toContain("immutable");
+      expect(applyResponsePolicy(new Request(`https://cabslink.com${path}`), response).headers.get("cache-control") ?? "").not.toContain("immutable");
     }
   });
 });
