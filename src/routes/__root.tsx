@@ -17,6 +17,7 @@ import { resolvePublicRedirect } from "../lib/seo-public.functions";
 import { getSiteStatus } from "../lib/site-status.functions";
 import { businessGraph } from "../lib/seo/business-graph";
 import { safeJsonLd } from "../lib/safe-json-ld";
+import { autoBreadcrumb } from "../lib/seo/auto-breadcrumbs";
 import { DEFAULT_TITLE, DEFAULT_DESCRIPTION } from "../lib/seo/page-head";
 import { createTtlCache, followRedirects } from "../lib/seo/redirect-resolver";
 import { MaintenanceScreen } from "../components/site/MaintenanceScreen";
@@ -178,11 +179,13 @@ function RootComponent() {
   }, [pathname]);
   useEffect(() => onConsentChange(() => refreshOwnConsent()), []);
 
+  const crumb = autoBreadcrumb(pathname);
   return (
     <QueryClientProvider client={ctx.queryClient}>
       {ctx.maintenance?.maintenance
         ? <MaintenanceScreen companyName={ctx.maintenance.company_name} />
         : <Outlet />}
+      {crumb && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(crumb) }} />}
       {measurable && <ConsentBanner />}
     </QueryClientProvider>
   );
