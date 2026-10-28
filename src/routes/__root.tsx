@@ -26,6 +26,7 @@ import { initAnalytics, installContactClickTracking, isMeasurablePath, trackPage
 import { installStaleCacheRecovery } from "../lib/stale-cache-recovery";
 import { ownPageView, refreshOwnConsent } from "../lib/own-analytics";
 import { onConsentChange } from "../lib/consent";
+import { PUBLIC_URL_ALIASES } from "../lib/public-url-aliases";
 
 function NotFoundComponent() {
   return (
@@ -72,12 +73,7 @@ const LEGACY_PHP_REDIRECTS: Record<string, string> = {
   "/contact-us.php": "/contact",
   "/get-a-quote.php": "/book",
   "/services.php": "/services",
-  "/privacy-policy": "/privacy",
-  "/terms-and-conditions": "/terms",
-  "/cookie-policy": "/cookies",
-  "/booking-and-cancellation": "/booking-policy",
-  "/booking": "/book",
-  "/blog/edinburgh-airport-taxi-cost-2026": "/blog/edinburgh-airport-taxi-cost-2026-price-guide",
+  ...PUBLIC_URL_ALIASES,
 };
 
 type SiteStatusValue = { maintenance: boolean; company_name: string | null; bing_site_verification?: string | null };
