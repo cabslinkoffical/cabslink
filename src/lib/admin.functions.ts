@@ -262,54 +262,6 @@ export const listVehiclesAdmin = createServerFn({ method: "GET" })
     return data ?? [];
   });
 
-const vehicleSchema = z.object({
-  id: z.string().uuid().optional(),
-  name: z.string().min(1).max(120),
-  category: z.string().min(1).max(80),
-  tbms_id: z.string().nullable().optional(),
-  vehicle_class: z.enum(["economy", "business", "first", "executive_v", "executive_van_8", "green"]).nullable().optional(),
-  image_url: z.string().min(1).max(2000),
-  description: z.string().max(2000).default(""),
-  passengers: z.number().int().min(1).max(99),
-  luggage: z.number().int().min(0).max(99),
-  hand_luggage: z.number().int().min(0).max(99),
-  base_fare: z.number().nullable().optional(),
-  per_mile_rate: z.number().nullable().optional(),
-  waiting_charge: z.number().nullable().optional(),
-  meet_greet_enabled: z.boolean().default(false),
-  price_per_hour: z.number().nullable().optional(),
-  display_order: z.number().int().default(0),
-  featured: z.boolean().default(false),
-  active: z.boolean().default(true),
-});
-
-export const upsertVehicle = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => vehicleSchema.parse(i))
-  .handler(async ({ data, context }) => {
-    await assertAdmin(context);
-    if (data.id) {
-      const { id, ...patch } = data;
-      const { error } = await context.supabase.from("vehicles").update(patch).eq("id", id);
-      if (error) throw new Error(error.message);
-      return { ok: true, id };
-    } else {
-      const { data: row, error } = await context.supabase.from("vehicles").insert(data).select("id").single();
-      if (error) throw new Error(error.message);
-      return { ok: true, id: (row as any).id as string };
-    }
-  });
-
-export const deleteVehicle = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
-  .handler(async ({ data, context }) => {
-    await assertAdmin(context);
-    const { error } = await context.supabase.from("vehicles").delete().eq("id", data.id);
-    if (error) throw new Error(error.message);
-    return { ok: true };
-  });
-
 // =================================================================
 // Addresses
 // =================================================================
@@ -415,15 +367,6 @@ export const deleteBannedAddress = createServerFn({ method: "POST" })
 // =================================================================
 // Drivers
 // =================================================================
-export const listDrivers = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    await assertAdmin(context);
-    const { data, error } = await context.supabase.from("drivers").select("*, vehicle:vehicles(id, name)").order("created_at", { ascending: false });
-    if (error) throw new Error(error.message);
-    return data ?? [];
-  });
-
 /**
  * Read-only view of the drivers created in the dispatch panel, with the
  * essential details plus how many jobs they currently hold. Admin does not
@@ -463,49 +406,6 @@ export const listDispatchDrivers = createServerFn({ method: "GET" })
     });
   });
 
-
-const driverSchema = z.object({
-  id: z.string().uuid().optional(),
-  full_name: z.string().min(1).max(200),
-  email: z.string().email().nullable().optional().or(z.literal("")),
-  phone: z.string().max(40).nullable().optional(),
-  address: z.string().max(500).nullable().optional(),
-  license_number: z.string().max(100).nullable().optional(),
-  assigned_vehicle_id: z.string().uuid().nullable().optional(),
-  status: z.enum(["active", "inactive", "suspended"]).default("active"),
-  available: z.boolean().default(true),
-  photo_url: z.string().url().max(1000).nullable().optional().or(z.literal("")),
-  notes: z.string().max(2000).nullable().optional(),
-});
-
-export const upsertDriver = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => driverSchema.parse(i))
-  .handler(async ({ data, context }) => {
-    await assertAdmin(context);
-    const payload: any = { ...data };
-    if (payload.email === "") payload.email = null;
-    if (payload.photo_url === "") payload.photo_url = null;
-    if (data.id) {
-      const { id, ...patch } = payload;
-      const { error } = await context.supabase.from("drivers").update(patch).eq("id", id);
-      if (error) throw new Error(error.message);
-    } else {
-      const { error } = await context.supabase.from("drivers").insert(payload);
-      if (error) throw new Error(error.message);
-    }
-    return { ok: true };
-  });
-
-export const deleteDriver = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
-  .handler(async ({ data, context }) => {
-    await assertAdmin(context);
-    const { error } = await context.supabase.from("drivers").delete().eq("id", data.id);
-    if (error) throw new Error(error.message);
-    return { ok: true };
-  });
 
 // =================================================================
 // Customers (derived from bookings)
@@ -819,95 +719,6 @@ export const regenerateBookingLink = createServerFn({ method: "POST" })
     await logAdminAction(context, "booking_link_regenerated", "bookings", b.id, { booking_ref: b.booking_ref });
     return { path: `/booking/${derived.token}`, expiresAt: derived.expiresAt };
   });
-
-// =================================================================
-// Phase 2: Pricing rules
-// =================================================================
-export const listPricingRules = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    await assertAdmin(context);
-    const { data, error } = await context.supabase.from("pricing_rules").select("*, vehicle:vehicles(id, name)").order("created_at", { ascending: false });
-    if (error) throw new Error(error.message);
-    return data ?? [];
-  });
-
-const pricingSchema = z
-  .object({
-    id: z.string().uuid().optional(),
-    from_address: z.string().min(1).max(300),
-    to_address: z.string().min(1).max(300),
-    from_place_id: z.string().trim().min(1).max(300).nullable().optional(),
-    to_place_id: z.string().trim().min(1).max(300).nullable().optional(),
-    from_place_label: z.string().max(500).nullable().optional(),
-    to_place_label: z.string().max(500).nullable().optional(),
-    bidirectional: z.boolean().default(false),
-    vehicle_id: z.string().uuid().nullable().optional(),
-    price: z.coerce.number().min(0).max(100000),
-    currency: z.string().max(10).default("GBP"),
-    valid_from: z.string().nullable().optional(),
-    valid_to: z.string().nullable().optional(),
-    notes: z.string().max(1000).nullable().optional(),
-    active: z.boolean().default(true),
-  })
-  .superRefine((v, ctx) => {
-    if (!v.active) return;
-    if (!v.from_place_id) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["from_place_id"], message: "Pickup Place ID is required for active rules" });
-    }
-    if (!v.to_place_id) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["to_place_id"], message: "Destination Place ID is required for active rules" });
-    }
-    if (!v.vehicle_id) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["vehicle_id"], message: "Vehicle is required for active rules" });
-    }
-    if (!(Number(v.price) > 0)) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["price"], message: "Fixed price must be > 0" });
-    }
-  });
-
-export const upsertPricingRule = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => pricingSchema.parse(i))
-  .handler(async ({ data, context }) => {
-    await assertAdmin(context);
-    const payload: any = {
-      ...data,
-      valid_from: data.valid_from || null,
-      valid_to: data.valid_to || null,
-      from_place_id: data.from_place_id || null,
-      to_place_id: data.to_place_id || null,
-      from_place_label: data.from_place_label || null,
-      to_place_label: data.to_place_label || null,
-    };
-    if (data.id) {
-      const { id, ...patch } = payload;
-      const { error } = await context.supabase.from("pricing_rules").update(patch).eq("id", id);
-      if (error) throw new Error(mapPricingRuleError(error));
-    } else {
-      const { error } = await context.supabase.from("pricing_rules").insert(payload);
-      if (error) throw new Error(mapPricingRuleError(error));
-    }
-    return { ok: true };
-  });
-
-function mapPricingRuleError(err: any): string {
-  const code = err?.code;
-  const msg = err?.message ?? "Failed to save pricing rule";
-  if (code === "23505") return "A conflicting active fixed-price rule already exists for this vehicle and route.";
-  return msg;
-}
-
-export const deletePricingRule = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
-  .handler(async ({ data, context }) => {
-    await assertAdmin(context);
-    const { error } = await context.supabase.from("pricing_rules").delete().eq("id", data.id);
-    if (error) throw new Error(error.message);
-    return { ok: true };
-  });
-
 
 // =================================================================
 // Phase 2: Reports

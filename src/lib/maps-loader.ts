@@ -29,10 +29,6 @@ declare global {
 let authFailed = false;
 const authListeners = new Set<() => void>();
 
-export function mapsAuthFailed() {
-  return authFailed;
-}
-
 export function onMapsAuthFailure(cb: () => void): () => void {
   authListeners.add(cb);
   if (authFailed) cb();

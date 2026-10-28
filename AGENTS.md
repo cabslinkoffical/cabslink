@@ -37,3 +37,4 @@
 - Response policy combines canonical origin/path normalization in one application redirect and clones headers for security coverage on redirects/errors; hosting-owned forwarding and assets require separate live verification.
 - Public HTML caching bypasses session-bearing requests and private/session-setting responses, caps per-isolate memory by bytes and age, and schedules refreshes through the execution context so booking data is never shared.
 - Sitemap sources paginate public-only reads, surface failures rather than publish partial XML, and deduplicate canonical HTML entries so crawlers see complete content lists.
+- Pricing writes use the active pricing-schemes handlers; do not restore retired standalone profile, location/modifier, or legacy admin CRUD handlers, which had no application callers.
