@@ -167,11 +167,13 @@ export async function loadActiveProfiles(client: ReturnType<typeof publicClient>
 
   const ids = (profiles ?? []).map((p: any) => p.id);
   const vehicleIds = (profiles ?? []).map((p: any) => p.vehicle_id);
+  // Raw mileage tiers are private; computed quotes must read them server-side.
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
   const [tiersRes, vehiclesRes, classesRes] = await Promise.all([
-    client
-      .from("vehicle_mileage_tiers_public" as any)
-      .select("*")
+    supabaseAdmin
+      .from("vehicle_mileage_tiers")
+      .select("pricing_profile_id, tier_name, miles, cost_per_mile, sort_order")
       .in("pricing_profile_id", ids.length ? ids : ["00000000-0000-0000-0000-000000000000"])
       .order("sort_order", { ascending: true }),
     client

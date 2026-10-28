@@ -88,6 +88,10 @@ export async function loadTourConfig(): Promise<TourConfig> {
     supabaseAdmin.from("vehicle_mileage_tiers").select("pricing_profile_id, cost_per_mile, sort_order"),
   ]);
 
+  if ([tiers, rules, classes, hourly, profiles, mileage].some((result) => result.error)) {
+    throw new Error("We couldn't price this tour right now. Please try again or call us.");
+  }
+
   const hourlyByClass = new Map<string, any>();
   for (const h of (hourly.data ?? []) as any[]) {
     if (h.vehicle_class_id && !hourlyByClass.has(h.vehicle_class_id)) hourlyByClass.set(h.vehicle_class_id, h);
@@ -163,8 +167,7 @@ const AVG_MPH = 34;
 
 /**
  * Measure the loop: start → stops in order → finish. Cached driving data is
- * reused; if the routing service is unavailable we fall back to a straight-line
- * estimate so the customer still sees a figure, flagged as estimated.
+ * reused; every location must have coordinates and the road route must succeed.
  */
 export async function measureLoop(input: {
   startPlaceId: string;
@@ -172,6 +175,13 @@ export async function measureLoop(input: {
   stopPlaceIds: string[];
 }): Promise<{ miles: number; driveMinutes: number; estimated: boolean }> {
   const { startPlaceId, endPlaceId, stopPlaceIds } = input;
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const ids = [startPlaceId, ...stopPlaceIds, endPlaceId];
+  const coords = await resolveCoords(supabaseAdmin as any, ids);
+  if (ids.some((id) => {
+    const coord = coords.get(id);
+    return !coord || !Number.isFinite(coord.lat) || !Number.isFinite(coord.lng);
+  })) throw new Error("We couldn't route every stop on this tour. Please check your stops, try again or call us.");
   try {
     if (stopPlaceIds.length === 0 && startPlaceId === endPlaceId) {
       return { miles: 0, driveMinutes: 0, estimated: false };
@@ -186,6 +196,7 @@ export async function measureLoop(input: {
         waypointPlaceIds: stopPlaceIds,
         allowLoop: true,
       });
+      if (!Number.isFinite(res.distanceMiles) || res.distanceMiles <= 0 || !Number.isFinite(res.durationSeconds) || res.durationSeconds <= 0) throw new Error("Invalid tour route");
       return {
         miles: res.distanceMiles,
         driveMinutes: res.durationSeconds / 60,
@@ -197,18 +208,10 @@ export async function measureLoop(input: {
       destinationPlaceId: endPlaceId,
       waypointPlaceIds: stopPlaceIds,
     });
+    if (!Number.isFinite(res.distanceMiles) || res.distanceMiles <= 0 || !Number.isFinite(res.durationSeconds) || res.durationSeconds <= 0) throw new Error("Invalid tour route");
     return { miles: res.distanceMiles, driveMinutes: res.durationSeconds / 60, estimated: false };
   } catch {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const ids = [startPlaceId, ...stopPlaceIds, endPlaceId];
-    const coords = await resolveCoords(supabaseAdmin as any, ids);
-    let miles = 0;
-    for (let i = 1; i < ids.length; i++) {
-      const a = coords.get(ids[i - 1]!);
-      const b = coords.get(ids[i]!);
-      if (a && b) miles += haversineMiles(a, b) * ROAD_FACTOR;
-    }
-    return { miles, driveMinutes: (miles / AVG_MPH) * 60, estimated: true };
+    throw new Error("We couldn't route every stop on this tour. Please check your stops, try again or call us.");
   }
 }
 
@@ -218,7 +221,7 @@ async function templateSettings(templateId: string) {
     supabaseAdmin
       .from("scenic_route_templates")
       .select(
-        "id, name, slug, is_bookable, default_duration_hours, min_duration_hours, max_duration_hours, included_miles, start_mode, fixed_start_address, origin_place_id, destination_place_id",
+        "id, name, slug, active, published, is_bookable, default_duration_hours, min_duration_hours, max_duration_hours, included_miles, start_mode, fixed_start_address, origin_place_id, destination_place_id",
       )
       .eq("id", templateId)
       .maybeSingle(),
@@ -229,6 +232,7 @@ async function templateSettings(templateId: string) {
       .eq("route_template_id", templateId)
       .order("stop_order"),
   ]);
+  if ([tpl, prices, pois].some((result) => result.error)) throw new Error("We couldn't check this tour right now. Please try again or call us.");
   return { tpl: tpl.data as any, prices: (prices.data ?? []) as any[], pois: (pois.data ?? []) as any[] };
 }
 
@@ -242,6 +246,7 @@ async function dwellFor(stops: TourStopInput[], rules: TourRules): Promise<numbe
       .from("points_of_interest")
       .select("id, recommended_visit_minutes, minimum_visit_minutes")
       .in("id", poiIds);
+    if (res.error) throw new Error("We couldn't check your tour stops. Please try again or call us.");
     map = new Map(
       ((res.data ?? []) as any[]).map((p) => [
         p.id as string,
@@ -259,6 +264,11 @@ export async function quoteTourImpl(input: TourQuoteInput): Promise<TourQuoteRes
   const config = await loadTourConfig();
   const rates = config.classes.find((c) => c.id === input.vehicleClassId);
   if (!rates) throw new Error("Choose a vehicle for your tour.");
+  if (rates.max_passengers != null && input.passengers > rates.max_passengers) throw new Error("That vehicle cannot carry this many passengers. Please choose another vehicle.");
+  if (rates.max_luggage != null && input.luggage > rates.max_luggage) throw new Error("That vehicle cannot carry this much luggage. Please choose another vehicle.");
+  if (rates.min_hours != null && input.hours < rates.min_hours) throw new Error(`This vehicle needs at least ${rates.min_hours} hours.`);
+  if (rates.max_hours != null && input.hours > rates.max_hours) throw new Error(`This vehicle can be booked for up to ${rates.max_hours} hours.`);
+  if (input.mode === "premade" && !input.templateId) throw new Error("Choose an available tour.");
 
   const tiers = bookableTiers(config.tiers, config.rules);
   const endPlaceId = input.endPlaceId || input.startPlaceId;
@@ -270,7 +280,9 @@ export async function quoteTourImpl(input: TourQuoteInput): Promise<TourQuoteRes
 
   if (input.mode === "premade" && input.templateId) {
     const { tpl, prices } = await templateSettings(input.templateId);
-    if (!tpl) throw new Error("That tour is not available to book online.");
+    if (!tpl || tpl.active !== true || tpl.published !== true || tpl.is_bookable !== true) throw new Error("That tour is not available to book online.");
+    if ((tpl.min_duration_hours != null && input.hours < Number(tpl.min_duration_hours)) ||
+      (tpl.max_duration_hours != null && input.hours > Number(tpl.max_duration_hours))) throw new Error("Choose a duration available for this tour.");
     const price = prices.find((p) => p.vehicle_class_id === input.vehicleClassId);
     fixedPrice = price ? Number(price.price) : null;
     baseHours = Number(tpl.default_duration_hours ?? input.hours);
@@ -465,6 +477,7 @@ export async function capacityLeft(vehicleClassId: string, date: string): Promis
     .select("max_tours_per_day")
     .eq("vehicle_class_id", vehicleClassId)
     .maybeSingle();
+  if (cap.error) throw new Error("We couldn't check tour availability right now. Please try again or call us.");
   if (!cap.data) return null;
   const max = Number(cap.data.max_tours_per_day);
   const used: any = await supabaseAdmin
@@ -474,5 +487,6 @@ export async function capacityLeft(vehicleClassId: string, date: string): Promis
     .eq("vehicle_class_id", vehicleClassId)
     .eq("pickup_date", date)
     .in("status", ["new", "awaiting_payment", "pending_payment", "confirmed", "assigned", "in_progress"]);
-  return Math.max(0, max - Number(used.count ?? 0));
+  if (used.error || used.count == null) throw new Error("We couldn't check tour availability right now. Please try again or call us.");
+  return Math.max(0, max - Number(used.count));
 }

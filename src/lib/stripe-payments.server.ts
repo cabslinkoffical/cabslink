@@ -118,12 +118,13 @@ export type SessionCheck =
 export function verifyPaidSession(
   session: Pick<Stripe.Checkout.Session, "payment_status" | "currency" | "amount_total" | "metadata">,
   booking: BookingForPayment,
+  expectedPence: number | null = bookingAmountPence(booking),
 ): SessionCheck {
   if (session.payment_status !== "paid") return { ok: false, reason: "not_paid" };
   if ((session.currency ?? "").toLowerCase() !== "gbp") return { ok: false, reason: "wrong_currency" };
   const ref = (session.metadata?.booking_ref ?? "").toUpperCase();
   if (!ref || ref !== booking.booking_ref.toUpperCase()) return { ok: false, reason: "ref_mismatch" };
-  const pence = bookingAmountPence(booking);
+  const pence = expectedPence;
   if (pence == null) return { ok: false, reason: "no_fare" };
   if (session.amount_total !== pence) return { ok: false, reason: "amount_mismatch" };
   return { ok: true, pence };
@@ -150,6 +151,34 @@ export async function findBookingByRef(db: any, ref: string): Promise<BookingFor
   const res = await db.from("bookings").select(BOOKING_COLUMNS).eq("booking_ref", ref.toUpperCase()).maybeSingle();
   if (res.error || !res.data) return null;
   return res.data as BookingForPayment;
+}
+
+/** Read every settled payment, including staff-entered cash. Never guess on errors. */
+export async function paidPayments(db: any, bookingId: string): Promise<Array<{ amount: number | string; reference: string | null }>> {
+  const rows: Array<{ amount: number | string; reference: string | null }> = [];
+  for (let offset = 0; ; offset += 1000) {
+    const result = await db.from("payments").select("id, amount, reference")
+      .eq("booking_id", bookingId).eq("status", "paid").order("id").range(offset, offset + 999);
+    if (result.error || !Array.isArray(result.data)) throw new Error("We couldn't check your payment balance. Please try again or call us.");
+    for (const row of result.data) {
+      if (!Number.isFinite(Number(row.amount)) || Number(row.amount) < 0) throw new Error("We couldn't check your payment balance. Please try again or call us.");
+      rows.push(row);
+    }
+    if (result.data.length < 1000) return rows;
+  }
+}
+
+export function outstandingPence(booking: BookingForPayment, payments: Array<{ amount: number | string }>): number | null {
+  const fare = bookingAmountPence(booking);
+  if (fare == null) return null;
+  return Math.max(0, fare - payments.reduce((sum, row) => sum + Math.round(Number(row.amount) * 100), 0));
+}
+
+export async function payableBookingPence(db: any, booking: BookingForPayment): Promise<number | null> {
+  if (booking.payment_status === "paid") return 0;
+  return booking.payment_status === "partial"
+    ? outstandingPence(booking, await paidPayments(db, booking.id))
+    : bookingAmountPence(booking);
 }
 
 export async function logPaymentActivity(
@@ -213,7 +242,8 @@ export async function createCheckoutForBooking(
   if (!booking) return { error: "We couldn't find that booking." };
   const refusal = checkoutRefusal(booking);
   if (refusal) return { error: refusal };
-  const pence = bookingAmountPence(booking)!;
+  const pence = await payableBookingPence(deps.db, booking);
+  if (pence == null || pence < 100) return { error: "This booking has no outstanding payable balance. Please contact us." };
   const ref = booking.booking_ref.toUpperCase();
 
   const session = await opts.stripe.checkout.sessions.create({
@@ -256,7 +286,13 @@ export async function applyPaidSession(
     });
     return { applied: false, reason: "sandbox_rejected", bookingId: booking?.id, status: booking?.status, paymentStatus: booking?.payment_status };
   }
-  const check: SessionCheck = booking ? verifyPaidSession(session, booking) : { ok: false, reason: "ref_mismatch" };
+  const payments = booking ? await paidPayments(deps.db, booking.id) : [];
+  const recorded = payments.find((row) => row.reference === session.id);
+  const expected = booking
+    ? recorded ? Math.round(Number(recorded.amount) * 100)
+      : booking.payment_status === "partial" ? outstandingPence(booking, payments) : bookingAmountPence(booking)
+    : null;
+  const check: SessionCheck = booking ? verifyPaidSession(session, booking, expected) : { ok: false, reason: "ref_mismatch" };
 
   if (!check.ok) {
     await logPaymentActivity(deps.db, "payment_amount_mismatch", booking?.id ?? null, {
@@ -266,7 +302,7 @@ export async function applyPaidSession(
       session_amount_total: session.amount_total ?? null,
       session_currency: session.currency ?? null,
       session_payment_status: session.payment_status ?? null,
-      expected_pence: booking ? bookingAmountPence(booking) : null,
+      expected_pence: expected,
       environment: opts.env,
     });
     if (check.reason !== "not_paid") {
@@ -279,7 +315,14 @@ export async function applyPaidSession(
     return { applied: false, reason: check.reason, bookingId: booking?.id, status: booking?.status, paymentStatus: booking?.payment_status };
   }
 
-  const b = booking!;
+  if (!booking) return { applied: false, reason: "ref_mismatch" };
+  const b = booking;
+  // A previously recorded payment must not settle a later amendment on replay.
+  if (recorded && (outstandingPence(b, payments) ?? 1) > 0) {
+    return { applied: false, reason: "already_recorded", bookingId: b.id, status: b.status, paymentStatus: b.payment_status };
+  }
+  const recordedResult = await recordStripePayment({ session, env: opts.env, stripe: opts.stripe, bookingId: b.id, eventCreated: opts.eventCreated }, deps);
+  if (recordedResult.error) return { applied: false, reason: "update_failed", bookingId: b.id, status: b.status, paymentStatus: b.payment_status };
   const upd = bookingUpdateForPayment(b, check.pence);
   let status = b.status;
   let paymentStatus = b.payment_status;
@@ -301,7 +344,6 @@ export async function applyPaidSession(
     );
   }
 
-  await recordStripePayment({ session, env: opts.env, stripe: opts.stripe, bookingId: b.id, eventCreated: opts.eventCreated }, deps);
   return { applied: true, bookingId: b.id, status, paymentStatus };
 }
 
@@ -350,8 +392,6 @@ export async function recordStripePayment(
     environment: opts.env,
   };
 
-  // Replace a placeholder row recorded from the booking, if any.
-  await deps.db.from("payments").delete().eq("booking_id", opts.bookingId).is("reference", null);
   return deps.db.from("payments").upsert(row, { onConflict: "reference" });
 }
 
