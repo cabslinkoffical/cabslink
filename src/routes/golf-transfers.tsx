@@ -2,7 +2,7 @@ import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { Target, Clock, Luggage, MapPin } from "lucide-react";
 import { SportsServicePage, sportsFaqSchema, type SportsServiceContent } from "@/components/site/SportsServicePage";
-import eventsImg from "@/assets/services/events.jpg.asset.json";
+import golfImg from "@/assets/services/golf.jpg";
 
 const TITLE = "Golf Transfers Scotland — St Andrews & Courses | Cabslink";
 const DESC =
@@ -21,8 +21,8 @@ const content: SportsServiceContent = {
   h1: "Golf transfers to Scotland's finest courses.",
   subtitle: "Travel to St Andrews, Carnoustie, Turnberry and Gleneagles in a vehicle with proper space for clubs, bags and your group.",
   breadcrumbLabel: "Golf Transfers",
-  image: eventsImg.url,
-  imageAlt: "Private golf transfer vehicle waiting outside a Scottish golf course",
+  image: golfImg,
+  imageAlt: "Swilcan Bridge and the R&A Clubhouse on the Old Course, St Andrews",
   intro: {
     title: "Golf travel built around tee times",
     body: "Your driver plans around the first tee, not the traffic report. Fixed prices, generous club space and local knowledge of every approach road and clubhouse entrance.",
