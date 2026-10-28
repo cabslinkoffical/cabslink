@@ -4,7 +4,6 @@ import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { DestinationCard } from "@/components/site/DestinationCard";
 import { FaqSection, LongFormSections, faqJsonLd } from "@/components/site/ContentSections";
-import { CtaBand } from "@/components/site/CtaBand";
 import { PageHero } from "@/components/site/PageHero";
 import { listDestinationsByType } from "@/lib/destinations.functions";
 
@@ -95,7 +94,7 @@ function AirportsIndex() {
     grouped.set(key, list);
   }
   return (
-    <SiteLayout>
+    <SiteLayout ctaSubtitle="Flight tracking, free waiting time and fixed fares to every UK airport.">
       <PageHero
         eyebrow="Airport Transfers"
         title="Every major UK airport."
@@ -118,12 +117,7 @@ function AirportsIndex() {
         </div>
       </section>
 
-      <CtaBand
-        eyebrow="Airport transfers"
-        title="Book a meet & greet airport transfer"
-        subtitle="Flight tracking, free waiting time and fixed fares to every UK airport."
-        tone="gold"
-      />
+
       <LongFormSections sections={AP_SECTIONS} heading="Booking a UK airport transfer" />
       <FaqSection faqs={AP_FAQS} />
     </SiteLayout>

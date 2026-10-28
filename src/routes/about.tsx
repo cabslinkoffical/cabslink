@@ -3,7 +3,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Car, ArrowRight, Shield } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
-import { CtaBand } from "@/components/site/CtaBand";
 import { PageHero, SectionHeader } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
 import { FaqBlock } from "@/components/seo/FaqBlock";

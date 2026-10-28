@@ -17,7 +17,6 @@ import {
   Clock,
 } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
-import { CtaBand } from "@/components/site/CtaBand";
 import { Reveal } from "@/components/site/Reveal";
 import { Button } from "@/components/ui/button";
 import { listPublicVehicleClasses, type PublicVehicleClass } from "@/lib/vehicle-classes.functions";
@@ -59,7 +58,7 @@ export const Route = createFileRoute("/fleet")({
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(fleetQuery),
   errorComponent: () => (
-    <SiteLayout>
+    <SiteLayout ctaSubtitle="Choose a vehicle class and we allocate the model — or a complimentary upgrade.">
       <div className="container-x section-y text-center">
         <h1 className="font-display text-3xl font-semibold">Fleet is temporarily unavailable</h1>
         <p className="mt-3 text-muted-foreground">Please refresh the page in a moment.</p>
@@ -118,7 +117,7 @@ function FleetPage() {
   const maxPax = items.reduce((m, c) => Math.max(m, c.passengers), 0);
 
   return (
-    <SiteLayout>
+    <SiteLayout ctaSubtitle="Choose a vehicle class and we allocate the model — or a complimentary upgrade.">
       {/* HERO */}
       <section className="relative overflow-hidden bg-[var(--navy)] text-[var(--navy-foreground)]">
         <div
@@ -296,12 +295,7 @@ function FleetPage() {
         </div>
       </section>
 
-      <CtaBand
-        eyebrow="Guaranteed allocation"
-        title="Book the class that fits your journey"
-        subtitle="Choose a vehicle class and we allocate the model — or a complimentary upgrade."
-        tone="gold"
-      />
+
     </SiteLayout>
   );
 }

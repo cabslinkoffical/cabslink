@@ -35,7 +35,6 @@ import {
   Minus,
 } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
-import { CtaBand } from "@/components/site/CtaBand";
 import { PageHero } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
 import airportImg from "@/assets/services/airport.jpg.asset.json";
@@ -301,7 +300,7 @@ function ServicesPage() {
   const [openId, setOpenId] = useState<string | null>(MAIN_SERVICES[0]!.id);
 
   return (
-    <SiteLayout>
+    <SiteLayout ctaSubtitle="Get a fixed price in under two minutes — or call our 24/7 reservations team.">
       <PageHero
         eyebrow="Our Services"
         title="A complete premium transport service — wherever you're going."
@@ -391,12 +390,7 @@ function ServicesPage() {
         </div>
       </section>
 
-      <CtaBand
-        eyebrow="Any service, one booking"
-        title="Need a driver for one of these services?"
-        subtitle="Get a fixed price in under two minutes — or call our 24/7 reservations team."
-        tone="gold"
-      />
+
     </SiteLayout>
   );
 }
