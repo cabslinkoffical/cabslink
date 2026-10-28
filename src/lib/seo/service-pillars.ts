@@ -35,7 +35,7 @@ export const SERVICE_PILLARS: Record<string, PillarContent> = {
     metaDescription:
       "Pre-booked licensed private hire across Scotland and the UK. Fixed prices, professional drivers and 24/7 booking for any journey, airport or not.",
     image: airportImg.url,
-    imageAlt: "Licensed private hire car waiting at a Scottish city kerbside",
+    imageAlt: "Aerial view of Edinburgh Airport terminal, control tower and aircraft stands",
     intro: {
       title: "Pre-booked travel, priced before you get in",
       body: "Private hire is the licensed alternative to hailing a taxi: every journey is arranged in advance, matched to a vehicle class and quoted as a fixed fare. Ideal for appointments, nights out, intercity runs and anything where arriving on time matters.",
@@ -284,7 +284,7 @@ export const SERVICE_PILLARS: Record<string, PillarContent> = {
     metaDescription:
       "Private cruise transfers to Scottish and UK ports. Greenock, Rosyth, Leith, Invergordon and Southampton with cruise-luggage space and boarding-time planning.",
     image: cruiseImg,
-    imageAlt: "Private transfer vehicle at a cruise terminal with luggage being loaded",
+    imageAlt: "Cunard cruise ship Queen Elizabeth anchored in the Firth of Forth",
     intro: {
       title: "Cruise luggage needs a bigger boot",
       body: "Cruise passengers travel with more bags than almost anyone else. We size the vehicle around your cases rather than your headcount, and plan the pickup around your boarding window so you are never the last name called.",
@@ -329,7 +329,7 @@ export const SERVICE_PILLARS: Record<string, PillarContent> = {
     metaDescription:
       "University transfers across Scotland. Airport-to-halls travel for Edinburgh, Glasgow, St Andrews, Dundee and Aberdeen students with luggage space.",
     image: universityImg,
-    imageAlt: "Student arriving at university halls with luggage from a private transfer",
+    imageAlt: "Old College, University of Edinburgh, on South Bridge",
     intro: {
       title: "First arrival, last departure, and everything between",
       body: "Term start is the busiest travel week of the student year. We pre-book arrivals against flight numbers, take you straight to the right halls entrance, and give parents a booking reference they can track from home.",
@@ -374,7 +374,7 @@ export const SERVICE_PILLARS: Record<string, PillarContent> = {
     metaDescription:
       "Non-emergency hospital transfers across Scotland. Pre-booked appointment and discharge travel with patient drivers, door assistance and fixed prices.",
     image: hospitalImg,
-    imageAlt: "Private car waiting at a hospital main entrance for a patient transfer",
+    imageAlt: "Royal Infirmary of Edinburgh at Little France",
     intro: {
       title: "Calm, unhurried travel on a difficult day",
       body: "Appointments run late and discharges rarely happen on schedule. Our hospital transfers allow for that: we hold the booking, wait where waiting is allowed, and stay in touch with whoever is coordinating the collection.",
@@ -426,7 +426,7 @@ export const SERVICE_PILLARS: Record<string, PillarContent> = {
     metaDescription:
       "Event transport across Scotland. Delegate shuttles, artist and crew runs and VIP arrivals with scheduled multi-vehicle planning and one point of contact.",
     image: eventsImg.url,
-    imageAlt: "Fleet of vehicles staged outside an event venue for guest transport",
+    imageAlt: "The Usher Hall concert venue on Lothian Road, Edinburgh",
     intro: {
       title: "Event travel is a schedule problem",
       body: "Festivals, conferences and awards nights all fail in the same place: the 20 minutes when everyone leaves at once. We plan staged departures, pre-agreed pickup zones and enough vehicles in the right place — and we run it from one control point.",

@@ -8,7 +8,7 @@
 import type { SolutionContent } from "@/components/site/SolutionPage";
 import { DEFAULT_COVERAGE } from "@/components/site/ServicePillarPage";
 import corporateImg from "@/assets/services/corporate.jpg.asset.json";
-import stationImg from "@/assets/services/station.jpg.asset.json";
+import universityImg from "@/assets/services/university.jpg";
 import airportImg from "@/assets/services/airport.jpg.asset.json";
 import toursImg from "@/assets/services/tours.jpg.asset.json";
 import eventsImg from "@/assets/services/events.jpg.asset.json";
@@ -94,8 +94,8 @@ export const TRAVEL_SOLUTIONS: Record<string, SolutionContent> = {
     metaTitle: "Student Airport Transfers — Campus Travel | Cabslink",
     metaDescription:
       "Student travel across Scotland: airport-to-campus transfers, term-start moves and end-of-term journeys with luggage space and fixed prepaid fares.",
-    image: stationImg.url,
-    imageAlt: "Student loading luggage into an MPV outside a university building",
+    image: universityImg,
+    imageAlt: "Old College, University of Edinburgh, on South Bridge",
     intro: {
       title: "Built for arrival week, not just the journey",
       body: "First arrivals often mean a long-haul flight, three cases and an address nobody has been to before. We meet inside arrivals with a name-board, load properly, and drop at the halls entrance rather than the nearest main road.",
@@ -154,7 +154,7 @@ export const TRAVEL_SOLUTIONS: Record<string, SolutionContent> = {
     metaDescription:
       "Family travel across Scotland: airport transfers with child and booster seats, MPV space for prams and cases, and fixed door-to-door prices.",
     image: airportImg.url,
-    imageAlt: "Family with luggage being helped into an MPV at the airport",
+    imageAlt: "Aerial view of Edinburgh Airport terminal, control tower and aircraft stands",
     intro: {
       title: "Holiday travel without the 5am scramble",
       body: "Family airport runs live or die on space and timing. We size the vehicle to your cases and pram, fit the child seats before we arrive, and build in enough margin that nobody is watching the clock on the way to the terminal.",
@@ -213,7 +213,7 @@ export const TRAVEL_SOLUTIONS: Record<string, SolutionContent> = {
     metaDescription:
       "Group travel across Scotland: MPVs, vans and multi-vehicle convoys with professional drivers, quoted as one fixed price.",
     image: toursImg.url,
-    imageAlt: "Group boarding private vehicles for a Scottish tour",
+    imageAlt: "Jacobite steam train crossing the Glenfinnan Viaduct in the Scottish Highlands",
     intro: {
       title: "One movement, not five separate cars",
       body: "Groups fail on coordination, not vehicles. We work out the right vehicle mix for your headcount and luggage, agree pickup points, and keep the whole party on one itinerary so the last car isn't 40 minutes behind the first.",
@@ -272,7 +272,7 @@ export const TRAVEL_SOLUTIONS: Record<string, SolutionContent> = {
     metaDescription:
       "Event travel across Scotland: guest shuttles, stadium and concert transfers and conference transport scheduled around closures and crowds.",
     image: eventsImg.url,
-    imageAlt: "Guests arriving at an evening event venue by private car",
+    imageAlt: "The Usher Hall concert venue on Lothian Road, Edinburgh",
     intro: {
       title: "The travel plan is part of the event",
       body: "Event days have hard deadlines and unpredictable roads. We plan drop-off points that survive closures, stagger guest shuttles so nobody waits in the rain, and hold vehicles for the return leg when 3,000 people leave at once.",
