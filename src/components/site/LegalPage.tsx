@@ -23,7 +23,7 @@ export function LegalPage({
         subtitle={subtitle}
         breadcrumbs={[{ label: "Home", to: "/" }, { label: eyebrow }]}
       />
-      <section className="section-y">
+      <section className="section-y bg-surface-2">
         <div className="container-x max-w-3xl">
           <p className="text-xs uppercase tracking-widest text-muted-foreground">Last updated: {updated}</p>
           <div className="prose prose-neutral dark:prose-invert mt-6 max-w-none space-y-6 text-sm leading-relaxed">

@@ -10,7 +10,7 @@ export function GoogleReviewsSection() {
   const { data, isPending } = useQuery(googleReviewsQuery);
   const hasRating = data && data.reviewCount > 0;
   const columns: TestimonialColumnItem[][] = [[], [], []];
-  (data?.reviews ?? []).filter((review) => review.excerpt?.trim() || review.topic?.trim()).slice(0, 6).forEach((review, index) => {
+  (data?.reviews ?? []).filter((review) => review.excerpt?.trim()).slice(0, 6).forEach((review, index) => {
     columns[index % 3]?.push({
       text: review.excerpt ? `“${review.excerpt}”` : review.topic,
       name: review.author,
