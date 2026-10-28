@@ -213,6 +213,33 @@
   background: var(--surface-gold);
 }
 
+/* Public editorial surfaces share the existing brand palette without
+   changing booking controls, private screens or white card surfaces. */
+.public-site > main {
+  background-color: var(--surface-2);
+}
+.public-site > main > section.bg-white,
+.public-site > main > section.bg-background,
+.public-site > main > section.bg-\[var\(--surface\)\],
+.public-site > main > div.min-h-screen.bg-background {
+  background-color: var(--surface-2);
+}
+.public-site > main > section.section-y:nth-of-type(even):not(.navy-scene):not(.hero-gradient):not([class*="bg-"]),
+.public-site > main > article > section {
+  background-color: var(--surface-cool);
+}
+.public-site .glass-card {
+  box-shadow: var(--shadow-raised);
+}
+.cta-pattern {
+  background-image: radial-gradient(circle at 1px 1px, var(--gold) 1px, transparent 0);
+  background-size: 28px 28px;
+  background-blend-mode: soft-light;
+}
+.public-site h1, .public-site h2, .public-site h3, .public-site h4 {
+  letter-spacing: 0;
+}
+
 @utility plain-image-scrim {
   background: color-mix(in oklab, var(--navy) 72%, transparent);
 }

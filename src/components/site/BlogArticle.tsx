@@ -68,7 +68,7 @@ export function BlogArticle({ post, related }: { post: BlogPostFull; related: Bl
 
         {/* Featured image */}
         {post.featured_image_url && (
-          <div className="container-x -mt-6 md:-mt-10">
+          <div className="container-x mt-8">
             <div className="overflow-hidden rounded-3xl shadow-xl aspect-[16/8]">
               <img
                 src={post.featured_image_url}

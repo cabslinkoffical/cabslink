@@ -16,6 +16,6 @@ export const Route = createFileRoute("/corporate/")({
   loader: ({ context }) => context.queryClient.ensureQueryData(hubQueryOptions(("corporate" as const))),
   component: () => {
     const { data } = useSuspenseQuery(hubQueryOptions(("corporate" as const)));
-    return <HubPage title={HUBS[("corporate" as const)].title} intro={HUBS[("corporate" as const)].intro} longIntro={HUBS[("corporate" as const)].longIntro} notes={HUBS[("corporate" as const)].notes} destinations={data} contentKey={("corporate" as const)} />;
+    return <HubPage eyebrow="Corporate Travel" title={HUBS[("corporate" as const)].title} intro={HUBS[("corporate" as const)].intro} longIntro={HUBS[("corporate" as const)].longIntro} notes={HUBS[("corporate" as const)].notes} destinations={data} contentKey={("corporate" as const)} />;
   },
 });

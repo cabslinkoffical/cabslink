@@ -420,7 +420,7 @@ function FleetCard({ klass }: { klass: PublicVehicleClass }) {
         <div className="mt-auto border-t border-[var(--navy)]/10 pt-4">
           <Button asChild variant="gold" className="w-full rounded-full">
             <Link to="/book">
-              {klass.quote_on_request ? "Request a quote" : "Get a fixed price"}
+              Get a Quote
               <ArrowRight className="size-3.5" />
             </Link>
           </Button>
