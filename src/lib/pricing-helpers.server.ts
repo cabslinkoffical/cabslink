@@ -94,7 +94,7 @@ export type QuoteSettings = {
 };
 
 export async function loadQuoteSettings(client: ReturnType<typeof publicClient>): Promise<QuoteSettings> {
-  const [{ data }, extras] = await Promise.all([
+  const [settings, extras] = await Promise.all([
     client
       .from("site_settings_public" as any)
       .select("tax_enabled, tax_percentage, tax_label, tax_mode, tax_effective_from, currency, currency_symbol, child_seat_fee_pence, meet_greet_fee_pence, return_journey_fee_pence, policy_non_refundable_percent, policy_non_refundable_min_pence, policy_flexible_percent, policy_flexible_min_pence")
@@ -103,8 +103,11 @@ export async function loadQuoteSettings(client: ReturnType<typeof publicClient>)
     // Canonical Extras catalogue (admin → Extras) is the source of truth for
     // add-on prices; site_settings only remains as a legacy fallback.
     client.from("extras").select("key, price_pence, active").eq("active", true),
-  ]);
-  const row: any = data ?? {};
+  ]).catch((error: unknown) => { throw pricingReadError(error); });
+  for (const result of [settings, extras]) {
+    if (result.error) throw pricingReadError(result.error);
+  }
+  const row: any = settings.data ?? {};
   const extraPence = new Map<string, number>(
     (extras.data ?? []).map((e: any) => [String(e.key), Math.max(0, Number(e.price_pence) || 0)]),
   );
@@ -129,6 +132,11 @@ export async function loadQuoteSettings(client: ReturnType<typeof publicClient>)
     policyFlexibleMinPence: Math.max(0, Number(row.policy_flexible_min_pence) || 0),
   };
 
+}
+
+function pricingReadError(error: unknown): Error {
+  console.error("Required pricing query failed", error);
+  return new Error("We couldn't price this right now, please try again or call us");
 }
 
 // -------------------------------------------------------------------
@@ -346,7 +354,10 @@ export async function loadRuleSets(client: ReturnType<typeof publicClient>): Pro
     client.from("pricing_modifiers" as any).select("*").eq("active", true),
     client.from("discount_rules" as any).select("*").eq("active", true),
     client.from("availability_rules" as any).select("*").eq("active", true),
-  ]);
+  ]).catch((error: unknown) => { throw pricingReadError(error); });
+  for (const result of [fixed, loc, sur, mod, disc, avail]) {
+    if (result.error) throw pricingReadError(result.error);
+  }
 
   return {
     fixedRoutes: ((fixed.data ?? []) as any[]).map((r) => ({

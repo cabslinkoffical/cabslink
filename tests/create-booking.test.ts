@@ -26,22 +26,36 @@ const PROFILE = {
   time_extra_from: null, time_extra_to: null, time_extra_amount: 0, time_extra_type: "fixed",
   status: true, tiers: [{ tier_name: "flat", miles: 9999, cost_per_mile: 1, sort_order: 1 }],
 };
+let failedPricingTable: string | null = null;
+const pricingReadClient = {
+  from: (table: string) => {
+    const result = () => ({
+      data: table === "site_settings_public" ? { tax_enabled: false, currency: "GBP" } : [],
+      error: table === failedPricingTable ? { message: "Simulated private database failure" } : null,
+    });
+    return {
+      select: () => ({
+        eq: () => ({
+          maybeSingle: async () => result(),
+          then: (resolve: (value: ReturnType<typeof result>) => unknown) => Promise.resolve(result()).then(resolve),
+        }),
+      }),
+    };
+  },
+};
 vi.mock("@/lib/pricing-helpers.server", async () => {
   const actual = await vi.importActual<typeof import("@/lib/pricing-helpers.server")>(
     "@/lib/pricing-helpers.server",
   );
   return {
     ...actual,
-    publicClient: () => ({}),
+    publicClient: () => pricingReadClient,
     assertAdmin: async () => {},
     realDistanceMiles: vi.fn(async () => ({ miles: 20, minutes: 30 })),
     loadActiveProfiles: async () => [PROFILE],
     loadAreaSurcharges: async () => [],
     loadFixedPriceForRoute: async () => [],
-    loadQuoteSettings: async () => ({
-      taxEnabled: false, taxRate: 0, taxLabel: "VAT",
-      currency: "GBP", currencySymbol: "£",
-    }),
+    computeVehicleQuote: vi.fn(actual.computeVehicleQuote),
   };
 });
 
@@ -94,7 +108,7 @@ vi.mock("@/integrations/supabase/client.server", () => {
 });
 
 
-import { createBooking } from "@/lib/pricing.functions";
+import { calculateQuotes, createBooking } from "@/lib/pricing.functions";
 import * as helpers from "@/lib/pricing-helpers.server";
 import { _resetAllLimits } from "@/lib/rate-limit.server";
 
@@ -122,6 +136,8 @@ const validPayload = {
 };
 
 beforeEach(() => {
+  failedPricingTable = null;
+  vi.mocked(helpers.computeVehicleQuote).mockClear();
   store.existing = null;
   store.insertError = null;
   store.insertReturn = null;
@@ -136,6 +152,20 @@ beforeEach(() => {
 });
 
 describe("createBooking — integration", () => {
+  it.each([
+    "site_settings_public", "extras", "pricing_rules", "location_pricing_rules",
+    "surcharges", "pricing_modifiers", "discount_rules", "availability_rules",
+  ])("failed %s query produces no price or new booking", async (table) => {
+    failedPricingTable = table;
+    const message = "We couldn't price this right now, please try again or call us";
+    await expect(calculateQuotes({ data: validPayload })).rejects.toThrow(message);
+    await expect(createBooking({ data: validPayload })).rejects.toThrow(message);
+    expect(helpers.computeVehicleQuote).not.toHaveBeenCalled();
+    expect(store.inserts).toHaveLength(0);
+    expect(store.refCounter).toBe(0);
+    expect(notifyCalls).toEqual({ received: 0, admin: 0 });
+  });
+
   it("first request inserts one booking with server-computed price, distance and booking_ref", async () => {
     const res = await createBooking({ data: validPayload });
     expect(store.inserts).toHaveLength(1);

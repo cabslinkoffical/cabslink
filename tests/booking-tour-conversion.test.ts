@@ -36,6 +36,7 @@ vi.mock("@/lib/pricing-helpers.server", async () => {
     loadActiveProfiles: async () => [PROFILE],
     loadAreaSurcharges: async () => [],
     loadFixedPriceForRoute: async () => [],
+    loadRuleSets: async () => ({ ...actual.EMPTY_RULE_SETS }),
     loadQuoteSettings: async () => ({ taxEnabled: false, taxRate: 0, taxLabel: "VAT", currency: "GBP", currencySymbol: "£" }),
   };
 });

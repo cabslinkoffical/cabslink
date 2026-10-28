@@ -38,3 +38,4 @@
 - Public HTML caching bypasses session-bearing requests and private/session-setting responses, caps per-isolate memory by bytes and age, and schedules refreshes through the execution context so booking data is never shared.
 - Sitemap sources paginate public-only reads, surface failures rather than publish partial XML, and deduplicate canonical HTML entries so crawlers see complete content lists.
 - Pricing writes use the active pricing-schemes handlers; do not restore retired standalone profile, location/modifier, or legacy admin CRUD handlers, which had no application callers.
+- Shared quote-settings and rule loaders fail closed on query errors; authoritative quotes and new bookings must propagate that failure instead of substituting empty rules or zero settings.
