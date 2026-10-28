@@ -12,6 +12,7 @@ export function SiteLayout({
   hideCta = false,
   hideLocations = false,
   locationsProps,
+  ctaSubtitle,
 }: {
   children: ReactNode;
   /** Hide the site-wide closing CTA (e.g. on booking / checkout flows). */
@@ -20,6 +21,7 @@ export function SiteLayout({
   hideLocations?: boolean;
   /** Contextual copy overrides for the locations directory. */
   locationsProps?: React.ComponentProps<typeof LocationsDirectory>;
+  ctaSubtitle?: string;
 }) {
   return (
     <div className="public-site min-h-screen flex flex-col bg-surface-2">
@@ -32,7 +34,7 @@ export function SiteLayout({
       <TopBar />
       <Header />
       <main id="main-content" tabIndex={-1} className="flex-1">{children}</main>
-      {!hideCta && <FinalCta />}
+      {!hideCta && <FinalCta subtitle={ctaSubtitle} />}
       {!hideLocations && <LocationsDirectory {...locationsProps} />}
       <Footer />
       <Toaster richColors position="top-center" />
