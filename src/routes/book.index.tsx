@@ -1512,17 +1512,6 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
     return Math.max(1, paxQty, lugQty, handQty);
   };
 
-  const orderedQuotes = useMemo(() => {
-    if (!data?.quotes) return [];
-    return [...data.quotes].sort((a, b) => {
-      const aFits = minQtyFor(a) <= 1 ? 0 : 1;
-      const bFits = minQtyFor(b) <= 1 ? 0 : 1;
-      if (aFits !== bFits) return aFits - bFits;
-      return a.finalPrice - b.finalPrice;
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data?.quotes, pre.passengers, pre.luggage]);
-
   const { data: vehicleClasses = [], isLoading: vehicleClassesLoading } = useQuery({
     queryKey: ["public-vehicle-classes"],
     queryFn: () => listPublicVehicleClasses(),
@@ -1533,6 +1522,30 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
     for (const c of vehicleClasses) if (c.pricing_vehicle_id) m.set(c.pricing_vehicle_id, c);
     return m;
   }, [vehicleClasses]);
+
+  // Classes priced only on request never lead the list: they sit after every
+  // priced class, whatever their display order or placeholder price.
+  const isQuoteOnly = (q: QuoteCard) => {
+    const klass = q.classId
+      ? vehicleClasses.find((c) => c.id === q.classId)
+      : classByVehicleId.get(q.vehicleId);
+    return klass?.quote_on_request ?? q.quoteOnRequest ?? isQuoteOnRequest(q.name);
+  };
+
+  const orderedQuotes = useMemo(() => {
+    if (!data?.quotes) return [];
+    return [...data.quotes].sort((a, b) => {
+      const aReq = isQuoteOnly(a) ? 1 : 0;
+      const bReq = isQuoteOnly(b) ? 1 : 0;
+      if (aReq !== bReq) return aReq - bReq;
+      const aFits = minQtyFor(a) <= 1 ? 0 : 1;
+      const bFits = minQtyFor(b) <= 1 ? 0 : 1;
+      if (aFits !== bFits) return aFits - bFits;
+      return a.finalPrice - b.finalPrice;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data?.quotes, pre.passengers, pre.luggage, vehicleClasses]);
+
   const visibleQuotes = vehicleClassesLoading
     ? []
     : orderedQuotes.filter((q) => q.classId ? vehicleClasses.some((c) => c.id === q.classId) : classByVehicleId.has(q.vehicleId));
