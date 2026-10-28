@@ -22,7 +22,7 @@ export function LocalPageHero({
   facts = [],
   prefill,
   mapFocus = null,
-  showMap = true,
+  showMap = false,
   image = null,
   imageAlt,
   imageCaption,

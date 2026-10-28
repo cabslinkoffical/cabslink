@@ -84,7 +84,7 @@ export function SeoPageRenderer({
         facts={entityName ? [{ label: "Location", value: entityName }] : []}
         prefill={prefill}
         mapFocus={mapFocus}
-        showMap={entityType !== "airport"}
+        showMap={false}
         image={hero ?? defaultLocalImage(entityType)}
         imageAlt={page.entity?.name || page.h1}
         imageCaption={entityName ? `${entityName} · private transfers` : undefined}
