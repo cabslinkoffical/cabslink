@@ -60,7 +60,7 @@ describe("customer booking lookup", () => {
 describe("promo codes", () => {
   const db = fakeDb({
     coupons: [{ id: "c1", code: "SAVE10", active: true }],
-    coupon_redemptions: [{ coupon_id: "c1", customer_email: "jane@example.com" }],
+    coupon_redemptions: [{ coupon_id: "c1", email: "jane@example.com" }],
   });
   it("matches exactly on the upper-cased code (anonymous visitor, admin client)", async () => {
     const r = await findCouponExact(db, " save10 ", "JANE@example.com");
@@ -71,6 +71,15 @@ describe("promo codes", () => {
     expect((await findCouponExact(db, "SAVE")).coupon).toBeNull();
     expect((await findCouponExact(db, "SAVE%")).coupon).toBeNull();
     expect((await findCouponExact(db, "SAVE1_")).coupon).toBeNull();
+  });
+  it("blocks coupon validation when the redemption count fails", async () => {
+    const failed = { from: (table: string) => {
+      const q: any = { select: () => q, eq: () => q,
+        maybeSingle: async () => ({ data: { id: "c1" }, error: null }),
+        then: (resolve: any) => resolve({ count: null, error: { message: "failed" } }) };
+      return q;
+    } };
+    await expect(findCouponExact(failed, "SAVE10", "jane@example.com")).rejects.toThrow(/couldn't check this coupon/);
   });
 });
 

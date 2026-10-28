@@ -186,22 +186,24 @@ export async function findCouponExact(
 ): Promise<{ coupon: any | null; customerRedemptions: number }> {
   const code = rawCode.trim().toUpperCase();
   if (!code || /[%_*\\,()]/.test(code)) return { coupon: null, customerRedemptions: 0 };
-  const { data: coupon } = await client
+  const { data: coupon, error: couponError } = await client
     .from("coupons")
     .select(
       "id, code, discount_type, discount_value, min_booking_amount, usage_limit, used_count, starts_at, expires_at, active, applicable_vehicle_classes, applies_to_service_types, max_discount, per_customer_limit, stackable",
     )
     .eq("code", code)
     .maybeSingle();
+  if (couponError) throw new Error("We couldn't check this coupon right now. Please try again or call us.");
   let customerRedemptions = 0;
   const email = (rawEmail ?? "").trim().toLowerCase();
   if (coupon && email) {
-    const { count } = await client
+    const { count, error } = await client
       .from("coupon_redemptions")
       .select("id", { count: "exact", head: true })
       .eq("coupon_id", (coupon as { id: string }).id)
-      .eq("customer_email", email);
-    customerRedemptions = count ?? 0;
+      .eq("email", email);
+    if (error || count == null) throw new Error("We couldn't check this coupon right now. Please try again or call us.");
+    customerRedemptions = count;
   }
   return { coupon: coupon ?? null, customerRedemptions };
 }
