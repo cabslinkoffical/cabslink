@@ -8,17 +8,6 @@ export type FleetAssetPointer = {
   variants?: Record<string, { url: string; size: number }>;
 };
 
-export function fleetImageProps(asset: FleetAssetPointer, sizes: string) {
-  if (asset.srcSet) {
-    return {
-      src: asset.url,
-      srcSet: asset.srcSet,
-      sizes,
-    };
-  }
-  return { src: asset.url };
-}
-
 export function fleetThumbnailUrl(asset: FleetAssetPointer): string {
   return asset.variants?.["400"]?.url ?? asset.url;
 }

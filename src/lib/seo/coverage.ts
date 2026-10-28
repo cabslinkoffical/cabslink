@@ -77,12 +77,3 @@ export function coverageByRegion(): CoverageRegion[] {
     .sort((a, b) => a.region.localeCompare(b.region));
 }
 
-/** Total counts used for hub copy and internal-link audits. */
-export function coverageTotals() {
-  const locations = coverageLocations();
-  return {
-    locations: locations.length,
-    servicePages: locations.reduce((n, l) => n + l.services.length, 0),
-    journeys: JOURNEYS.length,
-  };
-}

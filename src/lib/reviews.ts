@@ -217,12 +217,6 @@ function ratingfactsReviews(snapshot = RATINGFACTS): UnifiedReview[] {
   }));
 }
 
-/** The newest `count` reviews, optionally limited to one channel. */
-export function latestReviews(count = 4, channel?: ReviewChannelId): UnifiedReview[] {
-  const list = channel ? allReviews().filter((r) => r.channel === channel) : allReviews();
-  return list.slice(0, count);
-}
-
 /** Totals for the reviews page header. Each platform's own count is authoritative. */
 export function reviewTotals() {
   return {
