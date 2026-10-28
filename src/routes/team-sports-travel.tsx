@@ -21,7 +21,7 @@ const content: SportsServiceContent = {
   subtitle: "Vehicles that move the whole team together — with space for kit, one point of contact and pricing agreed for the season. Larger squads travel in multiple vehicles.",
   breadcrumbLabel: "Team Sports Travel",
   image: sportsImg,
-  imageAlt: "Sports team boarding private vehicles with kit bags",
+  imageAlt: "Murrayfield Stadium, Edinburgh, home of Scottish rugby",
   intro: {
     title: "One vehicle, one driver, the whole squad",
     body: "Club secretaries have enough to organise. We handle the travel side of fixtures: the right vehicle, on time, every week, on one invoice.",

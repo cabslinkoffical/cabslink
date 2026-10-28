@@ -21,7 +21,7 @@ const content: SportsServiceContent = {
   subtitle: "Hampden, Murrayfield and grounds across the UK — dropped close to the gates and collected after full time.",
   breadcrumbLabel: "Stadium Transfers",
   image: sportsImg,
-  imageAlt: "Private vehicle dropping guests near a UK stadium on event day",
+  imageAlt: "Murrayfield Stadium, Edinburgh, home of Scottish rugby",
   intro: {
     title: "Arrive early, leave without queuing",
     body: "Event traffic management changes every fixture. We plan the approach and the exit in advance so you spend your time at the event, not in a car park queue.",

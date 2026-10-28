@@ -21,7 +21,7 @@ const content: SportsServiceContent = {
   subtitle: "Private travel to fixtures across Scotland and the UK — kick-off timed pickups, no parking stress and a driver waiting after the final whistle.",
   breadcrumbLabel: "Football Transfers",
   image: sportsImg,
-  imageAlt: "Group travelling by private car to a football match",
+  imageAlt: "Murrayfield Stadium, Edinburgh, a major Scottish sports venue",
   intro: {
     title: "Get to kick-off without the parking scramble",
     body: "Stadium traffic, road closures and match-day parking make driving yourself the worst part of the day. We handle all of it and drop you close to the turnstiles.",
