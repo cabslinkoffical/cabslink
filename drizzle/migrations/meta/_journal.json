@@ -36,6 +36,13 @@
       "when": 1793172075598,
       "tag": "0004_server_only_submissions_and_coupon_columns",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793172165285,
+      "tag": "0005_atomic_tour_capacity_reservation",
+      "breakpoints": true
     }
   ]
 }

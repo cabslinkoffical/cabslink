@@ -5057,6 +5057,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      reserve_tour_booking: { Args: { _booking: Json }; Returns: string }
       save_pricing_scheme_base: { Args: { _payload: Json }; Returns: string }
       search_bookable_destinations: {
         Args: { _limit?: number; _q: string }
