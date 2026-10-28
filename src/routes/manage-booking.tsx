@@ -307,7 +307,7 @@ function ManageBookingPage() {
                       <div>
                         <p className="font-display text-lg font-bold">Pay for booking {booking.bookingRef}</p>
                         <p className="text-sm text-muted-foreground">
-                          {booking.price != null ? `Amount due £${booking.price.toFixed(2)}` : "Amount due as quoted"}
+                          {booking.amountDuePence != null ? `Amount due £${(booking.amountDuePence / 100).toFixed(2)}` : "Amount due as quoted"}
                         </p>
                       </div>
                       <Button

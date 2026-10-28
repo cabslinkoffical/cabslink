@@ -11,7 +11,7 @@ import {
 } from "@/lib/stripe-payments.server";
 
 /** Minimal chainable fake of the Supabase query builder, recording writes. */
-function fakeDb(booking: BookingForPayment | null) {
+function fakeDb(booking: BookingForPayment | null, payments: any[] = [], paymentError: any = null) {
   const writes: Array<{ table: string; op: string; payload?: any }> = [];
   const db = {
     writes,
@@ -22,10 +22,19 @@ function fakeDb(booking: BookingForPayment | null) {
         select: () => builder,
         eq: () => builder,
         in: () => builder,
+        order: () => builder,
+        range: () => Promise.resolve({ data: payments, error: paymentError }),
         is: () => builder,
         neq: () => builder,
         insert: (p: any) => { writes.push({ table, op: "insert", payload: p }); return Promise.resolve({ error: null }); },
-        upsert: (p: any) => { writes.push({ table, op: "upsert", payload: p }); return Promise.resolve({ error: null }); },
+        upsert: (p: any) => {
+          writes.push({ table, op: "upsert", payload: p });
+          if (table === "payments") {
+            const existing = payments.findIndex((row) => row.reference === p.reference);
+            if (existing < 0) payments.push(p); else payments[existing] = p;
+          }
+          return Promise.resolve({ error: null });
+        },
         update: (p: any) => { op = "update"; payload = p; writes.push({ table, op, payload: p }); return builder; },
         delete: () => { writes.push({ table, op: "delete" }); return builder; },
         maybeSingle: () =>
@@ -98,6 +107,18 @@ describe("public checkout inputs", () => {
     expect(checkoutRefusal(booking({ price: null, quoted_total: 120, quote_expires_at: "2020-01-01T00:00:00Z" }))).toMatch(/expired/);
     expect(checkoutRefusal(booking({ price: null, quoted_total: 120 }))).toBeNull();
   });
+  it("charges only £35 after an amended £120 fare and £85 of paid rows", async () => {
+    const create = vi.fn().mockResolvedValue({ client_secret: "sec" });
+    const db = fakeDb(booking({ price: 120, payment_status: "partial" }), [{ amount: 60, reference: "old" }, { amount: 25, reference: null }]);
+    await createCheckoutForBooking({ bookingRef: "CL-261004-ABCD", returnUrl: "https://cabslink.com/x", env: "live", stripe: { checkout: { sessions: { create } } } as any }, { db });
+    expect(create.mock.calls[0][0].line_items[0].price_data.unit_amount).toBe(3500);
+  });
+  it("does not start checkout if the paid payments query fails", async () => {
+    const create = vi.fn();
+    await expect(createCheckoutForBooking({ bookingRef: "CL-261004-ABCD", returnUrl: "https://cabslink.com/x", env: "live", stripe: { checkout: { sessions: { create } } } as any },
+      { db: fakeDb(booking({ payment_status: "partial" }), [], { message: "failed" }) })).rejects.toThrow(/payment balance/);
+    expect(create).not.toHaveBeenCalled();
+  });
 });
 
 describe("server-chosen Stripe environment", () => {
@@ -140,6 +161,25 @@ describe("webhook verification", () => {
     const upsert = db.writes.find((w) => w.op === "upsert")!;
     expect(upsert.payload.reference).toBe("cs_test_1234567890");
     expect(upsert.payload.paid_at).toBe(new Date(1_790_000_100 * 1000).toISOString());
+  });
+  it("verifies a £35 top-up, preserves cash payments and handles replay", async () => {
+    const b = booking({ price: 120, payment_status: "partial", status: "confirmed" });
+    const db = fakeDb(b, [{ amount: 60, reference: "old" }, { amount: 25, reference: null }]);
+    const opts = { session: session({ amount_total: 3500 }) as any, env: "live" as const };
+    expect(await applyPaidSession(opts, { db })).toMatchObject({ applied: true, paymentStatus: "paid" });
+    b.payment_status = "paid";
+    expect(await applyPaidSession(opts, { db })).toMatchObject({ applied: true });
+    expect(db.writes.some((w) => w.table === "payments" && w.op === "delete")).toBe(false);
+  });
+  it("rejects a full £120 charge when only £35 is due", async () => {
+    const db = fakeDb(booking({ price: 120, payment_status: "partial" }), [{ amount: 85, reference: "old" }]);
+    expect(await applyPaidSession({ session: session({ amount_total: 12000 }) as any, env: "live" }, { db })).toMatchObject({ applied: false, reason: "amount_mismatch" });
+    expect(db.writes.filter((w) => w.table !== "activity_logs")).toEqual([]);
+  });
+  it("an old recorded payment cannot settle a later amendment", async () => {
+    const db = fakeDb(booking({ price: 120, payment_status: "partial" }), [{ amount: 85, reference: "cs_test_1234567890" }]);
+    expect(await applyPaidSession({ session: session() as any, env: "live" }, { db })).toMatchObject({ applied: false, reason: "already_recorded" });
+    expect(db.writes).toEqual([]);
   });
 });
 

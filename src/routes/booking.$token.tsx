@@ -138,7 +138,7 @@ function ConfirmationPage() {
   const b = q.data;
   const isPaid = b.paymentStatus === "paid";
   const paymentMode: PaymentMode = isPaid ? "online" : "manual";
-  const amountPence = b.price != null ? Math.round(b.price * 100) : 0;
+  const amountPence = b.amountDuePence ?? 0;
   const needsPayment = !isPaid && amountPence >= 100;
   const nextStep = needsPayment
     ? "Your booking is not confirmed yet — complete your card payment below to secure it."
@@ -273,7 +273,7 @@ function ConfirmationPage() {
                   <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">Estimated fare</p>
                   <p className="font-display text-2xl font-bold">{b.price != null ? `£${b.price.toFixed(2)}` : "—"}</p>
                   <p className="mt-0.5 text-[10px] font-semibold text-muted-foreground">
-                    {isPaid ? "Paid in full" : "Unpaid — payment required"}
+                    {isPaid ? "Paid in full" : b.paymentStatus === "partial" ? "Part paid — balance required" : "Unpaid — payment required"}
                   </p>
                 </div>
 

@@ -98,6 +98,7 @@ export type ManagedBooking = {
   price: number | null;
   /** Fare the customer built themselves online, held server-side until paid. */
   quotedTotal: number | null;
+  amountDuePence?: number | null;
   distanceMiles: number | null;
   createdAt: string;
   cancellationReason: string | null;
@@ -356,7 +357,10 @@ export const findMyBooking = createServerFn({ method: "POST" })
     await enforceRateLimit(LIMITS.bookingLookup, ip, GENERIC_NOT_FOUND);
     const row = await findBooking(data);
     if (!row) genericFail();
-    return withOpenRequest(project(row), await openCancellationRequest(row.booking_ref));
+    const { payableBookingPence } = await import("@/lib/stripe-payments.server");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const amountDuePence = await payableBookingPence(supabaseAdmin, row);
+    return withOpenRequest({ ...project(row), amountDuePence }, await openCancellationRequest(row.booking_ref));
   });
 
 // ---------------- Cancellation request ----------------

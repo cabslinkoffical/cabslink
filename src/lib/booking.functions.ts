@@ -51,11 +51,16 @@ export const getBookingByToken = createServerFn({ method: "POST" })
     const res: any = await supabaseAdmin.rpc("get_booking_by_confirmation_hash", { _hash: hash });
     const row = Array.isArray(res?.data) ? res.data[0] : res?.data;
     if (!row) throw new Error(GENERIC);
+    const { findBookingByRef, payableBookingPence } = await import("@/lib/stripe-payments.server");
+    const paymentBooking = await findBookingByRef(supabaseAdmin, row.booking_ref);
+    if (!paymentBooking) throw new Error(GENERIC);
+    const amountDuePence = await payableBookingPence(supabaseAdmin, paymentBooking);
     // Customer-safe projection: no ids, place ids, hashes, tokens, or admin fields.
     return {
       bookingRef: row.booking_ref,
       status: row.status,
       paymentStatus: row.payment_status,
+      amountDuePence,
       customerName: row.customer_name,
       customerEmail: row.email,
       customerPhone: row.phone,
