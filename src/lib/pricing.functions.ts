@@ -21,7 +21,6 @@ import {
   loadJourneyCoords,
   resolveRulesForVehicle,
   computeVehicleQuote,
-  EMPTY_RULE_SETS,
   type LoadedProfile,
   type AreaSurcharge,
   type QuoteSettings,
@@ -89,11 +88,7 @@ async function computeAuthoritative(inp: AuthoritativeInput): Promise<Authoritat
     }),
     loadFixedPriceForRoute(client, inp.pickupPlaceId, inp.destinationPlaceId),
     loadQuoteSettings(client),
-    loadRuleSets(client).catch((err) => {
-      // Rule tables must never break a quote — fall back to legacy behaviour.
-      console.error("loadRuleSets failed, falling back to mileage-only rules", err);
-      return EMPTY_RULE_SETS;
-    }),
+    loadRuleSets(client),
     loadJourneyCoords(client, [inp.pickupPlaceId, inp.destinationPlaceId]),
     loadExtrasCatalogue(client).catch((err) => {
       console.error("loadExtrasCatalogue failed, falling back to legacy extra fees", err);
