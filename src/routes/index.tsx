@@ -2,6 +2,7 @@ import { normalizeHead } from "@/lib/seo/page-head";
 import { vehicleAlt } from "@/lib/vehicle-alt";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { FACT_TEXT } from "@/lib/site-facts";
+import { BOOKING_STEPS as steps } from "@/lib/booking-steps";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 
@@ -154,11 +155,6 @@ const serviceTiles = [
 
 
 
-const steps = [
-  { icon: MessageSquare, title: "Plan Journey", desc: "Enter pickup, destination and travel details in 30 seconds." },
-  { icon: CheckCircle2, title: "Choose Vehicle", desc: "Pick from our premium Mercedes fleet with instant fixed pricing." },
-  { icon: Car, title: "Travel Comfortably", desc: "Your driver tracks your flight and arrives early — every time." },
-];
 
 const features = [
   { icon: BadgePoundSterling, title: "Fixed Pricing", desc: "No surge. No surprises. What you see is what you pay." },

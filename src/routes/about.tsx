@@ -3,11 +3,11 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Car, ArrowRight, Shield } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
-import { CtaBand } from "@/components/site/CtaBand";
 import { PageHero, SectionHeader } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
 import { FaqBlock } from "@/components/seo/FaqBlock";
 import { ABOUT } from "@/content/about";
+import { BOOKING_STEPS } from "@/lib/booking-steps";
 import { listPublicVehicleClasses } from "@/lib/vehicle-classes.functions";
 import { safeJsonLd } from "@/lib/safe-json-ld";
 import edinburghImg from "@/assets/edinburgh.jpg";
@@ -63,7 +63,7 @@ function AboutPage() {
   });
 
   return (
-    <SiteLayout>
+    <SiteLayout ctaSubtitle="Get a fixed price online in a few minutes.">
       <PageHero
         eyebrow="About Cabslink"
         title={ABOUT.heroTitle}
@@ -71,7 +71,7 @@ function AboutPage() {
         breadcrumbs={[{ label: "Home", to: "/" }, { label: "About" }]}
       />
 
-      <section className="section-y">
+      <section className="py-12 md:py-16">
         <div className="container-x grid lg:grid-cols-2 gap-12 items-center">
           <img src={edinburghImg} alt="Edinburgh skyline, Cabslink's home city" width={1600} height={1024} loading="lazy" className="rounded-3xl w-full object-cover aspect-[4/3] shadow-[var(--shadow-elegant)]" />
           <div>
@@ -83,7 +83,7 @@ function AboutPage() {
         </div>
       </section>
 
-      <section className="section-y bg-[var(--surface)]">
+      <section className="py-12 md:py-16 bg-surface-cool">
         <div className="container-x">
           <SectionHeader eyebrow="What you can rely on" title="The rules we work to." center />
           <ul className="mt-10 mx-auto max-w-3xl space-y-4">
@@ -100,7 +100,7 @@ function AboutPage() {
         </div>
       </section>
 
-      <section className="section-y">
+      <section className="py-12 md:py-16">
         <div className="container-x">
           <SectionHeader eyebrow="Our fleet" title="Vehicle classes you can book." center />
           <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -120,26 +120,24 @@ function AboutPage() {
         </div>
       </section>
 
-      <section className="section-y bg-[var(--surface)]">
+      <section className="py-12 md:py-16 bg-surface-cool">
         <div className="container-x">
           <SectionHeader eyebrow="How it works" title="Your booking, step by step." center />
-          <ol className="mt-12 grid gap-4 md:grid-cols-5">
-            {ABOUT.howItWorks.map((step, i) => (
-              <li key={step} className="rounded-2xl bg-card border border-border p-5 text-center">
-                <div className="mx-auto grid size-10 place-items-center rounded-full bg-[var(--navy)] text-[var(--gold-ink)] font-display font-semibold">{i + 1}</div>
-                <p className="mt-3 text-sm font-semibold text-[var(--navy)]">{step}</p>
+          <ol className="mt-8 grid gap-4 md:grid-cols-3">
+            {BOOKING_STEPS.map((step, i) => (
+              <li key={step.title} className="rounded-lg bg-card border border-border p-6 text-center shadow-raised">
+                <div className="mx-auto grid size-10 place-items-center rounded-full bg-navy text-gold font-display font-semibold">{i + 1}</div>
+                <h3 className="mt-3 font-display font-semibold text-foreground">{step.title}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">{step.desc}</p>
               </li>
             ))}
           </ol>
         </div>
       </section>
 
-      <CtaBand
-        eyebrow="Ready when you are"
-        title="Book your journey"
-        subtitle="Get a fixed price online in a few minutes."
-        tone="gold"
-      />
+      <div className="container-x max-w-3xl pb-8 text-sm text-muted-foreground">
+        {ABOUT.howItWorks.slice(1).map((detail) => <p key={detail} className="mt-2">{detail}.</p>)}
+      </div>
 
       <section className="section-y">
         <div className="container-x max-w-3xl">

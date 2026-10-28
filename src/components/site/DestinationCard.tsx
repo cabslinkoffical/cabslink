@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { ChevronDown, ArrowRight, MapPin } from "lucide-react";
 import type { HubDestination } from "@/lib/destinations.functions";
 import { destinationHref } from "@/lib/destinations.functions";
+import edinburghAirportPhoto from "@/assets/home/services/airport-700.webp";
 
 /**
  * The single site-wide destination card used by every hub page (attractions,
@@ -15,14 +16,17 @@ export function DestinationCard({ d }: { d: HubDestination }) {
   const href = destinationHref(d);
   const place = [d.town, d.council, d.region].filter(Boolean)[0] ?? d.region;
   const locationLine = [d.town, d.council].filter(Boolean).join(", ") || d.region;
+  const image = d.slug === "edinburgh-airport" ? edinburghAirportPhoto : d.image;
 
   return (
     <div className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[var(--navy)]/10 bg-white shadow-raised transition hover:border-[var(--gold)] hover:shadow-raised-hover">
       <Link to={href} className="relative block aspect-[4/3] overflow-hidden" aria-label={d.display_name ?? d.name}>
-        {d.image ? (
+        {image ? (
           <img
-            src={d.image}
-            alt={d.display_name ?? d.name}
+            src={image}
+            alt={d.slug === "edinburgh-airport" ? "Edinburgh Airport terminal and runways from the air" : d.display_name ?? d.name}
+            width={700}
+            height={525}
             loading="lazy"
             className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
           />

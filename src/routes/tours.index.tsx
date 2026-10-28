@@ -3,7 +3,6 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { SiteLayout } from "@/components/site/SiteLayout";
-import { CtaBand } from "@/components/site/CtaBand";
 import { PageHero, SectionHeader } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
 import { Button } from "@/components/ui/button";
@@ -79,7 +78,7 @@ export const Route = createFileRoute("/tours/")({
 
   loader: ({ context }) => context.queryClient.ensureQueryData(toursQuery),
   errorComponent: () => (
-    <SiteLayout>
+    <SiteLayout ctaSubtitle="Tell us your dates and we will build the itinerary and quote around you.">
       <div className="container-x section-y text-center">
         <h1 className="font-display text-3xl font-semibold">Tours are temporarily unavailable</h1>
         <p className="mt-3 text-muted-foreground">Please refresh the page in a moment.</p>
@@ -149,7 +148,7 @@ function ToursPage() {
   const isFiltering = !!q.trim() || !!theme;
 
   return (
-    <SiteLayout>
+    <SiteLayout ctaSubtitle="Tell us your dates and we will build the itinerary and quote around you.">
       <PageHero
         eyebrow="Private Driver Tours"
         title="Private day tours and hourly car hire in Scotland"
@@ -234,15 +233,7 @@ function ToursPage() {
       )}
 
 
-      <CtaBand
-        eyebrow="Private tours"
-        title="Plan your Scottish tour with a private driver"
-        subtitle="Tell us your dates and we will build the itinerary and quote around you."
-        primaryLabel="Book now"
-        secondaryLabel="Talk to us"
-        secondaryTo="/contact"
-        tone="gold"
-      />
+
 
       <section className="section-y bg-[var(--surface)]/60">
         <div className="container-x text-center max-w-3xl mx-auto">

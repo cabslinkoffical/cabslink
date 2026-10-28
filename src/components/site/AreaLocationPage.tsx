@@ -20,6 +20,7 @@ import { LocalPageHero } from "@/components/site/LocalPageHero";
 import { areaPrefill, defaultLocalImage } from "@/lib/local-page";
 import { journeyLinksForLocation } from "@/lib/seo/coverage";
 import { servicePagesForLocation } from "@/lib/seo/service-locations";
+import edinburghImage from "@/assets/edinburgh.jpg";
 
 import {
   CheckCircle2,
@@ -97,8 +98,8 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
             ? { lat: d.lat, lng: d.lng, label: locName }
             : null
         }
-        image={(d as { hero_image_url?: string | null }).hero_image_url ?? defaultLocalImage(d.type)}
-        imageAlt={`Cabslink transfers in ${locName}`}
+        image={d.slug === "edinburgh" ? edinburghImage : (d as { hero_image_url?: string | null }).hero_image_url ?? defaultLocalImage(d.type)}
+        imageAlt={d.slug === "edinburgh" ? "Edinburgh Castle above Princes Street Gardens" : `Cabslink transfers in ${locName}`}
         imageCaption={`${locName} · airport transfers & private hire`}
       />
 
@@ -199,18 +200,6 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
       </section>
 
 
-      {/* CTA */}
-      <section className="mt-20 bg-navy p-8 text-center text-navy-foreground md:p-12">
-        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-gold">Plan your journey</p>
-        <h2 className="mt-3 font-display text-3xl font-semibold md:text-4xl">Book your {locName} transfer</h2>
-        <p className="mt-3 text-navy-foreground/70">Instant fixed-price quote. No hidden fees. 24/7 support.</p>
-        <Link
-          to="/book"
-          className="mt-7 inline-flex items-center gap-2 rounded-full bg-gold px-7 py-3 text-sm font-bold uppercase tracking-[0.14em] text-gold-foreground"
-        >
-          Get a quote <ArrowRight className="size-4" />
-        </Link>
-      </section>
 
       {/* Phase 7 guide text — added below all existing content. */}
       {guide ? <div className="mt-16"><PlaceGuideBlock guide={guide} /></div> : null}

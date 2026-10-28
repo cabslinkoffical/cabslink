@@ -380,6 +380,22 @@ export const HUB_CONTENT: Record<string, HubContent> = {
         q: "Can you cover several vehicles for one event?",
         a: "Yes. Multi-car movements and venue shuttles run on a single booking reference with one point of contact for changes on the day.",
       },
+      {
+        q: "How do we request a business account?",
+        a: "Use the Corporate Booking page to send your company and travel requirements to our team. Monthly invoicing arrangements are confirmed with your account.",
+      },
+      {
+        q: "Can you arrange airport transfers for employees?",
+        a: "Yes. Book employees or visitors as the passengers and include the flight number for airport arrivals. We provide airport transfers to the office or hotel.",
+      },
+      {
+        q: "Which vehicles can we book for business travel?",
+        a: "Choose from the published executive saloon, luxury, MPV and eight-seater van classes. Check passenger and luggage capacity on the Fleet page; larger parties travel in more than one vehicle.",
+      },
+      {
+        q: "Where can passengers check their booking?",
+        a: "Use the Manage booking link with the booking reference and the details requested there to view the booking and request changes.",
+      },
       CHANGE_FAQ,
     ],
   },

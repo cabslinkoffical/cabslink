@@ -20,19 +20,19 @@ export function LongFormSections({
 }) {
   if (!sections.length) return null;
   return (
-    <section className="section-y">
+    <section className="section-y navy-scene">
       <div className="container-x">
         {heading && (
-          <h2 className="font-display text-2xl font-semibold text-[var(--navy)] md:text-3xl">
+          <h2 className="font-display text-2xl font-semibold text-navy-foreground md:text-3xl">
             {heading}
           </h2>
         )}
         <div className="mt-6 grid gap-8 md:grid-cols-2">
           {sections.map((s) => (
             <article key={s.title} className="max-w-prose">
-              <h3 className="font-display text-lg font-semibold text-[var(--navy)]">{s.title}</h3>
+              <h3 className="font-display text-lg font-semibold text-gold">{s.title}</h3>
               {s.paragraphs.map((p, i) => (
-                <p key={i} className="mt-3 text-sm leading-relaxed text-[var(--navy)]/70">
+                <p key={i} className="mt-3 text-sm leading-relaxed text-navy-foreground/80">
                   {p}
                 </p>
               ))}
@@ -53,7 +53,7 @@ export function FaqSection({
 }) {
   if (!faqs.length) return null;
   return (
-    <section className="section-y bg-[var(--surface)]">
+    <section className="section-y bg-surface-gold">
       <div className="container-x max-w-3xl">
         <h2 className="font-display text-2xl font-semibold text-[var(--navy)] md:text-3xl">
           {heading}

@@ -75,7 +75,7 @@ export function TourCard({ tour, decorative = false }: { tour: PublicTourListIte
           {tour.recommended_stop_count > 0 && (
             <span className="inline-flex items-center gap-1">
               <span className="size-1 rounded-full bg-[var(--navy)]/30" />
-              {tour.recommended_stop_count} stops
+              {tour.recommended_stop_count} {tour.recommended_stop_count === 1 ? "stop" : "stops"}
             </span>
           )}
         </div>

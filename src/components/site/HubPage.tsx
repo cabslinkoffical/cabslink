@@ -18,6 +18,7 @@ export function HubPage({
   contentKey,
   featured,
   notesAfterDestinations = false,
+  eyebrow = "Destinations",
 }: {
   title: string;
   intro: string;
@@ -30,6 +31,7 @@ export function HubPage({
   /** Hand-written pages promoted above the destination grid. */
   featured?: { title: string; blurb: string; href: string }[];
   notesAfterDestinations?: boolean;
+  eyebrow?: string;
 }) {
 
   const content = contentKey ? HUB_CONTENT[contentKey] : undefined;
@@ -43,7 +45,7 @@ export function HubPage({
   return (
     <SiteLayout>
       <PageHero
-        eyebrow="Destinations"
+        eyebrow={eyebrow}
         title={title}
         subtitle={intro}
         breadcrumbs={[{ label: "Home", to: "/" }, { label: title }]}

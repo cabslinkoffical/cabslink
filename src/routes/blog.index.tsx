@@ -23,6 +23,7 @@ export const Route = createFileRoute("/blog/")({
       { property: "og:title", content: "Cabslink Blog — Travel Guides & Airport Transfer Tips" },
       { property: "og:description", content: "Expert guides on UK airport transfers, Scotland day tours, executive travel and city guides." },
       { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { property: "og:url", content: `${BASE}/blog` },
     ],
     links: [{ rel: "canonical", href: `${BASE}/blog` }],
@@ -106,7 +107,7 @@ function BlogHome() {
         {rest.length > 0 && (
           <>
             <h2 className="font-display text-2xl md:text-3xl font-semibold text-[var(--navy)] mb-6">Latest articles</h2>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid auto-rows-fr justify-start gap-6 md:grid-cols-2 lg:grid-cols-3">
               {rest.map((p) => <BlogPostCard key={p.id} post={p} />)}
             </div>
           </>
