@@ -43,6 +43,13 @@
       "when": 1793172165285,
       "tag": "0005_atomic_tour_capacity_reservation",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793172292215,
+      "tag": "0006_dispatch_scheduler_private_token",
+      "breakpoints": true
     }
   ]
 }
