@@ -116,8 +116,10 @@ describe("Booking vehicle list order", () => {
     }).toString();
     await renderAt(`/book?q=${encodeURIComponent(q)}`);
 
-    const headings = await screen.findAllByRole("heading", { level: 3 });
-    const shown = headings
+    // Wait for the slowest card to appear before reading the list order.
+    await screen.findByRole("heading", { name: "24-Seater Coach" });
+    const shown = screen
+      .getAllByRole("heading", { level: 3 })
       .map((h) => h.textContent ?? "")
       .filter((t) => ["Saloon", "Estate Car", "24-Seater Coach"].includes(t));
     expect(shown).toEqual(["Saloon", "Estate Car", "24-Seater Coach"]);
