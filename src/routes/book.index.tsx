@@ -220,6 +220,9 @@ function BookPage() {
   useBookingStepScroll(`${step}:${q ?? ""}`);
   const [chosen, setChosen] = useState<QuoteCard | null>(null);
   const [qty, setQty] = useState<number>(1);
+  // How far through the offered classes the customer has actually scrolled;
+  // the vehicle step reports it up so the sticky rail can show it.
+  const [progress, setProgress] = useState<{ viewed: number; total: number }>({ viewed: 0, total: 0 });
   const [policy, setPolicy] = useState<Policy>("standard");
   const [editOpen, setEditOpen] = useState(false);
   // Extras (all consolidated on step 3)
@@ -628,7 +631,9 @@ function BookPage() {
 
   return (
     <SiteLayout>
-      <section className="relative bg-[var(--surface)] py-10 md:py-14 min-h-[80vh] overflow-hidden">
+      {/* overflow-clip, not overflow-hidden: an overflow:hidden ancestor turns this
+          section into a scroll container and silently stops the left rail sticking. */}
+      <section className="relative bg-[var(--surface)] py-10 md:py-14 min-h-[80vh] overflow-clip">
         <div className="absolute inset-0 pointer-events-none opacity-60" aria-hidden>
           <div className="absolute -top-24 -left-24 size-96 rounded-full bg-[var(--gold)]/10 blur-3xl" />
           <div className="absolute -bottom-32 -right-24 size-[28rem] rounded-full bg-[var(--navy)]/5 blur-3xl" />
@@ -686,6 +691,8 @@ function BookPage() {
                   extraStopPlaceIds={orderedSelected.map((s) => s.place_id)}
                   returnEnabled={returnJourney}
                   route={quoteQuery.data ? { miles: quoteQuery.data.distanceMiles, minutes: quoteQuery.data.durationMinutes } : null}
+                  fare={step === "vehicle" ? fareBandFrom(quoteQuery.data?.quotes) : null}
+                  progress={step === "vehicle" ? progress : null}
                   price={chosen ? { vehicleName: chosen.name, perVehicle: perVehiclePrice, qty, rideTotal, seatFee, seatCount: childSeatCount, meetGreetFee, returnFee, addonsFee, addonLines, policy, policyDelta, grandTotal } : null}
                 />
 
@@ -697,6 +704,7 @@ function BookPage() {
                     <VehicleStep
                       pre={pre}
                       data={quoteQuery.data}
+                      onProgress={setProgress}
                       isLoading={quoteQuery.isLoading}
                       error={quoteQuery.error as Error | null}
                       onRetry={() => quoteQuery.refetch()}
@@ -1293,10 +1301,32 @@ function TourBanner({ slug, name, loading, missing, mismatch, onStartAgain }: {
   );
 }
 
-function Sidebar({ pre, onEdit, onStartAgain, route, price, extraStops = [], extraStopPlaceIds = [], returnEnabled }: {
+type FareBand = { min: number; max: number; priced: number; request: number };
+
+/**
+ * The fare spread for the journey being booked. Built only from the quotes
+ * already on screen, so the rail can never invent a price.
+ */
+function fareBandFrom(quotes: QuoteCard[] | undefined): FareBand | null {
+  if (!quotes?.length) return null;
+  const available = quotes.filter((q) => !q.unavailable);
+  const priced = available.filter((q) => q.finalPrice > 0);
+  if (!priced.length) return null;
+  const prices = priced.map((q) => q.finalPrice);
+  return {
+    min: Math.min(...prices),
+    max: Math.max(...prices),
+    priced: priced.length,
+    request: available.length - priced.length,
+  };
+}
+
+function Sidebar({ pre, onEdit, onStartAgain, route, price, fare, progress, extraStops = [], extraStopPlaceIds = [], returnEnabled }: {
   pre: Prefill; onEdit: () => void; onStartAgain?: () => void;
   route: { miles: number; minutes: number } | null;
   price: PriceSummary | null;
+  fare?: FareBand | null;
+  progress?: { viewed: number; total: number } | null;
   extraStops?: { label: string; minutes?: number }[];
   extraStopPlaceIds?: string[];
   returnEnabled?: boolean;
@@ -1307,7 +1337,7 @@ function Sidebar({ pre, onEdit, onStartAgain, route, price, extraStops = [], ext
     ...extraStops,
   ].filter((s) => !!s.label);
   return (
-    <aside className="min-w-0 space-y-4 lg:sticky lg:top-24 lg:self-start">
+    <aside className="min-w-0 space-y-4 lg:sticky lg:top-24 lg:self-start lg:max-h-[calc(100dvh-7rem)] lg:overflow-y-auto lg:pr-1">
       <BookingSummaryDisclosure onEdit={onEdit}>
         <div className="p-5 lg:p-6 pt-0 lg:pt-6">
           <div className="absolute -top-16 -right-16 size-40 rounded-full bg-[var(--gold)]/10 blur-2xl pointer-events-none" aria-hidden />
@@ -1418,6 +1448,34 @@ function Sidebar({ pre, onEdit, onStartAgain, route, price, extraStops = [], ext
         </div>
       </BookingSummaryDisclosure>
 
+      {/* Fare band + scroll progress: the rail keeps a live read-out of the
+          journey while the class list scrolls past beside it. */}
+      {fare && (
+        <div className="hidden lg:block overflow-hidden rounded-2xl border border-[var(--navy)]/15 bg-[var(--navy)] p-5 text-[var(--navy-foreground)] shadow-sm">
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)]">Fares for this journey</p>
+          <p className="mt-2 font-display text-[26px] font-bold leading-none tabular-nums">
+            from £{fare.min.toFixed(2)}
+          </p>
+          <p className="mt-1.5 text-xs leading-relaxed text-[var(--navy-foreground)]/65">
+            up to £{fare.max.toFixed(2)} · {fare.priced} {fare.priced === 1 ? "class" : "classes"} priced
+            {fare.request > 0 ? ` · ${fare.request} priced on request` : ""}
+          </p>
+          {progress && progress.total > 0 && (
+            <div className="mt-4">
+              <div className="h-1.5 overflow-hidden rounded-full bg-[var(--navy-foreground)]/15">
+                <div
+                  className="h-full rounded-full bg-[var(--gold)] transition-[width] duration-500"
+                  style={{ width: `${Math.min(100, Math.round((progress.viewed / progress.total) * 100))}%` }}
+                />
+              </div>
+              <p className="mt-2 text-[11px] uppercase tracking-[0.18em] text-[var(--navy-foreground)]/60">
+                You&apos;ve seen {progress.viewed} of {progress.total} classes
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
       {price && <div className="hidden lg:block"><PriceBreakdown price={price} /></div>}
 
       {/* Independent rating, shown where the decision is actually made. */}
@@ -1491,13 +1549,14 @@ function TourConversionBanner({ from, to, reason, acked, onAck }: {
   );
 }
 
-function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
+function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect, onProgress }: {
   pre: Prefill;
   data: Awaited<ReturnType<typeof calculateQuotes>> | undefined;
   isLoading: boolean;
   error: Error | null;
   onRetry: () => void;
   onSelect: (card: QuoteCard, qty: number) => void;
+  onProgress?: (p: { viewed: number; total: number }) => void;
 }) {
   const [qtyMap, setQtyMap] = useState<Record<string, number>>({});
 
@@ -1550,6 +1609,34 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
     ? []
     : orderedQuotes.filter((q) => q.classId ? vehicleClasses.some((c) => c.id === q.classId) : classByVehicleId.has(q.vehicleId));
 
+  const listRef = useRef<HTMLDivElement>(null);
+  const seenRef = useRef<Set<string>>(new Set());
+
+  // Which classes the customer has actually looked at — drives the rail's
+  // progress read-out. A class counts once it is properly on screen.
+  useEffect(() => {
+    const root = listRef.current;
+    if (!root || visibleQuotes.length === 0) return;
+    const cards = Array.from(root.querySelectorAll<HTMLElement>("[data-class-card]"));
+    const report = () => onProgress?.({ viewed: seenRef.current.size, total: cards.length });
+    const io = new IntersectionObserver((entries) => {
+      let changed = false;
+      for (const e of entries) {
+        if (!e.isIntersecting) continue;
+        const id = (e.target as HTMLElement).dataset.classCard;
+        if (id && !seenRef.current.has(id)) {
+          seenRef.current.add(id);
+          changed = true;
+        }
+      }
+      if (changed) report();
+    }, { threshold: 0.35 });
+    cards.forEach((c) => io.observe(c));
+    report();
+    return () => io.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visibleQuotes.length]);
+
   return (
     <div>
       <div className="mb-6 flex items-end justify-between flex-wrap gap-3">
@@ -1570,7 +1657,7 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
         )}
       </div>
 
-      <div className="space-y-6">
+      <div ref={listRef} className="space-y-6">
         {(isLoading || vehicleClassesLoading) && (
           <div className="bg-card rounded-2xl border border-border p-10 text-center text-muted-foreground text-sm">Calculating quotes…</div>
         )}
@@ -1596,12 +1683,16 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
             : null;
           const klass = classByVehicleId.get(q.vehicleId);
           return (
-            <VehicleCard key={q.vehicleId} card={q} klass={klass} trip={pre} best={i === 0 && minQtyFor(q) <= 1} qty={qty}
-              minQty={minQty}
-              disabled={capacityShort}
-              disabledReason={reason}
-              onQtyChange={(n) => setQtyMap((m) => ({ ...m, [q.vehicleId]: n }))}
-              onSelect={() => { if (!capacityShort) onSelect(klass ? { ...q, name: klass.name } : q, qty); }} />
+            <div key={q.vehicleId} data-class-card={q.vehicleId}>
+              <VehicleCard
+                card={q} klass={klass} trip={pre} best={i === 0 && minQtyFor(q) <= 1} qty={qty}
+                minQty={minQty}
+                disabled={capacityShort}
+                disabledReason={reason}
+                onQtyChange={(n) => setQtyMap((m) => ({ ...m, [q.vehicleId]: n }))}
+                onSelect={() => { if (!capacityShort) onSelect(klass ? { ...q, name: klass.name } : q, qty); }}
+              />
+            </div>
           );
         })}
       </div>
