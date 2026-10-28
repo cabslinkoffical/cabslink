@@ -24,6 +24,10 @@ export const Route = createFileRoute("/booking/$token")({
     meta: [
       { title: `Booking confirmation — ${SITE.name}` },
       { name: "description", content: "View your booking details." },
+      { property: "og:title", content: `Booking confirmation — ${SITE.name}` },
+      { property: "og:description", content: "View your Cabslink booking details and payment balance." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow, noarchive" },
       { name: "referrer", content: "no-referrer" },
     ],
