@@ -2,7 +2,7 @@ import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { Circle, Users, ShieldCheck, Clock } from "lucide-react";
 import { SportsServicePage, sportsFaqSchema, type SportsServiceContent } from "@/components/site/SportsServicePage";
-import eventsImg from "@/assets/services/events.jpg.asset.json";
+import sportsImg from "@/assets/services/sports.jpg";
 
 const TITLE = "Football Transfers UK — Match Day Travel for Fans | Cabslink";
 const DESC =
@@ -20,8 +20,8 @@ const content: SportsServiceContent = {
   h1: "Match-day football transfers, home and away.",
   subtitle: "Private travel to fixtures across Scotland and the UK — kick-off timed pickups, no parking stress and a driver waiting after the final whistle.",
   breadcrumbLabel: "Football Transfers",
-  image: eventsImg.url,
-  imageAlt: "Group travelling by private car to a football match",
+  image: sportsImg,
+  imageAlt: "Murrayfield Stadium, Edinburgh, a major Scottish sports venue",
   intro: {
     title: "Get to kick-off without the parking scramble",
     body: "Stadium traffic, road closures and match-day parking make driving yourself the worst part of the day. We handle all of it and drop you close to the turnstiles.",

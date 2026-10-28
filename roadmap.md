@@ -137,3 +137,5 @@
 - [x] Tax: no tax automation added — fares are quoted inclusive and VAT registration is unconfirmed (owner-blocked); adding automatic tax would change advertised totals and break the amount-match verification.
 - [ ] Go-live (owner action): claim Stripe account and complete onboarding in the Payments tab to accept real money; live keys provision automatically after.
 - [x] Related links: shared "Related pages" block (nearby airports, areas, tours) on airport, area, destination, CMS and tour pages; SSR-rendered, test added; not published
+
+- [ ] Replace destination/area page photos with real place photos (Wikimedia, credited), batches; fleet photos untouched. Service photos done.
