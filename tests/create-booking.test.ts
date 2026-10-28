@@ -74,9 +74,17 @@ const store = {
   raceExisting: null as null | { id: string; price: number; idempotency_request_hash: string | null; booking_ref?: string },
   inserts: [] as any[],
   refCounter: 0,
+  coupon: null as any,
+  redemptions: [] as any[],
+  couponCountError: null as any,
 };
 vi.mock("@/integrations/supabase/client.server", () => {
-  const from = () => ({
+  const from = (table: string) => table === "coupons" || table === "coupon_redemptions" ? (() => {
+    const q: any = { select: () => q, eq: () => q,
+      maybeSingle: async () => ({ data: store.coupon, error: null }),
+      then: (resolve: any) => resolve({ count: store.redemptions.length, error: store.couponCountError }) };
+    return q;
+  })() : ({
     select: () => ({
       eq: () => ({
         maybeSingle: async () => ({ data: store.existing }),
@@ -97,10 +105,14 @@ vi.mock("@/integrations/supabase/client.server", () => {
       };
     },
   });
-  const rpc = async (name: string) => {
+  const rpc = async (name: string, args?: any) => {
     if (name === "generate_booking_ref") {
       store.refCounter += 1;
       return { data: `CL-260710-TEST${store.refCounter}`, error: null };
+    }
+    if (name === "redeem_coupon") {
+      store.redemptions.push(args);
+      return { data: true, error: null };
     }
     return { data: null, error: null };
   };
@@ -144,6 +156,9 @@ beforeEach(() => {
   store.raceExisting = null;
   store.inserts = [];
   store.refCounter = 0;
+  store.coupon = null;
+  store.redemptions = [];
+  store.couponCountError = null;
   notifyCalls.received = 0;
   notifyCalls.admin = 0;
   _resetAllLimits();
@@ -152,6 +167,22 @@ beforeEach(() => {
 });
 
 describe("createBooking — integration", () => {
+  it("books a valid £5 coupon end-to-end through validation, pricing, insertion and redemption", async () => {
+    store.coupon = { id: "33333333-3333-4333-8333-333333333333", code: "SAVE5", active: true,
+      discount_type: "fixed", discount_value: 5, used_count: 0, stackable: true };
+    const result = await createBooking({ data: { ...validPayload, couponCode: " save5 " } });
+    expect(result.price).toBe(25);
+    expect(store.inserts).toHaveLength(1);
+    expect(store.redemptions).toEqual([{ _coupon_id: store.coupon.id, _booking_id: result.id, _email: "alice@example.com", _amount: 5 }]);
+    expect(notifyCalls).toEqual({ received: 1, admin: 1 });
+  });
+  it("failed coupon count produces no discounted booking", async () => {
+    store.coupon = { id: "33333333-3333-4333-8333-333333333333", code: "SAVE5", active: true };
+    store.couponCountError = { message: "count failed" };
+    await expect(createBooking({ data: { ...validPayload, couponCode: "SAVE5" } })).rejects.toThrow(/couldn't check this coupon/);
+    expect(store.inserts).toEqual([]);
+    expect(store.redemptions).toEqual([]);
+  });
   it.each([
     "site_settings_public", "extras", "pricing_rules", "location_pricing_rules",
     "surcharges", "pricing_modifiers", "discount_rules", "availability_rules",
