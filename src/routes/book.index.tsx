@@ -1338,6 +1338,33 @@ function Sidebar({ pre, onEdit, onStartAgain, route, price, fare, progress, extr
   ].filter((s) => !!s.label);
   return (
     <aside className="min-w-0 space-y-4 lg:sticky lg:top-24 lg:self-start lg:max-h-[calc(100dvh-7rem)] lg:overflow-y-auto lg:pr-1">
+      {/* Fare band + scroll progress lead the rail, so the read-out is the part
+          that stays in view while the class list scrolls past beside it. */}
+      {fare && (
+        <div className="hidden lg:block overflow-hidden rounded-2xl border border-[var(--navy)]/15 bg-[var(--navy)] p-5 text-[var(--navy-foreground)] shadow-sm">
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)]">Fares for this journey</p>
+          <p className="mt-2 font-display text-[26px] font-bold leading-none tabular-nums">
+            from £{fare.min.toFixed(2)}
+          </p>
+          <p className="mt-1.5 text-xs leading-relaxed text-[var(--navy-foreground)]/65">
+            up to £{fare.max.toFixed(2)} · {fare.priced} {fare.priced === 1 ? "class" : "classes"} priced
+            {fare.request > 0 ? ` · ${fare.request} priced on request` : ""}
+          </p>
+          {progress && progress.total > 0 && (
+            <div className="mt-4">
+              <div className="h-1.5 overflow-hidden rounded-full bg-[var(--navy-foreground)]/15">
+                <div
+                  className="h-full rounded-full bg-[var(--gold)] transition-[width] duration-500"
+                  style={{ width: `${Math.min(100, Math.round((progress.viewed / progress.total) * 100))}%` }}
+                />
+              </div>
+              <p className="mt-2 text-[11px] uppercase tracking-[0.18em] text-[var(--navy-foreground)]/60">
+                You&apos;ve seen {progress.viewed} of {progress.total} classes
+              </p>
+            </div>
+          )}
+        </div>
+      )}
       <BookingSummaryDisclosure onEdit={onEdit}>
         <div className="p-5 lg:p-6 pt-0 lg:pt-6">
           <div className="absolute -top-16 -right-16 size-40 rounded-full bg-[var(--gold)]/10 blur-2xl pointer-events-none" aria-hidden />
@@ -1448,33 +1475,6 @@ function Sidebar({ pre, onEdit, onStartAgain, route, price, fare, progress, extr
         </div>
       </BookingSummaryDisclosure>
 
-      {/* Fare band + scroll progress: the rail keeps a live read-out of the
-          journey while the class list scrolls past beside it. */}
-      {fare && (
-        <div className="hidden lg:block overflow-hidden rounded-2xl border border-[var(--navy)]/15 bg-[var(--navy)] p-5 text-[var(--navy-foreground)] shadow-sm">
-          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)]">Fares for this journey</p>
-          <p className="mt-2 font-display text-[26px] font-bold leading-none tabular-nums">
-            from £{fare.min.toFixed(2)}
-          </p>
-          <p className="mt-1.5 text-xs leading-relaxed text-[var(--navy-foreground)]/65">
-            up to £{fare.max.toFixed(2)} · {fare.priced} {fare.priced === 1 ? "class" : "classes"} priced
-            {fare.request > 0 ? ` · ${fare.request} priced on request` : ""}
-          </p>
-          {progress && progress.total > 0 && (
-            <div className="mt-4">
-              <div className="h-1.5 overflow-hidden rounded-full bg-[var(--navy-foreground)]/15">
-                <div
-                  className="h-full rounded-full bg-[var(--gold)] transition-[width] duration-500"
-                  style={{ width: `${Math.min(100, Math.round((progress.viewed / progress.total) * 100))}%` }}
-                />
-              </div>
-              <p className="mt-2 text-[11px] uppercase tracking-[0.18em] text-[var(--navy-foreground)]/60">
-                You&apos;ve seen {progress.viewed} of {progress.total} classes
-              </p>
-            </div>
-          )}
-        </div>
-      )}
 
       {price && <div className="hidden lg:block"><PriceBreakdown price={price} /></div>}
 
@@ -1617,6 +1617,9 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect, onProgres
   useEffect(() => {
     const root = listRef.current;
     if (!root || visibleQuotes.length === 0) return;
+    // No observer (older browser, jsdom) — the rail simply shows the fare band
+    // without a progress line rather than guessing.
+    if (typeof IntersectionObserver === "undefined") return;
     const cards = Array.from(root.querySelectorAll<HTMLElement>("[data-class-card]"));
     const report = () => onProgress?.({ viewed: seenRef.current.size, total: cards.length });
     const io = new IntersectionObserver((entries) => {
