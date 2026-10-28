@@ -309,8 +309,8 @@ function FleetCard({ klass }: { klass: PublicVehicleClass }) {
 
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-white transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_26px_50px_-24px_rgba(0,0,0,0.5)]">
-      {/* Image stage — uniform crop so every card reads the same */}
-      <div className="relative aspect-[16/10] overflow-hidden bg-[var(--navy)]">
+      {/* Image stage — every class sits on the same pale backdrop, no navy block */}
+      <div className="relative flex aspect-[16/10] items-center justify-center overflow-hidden bg-[var(--surface-2)]">
         {img ? (
           <img
             src={img}
@@ -319,12 +319,11 @@ function FleetCard({ klass }: { klass: PublicVehicleClass }) {
             height={500}
             loading="lazy"
             decoding="async"
-            className="size-full object-cover object-center transition-transform duration-700 group-hover:scale-[1.06]"
+            className="h-auto max-h-[86%] w-auto max-w-[88%] object-contain transition-transform duration-700 group-hover:scale-[1.06]"
           />
         ) : (
-          <span className="grid size-full place-items-center text-xs text-white/50">Image coming soon</span>
+          <span className="grid size-full place-items-center text-xs text-[var(--navy)]/60">Image coming soon</span>
         )}
-        <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[var(--navy)] via-[var(--navy)]/45 to-transparent" />
 
         <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
           {klass.badge || klass.featured ? (
@@ -333,25 +332,24 @@ function FleetCard({ klass }: { klass: PublicVehicleClass }) {
             </span>
           ) : null}
           {klass.fuel_type === "electric" && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-white text-[var(--navy)] px-2 py-1 text-[10px] font-bold uppercase tracking-widest shadow-sm">
+            <span className="inline-flex items-center gap-1 rounded-full border border-[var(--navy)]/10 bg-white text-[var(--navy)] px-2 py-1 text-[10px] font-bold uppercase tracking-widest shadow-sm">
               <Zap className="size-2.5 text-[var(--gold-ink)]" /> Zero emission
             </span>
           )}
           {klass.wheelchair_accessible && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-white text-[var(--navy)] px-2 py-1 text-[10px] font-bold uppercase tracking-widest shadow-sm">
+            <span className="inline-flex items-center gap-1 rounded-full border border-[var(--navy)]/10 bg-white text-[var(--navy)] px-2 py-1 text-[10px] font-bold uppercase tracking-widest shadow-sm">
               <Accessibility className="size-2.5 text-[var(--gold-ink)]" /> WAV
             </span>
           )}
-        </div>
-
-        <div className="absolute inset-x-4 bottom-3">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[var(--gold)]">Vehicle class</p>
-          <h3 className="mt-0.5 font-display text-xl font-semibold leading-tight text-white">{klass.name}</h3>
         </div>
       </div>
 
       {/* Body */}
       <div className="flex flex-1 flex-col gap-4 p-5">
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[var(--gold-ink)]">Vehicle class</p>
+          <h3 className="mt-0.5 font-display text-xl font-semibold leading-tight text-[var(--navy)]">{klass.name}</h3>
+        </div>
         <p className="text-sm leading-relaxed text-[var(--navy)]/70">
           {klass.short_description || klass.long_description}
         </p>
