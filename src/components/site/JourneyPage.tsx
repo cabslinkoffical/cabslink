@@ -9,6 +9,7 @@ import { ArrowRight, Check, MapPin, Phone, Route as RouteIcon } from "lucide-rea
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { SectionHeader } from "@/components/site/PageHero";
 import { LocalPageHero } from "@/components/site/LocalPageHero";
+import { LabelRouteMap } from "@/components/site/LabelRouteMap";
 import { defaultLocalImage } from "@/lib/local-page";
 import { DirectAnswer } from "@/components/seo/DirectAnswer";
 import { Button } from "@/components/ui/button";
@@ -100,9 +101,11 @@ export function JourneyPage({
             </div>
           </div>
 
-          {c.stops.length > 0 && (
-            <aside className="rounded-3xl border bg-background p-6 shadow-[var(--shadow-raised)]">
-              <h2 className="font-display text-lg font-semibold">Along the way</h2>
+          <aside className="flex flex-col rounded-3xl border bg-background p-6 shadow-[var(--shadow-raised)]">
+            <h2 className="font-display text-lg font-semibold">
+              {c.stops.length > 0 ? "Along the way" : "Route map"}
+            </h2>
+            {c.stops.length > 0 && (
               <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
                 {c.stops.map((s) => (
                   <li key={s} className="flex items-start gap-2">
@@ -110,8 +113,11 @@ export function JourneyPage({
                   </li>
                 ))}
               </ul>
-            </aside>
-          )}
+            )}
+            <div className="mt-4 flex-1 overflow-hidden rounded-2xl">
+              <LabelRouteMap from={c.from.name} to={c.to.name} />
+            </div>
+          </aside>
         </div>
       </section>
 
