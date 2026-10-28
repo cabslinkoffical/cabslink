@@ -82,7 +82,7 @@ export const getTourBookingOptions = createServerFn({ method: "GET" }).handler(
       supabaseAdmin.from("template_fixed_prices").select("route_template_id, vehicle_class_id, price"),
     ]);
 
-    const templates = ((tplRows.data ?? []) as any[]).filter((t) => t.active !== false && t.published !== false);
+    const templates = ((tplRows.data ?? []) as any[]).filter((t) => t.active === true && t.published === true && t.is_bookable === true);
     const ids = templates.map((t) => t.id);
 
     let stopRows: any[] = [];
@@ -366,10 +366,12 @@ export const createTourBooking = createServerFn({ method: "POST" })
       pricing_snapshot: result.quote as any,
     };
 
-    const res: any = await supabaseAdmin.from("bookings").insert(insert).select("id, booking_ref").maybeSingle();
+    const res: any = await supabaseAdmin.rpc("reserve_tour_booking", { _booking: insert });
     if (res.error || !res.data) {
       console.error("tour booking insert failed", res.error);
-      throw new Error("Couldn't save your tour. Please try again.");
+      throw new Error(res.error?.message?.includes("fully booked")
+        ? "That vehicle is fully booked on your date. Please pick another vehicle or date."
+        : "We couldn't reserve this tour right now. Please try again or call us.");
     }
 
     return { bookingRef, total: result.quote.total, holdMinutes };
