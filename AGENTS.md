@@ -40,3 +40,7 @@
 - Pricing writes use the active pricing-schemes handlers; do not restore retired standalone profile, location/modifier, or legacy admin CRUD handlers, which had no application callers.
 - Shared quote-settings and rule loaders fail closed on query errors; authoritative quotes and new bookings must propagate that failure instead of substituting empty rules or zero settings.
 - Public layouts own editorial surface styling and the single closing FinalCta; homepage and About use BOOKING_STEPS so shared booking overviews cannot drift.
+- Customer submission tables accept inserts only from privileged server paths; coupon redemption is a service-role-only locking routine using the real redemption schema.
+- Shared card checkout and verification derive partial-payment balances from paginated settled payment rows, preserve staff cash entries and exclude recorded session replays from settling later amendments.
+- Dated tour bookings reserve capacity and insert in one service-role-only Postgres routine holding the vehicle-class row lock; tour quoting enforces class/template eligibility and rejects unresolved or unroutable stops.
+- Dispatch scheduler and receiver read their shared drain token from private settings instead of embedding credentials in function bodies or migrations.

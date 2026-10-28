@@ -8,7 +8,10 @@ export const Route = createFileRoute("/api/public/dispatch/drain")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const token = process.env["DISPATCH_DRAIN_TOKEN"];
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const setting = await supabaseAdmin.from("private_settings").select("value").eq("key", "dispatch_drain_token").maybeSingle();
+        if (setting.error) return new Response("Not configured", { status: 503 });
+        const token = setting.data?.value;
         if (!token) return new Response("Not configured", { status: 503 });
 
         const provided =
