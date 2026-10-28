@@ -2,7 +2,7 @@ import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { Car, MapPin, Clock, Users } from "lucide-react";
 import { SportsServicePage, sportsFaqSchema, type SportsServiceContent } from "@/components/site/SportsServicePage";
-import eventsImg from "@/assets/services/events.jpg.asset.json";
+import sportsImg from "@/assets/services/sports.jpg";
 
 const TITLE = "Stadium Transfers — Hampden & Murrayfield | Cabslink";
 const DESC =
@@ -20,7 +20,7 @@ const content: SportsServiceContent = {
   h1: "Stadium transfers with a plan for every road closure.",
   subtitle: "Hampden, Murrayfield and grounds across the UK — dropped close to the gates and collected after full time.",
   breadcrumbLabel: "Stadium Transfers",
-  image: eventsImg.url,
+  image: sportsImg,
   imageAlt: "Private vehicle dropping guests near a UK stadium on event day",
   intro: {
     title: "Arrive early, leave without queuing",
