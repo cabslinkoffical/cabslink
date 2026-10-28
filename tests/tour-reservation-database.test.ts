@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 
 const migration = readFileSync("drizzle/migrations/0005_atomic_tour_capacity_reservation.sql", "utf8");
 const functionSql = migration.slice(0, migration.indexOf("REVOKE EXECUTE"));
@@ -30,7 +30,7 @@ function local(query: (schema: string) => string) {
   const schema = "pg_temp";
   return sql(`BEGIN; ${fixtures(schema)} ${query(schema)} ROLLBACK;`);
 }
-describe.skipIf(!process.env.PGHOST)("atomic tour reservation database rules", () => {
+describe.skipIf(!process.env.PGHOST)("atomic tour reservation database rules", { timeout: 30000 }, () => {
   it("inserts the last slot and preserves defaults", () => {
     const output = local((schema) => `${call(schema)} SELECT count(*), bool_and(id IS NOT NULL) FROM ${schema}.bookings;`);
     expect(output.split("\n").at(-1)).toBe("1|t");
@@ -50,5 +50,20 @@ describe.skipIf(!process.env.PGHOST)("atomic tour reservation database rules", (
   it("a cancelled booking does not consume the last slot", () => {
     const output = local((schema) => `${call(schema, { status: "cancelled" })} ${call(schema)} SELECT count(*) FROM ${schema}.bookings WHERE status='pending_payment';`);
     expect(output.split("\n").at(-1)).toBe("1");
+  });
+  it("a concurrent reservation waits for the selected class row lock", async () => {
+    const id = sql("SELECT id FROM public.vehicle_classes WHERE active=true ORDER BY id LIMIT 1;");
+    const holder = spawn("psql", ["-X", "-qAt", "-v", "ON_ERROR_STOP=1"], { stdio: ["pipe", "pipe", "pipe"] });
+    await new Promise<void>((resolve, reject) => {
+      holder.stdout.on("data", (chunk) => { if (String(chunk).includes("LOCK_READY")) resolve(); });
+      holder.on("error", reject);
+      holder.stdin.write(`BEGIN; SELECT id FROM public.vehicle_classes WHERE id='${id}' FOR UPDATE; SELECT 'LOCK_READY';\n`);
+    });
+    try {
+      expect(() => sql(`BEGIN; SET LOCAL lock_timeout='100ms'; SELECT public.reserve_tour_booking('{"vehicle_class_id":"${id}"}'::jsonb); ROLLBACK;`)).toThrow(/lock timeout/);
+    } finally {
+      holder.stdin.end("ROLLBACK;\n");
+      await new Promise<void>((resolve) => holder.on("close", () => resolve()));
+    }
   });
 });
