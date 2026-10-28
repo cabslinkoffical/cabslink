@@ -53,17 +53,21 @@ describe.skipIf(!process.env.PGHOST)("atomic tour reservation database rules", {
   });
   it("a concurrent reservation waits for the selected class row lock", async () => {
     const id = sql("SELECT id FROM public.vehicle_classes WHERE active=true ORDER BY id LIMIT 1;");
-    const holder = spawn("psql", ["-X", "-qAt", "-v", "ON_ERROR_STOP=1"], { stdio: ["pipe", "pipe", "pipe"] });
-    await new Promise<void>((resolve, reject) => {
-      holder.stdout.on("data", (chunk) => { if (String(chunk).includes("LOCK_READY")) resolve(); });
-      holder.on("error", reject);
-      holder.stdin.write(`BEGIN; SELECT id FROM public.vehicle_classes WHERE id='${id}' FOR UPDATE; SELECT 'LOCK_READY';\n`);
-    });
+    const holder = spawn("psql", ["-X", "-qAt", "-v", "ON_ERROR_STOP=1", "-c",
+      `BEGIN; SELECT id FROM public.vehicle_classes WHERE id='${id}' FOR UPDATE; SELECT pg_sleep(12); ROLLBACK;`],
+      { stdio: ["ignore", "pipe", "pipe"], env: { ...process.env, PGAPPNAME: "cabslink-tour-lock-test" } });
+    const closed = new Promise<void>((resolve) => holder.on("close", () => resolve()));
     try {
+      let locked = false;
+      for (let attempt = 0; attempt < 10 && !locked; attempt++) {
+        locked = sql("SELECT EXISTS(SELECT 1 FROM pg_stat_activity WHERE application_name='cabslink-tour-lock-test' AND wait_event='PgSleep');") === "t";
+        if (!locked) await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+      expect(locked).toBe(true);
       expect(() => sql(`BEGIN; SET LOCAL lock_timeout='100ms'; SELECT public.reserve_tour_booking('{"vehicle_class_id":"${id}"}'::jsonb); ROLLBACK;`)).toThrow(/lock timeout/);
     } finally {
-      holder.stdin.end("ROLLBACK;\n");
-      await new Promise<void>((resolve) => holder.on("close", () => resolve()));
+      holder.kill("SIGTERM");
+      await closed;
     }
   });
 });
