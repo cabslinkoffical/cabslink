@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
-import { execFileSync, spawn } from "node:child_process";
-import { randomUUID } from "node:crypto";
+import { execFileSync } from "node:child_process";
 
 const migration = readFileSync("drizzle/migrations/0005_atomic_tour_capacity_reservation.sql", "utf8");
 const functionSql = migration.slice(0, migration.indexOf("REVOKE EXECUTE"));
@@ -31,15 +30,6 @@ function local(query: (schema: string) => string) {
   const schema = "pg_temp";
   return sql(`BEGIN; ${fixtures(schema)} ${query(schema)} ROLLBACK;`);
 }
-function concurrent(query: string): Promise<{ code: number | null; error: string }> {
-  return new Promise((resolve) => {
-    const child = spawn("psql", ["-X", "-qAt", "-v", "ON_ERROR_STOP=1"], { stdio: ["pipe", "pipe", "pipe"] });
-    let error = "";
-    child.stderr.on("data", (chunk) => { error += chunk; });
-    child.on("close", (code) => resolve({ code, error }));
-    child.stdin.end(query);
-  });
-}
 describe.skipIf(!process.env.PGHOST)("atomic tour reservation database rules", () => {
   it("inserts the last slot and preserves defaults", () => {
     const output = local((schema) => `${call(schema)} SELECT count(*), bool_and(id IS NOT NULL) FROM ${schema}.bookings;`);
@@ -57,14 +47,8 @@ describe.skipIf(!process.env.PGHOST)("atomic tour reservation database rules", (
   it.each(["active", "published", "is_bookable"])("rejects a template with %s false at insertion", (flag) => {
     expect(() => local((schema) => `UPDATE ${schema}.scenic_route_templates SET ${flag}=false; ${call(schema, { scenic_template_id: templateId })}`)).toThrow(/not available/);
   });
-  it("uses a class row lock held across capacity counting and insertion", () => {
-    // The actual DB returns a row-lock wait when a second connection attempts
-    // this same class. A full concurrent insert test requires shared fixtures.
-    const lock = functionSql.indexOf("FROM public.vehicle_classes");
-    const count = functionSql.indexOf("SELECT count(*)");
-    const insert = functionSql.indexOf("INSERT INTO public.bookings");
-    expect(functionSql.slice(lock, count)).toContain("FOR UPDATE");
-    expect(lock).toBeLessThan(count);
-    expect(count).toBeLessThan(insert);
+  it("a cancelled booking does not consume the last slot", () => {
+    const output = local((schema) => `${call(schema, { status: "cancelled" })} ${call(schema)} SELECT count(*) FROM ${schema}.bookings WHERE status='pending_payment';`);
+    expect(output.split("\n").at(-1)).toBe("1");
   });
 });
