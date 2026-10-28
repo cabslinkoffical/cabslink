@@ -148,3 +148,5 @@
 - [x] Related links: shared "Related pages" block (nearby airports, areas, tours) on airport, area, destination, CMS and tour pages; SSR-rendered, test added; not published
 
 - [ ] Replace destination/area page photos with real place photos (Wikimedia, credited), batches; fleet photos untouched. Service photos done.
+- [x] Quote-on-request vehicle classes now sort last in the booking vehicle list (after every priced class), so priced classes lead; verified in the live booking flow.
+- [x] Fleet class cards: vehicle photo sits on the same pale cream backdrop as the rest of the card, with the class name moved into the card body; the navy block behind the vehicles is gone. Fleet photographs themselves unchanged.
