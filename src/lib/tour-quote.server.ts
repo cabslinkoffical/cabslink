@@ -196,6 +196,7 @@ export async function measureLoop(input: {
         waypointPlaceIds: stopPlaceIds,
         allowLoop: true,
       });
+      if (!Number.isFinite(res.distanceMiles) || res.distanceMiles <= 0 || !Number.isFinite(res.durationSeconds) || res.durationSeconds <= 0) throw new Error("Invalid tour route");
       return {
         miles: res.distanceMiles,
         driveMinutes: res.durationSeconds / 60,
@@ -207,6 +208,7 @@ export async function measureLoop(input: {
       destinationPlaceId: endPlaceId,
       waypointPlaceIds: stopPlaceIds,
     });
+    if (!Number.isFinite(res.distanceMiles) || res.distanceMiles <= 0 || !Number.isFinite(res.durationSeconds) || res.durationSeconds <= 0) throw new Error("Invalid tour route");
     return { miles: res.distanceMiles, driveMinutes: res.durationSeconds / 60, estimated: false };
   } catch {
     throw new Error("We couldn't route every stop on this tour. Please check your stops, try again or call us.");

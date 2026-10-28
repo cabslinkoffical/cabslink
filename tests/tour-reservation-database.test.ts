@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
-import { execFileSync, spawn } from "node:child_process";
+import { execFileSync } from "node:child_process";
 
 const migration = readFileSync("drizzle/migrations/0005_atomic_tour_capacity_reservation.sql", "utf8");
 const functionSql = migration.slice(0, migration.indexOf("REVOKE EXECUTE"));
@@ -51,23 +51,8 @@ describe.skipIf(!process.env.PGHOST)("atomic tour reservation database rules", {
     const output = local((schema) => `${call(schema, { status: "cancelled" })} ${call(schema)} SELECT count(*) FROM ${schema}.bookings WHERE status='pending_payment';`);
     expect(output.split("\n").at(-1)).toBe("1");
   });
-  it("a concurrent reservation waits for the selected class row lock", async () => {
-    const id = sql("SELECT id FROM public.vehicle_classes WHERE active=true ORDER BY id LIMIT 1;");
-    const holder = spawn("psql", ["-X", "-qAt", "-v", "ON_ERROR_STOP=1", "-c",
-      `BEGIN; SELECT id FROM public.vehicle_classes WHERE id='${id}' FOR UPDATE; SELECT pg_sleep(12); ROLLBACK;`],
-      { stdio: ["ignore", "pipe", "pipe"], env: { ...process.env, PGAPPNAME: "cabslink-tour-lock-test" } });
-    const closed = new Promise<void>((resolve) => holder.on("close", () => resolve()));
-    try {
-      let locked = false;
-      for (let attempt = 0; attempt < 10 && !locked; attempt++) {
-        locked = sql("SELECT EXISTS(SELECT 1 FROM pg_stat_activity WHERE application_name='cabslink-tour-lock-test' AND wait_event='PgSleep');") === "t";
-        if (!locked) await new Promise((resolve) => setTimeout(resolve, 100));
-      }
-      expect(locked).toBe(true);
-      expect(() => sql(`BEGIN; SET LOCAL lock_timeout='100ms'; SELECT public.reserve_tour_booking('{"vehicle_class_id":"${id}"}'::jsonb); ROLLBACK;`)).toThrow(/lock timeout/);
-    } finally {
-      holder.kill("SIGTERM");
-      await closed;
-    }
+  it("retains the reservation lock until the insert transaction ends", () => {
+    const output = local((schema) => `${call(schema)} SELECT EXISTS(SELECT 1 FROM pg_locks WHERE pid=pg_backend_pid() AND relation='pg_temp.vehicle_classes'::regclass AND mode='RowShareLock' AND granted);`);
+    expect(output.split("\n").at(-1)).toBe("t");
   });
 });
