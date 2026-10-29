@@ -10,7 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { toast } from "sonner";
 import {
-  CheckCircle2, ArrowRight, ArrowLeft, MapPin, CalendarDays, Edit3, Star,
+  CheckCircle2, ArrowUpRight, ArrowRight, ArrowLeft, MapPin, CalendarDays, Edit3, Star,
   Users, Briefcase, Luggage, BadgeCheck, Clock, DoorOpen, UserCheck, Award,
   ShieldCheck, CreditCard, User, Mail, Phone, MessageSquare, RefreshCw,
   Shield, Package, CalendarClock, Landmark, Sparkles, Plus, Repeat, X, AlertCircle, Info,
