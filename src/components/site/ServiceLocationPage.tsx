@@ -7,6 +7,9 @@ import { normalizeHead } from "@/lib/seo/page-head";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Check, MapPin, Phone, Plane, Route as RouteIcon } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { LocalMapSection } from "@/components/site/LocalMapSection";
+import { getPublicPlaceCoords } from "@/lib/seo-public.functions";
+import { useQuery } from "@tanstack/react-query";
 import { FaqAccordion } from "@/components/site/FaqAccordion";
 import { SectionHeader } from "@/components/site/PageHero";
 import { LocalPageHero } from "@/components/site/LocalPageHero";
@@ -22,6 +25,15 @@ export function ServiceLocationPage({ content }: { content: ServiceLocationConte
   const related = content.related
     .map((id) => getService(id))
     .filter((s): s is NonNullable<typeof s> => Boolean(s));
+
+  // The town's own coordinates come from the site's destination records, so the
+  // map below shows the real area this service page serves.
+  const { data: coords } = useQuery({
+    queryKey: ["place-coords", loc.slug],
+    queryFn: () => getPublicPlaceCoords({ data: { slug: loc.slug } }),
+    staleTime: 60 * 60 * 1000,
+    retry: false,
+  });
 
   return (
     <SiteLayout>
@@ -209,6 +221,10 @@ export function ServiceLocationPage({ content }: { content: ServiceLocationConte
           </div>
         </div>
       </section>
+      <LocalMapSection
+        focus={coords ?? null}
+        heading={`${loc.name} and surrounding area`}
+      />
     </SiteLayout>
   );
 }
