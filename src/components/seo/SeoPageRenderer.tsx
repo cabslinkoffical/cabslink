@@ -10,7 +10,7 @@ import { RouteFareTable } from "@/components/seo/RouteFareTable";
 import { Button } from "@/components/ui/button";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { LocalPageHero } from "@/components/site/LocalPageHero";
-import { AirportMapSection } from "@/components/site/AirportMapSection";
+import { LocalMapSection } from "@/components/site/LocalMapSection";
 import { FaqAccordion } from "@/components/site/FaqAccordion";
 import { defaultLocalImage, localEntityMapFocus } from "@/lib/local-page";
 
@@ -109,7 +109,7 @@ export function SeoPageRenderer({
         {appendix}
       </div>
 
-      {entityType === "airport" && <AirportMapSection focus={mapFocus} />}
+      <LocalMapSection focus={mapFocus} />
       <RelatedLinks center={mapFocus ? { lat: mapFocus.lat, lng: mapFocus.lng } : null} />
 
     </div>
