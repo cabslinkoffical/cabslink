@@ -17,7 +17,9 @@ import {
 } from "lucide-react";
 
 import { SiteLayout } from "@/components/site/SiteLayout";
-import { GoogleReviewsStrip } from "@/components/site/GoogleReviewsStrip";
+import { googleReviewsQuery } from "@/lib/google-reviews-query";
+import { GOOGLE_PROFILE_URL } from "@/lib/google-reviews.functions";
+import { GoogleReviewStars } from "@/components/site/GoogleReviewStars";
 import { PassengerConfirmation } from "@/components/site/PassengerConfirmation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -1411,11 +1413,13 @@ function Sidebar({ pre, onEdit, onStartAgain, route, price, extraStops = [], ext
 
 /** Reassurance kept out of the sticky rail so the rail holds only trip data. */
 function BookingTrustBand() {
+  const { data } = useQuery(googleReviewsQuery);
+  const hasRating = !!data && data.reviewCount > 0;
   return (
-    <div className="mt-10 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] items-start">
-      <div className="bg-card rounded-2xl border border-border p-6 shadow-sm">
-        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)] mb-3">Why Cabslink</p>
-        <div className="grid gap-2.5 sm:grid-cols-2">
+    <div className="mt-10 grid gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+      <div className="h-full rounded-2xl border border-border bg-card p-6 shadow-sm">
+        <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)]">Why Cabslink</p>
+        <ul className="grid gap-x-6 gap-y-3 sm:grid-cols-2">
           {[
             // No passenger-volume claim here — we have no verified figure to cite.
             "Licensed and insured UK operator",
@@ -1423,14 +1427,32 @@ function BookingTrustBand() {
             "All-inclusive fixed pricing",
             "Pay by card or on account after we confirm",
           ].map((t) => (
-            <div key={t} className="flex gap-2 text-sm">
-              <CheckCircle2 className="size-4 text-[var(--gold-ink)] mt-0.5 shrink-0" />
+            <li key={t} className="flex items-start gap-2.5 text-sm leading-snug">
+              <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-[var(--gold-ink)]" />
               <span className="text-foreground/80">{t}</span>
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
-      <GoogleReviewsStrip />
+      <aside aria-label="Cabslink reviews on Google" className="flex h-full flex-col justify-between gap-4 rounded-2xl border border-border bg-card p-6 shadow-sm">
+        <div>
+          <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)]">Google reviews</p>
+          {hasRating ? (
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="font-display text-3xl font-bold text-foreground">{data.rating.toFixed(1)}</span>
+              <div>
+                <GoogleReviewStars rating={data.rating} />
+                <p className="mt-1 text-xs text-muted-foreground">Based on {data.reviewCount} Google reviews</p>
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm text-foreground/80">See what customers say about us on Google.</p>
+          )}
+        </div>
+        <a href={data?.profileUrl ?? GOOGLE_PROFILE_URL} target="_blank" rel="noopener noreferrer nofollow" className="inline-flex items-center gap-1 self-start text-sm font-semibold text-foreground underline decoration-primary underline-offset-4">
+          Read reviews <ArrowUpRight className="size-3.5" />
+        </a>
+      </aside>
     </div>
   );
 }
