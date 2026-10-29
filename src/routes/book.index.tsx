@@ -1338,7 +1338,7 @@ function Sidebar({ pre, onEdit, onStartAgain, route, price, fare, progress, extr
     ...extraStops,
   ].filter((s) => !!s.label);
   return (
-    <aside className="min-w-0 space-y-4 lg:sticky lg:top-24 lg:self-start lg:max-h-[calc(100dvh-7rem)] lg:overflow-y-auto lg:pr-1">
+    <aside className="min-w-0 space-y-4 lg:sticky lg:top-24 lg:self-start">
       {/* Fare band + scroll progress lead the rail, so the read-out is the part
           that stays in view while the class list scrolls past beside it. */}
       {fare && (
@@ -1351,19 +1351,6 @@ function Sidebar({ pre, onEdit, onStartAgain, route, price, fare, progress, extr
             up to £{fare.max.toFixed(2)} · {fare.priced} {fare.priced === 1 ? "class" : "classes"} priced
             {fare.request > 0 ? ` · ${fare.request} priced on request` : ""}
           </p>
-          {progress && progress.total > 0 && (
-            <div className="mt-4">
-              <div className="h-1.5 overflow-hidden rounded-full bg-[var(--navy-foreground)]/15">
-                <div
-                  className="h-full rounded-full bg-[var(--gold)] transition-[width] duration-500"
-                  style={{ width: `${Math.min(100, Math.round((progress.viewed / progress.total) * 100))}%` }}
-                />
-              </div>
-              <p className="mt-2 text-[11px] uppercase tracking-[0.18em] text-[var(--navy-foreground)]/60">
-                You&apos;ve seen {progress.viewed} of {progress.total} classes
-              </p>
-            </div>
-          )}
         </div>
       )}
       <BookingSummaryDisclosure onEdit={onEdit}>
