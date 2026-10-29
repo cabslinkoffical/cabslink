@@ -1564,7 +1564,7 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
         )}
       </div>
 
-      <div ref={listRef} className="space-y-6">
+      <div className="space-y-6">
         {(isLoading || vehicleClassesLoading) && (
           <div className="bg-card rounded-2xl border border-border p-10 text-center text-muted-foreground text-sm">Calculating quotes…</div>
         )}
