@@ -17,9 +17,11 @@ type Props = {
   dropoffPlaceId?: string;
   stopPlaceIds?: string[];
   className?: string;
+  /** Shorter map for tight spaces such as the booking rail. */
+  compact?: boolean;
 };
 
-export function JourneyMap({ pickupPlaceId, dropoffPlaceId, stopPlaceIds = [], className = "" }: Props) {
+export function JourneyMap({ pickupPlaceId, dropoffPlaceId, stopPlaceIds = [], className = "", compact = false }: Props) {
   const fetchMap = useServerFn(getJourneyMap);
   const holder = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<any>(null);
@@ -127,7 +129,7 @@ export function JourneyMap({ pickupPlaceId, dropoffPlaceId, stopPlaceIds = [], c
           Route map{stopPlaceIds.length ? ` · ${stopPlaceIds.length} stop${stopPlaceIds.length > 1 ? "s" : ""}` : ""}
         </p>
       </div>
-      <div className="relative h-56 sm:h-64">
+      <div className={`relative ${compact ? "h-36" : "h-56 sm:h-64"}`}>
         <div ref={holder} className="absolute inset-0" aria-label="Journey route map" role="img" />
         {(!ready || q.isLoading) && !error && (
           <div className="absolute inset-0 flex items-center justify-center gap-2 text-xs text-muted-foreground bg-[var(--surface)]">

@@ -1338,11 +1338,11 @@ function Sidebar({ pre, onEdit, onStartAgain, route, price, fare, progress, extr
     ...extraStops,
   ].filter((s) => !!s.label);
   return (
-    <aside className="min-w-0 space-y-4 lg:sticky lg:top-24 lg:self-start">
+    <aside className="min-w-0 space-y-4 lg:sticky lg:top-20 lg:self-start">
       {/* Fare band + scroll progress lead the rail, so the read-out is the part
           that stays in view while the class list scrolls past beside it. */}
       {fare && (
-        <div className="hidden lg:block overflow-hidden rounded-2xl border border-[var(--navy)]/15 bg-[var(--navy)] p-5 text-[var(--navy-foreground)] shadow-sm">
+        <div className="hidden lg:block overflow-hidden rounded-2xl border border-[var(--navy)]/15 bg-[var(--navy)] px-5 py-4 text-[var(--navy-foreground)] shadow-sm">
           <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)]">Fares for this journey</p>
           <p className="mt-2 font-display text-[26px] font-bold leading-none tabular-nums">
             from £{fare.min.toFixed(2)}
@@ -1354,9 +1354,9 @@ function Sidebar({ pre, onEdit, onStartAgain, route, price, fare, progress, extr
         </div>
       )}
       <BookingSummaryDisclosure onEdit={onEdit}>
-        <div className="p-5 lg:p-6 pt-0 lg:pt-6">
+        <div className="p-5 pt-0 lg:pt-5">
           <div className="absolute -top-16 -right-16 size-40 rounded-full bg-[var(--gold)]/10 blur-2xl pointer-events-none" aria-hidden />
-          <div className="relative hidden lg:flex items-center justify-between mb-5">
+          <div className="relative hidden lg:flex items-center justify-between mb-4">
             <div>
               <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)]">Your Journey</p>
               <h3 className="font-display font-bold text-lg text-foreground mt-0.5">Trip Summary</h3>
@@ -1381,7 +1381,7 @@ function Sidebar({ pre, onEdit, onStartAgain, route, price, fare, progress, extr
               <p className="text-sm font-semibold text-foreground leading-snug mt-0.5">{pre.pickup?.label || "—"}</p>
             </div>
             {allStops.map((s, i) => (
-              <div key={`${s.label}-${i}`} className="relative mt-6">
+              <div key={`${s.label}-${i}`} className="relative mt-4">
                 <div className="absolute -left-6 top-1.5 size-4 rounded-full border-2 border-[var(--gold)]/60 bg-[var(--gold)]/20 flex items-center justify-center">
                   <span className="text-[8px] font-bold text-[var(--gold-ink)] leading-none">{i + 1}</span>
                 </div>
@@ -1391,13 +1391,13 @@ function Sidebar({ pre, onEdit, onStartAgain, route, price, fare, progress, extr
                 <p className="text-sm font-semibold text-foreground leading-snug mt-0.5">{s.label}</p>
               </div>
             ))}
-            <div className="relative mt-6">
+            <div className="relative mt-4">
               <div className="absolute -left-6 top-1.5 size-4 rounded-full border-2 border-[var(--gold)] bg-card" />
               <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Dropoff</p>
               <p className="text-sm font-semibold text-foreground leading-snug mt-0.5">{pre.dropoff?.label || "—"}</p>
             </div>
             {isReturn && (
-              <div className="relative mt-6">
+              <div className="relative mt-4">
                 <div className="absolute -left-6 top-1.5 size-4 rounded-full bg-[var(--gold)]/70 ring-4 ring-[var(--gold)]/15" />
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Return</p>
                 <p className="text-sm font-semibold text-foreground leading-snug mt-0.5">
@@ -1414,7 +1414,8 @@ function Sidebar({ pre, onEdit, onStartAgain, route, price, fare, progress, extr
 
 
           <JourneyMap
-            className="relative mt-5"
+            compact
+            className="relative mt-4 [@media(min-width:1024px)_and_(max-height:760px)]:hidden"
             pickupPlaceId={pre.pickup?.placeId}
             dropoffPlaceId={pre.dropoff?.placeId}
             stopPlaceIds={[
@@ -1423,42 +1424,22 @@ function Sidebar({ pre, onEdit, onStartAgain, route, price, fare, progress, extr
             ].filter(Boolean)}
           />
 
-          {route && (
-            <div className="relative mt-5 grid grid-cols-2 gap-2">
-              <div className="bg-[var(--surface)] rounded-xl p-3 border border-border/60">
-                <div className="flex items-center gap-1.5 text-[var(--gold-ink)]">
-                  <MapPin className="size-3.5" />
-                  <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Distance</span>
-                </div>
-                <p className="mt-1 font-display text-xl font-bold text-foreground tabular-nums leading-none">
-                  {route.miles.toFixed(1)}<span className="text-xs font-semibold text-muted-foreground ml-1">mi</span>
+          <div className="relative mt-4 grid grid-cols-2 gap-x-3 gap-y-3 border-t border-border pt-4">
+            {[
+              ...(route ? [
+                { icon: MapPin, label: "Distance", value: `${route.miles.toFixed(1)} mi` },
+                { icon: Clock, label: "Duration", value: `${route.minutes} min` },
+              ] : []),
+              { icon: CalendarDays, label: "Date", value: formatTripDate(pre.date) },
+              { icon: Clock, label: "Time", value: formatTripTime(pre.time) },
+            ].map(({ icon: Icon, label, value }) => (
+              <div key={label} className="min-w-0">
+                <p className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+                  <Icon className="size-3 shrink-0 text-[var(--gold-ink)]" /> {label}
                 </p>
+                <p className="mt-0.5 truncate text-sm font-semibold tabular-nums text-foreground">{value}</p>
               </div>
-              <div className="bg-[var(--surface)] rounded-xl p-3 border border-border/60">
-                <div className="flex items-center gap-1.5 text-[var(--gold-ink)]">
-                  <Clock className="size-3.5" />
-                  <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Duration</span>
-                </div>
-                <p className="mt-1 font-display text-xl font-bold text-foreground tabular-nums leading-none">
-                  {route.minutes}<span className="text-xs font-semibold text-muted-foreground ml-1">min</span>
-                </p>
-              </div>
-            </div>
-          )}
-
-          <div className="relative mt-5 pt-4 border-t border-border grid grid-cols-2 gap-3">
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-1">
-                <CalendarDays className="size-3 text-[var(--gold-ink)]" /> Date
-              </p>
-              <p className="text-sm font-semibold text-foreground mt-0.5">{formatTripDate(pre.date)}</p>
-            </div>
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-1">
-                <Clock className="size-3 text-[var(--gold-ink)]" /> Time
-              </p>
-              <p className="text-sm font-semibold text-foreground mt-0.5">{formatTripTime(pre.time)}</p>
-            </div>
+            ))}
           </div>
         </div>
       </BookingSummaryDisclosure>
