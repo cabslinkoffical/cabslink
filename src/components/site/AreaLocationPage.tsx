@@ -16,6 +16,7 @@ import { EntityGrid } from "@/components/explore/EntityCard";
 import type { AreaSeoContext } from "@/lib/explore.functions";
 import type { Destination } from "@/lib/destinations.functions";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { LocalMapSection } from "@/components/site/LocalMapSection";
 import { LocalPageHero } from "@/components/site/LocalPageHero";
 import { areaPrefill, defaultLocalImage } from "@/lib/local-page";
 import { journeyLinksForLocation } from "@/lib/seo/coverage";
@@ -203,6 +204,13 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
 
       {/* Phase 7 guide text — added below all existing content. */}
       {guide ? <div className="mt-16"><PlaceGuideBlock guide={guide} /></div> : null}
+      <LocalMapSection
+        focus={
+          typeof d.lat === "number" && typeof d.lng === "number"
+            ? { lat: d.lat, lng: d.lng, label: locName }
+            : null
+        }
+      />
       <RelatedLinks center={typeof d.lat === "number" && typeof d.lng === "number" ? { lat: d.lat, lng: d.lng } : null} />
     </div>
     </SiteLayout>

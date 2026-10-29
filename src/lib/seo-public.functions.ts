@@ -139,6 +139,28 @@ export const listPublishedSeoPaths = createServerFn({ method: "GET" }).handler(a
     .filter((r: any) => !String(r.path ?? "").startsWith("/locations/"));
 });
 
+/**
+ * Coordinates for one place, read from the site's own destination records.
+ * Service + location pages use this to draw a map of the area they serve.
+ */
+export const getPublicPlaceCoords = createServerFn({ method: "GET" })
+  .inputValidator((i: unknown) => z.object({ slug: z.string().min(1).max(120) }).parse(i))
+  .handler(async ({ data }) => {
+    const supabase = serverPublicClient();
+    const { data: rows } = await supabase
+      .from("destinations")
+      .select("display_name, name, lat, lng")
+      .eq("slug", data.slug)
+      .limit(1);
+    const row = rows?.[0];
+    if (!row) return null;
+    const lat = Number(row.lat);
+    const lng = Number(row.lng);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+    const label = row.display_name ?? row.name;
+    return label ? { lat, lng, label } : null;
+  });
+
 export const resolvePublicRedirect = createServerFn({ method: "GET" })
   .inputValidator((i: unknown) => z.object({ path: z.string().min(1).max(300) }).parse(i))
   .handler(async ({ data }) => {

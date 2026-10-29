@@ -22,6 +22,7 @@ import { getTemplate } from "@/lib/seo/template-registry";
 import { evaluateQuality } from "@/lib/seo/quality";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { LocalPageHero } from "@/components/site/LocalPageHero";
+import { LocalMapSection } from "@/components/site/LocalMapSection";
 import { defaultLocalImage, destinationPrefill } from "@/lib/local-page";
 import { MapPin, Clock, Car } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -177,6 +178,7 @@ export function DestinationPage({
         <DestinationSections sections={sections} loaded={data} />
         {appendix ? <div className="mt-12">{appendix}</div> : null}
       </div>
+      <LocalMapSection focus={hasGeo ? { lat: d.lat as number, lng: d.lng as number, label: name } : null} />
       <RelatedLinks center={typeof d.lat === "number" && typeof d.lng === "number" ? { lat: d.lat, lng: d.lng } : null} />
     </SiteLayout>
   );
