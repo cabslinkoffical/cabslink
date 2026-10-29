@@ -1525,14 +1525,13 @@ function TourConversionBanner({ from, to, reason, acked, onAck }: {
   );
 }
 
-function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect, onProgress }: {
+function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect }: {
   pre: Prefill;
   data: Awaited<ReturnType<typeof calculateQuotes>> | undefined;
   isLoading: boolean;
   error: Error | null;
   onRetry: () => void;
   onSelect: (card: QuoteCard, qty: number) => void;
-  onProgress?: (p: { viewed: number; total: number }) => void;
 }) {
   const [qtyMap, setQtyMap] = useState<Record<string, number>>({});
 
@@ -1585,36 +1584,6 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect, onProgres
     ? []
     : orderedQuotes.filter((q) => q.classId ? vehicleClasses.some((c) => c.id === q.classId) : classByVehicleId.has(q.vehicleId));
 
-  const listRef = useRef<HTMLDivElement>(null);
-  const seenRef = useRef<Set<string>>(new Set());
-
-  // Which classes the customer has actually looked at — drives the rail's
-  // progress read-out. A class counts once it is properly on screen.
-  useEffect(() => {
-    const root = listRef.current;
-    if (!root || visibleQuotes.length === 0) return;
-    // No observer (older browser, jsdom) — the rail simply shows the fare band
-    // without a progress line rather than guessing.
-    if (typeof IntersectionObserver === "undefined") return;
-    const cards = Array.from(root.querySelectorAll<HTMLElement>("[data-class-card]"));
-    const report = () => onProgress?.({ viewed: seenRef.current.size, total: cards.length });
-    const io = new IntersectionObserver((entries) => {
-      let changed = false;
-      for (const e of entries) {
-        if (!e.isIntersecting) continue;
-        const id = (e.target as HTMLElement).dataset.classCard;
-        if (id && !seenRef.current.has(id)) {
-          seenRef.current.add(id);
-          changed = true;
-        }
-      }
-      if (changed) report();
-    }, { threshold: 0.35 });
-    cards.forEach((c) => io.observe(c));
-    report();
-    return () => io.disconnect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visibleQuotes.length]);
 
   return (
     <div>
@@ -1662,7 +1631,7 @@ function VehicleStep({ pre, data, isLoading, error, onRetry, onSelect, onProgres
             : null;
           const klass = classByVehicleId.get(q.vehicleId);
           return (
-            <div key={q.vehicleId} data-class-card={q.vehicleId}>
+            <div key={q.vehicleId}>
               <VehicleCard
                 card={q} klass={klass} trip={pre} best={i === 0 && minQtyFor(q) <= 1} qty={qty}
                 minQty={minQty}
