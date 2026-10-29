@@ -786,6 +786,7 @@ function BookPage() {
                   )}
                 </div>
               </div>
+              <BookingTrustBand />
             </>
           )}
         </div>
@@ -1477,26 +1478,33 @@ function Sidebar({ pre, onEdit, onStartAgain, route, price, fare, progress, extr
 
 
       {price && <div className="hidden lg:block"><PriceBreakdown price={price} /></div>}
-
-      {/* Independent rating, shown where the decision is actually made. */}
-      <GoogleReviewsStrip className="hidden lg:block" />
-
-      <div className="hidden lg:block bg-card rounded-2xl border border-border p-5 shadow-sm space-y-2.5">
-        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)] mb-1">Why Cabslink</p>
-        {[
-          // No passenger-volume claim here — we have no verified figure to cite.
-          "Licensed and insured UK operator",
-          "Team confirms availability quickly",
-          "All-inclusive fixed pricing",
-          "Pay by card or on account after we confirm",
-        ].map((t) => (
-          <div key={t} className="flex gap-2 text-sm">
-            <CheckCircle2 className="size-4 text-[var(--gold-ink)] mt-0.5 shrink-0" />
-            <span className="text-foreground/80">{t}</span>
-          </div>
-        ))}
-      </div>
     </aside>
+  );
+}
+
+/** Reassurance kept out of the sticky rail so the rail holds only trip data. */
+function BookingTrustBand() {
+  return (
+    <div className="mt-10 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] items-start">
+      <div className="bg-card rounded-2xl border border-border p-6 shadow-sm">
+        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)] mb-3">Why Cabslink</p>
+        <div className="grid gap-2.5 sm:grid-cols-2">
+          {[
+            // No passenger-volume claim here — we have no verified figure to cite.
+            "Licensed and insured UK operator",
+            "Team confirms availability quickly",
+            "All-inclusive fixed pricing",
+            "Pay by card or on account after we confirm",
+          ].map((t) => (
+            <div key={t} className="flex gap-2 text-sm">
+              <CheckCircle2 className="size-4 text-[var(--gold-ink)] mt-0.5 shrink-0" />
+              <span className="text-foreground/80">{t}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <GoogleReviewsStrip />
+    </div>
   );
 }
 
