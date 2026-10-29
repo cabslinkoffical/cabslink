@@ -151,4 +151,4 @@
 - [x] Quote-on-request vehicle classes now sort last in the booking vehicle list (after every priced class), so priced classes lead; verified in the live booking flow.
 - [x] Fleet class cards: vehicle photo sits on the same pale cream backdrop as the rest of the card, with the class name moved into the card body; the navy block behind the vehicles is gone. Fleet photographs themselves unchanged.
 - [x] Booking left rail: fixed the reason it never stayed in place (an overflow-hidden wrapper), capped its height so all of it is reachable, and led it with a live navy "Fares for this journey" panel — lowest to highest fare, classes priced / priced on request, plus a gold progress bar tracking how many classes you've scrolled past. Fare figures come only from the quotes already on screen.
-- [ ] Booking left trip panel fits visible screen height on laptop/desktop, no inner scroll
+- [x] Booking left trip panel fits visible screen height on laptop/desktop, no inner scroll
