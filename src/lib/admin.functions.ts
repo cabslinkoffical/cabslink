@@ -35,22 +35,31 @@ export const getDashboardStats = createServerFn({ method: "GET" })
     const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
     const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0);
 
-    const [bookingsRes, messagesRes, vehiclesRes, driversRes, paymentsRes, recentRes] = await Promise.all([
-      context.supabase.from("bookings").select("id, status, vehicle_type, pickup_address, dropoff_address, created_at, pickup_date, price, payment_status, deleted_at"),
-      context.supabase.from("contact_messages").select("id, status").not("subject", "ilike", "Tour booking:%"),
-      context.supabase.from("vehicles").select("id, active"),
-      context.supabase.from("drivers").select("id, status"),
-      context.supabase.from("payments").select("id, amount, status, created_at, paid_at"),
-      context.supabase.from("bookings").select("id, customer_name, pickup_date, status, vehicle_type, booking_ref, price").is("deleted_at", null).order("created_at", { ascending: false }).limit(8),
+    const { fetchAllPages } = await import("@/lib/fetch-all-pages");
+    const { netRevenue, revenueInWindow, SETTLED_PAYMENT_STATUSES } = await import("@/lib/revenue");
+    const sb = context.supabase;
+    // Complete paginated reads: totals never silently stop at the response cap.
+    const [bookings, messages, vehicles, drivers, payments, recentRes] = await Promise.all([
+      fetchAllPages<any>((a, z) => sb.from("bookings").select("id, status, vehicle_type, pickup_address, dropoff_address, created_at, pickup_date, price, payment_status, deleted_at, email").order("id").range(a, z)),
+      fetchAllPages<any>((a, z) => sb.from("contact_messages").select("id, status").not("subject", "ilike", "Tour booking:%").order("id").range(a, z)),
+      fetchAllPages<any>((a, z) => sb.from("vehicles").select("id, active").order("id").range(a, z)),
+      fetchAllPages<any>((a, z) => sb.from("drivers").select("id, status").order("id").range(a, z)),
+      fetchAllPages<any>((a, z) => sb.from("payments").select("id, amount, refunded_amount, status, created_at, paid_at").order("id").range(a, z)),
+      sb.from("bookings").select("id, customer_name, pickup_date, status, vehicle_type, booking_ref, price").is("deleted_at", null).order("created_at", { ascending: false }).limit(8),
     ]);
+    if (recentRes.error) throw new Error(recentRes.error.message);
+    const vehiclesRes = { data: vehicles };
+    const driversRes = { data: drivers };
+    const messagesRes = { data: messages };
 
-    const bookings = bookingsRes.data ?? [];
     const live = bookings.filter((b: any) => !b.deleted_at);
-    const payments = paymentsRes.data ?? [];
+    // Settled money only, net of refunds, dated by settlement (paid_at, else created_at).
+    const settled = payments.filter((p: any) => (SETTLED_PAYMENT_STATUSES as readonly string[]).includes(p.status));
+    const nowIso = new Date().toISOString();
 
-    const totalRevenue = payments.filter((p: any) => p.status === "paid").reduce((s: number, p: any) => s + Number(p.amount || 0), 0);
-    const todayRevenue = payments.filter((p: any) => p.status === "paid" && p.paid_at && new Date(p.paid_at) >= todayStart).reduce((s: number, p: any) => s + Number(p.amount || 0), 0);
-    const monthRevenue = payments.filter((p: any) => p.status === "paid" && p.paid_at && new Date(p.paid_at) >= monthStart).reduce((s: number, p: any) => s + Number(p.amount || 0), 0);
+    const totalRevenue = Math.round(settled.reduce((s: number, p: any) => s + netRevenue(p), 0) * 100) / 100;
+    const todayRevenue = revenueInWindow(settled, todayStart.toISOString(), nowIso);
+    const monthRevenue = revenueInWindow(settled, monthStart.toISOString(), nowIso);
     const pendingPayments = payments.filter((p: any) => p.status === "unpaid" || p.status === "partial").reduce((s: number, p: any) => s + Number(p.amount || 0), 0);
 
     const newToday = live.filter((b: any) => new Date(b.created_at) >= todayStart).length;
@@ -60,7 +69,7 @@ export const getDashboardStats = createServerFn({ method: "GET" })
     for (let i = 5; i >= 0; i--) {
       const d = new Date(); d.setMonth(d.getMonth() - i); d.setDate(1); d.setHours(0, 0, 0, 0);
       const next = new Date(d); next.setMonth(next.getMonth() + 1);
-      const sum = payments.filter((p: any) => p.status === "paid" && p.paid_at && new Date(p.paid_at) >= d && new Date(p.paid_at) < next).reduce((s: number, p: any) => s + Number(p.amount || 0), 0);
+      const sum = revenueInWindow(settled, d.toISOString(), new Date(next.getTime() - 1).toISOString());
       monthly.push({ month: d.toLocaleString("en", { month: "short" }), revenue: sum });
     }
 
@@ -126,12 +135,13 @@ export const listBookings = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
-    const { data, error } = await context.supabase
+    const { fetchAllPages } = await import("@/lib/fetch-all-pages");
+    return await fetchAllPages<any>((a, z) => context.supabase
       .from("bookings")
       .select("*, driver:drivers(id, full_name)")
-      .order("created_at", { ascending: false });
-    if (error) throw new Error(error.message);
-    return data ?? [];
+      .order("created_at", { ascending: false })
+      .order("id", { ascending: false })
+      .range(a, z));
   });
 
 const bookingStatusSchema = z.enum([
@@ -414,10 +424,12 @@ export const listCustomers = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
-    const { data, error } = await context.supabase.from("bookings").select("customer_name, email, phone, price, pickup_date, status, created_at").is("deleted_at", null);
-    if (error) throw new Error(error.message);
+    const { fetchAllPages } = await import("@/lib/fetch-all-pages");
+    const data = await fetchAllPages<any>((a, z) => context.supabase.from("bookings")
+      .select("id, customer_name, email, phone, price, pickup_date, status, created_at")
+      .is("deleted_at", null).order("id").range(a, z));
     const map = new Map<string, any>();
-    for (const b of data ?? []) {
+    for (const b of data) {
       const key = (b.email ?? "").toLowerCase();
       if (!key) continue;
       const existing = map.get(key) ?? { name: b.customer_name, email: b.email, phone: b.phone, bookings: 0, spend: 0, last: b.pickup_date, lastCreated: b.created_at };
@@ -437,9 +449,10 @@ export const listPayments = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
-    const { data, error } = await context.supabase.from("payments").select("*, booking:bookings(id, booking_ref, customer_name, email, phone, pickup_address, dropoff_address, pickup_date, pickup_time, status, payment_status)").order("created_at", { ascending: false });
-    if (error) throw new Error(error.message);
-    return data ?? [];
+    const { fetchAllPages } = await import("@/lib/fetch-all-pages");
+    return await fetchAllPages<any>((a, z) => context.supabase.from("payments")
+      .select("*, booking:bookings(id, booking_ref, customer_name, email, phone, pickup_address, dropoff_address, pickup_date, pickup_time, status, payment_status)")
+      .order("created_at", { ascending: false }).order("id", { ascending: false }).range(a, z));
   });
 
 const paymentSchema = z.object({
@@ -736,12 +749,17 @@ export const getReports = createServerFn({ method: "POST" })
     await assertAdmin(context);
     const fromD = new Date(data.from);
     const toD = new Date(data.to);
-    const [bRes, pRes] = await Promise.all([
-      context.supabase.from("bookings").select("id, status, vehicle_type, pickup_address, dropoff_address, price, created_at, pickup_date").is("deleted_at", null).gte("created_at", fromD.toISOString()).lte("created_at", toD.toISOString()),
-      context.supabase.from("payments").select("amount, status, paid_at, created_at").eq("status", "paid").gte("created_at", fromD.toISOString()).lte("created_at", toD.toISOString()),
+    const { fetchAllPages } = await import("@/lib/fetch-all-pages");
+    const { netRevenue, revenueByBucket, settlementWindowFilter, SETTLED_PAYMENT_STATUSES } = await import("@/lib/revenue");
+    const fromIso = fromD.toISOString();
+    const toIso = toD.toISOString();
+    const [bookings, payments] = await Promise.all([
+      fetchAllPages<any>((a, z) => context.supabase.from("bookings").select("id, status, vehicle_type, pickup_address, dropoff_address, price, created_at, pickup_date").is("deleted_at", null).gte("created_at", fromIso).lte("created_at", toIso).order("id").range(a, z)),
+      // Revenue is selected by settlement time — the same timestamp used for its buckets.
+      fetchAllPages<any>((a, z) => context.supabase.from("payments").select("id, amount, refunded_amount, status, paid_at, created_at")
+        .in("status", SETTLED_PAYMENT_STATUSES as unknown as string[])
+        .or(settlementWindowFilter(fromIso, toIso)).order("id").range(a, z)),
     ]);
-    const bookings = bRes.data ?? [];
-    const payments = pRes.data ?? [];
 
     function bucket(dateStr: string) {
       const d = new Date(dateStr);
@@ -756,11 +774,7 @@ export const getReports = createServerFn({ method: "POST" })
       return d.toISOString().slice(0, 10);
     }
 
-    const revMap = new Map<string, number>();
-    for (const p of payments) {
-      const k = bucket(p.paid_at ?? p.created_at);
-      revMap.set(k, (revMap.get(k) ?? 0) + Number(p.amount || 0));
-    }
+    const revMap = revenueByBucket(payments, bucket);
     const bookMap = new Map<string, { date: string; total: number; completed: number; cancelled: number }>();
     for (const b of bookings) {
       const k = bucket(b.created_at);
@@ -779,7 +793,7 @@ export const getReports = createServerFn({ method: "POST" })
       routeMap.set(r, (routeMap.get(r) ?? 0) + 1);
     }
 
-    const totalRev = payments.reduce((s, p) => s + Number(p.amount || 0), 0);
+    const totalRev = Math.round(payments.reduce((s: number, p: any) => s + netRevenue(p), 0) * 100) / 100;
     const completed = bookings.filter(b => b.status === "completed").length;
     const cancelled = bookings.filter(b => b.status === "cancelled").length;
     const avgFare = bookings.length ? bookings.reduce((s, b) => s + Number(b.price || 0), 0) / bookings.length : 0;
