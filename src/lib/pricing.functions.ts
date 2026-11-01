@@ -610,7 +610,11 @@ export const createBooking = createServerFn({ method: "POST" })
     }
 
     const fixed = auth.fixedByVehicle.get(profile.vehicle.id) ?? auth.fixedAny;
-    const { resolved, ctx: journeyCtx } = resolveForProfile(auth, profile);
+    // Journeys with stops are priced by stop economics instead of per-stop
+    // via prices (same rule as the customer quote).
+    const hasStops = data.stops.length > 0;
+    const pricingViaStops = hasStops ? 0 : data.stops.length;
+    const { resolved, ctx: journeyCtx } = resolveForProfile(auth, profile, pricingViaStops);
 
     // Hard availability gate — the customer only ever sees the safe message.
     const verdict = resolveAvailability(auth.ruleSets.availabilityRules, journeyCtx);
@@ -629,7 +633,7 @@ export const createBooking = createServerFn({ method: "POST" })
       const probe = computeVehicleQuote({
         profile,
         distanceMiles: auth.distanceMiles,
-        viaStops: data.stops.length,
+        viaStops: pricingViaStops,
         pickupTime: data.pickupTime,
         areaSurcharges: auth.areaSurcharges,
         fixedPrice: fixed ?? null,
@@ -656,22 +660,62 @@ export const createBooking = createServerFn({ method: "POST" })
       }
     }
 
-    const q = computeVehicleQuote({
-      profile,
-      distanceMiles: auth.distanceMiles,
-      viaStops: data.stops.length,
-      pickupTime: data.pickupTime,
-      areaSurcharges: auth.areaSurcharges,
-      fixedPrice: fixed ?? null,
-      settings: auth.settings,
-      vehicleCount: qty,
-      serviceType: auth.input.serviceType,
-      resolved,
-      couponCode: couponRow?.code ?? null,
-      couponDiscount,
-    });
-    let price = q.finalTotal;
-    const pricingSnapshot = q.snapshot;
+    // Stop economics for journeys with stops. Any failure stops the booking:
+    // it must never fall back to a fare without stop, parking or scenic fees.
+    let stopEcon: import("@/lib/scenic-quote.functions").StopEconomics | null = null;
+    let stopSnapshot: Record<string, unknown> = {};
+    if (hasStops) {
+      try {
+        const { computeStopEconomics, stopSnapshotFields } = await import("@/lib/scenic-quote.functions");
+        const routeModeForEcon = data.routeMode ?? "scenic";
+        const econStops = data.stops.map((s) => ({
+          place_id: s.placeId, label: s.label, minutes: s.minutes ?? 0, category: s.category ?? null,
+        }));
+        stopEcon = await computeStopEconomics({
+          pickup_place_id: data.pickupPlaceId,
+          destination_place_id: data.destinationPlaceId,
+          stops: econStops,
+          route_mode: routeModeForEcon,
+        });
+        stopSnapshot = stopSnapshotFields(stopEcon, routeModeForEcon, econStops);
+      } catch (err) {
+        console.error("multi-stop verification failed", err);
+        try { setResponseStatus(503); } catch {}
+        throw new Error(PRICING_RETRY_MESSAGE);
+      }
+    }
+
+    let q: ReturnType<typeof computeVehicleQuote>;
+    let price: number;
+    if (stopEcon) {
+      const priced = priceStoppedVehicle({
+        auth, profile, qty,
+        stopAddedPerVehicle: stopEcon.stopCharges.addedTotal,
+        couponCode: couponRow?.code ?? null,
+        couponDiscount,
+      });
+      q = priced.q;
+      price = priced.total;
+      stopSnapshot = { ...stopSnapshot, per_vehicle_total: priced.perVehicle, final_total: priced.total };
+    } else {
+      q = computeVehicleQuote({
+        profile,
+        distanceMiles: auth.distanceMiles,
+        viaStops: data.stops.length,
+        pickupTime: data.pickupTime,
+        areaSurcharges: auth.areaSurcharges,
+        fixedPrice: fixed ?? null,
+        settings: auth.settings,
+        vehicleCount: qty,
+        serviceType: auth.input.serviceType,
+        resolved,
+        couponCode: couponRow?.code ?? null,
+        couponDiscount,
+      });
+      price = q.finalTotal;
+    }
+    // The saved snapshot always reconciles with the fare it describes.
+    const pricingSnapshot = { ...q.snapshot, ...stopSnapshot };
     const pricingProfileIdSnapshot = q.profileId;
 
     // Extras come from the canonical admin Extras catalogue, resolved for this
@@ -771,33 +815,10 @@ export const createBooking = createServerFn({ method: "POST" })
         throw new Error("This journey now qualifies as a different service. Please acknowledge the change and resubmit.");
       }
 
-      // Recompute authoritative multi-stop total for this vehicle so the
-      // saved price includes stop / parking / scenic fees and any detour.
-      try {
-        const multi = await calculateMultiStopQuote({
-          data: {
-            pickup_place_id: data.pickupPlaceId,
-            pickup_label: data.pickupLabel,
-            destination_place_id: data.destinationPlaceId,
-            destination_label: data.destinationLabel,
-            pickup_time: data.pickupTime,
-            stops: data.stops.map((s) => ({
-              place_id: s.placeId, label: s.label,
-              minutes: s.minutes ?? 0, category: s.category ?? null,
-            })),
-            route_mode: routeMode,
-            vehicle_id: data.vehicleId,
-          } as any,
-        });
-        const veh = multi.vehicles.find((v) => v.vehicle_id === data.vehicleId);
-        if (veh) {
-          scenicPrice = Number((veh.per_vehicle_total * qty).toFixed(2));
-          if (!scenicTemplateId) scenicTemplateId = multi.template_id;
-          price = scenicPrice;
-        }
-      } catch (err) {
-        console.error("multi-stop verification recompute failed", err);
-      }
+      // The authoritative stop-inclusive fare was computed above through the
+      // shared pipeline; record it and the matching template.
+      scenicPrice = price;
+      if (!scenicTemplateId) scenicTemplateId = stopEcon?.template?.id ?? null;
     }
 
     // Return journey is NOT a flat add-on: it is the same journey priced
