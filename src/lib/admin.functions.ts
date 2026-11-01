@@ -554,13 +554,16 @@ export const getSettings = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     await assertAdmin(context);
     const { data, error } = await context.supabase.from("site_settings").select("*").eq("id", 1).maybeSingle();
-    if (error) throw new Error(error.message);
-    const { data: creds } = await context.supabase
+    if (error) throw new Error(`Settings could not be loaded: ${error.message}`);
+    if (!data) throw new Error("Settings could not be loaded. Please refresh before editing.");
+    // An incomplete load must never reach an editable form: saving it would clear the missing values.
+    const { data: creds, error: credsError } = await context.supabase
       .from("site_credentials")
       .select("smtp_host, smtp_port, smtp_user, google_maps_api_key")
       .eq("id", 1)
       .maybeSingle();
-    return { ...(data ?? {}), ...(creds ?? {}) } as any;
+    if (credsError) throw new Error(`Settings could not be loaded completely (credentials): ${credsError.message}. Please refresh before editing.`);
+    return { ...data, ...(creds ?? {}) } as any;
   });
 
 const settingsSchema = z.object({
@@ -597,19 +600,38 @@ const settingsSchema = z.object({
   policy_flexible_min_pence: z.coerce.number().int().min(0).max(1000000).default(400),
 });
 
+/**
+ * Split a settings save into the two groups, keeping only fields the caller
+ * actually sent: an omitted field means "unchanged", an explicit null or
+ * empty value clears it. Defaults never overwrite stored values.
+ */
+export function settingsSavePayload(raw: unknown) {
+  const parsed = settingsSchema.parse(raw) as Record<string, unknown>;
+  const sent = new Set(Object.keys((raw ?? {}) as Record<string, unknown>).filter((k) => (raw as any)[k] !== undefined));
+  const CRED_KEYS = ["smtp_host", "smtp_port", "smtp_user", "google_maps_api_key"];
+  const settings: Record<string, unknown> = {};
+  const credentials: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(parsed)) {
+    if (!sent.has(k)) continue;
+    (CRED_KEYS.includes(k) ? credentials : settings)[k] = v ?? null;
+  }
+  return { settings, credentials };
+}
+
 export const updateSettings = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => settingsSchema.parse(i))
+  .inputValidator((i: unknown) => settingsSavePayload(i))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    // Credentials live in an admin-only table so they are never publicly readable.
-    const { smtp_host, smtp_port, smtp_user, google_maps_api_key, ...settings } = data;
-    const { error } = await context.supabase.from("site_settings").update(settings).eq("id", 1);
-    if (error) throw new Error(error.message);
-    const { error: credError } = await context.supabase
-      .from("site_credentials")
-      .upsert({ id: 1, smtp_host: smtp_host ?? null, smtp_port: smtp_port ?? null, smtp_user: smtp_user ?? null, google_maps_api_key: google_maps_api_key ?? null }, { onConflict: "id" });
-    if (credError) throw new Error(credError.message);
+    const { settings, credentials } = data;
+    // Both groups are saved in one database transaction: either everything
+    // is stored or nothing changes. Credentials stay in their admin-only table.
+    const { error } = await (context.supabase as any).rpc("admin_save_settings", {
+      p_settings: settings,
+      p_credentials: credentials,
+    });
+    if (error) throw new Error(`Settings were not saved: ${error.message}`);
+    const { smtp_host, smtp_port, smtp_user, google_maps_api_key } = credentials as any;
     await logAdminAction(context, "settings_update", "site_settings", "1", {
       after: settings,
       credentials_changed: { smtp_host: smtp_host != null, smtp_port: smtp_port != null, smtp_user: smtp_user != null, google_maps_api_key: google_maps_api_key != null },
