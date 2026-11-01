@@ -56,7 +56,9 @@ export async function issueCancellationRefund(opts: {
       action: "cancellation_refund_issued", entity: "booking", entity_id: opts.bookingId,
       actor_id: opts.actorId, diff: { request_id: opts.requestId, payment_id: a.row.id, refund_id: refundId, pence: a.pence },
     });
-    if (log?.error) console.error("[refund] could not log refund", log.error);
+    // Stop before touching the ledger: a retry then repeats the same Stripe
+    // request (same idempotency key), which Stripe answers without refunding twice.
+    if (log?.error) throw new Error(`Stripe refund ${refundId} succeeded, but it could not be logged. Retry to finish recording it.`);
     const newRefunded = Number(a.row.refunded_amount ?? 0) + a.pence / 100;
     const upd = await db.from("payments").update({
       refunded_amount: Number(newRefunded.toFixed(2)),
