@@ -71,6 +71,20 @@
       "when": 1793552166048,
       "tag": "0009_bookings_return_schedule",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1793552361593,
+      "tag": "0010_dispatch_payload_return_schedule",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1793552757247,
+      "tag": "0011_admin_save_settings_atomic",
+      "breakpoints": true
     }
   ]
 }

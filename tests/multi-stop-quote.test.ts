@@ -17,6 +17,8 @@ vi.mock("@tanstack/react-start/server", () => ({
   setResponseStatus: () => {},
 }));
 
+vi.mock("@/integrations/supabase/auth-middleware", () => ({ requireSupabaseAuth: {} }));
+
 // Pricing helpers — deterministic
 const PROFILE = {
   id: "p1",
@@ -46,6 +48,8 @@ vi.mock("@/lib/pricing-helpers.server", async () => {
     loadAreaSurcharges: async () => [],
     loadFixedPriceForRoute: async () => [],
     loadQuoteSettings: async () => ({ taxEnabled: false, taxRate: 0, taxLabel: "VAT", currency: "GBP", currencySymbol: "£" }),
+    loadRuleSets: async () => ({ ...actual.EMPTY_RULE_SETS }),
+    loadJourneyCoords: async () => new Map(),
   };
 });
 

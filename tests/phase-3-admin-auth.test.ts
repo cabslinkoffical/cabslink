@@ -56,7 +56,9 @@ describe("Phase 3 — dispatch delivery", () => {
     const src = read("src/lib/dispatch.server.ts");
     expect(src).toMatch(/AbortSignal\.timeout\(REQUEST_TIMEOUT_MS\)/);
     expect(src).toMatch(/REQUEST_TIMEOUT_MS = 10_000/);
-    expect(src).toMatch(/status: "sending"/);
+    // Atomic leased claim; completion writes are fenced to the claimed lease.
+    expect(src).toMatch(/claim_dispatch_event/);
+    expect(src).toMatch(/\.eq\("status", "sending"\)/);
     expect(src).toMatch(/notifyDispatchFailure/);
   });
 });

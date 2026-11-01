@@ -91,7 +91,7 @@ export const upsertPost = createServerFn({ method: "POST" })
       throw new Error("Replace every TODO in the comparison table with real figures before publishing.");
     }
     const { data: postId, error } = await context.supabase.rpc("admin_save_blog_post", {
-      p_id: id ?? null, p_post: payload, p_tag_ids: tag_ids,
+      p_id: (id ?? null) as string, p_post: payload, p_tag_ids: tag_ids,
     });
     if (error) throw new Error(error.message);
     if (!postId) throw new Error("Post save returned no ID");

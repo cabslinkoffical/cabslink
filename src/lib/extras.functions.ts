@@ -103,7 +103,7 @@ export const upsertExtra = createServerFn({ method: "POST" })
       .filter((c) => !row.applies_to_all_classes || class_prices?.[c] != null || class_max?.[c] != null)
       .map((c) => ({ vehicle_class_id: c, price_pence: class_prices?.[c] ?? null, max_quantity: class_max?.[c] ?? null }));
     const { data: extraId, error } = await context.supabase.rpc("admin_save_extra", {
-      p_id: id ?? null, p_extra: row, p_links: links,
+      p_id: (id ?? null) as string, p_extra: row, p_links: links,
     });
     if (error) throw new Error(error.message);
     if (!extraId) throw new Error("Extra save returned no ID");

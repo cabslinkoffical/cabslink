@@ -37,6 +37,7 @@ vi.mock("@/lib/pricing-helpers.server", async () => {
     loadAreaSurcharges: async () => [],
     loadFixedPriceForRoute: async () => [],
     loadRuleSets: async () => ({ ...actual.EMPTY_RULE_SETS }),
+    loadJourneyCoords: async () => new Map(),
     loadQuoteSettings: async () => ({ taxEnabled: false, taxRate: 0, taxLabel: "VAT", currency: "GBP", currencySymbol: "£" }),
   };
 });
@@ -46,22 +47,28 @@ vi.mock("@/lib/notifications.server", () => ({
   notifyAdminNewBooking: vi.fn(async () => {}),
 }));
 
-// Scenic helpers — deterministic thresholds, no POI fees, multi-stop total = £123.
-vi.mock("@/lib/scenic-quote.functions", () => ({
-  loadPoiFeesByPlaceId: async () => new Map(),
-  loadThresholds: async () => ({
-    sightseeingThresholdMinutes: 30,
-    tourThresholdMinutes: 120,
-    tourThresholdStops: 3,
-    includedStopMinutes: 15,
-    pricePerExtra15MinPence: 500,
-    maxSelectedStops: 8,
-  }),
-  calculateMultiStopQuote: async () => ({
-    template_id: null,
-    vehicles: [{ vehicle_id: "22222222-2222-2222-2222-222222222222", per_vehicle_total: 123 }],
-  }),
-}));
+// Scenic helpers — deterministic thresholds, no POI fees; stop charges add £93
+// so the stop-inclusive total is £30 fare + £93 = £123.
+vi.mock("@/lib/scenic-quote.functions", async () => {
+  const actual = await vi.importActual<any>("@/lib/scenic-quote.functions");
+  const thresholds = {
+    sightseeingThresholdMinutes: 30, tourThresholdMinutes: 120, tourThresholdStops: 3,
+    includedStopMinutes: 15, pricePerExtra15minPence: 500, maxSelectedStops: 8,
+  };
+  return {
+    ...actual,
+    loadPoiFeesByPlaceId: async () => new Map(),
+    loadThresholds: async () => thresholds,
+    computeStopEconomics: async () => ({
+      thresholds, poiFees: new Map(), direct: { miles: 18, minutes: 25 }, effective: { miles: 20, minutes: 30 },
+      drivingSeconds: 1800, plannedStopSeconds: 12000, totalJourneySeconds: 13800, detourMiles: 2, detourSeconds: 300,
+      classification: { service_type: "private_tour", reason: "long", attraction_stops: 1, planned_attraction_minutes: 200 },
+      template: null,
+      stopCharges: { addedTotal: 93, stopFeeTotal: 0, stopTimeTotal: 93, parkingTotal: 0, scenicFee: 0, breakdown: [] },
+      fingerprint: "f".repeat(64),
+    }),
+  };
+});
 
 const store = { inserts: [] as any[], refCounter: 0 };
 vi.mock("@/integrations/supabase/client.server", () => {
@@ -161,7 +168,7 @@ describe("createBooking — tour conversion + fingerprint enforcement", () => {
     } as any);
     expect(store.inserts).toHaveLength(1);
     const row = store.inserts[0];
-    // Scenic recompute mock returns 123 per vehicle * qty 1
+    // Shared pipeline: £30 rule-priced fare + £93 stop charges
     expect(row.price).toBe(123);
     expect(res.price).toBe(123);
     expect(row.service_type).toBe("private_tour");

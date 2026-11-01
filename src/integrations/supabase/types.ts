@@ -5023,6 +5023,10 @@ export type Database = {
         Args: { p_extra: Json; p_id: string; p_links: Json }
         Returns: string
       }
+      admin_save_settings: {
+        Args: { p_credentials: Json; p_settings: Json }
+        Returns: undefined
+      }
       claim_dispatch_event: { Args: never; Returns: Json }
       current_driver_id: { Args: never; Returns: string }
       dispatch_wake_delivery: { Args: never; Returns: undefined }

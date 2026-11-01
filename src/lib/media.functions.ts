@@ -224,7 +224,7 @@ export const deleteMedia = createServerFn({ method: "POST" })
     if (ownedPaths.length) {
       for (const path of ownedPaths) {
         const { error: rmErr } = await context.supabase.storage.from(MEDIA_BUCKET).remove([path]);
-        if (rmErr && !["NoSuchKey", "ObjectNotFound"].includes(rmErr.code) && String(rmErr.statusCode) !== "404") throw new Error(rmErr.message);
+        if (rmErr && !["NoSuchKey", "ObjectNotFound"].includes((rmErr as any).code) && String((rmErr as any).statusCode) !== "404") throw new Error(rmErr.message);
       }
     }
 

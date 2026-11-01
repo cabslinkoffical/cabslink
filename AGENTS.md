@@ -41,6 +41,10 @@
 - Shared quote-settings and rule loaders fail closed on query errors; authoritative quotes and new bookings must propagate that failure instead of substituting empty rules or zero settings.
 - Public layouts own editorial surface styling and the single closing FinalCta; homepage and About use BOOKING_STEPS so shared booking overviews cannot drift.
 - Customer submission tables accept inserts only from privileged server paths; coupon redemption is a service-role-only locking routine using the real redemption schema.
-- Shared card checkout and verification derive partial-payment balances from paginated settled payment rows, preserve staff cash entries and exclude recorded session replays from settling later amendments.
+- Booking payment state is derived from the payments ledger (amount minus refunded_amount over paid/partial/refunded rows) against the current fare via payment-ledger helpers; checkout, webhooks, cancellation refunds (spread across card charges) and amendment settlements all reconcile through it, staff cash rows are never deleted, and replayed sessions never rewrite ledger rows.
 - Dated tour bookings reserve capacity and insert in one service-role-only Postgres routine holding the vehicle-class row lock; tour quoting enforces class/template eligibility and rejects unresolved or unroutable stops.
-- Dispatch scheduler and receiver read their shared drain token from private settings instead of embedding credentials in function bodies or migrations.
+- Sightseeing-stop journeys use one pricing path (computeStopEconomics + priceStoppedVehicle) for quote and booking, so rules and coupons apply once and saved matches shown; stop-pricing failure blocks booking.
+- Journey coordinate lookups throw on failure; pricing fails closed only when an active radius rule needs coordinates, while suggestion features use the soft resolver.
+- Admin totals/lists/reports read complete data via fetchAllPages (stable order); revenue is net of refunds and dated by paid_at, else created_at, via shared revenue helpers.
+- Multi-table admin saves (settings + credentials, blog post + tags, extra + class links) run in one admin-checked Postgres function so a failed step leaves the previous configuration intact; omitted fields mean unchanged.
+- Dispatch drains claim one event at a time via a leased service-role function (expired leases reclaimed, completion writes fenced to the lease, stable event IDs); scheduler and receiver read the drain token from private settings, never code or migrations.
