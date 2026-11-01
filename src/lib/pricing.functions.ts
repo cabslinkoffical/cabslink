@@ -181,6 +181,34 @@ export function resolveForProfile(
 
 export { PRICING_RETRY_MESSAGE };
 
+/** Why the return schedule is invalid, or null. Exported for tests. */
+export function returnScheduleProblem(d: {
+  return_journey?: boolean; pickupDate: string; pickupTime: string;
+  returnDate?: string | null; returnTime?: string | null;
+}): string | null {
+  if (!d.return_journey) return null;
+  if (!d.returnDate || !d.returnTime) return "Please choose a date and time for your return journey.";
+  const out = `${d.pickupDate}T${d.pickupTime}`;
+  const back = `${d.returnDate}T${d.returnTime}`;
+  // Same-format ISO strings compare chronologically.
+  if (back <= out) return "Your return journey must be after your outbound pickup.";
+  return null;
+}
+
+/** Availability context for the return leg: reversed direction, return schedule. */
+export function returnLegContext(ctx: JourneyContext, returnDate: string, returnTime: string): JourneyContext {
+  return {
+    ...ctx,
+    pickupPlaceId: ctx.destinationPlaceId,
+    destinationPlaceId: ctx.pickupPlaceId,
+    pickupCoord: ctx.destinationCoord,
+    destinationCoord: ctx.pickupCoord,
+    date: returnDate,
+    time: returnTime,
+    isReturn: true,
+  };
+}
+
 /**
  * The one pricing path for journeys with stops, used by both the customer
  * quote and the booking re-check so the shown and saved totals match.
@@ -500,6 +528,9 @@ const createBookingInput = z
       .optional()
       .default([]),
     return_journey: z.boolean().optional().default(false),
+    /** Return leg schedule — required when return_journey is true. */
+    returnDate: z.string().trim().regex(/^\d{4}-\d{2}-\d{2}$/).optional().nullable(),
+    returnTime: z.string().trim().regex(/^\d{2}:\d{2}$/).optional().nullable(),
     cancellation_policy: z.enum(["standard", "non_refundable", "flexible"]).optional().default("standard"),
     templateSlug: z.string().trim().min(1).max(120).optional().nullable(),
     couponCode: z.string().trim().min(1).max(40).optional().nullable(),
@@ -537,10 +568,19 @@ export const createBooking = createServerFn({ method: "POST" })
       email: data.email,
       phone: data.phone,
       returnJourney: !!data.return_journey,
+      returnDate: data.returnDate ?? null,
+      returnTime: data.returnTime ?? null,
       meetGreet: !!data.meet_greet,
       childSeat: !!data.child_seat,
       childSeatCount: data.child_seat_count ?? 0,
     });
+
+    // Return leg schedule must exist and come after the outbound pickup.
+    const returnProblem = returnScheduleProblem(data);
+    if (returnProblem) {
+      try { setResponseStatus(400); } catch {}
+      throw new Error(returnProblem);
+    }
 
     // Idempotency: return existing booking ONLY if the request fingerprint
     // matches. A mismatched replay is refused with a generic conflict.
@@ -625,6 +665,16 @@ export const createBooking = createServerFn({ method: "POST" })
       console.warn("booking blocked by availability rule", verdict.adminReason);
       try { setResponseStatus(409); } catch {}
       throw new Error(verdict.message ?? "That vehicle isn't available for the selected journey.");
+    }
+    // The return leg is checked against availability for its own date, time
+    // and direction (destination back to pickup).
+    if (data.return_journey) {
+      const returnVerdict = resolveAvailability(auth.ruleSets.availabilityRules, returnLegContext(journeyCtx, data.returnDate!, data.returnTime!));
+      if (!returnVerdict.available) {
+        console.warn("booking blocked by availability rule (return leg)", returnVerdict.adminReason);
+        try { setResponseStatus(409); } catch {}
+        throw new Error(returnVerdict.message ?? "That vehicle isn't available for your return journey.");
+      }
     }
 
     // Coupon: validated server-side against the pre-VAT subtotal. Stacks with
@@ -929,6 +979,8 @@ export const createBooking = createServerFn({ method: "POST" })
       child_seat_count: recordedSeatCount,
       meet_greet: !!data.meet_greet,
       return_journey: !!data.return_journey,
+      return_date: data.return_journey ? data.returnDate ?? null : null,
+      return_time: data.return_journey ? data.returnTime ?? null : null,
       notes: notesWithQty,
       price,
       distance_miles: auth.distanceMiles,

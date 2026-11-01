@@ -562,6 +562,8 @@ function BookPage() {
           child_seat_count: childSeatCount,
           meet_greet: meetGreet,
           return_journey: returnJourney,
+          returnDate: returnJourney ? pre.rdate || null : null,
+          returnTime: returnJourney ? pre.rtime || null : null,
           cancellation_policy: policy,
           extras: addonLines.map((l) => ({ key: l.key, quantity: l.quantity })),
           templateSlug: pre.templateSlug || null,

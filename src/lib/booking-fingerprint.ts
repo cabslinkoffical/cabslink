@@ -19,6 +19,9 @@ export type BookingFingerprintInput = {
   email: string;
   phone: string;
   returnJourney: boolean;
+  /** Return leg schedule; only part of the fingerprint for return journeys. */
+  returnDate?: string | null;
+  returnTime?: string | null;
   meetGreet: boolean;
   childSeat: boolean;
   childSeatCount?: number;
@@ -46,6 +49,10 @@ export function canonicalizeBookingInput(i: BookingFingerprintInput): string {
     childSeat: !!i.childSeat,
     childSeatCount: Math.max(0, (i.childSeatCount ?? 0) | 0),
   };
+  // Added only for return journeys so one-way fingerprints stay unchanged.
+  if (i.returnJourney) {
+    Object.assign(obj, { returnDate: (i.returnDate ?? "").trim(), returnTime: (i.returnTime ?? "").trim() });
+  }
   return JSON.stringify(obj);
 }
 
