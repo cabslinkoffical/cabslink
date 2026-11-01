@@ -184,6 +184,7 @@ const stopped = {
   ...base,
   stops: [{ placeId: "ChIJ_stop", label: "Glencoe", minutes: 20, category: "attraction" }],
   routeMode: "scenic" as const,
+  tourConversionAckAt: "2026-07-01T00:00:00.000Z",
 };
 const nothingSaved = () => {
   expect(store.inserts).toHaveLength(0);
@@ -229,7 +230,7 @@ describe("B02 — stopped journeys use the shared rule pipeline", () => {
     expect(store.redemptions).toHaveLength(1);
   });
   it("plain via stops keep the per-stop via price shown on the standard quote", async () => {
-    const via = { ...base, stops: [{ placeId: "ChIJ_via", label: "Via" }] };
+    const via = { ...base, stops: [{ placeId: "ChIJ_via", label: "Via" }], tourConversionAckAt: "2026-07-01T00:00:00.000Z" };
     const quote = await calculateQuotes({ data: via } as any);
     const res = await createBooking({ data: via } as any);
     expect(res.price).toBe(quote.quotes[0].finalPrice);
