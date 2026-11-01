@@ -747,8 +747,10 @@ export const getReports = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => reportInput.parse(i))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    const fromD = new Date(data.from);
-    const toD = new Date(data.to);
+    // Date-only inputs cover whole days (inclusive) in UTC, matching Analytics.
+    const dateOnly = /^\d{4}-\d{2}-\d{2}$/;
+    const fromD = new Date(dateOnly.test(data.from) ? `${data.from}T00:00:00.000Z` : data.from);
+    const toD = new Date(dateOnly.test(data.to) ? `${data.to}T23:59:59.999Z` : data.to);
     const { fetchAllPages } = await import("@/lib/fetch-all-pages");
     const { netRevenue, revenueByBucket, settlementWindowFilter, SETTLED_PAYMENT_STATUSES } = await import("@/lib/revenue");
     const fromIso = fromD.toISOString();

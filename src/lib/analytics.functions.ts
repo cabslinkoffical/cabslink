@@ -8,6 +8,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import { fetchAllPages } from "@/lib/fetch-all-pages";
+import { SETTLED_PAYMENT_STATUSES, netRevenue, revenueByBucket, settlementWindowFilter } from "@/lib/revenue";
 
 const input = z.object({
   from: z.string().min(8),          // YYYY-MM-DD (inclusive)
@@ -55,38 +57,36 @@ export const getSiteAnalytics = createServerFn({ method: "POST" })
 
     const iso = (d: Date) => d.toISOString();
 
-    const [bRes, pbRes, payRes, prevPayRes, qRes, prevQRes, mRes, prevMRes] = await Promise.all([
-      supabase.from("bookings")
+    // Complete paginated reads with stable order: counts, totals and
+    // breakdowns never silently use a capped subset.
+    const page = <T,>(q: () => any) => fetchAllPages<T>((a, z) => q().order("id").range(a, z));
+    const settledPayments = (from: Date, to: Date) => page<any>(() => supabase.from("payments")
+      .select("id, amount, refunded_amount, status, paid_at, created_at")
+      .in("status", SETTLED_PAYMENT_STATUSES as unknown as string[])
+      .or(settlementWindowFilter(iso(from), iso(to))));
+    const [bookings, prevBookings, payments, prevPayments, quotes, prevQuotes, messages, prevMessages] = await Promise.all([
+      page<any>(() => supabase.from("bookings")
         .select("id, status, payment_status, service_type, vehicle_type, vehicle_class_name_snapshot, pickup_address, dropoff_address, price, created_at, quote_id")
-        .is("deleted_at", null).gte("created_at", iso(start)).lte("created_at", iso(end)),
-      supabase.from("bookings")
+        .is("deleted_at", null).gte("created_at", iso(start)).lte("created_at", iso(end))),
+      page<any>(() => supabase.from("bookings")
         .select("id, status, price, quote_id")
-        .is("deleted_at", null).gte("created_at", iso(prevStart)).lte("created_at", iso(prevEnd)),
-      supabase.from("payments").select("amount, status, paid_at, created_at")
-        .eq("status", "paid").gte("created_at", iso(start)).lte("created_at", iso(end)),
-      supabase.from("payments").select("amount, status, paid_at, created_at")
-        .eq("status", "paid").gte("created_at", iso(prevStart)).lte("created_at", iso(prevEnd)),
-      supabase.from("quote_calculations").select("id, final_price, created_at, final_service_type")
-        .gte("created_at", iso(start)).lte("created_at", iso(end)),
-      supabase.from("quote_calculations").select("id")
-        .gte("created_at", iso(prevStart)).lte("created_at", iso(prevEnd)),
-      supabase.from("contact_messages").select("id").gte("created_at", iso(start)).lte("created_at", iso(end)),
-      supabase.from("contact_messages").select("id").gte("created_at", iso(prevStart)).lte("created_at", iso(prevEnd)),
+        .is("deleted_at", null).gte("created_at", iso(prevStart)).lte("created_at", iso(prevEnd))),
+      // Revenue: selected, totalled and bucketed by settlement time (paid_at, else created_at).
+      settledPayments(start, end),
+      settledPayments(prevStart, prevEnd),
+      page<any>(() => supabase.from("quote_calculations").select("id, final_price, created_at, final_service_type")
+        .gte("created_at", iso(start)).lte("created_at", iso(end))),
+      page<any>(() => supabase.from("quote_calculations").select("id")
+        .gte("created_at", iso(prevStart)).lte("created_at", iso(prevEnd))),
+      page<any>(() => supabase.from("contact_messages").select("id").gte("created_at", iso(start)).lte("created_at", iso(end))),
+      page<any>(() => supabase.from("contact_messages").select("id").gte("created_at", iso(prevStart)).lte("created_at", iso(prevEnd))),
     ]);
-
-    const firstErr = [bRes, pbRes, payRes, prevPayRes, qRes, prevQRes, mRes, prevMRes].find(r => r.error)?.error;
-    if (firstErr) throw new Error(firstErr.message);
-
-    const bookings = bRes.data ?? [];
-    const prevBookings = pbRes.data ?? [];
-    const payments = payRes.data ?? [];
-    const prevPayments = prevPayRes.data ?? [];
-    const quotes = qRes.data ?? [];
-    const prevQuotes = prevQRes.data ?? [];
+    const mRes = { data: messages };
+    const prevMRes = { data: prevMessages };
 
     const num = (v: unknown) => Number(v ?? 0) || 0;
-    const revenue = payments.reduce((s, p) => s + num(p.amount), 0);
-    const prevRevenue = prevPayments.reduce((s, p) => s + num(p.amount), 0);
+    const revenue = Math.round(payments.reduce((s: number, p: any) => s + netRevenue(p), 0) * 100) / 100;
+    const prevRevenue = Math.round(prevPayments.reduce((s: number, p: any) => s + netRevenue(p), 0) * 100) / 100;
     const completed = bookings.filter(b => b.status === "completed").length;
     const prevCompleted = prevBookings.filter(b => b.status === "completed").length;
     const cancelled = bookings.filter(b => b.status === "cancelled" || b.status === "rejected").length;
@@ -115,7 +115,7 @@ export const getSiteAnalytics = createServerFn({ method: "POST" })
     };
     for (const b of bookings) touch(bucketOf(b.created_at, data.granularity)).bookings += 1;
     for (const q of quotes) touch(bucketOf(q.created_at, data.granularity)).quotes += 1;
-    for (const p of payments) touch(bucketOf(p.paid_at ?? p.created_at, data.granularity)).revenue += num(p.amount);
+    for (const [k, v] of revenueByBucket(payments, (t) => bucketOf(t, data.granularity))) touch(k).revenue += v;
     const series = Array.from(buckets.values()).sort((a, b) => a.date.localeCompare(b.date));
 
     // Breakdowns
