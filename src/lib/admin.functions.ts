@@ -994,23 +994,28 @@ export const updateBookingAmendment = createServerFn({ method: "POST" })
     if (data.status !== undefined) patch.status = data.status;
     if (data.refund_amount !== undefined) patch.refund_amount = data.refund_amount;
     if (data.admin_notes !== undefined) patch.admin_notes = data.admin_notes;
-    if (data.mark_paid) patch.top_up_paid_at = new Date().toISOString();
 
-    const { data: row, error } = await context.supabase
-      .from("booking_amendments")
-      .update(patch)
-      .eq("id", data.id)
-      .select("booking_ref")
-      .maybeSingle();
-    if (error) throw new Error(error.message);
+    if (Object.keys(patch).length) {
+      const { error } = await context.supabase
+        .from("booking_amendments")
+        .update(patch)
+        .eq("id", data.id)
+        .select("booking_ref")
+        .maybeSingle();
+      if (error) throw new Error(error.message);
+    }
 
-    // Settling a top-up or paying out a refund leaves the booking fully paid.
-    if ((data.mark_paid || data.status === "applied") && row?.booking_ref) {
-      const { error: bErr } = await context.supabase
-        .from("bookings")
-        .update({ payment_status: "paid" })
-        .eq("booking_ref", row.booking_ref);
-      if (bErr) throw new Error(`Request saved, but the booking payment status could not be updated: ${bErr.message}`);
+    // Money is recorded in the payments ledger; the booking's payment state is
+    // derived from what is actually held against the current fare.
+    if (data.mark_paid || data.status === "applied") {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { settleAmendmentPayment } = await import("@/lib/amendment-settlement.server");
+      try {
+        const res = await settleAmendmentPayment({ db: supabaseAdmin, amendmentId: data.id, markPaid: !!data.mark_paid, actorId: context.userId });
+        return { ok: true, recordedPence: res.recordedPence, paymentStatus: res.paymentStatus };
+      } catch (e) {
+        throw new Error(`Request saved, but the payment could not be settled: ${e instanceof Error ? e.message : String(e)}`);
+      }
     }
     return { ok: true };
   });
