@@ -17,6 +17,8 @@ vi.mock("@tanstack/react-start/server", () => ({
   setResponseStatus: () => {},
 }));
 
+vi.mock("@/integrations/supabase/auth-middleware", () => ({ requireSupabaseAuth: {} }));
+
 // Pricing helpers — deterministic
 const PROFILE = {
   id: "p1",
