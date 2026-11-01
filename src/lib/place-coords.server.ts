@@ -102,3 +102,16 @@ export async function resolveCoords(
 
   return out;
 }
+
+/**
+ * Best-effort variant for suggestions only (nearby stops, template hints):
+ * a lookup failure means "no suggestions", never a price.
+ */
+export async function resolveCoordsSoft(client: MinimalClient, placeIds: string[]): Promise<Map<string, Coord>> {
+  try {
+    return await resolveCoords(client, placeIds);
+  } catch (err) {
+    console.warn("place coordinate lookup failed (suggestions skipped):", (err as Error)?.message);
+    return new Map();
+  }
+}

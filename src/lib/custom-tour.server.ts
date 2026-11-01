@@ -15,7 +15,7 @@ import { sanitizeSearchTerm } from "@/lib/search-sanitize";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { getPublishedTourBySlugImpl, type PublicTourDetail } from "@/lib/tours.functions";
-import { resolveCoords } from "@/lib/place-coords.server";
+import { resolveCoords, resolveCoordsSoft } from "@/lib/place-coords.server";
 
 function serverPublicClient() {
   const key = process.env.SUPABASE_PUBLISHABLE_KEY!;
@@ -89,7 +89,7 @@ export async function matchTourByRouteImpl(
       ids.add(r.origin_place_id);
       ids.add(r.destination_place_id);
     }
-    const coords = await resolveCoords(client as never, Array.from(ids));
+    const coords = await resolveCoordsSoft(client as never, Array.from(ids));
     const from = coords.get(pickupPlaceId);
     const to = coords.get(destinationPlaceId);
     if (from && to) {

@@ -5,7 +5,7 @@
  * pure engine in `tour-quote.ts`.
  */
 import { computeRoute } from "@/lib/route-distance.server";
-import { resolveCoords } from "@/lib/place-coords.server";
+import { resolveCoords, resolveCoordsSoft } from "@/lib/place-coords.server";
 import {
   buildQuote,
   addHoursOptions,
@@ -177,7 +177,9 @@ export async function measureLoop(input: {
   const { startPlaceId, endPlaceId, stopPlaceIds } = input;
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const ids = [startPlaceId, ...stopPlaceIds, endPlaceId];
-  const coords = await resolveCoords(supabaseAdmin as any, ids);
+  const coords = await resolveCoords(supabaseAdmin as any, ids).catch(() => {
+    throw new Error("We couldn't route every stop on this tour. Please check your stops, try again or call us.");
+  });
   if (ids.some((id) => {
     const coord = coords.get(id);
     return !coord || !Number.isFinite(coord.lat) || !Number.isFinite(coord.lng);
@@ -373,7 +375,7 @@ export async function tourPoiSuggestionsImpl(args: {
     .limit(500);
 
   const pois = ((rows.data ?? []) as any[]).filter((p) => p.place_id);
-  const coords = await resolveCoords(supabaseAdmin as any, [args.startPlaceId]);
+  const coords = await resolveCoordsSoft(supabaseAdmin as any, [args.startPlaceId]);
   const from = coords.get(args.startPlaceId);
 
   const mapped: any[] = pois.map((p) => {
