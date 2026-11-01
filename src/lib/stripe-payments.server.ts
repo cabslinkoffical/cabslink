@@ -368,16 +368,13 @@ export async function applyPaidSession(
   const upd = bookingUpdateForPayment(b, check.pence);
   if (upd?.payment_status) {
     // Derive from the money actually held against the current fare.
-    const ledger = recordedSettled ? payments : [...payments, { amount: check.pence / 100, status: "paid" }];
+    const ledger: LedgerRow[] = recordedSettled ? payments : [...payments, { amount: check.pence / 100, status: "paid" }];
     upd.payment_status = derivePaymentStatus(bookingAmountPence(b) ?? check.pence, ledger);
     if (upd.payment_status === b.payment_status) delete upd.payment_status;
-    if (!Object.keys(upd).length) {
-      return { applied: true, bookingId: b.id, status: b.status, paymentStatus: b.payment_status };
-    }
   }
   let status = b.status;
   let paymentStatus = b.payment_status;
-  if (upd) {
+  if (upd && Object.keys(upd).length) {
     let q = deps.db.from("bookings").update(upd).eq("id", b.id);
     // Guard against a concurrent status change between read and write.
     if (upd.status) q = q.in("status", CONFIRMABLE_FROM_STATUSES as unknown as string[]);
