@@ -20,15 +20,7 @@ import { z } from "zod";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { placeIdSchema, placeLabelSchema } from "@/lib/place-id";
-import {
-  publicClient,
-  loadActiveProfiles,
-  loadAreaSurcharges,
-  loadFixedPriceForRoute,
-  loadQuoteSettings,
-  computeVehicleQuote,
-  realDistanceMiles,
-} from "@/lib/pricing-helpers.server";
+import { realDistanceMiles } from "@/lib/pricing-helpers.server";
 import { computeStopCharges, ENGINE_VERSION, type BreakdownLine } from "@/lib/pricing";
 import { classifyService, type ClassificationStop } from "@/lib/classification";
 import { stopsFingerprint } from "@/lib/stops-fingerprint";
