@@ -781,7 +781,7 @@ export const getReports = createServerFn({ method: "POST" })
       fetchAllPages<any>((a, z) => context.supabase.from("bookings").select("id, status, vehicle_type, pickup_address, dropoff_address, price, created_at, pickup_date").is("deleted_at", null).gte("created_at", fromIso).lte("created_at", toIso).order("id").range(a, z)),
       // Revenue is selected by settlement time — the same timestamp used for its buckets.
       fetchAllPages<any>((a, z) => context.supabase.from("payments").select("id, amount, refunded_amount, status, paid_at, created_at")
-        .in("status", SETTLED_PAYMENT_STATUSES as unknown as string[])
+        .in("status", SETTLED_PAYMENT_STATUSES as unknown as ("paid" | "partial" | "refunded")[])
         .or(settlementWindowFilter(fromIso, toIso)).order("id").range(a, z)),
     ]);
 

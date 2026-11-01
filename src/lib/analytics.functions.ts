@@ -62,7 +62,7 @@ export const getSiteAnalytics = createServerFn({ method: "POST" })
     const page = <T,>(q: () => any) => fetchAllPages<T>((a, z) => q().order("id").range(a, z));
     const settledPayments = (from: Date, to: Date) => page<any>(() => supabase.from("payments")
       .select("id, amount, refunded_amount, status, paid_at, created_at")
-      .in("status", SETTLED_PAYMENT_STATUSES as unknown as string[])
+      .in("status", SETTLED_PAYMENT_STATUSES as unknown as ("paid" | "partial" | "refunded")[])
       .or(settlementWindowFilter(iso(from), iso(to))));
     const [bookings, prevBookings, payments, prevPayments, quotes, prevQuotes, messages, prevMessages] = await Promise.all([
       page<any>(() => supabase.from("bookings")
