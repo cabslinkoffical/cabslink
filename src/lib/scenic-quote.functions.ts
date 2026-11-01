@@ -28,6 +28,7 @@ import { checkLimit } from "@/lib/rate-limit.server";
 import { findMatchingTemplate } from "@/lib/pois.functions";
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
+const STOP_PRICING_RETRY = "We couldn't price this right now, please try again or call us.";
 
 const routeModeSchema = z.enum(["direct", "scenic", "optimised"]);
 
@@ -105,10 +106,12 @@ function serverPublicClient() {
 export async function loadPoiFeesByPlaceId(placeIds: string[]) {
   if (placeIds.length === 0) return new Map<string, { stop_fee_pence: number; parking_fee_pence: number; category: string }>();
   const client = serverPublicClient();
-  const { data } = await client
+  const { data, error } = await client
     .from("points_of_interest")
     .select("place_id, stop_fee_pence, parking_fee_pence, category, active")
     .in("place_id", placeIds);
+  // Never price stops as free because the fee lookup failed.
+  if (error) throw new Error(STOP_PRICING_RETRY);
   const out = new Map<string, { stop_fee_pence: number; parking_fee_pence: number; category: string }>();
   for (const row of (data ?? []) as any[]) {
     if (!row.active) continue;
@@ -123,13 +126,14 @@ export async function loadPoiFeesByPlaceId(placeIds: string[]) {
 
 export async function loadThresholds() {
   const client = serverPublicClient();
-  const { data } = await client
+  const { data, error } = await client
     .from("site_settings_public" as any)
     .select(
       "sightseeing_threshold_minutes, tour_threshold_minutes, tour_threshold_stops, included_stop_minutes, price_per_extra_15min_pence, max_selected_stops",
     )
     .eq("id", 1)
     .maybeSingle();
+  if (error) throw new Error(STOP_PRICING_RETRY);
   const r: any = data ?? {};
   return {
     sightseeingThresholdMinutes: Number(r.sightseeing_threshold_minutes ?? 30),
