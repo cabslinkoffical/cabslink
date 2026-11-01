@@ -90,6 +90,8 @@ export const upsertExtra = createServerFn({ method: "POST" })
     const { id, class_ids, class_prices, class_max, ...row } = data;
     if (id) {
       const cur = await context.supabase.from("extras").select("key").eq("id", id).maybeSingle();
+      if (cur.error) throw new Error(cur.error.message);
+      if (!cur.data) throw new Error("Extra not found");
       const fixed = cur.data ? FIXED_EXTRAS[cur.data.key as string] : undefined;
       if (fixed) {
         row.key = cur.data!.key as string;
@@ -97,31 +99,14 @@ export const upsertExtra = createServerFn({ method: "POST" })
         if (!fixed.bases.includes(row.price_basis)) row.price_basis = fixed.bases[0] as typeof row.price_basis;
       }
     }
-    const res = id
-      ? await context.supabase.from("extras").update(row).eq("id", id).select("id").single()
-      : await context.supabase.from("extras").insert(row).select("id").single();
-    if (res.error) throw new Error(res.error.message);
-    const extraId = res.data.id as string;
-
-    if (class_ids) {
-      const del = await context.supabase.from("extra_vehicle_classes").delete().eq("extra_id", extraId);
-      if (del.error) throw new Error(del.error.message);
-      // "All classes" extras keep a link row only where a class has its own price or limit.
-      const ids = row.applies_to_all_classes
-        ? class_ids.filter((c) => class_prices?.[c] != null || class_max?.[c] != null)
-        : class_ids;
-      if (ids.length) {
-        const ins = await context.supabase
-          .from("extra_vehicle_classes")
-          .insert(ids.map((c) => ({
-            extra_id: extraId,
-            vehicle_class_id: c,
-            price_pence: class_prices?.[c] ?? null,
-            max_quantity: class_max?.[c] ?? null,
-          })));
-        if (ins.error) throw new Error(ins.error.message);
-      }
-    }
+    const links = class_ids === undefined ? null : [...new Set(class_ids)]
+      .filter((c) => !row.applies_to_all_classes || class_prices?.[c] != null || class_max?.[c] != null)
+      .map((c) => ({ vehicle_class_id: c, price_pence: class_prices?.[c] ?? null, max_quantity: class_max?.[c] ?? null }));
+    const { data: extraId, error } = await context.supabase.rpc("admin_save_extra", {
+      p_id: id ?? null, p_extra: row, p_links: links,
+    });
+    if (error) throw new Error(error.message);
+    if (!extraId) throw new Error("Extra save returned no ID");
     return { id: extraId };
   });
 

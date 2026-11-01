@@ -63,7 +63,8 @@ async function scanUsage(supabase: any, url: string): Promise<MediaUsage[]> {
   await Promise.all(
     USAGE_MAP.map(async (m) => {
       const { data, error } = await supabase.from(m.table).select(`id, ${m.titleCol}`).eq(m.column, url).limit(25);
-      if (error || !data) return;
+      if (error) throw new Error(`Usage scan failed for ${m.table}.${m.column}: ${error.message}`);
+      if (!data) throw new Error("Usage scan returned no data");
       for (const row of data as any[]) {
         found.push({ table: m.table, column: m.column, label: m.label, title: String(row[m.titleCol] ?? "Untitled"), id: row.id });
       }
@@ -202,12 +203,18 @@ export const deleteMedia = createServerFn({ method: "POST" })
       }
       for (const u of usage) {
         const map = USAGE_MAP.find((m) => m.table === u.table && m.column === u.column)!;
-        await (context.supabase as any)
+        const { data: updated, error: updateError } = await (context.supabase as any)
           .from(u.table)
           .update({ [u.column]: map.nullable ? null : "" })
-          .eq("id", u.id);
+          .eq("id", u.id).eq(u.column, a.url).select("id");
+        if (updateError) throw new Error(updateError.message);
+        if (!updated?.length) throw new Error("Reference changed during deletion; retry safely");
         cleared++;
       }
+    }
+
+    for (const a of assets) {
+      if ((await scanUsage(context.supabase, a.url)).length) throw new Error("References remain; storage was not removed");
     }
 
     // Entries indexed from other buckets / external URLs have no object in the media bucket.
@@ -215,8 +222,10 @@ export const deleteMedia = createServerFn({ method: "POST" })
       .filter((a) => a.source_kind === "upload")
       .map((a) => a.path);
     if (ownedPaths.length) {
-      const { error: rmErr } = await context.supabase.storage.from(MEDIA_BUCKET).remove(ownedPaths);
-      if (rmErr) throw new Error(rmErr.message);
+      for (const path of ownedPaths) {
+        const { error: rmErr } = await context.supabase.storage.from(MEDIA_BUCKET).remove([path]);
+        if (rmErr && !["NoSuchKey", "ObjectNotFound"].includes(rmErr.code) && String(rmErr.statusCode) !== "404") throw new Error(rmErr.message);
+      }
     }
 
     const { error: delErr } = await context.supabase.from("media_assets").delete().in(

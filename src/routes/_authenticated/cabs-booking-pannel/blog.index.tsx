@@ -23,7 +23,12 @@ function AdminBlogList() {
   const qc = useQueryClient();
   const router = useRouter();
   const [search, setSearch] = useState("");
-  const { data = [], isLoading } = useQuery({ queryKey: ["admin", "blog", "posts"], queryFn: () => listAdminPosts() });
+  const [offset, setOffset] = useState(0);
+  const limit = 25;
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["admin", "blog", "posts", search, offset],
+    queryFn: () => listAdminPosts({ data: { search, offset, limit } }),
+  });
 
   const del = useMutation({
     mutationFn: (id: string) => deletePost({ data: { id } }),
@@ -31,9 +36,7 @@ function AdminBlogList() {
     onError: (e: any) => toast.error(e.message ?? "Failed to delete"),
   });
 
-  const filtered = (data as any[]).filter((r) =>
-    !search || r.title?.toLowerCase().includes(search.toLowerCase()) || r.slug?.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = data?.items ?? [];
 
   return (
     <div>
@@ -47,10 +50,10 @@ function AdminBlogList() {
       </PageHeader>
 
       <div className="mb-4 max-w-sm">
-        <Input placeholder="Search title or slug…" value={search} onChange={(e) => setSearch(e.target.value)} />
+        <Input placeholder="Search title or slug…" value={search} onChange={(e) => { setSearch(e.target.value); setOffset(0); }} />
       </div>
 
-      {isLoading ? (
+      {error ? <div role="alert">{error.message}</div> : isLoading ? (
         <div className="text-sm text-muted-foreground">Loading…</div>
       ) : filtered.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
@@ -100,6 +103,11 @@ function AdminBlogList() {
           </table>
         </div>
       )}
+      <div className="mt-4 flex items-center gap-3">
+        <Button variant="outline" disabled={offset === 0 || isLoading} onClick={() => setOffset(Math.max(0, offset - limit))}>Previous</Button>
+        <span>{data?.total ?? 0} posts · Page {Math.floor(offset / limit) + 1}</span>
+        <Button variant="outline" disabled={isLoading || offset + limit >= (data?.total ?? 0)} onClick={() => setOffset(offset + limit)}>Next</Button>
+      </div>
     </div>
   );
 }
