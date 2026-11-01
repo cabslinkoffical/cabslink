@@ -63,7 +63,7 @@ type AuthoritativeInput = {
   isReturn?: boolean;
 };
 
-type AuthoritativeQuote = {
+export type AuthoritativeQuote = {
   distanceMiles: number;
   durationMinutes: number;
   areaSurcharges: AreaSurcharge[];
@@ -79,7 +79,7 @@ type AuthoritativeQuote = {
   input: AuthoritativeInput;
 };
 
-async function computeAuthoritative(inp: AuthoritativeInput): Promise<AuthoritativeQuote> {
+export async function computeAuthoritative(inp: AuthoritativeInput): Promise<AuthoritativeQuote> {
   const client = publicClient();
   const coordsP = loadJourneyCoords(client, [inp.pickupPlaceId, inp.destinationPlaceId]);
   coordsP.catch(() => {});
@@ -146,7 +146,11 @@ function journeyContext(auth: AuthoritativeQuote, profile: LoadedProfile): Journ
  * from the pre-discount engine subtotal, which is why we run the engine
  * twice: once to size percentage discounts, once for the final number.
  */
-function resolveForProfile(auth: AuthoritativeQuote, profile: LoadedProfile): { resolved: ResolvedRules; ctx: JourneyContext } {
+export function resolveForProfile(
+  auth: AuthoritativeQuote,
+  profile: LoadedProfile,
+  viaStops: number = auth.input.stops.length,
+): { resolved: ResolvedRules; ctx: JourneyContext } {
   const ctx = journeyContext(auth, profile);
   const legacyFixed = auth.fixedByVehicle.get(profile.vehicle.id) ?? auth.fixedAny ?? null;
 
@@ -155,7 +159,7 @@ function resolveForProfile(auth: AuthoritativeQuote, profile: LoadedProfile): { 
   const probe = computeVehicleQuote({
     profile,
     distanceMiles: auth.distanceMiles,
-    viaStops: auth.input.stops.length,
+    viaStops,
     pickupTime: auth.input.pickupTime,
     areaSurcharges: auth.areaSurcharges,
     fixedPrice: legacyFixed,
@@ -173,6 +177,53 @@ function resolveForProfile(auth: AuthoritativeQuote, profile: LoadedProfile): { 
     legacyFixedPrice: legacyFixed,
   });
   return { resolved, ctx };
+}
+
+export { PRICING_RETRY_MESSAGE };
+
+/**
+ * The one pricing path for journeys with stops, used by both the customer
+ * quote and the booking re-check so the shown and saved totals match.
+ * Every rule stage (fixed route, location price, surcharges, modifiers,
+ * discounts) and any coupon are applied once by the shared engine on the
+ * with-stops distance; stop economics (stop / parking / waiting / scenic
+ * fees) are then added once per vehicle. Stop economics replace the
+ * per-stop via price, exactly as before.
+ */
+export function priceStoppedVehicle(args: {
+  auth: AuthoritativeQuote;
+  profile: LoadedProfile;
+  stopAddedPerVehicle: number;
+  qty: number;
+  couponCode?: string | null;
+  couponDiscount?: number;
+}) {
+  const { auth, profile, qty } = args;
+  const fixed = auth.fixedByVehicle.get(profile.vehicle.id) ?? auth.fixedAny;
+  const { resolved, ctx } = resolveForProfile(auth, profile, 0);
+  const q = computeVehicleQuote({
+    profile,
+    distanceMiles: auth.distanceMiles,
+    viaStops: 0,
+    pickupTime: auth.input.pickupTime,
+    areaSurcharges: auth.areaSurcharges,
+    fixedPrice: fixed ?? null,
+    settings: auth.settings,
+    vehicleCount: qty,
+    serviceType: auth.input.serviceType,
+    resolved,
+    couponCode: args.couponCode ?? null,
+    couponDiscount: args.couponDiscount ?? 0,
+  });
+  const r2 = (n: number) => Math.round(n * 100) / 100;
+  const add = r2(Math.max(0, args.stopAddedPerVehicle));
+  return {
+    q,
+    resolved,
+    ctx,
+    perVehicle: r2(q.perVehicleTotal + add),
+    total: r2(q.finalTotal + add * qty),
+  };
 }
 
 /**
