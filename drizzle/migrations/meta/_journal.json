@@ -50,6 +50,13 @@
       "when": 1793172292215,
       "tag": "0006_dispatch_scheduler_private_token",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793551302215,
+      "tag": "0007_atomic_blog_extra_saves_and_dispatch_lease",
+      "breakpoints": true
     }
   ]
 }
