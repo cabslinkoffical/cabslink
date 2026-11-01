@@ -673,7 +673,9 @@ export type Database = {
           quote_id: string | null
           quoted_total: number | null
           reconciliation_status: string | null
+          return_date: string | null
           return_journey: boolean
+          return_time: string | null
           route_legs: Json
           scenic_template_id: string | null
           selected_pois: Json
@@ -759,7 +761,9 @@ export type Database = {
           quote_id?: string | null
           quoted_total?: number | null
           reconciliation_status?: string | null
+          return_date?: string | null
           return_journey?: boolean
+          return_time?: string | null
           route_legs?: Json
           scenic_template_id?: string | null
           selected_pois?: Json
@@ -845,7 +849,9 @@ export type Database = {
           quote_id?: string | null
           quoted_total?: number | null
           reconciliation_status?: string | null
+          return_date?: string | null
           return_journey?: boolean
+          return_time?: string | null
           route_legs?: Json
           scenic_template_id?: string | null
           selected_pois?: Json
