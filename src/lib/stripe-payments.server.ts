@@ -1,5 +1,12 @@
 import type Stripe from "stripe";
 import type { StripeEnv } from "@/lib/stripe.server";
+import {
+  SETTLED_PAYMENT_STATUSES,
+  derivePaymentStatus,
+  netCollectedPence,
+  type DerivedPaymentStatus,
+  type LedgerRow,
+} from "@/lib/payment-ledger";
 
 /**
  * Server-only payment rules for Cabslink card checkout.
@@ -153,25 +160,34 @@ export async function findBookingByRef(db: any, ref: string): Promise<BookingFor
   return res.data as BookingForPayment;
 }
 
-/** Read every settled payment, including staff-entered cash. Never guess on errors. */
-export async function paidPayments(db: any, bookingId: string): Promise<Array<{ amount: number | string; reference: string | null }>> {
-  const rows: Array<{ amount: number | string; reference: string | null }> = [];
+/**
+ * Read every payment that collected money — paid, partly refunded or refunded —
+ * including staff-entered cash. Never guess on errors.
+ */
+export async function paidPayments(db: any, bookingId: string): Promise<LedgerRow[]> {
+  const rows: LedgerRow[] = [];
+  const fail = () => new Error("We couldn't check your payment balance. Please try again or call us.");
   for (let offset = 0; ; offset += 1000) {
-    const result = await db.from("payments").select("id, amount, reference")
-      .eq("booking_id", bookingId).eq("status", "paid").order("id").range(offset, offset + 999);
-    if (result.error || !Array.isArray(result.data)) throw new Error("We couldn't check your payment balance. Please try again or call us.");
+    const result = await db.from("payments")
+      .select("id, amount, refunded_amount, status, reference, method, payment_intent_id, environment, created_at")
+      .eq("booking_id", bookingId).in("status", SETTLED_PAYMENT_STATUSES as unknown as string[])
+      .order("id").range(offset, offset + 999);
+    if (result.error || !Array.isArray(result.data)) throw fail();
     for (const row of result.data) {
-      if (!Number.isFinite(Number(row.amount)) || Number(row.amount) < 0) throw new Error("We couldn't check your payment balance. Please try again or call us.");
+      if (!Number.isFinite(Number(row.amount)) || Number(row.amount) < 0) throw fail();
+      if (row.refunded_amount != null && (!Number.isFinite(Number(row.refunded_amount)) || Number(row.refunded_amount) < 0)) throw fail();
       rows.push(row);
     }
     if (result.data.length < 1000) return rows;
   }
 }
+export const settledPayments = paidPayments;
 
-export function outstandingPence(booking: BookingForPayment, payments: Array<{ amount: number | string }>): number | null {
+/** Fare still owed after the money actually held (payments minus refunds). */
+export function outstandingPence(booking: BookingForPayment, payments: LedgerRow[]): number | null {
   const fare = bookingAmountPence(booking);
   if (fare == null) return null;
-  return Math.max(0, fare - payments.reduce((sum, row) => sum + Math.round(Number(row.amount) * 100), 0));
+  return Math.max(0, fare - netCollectedPence(payments));
 }
 
 export async function payableBookingPence(db: any, booking: BookingForPayment): Promise<number | null> {
@@ -179,6 +195,23 @@ export async function payableBookingPence(db: any, booking: BookingForPayment): 
   return booking.payment_status === "partial"
     ? outstandingPence(booking, await paidPayments(db, booking.id))
     : bookingAmountPence(booking);
+}
+
+/**
+ * Re-derive a booking's payment_status from its ledger and current fare and
+ * save it when it changed. Throws when the ledger cannot be read or written.
+ */
+export async function reconcileBookingPaymentStatus(db: any, bookingId: string): Promise<DerivedPaymentStatus | null> {
+  const res = await db.from("bookings").select(BOOKING_COLUMNS).eq("id", bookingId).maybeSingle();
+  if (res.error) throw new Error(res.error.message);
+  if (!res.data) return null;
+  const booking = res.data as BookingForPayment;
+  const derived = derivePaymentStatus(bookingAmountPence(booking), await paidPayments(db, bookingId));
+  if (derived !== booking.payment_status) {
+    const upd = await db.from("bookings").update({ payment_status: derived }).eq("id", bookingId);
+    if (upd?.error) throw new Error(upd.error.message);
+  }
+  return derived;
 }
 
 export async function logPaymentActivity(
