@@ -90,13 +90,14 @@ function ContactPage() {
         email: "Enter a valid email address.",
         message: "Tell us how we can help (at least 10 characters).",
       }));
-      focusFirstInvalid(e.currentTarget);
+      focusFirstInvalid(form);
       return;
     }
     setErrors({});
     if (!captcha.ready) { toast.error("Please complete the security check below."); return; }
     inflight.current = true;
     setLoading(true);
+    let sent = false;
     try {
       await submit({
         data: {
@@ -109,11 +110,25 @@ function ContactPage() {
           captchaToken: captcha.token,
         },
       });
-      trackEvent("generate_lead", { form_name: "contact" });
-      toast.success("Message sent — we'll respond shortly.");
-      (e.currentTarget as HTMLFormElement).reset();
-      setPhone("");
+      sent = true;
+    } catch (err) {
       captcha.reset();
+      toast.error(err instanceof Error ? err.message : "Could not send. Please try again.");
+    } finally {
+      setLoading(false);
+      inflight.current = false;
+    }
+    if (!sent) return;
+    // Post-success clean-up runs outside the try so it can never trigger
+    // a contradictory failure toast after the message was accepted.
+    toast.success("Message sent — we'll respond shortly.");
+    try { trackEvent("generate_lead", { form_name: "contact" }); } catch {}
+    try { form.reset(); } catch {}
+    setPhone("");
+    captcha.reset();
+  };
+  const _unused = () => {
+    try {
     } catch (err) {
       captcha.reset();
       toast.error(err instanceof Error ? err.message : "Could not send. Please try again.");
