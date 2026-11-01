@@ -338,7 +338,7 @@ function BookPage() {
     queryKey: [
       "quotes",
       pre.pickup?.placeId, pre.dropoff?.placeId,
-      pre.passengers, pre.luggage, pre.time,
+      pre.passengers, pre.luggage, pre.date, pre.time,
       pre.stops.map((s) => s.placeId).join(","),
     ],
     queryFn: () =>
@@ -412,7 +412,7 @@ function BookPage() {
     enabled: hasValidRoute && orderedSelected.length > 0,
     queryKey: [
       "multi-stop-quote",
-      pre.pickup?.placeId, pre.dropoff?.placeId, routeMode,
+      pre.pickup?.placeId, pre.dropoff?.placeId, routeMode, pre.date, pre.time,
       orderedSelected.map((s) => `${s.place_id}:${s.minutes}`).join("|"),
     ],
     queryFn: () =>
@@ -423,6 +423,7 @@ function BookPage() {
           destination_place_id: pre.dropoff!.placeId,
           destination_label: pre.dropoff!.label,
           pickup_time: pre.time,
+          pickup_date: /^\d{4}-\d{2}-\d{2}$/.test(pre.date) ? pre.date : undefined,
           stops: orderedSelected,
           route_mode: routeMode,
         },

@@ -610,9 +610,12 @@ export const createBooking = createServerFn({ method: "POST" })
     }
 
     const fixed = auth.fixedByVehicle.get(profile.vehicle.id) ?? auth.fixedAny;
-    // Journeys with stops are priced by stop economics instead of per-stop
-    // via prices (same rule as the customer quote).
-    const hasStops = data.stops.length > 0;
+    // Sightseeing stops (chosen points of interest with a route mode or
+    // planned time) are priced by stop economics, exactly as the customer's
+    // multi-stop quote; plain via stops keep the per-stop via price shown on
+    // the standard quote. Either way the saved fare matches what was shown.
+    const hasStops = data.stops.length > 0
+      && (data.routeMode != null || data.stops.some((s) => (s.minutes ?? 0) > 0 || !!s.category));
     const pricingViaStops = hasStops ? 0 : data.stops.length;
     const { resolved, ctx: journeyCtx } = resolveForProfile(auth, profile, pricingViaStops);
 
