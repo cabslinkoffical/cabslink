@@ -880,39 +880,21 @@ export const updateCancellationRequest = createServerFn({ method: "POST" })
     });
     if (decision.error) throw new Error(decision.error);
 
-    // 1. Refund the card through Stripe when the decision is "refunded".
+    // 1. Refund the card(s) through Stripe when the decision is "refunded".
     let refundNote: string | null = null;
     if (decision.issueRefund && booking) {
-      const pay: any = await supabaseAdmin
-        .from("payments")
-        .select("id, payment_intent_id, environment, status")
-        .eq("booking_id", booking.id)
-        .not("payment_intent_id", "is", null)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      const pence = Math.round(decision.refundAmount * 100);
-      if (pay.data?.payment_intent_id && pence > 0) {
-        const { createStripeClient, getStripeErrorMessage } = await import("@/lib/stripe.server");
-        try {
-          const stripe = createStripeClient((pay.data.environment === "sandbox" ? "sandbox" : "live") as any);
-          const refund = await stripe.refunds.create(
-            { payment_intent: pay.data.payment_intent_id, amount: pence },
-            { idempotencyKey: `cancel-${req.id}-${pence}` },
-          );
-          refundNote = `Stripe refund ${refund.id} for £${decision.refundAmount.toFixed(2)}`;
-        } catch (e) {
-          throw new Error(`Stripe refund failed: ${getStripeErrorMessage(e)}`);
-        }
-        await supabaseAdmin.from("payments")
-          .update({ status: decision.fullRefund ? "refunded" : "partial", processor_status: decision.fullRefund ? "refunded" : "partially_refunded" } as any)
-          .eq("id", pay.data.id);
-      } else {
-        refundNote = `Refund of £${decision.refundAmount.toFixed(2)} recorded (no card payment on file — pay back manually)`;
-      }
-      await supabaseAdmin.from("bookings")
-        .update({ payment_status: decision.fullRefund ? "refunded" : "partial" } as any)
-        .eq("id", booking.id);
+      const { issueCancellationRefund } = await import("@/lib/cancellation-refunds.server");
+      const { createStripeClient, getStripeErrorMessage } = await import("@/lib/stripe.server");
+      const result = await issueCancellationRefund({
+        db: supabaseAdmin,
+        requestId: req.id,
+        bookingId: booking.id,
+        refundPence: Math.round(decision.refundAmount * 100),
+        actorId: context.userId,
+        stripeFor: (env) => createStripeClient(env as any),
+        stripeErrorMessage: getStripeErrorMessage,
+      });
+      refundNote = result.note;
     }
 
     // 2. Cancel the booking itself through the audited status function.
