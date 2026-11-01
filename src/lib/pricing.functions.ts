@@ -19,6 +19,8 @@ import {
   loadQuoteSettings,
   loadRuleSets,
   loadJourneyCoords,
+  journeyCoordsForRules,
+  PRICING_RETRY_MESSAGE,
   resolveRulesForVehicle,
   computeVehicleQuote,
   type LoadedProfile,
@@ -79,7 +81,9 @@ type AuthoritativeQuote = {
 
 async function computeAuthoritative(inp: AuthoritativeInput): Promise<AuthoritativeQuote> {
   const client = publicClient();
-  const [distance, profiles, areaSurcharges, fixed, settings, ruleSets, coords, extrasCatalogue] = await Promise.all([
+  const coordsP = loadJourneyCoords(client, [inp.pickupPlaceId, inp.destinationPlaceId]);
+  coordsP.catch(() => {});
+  const [distance, profiles, areaSurcharges, fixed, settings, ruleSets, extrasCatalogue] = await Promise.all([
     realDistanceMiles(inp.pickupPlaceId, inp.destinationPlaceId, inp.stops.map((s) => s.placeId)),
     loadActiveProfiles(client),
     loadAreaSurcharges(client, inp.pickupLabel, inp.destinationLabel, {
@@ -89,12 +93,13 @@ async function computeAuthoritative(inp: AuthoritativeInput): Promise<Authoritat
     loadFixedPriceForRoute(client, inp.pickupPlaceId, inp.destinationPlaceId),
     loadQuoteSettings(client),
     loadRuleSets(client),
-    loadJourneyCoords(client, [inp.pickupPlaceId, inp.destinationPlaceId]),
     loadExtrasCatalogue(client).catch((err) => {
       console.error("loadExtrasCatalogue failed, falling back to legacy extra fees", err);
       return [] as ExtrasCatalogue;
     }),
   ]);
+  // Fails closed when a radius rule needs coordinates that could not be resolved.
+  const coords = await journeyCoordsForRules(coordsP, ruleSets);
 
   const fixedByVehicle = new Map<string, number>();
   let fixedAny: number | null = null;
@@ -1067,7 +1072,9 @@ export const adminPreviewQuote = createServerFn({ method: "POST" })
       }
     }
 
-    const [profiles, areaSurcharges, fixed, settings, ruleSets, coords, extrasCatalogue] = await Promise.all([
+    const coordsP = loadJourneyCoords(client, [data.pickupPlaceId, data.destinationPlaceId]);
+    coordsP.catch(() => {});
+    const [profiles, areaSurcharges, fixed, settings, ruleSets, extrasCatalogue] = await Promise.all([
       loadActiveProfiles(client),
       loadAreaSurcharges(client, data.pickupLabel, data.destinationLabel, {
         pickupPlaceId: data.pickupPlaceId,
@@ -1076,9 +1083,9 @@ export const adminPreviewQuote = createServerFn({ method: "POST" })
       loadFixedPriceForRoute(client, data.pickupPlaceId, data.destinationPlaceId),
       loadQuoteSettings(client),
       loadRuleSets(client),
-      loadJourneyCoords(client, [data.pickupPlaceId, data.destinationPlaceId]),
       loadExtrasCatalogue(client).catch(() => [] as ExtrasCatalogue),
     ]);
+    const coords = await journeyCoordsForRules(coordsP, ruleSets);
 
 
     const profile = profiles.find((p) => p.vehicle.id === data.vehicleId);
