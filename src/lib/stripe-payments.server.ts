@@ -215,7 +215,11 @@ export async function reconcileBookingPaymentStatus(db: any, bookingId: string):
   if (res.error) throw new Error(res.error.message);
   if (!res.data) return null;
   const booking = res.data as BookingForPayment;
-  const derived = derivePaymentStatus(bookingAmountPence(booking), await paidPayments(db, bookingId));
+  const rows = await paidPayments(db, bookingId);
+  // No ledger rows: the state was set by staff by hand (e.g. account
+  // customers); there is no recorded money to derive from, so leave it.
+  if (!rows.length) return booking.payment_status as DerivedPaymentStatus;
+  const derived = derivePaymentStatus(bookingAmountPence(booking), rows);
   if (derived !== booking.payment_status) {
     const upd = await db.from("bookings").update({ payment_status: derived }).eq("id", bookingId);
     if (upd?.error) throw new Error(upd.error.message);
