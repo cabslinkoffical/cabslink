@@ -216,8 +216,8 @@ async function corridorPois(
   destPid: string,
   settings: CorridorSettings,
 ): Promise<PoiSuggestion[]> {
-  const { resolveCoords } = await import("@/lib/place-coords.server");
-  const coords = await resolveCoords(client as any, [pickupPid, destPid]);
+  const { resolveCoordsSoft } = await import("@/lib/place-coords.server");
+  const coords = await resolveCoordsSoft(client as any, [pickupPid, destPid]);
   const pickup = coords.get(pickupPid);
   const dest = coords.get(destPid);
   if (!pickup || !dest) return [];

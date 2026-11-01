@@ -880,39 +880,21 @@ export const updateCancellationRequest = createServerFn({ method: "POST" })
     });
     if (decision.error) throw new Error(decision.error);
 
-    // 1. Refund the card through Stripe when the decision is "refunded".
+    // 1. Refund the card(s) through Stripe when the decision is "refunded".
     let refundNote: string | null = null;
     if (decision.issueRefund && booking) {
-      const pay: any = await supabaseAdmin
-        .from("payments")
-        .select("id, payment_intent_id, environment, status")
-        .eq("booking_id", booking.id)
-        .not("payment_intent_id", "is", null)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      const pence = Math.round(decision.refundAmount * 100);
-      if (pay.data?.payment_intent_id && pence > 0) {
-        const { createStripeClient, getStripeErrorMessage } = await import("@/lib/stripe.server");
-        try {
-          const stripe = createStripeClient((pay.data.environment === "sandbox" ? "sandbox" : "live") as any);
-          const refund = await stripe.refunds.create(
-            { payment_intent: pay.data.payment_intent_id, amount: pence },
-            { idempotencyKey: `cancel-${req.id}-${pence}` },
-          );
-          refundNote = `Stripe refund ${refund.id} for £${decision.refundAmount.toFixed(2)}`;
-        } catch (e) {
-          throw new Error(`Stripe refund failed: ${getStripeErrorMessage(e)}`);
-        }
-        await supabaseAdmin.from("payments")
-          .update({ status: decision.fullRefund ? "refunded" : "partial", processor_status: decision.fullRefund ? "refunded" : "partially_refunded" } as any)
-          .eq("id", pay.data.id);
-      } else {
-        refundNote = `Refund of £${decision.refundAmount.toFixed(2)} recorded (no card payment on file — pay back manually)`;
-      }
-      await supabaseAdmin.from("bookings")
-        .update({ payment_status: decision.fullRefund ? "refunded" : "partial" } as any)
-        .eq("id", booking.id);
+      const { issueCancellationRefund } = await import("@/lib/cancellation-refunds.server");
+      const { createStripeClient, getStripeErrorMessage } = await import("@/lib/stripe.server");
+      const result = await issueCancellationRefund({
+        db: supabaseAdmin,
+        requestId: req.id,
+        bookingId: booking.id,
+        refundPence: Math.round(decision.refundAmount * 100),
+        actorId: context.userId,
+        stripeFor: (env) => createStripeClient(env as any),
+        stripeErrorMessage: getStripeErrorMessage,
+      });
+      refundNote = result.note;
     }
 
     // 2. Cancel the booking itself through the audited status function.
@@ -1012,23 +994,28 @@ export const updateBookingAmendment = createServerFn({ method: "POST" })
     if (data.status !== undefined) patch.status = data.status;
     if (data.refund_amount !== undefined) patch.refund_amount = data.refund_amount;
     if (data.admin_notes !== undefined) patch.admin_notes = data.admin_notes;
-    if (data.mark_paid) patch.top_up_paid_at = new Date().toISOString();
 
-    const { data: row, error } = await context.supabase
-      .from("booking_amendments")
-      .update(patch)
-      .eq("id", data.id)
-      .select("booking_ref")
-      .maybeSingle();
-    if (error) throw new Error(error.message);
+    if (Object.keys(patch).length) {
+      const { error } = await context.supabase
+        .from("booking_amendments")
+        .update(patch)
+        .eq("id", data.id)
+        .select("booking_ref")
+        .maybeSingle();
+      if (error) throw new Error(error.message);
+    }
 
-    // Settling a top-up or paying out a refund leaves the booking fully paid.
-    if ((data.mark_paid || data.status === "applied") && row?.booking_ref) {
-      const { error: bErr } = await context.supabase
-        .from("bookings")
-        .update({ payment_status: "paid" })
-        .eq("booking_ref", row.booking_ref);
-      if (bErr) throw new Error(`Request saved, but the booking payment status could not be updated: ${bErr.message}`);
+    // Money is recorded in the payments ledger; the booking's payment state is
+    // derived from what is actually held against the current fare.
+    if (data.mark_paid || data.status === "applied") {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { settleAmendmentPayment } = await import("@/lib/amendment-settlement.server");
+      try {
+        const res = await settleAmendmentPayment({ db: supabaseAdmin, amendmentId: data.id, markPaid: !!data.mark_paid, actorId: context.userId });
+        return { ok: true, recordedPence: res.recordedPence, paymentStatus: res.paymentStatus };
+      } catch (e) {
+        throw new Error(`Request saved, but the payment could not be settled: ${e instanceof Error ? e.message : String(e)}`);
+      }
     }
     return { ok: true };
   });

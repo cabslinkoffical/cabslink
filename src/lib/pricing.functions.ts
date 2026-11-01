@@ -19,6 +19,8 @@ import {
   loadQuoteSettings,
   loadRuleSets,
   loadJourneyCoords,
+  journeyCoordsForRules,
+  PRICING_RETRY_MESSAGE,
   resolveRulesForVehicle,
   computeVehicleQuote,
   type LoadedProfile,
@@ -61,7 +63,7 @@ type AuthoritativeInput = {
   isReturn?: boolean;
 };
 
-type AuthoritativeQuote = {
+export type AuthoritativeQuote = {
   distanceMiles: number;
   durationMinutes: number;
   areaSurcharges: AreaSurcharge[];
@@ -77,9 +79,11 @@ type AuthoritativeQuote = {
   input: AuthoritativeInput;
 };
 
-async function computeAuthoritative(inp: AuthoritativeInput): Promise<AuthoritativeQuote> {
+export async function computeAuthoritative(inp: AuthoritativeInput): Promise<AuthoritativeQuote> {
   const client = publicClient();
-  const [distance, profiles, areaSurcharges, fixed, settings, ruleSets, coords, extrasCatalogue] = await Promise.all([
+  const coordsP = loadJourneyCoords(client, [inp.pickupPlaceId, inp.destinationPlaceId]);
+  coordsP.catch(() => {});
+  const [distance, profiles, areaSurcharges, fixed, settings, ruleSets, extrasCatalogue] = await Promise.all([
     realDistanceMiles(inp.pickupPlaceId, inp.destinationPlaceId, inp.stops.map((s) => s.placeId)),
     loadActiveProfiles(client),
     loadAreaSurcharges(client, inp.pickupLabel, inp.destinationLabel, {
@@ -89,12 +93,13 @@ async function computeAuthoritative(inp: AuthoritativeInput): Promise<Authoritat
     loadFixedPriceForRoute(client, inp.pickupPlaceId, inp.destinationPlaceId),
     loadQuoteSettings(client),
     loadRuleSets(client),
-    loadJourneyCoords(client, [inp.pickupPlaceId, inp.destinationPlaceId]),
     loadExtrasCatalogue(client).catch((err) => {
       console.error("loadExtrasCatalogue failed, falling back to legacy extra fees", err);
       return [] as ExtrasCatalogue;
     }),
   ]);
+  // Fails closed when a radius rule needs coordinates that could not be resolved.
+  const coords = await journeyCoordsForRules(coordsP, ruleSets);
 
   const fixedByVehicle = new Map<string, number>();
   let fixedAny: number | null = null;
@@ -141,7 +146,11 @@ function journeyContext(auth: AuthoritativeQuote, profile: LoadedProfile): Journ
  * from the pre-discount engine subtotal, which is why we run the engine
  * twice: once to size percentage discounts, once for the final number.
  */
-function resolveForProfile(auth: AuthoritativeQuote, profile: LoadedProfile): { resolved: ResolvedRules; ctx: JourneyContext } {
+export function resolveForProfile(
+  auth: AuthoritativeQuote,
+  profile: LoadedProfile,
+  viaStops: number = auth.input.stops.length,
+): { resolved: ResolvedRules; ctx: JourneyContext } {
   const ctx = journeyContext(auth, profile);
   const legacyFixed = auth.fixedByVehicle.get(profile.vehicle.id) ?? auth.fixedAny ?? null;
 
@@ -150,7 +159,7 @@ function resolveForProfile(auth: AuthoritativeQuote, profile: LoadedProfile): { 
   const probe = computeVehicleQuote({
     profile,
     distanceMiles: auth.distanceMiles,
-    viaStops: auth.input.stops.length,
+    viaStops,
     pickupTime: auth.input.pickupTime,
     areaSurcharges: auth.areaSurcharges,
     fixedPrice: legacyFixed,
@@ -168,6 +177,81 @@ function resolveForProfile(auth: AuthoritativeQuote, profile: LoadedProfile): { 
     legacyFixedPrice: legacyFixed,
   });
   return { resolved, ctx };
+}
+
+export { PRICING_RETRY_MESSAGE };
+
+/** Why the return schedule is invalid, or null. Exported for tests. */
+export function returnScheduleProblem(d: {
+  return_journey?: boolean; pickupDate: string; pickupTime: string;
+  returnDate?: string | null; returnTime?: string | null;
+}): string | null {
+  if (!d.return_journey) return null;
+  if (!d.returnDate || !d.returnTime) return "Please choose a date and time for your return journey.";
+  const out = `${d.pickupDate}T${d.pickupTime}`;
+  const back = `${d.returnDate}T${d.returnTime}`;
+  // Same-format ISO strings compare chronologically.
+  if (back <= out) return "Your return journey must be after your outbound pickup.";
+  return null;
+}
+
+/** Availability context for the return leg: reversed direction, return schedule. */
+export function returnLegContext(ctx: JourneyContext, returnDate: string, returnTime: string): JourneyContext {
+  return {
+    ...ctx,
+    pickupPlaceId: ctx.destinationPlaceId,
+    destinationPlaceId: ctx.pickupPlaceId,
+    pickupCoord: ctx.destinationCoord,
+    destinationCoord: ctx.pickupCoord,
+    date: returnDate,
+    time: returnTime,
+    isReturn: true,
+  };
+}
+
+/**
+ * The one pricing path for journeys with stops, used by both the customer
+ * quote and the booking re-check so the shown and saved totals match.
+ * Every rule stage (fixed route, location price, surcharges, modifiers,
+ * discounts) and any coupon are applied once by the shared engine on the
+ * with-stops distance; stop economics (stop / parking / waiting / scenic
+ * fees) are then added once per vehicle. Stop economics replace the
+ * per-stop via price, exactly as before.
+ */
+export function priceStoppedVehicle(args: {
+  auth: AuthoritativeQuote;
+  profile: LoadedProfile;
+  stopAddedPerVehicle: number;
+  qty: number;
+  couponCode?: string | null;
+  couponDiscount?: number;
+}) {
+  const { auth, profile, qty } = args;
+  const fixed = auth.fixedByVehicle.get(profile.vehicle.id) ?? auth.fixedAny;
+  const { resolved, ctx } = resolveForProfile(auth, profile, 0);
+  const q = computeVehicleQuote({
+    profile,
+    distanceMiles: auth.distanceMiles,
+    viaStops: 0,
+    pickupTime: auth.input.pickupTime,
+    areaSurcharges: auth.areaSurcharges,
+    fixedPrice: fixed ?? null,
+    settings: auth.settings,
+    vehicleCount: qty,
+    serviceType: auth.input.serviceType,
+    resolved,
+    couponCode: args.couponCode ?? null,
+    couponDiscount: args.couponDiscount ?? 0,
+  });
+  const r2 = (n: number) => Math.round(n * 100) / 100;
+  const add = r2(Math.max(0, args.stopAddedPerVehicle));
+  return {
+    q,
+    resolved,
+    ctx,
+    perVehicle: r2(q.perVehicleTotal + add),
+    total: r2(q.finalTotal + add * qty),
+  };
 }
 
 /**
@@ -444,6 +528,9 @@ const createBookingInput = z
       .optional()
       .default([]),
     return_journey: z.boolean().optional().default(false),
+    /** Return leg schedule — required when return_journey is true. */
+    returnDate: z.string().trim().regex(/^\d{4}-\d{2}-\d{2}$/).optional().nullable(),
+    returnTime: z.string().trim().regex(/^\d{2}:\d{2}$/).optional().nullable(),
     cancellation_policy: z.enum(["standard", "non_refundable", "flexible"]).optional().default("standard"),
     templateSlug: z.string().trim().min(1).max(120).optional().nullable(),
     couponCode: z.string().trim().min(1).max(40).optional().nullable(),
@@ -481,10 +568,19 @@ export const createBooking = createServerFn({ method: "POST" })
       email: data.email,
       phone: data.phone,
       returnJourney: !!data.return_journey,
+      returnDate: data.returnDate ?? null,
+      returnTime: data.returnTime ?? null,
       meetGreet: !!data.meet_greet,
       childSeat: !!data.child_seat,
       childSeatCount: data.child_seat_count ?? 0,
     });
+
+    // Return leg schedule must exist and come after the outbound pickup.
+    const returnProblem = returnScheduleProblem(data);
+    if (returnProblem) {
+      try { setResponseStatus(400); } catch {}
+      throw new Error(returnProblem);
+    }
 
     // Idempotency: return existing booking ONLY if the request fingerprint
     // matches. A mismatched replay is refused with a generic conflict.
@@ -554,7 +650,14 @@ export const createBooking = createServerFn({ method: "POST" })
     }
 
     const fixed = auth.fixedByVehicle.get(profile.vehicle.id) ?? auth.fixedAny;
-    const { resolved, ctx: journeyCtx } = resolveForProfile(auth, profile);
+    // Sightseeing stops (chosen points of interest with a route mode or
+    // planned time) are priced by stop economics, exactly as the customer's
+    // multi-stop quote; plain via stops keep the per-stop via price shown on
+    // the standard quote. Either way the saved fare matches what was shown.
+    const hasStops = data.stops.length > 0
+      && (data.routeMode != null || data.stops.some((s) => (s.minutes ?? 0) > 0 || !!s.category));
+    const pricingViaStops = hasStops ? 0 : data.stops.length;
+    const { resolved, ctx: journeyCtx } = resolveForProfile(auth, profile, pricingViaStops);
 
     // Hard availability gate — the customer only ever sees the safe message.
     const verdict = resolveAvailability(auth.ruleSets.availabilityRules, journeyCtx);
@@ -562,6 +665,16 @@ export const createBooking = createServerFn({ method: "POST" })
       console.warn("booking blocked by availability rule", verdict.adminReason);
       try { setResponseStatus(409); } catch {}
       throw new Error(verdict.message ?? "That vehicle isn't available for the selected journey.");
+    }
+    // The return leg is checked against availability for its own date, time
+    // and direction (destination back to pickup).
+    if (data.return_journey) {
+      const returnVerdict = resolveAvailability(auth.ruleSets.availabilityRules, returnLegContext(journeyCtx, data.returnDate!, data.returnTime!));
+      if (!returnVerdict.available) {
+        console.warn("booking blocked by availability rule (return leg)", returnVerdict.adminReason);
+        try { setResponseStatus(409); } catch {}
+        throw new Error(returnVerdict.message ?? "That vehicle isn't available for your return journey.");
+      }
     }
 
     // Coupon: validated server-side against the pre-VAT subtotal. Stacks with
@@ -573,7 +686,7 @@ export const createBooking = createServerFn({ method: "POST" })
       const probe = computeVehicleQuote({
         profile,
         distanceMiles: auth.distanceMiles,
-        viaStops: data.stops.length,
+        viaStops: pricingViaStops,
         pickupTime: data.pickupTime,
         areaSurcharges: auth.areaSurcharges,
         fixedPrice: fixed ?? null,
@@ -600,22 +713,62 @@ export const createBooking = createServerFn({ method: "POST" })
       }
     }
 
-    const q = computeVehicleQuote({
-      profile,
-      distanceMiles: auth.distanceMiles,
-      viaStops: data.stops.length,
-      pickupTime: data.pickupTime,
-      areaSurcharges: auth.areaSurcharges,
-      fixedPrice: fixed ?? null,
-      settings: auth.settings,
-      vehicleCount: qty,
-      serviceType: auth.input.serviceType,
-      resolved,
-      couponCode: couponRow?.code ?? null,
-      couponDiscount,
-    });
-    let price = q.finalTotal;
-    const pricingSnapshot = q.snapshot;
+    // Stop economics for journeys with stops. Any failure stops the booking:
+    // it must never fall back to a fare without stop, parking or scenic fees.
+    let stopEcon: import("@/lib/scenic-quote.functions").StopEconomics | null = null;
+    let stopSnapshot: Record<string, unknown> = {};
+    if (hasStops) {
+      try {
+        const { computeStopEconomics, stopSnapshotFields } = await import("@/lib/scenic-quote.functions");
+        const routeModeForEcon = data.routeMode ?? "scenic";
+        const econStops = data.stops.map((s) => ({
+          place_id: s.placeId, label: s.label, minutes: s.minutes ?? 0, category: s.category ?? null,
+        }));
+        stopEcon = await computeStopEconomics({
+          pickup_place_id: data.pickupPlaceId,
+          destination_place_id: data.destinationPlaceId,
+          stops: econStops,
+          route_mode: routeModeForEcon,
+        });
+        stopSnapshot = stopSnapshotFields(stopEcon, routeModeForEcon, econStops);
+      } catch (err) {
+        console.error("multi-stop verification failed", err);
+        try { setResponseStatus(503); } catch {}
+        throw new Error(PRICING_RETRY_MESSAGE);
+      }
+    }
+
+    let q: ReturnType<typeof computeVehicleQuote>;
+    let price: number;
+    if (stopEcon) {
+      const priced = priceStoppedVehicle({
+        auth, profile, qty,
+        stopAddedPerVehicle: stopEcon.stopCharges.addedTotal,
+        couponCode: couponRow?.code ?? null,
+        couponDiscount,
+      });
+      q = priced.q;
+      price = priced.total;
+      stopSnapshot = { ...stopSnapshot, per_vehicle_total: priced.perVehicle, final_total: priced.total };
+    } else {
+      q = computeVehicleQuote({
+        profile,
+        distanceMiles: auth.distanceMiles,
+        viaStops: data.stops.length,
+        pickupTime: data.pickupTime,
+        areaSurcharges: auth.areaSurcharges,
+        fixedPrice: fixed ?? null,
+        settings: auth.settings,
+        vehicleCount: qty,
+        serviceType: auth.input.serviceType,
+        resolved,
+        couponCode: couponRow?.code ?? null,
+        couponDiscount,
+      });
+      price = q.finalTotal;
+    }
+    // The saved snapshot always reconciles with the fare it describes.
+    const pricingSnapshot = { ...q.snapshot, ...stopSnapshot };
     const pricingProfileIdSnapshot = q.profileId;
 
     // Extras come from the canonical admin Extras catalogue, resolved for this
@@ -674,7 +827,7 @@ export const createBooking = createServerFn({ method: "POST" })
       const routeMode = data.routeMode ?? "scenic";
       const { stopsFingerprint } = await import("@/lib/stops-fingerprint");
       const { classifyService } = await import("@/lib/classification");
-      const { loadPoiFeesByPlaceId, loadThresholds, calculateMultiStopQuote } = await import("@/lib/scenic-quote.functions");
+      const { loadPoiFeesByPlaceId, loadThresholds } = await import("@/lib/scenic-quote.functions");
 
       serverFingerprint = await stopsFingerprint({
         pickupPlaceId: data.pickupPlaceId,
@@ -715,33 +868,10 @@ export const createBooking = createServerFn({ method: "POST" })
         throw new Error("This journey now qualifies as a different service. Please acknowledge the change and resubmit.");
       }
 
-      // Recompute authoritative multi-stop total for this vehicle so the
-      // saved price includes stop / parking / scenic fees and any detour.
-      try {
-        const multi = await calculateMultiStopQuote({
-          data: {
-            pickup_place_id: data.pickupPlaceId,
-            pickup_label: data.pickupLabel,
-            destination_place_id: data.destinationPlaceId,
-            destination_label: data.destinationLabel,
-            pickup_time: data.pickupTime,
-            stops: data.stops.map((s) => ({
-              place_id: s.placeId, label: s.label,
-              minutes: s.minutes ?? 0, category: s.category ?? null,
-            })),
-            route_mode: routeMode,
-            vehicle_id: data.vehicleId,
-          } as any,
-        });
-        const veh = multi.vehicles.find((v) => v.vehicle_id === data.vehicleId);
-        if (veh) {
-          scenicPrice = Number((veh.per_vehicle_total * qty).toFixed(2));
-          if (!scenicTemplateId) scenicTemplateId = multi.template_id;
-          price = scenicPrice;
-        }
-      } catch (err) {
-        console.error("multi-stop verification recompute failed", err);
-      }
+      // The authoritative stop-inclusive fare was computed above through the
+      // shared pipeline; record it and the matching template.
+      scenicPrice = price;
+      if (!scenicTemplateId) scenicTemplateId = stopEcon?.template?.id ?? null;
     }
 
     // Return journey is NOT a flat add-on: it is the same journey priced
@@ -849,6 +979,8 @@ export const createBooking = createServerFn({ method: "POST" })
       child_seat_count: recordedSeatCount,
       meet_greet: !!data.meet_greet,
       return_journey: !!data.return_journey,
+      return_date: data.return_journey ? data.returnDate ?? null : null,
+      return_time: data.return_journey ? data.returnTime ?? null : null,
       notes: notesWithQty,
       price,
       distance_miles: auth.distanceMiles,
@@ -1067,7 +1199,9 @@ export const adminPreviewQuote = createServerFn({ method: "POST" })
       }
     }
 
-    const [profiles, areaSurcharges, fixed, settings, ruleSets, coords, extrasCatalogue] = await Promise.all([
+    const coordsP = loadJourneyCoords(client, [data.pickupPlaceId, data.destinationPlaceId]);
+    coordsP.catch(() => {});
+    const [profiles, areaSurcharges, fixed, settings, ruleSets, extrasCatalogue] = await Promise.all([
       loadActiveProfiles(client),
       loadAreaSurcharges(client, data.pickupLabel, data.destinationLabel, {
         pickupPlaceId: data.pickupPlaceId,
@@ -1076,9 +1210,9 @@ export const adminPreviewQuote = createServerFn({ method: "POST" })
       loadFixedPriceForRoute(client, data.pickupPlaceId, data.destinationPlaceId),
       loadQuoteSettings(client),
       loadRuleSets(client),
-      loadJourneyCoords(client, [data.pickupPlaceId, data.destinationPlaceId]),
       loadExtrasCatalogue(client).catch(() => [] as ExtrasCatalogue),
     ]);
+    const coords = await journeyCoordsForRules(coordsP, ruleSets);
 
 
     const profile = profiles.find((p) => p.vehicle.id === data.vehicleId);

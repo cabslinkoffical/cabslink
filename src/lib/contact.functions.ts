@@ -20,11 +20,52 @@ const contactInput = z.object({
 
 // Short recent-dup cache so a rapid double-submit of the same message is
 // idempotent from the caller's perspective without creating two rows.
-const recentHashes = new Map<string, number>();
+// "pending" marks an in-flight insert; a number is the time it was saved.
+// Entries only become durable after the row is persisted, so a failed insert
+// never makes an identical retry report false success.
+export const recentHashes = new Map<string, number | Promise<boolean>>();
 const RECENT_TTL_MS = 5 * 60_000;
 
 function hashOf(name: string, email: string, message: string): string {
   return `${email.toLowerCase()}|${name.toLowerCase()}|${message.trim()}`;
+}
+
+/**
+ * Run `persist` at most once per identical message within the TTL.
+ * - Already saved → returns "duplicate" without persisting.
+ * - In flight → waits for that attempt; if it succeeded returns "duplicate",
+ *   if it failed this caller retries persistence itself.
+ * - Failure → the entry is removed and the error propagates.
+ */
+export async function persistOnce(
+  key: string,
+  persist: () => Promise<void>,
+  now: () => number = Date.now,
+): Promise<"saved" | "duplicate"> {
+  const t = now();
+  for (const [k, v] of recentHashes) if (typeof v === "number" && v + RECENT_TTL_MS <= t) recentHashes.delete(k);
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const existing = recentHashes.get(key);
+    if (typeof existing === "number") return "duplicate";
+    if (existing) {
+      if (await existing) return "duplicate";
+      continue; // the in-flight attempt failed — try again ourselves
+    }
+    let resolve!: (ok: boolean) => void;
+    const pending = new Promise<boolean>((r) => { resolve = r; });
+    recentHashes.set(key, pending);
+    try {
+      await persist();
+    } catch (err) {
+      if (recentHashes.get(key) === pending) recentHashes.delete(key);
+      resolve(false);
+      throw err;
+    }
+    recentHashes.set(key, now());
+    resolve(true);
+    return "saved";
+  }
+  throw new Error("Could not send. Please try again.");
 }
 
 export const submitContactMessage = createServerFn({ method: "POST" })
@@ -42,30 +83,27 @@ export const submitContactMessage = createServerFn({ method: "POST" })
 
     await assertCaptcha(data.captchaToken, ip, setResponseStatus);
 
-    const now = Date.now();
-    // Sweep expired
-    for (const [k, t] of recentHashes) if (t + RECENT_TTL_MS <= now) recentHashes.delete(k);
     const key = hashOf(data.name, data.email, data.message);
-    if (recentHashes.has(key)) return { ok: true };
-    recentHashes.set(key, now);
-
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const isTour = (data.subject ?? "").toLowerCase().includes("tour");
-    const insert: any = {
-      name: data.name,
-      email: data.email,
-      phone: data.phone || null,
-      subject: data.subject || null,
-      message: data.message,
-      source: isTour ? "tour" : "contact",
-      source_page: await (await import("@/lib/message-source.server")).sourcePageFromRequest(),
-    };
-    if (isTour) insert.tour_status = "new";
-    const { error } = await supabaseAdmin.from("contact_messages").insert(insert);
-    if (error) {
-      console.error("contact insert failed", error);
-      throw new Error("Could not send. Please try again.");
-    }
+    const outcome = await persistOnce(key, async () => {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const insert: any = {
+        name: data.name,
+        email: data.email,
+        phone: data.phone || null,
+        subject: data.subject || null,
+        message: data.message,
+        source: isTour ? "tour" : "contact",
+        source_page: await (await import("@/lib/message-source.server")).sourcePageFromRequest(),
+      };
+      if (isTour) insert.tour_status = "new";
+      const { error } = await supabaseAdmin.from("contact_messages").insert(insert);
+      if (error) {
+        console.error("contact insert failed", error);
+        throw new Error("Could not send. Please try again.");
+      }
+    });
+    if (outcome === "duplicate") return { ok: true };
 
     const { notifyEnquiry } = await import("@/lib/notifications.server");
     await notifyEnquiry({

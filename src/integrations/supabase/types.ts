@@ -673,7 +673,9 @@ export type Database = {
           quote_id: string | null
           quoted_total: number | null
           reconciliation_status: string | null
+          return_date: string | null
           return_journey: boolean
+          return_time: string | null
           route_legs: Json
           scenic_template_id: string | null
           selected_pois: Json
@@ -759,7 +761,9 @@ export type Database = {
           quote_id?: string | null
           quoted_total?: number | null
           reconciliation_status?: string | null
+          return_date?: string | null
           return_journey?: boolean
+          return_time?: string | null
           route_legs?: Json
           scenic_template_id?: string | null
           selected_pois?: Json
@@ -845,7 +849,9 @@ export type Database = {
           quote_id?: string | null
           quoted_total?: number | null
           reconciliation_status?: string | null
+          return_date?: string | null
           return_journey?: boolean
+          return_time?: string | null
           route_legs?: Json
           scenic_template_id?: string | null
           selected_pois?: Json
@@ -1675,6 +1681,7 @@ export type Database = {
           event_type: string
           id: string
           last_error: string | null
+          lease_expires_at: string | null
           next_attempt_at: string
           payload: Json
           status: string
@@ -1689,6 +1696,7 @@ export type Database = {
           event_type: string
           id?: string
           last_error?: string | null
+          lease_expires_at?: string | null
           next_attempt_at?: string
           payload?: Json
           status?: string
@@ -1703,6 +1711,7 @@ export type Database = {
           event_type?: string
           id?: string
           last_error?: string | null
+          lease_expires_at?: string | null
           next_attempt_at?: string
           payload?: Json
           status?: string
@@ -2261,6 +2270,7 @@ export type Database = {
           payment_intent_id: string | null
           processor_status: string | null
           reference: string | null
+          refunded_amount: number
           status: Database["public"]["Enums"]["payment_status"]
           updated_at: string
         }
@@ -2281,6 +2291,7 @@ export type Database = {
           payment_intent_id?: string | null
           processor_status?: string | null
           reference?: string | null
+          refunded_amount?: number
           status?: Database["public"]["Enums"]["payment_status"]
           updated_at?: string
         }
@@ -2301,6 +2312,7 @@ export type Database = {
           payment_intent_id?: string | null
           processor_status?: string | null
           reference?: string | null
+          refunded_amount?: number
           status?: Database["public"]["Enums"]["payment_status"]
           updated_at?: string
         }
@@ -5003,6 +5015,15 @@ export type Database = {
       }
     }
     Functions: {
+      admin_save_blog_post: {
+        Args: { p_id: string; p_post: Json; p_tag_ids: string[] }
+        Returns: string
+      }
+      admin_save_extra: {
+        Args: { p_extra: Json; p_id: string; p_links: Json }
+        Returns: string
+      }
+      claim_dispatch_event: { Args: never; Returns: Json }
       current_driver_id: { Args: never; Returns: string }
       dispatch_wake_delivery: { Args: never; Returns: undefined }
       generate_booking_ref: { Args: never; Returns: string }

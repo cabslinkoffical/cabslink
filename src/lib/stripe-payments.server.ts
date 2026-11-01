@@ -1,5 +1,12 @@
 import type Stripe from "stripe";
 import type { StripeEnv } from "@/lib/stripe.server";
+import {
+  SETTLED_PAYMENT_STATUSES,
+  derivePaymentStatus,
+  netCollectedPence,
+  type DerivedPaymentStatus,
+  type LedgerRow,
+} from "@/lib/payment-ledger";
 
 /**
  * Server-only payment rules for Cabslink card checkout.
@@ -153,25 +160,43 @@ export async function findBookingByRef(db: any, ref: string): Promise<BookingFor
   return res.data as BookingForPayment;
 }
 
-/** Read every settled payment, including staff-entered cash. Never guess on errors. */
-export async function paidPayments(db: any, bookingId: string): Promise<Array<{ amount: number | string; reference: string | null }>> {
-  const rows: Array<{ amount: number | string; reference: string | null }> = [];
+/** A payment row for a Checkout session in any state. Throws on read errors. */
+export async function findPaymentByReference(db: any, reference: string): Promise<LedgerRow | null> {
+  const res = await db.from("payments")
+    .select("id, amount, refunded_amount, status, reference")
+    .eq("reference", reference).maybeSingle();
+  if (res.error) throw new Error("We couldn't check your payment balance. Please try again or call us.");
+  return (res.data as LedgerRow | null) ?? null;
+}
+
+/**
+ * Read every payment that collected money — paid, partly refunded or refunded —
+ * including staff-entered cash. Never guess on errors.
+ */
+export async function paidPayments(db: any, bookingId: string): Promise<LedgerRow[]> {
+  const rows: LedgerRow[] = [];
+  const fail = () => new Error("We couldn't check your payment balance. Please try again or call us.");
   for (let offset = 0; ; offset += 1000) {
-    const result = await db.from("payments").select("id, amount, reference")
-      .eq("booking_id", bookingId).eq("status", "paid").order("id").range(offset, offset + 999);
-    if (result.error || !Array.isArray(result.data)) throw new Error("We couldn't check your payment balance. Please try again or call us.");
+    const result = await db.from("payments")
+      .select("id, amount, refunded_amount, status, reference, method, payment_intent_id, environment, created_at")
+      .eq("booking_id", bookingId).in("status", SETTLED_PAYMENT_STATUSES as unknown as string[])
+      .order("id").range(offset, offset + 999);
+    if (result.error || !Array.isArray(result.data)) throw fail();
     for (const row of result.data) {
-      if (!Number.isFinite(Number(row.amount)) || Number(row.amount) < 0) throw new Error("We couldn't check your payment balance. Please try again or call us.");
+      if (!Number.isFinite(Number(row.amount)) || Number(row.amount) < 0) throw fail();
+      if (row.refunded_amount != null && (!Number.isFinite(Number(row.refunded_amount)) || Number(row.refunded_amount) < 0)) throw fail();
       rows.push(row);
     }
     if (result.data.length < 1000) return rows;
   }
 }
+export const settledPayments = paidPayments;
 
-export function outstandingPence(booking: BookingForPayment, payments: Array<{ amount: number | string }>): number | null {
+/** Fare still owed after the money actually held (payments minus refunds). */
+export function outstandingPence(booking: BookingForPayment, payments: LedgerRow[]): number | null {
   const fare = bookingAmountPence(booking);
   if (fare == null) return null;
-  return Math.max(0, fare - payments.reduce((sum, row) => sum + Math.round(Number(row.amount) * 100), 0));
+  return Math.max(0, fare - netCollectedPence(payments));
 }
 
 export async function payableBookingPence(db: any, booking: BookingForPayment): Promise<number | null> {
@@ -179,6 +204,27 @@ export async function payableBookingPence(db: any, booking: BookingForPayment): 
   return booking.payment_status === "partial"
     ? outstandingPence(booking, await paidPayments(db, booking.id))
     : bookingAmountPence(booking);
+}
+
+/**
+ * Re-derive a booking's payment_status from its ledger and current fare and
+ * save it when it changed. Throws when the ledger cannot be read or written.
+ */
+export async function reconcileBookingPaymentStatus(db: any, bookingId: string): Promise<DerivedPaymentStatus | null> {
+  const res = await db.from("bookings").select(BOOKING_COLUMNS).eq("id", bookingId).maybeSingle();
+  if (res.error) throw new Error(res.error.message);
+  if (!res.data) return null;
+  const booking = res.data as BookingForPayment;
+  const rows = await paidPayments(db, bookingId);
+  // No ledger rows: the state was set by staff by hand (e.g. account
+  // customers); there is no recorded money to derive from, so leave it.
+  if (!rows.length) return booking.payment_status as DerivedPaymentStatus;
+  const derived = derivePaymentStatus(bookingAmountPence(booking), rows);
+  if (derived !== booking.payment_status) {
+    const upd = await db.from("bookings").update({ payment_status: derived }).eq("id", bookingId);
+    if (upd?.error) throw new Error(upd.error.message);
+  }
+  return derived;
 }
 
 export async function logPaymentActivity(
@@ -287,7 +333,10 @@ export async function applyPaidSession(
     return { applied: false, reason: "sandbox_rejected", bookingId: booking?.id, status: booking?.status, paymentStatus: booking?.payment_status };
   }
   const payments = booking ? await paidPayments(deps.db, booking.id) : [];
-  const recorded = payments.find((row) => row.reference === session.id);
+  // Look the session up in every state, so a refunded or partly refunded
+  // charge is recognised on replay and never written back as paid.
+  const recorded = payments.find((row) => row.reference === session.id)
+    ?? (booking ? await findPaymentByReference(deps.db, session.id) : null);
   const expected = booking
     ? recorded ? Math.round(Number(recorded.amount) * 100)
       : booking.payment_status === "partial" ? outstandingPence(booking, payments) : bookingAmountPence(booking)
@@ -317,16 +366,28 @@ export async function applyPaidSession(
 
   if (!booking) return { applied: false, reason: "ref_mismatch" };
   const b = booking;
-  // A previously recorded payment must not settle a later amendment on replay.
-  if (recorded && (outstandingPence(b, payments) ?? 1) > 0) {
+  const recordedSettled = !!recorded && (SETTLED_PAYMENT_STATUSES as readonly string[]).includes(String(recorded.status ?? "paid"));
+  // A recorded session is a replay: never rewrite its ledger row (refund
+  // accounting stays intact) and never let it settle a later amendment.
+  if (recordedSettled && (
+    recorded!.status !== "paid" || Number(recorded!.refunded_amount ?? 0) > 0 || (outstandingPence(b, payments) ?? 1) > 0
+  )) {
     return { applied: false, reason: "already_recorded", bookingId: b.id, status: b.status, paymentStatus: b.payment_status };
   }
-  const recordedResult = await recordStripePayment({ session, env: opts.env, stripe: opts.stripe, bookingId: b.id, eventCreated: opts.eventCreated }, deps);
-  if (recordedResult.error) return { applied: false, reason: "update_failed", bookingId: b.id, status: b.status, paymentStatus: b.payment_status };
+  if (!recordedSettled) {
+    const recordedResult = await recordStripePayment({ session, env: opts.env, stripe: opts.stripe, bookingId: b.id, eventCreated: opts.eventCreated }, deps);
+    if (recordedResult.error) return { applied: false, reason: "update_failed", bookingId: b.id, status: b.status, paymentStatus: b.payment_status };
+  }
   const upd = bookingUpdateForPayment(b, check.pence);
+  if (upd?.payment_status) {
+    // Derive from the money actually held against the current fare.
+    const ledger: LedgerRow[] = recordedSettled ? payments : [...payments, { amount: check.pence / 100, status: "paid" }];
+    upd.payment_status = derivePaymentStatus(bookingAmountPence(b) ?? check.pence, ledger);
+    if (upd.payment_status === b.payment_status) delete upd.payment_status;
+  }
   let status = b.status;
   let paymentStatus = b.payment_status;
-  if (upd) {
+  if (upd && Object.keys(upd).length) {
     let q = deps.db.from("bookings").update(upd).eq("id", b.id);
     // Guard against a concurrent status change between read and write.
     if (upd.status) q = q.in("status", CONFIRMABLE_FROM_STATUSES as unknown as string[]);
@@ -416,20 +477,32 @@ export async function handleSessionExpired(session: Stripe.Checkout.Session, env
 export async function handleChargeRefunded(charge: Stripe.Charge, env: StripeEnv, deps: PaymentDeps) {
   const piId = typeof charge.payment_intent === "string" ? charge.payment_intent : charge.payment_intent?.id ?? null;
   const full = charge.amount_refunded >= charge.amount;
-  const res = piId
-    ? await deps.db
-        .from("payments")
-        .update({ status: full ? "refunded" : "partial", processor_status: full ? "refunded" : "partially_refunded" })
-        .eq("payment_intent_id", piId)
-        .select("booking_id")
-    : { data: [] };
-  const bookingId = (res?.data?.[0]?.booking_id as string | undefined) ?? null;
-  if (bookingId) {
-    await deps.db
-      .from("bookings")
-      .update({ payment_status: full ? "refunded" : "partial" })
-      .eq("id", bookingId);
+  let bookingId: string | null = null;
+  if (piId) {
+    const rowsRes = await deps.db.from("payments")
+      .select("id, booking_id, amount, refunded_amount")
+      .eq("payment_intent_id", piId);
+    if (rowsRes.error) throw new Error(rowsRes.error.message);
+    for (const row of rowsRes.data ?? []) {
+      bookingId = bookingId ?? (row.booking_id as string | null);
+      // Stripe reports the cumulative refunded total; never move it backwards
+      // (older events can arrive late) and never above the charge itself.
+      const cumulative = Math.min(Number(row.amount), charge.amount_refunded / 100);
+      const refunded = Math.max(Number(row.refunded_amount ?? 0), cumulative);
+      const isFull = refunded >= Number(row.amount);
+      const upd = await deps.db.from("payments")
+        .update({
+          refunded_amount: refunded,
+          status: isFull ? "refunded" : refunded > 0 ? "partial" : "paid",
+          processor_status: isFull ? "refunded" : "partially_refunded",
+        })
+        .eq("id", row.id);
+      if (upd?.error) throw new Error(upd.error.message);
+    }
   }
+  // The booking reflects all money still held across every charge and cash
+  // entry — refunding one charge does not refund the whole booking.
+  if (bookingId) await reconcileBookingPaymentStatus(deps.db, bookingId);
   await logPaymentActivity(deps.db, "payment_refunded", bookingId, {
     charge_id: charge.id, payment_intent_id: piId, amount_refunded_pence: charge.amount_refunded,
     amount_pence: charge.amount, full, environment: env,

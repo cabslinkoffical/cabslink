@@ -63,6 +63,7 @@ type FormState = {
   related_service_slugs: string[];
   related_location_slugs: string[];
   related_route_slugs: string[];
+  related_post_ids: string[];
   tag_ids: string[];
 };
 
@@ -75,6 +76,7 @@ const empty: FormState = {
   pillar: false, featured: false,
   faqs: [], key_takeaways: [], toc: [],
   related_service_slugs: [], related_location_slugs: [], related_route_slugs: [],
+  related_post_ids: [],
   tag_ids: [],
 };
 
@@ -116,6 +118,7 @@ function PostEditor() {
         related_service_slugs: d.related_service_slugs ?? [],
         related_location_slugs: d.related_location_slugs ?? [],
         related_route_slugs: d.related_route_slugs ?? [],
+        related_post_ids: d.related_post_ids ?? [],
         tag_ids: d.tag_ids ?? [],
       });
       setSlugDirty(true);
@@ -140,7 +143,6 @@ function PostEditor() {
         og_image_url: form.og_image_url || null,
         canonical_override: form.canonical_override || null,
         cluster_key: form.cluster_key || null,
-        related_post_ids: [],
       };
       return upsertPost({ data: payload as any });
     },

@@ -18,13 +18,24 @@ const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 // ============ LIST ============
 export const listAdminPosts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .inputValidator((i: unknown) => z.object({
+    search: z.string().trim().max(120).default(""),
+    offset: z.number().int().min(0).default(0),
+    limit: z.number().int().min(1).max(100).default(25),
+  }).parse(i ?? {}))
+  .handler(async ({ context, data: input }) => {
     await assertAdmin(context);
-    const { data, error } = await context.supabase.from("blog_posts")
-      .select("id, slug, title, status, published_at, updated_at, featured, pillar, category:blog_categories(name,slug), author:blog_authors(name)")
-      .order("updated_at", { ascending: false });
+    let query = context.supabase.from("blog_posts")
+      .select("id, slug, title, status, published_at, updated_at, featured, pillar, category:blog_categories(name,slug), author:blog_authors(name)", { count: "exact" })
+      .order("updated_at", { ascending: false }).order("id", { ascending: false });
+    // Quoted PostgREST operands keep punctuation from becoming filter syntax.
+    if (input.search) {
+      const pattern = JSON.stringify(`%${input.search.replace(/[\\%_]/g, "\\$&")}%`);
+      query = query.or(`title.ilike.${pattern},slug.ilike.${pattern}`);
+    }
+    const { data, error, count } = await query.range(input.offset, input.offset + input.limit - 1);
     if (error) throw new Error(error.message);
-    return data ?? [];
+    return { items: data ?? [], total: count ?? 0 };
   });
 
 export const getAdminPost = createServerFn({ method: "GET" })
@@ -66,7 +77,7 @@ const postSchema = z.object({
   related_service_slugs: z.array(z.string()).default([]),
   related_location_slugs: z.array(z.string()).default([]),
   related_route_slugs: z.array(z.string()).default([]),
-  related_post_ids: z.array(z.string().uuid()).default([]),
+  related_post_ids: z.array(z.string().uuid()).optional(),
   tag_ids: z.array(z.string().uuid()).default([]),
 });
 
@@ -79,22 +90,11 @@ export const upsertPost = createServerFn({ method: "POST" })
     if (payload.status === "published" && /\|\s*TODO\s*\|/.test(payload.body_md ?? "")) {
       throw new Error("Replace every TODO in the comparison table with real figures before publishing.");
     }
-    let postId = id;
-    if (id) {
-      const { error } = await context.supabase.from("blog_posts").update(payload).eq("id", id);
-      if (error) throw new Error(error.message);
-    } else {
-      const { data: row, error } = await context.supabase.from("blog_posts").insert(payload).select("id").single();
-      if (error) throw new Error(error.message);
-      postId = (row as any).id;
-    }
-    // Sync tags
-    if (postId) {
-      await context.supabase.from("blog_post_tags").delete().eq("post_id", postId);
-      if (tag_ids.length) {
-        await context.supabase.from("blog_post_tags").insert(tag_ids.map((tid) => ({ post_id: postId, tag_id: tid })));
-      }
-    }
+    const { data: postId, error } = await context.supabase.rpc("admin_save_blog_post", {
+      p_id: id ?? null, p_post: payload, p_tag_ids: tag_ids,
+    });
+    if (error) throw new Error(error.message);
+    if (!postId) throw new Error("Post save returned no ID");
     if (payload.status === "published" && payload.slug) {
       const { pingIndexNow } = await import("@/lib/seo/indexnow.server");
       void pingIndexNow([`/blog/${payload.slug}`, "/blog", "/llms.txt"]);

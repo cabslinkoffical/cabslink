@@ -47,99 +47,83 @@ async function sign(secret: string, body: string) {
 
 export async function deliverPendingDispatchEvents(limit = 25) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const db = supabaseAdmin as any;
-  const nowIso = new Date().toISOString();
-
-  const { data: due, error } = await db
-    .from("dispatch_events")
-    .select("id")
-    .eq("status", "pending")
-    .lte("next_attempt_at", nowIso)
-    .order("created_at", { ascending: true })
-    .limit(limit);
-  if (error) throw new Error(error.message);
-
-  // Claim before sending: only rows this run moved pending -> sending are
-  // delivered, so overlapping runs never send the same event twice.
-  const ids = (due ?? []).map((r: any) => r.id);
-  let events: any[] = [];
-  if (ids.length) {
-    const { data: claimed, error: claimErr } = await db
-      .from("dispatch_events")
-      .update({ status: "sending" })
-      .in("id", ids)
-      .eq("status", "pending")
-      .select("*, endpoint:dispatch_endpoints(*)");
-    if (claimErr) throw new Error(claimErr.message);
-    events = claimed ?? [];
-  }
-
+  // Narrow extension until generated database types include the lease and RPC.
+  type Event = {
+    id: string; event_type: string; payload: any; booking_id: string | null;
+    attempts: number; lease_expires_at: string;
+    endpoint: { id: string; active: boolean; url: string; secret: string } | null;
+  };
+  const claim = supabaseAdmin.rpc.bind(supabaseAdmin) as unknown as
+    (name: "claim_dispatch_event") => Promise<{ data: Event | null; error: { message: string } | null }>;
+  let processed = 0;
   let delivered = 0;
   let failed = 0;
 
-  for (const ev of events ?? []) {
+  // Claim just before sending, rather than letting a sequential batch's leases age.
+  for (let i = 0; i < limit; i++) {
+    const { data: ev, error } = await claim("claim_dispatch_event");
+    if (error) throw new Error(error.message);
+    if (!ev) break;
+    processed++;
     const ep = ev.endpoint;
-    if (!ep || !ep.active) {
-      await db.from("dispatch_events").update({ status: "skipped", last_error: "No active endpoint" }).eq("id", ev.id);
-      continue;
-    }
-
-    const body = JSON.stringify({ id: ev.id, type: ev.event_type, data: ev.payload });
-    const timestamp = Math.floor(Date.now() / 1000).toString();
     const attempts = (ev.attempts ?? 0) + 1;
-
+    let message: string | null = null;
+    if (ep?.active) {
+      try {
+        if (!isHttpsUrl(ep.url)) throw new Error("Dispatch address must use https://");
+        const body = JSON.stringify({ id: ev.id, type: ev.event_type, data: ev.payload });
+        const timestamp = Math.floor(Date.now() / 1000).toString();
+        const signature = await sign(ep.secret, `${timestamp}.${body}`);
+        const res = await fetch(ep.url, {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            "x-cabslink-event": ev.event_type,
+            "x-cabslink-delivery": ev.id,
+            "x-cabslink-timestamp": timestamp,
+            "x-cabslink-signature": signature,
+          },
+          body,
+          signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+        });
+        if (!res.ok) throw new Error(`Dispatch system replied ${res.status}`);
+      } catch (e) {
+        message = String(e instanceof Error ? e.message : e).slice(0, 500);
+      }
+    }
+    const giveUp = attempts >= MAX_ATTEMPTS;
+    const backoffMs = Math.min(60 * 60 * 1000, 30_000 * 2 ** (attempts - 1));
+    const patch = !ep?.active
+      ? { status: "skipped", last_error: "No active endpoint" }
+      : message !== null
+        ? { status: giveUp ? "failed" : "pending", attempts, last_error: message,
+            next_attempt_at: new Date(Date.now() + backoffMs).toISOString() }
+        : { status: "delivered", attempts, delivered_at: new Date().toISOString(), last_error: null };
     try {
-      if (!isHttpsUrl(ep.url)) throw new Error("Dispatch address must use https://");
-      const signature = await sign(ep.secret, `${timestamp}.${body}`);
-      const res = await fetch(ep.url, {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-          "x-cabslink-event": ev.event_type,
-          "x-cabslink-delivery": ev.id,
-          "x-cabslink-timestamp": timestamp,
-          "x-cabslink-signature": signature,
-        },
-        body,
-        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-      });
-
-      if (res.ok) {
-        delivered++;
-        await db
-          .from("dispatch_events")
-          .update({ status: "delivered", attempts, delivered_at: new Date().toISOString(), last_error: null })
-          .eq("id", ev.id);
-        await db
-          .from("dispatch_endpoints")
-          .update({ last_delivery_at: new Date().toISOString(), last_delivery_ok: true, last_error: null })
+      // Fence stale workers: an expired claim that another drain acquired cannot be completed here.
+      const { data, error: stateError } = await supabaseAdmin.from("dispatch_events")
+        .update(patch).eq("id", ev.id).eq("status", "sending")
+        .eq("lease_expires_at" as "id", ev.lease_expires_at).select("id").maybeSingle();
+      if (stateError) throw new Error(stateError.message);
+      if (!data) throw new Error("Dispatch claim no longer owned");
+      if (ep?.active) {
+        const { error: endpointError } = await supabaseAdmin.from("dispatch_endpoints")
+          .update({ last_delivery_at: new Date().toISOString(), last_delivery_ok: message === null, last_error: message })
           .eq("id", ep.id);
-        continue;
+        if (endpointError) throw new Error(endpointError.message);
       }
-      throw new Error(`Dispatch system replied ${res.status}`);
-    } catch (e: any) {
+      if (message !== null) {
+        failed++;
+        if (giveUp) await notifyDispatchFailure(ev, ep, message);
+      } else if (ep?.active) {
+        delivered++;
+      }
+    } catch (e) {
+      // Do not overwrite an ambiguous completion with a retry/terminal write.
+      // A failed event write leaves its lease intact for recovery with the same ID.
+      console.error("[dispatch] delivery-state update failed", { eventId: ev.id, error: e });
       failed++;
-      const message = String(e?.message ?? e).slice(0, 500);
-      const giveUp = attempts >= MAX_ATTEMPTS;
-      const backoffMs = Math.min(60 * 60 * 1000, 30_000 * 2 ** (attempts - 1));
-      await db
-        .from("dispatch_events")
-        .update({
-          status: giveUp ? "failed" : "pending",
-          attempts,
-          last_error: message,
-          next_attempt_at: new Date(Date.now() + backoffMs).toISOString(),
-        })
-        .eq("id", ev.id);
-      await db
-        .from("dispatch_endpoints")
-        .update({ last_delivery_at: new Date().toISOString(), last_delivery_ok: false, last_error: message })
-        .eq("id", ep.id);
-      if (giveUp) {
-        await notifyDispatchFailure(ev, ep, message);
-      }
     }
   }
-
-  return { processed: events.length, delivered, failed };
+  return { processed, delivered, failed };
 }

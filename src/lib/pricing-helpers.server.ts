@@ -134,9 +134,11 @@ export async function loadQuoteSettings(client: ReturnType<typeof publicClient>)
 
 }
 
-function pricingReadError(error: unknown): Error {
+export const PRICING_RETRY_MESSAGE = "We couldn't price this right now, please try again or call us";
+
+export function pricingReadError(error: unknown): Error {
   console.error("Required pricing query failed", error);
-  return new Error("We couldn't price this right now, please try again or call us");
+  return new Error(PRICING_RETRY_MESSAGE);
 }
 
 // -------------------------------------------------------------------
@@ -486,16 +488,43 @@ export async function loadRuleSets(client: ReturnType<typeof publicClient>): Pro
   };
 }
 
-/** Resolve pickup/destination Place IDs to coordinates for radius matching. */
+/** Resolve pickup/destination Place IDs to coordinates for radius matching. Throws on lookup failure. */
 export async function loadJourneyCoords(
   client: ReturnType<typeof publicClient>,
   placeIds: string[],
 ): Promise<Map<string, Coord>> {
+  const { resolveCoords } = await import("@/lib/place-coords.server");
+  return await resolveCoords(client as any, placeIds);
+}
+
+/** True when any active rule matches by radius, so it needs journey coordinates. */
+export function ruleSetsNeedCoords(ruleSets: RuleSets): boolean {
+  const radius = (r: any) =>
+    r?.active !== false && (
+      (r?.lat != null && r?.lng != null && Number(r?.radius_miles) > 0) ||
+      (r?.to_lat != null && r?.to_lng != null && Number(r?.to_radius_miles) > 0) ||
+      (r?.from_lat != null && r?.from_lng != null && Number(r?.from_radius_miles) > 0)
+    );
+  return [
+    ...ruleSets.fixedRoutes, ...ruleSets.locationRules, ...ruleSets.surchargeRules,
+    ...ruleSets.modifiers, ...ruleSets.discountRules, ...ruleSets.availabilityRules,
+  ].some(radius);
+}
+
+/**
+ * Coordinates for rule matching. A failed lookup is tolerated only when no
+ * active rule depends on a radius; otherwise pricing fails closed so radius
+ * surcharges and availability blocks are never silently skipped.
+ */
+export async function journeyCoordsForRules(
+  coordsPromise: Promise<Map<string, Coord>>,
+  ruleSets: RuleSets,
+): Promise<Map<string, Coord>> {
   try {
-    const { resolveCoords } = await import("@/lib/place-coords.server");
-    return await resolveCoords(client as any, placeIds);
+    return await coordsPromise;
   } catch (err) {
-    console.warn("journey coord resolution failed:", (err as Error).message);
+    if (ruleSetsNeedCoords(ruleSets)) throw pricingReadError(err);
+    console.warn("journey coord resolution failed (no radius rules active):", (err as Error)?.message);
     return new Map();
   }
 }

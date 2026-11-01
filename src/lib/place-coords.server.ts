@@ -16,7 +16,7 @@ export type Coord = { lat: number; lng: number };
 async function fetchPlaceLatLng(placeId: string): Promise<Coord | null> {
   const apiKey = getGoogleMapsApiKey();
   const lovableKey = process.env.LOVABLE_API_KEY;
-  if (!lovableKey) return null;
+  if (!lovableKey) throw new Error("Place lookup is not configured");
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 8_000);
@@ -34,15 +34,18 @@ async function fetchPlaceLatLng(placeId: string): Promise<Coord | null> {
       },
     );
     clearTimeout(timer);
-    if (!res.ok) return null;
+    if (!res.ok) throw new Error(`Place lookup failed (${res.status})`);
     const json = (await res.json()) as { location?: { latitude?: number; longitude?: number } };
     const lat = json.location?.latitude;
     const lng = json.location?.longitude;
+    // A place genuinely without a location is "no coordinates", not a failure.
     if (typeof lat !== "number" || typeof lng !== "number") return null;
     return { lat, lng };
-  } catch {
+  } catch (err) {
     clearTimeout(timer);
-    return null;
+    // Lookup failures propagate so pricing can refuse instead of silently
+    // skipping location-based rules.
+    throw err instanceof Error ? err : new Error("Place lookup failed");
   }
 }
 
@@ -67,7 +70,8 @@ export async function resolveCoords(
   if (unique.length === 0) return out;
 
   // 1. Read from cache
-  const { data: cached } = await client.from("place_coords").select("place_id, lat, lng").in("place_id", unique);
+  const { data: cached, error: cacheError } = await client.from("place_coords").select("place_id, lat, lng").in("place_id", unique);
+  if (cacheError) throw new Error(`Place coordinate cache read failed: ${(cacheError as any)?.message ?? cacheError}`);
   for (const row of cached ?? []) {
     out.set(row.place_id, { lat: Number(row.lat), lng: Number(row.lng) });
   }
@@ -97,4 +101,17 @@ export async function resolveCoords(
   }
 
   return out;
+}
+
+/**
+ * Best-effort variant for suggestions only (nearby stops, template hints):
+ * a lookup failure means "no suggestions", never a price.
+ */
+export async function resolveCoordsSoft(client: MinimalClient, placeIds: string[]): Promise<Map<string, Coord>> {
+  try {
+    return await resolveCoords(client, placeIds);
+  } catch (err) {
+    console.warn("place coordinate lookup failed (suggestions skipped):", (err as Error)?.message);
+    return new Map();
+  }
 }
