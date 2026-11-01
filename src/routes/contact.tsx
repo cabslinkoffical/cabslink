@@ -73,11 +73,14 @@ function ContactPage() {
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (inflight.current) return;
-    const fd = new FormData(e.currentTarget);
+    // Capture the form now: React clears e.currentTarget once the synchronous
+    // dispatch ends, so reading it after an await would throw.
+    const form = e.currentTarget;
+    const fd = new FormData(form);
     // Honeypot: any bot filling this hidden field is silently rejected.
     if ((fd.get("website") ?? "").toString().trim() !== "") {
       toast.success("Message sent — we'll respond shortly.");
-      (e.currentTarget as HTMLFormElement).reset();
+      form.reset();
       return;
     }
     const parsed = schema.safeParse(Object.fromEntries(fd));
