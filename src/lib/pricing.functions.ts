@@ -774,7 +774,7 @@ export const createBooking = createServerFn({ method: "POST" })
       const routeMode = data.routeMode ?? "scenic";
       const { stopsFingerprint } = await import("@/lib/stops-fingerprint");
       const { classifyService } = await import("@/lib/classification");
-      const { loadPoiFeesByPlaceId, loadThresholds, calculateMultiStopQuote } = await import("@/lib/scenic-quote.functions");
+      const { loadPoiFeesByPlaceId, loadThresholds } = await import("@/lib/scenic-quote.functions");
 
       serverFingerprint = await stopsFingerprint({
         pickupPlaceId: data.pickupPlaceId,
