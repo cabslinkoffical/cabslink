@@ -127,16 +127,7 @@ function ContactPage() {
     setPhone("");
     captcha.reset();
   };
-  const _unused = () => {
-    try {
-    } catch (err) {
-      captcha.reset();
-      toast.error(err instanceof Error ? err.message : "Could not send. Please try again.");
-    } finally {
-      setLoading(false);
-      inflight.current = false;
-    }
-  };
+
 
   return (
     <SiteLayout>
