@@ -160,6 +160,15 @@ export async function findBookingByRef(db: any, ref: string): Promise<BookingFor
   return res.data as BookingForPayment;
 }
 
+/** A payment row for a Checkout session in any state. Throws on read errors. */
+export async function findPaymentByReference(db: any, reference: string): Promise<LedgerRow | null> {
+  const res = await db.from("payments")
+    .select("id, amount, refunded_amount, status, reference")
+    .eq("reference", reference).maybeSingle();
+  if (res.error) throw new Error("We couldn't check your payment balance. Please try again or call us.");
+  return (res.data as LedgerRow | null) ?? null;
+}
+
 /**
  * Read every payment that collected money — paid, partly refunded or refunded —
  * including staff-entered cash. Never guess on errors.
@@ -464,20 +473,32 @@ export async function handleSessionExpired(session: Stripe.Checkout.Session, env
 export async function handleChargeRefunded(charge: Stripe.Charge, env: StripeEnv, deps: PaymentDeps) {
   const piId = typeof charge.payment_intent === "string" ? charge.payment_intent : charge.payment_intent?.id ?? null;
   const full = charge.amount_refunded >= charge.amount;
-  const res = piId
-    ? await deps.db
-        .from("payments")
-        .update({ status: full ? "refunded" : "partial", processor_status: full ? "refunded" : "partially_refunded" })
-        .eq("payment_intent_id", piId)
-        .select("booking_id")
-    : { data: [] };
-  const bookingId = (res?.data?.[0]?.booking_id as string | undefined) ?? null;
-  if (bookingId) {
-    await deps.db
-      .from("bookings")
-      .update({ payment_status: full ? "refunded" : "partial" })
-      .eq("id", bookingId);
+  let bookingId: string | null = null;
+  if (piId) {
+    const rowsRes = await deps.db.from("payments")
+      .select("id, booking_id, amount, refunded_amount")
+      .eq("payment_intent_id", piId);
+    if (rowsRes.error) throw new Error(rowsRes.error.message);
+    for (const row of rowsRes.data ?? []) {
+      bookingId = bookingId ?? (row.booking_id as string | null);
+      // Stripe reports the cumulative refunded total; never move it backwards
+      // (older events can arrive late) and never above the charge itself.
+      const cumulative = Math.min(Number(row.amount), charge.amount_refunded / 100);
+      const refunded = Math.max(Number(row.refunded_amount ?? 0), cumulative);
+      const isFull = refunded >= Number(row.amount);
+      const upd = await deps.db.from("payments")
+        .update({
+          refunded_amount: refunded,
+          status: isFull ? "refunded" : refunded > 0 ? "partial" : "paid",
+          processor_status: isFull ? "refunded" : "partially_refunded",
+        })
+        .eq("id", row.id);
+      if (upd?.error) throw new Error(upd.error.message);
+    }
   }
+  // The booking reflects all money still held across every charge and cash
+  // entry — refunding one charge does not refund the whole booking.
+  if (bookingId) await reconcileBookingPaymentStatus(deps.db, bookingId);
   await logPaymentActivity(deps.db, "payment_refunded", bookingId, {
     charge_id: charge.id, payment_intent_id: piId, amount_refunded_pence: charge.amount_refunded,
     amount_pence: charge.amount, full, environment: env,
