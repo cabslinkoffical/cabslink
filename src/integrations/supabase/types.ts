@@ -2264,6 +2264,7 @@ export type Database = {
           payment_intent_id: string | null
           processor_status: string | null
           reference: string | null
+          refunded_amount: number
           status: Database["public"]["Enums"]["payment_status"]
           updated_at: string
         }
@@ -2284,6 +2285,7 @@ export type Database = {
           payment_intent_id?: string | null
           processor_status?: string | null
           reference?: string | null
+          refunded_amount?: number
           status?: Database["public"]["Enums"]["payment_status"]
           updated_at?: string
         }
@@ -2304,6 +2306,7 @@ export type Database = {
           payment_intent_id?: string | null
           processor_status?: string | null
           reference?: string | null
+          refunded_amount?: number
           status?: Database["public"]["Enums"]["payment_status"]
           updated_at?: string
         }
