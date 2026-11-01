@@ -320,7 +320,10 @@ export async function applyPaidSession(
     return { applied: false, reason: "sandbox_rejected", bookingId: booking?.id, status: booking?.status, paymentStatus: booking?.payment_status };
   }
   const payments = booking ? await paidPayments(deps.db, booking.id) : [];
-  const recorded = payments.find((row) => row.reference === session.id);
+  // Look the session up in every state, so a refunded or partly refunded
+  // charge is recognised on replay and never written back as paid.
+  const recorded = payments.find((row) => row.reference === session.id)
+    ?? (booking ? await findPaymentByReference(deps.db, session.id) : null);
   const expected = booking
     ? recorded ? Math.round(Number(recorded.amount) * 100)
       : booking.payment_status === "partial" ? outstandingPence(booking, payments) : bookingAmountPence(booking)
@@ -350,13 +353,28 @@ export async function applyPaidSession(
 
   if (!booking) return { applied: false, reason: "ref_mismatch" };
   const b = booking;
-  // A previously recorded payment must not settle a later amendment on replay.
-  if (recorded && (outstandingPence(b, payments) ?? 1) > 0) {
+  const recordedSettled = !!recorded && (SETTLED_PAYMENT_STATUSES as readonly string[]).includes(String(recorded.status ?? "paid"));
+  // A recorded session is a replay: never rewrite its ledger row (refund
+  // accounting stays intact) and never let it settle a later amendment.
+  if (recordedSettled && (
+    recorded!.status !== "paid" || Number(recorded!.refunded_amount ?? 0) > 0 || (outstandingPence(b, payments) ?? 1) > 0
+  )) {
     return { applied: false, reason: "already_recorded", bookingId: b.id, status: b.status, paymentStatus: b.payment_status };
   }
-  const recordedResult = await recordStripePayment({ session, env: opts.env, stripe: opts.stripe, bookingId: b.id, eventCreated: opts.eventCreated }, deps);
-  if (recordedResult.error) return { applied: false, reason: "update_failed", bookingId: b.id, status: b.status, paymentStatus: b.payment_status };
+  if (!recordedSettled) {
+    const recordedResult = await recordStripePayment({ session, env: opts.env, stripe: opts.stripe, bookingId: b.id, eventCreated: opts.eventCreated }, deps);
+    if (recordedResult.error) return { applied: false, reason: "update_failed", bookingId: b.id, status: b.status, paymentStatus: b.payment_status };
+  }
   const upd = bookingUpdateForPayment(b, check.pence);
+  if (upd?.payment_status) {
+    // Derive from the money actually held against the current fare.
+    const ledger = recordedSettled ? payments : [...payments, { amount: check.pence / 100, status: "paid" }];
+    upd.payment_status = derivePaymentStatus(bookingAmountPence(b) ?? check.pence, ledger);
+    if (upd.payment_status === b.payment_status) delete upd.payment_status;
+    if (!Object.keys(upd).length) {
+      return { applied: true, bookingId: b.id, status: b.status, paymentStatus: b.payment_status };
+    }
+  }
   let status = b.status;
   let paymentStatus = b.payment_status;
   if (upd) {
