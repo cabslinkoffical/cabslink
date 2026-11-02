@@ -373,7 +373,7 @@ function RatesTab({ classes }: { classes: TourHoursConfig["classes"] }) {
                       setBusy(c.id);
                       const r = rows[i]!;
                       try {
-                        await save({
+                        const res = await save({
                           data: {
                             id: r.id,
                             hourly_rate: r.hourly_rate,
@@ -387,6 +387,9 @@ function RatesTab({ classes }: { classes: TourHoursConfig["classes"] }) {
                           },
                         });
                         toast.success(`${r.name} saved`);
+                        if (res.unpriced?.length) {
+                          toast.warning(`Automatic prices couldn't be updated for: ${res.unpriced.join(", ")}`);
+                        }
                         await qc.invalidateQueries({ queryKey: ["admin", "tour-hours"] });
                       } catch (e: any) {
                         toast.error(e.message ?? "Save failed");
