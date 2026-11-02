@@ -311,18 +311,8 @@ export function ServicePillarPage({ content }: { content: PillarContent }) {
       {/* FAQs */}
       <section className="bg-muted/40 section-y">
         <div className="container-x max-w-3xl">
-          <SectionHeader eyebrow="FAQs" title="Common questions" />
+          <SectionHeader eyebrow="FAQs" title="Frequently asked questions" />
           <FaqAccordion items={content.faqs} className="mt-8" />
-          <div className="mt-10 flex flex-wrap gap-3">
-            <Button asChild variant="gold" className="rounded-lg">
-              <Link to="/book">Book online</Link>
-            </Button>
-            <Button asChild variant="outline" className="rounded-lg">
-              <a href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}>
-                <Phone className="size-4" /> {SITE.phoneUK}
-              </a>
-            </Button>
-          </div>
         </div>
       </section>
     </SiteLayout>

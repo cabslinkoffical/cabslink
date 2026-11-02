@@ -87,7 +87,7 @@ export function SportsServicePage({ content }: { content: SportsServiceContent }
 
       <section className="section-y">
         <div className="container-x max-w-3xl">
-          <SectionHeader eyebrow="FAQs" title="Common questions" />
+          <SectionHeader eyebrow="FAQs" title="Frequently asked questions" />
           <FaqAccordion items={content.faqs} className="mt-8" />
         </div>
       </section>

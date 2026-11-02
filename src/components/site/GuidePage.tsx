@@ -170,7 +170,7 @@ export function GuidePage({ guide: g }: { guide: GuideRecord }) {
       {g.faqs.length > 0 && (
         <section className="section-y border-t">
           <div className="container-x max-w-3xl">
-            <SectionHeader eyebrow="FAQs" title="Common questions" />
+            <SectionHeader eyebrow="FAQs" title="Frequently asked questions" />
             <FaqAccordion items={g.faqs} className="mt-8" />
           </div>
         </section>
