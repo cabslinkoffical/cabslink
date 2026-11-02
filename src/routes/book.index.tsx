@@ -223,6 +223,7 @@ function BookPage() {
   const [chosen, setChosen] = useState<QuoteCard | null>(null);
   const [qty, setQty] = useState<number>(1);
   const [policy, setPolicy] = useState<Policy>("standard");
+  const [payMethod, setPayMethod] = useState<"card" | "other">("card");
   const [editOpen, setEditOpen] = useState(false);
   // Extras (all consolidated on step 3)
   const [selectedStops, setSelectedStops] = useState<Record<string, number>>(() => {
@@ -523,7 +524,7 @@ function BookPage() {
       const mergedStops = orderedSelected.length > 0
         ? orderedSelected.map((s) => ({ placeId: s.place_id, label: s.label, minutes: s.minutes, category: s.category ?? null }))
         : pre.stops.map((s) => ({ placeId: s.placeId, label: s.label, minutes: 0 }));
-      const paymentLabel = "Card payment (online)";
+      const paymentLabel = payMethod === "other" ? OFFLINE_PAYMENT_LABEL : "Card payment (online)";
 
       const policyLabel = policy === "non_refundable" ? "Non-refundable" : policy === "flexible" ? "Flexible" : "Standard";
       const res = await bookFn({
@@ -576,10 +577,12 @@ function BookPage() {
         value: grandTotal / 100,
         currency: "GBP",
         stops: mergedStops.length,
-        payment_method: "card",
+        payment_method: payMethod === "other" ? "offline" : "card",
         cancellation_policy: policy,
       });
-      toast.success("Booking saved — complete your card payment to confirm.");
+      toast.success(payMethod === "other"
+        ? "We've received your booking request — message us on WhatsApp to confirm it."
+        : "Booking saved — complete your card payment to confirm.");
       idempotencyKey.current = crypto.randomUUID();
       captcha.reset();
       clearDraft();
@@ -589,7 +592,9 @@ function BookPage() {
       const amountPence = Math.round(
         (Number.isFinite(serverPrice) && serverPrice > 0 ? serverPrice : grandTotal) * 100,
       );
-      if (token && ref) {
+      if (payMethod === "other" && token) {
+        navigate({ to: "/booking/$token", params: { token } });
+      } else if (token && ref) {
         setPayFor({ ref, token, amountPence });
         setStep("pay");
       } else if (token) navigate({ to: "/booking/$token", params: { token } });
@@ -765,6 +770,8 @@ function BookPage() {
                       onBack={() => setStep("details")}
                       onSubmit={submitBooking}
                       submitting={submitting}
+                      payMethod={payMethod}
+                      onPayMethodChange={setPayMethod}
                       captchaWidget={captcha.widget}
                       captchaReady={captcha.ready}
                     />
@@ -2276,45 +2283,68 @@ function PolicyTiers({ value, onChange, base, cfg }: {
 }
 
 // ---------------------------------------------------------------
-// Step 03 — Card payment (card is the only accepted method)
+// Step 03 — Payment choice: card online, or another agreed method
 // ---------------------------------------------------------------
-function PaymentStep({ grandTotal, onBack, onSubmit, submitting, captchaWidget, captchaReady }: {
+function PaymentStep({ grandTotal, onBack, onSubmit, submitting, captchaWidget, captchaReady, payMethod, onPayMethodChange }: {
   grandTotal: number; onBack: () => void; onSubmit: () => void; submitting: boolean;
   captchaWidget?: React.ReactNode; captchaReady?: boolean;
+  payMethod: "card" | "other"; onPayMethodChange: (m: "card" | "other") => void;
 }) {
+  const option = (value: "card" | "other", icon: React.ReactNode, title: string, body: React.ReactNode) => {
+    const selected = payMethod === value;
+    return (
+      <label
+        className={`flex cursor-pointer items-start gap-4 rounded-2xl border-2 p-5 transition ${selected ? "border-[var(--gold)] bg-[var(--gold)]/5" : "border-border hover:border-[var(--gold)]/50"}`}
+      >
+        <input
+          type="radio"
+          name="payment-method"
+          value={value}
+          checked={selected}
+          onChange={() => onPayMethodChange(value)}
+          className="mt-1 size-4 accent-[var(--navy)]"
+        />
+        <span aria-hidden="true" className={`size-10 rounded-xl grid place-items-center shrink-0 ${selected ? "bg-[var(--gold)] text-[var(--gold-foreground)]" : "bg-[var(--surface)] text-[var(--navy)]"}`}>
+          {icon}
+        </span>
+        <span className="flex-1 min-w-0">
+          <span className="block font-display font-bold">{title}</span>
+          <span className="mt-1 block text-sm text-muted-foreground">{body}</span>
+        </span>
+      </label>
+    );
+  };
   return (
     <div className="bg-card rounded-2xl border border-border shadow-sm p-6 md:p-8 space-y-6">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)]">Step 03 — Payment</p>
-          <h2 className="mt-1 font-display text-2xl md:text-3xl font-bold">Pay securely by card</h2>
+          <h2 className="mt-1 font-display text-2xl md:text-3xl font-bold">How would you like to pay?</h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            Card is the only payment method we accept — your booking is confirmed as soon as the
-            payment succeeds.
+            Pay online by card, or book now and arrange cash, bank transfer or another method with our team.
           </p>
         </div>
         <div className="text-right">
-          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground">Total due</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground">Total</p>
           <p className="font-display text-3xl font-bold text-[var(--gold-ink)] tabular-nums">£{grandTotal.toFixed(2)}</p>
         </div>
       </div>
 
-      <div className="rounded-2xl border-2 border-[var(--gold)] bg-[var(--gold)]/5 p-5 flex items-start gap-4">
-        <span aria-hidden="true" className="size-10 rounded-xl grid place-items-center shrink-0 bg-[var(--gold)] text-[var(--gold-foreground)]">
-          <CreditCard className="size-5" />
-        </span>
-        <div className="flex-1 min-w-0">
-          <p className="font-display font-bold">Debit or credit card</p>
-          <p className="text-sm text-muted-foreground mt-1">
-            Visa, Mastercard and American Express. Payments are processed on an encrypted,
-            PCI-compliant page — we never see or store your card details.
-          </p>
-        </div>
-      </div>
+      <fieldset className="space-y-3">
+        <legend className="sr-only">Payment method</legend>
+        {option("card", <CreditCard className="size-5" />, "Pay now by card", <>
+          Visa, Mastercard and American Express on a secure Stripe page — we never see or store your
+          card details. Your booking is confirmed once the payment succeeds.
+        </>)}
+        {option("other", <MessageCircle className="size-5" />, "Pay another way (cash, bank transfer or other)", <>
+          Message us on WhatsApp with your booking reference and we'll confirm your booking and arrange payment.
+        </>)}
+      </fieldset>
 
       <p className="text-xs text-muted-foreground">
-        Continuing saves your journey and opens the secure card form. Nothing is charged until you
-        confirm the payment.
+        {payMethod === "card"
+          ? "Continuing saves your journey and opens the secure card form. Nothing is charged until you confirm the payment."
+          : "Continuing saves your booking request and shows your booking reference with a WhatsApp button. Nothing is charged online."}
       </p>
 
       {captchaWidget}
@@ -2325,7 +2355,9 @@ function PaymentStep({ grandTotal, onBack, onSubmit, submitting, captchaWidget, 
         </Button>
         <Button type="button" onClick={onSubmit} disabled={submitting || captchaReady === false}
           variant="gold" className="ml-auto tracking-wider px-8 gap-2">
-          {submitting ? "Preparing…" : <>Continue to card payment <ArrowRight className="size-4" /></>}
+          {submitting ? "Preparing…" : payMethod === "card"
+            ? <>Continue to card payment <ArrowRight className="size-4" /></>
+            : <>Send booking request <ArrowRight className="size-4" /></>}
         </Button>
       </div>
     </div>
@@ -2370,6 +2402,11 @@ function PayNowStep({ bookingRef, token, amountPence, email }: {
         you can pay later from Track booking using reference{" "}
         <span className="font-semibold text-foreground">{bookingRef}</span>.
       </p>
+
+      <div className="rounded-2xl border border-border bg-[var(--surface)] p-5">
+        <p className="font-display font-bold">Prefer to pay another way (cash, bank transfer or other)?</p>
+        <PayAnotherWay bookingRef={bookingRef} className="mt-1" />
+      </div>
 
     </div>
   );
