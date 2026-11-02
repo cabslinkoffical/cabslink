@@ -195,8 +195,8 @@
 - [x] Day trips guide: tour links, "Book this as a private tour" links, 4 FAQs + schema
 
 ## Owner requests (2 Nov, evening)
-- [ ] Hourly hire vs day tours: check logic/wording and correct (waiting on owner choice of pricing)
-- [ ] Admin: tour price set manually or automatically when adding/editing a tour (waiting on owner choice of automatic formula)
+- [x] Hourly hire vs day tours: separate booking pages, same hourly rates; hourly hire has optional stops and no ready-made tours
+- [x] Admin: tour price set manually or automatically (hourly rate × hours + route miles) when adding/editing a tour
 - [x] Flight tracking confirmed: one shared wording everywhere; no extra promises
 - [x] Flight number required for airport pickups (clear message), optional otherwise
 - [x] Harry Potter title → "Harry Potter Tour from Edinburgh to Glenfinnan | Cabslink"
