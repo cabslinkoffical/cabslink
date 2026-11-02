@@ -140,13 +140,13 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
             {data.airports.length > 0 && (
               <div>
                 <GroupLabel icon={Plane}>Airport transfers from {locName}</GroupLabel>
-                <EntityList items={data.airports} />
+                {data.popularRoutes.length ? <EntityList items={data.airports} /> : <EntityGrid items={data.airports} />}
               </div>
             )}
             {data.popularRoutes.length > 0 && (
               <div>
                 <GroupLabel icon={MapPin}>Popular routes from {locName}</GroupLabel>
-                <EntityList items={data.popularRoutes} />
+                {data.airports.length ? <EntityList items={data.popularRoutes} /> : <EntityGrid items={data.popularRoutes} />}
               </div>
             )}
           </div>
