@@ -1,6 +1,10 @@
 import { formatTime12 } from "@/lib/time-format";
 import { createFileRoute } from "@tanstack/react-router";
-import { useSuspenseQuery, useMutation, useQueryClient, queryOptions, useQuery } from "@tanstack/react-query";
+import { useMutation, useQueryClient, queryOptions, useQuery, keepPreviousData } from "@tanstack/react-query";
+import { listCancellationRequestsPage } from "@/lib/admin-lists.functions";
+import { listBookingsPage } from "@/lib/admin-bookings.functions";
+import { Pager, useDebounced, usePageState } from "@/components/admin/Pager";
+import { DEFAULT_PAGE_SIZE } from "@/lib/admin-paging";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState, useEffect } from "react";
 import {
@@ -25,14 +29,16 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-const opts = queryOptions({
-  queryKey: ["admin", "cancellations"],
-  queryFn: () => listCancellationRequests(),
+const cancelOpts = (view: string, q: string, page: number, pageSize: number) => queryOptions({
+  queryKey: ["admin", "cancellations", { view, q, page, pageSize }],
+  queryFn: () => listCancellationRequestsPage({ data: { view, q, page, pageSize } }),
+  placeholderData: keepPreviousData,
 });
 
-const cancelledBookingOpts = queryOptions({
-  queryKey: ["admin", "bookings"],
-  queryFn: () => listBookings(),
+const cancelledBookingOpts = (q: string, page: number, pageSize: number) => queryOptions({
+  queryKey: ["admin", "bookings", "page", { tab: "cancelled", q, page, pageSize, includeTours: true }],
+  queryFn: () => listBookingsPage({ data: { tab: "cancelled", q, page, pageSize, includeTours: true } }),
+  placeholderData: keepPreviousData,
 });
 
 export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/cancellations")({
@@ -47,7 +53,7 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/cancel
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(opts),
+  loader: ({ context }) => context.queryClient.ensureQueryData(cancelOpts("open", "", 1, DEFAULT_PAGE_SIZE)),
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error instanceof Error ? error.message : String(error)}</div>,
   notFoundComponent: () => <div className="p-8">Not found</div>,
   component: CancellationsPage,
@@ -105,8 +111,6 @@ function Fact({ icon, label, value }: { icon?: React.ReactNode; label: string; v
 }
 
 function CancellationsPage() {
-  const { data } = useSuspenseQuery(opts);
-  const rowsAll = (data ?? []) as any[];
   const qc = useQueryClient();
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: ["admin", "cancellations"] });
@@ -128,38 +132,15 @@ function CancellationsPage() {
   type QueueView = "open" | "approved" | "refunded" | "closed" | "all";
   const [tab, setTab] = useState<QueueView>("open");
   const [q, setQ] = useState("");
-
-  const counts = useMemo(() => {
-    const c: Record<string, number> = { all: rowsAll.length, open: 0 };
-    for (const r of rowsAll) {
-      c[r.status] = (c[r.status] ?? 0) + 1;
-      if (r.status === "pending" || r.status === "in_review") c.open += 1;
-    }
-    return c;
-  }, [rowsAll]);
-
-  const refundDue = useMemo(
-    () => rowsAll
-      .filter((r) => r.status === "approved")
-      .reduce((s, r) => s + Number(r.refund_amount ?? r.price_at_request ?? 0), 0),
-    [rowsAll],
-  );
-
-  const rows = useMemo(() => {
-    const term = q.trim().toLowerCase();
-    return rowsAll.filter((r) => {
-      if (tab === "open" && !(r.status === "pending" || r.status === "in_review")) return false;
-      if (tab === "approved" && r.status !== "approved") return false;
-      if (tab === "refunded" && r.status !== "refunded") return false;
-      if (tab === "closed" && !(r.status === "declined" || r.status === "completed")) return false;
-      if (!term) return true;
-      return [r.booking_ref, r.customer_name, r.email, r.phone, r.reason, r.pickup_address, r.dropoff_address]
-        .some((f) => String(f ?? "").toLowerCase().includes(term));
-    });
-  }, [rowsAll, tab, q]);
+  const term = useDebounced(q.trim());
+  const paging = usePageState([tab, term]);
+  const listQ = useQuery(cancelOpts(tab, term, paging.page, paging.pageSize));
+  const rows = (listQ.data?.rows ?? []) as any[];
+  const counts: Record<string, number> = listQ.data?.counts ?? { all: 0, open: 0 };
+  const refundDue = listQ.data?.refundDue ?? 0;
 
   const [openId, setOpenId] = useState<string | null>(null);
-  const active = rowsAll.find((r) => r.id === openId) ?? null;
+  const active = rows.find((r) => r.id === openId) ?? null;
 
   const [notes, setNotes] = useState("");
   const [amount, setAmount] = useState("");
@@ -302,6 +283,12 @@ function CancellationsPage() {
           </table>
          </div>
       )}
+      {(listQ.data?.total ?? 0) > 0 && (
+        <div className="border-t border-border p-3">
+          <Pager page={paging.page} pageSize={paging.pageSize} total={listQ.data?.total ?? 0} noun="requests" loading={listQ.isFetching}
+            onPageChange={paging.setPage} onPageSizeChange={paging.setPageSize} className="border-0 bg-transparent px-0 py-0" />
+        </div>
+      )}
       </section>
 
       <CancelledBookings />
@@ -432,15 +419,11 @@ function CancellationsPage() {
 
 /** Every booking that ended up cancelled or rejected, wherever it was cancelled from. */
 function CancelledBookings() {
-  const { data = [] } = useQuery(cancelledBookingOpts);
   const [q, setQ] = useState("");
-  const rows = useMemo(() => {
-    const term = q.trim().toLowerCase();
-    return (data as any[])
-      .filter((b) => !b.deleted_at && ["cancelled", "rejected"].includes(b.status))
-      .filter((b) => !term || [b.booking_ref, b.customer_name, b.email, b.phone, b.pickup_address, b.dropoff_address]
-        .some((f) => String(f ?? "").toLowerCase().includes(term)));
-  }, [data, q]);
+  const term = useDebounced(q.trim());
+  const paging = usePageState(term);
+  const histQ = useQuery(cancelledBookingOpts(term, paging.page, paging.pageSize));
+  const rows = (histQ.data?.rows ?? []) as any[];
 
   return (
     <section id="cancelled-bookings-history" className="scroll-mt-6 space-y-3">
@@ -499,6 +482,10 @@ function CancelledBookings() {
             </tbody>
           </table>
         </div>
+      )}
+      {(histQ.data?.total ?? 0) > 0 && (
+        <Pager page={paging.page} pageSize={paging.pageSize} total={histQ.data?.total ?? 0} noun="cancelled bookings" loading={histQ.isFetching}
+          onPageChange={paging.setPage} onPageSizeChange={paging.setPageSize} />
       )}
     </section>
   );
