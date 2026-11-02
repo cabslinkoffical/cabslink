@@ -45,26 +45,26 @@ export function ServiceLocationPage({ content }: { content: ServiceLocationConte
         eyebrow={`${content.eyebrow} — ${loc.name}`}
         title={content.h1}
         subtitle={content.subtitle}
-        facts={loc.airports
-          .slice(0, 3)
-          .map((a) => ({ label: a.code, value: `${a.mins} min · ${a.miles} mi` }))}
         prefill={serviceLocationPrefill(loc.name)}
         image={serviceLocalImage(content.serviceUrl)}
         imageAlt={`Cabslink ${content.serviceName} in ${loc.name}`}
         imageCaption={`${content.serviceName} — ${loc.name}`}
-      />
-
-      {/* Local intro + facts */}
-      <section className="section-y">
-        <div className="container-x grid gap-12 lg:grid-cols-[1.2fr_1fr]">
-          <div>
-            <SectionHeader
-              eyebrow={`${loc.name}, ${loc.region}`}
-              title={`${content.serviceName} for ${loc.name} travellers`}
-              subtitle={content.intro}
-            />
-            <p className="speakable mt-6 text-sm leading-relaxed text-muted-foreground">{loc.orientation}</p>
-            <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{content.localNote}</p>
+        intro={{
+          eyebrow: `${loc.name}, ${loc.region}`,
+          heading: `${content.serviceName} for ${loc.name} travellers`,
+          body: (
+            <>
+              <p>{content.intro}</p>
+              <p>{loc.orientation}</p>
+              <p>{content.localNote}</p>
+            </>
+          ),
+          details: loc.airports.map((a) => ({
+            icon: Plane,
+            label: a.name,
+            value: `${a.miles} miles · about ${a.mins} minutes`,
+          })),
+          footer: (
             <div className="mt-8 flex flex-wrap gap-3">
               <Button asChild variant="gold" className="rounded-lg">
                 <Link to="/book">Book online <ArrowRight className="size-4" /></Link>
@@ -73,34 +73,26 @@ export function ServiceLocationPage({ content }: { content: ServiceLocationConte
                 <Link to="/areas/$slug" params={{ slug: loc.slug }}>About {loc.name}</Link>
               </Button>
             </div>
-          </div>
+          ),
+        }}
+      />
 
-          <aside className="rounded-3xl border bg-background p-6 shadow-[var(--shadow-raised)]">
-            <h2 className="font-display text-lg font-semibold">Airport drive times from {loc.name}</h2>
-            <ul className="mt-4 space-y-3">
-              {loc.airports.map((a) => (
-                <li key={a.code} className="flex items-start gap-3 text-sm">
-                  <Plane className="mt-0.5 size-4 shrink-0 text-[var(--gold-ink)]" />
-                  <span>
-                    <span className="font-medium">{a.name}</span>
-                    <span className="block text-muted-foreground">
-                      {a.miles} miles · about {a.mins} minutes
-                    </span>
-                  </span>
-                </li>
-              ))}
-            </ul>
-            <h3 className="mt-6 font-display text-lg font-semibold">Key pickup points</h3>
-            <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-              {loc.landmarks.map((l) => (
-                <li key={l} className="flex items-start gap-2">
-                  <MapPin className="mt-0.5 size-4 shrink-0 text-[var(--gold-ink)]" /> {l}
-                </li>
-              ))}
-            </ul>
-          </aside>
-        </div>
-      </section>
+      {loc.landmarks.length > 0 && (
+        <section className="pb-4 pt-8">
+          <div className="container-x">
+            <div className="rounded-3xl border border-border bg-card p-6 shadow-[var(--shadow-raised)]">
+              <h2 className="font-display text-lg font-semibold text-[var(--navy)]">Key pickup points in {loc.name}</h2>
+              <ul className="mt-4 grid gap-2 text-sm text-muted-foreground sm:grid-cols-2 lg:grid-cols-3">
+                {loc.landmarks.map((l) => (
+                  <li key={l} className="flex items-start gap-2">
+                    <MapPin className="mt-0.5 size-4 shrink-0 text-[var(--gold-ink)]" /> {l}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Popular journeys */}
       <section className="bg-[var(--navy)] text-[var(--navy-foreground)] section-y">
