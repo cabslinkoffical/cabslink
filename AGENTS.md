@@ -46,3 +46,4 @@
 - Multi-table admin saves (settings + credentials, blog post + tags, extra + class links) run in one admin-checked Postgres function so a failed step leaves the previous configuration intact; omitted fields mean unchanged.
 - Dispatch drains claim one event at a time via a leased service-role function (expired leases reclaimed, completion writes fenced to the lease, stable event IDs); scheduler and receiver read the drain token from private settings, never code or migrations.
 - Subdirectories may have their own AGENTS.md (e.g. the staff console routes); read it before changing files there.
+- Non-home public pages build lower content from PageBand sections placed directly in <main> (fact tables, link cards, editorial rows, FaqBand); styles.css alternates white/cream bands for everything except `.is-home`, so templates never pick their own section backgrounds and the homepage stays untouched.
