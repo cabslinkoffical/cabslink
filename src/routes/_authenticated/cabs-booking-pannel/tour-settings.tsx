@@ -50,6 +50,10 @@ function TourSettingsPage() {
   async function submit() {
     setSaving(true);
     try {
+      // Numbers left empty while typing are refused rather than saved as 0.
+      const empty = Object.entries(DEFAULTS).find(([k, v]) => typeof v === "number" && (form[k] === "" || form[k] == null || !Number.isFinite(Number(form[k]))));
+      if (empty) { toast.error("Fill in every number before saving."); return; }
+      if (Object.entries(DEFAULTS).some(([k, v]) => typeof v === "number" && Number(form[k]) < 0)) { toast.error("Numbers can't be negative."); return; }
       await save({ data: form });
       toast.success("Settings updated");
       await qc.invalidateQueries({ queryKey: ["admin", "tour-settings"] });
@@ -68,7 +72,7 @@ function TourSettingsPage() {
         type={type}
         min={type === "number" ? 0 : undefined}
         value={form[k] ?? ""}
-        onChange={(e) => setForm({ ...form, [k]: type === "number" ? Number(e.target.value) : e.target.value })}
+        onChange={(e) => setForm({ ...form, [k]: type === "number" && e.target.value !== "" ? Number(e.target.value) : e.target.value })}
       />
       {hint && <p className="text-xs text-muted-foreground mt-1">{hint}</p>}
     </div>
