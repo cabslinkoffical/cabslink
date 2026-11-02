@@ -183,3 +183,4 @@
 - [ ] Security: full review (quick + deep scan) and update 26 dependency advisories
 - [ ] AI/search visibility for every page: text-to-code ratio, missing article/tour structured data; fresh SEO scan after publish
 - [ ] Signed-in admin + full booking/payment/cancellation journey checks (needs an admin account/session)
+- [ ] Use owner's FAQ question bank (Cabslink_FAQ_Question_Bank.xlsx) on relevant pages; answer only from verified facts, list unanswerable questions.
