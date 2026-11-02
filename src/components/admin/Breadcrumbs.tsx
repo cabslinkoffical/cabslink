@@ -3,6 +3,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 const LABELS: Record<string, string> = {
   "cabs-booking-pannel": "Dashboard",
   bookings: "Bookings",
+  "site-settings": "All settings",
   cancellations: "Cancellations & Refunds",
   amendments: "Booking Changes",
   messages: "Messages",
