@@ -18,9 +18,9 @@ export const Route = createFileRoute("/about")({
   head: () => normalizeHead({
     meta: [
       { title: "About Cabslink — Airport Transfers from Edinburgh" },
-      { name: "description", content: "Cabslink Limited: pre-booked airport transfers, private hire and day tours from Edinburgh, with fixed prices and meet and greet on every airport pickup." },
+      { name: "description", content: "Cabslink Limited: pre-booked airport transfers, private hire and day tours from Edinburgh, with fixed prices and optional meet and greet on every booking." },
       { property: "og:title", content: "About Cabslink — Airport Transfers from Edinburgh" },
-      { property: "og:description", content: "Pre-booked airport transfers, private hire and day tours from Edinburgh, with fixed prices and meet and greet on every airport pickup." },
+      { property: "og:description", content: "Pre-booked airport transfers, private hire and day tours from Edinburgh, with fixed prices and optional meet and greet on every booking." },
       { property: "og:url", content: CANONICAL },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

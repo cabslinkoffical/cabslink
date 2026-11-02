@@ -121,8 +121,8 @@ function buildFaqs(loaded: LoadedDestination): Array<{ q: string; a: string }> {
     });
   }
   items.push({
-    q: `How do I get a receipt or VAT invoice?`,
-    a: `Every completed booking generates a receipt by email; VAT invoices are available on request for corporate accounts.`,
+    q: `How do I get a receipt?`,
+    a: `Your booking confirmation, showing the fare you paid, is emailed to the address you enter when booking.`,
   });
   return items;
 }

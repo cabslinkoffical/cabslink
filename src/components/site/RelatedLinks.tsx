@@ -5,21 +5,25 @@ import { ArrowRight, BookOpen, MapPin, Plane, Route as RouteIcon } from "lucide-
 import { selectedRelatedLinksQuery } from "@/lib/related-links.functions";
 import { type RelatedCandidate } from "@/lib/related-links";
 import { guideFor } from "@/content/place-guides";
+import { PageBand } from "@/components/site/PageBand";
 
 type Props = { center?: { lat: number; lng: number } | null };
 
 function Group({ title, icon: Icon, links }: { title: string; icon: typeof Plane; links: RelatedCandidate[] }) {
   if (!links.length) return null;
   return (
-    <div>
+    <div className="rounded-2xl border border-border bg-card p-6 shadow-raised">
       <h3 className="flex items-center gap-2 font-display text-base font-bold text-[var(--navy)]">
-        <Icon className="size-4 text-[var(--gold-ink)]" aria-hidden /> {title}
+        <span className="grid size-8 place-items-center rounded-full bg-[var(--surface-gold)]">
+          <Icon className="size-4 text-[var(--gold-ink)]" aria-hidden />
+        </span>
+        {title}
       </h3>
-      <ul className="mt-3 space-y-2">
+      <ul className="mt-4 divide-y divide-border">
         {links.map((l) => (
           <li key={l.href}>
-            <a href={l.href} className="group inline-flex items-center gap-1.5 text-sm text-[var(--navy)]/80 hover:text-[var(--gold-ink)]">
-              <ArrowRight className="size-3.5 shrink-0 transition-transform group-hover:translate-x-0.5" aria-hidden />
+            <a href={l.href} className="group flex items-start gap-2 py-2.5 text-sm font-medium text-[var(--navy)]/85 hover:text-[var(--gold-ink)]">
+              <ArrowRight className="mt-0.5 size-3.5 shrink-0 text-[var(--gold-ink)] transition-transform group-hover:translate-x-0.5" aria-hidden />
               {l.label}
             </a>
           </li>
@@ -34,22 +38,25 @@ function Inner({ center }: Props) {
   const { data: picked } = useSuspenseQuery(selectedRelatedLinksQuery(path, center ?? null));
   const hasGuide = !!guideFor(path);
   if (!picked.airports.length && !picked.areas.length && !picked.tours.length) return null;
+  const groups = [
+    { title: "Airports", icon: Plane, links: picked.airports },
+    { title: "Areas we cover", icon: MapPin, links: picked.areas },
+    ...(!hasGuide ? [{ title: "Related tours", icon: RouteIcon, links: picked.tours }] : []),
+    ...(!hasGuide ? [{ title: "Related articles", icon: BookOpen, links: picked.articles ?? [] }] : []),
+  ].filter((g) => g.links.length > 0);
+  const cols = groups.length >= 4 ? "lg:grid-cols-4" : groups.length === 3 ? "lg:grid-cols-3" : "";
   return (
-    <section aria-labelledby="related-pages-heading" className="mx-auto mt-16 max-w-6xl px-4 pb-4 sm:px-6">
-      <div className="rounded-3xl border border-[var(--navy)]/10 bg-[var(--surface-2)] p-6 sm:p-8">
-        <h2 id="related-pages-heading" className="font-display text-2xl font-bold text-[var(--navy)]">Related pages</h2>
-        <div className="mt-6 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          <Group title="Airports" icon={Plane} links={picked.airports} />
-          <Group title="Areas we cover" icon={MapPin} links={picked.areas} />
-          {!hasGuide && <Group title="Related tours" icon={RouteIcon} links={picked.tours} />}
-          {!hasGuide && <Group title="Related articles" icon={BookOpen} links={picked.articles ?? []} />}
-        </div>
+    <PageBand eyebrow="Explore more" title="Related pages">
+      <div className={`grid gap-5 sm:grid-cols-2 ${cols}`}>
+        {groups.map((g) => (
+          <Group key={g.title} {...g} />
+        ))}
       </div>
-    </section>
+    </PageBand>
   );
 }
 
-/** Shared related-pages block, rendered inside page content before the footer. */
+/** Shared related-pages band, rendered inside page content before the footer. */
 export function RelatedLinks(props: Props) {
   return (
     <Suspense fallback={null}>

@@ -54,7 +54,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         "heading": "Choosing the right car for your party",
         "paragraphs": [
           "Golf trips and family holidays often need more boot space than people expect. Our saloons carry up to four passengers with two large cases, the Estate Car takes four passengers with three cases, the Standard MPV four passengers with four cases, the Seven-Seater MPV six passengers with three cases, the Premium MPV seven passengers with seven cases and the Eight-Seater Van eight passengers with eight cases. Child seats can be added during booking.",
-          "Meet and greet is included on airport pickups: your driver waits in arrivals with a name board, and we track your flight so the pickup time follows your actual landing."
+          "Meet and greet is available on every booking for a small extra charge, shown in your quote: your driver waits in arrivals with a name board, and we track your flight so the pickup time follows your actual landing."
         ]
       }
     ]
@@ -319,7 +319,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         "heading": "Families and groups on long journeys",
         "paragraphs": [
           "Our saloons carry up to four passengers with two large cases, the Estate Car takes four passengers with three cases, the Standard MPV four passengers with four cases, the Seven-Seater MPV six passengers with three cases, the Premium MPV seven passengers with seven cases and the Eight-Seater Van eight passengers with eight cases. On a trip this long, a car with spare room is usually more comfortable than a full one.",
-          "Child seats can be added during booking, and meet and greet is included when we collect you from arrivals."
+          "Child seats can be added during booking, and meet and greet at arrivals is available for a small extra charge."
         ]
       }
     ],
@@ -357,7 +357,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         "heading": "Vehicles for business and long-haul travel",
         "paragraphs": [
           "Business travellers usually pick the Executive Saloon or Luxury Saloon. The Luxury Saloon carries three passengers with two large cases. Families with luggage for a long holiday often choose the Premium MPV, which takes seven passengers and seven large cases.",
-          "Meet and greet is included on airport pickups, and we follow your flight to time the pickup."
+          "Meet and greet is available on every booking for a small extra charge, shown in your quote, and we follow your flight to time the pickup."
         ]
       },
       {
@@ -440,7 +440,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         "heading": "Which car to choose",
         "paragraphs": [
           "For one or two business travellers, the Executive Saloon carries four passengers with two large cases. For a team, the Seven-Seater MPV carries six passengers, and the Eight-Seater Van eight passengers with eight cases.",
-          "Child seats and extra stops can be added while booking, and meet and greet is included on airport pickups."
+          "Child seats and extra stops can be added while booking, and meet and greet is available on every booking for a small extra charge."
         ]
       },
       {
@@ -575,7 +575,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         "heading": "Matching the car to the trip",
         "paragraphs": [
           "Couples travelling light are comfortable in a saloon. Families who need more room often choose the Estate Car, which takes four passengers with three large cases, or the Premium MPV, which carries seven passengers and seven cases.",
-          "Child seats are available as extras, and meet and greet is included when we collect you from arrivals."
+          "Child seats are available as extras, and meet and greet at arrivals is available for a small extra charge."
         ]
       }
     ],

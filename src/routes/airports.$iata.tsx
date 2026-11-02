@@ -13,10 +13,11 @@ import { SeoPageRenderer, buildSeoHead } from "@/components/seo/SeoPageRenderer"
 import { listDestinationsByType, type Destination } from "@/lib/destinations.functions";
 import { DirectAnswer } from "@/components/seo/DirectAnswer";
 import { guideFor } from "@/content/place-guides";
+import { SectionHeader } from "@/components/site/PageHero";
+import { FaqBand } from "@/components/site/PageBand";
 import { PlaceGuideBlock } from "@/components/seo/PlaceGuideBlock";
 import { getRouteFares } from "@/lib/seo/route-fares.functions";
 import { airportFaqFor } from "@/content/airport-faqs";
-import { FaqBlock } from "@/components/seo/FaqBlock";
 import { faqSchema } from "@/components/seo/schema";
 
 const ORIGIN = "https://cabslink.com";
@@ -142,7 +143,7 @@ function AirportPage() {
             return (
               <>
                 {guide ? <PlaceGuideBlock guide={guide} fares={data.guideFares} /> : null}
-                <FaqBlock items={faqs} />
+                <FaqBand items={faqs} />
               </>
             );
           })()}
@@ -160,7 +161,7 @@ function AirportPage() {
 
   const features = [
     { icon: Plane, title: "Live flight tracking", desc: "We monitor your flight and adjust pickup for delays or early arrivals — no extra charge." },
-    { icon: ShieldCheck, title: "Meet & greet", desc: "Your driver waits inside the terminal with a name board so you're never lost after a long flight." },
+    { icon: ShieldCheck, title: "Meet & greet", desc: "Add it to any booking for a small extra charge — your driver waits inside the terminal with a name board." },
     { icon: Clock, title: "24/7 dispatch", desc: "Book any airport transfer, any hour of the day, with fixed fares confirmed instantly." },
     { icon: MapPin, title: "Door-to-door service", desc: "From terminal to your hotel, office or home address anywhere in the UK." },
   ];
@@ -199,7 +200,7 @@ function AirportPage() {
               className="!border-0 !bg-transparent !p-0"
               sentences={[
             `Cabslink runs pre-booked private transfers to and from ${name}${iata ? ` (${iata})` : ""}${cityLine ? ` in ${cityLine}` : ""}.`,
-            `Fares are fixed before you travel, and meet and greet is included on airport pickups: your driver waits in arrivals with a name board.`,
+            `Fares are fixed before you travel, and meet and greet is available on every booking for a small extra charge: your driver waits in arrivals with a name board.`,
               ]}
               updated={(airport as { updated_at?: string | null }).updated_at ?? null}
             />
@@ -211,17 +212,14 @@ function AirportPage() {
       {/* How it works */}
       <section className="section-y bg-[var(--surface-2)]">
         <div className="container-x">
-          <p className="eyebrow-gold text-[11px]">— How it works</p>
-          <h2 className="mt-4 font-display text-3xl md:text-4xl font-bold text-[var(--navy)]">
-            Book {shortName} transfers in three steps.
-          </h2>
+          <SectionHeader eyebrow="How it works" title={`Book ${shortName} transfers in three steps`} />
           <div className="mt-10 grid gap-6 md:grid-cols-3">
             {[
               { n: "01", t: "Enter your details", d: "Pick your date, time and drop-off address. Get a fixed fare instantly." },
               { n: "02", t: "Confirm your ride", d: "Choose vehicle class and add extras like meet & greet or child seats." },
               { n: "03", t: "Meet your driver", d: `We track your flight and greet you inside ${shortName}'s arrivals hall.` },
             ].map((s) => (
-              <div key={s.n} className="rounded-2xl bg-card p-6 border border-[var(--navy)]/10">
+              <div key={s.n} className="rounded-2xl bg-card p-6 border border-border shadow-raised">
                 <p className="font-mono text-xs text-[var(--gold-ink)] tracking-widest">{s.n}</p>
                 <h3 className="mt-3 font-display text-xl font-semibold text-[var(--navy)]">{s.t}</h3>
                 <p className="mt-2 text-sm text-[var(--navy)]/70">{s.d}</p>
@@ -234,10 +232,7 @@ function AirportPage() {
       {/* Popular use cases */}
       <section className="section-y">
         <div className="container-x">
-          <p className="eyebrow-gold text-[11px]">— Who we drive</p>
-          <h2 className="mt-4 font-display text-3xl md:text-4xl font-bold text-[var(--navy)]">
-            {shortName} transfers for every kind of traveller.
-          </h2>
+          <SectionHeader eyebrow="Who we drive" title={`${shortName} transfers for every kind of traveller`} />
           <ul className="mt-8 grid gap-3 md:grid-cols-2">
             {[
               "Business travellers needing quiet, on-time executive travel",
@@ -261,12 +256,7 @@ function AirportPage() {
         <section className="section-y bg-[var(--surface-2)]">
           <div className="container-x">
             <div className="flex items-end justify-between gap-6 flex-wrap mb-8">
-              <div>
-                <p className="eyebrow-gold text-[11px]">— More airports</p>
-                <h2 className="mt-4 font-display text-3xl md:text-4xl font-bold text-[var(--navy)]">
-                  Other UK airports we cover.
-                </h2>
-              </div>
+              <SectionHeader eyebrow="More airports" title="Other UK airports we cover" />
               <Link
                 to="/airports"
                 className="rounded-full border border-[var(--navy)]/20 px-5 py-2.5 text-sm font-semibold text-[var(--navy)] hover:border-[var(--gold)]"

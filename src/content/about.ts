@@ -33,7 +33,7 @@ export const ABOUT = {
   faqs: [
     { q: "Do you monitor flights?", a: "Yes. Airport pickups are linked to your flight number so the pickup moves with an early or late landing." },
     { q: "How long will the driver wait at the airport?", a: FACT_TEXT.airportWait },
-    { q: "Is meet and greet included?", a: FACT_TEXT.meetGreet },
+    { q: "Is meet and greet available?", a: FACT_TEXT.meetGreet },
     { q: "How do I pay?", a: FACT_TEXT.payment },
     { q: "Can I cancel my booking?", a: `${FACT_TEXT.transferCancellation} ${FACT_TEXT.tourCancellation}` },
     { q: "Do you provide child seats?", a: "Yes, on request. Tell us the child's age and weight when booking so the right seat is fitted." },

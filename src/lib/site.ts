@@ -18,6 +18,7 @@ export const NAV = [
   { to: "/services", label: "Services" },
   { to: "/fleet", label: "Fleet" },
   { to: "/tours", label: "Tours" },
+  { to: "/areas", label: "Areas" },
   { to: "/corporate-booking", label: "Corporate" },
   { to: "/blog", label: "Blog" },
   { to: "/contact", label: "Contact" },

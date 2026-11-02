@@ -10,7 +10,7 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { LocalMapSection } from "@/components/site/LocalMapSection";
 import { getPublicPlaceCoords } from "@/lib/seo-public.functions";
 import { useQuery } from "@tanstack/react-query";
-import { FaqAccordion } from "@/components/site/FaqAccordion";
+import { FaqBand } from "@/components/site/PageBand";
 import { SectionHeader } from "@/components/site/PageHero";
 import { LocalPageHero } from "@/components/site/LocalPageHero";
 import { serviceLocalImage, serviceLocationPrefill } from "@/lib/local-page";
@@ -154,7 +154,7 @@ export function ServiceLocationPage({ content }: { content: ServiceLocationConte
               <li key={s.to}>
                 <Link
                   to={s.to}
-                  className="inline-flex items-center gap-2 rounded-lg border bg-background px-4 py-2 text-sm font-medium shadow-[var(--shadow-raised)] hover:border-[var(--gold)]"
+                  className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-[var(--navy)] shadow-raised hover:border-[var(--gold)]"
                 >
                   <MapPin className="size-4 text-[var(--gold-ink)]" /> {s.label} in {loc.name}
                 </Link>
@@ -163,7 +163,7 @@ export function ServiceLocationPage({ content }: { content: ServiceLocationConte
             <li>
               <Link
                 to={content.serviceUrl}
-                className="inline-flex items-center gap-2 rounded-lg border bg-background px-4 py-2 text-sm font-medium shadow-[var(--shadow-raised)] hover:border-[var(--gold)]"
+                className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-[var(--navy)] shadow-raised hover:border-[var(--gold)]"
               >
                 {content.serviceName} across the UK <ArrowRight className="size-4" />
               </Link>
@@ -176,9 +176,9 @@ export function ServiceLocationPage({ content }: { content: ServiceLocationConte
                 <li key={s.id}>
                   <Link
                     to={s.url}
-                    className="group flex h-full flex-col rounded-2xl border bg-background p-6 shadow-[var(--shadow-raised)] transition hover:border-[var(--gold)]"
+                    className="group flex h-full flex-col rounded-2xl border border-border bg-card p-6 shadow-raised transition hover:border-[var(--gold)]"
                   >
-                    <h3 className="font-display text-lg font-semibold">{s.name}</h3>
+                    <h3 className="font-display text-lg font-semibold text-[var(--navy)]">{s.name}</h3>
                     <p className="mt-2 flex-1 text-sm text-muted-foreground">{s.intent}</p>
                     <span className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-[var(--gold-ink)]">
                       Learn more <ArrowRight className="size-4 transition group-hover:translate-x-1" />
@@ -193,12 +193,7 @@ export function ServiceLocationPage({ content }: { content: ServiceLocationConte
 
 
       {/* FAQs */}
-      <section className="section-y">
-        <div className="container-x max-w-3xl">
-          <SectionHeader eyebrow={`${content.serviceName} in ${loc.name}`} title="Frequently asked questions" />
-          <FaqAccordion items={content.faqs} className="mt-8" />
-        </div>
-      </section>
+      <FaqBand eyebrow={`${content.serviceName} in ${loc.name}`} items={content.faqs} />
       <LocalMapSection
         focus={coords ?? null}
         heading={`${loc.name} and surrounding area`}

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useRouterState } from "@tanstack/react-router";
 import { TopBar } from "./TopBar";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
@@ -26,8 +27,11 @@ export function SiteLayout({
   /** Contextual closing call to action (heading, label, destination). */
   cta?: FinalCtaProps;
 }) {
+  // The homepage keeps its own section colours; every other page gets the
+  // shared white / cream band rhythm from styles.css.
+  const isHome = useRouterState({ select: (s) => s.location.pathname === "/" });
   return (
-    <div className="public-site min-h-screen flex flex-col bg-surface-2">
+    <div className={`public-site min-h-screen flex flex-col bg-surface-2${isHome ? " is-home" : ""}`}>
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-[var(--gold)] focus:px-5 focus:py-2.5 focus:text-sm focus:font-bold focus:text-[var(--gold-foreground)] focus:shadow-lg"

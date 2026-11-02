@@ -5,15 +5,13 @@
  * one comprehensive, entity-rich page per location.
  */
 import { RelatedLinks } from "@/components/site/RelatedLinks";
-import { SectionHeader as SharedSectionHeader } from "@/components/site/PageHero";
-import { Link } from "@tanstack/react-router";
+import { PageBand, GroupLabel, LinkCards, FaqBand } from "@/components/site/PageBand";
 import { useQuery } from "@tanstack/react-query";
 import { listPublicVehicleClasses } from "@/lib/vehicle-classes.functions";
-import { FaqBlock } from "@/components/seo/FaqBlock";
 import { PlaceGuideBlock } from "@/components/seo/PlaceGuideBlock";
 import { guideFor } from "@/content/place-guides";
 import { buildAreaFaqs } from "@/lib/seo/area-faqs";
-import { EntityGrid } from "@/components/explore/EntityCard";
+import { EntityCard, EntityGrid } from "@/components/explore/EntityCard";
 import type { AreaSeoContext } from "@/lib/explore.functions";
 import type { Destination } from "@/lib/destinations.functions";
 import { SiteLayout } from "@/components/site/SiteLayout";
@@ -41,7 +39,7 @@ import {
 } from "lucide-react";
 
 const SERVICES = [
-  { href: "/airport-transfers", label: "Airport Transfers", blurb: "Fixed-price meet & greet, flight tracking." },
+  { href: "/airport-transfers", label: "Airport Transfers", blurb: "Fixed-price airport runs, optional meet & greet." },
   { href: "/vip-transfers", label: "Executive & VIP Cars", blurb: "Discreet luxury travel for VIPs." },
   { href: "/corporate-travel", label: "Corporate Transport", blurb: "Business accounts and monthly billing." },
   { href: "/tours", label: "Private Tours", blurb: "Custom driver-guided day tours." },
@@ -53,7 +51,7 @@ const WHY = [
   { icon: ShieldCheck, title: "Fully licensed", text: "PHV-licensed drivers, insured vehicles." },
   { icon: Clock, title: "24/7 availability", text: "Round-the-clock bookings & dispatch." },
   { icon: Star, title: "Fixed prices", text: "No surge pricing. Quote is what you pay." },
-  { icon: CheckCircle2, title: "Meet & greet", text: "Terminal name-board pickup, flight tracked." },
+  { icon: CheckCircle2, title: "Meet & greet", text: "Name-board pickup on any booking, small extra charge." },
 ] as const;
 
 export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
@@ -68,6 +66,15 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
   });
   const region = d.region;
   const heroSub = [d.town, d.council, region].filter(Boolean).join(" · ");
+  const nearbyGroups = [
+    { icon: MapPin, title: `Nearby areas around ${locName}`, items: data.nearbyAreas },
+    { icon: Landmark, title: `Attractions near ${locName}`, items: data.attractions },
+    { icon: Hotel, title: `Hotels near ${locName}`, items: data.hotels },
+    { icon: GraduationCap, title: `Universities near ${locName}`, items: data.universities },
+    { icon: Hospital, title: `Hospitals near ${locName}`, items: data.hospitals },
+    { icon: Train, title: `Train stations near ${locName}`, items: data.stations },
+    { icon: Anchor, title: `Cruise ports near ${locName}`, items: data.cruisePorts },
+  ].filter((g) => g.items.length > 0);
 
   return (
     <SiteLayout cta={{ heading: <>Travelling in <span className="text-gold">{locName}</span>?</>, label: `Get a price in ${locName}`, href: "#booking", trackAs: "final_cta_area", subtitle: "Your journey details are already in the booking form above. Check the fixed price before you pay, or call our team any time." }}>
@@ -101,25 +108,22 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
           body: <p>Cabslink provides reliable airport transfers, private hire, executive cars, corporate
             transport, luxury private-driver travel and group transfers in <strong>{locName}</strong>.
             Book a fixed-price taxi or cab from {locName} to Edinburgh Airport, Glasgow Airport or any other UK airport —
-            with 24/7 availability, meet-and-greet, and door-to-door service.</p>,
+            with 24/7 availability, optional meet-and-greet and door-to-door service.</p>,
           details: WHY.map((w) => ({ icon: w.icon, value: w.title, note: w.text })),
         }}
       />
 
-      <div className="container-x py-16 md:py-24">
-
-      {/* Services */}
-      <section className="border-t border-border pt-8">
-        <SectionHeader eyebrow="Our services" title={`Airport travel services in ${locName}`} />
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      {/* Bands sit directly in <main> so the shared white / cream rhythm applies. */}
+      <PageBand eyebrow="Our services" title={`Airport travel services in ${locName}`}>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {SERVICES.map((s) => (
             <a
               key={s.href}
               href={s.href}
-              className="group flex min-h-40 flex-col justify-between border-t border-border bg-card py-5 transition hover:border-gold"
+              className="group flex min-h-40 flex-col justify-between rounded-2xl border border-border bg-card p-6 shadow-raised transition hover:border-[var(--gold)]"
             >
               <div>
-                <div className="font-display text-xl font-semibold text-foreground">{s.label}</div>
+                <div className="font-display text-xl font-semibold text-[var(--navy)]">{s.label}</div>
                 <div className="mt-2 text-sm leading-relaxed text-muted-foreground">{s.blurb}</div>
               </div>
               <span className="mt-4 inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--gold-ink)]">
@@ -128,70 +132,76 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
             </a>
           ))}
         </div>
-      </section>
+      </PageBand>
 
-      {/* Airport transfers from */}
-      {data.airports.length > 0 && (
-        <NearbySection icon={Plane} title={`Airport transfers from ${locName}`} items={data.airports} />
+      {(data.airports.length > 0 || data.popularRoutes.length > 0) && (
+        <PageBand eyebrow="Getting around" title={`Airports and routes from ${locName}`}>
+          <div className={`grid gap-10 ${data.airports.length && data.popularRoutes.length ? "lg:grid-cols-2" : ""}`}>
+            {data.airports.length > 0 && (
+              <div>
+                <GroupLabel icon={Plane}>Airport transfers from {locName}</GroupLabel>
+                {data.popularRoutes.length ? <EntityList items={data.airports} /> : <EntityGrid items={data.airports} />}
+              </div>
+            )}
+            {data.popularRoutes.length > 0 && (
+              <div>
+                <GroupLabel icon={MapPin}>Popular routes from {locName}</GroupLabel>
+                {data.airports.length ? <EntityList items={data.popularRoutes} /> : <EntityGrid items={data.popularRoutes} />}
+              </div>
+            )}
+          </div>
+        </PageBand>
       )}
 
-      {/* Popular routes */}
-      {data.popularRoutes.length > 0 && (
-        <NearbySection icon={MapPin} title={`Popular routes from ${locName}`} items={data.popularRoutes} />
+      {(vehicleClasses ?? []).length > 0 && (
+        <PageBand eyebrow="Our fleet" title="Vehicles available">
+          <div className="overflow-x-auto rounded-2xl border border-border bg-card shadow-raised">
+            <table className="w-full min-w-[30rem] text-left text-sm">
+              <caption className="sr-only">Vehicle classes available for journeys from {locName}</caption>
+              <thead className="bg-[var(--navy)] text-[var(--navy-foreground)]">
+                <tr>
+                  <th scope="col" className="px-5 py-3.5 font-semibold">Vehicle</th>
+                  <th scope="col" className="px-5 py-3.5 font-semibold">Passengers</th>
+                  <th scope="col" className="px-5 py-3.5 font-semibold">Large bags</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(vehicleClasses ?? []).map((c) => (
+                  <tr key={c.id} className="border-t border-border even:bg-[var(--surface-2)]">
+                    <th scope="row" className="px-5 py-3.5 font-semibold text-[var(--navy)]">{c.name}</th>
+                    <td className="px-5 py-3.5 text-muted-foreground">{c.passengers ?? "—"}</td>
+                    <td className="px-5 py-3.5 text-muted-foreground">{c.large_luggage ?? "—"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <a href="/fleet" className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-[var(--gold-ink)] hover:underline">
+            View full fleet <ArrowRight className="size-4" />
+          </a>
+        </PageBand>
       )}
 
-      {/* Vehicles callout */}
-      <section className="mt-20 border-y border-border py-8">
-        <SectionHeader eyebrow="Our fleet" title="Vehicles available" />
-        <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 text-sm text-[var(--navy)]/80">
-          {(vehicleClasses ?? []).map((c) => (
-            <li key={c.id} className="flex items-center gap-2">
-              <CheckCircle2 className="size-4 text-[var(--gold-ink)]" /> {c.name} · {c.passengers} passengers · {c.large_luggage} large bags
-            </li>
-          ))}
-        </ul>
-        <a
-          href="/fleet"
-          className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-[var(--gold-ink)]"
-        >
-          View full fleet <ArrowRight className="size-4" />
-        </a>
-      </section>
-
-      {/* Nearby entity sections */}
-      {data.nearbyAreas.length > 0 && (
-        <NearbySection icon={MapPin} title={`Nearby areas around ${locName}`} items={data.nearbyAreas} />
-      )}
-      {data.attractions.length > 0 && (
-        <NearbySection icon={Landmark} title={`Attractions near ${locName}`} items={data.attractions} />
-      )}
-      {data.hotels.length > 0 && (
-        <NearbySection icon={Hotel} title={`Hotels near ${locName}`} items={data.hotels} />
-      )}
-      {data.universities.length > 0 && (
-        <NearbySection icon={GraduationCap} title={`Universities near ${locName}`} items={data.universities} />
-      )}
-      {data.hospitals.length > 0 && (
-        <NearbySection icon={Hospital} title={`Hospitals near ${locName}`} items={data.hospitals} />
-      )}
-      {data.stations.length > 0 && (
-        <NearbySection icon={Train} title={`Train stations near ${locName}`} items={data.stations} />
-      )}
-      {data.cruisePorts.length > 0 && (
-        <NearbySection icon={Anchor} title={`Cruise ports near ${locName}`} items={data.cruisePorts} />
+      {nearbyGroups.length > 0 && (
+        <PageBand eyebrow="Nearby" title={`Places near ${locName}`}>
+          <div className="space-y-10">
+            {nearbyGroups.map((g) => (
+              <div key={g.title}>
+                <GroupLabel icon={g.icon}>{g.title}</GroupLabel>
+                <EntityGrid items={g.items} />
+              </div>
+            ))}
+          </div>
+        </PageBand>
       )}
 
       <LocalPagesSection slug={d.slug} name={locName} />
 
-      {/* FAQ */}
-      <section className="mt-14">
-        <FaqBlock items={buildAreaFaqs(data)} />
-      </section>
+      {/* Phase 7 guide text. */}
+      {guide ? <PlaceGuideBlock guide={guide} /> : null}
 
+      <FaqBand items={buildAreaFaqs(data)} />
 
-
-      {/* Phase 7 guide text — added below all existing content. */}
-      {guide ? <div className="mt-16"><PlaceGuideBlock guide={guide} /></div> : null}
       <LocalMapSection
         focus={
           typeof d.lat === "number" && typeof d.lng === "number"
@@ -200,40 +210,22 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
         }
       />
       <RelatedLinks center={typeof d.lat === "number" && typeof d.lng === "number" ? { lat: d.lat, lng: d.lng } : null} />
-    </div>
     </SiteLayout>
   );
 }
 
-/** Area-page section heading: the shared site heading with standard spacing below. */
-function SectionHeader({ eyebrow, title }: { eyebrow: string; title: string }) {
+/** Compact one-column list of destination links (inside a two-column band). */
+function EntityList({ items }: { items: Destination[] }) {
   return (
-    <div className="mb-8">
-      <SharedSectionHeader eyebrow={eyebrow} title={title} />
-    </div>
+    <ul className="grid gap-3">
+      {items.map((x) => (
+        <li key={x.id}>
+          <EntityCard d={x} />
+        </li>
+      ))}
+    </ul>
   );
 }
-
-function NearbySection({
-  icon: Icon,
-  title,
-  items,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  title: string;
-  items: Destination[];
-}) {
-  return (
-    <section className="mt-16 grid gap-6 border-t border-border pt-7 lg:grid-cols-[minmax(14rem,0.7fr)_2fr]">
-      <div>
-        <Icon className="size-5 text-[var(--gold-ink)]" />
-        <h2 className="mt-3 font-display text-xl font-semibold text-foreground sm:text-2xl">{title}</h2>
-      </div>
-      <EntityGrid items={items} />
-    </section>
-  );
-}
-
 
 function LocalPagesSection({ slug, name }: { slug: string; name: string }) {
   const services = servicePagesForLocation(slug);
@@ -241,46 +233,21 @@ function LocalPagesSection({ slug, name }: { slug: string; name: string }) {
   if (services.length === 0 && journeys.length === 0) return null;
 
   return (
-    <section className="mt-16 border-y border-border py-8">
-      <SectionHeader eyebrow="Local pages" title={`More on travel in ${name}`} />
-      {services.length > 0 && (
-        <div className="mt-2">
-          <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
-            Services in {name}
+    <PageBand eyebrow="Local pages" title={`More on travel in ${name}`}>
+      <div className={`grid gap-10 ${services.length && journeys.length ? "lg:grid-cols-2" : ""}`}>
+        {services.length > 0 && (
+          <div>
+            <GroupLabel>Services in {name}</GroupLabel>
+            <LinkCards columns={services.length && journeys.length ? 1 : 3} links={services.map((x) => ({ href: x.to, label: x.label }))} />
           </div>
-          <ul className="mt-3 flex flex-wrap gap-2">
-            {services.map((s) => (
-              <li key={s.to}>
-                <Link
-                  to={s.to}
-                  className="inline-flex items-center gap-1.5 border-b border-border px-1 py-2 text-sm font-medium text-foreground transition hover:border-gold"
-                >
-                  {s.label} <ArrowRight className="size-3.5 text-[var(--gold-ink)]" />
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-      {journeys.length > 0 && (
-        <div className="mt-6">
-          <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
-            Fixed-price journeys
+        )}
+        {journeys.length > 0 && (
+          <div>
+            <GroupLabel>Fixed-price journeys</GroupLabel>
+            <LinkCards columns={services.length && journeys.length ? 1 : 3} links={journeys.map((j) => ({ href: j.to, label: j.label }))} />
           </div>
-          <ul className="mt-3 flex flex-wrap gap-2">
-            {journeys.map((j) => (
-              <li key={j.to}>
-                <Link
-                  to={j.to}
-                  className="inline-flex items-center gap-1.5 border-b border-dashed border-border px-1 py-2 text-sm font-medium text-foreground transition hover:border-gold"
-                >
-                  {j.label} <ArrowRight className="size-3.5 text-[var(--gold-ink)]" />
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-    </section>
+        )}
+      </div>
+    </PageBand>
   );
 }

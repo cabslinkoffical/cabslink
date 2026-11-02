@@ -224,9 +224,19 @@
 .public-site > main > div.min-h-screen.bg-background {
   background-color: var(--surface-2);
 }
-.public-site > main > section.section-y:nth-of-type(even):not(.navy-scene):not(.hero-gradient):not([class*="bg-"]),
-.public-site > main > article > section {
+.public-site.is-home > main > section.section-y:nth-of-type(even):not(.navy-scene):not(.hero-gradient):not([class*="bg-"]),
+.public-site.is-home > main > article > section {
   background-color: var(--surface-cool);
+}
+/* Every page except the homepage: light bands directly inside <main> alternate
+   white and warm cream automatically (navy bands and top sections keep their
+   own colour but still count in the rhythm), so no template picks a grey or
+   tinted background of its own. */
+.public-site:not(.is-home) > main > section:not([class*="navy"]):not([class*="hero"]):nth-of-type(odd) {
+  background-color: var(--card);
+}
+.public-site:not(.is-home) > main > section:not([class*="navy"]):not([class*="hero"]):nth-of-type(even) {
+  background-color: var(--surface-2);
 }
 .public-site .glass-card {
   box-shadow: var(--shadow-raised);

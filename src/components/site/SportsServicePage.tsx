@@ -2,8 +2,8 @@ import type { LucideIcon } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Check } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
-import { FaqAccordion } from "@/components/site/FaqAccordion";
 import { PageHero, SectionHeader } from "@/components/site/PageHero";
+import { FaqBand } from "@/components/site/PageBand";
 import { Button } from "@/components/ui/button";
 
 export type SportsServiceContent = {
@@ -43,7 +43,7 @@ export function SportsServicePage({ content }: { content: SportsServiceContent }
             width={1280}
             height={960}
             loading="lazy"
-            className="aspect-[4/3] w-full rounded-3xl object-cover shadow-[var(--shadow-elegant)]"
+            className="aspect-[4/3] w-full rounded-3xl object-cover shadow-[var(--shadow-elegant)] lg:order-2"
           />
           <div>
             <SectionHeader eyebrow={content.eyebrow} title={content.intro.title} subtitle={content.intro.body} />
@@ -54,7 +54,7 @@ export function SportsServicePage({ content }: { content: SportsServiceContent }
                     <f.icon className="size-5" />
                   </div>
                   <div>
-                    <h3 className="font-semibold">{f.title}</h3>
+                    <h3 className="font-display font-semibold text-[var(--navy)]">{f.title}</h3>
                     <p className="mt-1 text-sm text-muted-foreground">{f.desc}</p>
                   </div>
                 </li>
@@ -77,7 +77,7 @@ export function SportsServicePage({ content }: { content: SportsServiceContent }
           <SectionHeader eyebrow="Where we travel" title={content.venues.title} />
           <ul className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {content.venues.venues.map((v) => (
-              <li key={v} className="flex items-center gap-3 rounded-xl border bg-background p-4 text-sm font-medium shadow-[var(--shadow-raised)]">
+              <li key={v} className="flex items-center gap-3 rounded-xl border border-border bg-card p-4 text-sm font-medium text-[var(--navy)] shadow-raised">
                 <Check className="size-4 shrink-0 text-[var(--gold-ink)]" /> {v}
               </li>
             ))}
@@ -85,12 +85,7 @@ export function SportsServicePage({ content }: { content: SportsServiceContent }
         </div>
       </section>
 
-      <section className="section-y">
-        <div className="container-x max-w-3xl">
-          <SectionHeader eyebrow="FAQs" title="Frequently asked questions" />
-          <FaqAccordion items={content.faqs} className="mt-8" />
-        </div>
-      </section>
+      <FaqBand items={content.faqs} />
     </SiteLayout>
   );
 }

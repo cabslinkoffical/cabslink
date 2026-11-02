@@ -23,7 +23,7 @@ export function buildAreaFaqs(ctx: {
     },
     {
       q: `Can I pre-book an airport transfer from ${name}?`,
-      a: `Yes — book online 24/7 or by phone. Pre-booked transfers include flight tracking and meet-and-greet at no extra cost.`,
+      a: `Yes — book online 24/7 or by phone. Meet and greet is available on every booking for a small extra charge, shown in your quote.`,
     },
     {
       q: `Do you offer meet and greet at the airport?`,

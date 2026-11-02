@@ -7,6 +7,7 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { FaqSection, LongFormSections } from "@/components/site/ContentSections";
 import { PageHero } from "@/components/site/PageHero";
 import { DestinationCard } from "@/components/site/DestinationCard";
+import { PageBand } from "@/components/site/PageBand";
 import { HUB_CONTENT } from "@/lib/hub-content";
 
 export function HubPage({
@@ -50,34 +51,36 @@ export function HubPage({
         subtitle={intro}
         breadcrumbs={[{ label: "Home", to: "/" }, { label: title }]}
       />
-      <div className="mx-auto max-w-6xl px-4 py-10">
-      {longIntro && (
-        <p className="mb-8 max-w-3xl leading-relaxed text-[var(--navy)]/70">{longIntro}</p>
+      {/* Bands sit directly in <main> so the shared white / cream rhythm applies. */}
+      {(longIntro || (!notesAfterDestinations && notes && notes.length > 0)) && (
+        <PageBand ariaLabel="Overview">
+          {longIntro && (
+            <p className="max-w-3xl text-lg leading-relaxed text-[var(--navy)]/75">{longIntro}</p>
+          )}
+          {!notesAfterDestinations && notes && notes.length > 0 && (
+            <div className={longIntro ? "mt-10" : ""}><BenefitCards notes={notes} /></div>
+          )}
+        </PageBand>
       )}
 
-      {!notesAfterDestinations && notes && notes.length > 0 && <BenefitCards notes={notes} />}
-
       {featured && featured.length > 0 && (
-        <section className="mb-10">
-          <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--gold-ink)]">
-            Featured guides
-          </h2>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+        <PageBand eyebrow="Featured guides" title="Start with these guides">
+          <div className="grid gap-4 sm:grid-cols-2">
             {featured.map((f) => (
               <Link
                 key={f.href}
                 to={f.href}
-                className="rounded-2xl border border-[var(--navy)]/10 bg-card p-5 shadow-raised hover:border-[var(--gold)]"
+                className="group rounded-2xl border border-border bg-card p-6 shadow-raised transition hover:border-[var(--gold)]"
               >
-                <h3 className="font-semibold text-[var(--navy)]">{f.title}</h3>
-                <p className="mt-1.5 text-sm leading-relaxed text-[var(--navy)]/70">{f.blurb}</p>
+                <h3 className="font-display text-lg font-semibold text-[var(--navy)] group-hover:text-[var(--gold-ink)]">{f.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{f.blurb}</p>
               </Link>
             ))}
           </div>
-        </section>
+        </PageBand>
       )}
 
-
+      <PageBand eyebrow={eyebrow} title="Choose your destination" subtitle={destinations.length ? `${destinations.length} ${destinations.length === 1 ? "page" : "pages"}, grouped by region.` : undefined}>
       {destinations.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-[var(--navy)]/20 bg-card p-8 text-center shadow-raised">
           <p className="text-[var(--navy)]/70">
@@ -94,10 +97,14 @@ export function HubPage({
           </div>
         </div>
       ) : (
-        <div className="space-y-10">
+        <div className="space-y-12">
           {[...grouped.entries()].map(([region, items]) => (
-            <section key={region}>
-              <h2 className="mb-4 font-display text-lg font-semibold text-[var(--navy)]">{region}</h2>
+            <div key={region}>
+              <h3 className="mb-5 flex items-center gap-3 font-display text-lg font-semibold text-[var(--navy)]">
+                {region}
+                <span className="rounded-full bg-[var(--surface-gold)] px-2.5 py-0.5 text-xs font-bold text-[var(--gold-ink)]">{items.length}</span>
+                <span aria-hidden className="h-px flex-1 bg-border" />
+              </h3>
               <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 {items.map((d) => (
                   <li key={d.id}>
@@ -105,16 +112,14 @@ export function HubPage({
                   </li>
                 ))}
               </ul>
-            </section>
+            </div>
           ))}
         </div>
       )}
-      </div>
+      </PageBand>
       {content && <LongFormSections sections={content.sections} heading={`About ${title.toLowerCase()}`} />}
       {notesAfterDestinations && notes && notes.length > 0 && (
-        <section className="section-y pt-0">
-          <div className="container-x"><BenefitCards notes={notes} /></div>
-        </section>
+        <PageBand eyebrow="What to expect" title="Good to know"><BenefitCards notes={notes} /></PageBand>
       )}
       {content && <FaqSection faqs={content.faqs} />}
     </SiteLayout>
@@ -123,14 +128,13 @@ export function HubPage({
 
 function BenefitCards({ notes }: { notes: { title: string; body: string }[] }) {
   return (
-    <section className="mb-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      <h2 className="sr-only">What to expect</h2>
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {notes.map((n) => (
-        <div key={n.title} className="rounded-2xl border border-[var(--navy)]/10 bg-card p-5 shadow-raised">
-          <h3 className="font-semibold text-[var(--navy)]">{n.title}</h3>
+        <div key={n.title} className="rounded-2xl border border-border bg-card p-6 shadow-raised">
+          <h3 className="font-display text-lg font-semibold text-[var(--navy)]">{n.title}</h3>
           <p className="mt-1.5 text-sm leading-relaxed text-[var(--navy)]/70">{n.body}</p>
         </div>
       ))}
-    </section>
+    </div>
   );
 }
