@@ -106,7 +106,7 @@ function AuthPage() {
 
         </div>
         <div className="text-center mt-6">
-          <Link to="/" className="text-sm text-white/70 hover:text-[var(--gold)]">← Back to site</Link>
+          <Link to="/" className="text-sm text-navy-foreground/70 hover:text-[var(--gold)]">← Back to site</Link>
         </div>
       </div>
     </div>

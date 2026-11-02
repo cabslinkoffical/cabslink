@@ -25,7 +25,7 @@ function formatChecked(iso: string) {
 
 export function GuidePage({ guide: g }: { guide: GuideRecord }) {
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>Ready to <span className="text-gold">book this trip</span>?</>, label: "Get a fixed price", trackAs: "final_cta_guide" }}>
       <PageHero
         eyebrow="Travel guide"
         title={g.h1}
@@ -170,7 +170,7 @@ export function GuidePage({ guide: g }: { guide: GuideRecord }) {
       {g.faqs.length > 0 && (
         <section className="section-y border-t">
           <div className="container-x max-w-3xl">
-            <SectionHeader eyebrow="FAQs" title="Common questions" />
+            <SectionHeader eyebrow="FAQs" title="Frequently asked questions" />
             <FaqAccordion items={g.faqs} className="mt-8" />
           </div>
         </section>

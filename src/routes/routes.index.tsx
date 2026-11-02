@@ -46,7 +46,7 @@ function RoutesHub() {
   const categories = populatedCategories();
 
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>Book a <span className="text-gold">fixed-price route</span></>, label: "Get a route price", trackAs: "final_cta_routes" }}>
       <PageHero
         eyebrow="Popular routes"
         title="UK Transfer Routes — Fixed Fares, No Surprises"

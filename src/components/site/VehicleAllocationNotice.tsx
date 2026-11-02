@@ -28,7 +28,7 @@ export function VehicleAllocationNotice({
               {models.slice(0, 6).map((m) => (
                 <span
                   key={m.id}
-                  className="inline-flex items-center rounded-full border border-[var(--gold)]/40 bg-white/60 px-2.5 py-0.5 text-[11px] font-medium text-foreground/80"
+                  className="inline-flex items-center rounded-full border border-[var(--gold)]/40 bg-navy-foreground/60 px-2.5 py-0.5 text-[11px] font-medium text-foreground/80"
                 >
                   {m.name}
                 </span>

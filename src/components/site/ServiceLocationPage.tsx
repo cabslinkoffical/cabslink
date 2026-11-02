@@ -5,7 +5,7 @@ import { normalizeHead } from "@/lib/seo/page-head";
  * src/lib/seo/service-locations.ts; this file only renders it.
  */
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Check, MapPin, Phone, Plane, Route as RouteIcon } from "lucide-react";
+import { ArrowRight, Check, MapPin, Plane, Route as RouteIcon } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { LocalMapSection } from "@/components/site/LocalMapSection";
 import { getPublicPlaceCoords } from "@/lib/seo-public.functions";
@@ -17,7 +17,6 @@ import { serviceLocalImage, serviceLocationPrefill } from "@/lib/local-page";
 import { Button } from "@/components/ui/button";
 import { getService } from "@/lib/seo/service-registry";
 import type { ServiceLocationContent } from "@/lib/seo/service-locations";
-import { SITE } from "@/lib/site";
 import { BUSINESS_ID } from "@/lib/seo/business-graph";
 
 export function ServiceLocationPage({ content }: { content: ServiceLocationContent }) {
@@ -36,7 +35,7 @@ export function ServiceLocationPage({ content }: { content: ServiceLocationConte
   });
 
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>{content.serviceName} in <span className="text-gold">{loc.name}</span></>, label: `Get a price in ${loc.name}`, href: "#booking", trackAs: "final_cta_service_location", subtitle: "Your journey details are already in the booking form above. Check the fixed price before you pay, or call our team any time." }}>
       <LocalPageHero
         breadcrumbs={[
           { name: "Home", href: "/" },
@@ -109,7 +108,7 @@ export function ServiceLocationPage({ content }: { content: ServiceLocationConte
           <SectionHeader dark eyebrow="Popular journeys" title={`Routes we run from ${loc.name}`} />
           <ul className="mt-10 grid gap-6 md:grid-cols-3">
             {loc.journeys.map((j) => (
-              <li key={j.to} className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
+              <li key={j.to} className="rounded-2xl border border-navy-foreground/10 bg-navy-foreground/[0.04] p-6">
                 <RouteIcon className="size-5 text-[var(--gold)]" />
                 <h3 className="mt-3 font-semibold">
                   {loc.name} → {j.to}
@@ -204,18 +203,8 @@ export function ServiceLocationPage({ content }: { content: ServiceLocationConte
       {/* FAQs */}
       <section className="section-y">
         <div className="container-x max-w-3xl">
-          <SectionHeader eyebrow="FAQs" title={`${content.serviceName} in ${loc.name} — questions`} />
+          <SectionHeader eyebrow={`${content.serviceName} in ${loc.name}`} title="Frequently asked questions" />
           <FaqAccordion items={content.faqs} className="mt-8" />
-          <div className="mt-10 flex flex-wrap gap-3">
-            <Button asChild variant="gold" className="rounded-lg">
-              <Link to="/book">Get a quote</Link>
-            </Button>
-            <Button asChild variant="outline" className="rounded-lg">
-              <a href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}>
-                <Phone className="size-4" /> {SITE.phoneUK}
-              </a>
-            </Button>
-          </div>
         </div>
       </section>
       <LocalMapSection

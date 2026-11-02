@@ -6,13 +6,11 @@
  * They never restate service identity — that lives in service-registry.ts.
  */
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Check, MapPin, Phone, Quote } from "lucide-react";
+import { ArrowRight, Check, MapPin, Quote } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { FaqAccordion } from "@/components/site/FaqAccordion";
 import { PageHero, SectionHeader } from "@/components/site/PageHero";
-import { Button } from "@/components/ui/button";
 import { getService } from "@/lib/seo/service-registry";
-import { SITE } from "@/lib/site";
 import { BUSINESS_ID } from "@/lib/seo/business-graph";
 
 export type SolutionContent = {
@@ -45,7 +43,7 @@ export function SolutionPage({ content }: { content: SolutionContent }) {
     .filter((s): s is NonNullable<typeof s> => Boolean(s));
 
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>Plan your <span className="text-gold">journey</span></>, label: "Get a fixed price", trackAs: "final_cta_solution" }}>
       <PageHero
         eyebrow={content.eyebrow}
         title={content.h1}
@@ -101,7 +99,7 @@ export function SolutionPage({ content }: { content: SolutionContent }) {
                 <li key={s.id}>
                   <Link
                     to={s.url}
-                    className="group flex h-full flex-col rounded-2xl border border-white/10 bg-white/[0.04] p-6 transition hover:border-[var(--gold)]"
+                    className="group flex h-full flex-col rounded-2xl border border-navy-foreground/10 bg-navy-foreground/[0.04] p-6 transition hover:border-[var(--gold)]"
                   >
                     <h3 className="font-display text-lg font-semibold">{s.name}</h3>
                     <p className="mt-2 flex-1 text-sm text-[var(--navy-foreground)]/70">{s.intent}</p>
@@ -166,18 +164,8 @@ export function SolutionPage({ content }: { content: SolutionContent }) {
       {/* FAQs */}
       <section className="section-y">
         <div className="container-x max-w-3xl">
-          <SectionHeader eyebrow="FAQs" title="Common questions" />
+          <SectionHeader eyebrow="FAQs" title="Frequently asked questions" />
           <FaqAccordion items={content.faqs} className="mt-8" />
-          <div className="mt-10 flex flex-wrap gap-3">
-            <Button asChild variant="gold" className="rounded-lg">
-              <Link to="/book">Book online</Link>
-            </Button>
-            <Button asChild variant="outline" className="rounded-lg">
-              <a href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}>
-                <Phone className="size-4" /> {SITE.phoneUK}
-              </a>
-            </Button>
-          </div>
         </div>
       </section>
     </SiteLayout>

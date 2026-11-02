@@ -42,7 +42,7 @@ export function JourneyPage({
   };
 
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>{c.from.name} to <span className="text-gold">{c.to.name}</span></>, label: "Get a fixed price for this route", href: "#booking", trackAs: "final_cta_route", subtitle: "Your journey details are already in the booking form above. Check the fixed price before you pay, or call our team any time." }}>
       <LocalPageHero
         breadcrumbs={[
           { name: "Home", href: "/" },
@@ -150,7 +150,7 @@ export function JourneyPage({
           <SectionHeader dark eyebrow="Planning" title={`How we plan ${pair}`} />
           <ul className="mt-10 grid gap-6 md:grid-cols-3">
             {c.planning.map((p) => (
-              <li key={p} className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 text-sm">
+              <li key={p} className="rounded-2xl border border-navy-foreground/10 bg-navy-foreground/[0.04] p-6 text-sm">
                 <Check className="size-5 text-[var(--gold)]" />
                 <p className="mt-3 text-[var(--navy-foreground)]/80">{p}</p>
               </li>

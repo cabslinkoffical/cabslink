@@ -29,7 +29,6 @@ import { localPagesForService } from "@/lib/seo/service-locations";
 import { useQuery } from "@tanstack/react-query";
 import { googleReviewsQuery } from "@/lib/google-reviews-query";
 
-import { SITE } from "@/lib/site";
 import { BUSINESS_ID } from "@/lib/seo/business-graph";
 
 const ICONS = {
@@ -98,7 +97,7 @@ export function ServicePillarPage({ content }: { content: PillarContent }) {
     .filter((s): s is NonNullable<typeof s> => Boolean(s));
 
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>Book your <span className="text-gold">{content.breadcrumbLabel.toLowerCase()}</span></>, label: "Get a fixed price", trackAs: "final_cta_pillar" }}>
       <PageHero
         eyebrow={content.eyebrow}
         title={content.h1}
@@ -125,7 +124,7 @@ export function ServicePillarPage({ content }: { content: PillarContent }) {
               <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[var(--gold)]/15 text-[var(--gold)]">
                 <t.icon className="size-4" />
               </span>
-              <p className="text-sm font-semibold text-white">{t.label}</p>
+              <p className="text-sm font-semibold text-navy-foreground">{t.label}</p>
             </div>
           ))}
         </div>
@@ -203,7 +202,7 @@ export function ServicePillarPage({ content }: { content: PillarContent }) {
           <SectionHeader dark eyebrow="How it works" title="Four steps from enquiry to arrival" />
           <ol className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             {content.steps.map((s, i) => (
-              <li key={s.title} className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
+              <li key={s.title} className="rounded-2xl border border-navy-foreground/10 bg-navy-foreground/[0.04] p-6">
                 <span className="font-display text-2xl font-semibold text-[var(--gold)]">
                   {String(i + 1).padStart(2, "0")}
                 </span>
@@ -311,18 +310,8 @@ export function ServicePillarPage({ content }: { content: PillarContent }) {
       {/* FAQs */}
       <section className="bg-muted/40 section-y">
         <div className="container-x max-w-3xl">
-          <SectionHeader eyebrow="FAQs" title="Common questions" />
+          <SectionHeader eyebrow="FAQs" title="Frequently asked questions" />
           <FaqAccordion items={content.faqs} className="mt-8" />
-          <div className="mt-10 flex flex-wrap gap-3">
-            <Button asChild variant="gold" className="rounded-lg">
-              <Link to="/book">Book online</Link>
-            </Button>
-            <Button asChild variant="outline" className="rounded-lg">
-              <a href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}>
-                <Phone className="size-4" /> {SITE.phoneUK}
-              </a>
-            </Button>
-          </div>
         </div>
       </section>
     </SiteLayout>

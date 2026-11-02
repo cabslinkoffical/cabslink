@@ -21,7 +21,7 @@ export type SportsServiceContent = {
 
 export function SportsServicePage({ content }: { content: SportsServiceContent }) {
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>Plan your <span className="text-gold">trip</span></>, label: "Get a fixed price", trackAs: "final_cta_sports" }}>
       <PageHero
         eyebrow={content.eyebrow}
         title={content.h1}
@@ -87,7 +87,7 @@ export function SportsServicePage({ content }: { content: SportsServiceContent }
 
       <section className="section-y">
         <div className="container-x max-w-3xl">
-          <SectionHeader eyebrow="FAQs" title="Common questions" />
+          <SectionHeader eyebrow="FAQs" title="Frequently asked questions" />
           <FaqAccordion items={content.faqs} className="mt-8" />
         </div>
       </section>

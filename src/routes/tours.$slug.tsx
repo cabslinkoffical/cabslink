@@ -355,7 +355,7 @@ function TourDetailPage() {
   const mandatoryCount = d.pois.filter((p) => p.mandatory).length;
 
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>Ready to <span className="text-gold">book this tour</span>?</>, subtitle: "Choose your date, see the price for your group, then pay securely online.", label: "Book this tour", to: "/book/tour", search: { tour: d.slug }, trackAs: "final_cta_tour" }}>
       <PageHero
         eyebrow="Private Driver Tour"
         title={seo?.h1 ?? d.name}
@@ -384,19 +384,19 @@ function TourDetailPage() {
 
             <div className="mt-8 grid sm:grid-cols-3 gap-4 text-sm">
               {d.origin_label && d.destination_label && (
-                <div className="rounded-2xl border border-white/10 p-4">
+                <div className="rounded-2xl border border-navy-foreground/10 p-4">
                   <p className="text-[11px] uppercase tracking-widest text-muted-foreground">Route</p>
                   <p className="mt-1 font-medium flex items-center gap-1.5"><MapPin className="size-4 text-[var(--gold-ink)]" />{d.origin_label} → {d.destination_label}</p>
                 </div>
               )}
               {duration && (
-                <div className="rounded-2xl border border-white/10 p-4">
+                <div className="rounded-2xl border border-navy-foreground/10 p-4">
                   <p className="text-[11px] uppercase tracking-widest text-muted-foreground">Driving</p>
                   <p className="mt-1 font-medium flex items-center gap-1.5"><Clock className="size-4 text-[var(--gold-ink)]" />{duration}{d.direct_distance_miles ? ` · ${Math.round(d.direct_distance_miles)} mi` : ""}</p>
                 </div>
               )}
               {d.recommended_start_time && (
-                <div className="rounded-2xl border border-white/10 p-4">
+                <div className="rounded-2xl border border-navy-foreground/10 p-4">
                   <p className="text-[11px] uppercase tracking-widest text-muted-foreground">Recommended start</p>
                   <p className="mt-1 font-medium">{d.recommended_start_time}</p>
                 </div>
@@ -424,13 +424,13 @@ function TourDetailPage() {
             {(d.duration_hours != null || d.direct_distance_miles != null) && (
               <dl className="mt-8 grid grid-cols-2 gap-4 sm:max-w-md">
                 {d.duration_hours != null && (
-                  <div className="rounded-2xl border border-white/10 p-4">
+                  <div className="rounded-2xl border border-navy-foreground/10 p-4">
                     <dt className="text-[11px] uppercase tracking-widest text-muted-foreground">Duration</dt>
                     <dd className="mt-1 font-display text-xl font-semibold">{d.duration_hours} hours</dd>
                   </div>
                 )}
                 {d.direct_distance_miles != null && (
-                  <div className="rounded-2xl border border-white/10 p-4">
+                  <div className="rounded-2xl border border-navy-foreground/10 p-4">
                     <dt className="text-[11px] uppercase tracking-widest text-muted-foreground">Distance</dt>
                     <dd className="mt-1 font-display text-xl font-semibold">~{Math.round(d.direct_distance_miles)} miles</dd>
                   </div>
@@ -445,7 +445,7 @@ function TourDetailPage() {
                   {mdLines(d.itinerary_md).map((line, i) => {
                     const m = line.match(/^(\d{1,2}[:.]\d{2}(?:\s?[ap]m)?)\s*[-–—:]\s*(.+)$/i);
                     return (
-                      <li key={i} className="flex gap-4 rounded-2xl border border-white/10 p-4 text-sm">
+                      <li key={i} className="flex gap-4 rounded-2xl border border-navy-foreground/10 p-4 text-sm">
                         {m && <span className="w-16 shrink-0 font-semibold text-[var(--gold-ink)] tabular-nums">{m[1]}</span>}
                         <span className="text-muted-foreground">{m ? m[2] : line}</span>
                       </li>
@@ -481,12 +481,12 @@ function TourDetailPage() {
                       <li
                         key={p.id}
                         className={`rounded-2xl border overflow-hidden transition-colors ${
-                          active ? "border-[var(--gold)]/50 bg-[var(--surface)]" : "border-white/10 bg-[var(--surface)]/60"
+                          active ? "border-[var(--gold)]/50 bg-[var(--surface)]" : "border-navy-foreground/10 bg-[var(--surface)]/60"
                         }`}
                       >
                         <div className="flex gap-4">
                           {p.image_url && (
-                            <div className="w-32 sm:w-44 shrink-0 bg-black/40">
+                            <div className="w-32 sm:w-44 shrink-0 bg-navy/40">
                               <img src={p.image_url} alt={p.name} loading="lazy" decoding="async" className="w-full h-full object-cover aspect-square" />
                             </div>
                           )}
@@ -512,14 +512,14 @@ function TourDetailPage() {
                                   </label>
                                 )}
                                 {p.featured && !p.mandatory && (
-                                  <span className="inline-flex items-center gap-1 rounded-full bg-white/10 text-[10px] px-2 py-0.5"><Star className="size-3" /> Popular</span>
+                                  <span className="inline-flex items-center gap-1 rounded-full bg-navy-foreground/10 text-[10px] px-2 py-0.5"><Star className="size-3" /> Popular</span>
                                 )}
                               </div>
                             </div>
                             {p.short_description && <p className="mt-1.5 text-sm text-muted-foreground line-clamp-2">{p.short_description}</p>}
                             <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
                               {active ? (
-                                <div className="inline-flex items-center gap-1 rounded-full border border-white/10 px-2 py-0.5">
+                                <div className="inline-flex items-center gap-1 rounded-full border border-navy-foreground/10 px-2 py-0.5">
                                   <button
                                     type="button"
                                     className="grid size-10 place-items-center hover:text-[var(--gold-ink)] disabled:opacity-30"
@@ -560,7 +560,7 @@ function TourDetailPage() {
             {(included.length > 0 || excluded.length > 0) && (
               <div className="mt-10 grid sm:grid-cols-2 gap-6">
                 {included.length > 0 && (
-                  <div className="rounded-2xl border border-white/10 p-5">
+                  <div className="rounded-2xl border border-navy-foreground/10 p-5">
                     <h3 className="font-display text-lg font-semibold">What's included</h3>
                     <ul className="mt-3 space-y-2 text-sm">
                       {included.map((x, i) => <li key={i} className="flex items-start gap-2"><Check className="size-4 text-[var(--gold-ink)] mt-0.5 shrink-0" />{x}</li>)}
@@ -568,7 +568,7 @@ function TourDetailPage() {
                   </div>
                 )}
                 {excluded.length > 0 && (
-                  <div className="rounded-2xl border border-white/10 p-5">
+                  <div className="rounded-2xl border border-navy-foreground/10 p-5">
                     <h3 className="font-display text-lg font-semibold">Not included</h3>
                     <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
                       {excluded.map((x, i) => <li key={i} className="flex items-start gap-2"><X className="size-4 mt-0.5 shrink-0" />{x}</li>)}
@@ -587,12 +587,12 @@ function TourDetailPage() {
             {d.class_prices.length > 0 && (
               <div className="mt-10">
                 <h2 className="font-display text-2xl font-semibold mb-3">How much does this tour cost?</h2>
-                <div className="overflow-hidden rounded-2xl border border-white/10">
+                <div className="overflow-hidden rounded-2xl border border-navy-foreground/10">
                   <table className="w-full text-sm">
                     <thead><tr className="text-left text-[11px] uppercase tracking-widest text-muted-foreground"><th className="p-3">Vehicle</th><th className="p-3 text-right">Fixed price</th></tr></thead>
                     <tbody>
                       {d.class_prices.map((c) => (
-                        <tr key={c.class_id} className="border-t border-white/10">
+                        <tr key={c.class_id} className="border-t border-navy-foreground/10">
                           <td className="p-3">{c.name}</td>
                           <td className="p-3 text-right font-semibold tabular-nums">£{(c.price_pence / 100).toFixed(0)}</td>
                         </tr>
@@ -613,7 +613,7 @@ function TourDetailPage() {
                 <h2 className="font-display text-2xl font-semibold mb-4">What do guests say?</h2>
                 <ul className="grid gap-4 sm:grid-cols-2">
                   {d.reviews.map((r, i) => (
-                    <li key={i} className="rounded-2xl border border-white/10 p-5 text-sm">
+                    <li key={i} className="rounded-2xl border border-navy-foreground/10 p-5 text-sm">
                       <p className="text-[var(--gold-ink)]" aria-label={`${r.stars} out of 5 stars`}>{"★".repeat(r.stars)}{"☆".repeat(5 - r.stars)}</p>
                       <p className="mt-2 text-muted-foreground">{r.text}</p>
                       <p className="mt-3 text-xs">
@@ -626,7 +626,7 @@ function TourDetailPage() {
               </div>
             )}
 
-            <div className="mt-10 rounded-2xl border border-white/10 p-5 text-sm">
+            <div className="mt-10 rounded-2xl border border-navy-foreground/10 p-5 text-sm">
               <h2 className="font-display text-lg font-semibold mb-2">Booking terms</h2>
               <p className="text-muted-foreground">{FACT_TEXT.tourCancellation}</p>
             </div>
@@ -634,7 +634,7 @@ function TourDetailPage() {
 
           {/* SIDEBAR */}
           <aside className="lg:sticky lg:top-24 lg:self-start">
-            <div className="rounded-3xl border border-white/10 bg-[var(--surface)] p-6 shadow-[var(--shadow-elegant)]">
+            <div className="rounded-3xl border border-navy-foreground/10 bg-[var(--surface)] p-6 shadow-[var(--shadow-elegant)]">
               <div className="flex items-baseline justify-between">
                 <p className="text-[11px] uppercase tracking-widest text-muted-foreground">
                   Private day tour

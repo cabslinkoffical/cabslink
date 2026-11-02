@@ -223,7 +223,7 @@ function MainServiceCard({ service, open, onToggle }: { service: MainService; op
           <span className="absolute left-5 top-5 rounded-full bg-[var(--gold)] px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-[var(--navy)]">
             {service.eyebrow}
           </span>
-          <span className="absolute bottom-5 left-5 grid size-12 place-items-center rounded-2xl bg-white/10 text-[var(--gold)] backdrop-blur-sm">
+          <span className="absolute bottom-5 left-5 grid size-12 place-items-center rounded-2xl bg-navy-foreground/10 text-[var(--gold)] backdrop-blur-sm">
             <Icon className="size-6" />
           </span>
         </div>
@@ -300,7 +300,7 @@ function ServicesPage() {
   const [openId, setOpenId] = useState<string | null>(MAIN_SERVICES[0]!.id);
 
   return (
-    <SiteLayout ctaSubtitle="Get a fixed price in under two minutes — or call our 24/7 reservations team.">
+    <SiteLayout ctaSubtitle="Get a fixed price in under two minutes — or call our 24/7 reservations team." cta={{ heading: <>Book any <span className="text-gold">service</span></>, label: "Get a fixed price", trackAs: "final_cta_services" }}>
       <PageHero
         eyebrow="Our Services"
         title="A complete premium transport service — wherever you're going."
@@ -317,8 +317,8 @@ function ServicesPage() {
                 <p.icon className="size-5" />
               </span>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-white">{p.label}</p>
-                <p className="mt-1 hidden text-xs leading-relaxed text-white/60 sm:block">{p.copy}</p>
+                <p className="text-sm font-semibold text-navy-foreground">{p.label}</p>
+                <p className="mt-1 hidden text-xs leading-relaxed text-navy-foreground/60 sm:block">{p.copy}</p>
               </div>
             </div>
           ))}
@@ -373,16 +373,16 @@ function ServicesPage() {
 
           <div className="mt-14 flex flex-col items-start gap-4 rounded-3xl border border-[var(--gold)]/25 bg-[var(--navy)] p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
             <div className="max-w-xl">
-              <h3 className="font-display text-2xl font-semibold text-white">Not sure which service fits?</h3>
-              <p className="mt-2 text-sm leading-relaxed text-white/70">
+              <h3 className="font-display text-2xl font-semibold text-navy-foreground">Not sure which service fits?</h3>
+              <p className="mt-2 text-sm leading-relaxed text-navy-foreground/70">
                 Tell us the journey and we'll recommend the right vehicle class and quote a fixed fare.
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
               <Button asChild size="lg" className="rounded-full">
-                <Link to="/book" search={{ q: "" }}>Get a fixed quote</Link>
+                <Link to="/book">Get a fixed quote</Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="rounded-full border-white/25 bg-transparent text-white hover:bg-white/10 hover:text-white">
+              <Button asChild size="lg" variant="outline" className="rounded-full border-navy-foreground/25 bg-transparent text-navy-foreground hover:bg-navy-foreground/10 hover:text-navy-foreground">
                 <Link to="/contact">Talk to our team</Link>
               </Button>
             </div>

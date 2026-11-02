@@ -51,7 +51,7 @@ function BlogHome() {
   const rest = latest.filter((p) => p.id !== hero?.id);
 
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>Plan your trip <span className="text-gold">with Cabslink</span></>, label: "Get a fixed price", trackAs: "final_cta_blog_list" }}>
       <PageHero
         eyebrow="Content Hub"
         title="Travel guides, airport tips & Scotland stories"
@@ -66,7 +66,7 @@ function BlogHome() {
             <Link
               to="/blog/$slug"
               params={{ slug: hero.slug }}
-              className="group grid md:grid-cols-2 gap-8 items-center overflow-hidden rounded-3xl border border-[var(--navy)]/10 bg-white shadow-raised hover:shadow-raised-hover"
+              className="group grid md:grid-cols-2 gap-8 items-center overflow-hidden rounded-3xl border border-[var(--navy)]/10 bg-card shadow-raised hover:shadow-raised-hover"
             >
               {hero.featured_image_url && (
                 <div className="aspect-[16/10] md:aspect-auto md:h-full overflow-hidden">
@@ -95,7 +95,7 @@ function BlogHome() {
                 key={c.id}
                 to="/blog/category/$slug"
                 params={{ slug: c.slug }}
-                className="rounded-full border border-[var(--navy)]/15 bg-white px-4 py-2 text-sm text-[var(--navy)] hover:border-[var(--gold)] hover:text-[var(--gold-ink)] transition"
+                className="rounded-full border border-[var(--navy)]/15 bg-card px-4 py-2 text-sm text-[var(--navy)] hover:border-[var(--gold)] hover:text-[var(--gold-ink)] transition"
               >
                 {c.name}
               </Link>

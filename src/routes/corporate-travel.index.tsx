@@ -84,7 +84,7 @@ function CorporatePage() {
     { i: ShieldCheck, t: "Vetted drivers", d: "Smartly dressed, discreet, security-aware professionals." },
   ];
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>Get your <span className="text-gold">fixed price</span></>, label: "Get a fixed price", trackAs: "final_cta_page" }}>
       <PageHero
         eyebrow="Corporate Travel"
         title="A premium travel partner for serious businesses."
@@ -103,10 +103,10 @@ function CorporatePage() {
               </div>
             ))}
           </div>
-          <div className="mt-14 rounded-3xl bg-[var(--navy)] text-white p-10 md:p-14 flex flex-col md:flex-row items-start md:items-center gap-8 md:justify-between">
+          <div className="mt-14 rounded-3xl bg-[var(--navy)] text-navy-foreground p-10 md:p-14 flex flex-col md:flex-row items-start md:items-center gap-8 md:justify-between">
             <div>
               <h3 className="font-display text-3xl md:text-4xl">Open a corporate account</h3>
-              <p className="mt-2 text-white/75 max-w-xl">Tell us about your team and travel patterns and we'll put together a tailored proposal.</p>
+              <p className="mt-2 text-navy-foreground/75 max-w-xl">Tell us about your team and travel patterns and we'll put together a tailored proposal.</p>
             </div>
             <Button asChild variant="gold" size="lg" className="rounded-full"><Link to="/corporate-booking">Get a proposal <ArrowRight className="size-4" /></Link></Button>
           </div>

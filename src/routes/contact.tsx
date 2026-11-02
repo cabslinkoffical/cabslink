@@ -130,7 +130,7 @@ function ContactPage() {
 
 
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>Prefer to <span className="text-gold">book online</span>?</>, subtitle: "Get a fixed price in a few minutes, or send us a message using the form above.", label: "Get a fixed price", trackAs: "final_cta_contact" }}>
       <PageHero
         eyebrow="Contact"
         title="Talk to Cabslink — anytime, day or night."
@@ -165,7 +165,7 @@ function ContactPage() {
               <Link to="/drive-with-us">Go to the driver application <ArrowRight className="size-4" /></Link>
             </Button>
           </div>
-          <form onSubmit={onSubmit} className="rounded-3xl border border-border bg-card p-6 md:p-8 pb-28 lg:pb-8 shadow-raised" noValidate>
+          <form id="contact-form" onSubmit={onSubmit} className="scroll-mt-24 rounded-3xl border border-border bg-card p-6 md:p-8 pb-28 lg:pb-8 shadow-raised" noValidate>
             <h3 className="font-display text-2xl font-semibold">Send us a message</h3>
             {/* Honeypot: must remain empty; hidden from users, tempting to bots. */}
             <div className="absolute -left-[9999px]" aria-hidden="true">

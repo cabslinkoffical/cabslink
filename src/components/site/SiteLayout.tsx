@@ -4,7 +4,7 @@ import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { Toaster } from "@/components/ui/sonner";
 import { WhatsAppButton } from "./WhatsAppButton";
-import { FinalCta } from "./FinalCta";
+import { FinalCta, type FinalCtaProps } from "./FinalCta";
 import { LocationsDirectory } from "./LocationsDirectory";
 
 export function SiteLayout({
@@ -13,6 +13,7 @@ export function SiteLayout({
   hideLocations = false,
   locationsProps,
   ctaSubtitle,
+  cta,
 }: {
   children: ReactNode;
   /** Hide the site-wide closing CTA (e.g. on booking / checkout flows). */
@@ -22,6 +23,8 @@ export function SiteLayout({
   /** Contextual copy overrides for the locations directory. */
   locationsProps?: React.ComponentProps<typeof LocationsDirectory>;
   ctaSubtitle?: string;
+  /** Contextual closing call to action (heading, label, destination). */
+  cta?: FinalCtaProps;
 }) {
   return (
     <div className="public-site min-h-screen flex flex-col bg-surface-2">
@@ -34,7 +37,7 @@ export function SiteLayout({
       <TopBar />
       <Header />
       <main id="main-content" tabIndex={-1} className="flex-1">{children}</main>
-      {!hideCta && <FinalCta subtitle={ctaSubtitle} />}
+      {!hideCta && <FinalCta {...cta} subtitle={cta?.subtitle ?? ctaSubtitle} />}
       {!hideLocations && <LocationsDirectory {...locationsProps} />}
       <Footer />
       <Toaster richColors position="top-center" />

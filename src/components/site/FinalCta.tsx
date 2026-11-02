@@ -1,13 +1,43 @@
+import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SITE } from "@/lib/site";
 import { trackClick } from "@/lib/tracking";
 
+export type FinalCtaProps = {
+  /** Headline; defaults to the homepage wording. */
+  heading?: ReactNode;
+  subtitle?: string;
+  /** Primary action label, e.g. "Get a price for Edinburgh Airport". */
+  label?: string;
+  /** Internal destination (defaults to /book). Ignored when `href` is set. */
+  to?: string;
+  /** Search params for `to`, e.g. { tour: "slug" }. */
+  search?: Record<string, string>;
+  /** Same-page anchor such as "#booking" to jump to a prefilled form. */
+  href?: string;
+  /** Analytics label for the primary action. */
+  trackAs?: string;
+};
+
+const DEFAULT_SUBTITLE =
+  "Book your driver in under two minutes. Fixed pricing, instant confirmation, 24/7 support — the calm way to travel across the UK.";
+
 /**
- * Site-wide closing CTA rendered above the footer on every page.
+ * Site-wide closing CTA rendered once above the footer. Pages pass a
+ * contextual heading/action; with no props it renders the homepage wording.
  */
-export function FinalCta({ subtitle = "Book your driver in under two minutes. Fixed pricing, instant confirmation, 24/7 support — the calm way to travel across the UK." }: { subtitle?: string }) {
+export function FinalCta({
+  heading,
+  subtitle = DEFAULT_SUBTITLE,
+  label = "Book Now",
+  to = "/book",
+  search,
+  href,
+  trackAs = "final_cta_quote",
+}: FinalCtaProps) {
+  const onClick = trackClick("cta_click", { cta: trackAs });
   return (
     <section className="navy-scene cta-pattern border-y border-gold/20">
       <div className="container-x">
@@ -16,7 +46,7 @@ export function FinalCta({ subtitle = "Book your driver in under two minutes. Fi
             <div className="grid items-center gap-8 lg:grid-cols-12">
               <div className="lg:col-span-8">
                 <h2 className="font-display text-4xl font-bold leading-tight text-navy-foreground md:text-6xl">
-                  Ready When <span className="text-gold">You Are</span>
+                  {heading ?? <>Ready When <span className="text-gold">You Are</span></>}
                 </h2>
                 <p className="mt-5 max-w-xl leading-relaxed text-navy-foreground/75">
                   {subtitle}
@@ -24,9 +54,15 @@ export function FinalCta({ subtitle = "Book your driver in under two minutes. Fi
               </div>
               <div className="flex flex-col gap-4 lg:col-span-4 lg:items-end">
                 <Button asChild variant="slash" className="w-full lg:w-auto">
-                  <Link to="/book" onClick={trackClick("cta_click", { cta: "final_cta_quote" })}>
-                    Book Now <ArrowRight className="size-4" />
-                  </Link>
+                  {href ? (
+                    <a href={href} onClick={onClick}>
+                      {label} <ArrowRight className="size-4" />
+                    </a>
+                  ) : (
+                    <Link to={to} search={search as never} onClick={onClick}>
+                      {label} <ArrowRight className="size-4" />
+                    </Link>
+                  )}
                 </Button>
                 <a
                   href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}

@@ -36,7 +36,7 @@ export const Route = createFileRoute("/areas/region/$slug")({
   },
   component: RegionPage,
   notFoundComponent: () => (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>Book a transfer <span className="text-gold">anywhere we cover</span></>, label: "Get a fixed price", trackAs: "final_cta_areas" }}>
       <section className="container-x py-24 text-center">
         <h1 className="text-3xl font-bold">Region not found</h1>
         <p className="mt-2 text-[var(--navy)]/70">
@@ -64,7 +64,7 @@ function RegionPage() {
   ];
 
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>Book a transfer <span className="text-gold">anywhere we cover</span></>, label: "Get a fixed price", trackAs: "final_cta_areas" }}>
       <PageHero
         eyebrow="Region"
         title={data.name}

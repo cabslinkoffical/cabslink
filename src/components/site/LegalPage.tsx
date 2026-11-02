@@ -16,7 +16,7 @@ export function LegalPage({
   children: ReactNode;
 }) {
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>Questions about <span className="text-gold">this policy</span>?</>, subtitle: "Our team can explain any part of it before or after you book.", label: "Contact us", to: "/contact", trackAs: "final_cta_legal" }}>
       <PageHero
         eyebrow={eyebrow}
         title={title}

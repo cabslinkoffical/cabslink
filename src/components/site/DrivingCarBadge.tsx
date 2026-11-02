@@ -15,7 +15,7 @@ export function DrivingCarBadge({ label, className }: DrivingCarBadgeProps) {
         <CarFront className="size-4" />
       </span>
 
-      <span className="text-[10px] md:text-[11px] font-semibold uppercase tracking-[0.28em] text-white/90">
+      <span className="text-[10px] md:text-[11px] font-semibold uppercase tracking-[0.28em] text-navy-foreground/90">
         {label}
       </span>
 

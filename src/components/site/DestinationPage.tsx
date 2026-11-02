@@ -132,7 +132,7 @@ export function DestinationPage({
   ];
 
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>Travel to <span className="text-gold">{name}</span></>, label: `Get a price to ${name}`, href: "#booking", trackAs: "final_cta_destination", subtitle: "Your journey details are already in the booking form above. Check the fixed price before you pay, or call our team any time." }}>
       <LocalPageHero
         breadcrumbs={breadcrumbs}
         eyebrow={d.type === "airport" ? "Airport transfers" : "Private transfers"}
@@ -156,7 +156,7 @@ export function DestinationPage({
 
         <section aria-label="Journey facts" className="mb-10 grid gap-4 md:grid-cols-3">
           {drives.map((j) => (
-            <div key={j.from} className="rounded-2xl border border-[var(--navy)]/10 bg-white p-5 shadow-raised">
+            <div key={j.from} className="rounded-2xl border border-[var(--navy)]/10 bg-card p-5 shadow-raised">
               <Clock className="size-5 text-[var(--gold-ink)]" />
               <p className="mt-3 text-sm text-[var(--navy)]/60">From {j.from}</p>
               <p className="mt-1 text-xl font-bold text-[var(--navy)]">
@@ -165,7 +165,7 @@ export function DestinationPage({
               <p className="mt-1 text-xs text-[var(--navy)]/70">Estimate — traffic varies. Your quote shows the exact route.</p>
             </div>
           ))}
-          <div className="rounded-2xl border border-[var(--navy)]/10 bg-white p-5 shadow-raised">
+          <div className="rounded-2xl border border-[var(--navy)]/10 bg-card p-5 shadow-raised">
             <Car className="size-5 text-[var(--gold-ink)]" />
             <p className="mt-3 text-sm text-[var(--navy)]/60">Pickup</p>
             <p className="mt-1 font-semibold text-[var(--navy)]">

@@ -142,7 +142,7 @@ function CorporateBookingPage() {
 
 
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>Set up your <span className="text-gold">business account</span></>, subtitle: "Tell us about your team and travel needs using the form above, or call us to talk it through.", label: "Open the business form", href: "#corporate-form", trackAs: "final_cta_corporate_form" }}>
       <PageHero
         eyebrow="Corporate Booking"
         title="Open a Cabslink business account."
@@ -167,7 +167,7 @@ function CorporateBookingPage() {
               ))}
             </ol>
           </div>
-          <form noValidate onSubmit={onSubmit} className="rounded-3xl border border-border bg-card p-6 md:p-8 pb-28 lg:pb-8 shadow-sm h-fit">
+          <form id="corporate-form" noValidate onSubmit={onSubmit} className="scroll-mt-24 rounded-3xl border border-border bg-card p-6 md:p-8 pb-28 lg:pb-8 shadow-sm h-fit">
             <div className="flex items-center gap-3"><Building2 className="size-6 text-[var(--gold-ink)]" /><h3 className="font-display text-2xl font-semibold">Corporate enquiry</h3></div>
             <div className="mt-6 grid gap-4">
               <FormNotice visible={Object.keys(errors).length > 0} />
@@ -277,10 +277,10 @@ function CorporateBookingPage() {
       {/* Closing CTA */}
       <section className="section-y">
         <div className="container-x">
-          <div className="flex flex-col items-start gap-8 rounded-3xl bg-[var(--navy)] p-10 text-white md:flex-row md:items-center md:justify-between md:p-14">
+          <div className="flex flex-col items-start gap-8 rounded-3xl bg-[var(--navy)] p-10 text-navy-foreground md:flex-row md:items-center md:justify-between md:p-14">
             <div>
               <h2 className="font-display text-3xl md:text-4xl">Prefer to talk it through first?</h2>
-              <p className="mt-2 max-w-xl text-white/75">
+              <p className="mt-2 max-w-xl text-navy-foreground/75">
                 Call our team on +44 333 888 2991 or read how corporate travel works with us before you send an enquiry.
               </p>
             </div>
@@ -288,7 +288,7 @@ function CorporateBookingPage() {
               <Button asChild variant="gold" size="lg" className="rounded-full">
                 <a href="tel:+443338882991">Call the team</a>
               </Button>
-              <Button asChild size="lg" variant="outline" className="rounded-full bg-transparent text-white">
+              <Button asChild size="lg" variant="outline" className="rounded-full bg-transparent text-navy-foreground">
                 <Link to="/corporate-travel">Corporate travel <ArrowRight className="size-4" /></Link>
               </Button>
             </div>

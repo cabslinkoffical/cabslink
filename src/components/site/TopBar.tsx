@@ -5,7 +5,7 @@ import { SOCIALS } from "@/lib/social";
 
 export function TopBar() {
   return (
-    <div data-analytics-location="top_bar" className="hidden border-b border-white/10 navy-scene md:block">
+    <div data-analytics-location="top_bar" className="hidden border-b border-navy-foreground/10 navy-scene md:block">
       <div className="container-x flex h-10 items-center justify-between text-xs">
         <div className="flex items-center gap-6">
           <a href={`mailto:${SITE.email}`} className="flex items-center gap-2 opacity-80 hover:opacity-100 hover:text-[var(--gold)] transition">
@@ -22,7 +22,7 @@ export function TopBar() {
           >
             <MapPin className="size-3.5" /> Track booking
           </Link>
-          <div className="h-4 w-px bg-white/20" />
+          <div className="h-4 w-px bg-navy-foreground/20" />
           {SOCIALS.map(({ key, label, url, Icon }) => (
             <a
               key={key}

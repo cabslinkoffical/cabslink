@@ -1,12 +1,10 @@
 import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Briefcase, GraduationCap, Users, Heart, CalendarClock, Phone } from "lucide-react";
+import { ArrowRight, Briefcase, GraduationCap, Users, Heart, CalendarClock } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero, SectionHeader } from "@/components/site/PageHero";
-import { Button } from "@/components/ui/button";
 import { solutionList } from "@/lib/seo/travel-solutions";
 import { publishedServices } from "@/lib/seo/service-registry";
-import { SITE } from "@/lib/site";
 import { BUSINESS_ID } from "@/lib/seo/business-graph";
 
 const URL = "https://cabslink.com/travel-solutions";
@@ -78,7 +76,7 @@ function TravelSolutionsHub() {
   const services = publishedServices();
 
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>Get your <span className="text-gold">fixed price</span></>, label: "Get a fixed price", trackAs: "final_cta_page" }}>
       <PageHero
         eyebrow="Travel solutions"
         title="Travel built around who's travelling."
@@ -129,27 +127,13 @@ function TravelSolutionsHub() {
               <li key={s.id}>
                 <Link
                   to={s.url}
-                  className="inline-flex items-center gap-2 rounded-lg border border-white/15 bg-white/[0.04] px-4 py-2 text-sm font-medium hover:border-[var(--gold)]"
+                  className="inline-flex items-center gap-2 rounded-lg border border-navy-foreground/15 bg-navy-foreground/[0.04] px-4 py-2 text-sm font-medium hover:border-[var(--gold)]"
                 >
                   {s.name}
                 </Link>
               </li>
             ))}
           </ul>
-          <div className="mt-10 flex flex-wrap gap-3">
-            <Button asChild variant="gold" className="rounded-lg">
-              <Link to="/book">Get a fixed price <ArrowRight className="size-4" /></Link>
-            </Button>
-            <Button
-              asChild
-              variant="outline"
-              className="rounded-lg bg-transparent text-[var(--navy-foreground)] border-[var(--navy-foreground)]/30 hover:bg-white/10"
-            >
-              <a href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}>
-                <Phone className="size-4" /> {SITE.phoneUK}
-              </a>
-            </Button>
-          </div>
         </div>
       </section>
     </SiteLayout>

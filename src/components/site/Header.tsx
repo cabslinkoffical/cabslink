@@ -33,7 +33,7 @@ export function Header() {
     <div className={`sticky lg:static top-0 z-50 transition-all duration-300 navy-scene ${scrolled ? "pt-2 md:pt-3 pb-2 md:pb-3" : "pt-4 md:pt-6 pb-4 md:pb-6"}`}>
       <div className="mx-auto w-full max-w-[1400px] px-3 md:px-6">
         <header
-          className={`relative flex h-[68px] md:h-[76px] items-center justify-between gap-4 rounded-full pl-4 pr-3 md:pl-7 md:pr-3 transition-all duration-300 border border-white/10 overflow-hidden bg-[var(--navy)]/95 ${
+          className={`relative flex h-[68px] md:h-[76px] items-center justify-between gap-4 rounded-full pl-4 pr-3 md:pl-7 md:pr-3 transition-all duration-300 border border-navy-foreground/10 overflow-hidden bg-[var(--navy)]/95 ${
             scrolled
               ? "shadow-[0_16px_50px_-18px_rgba(0,0,0,0.7)]"
               : "shadow-[0_24px_60px_-22px_rgba(0,0,0,0.55)]"
@@ -61,7 +61,7 @@ export function Header() {
                 <Link
                   to={item.to}
                   className={`group relative px-1 py-1 whitespace-nowrap text-[11.5px] xl:text-[12.5px] font-semibold tracking-[0.04em] transition-colors duration-200 ${
-                    active ? "text-[var(--gold)]" : "text-white/80 hover:text-white"
+                    active ? "text-[var(--gold)]" : "text-navy-foreground/80 hover:text-navy-foreground"
                   }`}
                 >
                   <span>{item.label}</span>
@@ -104,7 +104,7 @@ export function Header() {
             <a
 
               href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}
-              className="group hidden 2xl:inline-flex items-center gap-2 rounded-full px-3 py-2 text-[12px] font-bold tracking-wide text-[var(--gold)] hover:text-white transition-colors"
+              className="group hidden 2xl:inline-flex items-center gap-2 rounded-full px-3 py-2 text-[12px] font-bold tracking-wide text-[var(--gold)] hover:text-navy-foreground transition-colors"
             >
               <Phone className="size-3.5" />
               <span className="tabular-nums">{SITE.phoneUK}</span>
@@ -114,7 +114,7 @@ export function Header() {
               to="/book"
               className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-[var(--gold)] px-4 md:px-5 py-2.5 text-[11.5px] md:text-[12px] font-extrabold uppercase tracking-[0.12em] whitespace-nowrap text-[var(--navy)] shadow-[0_10px_28px_-10px_rgba(223,175,38,0.9)] hover:shadow-[0_14px_36px_-8px_rgba(223,175,38,0.95)] hover:-translate-y-px transition-all duration-200"
             >
-              <span aria-hidden className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 skew-x-12 bg-white/30 blur-sm transition-transform duration-700 group-hover:translate-x-[500%]" />
+              <span aria-hidden className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 skew-x-12 bg-navy-foreground/30 blur-sm transition-transform duration-700 group-hover:translate-x-[500%]" />
               <span className="relative">Book Now</span>
             </Link>
 
@@ -122,7 +122,7 @@ export function Header() {
             <a
               href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}
               aria-label="Call Cabslink"
-              className="2xl:hidden grid size-10 place-items-center rounded-full bg-white/10 text-[var(--gold)] hover:bg-white/15"
+              className="2xl:hidden grid size-10 place-items-center rounded-full bg-navy-foreground/10 text-[var(--gold)] hover:bg-navy-foreground/15"
             >
               <Phone className="size-4" />
             </a>
@@ -135,7 +135,7 @@ export function Header() {
               aria-label="Menu"
               aria-expanded={open}
               onClick={() => setOpen(v => !v)}
-              className="grid size-10 place-items-center rounded-full bg-white/10 text-[var(--navy-foreground)] hover:bg-white/15 hover:text-[var(--navy-foreground)] lg:hidden"
+              className="grid size-10 place-items-center rounded-full bg-navy-foreground/10 text-[var(--navy-foreground)] hover:bg-navy-foreground/15 hover:text-[var(--navy-foreground)] lg:hidden"
             >
               {open ? <X className="size-5" /> : <Menu className="size-5" />}
             </Button>
@@ -145,7 +145,7 @@ export function Header() {
 
         {/* Mobile sheet */}
         {open && (
-          <div className="lg:hidden mt-2 rounded-3xl navy-scene border border-white/10 shadow-[0_20px_50px_-20px_rgba(14,24,44,0.6)] overflow-hidden">
+          <div className="lg:hidden mt-2 rounded-3xl navy-scene border border-navy-foreground/10 shadow-[0_20px_50px_-20px_rgba(14,24,44,0.6)] overflow-hidden">
             <div className="p-3 flex flex-col">
               <nav className="flex flex-col">
                 {NAV.map(item => {
@@ -158,21 +158,21 @@ export function Header() {
                     <Link
                       to={item.to}
                       className={`flex items-center gap-3 py-3 px-3 rounded-xl text-[14px] font-semibold ${
-                        active ? "bg-white/10 text-[var(--gold)]" : "text-white/80 hover:bg-white/5"
+                        active ? "bg-navy-foreground/10 text-[var(--gold)]" : "text-navy-foreground/80 hover:bg-navy-foreground/5"
                       }`}
                     >
-                      <span className={`h-1.5 w-1.5 rounded-full ${active ? "bg-[var(--gold)]" : "bg-white/25"}`} />
+                      <span className={`h-1.5 w-1.5 rounded-full ${active ? "bg-[var(--gold)]" : "bg-navy-foreground/25"}`} />
                       {item.label}
                     </Link>
                     {item.to === "/services" && (
                       <details className="group px-3">
-                        <summary className={`flex cursor-pointer list-none items-center justify-between rounded-xl px-3 py-3 text-[14px] font-semibold ${destinationActive ? "bg-white/10 text-[var(--gold)]" : "text-white/80 hover:bg-white/5"}`}>
+                        <summary className={`flex cursor-pointer list-none items-center justify-between rounded-xl px-3 py-3 text-[14px] font-semibold ${destinationActive ? "bg-navy-foreground/10 text-[var(--gold)]" : "text-navy-foreground/80 hover:bg-navy-foreground/5"}`}>
                           Destinations
                           <ChevronDown className="size-4 transition-transform group-open:rotate-180" />
                         </summary>
                         <div className="grid grid-cols-2 gap-1 pb-2 pt-1">
                           {DESTINATIONS.map((destination) => (
-                            <Link key={destination.to} to={destination.to} className="rounded-lg px-3 py-2 text-[13px] text-white/75 hover:bg-white/5 hover:text-[var(--gold)]">
+                            <Link key={destination.to} to={destination.to} className="rounded-lg px-3 py-2 text-[13px] text-navy-foreground/75 hover:bg-navy-foreground/5 hover:text-[var(--gold)]">
                               {destination.label}
                             </Link>
                           ))}

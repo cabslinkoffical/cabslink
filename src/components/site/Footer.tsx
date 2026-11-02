@@ -48,14 +48,14 @@ export function Footer() {
 
         <div>
           <Logo variant="gold" priority={false} />
-          <p className="mt-4 text-sm text-white/70 max-w-xs">
+          <p className="mt-4 text-sm text-navy-foreground/70 max-w-xs">
             Premium UK airport transfers and airport travel services — punctual,
             professional and effortlessly comfortable, around the clock.
           </p>
         </div>
         <div>
           <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--gold)]">Quick Links</h3>
-          <ul className="mt-5 space-y-1 text-sm text-white/75 md:space-y-3">
+          <ul className="mt-5 space-y-1 text-sm text-navy-foreground/75 md:space-y-3">
             {links.map(l => (
               <li key={l.to}>{l.to.includes("#") ? (
                 <a href={l.to} className="inline-flex min-h-11 items-center hover:text-[var(--gold)] md:min-h-0">{l.label}</a>
@@ -67,7 +67,7 @@ export function Footer() {
         </div>
         <div>
           <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--gold)]">Services</h3>
-          <ul className="mt-5 space-y-1 text-sm text-white/75 md:space-y-3">
+          <ul className="mt-5 space-y-1 text-sm text-navy-foreground/75 md:space-y-3">
             {services.map(s => (
               <li key={s.to}><Link to={s.to} className="inline-flex min-h-11 items-center hover:text-[var(--gold)] md:min-h-0">{s.label}</Link></li>
             ))}
@@ -75,7 +75,7 @@ export function Footer() {
         </div>
         <div>
           <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--gold)]">Contact</h3>
-          <ul className="mt-5 space-y-4 text-sm text-white/80">
+          <ul className="mt-5 space-y-4 text-sm text-navy-foreground/80">
             <li className="flex gap-3"><MapPin className="size-4 shrink-0 mt-0.5 text-[var(--gold)]" /><span>{SITE.address}</span></li>
             <li className="flex gap-3"><Phone className="size-4 shrink-0 mt-0.5 text-[var(--gold)]" /><div><a href={`tel:${SITE.phoneUK.replace(/\s/g,"")}`} className="flex min-h-10 items-center hover:text-[var(--gold)] md:min-h-0">{SITE.phoneUK}</a></div></li>
             <li className="flex gap-3"><Mail className="size-4 shrink-0 mt-0.5 text-[var(--gold)]" /><a href={`mailto:${SITE.email}`} className="inline-flex min-h-10 items-center hover:text-[var(--gold)] md:min-h-0">{SITE.email}</a></li>
@@ -91,24 +91,24 @@ export function Footer() {
                   aria-label={`${label} — ${handle}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex items-center gap-3 rounded-full border border-white/15 px-3 py-2 transition-colors hover:border-[var(--gold)]"
+                  className="group flex items-center gap-3 rounded-full border border-navy-foreground/15 px-3 py-2 transition-colors hover:border-[var(--gold)]"
                 >
-                  <span className={`grid size-9 shrink-0 place-items-center rounded-full text-white shadow-md transition-transform group-hover:scale-110 social-icon-${key}`}>
+                  <span className={`grid size-9 shrink-0 place-items-center rounded-full text-navy-foreground shadow-md transition-transform group-hover:scale-110 social-icon-${key}`}>
                     <Icon className="size-[18px]" />
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block font-display text-sm font-semibold text-white/85">{label}</span>
-                    <span className="block truncate text-xs text-white/70">{handle}</span>
+                    <span className="block font-display text-sm font-semibold text-navy-foreground/85">{label}</span>
+                    <span className="block truncate text-xs text-navy-foreground/70">{handle}</span>
                   </span>
-                  <ArrowUpRight className="size-4 shrink-0 text-white/60 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[var(--gold)]" />
+                  <ArrowUpRight className="size-4 shrink-0 text-navy-foreground/60 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[var(--gold)]" />
                 </a>
               </li>
             ))}
           </ul>
         </div>
       </div>
-      <div className="border-t border-white/10">
-        <div className="container-x py-5 flex flex-col gap-4 text-xs text-white/60">
+      <div className="border-t border-navy-foreground/10">
+        <div className="container-x py-5 flex flex-col gap-4 text-xs text-navy-foreground/60">
           <p>{FACT_TEXT.companyLine}</p>
           <ul className="flex flex-wrap justify-center gap-x-5 gap-y-2">
             {legal.map(l => (

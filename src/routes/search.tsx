@@ -56,7 +56,7 @@ function SearchPage() {
 
 
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>Can't find <span className="text-gold">what you need</span>?</>, subtitle: "Tell us where you are travelling and our team will help, or get a fixed price online.", label: "Contact us", to: "/contact", trackAs: "final_cta_search" }}>
     <div className="mx-auto max-w-4xl px-4 py-10">
       <Breadcrumbs items={[{ name: "Home", href: "/" }, { name: "Search", href: "/search" }]} />
       <h1 className="mt-4 mb-6 text-4xl font-bold text-[var(--navy)]">Search destinations</h1>
@@ -69,9 +69,9 @@ function SearchPage() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Type an area, airport, station, attraction…"
-          className="flex-1 rounded-full border border-[var(--navy)]/20 bg-white px-5 py-3 text-[var(--navy)] focus:outline-none focus:ring-2 focus:ring-[var(--gold)]"
+          className="flex-1 rounded-full border border-[var(--navy)]/20 bg-card px-5 py-3 text-[var(--navy)] focus:outline-none focus:ring-2 focus:ring-[var(--gold)]"
         />
-        <button className="rounded-full bg-[var(--navy)] px-6 py-3 font-semibold text-white hover:bg-[var(--navy)]/90">
+        <button className="rounded-full bg-[var(--navy)] px-6 py-3 font-semibold text-navy-foreground hover:bg-[var(--navy)]/90">
           Search
         </button>
       </form>
@@ -84,7 +84,7 @@ function SearchPage() {
 
       <ul className="space-y-2">
         {results.map((r) => (
-          <li key={r.id} className="rounded-xl border border-[var(--navy)]/10 bg-white p-4">
+          <li key={r.id} className="rounded-xl border border-[var(--navy)]/10 bg-card p-4">
             <div className="flex items-center justify-between gap-4">
               <div>
                 <div className="font-medium text-[var(--navy)]">{r.display_name ?? r.name}</div>

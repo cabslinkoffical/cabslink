@@ -48,7 +48,7 @@ function CategoryPage() {
   const { data } = useSuspenseQuery(q(slug));
   const { category, posts } = data;
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>Plan your trip <span className="text-gold">with Cabslink</span></>, label: "Get a fixed price", trackAs: "final_cta_blog_list" }}>
       <PageHero
         eyebrow="Category"
         title={category?.name ?? "Category"}

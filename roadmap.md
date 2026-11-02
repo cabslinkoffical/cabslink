@@ -166,7 +166,9 @@
 ## Full-site redesign + SEO/AEO/GEO (requested 2 Nov)
 - [x] Audit every public page (not the homepage) for design/logic/SEO inconsistencies against the homepage design system
 - [x] Group 1 shared section heading; Group 2 shared top section (centred / booking-led / reading-width)
-- [ ] CHECKPOINT 1 — waiting for owner approval of screenshots before Group 3
+- [x] CHECKPOINT 1 — owner said continue (2026-11-02)
+- [x] Owner 2026-11-02: one contextual closing action per page (local pages jump to prefilled form, tours to tour booking, policies to contact, driver/business pages to their forms); marketing band hidden on booking/payment/manage pages; repeated FAQ booking buttons and About's double FAQ heading removed; FAQ headings unified; off-brand white/black/blue classes swapped to brand tokens (consent banner untouched). 72 pages re-checked, 901 tests pass.
+- [ ] Group 3 spacing/widths, Group 4 cards/buttons, Group 5 cone structure (checkpoint), Groups 6–9 still to do
 - [ ] Note for report: area page intro reads "from Edinburgh to Edinburgh" (data-driven copy) — fix in cone/SEO pass
 - [ ] Redesign non-home pages to the homepage visual language, page by page, without changing URLs/titles/H1s/protected SEO settings or inventing facts
 - [ ] Technical SEO/AEO/GEO pass (metadata, schema, headings, links, images, performance) and verification

@@ -632,7 +632,7 @@ function BookPage() {
   }, [step, goToExtras, submitBooking]);
 
   return (
-    <SiteLayout>
+    <SiteLayout hideCta>
       {/* overflow-clip, not overflow-hidden: an overflow:hidden ancestor turns this
           section into a scroll container and silently stops the left rail sticking. */}
       <section className="relative bg-[var(--surface)] py-10 md:py-14 min-h-[80vh] overflow-clip">
@@ -852,7 +852,7 @@ function JourneyForm({ initial, onSubmit }: { initial: Prefill; onSubmit: (next:
       </div>
 
       {touched && requiredRemaining > 0 && (
-        <div className="flex items-center gap-2 rounded-lg bg-destructive px-3 py-2.5 text-xs font-bold text-white" role="alert">
+        <div className="flex items-center gap-2 rounded-lg bg-destructive px-3 py-2.5 text-xs font-bold text-navy-foreground" role="alert">
           <AlertCircle className="h-4 w-4 shrink-0" />
           <span>Please fill the required data to continue ({requiredRemaining} remaining)</span>
         </div>
@@ -1293,7 +1293,7 @@ function TourBanner({ slug, name, loading, missing, mismatch, onStartAgain }: {
         )}
       </div>
       {(missing || mismatch) && (
-        <button onClick={onStartAgain} className="text-xs font-semibold px-3 py-1.5 rounded-full border border-current hover:bg-white/40 transition shrink-0">
+        <button onClick={onStartAgain} className="text-xs font-semibold px-3 py-1.5 rounded-full border border-current hover:bg-navy-foreground/40 transition shrink-0">
           Start again
         </button>
       )}
@@ -1660,12 +1660,12 @@ function VehicleCard({ card, klass, trip, best, qty, minQty, disabled, disabledR
       <div className="relative flex items-center justify-between gap-3 bg-[var(--navy)] px-4 md:px-6 py-3">
         <div className="min-w-0 flex items-center gap-2">
           <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold)]">Cabslink</span>
-          <span className="h-3 w-px bg-white/20" />
-          <span className="hidden sm:inline text-[9.5px] font-bold uppercase tracking-[0.32em] text-white/60">
+          <span className="h-3 w-px bg-navy-foreground/20" />
+          <span className="hidden sm:inline text-[9.5px] font-bold uppercase tracking-[0.32em] text-navy-foreground/60">
             Passenger ticket
           </span>
-          <span className="hidden sm:inline h-3 w-px bg-white/20" />
-          <span className="truncate text-[10px] font-semibold uppercase tracking-[0.22em] text-white/70">
+          <span className="hidden sm:inline h-3 w-px bg-navy-foreground/20" />
+          <span className="truncate text-[10px] font-semibold uppercase tracking-[0.22em] text-navy-foreground/70">
             {trip.ret ? "Return journey" : "One way"} · {dateLabel} {trip.time || ""}
           </span>
         </div>
@@ -1684,7 +1684,7 @@ function VehicleCard({ card, klass, trip, best, qty, minQty, disabled, disabledR
             type="button"
             onClick={() => setInfoOpen(true)}
             aria-label={`What's included with ${displayName}`}
-            className="grid size-7 place-items-center rounded-full border border-white/25 text-white/80 transition hover:border-[var(--gold)] hover:text-[var(--gold)]"
+            className="grid size-7 place-items-center rounded-full border border-navy-foreground/25 text-navy-foreground/80 transition hover:border-[var(--gold)] hover:text-[var(--gold)]"
           >
             <Info className="size-3.5" />
           </button>
@@ -1696,7 +1696,7 @@ function VehicleCard({ card, klass, trip, best, qty, minQty, disabled, disabledR
       {/* ---- ticket body ---- */}
       <div className="flex-1 min-w-0">
         <div className="p-4 md:p-6 flex flex-col sm:flex-row gap-4 md:gap-6">
-          <div className="w-full sm:w-40 lg:w-44 shrink-0 flex items-center justify-center rounded-md border border-dashed border-[var(--navy)]/15 bg-white/70 p-3">
+          <div className="w-full sm:w-40 lg:w-44 shrink-0 flex items-center justify-center rounded-md border border-dashed border-[var(--navy)]/15 bg-navy-foreground/70 p-3">
             <img src={displayImage} alt={displayName} className="w-full aspect-[3/2] object-contain" loading="lazy" />
           </div>
 
@@ -1922,7 +1922,7 @@ function ContactStep({ contact, onChange, onBack, attempted }: {
       </div>
 
       {attempted && requiredRemaining > 0 && (
-        <div className="flex items-center gap-2 rounded-lg bg-destructive px-3 py-2.5 text-xs font-bold text-white" role="alert">
+        <div className="flex items-center gap-2 rounded-lg bg-destructive px-3 py-2.5 text-xs font-bold text-navy-foreground" role="alert">
           <AlertCircle className="h-4 w-4 shrink-0" />
           <span>Please fill the required data to continue ({requiredRemaining} remaining)</span>
         </div>
