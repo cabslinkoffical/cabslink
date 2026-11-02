@@ -1,3 +1,5 @@
+import type { LinkProps } from "@tanstack/react-router";
+
 export const SITE = {
   name: "Cabslink",
   tagline: "UK's Trusted & Reliable Airport Transfer Service",
@@ -37,10 +39,11 @@ export const DESTINATIONS = [
 ] as const;
 
 /** One link inside a grouped header menu. */
-export type MenuLink = { to: string; label: string };
+export type MenuPath = NonNullable<LinkProps["to"]>;
+export type MenuLink = { to: MenuPath; label: string };
 export type MenuColumn = { heading: string; links: MenuLink[] };
 export type MenuEntry =
-  | { kind: "link"; to: string; label: string }
+  | { kind: "link"; to: MenuPath; label: string }
   | {
       kind: "group";
       label: string;
@@ -140,7 +143,7 @@ export const MENU: MenuEntry[] = [
         links: [
           { to: "/manage-booking", label: "Manage Booking" },
           { to: "/booking-policy", label: "Booking & Cancellation" },
-          { to: "/contact", label: "Contact Us" },
+          { to: "/refund-policy", label: "Refund Policy" },
         ],
       },
     ],
