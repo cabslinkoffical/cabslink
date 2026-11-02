@@ -224,8 +224,8 @@
 .public-site > main > div.min-h-screen.bg-background {
   background-color: var(--surface-2);
 }
-.public-site > main > section.section-y:nth-of-type(even):not(.navy-scene):not(.hero-gradient):not([class*="bg-"]),
-.public-site > main > article > section {
+.public-site.is-home > main > section.section-y:nth-of-type(even):not(.navy-scene):not(.hero-gradient):not([class*="bg-"]),
+.public-site.is-home > main > article > section {
   background-color: var(--surface-cool);
 }
 /* Every page except the homepage: light bands directly inside <main> alternate
