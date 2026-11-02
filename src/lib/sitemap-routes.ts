@@ -60,7 +60,7 @@ export const PUBLIC_ROUTES = [
   "/golf-transfers", "/football-transfers", "/stadium-transfers",
   "/team-sports-travel", "/vip-sports-hospitality",
   "/corporate-travel", "/tours", "/fleet", "/drive-with-us",
-  "/corporate-booking", "/contact", "/reviews",
+  "/corporate-booking", "/contact", "/reviews", "/faq",
   "/booking-policy", "/refund-policy", "/accessibility",
   "/private-hire", "/executive-transfers", "/long-distance-transfers", "/group-transfers", "/minibus-hire", "/coach-hire", "/cruise-transfers", "/university-transfers", "/hospital-transfers", "/event-transport",
   "/travel-solutions", "/travel-solutions/business-travel", "/travel-solutions/student-travel", "/travel-solutions/family-travel", "/travel-solutions/group-travel", "/travel-solutions/event-travel",

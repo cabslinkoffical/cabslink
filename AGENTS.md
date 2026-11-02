@@ -44,3 +44,5 @@
 - Dispatch drains claim one event at a time via a leased service-role function (expired leases reclaimed, completion writes fenced to the lease, stable event IDs); scheduler and receiver read the drain token from private settings, never code or migrations.
 - Subdirectories may have their own AGENTS.md (staff console routes, src/components/site); read it before changing files there.
 - Page photos live in src/content/page-images.ts (one unique CDN-hosted, credited Commons photo per path); LocalPageHero and DestinationCard prefer it over template images, and the credits page lists it, so a page never falls back to a shared photo.
+- The header menu is driven only by the grouped MENU list in src/lib/site.ts (typed route paths, no redirect targets); Header renders desktop panels and phone folding sections from it so both stay in sync.
+- Site-wide FAQ answers live in src/content/faq-bank.ts (keyed to the owner's question-bank numbers) and are built only from FACTS, live vehicle classes and existing booking features; unanswerable questions stay out rather than being guessed.
