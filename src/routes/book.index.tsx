@@ -1963,10 +1963,12 @@ function ContactStep({ contact, onChange, onBack, attempted, pickupLabel }: {
           <PhoneInput value={contact.whatsapp} onChange={(v) => set("whatsapp", v)} placeholder="7700 900123" />
         </Field>
       </div>
+      <div className="pb-2">
       <Field label={airportPickup ? "Flight number" : "Flight number (optional)"} error={show("flight_number")}>
         <Input value={contact.flight_number} onChange={(e) => set("flight_number", e.target.value)} required={airportPickup} maxLength={20} placeholder="e.g. BA1234" />
         {airportPickup && <p className="mt-1.5 text-xs text-muted-foreground">{FACT_TEXT.flightTracking}</p>}
       </Field>
+      </div>
       <Field label="Notes (optional)" icon={<MessageSquare className="size-4" />}>
         <Textarea value={contact.notes} onChange={(e) => set("notes", e.target.value)} rows={4} maxLength={1000} placeholder="Anything our driver should know" />
       </Field>
