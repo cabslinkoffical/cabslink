@@ -80,7 +80,7 @@ export function HubPage({
         </PageBand>
       )}
 
-      <PageBand eyebrow={eyebrow} title={`${title} we cover`} subtitle={destinations.length ? `${destinations.length} ${destinations.length === 1 ? "page" : "pages"}, grouped by region.` : undefined}>
+      <PageBand eyebrow={eyebrow} title="Choose your destination" subtitle={destinations.length ? `${destinations.length} ${destinations.length === 1 ? "page" : "pages"}, grouped by region.` : undefined}>
       {destinations.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-[var(--navy)]/20 bg-card p-8 text-center shadow-raised">
           <p className="text-[var(--navy)]/70">
