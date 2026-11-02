@@ -2,6 +2,7 @@ import { RelatedLinks } from "@/components/site/RelatedLinks";
 import { DirectAnswer, firstSentences } from "@/components/seo/DirectAnswer";
 import { canonicalUrl, normalizeHead } from "@/lib/seo/page-head";
 import { Link } from "@tanstack/react-router";
+import { MapPin } from "lucide-react";
 import { safeJsonLd } from "@/lib/safe-json-ld";
 import type { PublicSeoPage, PublicSeoSection } from "@/lib/seo-public.functions";
 import type { RelatedBundle, RelatedLink } from "@/lib/seo-related.functions";
@@ -90,7 +91,7 @@ export function SeoPageRenderer({
         imageCaption={entityName ? `${entityName} · private transfers` : undefined}
         intro={{
           eyebrow: entityType ? entityType.replace(/-/g, " ") : undefined,
-          heading: entityName ? `Travelling to ${entityName}` : "At a glance",
+          heading: entityName ? `${entityName} at a glance` : "At a glance",
           body: (
             <DirectAnswer
           className="!border-0 !bg-transparent !p-0"
@@ -105,9 +106,6 @@ export function SeoPageRenderer({
           ),
           details: [
             ...(entityName ? [{ icon: MapPin, label: "Location", value: entityName }] : []),
-            ...(fares?.fares.length
-              ? [{ icon: Car, label: "Fixed fares from", value: `${fares.currencySymbol}${Math.min(...fares.fares.map((f) => f.price)).toFixed(2)} per vehicle`, note: `${fares.distanceMiles}-mile journey` }]
-              : []),
           ],
         }}
       />
