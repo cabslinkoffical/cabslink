@@ -154,10 +154,6 @@ export const listBookings = createServerFn({ method: "GET" })
       .range(a, z));
   });
 
-const bookingStatusSchema = z.enum([
-  "new", "confirmed", "assigned", "on_way", "completed", "cancelled",
-  "pending_allocation", "in_progress", "bidding",
-]);
 const paymentStatusSchema = z.enum(["unpaid", "paid", "refunded", "partial", "failed"]);
 
 export const updateBooking = createServerFn({ method: "POST" })
