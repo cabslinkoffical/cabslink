@@ -28,6 +28,7 @@ import { Route as CruiseTransfersRouteImport } from './routes/cruise-transfers'
 import { Route as DistanceRouteImport } from './routes/distance'
 import { Route as DriveWithUsRouteImport } from './routes/drive-with-us'
 import { Route as EventTransportRouteImport } from './routes/event-transport'
+import { Route as FaqRouteImport } from './routes/faq'
 import { Route as FleetRouteImport } from './routes/fleet'
 import { Route as FootballTransfersRouteImport } from './routes/football-transfers'
 import { Route as GetAQuoteRouteImport } from './routes/get-a-quote'
@@ -244,6 +245,11 @@ const DriveWithUsRoute = DriveWithUsRouteImport.update({
 const EventTransportRoute = EventTransportRouteImport.update({
   id: '/event-transport',
   path: '/event-transport',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FaqRoute = FaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FleetRoute = FleetRouteImport.update({
@@ -930,6 +936,7 @@ export interface FileRoutesByFullPath {
   '/distance': typeof DistanceRoute
   '/drive-with-us': typeof DriveWithUsRoute
   '/event-transport': typeof EventTransportRoute
+  '/faq': typeof FaqRoute
   '/fleet': typeof FleetRoute
   '/football-transfers': typeof FootballTransfersRoute
   '/get-a-quote': typeof GetAQuoteRoute
@@ -1072,6 +1079,7 @@ export interface FileRoutesByTo {
   '/distance': typeof DistanceRoute
   '/drive-with-us': typeof DriveWithUsRoute
   '/event-transport': typeof EventTransportRoute
+  '/faq': typeof FaqRoute
   '/fleet': typeof FleetRoute
   '/football-transfers': typeof FootballTransfersRoute
   '/get-a-quote': typeof GetAQuoteRoute
@@ -1216,6 +1224,7 @@ export interface FileRoutesById {
   '/distance': typeof DistanceRoute
   '/drive-with-us': typeof DriveWithUsRoute
   '/event-transport': typeof EventTransportRoute
+  '/faq': typeof FaqRoute
   '/fleet': typeof FleetRoute
   '/football-transfers': typeof FootballTransfersRoute
   '/get-a-quote': typeof GetAQuoteRoute
@@ -1361,6 +1370,7 @@ export interface FileRouteTypes {
     | '/distance'
     | '/drive-with-us'
     | '/event-transport'
+    | '/faq'
     | '/fleet'
     | '/football-transfers'
     | '/get-a-quote'
@@ -1503,6 +1513,7 @@ export interface FileRouteTypes {
     | '/distance'
     | '/drive-with-us'
     | '/event-transport'
+    | '/faq'
     | '/fleet'
     | '/football-transfers'
     | '/get-a-quote'
@@ -1646,6 +1657,7 @@ export interface FileRouteTypes {
     | '/distance'
     | '/drive-with-us'
     | '/event-transport'
+    | '/faq'
     | '/fleet'
     | '/football-transfers'
     | '/get-a-quote'
@@ -1791,6 +1803,7 @@ export interface RootRouteChildren {
   DistanceRoute: typeof DistanceRoute
   DriveWithUsRoute: typeof DriveWithUsRoute
   EventTransportRoute: typeof EventTransportRoute
+  FaqRoute: typeof FaqRoute
   FleetRoute: typeof FleetRoute
   FootballTransfersRoute: typeof FootballTransfersRoute
   GetAQuoteRoute: typeof GetAQuoteRoute
@@ -2001,6 +2014,13 @@ declare module '@tanstack/react-router' {
       path: '/event-transport'
       fullPath: '/event-transport'
       preLoaderRoute: typeof EventTransportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/faq': {
+      id: '/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof FaqRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/fleet': {
@@ -3069,6 +3089,7 @@ const rootRouteChildren: RootRouteChildren = {
   DistanceRoute: DistanceRoute,
   DriveWithUsRoute: DriveWithUsRoute,
   EventTransportRoute: EventTransportRoute,
+  FaqRoute: FaqRoute,
   FleetRoute: FleetRoute,
   FootballTransfersRoute: FootballTransfersRoute,
   GetAQuoteRoute: GetAQuoteRoute,
