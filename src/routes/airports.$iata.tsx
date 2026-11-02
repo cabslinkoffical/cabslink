@@ -191,36 +191,22 @@ function AirportPage() {
         image={(airport as { hero_image_url?: string | null }).hero_image_url ?? defaultLocalImage("airport")}
         imageAlt={`Cabslink ${name} transfers`}
         imageCaption={`${shortName} · airport transfers`}
-      />
-
-      <div className="container-x mt-8">
-        <DirectAnswer
-          sentences={[
+        intro={{
+          eyebrow: "What's included",
+          heading: `${shortName} transfers at a glance`,
+          body: (
+            <DirectAnswer
+              className="!border-0 !bg-transparent !p-0"
+              sentences={[
             `Cabslink runs pre-booked private transfers to and from ${name}${iata ? ` (${iata})` : ""}${cityLine ? ` in ${cityLine}` : ""}.`,
             `Fares are fixed before you travel, and meet and greet is included on airport pickups: your driver waits in arrivals with a name board.`,
-          ]}
-          updated={(airport as { updated_at?: string | null }).updated_at ?? null}
-        />
-      </div>
-
-      {/* Features */}
-      <section className="section-y">
-        <div className="container-x">
-          <p className="eyebrow-gold text-[11px]">— What's included</p>
-          <h2 className="mt-4 font-display text-3xl md:text-4xl font-bold text-[var(--navy)]">
-            Everything a smooth airport transfer needs.
-          </h2>
-          <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {features.map((f) => (
-              <div key={f.title} className="rounded-2xl border border-[var(--navy)]/10 bg-card p-6">
-                <f.icon className="size-6 text-[var(--gold-ink)]" />
-                <h3 className="mt-4 font-semibold text-[var(--navy)]">{f.title}</h3>
-                <p className="mt-2 text-sm text-[var(--navy)]/70">{f.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+              ]}
+              updated={(airport as { updated_at?: string | null }).updated_at ?? null}
+            />
+          ),
+          details: features.map((f) => ({ icon: f.icon, label: f.title, value: f.desc })),
+        }}
+      />
 
       {/* How it works */}
       <section className="section-y bg-[var(--surface-2)]">
