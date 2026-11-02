@@ -2,7 +2,8 @@
 // before being interpolated. Templates return `{ subject, html, text }`.
 
 import { SITE } from "@/lib/site";
-import { statusLabel, paymentNextStepMessage, type BookingStatus, type PaymentMode } from "@/lib/booking-lifecycle";
+import { isBookingConfirmed, statusLabel, paymentNextStepMessage, type BookingStatus, type PaymentMode } from "@/lib/booking-lifecycle";
+import { whatsappBookingHref } from "@/lib/whatsapp";
 
 function esc(v: unknown): string {
   if (v == null) return "";
@@ -117,11 +118,20 @@ function textLines(ctx: BookingEmailContext, heading: string, intro: string, nex
 
 // ---------------- Customer: booking received ----------------
 export function customerReceivedEmail(ctx: BookingEmailContext) {
-  const heading = ctx.status === "confirmed" ? "Booking confirmed" : "Booking request received";
-  const intro = ctx.status === "confirmed"
+  // Only an admin-confirmed (or card-paid, which the webhook confirms) booking is "confirmed".
+  const confirmed = isBookingConfirmed(ctx.status);
+  const heading = confirmed ? "Your booking is confirmed" : "We've received your booking request";
+  const intro = confirmed
     ? `Thank you ${esc(ctx.customerName)} — your booking is confirmed.`
-    : `Thank you ${esc(ctx.customerName)} — we have received your booking request.`;
+    : `Thank you ${esc(ctx.customerName)} — we've received your booking request.`;
   const next = paymentNextStepMessage(ctx.paymentMode, ctx.status);
+  const waHref = whatsappBookingHref(ctx.bookingRef);
+  const whatsapp = confirmed
+    ? ""
+    : `<p style="margin:20px 0 0;font-weight:700;">To confirm it straight away, message us on WhatsApp</p>
+    <p style="margin:6px 0 0;line-height:1.55;">Paying by cash, bank transfer or another method? Send us your booking reference <strong>${esc(ctx.bookingRef)}</strong> and we'll confirm your booking and arrange payment.</p>
+    <p style="margin:14px 0 0;"><a href="${esc(waHref)}" style="display:inline-block;background:#0e182c;color:#ffffff;padding:14px 24px;border-radius:999px;font-weight:700;font-size:16px;text-decoration:none;">Message us on WhatsApp</a></p>
+    <p style="margin:10px 0 0;font-size:13px;">Or email <a href="mailto:${esc(SITE.email)}" style="color:#0e182c;">${esc(SITE.email)}</a></p>`;
   const button = ctx.confirmationUrl
     ? `<p style="margin:24px 0 0;"><a href="${esc(ctx.confirmationUrl)}" style="display:inline-block;background:#dfaf26;color:#0e182c;padding:12px 22px;border-radius:8px;font-weight:700;text-decoration:none;">View booking</a></p>`
     : "";
@@ -130,13 +140,21 @@ export function customerReceivedEmail(ctx: BookingEmailContext) {
     <h1 style="margin:0 0 12px;font-size:22px;">${intro}</h1>
     <p style="margin:0 0 20px;color:#0e182c;line-height:1.55;">${esc(next)}</p>
     ${commonBookingRows(ctx)}
+    ${whatsapp}
     ${button}
     <p style="margin:24px 0 0;font-size:12px;color:#0e182c;">Reference this booking as <strong>${esc(ctx.bookingRef)}</strong> when contacting us.</p>
   `);
   return {
     subject: safeSubject(`${heading} — ${ctx.bookingRef}`),
     html,
-    text: textLines(ctx, heading, `Hi ${ctx.customerName}, ${next}`, `Reference ${ctx.bookingRef} when contacting us.`),
+    text: textLines(
+      ctx,
+      heading,
+      `Hi ${ctx.customerName}, ${next}`,
+      confirmed
+        ? `Reference ${ctx.bookingRef} when contacting us.`
+        : `To confirm it straight away, message us on WhatsApp: ${waHref}\nOr email ${SITE.email}. Reference ${ctx.bookingRef} when contacting us.`,
+    ),
   };
 }
 
