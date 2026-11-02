@@ -6,7 +6,7 @@ import { Pager, useDebounced, usePageState } from "@/components/admin/Pager";
 import { DEFAULT_PAGE_SIZE } from "@/lib/admin-paging";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import { PageHeader, EmptyState } from "@/components/admin/ui";
+import { PageHeader, EmptyState, ListError } from "@/components/admin/ui";
 
 const custOpts = (q: string, page: number, pageSize: number) => queryOptions({
   queryKey: ["admin", "customers", { q, page, pageSize }],
@@ -50,7 +50,7 @@ function Page() {
         <span className="text-sm text-muted-foreground">{total} customers</span>
       </div>
 
-      {filtered.length === 0 ? <EmptyState title="No customers yet" hint="Customers appear after their first booking." /> : (
+      {listQ.isError ? <ListError error={listQ.error} onRetry={() => listQ.refetch()} /> : filtered.length === 0 ? <EmptyState title="No customers yet" hint="Customers appear after their first booking." /> : (
         <div className="border border-border rounded-xl bg-card overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">

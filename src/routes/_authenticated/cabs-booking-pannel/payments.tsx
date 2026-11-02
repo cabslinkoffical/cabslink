@@ -17,7 +17,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Plus, Edit, Trash2, Eye } from "lucide-react";
 import { toast } from "sonner";
-import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
+import { PageHeader, StatusBadge, EmptyState, ListError } from "@/components/admin/ui";
 
 const payOpts = (status: string, page: number, pageSize: number) => queryOptions({
   queryKey: ["admin", "payments", { status, page, pageSize }],
@@ -69,7 +69,7 @@ function Page() {
         </TabsList>
       </Tabs>
 
-      {filtered.length === 0 ? <EmptyState title="No payments" /> : (
+      {listQ.isError ? <ListError error={listQ.error} onRetry={() => listQ.refetch()} /> : filtered.length === 0 ? <EmptyState title="No payments" /> : (
         <div className="border border-border rounded-xl bg-card overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">

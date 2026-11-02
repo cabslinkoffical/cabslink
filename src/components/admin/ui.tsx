@@ -98,3 +98,18 @@ export function EmptyState({ title, hint, action }: { title: string; hint?: stri
     </div>
   );
 }
+
+/** Shown in place of a list when loading it failed, so a failure never looks like "no records". */
+export function ListError({ error, onRetry }: { error: unknown; onRetry?: () => void }) {
+  return (
+    <div role="alert" className="rounded-2xl border border-destructive/40 bg-destructive/5 px-4 py-8 text-center">
+      <p className="font-display font-semibold text-destructive">This list couldn't be loaded</p>
+      <p className="mt-1 text-sm text-muted-foreground">{error instanceof Error ? error.message : "Please try again."}</p>
+      {onRetry && (
+        <button type="button" onClick={onRetry} className="mt-4 inline-flex h-9 items-center rounded-lg border border-border bg-card px-4 text-sm font-medium hover:bg-muted">
+          Try again
+        </button>
+      )}
+    </div>
+  );
+}

@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, ChevronRight, ChevronDown } from "lucide-react";
-import { PageHeader, EmptyState } from "@/components/admin/ui";
+import { PageHeader, EmptyState, ListError } from "@/components/admin/ui";
 
 const ENTITIES = [
   "bookings", "vehicles", "vehicle_classes", "vehicle_models", "vehicle_pricing_profiles",
@@ -97,7 +97,7 @@ function Page() {
         <Button onClick={apply} disabled={listQ.isFetching}>{listQ.isFetching ? "Loading…" : "Apply"}</Button>
       </div>
 
-      {rows.length === 0 ? <EmptyState title="No activity in this range" /> : (
+      {listQ.isError ? <ListError error={listQ.error} onRetry={() => listQ.refetch()} /> : rows.length === 0 ? <EmptyState title="No activity in this range" /> : (
         <div className="border border-border rounded-xl bg-card overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">

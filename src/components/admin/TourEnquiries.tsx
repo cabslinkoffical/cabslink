@@ -18,7 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Search, Eye, Trash2, Mail, BadgePoundSterling } from "lucide-react";
 import { toast } from "sonner";
-import { EmptyState, StatusBadge } from "@/components/admin/ui";
+import { EmptyState, StatusBadge, ListError } from "@/components/admin/ui";
 
 const FILTERS = ["all", ...TOUR_STATUSES] as const;
 
@@ -129,7 +129,7 @@ export function TourEnquiries() {
         </span>
       </div>
 
-      {isLoading ? (
+      {listQ.isError ? <ListError error={listQ.error} onRetry={() => listQ.refetch()} /> : isLoading ? (
         <div className="p-8 text-center text-muted-foreground">Loading tour enquiries…</div>
       ) : rows.length === 0 ? (
         <EmptyState title="No tour enquiries yet" hint="Requests from tour pages will appear here with their own reference." />
