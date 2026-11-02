@@ -105,10 +105,10 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
         intro={{
           eyebrow: "Why Cabslink",
           heading: `Airport travel and private hire in ${locName}`,
-          body: <p>Cabslink provides reliable airport transfers, private hire, executive cars, corporate
-            transport, luxury private-driver travel and group transfers in <strong>{locName}</strong>.
-            Book a fixed-price taxi or cab from {locName} to Edinburgh Airport, Glasgow Airport or any other UK airport —
-            with 24/7 availability, optional meet-and-greet and door-to-door service.</p>,
+          body: <p>Cabslink offers airport transfers and private hire in <strong>{locName}</strong>, from
+            everyday trips to executive cars, business travel and group transfers. Book a fixed price to
+            Edinburgh Airport, Glasgow Airport or any other UK airport, day or night. Your driver collects you
+            from your door, and Meet &amp; Greet can be added to any booking for a small extra charge.</p>,
           details: WHY.map((w) => ({ icon: w.icon, value: w.title, note: w.text })),
         }}
       />
