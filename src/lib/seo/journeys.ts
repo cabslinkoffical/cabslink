@@ -296,8 +296,8 @@ export const JOURNEYS: JourneyRecord[] = [
   },
   // ---------------------------------------------------------------------
   // Edinburgh Airport corridor. Distances and durations below are real
-  // Google Routes API figures, not estimates. Held back from the sitemap and
-  // the /routes index (`review: true`) until signed off.
+  // Google Routes API figures, not estimates. Signed off for indexing (2 Nov 2026); listed in the sitemap and
+  // the /routes index.
   // ---------------------------------------------------------------------
   {
     slug: "dundee-to-edinburgh-airport",
