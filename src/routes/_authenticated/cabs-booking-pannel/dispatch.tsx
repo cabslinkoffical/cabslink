@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, keepPreviousData } from "@tanstack/react-query";
+import { Pager, usePageState } from "@/components/admin/Pager";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -74,7 +75,13 @@ function DispatchPage() {
   const setPassword = useServerFn(setDispatchPassword);
 
   const endpoints = useQuery({ queryKey: ["dispatch-endpoints"], queryFn: () => fetchEndpoints() });
-  const events = useQuery({ queryKey: ["dispatch-events"], queryFn: () => fetchEvents(), refetchInterval: 20000 });
+  const eventPaging = usePageState("");
+  const events = useQuery({
+    queryKey: ["dispatch-events", { page: eventPaging.page, pageSize: eventPaging.pageSize }],
+    queryFn: () => fetchEvents({ data: { page: eventPaging.page, pageSize: eventPaging.pageSize } }),
+    refetchInterval: 20000,
+    placeholderData: keepPreviousData,
+  });
   const users = useQuery({ queryKey: ["dispatch-users"], queryFn: () => fetchUsers() });
 
   const [name, setName] = useState("Dispatch panel");
@@ -282,9 +289,9 @@ function DispatchPage() {
           <Card>
             <CardHeader><CardTitle className="text-base">Recent events sent</CardTitle></CardHeader>
             <CardContent className="divide-y">
-              {(events.data ?? []).length === 0 ? (
+              {(events.data?.rows ?? []).length === 0 ? (
                 <p className="py-3 text-sm text-muted-foreground">Nothing sent yet.</p>
-              ) : (events.data ?? []).map((ev: any) => (
+              ) : (events.data?.rows ?? []).map((ev: any) => (
                 <div key={ev.id} className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm">
                   <div>
                     <p className="font-medium">{ev.event_type}</p>
@@ -303,6 +310,12 @@ function DispatchPage() {
                   </div>
                 </div>
               ))}
+              {(events.data?.total ?? 0) > 0 && (
+                <div className="pt-3">
+                  <Pager page={eventPaging.page} pageSize={eventPaging.pageSize} total={events.data?.total ?? 0} noun="events" loading={events.isFetching}
+                    onPageChange={eventPaging.setPage} onPageSizeChange={eventPaging.setPageSize} />
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
