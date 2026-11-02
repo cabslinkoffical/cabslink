@@ -1230,7 +1230,7 @@ input[type="time"] {
 .page-hero[data-align="center"] .page-hero-inner { text-align: center; }
 .page-hero[data-align="center"] .page-hero-title,
 .page-hero[data-align="center"] .page-hero-subtitle { margin-inline: auto; }
-.page-hero-reading { max-width: 56rem; }
+.page-hero-reading { max-width: 48rem; }
 .page-hero-eyebrow {
   margin-top: 1.5rem;
   font-size: 0.6875rem;
@@ -1248,7 +1248,7 @@ input[type="time"] {
   letter-spacing: 0;
   text-wrap: balance;
 }
-.page-hero-reading .page-hero-title { max-width: 48rem; }
+
 .page-hero-subtitle {
   margin-top: 1rem;
   max-width: 900px;

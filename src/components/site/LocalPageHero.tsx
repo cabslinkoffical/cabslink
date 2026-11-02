@@ -71,8 +71,12 @@ export function LocalPageHero({
               </ul>
             )}
             <div className="local-hero-actions">
-              <a href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`} className="local-hero-phone">
-                <Phone className="size-4" /> {SITE.phoneUK}
+              <a href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`} className="page-hero-phone">
+                <span className="page-hero-phone-icon"><Phone className="size-4" /></span>
+                <span className="text-left text-sm">
+                  <span className="block text-[10px] uppercase tracking-[0.24em] text-[var(--navy-foreground)]/70">Call us 24/7</span>
+                  <span className="font-semibold">{SITE.phoneUK}</span>
+                </span>
               </a>
             </div>
             {children}
