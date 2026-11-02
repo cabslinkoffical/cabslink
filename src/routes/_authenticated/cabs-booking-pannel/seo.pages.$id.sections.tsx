@@ -70,7 +70,7 @@ function Page() {
         <Button onClick={() => setForm({ ...empty })}><Plus className="size-4 mr-2" />New section</Button>
       </PageHeader>
 
-      <SeoTable
+      <SeoTable paged={false}
         rows={data.rows}
         onEdit={r => setForm({ ...empty, ...r })}
         onDelete={remove}
