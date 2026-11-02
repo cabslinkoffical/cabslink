@@ -2936,6 +2936,8 @@ export type Database = {
         Row: {
           active: boolean
           admin_notes: string | null
+          auto_price_calculated_at: string | null
+          auto_price_route_miles: number | null
           bidirectional: boolean
           created_at: string
           default_duration_hours: number | null
@@ -2969,6 +2971,7 @@ export type Database = {
           optimisation_allowed: boolean
           origin_label: string
           origin_place_id: string
+          price_mode: string
           published: boolean
           recommended_start_time: string | null
           recommended_vehicle_categories: string[]
@@ -2991,6 +2994,8 @@ export type Database = {
         Insert: {
           active?: boolean
           admin_notes?: string | null
+          auto_price_calculated_at?: string | null
+          auto_price_route_miles?: number | null
           bidirectional?: boolean
           created_at?: string
           default_duration_hours?: number | null
@@ -3024,6 +3029,7 @@ export type Database = {
           optimisation_allowed?: boolean
           origin_label?: string
           origin_place_id?: string
+          price_mode?: string
           published?: boolean
           recommended_start_time?: string | null
           recommended_vehicle_categories?: string[]
@@ -3046,6 +3052,8 @@ export type Database = {
         Update: {
           active?: boolean
           admin_notes?: string | null
+          auto_price_calculated_at?: string | null
+          auto_price_route_miles?: number | null
           bidirectional?: boolean
           created_at?: string
           default_duration_hours?: number | null
@@ -3079,6 +3087,7 @@ export type Database = {
           optimisation_allowed?: boolean
           origin_label?: string
           origin_place_id?: string
+          price_mode?: string
           published?: boolean
           recommended_start_time?: string | null
           recommended_vehicle_categories?: string[]
@@ -5026,6 +5035,10 @@ export type Database = {
       admin_save_settings: {
         Args: { p_credentials: Json; p_settings: Json }
         Returns: undefined
+      }
+      admin_save_tour_pricing: {
+        Args: { p_id: string; p_prices: Json; p_settings: Json }
+        Returns: string
       }
       claim_dispatch_event: { Args: never; Returns: Json }
       current_driver_id: { Args: never; Returns: string }
