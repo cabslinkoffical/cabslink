@@ -122,6 +122,7 @@ import { Route as AuthenticatedCabsBookingPannelPricingPreviewRouteImport } from
 import { Route as AuthenticatedCabsBookingPannelReportsRouteImport } from './routes/_authenticated/cabs-booking-pannel/reports'
 import { Route as AuthenticatedCabsBookingPannelScenicRoutesRouteImport } from './routes/_authenticated/cabs-booking-pannel/scenic-routes'
 import { Route as AuthenticatedCabsBookingPannelSettingsRouteImport } from './routes/_authenticated/cabs-booking-pannel/settings'
+import { Route as AuthenticatedCabsBookingPannelSiteSettingsRouteImport } from './routes/_authenticated/cabs-booking-pannel/site-settings'
 import { Route as AuthenticatedCabsBookingPannelTourHoursRouteImport } from './routes/_authenticated/cabs-booking-pannel/tour-hours'
 import { Route as AuthenticatedCabsBookingPannelTourSettingsRouteImport } from './routes/_authenticated/cabs-booking-pannel/tour-settings'
 import { Route as AuthenticatedCabsBookingPannelUsersRouteImport } from './routes/_authenticated/cabs-booking-pannel/users'
@@ -741,6 +742,12 @@ const AuthenticatedCabsBookingPannelSettingsRoute =
     path: '/settings',
     getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
+const AuthenticatedCabsBookingPannelSiteSettingsRoute =
+  AuthenticatedCabsBookingPannelSiteSettingsRouteImport.update({
+    id: '/site-settings',
+    path: '/site-settings',
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
+  } as any)
 const AuthenticatedCabsBookingPannelTourHoursRoute =
   AuthenticatedCabsBookingPannelTourHoursRouteImport.update({
     id: '/tour-hours',
@@ -1016,6 +1023,7 @@ export interface FileRoutesByFullPath {
   '/cabs-booking-pannel/reports': typeof AuthenticatedCabsBookingPannelReportsRoute
   '/cabs-booking-pannel/scenic-routes': typeof AuthenticatedCabsBookingPannelScenicRoutesRoute
   '/cabs-booking-pannel/settings': typeof AuthenticatedCabsBookingPannelSettingsRoute
+  '/cabs-booking-pannel/site-settings': typeof AuthenticatedCabsBookingPannelSiteSettingsRoute
   '/cabs-booking-pannel/tour-hours': typeof AuthenticatedCabsBookingPannelTourHoursRoute
   '/cabs-booking-pannel/tour-settings': typeof AuthenticatedCabsBookingPannelTourSettingsRoute
   '/cabs-booking-pannel/users': typeof AuthenticatedCabsBookingPannelUsersRoute
@@ -1156,6 +1164,7 @@ export interface FileRoutesByTo {
   '/cabs-booking-pannel/reports': typeof AuthenticatedCabsBookingPannelReportsRoute
   '/cabs-booking-pannel/scenic-routes': typeof AuthenticatedCabsBookingPannelScenicRoutesRoute
   '/cabs-booking-pannel/settings': typeof AuthenticatedCabsBookingPannelSettingsRoute
+  '/cabs-booking-pannel/site-settings': typeof AuthenticatedCabsBookingPannelSiteSettingsRoute
   '/cabs-booking-pannel/tour-hours': typeof AuthenticatedCabsBookingPannelTourHoursRoute
   '/cabs-booking-pannel/tour-settings': typeof AuthenticatedCabsBookingPannelTourSettingsRoute
   '/cabs-booking-pannel/users': typeof AuthenticatedCabsBookingPannelUsersRoute
@@ -1300,6 +1309,7 @@ export interface FileRoutesById {
   '/_authenticated/cabs-booking-pannel/reports': typeof AuthenticatedCabsBookingPannelReportsRoute
   '/_authenticated/cabs-booking-pannel/scenic-routes': typeof AuthenticatedCabsBookingPannelScenicRoutesRoute
   '/_authenticated/cabs-booking-pannel/settings': typeof AuthenticatedCabsBookingPannelSettingsRoute
+  '/_authenticated/cabs-booking-pannel/site-settings': typeof AuthenticatedCabsBookingPannelSiteSettingsRoute
   '/_authenticated/cabs-booking-pannel/tour-hours': typeof AuthenticatedCabsBookingPannelTourHoursRoute
   '/_authenticated/cabs-booking-pannel/tour-settings': typeof AuthenticatedCabsBookingPannelTourSettingsRoute
   '/_authenticated/cabs-booking-pannel/users': typeof AuthenticatedCabsBookingPannelUsersRoute
@@ -1444,6 +1454,7 @@ export interface FileRouteTypes {
     | '/cabs-booking-pannel/reports'
     | '/cabs-booking-pannel/scenic-routes'
     | '/cabs-booking-pannel/settings'
+    | '/cabs-booking-pannel/site-settings'
     | '/cabs-booking-pannel/tour-hours'
     | '/cabs-booking-pannel/tour-settings'
     | '/cabs-booking-pannel/users'
@@ -1584,6 +1595,7 @@ export interface FileRouteTypes {
     | '/cabs-booking-pannel/reports'
     | '/cabs-booking-pannel/scenic-routes'
     | '/cabs-booking-pannel/settings'
+    | '/cabs-booking-pannel/site-settings'
     | '/cabs-booking-pannel/tour-hours'
     | '/cabs-booking-pannel/tour-settings'
     | '/cabs-booking-pannel/users'
@@ -1727,6 +1739,7 @@ export interface FileRouteTypes {
     | '/_authenticated/cabs-booking-pannel/reports'
     | '/_authenticated/cabs-booking-pannel/scenic-routes'
     | '/_authenticated/cabs-booking-pannel/settings'
+    | '/_authenticated/cabs-booking-pannel/site-settings'
     | '/_authenticated/cabs-booking-pannel/tour-hours'
     | '/_authenticated/cabs-booking-pannel/tour-settings'
     | '/_authenticated/cabs-booking-pannel/users'
@@ -2648,6 +2661,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCabsBookingPannelSettingsRouteImport
       parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
+    '/_authenticated/cabs-booking-pannel/site-settings': {
+      id: '/_authenticated/cabs-booking-pannel/site-settings'
+      path: '/site-settings'
+      fullPath: '/cabs-booking-pannel/site-settings'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelSiteSettingsRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
+    }
     '/_authenticated/cabs-booking-pannel/tour-hours': {
       id: '/_authenticated/cabs-booking-pannel/tour-hours'
       path: '/tour-hours'
@@ -2884,6 +2904,7 @@ interface AuthenticatedCabsBookingPannelRouteRouteChildren {
   AuthenticatedCabsBookingPannelReportsRoute: typeof AuthenticatedCabsBookingPannelReportsRoute
   AuthenticatedCabsBookingPannelScenicRoutesRoute: typeof AuthenticatedCabsBookingPannelScenicRoutesRoute
   AuthenticatedCabsBookingPannelSettingsRoute: typeof AuthenticatedCabsBookingPannelSettingsRoute
+  AuthenticatedCabsBookingPannelSiteSettingsRoute: typeof AuthenticatedCabsBookingPannelSiteSettingsRoute
   AuthenticatedCabsBookingPannelTourHoursRoute: typeof AuthenticatedCabsBookingPannelTourHoursRoute
   AuthenticatedCabsBookingPannelTourSettingsRoute: typeof AuthenticatedCabsBookingPannelTourSettingsRoute
   AuthenticatedCabsBookingPannelUsersRoute: typeof AuthenticatedCabsBookingPannelUsersRoute
@@ -2951,6 +2972,8 @@ const AuthenticatedCabsBookingPannelRouteRouteChildren: AuthenticatedCabsBooking
       AuthenticatedCabsBookingPannelScenicRoutesRoute,
     AuthenticatedCabsBookingPannelSettingsRoute:
       AuthenticatedCabsBookingPannelSettingsRoute,
+    AuthenticatedCabsBookingPannelSiteSettingsRoute:
+      AuthenticatedCabsBookingPannelSiteSettingsRoute,
     AuthenticatedCabsBookingPannelTourHoursRoute:
       AuthenticatedCabsBookingPannelTourHoursRoute,
     AuthenticatedCabsBookingPannelTourSettingsRoute:
