@@ -56,10 +56,12 @@ export type DayWizardSearch = {
 
 type Stop = { poiId: string | null; placeId: string; name: string; dwellMinutes: number | null };
 
-const STEPS = ["Your day", "Tour & stops", "Vehicle & price", "Details & pay"];
+const TOUR_STEPS = ["Your day", "Tour & stops", "Vehicle & price", "Details & pay"];
+const HOURLY_STEPS = ["Your hire", "Stops (optional)", "Vehicle & price", "Details & pay"];
 
 export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKind; search: DayWizardSearch }) {
   const hourly = kind === "hourly";
+  const STEPS = hourly ? HOURLY_STEPS : TOUR_STEPS;
   const { tour: tourParam } = search;
   const [prefilled, setPrefilled] = useState(false);
   const options = useQuery<TourBookingOptions>({
@@ -102,7 +104,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
 
   // Deep link from a tour page.
   useEffect(() => {
-    if (!tourParam || !tours.length || templateId) return;
+    if (hourly || !tourParam || !tours.length || templateId) return;
     const match = tours.find((t) => t.slug === tourParam);
     if (match) {
       setMode("premade");
@@ -225,6 +227,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
           phone,
           flight: flight || null,
           notes: notes || null,
+          kind,
           website: "",
           captchaToken: captcha.token,
         },
@@ -282,7 +285,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
   const canNext = (() => {
     switch (step) {
       case 0: return !!start && !!date && !!time && (sameEnd || !!end) && !!hours && fitsDay;
-      case 1: return mode === "custom" ? stops.length > 0 : !!templateId;
+      case 1: return hourly ? true : mode === "custom" ? stops.length > 0 : !!templateId;
       case 2:
         return passengersConfirmed && !!vehicleClassId && (vehicle?.max_passengers ?? 0) >= passengers && passengers > 0 && !!quote && !quote.quote.blockedReason;
       default: return false;
@@ -293,12 +296,13 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
     <SiteLayout hideCta>
       <section className="mx-auto max-w-6xl px-4 pt-28 pb-16 md:pt-32">
         <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--gold-ink)]">
-          Private day tours
+          {hourly ? "Hourly hire" : "Private day tours"}
         </p>
-        <h1 className="font-display text-3xl md:text-4xl font-bold mt-1">Build your day tour</h1>
+        <h1 className="font-display text-3xl md:text-4xl font-bold mt-1">{hourly ? "Book a car and driver by the hour" : "Build your day tour"}</h1>
         <p className="mt-2 text-sm text-muted-foreground max-w-2xl">
-          You book the car and driver by the hour, with miles included. Add stops and we'll show you
-          exactly what fits in the day and what it costs before you pay.
+          {hourly
+            ? "Your car and driver stay with you for the hours you book, with miles included. Add places you want to visit if you like, or leave it open and tell your driver on the day."
+            : "Choose one of our ready-made tours or build your own day. We'll show you exactly what fits in the day and what it costs before you pay."}
         </p>
 
         {/* Step rail */}
@@ -326,7 +330,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
 
         {options.isLoading ? (
           <div className="mt-10 flex items-center gap-2 text-sm text-muted-foreground">
-            <Loader2 className="size-4 animate-spin" /> Loading tours…
+            <Loader2 className="size-4 animate-spin" /> {hourly ? "Loading…" : "Loading tours…"}
           </div>
         ) : options.isError ? (
           <p className="mt-10 text-sm font-semibold text-destructive">
@@ -340,7 +344,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
               <div className="space-y-6">
                 <div className="flex flex-wrap items-center gap-3">
                   <span className="flex size-8 items-center justify-center rounded-full bg-[var(--navy)] text-sm font-bold text-[var(--gold)]">2</span>
-                  <h2 className="font-display text-2xl font-extrabold">Tour &amp; stops</h2>
+                  <h2 className="font-display text-2xl font-extrabold">{hourly ? "Stops (optional)" : <>Tour &amp; stops</>}</h2>
                   <span className="h-px flex-1 bg-border" aria-hidden="true" />
                   <span className="text-sm text-muted-foreground">Step 2 of 4</span>
                 </div>
