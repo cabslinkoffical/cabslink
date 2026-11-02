@@ -14,6 +14,7 @@ import { listDestinationsByType, type Destination } from "@/lib/destinations.fun
 import { DirectAnswer } from "@/components/seo/DirectAnswer";
 import { guideFor } from "@/content/place-guides";
 import { SectionHeader } from "@/components/site/PageHero";
+import { FaqBand } from "@/components/site/PageBand";
 import { PlaceGuideBlock } from "@/components/seo/PlaceGuideBlock";
 import { getRouteFares } from "@/lib/seo/route-fares.functions";
 import { airportFaqFor } from "@/content/airport-faqs";
@@ -143,7 +144,7 @@ function AirportPage() {
             return (
               <>
                 {guide ? <PlaceGuideBlock guide={guide} fares={data.guideFares} /> : null}
-                <FaqBlock items={faqs} />
+                <FaqBand items={faqs} />
               </>
             );
           })()}
