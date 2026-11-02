@@ -14,6 +14,7 @@
 - Install the query adapter's SSR readiness compatibility through a separate helper after query integration; this preserves streaming and avoids coupling route type inference to the adapter wrapper.
 - Destination hubs use the shared navy `PageHero`/`HubPage` language, while area directories and location pages use one navy-led editorial system so navigation remains consistent.
 - A–Z letter indexes stay noindex and excluded from sitemap output; robots restrictions cover every explicit crawler group, keeping directory crawl decisions consistent.
+- Region hubs and blog categories decide indexability through one shared rule each (src/lib/seo/region-content.ts, src/lib/blog-category-seo.ts) used by both the page head and the sitemap, so robots tags and sitemap entries never disagree.
 - Primary review surfaces share Google review query options and the existing cached server feed; unavailable data shows a Google profile link without fallback scores or other-platform reviews.
 - Passenger count is optional in initial booking handoffs; transfer quotes require explicit passenger confirmation, and tour vehicle selection gates continuation on confirmation and capacity without changing server pricing validation.
 - Blog media and FAQ compatibility use shared browser-safe schemas in the editor and save validation, so legacy asset paths and question/answer records remain editable without losing text.
