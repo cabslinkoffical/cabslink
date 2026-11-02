@@ -1,0 +1,5 @@
+# Site components
+- Every FAQ surface on the site renders through the single shared FaqAccordion (numbered gold list, display-font questions, circular plus/minus toggle); FaqBlock and FaqSection are thin wrappers so no page builds its own FAQ list.
+- Every hub destination grid (attractions, distilleries, airports, stations, cruise ports, universities, hospitals, corporate, guides) renders through the single shared DestinationCard (photo, name, location badge, expand-arrow detail); hub list functions enrich destinations with their linked page's image and intro via attachPageData, never invented copy.
+- Homepage vehicle and tour loops share DraggableMarquee, which scrubs the existing CSS animation through pointer events and suppresses link activation after dragging.
+- Non-home public pages build lower content from PageBand sections placed directly in <main> (fact tables, link cards, editorial rows, FaqBand); styles.css alternates white/cream bands for everything except `.is-home`, so templates never pick their own section backgrounds and the homepage stays untouched.

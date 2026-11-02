@@ -23,11 +23,8 @@
 - seo_pages entity links resolve against public.destinations (name, display_name, type, slug, lat, lng — no hero image column); loadEntity in src/lib/seo-public.functions.ts is the only place that join happens.
 - Local booking maps use page coordinates independently of address resolution; airport templates disable hero maps and use the shared AirportMapSection after page content, so airport-area maps stay separate from booking.
 - Public page content stays inside SiteLayout before its footer; automated explore-link sections are removed rather than appended outside the layout to prevent duplicate closing content.
-- Every FAQ surface on the site renders through the single shared FaqAccordion (numbered gold list, display-font questions, circular plus/minus toggle); FaqBlock and FaqSection are thin wrappers so no page builds its own FAQ list.
-- Every hub destination grid (attractions, distilleries, airports, stations, cruise ports, universities, hospitals, corporate, guides) renders through the single shared DestinationCard (photo, name, location badge, expand-arrow detail); hub list functions enrich destinations with their linked page's image and intro via attachPageData, never invented copy.
 - BookingWidget layouts share one PassengerEditor for passenger and bag counts so controls and limits remain consistent across transfer, hourly and local-page forms.
 - Booking mode and secondary action buttons use the shared bookingDark/bookingLight Button variants; homepage layout CSS must not override their backgrounds or borders, keeping selected, hover and keyboard states consistent.
-- Homepage vehicle and tour loops share DraggableMarquee, which scrubs the existing CSS animation through pointer events and suppresses link activation after dragging.
 - Social profiles render only in the footer, driven by the shared SOCIALS list; no standalone social band section is mounted in SiteLayout, so follow links live in exactly one place.
 - Shared dialogs use viewport-constrained widths and dynamic-height scrolling; BookingWidget passenger editing uses this modal shell so controls remain visible and focus-managed on phones.
 - Related-pages links render inside page content through RelatedLinks and contextual PlaceGuideBlock links; server-side selection returns compact published-only results ranked by verified topics/themes, with self-links excluded and no duplicate tour sections.
@@ -45,4 +42,4 @@
 - Admin totals/reports read complete data via fetchAllPages (stable order); revenue is net of refunds and dated by paid_at, else created_at, via shared revenue helpers.
 - Multi-table admin saves (settings + credentials, blog post + tags, extra + class links) run in one admin-checked Postgres function so a failed step leaves the previous configuration intact; omitted fields mean unchanged.
 - Dispatch drains claim one event at a time via a leased service-role function (expired leases reclaimed, completion writes fenced to the lease, stable event IDs); scheduler and receiver read the drain token from private settings, never code or migrations.
-- Subdirectories may have their own AGENTS.md (e.g. the staff console routes); read it before changing files there.
+- Subdirectories may have their own AGENTS.md (staff console routes, src/components/site); read it before changing files there.
