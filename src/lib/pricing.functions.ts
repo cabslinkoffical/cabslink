@@ -1,3 +1,4 @@
+import { FACT_TEXT } from "@/lib/site-facts";
 import { flightNumberError } from "@/lib/flight-number";
 import { getClientIp } from "@/lib/client-ip.server";
 import { createServerFn } from "@tanstack/react-start";
