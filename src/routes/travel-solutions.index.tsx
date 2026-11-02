@@ -136,20 +136,6 @@ function TravelSolutionsHub() {
               </li>
             ))}
           </ul>
-          <div className="mt-10 flex flex-wrap gap-3">
-            <Button asChild variant="gold" className="rounded-lg">
-              <Link to="/book">Get a fixed price <ArrowRight className="size-4" /></Link>
-            </Button>
-            <Button
-              asChild
-              variant="outline"
-              className="rounded-lg bg-transparent text-[var(--navy-foreground)] border-[var(--navy-foreground)]/30 hover:bg-white/10"
-            >
-              <a href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}>
-                <Phone className="size-4" /> {SITE.phoneUK}
-              </a>
-            </Button>
-          </div>
         </div>
       </section>
     </SiteLayout>
