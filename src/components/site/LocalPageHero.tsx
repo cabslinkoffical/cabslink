@@ -1,10 +1,27 @@
-import type { ReactNode } from "react";
+import type { ComponentType, ReactNode } from "react";
 import { Phone } from "lucide-react";
 import { Breadcrumbs, type Crumb } from "@/components/seo/Breadcrumbs";
 import { BookingWidget } from "@/components/site/BookingWidget";
 import { SITE } from "@/lib/site";
 
 export type LocalPageFact = { label: string; value: string };
+
+export type LocalIntroDetail = {
+  icon?: ComponentType<{ className?: string }>;
+  label: string;
+  value: string;
+  note?: string;
+};
+
+/** Introduction shown beside the page photo: paragraph first, key details below it. */
+export type LocalIntro = {
+  eyebrow?: string;
+  heading: string;
+  body: ReactNode;
+  details?: LocalIntroDetail[];
+  /** Extra content under the details, e.g. links. */
+  footer?: ReactNode;
+};
 
 /**
  * The one hero pattern for every local page (routes, airports, stations,
@@ -26,6 +43,7 @@ export function LocalPageHero({
   image = null,
   imageAlt,
   imageCaption,
+  intro,
   children,
 }: {
   breadcrumbs: Crumb[];
@@ -41,6 +59,8 @@ export function LocalPageHero({
   image?: string | null;
   imageAlt?: string;
   imageCaption?: string;
+  /** Paragraph + details rendered to the left of the page photo. */
+  intro?: LocalIntro;
   children?: ReactNode;
 }) {
   return (
@@ -92,14 +112,43 @@ export function LocalPageHero({
           </div>
         </div>
       </section>
-      {image && (
+      {intro ? (
+        <section className="local-intro" aria-labelledby="local-intro-heading">
+          <div className="container-x local-intro-grid">
+            <div className="local-intro-copy min-w-0">
+              {intro.eyebrow && <p className="local-intro-eyebrow">{intro.eyebrow}</p>}
+              <h2 id="local-intro-heading" className="local-intro-heading font-display">{intro.heading}</h2>
+              <div className="local-intro-body speakable">{intro.body}</div>
+              {intro.details && intro.details.length > 0 && (
+                <ul className="local-intro-details">
+                  {intro.details.map((f) => (
+                    <li key={`${f.label}-${f.value}`}>
+                      {f.icon && <f.icon className="size-5 text-[var(--gold-ink)]" />}
+                      <span className="local-intro-detail-label">{f.label}</span>
+                      <strong className="local-intro-detail-value">{f.value}</strong>
+                      {f.note && <span className="local-intro-detail-note">{f.note}</span>}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {intro.footer}
+            </div>
+            {image && (
+              <figure className="local-intro-image">
+                <img src={image} alt={imageAlt ?? title} width={1200} height={900} loading="eager" />
+                {imageCaption && <figcaption>{imageCaption}</figcaption>}
+              </figure>
+            )}
+          </div>
+        </section>
+      ) : image ? (
         <div className="container-x">
           <figure className="local-hero-image-band">
             <img src={image} alt={imageAlt ?? title} width={1600} height={640} loading="eager" />
             {imageCaption && <figcaption>{imageCaption}</figcaption>}
           </figure>
         </div>
-      )}
+      ) : null}
     </>
   );
 }
