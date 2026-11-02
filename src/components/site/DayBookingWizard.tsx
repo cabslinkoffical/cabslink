@@ -349,6 +349,9 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                   <span className="text-sm text-muted-foreground">Step 2 of 4</span>
                 </div>
 
+                {hourly ? (
+                  <p className="text-sm text-muted-foreground">Add any places you want to visit and we'll check they fit in your hours. No stops? Just continue: your driver stays with you for the hours you book.</p>
+                ) : (
                 <div
                   role="tablist"
                   aria-label="How to plan your day"
@@ -381,6 +384,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                     Build my own
                   </button>
                 </div>
+                )}
 
                 {mode === "premade" ? (
                   <section aria-labelledby="ready-made-heading" className="space-y-4">
