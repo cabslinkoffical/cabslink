@@ -5,7 +5,7 @@
  * band colours (white / warm cream, navy left alone) alternate automatically
  * from styles.css, so templates never pick section backgrounds themselves.
  */
-import type { ReactNode } from "react";
+import type { ComponentType, ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { SectionHeader } from "@/components/site/PageHero";
@@ -105,7 +105,7 @@ export function LinkCards({ links, columns = 3 }: { links: BandLink[]; columns?:
 }
 
 /** Small uppercase label above a group of links inside a band. */
-export function GroupLabel({ icon: Icon, children }: { icon?: React.ComponentType<{ className?: string }>; children: ReactNode }) {
+export function GroupLabel({ icon: Icon, children }: { icon?: ComponentType<{ className?: string }>; children: ReactNode }) {
   return (
     <h3 className="mb-4 flex items-center gap-2 font-display text-lg font-semibold text-[var(--navy)]">
       {Icon && (
