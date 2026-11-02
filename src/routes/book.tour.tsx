@@ -27,6 +27,7 @@ import { PhoneInput } from "@/components/site/PhoneInput";
 import { PlaceAutocomplete, type SelectedPlace } from "@/components/site/PlaceAutocomplete";
 import { useCaptcha } from "@/components/site/Captcha";
 import { BookingCardPayment } from "@/components/site/BookingCardPayment";
+import { PayAnotherWay } from "@/components/site/PayAnotherWay";
 import { useBookingStepScroll } from "@/components/site/useBookingStepScroll";
 import { TourLoopMap } from "@/components/site/TourLoopMap";
 import { toast } from "sonner";
@@ -1054,7 +1055,7 @@ function TourWizard() {
               <div className="space-y-5">
                 {created ? (
                   <>
-                    <StepTitle title="Pay to confirm your tour" />
+                    <StepTitle title="We've received your tour booking request" />
                     <div className="rounded-2xl border border-[var(--gold)]/50 bg-[color-mix(in_oklab,var(--gold)_10%,transparent)] px-5 py-3">
                       <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">
                         Your reference
@@ -1072,9 +1073,13 @@ function TourWizard() {
                       returnUrl={`${typeof window !== "undefined" ? window.location.origin : ""}/booking/${created.bookingRef}`}
                     />
                     <p className="text-xs text-muted-foreground">
-                      Your tour is held until payment is completed. You can track or change it later on{" "}
+                      Pay by card and your tour is confirmed as soon as the payment succeeds. You can track or change it later on{" "}
                       <Link to="/manage-booking" className="font-semibold underline">manage booking</Link>.
                     </p>
+                    <div className="rounded-2xl border border-border bg-[var(--surface)] p-5">
+                      <p className="font-display font-bold">Pay another way (cash, bank transfer or other)</p>
+                      <PayAnotherWay bookingRef={created.bookingRef} className="mt-1" />
+                    </div>
                   </>
                 ) : (
                   <form
@@ -1118,7 +1123,7 @@ function TourWizard() {
                     <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
                       <p className="flex items-center gap-2 text-xs text-muted-foreground">
                         <ShieldCheck className="size-4 text-[var(--gold-ink)]" />
-                        {quote ? `£${quote.quote.total.toFixed(2)} total — paid securely by card.` : "Secure card payment."}
+                        {quote ? `£${quote.quote.total.toFixed(2)} total — pay by card next, or arrange another way with our team.` : "Secure card payments, or arrange another way with our team."}
                       </p>
                       <Button
                         type="submit"

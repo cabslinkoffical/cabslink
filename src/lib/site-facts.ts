@@ -45,6 +45,8 @@ export const FACT_TEXT = {
   transferCancellationShort: `Free cancellation more than ${FACTS.transferCancellation.freeOverHours} hours before pickup`,
   tourCancellation: `Tours: free cancellation more than ${FACTS.tourCancellation.freeOverHours} hours before the start, 50% of the price from ${FACTS.tourCancellation.halfFromHours} to ${FACTS.tourCancellation.halfToHours} hours, and the full price under ${FACTS.tourCancellation.halfFromHours} hours or for a no-show.`,
   tourCancellationShort: `Free cancellation more than ${FACTS.tourCancellation.freeOverHours} hours before the tour`,
-  payment: `You pay by card through Stripe at the end of the booking (${cardList}). No card details are stored on cabslink.com.`,
+  payment: `Pay online by card through Stripe at the end of the booking (${cardList}), or choose to pay another way: cash, bank transfer or another method agreed with our team. No card details are stored on cabslink.com.`,
+  payCashOrTransfer: "Yes. Complete your booking, skip the online payment, and message us on WhatsApp with your booking reference. We'll confirm your booking and arrange payment.",
+  confirmationRule: "A card booking is confirmed as soon as the payment succeeds. If you pay another way, your booking is confirmed when our team confirms it after you contact us.",
   companyLine: `${FACTS.company.legalName} · Company number ${FACTS.company.companyNumber} · Registered office: ${FACTS.company.registeredOffice}`,
 } as const;

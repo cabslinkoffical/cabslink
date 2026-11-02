@@ -40,7 +40,7 @@ describe("email templates", () => {
   });
 
   it("uses accurate wording for pending vs confirmed bookings", () => {
-    expect(customerReceivedEmail({ ...baseCtx, status: "new" }).subject).toMatch(/request received/i);
+    expect(customerReceivedEmail({ ...baseCtx, status: "new" }).subject).toMatch(/received your booking request/i);
     expect(customerReceivedEmail({ ...baseCtx, status: "confirmed" }).subject).toMatch(/confirmed/i);
     expect(customerReceivedEmail({ ...baseCtx, status: "new" }).text.toLowerCase()).not.toContain("card charged");
     expect(customerReceivedEmail({ ...baseCtx, status: "new" }).text.toLowerCase()).not.toContain("payment successful");

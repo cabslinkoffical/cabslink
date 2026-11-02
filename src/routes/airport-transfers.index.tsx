@@ -78,6 +78,7 @@ const AT_FAQS = [
   { q: "Do you meet me inside arrivals?", a: FACT_TEXT.meetGreet },
   { q: "Which UK airports do you cover?", a: "All major UK airports, including Edinburgh, Glasgow, Aberdeen, Heathrow, Gatwick, Stansted, Luton, London City, Manchester, Birmingham, Newcastle and Liverpool, plus regional airfields on request." },
   { q: "How do I pay?", a: FACT_TEXT.payment },
+  { q: "Can I pay by cash or bank transfer?", a: FACT_TEXT.payCashOrTransfer },
 ];
 
 function AirportPage() {

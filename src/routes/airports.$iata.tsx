@@ -162,7 +162,7 @@ function AirportPage() {
   const features = [
     { icon: Plane, title: "Live flight tracking", desc: "We monitor your flight and adjust pickup for delays or early arrivals — no extra charge." },
     { icon: ShieldCheck, title: "Meet & greet", desc: "Add it to any booking for a small extra charge — your driver waits inside the terminal with a name board." },
-    { icon: Clock, title: "24/7 dispatch", desc: "Book any airport transfer, any hour of the day, with fixed fares confirmed instantly." },
+    { icon: Clock, title: "24/7 dispatch", desc: "Book any airport transfer, any hour of the day, with a fixed price shown before you book." },
     { icon: MapPin, title: "Door-to-door service", desc: "From terminal to your hotel, office or home address anywhere in the UK." },
   ];
 
