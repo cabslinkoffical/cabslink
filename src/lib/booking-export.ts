@@ -29,7 +29,7 @@ export const BOOKING_EXPORT_COLUMNS: { key: string; label: string }[] = [
   { key: "deleted_at", label: "Deleted" },
 ];
 
-function cell(value: unknown): string {
+export function csvCell(value: unknown): string {
   if (value === null || value === undefined) return "";
   let s = typeof value === "boolean" ? (value ? "Yes" : "No") : String(value);
   // Text a spreadsheet would run as a formula (=, @, tab/CR, or +/- not followed
@@ -40,10 +40,10 @@ function cell(value: unknown): string {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function bookingsToCsv(rows: any[]): string {
-  const header = BOOKING_EXPORT_COLUMNS.map((c) => cell(c.label)).join(",");
+  const header = BOOKING_EXPORT_COLUMNS.map((c) => csvCell(c.label)).join(",");
   const body = rows.map((r) =>
     BOOKING_EXPORT_COLUMNS.map((c) =>
-      cell(c.key === "driver_name" ? r?.driver?.full_name : r?.[c.key]),
+      csvCell(c.key === "driver_name" ? r?.driver?.full_name : r?.[c.key]),
     ).join(","),
   );
   return [header, ...body].join("\r\n");
