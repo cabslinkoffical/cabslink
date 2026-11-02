@@ -13,23 +13,20 @@
 - Booking wizards share a step-change scroll hook; summary disclosure uses responsive visibility so mobile starts collapsed while desktop stays visible.
 - Install the query adapter's SSR readiness compatibility through a separate helper after query integration; this preserves streaming and avoids coupling route type inference to the adapter wrapper.
 - Destination hubs use the shared navy `PageHero`/`HubPage` language, while area directories and location pages use one navy-led editorial system so navigation remains consistent.
-- Booking list status presentation uses BookingStatusCell to keep booking state, payment state and lock indication in one compact row without duplicating payment labels in the price column.
 - A–Z letter indexes stay noindex and excluded from sitemap output; robots restrictions cover every explicit crawler group, keeping directory crawl decisions consistent.
 - Primary review surfaces share Google review query options and the existing cached server feed; unavailable data shows a Google profile link without fallback scores or other-platform reviews.
 - Passenger count is optional in initial booking handoffs; transfer quotes require explicit passenger confirmation, and tour vehicle selection gates continuation on confirmation and capacity without changing server pricing validation.
 - Blog media and FAQ compatibility use shared browser-safe schemas in the editor and save validation, so legacy asset paths and question/answer records remain editable without losing text.
 - Blog publication accepts active non-empty individual or team bylines; biography/photo are optional, and the database guard is covered with transaction-local regression tests so existing authors are never replaced with invented identities.
 - The homepage uses one shared BookingWidget instance in text–booking–vehicle source order and explicit home-scoped grid areas; this keeps visual and keyboard order consistent without duplicating booking state or altering local-page forms.
-- Every local page (journeys, destinations, areas, service+location, CMS SEO pages) renders through the shared LocalPageHero: page-specific copy/facts/image from src/lib/local-page.ts on the left, the identical `variant="hero"` BookingWidget in the same spot on the right (prefilled via label props resolved to place IDs), and the map panel under the form (route map when both ends known, marker map from page coordinates otherwise). Template files must not build their own heroes.
+- Every local page (journeys, destinations, areas, service+location, CMS SEO pages) renders through the shared LocalPageHero: copy/facts/image from src/lib/local-page.ts plus the identical `variant="hero"` BookingWidget prefilled via label props; template files must not build their own heroes.
 - seo_pages entity links resolve against public.destinations (name, display_name, type, slug, lat, lng — no hero image column); loadEntity in src/lib/seo-public.functions.ts is the only place that join happens.
 - Local booking maps use page coordinates independently of address resolution; airport templates disable hero maps and use the shared AirportMapSection after page content, so airport-area maps stay separate from booking.
 - Public page content stays inside SiteLayout before its footer; automated explore-link sections are removed rather than appended outside the layout to prevent duplicate closing content.
 - Every FAQ surface on the site renders through the single shared FaqAccordion (numbered gold list, display-font questions, circular plus/minus toggle); FaqBlock and FaqSection are thin wrappers so no page builds its own FAQ list.
 - Every hub destination grid (attractions, distilleries, airports, stations, cruise ports, universities, hospitals, corporate, guides) renders through the single shared DestinationCard (photo, name, location badge, expand-arrow detail); hub list functions enrich destinations with their linked page's image and intro via attachPageData, never invented copy.
-
 - BookingWidget layouts share one PassengerEditor for passenger and bag counts so controls and limits remain consistent across transfer, hourly and local-page forms.
 - Booking mode and secondary action buttons use the shared bookingDark/bookingLight Button variants; homepage layout CSS must not override their backgrounds or borders, keeping selected, hover and keyboard states consistent.
-
 - Homepage vehicle and tour loops share DraggableMarquee, which scrubs the existing CSS animation through pointer events and suppresses link activation after dragging.
 - Social profiles render only in the footer, driven by the shared SOCIALS list; no standalone social band section is mounted in SiteLayout, so follow links live in exactly one place.
 - Shared dialogs use viewport-constrained widths and dynamic-height scrolling; BookingWidget passenger editing uses this modal shell so controls remain visible and focus-managed on phones.
@@ -45,7 +42,7 @@
 - Dated tour bookings reserve capacity and insert in one service-role-only Postgres routine holding the vehicle-class row lock; tour quoting enforces class/template eligibility and rejects unresolved or unroutable stops.
 - Sightseeing-stop journeys use one pricing path (computeStopEconomics + priceStoppedVehicle) for quote and booking, so rules and coupons apply once and saved matches shown; stop-pricing failure blocks booking.
 - Journey coordinate lookups throw on failure; pricing fails closed only when an active radius rule needs coordinates, while suggestion features use the soft resolver.
-- Admin totals/reports read complete data via fetchAllPages (stable order); admin record lists load one page at a time through admin-paging (runPaged/Pager) with filters, search and summary counts computed in the database, never from the loaded page; revenue is net of refunds and dated by paid_at, else created_at, via shared revenue helpers.
-- The staff console menu is three areas (dashboard & reports, bookings & messages, settings) defined once in admin-areas.ts; the All settings page and sidebar both read it, so new admin pages are added there.
+- Admin totals/reports read complete data via fetchAllPages (stable order); revenue is net of refunds and dated by paid_at, else created_at, via shared revenue helpers.
 - Multi-table admin saves (settings + credentials, blog post + tags, extra + class links) run in one admin-checked Postgres function so a failed step leaves the previous configuration intact; omitted fields mean unchanged.
 - Dispatch drains claim one event at a time via a leased service-role function (expired leases reclaimed, completion writes fenced to the lease, stable event IDs); scheduler and receiver read the drain token from private settings, never code or migrations.
+- Subdirectories may have their own AGENTS.md (e.g. the staff console routes); read it before changing files there.
