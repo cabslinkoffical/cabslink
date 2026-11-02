@@ -122,7 +122,8 @@ export function areaForPath(pathname: string): AdminAreaId {
   let best: { id: AdminAreaId; len: number } = { id: "dashboard", len: -1 };
   for (const a of ADMIN_AREAS) {
     for (const item of navPaths(a.nav)) {
-      const hit = item.exact ? pathname === item.to : pathname === item.to || pathname.startsWith(item.to + "/");
+      const root = "/cabs-booking-pannel";
+      const hit = item.to === root ? pathname === root || pathname === root + "/" : pathname === item.to || pathname.startsWith(item.to + "/");
       if (hit && item.to.length > best.len) best = { id: a.id, len: item.to.length };
     }
   }
