@@ -147,10 +147,7 @@ export function JourneyPage({
 
       <section className="bg-[var(--navy)] text-[var(--navy-foreground)] section-y">
         <div className="container-x">
-          <p className="text-xs uppercase tracking-[0.3em] text-[var(--gold)]">Planning</p>
-          <h2 className="mt-3 font-display text-3xl font-semibold md:text-4xl">
-            How we plan {pair}
-          </h2>
+          <SectionHeader dark eyebrow="Planning" title={`How we plan ${pair}`} />
           <ul className="mt-10 grid gap-6 md:grid-cols-3">
             {c.planning.map((p) => (
               <li key={p} className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 text-sm">

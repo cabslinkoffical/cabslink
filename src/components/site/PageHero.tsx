@@ -70,22 +70,27 @@ export function PageHero({
 }
 
 
+/**
+ * The one section heading used on every page except the homepage. Matches the
+ * homepage's section headings: small tracked eyebrow, 4xl→5xl display title.
+ * On light backgrounds gold text uses the darker gold-ink (readable on white);
+ * bright gold is kept for navy backgrounds (`dark`).
+ */
 export function SectionHeader({ eyebrow, title, titleAccent, subtitle, center = false, dark = false, children }: { eyebrow?: string; title: string; titleAccent?: string; subtitle?: string; center?: boolean; dark?: boolean; children?: ReactNode }) {
+  const gold = dark ? "text-[var(--gold)]" : "text-[var(--gold-ink)]";
   return (
     <div className={`max-w-3xl ${center ? "mx-auto text-center" : ""}`}>
-      {eyebrow && <p className="text-xs uppercase tracking-[0.3em] text-[var(--gold)] mb-3">{eyebrow}</p>}
-      <h2 className={`font-display text-3xl md:text-5xl font-semibold leading-tight ${dark ? "text-white" : "text-[var(--navy)]"}`}>
+      {eyebrow && <p className={`mb-3 text-[11px] font-semibold uppercase tracking-[0.28em] ${gold}`}>{eyebrow}</p>}
+      <h2 className={`font-display text-4xl font-semibold leading-[1.05] md:text-5xl ${dark ? "text-[var(--navy-foreground)]" : "text-[var(--navy)]"}`}>
         {title}
         {titleAccent && (
           <>
             {" "}
-            <span className="text-[var(--gold)]">
-              {titleAccent}
-            </span>
+            <span className={gold}>{titleAccent}</span>
           </>
         )}
       </h2>
-      {subtitle && <p className={`mt-4 text-base md:text-lg ${dark ? "text-white/70" : "text-muted-foreground"}`}>{subtitle}</p>}
+      {subtitle && <p className={`mt-4 text-base md:text-lg ${dark ? "text-[var(--navy-foreground)]/75" : "text-muted-foreground"}`}>{subtitle}</p>}
       {children}
     </div>
   );

@@ -123,10 +123,7 @@ function TravelSolutionsHub() {
 
       <section className="bg-[var(--navy)] text-[var(--navy-foreground)] section-y">
         <div className="container-x">
-          <p className="text-xs uppercase tracking-[0.3em] text-[var(--gold)]">Or browse by service</p>
-          <h2 className="mt-3 font-display text-3xl font-semibold md:text-4xl">
-            Every service we publish
-          </h2>
+          <SectionHeader dark eyebrow="Or browse by service" title="Every service we publish" />
           <ul className="mt-8 flex flex-wrap gap-3">
             {services.map((s) => (
               <li key={s.id}>

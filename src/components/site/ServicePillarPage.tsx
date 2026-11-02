@@ -200,10 +200,7 @@ export function ServicePillarPage({ content }: { content: PillarContent }) {
       {/* How it works */}
       <section className="bg-[var(--navy)] text-[var(--navy-foreground)] section-y">
         <div className="container-x">
-          <p className="text-xs uppercase tracking-[0.3em] text-[var(--gold)]">How it works</p>
-          <h2 className="mt-3 font-display text-3xl font-semibold md:text-4xl">
-            Four steps from enquiry to arrival
-          </h2>
+          <SectionHeader dark eyebrow="How it works" title="Four steps from enquiry to arrival" />
           <ol className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             {content.steps.map((s, i) => (
               <li key={s.title} className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
