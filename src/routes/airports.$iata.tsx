@@ -18,7 +18,6 @@ import { FaqBand } from "@/components/site/PageBand";
 import { PlaceGuideBlock } from "@/components/seo/PlaceGuideBlock";
 import { getRouteFares } from "@/lib/seo/route-fares.functions";
 import { airportFaqFor } from "@/content/airport-faqs";
-import { FaqBlock } from "@/components/seo/FaqBlock";
 import { faqSchema } from "@/components/seo/schema";
 
 const ORIGIN = "https://cabslink.com";
