@@ -31,8 +31,11 @@ export const BOOKING_EXPORT_COLUMNS: { key: string; label: string }[] = [
 
 function cell(value: unknown): string {
   if (value === null || value === undefined) return "";
-  const s = typeof value === "boolean" ? (value ? "Yes" : "No") : String(value);
-  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  let s = typeof value === "boolean" ? (value ? "Yes" : "No") : String(value);
+  // Text a spreadsheet would run as a formula (=, @, tab/CR, or +/- not followed
+  // by a plain number such as a phone) is prefixed so it opens as plain text.
+  if (typeof value === "string" && (/^[=@\t\r]/.test(s) || /^[+-](?![\d\s.()]+$)/.test(s))) s = `'${s}`;
+  return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
