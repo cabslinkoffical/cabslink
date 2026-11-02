@@ -166,7 +166,7 @@ export const updateBooking = createServerFn({ method: "POST" })
     z.object({
       id: z.string().uuid(),
       patch: z.object({
-        status: bookingStatusSchema.optional(),
+        // Status changes go only through setBookingStatusFn (locks, reasons, audit trail).
         payment_status: paymentStatusSchema.optional(),
         driver_id: z.string().uuid().nullable().optional(),
         price: z.number().nullable().optional(),
@@ -178,7 +178,6 @@ export const updateBooking = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const patch: any = { ...data.patch };
-    if (patch.status === "assigned" && patch.driver_id) patch.assigned_at = new Date().toISOString();
     const { error } = await context.supabase.from("bookings").update(patch).eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };

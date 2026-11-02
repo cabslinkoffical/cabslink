@@ -19,6 +19,22 @@ export const TOUR_STATUSES = [
 
 export type TourEnquiryStatus = (typeof TOUR_STATUSES)[number];
 
+/**
+ * Status moves staff may make on a tour enquiry. Tours skip the transfer
+ * driver steps, so they use this map instead of the transfer one; final
+ * statuses (completed/cancelled/rejected) can never change.
+ */
+export const TOUR_TRANSITIONS: Record<string, readonly TourEnquiryStatus[]> = {
+  new: ["awaiting_payment", "confirmed", "cancelled"],
+  pending_allocation: ["awaiting_payment", "confirmed", "cancelled"],
+  awaiting_payment: ["confirmed", "cancelled"],
+  confirmed: ["completed", "cancelled"],
+};
+
+export function isTourTransitionAllowed(from: string, to: string): boolean {
+  return from === to || (TOUR_TRANSITIONS[from] ?? []).includes(to as TourEnquiryStatus);
+}
+
 export const TOUR_STATUS_LABELS: Record<TourEnquiryStatus, string> = {
   new: "Enquiry received",
   awaiting_payment: "Confirmed – awaiting payment",
