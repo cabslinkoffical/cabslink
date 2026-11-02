@@ -117,3 +117,29 @@ export function GroupLabel({ icon: Icon, children }: { icon?: ComponentType<{ cl
     </h3>
   );
 }
+
+/**
+ * Editorial prose rows: heading (with a gold index) on the left, paragraphs
+ * on the right, divided by hairlines — one aligned reading layout for guide
+ * and long-form copy.
+ */
+export function EditorialRows({ items }: { items: { heading: string; paragraphs: ReactNode[] }[] }) {
+  if (!items.length) return null;
+  return (
+    <div className="divide-y divide-border border-y border-border">
+      {items.map((it, i) => (
+        <article key={it.heading} className="grid gap-4 py-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:gap-12">
+          <div>
+            <span className="font-mono text-xs font-semibold text-[var(--gold-ink)]">{String(i + 1).padStart(2, "0")}</span>
+            <h3 className="mt-2 font-display text-xl font-semibold leading-snug text-[var(--navy)] md:text-2xl">{it.heading}</h3>
+          </div>
+          <div className="space-y-4 text-base leading-relaxed text-[var(--navy)]/75">
+            {it.paragraphs.map((p, j) => (
+              <p key={j}>{p}</p>
+            ))}
+          </div>
+        </article>
+      ))}
+    </div>
+  );
+}
