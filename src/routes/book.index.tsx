@@ -1,4 +1,6 @@
 import { normalizeHead } from "@/lib/seo/page-head";
+import { flightNumberError, isAirportPickup } from "@/lib/flight-number";
+import { FACT_TEXT } from "@/lib/site-facts";
 import { cloneElement, isValidElement, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { saveDraft, loadDraft, clearDraft } from "@/lib/booking-draft";
@@ -617,9 +619,10 @@ function BookPage() {
 
   const goToExtras = useCallback(() => {
     const parsed = contactSchema.safeParse(contact);
-    if (!parsed.success) {
+    const flightMissing = flightNumberError(pre.pickup?.label, contact.flight_number);
+    if (!parsed.success || flightMissing) {
       setContactAttempted(true);
-      toast.error("Check the highlighted passenger details.");
+      toast.error(parsed.success && flightMissing ? flightMissing : "Check the highlighted passenger details.");
       const focusInvalid = () => {
         const first = document.querySelector<HTMLElement>('[data-invalid="true"] input, [data-invalid="true"] textarea, [data-invalid="true"] select');
         if (first) {
@@ -635,7 +638,7 @@ function BookPage() {
     setContactAttempted(false);
     track("booking_step", { step: "payment" });
     setStep("payment");
-  }, [contact]);
+  }, [contact, pre.pickup?.label]);
 
   const mobileContinue = useCallback(() => {
     if (step === "details") goToExtras();
@@ -728,6 +731,7 @@ function BookPage() {
                         contact={contact}
                         onChange={setContact}
                         attempted={contactAttempted}
+                        pickupLabel={pre.pickup?.label}
                         onBack={() => setStep("vehicle")}
                       />
                       <ExtrasStep
