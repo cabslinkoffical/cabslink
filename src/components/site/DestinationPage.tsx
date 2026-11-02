@@ -172,16 +172,17 @@ export function DestinationPage({
         }}
       />
 
-      <div className="container-x py-10 md:py-14">
-        {quality.effectiveNoindex && d.seo_tier !== 2 && (
-          <div className="mb-6 rounded-xl border border-warning/40 bg-warning/12 px-4 py-3 text-sm text-[var(--gold-ink)]">
+      {quality.effectiveNoindex && d.seo_tier !== 2 && (
+        <div className="container-x pt-6">
+          <div className="rounded-xl border border-warning/40 bg-warning/12 px-4 py-3 text-sm text-[var(--gold-ink)]">
             This page is not indexed by search engines yet — it is missing required data.
           </div>
-        )}
+        </div>
+      )}
 
-        <DestinationSections sections={sections} loaded={data} />
-        {appendix ? <div className="mt-12">{appendix}</div> : null}
-      </div>
+      {/* Bands sit directly in <main> so the shared white / cream rhythm applies. */}
+      <DestinationSections sections={sections} loaded={data} />
+      {appendix}
       <LocalMapSection focus={hasGeo ? { lat: d.lat as number, lng: d.lng as number, label: name } : null} />
       <RelatedLinks center={typeof d.lat === "number" && typeof d.lng === "number" ? { lat: d.lat, lng: d.lng } : null} />
     </SiteLayout>
