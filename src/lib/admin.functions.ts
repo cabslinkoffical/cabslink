@@ -33,7 +33,7 @@ export const getDashboardStats = createServerFn({ method: "GET" })
     await assertAdmin(context);
     // Every day/month boundary is a UK calendar boundary (Europe/London).
     const { ukDate, ukDayStart, ukMonthStart, ukRange, addDays } = await import("@/lib/uk-time");
-    const { bookingInTab, CLOSED_STATUSES, ON_ROAD_STATUSES } = await import("@/lib/admin-bookings");
+    const { bookingInTab } = await import("@/lib/admin-bookings");
     const { TOUR_SERVICE_TYPE } = await import("@/lib/tour-enquiries");
     const today = ukDate();
     const todayStart = ukDayStart(today);
@@ -45,7 +45,7 @@ export const getDashboardStats = createServerFn({ method: "GET" })
     // Complete paginated reads: totals never silently stop at the response cap.
     const [bookings, messages, vehicles, drivers, payments, recentRes] = await Promise.all([
       fetchAllPages<any>((a, z) => sb.from("bookings").select("id, status, service_type, vehicle_type, pickup_address, dropoff_address, created_at, pickup_date, price, payment_status, deleted_at, email").order("id").range(a, z)),
-      fetchAllPages<any>((a, z) => sb.from("contact_messages").select("id, status").not("subject", "ilike", "Tour booking:%").order("id").range(a, z)),
+      fetchAllPages<any>((a, z) => sb.from("contact_messages").select("id, status").or('subject.is.null,and(subject.not.ilike."Tour booking:*",subject.not.ilike."Cancellation request:*")').order("id").range(a, z)),
       fetchAllPages<any>((a, z) => sb.from("vehicles").select("id, active").order("id").range(a, z)),
       fetchAllPages<any>((a, z) => sb.from("drivers").select("id, status").order("id").range(a, z)),
       fetchAllPages<any>((a, z) => sb.from("payments").select("id, amount, refunded_amount, status, created_at, paid_at").order("id").range(a, z)),
@@ -70,7 +70,7 @@ export const getDashboardStats = createServerFn({ method: "GET" })
     const monthRevenue = revenueInWindow(settled, monthStart.toISOString(), nowIso);
     const pendingPayments = payments.filter((p: any) => p.status === "unpaid" || p.status === "partial").reduce((s: number, p: any) => s + Number(p.amount || 0), 0);
 
-    const newToday = live.filter((b: any) => new Date(b.created_at) >= todayStart).length;
+    const newToday = transfers.filter((b: any) => new Date(b.created_at) >= todayStart).length;
 
     // Monthly revenue (last 6 UK calendar months, current month last)
     const monthly: { month: string; revenue: number }[] = [];
