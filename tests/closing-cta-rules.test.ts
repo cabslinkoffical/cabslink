@@ -7,7 +7,7 @@ describe("closing call to action", () => {
   it.each([
     "src/routes/book.index.tsx",
     "src/routes/book.hourly.tsx",
-    "src/routes/book.tour.tsx",
+    "src/components/site/DayBookingWizard.tsx",
     "src/routes/booking.$token.tsx",
     "src/routes/manage-booking.tsx",
   ])("booking and payment page %s hides the marketing band", (file) => {
