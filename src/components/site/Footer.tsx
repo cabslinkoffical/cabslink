@@ -21,7 +21,7 @@ const links = [
   { to: "/about", label: "About Us" },
   { to: "/services", label: "Services" },
   { to: "/travel-solutions", label: "Travel Solutions" },
-  { to: "/areas", label: "Locations" },
+  { to: "/areas", label: "Areas We Cover" },
   { to: "/routes", label: "Popular Routes" },
   { to: "/reviews", label: "Reviews" },
   { to: "/corporate-booking", label: "Corporate Booking" },
