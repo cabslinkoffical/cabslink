@@ -3,6 +3,7 @@
  * bands: one "key facts" band (fact table + nearby links) and one FAQ band.
  * Nothing renders when its data is missing.
  */
+import type React from "react";
 import type { Section } from "@/lib/seo/content-engine";
 import type { LoadedDestination } from "@/components/site/DestinationPage";
 import { FaqAccordion } from "@/components/site/FaqAccordion";
@@ -75,9 +76,12 @@ export function destinationFactRows(sections: Section[], loaded: LoadedDestinati
 export function DestinationSections({
   sections,
   loaded,
+  children,
 }: {
   sections: Section[];
   loaded: LoadedDestination;
+  /** Bands rendered between the key facts and the FAQs (e.g. the travel guide). */
+  children?: React.ReactNode;
 }) {
   const d = loaded.destination;
   const name = d.display_name ?? d.name;
@@ -114,6 +118,8 @@ export function DestinationSections({
           </div>
         </PageBand>
       )}
+
+      {children}
 
       {faq && faq.key === "faq" && faq.items.length > 0 && (
         <PageBand id="faq" eyebrow="FAQs" title="Frequently asked questions" narrow>

@@ -181,8 +181,7 @@ export function DestinationPage({
       )}
 
       {/* Bands sit directly in <main> so the shared white / cream rhythm applies. */}
-      <DestinationSections sections={sections} loaded={data} />
-      {appendix}
+      <DestinationSections sections={sections} loaded={data}>{appendix}</DestinationSections>
       <LocalMapSection focus={hasGeo ? { lat: d.lat as number, lng: d.lng as number, label: name } : null} />
       <RelatedLinks center={typeof d.lat === "number" && typeof d.lng === "number" ? { lat: d.lat, lng: d.lng } : null} />
     </SiteLayout>
