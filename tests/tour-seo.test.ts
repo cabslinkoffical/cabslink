@@ -16,7 +16,8 @@ describe("tour SEO overrides", () => {
 
   it("uses the owner's exact Harry Potter title and description", () => {
     const hp = tourSeo("harry-potter-highland-expedition")!;
-    expect(hp.metaTitle).toBe("Harry Potter Tour Scotland from Edinburgh | Private Day Trip | Cabslink");
+    expect(hp.metaTitle).toBe("Harry Potter Tour from Edinburgh to Glenfinnan | Cabslink");
+    expect(hp.metaTitle.length).toBeLessThanOrEqual(60);
     expect(hp.metaDescription).toBe(
       "Private Harry Potter tour of Scotland from Edinburgh: Glenfinnan Viaduct, Glencoe and Fort William with a local driver. 1-8 guests, fixed price, door-to-door pickup.",
     );

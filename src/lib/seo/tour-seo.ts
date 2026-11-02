@@ -80,7 +80,7 @@ export const TOUR_SEO: Record<string, TourSeo> = {
     h1: "Harry Potter Tour from Edinburgh",
     // Wording chosen by the owner for Search Console queries (2 Nov 2026).
     ownerWritten: true,
-    metaTitle: "Harry Potter Tour Scotland from Edinburgh | Private Day Trip | Cabslink",
+    metaTitle: "Harry Potter Tour from Edinburgh to Glenfinnan | Cabslink",
     metaDescription:
       "Private Harry Potter tour of Scotland from Edinburgh: Glenfinnan Viaduct, Glencoe and Fort William with a local driver. 1-8 guests, fixed price, door-to-door pickup.",
   },
