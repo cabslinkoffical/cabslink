@@ -1,14 +1,12 @@
 import { RelatedLinks } from "@/components/site/RelatedLinks";
 import { DirectAnswer, firstSentences } from "@/components/seo/DirectAnswer";
 import { canonicalUrl, normalizeHead } from "@/lib/seo/page-head";
-import { Link } from "@tanstack/react-router";
 import { MapPin } from "lucide-react";
 import { safeJsonLd } from "@/lib/safe-json-ld";
 import type { PublicSeoPage, PublicSeoSection } from "@/lib/seo-public.functions";
 import type { RelatedBundle, RelatedLink } from "@/lib/seo-related.functions";
 import type { RouteFareTable as RouteFareTableData } from "@/lib/seo/route-fares.functions";
 import { RouteFareTable } from "@/components/seo/RouteFareTable";
-import { Button } from "@/components/ui/button";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { LocalPageHero } from "@/components/site/LocalPageHero";
 import { LocalMapSection } from "@/components/site/LocalMapSection";
