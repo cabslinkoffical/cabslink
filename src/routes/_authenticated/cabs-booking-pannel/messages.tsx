@@ -1,8 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useSuspenseQuery, useMutation, useQueryClient, queryOptions } from "@tanstack/react-query";
+import { useQuery, keepPreviousData, useMutation, useQueryClient, queryOptions } from "@tanstack/react-query";
+import { listMessagesPage } from "@/lib/admin-lists.functions";
+import { Pager, useDebounced, usePageState } from "@/components/admin/Pager";
+import { DEFAULT_PAGE_SIZE } from "@/lib/admin-paging";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
-import { listMessages, updateMessage, deleteMessage } from "@/lib/admin.functions";
+import { updateMessage, deleteMessage } from "@/lib/admin.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -11,7 +14,11 @@ import { toast } from "sonner";
 import { CannedEmailComposer } from "@/components/admin/CannedEmailComposer";
 
 
-const opts = queryOptions({ queryKey: ["admin", "messages"], queryFn: () => listMessages() });
+const msgOpts = (source: string, q: string, page: number, pageSize: number) => queryOptions({
+  queryKey: ["admin", "messages", { source, q, page, pageSize }],
+  queryFn: () => listMessagesPage({ data: { source, q, page, pageSize } }),
+  placeholderData: keepPreviousData,
+});
 
 export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/messages")({
   head: () => ({
@@ -21,7 +28,7 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/messag
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(opts),
+  loader: ({ context }) => context.queryClient.ensureQueryData(msgOpts("all", "", 1, DEFAULT_PAGE_SIZE)),
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error instanceof Error ? error.message : String(error)}</div>,
   notFoundComponent: () => <div className="p-8">Not found</div>,
   component: MessagesPage,
@@ -51,17 +58,6 @@ function SourceBadge({ m }: { m: any }) {
 }
 
 function MessagesPage() {
-  const { data: allMessages } = useSuspenseQuery(opts);
-  // Tour enquiries are bookings now and live in the Bookings console ("Tour
-  // Enquiries"), so any legacy tour message here stays out of the inbox too.
-  const data = useMemo(
-    () =>
-      (allMessages as any[]).filter((m) => {
-        const subject = String(m.subject ?? "");
-        return !/^tour booking:/i.test(subject) && !/^cancellation request:/i.test(subject);
-      }),
-    [allMessages],
-  );
   const qc = useQueryClient();
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: ["admin", "messages"] });
@@ -90,27 +86,15 @@ function MessagesPage() {
 
   const [q, setQ] = useState("");
   const [source, setSource] = useState<string>("all");
-  const counts = useMemo(() => {
-    const c: Record<string, { total: number; unread: number }> = {};
-    for (const m of data as any[]) {
-      const k = sourceOf(m);
-      c[k] ??= { total: 0, unread: 0 };
-      c[k].total++;
-      if (m.status === "new") c[k].unread++;
-    }
-    return c;
-  }, [data]);
-  const rows = useMemo(() => {
-    const term = q.trim().toLowerCase();
-    const bySource = source === "all" ? data : data.filter((m: any) => sourceOf(m) === source);
-    if (!term) return bySource;
-    return bySource.filter((m: any) =>
-      [m.name, m.email, m.subject, m.message, m.phone].some((f: any) => String(f ?? "").toLowerCase().includes(term)),
-    );
-  }, [data, q]);
+  const term = useDebounced(q.trim());
+  const paging = usePageState([source, term]);
+  const listQ = useQuery(msgOpts(source, term, paging.page, paging.pageSize));
+  const rows = (listQ.data?.rows ?? []) as any[];
+  const counts: Record<string, { total: number; unread: number }> = listQ.data?.counts ?? {};
+  const allCount = counts.all ?? { total: 0, unread: 0 };
 
   const [openId, setOpenId] = useState<string | null>(null);
-  const active = data.find((m: any) => m.id === openId);
+  const active = rows.find((m: any) => m.id === openId);
 
   const open = (m: any) => {
     setOpenId(m.id);
@@ -122,7 +106,7 @@ function MessagesPage() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="font-display text-3xl font-semibold">Messages</h1>
-          <p className="text-sm text-muted-foreground">{data.length} total · {data.filter((m: any) => m.status === "new").length} unread</p>
+          <p className="text-sm text-muted-foreground">{allCount.total} total · {allCount.unread} unread</p>
         </div>
         <div className="flex items-center gap-2">
           <div className="relative">
@@ -144,9 +128,9 @@ function MessagesPage() {
 
       <div className="flex flex-wrap gap-2" role="tablist" aria-label="Filter by where the message came from">
         {[["all", "All"], ...Object.entries(SOURCES).map(([k, v]) => [k, v.label])]
-          .filter(([k]) => k === "all" || counts[k]?.total)
+          .filter(([k]) => k === "all" || k === source || counts[k]?.total)
           .map(([k, label]) => {
-            const c = k === "all" ? { total: data.length, unread: data.filter((m: any) => m.status === "new").length } : counts[k];
+            const c = counts[k] ?? { total: 0, unread: 0 };
             const on = source === k;
             return (
               <button key={k} type="button" role="tab" aria-selected={on} onClick={() => setSource(k)}
@@ -221,6 +205,11 @@ function MessagesPage() {
             </div>
           ))}
         </div>
+      )}
+
+      {(listQ.data?.total ?? 0) > 0 && (
+        <Pager page={paging.page} pageSize={paging.pageSize} total={listQ.data?.total ?? 0} noun="messages" loading={listQ.isFetching}
+          onPageChange={paging.setPage} onPageSizeChange={paging.setPageSize} />
       )}
 
       <Sheet open={!!openId} onOpenChange={(o) => !o && setOpenId(null)}>
