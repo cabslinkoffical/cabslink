@@ -12,6 +12,23 @@ describe("canonical redirects", () => {
     expect(canonicalRequestUrl(new Request("https://cabslink.com/api/public/ABC"))).toBeUndefined();
     expect(canonicalRequestUrl(new Request("https://cabslink.com/_serverFn/ABC"))).toBeUndefined();
   });
+
+  for (const path of ["/index", "/index/", "/INDEX", "/index.html"]) {
+    it(`sends ${path} to the homepage on the apex`, () => {
+      expect(canonicalRequestUrl(new Request(`https://www.cabslink.com${path}`))).toBe("https://cabslink.com/");
+      expect(canonicalRequestUrl(new Request(`https://cabslink.com${path}?a=1`))).toBe("https://cabslink.com/");
+    });
+  }
+
+  it("sends unfilled template links like /blog/category/$slug to the section hub", () => {
+    expect(canonicalRequestUrl(new Request("https://cabslink.com/blog/category/$slug"))).toBe("https://cabslink.com/blog");
+    expect(canonicalRequestUrl(new Request("https://cabslink.com/blog/category/%24slug"))).toBe("https://cabslink.com/blog");
+  });
+
+  it("leaves real category pages and dev source files alone", () => {
+    expect(canonicalRequestUrl(new Request("https://cabslink.com/blog/category/airport-guides"))).toBeUndefined();
+    expect(canonicalRequestUrl(new Request("http://localhost:8080/src/routes/blog.category.$slug.tsx"))).toBeUndefined();
+  });
 });
 
 describe("response headers", () => {
