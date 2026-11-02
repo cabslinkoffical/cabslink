@@ -180,7 +180,7 @@ function ToursPage() {
             titleAccent="today"
             subtitle="Each tour includes a suggested itinerary. Search above by place, name or theme — then edit the stops when you book."
           />
-          <p className="mt-4 text-center text-sm text-muted-foreground">
+          <p className="mt-4 max-w-2xl text-sm text-muted-foreground">
             Film fans: our{" "}
             <Link
               to="/tours/$slug"

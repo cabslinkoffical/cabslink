@@ -77,9 +77,8 @@ function listNames(names: string[], max = 6): string {
   const more = names.length - shown.length;
   if (shown.length === 0) return "";
   if (shown.length === 1) return shown[0];
-  const head = shown.slice(0, -1).join(", ");
-  const tail = more > 0 ? `${shown[shown.length - 1]} and ${more} more` : shown[shown.length - 1];
-  return `${head} and ${tail}`;
+  if (more > 0) return `${shown.join(", ")} and ${more} more`;
+  return `${shown.slice(0, -1).join(", ")} and ${shown[shown.length - 1]}`;
 }
 
 const words = (s: string) => s.split(/\s+/).filter(Boolean).length;
@@ -92,7 +91,7 @@ export function buildRegionContent(regionName: string, places: RegionPlace[]): R
   const study = byKind(["university", "hospital", "station", "cruise_port", "business_park"]);
 
   // Estimated road distances to the two main Scottish airports.
-  const distances: RegionDistanceRow[] = (ISLAND_REGIONS.includes(regionName) ? [] : places)
+  const allDistances: RegionDistanceRow[] = (ISLAND_REGIONS.includes(regionName) ? [] : places)
     .filter((p) => p.type !== "airport" && p.lat != null && p.lng != null)
     .map((p) => {
       const [edi, gla] = MAIN_AIRPORTS.map((a) => estimateDrive(p.lat!, p.lng!, a));
@@ -103,8 +102,10 @@ export function buildRegionContent(regionName: string, places: RegionPlace[]): R
         edinburghMins: edi.mins,
       };
     })
-    .sort((a, b) => a.edinburghMins - b.edinburghMins)
-    .slice(0, 20);
+    .sort((a, b) => a.edinburghMins - b.edinburghMins);
+  const distances = allDistances.slice(0, 20);
+  const nearest = allDistances[0];
+  const farthest = allDistances[allDistances.length - 1];
 
   // Signed-off journeys that start or end at one of this region's pages.
   const hrefs = new Set(places.map((p) => p.href));
@@ -134,11 +135,11 @@ export function buildRegionContent(regionName: string, places: RegionPlace[]): R
   if (study.length) {
     intro.push(`We also cover ${listNames(study, 8)}.`);
   }
-  if (distances.length) {
-    const near = distances[0];
-    const far = distances[distances.length - 1];
+  if (nearest) {
+    const near = nearest;
+    const far = farthest;
     intro.push(
-      distances.length > 1
+      allDistances.length > 1
         ? `By road, ${near.name} is the closest of these to Edinburgh Airport at about ${near.edinburgh.replace(" · ", ", ")}, while ${far.name} is about ${far.edinburgh.replace(" · ", ", ")}.`
         : `By road, ${near.name} is about ${near.edinburgh.replace(" · ", ", ")} from Edinburgh Airport.`,
     );
@@ -151,11 +152,11 @@ export function buildRegionContent(regionName: string, places: RegionPlace[]): R
       a: `We have pages for ${listNames(places.map(label), 12)} in ${regionName}, and we collect from any other address in the region too.`,
     });
   }
-  if (distances.length) {
-    const d = distances[0];
+  if (nearest) {
+    const d = nearest;
     regionFaqs.push({
       q: `How far is ${regionName} from Edinburgh Airport?`,
-      a: `It depends where you start. ${d.name} is about ${d.edinburgh.replace(" · ", ", ")} by road${distances.length > 1 ? `, and ${distances[distances.length - 1].name} is about ${distances[distances.length - 1].edinburgh.replace(" · ", ", ")}` : ""}. These are estimates; your quote uses the real routed distance.`,
+      a: `It depends where you start. ${d.name} is about ${d.edinburgh.replace(" · ", ", ")} by road${allDistances.length > 1 ? `, and ${farthest.name} is about ${farthest.edinburgh.replace(" · ", ", ")}` : ""}. These are estimates; your quote uses the real routed distance.`,
     });
   }
   if (routes.length) {
