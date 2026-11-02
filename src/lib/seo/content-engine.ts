@@ -10,6 +10,7 @@ import type { LoadedDestination } from "@/components/site/DestinationPage";
 import type { Destination } from "@/lib/destinations.functions";
 import type { SectionKey } from "@/lib/seo/template-registry";
 import { FACT_TEXT } from "@/lib/site-facts";
+import { estimateDrive, fmtMins, MAIN_AIRPORTS } from "@/lib/drive-estimate";
 
 export type Section =
   | { key: "summary"; sentences: string[] }
@@ -114,12 +115,44 @@ function buildFaqs(loaded: LoadedDestination): Array<{ q: string; a: string }> {
       a: `Yes. Choose a vehicle class with the correct luggage capacity when booking; drivers assist with loading.`,
     });
   }
+  // Journey estimates from the two main airports, computed from the page's own coordinates.
+  if (d.type !== "airport" && d.type !== "route" && typeof d.lat === "number" && typeof d.lng === "number") {
+    const parts = MAIN_AIRPORTS.map((ap) => {
+      const e = estimateDrive(d.lat as number, d.lng as number, ap);
+      return `${ap.name} is roughly ${e.miles} miles away, about ${fmtMins(e.mins)} by car`;
+    });
+    items.push({
+      q: `How far is ${name} from Edinburgh and Glasgow airports?`,
+      a: `${parts.join("; ")}. These are estimates and traffic varies; your quote shows the exact routed distance.`,
+    });
+  }
+  if (d.type === "attraction" || d.type === "distillery") {
+    const m = d.meta as { visit_time?: string; opening_hours?: string };
+    if (m.visit_time) {
+      items.push({
+        q: `How long should I allow at ${name}?`,
+        a: `A typical visit is ${m.visit_time}. You can book a return journey or hourly hire so your driver collects you afterwards.`,
+      });
+    }
+  }
+  if (d.type !== "airport") {
+    items.push({
+      q: `Can a driver meet me at the airport on the way to ${name}?`,
+      a: FACT_TEXT.meetGreet,
+    });
+  }
+  items.push({
+    q: `Can I add stops or a return journey?`,
+    a: `Yes. Use "Add stop" and "Add return" in the booking form; the fixed fare updates to include them before you pay.`,
+  });
   if (loaded.nearby.length) {
     items.push({
       q: `Which nearby locations do you also cover?`,
       a: `We cover ${joinList(loaded.nearby.slice(0, 5).map((n) => n.display_name ?? n.name))} and other UK-wide destinations.`,
     });
   }
+  items.push({ q: `How do I pay?`, a: FACT_TEXT.payment });
+  items.push({ q: `Can I cancel my booking?`, a: FACT_TEXT.transferCancellation });
   items.push({
     q: `How do I get a receipt?`,
     a: `Your booking confirmation, showing the fare you paid, is emailed to the address you enter when booking.`,

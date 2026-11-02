@@ -27,6 +27,7 @@ import { defaultLocalImage, destinationPrefill } from "@/lib/local-page";
 import { MapPin, Clock, Car } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getFromFare } from "@/lib/from-fare.functions";
+import { estimateDrive, fmtMins } from "@/lib/drive-estimate";
 
 export type LoadedDestination = {
   destination: Destination;
@@ -75,25 +76,7 @@ const ORIGINS = [
   { name: "Glasgow city centre", lat: 55.8609, lng: -4.2514 },
 ];
 
-/** Rough road estimate from straight-line distance: x1.3 road factor, ~65 km/h average. */
-export function estimateDrive(lat: number, lng: number, o: { lat: number; lng: number }) {
-  const R = 6371;
-  const toR = (x: number) => (x * Math.PI) / 180;
-  const a =
-    Math.sin(toR(lat - o.lat) / 2) ** 2 +
-    Math.cos(toR(o.lat)) * Math.cos(toR(lat)) * Math.sin(toR(lng - o.lng) / 2) ** 2;
-  const km = 2 * R * Math.asin(Math.sqrt(a)) * 1.3;
-  const miles = Math.max(1, Math.round(km * 0.621));
-  const mins = Math.max(10, Math.round(((km / 65) * 60) / 5) * 5);
-  return { miles, mins };
-}
-
-function fmtMins(m: number) {
-  if (m < 60) return `${m} min`;
-  const h = Math.floor(m / 60);
-  const r = m % 60;
-  return r ? `${h} h ${r} min` : `${h} h`;
-}
+export { estimateDrive };
 
 export function DestinationPage({
   data,
