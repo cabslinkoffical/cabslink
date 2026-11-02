@@ -45,7 +45,7 @@ export function SolutionPage({ content }: { content: SolutionContent }) {
     .filter((s): s is NonNullable<typeof s> => Boolean(s));
 
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>Plan your <span className="text-gold">journey</span></>, label: "Get a fixed price", trackAs: "final_cta_solution" }}>
       <PageHero
         eyebrow={content.eyebrow}
         title={content.h1}

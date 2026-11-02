@@ -70,7 +70,7 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
   const heroSub = [d.town, d.council, region].filter(Boolean).join(" · ");
 
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>Travelling in <span className="text-gold">{locName}</span>?</>, label: `Get a price in ${locName}`, href: "#booking", trackAs: "final_cta_area", subtitle: "Your journey details are already in the booking form above. Check the fixed price before you pay, or call our team any time." }}>
       <LocalPageHero
         breadcrumbs={[
           { name: "Home", href: "/" },

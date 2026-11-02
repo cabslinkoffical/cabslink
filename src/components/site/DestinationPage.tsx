@@ -132,7 +132,7 @@ export function DestinationPage({
   ];
 
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>Travel to <span className="text-gold">{name}</span></>, label: `Get a price to ${name}`, href: "#booking", trackAs: "final_cta_destination", subtitle: "Your journey details are already in the booking form above. Check the fixed price before you pay, or call our team any time." }}>
       <LocalPageHero
         breadcrumbs={breadcrumbs}
         eyebrow={d.type === "airport" ? "Airport transfers" : "Private transfers"}

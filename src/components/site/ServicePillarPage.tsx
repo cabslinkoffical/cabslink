@@ -98,7 +98,7 @@ export function ServicePillarPage({ content }: { content: PillarContent }) {
     .filter((s): s is NonNullable<typeof s> => Boolean(s));
 
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>Book your <span className="text-gold">{content.breadcrumbLabel.toLowerCase()}</span></>, label: "Get a fixed price", trackAs: "final_cta_pillar" }}>
       <PageHero
         eyebrow={content.eyebrow}
         title={content.h1}

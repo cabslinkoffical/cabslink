@@ -25,7 +25,7 @@ function formatChecked(iso: string) {
 
 export function GuidePage({ guide: g }: { guide: GuideRecord }) {
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>Ready to <span className="text-gold">book this trip</span>?</>, label: "Get a fixed price", trackAs: "final_cta_guide" }}>
       <PageHero
         eyebrow="Travel guide"
         title={g.h1}

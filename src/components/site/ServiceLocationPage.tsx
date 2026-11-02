@@ -36,7 +36,7 @@ export function ServiceLocationPage({ content }: { content: ServiceLocationConte
   });
 
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>{content.serviceName} in <span className="text-gold">{loc.name}</span></>, label: `Get a price in ${loc.name}`, href: "#booking", trackAs: "final_cta_service_location", subtitle: "Your journey details are already in the booking form above. Check the fixed price before you pay, or call our team any time." }}>
       <LocalPageHero
         breadcrumbs={[
           { name: "Home", href: "/" },

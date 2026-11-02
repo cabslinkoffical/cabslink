@@ -16,7 +16,7 @@ export function BlogArticle({ post, related }: { post: BlogPostFull; related: Bl
     : null;
 
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>Plan your trip <span className="text-gold">with Cabslink</span></>, label: "Get a fixed price", trackAs: "final_cta_blog" }}>
       <article>
         {/* Hero */}
         <header className="hero-gradient page-hero text-[var(--navy-foreground)]" data-align="left">

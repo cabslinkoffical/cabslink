@@ -42,7 +42,7 @@ export function JourneyPage({
   };
 
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>{c.from.name} to <span className="text-gold">{c.to.name}</span></>, label: "Get a fixed price for this route", href: "#booking", trackAs: "final_cta_route", subtitle: "Your journey details are already in the booking form above. Check the fixed price before you pay, or call our team any time." }}>
       <LocalPageHero
         breadcrumbs={[
           { name: "Home", href: "/" },
