@@ -82,17 +82,18 @@ export function SeoPageRenderer({
         eyebrow={entityType ? entityType.replace(/-/g, " ") : "Cabslink"}
         title={page.h1}
         subtitle={page.short_intro ?? undefined}
-        facts={entityName ? [{ label: "Location", value: entityName }] : []}
         prefill={prefill}
         mapFocus={mapFocus}
         showMap={false}
         image={hero ?? defaultLocalImage(entityType)}
         imageAlt={page.entity?.name || page.h1}
         imageCaption={entityName ? `${entityName} · private transfers` : undefined}
-      />
-
-      <div className="container mx-auto px-4 py-12 space-y-12 max-w-4xl">
-        <DirectAnswer
+        intro={{
+          eyebrow: entityType ? entityType.replace(/-/g, " ") : undefined,
+          heading: entityName ? `Travelling to ${entityName}` : "At a glance",
+          body: (
+            <DirectAnswer
+          className="!border-0 !bg-transparent !p-0"
           sentences={[
             ...firstSentences(page.short_intro || page.meta_description, fares?.fares.length ? 1 : 2),
             fares?.fares.length
@@ -101,6 +102,17 @@ export function SeoPageRenderer({
           ]}
           updated={(page as { updated_at?: string | null }).updated_at ?? null}
         />
+          ),
+          details: [
+            ...(entityName ? [{ icon: MapPin, label: "Location", value: entityName }] : []),
+            ...(fares?.fares.length
+              ? [{ icon: Car, label: "Fixed fares from", value: `${fares.currencySymbol}${Math.min(...fares.fares.map((f) => f.price)).toFixed(2)} per vehicle`, note: `${fares.distanceMiles}-mile journey` }]
+              : []),
+          ],
+        }}
+      />
+
+      <div className="container-x py-10 md:py-14 space-y-12">
         {fares && fares.fares.length > 0 && (
           <RouteFareTable data={fares} routeName={page.h1.replace(/\s+—.*$/, "")} />
         )}
