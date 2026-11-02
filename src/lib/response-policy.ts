@@ -19,14 +19,14 @@ export function canonicalRequestUrl(request: Request): string | undefined {
   }
   // Unfilled route templates such as /blog/category/$slug (or its encoded
   // form %24slug) were once linked by mistake; send them to the section hub.
-  if (isRead && /\/(?:\$|%24)[a-z_]/i.test(p)) {
+  const appPage = !/^\/(?:_|@)/.test(p) && !/^\/(?:api|node_modules|src|assets)(?:\/|$)/.test(p) && !p.includes(".");
+  if (isRead && appPage && /\/(?:\$|%24)[a-z_]/i.test(p)) {
     const first = p.split("/").filter(Boolean)[0] ?? "";
     url.pathname = first && !/^(?:\$|%24)/i.test(first) ? `/${first.toLowerCase()}` : "/";
     url.search = "";
     return url.toString();
   }
-  if (isRead &&
-      !/^\/(?:_|@)/.test(p) && !/^\/(?:api|node_modules|src|assets)(?:\/|$)/.test(p) && !p.includes(".")) {
+  if (isRead && appPage) {
     const sensitive = /^\/(booking|manage-booking|track-booking|cabs-booking-pannel|auth)(\/|$)/.test(p);
     const clean = sensitive ? p : p.toLowerCase();
     url.pathname = clean.length > 1 ? clean.replace(/\/+$/, "") : clean;
