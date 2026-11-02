@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { ListError } from "@/components/admin/ui";
 import { useQuery, keepPreviousData, useMutation, useQueryClient, queryOptions } from "@tanstack/react-query";
 import { listMessagesPage } from "@/lib/admin-lists.functions";
 import { Pager, useDebounced, usePageState } from "@/components/admin/Pager";
@@ -142,7 +143,8 @@ function MessagesPage() {
           })}
       </div>
 
-      {rows.length === 0 && <div className="admin-card p-8 text-center text-muted-foreground">No messages found.</div>}
+      {listQ.isError && <ListError error={listQ.error} onRetry={() => listQ.refetch()} />}
+      {!listQ.isError && rows.length === 0 && <div className="admin-card p-8 text-center text-muted-foreground">No messages found.</div>}
 
       {rows.length > 0 && view === "list" && (
         <div className="admin-card overflow-x-auto">
