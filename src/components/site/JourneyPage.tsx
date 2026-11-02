@@ -177,9 +177,9 @@ export function JourneyPage({
                 <li key={s.url}>
                   <Link
                     to={s.url}
-                    className="group flex h-full flex-col rounded-2xl border bg-background p-6 shadow-[var(--shadow-raised)] transition hover:border-[var(--gold)]"
+                    className="group flex h-full flex-col rounded-2xl border border-border bg-card p-6 shadow-raised transition hover:border-[var(--gold)]"
                   >
-                    <h3 className="font-display text-lg font-semibold">{s.name}</h3>
+                    <h3 className="font-display text-lg font-semibold text-[var(--navy)]">{s.name}</h3>
                     <p className="mt-2 flex-1 text-sm text-muted-foreground">{s.intent}</p>
                     <span className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-[var(--gold-ink)]">
                       View service <ArrowRight className="size-4 transition group-hover:translate-x-1" />
