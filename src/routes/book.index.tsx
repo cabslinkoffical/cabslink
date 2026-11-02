@@ -1437,7 +1437,7 @@ function BookingTrustBand() {
             "Licensed and insured UK operator",
             "Team confirms availability quickly",
             "All-inclusive fixed pricing",
-            "Pay by card or on account after we confirm",
+            "Pay by card, or arrange cash or bank transfer with our team",
           ].map((t) => (
             <li key={t} className="flex items-start gap-2.5 text-sm leading-snug">
               <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-[var(--gold-ink)]" />
