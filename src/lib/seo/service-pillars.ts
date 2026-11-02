@@ -156,7 +156,7 @@ export const SERVICE_PILLARS: Record<string, PillarContent> = {
     metaDescription:
       "Group transfers across Scotland and the UK. MPVs, vans and multi-car convoys with one coordinator, one quote and one arrival time.",
     image: groupImg,
-    imageAlt: "Group of travellers boarding private vehicles for a transfer",
+    imageAlt: "Eight-seat people carrier used for a private group transfer",
     intro: {
       title: "One coordinator, one arrival time",
       body: "Moving a group is a logistics problem, not just a booking. We work out whether you need one eight-seater or several vehicles, stagger pickups so everyone arrives together, and give you a single point of contact on the day.",
