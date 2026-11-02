@@ -279,27 +279,29 @@ export const setBookingStatusFn = createServerFn({ method: "POST" })
     const newStatus = data.status as BookingStatus;
     const meta = STATUS_META[newStatus];
     if (!meta) throw new Error("Unknown status");
-    if (!meta.adminSelectable && !data.override) {
+    if (data.override) {
+      // Overrides exist only for the tour lifecycle (tours skip driver steps).
+      // They never bypass the final/paid locks, which the database enforces.
+      const { TOUR_SERVICE_TYPE, isTourTransitionAllowed } = await import("@/lib/tour-enquiries");
+      const cur: any = await supabaseAdmin.from("bookings").select("status, service_type").eq("id", data.id).maybeSingle();
+      if (cur.error) throw new Error(cur.error.message);
+      if (!cur.data) throw new Error("Booking not found");
+      if (cur.data.service_type !== TOUR_SERVICE_TYPE || !isTourTransitionAllowed(cur.data.status, newStatus)) {
+        throw new Error(`This booking can't move from ${String(cur.data.status).replace(/_/g, " ")} to ${newStatus.replace(/_/g, " ")}.`);
+      }
+      if ((newStatus === "cancelled" || newStatus === "rejected") && !(data.reason ?? "").trim()) {
+        throw new Error("A reason is required when cancelling or rejecting a booking");
+      }
+    } else if (!meta.adminSelectable) {
       throw new Error("This status can only be set with an explicit override.");
     }
-    const callRpc = (override: boolean) =>
-      supabaseAdmin.rpc("set_booking_status", {
-        _booking_id: data.id,
-        _new_status: newStatus,
-        _actor_id: context.userId,
-        _reason: data.reason ?? undefined,
-        _override: override,
-      }) as any;
-
-    let rpc: any = await callRpc(!!data.override);
-    // Admins correcting a booking out of the happy path (e.g. completed back to
-    // in progress) should not be blocked by the forward-only transition map.
-    // The reason requirement for cancel/reject still applies.
-    if (rpc.error && /Invalid status transition/i.test(rpc.error.message ?? "")) {
-      const needsReason =
-        (newStatus === "cancelled" || newStatus === "rejected") && !(data.reason ?? "").trim();
-      if (!needsReason) rpc = await callRpc(true);
-    }
+    const rpc: any = await supabaseAdmin.rpc("set_booking_status", {
+      _booking_id: data.id,
+      _new_status: newStatus,
+      _actor_id: context.userId,
+      _reason: data.reason ?? undefined,
+      _override: !!data.override,
+    });
     if (rpc.error) throw new Error(rpc.error.message);
 
     const row = Array.isArray(rpc.data) ? rpc.data[0] : rpc.data;

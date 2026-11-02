@@ -1,4 +1,5 @@
 import { Fragment } from "react";
+import { ukDayStart, addDays } from "@/lib/uk-time";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, keepPreviousData, queryOptions } from "@tanstack/react-query";
 import { listActivityLogsPage } from "@/lib/admin-lists.functions";
@@ -10,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, ChevronRight, ChevronDown } from "lucide-react";
-import { PageHeader, EmptyState } from "@/components/admin/ui";
+import { PageHeader, EmptyState, ListError } from "@/components/admin/ui";
 
 const ENTITIES = [
   "bookings", "vehicles", "vehicle_classes", "vehicle_models", "vehicle_pricing_profiles",
@@ -60,8 +61,9 @@ function Page() {
   const apply = () => setApplied({
     entity: entity === "all" ? undefined : entity,
     q: search.trim(),
-    from: from ? new Date(from).toISOString() : undefined,
-    to: to ? new Date(to + "T23:59:59").toISOString() : undefined,
+    // Whole UK days: from 00:00 on the start date up to (not including) 00:00 after the end date.
+    from: from ? ukDayStart(from).toISOString() : undefined,
+    to: to ? ukDayStart(addDays(to, 1)).toISOString() : undefined,
   });
 
   function actionColor(a: string) {
@@ -97,7 +99,7 @@ function Page() {
         <Button onClick={apply} disabled={listQ.isFetching}>{listQ.isFetching ? "Loading…" : "Apply"}</Button>
       </div>
 
-      {rows.length === 0 ? <EmptyState title="No activity in this range" /> : (
+      {listQ.isError ? <ListError error={listQ.error} onRetry={() => listQ.refetch()} /> : rows.length === 0 ? <EmptyState title="No activity in this range" /> : (
         <div className="border border-border rounded-xl bg-card overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">

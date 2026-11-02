@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PageHeader, MiniStat, EmptyState } from "@/components/admin/ui";
+import { PageHeader, MiniStat, EmptyState, ListError } from "@/components/admin/ui";
 import { CannedEmailComposer } from "@/components/admin/CannedEmailComposer";
 import {
   Search, Eye, Trash2, Phone, Mail, PencilLine, Clock,
@@ -221,7 +221,7 @@ function AmendmentsPage() {
         </div>
       </div>
 
-      {rows.length === 0 ? (
+      {listQ.isError ? <ListError error={listQ.error} onRetry={() => listQ.refetch()} /> : rows.length === 0 ? (
         <EmptyState title="No change requests here" hint="Changes customers make from the Manage Booking page appear in this list." />
       ) : (
         <div className="overflow-x-auto rounded-xl border border-border bg-card">

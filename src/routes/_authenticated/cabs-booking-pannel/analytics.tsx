@@ -1,4 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { csvCell } from "@/lib/booking-export";
+import { ukDate } from "@/lib/uk-time";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
@@ -37,7 +39,7 @@ const GOLD = "#dfaf26";
 const NAVY = "#0e182c";
 const SLICES = [NAVY, GOLD, "#3b4a63", "#b8901c", "#6b7a94", "#8a6c14", "#9fadc4", "#f0cf72"];
 
-function isoDay(d: Date) { return d.toISOString().slice(0, 10); }
+function isoDay(d: Date) { return ukDate(d); }
 function daysAgo(n: number) { const d = new Date(); d.setUTCDate(d.getUTCDate() - n); return d; }
 function money(n: number) { return `£${n.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`; }
 
@@ -110,7 +112,7 @@ function Page() {
     if (!r) return "";
     const head = ["Period", "Bookings", "Quotes", "Revenue"];
     const rows = r.series.map(s => [s.date, String(s.bookings), String(s.quotes), s.revenue.toFixed(2)]);
-    return [head, ...rows].map(row => row.map(c => `"${c}"`).join(",")).join("\n");
+    return [head, ...rows].map(row => row.map(csvCell).join(",")).join("\r\n");
   }, [r]);
 
   function download() {

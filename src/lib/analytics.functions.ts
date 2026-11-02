@@ -10,6 +10,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 import { fetchAllPages } from "@/lib/fetch-all-pages";
 import { SETTLED_PAYMENT_STATUSES, netRevenue, revenueByBucket, settlementWindowFilter } from "@/lib/revenue";
+import { ukDayStart, addDays, ukBucket } from "@/lib/uk-time";
 
 const input = z.object({
   from: z.string().min(8),          // YYYY-MM-DD (inclusive)
@@ -20,19 +21,11 @@ const input = z.object({
 export type AnalyticsPoint = { date: string; bookings: number; quotes: number; revenue: number };
 export type NameCount = { name: string; count: number; revenue: number };
 
-function dayStart(d: string) { return new Date(`${d}T00:00:00.000Z`); }
-function dayEnd(d: string) { return new Date(`${d}T23:59:59.999Z`); }
+// Whole UK calendar days (Europe/London, GMT/BST): from 00:00 on `from` to the end of `to`.
+function dayStart(d: string) { return ukDayStart(d); }
+function dayEnd(d: string) { return new Date(ukDayStart(addDays(d, 1)).getTime() - 1); }
 
-function bucketOf(iso: string, granularity: "day" | "week" | "month") {
-  const d = new Date(iso);
-  if (granularity === "month") return d.toISOString().slice(0, 7);
-  if (granularity === "week") {
-    const t = new Date(d);
-    t.setUTCDate(t.getUTCDate() - ((t.getUTCDay() + 6) % 7)); // ISO Monday
-    return t.toISOString().slice(0, 10);
-  }
-  return d.toISOString().slice(0, 10);
-}
+const bucketOf = ukBucket;
 
 function pct(current: number, previous: number): number | null {
   if (!previous) return current ? null : 0;
@@ -95,18 +88,21 @@ export const getSiteAnalytics = createServerFn({ method: "POST" })
     const prevAvgFare = prevBookings.length ? prevBookings.reduce((s, b) => s + num(b.price), 0) / prevBookings.length : 0;
 
     // Quote → booking conversion (a booking carries the quote it was priced from).
-    const convertedQuoteIds = new Set(bookings.map(b => b.quote_id).filter(Boolean) as string[]);
-    const prevConvertedQuoteIds = new Set(prevBookings.map(b => b.quote_id).filter(Boolean) as string[]);
-    const conversion = quotes.length ? (convertedQuoteIds.size / quotes.length) * 100 : 0;
-    const prevConversion = prevQuotes.length ? (prevConvertedQuoteIds.size / prevQuotes.length) * 100 : 0;
+    // Cohort: of the quotes created in the window, how many were booked (whenever the booking came in).
+    const bookedQuoteIds = new Set(
+      (await page<any>(() => supabase.from("bookings").select("id, quote_id").not("quote_id", "is", null).is("deleted_at", null)))
+        .map((b: any) => b.quote_id as string),
+    );
+    const convertedCount = quotes.filter((q: any) => bookedQuoteIds.has(q.id)).length;
+    const prevConvertedCount = prevQuotes.filter((q: any) => bookedQuoteIds.has(q.id)).length;
+    const conversion = quotes.length ? (convertedCount / quotes.length) * 100 : 0;
+    const prevConversion = prevQuotes.length ? (prevConvertedCount / prevQuotes.length) * 100 : 0;
 
     // Time series — every bucket present, even with no activity.
     const buckets = new Map<string, AnalyticsPoint>();
-    const cursor = new Date(start);
-    while (cursor.getTime() <= end.getTime()) {
-      const k = bucketOf(cursor.toISOString(), data.granularity);
+    for (let day = data.from; day <= data.to; day = addDays(day, 1)) {
+      const k = bucketOf(ukDayStart(day).toISOString(), data.granularity);
       if (!buckets.has(k)) buckets.set(k, { date: k, bookings: 0, quotes: 0, revenue: 0 });
-      cursor.setUTCDate(cursor.getUTCDate() + 1);
     }
     const touch = (k: string) => {
       let e = buckets.get(k);

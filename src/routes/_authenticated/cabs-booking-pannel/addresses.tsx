@@ -66,7 +66,7 @@ function AddressesPage() {
     onError: (e: any) => toast.error(e.message),
   });
 
-  const { pageRows: pagedRows, pager: pagedPager } = usePagedRows(filtered, filtered.length);
+  const { pageRows: pagedRows, pager: pagedPager } = usePagedRows(filtered, search);
   return (
     <div className="space-y-6">
       <PageHeader title="Addresses" description="Pickup and dropoff address library with comparable values and surcharges.">

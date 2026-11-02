@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { SITE } from "@/lib/site";
 import { useSuspenseQuery, useMutation, useQueryClient, queryOptions } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getSettings, updateSettings } from "@/lib/admin.functions";
@@ -6,12 +7,10 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/admin/ui";
-import { MediaUrlInput } from "@/components/admin/media/MediaPicker";
 
 const opts = queryOptions({ queryKey: ["admin", "settings"], queryFn: () => getSettings() });
 export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/settings")({
@@ -47,18 +46,14 @@ function Page() {
     <div className="space-y-6">
       <PageHeader title="Settings" description="Business-wide configuration.">
         <Button onClick={() => mut.mutate({
-          company_name: form.company_name, logo_url: form.logo_url, favicon_url: form.favicon_url,
-          primary_color: form.primary_color, contact_email: form.contact_email, contact_phone: form.contact_phone,
-          whatsapp_number: form.whatsapp_number, business_address: form.business_address,
-          currency: form.currency, currency_symbol: form.currency_symbol || "£",
-          timezone: form.timezone,
+          // Only settings the website and booking engine actually read are saved from here.
+          company_name: form.company_name,
+          currency_symbol: form.currency_symbol || "£",
           tax_enabled: !!form.tax_enabled,
           tax_percentage: Number(form.tax_percentage || 0),
           tax_label: form.tax_label || "VAT",
-          cancellation_policy: form.cancellation_policy, maintenance_mode: !!form.maintenance_mode,
+          maintenance_mode: !!form.maintenance_mode,
           bing_site_verification: (form.bing_site_verification ?? "").trim() || null,
-          smtp_host: form.smtp_host, smtp_port: form.smtp_port ? Number(form.smtp_port) : null,
-          smtp_user: form.smtp_user, google_maps_api_key: form.google_maps_api_key,
           poi_corridor_enabled: !!form.poi_corridor_enabled,
           poi_corridor_radius_miles: Number(form.poi_corridor_radius_miles ?? 15),
           poi_corridor_max_pois: Number(form.poi_corridor_max_pois ?? 8),
@@ -75,7 +70,6 @@ function Page() {
       <Tabs defaultValue="company">
         <TabsList>
           <TabsTrigger value="company">Company</TabsTrigger>
-          <TabsTrigger value="branding">Branding</TabsTrigger>
           <TabsTrigger value="finance">Finance</TabsTrigger>
           <TabsTrigger value="extras">Pricing extras</TabsTrigger>
           <TabsTrigger value="integrations">Integrations</TabsTrigger>
@@ -86,31 +80,24 @@ function Page() {
         <TabsContent value="company" className="space-y-4 mt-4">
           <Card>
             <Row label="Company name"><Input value={form.company_name ?? ""} onChange={e => set("company_name", e.target.value)} /></Row>
-            <Row label="Contact email"><Input type="email" value={form.contact_email ?? ""} onChange={e => set("contact_email", e.target.value)} /></Row>
-            <Row label="Phone number"><Input value={form.contact_phone ?? ""} onChange={e => set("contact_phone", e.target.value)} /></Row>
-            <Row label="WhatsApp"><Input value={form.whatsapp_number ?? ""} onChange={e => set("whatsapp_number", e.target.value)} /></Row>
-            <Row label="Business address"><Textarea rows={2} value={form.business_address ?? ""} onChange={e => set("business_address", e.target.value)} /></Row>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="branding" className="space-y-4 mt-4">
-          <Card>
-            <Row label="Logo"><MediaUrlInput folder="branding" value={form.logo_url ?? ""} onChange={(url) => set("logo_url", url)} /></Row>
-            <Row label="Favicon"><MediaUrlInput folder="branding" value={form.favicon_url ?? ""} onChange={(url) => set("favicon_url", url)} /></Row>
-            <Row label="Primary color"><div className="flex gap-2"><Input type="color" value={form.primary_color ?? "#0e182c"} onChange={e => set("primary_color", e.target.value)} className="w-20 h-10 p-1" /><Input value={form.primary_color ?? ""} onChange={e => set("primary_color", e.target.value)} /></div></Row>
+            <Row label="Shown on the website">
+              <div className="space-y-1 text-sm">
+                <p><span className="text-muted-foreground">Phone:</span> {SITE.phoneUK}</p>
+                <p><span className="text-muted-foreground">Email:</span> {SITE.email}</p>
+                <p><span className="text-muted-foreground">Address:</span> {SITE.address}</p>
+                <p className="text-xs text-muted-foreground pt-1">These are part of the website's pages, footer and Google listing data, so they're changed with the site rather than here.</p>
+              </div>
+            </Row>
           </Card>
         </TabsContent>
 
         <TabsContent value="finance" className="space-y-4 mt-4">
           <Card>
-            <Row label="Currency code">
-              <Input placeholder="GBP" value={form.currency ?? ""} onChange={e => set("currency", e.target.value)} />
-            </Row>
+            <Row label="Currency"><p className="text-sm">Pounds sterling (GBP) — all fares, payments and reports use pounds.</p></Row>
             <Row label="Currency symbol">
               <Input placeholder="£" maxLength={6} value={form.currency_symbol ?? ""} onChange={e => set("currency_symbol", e.target.value)} />
             </Row>
-            <Row label="Timezone"><Input value={form.timezone ?? ""} onChange={e => set("timezone", e.target.value)} /></Row>
-            <Row label="Cancellation policy"><Textarea rows={3} value={form.cancellation_policy ?? ""} onChange={e => set("cancellation_policy", e.target.value)} /></Row>
+            <Row label="Time zone"><p className="text-sm">UK time (Europe/London) — dates, "today" and reports follow GMT/BST.</p></Row>
           </Card>
         </TabsContent>
 
@@ -130,9 +117,7 @@ function Page() {
 
         <TabsContent value="integrations" className="space-y-4 mt-4">
           <Card>
-            <Row label="SMTP host"><Input value={form.smtp_host ?? ""} onChange={e => set("smtp_host", e.target.value)} /></Row>
-            <Row label="SMTP port"><Input type="number" value={form.smtp_port ?? ""} onChange={e => set("smtp_port", e.target.value)} /></Row>
-            <Row label="SMTP user"><Input value={form.smtp_user ?? ""} onChange={e => set("smtp_user", e.target.value)} /></Row>
+            <Row label="Emails"><p className="text-xs text-muted-foreground">Booking, payment and staff emails are sent through the connected email service; its key is stored securely on the server, so there is nothing to type here.</p></Row>
             {/* Google Maps API key is configured via an environment variable, not in the admin UI. */}
             <Row label="Google Maps API key"><p className="text-xs text-muted-foreground">Configured via a server environment variable — not editable here.</p></Row>
           </Card>

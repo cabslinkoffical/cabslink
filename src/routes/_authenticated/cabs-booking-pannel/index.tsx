@@ -44,8 +44,8 @@ function Dashboard() {
   const { totals, seriesDaily, monthly, byVehicle, byStatus, topPickups, topDropoffs, recentBookings } = data;
 
   const kpis = [
-    { label: "Total Bookings", value: totals.bookings, icon: CalendarCheck, accent: "text-primary" },
-    { label: "New Today", value: totals.newToday, icon: CalendarCheck, accent: "text-primary" },
+    { label: "Transfer bookings", value: totals.bookings, icon: CalendarCheck, accent: "text-primary" },
+    { label: "Booked today", value: totals.newToday, icon: CalendarCheck, accent: "text-primary" },
     { label: "Upcoming", value: totals.upcoming, icon: Clock, accent: "text-warning" },
     { label: "Total Revenue", value: fmt(totals.totalRevenue), icon: Wallet, accent: "text-success" },
     { label: "Today's Revenue", value: fmt(totals.todayRevenue), icon: TrendingUp, accent: "text-success" },
@@ -53,12 +53,14 @@ function Dashboard() {
   ];
 
   const pipeline = [
-    { label: "Pending allocation", value: totals.pendingAllocation, icon: AlertCircle },
-    { label: "Allocated", value: totals.allocated, icon: UserCog },
-    { label: "In progress", value: totals.inProgress, icon: Activity },
+    { label: "Need a driver", value: totals.pendingAllocation, icon: AlertCircle },
+    { label: "Awaiting payment", value: totals.awaitingPayment, icon: CreditCard },
+    { label: "Confirmed / assigned", value: totals.allocated, icon: UserCog },
+    { label: "On the road", value: totals.inProgress, icon: Activity },
     { label: "Bidding", value: totals.bidding, icon: Tag },
     { label: "Completed", value: totals.completed, icon: CheckCircle2 },
-    { label: "Cancelled", value: totals.cancelled, icon: Ban },
+    { label: "Cancelled / rejected", value: totals.cancelled, icon: Ban },
+    { label: "Tour bookings", value: totals.tours, icon: MapPin },
     { label: "Deleted", value: totals.deleted, icon: X },
     { label: "Pending payments", value: fmt(totals.pendingPayments), icon: CreditCard },
     { label: "Fleet vehicles", value: totals.vehiclesTotal, icon: Car },

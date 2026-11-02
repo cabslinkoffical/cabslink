@@ -31,17 +31,21 @@ export const getDashboardStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
-    const since30 = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-    const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
-    const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0);
+    // Every day/month boundary is a UK calendar boundary (Europe/London).
+    const { ukDate, ukDayStart, ukMonthStart, ukRange, addDays } = await import("@/lib/uk-time");
+    const { bookingInTab } = await import("@/lib/admin-bookings");
+    const { TOUR_SERVICE_TYPE } = await import("@/lib/tour-enquiries");
+    const today = ukDate();
+    const todayStart = ukDayStart(today);
+    const monthStart = ukDayStart(ukMonthStart(0));
 
     const { fetchAllPages } = await import("@/lib/fetch-all-pages");
     const { netRevenue, revenueInWindow, SETTLED_PAYMENT_STATUSES } = await import("@/lib/revenue");
     const sb = context.supabase;
     // Complete paginated reads: totals never silently stop at the response cap.
     const [bookings, messages, vehicles, drivers, payments, recentRes] = await Promise.all([
-      fetchAllPages<any>((a, z) => sb.from("bookings").select("id, status, vehicle_type, pickup_address, dropoff_address, created_at, pickup_date, price, payment_status, deleted_at, email").order("id").range(a, z)),
-      fetchAllPages<any>((a, z) => sb.from("contact_messages").select("id, status").not("subject", "ilike", "Tour booking:%").order("id").range(a, z)),
+      fetchAllPages<any>((a, z) => sb.from("bookings").select("id, status, service_type, vehicle_type, pickup_address, dropoff_address, created_at, pickup_date, price, payment_status, deleted_at, email").order("id").range(a, z)),
+      fetchAllPages<any>((a, z) => sb.from("contact_messages").select("id, status").or('subject.is.null,and(subject.not.ilike."Tour booking:*",subject.not.ilike."Cancellation request:*")').order("id").range(a, z)),
       fetchAllPages<any>((a, z) => sb.from("vehicles").select("id, active").order("id").range(a, z)),
       fetchAllPages<any>((a, z) => sb.from("drivers").select("id, status").order("id").range(a, z)),
       fetchAllPages<any>((a, z) => sb.from("payments").select("id, amount, refunded_amount, status, created_at, paid_at").order("id").range(a, z)),
@@ -53,6 +57,10 @@ export const getDashboardStats = createServerFn({ method: "GET" })
     const messagesRes = { data: messages };
 
     const live = bookings.filter((b: any) => !b.deleted_at);
+    // Transfer figures use exactly the booking-list tab rules (tours are counted on their own).
+    const transfers = live.filter((b: any) => b.service_type !== TOUR_SERVICE_TYPE);
+    const tours = live.filter((b: any) => b.service_type === TOUR_SERVICE_TYPE);
+    const inTab = (tab: any) => bookings.filter((b: any) => bookingInTab(b, tab, today)).length;
     // Settled money only, net of refunds, dated by settlement (paid_at, else created_at).
     const settled = payments.filter((p: any) => (SETTLED_PAYMENT_STATUSES as readonly string[]).includes(p.status));
     const nowIso = new Date().toISOString();
@@ -62,25 +70,24 @@ export const getDashboardStats = createServerFn({ method: "GET" })
     const monthRevenue = revenueInWindow(settled, monthStart.toISOString(), nowIso);
     const pendingPayments = payments.filter((p: any) => p.status === "unpaid" || p.status === "partial").reduce((s: number, p: any) => s + Number(p.amount || 0), 0);
 
-    const newToday = live.filter((b: any) => new Date(b.created_at) >= todayStart).length;
+    const newToday = transfers.filter((b: any) => new Date(b.created_at) >= todayStart).length;
 
-    // Monthly revenue (last 6 months)
+    // Monthly revenue (last 6 UK calendar months, current month last)
     const monthly: { month: string; revenue: number }[] = [];
     for (let i = 5; i >= 0; i--) {
-      const d = new Date(); d.setMonth(d.getMonth() - i); d.setDate(1); d.setHours(0, 0, 0, 0);
-      const next = new Date(d); next.setMonth(next.getMonth() + 1);
-      const sum = revenueInWindow(settled, d.toISOString(), new Date(next.getTime() - 1).toISOString());
-      monthly.push({ month: d.toLocaleString("en", { month: "short" }), revenue: sum });
+      const first = ukMonthStart(i);
+      const [y, m] = first.split("-").map(Number);
+      const last = addDays(new Date(Date.UTC(y, m, 1)).toISOString().slice(0, 10), -1);
+      const { startIso, endIso } = ukRange(first, last);
+      const sum = revenueInWindow(settled, startIso, new Date(new Date(endIso).getTime() - 1).toISOString());
+      monthly.push({ month: new Date(Date.UTC(y, m - 1, 15)).toLocaleString("en-GB", { month: "short", timeZone: "UTC" }), revenue: sum });
     }
 
-    // Last 30 days bookings trend
+    // Last 30 UK days bookings trend (by UK creation date)
     const byDay = new Map<string, number>();
-    for (let i = 29; i >= 0; i--) {
-      const d = new Date(); d.setDate(d.getDate() - i);
-      byDay.set(d.toISOString().slice(0, 10), 0);
-    }
+    for (let i = 29; i >= 0; i--) byDay.set(addDays(today, -i), 0);
     for (const b of live) {
-      const key = (b.created_at as string).slice(0, 10);
+      const key = ukDate(b.created_at);
       if (byDay.has(key)) byDay.set(key, (byDay.get(key) ?? 0) + 1);
     }
 
@@ -101,15 +108,18 @@ export const getDashboardStats = createServerFn({ method: "GET" })
 
     return {
       totals: {
-        bookings: live.length,
-        upcoming: live.filter((b: any) => ["new", "confirmed", "assigned", "pending_allocation"].includes(b.status) && b.pickup_date >= new Date().toISOString().slice(0, 10)).length,
-        completed: live.filter((b: any) => b.status === "completed").length,
-        cancelled: live.filter((b: any) => b.status === "cancelled").length,
-        pendingAllocation: live.filter((b: any) => b.status === "new" || b.status === "pending_allocation").length,
-        allocated: live.filter((b: any) => b.status === "assigned" || b.status === "confirmed").length,
-        inProgress: live.filter((b: any) => b.status === "in_progress" || b.status === "on_way").length,
-        bidding: live.filter((b: any) => b.status === "bidding").length,
-        deleted: bookings.filter((b: any) => b.deleted_at).length,
+        bookings: transfers.length,
+        tours: tours.length,
+        upcoming: inTab("upcoming"),
+        completed: inTab("completed"),
+        cancelled: inTab("cancelled"),
+        // "New" tab: new, awaiting allocation and bidding — bookings still without a driver.
+        pendingAllocation: inTab("new"),
+        awaitingPayment: inTab("awaiting_payment"),
+        allocated: inTab("assigned") + inTab("confirmed"),
+        inProgress: inTab("on_road"),
+        bidding: transfers.filter((b: any) => b.status === "bidding").length,
+        deleted: inTab("deleted"),
         newToday,
         totalRevenue, todayRevenue, monthRevenue, pendingPayments,
         vehiclesTotal: vehiclesRes.data?.length ?? 0,
@@ -131,23 +141,6 @@ export const getDashboardStats = createServerFn({ method: "GET" })
 // =================================================================
 // Bookings
 // =================================================================
-export const listBookings = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    await assertAdmin(context);
-    const { fetchAllPages } = await import("@/lib/fetch-all-pages");
-    return await fetchAllPages<any>((a, z) => context.supabase
-      .from("bookings")
-      .select("*, driver:drivers(id, full_name)")
-      .order("created_at", { ascending: false })
-      .order("id", { ascending: false })
-      .range(a, z));
-  });
-
-const bookingStatusSchema = z.enum([
-  "new", "confirmed", "assigned", "on_way", "completed", "cancelled",
-  "pending_allocation", "in_progress", "bidding",
-]);
 const paymentStatusSchema = z.enum(["unpaid", "paid", "refunded", "partial", "failed"]);
 
 export const updateBooking = createServerFn({ method: "POST" })
@@ -156,7 +149,7 @@ export const updateBooking = createServerFn({ method: "POST" })
     z.object({
       id: z.string().uuid(),
       patch: z.object({
-        status: bookingStatusSchema.optional(),
+        // Status changes go only through setBookingStatusFn (locks, reasons, audit trail).
         payment_status: paymentStatusSchema.optional(),
         driver_id: z.string().uuid().nullable().optional(),
         price: z.number().nullable().optional(),
@@ -168,7 +161,6 @@ export const updateBooking = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const patch: any = { ...data.patch };
-    if (patch.status === "assigned" && patch.driver_id) patch.assigned_at = new Date().toISOString();
     const { error } = await context.supabase.from("bookings").update(patch).eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -408,29 +400,62 @@ export const listDispatchDrivers = createServerFn({ method: "GET" })
 const paymentSchema = z.object({
   id: z.string().uuid().optional(),
   booking_id: z.string().uuid().nullable().optional(),
-  amount: z.number().min(0),
-  currency: z.string().default("GBP"),
+  amount: z.number().min(0).max(100000),
+  // Fares, revenue and reports are all in pounds; other currencies are refused.
+  currency: z.literal("GBP").default("GBP"),
   method: z.string().max(80).nullable().optional(),
   status: paymentStatusSchema.default("unpaid"),
   reference: z.string().max(200).nullable().optional(),
   notes: z.string().max(1000).nullable().optional(),
 });
 
+/**
+ * Staff-recorded payments. Card payments taken online are owned by the
+ * payment processor: staff may only change their reference and notes, and
+ * cannot delete them (refunds go through Refunds). After every change the
+ * booking's paid state is re-derived from its payments.
+ */
 export const upsertPayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => paymentSchema.parse(i))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    const payload: any = { ...data };
-    if (payload.status === "paid" && !payload.paid_at) payload.paid_at = new Date().toISOString();
+    const db = context.supabase;
+    const { reconcileBookingPaymentStatus } = await import("@/lib/stripe-payments.server");
+    const nowIso = new Date().toISOString();
+    const touched = new Set<string>();
     if (data.id) {
-      const { id, ...patch } = payload;
-      const { error } = await context.supabase.from("payments").update(patch).eq("id", id);
+      const cur: any = await db.from("payments").select("id, booking_id, amount, status, paid_at, refunded_amount, payment_intent_id").eq("id", data.id).maybeSingle();
+      if (cur.error) throw new Error(cur.error.message);
+      if (!cur.data) throw new Error("Payment not found");
+      const old = cur.data;
+      let patch: any;
+      if (old.payment_intent_id) {
+        patch = { reference: data.reference ?? null, notes: data.notes ?? null };
+      } else {
+        patch = { ...data };
+        delete patch.id;
+        // Keep the original settlement time; set it only when the row first becomes paid.
+        const wasSettled = ["paid", "partial", "refunded"].includes(old.status);
+        const isSettled = ["paid", "partial", "refunded"].includes(data.status);
+        patch.paid_at = isSettled ? (old.paid_at ?? (wasSettled ? null : nowIso) ?? nowIso) : null;
+        // A row marked refunded gives back its whole amount (net revenue £0).
+        patch.refunded_amount = data.status === "refunded" ? data.amount : Math.min(Number(old.refunded_amount ?? 0), data.amount);
+      }
+      const { error } = await db.from("payments").update(patch).eq("id", data.id);
       if (error) throw new Error(error.message);
+      if (old.booking_id) touched.add(old.booking_id);
+      if (!old.payment_intent_id && data.booking_id) touched.add(data.booking_id);
     } else {
-      const { error } = await context.supabase.from("payments").insert(payload);
+      const payload: any = { ...data };
+      const settled = ["paid", "partial", "refunded"].includes(data.status);
+      payload.paid_at = settled ? nowIso : null;
+      payload.refunded_amount = data.status === "refunded" ? data.amount : 0;
+      const { error } = await db.from("payments").insert(payload);
       if (error) throw new Error(error.message);
+      if (data.booking_id) touched.add(data.booking_id);
     }
+    for (const id of touched) await reconcileBookingPaymentStatus(db, id);
     return { ok: true };
   });
 
@@ -439,8 +464,17 @@ export const deletePayment = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    const { error } = await context.supabase.from("payments").delete().eq("id", data.id);
+    const db = context.supabase;
+    const cur: any = await db.from("payments").select("id, booking_id, payment_intent_id").eq("id", data.id).maybeSingle();
+    if (cur.error) throw new Error(cur.error.message);
+    if (!cur.data) throw new Error("Payment not found");
+    if (cur.data.payment_intent_id) throw new Error("Card payments taken online can't be deleted. Use Refunds to give money back.");
+    const { error } = await db.from("payments").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
+    if (cur.data.booking_id) {
+      const { reconcileBookingPaymentStatus } = await import("@/lib/stripe-payments.server");
+      await reconcileBookingPaymentStatus(db, cur.data.booking_id);
+    }
     return { ok: true };
   });
 
@@ -520,14 +554,14 @@ const settingsSchema = z.object({
   company_name: z.string().min(1).max(120),
   logo_url: z.string().nullable().optional(),
   favicon_url: z.string().nullable().optional(),
-  primary_color: z.string().max(20),
+  primary_color: z.string().max(20).optional(),
   contact_email: z.string().nullable().optional(),
   contact_phone: z.string().nullable().optional(),
   whatsapp_number: z.string().nullable().optional(),
   business_address: z.string().nullable().optional(),
-  currency: z.string().max(10),
+  currency: z.string().max(10).optional(),
   currency_symbol: z.string().max(6).default("£"),
-  timezone: z.string().max(60),
+  timezone: z.string().max(60).optional(),
   tax_enabled: z.boolean().default(false),
   tax_percentage: z.coerce.number().min(0).max(100),
   tax_label: z.string().max(40).default("VAT"),
@@ -719,10 +753,13 @@ export const getReports = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => reportInput.parse(i))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    // Date-only inputs cover whole days (inclusive) in UTC, matching Analytics.
+    // Date-only inputs cover whole UK days (inclusive), matching Analytics.
+    const { ukDayStart, addDays, ukBucket: bucketOf } = await import("@/lib/uk-time");
     const dateOnly = /^\d{4}-\d{2}-\d{2}$/;
-    const fromD = new Date(dateOnly.test(data.from) ? `${data.from}T00:00:00.000Z` : data.from);
-    const toD = new Date(dateOnly.test(data.to) ? `${data.to}T23:59:59.999Z` : data.to);
+    if (!dateOnly.test(data.from) || !dateOnly.test(data.to)) throw new Error("Pick a start and end date");
+    if (data.to < data.from) throw new Error("End date must be on or after the start date");
+    const fromD = ukDayStart(data.from);
+    const toD = new Date(ukDayStart(addDays(data.to, 1)).getTime() - 1);
     const { fetchAllPages } = await import("@/lib/fetch-all-pages");
     const { netRevenue, revenueByBucket, settlementWindowFilter, SETTLED_PAYMENT_STATUSES } = await import("@/lib/revenue");
     const fromIso = fromD.toISOString();
@@ -735,18 +772,7 @@ export const getReports = createServerFn({ method: "POST" })
         .or(settlementWindowFilter(fromIso, toIso)).order("id").range(a, z)),
     ]);
 
-    function bucket(dateStr: string) {
-      const d = new Date(dateStr);
-      if (data.granularity === "month") return d.toISOString().slice(0, 7);
-      if (data.granularity === "week") {
-        const tmp = new Date(d);
-        const day = tmp.getUTCDay();
-        const diff = (day + 6) % 7;
-        tmp.setUTCDate(tmp.getUTCDate() - diff);
-        return tmp.toISOString().slice(0, 10);
-      }
-      return d.toISOString().slice(0, 10);
-    }
+    const bucket = (dateStr: string) => bucketOf(dateStr, data.granularity);
 
     const revMap = revenueByBucket(payments, bucket);
     const bookMap = new Map<string, { date: string; total: number; completed: number; cancelled: number }>();
@@ -755,7 +781,7 @@ export const getReports = createServerFn({ method: "POST" })
       const e = bookMap.get(k) ?? { date: k, total: 0, completed: 0, cancelled: 0 };
       e.total += 1;
       if (b.status === "completed") e.completed += 1;
-      if (b.status === "cancelled") e.cancelled += 1;
+      if (b.status === "cancelled" || b.status === "rejected") e.cancelled += 1;
       bookMap.set(k, e);
     }
 
@@ -769,7 +795,7 @@ export const getReports = createServerFn({ method: "POST" })
 
     const totalRev = Math.round(payments.reduce((s: number, p: any) => s + netRevenue(p), 0) * 100) / 100;
     const completed = bookings.filter(b => b.status === "completed").length;
-    const cancelled = bookings.filter(b => b.status === "cancelled").length;
+    const cancelled = bookings.filter(b => b.status === "cancelled" || b.status === "rejected").length;
     const avgFare = bookings.length ? bookings.reduce((s, b) => s + Number(b.price || 0), 0) / bookings.length : 0;
 
     return {

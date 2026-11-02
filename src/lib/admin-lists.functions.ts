@@ -7,7 +7,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
-import { pageInputSchema, runPaged, ilikeAny, slicePage, sanitizeSearch } from "@/lib/admin-paging";
+import { pageInputSchema, runPaged, ilikeAny, slicePage } from "@/lib/admin-paging";
 
 async function assertAdmin(ctx: { supabase: any; userId: string }) {
   const { data, error } = await ctx.supabase.rpc("has_role", { _user_id: ctx.userId, _role: "admin" });
@@ -53,7 +53,11 @@ export const listMessagesPage = createServerFn({ method: "GET" })
 
     const sources = ["all", ...MESSAGE_SOURCES, "other"];
     const counted = await Promise.all(sources.map(async (s) => {
-      const base = () => applySource(messagesBase(context.supabase, "id", { count: "exact", head: true }), s);
+      // Counts follow the same search as the list so tabs never advertise unrelated totals.
+      const base = () => {
+        const q = applySource(messagesBase(context.supabase, "id", { count: "exact", head: true }), s);
+        return search ? q.or(search) : q;
+      };
       const [total, unread] = await Promise.all([headCount(base()), headCount(base().eq("status", "new"))]);
       return [s, { total, unread }] as const;
     }));
@@ -99,14 +103,25 @@ export const listPaymentsPage = createServerFn({ method: "GET" })
 // -----------------------------------------------------------------
 // Customers (aggregated from every booking, then paged)
 // -----------------------------------------------------------------
-export function aggregateCustomers(rows: any[]) {
+/**
+ * One row per customer email. `bookings` counts every non-deleted booking;
+ * `spend` is money actually collected (settled payments net of refunds), so
+ * unpaid or cancelled fares never count as spend.
+ */
+export function aggregateCustomers(rows: any[], payments: any[] = []) {
+  const paidByBooking = new Map<string, number>();
+  for (const p of payments) {
+    if (!p.booking_id || !["paid", "partial", "refunded"].includes(p.status)) continue;
+    const net = Number(p.amount || 0) - Number(p.refunded_amount || 0);
+    paidByBooking.set(p.booking_id, (paidByBooking.get(p.booking_id) ?? 0) + net);
+  }
   const map = new Map<string, any>();
   for (const b of rows) {
     const key = (b.email ?? "").toLowerCase();
     if (!key) continue;
     const existing = map.get(key) ?? { name: b.customer_name, email: b.email, phone: b.phone, bookings: 0, spend: 0, last: b.pickup_date, lastCreated: b.created_at };
     existing.bookings += 1;
-    existing.spend += Number(b.price || 0);
+    existing.spend = Math.round((existing.spend + (paidByBooking.get(b.id) ?? 0)) * 100) / 100;
     if (b.pickup_date > existing.last) existing.last = b.pickup_date;
     if (new Date(b.created_at) > new Date(existing.lastCreated)) existing.lastCreated = b.created_at;
     map.set(key, existing);
@@ -120,11 +135,16 @@ export const listCustomersPage = createServerFn({ method: "GET" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { fetchAllPages } = await import("@/lib/fetch-all-pages");
-    const rows = await fetchAllPages<any>((a, z) => context.supabase.from("bookings")
-      .select("id, customer_name, email, phone, price, pickup_date, status, created_at")
-      .is("deleted_at", null).order("id").range(a, z));
-    const term = sanitizeSearch(data.q).toLowerCase();
-    const all = aggregateCustomers(rows).filter((c) =>
+    const [rows, payments] = await Promise.all([
+      fetchAllPages<any>((a, z) => context.supabase.from("bookings")
+        .select("id, customer_name, email, phone, price, pickup_date, status, created_at")
+        .is("deleted_at", null).order("id").range(a, z)),
+      fetchAllPages<any>((a, z) => context.supabase.from("payments")
+        .select("id, booking_id, amount, refunded_amount, status").order("id").range(a, z)),
+    ]);
+    // In-memory match: plain lowercase text (emails keep their dots and @).
+    const term = String(data.q ?? "").trim().toLowerCase().slice(0, 100);
+    const all = aggregateCustomers(rows, payments).filter((c) =>
       !term || [c.name, c.email, c.phone].some((v: string) => String(v ?? "").toLowerCase().includes(term)));
     return slicePage(all, data);
   });
@@ -146,7 +166,7 @@ export const listActivityLogsPage = createServerFn({ method: "GET" })
       let q = context.supabase.from("activity_logs").select("*", { count: "exact" });
       if (data.entity) q = q.eq("entity", data.entity);
       if (data.from) q = q.gte("created_at", data.from);
-      if (data.to) q = q.lte("created_at", data.to);
+      if (data.to) q = q.lt("created_at", data.to); // exclusive end (start of the next UK day)
       if (search) q = q.or(search);
       return q.order("created_at", { ascending: false }).order("id", { ascending: false }).range(from, to);
     }, data);

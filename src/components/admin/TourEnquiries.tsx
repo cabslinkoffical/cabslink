@@ -7,7 +7,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { listTourEnquiriesPage, setTourEnquiryPrice, type TourEnquiryRow } from "@/lib/tour-admin.functions";
 import { setBookingStatusFn } from "@/lib/booking.functions";
 import { deleteBooking } from "@/lib/admin.functions";
-import { TOUR_STATUSES, tourStatusLabel, tourNameFrom } from "@/lib/tour-enquiries";
+import { TOUR_STATUSES, TOUR_TRANSITIONS, tourStatusLabel, tourNameFrom } from "@/lib/tour-enquiries";
+import { isStatusLocked } from "@/lib/booking-lifecycle";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -17,7 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Search, Eye, Trash2, Mail, BadgePoundSterling } from "lucide-react";
 import { toast } from "sonner";
-import { EmptyState, StatusBadge } from "@/components/admin/ui";
+import { EmptyState, StatusBadge, ListError } from "@/components/admin/ui";
 
 const FILTERS = ["all", ...TOUR_STATUSES] as const;
 
@@ -64,7 +65,8 @@ export function TourEnquiries() {
       savePrice({ data: { id: vars.id, price: vars.price, note: vars.note || null, notifyCustomer: vars.notifyCustomer } }),
     onSuccess: (res: any) => {
       invalidate();
-      toast.success(res?.emailed ? "Price saved and emailed to the customer" : "Price saved");
+      if (res?.emailError) toast.warning(`Price saved, but the email to the customer was not sent: ${res.emailError}`);
+      else toast.success(res?.emailed ? "Price saved and emailed to the customer" : "Price saved");
     },
     onError: (e: any) => toast.error(e.message),
   });
@@ -78,6 +80,8 @@ export function TourEnquiries() {
   const [priceInput, setPriceInput] = useState("");
   const [noteInput, setNoteInput] = useState("");
   const [notify, setNotify] = useState(true);
+  const [cancelOpen, setCancelOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
 
   const active = rows.find((m) => m.id === openId) ?? null;
 
@@ -86,6 +90,7 @@ export function TourEnquiries() {
     setPriceInput(row.price == null ? "" : String(row.price));
     setNoteInput(row.admin_notes ?? "");
     setNotify(true);
+    setCancelOpen(false);
   };
 
   const submitPrice = () => {
@@ -124,7 +129,7 @@ export function TourEnquiries() {
         </span>
       </div>
 
-      {isLoading ? (
+      {listQ.isError ? <ListError error={listQ.error} onRetry={() => listQ.refetch()} /> : isLoading ? (
         <div className="p-8 text-center text-muted-foreground">Loading tour enquiries…</div>
       ) : rows.length === 0 ? (
         <EmptyState title="No tour enquiries yet" hint="Requests from tour pages will appear here with their own reference." />
@@ -226,16 +231,50 @@ export function TourEnquiries() {
                   </div>
                 )}
 
-                <div className="flex items-center gap-2">
-                  <span className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Status</span>
-                  <Select value={active.status} onValueChange={(v) => statusMut.mutate({ id: active.id, status: v })}>
-                    <SelectTrigger className="w-[200px] h-9"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {TOUR_STATUSES.map((s) => (
-                        <SelectItem key={s} value={s}>{tourStatusLabel(s)}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                <div className="space-y-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Status</span>
+                    {isStatusLocked(active.status, active.payment_status) && !(TOUR_TRANSITIONS[active.status] ?? []).length ? (
+                      <span className="text-sm font-medium">{tourStatusLabel(active.status)} · final</span>
+                    ) : (
+                      <Select
+                        value={active.status}
+                        disabled={statusMut.isPending}
+                        onValueChange={(v) => {
+                          if (v === "cancelled") { setCancelReason(""); setCancelOpen(true); return; }
+                          statusMut.mutate({ id: active.id, status: v });
+                        }}
+                      >
+                        <SelectTrigger className="w-[220px] h-9"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value={active.status}>{tourStatusLabel(active.status)}</SelectItem>
+                          {(TOUR_TRANSITIONS[active.status] ?? [])
+                            // A paid tour can only be cancelled (which starts the refund), never moved back.
+                            .filter((s) => !["paid", "partial"].includes(active.payment_status ?? "") || s === "cancelled")
+                            .map((s) => (
+                              <SelectItem key={s} value={s}>{tourStatusLabel(s)}</SelectItem>
+                            ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  </div>
+                  {cancelOpen && (
+                    <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-2">
+                      <Label htmlFor="tour-cancel-reason" className="text-xs">Reason for cancelling (shown to the customer)</Label>
+                      <Textarea id="tour-cancel-reason" rows={2} maxLength={1000} value={cancelReason} onChange={(e) => setCancelReason(e.target.value)} />
+                      <div className="flex justify-end gap-2">
+                        <Button size="sm" variant="outline" onClick={() => setCancelOpen(false)}>Keep enquiry</Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          disabled={!cancelReason.trim() || statusMut.isPending}
+                          onClick={() => statusMut.mutate({ id: active.id, status: "cancelled", reason: cancelReason.trim() }, { onSuccess: () => setCancelOpen(false) })}
+                        >
+                          Cancel enquiry
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="border-t border-border pt-4 space-y-3">

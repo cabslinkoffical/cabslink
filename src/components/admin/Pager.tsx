@@ -26,6 +26,12 @@ export function Pager({
   const first = total === 0 ? 0 : (current - 1) * pageSize + 1;
   const last = Math.min(total, current * pageSize);
 
+  // A delete or a narrower filter can leave the requested page past the end:
+  // once the real total is known, move to the last page that exists.
+  useEffect(() => {
+    if (!loading && page > pages) onPageChange(pages);
+  }, [loading, page, pages]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const numbers = useMemo(() => {
     const out: (number | "gap")[] = [];
     const add = (n: number) => { if (!out.includes(n)) out.push(n); };

@@ -158,3 +158,12 @@
 - [ ] Google Maps drawing itself needs live verification on an authorized domain — the preview key is referrer-restricted, so tiles stay blank in the preview.
 - [ ] Owner facts, photos and blog copy still outstanding; nothing published.
 - [x] A01 finish: record lists (bookings, tour enquiries, cancelled history, refunds, change requests, messages, driver applications, payments, customers, activity logs, dispatch events, media, blog posts) load one page at a time from the server with database-side filters/search/counts; short settings lists show 25 per page. Console split into Dashboard & reports / Bookings & messages / Settings with an All settings page. Verified signed in as admin: 20 console pages, paging through 2,366 log entries and 346 images, no errors. Not paged: extras (grouped by category) and tour routes side list. Nothing published.
+
+## Staff console logic pass (2 Nov)
+- [x] Dashboard opens first; two cards lead to Bookings & messages and Settings; area switcher removed from the left menu.
+- [x] Console logic fixes: UK dates everywhere, dashboard counts = booking tabs, month chart, payments (paid date kept, refunds, GBP only, card rows protected, searchable booking picker, paid state re-derived), customer "total paid", message counts follow search, status locks (no silent overrides; tour moves limited), stale booking panel, empty-page after delete, honest tour-quote email result, safe CSV, report ranges/filenames, conversion cohort, rejected counted as cancelled, notifications errors/routing/per-item read, load-error states, blocked-dates editor crash, address search paging, tour settings typing, dead general settings removed.
+
+## Full-site redesign + SEO/AEO/GEO (requested 2 Nov)
+- [ ] Audit every public page (not the homepage) for design/logic/SEO inconsistencies against the homepage design system
+- [ ] Redesign non-home pages to the homepage visual language, page by page, without changing URLs/titles/H1s/protected SEO settings or inventing facts
+- [ ] Technical SEO/AEO/GEO pass (metadata, schema, headings, links, images, performance) and verification

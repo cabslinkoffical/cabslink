@@ -132,21 +132,33 @@ function BookingsPage() {
   });
   const statusMut = useMutation({
     mutationFn: (vars: { id: string; status: BookingStatus; reason?: string | null }) => setStatus({ data: vars }),
-    onSuccess: (res: any) => {
+    onSuccess: (res: any, vars) => {
       qc.invalidateQueries({ queryKey: ["admin", "bookings"] });
-      qc.invalidateQueries({ queryKey: ["admin", "booking-notifications", editing?.id] });
+      qc.invalidateQueries({ queryKey: ["admin", "stats"] });
+      qc.invalidateQueries({ queryKey: ["admin", "booking-notifications", vars.id] });
+      // Keep the open panel in step with the saved status so locks and actions are current.
+      setEditing((e: any) => {
+        if (!e || e.id !== vars.id) return e;
+        const { _staged_status, ...rest } = e;
+        return {
+          ...rest,
+          status: res?.current ?? vars.status,
+          cancellation_reason: ["cancelled", "rejected"].includes(res?.current) ? (vars.reason ?? rest.cancellation_reason) : rest.cancellation_reason,
+        };
+      });
+      setReason("");
       toast.success(res?.changed ? "Status updated" : "Status unchanged");
     },
     onError: (e: any) => toast.error(e.message),
   });
   const delMut = useMutation({
     mutationFn: (vars: any) => softDel({ data: vars }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin", "bookings"] }); toast.success("Updated"); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin", "bookings"] }); qc.invalidateQueries({ queryKey: ["admin", "stats"] }); toast.success("Updated"); },
     onError: (e: any) => toast.error(e.message),
   });
   const hardDelMut = useMutation({
     mutationFn: (id: string) => hardDel({ data: { id } }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin", "bookings"] }); toast.success("Booking permanently deleted"); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin", "bookings"] }); qc.invalidateQueries({ queryKey: ["admin", "stats"] }); toast.success("Booking permanently deleted"); },
     onError: (e: any) => toast.error(e.message),
   });
 

@@ -199,6 +199,9 @@ function Page() {
   }
 
 
+  // Paging hook runs on every render (list and editor) to keep React's hook order stable.
+  const { pageRows: pagedRows, pager: pagedPager } = usePagedRows(rules, tab);
+
   if (form) {
     const isRoute = form.rule_scope === "route";
     const scopeLabel = SCOPE_LABEL[form.rule_scope] ?? form.rule_scope;
@@ -375,7 +378,6 @@ function Page() {
     );
   }
 
-  const { pageRows: pagedRows, pager: pagedPager } = usePagedRows(rules, rules.length);
   return (
 
     <div className="space-y-6">
