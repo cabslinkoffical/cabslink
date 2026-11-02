@@ -13,8 +13,10 @@ import {
   CheckCircle2, ArrowUpRight, ArrowRight, ArrowLeft, MapPin, CalendarDays, Edit3, Star,
   Users, Briefcase, Luggage, BadgeCheck, Clock, DoorOpen, UserCheck, Award,
   ShieldCheck, CreditCard, User, Mail, Phone, MessageSquare, RefreshCw,
-  Shield, Package, CalendarClock, Landmark, Sparkles, Plus, Repeat, X, AlertCircle, Info,
+  Shield, Package, CalendarClock, Landmark, Sparkles, Plus, Repeat, X, AlertCircle, Info, MessageCircle,
 } from "lucide-react";
+import { PayAnotherWay } from "@/components/site/PayAnotherWay";
+import { OFFLINE_PAYMENT_LABEL } from "@/lib/whatsapp";
 
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { googleReviewsQuery } from "@/lib/google-reviews-query";
