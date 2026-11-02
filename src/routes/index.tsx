@@ -163,7 +163,7 @@ const features = [
   { icon: ShieldCheck, title: "Licensed Drivers", desc: "Fully vetted, insured and professionally trained." },
   { icon: Gem, title: "Executive Fleet", desc: "Immaculate Mercedes and luxury SUV vehicles." },
   { icon: Headset, title: "24/7 Support", desc: "Live dispatch every day of the year." },
-  { icon: CreditCard, title: "Secure Booking", desc: "Encrypted payments and instant confirmation." },
+  { icon: CreditCard, title: "Secure Booking", desc: "Fixed price shown before you book. Secure card payments." },
   { icon: Award, title: "Professional Service", desc: "A calm, consistent standard on every single journey." },
 ];
 

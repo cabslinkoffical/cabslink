@@ -22,7 +22,7 @@ export type FinalCtaProps = {
 };
 
 const DEFAULT_SUBTITLE =
-  "Book your driver in under two minutes. Fixed pricing, instant confirmation, 24/7 support — the calm way to travel across the UK.";
+  "Book your driver in under two minutes. Fixed price shown before you book, secure card payments, 24/7 support — the calm way to travel across the UK.";
 
 /**
  * Site-wide closing CTA rendered once above the footer. Pages pass a
