@@ -141,6 +141,7 @@ export const MENU: MenuEntry[] = [
       {
         heading: "Help",
         links: [
+          { to: "/faq", label: "FAQs" },
           { to: "/manage-booking", label: "Manage Booking" },
           { to: "/booking-policy", label: "Booking & Cancellation" },
           { to: "/refund-policy", label: "Refund Policy" },
