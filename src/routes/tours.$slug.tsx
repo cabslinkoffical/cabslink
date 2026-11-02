@@ -355,7 +355,7 @@ function TourDetailPage() {
   const mandatoryCount = d.pois.filter((p) => p.mandatory).length;
 
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>Ready to <span className="text-gold">book this tour</span>?</>, label: "Book this tour", to: "/book/tour", search: { tour: d.slug }, trackAs: "final_cta_tour" }}>
       <PageHero
         eyebrow="Private Driver Tour"
         title={seo?.h1 ?? d.name}

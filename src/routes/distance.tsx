@@ -25,7 +25,7 @@ export const Route = createFileRoute("/distance")({
 
 function DistancePage() {
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>Get your <span className="text-gold">fixed price</span></>, label: "Get a fixed price", trackAs: "final_cta_page" }}>
       <PageHero
         eyebrow="Distance calculator"
         title="Estimate your driving distance"

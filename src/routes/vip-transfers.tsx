@@ -78,7 +78,7 @@ const VIP_FAQS = [
 
 function VipPage() {
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>Get your <span className="text-gold">fixed price</span></>, label: "Get a fixed price", trackAs: "final_cta_page" }}>
       <PageHero
         eyebrow="VIP Transfers"
         title="A discreet, refined airport travel service for VIPs and dignitaries."

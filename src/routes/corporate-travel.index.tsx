@@ -84,7 +84,7 @@ function CorporatePage() {
     { i: ShieldCheck, t: "Vetted drivers", d: "Smartly dressed, discreet, security-aware professionals." },
   ];
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>Get your <span className="text-gold">fixed price</span></>, label: "Get a fixed price", trackAs: "final_cta_page" }}>
       <PageHero
         eyebrow="Corporate Travel"
         title="A premium travel partner for serious businesses."

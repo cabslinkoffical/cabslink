@@ -15,7 +15,7 @@ import type { DraftTourRecord } from "@/lib/seo/tour-seo";
 
 export function DraftTourPage({ record }: { record: DraftTourRecord }) {
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>Get your <span className="text-gold">fixed price</span></>, label: "Get a fixed price", trackAs: "final_cta_page" }}>
       <PageHero
         eyebrow={record.eyebrow}
         title={record.h1}

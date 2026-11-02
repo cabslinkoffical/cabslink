@@ -78,7 +78,7 @@ function TravelSolutionsHub() {
   const services = publishedServices();
 
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>Get your <span className="text-gold">fixed price</span></>, label: "Get a fixed price", trackAs: "final_cta_page" }}>
       <PageHero
         eyebrow="Travel solutions"
         title="Travel built around who's travelling."
