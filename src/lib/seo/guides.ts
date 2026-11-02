@@ -442,7 +442,7 @@ export const GUIDES: GuideRecord[] = [
       },
       {
         q: "How far ahead should I book a private day trip?",
-        a: `As soon as your dates are fixed, ${FACT_TEXT.tourCancellationShort}.`,
+        a: `As soon as your dates are fixed. ${FACT_TEXT.tourCancellationShort}, so booking early carries little risk.`,
       },
       {
         q: "Do I need to book attraction tickets separately?",
