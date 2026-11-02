@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Pager, usePagedRows } from "@/components/admin/Pager";
 import { queryOptions, useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { listPois, upsertPoi, deletePoi } from "@/lib/scenic-admin.functions";
@@ -80,6 +81,7 @@ function PoisPage() {
     }
   }
 
+  const { pageRows: pagedRows, pager: pagedPager } = usePagedRows(data.pois, data.pois.length);
   return (
     <div className="">
       <PageHeader title="Points of Interest" description="Curated sightseeing stops used by scenic route templates.">
@@ -105,7 +107,7 @@ function PoisPage() {
               </tr>
             </thead>
             <tbody>
-              {data.pois.map((p: any) => (
+              {pagedRows.map((p: any) => (
                 <tr key={p.id} className="border-t border-border">
                   <td className="px-3 py-2 font-medium">{p.name}</td>
                   <td className="px-3 py-2 text-muted-foreground">{p.category}</td>
@@ -132,6 +134,7 @@ function PoisPage() {
           </table>
         </div>
       )}
+      {pagedPager.total > pagedPager.pageSize && <Pager {...pagedPager} noun="stops" className="mt-3" />}
 
       <Dialog open={!!form} onOpenChange={(o) => !o && setForm(null)}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">

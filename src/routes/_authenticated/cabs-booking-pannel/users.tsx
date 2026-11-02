@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Pager, usePagedRows } from "@/components/admin/Pager";
 import { useSuspenseQuery, useMutation, useQueryClient, queryOptions } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { listUsersWithRoles, setUserAdmin, deleteUser, isAdmin } from "@/lib/admin.functions";
@@ -41,6 +42,7 @@ function UsersPage() {
     onError: (e: any) => toast.error(e.message),
   });
 
+  const { pageRows: pagedRows, pager: pagedPager } = usePagedRows(users, users.length);
   return (
     <div className="space-y-5">
       <div>
@@ -61,7 +63,7 @@ function UsersPage() {
               </tr>
             </thead>
             <tbody>
-              {users.map((u: any) => {
+              {pagedRows.map((u: any) => {
                 const isAdminRole = u.roles.includes("admin");
                 const isSelf = u.id === me.userId;
                 return (
@@ -94,6 +96,7 @@ function UsersPage() {
             </tbody>
           </table>
         </div>
+        {pagedPager.total > pagedPager.pageSize && <Pager {...pagedPager} noun="users" className="mt-3" />}
       </div>
     </div>
   );

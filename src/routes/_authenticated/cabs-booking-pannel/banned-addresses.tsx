@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Pager, usePagedRows } from "@/components/admin/Pager";
 import { useSuspenseQuery, useMutation, useQueryClient, queryOptions } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { listBannedAddresses, upsertBannedAddress, deleteBannedAddress } from "@/lib/admin.functions";
@@ -41,6 +42,7 @@ function Page() {
   const save = useMutation({ mutationFn: (v: any) => upsert({ data: v }), onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin", "banned"] }); toast.success("Saved"); setForm(null); }, onError: (e: any) => toast.error(e.message) });
   const remove = useMutation({ mutationFn: (id: string) => del({ data: { id } }), onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin", "banned"] }); toast.success("Deleted"); }, onError: (e: any) => toast.error(e.message) });
 
+  const { pageRows: pagedRows, pager: pagedPager } = usePagedRows(data, data.length);
   return (
     <div className="space-y-6">
       <PageHeader title="Banned Addresses" description="Block specific pickup or dropoff locations from being booked.">
@@ -54,7 +56,7 @@ function Page() {
               <tr><th className="text-left px-4 py-3">Address</th><th className="text-left px-4 py-3">Reason</th><th className="text-left px-4 py-3">Notes</th><th className="text-left px-4 py-3">Status</th><th className="text-left px-4 py-3">Added</th><th className="text-right px-4 py-3">Actions</th></tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {data.map((b: any) => (
+              {pagedRows.map((b: any) => (
                 <tr key={b.id} className="hover:bg-muted/30">
                   <td className="px-4 py-3 font-medium">{b.address}</td>
                   <td className="px-4 py-3">{b.reason ?? "—"}</td>
@@ -79,6 +81,7 @@ function Page() {
           </table>
         </div>
       )}
+      {pagedPager.total > pagedPager.pageSize && <Pager {...pagedPager} noun="banned addresses" className="mt-3" />}
 
       <Dialog open={!!form} onOpenChange={o => !o && setForm(null)}>
         <DialogContent>
