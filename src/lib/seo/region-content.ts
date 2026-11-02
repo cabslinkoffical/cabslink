@@ -10,6 +10,11 @@ import { FACT_TEXT } from "@/lib/site-facts";
 import { estimateDrive, fmtMins, MAIN_AIRPORTS } from "@/lib/drive-estimate";
 import { JOURNEYS, journeyPath } from "@/lib/seo/journeys";
 
+/** URL slug for a region name; the region route matches on this. */
+export function regionSlug(name: string): string {
+  return name.toLowerCase().normalize("NFKD").replace(/[^\w\s-]/g, "").trim().replace(/\s+/g, "-");
+}
+
 /** Regions outside our main market stay noindex whatever their content. */
 export const NON_MAIN_MARKET_REGIONS = ["England", "Wales", "Northern Ireland"];
 
@@ -172,4 +177,25 @@ export function buildRegionContent(regionName: string, places: RegionPlace[]): R
     regionFaqs.length > 0;
 
   return { intro, distances, routes, faqs: [...regionFaqs, ...sharedFaqs], uniqueWords, indexable };
+}
+
+/**
+ * Region paths that pass the indexing rule, from raw destination rows.
+ * Used by the sitemap so it lists exactly the region pages that are indexable.
+ */
+export function indexableRegionPaths(
+  rows: Array<Omit<RegionPlace, "href"> & { region: string | null; seo_tier: number | null }>,
+  href: (p: { type: string; slug: string }) => string,
+): string[] {
+  const byRegion = new Map<string, RegionPlace[]>();
+  for (const r of rows) {
+    if (!r.region || r.seo_tier === 4) continue;
+    const list = byRegion.get(r.region) ?? [];
+    list.push({ type: r.type, slug: r.slug, name: r.name, display_name: r.display_name, lat: r.lat, lng: r.lng, href: href(r) });
+    byRegion.set(r.region, list);
+  }
+  return [...byRegion.entries()]
+    .filter(([name, places]) => buildRegionContent(name, places).indexable)
+    .map(([name]) => `/areas/region/${regionSlug(name)}`)
+    .sort();
 }

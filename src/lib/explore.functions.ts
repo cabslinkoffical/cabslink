@@ -13,7 +13,7 @@ import {
   type DestinationType,
 } from "@/lib/destinations.functions";
 import { queryOptions } from "@tanstack/react-query";
-import { buildRegionContent, type RegionContent } from "@/lib/seo/region-content";
+import { buildRegionContent, regionSlug, type RegionContent } from "@/lib/seo/region-content";
 
 function sb() {
   const key = process.env.SUPABASE_PUBLISHABLE_KEY!;
@@ -34,7 +34,7 @@ const FIELDS =
   "id,type,slug,name,display_name,short_name,country,region,council,town,parent_id,lat,lng,place_id,keywords,synonyms,nearby_ids,popular_route_ids,related_service_ids,seo_tier,noindex,active,linked_page_id,meta,updated_at";
 
 function slugify(s: string): string {
-  return s.toLowerCase().normalize("NFKD").replace(/[^\w\s-]/g, "").trim().replace(/\s+/g, "-");
+  return regionSlug(s);
 }
 
 export type RegionCard = {
