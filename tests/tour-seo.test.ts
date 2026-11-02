@@ -7,11 +7,21 @@ describe("tour SEO overrides", () => {
     expect(Object.keys(TOUR_SEO)).toHaveLength(22);
   });
 
-  it.each(Object.entries(TOUR_SEO))("%s has a renderable title and description", (_slug, seo) => {
+  it.each(Object.entries(TOUR_SEO).filter(([, s]) => !s.ownerWritten))("%s has a renderable title and description", (_slug, seo) => {
     expect(seo.metaTitle.length).toBeLessThanOrEqual(60);
     expect(seo.h1.length).toBeGreaterThan(10);
     expect(seo.metaDescription.length).toBeGreaterThanOrEqual(110);
     expect(seo.metaDescription.length).toBeLessThanOrEqual(160);
+  });
+
+  it("uses the owner's exact Harry Potter title and description", () => {
+    const hp = tourSeo("harry-potter-highland-expedition")!;
+    expect(hp.metaTitle).toBe("Harry Potter Tour Scotland from Edinburgh | Private Day Trip | Cabslink");
+    expect(hp.metaDescription).toBe(
+      "Private Harry Potter tour of Scotland from Edinburgh: Glenfinnan Viaduct, Glencoe and Fort William with a local driver. 1-8 guests, fixed price, door-to-door pickup.",
+    );
+    // H1 is unchanged.
+    expect(hp.h1).toBe("Harry Potter Tour from Edinburgh");
   });
 
   it("never repeats the old boilerplate tail", () => {

@@ -24,6 +24,7 @@ function mdLines(md: string): string[] {
   return md.split(/\r?\n/).map((l) => l.replace(/^\s*(?:[-*•]|\d+[.)])\s+/, "").trim()).filter(Boolean);
 }
 import { draftTour, tourSeo } from "@/lib/seo/tour-seo";
+import { tourExtras } from "@/content/tour-extras";
 import { BUSINESS_ID } from "@/lib/seo/business-graph";
 
 
@@ -134,6 +135,7 @@ export const Route = createFileRoute("/tours/$slug")({
 
 
     const url = `https://cabslink.com/tours/${d.slug}`;
+    const allFaqs = [...(tourExtras(d.slug, d.duration_hours)?.faqs ?? []), ...d.faq];
     const meta: Array<Record<string, string>> = [
       { title },
       { name: "description", content: desc },
@@ -182,13 +184,13 @@ export const Route = createFileRoute("/tours/$slug")({
               : undefined,
           }),
         },
-        ...(d.faq.length
+        ...(allFaqs.length
           ? [{
               type: "application/ld+json",
               children: JSON.stringify({
                 "@context": "https://schema.org",
                 "@type": "FAQPage",
-                mainEntity: d.faq.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
+                mainEntity: allFaqs.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
               }),
             }]
           : []),
@@ -350,6 +352,8 @@ function TourDetailPage() {
   }, [d, selected]);
 
 
+  const extras = tourExtras(d.slug, d.duration_hours);
+  const allFaqs = [...(extras?.faqs ?? []), ...d.faq];
   const duration = formatDuration(d.direct_duration_seconds);
   const optionalPois = d.pois.filter((p) => !p.mandatory);
   const mandatoryCount = d.pois.filter((p) => p.mandatory).length;
@@ -420,6 +424,28 @@ function TourDetailPage() {
                 <p className="text-muted-foreground whitespace-pre-line">{d.description}</p>
               </div>
             )}
+
+            {extras?.sections.map((s) => (
+              <section key={s.heading} className="mt-10">
+                <h2 className="font-display text-2xl font-semibold mb-3">{s.heading}</h2>
+                <div className="space-y-3">
+                  {s.body.map((p) => (
+                    <p key={p} className="text-muted-foreground leading-relaxed">{p}</p>
+                  ))}
+                </div>
+                {s.points && s.points.length > 0 && (
+                  <ul className="mt-5 grid gap-3 sm:grid-cols-2">
+                    {s.points.map((pt) => (
+                      <li key={pt.title} className="rounded-2xl border border-border p-4">
+                        <h3 className="font-display text-base font-semibold flex items-center gap-1.5"><MapPin className="size-4 text-[var(--gold-ink)]" />{pt.title}</h3>
+                        <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">{pt.text}</p>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </section>
+            ))}
+
 
             {(d.duration_hours != null || d.direct_distance_miles != null) && (
               <dl className="mt-8 grid grid-cols-2 gap-4 sm:max-w-md">
@@ -604,8 +630,8 @@ function TourDetailPage() {
               </div>
             )}
 
-            {d.faq.length > 0 && (
-              <div className="mt-10"><FaqBlock items={d.faq} /></div>
+            {allFaqs.length > 0 && (
+              <div className="mt-10"><FaqBlock items={allFaqs} /></div>
             )}
 
             {d.reviews.length > 0 && (

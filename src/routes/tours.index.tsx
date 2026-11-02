@@ -180,6 +180,17 @@ function ToursPage() {
             titleAccent="today"
             subtitle="Each tour includes a suggested itinerary. Search above by place, name or theme — then edit the stops when you book."
           />
+          <p className="mt-4 max-w-2xl text-sm text-muted-foreground">
+            Film fans: our{" "}
+            <Link
+              to="/tours/$slug"
+              params={{ slug: "harry-potter-highland-expedition" }}
+              className="font-medium text-[var(--gold-ink)] underline-offset-4 hover:underline"
+            >
+              Harry Potter tour from Edinburgh
+            </Link>{" "}
+            visits the Glenfinnan Viaduct, Glencoe and Fort William in one private day.
+          </p>
 
 
           {tours.length === 0 && longDayTours.length === 0 ? (

@@ -23,6 +23,8 @@ export type TourSeo = {
   metaTitle: string;
   /** Meta + og:description, 110-155 chars, specific to this tour. */
   metaDescription: string;
+  /** Title/description supplied word-for-word by the owner; exempt from the length limits. */
+  ownerWritten?: boolean;
 };
 
 export const TOUR_SEO: Record<string, TourSeo> = {
@@ -76,9 +78,11 @@ export const TOUR_SEO: Record<string, TourSeo> = {
   },
   "harry-potter-highland-expedition": {
     h1: "Harry Potter Tour from Edinburgh",
-    metaTitle: "Harry Potter Tour from Edinburgh | Cabslink",
+    // Wording chosen by the owner for Search Console queries (2 Nov 2026).
+    ownerWritten: true,
+    metaTitle: "Harry Potter Tour Scotland from Edinburgh | Private Day Trip | Cabslink",
     metaDescription:
-      "The Glenfinnan Viaduct, Glencoe and Fort William in one Highland day — the real filming country, with a driver who knows the viewing spots.",
+      "Private Harry Potter tour of Scotland from Edinburgh: Glenfinnan Viaduct, Glencoe and Fort William with a local driver. 1-8 guests, fixed price, door-to-door pickup.",
   },
   "stirling-and-doune-castles-day": {
     h1: "Stirling Castle Tours from Edinburgh",

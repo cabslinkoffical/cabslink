@@ -13,6 +13,9 @@ import type {} from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { PUBLIC_ROUTES, fetchAllPages, dedupeSitemapEntries } from "@/lib/sitemap-routes";
+import { indexableRegionPaths } from "@/lib/seo/region-content";
+import { categoryIsIndexable } from "@/lib/blog-category-seo";
+import { destinationHref, type DestinationType } from "@/lib/destinations.functions";
 
 const BASE_URL = "https://cabslink.com";
 
@@ -62,11 +65,30 @@ export const Route = createFileRoute("/sitemap-core.xml")({
         const sb = serverPublicClient();
 
         try {
-          const [tours, seo, blogs] = await Promise.all([
+          const [tours, seo, blogs, cats, places] = await Promise.all([
             fetchAllPages((from, to) => sb.from("scenic_route_templates").select("slug, updated_at").eq("active", true).eq("published", true).order("id").range(from, to)),
             fetchAllPages((from, to) => sb.from("seo_pages").select("path, updated_at, robots_status, canonical_override").eq("publication_status", "published").order("id").range(from, to)),
-            fetchAllPages((from, to) => sb.from("blog_posts").select("slug, updated_at, robots_status, canonical_override").eq("status", "published").order("id").range(from, to)),
+            fetchAllPages((from, to) => sb.from("blog_posts").select("slug, updated_at, robots_status, canonical_override, category_id").eq("status", "published").order("id").range(from, to)),
+            fetchAllPages((from, to) => sb.from("blog_categories").select("id, slug").eq("active", true).order("id").range(from, to)),
+            fetchAllPages((from, to) => sb.from("destinations").select("type, slug, name, display_name, lat, lng, region, seo_tier").eq("active", true).not("region", "is", null).order("id").range(from, to)),
           ]);
+          // Blog categories with enough posts to be indexed (same rule as the page).
+          const perCategory = new Map<string, { count: number; lastmod: string | null }>();
+          for (const b of blogs) {
+            if (!b.category_id) continue;
+            const cur = perCategory.get(b.category_id) ?? { count: 0, lastmod: null };
+            const day = isoDay(b.updated_at);
+            perCategory.set(b.category_id, { count: cur.count + 1, lastmod: day && (!cur.lastmod || day > cur.lastmod) ? day : cur.lastmod });
+          }
+          for (const c of cats) {
+            const stat = perCategory.get(c.id);
+            if (stat && categoryIsIndexable(stat.count)) entries.set(`/blog/category/${c.slug}`, stat.lastmod);
+          }
+          // Region hubs that pass the region content rule.
+          for (const path of indexableRegionPaths(
+            places.map((p) => ({ ...p, type: p.type as string })),
+            (p) => destinationHref({ type: p.type as DestinationType, slug: p.slug }),
+          )) entries.set(path, null);
           for (const t of tours) {
             entries.set(`/tours/${t.slug}`, isoDay(t.updated_at));
           }

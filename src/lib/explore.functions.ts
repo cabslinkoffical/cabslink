@@ -8,10 +8,12 @@ import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import {
   DESTINATION_TYPES,
+  destinationHref,
   type Destination,
   type DestinationType,
 } from "@/lib/destinations.functions";
 import { queryOptions } from "@tanstack/react-query";
+import { buildRegionContent, regionSlug, type RegionContent } from "@/lib/seo/region-content";
 
 function sb() {
   const key = process.env.SUPABASE_PUBLISHABLE_KEY!;
@@ -32,7 +34,7 @@ const FIELDS =
   "id,type,slug,name,display_name,short_name,country,region,council,town,parent_id,lat,lng,place_id,keywords,synonyms,nearby_ids,popular_route_ids,related_service_ids,seo_tier,noindex,active,linked_page_id,meta,updated_at";
 
 function slugify(s: string): string {
-  return s.toLowerCase().normalize("NFKD").replace(/[^\w\s-]/g, "").trim().replace(/\s+/g, "-");
+  return regionSlug(s);
 }
 
 export type RegionCard = {
@@ -173,6 +175,7 @@ export type RegionHub = {
   routes: Destination[];
   services: Destination[];
   total: number;
+  content: RegionContent;
 };
 
 export const getRegionHub = createServerFn({ method: "GET" })
@@ -205,7 +208,7 @@ export const getRegionHub = createServerFn({ method: "GET" })
     return {
       name: match,
       slug: data.slug,
-      towns: [...bucket("location"), ...bucket("council")].slice(0, 30),
+      towns: [...bucket("city"), ...bucket("town"), ...bucket("village"), ...bucket("location"), ...bucket("council")].slice(0, 30),
       airports: bucket("airport"),
       stations: bucket("station"),
       universities: bucket("university"),
@@ -214,6 +217,10 @@ export const getRegionHub = createServerFn({ method: "GET" })
       routes: bucket("route"),
       services: bucket("service"),
       total: all.length,
+      content: buildRegionContent(
+        match,
+        all.map((d) => ({ type: d.type, slug: d.slug, name: d.name, display_name: d.display_name, lat: d.lat, lng: d.lng, href: destinationHref(d) })),
+      ),
     };
   });
 
