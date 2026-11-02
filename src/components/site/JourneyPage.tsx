@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import type { JourneyContent } from "@/lib/seo/journeys";
 import type { RouteFareTable as RouteFareTableData } from "@/lib/seo/route-fares.functions";
 import { RouteFareTable } from "@/components/seo/RouteFareTable";
+import { PageBand, LinkCards, FaqBand } from "@/components/site/PageBand";
 import { TransportComparison } from "@/components/seo/TransportComparison";
 import { getJourneyTransport } from "@/lib/seo/transport-modes";
 
@@ -129,8 +130,8 @@ export function JourneyPage({
           actually put on the page. Omitted entirely when the engine cannot
           produce a reliable figure for this route. */}
       {fares && fares.fares.length > 0 && (
-        <section className="section-y border-t">
-          <div className="container-x max-w-4xl">
+        <section className="section-y">
+          <div className="container-x">
             <RouteFareTable data={fares} routeName={`${c.from.name} to ${c.to.name}`} />
           </div>
         </section>
@@ -139,8 +140,8 @@ export function JourneyPage({
       {/* Honest multi-modal comparison. Only rendered for journeys where we
           hold verified operator fares and times. */}
       {transport && (
-        <section className="section-y border-t">
-          <div className="container-x max-w-5xl">
+        <section className="section-y">
+          <div className="container-x">
             <TransportComparison data={transport} routeName={pair} />
           </div>
         </section>
@@ -192,57 +193,23 @@ export function JourneyPage({
       )}
 
       {c.relatedJourneys.length > 0 && (
-        <section className="bg-muted/40 section-y">
-          <div className="container-x">
-            <SectionHeader eyebrow="Other journeys" title="Related routes we run" />
-            <ul className="mt-8 flex flex-wrap gap-3">
-              {c.relatedJourneys.map((r) => (
-                <li key={r.to}>
-                  <Link
-                    to={r.to}
-                    className="inline-flex items-center gap-2 rounded-lg border bg-background px-4 py-2 text-sm font-medium shadow-[var(--shadow-raised)] hover:border-[var(--gold)]"
-                  >
-                    <RouteIcon className="size-4 text-[var(--gold-ink)]" /> {r.label}
-                  </Link>
-                </li>
-              ))}
-              <li>
-                <Link
-                  to="/routes"
-                  className="inline-flex items-center gap-2 rounded-lg border bg-background px-4 py-2 text-sm font-medium shadow-[var(--shadow-raised)] hover:border-[var(--gold)]"
-                >
-                  All popular routes <ArrowRight className="size-4" />
-                </Link>
-              </li>
-            </ul>
-          </div>
-        </section>
+        <PageBand eyebrow="Other journeys" title="Related routes we run">
+          <LinkCards links={[...c.relatedJourneys.map((r) => ({ href: r.to, label: r.label })), { href: "/routes", label: "All popular routes" }]} />
+        </PageBand>
       )}
 
-      <section className="section-y">
-        <div className="container-x max-w-3xl">
-          <SectionHeader eyebrow="FAQs" title={`${pair} — questions`} />
-          <div className="mt-8 space-y-6">
-            {resolveFaqs(c, fares).map((f) => (
-              <div key={f.q}>
-                <h3 className="font-semibold">{f.q}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{f.a}</p>
-              </div>
-            ))}
-
-          </div>
-          <div className="mt-10 flex flex-wrap gap-3">
-            <Button asChild variant="gold" className="rounded-lg">
-              <Link to="/book" search={bookSearch}>Get a quote</Link>
-            </Button>
-            <Button asChild variant="outline" className="rounded-lg">
-              <a href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}>
-                <Phone className="size-4" /> {SITE.phoneUK}
-              </a>
-            </Button>
-          </div>
+      <FaqBand title={`${pair} — questions`} items={resolveFaqs(c, fares)}>
+        <div className="mt-10 flex flex-wrap gap-3">
+          <Button asChild variant="gold" className="rounded-lg">
+            <Link to="/book" search={bookSearch}>Get a quote</Link>
+          </Button>
+          <Button asChild variant="outline" className="rounded-lg">
+            <a href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}>
+              <Phone className="size-4" /> {SITE.phoneUK}
+            </a>
+          </Button>
         </div>
-      </section>
+      </FaqBand>
     </SiteLayout>
   );
 }
