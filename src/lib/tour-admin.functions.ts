@@ -1,3 +1,4 @@
+import { pageInputSchema, runPaged, ilikeAny } from "@/lib/admin-paging";
 // Admin server functions for tour enquiries. Tour enquiries live in `bookings`
 // with service_type = "private_tour"; status changes reuse the shared
 // `setBookingStatusFn`, and this file adds the tour-specific pricing step.
@@ -58,6 +59,36 @@ export const listTourEnquiries = createServerFn({ method: "GET" })
       price: r.price == null ? null : Number(r.price),
       tour_stops: Array.isArray(r.tour_stops) ? r.tour_stops.map((s: unknown) => String(s)) : [],
     }));
+  });
+
+/** One page of tour enquiries for a status filter and search. */
+export const listTourEnquiriesPage = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => pageInputSchema.extend({ status: z.string().max(40).catch("all").default("all") }).parse(i ?? {}))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const search = ilikeAny(["booking_ref", "customer_name", "email", "phone", "tour_name", "notes"], data.q);
+    const page = await runPaged<any>((from, to) => {
+      let q = context.supabase
+        .from("bookings")
+        .select(
+          "id, booking_ref, status, payment_status, customer_name, email, phone, pickup_date, pickup_time, passengers, luggage, price, price_quoted_at, tour_name, tour_slug, tour_stops, flight_number, notes, admin_notes, cancellation_reason, created_at",
+          { count: "exact" },
+        )
+        .eq("service_type", TOUR_SERVICE_TYPE)
+        .is("deleted_at", null);
+      if (data.status !== "all") q = q.eq("status", data.status as any);
+      if (search) q = q.or(search);
+      return q.order("created_at", { ascending: false }).order("id", { ascending: false }).range(from, to);
+    }, data);
+    return {
+      ...page,
+      rows: page.rows.map((r: any): TourEnquiryRow => ({
+        ...r,
+        price: r.price == null ? null : Number(r.price),
+        tour_stops: Array.isArray(r.tour_stops) ? r.tour_stops.map((s: unknown) => String(s)) : [],
+      })),
+    };
   });
 
 /**
