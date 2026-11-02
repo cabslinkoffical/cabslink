@@ -425,6 +425,28 @@ function TourDetailPage() {
               </div>
             )}
 
+            {extras?.sections.map((s) => (
+              <section key={s.heading} className="mt-10">
+                <h2 className="font-display text-2xl font-semibold mb-3">{s.heading}</h2>
+                <div className="space-y-3">
+                  {s.body.map((p) => (
+                    <p key={p} className="text-muted-foreground leading-relaxed">{p}</p>
+                  ))}
+                </div>
+                {s.points && s.points.length > 0 && (
+                  <ul className="mt-5 grid gap-3 sm:grid-cols-2">
+                    {s.points.map((pt) => (
+                      <li key={pt.title} className="rounded-2xl border border-border p-4">
+                        <h3 className="font-display text-base font-semibold flex items-center gap-1.5"><MapPin className="size-4 text-[var(--gold-ink)]" />{pt.title}</h3>
+                        <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">{pt.text}</p>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </section>
+            ))}
+
+
             {(d.duration_hours != null || d.direct_distance_miles != null) && (
               <dl className="mt-8 grid grid-cols-2 gap-4 sm:max-w-md">
                 {d.duration_hours != null && (
