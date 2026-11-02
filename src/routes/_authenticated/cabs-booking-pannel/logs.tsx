@@ -134,6 +134,10 @@ function Page() {
           </table>
         </div>
       )}
+      {(listQ.data?.total ?? 0) > 0 && (
+        <Pager page={paging.page} pageSize={paging.pageSize} total={listQ.data?.total ?? 0} noun="log entries" loading={listQ.isFetching}
+          onPageChange={paging.setPage} onPageSizeChange={paging.setPageSize} />
+      )}
     </div>
   );
 }
