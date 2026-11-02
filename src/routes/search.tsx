@@ -56,7 +56,7 @@ function SearchPage() {
 
 
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>Can't find <span className="text-gold">what you need</span>?</>, subtitle: "Tell us where you are travelling and our team will help, or get a fixed price online.", label: "Contact us", to: "/contact", trackAs: "final_cta_search" }}>
     <div className="mx-auto max-w-4xl px-4 py-10">
       <Breadcrumbs items={[{ name: "Home", href: "/" }, { name: "Search", href: "/search" }]} />
       <h1 className="mt-4 mb-6 text-4xl font-bold text-[var(--navy)]">Search destinations</h1>

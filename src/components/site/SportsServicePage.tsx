@@ -21,7 +21,7 @@ export type SportsServiceContent = {
 
 export function SportsServicePage({ content }: { content: SportsServiceContent }) {
   return (
-    <SiteLayout cta={{ heading: <>Plan your <span className="text-gold">match day</span></>, label: "Get a fixed price", trackAs: "final_cta_sports" }}>
+    <SiteLayout cta={{ heading: <>Plan your <span className="text-gold">trip</span></>, label: "Get a fixed price", trackAs: "final_cta_sports" }}>
       <PageHero
         eyebrow={content.eyebrow}
         title={content.h1}
