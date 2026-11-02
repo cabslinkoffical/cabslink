@@ -7,12 +7,10 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/admin/ui";
-import { MediaUrlInput } from "@/components/admin/media/MediaPicker";
 
 const opts = queryOptions({ queryKey: ["admin", "settings"], queryFn: () => getSettings() });
 export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/settings")({
