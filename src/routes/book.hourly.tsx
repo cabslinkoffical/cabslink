@@ -176,7 +176,7 @@ function HourlyBookPage() {
   }
 
   return (
-    <SiteLayout>
+    <SiteLayout hideCta>
       <section className="bg-[var(--navy)] text-white">
         <div className="container mx-auto px-4 py-14 md:py-20">
           <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-[var(--gold)]">Hourly hire</p>

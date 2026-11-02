@@ -73,8 +73,9 @@ export function SeoPageRenderer({
   const mapFocus = localEntityMapFocus(page.entity);
   const crumbs = buildCrumbs(page).map((c) => ({ name: c.label, href: c.href }));
 
+  const ctaPlace = entityName ?? page.h1;
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>Book your journey: <span className="text-gold">{ctaPlace}</span></>, label: "Get a fixed price", href: "#booking", trackAs: "final_cta_seo_page", subtitle: "Your journey details are already in the booking form above. Check the fixed price before you pay, or call our team any time." }}>
     <div className="min-h-screen bg-background">
       <LocalPageHero
         breadcrumbs={crumbs}

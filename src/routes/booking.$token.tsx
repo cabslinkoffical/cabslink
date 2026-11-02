@@ -39,7 +39,7 @@ export const Route = createFileRoute("/booking/$token")({
 
 function ExpiredPage() {
   return (
-    <SiteLayout>
+    <SiteLayout hideCta>
       <section className="section-y">
         <div className="container-x max-w-2xl text-center">
           <h1 className="font-display text-3xl font-bold">Confirmation link unavailable</h1>
@@ -126,7 +126,7 @@ function ConfirmationPage() {
 
   if (q.isLoading) {
     return (
-      <SiteLayout>
+      <SiteLayout hideCta>
         <section className="section-y">
           <div className="container-x max-w-2xl text-center text-muted-foreground">Loading your booking…</div>
         </section>
@@ -208,7 +208,7 @@ function ConfirmationPage() {
 
 
   return (
-    <SiteLayout>
+    <SiteLayout hideCta>
       <section className="section-y bg-[var(--surface-2)]">
         <div className="container-x max-w-4xl">
           {/* ===== TICKET ===== */}

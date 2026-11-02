@@ -193,7 +193,7 @@ function ManageBookingPage() {
   };
 
   return (
-    <SiteLayout>
+    <SiteLayout hideCta>
       <section className="section-y bg-[var(--surface-2)]">
         <div className="container-x max-w-3xl">
           <Link to="/" className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-[var(--gold)]">

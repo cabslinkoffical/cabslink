@@ -632,7 +632,7 @@ function BookPage() {
   }, [step, goToExtras, submitBooking]);
 
   return (
-    <SiteLayout>
+    <SiteLayout hideCta>
       {/* overflow-clip, not overflow-hidden: an overflow:hidden ancestor turns this
           section into a scroll container and silently stops the left rail sticking. */}
       <section className="relative bg-[var(--surface)] py-10 md:py-14 min-h-[80vh] overflow-clip">
