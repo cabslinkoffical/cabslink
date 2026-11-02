@@ -6,12 +6,10 @@ import { listBookingsPage } from "@/lib/admin-bookings.functions";
 import { Pager, useDebounced, usePageState } from "@/components/admin/Pager";
 import { DEFAULT_PAGE_SIZE } from "@/lib/admin-paging";
 import { useServerFn } from "@tanstack/react-start";
-import { useMemo, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
-  listCancellationRequests,
   updateCancellationRequest,
   deleteCancellationRequest,
-  listBookings,
 } from "@/lib/admin.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

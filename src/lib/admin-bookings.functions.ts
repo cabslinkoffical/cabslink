@@ -11,7 +11,10 @@ async function assertAdmin(ctx: { supabase: any; userId: string }) {
 }
 
 const BOOKING_SELECT = "*, driver:drivers(id, full_name)";
-const listInput = pageInputSchema.extend({ tab: z.string().max(40).catch("all").default("all") });
+const listInput = pageInputSchema.extend({
+  tab: z.string().max(40).catch("all").default("all"),
+  includeTours: z.boolean().catch(false).default(false),
+});
 
 /** One page of transfer bookings for the chosen tab and search, newest first. */
 export const listBookingsPage = createServerFn({ method: "GET" })
@@ -23,7 +26,7 @@ export const listBookingsPage = createServerFn({ method: "GET" })
     return runPaged<any>((from, to) =>
       applyBookingFilters(
         context.supabase.from("bookings").select(BOOKING_SELECT, { count: "exact" }) as any,
-        data.tab, data.q, today,
+        data.tab, data.q, today, data.includeTours,
       )
         .order("created_at", { ascending: false })
         .order("id", { ascending: false })

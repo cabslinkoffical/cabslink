@@ -46,12 +46,12 @@ export function isBookingTab(t: unknown): t is BookingTabId {
 }
 
 /**
- * Applies the tab and search filters. Tour enquiries are excluded (they have
- * their own view). `today` is the YYYY-MM-DD date used for upcoming/history.
+ * Applies the tab and search filters. Tour enquiries are excluded unless
+ * `includeTours` (they have their own view). `today` is the YYYY-MM-DD date used for upcoming/history.
  */
-export function applyBookingFilters<Q extends FilterBuilder<Q>>(q: Q, tabIn: string, search: string, today: string): Q {
+export function applyBookingFilters<Q extends FilterBuilder<Q>>(q: Q, tabIn: string, search: string, today: string, includeTours = false): Q {
   const tab: BookingTabId = isBookingTab(tabIn) ? tabIn : "all";
-  q = q.neq("service_type", TOUR_SERVICE_TYPE);
+  if (!includeTours) q = q.neq("service_type", TOUR_SERVICE_TYPE);
   q = tab === "deleted" ? q.not("deleted_at", "is", null) : q.is("deleted_at", null);
 
   const term = sanitizeSearch(search);
