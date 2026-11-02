@@ -90,10 +90,12 @@ function Page() {
                     <div className="flex justify-end gap-1">
                       <Button aria-label="Details" size="icon" variant="ghost" onClick={() => setDetail(p)}><Eye className="size-4" /></Button>
                       <Button aria-label="Edit" size="icon" variant="ghost" onClick={() => setForm({ ...empty, ...p })}><Edit className="size-4" /></Button>
+                      {!p.payment_intent_id && (
                       <AlertDialog>
                         <AlertDialogTrigger asChild><Button aria-label="Delete" size="icon" variant="ghost"><Trash2 className="size-4 text-destructive" /></Button></AlertDialogTrigger>
-                        <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Delete payment?</AlertDialogTitle></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => remove.mutate(p.id)} className="bg-destructive">Delete</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
+                        <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Delete this staff-recorded payment?</AlertDialogTitle></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => remove.mutate(p.id)} className="bg-destructive">Delete</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
                       </AlertDialog>
+                      )}
                     </div>
                   </td>
                 </tr>
