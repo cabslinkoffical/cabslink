@@ -18,6 +18,12 @@ export function regionSlug(name: string): string {
 /** Regions outside our main market stay noindex whatever their content. */
 export const NON_MAIN_MARKET_REGIONS = ["England", "Wales", "Northern Ireland"];
 
+/**
+ * Island regions: straight-line road estimates are meaningless across water
+ * (a ferry is involved), so no distance table is shown for them.
+ */
+export const ISLAND_REGIONS = ["Islay", "Skye", "Orkney", "Shetland", "Arran", "Mull"];
+
 /** Unique, region-specific words needed before a region page is indexed. */
 export const REGION_INDEX_MIN_WORDS = 300;
 
@@ -86,7 +92,7 @@ export function buildRegionContent(regionName: string, places: RegionPlace[]): R
   const study = byKind(["university", "hospital", "station", "cruise_port", "business_park"]);
 
   // Estimated road distances to the two main Scottish airports.
-  const distances: RegionDistanceRow[] = places
+  const distances: RegionDistanceRow[] = (ISLAND_REGIONS.includes(regionName) ? [] : places)
     .filter((p) => p.type !== "airport" && p.lat != null && p.lng != null)
     .map((p) => {
       const [edi, gla] = MAIN_AIRPORTS.map((a) => estimateDrive(p.lat!, p.lng!, a));
