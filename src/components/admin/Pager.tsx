@@ -117,3 +117,19 @@ export function usePagedRows<T>(rows: T[], resetKey: unknown = "") {
     },
   };
 }
+
+/** Value that settles `ms` after the last change (for search boxes). */
+export function useDebounced<T>(value: T, ms = 300) {
+  const [v, setV] = useState(value);
+  useEffect(() => { const t = setTimeout(() => setV(value), ms); return () => clearTimeout(t); }, [value, ms]);
+  return v;
+}
+
+/** Page number + size state that returns to page 1 whenever `resetKey` changes. */
+export function usePageState(resetKey: unknown) {
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState<number>(DEFAULT_PAGE_SIZE);
+  const key = JSON.stringify(resetKey ?? "");
+  useEffect(() => { setPage(1); }, [key]);
+  return { page, pageSize, setPage, setPageSize: (n: number) => { setPageSize(n); setPage(1); } };
+}

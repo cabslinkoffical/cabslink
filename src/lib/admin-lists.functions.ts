@@ -218,9 +218,13 @@ export const listBookingAmendmentsPage = createServerFn({ method: "GET" })
     const all = await fetchAllPages<any>((a, z) => context.supabase.from("booking_amendments")
       .select("id, status, delta, refund_amount").order("id").range(a, z));
     const counts: Record<string, number> = { all: all.length, open: 0 };
+    let topUpDue = 0;
+    let refundDue = 0;
     for (const r of all) {
       counts[r.status] = (counts[r.status] ?? 0) + 1;
       if (r.status === "pending_payment" || r.status === "awaiting_refund") counts.open += 1;
+      if (r.status === "pending_payment") topUpDue += Number(r.delta ?? 0);
+      if (r.status === "awaiting_refund") refundDue += Number(r.refund_amount ?? Math.abs(Number(r.delta ?? 0)));
     }
-    return { ...page, counts, all };
+    return { ...page, counts, topUpDue, refundDue };
   });

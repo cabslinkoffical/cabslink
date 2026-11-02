@@ -1,5 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useSuspenseQuery, useMutation, useQueryClient, queryOptions } from "@tanstack/react-query";
+import { useQuery, keepPreviousData, useMutation, useQueryClient, queryOptions } from "@tanstack/react-query";
+import { listBookingAmendmentsPage } from "@/lib/admin-lists.functions";
+import { Pager, useDebounced, usePageState } from "@/components/admin/Pager";
+import { DEFAULT_PAGE_SIZE } from "@/lib/admin-paging";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState, useEffect } from "react";
 import {
@@ -24,9 +27,10 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-const opts = queryOptions({
-  queryKey: ["admin", "amendments"],
-  queryFn: () => listBookingAmendments(),
+const amendOpts = (view: string, q: string, page: number, pageSize: number) => queryOptions({
+  queryKey: ["admin", "amendments", { view, q, page, pageSize }],
+  queryFn: () => listBookingAmendmentsPage({ data: { view, q, page, pageSize } }),
+  placeholderData: keepPreviousData,
 });
 
 export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/amendments")({
@@ -38,7 +42,7 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/amendm
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(opts),
+  loader: ({ context }) => context.queryClient.ensureQueryData(amendOpts("open", "", 1, DEFAULT_PAGE_SIZE)),
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error instanceof Error ? error.message : String(error)}</div>,
   notFoundComponent: () => <div className="p-8">Not found</div>,
   component: AmendmentsPage,
@@ -133,8 +137,6 @@ function diffRows(previous: any, changes: any) {
 }
 
 function AmendmentsPage() {
-  const { data } = useSuspenseQuery(opts);
-  const rowsAll = (data ?? []) as any[];
   const qc = useQueryClient();
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: ["admin", "amendments"] });
@@ -155,40 +157,16 @@ function AmendmentsPage() {
 
   const [tab, setTab] = useState<"open" | Status | "all">("open");
   const [q, setQ] = useState("");
-
-  const counts = useMemo(() => {
-    const c: Record<string, number> = { all: rowsAll.length, open: 0 };
-    for (const r of rowsAll) {
-      c[r.status] = (c[r.status] ?? 0) + 1;
-      if (r.status === "pending_payment" || r.status === "awaiting_refund") c.open += 1;
-    }
-    return c;
-  }, [rowsAll]);
-
-  const topUpDue = useMemo(
-    () => rowsAll.filter((r) => r.status === "pending_payment").reduce((s, r) => s + Number(r.delta ?? 0), 0),
-    [rowsAll],
-  );
-  const refundDue = useMemo(
-    () => rowsAll
-      .filter((r) => r.status === "awaiting_refund")
-      .reduce((s, r) => s + Number(r.refund_amount ?? Math.abs(Number(r.delta ?? 0))), 0),
-    [rowsAll],
-  );
-
-  const rows = useMemo(() => {
-    const term = q.trim().toLowerCase();
-    return rowsAll.filter((r) => {
-      if (tab === "open" && !(r.status === "pending_payment" || r.status === "awaiting_refund")) return false;
-      if (tab !== "open" && tab !== "all" && r.status !== tab) return false;
-      if (!term) return true;
-      return [r.booking_ref, r.customer_name, r.email, r.phone, r.customer_note]
-        .some((f) => String(f ?? "").toLowerCase().includes(term));
-    });
-  }, [rowsAll, tab, q]);
+  const term = useDebounced(q.trim());
+  const paging = usePageState([tab, term]);
+  const listQ = useQuery(amendOpts(tab, term, paging.page, paging.pageSize));
+  const rows = (listQ.data?.rows ?? []) as any[];
+  const counts: Record<string, number> = listQ.data?.counts ?? { all: 0, open: 0 };
+  const topUpDue = listQ.data?.topUpDue ?? 0;
+  const refundDue = listQ.data?.refundDue ?? 0;
 
   const [openId, setOpenId] = useState<string | null>(null);
-  const active = rowsAll.find((r) => r.id === openId) ?? null;
+  const active = rows.find((r) => r.id === openId) ?? null;
 
   const [notes, setNotes] = useState("");
   const [amount, setAmount] = useState("");

@@ -22,7 +22,7 @@ import { useEffect, useState } from "react";
 import { listBookingsPage, countBookingTabs, exportBookings } from "@/lib/admin-bookings.functions";
 import { BOOKING_TABS } from "@/lib/admin-bookings";
 import { DEFAULT_PAGE_SIZE } from "@/lib/admin-paging";
-import { Pager } from "@/components/admin/Pager";
+import { Pager, useDebounced } from "@/components/admin/Pager";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -62,11 +62,7 @@ const bookingCountsOpts = (q: string) => queryOptions({
   placeholderData: keepPreviousData,
 });
 
-function useDebounced<T>(value: T, ms = 300) {
-  const [v, setV] = useState(value);
-  useEffect(() => { const t = setTimeout(() => setV(value), ms); return () => clearTimeout(t); }, [value, ms]);
-  return v;
-}
+
 
 export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/bookings")({
   head: () => ({
