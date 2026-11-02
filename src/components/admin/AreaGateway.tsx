@@ -20,7 +20,7 @@ export function AreaGateway({ totals }: { totals: Totals }) {
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       {/* Bookings & messages */}
-      <section className="group relative overflow-hidden rounded-2xl bg-navy text-navy-foreground p-5 sm:p-6 ring-1 ring-gold/20 shadow-lg">
+      <section className="group relative flex flex-col overflow-hidden rounded-2xl bg-navy text-navy-foreground p-5 sm:p-6 ring-1 ring-gold/20 shadow-lg">
         <div aria-hidden className="pointer-events-none absolute -right-16 -top-16 size-56 rounded-full bg-gold/10 blur-2xl" />
         <div className="relative flex items-start justify-between gap-4">
           <div className="flex min-w-0 items-center gap-3">
@@ -38,7 +38,7 @@ export function AreaGateway({ totals }: { totals: Totals }) {
           </Link>
         </div>
         <p className="relative mt-3 text-sm text-navy-foreground/75">Bookings, tour enquiries, change requests, refunds, messages and driver applications.</p>
-        <div className="relative mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <div className="relative mt-auto grid grid-cols-2 gap-2 pt-5 sm:grid-cols-4">
           {bookingStats.map((s) => (
             <Link
               key={s.label}
