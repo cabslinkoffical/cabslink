@@ -186,3 +186,10 @@
 - [x] Use owner's FAQ question bank (Cabslink_FAQ_Question_Bank.xlsx) on relevant pages; answer only from verified facts, list unanswerable questions.
 
 - [ ] FAQ bank: 47 questions wait for owner answers (see Cabslink_FAQ_Question_Bank_status.xlsx); 157 need live fares, new pages or sourced travel facts.
+
+## Search Console SEO fixes (2 Nov)
+- [ ] Blog category pages working (H1, intro, posts, canonical, 404 if empty, index at 3+ posts); fix "$slug" link; tags noindex
+- [ ] /index 301 to https://cabslink.com/; canonicals/internal links on apex
+- [ ] Noindex review: regions and routes with real content indexable + in sitemap; Wales/England stay noindex
+- [ ] Harry Potter tour: title, description, filming locations, Jacobite, multi-day, FAQ + schema, links from /tours and day-trips guide
+- [ ] Day trips guide: tour links, "Book this as a private tour" links, 4 FAQs + schema
