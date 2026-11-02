@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { LocalPageHero } from "@/components/site/LocalPageHero";
 import { LocalMapSection } from "@/components/site/LocalMapSection";
-import { FaqAccordion } from "@/components/site/FaqAccordion";
+import { PageBand, EditorialRows, LinkCards, GroupLabel, FaqBand } from "@/components/site/PageBand";
 import { defaultLocalImage, localEntityMapFocus } from "@/lib/local-page";
 
 /**
@@ -77,7 +77,6 @@ export function SeoPageRenderer({
   const ctaPlace = entityName ?? page.h1;
   return (
     <SiteLayout cta={{ heading: <>Book your journey: <span className="text-gold">{ctaPlace}</span></>, label: "Get a fixed price", href: "#booking", trackAs: "final_cta_seo_page", subtitle: "Your journey details are already in the booking form above. Check the fixed price before you pay, or call our team any time." }}>
-    <div className="min-h-screen bg-background">
       <LocalPageHero
         breadcrumbs={crumbs}
         eyebrow={entityType ? entityType.replace(/-/g, " ") : "Cabslink"}
@@ -110,20 +109,17 @@ export function SeoPageRenderer({
         }}
       />
 
-      <div className="container-x py-10 md:py-14 space-y-12">
-        {fares && fares.fares.length > 0 && (
+      {/* Bands sit directly in <main> so the shared white / cream rhythm applies. */}
+      {fares && fares.fares.length > 0 && (
+        <PageBand ariaLabel="Fixed fares">
           <RouteFareTable data={fares} routeName={page.h1.replace(/\s+—.*$/, "")} />
-        )}
-        {allSections.map((s) => (
-          <SectionBlock key={s.id} section={s} />
-        ))}
-        {appendix}
-      </div>
+        </PageBand>
+      )}
+      <SectionBands sections={allSections} />
+      {appendix}
 
       <LocalMapSection focus={mapFocus} />
       <RelatedLinks center={mapFocus ? { lat: mapFocus.lat, lng: mapFocus.lng } : null} />
-
-    </div>
     </SiteLayout>
   );
 }
@@ -160,57 +156,51 @@ function buildCrumbs(page: PublicSeoPage): Array<{ label: string; href: string }
   return crumbs;
 }
 
-function SectionBlock({ section }: { section: PublicSeoSection }) {
-  const payload = section.structured_payload || {};
+const LINK_TYPES = new Set(["popular_destinations", "nearby_airports", "nearby_cities", "service_grid"]);
 
-  if (section.section_type === "faqs") {
-    const items = Array.isArray((payload as any).items) ? (payload as any).items : [];
-    return (
-      <section>
-        {section.heading && <h2 className="text-2xl font-semibold mb-4">{section.heading}</h2>}
-        <FaqAccordion
-          items={items.map((it: any) => ({ q: it.question, a: it.answer }))}
-          defaultOpen={null}
-        />
-      </section>
-    );
-  }
-
-  if (
-    section.section_type === "popular_destinations" ||
-    section.section_type === "nearby_airports" ||
-    section.section_type === "nearby_cities" ||
-    section.section_type === "service_grid"
-  ) {
-    const items = Array.isArray((payload as any).items) ? (payload as any).items : [];
-    return (
-      <section>
-        {section.heading && <h2 className="text-2xl font-semibold mb-4">{section.heading}</h2>}
-        <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {items.map((it: any, i: number) => (
-            <li key={i} className="rounded-lg border bg-card p-4 hover:bg-accent transition">
-              {it.href ? (
-                <a href={it.href} className="font-medium hover:underline">{it.label}</a>
-              ) : (
-                <span className="font-medium">{it.label}</span>
-              )}
-              {it.description && <p className="text-sm text-muted-foreground mt-1">{it.description}</p>}
-            </li>
-          ))}
-        </ul>
-      </section>
-    );
-  }
-
+/**
+ * CMS sections grouped into page bands: prose sections share one editorial
+ * band, link sections one card band, and FAQs the shared FAQ band.
+ */
+function SectionBands({ sections }: { sections: PublicSeoSection[] }) {
+  const items = (s: PublicSeoSection) => {
+    const p = (s.structured_payload || {}) as { items?: unknown };
+    return Array.isArray(p.items) ? (p.items as any[]) : [];
+  };
+  const prose = sections.filter((s) => s.section_type !== "faqs" && !LINK_TYPES.has(s.section_type) && s.body);
+  const links = sections.filter((s) => LINK_TYPES.has(s.section_type) && items(s).length > 0);
+  const faqs = sections.filter((s) => s.section_type === "faqs").flatMap((s) =>
+    items(s).map((it: any) => ({ q: String(it.question ?? ""), a: String(it.answer ?? "") })).filter((f) => f.q && f.a),
+  );
   return (
-    <section>
-      {section.heading && <h2 className="text-2xl font-semibold mb-4">{section.heading}</h2>}
-      {section.body && (
-        <div className="prose prose-neutral dark:prose-invert max-w-none">
-          {section.body.split(/\n{2,}/).map((p, i) => <p key={i}>{p}</p>)}
-        </div>
+    <>
+      {prose.length > 0 && (
+        <PageBand ariaLabel="About this journey">
+          <EditorialRows
+            items={prose.map((s, i) => ({
+              heading: s.heading || (i === 0 ? "Overview" : "More information"),
+              paragraphs: (s.body ?? "").split(/\n{2,}/).filter(Boolean),
+            }))}
+          />
+        </PageBand>
       )}
-    </section>
+      {links.length > 0 && (
+        <PageBand eyebrow="Plan your journey" title="Nearby airports, routes and services">
+          <div className={`grid gap-10 ${links.length > 1 ? "lg:grid-cols-2" : ""}`}>
+            {links.map((s) => (
+              <div key={s.id}>
+                <GroupLabel>{s.heading ?? "Related pages"}</GroupLabel>
+                <LinkCards
+                  columns={links.length > 1 ? 1 : 3}
+                  links={items(s).filter((it: any) => it.href).map((it: any) => ({ href: it.href, label: it.label, sublabel: it.description || undefined }))}
+                />
+              </div>
+            ))}
+          </div>
+        </PageBand>
+      )}
+      <FaqBand items={faqs} />
+    </>
   );
 }
 
