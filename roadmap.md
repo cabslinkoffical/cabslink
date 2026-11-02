@@ -167,4 +167,4 @@
 - [ ] Audit every public page (not the homepage) for design/logic/SEO inconsistencies against the homepage design system
 - [ ] Redesign non-home pages to the homepage visual language, page by page, without changing URLs/titles/H1s/protected SEO settings or inventing facts
 - [ ] Technical SEO/AEO/GEO pass (metadata, schema, headings, links, images, performance) and verification
-- [ ] Staff console: Bookings & messages and Settings shortcuts also in the left panel (2 Nov)
+- [x] Staff console: Bookings & messages and Settings shortcuts also in the left panel (2 Nov)
