@@ -30,7 +30,7 @@ export const Route = createFileRoute("/tours/")({
   head: ({ loaderData }) => {
     const title = "Private Day Tours from Edinburgh & Hourly Hire | Cabslink";
     const description =
-      "Private day tours from Edinburgh with your own driver, booked by the hour with miles included. Pick a ready-made tour or build a custom day at a fixed price.";
+      "Private day tours from Edinburgh with your own driver. Pick a ready-made tour with its own price per vehicle, or build a custom day priced before you pay.";
     const url = "https://cabslink.com/tours";
     const tours = (loaderData ?? []) as PublicTourListItem[];
     return normalizeHead({
