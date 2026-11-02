@@ -1,5 +1,7 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
+import { Pager, useDebounced, usePageState } from "@/components/admin/Pager";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData } from "@tanstack/react-query";
 import { useState } from "react";
 import { PageHeader, StatusBadge } from "@/components/admin/ui";
 import { Button } from "@/components/ui/button";
@@ -23,11 +25,14 @@ function AdminBlogList() {
   const qc = useQueryClient();
   const router = useRouter();
   const [search, setSearch] = useState("");
-  const [offset, setOffset] = useState(0);
-  const limit = 25;
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["admin", "blog", "posts", search, offset],
-    queryFn: () => listAdminPosts({ data: { search, offset, limit } }),
+  const term = useDebounced(search);
+  const paging = usePageState(term);
+  const limit = paging.pageSize;
+  const offset = (paging.page - 1) * limit;
+  const { data, isLoading, isFetching, error } = useQuery({
+    queryKey: ["admin", "blog", "posts", term, offset, limit],
+    queryFn: () => listAdminPosts({ data: { search: term, offset, limit } }),
+    placeholderData: keepPreviousData,
   });
 
   const del = useMutation({
@@ -103,11 +108,8 @@ function AdminBlogList() {
           </table>
         </div>
       )}
-      <div className="mt-4 flex items-center gap-3">
-        <Button variant="outline" disabled={offset === 0 || isLoading} onClick={() => setOffset(Math.max(0, offset - limit))}>Previous</Button>
-        <span>{data?.total ?? 0} posts · Page {Math.floor(offset / limit) + 1}</span>
-        <Button variant="outline" disabled={isLoading || offset + limit >= (data?.total ?? 0)} onClick={() => setOffset(offset + limit)}>Next</Button>
-      </div>
+      <Pager className="mt-4" page={paging.page} pageSize={paging.pageSize} total={data?.total ?? 0} noun="posts" loading={isFetching}
+        onPageChange={paging.setPage} onPageSizeChange={paging.setPageSize} />
     </div>
   );
 }
