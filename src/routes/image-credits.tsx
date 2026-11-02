@@ -2,6 +2,7 @@ import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { IMAGE_CREDITS } from "@/lib/image-credits";
+import { PageHero } from "@/components/site/PageHero";
 
 export const Route = createFileRoute("/image-credits")({
   head: () => normalizeHead({
@@ -29,27 +30,22 @@ export const Route = createFileRoute("/image-credits")({
 function ImageCreditsPage() {
   return (
     <SiteLayout>
-      <section className="navy-scene py-16 md:py-24">
-        <div className="container mx-auto px-4">
-          <p className="text-xs uppercase tracking-[0.3em] text-primary">Photography</p>
-          <h1 className="mt-3 font-heading text-3xl md:text-5xl text-primary-foreground">
-            Image credits
-          </h1>
-          <p className="mt-4 max-w-2xl text-primary-foreground/75">
-            Every photograph on this website is a real photograph of real vehicles, airports,
-            stations and destinations. We do not use AI-generated imagery. Images are used under
-            free licences from Wikimedia Commons contributors, credited below.
-          </p>
-        </div>
-      </section>
+      <PageHero
+        eyebrow="Photography"
+        title="Image credits"
+        subtitle="Every photograph on this website is a real photograph of real vehicles, airports, stations and destinations. We do not use AI-generated imagery. Images are used under free licences from Wikimedia Commons contributors, credited below."
+        breadcrumbs={[{ label: "Home", to: "/" }, { label: "Image credits", to: "/image-credits" }]}
+        width="reading"
+        showCta={false}
+      />
 
-      <section className="py-14 md:py-20">
-        <div className="container mx-auto px-4">
+      <section className="section-y">
+        <div className="container-x">
           <ul className="grid gap-4 md:grid-cols-2">
             {IMAGE_CREDITS.map((c) => (
-              <li key={`${c.label}-${c.file}`} className="rounded-2xl border bg-card p-5">
-                <p className="font-heading text-lg text-foreground">{c.label}</p>
-                <p className="mt-1 text-sm text-muted-foreground">{c.file}</p>
+              <li key={`${c.label}-${c.file}`} className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+                <p className="font-display text-lg font-semibold text-[var(--navy)]">{c.label}</p>
+                <p className="mt-1 break-words text-sm text-muted-foreground">{c.file}</p>
                 <p className="mt-3 text-sm text-foreground">
                   {c.author} — {c.license}
                 </p>
@@ -57,7 +53,7 @@ function ImageCreditsPage() {
                   href={c.page}
                   target="_blank"
                   rel="noopener noreferrer nofollow"
-                  className="mt-2 inline-block text-sm font-medium text-primary underline"
+                  className="mt-2 inline-block text-sm font-semibold text-[var(--gold-ink)] underline underline-offset-4 hover:text-[var(--navy)]"
                 >
                   Source & licence
                 </a>

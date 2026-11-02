@@ -1,7 +1,8 @@
 import { RelatedLinks } from "@/components/site/RelatedLinks";
 import { DirectAnswer, firstSentences } from "@/components/seo/DirectAnswer";
-import { normalizeHead } from "@/lib/seo/page-head";
+import { canonicalUrl, normalizeHead } from "@/lib/seo/page-head";
 import { Link } from "@tanstack/react-router";
+import { MapPin } from "lucide-react";
 import { safeJsonLd } from "@/lib/safe-json-ld";
 import type { PublicSeoPage, PublicSeoSection } from "@/lib/seo-public.functions";
 import type { RelatedBundle, RelatedLink } from "@/lib/seo-related.functions";
@@ -82,17 +83,18 @@ export function SeoPageRenderer({
         eyebrow={entityType ? entityType.replace(/-/g, " ") : "Cabslink"}
         title={page.h1}
         subtitle={page.short_intro ?? undefined}
-        facts={entityName ? [{ label: "Location", value: entityName }] : []}
         prefill={prefill}
         mapFocus={mapFocus}
         showMap={false}
         image={hero ?? defaultLocalImage(entityType)}
         imageAlt={page.entity?.name || page.h1}
         imageCaption={entityName ? `${entityName} · private transfers` : undefined}
-      />
-
-      <div className="container mx-auto px-4 py-12 space-y-12 max-w-4xl">
-        <DirectAnswer
+        intro={{
+          eyebrow: entityType ? entityType.replace(/-/g, " ") : undefined,
+          heading: entityName ? `${entityName} at a glance` : "At a glance",
+          body: (
+            <DirectAnswer
+          className="!border-0 !bg-transparent !p-0"
           sentences={[
             ...firstSentences(page.short_intro || page.meta_description, fares?.fares.length ? 1 : 2),
             fares?.fares.length
@@ -101,6 +103,14 @@ export function SeoPageRenderer({
           ]}
           updated={(page as { updated_at?: string | null }).updated_at ?? null}
         />
+          ),
+          details: [
+            ...(entityName ? [{ icon: MapPin, label: "Location", value: entityName }] : []),
+          ],
+        }}
+      />
+
+      <div className="container-x py-10 md:py-14 space-y-12">
         {fares && fares.fares.length > 0 && (
           <RouteFareTable data={fares} routeName={page.h1.replace(/\s+—.*$/, "")} />
         )}
@@ -212,7 +222,8 @@ function buildSeoHeadRaw(
   fares?: RouteFareTableData | null,
 ) {
 
-  const url = `${origin}${page.canonical_override || page.path}`;
+  const override = page.canonical_override?.trim();
+  const url = override && /^https?:\/\//i.test(override) ? canonicalUrl(override) : `${origin}${override || page.path}`;
   const image = page.og_image_url || page.featured_image_url || page.entity?.hero_image_url || null;
   const meta: Array<Record<string, string>> = [
     { title: page.seo_title },

@@ -173,3 +173,4 @@
 - [ ] Redesign non-home pages to the homepage visual language, page by page, without changing URLs/titles/H1s/protected SEO settings or inventing facts
 - [ ] Technical SEO/AEO/GEO pass (metadata, schema, headings, links, images, performance) and verification
 - [x] Staff console: Bookings & messages and Settings shortcuts also in the left panel (2 Nov)
+- [x] Owner 2 Nov: local-page top section (LocalPageHero, e.g. /cruise-ports/greenock) — intro paragraph on the left with details below it, booking form on the right, other content below; apply on every page using it

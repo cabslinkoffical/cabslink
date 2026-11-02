@@ -82,14 +82,6 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
         ]}
         eyebrow={region ? `${region} · Airport Travel` : "UK Airport Travel"}
         title={`Professional Airport Taxi & Private Transfer Services in ${locName}`}
-        subtitle={
-          <>
-            Cabslink provides reliable airport transfers, private hire, executive cars, corporate
-            transport, luxury private-driver travel and group transfers in <strong>{locName}</strong>.
-            Book a fixed-price taxi or cab from {locName} to Edinburgh, Glasgow or any UK airport —
-            with 24/7 availability, meet-and-greet, and door-to-door service.
-          </>
-        }
         facts={[
           ...(heroSub ? [{ label: "Location", value: heroSub }] : []),
           { label: "Availability", value: "24/7" },
@@ -103,26 +95,21 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
         image={d.slug === "edinburgh" ? edinburghImage : (d as { hero_image_url?: string | null }).hero_image_url ?? defaultLocalImage(d.type)}
         imageAlt={d.slug === "edinburgh" ? "Edinburgh Castle above Princes Street Gardens" : `Cabslink transfers in ${locName}`}
         imageCaption={`${locName} · airport transfers & private hire`}
+        intro={{
+          eyebrow: "Why Cabslink",
+          heading: `Airport travel and private hire in ${locName}`,
+          body: <p>Cabslink provides reliable airport transfers, private hire, executive cars, corporate
+            transport, luxury private-driver travel and group transfers in <strong>{locName}</strong>.
+            Book a fixed-price taxi or cab from {locName} to Edinburgh Airport, Glasgow Airport or any other UK airport —
+            with 24/7 availability, meet-and-greet, and door-to-door service.</p>,
+          details: WHY.map((w) => ({ icon: w.icon, value: w.title, note: w.text })),
+        }}
       />
 
       <div className="container-x py-16 md:py-24">
 
-      {/* Why choose */}
-      <section className="border-t border-border pt-8">
-        <SectionHeader eyebrow="Why Cabslink" title={`Why book with us in ${locName}`} />
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {WHY.map((w) => (
-            <div key={w.title} className="border-t border-gold/50 bg-card py-5">
-              <w.icon className="size-6 text-[var(--gold-ink)]" />
-              <div className="mt-4 font-display text-lg font-semibold text-foreground">{w.title}</div>
-              <div className="mt-1 text-sm leading-relaxed text-muted-foreground">{w.text}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* Services */}
-      <section className="mt-20">
+      <section className="border-t border-border pt-8">
         <SectionHeader eyebrow="Our services" title={`Airport travel services in ${locName}`} />
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {SERVICES.map((s) => (

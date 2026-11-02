@@ -35,7 +35,7 @@ export function buildAreaFaqs(ctx: {
     },
     {
       q: `Are child seats available?`,
-      a: `Yes — child, booster and infant seats can be added during checkout at no extra charge (subject to availability).`,
+      a: `Yes — infant, toddler and high-back booster seats can be added during checkout (subject to availability). Each seat is a priced extra, shown in your quote before you pay.`,
     },
     {
       q: `Do you provide corporate transport in ${name}?`,

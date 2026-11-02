@@ -66,7 +66,7 @@ function buildAutoHeadRaw(loaded: LoadedDestination | undefined | null): HeadPay
   // The FAQPage questions must be exactly the questions shown on the page.
   // Area pages render buildAreaFaqs; every other destination page renders the
   // content-engine FAQ section.
-  const faq = loaded.airports?.length ? buildAreaFaqs(loaded) : faqsFor(loaded);
+  const faq = Array.isArray(loaded.airports) ? buildAreaFaqs(loaded) : faqsFor(loaded);
   if (faq.length) graph.push(faqSchema(faq));
 
   return {

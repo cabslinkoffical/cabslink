@@ -109,7 +109,11 @@ export function DestinationPage({
   const tpl = getTemplate(d.type);
   const quality = evaluateQuality(d);
   // Generic service definitions are dropped: they read as boilerplate.
-  const sections = buildSections(data, tpl.sections.filter((k) => k !== "related_services"));
+  const allSections = buildSections(data, tpl.sections.filter((k) => k !== "related_services"));
+  // The summary paragraph sits beside the page photo; the rest follow below.
+  const summary = allSections.find((s) => s.key === "summary");
+  const sections = allSections.filter((s) => s.key !== "summary");
+  const summarySentences = summary && "sentences" in summary ? (summary.sentences as string[]) : [];
   const name = d.display_name ?? d.name;
   const place = [d.town, d.council, d.region].filter(Boolean).join(" · ");
   const image = (d as { hero_image_url?: string | null }).hero_image_url ?? null;
@@ -145,35 +149,35 @@ export function DestinationPage({
         image={image ?? defaultLocalImage(d.type)}
         imageAlt={`Cabslink ${name} transfers`}
         imageCaption={`${name} · private transfers & airport travel`}
+        intro={{
+          eyebrow: place || undefined,
+          heading: `Getting to ${name}`,
+          body: summarySentences.length
+            ? summarySentences.map((p, i) => <p key={i}>{p}</p>)
+            : <p>{`Book a private car to or from ${name} with a fixed fare confirmed before you pay.`}</p>,
+          details: [
+            ...drives.map((j) => ({
+              icon: Clock,
+              label: `From ${j.from}`,
+              value: `approx. ${fmtMins(j.mins)} · ${j.miles} miles`,
+              note: "Estimate — traffic varies. Your quote shows the exact route.",
+            })),
+            {
+              icon: Car,
+              label: "Pickup",
+              value: "At the exact address or entrance you enter when booking.",
+              note: "Add notes (gate, door, flight number) at checkout.",
+            },
+          ],
+        }}
       />
 
-      <div className="mx-auto max-w-6xl px-4 py-10">
+      <div className="container-x py-10 md:py-14">
         {quality.effectiveNoindex && d.seo_tier !== 2 && (
           <div className="mb-6 rounded-xl border border-warning/40 bg-warning/12 px-4 py-3 text-sm text-[var(--gold-ink)]">
             This page is not indexed by search engines yet — it is missing required data.
           </div>
         )}
-
-        <section aria-label="Journey facts" className="mb-10 grid gap-4 md:grid-cols-3">
-          {drives.map((j) => (
-            <div key={j.from} className="rounded-2xl border border-[var(--navy)]/10 bg-card p-5 shadow-raised">
-              <Clock className="size-5 text-[var(--gold-ink)]" />
-              <p className="mt-3 text-sm text-[var(--navy)]/60">From {j.from}</p>
-              <p className="mt-1 text-xl font-bold text-[var(--navy)]">
-                approx. {fmtMins(j.mins)} · {j.miles} miles
-              </p>
-              <p className="mt-1 text-xs text-[var(--navy)]/70">Estimate — traffic varies. Your quote shows the exact route.</p>
-            </div>
-          ))}
-          <div className="rounded-2xl border border-[var(--navy)]/10 bg-card p-5 shadow-raised">
-            <Car className="size-5 text-[var(--gold-ink)]" />
-            <p className="mt-3 text-sm text-[var(--navy)]/60">Pickup</p>
-            <p className="mt-1 font-semibold text-[var(--navy)]">
-              Your driver meets you at the exact address or entrance you enter when booking.
-            </p>
-            <p className="mt-1 text-xs text-[var(--navy)]/70">Add notes (gate, door, flight number) at checkout.</p>
-          </div>
-        </section>
 
         <DestinationSections sections={sections} loaded={data} />
         {appendix ? <div className="mt-12">{appendix}</div> : null}

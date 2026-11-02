@@ -5,7 +5,7 @@ import { normalizeHead } from "@/lib/seo/page-head";
  * src/lib/seo/journeys.ts; this file only renders it.
  */
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Check, MapPin, Phone, Route as RouteIcon } from "lucide-react";
+import { ArrowRight, Car, Check, Clock, MapPin, Phone, Route as RouteIcon } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { SectionHeader } from "@/components/site/PageHero";
 import { LocalPageHero } from "@/components/site/LocalPageHero";
@@ -52,27 +52,31 @@ export function JourneyPage({
         eyebrow="Popular journey"
         title={c.h1}
         subtitle={`${c.miles} miles via ${c.via} — about ${c.hours} door to door, at a price fixed before you travel.`}
-        facts={[
-          { label: "Distance", value: `${c.miles} miles` },
-          { label: "Door to door", value: `about ${c.hours}` },
-          { label: "Route", value: c.via },
-        ]}
         prefill={{ pickup: c.from.name, dropoff: c.to.name }}
         image={defaultLocalImage("journey")}
         imageAlt={`Cabslink vehicle for the ${pair} journey`}
         imageCaption={`${pair} · fixed-price private transfer`}
-      />
-
-      <div className="container-x mt-8">
-        <DirectAnswer
-          sentences={[
+        intro={{
+          eyebrow: pair,
+          heading: "Journey at a glance",
+          body: (
+            <DirectAnswer
+              className="!border-0 !bg-transparent !p-0"
+              sentences={[
             `${c.from.name} to ${c.to.name} is about ${c.miles} miles by road via ${c.via}, roughly ${c.hours} door to door.`,
             fares?.fares.length
               ? `A private transfer costs from ${fares.currencySymbol}${Math.min(...fares.fares.map((f) => f.price)).toFixed(2)} per vehicle, fixed before you travel.`
               : "Every fare is fixed and confirmed before you travel.",
-          ]}
-        />
-      </div>
+              ]}
+            />
+          ),
+          details: [
+            { icon: MapPin, label: "Distance", value: `${c.miles} miles` },
+            { icon: Clock, label: "Door to door", value: `about ${c.hours}` },
+            { icon: Car, label: "Route", value: c.via },
+          ],
+        }}
+      />
 
       <section className="section-y">
         <div className="container-x grid gap-12 lg:grid-cols-[1.2fr_1fr]">
