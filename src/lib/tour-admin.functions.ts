@@ -41,25 +41,6 @@ export type TourEnquiryRow = {
   created_at: string;
 };
 
-export const listTourEnquiries = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<TourEnquiryRow[]> => {
-    await assertAdmin(context);
-    const { data, error } = await context.supabase
-      .from("bookings")
-      .select(
-        "id, booking_ref, status, payment_status, customer_name, email, phone, pickup_date, pickup_time, passengers, luggage, price, price_quoted_at, tour_name, tour_slug, tour_stops, flight_number, notes, admin_notes, cancellation_reason, created_at",
-      )
-      .eq("service_type", TOUR_SERVICE_TYPE)
-      .is("deleted_at", null)
-      .order("created_at", { ascending: false });
-    if (error) throw new Error(error.message);
-    return (data ?? []).map((r: any) => ({
-      ...r,
-      price: r.price == null ? null : Number(r.price),
-      tour_stops: Array.isArray(r.tour_stops) ? r.tour_stops.map((s: unknown) => String(s)) : [],
-    }));
-  });
 
 /** One page of tour enquiries for a status filter and search. */
 export const listTourEnquiriesPage = createServerFn({ method: "GET" })
