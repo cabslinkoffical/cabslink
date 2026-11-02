@@ -7,11 +7,10 @@
  */
 import type { SolutionContent } from "@/components/site/SolutionPage";
 import { DEFAULT_COVERAGE } from "@/components/site/ServicePillarPage";
-import corporateImg from "@/assets/services/corporate.jpg.asset.json";
-import universityImg from "@/assets/services/university.jpg";
-import airportImg from "@/assets/services/airport.jpg.asset.json";
-import toursImg from "@/assets/services/tours.jpg.asset.json";
-import eventsImg from "@/assets/services/events.jpg.asset.json";
+import { PAGE_IMAGES, type PageImage } from "@/content/page-images";
+
+/** Each solution page has its own registered photograph. */
+const img = (path: string): PageImage => PAGE_IMAGES[path];
 
 const baseIncluded = [
   "Fixed price confirmed before travel",
@@ -35,8 +34,8 @@ export const TRAVEL_SOLUTIONS: Record<string, SolutionContent> = {
     metaTitle: "Business Travel Scotland — Account Transfers | Cabslink",
     metaDescription:
       "Business travel across the UK: account billing, executive vehicles, airport meet & greet and priority dispatch for visiting clients.",
-    image: corporateImg.url,
-    imageAlt: "Executive saloon collecting a business traveller outside a city office",
+    image: img("/travel-solutions/business-travel").src,
+    imageAlt: img("/travel-solutions/business-travel").alt,
     intro: {
       title: "One account, every journey your business needs",
       body: "Finance teams get a single monthly invoice with cost centres; travellers get a named driver, a tracked flight and a vehicle that looks right in front of a client. Bookings can be placed by a PA, by the traveller, or forwarded from an itinerary email.",
@@ -94,8 +93,8 @@ export const TRAVEL_SOLUTIONS: Record<string, SolutionContent> = {
     metaTitle: "Student Airport Transfers — Campus Travel | Cabslink",
     metaDescription:
       "Student travel across Scotland: airport-to-campus transfers, term-start moves and end-of-term journeys with luggage space and fixed prepaid fares.",
-    image: universityImg,
-    imageAlt: "Old College, University of Edinburgh, on South Bridge",
+    image: img("/travel-solutions/student-travel").src,
+    imageAlt: img("/travel-solutions/student-travel").alt,
     intro: {
       title: "Built for arrival week, not just the journey",
       body: "First arrivals often mean a long-haul flight, three cases and an address nobody has been to before. We meet inside arrivals with a name-board, load properly, and drop at the halls entrance rather than the nearest main road.",
@@ -153,8 +152,8 @@ export const TRAVEL_SOLUTIONS: Record<string, SolutionContent> = {
     metaTitle: "Family Airport Transfers — Child Seats & MPVs | Cabslink",
     metaDescription:
       "Family travel across Scotland: airport transfers with child and booster seats, MPV space for prams and cases, and fixed door-to-door prices.",
-    image: airportImg.url,
-    imageAlt: "Aerial view of Edinburgh Airport terminal, control tower and aircraft stands",
+    image: img("/travel-solutions/family-travel").src,
+    imageAlt: img("/travel-solutions/family-travel").alt,
     intro: {
       title: "Holiday travel without the 5am scramble",
       body: "Family airport runs live or die on space and timing. We size the vehicle to your cases and pram, fit the child seats before we arrive, and build in enough margin that nobody is watching the clock on the way to the terminal.",
@@ -212,8 +211,8 @@ export const TRAVEL_SOLUTIONS: Record<string, SolutionContent> = {
     metaTitle: "Group Travel Scotland — Multi-Vehicle Transfers | Cabslink",
     metaDescription:
       "Group travel across Scotland: MPVs, vans and multi-vehicle convoys with professional drivers, quoted as one fixed price.",
-    image: toursImg.url,
-    imageAlt: "Jacobite steam train crossing the Glenfinnan Viaduct in the Scottish Highlands",
+    image: img("/travel-solutions/group-travel").src,
+    imageAlt: img("/travel-solutions/group-travel").alt,
     intro: {
       title: "One movement, not five separate cars",
       body: "Groups fail on coordination, not vehicles. We work out the right vehicle mix for your headcount and luggage, agree pickup points, and keep the whole party on one itinerary so the last car isn't 40 minutes behind the first.",
@@ -271,8 +270,8 @@ export const TRAVEL_SOLUTIONS: Record<string, SolutionContent> = {
     metaTitle: "Event Travel Scotland — Concert & Stadium Cars | Cabslink",
     metaDescription:
       "Event travel across Scotland: guest shuttles, stadium and concert transfers and conference transport scheduled around closures and crowds.",
-    image: eventsImg.url,
-    imageAlt: "The Usher Hall concert venue on Lothian Road, Edinburgh",
+    image: img("/travel-solutions/event-travel").src,
+    imageAlt: img("/travel-solutions/event-travel").alt,
     intro: {
       title: "The travel plan is part of the event",
       body: "Event days have hard deadlines and unpredictable roads. We plan drop-off points that survive closures, stagger guest shuttles so nobody waits in the rain, and hold vehicles for the return leg when 3,000 people leave at once.",

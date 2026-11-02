@@ -2,7 +2,7 @@ import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { Crown, Sparkles, ShieldCheck, Briefcase } from "lucide-react";
 import { SportsServicePage, sportsFaqSchema, type SportsServiceContent } from "@/components/site/SportsServicePage";
-import vipImg from "@/assets/services/vip.jpg.asset.json";
+import { PAGE_IMAGES } from "@/content/page-images";
 
 const TITLE = "VIP Sports Hospitality Travel — Event Cars | Cabslink";
 const DESC =
@@ -20,8 +20,8 @@ const content: SportsServiceContent = {
   h1: "VIP sports hospitality travel, handled discreetly.",
   subtitle: "Executive vehicles and senior drivers for corporate guests at The Open, Six Nations, race days and cup finals across the UK.",
   breadcrumbLabel: "VIP Sports Hospitality",
-  image: vipImg.url,
-  imageAlt: "Executive vehicle and driver waiting for VIP sports hospitality guests",
+  image: PAGE_IMAGES["/vip-sports-hospitality"].src,
+  imageAlt: PAGE_IMAGES["/vip-sports-hospitality"].alt,
   intro: {
     title: "Your guests remember the whole day",
     body: "Hospitality begins the moment your guests are collected. Immaculate vehicles, senior drivers and one coordinator managing every movement of the day.",
