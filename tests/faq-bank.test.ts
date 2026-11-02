@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { FAQ_GROUPS, vehicleFaqs } from "@/content/faq-bank";
 import { FACT_TEXT, FACTS } from "@/lib/site-facts";
-import { STATIC_PATHS } from "@/lib/sitemap-routes";
+import { PUBLIC_ROUTES } from "@/lib/sitemap-routes";
 
 const all = FAQ_GROUPS.flatMap((g) => g.items);
 const answer = (n: number) => all.find((i) => i.n === n)?.a ?? "";
@@ -41,6 +41,6 @@ describe("FAQ question bank answers", () => {
   });
 
   it("the FAQ page is in the sitemap", () => {
-    expect(STATIC_PATHS).toContain("/faq");
+    expect(PUBLIC_ROUTES as readonly string[]).toContain("/faq");
   });
 });
