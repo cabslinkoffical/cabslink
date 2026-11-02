@@ -12,6 +12,8 @@ import {
   type DestinationType,
 } from "@/lib/destinations.functions";
 import { queryOptions } from "@tanstack/react-query";
+import { destinationHref } from "@/lib/destinations.functions";
+import { buildRegionContent, type RegionContent } from "@/lib/seo/region-content";
 
 function sb() {
   const key = process.env.SUPABASE_PUBLISHABLE_KEY!;
@@ -173,6 +175,7 @@ export type RegionHub = {
   routes: Destination[];
   services: Destination[];
   total: number;
+  content: RegionContent;
 };
 
 export const getRegionHub = createServerFn({ method: "GET" })
@@ -205,7 +208,7 @@ export const getRegionHub = createServerFn({ method: "GET" })
     return {
       name: match,
       slug: data.slug,
-      towns: [...bucket("location"), ...bucket("council")].slice(0, 30),
+      towns: [...bucket("city"), ...bucket("town"), ...bucket("village"), ...bucket("location"), ...bucket("council")].slice(0, 30),
       airports: bucket("airport"),
       stations: bucket("station"),
       universities: bucket("university"),
@@ -214,6 +217,10 @@ export const getRegionHub = createServerFn({ method: "GET" })
       routes: bucket("route"),
       services: bucket("service"),
       total: all.length,
+      content: buildRegionContent(
+        match,
+        all.map((d) => ({ type: d.type, slug: d.slug, name: d.name, display_name: d.display_name, lat: d.lat, lng: d.lng, href: destinationHref(d) })),
+      ),
     };
   });
 
