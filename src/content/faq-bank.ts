@@ -44,8 +44,8 @@ export const FAQ_GROUPS: BankGroup[] = [
       },
       {
         n: 19,
-        q: "Do you offer discount codes or corporate accounts?",
-        a: "Yes. Enter a discount code at checkout if you have one. Companies can apply for a corporate account on our Corporate Booking page.",
+        q: "Do you offer corporate accounts?",
+        a: "Yes. Companies can open a free corporate account on our Corporate Booking page, with no minimum monthly spend, and are invoiced for journeys taken.",
       },
       {
         n: 18,
