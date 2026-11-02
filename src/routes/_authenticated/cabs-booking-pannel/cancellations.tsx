@@ -19,7 +19,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { EmptyState } from "@/components/admin/ui";
+import { EmptyState, ListError } from "@/components/admin/ui";
 import { CannedEmailComposer } from "@/components/admin/CannedEmailComposer";
 import {
   Search, Trash2, Phone, Mail, MapPin, CalendarClock, BadgePoundSterling,
@@ -228,7 +228,9 @@ function CancellationsPage() {
           </div>
         </div>
 
-        {rows.length === 0 ? (
+        {listQ.isError ? (
+          <div className="p-6"><ListError error={listQ.error} onRetry={() => listQ.refetch()} /></div>
+        ) : rows.length === 0 ? (
           <div className="p-6"><EmptyState title="No requests in this view" hint="Try another status or clear your search." /></div>
         ) : (
           <div className="overflow-x-auto">
@@ -438,7 +440,9 @@ function CancelledBookings() {
         </div>
       </div>
 
-      {rows.length === 0 ? (
+      {histQ.isError ? (
+        <ListError error={histQ.error} onRetry={() => histQ.refetch()} />
+      ) : rows.length === 0 ? (
         <EmptyState title="No cancelled bookings" hint="Cancelled and rejected bookings collect here." />
       ) : (
         <div className="overflow-x-auto rounded-xl border border-border bg-card">

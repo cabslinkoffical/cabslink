@@ -13,7 +13,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Trash2, Mail, Phone, Check, Car, CalendarClock, IdCard } from "lucide-react";
 import { toast } from "sonner";
-import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
+import { PageHeader, StatusBadge, EmptyState, ListError } from "@/components/admin/ui";
 import { ViewToggle, useViewMode } from "@/components/admin/ViewToggle";
 
 type Application = {
@@ -233,7 +233,9 @@ function ApplicationList({ drivers }: { drivers: DispatchDriver[] }) {
         <ViewToggle mode={view} onChange={setView} />
       </div>
 
-      {rows.length === 0 ? (
+      {listQ.isError ? (
+        <ListError error={listQ.error} onRetry={() => listQ.refetch()} />
+      ) : rows.length === 0 ? (
         <EmptyState title="No driver applications yet" />
       ) : (
         <div className={view === "grid" ? "grid gap-4 md:grid-cols-2 lg:grid-cols-3" : "grid gap-3"}>
