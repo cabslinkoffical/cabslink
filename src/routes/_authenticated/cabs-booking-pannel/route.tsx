@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { LogOut, ExternalLink, Menu, X, ArrowLeft } from "lucide-react";
 import { ADMIN_AREAS, areaForPath } from "@/components/admin/admin-areas";
 import { SidebarNav } from "@/components/admin/SidebarNav";
+import { AreaShortcuts } from "@/components/admin/AreaShortcuts";
 import { Breadcrumbs } from "@/components/admin/Breadcrumbs";
 import { Logo } from "@/components/site/Logo";
 import { Button } from "@/components/ui/button";
@@ -127,6 +128,7 @@ function AdminLayout() {
           </div>
         </div>
         <SidebarNav key={area.id} entries={area.nav} />
+        <AreaShortcuts current={area.id} />
         <div className="shrink-0 p-3 pb-[max(.75rem,env(safe-area-inset-bottom))] border-t border-gold/20 space-y-1">
           <Link to="/" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-white/70 hover:text-gold transition">
             <ExternalLink className="size-3.5" /> View website
