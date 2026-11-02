@@ -8,11 +8,11 @@ import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import {
   DESTINATION_TYPES,
+  destinationHref,
   type Destination,
   type DestinationType,
 } from "@/lib/destinations.functions";
 import { queryOptions } from "@tanstack/react-query";
-import { destinationHref } from "@/lib/destinations.functions";
 import { buildRegionContent, type RegionContent } from "@/lib/seo/region-content";
 
 function sb() {
