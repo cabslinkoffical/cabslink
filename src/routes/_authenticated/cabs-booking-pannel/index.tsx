@@ -77,8 +77,8 @@ function Dashboard() {
     <div className="space-y-6">
       <header className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0">
-          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gold-ink">{today}</p>
-          <h1 className="font-display text-2xl font-semibold tracking-tight md:text-[1.9rem]">{greeting}</h1>
+          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gold-ink" suppressHydrationWarning>{today}</p>
+          <h1 className="font-display text-2xl font-semibold tracking-tight md:text-[1.9rem]" suppressHydrationWarning>{greeting}</h1>
           <p className="mt-1 text-sm text-muted-foreground">Here is how Cabslink is doing. Open bookings or settings below.</p>
         </div>
       </header>
