@@ -11,7 +11,7 @@ type Totals = { upcoming: number; newToday: number; unreadMessages: number; pend
 export function AreaGateway({ totals }: { totals: Totals }) {
   const bookingStats = [
     { label: "Upcoming", value: totals.upcoming, icon: Clock, to: "/cabs-booking-pannel/bookings", search: { tab: "upcoming" } },
-    { label: "New today", value: totals.newToday, icon: Sparkles, to: "/cabs-booking-pannel/bookings", search: { tab: "new" } },
+    { label: "Booked today", value: totals.newToday, icon: Sparkles, to: "/cabs-booking-pannel/bookings", search: {} },
     { label: "Need a driver", value: totals.pendingAllocation, icon: AlertCircle, to: "/cabs-booking-pannel/bookings", search: { tab: "new" } },
     { label: "Unread messages", value: totals.unreadMessages, icon: Inbox, to: "/cabs-booking-pannel/messages", search: undefined },
   ];
