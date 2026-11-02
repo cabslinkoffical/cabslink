@@ -102,7 +102,7 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
             transport, luxury private-driver travel and group transfers in <strong>{locName}</strong>.
             Book a fixed-price taxi or cab from {locName} to Edinburgh Airport, Glasgow Airport or any other UK airport —
             with 24/7 availability, meet-and-greet, and door-to-door service.</p>,
-          details: WHY.map((w) => ({ icon: w.icon, label: w.title, value: w.text })),
+          details: WHY.map((w) => ({ icon: w.icon, value: w.title, note: w.text })),
         }}
       />
 

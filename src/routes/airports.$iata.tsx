@@ -204,7 +204,7 @@ function AirportPage() {
               updated={(airport as { updated_at?: string | null }).updated_at ?? null}
             />
           ),
-          details: features.map((f) => ({ icon: f.icon, label: f.title, value: f.desc })),
+          details: features.map((f) => ({ icon: f.icon, value: f.title, note: f.desc })),
         }}
       />
 

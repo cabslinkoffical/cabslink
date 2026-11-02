@@ -8,7 +8,7 @@ export type LocalPageFact = { label: string; value: string };
 
 export type LocalIntroDetail = {
   icon?: ComponentType<{ className?: string }>;
-  label: string;
+  label?: string;
   value: string;
   note?: string;
 };
@@ -122,9 +122,9 @@ export function LocalPageHero({
               {intro.details && intro.details.length > 0 && (
                 <ul className="local-intro-details">
                   {intro.details.map((f) => (
-                    <li key={`${f.label}-${f.value}`}>
+                    <li key={`${f.label ?? ""}-${f.value}`}>
                       {f.icon && <f.icon className="size-5 text-[var(--gold-ink)]" />}
-                      <span className="local-intro-detail-label">{f.label}</span>
+                      {f.label && <span className="local-intro-detail-label">{f.label}</span>}
                       <strong className="local-intro-detail-value">{f.value}</strong>
                       {f.note && <span className="local-intro-detail-note">{f.note}</span>}
                     </li>
