@@ -79,7 +79,7 @@ export function AreaGateway({ totals }: { totals: Totals }) {
           </Link>
         </div>
         <p className="relative mt-3 text-sm text-muted-foreground">{settingCount} settings: prices, vehicles, tours, content, search pages and business details.</p>
-        <div className="relative mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3">
+        <div className="relative mt-5 grid grid-cols-1 gap-2 min-[420px]:grid-cols-2">
           {SETTINGS_GROUPS.map((g) => (
             <Link
               key={g.label}
@@ -89,7 +89,7 @@ export function AreaGateway({ totals }: { totals: Totals }) {
             >
               <g.icon className="size-4 shrink-0 text-gold-ink" />
               <span className="min-w-0">
-                <span className="block truncate text-[13px] font-semibold text-foreground">{g.label}</span>
+                <span className="block text-[13px] font-semibold leading-tight text-foreground">{g.label}</span>
                 <span className="block text-[11px] text-muted-foreground">{g.items.length} pages</span>
               </span>
             </Link>
