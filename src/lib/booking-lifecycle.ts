@@ -109,10 +109,24 @@ export function statusLabel(s: string | null | undefined): string {
 
 export type PaymentMode = "manual" | "pay_later" | "online";
 
+/**
+ * Statuses that mean the team (or a card payment) has confirmed the booking.
+ * Anything before these is only a booking request — never call it confirmed.
+ */
+export const CONFIRMED_STATUSES: readonly BookingStatus[] = [
+  "confirmed", "assigned", "driver_en_route", "on_way", "passenger_on_board", "in_progress",
+];
+
+export function isBookingConfirmed(status: string | null | undefined): boolean {
+  return !!status && (CONFIRMED_STATUSES as readonly string[]).includes(status);
+}
+
+/** True while a booking is still a request the customer can act on (not confirmed, not closed). */
+export function isAwaitingConfirmation(status: string | null | undefined): boolean {
+  return status === "new" || status === "pending_allocation" || status === "awaiting_payment" || status === "bidding";
+}
+
 export function paymentNextStepMessage(mode: PaymentMode, status: BookingStatus): string {
-  if (mode === "online" && status === "confirmed") {
-    return "Payment received. Your driver will be in touch shortly.";
-  }
   if (status === "cancelled") {
     return "This booking has been cancelled. Please get in touch if you need help.";
   }
@@ -122,5 +136,10 @@ export function paymentNextStepMessage(mode: PaymentMode, status: BookingStatus)
   if (status === "completed") {
     return "Journey complete. Thank you for riding with us.";
   }
-  return "Your booking request has been received. Our team will confirm availability and payment arrangements by email or phone.";
+  if (isBookingConfirmed(status)) {
+    return mode === "online"
+      ? "Your booking is confirmed and your card payment has been received. Your driver will be in touch shortly."
+      : "Your booking is confirmed. Our team will be in touch about your driver and payment if anything is still due.";
+  }
+  return "We've received your booking request. To confirm it straight away, message us on WhatsApp with your booking reference, or pay by card from your booking page.";
 }
