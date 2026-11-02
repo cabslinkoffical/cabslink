@@ -1,4 +1,5 @@
 import { TourContentEditor } from "@/components/admin/tours/TourContentEditor";
+import { PriceModeChoice } from "@/components/admin/PriceModeChoice";
 import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -73,6 +74,7 @@ function ScenicRoutesPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [creating, setCreating] = useState(false);
   const [newName, setNewName] = useState("");
+  const [newPriceMode, setNewPriceMode] = useState<"manual" | "auto">("manual");
   const [newSlug, setNewSlug] = useState("");
   const [newTheme, setNewTheme] = useState("");
   const [newDescription, setNewDescription] = useState("");
@@ -177,6 +179,7 @@ function ScenicRoutesPage() {
         slug: newSlug.trim(),
         theme: newTheme.trim() || null,
         short_description: newDescription.trim() || null,
+        price_mode: newPriceMode,
       } });
       await invalidate();
       setSelectedId(result.id);
@@ -187,7 +190,12 @@ function ScenicRoutesPage() {
       setNewSlug("");
       setNewTheme("");
       setNewDescription("");
-      toast.success("New draft route created. Add its route details and stops before publishing.");
+      setNewPriceMode("manual");
+      toast.success(
+        newPriceMode === "auto"
+          ? "New draft route created. Add its start point, stops and length, then save it in Tour Hours > Premade Tours to work out the prices."
+          : "New draft route created. Add its route details and stops, then set each vehicle's price in Tour Hours > Premade Tours.",
+      );
     } catch (error: any) {
       toast.error(error.message ?? "Unable to create route");
     } finally {
@@ -358,6 +366,10 @@ function ScenicRoutesPage() {
               <Label htmlFor="new-route-description">Short description</Label>
               <Input id="new-route-description" value={newDescription} onChange={(event) => setNewDescription(event.target.value)} placeholder="One-line summary shown in tour listings" />
             </div>
+            <fieldset className="space-y-2">
+              <legend className="text-sm font-medium">Tour price</legend>
+              <PriceModeChoice value={newPriceMode} onChange={setNewPriceMode} />
+            </fieldset>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setCreateOpen(false)} disabled={creating}>Cancel</Button>
