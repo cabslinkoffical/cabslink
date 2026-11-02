@@ -67,7 +67,7 @@ export const FAQ_GROUPS: BankGroup[] = [
       {
         n: 6,
         q: "Can I get a receipt or invoice for my company?",
-        a: "Your booking confirmation, showing the fare you paid, is emailed to the address you enter when booking. For regular company travel, apply for a corporate account on our Corporate Booking page.",
+        a: "Your booking confirmation, showing the fare you paid, is emailed to the address you enter when booking. Companies can open a free corporate account on our Corporate Booking page and receive invoices for their journeys.",
       },
     ],
   },
@@ -78,7 +78,7 @@ export const FAQ_GROUPS: BankGroup[] = [
       {
         n: 11,
         q: "How do I change or cancel my booking?",
-        a: `Use Manage Booking with your booking reference and email address, or call ${SITE.phoneUK}. ${FACT_TEXT.transferCancellationShort}.`,
+        a: `Use Manage Booking with your booking reference, booking email and last name, or call ${SITE.phoneUK}. ${FACT_TEXT.transferCancellationShort}.`,
       },
       {
         n: 12,

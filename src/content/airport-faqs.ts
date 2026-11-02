@@ -1,4 +1,5 @@
 import type { FaqItem } from "@/components/seo/FaqBlock";
+import { FACT_TEXT } from "@/lib/site-facts";
 
 /**
  * Page-specific FAQs for airport pages. Only facts the project already
@@ -19,7 +20,7 @@ export const AIRPORT_FAQS: Record<string, FaqItem[]> = {
     },
     {
       q: "How do I pay?",
-      a: "You pay by card through Stripe at the end of booking. You do not pay the driver.",
+      a: FACT_TEXT.payment,
     },
     {
       q: "How far is Edinburgh city centre from the airport?",
