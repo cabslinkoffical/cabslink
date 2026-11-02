@@ -5,7 +5,9 @@ import { listPaymentsPage } from "@/lib/admin-lists.functions";
 import { Pager, usePageState } from "@/components/admin/Pager";
 import { DEFAULT_PAGE_SIZE } from "@/lib/admin-paging";
 import { useServerFn } from "@tanstack/react-start";
-import { upsertPayment, deletePayment, listBookings } from "@/lib/admin.functions";
+import { upsertPayment, deletePayment } from "@/lib/admin.functions";
+import { listBookingsPage } from "@/lib/admin-bookings.functions";
+import { useDebounced } from "@/components/admin/Pager";
 import { useState, Fragment } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,7 +26,6 @@ const payOpts = (status: string, page: number, pageSize: number) => queryOptions
   queryFn: () => listPaymentsPage({ data: { status, page, pageSize } }),
   placeholderData: keepPreviousData,
 });
-const bOpts = queryOptions({ queryKey: ["admin", "bookings", "picker"], queryFn: () => listBookings() });
 export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/payments")({
   head: () => ({
     meta: [
@@ -48,14 +49,12 @@ function Page() {
   const [form, setForm] = useState<any>(null);
   const [detail, setDetail] = useState<any>(null);
   const [tab, setTab] = useState("all");
-  // Booking picker is only needed while recording/editing a payment.
-  const { data: bookings = [] } = useQuery({ ...bOpts, enabled: !!form });
   const paging = usePageState(tab);
   const listQ = useQuery(payOpts(tab, paging.page, paging.pageSize));
   const filtered = (listQ.data?.rows ?? []) as any[];
 
-  const save = useMutation({ mutationFn: (v: any) => upsert({ data: v }), onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin", "payments"] }); qc.invalidateQueries({ queryKey: ["admin", "stats"] }); toast.success("Saved"); setForm(null); }, onError: (e: any) => toast.error(e.message) });
-  const remove = useMutation({ mutationFn: (id: string) => del({ data: { id } }), onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin", "payments"] }); toast.success("Deleted"); }, onError: (e: any) => toast.error(e.message) });
+  const save = useMutation({ mutationFn: (v: any) => upsert({ data: v }), onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin", "payments"] }); qc.invalidateQueries({ queryKey: ["admin", "stats"] }); qc.invalidateQueries({ queryKey: ["admin", "bookings"] }); toast.success("Saved"); setForm(null); }, onError: (e: any) => toast.error(e.message) });
+  const remove = useMutation({ mutationFn: (id: string) => del({ data: { id } }), onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin", "payments"] }); qc.invalidateQueries({ queryKey: ["admin", "stats"] }); qc.invalidateQueries({ queryKey: ["admin", "bookings"] }); toast.success("Deleted"); }, onError: (e: any) => toast.error(e.message) });
 
   return (
     <div className="space-y-6">
@@ -143,30 +142,74 @@ function Page() {
           <DialogHeader><DialogTitle>{form?.id ? "Edit payment" : "Record new payment"}</DialogTitle></DialogHeader>
           {form && (
             <div className="space-y-3">
+              {form.payment_intent_id && (
+                <p className="rounded-lg bg-muted px-3 py-2 text-xs text-muted-foreground">
+                  This card payment was taken online. Only its reference and notes can be changed; give money back from Refunds.
+                </p>
+              )}
               <div><Label>Booking</Label>
-                <Select value={form.booking_id ?? "none"} onValueChange={v => setForm({ ...form, booking_id: v === "none" ? null : v })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent><SelectItem value="none">No booking</SelectItem>{bookings.slice(0, 100).map((b: any) => <SelectItem key={b.id} value={b.id}>{b.booking_ref} · {b.customer_name}</SelectItem>)}</SelectContent>
-                </Select>
+                <BookingPicker
+                  value={form.booking_id ?? null}
+                  current={form.booking ?? null}
+                  disabled={!!form.payment_intent_id}
+                  onChange={(id, b) => setForm({ ...form, booking_id: id, booking: b })}
+                />
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div><Label>Amount *</Label><Input type="number" step="0.01" value={form.amount} onChange={e => setForm({ ...form, amount: Number(e.target.value) })} /></div>
-                <div><Label>Currency</Label><Input value={form.currency} onChange={e => setForm({ ...form, currency: e.target.value })} /></div>
-                <div><Label>Method</Label><Input value={form.method ?? ""} onChange={e => setForm({ ...form, method: e.target.value })} placeholder="card / cash / bank" /></div>
+                <div><Label>Amount (£) *</Label><Input type="number" min={0} step="0.01" disabled={!!form.payment_intent_id} value={form.amount} onChange={e => setForm({ ...form, amount: Number(e.target.value) })} /></div>
+                <div><Label>Currency</Label><Input value="GBP" readOnly disabled /></div>
+                <div><Label>Method</Label><Input disabled={!!form.payment_intent_id} value={form.method ?? ""} onChange={e => setForm({ ...form, method: e.target.value })} placeholder="card / cash / bank" /></div>
                 <div><Label>Status</Label>
-                  <Select value={form.status} onValueChange={v => setForm({ ...form, status: v })}>
+                  <Select value={form.status} disabled={!!form.payment_intent_id} onValueChange={v => setForm({ ...form, status: v })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>{["unpaid", "paid", "partial", "refunded", "failed"].map(s => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}</SelectContent>
+                    <SelectContent>{["unpaid", "paid", "partial", "refunded", "failed"].map(s => <SelectItem key={s} value={s} className="capitalize">{s === "refunded" ? "refunded (in full)" : s}</SelectItem>)}</SelectContent>
                   </Select>
                 </div>
               </div>
               <div><Label>Reference</Label><Input value={form.reference ?? ""} onChange={e => setForm({ ...form, reference: e.target.value })} /></div>
               <div><Label>Notes</Label><Textarea value={form.notes ?? ""} onChange={e => setForm({ ...form, notes: e.target.value })} rows={2} /></div>
-              <div className="flex justify-end gap-2"><Button variant="outline" onClick={() => setForm(null)}>Cancel</Button><Button onClick={() => save.mutate(form)} disabled={save.isPending}>Save</Button></div>
+              <div className="flex justify-end gap-2"><Button variant="outline" onClick={() => setForm(null)}>Cancel</Button><Button onClick={() => {
+                if (!(Number(form.amount) >= 0) || !Number.isFinite(Number(form.amount))) { toast.error("Enter a valid amount"); return; }
+                save.mutate({ id: form.id, booking_id: form.booking_id ?? null, amount: Number(form.amount), currency: "GBP", method: form.method || null, status: form.status, reference: form.reference || null, notes: form.notes || null });
+              }} disabled={save.isPending}>{save.isPending ? "Saving…" : "Save"}</Button></div>
             </div>
           )}
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+/** Searches every booking (newest first) instead of listing a capped subset. */
+function BookingPicker({ value, current, disabled, onChange }: {
+  value: string | null;
+  current: { id?: string; booking_ref?: string; customer_name?: string } | null;
+  disabled?: boolean;
+  onChange: (id: string | null, booking: any) => void;
+}) {
+  const [term, setTerm] = useState("");
+  const q = useDebounced(term.trim());
+  const search = useServerFn(listBookingsPage);
+  const res = useQuery({
+    queryKey: ["admin", "bookings", "payment-picker", q],
+    queryFn: () => search({ data: { tab: "all", q, page: 1, pageSize: 20, includeTours: true } }),
+    enabled: !disabled,
+    placeholderData: keepPreviousData,
+  });
+  const rows: any[] = res.data?.rows ?? [];
+  const options = value && current && !rows.some((b) => b.id === value) ? [{ id: value, ...current }, ...rows] : rows;
+  return (
+    <div className="space-y-2">
+      {!disabled && <Input value={term} onChange={(e) => setTerm(e.target.value)} placeholder="Search reference, name, email or phone" aria-label="Search bookings" />}
+      <Select value={value ?? "none"} disabled={disabled} onValueChange={(v) => onChange(v === "none" ? null : v, options.find((b) => b.id === v) ?? null)}>
+        <SelectTrigger><SelectValue placeholder="Choose a booking" /></SelectTrigger>
+        <SelectContent>
+          <SelectItem value="none">No booking</SelectItem>
+          {options.map((b) => <SelectItem key={b.id} value={b.id}>{b.booking_ref} · {b.customer_name}</SelectItem>)}
+        </SelectContent>
+      </Select>
+      {!disabled && res.isError && <p className="text-xs text-destructive">Bookings couldn't be searched. Try again.</p>}
+      {!disabled && !res.isError && (res.data?.total ?? 0) > rows.length && <p className="text-xs text-muted-foreground">Showing the newest {rows.length} of {res.data?.total} matches — search to narrow down.</p>}
     </div>
   );
 }

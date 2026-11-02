@@ -141,19 +141,6 @@ export const getDashboardStats = createServerFn({ method: "GET" })
 // =================================================================
 // Bookings
 // =================================================================
-export const listBookings = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    await assertAdmin(context);
-    const { fetchAllPages } = await import("@/lib/fetch-all-pages");
-    return await fetchAllPages<any>((a, z) => context.supabase
-      .from("bookings")
-      .select("*, driver:drivers(id, full_name)")
-      .order("created_at", { ascending: false })
-      .order("id", { ascending: false })
-      .range(a, z));
-  });
-
 const paymentStatusSchema = z.enum(["unpaid", "paid", "refunded", "partial", "failed"]);
 
 export const updateBooking = createServerFn({ method: "POST" })
