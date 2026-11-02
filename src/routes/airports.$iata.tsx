@@ -160,7 +160,7 @@ function AirportPage() {
 
   const features = [
     { icon: Plane, title: "Live flight tracking", desc: "We monitor your flight and adjust pickup for delays or early arrivals — no extra charge." },
-    { icon: ShieldCheck, title: "Meet & greet", desc: "Your driver waits inside the terminal with a name board so you're never lost after a long flight." },
+    { icon: ShieldCheck, title: "Meet & greet", desc: "Add it to any booking for a small extra charge — your driver waits inside the terminal with a name board." },
     { icon: Clock, title: "24/7 dispatch", desc: "Book any airport transfer, any hour of the day, with fixed fares confirmed instantly." },
     { icon: MapPin, title: "Door-to-door service", desc: "From terminal to your hotel, office or home address anywhere in the UK." },
   ];
@@ -199,7 +199,7 @@ function AirportPage() {
               className="!border-0 !bg-transparent !p-0"
               sentences={[
             `Cabslink runs pre-booked private transfers to and from ${name}${iata ? ` (${iata})` : ""}${cityLine ? ` in ${cityLine}` : ""}.`,
-            `Fares are fixed before you travel, and meet and greet is included on airport pickups: your driver waits in arrivals with a name board.`,
+            `Fares are fixed before you travel, and meet and greet is available on every booking for a small extra charge: your driver waits in arrivals with a name board.`,
               ]}
               updated={(airport as { updated_at?: string | null }).updated_at ?? null}
             />

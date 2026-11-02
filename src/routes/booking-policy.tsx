@@ -40,7 +40,7 @@ export const Route = createFileRoute("/booking-policy")({
 
       <h2>4. Waiting time</h2>
       <ul>
-        <li><strong>Airport pickups</strong> — {W.freeMinutes} minutes of free waiting from the actual landing time, so we track your flight. Meet and greet is included: your driver waits in arrivals with a name board.</li>
+        <li><strong>Airport pickups</strong> — {W.freeMinutes} minutes of free waiting from the actual landing time, so we track your flight. Meet and greet is available on every booking for a small extra charge, shown in your quote: your driver waits in arrivals with a name board.</li>
         <li><strong>Cruise ports and rail stations</strong> — 30 minutes of free waiting.</li>
         <li><strong>All other pickups</strong> — 15 minutes of free waiting from the booked time.</li>
       </ul>

@@ -40,7 +40,7 @@ const cardList = `${cards.slice(0, -1).join(", ")} or ${cards[cards.length - 1]}
 export const FACT_TEXT = {
   airportWait: `Airport pickups include ${FACTS.airportWait.freeMinutes} minutes of free waiting from the actual landing time. After that, waiting is ${pence(FACTS.airportWait.perMinutePence)} per minute (${pence(FACTS.airportWait.perMinutePenceLarge)} per minute for larger vehicles).`,
   airportWaitShort: `${FACTS.airportWait.freeMinutes} minutes free from actual landing`,
-  meetGreet: "Meet and greet is included on every airport pickup: your driver waits in arrivals with a name board.",
+  meetGreet: "Meet and greet is available on every booking for a small extra charge, shown in your quote: your driver waits in arrivals with a name board.",
   transferCancellation: `Transfers: free cancellation more than ${FACTS.transferCancellation.freeOverHours} hours before pickup, 50% of the fare from ${FACTS.transferCancellation.halfFromHours} to ${FACTS.transferCancellation.halfToHours} hours, and the full fare under ${FACTS.transferCancellation.halfFromHours} hours.`,
   transferCancellationShort: `Free cancellation more than ${FACTS.transferCancellation.freeOverHours} hours before pickup`,
   tourCancellation: `Tours: free cancellation more than ${FACTS.tourCancellation.freeOverHours} hours before the start, 50% of the price from ${FACTS.tourCancellation.halfFromHours} to ${FACTS.tourCancellation.halfToHours} hours, and the full price under ${FACTS.tourCancellation.halfFromHours} hours or for a no-show.`,

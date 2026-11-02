@@ -199,7 +199,7 @@ export const JOURNEYS: JourneyRecord[] = [
     faqs: [
       { q: "How long from Glasgow to Edinburgh Airport?", a: "About 75 minutes for 55 miles, leaving the M8 at Newbridge." },
       { q: "What time should I be collected for a 06:00 flight?", a: "Around 03:45–04:15 depending on your Glasgow address and whether you have bags to check." },
-      { q: "Is meet & greet available on the return?", a: "Yes — your driver meets you in arrivals with a name board as standard." },
+      { q: "Is meet & greet available on the return?", a: "Yes — add meet and greet to any booking for a small extra charge and your driver meets you in arrivals with a name board." },
     ],
   },
   {
@@ -420,7 +420,7 @@ export const JOURNEYS: JourneyRecord[] = [
     planning: [
       "Pickups are timed from your specific Livingston district, as junction choice changes the run by several minutes.",
       "Kirkton Campus and Houstoun Industrial Estate collections can be placed on a corporate account with monthly invoicing.",
-      "Late-evening arrivals into Edinburgh are met inside the terminal with a name board — meet and greet is included on every airport pickup.",
+      "Late-evening arrivals into Edinburgh are met inside the terminal with a name board — meet and greet is available on every booking for a small extra charge.",
     ],
     stops: ["Almondvale", "Newbridge", "Ratho Station"],
     serviceIds: ["airport-transfers", "corporate-travel", "private-hire"],

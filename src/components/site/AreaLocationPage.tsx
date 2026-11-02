@@ -41,7 +41,7 @@ import {
 } from "lucide-react";
 
 const SERVICES = [
-  { href: "/airport-transfers", label: "Airport Transfers", blurb: "Fixed-price meet & greet, flight tracking." },
+  { href: "/airport-transfers", label: "Airport Transfers", blurb: "Fixed-price airport runs, optional meet & greet." },
   { href: "/vip-transfers", label: "Executive & VIP Cars", blurb: "Discreet luxury travel for VIPs." },
   { href: "/corporate-travel", label: "Corporate Transport", blurb: "Business accounts and monthly billing." },
   { href: "/tours", label: "Private Tours", blurb: "Custom driver-guided day tours." },
@@ -53,7 +53,7 @@ const WHY = [
   { icon: ShieldCheck, title: "Fully licensed", text: "PHV-licensed drivers, insured vehicles." },
   { icon: Clock, title: "24/7 availability", text: "Round-the-clock bookings & dispatch." },
   { icon: Star, title: "Fixed prices", text: "No surge pricing. Quote is what you pay." },
-  { icon: CheckCircle2, title: "Meet & greet", text: "Terminal name-board pickup, flight tracked." },
+  { icon: CheckCircle2, title: "Meet & greet", text: "Name-board pickup on any booking, small extra charge." },
 ] as const;
 
 export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
@@ -101,7 +101,7 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
           body: <p>Cabslink provides reliable airport transfers, private hire, executive cars, corporate
             transport, luxury private-driver travel and group transfers in <strong>{locName}</strong>.
             Book a fixed-price taxi or cab from {locName} to Edinburgh Airport, Glasgow Airport or any other UK airport —
-            with 24/7 availability, meet-and-greet, and door-to-door service.</p>,
+            with 24/7 availability, optional meet-and-greet and door-to-door service.</p>,
           details: WHY.map((w) => ({ icon: w.icon, value: w.title, note: w.text })),
         }}
       />
