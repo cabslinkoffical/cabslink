@@ -10,7 +10,22 @@ export function canonicalRequestUrl(request: Request): string | undefined {
     url.protocol = "https:";
   }
   const p = url.pathname;
-  if ((request.method === "GET" || request.method === "HEAD") &&
+  const isRead = request.method === "GET" || request.method === "HEAD";
+  // Duplicate homepage aliases (/index, /index.html, /index/) → the real homepage.
+  if (isRead && /^\/index(?:\.html?)?\/*$/i.test(p)) {
+    url.pathname = "/";
+    url.search = "";
+    return url.toString();
+  }
+  // Unfilled route templates such as /blog/category/$slug (or its encoded
+  // form %24slug) were once linked by mistake; send them to the section hub.
+  if (isRead && /\/(?:\$|%24)[a-z_]/i.test(p)) {
+    const first = p.split("/").filter(Boolean)[0] ?? "";
+    url.pathname = first && !/^(?:\$|%24)/i.test(first) ? `/${first.toLowerCase()}` : "/";
+    url.search = "";
+    return url.toString();
+  }
+  if (isRead &&
       !/^\/(?:_|@)/.test(p) && !/^\/(?:api|node_modules|src|assets)(?:\/|$)/.test(p) && !p.includes(".")) {
     const sensitive = /^\/(booking|manage-booking|track-booking|cabs-booking-pannel|auth)(\/|$)/.test(p);
     const clean = sensitive ? p : p.toLowerCase();
