@@ -24,6 +24,7 @@ function mdLines(md: string): string[] {
   return md.split(/\r?\n/).map((l) => l.replace(/^\s*(?:[-*•]|\d+[.)])\s+/, "").trim()).filter(Boolean);
 }
 import { draftTour, tourSeo } from "@/lib/seo/tour-seo";
+import { tourExtras } from "@/content/tour-extras";
 import { BUSINESS_ID } from "@/lib/seo/business-graph";
 
 
@@ -134,6 +135,7 @@ export const Route = createFileRoute("/tours/$slug")({
 
 
     const url = `https://cabslink.com/tours/${d.slug}`;
+    const allFaqs = [...(tourExtras(d.slug, d.duration_hours)?.faqs ?? []), ...d.faq];
     const meta: Array<Record<string, string>> = [
       { title },
       { name: "description", content: desc },
@@ -182,13 +184,13 @@ export const Route = createFileRoute("/tours/$slug")({
               : undefined,
           }),
         },
-        ...(d.faq.length
+        ...(allFaqs.length
           ? [{
               type: "application/ld+json",
               children: JSON.stringify({
                 "@context": "https://schema.org",
                 "@type": "FAQPage",
-                mainEntity: d.faq.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
+                mainEntity: allFaqs.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
               }),
             }]
           : []),
@@ -350,6 +352,8 @@ function TourDetailPage() {
   }, [d, selected]);
 
 
+  const extras = tourExtras(d.slug, d.duration_hours);
+  const allFaqs = [...(extras?.faqs ?? []), ...d.faq];
   const duration = formatDuration(d.direct_duration_seconds);
   const optionalPois = d.pois.filter((p) => !p.mandatory);
   const mandatoryCount = d.pois.filter((p) => p.mandatory).length;
@@ -604,8 +608,8 @@ function TourDetailPage() {
               </div>
             )}
 
-            {d.faq.length > 0 && (
-              <div className="mt-10"><FaqBlock items={d.faq} /></div>
+            {allFaqs.length > 0 && (
+              <div className="mt-10"><FaqBlock items={allFaqs} /></div>
             )}
 
             {d.reviews.length > 0 && (
