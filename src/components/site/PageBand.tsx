@@ -9,6 +9,7 @@ import type { ComponentType, ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { SectionHeader } from "@/components/site/PageHero";
+import { FaqAccordion } from "@/components/site/FaqAccordion";
 
 export function PageBand({
   id,
@@ -141,5 +142,28 @@ export function EditorialRows({ items }: { items: { heading: string; paragraphs:
         </article>
       ))}
     </div>
+  );
+}
+
+/** Standard FAQ band: shared heading and the site-wide accordion, reading width. */
+export function FaqBand({
+  items,
+  title = "Frequently asked questions",
+  eyebrow = "FAQs",
+  id = "faq",
+  children,
+}: {
+  items: { q: string; a: string }[];
+  title?: string;
+  eyebrow?: string;
+  id?: string;
+  children?: ReactNode;
+}) {
+  if (!items.length) return null;
+  return (
+    <PageBand id={id} eyebrow={eyebrow} title={title} narrow>
+      <FaqAccordion items={items} />
+      {children}
+    </PageBand>
   );
 }
