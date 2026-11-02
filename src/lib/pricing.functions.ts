@@ -1,3 +1,5 @@
+import { FACT_TEXT } from "@/lib/site-facts";
+import { flightNumberError } from "@/lib/flight-number";
 import { getClientIp } from "@/lib/client-ip.server";
 import { createServerFn } from "@tanstack/react-start";
 import { setResponseStatus } from "@tanstack/react-start/server";
@@ -540,6 +542,10 @@ const createBookingInput = z
   .refine((v) => v.pickupPlaceId !== v.destinationPlaceId, {
     message: "Pickup and destination cannot be the same location.",
     path: ["destinationPlaceId"],
+  })
+  .refine((v) => !flightNumberError(v.pickupLabel, v.flight_number), {
+    message: FACT_TEXT.flightNumberRequired,
+    path: ["flight_number"],
   });
 
 export const createBooking = createServerFn({ method: "POST" })

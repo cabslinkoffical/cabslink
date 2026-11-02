@@ -158,7 +158,7 @@ const serviceTiles = [
 
 const features = [
   { icon: BadgePoundSterling, title: "Fixed Pricing", desc: "No surge. No surprises. What you see is what you pay." },
-  { icon: Plane, title: "Flight Monitoring", desc: "We track delays and adjust pickup automatically." },
+  { icon: Plane, title: "Flight Tracking", desc: "Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late." },
   { icon: Users, title: "Meet & Greet", desc: "Your driver waits inside the terminal with a name board." },
   { icon: ShieldCheck, title: "Licensed Drivers", desc: "Fully vetted, insured and professionally trained." },
   { icon: Gem, title: "Executive Fleet", desc: "Immaculate Mercedes and luxury SUV vehicles." },
@@ -526,7 +526,7 @@ function HomePage() {
                 </div>
                 <p className="mt-5 font-display text-3xl md:text-4xl font-semibold leading-tight">Fixed quotes, vetted UK drivers</p>
                 <p className="mt-3 text-sm leading-relaxed text-white/70 max-w-sm">
-                  Every journey is quoted up front, driven by a licensed private-hire driver and monitored against your flight.
+                  Every journey is quoted up front, driven by a licensed private-hire driver, and on airport pickups our team tracks your flight.
                 </p>
 
               </div>
@@ -737,7 +737,7 @@ function HomePage() {
 
 const faqItems = [
   { q: "How far in advance should I book?", a: "You can book anytime — even minutes ahead — but we recommend 2+ hours for airport pickups to guarantee your preferred vehicle." },
-  { q: "Do you track my flight?", a: "Yes. Every airport transfer includes automatic flight tracking, and we adjust pickup times for delays or early arrivals at no extra cost." },
+  { q: "Do you track my flight?", a: "Yes. Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late." },
   { q: "Is there a meet & greet at arrivals?", a: `Yes. ${FACT_TEXT.meetGreet} ${FACT_TEXT.airportWait}` },
   { q: "What if I need to cancel?", a: `${FACT_TEXT.transferCancellation} ${FACT_TEXT.tourCancellation} See our booking & cancellation policy.` },
   { q: "How do I pay?", a: `${FACT_TEXT.payment} ${FACT_TEXT.confirmationRule}` },

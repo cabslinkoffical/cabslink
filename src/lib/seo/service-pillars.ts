@@ -16,7 +16,7 @@ import groupImg from "@/assets/services/group.jpg";
 
 const commonIncluded = [
   "Fixed price confirmed before you travel",
-  "Flight, train and ferry tracking where relevant",
+  "Flight tracking on airport pickups",
   "Free waiting time and no surge pricing",
   "Fully licensed drivers and insured vehicles",
   "24/7 UK-based booking support",
@@ -81,7 +81,7 @@ export const SERVICE_PILLARS: Record<string, PillarContent> = {
     features: [
       { icon: "briefcase", title: "Business-ready cars", desc: "Mercedes-Benz E-Class, S-Class and V-Class with room to work." },
       { icon: "badge", title: "Vetted drivers", desc: "Experienced, suited drivers who handle luggage and doors as standard." },
-      { icon: "plane", title: "Flight tracking", desc: "Arrival times adjust automatically if your flight moves." },
+      { icon: "plane", title: "Flight tracking", desc: "Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late." },
       { icon: "card", title: "Account billing", desc: "Monthly invoicing with cost centres for corporate clients." },
     ],
     steps: [
@@ -94,7 +94,7 @@ export const SERVICE_PILLARS: Record<string, PillarContent> = {
       "Executive-class vehicle, three years old or newer",
       "Suited, experienced professional driver",
       "Complimentary bottled water and phone charging",
-      "Flight and train tracking with free waiting",
+      "Flight tracking with free waiting from the actual landing time",
       "Meet and greet available on request",
       "Corporate account invoicing",
     ],
@@ -186,7 +186,7 @@ export const SERVICE_PILLARS: Record<string, PillarContent> = {
     faqs: [
       { q: "How many people fit in one vehicle?", a: "Up to eight in our largest vehicle. For bigger groups we send more than one vehicle, planned as one job with one arrival time. Luggage reduces capacity, so we always check bags too." },
       { q: "Can the group split across several pickups?", a: "Yes. We commonly collect from several hotels or addresses and time each so everyone arrives together." },
-      { q: "Do you handle airport groups?", a: "Regularly — including flight tracking on arrivals and staged departures for outbound groups." },
+      { q: "Do you handle airport groups?", a: "Regularly, including staged departures for outbound groups. For arrivals: add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late." },
     ],
   },
 
@@ -293,7 +293,7 @@ export const SERVICE_PILLARS: Record<string, PillarContent> = {
       { icon: "ship", title: "Terminal knowledge", desc: "We know the drop-off points at every major UK cruise terminal." },
       { icon: "luggage", title: "Sized for cases", desc: "Vehicle class chosen from your bag count, not just passengers." },
       { icon: "clock", title: "Boarding-window timing", desc: "Arrival planned against your embarkation slot." },
-      { icon: "plane", title: "Fly-cruise friendly", desc: "Airport-to-port legs with flight tracking on the inbound." },
+      { icon: "plane", title: "Fly-cruise friendly", desc: "Airport-to-port legs with flight tracking on the inbound flight." },
     ],
     steps: [
       { title: "Give us the ship and port", desc: "Plus your boarding window or disembarkation time." },
@@ -314,7 +314,7 @@ export const SERVICE_PILLARS: Record<string, PillarContent> = {
     faqs: [
       { q: "Which cruise ports do you serve?", a: "All Scottish ports including Greenock, Rosyth, Leith, South Queensferry and Invergordon, plus long-distance runs to Southampton, Liverpool and Newcastle." },
       { q: "How early should we arrive at the terminal?", a: "Cruise lines usually issue a boarding window. We aim to have you at the terminal at the start of yours, allowing for traffic on the day." },
-      { q: "Can you collect us from the airport before a cruise?", a: "Yes. Fly-cruise transfers are one of our most common bookings, with flight tracking included." },
+      { q: "Can you collect us from the airport before a cruise?", a: "Yes. Fly-cruise transfers are one of our most common bookings. Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late." },
     ],
   },
 
@@ -335,7 +335,7 @@ export const SERVICE_PILLARS: Record<string, PillarContent> = {
       body: "Term start is the busiest travel week of the student year. We pre-book arrivals against flight numbers, take you straight to the right halls entrance, and give parents a booking reference they can track from home.",
     },
     features: [
-      { icon: "plane", title: "Flight-tracked arrivals", desc: "Delayed or early, your driver adjusts and waits free." },
+      { icon: "plane", title: "Flight-tracked arrivals", desc: "Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late." },
       { icon: "luggage", title: "Room for a term's kit", desc: "Estates and MPVs for suitcases, bedding and boxes." },
       { icon: "pin", title: "Halls-level accuracy", desc: "Dropped at the correct residence entrance, not the campus gate." },
       { icon: "card", title: "Paid by a parent", desc: "Book and pay remotely for a student travelling alone." },

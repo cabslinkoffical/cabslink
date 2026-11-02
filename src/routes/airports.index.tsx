@@ -42,7 +42,7 @@ const AP_SECTIONS = [
   {
     title: "Flight tracking and waiting allowance",
     paragraphs: [
-      "Give us the flight number and we track it, so the driver is in position for the landing that happens rather than the one that was scheduled. Early arrivals are brought forward and delays move the booking with them.",
+      "Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late.",
       "Pick-ups include 60 minutes of free waiting from touchdown, which covers normal immigration and reclaim. Anything beyond that is charged at the vehicle's published rate and shown as its own line.",
     ],
   },
@@ -77,7 +77,7 @@ const AP_SECTIONS = [
 ];
 
 const AP_FAQS = [
-  { q: "Do you track my flight?", a: "Yes. Give us the flight number when booking and we monitor it, moving the pick-up earlier or later to match the actual landing time." },
+  { q: "Do you track my flight?", a: "Yes. Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late." },
   { q: "How long will the driver wait after landing?", a: "Airport pick-ups include 60 minutes of free waiting from touchdown. Additional waiting is charged at the vehicle's published rate and appears as a separate line." },
   { q: "Is the fare fixed before I travel?", a: "Yes. The quote covers the vehicle, driver, route, tolls and standard airport charges. Only extras you select change the total, and each one is itemised before you confirm." },
   { q: "Which airports do you cover?", a: "All major UK airports plus regional airports and business aviation terminals. Each published airport page lists the terminals served and the meeting point our drivers use." },

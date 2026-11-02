@@ -123,7 +123,7 @@ export const JOURNEYS: JourneyRecord[] = [
     planning: [
       `Meet & greet inside the terminal is standard. ${FACT_TEXT.airportWait}`,
       "Clubs are loaded into a vehicle sized for bags plus cases — confirm bag count when booking.",
-      "Tee-time departures back to the airport are booked as a fixed return leg, tracked against your flight.",
+      "Tee-time departures back to the airport are booked as a fixed return leg, timed for your flight.",
     ],
     stops: ["Queensferry Crossing viewpoint", "Kinross", "Cupar"],
     serviceIds: ["golf-transfers", "airport-transfers", "long-distance-transfers"],
@@ -192,7 +192,7 @@ export const JOURNEYS: JourneyRecord[] = [
     planning: [
       "For check-in before 07:00 we collect at least three hours ahead to absorb any M8 incident.",
       "Terminal drop is at departures level with luggage assistance included.",
-      "Return arrivals are flight-tracked, with waiting time from touchdown not from the booked time.",
+      "Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late. Waiting time runs from the actual landing time, not the booked time.",
     ],
     stops: ["Harthill services", "Livingston", "Newbridge"],
     serviceIds: ["airport-transfers", "executive-transfers", "corporate-travel"],
@@ -327,7 +327,7 @@ export const JOURNEYS: JourneyRecord[] = [
       },
       {
         q: "What happens if my flight is delayed?",
-        a: `Arrivals into Edinburgh are tracked against your flight number, so the driver is re-timed automatically. ${FACT_TEXT.airportWait}`,
+        a: `${FACT_TEXT.flightTracking} ${FACT_TEXT.airportWait}`,
       },
       {
         q: "Is there a direct train from Dundee to Edinburgh Airport?",
@@ -363,7 +363,7 @@ export const JOURNEYS: JourneyRecord[] = [
       },
       {
         q: "What happens if my flight is delayed?",
-        a: `We track the inbound flight and move the pickup time to match the actual landing. ${FACT_TEXT.airportWait}`,
+        a: `${FACT_TEXT.flightTracking} ${FACT_TEXT.airportWait}`,
       },
       {
         q: "Do you collect from the University of Stirling and the Old Town?",
@@ -399,7 +399,7 @@ export const JOURNEYS: JourneyRecord[] = [
       },
       {
         q: "What happens if my flight is delayed?",
-        a: `Your flight is tracked, so a late landing simply moves the pickup. Because the run is short we hold the driver locally in Fife rather than dispatching from Edinburgh, and the first ${FACTS.airportWait.freeMinutes} minutes of waiting from the actual landing time are free.`,
+        a: `${FACT_TEXT.flightTracking} Because the run is short we hold the driver locally in Fife rather than dispatching from Edinburgh, and the first ${FACTS.airportWait.freeMinutes} minutes of waiting from the actual landing time are free.`,
       },
       {
         q: "Where will my driver collect me in Dunfermline?",
@@ -435,7 +435,7 @@ export const JOURNEYS: JourneyRecord[] = [
       },
       {
         q: "What happens if my flight is delayed?",
-        a: `Flight numbers are tracked and the driver is re-timed to the real landing time. Waiting is free for the first ${FACTS.airportWait.freeMinutes} minutes from the actual landing time on every airport pickup.`,
+        a: `${FACT_TEXT.flightTracking} Waiting is free for the first ${FACTS.airportWait.freeMinutes} minutes from the actual landing time on every airport pickup.`,
       },
       {
         q: "Which parts of Livingston do you collect from?",
@@ -471,7 +471,7 @@ export const JOURNEYS: JourneyRecord[] = [
       },
       {
         q: "What happens if my flight is delayed?",
-        a: `We track your flight and adjust the pickup to the actual landing time at no extra charge, with the first ${FACTS.airportWait.freeMinutes} minutes of waiting from the actual landing time free.`,
+        a: `${FACT_TEXT.flightTracking} The first ${FACTS.airportWait.freeMinutes} minutes of waiting from the actual landing time free.`,
       },
       {
         q: "Can you drop me at an Old Town hotel during the festivals?",
@@ -692,7 +692,7 @@ export const JOURNEYS: JourneyRecord[] = [
     note:
       "There is no through public service from Glasgow Airport to Edinburgh, and that single fact is why this transfer exists. The cheap route is two legs: First's Airport Express 500 into Buchanan Bus Station for £8.50, then a Citylink 900 coach or a train onward — fine with hand luggage, awkward with a family and four cases. By road it is 55 miles on the M8 in about 80 minutes, and the variable part is the eastern end, where the Newbridge junction and the Edinburgh city bypass decide whether you arrive in 75 minutes or 100. Long-haul arrivals at Glasgow connecting to an Edinburgh hotel are the most common booking on this route, so meet & greet in arrivals is worth adding.",
     planning: [
-      `Flights are tracked. ${FACT_TEXT.airportWait}`,
+      `${FACT_TEXT.flightTracking} ${FACT_TEXT.airportWait}`,
       "Meet & greet with a name board in the Glasgow arrivals hall avoids the terminal's short drop-off window.",
       "Allow 100 minutes for weekday arrivals into central Edinburgh before 09:30.",
       "Old Town and festival-period drops are confirmed to a street that is genuinely open to traffic.",

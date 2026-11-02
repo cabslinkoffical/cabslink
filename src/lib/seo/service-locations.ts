@@ -256,7 +256,7 @@ const SERVICE_ANGLES: Record<string, ServiceAngle> = {
     intro: (n) =>
       `Every ${n} airport journey is arranged in advance: we take your flight number, watch the arrival time and set the pickup so the car is there when you clear the terminal — not before you land and not an hour later.`,
     included: [
-      "Flight tracking with automatic pickup adjustment",
+      "Flight tracking: pickup adjusted to the actual landing time",
       "Fixed fare confirmed before you travel",
       "Free waiting time after landing",
       "Meet and greet in arrivals on request",
@@ -265,7 +265,7 @@ const SERVICE_ANGLES: Record<string, ServiceAngle> = {
     ],
     faqs: (n) => [
       { q: `How early should my ${n} pickup be for a flight?`, a: `We work back from your departure time using the live drive time, then add a check-in buffer — typically three hours for long haul and two for domestic, adjusted for the ${n} traffic pattern that morning.` },
-      { q: "What happens if my flight is delayed?", a: "Your arrival is tracked, so the pickup slides with the flight. There is no charge for the delay itself." },
+      { q: "What happens if my flight is delayed?", a: "Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late. Free waiting starts from the actual landing time." },
       { q: "Can the driver meet me inside the terminal?", a: "Yes — add meet and greet and your driver waits in arrivals with a name board and helps with luggage." },
     ],
     related: ["executive-transfers", "corporate-travel", "private-hire"],
@@ -286,7 +286,7 @@ const SERVICE_ANGLES: Record<string, ServiceAngle> = {
       "Suited, experienced driver",
       "Route planned around your meeting schedule",
       "Bottled water and phone charging",
-      "Flight and train tracking",
+      "Flight tracking on airport pickups",
       "Account billing with cost centres",
     ],
     faqs: (n) => [

@@ -13,7 +13,7 @@ const URL = "https://cabslink.com/golf-transfers";
 const faqs = [
   { q: "Is there room for golf clubs?", a: "Yes. We match your group to a vehicle class with dedicated space for full-size golf bags, trolleys and luggage — tell us the number of bags when you book." },
   { q: "Can you cover multi-course golf itineraries?", a: "We regularly run multi-day golf tours across the East Neuk, Ayrshire and the Highlands, with the same driver for the whole trip where possible." },
-  { q: "Do you collect from the airport?", a: "Yes. We meet flights at Edinburgh, Glasgow, Aberdeen, Prestwick and Dundee with flight tracking, then travel straight to your course or hotel." },
+  { q: "Do you collect from the airport?", a: "Yes. We meet flights at Edinburgh, Glasgow, Aberdeen, Prestwick and Dundee, then travel straight to your course or hotel. Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late." },
 ];
 
 const content: SportsServiceContent = {

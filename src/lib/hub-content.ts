@@ -93,7 +93,7 @@ export const HUB_CONTENT: Record<string, HubContent> = {
         title: "Station to airport transfers",
         paragraphs: [
           "A large share of station work is the link leg: rail into a city, then road out to an airport that has no direct rail service, or the reverse after a late landing when the last train has gone.",
-          "Because these legs are timed against a flight, we quote them as airport transfers with the same flight tracking and waiting-time allowance as a home pick-up.",
+          "Because these legs are timed against a flight, we quote them as airport transfers with the same waiting-time allowance as a home pick-up. Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late.",
         ],
       },
     ],
@@ -168,7 +168,7 @@ export const HUB_CONTENT: Record<string, HubContent> = {
       {
         title: "Airport and station runs during term",
         paragraphs: [
-          "The routine student journey is the airport or station run at the start and end of each term, often with an early flight or a late landing. Both are timed against a flight or service, with tracking and a stated waiting allowance.",
+          "The routine student journey is the airport or station run at the start and end of each term, often with an early flight or a late landing. Both come with a stated waiting allowance, and for flights: add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late.",
           "For international students arriving for the first time, we agree the arrivals meeting point in advance and the driver holds a name board, which matters most on a first landing in an unfamiliar airport.",
         ],
       },
@@ -355,7 +355,7 @@ export const HUB_CONTENT: Record<string, HubContent> = {
       {
         title: "Visiting clients and airport meets",
         paragraphs: [
-          "For inbound visitors we track the flight, meet at arrivals with a name board and take them directly to the office or hotel, which removes the arrival uncertainty from your side of the meeting.",
+          "Inbound visitors are met at arrivals with a name board and taken directly to the office or hotel. Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late.",
           "Return legs are planned against the departure time and check-in window, not just the driving time from the office.",
         ],
       },

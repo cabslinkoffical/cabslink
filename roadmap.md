@@ -193,3 +193,10 @@
 - [x] Noindex review: regions and routes with real content indexable + in sitemap; Wales/England stay noindex (Fife, Speyside and other small regions stay noindex until they have more place pages)
 - [x] Harry Potter tour: title, description, filming locations, Jacobite, multi-day, FAQ + schema, links from /tours and day-trips guide
 - [x] Day trips guide: tour links, "Book this as a private tour" links, 4 FAQs + schema
+
+## Owner requests (2 Nov, evening)
+- [ ] Hourly hire vs day tours: check logic/wording and correct (waiting on owner choice of pricing)
+- [ ] Admin: tour price set manually or automatically when adding/editing a tour (waiting on owner choice of automatic formula)
+- [x] Flight tracking confirmed: one shared wording everywhere; no extra promises
+- [x] Flight number required for airport pickups (clear message), optional otherwise
+- [x] Harry Potter title → "Harry Potter Tour from Edinburgh to Glenfinnan | Cabslink"

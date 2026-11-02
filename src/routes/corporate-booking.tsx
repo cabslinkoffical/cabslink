@@ -211,7 +211,7 @@ function CorporateBookingPage() {
               { i: Building2, t: "Named account manager", d: "One person who knows your sites, your bookers and your travel patterns." },
               { i: Receipt, t: "Monthly invoicing", d: "No cards at the roadside. One invoice, your references on every line." },
               { i: Headset, t: "Priority booking line", d: "A direct line and email inbox answered 24/7 by our dispatch team." },
-              { i: PlaneTakeoff, t: "Flight-tracked airports", d: "Arrivals are met with a name board; delays are absorbed, not charged." },
+              { i: PlaneTakeoff, t: "Flight-tracked airports", d: "Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late." },
               { i: BarChart3, t: "Spend reporting", d: "Monthly breakdown by traveller, cost centre and route." },
               { i: ShieldCheck, t: "Vetted, insured drivers", d: "Licensed private-hire drivers, maintained vehicles, cover documents on file." },
             ].map((f) => (

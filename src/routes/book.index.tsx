@@ -1,4 +1,6 @@
 import { normalizeHead } from "@/lib/seo/page-head";
+import { flightNumberError, isAirportPickup } from "@/lib/flight-number";
+import { FACT_TEXT } from "@/lib/site-facts";
 import { cloneElement, isValidElement, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { saveDraft, loadDraft, clearDraft } from "@/lib/booking-draft";
@@ -193,8 +195,10 @@ const emptyContact: Contact = {
 };
 
 /** Field-level messages so the passenger step can show what is actually wrong. */
-function contactErrors(c: Contact): Partial<Record<keyof Contact, string>> {
+function contactErrors(c: Contact, pickupLabel?: string | null): Partial<Record<keyof Contact, string>> {
   const e: Partial<Record<keyof Contact, string>> = {};
+  const flight = flightNumberError(pickupLabel, c.flight_number);
+  if (flight) e.flight_number = flight;
   const name = c.customer_name.trim();
   if (!name) e.customer_name = "Enter the lead passenger's full name.";
   else if (name.length < 2) e.customer_name = "Name must be at least 2 characters.";
@@ -519,6 +523,8 @@ function BookPage() {
     if (!pre.pickup || !pre.dropoff) { toast.error("Journey is missing pickup or destination."); return; }
     const parsed = contactSchema.safeParse(contact);
     if (!parsed.success) { toast.error("Missing contact details."); setStep("details"); return; }
+    const flightMissing = flightNumberError(pre.pickup.label, parsed.data.flight_number);
+    if (flightMissing) { toast.error(flightMissing); setStep("details"); return; }
     if (!captcha.ready) { toast.error("Please complete the security check before submitting."); return; }
     inflight.current = true;
     setSubmitting(true);
@@ -613,9 +619,10 @@ function BookPage() {
 
   const goToExtras = useCallback(() => {
     const parsed = contactSchema.safeParse(contact);
-    if (!parsed.success) {
+    const flightMissing = flightNumberError(pre.pickup?.label, contact.flight_number);
+    if (!parsed.success || flightMissing) {
       setContactAttempted(true);
-      toast.error("Check the highlighted passenger details.");
+      toast.error(parsed.success && flightMissing ? flightMissing : "Check the highlighted passenger details.");
       const focusInvalid = () => {
         const first = document.querySelector<HTMLElement>('[data-invalid="true"] input, [data-invalid="true"] textarea, [data-invalid="true"] select');
         if (first) {
@@ -631,7 +638,7 @@ function BookPage() {
     setContactAttempted(false);
     track("booking_step", { step: "payment" });
     setStep("payment");
-  }, [contact]);
+  }, [contact, pre.pickup?.label]);
 
   const mobileContinue = useCallback(() => {
     if (step === "details") goToExtras();
@@ -724,6 +731,7 @@ function BookPage() {
                         contact={contact}
                         onChange={setContact}
                         attempted={contactAttempted}
+                        pickupLabel={pre.pickup?.label}
                         onBack={() => setStep("vehicle")}
                       />
                       <ExtrasStep
@@ -1912,12 +1920,13 @@ function Feature({ icon, children }: { icon: React.ReactNode; children: React.Re
 // ---------------------------------------------------------------
 // Step 02 — Passenger contact details (no extras, no submit)
 // ---------------------------------------------------------------
-function ContactStep({ contact, onChange, onBack, attempted }: {
+function ContactStep({ contact, onChange, onBack, attempted, pickupLabel }: {
   contact: Contact; onChange: (c: Contact) => void;
-  onBack: () => void; attempted: boolean;
+  onBack: () => void; attempted: boolean; pickupLabel?: string | null;
 }) {
   const set = <K extends keyof Contact>(k: K, v: Contact[K]) => onChange({ ...contact, [k]: v });
-  const errors = contactErrors(contact);
+  const errors = contactErrors(contact, pickupLabel);
+  const airportPickup = isAirportPickup(pickupLabel);
   const show = (k: keyof Contact) => (attempted ? errors[k] ?? "" : "");
   const requiredRemaining = Object.values(errors).filter(Boolean).length;
   return (
@@ -1954,9 +1963,12 @@ function ContactStep({ contact, onChange, onBack, attempted }: {
           <PhoneInput value={contact.whatsapp} onChange={(v) => set("whatsapp", v)} placeholder="7700 900123" />
         </Field>
       </div>
-      <Field label="Flight number (optional)">
-        <Input value={contact.flight_number} onChange={(e) => set("flight_number", e.target.value)} maxLength={20} placeholder="e.g. BA1234" />
+      <div className="pb-2">
+      <Field label={airportPickup ? "Flight number" : "Flight number (optional)"} error={show("flight_number")}>
+        <Input value={contact.flight_number} onChange={(e) => set("flight_number", e.target.value)} required={airportPickup} maxLength={20} placeholder="e.g. BA1234" />
+        {airportPickup && <p className="mt-1.5 text-xs text-muted-foreground">{FACT_TEXT.flightTracking}</p>}
       </Field>
+      </div>
       <Field label="Notes (optional)" icon={<MessageSquare className="size-4" />}>
         <Textarea value={contact.notes} onChange={(e) => set("notes", e.target.value)} rows={4} maxLength={1000} placeholder="Anything our driver should know" />
       </Field>

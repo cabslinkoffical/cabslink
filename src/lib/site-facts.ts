@@ -48,5 +48,7 @@ export const FACT_TEXT = {
   payment: `Pay online by card through Stripe at the end of the booking (${cardList}), or choose to pay another way: cash, bank transfer or another method agreed with our team. No card details are stored on cabslink.com.`,
   payCashOrTransfer: "Yes. Complete your booking, skip the online payment, and message us on WhatsApp with your booking reference. We'll confirm your booking and arrange payment.",
   confirmationRule: "A card booking is confirmed as soon as the payment succeeds. If you pay another way, your booking is confirmed when our team confirms it after you contact us.",
+  flightTracking: "Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late.",
+  flightNumberRequired: "Please add your flight number so we can track your flight.",
   companyLine: `${FACTS.company.legalName} · Company number ${FACTS.company.companyNumber} · Registered office: ${FACTS.company.registeredOffice}`,
 } as const;
