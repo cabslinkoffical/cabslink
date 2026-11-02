@@ -60,11 +60,13 @@ function TourSettingsPage() {
     }
   }
 
-  const Field = ({ k, label, hint, type = "number" }: any) => (
-    <div>
+  // Plain render helper (not a component) so inputs keep focus while typing.
+  const field = ({ k, label, hint, type = "number" }: { k: string; label: string; hint?: string; type?: string }) => (
+    <div key={k}>
       <Label>{label}</Label>
       <Input
         type={type}
+        min={type === "number" ? 0 : undefined}
         value={form[k] ?? ""}
         onChange={(e) => setForm({ ...form, [k]: type === "number" ? Number(e.target.value) : e.target.value })}
       />
@@ -79,24 +81,24 @@ function TourSettingsPage() {
         <section>
           <h2 className="text-sm font-semibold mb-3">Classification thresholds</h2>
           <div className="grid grid-cols-2 gap-4">
-            <Field k="sightseeing_threshold_minutes" label="Sightseeing threshold (min)" hint="Total attraction minutes to become a sightseeing transfer." />
-            <Field k="tour_threshold_minutes" label="Tour threshold (min)" hint="Total attraction minutes to become a private tour." />
-            <Field k="tour_threshold_stops" label="Tour threshold (stops)" hint="Attraction stops needed to trigger tour conversion." />
-            <Field k="max_selected_stops" label="Max selected stops" />
+            {field({ k: "sightseeing_threshold_minutes", label: "Sightseeing threshold (min)", hint: "Total attraction minutes to become a sightseeing transfer." })}
+            {field({ k: "tour_threshold_minutes", label: "Tour threshold (min)", hint: "Total attraction minutes to become a private tour." })}
+            {field({ k: "tour_threshold_stops", label: "Tour threshold (stops)", hint: "Attraction stops needed to trigger tour conversion." })}
+            {field({ k: "max_selected_stops", label: "Max selected stops" })}
           </div>
         </section>
         <section>
           <h2 className="text-sm font-semibold mb-3">Stop pricing</h2>
           <div className="grid grid-cols-2 gap-4">
-            <Field k="included_stop_minutes" label="Included minutes per stop" />
-            <Field k="price_per_extra_15min_pence" label="Extra 15-min block (pence)" />
+            {field({ k: "included_stop_minutes", label: "Included minutes per stop" })}
+            {field({ k: "price_per_extra_15min_pence", label: "Extra 15-min block (pence)" })}
           </div>
         </section>
         <section>
           <h2 className="text-sm font-semibold mb-3">Detour limits</h2>
           <div className="grid grid-cols-2 gap-4">
-            <Field k="max_detour_miles" label="Max detour (miles)" />
-            <Field k="max_detour_minutes" label="Max detour (minutes)" />
+            {field({ k: "max_detour_miles", label: "Max detour (miles)" })}
+            {field({ k: "max_detour_minutes", label: "Max detour (minutes)" })}
           </div>
         </section>
         <section className="flex items-center justify-between border-t border-border pt-4">
