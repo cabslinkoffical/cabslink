@@ -8,7 +8,8 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { getBookingByToken } from "@/lib/booking.functions";
 import { track } from "@/lib/tracking";
 import { readCheckout, trackPurchaseOnce } from "@/lib/analytics-ga";
-import { paymentNextStepMessage, statusLabel, type BookingStatus, type PaymentMode } from "@/lib/booking-lifecycle";
+import { isAwaitingConfirmation, isBookingConfirmed, paymentNextStepMessage, statusLabel, type BookingStatus, type PaymentMode } from "@/lib/booking-lifecycle";
+import { PayAnotherWay } from "@/components/site/PayAnotherWay";
 import { SITE } from "@/lib/site";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -143,15 +144,18 @@ function ConfirmationPage() {
   const isPaid = b.paymentStatus === "paid";
   const paymentMode: PaymentMode = isPaid ? "online" : "manual";
   const amountPence = b.amountDuePence ?? 0;
-  const needsPayment = !isPaid && amountPence >= 100;
-  const nextStep = needsPayment
-    ? "Your booking is not confirmed yet — complete your card payment below to secure it."
-    : paymentNextStepMessage(paymentMode, b.status as BookingStatus);
+  const needsPayment = !isPaid && amountPence >= 100 && (isAwaitingConfirmation(b.status) || isBookingConfirmed(b.status));
+  const confirmed = isBookingConfirmed(b.status);
+  const awaiting = isAwaitingConfirmation(b.status);
+  const nextStep = paymentNextStepMessage(isPaid ? "online" : paymentMode, b.status as BookingStatus);
+  // Only an admin "Confirmed" (or later) status or a paid card booking is called confirmed.
   const heading = verifying
     ? "Checking your payment…"
-    : isPaid
-      ? "Booking confirmed — payment received"
-      : "Payment required to confirm";
+    : confirmed
+      ? "Your booking is confirmed"
+      : awaiting
+        ? "We've received your booking request"
+        : statusLabel(b.status);
   const returnUrl =
     typeof window !== "undefined"
       ? `${window.location.origin}/booking/${token}?session_id={CHECKOUT_SESSION_ID}`
@@ -303,15 +307,28 @@ function ConfirmationPage() {
           </div>
           {/* ===== /TICKET ===== */}
 
+          {awaiting && !isPaid && (
+            <div className="mt-6 rounded-2xl border-2 border-[var(--gold)] bg-card p-5 md:p-7 shadow-sm print:hidden">
+              <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)]">Booking reference {b.bookingRef}</p>
+              <h2 className="mt-1 font-display text-xl md:text-2xl font-bold">To confirm it straight away, message us on WhatsApp</h2>
+              <PayAnotherWay
+                bookingRef={b.bookingRef}
+                className="mt-2"
+                lead="Paying by cash, bank transfer or another method? Message us with your booking reference and we'll confirm your booking and arrange payment. Most replies are quick, but some can take up to 12–24 hours."
+              />
+            </div>
+          )}
+
           {needsPayment && (
             <div className="mt-6 rounded-2xl border border-[var(--gold)]/45 bg-card p-5 md:p-7 shadow-sm">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)]">Payment pending</p>
-                  <h2 className="mt-1 font-display text-xl md:text-2xl font-bold">Continue to payment</h2>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)]">{awaiting ? "Or pay now by card" : "Balance due"}</p>
+                  <h2 className="mt-1 font-display text-xl md:text-2xl font-bold">Pay now by card</h2>
                   <p className="mt-2 max-w-xl text-sm text-muted-foreground">
-                    Booking <span className="font-semibold text-foreground">{b.bookingRef}</span> is held but not
-                    confirmed. Pay by card to confirm it — we'll email your confirmation as soon as payment clears.
+                    {awaiting
+                      ? <>Pay by card and booking <span className="font-semibold text-foreground">{b.bookingRef}</span> is confirmed as soon as the payment succeeds.</>
+                      : <>Pay the balance on booking <span className="font-semibold text-foreground">{b.bookingRef}</span> securely by card.</>}
                   </p>
                 </div>
                 <div className="text-right">
@@ -333,7 +350,7 @@ function ConfirmationPage() {
                 </div>
               ) : (
                 <Button className="mt-5 gap-2" size="lg" onClick={() => setPayOpen(true)}>
-                  Continue to payment
+                  Pay now by card
                 </Button>
               )}
             </div>
