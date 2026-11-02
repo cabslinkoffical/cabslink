@@ -24,7 +24,7 @@ export const Route = createFileRoute("/booking-policy")({
   component: () => (
     <LegalPage eyebrow="Booking" title="Booking & Cancellation Policy" updated="30 August 2026">
       <h2>1. Confirmation</h2>
-      <p>A booking is confirmed once you receive an on-screen booking reference, followed by an email confirmation. If you do not receive a reference, the booking has not been placed — please contact us before travelling.</p>
+      <p>When you finish booking you receive an on-screen booking reference and an email. This means we have received your booking request. {FACT_TEXT.confirmationRule} If you do not receive a reference, the booking has not been placed — please contact us before travelling.</p>
 
       <h2>2. Changes</h2>
       <p>You can change the pickup time, route, stops or vehicle class free of charge up to 6 hours before pickup, subject to availability. Later changes are accommodated where possible; a change that increases distance, duration or vehicle class may increase the fare.</p>
@@ -54,8 +54,14 @@ export const Route = createFileRoute("/booking-policy")({
         <li><strong>Less than {TT.halfFromHours} hours before the start, or a no-show</strong> — the full price is payable.</li>
       </ul>
 
-      <h2>4b. Payment</h2>
-      <p>{FACT_TEXT.payment}</p>
+      <h2>4b. Ways to pay</h2>
+      <ul>
+        <li><strong>Card</strong> — pay online through Stripe on the payment page. Your booking is confirmed as soon as the payment succeeds.</li>
+        <li><strong>Bank transfer</strong> — choose “Pay another way”, then message us on WhatsApp or email with your booking reference. We send payment details privately.</li>
+        <li><strong>Cash</strong> — paid to us or to the driver, as agreed with our team.</li>
+        <li><strong>Other methods</strong> — agreed with our team when you contact us.</li>
+      </ul>
+      <p>For bank transfer, cash or other methods, our team confirms your booking after talking to you. Most replies are quick, but some can take up to 12–24 hours. No card details are stored on cabslink.com.</p>
 
       <h2>5. Extra stops and route changes</h2>
       <p>Stops added in advance are priced at booking. Stops requested during the journey are charged at the waiting rate above plus any additional mileage.</p>

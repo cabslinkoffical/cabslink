@@ -740,7 +740,8 @@ const faqItems = [
   { q: "Do you track my flight?", a: "Yes. Every airport transfer includes automatic flight tracking, and we adjust pickup times for delays or early arrivals at no extra cost." },
   { q: "Is there a meet & greet at arrivals?", a: `Yes. ${FACT_TEXT.meetGreet} ${FACT_TEXT.airportWait}` },
   { q: "What if I need to cancel?", a: `${FACT_TEXT.transferCancellation} ${FACT_TEXT.tourCancellation} See our booking & cancellation policy.` },
-  { q: "How do I pay?", a: `${FACT_TEXT.payment} Your journey is confirmed as soon as the payment succeeds.` },
+  { q: "How do I pay?", a: `${FACT_TEXT.payment} ${FACT_TEXT.confirmationRule}` },
+  { q: "Can I pay by cash or bank transfer?", a: FACT_TEXT.payCashOrTransfer },
 
   { q: "Do you cover the whole UK?", a: "Yes — Edinburgh, London (Heathrow, Gatwick, Stansted, Luton, City), Manchester, Glasgow, Birmingham and 120+ UK destinations." },
 ];
