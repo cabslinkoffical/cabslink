@@ -724,10 +724,14 @@ export const getReports = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => reportInput.parse(i))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    // Date-only inputs cover whole days (inclusive) in UTC, matching Analytics.
+    // Date-only inputs cover whole UK days (inclusive), matching Analytics.
+    const { ukDayStart, addDays } = await import("@/lib/uk-time");
+    const { bucketOf } = await import("@/lib/analytics.functions");
     const dateOnly = /^\d{4}-\d{2}-\d{2}$/;
-    const fromD = new Date(dateOnly.test(data.from) ? `${data.from}T00:00:00.000Z` : data.from);
-    const toD = new Date(dateOnly.test(data.to) ? `${data.to}T23:59:59.999Z` : data.to);
+    if (!dateOnly.test(data.from) || !dateOnly.test(data.to)) throw new Error("Pick a start and end date");
+    if (data.to < data.from) throw new Error("End date must be on or after the start date");
+    const fromD = ukDayStart(data.from);
+    const toD = new Date(ukDayStart(addDays(data.to, 1)).getTime() - 1);
     const { fetchAllPages } = await import("@/lib/fetch-all-pages");
     const { netRevenue, revenueByBucket, settlementWindowFilter, SETTLED_PAYMENT_STATUSES } = await import("@/lib/revenue");
     const fromIso = fromD.toISOString();
@@ -740,18 +744,7 @@ export const getReports = createServerFn({ method: "POST" })
         .or(settlementWindowFilter(fromIso, toIso)).order("id").range(a, z)),
     ]);
 
-    function bucket(dateStr: string) {
-      const d = new Date(dateStr);
-      if (data.granularity === "month") return d.toISOString().slice(0, 7);
-      if (data.granularity === "week") {
-        const tmp = new Date(d);
-        const day = tmp.getUTCDay();
-        const diff = (day + 6) % 7;
-        tmp.setUTCDate(tmp.getUTCDate() - diff);
-        return tmp.toISOString().slice(0, 10);
-      }
-      return d.toISOString().slice(0, 10);
-    }
+    const bucket = (dateStr: string) => bucketOf(dateStr, data.granularity);
 
     const revMap = revenueByBucket(payments, bucket);
     const bookMap = new Map<string, { date: string; total: number; completed: number; cancelled: number }>();
@@ -760,7 +753,7 @@ export const getReports = createServerFn({ method: "POST" })
       const e = bookMap.get(k) ?? { date: k, total: 0, completed: 0, cancelled: 0 };
       e.total += 1;
       if (b.status === "completed") e.completed += 1;
-      if (b.status === "cancelled") e.cancelled += 1;
+      if (b.status === "cancelled" || b.status === "rejected") e.cancelled += 1;
       bookMap.set(k, e);
     }
 
@@ -774,7 +767,7 @@ export const getReports = createServerFn({ method: "POST" })
 
     const totalRev = Math.round(payments.reduce((s: number, p: any) => s + netRevenue(p), 0) * 100) / 100;
     const completed = bookings.filter(b => b.status === "completed").length;
-    const cancelled = bookings.filter(b => b.status === "cancelled").length;
+    const cancelled = bookings.filter(b => b.status === "cancelled" || b.status === "rejected").length;
     const avgFare = bookings.length ? bookings.reduce((s, b) => s + Number(b.price || 0), 0) / bookings.length : 0;
 
     return {
