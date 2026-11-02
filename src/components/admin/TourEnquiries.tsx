@@ -120,7 +120,7 @@ export function TourEnquiries() {
           </SelectContent>
         </Select>
         <span className="text-sm text-muted-foreground whitespace-nowrap">
-          {rows.length} tour {rows.length === 1 ? "enquiry" : "enquiries"}
+          {listQ.data?.total ?? 0} tour {(listQ.data?.total ?? 0) === 1 ? "enquiry" : "enquiries"}
         </span>
       </div>
 
