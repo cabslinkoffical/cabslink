@@ -43,3 +43,4 @@
 - Multi-table admin saves (settings + credentials, blog post + tags, extra + class links) run in one admin-checked Postgres function so a failed step leaves the previous configuration intact; omitted fields mean unchanged.
 - Dispatch drains claim one event at a time via a leased service-role function (expired leases reclaimed, completion writes fenced to the lease, stable event IDs); scheduler and receiver read the drain token from private settings, never code or migrations.
 - Subdirectories may have their own AGENTS.md (staff console routes, src/components/site); read it before changing files there.
+- Page photos live in src/content/page-images.ts (one unique CDN-hosted, credited Commons photo per path); LocalPageHero and DestinationCard prefer it over template images, and the credits page lists it, so a page never falls back to a shared photo.

@@ -3,6 +3,8 @@ import { Phone } from "lucide-react";
 import { Breadcrumbs, type Crumb } from "@/components/seo/Breadcrumbs";
 import { BookingWidget } from "@/components/site/BookingWidget";
 import { SITE } from "@/lib/site";
+import { useRouterState } from "@tanstack/react-router";
+import { pageImageFor } from "@/content/page-images";
 
 export type LocalPageFact = { label: string; value: string };
 
@@ -40,8 +42,8 @@ export function LocalPageHero({
   prefill,
   mapFocus = null,
   showMap = false,
-  image = null,
-  imageAlt,
+  image: imageProp = null,
+  imageAlt: imageAltProp,
   imageCaption,
   intro,
   children,
@@ -63,6 +65,12 @@ export function LocalPageHero({
   intro?: LocalIntro;
   children?: ReactNode;
 }) {
+  // Every local page shows its own registered photograph; the template's
+  // image is only a fallback for pages that have none yet.
+  const path = useRouterState({ select: (st) => st.location.pathname });
+  const own = pageImageFor(path);
+  const image = own?.src ?? imageProp;
+  const imageAlt = own?.alt ?? imageAltProp;
   return (
     <>
       <section className="local-hero relative z-20 navy-scene text-navy-foreground">
@@ -135,7 +143,7 @@ export function LocalPageHero({
             </div>
             {image && (
               <figure className="local-intro-image">
-                <img src={image} alt={imageAlt ?? title} width={1200} height={900} loading="eager" />
+                <img src={image} alt={imageAlt ?? title} width={1200} height={own ? 800 : 900} loading="eager" fetchPriority="high" />
                 {imageCaption && <figcaption>{imageCaption}</figcaption>}
               </figure>
             )}

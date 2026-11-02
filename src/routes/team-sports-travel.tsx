@@ -2,7 +2,7 @@ import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { Users, Luggage, ShieldCheck, RouteIcon } from "lucide-react";
 import { SportsServicePage, sportsFaqSchema, type SportsServiceContent } from "@/components/site/SportsServicePage";
-import sportsImg from "@/assets/services/sports.jpg";
+import { PAGE_IMAGES } from "@/content/page-images";
 
 const TITLE = "Team Sports Travel — Squad & Kit Transport UK | Cabslink";
 const DESC =
@@ -20,8 +20,8 @@ const content: SportsServiceContent = {
   h1: "Team sports travel for squads, staff and kit.",
   subtitle: "Vehicles that move the whole team together — with space for kit, one point of contact and pricing agreed for the season. Larger squads travel in multiple vehicles.",
   breadcrumbLabel: "Team Sports Travel",
-  image: sportsImg,
-  imageAlt: "Murrayfield Stadium, Edinburgh, home of Scottish rugby",
+  image: PAGE_IMAGES["/team-sports-travel"].src,
+  imageAlt: PAGE_IMAGES["/team-sports-travel"].alt,
   intro: {
     title: "One vehicle, one driver, the whole squad",
     body: "Club secretaries have enough to organise. We handle the travel side of fixtures: the right vehicle, on time, every week, on one invoice.",

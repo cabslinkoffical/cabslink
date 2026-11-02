@@ -2,6 +2,12 @@ import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { IMAGE_CREDITS } from "@/lib/image-credits";
+import { PAGE_IMAGES } from "@/content/page-images";
+
+const ALL_CREDITS = [
+  ...IMAGE_CREDITS,
+  ...Object.values(PAGE_IMAGES).map((p) => ({ label: p.label, file: p.file, author: p.author, license: p.license, page: p.page })),
+];
 import { PageHero } from "@/components/site/PageHero";
 
 export const Route = createFileRoute("/image-credits")({
@@ -42,7 +48,7 @@ function ImageCreditsPage() {
       <section className="section-y">
         <div className="container-x">
           <ul className="grid gap-4 md:grid-cols-2">
-            {IMAGE_CREDITS.map((c) => (
+            {ALL_CREDITS.map((c) => (
               <li key={`${c.label}-${c.file}`} className="rounded-2xl border border-border bg-card p-5 shadow-sm">
                 <p className="font-display text-lg font-semibold text-[var(--navy)]">{c.label}</p>
                 <p className="mt-1 break-words text-sm text-muted-foreground">{c.file}</p>
