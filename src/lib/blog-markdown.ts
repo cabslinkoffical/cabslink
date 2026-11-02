@@ -87,3 +87,25 @@ export function formatHeading(value: string, start: number, end: number, level: 
   const pos = lineStart + newLine.length;
   return { text, start: pos, end: pos };
 }
+
+type MdNode = { type: string; depth?: number; children?: MdNode[]; data?: { hProperties?: Record<string, unknown> } };
+
+/**
+ * Remark plugin that gives every `##`/`###` heading the id its table-of-contents
+ * entry links to. Ids are assigned in document order from the same list the
+ * page's "On this page" box renders, so each contents link lands on its heading.
+ */
+export function remarkHeadingIds(options: { ids: string[] }) {
+  return (tree: MdNode) => {
+    let n = 0;
+    const walk = (node: MdNode) => {
+      if (node.type === "heading" && (node.depth === 2 || node.depth === 3)) {
+        const id = options.ids[n++];
+        if (id) node.data = { ...(node.data ?? {}), hProperties: { ...(node.data?.hProperties ?? {}), id } };
+        return;
+      }
+      node.children?.forEach(walk);
+    };
+    walk(tree);
+  };
+}
