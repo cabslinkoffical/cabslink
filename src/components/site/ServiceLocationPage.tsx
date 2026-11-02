@@ -5,7 +5,7 @@ import { normalizeHead } from "@/lib/seo/page-head";
  * src/lib/seo/service-locations.ts; this file only renders it.
  */
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Check, MapPin, Phone, Plane, Route as RouteIcon } from "lucide-react";
+import { ArrowRight, Check, MapPin, Plane, Route as RouteIcon } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { LocalMapSection } from "@/components/site/LocalMapSection";
 import { getPublicPlaceCoords } from "@/lib/seo-public.functions";
@@ -17,7 +17,6 @@ import { serviceLocalImage, serviceLocationPrefill } from "@/lib/local-page";
 import { Button } from "@/components/ui/button";
 import { getService } from "@/lib/seo/service-registry";
 import type { ServiceLocationContent } from "@/lib/seo/service-locations";
-import { SITE } from "@/lib/site";
 import { BUSINESS_ID } from "@/lib/seo/business-graph";
 
 export function ServiceLocationPage({ content }: { content: ServiceLocationContent }) {

@@ -1,12 +1,10 @@
 import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Briefcase, GraduationCap, Users, Heart, CalendarClock, Phone } from "lucide-react";
+import { ArrowRight, Briefcase, GraduationCap, Users, Heart, CalendarClock } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero, SectionHeader } from "@/components/site/PageHero";
-import { Button } from "@/components/ui/button";
 import { solutionList } from "@/lib/seo/travel-solutions";
 import { publishedServices } from "@/lib/seo/service-registry";
-import { SITE } from "@/lib/site";
 import { BUSINESS_ID } from "@/lib/seo/business-graph";
 
 const URL = "https://cabslink.com/travel-solutions";
