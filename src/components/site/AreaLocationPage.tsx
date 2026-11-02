@@ -86,7 +86,7 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
           <>
             Cabslink provides reliable airport transfers, private hire, executive cars, corporate
             transport, luxury private-driver travel and group transfers in <strong>{locName}</strong>.
-            Book a fixed-price taxi or cab from {locName} to Edinburgh, Glasgow or any UK airport —
+            Book a fixed-price taxi or cab from {locName} to Edinburgh Airport, Glasgow Airport or any other UK airport —
             with 24/7 availability, meet-and-greet, and door-to-door service.
           </>
         }
