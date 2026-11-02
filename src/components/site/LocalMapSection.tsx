@@ -4,6 +4,7 @@
  * from a client-side geocode.
  */
 import { PlaceMarkerMap } from "@/components/site/JourneyMap";
+import { PageBand } from "@/components/site/PageBand";
 
 export type MapFocus = { lat: number; lng: number; label: string };
 
@@ -17,13 +18,10 @@ export function LocalMapSection({
 }) {
   if (!focus || !Number.isFinite(focus.lat) || !Number.isFinite(focus.lng)) return null;
   return (
-    <section className="section-y" aria-label={`${focus.label} and surrounding area`}>
-      <div className="container-x">
-        <h2 className="mb-6 font-display text-2xl font-semibold text-foreground">
-          {heading ?? `${focus.label} and surrounding area`}
-        </h2>
+    <PageBand eyebrow="Map" title={heading ?? `${focus.label} and surrounding area`}>
+      <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-raised">
         <PlaceMarkerMap lat={focus.lat} lng={focus.lng} label={focus.label} />
       </div>
-    </section>
+    </PageBand>
   );
 }
