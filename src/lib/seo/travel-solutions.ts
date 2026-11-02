@@ -14,7 +14,7 @@ const img = (path: string): PageImage => PAGE_IMAGES[path];
 
 const baseIncluded = [
   "Fixed price confirmed before travel",
-  "Flight, train and ferry tracking where relevant",
+  "Flight tracking on airport pickups",
   "Free waiting time and no surge pricing",
   "Licensed drivers and inspected vehicles",
   "24/7 UK-based booking support",
@@ -44,7 +44,7 @@ export const TRAVEL_SOLUTIONS: Record<string, SolutionContent> = {
       {
         need: "Our flights slip and the car is gone.",
         answer:
-          "We track the inbound flight and shift the pickup automatically, with free waiting time built in — nobody rebooks anything.",
+          "Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late. Free waiting time starts from the actual landing time.",
       },
       {
         need: "Expenses are a monthly headache.",

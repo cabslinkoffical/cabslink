@@ -99,7 +99,7 @@ const MAIN_SERVICES: MainService[] = [
     img: airportImg.url,
     icon: Plane,
     to: "/airport-transfers",
-    highlights: ["Live flight tracking", "Meet & greet at arrivals", "Fixed, all-in pricing"],
+    highlights: ["Flight tracking", "Meet & greet at arrivals", "Fixed, all-in pricing"],
     subs: [
       { icon: Plane, title: "Airport Transfers", desc: "All major UK airports with flight tracking and meet & greet.", to: "/airport-transfers" },
       { icon: PlaneLanding, title: "Airport Directory", desc: "Terminal guides, pickup points and fares for each airport.", to: "/airports" },
@@ -195,7 +195,7 @@ const promises = [
   { icon: ShieldCheck, label: "Licensed & insured", copy: "Fully licensed operators and vetted professional drivers." },
   { icon: Clock, label: "24/7 availability", copy: "Early flights, late finishes — we run around the clock." },
   { icon: BadgePoundSterling, label: "Fixed pricing", copy: "Quoted up front. No meters, no surge, no surprises." },
-  { icon: PlaneLanding, label: "Flight tracking", copy: "We adjust to delays automatically at no extra cost." },
+  { icon: PlaneLanding, label: "Flight tracking", copy: "Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late." },
 ];
 
 function MainServiceCard({ service, open, onToggle }: { service: MainService; open: boolean; onToggle: () => void }) {

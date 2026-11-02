@@ -76,7 +76,7 @@ export const Route = createFileRoute("/airports/$iata")({
       const name = a.display_name ?? a.name;
       const title = `${name}${iata && !name.includes(iata) ? ` (${iata})` : ""} Transfers — Fixed-Fare Airport Taxi | Cabslink`;
 
-      const desc = `Private transfers to and from ${name}. Fixed fares, meet & greet, live flight tracking, 24/7 dispatch across the UK.`;
+      const desc = `Private transfers to and from ${name}. Fixed fares, meet & greet, flight tracking, 24/7 dispatch across the UK.`;
       const canonical = `${ORIGIN}/airports/${a.slug}`;
       const image = (a as { hero_image_url?: string | null }).hero_image_url || null;
       return normalizeHead({
@@ -160,7 +160,7 @@ function AirportPage() {
   const others = airports.filter((a: Destination) => a.id !== airport.id).slice(0, 12);
 
   const features = [
-    { icon: Plane, title: "Live flight tracking", desc: "We monitor your flight and adjust pickup for delays or early arrivals — no extra charge." },
+    { icon: Plane, title: "Flight tracking", desc: "Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late." },
     { icon: ShieldCheck, title: "Meet & greet", desc: "Add it to any booking for a small extra charge — your driver waits inside the terminal with a name board." },
     { icon: Clock, title: "24/7 dispatch", desc: "Book any airport transfer, any hour of the day, with a fixed price shown before you book." },
     { icon: MapPin, title: "Door-to-door service", desc: "From terminal to your hotel, office or home address anywhere in the UK." },
@@ -177,7 +177,7 @@ function AirportPage() {
         eyebrow="Airport Transfers"
         title={shortName}
         titleAccent="Transfers"
-        subtitle={`Book a private, fixed-fare transfer to or from ${name}. Meet & greet, live flight tracking and 24/7 dispatch across the UK.`}
+        subtitle={`Book a private, fixed-fare transfer to or from ${name}. Meet & greet, flight tracking and 24/7 dispatch across the UK.`}
         facts={[
           ...(iata ? [{ label: "IATA", value: iata }] : []),
           ...(cityLine ? [{ label: "Location", value: cityLine }] : []),
@@ -217,7 +217,7 @@ function AirportPage() {
             {[
               { n: "01", t: "Enter your details", d: "Pick your date, time and drop-off address. Get a fixed fare instantly." },
               { n: "02", t: "Confirm your ride", d: "Choose vehicle class and add extras like meet & greet or child seats." },
-              { n: "03", t: "Meet your driver", d: `We track your flight and greet you inside ${shortName}'s arrivals hall.` },
+              { n: "03", t: "Meet your driver", d: `Your driver greets you inside ${shortName}'s arrivals hall. ${FACT_TEXT.flightTracking}` },
             ].map((s) => (
               <div key={s.n} className="rounded-2xl bg-card p-6 border border-border shadow-raised">
                 <p className="font-mono text-xs text-[var(--gold-ink)] tracking-widest">{s.n}</p>

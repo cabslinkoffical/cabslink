@@ -42,7 +42,7 @@ const VIP_SECTIONS = [
     title: "Airports and private terminals",
     paragraphs: [
       "Arrivals can be handled discreetly in the main terminal with a name board, or without a board where a passenger would prefer not to be identified in public. We also serve private and business aviation terminals, where access and timing are arranged with the handling agent.",
-      "Flights are tracked either way, so the car is in position for the actual landing rather than the published schedule.",
+      "Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late.",
     ],
   },
   {

@@ -40,7 +40,7 @@ const CT_SECTIONS = [
   {
     title: "Visiting clients and candidates",
     paragraphs: [
-      "Inbound visitors are met at arrivals with a name board and taken directly to your office or hotel, with the flight tracked so a delay does not leave anyone waiting or stranded.",
+      "Inbound visitors are met at arrivals with a name board and taken directly to your office or hotel. Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late.",
       "Interview candidates and inspection visitors can be booked the same way, and we keep both the traveller and the internal booker updated so your team knows when the guest will actually arrive.",
     ],
   },

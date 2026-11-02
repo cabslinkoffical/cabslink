@@ -31,7 +31,7 @@ export const ABOUT = {
     { t: "Ways to pay", d: FACT_TEXT.payment },
   ],
   faqs: [
-    { q: "Do you monitor flights?", a: "Yes. Airport pickups are linked to your flight number so the pickup moves with an early or late landing." },
+    { q: "Do you track flights?", a: "Yes. Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late." },
     { q: "How long will the driver wait at the airport?", a: FACT_TEXT.airportWait },
     { q: "Is meet and greet available?", a: FACT_TEXT.meetGreet },
     { q: "How do I pay?", a: FACT_TEXT.payment },

@@ -37,7 +37,7 @@ const AT_SECTIONS = [
   {
     title: "Arrivals, flight tracking and waiting time",
     paragraphs: [
-      "Give us your flight number and we track it. If you land early the driver is brought forward; if the inbound slips, the booking moves with it rather than being treated as a missed pick-up.",
+      "Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late.",
       `${FACT_TEXT.airportWait} That covers normal immigration and baggage reclaim, and any extra waiting is shown as a separate line, never folded silently into the fare.`,
     ],
   },
@@ -73,7 +73,7 @@ const AT_SECTIONS = [
 
 const AT_FAQS = [
   { q: "How much free waiting time do I get at the airport?", a: FACT_TEXT.airportWait },
-  { q: "What happens if my flight is delayed?", a: "We track the flight you give us and adjust the pick-up automatically, whether it lands early or late. If it is cancelled, contact us and we will move the booking to your revised arrival." },
+  { q: "What happens if my flight is delayed?", a: "Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late. If it is cancelled, contact us and we will move the booking to your revised arrival." },
   { q: "Is the fare fixed?", a: "Yes. The quote covers the vehicle, driver and route including tolls and standard airport charges. Only extras you choose — additional stops, extended waiting, child seats — change the total, and each is listed before you confirm." },
   { q: "Do you meet me inside arrivals?", a: FACT_TEXT.meetGreet },
   { q: "Which UK airports do you cover?", a: "All major UK airports, including Edinburgh, Glasgow, Aberdeen, Heathrow, Gatwick, Stansted, Luton, London City, Manchester, Birmingham, Newcastle and Liverpool, plus regional airfields on request." },
@@ -96,7 +96,7 @@ function AirportPage() {
             <SectionHeader eyebrow="What's included" title="Smooth from booking to arrival" subtitle="Every airport transfer comes with what should be standard — and rarely is." />
             <ul className="mt-8 grid sm:grid-cols-2 gap-4">
               {[
-                { i: Plane, t: "Live flight tracking", d: "We adjust to delays automatically." },
+                { i: Plane, t: "Flight tracking", d: "Our team tracks your flight and adjusts your pickup." },
                 { i: ShieldCheck, t: "Meet & greet", d: "Personal welcome with a name board at arrivals." },
                 { i: Clock, t: "Free wait time", d: `${FACT_TEXT.airportWaitShort} — at no extra cost.` },
                 { i: MapPin, t: "Door-to-door", d: "From home, hotel or office to your terminal." },

@@ -54,7 +54,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         "heading": "Choosing the right car for your party",
         "paragraphs": [
           "Golf trips and family holidays often need more boot space than people expect. Our saloons carry up to four passengers with two large cases, the Estate Car takes four passengers with three cases, the Standard MPV four passengers with four cases, the Seven-Seater MPV six passengers with three cases, the Premium MPV seven passengers with seven cases and the Eight-Seater Van eight passengers with eight cases. Child seats can be added during booking.",
-          "Meet and greet is available on every booking for a small extra charge, shown in your quote: your driver waits in arrivals with a name board, and we track your flight so the pickup time follows your actual landing."
+          "Meet and greet is available on every booking for a small extra charge, shown in your quote: your driver waits in arrivals with a name board. Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late."
         ]
       }
     ]
@@ -75,7 +75,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
       {
         "heading": "Planning a west-coast arrival",
         "paragraphs": [
-          "If you are landing late, add your flight number when you book so the driver can follow the arrival time rather than the timetable. For a Loch Lomond stay, give us the exact lodge or cottage address: the full address lets us confirm the drop-off and the fare before the day, rather than working from the town name alone.",
+          "Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late. For a Loch Lomond stay, give us the exact lodge or cottage address: the full address lets us confirm the drop-off and the fare before the day, rather than working from the town name alone.",
           "Travelling on to Edinburgh after a few days in the west? Book that second journey at the same time and both fixed fares appear in one place, so the whole trip is costed before you leave home."
         ]
       },
@@ -104,7 +104,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
       {
         "heading": "Arriving at Aberdeen Airport",
         "paragraphs": [
-          "Aberdeen Airport (ABZ) serves the city of Aberdeen and the north-east of Scotland. Plenty of our passengers here are travelling for work, so the pickup is built around a predictable routine: we follow the flight, the driver waits in arrivals with your name, and you know the fare before you land.",
+          "Aberdeen Airport (ABZ) serves the city of Aberdeen and the north-east of Scotland. Plenty of our passengers here are travelling for work, so the pickup is built around a predictable routine: the driver waits in arrivals with your name and you know the fare before you land. Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late.",
           "From the terminal, Aberdeen city itself is the most common drop-off, whether that is a hotel, an office or a family home."
         ]
       },
@@ -165,7 +165,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         "heading": "Travelling with outdoor kit",
         "paragraphs": [
           "Walkers, cyclists and anglers often arrive here with bulky bags. The Standard MPV carries four passengers with four large cases, the Premium MPV seven passengers with seven cases, and the Eight-Seater Van eight passengers with eight cases — useful when a group shares one car.",
-          "Your driver waits in arrivals with a name board, and we follow your flight in case it is early or late."
+          "Your driver waits in arrivals with a name board. Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late."
         ]
       }
     ],
@@ -228,7 +228,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
       {
         "heading": "Getting the most from a Prestwick arrival",
         "paragraphs": [
-          "Add your flight number so we can follow the landing. If you are staying in Ayr or further along the Ayrshire coast, the exact hotel or course address lets us confirm the fare before you travel, rather than guessing from a town name.",
+          "Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late. If you are staying in Ayr or further along the Ayrshire coast, the exact hotel or course address lets us confirm the fare before you travel, rather than guessing from a town name.",
           "Golf groups often split over two cars; booking them together means one reference and drivers who arrive at the same time. If part of the group is flying into Glasgow instead, book both pickups and we will coordinate them so everyone reaches the same place. Child seats, extra stops and return journeys can be added during booking, and every price is shown before payment."
         ]
       },
@@ -243,7 +243,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         "heading": "Golf bags and holiday luggage",
         "paragraphs": [
           "Ayrshire attracts golfers, and golf bags take up more room than a suitcase. The Standard MPV carries four people with four large cases, and the Premium MPV seven people with seven cases. For a single traveller, a saloon is enough.",
-          "Your driver meets you in arrivals with a name board, and we follow the flight so an early landing is not a problem."
+          "Your driver meets you in arrivals with a name board. Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late."
         ]
       }
     ],
@@ -267,7 +267,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         "heading": "Making a cross-border trip easy",
         "paragraphs": [
           "Long journeys are best booked early. Give your flight number and the full destination address, whether that is in Newcastle, the Scottish Borders or Edinburgh, and the quote will cover the whole drive.",
-          "If you would like a comfort break on the way, add it as a stop when booking so the driver can plan for it. Researchers visiting the BioQuarter and whisky visitors heading for Glenkinchie can book the onward journey in the same order. Every booking comes with an emailed confirmation showing the fixed fare. If your flight is delayed, our flight tracking moves the pickup to match."
+          "If you would like a comfort break on the way, add it as a stop when booking so the driver can plan for it. Researchers visiting the BioQuarter and whisky visitors heading for Glenkinchie can book the onward journey in the same order. Every booking comes with an emailed confirmation showing the fixed fare. Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late."
         ]
       },
       {
@@ -281,7 +281,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         "heading": "Comfort over a longer distance",
         "paragraphs": [
           "On a long trip, space matters more than on a short city hop. The Executive Saloon and Luxury Saloon suit business travellers who want a quieter ride, while the Premium MPV takes seven passengers and seven large cases for a family heading home together.",
-          "Your driver waits in arrivals with a name board, and we follow your flight in case it lands early or late."
+          "Your driver waits in arrivals with a name board. Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late."
         ]
       }
     ],
@@ -343,7 +343,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         "heading": "Getting ready for a Heathrow journey",
         "paragraphs": [
           "Tell us your terminal and flight number when booking, and choose a pickup time with generous margin before check-in. For a long drive, comfort stops can be added to the booking so the driver plans for them.",
-          "Families travelling with young children can add the right child seat for each child while booking; the price of every extra is shown before payment. Arriving back at Heathrow? Book the homeward car at the same time and your driver will be waiting in arrivals, with your flight tracked so delays are handled for you."
+          "Families travelling with young children can add the right child seat for each child while booking; the price of every extra is shown before payment. Arriving back at Heathrow? Book the homeward car at the same time and your driver will be waiting in arrivals. Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late."
         ]
       },
       {
@@ -357,13 +357,13 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         "heading": "Vehicles for business and long-haul travel",
         "paragraphs": [
           "Business travellers usually pick the Executive Saloon or Luxury Saloon. The Luxury Saloon carries three passengers with two large cases. Families with luggage for a long holiday often choose the Premium MPV, which takes seven passengers and seven large cases.",
-          "Meet and greet is available on every booking for a small extra charge, shown in your quote, and we follow your flight to time the pickup."
+          "Meet and greet is available on every booking for a small extra charge, shown in your quote. Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late."
         ]
       },
       {
         "heading": "Waiting time and changes to your booking",
         "paragraphs": [
-          `${FACT_TEXT.airportWait} On arrivals, your driver waits with a name board, and we follow your flight so a delayed landing does not count against you.`,
+          `${FACT_TEXT.airportWait} On arrivals, your driver waits with a name board. Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late.`,
           `${FACT_TEXT.transferCancellation} You can review or change the journey online through Manage Booking at any time before travel.`
         ]
       }
@@ -425,7 +425,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
       {
         "heading": "Arranging a Birmingham trip",
         "paragraphs": [
-          "For outbound journeys, set a pickup time that gives a comfortable margin before check-in, and add the flight number so we can follow it. Landing at Birmingham and travelling north? Tell us the final address and any stops you need, such as collecting a relative on the way.",
+          "For outbound journeys, set a pickup time that gives a comfortable margin before check-in,. Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late. Landing at Birmingham and travelling north? Tell us the final address and any stops you need, such as collecting a relative on the way.",
           "If you are booking for a wedding or another family event, add every pickup address in the booking so one driver collects everyone in order. The fare for the full route, including extra stops, is shown before you pay, and the confirmation arrives by email."
         ]
       },
@@ -560,7 +560,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
       {
         "heading": "Planning a Leeds Bradford journey",
         "paragraphs": [
-          "Leave a generous margin before check-in when you set your pickup time, and add your flight number so the driver can follow it on the day. Give the full address at both ends; Yorkshire villages can share similar names, and the exact address keeps the fare accurate.",
+          "Leave a generous margin before check-in when you set your pickup time,. Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late. Give the full address at both ends; Yorkshire villages can share similar names, and the exact address keeps the fare accurate.",
           "If you are booking for a family, add each child seat during booking and check the luggage capacity of the vehicle you choose. Return trips can be booked at the same time, so your driver is waiting in arrivals when you fly home. Every booking is confirmed by email with the full fixed price. If plans change, contact us before travel and we will update the booking where possible."
         ]
       },
@@ -598,7 +598,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
       {
         "heading": "Group travel checklist",
         "paragraphs": [
-          "List every pickup address when booking, in the order you want to be collected, so one driver can gather the group. Add your flight number so the pickup time follows the real landing.",
+          "List every pickup address when booking, in the order you want to be collected, so one driver can gather the group. Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late.",
           "If the group is travelling to a match or a concert, tell us the venue and when you need to arrive, and we will plan the timing with you. Fans travelling back the same night can book the return in the same order. The price for the whole route, including extra stops, is shown before you pay, and the booking reference lets you check or manage the journey online later. Child seats can be added for family trips at the same time."
         ]
       },
@@ -636,7 +636,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
       {
         "heading": "What is included in the price",
         "paragraphs": [
-          `${FACT_TEXT.meetGreet} On airport pickups we also follow your flight, so the driver times the meeting to the real landing rather than the timetable.`,
+          `${FACT_TEXT.meetGreet} Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late.`,
           `Airport pickups include ${FACT_TEXT.airportWaitShort}, and the fare is confirmed when you book — it does not change on the day, whatever the traffic.`
         ]
       },
@@ -681,7 +681,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
       {
         "heading": "When the weather slows the roads",
         "paragraphs": [
-          "Long drives to and from Wales are exposed to the weather, which is one reason a fixed fare suits this journey: rain, wind or roadworks do not change what you pay. Set a pickup time with a generous margin before check-in, and add your flight number so the driver can follow the real arrival.",
+          "Long drives to and from Wales are exposed to the weather, which is one reason a fixed fare suits this journey: rain, wind or roadworks do not change what you pay. Set a pickup time with a generous margin before check-in,. Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late.",
           `${FACT_TEXT.transferCancellation} The booking confirmation email lists the full price, the addresses and any extras, and Manage Booking lets you review the journey online.`
         ]
       },
@@ -712,7 +712,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
       {
         "heading": "Meeting at the terminal",
         "paragraphs": [
-          `${FACT_TEXT.meetGreet} We also follow your flight, so a delay in the air does not leave you watching an empty arrivals hall.`,
+          `${FACT_TEXT.meetGreet} Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late.`,
           `Airport pickups include ${FACT_TEXT.airportWait} Add your flight number when you book and the pickup is timed to the real landing rather than the schedule.`
         ]
       },
@@ -796,7 +796,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         "heading": "Luggage first",
         "paragraphs": [
           "Holiday luggage is the deciding factor on most Luton bookings. The Standard MPV takes four passengers with four large cases, the Seven-Seater MPV six passengers with three cases, and the Eight-Seater Van eight passengers with eight cases. Child seats can be added for each child in the party.",
-          "If you are flying home from Luton, book the return with the Add return option. Your driver waits in arrivals with a name board, and we follow the flight so a late landing is covered."
+          "If you are flying home from Luton, book the return with the Add return option. Your driver waits in arrivals with a name board. Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late."
         ]
       },
       {
@@ -826,7 +826,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
       {
         "heading": "A long drive, planned properly",
         "paragraphs": [
-          "The journey between Scotland and the south coast is one of the longer trips we plan, so tell us the full address at both ends and allow a comfortable margin before check-in. Add your flight number and the driver can follow the arrival rather than the timetable.",
+          "The journey between Scotland and the south coast is one of the longer trips we plan, so tell us the full address at both ends and allow a comfortable margin before check-in. Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late.",
           "If you would like a comfort stop on a long journey, add it as a stop in the booking and the driver plans for it. Extra stops are priced into the quote, so there are no surprises on the day."
         ]
       },
@@ -872,7 +872,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         "heading": "Landing back at Stansted",
         "paragraphs": [
           `${FACT_TEXT.meetGreet} ${FACT_TEXT.airportWait}`,
-          "Book the return journey in the same order with the Add return option, and your driver will be waiting in arrivals with a name board when you come home. We follow the flight, so a delayed landing is handled without you needing to call."
+          "Book the return journey in the same order with the Add return option, and your driver will be waiting in arrivals with a name board when you come home. Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late."
         ]
       },
       {
