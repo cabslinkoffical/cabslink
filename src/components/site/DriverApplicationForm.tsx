@@ -142,7 +142,7 @@ export function DriverApplicationForm({ className = "" }: { className?: string }
   const yesNo: Array<[string, string]> = [["yes", "Yes"], ["no", "No"]];
 
   return (
-    <form noValidate onSubmit={onSubmit} className={`rounded-3xl border border-border bg-card p-6 md:p-8 pb-28 lg:pb-8 shadow-raised h-fit ${className}`}>
+    <form id="application-form" noValidate onSubmit={onSubmit} className={`scroll-mt-24 rounded-3xl border border-border bg-card p-6 md:p-8 pb-28 lg:pb-8 shadow-raised h-fit ${className}`}>
       <h3 className="font-display text-2xl font-semibold">Driver application</h3>
       <p className="text-sm text-muted-foreground mt-1">Fill in your details, licence and vehicle so we can review your application.</p>
       <div className="mt-6 grid gap-4">

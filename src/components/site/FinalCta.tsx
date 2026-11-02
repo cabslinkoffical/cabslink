@@ -13,6 +13,8 @@ export type FinalCtaProps = {
   label?: string;
   /** Internal destination (defaults to /book). Ignored when `href` is set. */
   to?: string;
+  /** Search params for `to`, e.g. { tour: "slug" }. */
+  search?: Record<string, string>;
   /** Same-page anchor such as "#booking" to jump to a prefilled form. */
   href?: string;
   /** Analytics label for the primary action. */
@@ -31,6 +33,7 @@ export function FinalCta({
   subtitle = DEFAULT_SUBTITLE,
   label = "Book Now",
   to = "/book",
+  search,
   href,
   trackAs = "final_cta_quote",
 }: FinalCtaProps) {
@@ -56,7 +59,7 @@ export function FinalCta({
                       {label} <ArrowRight className="size-4" />
                     </a>
                   ) : (
-                    <Link to={to} onClick={onClick}>
+                    <Link to={to} search={search as never} onClick={onClick}>
                       {label} <ArrowRight className="size-4" />
                     </Link>
                   )}
