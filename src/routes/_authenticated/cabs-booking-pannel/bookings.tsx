@@ -38,7 +38,6 @@ import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
 import { BookingStatusCell } from "@/components/admin/BookingStatusCell";
 import { CannedEmailComposer } from "@/components/admin/CannedEmailComposer";
 import { TourEnquiries } from "@/components/admin/TourEnquiries";
-import { TOUR_SERVICE_TYPE } from "@/lib/tour-enquiries";
 
 /** Pre-selects the most likely pre-written email for the booking's status. */
 const TEMPLATE_FOR_STATUS: Partial<Record<BookingStatus, string>> = {
