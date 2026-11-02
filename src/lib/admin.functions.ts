@@ -197,14 +197,6 @@ export const deleteBooking = createServerFn({ method: "POST" })
 // =================================================================
 // Messages (kept for completeness)
 // =================================================================
-export const listMessages = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    await assertAdmin(context);
-    const { data, error } = await context.supabase.from("contact_messages").select("*").order("created_at", { ascending: false });
-    if (error) throw new Error(error.message);
-    return data ?? [];
-  });
 
 const tourBookingStatusSchema = z.enum([
   "new", "read", "pending", "booked", "paid", "confirmed", "resolved", "cancelled",
@@ -246,18 +238,6 @@ export const deleteMessage = createServerFn({ method: "POST" })
 // =================================================================
 // Driver applications received through the website
 // =================================================================
-export const listDriverApplications = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    await assertAdmin(context);
-    const { data, error } = await context.supabase
-      .from("contact_messages")
-      .select("id, name, email, phone, message, status, created_at")
-      .ilike("subject", "%Driver%")
-      .order("created_at", { ascending: false });
-    if (error) throw new Error(error.message);
-    return data ?? [];
-  });
 
 
 // =================================================================
@@ -420,40 +400,10 @@ export const listDispatchDrivers = createServerFn({ method: "GET" })
 // =================================================================
 // Customers (derived from bookings)
 // =================================================================
-export const listCustomers = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    await assertAdmin(context);
-    const { fetchAllPages } = await import("@/lib/fetch-all-pages");
-    const data = await fetchAllPages<any>((a, z) => context.supabase.from("bookings")
-      .select("id, customer_name, email, phone, price, pickup_date, status, created_at")
-      .is("deleted_at", null).order("id").range(a, z));
-    const map = new Map<string, any>();
-    for (const b of data) {
-      const key = (b.email ?? "").toLowerCase();
-      if (!key) continue;
-      const existing = map.get(key) ?? { name: b.customer_name, email: b.email, phone: b.phone, bookings: 0, spend: 0, last: b.pickup_date, lastCreated: b.created_at };
-      existing.bookings += 1;
-      existing.spend += Number(b.price || 0);
-      if (b.pickup_date > existing.last) existing.last = b.pickup_date;
-      if (new Date(b.created_at) > new Date(existing.lastCreated)) existing.lastCreated = b.created_at;
-      map.set(key, existing);
-    }
-    return Array.from(map.values()).sort((a, b) => new Date(b.lastCreated).getTime() - new Date(a.lastCreated).getTime());
-  });
 
 // =================================================================
 // Payments
 // =================================================================
-export const listPayments = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    await assertAdmin(context);
-    const { fetchAllPages } = await import("@/lib/fetch-all-pages");
-    return await fetchAllPages<any>((a, z) => context.supabase.from("payments")
-      .select("*, booking:bookings(id, booking_ref, customer_name, email, phone, pickup_address, dropoff_address, pickup_date, pickup_time, status, payment_status)")
-      .order("created_at", { ascending: false }).order("id", { ascending: false }).range(a, z));
-  });
 
 const paymentSchema = z.object({
   id: z.string().uuid().optional(),
@@ -841,26 +791,6 @@ export const getReports = createServerFn({ method: "POST" })
 // =================================================================
 // Phase 2: Activity logs
 // =================================================================
-export const listActivityLogs = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
-    entity: z.string().optional(),
-    search: z.string().optional(),
-    from: z.string().optional(),
-    to: z.string().optional(),
-    limit: z.number().int().min(1).max(500).default(200),
-  }).parse(i))
-  .handler(async ({ data, context }) => {
-    await assertAdmin(context);
-    let q = context.supabase.from("activity_logs").select("*").order("created_at", { ascending: false }).limit(data.limit);
-    if (data.entity) q = q.eq("entity", data.entity);
-    if (data.from) q = q.gte("created_at", data.from);
-    if (data.to) q = q.lte("created_at", data.to);
-    if (data.search) q = q.or(`actor_email.ilike.%${data.search}%,entity_id.ilike.%${data.search}%,action.ilike.%${data.search}%`);
-    const { data: rows, error } = await q;
-    if (error) throw new Error(error.message);
-    return rows ?? [];
-  });
 
 
 // =================================================================
@@ -870,17 +800,6 @@ const cancellationStatusSchema = z.enum([
   "pending", "in_review", "approved", "refunded", "declined", "completed",
 ]);
 
-export const listCancellationRequests = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    await assertAdmin(context);
-    const { data, error } = await context.supabase
-      .from("cancellation_requests")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (error) throw new Error(error.message);
-    return data ?? [];
-  });
 
 export const updateCancellationRequest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -1003,17 +922,6 @@ const amendmentStatusSchema = z.enum([
   "pending_payment", "awaiting_refund", "applied", "declined",
 ]);
 
-export const listBookingAmendments = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    await assertAdmin(context);
-    const { data, error } = await context.supabase
-      .from("booking_amendments")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (error) throw new Error(error.message);
-    return data ?? [];
-  });
 
 export const updateBookingAmendment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

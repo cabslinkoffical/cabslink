@@ -1,9 +1,12 @@
 import { formatTime12 } from "@/lib/time-format";
 import { createFileRoute } from "@tanstack/react-router";
-import { useSuspenseQuery, useMutation, useQueryClient, queryOptions, useQuery } from "@tanstack/react-query";
+import { useMutation, useQueryClient, queryOptions, useQuery, keepPreviousData } from "@tanstack/react-query";
+import { listPaymentsPage } from "@/lib/admin-lists.functions";
+import { Pager, usePageState } from "@/components/admin/Pager";
+import { DEFAULT_PAGE_SIZE } from "@/lib/admin-paging";
 import { useServerFn } from "@tanstack/react-start";
-import { listPayments, upsertPayment, deletePayment, listBookings } from "@/lib/admin.functions";
-import { useState, useMemo, Fragment } from "react";
+import { upsertPayment, deletePayment, listBookings } from "@/lib/admin.functions";
+import { useState, Fragment } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,8 +19,12 @@ import { Plus, Edit, Trash2, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
 
-const opts = queryOptions({ queryKey: ["admin", "payments"], queryFn: () => listPayments() });
-const bOpts = queryOptions({ queryKey: ["admin", "bookings"], queryFn: () => listBookings() });
+const payOpts = (status: string, page: number, pageSize: number) => queryOptions({
+  queryKey: ["admin", "payments", { status, page, pageSize }],
+  queryFn: () => listPaymentsPage({ data: { status, page, pageSize } }),
+  placeholderData: keepPreviousData,
+});
+const bOpts = queryOptions({ queryKey: ["admin", "bookings", "picker"], queryFn: () => listBookings() });
 export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/payments")({
   head: () => ({
     meta: [
@@ -26,7 +33,7 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/paymen
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(opts),
+  loader: ({ context }) => context.queryClient.ensureQueryData(payOpts("all", 1, DEFAULT_PAGE_SIZE)),
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error instanceof Error ? error.message : String(error)}</div>,
   notFoundComponent: () => <div className="p-8">Not found</div>,
   component: Page,
@@ -35,19 +42,17 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/paymen
 const empty = { id: undefined as string | undefined, booking_id: null as string | null, amount: 0, currency: "GBP", method: "card", status: "unpaid", reference: "", notes: "" };
 
 function Page() {
-  const { data: payments } = useSuspenseQuery(opts);
   const qc = useQueryClient();
   const upsert = useServerFn(upsertPayment);
   const del = useServerFn(deletePayment);
   const [form, setForm] = useState<any>(null);
   const [detail, setDetail] = useState<any>(null);
   const [tab, setTab] = useState("all");
-  const { data: bookings = [] } = useQuery(bOpts);
-
-  const filtered = useMemo(() => {
-    if (tab === "all") return payments;
-    return payments.filter((p: any) => p.status === tab);
-  }, [payments, tab]);
+  // Booking picker is only needed while recording/editing a payment.
+  const { data: bookings = [] } = useQuery({ ...bOpts, enabled: !!form });
+  const paging = usePageState(tab);
+  const listQ = useQuery(payOpts(tab, paging.page, paging.pageSize));
+  const filtered = (listQ.data?.rows ?? []) as any[];
 
   const save = useMutation({ mutationFn: (v: any) => upsert({ data: v }), onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin", "payments"] }); qc.invalidateQueries({ queryKey: ["admin", "stats"] }); toast.success("Saved"); setForm(null); }, onError: (e: any) => toast.error(e.message) });
   const remove = useMutation({ mutationFn: (id: string) => del({ data: { id } }), onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin", "payments"] }); toast.success("Deleted"); }, onError: (e: any) => toast.error(e.message) });
@@ -97,6 +102,10 @@ function Page() {
             </tbody>
           </table>
         </div>
+      )}
+      {(listQ.data?.total ?? 0) > 0 && (
+        <Pager page={paging.page} pageSize={paging.pageSize} total={listQ.data?.total ?? 0} noun="payments" loading={listQ.isFetching}
+          onPageChange={paging.setPage} onPageSizeChange={paging.setPageSize} />
       )}
 
       <Dialog open={!!detail} onOpenChange={o => !o && setDetail(null)}>

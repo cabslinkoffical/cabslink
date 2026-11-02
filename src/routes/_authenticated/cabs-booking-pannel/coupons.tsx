@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Pager, usePagedRows } from "@/components/admin/Pager";
 import { useSuspenseQuery, useMutation, useQueryClient, queryOptions } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { listCoupons, upsertCoupon, deleteCoupon } from "@/lib/admin.functions";
@@ -43,6 +44,7 @@ function Page() {
   const save = useMutation({ mutationFn: (v: any) => upsert({ data: v }), onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin", "coupons"] }); toast.success("Saved"); setForm(null); }, onError: (e: any) => toast.error(e.message) });
   const remove = useMutation({ mutationFn: (id: string) => del({ data: { id } }), onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin", "coupons"] }); toast.success("Deleted"); }, onError: (e: any) => toast.error(e.message) });
 
+  const { pageRows: pagedRows, pager: pagedPager } = usePagedRows(data, data.length);
   return (
     <div className="space-y-6">
       <PageHeader title="Coupons & Discounts" description="Create promo codes with limits and validity windows.">
@@ -57,7 +59,7 @@ function Page() {
               <tr><th className="text-left px-4 py-3">Code</th><th className="text-left px-4 py-3">Type</th><th className="text-left px-4 py-3">Value</th><th className="text-left px-4 py-3">Min order</th><th className="text-left px-4 py-3">Usage</th><th className="text-left px-4 py-3">Validity</th><th className="text-left px-4 py-3">Status</th><th className="text-right px-4 py-3">Actions</th></tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {data.map((c: any) => (
+              {pagedRows.map((c: any) => (
                 <tr key={c.id} className="hover:bg-muted/30">
                   <td className="px-4 py-3 font-mono font-semibold text-primary">{c.code}</td>
                   <td className="px-4 py-3 capitalize">{c.discount_type}</td>
@@ -81,6 +83,7 @@ function Page() {
           </table>
         </div>
       )}
+      {pagedPager.total > pagedPager.pageSize && <Pager {...pagedPager} noun="coupons" className="mt-3" />}
 
       <Dialog open={!!form} onOpenChange={o => !o && setForm(null)}>
         <DialogContent>

@@ -1,8 +1,8 @@
 import { formatTime12 } from "@/lib/time-format";
 import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
-import { useSuspenseQuery, useMutation, useQueryClient, queryOptions, useQuery } from "@tanstack/react-query";
+import { useMutation, useQueryClient, queryOptions, useQuery, keepPreviousData } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { listBookings, updateBooking, softDeleteBooking, deleteBooking, regenerateBookingLink } from "@/lib/admin.functions";
+import { updateBooking, softDeleteBooking, deleteBooking, regenerateBookingLink } from "@/lib/admin.functions";
 import { setBookingStatusFn, listBookingNotifications, retryBookingNotification } from "@/lib/booking.functions";
 import { STATUS_META, ADMIN_STATUS_OPTIONS, statusLabel, isStatusLocked, type BookingStatus } from "@/lib/booking-lifecycle";
 
@@ -18,7 +18,11 @@ function statusOptionsFor(current?: string | null): BookingStatus[] {
   return list;
 }
 
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import { listBookingsPage, countBookingTabs, exportBookings } from "@/lib/admin-bookings.functions";
+import { BOOKING_TABS } from "@/lib/admin-bookings";
+import { DEFAULT_PAGE_SIZE } from "@/lib/admin-paging";
+import { Pager, useDebounced } from "@/components/admin/Pager";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -34,7 +38,6 @@ import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
 import { BookingStatusCell } from "@/components/admin/BookingStatusCell";
 import { CannedEmailComposer } from "@/components/admin/CannedEmailComposer";
 import { TourEnquiries } from "@/components/admin/TourEnquiries";
-import { TOUR_SERVICE_TYPE } from "@/lib/tour-enquiries";
 
 /** Pre-selects the most likely pre-written email for the booking's status. */
 const TEMPLATE_FOR_STATUS: Partial<Record<BookingStatus, string>> = {
@@ -48,7 +51,18 @@ const TEMPLATE_FOR_STATUS: Partial<Record<BookingStatus, string>> = {
   rejected: "booking_cancelled",
 };
 
-const opts = queryOptions({ queryKey: ["admin", "bookings"], queryFn: () => listBookings() });
+const bookingsPageOpts = (tab: string, q: string, page: number, pageSize: number) => queryOptions({
+  queryKey: ["admin", "bookings", "page", { tab, q, page, pageSize }],
+  queryFn: () => listBookingsPage({ data: { tab, q, page, pageSize } }),
+  placeholderData: keepPreviousData,
+});
+const bookingCountsOpts = (q: string) => queryOptions({
+  queryKey: ["admin", "bookings", "counts", { q }],
+  queryFn: () => countBookingTabs({ data: { q } }),
+  placeholderData: keepPreviousData,
+});
+
+
 
 export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/bookings")({
   head: () => ({
@@ -66,67 +80,50 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/bookin
     ...(typeof s.tab === "string" && s.tab.length > 0 ? { tab: s.tab } : {}),
     ...(s.view === "tours" ? { view: "tours" as const } : {}),
   }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(opts),
+  loaderDeps: ({ search }) => ({ tab: search.tab ?? "all", view: search.view ?? "bookings" }),
+  loader: ({ context, deps }) => deps.view === "tours" ? undefined : Promise.all([
+    context.queryClient.ensureQueryData(bookingsPageOpts(deps.tab, "", 1, DEFAULT_PAGE_SIZE)),
+    context.queryClient.ensureQueryData(bookingCountsOpts("")),
+  ]).then(() => undefined),
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error instanceof Error ? error.message : String(error)}</div>,
   notFoundComponent: () => <div className="p-8">Not found</div>,
   component: BookingsPage,
 });
 
-const TABS = [
-  { id: "all", label: "All" },
-  { id: "upcoming", label: "Upcoming" },
-  { id: "new", label: "New" },
-  { id: "awaiting_payment", label: "Awaiting payment" },
-  { id: "confirmed", label: "Confirmed" },
-  { id: "assigned", label: "Driver assigned" },
-  { id: "on_road", label: "On the road" },
-  { id: "completed", label: "Completed" },
-  { id: "cancelled", label: "Cancelled" },
-  { id: "history", label: "History (past)" },
-  { id: "deleted", label: "Deleted" },
-];
-
-function matchTab(b: any, tab: string) {
-  const today = new Date().toISOString().slice(0, 10);
-  if (tab === "deleted") return !!b.deleted_at;
-  if (b.deleted_at) return false;
-  if (tab === "cancelled") return ["cancelled", "rejected"].includes(b.status);
-  if (tab === "history") return b.pickup_date < today || ["completed", "cancelled", "rejected"].includes(b.status);
-  if (["cancelled", "rejected"].includes(b.status)) return false;
-  switch (tab) {
-    case "all": return true;
-    case "upcoming": return b.pickup_date >= today && b.status !== "completed";
-    case "new": return ["new", "pending_allocation", "bidding"].includes(b.status);
-    case "awaiting_payment": return b.status === "awaiting_payment";
-    case "confirmed": return b.status === "confirmed";
-    case "assigned": return b.status === "assigned";
-    case "on_road": return ["driver_en_route", "on_way", "passenger_on_board", "in_progress"].includes(b.status);
-    case "completed": return b.status === "completed";
-    default: return true;
-  }
-}
-
+const TABS = BOOKING_TABS;
 
 function BookingsPage() {
   const { tab = "all", view = "bookings" } = useSearch({ from: "/_authenticated/cabs-booking-pannel/bookings" });
-  const { data: bookings } = useSuspenseQuery(opts);
   const qc = useQueryClient();
   const update = useServerFn(updateBooking);
   const setStatus = useServerFn(setBookingStatusFn);
   const softDel = useServerFn(softDeleteBooking);
   const hardDel = useServerFn(deleteBooking);
   const [search, setSearch] = useState("");
+  const q = useDebounced(search.trim());
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState<number>(DEFAULT_PAGE_SIZE);
+  useEffect(() => { setPage(1); }, [tab, q]);
+  const listQ = useQuery(bookingsPageOpts(tab, q, page, pageSize));
+  const countsQ = useQuery(bookingCountsOpts(q));
+  const filtered: any[] = listQ.data?.rows ?? [];
+  const total = listQ.data?.total ?? 0;
+  const exportFn = useServerFn(exportBookings);
+  const [exporting, setExporting] = useState(false);
+  async function runExport(everything: boolean) {
+    setExporting(true);
+    try {
+      const rows = await exportFn({ data: { tab, q, everything } });
+      downloadCsv(bookingExportFilename(everything || (tab === "all" && !q) ? "all" : `${tab}-view`), bookingsToCsv(rows));
+      toast.success(everything ? `Exported all ${rows.length} booking(s)` : `Exported ${rows.length} booking(s)`);
+    } catch (e: any) {
+      toast.error(e?.message ?? "Export failed");
+    } finally {
+      setExporting(false);
+    }
+  }
   const [editing, setEditing] = useState<any | null>(null);
   const [reason, setReason] = useState("");
-
-  const filtered = useMemo(() => {
-    const q = search.toLowerCase();
-    // Tour enquiries are bookings too, but they are managed in the Tour
-    // Enquiries view so they don't show twice.
-    return bookings.filter((b: any) => b.service_type !== TOUR_SERVICE_TYPE && matchTab(b, tab) && (!q ||
-      [b.customer_name, b.email, b.phone, b.booking_ref, b.pickup_address, b.dropoff_address, b.vehicle_type].some((v: any) => (v ?? "").toLowerCase().includes(q))
-    ));
-  }, [bookings, tab, search]);
 
   const patchMut = useMutation({
     mutationFn: (vars: any) => update({ data: vars }),
@@ -176,7 +173,7 @@ function BookingsPage() {
       <Tabs value={tab} className="w-full">
         <TabsList className="w-full justify-start overflow-x-auto h-auto p-1 gap-1">
           {TABS.map(t => {
-            const count = bookings.filter((b: any) => b.service_type !== TOUR_SERVICE_TYPE && matchTab(b, t.id)).length;
+            const count = countsQ.data?.[t.id];
             return (
               <TabsTrigger key={t.id} value={t.id} asChild>
                 <Link
@@ -185,7 +182,7 @@ function BookingsPage() {
                   className="gap-2 px-3 py-2 text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                 >
                   {t.label}
-                  <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-semibold text-foreground">{count}</span>
+                  <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-semibold text-foreground">{count ?? "…"}</span>
                 </Link>
               </TabsTrigger>
             );
@@ -198,16 +195,13 @@ function BookingsPage() {
           <Search className="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <Input placeholder="Search by name, ref, address…" value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
         </div>
-        <span className="text-sm text-muted-foreground whitespace-nowrap">{filtered.length} bookings</span>
+        <span className="text-sm text-muted-foreground whitespace-nowrap">{total} bookings</span>
         <div className="flex flex-wrap items-center gap-2 sm:ml-auto">
           <Button
             variant="outline"
             size="sm"
-            disabled={filtered.length === 0}
-            onClick={() => {
-              downloadCsv(bookingExportFilename(tab === "all" && !search ? "all" : `${tab}-view`), bookingsToCsv(filtered));
-              toast.success(`Exported ${filtered.length} booking(s)`);
-            }}
+            disabled={total === 0 || exporting}
+            onClick={() => runExport(false)}
           >
             <Download className="size-4 mr-2" />
             Export this view
@@ -215,18 +209,22 @@ function BookingsPage() {
           <Button
             variant="ghost"
             size="sm"
-            disabled={bookings.length === 0}
-            onClick={() => {
-              downloadCsv(bookingExportFilename("all"), bookingsToCsv(bookings));
-              toast.success(`Exported all ${bookings.length} booking(s)`);
-            }}
+            disabled={exporting}
+            onClick={() => runExport(true)}
           >
             Export all
           </Button>
         </div>
       </div>
 
-      {filtered.length === 0 ? (
+      {listQ.isError ? (
+        <div role="alert" className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+          {(listQ.error as Error)?.message ?? "Could not load bookings."}{" "}
+          <Button size="sm" variant="outline" className="ml-2" onClick={() => listQ.refetch()}>Retry</Button>
+        </div>
+      ) : listQ.isPending ? (
+        <div className="rounded-xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">Loading bookings…</div>
+      ) : filtered.length === 0 ? (
         <EmptyState title="No bookings match" hint="Try a different filter or search term." />
       ) : (
         <div className="border border-border rounded-xl bg-card overflow-hidden">
@@ -322,6 +320,17 @@ function BookingsPage() {
             </table>
           </div>
         </div>
+      )}
+      {total > 0 && (
+        <Pager
+          page={page}
+          pageSize={pageSize}
+          total={total}
+          noun="bookings"
+          loading={listQ.isFetching}
+          onPageChange={setPage}
+          onPageSizeChange={(n) => { setPageSize(n); setPage(1); }}
+        />
       )}
 
       <Sheet open={!!editing} onOpenChange={o => !o && (setEditing(null), setReason(""))}>

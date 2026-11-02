@@ -1,12 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
-import { listCustomers } from "@/lib/admin.functions";
-import { useMemo, useState } from "react";
+import { useQuery, keepPreviousData, queryOptions } from "@tanstack/react-query";
+import { listCustomersPage } from "@/lib/admin-lists.functions";
+import { useState } from "react";
+import { Pager, useDebounced, usePageState } from "@/components/admin/Pager";
+import { DEFAULT_PAGE_SIZE } from "@/lib/admin-paging";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { PageHeader, EmptyState } from "@/components/admin/ui";
 
-const opts = queryOptions({ queryKey: ["admin", "customers"], queryFn: () => listCustomers() });
+const custOpts = (q: string, page: number, pageSize: number) => queryOptions({
+  queryKey: ["admin", "customers", { q, page, pageSize }],
+  queryFn: () => listCustomersPage({ data: { q, page, pageSize } }),
+  placeholderData: keepPreviousData,
+});
 export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/customers")({
   head: () => ({
     meta: [
@@ -15,7 +21,7 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/custom
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(opts),
+  loader: ({ context }) => context.queryClient.ensureQueryData(custOpts("", 1, DEFAULT_PAGE_SIZE)),
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error instanceof Error ? error.message : String(error)}</div>,
   notFoundComponent: () => <div className="p-8">Not found</div>,
   component: Page,
@@ -26,11 +32,12 @@ function fmt(n: number) {
 }
 
 function Page() {
-  const { data } = useSuspenseQuery(opts);
   const [search, setSearch] = useState("");
-  const filtered = useMemo(() => data.filter((c: any) =>
-    !search || [c.name, c.email, c.phone].some((v: string) => (v ?? "").toLowerCase().includes(search.toLowerCase()))
-  ), [data, search]);
+  const term = useDebounced(search.trim());
+  const paging = usePageState(term);
+  const listQ = useQuery(custOpts(term, paging.page, paging.pageSize));
+  const filtered = (listQ.data?.rows ?? []) as any[];
+  const total = listQ.data?.total ?? 0;
 
   return (
     <div className="space-y-6">
@@ -40,7 +47,7 @@ function Page() {
           <Search className="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <Input placeholder="Search customers…" value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
         </div>
-        <span className="text-sm text-muted-foreground">{filtered.length} customers</span>
+        <span className="text-sm text-muted-foreground">{total} customers</span>
       </div>
 
       {filtered.length === 0 ? <EmptyState title="No customers yet" hint="Customers appear after their first booking." /> : (
@@ -63,6 +70,10 @@ function Page() {
             </tbody>
           </table>
         </div>
+      )}
+      {total > 0 && (
+        <Pager page={paging.page} pageSize={paging.pageSize} total={total} noun="customers" loading={listQ.isFetching}
+          onPageChange={paging.setPage} onPageSizeChange={paging.setPageSize} />
       )}
     </div>
   );

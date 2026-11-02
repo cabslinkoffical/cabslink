@@ -1,3 +1,4 @@
+import { pageInputSchema, runPaged } from "@/lib/admin-paging";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
@@ -75,15 +76,15 @@ export const rotateDispatchSecret = createServerFn({ method: "POST" })
 
 export const listDispatchEvents = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .inputValidator((i: unknown) => pageInputSchema.parse(i ?? {}))
+  .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    const { data, error } = await (context.supabase as any)
+    return runPaged<any>((from, to) => (context.supabase as any)
       .from("dispatch_events")
-      .select("*")
+      .select("*", { count: "exact" })
       .order("created_at", { ascending: false })
-      .limit(200);
-    if (error) throw new Error(error.message);
-    return data ?? [];
+      .order("id", { ascending: false })
+      .range(from, to), data);
   });
 
 export const retryDispatchEvent = createServerFn({ method: "POST" })

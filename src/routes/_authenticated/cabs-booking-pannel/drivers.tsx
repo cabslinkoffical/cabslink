@@ -1,7 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useSuspenseQuery, useMutation, useQueryClient, queryOptions } from "@tanstack/react-query";
+import { useSuspenseQuery, useQuery, keepPreviousData, useMutation, useQueryClient, queryOptions } from "@tanstack/react-query";
+import { listDriverApplicationsPage } from "@/lib/admin-lists.functions";
+import { Pager, useDebounced, usePageState } from "@/components/admin/Pager";
+import { DEFAULT_PAGE_SIZE } from "@/lib/admin-paging";
 import { useServerFn } from "@tanstack/react-start";
-import { listDriverApplications, listDispatchDrivers, updateMessage, deleteMessage } from "@/lib/admin.functions";
+import { listDispatchDrivers, updateMessage, deleteMessage } from "@/lib/admin.functions";
 import { useState } from "react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -39,9 +42,10 @@ type DispatchDriver = {
   nextJobDate: string | null;
 };
 
-const applicationOpts = queryOptions({
-  queryKey: ["admin", "driver-applications"],
-  queryFn: () => listDriverApplications() as Promise<Application[]>,
+const applicationOpts = (q: string, page: number, pageSize: number) => queryOptions({
+  queryKey: ["admin", "driver-applications", { q, page, pageSize }],
+  queryFn: () => listDriverApplicationsPage({ data: { q, page, pageSize } }) as Promise<{ rows: Application[]; total: number; page: number; pageSize: number }>,
+  placeholderData: keepPreviousData,
 });
 
 const driverOpts = queryOptions({
@@ -65,7 +69,7 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/driver
   loader: ({ context }) =>
     Promise.all([
       context.queryClient.ensureQueryData(driverOpts),
-      context.queryClient.ensureQueryData(applicationOpts),
+      context.queryClient.ensureQueryData(applicationOpts("", 1, DEFAULT_PAGE_SIZE)),
     ]),
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error instanceof Error ? error.message : String(error)}</div>,
   notFoundComponent: () => <div className="p-8">Not found</div>,
@@ -78,7 +82,7 @@ function Page() {
   const active = tab ?? "assigned";
 
   const { data: drivers } = useSuspenseQuery(driverOpts);
-  const { data: applications } = useSuspenseQuery(applicationOpts);
+  const { data: firstApplications } = useQuery(applicationOpts("", 1, DEFAULT_PAGE_SIZE));
 
   return (
     <div className="space-y-6">
@@ -93,7 +97,7 @@ function Page() {
       >
         <TabsList>
           <TabsTrigger value="assigned">Dispatch drivers ({drivers.length})</TabsTrigger>
-          <TabsTrigger value="requested">Applications ({applications.length})</TabsTrigger>
+          <TabsTrigger value="requested">Applications ({firstApplications?.total ?? "…"})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="assigned" className="mt-6">
@@ -101,7 +105,7 @@ function Page() {
         </TabsContent>
 
         <TabsContent value="requested" className="mt-6">
-          <ApplicationList applications={applications} drivers={drivers} />
+          <ApplicationList drivers={drivers} />
         </TabsContent>
       </Tabs>
     </div>
@@ -187,7 +191,7 @@ function DriverList({ drivers }: { drivers: DispatchDriver[] }) {
   );
 }
 
-function ApplicationList({ applications, drivers }: { applications: Application[]; drivers: DispatchDriver[] }) {
+function ApplicationList({ drivers }: { drivers: DispatchDriver[] }) {
   const qc = useQueryClient();
   const update = useServerFn(updateMessage);
   const del = useServerFn(deleteMessage);
@@ -207,11 +211,10 @@ function ApplicationList({ applications, drivers }: { applications: Application[
     onError: (e: any) => toast.error(e.message),
   });
 
-  const term = q.trim().toLowerCase();
-  const rows = term
-    ? applications.filter((a) =>
-        [a.name, a.email, a.phone].some((v) => (v ?? "").toLowerCase().includes(term)))
-    : applications;
+  const term = useDebounced(q.trim());
+  const paging = usePageState(term);
+  const listQ = useQuery(applicationOpts(term, paging.page, paging.pageSize));
+  const rows = listQ.data?.rows ?? [];
 
   const matchedDriver = (a: Application) =>
     drivers.find((d) =>
@@ -291,6 +294,10 @@ function ApplicationList({ applications, drivers }: { applications: Application[
             );
           })}
         </div>
+      )}
+      {(listQ.data?.total ?? 0) > 0 && (
+        <Pager page={paging.page} pageSize={paging.pageSize} total={listQ.data?.total ?? 0} noun="applications" loading={listQ.isFetching}
+          onPageChange={paging.setPage} onPageSizeChange={paging.setPageSize} />
       )}
     </div>
   );

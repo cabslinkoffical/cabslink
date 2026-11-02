@@ -1,16 +1,16 @@
 import { Fragment } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { useMutation } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
-import { listActivityLogs } from "@/lib/admin.functions";
-import { useEffect, useState } from "react";
+import { useQuery, keepPreviousData, queryOptions } from "@tanstack/react-query";
+import { listActivityLogsPage } from "@/lib/admin-lists.functions";
+import { useState } from "react";
+import { Pager, usePageState } from "@/components/admin/Pager";
+import { DEFAULT_PAGE_SIZE } from "@/lib/admin-paging";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, ChevronRight, ChevronDown } from "lucide-react";
 import { PageHeader, EmptyState } from "@/components/admin/ui";
-import { toast } from "sonner";
 
 const ENTITIES = [
   "bookings", "vehicles", "vehicle_classes", "vehicle_models", "vehicle_pricing_profiles",
@@ -24,6 +24,14 @@ const ENTITIES = [
   "notification_templates", "banned_addresses",
 ];
 
+type LogFilters = { entity?: string; q: string; from?: string; to?: string };
+const NO_FILTERS: LogFilters = { q: "" };
+const logOpts = (f: LogFilters, page: number, pageSize: number) => queryOptions({
+  queryKey: ["admin", "activity-logs", { ...f, page, pageSize }],
+  queryFn: () => listActivityLogsPage({ data: { ...f, page, pageSize } }),
+  placeholderData: keepPreviousData,
+});
+
 export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/logs")({
   head: () => ({
     meta: [
@@ -32,6 +40,7 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/logs")
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
+  loader: ({ context }) => context.queryClient.ensureQueryData(logOpts(NO_FILTERS, 1, DEFAULT_PAGE_SIZE)),
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error instanceof Error ? error.message : String(error)}</div>,
   notFoundComponent: () => <div className="p-8">Not found</div>,
   component: Page,
@@ -43,15 +52,17 @@ function Page() {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [expanded, setExpanded] = useState<string | null>(null);
-  const run = useServerFn(listActivityLogs);
-  const mut = useMutation({
-    mutationFn: () => run({ data: { entity: entity === "all" ? undefined : entity, search: search || undefined, from: from ? new Date(from).toISOString() : undefined, to: to ? new Date(to + "T23:59:59").toISOString() : undefined, limit: 200 } }),
-    onError: (e: any) => toast.error(e.message),
+  // Filters apply when "Apply" is pressed, as before; results load a page at a time.
+  const [applied, setApplied] = useState<LogFilters>(NO_FILTERS);
+  const paging = usePageState(applied);
+  const listQ = useQuery(logOpts(applied, paging.page, paging.pageSize));
+  const rows = (listQ.data?.rows ?? []) as any[];
+  const apply = () => setApplied({
+    entity: entity === "all" ? undefined : entity,
+    q: search.trim(),
+    from: from ? new Date(from).toISOString() : undefined,
+    to: to ? new Date(to + "T23:59:59").toISOString() : undefined,
   });
-
-  useEffect(() => { mut.mutate(); /* eslint-disable-next-line */ }, []);
-
-  const rows = mut.data ?? [];
 
   function actionColor(a: string) {
     if (a === "insert") return "text-success";
@@ -83,7 +94,7 @@ function Page() {
         </div>
         <div><Label>From</Label><Input type="date" value={from} onChange={e => setFrom(e.target.value)} /></div>
         <div><Label>To</Label><Input type="date" value={to} onChange={e => setTo(e.target.value)} /></div>
-        <Button onClick={() => mut.mutate()} disabled={mut.isPending}>{mut.isPending ? "Loading…" : "Apply"}</Button>
+        <Button onClick={apply} disabled={listQ.isFetching}>{listQ.isFetching ? "Loading…" : "Apply"}</Button>
       </div>
 
       {rows.length === 0 ? <EmptyState title="No activity in this range" /> : (
@@ -122,6 +133,10 @@ function Page() {
             </tbody>
           </table>
         </div>
+      )}
+      {(listQ.data?.total ?? 0) > 0 && (
+        <Pager page={paging.page} pageSize={paging.pageSize} total={listQ.data?.total ?? 0} noun="log entries" loading={listQ.isFetching}
+          onPageChange={paging.setPage} onPageSizeChange={paging.setPageSize} />
       )}
     </div>
   );

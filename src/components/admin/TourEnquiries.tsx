@@ -1,8 +1,10 @@
 import { formatTime12 } from "@/lib/time-format";
-import { useMemo, useState } from "react";
+import { useState } from "react";
+import { keepPreviousData } from "@tanstack/react-query";
+import { Pager, useDebounced, usePageState } from "@/components/admin/Pager";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { listTourEnquiries, setTourEnquiryPrice, type TourEnquiryRow } from "@/lib/tour-admin.functions";
+import { listTourEnquiriesPage, setTourEnquiryPrice, type TourEnquiryRow } from "@/lib/tour-admin.functions";
 import { setBookingStatusFn } from "@/lib/booking.functions";
 import { deleteBooking } from "@/lib/admin.functions";
 import { TOUR_STATUSES, tourStatusLabel, tourNameFrom } from "@/lib/tour-enquiries";
@@ -30,10 +32,17 @@ function money(n: number | null): string {
  */
 export function TourEnquiries() {
   const qc = useQueryClient();
-  const { data = [], isLoading } = useQuery<TourEnquiryRow[]>({
-    queryKey: ["admin", "tour-enquiries"],
-    queryFn: () => listTourEnquiries(),
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState<(typeof FILTERS)[number]>("all");
+  const term = useDebounced(search.trim());
+  const paging = usePageState([filter, term]);
+  const listQ = useQuery({
+    queryKey: ["admin", "tour-enquiries", { filter, term, page: paging.page, pageSize: paging.pageSize }],
+    queryFn: () => listTourEnquiriesPage({ data: { status: filter, q: term, page: paging.page, pageSize: paging.pageSize } }),
+    placeholderData: keepPreviousData,
   });
+  const isLoading = listQ.isPending;
+  const rows: TourEnquiryRow[] = listQ.data?.rows ?? [];
   const savePrice = useServerFn(setTourEnquiryPrice);
   const setStatus = useServerFn(setBookingStatusFn);
   const del = useServerFn(deleteBooking);
@@ -65,25 +74,12 @@ export function TourEnquiries() {
     onError: (e: any) => toast.error(e.message),
   });
 
-  const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<(typeof FILTERS)[number]>("all");
   const [openId, setOpenId] = useState<string | null>(null);
   const [priceInput, setPriceInput] = useState("");
   const [noteInput, setNoteInput] = useState("");
   const [notify, setNotify] = useState(true);
 
-  const rows = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    return data.filter((m) => {
-      if (filter !== "all" && m.status !== filter) return false;
-      if (!q) return true;
-      return [m.booking_ref, m.customer_name, m.email, m.phone, m.tour_name, m.notes].some((v) =>
-        String(v ?? "").toLowerCase().includes(q),
-      );
-    });
-  }, [data, search, filter]);
-
-  const active = data.find((m) => m.id === openId) ?? null;
+  const active = rows.find((m) => m.id === openId) ?? null;
 
   const openEnquiry = (row: TourEnquiryRow) => {
     setOpenId(row.id);
@@ -124,7 +120,7 @@ export function TourEnquiries() {
           </SelectContent>
         </Select>
         <span className="text-sm text-muted-foreground whitespace-nowrap">
-          {rows.length} tour {rows.length === 1 ? "enquiry" : "enquiries"}
+          {listQ.data?.total ?? 0} tour {(listQ.data?.total ?? 0) === 1 ? "enquiry" : "enquiries"}
         </span>
       </div>
 
@@ -194,6 +190,10 @@ export function TourEnquiries() {
             </table>
           </div>
         </div>
+      )}
+      {(listQ.data?.total ?? 0) > 0 && (
+        <Pager page={paging.page} pageSize={paging.pageSize} total={listQ.data?.total ?? 0} noun="tour enquiries" loading={listQ.isFetching}
+          onPageChange={paging.setPage} onPageSizeChange={paging.setPageSize} />
       )}
 
       <Sheet open={!!openId} onOpenChange={(o) => !o && setOpenId(null)}>

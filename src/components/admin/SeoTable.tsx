@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Pager, usePagedRows } from "@/components/admin/Pager";
 
 /** Row-selection state for bulk actions on any admin list. */
 export function useBulkSelection<T extends { id: string }>(rows: T[]) {
@@ -27,7 +28,7 @@ type Col<T> = {
 };
 
 export function SeoTable<T extends { id: string }>({
-  rows, cols, onEdit, onDelete, selection,
+  rows, cols, onEdit, onDelete, selection, paged = true, noun = "records",
 }: {
   rows: T[];
   cols: Col<T>[];
@@ -35,7 +36,12 @@ export function SeoTable<T extends { id: string }>({
   onDelete: (id: string) => void;
   /** Pass the value from `useBulkSelection(rows)` to enable tick boxes. */
   selection?: ReturnType<typeof useBulkSelection<T>>;
+  /** Show the list a page at a time (default). Turn off for short ordered lists. */
+  paged?: boolean;
+  noun?: string;
 }) {
+  const { pageRows, pager } = usePagedRows(rows, rows.length);
+  const visibleRows = paged ? pageRows : rows;
   if (rows.length === 0) {
     return <div className="rounded-xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">No records yet.</div>;
   }
@@ -55,7 +61,7 @@ export function SeoTable<T extends { id: string }>({
             </tr>
           </thead>
           <tbody>
-            {rows.map(r => (
+            {visibleRows.map(r => (
               <tr key={r.id} className={"border-t border-border " + (selection?.selected.includes(r.id) ? "bg-primary/[0.05]" : "")}>
                 {selection && (
                   <td className="px-3 py-2 align-top">
@@ -76,6 +82,11 @@ export function SeoTable<T extends { id: string }>({
           </tbody>
         </table>
       </div>
+      {paged && rows.length > pager.pageSize && (
+        <div className="border-t border-border p-2">
+          <Pager {...pager} noun={noun} className="border-0 bg-transparent px-1 py-0" />
+        </div>
+      )}
     </div>
   );
 }

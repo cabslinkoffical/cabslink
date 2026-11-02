@@ -157,3 +157,4 @@
 - [x] Maps added to every location page type through one shared section (areas, destinations, service+location pages, and CMS entity pages: stations, attractions, hospitals, universities, distilleries, cruise ports, corporate, guides); airports keep their own map band near the page end. No map inside any navy hero.
 - [ ] Google Maps drawing itself needs live verification on an authorized domain — the preview key is referrer-restricted, so tiles stay blank in the preview.
 - [ ] Owner facts, photos and blog copy still outstanding; nothing published.
+- [ ] A01 finish: page-by-page loading on every admin list; regroup staff console into three areas: (1) Dashboard with analytics/reports, (2) Settings hub with pricing and every website setting, (3) Bookings and messages only.

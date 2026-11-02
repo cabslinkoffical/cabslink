@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { listMedia, type MediaAsset } from "@/lib/media.functions";
 import { useMediaUpload } from "./useMediaUpload";
@@ -16,11 +16,12 @@ export function formatBytes(n: number | null) {
   return `${(n / 1024 / 1024).toFixed(1)} MB`;
 }
 
-export function useMediaList(params: { search: string; folder: string; limit?: number }) {
+export function useMediaList(params: { search: string; folder: string; limit?: number; offset?: number }) {
   const list = useServerFn(listMedia);
   return useQuery({
-    queryKey: ["media", params.search, params.folder, params.limit ?? 60],
-    queryFn: () => list({ data: { search: params.search || undefined, folder: params.folder, limit: params.limit ?? 60 } }),
+    queryKey: ["media", params.search, params.folder, params.limit ?? 60, params.offset ?? 0],
+    queryFn: () => list({ data: { search: params.search || undefined, folder: params.folder, limit: params.limit ?? 60, offset: params.offset ?? 0 } }),
+    placeholderData: keepPreviousData,
   });
 }
 

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Pager, usePageState } from "@/components/admin/Pager";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -59,7 +60,10 @@ function MediaLibraryPage() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const qc = useQueryClient();
-  const { data, isLoading } = useMediaList({ search, folder, limit: 200 });
+  const mediaPaging = usePageState([search, folder]);
+  const { data, isLoading, isFetching } = useMediaList({
+    search, folder, limit: mediaPaging.pageSize, offset: (mediaPaging.page - 1) * mediaPaging.pageSize,
+  });
   const { uploadFiles, busy, progress } = useMediaUpload(folder === "all" ? "general" : folder);
   const runUsage = useServerFn(getMediaUsage);
   const runDelete = useServerFn(deleteMedia);
@@ -369,6 +373,12 @@ function MediaLibraryPage() {
                 </div>
               );
             })}
+          </div>
+        )}
+        {(data?.total ?? 0) > mediaPaging.pageSize && (
+          <div className="border-t border-border p-3">
+            <Pager page={mediaPaging.page} pageSize={mediaPaging.pageSize} total={data?.total ?? 0} noun="images" loading={isFetching}
+              onPageChange={mediaPaging.setPage} onPageSizeChange={mediaPaging.setPageSize} className="border-0 bg-transparent px-0 py-0" />
           </div>
         )}
       </div>

@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Pager, usePagedRows } from "@/components/admin/Pager";
 import { useSuspenseQuery, useMutation, useQueryClient, queryOptions } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
@@ -374,6 +375,7 @@ function Page() {
     );
   }
 
+  const { pageRows: pagedRows, pager: pagedPager } = usePagedRows(rules, rules.length);
   return (
 
     <div className="space-y-6">
@@ -434,7 +436,7 @@ function Page() {
 
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {rules.map((r: any) => (
+          {pagedRows.map((r: any) => (
             <div key={r.id} className="admin-card p-4">
               <div className="flex items-start justify-between gap-2">
                 <div>
@@ -475,6 +477,7 @@ function Page() {
           ))}
         </div>
       )}
+      {pagedPager.total > pagedPager.pageSize && <Pager {...pagedPager} noun="rules" className="mt-3" />}
 
     </div>
   );

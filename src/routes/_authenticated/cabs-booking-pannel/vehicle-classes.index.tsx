@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { Pager, usePagedRows } from "@/components/admin/Pager";
 import { queryOptions, useMutation, useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -65,6 +66,7 @@ function VehicleClassesPage() {
   const classes: any[] = data.classes;
   const modelCount = (classId: string) => (data.models as any[]).filter((m) => m.vehicle_class_id === classId).length;
 
+  const { pageRows: pagedRows, pager: pagedPager } = usePagedRows(classes, classes.length);
   return (
     <div className="space-y-6">
       <PageHeader
@@ -98,7 +100,7 @@ function VehicleClassesPage() {
         <EmptyState title="No vehicle classes yet" hint="Create your first vehicle class to get started." />
       ) : (
         <div className={view === "grid" ? "grid gap-4 md:grid-cols-2 xl:grid-cols-3" : "grid gap-3"}>
-          {classes.map((c) => {
+          {pagedRows.map((c) => {
             const linked = vehicles.find((v) => v.id === c.pricing_vehicle_id);
             const profile = linked ? profiles.find((p) => p.vehicle_id === linked.id) : null;
             const img = fleetImageFor(c.slug, c.hero_image || linked?.image_url);
@@ -179,6 +181,7 @@ function VehicleClassesPage() {
           })}
         </div>
       )}
+      {pagedPager.total > pagedPager.pageSize && <Pager {...pagedPager} noun="vehicle classes" className="mt-3" />}
     </div>
   );
 }

@@ -1,12 +1,9 @@
 import { createFileRoute, Link, Outlet, redirect, useRouter, useRouterState } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  LayoutDashboard, CalendarCheck, MapPin, Ban, Car, Tag, UserCog, Users,
-  CreditCard, Ticket, FileText, BarChart3, Shield, Settings as SettingsIcon, History,
-  LogOut, ExternalLink,  Menu, X, Inbox, Gauge,
-  Plane, Plus, Wrench, CircleSlash2, PencilLine, Route as RouteIcon, ArrowLeftRight, Globe, UploadCloud, TrendingUp, Image as ImageIcon,
-} from "lucide-react";
-import { SidebarNav, type SidebarEntry } from "@/components/admin/SidebarNav";
+import { LogOut, ExternalLink, Menu, X } from "lucide-react";
+import { ADMIN_AREAS, areaForPath } from "@/components/admin/admin-areas";
+import { cn } from "@/lib/utils";
+import { SidebarNav } from "@/components/admin/SidebarNav";
 import { Breadcrumbs } from "@/components/admin/Breadcrumbs";
 import { Logo } from "@/components/site/Logo";
 import { Button } from "@/components/ui/button";
@@ -48,89 +45,12 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel")({
 
 const ADMIN_ROLE_RECHECK_MS = 5 * 60 * 1000;
 
-const NAV: SidebarEntry[] = [
-  { to: "/cabs-booking-pannel", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  {
-    label: "Bookings", icon: CalendarCheck, items: [
-      { to: "/cabs-booking-pannel/bookings", label: "All bookings", icon: CalendarCheck, search: { view: "", tab: "" } },
-      { to: "/cabs-booking-pannel/bookings", label: "Upcoming", icon: CalendarCheck, search: { view: "", tab: "upcoming" } },
-      { to: "/cabs-booking-pannel/bookings", label: "Confirmed", icon: CalendarCheck, search: { view: "", tab: "confirmed" } },
-      { to: "/cabs-booking-pannel/bookings", label: "Cancelled", icon: CircleSlash2, search: { view: "", tab: "cancelled" } },
-      { to: "/cabs-booking-pannel/bookings", label: "History", icon: History, search: { view: "", tab: "history" } },
-      { to: "/cabs-booking-pannel/bookings", label: "Tour enquiries", icon: RouteIcon, search: { view: "tours" } },
-      { to: "/cabs-booking-pannel/amendments", label: "Change requests", icon: PencilLine },
-      { to: "/cabs-booking-pannel/cancellations", label: "Refunds", icon: CircleSlash2 },
-    ],
-  },
-  {
-    label: "Money & customers", icon: CreditCard, items: [
-      { to: "/cabs-booking-pannel/payments", label: "Payments", icon: CreditCard },
-      { to: "/cabs-booking-pannel/messages", label: "Messages", icon: Inbox },
-      { to: "/cabs-booking-pannel/customers", label: "Customers", icon: Users },
-      { to: "/cabs-booking-pannel/drivers", label: "Driver applications", icon: UserCog },
-    ],
-  },
-  {
-    label: "Prices & vehicles", icon: Car, items: [
-      { to: "/cabs-booking-pannel/vehicle-classes", label: "Vehicles", icon: Car },
-      { to: "/cabs-booking-pannel/pricing-schemes", label: "Prices", icon: Gauge },
-      { to: "/cabs-booking-pannel/extras", label: "Extras", icon: Plus },
-      { to: "/cabs-booking-pannel/coupons", label: "Coupons", icon: Ticket },
-      { to: "/cabs-booking-pannel/availability", label: "Blocked dates", icon: Ban },
-      { to: "/cabs-booking-pannel/addresses", label: "Addresses", icon: MapPin },
-      { to: "/cabs-booking-pannel/banned-addresses", label: "Banned addresses", icon: Ban },
-    ],
-  },
-  {
-    label: "Tours", icon: RouteIcon, items: [
-      { to: "/cabs-booking-pannel/scenic-routes", label: "Tour routes", icon: RouteIcon },
-      { to: "/cabs-booking-pannel/pois", label: "Stops & landmarks", icon: MapPin },
-      { to: "/cabs-booking-pannel/tour-hours", label: "Hours & mileage", icon: Gauge },
-      { to: "/cabs-booking-pannel/tour-settings", label: "Tour settings", icon: SettingsIcon },
-    ],
-  },
-  {
-    label: "Website content", icon: FileText, items: [
-      { to: "/cabs-booking-pannel/blog", label: "Blog posts", icon: FileText, exact: true },
-      { to: "/cabs-booking-pannel/blog/categories", label: "Blog categories", icon: Tag },
-      { to: "/cabs-booking-pannel/blog/tags", label: "Blog tags", icon: Tag },
-      { to: "/cabs-booking-pannel/blog/authors", label: "Blog authors", icon: UserCog },
-      { to: "/cabs-booking-pannel/media", label: "Media library", icon: ImageIcon },
-    ],
-  },
-  {
-    label: "SEO", icon: Globe, items: [
-      { to: "/cabs-booking-pannel/seo", label: "Overview", icon: Globe, exact: true },
-      { to: "/cabs-booking-pannel/seo/pages", label: "Pages", icon: FileText },
-      { to: "/cabs-booking-pannel/seo/locations", label: "Locations", icon: MapPin },
-      { to: "/cabs-booking-pannel/seo/airports", label: "Airports", icon: Plane },
-      { to: "/cabs-booking-pannel/seo/services", label: "Services", icon: Wrench },
-      { to: "/cabs-booking-pannel/seo/routes", label: "Routes", icon: RouteIcon },
-      { to: "/cabs-booking-pannel/seo/redirects", label: "Redirects", icon: ArrowLeftRight },
-      { to: "/cabs-booking-pannel/seo/import", label: "Import", icon: UploadCloud },
-    ],
-  },
-  {
-    label: "Reports", icon: BarChart3, items: [
-      { to: "/cabs-booking-pannel/analytics", label: "Analytics", icon: TrendingUp },
-      { to: "/cabs-booking-pannel/reports", label: "Reports", icon: BarChart3 },
-    ],
-  },
-  {
-    label: "Settings", icon: SettingsIcon, items: [
-      { to: "/cabs-booking-pannel/settings", label: "General settings", icon: SettingsIcon },
-      { to: "/cabs-booking-pannel/users", label: "Admin users", icon: Shield },
-      { to: "/cabs-booking-pannel/dispatch", label: "Dispatch link", icon: RouteIcon },
-      { to: "/cabs-booking-pannel/logs", label: "Activity logs", icon: History },
-    ],
-  },
-];
-
-
 function AdminLayout() {
   const router = useRouter();
   const pathname = useRouterState({ select: s => s.location.pathname });
   const [mobileOpen, setMobileOpen] = useState(false);
+  const areaId = areaForPath(pathname);
+  const area = ADMIN_AREAS.find((a) => a.id === areaId) ?? ADMIN_AREAS[0];
   const [email, setEmail] = useState<string>("");
 
   useEffect(() => {
@@ -190,7 +110,31 @@ function AdminLayout() {
             <X className="size-5" />
           </button>
         </div>
-        <SidebarNav entries={NAV} />
+        <div className="px-3 pt-3" role="tablist" aria-label="Console areas">
+          <div className="grid grid-cols-3 gap-1 rounded-xl bg-white/[0.06] p-1 ring-1 ring-white/10">
+            {ADMIN_AREAS.map((a) => {
+              const active = a.id === area.id;
+              return (
+                <Link
+                  key={a.id}
+                  to={a.home as any}
+                  role="tab"
+                  aria-selected={active}
+                  title={a.label}
+                  className={cn(
+                    "flex flex-col items-center gap-1 rounded-lg px-1 py-2 text-[11px] font-semibold transition",
+                    active ? "bg-gold text-navy shadow-sm" : "text-white/80 hover:bg-white/[0.08] hover:text-white",
+                  )}
+                >
+                  <a.icon className="size-4" />
+                  <span className="truncate">{a.short}</span>
+                </Link>
+              );
+            })}
+          </div>
+          <p className="mt-3 px-1 text-[10.5px] font-bold uppercase tracking-[0.16em] text-gold">{area.label}</p>
+        </div>
+        <SidebarNav key={area.id} entries={area.nav} />
         <div className="shrink-0 p-3 pb-[max(.75rem,env(safe-area-inset-bottom))] border-t border-gold/20 space-y-1">
           <Link to="/" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-white/70 hover:text-gold transition">
             <ExternalLink className="size-3.5" /> View website
@@ -224,7 +168,7 @@ function AdminLayout() {
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel>Signed in as<br/><span className="text-xs font-normal text-muted-foreground">{email}</span></DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => router.navigate({ to: "/cabs-booking-pannel/settings" as any })}>Settings</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.navigate({ to: "/cabs-booking-pannel/site-settings" as any })}>Settings</DropdownMenuItem>
               <DropdownMenuItem onClick={() => router.navigate({ to: "/" })}>View website</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={signOut} className="text-destructive">Sign out</DropdownMenuItem>

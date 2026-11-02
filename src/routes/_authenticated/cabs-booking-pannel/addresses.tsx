@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Pager, usePagedRows } from "@/components/admin/Pager";
 import { useSuspenseQuery, useMutation, useQueryClient, queryOptions } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { listAddresses, upsertAddress, deleteAddress } from "@/lib/admin.functions";
@@ -65,6 +66,7 @@ function AddressesPage() {
     onError: (e: any) => toast.error(e.message),
   });
 
+  const { pageRows: pagedRows, pager: pagedPager } = usePagedRows(filtered, filtered.length);
   return (
     <div className="space-y-6">
       <PageHeader title="Addresses" description="Pickup and dropoff address library with comparable values and surcharges.">
@@ -94,7 +96,7 @@ function AddressesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {filtered.map((a: any, i: number) => (
+              {pagedRows.map((a: any, i: number) => (
                 <tr key={a.id} className="hover:bg-muted/30">
                   <td className="px-4 py-3 text-muted-foreground">{i + 1}</td>
                   <td className="px-4 py-3 font-medium">{a.name}</td>
@@ -125,6 +127,7 @@ function AddressesPage() {
           </table>
         </div>
       )}
+      {pagedPager.total > pagedPager.pageSize && <Pager {...pagedPager} noun="addresses" className="mt-3" />}
 
       <Dialog open={!!form} onOpenChange={o => !o && setForm(null)}>
         <DialogContent>
