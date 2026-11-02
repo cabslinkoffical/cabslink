@@ -164,7 +164,10 @@
 - [x] Console logic fixes: UK dates everywhere, dashboard counts = booking tabs, month chart, payments (paid date kept, refunds, GBP only, card rows protected, searchable booking picker, paid state re-derived), customer "total paid", message counts follow search, status locks (no silent overrides; tour moves limited), stale booking panel, empty-page after delete, honest tour-quote email result, safe CSV, report ranges/filenames, conversion cohort, rejected counted as cancelled, notifications errors/routing/per-item read, load-error states, blocked-dates editor crash, address search paging, tour settings typing, dead general settings removed.
 
 ## Full-site redesign + SEO/AEO/GEO (requested 2 Nov)
-- [ ] Audit every public page (not the homepage) for design/logic/SEO inconsistencies against the homepage design system
+- [x] Audit every public page (not the homepage) for design/logic/SEO inconsistencies against the homepage design system
+- [x] Group 1 shared section heading; Group 2 shared top section (centred / booking-led / reading-width)
+- [ ] CHECKPOINT 1 — waiting for owner approval of screenshots before Group 3
+- [ ] Note for report: area page intro reads "from Edinburgh to Edinburgh" (data-driven copy) — fix in cone/SEO pass
 - [ ] Redesign non-home pages to the homepage visual language, page by page, without changing URLs/titles/H1s/protected SEO settings or inventing facts
 - [ ] Technical SEO/AEO/GEO pass (metadata, schema, headings, links, images, performance) and verification
 - [x] Staff console: Bookings & messages and Settings shortcuts also in the left panel (2 Nov)
