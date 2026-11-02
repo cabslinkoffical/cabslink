@@ -5,15 +5,13 @@
  * one comprehensive, entity-rich page per location.
  */
 import { RelatedLinks } from "@/components/site/RelatedLinks";
-import { SectionHeader as SharedSectionHeader } from "@/components/site/PageHero";
-import { Link } from "@tanstack/react-router";
+import { PageBand, GroupLabel, LinkCards, FaqBand } from "@/components/site/PageBand";
 import { useQuery } from "@tanstack/react-query";
 import { listPublicVehicleClasses } from "@/lib/vehicle-classes.functions";
-import { FaqBlock } from "@/components/seo/FaqBlock";
 import { PlaceGuideBlock } from "@/components/seo/PlaceGuideBlock";
 import { guideFor } from "@/content/place-guides";
 import { buildAreaFaqs } from "@/lib/seo/area-faqs";
-import { EntityGrid } from "@/components/explore/EntityCard";
+import { EntityCard, EntityGrid } from "@/components/explore/EntityCard";
 import type { AreaSeoContext } from "@/lib/explore.functions";
 import type { Destination } from "@/lib/destinations.functions";
 import { SiteLayout } from "@/components/site/SiteLayout";
@@ -68,6 +66,15 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
   });
   const region = d.region;
   const heroSub = [d.town, d.council, region].filter(Boolean).join(" · ");
+  const nearbyGroups = [
+    { icon: MapPin, title: `Nearby areas around ${locName}`, items: data.nearbyAreas },
+    { icon: Landmark, title: `Attractions near ${locName}`, items: data.attractions },
+    { icon: Hotel, title: `Hotels near ${locName}`, items: data.hotels },
+    { icon: GraduationCap, title: `Universities near ${locName}`, items: data.universities },
+    { icon: Hospital, title: `Hospitals near ${locName}`, items: data.hospitals },
+    { icon: Train, title: `Train stations near ${locName}`, items: data.stations },
+    { icon: Anchor, title: `Cruise ports near ${locName}`, items: data.cruisePorts },
+  ].filter((g) => g.items.length > 0);
 
   return (
     <SiteLayout cta={{ heading: <>Travelling in <span className="text-gold">{locName}</span>?</>, label: `Get a price in ${locName}`, href: "#booking", trackAs: "final_cta_area", subtitle: "Your journey details are already in the booking form above. Check the fixed price before you pay, or call our team any time." }}>
