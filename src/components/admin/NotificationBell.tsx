@@ -10,6 +10,8 @@ import {
 import { toast } from "sonner";
 
 const SEEN_KEY = "admin-notifications-seen-at";
+/** Notifications opened one by one since the last "Mark all as read". */
+const READ_KEY = "admin-notifications-read-ids";
 const SOUND_KEY = "admin-notifications-sound";
 
 /** Two-tone telephone-style ring, synthesised so no audio asset is needed. */
@@ -57,12 +59,14 @@ export function AdminNotifications() {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [seenAt, setSeenAt] = useState<string>("");
+  const [readIds, setReadIds] = useState<string[]>([]);
   const [sound, setSound] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const knownIds = useRef<Set<string> | null>(null);
 
   useEffect(() => {
     setSeenAt(localStorage.getItem(SEEN_KEY) ?? new Date(Date.now() - 86_400_000).toISOString());
+    try { setReadIds(JSON.parse(localStorage.getItem(READ_KEY) ?? "[]")); } catch { setReadIds([]); }
     setSound(localStorage.getItem(SOUND_KEY) !== "off");
   }, []);
 
@@ -76,8 +80,8 @@ export function AdminNotifications() {
   const items: AdminNotification[] = query.data?.items ?? [];
 
   const unread = useMemo(
-    () => (seenAt ? items.filter((i) => i.createdAt > seenAt) : []),
-    [items, seenAt],
+    () => (seenAt ? items.filter((i) => i.createdAt > seenAt && !readIds.includes(i.id)) : []),
+    [items, seenAt, readIds],
   );
 
   // Ring only for items that appeared after the first successful load.
@@ -113,7 +117,18 @@ export function AdminNotifications() {
   const markAllRead = () => {
     const now = new Date().toISOString();
     localStorage.setItem(SEEN_KEY, now);
+    localStorage.removeItem(READ_KEY);
     setSeenAt(now);
+    setReadIds([]);
+  };
+
+  const markRead = (id: string) => {
+    setReadIds((prev) => {
+      if (prev.includes(id)) return prev;
+      const next = [...prev, id].slice(-200);
+      localStorage.setItem(READ_KEY, JSON.stringify(next));
+      return next;
+    });
   };
 
   const toggleSound = () => {
@@ -184,11 +199,11 @@ export function AdminNotifications() {
               <p className="px-3 py-6 text-center text-sm text-muted-foreground">Nothing new right now.</p>
             )}
             {items.map((n) => {
-              const isNew = !!seenAt && n.createdAt > seenAt;
+              const isNew = !!seenAt && n.createdAt > seenAt && !readIds.includes(n.id);
               return (
                 <DropdownMenuItem
                   key={n.id}
-                  onClick={() => { markAllRead(); router.navigate({ to: n.href as never }); }}
+                  onClick={() => { markRead(n.id); router.navigate({ to: n.href as never, search: (n.search ?? {}) as never }); }}
                   className={`flex items-start gap-2.5 px-3 py-2.5 ${isNew ? "bg-[color-mix(in_oklab,var(--gold)_10%,transparent)]" : ""}`}
                 >
                   <span className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-md bg-muted text-[var(--gold-ink)]">

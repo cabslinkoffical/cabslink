@@ -16,8 +16,9 @@ export type AdminNotification = {
   title: string;
   subtitle: string;
   createdAt: string;
-  /** Admin route the notification links to. */
+  /** Admin route the notification links to (the list that actually holds the record). */
   href: string;
+  search?: Record<string, string>;
 };
 
 /**
@@ -32,7 +33,7 @@ export const listAdminNotifications = createServerFn({ method: "GET" })
     const [bookings, messages] = await Promise.all([
       context.supabase
         .from("bookings")
-        .select("id, booking_ref, customer_name, pickup_address, dropoff_address, status, created_at")
+        .select("id, booking_ref, customer_name, pickup_address, dropoff_address, status, service_type, created_at")
         .is("deleted_at", null)
         .order("created_at", { ascending: false })
         .limit(20),
@@ -43,30 +44,42 @@ export const listAdminNotifications = createServerFn({ method: "GET" })
         .limit(20),
     ]);
 
+    // A failed read must show as an error in the bell, never as "nothing new".
+    if (bookings.error) throw new Error(bookings.error.message);
+    if (messages.error) throw new Error(messages.error.message);
+    const { TOUR_SERVICE_TYPE } = await import("@/lib/tour-enquiries");
     const items: AdminNotification[] = [];
 
     for (const b of (bookings.data ?? []) as any[]) {
       items.push({
         id: `booking:${b.id}`,
         kind: "booking",
-        title: `New booking ${b.booking_ref ?? ""}`.trim(),
+        title: `${b.service_type === TOUR_SERVICE_TYPE ? "New tour enquiry" : "New booking"} ${b.booking_ref ?? ""}`.trim(),
         subtitle: [b.customer_name, b.pickup_address ? `${b.pickup_address} → ${b.dropoff_address ?? ""}` : null]
           .filter(Boolean)
           .join(" · ")
           .slice(0, 120),
         createdAt: b.created_at,
         href: "/cabs-booking-pannel/bookings",
+        search: b.service_type === TOUR_SERVICE_TYPE ? { view: "tours" } : undefined,
       });
     }
 
     for (const m of (messages.data ?? []) as any[]) {
+      // Older tour bookings and cancellation requests arrived as messages but live in their own lists.
+      const subject = String(m.subject ?? "");
+      const owner = /^Tour booking:/i.test(subject)
+        ? { href: "/cabs-booking-pannel/bookings", search: { view: "tours" } }
+        : /^Cancellation request:/i.test(subject)
+          ? { href: "/cabs-booking-pannel/cancellations", search: undefined }
+          : { href: "/cabs-booking-pannel/messages", search: undefined };
       items.push({
         id: `message:${m.id}`,
         kind: "message",
         title: m.subject ? `Message: ${m.subject}` : "New message",
         subtitle: [m.name, (m.message ?? "").replace(/\s+/g, " ")].filter(Boolean).join(" · ").slice(0, 120),
         createdAt: m.created_at,
-        href: "/cabs-booking-pannel/messages",
+        ...owner,
       });
     }
 
