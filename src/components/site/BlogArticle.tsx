@@ -110,7 +110,7 @@ export function BlogArticle({ post, related }: { post: BlogPostFull; related: Bl
               </div>
             )}
 
-            <div className="prose prose-slate max-w-none prose-headings:font-display prose-headings:text-[var(--navy)] prose-a:text-[var(--gold-ink)] prose-a:no-underline hover:prose-a:underline">
+            <div className="prose prose-slate max-w-none prose-headings:font-display prose-headings:text-[var(--navy)] prose-headings:scroll-mt-28 prose-a:text-[var(--gold-ink)] prose-a:no-underline hover:prose-a:underline">
               <ReactMarkdown remarkPlugins={[remarkGfm, [remarkHeadingIds, { ids: (post.toc.length ? post.toc : extractToc(post.body_md)).map((t) => t.id) }]]}>{post.body_md}</ReactMarkdown>
             </div>
 

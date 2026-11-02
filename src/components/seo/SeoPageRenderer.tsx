@@ -212,7 +212,8 @@ function buildSeoHeadRaw(
   fares?: RouteFareTableData | null,
 ) {
 
-  const url = `${origin}${page.canonical_override || page.path}`;
+  const override = page.canonical_override?.trim();
+  const url = override && /^https?:\/\//i.test(override) ? canonicalUrl(override) : `${origin}${override || page.path}`;
   const image = page.og_image_url || page.featured_image_url || page.entity?.hero_image_url || null;
   const meta: Array<Record<string, string>> = [
     { title: page.seo_title },
