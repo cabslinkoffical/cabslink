@@ -5,6 +5,7 @@
  * one comprehensive, entity-rich page per location.
  */
 import { RelatedLinks } from "@/components/site/RelatedLinks";
+import { SectionHeader as SharedSectionHeader } from "@/components/site/PageHero";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { listPublicVehicleClasses } from "@/lib/vehicle-classes.functions";
@@ -217,13 +218,11 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
   );
 }
 
+/** Area-page section heading: the shared site heading with standard spacing below. */
 function SectionHeader({ eyebrow, title }: { eyebrow: string; title: string }) {
   return (
-    <div className="mb-5">
-      <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--gold-ink)]">
-        {eyebrow}
-      </div>
-      <h2 className="mt-2 font-display text-2xl font-semibold text-foreground sm:text-3xl">{title}</h2>
+    <div className="mb-8">
+      <SharedSectionHeader eyebrow={eyebrow} title={title} />
     </div>
   );
 }
