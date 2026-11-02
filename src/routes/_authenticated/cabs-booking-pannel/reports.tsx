@@ -11,6 +11,8 @@ import { ResponsiveContainer, LineChart, Line, BarChart, Bar, XAxis, YAxis, Tool
 import { Download, BarChart3, TrendingUp, CheckCircle2, XCircle, PoundSterling, Calculator } from "lucide-react";
 import { PageHeader, StatCard, EmptyState } from "@/components/admin/ui";
 import { toast } from "sonner";
+import { ukDate, addDays } from "@/lib/uk-time";
+import { csvCell } from "@/lib/booking-export";
 
 export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/reports")({
   head: () => ({
@@ -25,20 +27,24 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/report
   component: Page,
 });
 
-function isoDay(d: Date) { return d.toISOString().slice(0, 10); }
-
 function Page() {
-  const today = new Date();
-  const thirtyAgo = new Date(); thirtyAgo.setDate(today.getDate() - 29);
-  const [from, setFrom] = useState(isoDay(thirtyAgo));
-  const [to, setTo] = useState(isoDay(today));
+  const todayUk = ukDate();
+  const [from, setFrom] = useState(addDays(todayUk, -29));
+  const [to, setTo] = useState(todayUk);
   const [granularity, setGranularity] = useState<"day" | "week" | "month">("day");
   const run = useServerFn(getReports);
-  const mut = useMutation({ mutationFn: () => run({ data: { from: new Date(from).toISOString(), to: new Date(to + "T23:59:59").toISOString(), granularity } }), onError: (e: any) => toast.error(e.message) });
+  // The range is sent as UK calendar dates; the result remembers the range it was run for.
+  const mut = useMutation({
+    mutationFn: async (range: { from: string; to: string; granularity: "day" | "week" | "month" }) =>
+      ({ range, result: await run({ data: range }) }),
+    onError: (e: any) => toast.error(e.message),
+  });
+  const runReport = () => mut.mutate({ from, to, granularity });
 
-  useEffect(() => { mut.mutate(); /* eslint-disable-next-line */ }, []);
+  useEffect(() => { runReport(); /* eslint-disable-next-line */ }, []);
 
-  const r = mut.data;
+  const r = mut.data?.result;
+  const ran = mut.data?.range;
   const kpi = r?.kpi;
 
   const csv = useMemo(() => {
@@ -50,14 +56,14 @@ function Page() {
       ["Cancelled", String(kpi!.cancelled)],
       ["Avg fare", kpi!.avgFare.toFixed(2)],
     ];
-    return rows.map(r => r.map(c => `"${c}"`).join(",")).join("\n");
+    return rows.map(r => r.map(csvCell).join(",")).join("\r\n");
   }, [r, kpi]);
 
   function download() {
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = url; a.download = `cabslink-report-${from}-to-${to}.csv`;
+    a.href = url; a.download = `cabslink-report-${ran?.from}-to-${ran?.to}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -78,7 +84,7 @@ function Page() {
             <SelectContent><SelectItem value="day">Day</SelectItem><SelectItem value="week">Week</SelectItem><SelectItem value="month">Month</SelectItem></SelectContent>
           </Select>
         </div>
-        <Button onClick={() => mut.mutate()} disabled={mut.isPending}>{mut.isPending ? "Running…" : "Run report"}</Button>
+        <Button onClick={runReport} disabled={mut.isPending}>{mut.isPending ? "Running…" : "Run report"}</Button>
       </div>
 
       {!r && !mut.isPending && <EmptyState title="Set a date range and run a report" />}

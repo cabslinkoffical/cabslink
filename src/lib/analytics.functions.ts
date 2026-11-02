@@ -10,7 +10,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 import { fetchAllPages } from "@/lib/fetch-all-pages";
 import { SETTLED_PAYMENT_STATUSES, netRevenue, revenueByBucket, settlementWindowFilter } from "@/lib/revenue";
-import { ukDate, ukDayStart, addDays } from "@/lib/uk-time";
+import { ukDayStart, addDays, ukBucket } from "@/lib/uk-time";
 
 const input = z.object({
   from: z.string().min(8),          // YYYY-MM-DD (inclusive)
@@ -25,17 +25,7 @@ export type NameCount = { name: string; count: number; revenue: number };
 function dayStart(d: string) { return ukDayStart(d); }
 function dayEnd(d: string) { return new Date(ukDayStart(addDays(d, 1)).getTime() - 1); }
 
-/** Day / ISO-week (Monday) / month bucket of an instant, by its UK calendar date. */
-export function bucketOf(iso: string, granularity: "day" | "week" | "month") {
-  const day = ukDate(iso);
-  if (granularity === "month") return day.slice(0, 7);
-  if (granularity === "week") {
-    const [y, m, d] = day.split("-").map(Number);
-    const dow = new Date(Date.UTC(y, m - 1, d)).getUTCDay();
-    return addDays(day, -((dow + 6) % 7));
-  }
-  return day;
-}
+const bucketOf = ukBucket;
 
 function pct(current: number, previous: number): number | null {
   if (!previous) return current ? null : 0;

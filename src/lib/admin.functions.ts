@@ -725,8 +725,7 @@ export const getReports = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     // Date-only inputs cover whole UK days (inclusive), matching Analytics.
-    const { ukDayStart, addDays } = await import("@/lib/uk-time");
-    const { bucketOf } = await import("@/lib/analytics.functions");
+    const { ukDayStart, addDays, ukBucket: bucketOf } = await import("@/lib/uk-time");
     const dateOnly = /^\d{4}-\d{2}-\d{2}$/;
     if (!dateOnly.test(data.from) || !dateOnly.test(data.to)) throw new Error("Pick a start and end date");
     if (data.to < data.from) throw new Error("End date must be on or after the start date");

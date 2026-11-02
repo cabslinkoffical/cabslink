@@ -54,3 +54,15 @@ export function ukMonthStart(back = 0, now: Date = new Date()): string {
 export function ukMonthKey(at: Date | string): string {
   return ukDate(at).slice(0, 7);
 }
+
+/** Day / ISO-week (Monday) / month bucket key of an instant, by its UK calendar date. */
+export function ukBucket(at: string | Date, granularity: "day" | "week" | "month"): string {
+  const day = ukDate(at);
+  if (granularity === "month") return day.slice(0, 7);
+  if (granularity === "week") {
+    const [y, m, d] = day.split("-").map(Number);
+    const dow = new Date(Date.UTC(y, m - 1, d)).getUTCDay();
+    return addDays(day, -((dow + 6) % 7));
+  }
+  return day;
+}

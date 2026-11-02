@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { csvCell } from "@/lib/booking-export";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
@@ -110,7 +111,7 @@ function Page() {
     if (!r) return "";
     const head = ["Period", "Bookings", "Quotes", "Revenue"];
     const rows = r.series.map(s => [s.date, String(s.bookings), String(s.quotes), s.revenue.toFixed(2)]);
-    return [head, ...rows].map(row => row.map(c => `"${c}"`).join(",")).join("\n");
+    return [head, ...rows].map(row => row.map(csvCell).join(",")).join("\r\n");
   }, [r]);
 
   function download() {
