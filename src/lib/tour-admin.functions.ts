@@ -134,9 +134,11 @@ export const setTourEnquiryPrice = createServerFn({ method: "POST" })
       });
     } catch { /* best-effort audit */ }
 
+    let emailed = false;
+    let emailError: string | null = null;
     if (data.notifyCustomer) {
       const { notifyTourQuoted } = await import("@/lib/notifications.server");
-      await notifyTourQuoted({
+      const sent = await notifyTourQuoted({
         bookingId: data.id,
         bookingRef: cur.data.booking_ref,
         customerName: cur.data.customer_name,
@@ -148,9 +150,11 @@ export const setTourEnquiryPrice = createServerFn({ method: "POST" })
         price,
         adminNote: data.note ?? null,
       });
+      emailed = sent.sent;
+      emailError = sent.error;
     }
 
-    return { ok: true, price, status, emailed: !!data.notifyCustomer };
+    return { ok: true, price, status, emailed, emailError };
   });
 
 /** Internal note saved against a tour enquiry (never shown to the customer). */

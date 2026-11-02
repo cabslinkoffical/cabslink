@@ -550,7 +550,7 @@ export async function notifyTourQuoted(ctx: {
   passengers: number;
   price: number;
   adminNote?: string | null;
-}): Promise<void> {
+}): Promise<{ sent: boolean; error: string | null }> {
   try {
     const { tourQuoteConfirmedEmail } = await import("@/lib/email/tour.server");
     const manageUrl = manageBookingUrl(ctx.bookingRef);
@@ -566,7 +566,7 @@ export async function notifyTourQuoted(ctx: {
       payUrl: manageUrl,
       adminNote: ctx.adminNote ?? null,
     });
-    await sendAndLog({
+    const res = await sendAndLog({
       bookingId: ctx.bookingId,
       eventKey: `tour_quote_${ctx.bookingRef}_${ctx.price}`,
       notificationType: "customer_tour_quote",
@@ -576,8 +576,11 @@ export async function notifyTourQuoted(ctx: {
       html: tpl.html,
       text: tpl.text,
     });
+    if (!res.configured) return { sent: false, error: "email sending is not set up" };
+    return res.ok ? { sent: true, error: null } : { sent: false, error: "the email provider rejected it" };
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error("notifyTourQuoted failed", err);
+    return { sent: false, error: "sending failed" };
   }
 }
