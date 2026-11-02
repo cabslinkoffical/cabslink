@@ -482,11 +482,10 @@ export const JOURNEYS: JourneyRecord[] = [
   // ---------------------------------------------------------------------
   // Second Edinburgh Airport batch. Distances and durations are real road
   // figures for the stated corridor, with door-to-door allowances added on
-  // top of free-flow times. All held as `review: true` drafts.
+  // top of free-flow times. Signed off for indexing by the owner (2 Nov 2026).
   // ---------------------------------------------------------------------
   {
     slug: "aberdeen-to-edinburgh-airport",
-    review: true,
     category: "airport",
     from: { name: "Aberdeen", path: "/areas/aberdeen" },
     to: { name: "Edinburgh Airport", path: "/airports/edinburgh-airport" },
@@ -520,7 +519,6 @@ export const JOURNEYS: JourneyRecord[] = [
   },
   {
     slug: "perth-to-edinburgh-airport",
-    review: true,
     category: "airport",
     from: { name: "Perth", path: "/areas/perth" },
     to: { name: "Edinburgh Airport", path: "/airports/edinburgh-airport" },
@@ -553,7 +551,6 @@ export const JOURNEYS: JourneyRecord[] = [
   },
   {
     slug: "newcastle-to-edinburgh-airport",
-    review: true,
     category: "long-distance",
     from: { name: "Newcastle" },
     to: { name: "Edinburgh Airport", path: "/airports/edinburgh-airport" },
@@ -587,7 +584,6 @@ export const JOURNEYS: JourneyRecord[] = [
   },
   {
     slug: "edinburgh-airport-to-edinburgh-waverley",
-    review: true,
     category: "airport",
     from: { name: "Edinburgh Airport", path: "/airports/edinburgh-airport" },
     to: { name: "Edinburgh Waverley", path: "/stations/edinburgh-waverley" },
@@ -621,7 +617,6 @@ export const JOURNEYS: JourneyRecord[] = [
   },
   {
     slug: "halbeath-park-and-ride-to-edinburgh-airport",
-    review: true,
     category: "airport",
     from: { name: "Halbeath Park & Ride", path: "/areas/dunfermline" },
     to: { name: "Edinburgh Airport", path: "/airports/edinburgh-airport" },
@@ -655,7 +650,6 @@ export const JOURNEYS: JourneyRecord[] = [
   },
   {
     slug: "ingliston-park-and-ride-to-edinburgh-airport",
-    review: true,
     category: "airport",
     from: { name: "Ingliston Park & Ride", path: "/areas/edinburgh" },
     to: { name: "Edinburgh Airport", path: "/airports/edinburgh-airport" },
@@ -689,7 +683,6 @@ export const JOURNEYS: JourneyRecord[] = [
   },
   {
     slug: "glasgow-airport-to-edinburgh",
-    review: true,
     category: "airport",
     from: { name: "Glasgow Airport", path: "/airports/glasgow-airport" },
     to: { name: "Edinburgh", path: "/areas/edinburgh" },
@@ -723,7 +716,6 @@ export const JOURNEYS: JourneyRecord[] = [
   },
   {
     slug: "edinburgh-to-glasgow-airport",
-    review: true,
     category: "airport",
     from: { name: "Edinburgh", path: "/areas/edinburgh" },
     to: { name: "Glasgow Airport", path: "/airports/glasgow-airport" },
