@@ -166,7 +166,8 @@
 ## Full-site redesign + SEO/AEO/GEO (requested 2 Nov)
 - [x] Audit every public page (not the homepage) for design/logic/SEO inconsistencies against the homepage design system
 - [x] Group 1 shared section heading; Group 2 shared top section (centred / booking-led / reading-width)
-- [ ] CHECKPOINT 1 — waiting for owner approval of screenshots before Group 3
+- [x] CHECKPOINT 1 — owner said continue (2026-11-02)
+- [ ] Owner 2026-11-02: consistent page layouts, brand colours, no duplicate sections on any page, one proper closing call to action on every page
 - [ ] Note for report: area page intro reads "from Edinburgh to Edinburgh" (data-driven copy) — fix in cone/SEO pass
 - [ ] Redesign non-home pages to the homepage visual language, page by page, without changing URLs/titles/H1s/protected SEO settings or inventing facts
 - [ ] Technical SEO/AEO/GEO pass (metadata, schema, headings, links, images, performance) and verification
