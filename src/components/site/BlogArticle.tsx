@@ -19,8 +19,8 @@ export function BlogArticle({ post, related }: { post: BlogPostFull; related: Bl
     <SiteLayout>
       <article>
         {/* Hero */}
-        <header className="hero-gradient text-[var(--navy-foreground)]">
-          <div className="container-x py-14 md:py-20">
+        <header className="hero-gradient page-hero text-[var(--navy-foreground)]" data-align="left">
+          <div className="container-x page-hero-inner page-hero-reading">
             <Breadcrumbs
               items={[
                 { name: "Home", href: "/" },
@@ -28,17 +28,16 @@ export function BlogArticle({ post, related }: { post: BlogPostFull; related: Bl
                 ...(post.category ? [{ name: post.category.name, href: `/blog/category/${post.category.slug}` }] : []),
                 { name: post.title, href: `/blog/${post.slug}` },
               ]}
+              dark
             />
             {post.category && (
-              <p className="mt-6 text-xs uppercase tracking-[0.3em] text-[var(--gold)]">
-                {post.category.name}
-              </p>
+              <p className="page-hero-eyebrow">{post.category.name}</p>
             )}
-            <h1 className="mt-3 font-display text-3xl md:text-5xl font-semibold leading-[1.1] max-w-4xl">
+            <h1 className="page-hero-title font-display">
               {post.title}
             </h1>
             {post.subtitle && (
-              <p className="mt-4 max-w-2xl text-base md:text-lg text-[var(--navy-foreground)]/75">
+              <p className="page-hero-subtitle">
                 {post.subtitle}
               </p>
             )}

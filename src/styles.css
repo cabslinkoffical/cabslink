@@ -795,17 +795,17 @@ input[type="time"] {
 .local-hero-eyebrow {
   margin-top: 1.25rem;
   font-size: 0.6875rem;
-  font-weight: 700;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.3em;
+  letter-spacing: 0.28em;
   color: var(--gold);
 }
 .local-hero-title {
   margin-top: 0.75rem;
   max-width: 650px;
   font-size: 2rem;
-  font-weight: 600;
-  line-height: 1.08;
+  font-weight: 700;
+  line-height: 1.1;
   text-wrap: balance;
 }
 .local-hero-subtitle {
@@ -1220,3 +1220,55 @@ input[type="time"] {
 .social-icon-facebook { background: linear-gradient(180deg, #18acfe 0%, #0163e0 100%); }
 .social-icon-tiktok { background: #010101; color: #fff; box-shadow: inset 0 0 0 1px rgba(255,255,255,.15), -1px -1px 0 #25f4ee, 1px 1px 0 #fe2c55; }
 .social-icon-youtube { background: linear-gradient(180deg, #ff3d3d 0%, #cc0000 100%); }
+
+
+/* ------------------------------------------------------------------
+ * Non-home page top section (PageHero) — mirrors the homepage hero type
+ * and the closing band's buttons. Scoped classes; homepage CSS untouched.
+ * ------------------------------------------------------------------ */
+.page-hero-inner { padding-block: 3rem 3.25rem; }
+.page-hero[data-align="center"] .page-hero-inner { text-align: center; }
+.page-hero[data-align="center"] .page-hero-title,
+.page-hero[data-align="center"] .page-hero-subtitle { margin-inline: auto; }
+.page-hero-reading { max-width: 56rem; }
+.page-hero-eyebrow {
+  margin-top: 1.5rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.28em;
+  color: var(--gold);
+}
+.page-hero-title {
+  margin-top: 0.75rem;
+  max-width: 1050px;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0;
+  text-wrap: balance;
+}
+.page-hero-reading .page-hero-title { max-width: 48rem; }
+.page-hero-subtitle {
+  margin-top: 1rem;
+  max-width: 900px;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: color-mix(in srgb, var(--navy-foreground) 75%, transparent);
+}
+.page-hero-reading .page-hero-subtitle { max-width: 44rem; }
+.page-hero-actions { margin-top: 2rem; display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.5rem; }
+.page-hero-phone { display: inline-flex; align-items: center; gap: 0.75rem; color: var(--navy-foreground); }
+.page-hero-phone-icon {
+  display: grid; place-items: center; width: 2.75rem; height: 2.75rem; border-radius: 9999px;
+  border: 1px solid color-mix(in srgb, var(--navy-foreground) 25%, transparent);
+  transition: border-color .2s ease;
+}
+.page-hero-phone:hover .page-hero-phone-icon, .page-hero-phone:focus-visible .page-hero-phone-icon { border-color: var(--gold); }
+@media (min-width: 640px) {
+  .page-hero-title { font-size: 2.75rem; }
+  .page-hero-subtitle { font-size: 1.0625rem; }
+}
+@media (min-width: 768px) { .page-hero-inner { padding-block: 4rem 4.5rem; } }
+@media (min-width: 1024px) { .page-hero-title { font-size: 3.5rem; } }
+@media (min-width: 1280px) { .page-hero:not(:has(.page-hero-reading)) .page-hero-title { font-size: 3.75rem; } }
