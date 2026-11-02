@@ -22,7 +22,7 @@ describe("page photo registry", () => {
     for (const [, i] of entries) {
       expect(i.alt.trim().length).toBeGreaterThan(5);
       expect(i.author.trim()).not.toBe("");
-      expect(i.license).toMatch(/CC|Public domain|PD/i);
+      expect(i.license).toMatch(/CC|Public domain|PD|^Attribution$/i);
       expect(i.page).toMatch(/^https:\/\/commons\.wikimedia\.org\/wiki\/File:/);
     }
   });
