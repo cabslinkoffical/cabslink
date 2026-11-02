@@ -1,4 +1,5 @@
 import { Fragment } from "react";
+import { ukDayStart, addDays } from "@/lib/uk-time";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, keepPreviousData, queryOptions } from "@tanstack/react-query";
 import { listActivityLogsPage } from "@/lib/admin-lists.functions";
@@ -60,8 +61,9 @@ function Page() {
   const apply = () => setApplied({
     entity: entity === "all" ? undefined : entity,
     q: search.trim(),
-    from: from ? new Date(from).toISOString() : undefined,
-    to: to ? new Date(to + "T23:59:59").toISOString() : undefined,
+    // Whole UK days: from 00:00 on the start date up to (not including) 00:00 after the end date.
+    from: from ? ukDayStart(from).toISOString() : undefined,
+    to: to ? ukDayStart(addDays(to, 1)).toISOString() : undefined,
   });
 
   function actionColor(a: string) {

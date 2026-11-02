@@ -166,7 +166,7 @@ export const listActivityLogsPage = createServerFn({ method: "GET" })
       let q = context.supabase.from("activity_logs").select("*", { count: "exact" });
       if (data.entity) q = q.eq("entity", data.entity);
       if (data.from) q = q.gte("created_at", data.from);
-      if (data.to) q = q.lte("created_at", data.to);
+      if (data.to) q = q.lt("created_at", data.to); // exclusive end (start of the next UK day)
       if (search) q = q.or(search);
       return q.order("created_at", { ascending: false }).order("id", { ascending: false }).range(from, to);
     }, data);
