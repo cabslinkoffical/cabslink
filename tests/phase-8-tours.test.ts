@@ -19,6 +19,21 @@ describe("Phase 8 — tours", () => {
     expect(tourStartingPricePence({ duration_hours: 6, starting_price_pence_cache: 12300 }, [])).toBe(12300);
     expect(tourStartingPricePence({ starting_price_pence_cache: null }, [])).toBeNull();
   });
+  it("a fixed tour price set for a vehicle is shown instead of hourly × hours", () => {
+    // 8-hour tour: Saloon fixed at £280 must show £280, not £50 × 8 = £400.
+    const row = { id: "tour1", duration_hours: 8 };
+    const saloon = [{ id: "s", name: "Saloon", hourly_rate: 50, min_hours: 3 }];
+    const fixed = new Map([["tour1", new Map([["s", 280]])]]);
+    expect(tourStartingPricePence(row, saloon)).toBe(40000);
+    expect(tourStartingPricePence(row, saloon, fixed)).toBe(28000);
+  });
+  it("a vehicle with only a fixed tour price (no hourly rate) still gets a price", () => {
+    const row = { id: "tour1", duration_hours: 8 };
+    const minibus = [{ id: "m", name: "Executive Minibus", hourly_rate: null, min_hours: null }];
+    const fixed = new Map([["tour1", new Map([["m", 528]])]]);
+    expect(tourClassPricesPence(row, minibus, fixed)).toEqual([{ class_id: "m", name: "Executive Minibus", price_pence: 52800 }]);
+    expect(tourClassPricesPence(row, minibus)).toEqual([]);
+  });
   it("has at most 7 filter groups", () => {
     expect(THEME_GROUPS.length).toBeLessThanOrEqual(7);
   });
