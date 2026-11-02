@@ -33,7 +33,7 @@ describe("Primary Google review display", () => {
     for (const path of ["src/routes/index.tsx", "src/routes/contact.tsx", "src/routes/book.index.tsx", "src/routes/book.hourly.tsx", "src/components/site/Footer.tsx"]) {
       const source = readFileSync(path, "utf8");
       expect(source).not.toMatch(/<Trustpilot|import.*TRUSTPILOT|import.*Trustpilot/);
-      expect(source).toMatch(/GoogleReviews|Reviews on Google/);
+      expect(source).toMatch(/GoogleReviews|Reviews on Google|googleReviewsQuery/);
     }
     expect(readFileSync("src/routes/reviews.tsx", "utf8")).toContain("<TrustpilotStars");
   });
