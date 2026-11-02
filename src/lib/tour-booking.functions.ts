@@ -223,6 +223,8 @@ const bookSchema = quoteSchema.extend({
   notes: z.string().trim().max(1500).nullable().optional(),
   website: z.string().trim().max(500).optional().default(""),
   captchaToken: z.string().trim().max(4096).optional().nullable(),
+  /** Hourly hire uses the same pricing and booking path, labelled as hire. */
+  kind: z.enum(["tour", "hourly"]).optional().default("tour"),
 }).refine((v) => !flightNumberError(v.startLabel, v.flight), {
   message: FACT_TEXT.flightNumberRequired,
   path: ["flight"],
@@ -317,7 +319,9 @@ export const createTourBooking = createServerFn({ method: "POST" })
     const holdMinutes = config.rules.checkout_hold_minutes;
 
     const stopNames = data.stops.map((s) => s.name);
-    let tourName: string | null = "Custom day tour";
+    const isHourly = data.kind === "hourly";
+    if (isHourly && data.mode !== "custom") throw new Error("Hourly hire cannot include a ready-made tour.");
+    let tourName: string | null = isHourly ? "Hourly hire" : "Custom day tour";
     let tourSlug: string | null = null;
     if (data.mode === "premade" && data.templateId) {
       const tpl: any = await supabaseAdmin
@@ -343,7 +347,7 @@ export const createTourBooking = createServerFn({ method: "POST" })
       hand_luggage: 0,
       flight_number: data.flight || null,
       notes: [
-        `DAY TOUR — ${data.mode === "premade" ? "Premade tour" : "Custom day"}`,
+        isHourly ? "HOURLY HIRE — car and driver by the hour" : `DAY TOUR — ${data.mode === "premade" ? "Premade tour" : "Custom day"}`,
         `Hours booked: ${data.hours}`,
         stopNames.length ? `Stops: ${stopNames.join(", ")}` : "No stops chosen",
         data.notes ? `\nCustomer notes: ${data.notes}` : null,

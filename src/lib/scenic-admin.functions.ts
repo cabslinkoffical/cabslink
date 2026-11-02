@@ -125,6 +125,8 @@ const createScenicTemplateSchema = z.object({
   slug: z.string().trim().min(3).max(120).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use lowercase words separated by hyphens"),
   theme: z.string().trim().max(80).nullable().optional(),
   short_description: z.string().trim().max(500).nullable().optional(),
+  /** How the tour is priced: staff type prices, or hourly rate × hours + route miles. */
+  price_mode: z.enum(["manual", "auto"]).default("manual"),
 });
 
 export const createScenicTemplate = createServerFn({ method: "POST" })
@@ -139,6 +141,7 @@ export const createScenicTemplate = createServerFn({ method: "POST" })
         slug: data.slug,
         theme: data.theme?.trim() || null,
         short_description: data.short_description?.trim() || null,
+        price_mode: data.price_mode,
         active: false,
         published: false,
       })

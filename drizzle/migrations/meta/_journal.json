@@ -85,6 +85,13 @@
       "when": 1793552757247,
       "tag": "0011_admin_save_settings_atomic",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1793645710151,
+      "tag": "0012_migration",
+      "breakpoints": true
     }
   ]
 }

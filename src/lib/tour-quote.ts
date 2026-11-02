@@ -333,3 +333,24 @@ export function addHoursOptions(args: {
   const larger = evaluated.find((o) => o.hours > smallestFix.hours);
   return larger ? [smallestFix, larger] : [smallestFix];
 }
+
+/**
+ * Automatic price for a ready-made tour, per vehicle class:
+ * hourly rate × tour hours + the tour's route miles × that vehicle's mile rate.
+ * Returns null when the class has no hourly rate (it cannot take the tour).
+ * The route miles are paid for in this price, so quotes for automatically
+ * priced tours never charge them again as extra mileage.
+ */
+export function autoTourPrice(args: {
+  hourlyRate: number | null | undefined;
+  hours: number;
+  routeMiles: number;
+  mileRate: number | null | undefined;
+}): number | null {
+  const rate = Number(args.hourlyRate);
+  if (!Number.isFinite(rate) || rate <= 0 || !(args.hours > 0)) return null;
+  const mile = Number(args.mileRate ?? 0);
+  const miles = Math.max(0, Number(args.routeMiles) || 0);
+  const total = rate * args.hours + (Number.isFinite(mile) && mile > 0 ? miles * mile : 0);
+  return Math.round(total * 100) / 100;
+}

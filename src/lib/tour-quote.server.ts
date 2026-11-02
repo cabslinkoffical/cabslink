@@ -223,7 +223,7 @@ async function templateSettings(templateId: string) {
     supabaseAdmin
       .from("scenic_route_templates")
       .select(
-        "id, name, slug, active, published, is_bookable, default_duration_hours, min_duration_hours, max_duration_hours, included_miles, start_mode, fixed_start_address, origin_place_id, destination_place_id",
+        "id, name, slug, active, published, is_bookable, default_duration_hours, min_duration_hours, max_duration_hours, included_miles, start_mode, fixed_start_address, origin_place_id, destination_place_id, price_mode, auto_price_route_miles",
       )
       .eq("id", templateId)
       .maybeSingle(),
@@ -289,6 +289,11 @@ export async function quoteTourImpl(input: TourQuoteInput): Promise<TourQuoteRes
     fixedPrice = price ? Number(price.price) : null;
     baseHours = Number(tpl.default_duration_hours ?? input.hours);
     templateIncludedMiles = tpl.included_miles == null ? null : Number(tpl.included_miles);
+    // An automatic price already charges the tour's own route miles, so those
+    // miles count as included and are never billed twice as extra mileage.
+    if (tpl.price_mode === "auto" && tpl.auto_price_route_miles != null && fixedPrice != null) {
+      templateIncludedMiles = Math.max(templateIncludedMiles ?? 0, Number(tpl.auto_price_route_miles));
+    }
     if (tpl.start_mode === "fixed" && tpl.origin_place_id) startPlaceId = tpl.origin_place_id;
     // No fixed price set for this vehicle yet: price the day on the hourly
     // model instead of blocking the booking.
@@ -491,4 +496,97 @@ export async function capacityLeft(vehicleClassId: string, date: string): Promis
     .in("status", ["new", "awaiting_payment", "pending_payment", "confirmed", "assigned", "in_progress"]);
   if (used.error || used.count == null) throw new Error("We couldn't check tour availability right now. Please try again or call us.");
   return Math.max(0, max - Number(used.count));
+}
+
+export type AutoTourPriceRow = {
+  vehicle_class_id: string;
+  name: string;
+  hourly_rate: number | null;
+  mile_rate: number | null;
+  price: number | null;
+};
+
+export type AutoTourPriceResult = {
+  hours: number;
+  routeMiles: number;
+  rows: AutoTourPriceRow[];
+};
+
+/** Road miles of a ready-made tour's own route: start → default stops → finish. */
+export async function measureTemplateRoute(templateId: string): Promise<number> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const [tpl, pois] = await Promise.all([
+    supabaseAdmin.from("scenic_route_templates").select("origin_place_id, destination_place_id").eq("id", templateId).maybeSingle(),
+    supabaseAdmin
+      .from("scenic_route_template_pois")
+      .select("stop_order, mandatory, default_selected, points_of_interest(place_id)")
+      .eq("route_template_id", templateId)
+      .order("stop_order"),
+  ]);
+  if (tpl.error || pois.error) throw new Error("We couldn't read this tour's route. Please try again.");
+  const origin = (tpl.data as any)?.origin_place_id as string | null;
+  if (!origin) throw new Error("Set the tour's start point before using the automatic price.");
+  const stops = ((pois.data ?? []) as any[])
+    .filter((p) => p.mandatory || p.default_selected)
+    .map((p) => p.points_of_interest?.place_id as string | undefined)
+    .filter((v): v is string => !!v);
+  const loop = await measureLoop({
+    startPlaceId: origin,
+    endPlaceId: ((tpl.data as any)?.destination_place_id as string | null) || origin,
+    stopPlaceIds: stops,
+  });
+  return Math.round(loop.miles * 10) / 10;
+}
+
+/** Automatic per-vehicle prices for a tour from the live hourly and mile rates. */
+export async function computeAutoTourPrices(args: {
+  hours: number;
+  routeMiles: number;
+}): Promise<AutoTourPriceResult> {
+  const { autoTourPrice } = await import("@/lib/tour-quote");
+  const config = await loadTourConfig();
+  return {
+    hours: args.hours,
+    routeMiles: args.routeMiles,
+    rows: config.classes.map((c) => ({
+      vehicle_class_id: c.id,
+      name: c.name,
+      hourly_rate: c.hourly_rate,
+      mile_rate: c.extra_mile_rate,
+      price: autoTourPrice({ hourlyRate: c.hourly_rate, hours: args.hours, routeMiles: args.routeMiles, mileRate: c.extra_mile_rate }),
+    })),
+  };
+}
+
+/**
+ * Re-price every tour set to automatic after a rate change. Uses each tour's
+ * stored route miles (measuring only when missing) and saves through the same
+ * atomic routine as the admin editor. Returns the tours that could not be priced.
+ */
+export async function refreshAutoTourPrices(): Promise<string[]> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const res = await supabaseAdmin
+    .from("scenic_route_templates")
+    .select("id, name, default_duration_hours, auto_price_route_miles")
+    .eq("price_mode", "auto");
+  if (res.error) throw new Error("We couldn't refresh automatic tour prices.");
+  const failed: string[] = [];
+  for (const t of (res.data ?? []) as any[]) {
+    try {
+      const hours = Number(t.default_duration_hours);
+      if (!(hours > 0)) throw new Error("No tour length");
+      const routeMiles = t.auto_price_route_miles != null ? Number(t.auto_price_route_miles) : await measureTemplateRoute(t.id);
+      const priced = await computeAutoTourPrices({ hours, routeMiles });
+      const save = await (supabaseAdmin as any).rpc("admin_save_tour_pricing", {
+        p_id: t.id,
+        p_settings: { auto_price_route_miles: routeMiles, auto_price_calculated_at: new Date().toISOString() },
+        p_prices: priced.rows.filter((r) => r.price != null).map((r) => ({ vehicle_class_id: r.vehicle_class_id, price: r.price })),
+      });
+      if (save.error) throw save.error;
+    } catch (e) {
+      console.error("auto tour price refresh failed", t.id, e);
+      failed.push(String(t.name ?? t.id));
+    }
+  }
+  return failed;
 }

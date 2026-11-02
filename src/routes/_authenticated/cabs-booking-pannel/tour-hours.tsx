@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/admin/ui";
+import { PriceModeChoice } from "@/components/admin/PriceModeChoice";
 import { toast } from "sonner";
 import { Trash2, Plus } from "lucide-react";
 import {
@@ -17,6 +18,7 @@ import {
   saveTourRules,
   saveClassTourRates,
   saveTemplateTourSettings,
+  previewAutoTourPrices,
   type TourHoursConfig,
 } from "@/lib/tour-hours-admin.functions";
 
@@ -371,7 +373,7 @@ function RatesTab({ classes }: { classes: TourHoursConfig["classes"] }) {
                       setBusy(c.id);
                       const r = rows[i]!;
                       try {
-                        await save({
+                        const res = await save({
                           data: {
                             id: r.id,
                             hourly_rate: r.hourly_rate,
@@ -385,6 +387,9 @@ function RatesTab({ classes }: { classes: TourHoursConfig["classes"] }) {
                           },
                         });
                         toast.success(`${r.name} saved`);
+                        if (res.unpriced?.length) {
+                          toast.warning(`Automatic prices couldn't be updated for: ${res.unpriced.join(", ")}`);
+                        }
                         await qc.invalidateQueries({ queryKey: ["admin", "tour-hours"] });
                       } catch (e: any) {
                         toast.error(e.message ?? "Save failed");
@@ -416,7 +421,15 @@ function PremadeTab({
 }) {
   const qc = useQueryClient();
   const save = useServerFn(saveTemplateTourSettings);
+  const preview = useServerFn(previewAutoTourPrices);
   const [rows, setRows] = useState(templates);
+  const [autoPreview, setAutoPreview] = useState<{
+    id: string;
+    hours: number;
+    routeMiles: number;
+    rows: Array<{ vehicle_class_id: string; name: string; hourly_rate: number | null; mile_rate: number | null; price: number | null }>;
+  } | null>(null);
+  const [previewing, setPreviewing] = useState(false);
   const [openId, setOpenId] = useState<string | null>(templates[0]?.id ?? null);
   const [busy, setBusy] = useState(false);
   useEffect(() => setRows(templates), [templates]);
@@ -443,6 +456,7 @@ function PremadeTab({
               {t.is_bookable ? "Bookable" : "Not bookable"}
               {t.default_duration_hours ? ` · ${t.default_duration_hours}h` : ""}
               {t.included_miles ? ` · ${t.included_miles} mi` : ""}
+              {t.price_mode === "auto" ? " · Auto price" : ""}
             </span>
           </button>
         ))}
@@ -502,6 +516,81 @@ function PremadeTab({
             </div>
           </div>
 
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold">Tour price</h3>
+            <PriceModeChoice value={active.price_mode} onChange={(v) => patch({ price_mode: v })} />
+          </div>
+
+          {active.price_mode === "auto" ? (
+            <div className="space-y-3">
+              <p className="text-xs text-muted-foreground">
+                Price = vehicle hourly rate × {active.default_duration_hours ?? "default"} hours + the tour's own route
+                miles × that vehicle's mile rate. The route is measured from the start point through the tour's
+                default stops when you save, and prices update when hourly or mile rates change. Those route miles
+                are never charged again as extra mileage; stops a customer adds are charged by the mileage rules.
+                {active.auto_price_route_miles != null && ` Last measured route: ${active.auto_price_route_miles} miles.`}
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={previewing || !(Number(active.default_duration_hours) > 0)}
+                onClick={async () => {
+                  setPreviewing(true);
+                  try {
+                    const r = await preview({ data: { id: active.id, hours: Number(active.default_duration_hours) } });
+                    setAutoPreview({ id: active.id, ...r });
+                  } catch (e: any) {
+                    toast.error(e.message ?? "Couldn't work out the prices");
+                  } finally {
+                    setPreviewing(false);
+                  }
+                }}
+              >
+                {previewing ? "Working out…" : "Preview automatic prices"}
+              </Button>
+              {!(Number(active.default_duration_hours) > 0) && (
+                <p className="text-xs text-destructive">Set the default duration first.</p>
+              )}
+              {autoPreview?.id === active.id && (
+                <div className="rounded-lg border border-border overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="bg-muted/50 text-xs text-muted-foreground">
+                      <tr>
+                        <th className="text-left p-2">Vehicle</th>
+                        <th className="text-right p-2">Hours</th>
+                        <th className="text-right p-2">Route miles</th>
+                        <th className="text-right p-2">Price</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {autoPreview.rows.map((r) => (
+                        <tr key={r.vehicle_class_id} className="border-t border-border">
+                          <td className="p-2">{r.name}</td>
+                          <td className="p-2 text-right">
+                            {r.hourly_rate != null ? `£${r.hourly_rate} × ${autoPreview.hours}` : "No hourly rate"}
+                          </td>
+                          <td className="p-2 text-right">
+                            {r.mile_rate ? `${autoPreview.routeMiles} × £${r.mile_rate}` : `${autoPreview.routeMiles} (no mile rate)`}
+                          </td>
+                          <td className="p-2 text-right font-semibold">
+                            {r.price != null ? `£${r.price.toFixed(2)}` : "Can't take this tour"}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+              {active.prices.length > 0 && autoPreview?.id !== active.id && (
+                <p className="text-xs text-muted-foreground">
+                  Current saved prices:{" "}
+                  {active.prices
+                    .map((p) => `${classes.find((c) => c.id === p.vehicle_class_id)?.name ?? "Vehicle"} £${p.price}`)
+                    .join(" · ")}
+                </p>
+              )}
+            </div>
+          ) : (
           <div>
             <h3 className="text-sm font-semibold mb-2">Fixed price per vehicle class</h3>
             <p className="text-xs text-muted-foreground mb-3">
@@ -531,6 +620,7 @@ function PremadeTab({
               })}
             </div>
           </div>
+          )}
 
           <div className="flex justify-end">
             <Button
@@ -548,10 +638,12 @@ function PremadeTab({
                       included_miles: active.included_miles,
                       start_mode: active.start_mode as "customer" | "fixed",
                       fixed_start_address: active.fixed_start_address,
+                      price_mode: active.price_mode,
                       prices: active.prices,
                     },
                   });
-                  toast.success("Tour saved");
+                  setAutoPreview(null);
+                  toast.success(active.price_mode === "auto" ? "Tour saved with automatic prices" : "Tour saved");
                   await qc.invalidateQueries({ queryKey: ["admin", "tour-hours"] });
                 } catch (e: any) {
                   toast.error(e.message ?? "Save failed");

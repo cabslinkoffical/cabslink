@@ -1,16 +1,16 @@
 /**
  * /book/hourly — the front door to hourly hire.
  *
- * Hourly hire and day tours are one product: you book the car and driver by the
- * hour, each length of hire includes miles, and the stops you choose decide
- * whether you stay inside those miles or pay for extra ones. This page collects
- * the pickup, day and hours, then hands over to `/book/tour`, where premade
- * tours and suggested stops within the mileage are chosen, followed by vehicle,
- * details and payment.
+ * Hourly hire is its own service, separate from day tours: a car and driver for
+ * the hours you book, with miles included. This page collects the pickup, day
+ * and hours, then runs the shared booking wizard here in hourly mode (optional
+ * stops, no ready-made tours), followed by vehicle, details and payment. It is
+ * priced with the same hourly rates as custom day tours.
  */
 import { normalizeHead } from "@/lib/seo/page-head";
 import { useState } from "react";
-import { createFileRoute, useNavigate, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { DayBookingWizard } from "@/components/site/DayBookingWizard";
 import { useQuery } from "@tanstack/react-query";
 import { Clock, Users, Briefcase, MapPin, CalendarDays, ArrowRight, Loader2, Route as RouteIcon } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
@@ -48,8 +48,8 @@ const HOURLY_SECTIONS: ContentSection[] = [
   {
     title: "Hourly hire or a day tour?",
     paragraphs: [
-      "They are the same product. Choose your hours and pickup, then either pick one of our ready-made Scottish tours or build your own day from suggested places within your mileage — castles, lochs, distilleries and viewpoints. The map shows your loop as you add stops.",
-      "If your chosen stops need more driving than your hours allow, we say so and offer a longer hire instead of letting the day run short.",
+      "They are separate services. Hourly hire gives you a car and driver for the hours you book: go where you like, add stops if you want, or simply keep the car on standby. A day tour is a planned itinerary — choose one of our ready-made Scottish tours at its own tour price, or build your own day on the tours page.",
+      "Hourly hire and custom day tours use the same hourly rates. If your stops need more driving than your hours allow, we say so and offer a longer hire instead of letting the day run short.",
     ],
   },
 ];
@@ -82,28 +82,6 @@ export const Route = createFileRoute("/book/hourly")({
   // router rewrite bare /book/hourly to /book/hourly?q= (a 307 on every crawl).
   validateSearch: (search: Record<string, unknown>): { q?: string } =>
     typeof search.q === "string" && search.q.length > 0 ? { q: search.q } : {},
-  // When a link (e.g. the home page form) already carries the pickup, day, time
-  // and hours, there is nothing left to ask here — go straight to the stops.
-  beforeLoad: ({ search }) => {
-    const p = new URLSearchParams(search.q || "");
-    const pickupPlaceId = p.get("pickupPlaceId");
-    const date = p.get("date");
-    const time = p.get("time");
-    const hours = Number(p.get("hours"));
-    if (!pickupPlaceId || !date || !time || !hours) return;
-    throw redirect({
-      to: "/book/tour",
-      search: {
-        pickupPlaceId,
-        pickupLabel: p.get("pickupLabel") || pickupPlaceId,
-        date,
-        time,
-        hours: Math.min(24, Math.max(1, hours)),
-        ...(Number(p.get("passengers")) >= 1 ? { passengers: Number(p.get("passengers")) } : {}),
-        luggage: Math.max(0, Number(p.get("luggage")) || 0),
-      },
-    });
-  },
   head: () => normalizeHead({
     meta: [
       { title: "Hourly Car Hire with Driver — Edinburgh & Glasgow | Cabslink" },
@@ -137,6 +115,32 @@ function parsePrefill(q: string | undefined) {
 
 function HourlyBookPage() {
   const { q } = Route.useSearch();
+  // A link (e.g. the home page form) or the form below already carries the
+  // pickup, day, time and hours: run the hourly booking right here.
+  const handoff = hourlyHandoff(q);
+  if (handoff) return <DayBookingWizard kind="hourly" search={handoff} />;
+  return <HourlyStartForm q={q} />;
+}
+
+function hourlyHandoff(q: string | undefined) {
+  const p = new URLSearchParams(q || "");
+  const pickupPlaceId = p.get("pickupPlaceId");
+  const date = p.get("date");
+  const time = p.get("time");
+  const hours = Number(p.get("hours"));
+  if (!pickupPlaceId || !date || !time || !hours) return null;
+  return {
+    pickupPlaceId,
+    pickupLabel: p.get("pickupLabel") || pickupPlaceId,
+    date,
+    time,
+    hours: Math.min(24, Math.max(1, Math.round(hours))),
+    ...(Number(p.get("passengers")) >= 1 ? { passengers: Number(p.get("passengers")) } : {}),
+    luggage: Math.max(0, Number(p.get("luggage")) || 0),
+  };
+}
+
+function HourlyStartForm({ q }: { q: string | undefined }) {
   const [prefill] = useState(() => parsePrefill(q));
   const navigate = useNavigate();
 
@@ -161,18 +165,16 @@ function HourlyBookPage() {
 
   function toStops() {
     if (!ready || !pickup) return;
-    navigate({
-      to: "/book/tour",
-      search: {
-        pickupPlaceId: pickup.placeId,
-        pickupLabel: pickup.label,
-        date,
-        time,
-        hours: hours!,
-        ...(passengers > 0 ? { passengers } : {}),
-        luggage,
-      },
+    const next = new URLSearchParams({
+      pickupPlaceId: pickup.placeId,
+      pickupLabel: pickup.label,
+      date,
+      time,
+      hours: String(hours),
+      luggage: String(luggage),
+      ...(passengers > 0 ? { passengers: String(passengers) } : {}),
     });
+    navigate({ to: "/book/hourly", search: { q: next.toString() } });
   }
 
   return (
@@ -185,8 +187,8 @@ function HourlyBookPage() {
           </h1>
           <p className="mt-3 max-w-2xl text-navy-foreground/70 text-sm md:text-base">
             Your vehicle and driver stay with you for the hours you book, and every length of hire
-            includes miles. Tell us where to collect you and how long you'd like the car — then choose
-            your stops from the places that fit those miles.
+            includes miles. Tell us where to collect you and how long you'd like the car, then add any
+            stops you want — or none at all.
           </p>
         </div>
       </section>

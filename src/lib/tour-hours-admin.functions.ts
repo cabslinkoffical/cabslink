@@ -60,6 +60,9 @@ export type TourHoursConfig = {
     included_miles: number | null;
     start_mode: string;
     fixed_start_address: string | null;
+    price_mode: "manual" | "auto";
+    auto_price_route_miles: number | null;
+    auto_price_calculated_at: string | null;
     prices: Array<{ vehicle_class_id: string; price: number }>;
   }>;
 };
@@ -82,7 +85,7 @@ export const getTourHoursConfig = createServerFn({ method: "GET" })
       sb
         .from("scenic_route_templates")
         .select(
-          "id, name, is_bookable, default_duration_hours, min_duration_hours, max_duration_hours, included_miles, start_mode, fixed_start_address, display_order",
+          "id, name, is_bookable, default_duration_hours, min_duration_hours, max_duration_hours, included_miles, start_mode, fixed_start_address, display_order, price_mode, auto_price_route_miles, auto_price_calculated_at",
         )
         .order("display_order"),
       sb.from("template_fixed_prices").select("route_template_id, vehicle_class_id, price"),
@@ -138,6 +141,9 @@ export const getTourHoursConfig = createServerFn({ method: "GET" })
         included_miles: t.included_miles == null ? null : Number(t.included_miles),
         start_mode: t.start_mode ?? "customer",
         fixed_start_address: t.fixed_start_address ?? null,
+        price_mode: t.price_mode === "auto" ? "auto" : "manual",
+        auto_price_route_miles: t.auto_price_route_miles == null ? null : Number(t.auto_price_route_miles),
+        auto_price_calculated_at: t.auto_price_calculated_at ?? null,
         prices: (prices.data ?? [])
           .filter((p: any) => p.route_template_id === t.id)
           .map((p: any) => ({ vehicle_class_id: p.vehicle_class_id, price: Number(p.price) })),
@@ -236,7 +242,10 @@ export const saveClassTourRates = createServerFn({ method: "POST" })
         .upsert({ vehicle_class_id: id, max_tours_per_day }, { onConflict: "vehicle_class_id" });
       if (cap.error) throw new Error(cap.error.message);
     }
-    return { ok: true };
+    // Tours on automatic pricing follow the new rates straight away.
+    const { refreshAutoTourPrices } = await import("@/lib/tour-quote.server");
+    const unpriced = await refreshAutoTourPrices();
+    return { ok: true, unpriced };
   });
 
 const templateSchema = z.object({
@@ -248,6 +257,8 @@ const templateSchema = z.object({
   included_miles: z.coerce.number().min(0).max(2000).nullable(),
   start_mode: z.enum(["customer", "fixed"]),
   fixed_start_address: z.string().max(300).nullable(),
+  /** manual = staff type each vehicle's price; auto = hourly rate × hours + route miles. */
+  price_mode: z.enum(["manual", "auto"]).default("manual"),
   prices: z
     .array(z.object({ vehicle_class_id: z.string().uuid(), price: z.coerce.number().min(0).max(100000) }))
     .max(60)
@@ -259,17 +270,39 @@ export const saveTemplateTourSettings = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => templateSchema.parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    const { id, prices, ...rest } = data;
-    const up = await context.supabase.from("scenic_route_templates").update(rest).eq("id", id);
-    if (up.error) throw new Error(up.error.message);
-
-    const del = await context.supabase.from("template_fixed_prices").delete().eq("route_template_id", id);
-    if (del.error) throw new Error(del.error.message);
-    if (prices.length) {
-      const ins = await context.supabase
-        .from("template_fixed_prices")
-        .insert(prices.map((p) => ({ route_template_id: id, ...p })));
-      if (ins.error) throw new Error(ins.error.message);
+    const { id, prices, price_mode, ...rest } = data;
+    let finalPrices = prices;
+    const settings: Record<string, unknown> = { ...rest, price_mode };
+    if (price_mode === "auto") {
+      // The server works out automatic prices; whatever the browser sent is ignored.
+      const hours = Number(rest.default_duration_hours);
+      if (!(hours > 0)) throw new Error("Set the tour's default duration before using the automatic price.");
+      const { measureTemplateRoute, computeAutoTourPrices } = await import("@/lib/tour-quote.server");
+      const routeMiles = await measureTemplateRoute(id);
+      const priced = await computeAutoTourPrices({ hours, routeMiles });
+      finalPrices = priced.rows.filter((r) => r.price != null).map((r) => ({ vehicle_class_id: r.vehicle_class_id, price: r.price! }));
+      if (!finalPrices.length) throw new Error("No vehicle has an hourly rate yet, so an automatic price can't be worked out.");
+      settings.auto_price_route_miles = routeMiles;
+      settings.auto_price_calculated_at = new Date().toISOString();
     }
-    return { ok: true };
+    const save = await (context.supabase as any).rpc("admin_save_tour_pricing", {
+      p_id: id,
+      p_settings: settings,
+      p_prices: finalPrices,
+    });
+    if (save.error) throw new Error(save.error.message);
+    return { ok: true, prices: finalPrices };
+  });
+
+/** Preview automatic prices for a tour without saving anything. */
+export const previewAutoTourPrices = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z.object({ id: z.string().uuid(), hours: z.coerce.number().min(0.5).max(24) }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { measureTemplateRoute, computeAutoTourPrices } = await import("@/lib/tour-quote.server");
+    const routeMiles = await measureTemplateRoute(data.id);
+    return computeAutoTourPrices({ hours: data.hours, routeMiles });
   });
