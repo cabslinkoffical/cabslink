@@ -5,7 +5,7 @@ import { normalizeHead } from "@/lib/seo/page-head";
  * src/lib/seo/journeys.ts; this file only renders it.
  */
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Check, MapPin, Phone, Route as RouteIcon } from "lucide-react";
+import { ArrowRight, Car, Check, Clock, MapPin, Phone, Route as RouteIcon } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { SectionHeader } from "@/components/site/PageHero";
 import { LocalPageHero } from "@/components/site/LocalPageHero";
