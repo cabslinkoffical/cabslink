@@ -1,8 +1,7 @@
 import { createFileRoute, Link, Outlet, redirect, useRouter, useRouterState } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
-import { LogOut, ExternalLink, Menu, X } from "lucide-react";
+import { LogOut, ExternalLink, Menu, X, ArrowLeft } from "lucide-react";
 import { ADMIN_AREAS, areaForPath } from "@/components/admin/admin-areas";
-import { cn } from "@/lib/utils";
 import { SidebarNav } from "@/components/admin/SidebarNav";
 import { Breadcrumbs } from "@/components/admin/Breadcrumbs";
 import { Logo } from "@/components/site/Logo";
@@ -110,29 +109,22 @@ function AdminLayout() {
             <X className="size-5" />
           </button>
         </div>
-        <div className="px-3 pt-3" role="tablist" aria-label="Console areas">
-          <div className="grid grid-cols-3 gap-1 rounded-xl bg-white/[0.06] p-1 ring-1 ring-white/10">
-            {ADMIN_AREAS.map((a) => {
-              const active = a.id === area.id;
-              return (
-                <Link
-                  key={a.id}
-                  to={a.home as any}
-                  role="tab"
-                  aria-selected={active}
-                  title={a.label}
-                  className={cn(
-                    "flex flex-col items-center gap-1 rounded-lg px-1 py-2 text-[11px] font-semibold transition",
-                    active ? "bg-gold text-navy shadow-sm" : "text-white/80 hover:bg-white/[0.08] hover:text-white",
-                  )}
-                >
-                  <a.icon className="size-4" />
-                  <span className="truncate">{a.short}</span>
-                </Link>
-              );
-            })}
+        <div className="px-3 pt-3">
+          {area.id !== "dashboard" && (
+            <Link
+              to="/cabs-booking-pannel"
+              className="mb-2 flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium text-white/80 ring-1 ring-white/10 transition hover:bg-white/[0.07] hover:text-gold"
+            >
+              <ArrowLeft className="size-4" /> Back to dashboard
+            </Link>
+          )}
+          <div className="flex items-center gap-2.5 rounded-xl bg-white/[0.06] px-3 py-2.5 ring-1 ring-white/10">
+            <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-gold text-navy"><area.icon className="size-4" /></span>
+            <span className="min-w-0">
+              <span className="block text-[10px] font-bold uppercase tracking-[0.16em] text-gold">You are in</span>
+              <span className="block truncate text-sm font-semibold text-white">{area.label}</span>
+            </span>
           </div>
-          <p className="mt-3 px-1 text-[10.5px] font-bold uppercase tracking-[0.16em] text-gold">{area.label}</p>
         </div>
         <SidebarNav key={area.id} entries={area.nav} />
         <div className="shrink-0 p-3 pb-[max(.75rem,env(safe-area-inset-bottom))] border-t border-gold/20 space-y-1">

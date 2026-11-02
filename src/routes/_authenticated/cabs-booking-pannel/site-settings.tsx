@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { ArrowUpRight, Search, SlidersHorizontal, X } from "lucide-react";
 import { SETTINGS_GROUPS } from "@/components/admin/admin-areas";
+import { slug } from "@/components/admin/AreaGateway";
 
 export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/site-settings")({
   head: () => ({
@@ -73,7 +74,7 @@ function SettingsHub() {
       )}
 
       {groups.map((g, gi) => (
-        <section key={g.label} aria-labelledby={`grp-${gi}`}>
+        <section key={g.label} id={slug(g.label)} aria-labelledby={`grp-${gi}`} className="scroll-mt-20">
           <div className="mb-3 flex items-end justify-between gap-4 border-b border-border pb-2">
             <div className="flex items-center gap-3">
               <span className="flex size-9 items-center justify-center rounded-xl bg-navy text-gold">

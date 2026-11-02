@@ -9,7 +9,8 @@ import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
   BarChart, Bar, Cell, PieChart, Pie,
 } from "recharts";
-import { StatCard, MiniStat, PageHeader, StatusBadge } from "@/components/admin/ui";
+import { StatCard, MiniStat, StatusBadge } from "@/components/admin/ui";
+import { AreaGateway } from "@/components/admin/AreaGateway";
 
 const statsOpts = queryOptions({ queryKey: ["admin", "stats"], queryFn: () => getDashboardStats() });
 
@@ -66,11 +67,30 @@ function Dashboard() {
   ];
 
 
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+  const today = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
+
   const pieData = Object.entries(byStatus).map(([name, value]) => ({ name: name.replace(/_/g, " "), value, fill: STATUS_COLORS[name] ?? "#0e182c" }));
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Dashboard" description="Real-time overview of Cabslink operations." />
+      <header className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+        <div className="min-w-0">
+          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gold-ink" suppressHydrationWarning>{today}</p>
+          <h1 className="font-display text-2xl font-semibold tracking-tight md:text-[1.9rem]" suppressHydrationWarning>{greeting}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Here is how Cabslink is doing. Open bookings or settings below.</p>
+        </div>
+      </header>
+
+      <AreaGateway totals={totals} />
+
+      <div className="flex items-center gap-3 pt-2">
+        <h2 className="font-display text-lg font-semibold">Figures</h2>
+        <span className="h-px flex-1 bg-border" />
+        <Link to="/cabs-booking-pannel/analytics" className="text-xs font-semibold text-gold-ink hover:underline">Website analytics →</Link>
+        <Link to="/cabs-booking-pannel/reports" className="text-xs font-semibold text-gold-ink hover:underline">Reports →</Link>
+      </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
         {kpis.map(k => <StatCard key={k.label} {...k} />)}
