@@ -228,6 +228,16 @@
 .public-site > main > article > section {
   background-color: var(--surface-cool);
 }
+/* Every page except the homepage: light bands directly inside <main> alternate
+   white and warm cream automatically (navy bands and top sections keep their
+   own colour but still count in the rhythm), so no template picks a grey or
+   tinted background of its own. */
+.public-site:not(.is-home) > main > section:not([class*="navy"]):not([class*="hero"]):nth-of-type(odd) {
+  background-color: var(--card);
+}
+.public-site:not(.is-home) > main > section:not([class*="navy"]):not([class*="hero"]):nth-of-type(even) {
+  background-color: var(--surface-2);
+}
 .public-site .glass-card {
   box-shadow: var(--shadow-raised);
 }
