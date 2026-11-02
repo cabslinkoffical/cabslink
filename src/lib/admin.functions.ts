@@ -413,29 +413,62 @@ export const listDispatchDrivers = createServerFn({ method: "GET" })
 const paymentSchema = z.object({
   id: z.string().uuid().optional(),
   booking_id: z.string().uuid().nullable().optional(),
-  amount: z.number().min(0),
-  currency: z.string().default("GBP"),
+  amount: z.number().min(0).max(100000),
+  // Fares, revenue and reports are all in pounds; other currencies are refused.
+  currency: z.literal("GBP").default("GBP"),
   method: z.string().max(80).nullable().optional(),
   status: paymentStatusSchema.default("unpaid"),
   reference: z.string().max(200).nullable().optional(),
   notes: z.string().max(1000).nullable().optional(),
 });
 
+/**
+ * Staff-recorded payments. Card payments taken online are owned by the
+ * payment processor: staff may only change their reference and notes, and
+ * cannot delete them (refunds go through Refunds). After every change the
+ * booking's paid state is re-derived from its payments.
+ */
 export const upsertPayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => paymentSchema.parse(i))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    const payload: any = { ...data };
-    if (payload.status === "paid" && !payload.paid_at) payload.paid_at = new Date().toISOString();
+    const db = context.supabase;
+    const { reconcileBookingPaymentStatus } = await import("@/lib/stripe-payments.server");
+    const nowIso = new Date().toISOString();
+    const touched = new Set<string>();
     if (data.id) {
-      const { id, ...patch } = payload;
-      const { error } = await context.supabase.from("payments").update(patch).eq("id", id);
+      const cur: any = await db.from("payments").select("id, booking_id, amount, status, paid_at, refunded_amount, payment_intent_id").eq("id", data.id).maybeSingle();
+      if (cur.error) throw new Error(cur.error.message);
+      if (!cur.data) throw new Error("Payment not found");
+      const old = cur.data;
+      let patch: any;
+      if (old.payment_intent_id) {
+        patch = { reference: data.reference ?? null, notes: data.notes ?? null };
+      } else {
+        patch = { ...data };
+        delete patch.id;
+        // Keep the original settlement time; set it only when the row first becomes paid.
+        const wasSettled = ["paid", "partial", "refunded"].includes(old.status);
+        const isSettled = ["paid", "partial", "refunded"].includes(data.status);
+        patch.paid_at = isSettled ? (old.paid_at ?? (wasSettled ? null : nowIso) ?? nowIso) : null;
+        // A row marked refunded gives back its whole amount (net revenue £0).
+        patch.refunded_amount = data.status === "refunded" ? data.amount : Math.min(Number(old.refunded_amount ?? 0), data.amount);
+      }
+      const { error } = await db.from("payments").update(patch).eq("id", data.id);
       if (error) throw new Error(error.message);
+      if (old.booking_id) touched.add(old.booking_id);
+      if (!old.payment_intent_id && data.booking_id) touched.add(data.booking_id);
     } else {
-      const { error } = await context.supabase.from("payments").insert(payload);
+      const payload: any = { ...data };
+      const settled = ["paid", "partial", "refunded"].includes(data.status);
+      payload.paid_at = settled ? nowIso : null;
+      payload.refunded_amount = data.status === "refunded" ? data.amount : 0;
+      const { error } = await db.from("payments").insert(payload);
       if (error) throw new Error(error.message);
+      if (data.booking_id) touched.add(data.booking_id);
     }
+    for (const id of touched) await reconcileBookingPaymentStatus(db, id);
     return { ok: true };
   });
 
@@ -444,8 +477,17 @@ export const deletePayment = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    const { error } = await context.supabase.from("payments").delete().eq("id", data.id);
+    const db = context.supabase;
+    const cur: any = await db.from("payments").select("id, booking_id, payment_intent_id").eq("id", data.id).maybeSingle();
+    if (cur.error) throw new Error(cur.error.message);
+    if (!cur.data) throw new Error("Payment not found");
+    if (cur.data.payment_intent_id) throw new Error("Card payments taken online can't be deleted. Use Refunds to give money back.");
+    const { error } = await db.from("payments").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
+    if (cur.data.booking_id) {
+      const { reconcileBookingPaymentStatus } = await import("@/lib/stripe-payments.server");
+      await reconcileBookingPaymentStatus(db, cur.data.booking_id);
+    }
     return { ok: true };
   });
 
