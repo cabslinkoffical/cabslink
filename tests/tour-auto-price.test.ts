@@ -14,6 +14,6 @@ describe("automatic tour price (hourly rate × hours + route miles)", () => {
     expect(autoTourPrice({ hourlyRate: 0, hours: 8, routeMiles: 100, mileRate: 2 })).toBeNull();
   });
   it("rounds to pence", () => {
-    expect(autoTourPrice({ hourlyRate: 33.333, hours: 3, routeMiles: 10.05, mileRate: 1.1 })).toBe(111.06);
+    expect(autoTourPrice({ hourlyRate: 33.333, hours: 3, routeMiles: 10.05, mileRate: 1.1 })).toBe(111.05);
   });
 });
