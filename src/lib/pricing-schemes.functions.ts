@@ -248,7 +248,14 @@ export const saveSchemeOverview = createServerFn({ method: "POST" })
     });
     if (error) throw new Error(error.message);
 
-    return { ok: true, profileId: profileId as string };
+    // Tours on automatic pricing use these hourly and mile rates, so re-price them.
+    const { refreshAutoTourPrices } = await import("@/lib/tour-quote.server");
+    const unpricedTours = await refreshAutoTourPrices().catch((e) => {
+      console.error("auto tour price refresh failed", e);
+      return ["all automatic tours"];
+    });
+
+    return { ok: true, profileId: profileId as string, unpricedTours };
   });
 
 // ===================================================================
