@@ -4,9 +4,8 @@ import { listBookingAmendmentsPage } from "@/lib/admin-lists.functions";
 import { Pager, useDebounced, usePageState } from "@/components/admin/Pager";
 import { DEFAULT_PAGE_SIZE } from "@/lib/admin-paging";
 import { useServerFn } from "@tanstack/react-start";
-import { useMemo, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
-  listBookingAmendments,
   updateBookingAmendment,
   deleteBookingAmendment,
 } from "@/lib/admin.functions";
@@ -294,6 +293,10 @@ function AmendmentsPage() {
             </tbody>
           </table>
         </div>
+      )}
+      {(listQ.data?.total ?? 0) > 0 && (
+        <Pager {...paging} total={listQ.data?.total ?? 0} noun="change requests" loading={listQ.isFetching}
+          onPageChange={paging.setPage} onPageSizeChange={paging.setPageSize} />
       )}
 
       <Sheet open={!!active} onOpenChange={(o) => !o && setOpenId(null)}>
