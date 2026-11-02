@@ -31,16 +31,20 @@ export const getDashboardStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
-    const since30 = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-    const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
-    const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0);
+    // Every day/month boundary is a UK calendar boundary (Europe/London).
+    const { ukDate, ukDayStart, ukMonthStart, ukRange, addDays } = await import("@/lib/uk-time");
+    const { bookingInTab, CLOSED_STATUSES, ON_ROAD_STATUSES } = await import("@/lib/admin-bookings");
+    const { TOUR_SERVICE_TYPE } = await import("@/lib/tour-enquiries");
+    const today = ukDate();
+    const todayStart = ukDayStart(today);
+    const monthStart = ukDayStart(ukMonthStart(0));
 
     const { fetchAllPages } = await import("@/lib/fetch-all-pages");
     const { netRevenue, revenueInWindow, SETTLED_PAYMENT_STATUSES } = await import("@/lib/revenue");
     const sb = context.supabase;
     // Complete paginated reads: totals never silently stop at the response cap.
     const [bookings, messages, vehicles, drivers, payments, recentRes] = await Promise.all([
-      fetchAllPages<any>((a, z) => sb.from("bookings").select("id, status, vehicle_type, pickup_address, dropoff_address, created_at, pickup_date, price, payment_status, deleted_at, email").order("id").range(a, z)),
+      fetchAllPages<any>((a, z) => sb.from("bookings").select("id, status, service_type, vehicle_type, pickup_address, dropoff_address, created_at, pickup_date, price, payment_status, deleted_at, email").order("id").range(a, z)),
       fetchAllPages<any>((a, z) => sb.from("contact_messages").select("id, status").not("subject", "ilike", "Tour booking:%").order("id").range(a, z)),
       fetchAllPages<any>((a, z) => sb.from("vehicles").select("id, active").order("id").range(a, z)),
       fetchAllPages<any>((a, z) => sb.from("drivers").select("id, status").order("id").range(a, z)),
@@ -53,6 +57,10 @@ export const getDashboardStats = createServerFn({ method: "GET" })
     const messagesRes = { data: messages };
 
     const live = bookings.filter((b: any) => !b.deleted_at);
+    // Transfer figures use exactly the booking-list tab rules (tours are counted on their own).
+    const transfers = live.filter((b: any) => b.service_type !== TOUR_SERVICE_TYPE);
+    const tours = live.filter((b: any) => b.service_type === TOUR_SERVICE_TYPE);
+    const inTab = (tab: any) => bookings.filter((b: any) => bookingInTab(b, tab, today)).length;
     // Settled money only, net of refunds, dated by settlement (paid_at, else created_at).
     const settled = payments.filter((p: any) => (SETTLED_PAYMENT_STATUSES as readonly string[]).includes(p.status));
     const nowIso = new Date().toISOString();
@@ -64,23 +72,22 @@ export const getDashboardStats = createServerFn({ method: "GET" })
 
     const newToday = live.filter((b: any) => new Date(b.created_at) >= todayStart).length;
 
-    // Monthly revenue (last 6 months)
+    // Monthly revenue (last 6 UK calendar months, current month last)
     const monthly: { month: string; revenue: number }[] = [];
     for (let i = 5; i >= 0; i--) {
-      const d = new Date(); d.setMonth(d.getMonth() - i); d.setDate(1); d.setHours(0, 0, 0, 0);
-      const next = new Date(d); next.setMonth(next.getMonth() + 1);
-      const sum = revenueInWindow(settled, d.toISOString(), new Date(next.getTime() - 1).toISOString());
-      monthly.push({ month: d.toLocaleString("en", { month: "short" }), revenue: sum });
+      const first = ukMonthStart(i);
+      const [y, m] = first.split("-").map(Number);
+      const last = addDays(new Date(Date.UTC(y, m, 1)).toISOString().slice(0, 10), -1);
+      const { startIso, endIso } = ukRange(first, last);
+      const sum = revenueInWindow(settled, startIso, new Date(new Date(endIso).getTime() - 1).toISOString());
+      monthly.push({ month: new Date(Date.UTC(y, m - 1, 15)).toLocaleString("en-GB", { month: "short", timeZone: "UTC" }), revenue: sum });
     }
 
-    // Last 30 days bookings trend
+    // Last 30 UK days bookings trend (by UK creation date)
     const byDay = new Map<string, number>();
-    for (let i = 29; i >= 0; i--) {
-      const d = new Date(); d.setDate(d.getDate() - i);
-      byDay.set(d.toISOString().slice(0, 10), 0);
-    }
+    for (let i = 29; i >= 0; i--) byDay.set(addDays(today, -i), 0);
     for (const b of live) {
-      const key = (b.created_at as string).slice(0, 10);
+      const key = ukDate(b.created_at);
       if (byDay.has(key)) byDay.set(key, (byDay.get(key) ?? 0) + 1);
     }
 
@@ -101,15 +108,18 @@ export const getDashboardStats = createServerFn({ method: "GET" })
 
     return {
       totals: {
-        bookings: live.length,
-        upcoming: live.filter((b: any) => ["new", "confirmed", "assigned", "pending_allocation"].includes(b.status) && b.pickup_date >= new Date().toISOString().slice(0, 10)).length,
-        completed: live.filter((b: any) => b.status === "completed").length,
-        cancelled: live.filter((b: any) => b.status === "cancelled").length,
-        pendingAllocation: live.filter((b: any) => b.status === "new" || b.status === "pending_allocation").length,
-        allocated: live.filter((b: any) => b.status === "assigned" || b.status === "confirmed").length,
-        inProgress: live.filter((b: any) => b.status === "in_progress" || b.status === "on_way").length,
-        bidding: live.filter((b: any) => b.status === "bidding").length,
-        deleted: bookings.filter((b: any) => b.deleted_at).length,
+        bookings: transfers.length,
+        tours: tours.length,
+        upcoming: inTab("upcoming"),
+        completed: inTab("completed"),
+        cancelled: inTab("cancelled"),
+        // "New" tab: new, awaiting allocation and bidding — bookings still without a driver.
+        pendingAllocation: inTab("new"),
+        awaitingPayment: inTab("awaiting_payment"),
+        allocated: inTab("assigned") + inTab("confirmed"),
+        inProgress: inTab("on_road"),
+        bidding: transfers.filter((b: any) => b.status === "bidding").length,
+        deleted: inTab("deleted"),
         newToday,
         totalRevenue, todayRevenue, monthRevenue, pendingPayments,
         vehiclesTotal: vehiclesRes.data?.length ?? 0,
