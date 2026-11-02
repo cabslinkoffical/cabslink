@@ -1175,7 +1175,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
               <div className="rounded-3xl border border-border bg-card p-5 shadow-[0_10px_40px_-20px_rgba(14,24,44,0.25)]">
                 <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)]">Your day</p>
                 <h3 className="mt-0.5 font-display text-lg font-bold">
-                  {template ? template.name : "Your own day tour"}
+                  {template ? template.name : hourly ? "Hourly hire" : "Your own day tour"}
                 </h3>
 
                 <div className="relative mt-4 pl-6">
