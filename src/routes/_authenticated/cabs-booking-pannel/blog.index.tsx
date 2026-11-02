@@ -55,7 +55,7 @@ function AdminBlogList() {
       </PageHeader>
 
       <div className="mb-4 max-w-sm">
-        <Input placeholder="Search title or slug…" value={search} onChange={(e) => { setSearch(e.target.value); setOffset(0); }} />
+        <Input placeholder="Search title or slug…" value={search} onChange={(e) => setSearch(e.target.value)} />
       </div>
 
       {error ? <div role="alert">{error.message}</div> : isLoading ? (
