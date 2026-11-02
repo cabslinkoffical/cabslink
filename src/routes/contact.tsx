@@ -130,7 +130,7 @@ function ContactPage() {
 
 
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>Prefer to <span className="text-gold">book online</span>?</>, subtitle: "Get a fixed price in a few minutes, or send us a message using the form above.", label: "Get a fixed price", trackAs: "final_cta_contact" }}>
       <PageHero
         eyebrow="Contact"
         title="Talk to Cabslink — anytime, day or night."

@@ -21,7 +21,7 @@ export const Route = createFileRoute("/drive-with-us")({
 
 function DrivePage() {
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>Drive with <span className="text-gold">Cabslink</span></>, subtitle: "Apply in a few minutes. We review every application and reply by email.", label: "Apply to drive", href: "#application-form", trackAs: "final_cta_driver" }}>
       <PageHero
         eyebrow="Drive With Us"
         title="Partner with Cabslink as a driver or fleet operator."

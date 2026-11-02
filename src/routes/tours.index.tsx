@@ -78,7 +78,7 @@ export const Route = createFileRoute("/tours/")({
 
   loader: ({ context }) => context.queryClient.ensureQueryData(toursQuery),
   errorComponent: () => (
-    <SiteLayout ctaSubtitle="Tell us your dates and we will build the itinerary and quote around you.">
+    <SiteLayout ctaSubtitle="Tell us your dates and we will build the itinerary and quote around you." cta={{ heading: <>Plan your <span className="text-gold">private tour</span></>, label: "Plan a tour", to: "/book/tour", trackAs: "final_cta_tours" }}>
       <div className="container-x section-y text-center">
         <h1 className="font-display text-3xl font-semibold">Tours are temporarily unavailable</h1>
         <p className="mt-3 text-muted-foreground">Please refresh the page in a moment.</p>
@@ -148,7 +148,7 @@ function ToursPage() {
   const isFiltering = !!q.trim() || !!theme;
 
   return (
-    <SiteLayout ctaSubtitle="Tell us your dates and we will build the itinerary and quote around you.">
+    <SiteLayout ctaSubtitle="Tell us your dates and we will build the itinerary and quote around you." cta={{ heading: <>Plan your <span className="text-gold">private tour</span></>, label: "Plan a tour", to: "/book/tour", trackAs: "final_cta_tours" }}>
       <PageHero
         eyebrow="Private Driver Tours"
         title="Private day tours and hourly car hire in Scotland"

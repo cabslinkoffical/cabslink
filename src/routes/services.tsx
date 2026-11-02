@@ -300,7 +300,7 @@ function ServicesPage() {
   const [openId, setOpenId] = useState<string | null>(MAIN_SERVICES[0]!.id);
 
   return (
-    <SiteLayout ctaSubtitle="Get a fixed price in under two minutes — or call our 24/7 reservations team.">
+    <SiteLayout ctaSubtitle="Get a fixed price in under two minutes — or call our 24/7 reservations team." cta={{ heading: <>Book any <span className="text-gold">service</span></>, label: "Get a fixed price", trackAs: "final_cta_services" }}>
       <PageHero
         eyebrow="Our Services"
         title="A complete premium transport service — wherever you're going."

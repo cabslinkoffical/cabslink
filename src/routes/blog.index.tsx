@@ -51,7 +51,7 @@ function BlogHome() {
   const rest = latest.filter((p) => p.id !== hero?.id);
 
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>Plan your trip <span className="text-gold">with Cabslink</span></>, label: "Get a fixed price", trackAs: "final_cta_blog_list" }}>
       <PageHero
         eyebrow="Content Hub"
         title="Travel guides, airport tips & Scotland stories"

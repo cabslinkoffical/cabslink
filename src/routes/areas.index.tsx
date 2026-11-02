@@ -54,7 +54,7 @@ function LocationsPage() {
   const count = data.totalLocations;
 
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>Book a transfer <span className="text-gold">anywhere we cover</span></>, label: "Get a fixed price", trackAs: "final_cta_areas" }}>
       <section className="relative overflow-hidden bg-navy text-navy-foreground">
         <div className="container-x py-16 md:py-24 lg:py-28">
           <nav className="mb-10 flex justify-center gap-2 text-xs uppercase tracking-[0.16em] text-navy-foreground/65">

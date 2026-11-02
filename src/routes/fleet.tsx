@@ -58,7 +58,7 @@ export const Route = createFileRoute("/fleet")({
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(fleetQuery),
   errorComponent: () => (
-    <SiteLayout ctaSubtitle="Choose a vehicle class and we allocate the model — or a complimentary upgrade.">
+    <SiteLayout ctaSubtitle="Choose a vehicle class and we allocate the model — or a complimentary upgrade." cta={{ heading: <>Choose your <span className="text-gold">vehicle</span></>, label: "Get a fixed price", trackAs: "final_cta_fleet" }}>
       <div className="container-x section-y text-center">
         <h1 className="font-display text-3xl font-semibold">Fleet is temporarily unavailable</h1>
         <p className="mt-3 text-muted-foreground">Please refresh the page in a moment.</p>
@@ -117,7 +117,7 @@ function FleetPage() {
   const maxPax = items.reduce((m, c) => Math.max(m, c.passengers), 0);
 
   return (
-    <SiteLayout ctaSubtitle="Choose a vehicle class and we allocate the model — or a complimentary upgrade.">
+    <SiteLayout ctaSubtitle="Choose a vehicle class and we allocate the model — or a complimentary upgrade." cta={{ heading: <>Choose your <span className="text-gold">vehicle</span></>, label: "Get a fixed price", trackAs: "final_cta_fleet" }}>
       {/* HERO */}
       <section className="relative overflow-hidden bg-[var(--navy)] text-[var(--navy-foreground)]">
         <div

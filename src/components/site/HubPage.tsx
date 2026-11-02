@@ -43,7 +43,7 @@ export function HubPage({
     grouped.set(key, list);
   }
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>Book your <span className="text-gold">transfer</span></>, label: "Get a fixed price", trackAs: "final_cta_hub" }}>
       <PageHero
         eyebrow={eyebrow}
         title={title}

@@ -63,7 +63,7 @@ function AboutPage() {
   });
 
   return (
-    <SiteLayout ctaSubtitle="Get a fixed price online in a few minutes.">
+    <SiteLayout ctaSubtitle="Get a fixed price online in a few minutes." cta={{ heading: <>Travel with <span className="text-gold">Cabslink</span></>, label: "Get a fixed price", trackAs: "final_cta_about" }}>
       <PageHero
         eyebrow="About Cabslink"
         title={ABOUT.heroTitle}

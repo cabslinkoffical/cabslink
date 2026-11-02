@@ -142,7 +142,7 @@ function CorporateBookingPage() {
 
 
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>Set up your <span className="text-gold">business account</span></>, subtitle: "Tell us about your team and travel needs using the form above, or call us to talk it through.", label: "Open the business form", href: "#corporate-form", trackAs: "final_cta_corporate_form" }}>
       <PageHero
         eyebrow="Corporate Booking"
         title="Open a Cabslink business account."

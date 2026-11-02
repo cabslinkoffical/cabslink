@@ -34,7 +34,7 @@ function LetterPage() {
   const { data } = useSuspenseQuery(alphaBucketQuery(letter));
 
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>Book a transfer <span className="text-gold">anywhere we cover</span></>, label: "Get a fixed price", trackAs: "final_cta_areas" }}>
       <PageHero
         eyebrow="Directory"
         title={`Locations starting with ${L}`}

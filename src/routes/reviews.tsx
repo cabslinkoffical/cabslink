@@ -89,7 +89,7 @@ function ReviewsPage() {
   const planned = plannedReviewChannels();
 
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>Travel with <span className="text-gold">Cabslink</span></>, label: "Get a fixed price", trackAs: "final_cta_reviews" }}>
       {/* HERO */}
       <section className="navy-scene">
         <div className="container-x py-16 md:py-24">

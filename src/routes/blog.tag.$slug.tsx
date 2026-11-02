@@ -47,7 +47,7 @@ function TagPage() {
   const { data } = useSuspenseQuery(q(slug));
   const { tag, posts } = data;
   return (
-    <SiteLayout>
+    <SiteLayout cta={{ heading: <>Plan your trip <span className="text-gold">with Cabslink</span></>, label: "Get a fixed price", trackAs: "final_cta_blog_list" }}>
       <PageHero
         eyebrow="Tag"
         title={tag ? `#${tag.name}` : `#${slug}`}
