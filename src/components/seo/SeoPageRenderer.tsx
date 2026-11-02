@@ -1,6 +1,6 @@
 import { RelatedLinks } from "@/components/site/RelatedLinks";
 import { DirectAnswer, firstSentences } from "@/components/seo/DirectAnswer";
-import { normalizeHead } from "@/lib/seo/page-head";
+import { canonicalUrl, normalizeHead } from "@/lib/seo/page-head";
 import { Link } from "@tanstack/react-router";
 import { safeJsonLd } from "@/lib/safe-json-ld";
 import type { PublicSeoPage, PublicSeoSection } from "@/lib/seo-public.functions";
