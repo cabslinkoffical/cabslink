@@ -272,19 +272,17 @@ export function BookingWidget({
               source: "booking_widget",
             });
             // Everything the hourly page asks for is already filled in here, so go
-            // straight to choosing the tour and stops.
-            navigate({
-              to: "/book/tour",
-              search: {
-                pickupPlaceId: pickup!.placeId,
-                pickupLabel: pickup!.label,
-                date,
-                time,
-                hours: hours!,
-                ...(passengers !== null ? { passengers } : {}),
-                luggage,
-              } as never,
+            // straight to the hourly hire booking (not the tours page).
+            const hire = new URLSearchParams({
+              pickupPlaceId: pickup!.placeId,
+              pickupLabel: pickup!.label,
+              date,
+              time,
+              hours: String(hours!),
+              luggage: String(luggage),
+              ...(passengers !== null ? { passengers: String(passengers) } : {}),
             });
+            navigate({ to: "/book/hourly", search: { q: hire.toString() } });
 
           }}
 
