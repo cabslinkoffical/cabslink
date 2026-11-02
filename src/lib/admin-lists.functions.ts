@@ -91,7 +91,7 @@ export const listPaymentsPage = createServerFn({ method: "GET" })
     return runPaged<any>((from, to) => {
       let q = context.supabase.from("payments")
         .select("*, booking:bookings(id, booking_ref, customer_name, email, phone, pickup_address, dropoff_address, pickup_date, pickup_time, status, payment_status)", { count: "exact" });
-      if (data.status !== "all" && (PAYMENT_TABS as readonly string[]).includes(data.status)) q = q.eq("status", data.status);
+      if (data.status !== "all" && (PAYMENT_TABS as readonly string[]).includes(data.status)) q = q.eq("status", data.status as any);
       return q.order("created_at", { ascending: false }).order("id", { ascending: false }).range(from, to);
     }, data);
   });
@@ -169,7 +169,7 @@ export const listCancellationRequestsPage = createServerFn({ method: "GET" })
     const search = ilikeAny(["booking_ref", "customer_name", "email", "phone", "reason", "pickup_address", "dropoff_address"], data.q);
     const page = await runPaged<any>((from, to) => {
       let q = context.supabase.from("cancellation_requests").select("*", { count: "exact" });
-      if (statuses) q = q.in("status", statuses);
+      if (statuses) q = q.in("status", statuses as any);
       if (search) q = q.or(search);
       return q.order("created_at", { ascending: false }).order("id", { ascending: false }).range(from, to);
     }, data);
@@ -206,12 +206,13 @@ export const listBookingAmendmentsPage = createServerFn({ method: "GET" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { fetchAllPages } = await import("@/lib/fetch-all-pages");
+    const known = ["pending_payment", "awaiting_refund", "applied", "declined"];
     const statuses = data.view === "open" ? ["pending_payment", "awaiting_refund"]
-      : data.view === "all" ? null : [data.view];
+      : known.includes(data.view) ? [data.view] : null;
     const search = ilikeAny(["booking_ref", "customer_name", "email", "phone", "customer_note"], data.q);
     const page = await runPaged<any>((from, to) => {
       let q = context.supabase.from("booking_amendments").select("*", { count: "exact" });
-      if (statuses) q = q.in("status", statuses);
+      if (statuses) q = q.in("status", statuses as any);
       if (search) q = q.or(search);
       return q.order("created_at", { ascending: false }).order("id", { ascending: false }).range(from, to);
     }, data);
