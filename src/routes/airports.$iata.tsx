@@ -1,4 +1,5 @@
 import { RelatedLinks } from "@/components/site/RelatedLinks";
+import { FACT_TEXT } from "@/lib/site-facts";
 import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute, Link, notFound, redirect } from "@tanstack/react-router";
 import { safeJsonLd } from "@/lib/safe-json-ld";

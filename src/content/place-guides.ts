@@ -425,7 +425,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
       {
         "heading": "Arranging a Birmingham trip",
         "paragraphs": [
-          "For outbound journeys, set a pickup time that gives a comfortable margin before check-in,. Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late. Landing at Birmingham and travelling north? Tell us the final address and any stops you need, such as collecting a relative on the way.",
+          "For outbound journeys, set a pickup time that gives a comfortable margin before check-in. Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late. Landing at Birmingham and travelling north? Tell us the final address and any stops you need, such as collecting a relative on the way.",
           "If you are booking for a wedding or another family event, add every pickup address in the booking so one driver collects everyone in order. The fare for the full route, including extra stops, is shown before you pay, and the confirmation arrives by email."
         ]
       },
@@ -560,7 +560,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
       {
         "heading": "Planning a Leeds Bradford journey",
         "paragraphs": [
-          "Leave a generous margin before check-in when you set your pickup time,. Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late. Give the full address at both ends; Yorkshire villages can share similar names, and the exact address keeps the fare accurate.",
+          "Leave a generous margin before check-in when you set your pickup time. Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late. Give the full address at both ends; Yorkshire villages can share similar names, and the exact address keeps the fare accurate.",
           "If you are booking for a family, add each child seat during booking and check the luggage capacity of the vehicle you choose. Return trips can be booked at the same time, so your driver is waiting in arrivals when you fly home. Every booking is confirmed by email with the full fixed price. If plans change, contact us before travel and we will update the booking where possible."
         ]
       },
@@ -681,7 +681,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
       {
         "heading": "When the weather slows the roads",
         "paragraphs": [
-          "Long drives to and from Wales are exposed to the weather, which is one reason a fixed fare suits this journey: rain, wind or roadworks do not change what you pay. Set a pickup time with a generous margin before check-in,. Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late.",
+          "Long drives to and from Wales are exposed to the weather, which is one reason a fixed fare suits this journey: rain, wind or roadworks do not change what you pay. Set a pickup time with a generous margin before check-in. Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late.",
           `${FACT_TEXT.transferCancellation} The booking confirmation email lists the full price, the addresses and any extras, and Manage Booking lets you review the journey online.`
         ]
       },
