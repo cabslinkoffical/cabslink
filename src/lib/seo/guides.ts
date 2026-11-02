@@ -13,6 +13,7 @@
  *    unverifiable is left out, not estimated.
  *  - `lastChecked` is surfaced on the page, with a note that prices change.
  */
+import { FACT_TEXT } from "@/lib/site-facts";
 import { JOURNEY_TRANSPORT, type JourneyTransportComparison } from "@/lib/seo/transport-modes";
 
 export type GuideSection = {
@@ -21,6 +22,8 @@ export type GuideSection = {
   body: string[];
   /** Optional bullet list rendered after the paragraphs. */
   bullets?: string[];
+  /** Optional in-text links rendered after the bullets: before + linked label + after. */
+  links?: { before?: string; label: string; to: string; after?: string }[];
 };
 
 export type DayTripEntry = {
@@ -375,6 +378,14 @@ export const GUIDES: GuideRecord[] = [
           "Applecross and Torridon: too far for a day return in any season.",
           "Anywhere in Edinburgh itself: walk, or take a Lothian bus.",
         ],
+        links: [
+          {
+            before: "If you still want Glenfinnan in a single long day, our ",
+            label: "Harry Potter tour from Edinburgh",
+            to: "/tours/harry-potter-highland-expedition",
+            after: " covers the viaduct, Glencoe and Fort William with your own driver.",
+          },
+        ],
       },
       {
         heading: "Which trips genuinely need a car",
@@ -416,6 +427,22 @@ export const GUIDES: GuideRecord[] = [
       {
         q: "How much does a private day tour from Edinburgh cost?",
         a: "Day tours are priced per vehicle rather than per person, and the price depends on the vehicle class and the hours booked. Our tours pages show a starting price for each itinerary, and a fixed quote is confirmed before you pay anything.",
+      },
+      {
+        q: "Are your day trips from Edinburgh private?",
+        a: "Yes. The vehicle and driver are booked for your group only, so there are no other passengers and no fixed coach timetable.",
+      },
+      {
+        q: "Can you collect us from our hotel in Edinburgh?",
+        a: "Yes. Every private day trip starts and finishes at your hotel or any other Edinburgh address you give us.",
+      },
+      {
+        q: "Can we change the stops on the day?",
+        a: "Yes. Stops are yours to change on the day within the hours booked; your driver will tell you if a change would run past them.",
+      },
+      {
+        q: "How far ahead should I book a private day trip?",
+        a: `As early as you can in summer, when demand is highest. ${FACT_TEXT.tourCancellationShort}, so booking early carries little risk.`,
       },
       {
         q: "Do I need to book attraction tickets separately?",

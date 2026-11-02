@@ -12,6 +12,7 @@ import { PageHero, SectionHeader } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
 import { TransportComparison } from "@/components/seo/TransportComparison";
 import type { GuideRecord } from "@/lib/seo/guides";
+import { tourSeo } from "@/lib/seo/tour-seo";
 import { BUSINESS_ID } from "@/lib/seo/business-graph";
 
 const ORIGIN = "https://cabslink.com";
@@ -113,9 +114,16 @@ export function GuidePage({ guide: g }: { guide: GuideRecord }) {
                         params={{ slug: t.tourSlug }}
                         className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--gold-ink)] hover:underline"
                       >
-                        <MapPin className="size-4" /> Our tour that goes here
+                        <MapPin className="size-4" /> {tourSeo(t.tourSlug)?.h1 ?? "Our tour that goes here"}
                       </Link>
                     )}
+                    <Link
+                      to="/book/tour"
+                      search={t.tourSlug ? { tour: t.tourSlug } : {}}
+                      className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--gold-ink)] hover:underline"
+                    >
+                      <ArrowRight className="size-4" /> Book this as a private tour
+                    </Link>
                     {t.routeSlug && (
                       <Link
                         to="/routes/$slug"
@@ -162,6 +170,18 @@ export function GuidePage({ guide: g }: { guide: GuideRecord }) {
                   </li>
                 ))}
               </ul>
+            )}
+            {s.links && s.links.length > 0 && (
+              <p className="mt-5 text-sm text-muted-foreground">
+                {s.links.map((l, i) => (
+                  <span key={l.to}>
+                    {i > 0 && " · "}
+                    {l.before}
+                    <Link to={l.to} className="font-medium text-[var(--gold-ink)] underline-offset-4 hover:underline">{l.label}</Link>
+                    {l.after}
+                  </span>
+                ))}
+              </p>
             )}
           </div>
         </section>
