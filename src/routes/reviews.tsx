@@ -104,10 +104,10 @@ function ReviewsPage() {
                 Reviews
               </span>
             </div>
-            <h1 className="mt-6 font-display text-4xl font-bold leading-[1.05] text-white md:text-6xl">
+            <h1 className="mt-6 font-display text-4xl font-bold leading-[1.05] text-navy-foreground md:text-6xl">
               Cabslink reviews — <span className="text-[var(--gold)]">on platforms we do not control.</span>
             </h1>
-            <p className="mt-5 max-w-2xl text-sm leading-relaxed text-white/70 md:text-base">
+            <p className="mt-5 max-w-2xl text-sm leading-relaxed text-navy-foreground/70 md:text-base">
               We would rather point you at reviews we do not control than write our own. Our ratings
               live on Trustpilot and RatingFacts, and we are opening more ways to review a journey —
               including short video reviews on YouTube and star ratings on Google.
@@ -117,41 +117,41 @@ function ReviewsPage() {
           {/* Score summary */}
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
             {google && google.reviewCount > 0 ? (
-              <div className="rounded-2xl border border-white/12 bg-white/[0.04] p-5">
-                <div className="font-display text-4xl font-bold leading-none text-white">
+              <div className="rounded-2xl border border-navy-foreground/12 bg-navy-foreground/[0.04] p-5">
+                <div className="font-display text-4xl font-bold leading-none text-navy-foreground">
                   {google.rating.toFixed(1)}
-                  <span className="text-xl text-white/60"> / 5</span>
+                  <span className="text-xl text-navy-foreground/60"> / 5</span>
                 </div>
                 <div className="mt-3 flex items-center gap-0.5">
                   {[1, 2, 3, 4, 5].map((i) => (
                     <Star
                       key={i}
-                      className={i <= Math.round(google.rating) ? "h-3.5 w-3.5 fill-[var(--gold)] text-[var(--gold)]" : "h-3.5 w-3.5 text-white/25"}
+                      className={i <= Math.round(google.rating) ? "h-3.5 w-3.5 fill-[var(--gold)] text-[var(--gold)]" : "h-3.5 w-3.5 text-navy-foreground/25"}
                       aria-hidden="true"
                     />
                   ))}
                 </div>
-                <p className="mt-2 text-xs text-white/60">
+                <p className="mt-2 text-xs text-navy-foreground/60">
                   On Google · {google.reviewCount} review{google.reviewCount === 1 ? "" : "s"}
                 </p>
               </div>
             ) : null}
-            <div className="rounded-2xl border border-white/12 bg-white/[0.04] p-5">
-              <div className="font-display text-4xl font-bold leading-none text-white">
+            <div className="rounded-2xl border border-navy-foreground/12 bg-navy-foreground/[0.04] p-5">
+              <div className="font-display text-4xl font-bold leading-none text-navy-foreground">
                 {t.rating.toFixed(1)}
-                <span className="text-xl text-white/60"> / 5</span>
+                <span className="text-xl text-navy-foreground/60"> / 5</span>
               </div>
               <div className="mt-3">
                 <TrustpilotStars rating={t.rating} size="sm" />
               </div>
-              <p className="mt-2 text-xs text-white/60">
+              <p className="mt-2 text-xs text-navy-foreground/60">
                 {t.ratingLabel} on Trustpilot · {t.reviewCount} reviews · as of {verified}
               </p>
             </div>
-            <div className="rounded-2xl border border-white/12 bg-white/[0.04] p-5">
-              <div className="font-display text-4xl font-bold leading-none text-white">
+            <div className="rounded-2xl border border-navy-foreground/12 bg-navy-foreground/[0.04] p-5">
+              <div className="font-display text-4xl font-bold leading-none text-navy-foreground">
                 {RATINGFACTS.rating.toFixed(1)}
-                <span className="text-xl text-white/60"> / 5</span>
+                <span className="text-xl text-navy-foreground/60"> / 5</span>
               </div>
               <div className="mt-3 flex items-center gap-0.5">
                 {[1, 2, 3, 4, 5].map((i) => (
@@ -162,40 +162,40 @@ function ReviewsPage() {
                   />
                 ))}
               </div>
-              <p className="mt-2 text-xs text-white/60">
+              <p className="mt-2 text-xs text-navy-foreground/60">
                 {RATINGFACTS.ratingLabel} on RatingFacts · {RATINGFACTS.reviewCount} reviews · as of {rVerified}
               </p>
             </div>
-            <div className="rounded-2xl border border-white/12 bg-white/[0.04] p-5">
-              <p className="font-display text-4xl font-bold leading-none text-white">
+            <div className="rounded-2xl border border-navy-foreground/12 bg-navy-foreground/[0.04] p-5">
+              <p className="font-display text-4xl font-bold leading-none text-navy-foreground">
                 {totals.shownOnPage}
               </p>
               <p className="mt-3 text-xs uppercase tracking-[0.2em] text-[var(--gold)]">
                 Written reviews shown
               </p>
-              <p className="mt-2 text-xs text-white/60">
+              <p className="mt-2 text-xs text-navy-foreground/60">
                 The latest from Trustpilot and RatingFacts.
               </p>
             </div>
-            <div className="rounded-2xl border border-white/12 bg-white/[0.04] p-5">
-              <p className="font-display text-4xl font-bold leading-none text-white">
+            <div className="rounded-2xl border border-navy-foreground/12 bg-navy-foreground/[0.04] p-5">
+              <p className="font-display text-4xl font-bold leading-none text-navy-foreground">
                 {totals.video}
               </p>
               <p className="mt-3 text-xs uppercase tracking-[0.2em] text-[var(--gold)]">
                 Video reviews
               </p>
-              <p className="mt-2 text-xs text-white/60">
+              <p className="mt-2 text-xs text-navy-foreground/60">
                 {totals.video === 0 ? "First clips being filmed now." : "Filmed by passengers."}
               </p>
             </div>
-            <div className="rounded-2xl border border-white/12 bg-white/[0.04] p-5">
-              <p className="font-display text-4xl font-bold leading-none text-white">
+            <div className="rounded-2xl border border-navy-foreground/12 bg-navy-foreground/[0.04] p-5">
+              <p className="font-display text-4xl font-bold leading-none text-navy-foreground">
                 {totals.liveChannels + totals.plannedChannels}
               </p>
               <p className="mt-3 text-xs uppercase tracking-[0.2em] text-[var(--gold)]">
                 Review channels
               </p>
-              <p className="mt-2 text-xs text-white/60">
+              <p className="mt-2 text-xs text-navy-foreground/60">
                 {totals.liveChannels} live, {totals.plannedChannels} on the way.
               </p>
             </div>
@@ -204,7 +204,7 @@ function ReviewsPage() {
       </section>
 
       {/* ALL WRITTEN REVIEWS */}
-      <section className="section-y bg-white" aria-labelledby="written-reviews-heading">
+      <section className="section-y bg-card" aria-labelledby="written-reviews-heading">
         <div className="container-x">
           <div className="max-w-2xl">
             <h2
@@ -231,7 +231,7 @@ function ReviewsPage() {
               href={t.profileUrl}
               target="_blank"
               rel="noopener noreferrer nofollow"
-              className="inline-flex items-center gap-2 rounded-full bg-[var(--navy)] px-6 py-3 text-xs font-semibold text-white transition-opacity hover:opacity-90"
+              className="inline-flex items-center gap-2 rounded-full bg-[var(--navy)] px-6 py-3 text-xs font-semibold text-navy-foreground transition-opacity hover:opacity-90"
             >
               Read all {t.reviewCount} reviews on Trustpilot
               <ExternalLink className="h-3.5 w-3.5" />
@@ -288,7 +288,7 @@ function ReviewsPage() {
           </div>
 
           {VIDEO_REVIEWS.length === 0 ? (
-            <div className="mt-8 rounded-2xl border border-dashed border-[var(--navy)]/20 bg-white p-8 text-center">
+            <div className="mt-8 rounded-2xl border border-dashed border-[var(--navy)]/20 bg-card p-8 text-center">
               <Clock className="mx-auto h-6 w-6 text-[var(--gold-ink)]" aria-hidden="true" />
               <p className="mt-4 font-display text-xl font-bold text-[var(--navy)]">
                 No video reviews published yet
@@ -314,7 +314,7 @@ function ReviewsPage() {
               {VIDEO_REVIEWS.map((v) => (
                 <li
                   key={v.id}
-                  className="overflow-hidden rounded-2xl border border-[var(--navy)]/10 bg-white shadow-[0_1px_2px_rgba(14,24,44,0.04)]"
+                  className="overflow-hidden rounded-2xl border border-[var(--navy)]/10 bg-card shadow-[0_1px_2px_rgba(14,24,44,0.04)]"
                 >
                   <div className="aspect-video w-full bg-[var(--navy)]">
                     <iframe
@@ -344,7 +344,7 @@ function ReviewsPage() {
       </section>
 
       {/* CHANNELS */}
-      <section className="section-y bg-white" aria-labelledby="channels-heading">
+      <section className="section-y bg-card" aria-labelledby="channels-heading">
         <div className="container-x">
           <div className="max-w-2xl">
             <h2
@@ -364,7 +364,7 @@ function ReviewsPage() {
             {REVIEW_CHANNELS.map((c) => (
               <li
                 key={c.id}
-                className="flex flex-col rounded-2xl border border-[var(--navy)]/10 bg-white p-6 shadow-[0_1px_2px_rgba(14,24,44,0.04)]"
+                className="flex flex-col rounded-2xl border border-[var(--navy)]/10 bg-card p-6 shadow-[0_1px_2px_rgba(14,24,44,0.04)]"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-2.5">
@@ -378,7 +378,7 @@ function ReviewsPage() {
                   <span
                     className={
                       c.status === "live"
-                        ? "shrink-0 rounded-full bg-[var(--navy)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white"
+                        ? "shrink-0 rounded-full bg-[var(--navy)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-navy-foreground"
                         : "shrink-0 rounded-full border border-[var(--navy)]/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[var(--navy)]/70"
                     }
                   >
@@ -414,7 +414,7 @@ function ReviewsPage() {
       {/* LEAVE A REVIEW */}
       <section className="section-y bg-[var(--navy)]/[0.03]" aria-labelledby="leave-review-heading">
         <div className="container-x">
-          <div className="mx-auto max-w-3xl rounded-3xl border border-[var(--navy)]/10 bg-white p-8 text-center md:p-12">
+          <div className="mx-auto max-w-3xl rounded-3xl border border-[var(--navy)]/10 bg-card p-8 text-center md:p-12">
             <MessageSquareQuote className="mx-auto h-7 w-7 text-[var(--gold-ink)]" aria-hidden="true" />
             <h2
               id="leave-review-heading"
@@ -432,7 +432,7 @@ function ReviewsPage() {
                 href={t.profileUrl}
                 target="_blank"
                 rel="noopener noreferrer nofollow"
-                className="inline-flex items-center gap-2 rounded-full bg-[var(--navy)] px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                className="inline-flex items-center gap-2 rounded-full bg-[var(--navy)] px-6 py-3 text-sm font-semibold text-navy-foreground transition-opacity hover:opacity-90"
               >
                 <Star className="h-4 w-4" aria-hidden="true" />
                 Review us on Trustpilot
@@ -465,7 +465,7 @@ function ReviewsPage() {
           </div>
 
           {/* Attribution + the caveat Trustpilot itself displays */}
-          <div className="mx-auto mt-8 max-w-3xl rounded-2xl bg-white p-5">
+          <div className="mx-auto mt-8 max-w-3xl rounded-2xl bg-card p-5">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <TrustpilotWordmark className="text-sm text-[var(--navy)]" />
               <a

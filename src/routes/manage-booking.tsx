@@ -204,7 +204,7 @@ function ManageBookingPage() {
             <div className="bg-[var(--navy)] px-4 sm:px-6 py-6 text-[var(--navy-foreground)]">
               <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-[var(--gold)]">{SITE.name}</p>
               <h1 className="mt-1 font-display text-2xl font-bold md:text-3xl">Track my booking</h1>
-              <p className="mt-1.5 text-sm text-white/70">
+              <p className="mt-1.5 text-sm text-navy-foreground/70">
                 Enter your booking reference, the email you booked with and your last name. Once we find your booking,
                 you can request a cancellation from the same page.
               </p>
@@ -794,10 +794,10 @@ function toneForStatus(status: string): "green" | "red" | "gold" | "blue" {
 
 function Badge({ tone, children }: { tone: "green" | "red" | "gold" | "blue"; children: React.ReactNode }) {
   const cls =
-    tone === "green" ? "bg-emerald-100 text-emerald-800"
-    : tone === "red" ? "bg-red-100 text-red-800"
-    : tone === "gold" ? "bg-[var(--gold)]/25 text-[var(--navy)]"
-    : "bg-blue-100 text-blue-800";
+    tone === "green" ? "bg-navy text-navy-foreground"
+    : tone === "red" ? "bg-destructive/10 text-destructive"
+    : tone === "gold" ? "bg-gold/25 text-navy"
+    : "bg-surface-2 text-navy ring-1 ring-border";
   return <span className={`rounded-md px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] ${cls}`}>{children}</span>;
 }
 

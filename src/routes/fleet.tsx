@@ -140,7 +140,7 @@ function FleetPage() {
           </div>
 
           {/* Stat strip */}
-          <dl className="mt-9 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 sm:grid-cols-4">
+          <dl className="mt-9 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-navy-foreground/10 bg-navy-foreground/10 sm:grid-cols-4">
             {[
               { v: `${items.length}`, l: "Vehicle classes" },
               { v: maxPax ? `1–${maxPax}` : "—", l: "Passengers per booking" },
@@ -149,7 +149,7 @@ function FleetPage() {
             ].map((s) => (
               <div key={s.l} className="bg-[var(--navy)] px-4 py-4 md:px-5 md:py-5">
                 <dt className="font-display text-2xl font-semibold text-[var(--gold)] md:text-3xl">{s.v}</dt>
-                <dd className="mt-1 text-[11px] uppercase tracking-[0.16em] text-white/60">{s.l}</dd>
+                <dd className="mt-1 text-[11px] uppercase tracking-[0.16em] text-navy-foreground/60">{s.l}</dd>
               </div>
             ))}
           </dl>
@@ -159,7 +159,7 @@ function FleetPage() {
       {/* FILTER + GRID */}
       <section id="classes" className="bg-[var(--navy)]">
         <div className="container-x pb-16 md:pb-24">
-          <div className="mb-8 flex flex-col gap-4 border-t border-white/10 pt-8 md:flex-row md:items-center md:justify-between">
+          <div className="mb-8 flex flex-col gap-4 border-t border-navy-foreground/10 pt-8 md:flex-row md:items-center md:justify-between">
             <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:flex-wrap md:px-0 md:pb-0">
               {tabs.map((t) => {
                 const on = t.key === active.key;
@@ -172,7 +172,7 @@ function FleetPage() {
                     className={`shrink-0 rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] transition-colors ${
                       on
                         ? "border-[var(--gold)] bg-[var(--gold)] text-[var(--gold-foreground)]"
-                        : "border-white/15 text-white/70 hover:border-[var(--gold)]/50 hover:text-white"
+                        : "border-navy-foreground/15 text-navy-foreground/70 hover:border-[var(--gold)]/50 hover:text-navy-foreground"
                     }`}
                   >
                     {t.label}
@@ -180,13 +180,13 @@ function FleetPage() {
                 );
               })}
             </div>
-            <p className="text-xs uppercase tracking-[0.2em] text-white/60">
+            <p className="text-xs uppercase tracking-[0.2em] text-navy-foreground/60">
               {visible.length} {visible.length === 1 ? "class" : "classes"}
             </p>
           </div>
 
           {visible.length === 0 ? (
-            <p className="rounded-2xl border border-white/10 bg-white/[0.03] p-8 text-center text-sm text-white/70">
+            <p className="rounded-2xl border border-navy-foreground/10 bg-navy-foreground/[0.03] p-8 text-center text-sm text-navy-foreground/70">
               No classes in this category yet — try another filter.
             </p>
           ) : (
@@ -202,7 +202,7 @@ function FleetPage() {
       </section>
 
       {/* HOW ALLOCATION WORKS */}
-      <section className="bg-white">
+      <section className="bg-card">
         <div className="container-x section-y">
           <div className="max-w-2xl">
             <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[var(--gold-ink)]">
@@ -257,7 +257,7 @@ function FleetPage() {
             </h2>
           </div>
 
-          <div className="mt-8 overflow-hidden rounded-2xl border border-[var(--navy)]/10 bg-white">
+          <div className="mt-8 overflow-hidden rounded-2xl border border-[var(--navy)]/10 bg-card">
             <div className="overflow-x-auto">
               <table className="w-full min-w-[640px] text-left text-sm">
                 <thead>
@@ -308,7 +308,7 @@ function FleetCard({ klass }: { klass: PublicVehicleClass }) {
     .map(([k]) => RECOMMENDED_LABELS[k] ?? k.replace(/_/g, " "));
 
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-white transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_26px_50px_-24px_rgba(0,0,0,0.5)]">
+    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-navy-foreground/10 bg-card transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_26px_50px_-24px_rgba(0,0,0,0.5)]">
       {/* Image stage — every class sits on the same pale backdrop, no navy block */}
       <div className="relative flex aspect-[16/10] items-center justify-center overflow-hidden bg-[var(--surface-2)]">
         {img ? (
@@ -332,12 +332,12 @@ function FleetCard({ klass }: { klass: PublicVehicleClass }) {
             </span>
           ) : null}
           {klass.fuel_type === "electric" && (
-            <span className="inline-flex items-center gap-1 rounded-full border border-[var(--navy)]/10 bg-white text-[var(--navy)] px-2 py-1 text-[10px] font-bold uppercase tracking-widest shadow-sm">
+            <span className="inline-flex items-center gap-1 rounded-full border border-[var(--navy)]/10 bg-card text-[var(--navy)] px-2 py-1 text-[10px] font-bold uppercase tracking-widest shadow-sm">
               <Zap className="size-2.5 text-[var(--gold-ink)]" /> Zero emission
             </span>
           )}
           {klass.wheelchair_accessible && (
-            <span className="inline-flex items-center gap-1 rounded-full border border-[var(--navy)]/10 bg-white text-[var(--navy)] px-2 py-1 text-[10px] font-bold uppercase tracking-widest shadow-sm">
+            <span className="inline-flex items-center gap-1 rounded-full border border-[var(--navy)]/10 bg-card text-[var(--navy)] px-2 py-1 text-[10px] font-bold uppercase tracking-widest shadow-sm">
               <Accessibility className="size-2.5 text-[var(--gold-ink)]" /> WAV
             </span>
           )}

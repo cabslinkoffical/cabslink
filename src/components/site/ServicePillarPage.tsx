@@ -124,7 +124,7 @@ export function ServicePillarPage({ content }: { content: PillarContent }) {
               <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[var(--gold)]/15 text-[var(--gold)]">
                 <t.icon className="size-4" />
               </span>
-              <p className="text-sm font-semibold text-white">{t.label}</p>
+              <p className="text-sm font-semibold text-navy-foreground">{t.label}</p>
             </div>
           ))}
         </div>
@@ -202,7 +202,7 @@ export function ServicePillarPage({ content }: { content: PillarContent }) {
           <SectionHeader dark eyebrow="How it works" title="Four steps from enquiry to arrival" />
           <ol className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             {content.steps.map((s, i) => (
-              <li key={s.title} className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
+              <li key={s.title} className="rounded-2xl border border-navy-foreground/10 bg-navy-foreground/[0.04] p-6">
                 <span className="font-display text-2xl font-semibold text-[var(--gold)]">
                   {String(i + 1).padStart(2, "0")}
                 </span>

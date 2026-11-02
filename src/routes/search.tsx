@@ -69,9 +69,9 @@ function SearchPage() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Type an area, airport, station, attraction…"
-          className="flex-1 rounded-full border border-[var(--navy)]/20 bg-white px-5 py-3 text-[var(--navy)] focus:outline-none focus:ring-2 focus:ring-[var(--gold)]"
+          className="flex-1 rounded-full border border-[var(--navy)]/20 bg-card px-5 py-3 text-[var(--navy)] focus:outline-none focus:ring-2 focus:ring-[var(--gold)]"
         />
-        <button className="rounded-full bg-[var(--navy)] px-6 py-3 font-semibold text-white hover:bg-[var(--navy)]/90">
+        <button className="rounded-full bg-[var(--navy)] px-6 py-3 font-semibold text-navy-foreground hover:bg-[var(--navy)]/90">
           Search
         </button>
       </form>
@@ -84,7 +84,7 @@ function SearchPage() {
 
       <ul className="space-y-2">
         {results.map((r) => (
-          <li key={r.id} className="rounded-xl border border-[var(--navy)]/10 bg-white p-4">
+          <li key={r.id} className="rounded-xl border border-[var(--navy)]/10 bg-card p-4">
             <div className="flex items-center justify-between gap-4">
               <div>
                 <div className="font-medium text-[var(--navy)]">{r.display_name ?? r.name}</div>

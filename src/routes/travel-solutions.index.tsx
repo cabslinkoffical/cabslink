@@ -127,7 +127,7 @@ function TravelSolutionsHub() {
               <li key={s.id}>
                 <Link
                   to={s.url}
-                  className="inline-flex items-center gap-2 rounded-lg border border-white/15 bg-white/[0.04] px-4 py-2 text-sm font-medium hover:border-[var(--gold)]"
+                  className="inline-flex items-center gap-2 rounded-lg border border-navy-foreground/15 bg-navy-foreground/[0.04] px-4 py-2 text-sm font-medium hover:border-[var(--gold)]"
                 >
                   {s.name}
                 </Link>

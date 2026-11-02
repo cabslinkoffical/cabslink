@@ -177,13 +177,13 @@ function HourlyBookPage() {
 
   return (
     <SiteLayout hideCta>
-      <section className="bg-[var(--navy)] text-white">
+      <section className="bg-[var(--navy)] text-navy-foreground">
         <div className="container mx-auto px-4 py-14 md:py-20">
           <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-[var(--gold)]">Hourly hire</p>
           <h1 className="font-display text-3xl md:text-5xl font-bold mt-3">
             Hourly car hire with a driver in Edinburgh &amp; Glasgow
           </h1>
-          <p className="mt-3 max-w-2xl text-white/70 text-sm md:text-base">
+          <p className="mt-3 max-w-2xl text-navy-foreground/70 text-sm md:text-base">
             Your vehicle and driver stay with you for the hours you book, and every length of hire
             includes miles. Tell us where to collect you and how long you'd like the car — then choose
             your stops from the places that fit those miles.

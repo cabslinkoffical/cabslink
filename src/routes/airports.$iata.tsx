@@ -212,7 +212,7 @@ function AirportPage() {
           </h2>
           <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             {features.map((f) => (
-              <div key={f.title} className="rounded-2xl border border-[var(--navy)]/10 bg-white p-6">
+              <div key={f.title} className="rounded-2xl border border-[var(--navy)]/10 bg-card p-6">
                 <f.icon className="size-6 text-[var(--gold-ink)]" />
                 <h3 className="mt-4 font-semibold text-[var(--navy)]">{f.title}</h3>
                 <p className="mt-2 text-sm text-[var(--navy)]/70">{f.desc}</p>
@@ -235,7 +235,7 @@ function AirportPage() {
               { n: "02", t: "Confirm your ride", d: "Choose vehicle class and add extras like meet & greet or child seats." },
               { n: "03", t: "Meet your driver", d: `We track your flight and greet you inside ${shortName}'s arrivals hall.` },
             ].map((s) => (
-              <div key={s.n} className="rounded-2xl bg-white p-6 border border-[var(--navy)]/10">
+              <div key={s.n} className="rounded-2xl bg-card p-6 border border-[var(--navy)]/10">
                 <p className="font-mono text-xs text-[var(--gold-ink)] tracking-widest">{s.n}</p>
                 <h3 className="mt-3 font-display text-xl font-semibold text-[var(--navy)]">{s.t}</h3>
                 <p className="mt-2 text-sm text-[var(--navy)]/70">{s.d}</p>
@@ -261,7 +261,7 @@ function AirportPage() {
               "Event guests and group parties with coordinated pickups",
               "VIP clients requiring discreet meet & greet and NDA drivers",
             ].map((line) => (
-              <li key={line} className="flex items-start gap-3 rounded-xl border border-[var(--navy)]/10 bg-white p-4">
+              <li key={line} className="flex items-start gap-3 rounded-xl border border-[var(--navy)]/10 bg-card p-4">
                 <Check className="size-5 text-[var(--gold-ink)] flex-none" />
                 <span className="text-sm text-[var(--navy)]">{line}</span>
               </li>
@@ -296,7 +296,7 @@ function AirportPage() {
                     key={a.id}
                     to="/airports/$iata"
                     params={{ iata: a.slug }}
-                    className="rounded-xl border border-[var(--navy)]/10 bg-white p-4 hover:border-[var(--gold)]"
+                    className="rounded-xl border border-[var(--navy)]/10 bg-card p-4 hover:border-[var(--gold)]"
                   >
                     <div className="flex items-center justify-between">
                       <span className="font-medium text-[var(--navy)]">

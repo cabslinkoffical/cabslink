@@ -99,7 +99,7 @@ export function SolutionPage({ content }: { content: SolutionContent }) {
                 <li key={s.id}>
                   <Link
                     to={s.url}
-                    className="group flex h-full flex-col rounded-2xl border border-white/10 bg-white/[0.04] p-6 transition hover:border-[var(--gold)]"
+                    className="group flex h-full flex-col rounded-2xl border border-navy-foreground/10 bg-navy-foreground/[0.04] p-6 transition hover:border-[var(--gold)]"
                   >
                     <h3 className="font-display text-lg font-semibold">{s.name}</h3>
                     <p className="mt-2 flex-1 text-sm text-[var(--navy-foreground)]/70">{s.intent}</p>

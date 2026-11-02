@@ -7,10 +7,10 @@ export function MaintenanceScreen({ companyName }: { companyName?: string | null
     <div className="min-h-screen flex items-center justify-center bg-[var(--navy,#0E182C)] px-4 py-16 text-center">
       <div className="max-w-lg">
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[var(--gold)]">{name}</p>
-        <h1 className="mt-5 font-display text-3xl font-semibold text-white sm:text-4xl">
+        <h1 className="mt-5 font-display text-3xl font-semibold text-navy-foreground sm:text-4xl">
           We're carrying out scheduled maintenance
         </h1>
-        <p className="mt-4 text-sm leading-relaxed text-white/70">
+        <p className="mt-4 text-sm leading-relaxed text-navy-foreground/70">
           Online booking is briefly unavailable while we update our systems. Our 24/7 team is still
           taking reservations by phone or email — we'll have the site back shortly.
         </p>
@@ -23,7 +23,7 @@ export function MaintenanceScreen({ companyName }: { companyName?: string | null
           </a>
           <a
             href={`mailto:${SITE.email}`}
-            className="inline-flex items-center justify-center rounded-full border border-white/25 px-6 py-3 text-sm font-semibold text-white"
+            className="inline-flex items-center justify-center rounded-full border border-navy-foreground/25 px-6 py-3 text-sm font-semibold text-navy-foreground"
           >
             {SITE.email}
           </a>

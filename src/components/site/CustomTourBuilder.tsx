@@ -269,7 +269,7 @@ export function CustomTourBuilder({ search }: { search?: TourSearchControls }) {
       </div>
 
       {search && (
-        <div className="mt-5 rounded-2xl border border-white/10 bg-background/40 p-4 sm:p-5">
+        <div className="mt-5 rounded-2xl border border-navy-foreground/10 bg-background/40 p-4 sm:p-5">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
             <div className="relative flex-1">
               <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-[var(--gold-ink)]" />
@@ -312,7 +312,7 @@ export function CustomTourBuilder({ search }: { search?: TourSearchControls }) {
                   "rounded-full border px-3.5 py-1.5 text-xs font-medium transition",
                   !search.theme
                     ? "border-[var(--gold)] bg-[var(--gold)]/15 text-[var(--gold-ink)]"
-                    : "border-white/15 hover:border-[var(--gold)]/50",
+                    : "border-navy-foreground/15 hover:border-[var(--gold)]/50",
                 )}
               >
                 All themes
@@ -326,7 +326,7 @@ export function CustomTourBuilder({ search }: { search?: TourSearchControls }) {
                     "rounded-full border px-3.5 py-1.5 text-xs font-medium capitalize transition",
                     search.theme === th
                       ? "border-[var(--gold)] bg-[var(--gold)]/15 text-[var(--gold-ink)]"
-                      : "border-white/15 hover:border-[var(--gold)]/50",
+                      : "border-navy-foreground/15 hover:border-[var(--gold)]/50",
                   )}
                 >
                   {th.replace(/[-_]/g, " ")}
@@ -422,7 +422,7 @@ export function CustomTourBuilder({ search }: { search?: TourSearchControls }) {
             </div>
           )}
           {routeReady && !matchQuery.isFetching && !matched && (
-            <div className="rounded-2xl border border-white/10 bg-background/40 p-4">
+            <div className="rounded-2xl border border-navy-foreground/10 bg-background/40 p-4">
               <p className="text-sm font-medium">No ready-made tour for this pair — let's build one.</p>
               <p className="mt-1 text-sm text-muted-foreground">
                 {corridorQuery.data?.corridor
@@ -434,7 +434,7 @@ export function CustomTourBuilder({ search }: { search?: TourSearchControls }) {
 
           {/* Itinerary */}
           {routeReady && (
-            <div className="rounded-2xl border border-white/10 bg-background/40 p-4">
+            <div className="rounded-2xl border border-navy-foreground/10 bg-background/40 p-4">
               <div className="flex items-center justify-between gap-3">
                 <h3 className="font-display text-lg font-semibold">Your itinerary</h3>
                 <span className="text-xs text-muted-foreground">
@@ -451,14 +451,14 @@ export function CustomTourBuilder({ search }: { search?: TourSearchControls }) {
                 {stops.map((s, i) => (
                   <li
                     key={s.placeId}
-                    className="rounded-xl border border-white/10 bg-[var(--surface)] p-3"
+                    className="rounded-xl border border-navy-foreground/10 bg-[var(--surface)] p-3"
                   >
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="grid size-6 shrink-0 place-items-center rounded-full bg-[var(--gold)]/20 text-xs font-semibold">
                         {i + 1}
                       </span>
                       <span className="min-w-0 flex-1 truncate text-sm font-medium">{s.label}</span>
-                      <span className="rounded-full border border-white/10 px-2 py-0.5 text-[11px] text-muted-foreground">
+                      <span className="rounded-full border border-navy-foreground/10 px-2 py-0.5 text-[11px] text-muted-foreground">
                         {s.source === "tour" ? "from tour" : s.source === "suggested" ? "suggested" : "your stop"}
                       </span>
                       <div className="flex items-center gap-1">
@@ -517,7 +517,7 @@ export function CustomTourBuilder({ search }: { search?: TourSearchControls }) {
 
           {/* Suggestions */}
           {routeReady && (
-            <div className="rounded-2xl border border-white/10 bg-background/40 p-4">
+            <div className="rounded-2xl border border-navy-foreground/10 bg-background/40 p-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <h3 className="font-display text-lg font-semibold">Add stops</h3>
                 <div className="relative w-full sm:w-72">
@@ -582,7 +582,7 @@ export function CustomTourBuilder({ search }: { search?: TourSearchControls }) {
                     type="button"
                     onClick={() => addPoi(p, "suggested")}
                     className={cn(
-                      "flex items-start gap-3 rounded-xl border border-white/10 bg-[var(--surface)] p-3 text-left transition",
+                      "flex items-start gap-3 rounded-xl border border-navy-foreground/10 bg-[var(--surface)] p-3 text-left transition",
                       "hover:border-[var(--gold)]/50 hover:bg-[var(--gold)]/5",
                     )}
                   >
@@ -603,7 +603,7 @@ export function CustomTourBuilder({ search }: { search?: TourSearchControls }) {
                 ))}
               </div>
 
-              <div className="mt-5 border-t border-white/10 pt-4">
+              <div className="mt-5 border-t border-navy-foreground/10 pt-4">
                 <Label htmlFor="ct-manual">Add any other place manually</Label>
                 <div className="mt-1.5 flex flex-col gap-2 sm:flex-row">
                   <div className="flex-1">

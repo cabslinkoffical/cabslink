@@ -183,7 +183,7 @@ function ToursPage() {
 
 
           {tours.length === 0 && longDayTours.length === 0 ? (
-            <div className="mt-10 rounded-3xl border border-white/10 bg-[var(--surface)] p-10 text-center">
+            <div className="mt-10 rounded-3xl border border-navy-foreground/10 bg-[var(--surface)] p-10 text-center">
               <h3 className="font-display text-2xl font-semibold">
                 {isFiltering ? "No tours match that search" : "New tours coming soon"}
               </h3>

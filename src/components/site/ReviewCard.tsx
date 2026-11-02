@@ -35,7 +35,7 @@ export function ReviewCard({ review }: { review: UnifiedReview }) {
   const scoreLabel = `${review.author} rated Cabslink ${review.stars} out of 5 on ${channel.name}`;
 
   return (
-    <li className="flex flex-col rounded-2xl border border-[var(--navy)]/10 bg-white p-5 shadow-[0_1px_2px_rgba(14,24,44,0.04)]">
+    <li className="flex flex-col rounded-2xl border border-[var(--navy)]/10 bg-card p-5 shadow-[0_1px_2px_rgba(14,24,44,0.04)]">
       {review.channel === "trustpilot" ? (
         <TrustpilotStars rating={review.stars} size="sm" label={scoreLabel} />
       ) : (

@@ -277,10 +277,10 @@ function CorporateBookingPage() {
       {/* Closing CTA */}
       <section className="section-y">
         <div className="container-x">
-          <div className="flex flex-col items-start gap-8 rounded-3xl bg-[var(--navy)] p-10 text-white md:flex-row md:items-center md:justify-between md:p-14">
+          <div className="flex flex-col items-start gap-8 rounded-3xl bg-[var(--navy)] p-10 text-navy-foreground md:flex-row md:items-center md:justify-between md:p-14">
             <div>
               <h2 className="font-display text-3xl md:text-4xl">Prefer to talk it through first?</h2>
-              <p className="mt-2 max-w-xl text-white/75">
+              <p className="mt-2 max-w-xl text-navy-foreground/75">
                 Call our team on +44 333 888 2991 or read how corporate travel works with us before you send an enquiry.
               </p>
             </div>
@@ -288,7 +288,7 @@ function CorporateBookingPage() {
               <Button asChild variant="gold" size="lg" className="rounded-full">
                 <a href="tel:+443338882991">Call the team</a>
               </Button>
-              <Button asChild size="lg" variant="outline" className="rounded-full bg-transparent text-white">
+              <Button asChild size="lg" variant="outline" className="rounded-full bg-transparent text-navy-foreground">
                 <Link to="/corporate-travel">Corporate travel <ArrowRight className="size-4" /></Link>
               </Button>
             </div>

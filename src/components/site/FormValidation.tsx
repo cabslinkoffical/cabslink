@@ -19,7 +19,7 @@ export function FormNotice({
   return (
     <div
       role="alert"
-      className={`flex items-center gap-2 rounded-lg bg-destructive px-3 py-2.5 text-xs font-bold text-white shadow-sm ${className}`}
+      className={`flex items-center gap-2 rounded-lg bg-destructive px-3 py-2.5 text-xs font-bold text-navy-foreground shadow-sm ${className}`}
     >
       <AlertCircle className="h-4 w-4 shrink-0" />
       <span>{children}</span>

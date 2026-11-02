@@ -85,7 +85,7 @@ export function BlogArticle({ post, related }: { post: BlogPostFull; related: Bl
           {/* TOC */}
           <aside className="hidden lg:block">
             {post.toc.length > 0 && (
-              <div className="sticky top-24 rounded-2xl border border-[var(--navy)]/10 bg-white p-5">
+              <div className="sticky top-24 rounded-2xl border border-[var(--navy)]/10 bg-card p-5">
                 <p className="text-xs uppercase tracking-[0.2em] text-[var(--gold-ink)] font-semibold mb-3">On this page</p>
                 <ol className="space-y-2 text-sm">
                   {post.toc.map((t) => (
@@ -126,7 +126,7 @@ export function BlogArticle({ post, related }: { post: BlogPostFull; related: Bl
                     key={t.id}
                     to="/blog/tag/$slug"
                     params={{ slug: t.slug }}
-                    className="inline-block rounded-full border border-[var(--navy)]/15 bg-white px-3 py-1 text-xs text-[var(--navy)]/80 hover:border-[var(--gold)] hover:text-[var(--gold-ink)]"
+                    className="inline-block rounded-full border border-[var(--navy)]/15 bg-card px-3 py-1 text-xs text-[var(--navy)]/80 hover:border-[var(--gold)] hover:text-[var(--gold-ink)]"
                   >
                     #{t.name}
                   </Link>
@@ -136,11 +136,11 @@ export function BlogArticle({ post, related }: { post: BlogPostFull; related: Bl
 
             {/* Author box */}
             {post.author_full && (
-              <div className="mt-12 rounded-2xl border border-[var(--navy)]/10 bg-white p-6 flex items-start gap-4">
+              <div className="mt-12 rounded-2xl border border-[var(--navy)]/10 bg-card p-6 flex items-start gap-4">
                 {post.author_full.avatar_url ? (
                   <img src={post.author_full.avatar_url} alt={post.author_full.name} width={56} height={56} className="size-14 rounded-full object-cover" />
                 ) : (
-                  <div className="size-14 rounded-full bg-[var(--navy)] text-white flex items-center justify-center font-semibold">
+                  <div className="size-14 rounded-full bg-[var(--navy)] text-navy-foreground flex items-center justify-center font-semibold">
                     {post.author_full.name.charAt(0)}
                   </div>
                 )}
@@ -155,7 +155,7 @@ export function BlogArticle({ post, related }: { post: BlogPostFull; related: Bl
 
           {/* Sidebar CTA */}
           <aside className="space-y-6">
-            <div className="sticky top-24 rounded-2xl bg-[var(--navy)] text-white p-6">
+            <div className="sticky top-24 rounded-2xl bg-[var(--navy)] text-navy-foreground p-6">
               <p className="text-xs uppercase tracking-[0.3em] text-[var(--gold)] mb-3">Need a car?</p>
               <p className="font-display text-xl leading-tight">Book a private airport transfer in 60 seconds.</p>
               <Link

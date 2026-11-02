@@ -37,7 +37,7 @@ export function DraftTourPage({ record }: { record: DraftTourRecord }) {
 
             <div className="mt-8 grid sm:grid-cols-2 gap-4 text-sm">
               {record.facts.map((f) => (
-                <div key={f.label} className="rounded-2xl border border-white/10 p-4">
+                <div key={f.label} className="rounded-2xl border border-navy-foreground/10 p-4">
                   <p className="text-[11px] uppercase tracking-widest text-muted-foreground">{f.label}</p>
                   <p className="mt-1 font-medium">{f.value}</p>
                 </div>
@@ -69,7 +69,7 @@ export function DraftTourPage({ record }: { record: DraftTourRecord }) {
                         <li key={l.to}>
                           <a
                             href={l.to}
-                            className="inline-flex items-center gap-1 rounded-full border border-white/10 px-3 py-1.5 text-sm hover:border-[var(--gold)]/50 hover:text-[var(--gold-ink)]"
+                            className="inline-flex items-center gap-1 rounded-full border border-navy-foreground/10 px-3 py-1.5 text-sm hover:border-[var(--gold)]/50 hover:text-[var(--gold-ink)]"
                           >
                             {l.label}
                           </a>
@@ -85,7 +85,7 @@ export function DraftTourPage({ record }: { record: DraftTourRecord }) {
               <h2 className="font-display text-2xl font-semibold">Questions people ask</h2>
               <dl className="mt-4 space-y-4">
                 {record.faqs.map((f) => (
-                  <div key={f.q} className="rounded-2xl border border-white/10 p-5">
+                  <div key={f.q} className="rounded-2xl border border-navy-foreground/10 p-5">
                     <dt className="font-medium">{f.q}</dt>
                     <dd className="mt-2 text-sm text-muted-foreground">{f.a}</dd>
                   </div>
@@ -96,7 +96,7 @@ export function DraftTourPage({ record }: { record: DraftTourRecord }) {
 
           {/* SIDEBAR */}
           <aside className="lg:sticky lg:top-24 lg:self-start">
-            <div className="rounded-3xl border border-white/10 bg-[var(--surface)] p-6 shadow-[var(--shadow-elegant)]">
+            <div className="rounded-3xl border border-navy-foreground/10 bg-[var(--surface)] p-6 shadow-[var(--shadow-elegant)]">
               <p className="text-[11px] uppercase tracking-widest text-muted-foreground">Private day tour</p>
               <p className="font-display text-3xl font-semibold text-[var(--gold-ink)] mt-1">Price on request</p>
               <p className="mt-1 text-xs text-muted-foreground">
@@ -114,7 +114,7 @@ export function DraftTourPage({ record }: { record: DraftTourRecord }) {
             </div>
 
             {record.related.length > 0 && (
-              <div className="mt-6 rounded-3xl border border-white/10 p-5">
+              <div className="mt-6 rounded-3xl border border-navy-foreground/10 p-5">
                 <p className="text-[11px] uppercase tracking-widest text-muted-foreground mb-3">Related pages</p>
                 <ul className="space-y-2 text-sm">
                   {record.related.map((r) => (

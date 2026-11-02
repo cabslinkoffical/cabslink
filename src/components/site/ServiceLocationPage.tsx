@@ -108,7 +108,7 @@ export function ServiceLocationPage({ content }: { content: ServiceLocationConte
           <SectionHeader dark eyebrow="Popular journeys" title={`Routes we run from ${loc.name}`} />
           <ul className="mt-10 grid gap-6 md:grid-cols-3">
             {loc.journeys.map((j) => (
-              <li key={j.to} className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
+              <li key={j.to} className="rounded-2xl border border-navy-foreground/10 bg-navy-foreground/[0.04] p-6">
                 <RouteIcon className="size-5 text-[var(--gold)]" />
                 <h3 className="mt-3 font-semibold">
                   {loc.name} → {j.to}

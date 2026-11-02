@@ -19,7 +19,7 @@ export function DestinationCard({ d }: { d: HubDestination }) {
   const image = d.slug === "edinburgh-airport" ? edinburghAirportPhoto : d.image;
 
   return (
-    <div className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[var(--navy)]/10 bg-white shadow-raised transition hover:border-[var(--gold)] hover:shadow-raised-hover">
+    <div className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[var(--navy)]/10 bg-card shadow-raised transition hover:border-[var(--gold)] hover:shadow-raised-hover">
       <Link to={href} className="relative block aspect-[4/3] overflow-hidden" aria-label={d.display_name ?? d.name}>
         {image ? (
           <img
@@ -38,7 +38,7 @@ export function DestinationCard({ d }: { d: HubDestination }) {
           </span>
         )}
         <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[var(--navy)]/45 via-transparent to-transparent" />
-        <span className="absolute bottom-3 left-3 flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-semibold text-[var(--navy)]">
+        <span className="absolute bottom-3 left-3 flex items-center gap-1.5 rounded-full bg-navy-foreground/95 px-2.5 py-1 text-[11px] font-semibold text-[var(--navy)]">
           <MapPin className="size-3 text-[var(--gold-ink)]" />
           {place}
         </span>

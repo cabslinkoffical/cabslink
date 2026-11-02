@@ -67,7 +67,7 @@ export function HubPage({
               <Link
                 key={f.href}
                 to={f.href}
-                className="rounded-2xl border border-[var(--navy)]/10 bg-white p-5 shadow-raised hover:border-[var(--gold)]"
+                className="rounded-2xl border border-[var(--navy)]/10 bg-card p-5 shadow-raised hover:border-[var(--gold)]"
               >
                 <h3 className="font-semibold text-[var(--navy)]">{f.title}</h3>
                 <p className="mt-1.5 text-sm leading-relaxed text-[var(--navy)]/70">{f.blurb}</p>
@@ -79,7 +79,7 @@ export function HubPage({
 
 
       {destinations.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-[var(--navy)]/20 bg-white p-8 text-center shadow-raised">
+        <div className="rounded-2xl border border-dashed border-[var(--navy)]/20 bg-card p-8 text-center shadow-raised">
           <p className="text-[var(--navy)]/70">
             We haven't published dedicated pages for this category yet, but we still
             cover every UK postcode. Get a fixed-fare quote in under 30 seconds.
@@ -126,7 +126,7 @@ function BenefitCards({ notes }: { notes: { title: string; body: string }[] }) {
     <section className="mb-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       <h2 className="sr-only">What to expect</h2>
       {notes.map((n) => (
-        <div key={n.title} className="rounded-2xl border border-[var(--navy)]/10 bg-white p-5 shadow-raised">
+        <div key={n.title} className="rounded-2xl border border-[var(--navy)]/10 bg-card p-5 shadow-raised">
           <h3 className="font-semibold text-[var(--navy)]">{n.title}</h3>
           <p className="mt-1.5 text-sm leading-relaxed text-[var(--navy)]/70">{n.body}</p>
         </div>
