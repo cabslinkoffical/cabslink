@@ -149,7 +149,7 @@ export function DestinationPage({
 
       <div className="mx-auto max-w-6xl px-4 py-10">
         {quality.effectiveNoindex && d.seo_tier !== 2 && (
-          <div className="mb-6 rounded-xl border border-warning/40 bg-warning/12 px-4 py-3 text-sm text-warning">
+          <div className="mb-6 rounded-xl border border-warning/40 bg-warning/12 px-4 py-3 text-sm text-[var(--gold-ink)]">
             This page is not indexed by search engines yet — it is missing required data.
           </div>
         )}

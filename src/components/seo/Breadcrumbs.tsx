@@ -10,8 +10,8 @@ export function Breadcrumbs({ items, dark = false }: { items: Crumb[]; dark?: bo
         {items.map((c, i) => (
           <li key={c.href} className="flex items-center gap-1">
             {i > 0 && <span className={dark ? "text-navy-foreground/30" : "text-foreground/30"}>/</span>}
-            {i === items.length - 1 ? (
-              <span aria-current="page" className={dark ? "font-medium text-navy-foreground" : "font-medium text-foreground"}>
+            {i === items.length - 1 || c.href.startsWith("#") ? (
+              <span aria-current={i === items.length - 1 ? "page" : undefined} className={dark ? "font-medium text-navy-foreground" : "font-medium text-foreground"}>
                 {c.name}
               </span>
             ) : (

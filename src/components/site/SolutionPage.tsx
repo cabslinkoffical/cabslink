@@ -95,10 +95,7 @@ export function SolutionPage({ content }: { content: SolutionContent }) {
       {services.length > 0 && (
         <section className="bg-[var(--navy)] text-[var(--navy-foreground)] section-y">
           <div className="container-x">
-            <p className="text-xs uppercase tracking-[0.3em] text-[var(--gold)]">Services you'll use</p>
-            <h2 className="mt-3 font-display text-3xl font-semibold md:text-4xl">
-              The right service for {content.breadcrumbLabel.toLowerCase()}
-            </h2>
+            <SectionHeader dark eyebrow="Services you'll use" title={`The right service for ${content.breadcrumbLabel.toLowerCase()}`} />
             <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {services.map((s) => (
                 <li key={s.id}>

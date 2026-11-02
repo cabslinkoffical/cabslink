@@ -1,8 +1,9 @@
 import { createFileRoute, Link, Outlet, redirect, useRouter, useRouterState } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
-import { LogOut, ExternalLink, Menu, X, ArrowLeft } from "lucide-react";
+import { LogOut, ExternalLink, Menu, X } from "lucide-react";
 import { ADMIN_AREAS, areaForPath } from "@/components/admin/admin-areas";
 import { SidebarNav } from "@/components/admin/SidebarNav";
+import { AreaShortcuts } from "@/components/admin/AreaShortcuts";
 import { Breadcrumbs } from "@/components/admin/Breadcrumbs";
 import { Logo } from "@/components/site/Logo";
 import { Button } from "@/components/ui/button";
@@ -110,14 +111,6 @@ function AdminLayout() {
           </button>
         </div>
         <div className="px-3 pt-3">
-          {area.id !== "dashboard" && (
-            <Link
-              to="/cabs-booking-pannel"
-              className="mb-2 flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium text-white/80 ring-1 ring-white/10 transition hover:bg-white/[0.07] hover:text-gold"
-            >
-              <ArrowLeft className="size-4" /> Back to dashboard
-            </Link>
-          )}
           <div className="flex items-center gap-2.5 rounded-xl bg-white/[0.06] px-3 py-2.5 ring-1 ring-white/10">
             <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-gold text-navy"><area.icon className="size-4" /></span>
             <span className="min-w-0">
@@ -127,6 +120,7 @@ function AdminLayout() {
           </div>
         </div>
         <SidebarNav key={area.id} entries={area.nav} />
+        <AreaShortcuts current={area.id} />
         <div className="shrink-0 p-3 pb-[max(.75rem,env(safe-area-inset-bottom))] border-t border-gold/20 space-y-1">
           <Link to="/" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-white/70 hover:text-gold transition">
             <ExternalLink className="size-3.5" /> View website

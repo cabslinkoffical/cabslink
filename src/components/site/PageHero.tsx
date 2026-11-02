@@ -3,7 +3,16 @@ import { Link } from "@tanstack/react-router";
 import { ArrowRight, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SITE } from "@/lib/site";
+import { Breadcrumbs, type Crumb } from "@/components/seo/Breadcrumbs";
+import { trackClick } from "@/lib/tracking";
 
+/**
+ * Top section for every non-home page, in the homepage's language: flat navy
+ * band, shared accessible breadcrumbs, small tracked gold eyebrow, homepage
+ * hero title type and the same closing-band buttons (slash CTA + phone).
+ * `align="center"` for marketing pages (like the homepage), `"left"` with
+ * `width="reading"` for legal pages and articles.
+ */
 export function PageHero({
   eyebrow,
   title,
@@ -12,6 +21,8 @@ export function PageHero({
   showCta = true,
   primaryLabel = "Book now",
   primaryTo = "/book",
+  align = "center",
+  width = "default",
   children,
 }: {
   eyebrow?: string;
@@ -21,71 +32,70 @@ export function PageHero({
   showCta?: boolean;
   primaryLabel?: string;
   primaryTo?: string;
+  align?: "center" | "left";
+  width?: "default" | "reading";
   children?: ReactNode;
 }) {
+  const centered = align === "center";
+  const crumbs: Crumb[] = (breadcrumbs ?? []).map((c, i) => ({ name: c.label, href: c.to ?? `#crumb-${i}` }));
   return (
-    <section className="hero-gradient text-[var(--navy-foreground)]">
-      <div className="container-x py-16 md:py-24">
-        {eyebrow && (
-          <p className="text-xs uppercase tracking-[0.3em] text-[var(--gold)] mb-4">{eyebrow}</p>
+    <section className="hero-gradient page-hero text-[var(--navy-foreground)]" data-align={align}>
+      <div className={`container-x page-hero-inner ${width === "reading" ? "page-hero-reading" : ""}`}>
+        {crumbs.length > 0 && (
+          <div className={centered ? "flex justify-center" : ""}>
+            <Breadcrumbs items={crumbs} dark />
+          </div>
         )}
-        <h1 className="font-display text-4xl md:text-6xl font-semibold leading-[1.05] max-w-3xl">
-          {title}
-        </h1>
-        {subtitle && (
-          <p className="mt-5 max-w-2xl text-base md:text-lg text-[var(--navy-foreground)]/75">{subtitle}</p>
-        )}
+        {eyebrow && <p className="page-hero-eyebrow">{eyebrow}</p>}
+        <h1 className="page-hero-title font-display">{title}</h1>
+        {subtitle && <p className="page-hero-subtitle">{subtitle}</p>}
         {showCta && (
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            <Button asChild variant="gold" className="rounded-full px-6">
-              <Link to={primaryTo}>
+          <div className={`page-hero-actions ${centered ? "justify-center" : ""}`}>
+            <Button asChild variant="slash">
+              <Link to={primaryTo} onClick={trackClick("cta_click", { cta: "page_hero_primary" })}>
                 {primaryLabel} <ArrowRight className="size-4" />
               </Link>
             </Button>
-            <Button
-              asChild
-              variant="outline"
-              className="rounded-full px-6 bg-transparent text-[var(--navy-foreground)] border-[var(--navy-foreground)]/30 hover:bg-white/10"
+            <a
+              href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}
+              onClick={trackClick("phone_click", { source: "page_hero" })}
+              className="page-hero-phone group"
             >
-              <a href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}>
-                <Phone className="size-4" /> {SITE.phoneUK}
-              </a>
-            </Button>
+              <span className="page-hero-phone-icon"><Phone className="size-4" /></span>
+              <span className="text-left text-sm">
+                <span className="block text-[10px] uppercase tracking-[0.24em] text-[var(--navy-foreground)]/70">Call us 24/7</span>
+                <span className="font-semibold">{SITE.phoneUK}</span>
+              </span>
+            </a>
           </div>
         )}
         {children}
-        {breadcrumbs && (
-          <nav className="mt-8 flex flex-wrap items-center gap-1 text-sm text-[var(--navy-foreground)]/60">
-            {breadcrumbs.map((c, i) => (
-              <span key={i} className="flex items-center gap-1">
-                {c.to ? <Link to={c.to} className="hover:text-[var(--gold)]">{c.label}</Link> : <span className="text-[var(--navy-foreground)]">{c.label}</span>}
-                {i < breadcrumbs.length - 1 && <span aria-hidden>/</span>}
-              </span>
-            ))}
-          </nav>
-        )}
       </div>
     </section>
   );
 }
 
-
+/**
+ * The one section heading used on every page except the homepage. Matches the
+ * homepage's section headings: small tracked eyebrow, 4xl→5xl display title.
+ * On light backgrounds gold text uses the darker gold-ink (readable on white);
+ * bright gold is kept for navy backgrounds (`dark`).
+ */
 export function SectionHeader({ eyebrow, title, titleAccent, subtitle, center = false, dark = false, children }: { eyebrow?: string; title: string; titleAccent?: string; subtitle?: string; center?: boolean; dark?: boolean; children?: ReactNode }) {
+  const gold = dark ? "text-[var(--gold)]" : "text-[var(--gold-ink)]";
   return (
     <div className={`max-w-3xl ${center ? "mx-auto text-center" : ""}`}>
-      {eyebrow && <p className="text-xs uppercase tracking-[0.3em] text-[var(--gold)] mb-3">{eyebrow}</p>}
-      <h2 className={`font-display text-3xl md:text-5xl font-semibold leading-tight ${dark ? "text-white" : "text-[var(--navy)]"}`}>
+      {eyebrow && <p className={`mb-3 text-[11px] font-semibold uppercase tracking-[0.28em] ${gold}`}>{eyebrow}</p>}
+      <h2 className={`font-display text-4xl font-semibold leading-[1.05] md:text-5xl ${dark ? "text-[var(--navy-foreground)]" : "text-[var(--navy)]"}`}>
         {title}
         {titleAccent && (
           <>
             {" "}
-            <span className="text-[var(--gold)]">
-              {titleAccent}
-            </span>
+            <span className={gold}>{titleAccent}</span>
           </>
         )}
       </h2>
-      {subtitle && <p className={`mt-4 text-base md:text-lg ${dark ? "text-white/70" : "text-muted-foreground"}`}>{subtitle}</p>}
+      {subtitle && <p className={`mt-4 text-base md:text-lg ${dark ? "text-[var(--navy-foreground)]/75" : "text-muted-foreground"}`}>{subtitle}</p>}
       {children}
     </div>
   );
