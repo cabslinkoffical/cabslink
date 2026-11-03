@@ -22,6 +22,7 @@ import { getJourneyTransport } from "@/lib/seo/transport-modes";
 
 import { SITE } from "@/lib/site";
 import { BUSINESS_ID } from "@/lib/seo/business-graph";
+import { resolveFaqs } from "@/components/site/JourneyPage.head";
 
 const ORIGIN = "https://cabslink.com";
 
@@ -213,5 +214,4 @@ export function JourneyPage({
     </SiteLayout>
   );
 }
-import { resolveFaqs } from "@/components/site/JourneyPage.head";
 export { journeySchema, journeyHead } from "@/components/site/JourneyPage.head";

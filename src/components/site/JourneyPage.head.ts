@@ -16,7 +16,7 @@ const ORIGIN = "https://cabslink.com";
  * if no fare is available the question is dropped rather than shipped with a
  * placeholder or a vague "price on request".
  */
-function resolveFaqs(c: JourneyContent, fares?: RouteFareTableData | null) {
+export function resolveFaqs(c: JourneyContent, fares?: RouteFareTableData | null) {
   const cheapest = fares?.fares.length
     ? fares.fares.reduce((a, b) => (b.price < a.price ? b : a))
     : null;
