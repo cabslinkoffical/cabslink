@@ -1,4 +1,5 @@
 import { formatTime12 } from "@/lib/time-format";
+import { childSeatsLabel, parseChildSeats } from "@/lib/child-seats";
 import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
 import { useMutation, useQueryClient, queryOptions, useQuery, keepPreviousData } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -388,7 +389,7 @@ function BookingsPage() {
                     {editing.distance_miles != null && <Info label="Distance (mi)" value={Number(editing.distance_miles).toFixed(1)} />}
                     {editing.flight_number && <Info label="Flight" value={editing.flight_number} />}
                     <Info label="Meet & greet" value={editing.meet_greet ? "Yes" : "No"} />
-                    <Info label="Child seat" value={editing.child_seat ? "Yes" : "No"} />
+                    <Info label="Child seats" value={childSeatsLabel(parseChildSeats(editing.child_seat_types), Number(editing.child_seat_count ?? 0)) ?? (editing.child_seat ? "Yes" : "No")} />
                     {editing.cancellation_reason && <Info label="Cancellation reason" value={editing.cancellation_reason} />}
                     {editing.notes && <Info label="Customer notes" value={editing.notes} />}
                   </div>
