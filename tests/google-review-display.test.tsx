@@ -7,7 +7,7 @@ vi.mock("@tanstack/react-query", () => ({ useQuery: () => state }));
 vi.mock("@/lib/google-reviews-query", () => ({ googleReviewsQuery: {} }));
 vi.mock("@/lib/google-reviews.functions", () => ({ GOOGLE_PROFILE_URL: "https://share.google/eVCAo7I5A17ZPE0pk" }));
 vi.mock("@tanstack/react-router", () => ({ Link: ({ to, children, ...props }: any) => <a href={to} {...props}>{children}</a> }));
-vi.mock("@/components/ui/testimonials-columns-1", () => ({ TestimonialsColumn: ({ testimonials }: any) => <div>{testimonials.map((r: any) => <blockquote key={r.name}>{r.text}<cite>{r.name}</cite></blockquote>)}</div> }));
+vi.mock("@/components/ui/testimonials-columns-1", () => ({ TestimonialCard: ({ item }: any) => <blockquote>{item.text}<cite>{item.name}</cite></blockquote>, TestimonialsColumn: ({ testimonials }: any) => <div>{testimonials.map((r: any) => <blockquote key={r.name}>{r.text}<cite>{r.name}</cite></blockquote>)}</div> }));
 
 import { GoogleReviewsSection } from "@/components/site/GoogleReviewsSection";
 import { GoogleReviewsStrip } from "@/components/site/GoogleReviewsStrip";
