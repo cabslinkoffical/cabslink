@@ -7,7 +7,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
-import { placeIdSchema } from "@/lib/place-id";
 import { tourDraftSchema } from "@/lib/tour-draft";
 
 async function assertAdmin(ctx: { supabase: any; userId: string }) {
@@ -165,4 +164,3 @@ export const getTourPreview = createServerFn({ method: "GET" })
     return { detail, live: !!state.data?.published && !!state.data?.active };
   });
 
-export { placeIdSchema as _tourPlaceIdSchema };
