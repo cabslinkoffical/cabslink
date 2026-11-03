@@ -652,10 +652,6 @@ function BookPage() {
       {/* overflow-clip, not overflow-hidden: an overflow:hidden ancestor turns this
           section into a scroll container and silently stops the left rail sticking. */}
       <section className="relative bg-[var(--surface)] py-10 md:py-14 min-h-[80vh] overflow-clip">
-        <div className="absolute inset-0 pointer-events-none opacity-60" aria-hidden>
-          <div className="absolute -top-24 -left-24 size-96 rounded-full bg-[var(--gold)]/10 blur-3xl" />
-          <div className="absolute -bottom-32 -right-24 size-[28rem] rounded-full bg-[var(--navy)]/5 blur-3xl" />
-        </div>
 
         <div className="container-x relative">
           {!hasValidRoute ? (

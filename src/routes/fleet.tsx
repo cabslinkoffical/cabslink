@@ -121,10 +121,6 @@ function FleetPage() {
     <SiteLayout ctaSubtitle="Choose a vehicle class and we allocate the model — or a complimentary upgrade." cta={{ heading: <>Choose your <span className="text-gold">vehicle</span></>, label: "Get a fixed price", trackAs: "final_cta_fleet" }}>
       {/* HERO */}
       <section className="relative overflow-hidden bg-[var(--navy)] text-[var(--navy-foreground)]">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -top-32 right-[-10%] size-[420px] rounded-full bg-[var(--gold)]/10 blur-3xl"
-        />
         <div className="container-x relative pt-16 md:pt-20 pb-10 md:pb-14">
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-[var(--gold)]">
