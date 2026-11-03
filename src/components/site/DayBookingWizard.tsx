@@ -225,16 +225,6 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
 
   const vehicle = classes.find((c) => c.id === vehicleClassId) ?? null;
   const vehicleFits = classes.some((c) => (c.max_passengers ?? 99) >= passengers);
-  /** Custom tours can always be sent for a personal quote; this says why when no instant price is possible. */
-  const canRequestQuote = !hourly && mode === "custom" && stops.length > 0;
-  const requestWhy = canRequestQuote && passengersConfirmed && !priceMutation.isPending
-    ? quoteRequestReason({
-        priceError: !quote && priceMutation.isError ? (priceMutation.error as Error)?.message ?? "error" : null,
-        blockedReason: quote?.quote.blockedReason ?? null,
-        total: quote ? quote.quote.total : null,
-        vehicleFits,
-      })
-    : null;
   const fixedPriceForVehicle =
     template && vehicleClassId
       ? template.prices.find((p) => p.vehicle_class_id === vehicleClassId)?.price ?? null
@@ -350,6 +340,17 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
       toast.error(e.message || "We couldn't send your request. Please try again or call us.");
     },
   });
+
+  /** Custom tours can always be sent for a personal quote; this says why when no instant price is possible. */
+  const canRequestQuote = !hourly && mode === "custom" && stops.length > 0;
+  const requestWhy = canRequestQuote && passengersConfirmed && !priceMutation.isPending
+    ? quoteRequestReason({
+        priceError: !quote && priceMutation.isError ? (priceMutation.error as Error)?.message ?? "error" : null,
+        blockedReason: quote?.quote.blockedReason ?? null,
+        total: quote ? quote.quote.total : null,
+        vehicleFits,
+      })
+    : null;
 
   // Ask the server for a price whenever the customer reaches the price step.
   useEffect(() => {
