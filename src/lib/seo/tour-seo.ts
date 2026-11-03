@@ -82,7 +82,7 @@ export const TOUR_SEO: Record<string, TourSeo> = {
     ownerWritten: true,
     metaTitle: "Harry Potter Tour from Edinburgh to Glenfinnan | Cabslink",
     metaDescription:
-      "Private Harry Potter tour of Scotland from Edinburgh: Glenfinnan Viaduct, Glencoe and Fort William with a local driver. 1-8 guests, fixed price, door-to-door pickup.",
+      "Private Harry Potter tour from Edinburgh: Glenfinnan Viaduct, Glencoe and Fort William with a local driver. 1-8 guests, fixed price, door-to-door pickup.",
   },
   "stirling-and-doune-castles-day": {
     h1: "Stirling Castle Tours from Edinburgh",

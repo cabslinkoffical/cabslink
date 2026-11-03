@@ -380,6 +380,8 @@ function TourDetailPage() {
                 <img
                   src={d.hero_image_url}
                   alt={`${d.name} — private driver tour`}
+                  width={1280}
+                  height={720}
                   className="w-full aspect-[16/9] object-cover rounded-3xl shadow-[var(--shadow-elegant)]"
                   loading="eager"
                   decoding="async"
@@ -514,7 +516,7 @@ function TourDetailPage() {
                         <div className="flex gap-4">
                           {p.image_url && (
                             <div className="w-32 sm:w-44 shrink-0 bg-navy/40">
-                              <img src={p.image_url} alt={p.name} loading="lazy" decoding="async" className="w-full h-full object-cover aspect-square" />
+                              <img src={p.image_url} alt={p.name} width={176} height={176} loading="lazy" decoding="async" className="w-full h-full object-cover aspect-square" />
                             </div>
                           )}
                           <div className="flex-1 p-4">

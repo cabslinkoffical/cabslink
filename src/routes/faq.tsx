@@ -4,13 +4,13 @@ import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
 import { FaqBand } from "@/components/site/PageBand";
-import { faqSchema } from "@/components/seo/schema";
+import { breadcrumbSchema, faqSchema } from "@/components/seo/schema";
 import { listPublicVehicleClasses } from "@/lib/vehicle-classes.functions";
 import { FAQ_GROUPS, vehicleFaqs } from "@/content/faq-bank";
 
 const TITLE = "Cabslink FAQs — Booking, Prices, Payment & Airport Pickups";
 const DESCRIPTION =
-  "Answers to common questions about booking a Cabslink private transfer: fixed prices, payment, cancellations, airport waiting, meet and greet, luggage and child seats.";
+  "Answers about booking a Cabslink private transfer: fixed prices, payment, cancellations, airport waiting, meet and greet, luggage and child seats.";
 const URL = "https://cabslink.com/faq";
 
 const classesQuery = queryOptions({
@@ -37,6 +37,10 @@ export const Route = createFileRoute("/faq")({
       ],
       links: [{ rel: "canonical", href: URL }],
       scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify(breadcrumbSchema([{ name: "Home", url: "/" }, { name: "FAQ", url: URL }])),
+        },
         {
           type: "application/ld+json",
           children: JSON.stringify(

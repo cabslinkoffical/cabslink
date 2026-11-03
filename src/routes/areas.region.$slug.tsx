@@ -7,6 +7,7 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
 import { regionHubQuery } from "@/lib/explore.functions";
 import { FaqBlock } from "@/components/seo/FaqBlock";
+import { breadcrumbSchema } from "@/components/seo/schema";
 
 export const Route = createFileRoute("/areas/region/$slug")({
   loader: async ({ params, context }) => {
@@ -36,7 +37,18 @@ export const Route = createFileRoute("/areas/region/$slug")({
         { name: "twitter:card", content: "summary_large_image" },
       ],
       links: [{ rel: "canonical", href: canonical }],
-      scripts: content && content.faqs.length
+      scripts: [
+        ...(loaderData
+          ? [{
+              type: "application/ld+json",
+              children: JSON.stringify(breadcrumbSchema([
+                { name: "Home", url: "/" },
+                { name: "Locations", url: "/areas" },
+                { name: loaderData.name, url: canonical },
+              ])),
+            }]
+          : []),
+        ...(content && content.faqs.length
         ? [{
             type: "application/ld+json",
             children: JSON.stringify({
@@ -45,7 +57,8 @@ export const Route = createFileRoute("/areas/region/$slug")({
               mainEntity: content.faqs.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
             }),
           }]
-        : [],
+        : []),
+      ],
     });
   },
   component: RegionPage,
