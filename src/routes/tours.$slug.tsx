@@ -683,7 +683,12 @@ function TourDetailPage() {
                   <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--navy)]/70">What the price covers</p>
                   <ul className="mt-2 space-y-1.5 text-sm text-[var(--navy)]/80">
                     {priceCoverLines(d.price_covers).map((line) => (
-                      <li key={line} className="flex items-start gap-2"><Check className="mt-0.5 size-4 shrink-0 text-[var(--gold-ink)]" />{line}</li>
+                      <li key={line.text} className="flex items-start gap-2">
+                        {line.covered
+                          ? <Check className="mt-0.5 size-4 shrink-0 text-[var(--gold-ink)]" aria-hidden="true" />
+                          : <Minus className="mt-0.5 size-4 shrink-0 text-[var(--navy)]/60" aria-hidden="true" />}
+                        {line.text}
+                      </li>
                     ))}
                   </ul>
                 </div>

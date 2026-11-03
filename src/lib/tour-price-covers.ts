@@ -78,14 +78,16 @@ export function tourPriceCovers(args: {
 const fmtHours = (h: number) => `${Number.isInteger(h) ? h : h.toFixed(1)} ${h === 1 ? "hour" : "hours"}`;
 const fmtPounds = (p: number) => `£${(p / 100).toFixed(p % 100 === 0 ? 0 : 2)}`;
 
-/** Full list for the tour page. */
-export function priceCoverLines(c: TourPriceCovers): string[] {
-  const lines: string[] = [];
-  if (c.hours != null) lines.push(`${fmtHours(c.hours)} with your driver`);
-  if (c.includedMiles != null) lines.push(`Up to ${c.includedMiles} miles included`);
-  lines.push("Price per vehicle, not per person");
-  lines.push(c.ticketsIncluded ? "Entry tickets included" : "Entry tickets not included");
-  if (c.extraHourPence != null) lines.push(`Extra hours ${fmtPounds(c.extraHourPence)} per hour`);
+export type PriceCoverLine = { text: string; covered: boolean };
+
+/** Full list for the tour page; `covered: false` marks what the price does not include. */
+export function priceCoverLines(c: TourPriceCovers): PriceCoverLine[] {
+  const lines: PriceCoverLine[] = [];
+  if (c.hours != null) lines.push({ text: `${fmtHours(c.hours)} with your driver`, covered: true });
+  if (c.includedMiles != null) lines.push({ text: `Up to ${c.includedMiles} miles included`, covered: true });
+  lines.push({ text: "Price per vehicle, not per person", covered: true });
+  lines.push(c.ticketsIncluded ? { text: "Entry tickets included", covered: true } : { text: "Entry tickets not included", covered: false });
+  if (c.extraHourPence != null) lines.push({ text: `Extra hours ${fmtPounds(c.extraHourPence)} per hour`, covered: false });
   return lines;
 }
 
