@@ -151,6 +151,7 @@ import { Route as AuthenticatedCabsBookingPannelVehicleClassesIndexRouteImport }
 import { Route as AuthenticatedCabsBookingPannelVehicleClassesIdRouteImport } from './routes/_authenticated/cabs-booking-pannel/vehicle-classes.$id'
 import { Route as ApiPublicDispatchDrainRouteImport } from './routes/api/public/dispatch/drain'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
+import { Route as ApiPublicReviewsRefreshRouteImport } from './routes/api/public/reviews/refresh'
 import { Route as AuthenticatedCabsBookingPannelSeoPagesIdSectionsRouteImport } from './routes/_authenticated/cabs-booking-pannel/seo.pages.$id.sections'
 
 const IndexRoute = IndexRouteImport.update({
@@ -910,6 +911,11 @@ const ApiPublicPaymentsWebhookRoute =
     path: '/api/public/payments/webhook',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicReviewsRefreshRoute = ApiPublicReviewsRefreshRouteImport.update({
+  id: '/api/public/reviews/refresh',
+  path: '/api/public/reviews/refresh',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedCabsBookingPannelSeoPagesIdSectionsRoute =
   AuthenticatedCabsBookingPannelSeoPagesIdSectionsRouteImport.update({
     id: '/$id/sections',
@@ -1055,6 +1061,7 @@ export interface FileRoutesByFullPath {
   '/cabs-booking-pannel/vehicle-classes/$id': typeof AuthenticatedCabsBookingPannelVehicleClassesIdRoute
   '/api/public/dispatch/drain': typeof ApiPublicDispatchDrainRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/api/public/reviews/refresh': typeof ApiPublicReviewsRefreshRoute
   '/cabs-booking-pannel/blog/': typeof AuthenticatedCabsBookingPannelBlogIndexRoute
   '/cabs-booking-pannel/pricing-schemes/': typeof AuthenticatedCabsBookingPannelPricingSchemesIndexRoute
   '/cabs-booking-pannel/seo/': typeof AuthenticatedCabsBookingPannelSeoIndexRoute
@@ -1197,6 +1204,7 @@ export interface FileRoutesByTo {
   '/cabs-booking-pannel/vehicle-classes/$id': typeof AuthenticatedCabsBookingPannelVehicleClassesIdRoute
   '/api/public/dispatch/drain': typeof ApiPublicDispatchDrainRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/api/public/reviews/refresh': typeof ApiPublicReviewsRefreshRoute
   '/cabs-booking-pannel/blog': typeof AuthenticatedCabsBookingPannelBlogIndexRoute
   '/cabs-booking-pannel/pricing-schemes': typeof AuthenticatedCabsBookingPannelPricingSchemesIndexRoute
   '/cabs-booking-pannel/seo': typeof AuthenticatedCabsBookingPannelSeoIndexRoute
@@ -1343,6 +1351,7 @@ export interface FileRoutesById {
   '/_authenticated/cabs-booking-pannel/vehicle-classes/$id': typeof AuthenticatedCabsBookingPannelVehicleClassesIdRoute
   '/api/public/dispatch/drain': typeof ApiPublicDispatchDrainRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/api/public/reviews/refresh': typeof ApiPublicReviewsRefreshRoute
   '/_authenticated/cabs-booking-pannel/blog/': typeof AuthenticatedCabsBookingPannelBlogIndexRoute
   '/_authenticated/cabs-booking-pannel/pricing-schemes/': typeof AuthenticatedCabsBookingPannelPricingSchemesIndexRoute
   '/_authenticated/cabs-booking-pannel/seo/': typeof AuthenticatedCabsBookingPannelSeoIndexRoute
@@ -1489,6 +1498,7 @@ export interface FileRouteTypes {
     | '/cabs-booking-pannel/vehicle-classes/$id'
     | '/api/public/dispatch/drain'
     | '/api/public/payments/webhook'
+    | '/api/public/reviews/refresh'
     | '/cabs-booking-pannel/blog/'
     | '/cabs-booking-pannel/pricing-schemes/'
     | '/cabs-booking-pannel/seo/'
@@ -1631,6 +1641,7 @@ export interface FileRouteTypes {
     | '/cabs-booking-pannel/vehicle-classes/$id'
     | '/api/public/dispatch/drain'
     | '/api/public/payments/webhook'
+    | '/api/public/reviews/refresh'
     | '/cabs-booking-pannel/blog'
     | '/cabs-booking-pannel/pricing-schemes'
     | '/cabs-booking-pannel/seo'
@@ -1776,6 +1787,7 @@ export interface FileRouteTypes {
     | '/_authenticated/cabs-booking-pannel/vehicle-classes/$id'
     | '/api/public/dispatch/drain'
     | '/api/public/payments/webhook'
+    | '/api/public/reviews/refresh'
     | '/_authenticated/cabs-booking-pannel/blog/'
     | '/_authenticated/cabs-booking-pannel/pricing-schemes/'
     | '/_authenticated/cabs-booking-pannel/seo/'
@@ -1879,6 +1891,7 @@ export interface RootRouteChildren {
   BlogTagSlugRoute: typeof BlogTagSlugRoute
   ApiPublicDispatchDrainRoute: typeof ApiPublicDispatchDrainRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
+  ApiPublicReviewsRefreshRoute: typeof ApiPublicReviewsRefreshRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -2877,6 +2890,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/reviews/refresh': {
+      id: '/api/public/reviews/refresh'
+      path: '/api/public/reviews/refresh'
+      fullPath: '/api/public/reviews/refresh'
+      preLoaderRoute: typeof ApiPublicReviewsRefreshRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/cabs-booking-pannel/seo/pages/$id/sections': {
       id: '/_authenticated/cabs-booking-pannel/seo/pages/$id/sections'
       path: '/$id/sections'
@@ -3165,6 +3185,7 @@ const rootRouteChildren: RootRouteChildren = {
   BlogTagSlugRoute: BlogTagSlugRoute,
   ApiPublicDispatchDrainRoute: ApiPublicDispatchDrainRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
+  ApiPublicReviewsRefreshRoute: ApiPublicReviewsRefreshRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
