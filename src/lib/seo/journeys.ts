@@ -121,7 +121,7 @@ export const JOURNEYS: JourneyRecord[] = [
     note:
       "The run north from Edinburgh Airport crosses the Queensferry Crossing then follows the M90 and A91 into Fife, which is a genuine 80 minutes with golf luggage rather than the hour a map suggests. Bags and clubs drive the vehicle class here: four golfers with four full bags need an estate or MPV, not a saloon, and we allocate on that basis at booking.",
     planning: [
-      `Meet & greet inside the terminal is standard. ${FACT_TEXT.airportWait}`,
+      `${FACT_TEXT.meetGreet} ${FACT_TEXT.airportWait}`,
       "Clubs are loaded into a vehicle sized for bags plus cases — confirm bag count when booking.",
       "Tee-time departures back to the airport are booked as a fixed return leg, timed for your flight.",
     ],
