@@ -294,7 +294,8 @@ export async function listPublishedToursImpl(): Promise<PublicTourListItem[]> {
   const catOrder = new Map<string, number>(((cats as any).data ?? []).map((c: any, i: number) => [c.name, i]));
   return rows.map((t: any) => {
     const item = toListItem(t, counts.get(t.id) ?? 0);
-    item.category_order = t.theme_group ? catOrder.get(t.theme_group) ?? null : null;
+    // If categories can't be read, keep every filter rather than hiding them all.
+    item.category_order = !t.theme_group ? null : (cats as any).error ? 1e5 : catOrder.get(t.theme_group) ?? null;
     item.starting_price_pence = tourStartingPricePence(t, rates, fixed);
     item.price_covers = tourCoversFor(t, rates, fixed);
     return item;
