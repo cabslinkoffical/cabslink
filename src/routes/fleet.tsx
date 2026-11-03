@@ -48,7 +48,7 @@ export const Route = createFileRoute("/fleet")({
         children: JSON.stringify(
           collectionPageSchema({
             name: "Cabslink Fleet — Vehicle Classes",
-            description: "Executive Saloons, Luxury Class, Premium MPVs and Vans. Book by class with guaranteed allocation.",
+            description: "Executive Saloons, Luxury Class, Premium MPVs and Vans. Book by vehicle class: your class is guaranteed, the exact model is not.",
             url: "/fleet",
             breadcrumbs: [{ name: "Home", url: "/" }, { name: "Fleet", url: "/fleet" }],
           }),
@@ -379,6 +379,7 @@ function FleetCard({ klass }: { klass: PublicVehicleClass }) {
             <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--navy)]/70">
               Typical models
             </p>
+            <p className="mt-0.5 text-[11px] text-[var(--navy)]/70">{FACT_TEXT.modelsTypical}</p>
             <div className="mt-2 flex flex-wrap gap-1.5">
               {models.map((m) => (
                 <span
