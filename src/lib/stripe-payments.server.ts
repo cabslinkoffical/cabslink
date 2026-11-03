@@ -69,9 +69,14 @@ export function isProductionAppEnv(): boolean {
  * APP_ENV=production it is always live. Otherwise only clearly non-production
  * hosts (editor preview, local dev) use the sandbox; every other host uses live.
  */
+/** Live site hosts: always the live Stripe account, whatever APP_ENV says. */
+export const LIVE_PAYMENT_HOSTS = ["cabslink.com", "www.cabslink.com", "cabslink.lovable.app"] as const;
+
 export function resolveStripeEnvForHost(host: string | null | undefined): StripeEnv {
+  const h = (host ?? "").toLowerCase().split(":")[0].trim().replace(/\.$/, "");
+  // The live domain can never use test keys, even if APP_ENV is set to preview/development.
+  if ((LIVE_PAYMENT_HOSTS as readonly string[]).includes(h)) return "live";
   if (isProductionAppEnv()) return "live";
-  const h = (host ?? "").toLowerCase().split(":")[0].trim();
   if (!h) return "live";
   if (h === "localhost" || h === "127.0.0.1" || h === "0.0.0.0") return "sandbox";
   if (h.endsWith(".lovableproject.com")) return "sandbox";
