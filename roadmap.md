@@ -220,3 +220,8 @@
 - [x] Contact/business details: structured data and corporate page read SITE/FACTS; all 202 pages show the same phone/email. Open (owner): 'CabsLink' spelling in saved airport page titles (protected)
 - [x] SEO audit (owner list 3 Nov): owner approved fixes 3 Nov; /attractions title, /faq and Harry Potter descriptions shortened; breadcrumb markup on /faq and region pages; all tour/blog photos have sizes. Fresh 202-page crawl: no title >60, no description >160, every page except home has breadcrumbs, 0 unsized photos. Open (owner): 'CabsLink' spelling in 9 airport titles; Minibus/Coach Hire pages
 - [x] About page already clean (preview + live). Fixed elsewhere: 'meet and greet on request' (executive transfers, airport-transfer location pages), group-travel FAQ '55 in a coach' -> 16. Open (owner): Minibus Hire (8–24 seats) and Coach Hire (25–55 seats) page titles/H1s/body claim vehicles not in the fleet
+
+## Owner requests (3 Nov, night)
+- [ ] Minibus Hire page rewritten to match admin vehicle classes (Eight-Seater Van 8, Executive Minibus 16 on request). Coach Hire pending owner answer
+- [ ] 'CabsLink' → 'Cabslink' everywhere in saved text (airport titles/descriptions, vehicle SEO, blog, notes)
+- [ ] Latest Google reviews appear on the site automatically
