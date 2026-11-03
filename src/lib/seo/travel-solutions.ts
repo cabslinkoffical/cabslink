@@ -245,11 +245,11 @@ export const TRAVEL_SOLUTIONS: Record<string, SolutionContent> = {
     faqs: [
       {
         q: "How many passengers can you carry?",
-        a: "Up to 55 in a single coach, and more across multiple vehicles coordinated as one booking. Minibuses cover 8 to 16 and coasters 24.",
+        a: "Up to 16 in our largest vehicle, the Executive Minibus, and more across several vehicles coordinated as one booking. The Eight-Seater Van takes up to 8.",
       },
       {
         q: "Why are some large vehicles quote-on-request?",
-        a: "Coasters and coaches depend heavily on route, duration and driver hours, so we price them individually rather than showing a fare that could be wrong.",
+        a: "Larger vehicles depend heavily on route, duration and driver hours, so some are priced individually rather than showing a fare that could be wrong.",
       },
       {
         q: "Can we add multiple pickup points?",
