@@ -13,9 +13,8 @@ export const FACTS = {
   },
   airportWait: {
     freeMinutes: 60,
-    /** Pence per minute after the free period. */
-    perMinutePence: 50,
-    perMinutePenceLarge: 75,
+    // Waiting after the free period is priced per vehicle class in the Extras
+    // admin and shown at booking; pages never state a rate.
   },
   transferCancellation: {
     freeOverHours: 12,
@@ -38,7 +37,7 @@ const cardList = `${cards.slice(0, -1).join(", ")} or ${cards[cards.length - 1]}
 
 /** Ready-made sentences so every page states each rule the same way. */
 export const FACT_TEXT = {
-  airportWait: `Airport pickups include ${FACTS.airportWait.freeMinutes} minutes of free waiting from the actual landing time. After that, waiting is ${pence(FACTS.airportWait.perMinutePence)} per minute (${pence(FACTS.airportWait.perMinutePenceLarge)} per minute for larger vehicles).`,
+  airportWait: `Airport pickups include ${FACTS.airportWait.freeMinutes} minutes of free waiting from the actual landing time. After the free period, waiting time is charged by the hour; the rate depends on the vehicle and is shown when you book.`,
   airportWaitShort: `${FACTS.airportWait.freeMinutes} minutes free from actual landing`,
   meetGreet: "Meet and greet is available on every booking for a small extra charge, shown in your quote: your driver waits in arrivals with a name board.",
   transferCancellation: `Transfers: free cancellation more than ${FACTS.transferCancellation.freeOverHours} hours before pickup, 50% of the fare from ${FACTS.transferCancellation.halfFromHours} to ${FACTS.transferCancellation.halfToHours} hours, and the full fare under ${FACTS.transferCancellation.halfFromHours} hours.`,

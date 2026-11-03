@@ -11,10 +11,10 @@ describe("FAQ question bank answers", () => {
     expect(answer(4)).toBe(FACT_TEXT.payment);
   });
 
-  it("states 60 free airport waiting minutes and 50p / 75p per minute after", () => {
+  it("states 60 free airport waiting minutes and an hourly, per-vehicle rate after (no typed rates)", () => {
     expect(FACTS.airportWait.freeMinutes).toBe(60);
-    expect(answer(39)).toContain("50p per minute");
-    expect(answer(39)).toContain("75p per minute");
+    expect(answer(39)).toContain("waiting time is charged by the hour; the rate depends on the vehicle and is shown when you book.");
+    expect(answer(39)).not.toMatch(/per minute|\dp\b/);
   });
 
   it("meet and greet is an extra charge, never included", () => {

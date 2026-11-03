@@ -96,7 +96,7 @@ export const FAQ_GROUPS: BankGroup[] = [
       {
         n: 39,
         q: "How much do you charge for extra waiting time?",
-        a: `After the free ${FACTS.airportWait.freeMinutes} minutes, waiting is charged per minute: ${FACTS.airportWait.perMinutePence}p per minute, or ${FACTS.airportWait.perMinutePenceLarge}p per minute for larger vehicles. You can also pre-book extra waiting time when you book.`,
+        a: `After the free ${FACTS.airportWait.freeMinutes} minutes, waiting time is charged by the hour; the rate depends on the vehicle and is shown when you book. You can also pre-book extra waiting time when you book.`,
       },
     ],
   },
