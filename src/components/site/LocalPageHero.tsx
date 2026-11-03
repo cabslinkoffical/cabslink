@@ -118,9 +118,9 @@ export function LocalPageHero({
               mapFocus={mapFocus}
               showMap={showMap}
             />
-            <p className="mt-3 flex items-center gap-2 text-sm font-semibold text-[var(--navy-foreground)]">
+            <p className="mt-2 flex items-center gap-2 text-xs font-semibold text-[var(--navy-foreground)]">
               <BadgeCheck className="size-4 shrink-0 text-[var(--gold)]" aria-hidden />
-              Fixed fares · {FACT_TEXT.feesIncludedShort}
+              {FACT_TEXT.feesIncludedShort}
             </p>
           </div>
         </div>
