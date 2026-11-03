@@ -62,7 +62,7 @@ describe("pay another way (cash, bank transfer or other)", () => {
 
   it("FAQ answer for cash or bank transfer uses the owner's wording", () => {
     expect(FACT_TEXT.payCashOrTransfer).toBe(
-      "Yes. Complete your booking, skip the online payment, and message us on WhatsApp with your booking reference. We'll confirm your booking and arrange payment.",
+      "Yes. Complete your booking, skip the online payment, and message us on WhatsApp or email with your booking reference. We'll confirm your booking and arrange payment.",
     );
   });
 });
