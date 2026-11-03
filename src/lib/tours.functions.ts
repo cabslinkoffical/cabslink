@@ -222,7 +222,14 @@ export function tourClassPricesPence(row: any, rates: ClassRate[], fixed?: Fixed
 
 /** What the From price covers, for the same vehicle the From price comes from. */
 export function tourCoversFor(row: any, rates: ClassRate[], fixed?: FixedTourPrices, tiers: TierRow[] = tierRows): TourPriceCovers {
-  const from = tourClassPricesPence(row, rates, fixed)[0];
+  // Several vehicles can share the From price; describe one whose rates are set.
+  const all = tourClassPricesPence(row, rates, fixed);
+  const tied = all.filter((p) => p.price_pence === all[0]?.price_pence);
+  const rated = tied.find((p) => {
+    const c = rates.find((r) => r.id === p.class_id);
+    return c && (c.extra_hour_rate != null || c.hourly_rate != null);
+  });
+  const from = rated ?? all[0];
   const cls = from ? rates.find((c) => c.id === from.class_id) ?? null : null;
   const hasFixed = !!(from && row?.id && fixed?.get(row.id)?.has(from.class_id));
   return tourPriceCovers({ row, fromClass: cls, hasFixedPrice: hasFixed, tiers });
