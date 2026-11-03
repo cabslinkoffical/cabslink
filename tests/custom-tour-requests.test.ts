@@ -33,6 +33,7 @@ vi.mock("@/lib/tour-quote.server", () => ({
     classes: [{ id: "11111111-1111-4111-8111-111111111111", name: "Executive Saloon", max_passengers: 4 }],
   }),
   quoteTourImpl: (...a: any[]) => quoteTourImpl(...a),
+  quoteTourGroupImpl: (...a: any[]) => quoteTourImpl(...a),
   measureLoop: async () => ({ miles: 120, driveMinutes: 180, estimated: false }),
 }));
 
