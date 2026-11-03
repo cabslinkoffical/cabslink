@@ -1155,6 +1155,9 @@ export const adminListPricingProfiles = createServerFn({ method: "GET" })
     const { data: profiles } = await context.supabase
       .from("vehicle_pricing_profiles" as any)
       .select("*");
+    const { data: classes } = await context.supabase
+      .from("vehicle_classes")
+      .select("name, pricing_vehicle_id, active, display_order");
 
     const ids = (profiles ?? []).map((p: any) => p.id);
     const { data: tiers } = await context.supabase
@@ -1172,6 +1175,7 @@ export const adminListPricingProfiles = createServerFn({ method: "GET" })
 
     return {
       vehicles: vehicles ?? [],
+      classes: classes ?? [],
       profiles: (profiles ?? []).map((p: any) => ({ ...p, tiers: byProfile.get(p.id) ?? [] })),
     };
   });
