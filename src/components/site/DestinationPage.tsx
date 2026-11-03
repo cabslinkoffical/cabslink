@@ -8,13 +8,6 @@ import type React from "react";
  * template's declared order. No route file needs to know section-level
  * details — one page pattern for all 15 destination types.
  */
-import { notFound } from "@tanstack/react-router";
-import {
-  getDestination,
-  getDestinationsByIds,
-  type Destination,
-  type DestinationType,
-} from "@/lib/destinations.functions";
 import { type Crumb } from "@/components/seo/Breadcrumbs";
 import { DestinationSections } from "@/components/seo/DestinationSections";
 import { buildSections } from "@/lib/seo/content-engine";
