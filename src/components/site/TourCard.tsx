@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Clock, MapPin, Star } from "lucide-react";
 import type { PublicTourListItem } from "@/lib/tours.functions";
+import { priceCoverSummary } from "@/lib/tour-price-covers";
 
 export function formatTourDuration(seconds: number | null): string | null {
   if (!seconds || seconds <= 0) return null;
@@ -93,6 +94,9 @@ export function TourCard({ tour, decorative = false }: { tour: PublicTourListIte
                 : "Price on request"}
             </span>
           </div>
+          {tour.starting_price_pence != null && tour.price_covers && (
+            <p className="mt-1 text-right text-[11px] text-[var(--navy)]/70">{priceCoverSummary(tour.price_covers)}</p>
+          )}
           <div className="mt-4 grid grid-cols-2 gap-3">
             <TourLink
               to="/tours/$slug"

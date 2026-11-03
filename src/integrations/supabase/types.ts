@@ -2889,6 +2889,7 @@ export type Database = {
           created_at: string
           default_selected: boolean
           id: string
+          mandatory: boolean
           poi_id: string
           recommended: boolean
           recommended_visit_minutes: number | null
@@ -2900,6 +2901,7 @@ export type Database = {
           created_at?: string
           default_selected?: boolean
           id?: string
+          mandatory?: boolean
           poi_id: string
           recommended?: boolean
           recommended_visit_minutes?: number | null
@@ -2911,6 +2913,7 @@ export type Database = {
           created_at?: string
           default_selected?: boolean
           id?: string
+          mandatory?: boolean
           poi_id?: string
           recommended?: boolean
           recommended_visit_minutes?: number | null

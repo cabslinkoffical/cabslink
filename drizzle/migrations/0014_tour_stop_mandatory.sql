@@ -1,0 +1,2 @@
+ALTER TABLE public.scenic_route_template_pois ADD COLUMN IF NOT EXISTS mandatory boolean NOT NULL DEFAULT false;
+COMMENT ON COLUMN public.scenic_route_template_pois.mandatory IS 'Stop always included in the ready-made tour; customers cannot remove it.';

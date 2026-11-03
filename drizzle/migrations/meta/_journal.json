@@ -99,6 +99,20 @@
       "when": 1793682994204,
       "tag": "0013_booking_child_seat_types",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1793715905795,
+      "tag": "0014_tour_stop_mandatory",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1793715970372,
+      "tag": "0015_tour_stop_mandatory_backfill",
+      "breakpoints": true
     }
   ]
 }

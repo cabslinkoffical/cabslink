@@ -1,6 +1,7 @@
 import { RelatedLinks } from "@/components/site/RelatedLinks";
 import { normalizeHead } from "@/lib/seo/page-head";
 import { useMemo, useState, useDeferredValue } from "react";
+import { priceCoverLines } from "@/lib/tour-price-covers";
 import { FACT_TEXT } from "@/lib/site-facts";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { queryOptions, useQuery, useSuspenseQuery } from "@tanstack/react-query";
@@ -677,6 +678,21 @@ function TourDetailPage() {
                   ? "Per vehicle, driver included. Your final price is confirmed before you pay."
                   : "Tell us your date, group size and stops — we'll send a tailored quote."}
               </p>
+              {d.starting_price_pence != null && d.price_covers && (
+                <div className="mt-4 rounded-2xl border border-border bg-background p-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--navy)]/70">What the price covers</p>
+                  <ul className="mt-2 space-y-1.5 text-sm text-[var(--navy)]/80">
+                    {priceCoverLines(d.price_covers).map((line) => (
+                      <li key={line.text} className="flex items-start gap-2">
+                        {line.covered
+                          ? <Check className="mt-0.5 size-4 shrink-0 text-[var(--gold-ink)]" aria-hidden="true" />
+                          : <Minus className="mt-0.5 size-4 shrink-0 text-[var(--navy)]/60" aria-hidden="true" />}
+                        {line.text}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
 
 
