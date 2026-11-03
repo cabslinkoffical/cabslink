@@ -4,14 +4,17 @@ import { ArrowUpRight, ExternalLink } from "lucide-react";
 import { googleReviewsQuery } from "@/lib/google-reviews-query";
 import { GOOGLE_PROFILE_URL } from "@/lib/google-reviews.functions";
 import { GoogleReviewStars } from "./GoogleReviewStars";
-import { TestimonialsColumn, type TestimonialColumnItem } from "@/components/ui/testimonials-columns-1";
+import { TestimonialCard, type TestimonialColumnItem } from "@/components/ui/testimonials-columns-1";
+import { uniqueReviews } from "@/lib/unique-reviews";
 
 export function GoogleReviewsSection() {
   const { data, isPending } = useQuery(googleReviewsQuery);
   const hasRating = data && data.reviewCount > 0;
-  const columns: TestimonialColumnItem[][] = [[], [], []];
-  (data?.reviews ?? []).filter((review) => review.excerpt?.trim()).slice(0, 6).forEach((review, index) => {
-    columns[index % 3]?.push({
+  // Each review is shown exactly once: a short list in a looping scroller
+  // made the same review appear twice on screen.
+  const items: TestimonialColumnItem[] = [];
+  uniqueReviews((data?.reviews ?? []).filter((review) => review.excerpt?.trim())).slice(0, 6).forEach((review) => {
+    items.push({
       text: review.excerpt ? `“${review.excerpt}”` : review.topic,
       name: review.author,
       role: `Google · ${review.dateLabel}`,
@@ -34,9 +37,9 @@ export function GoogleReviewsSection() {
             </div>
           ) : <p className="mt-8 text-sm text-muted-foreground" role="status">{isPending ? "Loading Google reviews…" : "Read customer reviews on Google."}</p>}
         </div>
-        {columns.some((column) => column.length > 0) ? (
-          <div className="mt-10 flex max-h-[560px] justify-center gap-6 overflow-hidden [mask-image:linear-gradient(to_bottom,transparent,black_18%,black_82%,transparent)]">
-            {columns.map((column, index) => column.length > 0 ? <TestimonialsColumn key={index} testimonials={column} duration={17 + index * 2} className={index === 1 ? "hidden md:block" : index === 2 ? "hidden lg:block" : ""} /> : null)}
+        {items.length > 0 ? (
+          <div className="mx-auto mt-10 grid max-w-5xl justify-items-center gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {items.map((item, index) => <TestimonialCard key={`${item.name}-${index}`} item={item} className="h-full" />)}
           </div>
         ) : null}
         <div className="mt-8 flex flex-wrap items-center justify-center gap-6">

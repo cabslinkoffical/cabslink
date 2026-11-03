@@ -134,7 +134,7 @@ export const Route = createFileRoute("/")({
 const trustStats = [
   { icon: ShieldCheck, k: "Licensed & insured", v: "Fully vetted UK drivers" },
   { icon: Clock, k: "24/7 availability", v: "Day, night and holidays" },
-  { icon: BadgeCheck, k: "Fixed pricing", v: "No hidden surcharges" },
+  { icon: BadgeCheck, k: "Fixed pricing", v: "Fixed price shown before you book. No surge pricing." },
   { icon: PlaneTakeoff, k: "Flight tracking", v: FACT_TEXT.airportWaitShort },
 ];
 
@@ -157,7 +157,7 @@ const serviceTiles = [
 
 
 const features = [
-  { icon: BadgePoundSterling, title: "Fixed Pricing", desc: "No surge. No surprises. What you see is what you pay." },
+  { icon: BadgePoundSterling, title: "Fixed Pricing", desc: "Fixed price shown before you book. No surge pricing." },
   { icon: Plane, title: "Flight Tracking", desc: "Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late." },
   { icon: Users, title: "Meet & Greet", desc: "Your driver waits inside the terminal with a name board." },
   { icon: ShieldCheck, title: "Licensed Drivers", desc: "Fully vetted, insured and professionally trained." },
@@ -266,7 +266,7 @@ function HomePage() {
               <span className="text-gold">&amp; UK Private Hire.</span>
             </h1>
             <p className="home-hero-description text-navy-foreground/75">
-              Fixed-fare Mercedes-Benz transfers, private tours and executive travel across the UK. Flight tracked, meet &amp; greet, 24/7 dispatch — the calm way to travel.
+              Fixed-fare private transfers, private tours and executive travel across the UK. Flight tracked, meet &amp; greet, 24/7 dispatch — the calm way to travel.
             </p>
           </div>
 
@@ -736,7 +736,7 @@ function HomePage() {
 }
 
 const faqItems = [
-  { q: "How far in advance should I book?", a: "You can book anytime — even minutes ahead — but we recommend 2+ hours for airport pickups to guarantee your preferred vehicle." },
+  { q: "How far in advance should I book?", a: "You can book anytime — even minutes ahead — but we recommend booking at least 2 hours ahead for airport pickups." },
   { q: "Do you track my flight?", a: "Yes. Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late." },
   { q: "Is there a meet & greet at arrivals?", a: `Yes. ${FACT_TEXT.meetGreet} ${FACT_TEXT.airportWait}` },
   { q: "What if I need to cancel?", a: `${FACT_TEXT.transferCancellation} ${FACT_TEXT.tourCancellation} See our booking & cancellation policy.` },

@@ -95,11 +95,11 @@ const MAIN_SERVICES: MainService[] = [
     eyebrow: "Most booked",
     title: "Airport & travel hub transfers",
     blurb:
-      "Every arrival and departure point in the UK — airports, rail terminals and cruise ports — with tracked schedules, free waiting time and fixed all-in fares.",
+      "Every arrival and departure point in the UK — airports, rail terminals and cruise ports — with tracked schedules, free waiting time and a fixed price shown before you book.",
     img: airportImg.url,
     icon: Plane,
     to: "/airport-transfers",
-    highlights: ["Flight tracking", "Meet & greet at arrivals", "Fixed, all-in pricing"],
+    highlights: ["Flight tracking", "Meet & greet at arrivals", "Fixed price shown before you book. No surge pricing."],
     subs: [
       { icon: Plane, title: "Airport Transfers", desc: "All major UK airports with flight tracking and meet & greet.", to: "/airport-transfers" },
       { icon: PlaneLanding, title: "Airport Directory", desc: "Terminal guides, pickup points and fares for each airport.", to: "/airports" },
@@ -194,7 +194,7 @@ const MAIN_SERVICES: MainService[] = [
 const promises = [
   { icon: ShieldCheck, label: "Licensed & insured", copy: "Fully licensed operators and vetted professional drivers." },
   { icon: Clock, label: "24/7 availability", copy: "Early flights, late finishes — we run around the clock." },
-  { icon: BadgePoundSterling, label: "Fixed pricing", copy: "Quoted up front. No meters, no surge, no surprises." },
+  { icon: BadgePoundSterling, label: "Fixed pricing", copy: "Fixed price shown before you book. No surge pricing." },
   { icon: PlaneLanding, label: "Flight tracking", copy: "Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late." },
 ];
 

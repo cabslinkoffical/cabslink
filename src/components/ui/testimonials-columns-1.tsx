@@ -26,6 +26,41 @@ export type TestimonialColumnItem = {
   meta?: React.ReactNode;
 };
 
+const CARD_CLASS =
+  "block w-full max-w-xs rounded-3xl border border-[var(--navy)]/10 bg-white p-8 shadow-[0_8px_24px_rgba(14,24,44,0.06)] transition-colors hover:border-[var(--gold)]";
+
+/** One review card. `copy` marks the repeated loop copy (hidden from assistive tech). */
+export function TestimonialCard({ item, copy = false, className = "" }: { item: TestimonialColumnItem; copy?: boolean; className?: string }) {
+  const body = (
+    <>
+      {item.meta ? <div className="mb-4">{item.meta}</div> : null}
+      <div className="text-sm leading-relaxed text-[var(--navy)]/75">{item.text}</div>
+      <div className="mt-5 flex items-center gap-3">
+        {item.image ? (
+          <img width={40} height={40} src={item.image} alt={item.name} loading="lazy" className="h-10 w-10 rounded-full object-cover" />
+        ) : (
+          <span
+            aria-hidden="true"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--navy)] font-display text-sm font-bold text-[var(--gold)]"
+          >
+            {item.name.trim().charAt(0).toUpperCase()}
+          </span>
+        )}
+        <div className="flex flex-col">
+          <div className="font-medium leading-5 tracking-tight text-[var(--navy)]">{item.name}</div>
+          <div className="text-xs leading-5 tracking-tight text-[var(--navy)]/70">{item.role}</div>
+        </div>
+      </div>
+    </>
+  );
+  const cls = `${CARD_CLASS} ${className}`;
+  return item.href && !copy ? (
+    <a href={item.href} target="_blank" rel="noopener noreferrer nofollow" className={cls}>{body}</a>
+  ) : (
+    <div className={cls} aria-hidden={copy || undefined} inert={copy || undefined}>{body}</div>
+  );
+}
+
 export const TestimonialsColumn = (props: {
   className?: string;
   testimonials: TestimonialColumnItem[];
@@ -35,74 +70,14 @@ export const TestimonialsColumn = (props: {
     <div className={props.className}>
       <motion.div
         animate={{ translateY: "-50%" }}
-        transition={{
-          duration: props.duration || 10,
-          repeat: Infinity,
-          ease: "linear",
-          repeatType: "loop",
-        }}
+        transition={{ duration: props.duration || 10, repeat: Infinity, ease: "linear", repeatType: "loop" }}
         className="flex flex-col gap-6 pb-6"
       >
-        {[
-          ...new Array(2).fill(0).map((_, index) => (
-            <React.Fragment key={index}>
-              {props.testimonials.map((item, i) => {
-                const body = (
-                  <>
-                    {item.meta ? <div className="mb-4">{item.meta}</div> : null}
-                    <div className="text-sm leading-relaxed text-[var(--navy)]/75">{item.text}</div>
-                    <div className="mt-5 flex items-center gap-3">
-                      {item.image ? (
-                        <img
-                          width={40}
-                          height={40}
-                          src={item.image}
-                          alt={item.name}
-                          loading="lazy"
-                          className="h-10 w-10 rounded-full object-cover"
-                        />
-                      ) : (
-                        <span
-                          aria-hidden="true"
-                          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--navy)] font-display text-sm font-bold text-[var(--gold)]"
-                        >
-                          {item.name.trim().charAt(0).toUpperCase()}
-                        </span>
-                      )}
-                      <div className="flex flex-col">
-                        <div className="font-medium leading-5 tracking-tight text-[var(--navy)]">
-                          {item.name}
-                        </div>
-                        <div className="text-xs leading-5 tracking-tight text-[var(--navy)]/70">
-                          {item.role}
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                );
-
-                const cardClass =
-                  "block w-full max-w-xs rounded-3xl border border-[var(--navy)]/10 bg-white p-8 shadow-[0_8px_24px_rgba(14,24,44,0.06)] transition-colors hover:border-[var(--gold)]";
-
-                return item.href && index === 0 ? (
-                  <a
-                    key={i}
-                    href={item.href}
-                    target="_blank"
-                    rel="noopener noreferrer nofollow"
-                    className={cardClass}
-                  >
-                    {body}
-                  </a>
-                ) : (
-                  <div className={cardClass} key={i} aria-hidden={index === 1 || undefined} inert={index === 1 || undefined}>
-                    {body}
-                  </div>
-                );
-              })}
-            </React.Fragment>
-          )),
-        ]}
+        {[0, 1].map((index) => (
+          <React.Fragment key={index}>
+            {props.testimonials.map((item, i) => <TestimonialCard key={i} item={item} copy={index === 1} />)}
+          </React.Fragment>
+        ))}
       </motion.div>
     </div>
   );

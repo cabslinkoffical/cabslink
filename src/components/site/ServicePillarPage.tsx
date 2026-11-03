@@ -107,7 +107,7 @@ export function ServicePillarPage({ content }: { content: PillarContent }) {
           {[
             { icon: ShieldCheck, label: "Licensed & insured" },
             { icon: Clock, label: "24/7 availability" },
-            { icon: Wallet, label: "Fixed, all-in pricing" },
+            { icon: Wallet, label: "Fixed price shown before you book. No surge pricing." },
             { icon: BadgeCheck, label: "Vetted professional drivers" },
           ].map((t) => (
             <div key={t.label} className="flex min-w-0 items-center gap-3">
