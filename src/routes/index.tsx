@@ -143,7 +143,7 @@ const trustStats = [
 
 
 const serviceTiles = [
-  { name: "Airport Transfers", kicker: "Most booked", desc: "Flight-tracked pickups and meet & greet at every UK airport.", image: HOME_SERVICE_IMAGES.airport, to: "/airport-transfers", icon: Plane },
+  { name: "Airport Transfers", kicker: "Most booked", desc: "Flight-tracked pickups at every UK airport, with optional meet & greet.", image: HOME_SERVICE_IMAGES.airport, to: "/airport-transfers", icon: Plane },
   { name: "Cruise Ports", kicker: "Embarkation", desc: "Timed port transfers with room for every case and trunk.", image: HOME_SERVICE_IMAGES.cruise, to: "/cruise-transfers", icon: Compass },
   { name: "Rail Stations", kicker: "City to city", desc: "Kerbside pickups at UK terminals, timed to your train.", image: HOME_SERVICE_IMAGES.station, to: "/stations", icon: RouteIcon },
   { name: "Corporate Travel", kicker: "Business", desc: "Account-managed journeys with invoicing and priority support.", image: HOME_SERVICE_IMAGES.corporate, to: "/corporate-travel", icon: Building2 },
@@ -159,7 +159,7 @@ const serviceTiles = [
 const features = [
   { icon: BadgePoundSterling, title: "Fixed Pricing", desc: "Fixed price shown before you book. No surge pricing." },
   { icon: Plane, title: "Flight Tracking", desc: "Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late." },
-  { icon: Users, title: "Meet & Greet", desc: "Your driver waits inside the terminal with a name board." },
+  { icon: Users, title: "Meet & Greet", desc: "Optional, small extra charge: your driver waits inside the terminal with a name board." },
   { icon: ShieldCheck, title: "Licensed Drivers", desc: "Fully vetted, insured and professionally trained." },
   { icon: Gem, title: "Executive Fleet", desc: "Immaculate Mercedes and luxury SUV vehicles." },
   { icon: Headset, title: "24/7 Support", desc: "Live dispatch every day of the year." },
@@ -266,7 +266,7 @@ function HomePage() {
               <span className="text-gold">&amp; UK Private Hire.</span>
             </h1>
             <p className="home-hero-description text-navy-foreground/75">
-              Fixed-fare private transfers, private tours and executive travel across the UK. Flight tracked, meet &amp; greet, 24/7 dispatch — the calm way to travel.
+              Fixed-fare private transfers, private tours and executive travel across the UK. Flight tracked, optional meet &amp; greet, 24/7 dispatch — the calm way to travel.
             </p>
           </div>
 

@@ -97,7 +97,7 @@ function AirportPage() {
             <ul className="mt-8 grid sm:grid-cols-2 gap-4">
               {[
                 { i: Plane, t: "Flight tracking", d: "Our team tracks your flight and adjusts your pickup." },
-                { i: ShieldCheck, t: "Meet & greet", d: "Personal welcome with a name board at arrivals." },
+                { i: ShieldCheck, t: "Meet & greet", d: "Optional name-board welcome at arrivals, for a small extra charge." },
                 { i: Clock, t: "Free wait time", d: `${FACT_TEXT.airportWaitShort} — at no extra cost.` },
                 { i: MapPin, t: "Door-to-door", d: "From home, hotel or office to your terminal." },
               ].map(f => (
