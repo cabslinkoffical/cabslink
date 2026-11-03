@@ -226,3 +226,4 @@
 - [ ] 'CabsLink' → 'Cabslink' everywhere in saved text (airport titles/descriptions, vehicle SEO, blog, notes)
 - [ ] Latest Google reviews appear on the site automatically
 - [x] Remove soft glow blobs from page top (hero) sections (owner screenshot image-276)
+- [x] Automatic latest Google reviews: saved snapshot, hourly scheduled refresh (starts after publish), page-view refresh when stale, last saved copy on Google outage
