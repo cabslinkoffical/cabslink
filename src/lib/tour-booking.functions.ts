@@ -405,3 +405,75 @@ export const getTourPaymentAmount = createServerFn({ method: "POST" })
     }
     return { amountPence: Math.round(total * 100), total, bookingRef: ref };
   });
+
+const optimiseSchema = z.object({
+  startPlaceId: placeIdSchema,
+  endPlaceId: placeIdSchema.nullable().optional(),
+  stops: z
+    .array(z.object({ placeId: placeIdSchema, locked: z.boolean().optional().default(false) }))
+    .min(2)
+    .max(15),
+});
+
+export type TourOptimiseResult = {
+  /** New position → index in the customer's current list. */
+  order: number[];
+  changed: boolean;
+  current: { miles: number; driveMinutes: number };
+  best: { miles: number; driveMinutes: number };
+};
+
+/**
+ * Suggest the quickest stop order by real road routes, keeping the start, the
+ * finish and every locked stop where they are. Nothing is applied here; the
+ * customer sees the suggestion and chooses.
+ */
+export const optimiseTourStops = createServerFn({ method: "POST" })
+  .inputValidator((d: z.input<typeof optimiseSchema>) => optimiseSchema.parse(d))
+  .handler(async ({ data }): Promise<TourOptimiseResult> => {
+    let ip = "unknown";
+    try { ip = (await getClientIp()) ?? "unknown"; } catch { /* no request ip */ }
+    if (!(await hitRateLimit(LIMITS.tourQuote, ip))) {
+      try { setResponseStatus(429); } catch { /* headers sent */ }
+      throw new Error("Too many route checks. Please wait a moment and try again.");
+    }
+    const { segmentsToOptimise, applySegmentOrders } = await import("@/lib/stop-order");
+    const { optimiseWaypointOrder } = await import("@/lib/route-distance.server");
+    const { measureLoop } = await import("@/lib/tour-quote.server");
+    const start = data.startPlaceId;
+    const end = data.endPlaceId ?? data.startPlaceId;
+    const indexed = data.stops.map((s, i) => ({ ...s, i }));
+    const segments = segmentsToOptimise(indexed);
+    let orders: number[][];
+    try {
+      orders = await Promise.all(
+        segments.map((seg) =>
+          optimiseWaypointOrder({
+            originPlaceId: seg.from < 0 ? start : indexed[seg.from]!.placeId,
+            destinationPlaceId: seg.to >= indexed.length ? end : indexed[seg.to]!.placeId,
+            waypointPlaceIds: seg.free.map((i) => indexed[i]!.placeId),
+          }),
+        ),
+      );
+    } catch {
+      throw new Error("We couldn't work out a better order right now. Your stops are unchanged.");
+    }
+    const best = applySegmentOrders(indexed, segments, orders);
+    const order = best.map((s) => s.i);
+    const changed = order.some((v, i) => v !== i);
+    const [cur, bst] = await Promise.all([
+      measureLoop({ startPlaceId: start, endPlaceId: end, stopPlaceIds: indexed.map((s) => s.placeId) }),
+      changed
+        ? measureLoop({ startPlaceId: start, endPlaceId: end, stopPlaceIds: best.map((s) => s.placeId) })
+        : null,
+    ]);
+    const round = (m: { miles: number; driveMinutes: number }) => ({
+      miles: Math.round(m.miles * 10) / 10,
+      driveMinutes: Math.round(m.driveMinutes),
+    });
+    // Only suggest a change that is actually quicker on the road.
+    if (!bst || bst.driveMinutes >= cur.driveMinutes) {
+      return { order: indexed.map((s) => s.i), changed: false, current: round(cur), best: round(cur) };
+    }
+    return { order, changed: true, current: round(cur), best: round(bst) };
+  });
