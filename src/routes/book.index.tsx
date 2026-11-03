@@ -413,6 +413,19 @@ function BookPage() {
       minutes: selectedStops[p.place_id],
       category: p.category,
     }));
+  // Stops the customer typed into the booking form stay on the trip when
+  // sightseeing stops are added: typed stops first (in their order), then the
+  // chosen sightseeing stops. Seeded tour stops carry minutes and are already
+  // in the sightseeing list, so only plain typed stops are added here.
+  const selectedStopIds = new Set(orderedSelected.map((s) => s.place_id));
+  const tripStops = orderedSelected.length > 0
+    ? [
+        ...pre.stops
+          .filter((s) => s.minutes === undefined && !selectedStopIds.has(s.placeId))
+          .map((s) => ({ place_id: s.placeId, label: s.label, minutes: 0, category: null as string | null })),
+        ...orderedSelected,
+      ]
+    : [];
 
   const multiStopFn = useServerFn(calculateMultiStopQuote);
   const multiStopQuery = useQuery({
@@ -420,7 +433,7 @@ function BookPage() {
     queryKey: [
       "multi-stop-quote",
       pre.pickup?.placeId, pre.dropoff?.placeId, routeMode, pre.date, pre.time,
-      orderedSelected.map((s) => `${s.place_id}:${s.minutes}`).join("|"),
+      tripStops.map((s) => `${s.place_id}:${s.minutes}`).join("|"),
     ],
     queryFn: () =>
       multiStopFn({
@@ -431,7 +444,7 @@ function BookPage() {
           destination_label: pre.dropoff!.label,
           pickup_time: pre.time,
           pickup_date: /^\d{4}-\d{2}-\d{2}$/.test(pre.date) ? pre.date : undefined,
-          stops: orderedSelected,
+          stops: tripStops,
           route_mode: routeMode,
         },
       }),
@@ -530,7 +543,7 @@ function BookPage() {
     setSubmitting(true);
     try {
       const mergedStops = orderedSelected.length > 0
-        ? orderedSelected.map((s) => ({ placeId: s.place_id, label: s.label, minutes: s.minutes, category: s.category ?? null }))
+        ? tripStops.map((s) => ({ placeId: s.place_id, label: s.label, minutes: s.minutes, category: s.category ?? null }))
         : pre.stops.map((s) => ({ placeId: s.placeId, label: s.label, minutes: 0 }));
       const paymentLabel = payMethod === "other" ? OFFLINE_PAYMENT_LABEL : "Card payment (online)";
 
