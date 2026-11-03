@@ -239,7 +239,7 @@ function BookPage() {
   });
   const [routeMode, setRouteMode] = useState<"direct" | "scenic" | "optimised">("scenic");
   const [tourAckAt, setTourAckAt] = useState<string | null>(null);
-  const [meetGreet, setMeetGreet] = useState(true);
+  const [meetGreet, setMeetGreet] = useState(false);
   const [childSeatCount, setChildSeatCount] = useState(0);
   // Catalogue extras (admin Extras section) → key/quantity chosen by the customer.
   const [extraQty, setExtraQty] = useState<Record<string, number>>({});
@@ -321,7 +321,7 @@ function BookPage() {
     setChosen(null);
     setStep("vehicle");
     setSelectedStops({});
-    setMeetGreet(true);
+    setMeetGreet(false);
     setChildSeatCount(0);
     setRouteMode("scenic");
     setReturnJourney(false);
@@ -2140,7 +2140,7 @@ function ExtrasStep(props: {
             <h3 className="mb-3 text-sm font-semibold">Meet &amp; greet and return</h3>
             <div className="grid gap-3 sm:grid-cols-2">
               <Toggle
-                label={meetGreetFeePence > 0 ? `Meet & greet at arrivals (+£${(meetGreetFeePence / 100).toFixed(2)})` : "Meet & greet at arrivals (included)"}
+                label={meetGreetFeePence > 0 ? `Meet & greet at arrivals (+£${(meetGreetFeePence / 100).toFixed(2)})` : "Meet & greet at arrivals (small extra charge)"}
                 checked={meetGreet} onChange={onMeetGreet}
               />
               <Toggle
