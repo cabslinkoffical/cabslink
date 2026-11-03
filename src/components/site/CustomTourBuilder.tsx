@@ -60,16 +60,21 @@ export function CustomTourBuilder({ search }: { search?: TourSearchControls }) {
   const [manualStop, setManualStop] = useState<SelectedPlace | null>(null);
   const [date, setDate] = useState("");
   const [time, setTime] = useState("09:00");
+  const [passengers, setPassengers] = useState(2);
+  const [luggage, setLuggage] = useState(2);
   const [error, setError] = useState<string | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
   const routeKey = pickup && dropoff ? `${pickup.placeId}|${dropoff.placeId}` : "";
   const sameEndpoints = !!pickup && !!dropoff && pickup.placeId === dropoff.placeId;
-  const routeReady = !!routeKey && !sameEndpoints;
+  // A tour may finish where it started; only the "do we already run this?"
+  // and along-the-route suggestions need two different points.
+  const routeReady = !!routeKey;
+  const corridorReady = routeReady && !sameEndpoints;
 
   const matchFn = useServerFn(matchTourByRoute);
   const matchQuery = useQuery({
-    enabled: routeReady,
+    enabled: corridorReady,
     queryKey: ["custom-tour-match", routeKey],
     staleTime: 5 * 60_000,
     queryFn: () =>
@@ -78,7 +83,7 @@ export function CustomTourBuilder({ search }: { search?: TourSearchControls }) {
 
   const corridorFn = useServerFn(corridorPoiOptions);
   const corridorQuery = useQuery({
-    enabled: routeReady,
+    enabled: corridorReady,
     queryKey: ["custom-tour-corridor", routeKey],
     staleTime: 5 * 60_000,
     queryFn: () =>
@@ -222,32 +227,25 @@ export function CustomTourBuilder({ search }: { search?: TourSearchControls }) {
       setError("Select a start and drop-off address from the list, or use the address you typed.");
       return;
     }
-    if (sameEndpoints) {
-      setError("Start and end points must be different.");
-      return;
-    }
     if (!date) {
       setError("Pick the date you want to travel.");
       return;
     }
-    const p = new URLSearchParams();
-    p.set("pickupPlaceId", pickup.placeId);
-    p.set("pickupLabel", pickup.label);
-    p.set("dropoffPlaceId", dropoff.placeId);
-    p.set("dropoffLabel", dropoff.label);
-    p.set("date", date);
-    p.set("time", time || "09:00");
-    p.set("passengers", "2");
-    p.set("luggage", "2");
-    p.set("mode", "quote");
-    if (stops.length) {
-      p.set(
-        "stops",
-        stops.map((s) => `${s.placeId}::${encodeURIComponent(s.label)}::${s.minutes}`).join("|"),
-      );
-    }
-    if (matchedSlug) p.set("templateSlug", matchedSlug);
-    navigate({ to: "/book", search: { q: p.toString() } });
+    navigate({
+      to: "/book/tour",
+      search: {
+        pickupPlaceId: pickup.placeId,
+        pickupLabel: pickup.label,
+        ...(sameEndpoints ? {} : { endPlaceId: dropoff.placeId, endLabel: dropoff.label }),
+        date,
+        time: time || "09:00",
+        passengers,
+        luggage,
+        ...(stops.length
+          ? { stops: stops.map((s) => `${s.placeId}::${encodeURIComponent(s.label)}::${s.minutes}`).join("|") }
+          : {}),
+      },
+    });
   };
 
   return (
@@ -397,10 +395,36 @@ export function CustomTourBuilder({ search }: { search?: TourSearchControls }) {
                 className="mt-1.5"
               />
             </div>
+            <div>
+              <Label htmlFor="ct-pax">Passengers</Label>
+              <Input
+                id="ct-pax"
+                type="number"
+                inputMode="numeric"
+                min={1}
+                max={80}
+                value={passengers}
+                onChange={(e) => setPassengers(Math.max(1, Math.min(80, Math.round(Number(e.target.value) || 1))))}
+                className="mt-1.5"
+              />
+            </div>
+            <div>
+              <Label htmlFor="ct-bags">Large bags</Label>
+              <Input
+                id="ct-bags"
+                type="number"
+                inputMode="numeric"
+                min={0}
+                max={80}
+                value={luggage}
+                onChange={(e) => setLuggage(Math.max(0, Math.min(80, Math.round(Number(e.target.value) || 0))))}
+                className="mt-1.5"
+              />
+            </div>
           </div>
 
           {sameEndpoints && (
-            <p className="text-sm text-destructive">Start and end points must be different.</p>
+            <p className="text-sm text-muted-foreground">Round trip: your tour finishes back where it started.</p>
           )}
 
           {/* Match state */}
@@ -422,7 +446,7 @@ export function CustomTourBuilder({ search }: { search?: TourSearchControls }) {
               </p>
             </div>
           )}
-          {routeReady && !matchQuery.isFetching && !matched && (
+          {corridorReady && !matchQuery.isFetching && !matched && (
             <div className="rounded-2xl border border-navy-foreground/10 bg-background/40 p-4">
               <p className="text-sm font-medium">No ready-made tour for this pair — let's build one.</p>
               <p className="mt-1 text-sm text-muted-foreground">
@@ -510,7 +534,7 @@ export function CustomTourBuilder({ search }: { search?: TourSearchControls }) {
 
               {stops.length === 0 && (
                 <p className="mt-3 text-sm text-muted-foreground">
-                  No stops yet — a direct private transfer is fine too. Add stops below to turn it into a tour.
+                  No stops yet. Add the places you'd like to visit below; you can reorder them and choose your hours on the next step.
                 </p>
               )}
             </div>
@@ -631,7 +655,7 @@ export function CustomTourBuilder({ search }: { search?: TourSearchControls }) {
               Get price & continue <ArrowRight className="size-4 ml-1" />
             </Button>
             <p className="text-xs text-muted-foreground">
-              Live quote on the next step — mileage, stop time and vehicle all priced before you pay.
+              Next: choose your hours and vehicle and see the full price before you pay.
             </p>
           </div>
         </div>

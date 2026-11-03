@@ -14,8 +14,9 @@ import { rememberCheckout, trackEvent } from "@/lib/analytics-ga";
 import {
   ArrowLeft, ArrowRight, CalendarDays, Check, Clock, Loader2, MapPin, Users,
   Briefcase, AlertTriangle, Plus, Trash2, ShieldCheck, Route as RouteIcon,
-  ChevronUp, ChevronDown,
+  ChevronUp, ChevronDown, GripVertical, Lock, LockOpen, RotateCcw, Wand2,
 } from "lucide-react";
+import { moveStop } from "@/lib/stop-order";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PassengerConfirmation } from "@/components/site/PassengerConfirmation";
 import { Button } from "@/components/ui/button";
@@ -36,7 +37,9 @@ import {
   getTourStopSuggestions,
   quoteTour,
   createTourBooking,
+  optimiseTourStops,
   type TourBookingOptions,
+  type TourOptimiseResult,
 } from "@/lib/tour-booking.functions";
 import type { TourQuoteResult } from "@/lib/tour-quote.server";
 
@@ -53,9 +56,30 @@ export type DayWizardSearch = {
   hours?: number;
   passengers?: number;
   luggage?: number;
+  /** Hand-off from the Tours page builder. */
+  endPlaceId?: string;
+  endLabel?: string;
+  /** `placeId::label::minutes` joined with `|`. */
+  stops?: string;
 };
 
-type Stop = { poiId: string | null; placeId: string; name: string; dwellMinutes: number | null };
+type Stop = { poiId: string | null; placeId: string; name: string; dwellMinutes: number | null; locked?: boolean };
+
+export function parseStopsParam(raw: string | undefined): Stop[] {
+  if (!raw) return [];
+  return raw
+    .split("|")
+    .map((part) => {
+      const [placeId, label, minutes] = part.split("::");
+      if (!placeId) return null;
+      let name = placeId;
+      try { name = decodeURIComponent(label ?? "") || placeId; } catch { name = label || placeId; }
+      const m = Number(minutes);
+      return { poiId: null, placeId, name, dwellMinutes: Number.isFinite(m) ? m : null } as Stop;
+    })
+    .filter((s): s is Stop => !!s)
+    .slice(0, 15);
+}
 
 const TOUR_STEPS = ["Your day", "Tour & stops", "Vehicle & price", "Details & pay"];
 const HOURLY_STEPS = ["Your hire", "Stops (optional)", "Vehicle & price", "Details & pay"];
@@ -85,6 +109,10 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
   const [passengersConfirmed, setPassengersConfirmed] = useState(false);
   const [luggage, setLuggage] = useState(2);
   const [stops, setStops] = useState<Stop[]>([]);
+  // Best-order suggestion: shown first, applied only when the customer agrees.
+  const [bestOrder, setBestOrder] = useState<TourOptimiseResult | null>(null);
+  const [orderBeforeBest, setOrderBeforeBest] = useState<Stop[] | null>(null);
+  const [dragFrom, setDragFrom] = useState<number | null>(null);
   const [newStop, setNewStop] = useState<SelectedPlace | null>(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -120,6 +148,15 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
     if (prefilled || !data) return;
     if (!search.pickupPlaceId) return;
     setStart({ placeId: search.pickupPlaceId, label: search.pickupLabel || search.pickupPlaceId } as SelectedPlace);
+    if (search.endPlaceId && search.endPlaceId !== search.pickupPlaceId) {
+      setSameEnd(false);
+      setEnd({ placeId: search.endPlaceId, label: search.endLabel || search.endPlaceId } as SelectedPlace);
+    }
+    const handedStops = parseStopsParam(search.stops);
+    if (handedStops.length) {
+      setMode("custom");
+      setStops(handedStops.map((x) => ({ ...x, dwellMinutes: Math.max(data.rules.minimum_stop_minutes ?? 10, x.dwellMinutes ?? 0) })));
+    }
     if (search.date) setDate(search.date);
     if (search.time) setTime(search.time);
     if (search.passengers) { setPassengers(search.passengers); setPassengersConfirmed(true); }
@@ -214,6 +251,19 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
       }
     },
     onError: (e: Error) => toast.error(e.message || "We couldn't price that tour."),
+  });
+
+  const optimiseMutation = useMutation({
+    mutationFn: async () =>
+      optimiseTourStops({
+        data: {
+          startPlaceId: start!.placeId,
+          endPlaceId: sameEnd ? null : end?.placeId ?? null,
+          stops: stops.map((x) => ({ placeId: x.placeId, locked: !!x.locked })),
+        },
+      }),
+    onSuccess: (res) => setBestOrder(res),
+    onError: (e: Error) => toast.error(e.message || "We couldn't work out a better order right now."),
   });
 
   const bookMutation = useMutation({
@@ -756,7 +806,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                       <div className="flex flex-wrap items-baseline justify-between gap-2">
                         <h4 className="font-display text-base font-bold">Your stops, in order</h4>
                         <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                          Use the arrows to reorder · at least {minStopMinutes} minutes each
+                          Drag or use the arrows · at least {minStopMinutes} minutes each
                         </span>
                       </div>
                     )}
@@ -767,9 +817,29 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                           !(mode === "premade" && template?.stops.some((t) => t.poi_id === s.poiId)),
                       )
                       .map(({ s, i }) => (
-                      <div key={`${s.placeId}-${i}`} className="flex items-center gap-3 rounded-xl border border-border p-3">
-                        <MapPin className="size-4 shrink-0 text-[var(--gold-ink)]" />
-                        <span className="text-xs font-bold text-muted-foreground">{i + 1}</span>
+                      <div
+                        key={`${s.placeId}-${i}`}
+                        draggable={!s.locked}
+                        onDragStart={(e) => { setDragFrom(i); e.dataTransfer.effectAllowed = "move"; }}
+                        onDragOver={(e) => { if (dragFrom !== null && !s.locked) e.preventDefault(); }}
+                        onDrop={(e) => {
+                          e.preventDefault();
+                          if (dragFrom === null) return;
+                          setQuote(null);
+                          setBestOrder(null);
+                          setStops((prev) => moveStop(prev, dragFrom, i));
+                          setDragFrom(null);
+                        }}
+                        onDragEnd={() => setDragFrom(null)}
+                        className={`flex flex-wrap items-center gap-3 rounded-xl border p-3 ${
+                          dragFrom === i ? "border-[var(--gold)] opacity-60" : "border-border"
+                        } ${s.locked ? "bg-[color-mix(in_oklab,var(--gold)_6%,var(--card))]" : ""}`}
+                      >
+                        <GripVertical
+                          className={`size-4 shrink-0 ${s.locked ? "text-muted-foreground/30" : "cursor-grab text-muted-foreground"}`}
+                          aria-hidden="true"
+                        />
+                        <span className="grid size-6 shrink-0 place-items-center rounded-full bg-[var(--navy)] text-[11px] font-bold text-[var(--navy-foreground)]">{i + 1}</span>
                         <p className="min-w-0 flex-1 truncate text-sm font-semibold">
                           {s.name}
                           {i === stops.length - 1 && stops.length > 1 && (
@@ -778,20 +848,22 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                             </span>
                           )}
                         </p>
+                        <button
+                          type="button"
+                          aria-pressed={!!s.locked}
+                          aria-label={s.locked ? `Unlock ${s.name} so it can move` : `Keep ${s.name} in this position`}
+                          title={s.locked ? "Fixed in this position" : "Fix in this position"}
+                          onClick={() => { setBestOrder(null); setStops((prev) => prev.map((x, j) => (j === i ? { ...x, locked: !x.locked } : x))); }}
+                          className={`rounded-md p-1 ${s.locked ? "text-[var(--gold-ink)]" : "text-muted-foreground hover:text-foreground"}`}
+                        >
+                          {s.locked ? <Lock className="size-4" /> : <LockOpen className="size-4" />}
+                        </button>
                         <span className="flex shrink-0 flex-col">
                           <button
                             type="button"
                             aria-label={`Move ${s.name} earlier`}
-                            disabled={i === 0}
-                            onClick={() => {
-                              setQuote(null);
-                              setStops((prev) => {
-                                const next = [...prev];
-                                const [moved] = next.splice(i, 1);
-                                next.splice(i - 1, 0, moved!);
-                                return next;
-                              });
-                            }}
+                            disabled={i === 0 || !!s.locked || !!stops[i - 1]?.locked}
+                            onClick={() => { setQuote(null); setBestOrder(null); setStops((prev) => moveStop(prev, i, i - 1)); }}
                             className="text-muted-foreground disabled:opacity-30"
                           >
                             <ChevronUp className="size-4" />
@@ -799,16 +871,8 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                           <button
                             type="button"
                             aria-label={`Move ${s.name} later`}
-                            disabled={i === stops.length - 1}
-                            onClick={() => {
-                              setQuote(null);
-                              setStops((prev) => {
-                                const next = [...prev];
-                                const [moved] = next.splice(i, 1);
-                                next.splice(i + 1, 0, moved!);
-                                return next;
-                              });
-                            }}
+                            disabled={i === stops.length - 1 || !!s.locked || !!stops[i + 1]?.locked}
+                            onClick={() => { setQuote(null); setBestOrder(null); setStops((prev) => moveStop(prev, i, i + 1)); }}
                             className="text-muted-foreground disabled:opacity-30"
                           >
                             <ChevronDown className="size-4" />
@@ -838,13 +902,82 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                           type="button"
                           variant="ghost"
                           size="icon"
-                          onClick={() => { setQuote(null); setStops((prev) => prev.filter((_, j) => j !== i)); }}
+                          onClick={() => { setQuote(null); setBestOrder(null); setStops((prev) => prev.filter((_, j) => j !== i)); }}
                           aria-label={`Remove ${s.name}`}
                         >
                           <Trash2 className="size-4" />
                         </Button>
                       </div>
                     ))}
+
+                    {stops.length >= 2 && (
+                      <div className="rounded-xl border border-border bg-background p-3">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            disabled={optimiseMutation.isPending || !start}
+                            onClick={() => optimiseMutation.mutate()}
+                          >
+                            {optimiseMutation.isPending ? <Loader2 className="size-4 animate-spin" /> : <Wand2 className="size-4" />}
+                            Find the quickest order
+                          </Button>
+                          {orderBeforeBest && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => { setQuote(null); setStops(orderBeforeBest); setOrderBeforeBest(null); setBestOrder(null); }}
+                            >
+                              <RotateCcw className="size-4" /> Restore my order
+                            </Button>
+                          )}
+                          <span className="text-xs text-muted-foreground">
+                            Drag stops or use the arrows. Lock a stop to keep it where it is. Your start and finish never move.
+                          </span>
+                        </div>
+                        {bestOrder && !bestOrder.changed && (
+                          <p className="mt-2 text-sm text-muted-foreground" role="status">
+                            Your order is already the quickest by road ({bestOrder.current.miles} miles, about {minutesLabel(bestOrder.current.driveMinutes)} driving).
+                          </p>
+                        )}
+                        {bestOrder && bestOrder.changed && (
+                          <div className="mt-3 rounded-lg border border-[var(--gold)]/50 bg-[color-mix(in_oklab,var(--gold)_10%,transparent)] p-3" role="status">
+                            <p className="text-sm font-semibold">
+                              A quicker order saves about {minutesLabel(bestOrder.current.driveMinutes - bestOrder.best.driveMinutes)} of driving
+                              ({bestOrder.current.miles} → {bestOrder.best.miles} miles).
+                            </p>
+                            <ol className="mt-2 list-decimal space-y-0.5 pl-5 text-sm">
+                              {bestOrder.order.map((idx) => (
+                                <li key={stops[idx]?.placeId ?? idx}>{stops[idx]?.name}</li>
+                              ))}
+                            </ol>
+                            <div className="mt-3 flex gap-2">
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="gold"
+                                onClick={() => {
+                                  setOrderBeforeBest(stops);
+                                  setQuote(null);
+                                  setStops(bestOrder.order.map((idx) => stops[idx]!).filter(Boolean));
+                                  setBestOrder(null);
+                                }}
+                              >
+                                Use this order
+                              </Button>
+                              <Button type="button" size="sm" variant="ghost" onClick={() => setBestOrder(null)}>
+                                Keep my order
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                        <p className="mt-2 text-[11px] text-muted-foreground">
+                          Driving times are road estimates and don't include time at stops, traffic or breaks.
+                        </p>
+                      </div>
+                    )}
                     <div className="flex items-end gap-2">
                       <div className="min-w-0 flex-1 space-y-1.5">
                         <Label htmlFor="tw-stop">Add a stop</Label>

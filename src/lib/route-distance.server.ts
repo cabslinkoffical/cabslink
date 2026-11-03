@@ -230,3 +230,56 @@ async function persistentCacheSet(
   }
 }
 
+
+// ---------- Best stop order (real road routes) ----------
+/**
+ * Ask Google Routes for the quickest order of the intermediate stops between a
+ * fixed origin and destination. Returns a permutation of waypoint indices.
+ */
+export async function optimiseWaypointOrder(input: {
+  originPlaceId: string;
+  destinationPlaceId: string;
+  waypointPlaceIds: string[];
+}): Promise<number[]> {
+  const { originPlaceId, destinationPlaceId, waypointPlaceIds } = input;
+  if (waypointPlaceIds.length < 2) return waypointPlaceIds.map((_, i) => i);
+  const apiKey = getGoogleMapsApiKey();
+  const lovableKey = process.env.LOVABLE_API_KEY;
+  if (!lovableKey) throw new RouteUnavailableError();
+
+  let res: Response;
+  try {
+    res = await fetch(`${GATEWAY_URL}/routes/directions/v2:computeRoutes`, {
+      method: "POST",
+      signal: AbortSignal.timeout(10_000),
+      headers: {
+        Authorization: `Bearer ${lovableKey}`,
+        "X-Connection-Api-Key": apiKey,
+        "Content-Type": "application/json",
+        "X-Goog-FieldMask": "routes.optimizedIntermediateWaypointIndex",
+      },
+      body: JSON.stringify({
+        origin: { placeId: originPlaceId },
+        destination: { placeId: destinationPlaceId },
+        intermediates: waypointPlaceIds.map((id) => ({ placeId: id })),
+        travelMode: "DRIVE",
+        routingPreference: "TRAFFIC_UNAWARE",
+        optimizeWaypointOrder: true,
+        languageCode: "en-GB",
+        units: "IMPERIAL",
+      }),
+    });
+  } catch (err) {
+    if ((err as Error).name === "TimeoutError" || (err as Error).name === "AbortError") throw new RouteTimeoutError();
+    throw new RouteUnavailableError();
+  }
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    console.error(`Routes optimise failed [${res.status}]: ${body.slice(0, 500)}`);
+    throw new RouteUnavailableError();
+  }
+  const json = (await res.json()) as { routes?: Array<{ optimizedIntermediateWaypointIndex?: number[] }> };
+  const order = json.routes?.[0]?.optimizedIntermediateWaypointIndex;
+  if (!order || order.length !== waypointPlaceIds.length) throw new RouteNotFoundError();
+  return order;
+}

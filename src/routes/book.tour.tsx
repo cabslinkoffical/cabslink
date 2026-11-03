@@ -25,6 +25,9 @@ const searchSchema = z.object({
   hours: z.coerce.number().int().min(1).max(24).optional(),
   passengers: z.coerce.number().int().min(1).max(80).optional(),
   luggage: z.coerce.number().int().min(0).max(80).optional(),
+  endPlaceId: z.string().trim().max(300).optional(),
+  endLabel: z.string().trim().max(300).optional(),
+  stops: z.string().trim().max(6000).optional(),
 });
 
 export const Route = createFileRoute("/book/tour")({
