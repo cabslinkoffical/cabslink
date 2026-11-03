@@ -1,5 +1,6 @@
 import type { ComponentType, ReactNode } from "react";
-import { Phone } from "lucide-react";
+import { BadgeCheck, Phone } from "lucide-react";
+import { FACT_TEXT } from "@/lib/site-facts";
 import { Breadcrumbs, type Crumb } from "@/components/seo/Breadcrumbs";
 import { BookingWidget } from "@/components/site/BookingWidget";
 import { SITE } from "@/lib/site";
@@ -117,6 +118,10 @@ export function LocalPageHero({
               mapFocus={mapFocus}
               showMap={showMap}
             />
+            <p className="mt-2 flex items-center gap-2 text-xs font-semibold text-[var(--navy-foreground)]">
+              <BadgeCheck className="size-4 shrink-0 text-[var(--gold)]" aria-hidden />
+              {FACT_TEXT.feesIncludedShort}
+            </p>
           </div>
         </div>
       </section>

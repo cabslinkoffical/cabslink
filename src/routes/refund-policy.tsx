@@ -37,7 +37,7 @@ export const Route = createFileRoute("/refund-policy")({
       <ul>
         <li>No-shows, and cancellations less than {T.halfFromHours} hours before pickup or after the driver has been dispatched.</li>
         <li>Delays caused by circumstances outside our reasonable control, where the journey was still completed.</li>
-        <li>Waiting time, extra stops, tolls, airport fees or cleaning charges already incurred.</li>
+        <li>Extra waiting time, extra stops or cleaning charges already incurred.</li>
       </ul>
 
       <h2>4. Tours</h2>

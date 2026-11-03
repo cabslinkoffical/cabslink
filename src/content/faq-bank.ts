@@ -25,7 +25,7 @@ export const FAQ_GROUPS: BankGroup[] = [
       {
         n: 2,
         q: "Is the price fixed, or can it change on the day?",
-        a: `The price is fixed when you book and does not change with traffic. It only changes if the booking changes: extra stops, a different route, or airport waiting beyond the free ${FACTS.airportWait.freeMinutes} minutes.`,
+        a: `The price is fixed when you book and does not change with traffic. It only changes if the booking changes: extra stops, a different route, or airport waiting beyond the free ${FACTS.airportWait.freeMinutes} minutes. ${FACT_TEXT.feesIncluded}`,
       },
       {
         n: 30,

@@ -25,6 +25,7 @@ export const Route = createFileRoute("/booking-policy")({
     <LegalPage eyebrow="Booking" title="Booking & Cancellation Policy" updated="30 August 2026">
       <h2>1. Confirmation</h2>
       <p>When you finish booking you receive an on-screen booking reference and an email. This means we have received your booking request. {FACT_TEXT.confirmationRule} If you do not receive a reference, the booking has not been placed — please contact us before travelling.</p>
+      <p><strong>What your fare includes:</strong> {FACT_TEXT.feesIncluded}</p>
 
       <h2>2. Changes</h2>
       <p>You can change the pickup time, route, stops or vehicle class free of charge up to 6 hours before pickup, subject to availability. Later changes are accommodated where possible; a change that increases distance, duration or vehicle class may increase the fare.</p>
