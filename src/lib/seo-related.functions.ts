@@ -64,13 +64,34 @@ export const getRelatedSeoLinks = createServerFn({ method: "GET" })
       services: [],
     };
 
-    // Always: featured services
-    const { data: services } = await supabase
+    // Independent reads run together: featured services, this entity's
+    // coordinates and its popular routes.
+    const servicesP = supabase
       .from("seo_services")
       .select("name, slug, short_description")
       .eq("published", true)
       .order("display_priority", { ascending: true })
       .limit(6);
+    const centerP: PromiseLike<{ data: { latitude: unknown; longitude: unknown } | null }> =
+      data.entityType === "location"
+        ? supabase.from("seo_locations").select("latitude, longitude").eq("id", data.entityId).maybeSingle()
+        : data.entityType === "airport"
+          ? supabase.from("seo_airports").select("latitude, longitude").eq("id", data.entityId).maybeSingle()
+          : Promise.resolve({ data: null });
+    const routesQuery = supabase
+      .from("seo_popular_routes")
+      .select(
+        "slug, origin_entity_type, origin_entity_id, destination_entity_type, destination_entity_id, starting_price_pence_cache, direct_distance_miles_cache",
+      )
+      .eq("published", true)
+      .order("display_priority", { ascending: true })
+      .limit(8);
+    if (data.entityType === "location" || data.entityType === "airport") {
+      routesQuery.or(
+        `and(origin_entity_type.eq.${data.entityType},origin_entity_id.eq.${data.entityId}),and(destination_entity_type.eq.${data.entityType},destination_entity_id.eq.${data.entityId})`,
+      );
+    }
+    const [{ data: services }, { data: centerRow }, { data: routes }] = await Promise.all([servicesP, centerP, routesQuery]);
     // `/services/:slug` is not a real route — resolve each service to its
     // canonical top-level URL from the registry, and drop anything unknown so
     // we never emit a link that 404s.
@@ -89,31 +110,28 @@ export const getRelatedSeoLinks = createServerFn({ method: "GET" })
     let center: { lat: number; lng: number } | null = null;
     let selfId: string = data.entityId;
 
-    if (data.entityType === "location") {
-      const { data: loc } = await supabase
-        .from("seo_locations")
-        .select("latitude, longitude")
-        .eq("id", data.entityId)
-        .maybeSingle();
-      if (loc?.latitude != null && loc?.longitude != null) {
-        center = { lat: Number(loc.latitude), lng: Number(loc.longitude) };
-      }
-    } else if (data.entityType === "airport") {
-      const { data: ap } = await supabase
-        .from("seo_airports")
-        .select("latitude, longitude")
-        .eq("id", data.entityId)
-        .maybeSingle();
-      if (ap?.latitude != null && ap?.longitude != null) {
-        center = { lat: Number(ap.latitude), lng: Number(ap.longitude) };
-      }
+    if (centerRow?.latitude != null && centerRow?.longitude != null) {
+      center = { lat: Number(centerRow.latitude), lng: Number(centerRow.longitude) };
     }
 
+    // Resolve route endpoint labels alongside the nearby lists.
+    const needLoc = new Set<string>();
+    const needAir = new Set<string>();
+    (routes ?? []).forEach((r: any) => {
+      if (r.origin_entity_type === "location") needLoc.add(r.origin_entity_id);
+      if (r.destination_entity_type === "location") needLoc.add(r.destination_entity_id);
+      if (r.origin_entity_type === "airport") needAir.add(r.origin_entity_id);
+      if (r.destination_entity_type === "airport") needAir.add(r.destination_entity_id);
+    });
+    const none = Promise.resolve({ data: null as any[] | null });
+    const [{ data: airports }, { data: locs }, { data: locRows }, { data: airRows }] = await Promise.all([
+      center ? supabase.from("seo_airports").select("id, name, slug, iata_code, latitude, longitude").eq("published", true) : none,
+      center ? supabase.from("seo_locations").select("id, name, slug, latitude, longitude").eq("published", true) : none,
+      needLoc.size ? supabase.from("seo_locations").select("id, name").in("id", Array.from(needLoc)) : none,
+      needAir.size ? supabase.from("seo_airports").select("id, name, iata_code").in("id", Array.from(needAir)) : none,
+    ]);
+
     if (center) {
-      const { data: airports } = await supabase
-        .from("seo_airports")
-        .select("id, name, slug, iata_code, latitude, longitude")
-        .eq("published", true);
       const scored = (airports ?? [])
         .filter((a: any) => a.id !== selfId && a.latitude != null && a.longitude != null && a.iata_code)
         .map((a: any) => ({
@@ -128,10 +146,6 @@ export const getRelatedSeoLinks = createServerFn({ method: "GET" })
         description: `${d.toFixed(0)} mi away`,
       }));
 
-      const { data: locs } = await supabase
-        .from("seo_locations")
-        .select("id, name, slug, latitude, longitude")
-        .eq("published", true);
       const nearCities = (locs ?? [])
         .filter((l: any) => l.id !== selfId && l.latitude != null && l.longitude != null)
         .map((l: any) => ({
@@ -147,51 +161,12 @@ export const getRelatedSeoLinks = createServerFn({ method: "GET" })
       }));
     }
 
-    // Popular routes involving this entity (or globally featured for services)
-    const routesQuery = supabase
-      .from("seo_popular_routes")
-      .select(
-        "slug, origin_entity_type, origin_entity_id, destination_entity_type, destination_entity_id, starting_price_pence_cache, direct_distance_miles_cache",
-      )
-      .eq("published", true)
-      .order("display_priority", { ascending: true })
-      .limit(8);
-
-    if (data.entityType === "location" || data.entityType === "airport") {
-      routesQuery.or(
-        `and(origin_entity_type.eq.${data.entityType},origin_entity_id.eq.${data.entityId}),and(destination_entity_type.eq.${data.entityType},destination_entity_id.eq.${data.entityId})`,
-      );
-    }
-    const { data: routes } = await routesQuery;
-
-    // Resolve endpoint labels
-    const needLoc = new Set<string>();
-    const needAir = new Set<string>();
-    (routes ?? []).forEach((r: any) => {
-      if (r.origin_entity_type === "location") needLoc.add(r.origin_entity_id);
-      if (r.destination_entity_type === "location") needLoc.add(r.destination_entity_id);
-      if (r.origin_entity_type === "airport") needAir.add(r.origin_entity_id);
-      if (r.destination_entity_type === "airport") needAir.add(r.destination_entity_id);
-    });
-
     const locMap = new Map<string, string>();
-    if (needLoc.size) {
-      const { data: rows } = await supabase
-        .from("seo_locations")
-        .select("id, name")
-        .in("id", Array.from(needLoc));
-      (rows ?? []).forEach((r: any) => locMap.set(r.id, r.name));
-    }
+    (locRows ?? []).forEach((r: any) => locMap.set(r.id, r.name));
     const airMap = new Map<string, string>();
-    if (needAir.size) {
-      const { data: rows } = await supabase
-        .from("seo_airports")
-        .select("id, name, iata_code")
-        .in("id", Array.from(needAir));
-      (rows ?? []).forEach((r: any) =>
-        airMap.set(r.id, r.iata_code ? `${r.name} (${String(r.iata_code).toUpperCase()})` : r.name),
-      );
-    }
+    (airRows ?? []).forEach((r: any) =>
+      airMap.set(r.id, r.iata_code ? `${r.name} (${String(r.iata_code).toUpperCase()})` : r.name),
+    );
 
     const nameFor = (t: string, id: string) =>
       t === "airport" ? airMap.get(id) ?? "Airport" : locMap.get(id) ?? "Location";

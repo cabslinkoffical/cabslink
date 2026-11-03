@@ -30,18 +30,21 @@ export const Route = createFileRoute("/airports/$iata")({
     // 1) Try CMS SEO page first (published rich page).
     const page = await getPublicSeoPageByPath({ data: { path: `/airports/${key}` } }).catch(() => null);
     if (page) {
-      const related = await getRelatedSeoLinks({
-        data: { entityType: page.primary_entity_type as any, entityId: page.primary_entity_id },
-      }).catch(() => null);
       const guide = guideFor(`/airports/${key}`);
-      const guideFares = guide?.routeSlugs?.length
-        ? await Promise.all(
-            guide.routeSlugs.map(async (slug) => ({
-              slug,
-              table: await getRouteFares({ data: { slug } }).catch(() => null),
-            })),
-          )
-        : [];
+      // Related links and every route fare table load at the same time.
+      const [related, guideFares] = await Promise.all([
+        getRelatedSeoLinks({
+          data: { entityType: page.primary_entity_type as any, entityId: page.primary_entity_id },
+        }).catch(() => null),
+        guide?.routeSlugs?.length
+          ? Promise.all(
+              guide.routeSlugs.map(async (slug) => ({
+                slug,
+                table: await getRouteFares({ data: { slug } }).catch(() => null),
+              })),
+            )
+          : Promise.resolve([]),
+      ]);
       return { mode: "cms" as const, page, related, guideFares };
     }
 
