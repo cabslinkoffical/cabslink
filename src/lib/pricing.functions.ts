@@ -1,3 +1,4 @@
+import { vehicleFits } from "@/lib/vehicle-capacity";
 import { FACT_TEXT } from "@/lib/site-facts";
 import { childSeatChoices, childSeatsLabel, TOO_MANY_SEATS } from "@/lib/child-seats";
 import { flightNumberError } from "@/lib/flight-number";
@@ -649,11 +650,7 @@ export const createBooking = createServerFn({ method: "POST" })
     const profile = auth.profiles.find((p: LoadedProfile) => p.vehicle.id === data.vehicleId);
     if (!profile) throw new Error("Selected vehicle is unavailable.");
     const qty = Math.max(1, data.vehicleCount ?? 1);
-    if (
-      profile.vehicle.passengers * qty < data.passengers ||
-      profile.vehicle.luggage * qty < data.luggage ||
-      (profile.vehicle.hand_luggage > 0 && profile.vehicle.hand_luggage * qty < data.handLuggage)
-    ) {
+    if (!vehicleFits(profile.vehicle, qty, { passengers: data.passengers, luggage: data.luggage, handLuggage: data.handLuggage ?? 0 })) {
       throw new Error("Selected vehicles cannot fit the requested passengers/luggage.");
     }
 
@@ -1451,11 +1448,7 @@ export async function repriceExistingBooking(args: {
   if (!profile) throw new Error("The vehicle on this booking is no longer bookable online. Please call us so we can change it for you.");
 
   const qty = Math.max(1, args.vehicleCount ?? 1);
-  if (
-    profile.vehicle.passengers * qty < args.passengers ||
-    profile.vehicle.luggage * qty < args.luggage ||
-    (profile.vehicle.hand_luggage > 0 && profile.vehicle.hand_luggage * qty < args.handLuggage)
-  ) {
+  if (!vehicleFits(profile.vehicle, qty, { passengers: args.passengers, luggage: args.luggage, handLuggage: args.handLuggage ?? 0 })) {
     throw new Error(
       `Your ${profile.vehicle.name} seats ${profile.vehicle.passengers * qty} with ${profile.vehicle.luggage * qty} suitcases. Please reduce the numbers or call us to move to a larger vehicle.`,
     );
