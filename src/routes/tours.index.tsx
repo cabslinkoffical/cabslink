@@ -126,9 +126,12 @@ function ToursPage() {
 
   const themes = useMemo(
     () =>
-      Array.from(new Set(allTours.map((t) => t.theme_group).filter((t): t is string => !!t))).sort((a, b) =>
-        a.localeCompare(b),
-      ),
+      // Admin-set category order (Tour categories), then A–Z for anything unordered.
+      Array.from(new Set(allTours.map((t) => t.theme_group).filter((t): t is string => !!t))).sort((a, b) => {
+        const oa = allTours.find((t) => t.theme_group === a)?.category_order ?? 1e6;
+        const ob = allTours.find((t) => t.theme_group === b)?.category_order ?? 1e6;
+        return oa - ob || a.localeCompare(b);
+      }),
     [allTours],
   );
 

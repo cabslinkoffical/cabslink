@@ -49,6 +49,8 @@ const POI_FIELDS =
   "id, slug, name, short_description, category, image_url, recommended_visit_minutes, minimum_visit_minutes, maximum_visit_minutes, stop_fee_pence, parking_fee_pence, admission_note, opening_hours_note, featured, place_id";
 
 export type PublicTourListItem = {
+  /** Position of the tour's category in the admin-managed category order (Tours page filters). */
+  category_order?: number | null;
   slug: string;
   name: string;
   short_description: string | null;
@@ -284,9 +286,15 @@ export async function listPublishedToursImpl(): Promise<PublicTourListItem[]> {
     }
   }
   const rows = (templates ?? []) as any[];
-  const [rates, fixed] = await Promise.all([tourClassRates(), fixedTourPrices(ids)]);
+  const [rates, fixed, cats] = await Promise.all([
+    tourClassRates(),
+    fixedTourPrices(ids),
+    client.from("tour_categories").select("name, sort_order").order("sort_order"),
+  ]);
+  const catOrder = new Map<string, number>(((cats as any).data ?? []).map((c: any, i: number) => [c.name, i]));
   return rows.map((t: any) => {
     const item = toListItem(t, counts.get(t.id) ?? 0);
+    item.category_order = t.theme_group ? catOrder.get(t.theme_group) ?? null : null;
     item.starting_price_pence = tourStartingPricePence(t, rates, fixed);
     item.price_covers = tourCoversFor(t, rates, fixed);
     return item;
