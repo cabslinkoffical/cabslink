@@ -81,7 +81,7 @@ function TravelSolutionsHub() {
         eyebrow="Travel solutions"
         title="Travel built around who's travelling."
         subtitle="Start from your situation — a client visit, an arrival week, a family holiday, a 40-person conference — and we'll match it to the right service, vehicle class and price."
-        primaryLabel="Get a quote"
+        primaryLabel="Get a fixed price"
         primaryTo="/book"
         breadcrumbs={[{ label: "Home", to: "/" }, { label: "Travel solutions" }]}
       />

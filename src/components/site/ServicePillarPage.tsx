@@ -92,7 +92,7 @@ export function ServicePillarPage({ content }: { content: PillarContent }) {
         eyebrow={content.eyebrow}
         title={content.h1}
         subtitle={content.subtitle}
-        primaryLabel="Get a quote"
+        primaryLabel="Get a fixed price"
         primaryTo="/book"
         breadcrumbs={[
           { label: "Home", to: "/" },

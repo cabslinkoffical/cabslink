@@ -89,7 +89,7 @@ export function HubPage({
           </p>
           <div className="mt-5 flex flex-wrap justify-center gap-3">
             <Link to="/book" className="rounded-full bg-[var(--gold)] px-6 py-3 font-semibold text-[var(--navy)]">
-              Get an instant quote
+              Get a fixed price
             </Link>
             <Link to="/areas" className="rounded-full border border-[var(--navy)]/20 px-6 py-3 font-semibold text-[var(--navy)]">
               Browse all locations

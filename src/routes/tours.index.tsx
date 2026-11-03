@@ -151,6 +151,8 @@ function ToursPage() {
     <SiteLayout ctaSubtitle="Tell us your dates and we will build the itinerary and quote around you." cta={{ heading: <>Plan your <span className="text-gold">private tour</span></>, label: "Plan a tour", to: "/book/tour", trackAs: "final_cta_tours" }}>
       <PageHero
         eyebrow="Private Driver Tours"
+        primaryLabel="Plan a tour"
+        primaryTo="/book/tour"
         title="Private day tours and hourly car hire in Scotland"
         subtitle="Ready-made private day tours from Edinburgh, each with its own price per vehicle, or build your own day — your start, your stops, your finish. Need a car by the hour instead? Choose Hourly Hire."
 
