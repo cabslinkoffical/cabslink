@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { childSeatsLabel, parseChildSeats } from "@/lib/child-seats";
+import { coverLabel } from "@/lib/cancellation-cover";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 

@@ -2,6 +2,7 @@ import { getClientIp } from "@/lib/client-ip.server";
 // Public + admin server functions for the booking lifecycle.
 
 import { childSeatsLabel, parseChildSeats } from "@/lib/child-seats";
+import { coverLabel } from "@/lib/cancellation-cover";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
@@ -58,7 +59,7 @@ export const getBookingByToken = createServerFn({ method: "POST" })
     const amountDuePence = await payableBookingPence(supabaseAdmin, paymentBooking);
     const seatRow: any = await supabaseAdmin
       .from("bookings")
-      .select("child_seat_types, child_seat_count")
+      .select("child_seat_types, child_seat_count, cancellation_cover, cancellation_cover_amount")
       .eq("booking_ref", row.booking_ref)
       .maybeSingle();
     const { parseChildSeats, childSeatsLabel } = await import("@/lib/child-seats");
@@ -86,6 +87,7 @@ export const getBookingByToken = createServerFn({ method: "POST" })
       flightNumber: row.flight_number,
       childSeat: !!row.child_seat,
       childSeatsText,
+      cancellationCoverText: coverLabel(seatRow?.data?.cancellation_cover, seatRow?.data?.cancellation_cover_amount),
       meetGreet: !!row.meet_greet,
       returnJourney: !!row.return_journey,
       price: row.price == null ? null : Number(row.price),

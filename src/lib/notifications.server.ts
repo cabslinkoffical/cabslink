@@ -14,6 +14,7 @@
 //   not roll back a booking.
 
 import { childSeatsLabel, parseChildSeats } from "@/lib/child-seats";
+import { coverLabel } from "@/lib/cancellation-cover";
 import {
   getEmailAdapter,
   type EmailErrorCategory,
