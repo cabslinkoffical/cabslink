@@ -244,7 +244,6 @@ function RequestDetail({ id }: { id: string }) {
           startPlaceId={r.start_place_id}
           startLabel={r.start_label}
           stops={[...stops.map((s) => ({ placeId: s.placeId, name: s.name })), ...(r.end_place_id && r.end_place_id !== r.start_place_id ? [{ placeId: r.end_place_id, name: r.end_label ?? "Finish" }] : [])]}
-          className="h-64 w-full overflow-hidden rounded-2xl"
         />
       </section>
 

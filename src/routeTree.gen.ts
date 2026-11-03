@@ -111,6 +111,7 @@ import { Route as AuthenticatedCabsBookingPannelBannedAddressesRouteImport } fro
 import { Route as AuthenticatedCabsBookingPannelBookingsRouteImport } from './routes/_authenticated/cabs-booking-pannel/bookings'
 import { Route as AuthenticatedCabsBookingPannelCancellationsRouteImport } from './routes/_authenticated/cabs-booking-pannel/cancellations'
 import { Route as AuthenticatedCabsBookingPannelCouponsRouteImport } from './routes/_authenticated/cabs-booking-pannel/coupons'
+import { Route as AuthenticatedCabsBookingPannelCustomTourRequestsRouteImport } from './routes/_authenticated/cabs-booking-pannel/custom-tour-requests'
 import { Route as AuthenticatedCabsBookingPannelCustomersRouteImport } from './routes/_authenticated/cabs-booking-pannel/customers'
 import { Route as AuthenticatedCabsBookingPannelDispatchRouteImport } from './routes/_authenticated/cabs-booking-pannel/dispatch'
 import { Route as AuthenticatedCabsBookingPannelDriversRouteImport } from './routes/_authenticated/cabs-booking-pannel/drivers'
@@ -677,6 +678,12 @@ const AuthenticatedCabsBookingPannelCouponsRoute =
     path: '/coupons',
     getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
+const AuthenticatedCabsBookingPannelCustomTourRequestsRoute =
+  AuthenticatedCabsBookingPannelCustomTourRequestsRouteImport.update({
+    id: '/custom-tour-requests',
+    path: '/custom-tour-requests',
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
+  } as any)
 const AuthenticatedCabsBookingPannelCustomersRoute =
   AuthenticatedCabsBookingPannelCustomersRouteImport.update({
     id: '/customers',
@@ -1030,6 +1037,7 @@ export interface FileRoutesByFullPath {
   '/cabs-booking-pannel/bookings': typeof AuthenticatedCabsBookingPannelBookingsRoute
   '/cabs-booking-pannel/cancellations': typeof AuthenticatedCabsBookingPannelCancellationsRoute
   '/cabs-booking-pannel/coupons': typeof AuthenticatedCabsBookingPannelCouponsRoute
+  '/cabs-booking-pannel/custom-tour-requests': typeof AuthenticatedCabsBookingPannelCustomTourRequestsRoute
   '/cabs-booking-pannel/customers': typeof AuthenticatedCabsBookingPannelCustomersRoute
   '/cabs-booking-pannel/dispatch': typeof AuthenticatedCabsBookingPannelDispatchRoute
   '/cabs-booking-pannel/drivers': typeof AuthenticatedCabsBookingPannelDriversRoute
@@ -1174,6 +1182,7 @@ export interface FileRoutesByTo {
   '/cabs-booking-pannel/bookings': typeof AuthenticatedCabsBookingPannelBookingsRoute
   '/cabs-booking-pannel/cancellations': typeof AuthenticatedCabsBookingPannelCancellationsRoute
   '/cabs-booking-pannel/coupons': typeof AuthenticatedCabsBookingPannelCouponsRoute
+  '/cabs-booking-pannel/custom-tour-requests': typeof AuthenticatedCabsBookingPannelCustomTourRequestsRoute
   '/cabs-booking-pannel/customers': typeof AuthenticatedCabsBookingPannelCustomersRoute
   '/cabs-booking-pannel/dispatch': typeof AuthenticatedCabsBookingPannelDispatchRoute
   '/cabs-booking-pannel/drivers': typeof AuthenticatedCabsBookingPannelDriversRoute
@@ -1322,6 +1331,7 @@ export interface FileRoutesById {
   '/_authenticated/cabs-booking-pannel/bookings': typeof AuthenticatedCabsBookingPannelBookingsRoute
   '/_authenticated/cabs-booking-pannel/cancellations': typeof AuthenticatedCabsBookingPannelCancellationsRoute
   '/_authenticated/cabs-booking-pannel/coupons': typeof AuthenticatedCabsBookingPannelCouponsRoute
+  '/_authenticated/cabs-booking-pannel/custom-tour-requests': typeof AuthenticatedCabsBookingPannelCustomTourRequestsRoute
   '/_authenticated/cabs-booking-pannel/customers': typeof AuthenticatedCabsBookingPannelCustomersRoute
   '/_authenticated/cabs-booking-pannel/dispatch': typeof AuthenticatedCabsBookingPannelDispatchRoute
   '/_authenticated/cabs-booking-pannel/drivers': typeof AuthenticatedCabsBookingPannelDriversRoute
@@ -1470,6 +1480,7 @@ export interface FileRouteTypes {
     | '/cabs-booking-pannel/bookings'
     | '/cabs-booking-pannel/cancellations'
     | '/cabs-booking-pannel/coupons'
+    | '/cabs-booking-pannel/custom-tour-requests'
     | '/cabs-booking-pannel/customers'
     | '/cabs-booking-pannel/dispatch'
     | '/cabs-booking-pannel/drivers'
@@ -1614,6 +1625,7 @@ export interface FileRouteTypes {
     | '/cabs-booking-pannel/bookings'
     | '/cabs-booking-pannel/cancellations'
     | '/cabs-booking-pannel/coupons'
+    | '/cabs-booking-pannel/custom-tour-requests'
     | '/cabs-booking-pannel/customers'
     | '/cabs-booking-pannel/dispatch'
     | '/cabs-booking-pannel/drivers'
@@ -1761,6 +1773,7 @@ export interface FileRouteTypes {
     | '/_authenticated/cabs-booking-pannel/bookings'
     | '/_authenticated/cabs-booking-pannel/cancellations'
     | '/_authenticated/cabs-booking-pannel/coupons'
+    | '/_authenticated/cabs-booking-pannel/custom-tour-requests'
     | '/_authenticated/cabs-booking-pannel/customers'
     | '/_authenticated/cabs-booking-pannel/dispatch'
     | '/_authenticated/cabs-booking-pannel/drivers'
@@ -2623,6 +2636,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCabsBookingPannelCouponsRouteImport
       parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
+    '/_authenticated/cabs-booking-pannel/custom-tour-requests': {
+      id: '/_authenticated/cabs-booking-pannel/custom-tour-requests'
+      path: '/custom-tour-requests'
+      fullPath: '/cabs-booking-pannel/custom-tour-requests'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelCustomTourRequestsRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
+    }
     '/_authenticated/cabs-booking-pannel/customers': {
       id: '/_authenticated/cabs-booking-pannel/customers'
       path: '/customers'
@@ -2951,6 +2971,7 @@ interface AuthenticatedCabsBookingPannelRouteRouteChildren {
   AuthenticatedCabsBookingPannelBookingsRoute: typeof AuthenticatedCabsBookingPannelBookingsRoute
   AuthenticatedCabsBookingPannelCancellationsRoute: typeof AuthenticatedCabsBookingPannelCancellationsRoute
   AuthenticatedCabsBookingPannelCouponsRoute: typeof AuthenticatedCabsBookingPannelCouponsRoute
+  AuthenticatedCabsBookingPannelCustomTourRequestsRoute: typeof AuthenticatedCabsBookingPannelCustomTourRequestsRoute
   AuthenticatedCabsBookingPannelCustomersRoute: typeof AuthenticatedCabsBookingPannelCustomersRoute
   AuthenticatedCabsBookingPannelDispatchRoute: typeof AuthenticatedCabsBookingPannelDispatchRoute
   AuthenticatedCabsBookingPannelDriversRoute: typeof AuthenticatedCabsBookingPannelDriversRoute
@@ -3006,6 +3027,8 @@ const AuthenticatedCabsBookingPannelRouteRouteChildren: AuthenticatedCabsBooking
       AuthenticatedCabsBookingPannelCancellationsRoute,
     AuthenticatedCabsBookingPannelCouponsRoute:
       AuthenticatedCabsBookingPannelCouponsRoute,
+    AuthenticatedCabsBookingPannelCustomTourRequestsRoute:
+      AuthenticatedCabsBookingPannelCustomTourRequestsRoute,
     AuthenticatedCabsBookingPannelCustomersRoute:
       AuthenticatedCabsBookingPannelCustomersRoute,
     AuthenticatedCabsBookingPannelDispatchRoute:
