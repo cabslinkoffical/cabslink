@@ -58,6 +58,8 @@ export async function computeStartingPriceForTemplate(templateId: string): Promi
 
   let route: { miles: number; minutes: number };
   try {
+    // Loop tours (same start and finish) need their stops to have a route.
+    if (defaultPois.length === 0 && template.origin_place_id === template.destination_place_id) return null;
     route = defaultPois.length === 0
       ? await realDistanceMiles(template.origin_place_id, template.destination_place_id, [])
       : await realDistanceMiles(

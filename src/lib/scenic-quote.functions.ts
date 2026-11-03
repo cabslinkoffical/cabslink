@@ -170,7 +170,10 @@ export async function computeStopEconomics(data: StopEconomicsInput) {
   }
   const poiFees = await loadPoiFeesByPlaceId(data.stops.map((s) => s.place_id));
   const [direct, withStops] = await Promise.all([
-    realDistanceMiles(data.pickup_place_id, data.destination_place_id, []),
+    // A loop tour has no direct leg: going straight there is zero miles.
+    data.pickup_place_id === data.destination_place_id && data.stops.length > 0
+      ? Promise.resolve({ miles: 0, minutes: 0 })
+      : realDistanceMiles(data.pickup_place_id, data.destination_place_id, []),
     data.stops.length === 0
       ? Promise.resolve({ miles: 0, minutes: 0 })
       : realDistanceMiles(data.pickup_place_id, data.destination_place_id, data.stops.map((s) => s.place_id)),

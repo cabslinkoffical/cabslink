@@ -62,10 +62,14 @@ export async function realDistanceMiles(
   destinationPlaceId: string,
   waypointPlaceIds: string[] = [],
 ): Promise<{ miles: number; minutes: number }> {
+  // A tour that starts and finishes at the same place is a loop through its
+  // stops. Without any stops, the same start and finish stays an invalid trip.
+  const loop = pickupPlaceId === destinationPlaceId && waypointPlaceIds.length > 0;
   const r = await computeRoute({
     originPlaceId: pickupPlaceId,
     destinationPlaceId: destinationPlaceId,
     waypointPlaceIds,
+    allowLoop: loop,
   });
   const minutes = r.durationSeconds > 0
     ? Math.round(r.durationSeconds / 60)
