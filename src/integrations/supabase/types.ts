@@ -615,6 +615,8 @@ export type Database = {
           booked_hours: number | null
           booking_mode: string | null
           booking_ref: string | null
+          cancellation_cover: string | null
+          cancellation_cover_amount: number | null
           cancellation_reason: string | null
           child_seat: boolean
           child_seat_count: number
@@ -704,6 +706,8 @@ export type Database = {
           booked_hours?: number | null
           booking_mode?: string | null
           booking_ref?: string | null
+          cancellation_cover?: string | null
+          cancellation_cover_amount?: number | null
           cancellation_reason?: string | null
           child_seat?: boolean
           child_seat_count?: number
@@ -793,6 +797,8 @@ export type Database = {
           booked_hours?: number | null
           booking_mode?: string | null
           booking_ref?: string | null
+          cancellation_cover?: string | null
+          cancellation_cover_amount?: number | null
           cancellation_reason?: string | null
           child_seat?: boolean
           child_seat_count?: number

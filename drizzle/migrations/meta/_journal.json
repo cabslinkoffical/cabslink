@@ -113,6 +113,13 @@
       "when": 1793715970372,
       "tag": "0015_tour_stop_mandatory_backfill",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1793717883911,
+      "tag": "0016_booking_cancellation_cover",
+      "breakpoints": true
     }
   ]
 }
