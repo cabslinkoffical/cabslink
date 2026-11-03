@@ -1,3 +1,4 @@
+import { FACT_TEXT } from "@/lib/site-facts";
 import { normalizeHead } from "@/lib/seo/page-head";
 import { vehicleAlt } from "@/lib/vehicle-alt";
 import { createFileRoute, Link } from "@tanstack/react-router";
