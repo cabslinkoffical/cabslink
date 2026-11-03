@@ -18,7 +18,7 @@ export const ABOUT = {
   team: null as string | null,
   howItWorks: [
     "Enter your journey and get a fixed price",
-    "Pay by card to confirm",
+    "Pay by card, or arrange cash or bank transfer",
     "Your driver is assigned",
     "Airport pickups are flight-tracked",
     "Your driver meets you",

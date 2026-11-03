@@ -10,7 +10,7 @@ import type { PlaceGuide } from "@/content/place-guides";
 const CANCEL =
   "Transfers can be cancelled free of charge more than 12 hours before pickup. Between 3 and 12 hours the charge is half the fare, and under 3 hours it is the full fare.";
 const PAY =
-  "You pay by card through Stripe at the end of the booking, using Visa, Mastercard or American Express. No card details are stored on cabslink.com.";
+  "You pay by card through Stripe at the end of the booking, using Visa, Mastercard or American Express, or pay another way: cash, bank transfer or another method agreed with our team. No card details are stored on cabslink.com.";
 
 const COMMON_OWNER_FACTS = [
   "Exact driver waiting point at the station",
@@ -138,7 +138,7 @@ export const STATION_GUIDES: PlaceGuide[] = [
         ],
       },
       {
-        heading: "Cancellation and card payment",
+        heading: "Cancellation and payment",
         paragraphs: [
           `${CANCEL} ${PAY} The quote you see is the price you pay.`,
         ],

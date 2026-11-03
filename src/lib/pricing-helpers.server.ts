@@ -1,3 +1,4 @@
+import { classCapacity } from "@/lib/vehicle-capacity";
 import { createClient } from "@supabase/supabase-js";
 import {
   ENGINE_VERSION,
@@ -228,12 +229,7 @@ export async function loadActiveProfiles(client: ReturnType<typeof publicClient>
           name: c.name,
           category: c.slug,
           image_url: (typeof c.hero_image === "string" && c.hero_image.trim()) ? c.hero_image : v.image_url,
-          passengers: c.passengers,
-          luggage: c.large_luggage,
-          // Hand luggage = cabin bags carried in the cabin. The legacy
-          // `hand_luggage` column is unset on most classes, which made every
-          // ticket show "0 hand bags" while suitcases absorbed both counts.
-          hand_luggage: Number(c.cabin_bags ?? 0) || Number(c.hand_luggage ?? 0),
+          ...classCapacity(c),
           class_id: c.id,
           class_slug: c.slug,
           class_name: c.name,
