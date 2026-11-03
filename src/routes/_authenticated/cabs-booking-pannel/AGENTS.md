@@ -6,3 +6,4 @@
 - Console dates, "today", report ranges and chart buckets use src/lib/uk-time.ts (Europe/London calendar days, exclusive next-day end) so figures match UK business days in GMT and BST.
 - Dashboard and report booking counts reuse the booking-tab rules (bookingInTab and the shared status groups in src/lib/admin-bookings.ts), so a figure always matches the list it opens.
 - Staff payment edits go through upsertPayment/deletePayment, which protect processor-owned card rows and re-derive the booking's paid state from the ledger after every change.
+- Admin totals/reports read complete data via fetchAllPages (stable order); revenue is net of refunds and dated by paid_at, else created_at, via shared revenue helpers.
