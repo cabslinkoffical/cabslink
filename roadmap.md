@@ -209,3 +209,7 @@
 - [x] Owner list part 11 (admin tidy-up): admin test-quote list shows only the 12 real vehicle classes (old unlinked Saloon + Coach Bus rows hidden, not deleted; tests). Additional Pickup extra was found switched ON and was switched off to match the owner's instruction. Signed-in admin page view not checked (no matching admin login for the test browser). No publication.
 - [x] Owner list part 12 (untrue wording): fixed the listed sentences on home/About/booking policy/corporate/services/cruise/group/Edinburgh; home Google reviews show each review once (static grid). Browser-checked 8 pages; tests added. Follow-up done: shared waiting sentence and FAQ 39 now say hourly per-vehicle rate shown at booking (per-minute figures removed from facts); route-page 'meet & greet is standard' replaced with the optional-extra sentence; 202-page scan clean. No publication.
 - [x] Part 13 final check: ran card (sandbox), cash, tour quote/booking, Meet & Greet, child seats, change up/down and live speed baseline; fixed amendment top-up/refund mismatch, tour default vehicle order, request-only label; checklist PDF delivered; test bookings removed. Open owner decisions listed in checklist. Nothing published.
+
+## Owner requests (3 Nov, late)
+- [ ] Secure all API keys: audit code, browser bundle, logs and database for exposed keys
+- [ ] Meet & Greet costs extra: one policy everywhere; change every FAQ/airport answer that says included
