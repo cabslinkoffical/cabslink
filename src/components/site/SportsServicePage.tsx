@@ -26,7 +26,7 @@ export function SportsServicePage({ content }: { content: SportsServiceContent }
         eyebrow={content.eyebrow}
         title={content.h1}
         subtitle={content.subtitle}
-        primaryLabel="Get a quote"
+        primaryLabel="Get a fixed price"
         primaryTo="/book"
         breadcrumbs={[
           { label: "Home", to: "/" },
@@ -62,7 +62,7 @@ export function SportsServicePage({ content }: { content: SportsServiceContent }
             </ul>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button asChild variant="gold" className="rounded-lg">
-                <Link to="/contact">Request a quote <ArrowRight className="size-4" /></Link>
+                <Link to="/book">Get a fixed price <ArrowRight className="size-4" /></Link>
               </Button>
               <Button asChild variant="outline" className="rounded-lg">
                 <Link to="/fleet">View vehicle classes</Link>

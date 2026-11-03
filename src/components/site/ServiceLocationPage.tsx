@@ -67,7 +67,7 @@ export function ServiceLocationPage({ content }: { content: ServiceLocationConte
           footer: (
             <div className="mt-8 flex flex-wrap gap-3">
               <Button asChild variant="gold" className="rounded-lg">
-                <Link to="/book">Book online <ArrowRight className="size-4" /></Link>
+                <Link to="/book">Get a fixed price <ArrowRight className="size-4" /></Link>
               </Button>
               <Button asChild variant="outline" className="rounded-lg">
                 <Link to="/areas/$slug" params={{ slug: loc.slug }}>About {loc.name}</Link>

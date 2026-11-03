@@ -31,7 +31,7 @@ const DEFAULT_SUBTITLE =
 export function FinalCta({
   heading,
   subtitle = DEFAULT_SUBTITLE,
-  label = "Book Now",
+  label = "Get a fixed price",
   to = "/book",
   search,
   href,

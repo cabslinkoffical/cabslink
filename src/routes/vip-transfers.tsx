@@ -103,7 +103,7 @@ function VipPage() {
                 </li>
               ))}
             </ul>
-            <Button asChild variant="gold" className="mt-8 rounded-full"><Link to="/contact">Request VIP service <ArrowRight className="size-4" /></Link></Button>
+            <Button asChild variant="gold" className="mt-8 rounded-full"><Link to="/book">Get a fixed price <ArrowRight className="size-4" /></Link></Button>
           </div>
         </div>
       </section>

@@ -95,7 +95,7 @@ export const SERVICE_PILLARS: Record<string, PillarContent> = {
       "Suited, experienced professional driver",
       "Complimentary bottled water and phone charging",
       "Flight tracking with free waiting from the actual landing time",
-      "Meet and greet available on request",
+      "Optional meet and greet for a small extra charge",
       "Corporate account invoicing",
     ],
     coverage: DEFAULT_COVERAGE,

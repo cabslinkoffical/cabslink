@@ -1883,6 +1883,7 @@ function VehicleCard({ card, klass, trip, best, qty, minQty, disabled, disabledR
             {klass && klass.models.length > 0 && (
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--gold-ink)]">Typical models</p>
+                <p className="mt-0.5 text-[11.5px] text-[var(--navy)]/70">{FACT_TEXT.modelsTypical}</p>
                 <div className="mt-2 flex flex-wrap gap-1.5">
                   {klass.models.map((m) => (
                     <span key={m.id} className="rounded-full bg-[var(--navy)]/5 px-2.5 py-0.5 text-[11.5px] font-medium text-[var(--navy)]/80">

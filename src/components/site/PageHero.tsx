@@ -19,7 +19,7 @@ export function PageHero({
   subtitle,
   breadcrumbs,
   showCta = true,
-  primaryLabel = "Book now",
+  primaryLabel = "Get a fixed price",
   primaryTo = "/book",
   align = "center",
   width = "default",

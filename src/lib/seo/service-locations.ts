@@ -259,7 +259,7 @@ const SERVICE_ANGLES: Record<string, ServiceAngle> = {
       "Flight tracking: pickup adjusted to the actual landing time",
       "Fixed fare confirmed before you travel",
       "Free waiting time after landing",
-      "Meet and greet in arrivals on request",
+      "Optional meet and greet in arrivals, small extra charge",
       "Luggage-appropriate vehicle class",
       "24/7 booking and driver contact",
     ],
