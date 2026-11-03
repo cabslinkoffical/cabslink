@@ -134,6 +134,13 @@
       "when": 1793737671697,
       "tag": "0018_custom_tour_requests",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1793738562806,
+      "tag": "0019_custom_tour_requests_revoke_anon",
+      "breakpoints": true
     }
   ]
 }
