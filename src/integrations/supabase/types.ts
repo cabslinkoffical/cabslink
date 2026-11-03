@@ -1228,6 +1228,164 @@ export type Database = {
         }
         Relationships: []
       }
+      custom_tour_request_notes: {
+        Row: {
+          author_email: string | null
+          author_id: string | null
+          body: string
+          created_at: string
+          id: string
+          kind: string
+          request_id: string
+          visible_to_customer: boolean
+        }
+        Insert: {
+          author_email?: string | null
+          author_id?: string | null
+          body: string
+          created_at?: string
+          id?: string
+          kind?: string
+          request_id: string
+          visible_to_customer?: boolean
+        }
+        Update: {
+          author_email?: string | null
+          author_id?: string | null
+          body?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          request_id?: string
+          visible_to_customer?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "custom_tour_request_notes_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "custom_tour_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      custom_tour_requests: {
+        Row: {
+          booking_id: string | null
+          created_at: string
+          customer_name: string
+          customer_notes: string | null
+          drive_minutes: number | null
+          dwell_minutes: number | null
+          email: string
+          end_label: string | null
+          end_place_id: string | null
+          estimated_total: number | null
+          flight_number: string | null
+          hours: number
+          id: string
+          luggage: number
+          original_stops: Json | null
+          passengers: number
+          phone: string
+          price_note: string | null
+          price_snapshot: Json | null
+          quoted_total: number | null
+          reference_code: string
+          route_miles: number | null
+          start_label: string
+          start_place_id: string
+          start_time: string
+          status: string
+          stops: Json
+          tour_date: string
+          updated_at: string
+          vehicle_class_id: string | null
+          vehicle_name: string | null
+        }
+        Insert: {
+          booking_id?: string | null
+          created_at?: string
+          customer_name: string
+          customer_notes?: string | null
+          drive_minutes?: number | null
+          dwell_minutes?: number | null
+          email: string
+          end_label?: string | null
+          end_place_id?: string | null
+          estimated_total?: number | null
+          flight_number?: string | null
+          hours: number
+          id?: string
+          luggage?: number
+          original_stops?: Json | null
+          passengers: number
+          phone: string
+          price_note?: string | null
+          price_snapshot?: Json | null
+          quoted_total?: number | null
+          reference_code?: string
+          route_miles?: number | null
+          start_label: string
+          start_place_id: string
+          start_time: string
+          status?: string
+          stops?: Json
+          tour_date: string
+          updated_at?: string
+          vehicle_class_id?: string | null
+          vehicle_name?: string | null
+        }
+        Update: {
+          booking_id?: string | null
+          created_at?: string
+          customer_name?: string
+          customer_notes?: string | null
+          drive_minutes?: number | null
+          dwell_minutes?: number | null
+          email?: string
+          end_label?: string | null
+          end_place_id?: string | null
+          estimated_total?: number | null
+          flight_number?: string | null
+          hours?: number
+          id?: string
+          luggage?: number
+          original_stops?: Json | null
+          passengers?: number
+          phone?: string
+          price_note?: string | null
+          price_snapshot?: Json | null
+          quoted_total?: number | null
+          reference_code?: string
+          route_miles?: number | null
+          start_label?: string
+          start_place_id?: string
+          start_time?: string
+          status?: string
+          stops?: Json
+          tour_date?: string
+          updated_at?: string
+          vehicle_class_id?: string | null
+          vehicle_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "custom_tour_requests_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "custom_tour_requests_vehicle_class_id_fkey"
+            columns: ["vehicle_class_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       destination_keywords: {
         Row: {
           created_at: string
@@ -5074,6 +5232,7 @@ export type Database = {
       current_driver_id: { Args: never; Returns: string }
       dispatch_wake_delivery: { Args: never; Returns: undefined }
       generate_booking_ref: { Args: never; Returns: string }
+      generate_custom_tour_ref: { Args: never; Returns: string }
       get_booking_by_confirmation_hash: {
         Args: { _hash: string }
         Returns: {
