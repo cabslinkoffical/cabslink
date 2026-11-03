@@ -5,6 +5,8 @@
  * is left out — nothing is guessed.
  */
 
+import { includedMilesFor } from "@/lib/tour-quote";
+
 export type TourPriceCovers = {
   /** Hours with the driver included in the From price. */
   hours: number | null;
@@ -24,11 +26,9 @@ function pos(v: unknown): number | null {
   return Number.isFinite(n) && n > 0 ? n : null;
 }
 
-/** Same rule as the quote engine's includedMilesFor: the smallest tier covering the hours. */
+/** Same tier rule the quote engine uses. */
 function tierMiles(hours: number, tiers: Tier[]): number | null {
-  const sorted = [...tiers].sort((a, b) => a.hours - b.hours);
-  const t = sorted.find((x) => x.hours >= hours) ?? sorted[sorted.length - 1];
-  return t ? pos(t.included_miles) : null;
+  return pos(includedMilesFor(hours, tiers.map((t) => ({ ...t, is_bookable: true }))));
 }
 
 const TICKET_RE = /\b(tickets?|admission|entry fees?|entrance fees?)\b/i;
