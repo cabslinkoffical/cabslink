@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { ukDate, ukLocalToMs } from "@/lib/uk-time";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useNavigate } from "@tanstack/react-router";
@@ -59,7 +60,7 @@ export function BookingWidget({
 } = {}) {
   const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>("quote");
-  const today = new Date().toISOString().slice(0, 10);
+  const today = ukDate();
 
   const [pickup, setPickup] = useState<SelectedPlace | null>(null);
   const [dropoff, setDropoff] = useState<SelectedPlace | null>(null);
@@ -135,8 +136,9 @@ export function BookingWidget({
 
   const isPastDateTime = (d: string, t: string) => {
     if (!d || !t) return false;
-    const dt = new Date(`${d}T${t}`);
-    return !Number.isNaN(dt.getTime()) && dt.getTime() < Date.now() - 60_000;
+    // Pickup times are UK local time, whichever timezone the visitor's device uses.
+    const at = ukLocalToMs(d, t);
+    return at != null && at < Date.now() - 60_000;
   };
 
   

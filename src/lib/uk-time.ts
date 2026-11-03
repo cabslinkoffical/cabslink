@@ -66,3 +66,27 @@ export function ukBucket(at: string | Date, granularity: "day" | "week" | "month
   }
   return day;
 }
+
+/**
+ * The instant a UK wall-clock pickup (YYYY-MM-DD + HH:MM) happens, in ms.
+ * Pickup dates and times are entered as UK local time, so BST (late March
+ * to late October) puts them one hour earlier in UTC than in winter.
+ * Returns null for an unreadable date or time.
+ */
+export function ukLocalToMs(date: string | null | undefined, time?: string | null): number | null {
+  if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return null;
+  const tm = /^(\d{1,2}):(\d{2})/.exec((time ?? "").trim());
+  const [h, mi] = tm ? [Number(tm[1]), Number(tm[2])] : [0, 0];
+  if (h > 23 || mi > 59) return null;
+  const [y, m, d] = date.split("-").map(Number);
+  const asUtc = Date.UTC(y, m - 1, d, h, mi);
+  if (Number.isNaN(asUtc)) return null;
+  // Two passes so times either side of a clock change settle on the right offset.
+  const first = asUtc - ukOffsetMinutes(new Date(asUtc)) * 60000;
+  return asUtc - ukOffsetMinutes(new Date(first)) * 60000;
+}
+
+/** UK wall-clock time (HH:MM, 24h) of an instant. */
+export function ukClock(at: Date | string | number = new Date()): string {
+  return new Intl.DateTimeFormat("en-GB", { timeZone: UK_TZ, hourCycle: "h23", hour: "2-digit", minute: "2-digit" }).format(new Date(at));
+}

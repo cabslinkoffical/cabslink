@@ -12,6 +12,7 @@ import { setResponseHeader, setResponseStatus } from "@tanstack/react-start/serv
 import { z } from "zod";
 import { enforceRateLimit, LIMITS } from "@/lib/db-rate-limit.server";
 import { SITE } from "@/lib/site";
+import { ukLocalToMs } from "@/lib/uk-time";
 import { coverLabel, coverPromise, parseCover } from "@/lib/cancellation-cover";
 
 /**
@@ -136,12 +137,10 @@ export type ManagedBooking = {
 };
 
 
-/** Combine pickup date + "HH:MM" into a UTC-ish timestamp for window maths. */
-function pickupTimestamp(date: string | null, time: string | null): number | null {
-  if (!date) return null;
+/** Pickup date + "HH:MM" (UK local time, GMT or BST) as an instant for cut-off maths. */
+export function pickupTimestamp(date: string | null, time: string | null): number | null {
   const t = /^\d{1,2}:\d{2}$/.test(time ?? "") ? (time as string) : "00:00";
-  const ms = Date.parse(`${date}T${t.padStart(5, "0")}:00Z`);
-  return Number.isFinite(ms) ? ms : null;
+  return ukLocalToMs(date, t);
 }
 
 const TERMINAL = new Set(["cancelled", "rejected", "completed"]);

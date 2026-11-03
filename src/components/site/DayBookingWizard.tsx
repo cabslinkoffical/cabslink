@@ -4,6 +4,7 @@
  * path; `kind` only changes the wording, hides ready-made tours for hourly
  * hire and makes stops optional there.
  */
+import { ukDate } from "@/lib/uk-time";
 import { FACT_TEXT } from "@/lib/site-facts";
 import { flightNumberError, isAirportPickup } from "@/lib/flight-number";
 import { useEffect, useMemo, useState } from "react";
@@ -281,7 +282,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [classes.length, passengers]);
 
-  const today = new Date().toISOString().slice(0, 10);
+  const today = ukDate();
   const canNext = (() => {
     switch (step) {
       case 0: return !!start && !!date && !!time && (sameEnd || !!end) && !!hours && fitsDay;
