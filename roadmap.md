@@ -225,4 +225,4 @@
 - [ ] Minibus Hire page rewritten to match admin vehicle classes (Eight-Seater Van 8, Executive Minibus 16 on request). Coach Hire pending owner answer
 - [ ] 'CabsLink' → 'Cabslink' everywhere in saved text (airport titles/descriptions, vehicle SEO, blog, notes)
 - [ ] Latest Google reviews appear on the site automatically
-- [ ] Remove soft glow blobs from page top (hero) sections (owner screenshot image-276)
+- [x] Remove soft glow blobs from page top (hero) sections (owner screenshot image-276)
