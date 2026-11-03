@@ -11,6 +11,7 @@ import { MapPin, Loader2 } from "lucide-react";
 import { getJourneyMap } from "@/lib/journey-map.functions";
 import { decodePolyline } from "@/lib/polyline";
 import { loadGoogleMaps, onMapsAuthFailure } from "@/lib/maps-loader";
+import { useNearViewport } from "@/hooks/use-near-viewport";
 
 type Props = {
   pickupPlaceId?: string;
@@ -166,16 +167,20 @@ export function PlaceMarkerMap({
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState<string | null>(null);
   const enabled = typeof lat === "number" && typeof lng === "number";
+  const box = useRef<HTMLDivElement | null>(null);
+  // Page maps sit low on the page: only fetch Google Maps when the visitor
+  // scrolls near them.
+  const near = useNearViewport(box);
 
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled || !near) return;
     let alive = true;
     const off = onMapsAuthFailure(() => alive && setFailed("Map could not be displayed."));
     loadGoogleMaps()
       .then(() => alive && setReady(true))
       .catch((err: Error) => alive && setFailed(err.message));
     return () => { alive = false; off(); };
-  }, [enabled]);
+  }, [enabled, near]);
 
   useEffect(() => {
     if (!ready || !holder.current || !enabled) return;
@@ -207,7 +212,7 @@ export function PlaceMarkerMap({
   if (!enabled) return null;
 
   return (
-    <div className={`relative overflow-hidden rounded-2xl border border-border bg-[var(--surface)] ${className}`}>
+    <div ref={box} className={`relative overflow-hidden rounded-2xl border border-border bg-[var(--surface)] ${className}`}>
       <div className="flex items-center gap-2 px-4 py-2.5 border-b border-border/70 bg-card">
         <MapPin className="size-3.5 text-[var(--gold-ink)]" />
         <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground">
