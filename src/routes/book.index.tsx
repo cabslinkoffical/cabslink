@@ -1256,6 +1256,10 @@ function PriceBreakdown({ price }: { price: PriceSummary }) {
           {fmtGBP(price.grandTotal)}
         </span>
       </div>
+      <p className="mt-3 flex items-center gap-1.5 text-xs font-semibold text-foreground">
+        <BadgeCheck className="size-4 shrink-0 text-[var(--gold-ink)]" aria-hidden />
+        {FACT_TEXT.feesIncludedShort} · fare incl. VAT
+      </p>
     </div>
   );
 }
@@ -1265,7 +1269,7 @@ function MobilePriceBar({ price, onContinue }: { price: PriceSummary; onContinue
     <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-border bg-card/95 backdrop-blur px-4 py-3 shadow-[0_-8px_24px_-12px_rgba(14,24,44,0.25)]">
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Total incl. VAT</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Total incl. VAT, tolls &amp; airport fees</p>
           <p className="font-display text-xl font-bold text-foreground tabular-nums leading-tight">{fmtGBP(price.grandTotal)}</p>
         </div>
         <button

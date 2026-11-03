@@ -31,7 +31,7 @@ export const Route = createFileRoute("/terms")({
       <p>By requesting a booking you agree to these terms. You must be 18 or over to make a booking, and responsible for any passengers travelling with you.</p>
 
       <h2>3. Bookings and quotes</h2>
-      <p>Quotes shown at time of booking are based on the information you provide and include VAT where applicable. The final fare may adjust for extra waiting time, additional stops, tolls, congestion or clean-air charges, airport fees, or route changes agreed in advance. A booking is confirmed only when you receive a booking reference.</p>
+      <p>Quotes shown at time of booking are based on the information you provide and include VAT where applicable. Road tolls and standard airport drop-off and pickup charges are included in the quoted fare. The final fare may adjust only for extra waiting time, additional stops, congestion or clean-air charges, or route changes agreed in advance. A booking is confirmed only when you receive a booking reference.</p>
 
       <h2>4. Your responsibilities</h2>
       <ul>
