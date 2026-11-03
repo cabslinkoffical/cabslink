@@ -59,28 +59,31 @@ export const tourDraftSchema = z.object({
 
 export type TourDraftInput = z.input<typeof tourDraftSchema>;
 
-export type PublishCheck = { label: string; ok: boolean };
+export type PublishCheck = { label: string; ok: boolean; required: boolean };
 
-/** What must be true before a tour can go live, in plain words. */
+/**
+ * What must be true before a tour can go live (required), plus advice. The
+ * required items match the publish guard: name and address, start and finish,
+ * and every stop switched on with a map location.
+ */
 export function publishChecklist(t: {
   name?: string | null; slug?: string | null; origin_place_id?: string | null; destination_place_id?: string | null;
-  default_duration_hours?: number | null; price_mode?: string | null;
+  default_duration_hours?: number | null;
   stops: Array<{ active: boolean; hasPlace: boolean }>;
   pricedVehicles: number;
   hasImage: boolean;
 }): PublishCheck[] {
   const readyStops = t.stops.filter((s) => s.active && s.hasPlace).length;
   return [
-    { label: "Name and web address", ok: !!t.name?.trim() && !!t.slug?.trim() },
-    { label: "Start point chosen", ok: !!t.origin_place_id },
-    { label: "Finish point chosen", ok: !!t.destination_place_id },
-    { label: "At least one stop that's switched on and on the map", ok: readyStops > 0 },
-    { label: "Every stop is switched on and on the map", ok: t.stops.length > 0 && readyStops === t.stops.length },
-    { label: "Usual tour length set", ok: Number(t.default_duration_hours ?? 0) > 0 },
-    { label: t.price_mode === "auto" ? "Automatic prices worked out" : "A price for at least one vehicle", ok: t.pricedVehicles > 0 },
-    { label: "Main photo added", ok: t.hasImage },
+    { label: "Name and web address", ok: !!t.name?.trim() && !!t.slug?.trim(), required: true },
+    { label: "Start point chosen", ok: !!t.origin_place_id, required: true },
+    { label: "Finish point chosen", ok: !!t.destination_place_id, required: true },
+    { label: "At least one stop", ok: t.stops.length > 0, required: true },
+    { label: "Every stop is switched on and on the map", ok: t.stops.length > 0 && readyStops === t.stops.length, required: true },
+    { label: "Usual tour length set", ok: Number(t.default_duration_hours ?? 0) > 0, required: false },
+    { label: "Tour price set for at least one vehicle (otherwise hourly rates are used)", ok: t.pricedVehicles > 0, required: false },
+    { label: "Main photo added", ok: t.hasImage, required: false },
   ];
 }
 
-/** The checks the site enforces; the photo is advised but not required. */
-export const REQUIRED_CHECKS = 7;
+export const readyToPublish = (checks: PublishCheck[]) => checks.every((c) => !c.required || c.ok);
