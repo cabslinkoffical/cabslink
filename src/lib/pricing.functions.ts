@@ -1,7 +1,7 @@
 import { FACT_TEXT } from "@/lib/site-facts";
 import { childSeatChoices, childSeatsLabel, TOO_MANY_SEATS } from "@/lib/child-seats";
 import { flightNumberError } from "@/lib/flight-number";
-import { coverDelta, coverLabel } from "@/lib/cancellation-cover";
+import { coverDelta, coverLabel, type CancellationCover } from "@/lib/cancellation-cover";
 import { getClientIp } from "@/lib/client-ip.server";
 import { createServerFn } from "@tanstack/react-start";
 import { setResponseStatus } from "@tanstack/react-start/server";
@@ -1419,6 +1419,8 @@ export async function repriceExistingBooking(args: {
   meetGreet: boolean;
   childSeatCount: number;
   returnJourney: boolean;
+  /** Cover saved on the booking; re-applied so a change keeps the customer's choice. */
+  cancellationCover?: CancellationCover | null;
 }): Promise<RepriceResult> {
   let auth: AuthoritativeQuote;
   try {
@@ -1490,7 +1492,22 @@ export async function repriceExistingBooking(args: {
     price = Number((price + taxed.gross).toFixed(2));
   }
 
+  let cancellationCoverAmount = 0;
+  if (args.cancellationCover && args.cancellationCover !== "standard") {
+    const st = auth.settings;
+    const d = coverDelta(args.cancellationCover, price, {
+      nonRefundablePercent: st.policyNonRefundablePercent,
+      nonRefundableMinPence: st.policyNonRefundableMinPence,
+      flexiblePercent: st.policyFlexiblePercent,
+      flexibleMinPence: st.policyFlexibleMinPence,
+    });
+    const before = price;
+    price = Number(Math.max(0, price + d).toFixed(2));
+    cancellationCoverAmount = Number((price - before).toFixed(2));
+  }
+
   return {
+    cancellationCoverAmount,
     price: Number(price.toFixed(2)),
     distanceMiles: auth.distanceMiles,
     vehicleName: profile.vehicle.name,

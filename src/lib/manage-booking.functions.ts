@@ -49,7 +49,7 @@ function genericFail(): never {
 }
 
 const SELECT =
-  "id, booking_ref, status, payment_status, customer_name, email, phone, pickup_address, dropoff_address, pickup_place_id, dropoff_place_id, pickup_date, pickup_time, passengers, luggage, hand_luggage, vehicle_type, vehicle_id, vehicle_class_name_snapshot, vehicle_capacity_snapshot, flight_number, meet_greet, child_seat, child_seat_count, return_journey, notes, selected_pois, price, quoted_total, distance_miles, created_at, cancellation_reason, service_type, admin_notes, tour_slug, tour_name, tour_stops";
+  "id, booking_ref, status, payment_status, customer_name, email, phone, pickup_address, dropoff_address, pickup_place_id, dropoff_place_id, pickup_date, pickup_time, passengers, luggage, hand_luggage, vehicle_type, vehicle_id, vehicle_class_name_snapshot, vehicle_capacity_snapshot, flight_number, meet_greet, child_seat, child_seat_count, return_journey, cancellation_cover, cancellation_cover_amount, notes, selected_pois, price, quoted_total, distance_miles, created_at, cancellation_reason, service_type, admin_notes, tour_slug, tour_name, tour_stops";
 
 function noStore() {
   try {
@@ -592,6 +592,7 @@ async function amendmentContext(data: z.infer<typeof amendInput>) {
     meetGreet: c.meetGreet,
     childSeatCount: c.childSeatCount,
     returnJourney: c.returnJourney,
+    cancellationCover: parseCover(row.cancellation_cover),
   });
 
   const currentPrice = row.price == null ? 0 : Number(row.price);
@@ -613,7 +614,7 @@ async function amendmentContext(data: z.infer<typeof amendInput>) {
     amountDue: outcome === "topup" ? Math.abs(delta) : outcome === "pay_full" ? newPrice : 0,
     refundDue: outcome === "refund" ? Math.abs(delta) : 0,
   };
-  return { row, quote, changes: c };
+  return { row, quote, changes: c, coverAmount: priced.cancellationCoverAmount };
 }
 
 /** Price-only preview — nothing is saved. */
@@ -637,7 +638,7 @@ export const submitBookingAmendment = createServerFn({ method: "POST" })
     const ip = await ipOf();
     await enforceRateLimit(LIMITS.amendSubmit, ip);
 
-    const { row, quote, changes: c } = await amendmentContext(data);
+    const { row, quote, changes: c, coverAmount } = await amendmentContext(data);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const previous = {
@@ -652,6 +653,7 @@ export const submitBookingAmendment = createServerFn({ method: "POST" })
       return_journey: row.return_journey,
       notes: row.notes,
       price: row.price,
+      cancellation_cover_amount: row.cancellation_cover_amount ?? null,
     };
 
     const update: Record<string, unknown> = {
@@ -669,6 +671,7 @@ export const submitBookingAmendment = createServerFn({ method: "POST" })
       price: quote.newPrice,
       distance_miles: quote.distanceMiles,
     };
+    if (parseCover(row.cancellation_cover)) update["cancellation_cover_amount"] = coverAmount;
     // A paid booking whose fare went up is only part paid until the customer
     // settles the difference. A fare that went down stays "paid" — the refund
     // is a money movement an admin performs.
