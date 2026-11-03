@@ -673,7 +673,7 @@ export const submitBookingAmendment = createServerFn({ method: "POST" })
     const ip = await ipOf();
     await enforceRateLimit(LIMITS.amendSubmit, ip);
 
-    const { row, quote, changes: c, coverAmount } = await amendmentContext(data);
+    const { row, quote, changes: c, coverAmount, ledgerBased } = await amendmentContext(data);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const previous = {
@@ -745,6 +745,24 @@ export const submitBookingAmendment = createServerFn({ method: "POST" })
       console.error("amendment booking update failed", upd.error);
       await supabaseAdmin.from("booking_amendments").update({ status: "declined", admin_notes: "Booking update failed" } as any).eq("id", ins.data.id);
       throw new Error("We couldn't apply that change. Please call us so we can update the booking for you.");
+    }
+
+    if (ledgerBased) {
+      // This change's amount already allows for everything paid or refunded so
+      // far, so earlier open top-ups/refunds would count the same money twice.
+      const sup: any = await supabaseAdmin
+        .from("booking_amendments")
+        .update({ status: "applied", admin_notes: `Replaced by a later change on ${new Date().toISOString().slice(0, 10)}; see the newest change for the amount now owed.` } as any)
+        .eq("booking_id", row.id)
+        .in("status", ["pending_payment", "awaiting_refund"])
+        .neq("id", ins.data.id);
+      if (sup?.error) console.error("amendment supersede failed", sup.error);
+      try {
+        const { reconcileBookingPaymentStatus } = await import("@/lib/stripe-payments.server");
+        await reconcileBookingPaymentStatus(supabaseAdmin, row.id);
+      } catch (err) {
+        console.error("amendment payment status reconcile failed", err);
+      }
     }
 
     const summary = [
