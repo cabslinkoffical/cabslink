@@ -340,12 +340,18 @@ async function refreshStartingPriceCache(templateId: string): Promise<{ price_pe
 const slugSchema = z.object({ slug: z.string().trim().min(1).max(120) });
 
 export async function getPublishedTourBySlugImpl(slug: string): Promise<PublicTourDetail | null> {
-  const client = serverPublicClient();
-  const { data: template, error } = await client
-    .from("scenic_route_templates")
-    .select(DETAIL_FIELDS)
-    .eq("slug", slug)
-    .maybeSingle();
+  return getTourDetailImpl(serverPublicClient(), { slug });
+}
+
+/**
+ * Builds a tour page's data. Public pages pass the publishable client, so row
+ * security only returns live tours; the staff draft preview passes the signed-in
+ * admin's client and looks the tour up by id.
+ */
+export async function getTourDetailImpl(client: any, by: { slug: string } | { id: string }): Promise<PublicTourDetail | null> {
+  let query = client.from("scenic_route_templates").select(DETAIL_FIELDS);
+  query = "slug" in by ? query.eq("slug", by.slug) : query.eq("id", by.id);
+  const { data: template, error } = await query.maybeSingle();
   if (error || !template) return null;
 
   const { data: joinRows } = await client
@@ -408,6 +414,8 @@ export async function getPublishedTourBySlugImpl(slug: string): Promise<PublicTo
     .from("scenic_route_templates")
     .select("slug, name")
     .neq("id", t.id)
+    .eq("active", true)
+    .eq("published", true)
     .order("display_order", { ascending: true })
     .limit(3);
 
