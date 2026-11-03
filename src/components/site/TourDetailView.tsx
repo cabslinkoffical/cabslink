@@ -155,6 +155,11 @@ export function TourDetailView({ d, slug, enquire, preview = false }: {
 
   return (
     <SiteLayout cta={{ heading: <>Ready to <span className="text-gold">book this tour</span>?</>, subtitle: "Choose your date, see the price for your group, then pay securely online.", label: "Book this tour", to: "/book/tour", search: { tour: d.slug }, trackAs: "final_cta_tour" }}>
+      {preview && (
+        <div role="status" className="sticky top-0 z-50 bg-[var(--gold)] px-4 py-2 text-center text-sm font-semibold text-[var(--navy)]">
+          Staff preview — this is how the page will look. {d.published ? "This tour is live." : "This tour is a draft and is not on the website yet."} Booking buttons only work once it is published.
+        </div>
+      )}
       <PageHero
         eyebrow="Private Driver Tour"
         title={seo?.h1 ?? d.name}
