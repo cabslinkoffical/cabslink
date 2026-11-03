@@ -6,6 +6,9 @@
 import { z } from "zod";
 import { placeIdSchema } from "@/lib/place-id";
 
+/** The Tours page shows at most this many category filters (owner rule). */
+export const MAX_TOUR_CATEGORIES = 7;
+
 export const TOUR_STEPS = [
   { key: "basics", label: "Basics" },
   { key: "route", label: "Start & finish" },

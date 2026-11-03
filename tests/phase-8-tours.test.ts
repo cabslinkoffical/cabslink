@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { tourClassPricesPence, tourStartingPricePence } from "@/lib/tours.functions";
-import { THEME_GROUPS } from "@/lib/scenic-admin.functions";
+import { MAX_TOUR_CATEGORIES } from "@/lib/tour-draft";
 
 const rates = [
   { id: "a", name: "Executive", hourly_rate: 80, min_hours: null },
@@ -35,11 +35,12 @@ describe("Phase 8 — tours", () => {
     expect(tourClassPricesPence(row, minibus)).toEqual([]);
   });
   it("has at most 7 filter groups", () => {
-    expect(THEME_GROUPS.length).toBeLessThanOrEqual(7);
+    expect(MAX_TOUR_CATEGORIES).toBe(7);
+    expect(readFileSync("src/lib/tour-admin-tools.functions.ts", "utf8")).toContain(">= MAX_TOUR_CATEGORIES");
   });
   it("Signature badge only when flagged; other tours show names", () => {
     expect(readFileSync("src/components/site/TourCard.tsx", "utf8")).toContain("tour.signature ?");
-    const page = readFileSync("src/routes/tours.$slug.tsx", "utf8");
+    const page = readFileSync("src/components/site/TourDetailView.tsx", "utf8");
     expect(page).toContain("{r.name}");
     expect(page).not.toContain('s.replace(/-/g, " ")');
   });

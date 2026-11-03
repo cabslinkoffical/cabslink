@@ -72,7 +72,7 @@ function TourCategoriesPage() {
     <div className="space-y-6">
       <PageHeader
         title="Tour categories"
-        description="The filters on the Tours page. Renaming a category renames it on every tour in it; deleting one leaves its tours without a category."
+        description="The filters on the Tours page (up to 7 shown). Renaming a category renames it on every tour in it; deleting one leaves its tours without a category."
       />
       <form
         className="flex flex-wrap items-center gap-2"

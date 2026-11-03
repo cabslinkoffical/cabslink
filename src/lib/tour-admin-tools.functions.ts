@@ -7,7 +7,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
-import { tourDraftSchema } from "@/lib/tour-draft";
+import { tourDraftSchema, MAX_TOUR_CATEGORIES } from "@/lib/tour-draft";
 
 async function assertAdmin(ctx: { supabase: any; userId: string }) {
   const { data, error } = await ctx.supabase.rpc("has_role", { _user_id: ctx.userId, _role: "admin" });
@@ -60,6 +60,15 @@ export const saveTourCategory = createServerFn({ method: "POST" })
     await assertAdmin(context);
     const sb = context.supabase as any;
     const row = { name: data.name, description: data.description || null, sort_order: data.sort_order, active: data.active };
+    if (data.active) {
+      let q = sb.from("tour_categories").select("id", { count: "exact", head: true }).eq("active", true);
+      if (data.id) q = q.neq("id", data.id);
+      const { count, error } = await q;
+      if (error) throw new Error(error.message);
+      if ((count ?? 0) >= MAX_TOUR_CATEGORIES) {
+        throw new Error(`The Tours page shows up to ${MAX_TOUR_CATEGORIES} categories. Hide one before showing another.`);
+      }
+    }
     // Renaming updates every tour in the category through the database link.
     const res = data.id
       ? await sb.from("tour_categories").update(row).eq("id", data.id)
