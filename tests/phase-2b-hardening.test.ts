@@ -38,6 +38,20 @@ describe("spoofed X-Forwarded-Host", () => {
     expect(sandboxRejected("sandbox")).toBe(true);
   });
 
+  it.each(["preview", "development", "", "PREVIEW"])("cabslink.com is always live, even with APP_ENV=%s", (v) => {
+    process.env["APP_ENV"] = v;
+    for (const h of ["cabslink.com", "www.cabslink.com", "WWW.CABSLINK.COM:443", "cabslink.com.", "cabslink.lovable.app"]) {
+      expect(resolveStripeEnvForHost(h)).toBe("live");
+    }
+  });
+
+  it.each(["preview", "development"])("test keys only on preview or localhost with APP_ENV=%s", (v) => {
+    process.env["APP_ENV"] = v;
+    expect(resolveStripeEnvForHost("localhost:8080")).toBe("sandbox");
+    expect(resolveStripeEnvForHost("id-preview--e2d845db.lovable.app")).toBe("sandbox");
+    expect(resolveStripeEnvForHost("cabslink.co.uk")).toBe("live");
+  });
+
   it("non-production APP_ENV still allows sandbox on preview hosts", () => {
     process.env["APP_ENV"] = "preview";
     expect(resolveStripeEnvForHost("localhost")).toBe("sandbox");
