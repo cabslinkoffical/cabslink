@@ -1,4 +1,3 @@
-import { normalizeHead } from "@/lib/seo/page-head";
 /**
  * GuidePage — renderer for the code-defined editorial guides in
  * `src/lib/seo/guides.ts`. Content is hand-verified there; this file only
@@ -13,9 +12,7 @@ import { Button } from "@/components/ui/button";
 import { TransportComparison } from "@/components/seo/TransportComparison";
 import type { GuideRecord } from "@/lib/seo/guides";
 import { tourSeo } from "@/lib/seo/tour-seo";
-import { BUSINESS_ID } from "@/lib/seo/business-graph";
 
-const ORIGIN = "https://cabslink.com";
 
 function formatChecked(iso: string) {
   const d = new Date(`${iso}T00:00:00Z`);

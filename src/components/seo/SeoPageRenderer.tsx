@@ -1,8 +1,6 @@
 import { RelatedLinks } from "@/components/site/RelatedLinks";
 import { DirectAnswer, firstSentences } from "@/components/seo/DirectAnswer";
-import { canonicalUrl, normalizeHead } from "@/lib/seo/page-head";
 import { MapPin } from "lucide-react";
-import { safeJsonLd } from "@/lib/safe-json-ld";
 import type { PublicSeoPage, PublicSeoSection } from "@/lib/seo-public.functions";
 import type { RelatedBundle, RelatedLink } from "@/lib/seo-related.functions";
 import type { RouteFareTable as RouteFareTableData } from "@/lib/seo/route-fares.functions";

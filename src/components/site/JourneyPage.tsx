@@ -1,4 +1,3 @@
-import { normalizeHead } from "@/lib/seo/page-head";
 /**
  * JourneyPage — shared template for journey (route) pages, e.g.
  * /routes/edinburgh-to-glasgow. Content is facts-gated in
@@ -21,10 +20,8 @@ import { TransportComparison } from "@/components/seo/TransportComparison";
 import { getJourneyTransport } from "@/lib/seo/transport-modes";
 
 import { SITE } from "@/lib/site";
-import { BUSINESS_ID } from "@/lib/seo/business-graph";
 import { resolveFaqs } from "@/components/site/JourneyPage.head";
 
-const ORIGIN = "https://cabslink.com";
 
 export function JourneyPage({
   content: c,

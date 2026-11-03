@@ -11,7 +11,6 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { FaqAccordion } from "@/components/site/FaqAccordion";
 import { PageHero, SectionHeader } from "@/components/site/PageHero";
 import { getService } from "@/lib/seo/service-registry";
-import { BUSINESS_ID } from "@/lib/seo/business-graph";
 
 export type SolutionContent = {
   /** URL slug under /travel-solutions. */
