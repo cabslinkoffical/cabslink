@@ -6,7 +6,7 @@
  * /travel-solutions/{slug} URLs.
  */
 import type { SolutionContent } from "@/components/site/SolutionPage";
-import { DEFAULT_COVERAGE } from "@/components/site/ServicePillarPage";
+import { DEFAULT_COVERAGE } from "@/components/site/ServicePillarPage.head";
 import { PAGE_IMAGES, type PageImage } from "@/content/page-images";
 
 /** Each solution page has its own registered photograph. */

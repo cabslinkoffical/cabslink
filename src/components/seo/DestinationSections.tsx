@@ -5,7 +5,7 @@
  */
 import type React from "react";
 import type { Section } from "@/lib/seo/content-engine";
-import type { LoadedDestination } from "@/components/site/DestinationPage";
+import type { LoadedDestination } from "@/lib/destination-loader";
 import { FaqAccordion } from "@/components/site/FaqAccordion";
 import { PageBand, FactTable, LinkCards, GroupLabel, type FactRow } from "@/components/site/PageBand";
 import { Button } from "@/components/ui/button";

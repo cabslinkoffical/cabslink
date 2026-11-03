@@ -74,16 +74,7 @@ export type PillarContent = {
   faqs: { q: string; a: string }[];
 };
 
-export const DEFAULT_COVERAGE: { label: string; to: string }[] = [
-  { label: "Edinburgh", to: "/areas/edinburgh" },
-  { label: "Glasgow", to: "/areas/glasgow" },
-  { label: "Aberdeen", to: "/areas/aberdeen" },
-  { label: "Dundee", to: "/areas/dundee" },
-  { label: "Inverness", to: "/areas/inverness" },
-  { label: "Stirling", to: "/areas/stirling" },
-  { label: "Perth", to: "/areas/perth" },
-  { label: "St Andrews", to: "/areas/st-andrews" },
-];
+export { DEFAULT_COVERAGE } from "@/components/site/ServicePillarPage.head";
 
 export function ServicePillarPage({ content }: { content: PillarContent }) {
   // Live Google rating only — no invented score. The card is hidden when the

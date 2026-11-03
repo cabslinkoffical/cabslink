@@ -6,7 +6,7 @@ import { normalizeHead } from "@/lib/seo/page-head";
  * schema + FAQPage. The business entity lives once in business-graph.ts
  * (emitted from __root.tsx); type schemas reference it by @id.
  */
-import type { LoadedDestination } from "@/components/site/DestinationPage";
+import type { LoadedDestination } from "@/lib/destination-loader";
 import { destinationHref } from "@/lib/destinations.functions";
 import { getTemplate } from "@/lib/seo/template-registry";
 import { evaluateQuality } from "@/lib/seo/quality";

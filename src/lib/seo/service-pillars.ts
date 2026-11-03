@@ -1,5 +1,5 @@
 import type { PillarContent } from "@/components/site/ServicePillarPage";
-import { DEFAULT_COVERAGE } from "@/components/site/ServicePillarPage";
+import { DEFAULT_COVERAGE } from "@/components/site/ServicePillarPage.head";
 import airportImg from "@/assets/services/airport.jpg.asset.json";
 import corporateImg from "@/assets/services/corporate.jpg.asset.json";
 import eventsImg from "@/assets/services/events.jpg.asset.json";
