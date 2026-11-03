@@ -1,4 +1,5 @@
 import { normalizeHead } from "@/lib/seo/page-head";
+import { ukDate } from "@/lib/uk-time";
 import { flightNumberError, isAirportPickup } from "@/lib/flight-number";
 import { FACT_TEXT } from "@/lib/site-facts";
 import { cloneElement, isValidElement, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
@@ -290,7 +291,7 @@ function BookPage() {
       dropoffText: d.dropoffLabel ?? "",
     };
     // Drop drafts whose travel date has already passed.
-    if (next.date && next.date < new Date().toISOString().slice(0, 10)) { clearDraft(); return; }
+    if (next.date && next.date < ukDate()) { clearDraft(); return; }
     if (next.pickup && next.dropoff) setResumable(next);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -822,7 +823,7 @@ function JourneyForm({ initial, onSubmit }: { initial: Prefill; onSubmit: (next:
   const [form, setForm] = useState<Prefill>(initial);
   const [touched, setTouched] = useState(false);
   const set = <K extends keyof Prefill>(k: K, v: Prefill[K]) => setForm((f) => ({ ...f, [k]: v }));
-  const today = new Date().toISOString().slice(0, 10);
+  const today = ukDate();
 
   const sameSpot = !!form.pickup?.placeId && form.pickup.placeId === form.dropoff?.placeId;
   const emptyStop = form.stops.some((s) => !s?.placeId);

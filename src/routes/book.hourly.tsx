@@ -7,6 +7,7 @@
  * stops, no ready-made tours), followed by vehicle, details and payment. It is
  * priced with the same hourly rates as custom day tours.
  */
+import { ukDate } from "@/lib/uk-time";
 import { normalizeHead } from "@/lib/seo/page-head";
 import { useState } from "react";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
@@ -99,7 +100,7 @@ export const Route = createFileRoute("/book/hourly")({
 
 function parsePrefill(q: string | undefined) {
   const p = new URLSearchParams(q || "");
-  const today = new Date().toISOString().slice(0, 10);
+  const today = ukDate();
   const pickupPlaceId = p.get("pickupPlaceId") || "";
   return {
     pickup: pickupPlaceId
@@ -159,7 +160,7 @@ function HourlyStartForm({ q }: { q: string | undefined }) {
   const [passengers, setPassengers] = useState(prefill.passengers);
   const [luggage, setLuggage] = useState(prefill.luggage);
 
-  const today = new Date().toISOString().slice(0, 10);
+  const today = ukDate();
   const chosenTier = tiers.find((t) => t.hours === hours) ?? null;
   const ready = !!pickup?.placeId && !!date && !!time && !!hours;
 

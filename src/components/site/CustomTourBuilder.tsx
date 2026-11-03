@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { ukDate } from "@/lib/uk-time";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
@@ -381,7 +382,7 @@ export function CustomTourBuilder({ search }: { search?: TourSearchControls }) {
                 id="ct-date"
                 type="date"
                 value={date}
-                min={new Date().toISOString().slice(0, 10)}
+                min={ukDate()}
                 onChange={(e) => setDate(e.target.value)}
                 className="mt-1.5"
               />
