@@ -21,14 +21,14 @@ export function childSeatsLabel(types: ChildSeatChoice[], total: number): string
 /** Seat choices from the selected extras, using catalogue names; quantities capped per type. */
 export function childSeatChoices(
   selected: Array<{ key: string; quantity: number }>,
-  catalogue: Array<{ key: string; name: string; category?: string | null; active?: boolean; max_quantity?: number }>,
+  catalogue: Array<{ key: string; name?: string; category?: string | null; active?: boolean; max_quantity?: number }>,
 ): ChildSeatChoice[] {
   const out: ChildSeatChoice[] = [];
   for (const sel of selected) {
     const entry = catalogue.find((e) => e.key === sel.key && (e.category === "child_seat" || e.key === "child_seat") && e.active !== false);
     if (!entry) continue;
     const quantity = Math.min(Math.max(0, Math.floor(sel.quantity)), entry.max_quantity ?? sel.quantity);
-    if (quantity > 0) out.push({ key: entry.key, name: entry.name, quantity });
+    if (quantity > 0) out.push({ key: entry.key, name: entry.name ?? entry.key, quantity });
   }
   return out;
 }

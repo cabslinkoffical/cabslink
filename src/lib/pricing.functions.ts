@@ -919,7 +919,7 @@ export const createBooking = createServerFn({ method: "POST" })
       .filter((x) => seatKeys.has(x.key) && !(x.key === "child_seat" && childSeatCount > 0))
       .reduce((t, x) => t + Math.max(0, x.quantity), 0);
     // Seat types are kept by name so the driver knows exactly what to fit.
-    const childSeatTypes = childSeatChoices(data.extras ?? [], auth.extrasCatalogue as any);
+    const childSeatTypes = childSeatChoices(data.extras ?? [], auth.extrasCatalogue);
     if (recordedSeatCount > data.passengers) throw new Error(TOO_MANY_SEATS);
     const extrasNet = Number((childSeatFee + meetGreetFee + addonsNet).toFixed(2));
     if (extrasNet > 0) {
