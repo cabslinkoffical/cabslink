@@ -231,6 +231,6 @@
 ## Tours overhaul (owner docs: Scenic Tours strategy + Custom Tour Builder) — owner wants both sides fully correct
 - [x] T1 Custom builder correctness: editable passengers/luggage, correct hand-off, working "best route" option (real road-time optimisation, locked start/end, restore my order)
 - [x] T2 Custom builder UX: drag to reorder stops, lock stops, quickest-order suggestion with restore; map/distance/notes live in the tour booking steps (map tiles blocked in preview only)
-- [ ] T3 Custom tour requests: CL-CT reference, request-a-quote when not reliably priceable, secure status lookup, admin queue (new/reviewing/quoted/accepted/rejected/completed) with route + notes
+- [x] T3 Custom tour requests: CL-CT reference, request-a-quote when not reliably priceable, secure status lookup, admin queue (new/reviewing/quoted/accepted/rejected/completed) with route + notes
 - [ ] T4 Multiple vehicles for big groups (tours): suggested combinations, priced per vehicle, capacity locking per class
 - [ ] T5 Admin tour tools: duplicate tour, tour categories, draft preview, guided create steps
