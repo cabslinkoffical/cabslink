@@ -1222,6 +1222,36 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                     Get my price
                   </Button>
                 )}
+
+                {canRequestQuote && passengersConfirmed && !priceMutation.isPending && (
+                  requestWhy ? (
+                    <div className="rounded-2xl border border-[var(--gold)]/60 bg-[var(--surface)] p-5">
+                      <p className="font-display font-bold">Request a quote</p>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {requestWhy} Send us your day and our tour team will reply with a price. You'll get a reference to check your request.
+                      </p>
+                      <Button
+                        type="button"
+                        variant="gold"
+                        className="mt-4 rounded-full"
+                        onClick={() => { setStep(3); setRequestMode(true); }}
+                      >
+                        <Send className="size-4" /> Request a quote
+                      </Button>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      Rather have our tour team look at your day first?{" "}
+                      <button
+                        type="button"
+                        className="font-semibold text-foreground underline underline-offset-2"
+                        onClick={() => { setStep(3); setRequestMode(true); }}
+                      >
+                        Request a quote instead
+                      </button>
+                    </p>
+                  )
+                )}
               </div>
             )}
 
