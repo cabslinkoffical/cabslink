@@ -14,6 +14,7 @@ import { enforceRateLimit, LIMITS } from "@/lib/db-rate-limit.server";
 import { SITE } from "@/lib/site";
 import { ukLocalToMs } from "@/lib/uk-time";
 import { coverLabel, coverPromise, parseCover } from "@/lib/cancellation-cover";
+import { amendmentMoney, type AmendmentOutcome } from "@/lib/amendment-money";
 
 /**
  * One generic message for EVERY lookup failure (bad format, unknown
@@ -565,7 +566,7 @@ export type AmendmentQuote = {
   refundDue: number;
 };
 
-export type AmendmentOutcome = "even" | "topup" | "refund" | "pay_full";
+export type { AmendmentOutcome } from "@/lib/amendment-money";
 
 const money = (n: number) => `£${n.toFixed(2)}`;
 
@@ -584,12 +585,16 @@ function describeChanges(row: any, c: AmendChanges): string[] {
   return lines;
 }
 
-function outcomeFor(paymentStatus: string, delta: number): AmendmentOutcome {
-  const settled = paymentStatus === "paid";
-  if (!settled) return "pay_full";
-  if (delta > 0.5) return "topup";
-  if (delta < -0.5) return "refund";
-  return "even";
+/** New fare minus net money kept (pence), or null when the booking has no recorded payments. */
+async function ledgerBalancePence(row: any, newPrice: number, paymentStatus: string): Promise<number | null> {
+  if (paymentStatus !== "paid" && paymentStatus !== "partial") return null;
+  if (!row.id) return null;
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { paidPayments } = await import("@/lib/stripe-payments.server");
+  const { netCollectedPence } = await import("@/lib/payment-ledger");
+  const rows = await paidPayments(supabaseAdmin, row.id);
+  if (!rows.length) return null;
+  return Math.round(newPrice * 100) - netCollectedPence(rows);
 }
 
 /** Shared: verify identity, gate the amendment window, re-price. */
