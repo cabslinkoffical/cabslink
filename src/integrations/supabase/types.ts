@@ -3309,6 +3309,13 @@ export type Database = {
             referencedRelation: "vehicles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "scenic_route_templates_theme_group_fkey"
+            columns: ["theme_group"]
+            isOneToOne: false
+            referencedRelation: "tour_categories"
+            referencedColumns: ["name"]
+          },
         ]
       }
       seo_airports: {
@@ -4446,6 +4453,36 @@ export type Database = {
           },
         ]
       }
+      tour_categories: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       tour_hour_tiers: {
         Row: {
           created_at: string
@@ -5218,6 +5255,7 @@ export type Database = {
       }
     }
     Functions: {
+      admin_duplicate_tour: { Args: { p_id: string }; Returns: string }
       admin_save_blog_post: {
         Args: { p_id: string; p_post: Json; p_tag_ids: string[] }
         Returns: string
@@ -5229,6 +5267,10 @@ export type Database = {
       admin_save_settings: {
         Args: { p_credentials: Json; p_settings: Json }
         Returns: undefined
+      }
+      admin_save_tour_draft: {
+        Args: { p_id: string; p_prices: Json; p_stops: Json; p_tour: Json }
+        Returns: string
       }
       admin_save_tour_pricing: {
         Args: { p_id: string; p_prices: Json; p_settings: Json }

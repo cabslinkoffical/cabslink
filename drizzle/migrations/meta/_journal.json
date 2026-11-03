@@ -148,6 +148,13 @@
       "when": 1793738991570,
       "tag": "0020_tour_multi_vehicle",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1793740367689,
+      "tag": "0021_tour_admin_tools",
+      "breakpoints": true
     }
   ]
 }
