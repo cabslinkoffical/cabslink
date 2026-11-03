@@ -1,0 +1,2 @@
+-- Backfill: stops the public tour pages already show as "included" (recommended and selected by default) become fixed stops.
+UPDATE public.scenic_route_template_pois SET mandatory = true WHERE recommended = true AND default_selected = true AND mandatory = false;
