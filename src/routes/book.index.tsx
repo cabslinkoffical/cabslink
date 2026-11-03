@@ -755,6 +755,7 @@ function BookPage() {
                         childSeatFeePence={childSeatFeePence}
                         childSeatCount={childSeatCount}
                         onChildSeatCount={setChildSeatCount}
+                        passengers={pre.passengers}
                         meetGreet={meetGreet}
                         onMeetGreet={setMeetGreet}
                         returnJourney={returnJourney}
@@ -2012,6 +2013,8 @@ function ExtrasStep(props: {
   childSeatFeePence: number;
   childSeatCount: number;
   onChildSeatCount: (n: number) => void;
+  /** Confirmed passengers — child seats can't exceed this. */
+  passengers: number;
   meetGreet: boolean;
   onMeetGreet: (v: boolean) => void;
   returnJourney: boolean;
@@ -2035,7 +2038,7 @@ function ExtrasStep(props: {
     pois, template, poisLoading, selectedStops, onToggleStop, onStopMinutes,
     routeMode, onRouteModeChange, multiQuote, multiLoading, multiError,
     converted, needsAck, onAck,
-    childSeatFeePence, childSeatCount, onChildSeatCount,
+    childSeatFeePence, childSeatCount, onChildSeatCount, passengers,
     meetGreet, onMeetGreet, returnJourney, onReturnJourney,
     policy, onPolicy, baseRideTotal, seatFee, meetGreetFee, returnFee,
     meetGreetFeePence, policyCfg, onBack, onNext,
@@ -2101,9 +2104,17 @@ function ExtrasStep(props: {
           ).map((group) => {
             const items = catalogueExtras.filter((e) => (e.category ?? "other") === group.key || (group.key === "other" && e.category === "meet_greet"));
             if (!items.length) return null;
+            const isSeats = group.key === "child_seat";
+            const seatsChosen = isSeats ? items.reduce((t, e) => t + (extraQty[e.key] ?? 0), 0) : 0;
             return (
               <div key={group.key}>
-                <h3 className="mb-3 text-sm font-semibold">{group.label}</h3>
+                <h3 className="mb-1 text-sm font-semibold">{group.label}</h3>
+                {isSeats ? (
+                  <p className="mb-3 text-xs text-muted-foreground">
+                    Priced per seat. Choose how many of each type you need{passengers > 0 ? ` (up to ${passengers}, one per passenger)` : ""}.
+                    {seatsChosen > 0 && <span className="ml-1 font-semibold text-foreground">{seatsChosen} seat{seatsChosen === 1 ? "" : "s"} chosen.</span>}
+                  </p>
+                ) : <div className="mb-2" />}
                 <div className="grid gap-3 sm:grid-cols-2">
                   {items.map((e) => {
                     const n = Math.min(extraQty[e.key] ?? 0, e.max_quantity);
@@ -2111,9 +2122,11 @@ function ExtrasStep(props: {
                     const priceLabel = `£${(e.price_pence / 100).toFixed(2)}${unit}`;
                     const single = e.price_basis === "per_booking" || e.max_quantity <= 1;
                     // Minutes are offered in 15-minute steps up to the admin limit.
+                    // Child seats: never more seats in total than passengers.
+                    const seatRoom = isSeats && passengers > 0 ? Math.max(0, passengers - (seatsChosen - n)) : Infinity;
                     const options = e.price_basis === "per_minute"
                       ? [0, ...Array.from({ length: Math.floor(e.max_quantity / 15) }, (_, i) => (i + 1) * 15)]
-                      : Array.from({ length: e.max_quantity + 1 }, (_, i) => i);
+                      : Array.from({ length: Math.min(e.max_quantity, seatRoom) + 1 }, (_, i) => i);
                     const optLabel = (i: number) =>
                       i === 0 ? "None" : e.price_basis === "per_minute" ? `${i} min` : e.price_basis === "per_hour" ? `${i} h` : String(i);
                     return (
@@ -2122,7 +2135,7 @@ function ExtrasStep(props: {
                           <div className="min-w-0">
                             <p className="text-sm font-semibold">{e.name}</p>
                             {e.description && <p className="mt-0.5 text-xs text-muted-foreground">{e.description}</p>}
-                            <p className="mt-1 text-xs font-semibold text-[var(--gold-ink)]">+{priceLabel}</p>
+                            <p className="mt-1 text-xs font-semibold text-[var(--gold-ink)]">+{priceLabel}{isSeats && e.price_basis !== "per_booking" ? " per seat" : ""}</p>
                           </div>
                           {single ? (
                             <Switch checked={n > 0} onCheckedChange={(v) => onExtraQty(e.key, v ? 1 : 0)} aria-label={`Add ${e.name}`} />
