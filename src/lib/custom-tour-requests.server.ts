@@ -40,9 +40,16 @@ export async function createCustomTourRequestImpl(
     await assertCaptcha(data.captchaToken, ip, setResponseStatus);
   }
 
-  const { loadTourConfig, quoteTourImpl, measureLoop } = await import("@/lib/tour-quote.server");
+  const { loadTourConfig, quoteTourImpl, quoteTourGroupImpl, measureLoop } = await import("@/lib/tour-quote.server");
+  const { groupLabel } = await import("@/lib/tour-group");
   const config = await loadTourConfig();
-  const vehicle = data.vehicleClassId ? config.classes.find((c) => c.id === data.vehicleClassId) ?? null : null;
+  const groupIds = (data.vehicles?.length ?? 0) > 1
+    ? data.vehicles!.filter((id) => config.classes.some((c) => c.id === id))
+    : null;
+  const group = groupIds && groupIds.length > 1 ? groupIds : null;
+  const firstId = group ? group[0]! : data.vehicleClassId;
+  const vehicle = firstId ? config.classes.find((c) => c.id === firstId) ?? null : null;
+  const vehicleName = group ? groupLabel(group, config.classes) : vehicle?.name ?? null;
   const stops = data.stops.map(toStored);
   const minStop = config.rules.minimum_stop_minutes;
   let dwell = stops.reduce((sum, s) => sum + Math.max(minStop, Number(s.dwellMinutes ?? minStop)), 0);
@@ -56,8 +63,8 @@ export async function createCustomTourRequestImpl(
   let driveMinutes: number | null = null;
   if (vehicle) {
     try {
-      const res = await quoteTourImpl({
-        mode: "custom",
+      const args = {
+        mode: "custom" as const,
         startPlaceId: data.startPlaceId,
         startLabel: data.startLabel,
         endPlaceId: data.endPlaceId ?? null,
@@ -67,12 +74,13 @@ export async function createCustomTourRequestImpl(
         passengers: data.passengers,
         luggage: data.luggage,
         stops: data.stops,
-      });
+      };
+      const res = group ? await quoteTourGroupImpl({ ...args, vehicles: group }) : await quoteTourImpl(args);
       routeMiles = res.quote.routeMiles;
       driveMinutes = Math.round(res.quote.driveMinutes);
       dwell = Math.round(res.quote.dwellTotalMinutes);
       if (res.quote.blockedReason) priceNote = res.quote.blockedReason;
-      else if (res.quote.total > 0) { estimatedTotal = res.quote.total; snapshot = res.quote; }
+      else if (res.quote.total > 0) { estimatedTotal = res.quote.total; snapshot = res.vehicles ? { ...res.quote, vehicles: res.vehicles } : res.quote; }
       else priceNote = "No online tour price is set for this vehicle.";
     } catch (e) {
       priceNote = (e as Error)?.message?.slice(0, 300) || "Instant price unavailable.";
@@ -112,7 +120,7 @@ export async function createCustomTourRequestImpl(
       passengers: data.passengers,
       luggage: data.luggage,
       vehicle_class_id: vehicle?.id ?? null,
-      vehicle_name: vehicle?.name ?? null,
+      vehicle_name: vehicleName,
       stops,
       original_stops: originalChanged ? data.originalStops!.map(toStored) : null,
       flight_number: data.flight || null,
@@ -153,7 +161,7 @@ export async function createCustomTourRequestImpl(
         `Passengers: ${data.passengers} · Suitcases: ${data.luggage}`,
         `Start: ${data.startLabel}${data.endLabel ? ` · Finish: ${data.endLabel}` : ""}`,
         `Stops: ${stops.map((s) => s.name).join(" → ")}`,
-        vehicle ? `Vehicle: ${vehicle.name}` : "Vehicle: not chosen",
+        vehicleName ? `Vehicle: ${vehicleName}` : "Vehicle: not chosen",
         estimatedTotal != null ? `Instant estimate: £${estimatedTotal.toFixed(2)}` : `No instant price: ${priceNote ?? "—"}`,
         data.notes ? `Notes: ${data.notes}` : null,
         "",
