@@ -40,6 +40,7 @@ import { track } from "@/lib/tracking";
 import { rememberCheckout, trackEvent } from "@/lib/analytics-ga";
 import { listPoisForRoute, type PoiSuggestion, type RouteTemplateSummary } from "@/lib/pois.functions";
 import { calculateMultiStopQuote, type MultiStopQuoteResult } from "@/lib/scenic-quote.functions";
+import { mergeTripStops } from "@/lib/trip-stops";
 import { resolveTourTemplate } from "@/lib/tours.functions";
 import { listPublicVehicleClasses, type PublicVehicleClass } from "@/lib/vehicle-classes.functions";
 import { listPublicExtras, type PublicExtra } from "@/lib/extras-public.functions";
@@ -413,19 +414,8 @@ function BookPage() {
       minutes: selectedStops[p.place_id],
       category: p.category,
     }));
-  // Stops the customer typed into the booking form stay on the trip when
-  // sightseeing stops are added: typed stops first (in their order), then the
-  // chosen sightseeing stops. Seeded tour stops carry minutes and are already
-  // in the sightseeing list, so only plain typed stops are added here.
-  const selectedStopIds = new Set(orderedSelected.map((s) => s.place_id));
-  const tripStops = orderedSelected.length > 0
-    ? [
-        ...pre.stops
-          .filter((s) => s.minutes === undefined && !selectedStopIds.has(s.placeId))
-          .map((s) => ({ place_id: s.placeId, label: s.label, minutes: 0, category: null as string | null })),
-        ...orderedSelected,
-      ]
-    : [];
+  // Typed stops stay on the trip when sightseeing stops are added.
+  const tripStops = mergeTripStops(pre.stops, orderedSelected);
 
   const multiStopFn = useServerFn(calculateMultiStopQuote);
   const multiStopQuery = useQuery({
