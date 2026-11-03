@@ -211,5 +211,5 @@
 - [x] Part 13 final check: ran card (sandbox), cash, tour quote/booking, Meet & Greet, child seats, change up/down and live speed baseline; fixed amendment top-up/refund mismatch, tour default vehicle order, request-only label; checklist PDF delivered; test bookings removed. Open owner decisions listed in checklist. Nothing published.
 
 ## Owner requests (3 Nov, late)
-- [ ] Secure all API keys: audit code, browser bundle, logs and database for exposed keys
-- [ ] Meet & Greet costs extra: one policy everywhere; change every FAQ/airport answer that says included
+- [x] Secure all API keys: no secret keys in code/browser/logs; server keys read only inside server handlers; old Dispatch token unused (rotated). Open (owner): confirm Maps browser key is limited to cabslink.com in Google Cloud; approve removing old token text from historical migration file
+- [x] Meet & Greet costs extra: 22 airport notes + Airport Transfers service text updated; home/airport/airport-transfers labels say optional. Open (owner): Google descriptions on airport pages still list 'meet & greet' without 'optional' (protected, not changed)
