@@ -39,7 +39,7 @@ export const Route = createFileRoute("/faq")({
       scripts: [
         {
           type: "application/ld+json",
-          children: JSON.stringify(breadcrumbSchema([{ name: "Home", url: "/" }, { name: "FAQ", url: URL }])),
+          children: JSON.stringify(breadcrumbSchema([{ name: "Home", url: "/" }, { name: "FAQs", url: URL }])),
         },
         {
           type: "application/ld+json",
