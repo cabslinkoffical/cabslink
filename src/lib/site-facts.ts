@@ -45,7 +45,7 @@ export const FACT_TEXT = {
   tourCancellation: `Tours: free cancellation more than ${FACTS.tourCancellation.freeOverHours} hours before the start, 50% of the price from ${FACTS.tourCancellation.halfFromHours} to ${FACTS.tourCancellation.halfToHours} hours, and the full price under ${FACTS.tourCancellation.halfFromHours} hours or for a no-show.`,
   tourCancellationShort: `Free cancellation more than ${FACTS.tourCancellation.freeOverHours} hours before the tour`,
   payment: `Pay online by card through Stripe at the end of the booking (${cardList}), or choose to pay another way: cash, bank transfer or another method agreed with our team. No card details are stored on cabslink.com.`,
-  payCashOrTransfer: "Yes. Complete your booking, skip the online payment, and message us on WhatsApp or email with your booking reference. We'll confirm your booking and arrange payment.",
+  payCashOrTransfer: "Yes. Complete your booking, skip the online payment, and message us on WhatsApp with your booking reference. We'll confirm your booking and arrange payment.",
   confirmationRule: "A card booking is confirmed as soon as the payment succeeds. If you pay another way, your booking is confirmed when our team confirms it after you contact us.",
   feesIncluded: "Your fixed fare includes road tolls and standard airport drop-off and pickup charges, so there is nothing extra to pay for them on the day.",
   feesIncludedShort: "Tolls and airport fees included",
