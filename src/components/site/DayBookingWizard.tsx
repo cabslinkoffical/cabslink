@@ -973,6 +973,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                           £{quote.quote.total.toFixed(2)}
                         </span>
                       </div>
+                      <p className="mt-2 text-xs font-semibold text-muted-foreground">{FACT_TEXT.feesIncludedShort}</p>
                     </div>
 
                     <div className="grid gap-3 sm:grid-cols-3 text-sm">
@@ -1268,6 +1269,9 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                           £{liveQuote.total.toFixed(2)}
                         </span>
                       </p>
+                    )}
+                    {(liveQuote || fixedPriceForVehicle != null) && (
+                      <p className="text-xs font-semibold text-muted-foreground">{FACT_TEXT.feesIncludedShort}</p>
                     )}
                   </div>
                 )}

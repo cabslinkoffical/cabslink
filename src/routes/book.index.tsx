@@ -1868,7 +1868,7 @@ function VehicleCard({ card, klass, trip, best, qty, minQty, disabled, disabledR
             <div>
               <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--gold-ink)]">Included as standard</p>
               <ul className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1.5">
-                <Feature icon={<BadgeCheck className="size-3.5" />}>Meet &amp; greet</Feature>
+                <Feature icon={<BadgeCheck className="size-3.5" />}>Tolls &amp; airport fees</Feature>
                 <Feature icon={<Clock className="size-3.5" />}>Free waiting time</Feature>
                 <Feature icon={<DoorOpen className="size-3.5" />}>Door to door</Feature>
                 <Feature icon={<UserCheck className="size-3.5" />}>Professional driver</Feature>
