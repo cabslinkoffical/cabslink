@@ -208,6 +208,10 @@ function ManageBookingPage() {
                 Enter your booking reference, the email you booked with and your last name. Once we find your booking,
                 you can request a cancellation from the same page.
               </p>
+              <p className="mt-2 text-sm text-navy-foreground/70">
+                Sent us a custom tour request with a CL-CT reference?{" "}
+                <Link to="/custom-tour-status" className="font-semibold text-[var(--gold)] underline underline-offset-2">Check its status here</Link>.
+              </p>
             </div>
 
             <form onSubmit={submitLookup} className="space-y-5 p-4 sm:p-6" noValidate>
