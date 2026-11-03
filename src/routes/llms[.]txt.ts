@@ -28,7 +28,7 @@ export const Route = createFileRoute("/llms.txt")({
           `- Company: ${FACTS.company.legalName}, company number ${FACTS.company.companyNumber}, ${FACTS.company.registeredOffice}`,
           `- Phone: ${FACTS.company.phone}`,
           "- Booking and quotes: " + `${BASE}/book`,
-          "- Payment: card through Stripe at the end of booking (Visa, Mastercard, American Express)",
+          "- Payment: card through Stripe at the end of booking (Visa, Mastercard, American Express), or cash, bank transfer or another method agreed with the team",
           "",
           "## Main pages",
           line("Airport transfers", `${BASE}/airports`),

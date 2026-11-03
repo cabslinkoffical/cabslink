@@ -4,7 +4,7 @@ import type { PlaceGuide } from "@/content/place-guides";
  * Phase 7 batch 3 — area (city and town) pages. Facts used: the page's own
  * destination row (name, council, region, the places this page links to),
  * the live fleet capacities and site-wide rules (fixed fares, card payment
- * via Stripe, cancellation windows, extra stops). No area has a published
+ * via Stripe or another agreed method, cancellation windows, extra stops). No area has a published
  * popular route yet, so no distances, drive times or fares are written;
  * the page's own journey-fact cards show estimates. Everything else is
  * well-known public geography about the place itself.
@@ -14,13 +14,13 @@ import type { PlaceGuide } from "@/content/place-guides";
  */
 
 const PAY_A =
-  "You pay by card through Stripe at the end of the booking, using Visa, Mastercard or American Express. No card details are stored on cabslink.com.";
+  "You pay by card through Stripe at the end of the booking, using Visa, Mastercard or American Express, or pay another way: cash, bank transfer or another method agreed with our team. No card details are stored on cabslink.com.";
 const PAY_B =
-  "Payment is by card through Stripe when you finish booking, with Visa, Mastercard or American Express accepted. Your card details are never stored on cabslink.com.";
+  "Payment is by card through Stripe when you finish booking, with Visa, Mastercard or American Express accepted; cash or bank transfer can be arranged with our team instead. Your card details are never stored on cabslink.com.";
 const PAY_C =
-  "Cards are taken through Stripe at the end of booking — Visa, Mastercard and American Express. Nothing about your card is kept on cabslink.com.";
+  "Cards are taken through Stripe at the end of booking — Visa, Mastercard and American Express — or you can agree cash, bank transfer or another method with our team. Nothing about your card is kept on cabslink.com.";
 const PAY_D =
-  "You settle by card via Stripe when the booking is completed, with Visa, Mastercard and American Express all accepted. Card details are not held on cabslink.com.";
+  "You settle by card via Stripe when the booking is completed, with Visa, Mastercard and American Express all accepted, or arrange cash, bank transfer or another method with our team. Card details are not held on cabslink.com.";
 
 const CANCEL_A =
   "Transfers can be cancelled free of charge more than 12 hours before pickup. Between 3 and 12 hours the charge is half the fare, and under 3 hours it is the full fare.";
