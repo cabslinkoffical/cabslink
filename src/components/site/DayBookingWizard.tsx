@@ -1258,7 +1258,56 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
             {/* 4. Details & payment */}
             {step === 3 && (
               <div className="space-y-5">
-                {created ? (
+                {requested ? (
+                  <>
+                    <StepTitle title="Request submitted" />
+                    <div className="rounded-2xl border border-[var(--gold)]/50 bg-[color-mix(in_oklab,var(--gold)_10%,transparent)] px-5 py-4">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">
+                        Your custom tour reference
+                      </p>
+                      <div className="mt-1 flex flex-wrap items-center gap-3">
+                        <p className="font-mono text-xl font-bold tracking-wider">{requested.reference}</p>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="rounded-full"
+                          onClick={() => {
+                            navigator.clipboard?.writeText(requested.reference).then(
+                              () => toast.success("Reference copied"),
+                              () => toast.error("Couldn't copy. Please note it down."),
+                            );
+                          }}
+                        >
+                          <Copy className="size-4" /> Copy
+                        </Button>
+                      </div>
+                      <p className="mt-2 text-sm">
+                        Our tour team will check your route and email you a price at <strong>{email}</strong>. No payment is needed yet.
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border border-border bg-background p-5">
+                      <p className="font-display font-bold">Your selected itinerary</p>
+                      <ol className="mt-3 space-y-1.5 text-sm">
+                        <li><span className="font-semibold">Start:</span> {start?.label}</li>
+                        {stops.map((s, i) => (
+                          <li key={`${s.placeId}-${i}`}>{i + 1}. {s.name}{s.dwellMinutes ? <span className="text-muted-foreground"> · {minutesLabel(s.dwellMinutes)}</span> : null}</li>
+                        ))}
+                        <li><span className="font-semibold">Finish:</span> {sameEnd ? start?.label : end?.label}</li>
+                      </ol>
+                      <p className="mt-3 text-xs text-muted-foreground">
+                        {date} from {time} · {hours} hours · {passengers} {passengers === 1 ? "passenger" : "passengers"}
+                      </p>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Check your request any time on the{" "}
+                      <Link to="/custom-tour-status" search={{ ref: requested.reference }} className="font-semibold text-foreground underline">
+                        request status page
+                      </Link>{" "}
+                      with this reference and your email address.
+                    </p>
+                  </>
+                ) : created ? (
                   <>
                     <StepTitle title="We've received your tour booking request" />
                     <div className="rounded-2xl border border-[var(--gold)]/50 bg-[color-mix(in_oklab,var(--gold)_10%,transparent)] px-5 py-3">
@@ -1302,7 +1351,8 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                         document.getElementById("tw-flight")?.focus();
                         return;
                       }
-                      bookMutation.mutate();
+                      if (requestMode) requestMutation.mutate();
+                      else bookMutation.mutate();
                     }}
                   >
                     <StepTitle title="Your details" />
@@ -1335,16 +1385,20 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                     <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
                       <p className="flex items-center gap-2 text-xs text-muted-foreground">
                         <ShieldCheck className="size-4 text-[var(--gold-ink)]" />
-                        {quote ? `£${quote.quote.total.toFixed(2)} total — pay by card next, or arrange another way with our team.` : "Secure card payments, or arrange another way with our team."}
+                        {requestMode
+                          ? "No payment now. Our tour team will reply with a price for your day."
+                          : quote ? `£${quote.quote.total.toFixed(2)} total — pay by card next, or arrange another way with our team.` : "Secure card payments, or arrange another way with our team."}
                       </p>
                       <Button
                         type="submit"
                         variant="gold"
                         className="w-full sm:w-auto sm:min-w-[180px] rounded-full"
-                        disabled={bookMutation.isPending || !captcha.ready}
+                        disabled={bookMutation.isPending || requestMutation.isPending || !captcha.ready}
                       >
-                        {bookMutation.isPending ? (
-                          <><Loader2 className="size-4 animate-spin" /> Saving…</>
+                        {bookMutation.isPending || requestMutation.isPending ? (
+                          <><Loader2 className="size-4 animate-spin" /> {requestMode ? "Sending…" : "Saving…"}</>
+                        ) : requestMode ? (
+                          "Send my quote request"
                         ) : (
                           "Continue to payment"
                         )}
@@ -1356,7 +1410,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
             )}
 
             {/* Navigation */}
-            {!(step === 3 && created) && (
+            {!(step === 3 && (created || requested)) && (
               <div className="mt-7 flex items-center justify-between gap-3 border-t border-border pt-5">
                 <Button
                   type="button"
