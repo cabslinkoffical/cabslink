@@ -1936,6 +1936,24 @@ export type Database = {
         }
         Relationships: []
       }
+      google_reviews_snapshot: {
+        Row: {
+          data: Json
+          fetched_at: string
+          id: number
+        }
+        Insert: {
+          data: Json
+          fetched_at?: string
+          id?: number
+        }
+        Update: {
+          data?: Json
+          fetched_at?: string
+          id?: number
+        }
+        Relationships: []
+      }
       hourly_rates: {
         Row: {
           active: boolean
@@ -5108,6 +5126,7 @@ export type Database = {
         Returns: boolean
       }
       reserve_tour_booking: { Args: { _booking: Json }; Returns: string }
+      reviews_wake_refresh: { Args: never; Returns: undefined }
       save_pricing_scheme_base: { Args: { _payload: Json }; Returns: string }
       search_bookable_destinations: {
         Args: { _limit?: number; _q: string }

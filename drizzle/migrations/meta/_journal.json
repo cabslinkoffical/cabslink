@@ -120,6 +120,13 @@
       "when": 1793717883911,
       "tag": "0016_booking_cancellation_cover",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1793735509840,
+      "tag": "0017_google_reviews_snapshot",
+      "breakpoints": true
     }
   ]
 }
