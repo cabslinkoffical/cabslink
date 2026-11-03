@@ -353,6 +353,7 @@ export async function retryNotificationById(logId: string): Promise<{
     meetGreet: !!booking.meet_greet,
     childSeat: !!booking.child_seat,
     childSeatsText: childSeatsLabel(parseChildSeats(booking.child_seat_types), Number(booking.child_seat_count ?? 0)),
+    cancellationCoverText: coverLabel(booking.cancellation_cover, booking.cancellation_cover_amount),
     returnJourney: !!booking.return_journey,
     distanceMiles: booking.distance_miles,
     price: booking.price,

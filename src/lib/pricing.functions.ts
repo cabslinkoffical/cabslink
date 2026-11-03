@@ -1,6 +1,7 @@
 import { FACT_TEXT } from "@/lib/site-facts";
 import { childSeatChoices, childSeatsLabel, TOO_MANY_SEATS } from "@/lib/child-seats";
 import { flightNumberError } from "@/lib/flight-number";
+import { coverDelta, coverLabel } from "@/lib/cancellation-cover";
 import { getClientIp } from "@/lib/client-ip.server";
 import { createServerFn } from "@tanstack/react-start";
 import { setResponseStatus } from "@tanstack/react-start/server";
@@ -994,6 +995,8 @@ export const createBooking = createServerFn({ method: "POST" })
       child_seat_count: recordedSeatCount,
       child_seat_types: childSeatTypes,
       meet_greet: !!data.meet_greet,
+      cancellation_cover: cancellationCover,
+      cancellation_cover_amount: cancellationCoverAmount,
       return_journey: !!data.return_journey,
       return_date: data.return_journey ? data.returnDate ?? null : null,
       return_time: data.return_journey ? data.returnTime ?? null : null,
@@ -1117,6 +1120,7 @@ export const createBooking = createServerFn({ method: "POST" })
         meetGreet: !!data.meet_greet,
         childSeat: !!insertPayload.child_seat,
         childSeatsText: childSeatsLabel(insertPayload.child_seat_types ?? [], insertPayload.child_seat_count ?? 0),
+        cancellationCoverText: coverLabel(cancellationCover, cancellationCoverAmount),
         returnJourney: !!data.return_journey,
         distanceMiles: auth.distanceMiles,
         price,
