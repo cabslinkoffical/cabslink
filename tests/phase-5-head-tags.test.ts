@@ -67,7 +67,7 @@ describe("Phase 5 — page head builder", () => {
     expect(missing).toEqual([]);
     const shared = [
       "src/lib/seo/auto-seo.ts", "src/lib/seo/hub-head.ts", "src/components/site/ServiceLocationPage.tsx",
-      "src/components/site/JourneyPage.tsx", "src/components/site/GuidePage.tsx", "src/components/seo/SeoPageRenderer.tsx",
+      "src/components/site/JourneyPage.head.ts", "src/components/site/GuidePage.head.ts", "src/components/seo/SeoPageRenderer.head.ts",
     ];
     for (const f of shared) expect(readFileSync(f, "utf8"), f).toMatch(/return normalizeHead\(/);
   });
