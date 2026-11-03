@@ -26,6 +26,8 @@ export const Route = createFileRoute("/privacy")({
         call <a href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}>{SITE.phoneUK}</a>. Privacy requests are handled by our
         data protection contact at the same email address, marked "Data protection request".
       </p>
+      {/* TODO(owner): add the company registration number. Do not invent one. */}
+      <p>Company registration number: [to be added]</p>
 
       <h2>2. Information we collect</h2>
       <ul>
@@ -52,6 +54,7 @@ export const Route = createFileRoute("/privacy")({
       <ul>
         <li><strong>Hosting and database</strong> — our cloud application and database platform (EU/UK regions).</li>
         <li><strong>Mapping and distance</strong> — Google Maps Platform, for address lookup, routing and journey distance.</li>
+        <li><strong>Card payments</strong> — Stripe, which processes card payments. Your card details go directly to Stripe; we do not see or store your full card number.</li>
         <li><strong>Email delivery</strong> — Resend, for booking confirmations and enquiry notifications.</li>
         <li><strong>Bot protection</strong> — Cloudflare Turnstile, to protect our forms from automated abuse.</li>
       </ul>
