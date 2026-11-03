@@ -19,7 +19,7 @@ describe("tour SEO overrides", () => {
     expect(hp.metaTitle).toBe("Harry Potter Tour from Edinburgh to Glenfinnan | Cabslink");
     expect(hp.metaTitle.length).toBeLessThanOrEqual(60);
     expect(hp.metaDescription).toBe(
-      "Private Harry Potter tour of Scotland from Edinburgh: Glenfinnan Viaduct, Glencoe and Fort William with a local driver. 1-8 guests, fixed price, door-to-door pickup.",
+      "Private Harry Potter tour from Edinburgh: Glenfinnan Viaduct, Glencoe and Fort William with a local driver. 1-8 guests, fixed price, door-to-door pickup.",
     );
     // H1 is unchanged.
     expect(hp.h1).toBe("Harry Potter Tour from Edinburgh");

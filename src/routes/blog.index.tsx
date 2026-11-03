@@ -70,7 +70,7 @@ function BlogHome() {
             >
               {hero.featured_image_url && (
                 <div className="aspect-[16/10] md:aspect-auto md:h-full overflow-hidden">
-                  <img src={hero.featured_image_url} alt={hero.featured_image_alt ?? hero.title} className="h-full w-full object-cover transition group-hover:scale-105" />
+                  <img src={hero.featured_image_url} alt={hero.featured_image_alt ?? hero.title} width={800} height={500} className="h-full w-full object-cover transition group-hover:scale-105" />
                 </div>
               )}
               <div className="p-8 md:p-12">
