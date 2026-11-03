@@ -132,3 +132,97 @@ export function tourQuoteConfirmedEmail(ctx: TourEmailContext) {
     ].join("\n"),
   };
 }
+
+// ---------------------------------------------------------------------------
+// Custom tour requests (CL-CT references): priced by the tour team.
+// ---------------------------------------------------------------------------
+
+export type CustomTourEmailContext = {
+  reference: string;
+  customerName: string;
+  tourDate: string;
+  startTime: string;
+  passengers: number;
+  stops: string[];
+  /** Absolute URL of the request status page. */
+  statusUrl: string;
+};
+
+function customRows(ctx: CustomTourEmailContext, extra: Array<[string, string]> = []): string {
+  const rows: Array<[string, string]> = [
+    ["Reference", esc(ctx.reference)],
+    ["Date & start", `${esc(ctx.tourDate)} at ${esc(ctx.startTime)}`],
+    ["Passengers", esc(String(ctx.passengers))],
+    ["Stops", ctx.stops.length ? ctx.stops.map((s, i) => `${i + 1}. ${esc(s)}`).join("<br>") : "—"],
+    ...extra,
+  ];
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid rgba(14,24,44,.1);border-radius:12px;overflow:hidden;">${rows
+    .map(([l, v]) => `<tr><td style="padding:8px 12px;font-size:12px;text-transform:uppercase;letter-spacing:.08em;vertical-align:top;">${esc(l)}</td><td style="padding:8px 12px;font-size:14px;font-weight:700;">${v}</td></tr>`)
+    .join("")}</table>`;
+}
+
+/** Sent the moment a customer submits a custom tour request. */
+export function customTourRequestReceivedEmail(ctx: CustomTourEmailContext) {
+  const heading = "Custom tour request received";
+  const html = shell(heading, `
+    <p style="margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:.2em;color:#dfaf26;font-weight:700;">Custom tour request</p>
+    <h1 style="margin:0 0 12px;font-size:22px;">Thank you, ${esc(ctx.customerName)}</h1>
+    <p style="margin:0 0 20px;line-height:1.55;">We have your custom tour request. Your reference is <strong>${esc(ctx.reference)}</strong>. Our tour team will check your route and send you a price. No payment is needed yet.</p>
+    ${customRows(ctx)}
+    <p style="margin:22px 0 0;line-height:1.55;font-size:13px;">Check your request any time at <a href="${esc(ctx.statusUrl)}" style="color:#0e182c;font-weight:700;">${esc(ctx.statusUrl)}</a> with your reference and this email address.</p>
+  `);
+  return {
+    subject: safeSubject(`${heading} — ${ctx.reference}`),
+    html,
+    text: [
+      `Thank you, ${ctx.customerName}`,
+      "",
+      `We have your custom tour request. Your reference is ${ctx.reference}. Our tour team will check your route and send you a price. No payment is needed yet.`,
+      "",
+      `Date & start: ${ctx.tourDate} at ${ctx.startTime}`,
+      `Passengers: ${ctx.passengers}`,
+      ...ctx.stops.map((s, i) => `${i + 1}. ${s}`),
+      "",
+      `Check your request: ${ctx.statusUrl}`,
+      "",
+      `${SITE.name} — ${SITE.phoneUK} — ${SITE.email}`,
+    ].join("\n"),
+  };
+}
+
+/** Sent when the tour team updates a request and chooses to email the customer. */
+export function customTourRequestUpdateEmail(ctx: CustomTourEmailContext & {
+  statusLabel: string;
+  statusMessage: string;
+  price: number | null;
+  message: string | null;
+}) {
+  const heading = `Update on your custom tour ${ctx.reference}`;
+  const extra: Array<[string, string]> = [["Status", esc(ctx.statusLabel)]];
+  if (ctx.price != null) extra.push(["Price", money(Number(ctx.price))]);
+  const html = shell(heading, `
+    <p style="margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:.2em;color:#dfaf26;font-weight:700;">Custom tour update</p>
+    <h1 style="margin:0 0 12px;font-size:22px;">Hello ${esc(ctx.customerName)}</h1>
+    <p style="margin:0 0 16px;line-height:1.55;">${esc(ctx.statusMessage)}</p>
+    ${ctx.message ? `<p style="margin:0 0 20px;line-height:1.55;white-space:pre-wrap;">${esc(ctx.message)}</p>` : ""}
+    ${customRows(ctx, extra)}
+    <p style="margin:22px 0 0;line-height:1.55;font-size:13px;">See your request at <a href="${esc(ctx.statusUrl)}" style="color:#0e182c;font-weight:700;">${esc(ctx.statusUrl)}</a>, reply to this email or call <strong>${esc(SITE.phoneUK)}</strong>.</p>
+  `);
+  return {
+    subject: safeSubject(heading),
+    html,
+    text: [
+      `Hello ${ctx.customerName}`,
+      "",
+      ctx.statusMessage,
+      ...(ctx.message ? ["", ctx.message] : []),
+      "",
+      `Reference: ${ctx.reference}`,
+      `Status: ${ctx.statusLabel}`,
+      ...(ctx.price != null ? [`Price: £${Number(ctx.price).toFixed(2)}`] : []),
+      "",
+      `See your request: ${ctx.statusUrl}`,
+      `${SITE.name} — ${SITE.phoneUK} — ${SITE.email}`,
+    ].join("\n"),
+  };
+}

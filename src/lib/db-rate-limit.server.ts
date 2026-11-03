@@ -84,5 +84,7 @@ export const LIMITS = {
   tourLoopMap: { name: "tourLoopMap", max: 40, windowSeconds: 60 },
   scenicQuote: { name: "scenicQuote", max: 30, windowSeconds: 60 },
   tourQuote: { name: "tourQuote", max: 40, windowSeconds: 60 },
+  customTourRequest: { name: "customTourRequest", max: 5, windowSeconds: 600 },
+  customTourLookup: { name: "customTourLookup", max: 10, windowSeconds: 600 },
   collect: { name: "collect", max: 120, windowSeconds: 60 },
 } satisfies Record<string, RateLimitRule>;
