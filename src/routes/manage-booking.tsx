@@ -551,6 +551,7 @@ function BookingCard({ booking: b }: { booking: ManagedBooking }) {
           <Fact icon={<Briefcase className="size-3" />} label="Hand bags" value={String(b.handLuggage)} />
           <Fact icon={<RouteIcon className="size-3" />} label="Distance" value={b.distanceMiles != null ? `${b.distanceMiles.toFixed(1)} mi` : "—"} />
           {b.flightNumber ? <Fact icon={<PlaneTakeoff className="size-3" />} label="Flight" value={b.flightNumber} /> : null}
+          {b.cancellationCoverText ? <Fact icon={<ShieldCheck className="size-3" />} label="Cancellation cover" value={b.cancellationCoverPromise ? `${b.cancellationCoverText} — ${b.cancellationCoverPromise.toLowerCase()}` : b.cancellationCoverText} /> : null}
           <Fact
             icon={<ShieldCheck className="size-3" />}
             label="Total fare"
@@ -650,6 +651,8 @@ function CancelForm({
           <p className="mt-1 text-sm text-muted-foreground">
             {booking.cancellation.tier === "full"
               ? "You qualify for a full refund of anything already paid."
+              : booking.cancellation.tier === "no_refund"
+              ? "You chose non-refundable cover, so no refund is due. You can still cancel to release the vehicle."
               : "You can submit a partial-refund claim — our team confirms the amount by email."}
           </p>
         )}
@@ -729,6 +732,8 @@ function CancellationDone({ ref_, tier, registeredPhone }: { ref_: string; tier:
             ? "logged for a full refund."
             : tier === "partial"
             ? "logged as a partial-refund claim."
+            : tier === "no_refund"
+            ? "logged for cancellation (non-refundable, no refund due)."
             : "logged for cancellation."}
         </p>
         {tier === "unpaid" && (
@@ -744,7 +749,9 @@ function CancellationDone({ ref_, tier, registeredPhone }: { ref_: string; tier:
         <ol className="space-y-2 text-muted-foreground">
           <li><span className="font-semibold text-foreground">1.</span> Our team calls you on your registered number{registeredPhone ? <> (<span className="font-mono font-semibold text-foreground">{maskPhone(registeredPhone)}</span>)</> : null} within 24 hours to confirm it is really you.</li>
           <li><span className="font-semibold text-foreground">2.</span> You receive a confirmation email once the booking is cancelled.</li>
-          {tier === "unpaid" ? (
+          {tier === "no_refund" ? (
+            <li><span className="font-semibold text-foreground">3.</span> No refund is issued, because you chose non-refundable cover when booking.</li>
+          ) : tier === "unpaid" ? (
             <li><span className="font-semibold text-foreground">3.</span> Nothing will be charged to your card — no payment was taken for this booking.</li>
           ) : (
             <li><span className="font-semibold text-foreground">3.</span> Any refund is returned to your original payment method, typically in 5–10 working days.</li>

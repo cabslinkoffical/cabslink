@@ -50,6 +50,8 @@ export type BookingEmailContext = {
   /** e.g. "1 × Toddler Child Seat, 1 × High-Back Booster". */
   childSeatsText?: string | null;
   returnJourney: boolean;
+  /** e.g. "Flexible (+£4.20)"; null when not recorded. */
+  cancellationCoverText?: string | null;
   distanceMiles?: number | null;
   price?: number | null;
   notes?: string | null;
@@ -97,6 +99,7 @@ function commonBookingRows(ctx: BookingEmailContext): string {
   else if (ctx.childSeat) extras.push("Child seat");
   if (ctx.returnJourney) extras.push("Return journey");
   if (extras.length) rows.push(tableRow("Extras", extras.join(" · ")));
+  if (ctx.cancellationCoverText) rows.push(tableRow("Cancellation cover", esc(ctx.cancellationCoverText)));
   rows.push(tableRow("Estimated fare", esc(money(ctx.price))));
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid rgba(14,24,44,.1);border-radius:12px;overflow:hidden;">${rows.join("")}</table>`;
 }
@@ -113,6 +116,7 @@ function textLines(ctx: BookingEmailContext, heading: string, intro: string, nex
   ];
   if (ctx.distanceMiles != null) lines.push(`Estimated distance: ${Number(ctx.distanceMiles).toFixed(1)} mi`);
   if (ctx.flightNumber) lines.push(`Flight: ${ctx.flightNumber}`);
+  if (ctx.cancellationCoverText) lines.push(`Cancellation cover: ${ctx.cancellationCoverText}`);
   lines.push(`Estimated fare: ${money(ctx.price)}`);
   if (ctx.confirmationUrl) lines.push("", `View your booking: ${ctx.confirmationUrl}`);
   lines.push("", next, "", `${SITE.name} — ${SITE.phoneUK} — ${SITE.email}`);

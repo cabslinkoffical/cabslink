@@ -537,7 +537,6 @@ function BookPage() {
         : pre.stops.map((s) => ({ placeId: s.placeId, label: s.label, minutes: 0 }));
       const paymentLabel = payMethod === "other" ? OFFLINE_PAYMENT_LABEL : "Card payment (online)";
 
-      const policyLabel = policy === "non_refundable" ? "Non-refundable" : policy === "flexible" ? "Flexible" : "Standard";
       const res = await bookFn({
         data: {
           idempotencyKey: idempotencyKey.current,
@@ -562,7 +561,6 @@ function BookPage() {
           flight_number: parsed.data.flight_number || null,
           notes: (() => {
             const parts: string[] = [];
-            parts.push(`Cancellation policy: ${policyLabel}`);
             parts.push(`Payment method: ${paymentLabel}`);
             if (parsed.data.whatsapp) parts.push(`WhatsApp: ${parsed.data.whatsapp}`);
             if (childSeatCount > 0) parts.push(`Child seats requested: ${childSeatCount}`);

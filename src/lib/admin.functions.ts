@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { childSeatsLabel, parseChildSeats } from "@/lib/child-seats";
+import { coverLabel } from "@/lib/cancellation-cover";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
@@ -922,7 +923,7 @@ export const updateCancellationRequest = createServerFn({ method: "POST" })
           pickupAddress: full.pickup_address, dropoffAddress: full.dropoff_address,
           pickupDate: full.pickup_date, pickupTime: full.pickup_time, vehicleType: full.vehicle_type,
           passengers: full.passengers, luggage: full.luggage, flightNumber: full.flight_number,
-          meetGreet: !!full.meet_greet, childSeat: !!full.child_seat, childSeatsText: childSeatsLabel(parseChildSeats(full.child_seat_types), Number(full.child_seat_count ?? 0)), returnJourney: !!full.return_journey,
+          meetGreet: !!full.meet_greet, childSeat: !!full.child_seat, childSeatsText: childSeatsLabel(parseChildSeats(full.child_seat_types), Number(full.child_seat_count ?? 0)), cancellationCoverText: coverLabel(full.cancellation_cover, full.cancellation_cover_amount), returnJourney: !!full.return_journey,
           distanceMiles: full.distance_miles, price: full.price, notes: full.notes,
           cancellationReason: full.cancellation_reason,
         } as any, booking.id, "cancelled" as any, transitionId);

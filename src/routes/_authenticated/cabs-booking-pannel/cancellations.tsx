@@ -82,6 +82,7 @@ const TIER_LABELS: Record<string, string> = {
   unpaid: "No payment taken",
   full: "Full refund due",
   partial: "Partial claim",
+  no_refund: "Non-refundable — no refund due",
   none: "Manual review",
 };
 

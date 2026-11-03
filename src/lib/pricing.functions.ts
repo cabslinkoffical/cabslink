@@ -1,6 +1,7 @@
 import { FACT_TEXT } from "@/lib/site-facts";
 import { childSeatChoices, childSeatsLabel, TOO_MANY_SEATS } from "@/lib/child-seats";
 import { flightNumberError } from "@/lib/flight-number";
+import { coverDelta, coverLabel, type CancellationCover } from "@/lib/cancellation-cover";
 import { getClientIp } from "@/lib/client-ip.server";
 import { createServerFn } from "@tanstack/react-start";
 import { setResponseStatus } from "@tanstack/react-start/server";
@@ -928,16 +929,21 @@ export const createBooking = createServerFn({ method: "POST" })
     }
 
 
-    // Cancellation-policy delta (admin-configurable percent + minimum).
+    // Cancellation-cover delta (admin-configurable percent + minimum). The
+    // chosen cover and the exact amount it changed the fare by are saved.
+    const cancellationCover = data.cancellation_policy;
+    let cancellationCoverAmount = 0;
     {
       const s = auth.settings;
-      if (data.cancellation_policy === "non_refundable") {
-        const d = -Math.max(s.policyNonRefundableMinPence / 100, Math.round(price * (s.policyNonRefundablePercent / 100) * 100) / 100);
-        price = Number(Math.max(0, price + d).toFixed(2));
-      } else if (data.cancellation_policy === "flexible") {
-        const d = Math.max(s.policyFlexibleMinPence / 100, Math.round(price * (s.policyFlexiblePercent / 100) * 100) / 100);
-        price = Number((price + d).toFixed(2));
-      }
+      const d = coverDelta(cancellationCover, price, {
+        nonRefundablePercent: s.policyNonRefundablePercent,
+        nonRefundableMinPence: s.policyNonRefundableMinPence,
+        flexiblePercent: s.policyFlexiblePercent,
+        flexibleMinPence: s.policyFlexibleMinPence,
+      });
+      const before = price;
+      price = Number(Math.max(0, price + d).toFixed(2));
+      cancellationCoverAmount = Number((price - before).toFixed(2));
     }
 
     const notesWithQty = qty > 1
@@ -989,6 +995,8 @@ export const createBooking = createServerFn({ method: "POST" })
       child_seat_count: recordedSeatCount,
       child_seat_types: childSeatTypes,
       meet_greet: !!data.meet_greet,
+      cancellation_cover: cancellationCover,
+      cancellation_cover_amount: cancellationCoverAmount,
       return_journey: !!data.return_journey,
       return_date: data.return_journey ? data.returnDate ?? null : null,
       return_time: data.return_journey ? data.returnTime ?? null : null,
@@ -1112,6 +1120,7 @@ export const createBooking = createServerFn({ method: "POST" })
         meetGreet: !!data.meet_greet,
         childSeat: !!insertPayload.child_seat,
         childSeatsText: childSeatsLabel(insertPayload.child_seat_types ?? [], insertPayload.child_seat_count ?? 0),
+        cancellationCoverText: coverLabel(cancellationCover, cancellationCoverAmount),
         returnJourney: !!data.return_journey,
         distanceMiles: auth.distanceMiles,
         price,
@@ -1393,6 +1402,8 @@ export type RepriceResult = {
   vehicleName: string;
   capacity: { passengers: number; luggage: number; handLuggage: number; vehicleCount: number };
   extrasNet: number;
+  /** Price change from the booking's cancellation cover (0 when standard / none). */
+  cancellationCoverAmount: number;
 };
 
 export async function repriceExistingBooking(args: {
@@ -1410,6 +1421,8 @@ export async function repriceExistingBooking(args: {
   meetGreet: boolean;
   childSeatCount: number;
   returnJourney: boolean;
+  /** Cover saved on the booking; re-applied so a change keeps the customer's choice. */
+  cancellationCover?: CancellationCover | null;
 }): Promise<RepriceResult> {
   let auth: AuthoritativeQuote;
   try {
@@ -1481,7 +1494,22 @@ export async function repriceExistingBooking(args: {
     price = Number((price + taxed.gross).toFixed(2));
   }
 
+  let cancellationCoverAmount = 0;
+  if (args.cancellationCover && args.cancellationCover !== "standard") {
+    const st = auth.settings;
+    const d = coverDelta(args.cancellationCover, price, {
+      nonRefundablePercent: st.policyNonRefundablePercent,
+      nonRefundableMinPence: st.policyNonRefundableMinPence,
+      flexiblePercent: st.policyFlexiblePercent,
+      flexibleMinPence: st.policyFlexibleMinPence,
+    });
+    const before = price;
+    price = Number(Math.max(0, price + d).toFixed(2));
+    cancellationCoverAmount = Number((price - before).toFixed(2));
+  }
+
   return {
+    cancellationCoverAmount,
     price: Number(price.toFixed(2)),
     distanceMiles: auth.distanceMiles,
     vehicleName: profile.vehicle.name,
