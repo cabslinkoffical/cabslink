@@ -50,7 +50,7 @@ const SERVICES = [
 const WHY = [
   { icon: ShieldCheck, title: "Fully licensed", text: "PHV-licensed drivers, insured vehicles." },
   { icon: Clock, title: "24/7 availability", text: "Round-the-clock bookings & dispatch." },
-  { icon: Star, title: "Fixed prices", text: "No surge pricing. Quote is what you pay." },
+  { icon: Star, title: "Fixed prices", text: "Fixed price shown before you book. No surge pricing." },
   { icon: CheckCircle2, title: "Meet & greet", text: "Name-board pickup on any booking, small extra charge." },
 ] as const;
 

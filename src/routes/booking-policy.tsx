@@ -28,7 +28,7 @@ export const Route = createFileRoute("/booking-policy")({
       <p><strong>What your fare includes:</strong> {FACT_TEXT.feesIncluded}</p>
 
       <h2>2. Changes</h2>
-      <p>You can change the pickup time, route, stops or vehicle class free of charge up to 6 hours before pickup, subject to availability. Later changes are accommodated where possible; a change that increases distance, duration or vehicle class may increase the fare.</p>
+      <p>You can change the pickup time, route, stops or vehicle class up to 6 hours before pickup with no admin fee. If the new journey costs more or less, we show you the new price before you confirm. Later changes are accommodated where possible; a change that increases distance, duration or vehicle class may increase the fare.</p>
 
       <h2>3. Cancelling a transfer</h2>
       <ul>
@@ -45,7 +45,7 @@ export const Route = createFileRoute("/booking-policy")({
         <li><strong>Cruise ports and rail stations</strong> — 30 minutes of free waiting.</li>
         <li><strong>All other pickups</strong> — 15 minutes of free waiting from the booked time.</li>
       </ul>
-      <p>After the free period, waiting is charged at {W.perMinutePence}p per minute, or {W.perMinutePenceLarge}p per minute for larger vehicles.</p>
+      <p>After the free period, waiting time is charged by the hour; the rate depends on the vehicle and is shown when you book.</p>
       {/* TODO(owner): confirm which vehicle classes count as "larger vehicles" and the free waiting at cruise ports, stations and other pickups. */}
 
       <h2>4a. Cancelling a tour</h2>

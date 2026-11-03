@@ -251,7 +251,7 @@ function CorporateBookingPage() {
             <dl className="mt-8 divide-y divide-border rounded-2xl border border-border bg-card">
               {[
                 { i: Clock, k: "Enquiry response", v: "Within 1 working day" },
-                { i: Headset, k: "Booking confirmation", v: "Within 30 minutes, 24/7" },
+                { i: Headset, k: "Booking confirmation", v: "As soon as our team has reviewed it, usually quickly" },
                 { i: PlaneTakeoff, k: "Airport waiting time", v: "60 minutes free after landing" },
                 { i: Users, k: "Driver details shared", v: "The evening before travel" },
                 { i: FileText, k: "Free cancellation", v: "Up to 24 hours before pickup" },
