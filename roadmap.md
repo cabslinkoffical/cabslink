@@ -178,7 +178,7 @@
 - [x] Owner 2 Nov: local-page top section (LocalPageHero, e.g. /cruise-ports/greenock) — intro paragraph on the left with details below it, booking form on the right, other content below; apply on every page using it
 - [x] Unified lower-page design (areas, airports, routes, stations, attractions, hospitals, guides, sports, service+location, stored pages): shared bands, fare/fleet/fact tables, link cards, white/cream rhythm; Areas link in main menu and footer
 - [x] Every non-fleet page gets its own real, relevant, optimised, CDN-hosted photo (no shared/generic images); fleet page and vehicle photos untouched
-- [ ] Owner prompt (13 groups, one at a time, stop after each): 1 payment methods/status wording DONE (pay-another-way choice, received vs confirmed page/email, policy, FAQ; test booking verified then removed); 2 Meet & Greet optional paid default-unticked DONE (3 Nov: unticked by default, no "included" label, 24 airport intros say optional small extra charge); 3 tolls/airport fees included DONE (3 Nov: shared wording on booking total, tours/hourly totals, every location page header, terms, refund policy, booking policy, FAQ); 4 child seat types per seat; 5 tours mandatory column + From price + inclusions; 6 cancellation cover saved; 7 Europe/London times; 8 security (Stripe live on cabslink.com, dispatch token, drizzle 0004); 9 privacy Stripe + reg no gap; 10 speed caching/Promise.all/lazy; 11 admin pricing preview old rows; 12 untrue wording; 13 final checklist
+- [ ] Owner prompt (13 groups, one at a time, stop after each): 1 payment methods/status wording DONE (pay-another-way choice, received vs confirmed page/email, policy, FAQ; test booking verified then removed); 2 Meet & Greet optional paid default-unticked DONE (3 Nov: unticked by default, no "included" label, 24 airport intros say optional small extra charge); 3 tolls/airport fees included DONE (3 Nov: shared wording on booking total, tours/hourly totals, every location page header, terms, refund policy, booking policy, FAQ); 4 child seat types per seat DONE (3 Nov); 5 tours mandatory column + From price + inclusions; 6 cancellation cover saved; 7 Europe/London times; 8 security (Stripe live on cabslink.com, dispatch token, drizzle 0004); 9 privacy Stripe + reg no gap; 10 speed caching/Promise.all/lazy; 11 admin pricing preview old rows; 12 untrue wording; 13 final checklist
 - [ ] Blog extras: table of contents, paginated article lists, richer Article details for Google
 - [ ] Security: full review (quick + deep scan) and update 26 dependency advisories
 - [ ] AI/search visibility for every page: text-to-code ratio, missing article/tour structured data; fresh SEO scan after publish
@@ -202,6 +202,6 @@
 - [x] Harry Potter title → "Harry Potter Tour from Edinburgh to Glenfinnan | Cabslink"
 
 ## Owner requests (3 Nov)
-- [ ] Tour pricing: round-trip tours (same start and end) must price
-- [ ] Typed via stops kept when scenic stops are chosen
-- [ ] Part 4: child seat types, priced per seat, seat choice on booking form
+- [x] Tour pricing: round-trip tours (same start and end) priced as a loop through their stops (Fife tour measured 109.5 mi)
+- [x] Typed via stops kept when scenic stops are chosen (typed first, then sightseeing; used for price and booking)
+- [x] Part 4: child seat types priced per seat on the booking form, max one per passenger (form + server), types saved on the booking and shown on confirmation page, emails and admin. Open: Manage Booking change requests still edit only the seat total; tours/hourly hire have no child seat option
