@@ -175,7 +175,19 @@ const quoteSchema = z.object({
   passengers: z.coerce.number().int().min(1).max(80),
   luggage: z.coerce.number().int().min(0).max(80),
   stops: z.array(stopSchema).max(15).default([]),
+  /** One entry per vehicle when the group needs more than one; the first is vehicleClassId. */
+  vehicles: z.array(z.string().uuid()).max(6).optional(),
 });
+
+/** True when the request asks for more than one vehicle. */
+const isGroup = (d: { vehicles?: string[] }) => (d.vehicles?.length ?? 0) > 1;
+
+/** Price one vehicle, or every vehicle in a group, through the same engine. */
+async function priceRequest(d: z.infer<typeof quoteSchema>): Promise<TourQuoteResult & { shares?: Array<{ vehicleClassId: string; passengers: number; luggage: number }> }> {
+  if (!isGroup(d)) return quoteTourImpl(d);
+  const { quoteTourGroupImpl } = await import("@/lib/tour-quote.server");
+  return quoteTourGroupImpl({ ...d, vehicleClassId: d.vehicles![0]!, vehicles: d.vehicles! });
+}
 
 export type TourQuoteRequest = z.input<typeof quoteSchema>;
 
@@ -188,7 +200,9 @@ export const quoteTour = createServerFn({ method: "POST" })
       try { setResponseStatus(429); } catch { /* headers sent */ }
       throw new Error("Too many price checks. Please wait a moment and try again.");
     }
-    return quoteTourImpl(data);
+    const res = await priceRequest(data);
+    const { shares: _shares, ...out } = res;
+    return out;
   });
 
 /** Stops reachable inside the mileage that comes with the chosen hours. */
@@ -282,12 +296,21 @@ export const createTourBooking = createServerFn({ method: "POST" })
     }
 
 
-    const left = await capacityLeft(data.vehicleClassId, data.date);
-    if (left !== null && left <= 0) {
-      throw new Error("That vehicle is fully booked on your date. Please pick another vehicle or date.");
+    const group = isGroup(data);
+    const vehicleIds = group ? data.vehicles! : [data.vehicleClassId];
+    if (group) data.vehicleClassId = vehicleIds[0]!;
+    const needed = new Map<string, number>();
+    for (const id of vehicleIds) needed.set(id, (needed.get(id) ?? 0) + 1);
+    for (const [classId, n] of needed) {
+      const left = await capacityLeft(classId, data.date);
+      if (left !== null && left < n) {
+        throw new Error(group
+          ? "Not enough of those vehicles are free on your date. Please change the vehicles or the date."
+          : "That vehicle is fully booked on your date. Please pick another vehicle or date.");
+      }
     }
 
-    const result = await quoteTourImpl(data);
+    const result = await priceRequest(data);
     if (result.quote.blockedReason) throw new Error(result.quote.blockedReason);
     if (result.quote.total < 1) throw new Error("We couldn't price this tour. Please call us and we'll help.");
 
@@ -331,6 +354,7 @@ export const createTourBooking = createServerFn({ method: "POST" })
       notes: [
         isHourly ? "HOURLY HIRE — car and driver by the hour" : `DAY TOUR — ${data.mode === "premade" ? "Premade tour" : "Custom day"}`,
         `Hours booked: ${data.hours}`,
+        group ? `Vehicles (${vehicleIds.length}): ${(result.vehicles ?? []).map((v, i) => `${i + 1}. ${v.name}, ${v.passengers} pax, ${v.luggage} cases, £${v.total.toFixed(2)}`).join("; ")}` : null,
         stopNames.length ? `Stops: ${stopNames.join(", ")}` : "No stops chosen",
         data.notes ? `\nCustomer notes: ${data.notes}` : null,
       ]
@@ -343,6 +367,10 @@ export const createTourBooking = createServerFn({ method: "POST" })
       original_service_type: TOUR_SERVICE_TYPE,
       vehicle_class_id: data.vehicleClassId,
       vehicle_type: result.vehicleName,
+      vehicle_count: vehicleIds.length,
+      tour_vehicles: group
+        ? (result.vehicles ?? []).map((v) => ({ vehicle_class_id: v.vehicleClassId, name: v.name, passengers: v.passengers, luggage: v.luggage, price: v.total }))
+        : null,
       scenic_template_id: data.templateId ?? null,
       tour_name: tourName,
       tour_slug: tourSlug,
