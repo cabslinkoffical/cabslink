@@ -690,10 +690,12 @@ export type Database = {
           tour_name: string | null
           tour_slug: string | null
           tour_stops: Json
+          tour_vehicles: Json | null
           updated_at: string
           vehicle_capacity_snapshot: Json | null
           vehicle_class_id: string | null
           vehicle_class_name_snapshot: string | null
+          vehicle_count: number
           vehicle_id: string | null
           vehicle_name_snapshot: string | null
           vehicle_type: string
@@ -781,10 +783,12 @@ export type Database = {
           tour_name?: string | null
           tour_slug?: string | null
           tour_stops?: Json
+          tour_vehicles?: Json | null
           updated_at?: string
           vehicle_capacity_snapshot?: Json | null
           vehicle_class_id?: string | null
           vehicle_class_name_snapshot?: string | null
+          vehicle_count?: number
           vehicle_id?: string | null
           vehicle_name_snapshot?: string | null
           vehicle_type: string
@@ -872,10 +876,12 @@ export type Database = {
           tour_name?: string | null
           tour_slug?: string | null
           tour_stops?: Json
+          tour_vehicles?: Json | null
           updated_at?: string
           vehicle_capacity_snapshot?: Json | null
           vehicle_class_id?: string | null
           vehicle_class_name_snapshot?: string | null
+          vehicle_count?: number
           vehicle_id?: string | null
           vehicle_name_snapshot?: string | null
           vehicle_type?: string
@@ -5337,6 +5343,10 @@ export type Database = {
           status: Database["public"]["Enums"]["booking_status"]
           transition_id: string
         }[]
+      }
+      tour_vehicles_used: {
+        Args: { _class: string; _day: string }
+        Returns: number
       }
     }
     Enums: {

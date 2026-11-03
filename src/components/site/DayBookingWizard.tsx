@@ -6,8 +6,9 @@
  */
 import { ukDate } from "@/lib/uk-time";
 import { FACT_TEXT } from "@/lib/site-facts";
+import { SITE } from "@/lib/site";
 import { flightNumberError, isAirportPickup } from "@/lib/flight-number";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { rememberCheckout, trackEvent } from "@/lib/analytics-ga";
@@ -18,6 +19,7 @@ import {
 } from "lucide-react";
 import { createCustomTourRequest } from "@/lib/custom-tour-requests.functions";
 import { quoteRequestReason } from "@/lib/custom-tour-requests";
+import { splitGroup, suggestGroups, groupLabel, MAX_GROUP_VEHICLES } from "@/lib/tour-group";
 import { moveStop } from "@/lib/stop-order";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PassengerConfirmation } from "@/components/site/PassengerConfirmation";
@@ -107,6 +109,9 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
   const [time, setTime] = useState("09:00");
   const [hours, setHours] = useState<number | null>(null);
   const [vehicleClassId, setVehicleClassId] = useState<string | null>(null);
+  /** More than one vehicle for a big group: one class id per vehicle (first = vehicleClassId). */
+  const [groupVehicles, setGroupVehicles] = useState<string[]>([]);
+  const [showGroup, setShowGroup] = useState(false);
   const [passengers, setPassengers] = useState(1);
   const [passengersConfirmed, setPassengersConfirmed] = useState(false);
   const [luggage, setLuggage] = useState(2);
@@ -224,7 +229,48 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
   const liveQuote = quote?.quote ?? null;
 
   const vehicle = classes.find((c) => c.id === vehicleClassId) ?? null;
-  const vehicleFits = classes.some((c) => (c.max_passengers ?? 99) >= passengers);
+  const singleFits = classes.some((c) => (c.max_passengers ?? 99) >= passengers);
+  const groupActive = groupVehicles.length > 1;
+  const groupSplit = groupActive ? splitGroup(groupVehicles, classes, passengers, luggage) : null;
+  const vehicleFits = groupActive ? !!groupSplit?.ok : singleFits;
+  /** Vehicles that have an online price for this day (a tour price or an hourly rate). */
+  const priceableClasses = classes.filter(
+    (c) => (template?.prices.some((p) => p.vehicle_class_id === c.id) ?? false) || Number(c.hourly_rate ?? 0) > 0,
+  );
+  const groupSuggestions = useMemo(
+    () => suggestGroups(priceableClasses, passengers, luggage, 3).filter((ids) => ids.length > 1),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [priceableClasses.map((c) => c.id).join("|"), passengers, luggage],
+  );
+  const chosenVehicles = groupActive ? groupVehicles : vehicleClassId ? [vehicleClassId] : [];
+  const vehicleLabel = groupActive ? groupLabel(groupVehicles, classes) : vehicle?.name ?? null;
+
+  /** One vehicle when one seats everyone, otherwise the best combination of vehicles. */
+  function pickVehiclesFor(count: number, bags: number) {
+    setQuote(null);
+    const fit = classes.find((c) => (c.max_passengers ?? 0) >= count);
+    if (fit) { setGroupVehicles([]); setVehicleClassId(fit.id); return; }
+    const best = suggestGroups(priceableClasses, count, bags, 1)[0];
+    setGroupVehicles(best && best.length > 1 ? best : []);
+    setVehicleClassId(best?.[0] ?? null);
+  }
+  function chooseVehicles(ids: string[]) {
+    setQuote(null);
+    if (ids.length > 1) { setGroupVehicles(ids); setVehicleClassId(ids[0]!); return; }
+    setGroupVehicles([]);
+    setVehicleClassId(ids[0] ?? null);
+  }
+  /** Rebuild the vehicle list from per-class counts, largest vehicles first. */
+  function setVehicleCount(classId: string, n: number) {
+    const counts = new Map<string, number>();
+    for (const id of chosenVehicles) counts.set(id, (counts.get(id) ?? 0) + 1);
+    counts.set(classId, Math.max(0, n));
+    const ids = [...classes]
+      .sort((a, b) => (b.max_passengers ?? 0) - (a.max_passengers ?? 0))
+      .flatMap((c) => Array.from({ length: counts.get(c.id) ?? 0 }, () => c.id));
+    if (ids.length > MAX_GROUP_VEHICLES) return;
+    chooseVehicles(ids);
+  }
   const fixedPriceForVehicle =
     template && vehicleClassId
       ? template.prices.find((p) => p.vehicle_class_id === vehicleClassId)?.price ?? null
@@ -238,7 +284,8 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
     endPlaceId: sameEnd ? null : end?.placeId ?? null,
     endLabel: sameEnd ? null : end?.label ?? null,
     hours: hours ?? 0,
-    vehicleClassId: vehicleClassId ?? "",
+    vehicleClassId: (groupActive ? groupVehicles[0] : vehicleClassId) ?? "",
+    vehicles: groupActive ? groupVehicles : undefined,
     passengers,
     luggage,
     stops: stops.map((s) => ({
@@ -249,9 +296,21 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
     })),
   });
 
+  // Only the newest price check may set the price shown, so a slower earlier
+  // answer (for another vehicle or length) can never replace it.
+  const priceSeq = useRef(0);
   const priceMutation = useMutation({
-    mutationFn: async () => quoteTour({ data: quoteReq() }),
-    onSuccess: (res) => {
+    mutationFn: async () => {
+      const id = ++priceSeq.current;
+      try {
+        return { res: await quoteTour({ data: quoteReq() }), id };
+      } catch (e) {
+        if (id !== priceSeq.current) return { res: null, id };
+        throw e;
+      }
+    },
+    onSuccess: ({ res, id }) => {
+      if (!res || id !== priceSeq.current) return;
       setQuote(res);
       if (res?.quote && !res.quote.blockedReason && res.quote.total > 0) {
         trackEvent("view_quote", { service_type: "tour", vehicle_class: vehicle?.name, value: res.quote.total, currency: "GBP" });
@@ -311,7 +370,8 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
           endPlaceId: req.endPlaceId,
           endLabel: req.endLabel,
           hours: req.hours,
-          vehicleClassId: vehicleClassId && vehicleFits ? vehicleClassId : null,
+          vehicleClassId: groupActive ? groupVehicles[0]! : vehicleClassId && singleFits ? vehicleClassId : null,
+          vehicles: groupActive && groupSplit?.ok ? groupVehicles : null,
           passengers,
           luggage,
           stops: stops.map((s) => ({ poiId: s.poiId, placeId: s.placeId, name: s.name, dwellMinutes: s.dwellMinutes, locked: !!s.locked })),
@@ -354,11 +414,11 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
 
   // Ask the server for a price whenever the customer reaches the price step.
   useEffect(() => {
-    if (step === 2 && passengersConfirmed && start && hours && vehicleClassId && !priceMutation.isPending) {
+    if (step === 2 && passengersConfirmed && start && hours && vehicleClassId && (!groupActive || groupSplit?.ok)) {
       priceMutation.mutate();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step, passengersConfirmed, passengers, vehicleClassId]);
+  }, [step, passengersConfirmed, passengers, luggage, hours, vehicleClassId, groupVehicles.join("|")]);
 
   // On the stops step, keep the miles and time meter honest as stops change.
   useEffect(() => {
@@ -397,7 +457,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
       case 0: return !!start && !!date && !!time && (sameEnd || !!end) && !!hours && fitsDay;
       case 1: return hourly ? true : mode === "custom" ? stops.length > 0 : !!templateId;
       case 2:
-        return passengersConfirmed && !!vehicleClassId && (vehicle?.max_passengers ?? 0) >= passengers && passengers > 0 && !!quote && !quote.quote.blockedReason;
+        return passengersConfirmed && !!vehicleClassId && (groupActive ? !!groupSplit?.ok : (vehicle?.max_passengers ?? 0) >= passengers) && passengers > 0 && !!quote && !quote.quote.blockedReason && quote.quote.total > 0;
       default: return false;
     }
   })();
@@ -660,9 +720,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
             {step === 2 && !passengersConfirmed && (
               <PassengerConfirmation max={80} onConfirm={(count) => {
                 setPassengers(count);
-                const fit = classes.find((c) => (c.max_passengers ?? 0) >= count);
-                setVehicleClassId(fit?.id ?? null);
-                setQuote(null);
+                pickVehiclesFor(count, luggage);
                 setPassengersConfirmed(true);
               }} />
             )}
@@ -676,7 +734,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                     value={passengers}
                     min={1}
                     max={80}
-                    onChange={(v) => { setPassengers(v); setVehicleClassId(classes.find((c) => (c.max_passengers ?? 0) >= v)?.id ?? null); setQuote(null); }}
+                    onChange={(v) => { setPassengers(v); pickVehiclesFor(v, luggage); }}
                   />
                   <NumberField
                     icon={<Briefcase className="size-4" />}
@@ -696,9 +754,9 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                         <button
                           key={c.id}
                           type="button"
-                          onClick={() => { setVehicleClassId(c.id); setQuote(null); }}
+                          onClick={() => chooseVehicles([c.id])}
                           className={`flex items-center gap-4 rounded-2xl border p-4 text-left ${
-                            vehicleClassId === c.id ? "border-[var(--gold)] ring-1 ring-[var(--gold)]" : "border-border hover:border-[var(--gold)]"
+                            !groupActive && vehicleClassId === c.id ? "border-[var(--gold)] ring-1 ring-[var(--gold)]" : "border-border hover:border-[var(--gold)]"
                           }`}
                         >
                           {c.image_url && (
@@ -721,11 +779,89 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                       );
                     })}
                 </div>
-                {classes.every((c) => (c.max_passengers ?? 99) < passengers) && (
-                  <p className="text-sm font-semibold text-destructive">
-                    No single vehicle seats {passengers}. Please call us and we'll arrange two cars.
-                  </p>
-                )}
+                {/* More than one vehicle for a big group */}
+                <div className="space-y-4 rounded-2xl border border-border bg-[var(--surface)] p-5">
+                  <div>
+                    <p className="font-display font-bold">
+                      {singleFits ? "Travelling as a bigger group?" : `No single vehicle seats ${passengers}: travel in more than one`}
+                    </p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Each vehicle comes with its own driver and is priced on its own. Your total adds them together.
+                    </p>
+                  </div>
+                  {!singleFits || showGroup || groupActive ? (
+                    <>
+                      {groupSuggestions.length > 0 && (
+                        <div className="grid gap-3 sm:grid-cols-3">
+                          {groupSuggestions.map((ids) => {
+                            const on = groupActive && ids.join("|") === groupVehicles.join("|");
+                            const list = ids.map((id) => classes.find((c) => c.id === id)!).filter(Boolean);
+                            const seatsTotal = list.reduce((t, c) => t + Number(c.max_passengers ?? 0), 0);
+                            const casesTotal = list.reduce((t, c) => t + Number(c.max_luggage ?? 0), 0);
+                            const fixed = list.map((c) => template?.prices.find((p) => p.vehicle_class_id === c.id)?.price ?? null);
+                            const hint = fixed.every((f) => f != null)
+                              ? `From £${fixed.reduce((t, f) => t + (f ?? 0), 0).toFixed(2)} for this tour`
+                              : list.every((c) => Number(c.hourly_rate ?? 0) > 0)
+                                ? `£${list.reduce((t, c) => t + Number(c.hourly_rate), 0).toFixed(2)} per hour in total`
+                                : null;
+                            return (
+                              <button
+                                key={ids.join("|")}
+                                type="button"
+                                onClick={() => chooseVehicles(ids)}
+                                className={`rounded-2xl border bg-background p-4 text-left text-sm ${on ? "border-[var(--gold)] ring-1 ring-[var(--gold)]" : "border-border hover:border-[var(--gold)]"}`}
+                              >
+                                <p className="font-semibold">{groupLabel(ids, classes)}</p>
+                                <p className="mt-1 text-xs text-muted-foreground">Seats {seatsTotal} · {casesTotal} suitcases</p>
+                                {hint && <p className="mt-1 text-xs font-semibold text-[var(--gold-ink)]">{hint}</p>}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+                      <div className="space-y-2">
+                        <p className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">Or choose your own mix (up to {MAX_GROUP_VEHICLES})</p>
+                        {priceableClasses.map((c) => {
+                          const n = chosenVehicles.filter((id) => id === c.id).length;
+                          return (
+                            <div key={c.id} className="flex items-center justify-between gap-3 rounded-xl border border-border bg-background px-3 py-2 text-sm">
+                              <span className="min-w-0">
+                                <span className="font-semibold">{c.name}</span>
+                                <span className="text-muted-foreground"> · {c.max_passengers ?? "—"} seats, {c.max_luggage ?? "—"} cases</span>
+                              </span>
+                              <span className="flex items-center gap-2">
+                                <Button type="button" size="sm" variant="outline" className="h-8 w-8 rounded-full p-0" aria-label={`One fewer ${c.name}`} disabled={n === 0} onClick={() => setVehicleCount(c.id, n - 1)}>−</Button>
+                                <span className="w-5 text-center font-semibold" aria-live="polite">{n}</span>
+                                <Button type="button" size="sm" variant="outline" className="h-8 w-8 rounded-full p-0" aria-label={`One more ${c.name}`} disabled={chosenVehicles.length >= MAX_GROUP_VEHICLES} onClick={() => setVehicleCount(c.id, n + 1)}>+</Button>
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      {groupActive && groupSplit && !groupSplit.ok && (
+                        <p className="text-sm font-semibold text-destructive">{groupSplit.reason}</p>
+                      )}
+                      {groupActive && groupSplit?.ok && (
+                        <ul className="space-y-1 text-sm">
+                          {groupSplit.shares.map((sh, i) => (
+                            <li key={i}>
+                              Vehicle {i + 1}: <strong>{classes.find((c) => c.id === sh.vehicleClassId)?.name}</strong> · {sh.passengers} {sh.passengers === 1 ? "passenger" : "passengers"}, {sh.luggage} suitcases
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                      {!groupActive && !singleFits && groupSuggestions.length === 0 && (
+                        <p className="text-sm font-semibold text-destructive">
+                          We can't fit {passengers} passengers into {MAX_GROUP_VEHICLES} vehicles online. Please call us on {SITE.phoneUK} and we'll plan it with you.
+                        </p>
+                      )}
+                    </>
+                  ) : (
+                    <Button type="button" variant="outline" className="rounded-full" onClick={() => setShowGroup(true)}>
+                      <Plus className="size-4" /> Use more than one vehicle
+                    </Button>
+                  )}
+                </div>
               </div>
             )}
 
@@ -1193,7 +1329,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                               <button
                                 key={o.hours}
                                 type="button"
-                                onClick={() => { setHours(o.hours); setQuote(null); priceMutation.mutate(); }}
+                                onClick={() => { setHours(o.hours); setQuote(null); }}
                                 className="w-full rounded-xl border border-border bg-background p-3 text-left text-sm hover:border-[var(--gold)]"
                               >
                                 <span className="font-semibold">Make it {o.hours} hours</span> —{" "}
@@ -1524,12 +1660,12 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                   </div>
                 </div>
 
-                {(vehicle || liveQuote) && (
+                {(vehicleLabel || liveQuote) && (
                   <div className="mt-4 space-y-1.5 border-t border-border pt-4 text-sm">
-                    {vehicle && (
+                    {vehicleLabel && (
                       <p className="flex items-center justify-between gap-3">
-                        <span className="text-muted-foreground">Vehicle</span>
-                        <span className="font-semibold">{vehicle.name}</span>
+                        <span className="text-muted-foreground">{groupActive ? `Vehicles (${groupVehicles.length})` : "Vehicle"}</span>
+                        <span className="text-right font-semibold">{vehicleLabel}</span>
                       </p>
                     )}
                     {liveQuote && liveQuote.extraMiles > 0 && (
