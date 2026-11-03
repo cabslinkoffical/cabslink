@@ -6,6 +6,7 @@
  * Real facts only — values come from FACTS / SITE.
  */
 import { SITE } from "@/lib/site";
+import { FACTS } from "@/lib/site-facts";
 
 export const BUSINESS_ID = "https://cabslink.com/#business";
 export const WEBSITE_ID = "https://cabslink.com/#website";
@@ -23,20 +24,21 @@ export function businessGraph(opts: { googleBusinessProfileUrl?: string | null }
       {
         "@type": ["LocalBusiness", "TaxiService"],
         "@id": BUSINESS_ID,
-        name: "Cabslink",
-        legalName: "Cabslink Limited",
-        url: "https://cabslink.com",
+        name: SITE.name,
+        legalName: FACTS.company.legalName,
+        url: SITE.url,
         logo: "https://cabslink.com/__l5e/assets-v1/4150bb87-69a7-4e1d-bedb-54293074a958/cabslink-logo-gold.png",
         image: SHARE_IMAGE,
         email: SITE.email,
         telephone: SITE.phoneUK,
-        identifier: { "@type": "PropertyValue", name: "Companies House number", value: "SC814706" },
+        identifier: { "@type": "PropertyValue", name: "Companies House number", value: FACTS.company.companyNumber },
         address: {
           "@type": "PostalAddress",
-          streetAddress: "263a Leith Walk",
-          addressLocality: "Edinburgh",
-          postalCode: "EH6 8NY",
-          addressCountry: "GB",
+          streetAddress: SITE.addressParts.street,
+          addressLocality: SITE.addressParts.locality,
+          addressRegion: SITE.addressParts.region,
+          postalCode: SITE.addressParts.postalCode,
+          addressCountry: SITE.addressParts.country,
         },
         // TODO(owner): geo coordinates of the registered office — not supplied, so omitted.
         openingHoursSpecification: {
@@ -52,8 +54,8 @@ export function businessGraph(opts: { googleBusinessProfileUrl?: string | null }
       {
         "@type": "WebSite",
         "@id": WEBSITE_ID,
-        name: "Cabslink",
-        url: "https://cabslink.com",
+        name: SITE.name,
+        url: SITE.url,
         inLanguage: "en-GB",
         publisher: { "@id": BUSINESS_ID },
         potentialAction: {

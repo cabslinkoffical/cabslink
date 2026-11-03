@@ -6,6 +6,9 @@ export const SITE = {
   email: "info@cabslink.com",
   phoneUK: "+44 333 888 2991",
   address: "263a Leith Walk, Edinburgh, Scotland, EH6 8NY",
+  /** The same address split for structured data. */
+  addressParts: { street: "263a Leith Walk", locality: "Edinburgh", region: "Scotland", postalCode: "EH6 8NY", country: "GB" },
+  url: "https://cabslink.com",
   social: {
     instagram: "https://www.instagram.com/cabs_link/",
     facebook: "https://www.facebook.com/profile.php?id=61593394127202",
