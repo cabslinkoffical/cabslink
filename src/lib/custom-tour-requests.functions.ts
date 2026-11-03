@@ -11,19 +11,14 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { placeIdSchema } from "@/lib/place-id";
 import { flightNumberError } from "@/lib/flight-number";
 import { FACT_TEXT } from "@/lib/site-facts";
-import { ukDate } from "@/lib/uk-time";
 import { pageInputSchema, runPaged, ilikeAny } from "@/lib/admin-paging";
 import {
   CUSTOM_TOUR_STATUSES,
   CUSTOM_TOUR_STATUS_LABEL,
-  CUSTOM_TOUR_STATUS_CUSTOMER,
-  PRICE_VISIBLE_STATUSES,
   customTourLookupSchema,
   type CustomTourStatus,
 } from "@/lib/custom-tour-requests";
 
-const PUBLIC_SITE_URL = "https://cabslink.com";
-const statusUrl = (ref: string) => `${PUBLIC_SITE_URL}/custom-tour-status?ref=${encodeURIComponent(ref)}`;
 
 export const requestStop = z.object({
   poiId: z.string().uuid().nullable().optional(),
