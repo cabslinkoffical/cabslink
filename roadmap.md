@@ -213,3 +213,5 @@
 ## Owner requests (3 Nov, late)
 - [x] Secure all API keys: no secret keys in code/browser/logs; server keys read only inside server handlers; old Dispatch token unused (rotated). Open (owner): confirm Maps browser key is limited to cabslink.com in Google Cloud; approve removing old token text from historical migration file
 - [x] Meet & Greet costs extra: 22 airport notes + Airport Transfers service text updated; home/airport/airport-transfers labels say optional. Open (owner): Google descriptions on airport pages still list 'meet & greet' without 'optional' (protected, not changed)
+- [x] Payment methods explained the same way everywhere: card online (Stripe) or cash/bank transfer/other arranged with the team (area/station guides, home, About, closing section, AI summary, saved service details)
+- [ ] Fleet capacities (passengers, large bags, cabin bags) match booking engine limits; test every vehicle class against booking validation
