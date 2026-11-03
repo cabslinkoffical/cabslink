@@ -3,6 +3,7 @@ import { useSuspenseQuery, useMutation, queryOptions } from "@tanstack/react-que
 import { useServerFn } from "@tanstack/react-start";
 import { adminListPricingProfiles, adminPreviewQuote } from "@/lib/pricing.functions";
 import { useState } from "react";
+import { previewVehicleOptions } from "@/lib/preview-vehicles";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -88,9 +89,8 @@ function Page() {
   const sym = snap?.currency_symbol ?? "£";
   const money = (n: number | null | undefined) => `${sym}${Number(n ?? 0).toFixed(2)}`;
 
-  const availableVehicles = data.vehicles.filter((v: any) =>
-    data.profiles.some((p: any) => p.vehicle_id === v.id && p.status),
-  );
+  // Only the real vehicle classes; old unlinked vehicle rows are hidden, not deleted.
+  const availableVehicles = previewVehicleOptions(data.vehicles as any, (data as any).classes ?? [], data.profiles as any);
 
   const ready = !!pickup?.placeId && !!destination?.placeId && !!form.vehicleId;
 
