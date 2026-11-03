@@ -14,8 +14,10 @@ import { rememberCheckout, trackEvent } from "@/lib/analytics-ga";
 import {
   ArrowLeft, ArrowRight, CalendarDays, Check, Clock, Loader2, MapPin, Users,
   Briefcase, AlertTriangle, Plus, Trash2, ShieldCheck, Route as RouteIcon,
-  ChevronUp, ChevronDown, GripVertical, Lock, LockOpen, RotateCcw, Wand2,
+  ChevronUp, ChevronDown, GripVertical, Lock, LockOpen, RotateCcw, Wand2, Copy, Send,
 } from "lucide-react";
+import { createCustomTourRequest } from "@/lib/custom-tour-requests.functions";
+import { quoteRequestReason } from "@/lib/custom-tour-requests";
 import { moveStop } from "@/lib/stop-order";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PassengerConfirmation } from "@/components/site/PassengerConfirmation";
@@ -222,6 +224,17 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
   const liveQuote = quote?.quote ?? null;
 
   const vehicle = classes.find((c) => c.id === vehicleClassId) ?? null;
+  const vehicleFits = classes.some((c) => (c.max_passengers ?? 99) >= passengers);
+  /** Custom tours can always be sent for a personal quote; this says why when no instant price is possible. */
+  const canRequestQuote = !hourly && mode === "custom" && stops.length > 0;
+  const requestWhy = canRequestQuote && passengersConfirmed && !priceMutation.isPending
+    ? quoteRequestReason({
+        priceError: !quote && priceMutation.isError ? (priceMutation.error as Error)?.message ?? "error" : null,
+        blockedReason: quote?.quote.blockedReason ?? null,
+        total: quote ? quote.quote.total : null,
+        vehicleFits,
+      })
+    : null;
   const fixedPriceForVehicle =
     template && vehicleClassId
       ? template.prices.find((p) => p.vehicle_class_id === vehicleClassId)?.price ?? null
