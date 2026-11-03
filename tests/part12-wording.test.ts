@@ -26,6 +26,16 @@ describe("untrue wording stays removed", () => {
   });
 });
 
+describe("waiting and meet & greet wording site-wide", () => {
+  it("no page source states a per-minute waiting rate or 'standard' meet & greet", () => {
+    for (const f of ["src/lib/site-facts.ts", "src/content/faq-bank.ts", "src/lib/seo/journeys.ts"]) {
+      const s = read(f);
+      expect(s, f).not.toMatch(/p per minute|perMinutePence/);
+      expect(s, f).not.toMatch(/meet & greet[^.`]*is standard/i);
+    }
+  });
+});
+
 describe("home reviews list each review once", () => {
   it("drops an exact repeat of the same review", () => {
     const r = { author: "Ejiroghene Ekokota", dateIso: "2026-10-03", excerpt: "They are precise and on time" };

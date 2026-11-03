@@ -13,9 +13,8 @@ export const FACTS = {
   },
   airportWait: {
     freeMinutes: 60,
-    /** RETIRED: waiting is priced per vehicle class in the Extras admin. Never shown on pages. */
-    perMinutePence: 50,
-    perMinutePenceLarge: 75,
+    // Waiting after the free period is priced per vehicle class in the Extras
+    // admin and shown at booking; pages never state a rate.
   },
   transferCancellation: {
     freeOverHours: 12,
