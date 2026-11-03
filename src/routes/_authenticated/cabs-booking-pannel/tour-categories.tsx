@@ -79,7 +79,7 @@ function TourCategoriesPage() {
         onSubmit={(e) => {
           e.preventDefault();
           if (newName.trim().length < 2) return;
-          void run("new", () => save({ data: { name: newName.trim(), sort_order: (cats.length + 1) * 10, active: true } }), "Category added").then(() => setNewName(""));
+          void run("new", () => save({ data: { name: newName.trim(), sort_order: (cats.length + 1) * 10, active: cats.filter((c) => c.active).length < 7 } }), cats.filter((c) => c.active).length < 7 ? "Category added" : "Category added as hidden: 7 are already shown").then(() => setNewName(""));
         }}
       >
         <Input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="New category name" className="w-72" aria-label="New category name" />

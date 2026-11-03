@@ -10,7 +10,7 @@
 <!-- LOVABLE:END -->
 
 - Protected-route navigation reads the persisted browser session to avoid transient remote-check redirect loops; server functions still validate bearer tokens and roles for private operations.
-- Install the query adapter's SSR readiness compatibility through a separate helper after query integration; this preserves streaming and avoids coupling route type inference to the adapter wrapper.
+- Install the query adapter's SSR readiness compatibility via a separate helper after query integration (keeps streaming and route type inference intact).
 - Destination hubs use the shared navy `PageHero`/`HubPage` language, while area directories and location pages use one navy-led editorial system so navigation remains consistent.
 - A–Z letter indexes stay noindex and excluded from sitemap output; robots restrictions cover every explicit crawler group, keeping directory crawl decisions consistent.
 - Region hubs and blog categories decide indexability through one shared rule each (src/lib/seo/region-content.ts, src/lib/blog-category-seo.ts) used by both the page head and the sitemap, so robots tags and sitemap entries never disagree.
@@ -40,6 +40,7 @@
 - Site-wide FAQ answers live in src/content/faq-bank.ts (keyed to the owner's question-bank numbers) and are built only from FACTS, live vehicle classes and existing booking features; unanswerable questions stay out rather than being guessed.
 - Hourly hire (/book/hourly) and day tours (/book/tour) render one shared DayBookingWizard with a kind flag and save through the same reservation routine, so both share rates and capacity locking while hourly hire stays its own product without ready-made tours.
 - Ready-made tour prices are manual or automatic per tour; automatic prices are computed server-side (hourly rate × hours + measured route miles × mile rate), saved with the tour settings in one admin-checked routine, refreshed when rates change, and those route miles count as included at quote time so they are never charged twice.
+- Ready-made tour admin: categories are rows in tour_categories linked to theme_group (rename cascades, delete uncategorises, max 7 shown); copying and the step-by-step editor save through admin_duplicate_tour / admin_save_tour_draft; draft previews render the shared TourDetailView from an admin-checked loader at /tour-preview/$id.
 - Child seats are catalogue extras in the child_seat category, priced per seat; src/lib/child-seats.ts derives the saved per-type list, its label (booking page, emails, admin) and the one-seat-per-passenger limit, so form, server and messages agree.
 - Sightseeing-stop quotes and bookings send one merged stop list (src/lib/trip-stops.ts: typed stops first, then sightseeing stops); loops with the same start and finish are routed through their stops, never as a zero-stop trip.
 - What a tour price covers (hours, miles, per vehicle, tickets, extra hours) is derived only in src/lib/tour-price-covers.ts from the same template/class/tier data buildQuote uses, for the vehicle the From price comes from; unset values are omitted, so page text never disagrees with checkout.
