@@ -47,6 +47,8 @@ export type BookingEmailContext = {
   flightNumber?: string | null;
   meetGreet: boolean;
   childSeat: boolean;
+  /** e.g. "1 × Toddler Child Seat, 1 × High-Back Booster". */
+  childSeatsText?: string | null;
   returnJourney: boolean;
   distanceMiles?: number | null;
   price?: number | null;
@@ -91,7 +93,8 @@ function commonBookingRows(ctx: BookingEmailContext): string {
   if (ctx.flightNumber) rows.push(tableRow("Flight", esc(ctx.flightNumber)));
   const extras: string[] = [];
   if (ctx.meetGreet) extras.push("Meet &amp; greet");
-  if (ctx.childSeat) extras.push("Child seat");
+  if (ctx.childSeatsText) extras.push(`Child seats: ${esc(ctx.childSeatsText)}`);
+  else if (ctx.childSeat) extras.push("Child seat");
   if (ctx.returnJourney) extras.push("Return journey");
   if (extras.length) rows.push(tableRow("Extras", extras.join(" · ")));
   rows.push(tableRow("Estimated fare", esc(money(ctx.price))));

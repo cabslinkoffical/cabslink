@@ -1,6 +1,7 @@
 import { getClientIp } from "@/lib/client-ip.server";
 // Public + admin server functions for the booking lifecycle.
 
+import { childSeatsLabel, parseChildSeats } from "@/lib/child-seats";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
@@ -342,6 +343,7 @@ export const setBookingStatusFn = createServerFn({ method: "POST" })
             flightNumber: booking.flight_number,
             meetGreet: !!booking.meet_greet,
             childSeat: !!booking.child_seat,
+            childSeatsText: childSeatsLabel(parseChildSeats(booking.child_seat_types), Number(booking.child_seat_count ?? 0)),
             returnJourney: !!booking.return_journey,
             distanceMiles: booking.distance_miles,
             price: booking.price,

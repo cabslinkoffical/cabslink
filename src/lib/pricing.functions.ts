@@ -1,5 +1,5 @@
 import { FACT_TEXT } from "@/lib/site-facts";
-import { childSeatChoices, TOO_MANY_SEATS } from "@/lib/child-seats";
+import { childSeatChoices, childSeatsLabel, TOO_MANY_SEATS } from "@/lib/child-seats";
 import { flightNumberError } from "@/lib/flight-number";
 import { getClientIp } from "@/lib/client-ip.server";
 import { createServerFn } from "@tanstack/react-start";
@@ -1110,7 +1110,8 @@ export const createBooking = createServerFn({ method: "POST" })
         luggage: data.luggage,
         flightNumber: data.flight_number ?? null,
         meetGreet: !!data.meet_greet,
-        childSeat: !!data.child_seat,
+        childSeat: !!insertPayload.child_seat,
+        childSeatsText: childSeatsLabel(insertPayload.child_seat_types ?? [], insertPayload.child_seat_count ?? 0),
         returnJourney: !!data.return_journey,
         distanceMiles: auth.distanceMiles,
         price,
