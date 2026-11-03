@@ -35,6 +35,8 @@ export const requestSchema = z.object({
   endLabel: z.string().trim().max(240).nullable().optional(),
   hours: z.coerce.number().min(1).max(24),
   vehicleClassId: z.string().uuid().nullable().optional(),
+  /** One entry per vehicle when the group needs more than one. */
+  vehicles: z.array(z.string().uuid()).max(6).nullable().optional(),
   passengers: z.coerce.number().int().min(1).max(80),
   luggage: z.coerce.number().int().min(0).max(80),
   stops: z.array(requestStop).min(1, "Add at least one place to visit.").max(15),

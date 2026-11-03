@@ -382,7 +382,7 @@ export const createTourBooking = createServerFn({ method: "POST" })
       distance_miles: result.quote.routeMiles,
       quoted_total: result.quote.total,
       quote_expires_at: new Date(Date.now() + holdMinutes * 60_000).toISOString(),
-      pricing_snapshot: result.quote as any,
+      pricing_snapshot: (group ? { ...result.quote, vehicles: result.vehicles } : result.quote) as any,
     };
 
     const res: any = await supabaseAdmin.rpc("reserve_tour_booking", { _booking: insert });
