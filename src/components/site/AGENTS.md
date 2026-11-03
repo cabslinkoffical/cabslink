@@ -9,3 +9,5 @@
 - Booking mode and secondary action buttons use the shared bookingDark/bookingLight Button variants; homepage layout CSS must not override their backgrounds or borders, keeping selected, hover and keyboard states consistent.
 - Social profiles render only in the footer, driven by the shared SOCIALS list; no standalone social band section is mounted in SiteLayout, so follow links live in exactly one place.
 - Shared dialogs use viewport-constrained widths and dynamic-height scrolling; BookingWidget passenger editing uses this modal shell so controls remain visible and focus-managed on phones.
+- Booking wizards share a step-change scroll hook; summary disclosure uses responsive visibility so mobile starts collapsed while desktop stays visible.
+- The homepage uses one shared BookingWidget instance in text–booking–vehicle source order and explicit home-scoped grid areas; this keeps visual and keyboard order consistent without duplicating booking state or altering local-page forms.

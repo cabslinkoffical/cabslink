@@ -98,6 +98,7 @@ export const ADMIN_AREAS: { id: AdminAreaId; label: string; short: string; icon:
           { to: "/cabs-booking-pannel/bookings", label: "Tour enquiries", icon: RouteIcon, search: { view: "tours" } },
         ],
       },
+      { to: "/cabs-booking-pannel/custom-tour-requests", label: "Custom tour requests", icon: RouteIcon },
       { to: "/cabs-booking-pannel/amendments", label: "Change requests", icon: PencilLine },
       { to: "/cabs-booking-pannel/cancellations", label: "Refunds", icon: CircleSlash2 },
       { to: "/cabs-booking-pannel/messages", label: "Messages", icon: Inbox },

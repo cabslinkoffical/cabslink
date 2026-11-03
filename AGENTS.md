@@ -10,7 +10,6 @@
 <!-- LOVABLE:END -->
 
 - Protected-route navigation reads the persisted browser session to avoid transient remote-check redirect loops; server functions still validate bearer tokens and roles for private operations.
-- Booking wizards share a step-change scroll hook; summary disclosure uses responsive visibility so mobile starts collapsed while desktop stays visible.
 - Install the query adapter's SSR readiness compatibility through a separate helper after query integration; this preserves streaming and avoids coupling route type inference to the adapter wrapper.
 - Destination hubs use the shared navy `PageHero`/`HubPage` language, while area directories and location pages use one navy-led editorial system so navigation remains consistent.
 - A–Z letter indexes stay noindex and excluded from sitemap output; robots restrictions cover every explicit crawler group, keeping directory crawl decisions consistent.
@@ -19,7 +18,6 @@
 - Passenger count is optional in initial booking handoffs; transfer quotes require explicit passenger confirmation, and tour vehicle selection gates continuation on confirmation and capacity without changing server pricing validation.
 - Blog media and FAQ compatibility use shared browser-safe schemas in the editor and save validation, so legacy asset paths and question/answer records remain editable without losing text.
 - Blog publication accepts active non-empty individual or team bylines; biography/photo are optional, and the database guard is covered with transaction-local regression tests so existing authors are never replaced with invented identities.
-- The homepage uses one shared BookingWidget instance in text–booking–vehicle source order and explicit home-scoped grid areas; this keeps visual and keyboard order consistent without duplicating booking state or altering local-page forms.
 - seo_pages entity links resolve against public.destinations (name, display_name, type, slug, lat, lng — no hero image column); loadEntity in src/lib/seo-public.functions.ts is the only place that join happens.
 - Public page content stays inside SiteLayout before its footer; automated explore-link sections are removed rather than appended outside the layout to prevent duplicate closing content.
 - Related-pages links render inside page content through RelatedLinks and contextual PlaceGuideBlock links; server-side selection returns compact published-only results ranked by verified topics/themes, with self-links excluded and no duplicate tour sections.
@@ -34,7 +32,6 @@
 - Dated tour bookings reserve capacity and insert in one service-role-only Postgres routine holding the vehicle-class row lock; tour quoting enforces class/template eligibility and rejects unresolved or unroutable stops.
 - Sightseeing-stop journeys use one pricing path (computeStopEconomics + priceStoppedVehicle) for quote and booking, so rules and coupons apply once and saved matches shown; stop-pricing failure blocks booking.
 - Journey coordinate lookups throw on failure; pricing fails closed only when an active radius rule needs coordinates, while suggestion features use the soft resolver.
-- Admin totals/reports read complete data via fetchAllPages (stable order); revenue is net of refunds and dated by paid_at, else created_at, via shared revenue helpers.
 - Multi-table admin saves (settings + credentials, blog post + tags, extra + class links) run in one admin-checked Postgres function so a failed step leaves the previous configuration intact; omitted fields mean unchanged.
 - Dispatch drains claim one event at a time via a leased service-role function (expired leases reclaimed, completion writes fenced to the lease, stable event IDs); scheduler and receiver read the drain token from private settings, never code or migrations.
 - Subdirectories may have their own AGENTS.md (staff console routes, src/components/site — booking form, local-page hero, maps, dialogs, footer socials); read it before changing files there.
@@ -52,3 +49,4 @@
 - HTML cache headers are decided only in applyResponsePolicy: anonymous query-free 200 pages that pass isCacheablePageRequest get a 5-minute shared cache, everything else no-store, so private pages can't be shared.
 - Vehicle capacity (passengers, large bags, cabin bags) is mapped from vehicle_classes and checked only through src/lib/vehicle-capacity.ts, so the fleet page and booking validation can never disagree.
 - Custom tours run through the /book/tour wizard (custom mode); the Tours page planner only hands off start/finish/stops/party. Best stop order comes from Google Routes waypoint optimisation per stretch between locked stops (src/lib/stop-order.ts), is shown before applying, and is offered only when road time drops.
+- Custom tour requests (CL-CT references) live in their own admin-only tables, saved by service-role server code with a best-effort instant estimate; rules (statuses, reference format, when to offer "Request a quote") live in src/lib/custom-tour-requests.ts, and customers look up status only with reference + email, so a code alone never reveals a request.

@@ -127,6 +127,20 @@
       "when": 1793735509840,
       "tag": "0017_google_reviews_snapshot",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1793737671697,
+      "tag": "0018_custom_tour_requests",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1793738562806,
+      "tag": "0019_custom_tour_requests_revoke_anon",
+      "breakpoints": true
     }
   ]
 }

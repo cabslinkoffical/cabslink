@@ -14,8 +14,10 @@ import { rememberCheckout, trackEvent } from "@/lib/analytics-ga";
 import {
   ArrowLeft, ArrowRight, CalendarDays, Check, Clock, Loader2, MapPin, Users,
   Briefcase, AlertTriangle, Plus, Trash2, ShieldCheck, Route as RouteIcon,
-  ChevronUp, ChevronDown, GripVertical, Lock, LockOpen, RotateCcw, Wand2,
+  ChevronUp, ChevronDown, GripVertical, Lock, LockOpen, RotateCcw, Wand2, Copy, Send,
 } from "lucide-react";
+import { createCustomTourRequest } from "@/lib/custom-tour-requests.functions";
+import { quoteRequestReason } from "@/lib/custom-tour-requests";
 import { moveStop } from "@/lib/stop-order";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PassengerConfirmation } from "@/components/site/PassengerConfirmation";
@@ -121,7 +123,11 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
   const [notes, setNotes] = useState("");
   const [quote, setQuote] = useState<TourQuoteResult | null>(null);
   const [created, setCreated] = useState<{ bookingRef: string; total: number } | null>(null);
-  useBookingStepScroll(`${step}:${created?.bookingRef ?? ""}`);
+  /** Custom tours only: send the day to the tour team for a price instead of paying now. */
+  const [requestMode, setRequestMode] = useState(false);
+  const [requested, setRequested] = useState<{ reference: string } | null>(null);
+  useBookingStepScroll(`${step}:${created?.bookingRef ?? ""}:${requested?.reference ?? ""}`);
+  useEffect(() => { if (step < 3) setRequestMode(false); }, [step]);
   const [showAllTours, setShowAllTours] = useState(false);
 
   const captcha = useCaptcha("tour-booking");
@@ -218,6 +224,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
   const liveQuote = quote?.quote ?? null;
 
   const vehicle = classes.find((c) => c.id === vehicleClassId) ?? null;
+  const vehicleFits = classes.some((c) => (c.max_passengers ?? 99) >= passengers);
   const fixedPriceForVehicle =
     template && vehicleClassId
       ? template.prices.find((p) => p.vehicle_class_id === vehicleClassId)?.price ?? null
@@ -294,6 +301,57 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
     },
   });
 
+  const requestMutation = useMutation({
+    mutationFn: async () => {
+      const req = quoteReq();
+      return createCustomTourRequest({
+        data: {
+          startPlaceId: req.startPlaceId,
+          startLabel: req.startLabel,
+          endPlaceId: req.endPlaceId,
+          endLabel: req.endLabel,
+          hours: req.hours,
+          vehicleClassId: vehicleClassId && vehicleFits ? vehicleClassId : null,
+          passengers,
+          luggage,
+          stops: stops.map((s) => ({ poiId: s.poiId, placeId: s.placeId, name: s.name, dwellMinutes: s.dwellMinutes, locked: !!s.locked })),
+          originalStops: orderBeforeBest
+            ? orderBeforeBest.map((s) => ({ poiId: s.poiId, placeId: s.placeId, name: s.name, dwellMinutes: s.dwellMinutes, locked: !!s.locked }))
+            : null,
+          date,
+          time,
+          name,
+          email,
+          phone,
+          flight: flight || null,
+          notes: notes || null,
+          website: "",
+          captchaToken: captcha.token,
+        },
+      });
+    },
+    onSuccess: (res) => {
+      if (!res.reference) return;
+      setRequested({ reference: res.reference });
+      trackEvent("generate_lead", { service_type: "custom_tour_request" });
+    },
+    onError: (e: Error) => {
+      captcha.reset();
+      toast.error(e.message || "We couldn't send your request. Please try again or call us.");
+    },
+  });
+
+  /** Custom tours can always be sent for a personal quote; this says why when no instant price is possible. */
+  const canRequestQuote = !hourly && mode === "custom" && stops.length > 0;
+  const requestWhy = canRequestQuote && passengersConfirmed && !priceMutation.isPending
+    ? quoteRequestReason({
+        priceError: !quote && priceMutation.isError ? (priceMutation.error as Error)?.message ?? "error" : null,
+        blockedReason: quote?.quote.blockedReason ?? null,
+        total: quote ? quote.quote.total : null,
+        vehicleFits,
+      })
+    : null;
+
   // Ask the server for a price whenever the customer reaches the price step.
   useEffect(() => {
     if (step === 2 && passengersConfirmed && start && hours && vehicleClassId && !priceMutation.isPending) {
@@ -326,7 +384,8 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
   // Pick a sensible vehicle up front so the miles-and-time meter can measure the
   // day while stops are chosen; the customer can change it on the next step.
   useEffect(() => {
-    if (vehicleClassId || !classes.length) return;
+    // Once passengers are confirmed, never fall back to a vehicle too small for them.
+    if (vehicleClassId || !classes.length || passengersConfirmed) return;
     const fit = classes.find((c) => (c.max_passengers ?? 99) >= passengers) ?? classes[0]!;
     setVehicleClassId(fit.id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1159,10 +1218,40 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                       {priceMutation.isPending ? <Loader2 className="size-4 animate-spin" /> : null} Recheck price
                     </Button>
                   </>
-                ) : (
+                ) : vehicleFits ? (
                   <Button type="button" variant="gold" onClick={() => priceMutation.mutate()}>
                     Get my price
                   </Button>
+                ) : null}
+
+                {canRequestQuote && passengersConfirmed && !priceMutation.isPending && (
+                  requestWhy ? (
+                    <div className="rounded-2xl border border-[var(--gold)]/60 bg-[var(--surface)] p-5">
+                      <p className="font-display font-bold">Request a quote</p>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {requestWhy} Send us your day and our tour team will reply with a price. You'll get a reference to check your request.
+                      </p>
+                      <Button
+                        type="button"
+                        variant="gold"
+                        className="mt-4 rounded-full"
+                        onClick={() => { setStep(3); setRequestMode(true); }}
+                      >
+                        <Send className="size-4" /> Request a quote
+                      </Button>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      Rather have our tour team look at your day first?{" "}
+                      <button
+                        type="button"
+                        className="font-semibold text-foreground underline underline-offset-2"
+                        onClick={() => { setStep(3); setRequestMode(true); }}
+                      >
+                        Request a quote instead
+                      </button>
+                    </p>
+                  )
                 )}
               </div>
             )}
@@ -1170,7 +1259,56 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
             {/* 4. Details & payment */}
             {step === 3 && (
               <div className="space-y-5">
-                {created ? (
+                {requested ? (
+                  <>
+                    <StepTitle title="Request submitted" />
+                    <div className="rounded-2xl border border-[var(--gold)]/50 bg-[color-mix(in_oklab,var(--gold)_10%,transparent)] px-5 py-4">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">
+                        Your custom tour reference
+                      </p>
+                      <div className="mt-1 flex flex-wrap items-center gap-3">
+                        <p className="font-mono text-xl font-bold tracking-wider">{requested.reference}</p>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="rounded-full"
+                          onClick={() => {
+                            navigator.clipboard?.writeText(requested.reference).then(
+                              () => toast.success("Reference copied"),
+                              () => toast.error("Couldn't copy. Please note it down."),
+                            );
+                          }}
+                        >
+                          <Copy className="size-4" /> Copy
+                        </Button>
+                      </div>
+                      <p className="mt-2 text-sm">
+                        Our tour team will check your route and email you a price at <strong>{email}</strong>. No payment is needed yet.
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border border-border bg-background p-5">
+                      <p className="font-display font-bold">Your selected itinerary</p>
+                      <ol className="mt-3 space-y-1.5 text-sm">
+                        <li><span className="font-semibold">Start:</span> {start?.label}</li>
+                        {stops.map((s, i) => (
+                          <li key={`${s.placeId}-${i}`}>{i + 1}. {s.name}{s.dwellMinutes ? <span className="text-muted-foreground"> · {minutesLabel(s.dwellMinutes)}</span> : null}</li>
+                        ))}
+                        <li><span className="font-semibold">Finish:</span> {sameEnd ? start?.label : end?.label}</li>
+                      </ol>
+                      <p className="mt-3 text-xs text-muted-foreground">
+                        {date} from {time} · {hours} hours · {passengers} {passengers === 1 ? "passenger" : "passengers"}
+                      </p>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Check your request any time on the{" "}
+                      <Link to="/custom-tour-status" search={{ ref: requested.reference }} className="font-semibold text-foreground underline">
+                        request status page
+                      </Link>{" "}
+                      with this reference and your email address.
+                    </p>
+                  </>
+                ) : created ? (
                   <>
                     <StepTitle title="We've received your tour booking request" />
                     <div className="rounded-2xl border border-[var(--gold)]/50 bg-[color-mix(in_oklab,var(--gold)_10%,transparent)] px-5 py-3">
@@ -1214,10 +1352,16 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                         document.getElementById("tw-flight")?.focus();
                         return;
                       }
-                      bookMutation.mutate();
+                      if (requestMode) requestMutation.mutate();
+                      else bookMutation.mutate();
                     }}
                   >
-                    <StepTitle title="Your details" />
+                    <StepTitle title={requestMode ? "Request a quote: your details" : "Your details"} />
+                    {requestMode && (
+                      <p className="-mt-2 text-sm text-muted-foreground">
+                        We'll send your day, stops and timings to our tour team. They'll email you a price, and you'll get a reference to check your request.
+                      </p>
+                    )}
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div className="space-y-1.5">
                         <Label htmlFor="tw-name">Full name</Label>
@@ -1247,16 +1391,20 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                     <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
                       <p className="flex items-center gap-2 text-xs text-muted-foreground">
                         <ShieldCheck className="size-4 text-[var(--gold-ink)]" />
-                        {quote ? `£${quote.quote.total.toFixed(2)} total — pay by card next, or arrange another way with our team.` : "Secure card payments, or arrange another way with our team."}
+                        {requestMode
+                          ? "No payment now. Our tour team will reply with a price for your day."
+                          : quote ? `£${quote.quote.total.toFixed(2)} total — pay by card next, or arrange another way with our team.` : "Secure card payments, or arrange another way with our team."}
                       </p>
                       <Button
                         type="submit"
                         variant="gold"
                         className="w-full sm:w-auto sm:min-w-[180px] rounded-full"
-                        disabled={bookMutation.isPending || !captcha.ready}
+                        disabled={bookMutation.isPending || requestMutation.isPending || !captcha.ready}
                       >
-                        {bookMutation.isPending ? (
-                          <><Loader2 className="size-4 animate-spin" /> Saving…</>
+                        {bookMutation.isPending || requestMutation.isPending ? (
+                          <><Loader2 className="size-4 animate-spin" /> {requestMode ? "Sending…" : "Saving…"}</>
+                        ) : requestMode ? (
+                          "Send my quote request"
                         ) : (
                           "Continue to payment"
                         )}
@@ -1268,7 +1416,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
             )}
 
             {/* Navigation */}
-            {!(step === 3 && created) && (
+            {!(step === 3 && (created || requested)) && (
               <div className="mt-7 flex items-center justify-between gap-3 border-t border-border pt-5">
                 <Button
                   type="button"
