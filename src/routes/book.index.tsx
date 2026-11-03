@@ -2118,7 +2118,7 @@ function ExtrasStep(props: {
                 <div className="grid gap-3 sm:grid-cols-2">
                   {items.map((e) => {
                     const n = Math.min(extraQty[e.key] ?? 0, e.max_quantity);
-                    const unit = e.price_basis === "per_hour" ? " per hour" : e.price_basis === "per_minute" ? " per minute" : e.price_basis === "per_booking" ? "" : " each";
+                    const unit = e.price_basis === "per_hour" ? " per hour" : e.price_basis === "per_minute" ? " per minute" : e.price_basis === "per_booking" ? "" : isSeats ? " per seat" : " each";
                     const priceLabel = `£${(e.price_pence / 100).toFixed(2)}${unit}`;
                     const single = e.price_basis === "per_booking" || e.max_quantity <= 1;
                     // Minutes are offered in 15-minute steps up to the admin limit.
@@ -2135,7 +2135,7 @@ function ExtrasStep(props: {
                           <div className="min-w-0">
                             <p className="text-sm font-semibold">{e.name}</p>
                             {e.description && <p className="mt-0.5 text-xs text-muted-foreground">{e.description}</p>}
-                            <p className="mt-1 text-xs font-semibold text-[var(--gold-ink)]">+{priceLabel}{isSeats && e.price_basis !== "per_booking" ? " per seat" : ""}</p>
+                            <p className="mt-1 text-xs font-semibold text-[var(--gold-ink)]">+{priceLabel}</p>
                           </div>
                           {single ? (
                             <Switch checked={n > 0} onCheckedChange={(v) => onExtraQty(e.key, v ? 1 : 0)} aria-label={`Add ${e.name}`} />
