@@ -98,7 +98,7 @@ function AirportsIndex() {
       <PageHero
         eyebrow="Airport Transfers"
         title="Every major UK airport."
-        subtitle="Fixed-fare private transfers with meet & greet, flight tracking and 24/7 dispatch."
+        subtitle="Fixed-fare private transfers with flight tracking, optional meet & greet and 24/7 dispatch."
       />
       <section className="section-y">
         <div className="container-x space-y-12">

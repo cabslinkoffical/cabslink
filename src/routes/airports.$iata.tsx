@@ -182,7 +182,7 @@ function AirportPage() {
         eyebrow="Airport Transfers"
         title={shortName}
         titleAccent="Transfers"
-        subtitle={`Book a private, fixed-fare transfer to or from ${name}. Meet & greet, flight tracking and 24/7 dispatch across the UK.`}
+        subtitle={`Book a private, fixed-fare transfer to or from ${name}. Flight tracking, optional meet & greet and 24/7 dispatch across the UK.`}
         facts={[
           ...(iata ? [{ label: "IATA", value: iata }] : []),
           ...(cityLine ? [{ label: "Location", value: cityLine }] : []),
