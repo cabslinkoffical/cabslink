@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, lazy, Suspense } from "react";
 import { ukDate, ukLocalToMs } from "@/lib/uk-time";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -6,7 +6,10 @@ import { useNavigate } from "@tanstack/react-router";
 import { Plus, X, Minus, Search, Flag, MapPin, Calendar, Clock, Users, Briefcase, Repeat, Car, Palmtree, AlertCircle, LifeBuoy } from "lucide-react";
 import { PlaceAutocomplete, type SelectedPlace } from "@/components/site/PlaceAutocomplete";
 import { resolvePlaceText } from "@/lib/places.functions";
-import { JourneyMap, PlaceMarkerMap } from "@/components/site/JourneyMap";
+// Maps are only shown once a trip or place is known, so their code loads on demand.
+const JourneyMap = lazy(() => import("@/components/site/JourneyMap").then((m) => ({ default: m.JourneyMap })));
+const PlaceMarkerMap = lazy(() => import("@/components/site/JourneyMap").then((m) => ({ default: m.PlaceMarkerMap })));
+const MapSlot = () => <div className="h-[13.5rem] rounded-2xl border border-border bg-[var(--surface)] sm:h-[15.5rem]" aria-hidden />;
 import { localMapMode } from "@/lib/local-page";
 import { track } from "@/lib/tracking";
 
@@ -862,14 +865,18 @@ function BookingWidgetMap({
   if (mode === "route" && pickup?.placeId && dropoff?.placeId) {
     return (
       <div className="mt-4">
-        <JourneyMap pickupPlaceId={pickup.placeId} dropoffPlaceId={dropoff.placeId} />
+        <Suspense fallback={<MapSlot />}>
+          <JourneyMap pickupPlaceId={pickup.placeId} dropoffPlaceId={dropoff.placeId} />
+        </Suspense>
       </div>
     );
   }
   if (mode !== "location" || !mapFocus) return null;
   return (
     <div className="mt-4">
-      <PlaceMarkerMap lat={mapFocus.lat} lng={mapFocus.lng} label={mapFocus.label} />
+      <Suspense fallback={<MapSlot />}>
+        <PlaceMarkerMap lat={mapFocus.lat} lng={mapFocus.lng} label={mapFocus.label} />
+      </Suspense>
     </div>
   );
 }
