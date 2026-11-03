@@ -200,3 +200,8 @@
 - [x] Flight tracking confirmed: one shared wording everywhere; no extra promises
 - [x] Flight number required for airport pickups (clear message), optional otherwise
 - [x] Harry Potter title → "Harry Potter Tour from Edinburgh to Glenfinnan | Cabslink"
+
+## Owner requests (3 Nov)
+- [ ] Tour pricing: round-trip tours (same start and end) must price
+- [ ] Typed via stops kept when scenic stops are chosen
+- [ ] Part 4: child seat types, priced per seat, seat choice on booking form
