@@ -17,6 +17,7 @@ import {
   type TourQuote,
   type TourRules,
 } from "@/lib/tour-quote";
+import type { VehicleShare } from "@/lib/tour-group";
 
 export type TourStopInput = {
   poiId?: string | null;
@@ -39,12 +40,16 @@ export type TourQuoteInput = {
   stops: TourStopInput[];
 };
 
+export type TourVehicleLine = { vehicleClassId: string; name: string; passengers: number; luggage: number; total: number };
+
 export type TourQuoteResult = {
   quote: TourQuote;
   addHours: AddHoursOption[];
   currency: "GBP";
   tierHours: number[];
   vehicleName: string;
+  /** Present when the group travels in more than one vehicle; each priced on its own. */
+  vehicles?: TourVehicleLine[];
 };
 
 const DEFAULT_RULES: TourRules = {
@@ -341,6 +346,68 @@ export async function quoteTourImpl(input: TourQuoteInput): Promise<TourQuoteRes
   };
 }
 
+const STATE_RANK: Record<string, number> = { comfortable: 0, tight: 1, wont_fit: 2 };
+
+/**
+ * A group in more than one vehicle: the party is split between the vehicles
+ * (src/lib/tour-group.ts), every vehicle is priced on its own by quoteTourImpl
+ * and the totals are added together. Same-class vehicles share one price.
+ */
+export async function quoteTourGroupImpl(input: TourQuoteInput & { vehicles: string[] }): Promise<TourQuoteResult & { shares: VehicleShare[] }> {
+  const { splitGroup, groupLabel } = await import("@/lib/tour-group");
+  const config = await loadTourConfig();
+  const split = splitGroup(input.vehicles, config.classes as any, input.passengers, input.luggage);
+  if (!split.ok) throw new Error(split.reason);
+
+  const perClass = new Map<string, TourQuoteResult>();
+  for (const share of split.shares) {
+    if (perClass.has(share.vehicleClassId)) continue;
+    perClass.set(share.vehicleClassId, await quoteTourImpl({ ...input, vehicleClassId: share.vehicleClassId, passengers: share.passengers, luggage: share.luggage }));
+  }
+  const results = split.shares.map((sh) => perClass.get(sh.vehicleClassId)!);
+  const first = results[0]!;
+  const vehicles: TourVehicleLine[] = split.shares.map((sh, i) => ({
+    vehicleClassId: sh.vehicleClassId,
+    name: results[i]!.vehicleName,
+    passengers: sh.passengers,
+    luggage: sh.luggage,
+    total: results[i]!.quote.total,
+  }));
+  const unpriced = vehicles.some((v) => !(v.total > 0));
+  const total = unpriced ? 0 : Math.round(vehicles.reduce((s, v) => s + v.total, 0) * 100) / 100;
+  const worst = results.reduce((w, r) => (STATE_RANK[r.quote.state]! > STATE_RANK[w.quote.state]! ? r : w), first);
+
+  // Longer-day options only when every vehicle offers them; costs are added up.
+  const addHours = first.addHours
+    .map((o) => {
+      const all = results.map((r) => r.addHours.find((x) => x.hours === o.hours));
+      if (all.some((x) => !x)) return null;
+      const sum = (k: "grossCost" | "netCost" | "mileageSaving") => Math.round(all.reduce((t, x) => t + x![k], 0) * 100) / 100;
+      return { ...o, grossCost: sum("grossCost"), netCost: sum("netCost"), mileageSaving: sum("mileageSaving") };
+    })
+    .filter((o): o is AddHoursOption => !!o);
+
+  return {
+    quote: {
+      ...first.quote,
+      state: worst.quote.state,
+      blockedReason: results.find((r) => r.quote.blockedReason)?.quote.blockedReason ?? null,
+      lines: vehicles.map((v, i) => ({
+        label: `Vehicle ${i + 1}: ${v.name}`,
+        detail: `${v.passengers} ${v.passengers === 1 ? "passenger" : "passengers"}, ${v.luggage} suitcases`,
+        amount: v.total,
+      })),
+      total,
+    },
+    addHours,
+    currency: "GBP",
+    tierHours: first.tierHours,
+    vehicleName: groupLabel(input.vehicles, config.classes),
+    vehicles,
+    shares: split.shares,
+  };
+}
+
 export type TourPoiSuggestion = {
   id: string;
   name: string;
@@ -490,15 +557,10 @@ export async function capacityLeft(vehicleClassId: string, date: string): Promis
   if (cap.error) throw new Error("We couldn't check tour availability right now. Please try again or call us.");
   if (!cap.data) return null;
   const max = Number(cap.data.max_tours_per_day);
-  const used: any = await supabaseAdmin
-    .from("bookings")
-    .select("id", { count: "exact", head: true })
-    .eq("service_type", "private_tour")
-    .eq("vehicle_class_id", vehicleClassId)
-    .eq("pickup_date", date)
-    .in("status", ["new", "awaiting_payment", "pending_payment", "confirmed", "assigned", "in_progress"]);
-  if (used.error || used.count == null) throw new Error("We couldn't check tour availability right now. Please try again or call us.");
-  return Math.max(0, max - Number(used.count));
+  // Counts every vehicle a booking uses, so multi-vehicle tours take their full share.
+  const used: any = await (supabaseAdmin as any).rpc("tour_vehicles_used", { _class: vehicleClassId, _day: date });
+  if (used.error || used.data == null) throw new Error("We couldn't check tour availability right now. Please try again or call us.");
+  return Math.max(0, max - Number(used.data));
 }
 
 export type AutoTourPriceRow = {
