@@ -1,6 +1,7 @@
 import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute, notFound } from "@tanstack/react-router";
-import { SolutionPage, solutionSchema } from "@/components/site/SolutionPage";
+import { SolutionPage } from "@/components/site/SolutionPage";
+import { solutionSchema } from "@/components/site/SolutionPage.head";
 import { TRAVEL_SOLUTIONS } from "@/lib/seo/travel-solutions";
 
 export const Route = createFileRoute("/travel-solutions/$slug")({

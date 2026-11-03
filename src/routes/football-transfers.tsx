@@ -1,7 +1,8 @@
 import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { Circle, Users, ShieldCheck, Clock } from "lucide-react";
-import { SportsServicePage, sportsFaqSchema, type SportsServiceContent } from "@/components/site/SportsServicePage";
+import { SportsServicePage, type SportsServiceContent } from "@/components/site/SportsServicePage";
+import { sportsFaqSchema } from "@/components/site/SportsServicePage.head";
 import { PAGE_IMAGES } from "@/content/page-images";
 
 const TITLE = "Football Transfers UK — Match Day Travel for Fans | Cabslink";

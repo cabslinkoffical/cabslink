@@ -1,6 +1,7 @@
 import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute } from "@tanstack/react-router";
-import { ServicePillarPage, pillarSchema } from "@/components/site/ServicePillarPage";
+import { ServicePillarPage } from "@/components/site/ServicePillarPage";
+import { pillarSchema } from "@/components/site/ServicePillarPage.head";
 import { SERVICE_PILLARS } from "@/lib/seo/service-pillars";
 
 const content = SERVICE_PILLARS["private-hire"]!;
