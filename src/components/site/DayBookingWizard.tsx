@@ -14,8 +14,9 @@ import { rememberCheckout, trackEvent } from "@/lib/analytics-ga";
 import {
   ArrowLeft, ArrowRight, CalendarDays, Check, Clock, Loader2, MapPin, Users,
   Briefcase, AlertTriangle, Plus, Trash2, ShieldCheck, Route as RouteIcon,
-  ChevronUp, ChevronDown,
+  ChevronUp, ChevronDown, GripVertical, Lock, LockOpen, RotateCcw, Wand2,
 } from "lucide-react";
+import { moveStop } from "@/lib/stop-order";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PassengerConfirmation } from "@/components/site/PassengerConfirmation";
 import { Button } from "@/components/ui/button";
@@ -36,7 +37,9 @@ import {
   getTourStopSuggestions,
   quoteTour,
   createTourBooking,
+  optimiseTourStops,
   type TourBookingOptions,
+  type TourOptimiseResult,
 } from "@/lib/tour-booking.functions";
 import type { TourQuoteResult } from "@/lib/tour-quote.server";
 
@@ -53,9 +56,30 @@ export type DayWizardSearch = {
   hours?: number;
   passengers?: number;
   luggage?: number;
+  /** Hand-off from the Tours page builder. */
+  endPlaceId?: string;
+  endLabel?: string;
+  /** `placeId::label::minutes` joined with `|`. */
+  stops?: string;
 };
 
-type Stop = { poiId: string | null; placeId: string; name: string; dwellMinutes: number | null };
+type Stop = { poiId: string | null; placeId: string; name: string; dwellMinutes: number | null; locked?: boolean };
+
+export function parseStopsParam(raw: string | undefined): Stop[] {
+  if (!raw) return [];
+  return raw
+    .split("|")
+    .map((part) => {
+      const [placeId, label, minutes] = part.split("::");
+      if (!placeId) return null;
+      let name = placeId;
+      try { name = decodeURIComponent(label ?? "") || placeId; } catch { name = label || placeId; }
+      const m = Number(minutes);
+      return { poiId: null, placeId, name, dwellMinutes: Number.isFinite(m) ? m : null } as Stop;
+    })
+    .filter((s): s is Stop => !!s)
+    .slice(0, 15);
+}
 
 const TOUR_STEPS = ["Your day", "Tour & stops", "Vehicle & price", "Details & pay"];
 const HOURLY_STEPS = ["Your hire", "Stops (optional)", "Vehicle & price", "Details & pay"];
@@ -120,6 +144,15 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
     if (prefilled || !data) return;
     if (!search.pickupPlaceId) return;
     setStart({ placeId: search.pickupPlaceId, label: search.pickupLabel || search.pickupPlaceId } as SelectedPlace);
+    if (search.endPlaceId && search.endPlaceId !== search.pickupPlaceId) {
+      setSameEnd(false);
+      setEnd({ placeId: search.endPlaceId, label: search.endLabel || search.endPlaceId } as SelectedPlace);
+    }
+    const handedStops = parseStopsParam(search.stops);
+    if (handedStops.length) {
+      setMode("custom");
+      setStops(handedStops.map((x) => ({ ...x, dwellMinutes: Math.max(data.rules.minimum_stop_minutes ?? 10, x.dwellMinutes ?? 0) })));
+    }
     if (search.date) setDate(search.date);
     if (search.time) setTime(search.time);
     if (search.passengers) { setPassengers(search.passengers); setPassengersConfirmed(true); }
