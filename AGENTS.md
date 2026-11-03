@@ -50,3 +50,4 @@
 - Customer pickup dates/times are UK wall-clock values: convert them with src/lib/uk-time.ts (ukLocalToMs, ukDate, ukClock) for cut-offs, notice periods, timed rules and form "today", never with UTC parsing or the server/browser clock, so checks stay right in both GMT and BST.
 - Route head()/loader code ships in the main script, so head/schema helpers live in `*.head.ts` modules and destination loading in src/lib/destination-loader.ts; never import page layouts from route options or shared SEO/data modules (tests/main-script-split.test.ts).
 - HTML cache headers are decided only in applyResponsePolicy: anonymous query-free 200 pages that pass isCacheablePageRequest get a 5-minute shared cache, everything else no-store, so private pages can't be shared.
+- Vehicle capacity (passengers, large bags, cabin bags) is mapped from vehicle_classes and checked only through src/lib/vehicle-capacity.ts, so the fleet page and booking validation can never disagree.
