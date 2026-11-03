@@ -14,6 +14,7 @@ import { enforceRateLimit, LIMITS } from "@/lib/db-rate-limit.server";
 import { SITE } from "@/lib/site";
 import { ukLocalToMs } from "@/lib/uk-time";
 import { coverLabel, coverPromise, parseCover } from "@/lib/cancellation-cover";
+import { amendmentMoney, type AmendmentOutcome } from "@/lib/amendment-money";
 
 /**
  * One generic message for EVERY lookup failure (bad format, unknown
@@ -565,7 +566,7 @@ export type AmendmentQuote = {
   refundDue: number;
 };
 
-export type AmendmentOutcome = "even" | "topup" | "refund" | "pay_full";
+export type { AmendmentOutcome } from "@/lib/amendment-money";
 
 const money = (n: number) => `£${n.toFixed(2)}`;
 
@@ -584,12 +585,16 @@ function describeChanges(row: any, c: AmendChanges): string[] {
   return lines;
 }
 
-function outcomeFor(paymentStatus: string, delta: number): AmendmentOutcome {
-  const settled = paymentStatus === "paid";
-  if (!settled) return "pay_full";
-  if (delta > 0.5) return "topup";
-  if (delta < -0.5) return "refund";
-  return "even";
+/** New fare minus net money kept (pence), or null when the booking has no recorded payments. */
+async function ledgerBalancePence(row: any, newPrice: number, paymentStatus: string): Promise<number | null> {
+  if (paymentStatus !== "paid" && paymentStatus !== "partial") return null;
+  if (!row.id) return null;
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { paidPayments } = await import("@/lib/stripe-payments.server");
+  const { netCollectedPence } = await import("@/lib/payment-ledger");
+  const rows = await paidPayments(supabaseAdmin, row.id);
+  if (!rows.length) return null;
+  return Math.round(newPrice * 100) - netCollectedPence(rows);
 }
 
 /** Shared: verify identity, gate the amendment window, re-price. */
@@ -630,7 +635,8 @@ async function amendmentContext(data: z.infer<typeof amendInput>) {
   const newPrice = priced.price;
   const delta = Number((newPrice - currentPrice).toFixed(2));
   const paymentStatus = String(row.payment_status ?? "unpaid");
-  const outcome = outcomeFor(paymentStatus, delta);
+  const balancePence = await ledgerBalancePence(row, newPrice, paymentStatus);
+  const money = amendmentMoney({ paymentStatus, delta, newPrice, balancePence });
 
   const quote: AmendmentQuote = {
     bookingRef: row.booking_ref,
@@ -641,11 +647,9 @@ async function amendmentContext(data: z.infer<typeof amendInput>) {
     vehicleName: priced.vehicleName,
     paymentStatus,
     changedLines: describeChanges(row, c),
-    outcome,
-    amountDue: outcome === "topup" ? Math.abs(delta) : outcome === "pay_full" ? newPrice : 0,
-    refundDue: outcome === "refund" ? Math.abs(delta) : 0,
+    ...money,
   };
-  return { row, quote, changes: c, coverAmount: priced.cancellationCoverAmount };
+  return { row, quote, changes: c, coverAmount: priced.cancellationCoverAmount, ledgerBased: balancePence != null };
 }
 
 /** Price-only preview — nothing is saved. */
@@ -669,7 +673,7 @@ export const submitBookingAmendment = createServerFn({ method: "POST" })
     const ip = await ipOf();
     await enforceRateLimit(LIMITS.amendSubmit, ip);
 
-    const { row, quote, changes: c, coverAmount } = await amendmentContext(data);
+    const { row, quote, changes: c, coverAmount, ledgerBased } = await amendmentContext(data);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const previous = {
@@ -741,6 +745,24 @@ export const submitBookingAmendment = createServerFn({ method: "POST" })
       console.error("amendment booking update failed", upd.error);
       await supabaseAdmin.from("booking_amendments").update({ status: "declined", admin_notes: "Booking update failed" } as any).eq("id", ins.data.id);
       throw new Error("We couldn't apply that change. Please call us so we can update the booking for you.");
+    }
+
+    if (ledgerBased) {
+      // This change's amount already allows for everything paid or refunded so
+      // far, so earlier open top-ups/refunds would count the same money twice.
+      const sup: any = await supabaseAdmin
+        .from("booking_amendments")
+        .update({ status: "applied", admin_notes: `Replaced by a later change on ${new Date().toISOString().slice(0, 10)}; see the newest change for the amount now owed.` } as any)
+        .eq("booking_id", row.id)
+        .in("status", ["pending_payment", "awaiting_refund"])
+        .neq("id", ins.data.id);
+      if (sup?.error) console.error("amendment supersede failed", sup.error);
+      try {
+        const { reconcileBookingPaymentStatus } = await import("@/lib/stripe-payments.server");
+        await reconcileBookingPaymentStatus(supabaseAdmin, row.id);
+      } catch (err) {
+        console.error("amendment payment status reconcile failed", err);
+      }
     }
 
     const summary = [

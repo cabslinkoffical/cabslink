@@ -75,7 +75,7 @@ export async function loadTourConfig(): Promise<TourConfig> {
     supabaseAdmin
       .from("vehicle_classes")
       .select(
-        "id, name, hourly_rate, extra_hour_rate, extra_mile_rate, min_hours, max_hours, max_passengers, max_luggage, passengers, large_luggage, pricing_vehicle_id, active",
+        "id, name, hourly_rate, extra_hour_rate, extra_mile_rate, min_hours, max_hours, max_passengers, max_luggage, passengers, large_luggage, pricing_vehicle_id, active, display_order",
       ),
     // Tour rates are optional: when a class has none, fall back to the hourly
     // hire rate and mileage rate already configured for that vehicle, so a
@@ -127,8 +127,11 @@ export async function loadTourConfig(): Promise<TourConfig> {
           poi_radius_factor: Number(r.poi_radius_factor ?? 0.5) || 0.5,
         }
       : DEFAULT_RULES,
+    // Same order as the fleet list (Saloon first), so the vehicle a tour starts
+    // with is the everyday car, not whichever row the database returns first.
     classes: ((classes.data ?? []) as any[])
       .filter((c) => c.active !== false)
+      .sort((a, b) => (Number(a.display_order ?? 9999) || 9999) - (Number(b.display_order ?? 9999) || 9999))
       .map((c) => {
         const h = hourlyByClass.get(c.id);
         const profileId = c.pricing_vehicle_id ? profileByVehicle.get(c.pricing_vehicle_id) : undefined;

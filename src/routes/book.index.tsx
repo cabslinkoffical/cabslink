@@ -1805,7 +1805,7 @@ function VehicleCard({ card, klass, trip, best, qty, minQty, disabled, disabledR
       <div className="w-full md:w-56 lg:w-60 shrink-0 bg-[color-mix(in_oklab,var(--gold)_10%,var(--card))] p-4 md:p-5 flex flex-col justify-between gap-4 text-center">
         {quoteOnly ? (
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground">Group vehicle</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground">Price on request</p>
             <p className="mt-2 font-display text-xl font-bold leading-tight text-[var(--gold-ink)]">Quote on request</p>
           </div>
         ) : (

@@ -1066,7 +1066,13 @@ function AmendPanel({
                 ? `A refund of £${quote.refundDue.toFixed(2)} will be arranged back to your card.`
                 : quote.outcome === "pay_full"
                 ? `This booking is still unpaid — the amount payable becomes £${quote.newPrice.toFixed(2)}.`
+                : quote.delta !== 0
+                ? "What you've already paid covers the new fare, so there's nothing more to pay."
                 : "Your fare stays the same."}
+              {(quote.outcome === "topup" && Math.abs(quote.amountDue - quote.delta) > 0.009) ||
+              (quote.outcome === "refund" && Math.abs(quote.refundDue + quote.delta) > 0.009)
+                ? " This already allows for what you've paid and any refund still due from an earlier change."
+                : ""}
             </p>
             <Button type="button" onClick={() => void confirm()} disabled={busy === "submit"}
               className="mt-4 w-full gap-2 bg-[var(--gold)] text-[var(--navy)] hover:bg-[var(--gold)]/90">
