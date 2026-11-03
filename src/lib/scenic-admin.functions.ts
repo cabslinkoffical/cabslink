@@ -356,10 +356,7 @@ export const _placeIdSchema = placeIdSchema;
 // Tour page content + real guest reviews (Phase 8)
 // ===================================================================
 
-export const THEME_GROUPS = [
-  "Castles & History", "Outlander & Film", "Highlands & Glencoe", "Lochs & National Park",
-  "Villages & Heritage", "Family Days", "Coast & Landmarks",
-] as const;
+// Categories are managed in Tour categories (tour_categories); the database link rejects unknown names.
 
 const md = z.string().trim().max(8000).nullable().optional();
 const tourContentSchema = z.object({
@@ -370,7 +367,7 @@ const tourContentSchema = z.object({
   suits_md: md,
   meta_description: z.string().trim().max(160).nullable().optional(),
   duration_hours: z.coerce.number().min(1).max(24).nullable().optional(),
-  theme_group: z.enum(THEME_GROUPS).nullable().optional(),
+  theme_group: z.string().trim().max(60).nullable().optional(),
   signature: z.boolean().optional(),
   faq: z.array(z.object({ q: z.string().trim().min(3).max(300), a: z.string().trim().min(3).max(2000) })).max(30).optional(),
 });

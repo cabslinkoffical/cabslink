@@ -35,6 +35,7 @@ export const SETTINGS_GROUPS: SettingGroup[] = [
     label: "Tours", icon: RouteIcon, blurb: "Day tours, their stops and how they are priced.",
     items: [
       { to: "/cabs-booking-pannel/scenic-routes", label: "Tour routes", icon: RouteIcon, description: "Ready-made tours shown on the website." },
+      { to: "/cabs-booking-pannel/tour-categories", label: "Tour categories", icon: Tag, description: "The category filters on the Tours page, their order and names." },
       { to: "/cabs-booking-pannel/pois", label: "Stops & landmarks", icon: MapPin, description: "Places customers can add to a tour." },
       { to: "/cabs-booking-pannel/tour-hours", label: "Hours & mileage", icon: Gauge, description: "Hourly rates and included miles per vehicle." },
       { to: "/cabs-booking-pannel/tour-settings", label: "Tour settings", icon: SettingsIcon, description: "Tour-wide rules such as minimum hours." },

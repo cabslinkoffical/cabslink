@@ -8,8 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { listTourCategories } from "@/lib/tour-admin-tools.functions";
 import {
-  THEME_GROUPS, updateTourContent, listTourReviews, upsertTourReview, deleteTourReview,
+  updateTourContent, listTourReviews, upsertTourReview, deleteTourReview,
 } from "@/lib/scenic-admin.functions";
 
 type Faq = { q: string; a: string };
@@ -20,6 +21,9 @@ function words(...parts: (string | null | undefined)[]) {
 
 export function TourContentEditor({ t, onSaved }: { t: any; onSaved: () => void }) {
   const save = useServerFn(updateTourContent);
+  const fetchCategories = useServerFn(listTourCategories);
+  const categories = useQuery({ queryKey: ["admin", "tour-categories"], queryFn: () => fetchCategories() });
+  const categoryNames = (categories.data ?? []).filter((c: any) => c.active || c.name === t.theme_group).map((c: any) => c.name as string);
   const [f, setF] = useState({
     itinerary_md: t.itinerary_md ?? "",
     included_md: t.included_md ?? "",
@@ -60,11 +64,11 @@ export function TourContentEditor({ t, onSaved }: { t: any; onSaved: () => void 
       </p>
       <div className="grid gap-5 md:grid-cols-2">
         <div>
-          <Label className="mb-2 block text-xs uppercase text-muted-foreground">Filter group (max 7)</Label>
+          <Label className="mb-2 block text-xs uppercase text-muted-foreground">Category (Tours page filter)</Label>
           <select className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
             value={f.theme_group} onChange={(e) => setF({ ...f, theme_group: e.target.value })}>
             <option value="">— None —</option>
-            {THEME_GROUPS.map((g) => <option key={g} value={g}>{g}</option>)}
+            {categoryNames.map((g) => <option key={g} value={g}>{g}</option>)}
           </select>
         </div>
         <div>

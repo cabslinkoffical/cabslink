@@ -148,6 +148,20 @@
       "when": 1793738991570,
       "tag": "0020_tour_multi_vehicle",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1793740367689,
+      "tag": "0021_tour_admin_tools",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1793741063560,
+      "tag": "0022_fix_tour_draft_stop_order",
+      "breakpoints": true
     }
   ]
 }
