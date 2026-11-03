@@ -268,6 +268,7 @@ function ConfirmationPage() {
                   <Fact icon={<Phone className="size-3" />} label="Phone" value={b.customerPhone} />
                   <Fact icon={<Mail className="size-3" />} label="Email" value={b.customerEmail} />
                   {extras.length > 0 && <Fact icon={<BadgeCheck className="size-3" />} label="Extras" value={extras.join(" · ")} />}
+                  {b.cancellationCoverText && <Fact icon={<BadgeCheck className="size-3" />} label="Cancellation cover" value={b.cancellationCoverText} />}
                 </dl>
               </div>
 
