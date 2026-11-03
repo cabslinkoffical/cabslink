@@ -15,7 +15,7 @@ import { checkLimit } from "@/lib/rate-limit.server";
 import { enforceRateLimit, hitRateLimit, LIMITS } from "@/lib/db-rate-limit.server";
 import { assertCaptcha } from "@/lib/captcha.server";
 import { TOUR_SERVICE_TYPE } from "@/lib/tour-enquiries";
-import { ukClock, ukDate, ukLocalToMs } from "@/lib/uk-time";
+import { tourStartProblem } from "@/lib/tour-timing";
 import {
   loadTourConfig,
   quoteTourImpl,
@@ -256,29 +256,9 @@ export const createTourBooking = createServerFn({ method: "POST" })
 
     const config = await loadTourConfig();
 
-    // Notice period and start-time window.
-    // Tour dates and times are UK local time (GMT or BST), whatever the server clock.
-    const startMs = ukLocalToMs(data.date, data.time);
-    const noticeMs = config.rules.minimum_notice_hours * 3_600_000;
-    if (startMs != null && startMs - Date.now() < noticeMs) {
-      throw new Error(
-        `Tours need at least ${config.rules.minimum_notice_hours} hours' notice. Please call us for anything sooner.`,
-      );
-    }
-    // Same-day booking window, both set by staff.
-    const now = new Date();
-    const todayISO = ukDate(now);
-    if (data.date === todayISO) {
-      if (!config.rules.allow_same_day) {
-        throw new Error("Same-day tours can't be booked online. Please call us and we'll do our best to help.");
-      }
-      const clock = ukClock(now);
-      if (clock > config.rules.same_day_cutoff_time) {
-        throw new Error(
-          `Same-day tours can only be booked until ${config.rules.same_day_cutoff_time}. Please choose another date or call us.`,
-        );
-      }
-    }
+    // Notice period and same-day window, in UK time (GMT/BST).
+    const timingProblem = tourStartProblem(data.date, data.time, config.rules);
+    if (timingProblem) throw new Error(timingProblem);
     if (data.time < config.rules.earliest_start_time) {
       throw new Error(`Tours start from ${config.rules.earliest_start_time} onwards.`);
     }

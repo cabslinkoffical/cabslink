@@ -138,7 +138,7 @@ export type ManagedBooking = {
 
 
 /** Pickup date + "HH:MM" (UK local time, GMT or BST) as an instant for cut-off maths. */
-function pickupTimestamp(date: string | null, time: string | null): number | null {
+export function pickupTimestamp(date: string | null, time: string | null): number | null {
   const t = /^\d{1,2}:\d{2}$/.test(time ?? "") ? (time as string) : "00:00";
   return ukLocalToMs(date, t);
 }
