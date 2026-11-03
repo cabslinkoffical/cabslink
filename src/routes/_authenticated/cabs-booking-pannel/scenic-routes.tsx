@@ -1,5 +1,6 @@
 import { TourContentEditor } from "@/components/admin/tours/TourContentEditor";
-import { PriceModeChoice } from "@/components/admin/PriceModeChoice";
+import { TourBuilder } from "@/components/admin/tours/TourBuilder";
+import { duplicateTour } from "@/lib/tour-admin-tools.functions";
 import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -8,6 +9,9 @@ import {
   AlertTriangle,
   CheckCircle2,
   Clock3,
+  Copy,
+  Eye,
+  ListChecks,
   ImageIcon,
   Loader2,
   MapPinned,
@@ -24,10 +28,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   listScenicTemplates,
-  createScenicTemplate,
   publishScenicTemplate,
   refreshScenicTemplateStartingPrice,
   setScenicTemplateActive,
@@ -66,18 +68,18 @@ function ScenicRoutesPage() {
   const togglePublish = useServerFn(publishScenicTemplate);
   const updateMeta = useServerFn(updateScenicTemplateMeta);
   const refreshPrice = useServerFn(refreshScenicTemplateStartingPrice);
-  const createTemplate = useServerFn(createScenicTemplate);
+  const copyTour = useServerFn(duplicateTour);
   const [pending, setPending] = useState<Record<string, boolean>>({});
   const [selectedId, setSelectedId] = useState<string | null>(data.templates[0]?.id ?? null);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<StatusFilter>("all");
-  const [createOpen, setCreateOpen] = useState(false);
-  const [creating, setCreating] = useState(false);
-  const [newName, setNewName] = useState("");
-  const [newPriceMode, setNewPriceMode] = useState<"manual" | "auto">("manual");
-  const [newSlug, setNewSlug] = useState("");
-  const [newTheme, setNewTheme] = useState("");
-  const [newDescription, setNewDescription] = useState("");
+  const [category, setCategory] = useState("all");
+  /** Step-by-step screen: closed, a new tour (null id) or an existing tour. */
+  const [builder, setBuilder] = useState<{ id: string | null } | null>(null);
+  const categoryNames = useMemo(
+    () => Array.from(new Set((data.templates as any[]).map((t) => t.theme_group).filter(Boolean))).sort() as string[],
+    [data.templates],
+  );
 
   const poisByTpl = useMemo(() => {
     const map = new Map<string, any[]>();
@@ -118,9 +120,10 @@ function ScenicRoutesPage() {
         (filter === "live" && template.published) ||
         (filter === "draft" && !template.published) ||
         (filter === "attention" && (missing > 0 || (!template.published && !canPublish)));
-      return matchesSearch && matchesFilter;
+      const matchesCategory = category === "all" || (category === "none" ? !template.theme_group : template.theme_group === category);
+      return matchesSearch && matchesFilter && matchesCategory;
     });
-  }, [data.templates, filter, poisByTpl, search]);
+  }, [data.templates, filter, poisByTpl, search, category]);
 
   const selected =
     data.templates.find((template: any) => template.id === selectedId) ?? filteredTemplates[0] ?? null;
@@ -162,46 +165,20 @@ function ScenicRoutesPage() {
       }
     });
 
-  const handleNewName = (value: string) => {
-    setNewName(value);
-    setNewSlug(value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""));
-  };
-
-  const handleCreate = async () => {
-    if (newName.trim().length < 3 || newSlug.trim().length < 3) {
-      toast.error("Enter a route name and URL name.");
-      return;
-    }
-    setCreating(true);
-    try {
-      const result = await createTemplate({ data: {
-        name: newName.trim(),
-        slug: newSlug.trim(),
-        theme: newTheme.trim() || null,
-        short_description: newDescription.trim() || null,
-        price_mode: newPriceMode,
-      } });
-      await invalidate();
-      setSelectedId(result.id);
-      setFilter("all");
-      setSearch("");
-      setCreateOpen(false);
-      setNewName("");
-      setNewSlug("");
-      setNewTheme("");
-      setNewDescription("");
-      setNewPriceMode("manual");
-      toast.success(
-        newPriceMode === "auto"
-          ? "New draft route created. Add its start point, stops and length, then save it in Tour Hours > Premade Tours to work out the prices."
-          : "New draft route created. Add its route details and stops, then set each vehicle's price in Tour Hours > Premade Tours.",
-      );
-    } catch (error: any) {
-      toast.error(error.message ?? "Unable to create route");
-    } finally {
-      setCreating(false);
-    }
-  };
+  const handleDuplicate = (template: any) =>
+    withPending(template.id, "copy", async () => {
+      try {
+        const res = await copyTour({ data: { id: template.id } });
+        await invalidate();
+        setSelectedId(res.id);
+        setFilter("all");
+        setSearch("");
+        setCategory("all");
+        toast.success("Copied into a new draft. Rename it and change what you need.");
+      } catch (error: any) {
+        toast.error(error.message ?? "Unable to copy this tour");
+      }
+    });
 
   return (
     <div className="-m-4 flex min-h-[calc(100vh-7.5rem)] flex-col overflow-hidden bg-muted md:-m-6">
@@ -216,7 +193,7 @@ function ScenicRoutesPage() {
           </p>
         </div>
         <div className="flex shrink-0 flex-wrap items-center gap-2">
-          <Button onClick={() => setCreateOpen(true)}><Plus className="size-4" /> Add New Route</Button>
+          <Button onClick={() => setBuilder({ id: null })}><Plus className="size-4" /> Create a tour</Button>
           <BulkTools entity="scenic_route_templates" onChanged={invalidate} />
         </div>
       </header>
@@ -233,6 +210,16 @@ function ScenicRoutesPage() {
                 className="bg-card pl-9"
               />
             </div>
+            <select
+              aria-label="Filter by category"
+              className="h-9 w-full rounded-md border border-input bg-card px-3 text-sm"
+              value={category}
+              onChange={(event) => setCategory(event.target.value)}
+            >
+              <option value="all">All categories</option>
+              {categoryNames.map((c) => <option key={c} value={c}>{c}</option>)}
+              <option value="none">No category</option>
+            </select>
             <div className="grid grid-cols-4 gap-1 rounded-md bg-muted p-1" aria-label="Filter routes">
               {(["all", "live", "draft", "attention"] as const).map((value) => (
                 <Button
@@ -269,7 +256,7 @@ function ScenicRoutesPage() {
                     <span className="min-w-0 flex-1">
                       <span className="mb-1.5 flex items-center justify-between gap-3">
                         <span className="truncate text-[10px] font-bold uppercase text-muted-foreground">
-                          {template.theme || "Uncategorised"}
+                          {template.theme_group || template.theme || "Uncategorised"}
                         </span>
                         <span
                           className={`shrink-0 text-[10px] font-bold uppercase ${
@@ -321,6 +308,8 @@ function ScenicRoutesPage() {
                 })
               }
               onContentSaved={invalidate}
+              onEditSteps={() => setBuilder({ id: selected.id })}
+              onDuplicate={() => handleDuplicate(selected)}
               onRefreshPrice={() =>
                 withPending(selected.id, "price", async () => {
                   try {
@@ -343,43 +332,12 @@ function ScenicRoutesPage() {
         </main>
       </div>
 
-      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Add New Scenic Route</DialogTitle>
-            <DialogDescription>Create a private draft first. You can add route details, images and stops before publishing it.</DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-2">
-            <div className="space-y-2">
-              <Label htmlFor="new-route-name">Route name</Label>
-              <Input id="new-route-name" value={newName} onChange={(event) => handleNewName(event.target.value)} placeholder="Loch Lomond & Trossachs" autoFocus />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="new-route-slug">Website URL name</Label>
-              <Input id="new-route-slug" value={newSlug} onChange={(event) => setNewSlug(event.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))} placeholder="loch-lomond-trossachs" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="new-route-theme">Theme</Label>
-              <Input id="new-route-theme" value={newTheme} onChange={(event) => setNewTheme(event.target.value)} placeholder="Lochs and Highlands" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="new-route-description">Short description</Label>
-              <Input id="new-route-description" value={newDescription} onChange={(event) => setNewDescription(event.target.value)} placeholder="One-line summary shown in tour listings" />
-            </div>
-            <fieldset className="space-y-2">
-              <legend className="text-sm font-medium">Tour price</legend>
-              <PriceModeChoice value={newPriceMode} onChange={setNewPriceMode} />
-            </fieldset>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setCreateOpen(false)} disabled={creating}>Cancel</Button>
-            <Button onClick={() => void handleCreate()} disabled={creating || newName.trim().length < 3 || newSlug.trim().length < 3}>
-              {creating ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}
-              Create draft
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <TourBuilder
+        open={!!builder}
+        tourId={builder?.id ?? null}
+        onClose={() => setBuilder(null)}
+        onSaved={(id) => { setSelectedId(id); void invalidate(); }}
+      />
     </div>
   );
 }
@@ -395,6 +353,8 @@ function RouteEditor({
   onSaveMeta,
   onRefreshPrice,
   onContentSaved,
+  onEditSteps,
+  onDuplicate,
 }: {
   template: any;
   stops: any[];
@@ -411,6 +371,8 @@ function RouteEditor({
   }) => void;
   onRefreshPrice: () => void;
   onContentSaved: () => void;
+  onEditSteps: () => void;
+  onDuplicate: () => void;
 }) {
   const [hero, setHero] = useState(t.hero_image_url ?? "");
   const [short, setShort] = useState(t.short_description ?? "");
@@ -438,6 +400,15 @@ function RouteEditor({
           </div>
           <h2 className="font-display text-3xl font-extrabold text-foreground">{t.name}</h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">{t.description}</p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Button size="sm" onClick={onEditSteps}><ListChecks className="size-4" /> Edit step by step</Button>
+            <Button size="sm" variant="outline" asChild>
+              <a href={`/tour-preview/${t.id}`} target="_blank" rel="noreferrer"><Eye className="size-4" /> Preview page</a>
+            </Button>
+            <Button size="sm" variant="outline" disabled={!!pending[`${t.id}:copy`]} onClick={onDuplicate}>
+              {pending[`${t.id}:copy`] ? <Loader2 className="size-4 animate-spin" /> : <Copy className="size-4" />} Copy into new draft
+            </Button>
+          </div>
         </div>
         <div className="flex shrink-0 items-center gap-5 rounded-md border border-border bg-card px-4 py-3">
           <Label className="flex items-center gap-2 text-xs text-muted-foreground">
