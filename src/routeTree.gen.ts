@@ -129,6 +129,7 @@ import { Route as AuthenticatedCabsBookingPannelSiteSettingsRouteImport } from '
 import { Route as AuthenticatedCabsBookingPannelTourHoursRouteImport } from './routes/_authenticated/cabs-booking-pannel/tour-hours'
 import { Route as AuthenticatedCabsBookingPannelTourSettingsRouteImport } from './routes/_authenticated/cabs-booking-pannel/tour-settings'
 import { Route as AuthenticatedCabsBookingPannelUsersRouteImport } from './routes/_authenticated/cabs-booking-pannel/users'
+import { Route as AuthenticatedTourPreviewIdRouteImport } from './routes/_authenticated/tour-preview.$id'
 import { Route as ApiPublicCollectRouteImport } from './routes/api/public/collect'
 import { Route as AreasALetterRouteImport } from './routes/areas.a.$letter'
 import { Route as AreasRegionSlugRouteImport } from './routes/areas.region.$slug'
@@ -786,6 +787,12 @@ const AuthenticatedCabsBookingPannelUsersRoute =
     path: '/users',
     getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
+const AuthenticatedTourPreviewIdRoute =
+  AuthenticatedTourPreviewIdRouteImport.update({
+    id: '/tour-preview/$id',
+    path: '/tour-preview/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const ApiPublicCollectRoute = ApiPublicCollectRouteImport.update({
   id: '/api/public/collect',
   path: '/api/public/collect',
@@ -1055,6 +1062,7 @@ export interface FileRoutesByFullPath {
   '/cabs-booking-pannel/tour-hours': typeof AuthenticatedCabsBookingPannelTourHoursRoute
   '/cabs-booking-pannel/tour-settings': typeof AuthenticatedCabsBookingPannelTourSettingsRoute
   '/cabs-booking-pannel/users': typeof AuthenticatedCabsBookingPannelUsersRoute
+  '/tour-preview/$id': typeof AuthenticatedTourPreviewIdRoute
   '/api/public/collect': typeof ApiPublicCollectRoute
   '/areas/a/$letter': typeof AreasALetterRoute
   '/areas/region/$slug': typeof AreasRegionSlugRoute
@@ -1200,6 +1208,7 @@ export interface FileRoutesByTo {
   '/cabs-booking-pannel/tour-hours': typeof AuthenticatedCabsBookingPannelTourHoursRoute
   '/cabs-booking-pannel/tour-settings': typeof AuthenticatedCabsBookingPannelTourSettingsRoute
   '/cabs-booking-pannel/users': typeof AuthenticatedCabsBookingPannelUsersRoute
+  '/tour-preview/$id': typeof AuthenticatedTourPreviewIdRoute
   '/api/public/collect': typeof ApiPublicCollectRoute
   '/areas/a/$letter': typeof AreasALetterRoute
   '/areas/region/$slug': typeof AreasRegionSlugRoute
@@ -1349,6 +1358,7 @@ export interface FileRoutesById {
   '/_authenticated/cabs-booking-pannel/tour-hours': typeof AuthenticatedCabsBookingPannelTourHoursRoute
   '/_authenticated/cabs-booking-pannel/tour-settings': typeof AuthenticatedCabsBookingPannelTourSettingsRoute
   '/_authenticated/cabs-booking-pannel/users': typeof AuthenticatedCabsBookingPannelUsersRoute
+  '/_authenticated/tour-preview/$id': typeof AuthenticatedTourPreviewIdRoute
   '/api/public/collect': typeof ApiPublicCollectRoute
   '/areas/a/$letter': typeof AreasALetterRoute
   '/areas/region/$slug': typeof AreasRegionSlugRoute
@@ -1498,6 +1508,7 @@ export interface FileRouteTypes {
     | '/cabs-booking-pannel/tour-hours'
     | '/cabs-booking-pannel/tour-settings'
     | '/cabs-booking-pannel/users'
+    | '/tour-preview/$id'
     | '/api/public/collect'
     | '/areas/a/$letter'
     | '/areas/region/$slug'
@@ -1643,6 +1654,7 @@ export interface FileRouteTypes {
     | '/cabs-booking-pannel/tour-hours'
     | '/cabs-booking-pannel/tour-settings'
     | '/cabs-booking-pannel/users'
+    | '/tour-preview/$id'
     | '/api/public/collect'
     | '/areas/a/$letter'
     | '/areas/region/$slug'
@@ -1791,6 +1803,7 @@ export interface FileRouteTypes {
     | '/_authenticated/cabs-booking-pannel/tour-hours'
     | '/_authenticated/cabs-booking-pannel/tour-settings'
     | '/_authenticated/cabs-booking-pannel/users'
+    | '/_authenticated/tour-preview/$id'
     | '/api/public/collect'
     | '/areas/a/$letter'
     | '/areas/region/$slug'
@@ -2762,6 +2775,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCabsBookingPannelUsersRouteImport
       parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
+    '/_authenticated/tour-preview/$id': {
+      id: '/_authenticated/tour-preview/$id'
+      path: '/tour-preview/$id'
+      fullPath: '/tour-preview/$id'
+      preLoaderRoute: typeof AuthenticatedTourPreviewIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/public/collect': {
       id: '/api/public/collect'
       path: '/api/public/collect'
@@ -3108,11 +3128,13 @@ const AuthenticatedCabsBookingPannelRouteRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedCabsBookingPannelRouteRoute: typeof AuthenticatedCabsBookingPannelRouteRouteWithChildren
+  AuthenticatedTourPreviewIdRoute: typeof AuthenticatedTourPreviewIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCabsBookingPannelRouteRoute:
     AuthenticatedCabsBookingPannelRouteRouteWithChildren,
+  AuthenticatedTourPreviewIdRoute: AuthenticatedTourPreviewIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
