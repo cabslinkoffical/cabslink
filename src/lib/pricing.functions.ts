@@ -928,16 +928,21 @@ export const createBooking = createServerFn({ method: "POST" })
     }
 
 
-    // Cancellation-policy delta (admin-configurable percent + minimum).
+    // Cancellation-cover delta (admin-configurable percent + minimum). The
+    // chosen cover and the exact amount it changed the fare by are saved.
+    const cancellationCover = data.cancellation_policy;
+    let cancellationCoverAmount = 0;
     {
       const s = auth.settings;
-      if (data.cancellation_policy === "non_refundable") {
-        const d = -Math.max(s.policyNonRefundableMinPence / 100, Math.round(price * (s.policyNonRefundablePercent / 100) * 100) / 100);
-        price = Number(Math.max(0, price + d).toFixed(2));
-      } else if (data.cancellation_policy === "flexible") {
-        const d = Math.max(s.policyFlexibleMinPence / 100, Math.round(price * (s.policyFlexiblePercent / 100) * 100) / 100);
-        price = Number((price + d).toFixed(2));
-      }
+      const d = coverDelta(cancellationCover, price, {
+        nonRefundablePercent: s.policyNonRefundablePercent,
+        nonRefundableMinPence: s.policyNonRefundableMinPence,
+        flexiblePercent: s.policyFlexiblePercent,
+        flexibleMinPence: s.policyFlexibleMinPence,
+      });
+      const before = price;
+      price = Number(Math.max(0, price + d).toFixed(2));
+      cancellationCoverAmount = Number((price - before).toFixed(2));
     }
 
     const notesWithQty = qty > 1
