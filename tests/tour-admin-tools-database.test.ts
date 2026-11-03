@@ -3,8 +3,10 @@ import { readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 
 // The copy and step-by-step save routines from the migration, run against temporary tables.
-const migration = readFileSync("drizzle/migrations/0021_tour_admin_tools.sql", "utf8");
-const fn = (name: string) => {
+// The step-by-step save was corrected in 0022; always test the current version.
+const files = { admin_duplicate_tour: "0021_tour_admin_tools.sql", admin_save_tour_draft: "0022_fix_tour_draft_stop_order.sql" } as const;
+const fn = (name: keyof typeof files) => {
+  const migration = readFileSync(`drizzle/migrations/${files[name]}`, "utf8");
   const start = migration.indexOf(`CREATE OR REPLACE FUNCTION public.${name}`);
   const end = migration.indexOf("$$;", migration.indexOf("AS $$", start) + 5) + 3;
   return migration.slice(start, end)
