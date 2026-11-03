@@ -233,5 +233,5 @@
 - [x] T2 Custom builder UX: drag to reorder stops, lock stops, quickest-order suggestion with restore; map/distance/notes live in the tour booking steps (map tiles blocked in preview only)
 - [x] T3 Custom tour requests: CL-CT reference, request-a-quote when not reliably priceable, secure status lookup, admin queue (new/reviewing/quoted/accepted/rejected/completed) with route + notes
 - [ ] Owner asked: explain hourly hire & day tours end to end (every phase/step) with the full code
-- [ ] T4 Multiple vehicles for big groups (tours): suggested combinations, priced per vehicle, capacity locking per class
+- [x] T4 Multiple vehicles for big groups (tours): suggested combinations, priced per vehicle, capacity locking per class
 - [ ] T5 Admin tour tools: duplicate tour, tour categories, draft preview, guided create steps
