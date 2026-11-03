@@ -91,7 +91,7 @@ describe("when the wizard offers Request a quote", () => {
 describe("saving a custom tour request", () => {
   it("still saves the request when the instant price fails, with no estimate", async () => {
     quoteTourImpl.mockRejectedValue(new Error("We couldn't route every stop on this tour."));
-    const { createCustomTourRequestImpl } = await import("@/lib/custom-tour-requests.functions");
+    const { createCustomTourRequestImpl } = await import("@/lib/custom-tour-requests.server");
     const res = await createCustomTourRequestImpl(base as any, { skipChecks: true });
     expect(res.reference).toBe("CL-CT-2026-00007");
     expect(inserted).toHaveLength(1);
@@ -103,7 +103,7 @@ describe("saving a custom tour request", () => {
 
   it("keeps a reliable instant price as the estimate", async () => {
     quoteTourImpl.mockResolvedValue({ quote: { total: 420, routeMiles: 95.44, driveMinutes: 150.2, dwellTotalMinutes: 90, blockedReason: null } });
-    const { createCustomTourRequestImpl } = await import("@/lib/custom-tour-requests.functions");
+    const { createCustomTourRequestImpl } = await import("@/lib/custom-tour-requests.server");
     await createCustomTourRequestImpl(base as any, { skipChecks: true });
     expect(inserted[0].estimated_total).toBe(420);
     expect(inserted[0].route_miles).toBe(95.4);
@@ -111,7 +111,7 @@ describe("saving a custom tour request", () => {
   });
 
   it("refuses a tour date in the past", async () => {
-    const { createCustomTourRequestImpl } = await import("@/lib/custom-tour-requests.functions");
+    const { createCustomTourRequestImpl } = await import("@/lib/custom-tour-requests.server");
     await expect(createCustomTourRequestImpl({ ...base, date: "2000-01-01" } as any, { skipChecks: true })).rejects.toThrow(/today/);
     expect(inserted).toHaveLength(0);
   });
@@ -127,13 +127,13 @@ describe("customer status lookup", () => {
 
   it("rejects a wrong email without revealing the request", async () => {
     state.row = row;
-    const { lookupCustomTourRequestImpl } = await import("@/lib/custom-tour-requests.functions");
+    const { lookupCustomTourRequestImpl } = await import("@/lib/custom-tour-requests.server");
     await expect(lookupCustomTourRequestImpl({ reference: row.reference_code, email: "other@example.com" })).rejects.toThrow(/couldn't find/);
   });
 
   it("hides the price until the request is quoted", async () => {
     state.row = row;
-    const { lookupCustomTourRequestImpl } = await import("@/lib/custom-tour-requests.functions");
+    const { lookupCustomTourRequestImpl } = await import("@/lib/custom-tour-requests.server");
     const v = await lookupCustomTourRequestImpl({ reference: row.reference_code, email: "jane@example.com" });
     expect(v.price).toBeNull();
     expect(v).not.toHaveProperty("email");
