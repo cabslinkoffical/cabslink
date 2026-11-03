@@ -1,4 +1,5 @@
 import { FACT_TEXT } from "@/lib/site-facts";
+import { childSeatChoices, childSeatsLabel, TOO_MANY_SEATS } from "@/lib/child-seats";
 import { flightNumberError } from "@/lib/flight-number";
 import { getClientIp } from "@/lib/client-ip.server";
 import { createServerFn } from "@tanstack/react-start";
@@ -917,6 +918,9 @@ export const createBooking = createServerFn({ method: "POST" })
     const recordedSeatCount = childSeatCount + (data.extras ?? [])
       .filter((x) => seatKeys.has(x.key) && !(x.key === "child_seat" && childSeatCount > 0))
       .reduce((t, x) => t + Math.max(0, x.quantity), 0);
+    // Seat types are kept by name so the driver knows exactly what to fit.
+    const childSeatTypes = childSeatChoices(data.extras ?? [], auth.extrasCatalogue);
+    if (recordedSeatCount > data.passengers) throw new Error(TOO_MANY_SEATS);
     const extrasNet = Number((childSeatFee + meetGreetFee + addonsNet).toFixed(2));
     if (extrasNet > 0) {
       const extrasTaxed = applyTaxTo(extrasNet, auth.settings.taxRate, auth.settings.taxMode);
@@ -983,6 +987,7 @@ export const createBooking = createServerFn({ method: "POST" })
       engine_version: ENGINE_VERSION,
       child_seat: !!data.child_seat || recordedSeatCount > 0,
       child_seat_count: recordedSeatCount,
+      child_seat_types: childSeatTypes,
       meet_greet: !!data.meet_greet,
       return_journey: !!data.return_journey,
       return_date: data.return_journey ? data.returnDate ?? null : null,
@@ -1105,7 +1110,8 @@ export const createBooking = createServerFn({ method: "POST" })
         luggage: data.luggage,
         flightNumber: data.flight_number ?? null,
         meetGreet: !!data.meet_greet,
-        childSeat: !!data.child_seat,
+        childSeat: !!insertPayload.child_seat,
+        childSeatsText: childSeatsLabel(insertPayload.child_seat_types ?? [], insertPayload.child_seat_count ?? 0),
         returnJourney: !!data.return_journey,
         distanceMiles: auth.distanceMiles,
         price,

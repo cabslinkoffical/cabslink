@@ -14,6 +14,8 @@
 
 export type ExtraCatalogueEntry = {
   key: string;
+  /** Customer-facing name, e.g. "Toddler Child Seat". */
+  name?: string;
   active: boolean;
   price_pence: number;
   applies_to_all_classes: boolean;

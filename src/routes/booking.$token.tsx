@@ -172,7 +172,7 @@ function ConfirmationPage() {
   };
   const extras = [
     b.meetGreet ? "Meet & greet" : null,
-    b.childSeat ? "Child seat" : null,
+    b.childSeatsText ? `Child seats: ${b.childSeatsText}` : b.childSeat ? "Child seat" : null,
     b.returnJourney ? "Return journey" : null,
   ].filter(Boolean) as string[];
 

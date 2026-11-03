@@ -40,6 +40,7 @@ import { track } from "@/lib/tracking";
 import { rememberCheckout, trackEvent } from "@/lib/analytics-ga";
 import { listPoisForRoute, type PoiSuggestion, type RouteTemplateSummary } from "@/lib/pois.functions";
 import { calculateMultiStopQuote, type MultiStopQuoteResult } from "@/lib/scenic-quote.functions";
+import { mergeTripStops } from "@/lib/trip-stops";
 import { resolveTourTemplate } from "@/lib/tours.functions";
 import { listPublicVehicleClasses, type PublicVehicleClass } from "@/lib/vehicle-classes.functions";
 import { listPublicExtras, type PublicExtra } from "@/lib/extras-public.functions";
@@ -413,6 +414,8 @@ function BookPage() {
       minutes: selectedStops[p.place_id],
       category: p.category,
     }));
+  // Typed stops stay on the trip when sightseeing stops are added.
+  const tripStops = mergeTripStops(pre.stops, orderedSelected);
 
   const multiStopFn = useServerFn(calculateMultiStopQuote);
   const multiStopQuery = useQuery({
@@ -420,7 +423,7 @@ function BookPage() {
     queryKey: [
       "multi-stop-quote",
       pre.pickup?.placeId, pre.dropoff?.placeId, routeMode, pre.date, pre.time,
-      orderedSelected.map((s) => `${s.place_id}:${s.minutes}`).join("|"),
+      tripStops.map((s) => `${s.place_id}:${s.minutes}`).join("|"),
     ],
     queryFn: () =>
       multiStopFn({
@@ -431,7 +434,7 @@ function BookPage() {
           destination_label: pre.dropoff!.label,
           pickup_time: pre.time,
           pickup_date: /^\d{4}-\d{2}-\d{2}$/.test(pre.date) ? pre.date : undefined,
-          stops: orderedSelected,
+          stops: tripStops,
           route_mode: routeMode,
         },
       }),
@@ -530,7 +533,7 @@ function BookPage() {
     setSubmitting(true);
     try {
       const mergedStops = orderedSelected.length > 0
-        ? orderedSelected.map((s) => ({ placeId: s.place_id, label: s.label, minutes: s.minutes, category: s.category ?? null }))
+        ? tripStops.map((s) => ({ placeId: s.place_id, label: s.label, minutes: s.minutes, category: s.category ?? null }))
         : pre.stops.map((s) => ({ placeId: s.placeId, label: s.label, minutes: 0 }));
       const paymentLabel = payMethod === "other" ? OFFLINE_PAYMENT_LABEL : "Card payment (online)";
 
@@ -752,6 +755,7 @@ function BookPage() {
                         childSeatFeePence={childSeatFeePence}
                         childSeatCount={childSeatCount}
                         onChildSeatCount={setChildSeatCount}
+                        passengers={pre.passengers}
                         meetGreet={meetGreet}
                         onMeetGreet={setMeetGreet}
                         returnJourney={returnJourney}
@@ -2009,6 +2013,8 @@ function ExtrasStep(props: {
   childSeatFeePence: number;
   childSeatCount: number;
   onChildSeatCount: (n: number) => void;
+  /** Confirmed passengers — child seats can't exceed this. */
+  passengers: number;
   meetGreet: boolean;
   onMeetGreet: (v: boolean) => void;
   returnJourney: boolean;
@@ -2032,7 +2038,7 @@ function ExtrasStep(props: {
     pois, template, poisLoading, selectedStops, onToggleStop, onStopMinutes,
     routeMode, onRouteModeChange, multiQuote, multiLoading, multiError,
     converted, needsAck, onAck,
-    childSeatFeePence, childSeatCount, onChildSeatCount,
+    childSeatFeePence, childSeatCount, onChildSeatCount, passengers,
     meetGreet, onMeetGreet, returnJourney, onReturnJourney,
     policy, onPolicy, baseRideTotal, seatFee, meetGreetFee, returnFee,
     meetGreetFeePence, policyCfg, onBack, onNext,
@@ -2098,19 +2104,29 @@ function ExtrasStep(props: {
           ).map((group) => {
             const items = catalogueExtras.filter((e) => (e.category ?? "other") === group.key || (group.key === "other" && e.category === "meet_greet"));
             if (!items.length) return null;
+            const isSeats = group.key === "child_seat";
+            const seatsChosen = isSeats ? items.reduce((t, e) => t + (extraQty[e.key] ?? 0), 0) : 0;
             return (
               <div key={group.key}>
-                <h3 className="mb-3 text-sm font-semibold">{group.label}</h3>
+                <h3 className="mb-1 text-sm font-semibold">{group.label}</h3>
+                {isSeats ? (
+                  <p className="mb-3 text-xs text-muted-foreground">
+                    Priced per seat. Choose how many of each type you need{passengers > 0 ? ` (up to ${passengers}, one per passenger)` : ""}.
+                    {seatsChosen > 0 && <span className="ml-1 font-semibold text-foreground">{seatsChosen} seat{seatsChosen === 1 ? "" : "s"} chosen.</span>}
+                  </p>
+                ) : <div className="mb-2" />}
                 <div className="grid gap-3 sm:grid-cols-2">
                   {items.map((e) => {
                     const n = Math.min(extraQty[e.key] ?? 0, e.max_quantity);
-                    const unit = e.price_basis === "per_hour" ? " per hour" : e.price_basis === "per_minute" ? " per minute" : e.price_basis === "per_booking" ? "" : " each";
+                    const unit = e.price_basis === "per_hour" ? " per hour" : e.price_basis === "per_minute" ? " per minute" : e.price_basis === "per_booking" ? "" : isSeats ? " per seat" : " each";
                     const priceLabel = `£${(e.price_pence / 100).toFixed(2)}${unit}`;
                     const single = e.price_basis === "per_booking" || e.max_quantity <= 1;
                     // Minutes are offered in 15-minute steps up to the admin limit.
+                    // Child seats: never more seats in total than passengers.
+                    const seatRoom = isSeats && passengers > 0 ? Math.max(0, passengers - (seatsChosen - n)) : Infinity;
                     const options = e.price_basis === "per_minute"
                       ? [0, ...Array.from({ length: Math.floor(e.max_quantity / 15) }, (_, i) => (i + 1) * 15)]
-                      : Array.from({ length: e.max_quantity + 1 }, (_, i) => i);
+                      : Array.from({ length: Math.min(e.max_quantity, seatRoom) + 1 }, (_, i) => i);
                     const optLabel = (i: number) =>
                       i === 0 ? "None" : e.price_basis === "per_minute" ? `${i} min` : e.price_basis === "per_hour" ? `${i} h` : String(i);
                     return (

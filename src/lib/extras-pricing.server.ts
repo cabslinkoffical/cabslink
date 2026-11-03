@@ -6,7 +6,7 @@ import type { ExtrasCatalogue } from "@/lib/extras-pricing";
 
 export async function loadExtrasCatalogue(client: any): Promise<ExtrasCatalogue> {
   const [extras, links] = await Promise.all([
-    client.from("extras").select("key, price_pence, active, applies_to_all_classes, price_basis, max_quantity, category, id").eq("active", true),
+    client.from("extras").select("key, name, price_pence, active, applies_to_all_classes, price_basis, max_quantity, category, id").eq("active", true),
     client.from("extra_vehicle_classes").select("extra_id, vehicle_class_id, price_pence, max_quantity"),
   ]);
   if (extras.error) throw new Error(extras.error.message);
@@ -15,6 +15,7 @@ export async function loadExtrasCatalogue(client: any): Promise<ExtrasCatalogue>
   for (const e of (extras.data ?? []) as any[]) {
     byId.set(String(e.id), {
       key: String(e.key),
+      name: e.name == null ? undefined : String(e.name),
       active: !!e.active,
       price_pence: Math.max(0, Number(e.price_pence) || 0),
       applies_to_all_classes: !!e.applies_to_all_classes,

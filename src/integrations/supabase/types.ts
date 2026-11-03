@@ -618,6 +618,7 @@ export type Database = {
           cancellation_reason: string | null
           child_seat: boolean
           child_seat_count: number
+          child_seat_types: Json
           clock_end_at: string | null
           clock_start_at: string | null
           confirmation_salt: string | null
@@ -706,6 +707,7 @@ export type Database = {
           cancellation_reason?: string | null
           child_seat?: boolean
           child_seat_count?: number
+          child_seat_types?: Json
           clock_end_at?: string | null
           clock_start_at?: string | null
           confirmation_salt?: string | null
@@ -794,6 +796,7 @@ export type Database = {
           cancellation_reason?: string | null
           child_seat?: boolean
           child_seat_count?: number
+          child_seat_types?: Json
           clock_end_at?: string | null
           clock_start_at?: string | null
           confirmation_salt?: string | null

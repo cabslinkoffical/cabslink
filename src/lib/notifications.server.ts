@@ -13,6 +13,7 @@
 // - Nothing here ever throws to the caller — a failed notification must
 //   not roll back a booking.
 
+import { childSeatsLabel, parseChildSeats } from "@/lib/child-seats";
 import {
   getEmailAdapter,
   type EmailErrorCategory,
@@ -351,6 +352,7 @@ export async function retryNotificationById(logId: string): Promise<{
     flightNumber: booking.flight_number,
     meetGreet: !!booking.meet_greet,
     childSeat: !!booking.child_seat,
+    childSeatsText: childSeatsLabel(parseChildSeats(booking.child_seat_types), Number(booking.child_seat_count ?? 0)),
     returnJourney: !!booking.return_journey,
     distanceMiles: booking.distance_miles,
     price: booking.price,

@@ -1,0 +1,2 @@
+ALTER TABLE public.bookings ADD COLUMN IF NOT EXISTS child_seat_types jsonb NOT NULL DEFAULT '[]'::jsonb;
+COMMENT ON COLUMN public.bookings.child_seat_types IS 'Child seats chosen by type: [{key, name, quantity}]; child_seat_count holds the total.';

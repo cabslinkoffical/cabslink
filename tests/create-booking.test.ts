@@ -216,6 +216,13 @@ describe("createBooking — integration", () => {
     expect(notifyCalls.admin).toBe(1);
   });
 
+  it("refuses more child seats than passengers and saves nothing", async () => {
+    await expect(createBooking({ data: { ...validPayload, passengers: 2, child_seat: true, child_seat_count: 3 } }))
+      .rejects.toThrow(/more child seats than passengers/);
+    expect(store.inserts).toHaveLength(0);
+    expect(notifyCalls.received).toBe(0);
+  });
+
   it("writes vehicle + pricing snapshot columns onto the booking row", async () => {
     await createBooking({ data: validPayload });
     const row = store.inserts[0];
