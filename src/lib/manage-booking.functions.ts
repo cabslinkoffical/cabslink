@@ -635,7 +635,8 @@ async function amendmentContext(data: z.infer<typeof amendInput>) {
   const newPrice = priced.price;
   const delta = Number((newPrice - currentPrice).toFixed(2));
   const paymentStatus = String(row.payment_status ?? "unpaid");
-  const outcome = outcomeFor(paymentStatus, delta);
+  const balancePence = await ledgerBalancePence(row, newPrice, paymentStatus);
+  const money = amendmentMoney({ paymentStatus, delta, newPrice, balancePence });
 
   const quote: AmendmentQuote = {
     bookingRef: row.booking_ref,
@@ -646,11 +647,9 @@ async function amendmentContext(data: z.infer<typeof amendInput>) {
     vehicleName: priced.vehicleName,
     paymentStatus,
     changedLines: describeChanges(row, c),
-    outcome,
-    amountDue: outcome === "topup" ? Math.abs(delta) : outcome === "pay_full" ? newPrice : 0,
-    refundDue: outcome === "refund" ? Math.abs(delta) : 0,
+    ...money,
   };
-  return { row, quote, changes: c, coverAmount: priced.cancellationCoverAmount };
+  return { row, quote, changes: c, coverAmount: priced.cancellationCoverAmount, ledgerBased: balancePence != null };
 }
 
 /** Price-only preview — nothing is saved. */
