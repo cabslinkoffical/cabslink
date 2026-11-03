@@ -63,7 +63,7 @@
 - [ ] Security: full review and hardening pass across the site
 - [x] Fix live admin sign-in loop by removing the fresh-session server-function race from the admin route guard
 - [x] Google Maps: load maps with the account's own browser key (custom-domain support)
-- [ ] Google Maps: create one fresh user-owned connection — both old links removed; workspace connection deletion awaits user action in Connectors
+- [x] Google Maps: connection linked and owner confirmed maps work on the live site (3 Nov)
 - [x] Tour builder: suggest stops from the map inside the hour's mileage radius, and show chosen stops on a map
 - [x] Tour booking page (/book/tour): simplify the flow — lighter, clearer, easier to follow
 - [x] Tour booking: fewer steps (4), custom-tour option shown alongside ready-made tours
@@ -157,7 +157,7 @@
 - [x] Booking left trip panel fits visible screen height on laptop/desktop, no inner scroll
 - [x] Booking left rail: "Fares for this journey" panel and the gold "seen X of Y classes" progress bar removed at owner request. Rail now holds trip details only — pickup/stops/dropoff, route map, distance and duration, date and time, price once a vehicle is chosen. Why Cabslink and Google reviews sit in their own section below the booking area.
 - [x] Maps added to every location page type through one shared section (areas, destinations, service+location pages, and CMS entity pages: stations, attractions, hospitals, universities, distilleries, cruise ports, corporate, guides); airports keep their own map band near the page end. No map inside any navy hero.
-- [ ] Google Maps drawing itself needs live verification on an authorized domain — the preview key is referrer-restricted, so tiles stay blank in the preview.
+- [x] Google Maps live rendering confirmed by owner on cabslink.com (3 Nov)
 - [ ] Owner facts, photos and blog copy still outstanding; nothing published.
 - [x] A01 finish: record lists (bookings, tour enquiries, cancelled history, refunds, change requests, messages, driver applications, payments, customers, activity logs, dispatch events, media, blog posts) load one page at a time from the server with database-side filters/search/counts; short settings lists show 25 per page. Console split into Dashboard & reports / Bookings & messages / Settings with an All settings page. Verified signed in as admin: 20 console pages, paging through 2,366 log entries and 346 images, no errors. Not paged: extras (grouped by category) and tour routes side list. Nothing published.
 
