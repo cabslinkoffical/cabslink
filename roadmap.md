@@ -219,3 +219,4 @@
 - [ ] Every service page has the same clear route into booking
 - [ ] Contact details and business details consistent across all page templates
 - [ ] SEO audit (owner list 3 Nov): unique intent titles, booking-focused unique descriptions, one H1, logical internal links, schema validity (LocalBusiness/TaxiService/Service/FAQPage/Breadcrumb/Organization), Edinburgh local coverage + consistent NAP, AEO direct answers, GEO identity/areas/fleet/policies/contact, image SEO (filenames/alt/responsive/modern formats). Titles/descriptions/H1s are protected: audit first, change only with owner approval
+- [ ] About page: Meet & Greet 'on request' -> paid extra; remove Apple Pay/Google Pay unless verified; remove '50+' group claim (fleet tops out at 16)
