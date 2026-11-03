@@ -25,6 +25,7 @@ import { Route as ContactUsRouteImport } from './routes/contact-us'
 import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as CorporateBookingRouteImport } from './routes/corporate-booking'
 import { Route as CruiseTransfersRouteImport } from './routes/cruise-transfers'
+import { Route as CustomTourStatusRouteImport } from './routes/custom-tour-status'
 import { Route as DistanceRouteImport } from './routes/distance'
 import { Route as DriveWithUsRouteImport } from './routes/drive-with-us'
 import { Route as EventTransportRouteImport } from './routes/event-transport'
@@ -231,6 +232,11 @@ const CorporateBookingRoute = CorporateBookingRouteImport.update({
 const CruiseTransfersRoute = CruiseTransfersRouteImport.update({
   id: '/cruise-transfers',
   path: '/cruise-transfers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CustomTourStatusRoute = CustomTourStatusRouteImport.update({
+  id: '/custom-tour-status',
+  path: '/custom-tour-status',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DistanceRoute = DistanceRouteImport.update({
@@ -939,6 +945,7 @@ export interface FileRoutesByFullPath {
   '/cookies': typeof CookiesRoute
   '/corporate-booking': typeof CorporateBookingRoute
   '/cruise-transfers': typeof CruiseTransfersRoute
+  '/custom-tour-status': typeof CustomTourStatusRoute
   '/distance': typeof DistanceRoute
   '/drive-with-us': typeof DriveWithUsRoute
   '/event-transport': typeof EventTransportRoute
@@ -1083,6 +1090,7 @@ export interface FileRoutesByTo {
   '/cookies': typeof CookiesRoute
   '/corporate-booking': typeof CorporateBookingRoute
   '/cruise-transfers': typeof CruiseTransfersRoute
+  '/custom-tour-status': typeof CustomTourStatusRoute
   '/distance': typeof DistanceRoute
   '/drive-with-us': typeof DriveWithUsRoute
   '/event-transport': typeof EventTransportRoute
@@ -1229,6 +1237,7 @@ export interface FileRoutesById {
   '/cookies': typeof CookiesRoute
   '/corporate-booking': typeof CorporateBookingRoute
   '/cruise-transfers': typeof CruiseTransfersRoute
+  '/custom-tour-status': typeof CustomTourStatusRoute
   '/distance': typeof DistanceRoute
   '/drive-with-us': typeof DriveWithUsRoute
   '/event-transport': typeof EventTransportRoute
@@ -1376,6 +1385,7 @@ export interface FileRouteTypes {
     | '/cookies'
     | '/corporate-booking'
     | '/cruise-transfers'
+    | '/custom-tour-status'
     | '/distance'
     | '/drive-with-us'
     | '/event-transport'
@@ -1520,6 +1530,7 @@ export interface FileRouteTypes {
     | '/cookies'
     | '/corporate-booking'
     | '/cruise-transfers'
+    | '/custom-tour-status'
     | '/distance'
     | '/drive-with-us'
     | '/event-transport'
@@ -1665,6 +1676,7 @@ export interface FileRouteTypes {
     | '/cookies'
     | '/corporate-booking'
     | '/cruise-transfers'
+    | '/custom-tour-status'
     | '/distance'
     | '/drive-with-us'
     | '/event-transport'
@@ -1812,6 +1824,7 @@ export interface RootRouteChildren {
   CookiesRoute: typeof CookiesRoute
   CorporateBookingRoute: typeof CorporateBookingRoute
   CruiseTransfersRoute: typeof CruiseTransfersRoute
+  CustomTourStatusRoute: typeof CustomTourStatusRoute
   DistanceRoute: typeof DistanceRoute
   DriveWithUsRoute: typeof DriveWithUsRoute
   EventTransportRoute: typeof EventTransportRoute
@@ -2006,6 +2019,13 @@ declare module '@tanstack/react-router' {
       path: '/cruise-transfers'
       fullPath: '/cruise-transfers'
       preLoaderRoute: typeof CruiseTransfersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/custom-tour-status': {
+      id: '/custom-tour-status'
+      path: '/custom-tour-status'
+      fullPath: '/custom-tour-status'
+      preLoaderRoute: typeof CustomTourStatusRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/distance': {
@@ -3106,6 +3126,7 @@ const rootRouteChildren: RootRouteChildren = {
   CookiesRoute: CookiesRoute,
   CorporateBookingRoute: CorporateBookingRoute,
   CruiseTransfersRoute: CruiseTransfersRoute,
+  CustomTourStatusRoute: CustomTourStatusRoute,
   DistanceRoute: DistanceRoute,
   DriveWithUsRoute: DriveWithUsRoute,
   EventTransportRoute: EventTransportRoute,
