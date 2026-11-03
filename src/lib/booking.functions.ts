@@ -55,6 +55,16 @@ export const getBookingByToken = createServerFn({ method: "POST" })
     const paymentBooking = await findBookingByRef(supabaseAdmin, row.booking_ref);
     if (!paymentBooking) throw new Error(GENERIC);
     const amountDuePence = await payableBookingPence(supabaseAdmin, paymentBooking);
+    const seatRow: any = await supabaseAdmin
+      .from("bookings")
+      .select("child_seat_types, child_seat_count")
+      .eq("booking_ref", row.booking_ref)
+      .maybeSingle();
+    const { parseChildSeats, childSeatsLabel } = await import("@/lib/child-seats");
+    const childSeatsText = childSeatsLabel(
+      parseChildSeats(seatRow?.data?.child_seat_types),
+      Number(seatRow?.data?.child_seat_count ?? 0),
+    );
     // Customer-safe projection: no ids, place ids, hashes, tokens, or admin fields.
     return {
       bookingRef: row.booking_ref,
@@ -74,6 +84,7 @@ export const getBookingByToken = createServerFn({ method: "POST" })
       vehicleType: row.vehicle_type,
       flightNumber: row.flight_number,
       childSeat: !!row.child_seat,
+      childSeatsText,
       meetGreet: !!row.meet_greet,
       returnJourney: !!row.return_journey,
       price: row.price == null ? null : Number(row.price),
