@@ -8,7 +8,7 @@ import { ukDate } from "@/lib/uk-time";
 import { FACT_TEXT } from "@/lib/site-facts";
 import { SITE } from "@/lib/site";
 import { flightNumberError, isAirportPickup } from "@/lib/flight-number";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { rememberCheckout, trackEvent } from "@/lib/analytics-ga";
@@ -296,9 +296,21 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
     })),
   });
 
+  // Only the newest price check may set the price shown, so a slower earlier
+  // answer (for another vehicle or length) can never replace it.
+  const priceSeq = useRef(0);
   const priceMutation = useMutation({
-    mutationFn: async () => quoteTour({ data: quoteReq() }),
-    onSuccess: (res) => {
+    mutationFn: async () => {
+      const id = ++priceSeq.current;
+      try {
+        return { res: await quoteTour({ data: quoteReq() }), id };
+      } catch (e) {
+        if (id !== priceSeq.current) return { res: null, id };
+        throw e;
+      }
+    },
+    onSuccess: ({ res, id }) => {
+      if (!res || id !== priceSeq.current) return;
       setQuote(res);
       if (res?.quote && !res.quote.blockedReason && res.quote.total > 0) {
         trackEvent("view_quote", { service_type: "tour", vehicle_class: vehicle?.name, value: res.quote.total, currency: "GBP" });
@@ -402,11 +414,11 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
 
   // Ask the server for a price whenever the customer reaches the price step.
   useEffect(() => {
-    if (step === 2 && passengersConfirmed && start && hours && vehicleClassId && (!groupActive || groupSplit?.ok) && !priceMutation.isPending) {
+    if (step === 2 && passengersConfirmed && start && hours && vehicleClassId && (!groupActive || groupSplit?.ok)) {
       priceMutation.mutate();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step, passengersConfirmed, passengers, luggage, vehicleClassId, groupVehicles.join("|")]);
+  }, [step, passengersConfirmed, passengers, luggage, hours, vehicleClassId, groupVehicles.join("|")]);
 
   // On the stops step, keep the miles and time meter honest as stops change.
   useEffect(() => {
@@ -1317,7 +1329,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                               <button
                                 key={o.hours}
                                 type="button"
-                                onClick={() => { setHours(o.hours); setQuote(null); priceMutation.mutate(); }}
+                                onClick={() => { setHours(o.hours); setQuote(null); }}
                                 className="w-full rounded-xl border border-border bg-background p-3 text-left text-sm hover:border-[var(--gold)]"
                               >
                                 <span className="font-semibold">Make it {o.hours} hours</span> —{" "}
