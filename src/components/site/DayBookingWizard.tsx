@@ -1355,7 +1355,12 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                       else bookMutation.mutate();
                     }}
                   >
-                    <StepTitle title="Your details" />
+                    <StepTitle title={requestMode ? "Request a quote: your details" : "Your details"} />
+                    {requestMode && (
+                      <p className="-mt-2 text-sm text-muted-foreground">
+                        We'll send your day, stops and timings to our tour team. They'll email you a price, and you'll get a reference to check your request.
+                      </p>
+                    )}
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div className="space-y-1.5">
                         <Label htmlFor="tw-name">Full name</Label>
