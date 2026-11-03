@@ -62,7 +62,8 @@ export type JourneyContext = {
 /** 0 = Sunday … 6 = Saturday, matching Postgres `extract(dow)`. */
 export function dayOfWeek(date?: string): number | null {
   if (!date) return null;
-  const d = new Date(`${date}T00:00:00Z`);
+  // A calendar date's weekday is the same in every timezone; read it at UTC noon.
+  const d = new Date(`${date}T12:00:00Z`);
   if (Number.isNaN(d.getTime())) return null;
   return d.getUTCDay();
 }
@@ -95,8 +96,9 @@ function dateWithin(date: string | undefined, from: string | null | undefined, t
 function timestampWithin(date: string | undefined, time: string | undefined, from: string | null | undefined, to: string | null | undefined): boolean {
   if (!from && !to) return true;
   if (!date) return false;
-  const at = new Date(`${date}T${(time && /^\d{1,2}:\d{2}/.test(time) ? time : "00:00")}:00Z`).getTime();
-  if (Number.isNaN(at)) return false;
+  // Pickup date/time is UK local time (GMT or BST); rule bounds are absolute instants.
+  const at = ukLocalToMs(date, time && /^\d{1,2}:\d{2}/.test(time) ? time : "00:00");
+  if (at == null) return false;
   if (from && at < new Date(from).getTime()) return false;
   if (to && at > new Date(to).getTime()) return false;
   return true;
@@ -597,7 +599,7 @@ export function validateCoupon(
   if (!coupon) return { ok: false, reason: "That promo code isn't valid." };
   if (coupon.active === false) return { ok: false, reason: "That promo code is no longer active." };
 
-  const today = args.date && /^\d{4}-\d{2}-\d{2}$/.test(args.date) ? args.date : new Date().toISOString().slice(0, 10);
+  const today = args.date && /^\d{4}-\d{2}-\d{2}$/.test(args.date) ? args.date : ukDate();
   if (coupon.starts_at && today < coupon.starts_at) return { ok: false, reason: "That promo code isn't valid yet." };
   if (coupon.expires_at && today > coupon.expires_at) return { ok: false, reason: "That promo code has expired." };
 
