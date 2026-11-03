@@ -8,7 +8,7 @@ const fn = (name: string) => {
   const start = migration.indexOf(`CREATE OR REPLACE FUNCTION public.${name}`);
   const end = migration.indexOf("$$;", migration.indexOf("AS $$", start) + 5) + 3;
   return migration.slice(start, end)
-    .replaceAll("coalesce(auth.role(), '')", "'service_role'")
+    .replaceAll("coalesce(auth.role(), '') <> 'service_role' AND NOT public.has_role(auth.uid(), 'admin')", "false")
     .replaceAll("public.", "pg_temp.")
     .replace("SET search_path = public", "SET search_path = pg_temp");
 };
