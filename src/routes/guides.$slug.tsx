@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { DestinationPage, buildBreadcrumbs } from "@/components/site/DestinationPage";
-import { GuidePage, guideHead } from "@/components/site/GuidePage";
+import { GuidePage } from "@/components/site/GuidePage";
+import { guideHead } from "@/components/site/GuidePage.head";
 import { buildAutoHead } from "@/lib/seo/auto-seo";
 import { destinationQueryOptions, HUBS } from "@/lib/hub-config";
 import { getGuide } from "@/lib/seo/guides";
@@ -12,7 +13,7 @@ import { getGuide } from "@/lib/seo/guides";
  * wins and no database query is made for it.
  */
 export const Route = createFileRoute("/guides/$slug")({
-  head: ({ params, loaderData }: { params: { slug: string }, loaderData?: import("@/components/site/DestinationPage").LoadedDestination }) => {
+  head: ({ params, loaderData }: { params: { slug: string }, loaderData?: import("@/lib/destination-loader").LoadedDestination }) => {
     const guide = getGuide(params.slug);
     return guide ? guideHead(guide) : buildAutoHead(loaderData);
   },

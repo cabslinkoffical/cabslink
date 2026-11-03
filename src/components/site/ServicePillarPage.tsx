@@ -29,7 +29,6 @@ import { localPagesForService } from "@/lib/seo/service-locations";
 import { useQuery } from "@tanstack/react-query";
 import { googleReviewsQuery } from "@/lib/google-reviews-query";
 
-import { BUSINESS_ID } from "@/lib/seo/business-graph";
 
 const ICONS = {
   badge: BadgeCheck,
@@ -75,16 +74,7 @@ export type PillarContent = {
   faqs: { q: string; a: string }[];
 };
 
-export const DEFAULT_COVERAGE: { label: string; to: string }[] = [
-  { label: "Edinburgh", to: "/areas/edinburgh" },
-  { label: "Glasgow", to: "/areas/glasgow" },
-  { label: "Aberdeen", to: "/areas/aberdeen" },
-  { label: "Dundee", to: "/areas/dundee" },
-  { label: "Inverness", to: "/areas/inverness" },
-  { label: "Stirling", to: "/areas/stirling" },
-  { label: "Perth", to: "/areas/perth" },
-  { label: "St Andrews", to: "/areas/st-andrews" },
-];
+export { DEFAULT_COVERAGE } from "@/components/site/ServicePillarPage.head";
 
 export function ServicePillarPage({ content }: { content: PillarContent }) {
   // Live Google rating only — no invented score. The card is hidden when the
@@ -317,40 +307,4 @@ export function ServicePillarPage({ content }: { content: PillarContent }) {
     </SiteLayout>
   );
 }
-
-/** Service + FAQPage + BreadcrumbList graph for a national pillar page. */
-export function pillarSchema(content: PillarContent, absoluteUrl: string) {
-  return {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "Service",
-        name: content.breadcrumbLabel,
-        serviceType: content.breadcrumbLabel,
-        description: content.metaDescription,
-        url: absoluteUrl,
-        areaServed: [
-          { "@type": "Country", name: "United Kingdom" },
-          { "@type": "AdministrativeArea", name: "Scotland" },
-        ],
-        provider: { "@id": BUSINESS_ID },
-      },
-      {
-        "@type": "FAQPage",
-        mainEntity: content.faqs.map((f) => ({
-          "@type": "Question",
-          name: f.q,
-          acceptedAnswer: { "@type": "Answer", text: f.a },
-        })),
-      },
-      {
-        "@type": "BreadcrumbList",
-        itemListElement: [
-          { "@type": "ListItem", position: 1, name: "Home", item: "https://cabslink.com/" },
-          { "@type": "ListItem", position: 2, name: "Services", item: "https://cabslink.com/services" },
-          { "@type": "ListItem", position: 3, name: content.breadcrumbLabel, item: absoluteUrl },
-        ],
-      },
-    ],
-  };
-}
+export { pillarSchema } from "@/components/site/ServicePillarPage.head";

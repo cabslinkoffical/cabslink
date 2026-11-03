@@ -1,7 +1,8 @@
 import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { Users, Luggage, ShieldCheck, RouteIcon } from "lucide-react";
-import { SportsServicePage, sportsFaqSchema, type SportsServiceContent } from "@/components/site/SportsServicePage";
+import { SportsServicePage, type SportsServiceContent } from "@/components/site/SportsServicePage";
+import { sportsFaqSchema } from "@/components/site/SportsServicePage.head";
 import { PAGE_IMAGES } from "@/content/page-images";
 
 const TITLE = "Team Sports Travel — Squad & Kit Transport UK | Cabslink";

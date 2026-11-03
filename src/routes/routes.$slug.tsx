@@ -2,9 +2,11 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { getPublicSeoPageByPath } from "@/lib/seo-public.functions";
 import { getRelatedSeoLinks } from "@/lib/seo-related.functions";
 import { getRouteFares } from "@/lib/seo/route-fares.functions";
-import { SeoPageRenderer, buildSeoHead } from "@/components/seo/SeoPageRenderer";
+import { SeoPageRenderer } from "@/components/seo/SeoPageRenderer";
+import { buildSeoHead } from "@/components/seo/SeoPageRenderer.head";
 import { SiteLayout } from "@/components/site/SiteLayout";
-import { JourneyPage, journeyHead } from "@/components/site/JourneyPage";
+import { JourneyPage } from "@/components/site/JourneyPage";
+import { journeyHead } from "@/components/site/JourneyPage.head";
 import { buildJourney } from "@/lib/seo/journeys";
 
 const ORIGIN = "https://cabslink.com";

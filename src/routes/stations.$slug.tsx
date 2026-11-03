@@ -6,7 +6,7 @@ import { destinationQueryOptions, HUBS } from "@/lib/hub-config";
 import { guideFor } from "@/content/place-guides";
 import { PlaceGuideBlock } from "@/components/seo/PlaceGuideBlock";
 export const Route = createFileRoute("/stations/$slug")({
-  head: ({ loaderData }: { loaderData?: import("@/components/site/DestinationPage").LoadedDestination }) =>
+  head: ({ loaderData }: { loaderData?: import("@/lib/destination-loader").LoadedDestination }) =>
     buildAutoHead(loaderData),
   loader: ({ params, context }: { params: { slug: string }, context: any }) => context.queryClient.ensureQueryData(destinationQueryOptions(("stations" as const), params.slug)),
   component: () => {

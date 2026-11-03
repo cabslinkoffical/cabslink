@@ -25,7 +25,7 @@ describe("Phase 6 — page structured data", () => {
   });
 
   it("route and blog pages keep Offer, FAQPage, Article and BreadcrumbList", () => {
-    const journey = readFileSync("src/components/site/JourneyPage.tsx", "utf8");
+    const journey = readFileSync("src/components/site/JourneyPage.head.ts", "utf8");
     for (const k of ['"Offer"', '"FAQPage"', '"BreadcrumbList"']) expect(journey).toContain(k);
     const blog = readFileSync("src/routes/blog.$slug.tsx", "utf8");
     for (const k of ['"Article"', '"Person"', "datePublished", "dateModified", '"FAQPage"']) expect(blog).toContain(k);

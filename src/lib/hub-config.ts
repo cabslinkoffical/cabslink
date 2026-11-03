@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { loadDestination } from "@/components/site/DestinationPage";
+import { loadDestination } from "@/lib/destination-loader";
 import {
   listDestinationsByType,
   listDestinationsByTypes,

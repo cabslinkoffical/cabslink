@@ -110,14 +110,16 @@ export const getPublicSeoPageByPath = createServerFn({ method: "GET" })
       .maybeSingle();
     if (!page) return null;
 
-    const { data: sections } = await supabase
-      .from("seo_page_sections")
-      .select(SECTION_FIELDS)
-      .eq("page_id", page.id)
-      .eq("visible", true)
-      .order("position", { ascending: true });
-
-    const entity = await loadEntity(supabase, page.primary_entity_type, page.primary_entity_id);
+    // Sections and the linked place don't depend on each other: load together.
+    const [{ data: sections }, entity] = await Promise.all([
+      supabase
+        .from("seo_page_sections")
+        .select(SECTION_FIELDS)
+        .eq("page_id", page.id)
+        .eq("visible", true)
+        .order("position", { ascending: true }),
+      loadEntity(supabase, page.primary_entity_type, page.primary_entity_id),
+    ]);
 
     return {
       ...(page as any),

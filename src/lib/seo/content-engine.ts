@@ -6,7 +6,7 @@
  * structured data — no spun copy, no generic filler, no "AI text". If a
  * section has no data, it is omitted. Result is fully deterministic.
  */
-import type { LoadedDestination } from "@/components/site/DestinationPage";
+import type { LoadedDestination } from "@/lib/destination-loader";
 import type { Destination } from "@/lib/destinations.functions";
 import type { SectionKey } from "@/lib/seo/template-registry";
 import { FACT_TEXT } from "@/lib/site-facts";

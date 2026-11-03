@@ -54,3 +54,31 @@ describe("response headers", () => {
     }
   });
 });
+describe("HTML cache headers", () => {
+  const html = (init: ResponseInit = {}) => new Response("<p>x</p>", { ...init, headers: { "content-type": "text/html", ...(init.headers as Record<string, string> | undefined) } });
+  const cc = (path: string, res = html(), reqInit: RequestInit = {}) =>
+    applyResponsePolicy(new Request(`https://cabslink.com${path}`, reqInit), res).headers.get("cache-control");
+
+  for (const path of ["/", "/services", "/fleet", "/tours", "/tours/harry-potter-highland-expedition", "/areas/edinburgh", "/routes/dundee-to-edinburgh-airport", "/airports/edinburgh-airport", "/blog", "/blog/some-post"]) {
+    it(`public page ${path} gets a 5-minute shared cache`, () => {
+      expect(cc(path)).toBe("public, max-age=0, s-maxage=300, stale-while-revalidate=86400");
+    });
+  }
+
+  for (const path of ["/book", "/book/tour", "/book/hourly", "/manage-booking", "/booking/ABC123", "/track-booking", "/cabs-booking-pannel", "/cabs-booking-pannel/bookings", "/auth", "/search"]) {
+    it(`private page ${path} stays no-store`, () => {
+      expect(cc(path)).toBe("no-cache, no-store, must-revalidate");
+    });
+  }
+
+  it("never shares pages with cookies, sessions, query strings, errors or set-cookie", () => {
+    const ns = "no-cache, no-store, must-revalidate";
+    expect(cc("/fleet", html(), { headers: { cookie: "sb=1" } })).toBe(ns);
+    expect(cc("/fleet", html(), { headers: { authorization: "Bearer x" } })).toBe(ns);
+    expect(cc("/fleet?ref=1")).toBe(ns);
+    expect(cc("/fleet", html({ status: 404 }))).toBe(ns);
+    expect(cc("/fleet", html({ status: 500 }))).toBe(ns);
+    expect(cc("/fleet", html({ headers: { "set-cookie": "a=1" } }))).toBe(ns);
+    expect(cc("/fleet", html({ headers: { "cache-control": "private" } }))).toBe(ns);
+  });
+});

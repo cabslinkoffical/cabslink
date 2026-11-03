@@ -1,7 +1,8 @@
 import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { Target, Clock, Luggage, MapPin } from "lucide-react";
-import { SportsServicePage, sportsFaqSchema, type SportsServiceContent } from "@/components/site/SportsServicePage";
+import { SportsServicePage, type SportsServiceContent } from "@/components/site/SportsServicePage";
+import { sportsFaqSchema } from "@/components/site/SportsServicePage.head";
 import golfImg from "@/assets/services/golf.jpg";
 
 const TITLE = "Golf Transfers Scotland — St Andrews & Courses | Cabslink";

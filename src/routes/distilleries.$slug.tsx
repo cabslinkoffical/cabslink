@@ -4,7 +4,7 @@ import { DestinationPage, buildBreadcrumbs } from "@/components/site/Destination
 import { buildAutoHead } from "@/lib/seo/auto-seo";
 import { destinationQueryOptions, HUBS } from "@/lib/hub-config";
 export const Route = createFileRoute("/distilleries/$slug")({
-  head: ({ loaderData }: { loaderData?: import("@/components/site/DestinationPage").LoadedDestination }) =>
+  head: ({ loaderData }: { loaderData?: import("@/lib/destination-loader").LoadedDestination }) =>
     buildAutoHead(loaderData),
   loader: ({ params, context }: { params: { slug: string }, context: any }) => context.queryClient.ensureQueryData(destinationQueryOptions(("distilleries" as const), params.slug)),
   component: () => {
