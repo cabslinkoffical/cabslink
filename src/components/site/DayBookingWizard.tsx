@@ -384,7 +384,8 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
   // Pick a sensible vehicle up front so the miles-and-time meter can measure the
   // day while stops are chosen; the customer can change it on the next step.
   useEffect(() => {
-    if (vehicleClassId || !classes.length) return;
+    // Once passengers are confirmed, never fall back to a vehicle too small for them.
+    if (vehicleClassId || !classes.length || passengersConfirmed) return;
     const fit = classes.find((c) => (c.max_passengers ?? 99) >= passengers) ?? classes[0]!;
     setVehicleClassId(fit.id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1217,11 +1218,11 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                       {priceMutation.isPending ? <Loader2 className="size-4 animate-spin" /> : null} Recheck price
                     </Button>
                   </>
-                ) : (
+                ) : vehicleFits ? (
                   <Button type="button" variant="gold" onClick={() => priceMutation.mutate()}>
                     Get my price
                   </Button>
-                )}
+                ) : null}
 
                 {canRequestQuote && passengersConfirmed && !priceMutation.isPending && (
                   requestWhy ? (
