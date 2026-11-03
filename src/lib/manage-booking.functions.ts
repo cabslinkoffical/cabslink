@@ -12,6 +12,7 @@ import { setResponseHeader, setResponseStatus } from "@tanstack/react-start/serv
 import { z } from "zod";
 import { enforceRateLimit, LIMITS } from "@/lib/db-rate-limit.server";
 import { SITE } from "@/lib/site";
+import { coverLabel, coverPromise, parseCover } from "@/lib/cancellation-cover";
 
 /**
  * One generic message for EVERY lookup failure (bad format, unknown
@@ -72,7 +73,7 @@ function surnameMatches(fullName: string | null, supplied: string): boolean {
   return words.includes(want);
 }
 
-export type RefundTier = "unpaid" | "full" | "partial" | "none";
+export type RefundTier = "unpaid" | "full" | "partial" | "no_refund" | "none";
 
 export type ManagedBooking = {
   bookingRef: string;
@@ -102,6 +103,10 @@ export type ManagedBooking = {
   distanceMiles: number | null;
   createdAt: string;
   cancellationReason: string | null;
+  /** e.g. "Flexible (+£4.20)"; null when not recorded on the booking. */
+  cancellationCoverText: string | null;
+  /** The refund promise of the chosen cover, as shown at checkout. */
+  cancellationCoverPromise: string | null;
   serviceType: string | null;
   /** Tour details, present only on tour enquiries. */
   tourName: string | null;
@@ -141,6 +146,27 @@ function pickupTimestamp(date: string | null, time: string | null): number | nul
 
 const TERMINAL = new Set(["cancelled", "rejected", "completed"]);
 
+/**
+ * Refund entitlement, honouring the cover chosen at checkout:
+ * non-refundable → no refund once paid; flexible → full refund up to 1 hour
+ * before pickup; standard (or not recorded) → full refund within 24 hours of
+ * booking or 24+ hours before pickup, otherwise a partial claim.
+ */
+export function refundTierFor(i: {
+  allowed: boolean;
+  paymentStatus: string;
+  cover: "standard" | "non_refundable" | "flexible" | null;
+  hoursUntilPickup: number | null;
+  withinBookingGrace: boolean;
+}): RefundTier {
+  if (!i.allowed) return "none";
+  if (i.paymentStatus === "unpaid" || i.paymentStatus === "failed") return "unpaid";
+  if (i.cover === "non_refundable") return "no_refund";
+  const hours = i.hoursUntilPickup;
+  if (i.cover === "flexible") return hours == null || hours >= 1 ? "full" : "partial";
+  return i.withinBookingGrace || hours == null || hours >= 24 ? "full" : "partial";
+}
+
 function cancellationFacts(row: any, now = Date.now()): ManagedBooking["cancellation"] {
   const createdMs = Date.parse(row.created_at ?? "");
   const withinBookingGrace = Number.isFinite(createdMs) && now - createdMs <= 24 * 3_600_000;
@@ -163,19 +189,18 @@ function cancellationFacts(row: any, now = Date.now()): ManagedBooking["cancella
     blockedReason = `The pickup time has already passed. Please call us on ${SITE.phoneUK} so we can help.`;
   }
 
-  const farFromPickup = hoursUntilPickup == null ? true : hoursUntilPickup >= 24;
-  const paymentStatus = String(row.payment_status ?? "unpaid");
-  const nothingPaid = paymentStatus === "unpaid" || paymentStatus === "failed";
-  const tier: RefundTier = !allowed
-    ? "none"
-    : nothingPaid
-    ? "unpaid"
-    : withinBookingGrace || farFromPickup
-    ? "full"
-    : "partial";
+  const tier = refundTierFor({
+    allowed,
+    paymentStatus: String(row.payment_status ?? "unpaid"),
+    cover: parseCover(row.cancellation_cover),
+    hoursUntilPickup,
+    withinBookingGrace,
+  });
 
   const policyLabel =
-    tier === "unpaid"
+    tier === "no_refund"
+      ? "Non-refundable booking — no refund due"
+      : tier === "unpaid"
       ? "No payment taken — nothing to refund"
       : tier === "full"
       ? "Eligible for a full refund"
@@ -183,10 +208,14 @@ function cancellationFacts(row: any, now = Date.now()): ManagedBooking["cancella
       ? "Eligible for a partial refund claim"
       : "Refund review required";
   const policyDetail =
-    tier === "unpaid"
+    tier === "no_refund"
+      ? "You chose non-refundable cover when you booked, in return for a lower fare, so cancelling does not qualify for a refund. You can still cancel and we'll release the vehicle and confirm by email."
+      : tier === "unpaid"
       ? "We have not charged you for this booking yet, so cancelling costs you nothing and there is no refund to process. We'll release the vehicle and confirm by email."
       : tier === "full"
-      ? withinBookingGrace
+      ? parseCover(row.cancellation_cover) === "flexible"
+        ? "You chose flexible cover, so cancelling up to 1 hour before pickup qualifies for a full refund of anything you have paid."
+        : withinBookingGrace
         ? "You booked less than 24 hours ago, so cancelling now qualifies for a full refund of anything you have paid."
         : "Your pickup is more than 24 hours away, so cancelling now qualifies for a full refund of anything you have paid."
       : tier === "partial"
@@ -289,6 +318,8 @@ function project(row: any): ManagedBooking {
     distanceMiles: row.distance_miles == null ? null : Number(row.distance_miles),
     createdAt: row.created_at,
     cancellationReason: row.cancellation_reason ?? null,
+    cancellationCoverText: coverLabel(row.cancellation_cover, row.cancellation_cover_amount),
+    cancellationCoverPromise: parseCover(row.cancellation_cover) ? coverPromise(parseCover(row.cancellation_cover)!) : null,
     serviceType: row.service_type ?? null,
     tourName: row.tour_name ?? null,
     tourSlug: row.tour_slug ?? null,
@@ -406,7 +437,8 @@ export const requestBookingCancellation = createServerFn({ method: "POST" })
 
     const message = [
       `Cancellation request for booking ${row.booking_ref}.`,
-      `Refund tier assessed: ${facts.tier === "unpaid" ? "NO PAYMENT TAKEN — nothing to refund" : facts.tier === "full" ? "FULL REFUND" : "PARTIAL REFUND CLAIM"}.`,
+      `Refund tier assessed: ${facts.tier === "unpaid" ? "NO PAYMENT TAKEN — nothing to refund" : facts.tier === "full" ? "FULL REFUND" : facts.tier === "no_refund" ? "NON-REFUNDABLE — no refund due" : "PARTIAL REFUND CLAIM"}.`,
+      row.cancellation_cover ? `Cancellation cover: ${coverLabel(row.cancellation_cover, row.cancellation_cover_amount)}.` : "",
       facts.hoursUntilPickup != null ? `Hours until pickup at request time: ${facts.hoursUntilPickup}.` : "",
       `Booked at: ${row.created_at}.`,
       `Journey: ${row.pickup_address} → ${row.dropoff_address} on ${row.pickup_date} ${row.pickup_time}.`,
@@ -468,7 +500,7 @@ export const requestBookingCancellation = createServerFn({ method: "POST" })
         message,
         extra: [
           { label: "Booking reference", value: row.booking_ref },
-          { label: "Refund tier", value: facts.tier === "full" ? "Full refund" : "Partial refund claim" },
+          { label: "Refund tier", value: facts.tier === "full" ? "Full refund" : facts.tier === "no_refund" ? "Non-refundable — no refund due" : facts.tier === "unpaid" ? "No payment taken" : "Partial refund claim" },
           { label: "Pickup", value: `${row.pickup_date} ${row.pickup_time}` },
           { label: "Reason", value: data.reason },
         ],

@@ -1402,6 +1402,8 @@ export type RepriceResult = {
   vehicleName: string;
   capacity: { passengers: number; luggage: number; handLuggage: number; vehicleCount: number };
   extrasNet: number;
+  /** Price change from the booking's cancellation cover (0 when standard / none). */
+  cancellationCoverAmount: number;
 };
 
 export async function repriceExistingBooking(args: {
