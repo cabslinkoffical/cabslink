@@ -215,3 +215,6 @@
 - [x] Meet & Greet costs extra: 22 airport notes + Airport Transfers service text updated; home/airport/airport-transfers labels say optional. Open (owner): Google descriptions on airport pages still list 'meet & greet' without 'optional' (protected, not changed)
 - [x] Payment methods explained the same way everywhere: card online (Stripe) or cash/bank transfer/other arranged with the team (area/station guides, home, About, closing section, AI summary, saved service details)
 - [x] Fleet capacities match booking: all 12 classes accept their advertised maximum and refuse one extra passenger, large bag or cabin bag (shared src/lib/vehicle-capacity.ts; tests). Tours check passengers and large bags only (no cabin-bag input)
+- [ ] Fleet: vehicle descriptions say models are typical examples, not a guaranteed model
+- [ ] Every service page has the same clear route into booking
+- [ ] Contact details and business details consistent across all page templates
