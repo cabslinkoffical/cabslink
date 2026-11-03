@@ -15,6 +15,7 @@ vi.mock("@/integrations/supabase/client.server", () => ({ supabaseAdmin: {
       maybeSingle: async () => result(), then: (resolve: any) => Promise.resolve(result()).then(resolve) };
     return q;
   },
+  rpc: async () => ({ data: state.count, error: state.errorTable === "bookings" ? { message: "failed" } : null }),
 } }));
 vi.mock("@/lib/place-coords.server", () => ({ resolveCoords: async (_db: unknown, ids: string[]) =>
   new Map(ids.filter((id) => id !== state.missingCoord).map((id) => [id, { lat: 55.9, lng: -3.2 }])) }));
