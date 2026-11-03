@@ -121,7 +121,11 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
   const [notes, setNotes] = useState("");
   const [quote, setQuote] = useState<TourQuoteResult | null>(null);
   const [created, setCreated] = useState<{ bookingRef: string; total: number } | null>(null);
-  useBookingStepScroll(`${step}:${created?.bookingRef ?? ""}`);
+  /** Custom tours only: send the day to the tour team for a price instead of paying now. */
+  const [requestMode, setRequestMode] = useState(false);
+  const [requested, setRequested] = useState<{ reference: string } | null>(null);
+  useBookingStepScroll(`${step}:${created?.bookingRef ?? ""}:${requested?.reference ?? ""}`);
+  useEffect(() => { if (step < 3) setRequestMode(false); }, [step]);
   const [showAllTours, setShowAllTours] = useState(false);
 
   const captcha = useCaptcha("tour-booking");
@@ -291,6 +295,46 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
     onError: (e: Error) => {
       captcha.reset();
       toast.error(e.message || "We couldn't save your tour. Please try again.");
+    },
+  });
+
+  const requestMutation = useMutation({
+    mutationFn: async () => {
+      const req = quoteReq();
+      return createCustomTourRequest({
+        data: {
+          startPlaceId: req.startPlaceId,
+          startLabel: req.startLabel,
+          endPlaceId: req.endPlaceId,
+          endLabel: req.endLabel,
+          hours: req.hours,
+          vehicleClassId: vehicleClassId && vehicleFits ? vehicleClassId : null,
+          passengers,
+          luggage,
+          stops: stops.map((s) => ({ poiId: s.poiId, placeId: s.placeId, name: s.name, dwellMinutes: s.dwellMinutes, locked: !!s.locked })),
+          originalStops: orderBeforeBest
+            ? orderBeforeBest.map((s) => ({ poiId: s.poiId, placeId: s.placeId, name: s.name, dwellMinutes: s.dwellMinutes, locked: !!s.locked }))
+            : null,
+          date,
+          time,
+          name,
+          email,
+          phone,
+          flight: flight || null,
+          notes: notes || null,
+          website: "",
+          captchaToken: captcha.token,
+        },
+      });
+    },
+    onSuccess: (res) => {
+      if (!res.reference) return;
+      setRequested({ reference: res.reference });
+      trackEvent("generate_lead", { service_type: "custom_tour_request" });
+    },
+    onError: (e: Error) => {
+      captcha.reset();
+      toast.error(e.message || "We couldn't send your request. Please try again or call us.");
     },
   });
 
