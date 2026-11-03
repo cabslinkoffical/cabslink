@@ -16,7 +16,7 @@ const FRESH_MS = 5 * 60_000;
 const MAX_AGE_S = 24 * 60 * 60;
 const STAMP = "x-cabslink-cached-at";
 
-const PRIVATE = /^\/(api|_|@|cabs-booking-pannel|auth|book|booking|manage-booking|track-booking|search|src|node_modules)(\/|$)/;
+const PRIVATE = /^\/(api|_|@|cabs-booking-pannel|auth|book|booking|manage-booking|track-booking|custom-tour-status|search|src|node_modules)(\/|$)/;
 
 type Ctx = { waitUntil?: (p: Promise<unknown>) => void } | undefined;
 
