@@ -8,17 +8,23 @@ import { useMemo, useState } from "react";
 import {
   AlertTriangle,
   CheckCircle2,
+  Circle,
   Clock3,
   Copy,
+  ExternalLink,
   Eye,
-  ListChecks,
+  FileText,
   ImageIcon,
+  ListChecks,
   Loader2,
   MapPinned,
   Plus,
   RefreshCw,
+  Route as RouteIcon,
   Search,
+  SearchCheck,
   SlidersHorizontal,
+  Tag,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -28,6 +34,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   listScenicTemplates,
   publishScenicTemplate,
@@ -35,6 +42,7 @@ import {
   setScenicTemplateActive,
   updateScenicTemplateMeta,
 } from "@/lib/scenic-admin.functions";
+import { tourMetaDescription, tourMetaTitle, tourSeoChecks, tourTitleSource } from "@/lib/seo/tour-meta";
 
 const opts = queryOptions({
   queryKey: ["admin", "scenic-templates"],
@@ -44,10 +52,10 @@ const opts = queryOptions({
 export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/scenic-routes")({
   head: () => ({
     meta: [
-      { title: "Scenic Routes — Cabslink Admin" },
-      { name: "description", content: "Manage Cabslink scenic route templates and publishing." },
-      { property: "og:title", content: "Scenic Routes — Cabslink Admin" },
-      { property: "og:description", content: "Manage Cabslink scenic route templates and publishing." },
+      { title: "Tour Routes — Cabslink Admin" },
+      { name: "description", content: "Manage Cabslink ready-made tours: pages, search listings, stops, prices and publishing." },
+      { property: "og:title", content: "Tour Routes — Cabslink Admin" },
+      { property: "og:description", content: "Manage Cabslink ready-made tours: pages, search listings, stops, prices and publishing." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -60,6 +68,8 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/scenic
 });
 
 type StatusFilter = "all" | "live" | "draft" | "attention";
+
+const money = (pence: number | null | undefined) => (pence != null ? `£${Math.round(pence / 100).toLocaleString("en-GB")}` : null);
 
 function ScenicRoutesPage() {
   const { data } = useSuspenseQuery(opts);
@@ -76,6 +86,7 @@ function ScenicRoutesPage() {
   const [category, setCategory] = useState("all");
   /** Step-by-step screen: closed, a new tour (null id) or an existing tour. */
   const [builder, setBuilder] = useState<{ id: string | null } | null>(null);
+  const fromPrices = ((data as any).from_prices ?? {}) as Record<string, number | null>;
   const categoryNames = useMemo(
     () => Array.from(new Set((data.templates as any[]).map((t) => t.theme_group).filter(Boolean))).sort() as string[],
     [data.templates],
@@ -106,10 +117,20 @@ function ScenicRoutesPage() {
     return { stops, missing, canPublish };
   };
 
+  const seoById = useMemo(() => {
+    const map = new Map<string, ReturnType<typeof tourSeoChecks>>();
+    for (const t of data.templates as any[]) map.set(t.id, tourSeoChecks(t, (poisByTpl.get(t.id) ?? []).length));
+    return map;
+  }, [data.templates, poisByTpl]);
+
+  const needsAttention = (template: any) => {
+    const { missing, canPublish } = routeHealth(template);
+    return missing > 0 || (!template.published && !canPublish) || fromPrices[template.id] == null;
+  };
+
   const filteredTemplates = useMemo(() => {
     const term = search.trim().toLowerCase();
     return data.templates.filter((template: any) => {
-      const { missing, canPublish } = routeHealth(template);
       const matchesSearch =
         !term ||
         template.name?.toLowerCase().includes(term) ||
@@ -119,19 +140,20 @@ function ScenicRoutesPage() {
         filter === "all" ||
         (filter === "live" && template.published) ||
         (filter === "draft" && !template.published) ||
-        (filter === "attention" && (missing > 0 || (!template.published && !canPublish)));
+        (filter === "attention" && needsAttention(template));
       const matchesCategory = category === "all" || (category === "none" ? !template.theme_group : template.theme_group === category);
       return matchesSearch && matchesFilter && matchesCategory;
     });
-  }, [data.templates, filter, poisByTpl, search, category]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data.templates, filter, poisByTpl, search, category, fromPrices]);
 
   const selected =
     data.templates.find((template: any) => template.id === selectedId) ?? filteredTemplates[0] ?? null;
   const liveCount = data.templates.filter((template: any) => template.published).length;
-  const attentionCount = data.templates.filter((template: any) => {
-    const health = routeHealth(template);
-    return health.missing > 0 || (!template.published && !health.canPublish);
-  }).length;
+  const attentionCount = data.templates.filter(needsAttention).length;
+  const avgSeo = data.templates.length
+    ? Math.round((data.templates as any[]).reduce((sum, t) => sum + (seoById.get(t.id)?.score ?? 0), 0) / data.templates.length)
+    : 0;
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ["admin", "scenic-templates"] });
   const withPending = async (id: string, key: string, fn: () => Promise<void>) => {
@@ -147,10 +169,10 @@ function ScenicRoutesPage() {
     withPending(template.id, "active", async () => {
       try {
         await toggleActive({ data: { id: template.id, active } });
-        toast.success(active ? "Route activated" : "Route deactivated");
+        toast.success(active ? "Tour switched on" : "Tour switched off");
         await invalidate();
       } catch (error: any) {
-        toast.error(error.message ?? "Unable to update route");
+        toast.error(error.message ?? "Unable to update tour");
       }
     });
 
@@ -158,7 +180,7 @@ function ScenicRoutesPage() {
     withPending(template.id, "publish", async () => {
       try {
         await togglePublish({ data: { id: template.id, published } });
-        toast.success(published ? "Route published" : "Route moved to draft");
+        toast.success(published ? "Tour is now on the website" : "Tour moved back to draft");
         await invalidate();
       } catch (error: any) {
         toast.error(error.message ?? "Unable to update publishing");
@@ -180,39 +202,58 @@ function ScenicRoutesPage() {
       }
     });
 
+  const stats: { label: string; value: string | number; tone?: "warn" }[] = [
+    { label: "Tours", value: data.templates.length },
+    { label: "On the website", value: liveCount },
+    { label: "Drafts", value: data.templates.length - liveCount },
+    { label: "Need attention", value: attentionCount, tone: attentionCount ? "warn" : undefined },
+    { label: "Average SEO score", value: `${avgSeo}%` },
+  ];
+
   return (
-    <div className="-m-4 flex min-h-[calc(100vh-7.5rem)] flex-col overflow-hidden bg-muted md:-m-6">
-      <header className="flex flex-col gap-4 border-b border-border bg-card px-5 py-5 lg:flex-row lg:items-center lg:justify-between lg:px-7">
-        <div>
-          <div className="flex items-center gap-2">
-            <MapPinned className="size-5 text-accent" aria-hidden />
-            <h1 className="font-display text-2xl font-extrabold text-foreground">Scenic Routes</h1>
+    <div className="-m-4 flex min-h-[calc(100vh-7.5rem)] flex-col bg-muted md:-m-6">
+      <header className="border-b border-border bg-card px-5 py-5 lg:px-7">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              <RouteIcon className="size-5 text-gold-ink" aria-hidden />
+              <h1 className="font-display text-2xl font-extrabold text-foreground">Tour routes</h1>
+            </div>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Ready-made tours on the Tours page: their page, Google listing, stops, price and publishing.
+            </p>
           </div>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {data.templates.length} templates · {liveCount} live · {attentionCount} need attention
-          </p>
+          <div className="flex shrink-0 flex-wrap items-center gap-2">
+            <Button onClick={() => setBuilder({ id: null })}><Plus className="size-4" /> Create a tour</Button>
+            <BulkTools entity="scenic_route_templates" onChanged={invalidate} />
+          </div>
         </div>
-        <div className="flex shrink-0 flex-wrap items-center gap-2">
-          <Button onClick={() => setBuilder({ id: null })}><Plus className="size-4" /> Create a tour</Button>
-          <BulkTools entity="scenic_route_templates" onChanged={invalidate} />
-        </div>
+        <dl className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          {stats.map((s) => (
+            <div key={s.label} className="rounded-lg border border-border bg-background px-4 py-3">
+              <dt className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{s.label}</dt>
+              <dd className={`mt-1 font-display text-2xl font-extrabold ${s.tone === "warn" ? "text-gold-ink" : "text-foreground"}`}>{s.value}</dd>
+            </div>
+          ))}
+        </dl>
       </header>
 
-      <div className="grid flex-1 grid-cols-1 overflow-hidden lg:grid-cols-[22rem_minmax(0,1fr)]">
-        <aside className="flex max-h-[34rem] flex-col border-b border-border bg-card lg:max-h-none lg:border-b-0 lg:border-r">
-          <div className="space-y-3 border-b border-border bg-muted/40 p-4">
+      <div className="grid flex-1 grid-cols-1 lg:grid-cols-[22rem_minmax(0,1fr)]">
+        <aside className="flex max-h-[36rem] flex-col border-b border-border bg-card lg:sticky lg:top-0 lg:max-h-[calc(100vh-4rem)] lg:border-b-0 lg:border-r">
+          <div className="space-y-3 border-b border-border p-4">
             <div className="relative">
-              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
               <Input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                placeholder="Search routes, themes or slugs"
-                className="bg-card pl-9"
+                placeholder="Search tours or web addresses"
+                aria-label="Search tours"
+                className="bg-background pl-9"
               />
             </div>
             <select
               aria-label="Filter by category"
-              className="h-9 w-full rounded-md border border-input bg-card px-3 text-sm"
+              className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
               value={category}
               onChange={(event) => setCategory(event.target.value)}
             >
@@ -220,78 +261,86 @@ function ScenicRoutesPage() {
               {categoryNames.map((c) => <option key={c} value={c}>{c}</option>)}
               <option value="none">No category</option>
             </select>
-            <div className="grid grid-cols-4 gap-1 rounded-md bg-muted p-1" aria-label="Filter routes">
-              {(["all", "live", "draft", "attention"] as const).map((value) => (
+            <div className="grid grid-cols-4 gap-1 rounded-md bg-muted p-1" role="group" aria-label="Filter tours">
+              {([
+                ["all", "All"],
+                ["live", "Live"],
+                ["draft", "Drafts"],
+                ["attention", "To fix"],
+              ] as const).map(([value, label]) => (
                 <Button
                   key={value}
                   type="button"
                   size="sm"
                   variant={filter === value ? "secondary" : "ghost"}
-                  className="h-8 px-1 text-[11px] capitalize"
+                  aria-pressed={filter === value}
+                  className="h-8 px-1 text-xs"
                   onClick={() => setFilter(value)}
                 >
-                  {value}
+                  {label}
                 </Button>
               ))}
             </div>
+            <p className="text-xs text-muted-foreground">{filteredTemplates.length} of {data.templates.length} tours</p>
           </div>
 
-          <div className="flex-1 overflow-y-auto">
+          <ul className="flex-1 overflow-y-auto">
             {filteredTemplates.length === 0 ? (
-              <p className="p-6 text-center text-sm text-muted-foreground">No routes match this view.</p>
+              <li className="p-6 text-center text-sm text-muted-foreground">No tours match this view.</li>
             ) : (
               filteredTemplates.map((template: any) => {
-                const { stops, missing, canPublish } = routeHealth(template);
+                const { stops } = routeHealth(template);
                 const isSelected = selected?.id === template.id;
+                const price = money(fromPrices[template.id]);
+                const seo = seoById.get(template.id)?.score ?? 0;
                 return (
-                  <Button
-                    key={template.id}
-                    type="button"
-                    variant="ghost"
-                    onClick={() => setSelectedId(template.id)}
-                    className={`h-auto w-full justify-start rounded-none border-b border-border px-5 py-4 text-left ${
-                      isSelected ? "border-l-4 border-l-accent bg-accent/5" : "border-l-4 border-l-transparent"
-                    }`}
-                  >
-                    <span className="min-w-0 flex-1">
-                      <span className="mb-1.5 flex items-center justify-between gap-3">
-                        <span className="truncate text-[10px] font-bold uppercase text-muted-foreground">
-                          {template.theme_group || template.theme || "Uncategorised"}
+                  <li key={template.id} className="border-b border-border">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedId(template.id)}
+                      aria-current={isSelected ? "true" : undefined}
+                      className={`flex w-full gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/60 ${
+                        isSelected ? "border-l-4 border-l-accent bg-accent/10" : "border-l-4 border-l-transparent"
+                      }`}
+                    >
+                      <span className="grid h-12 w-16 shrink-0 place-items-center overflow-hidden rounded-md bg-muted">
+                        {template.hero_image_url ? (
+                          <img src={template.hero_image_url} alt="" loading="lazy" className="h-full w-full object-cover" />
+                        ) : (
+                          <ImageIcon className="size-4 text-muted-foreground" aria-hidden />
+                        )}
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="flex items-center justify-between gap-2">
+                          <span className="truncate text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
+                            {template.theme_group || "No category"}
+                          </span>
+                          <StatusPill live={!!template.published} />
                         </span>
-                        <span
-                          className={`shrink-0 text-[10px] font-bold uppercase ${
-                            template.published ? "text-success" : "text-muted-foreground"
-                          }`}
-                        >
-                          {template.published ? "Live" : "Draft"}
+                        <span className="mt-0.5 block truncate font-display text-sm font-bold text-foreground">{template.name}</span>
+                        <span className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
+                          <span>{stops.length} stops</span>
+                          <span aria-hidden>·</span>
+                          {price ? <span className="font-semibold text-foreground">From {price}</span> : <span className="font-semibold text-gold-ink">No price</span>}
+                          <span aria-hidden>·</span>
+                          <span className={seo >= 80 ? "text-foreground" : "text-gold-ink"}>SEO {seo}%</span>
                         </span>
                       </span>
-                      <span className="block truncate font-display text-sm font-bold text-foreground">
-                        {template.name}
-                      </span>
-                      <span className="mt-1 flex items-center gap-2 text-xs font-normal text-muted-foreground">
-                        <span>{stops.length} stops</span>
-                        <span aria-hidden>·</span>
-                        <span>{template.starting_price_pence_cache != null ? `£${(template.starting_price_pence_cache / 100).toFixed(0)}` : "No price"}</span>
-                      </span>
-                      {(missing > 0 || (!template.published && !canPublish)) && (
-                        <span className="mt-2 flex items-center gap-1 text-[11px] font-medium text-warning">
-                          <AlertTriangle className="size-3" /> Needs attention
-                        </span>
-                      )}
-                    </span>
-                  </Button>
+                    </button>
+                  </li>
                 );
               })
             )}
-          </div>
+          </ul>
         </aside>
 
-        <main className="overflow-y-auto bg-background">
+        <main className="min-w-0 bg-background">
           {selected ? (
             <RouteEditor
               key={selected.id}
               template={selected}
+              fromPrice={fromPrices[selected.id] ?? null}
+              seo={seoById.get(selected.id)!}
               {...routeHealth(selected)}
               pending={pending}
               onToggleActive={(active) => handleToggleActive(selected, active)}
@@ -300,10 +349,10 @@ function ScenicRoutesPage() {
                 withPending(selected.id, "meta", async () => {
                   try {
                     await updateMeta({ data: { id: selected.id, ...patch } });
-                    toast.success("Route details saved");
+                    toast.success("Tour details saved");
                     await invalidate();
                   } catch (error: any) {
-                    toast.error(error.message ?? "Unable to save route");
+                    toast.error(error.message ?? "Unable to save tour");
                   }
                 })
               }
@@ -316,7 +365,7 @@ function ScenicRoutesPage() {
                     const result = await refreshPrice({ data: { id: selected.id } });
                     toast.success(
                       result.price_pence != null
-                        ? `Starting price refreshed (£${(result.price_pence / 100).toFixed(0)})`
+                        ? `Saved price refreshed (£${(result.price_pence / 100).toFixed(0)})`
                         : "Price cleared — check pricing setup",
                     );
                     await invalidate();
@@ -327,7 +376,7 @@ function ScenicRoutesPage() {
               }
             />
           ) : (
-            <div className="grid min-h-80 place-items-center text-sm text-muted-foreground">Select a route to manage it.</div>
+            <div className="grid min-h-80 place-items-center text-sm text-muted-foreground">Choose a tour on the left to manage it.</div>
           )}
         </main>
       </div>
@@ -342,8 +391,23 @@ function ScenicRoutesPage() {
   );
 }
 
+function StatusPill({ live }: { live: boolean }) {
+  return (
+    <span
+      className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${
+        live ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground ring-1 ring-border"
+      }`}
+    >
+      <span className={`size-1.5 rounded-full ${live ? "bg-accent" : "bg-muted-foreground"}`} aria-hidden />
+      {live ? "Live" : "Draft"}
+    </span>
+  );
+}
+
 function RouteEditor({
   template: t,
+  fromPrice,
+  seo,
   stops,
   missing,
   canPublish,
@@ -357,6 +421,8 @@ function RouteEditor({
   onDuplicate,
 }: {
   template: any;
+  fromPrice: number | null;
+  seo: ReturnType<typeof tourSeoChecks>;
   stops: any[];
   missing: number;
   canPublish: boolean;
@@ -383,24 +449,56 @@ function RouteEditor({
     short !== (t.short_description ?? "") ||
     theme !== (t.theme ?? "") ||
     startTime !== (t.recommended_start_time ?? "");
-  const priceLabel =
-    t.starting_price_pence_cache != null
-      ? `£${(t.starting_price_pence_cache / 100).toFixed(0)} ${t.starting_price_currency ?? "GBP"}`
-      : "Not calculated";
+  const hours = t.duration_hours ?? t.default_duration_hours;
+  const pageUrl = `https://cabslink.com/tours/${t.slug}`;
+  const passed = seo.checks.filter((c) => c.ok).length;
+
+  const facts: { icon: typeof Clock3; label: string; value: string }[] = [
+    { icon: Tag, label: "From price", value: money(fromPrice) ?? "Not set" },
+    { icon: Clock3, label: "Length", value: hours ? `${hours} hours` : "Not set" },
+    { icon: MapPinned, label: "Stops", value: String(stops.length) },
+    { icon: SearchCheck, label: "SEO score", value: `${seo.score}%` },
+  ];
 
   return (
     <div className="mx-auto max-w-5xl px-5 py-6 lg:px-8 lg:py-8">
-      <div className="mb-7 flex flex-col gap-5 border-b border-border pb-6 xl:flex-row xl:items-start xl:justify-between">
-        <div className="min-w-0">
-          <div className="mb-2 flex flex-wrap items-center gap-2">
-            <span className={`text-xs font-bold uppercase ${t.published ? "text-success" : "text-muted-foreground"}`}>
-              {t.published ? "Live route" : "Draft route"}
-            </span>
-            <span className="text-xs text-muted-foreground">/{t.slug}</span>
+      {/* Summary */}
+      <section className="overflow-hidden rounded-xl border border-border bg-card">
+        <div className="grid gap-0 md:grid-cols-[14rem_minmax(0,1fr)]">
+          <div className="relative h-40 bg-muted md:h-full">
+            {t.hero_image_url ? (
+              <img src={t.hero_image_url} alt={`Main photo for ${t.name}`} className="absolute inset-0 h-full w-full object-cover" />
+            ) : (
+              <div className="grid h-full place-items-center text-xs text-muted-foreground"><ImageIcon className="size-6" aria-hidden /></div>
+            )}
           </div>
-          <h2 className="font-display text-3xl font-extrabold text-foreground">{t.name}</h2>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">{t.description}</p>
-          <div className="mt-4 flex flex-wrap gap-2">
+          <div className="p-5">
+            <div className="flex flex-wrap items-center gap-2">
+              <StatusPill live={!!t.published} />
+              {t.theme_group && <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t.theme_group}</span>}
+            </div>
+            <h2 className="mt-2 font-display text-2xl font-extrabold leading-tight text-foreground lg:text-3xl">{t.name}</h2>
+            {t.published ? (
+              <a href={`/tours/${t.slug}`} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1 text-xs text-gold-ink underline-offset-2 hover:underline">
+                cabslink.com/tours/{t.slug} <ExternalLink className="size-3" aria-hidden />
+              </a>
+            ) : (
+              <p className="mt-1 text-xs text-muted-foreground">cabslink.com/tours/{t.slug} · not on the website yet</p>
+            )}
+            <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {facts.map((f) => (
+                <div key={f.label} className="rounded-md bg-muted/60 px-3 py-2">
+                  <dt className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    <f.icon className="size-3" aria-hidden /> {f.label}
+                  </dt>
+                  <dd className="mt-0.5 font-display text-base font-bold text-foreground">{f.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </div>
+        <div className="flex flex-col gap-3 border-t border-border bg-muted/40 px-5 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap gap-2">
             <Button size="sm" onClick={onEditSteps}><ListChecks className="size-4" /> Edit step by step</Button>
             <Button size="sm" variant="outline" asChild>
               <a href={`/tour-preview/${t.id}`} target="_blank" rel="noreferrer"><Eye className="size-4" /> Preview page</a>
@@ -409,138 +507,189 @@ function RouteEditor({
               {pending[`${t.id}:copy`] ? <Loader2 className="size-4 animate-spin" /> : <Copy className="size-4" />} Copy into new draft
             </Button>
           </div>
+          <div className="flex items-center gap-5">
+            <Label className="flex items-center gap-2 text-xs text-muted-foreground">
+              Switched on
+              <Switch checked={!!t.active} disabled={!!pending[`${t.id}:active`]} onCheckedChange={onToggleActive} />
+            </Label>
+            <Label className="flex items-center gap-2 text-xs text-muted-foreground">
+              On website
+              <Switch
+                checked={!!t.published}
+                disabled={!!pending[`${t.id}:publish`] || (!t.published && !canPublish)}
+                onCheckedChange={onTogglePublish}
+              />
+            </Label>
+          </div>
         </div>
-        <div className="flex shrink-0 items-center gap-5 rounded-md border border-border bg-card px-4 py-3">
-          <Label className="flex items-center gap-2 text-xs text-muted-foreground">
-            Active
-            <Switch
-              checked={!!t.active}
-              disabled={!!pending[`${t.id}:active`]}
-              onCheckedChange={onToggleActive}
-            />
-          </Label>
-          <Label className="flex items-center gap-2 text-xs text-muted-foreground">
-            Published
-            <Switch
-              checked={!!t.published}
-              disabled={!!pending[`${t.id}:publish`] || (!t.published && !canPublish)}
-              onCheckedChange={onTogglePublish}
-            />
-          </Label>
-        </div>
-      </div>
+      </section>
 
       {!canPublish && !t.published && (
-        <div className="mb-7 flex gap-3 rounded-md border border-warning/30 bg-warning/5 p-4 text-sm text-warning">
-          <AlertTriangle className="mt-0.5 size-4 shrink-0" />
-          <p>To publish, activate this route, set its origin and destination Place IDs, and keep at least one active stop with a Place ID.</p>
-        </div>
+        <Notice>To put this tour on the website: switch it on, set its start and finish places, and keep at least one working stop.</Notice>
       )}
+      {fromPrice == null && <Notice>This tour has no price yet, so the Tours page can't show a “From” price. Set it under Price.</Notice>}
 
-      <section className="mb-9">
-        <SectionHeading number="01" icon={SlidersHorizontal} title="Route details" />
-        <div className="grid gap-5 md:grid-cols-2">
-          <div className="md:col-span-2">
-            <Label className="mb-2 block text-xs uppercase text-muted-foreground">Hero image</Label>
-            <MediaUrlInput folder="tours" value={hero} onChange={setHero} />
-            {hero && (
-              <div className="mt-3 flex items-center gap-3">
-                <img src={hero} alt="" className="h-16 w-24 rounded-md border border-border object-cover" />
-                <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><ImageIcon className="size-3.5" /> Current route image</span>
-              </div>
-            )}
-          </div>
-          <div>
-            <Label className="mb-2 block text-xs uppercase text-muted-foreground">Theme</Label>
-            <Input value={theme} onChange={(event) => setTheme(event.target.value)} placeholder="e.g. Scottish Highlands" />
-          </div>
-          <div>
-            <Label className="mb-2 block text-xs uppercase text-muted-foreground">Recommended start time</Label>
-            <Input value={startTime} onChange={(event) => setStartTime(event.target.value)} placeholder="e.g. 08:30" />
-          </div>
-          <div className="md:col-span-2">
-            <Label className="mb-2 block text-xs uppercase text-muted-foreground">Short description</Label>
-            <Input value={short} onChange={(event) => setShort(event.target.value)} placeholder="One-line pitch shown on the tour listing" />
-          </div>
-        </div>
-        <div className="mt-5 flex flex-wrap items-center gap-3">
-          <Button
-            disabled={!dirty || !!pending[`${t.id}:meta`]}
-            onClick={() => onSaveMeta({
-              hero_image_url: hero.trim() || null,
-              short_description: short.trim() || null,
-              theme: theme.trim() || null,
-              recommended_start_time: startTime.trim() || null,
-            })}
-          >
-            {pending[`${t.id}:meta`] && <Loader2 className="size-4 animate-spin" />}
-            Save route details
-          </Button>
-        </div>
-      </section>
+      <Tabs defaultValue="seo" className="mt-6">
+        <TabsList className="h-auto w-full flex-wrap justify-start gap-1 bg-card p-1 ring-1 ring-border">
+          <TabsTrigger value="seo" className="gap-1.5"><SearchCheck className="size-4" aria-hidden /> Google &amp; SEO <span className="text-xs text-muted-foreground">{passed}/{seo.checks.length}</span></TabsTrigger>
+          <TabsTrigger value="content" className="gap-1.5"><FileText className="size-4" aria-hidden /> Page content</TabsTrigger>
+          <TabsTrigger value="details" className="gap-1.5"><SlidersHorizontal className="size-4" aria-hidden /> Listing details</TabsTrigger>
+          <TabsTrigger value="stops" className="gap-1.5"><MapPinned className="size-4" aria-hidden /> Stops ({stops.length})</TabsTrigger>
+          <TabsTrigger value="price" className="gap-1.5"><Tag className="size-4" aria-hidden /> Price</TabsTrigger>
+        </TabsList>
 
-      <section className="mb-9">
-        <SectionHeading number="01b" icon={SlidersHorizontal} title="Tour page content" />
-        <TourContentEditor key={t.id} t={t} onSaved={onContentSaved} />
-      </section>
-
-      <section className="mb-9">
-        <SectionHeading number="02" icon={Clock3} title="Pricing" />
-        <div className="flex flex-col gap-4 rounded-md border border-border bg-muted/40 p-5 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-xs uppercase text-muted-foreground">Current starting price</p>
-            <p className="mt-1 font-display text-2xl font-bold text-foreground">{priceLabel}</p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Tour fee £{((t.tour_fee_pence ?? 0) / 100).toFixed(2)}
-              {t.starting_price_calculated_at && ` · Last refreshed ${new Date(t.starting_price_calculated_at).toLocaleString()}`}
+        <TabsContent value="seo" className="mt-5 space-y-5">
+          <Panel title="How it looks on Google" hint="This is the title and description the tour page gives search engines.">
+            <div className="rounded-lg border border-border bg-background p-4">
+              <p className="truncate text-xs text-muted-foreground">{pageUrl}</p>
+              <p className="mt-1 text-lg leading-snug text-primary underline-offset-2">{tourMetaTitle(t)}</p>
+              <p className="mt-1 text-sm leading-6 text-muted-foreground">{tourMetaDescription(t)}</p>
+            </div>
+            <p className="mt-3 text-xs text-muted-foreground">
+              {tourTitleSource(t.slug) === "fixed"
+                ? "This title is fixed to protect existing Google rankings."
+                : "The title is made from the tour name. Change the name with “Edit step by step”."}{" "}
+              Write your own description under Page content.
             </p>
-          </div>
-          <Button variant="outline" disabled={!!pending[`${t.id}:price`]} onClick={onRefreshPrice}>
-            {pending[`${t.id}:price`] ? <Loader2 className="size-4 animate-spin" /> : <RefreshCw className="size-4" />}
-            Refresh price
-          </Button>
-        </div>
-      </section>
+          </Panel>
 
-      <section>
-        <SectionHeading number="03" icon={MapPinned} title={`Stop sequence (${stops.length})`} />
-        <div className="overflow-hidden rounded-md border border-border">
-          {stops.map((stop: any, index: number) => {
-            const poi = stop.points_of_interest;
-            const bad = !poi?.active || !poi?.place_id;
-            return (
-              <div key={`${t.id}-${poi?.id ?? index}`} className="flex items-center gap-4 border-b border-border bg-card px-4 py-3 last:border-b-0">
-                <span className="grid size-8 shrink-0 place-items-center rounded-md bg-muted font-display text-xs font-bold text-foreground">
-                  {index + 1}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className={`truncate text-sm font-semibold ${bad ? "text-warning" : "text-foreground"}`}>{poi?.name ?? "Unnamed stop"}</p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">
-                    {stop.default_selected ? "Included by default" : "Optional stop"}
-                    {stop.recommended_visit_minutes ? ` · ${stop.recommended_visit_minutes} min recommended` : ""}
-                  </p>
-                </div>
-                {bad ? (
-                  <span className="flex shrink-0 items-center gap-1 text-xs text-warning"><AlertTriangle className="size-3.5" /> Fix required</span>
-                ) : (
-                  <span className="flex shrink-0 items-center gap-1 text-xs text-success"><CheckCircle2 className="size-3.5" /> Ready</span>
-                )}
+          <Panel title={`SEO checklist · ${seo.score}%`} hint="What Google and AI search tools need to understand and show this tour.">
+            <div className="mb-4 h-2 overflow-hidden rounded-full bg-muted" role="progressbar" aria-valuenow={seo.score} aria-valuemin={0} aria-valuemax={100} aria-label="SEO score">
+              <div className="h-full rounded-full bg-accent" style={{ width: `${seo.score}%` }} />
+            </div>
+            <ul className="divide-y divide-border">
+              {seo.checks.map((c) => (
+                <li key={c.id} className="flex items-start gap-3 py-2.5">
+                  {c.ok ? (
+                    <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-primary" aria-label="Done" />
+                  ) : (
+                    <Circle className="mt-0.5 size-4 shrink-0 text-gold-ink" aria-label="To do" />
+                  )}
+                  <div className="min-w-0">
+                    <p className={`text-sm ${c.ok ? "text-foreground" : "font-semibold text-foreground"}`}>{c.label}</p>
+                    <p className="text-xs text-muted-foreground">{c.hint}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </Panel>
+        </TabsContent>
+
+        <TabsContent value="content" className="mt-5">
+          <Panel title="Tour page content" hint="The written page customers and search engines read. Only add true details.">
+            <TourContentEditor key={t.id} t={t} onSaved={onContentSaved} />
+          </Panel>
+        </TabsContent>
+
+        <TabsContent value="details" className="mt-5">
+          <Panel title="Listing details" hint="Shown on the tour card on the Tours page and at the top of the tour page.">
+            <div className="grid gap-5 md:grid-cols-2">
+              <div className="md:col-span-2">
+                <Label className="mb-2 block text-xs uppercase text-muted-foreground">Main photo</Label>
+                <MediaUrlInput folder="tours" value={hero} onChange={setHero} />
               </div>
-            );
-          })}
-        </div>
-        {missing > 0 && <p className="mt-3 text-xs text-warning">{missing} stop(s) need a Place ID or activation before publishing.</p>}
-      </section>
+              <div>
+                <Label className="mb-2 block text-xs uppercase text-muted-foreground">Theme</Label>
+                <Input value={theme} onChange={(event) => setTheme(event.target.value)} placeholder="e.g. Scottish Highlands" />
+              </div>
+              <div>
+                <Label className="mb-2 block text-xs uppercase text-muted-foreground">Suggested start time</Label>
+                <Input value={startTime} onChange={(event) => setStartTime(event.target.value)} placeholder="e.g. 08:30" />
+              </div>
+              <div className="md:col-span-2">
+                <Label className="mb-2 block text-xs uppercase text-muted-foreground">Short description ({short.length} characters)</Label>
+                <Input value={short} onChange={(event) => setShort(event.target.value)} placeholder="One line shown on the tour card" />
+              </div>
+            </div>
+            <Button
+              className="mt-5"
+              disabled={!dirty || !!pending[`${t.id}:meta`]}
+              onClick={() => onSaveMeta({
+                hero_image_url: hero.trim() || null,
+                short_description: short.trim() || null,
+                theme: theme.trim() || null,
+                recommended_start_time: startTime.trim() || null,
+              })}
+            >
+              {pending[`${t.id}:meta`] && <Loader2 className="size-4 animate-spin" />}
+              Save listing details
+            </Button>
+          </Panel>
+        </TabsContent>
+
+        <TabsContent value="stops" className="mt-5">
+          <Panel title={`Stops in order (${stops.length})`} hint="Change stops with “Edit step by step”.">
+            {stops.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No stops yet.</p>
+            ) : (
+              <ol className="relative space-y-0">
+                {stops.map((stop: any, index: number) => {
+                  const poi = stop.points_of_interest;
+                  const bad = !poi?.active || !poi?.place_id;
+                  return (
+                    <li key={`${t.id}-${poi?.id ?? index}`} className="flex items-center gap-4 border-b border-border py-3 last:border-b-0">
+                      <span className="grid size-8 shrink-0 place-items-center rounded-full bg-primary font-display text-xs font-bold text-primary-foreground">
+                        {index + 1}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold text-foreground">{poi?.name ?? "Unnamed stop"}</p>
+                        <p className="mt-0.5 text-xs text-muted-foreground">
+                          {stop.default_selected ? "Included by default" : "Optional stop"}
+                          {stop.recommended_visit_minutes ? ` · ${stop.recommended_visit_minutes} min suggested` : ""}
+                        </p>
+                      </div>
+                      {bad ? (
+                        <span className="flex shrink-0 items-center gap-1 text-xs font-semibold text-gold-ink"><AlertTriangle className="size-3.5" aria-hidden /> Needs fixing</span>
+                      ) : (
+                        <span className="flex shrink-0 items-center gap-1 text-xs text-foreground"><CheckCircle2 className="size-3.5" aria-hidden /> Ready</span>
+                      )}
+                    </li>
+                  );
+                })}
+              </ol>
+            )}
+            {missing > 0 && <p className="mt-3 text-xs font-semibold text-gold-ink">{missing} stop(s) need a map place or switching on before publishing.</p>}
+          </Panel>
+        </TabsContent>
+
+        <TabsContent value="price" className="mt-5">
+          <Panel title="Price" hint="The “From” price customers see on the Tours page and this tour's page.">
+            <div className="flex flex-col gap-4 rounded-lg bg-muted/60 p-5 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-xs uppercase text-muted-foreground">From price on the website</p>
+                <p className="mt-1 font-display text-3xl font-extrabold text-foreground">{money(fromPrice) ?? "Not set"}</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {t.price_mode === "auto" ? "Worked out automatically from hourly rate, hours and route miles." : "Typed-in prices per vehicle."}
+                  {" "}Change prices with “Edit step by step”.
+                </p>
+              </div>
+              <Button variant="outline" disabled={!!pending[`${t.id}:price`]} onClick={onRefreshPrice}>
+                {pending[`${t.id}:price`] ? <Loader2 className="size-4 animate-spin" /> : <RefreshCw className="size-4" />}
+                Refresh saved price
+              </Button>
+            </div>
+          </Panel>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
 
-function SectionHeading({ number, icon: Icon, title }: { number: string; icon: typeof MapPinned; title: string }) {
+function Notice({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mb-5 flex items-center gap-3">
-      <span className="grid size-8 place-items-center rounded-md bg-primary font-display text-xs font-bold text-accent">{number}</span>
-      <Icon className="size-4 text-muted-foreground" aria-hidden />
-      <h3 className="font-display text-lg font-bold uppercase text-foreground">{title}</h3>
+    <div className="mt-4 flex gap-3 rounded-lg border border-accent/50 bg-accent/10 p-4 text-sm text-foreground">
+      <AlertTriangle className="mt-0.5 size-4 shrink-0 text-gold-ink" aria-hidden />
+      <p>{children}</p>
     </div>
+  );
+}
+
+function Panel({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
+  return (
+    <section className="rounded-xl border border-border bg-card p-5">
+      <h3 className="font-display text-lg font-bold text-foreground">{title}</h3>
+      {hint && <p className="mb-4 mt-0.5 text-sm text-muted-foreground">{hint}</p>}
+      {children}
+    </section>
   );
 }
