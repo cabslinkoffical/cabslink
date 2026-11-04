@@ -307,7 +307,29 @@ export const listSeoPages = createServerFn({ method: "GET" })
     const { data, error } = await context.supabase
       .from("seo_pages").select("*").order("updated_at", { ascending: false });
     if (error) throw new Error(error.message);
-    return { rows: data ?? [] };
+    const rows = data ?? [];
+    const { recordControlsLivePage } = await import("@/lib/seo/cms-head");
+    const { buildJourney } = await import("@/lib/seo/journeys");
+    const slugs = [...new Set(rows.map((r: any) => String(r.path).split("/")[2]).filter(Boolean))];
+    const [red, places] = await Promise.all([
+      context.supabase.from("seo_redirects").select("from_path").eq("active", true),
+      slugs.length
+        ? context.supabase.from("destinations").select("slug").in("slug", slugs).eq("active", true).neq("seo_tier", 4)
+        : Promise.resolve({ data: [], error: null } as any),
+    ]);
+    if (red.error) throw new Error(red.error.message);
+    if (places.error) throw new Error(places.error.message);
+    const ctx = {
+      redirectFrom: new Set<string>((red.data ?? []).map((r: any) => r.from_path)),
+      isBuiltInRoute: (slug: string) => !!buildJourney(slug),
+      placeSlugs: new Set<string>((places.data ?? []).map((r: any) => r.slug)),
+    };
+    return {
+      rows: rows.map((r: any) => {
+        const c = recordControlsLivePage(r, ctx);
+        return { ...r, controls_live: c.live, controls_live_reason: c.reason };
+      }),
+    };
   });
 
 /**

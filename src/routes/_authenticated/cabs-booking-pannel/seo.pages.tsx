@@ -103,6 +103,12 @@ function Page() {
           { key: "path", header: "Path", render: r => <code className="text-xs">{(r as any).path}</code> },
           { key: "page_type", header: "Type" },
           { key: "seo_title", header: "Title" },
+          { key: "controls_live", header: "Controls live page", render: r => (
+            <span title={(r as any).controls_live_reason} className={"inline-flex flex-col text-[11px] leading-tight"}>
+              <span className={"inline-block w-fit px-2 py-0.5 rounded-full font-semibold " + ((r as any).controls_live ? "bg-success/15 text-success" : "bg-muted text-muted-foreground")}>{(r as any).controls_live ? "Yes" : "No"}</span>
+              <span className="mt-0.5 text-muted-foreground">{(r as any).controls_live_reason}</span>
+            </span>
+          ) },
           { key: "publication_status", header: "Status", render: r => <span className={"inline-block px-2 py-0.5 rounded-full text-[11px] font-medium " + (STATUS_STYLES[(r as any).publication_status] ?? "bg-muted")}>{(r as any).publication_status.replace(/_/g, " ")}</span> },
         ]}
       />
