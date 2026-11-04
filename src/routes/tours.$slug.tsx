@@ -26,6 +26,7 @@ function mdLines(md: string): string[] {
   return md.split(/\r?\n/).map((l) => l.replace(/^\s*(?:[-*•]|\d+[.)])\s+/, "").trim()).filter(Boolean);
 }
 import { draftTour, tourSeo } from "@/lib/seo/tour-seo";
+import { tourMetaDescription, tourMetaTitle } from "@/lib/seo/tour-meta";
 import { tourExtras } from "@/content/tour-extras";
 import { BUSINESS_ID } from "@/lib/seo/business-graph";
 
@@ -104,37 +105,10 @@ export const Route = createFileRoute("/tours/$slug")({
     }
 
     // The product name in the CMS is editorial; the searched phrase lives in
-    // src/lib/seo/tour-seo.ts and owns the title tag, H1 and description.
+    // src/lib/seo/tour-seo.ts. Shared with the staff Google preview.
     const seo = tourSeo(d.slug);
-    const shortName = d.name.split(":")[0].trim();
-    const title =
-      seo?.metaTitle ??
-      ([
-        `${d.name} — Private Driver Tour | Cabslink`,
-        `${d.name} | Cabslink`,
-        `${shortName} Private Tour | Cabslink`,
-        `${shortName} | Cabslink`,
-      ].find((t) => t.length <= 60) ??
-        `${shortName.slice(0, 47).replace(/[\s,.;:—-]+\S*$/, "")} | Cabslink`);
-
-    let desc = d.meta_description?.trim() || seo?.metaDescription || "";
-    if (!desc) {
-      // Fallback only for tours with no override yet: CMS blurbs are often a
-      // single short line, so top up to the 110-155 window on a word boundary.
-      const base = (d.short_description ?? `Private driver tour of ${d.name}.`).trim();
-      const extras = [
-        d.long_day ? "Full-day itinerary with flexible stop times." : "Flexible stop times at every point of interest.",
-        "Door-to-door pickup, quoted before you travel.",
-      ];
-      desc = base;
-      for (const part of extras) {
-        if (desc.length >= 110) break;
-        if (desc.toLowerCase().includes(part.slice(0, 18).toLowerCase())) continue;
-        desc = `${desc.replace(/\.$/, "")}. ${part}`;
-      }
-      if (desc.length > 155) desc = `${desc.slice(0, 152).replace(/[\s,.;:—-]+\S*$/, "")}…`;
-    }
-
+    const title = tourMetaTitle(d);
+    const desc = tourMetaDescription(d);
 
     const url = `https://cabslink.com/tours/${d.slug}`;
     const allFaqs = [...(tourExtras(d.slug, d.duration_hours)?.faqs ?? []), ...d.faq];

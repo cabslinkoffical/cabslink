@@ -261,6 +261,12 @@ function toListItem(row: any, recommendedStopCount: number): PublicTourListItem 
   };
 }
 
+/** Staff screens: the same "From" price the public Tours page shows, per tour id. */
+export async function tourFromPricesImpl(rows: any[]): Promise<Record<string, number | null>> {
+  const [rates, fixed] = await Promise.all([tourClassRates(), fixedTourPrices(rows.map((r) => r.id))]);
+  return Object.fromEntries(rows.map((r) => [r.id, tourStartingPricePence(r, rates, fixed)]));
+}
+
 export async function listPublishedToursImpl(): Promise<PublicTourListItem[]> {
   const client = serverPublicClient();
   const { data: templates, error } = await client
