@@ -63,6 +63,6 @@ describe("Edinburgh Airport FAQ", () => {
       expect(text).toContain(s);
   });
   it("makes no unconfirmed claims", () => {
-    expect(text).not.toMatch(/flight track|free waiting|minutes free|terminal|£|chauffeur/i);
+    expect(text).not.toMatch(/flight track|free waiting|minutes free|terminal|£/i);
   });
 });

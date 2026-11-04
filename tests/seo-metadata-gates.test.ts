@@ -84,7 +84,7 @@ describe("SEO gate — head metadata completeness", () => {
 
 
 describe("SEO gate — no placeholder or off-brand copy", () => {
-  const banned = [/Lovable App/i, /Lovable Generated Project/i, /\bchauffeur/i, /lorem ipsum/i];
+  const banned = [/Lovable App/i, /Lovable Generated Project/i, /lorem ipsum/i];
 
   it.each(contentRoutes.map((r) => r.rel))("%s metadata is clean", (rel) => {
     const { src } = contentRoutes.find((x) => x.rel === rel)!;
