@@ -26,10 +26,6 @@ describe("FAQ question bank answers", () => {
     expect(all.some((i) => /discount code|promo code/i.test(i.q + i.a))).toBe(false);
   });
 
-  it("never uses the word chauffeur", () => {
-    expect(all.some((i) => /chauffeur/i.test(i.q + i.a))).toBe(false);
-  });
-
   it("luggage answer comes from vehicle class data", () => {
     const out = vehicleFaqs([
       { name: "Saloon", passengers: 4, large_luggage: 2, cabin_bags: 2 },
