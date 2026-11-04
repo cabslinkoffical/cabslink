@@ -163,6 +163,41 @@ export const getPublicPlaceCoords = createServerFn({ method: "GET" })
     return label ? { lat, lng, label } : null;
   });
 
+/**
+ * Saved title/description/H1 for a place page (location_hub records only).
+ * Returns null while the approval switch is off, so live pages are unchanged.
+ */
+export const getPublishedCmsHead = createServerFn({ method: "GET" })
+  .inputValidator((i: unknown) => z.object({ path: z.string().min(1).max(300) }).parse(i))
+  .handler(async ({ data }) => {
+    const { LOCATION_HUB_CMS_HEAD_ENABLED } = await import("@/lib/seo/cms-head");
+    if (!LOCATION_HUB_CMS_HEAD_ENABLED) return null;
+    const { data: row } = await serverPublicClient()
+      .from("seo_pages")
+      .select("seo_title, meta_description, h1")
+      .eq("path", data.path)
+      .eq("page_type", "location_hub")
+      .eq("publication_status", "published")
+      .maybeSingle();
+    return row?.seo_title && row.meta_description && row.h1 ? row : null;
+  });
+
+/**
+ * Count one visit through an admin redirect. Runs with the service role
+ * inside a database routine that only increments the counter.
+ */
+export const recordRedirectHit = createServerFn({ method: "POST" })
+  .inputValidator((i: unknown) => z.object({ path: z.string().min(1).max(300) }).parse(i))
+  .handler(async ({ data }) => {
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await (supabaseAdmin as any).rpc("seo_redirect_record_hit", { _from_path: data.path });
+    } catch {
+      // Counting must never break a visit.
+    }
+    return { ok: true };
+  });
+
 export const resolvePublicRedirect = createServerFn({ method: "GET" })
   .inputValidator((i: unknown) => z.object({ path: z.string().min(1).max(300) }).parse(i))
   .handler(async ({ data }) => {
