@@ -508,11 +508,11 @@ function RouteEditor({
             </Button>
           </div>
           <div className="flex items-center gap-5">
-            <Label className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Label className="flex items-center gap-2 whitespace-nowrap text-xs text-muted-foreground">
               Switched on
               <Switch checked={!!t.active} disabled={!!pending[`${t.id}:active`]} onCheckedChange={onToggleActive} />
             </Label>
-            <Label className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Label className="flex items-center gap-2 whitespace-nowrap text-xs text-muted-foreground">
               On website
               <Switch
                 checked={!!t.published}
