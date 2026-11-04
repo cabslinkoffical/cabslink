@@ -4,12 +4,19 @@ import { AreaLocationPage } from "@/components/site/AreaLocationPage";
 import { areaSeoContextQuery } from "@/lib/explore.functions";
 import { buildAutoHead } from "@/lib/seo/auto-seo";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { getPublishedCmsHead } from "@/lib/seo-public.functions";
+import { LOCATION_HUB_CMS_HEAD_ENABLED } from "@/lib/seo/cms-head";
 
 export const Route = createFileRoute("/areas/$slug")({
   loader: async ({ params, context }) => {
-    const ctx = await context.queryClient.ensureQueryData(areaSeoContextQuery(params.slug));
+    const [ctx, cms] = await Promise.all([
+      context.queryClient.ensureQueryData(areaSeoContextQuery(params.slug)),
+      LOCATION_HUB_CMS_HEAD_ENABLED
+        ? getPublishedCmsHead({ data: { path: `/areas/${params.slug}` } }).catch(() => null)
+        : Promise.resolve(null),
+    ]);
     if (!ctx) throw notFound();
-    return ctx;
+    return { ...ctx, cms };
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
@@ -23,6 +30,7 @@ export const Route = createFileRoute("/areas/$slug")({
       popularRoutes: loaderData.popularRoutes,
       relatedServices: loaderData.services,
       airports: loaderData.airports,
+      cms: loaderData.cms,
     });
   },
   component: Page,
@@ -36,7 +44,8 @@ export const Route = createFileRoute("/areas/$slug")({
 
 function Page() {
   const { slug } = Route.useParams();
+  const { cms } = Route.useLoaderData();
   const { data } = useSuspenseQuery(areaSeoContextQuery(slug));
   if (!data) return null;
-  return <AreaLocationPage data={data} />;
+  return <AreaLocationPage data={data} heading={cms?.h1} />;
 }
