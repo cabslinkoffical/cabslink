@@ -236,4 +236,4 @@
 - [x] T4 Multiple vehicles for big groups (tours): suggested combinations, priced per vehicle, capacity locking per class
 - [x] T5 Admin tour tools: duplicate tour, tour categories, draft preview, guided create steps
 
-- [ ] Tour routes admin: remove left tour list; full-page tour list, clicking a tour opens a full-page editor with Back
+- [x] Tour routes admin: remove left tour list; full-page tour list, clicking a tour opens a full-page editor with Back
