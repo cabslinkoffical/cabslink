@@ -235,3 +235,5 @@
 - [x] Owner asked: explain hourly hire & day tours end to end (every phase/step) with the full code
 - [x] T4 Multiple vehicles for big groups (tours): suggested combinations, priced per vehicle, capacity locking per class
 - [x] T5 Admin tour tools: duplicate tour, tour categories, draft preview, guided create steps
+
+- [x] Tour routes admin: remove left tour list; full-page tour list, clicking a tour opens a full-page editor with Back
