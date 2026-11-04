@@ -3,6 +3,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Crown, Sparkles, ShieldCheck, Briefcase } from "lucide-react";
 import { SportsServicePage, type SportsServiceContent } from "@/components/site/SportsServicePage";
 import { sportsFaqSchema } from "@/components/site/SportsServicePage.head";
+import { parseServiceCopy, mergeFaqs } from "@/lib/service-copy";
+import { SPORTS_SERVICE_COPY } from "@/content/sports-service-copy";
 import { PAGE_IMAGES } from "@/content/page-images";
 
 const TITLE = "VIP Sports Hospitality Travel — Event Cars | Cabslink";
@@ -15,6 +17,9 @@ const faqs = [
   { q: "Will the same driver stay with us all day?", a: "For hospitality days we assign a dedicated driver and vehicle for the full booking, on call between engagements." },
   { q: "Can travel be invoiced to our company?", a: "Yes. Corporate accounts are invoiced monthly with cost-centre references for each guest journey." },
 ];
+
+const copy = parseServiceCopy(SPORTS_SERVICE_COPY["/vip-sports-hospitality"]);
+const allFaqs = mergeFaqs(faqs, copy.faqs);
 
 const content: SportsServiceContent = {
   eyebrow: "VIP sports hospitality",
@@ -37,7 +42,8 @@ const content: SportsServiceContent = {
     title: "Hospitality events we cover",
     venues: ["The Open Championship", "Six Nations at Murrayfield", "Scottish Cup Final", "Royal Ascot", "Wimbledon", "British Grand Prix", "Ryder Cup", "Champions League nights", "Corporate golf days"],
   },
-  faqs,
+  faqs: allFaqs,
+  copy,
 };
 
 export const Route = createFileRoute("/vip-sports-hospitality")({
@@ -52,7 +58,7 @@ export const Route = createFileRoute("/vip-sports-hospitality")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: URL }],
-    scripts: [{ type: "application/ld+json", children: JSON.stringify(sportsFaqSchema(faqs)) }],
+    scripts: [{ type: "application/ld+json", children: JSON.stringify(sportsFaqSchema(allFaqs)) }],
   }),
   component: () => <SportsServicePage content={content} />,
 });

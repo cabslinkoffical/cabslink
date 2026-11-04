@@ -3,6 +3,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Car, MapPin, Clock, Users } from "lucide-react";
 import { SportsServicePage, type SportsServiceContent } from "@/components/site/SportsServicePage";
 import { sportsFaqSchema } from "@/components/site/SportsServicePage.head";
+import { parseServiceCopy, mergeFaqs } from "@/lib/service-copy";
+import { SPORTS_SERVICE_COPY } from "@/content/sports-service-copy";
 import sportsImg from "@/assets/services/sports.jpg";
 
 const TITLE = "Stadium Transfers — Hampden & Murrayfield | Cabslink";
@@ -15,6 +17,9 @@ const faqs = [
   { q: "Can you handle concerts as well as sport?", a: "Yes. Stadium concerts, rugby internationals and cup finals all use the same service and pricing." },
   { q: "What if the event overruns?", a: "Pickup is on your call, not a fixed clock. We hold nearby and come in when you're ready — extra-time and encores included." },
 ];
+
+const copy = parseServiceCopy(SPORTS_SERVICE_COPY["/stadium-transfers"]);
+const allFaqs = mergeFaqs(faqs, copy.faqs);
 
 const content: SportsServiceContent = {
   eyebrow: "Stadium transfers",
@@ -37,7 +42,8 @@ const content: SportsServiceContent = {
     title: "Stadiums and arenas we cover",
     venues: ["Hampden Park", "BT Murrayfield", "OVO Hydro", "Celtic Park", "Ibrox Stadium", "Scottish Gas Murrayfield", "P&J Live Aberdeen", "Wembley Stadium", "Twickenham"],
   },
-  faqs,
+  faqs: allFaqs,
+  copy,
 };
 
 export const Route = createFileRoute("/stadium-transfers")({
@@ -52,7 +58,7 @@ export const Route = createFileRoute("/stadium-transfers")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: URL }],
-    scripts: [{ type: "application/ld+json", children: JSON.stringify(sportsFaqSchema(faqs)) }],
+    scripts: [{ type: "application/ld+json", children: JSON.stringify(sportsFaqSchema(allFaqs)) }],
   }),
   component: () => <SportsServicePage content={content} />,
 });
