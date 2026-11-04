@@ -77,7 +77,7 @@ export function TourContentEditor({ t, onSaved }: { t: any; onSaved: () => void 
             onChange={(e) => setF({ ...f, duration_hours: e.target.value })} />
         </div>
         <div className="md:col-span-2">
-          <Label className="mb-2 block text-xs uppercase text-muted-foreground">Meta description ({f.meta_description.length}/155)</Label>
+          <Label className="mb-2 block text-xs uppercase text-muted-foreground">Google description ({f.meta_description.length} characters — aim for 110–160)</Label>
           <Input maxLength={160} value={f.meta_description} onChange={(e) => setF({ ...f, meta_description: e.target.value })} />
         </div>
         <label className="flex items-center gap-3 text-sm md:col-span-2">

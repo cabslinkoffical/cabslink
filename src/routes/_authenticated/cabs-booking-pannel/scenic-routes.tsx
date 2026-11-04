@@ -4,7 +4,7 @@ import { duplicateTour } from "@/lib/tour-admin-tools.functions";
 import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -675,7 +675,7 @@ function RouteEditor({
   );
 }
 
-function Notice({ children }: { children: React.ReactNode }) {
+function Notice({ children }: { children: ReactNode }) {
   return (
     <div className="mt-4 flex gap-3 rounded-lg border border-accent/50 bg-accent/10 p-4 text-sm text-foreground">
       <AlertTriangle className="mt-0.5 size-4 shrink-0 text-gold-ink" aria-hidden />
@@ -684,7 +684,7 @@ function Notice({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Panel({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
+function Panel({ title, hint, children }: { title: string; hint?: string; children: ReactNode }) {
   return (
     <section className="rounded-xl border border-border bg-card p-5">
       <h3 className="font-display text-lg font-bold text-foreground">{title}</h3>
