@@ -8,7 +8,7 @@
  * off no record is read, so live titles, descriptions and headings are
  * exactly today's text. Canonical URLs are never taken from the record.
  */
-export const LOCATION_HUB_CMS_HEAD_ENABLED = false;
+export const LOCATION_HUB_CMS_HEAD_ENABLED = true;
 
 /** Address sections whose pages are built from place data. */
 export const LOCATION_HUB_SECTIONS = [
