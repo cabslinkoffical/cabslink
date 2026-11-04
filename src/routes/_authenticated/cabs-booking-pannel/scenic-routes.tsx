@@ -1,12 +1,14 @@
 import { TourContentEditor } from "@/components/admin/tours/TourContentEditor";
 import { TourBuilder } from "@/components/admin/tours/TourBuilder";
 import { duplicateTour } from "@/lib/tour-admin-tools.functions";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { z } from "zod";
 import { queryOptions, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState, type ReactNode } from "react";
 import {
   AlertTriangle,
+  ArrowLeft,
   CheckCircle2,
   Circle,
   Clock3,
@@ -50,6 +52,8 @@ const opts = queryOptions({
 });
 
 export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/scenic-routes")({
+  /** ?tour=<id> opens that tour on its own full page; no param shows the list. */
+  validateSearch: z.object({ tour: z.string().uuid().optional() }),
   head: () => ({
     meta: [
       { title: "Tour Routes — Cabslink Admin" },
@@ -80,7 +84,12 @@ function ScenicRoutesPage() {
   const refreshPrice = useServerFn(refreshScenicTemplateStartingPrice);
   const copyTour = useServerFn(duplicateTour);
   const [pending, setPending] = useState<Record<string, boolean>>({});
-  const [selectedId, setSelectedId] = useState<string | null>(data.templates[0]?.id ?? null);
+  const navigate = useNavigate({ from: Route.fullPath });
+  const selectedId = Route.useSearch().tour ?? null;
+  const setSelectedId = (id: string | null) => {
+    void navigate({ search: id ? { tour: id } : {} });
+    if (typeof window !== "undefined") window.scrollTo({ top: 0 });
+  };
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<StatusFilter>("all");
   const [category, setCategory] = useState("all");
@@ -147,8 +156,7 @@ function ScenicRoutesPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data.templates, filter, poisByTpl, search, category, fromPrices]);
 
-  const selected =
-    data.templates.find((template: any) => template.id === selectedId) ?? filteredTemplates[0] ?? null;
+  const selected = selectedId ? data.templates.find((template: any) => template.id === selectedId) ?? null : null;
   const liveCount = data.templates.filter((template: any) => template.published).length;
   const attentionCount = data.templates.filter(needsAttention).length;
   const avgSeo = data.templates.length
@@ -210,8 +218,72 @@ function ScenicRoutesPage() {
     { label: "Average SEO score", value: `${avgSeo}%` },
   ];
 
+  const builderDialog = (
+    <TourBuilder
+      open={!!builder}
+      tourId={builder?.id ?? null}
+      onClose={() => setBuilder(null)}
+      onSaved={(id) => { setSelectedId(id); void invalidate(); }}
+    />
+  );
+
+  if (selected) {
+    return (
+      <div className="-m-4 min-h-[calc(100vh-7.5rem)] bg-muted md:-m-6">
+        <div className="sticky top-0 z-20 flex items-center gap-3 border-b border-border bg-card px-5 py-3 lg:px-7">
+          <Button variant="outline" size="sm" onClick={() => setSelectedId(null)}>
+            <ArrowLeft className="size-4" /> All tours
+          </Button>
+          <p className="min-w-0 truncate text-sm text-muted-foreground">
+            Tour routes / <span className="font-semibold text-foreground">{selected.name}</span>
+          </p>
+        </div>
+        <RouteEditor
+          key={selected.id}
+          template={selected}
+          fromPrice={fromPrices[selected.id] ?? null}
+          seo={seoById.get(selected.id)!}
+          {...routeHealth(selected)}
+          pending={pending}
+          onToggleActive={(active) => handleToggleActive(selected, active)}
+          onTogglePublish={(published) => handleTogglePublish(selected, published)}
+          onSaveMeta={(patch) =>
+            withPending(selected.id, "meta", async () => {
+              try {
+                await updateMeta({ data: { id: selected.id, ...patch } });
+                toast.success("Tour details saved");
+                await invalidate();
+              } catch (error: any) {
+                toast.error(error.message ?? "Unable to save tour");
+              }
+            })
+          }
+          onContentSaved={invalidate}
+          onEditSteps={() => setBuilder({ id: selected.id })}
+          onDuplicate={() => handleDuplicate(selected)}
+          onRefreshPrice={() =>
+            withPending(selected.id, "price", async () => {
+              try {
+                const result = await refreshPrice({ data: { id: selected.id } });
+                toast.success(
+                  result.price_pence != null
+                    ? `Saved price refreshed (£${(result.price_pence / 100).toFixed(0)})`
+                    : "Price cleared — check pricing setup",
+                );
+                await invalidate();
+              } catch (error: any) {
+                toast.error(error.message ?? "Unable to refresh price");
+              }
+            })
+          }
+        />
+        {builderDialog}
+      </div>
+    );
+  }
+
   return (
-    <div className="-m-4 flex min-h-[calc(100vh-7.5rem)] flex-col bg-muted md:-m-6">
+    <div className="-m-4 min-h-[calc(100vh-7.5rem)] bg-muted md:-m-6">
       <header className="border-b border-border bg-card px-5 py-5 lg:px-7">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
@@ -220,7 +292,7 @@ function ScenicRoutesPage() {
               <h1 className="font-display text-2xl font-extrabold text-foreground">Tour routes</h1>
             </div>
             <p className="mt-1 text-sm text-muted-foreground">
-              Ready-made tours on the Tours page: their page, Google listing, stops, price and publishing.
+              Ready-made tours on the Tours page. Click a tour to open and edit it.
             </p>
           </div>
           <div className="flex shrink-0 flex-wrap items-center gap-2">
@@ -238,156 +310,103 @@ function ScenicRoutesPage() {
         </dl>
       </header>
 
-      <div className="grid flex-1 grid-cols-1 bg-card lg:grid-cols-[22rem_minmax(0,1fr)]">
-        <aside className="flex max-h-[36rem] flex-col border-b border-border bg-card lg:sticky lg:top-0 lg:max-h-[calc(100vh-4rem)] lg:self-start lg:border-b-0">
-          <div className="space-y-3 border-b border-border p-4">
-            <div className="relative">
-              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
-              <Input
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-                placeholder="Search tours or web addresses"
-                aria-label="Search tours"
-                className="bg-background pl-9"
-              />
-            </div>
-            <select
-              aria-label="Filter by category"
-              className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
-              value={category}
-              onChange={(event) => setCategory(event.target.value)}
-            >
-              <option value="all">All categories</option>
-              {categoryNames.map((c) => <option key={c} value={c}>{c}</option>)}
-              <option value="none">No category</option>
-            </select>
-            <div className="grid grid-cols-4 gap-1 rounded-md bg-muted p-1" role="group" aria-label="Filter tours">
-              {([
-                ["all", "All"],
-                ["live", "Live"],
-                ["draft", "Drafts"],
-                ["attention", "To fix"],
-              ] as const).map(([value, label]) => (
-                <Button
-                  key={value}
-                  type="button"
-                  size="sm"
-                  variant={filter === value ? "secondary" : "ghost"}
-                  aria-pressed={filter === value}
-                  className="h-8 px-1 text-xs"
-                  onClick={() => setFilter(value)}
-                >
-                  {label}
-                </Button>
-              ))}
-            </div>
-            <p className="text-xs text-muted-foreground">{filteredTemplates.length} of {data.templates.length} tours</p>
-          </div>
-
-          <ul className="flex-1 overflow-y-auto">
-            {filteredTemplates.length === 0 ? (
-              <li className="p-6 text-center text-sm text-muted-foreground">No tours match this view.</li>
-            ) : (
-              filteredTemplates.map((template: any) => {
-                const { stops } = routeHealth(template);
-                const isSelected = selected?.id === template.id;
-                const price = money(fromPrices[template.id]);
-                const seo = seoById.get(template.id)?.score ?? 0;
-                return (
-                  <li key={template.id} className="border-b border-border">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedId(template.id)}
-                      aria-current={isSelected ? "true" : undefined}
-                      className={`flex w-full gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/60 ${
-                        isSelected ? "border-l-4 border-l-accent bg-accent/10" : "border-l-4 border-l-transparent"
-                      }`}
-                    >
-                      <span className="grid h-12 w-16 shrink-0 place-items-center overflow-hidden rounded-md bg-muted">
-                        {template.hero_image_url ? (
-                          <img src={template.hero_image_url} alt="" loading="lazy" className="h-full w-full object-cover" />
-                        ) : (
-                          <ImageIcon className="size-4 text-muted-foreground" aria-hidden />
-                        )}
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="flex items-center justify-between gap-2">
-                          <span className="truncate text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
-                            {template.theme_group || "No category"}
-                          </span>
-                          <StatusPill live={!!template.published} />
-                        </span>
-                        <span className="mt-0.5 block truncate font-display text-sm font-bold text-foreground">{template.name}</span>
-                        <span className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
-                          <span>{stops.length} stops</span>
-                          <span aria-hidden>·</span>
-                          {price ? <span className="font-semibold text-foreground">From {price}</span> : <span className="font-semibold text-gold-ink">No price</span>}
-                          <span aria-hidden>·</span>
-                          <span className={seo >= 80 ? "text-foreground" : "text-gold-ink"}>SEO {seo}%</span>
-                        </span>
-                      </span>
-                    </button>
-                  </li>
-                );
-              })
-            )}
-          </ul>
-        </aside>
-
-        <main className="min-w-0 bg-background lg:border-l lg:border-border">
-          {selected ? (
-            <RouteEditor
-              key={selected.id}
-              template={selected}
-              fromPrice={fromPrices[selected.id] ?? null}
-              seo={seoById.get(selected.id)!}
-              {...routeHealth(selected)}
-              pending={pending}
-              onToggleActive={(active) => handleToggleActive(selected, active)}
-              onTogglePublish={(published) => handleTogglePublish(selected, published)}
-              onSaveMeta={(patch) =>
-                withPending(selected.id, "meta", async () => {
-                  try {
-                    await updateMeta({ data: { id: selected.id, ...patch } });
-                    toast.success("Tour details saved");
-                    await invalidate();
-                  } catch (error: any) {
-                    toast.error(error.message ?? "Unable to save tour");
-                  }
-                })
-              }
-              onContentSaved={invalidate}
-              onEditSteps={() => setBuilder({ id: selected.id })}
-              onDuplicate={() => handleDuplicate(selected)}
-              onRefreshPrice={() =>
-                withPending(selected.id, "price", async () => {
-                  try {
-                    const result = await refreshPrice({ data: { id: selected.id } });
-                    toast.success(
-                      result.price_pence != null
-                        ? `Saved price refreshed (£${(result.price_pence / 100).toFixed(0)})`
-                        : "Price cleared — check pricing setup",
-                    );
-                    await invalidate();
-                  } catch (error: any) {
-                    toast.error(error.message ?? "Unable to refresh price");
-                  }
-                })
-              }
+      <div className="px-5 py-6 lg:px-7">
+        <div className="flex flex-col gap-3 rounded-xl border border-border bg-card p-3 md:flex-row md:items-center">
+          <div className="relative flex-1">
+            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
+            <Input
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Search tours or web addresses"
+              aria-label="Search tours"
+              className="bg-background pl-9"
             />
-          ) : (
-            <div className="grid min-h-80 place-items-center text-sm text-muted-foreground">Choose a tour on the left to manage it.</div>
-          )}
-        </main>
-      </div>
+          </div>
+          <select
+            aria-label="Filter by category"
+            className="h-9 rounded-md border border-input bg-background px-3 text-sm md:w-56"
+            value={category}
+            onChange={(event) => setCategory(event.target.value)}
+          >
+            <option value="all">All categories</option>
+            {categoryNames.map((c) => <option key={c} value={c}>{c}</option>)}
+            <option value="none">No category</option>
+          </select>
+          <div className="grid grid-cols-4 gap-1 rounded-md bg-muted p-1 md:w-80" role="group" aria-label="Filter tours">
+            {([
+              ["all", "All"],
+              ["live", "Live"],
+              ["draft", "Drafts"],
+              ["attention", "To fix"],
+            ] as const).map(([value, label]) => (
+              <Button
+                key={value}
+                type="button"
+                size="sm"
+                variant={filter === value ? "secondary" : "ghost"}
+                aria-pressed={filter === value}
+                className="h-8 px-1 text-xs"
+                onClick={() => setFilter(value)}
+              >
+                {label}
+              </Button>
+            ))}
+          </div>
+        </div>
+        <p className="mb-4 mt-3 text-xs text-muted-foreground">{filteredTemplates.length} of {data.templates.length} tours</p>
 
-      <TourBuilder
-        open={!!builder}
-        tourId={builder?.id ?? null}
-        onClose={() => setBuilder(null)}
-        onSaved={(id) => { setSelectedId(id); void invalidate(); }}
-      />
+        {filteredTemplates.length === 0 ? (
+          <p className="rounded-xl border border-border bg-card p-10 text-center text-sm text-muted-foreground">No tours match this view.</p>
+        ) : (
+          <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {filteredTemplates.map((template: any) => {
+              const { stops } = routeHealth(template);
+              const price = money(fromPrices[template.id]);
+              const seo = seoById.get(template.id)?.score ?? 0;
+              const hours = template.duration_hours ?? template.default_duration_hours;
+              return (
+                <li key={template.id}>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedId(template.id)}
+                    className="group flex h-full w-full flex-col overflow-hidden rounded-xl border border-border bg-card text-left transition hover:-translate-y-0.5 hover:border-accent hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <span className="relative block aspect-[16/9] bg-muted">
+                      {template.hero_image_url ? (
+                        <img src={template.hero_image_url} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+                      ) : (
+                        <span className="grid h-full place-items-center"><ImageIcon className="size-6 text-muted-foreground" aria-hidden /></span>
+                      )}
+                      <span className="absolute left-3 top-3"><StatusPill live={!!template.published} /></span>
+                    </span>
+                    <span className="flex flex-1 flex-col p-4">
+                      <span className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">{template.theme_group || "No category"}</span>
+                      <span className="mt-1 line-clamp-2 font-display text-base font-bold leading-snug text-foreground">{template.name}</span>
+                      <span className="mt-auto grid grid-cols-4 gap-2 border-t border-border pt-3 text-xs">
+                        <Fact label="From" value={price ?? "No price"} warn={!price} />
+                        <Fact label="Hours" value={hours ? String(hours) : "—"} />
+                        <Fact label="Stops" value={String(stops.length)} />
+                        <Fact label="SEO" value={`${seo}%`} warn={seo < 80} />
+                      </span>
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
+      {builderDialog}
     </div>
+  );
+}
+
+function Fact({ label, value, warn }: { label: string; value: string; warn?: boolean }) {
+  return (
+    <span className="block">
+      <span className="block text-[10px] uppercase tracking-wide text-muted-foreground">{label}</span>
+      <span className={`block font-semibold ${warn ? "text-gold-ink" : "text-foreground"}`}>{value}</span>
+    </span>
   );
 }
 
