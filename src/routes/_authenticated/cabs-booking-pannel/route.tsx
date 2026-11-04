@@ -1,6 +1,6 @@
-import { createFileRoute, Link, Outlet, redirect, useRouter, useRouterState } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect, useRouter, useRouterState } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
-import { LogOut, ExternalLink, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { ADMIN_AREAS, areaForPath } from "@/components/admin/admin-areas";
 import { SidebarNav } from "@/components/admin/SidebarNav";
 import { AreaShortcuts } from "@/components/admin/AreaShortcuts";
