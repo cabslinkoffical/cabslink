@@ -5,7 +5,7 @@ export const SPORTS_SERVICE_COPY: Record<
 > = {
   "/golf-transfers": `
 ## Golf transfers from Edinburgh and Glasgow airports
-Most golf trips to Scotland start at Edinburgh Airport or Glasgow Airport, and the first hour often decides how the whole week goes. Your driver meets you in arrivals with a name board, loads the clubs and takes you straight to your hotel or to the first tee. We track your flight, so if you land early or late the pickup moves with it, and the first 60 minutes of waiting after landing are free.
+Most golf trips to Scotland start at Edinburgh Airport or Glasgow Airport, and the first hour often decides how the whole week goes. Your driver collects you at the airport, loads the clubs and takes you straight to your hotel or to the first tee. Add Meet & Greet when you book if you'd like your driver waiting in arrivals with a name board. We track your flight, so if you land early or late the pickup moves with it, and the first 60 minutes of waiting after landing are free.
 
 ## Golf courses we drive to
 ### St Andrews
@@ -31,7 +31,7 @@ We drive golf societies, clubs and corporate groups to courses across Scotland. 
 ## What's included
 - A licensed private hire driver and a clean, comfortable vehicle
 - Space for golf bags and luggage, at no extra cost
-- Flight tracking and meet & greet at the airport
+- Flight tracking on every airport pickup, with Meet & Greet available as an extra
 - Fuel, tolls and parking
 - A fixed price agreed before you travel
 
@@ -109,7 +109,7 @@ P&J Live in Aberdeen, plus stadiums and arenas across England for big games and 
 Road closures around stadiums change from event to event. We check them before the day and agree a drop-off point with you in advance. For the journey home we choose a meeting point that avoids the closed roads, and your driver keeps in touch by phone or message so you can find each other quickly.
 
 ## Airport to event, the same day
-Flying in for a concert or match? We track your flight, meet you in arrivals and take you straight to your hotel or the venue. After the event we can drive you back to the airport or on to your next stop.
+Flying in for a concert or match? We track your flight, collect you at the airport and take you straight to your hotel or the venue. After the event we can drive you back to the airport or on to your next stop.
 
 ## Vehicles
 Executive saloons for up to four, a Mercedes V-Class or similar for up to seven, and eight-seater vans for bigger groups. Minibuses for up to 16 and coaches are available on request.
