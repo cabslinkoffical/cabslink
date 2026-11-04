@@ -238,8 +238,8 @@ function ScenicRoutesPage() {
         </dl>
       </header>
 
-      <div className="grid flex-1 grid-cols-1 lg:grid-cols-[22rem_minmax(0,1fr)]">
-        <aside className="flex max-h-[36rem] flex-col border-b border-border bg-card lg:sticky lg:top-0 lg:max-h-[calc(100vh-4rem)] lg:border-b-0 lg:border-r">
+      <div className="grid flex-1 grid-cols-1 bg-card lg:grid-cols-[22rem_minmax(0,1fr)]">
+        <aside className="flex max-h-[36rem] flex-col border-b border-border bg-card lg:sticky lg:top-0 lg:max-h-[calc(100vh-4rem)] lg:self-start lg:border-b-0">
           <div className="space-y-3 border-b border-border p-4">
             <div className="relative">
               <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
@@ -334,7 +334,7 @@ function ScenicRoutesPage() {
           </ul>
         </aside>
 
-        <main className="min-w-0 bg-background">
+        <main className="min-w-0 bg-background lg:border-l lg:border-border">
           {selected ? (
             <RouteEditor
               key={selected.id}
