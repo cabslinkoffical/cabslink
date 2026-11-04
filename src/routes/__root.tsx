@@ -13,7 +13,7 @@ import { useRouterState } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
-import { resolvePublicRedirect } from "../lib/seo-public.functions";
+import { recordRedirectHit, resolvePublicRedirect } from "../lib/seo-public.functions";
 import { getSiteStatus } from "../lib/site-status.functions";
 import { businessGraph } from "../lib/seo/business-graph";
 import { safeJsonLd } from "../lib/safe-json-ld";
@@ -122,7 +122,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       isExempt || p === "/" ? Promise.resolve(null) : resolveRedirectTarget(p),
     ]);
     if (maintenance.maintenance) return { maintenance };
-    if (target) throw redirect({ href: target.to, statusCode: target.code });
+    if (target) {
+      // Count the visit (first hop) before sending the visitor on; a counting
+      // failure never blocks the redirect.
+      await recordRedirectHit({ data: { path: p } }).catch(() => null);
+      throw redirect({ href: target.to, statusCode: target.code });
+    }
     return { maintenance };
   },
   head: ({ match }) => ({
