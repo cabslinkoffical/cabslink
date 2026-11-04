@@ -162,6 +162,13 @@
       "when": 1793741063560,
       "tag": "0022_fix_tour_draft_stop_order",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1793797332739,
+      "tag": "0023_seo_redirect_record_hit",
+      "breakpoints": true
     }
   ]
 }

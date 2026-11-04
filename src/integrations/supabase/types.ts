@@ -5370,6 +5370,10 @@ export type Database = {
           title_sim: number
         }[]
       }
+      seo_redirect_record_hit: {
+        Args: { _from_path: string }
+        Returns: undefined
+      }
       set_booking_status: {
         Args: {
           _actor_id: string
