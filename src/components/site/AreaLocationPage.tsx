@@ -54,7 +54,7 @@ const WHY = [
   { icon: CheckCircle2, title: "Meet & greet", text: "Name-board pickup on any booking, small extra charge." },
 ] as const;
 
-export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
+export function AreaLocationPage({ data, heading }: { data: AreaSeoContext; heading?: string | null }) {
   const d = data.destination;
   const locName = d.display_name ?? d.name;
   const guide = guideFor(`/areas/${d.slug}`);
@@ -88,7 +88,7 @@ export function AreaLocationPage({ data }: { data: AreaSeoContext }) {
           { name: locName, href: `/areas/${d.slug}` },
         ]}
         eyebrow={region ? `${region} · Airport Travel` : "UK Airport Travel"}
-        title={`Professional Airport Taxi & Private Transfer Services in ${locName}`}
+        title={heading || `Professional Airport Taxi & Private Transfer Services in ${locName}`}
         facts={[
           ...(heroSub ? [{ label: "Location", value: heroSub }] : []),
           { label: "Availability", value: "24/7" },
