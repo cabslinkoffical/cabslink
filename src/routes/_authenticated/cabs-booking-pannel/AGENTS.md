@@ -8,3 +8,4 @@
 - Staff payment edits go through upsertPayment/deletePayment, which protect processor-owned card rows and re-derive the booking's paid state from the ledger after every change.
 - Admin totals/reports read complete data via fetchAllPages (stable order); revenue is net of refunds and dated by paid_at, else created_at, via shared revenue helpers.
 - Ready-made tour admin: categories are rows in tour_categories linked to theme_group (rename cascades, delete uncategorises, max 7 shown); copying and the step-by-step editor save through admin_duplicate_tour / admin_save_tour_draft; draft previews render the shared TourDetailView from an admin-checked loader at /tour-preview/$id.
+- Dashboard → SEO "controls live page" status comes only from recordControlsLivePage (src/lib/seo/cms-head.ts), which mirrors the page loaders; place-page records drive title/description/H1 only while LOCATION_HUB_CMS_HEAD_ENABLED is on (owner-approved), never canonicals.
