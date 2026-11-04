@@ -6,6 +6,9 @@
 import { notFound } from "@tanstack/react-router";
 import { getDestination, getDestinationsByIds, type Destination, type DestinationType } from "@/lib/destinations.functions";
 import type { Crumb } from "@/components/seo/Breadcrumbs";
+import { destinationHref } from "@/lib/destinations.functions";
+import { getPublishedCmsHead } from "@/lib/seo-public.functions";
+import { LOCATION_HUB_CMS_HEAD_ENABLED, type CmsHead } from "@/lib/seo/cms-head";
 
 export type LoadedDestination = {
   destination: Destination;
@@ -17,6 +20,8 @@ export type LoadedDestination = {
    * area. auto-seo uses it to build the same FAQs the page shows.
    */
   airports?: Destination[];
+  /** Saved Dashboard → SEO wording; null unless the approval switch is on. */
+  cms?: CmsHead | null;
 };
 
 /** Loader helper — call from route `loader`. Throws notFound() when missing. */
@@ -27,7 +32,7 @@ export async function loadDestination(
   const destination = await getDestination({ data: { type, slug } });
   if (!destination) throw notFound();
   // Tier 3 rows still render — evaluateQuality will force noindex on them.
-  const [nearby, popularRoutes, relatedServices] = await Promise.all([
+  const [nearby, popularRoutes, relatedServices, cms] = await Promise.all([
     destination.nearby_ids.length
       ? getDestinationsByIds({ data: { ids: destination.nearby_ids.slice(0, 12) } })
       : Promise.resolve([]),
@@ -37,8 +42,11 @@ export async function loadDestination(
     destination.related_service_ids.length
       ? getDestinationsByIds({ data: { ids: destination.related_service_ids.slice(0, 12) } })
       : Promise.resolve([]),
+    LOCATION_HUB_CMS_HEAD_ENABLED
+      ? getPublishedCmsHead({ data: { path: destinationHref(destination) } }).catch(() => null)
+      : Promise.resolve(null),
   ]);
-  return { destination, nearby, popularRoutes, relatedServices };
+  return { destination, nearby, popularRoutes, relatedServices, cms };
 }
 
 export function buildBreadcrumbs(d: Destination, hubHref: string, hubLabel: string): Crumb[] {

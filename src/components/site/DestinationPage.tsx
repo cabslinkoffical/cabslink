@@ -78,8 +78,8 @@ export function DestinationPage({
       <LocalPageHero
         breadcrumbs={breadcrumbs}
         eyebrow={d.type === "airport" ? "Airport transfers" : "Private transfers"}
-        title={name}
-        titleAccent="transfers"
+        title={data.cms?.h1 || name}
+        titleAccent={data.cms?.h1 ? undefined : "transfers"}
         subtitle={`Private, pre-booked car to or from ${name}. Fixed fare confirmed before you pay, with a professional driver collecting you at the pickup address you choose.`}
         facts={heroFacts}
         prefill={destinationPrefill(d.type, name)}

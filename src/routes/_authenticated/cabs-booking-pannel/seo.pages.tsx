@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { listSeoPages, upsertSeoPage, deleteSeoPage, validateSeoPage } from "@/lib/seo-admin.functions";
+import { listSeoPages, upsertSeoPage, deleteSeoPage, validateSeoPage, rerunSeoPublicationChecks } from "@/lib/seo-admin.functions";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { PageHeader } from "@/components/admin/ui";
 import { SeoTable } from "@/components/admin/SeoTable";
-import { Plus, ShieldCheck } from "lucide-react";
+import { Plus, RefreshCw, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { MediaUrlInput } from "@/components/admin/media/MediaPicker";
 
@@ -64,6 +64,8 @@ function Page() {
   const validate = useServerFn(validateSeoPage);
   const [form, setForm] = useState<any>(null);
   const [saving, setSaving] = useState(false);
+  const [rerunning, setRerunning] = useState(false);
+  const rerunChecks = useServerFn(rerunSeoPublicationChecks);
   const [check, setCheck] = useState<{ blockers: string[]; warnings: string[] } | null>(null);
 
   async function save() {
@@ -83,6 +85,14 @@ function Page() {
     try { await del({ data: { id } }); toast.success("Deleted"); await qc.invalidateQueries({ queryKey: ["admin", "seo"] }); }
     catch (e: any) { toast.error(e.message ?? "Delete failed"); }
   }
+  async function rerunAll() {
+    setRerunning(true);
+    try {
+      const r = await rerunChecks();
+      toast.success(`Checked ${r.checked} published records: ${r.blockers} blockers, ${r.warnings} warnings, ${r.info} notes.`);
+    } catch (e: any) { toast.error(e.message ?? "Checks failed"); }
+    finally { setRerunning(false); }
+  }
   async function runCheck() {
     if (!form?.id) { toast.info("Save the page first to run the quality check."); return; }
     try { const r: any = await validate({ data: { id: form.id } }); setCheck({ blockers: r.blockers, warnings: r.warnings }); }
@@ -92,8 +102,14 @@ function Page() {
   return (
     <div className="space-y-4">
       <PageHeader title="SEO Pages" description="Every programmatic landing page — draft, review or publish, with quality gates.">
-        <Button onClick={() => { setCheck(null); setForm({ ...empty }); }}><Plus className="size-4 mr-2" />New page</Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={rerunAll} disabled={rerunning}><RefreshCw className={"size-4 mr-2" + (rerunning ? " animate-spin" : "")} />{rerunning ? "Checking…" : "Re-run publication checks"}</Button>
+          <Button onClick={() => { setCheck(null); setForm({ ...empty }); }}><Plus className="size-4 mr-2" />New page</Button>
+        </div>
       </PageHeader>
+      <p className="text-xs text-muted-foreground">
+        {data.rows.filter((r: any) => r.controls_live).length} of {data.rows.length} records control a live page. Hover a Yes/No to see why.
+      </p>
 
       <SeoTable
         rows={data.rows}
@@ -103,6 +119,12 @@ function Page() {
           { key: "path", header: "Path", render: r => <code className="text-xs">{(r as any).path}</code> },
           { key: "page_type", header: "Type" },
           { key: "seo_title", header: "Title" },
+          { key: "controls_live", header: "Controls live page", render: r => (
+            <span title={(r as any).controls_live_reason} className={"inline-flex flex-col text-[11px] leading-tight"}>
+              <span className={"inline-block w-fit px-2 py-0.5 rounded-full font-semibold " + ((r as any).controls_live ? "bg-success/15 text-success" : "bg-muted text-muted-foreground")}>{(r as any).controls_live ? "Yes" : "No"}</span>
+              <span className="mt-0.5 text-muted-foreground">{(r as any).controls_live_reason}</span>
+            </span>
+          ) },
           { key: "publication_status", header: "Status", render: r => <span className={"inline-block px-2 py-0.5 rounded-full text-[11px] font-medium " + (STATUS_STYLES[(r as any).publication_status] ?? "bg-muted")}>{(r as any).publication_status.replace(/_/g, " ")}</span> },
         ]}
       />

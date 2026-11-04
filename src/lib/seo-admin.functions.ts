@@ -307,7 +307,29 @@ export const listSeoPages = createServerFn({ method: "GET" })
     const { data, error } = await context.supabase
       .from("seo_pages").select("*").order("updated_at", { ascending: false });
     if (error) throw new Error(error.message);
-    return { rows: data ?? [] };
+    const rows = data ?? [];
+    const { recordControlsLivePage } = await import("@/lib/seo/cms-head");
+    const { buildJourney } = await import("@/lib/seo/journeys");
+    const slugs = [...new Set(rows.map((r: any) => String(r.path).split("/")[2]).filter(Boolean))];
+    const [red, places] = await Promise.all([
+      context.supabase.from("seo_redirects").select("from_path").eq("active", true),
+      slugs.length
+        ? context.supabase.from("destinations").select("slug").in("slug", slugs).eq("active", true).neq("seo_tier", 4)
+        : Promise.resolve({ data: [], error: null } as any),
+    ]);
+    if (red.error) throw new Error(red.error.message);
+    if (places.error) throw new Error(places.error.message);
+    const ctx = {
+      redirectFrom: new Set<string>((red.data ?? []).map((r: any) => r.from_path)),
+      isBuiltInRoute: (slug: string) => !!buildJourney(slug),
+      placeSlugs: new Set<string>((places.data ?? []).map((r: any) => r.slug)),
+    };
+    return {
+      rows: rows.map((r: any) => {
+        const c = recordControlsLivePage(r, ctx);
+        return { ...r, controls_live: c.live, controls_live_reason: c.reason };
+      }),
+    };
   });
 
 /**
@@ -344,6 +366,37 @@ async function validatePageForPublish(ctx: { supabase: any }, page: any) {
 
   return { blockers, warnings };
 }
+
+/**
+ * Re-run the publication checks for every published record and replace the
+ * stored results: earlier open results are closed, current ones saved.
+ * Runs in memory over all records so duplicates are compared once.
+ */
+export const rerunSeoPublicationChecks = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const sb = context.supabase;
+    const { data: pages, error } = await sb.from("seo_pages")
+      .select("id, path, seo_title, meta_description, h1, short_intro, featured_image_url, og_image_url")
+      .eq("publication_status", "published");
+    if (error) throw new Error(error.message);
+    const { data: secs, error: secErr } = await sb.from("seo_page_sections").select("page_id").eq("visible", true);
+    if (secErr) throw new Error(secErr.message);
+    const { buildPublicationIssues } = await import("@/lib/seo/publication-checks");
+    const issues = buildPublicationIssues(pages ?? [], (secs ?? []).map((s: any) => s.page_id));
+
+    const now = new Date().toISOString();
+    const { error: closeErr } = await sb.from("seo_publication_issues")
+      .update({ resolved: true, resolved_at: now }).eq("resolved", false);
+    if (closeErr) throw new Error(closeErr.message);
+    for (let i = 0; i < issues.length; i += 200) {
+      const { error: insErr } = await sb.from("seo_publication_issues").insert(issues.slice(i, i + 200) as any);
+      if (insErr) throw new Error(insErr.message);
+    }
+    const count = (s: string) => issues.filter((x) => x.severity === s).length;
+    return { checked: pages?.length ?? 0, blockers: count("blocker"), warnings: count("warning"), info: count("info"), ranAt: now };
+  });
 
 export const validateSeoPage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

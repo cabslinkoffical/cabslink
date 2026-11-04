@@ -1,4 +1,5 @@
 import { normalizeHead } from "@/lib/seo/page-head";
+import { applyCmsHead } from "@/lib/seo/cms-head";
 /**
  * Auto-SEO head builder. Produces the full head() payload for a leaf
  * destination route: title, meta description, canonical, OG/Twitter,
@@ -98,5 +99,5 @@ function buildBreadcrumbItems(
 
 /** Same payload, upgraded to the full canonical/OG/Twitter tag set. */
 export function buildAutoHead(loaded: LoadedDestination | undefined | null): HeadPayload {
-  return normalizeHead(buildAutoHeadRaw(loaded));
+  return normalizeHead(applyCmsHead(buildAutoHeadRaw(loaded), loaded?.cms));
 }
