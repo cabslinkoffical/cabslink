@@ -3,7 +3,8 @@ import { Link } from "@tanstack/react-router";
 import { ArrowRight, Check } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero, SectionHeader } from "@/components/site/PageHero";
-import { FaqBand } from "@/components/site/PageBand";
+import { FaqBand, PageBand } from "@/components/site/PageBand";
+import type { ServiceCopy } from "@/lib/service-copy";
 import { Button } from "@/components/ui/button";
 
 export type SportsServiceContent = {
@@ -17,6 +18,8 @@ export type SportsServiceContent = {
   features: { icon: LucideIcon; title: string; desc: string }[];
   venues: { title: string; venues: string[] };
   faqs: { q: string; a: string }[];
+  /** Owner copy sections shown below the intro, plus the FAQ heading. */
+  copy?: ServiceCopy;
 };
 
 export function SportsServicePage({ content }: { content: SportsServiceContent }) {
@@ -72,6 +75,28 @@ export function SportsServicePage({ content }: { content: SportsServiceContent }
         </div>
       </section>
 
+      {content.copy?.sections.map((sec) => (
+        <PageBand key={sec.title} title={sec.title} narrow>
+          <div className="space-y-4 text-base leading-relaxed text-[var(--navy)]/80">
+            {sec.blocks.map((b, i) =>
+              b.kind === "h3" ? (
+                <h3 key={i} className="pt-4 font-display text-xl font-semibold text-[var(--navy)]">{b.text}</h3>
+              ) : b.kind === "ul" ? (
+                <ul key={i} className="space-y-2">
+                  {b.items.map((it) => (
+                    <li key={it} className="flex gap-3">
+                      <Check className="mt-1 size-4 shrink-0 text-[var(--gold-ink)]" /> <span>{it}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p key={i}>{b.text}</p>
+              ),
+            )}
+          </div>
+        </PageBand>
+      ))}
+
       <section className="bg-muted/40 section-y">
         <div className="container-x">
           <SectionHeader eyebrow="Where we travel" title={content.venues.title} />
@@ -85,7 +110,7 @@ export function SportsServicePage({ content }: { content: SportsServiceContent }
         </div>
       </section>
 
-      <FaqBand items={content.faqs} />
+      <FaqBand items={content.faqs} {...(content.copy?.faqTitle ? { title: content.copy.faqTitle } : {})} />
     </SiteLayout>
   );
 }
