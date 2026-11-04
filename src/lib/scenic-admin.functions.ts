@@ -117,7 +117,11 @@ export const listScenicTemplates = createServerFn({ method: "GET" })
     ]);
     if (tpl.error) throw new Error(tpl.error.message);
     if (tplPois.error) throw new Error(tplPois.error.message);
-    return { templates: tpl.data ?? [], template_pois: tplPois.data ?? [] };
+    const templates = tpl.data ?? [];
+    // Same "From" price the public Tours page shows (fixed price, else hourly × hours).
+    const { tourFromPricesImpl } = await import("@/lib/tours.functions");
+    const from_prices = await tourFromPricesImpl(templates);
+    return { templates, template_pois: tplPois.data ?? [], from_prices };
   });
 
 const createScenicTemplateSchema = z.object({
