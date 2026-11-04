@@ -25,7 +25,7 @@ import { DirectAnswer } from "@/components/seo/DirectAnswer";
 function mdLines(md: string): string[] {
   return md.split(/\r?\n/).map((l) => l.replace(/^\s*(?:[-*•]|\d+[.)])\s+/, "").trim()).filter(Boolean);
 }
-import { draftTour } from "@/lib/seo/tour-seo";
+import { draftTour, tourSeo } from "@/lib/seo/tour-seo";
 import { tourMetaDescription, tourMetaTitle } from "@/lib/seo/tour-meta";
 import { tourExtras } from "@/content/tour-extras";
 import { BUSINESS_ID } from "@/lib/seo/business-graph";
@@ -106,6 +106,7 @@ export const Route = createFileRoute("/tours/$slug")({
 
     // The product name in the CMS is editorial; the searched phrase lives in
     // src/lib/seo/tour-seo.ts. Shared with the staff Google preview.
+    const seo = tourSeo(d.slug);
     const title = tourMetaTitle(d);
     const desc = tourMetaDescription(d);
 
