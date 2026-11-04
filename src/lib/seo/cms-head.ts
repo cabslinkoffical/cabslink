@@ -62,7 +62,7 @@ export function recordControlsLivePage(
   if (section === "airports" && slug) return { live: true, reason: "Airport page reads this record" };
   if (section === "routes" && slug) {
     return ctx.isBuiltInRoute(slug)
-      ? { live: false, reason: "Built-in route page is shown instead" }
+      ? { live: false, reason: "Copy of the built-in route page; edits here don't change it" }
       : { live: true, reason: "Route page reads this record" };
   }
   if ((LOCATION_HUB_SECTIONS as readonly string[]).includes(section) && slug) {
