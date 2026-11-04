@@ -9,8 +9,8 @@ const ctx = {
 };
 
 describe("place-page wording switch", () => {
-  it("stays off until the owner approves the new wording", () => {
-    expect(LOCATION_HUB_CMS_HEAD_ENABLED).toBe(false);
+  it("is on now the owner has approved the reviewed wording", () => {
+    expect(LOCATION_HUB_CMS_HEAD_ENABLED).toBe(true);
   });
 
   it("swaps title and description but never the canonical", () => {

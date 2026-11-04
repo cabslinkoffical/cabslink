@@ -4,9 +4,9 @@
  *
  * Browser-safe: used by page heads, page headings and the staff console.
  *
- * The switch stays OFF until the owner approves the new wording: while it is
- * off no record is read, so live titles, descriptions and headings are
- * exactly today's text. Canonical URLs are never taken from the record.
+ * Switched ON after the owner approved the reviewed wording (Nov 2026). When
+ * off, no record is read and pages fall back to place-data wording.
+ * Canonical URLs are never taken from the record.
  */
 export const LOCATION_HUB_CMS_HEAD_ENABLED = true;
 
