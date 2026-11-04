@@ -3,6 +3,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Users, Luggage, ShieldCheck, RouteIcon } from "lucide-react";
 import { SportsServicePage, type SportsServiceContent } from "@/components/site/SportsServicePage";
 import { sportsFaqSchema } from "@/components/site/SportsServicePage.head";
+import { parseServiceCopy, mergeFaqs } from "@/lib/service-copy";
+import { SPORTS_SERVICE_COPY } from "@/content/sports-service-copy";
 import { PAGE_IMAGES } from "@/content/page-images";
 
 const TITLE = "Team Sports Travel — Squad & Kit Transport UK | Cabslink";
@@ -15,6 +17,9 @@ const faqs = [
   { q: "Do you offer season-long arrangements?", a: "We set up an account with agreed rates for the season so fixtures can be booked with one email and invoiced monthly." },
   { q: "Can you move youth teams?", a: "Yes, with licensed and vetted drivers. Tell us the age group and any club safeguarding requirements when you book." },
 ];
+
+const copy = parseServiceCopy(SPORTS_SERVICE_COPY["/team-sports-travel"]);
+const allFaqs = mergeFaqs(faqs, copy.faqs);
 
 const content: SportsServiceContent = {
   eyebrow: "Team sports travel",
@@ -37,7 +42,8 @@ const content: SportsServiceContent = {
     title: "Typical team journeys",
     venues: ["League fixtures across Scotland", "Away days in England and Wales", "Training camps and residentials", "Tournament and cup weekends", "Airport departures for tours", "University and college sport", "School fixtures", "Rugby and hockey leagues", "Athletics and swim meets"],
   },
-  faqs,
+  faqs: allFaqs,
+  copy,
 };
 
 export const Route = createFileRoute("/team-sports-travel")({
@@ -52,7 +58,7 @@ export const Route = createFileRoute("/team-sports-travel")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: URL }],
-    scripts: [{ type: "application/ld+json", children: JSON.stringify(sportsFaqSchema(faqs)) }],
+    scripts: [{ type: "application/ld+json", children: JSON.stringify(sportsFaqSchema(allFaqs)) }],
   }),
   component: () => <SportsServicePage content={content} />,
 });

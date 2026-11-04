@@ -3,6 +3,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Circle, Users, ShieldCheck, Clock } from "lucide-react";
 import { SportsServicePage, type SportsServiceContent } from "@/components/site/SportsServicePage";
 import { sportsFaqSchema } from "@/components/site/SportsServicePage.head";
+import { parseServiceCopy, mergeFaqs } from "@/lib/service-copy";
+import { SPORTS_SERVICE_COPY } from "@/content/sports-service-copy";
 import { PAGE_IMAGES } from "@/content/page-images";
 
 const TITLE = "Football Transfers UK — Match Day Travel for Fans | Cabslink";
@@ -15,6 +17,9 @@ const faqs = [
   { q: "Can you take groups to away fixtures?", a: "We run multi-vehicle convoys to away grounds anywhere in the UK, including overnight trips." },
   { q: "Is alcohol allowed in the vehicle?", a: "For everyone's comfort we ask that alcohol isn't consumed in the vehicle. Supporter groups are always welcome." },
 ];
+
+const copy = parseServiceCopy(SPORTS_SERVICE_COPY["/football-transfers"]);
+const allFaqs = mergeFaqs(faqs, copy.faqs);
 
 const content: SportsServiceContent = {
   eyebrow: "Football transfers",
@@ -37,7 +42,8 @@ const content: SportsServiceContent = {
     title: "Grounds we regularly serve",
     venues: ["Hampden Park", "Celtic Park", "Ibrox Stadium", "Tynecastle Park", "Easter Road", "Pittodrie Stadium", "Murrayfield", "Old Trafford", "Wembley Stadium"],
   },
-  faqs,
+  faqs: allFaqs,
+  copy,
 };
 
 export const Route = createFileRoute("/football-transfers")({
@@ -52,7 +58,7 @@ export const Route = createFileRoute("/football-transfers")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: URL }],
-    scripts: [{ type: "application/ld+json", children: JSON.stringify(sportsFaqSchema(faqs)) }],
+    scripts: [{ type: "application/ld+json", children: JSON.stringify(sportsFaqSchema(allFaqs)) }],
   }),
   component: () => <SportsServicePage content={content} />,
 });

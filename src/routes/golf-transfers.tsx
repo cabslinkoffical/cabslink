@@ -3,6 +3,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Target, Clock, Luggage, MapPin } from "lucide-react";
 import { SportsServicePage, type SportsServiceContent } from "@/components/site/SportsServicePage";
 import { sportsFaqSchema } from "@/components/site/SportsServicePage.head";
+import { parseServiceCopy, mergeFaqs } from "@/lib/service-copy";
+import { SPORTS_SERVICE_COPY } from "@/content/sports-service-copy";
 import golfImg from "@/assets/services/golf.jpg";
 
 const TITLE = "Golf Transfers Scotland — St Andrews & Courses | Cabslink";
@@ -16,6 +18,9 @@ const faqs = [
   { q: "Can you cover multi-course golf itineraries?", a: "We regularly run multi-day golf tours across the East Neuk, Ayrshire and the Highlands, with the same driver for the whole trip where possible." },
   { q: "Do you collect from the airport?", a: "Yes. We meet flights at Edinburgh, Glasgow, Aberdeen, Prestwick and Dundee, then travel straight to your course or hotel. Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late." },
 ];
+
+const copy = parseServiceCopy(SPORTS_SERVICE_COPY["/golf-transfers"]);
+const allFaqs = mergeFaqs(faqs, copy.faqs);
 
 const content: SportsServiceContent = {
   eyebrow: "Golf transfers",
@@ -38,7 +43,8 @@ const content: SportsServiceContent = {
     title: "Courses and regions we cover",
     venues: ["St Andrews (Old Course)", "Carnoustie Golf Links", "Trump Turnberry", "Gleneagles", "Royal Troon", "Muirfield", "Kingsbarns", "Castle Stuart", "Royal Dornoch"],
   },
-  faqs,
+  faqs: allFaqs,
+  copy,
 };
 
 export const Route = createFileRoute("/golf-transfers")({
@@ -53,7 +59,7 @@ export const Route = createFileRoute("/golf-transfers")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: URL }],
-    scripts: [{ type: "application/ld+json", children: JSON.stringify(sportsFaqSchema(faqs)) }],
+    scripts: [{ type: "application/ld+json", children: JSON.stringify(sportsFaqSchema(allFaqs)) }],
   }),
   component: () => <SportsServicePage content={content} />,
 });
