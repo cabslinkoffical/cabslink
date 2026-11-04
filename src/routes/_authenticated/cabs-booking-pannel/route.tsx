@@ -1,6 +1,6 @@
-import { createFileRoute, Link, Outlet, redirect, useRouter, useRouterState } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect, useRouter, useRouterState } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
-import { LogOut, ExternalLink, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { ADMIN_AREAS, areaForPath } from "@/components/admin/admin-areas";
 import { SidebarNav } from "@/components/admin/SidebarNav";
 import { AreaShortcuts } from "@/components/admin/AreaShortcuts";
@@ -121,14 +121,6 @@ function AdminLayout() {
         </div>
         <SidebarNav key={area.id} entries={area.nav} />
         <AreaShortcuts current={area.id} />
-        <div className="shrink-0 p-3 pb-[max(.75rem,env(safe-area-inset-bottom))] border-t border-gold/20 space-y-1">
-          <Link to="/" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-white/70 hover:text-gold transition">
-            <ExternalLink className="size-3.5" /> View website
-          </Link>
-          <button onClick={signOut} className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm text-white/70 hover:bg-white/[0.07] hover:text-white transition">
-            <LogOut className="size-4" /> Sign out
-          </button>
-        </div>
       </aside>
 
       {mobileOpen && <div className="fixed inset-0 bg-navy/60 backdrop-blur-sm z-30 md:hidden" onClick={() => setMobileOpen(false)} />}
