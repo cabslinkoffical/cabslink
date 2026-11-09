@@ -175,10 +175,14 @@ export function TourEnquiries() {
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <Select value={m.status} onValueChange={(v) => statusMut.mutate({ id: m.id, status: v })}>
-                        <SelectTrigger className="w-[190px] h-9"><SelectValue /></SelectTrigger>
+                      <Select
+                        value={m.status}
+                        disabled={isStatusLocked(m.status, m.payment_status) || !(TOUR_TRANSITIONS[m.status] ?? []).length}
+                        onValueChange={(v) => v !== m.status && statusMut.mutate({ id: m.id, status: v })}
+                      >
+                        <SelectTrigger className="w-[190px] h-9"><SelectValue>{tourStatusLabel(m.status)}</SelectValue></SelectTrigger>
                         <SelectContent>
-                          {TOUR_STATUSES.map((s) => (
+                          {[m.status, ...(TOUR_TRANSITIONS[m.status] ?? [])].map((s) => (
                             <SelectItem key={s} value={s}>{tourStatusLabel(s)}</SelectItem>
                           ))}
                         </SelectContent>

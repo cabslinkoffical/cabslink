@@ -27,6 +27,12 @@ export type TourEnquiryStatus = (typeof TOUR_STATUSES)[number];
 export const TOUR_TRANSITIONS: Record<string, readonly TourEnquiryStatus[]> = {
   new: ["awaiting_payment", "confirmed", "cancelled"],
   pending_allocation: ["awaiting_payment", "confirmed", "cancelled"],
+  // Customer started card checkout but hasn't paid, or the payment failed /
+  // the checkout expired: staff can re-quote (awaiting payment), take payment
+  // another way and confirm, or cancel.
+  pending_payment: ["awaiting_payment", "confirmed", "cancelled"],
+  payment_failed: ["awaiting_payment", "confirmed", "cancelled"],
+  expired: ["awaiting_payment", "confirmed", "cancelled"],
   awaiting_payment: ["confirmed", "cancelled"],
   confirmed: ["completed", "cancelled"],
 };

@@ -169,6 +169,13 @@
       "when": 1793797332739,
       "tag": "0023_seo_redirect_record_hit",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1794244037728,
+      "tag": "0024_fix_set_booking_status_pending_payment",
+      "breakpoints": true
     }
   ]
 }
