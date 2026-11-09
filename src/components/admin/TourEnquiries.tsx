@@ -297,7 +297,7 @@ export function TourEnquiries() {
                   )}
                 </div>
 
-                {active.price != null && active.price > 0 && !["paid", "refunded"].includes(active.payment_status ?? "") && !["cancelled", "rejected", "completed"].includes(active.status) && (
+                {active.price != null && active.price > 0 && !["paid", "partial", "refunded"].includes(active.payment_status ?? "") && !["cancelled", "rejected", "completed"].includes(active.status) && (
                   <div className="border-t border-border pt-4 space-y-3">
                     <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Record payment received</p>
                     <p className="text-xs text-muted-foreground">Use this when the customer paid {money(active.price)} by cash, bank transfer or card machine. Online card payments are recorded automatically.</p>
