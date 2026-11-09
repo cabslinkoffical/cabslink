@@ -77,7 +77,7 @@ export const ALLOWED_TRANSITIONS: Record<BookingStatus, BookingStatus[]> = {
   pending_payment:    ["awaiting_payment", "confirmed", "cancelled"],
   payment_failed:     ["awaiting_payment", "confirmed", "cancelled"],
   expired:            ["awaiting_payment", "confirmed", "cancelled"],
-  confirmed:          ["assigned", "awaiting_payment", "completed", "cancelled"],
+  confirmed:          ["assigned", "awaiting_payment", "cancelled"],
   assigned:           ["driver_en_route", "on_way", "in_progress", "passenger_on_board", "cancelled", "confirmed"],
   on_way:             ["driver_en_route", "passenger_on_board", "in_progress", "completed", "cancelled"],
   driver_en_route:    ["passenger_on_board", "in_progress", "completed", "cancelled"],
