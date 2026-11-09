@@ -6,7 +6,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { listTourEnquiriesPage, setTourEnquiryPrice, type TourEnquiryRow } from "@/lib/tour-admin.functions";
 import { setBookingStatusFn } from "@/lib/booking.functions";
-import { deleteBooking } from "@/lib/admin.functions";
+import { deleteBooking, upsertPayment } from "@/lib/admin.functions";
 import { TOUR_STATUSES, TOUR_TRANSITIONS, tourStatusLabel, tourNameFrom } from "@/lib/tour-enquiries";
 import { isStatusLocked } from "@/lib/booking-lifecycle";
 import { Input } from "@/components/ui/input";
@@ -78,6 +78,22 @@ export function TourEnquiries() {
 
   const [openId, setOpenId] = useState<string | null>(null);
   const [priceInput, setPriceInput] = useState("");
+  const recordPayment = useServerFn(upsertPayment);
+  const [payMethod, setPayMethod] = useState("cash");
+  const [payRef, setPayRef] = useState("");
+  // Staff record money taken outside online checkout (cash, bank transfer,
+  // card machine). The paid state is re-derived from the payments ledger,
+  // then an unpaid-stage enquiry is moved to "Paid & confirmed".
+  const payMut = useMutation({
+    mutationFn: async (vars: { id: string; amount: number; status: string }) => {
+      await recordPayment({ data: { booking_id: vars.id, amount: vars.amount, currency: "GBP", method: payMethod, status: "paid", reference: payRef.trim() || null, notes: "Recorded from Tour Enquiries" } });
+      if (vars.status !== "confirmed" && (TOUR_TRANSITIONS[vars.status] ?? []).includes("confirmed")) {
+        await setStatus({ data: { id: vars.id, status: "confirmed", reason: null, override: true } });
+      }
+    },
+    onSuccess: () => { invalidate(); setPayRef(""); toast.success("Payment recorded — booking marked paid"); },
+    onError: (e: any) => toast.error(e?.message ?? "Could not record payment"),
+  });
   const [noteInput, setNoteInput] = useState("");
   const [notify, setNotify] = useState(true);
   const [cancelOpen, setCancelOpen] = useState(false);
@@ -280,6 +296,36 @@ export function TourEnquiries() {
                     </div>
                   )}
                 </div>
+
+                {active.price != null && active.price > 0 && !["paid", "partial", "refunded"].includes(active.payment_status ?? "") && !["cancelled", "rejected", "completed"].includes(active.status) && (
+                  <div className="border-t border-border pt-4 space-y-3">
+                    <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Record payment received</p>
+                    <p className="text-xs text-muted-foreground">Use this when the customer paid {money(active.price)} by cash, bank transfer or card machine. Online card payments are recorded automatically.</p>
+                    <div className="flex flex-wrap items-end gap-3">
+                      <div>
+                        <Label>Method</Label>
+                        <Select value={payMethod} onValueChange={setPayMethod}>
+                          <SelectTrigger className="w-[170px] h-9"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="cash">Cash</SelectItem>
+                            <SelectItem value="bank_transfer">Bank transfer</SelectItem>
+                            <SelectItem value="card_terminal">Card machine</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="flex-1 min-w-[140px]">
+                        <Label htmlFor="tour-pay-ref">Reference (optional)</Label>
+                        <Input id="tour-pay-ref" maxLength={200} value={payRef} onChange={(e) => setPayRef(e.target.value)} />
+                      </div>
+                      <Button
+                        disabled={payMut.isPending}
+                        onClick={() => payMut.mutate({ id: active.id, amount: Number(active.price), status: active.status })}
+                      >
+                        Mark {money(active.price)} paid
+                      </Button>
+                    </div>
+                  </div>
+                )}
 
                 <div className="border-t border-border pt-4 space-y-3">
                   <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">
