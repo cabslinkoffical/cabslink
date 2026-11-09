@@ -91,7 +91,7 @@ export function TourEnquiries() {
         await setStatus({ data: { id: vars.id, status: "confirmed", reason: null, override: true } });
       }
     },
-    onSuccess: () => { invalidate(); setPayRef(""); setActive(null); toast.success("Payment recorded — booking marked paid"); },
+    onSuccess: () => { invalidate(); setPayRef(""); toast.success("Payment recorded — booking marked paid"); },
     onError: (e: any) => toast.error(e?.message ?? "Could not record payment"),
   });
   const [noteInput, setNoteInput] = useState("");
