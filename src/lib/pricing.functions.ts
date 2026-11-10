@@ -894,6 +894,7 @@ export const createBooking = createServerFn({ method: "POST" })
     // Every other extra the customer selected, re-priced server-side from the
     // canonical catalogue so the charged total matches what was displayed.
     let addonsNet = 0;
+    const chosenExtras: Array<{ key: string; name: string; quantity: number }> = [];
     for (const sel of data.extras ?? []) {
       // child_seat may arrive here (new form) or via child_seat_count (legacy) — never both.
       if (sel.key === "meet_greet") continue;
@@ -907,6 +908,7 @@ export const createBooking = createServerFn({ method: "POST" })
       const qty = Math.min(sel.quantity, resolved.maxQuantity ?? sel.quantity);
       const units = entry.price_basis === "per_booking" ? 1 : qty;
       addonsNet += (resolved.pence * units) / 100;
+      if (entry.category !== "child_seat") chosenExtras.push({ key: entry.key, name: entry.name ?? entry.key, quantity: qty });
     }
     addonsNet = Number(addonsNet.toFixed(2));
     // Every child seat type counts towards the booking's seat total.
@@ -984,7 +986,7 @@ export const createBooking = createServerFn({ method: "POST" })
       vehicle_name_snapshot: profile.vehicle.name,
       vehicle_capacity_snapshot: capacitySnapshot,
       pricing_profile_id_snapshot: pricingProfileIdSnapshot,
-      pricing_snapshot: pricingSnapshot,
+      pricing_snapshot: chosenExtras.length ? { ...pricingSnapshot, chosen_extras: chosenExtras } : pricingSnapshot,
       pricing_source: q.pricingSource,
       applied_rules: q.appliedRules ?? [],
       engine_version: ENGINE_VERSION,
