@@ -7,6 +7,8 @@ import { childSeatsLabel, parseChildSeats } from "@/lib/child-seats";
 import { coverLabel } from "@/lib/cancellation-cover";
 import { formatTime12 } from "@/lib/time-format";
 
+type JsonLike = string | number | boolean | null | JsonLike[] | { [k: string]: JsonLike };
+
 export type BookingDetailSource = {
   service_type?: string | null;
   pickup_address?: string | null;
@@ -21,10 +23,10 @@ export type BookingDetailSource = {
   hand_luggage?: number | null;
   vehicle_type?: string | null;
   vehicle_count?: number | null;
-  tour_vehicles?: unknown;
+  tour_vehicles?: JsonLike;
   tour_name?: string | null;
-  tour_stops?: unknown;
-  selected_pois?: unknown;
+  tour_stops?: JsonLike;
+  selected_pois?: JsonLike;
   booked_hours?: number | string | null;
   hourly_hours?: number | null;
   distance_miles?: number | string | null;
@@ -32,10 +34,10 @@ export type BookingDetailSource = {
   meet_greet?: boolean | null;
   child_seat?: boolean | null;
   child_seat_count?: number | null;
-  child_seat_types?: unknown;
+  child_seat_types?: JsonLike;
   cancellation_cover?: string | null;
   cancellation_cover_amount?: number | null;
-  pricing_snapshot?: unknown;
+  pricing_snapshot?: JsonLike;
 };
 
 export type DetailVehicle = { name: string; passengers: number | null; luggage: number | null; price: number | null };
@@ -68,7 +70,7 @@ export function stopNames(selectedPois: unknown, tourStops: unknown): string[] {
   if (Array.isArray(selectedPois)) {
     for (const p of selectedPois) {
       if (p && typeof p === "object") {
-        const o = p as { label?: unknown; minutes?: unknown };
+        const o = p as { label?: JsonLike; minutes?: unknown };
         const label = typeof o.label === "string" ? o.label.trim() : "";
         const mins = num(o.minutes);
         if (label) push(mins && mins > 0 ? `${label} (${mins} min)` : label);
