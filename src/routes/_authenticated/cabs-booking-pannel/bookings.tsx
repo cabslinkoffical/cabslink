@@ -38,6 +38,7 @@ import { bookingsToCsv, downloadCsv, bookingExportFilename } from "@/lib/booking
 import { toast } from "sonner";
 import { PageHeader, StatusBadge, EmptyState } from "@/components/admin/ui";
 import { BookingStatusCell } from "@/components/admin/BookingStatusCell";
+import { BookingTripDetails } from "@/components/admin/BookingTripDetails";
 import { CannedEmailComposer } from "@/components/admin/CannedEmailComposer";
 import { TourEnquiries } from "@/components/admin/TourEnquiries";
 
@@ -383,17 +384,14 @@ function BookingsPage() {
                   <div className="grid grid-cols-2 gap-3 pt-3">
                     <Info label="Date" value={editing.pickup_date} />
                     <Info label="Time" value={formatTime12(editing.pickup_time)} />
-                    <Info label="Vehicle" value={editing.vehicle_type} />
                     <Info label="Fare" value={editing.price ? `£${Number(editing.price).toFixed(2)}` : "—"} />
                     <Info label="Passengers" value={String(editing.passengers)} />
-                    <Info label="Suitcases / hand bags" value={`${editing.luggage} / ${(editing as { hand_luggage?: number }).hand_luggage ?? 0}`} />
                     {editing.distance_miles != null && <Info label="Distance (mi)" value={Number(editing.distance_miles).toFixed(1)} />}
-                    {editing.flight_number && <Info label="Flight" value={editing.flight_number} />}
-                    <Info label="Meet & greet" value={editing.meet_greet ? "Yes" : "No"} />
-                    <Info label="Child seats" value={childSeatsLabel(parseChildSeats(editing.child_seat_types), Number(editing.child_seat_count ?? 0)) ?? (editing.child_seat ? "Yes" : "No")} />
-                    <Info label="Cancellation cover" value={coverLabel((editing as { cancellation_cover?: string | null }).cancellation_cover, (editing as { cancellation_cover_amount?: number | null }).cancellation_cover_amount) ?? "Not recorded"} />
                     {editing.cancellation_reason && <Info label="Cancellation reason" value={editing.cancellation_reason} />}
                     {editing.notes && <Info label="Customer notes" value={editing.notes} />}
+                  </div>
+                  <div className="pt-3 border-t border-border mt-3">
+                    <BookingTripDetails booking={editing as any} />
                   </div>
                 </Section>
 

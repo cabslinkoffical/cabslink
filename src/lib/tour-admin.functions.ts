@@ -39,7 +39,7 @@ export type TourEnquiryRow = {
   admin_notes: string | null;
   cancellation_reason: string | null;
   created_at: string;
-};
+} & import("@/lib/booking-details").BookingDetailSource;
 
 
 /** One page of tour enquiries for a status filter and search. */
@@ -53,7 +53,7 @@ export const listTourEnquiriesPage = createServerFn({ method: "GET" })
       let q = context.supabase
         .from("bookings")
         .select(
-          "id, booking_ref, status, payment_status, customer_name, email, phone, pickup_date, pickup_time, passengers, luggage, price, price_quoted_at, tour_name, tour_slug, tour_stops, flight_number, notes, admin_notes, cancellation_reason, created_at",
+          "id, booking_ref, status, payment_status, customer_name, email, phone, pickup_date, pickup_time, passengers, luggage, price, price_quoted_at, tour_name, tour_slug, tour_stops, flight_number, notes, admin_notes, cancellation_reason, created_at, pickup_address, dropoff_address, hand_luggage, vehicle_type, vehicle_count, tour_vehicles, booked_hours, hourly_hours, meet_greet, child_seat, child_seat_count, child_seat_types, return_journey, return_date, return_time, selected_pois, pricing_snapshot, cancellation_cover, cancellation_cover_amount, distance_miles",
           { count: "exact" },
         )
         .eq("service_type", TOUR_SERVICE_TYPE)

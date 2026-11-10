@@ -4,6 +4,7 @@ import { keepPreviousData } from "@tanstack/react-query";
 import { Pager, useDebounced, usePageState } from "@/components/admin/Pager";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { BookingTripDetails } from "@/components/admin/BookingTripDetails";
 import { listTourEnquiriesPage, setTourEnquiryPrice, type TourEnquiryRow } from "@/lib/tour-admin.functions";
 import { setBookingStatusFn } from "@/lib/booking.functions";
 import { deleteBooking, upsertPayment } from "@/lib/admin.functions";
@@ -235,14 +236,10 @@ export function TourEnquiries() {
                   <p className="text-xs text-muted-foreground">Enquired {new Date(active.created_at).toLocaleString()}</p>
                 </div>
 
-                {active.tour_stops.length > 0 && (
-                  <div>
-                    <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold mb-1">Selected stops</p>
-                    <ul className="list-disc pl-5 space-y-0.5">
-                      {active.tour_stops.map((s) => <li key={s}>{s}</li>)}
-                    </ul>
-                  </div>
-                )}
+                <div className="rounded-xl border border-border p-4">
+                  <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold mb-2">Trip details</p>
+                  <BookingTripDetails booking={active} showJourney />
+                </div>
 
                 {active.notes && (
                   <div>
