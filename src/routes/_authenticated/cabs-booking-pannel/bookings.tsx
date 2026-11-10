@@ -1,6 +1,4 @@
 import { formatTime12 } from "@/lib/time-format";
-import { childSeatsLabel, parseChildSeats } from "@/lib/child-seats";
-import { coverLabel } from "@/lib/cancellation-cover";
 import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
 import { useMutation, useQueryClient, queryOptions, useQuery, keepPreviousData } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
