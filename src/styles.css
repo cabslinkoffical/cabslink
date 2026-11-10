@@ -1320,3 +1320,44 @@ input[type="time"] {
 @media (min-width: 768px) { .page-hero-inner { padding-block: 4rem 4.5rem; } }
 @media (min-width: 1024px) { .page-hero-title { font-size: 3.5rem; } }
 @media (min-width: 1280px) { .page-hero:not(:has(.page-hero-reading)) .page-hero-title { font-size: 3.75rem; } }
+
+/* Admin: tab bars render as a wrapping grid of cards (no horizontal scrolling) */
+.admin-shell main [role="tablist"][aria-orientation="horizontal"] {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+  gap: 0.625rem !important;
+  width: 100% !important;
+  height: auto !important;
+  overflow: visible !important;
+  padding: 0 !important;
+  background: transparent !important;
+  margin-bottom: 0.5rem;
+}
+.admin-shell main [role="tablist"][aria-orientation="horizontal"] > [role="tab"] {
+  display: flex !important;
+  flex-direction: column;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 0.5rem;
+  min-height: 4.5rem;
+  padding: 0.75rem 0.875rem !important;
+  border-radius: 0.75rem !important;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--foreground);
+  white-space: normal !important;
+  text-align: left;
+  font-weight: 600;
+  box-shadow: 0 1px 2px color-mix(in oklab, var(--foreground) 6%, transparent);
+  transition: border-color .15s, box-shadow .15s, transform .15s;
+}
+.admin-shell main [role="tablist"][aria-orientation="horizontal"] > [role="tab"]:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px color-mix(in oklab, var(--foreground) 10%, transparent);
+}
+.admin-shell main [role="tablist"][aria-orientation="horizontal"] > [role="tab"][data-state="active"] {
+  background: var(--primary) !important;
+  color: var(--primary-foreground) !important;
+  border-color: var(--primary);
+}
