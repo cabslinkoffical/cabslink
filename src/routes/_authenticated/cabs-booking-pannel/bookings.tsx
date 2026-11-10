@@ -369,26 +369,40 @@ function BookingsPage() {
 
               <div className="space-y-5 px-6 py-5 text-sm">
                 <Section title="Journey">
-                  <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-2">
-                    <div className="flex gap-2">
-                      <span className="mt-1 size-2 rounded-full bg-primary shrink-0" />
-                      <div className="min-w-0"><div className="text-[11px] uppercase tracking-wider text-muted-foreground">Pickup</div><div className="font-medium">{editing.pickup_address}</div></div>
-                    </div>
-                    <div className="flex gap-2">
-                      <span className="mt-1 size-2 rounded-full bg-foreground/70 shrink-0" />
-                      <div className="min-w-0"><div className="text-[11px] uppercase tracking-wider text-muted-foreground">Drop-off</div><div className="font-medium">{editing.dropoff_address}</div></div>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3 pt-3">
+                  <ol className="relative space-y-4 border-l border-border pl-5 ml-1">
+                    <li className="relative">
+                      <span className="absolute -left-[26px] top-1 size-3 rounded-full border-2 border-card bg-primary" />
+                      <div className="text-xs text-muted-foreground">Pickup</div>
+                      <div className="font-medium leading-snug">{editing.pickup_address}</div>
+                    </li>
+                    <li className="relative">
+                      <span className="absolute -left-[26px] top-1 size-3 rounded-full border-2 border-card bg-foreground/60" />
+                      <div className="text-xs text-muted-foreground">Drop-off</div>
+                      <div className="font-medium leading-snug">{editing.dropoff_address}</div>
+                    </li>
+                  </ol>
+                  <dl className="mt-4 grid grid-cols-2 sm:grid-cols-4 divide-x divide-border rounded-lg border border-border bg-muted/30">
                     <Info label="Date" value={editing.pickup_date} />
                     <Info label="Time" value={formatTime12(editing.pickup_time)} />
                     <Info label="Fare" value={editing.price ? `£${Number(editing.price).toFixed(2)}` : "—"} />
                     <Info label="Passengers" value={String(editing.passengers)} />
-                    {editing.distance_miles != null && <Info label="Distance (mi)" value={Number(editing.distance_miles).toFixed(1)} />}
-                    {editing.cancellation_reason && <Info label="Cancellation reason" value={editing.cancellation_reason} />}
-                    {editing.notes && <Info label="Customer notes" value={editing.notes} />}
-                  </div>
-                  <div className="pt-3 border-t border-border mt-3">
+                  </dl>
+                  {editing.distance_miles != null && (
+                    <p className="mt-2 text-xs text-muted-foreground">Distance: {Number(editing.distance_miles).toFixed(1)} miles</p>
+                  )}
+                  {editing.notes && (
+                    <div className="mt-4">
+                      <div className="text-xs text-muted-foreground mb-1">Customer notes</div>
+                      <p className="whitespace-pre-line rounded-lg bg-muted/40 px-3 py-2.5 text-sm leading-relaxed">{editing.notes.replace(/ (Extra:|Luggage:|Return )/g, "\n$1")}</p>
+                    </div>
+                  )}
+                  {editing.cancellation_reason && (
+                    <div className="mt-4">
+                      <div className="text-xs text-muted-foreground mb-1">Cancellation reason</div>
+                      <p className="rounded-lg bg-destructive/10 px-3 py-2.5 text-sm">{editing.cancellation_reason}</p>
+                    </div>
+                  )}
+                  <div className="pt-4 border-t border-border mt-4">
                     <BookingTripDetails booking={editing as any} />
                   </div>
                 </Section>
@@ -491,8 +505,8 @@ function BookingsPage() {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-xl border border-border bg-card p-4">
-      <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold mb-3">{title}</p>
+    <section className="border-b border-border pb-5 last:border-0">
+      <h3 className="font-heading text-base font-semibold text-foreground mb-3">{title}</h3>
       {children}
     </section>
   );
@@ -500,9 +514,9 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 function Info({ label, value }: { label: string; value: string }) {
   return (
-    <div>
-      <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{label}</div>
-      <div className="font-medium text-sm">{value}</div>
+    <div className="px-3 py-2.5 min-w-0">
+      <dt className="text-xs text-muted-foreground">{label}</dt>
+      <dd className="font-semibold text-sm truncate">{value}</dd>
     </div>
   );
 }
