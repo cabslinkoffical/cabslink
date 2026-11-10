@@ -237,4 +237,4 @@
 - [x] T5 Admin tour tools: duplicate tour, tour categories, draft preview, guided create steps
 
 - [x] Tour routes admin: remove left tour list; full-page tour list, clicking a tour opens a full-page editor with Back
-- [ ] Admin: replace scrolling status/filter tab bars with card grids (bookings + all other admin areas)
+- [x] Admin: replace scrolling status/filter tab bars with card grids (bookings + all other admin areas)
