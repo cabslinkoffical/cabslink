@@ -1,3 +1,4 @@
+import { scenicBookingProblem } from "@/lib/booking-readiness";
 import { journeyFare, returnScheduleProblem } from "@/lib/return-journey";
 import { normalizeHead } from "@/lib/seo/page-head";
 import { ukDate } from "@/lib/uk-time";
@@ -234,6 +235,7 @@ function BookPage() {
   const [policy, setPolicy] = useState<Policy>("standard");
   const [payMethod, setPayMethod] = useState<"card" | "other">("card");
   const [editOpen, setEditOpen] = useState(false);
+  const [editReturnIntent, setEditReturnIntent] = useState(false);
   // Extras (all consolidated on step 3)
   const [selectedStops, setSelectedStops] = useState<Record<string, number>>(() => {
     const seed: Record<string, number> = {};
@@ -329,11 +331,32 @@ function BookPage() {
     setRouteMode("scenic");
     setReturnJourney(false);
     setContact(emptyContact);
+    setExtraQty({});
+    setPolicy("standard");
+    setPayMethod("card");
+    setTourAckAt(null);
+    setQty(1);
+    setContactAttempted(false);
+    setPayFor(null);
+    setResumable(null);
+    setEditReturnIntent(false);
     navigate({ search: { q: "" }, replace: true });
   };
 
   const applyEdit = (next: Prefill) => {
     setChosen(null);
+    setTourAckAt(null);
+    setQty(1);
+    setEditReturnIntent(false);
+    if (next.passengers !== pre.passengers) {
+      setChildSeatCount(0);
+      const seatKeys = new Set((extrasQuery.data ?? []).filter((e) => e.category === "child_seat" || e.key === "child_seat").map((e) => e.key));
+      setExtraQty((prev) => Object.fromEntries(Object.entries(prev).filter(([key]) => !seatKeys.has(key))));
+    }
+    if (next.pickup?.placeId !== pre.pickup?.placeId || next.dropoff?.placeId !== pre.dropoff?.placeId
+      || JSON.stringify(next.stops) !== JSON.stringify(pre.stops)) {
+      setSelectedStops(Object.fromEntries(next.stops.filter((stop) => stop.minutes !== undefined).map((stop) => [stop.placeId, stop.minutes ?? 0])));
+    }
     setReturnJourney(next.ret);
     setStep("vehicle");
     navigate({ search: { q: encodePrefill(next) }, replace: true });
@@ -466,9 +489,17 @@ function BookPage() {
     setTourAckAt(null);
   };
 
-  const mq = multiStopQuery.data ?? null;
+  const mq = orderedSelected.length > 0 ? multiStopQuery.data ?? null : null;
   const isConverted = !!mq && mq.service_type !== mq.original_service_type;
   const needsAck = isConverted && !tourAckAt;
+  const scenicProblem = scenicBookingProblem({
+    active: orderedSelected.length > 0,
+    fetching: multiStopQuery.isFetching,
+    failed: multiStopQuery.isError,
+    quoted: !!mq,
+    vehicleAvailable: !!mq?.vehicles.some((v) => v.vehicle_id === chosen?.vehicleId),
+    needsAcknowledgement: needsAck,
+  });
 
   // Catalogue extras offered for the chosen class (admin Extras section is the
   // single source of truth; class overrides already resolved server-side).
@@ -531,6 +562,7 @@ function BookPage() {
   const captcha = useCaptcha("booking");
   const submitBooking = async () => {
     if (inflight.current || !chosen) return;
+    if (scenicProblem) { toast.error(scenicProblem); setStep("details"); return; }
     if (!pre.pickup || !pre.dropoff) { toast.error("Journey is missing pickup or destination."); return; }
     const parsed = contactSchema.safeParse(contact);
     if (!parsed.success) { toast.error("Missing contact details."); setStep("details"); return; }
@@ -627,6 +659,7 @@ function BookPage() {
   };
 
   const goToExtras = useCallback(() => {
+    if (scenicProblem) { toast.error(scenicProblem); return; }
     const parsed = contactSchema.safeParse(contact);
     const flightMissing = flightNumberError(pre.pickup?.label, contact.flight_number);
     if (!parsed.success || flightMissing) {
@@ -647,7 +680,7 @@ function BookPage() {
     setContactAttempted(false);
     track("booking_step", { step: "payment" });
     setStep("payment");
-  }, [contact, pre.pickup?.label]);
+  }, [contact, pre.pickup?.label, scenicProblem]);
 
   const mobileContinue = useCallback(() => {
     if (step === "details") goToExtras();
@@ -701,7 +734,7 @@ function BookPage() {
               <Stepper
                 step={step}
                 onPrev={step === "details" ? () => setStep("vehicle") : step === "payment" ? () => setStep("details") : undefined}
-                onNext={step === "vehicle" && chosen ? () => setStep("details") : step === "details" && chosen ? goToExtras : undefined}
+                onNext={step === "vehicle" && chosen ? () => setStep("details") : step === "details" && chosen && !scenicProblem ? goToExtras : undefined}
               />
               <div className="mt-8 grid min-w-0 grid-cols-1 lg:grid-cols-[340px_minmax(0,1fr)] gap-6 items-start pb-24 lg:pb-0">
                 <Sidebar
@@ -753,6 +786,7 @@ function BookPage() {
                         multiError={multiStopQuery.error as Error | null}
                         converted={isConverted}
                         needsAck={needsAck}
+                        bookingProblem={scenicProblem}
                         onAck={() => setTourAckAt(new Date().toISOString())}
                         childSeatFeePence={childSeatFeePence}
                         childSeatCount={childSeatCount}
@@ -762,7 +796,7 @@ function BookPage() {
                         onMeetGreet={setMeetGreet}
                         returnJourney={returnJourney}
                         onReturnJourney={(enabled) => {
-                          if (enabled) { setEditOpen(true); }
+                          if (enabled) { setEditReturnIntent(true); setEditOpen(true); }
                           else applyEdit({ ...pre, ret: false, rdate: "", rtime: "" });
                         }}
                         policy={policy}
@@ -817,9 +851,9 @@ function BookPage() {
         </div>
       </section>
       {chosen && (step === "details" || step === "payment") && (
-        <MobilePriceBar onContinue={mobileContinue} price={{ vehicleName: chosen.name, perVehicle: perVehiclePrice, qty, rideTotal, seatFee, seatCount: childSeatCount, meetGreetFee, returnFee, addonsFee, addonLines, policy, policyDelta, grandTotal }} />
+        <MobilePriceBar onContinue={scenicProblem ? undefined : mobileContinue} price={{ vehicleName: chosen.name, perVehicle: perVehiclePrice, qty, rideTotal, seatFee, seatCount: childSeatCount, meetGreetFee, returnFee, addonsFee, addonLines, policy, policyDelta, grandTotal }} />
       )}
-      <EditTripDialog open={editOpen} onOpenChange={setEditOpen} initial={{ ...pre, ret: returnJourney }} onSave={applyEdit} />
+      <EditTripDialog open={editOpen} onOpenChange={(open) => { setEditOpen(open); if (!open) setEditReturnIntent(false); }} initial={{ ...pre, ret: editReturnIntent || returnJourney }} onSave={applyEdit} />
     </SiteLayout>
   );
 }
@@ -2018,6 +2052,7 @@ function ExtrasStep(props: {
   multiError: Error | null;
   converted: boolean;
   needsAck: boolean;
+  bookingProblem: string | null;
   onAck: () => void;
   childSeatFeePence: number;
   childSeatCount: number;
@@ -2046,7 +2081,7 @@ function ExtrasStep(props: {
   const {
     pois, template, poisLoading, selectedStops, onToggleStop, onStopMinutes,
     routeMode, onRouteModeChange, multiQuote, multiLoading, multiError,
-    converted, needsAck, onAck,
+    converted, needsAck, bookingProblem, onAck,
     childSeatFeePence, childSeatCount, onChildSeatCount, passengers,
     meetGreet, onMeetGreet, returnJourney, onReturnJourney,
     policy, onPolicy, baseRideTotal, seatFee, meetGreetFee, returnFee,
@@ -2220,6 +2255,7 @@ function ExtrasStep(props: {
         </div>
       </div>
 
+      {bookingProblem && <p role="alert" className="text-sm text-destructive">{bookingProblem}</p>}
       <div id="step-actions" className="hidden lg:flex flex-wrap gap-3 pt-2 scroll-mt-24">
         <Button type="button" variant="outline" onClick={onBack} className="gap-2">
           <ArrowLeft className="size-4" /> Back
@@ -2227,7 +2263,7 @@ function ExtrasStep(props: {
         <Button
           type="button"
           onClick={onNext}
-          disabled={needsAck}
+          disabled={!!bookingProblem}
           variant="gold" className="ml-auto tracking-wider px-8 gap-2"
         >
           Continue to payment <ArrowRight className="size-4" />
@@ -2482,7 +2518,7 @@ function Toggle({ label, checked, onChange }: { label: string; checked: boolean;
   return (
     <label className="flex items-center justify-between gap-3 rounded-xl border border-border bg-background px-4 py-3 cursor-pointer hover:border-[var(--gold)]/50 transition">
       <span className="text-sm font-medium">{label}</span>
-      <Switch checked={checked} onCheckedChange={onChange} />
+      <Switch aria-label={label} checked={checked} onCheckedChange={onChange} />
     </label>
   );
 }
