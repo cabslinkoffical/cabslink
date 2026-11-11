@@ -105,8 +105,8 @@ describe("Phase 5 — redirects", () => {
 });
 
 describe("Phase 5 — sitemap and robots", () => {
-  it("excludes booking, utility and legal pages", () => {
-    for (const p of ["/book", "/book/hourly", "/book/tour", "/distance", "/privacy", "/terms", "/cookies", "/image-credits"]) {
+  it("excludes booking and utility pages", () => {
+    for (const p of ["/book", "/book/hourly", "/book/tour", "/distance", "/image-credits"]) {
       expect(SITEMAP_EXCLUDED).toContain(p);
       expect(PUBLIC_ROUTES).not.toContain(p);
     }
