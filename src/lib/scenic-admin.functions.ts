@@ -265,7 +265,7 @@ export const publishScenicTemplate = createServerFn({ method: "POST" })
       const { data: row } = await context.supabase.from("scenic_route_templates").select("slug").eq("id", data.id).maybeSingle();
       if (row?.slug) {
         const { pingIndexNow } = await import("@/lib/seo/indexnow.server");
-        void pingIndexNow([`/tours/${row.slug}`, "/tours", "/llms.txt"]);
+        void pingIndexNow([`/tours/${row.slug}`]);
       }
     }
     return { ok: true };

@@ -97,7 +97,7 @@ export const upsertPost = createServerFn({ method: "POST" })
     if (!postId) throw new Error("Post save returned no ID");
     if (payload.status === "published" && payload.slug) {
       const { pingIndexNow } = await import("@/lib/seo/indexnow.server");
-      void pingIndexNow([`/blog/${payload.slug}`, "/blog", "/llms.txt"]);
+      void pingIndexNow([`/blog/${payload.slug}`]);
     }
     return { ok: true, id: postId };
   });
