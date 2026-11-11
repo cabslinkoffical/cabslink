@@ -1,3 +1,4 @@
+import { blogShareImage } from "@/lib/blog-share-image";
 import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute, notFound, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
@@ -30,7 +31,7 @@ export const Route = createFileRoute("/blog/$slug")({
     const override = BLOG_SEO_OVERRIDES[p.slug];
     const title = override?.title ?? p.seo_title ?? p.title;
     const desc = override?.description ?? p.meta_description ?? p.excerpt ?? "";
-    const image = p.og_image_url ?? p.featured_image_url ?? undefined;
+    const image = blogShareImage(p.og_image_url, p.featured_image_url);
     const meta: Array<Record<string, string>> = [
       { title },
       { name: "description", content: desc },

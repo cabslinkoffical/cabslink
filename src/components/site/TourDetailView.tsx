@@ -1,3 +1,4 @@
+import { tourHeroImage } from "@/content/tour-image-sizes";
 /**
  * The public tour page body, shared by /tours/$slug and the staff draft
  * preview so a draft looks exactly like the page customers will see.
@@ -177,10 +178,11 @@ export function TourDetailView({ d, slug, enquire, preview = false }: {
             {d.hero_image_url && (
               <Reveal>
                 <img
-                  src={d.hero_image_url}
+                  src={tourHeroImage(d.hero_image_url).url}
                   alt={`${d.name} — private driver tour`}
-                  width={1280}
-                  height={720}
+                  width={tourHeroImage(d.hero_image_url).width ?? 1280}
+                  height={tourHeroImage(d.hero_image_url).height ?? 720}
+                  fetchPriority="high"
                   className="w-full aspect-[16/9] object-cover rounded-3xl shadow-[var(--shadow-elegant)]"
                   loading="eager"
                   decoding="async"

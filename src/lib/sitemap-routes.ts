@@ -18,7 +18,7 @@ export const GUIDE_ROUTES = publishedGuidePaths();
 /** Utility, booking-flow and legal pages that are deliberately not in the sitemap. */
 export const SITEMAP_EXCLUDED = [
   "/book", "/book/hourly", "/book/tour", "/distance", "/get-a-quote",
-  "/privacy", "/terms", "/cookies", "/image-credits",
+  "/image-credits",
 ];
 
 /** Canonical form of a sitemap path: lowercase, single leading slash, no trailing slash. */
@@ -62,6 +62,7 @@ export const PUBLIC_ROUTES = [
   "/corporate-travel", "/tours", "/fleet", "/drive-with-us",
   "/corporate-booking", "/contact", "/reviews", "/faq",
   "/booking-policy", "/refund-policy", "/accessibility",
+  "/privacy", "/terms", "/cookies",
   "/private-hire", "/executive-transfers", "/long-distance-transfers", "/group-transfers", "/minibus-hire", "/coach-hire", "/cruise-transfers", "/university-transfers", "/hospital-transfers", "/event-transport",
   "/travel-solutions", "/travel-solutions/business-travel", "/travel-solutions/student-travel", "/travel-solutions/family-travel", "/travel-solutions/group-travel", "/travel-solutions/event-travel",
   "/blog",

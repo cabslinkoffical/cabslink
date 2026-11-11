@@ -10,9 +10,9 @@ const TT = FACTS.tourCancellation;
 export const Route = createFileRoute("/refund-policy")({
   head: () => normalizeHead({
     meta: [
-      { title: "Refund Policy — Cabslink" },
+      { title: "Refund & Cancellation Policy | Cabslink Edinburgh" },
       { name: "description", content: "How Cabslink handles refunds for airport transfers, private tours and hourly hire, including cancellations, no-shows and payment reversals." },
-      { property: "og:title", content: "Refund Policy — Cabslink" },
+      { property: "og:title", content: "Refund & Cancellation Policy | Cabslink Edinburgh" },
       { property: "og:description", content: "How Cabslink handles refunds for airport transfers, private tours and hourly hire, including cancellations, no-shows and payment reversals." },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://cabslink.com/refund-policy" },

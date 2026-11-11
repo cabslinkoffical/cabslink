@@ -6,9 +6,9 @@ import { SITE } from "@/lib/site";
 export const Route = createFileRoute("/cookies")({
   head: () => normalizeHead({
     meta: [
-      { title: "Cookie Policy — Cabslink" },
+      { title: "Cookie Policy | Cabslink Edinburgh Private Hire" },
       { name: "description", content: "How Cabslink uses cookies and similar technologies, which categories we set, and how you can control or clear them in your browser." },
-      { property: "og:title", content: "Cookie Policy — Cabslink" },
+      { property: "og:title", content: "Cookie Policy | Cabslink Edinburgh Private Hire" },
       { property: "og:description", content: "How Cabslink uses cookies and similar technologies, which categories we set, and how you can control or clear them in your browser." },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://cabslink.com/cookies" },

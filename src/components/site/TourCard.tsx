@@ -1,3 +1,4 @@
+import { tourCardImage } from "@/content/tour-image-sizes";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Clock, MapPin, Star } from "lucide-react";
 import type { PublicTourListItem } from "@/lib/tours.functions";
@@ -27,10 +28,10 @@ export function TourCard({ tour, decorative = false }: { tour: PublicTourListIte
       >
         {tour.hero_image_url ? (
           <img
-            src={tour.hero_image_url}
+            src={tourCardImage(tour.hero_image_url).url}
             alt={`${tour.name} private tour`}
-            width={600}
-            height={450}
+            width={tourCardImage(tour.hero_image_url).width ?? 800}
+            height={tourCardImage(tour.hero_image_url).height ?? 600}
             loading="lazy"
             decoding="async"
             className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"

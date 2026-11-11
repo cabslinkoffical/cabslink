@@ -6,9 +6,9 @@ import { SITE } from "@/lib/site";
 export const Route = createFileRoute("/accessibility")({
   head: () => normalizeHead({
     meta: [
-      { title: "Accessibility — Cabslink" },
+      { title: "Accessibility Statement | Cabslink Edinburgh Taxis" },
       { name: "description", content: "Cabslink's commitment to an accessible website and inclusive airport travel service." },
-      { property: "og:title", content: "Accessibility — Cabslink" },
+      { property: "og:title", content: "Accessibility Statement | Cabslink Edinburgh Taxis" },
       { property: "og:description", content: "Cabslink's commitment to an accessible website and inclusive airport travel service." },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://cabslink.com/accessibility" },
