@@ -176,6 +176,13 @@
       "when": 1794244037728,
       "tag": "0024_fix_set_booking_status_pending_payment",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1794415769026,
+      "tag": "0025_indexnow_submissions",
+      "breakpoints": true
     }
   ]
 }

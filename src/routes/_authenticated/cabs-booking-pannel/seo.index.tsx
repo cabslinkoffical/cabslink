@@ -1,9 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery, useMutation } from "@tanstack/react-query";
-import { getSeoOverview } from "@/lib/seo-admin.functions";
+import { getSeoOverview, notifySearchEngines } from "@/lib/seo-admin.functions";
 import { seedSeoPagesFromEntities } from "@/lib/seo-seeder.functions";
 import { PageHeader, StatCard } from "@/components/admin/ui";
-import { MapPin, Plane, Wrench, Route as RouteIcon, FileText, ArrowLeftRight, Sparkles } from "lucide-react";
+import { MapPin, Plane, Wrench, Route as RouteIcon, FileText, ArrowLeftRight, Sparkles, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useState } from "react";
@@ -32,6 +32,12 @@ function SeoOverview() {
     onSuccess: (r) => { setLastResult(r); toast.success(`Seeded ${r.created} draft page(s), skipped ${r.skipped}.`); },
     onError: (e: any) => toast.error(e?.message ?? "Seeding failed"),
   });
+  const [notifyResult, setNotifyResult] = useState<{ total: number; sent: number; status: number } | null>(null);
+  const notify = useMutation({
+    mutationFn: () => notifySearchEngines(),
+    onSuccess: (r) => { setNotifyResult(r); r.sent ? toast.success(`Sent ${r.sent} URL(s) to search engines (HTTP ${r.status}).`) : toast.error(`Search engines did not accept the list (HTTP ${r.status || "no response"}).`); },
+    onError: (e: any) => toast.error(e?.message ?? "Notifying search engines failed"),
+  });
   const cards = [
     { label: "Locations", value: `${data.locations.published}/${data.locations.total}`, icon: MapPin, accent: "text-info", to: "/cabs-booking-pannel/seo/locations" },
     { label: "Airports", value: `${data.airports.published}/${data.airports.total}`, icon: Plane, accent: "text-info", to: "/cabs-booking-pannel/seo/airports" },
@@ -47,7 +53,19 @@ function SeoOverview() {
           <Sparkles className="h-4 w-4" />
           {seed.isPending ? "Seeding…" : "Seed pages from entities"}
         </Button>
+        <Button variant="outline" onClick={() => notify.mutate()} disabled={notify.isPending} className="gap-2">
+          <Send className="h-4 w-4" />
+          {notify.isPending ? "Notifying…" : "Notify search engines"}
+        </Button>
       </PageHeader>
+      {notifyResult && (
+        <div className="rounded-lg border bg-card p-4 text-sm">
+          <div className="font-medium">Search engine notification</div>
+          <div className="text-muted-foreground mt-1">
+            Sent <b>{notifyResult.sent}</b> of {notifyResult.total} sitemap URL(s). IndexNow replied with HTTP <b>{notifyResult.status || "no response"}</b>. You can send again in one hour.
+          </div>
+        </div>
+      )}
       {lastResult && (
         <div className="rounded-lg border bg-card p-4 text-sm">
           <div className="font-medium">Last seed run</div>

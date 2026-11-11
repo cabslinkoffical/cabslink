@@ -97,6 +97,13 @@ export const duplicateTour = createServerFn({ method: "POST" })
     await assertAdmin(context);
     const res = await (context.supabase as any).rpc("admin_duplicate_tour", { p_id: data.id });
     if (res.error || !res.data) throw friendly(res.error);
+    void (async () => {
+      const { data: row } = await (context.supabase as any).from("scenic_route_templates").select("slug, published, active").eq("id", String(res.data)).maybeSingle();
+      if (row?.slug && row.published && row.active) {
+        const { notifyIndexNowInBackground } = await import("@/lib/seo/indexnow.server");
+        notifyIndexNowInBackground([`/tours/${row.slug}`]);
+      }
+    })().catch((e) => console.error("IndexNow notify skipped", e));
     return { id: String(res.data) };
   });
 
@@ -153,6 +160,13 @@ export const saveTourDraft = createServerFn({ method: "POST" })
       p_prices: data.prices ?? null,
     });
     if (res.error || !res.data) throw friendly(res.error);
+    void (async () => {
+      const { data: row } = await (context.supabase as any).from("scenic_route_templates").select("slug, published, active").eq("id", String(res.data)).maybeSingle();
+      if (row?.slug && row.published && row.active) {
+        const { notifyIndexNowInBackground } = await import("@/lib/seo/indexnow.server");
+        notifyIndexNowInBackground([`/tours/${row.slug}`]);
+      }
+    })().catch((e) => console.error("IndexNow notify skipped", e));
     return { id: String(res.data) };
   });
 

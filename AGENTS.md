@@ -21,7 +21,7 @@
 - seo_pages entity links resolve against public.destinations (name, display_name, type, slug, lat, lng — no hero image column); loadEntity in src/lib/seo-public.functions.ts is the only place that join happens.
 - Public page content stays inside SiteLayout before its footer; automated explore-link sections are removed rather than appended outside the layout to prevent duplicate closing content.
 - Related-pages links render inside page content through RelatedLinks and contextual PlaceGuideBlock links; server-side selection returns compact published-only results ranked by verified topics/themes, with self-links excluded and no duplicate tour sections.
-- Response policy combines canonical origin/path normalization in one application redirect and clones headers for security coverage on redirects/errors; hosting-owned forwarding and assets require separate live verification.
+- Response policy does canonical origin/path normalization in one redirect and clones headers so redirects/errors keep security headers.
 - Public HTML caching bypasses session-bearing requests and private/session-setting responses, caps per-isolate memory by bytes and age, and schedules refreshes through the execution context so booking data is never shared.
 - Sitemap sources paginate public-only reads, surface failures rather than publish partial XML, and deduplicate canonical HTML entries so crawlers see complete content lists.
 - Pricing writes use the active pricing-schemes handlers; do not restore retired standalone profile, location/modifier, or legacy admin CRUD handlers, which had no application callers.
@@ -52,3 +52,4 @@
 - Custom tour requests (CL-CT references) live in their own admin-only tables, saved by service-role server code with a best-effort instant estimate; rules (statuses, reference format, when to offer "Request a quote") live in src/lib/custom-tour-requests.ts, and customers look up status only with reference + email, so a code alone never reveals a request.
 - Big groups book several vehicles on one tour booking (tour_vehicles + vehicle_count); src/lib/tour-group.ts splits the party and suggests mixes, each vehicle is priced alone by quoteTourImpl and summed, and reserve_tour_booking checks every vehicle and counts each against its class daily cap.
 - Transfer continuation and submission share booking-readiness checks so unavailable or unpriced scenic journeys cannot advance.
+- Sitemap/IndexNow URLs: src/lib/sitemap-build.server.ts only (one source).

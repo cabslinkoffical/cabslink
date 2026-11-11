@@ -265,7 +265,7 @@ export const publishScenicTemplate = createServerFn({ method: "POST" })
       const { data: row } = await context.supabase.from("scenic_route_templates").select("slug").eq("id", data.id).maybeSingle();
       if (row?.slug) {
         const { pingIndexNow } = await import("@/lib/seo/indexnow.server");
-        void pingIndexNow([`/tours/${row.slug}`, "/tours", "/llms.txt"]);
+        void pingIndexNow([`/tours/${row.slug}`]);
       }
     }
     return { ok: true };
@@ -389,6 +389,13 @@ export const updateTourContent = createServerFn({ method: "POST" })
     }
     const { error } = await context.supabase.from("scenic_route_templates").update(cleaned as any).eq("id", id);
     if (error) throw new Error(error.message);
+    void (async () => {
+      const { data: row } = await context.supabase.from("scenic_route_templates").select("slug, published, active").eq("id", id).maybeSingle();
+      if (row?.slug && row.published && row.active) {
+        const { notifyIndexNowInBackground } = await import("@/lib/seo/indexnow.server");
+        notifyIndexNowInBackground([`/tours/${row.slug}`]);
+      }
+    })().catch((e) => console.error("IndexNow notify skipped", e));
     return { ok: true };
   });
 

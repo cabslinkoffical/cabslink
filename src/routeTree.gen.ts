@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SplatRouteImport } from './routes/$'
+import { Route as R26d962087d6fbdb2267d8b0104322c69DottxtRouteImport } from './routes/26d962087d6fbdb2267d8b0104322c69[.]txt'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AboutUsRouteImport } from './routes/about-us'
@@ -168,6 +169,12 @@ const SplatRoute = SplatRouteImport.update({
   path: '/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const R26d962087d6fbdb2267d8b0104322c69DottxtRoute =
+  R26d962087d6fbdb2267d8b0104322c69DottxtRouteImport.update({
+    id: '/26d962087d6fbdb2267d8b0104322c69.txt',
+    path: '/26d962087d6fbdb2267d8b0104322c69.txt',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
@@ -953,6 +960,7 @@ const AuthenticatedCabsBookingPannelSeoPagesIdSectionsRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
+  '/26d962087d6fbdb2267d8b0104322c69.txt': typeof R26d962087d6fbdb2267d8b0104322c69DottxtRoute
   '/about': typeof AboutRoute
   '/about-us': typeof AboutUsRoute
   '/accessibility': typeof AccessibilityRoute
@@ -1102,6 +1110,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
+  '/26d962087d6fbdb2267d8b0104322c69.txt': typeof R26d962087d6fbdb2267d8b0104322c69DottxtRoute
   '/about': typeof AboutRoute
   '/about-us': typeof AboutUsRoute
   '/accessibility': typeof AccessibilityRoute
@@ -1251,6 +1260,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/$': typeof SplatRoute
+  '/26d962087d6fbdb2267d8b0104322c69.txt': typeof R26d962087d6fbdb2267d8b0104322c69DottxtRoute
   '/about': typeof AboutRoute
   '/about-us': typeof AboutUsRoute
   '/accessibility': typeof AccessibilityRoute
@@ -1402,6 +1412,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/$'
+    | '/26d962087d6fbdb2267d8b0104322c69.txt'
     | '/about'
     | '/about-us'
     | '/accessibility'
@@ -1551,6 +1562,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/$'
+    | '/26d962087d6fbdb2267d8b0104322c69.txt'
     | '/about'
     | '/about-us'
     | '/accessibility'
@@ -1699,6 +1711,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/$'
+    | '/26d962087d6fbdb2267d8b0104322c69.txt'
     | '/about'
     | '/about-us'
     | '/accessibility'
@@ -1850,6 +1863,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   SplatRoute: typeof SplatRoute
+  R26d962087d6fbdb2267d8b0104322c69DottxtRoute: typeof R26d962087d6fbdb2267d8b0104322c69DottxtRoute
   AboutRoute: typeof AboutRoute
   AboutUsRoute: typeof AboutUsRoute
   AccessibilityRoute: typeof AccessibilityRoute
@@ -1960,6 +1974,13 @@ declare module '@tanstack/react-router' {
       path: '/$'
       fullPath: '/$'
       preLoaderRoute: typeof SplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/26d962087d6fbdb2267d8b0104322c69.txt': {
+      id: '/26d962087d6fbdb2267d8b0104322c69.txt'
+      path: '/26d962087d6fbdb2267d8b0104322c69.txt'
+      fullPath: '/26d962087d6fbdb2267d8b0104322c69.txt'
+      preLoaderRoute: typeof R26d962087d6fbdb2267d8b0104322c69DottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -3181,6 +3202,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   SplatRoute: SplatRoute,
+  R26d962087d6fbdb2267d8b0104322c69DottxtRoute:
+    R26d962087d6fbdb2267d8b0104322c69DottxtRoute,
   AboutRoute: AboutRoute,
   AboutUsRoute: AboutUsRoute,
   AccessibilityRoute: AccessibilityRoute,
