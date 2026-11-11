@@ -238,6 +238,26 @@ describe("B02 — stopped journeys use the shared rule pipeline", () => {
 });
 
 describe("B03 — return journeys save and check their schedule", () => {
+  it("return quote and saved fare use the same base, with exactly two legs", async () => {
+    const input = { ...base, return_journey: true, returnDate: "2026-08-05", returnTime: "09:30" };
+    const quoted = await calculateQuotes({ data: input });
+    expect(quoted.quotes[0].finalPrice).toBe(30);
+    expect(quoted.quotes[0].snapshot).toBeDefined();
+    const saved = await createBooking({ data: input });
+    expect(saved.price).toBe(60);
+  });
+  it("quote rejects a same-time return before showing any fare", async () => {
+    vi.mocked(helpers.computeVehicleQuote).mockClear();
+    await expect(calculateQuotes({ data: { ...base, return_journey: true, returnDate: "2026-08-01", returnTime: "14:00" } })).rejects.toThrow(/after your outbound/);
+    expect(helpers.computeVehicleQuote).not.toHaveBeenCalled();
+  });
+  it("return quote removes vehicles unavailable on the return date", async () => {
+    ctl.rules = { availabilityRules: [{ id: "a1", name: "Closed", rule_scope: "global", effect: "block", date_from: "2026-08-05", date_to: "2026-08-05", customer_message: "We're closed that day.", active: true, priority: 1 }] };
+    const oneWay = await calculateQuotes({ data: base });
+    expect(oneWay.quotes).toHaveLength(1);
+    const roundTrip = await calculateQuotes({ data: { ...base, return_journey: true, returnDate: "2026-08-05", returnTime: "09:30" } });
+    expect(roundTrip.quotes).toHaveLength(0);
+  });
   it("requires a return date and time", () => {
     expect(returnScheduleProblem({ return_journey: true, pickupDate: "2026-08-01", pickupTime: "14:00" })).toMatch(/date and time/);
   });

@@ -1,3 +1,4 @@
+import { returnScheduleProblem } from "@/lib/return-journey";
 import { vehicleFits } from "@/lib/vehicle-capacity";
 import { FACT_TEXT } from "@/lib/site-facts";
 import { childSeatChoices, childSeatsLabel, TOO_MANY_SEATS } from "@/lib/child-seats";
@@ -186,19 +187,7 @@ export function resolveForProfile(
 
 export { PRICING_RETRY_MESSAGE };
 
-/** Why the return schedule is invalid, or null. Exported for tests. */
-export function returnScheduleProblem(d: {
-  return_journey?: boolean; pickupDate: string; pickupTime: string;
-  returnDate?: string | null; returnTime?: string | null;
-}): string | null {
-  if (!d.return_journey) return null;
-  if (!d.returnDate || !d.returnTime) return "Please choose a date and time for your return journey.";
-  const out = `${d.pickupDate}T${d.pickupTime}`;
-  const back = `${d.returnDate}T${d.returnTime}`;
-  // Same-format ISO strings compare chronologically.
-  if (back <= out) return "Your return journey must be after your outbound pickup.";
-  return null;
-}
+export { returnScheduleProblem } from "@/lib/return-journey";
 
 /** Availability context for the return leg: reversed direction, return schedule. */
 export function returnLegContext(ctx: JourneyContext, returnDate: string, returnTime: string): JourneyContext {
@@ -348,6 +337,9 @@ const quoteInput = z
     pickupTime: z.string().optional().default(""),
     passengers: z.number().int().min(1).max(60).optional().default(1),
     luggage: z.number().int().min(0).max(60).optional().default(0),
+    return_journey: z.boolean().optional().default(false),
+    returnDate: z.string().optional().nullable(),
+    returnTime: z.string().optional().nullable(),
   })
   .refine((v) => v.pickupPlaceId !== v.destinationPlaceId, {
     message: "Pickup and destination cannot be the same location.",
@@ -381,6 +373,8 @@ export type QuoteCard = {
 export const calculateQuotes = createServerFn({ method: "POST" })
   .inputValidator((data: z.infer<typeof quoteInput>) => quoteInput.parse(data))
   .handler(async ({ data }) => {
+    const scheduleProblem = returnScheduleProblem(data);
+    if (scheduleProblem) throw new Error(scheduleProblem);
     // Light per-IP quote rate limit (defense-in-depth against scraping).
     let ip = "unknown";
     try { ip = (await getClientIp()) ?? "unknown"; } catch {}
@@ -402,6 +396,7 @@ export const calculateQuotes = createServerFn({ method: "POST" })
         passengers: data.passengers,
         luggage: data.luggage,
         serviceType: data.stops.length > 0 ? undefined : "direct_transfer",
+        isReturn: data.return_journey,
       });
     } catch (err) {
       throw mapRouteError(err);
@@ -415,7 +410,10 @@ export const calculateQuotes = createServerFn({ method: "POST" })
       .map((p: LoadedProfile) => {
         const fixed = auth.fixedByVehicle.get(p.vehicle.id) ?? auth.fixedAny;
         const { resolved, ctx } = resolveForProfile(auth, p);
-        const verdict = resolveAvailability(auth.ruleSets.availabilityRules, ctx);
+        const outboundVerdict = resolveAvailability(auth.ruleSets.availabilityRules, ctx);
+        const verdict = outboundVerdict.available && data.return_journey && data.returnDate && data.returnTime
+          ? resolveAvailability(auth.ruleSets.availabilityRules, returnLegContext(ctx, data.returnDate, data.returnTime))
+          : outboundVerdict;
         const q = computeVehicleQuote({
           profile: p,
           distanceMiles: auth.distanceMiles,
