@@ -66,10 +66,12 @@ export const upsertSeoLocation = createServerFn({ method: "POST" })
     if (payload.id) {
       const { error } = await context.supabase.from("seo_locations").update(payload).eq("id", payload.id);
       if (error) throw new Error(error.message);
+      await notifyEntity(context, payload.id);
       return { ok: true, id: payload.id };
     }
     const { data: row, error } = await context.supabase.from("seo_locations").insert(payload).select("id").single();
     if (error) throw new Error(error.message);
+    await notifyEntity(context, row.id);
     return { ok: true, id: row.id };
   });
 
@@ -135,10 +137,12 @@ export const upsertSeoAirport = createServerFn({ method: "POST" })
     if (payload.id) {
       const { error } = await context.supabase.from("seo_airports").update(payload).eq("id", payload.id);
       if (error) throw new Error(error.message);
+      await notifyEntity(context, payload.id);
       return { ok: true, id: payload.id };
     }
     const { data: row, error } = await context.supabase.from("seo_airports").insert(payload).select("id").single();
     if (error) throw new Error(error.message);
+    await notifyEntity(context, row.id);
     return { ok: true, id: row.id };
   });
 
@@ -187,10 +191,12 @@ export const upsertSeoService = createServerFn({ method: "POST" })
     if (payload.id) {
       const { error } = await context.supabase.from("seo_services").update(payload).eq("id", payload.id);
       if (error) throw new Error(error.message);
+      await notifyEntity(context, payload.id);
       return { ok: true, id: payload.id };
     }
     const { data: row, error } = await context.supabase.from("seo_services").insert(payload).select("id").single();
     if (error) throw new Error(error.message);
+    await notifyEntity(context, row.id);
     return { ok: true, id: row.id };
   });
 
@@ -251,10 +257,12 @@ export const upsertSeoRoute = createServerFn({ method: "POST" })
     if (payload.id) {
       const { error } = await context.supabase.from("seo_popular_routes").update(payload).eq("id", payload.id);
       if (error) throw new Error(error.message);
+      await notifyEntity(context, payload.id);
       return { ok: true, id: payload.id };
     }
     const { data: row, error } = await context.supabase.from("seo_popular_routes").insert(payload).select("id").single();
     if (error) throw new Error(error.message);
+    await notifyEntity(context, row.id);
     return { ok: true, id: row.id };
   });
 
@@ -424,10 +432,12 @@ export const upsertSeoPage = createServerFn({ method: "POST" })
     if (payload.id) {
       const { error } = await context.supabase.from("seo_pages").update(payload).eq("id", payload.id);
       if (error) throw new Error(error.message);
+      await notifySeoPage(payload);
       return { ok: true, id: payload.id };
     }
     const { data: row, error } = await context.supabase.from("seo_pages").insert(payload).select("id").single();
     if (error) throw new Error(error.message);
+    await notifySeoPage(payload);
     return { ok: true, id: row.id };
   });
 
@@ -549,6 +559,47 @@ export const deleteSeoRedirect = createServerFn({ method: "POST" })
   });
 
 // ============ SEO DASHBOARD ============
+
+/** Background IndexNow ping for the public page(s) an entity controls; never blocks or fails the save. */
+async function notifyEntity(ctx: { supabase: any }, id: string) {
+  try {
+    const { notifyIndexNowInBackground, publicPathsForEntity } = await import("@/lib/seo/indexnow.server");
+    notifyIndexNowInBackground(publicPathsForEntity(ctx.supabase, id));
+  } catch (e) { console.error("IndexNow notify skipped", e); }
+}
+async function notifySeoPage(p: { path?: string; publication_status?: string; robots_status?: string }) {
+  if (!p.path || p.publication_status !== "published" || String(p.robots_status ?? "").includes("noindex")) return;
+  try {
+    const { notifyIndexNowInBackground } = await import("@/lib/seo/indexnow.server");
+    notifyIndexNowInBackground([p.path]);
+  } catch (e) { console.error("IndexNow notify skipped", e); }
+}
+
+export const notifySearchEngines = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const since = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    const { data: recent, error: rErr } = await (context.supabase as any).from("indexnow_submissions")
+      .select("created_at").eq("kind", "full").gte("created_at", since).order("created_at", { ascending: false }).limit(1);
+    if (rErr) throw new Error("Could not check the last submission time.");
+    if (recent?.length) {
+      const next = new Date(new Date(recent[0].created_at).getTime() + 60 * 60 * 1000);
+      throw new Error(`Search engines were notified less than an hour ago. Try again after ${next.toLocaleTimeString("en-GB", { timeZone: "Europe/London", hour: "2-digit", minute: "2-digit" })}.`);
+    }
+    // Claim the hour before sending so double clicks can't submit twice.
+    const { data: claim, error: cErr } = await (context.supabase as any).from("indexnow_submissions")
+      .insert({ kind: "full", submitted_by: context.userId }).select("id").single();
+    if (cErr) throw new Error("Could not record the submission.");
+    const { allSitemapUrls } = await import("@/lib/sitemap-build.server");
+    const { submitIndexNow } = await import("@/lib/seo/indexnow.server");
+    const urls = await allSitemapUrls();
+    const r = await submitIndexNow(urls);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await (supabaseAdmin as any).from("indexnow_submissions").update({ url_count: r.sent, http_status: r.status }).eq("id", claim.id);
+    return { total: urls.length, sent: r.sent, status: r.status };
+  });
+
 export const getSeoOverview = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
