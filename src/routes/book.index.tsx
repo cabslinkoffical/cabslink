@@ -1,3 +1,4 @@
+import { journeyFare, returnScheduleProblem } from "@/lib/return-journey";
 import { normalizeHead } from "@/lib/seo/page-head";
 import { ukDate } from "@/lib/uk-time";
 import { flightNumberError, isAirportPickup } from "@/lib/flight-number";
@@ -347,7 +348,7 @@ function BookPage() {
     queryKey: [
       "quotes",
       pre.pickup?.placeId, pre.dropoff?.placeId,
-      pre.passengers, pre.luggage, pre.date, pre.time,
+      pre.passengers, pre.luggage, pre.date, pre.time, returnJourney, pre.rdate, pre.rtime,
       pre.stops.map((s) => s.placeId).join(","),
     ],
     queryFn: () =>
@@ -362,6 +363,9 @@ function BookPage() {
           pickupTime: pre.time,
           passengers: pre.passengers,
           luggage: pre.luggage,
+          return_journey: returnJourney,
+          returnDate: pre.rdate || null,
+          returnTime: pre.rtime || null,
         },
       }),
   });
@@ -423,7 +427,7 @@ function BookPage() {
     enabled: hasValidRoute && orderedSelected.length > 0,
     queryKey: [
       "multi-stop-quote",
-      pre.pickup?.placeId, pre.dropoff?.placeId, routeMode, pre.date, pre.time,
+      pre.pickup?.placeId, pre.dropoff?.placeId, routeMode, pre.date, pre.time, returnJourney, pre.rdate, pre.rtime,
       tripStops.map((s) => `${s.place_id}:${s.minutes}`).join("|"),
     ],
     queryFn: () =>
@@ -437,6 +441,9 @@ function BookPage() {
           pickup_date: /^\d{4}-\d{2}-\d{2}$/.test(pre.date) ? pre.date : undefined,
           stops: tripStops,
           route_mode: routeMode,
+          return_journey: returnJourney,
+          returnDate: pre.rdate || null,
+          returnTime: pre.rtime || null,
         },
       }),
   });
@@ -754,7 +761,10 @@ function BookPage() {
                         meetGreet={meetGreet}
                         onMeetGreet={setMeetGreet}
                         returnJourney={returnJourney}
-                        onReturnJourney={setReturnJourney}
+                        onReturnJourney={(enabled) => {
+                          if (enabled) { setEditOpen(true); }
+                          else applyEdit({ ...pre, ret: false, rdate: "", rtime: "" });
+                        }}
                         policy={policy}
                         onPolicy={setPolicy}
                         baseRideTotal={rideTotal}
@@ -809,7 +819,7 @@ function BookPage() {
       {chosen && (step === "details" || step === "payment") && (
         <MobilePriceBar onContinue={mobileContinue} price={{ vehicleName: chosen.name, perVehicle: perVehiclePrice, qty, rideTotal, seatFee, seatCount: childSeatCount, meetGreetFee, returnFee, addonsFee, addonLines, policy, policyDelta, grandTotal }} />
       )}
-      <EditTripDialog open={editOpen} onOpenChange={setEditOpen} initial={pre} onSave={applyEdit} />
+      <EditTripDialog open={editOpen} onOpenChange={setEditOpen} initial={{ ...pre, ret: returnJourney }} onSave={applyEdit} />
     </SiteLayout>
   );
 }
@@ -823,7 +833,7 @@ function JourneyForm({ initial, onSubmit }: { initial: Prefill; onSubmit: (next:
 
   const sameSpot = !!form.pickup?.placeId && form.pickup.placeId === form.dropoff?.placeId;
   const emptyStop = form.stops.some((s) => !s?.placeId);
-  const returnIncomplete = form.ret && (!form.rdate || !form.rtime);
+  const returnIncomplete = returnScheduleProblem({ return_journey: form.ret, pickupDate: form.date, pickupTime: form.time, returnDate: form.rdate, returnTime: form.rtime });
   const canSubmit =
     !!form.pickup?.placeId && !!form.dropoff?.placeId && !sameSpot && !!form.date && !!form.time
     && !emptyStop && !returnIncomplete;
@@ -840,7 +850,7 @@ function JourneyForm({ initial, onSubmit }: { initial: Prefill; onSubmit: (next:
     date: !form.date ? "Pick a date." : "",
     time: !form.time ? "Pick a time." : "",
     rdate: form.ret && !form.rdate ? "Pick a return date." : "",
-    rtime: form.ret && !form.rtime ? "Pick a return time." : "",
+    rtime: returnIncomplete ?? "",
     stops: emptyStop ? "Complete or remove empty stops." : "",
   };
   const show = (k: keyof typeof errors) => (touched ? errors[k] : "");
@@ -1022,12 +1032,13 @@ function EditTripDialog({
   }, [open]);
   const set = <K extends keyof Prefill>(k: K, v: Prefill[K]) => setForm((f) => ({ ...f, [k]: v }));
 
+  const returnProblem = returnScheduleProblem({ return_journey: form.ret, pickupDate: form.date, pickupTime: form.time, returnDate: form.rdate, returnTime: form.rtime });
   const canSave =
     !!form.pickup?.placeId && !!form.dropoff?.placeId
     && form.pickup.placeId !== form.dropoff.placeId
     && !!form.date && !!form.time
     && form.stops.every((s) => !!s.placeId)
-    && (!form.ret || (!!form.rdate && !!form.rtime && form.rdate >= form.date));
+    && !returnProblem;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -1126,6 +1137,7 @@ function EditTripDialog({
                 onChange={(e) => set("handLuggage", Math.max(0, Number(e.target.value) || 0))} />
             </div>
           </div>
+          {returnProblem && <p role="alert" className="text-xs text-destructive">{returnProblem}</p>}
           {form.pickup && form.dropoff && form.pickup.placeId === form.dropoff.placeId && (
             <p className="text-xs text-destructive">Pickup and destination cannot be the same location.</p>
           )}
@@ -1664,7 +1676,8 @@ function VehicleCard({ card, klass, trip, best, qty, minQty, disabled, disabledR
   onQtyChange: (n: number) => void; onSelect: () => void;
 }) {
   const [infoOpen, setInfoOpen] = useState(false);
-  const total = card.finalPrice * qty;
+  const perVehicleFare = journeyFare(card.finalPrice, 1, trip.ret);
+  const total = journeyFare(card.finalPrice, qty, trip.ret);
   const serial = card.vehicleId.slice(0, 8).toUpperCase();
   const quoteOnly = klass?.quote_on_request ?? card.quoteOnRequest ?? isQuoteOnRequest(card.name);
   const displayName = klass?.name ?? card.name;
@@ -1806,12 +1819,12 @@ function VehicleCard({ card, klass, trip, best, qty, minQty, disabled, disabledR
           </div>
         ) : (
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground">Fare incl. VAT</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground">{trip.ret ? "Return fare incl. VAT" : "Fare incl. VAT"}</p>
             <div className="mt-1.5 flex items-baseline justify-center gap-0.5">
               <span className="font-display text-lg font-bold text-[var(--gold-ink)]">£</span>
               <span className="font-display text-3xl md:text-4xl font-bold tabular-nums tracking-tight">{total.toFixed(2)}</span>
             </div>
-            {qty > 1 && <p className="mt-1 text-[11px] text-muted-foreground">{qty} × £{card.finalPrice.toFixed(2)}</p>}
+            {qty > 1 && <p className="mt-1 text-[11px] text-muted-foreground">{qty} × £{perVehicleFare.toFixed(2)}</p>}
             <div className="ticket-barcode mx-auto mt-3 h-8 w-32 text-[var(--navy)]/75" aria-hidden />
             <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.35em] text-muted-foreground">{serial}</p>
           </div>

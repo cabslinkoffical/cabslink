@@ -1,3 +1,4 @@
+import { returnScheduleProblem } from "@/lib/return-journey";
 /**
  * Multi-stop quote server function.
  *
@@ -48,6 +49,9 @@ const inputSchema = z.object({
   pickup_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   stops: z.array(stopSchema).max(20),
   route_mode: routeModeSchema.default("scenic"),
+  return_journey: z.boolean().optional().default(false),
+  returnDate: z.string().optional().nullable(),
+  returnTime: z.string().optional().nullable(),
   vehicle_id: z.string().uuid().optional().nullable(),
 });
 
@@ -265,11 +269,13 @@ export const calculateMultiStopQuote = createServerFn({ method: "POST" })
       throw new Error("Too many quote requests, please slow down.");
     }
 
+    const scheduleProblem = returnScheduleProblem({ ...data, pickupDate: data.pickup_date ?? "", pickupTime: data.pickup_time ?? "" });
+    if (scheduleProblem) throw new Error(scheduleProblem);
     const econ = await computeStopEconomics(data);
     // Same authoritative pipeline as the booking re-check: rule sets,
     // location/fixed pricing, surcharges, modifiers, discounts and
     // availability, plus stop economics added exactly once.
-    const { computeAuthoritative, priceStoppedVehicle, PRICING_RETRY_MESSAGE } = await import("@/lib/pricing.functions");
+    const { computeAuthoritative, priceStoppedVehicle, returnLegContext, PRICING_RETRY_MESSAGE } = await import("@/lib/pricing.functions");
     const { resolveAvailability } = await import("@/lib/pricing-rules");
     let auth;
     try {
@@ -284,6 +290,7 @@ export const calculateMultiStopQuote = createServerFn({ method: "POST" })
         passengers: 1,
         luggage: 0,
         serviceType: undefined,
+        isReturn: data.return_journey,
       });
     } catch (err) {
       console.error("multi-stop quote: authoritative pricing failed", err);
@@ -299,6 +306,8 @@ export const calculateMultiStopQuote = createServerFn({ method: "POST" })
     for (const p of targetProfiles) {
       const priced = priceStoppedVehicle({ auth, profile: p, stopAddedPerVehicle: econ.stopCharges.addedTotal, qty: 1 });
       if (!resolveAvailability(auth.ruleSets.availabilityRules, priced.ctx).available) continue;
+      if (data.return_journey && data.returnDate && data.returnTime
+        && !resolveAvailability(auth.ruleSets.availabilityRules, returnLegContext(priced.ctx, data.returnDate, data.returnTime)).available) continue;
       vehicles.push({
         vehicle_id: p.vehicle.id,
         vehicle_name: p.vehicle.name,
