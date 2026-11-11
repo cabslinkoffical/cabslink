@@ -6,12 +6,13 @@ describe("sitemap public routes", () => {
     "/", "/about", "/services", "/fleet", "/tours", "/contact",
     "/corporate-booking", "/drive-with-us",
     "/booking-policy", "/refund-policy", "/accessibility",
+    "/privacy", "/terms", "/cookies",
   ];
   it.each(required)("includes %s", (p) => {
     expect(PUBLIC_ROUTES).toContain(p);
   });
   // Phase 5: booking-flow, utility and legal pages stay out of the sitemap.
-  it.each(["/book", "/book/hourly", "/book/tour", "/distance", "/privacy", "/terms", "/cookies", "/image-credits"])(
+  it.each(["/book", "/book/hourly", "/book/tour", "/distance", "/image-credits"])(
     "excludes %s",
     (p) => {
       expect(PUBLIC_ROUTES).not.toContain(p);
