@@ -247,6 +247,7 @@ describe("B03 — return journeys save and check their schedule", () => {
     expect(saved.price).toBe(60);
   });
   it("quote rejects a same-time return before showing any fare", async () => {
+    vi.mocked(helpers.computeVehicleQuote).mockClear();
     await expect(calculateQuotes({ data: { ...base, return_journey: true, returnDate: "2026-08-01", returnTime: "14:00" } })).rejects.toThrow(/after your outbound/);
     expect(helpers.computeVehicleQuote).not.toHaveBeenCalled();
   });
