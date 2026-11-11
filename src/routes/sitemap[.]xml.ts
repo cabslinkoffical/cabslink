@@ -1,80 +1,35 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
-import { fetchAllPages } from "@/lib/sitemap-routes";
-import { createClient } from "@supabase/supabase-js";
-import type { Database } from "@/integrations/supabase/types";
-import { DESTINATION_TYPES, type Destination, type DestinationType } from "@/lib/destinations.functions";
-import { evaluateQuality } from "@/lib/seo/quality";
-
 import { PUBLIC_ROUTES } from "@/lib/sitemap-routes";
-
-const BASE_URL = "https://cabslink.com";
 
 export { PUBLIC_ROUTES };
 
-function serverPublicClient() {
-  const key = process.env.SUPABASE_PUBLISHABLE_KEY!;
-  return createClient<Database>(process.env.SUPABASE_URL!, key, {
-    auth: { persistSession: false, autoRefreshToken: false },
-    global: {
-      fetch: (input, init) => {
-        const h = new Headers(init?.headers);
-        if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`) h.delete("Authorization");
-        h.set("apikey", key);
-        return fetch(input, { ...init, headers: h });
-      },
-    },
-  });
-}
-
 /**
- * Sitemap index: references the static-route sitemap (/sitemap-core.xml) plus
- * one sub-sitemap per destination type that actually has indexable pages, so
- * crawlers never fetch empty urlsets.
+ * Sitemap index: the core sitemap plus one sub-sitemap per destination type
+ * with indexable pages. Each entry carries its child's newest <lastmod>.
  */
 export const Route = createFileRoute("/sitemap.xml")({
   server: {
     handlers: {
       GET: async () => {
-        let types: DestinationType[] = [];
+        const { buildCoreEntries, listTypeSitemaps, newestLastmod, SITEMAP_BASE_URL, SITEMAP_HEADERS, SITEMAP_UNAVAILABLE } = await import("@/lib/sitemap-build.server");
         try {
-          const sb = serverPublicClient();
-          const data = await fetchAllPages((from, to) => sb
-            .from("destinations")
-            .select("*")
-            .eq("active", true)
-            .eq("seo_tier", 1)
-            .eq("noindex", false)
-            .order("id")
-          .range(from, to));
-          // Mirror the renderer's quality gate so we never advertise a
-          // sub-sitemap whose pages all render `noindex`.
-          const present = new Set(
-            (data ?? [])
-              .filter((r) => !evaluateQuality(r as unknown as Destination).effectiveNoindex)
-              .map((r) => r.type as DestinationType),
-          );
-          types = DESTINATION_TYPES.filter((t) => present.has(t));
+          const [core, types] = await Promise.all([buildCoreEntries(), listTypeSitemaps()]);
+          const item = (loc: string, lastmod: string | null) =>
+            `  <sitemap><loc>${SITEMAP_BASE_URL}${loc}</loc>${lastmod ? `<lastmod>${lastmod}</lastmod>` : ""}</sitemap>`;
+          const xml = [
+            `<?xml version="1.0" encoding="UTF-8"?>`,
+            `<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`,
+            item("/sitemap-core.xml", newestLastmod(core)),
+            ...types.map((t) => item(`/sitemaps/${t.type}.xml`, t.lastmod)),
+            `</sitemapindex>`,
+          ].join("\n");
+          return new Response(xml, { headers: SITEMAP_HEADERS });
         } catch (error) {
           console.error("Sitemap index public query failed", error);
-          return new Response("Sitemap temporarily unavailable", { status: 503, headers: { "Cache-Control": "no-store" } });
+          return SITEMAP_UNAVAILABLE();
         }
-
-
-        const indexXml = [
-          `<?xml version="1.0" encoding="UTF-8"?>`,
-          `<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`,
-          `  <sitemap><loc>${BASE_URL}/sitemap-core.xml</loc></sitemap>`,
-          ...types.map((t) => `  <sitemap><loc>${BASE_URL}/sitemaps/${t}.xml</loc></sitemap>`),
-          `</sitemapindex>`,
-        ].join("\n");
-
-        return new Response(indexXml, {
-          headers: { "Content-Type": "application/xml", "Cache-Control": "public, max-age=3600" },
-        });
       },
     },
   },
 });
-
-
