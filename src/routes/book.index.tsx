@@ -2518,7 +2518,7 @@ function Toggle({ label, checked, onChange }: { label: string; checked: boolean;
   return (
     <label className="flex items-center justify-between gap-3 rounded-xl border border-border bg-background px-4 py-3 cursor-pointer hover:border-[var(--gold)]/50 transition">
       <span className="text-sm font-medium">{label}</span>
-      <Switch checked={checked} onCheckedChange={onChange} />
+      <Switch aria-label={label} checked={checked} onCheckedChange={onChange} />
     </label>
   );
 }
