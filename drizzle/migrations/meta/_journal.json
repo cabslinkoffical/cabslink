@@ -183,6 +183,13 @@
       "when": 1794415769026,
       "tag": "0025_indexnow_submissions",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1794423047208,
+      "tag": "0026_tour_webp_and_blog_og_cleanup",
+      "breakpoints": true
     }
   ]
 }
