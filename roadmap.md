@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Booking edge-case pass: reproduce edit/reset, luggage capacity, scenic-quote failures and payment-step gates; fix confirmed errors and run regression/browser checks.
 - [x] Return-journey edits: quote requests/cache now include return context and schedule; vehicle fares show both legs without duplicating checkout totals; equal/earlier times rejected and both-leg availability checked. Real Edgware–Edinburgh journey verified adding/removing/re-adding and mobile editing (£814.85 one way / £1,629.70 return); 53 targeted tests pass, build OK. No booking submitted or publication.
 - [x] Grouped header menu: Home, Services (Transfers / Groups & occasions / Business), Destinations (Travel hubs / Places), Fleet, Tours, Company (About / Help), Contact; desktop panels and phone folding sections checked at 1024/1280/1440/390, no page errors.
 - [x] AI search readability: every public page gets real text, clear headings and structured data; report pages still thin. (venue FAQs extended from page data; thin list reported; owner facts still needed for 11 thin pages)
