@@ -2196,6 +2196,33 @@ export type Database = {
           },
         ]
       }
+      indexnow_submissions: {
+        Row: {
+          created_at: string
+          http_status: number | null
+          id: string
+          kind: string
+          submitted_by: string | null
+          url_count: number
+        }
+        Insert: {
+          created_at?: string
+          http_status?: number | null
+          id?: string
+          kind?: string
+          submitted_by?: string | null
+          url_count?: number
+        }
+        Update: {
+          created_at?: string
+          http_status?: number | null
+          id?: string
+          kind?: string
+          submitted_by?: string | null
+          url_count?: number
+        }
+        Relationships: []
+      }
       location_pricing_rules: {
         Row: {
           active: boolean
