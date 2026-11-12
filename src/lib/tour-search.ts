@@ -5,7 +5,7 @@ type SearchableTour = {
   destination_label: string | null;
   theme: string | null;
   theme_group: string | null;
-  category_order: number | null;
+  category_order?: number | null;
 };
 
 function searchText(value: string) {
