@@ -11,6 +11,7 @@ import { CustomTourBuilder } from "@/components/site/CustomTourBuilder";
 import { listPublishedTours, type PublicTourListItem } from "@/lib/tours.functions";
 import { collectionPageSchema } from "@/components/seo/schema";
 import { itemListSchema } from "@/lib/seo/hub-head";
+import { matchesTourSearch, tourSearchThemes } from "@/lib/tour-search";
 
 
 const toursQuery = queryOptions({
@@ -89,18 +90,6 @@ export const Route = createFileRoute("/tours/")({
   component: ToursPage,
 });
 
-function matchesQuery(t: PublicTourListItem, needle: string) {
-  if (!needle) return true;
-  const hay = [t.name, t.short_description, t.origin_label, t.destination_label, t.theme]
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase();
-  return needle
-    .toLowerCase()
-    .split(/\s+/)
-    .filter(Boolean)
-    .every((w) => hay.includes(w));
-}
 
 
 
@@ -122,19 +111,10 @@ function ToursPage() {
         };
       },
       replace: true,
+      resetScroll: false,
     });
 
-  const themes = useMemo(
-    () =>
-      // Admin-set category order (Tour categories), then A–Z for anything unordered.
-      // Hidden categories (switched off in admin) have no order and get no filter button.
-      Array.from(new Set(allTours.filter((t) => t.category_order != null).map((t) => t.theme_group).filter((t): t is string => !!t))).sort((a, b) => {
-        const oa = allTours.find((t) => t.theme_group === a)?.category_order ?? 1e6;
-        const ob = allTours.find((t) => t.theme_group === b)?.category_order ?? 1e6;
-        return oa - ob || a.localeCompare(b);
-      }),
-    [allTours],
-  );
+  const themes = useMemo(() => tourSearchThemes(allTours), [allTours]);
 
   // Day trips first; long-day itineraries get their own section below so every
   // published tour page is reachable from this hub (no orphan pages).
@@ -143,7 +123,7 @@ function ToursPage() {
   const filtered = useMemo(
     () =>
       allTours.filter(
-        (t) => matchesQuery(t, q.trim()) && (!theme || (t.theme_group ?? "").toLowerCase() === theme.toLowerCase()),
+        (t) => matchesTourSearch(t, q, theme),
       ),
     [allTours, q, theme],
   );
@@ -171,8 +151,10 @@ function ToursPage() {
               onQ: (v) => setSearch({ q: v }),
               theme,
               onTheme: (v) => setSearch({ theme: v }),
+              onReset: () => setSearch({ q: "", theme: "" }),
               themes,
               resultCount: filtered.length,
+              totalCount: allTours.length,
             }}
           />
         </div>
@@ -262,7 +244,7 @@ function ToursPage() {
             subtitle="Send us your must-see stops and preferred pace. We'll build the itinerary and quote it transparently."
           />
           <div className="mt-6 flex flex-col sm:flex-row justify-center gap-3">
-            <Button asChild size="lg"><Link to="/contact">Request a custom tour</Link></Button>
+            <Button asChild size="lg"><Link to="/book/tour">Build a custom tour</Link></Button>
             <Button asChild size="lg" variant="outline"><Link to="/book">Standard transfer</Link></Button>
           </div>
         </div>
