@@ -29,21 +29,27 @@ import { Route as CruiseTransfersRouteImport } from './routes/cruise-transfers'
 import { Route as CustomTourStatusRouteImport } from './routes/custom-tour-status'
 import { Route as DistanceRouteImport } from './routes/distance'
 import { Route as DriveWithUsRouteImport } from './routes/drive-with-us'
+import { Route as EdinburghChauffeurRouteImport } from './routes/edinburgh-chauffeur'
 import { Route as EventTransportRouteImport } from './routes/event-transport'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as FleetRouteImport } from './routes/fleet'
 import { Route as FootballTransfersRouteImport } from './routes/football-transfers'
 import { Route as GetAQuoteRouteImport } from './routes/get-a-quote'
+import { Route as GlasgowAirportTransfersRouteImport } from './routes/glasgow-airport-transfers'
 import { Route as GolfTransfersRouteImport } from './routes/golf-transfers'
 import { Route as GroupTransfersRouteImport } from './routes/group-transfers'
+import { Route as HighlandsPrivateToursRouteImport } from './routes/highlands-private-tours'
 import { Route as HospitalTransfersRouteImport } from './routes/hospital-transfers'
 import { Route as ImageCreditsRouteImport } from './routes/image-credits'
 import { Route as IndexnowKeyDottxtRouteImport } from './routes/indexnow-key[.]txt'
+import { Route as IsleOfSkyeToursRouteImport } from './routes/isle-of-skye-tours'
 import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
+import { Route as LochNessToursRouteImport } from './routes/loch-ness-tours'
 import { Route as LongDistanceTransfersRouteImport } from './routes/long-distance-transfers'
 import { Route as ManageBookingRouteImport } from './routes/manage-booking'
 import { Route as MinibusHireRouteImport } from './routes/minibus-hire'
 import { Route as OurServicesRouteImport } from './routes/our-services'
+import { Route as OutlanderToursRouteImport } from './routes/outlander-tours'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
 import { Route as ReviewsRouteImport } from './routes/reviews'
@@ -51,6 +57,7 @@ import { Route as SearchRouteImport } from './routes/search'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as SitemapCoreDotxmlRouteImport } from './routes/sitemap-core[.]xml'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as StAndrewsGolfTransfersRouteImport } from './routes/st-andrews-golf-transfers'
 import { Route as StadiumTransfersRouteImport } from './routes/stadium-transfers'
 import { Route as TeamSportsTravelRouteImport } from './routes/team-sports-travel'
 import { Route as TermsRouteImport } from './routes/terms'
@@ -259,6 +266,11 @@ const DriveWithUsRoute = DriveWithUsRouteImport.update({
   path: '/drive-with-us',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EdinburghChauffeurRoute = EdinburghChauffeurRouteImport.update({
+  id: '/edinburgh-chauffeur',
+  path: '/edinburgh-chauffeur',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EventTransportRoute = EventTransportRouteImport.update({
   id: '/event-transport',
   path: '/event-transport',
@@ -284,6 +296,11 @@ const GetAQuoteRoute = GetAQuoteRouteImport.update({
   path: '/get-a-quote',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GlasgowAirportTransfersRoute = GlasgowAirportTransfersRouteImport.update({
+  id: '/glasgow-airport-transfers',
+  path: '/glasgow-airport-transfers',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GolfTransfersRoute = GolfTransfersRouteImport.update({
   id: '/golf-transfers',
   path: '/golf-transfers',
@@ -292,6 +309,11 @@ const GolfTransfersRoute = GolfTransfersRouteImport.update({
 const GroupTransfersRoute = GroupTransfersRouteImport.update({
   id: '/group-transfers',
   path: '/group-transfers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HighlandsPrivateToursRoute = HighlandsPrivateToursRouteImport.update({
+  id: '/highlands-private-tours',
+  path: '/highlands-private-tours',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HospitalTransfersRoute = HospitalTransfersRouteImport.update({
@@ -309,9 +331,19 @@ const IndexnowKeyDottxtRoute = IndexnowKeyDottxtRouteImport.update({
   path: '/indexnow-key.txt',
   getParentRoute: () => rootRouteImport,
 } as any)
+const IsleOfSkyeToursRoute = IsleOfSkyeToursRouteImport.update({
+  id: '/isle-of-skye-tours',
+  path: '/isle-of-skye-tours',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LlmsDottxtRoute = LlmsDottxtRouteImport.update({
   id: '/llms.txt',
   path: '/llms.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LochNessToursRoute = LochNessToursRouteImport.update({
+  id: '/loch-ness-tours',
+  path: '/loch-ness-tours',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LongDistanceTransfersRoute = LongDistanceTransfersRouteImport.update({
@@ -332,6 +364,11 @@ const MinibusHireRoute = MinibusHireRouteImport.update({
 const OurServicesRoute = OurServicesRouteImport.update({
   id: '/our-services',
   path: '/our-services',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OutlanderToursRoute = OutlanderToursRouteImport.update({
+  id: '/outlander-tours',
+  path: '/outlander-tours',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -367,6 +404,11 @@ const SitemapCoreDotxmlRoute = SitemapCoreDotxmlRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StAndrewsGolfTransfersRoute = StAndrewsGolfTransfersRouteImport.update({
+  id: '/st-andrews-golf-transfers',
+  path: '/st-andrews-golf-transfers',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StadiumTransfersRoute = StadiumTransfersRouteImport.update({
@@ -977,21 +1019,27 @@ export interface FileRoutesByFullPath {
   '/custom-tour-status': typeof CustomTourStatusRoute
   '/distance': typeof DistanceRoute
   '/drive-with-us': typeof DriveWithUsRoute
+  '/edinburgh-chauffeur': typeof EdinburghChauffeurRoute
   '/event-transport': typeof EventTransportRoute
   '/faq': typeof FaqRoute
   '/fleet': typeof FleetRoute
   '/football-transfers': typeof FootballTransfersRoute
   '/get-a-quote': typeof GetAQuoteRoute
+  '/glasgow-airport-transfers': typeof GlasgowAirportTransfersRoute
   '/golf-transfers': typeof GolfTransfersRoute
   '/group-transfers': typeof GroupTransfersRoute
+  '/highlands-private-tours': typeof HighlandsPrivateToursRoute
   '/hospital-transfers': typeof HospitalTransfersRoute
   '/image-credits': typeof ImageCreditsRoute
   '/indexnow-key.txt': typeof IndexnowKeyDottxtRoute
+  '/isle-of-skye-tours': typeof IsleOfSkyeToursRoute
   '/llms.txt': typeof LlmsDottxtRoute
+  '/loch-ness-tours': typeof LochNessToursRoute
   '/long-distance-transfers': typeof LongDistanceTransfersRoute
   '/manage-booking': typeof ManageBookingRoute
   '/minibus-hire': typeof MinibusHireRoute
   '/our-services': typeof OurServicesRoute
+  '/outlander-tours': typeof OutlanderToursRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/reviews': typeof ReviewsRoute
@@ -999,6 +1047,7 @@ export interface FileRoutesByFullPath {
   '/services': typeof ServicesRoute
   '/sitemap-core.xml': typeof SitemapCoreDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/st-andrews-golf-transfers': typeof StAndrewsGolfTransfersRoute
   '/stadium-transfers': typeof StadiumTransfersRoute
   '/team-sports-travel': typeof TeamSportsTravelRoute
   '/terms': typeof TermsRoute
@@ -1126,21 +1175,27 @@ export interface FileRoutesByTo {
   '/custom-tour-status': typeof CustomTourStatusRoute
   '/distance': typeof DistanceRoute
   '/drive-with-us': typeof DriveWithUsRoute
+  '/edinburgh-chauffeur': typeof EdinburghChauffeurRoute
   '/event-transport': typeof EventTransportRoute
   '/faq': typeof FaqRoute
   '/fleet': typeof FleetRoute
   '/football-transfers': typeof FootballTransfersRoute
   '/get-a-quote': typeof GetAQuoteRoute
+  '/glasgow-airport-transfers': typeof GlasgowAirportTransfersRoute
   '/golf-transfers': typeof GolfTransfersRoute
   '/group-transfers': typeof GroupTransfersRoute
+  '/highlands-private-tours': typeof HighlandsPrivateToursRoute
   '/hospital-transfers': typeof HospitalTransfersRoute
   '/image-credits': typeof ImageCreditsRoute
   '/indexnow-key.txt': typeof IndexnowKeyDottxtRoute
+  '/isle-of-skye-tours': typeof IsleOfSkyeToursRoute
   '/llms.txt': typeof LlmsDottxtRoute
+  '/loch-ness-tours': typeof LochNessToursRoute
   '/long-distance-transfers': typeof LongDistanceTransfersRoute
   '/manage-booking': typeof ManageBookingRoute
   '/minibus-hire': typeof MinibusHireRoute
   '/our-services': typeof OurServicesRoute
+  '/outlander-tours': typeof OutlanderToursRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/reviews': typeof ReviewsRoute
@@ -1148,6 +1203,7 @@ export interface FileRoutesByTo {
   '/services': typeof ServicesRoute
   '/sitemap-core.xml': typeof SitemapCoreDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/st-andrews-golf-transfers': typeof StAndrewsGolfTransfersRoute
   '/stadium-transfers': typeof StadiumTransfersRoute
   '/team-sports-travel': typeof TeamSportsTravelRoute
   '/terms': typeof TermsRoute
@@ -1277,21 +1333,27 @@ export interface FileRoutesById {
   '/custom-tour-status': typeof CustomTourStatusRoute
   '/distance': typeof DistanceRoute
   '/drive-with-us': typeof DriveWithUsRoute
+  '/edinburgh-chauffeur': typeof EdinburghChauffeurRoute
   '/event-transport': typeof EventTransportRoute
   '/faq': typeof FaqRoute
   '/fleet': typeof FleetRoute
   '/football-transfers': typeof FootballTransfersRoute
   '/get-a-quote': typeof GetAQuoteRoute
+  '/glasgow-airport-transfers': typeof GlasgowAirportTransfersRoute
   '/golf-transfers': typeof GolfTransfersRoute
   '/group-transfers': typeof GroupTransfersRoute
+  '/highlands-private-tours': typeof HighlandsPrivateToursRoute
   '/hospital-transfers': typeof HospitalTransfersRoute
   '/image-credits': typeof ImageCreditsRoute
   '/indexnow-key.txt': typeof IndexnowKeyDottxtRoute
+  '/isle-of-skye-tours': typeof IsleOfSkyeToursRoute
   '/llms.txt': typeof LlmsDottxtRoute
+  '/loch-ness-tours': typeof LochNessToursRoute
   '/long-distance-transfers': typeof LongDistanceTransfersRoute
   '/manage-booking': typeof ManageBookingRoute
   '/minibus-hire': typeof MinibusHireRoute
   '/our-services': typeof OurServicesRoute
+  '/outlander-tours': typeof OutlanderToursRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/reviews': typeof ReviewsRoute
@@ -1299,6 +1361,7 @@ export interface FileRoutesById {
   '/services': typeof ServicesRoute
   '/sitemap-core.xml': typeof SitemapCoreDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/st-andrews-golf-transfers': typeof StAndrewsGolfTransfersRoute
   '/stadium-transfers': typeof StadiumTransfersRoute
   '/team-sports-travel': typeof TeamSportsTravelRoute
   '/terms': typeof TermsRoute
@@ -1429,21 +1492,27 @@ export interface FileRouteTypes {
     | '/custom-tour-status'
     | '/distance'
     | '/drive-with-us'
+    | '/edinburgh-chauffeur'
     | '/event-transport'
     | '/faq'
     | '/fleet'
     | '/football-transfers'
     | '/get-a-quote'
+    | '/glasgow-airport-transfers'
     | '/golf-transfers'
     | '/group-transfers'
+    | '/highlands-private-tours'
     | '/hospital-transfers'
     | '/image-credits'
     | '/indexnow-key.txt'
+    | '/isle-of-skye-tours'
     | '/llms.txt'
+    | '/loch-ness-tours'
     | '/long-distance-transfers'
     | '/manage-booking'
     | '/minibus-hire'
     | '/our-services'
+    | '/outlander-tours'
     | '/privacy'
     | '/refund-policy'
     | '/reviews'
@@ -1451,6 +1520,7 @@ export interface FileRouteTypes {
     | '/services'
     | '/sitemap-core.xml'
     | '/sitemap.xml'
+    | '/st-andrews-golf-transfers'
     | '/stadium-transfers'
     | '/team-sports-travel'
     | '/terms'
@@ -1578,21 +1648,27 @@ export interface FileRouteTypes {
     | '/custom-tour-status'
     | '/distance'
     | '/drive-with-us'
+    | '/edinburgh-chauffeur'
     | '/event-transport'
     | '/faq'
     | '/fleet'
     | '/football-transfers'
     | '/get-a-quote'
+    | '/glasgow-airport-transfers'
     | '/golf-transfers'
     | '/group-transfers'
+    | '/highlands-private-tours'
     | '/hospital-transfers'
     | '/image-credits'
     | '/indexnow-key.txt'
+    | '/isle-of-skye-tours'
     | '/llms.txt'
+    | '/loch-ness-tours'
     | '/long-distance-transfers'
     | '/manage-booking'
     | '/minibus-hire'
     | '/our-services'
+    | '/outlander-tours'
     | '/privacy'
     | '/refund-policy'
     | '/reviews'
@@ -1600,6 +1676,7 @@ export interface FileRouteTypes {
     | '/services'
     | '/sitemap-core.xml'
     | '/sitemap.xml'
+    | '/st-andrews-golf-transfers'
     | '/stadium-transfers'
     | '/team-sports-travel'
     | '/terms'
@@ -1728,21 +1805,27 @@ export interface FileRouteTypes {
     | '/custom-tour-status'
     | '/distance'
     | '/drive-with-us'
+    | '/edinburgh-chauffeur'
     | '/event-transport'
     | '/faq'
     | '/fleet'
     | '/football-transfers'
     | '/get-a-quote'
+    | '/glasgow-airport-transfers'
     | '/golf-transfers'
     | '/group-transfers'
+    | '/highlands-private-tours'
     | '/hospital-transfers'
     | '/image-credits'
     | '/indexnow-key.txt'
+    | '/isle-of-skye-tours'
     | '/llms.txt'
+    | '/loch-ness-tours'
     | '/long-distance-transfers'
     | '/manage-booking'
     | '/minibus-hire'
     | '/our-services'
+    | '/outlander-tours'
     | '/privacy'
     | '/refund-policy'
     | '/reviews'
@@ -1750,6 +1833,7 @@ export interface FileRouteTypes {
     | '/services'
     | '/sitemap-core.xml'
     | '/sitemap.xml'
+    | '/st-andrews-golf-transfers'
     | '/stadium-transfers'
     | '/team-sports-travel'
     | '/terms'
@@ -1880,21 +1964,27 @@ export interface RootRouteChildren {
   CustomTourStatusRoute: typeof CustomTourStatusRoute
   DistanceRoute: typeof DistanceRoute
   DriveWithUsRoute: typeof DriveWithUsRoute
+  EdinburghChauffeurRoute: typeof EdinburghChauffeurRoute
   EventTransportRoute: typeof EventTransportRoute
   FaqRoute: typeof FaqRoute
   FleetRoute: typeof FleetRoute
   FootballTransfersRoute: typeof FootballTransfersRoute
   GetAQuoteRoute: typeof GetAQuoteRoute
+  GlasgowAirportTransfersRoute: typeof GlasgowAirportTransfersRoute
   GolfTransfersRoute: typeof GolfTransfersRoute
   GroupTransfersRoute: typeof GroupTransfersRoute
+  HighlandsPrivateToursRoute: typeof HighlandsPrivateToursRoute
   HospitalTransfersRoute: typeof HospitalTransfersRoute
   ImageCreditsRoute: typeof ImageCreditsRoute
   IndexnowKeyDottxtRoute: typeof IndexnowKeyDottxtRoute
+  IsleOfSkyeToursRoute: typeof IsleOfSkyeToursRoute
   LlmsDottxtRoute: typeof LlmsDottxtRoute
+  LochNessToursRoute: typeof LochNessToursRoute
   LongDistanceTransfersRoute: typeof LongDistanceTransfersRoute
   ManageBookingRoute: typeof ManageBookingRoute
   MinibusHireRoute: typeof MinibusHireRoute
   OurServicesRoute: typeof OurServicesRoute
+  OutlanderToursRoute: typeof OutlanderToursRoute
   PrivacyRoute: typeof PrivacyRoute
   RefundPolicyRoute: typeof RefundPolicyRoute
   ReviewsRoute: typeof ReviewsRoute
@@ -1902,6 +1992,7 @@ export interface RootRouteChildren {
   ServicesRoute: typeof ServicesRoute
   SitemapCoreDotxmlRoute: typeof SitemapCoreDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  StAndrewsGolfTransfersRoute: typeof StAndrewsGolfTransfersRoute
   StadiumTransfersRoute: typeof StadiumTransfersRoute
   TeamSportsTravelRoute: typeof TeamSportsTravelRoute
   TermsRoute: typeof TermsRoute
@@ -2102,6 +2193,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DriveWithUsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/edinburgh-chauffeur': {
+      id: '/edinburgh-chauffeur'
+      path: '/edinburgh-chauffeur'
+      fullPath: '/edinburgh-chauffeur'
+      preLoaderRoute: typeof EdinburghChauffeurRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/event-transport': {
       id: '/event-transport'
       path: '/event-transport'
@@ -2137,6 +2235,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GetAQuoteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/glasgow-airport-transfers': {
+      id: '/glasgow-airport-transfers'
+      path: '/glasgow-airport-transfers'
+      fullPath: '/glasgow-airport-transfers'
+      preLoaderRoute: typeof GlasgowAirportTransfersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/golf-transfers': {
       id: '/golf-transfers'
       path: '/golf-transfers'
@@ -2149,6 +2254,13 @@ declare module '@tanstack/react-router' {
       path: '/group-transfers'
       fullPath: '/group-transfers'
       preLoaderRoute: typeof GroupTransfersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/highlands-private-tours': {
+      id: '/highlands-private-tours'
+      path: '/highlands-private-tours'
+      fullPath: '/highlands-private-tours'
+      preLoaderRoute: typeof HighlandsPrivateToursRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/hospital-transfers': {
@@ -2172,11 +2284,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexnowKeyDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/isle-of-skye-tours': {
+      id: '/isle-of-skye-tours'
+      path: '/isle-of-skye-tours'
+      fullPath: '/isle-of-skye-tours'
+      preLoaderRoute: typeof IsleOfSkyeToursRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/llms.txt': {
       id: '/llms.txt'
       path: '/llms.txt'
       fullPath: '/llms.txt'
       preLoaderRoute: typeof LlmsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loch-ness-tours': {
+      id: '/loch-ness-tours'
+      path: '/loch-ness-tours'
+      fullPath: '/loch-ness-tours'
+      preLoaderRoute: typeof LochNessToursRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/long-distance-transfers': {
@@ -2205,6 +2331,13 @@ declare module '@tanstack/react-router' {
       path: '/our-services'
       fullPath: '/our-services'
       preLoaderRoute: typeof OurServicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/outlander-tours': {
+      id: '/outlander-tours'
+      path: '/outlander-tours'
+      fullPath: '/outlander-tours'
+      preLoaderRoute: typeof OutlanderToursRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -2254,6 +2387,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/st-andrews-golf-transfers': {
+      id: '/st-andrews-golf-transfers'
+      path: '/st-andrews-golf-transfers'
+      fullPath: '/st-andrews-golf-transfers'
+      preLoaderRoute: typeof StAndrewsGolfTransfersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/stadium-transfers': {
@@ -3220,21 +3360,27 @@ const rootRouteChildren: RootRouteChildren = {
   CustomTourStatusRoute: CustomTourStatusRoute,
   DistanceRoute: DistanceRoute,
   DriveWithUsRoute: DriveWithUsRoute,
+  EdinburghChauffeurRoute: EdinburghChauffeurRoute,
   EventTransportRoute: EventTransportRoute,
   FaqRoute: FaqRoute,
   FleetRoute: FleetRoute,
   FootballTransfersRoute: FootballTransfersRoute,
   GetAQuoteRoute: GetAQuoteRoute,
+  GlasgowAirportTransfersRoute: GlasgowAirportTransfersRoute,
   GolfTransfersRoute: GolfTransfersRoute,
   GroupTransfersRoute: GroupTransfersRoute,
+  HighlandsPrivateToursRoute: HighlandsPrivateToursRoute,
   HospitalTransfersRoute: HospitalTransfersRoute,
   ImageCreditsRoute: ImageCreditsRoute,
   IndexnowKeyDottxtRoute: IndexnowKeyDottxtRoute,
+  IsleOfSkyeToursRoute: IsleOfSkyeToursRoute,
   LlmsDottxtRoute: LlmsDottxtRoute,
+  LochNessToursRoute: LochNessToursRoute,
   LongDistanceTransfersRoute: LongDistanceTransfersRoute,
   ManageBookingRoute: ManageBookingRoute,
   MinibusHireRoute: MinibusHireRoute,
   OurServicesRoute: OurServicesRoute,
+  OutlanderToursRoute: OutlanderToursRoute,
   PrivacyRoute: PrivacyRoute,
   RefundPolicyRoute: RefundPolicyRoute,
   ReviewsRoute: ReviewsRoute,
@@ -3242,6 +3388,7 @@ const rootRouteChildren: RootRouteChildren = {
   ServicesRoute: ServicesRoute,
   SitemapCoreDotxmlRoute: SitemapCoreDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  StAndrewsGolfTransfersRoute: StAndrewsGolfTransfersRoute,
   StadiumTransfersRoute: StadiumTransfersRoute,
   TeamSportsTravelRoute: TeamSportsTravelRoute,
   TermsRoute: TermsRoute,
