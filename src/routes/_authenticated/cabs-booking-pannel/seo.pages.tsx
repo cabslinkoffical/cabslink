@@ -13,6 +13,7 @@ import { PageHeader } from "@/components/admin/ui";
 import { SeoTable } from "@/components/admin/SeoTable";
 import { Plus, RefreshCw, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
+import { SeoLiveCheck } from "@/components/admin/SeoLiveCheck";
 import { MediaUrlInput } from "@/components/admin/media/MediaPicker";
 
 const opts = queryOptions({ queryKey: ["admin", "seo", "pages"], queryFn: () => listSeoPages() });
@@ -164,6 +165,7 @@ function Page() {
                 <p className="text-[11px] text-muted-foreground mt-1">{form.meta_description.length}/160</p>
               </Field>
               <Field label="H1" className="col-span-2"><Input value={form.h1} onChange={e => setForm({ ...form, h1: e.target.value })} /></Field>
+              <div className="col-span-2"><SeoLiveCheck path={form.path} title={form.seo_title} description={form.meta_description} h1={form.h1} slug={form.slug} body={form.short_intro ?? ""} /></div>
               <Field label="Short intro" className="col-span-2"><Textarea rows={3} value={form.short_intro ?? ""} onChange={e => setForm({ ...form, short_intro: e.target.value })} /></Field>
               <Field label="Featured image"><MediaUrlInput folder="pages" value={form.featured_image_url ?? ""} onChange={(url) => setForm({ ...form, featured_image_url: url })} /></Field>
               <Field label="Share (OG) image"><MediaUrlInput folder="pages" value={form.og_image_url ?? ""} onChange={(url) => setForm({ ...form, og_image_url: url })} /></Field>

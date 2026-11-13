@@ -17,6 +17,7 @@ import {
   getAdminPost, upsertPost, deletePost,
   listCategoriesAdmin, listTagsAdmin, listAuthorsAdmin,
 } from "@/lib/blog-admin.functions";
+import { SeoLiveCheck } from "@/components/admin/SeoLiveCheck";
 import { MarkdownEditor } from "@/components/admin/blog/MarkdownEditor";
 import { extractToc, readingMinutes, slugify, type TocItem } from "@/lib/blog-markdown";
 
@@ -340,6 +341,7 @@ function PostEditor() {
               <Textarea rows={3} value={form.meta_description} onChange={(e) => setForm({ ...form, meta_description: e.target.value })} />
               <p className="mt-1 text-[11px] text-muted-foreground">{form.meta_description.length}/160 recommended</p>
             </div>
+            <SeoLiveCheck path={`/blog/${form.slug}`} title={form.seo_title || form.title} description={form.meta_description || form.excerpt} h1={form.title} slug={form.slug} body={form.body_md} />
             <ImageUploadField
               label="Social share (OG) image"
               folder="og"

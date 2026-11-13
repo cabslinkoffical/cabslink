@@ -253,4 +253,4 @@
 - [x] 8a "fixed fare" → "fixed price" wording
 - [x] 2 titles/descriptions · 3 structured data · 4 city-centre guide · 5b /stations · 6 seven landing pages
 - [x] 5a reviewed · 8b What's included added; [x] CTA wording · [x] 9 Seven-Seater MPV name kept (owner, 13 Nov) · [x] 10 links/alt (alt text already set; route↔guide link added) · [x] 11 390px check (no sideways scroll, 95 links no 404s, small review links enlarged); [ ] 12 site-wide review
-- [ ] Owner (13 Nov): after SEO brief, rebuild admin so content can be uploaded SEO-optimised (title/description/H1 length checks, schema, links) with consistent cross-page logic
+- [x] Owner (13 Nov): live SEO checklist + Google preview in page and blog editors; [ ] further admin areas on request — rebuild admin so content can be uploaded SEO-optimised (title/description/H1 length checks, schema, links) with consistent cross-page logic
