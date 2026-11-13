@@ -18,6 +18,8 @@ import {
   listCategoriesAdmin, listTagsAdmin, listAuthorsAdmin,
 } from "@/lib/blog-admin.functions";
 import { SeoLiveCheck } from "@/components/admin/SeoLiveCheck";
+import { DESC_MAX } from "@/lib/seo-live-checks";
+import { BLOG_SEO_OVERRIDES } from "@/lib/seo/blog-seo";
 import { MarkdownEditor } from "@/components/admin/blog/MarkdownEditor";
 import { extractToc, readingMinutes, slugify, type TocItem } from "@/lib/blog-markdown";
 
@@ -89,6 +91,7 @@ function PostEditor() {
   const qc = useQueryClient();
   const [form, setForm] = useState<FormState>(empty);
   const [slugDirty, setSlugDirty] = useState(false);
+  const searchOverride = BLOG_SEO_OVERRIDES[form.slug];
 
   const categories = useQuery({ queryKey: ["admin", "blog", "categories"], queryFn: () => listCategoriesAdmin() });
   const tags = useQuery({ queryKey: ["admin", "blog", "tags"], queryFn: () => listTagsAdmin() });
@@ -339,9 +342,10 @@ function PostEditor() {
             <div>
               <Label>Meta description</Label>
               <Textarea rows={3} value={form.meta_description} onChange={(e) => setForm({ ...form, meta_description: e.target.value })} />
-              <p className="mt-1 text-[11px] text-muted-foreground">{form.meta_description.length}/160 recommended</p>
+              <p className="mt-1 text-[11px] text-muted-foreground">{form.meta_description.length}/{DESC_MAX} recommended</p>
             </div>
-            <SeoLiveCheck path={`/blog/${form.slug}`} title={form.seo_title || form.title} description={form.meta_description || form.excerpt} h1={form.title} slug={form.slug} body={form.body_md} />
+            {searchOverride && <p className="text-xs text-muted-foreground">This article has a protected search listing. The preview below shows its actual public title and description.</p>}
+            <SeoLiveCheck path={`/blog/${form.slug}`} title={searchOverride?.title ?? (form.seo_title || form.title)} description={searchOverride?.description ?? (form.meta_description || form.excerpt)} h1={form.title} slug={form.slug} body={form.body_md} />
             <ImageUploadField
               label="Social share (OG) image"
               folder="og"

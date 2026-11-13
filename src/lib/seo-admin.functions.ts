@@ -5,6 +5,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import { buildPublicationIssues } from "@/lib/seo/publication-checks";
 
 async function assertAdmin(ctx: { supabase: any; userId: string }) {
   const { data, error } = await ctx.supabase.rpc("has_role", {
@@ -345,34 +346,20 @@ export const listSeoPages = createServerFn({ method: "GET" })
  * to preview issues. Returns { blockers, warnings } without mutating anything.
  */
 async function validatePageForPublish(ctx: { supabase: any }, page: any) {
-  const blockers: string[] = [];
-  const warnings: string[] = [];
-
-  if (!page.seo_title || page.seo_title.length < 30) warnings.push("SEO title is short (aim for 30–60 chars).");
-  if (page.seo_title && page.seo_title.length > 65) warnings.push("SEO title may truncate in SERP (>65 chars).");
-  if (!page.meta_description || page.meta_description.length < 90) warnings.push("Meta description is short (aim for 90–160 chars).");
-  if (!page.h1) blockers.push("Missing H1.");
-  if (!page.short_intro || page.short_intro.length < 120) warnings.push("Short intro is thin (<120 chars).");
-  if (!page.featured_image_url) warnings.push("No featured image set.");
-
-  // Duplicate title/description across published pages
-  const { data: dupTitle } = await ctx.supabase
-    .from("seo_pages").select("id, path").eq("seo_title", page.seo_title).eq("publication_status", "published").neq("id", page.id ?? "00000000-0000-0000-0000-000000000000");
-  if (dupTitle && dupTitle.length > 0) blockers.push(`Duplicate SEO title with published page: ${dupTitle[0].path}`);
-
-  const { data: dupDesc } = await ctx.supabase
-    .from("seo_pages").select("id, path").eq("meta_description", page.meta_description).eq("publication_status", "published").neq("id", page.id ?? "00000000-0000-0000-0000-000000000000");
-  if (dupDesc && dupDesc.length > 0) blockers.push(`Duplicate meta description with published page: ${dupDesc[0].path}`);
-
-  // Section count / minimum content
-  if (page.id) {
-    const { count } = await ctx.supabase
-      .from("seo_page_sections").select("*", { count: "exact", head: true })
-      .eq("page_id", page.id).eq("visible", true);
-    if ((count ?? 0) < 3) warnings.push("Fewer than 3 visible content sections — page may be thin.");
-  }
-
-  return { blockers, warnings };
+  const id = page.id ?? "00000000-0000-0000-0000-000000000000";
+  const [published, sections] = await Promise.all([
+    ctx.supabase.from("seo_pages").select("id, path, seo_title, meta_description, h1, short_intro, featured_image_url, og_image_url")
+      .eq("publication_status", "published").neq("id", id),
+    page.id ? ctx.supabase.from("seo_page_sections").select("page_id").eq("page_id", id).eq("visible", true)
+      : Promise.resolve({ data: [], error: null }),
+  ]);
+  if (published.error || sections.error) throw new Error("Could not verify publication quality. Please try again; the page has not been changed.");
+  const issues = buildPublicationIssues([{ ...page, id }, ...(published.data ?? [])], (sections.data ?? []).map((s: any) => s.page_id))
+    .filter((issue) => issue.page_id === id);
+  return {
+    blockers: issues.filter((issue) => issue.severity === "blocker").map((issue) => issue.message),
+    warnings: issues.filter((issue) => issue.severity !== "blocker").map((issue) => issue.message),
+  };
 }
 
 /**
@@ -391,7 +378,6 @@ export const rerunSeoPublicationChecks = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     const { data: secs, error: secErr } = await sb.from("seo_page_sections").select("page_id").eq("visible", true);
     if (secErr) throw new Error(secErr.message);
-    const { buildPublicationIssues } = await import("@/lib/seo/publication-checks");
     const issues = buildPublicationIssues(pages ?? [], (secs ?? []).map((s: any) => s.page_id));
 
     const now = new Date().toISOString();

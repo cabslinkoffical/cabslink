@@ -1,0 +1,1 @@
+- CMS FAQ editing, visible answers and JSON-LD share section-faqs helpers so all complete FAQ sections use the same compatible data.

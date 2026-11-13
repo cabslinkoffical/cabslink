@@ -1,0 +1,1 @@
+- Live SEO previews use public metadata helpers/overrides and shared advisory limits; do not truncate existing text or block draft saves solely for search recommendations.

@@ -12,7 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { PageHeader } from "@/components/admin/ui";
 import { SeoTable } from "@/components/admin/SeoTable";
-import { Plus, ChevronLeft } from "lucide-react";
+import { Plus, ChevronLeft, Trash2 } from "lucide-react";
+import { sectionFaqs } from "@/lib/seo/section-faqs";
 import { toast } from "sonner";
 
 const SECTION_TYPES = ["hero","intro","service_overview","local_travel_info","airport_pickup_instructions","route_overview","route_facts","fleet_recommendations","popular_destinations","nearby_airports","nearby_cities","relevant_services","relevant_tours","booking_cta","faqs","local_landmarks","corporate_travel_info","accessibility","custom_rich_text"];
@@ -22,6 +23,10 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/seo/pa
     meta: [
       { title: "Seo › Pages › Sections — Cabslink Admin" },
       { name: "description", content: "Cabslink staff console: seo › pages › sections." },
+      { property: "og:title", content: "Page Sections — Cabslink Admin" },
+      { property: "og:description", content: "Edit Cabslink page content and frequently asked questions." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
@@ -49,6 +54,9 @@ function Page() {
     setSaving(true);
     try {
       const clean = { ...form };
+      if (clean.section_type === "faqs" && sectionFaqs(clean.structured_payload).some(f => !f.question.trim() || !f.answer.trim())) {
+        toast.error("Complete both the question and answer, or remove the empty item."); return;
+      }
       if (!clean.heading) clean.heading = null;
       if (!clean.body) clean.body = null;
       await upsert({ data: clean });
@@ -86,7 +94,7 @@ function Page() {
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{form?.id ? "Edit section" : "New section"}</DialogTitle></DialogHeader>
           {form && (
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 [&>.col-span-2]:col-span-1 sm:[&>.col-span-2]:col-span-2">
               <Field label="Type">
                 <Select value={form.section_type} onValueChange={v => setForm({ ...form, section_type: v })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
@@ -95,7 +103,18 @@ function Page() {
               </Field>
               <Field label="Position"><Input type="number" value={form.position} onChange={e => setForm({ ...form, position: Number(e.target.value) })} /></Field>
               <Field label="Heading" className="col-span-2"><Input value={form.heading ?? ""} onChange={e => setForm({ ...form, heading: e.target.value })} /></Field>
-              <Field label="Body (markdown/plain)" className="col-span-2"><Textarea rows={6} value={form.body ?? ""} onChange={e => setForm({ ...form, body: e.target.value })} /></Field>
+              {form.section_type === "faqs" ? (
+                <div className="col-span-2 space-y-3">
+                  {sectionFaqs(form.structured_payload).map((faq, i, all) => (
+                    <div key={i} className="space-y-2 border-b border-border pb-3">
+                      <Input aria-label={`Question ${i + 1}`} value={faq.question} onChange={e => setForm({ ...form, structured_payload: { ...form.structured_payload, items: all.map((f, j) => j === i ? { ...f, question: e.target.value } : f) } })} />
+                      <Textarea aria-label={`Answer ${i + 1}`} value={faq.answer} onChange={e => setForm({ ...form, structured_payload: { ...form.structured_payload, items: all.map((f, j) => j === i ? { ...f, answer: e.target.value } : f) } })} />
+                      <Button variant="ghost" size="sm" onClick={() => setForm({ ...form, structured_payload: { ...form.structured_payload, items: all.filter((_, j) => j !== i) } })}><Trash2 className="size-4" />Remove question</Button>
+                    </div>
+                  ))}
+                  <Button variant="outline" onClick={() => setForm({ ...form, structured_payload: { ...form.structured_payload, items: [...sectionFaqs(form.structured_payload), { question: "", answer: "" }] } })}><Plus className="size-4" />Add question</Button>
+                </div>
+              ) : <Field label="Body (plain text)" className="col-span-2"><Textarea rows={6} value={form.body ?? ""} onChange={e => setForm({ ...form, body: e.target.value })} /></Field>}
               <Field label="Visible"><Switch checked={form.visible} onCheckedChange={v => setForm({ ...form, visible: v })} /></Field>
               <div className="col-span-2 flex justify-end gap-2 pt-2">
                 <Button variant="outline" onClick={() => setForm(null)}>Cancel</Button>

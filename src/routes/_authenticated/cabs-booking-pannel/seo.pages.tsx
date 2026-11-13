@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { listSeoPages, upsertSeoPage, deleteSeoPage, validateSeoPage, rerunSeoPublicationChecks } from "@/lib/seo-admin.functions";
@@ -14,6 +14,7 @@ import { SeoTable } from "@/components/admin/SeoTable";
 import { Plus, RefreshCw, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { SeoLiveCheck } from "@/components/admin/SeoLiveCheck";
+import { DESC_MAX } from "@/lib/seo-live-checks";
 import { MediaUrlInput } from "@/components/admin/media/MediaPicker";
 
 const opts = queryOptions({ queryKey: ["admin", "seo", "pages"], queryFn: () => listSeoPages() });
@@ -23,14 +24,23 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/seo/pa
     meta: [
       { title: "Seo › Pages — Cabslink Admin" },
       { name: "description", content: "Cabslink staff console: seo › pages." },
+      { property: "og:title", content: "SEO Pages — Cabslink Admin" },
+      { property: "og:description", content: "Manage Cabslink page search listings and publication quality." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(opts),
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error instanceof Error ? error.message : String(error)}</div>,
   notFoundComponent: () => <div className="p-8">Not found</div>,
-  component: Page,
+  component: PagesRoute,
 });
+
+function PagesRoute() {
+  const pathname = useRouterState({ select: state => state.location.pathname });
+  return pathname.replace(/\/$/, "") === "/cabs-booking-pannel/seo/pages" ? <Page /> : <Outlet />;
+}
 
 const PAGE_TYPES = ["regional_hub","location_hub","location_service","airport_hub","airport_transfer","airport_route","city_to_city_route","service","fleet_category","tour","local_guide"];
 const ENTITY_TYPES = ["location","airport","tour","port","train_station","service","fleet_category"];
@@ -68,6 +78,7 @@ function Page() {
   const [rerunning, setRerunning] = useState(false);
   const rerunChecks = useServerFn(rerunSeoPublicationChecks);
   const [check, setCheck] = useState<{ blockers: string[]; warnings: string[] } | null>(null);
+  const [checkedForm, setCheckedForm] = useState<string | null>(null);
 
   async function save() {
     setSaving(true);
@@ -96,7 +107,15 @@ function Page() {
   }
   async function runCheck() {
     if (!form?.id) { toast.info("Save the page first to run the quality check."); return; }
-    try { const r: any = await validate({ data: { id: form.id } }); setCheck({ blockers: r.blockers, warnings: r.warnings }); }
+    try {
+      const saved = data.rows.find((r: any) => r.id === form.id);
+      const baseline = { ...empty, ...saved };
+      const comparable = (value: unknown) => value === "" || value == null ? null : value;
+      const changed = Object.keys(empty).some(k => k !== "id" && JSON.stringify(comparable(form[k])) !== JSON.stringify(comparable(baseline[k])));
+      if (changed) { toast.info("Save your changes first. The quality check reads the saved page and its sections."); return; }
+      const r: any = await validate({ data: { id: form.id } });
+      setCheck({ blockers: r.blockers, warnings: r.warnings }); setCheckedForm(JSON.stringify(form));
+    }
     catch (e: any) { toast.error(e.message ?? "Check failed"); }
   }
 
@@ -134,7 +153,7 @@ function Page() {
         <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{form?.id ? "Edit SEO page" : "New SEO page"}</DialogTitle></DialogHeader>
           {form && (
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 [&>.col-span-2]:col-span-1 sm:[&>.col-span-2]:col-span-2">
               <Field label="Page type">
                 <Select value={form.page_type} onValueChange={v => setForm({ ...form, page_type: v })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
@@ -160,12 +179,12 @@ function Page() {
                 <Input value={form.seo_title} onChange={e => setForm({ ...form, seo_title: e.target.value })} />
                 <p className="text-[11px] text-muted-foreground mt-1">{form.seo_title.length}/60</p>
               </Field>
-              <Field label="Meta description (90–160 chars)" className="col-span-2">
+              <Field label={`Meta description (90–${DESC_MAX} chars)`} className="col-span-2">
                 <Textarea rows={2} value={form.meta_description} onChange={e => setForm({ ...form, meta_description: e.target.value })} />
-                <p className="text-[11px] text-muted-foreground mt-1">{form.meta_description.length}/160</p>
+                <p className="text-[11px] text-muted-foreground mt-1">{form.meta_description.length}/{DESC_MAX}</p>
               </Field>
               <Field label="H1" className="col-span-2"><Input value={form.h1} onChange={e => setForm({ ...form, h1: e.target.value })} /></Field>
-              <div className="col-span-2"><SeoLiveCheck path={form.path} title={form.seo_title} description={form.meta_description} h1={form.h1} slug={form.slug} body={form.short_intro ?? ""} /></div>
+              <div className="col-span-2"><SeoLiveCheck path={form.path} title={form.seo_title} description={form.meta_description} h1={form.h1} slug={form.slug} body={form.short_intro ?? ""} minWords={0} /><p className="mt-2 text-xs text-muted-foreground">This checks the introduction only. Review full content in Manage sections.</p></div>
               <Field label="Short intro" className="col-span-2"><Textarea rows={3} value={form.short_intro ?? ""} onChange={e => setForm({ ...form, short_intro: e.target.value })} /></Field>
               <Field label="Featured image"><MediaUrlInput folder="pages" value={form.featured_image_url ?? ""} onChange={(url) => setForm({ ...form, featured_image_url: url })} /></Field>
               <Field label="Share (OG) image"><MediaUrlInput folder="pages" value={form.og_image_url ?? ""} onChange={(url) => setForm({ ...form, og_image_url: url })} /></Field>
@@ -174,7 +193,7 @@ function Page() {
               <Field label="Display priority"><Input type="number" value={form.display_priority} onChange={e => setForm({ ...form, display_priority: Number(e.target.value) })} /></Field>
               <Field label="Vehicle category (optional)"><Input value={form.vehicle_category ?? ""} onChange={e => setForm({ ...form, vehicle_category: e.target.value })} /></Field>
 
-              {check && (
+              {check && checkedForm === JSON.stringify(form) && (
                 <div className="col-span-2 rounded-lg border border-border p-3 space-y-2 bg-muted/40">
                   <p className="text-sm font-semibold flex items-center gap-2"><ShieldCheck className="size-4 text-primary" /> Quality check</p>
                   {check.blockers.length === 0 && check.warnings.length === 0 && <p className="text-sm text-success">All checks passed — safe to publish.</p>}
