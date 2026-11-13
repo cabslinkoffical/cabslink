@@ -64,7 +64,7 @@ export function TourContentEditor({ t, onSaved }: { t: any; onSaved: () => void 
 
   return (
     <div className="space-y-5">
-      <SeoLiveCheck path={`/tours/${t.slug}`} title={tourMetaTitle(draft)} description={tourMetaDescription(draft)} h1={t.name} slug={t.slug} body={body} />
+      <SeoLiveCheck path={`/tours/${t.slug}`} title={tourMetaTitle(draft)} description={tourMetaDescription(draft)} h1={t.name} slug={t.slug} body={body} minWords={600} />
       <p className={`text-xs ${total >= 600 ? "text-success" : "text-warning"}`}>
         {total} words of written content on this tour page{total < 600 ? " — aim for at least 600." : "."}
       </p>

@@ -1,6 +1,6 @@
 /** Live SEO checks shown while staff type in admin editors (browser-safe, pure). */
 export type SeoCheckInput = {
-  title: string; description: string; h1?: string; keyword?: string; body?: string; slug?: string;
+  title: string; description: string; h1?: string; keyword?: string; body?: string; slug?: string; minWords?: number;
 };
 export type SeoCheck = { id: string; ok: boolean; level: "error" | "warn"; text: string };
 
@@ -20,7 +20,7 @@ export function runSeoChecks(i: SeoCheckInput): SeoCheck[] {
   ];
   if (i.h1 !== undefined) {
     out.push({ id: "h1", ok: h.length > 0, level: "error", text: "Page has a main heading (H1)" });
-    if (i.body !== undefined) out.push({ id: "h1-body", ok: !/^#\s/m.test(i.body), level: "warn", text: "Body has no second H1 (use ## for headings)" });
+    if (i.body !== undefined) out.push({ id: "h1-body", ok: !/(?:^|\n) {0,3}#\s|<h1\b|(?:^|\n)[^\n]+\n {0,3}=+\s*(?:\n|$)/i.test(i.body), level: "warn", text: "Body has no second H1 (use ## for headings)" });
   }
   if (k) {
     out.push({ id: "kw-title", ok: t.toLowerCase().startsWith(k) || t.toLowerCase().slice(0, 30).includes(k), level: "warn", text: "Main keyword near the start of the title" });
@@ -29,9 +29,10 @@ export function runSeoChecks(i: SeoCheckInput): SeoCheck[] {
   }
   if (i.body !== undefined) {
     const w = wordCount(i.body);
-    out.push({ id: "words", ok: w >= MIN_WORDS, level: "warn", text: `${w} words of content (aim ${MIN_WORDS}+)` });
-    out.push({ id: "todo", ok: !/\bTODO\b/.test(i.body), level: "error", text: "No unfinished TODO notes in the text" });
+    const minimum = i.minWords ?? MIN_WORDS;
+    if (minimum > 0) out.push({ id: "words", ok: w >= minimum, level: "warn", text: `${w} words of content (aim ${minimum}+)` });
   }
+  out.push({ id: "todo", ok: !/\bTODO\b/i.test(all), level: "error", text: "No unfinished TODO notes in the text" });
   if (i.slug !== undefined) out.push({ id: "slug", ok: /^[a-z0-9]+(-[a-z0-9]+)*$/.test(i.slug), level: "error", text: "Web address uses lowercase words and hyphens only" });
   return out;
 }
