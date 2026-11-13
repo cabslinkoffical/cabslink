@@ -252,3 +252,4 @@
 - [x] 7 robots/sitemap/llms.txt (already in place)
 - [x] 8a "fixed fare" → "fixed price" wording
 - [ ] 2 Title/description length audit · 3 JSON-LD gaps · 4 city-centre guide rewrite · 5 off-topic pages + /stations · 6 seven landing pages · 8b CTA + What's included · 9 Seven-Seater label decision · 10 links/alt · 11–12 phone/broken-link audit
+- [ ] Owner (13 Nov): after SEO brief, rebuild admin so content can be uploaded SEO-optimised (title/description/H1 length checks, schema, links) with consistent cross-page logic
