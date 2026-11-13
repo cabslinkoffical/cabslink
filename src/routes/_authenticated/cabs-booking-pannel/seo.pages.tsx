@@ -109,7 +109,8 @@ function Page() {
     if (!form?.id) { toast.info("Save the page first to run the quality check."); return; }
     try {
       const saved = data.rows.find((r: any) => r.id === form.id);
-      const changed = Object.keys(empty).some(k => k !== "id" && JSON.stringify(form[k] ?? null) !== JSON.stringify(saved?.[k] ?? empty[k] ?? null));
+      const comparable = (value: unknown) => value === "" || value == null ? null : value;
+      const changed = Object.keys(empty).some(k => k !== "id" && JSON.stringify(comparable(form[k])) !== JSON.stringify(comparable(saved?.[k] ?? empty[k])));
       if (changed) { toast.info("Save your changes first. The quality check reads the saved page and its sections."); return; }
       const r: any = await validate({ data: { id: form.id } });
       setCheck({ blockers: r.blockers, warnings: r.warnings }); setCheckedForm(JSON.stringify(form));
