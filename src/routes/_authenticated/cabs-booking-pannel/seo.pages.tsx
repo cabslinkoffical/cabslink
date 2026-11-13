@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { listSeoPages, upsertSeoPage, deleteSeoPage, validateSeoPage, rerunSeoPublicationChecks } from "@/lib/seo-admin.functions";
@@ -34,8 +34,13 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/seo/pa
   loader: ({ context }) => context.queryClient.ensureQueryData(opts),
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error instanceof Error ? error.message : String(error)}</div>,
   notFoundComponent: () => <div className="p-8">Not found</div>,
-  component: Page,
+  component: PagesRoute,
 });
+
+function PagesRoute() {
+  const pathname = useRouterState({ select: state => state.location.pathname });
+  return pathname.replace(/\/$/, "") === "/cabs-booking-pannel/seo/pages" ? <Page /> : <Outlet />;
+}
 
 const PAGE_TYPES = ["regional_hub","location_hub","location_service","airport_hub","airport_transfer","airport_route","city_to_city_route","service","fleet_category","tour","local_guide"];
 const ENTITY_TYPES = ["location","airport","tour","port","train_station","service","fleet_category"];
