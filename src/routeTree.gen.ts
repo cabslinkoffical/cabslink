@@ -31,6 +31,7 @@ import { Route as DistanceRouteImport } from './routes/distance'
 import { Route as DriveWithUsRouteImport } from './routes/drive-with-us'
 import { Route as EdinburghChauffeurRouteImport } from './routes/edinburgh-chauffeur'
 import { Route as EventTransportRouteImport } from './routes/event-transport'
+import { Route as FamilyAirportTransfersRouteImport } from './routes/family-airport-transfers'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as FleetRouteImport } from './routes/fleet'
 import { Route as FootballTransfersRouteImport } from './routes/football-transfers'
@@ -40,9 +41,11 @@ import { Route as GolfTransfersRouteImport } from './routes/golf-transfers'
 import { Route as GroupTransfersRouteImport } from './routes/group-transfers'
 import { Route as HighlandsPrivateToursRouteImport } from './routes/highlands-private-tours'
 import { Route as HospitalTransfersRouteImport } from './routes/hospital-transfers'
+import { Route as HotelTransfersRouteImport } from './routes/hotel-transfers'
 import { Route as ImageCreditsRouteImport } from './routes/image-credits'
 import { Route as IndexnowKeyDottxtRouteImport } from './routes/indexnow-key[.]txt'
 import { Route as IsleOfSkyeToursRouteImport } from './routes/isle-of-skye-tours'
+import { Route as LateNightAirportTransfersRouteImport } from './routes/late-night-airport-transfers'
 import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
 import { Route as LochNessToursRouteImport } from './routes/loch-ness-tours'
 import { Route as LongDistanceTransfersRouteImport } from './routes/long-distance-transfers'
@@ -276,6 +279,11 @@ const EventTransportRoute = EventTransportRouteImport.update({
   path: '/event-transport',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FamilyAirportTransfersRoute = FamilyAirportTransfersRouteImport.update({
+  id: '/family-airport-transfers',
+  path: '/family-airport-transfers',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FaqRoute = FaqRouteImport.update({
   id: '/faq',
   path: '/faq',
@@ -321,6 +329,11 @@ const HospitalTransfersRoute = HospitalTransfersRouteImport.update({
   path: '/hospital-transfers',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HotelTransfersRoute = HotelTransfersRouteImport.update({
+  id: '/hotel-transfers',
+  path: '/hotel-transfers',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ImageCreditsRoute = ImageCreditsRouteImport.update({
   id: '/image-credits',
   path: '/image-credits',
@@ -336,6 +349,12 @@ const IsleOfSkyeToursRoute = IsleOfSkyeToursRouteImport.update({
   path: '/isle-of-skye-tours',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LateNightAirportTransfersRoute =
+  LateNightAirportTransfersRouteImport.update({
+    id: '/late-night-airport-transfers',
+    path: '/late-night-airport-transfers',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const LlmsDottxtRoute = LlmsDottxtRouteImport.update({
   id: '/llms.txt',
   path: '/llms.txt',
@@ -1021,6 +1040,7 @@ export interface FileRoutesByFullPath {
   '/drive-with-us': typeof DriveWithUsRoute
   '/edinburgh-chauffeur': typeof EdinburghChauffeurRoute
   '/event-transport': typeof EventTransportRoute
+  '/family-airport-transfers': typeof FamilyAirportTransfersRoute
   '/faq': typeof FaqRoute
   '/fleet': typeof FleetRoute
   '/football-transfers': typeof FootballTransfersRoute
@@ -1030,9 +1050,11 @@ export interface FileRoutesByFullPath {
   '/group-transfers': typeof GroupTransfersRoute
   '/highlands-private-tours': typeof HighlandsPrivateToursRoute
   '/hospital-transfers': typeof HospitalTransfersRoute
+  '/hotel-transfers': typeof HotelTransfersRoute
   '/image-credits': typeof ImageCreditsRoute
   '/indexnow-key.txt': typeof IndexnowKeyDottxtRoute
   '/isle-of-skye-tours': typeof IsleOfSkyeToursRoute
+  '/late-night-airport-transfers': typeof LateNightAirportTransfersRoute
   '/llms.txt': typeof LlmsDottxtRoute
   '/loch-ness-tours': typeof LochNessToursRoute
   '/long-distance-transfers': typeof LongDistanceTransfersRoute
@@ -1177,6 +1199,7 @@ export interface FileRoutesByTo {
   '/drive-with-us': typeof DriveWithUsRoute
   '/edinburgh-chauffeur': typeof EdinburghChauffeurRoute
   '/event-transport': typeof EventTransportRoute
+  '/family-airport-transfers': typeof FamilyAirportTransfersRoute
   '/faq': typeof FaqRoute
   '/fleet': typeof FleetRoute
   '/football-transfers': typeof FootballTransfersRoute
@@ -1186,9 +1209,11 @@ export interface FileRoutesByTo {
   '/group-transfers': typeof GroupTransfersRoute
   '/highlands-private-tours': typeof HighlandsPrivateToursRoute
   '/hospital-transfers': typeof HospitalTransfersRoute
+  '/hotel-transfers': typeof HotelTransfersRoute
   '/image-credits': typeof ImageCreditsRoute
   '/indexnow-key.txt': typeof IndexnowKeyDottxtRoute
   '/isle-of-skye-tours': typeof IsleOfSkyeToursRoute
+  '/late-night-airport-transfers': typeof LateNightAirportTransfersRoute
   '/llms.txt': typeof LlmsDottxtRoute
   '/loch-ness-tours': typeof LochNessToursRoute
   '/long-distance-transfers': typeof LongDistanceTransfersRoute
@@ -1335,6 +1360,7 @@ export interface FileRoutesById {
   '/drive-with-us': typeof DriveWithUsRoute
   '/edinburgh-chauffeur': typeof EdinburghChauffeurRoute
   '/event-transport': typeof EventTransportRoute
+  '/family-airport-transfers': typeof FamilyAirportTransfersRoute
   '/faq': typeof FaqRoute
   '/fleet': typeof FleetRoute
   '/football-transfers': typeof FootballTransfersRoute
@@ -1344,9 +1370,11 @@ export interface FileRoutesById {
   '/group-transfers': typeof GroupTransfersRoute
   '/highlands-private-tours': typeof HighlandsPrivateToursRoute
   '/hospital-transfers': typeof HospitalTransfersRoute
+  '/hotel-transfers': typeof HotelTransfersRoute
   '/image-credits': typeof ImageCreditsRoute
   '/indexnow-key.txt': typeof IndexnowKeyDottxtRoute
   '/isle-of-skye-tours': typeof IsleOfSkyeToursRoute
+  '/late-night-airport-transfers': typeof LateNightAirportTransfersRoute
   '/llms.txt': typeof LlmsDottxtRoute
   '/loch-ness-tours': typeof LochNessToursRoute
   '/long-distance-transfers': typeof LongDistanceTransfersRoute
@@ -1494,6 +1522,7 @@ export interface FileRouteTypes {
     | '/drive-with-us'
     | '/edinburgh-chauffeur'
     | '/event-transport'
+    | '/family-airport-transfers'
     | '/faq'
     | '/fleet'
     | '/football-transfers'
@@ -1503,9 +1532,11 @@ export interface FileRouteTypes {
     | '/group-transfers'
     | '/highlands-private-tours'
     | '/hospital-transfers'
+    | '/hotel-transfers'
     | '/image-credits'
     | '/indexnow-key.txt'
     | '/isle-of-skye-tours'
+    | '/late-night-airport-transfers'
     | '/llms.txt'
     | '/loch-ness-tours'
     | '/long-distance-transfers'
@@ -1650,6 +1681,7 @@ export interface FileRouteTypes {
     | '/drive-with-us'
     | '/edinburgh-chauffeur'
     | '/event-transport'
+    | '/family-airport-transfers'
     | '/faq'
     | '/fleet'
     | '/football-transfers'
@@ -1659,9 +1691,11 @@ export interface FileRouteTypes {
     | '/group-transfers'
     | '/highlands-private-tours'
     | '/hospital-transfers'
+    | '/hotel-transfers'
     | '/image-credits'
     | '/indexnow-key.txt'
     | '/isle-of-skye-tours'
+    | '/late-night-airport-transfers'
     | '/llms.txt'
     | '/loch-ness-tours'
     | '/long-distance-transfers'
@@ -1807,6 +1841,7 @@ export interface FileRouteTypes {
     | '/drive-with-us'
     | '/edinburgh-chauffeur'
     | '/event-transport'
+    | '/family-airport-transfers'
     | '/faq'
     | '/fleet'
     | '/football-transfers'
@@ -1816,9 +1851,11 @@ export interface FileRouteTypes {
     | '/group-transfers'
     | '/highlands-private-tours'
     | '/hospital-transfers'
+    | '/hotel-transfers'
     | '/image-credits'
     | '/indexnow-key.txt'
     | '/isle-of-skye-tours'
+    | '/late-night-airport-transfers'
     | '/llms.txt'
     | '/loch-ness-tours'
     | '/long-distance-transfers'
@@ -1966,6 +2003,7 @@ export interface RootRouteChildren {
   DriveWithUsRoute: typeof DriveWithUsRoute
   EdinburghChauffeurRoute: typeof EdinburghChauffeurRoute
   EventTransportRoute: typeof EventTransportRoute
+  FamilyAirportTransfersRoute: typeof FamilyAirportTransfersRoute
   FaqRoute: typeof FaqRoute
   FleetRoute: typeof FleetRoute
   FootballTransfersRoute: typeof FootballTransfersRoute
@@ -1975,9 +2013,11 @@ export interface RootRouteChildren {
   GroupTransfersRoute: typeof GroupTransfersRoute
   HighlandsPrivateToursRoute: typeof HighlandsPrivateToursRoute
   HospitalTransfersRoute: typeof HospitalTransfersRoute
+  HotelTransfersRoute: typeof HotelTransfersRoute
   ImageCreditsRoute: typeof ImageCreditsRoute
   IndexnowKeyDottxtRoute: typeof IndexnowKeyDottxtRoute
   IsleOfSkyeToursRoute: typeof IsleOfSkyeToursRoute
+  LateNightAirportTransfersRoute: typeof LateNightAirportTransfersRoute
   LlmsDottxtRoute: typeof LlmsDottxtRoute
   LochNessToursRoute: typeof LochNessToursRoute
   LongDistanceTransfersRoute: typeof LongDistanceTransfersRoute
@@ -2207,6 +2247,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EventTransportRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/family-airport-transfers': {
+      id: '/family-airport-transfers'
+      path: '/family-airport-transfers'
+      fullPath: '/family-airport-transfers'
+      preLoaderRoute: typeof FamilyAirportTransfersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/faq': {
       id: '/faq'
       path: '/faq'
@@ -2270,6 +2317,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HospitalTransfersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/hotel-transfers': {
+      id: '/hotel-transfers'
+      path: '/hotel-transfers'
+      fullPath: '/hotel-transfers'
+      preLoaderRoute: typeof HotelTransfersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/image-credits': {
       id: '/image-credits'
       path: '/image-credits'
@@ -2289,6 +2343,13 @@ declare module '@tanstack/react-router' {
       path: '/isle-of-skye-tours'
       fullPath: '/isle-of-skye-tours'
       preLoaderRoute: typeof IsleOfSkyeToursRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/late-night-airport-transfers': {
+      id: '/late-night-airport-transfers'
+      path: '/late-night-airport-transfers'
+      fullPath: '/late-night-airport-transfers'
+      preLoaderRoute: typeof LateNightAirportTransfersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/llms.txt': {
@@ -3362,6 +3423,7 @@ const rootRouteChildren: RootRouteChildren = {
   DriveWithUsRoute: DriveWithUsRoute,
   EdinburghChauffeurRoute: EdinburghChauffeurRoute,
   EventTransportRoute: EventTransportRoute,
+  FamilyAirportTransfersRoute: FamilyAirportTransfersRoute,
   FaqRoute: FaqRoute,
   FleetRoute: FleetRoute,
   FootballTransfersRoute: FootballTransfersRoute,
@@ -3371,9 +3433,11 @@ const rootRouteChildren: RootRouteChildren = {
   GroupTransfersRoute: GroupTransfersRoute,
   HighlandsPrivateToursRoute: HighlandsPrivateToursRoute,
   HospitalTransfersRoute: HospitalTransfersRoute,
+  HotelTransfersRoute: HotelTransfersRoute,
   ImageCreditsRoute: ImageCreditsRoute,
   IndexnowKeyDottxtRoute: IndexnowKeyDottxtRoute,
   IsleOfSkyeToursRoute: IsleOfSkyeToursRoute,
+  LateNightAirportTransfersRoute: LateNightAirportTransfersRoute,
   LlmsDottxtRoute: LlmsDottxtRoute,
   LochNessToursRoute: LochNessToursRoute,
   LongDistanceTransfersRoute: LongDistanceTransfersRoute,

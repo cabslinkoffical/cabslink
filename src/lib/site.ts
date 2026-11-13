@@ -87,6 +87,9 @@ export const MENU: MenuEntry[] = [
           { to: "/team-sports-travel", label: "Sports Travel" },
           { to: "/university-transfers", label: "University Transfers" },
           { to: "/hospital-transfers", label: "Hospital Transfers" },
+          { to: "/family-airport-transfers", label: "Family Airport Transfers" },
+          { to: "/hotel-transfers", label: "Hotel Transfers" },
+          { to: "/late-night-airport-transfers", label: "Late-Night Airport Transfers" },
         ],
       },
       {
