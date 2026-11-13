@@ -62,12 +62,12 @@ describe("Phase 5 — page head builder", () => {
     const missing = files.filter((f) => {
       const s = readFileSync(`${dir}/${f}`, "utf8");
       if (!/\bhead:/.test(s)) return false;
-      return !/normalizeHead\(|buildAutoHead\(|hubHead\(|serviceLocationHead\(|journeyHead\(|guideHead\(|buildSeoHead\(|buildPageHead\(/.test(s);
+      return !/normalizeHead\(|buildAutoHead\(|hubHead\(|serviceLocationHead\(|journeyHead\(|guideHead\(|buildSeoHead\(|buildPageHead\(|landingHead\(/.test(s);
     });
     expect(missing).toEqual([]);
     const shared = [
       "src/lib/seo/auto-seo.ts", "src/lib/seo/hub-head.ts", "src/components/site/ServiceLocationPage.tsx",
-      "src/components/site/JourneyPage.head.ts", "src/components/site/GuidePage.head.ts", "src/components/seo/SeoPageRenderer.head.ts",
+      "src/components/site/JourneyPage.head.ts", "src/components/site/GuidePage.head.ts", "src/components/seo/SeoPageRenderer.head.ts", "src/components/site/LandingPage.head.ts",
     ];
     for (const f of shared) expect(readFileSync(f, "utf8"), f).toMatch(/return normalizeHead\(/);
   });
