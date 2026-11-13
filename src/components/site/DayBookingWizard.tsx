@@ -3,6 +3,11 @@
  * /book/hourly (hourly hire). Both use the same server pricing and booking
  * path; `kind` only changes the wording, hides ready-made tours for hourly
  * hire and makes stops optional there.
+ *
+ * Steps follow src/lib/tour-itinerary.ts: ready-made tours go Tour → Date &
+ * pickup → Vehicle & price → Details & pay (their stops are set by the tour);
+ * your own tour adds a Stops step. Stops are numbered from the start to the
+ * finish, kept in driving order, and each leg shows its road miles and time.
  */
 import { ukDate } from "@/lib/uk-time";
 import { FACT_TEXT } from "@/lib/site-facts";
@@ -13,14 +18,18 @@ import { Link } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { rememberCheckout, trackEvent } from "@/lib/analytics-ga";
 import {
-  ArrowLeft, ArrowRight, CalendarDays, Check, Clock, Loader2, MapPin, Users,
-  Briefcase, AlertTriangle, Plus, Trash2, ShieldCheck, Route as RouteIcon,
-  ChevronUp, ChevronDown, GripVertical, Lock, LockOpen, RotateCcw, Wand2, Copy, Send,
+  ArrowLeft, ArrowRight, Check, Loader2, Users, Briefcase, AlertTriangle, Plus, X,
+  ShieldCheck, ChevronUp, ChevronDown, RotateCcw, Wand2, Copy, Send, Flag, Car, Minus,
 } from "lucide-react";
 import { createCustomTourRequest } from "@/lib/custom-tour-requests.functions";
 import { quoteRequestReason } from "@/lib/custom-tour-requests";
 import { splitGroup, suggestGroups, groupLabel, MAX_GROUP_VEHICLES } from "@/lib/tour-group";
 import { moveStop } from "@/lib/stop-order";
+import {
+  wizardSteps, STEP_LABELS, fitsParty, templateStopsInOrder, tourHourChoices, addHoursToTime,
+  type WizardStepId,
+} from "@/lib/tour-itinerary";
+import { tourLoopQuery } from "@/lib/tour-loop-query";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PassengerConfirmation } from "@/components/site/PassengerConfirmation";
 import { Button } from "@/components/ui/button";
@@ -43,11 +52,8 @@ import {
   createTourBooking,
   optimiseTourStops,
   type TourBookingOptions,
-  type TourOptimiseResult,
 } from "@/lib/tour-booking.functions";
 import type { TourQuoteResult } from "@/lib/tour-quote.server";
-
-
 
 export type DayWizardKind = "tour" | "hourly";
 
@@ -85,12 +91,10 @@ export function parseStopsParam(raw: string | undefined): Stop[] {
     .slice(0, 15);
 }
 
-const TOUR_STEPS = ["Your day", "Tour & stops", "Vehicle & price", "Details & pay"];
-const HOURLY_STEPS = ["Your hire", "Stops (optional)", "Vehicle & price", "Details & pay"];
+const MAX_STOPS = 15;
 
 export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKind; search: DayWizardSearch }) {
   const hourly = kind === "hourly";
-  const STEPS = hourly ? HOURLY_STEPS : TOUR_STEPS;
   const { tour: tourParam } = search;
   const [prefilled, setPrefilled] = useState(false);
   const options = useQuery<TourBookingOptions>({
@@ -99,8 +103,9 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
     staleTime: 5 * 60_000,
   });
 
-  const [step, setStep] = useState(0);
   const [mode, setMode] = useState<"premade" | "custom">("custom");
+  const [stepId, setStepId] = useState<WizardStepId>(hourly ? "when" : "tour");
+  const [tourPicked, setTourPicked] = useState(hourly);
   const [templateId, setTemplateId] = useState<string | null>(null);
   const [start, setStart] = useState<SelectedPlace | null>(null);
   const [end, setEnd] = useState<SelectedPlace | null>(null);
@@ -114,13 +119,13 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
   const [showGroup, setShowGroup] = useState(false);
   const [passengers, setPassengers] = useState(1);
   const [passengersConfirmed, setPassengersConfirmed] = useState(false);
-  const [luggage, setLuggage] = useState(2);
+  const [luggage, setLuggage] = useState(0);
   const [stops, setStops] = useState<Stop[]>([]);
-  // Best-order suggestion: shown first, applied only when the customer agrees.
-  const [bestOrder, setBestOrder] = useState<TourOptimiseResult | null>(null);
+  /** Keep stops in the quickest driving order automatically until the customer moves one by hand. */
+  const [autoOrder, setAutoOrder] = useState(true);
   const [orderBeforeBest, setOrderBeforeBest] = useState<Stop[] | null>(null);
-  const [dragFrom, setDragFrom] = useState<number | null>(null);
   const [newStop, setNewStop] = useState<SelectedPlace | null>(null);
+  const [showAllSuggestions, setShowAllSuggestions] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -131,9 +136,8 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
   /** Custom tours only: send the day to the tour team for a price instead of paying now. */
   const [requestMode, setRequestMode] = useState(false);
   const [requested, setRequested] = useState<{ reference: string } | null>(null);
-  useBookingStepScroll(`${step}:${created?.bookingRef ?? ""}:${requested?.reference ?? ""}`);
-  useEffect(() => { if (step < 3) setRequestMode(false); }, [step]);
-  const [showAllTours, setShowAllTours] = useState(false);
+  useBookingStepScroll(`${stepId}:${created?.bookingRef ?? ""}:${requested?.reference ?? ""}`);
+  useEffect(() => { if (stepId !== "details") setRequestMode(false); }, [stepId]);
 
   const captcha = useCaptcha("tour-booking");
   const data = options.data;
@@ -141,20 +145,25 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
   const classes = data?.classes ?? [];
   const tiers = data?.tiers ?? [];
   const template = tours.find((t) => t.id === templateId) ?? null;
+  const minStopMinutes = data?.rules.minimum_stop_minutes ?? 10;
+  const steps = wizardSteps(kind, mode);
+  const stepIndex = Math.max(0, steps.indexOf(stepId));
+  const goTo = (id: WizardStepId) => setStepId(id);
+  const goNext = () => setStepId(steps[Math.min(steps.length - 1, stepIndex + 1)]!);
+  const goBack = () => setStepId(steps[Math.max(0, stepIndex - 1)]!);
 
-  // Deep link from a tour page.
+  // Deep link from a tour page: the tour is chosen, so open on date & pickup.
   useEffect(() => {
     if (hourly || !tourParam || !tours.length || templateId) return;
     const match = tours.find((t) => t.slug === tourParam);
     if (match) {
-      setMode("premade");
       selectTemplate(match.id);
-      setStep(0);
+      setStepId("when");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tourParam, tours.length]);
 
-  // Hand-off from the hourly hire form: pickup, day, hours and party are known,
-  // so fill them in and open on the tours-and-stops choice.
+  // Hand-off from the hourly hire form or the Tours page planner.
   useEffect(() => {
     if (prefilled || !data) return;
     if (!search.pickupPlaceId) return;
@@ -166,6 +175,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
     const handedStops = parseStopsParam(search.stops);
     if (handedStops.length) {
       setMode("custom");
+      setTourPicked(true);
       setStops(handedStops.map((x) => ({ ...x, dwellMinutes: Math.max(data.rules.minimum_stop_minutes ?? 10, x.dwellMinutes ?? 0) })));
     }
     if (search.date) setDate(search.date);
@@ -182,38 +192,41 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
       setHours(snapped);
     }
     setPrefilled(true);
-    // Everything step 1 asks for is already known, so open on tours and stops.
-    if (search.date && search.time && search.hours) setStep(1);
+    if (search.date && search.time && search.hours && (hourly || handedStops.length)) setStepId("stops");
+    else if (handedStops.length) setStepId("when");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, prefilled]);
 
-
-
   function selectTemplate(id: string) {
     const t = tours.find((x) => x.id === id);
+    setMode("premade");
+    setTourPicked(true);
     setTemplateId(id);
     setQuote(null);
+    setOrderBeforeBest(null);
     if (!t) return;
     setHours(t.default_duration_hours ?? tiers[0]?.hours ?? 8);
-    setStops(
-      t.stops
-        .filter((s) => s.default_selected || s.mandatory)
-        .sort((a, b) => a.stop_order - b.stop_order)
-        .map((s) => ({
-          poiId: s.poi_id,
-          placeId: s.place_id,
-          name: s.name,
-          dwellMinutes: Math.max(minStopMinutes, s.recommended_visit_minutes ?? minStopMinutes),
-        })),
-    );
+    setStops(templateStopsInOrder(t.stops, new Set(t.stops.filter((s) => s.default_selected).map((s) => s.poi_id)), minStopMinutes));
   }
 
   function chooseCustom() {
+    if (mode !== "custom" || templateId) setStops([]);
     setMode("custom");
+    setTourPicked(true);
     setTemplateId(null);
-    setStops([]);
     setQuote(null);
+    setAutoOrder(true);
     if (!hours) setHours(tiers[0]?.hours ?? 8);
+  }
+
+  /** Ready-made tours: take an optional stop off or put it back in the tour's own order. */
+  function toggleTemplateStop(poiId: string) {
+    if (!template) return;
+    const chosen = new Set(stops.map((s) => s.poiId).filter((v): v is string => !!v));
+    if (chosen.has(poiId)) chosen.delete(poiId); else chosen.add(poiId);
+    const kept = new Map(stops.map((s) => [s.poiId, s.dwellMinutes]));
+    setQuote(null);
+    setStops(templateStopsInOrder(template.stops, chosen, minStopMinutes).map((s) => ({ ...s, dwellMinutes: kept.get(s.poiId) ?? s.dwellMinutes })));
   }
 
   const includedMiles = hours ? (tiers.find((t) => t.hours === hours)?.included_miles ?? 0) : 0;
@@ -229,26 +242,27 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
   const liveQuote = quote?.quote ?? null;
 
   const vehicle = classes.find((c) => c.id === vehicleClassId) ?? null;
-  const singleFits = classes.some((c) => (c.max_passengers ?? 99) >= passengers);
-  const groupActive = groupVehicles.length > 1;
-  const groupSplit = groupActive ? splitGroup(groupVehicles, classes, passengers, luggage) : null;
-  const vehicleFits = groupActive ? !!groupSplit?.ok : singleFits;
   /** Vehicles that have an online price for this day (a tour price or an hourly rate). */
   const priceableClasses = classes.filter(
     (c) => (template?.prices.some((p) => p.vehicle_class_id === c.id) ?? false) || Number(c.hourly_rate ?? 0) > 0,
   );
+  const fittingClasses = priceableClasses.filter((c) => fitsParty(c, passengers, luggage));
+  const singleFits = fittingClasses.length > 0;
+  const groupActive = groupVehicles.length > 1;
+  const groupSplit = groupActive ? splitGroup(groupVehicles, classes, passengers, luggage) : null;
+  const vehicleFits = groupActive ? !!groupSplit?.ok : singleFits;
   const groupSuggestions = useMemo(
     () => suggestGroups(priceableClasses, passengers, luggage, 3).filter((ids) => ids.length > 1),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [priceableClasses.map((c) => c.id).join("|"), passengers, luggage],
   );
-  const chosenVehicles = groupActive ? groupVehicles : vehicleClassId ? [vehicleClassId] : [];
   const vehicleLabel = groupActive ? groupLabel(groupVehicles, classes) : vehicle?.name ?? null;
+  const priceFor = (classId: string) => template?.prices.find((p) => p.vehicle_class_id === classId)?.price ?? null;
 
-  /** One vehicle when one seats everyone, otherwise the best combination of vehicles. */
+  /** One vehicle when one carries everyone and their bags, otherwise the best combination. */
   function pickVehiclesFor(count: number, bags: number) {
     setQuote(null);
-    const fit = classes.find((c) => (c.max_passengers ?? 0) >= count);
+    const fit = priceableClasses.find((c) => fitsParty(c, count, bags));
     if (fit) { setGroupVehicles([]); setVehicleClassId(fit.id); return; }
     const best = suggestGroups(priceableClasses, count, bags, 1)[0];
     setGroupVehicles(best && best.length > 1 ? best : []);
@@ -260,21 +274,13 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
     setGroupVehicles([]);
     setVehicleClassId(ids[0] ?? null);
   }
-  /** Rebuild the vehicle list from per-class counts, largest vehicles first. */
-  function setVehicleCount(classId: string, n: number) {
-    const counts = new Map<string, number>();
-    for (const id of chosenVehicles) counts.set(id, (counts.get(id) ?? 0) + 1);
-    counts.set(classId, Math.max(0, n));
-    const ids = [...classes]
-      .sort((a, b) => (b.max_passengers ?? 0) - (a.max_passengers ?? 0))
-      .flatMap((c) => Array.from({ length: counts.get(c.id) ?? 0 }, () => c.id));
-    if (ids.length > MAX_GROUP_VEHICLES) return;
-    chooseVehicles(ids);
+  function changeParty(nextPassengers: number, nextLuggage: number) {
+    setPassengers(nextPassengers);
+    setLuggage(nextLuggage);
+    const current = classes.find((c) => c.id === vehicleClassId);
+    if (groupActive || !current || !fitsParty(current, nextPassengers, nextLuggage)) pickVehiclesFor(nextPassengers, nextLuggage);
+    else setQuote(null);
   }
-  const fixedPriceForVehicle =
-    template && vehicleClassId
-      ? template.prices.find((p) => p.vehicle_class_id === vehicleClassId)?.price ?? null
-      : null;
 
   const quoteReq = () => ({
     mode,
@@ -319,18 +325,67 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
     onError: (e: Error) => toast.error(e.message || "We couldn't price that tour."),
   });
 
+  // Automatic driving order: start first, finish last, and every stop in
+  // between on the way to the next. Applied only when it saves road time.
+  const stopsKey = stops.map((s) => s.placeId).join("|");
+  const orderedKey = useRef("");
+  const latestKey = useRef(stopsKey);
+  latestKey.current = stopsKey;
   const optimiseMutation = useMutation({
-    mutationFn: async () =>
-      optimiseTourStops({
+    mutationFn: async (snapshot: Stop[]) => ({
+      snapshot,
+      res: await optimiseTourStops({
         data: {
           startPlaceId: start!.placeId,
           endPlaceId: sameEnd ? null : end?.placeId ?? null,
-          stops: stops.map((x) => ({ placeId: x.placeId, locked: !!x.locked })),
+          stops: snapshot.map((x) => ({ placeId: x.placeId, locked: false })),
         },
       }),
-    onSuccess: (res) => setBestOrder(res),
-    onError: (e: Error) => toast.error(e.message || "We couldn't work out a better order right now."),
+    }),
+    onSuccess: ({ snapshot, res }) => {
+      const snapKey = snapshot.map((s) => s.placeId).join("|");
+      if (snapKey !== latestKey.current) return; // stops changed meanwhile
+      if (!res.changed) { orderedKey.current = snapKey; return; }
+      const next = res.order.map((idx) => snapshot[idx]!).filter(Boolean);
+      orderedKey.current = next.map((s) => s.placeId).join("|");
+      setOrderBeforeBest(snapshot);
+      setQuote(null);
+      setStops(next);
+    },
+    onError: () => { orderedKey.current = latestKey.current; },
   });
+  useEffect(() => {
+    if (stepId !== "stops" || !autoOrder || !start || stops.length < 2) return;
+    if (orderedKey.current === stopsKey) return;
+    const t = setTimeout(() => optimiseMutation.mutate(stops), 500);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stepId, autoOrder, stopsKey, start?.placeId, sameEnd, end?.placeId]);
+  useEffect(() => { orderedKey.current = ""; }, [start?.placeId, sameEnd, end?.placeId]);
+
+  function moveByHand(from: number, to: number) {
+    setAutoOrder(false);
+    setOrderBeforeBest(null);
+    setQuote(null);
+    setStops((prev) => moveStop(prev, from, to));
+  }
+  function removeStop(i: number) {
+    setQuote(null);
+    setOrderBeforeBest(null);
+    setStops((prev) => prev.filter((_, j) => j !== i));
+  }
+  function setDwell(i: number, minutes: number) {
+    setQuote(null);
+    setStops((prev) => prev.map((x, j) => (j === i ? { ...x, dwellMinutes: minutes } : x)));
+  }
+  function addStop(stop: Stop) {
+    setQuote(null);
+    setStops((prev) => (prev.length >= MAX_STOPS || prev.some((s) => s.placeId === stop.placeId) ? prev : [...prev, stop]));
+  }
+
+  // Road miles and minutes for each leg, from the same route the map draws.
+  const loop = useQuery(tourLoopQuery(start?.placeId, stops.map((s) => s.placeId), sameEnd ? null : end?.placeId));
+  const legs = loop.data?.legs && loop.data.legs.length === stops.length + 1 ? loop.data.legs : null;
 
   const bookMutation = useMutation({
     mutationFn: async () =>
@@ -352,7 +407,6 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
     onSuccess: (res) => {
       if (!res.bookingRef) return;
       setCreated({ bookingRef: res.bookingRef, total: res.total });
-      setStep(3);
     },
     onError: (e: Error) => {
       captcha.reset();
@@ -374,9 +428,9 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
           vehicles: groupActive && groupSplit?.ok ? groupVehicles : null,
           passengers,
           luggage,
-          stops: stops.map((s) => ({ poiId: s.poiId, placeId: s.placeId, name: s.name, dwellMinutes: s.dwellMinutes, locked: !!s.locked })),
+          stops: stops.map((s) => ({ poiId: s.poiId, placeId: s.placeId, name: s.name, dwellMinutes: s.dwellMinutes, locked: false })),
           originalStops: orderBeforeBest
-            ? orderBeforeBest.map((s) => ({ poiId: s.poiId, placeId: s.placeId, name: s.name, dwellMinutes: s.dwellMinutes, locked: !!s.locked }))
+            ? orderBeforeBest.map((s) => ({ poiId: s.poiId, placeId: s.placeId, name: s.name, dwellMinutes: s.dwellMinutes, locked: false }))
             : null,
           date,
           time,
@@ -412,55 +466,56 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
       })
     : null;
 
-  // Ask the server for a price whenever the customer reaches the price step.
+  // Ask the server for a price on the vehicle step whenever the choice changes.
   useEffect(() => {
-    if (step === 2 && passengersConfirmed && start && hours && vehicleClassId && (!groupActive || groupSplit?.ok)) {
+    if (stepId === "vehicle" && passengersConfirmed && start && hours && vehicleClassId && (!groupActive || groupSplit?.ok) && vehicleFits) {
       priceMutation.mutate();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step, passengersConfirmed, passengers, luggage, hours, vehicleClassId, groupVehicles.join("|")]);
+  }, [stepId, passengersConfirmed, passengers, luggage, hours, vehicleClassId, groupVehicles.join("|")]);
 
   // On the stops step, keep the miles and time meter honest as stops change.
   useEffect(() => {
-    if (step !== 1 || !start || !hours || !vehicleClassId) return;
-    const t = setTimeout(() => priceMutation.mutate(), 450);
+    if (stepId !== "stops" || !start || !hours || !vehicleClassId) return;
+    const t = setTimeout(() => priceMutation.mutate(), 650);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step, stops, hours, vehicleClassId, sameEnd, end?.placeId]);
+  }, [stepId, stops, hours, vehicleClassId, sameEnd, end?.placeId]);
 
   // Curated stops that fit the mileage the chosen hours include.
   const suggestions = useQuery({
     queryKey: ["tour-stop-suggestions", start?.placeId ?? "", hours ?? 0],
-    enabled: step === 1 && !!start?.placeId && !!hours,
+    enabled: stepId === "stops" && !!start?.placeId && !!hours,
     staleTime: 5 * 60_000,
     queryFn: () =>
       getTourStopSuggestions({ data: { startPlaceId: start!.placeId, hours: hours!, limit: 24 } }),
   });
 
-
-  // Admin-set shortest stay at any stop; customers may ask for longer, never less.
-  const minStopMinutes = data?.rules.minimum_stop_minutes ?? 10;
-
-  // Pick a sensible vehicle up front so the miles-and-time meter can measure the
-  // day while stops are chosen; the customer can change it on the next step.
+  // A working vehicle lets the stops meter measure the day before the party is
+  // confirmed; it is not shown as the customer's choice until they confirm.
   useEffect(() => {
-    // Once passengers are confirmed, never fall back to a vehicle too small for them.
     if (vehicleClassId || !classes.length || passengersConfirmed) return;
-    const fit = classes.find((c) => (c.max_passengers ?? 99) >= passengers) ?? classes[0]!;
+    const fit = classes.find((c) => fitsParty(c, passengers, luggage)) ?? classes[0]!;
     setVehicleClassId(fit.id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [classes.length, passengers]);
+  }, [classes.length]);
 
   const today = ukDate();
   const canNext = (() => {
-    switch (step) {
-      case 0: return !!start && !!date && !!time && (sameEnd || !!end) && !!hours && fitsDay;
-      case 1: return hourly ? true : mode === "custom" ? stops.length > 0 : !!templateId;
-      case 2:
-        return passengersConfirmed && !!vehicleClassId && (groupActive ? !!groupSplit?.ok : (vehicle?.max_passengers ?? 0) >= passengers) && passengers > 0 && !!quote && !quote.quote.blockedReason && quote.quote.total > 0;
+    switch (stepId) {
+      case "tour": return tourPicked && (mode === "custom" || !!templateId);
+      case "when": return !!start && !!date && date >= today && !!time && (sameEnd || !!end) && !!hours && fitsDay;
+      case "stops": return hourly ? true : stops.length > 0;
+      case "vehicle":
+        return passengersConfirmed && !!vehicleClassId && vehicleFits && (groupActive || !!vehicle && fitsParty(vehicle, passengers, luggage))
+          && passengers > 0 && !!quote && !quote.quote.blockedReason && quote.quote.total > 0;
       default: return false;
     }
   })();
+
+  const finishLabel = sameEnd ? start?.label || "Back to your pickup" : end?.label || "Your drop-off";
+  const done = !!(created || requested);
+  const hourChoices = template ? tourHourChoices(template, tiers.map((t) => t.hours)) : tiers.map((t) => t.hours);
 
   return (
     <SiteLayout hideCta>
@@ -468,35 +523,11 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
         <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--gold-ink)]">
           {hourly ? "Hourly hire" : "Private day tours"}
         </p>
-        <h1 className="font-display text-3xl md:text-4xl font-bold mt-1">{hourly ? "Book a car and driver by the hour" : "Build your day tour"}</h1>
-        <p className="mt-2 text-sm text-muted-foreground max-w-2xl">
-          {hourly
-            ? "Your car and driver stay with you for the hours you book, with miles included. Add places you want to visit if you like, or leave it open and tell your driver on the day."
-            : "Choose one of our ready-made tours or build your own day. We'll show you exactly what fits in the day and what it costs before you pay."}
-        </p>
+        <h1 className="font-display text-3xl md:text-4xl font-bold mt-1">
+          {hourly ? "Book a car and driver by the hour" : template ? `Book: ${template.name}` : "Book a private day tour"}
+        </h1>
 
-        {/* Step rail */}
-        <ol className="mt-8 flex flex-wrap gap-2">
-          {STEPS.map((label, i) => (
-            <li key={label}>
-              <button
-                type="button"
-                onClick={() => i < step && setStep(i)}
-                disabled={i > step}
-                className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${
-                  i === step
-                    ? "border-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_16%,transparent)]"
-                    : i < step
-                      ? "border-border text-muted-foreground hover:border-[var(--gold)]"
-                      : "border-border text-muted-foreground"
-                }`}
-              >
-                {i < step ? <Check className="mr-1 inline size-3" /> : `${i + 1}. `}
-                {label}
-              </button>
-            </li>
-          ))}
-        </ol>
+        {!done && <WizardStepper steps={steps} current={stepIndex} onPick={(i) => i < stepIndex && goTo(steps[i]!)} />}
 
         {options.isLoading ? (
           <div className="mt-10 flex items-center gap-2 text-sm text-muted-foreground">
@@ -507,883 +538,424 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
             We couldn't load the tour options. Please refresh, or call us and we'll book it for you.
           </p>
         ) : (
-          <div className="mt-8 grid min-w-0 grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
-            <div className="min-w-0 rounded-2xl border border-border bg-[var(--surface)] p-5 md:p-7">
-            {/* 2a. Ready-made or custom — one segmented choice */}
-            {step === 1 && (
-              <div className="space-y-6">
-                <div className="flex flex-wrap items-center gap-3">
-                  <span className="flex size-8 items-center justify-center rounded-full bg-[var(--navy)] text-sm font-bold text-[var(--gold)]">2</span>
-                  <h2 className="font-display text-2xl font-extrabold">{hourly ? "Stops (optional)" : <>Tour &amp; stops</>}</h2>
-                  <span className="h-px flex-1 bg-border" aria-hidden="true" />
-                  <span className="text-sm text-muted-foreground">Step 2 of 4</span>
-                </div>
+          <div className="mt-6 grid min-w-0 grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+            <div className="min-w-0 rounded-2xl border border-border bg-card p-5 md:p-7">
 
-                {hourly ? (
-                  <p className="text-sm text-muted-foreground">Add any places you want to visit and we'll check they fit in your hours. No stops? Just continue: your driver stays with you for the hours you book.</p>
-                ) : (
-                <div
-                  role="tablist"
-                  aria-label="How to plan your day"
-                  className="flex rounded-xl border border-border bg-card p-1 shadow-sm"
+            {/* Tour: ready-made or your own */}
+            {stepId === "tour" && (
+              <div className="space-y-5">
+                <StepTitle title="Which tour would you like?" />
+                <button
+                  type="button"
+                  onClick={() => { chooseCustom(); setStepId("when"); }}
+                  className={`flex w-full items-center gap-4 rounded-xl border p-4 text-left transition ${
+                    tourPicked && mode === "custom" ? "border-[var(--gold)] ring-1 ring-[var(--gold)]" : "border-border hover:border-[var(--gold)]"
+                  }`}
                 >
-                  <button
-                    type="button"
-                    role="tab"
-                    aria-selected={mode === "premade"}
-                    onClick={() => setMode("premade")}
-                    className={`flex-1 rounded-lg px-4 py-3 text-sm font-semibold transition ${
-                      mode === "premade"
-                        ? "bg-[var(--navy)] text-[var(--navy-foreground)]"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    Ready-made tours
-                  </button>
-                  <button
-                    type="button"
-                    role="tab"
-                    aria-selected={mode === "custom"}
-                    onClick={chooseCustom}
-                    className={`flex-1 rounded-lg px-4 py-3 text-sm font-semibold transition ${
-                      mode === "custom"
-                        ? "bg-[var(--navy)] text-[var(--navy-foreground)]"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    Build my own
-                  </button>
-                </div>
-                )}
-
-                {mode === "premade" ? (
-                  <section aria-labelledby="ready-made-heading" className="space-y-4">
-                    <div className="flex flex-wrap items-end justify-between gap-2">
-                      <h3 id="ready-made-heading" className="font-display text-lg font-bold">
-                        Proven Scottish routes
-                      </h3>
-                      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                        {tours.length} options available
-                      </span>
-                    </div>
-
-                    <div className="grid gap-4 md:grid-cols-2">
-                      {(showAllTours ? tours : tours.slice(0, 6)).map((t) => {
+                  <span className="grid size-10 shrink-0 place-items-center rounded-full bg-[var(--navy)] text-[var(--gold)]"><Plus className="size-5" /></span>
+                  <span className="min-w-0">
+                    <span className="block font-display text-base font-bold">Build my own day</span>
+                    <span className="block text-sm text-muted-foreground">Choose your own stops. We put them in driving order and show the miles between each.</span>
+                  </span>
+                </button>
+                {tours.length > 0 && (
+                  <>
+                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">Or pick a ready-made tour</p>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      {tours.map((t) => {
                         const selected = templateId === t.id;
-                        const startingPrice = t.prices.length
-                          ? Math.min(...t.prices.map((price) => price.price))
-                          : null;
+                        const from = t.prices.length ? Math.min(...t.prices.map((p) => p.price)) : null;
                         return (
                           <button
                             key={t.id}
                             type="button"
-                            onClick={() => { setMode("premade"); selectTemplate(t.id); }}
-                            className={`relative rounded-xl border bg-card p-4 text-left transition ${
-                              selected
-                                ? "border-[var(--gold)] ring-1 ring-[var(--gold)]"
-                                : "border-border hover:border-[var(--gold)] hover:shadow-raised"
+                            onClick={() => { selectTemplate(t.id); setStepId("when"); }}
+                            className={`relative rounded-xl border p-4 text-left transition ${
+                              selected ? "border-[var(--gold)] ring-1 ring-[var(--gold)]" : "border-border hover:border-[var(--gold)]"
                             }`}
                           >
                             {selected && (
-                              <span className="absolute right-3 top-3 flex size-5 items-center justify-center rounded-full bg-[var(--gold)] text-[var(--gold-foreground)]">
-                                <Check className="size-3" />
-                              </span>
+                              <span className="absolute right-3 top-3 grid size-5 place-items-center rounded-full bg-[var(--gold)] text-[var(--gold-foreground)]"><Check className="size-3" /></span>
                             )}
                             <span className="block pr-7 font-display text-base font-bold leading-snug">{t.name}</span>
-                            <span className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
-                              <span>{t.default_duration_hours ?? "—"} hours</span>
-                              <span aria-hidden="true">·</span>
-                              <span>{t.stops.length} {t.stops.length === 1 ? "stop" : "stops"}</span>
-                              {t.included_miles ? <><span aria-hidden="true">·</span><span>{t.included_miles} miles</span></> : null}
+                            <span className="mt-1 block text-xs text-muted-foreground">
+                              {t.default_duration_hours ?? "—"} hours · {t.stops.length} {t.stops.length === 1 ? "stop" : "stops"}
                             </span>
-                            <span className="mt-3 block text-sm font-bold text-[var(--gold-ink)]">
-                              {startingPrice == null ? "Price shown with your vehicle" : `From £${startingPrice.toFixed(2)}`}
+                            <span className="mt-2 block text-sm font-bold text-[var(--gold-ink)]">
+                              {from == null ? "Priced by the hour" : `From £${from.toFixed(2)}`}
                             </span>
                           </button>
                         );
                       })}
                     </div>
-
-                    {tours.length > 6 && (
-                      <div className="flex justify-center">
-                        <Button type="button" variant="outline" className="rounded-full" onClick={() => setShowAllTours((value) => !value)}>
-                          {showAllTours ? "Show fewer tours" : `View all ${tours.length} tours`}
-                        </Button>
-                      </div>
-                    )}
-                  </section>
-                ) : (
-                  <p className="text-sm text-muted-foreground">
-                    Add the places you'd like to visit below. We measure the real driving loop from your
-                    pickup, round every stop and back again, then price any extra miles before you pay.
-                  </p>
+                  </>
                 )}
               </div>
             )}
 
-            {/* 1a. Pickup, drop-off, date & time */}
-            {step === 0 && (
-              <div className="space-y-5">
-                <StepTitle title="Your day: where, when and for how long" />
+            {/* Date & pickup */}
+            {stepId === "when" && (
+              <div className="space-y-6">
+                <StepTitle title={template ? "When and where should we pick you up?" : "Your day: where, when and for how long"} />
                 {template?.start_mode === "fixed" && template.fixed_start_address && (
                   <p className="rounded-xl border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-4 py-2 text-xs font-medium">
-                    This tour starts at {template.fixed_start_address}. Tell us your address and we'll
-                    confirm the meeting point.
+                    This tour starts at {template.fixed_start_address}. Tell us your address and we'll confirm the meeting point.
                   </p>
                 )}
                 <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-1.5">
+                  <div className="space-y-1.5 md:col-span-2">
                     <Label htmlFor="tw-start">Pickup address</Label>
-                    <PlaceAutocomplete id="tw-start" value={start} onChange={setStart} placeholder="Hotel, home or airport" />
+                    <PlaceAutocomplete id="tw-start" value={start} onChange={(p) => { setStart(p); setQuote(null); }} placeholder="Hotel, home or airport" />
                   </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="tw-end">Drop-off</Label>
+                  <div className="space-y-1.5 md:col-span-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <Label htmlFor="tw-end">Drop-off</Label>
+                      <button type="button" className="text-xs font-semibold underline" onClick={() => { setSameEnd(!sameEnd); setQuote(null); }}>
+                        {sameEnd ? "Finish somewhere else" : "Finish where we started"}
+                      </button>
+                    </div>
                     {sameEnd ? (
-                      <div className="flex h-10 items-center rounded-md border border-border px-3 text-sm text-muted-foreground">
-                        Back to the pickup address
-                      </div>
+                      <div className="flex h-10 items-center rounded-md border border-border bg-[var(--surface)] px-3 text-sm text-muted-foreground">Back to the pickup address</div>
                     ) : (
-                      <PlaceAutocomplete id="tw-end" value={end} onChange={setEnd} placeholder="Different drop-off" />
+                      <PlaceAutocomplete id="tw-end" value={end} onChange={(p) => { setEnd(p); setQuote(null); }} placeholder="Different drop-off" />
                     )}
-                    <button
-                      type="button"
-                      className="text-xs font-semibold underline"
-                      onClick={() => { setSameEnd(!sameEnd); setQuote(null); }}
-                    >
-                      {sameEnd ? "Finish somewhere else" : "Finish where we started"}
-                    </button>
                   </div>
                   <div className="space-y-1.5">
-                    <Label htmlFor="tw-date">Tour date</Label>
+                    <Label htmlFor="tw-date">Date</Label>
                     <Input id="tw-date" type="date" min={today} value={date} onChange={(e) => setDate(e.target.value)} />
                   </div>
                   <div className="space-y-1.5">
                     <Label htmlFor="tw-time">Start time</Label>
                     <Input id="tw-time" type="time" value={time} onChange={(e) => setTime(e.target.value)} />
-                    {data && (
-                      <p className="text-xs text-muted-foreground">
-                        Tours start from {data.rules.earliest_start_time} and finish by {data.rules.latest_finish_time}.
-                      </p>
-                    )}
                   </div>
                 </div>
-              </div>
-            )}
 
-            {/* 1b. Hours */}
-            {step === 0 && (
-              <div className="space-y-5">
-                <h3 className="font-display text-lg font-bold">How long would you like the car for?</h3>
-                <p className="text-sm text-muted-foreground">
-                  Each length includes miles. Go further and the extra miles are charged; the hours
-                  themselves are a firm limit.
-                </p>
-                <div className="grid gap-3 sm:grid-cols-3">
-                  {tiers.map((t) => (
-                    <button
-                      key={t.hours}
-                      type="button"
-                      onClick={() => { setHours(t.hours); setQuote(null); }}
-                      className={`rounded-2xl border p-4 text-left ${
-                        hours === t.hours ? "border-[var(--gold)] ring-1 ring-[var(--gold)]" : "border-border hover:border-[var(--gold)]"
-                      }`}
-                    >
-                      <p className="font-display text-xl font-bold">{t.hours} hours</p>
-                      <p className="text-xs text-muted-foreground">{t.included_miles} miles included</p>
-                    </button>
-                  ))}
+                <div className="space-y-2">
+                  <p className="text-sm font-semibold">{template ? "Tour length" : "How long would you like the car for?"}</p>
+                  {hourChoices.length > 1 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {hourChoices.map((h) => {
+                        const miles = tiers.find((t) => t.hours === h)?.included_miles;
+                        return (
+                          <button
+                            key={h}
+                            type="button"
+                            onClick={() => { setHours(h); setQuote(null); }}
+                            aria-pressed={hours === h}
+                            className={`rounded-xl border px-4 py-2 text-left text-sm ${hours === h ? "border-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_12%,transparent)] font-bold" : "border-border hover:border-[var(--gold)]"}`}
+                          >
+                            {h} hours{!template && miles ? <span className="block text-[11px] font-normal text-muted-foreground">{miles} miles included</span> : null}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">{hours} hours</p>
+                  )}
+                  {hours && time && data && (
+                    <p className={`text-xs ${fitsDay ? "text-muted-foreground" : "font-semibold text-destructive"}`}>
+                      {fitsDay
+                        ? `Starts ${time}, finishes about ${addHoursToTime(time, hours)}. Tours run ${data.rules.earliest_start_time}–${data.rules.latest_finish_time}.`
+                        : `Starting at ${time}, ${hours} hours would finish after ${data.rules.latest_finish_time}. Choose an earlier start${template ? "" : " or fewer hours"}.`}
+                    </p>
+                  )}
+                  {!template && (
+                    <p className="text-xs text-muted-foreground">
+                      More than {data?.rules.max_bookable_hours ?? 12} hours or several days?{" "}
+                      <Link to="/contact" className="font-semibold underline">Contact us</Link>.
+                    </p>
+                  )}
                 </div>
-                {hours && time && data && (
-                  <p className={`text-xs ${fitsDay ? "text-muted-foreground" : "font-semibold text-destructive"}`}>
-                    {fitsDay
-                      ? `Starting at ${time}, a ${hours}-hour tour finishes about ${addHoursToTime(time, hours)}. Tours must finish by ${data.rules.latest_finish_time}.`
-                      : `A ${hours}-hour tour starting at ${time} would finish after ${data.rules.latest_finish_time}. Go back and choose an earlier start, or pick fewer hours.`}
-                  </p>
+
+                {template && (
+                  <div className="space-y-3 border-t border-border pt-5">
+                    <p className="text-sm font-semibold">Your route</p>
+                    <RouteTimeline
+                      startLabel={start?.label || "Your pickup"}
+                      finishLabel={finishLabel}
+                      stops={stops}
+                      legs={legs}
+                      measuring={loop.isFetching}
+                      onRemove={(i) => {
+                        const s = stops[i];
+                        const ts = template.stops.find((x) => x.poi_id === s?.poiId);
+                        if (ts && !ts.mandatory) toggleTemplateStop(ts.poi_id);
+                      }}
+                      canRemove={(s) => !template.stops.find((x) => x.poi_id === s.poiId)?.mandatory}
+                    />
+                    {template.stops.filter((s) => !stops.some((x) => x.poiId === s.poi_id)).length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {template.stops.filter((s) => !stops.some((x) => x.poiId === s.poi_id)).map((s) => (
+                          <button key={s.poi_id} type="button" onClick={() => toggleTemplateStop(s.poi_id)} className="inline-flex items-center gap-1 rounded-full border border-dashed border-border px-3 py-1 text-xs font-semibold hover:border-[var(--gold)]">
+                            <Plus className="size-3" /> Add back {s.name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    {!start && <p className="text-xs text-muted-foreground">Add your pickup to see the miles and driving time between stops.</p>}
+                    <p className="text-xs text-muted-foreground">Taking a stop off doesn't lower the fixed tour price; it gives you longer at the others.</p>
+                  </div>
                 )}
-                <div className="rounded-2xl border border-border bg-background p-4">
-                  <p className="text-sm font-semibold">Want more than one day?</p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    We book up to {data?.rules.max_bookable_hours ?? 12} hours online. For a tour running
-                    over more than one day, contact us and we'll confirm the full cost with you.
-                  </p>
-                  <Link
-                    to="/contact"
-                    className="mt-2 inline-block text-xs font-semibold underline"
+              </div>
+            )}
+
+            {/* Stops (your own tour / hourly hire) */}
+            {stepId === "stops" && (
+              <div className="space-y-6">
+                <StepTitle title={hourly ? "Places to visit (optional)" : "Your stops"} />
+                <p className="-mt-3 text-sm text-muted-foreground">
+                  {hourly
+                    ? "Add places you want to visit and we'll check they fit your hours, or just continue and tell your driver on the day."
+                    : "Add the places you'd like to visit. We number them from your pickup to your finish, in driving order."}
+                </p>
+
+                <div className="flex items-end gap-2">
+                  <div className="min-w-0 flex-1 space-y-1.5">
+                    <Label htmlFor="tw-stop">Add a stop</Label>
+                    <PlaceAutocomplete id="tw-stop" value={newStop} onChange={setNewStop} placeholder="Castle, loch, distillery…" />
+                  </div>
+                  <Button
+                    type="button"
+                    variant="gold"
+                    disabled={!newStop || stops.length >= MAX_STOPS}
+                    onClick={() => {
+                      if (!newStop) return;
+                      addStop({ poiId: null, placeId: newStop.placeId, name: newStop.label, dwellMinutes: Math.max(minStopMinutes, 30) });
+                      setNewStop(null);
+                    }}
                   >
-                    Contact us about a multi-day tour
-                  </Link>
+                    <Plus className="size-4" /> Add
+                  </Button>
+                </div>
+
+                <RouteTimeline
+                  startLabel={start?.label || "Your pickup"}
+                  finishLabel={finishLabel}
+                  stops={stops}
+                  legs={legs}
+                  measuring={loop.isFetching || optimiseMutation.isPending}
+                  minStopMinutes={minStopMinutes}
+                  onMove={moveByHand}
+                  onRemove={removeStop}
+                  onDwell={setDwell}
+                />
+
+                {stops.length >= 2 && (
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground" role="status">
+                    {optimiseMutation.isPending ? (
+                      <span className="flex items-center gap-1.5"><Loader2 className="size-3.5 animate-spin" /> Putting your stops in driving order…</span>
+                    ) : autoOrder ? (
+                      <span className="flex items-center gap-1.5"><Wand2 className="size-3.5 text-[var(--gold-ink)]" /> Stops are kept in the quickest driving order.</span>
+                    ) : (
+                      <Button type="button" size="sm" variant="outline" className="rounded-full" onClick={() => { orderedKey.current = ""; setAutoOrder(true); }}>
+                        <Wand2 className="size-4" /> Put in quickest order
+                      </Button>
+                    )}
+                    {orderBeforeBest && !optimiseMutation.isPending && (
+                      <button
+                        type="button"
+                        className="inline-flex items-center gap-1 font-semibold text-foreground underline"
+                        onClick={() => { setAutoOrder(false); setQuote(null); setStops(orderBeforeBest); setOrderBeforeBest(null); }}
+                      >
+                        <RotateCcw className="size-3.5" /> Undo
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                {/* Miles and hours used */}
+                {stops.length > 0 && (
+                  <DayMeter
+                    quote={liveQuote}
+                    addHours={quote?.addHours ?? []}
+                    hours={hours ?? 0}
+                    includedMiles={includedMiles}
+                    pending={priceMutation.isPending}
+                    onHours={(h) => { setHours(h); setQuote(null); }}
+                  />
+                )}
+
+                {/* Suggested stops inside the mileage the hours include */}
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    Popular stops within {includedMiles} miles
+                  </p>
+                  {suggestions.isLoading ? (
+                    <p className="mt-3 flex items-center gap-2 text-xs text-muted-foreground"><Loader2 className="size-3.5 animate-spin" /> Finding places…</p>
+                  ) : (suggestions.data?.suggestions.length ?? 0) === 0 ? (
+                    <p className="mt-2 text-xs text-muted-foreground">Search for any place above and we'll work out the miles.</p>
+                  ) : (
+                    <>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {(showAllSuggestions ? suggestions.data!.suggestions : suggestions.data!.suggestions.slice(0, 8)).map((p) => {
+                          const chosen = stops.some((s) => s.poiId === p.id || s.placeId === p.placeId);
+                          return (
+                            <button
+                              key={p.id}
+                              type="button"
+                              aria-pressed={chosen}
+                              onClick={() => {
+                                if (chosen) {
+                                  setQuote(null);
+                                  setStops((prev) => prev.filter((s) => s.poiId !== p.id && s.placeId !== p.placeId));
+                                } else {
+                                  addStop({ poiId: p.source === "map" ? null : p.id, placeId: p.placeId, name: p.name, dwellMinutes: Math.max(minStopMinutes, p.recommendedMinutes ?? minStopMinutes) });
+                                }
+                              }}
+                              className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+                                chosen ? "border-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_14%,transparent)]" : "border-border hover:border-[var(--gold)]"
+                              }`}
+                              title={p.withinAllowance ? "Within your included miles" : `About ${p.roundTripMiles} miles there and back`}
+                            >
+                              {chosen ? <Check className="size-3.5" /> : <Plus className="size-3.5" />} {p.name}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      {suggestions.data!.suggestions.length > 8 && (
+                        <button type="button" className="mt-2 text-xs font-semibold underline" onClick={() => setShowAllSuggestions((v) => !v)}>
+                          {showAllSuggestions ? "Show fewer" : `Show all ${suggestions.data!.suggestions.length}`}
+                        </button>
+                      )}
+                    </>
+                  )}
                 </div>
               </div>
             )}
 
-            {/* 3a. Vehicle & group */}
-            {step === 2 && !passengersConfirmed && (
+            {/* Vehicle & price */}
+            {stepId === "vehicle" && !passengersConfirmed && (
               <PassengerConfirmation max={80} onConfirm={(count) => {
                 setPassengers(count);
                 pickVehiclesFor(count, luggage);
                 setPassengersConfirmed(true);
               }} />
             )}
-            {step === 2 && passengersConfirmed && (
-              <div className="space-y-5">
-                <StepTitle title="Which vehicle, and how many of you?" />
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <NumberField
-                    icon={<Users className="size-4" />}
-                    label="Passengers"
-                    value={passengers}
-                    min={1}
-                    max={80}
-                    onChange={(v) => { setPassengers(v); pickVehiclesFor(v, luggage); }}
-                  />
-                  <NumberField
-                    icon={<Briefcase className="size-4" />}
-                    label="Suitcases"
-                    value={luggage}
-                    min={0}
-                    max={80}
-                    onChange={(v) => { setLuggage(v); setQuote(null); }}
-                  />
+            {stepId === "vehicle" && passengersConfirmed && (
+              <div className="space-y-6">
+                <StepTitle title="Choose your vehicle" />
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <Counter icon={<Users className="size-4" />} label="Passengers" value={passengers} min={1} max={80} onChange={(v) => changeParty(v, luggage)} />
+                  <Counter icon={<Briefcase className="size-4" />} label="Suitcases" value={luggage} min={0} max={80} onChange={(v) => changeParty(passengers, v)} />
                 </div>
-                <div className="grid gap-4 md:grid-cols-2">
-                  {classes
-                    .filter((c) => (c.max_passengers ?? 99) >= passengers)
-                    .map((c) => {
-                      const fixed = template?.prices.find((p) => p.vehicle_class_id === c.id)?.price ?? null;
+
+                {singleFits ? (
+                  <div className="space-y-3">
+                    {fittingClasses.map((c) => {
+                      const fixed = priceFor(c.id);
+                      const selected = !groupActive && vehicleClassId === c.id;
                       return (
                         <button
                           key={c.id}
                           type="button"
                           onClick={() => chooseVehicles([c.id])}
-                          className={`flex items-center gap-4 rounded-2xl border p-4 text-left ${
-                            !groupActive && vehicleClassId === c.id ? "border-[var(--gold)] ring-1 ring-[var(--gold)]" : "border-border hover:border-[var(--gold)]"
+                          aria-pressed={selected}
+                          className={`flex w-full items-center gap-4 rounded-xl border p-3 text-left transition ${
+                            selected ? "border-[var(--gold)] ring-1 ring-[var(--gold)]" : "border-border hover:border-[var(--gold)]"
                           }`}
                         >
-                          {c.image_url && (
-                            <img src={c.image_url} alt={c.name} loading="lazy" className="h-16 w-24 rounded-lg object-cover" />
+                          {c.image_url ? (
+                            <img src={c.image_url} alt={c.name} loading="lazy" className="h-14 w-20 shrink-0 rounded-lg object-cover" />
+                          ) : (
+                            <span className="grid h-14 w-20 shrink-0 place-items-center rounded-lg bg-[var(--surface)]"><Car className="size-6 text-muted-foreground" /></span>
                           )}
-                          <div className="min-w-0">
-                            <p className="font-semibold">{c.name}</p>
-                            <p className="text-xs text-muted-foreground">
-                              Up to {c.max_passengers ?? "—"} passengers · {c.max_luggage ?? "—"} suitcases
-                            </p>
-                            <p className="mt-1 text-xs font-semibold text-[var(--gold-ink)]">
-                              {fixed != null
-                                ? `From £${fixed.toFixed(2)} for this tour`
-                                : c.hourly_rate
-                                  ? `£${Number(c.hourly_rate).toFixed(2)} per hour`
-                                  : "Price on request"}
-                            </p>
-                          </div>
+                          <span className="min-w-0 flex-1">
+                            <span className="block font-semibold">{c.name}</span>
+                            <span className="block text-xs text-muted-foreground">Up to {c.max_passengers ?? "—"} passengers · {c.max_luggage ?? "—"} suitcases</span>
+                          </span>
+                          <span className="shrink-0 text-right">
+                            {selected && quote && !priceMutation.isPending && !quote.quote.blockedReason ? (
+                              <span className="block font-display text-lg font-bold text-[var(--gold-ink)]">£{quote.quote.total.toFixed(2)}</span>
+                            ) : selected && priceMutation.isPending ? (
+                              <Loader2 className="ml-auto size-4 animate-spin text-muted-foreground" />
+                            ) : (
+                              <span className="block text-sm font-semibold text-[var(--gold-ink)]">
+                                {fixed != null ? `£${fixed.toFixed(2)}` : c.hourly_rate ? `£${Number(c.hourly_rate).toFixed(2)}/hr` : ""}
+                              </span>
+                            )}
+                            <span className={`mt-1 ml-auto grid size-5 place-items-center rounded-full border ${selected ? "border-[var(--gold)] bg-[var(--gold)] text-[var(--gold-foreground)]" : "border-border"}`}>
+                              {selected && <Check className="size-3" />}
+                            </span>
+                          </span>
                         </button>
                       );
                     })}
-                </div>
-                {/* More than one vehicle for a big group */}
-                <div className="space-y-4 rounded-2xl border border-border bg-[var(--surface)] p-5">
-                  <div>
-                    <p className="font-display font-bold">
-                      {singleFits ? "Travelling as a bigger group?" : `No single vehicle seats ${passengers}: travel in more than one`}
-                    </p>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      Each vehicle comes with its own driver and is priced on its own. Your total adds them together.
-                    </p>
                   </div>
-                  {!singleFits || showGroup || groupActive ? (
-                    <>
-                      {groupSuggestions.length > 0 && (
-                        <div className="grid gap-3 sm:grid-cols-3">
-                          {groupSuggestions.map((ids) => {
-                            const on = groupActive && ids.join("|") === groupVehicles.join("|");
-                            const list = ids.map((id) => classes.find((c) => c.id === id)!).filter(Boolean);
-                            const seatsTotal = list.reduce((t, c) => t + Number(c.max_passengers ?? 0), 0);
-                            const casesTotal = list.reduce((t, c) => t + Number(c.max_luggage ?? 0), 0);
-                            const fixed = list.map((c) => template?.prices.find((p) => p.vehicle_class_id === c.id)?.price ?? null);
-                            const hint = fixed.every((f) => f != null)
-                              ? `From £${fixed.reduce((t, f) => t + (f ?? 0), 0).toFixed(2)} for this tour`
-                              : list.every((c) => Number(c.hourly_rate ?? 0) > 0)
-                                ? `£${list.reduce((t, c) => t + Number(c.hourly_rate), 0).toFixed(2)} per hour in total`
-                                : null;
-                            return (
-                              <button
-                                key={ids.join("|")}
-                                type="button"
-                                onClick={() => chooseVehicles(ids)}
-                                className={`rounded-2xl border bg-background p-4 text-left text-sm ${on ? "border-[var(--gold)] ring-1 ring-[var(--gold)]" : "border-border hover:border-[var(--gold)]"}`}
-                              >
-                                <p className="font-semibold">{groupLabel(ids, classes)}</p>
-                                <p className="mt-1 text-xs text-muted-foreground">Seats {seatsTotal} · {casesTotal} suitcases</p>
-                                {hint && <p className="mt-1 text-xs font-semibold text-[var(--gold-ink)]">{hint}</p>}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      )}
-                      <div className="space-y-2">
-                        <p className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">Or choose your own mix (up to {MAX_GROUP_VEHICLES})</p>
-                        {priceableClasses.map((c) => {
-                          const n = chosenVehicles.filter((id) => id === c.id).length;
+                ) : (
+                  <p className="rounded-xl border border-[var(--gold)]/50 bg-[var(--gold)]/10 p-3 text-sm font-semibold">
+                    No single vehicle carries {passengers} {passengers === 1 ? "passenger" : "passengers"} and {luggage} {luggage === 1 ? "suitcase" : "suitcases"}. Choose more than one vehicle below.
+                  </p>
+                )}
+
+                {/* More than one vehicle */}
+                {(!singleFits || showGroup || groupActive) ? (
+                  <div className="space-y-3 rounded-xl border border-border bg-[var(--surface)] p-4">
+                    <p className="text-sm font-semibold">More than one vehicle</p>
+                    <p className="text-xs text-muted-foreground">Each vehicle has its own driver and is priced on its own; your total adds them together.</p>
+                    {groupSuggestions.length > 0 ? (
+                      <div className="grid gap-2 sm:grid-cols-3">
+                        {groupSuggestions.map((ids) => {
+                          const on = groupActive && ids.join("|") === groupVehicles.join("|");
+                          const list = ids.map((id) => classes.find((c) => c.id === id)!).filter(Boolean);
                           return (
-                            <div key={c.id} className="flex items-center justify-between gap-3 rounded-xl border border-border bg-background px-3 py-2 text-sm">
-                              <span className="min-w-0">
-                                <span className="font-semibold">{c.name}</span>
-                                <span className="text-muted-foreground"> · {c.max_passengers ?? "—"} seats, {c.max_luggage ?? "—"} cases</span>
+                            <button
+                              key={ids.join("|")}
+                              type="button"
+                              onClick={() => chooseVehicles(ids)}
+                              aria-pressed={on}
+                              className={`rounded-xl border bg-card p-3 text-left text-sm ${on ? "border-[var(--gold)] ring-1 ring-[var(--gold)]" : "border-border hover:border-[var(--gold)]"}`}
+                            >
+                              <span className="block font-semibold">{groupLabel(ids, classes)}</span>
+                              <span className="block text-xs text-muted-foreground">
+                                {list.reduce((t, c) => t + Number(c.max_passengers ?? 0), 0)} seats · {list.reduce((t, c) => t + Number(c.max_luggage ?? 0), 0)} suitcases
                               </span>
-                              <span className="flex items-center gap-2">
-                                <Button type="button" size="sm" variant="outline" className="h-8 w-8 rounded-full p-0" aria-label={`One fewer ${c.name}`} disabled={n === 0} onClick={() => setVehicleCount(c.id, n - 1)}>−</Button>
-                                <span className="w-5 text-center font-semibold" aria-live="polite">{n}</span>
-                                <Button type="button" size="sm" variant="outline" className="h-8 w-8 rounded-full p-0" aria-label={`One more ${c.name}`} disabled={chosenVehicles.length >= MAX_GROUP_VEHICLES} onClick={() => setVehicleCount(c.id, n + 1)}>+</Button>
-                              </span>
-                            </div>
+                              {on && quote && !priceMutation.isPending && <span className="mt-1 block font-bold text-[var(--gold-ink)]">£{quote.quote.total.toFixed(2)}</span>}
+                            </button>
                           );
                         })}
                       </div>
-                      {groupActive && groupSplit && !groupSplit.ok && (
-                        <p className="text-sm font-semibold text-destructive">{groupSplit.reason}</p>
-                      )}
-                      {groupActive && groupSplit?.ok && (
-                        <ul className="space-y-1 text-sm">
-                          {groupSplit.shares.map((sh, i) => (
-                            <li key={i}>
-                              Vehicle {i + 1}: <strong>{classes.find((c) => c.id === sh.vehicleClassId)?.name}</strong> · {sh.passengers} {sh.passengers === 1 ? "passenger" : "passengers"}, {sh.luggage} suitcases
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                      {!groupActive && !singleFits && groupSuggestions.length === 0 && (
-                        <p className="text-sm font-semibold text-destructive">
-                          We can't fit {passengers} passengers into {MAX_GROUP_VEHICLES} vehicles online. Please call us on {SITE.phoneUK} and we'll plan it with you.
-                        </p>
-                      )}
-                    </>
-                  ) : (
-                    <Button type="button" variant="outline" className="rounded-full" onClick={() => setShowGroup(true)}>
-                      <Plus className="size-4" /> Use more than one vehicle
-                    </Button>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* 2b. Stops */}
-            {step === 1 && (
-              <div className="space-y-5 border-t border-border pt-6">
-                {/* Your route: live miles and time as stops change */}
-                <div>
-                  <div className="flex flex-wrap items-end justify-between gap-4">
-                    <h3 className="font-display text-lg font-bold">Your route</h3>
-                    <div className="flex gap-6">
-                      <div className="text-right">
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Distance</p>
-                        <p className="text-sm font-bold">
-                          {liveQuote ? Math.round(liveQuote.routeMiles) : 0} / {includedMiles} mi
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Time used</p>
-                        <p className="text-sm font-bold">
-                          {liveQuote
-                            ? minutesLabel(liveQuote.driveMinutes + liveQuote.dwellTotalMinutes)
-                            : "0h"}{" "}
-                          / {hours}h
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-[var(--surface)]">
-                    <div
-                      className={`h-full rounded-full transition-all duration-500 ${
-                        liveQuote && liveQuote.extraMiles > 0 ? "bg-[var(--gold)]" : "bg-[var(--gold-ink)]"
-                      }`}
-                      style={{
-                        width: `${Math.min(
-                          100,
-                          liveQuote && includedMiles > 0
-                            ? (liveQuote.routeMiles / includedMiles) * 100
-                            : 0,
-                        )}%`,
-                      }}
-                    />
-                  </div>
-
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    {priceMutation.isPending ? (
-                      <span className="flex items-center gap-1.5">
-                        <Loader2 className="size-3 animate-spin" /> Measuring your route on the map…
-                      </span>
-                    ) : liveQuote ? (
-                      <>
-                        {liveQuote.extraMiles > 0
-                          ? `${Math.round(liveQuote.extraMiles)} extra miles at £${liveQuote.extraMileRate.toFixed(2)} each`
-                          : "Inside your included miles"}
-                        {liveQuote.spareMinutes >= 0
-                          ? ` · ${minutesLabel(liveQuote.spareMinutes)} spare in the day`
-                          : ` · ${minutesLabel(-liveQuote.spareMinutes)} over your ${hours} hours`}
-                      </>
                     ) : (
-                      "Add a stop and we'll measure the driving loop from your pickup and back again."
-                    )}
-                  </p>
-                  {liveQuote && liveQuote.state !== "comfortable" && (
-                    <div className="mt-3 rounded-xl border border-[var(--gold)]/50 bg-[var(--gold)]/10 p-3">
-                      <p className="flex items-start gap-2 text-xs font-semibold">
-                        <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
-                        {liveQuote.blockedReason ??
-                          `This is a lot of driving for ${hours} hours — about ${Math.max(0, Math.round(liveQuote.perStopMinutes))} minutes at each stop.`}
+                      <p className="text-sm font-semibold text-destructive">
+                        We can't fit {passengers} passengers into {MAX_GROUP_VEHICLES} vehicles online. Please call us on {SITE.phoneUK} and we'll plan it with you.
                       </p>
-                      {quote?.addHours.map((o) => (
-                        <button
-                          key={o.hours}
-                          type="button"
-                          onClick={() => { setHours(o.hours); setQuote(null); }}
-                          className="mt-2 w-full rounded-lg border border-border bg-background p-2.5 text-left text-xs hover:border-[var(--gold)]"
-                        >
-                          <span className="font-semibold">Make it {o.hours} hours</span> — about{" "}
-                          {Math.round(o.perStopMinutesAfter)} minutes at each stop and{" "}
-                          {o.extraAllowanceMiles} more miles included, £{o.netCost.toFixed(2)} more.
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* The loop itself is drawn in the summary panel beside this step. */}
-
-
-                {mode === "premade" && template && (
-                  <div className="space-y-2">
-                    {template.stops
-                      .slice()
-                      .sort((a, b) => a.stop_order - b.stop_order)
-                      .map((s) => {
-                        const on = stops.some((x) => x.poiId === s.poi_id);
-                        return (
-                          <label
-                            key={s.poi_id}
-                            className="flex min-h-14 cursor-pointer items-start gap-3 rounded-xl border border-border p-3"
-                          >
-                            <input
-                              type="checkbox"
-                              checked={on}
-                              disabled={s.mandatory}
-                              onChange={(e) => {
-                                setQuote(null);
-                                setStops((prev) =>
-                                  e.target.checked
-                                    ? [...prev, {
-                                        poiId: s.poi_id, placeId: s.place_id, name: s.name,
-                                        dwellMinutes: Math.max(minStopMinutes, s.recommended_visit_minutes ?? minStopMinutes),
-                                      }]
-                                    : prev.filter((x) => x.poiId !== s.poi_id),
-                                );
-                              }}
-                              className="mt-0.5 size-5 shrink-0 accent-[var(--gold)]"
-                            />
-                            <div className="min-w-0 flex-1">
-                              <p className="text-sm font-semibold">{s.name}</p>
-                              <p className="text-xs text-muted-foreground">
-                                About {s.recommended_visit_minutes} minutes here
-                                {s.mandatory ? " · always included" : ""}
-                              </p>
-                            </div>
-                          </label>
-                        );
-                      })}
-                    <p className="text-xs text-muted-foreground">
-                      Taking a stop off doesn't reduce the fixed tour price — it just gives you longer
-                      at the rest.
-                    </p>
+                    )}
+                    {groupActive && groupSplit && !groupSplit.ok && <p className="text-sm font-semibold text-destructive">{groupSplit.reason}</p>}
+                    {singleFits && (
+                      <button type="button" className="text-xs font-semibold underline" onClick={() => { setShowGroup(false); pickVehiclesFor(passengers, luggage); }}>
+                        Use one vehicle instead
+                      </button>
+                    )}
                   </div>
-                )}
-                  <div className="space-y-3">
-                    {stops.length > 0 && (
-                      <div className="flex flex-wrap items-baseline justify-between gap-2">
-                        <h4 className="font-display text-base font-bold">Your stops, in order</h4>
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                          Drag or use the arrows · at least {minStopMinutes} minutes each
-                        </span>
-                      </div>
-                    )}
-                    {stops
-                      .map((s, i) => ({ s, i }))
-                      .filter(
-                        ({ s }) =>
-                          !(mode === "premade" && template?.stops.some((t) => t.poi_id === s.poiId)),
-                      )
-                      .map(({ s, i }) => (
-                      <div
-                        key={`${s.placeId}-${i}`}
-                        draggable={!s.locked}
-                        onDragStart={(e) => { setDragFrom(i); e.dataTransfer.effectAllowed = "move"; }}
-                        onDragOver={(e) => { if (dragFrom !== null && !s.locked) e.preventDefault(); }}
-                        onDrop={(e) => {
-                          e.preventDefault();
-                          if (dragFrom === null) return;
-                          setQuote(null);
-                          setBestOrder(null);
-                          setStops((prev) => moveStop(prev, dragFrom, i));
-                          setDragFrom(null);
-                        }}
-                        onDragEnd={() => setDragFrom(null)}
-                        className={`flex flex-wrap items-center gap-3 rounded-xl border p-3 ${
-                          dragFrom === i ? "border-[var(--gold)] opacity-60" : "border-border"
-                        } ${s.locked ? "bg-[color-mix(in_oklab,var(--gold)_6%,var(--card))]" : ""}`}
-                      >
-                        <GripVertical
-                          className={`size-4 shrink-0 ${s.locked ? "text-muted-foreground/30" : "cursor-grab text-muted-foreground"}`}
-                          aria-hidden="true"
-                        />
-                        <span className="grid size-6 shrink-0 place-items-center rounded-full bg-[var(--navy)] text-[11px] font-bold text-[var(--navy-foreground)]">{i + 1}</span>
-                        <p className="min-w-0 flex-1 truncate text-sm font-semibold">
-                          {s.name}
-                          {i === stops.length - 1 && stops.length > 1 && (
-                            <span className="ml-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                              last stop
-                            </span>
-                          )}
-                        </p>
-                        <button
-                          type="button"
-                          aria-pressed={!!s.locked}
-                          aria-label={s.locked ? `Unlock ${s.name} so it can move` : `Keep ${s.name} in this position`}
-                          title={s.locked ? "Fixed in this position" : "Fix in this position"}
-                          onClick={() => { setBestOrder(null); setStops((prev) => prev.map((x, j) => (j === i ? { ...x, locked: !x.locked } : x))); }}
-                          className={`rounded-md p-1 ${s.locked ? "text-[var(--gold-ink)]" : "text-muted-foreground hover:text-foreground"}`}
-                        >
-                          {s.locked ? <Lock className="size-4" /> : <LockOpen className="size-4" />}
-                        </button>
-                        <span className="flex shrink-0 flex-col">
-                          <button
-                            type="button"
-                            aria-label={`Move ${s.name} earlier`}
-                            disabled={i === 0 || !!s.locked || !!stops[i - 1]?.locked}
-                            onClick={() => { setQuote(null); setBestOrder(null); setStops((prev) => moveStop(prev, i, i - 1)); }}
-                            className="text-muted-foreground disabled:opacity-30"
-                          >
-                            <ChevronUp className="size-4" />
-                          </button>
-                          <button
-                            type="button"
-                            aria-label={`Move ${s.name} later`}
-                            disabled={i === stops.length - 1 || !!s.locked || !!stops[i + 1]?.locked}
-                            onClick={() => { setQuote(null); setBestOrder(null); setStops((prev) => moveStop(prev, i, i + 1)); }}
-                            className="text-muted-foreground disabled:opacity-30"
-                          >
-                            <ChevronDown className="size-4" />
-                          </button>
-                        </span>
-                        <label className="text-xs text-muted-foreground">
-                          minutes here
-                          <input
-                            type="number"
-                            min={minStopMinutes}
-                            step={5}
-                            max={600}
-                            value={s.dwellMinutes ?? minStopMinutes}
-                            onChange={(e) => {
-                              const raw = Number(e.target.value);
-                              const v = e.target.value === "" || !Number.isFinite(raw)
-                                ? minStopMinutes
-                                : Math.max(minStopMinutes, Math.min(600, raw));
-                              setQuote(null);
-                              setStops((prev) => prev.map((x, j) => (j === i ? { ...x, dwellMinutes: v } : x)));
-                            }}
-                            className="ml-2 w-16 rounded-md border border-border bg-background px-2 py-1 text-sm font-semibold"
-                            title={`At least ${minStopMinutes} minutes`}
-                          />
-                        </label>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => { setQuote(null); setBestOrder(null); setStops((prev) => prev.filter((_, j) => j !== i)); }}
-                          aria-label={`Remove ${s.name}`}
-                        >
-                          <Trash2 className="size-4" />
-                        </Button>
-                      </div>
-                    ))}
-
-                    {stops.length >= 2 && (
-                      <div className="rounded-xl border border-border bg-background p-3">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            disabled={optimiseMutation.isPending || !start}
-                            onClick={() => optimiseMutation.mutate()}
-                          >
-                            {optimiseMutation.isPending ? <Loader2 className="size-4 animate-spin" /> : <Wand2 className="size-4" />}
-                            Find the quickest order
-                          </Button>
-                          {orderBeforeBest && (
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => { setQuote(null); setStops(orderBeforeBest); setOrderBeforeBest(null); setBestOrder(null); }}
-                            >
-                              <RotateCcw className="size-4" /> Restore my order
-                            </Button>
-                          )}
-                          <span className="text-xs text-muted-foreground">
-                            Drag stops or use the arrows. Lock a stop to keep it where it is. Your start and finish never move.
-                          </span>
-                        </div>
-                        {bestOrder && !bestOrder.changed && (
-                          <p className="mt-2 text-sm text-muted-foreground" role="status">
-                            Your order is already the quickest by road ({bestOrder.current.miles} miles, about {minutesLabel(bestOrder.current.driveMinutes)} driving).
-                          </p>
-                        )}
-                        {bestOrder && bestOrder.changed && (
-                          <div className="mt-3 rounded-lg border border-[var(--gold)]/50 bg-[color-mix(in_oklab,var(--gold)_10%,transparent)] p-3" role="status">
-                            <p className="text-sm font-semibold">
-                              A quicker order saves about {minutesLabel(bestOrder.current.driveMinutes - bestOrder.best.driveMinutes)} of driving
-                              ({bestOrder.current.miles} → {bestOrder.best.miles} miles).
-                            </p>
-                            <ol className="mt-2 list-decimal space-y-0.5 pl-5 text-sm">
-                              {bestOrder.order.map((idx) => (
-                                <li key={stops[idx]?.placeId ?? idx}>{stops[idx]?.name}</li>
-                              ))}
-                            </ol>
-                            <div className="mt-3 flex gap-2">
-                              <Button
-                                type="button"
-                                size="sm"
-                                variant="gold"
-                                onClick={() => {
-                                  setOrderBeforeBest(stops);
-                                  setQuote(null);
-                                  setStops(bestOrder.order.map((idx) => stops[idx]!).filter(Boolean));
-                                  setBestOrder(null);
-                                }}
-                              >
-                                Use this order
-                              </Button>
-                              <Button type="button" size="sm" variant="ghost" onClick={() => setBestOrder(null)}>
-                                Keep my order
-                              </Button>
-                            </div>
-                          </div>
-                        )}
-                        <p className="mt-2 text-[11px] text-muted-foreground">
-                          Driving times are road estimates and don't include time at stops, traffic or breaks.
-                        </p>
-                      </div>
-                    )}
-                    <div className="flex items-end gap-2">
-                      <div className="min-w-0 flex-1 space-y-1.5">
-                        <Label htmlFor="tw-stop">Add a stop</Label>
-                        <PlaceAutocomplete id="tw-stop" value={newStop} onChange={setNewStop} placeholder="Castle, loch, distillery…" />
-                      </div>
-                      <Button
-                        type="button"
-                        variant="gold"
-                        disabled={!newStop || stops.length >= 15}
-                        onClick={() => {
-                          if (!newStop) return;
-                          setQuote(null);
-                          setStops((prev) => [
-                            ...prev,
-                            {
-                              poiId: null,
-                              placeId: newStop.placeId,
-                              name: newStop.label,
-                              dwellMinutes: minStopMinutes,
-                            },
-                          ]);
-                          setNewStop(null);
-                        }}
-                      >
-                        <Plus className="size-4" /> Add
-                      </Button>
-                    </div>
-
-                    {/* Suggested stops inside the mileage the hours include */}
-                    <div className="pt-3">
-                      <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                        Recommended within {includedMiles} miles of {start?.label ?? "your pickup"}
-                      </p>
-                      {suggestions.isLoading ? (
-                        <p className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
-                          <Loader2 className="size-3.5 animate-spin" /> Finding places within your miles…
-                        </p>
-                      ) : (suggestions.data?.suggestions.length ?? 0) === 0 ? (
-                        <p className="mt-3 text-xs text-muted-foreground">
-                          No suggestions for this pickup yet — search for any place above and we'll work
-                          out the miles.
-                        </p>
-                      ) : (
-                        <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                          {suggestions.data!.suggestions.map((p) => {
-                            const chosen = stops.some((s) => s.poiId === p.id || s.placeId === p.placeId);
-                            return (
-                              <button
-                                key={p.id}
-                                type="button"
-                                onClick={() => {
-                                  setQuote(null);
-                                  setStops((prev) =>
-                                    chosen
-                                      ? prev.filter((s) => s.poiId !== p.id && s.placeId !== p.placeId)
-                                      : prev.length >= 15
-                                        ? prev
-                                        : [
-                                            ...prev,
-                                            {
-                                              poiId: p.source === "map" ? null : p.id,
-                                              placeId: p.placeId,
-                                              name: p.name,
-                                              dwellMinutes: Math.max(minStopMinutes, p.recommendedMinutes ?? minStopMinutes),
-                                            },
-                                          ],
-                                  );
-                                }}
-                                className={`flex items-center justify-between gap-3 rounded-xl border p-3 text-left transition ${
-                                  chosen
-                                    ? "border-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_8%,var(--card))] ring-1 ring-[var(--gold)]"
-                                    : "border-dashed border-border hover:border-[var(--gold)]"
-                                }`}
-                              >
-                                <span className="min-w-0">
-                                  <span className="block truncate text-sm font-bold">{p.name}</span>
-                                  <span className="mt-0.5 block text-xs font-medium text-[var(--gold-ink)]">
-                                    {chosen
-                                      ? "Added to your day"
-                                      : p.withinAllowance
-                                        ? "Within your miles"
-                                        : `About ${p.roundTripMiles} miles · extra miles`}
-                                  </span>
-                                  <span className="mt-0.5 block text-[11px] text-muted-foreground">
-                                    about {p.recommendedMinutes} minutes here
-                                    {p.source === "map" ? " · found nearby" : ""}
-                                  </span>
-                                </span>
-                                <span className="shrink-0 text-[var(--gold-ink)]">
-                                  {chosen ? <Check className="size-5" /> : <Plus className="size-5" />}
-                                </span>
-                              </button>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-              </div>
-            )}
-
-            {/* 3b. Price */}
-            {step === 2 && (
-              <div className="space-y-5">
-                <h3 className="font-display text-lg font-bold">Your price</h3>
-                {priceMutation.isPending && !quote ? (
-                  <p className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Loader2 className="size-4 animate-spin" /> Working out your day…
-                  </p>
-                ) : quote ? (
-                  <>
-                    <div className="rounded-2xl border border-border bg-background p-4">
-                      <ul className="space-y-2 text-sm">
-                        {quote.quote.lines.map((l, i) => (
-                          <li key={i} className="flex items-baseline justify-between gap-4">
-                            <span>
-                              {l.label}
-                              {l.detail ? <span className="text-muted-foreground"> · {l.detail}</span> : null}
-                            </span>
-                            <span className="font-semibold">£{l.amount.toFixed(2)}</span>
-                          </li>
-                        ))}
-                      </ul>
-                      <div className="mt-3 flex items-baseline justify-between border-t border-border pt-3">
-                        <span className="font-semibold">Total</span>
-                        <span className="font-display text-2xl font-bold text-[var(--gold-ink)]">
-                          £{quote.quote.total.toFixed(2)}
-                        </span>
-                      </div>
-                      <p className="mt-2 text-xs font-semibold text-muted-foreground">{FACT_TEXT.feesIncludedShort}</p>
-                    </div>
-
-                    <div className="grid gap-3 sm:grid-cols-3 text-sm">
-                      <Meter label="Hours booked" value={`${quote.quote.hours} hours`} />
-                      <Meter
-                        label="Miles"
-                        value={`${Math.round(quote.quote.routeMiles)} of ${quote.quote.includedMiles} included`}
-                      />
-                      <Meter
-                        label="Driving + stops"
-                        value={`${minutesLabel(quote.quote.driveMinutes)} driving · ${minutesLabel(quote.quote.dwellTotalMinutes)} at stops`}
-                      />
-                    </div>
-
-                    {quote.quote.state !== "comfortable" && (
-                      <div className="rounded-2xl border border-[var(--gold)]/50 bg-[var(--gold)]/10 p-4">
-                        <p className="flex items-center gap-2 text-sm font-semibold">
-                          <AlertTriangle className="size-4" />
-                          {quote.quote.blockedReason ?? "This day is tight — you'll be rushing between stops."}
-                        </p>
-                        {quote.addHours.length > 0 && (
-                          <div className="mt-3 space-y-2">
-                            {quote.addHours.map((o) => (
-                              <button
-                                key={o.hours}
-                                type="button"
-                                onClick={() => { setHours(o.hours); setQuote(null); }}
-                                className="w-full rounded-xl border border-border bg-background p-3 text-left text-sm hover:border-[var(--gold)]"
-                              >
-                                <span className="font-semibold">Make it {o.hours} hours</span> —{" "}
-                                {o.spareMinutesAfter >= 0
-                                  ? `${minutesLabel(o.spareMinutesAfter)} spare in the day`
-                                  : "still not quite enough"}
-                                , {o.extraAllowanceMiles} more miles included, £{o.netCost.toFixed(2)} more.
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="rounded-full"
-                      onClick={() => priceMutation.mutate()}
-                      disabled={priceMutation.isPending}
-                    >
-                      {priceMutation.isPending ? <Loader2 className="size-4 animate-spin" /> : null} Recheck price
-                    </Button>
-                  </>
-                ) : vehicleFits ? (
-                  <Button type="button" variant="gold" onClick={() => priceMutation.mutate()}>
-                    Get my price
-                  </Button>
+                ) : groupSuggestions.length > 0 ? (
+                  <button type="button" className="text-xs font-semibold underline" onClick={() => setShowGroup(true)}>
+                    Travelling as a bigger group? Use more than one vehicle
+                  </button>
                 ) : null}
 
-                {canRequestQuote && passengersConfirmed && !priceMutation.isPending && (
+                {/* Price */}
+                {vehicleFits && (
+                  <PriceBox
+                    quote={quote}
+                    pending={priceMutation.isPending}
+                    failed={priceMutation.isError && !quote}
+                    onRetry={() => priceMutation.mutate()}
+                    onHours={(h) => { setHours(h); setQuote(null); }}
+                  />
+                )}
+
+                {canRequestQuote && !priceMutation.isPending && (
                   requestWhy ? (
-                    <div className="rounded-2xl border border-[var(--gold)]/60 bg-[var(--surface)] p-5">
-                      <p className="font-display font-bold">Request a quote</p>
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        {requestWhy} Send us your day and our tour team will reply with a price. You'll get a reference to check your request.
-                      </p>
-                      <Button
-                        type="button"
-                        variant="gold"
-                        className="mt-4 rounded-full"
-                        onClick={() => { setStep(3); setRequestMode(true); }}
-                      >
+                    <div className="rounded-xl border border-[var(--gold)]/60 bg-[var(--surface)] p-4">
+                      <p className="font-semibold">Request a quote</p>
+                      <p className="mt-1 text-sm text-muted-foreground">{requestWhy} Send us your day and our tour team will reply with a price.</p>
+                      <Button type="button" variant="gold" className="mt-3 rounded-full" onClick={() => { setStepId("details"); setRequestMode(true); }}>
                         <Send className="size-4" /> Request a quote
                       </Button>
                     </div>
                   ) : (
-                    <p className="text-sm text-muted-foreground">
-                      Rather have our tour team look at your day first?{" "}
-                      <button
-                        type="button"
-                        className="font-semibold text-foreground underline underline-offset-2"
-                        onClick={() => { setStep(3); setRequestMode(true); }}
-                      >
+                    <p className="text-xs text-muted-foreground">
+                      Rather have our tour team check your day first?{" "}
+                      <button type="button" className="font-semibold text-foreground underline" onClick={() => { setStepId("details"); setRequestMode(true); }}>
                         Request a quote instead
                       </button>
                     </p>
@@ -1392,16 +964,14 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
               </div>
             )}
 
-            {/* 4. Details & payment */}
-            {step === 3 && (
+            {/* Details & pay */}
+            {stepId === "details" && (
               <div className="space-y-5">
                 {requested ? (
                   <>
                     <StepTitle title="Request submitted" />
                     <div className="rounded-2xl border border-[var(--gold)]/50 bg-[color-mix(in_oklab,var(--gold)_10%,transparent)] px-5 py-4">
-                      <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">
-                        Your custom tour reference
-                      </p>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">Your custom tour reference</p>
                       <div className="mt-1 flex flex-wrap items-center gap-3">
                         <p className="font-mono text-xl font-bold tracking-wider">{requested.reference}</p>
                         <Button
@@ -1419,28 +989,12 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                           <Copy className="size-4" /> Copy
                         </Button>
                       </div>
-                      <p className="mt-2 text-sm">
-                        Our tour team will check your route and email you a price at <strong>{email}</strong>. No payment is needed yet.
-                      </p>
+                      <p className="mt-2 text-sm">Our tour team will check your route and email you a price at <strong>{email}</strong>. No payment is needed yet.</p>
                     </div>
-                    <div className="rounded-2xl border border-border bg-background p-5">
-                      <p className="font-display font-bold">Your selected itinerary</p>
-                      <ol className="mt-3 space-y-1.5 text-sm">
-                        <li><span className="font-semibold">Start:</span> {start?.label}</li>
-                        {stops.map((s, i) => (
-                          <li key={`${s.placeId}-${i}`}>{i + 1}. {s.name}{s.dwellMinutes ? <span className="text-muted-foreground"> · {minutesLabel(s.dwellMinutes)}</span> : null}</li>
-                        ))}
-                        <li><span className="font-semibold">Finish:</span> {sameEnd ? start?.label : end?.label}</li>
-                      </ol>
-                      <p className="mt-3 text-xs text-muted-foreground">
-                        {date} from {time} · {hours} hours · {passengers} {passengers === 1 ? "passenger" : "passengers"}
-                      </p>
-                    </div>
+                    <RouteTimeline startLabel={start?.label || "Pickup"} finishLabel={finishLabel} stops={stops} legs={legs} />
                     <p className="text-sm text-muted-foreground">
                       Check your request any time on the{" "}
-                      <Link to="/custom-tour-status" search={{ ref: requested.reference }} className="font-semibold text-foreground underline">
-                        request status page
-                      </Link>{" "}
+                      <Link to="/custom-tour-status" search={{ ref: requested.reference }} className="font-semibold text-foreground underline">request status page</Link>{" "}
                       with this reference and your email address.
                     </p>
                   </>
@@ -1448,13 +1002,9 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                   <>
                     <StepTitle title="We've received your tour booking request" />
                     <div className="rounded-2xl border border-[var(--gold)]/50 bg-[color-mix(in_oklab,var(--gold)_10%,transparent)] px-5 py-3">
-                      <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">
-                        Your reference
-                      </p>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">Your reference</p>
                       <p className="font-mono text-lg font-bold tracking-wider">{created.bookingRef}</p>
-                      <p className="mt-1 text-sm">
-                        Total to pay: <strong>£{created.total.toFixed(2)}</strong>
-                      </p>
+                      <p className="mt-1 text-sm">Total to pay: <strong>£{created.total.toFixed(2)}</strong></p>
                     </div>
                     <BookingCardPayment
                       serverPriced
@@ -1494,18 +1044,16 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                   >
                     <StepTitle title={requestMode ? "Request a quote: your details" : "Your details"} />
                     {requestMode && (
-                      <p className="-mt-2 text-sm text-muted-foreground">
-                        We'll send your day, stops and timings to our tour team. They'll email you a price, and you'll get a reference to check your request.
-                      </p>
+                      <p className="-mt-2 text-sm text-muted-foreground">We'll send your day, stops and timings to our tour team. They'll email you a price, and you'll get a reference to check your request.</p>
                     )}
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div className="space-y-1.5">
                         <Label htmlFor="tw-name">Full name</Label>
-                        <Input id="tw-name" required value={name} onChange={(e) => setName(e.target.value)} />
+                        <Input id="tw-name" required autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} />
                       </div>
                       <div className="space-y-1.5">
                         <Label htmlFor="tw-email">Email</Label>
-                        <Input id="tw-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+                        <Input id="tw-email" type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
                       </div>
                       <div className="space-y-1.5">
                         <Label htmlFor="tw-phone">Phone</Label>
@@ -1539,11 +1087,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                       >
                         {bookMutation.isPending || requestMutation.isPending ? (
                           <><Loader2 className="size-4 animate-spin" /> {requestMode ? "Sending…" : "Saving…"}</>
-                        ) : requestMode ? (
-                          "Send my quote request"
-                        ) : (
-                          "Continue to payment"
-                        )}
+                        ) : requestMode ? "Send my quote request" : "Continue to payment"}
                       </Button>
                     </div>
                   </form>
@@ -1552,147 +1096,72 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
             )}
 
             {/* Navigation */}
-            {!(step === 3 && (created || requested)) && (
+            {!done && (
               <div className="mt-7 flex items-center justify-between gap-3 border-t border-border pt-5">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="rounded-full"
-                  onClick={() => setStep((s) => Math.max(0, s - 1))}
-                  disabled={step === 0}
-                >
+                <Button type="button" variant="ghost" className="rounded-full" onClick={goBack} disabled={stepIndex === 0}>
                   <ArrowLeft className="size-4" /> Back
                 </Button>
-                {step < 3 && (
-                  <div className="flex min-w-0 flex-wrap justify-end items-center gap-2 sm:gap-3">
-                    {step === 2 && quote && (
-                      <span className="text-sm font-semibold">£{quote.quote.total.toFixed(2)}</span>
-                    )}
-                    <Button
-                      type="button"
-                      variant="gold"
-                      className="sm:min-w-[150px] rounded-full"
-                      disabled={!canNext}
-                      onClick={() => {
-                        if (step === 2 && quote) {
-                          rememberCheckout({ service_type: "tour", vehicle_class: vehicle?.name });
-                          trackEvent("begin_checkout", { service_type: "tour", vehicle_class: vehicle?.name, value: quote.quote.total, currency: "GBP" });
-                        }
-                        setStep((s) => Math.min(3, s + 1));
-                      }}
-                    >
-                      Continue <ArrowRight className="size-4" />
-                    </Button>
-                  </div>
+                {stepId !== "details" && (
+                  <Button
+                    type="button"
+                    variant="gold"
+                    className="sm:min-w-[150px] rounded-full"
+                    disabled={!canNext}
+                    onClick={() => {
+                      if (stepId === "vehicle" && quote) {
+                        rememberCheckout({ service_type: "tour", vehicle_class: vehicle?.name });
+                        trackEvent("begin_checkout", { service_type: "tour", vehicle_class: vehicle?.name, value: quote.quote.total, currency: "GBP" });
+                      }
+                      goNext();
+                    }}
+                  >
+                    Continue <ArrowRight className="size-4" />
+                  </Button>
                 )}
               </div>
             )}
             </div>
 
-            {/* Running summary of the day — same place as the transfer flow */}
+            {/* Running summary */}
             <aside className="min-w-0 space-y-4 lg:sticky lg:top-24 lg:self-start">
-              <div className="rounded-3xl border border-border bg-card p-5 shadow-[0_10px_40px_-20px_rgba(14,24,44,0.25)]">
-                <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)]">Your day</p>
-                <h3 className="mt-0.5 font-display text-lg font-bold">
-                  {template ? template.name : hourly ? "Hourly hire" : "Your own day tour"}
-                </h3>
+              <div className="rounded-2xl border border-border bg-card p-5 shadow-[0_10px_40px_-20px_rgba(14,24,44,0.25)]">
+                <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)]">Your booking</p>
+                <h2 className="mt-0.5 font-display text-lg font-bold">
+                  {template ? template.name : hourly ? "Hourly hire" : tourPicked ? "Your own day tour" : "Day tour"}
+                </h2>
+                <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
+                  <SummaryItem label="Date" value={date || "—"} />
+                  <SummaryItem label="Time" value={hours && time ? `${time}–${addHoursToTime(time, hours)}` : time || "—"} />
+                  <SummaryItem label="Length" value={hours ? `${hours} hours` : "—"} />
+                  <SummaryItem label="Stops" value={String(stops.length)} />
+                  {passengersConfirmed && <SummaryItem label="Passengers" value={`${passengers}${luggage ? ` · ${luggage} cases` : ""}`} />}
+                  {passengersConfirmed && vehicleLabel && <SummaryItem label={groupActive ? "Vehicles" : "Vehicle"} value={vehicleLabel} />}
+                </dl>
 
-                <div className="relative mt-4 pl-6">
-                  <div className="absolute bottom-3 left-[9px] top-3 border-l-2 border-dashed border-[var(--gold)]/40" />
-                  <div className="relative">
-                    <div className="absolute -left-6 top-1.5 size-4 rounded-full bg-[var(--gold)] ring-4 ring-[var(--gold)]/20" />
-                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Pickup</p>
-                    <p className="mt-0.5 text-sm font-semibold leading-snug">{start?.label || "—"}</p>
-                  </div>
-                  {stops.map((s, i) => (
-                    <div key={`${s.placeId}-sum-${i}`} className="relative mt-5">
-                      <div className="absolute -left-6 top-1.5 flex size-4 items-center justify-center rounded-full border-2 border-[var(--gold)]/60 bg-[var(--gold)]/20">
-                        <span className="text-[8px] font-bold leading-none text-[var(--gold-ink)]">{i + 1}</span>
+                {start && (
+                  <>
+                    {stepId !== "stops" && !(stepId === "when" && template) && (
+                      <div className="mt-4 border-t border-border pt-4">
+                        <RouteTimeline compact startLabel={start.label} finishLabel={finishLabel} stops={stops} legs={legs} />
                       </div>
-                      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
-                        Stop {i + 1} · {s.dwellMinutes ?? minStopMinutes} min
-                      </p>
-                      <p className="mt-0.5 text-sm font-semibold leading-snug">{s.name}</p>
-                    </div>
-                  ))}
-                  <div className="relative mt-5">
-                    <div className="absolute -left-6 top-1.5 size-4 rounded-full border-2 border-[var(--gold)] bg-card" />
-                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Finish</p>
-                    <p className="mt-0.5 text-sm font-semibold leading-snug">
-                      {sameEnd ? start?.label || "Back at your pickup" : end?.label || "—"}
-                    </p>
-                  </div>
-                </div>
+                    )}
+                    <TourLoopMap
+                      className="mt-4"
+                      startPlaceId={start.placeId}
+                      startLabel={start.label}
+                      endPlaceId={sameEnd ? null : end?.placeId}
+                      stops={stops.map((s) => ({ placeId: s.placeId, name: s.name }))}
+                    />
+                  </>
+                )}
 
-                <TourLoopMap
-                  className="mt-4"
-                  startPlaceId={start?.placeId}
-                  startLabel={start?.label}
-                  stops={stops.map((s) => ({ placeId: s.placeId, name: s.name }))}
-                />
-
-                <div className="mt-4 grid grid-cols-2 gap-3 border-t border-border pt-4">
-                  <div>
-                    <p className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
-                      <CalendarDays className="size-3 text-[var(--gold-ink)]" /> Date
-                    </p>
-                    <p className="mt-0.5 text-sm font-semibold">{date || "—"}</p>
-                  </div>
-                  <div>
-                    <p className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
-                      <Clock className="size-3 text-[var(--gold-ink)]" /> Start
-                    </p>
-                    <p className="mt-0.5 text-sm font-semibold">{time || "—"}</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Hours</p>
-                    <p className="mt-0.5 text-sm font-semibold">{hours ? `${hours} hours` : "—"}</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Miles</p>
-                    <p className="mt-0.5 text-sm font-semibold">
-                      {liveQuote
-                        ? `${Math.round(liveQuote.routeMiles)} of ${includedMiles}`
-                        : includedMiles
-                          ? `${includedMiles} included`
-                          : "—"}
-                    </p>
-                  </div>
-                </div>
-
-                {(vehicleLabel || liveQuote) && (
-                  <div className="mt-4 space-y-1.5 border-t border-border pt-4 text-sm">
-                    {vehicleLabel && (
-                      <p className="flex items-center justify-between gap-3">
-                        <span className="text-muted-foreground">{groupActive ? `Vehicles (${groupVehicles.length})` : "Vehicle"}</span>
-                        <span className="text-right font-semibold">{vehicleLabel}</span>
-                      </p>
-                    )}
-                    {liveQuote && liveQuote.extraMiles > 0 && (
-                      <p className="flex items-center justify-between gap-3">
-                        <span className="text-muted-foreground">Extra miles</span>
-                        <span className="font-semibold">{Math.round(liveQuote.extraMiles)}</span>
-                      </p>
-                    )}
-                    {fixedPriceForVehicle != null && !liveQuote && (
-                      <p className="flex items-center justify-between gap-3">
-                        <span className="text-muted-foreground">Fixed tour price</span>
-                        <span className="font-semibold">£{fixedPriceForVehicle.toFixed(2)}</span>
-                      </p>
-                    )}
-                    {liveQuote && (
-                      <p className="flex items-baseline justify-between gap-3 pt-1">
-                        <span className="font-semibold">Total</span>
-                        <span className="font-display text-xl font-bold text-[var(--gold-ink)]">
-                          £{liveQuote.total.toFixed(2)}
-                        </span>
-                      </p>
-                    )}
-                    {(liveQuote || fixedPriceForVehicle != null) && (
-                      <p className="text-xs font-semibold text-muted-foreground">{FACT_TEXT.feesIncludedShort}</p>
-                    )}
+                {passengersConfirmed && liveQuote && !liveQuote.blockedReason && liveQuote.total > 0 && (
+                  <div className="mt-4 flex items-baseline justify-between border-t border-border pt-4">
+                    <span className="font-semibold">Total</span>
+                    <span className="font-display text-xl font-bold text-[var(--gold-ink)]">£{liveQuote.total.toFixed(2)}</span>
                   </div>
                 )}
+                {passengersConfirmed && liveQuote && <p className="mt-1 text-xs font-semibold text-muted-foreground">{FACT_TEXT.feesIncludedShort}</p>}
               </div>
             </aside>
           </div>
@@ -1702,27 +1171,277 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
   );
 }
 
-/** "09:00" plus 8 hours -> "17:00". */
-function addHoursToTime(time: string, hours: number): string {
-  const [h, m] = time.split(":").map((v) => Number(v));
-  const total = ((h ?? 0) * 60 + (m ?? 0) + Math.round(hours * 60)) % (24 * 60);
-  return `${String(Math.floor(total / 60)).padStart(2, "0")}:${String(total % 60).padStart(2, "0")}`;
-}
-
 function StepTitle({ title }: { title: string }) {
   return <h2 className="font-display text-xl md:text-2xl font-bold">{title}</h2>;
 }
 
-function Meter({ label, value }: { label: string; value: string }) {
+function SummaryItem({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-border bg-background p-3">
-      <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">{label}</p>
-      <p className="font-semibold">{value}</p>
+    <div className="min-w-0">
+      <dt className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">{label}</dt>
+      <dd className="truncate font-semibold">{value}</dd>
     </div>
   );
 }
 
-function NumberField({
+/** Same look as the transfer booking steps: numbered pills on wide screens, compact on phones. */
+function WizardStepper({ steps, current, onPick }: { steps: WizardStepId[]; current: number; onPick: (i: number) => void }) {
+  return (
+    <div className="mt-6">
+      <div className="flex items-center justify-between gap-3 rounded-full border border-border bg-card px-4 py-2 md:hidden">
+        <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--gold-ink)]">Step {current + 1} of {steps.length}</span>
+        <span className="truncate text-sm font-bold">{STEP_LABELS[steps[current]!]}</span>
+        <span className="flex gap-1.5" aria-hidden="true">
+          {steps.map((s, i) => (
+            <span key={s} className={`h-1.5 rounded-full ${i === current ? "w-5 bg-[var(--gold)]" : i < current ? "w-1.5 bg-[var(--navy)]" : "w-1.5 bg-border"}`} />
+          ))}
+        </span>
+      </div>
+      <ol className="hidden flex-wrap items-center gap-3 md:flex">
+        {steps.map((s, i) => (
+          <li key={s} className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => onPick(i)}
+              disabled={i >= current}
+              aria-current={i === current ? "step" : undefined}
+              className={`rounded-lg px-4 py-2 text-xs font-bold uppercase tracking-wider transition ${
+                i === current
+                  ? "bg-[var(--gold)] text-[var(--gold-foreground)]"
+                  : i < current
+                    ? "bg-[var(--navy)] text-[var(--gold)] hover:opacity-90"
+                    : "border border-border bg-card text-foreground/70"
+              }`}
+            >
+              {i < current ? <Check className="mr-1 inline size-3" /> : `0${i + 1} · `}
+              {STEP_LABELS[s]}
+            </button>
+            {i < steps.length - 1 && <span className="h-px w-5 bg-border" aria-hidden="true" />}
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
+
+const DWELL_OPTIONS = [10, 15, 20, 30, 45, 60, 90, 120, 150, 180, 240];
+
+/**
+ * The day in order: pickup, numbered stops, finish, with the road miles and
+ * driving time of each leg between them. Controls appear only when handlers
+ * are given, so the same list serves editing and the summary.
+ */
+function RouteTimeline({
+  startLabel, finishLabel, stops, legs, measuring, compact, minStopMinutes = 10,
+  onMove, onRemove, onDwell, canRemove,
+}: {
+  startLabel: string;
+  finishLabel: string;
+  stops: Stop[];
+  legs: Array<{ miles: number; minutes: number }> | null;
+  measuring?: boolean;
+  compact?: boolean;
+  minStopMinutes?: number;
+  onMove?: (from: number, to: number) => void;
+  onRemove?: (i: number) => void;
+  onDwell?: (i: number, minutes: number) => void;
+  canRemove?: (s: Stop) => boolean;
+}) {
+  const totalMiles = legs ? legs.reduce((t, l) => t + l.miles, 0) : null;
+  const totalMinutes = legs ? legs.reduce((t, l) => t + l.minutes, 0) : null;
+  const Leg = ({ i }: { i: number }) => {
+    if (!stops.length) return <div className="h-3" />;
+    const leg = legs?.[i];
+    return (
+      <div className={`flex items-center gap-2 pl-[11px] ${compact ? "py-1" : "py-1.5"}`}>
+        <span className="h-6 border-l-2 border-dashed border-[var(--gold)]/60" aria-hidden="true" />
+        <span className="pl-4 text-[11px] font-medium text-muted-foreground">
+          {leg ? `${leg.miles.toFixed(1)} mi · ${minutesShort(leg.minutes)} drive` : measuring ? "Measuring…" : ""}
+        </span>
+      </div>
+    );
+  };
+  const dwellChoices = (current: number | null) =>
+    [...new Set([...DWELL_OPTIONS.filter((m) => m >= minStopMinutes), Math.max(minStopMinutes, current ?? minStopMinutes)])].sort((a, b) => a - b);
+
+  return (
+    <div>
+      <ol aria-label="Your route in order">
+        <li className="flex items-center gap-3">
+          <span className="grid size-6 shrink-0 place-items-center rounded-full bg-[var(--gold)] text-[var(--gold-foreground)]"><Flag className="size-3" /></span>
+          <span className="min-w-0">
+            <span className="block text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">Start</span>
+            <span className={`block truncate font-semibold ${compact ? "text-xs" : "text-sm"}`}>{startLabel}</span>
+          </span>
+        </li>
+        <Leg i={0} />
+        {stops.map((s, i) => (
+          <li key={`${s.placeId}-${i}`}>
+            <div className="flex items-center gap-3">
+              <span className="grid size-6 shrink-0 place-items-center rounded-full bg-[var(--navy)] text-[11px] font-bold text-[var(--navy-foreground)]">{i + 1}</span>
+              <span className="min-w-0 flex-1">
+                <span className={`block truncate font-semibold ${compact ? "text-xs" : "text-sm"}`}>{s.name}</span>
+                {!onDwell && <span className="block text-[11px] text-muted-foreground">{minutesShort(s.dwellMinutes ?? minStopMinutes)} here</span>}
+              </span>
+              {onDwell && (
+                <select
+                  aria-label={`Time at ${s.name}`}
+                  value={Math.max(minStopMinutes, s.dwellMinutes ?? minStopMinutes)}
+                  onChange={(e) => onDwell(i, Number(e.target.value))}
+                  className="h-8 rounded-md border border-border bg-background px-1.5 text-xs font-semibold"
+                >
+                  {dwellChoices(s.dwellMinutes).map((m) => <option key={m} value={m}>{minutesShort(m)}</option>)}
+                </select>
+              )}
+              {onMove && (
+                <span className="flex shrink-0 flex-col">
+                  <button type="button" aria-label={`Move ${s.name} earlier`} disabled={i === 0} onClick={() => onMove(i, i - 1)} className="text-muted-foreground hover:text-foreground disabled:opacity-25"><ChevronUp className="size-4" /></button>
+                  <button type="button" aria-label={`Move ${s.name} later`} disabled={i === stops.length - 1} onClick={() => onMove(i, i + 1)} className="text-muted-foreground hover:text-foreground disabled:opacity-25"><ChevronDown className="size-4" /></button>
+                </span>
+              )}
+              {onRemove && (canRemove ? canRemove(s) : true) && (
+                <button type="button" aria-label={`Remove ${s.name}`} onClick={() => onRemove(i)} className="grid size-8 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground">
+                  <X className="size-4" />
+                </button>
+              )}
+            </div>
+            <Leg i={i + 1} />
+          </li>
+        ))}
+        <li className="flex items-center gap-3">
+          <span className="grid size-6 shrink-0 place-items-center rounded-full border-2 border-[var(--gold)] bg-card"><Flag className="size-3 text-[var(--gold-ink)]" /></span>
+          <span className="min-w-0">
+            <span className="block text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">Finish</span>
+            <span className={`block truncate font-semibold ${compact ? "text-xs" : "text-sm"}`}>{finishLabel}</span>
+          </span>
+        </li>
+      </ol>
+      {!compact && stops.length === 0 && (
+        <p className="mt-3 rounded-lg border border-dashed border-border p-3 text-center text-xs text-muted-foreground">No stops yet. Add one above or pick from the suggestions below.</p>
+      )}
+      {totalMiles != null && totalMinutes != null && stops.length > 0 && (
+        <p className={`mt-3 border-t border-border pt-2 font-semibold ${compact ? "text-xs" : "text-sm"}`}>
+          {totalMiles.toFixed(1)} miles · {minutesShort(totalMinutes)} driving in total
+        </p>
+      )}
+    </div>
+  );
+}
+
+/** Miles and hours used against what the chosen length includes, with extra-hour options. */
+function DayMeter({
+  quote, addHours, hours, includedMiles, pending, onHours,
+}: {
+  quote: TourQuoteResult["quote"] | null;
+  addHours: TourQuoteResult["addHours"];
+  hours: number;
+  includedMiles: number;
+  pending: boolean;
+  onHours: (h: number) => void;
+}) {
+  const used = quote ? quote.driveMinutes + quote.dwellTotalMinutes : 0;
+  return (
+    <div className="rounded-xl border border-border bg-[var(--surface)] p-4">
+      <div className="grid grid-cols-2 gap-3 text-sm">
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Time used</p>
+          <p className="font-bold">{quote ? `${minutesShort(used)} of ${hours}h` : "—"}</p>
+        </div>
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Miles</p>
+          <p className="font-bold">{quote ? `${Math.round(quote.routeMiles)} of ${includedMiles} included` : "—"}</p>
+        </div>
+      </div>
+      <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-background">
+        <div
+          className={`h-full rounded-full transition-all duration-500 ${quote && quote.state !== "comfortable" ? "bg-destructive" : "bg-[var(--gold)]"}`}
+          style={{ width: `${Math.min(100, quote && hours ? (used / (hours * 60)) * 100 : 0)}%` }}
+        />
+      </div>
+      <p className="mt-2 text-xs text-muted-foreground">
+        {pending ? "Checking your day…" : quote ? (
+          <>
+            {quote.extraMiles > 0 ? `${Math.round(quote.extraMiles)} extra miles at £${quote.extraMileRate.toFixed(2)} each` : "Inside your included miles"}
+            {quote.spareMinutes >= 0 ? ` · ${minutesShort(quote.spareMinutes)} spare` : ` · ${minutesShort(-quote.spareMinutes)} over your ${hours} hours`}
+          </>
+        ) : "Add a stop and we'll measure your day."}
+      </p>
+      {quote && quote.state !== "comfortable" && (
+        <div className="mt-3 space-y-2">
+          <p className="flex items-start gap-2 text-xs font-semibold">
+            <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
+            {quote.blockedReason ?? `That's a lot for ${hours} hours — about ${Math.max(0, Math.round(quote.perStopMinutes))} minutes at each stop.`}
+          </p>
+          {addHours.map((o) => (
+            <button key={o.hours} type="button" onClick={() => onHours(o.hours)} className="w-full rounded-lg border border-border bg-background p-2.5 text-left text-xs hover:border-[var(--gold)]">
+              <span className="font-semibold">Make it {o.hours} hours</span> · {o.extraAllowanceMiles} more miles included · £{o.netCost.toFixed(2)} more
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PriceBox({
+  quote, pending, failed, onRetry, onHours,
+}: {
+  quote: TourQuoteResult | null;
+  pending: boolean;
+  failed: boolean;
+  onRetry: () => void;
+  onHours: (h: number) => void;
+}) {
+  if (pending && !quote) {
+    return <p className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="size-4 animate-spin" /> Working out your price…</p>;
+  }
+  if (!quote) {
+    return failed ? (
+      <div className="flex flex-wrap items-center gap-3 text-sm">
+        <span className="font-semibold text-destructive">We couldn't price this right now.</span>
+        <Button type="button" size="sm" variant="outline" className="rounded-full" onClick={onRetry}>Try again</Button>
+      </div>
+    ) : null;
+  }
+  const q = quote.quote;
+  return (
+    <div className="space-y-3">
+      <div className="rounded-xl border border-border bg-background p-4">
+        <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--gold-ink)]">Your price</p>
+        <ul className="mt-2 space-y-1.5 text-sm">
+          {q.lines.map((l, i) => (
+            <li key={i} className="flex items-baseline justify-between gap-4">
+              <span>{l.label}{l.detail ? <span className="text-muted-foreground"> · {l.detail}</span> : null}</span>
+              <span className="font-semibold">£{l.amount.toFixed(2)}</span>
+            </li>
+          ))}
+        </ul>
+        <div className="mt-3 flex items-baseline justify-between border-t border-border pt-3">
+          <span className="font-semibold">Total</span>
+          <span className="font-display text-2xl font-bold text-[var(--gold-ink)]">{pending ? <Loader2 className="size-5 animate-spin" /> : `£${q.total.toFixed(2)}`}</span>
+        </div>
+        <p className="mt-1 text-xs text-muted-foreground">
+          {q.hours} hours · {Math.round(q.routeMiles)} of {q.includedMiles} miles included · {FACT_TEXT.feesIncludedShort}
+        </p>
+      </div>
+      {q.state !== "comfortable" && (
+        <div className="rounded-xl border border-[var(--gold)]/50 bg-[var(--gold)]/10 p-3">
+          <p className="flex items-center gap-2 text-sm font-semibold">
+            <AlertTriangle className="size-4 shrink-0" />
+            {q.blockedReason ?? "This day is tight — you'll be rushing between stops."}
+          </p>
+          {quote.addHours.map((o) => (
+            <button key={o.hours} type="button" onClick={() => onHours(o.hours)} className="mt-2 w-full rounded-lg border border-border bg-background p-2.5 text-left text-xs hover:border-[var(--gold)]">
+              <span className="font-semibold">Make it {o.hours} hours</span> · {o.spareMinutesAfter >= 0 ? `${minutesShort(o.spareMinutesAfter)} spare` : "still tight"} · £{o.netCost.toFixed(2)} more
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Counter({
   icon, label, value, min, max, onChange,
 }: {
   icon: React.ReactNode;
@@ -1733,22 +1452,21 @@ function NumberField({
   onChange: (v: number) => void;
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-2xl border border-border bg-background px-4 py-3">
-      <div className="flex size-8 items-center justify-center rounded-full bg-[var(--surface)] text-[var(--gold-ink)]">
-        {icon}
-      </div>
-      <div className="min-w-0 flex-1">
-        <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-foreground/70">{label}</div>
-        <input
-          aria-label={label}
-          type="number"
-          min={min}
-          max={max}
-          value={value}
-          onChange={(e) => onChange(Math.max(min, Math.min(max, Number(e.target.value) || min)))}
-          className="w-full bg-transparent text-sm font-semibold outline-none"
-        />
-      </div>
+    <div className="flex items-center gap-3 rounded-xl border border-border bg-background px-3 py-2">
+      <span className="grid size-8 shrink-0 place-items-center rounded-full bg-[var(--surface)] text-[var(--gold-ink)]">{icon}</span>
+      <span className="min-w-0 flex-1 text-sm font-semibold">{label}</span>
+      <button type="button" aria-label={`Fewer ${label.toLowerCase()}`} disabled={value <= min} onClick={() => onChange(value - 1)} className="grid size-9 place-items-center rounded-full border border-border disabled:opacity-30"><Minus className="size-4" /></button>
+      <span className="w-6 text-center font-bold" aria-live="polite" aria-label={`${label}: ${value}`}>{value}</span>
+      <button type="button" aria-label={`More ${label.toLowerCase()}`} disabled={value >= max} onClick={() => onChange(value + 1)} className="grid size-9 place-items-center rounded-full border border-border disabled:opacity-30"><Plus className="size-4" /></button>
     </div>
   );
+}
+
+/** 95 -> "1h 35m", 40 -> "40 min". */
+function minutesShort(mins: number): string {
+  const m = Math.max(0, Math.round(mins));
+  const h = Math.floor(m / 60);
+  const r = m % 60;
+  if (h === 0) return `${r} min`;
+  return r ? `${h}h ${r}m` : `${h}h`;
 }
