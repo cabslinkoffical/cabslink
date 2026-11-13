@@ -92,9 +92,8 @@ export function TransportComparison({
                     <span className="block">{o.stops}</span>
                     <span className="mt-1 block text-xs">{o.tradeOff}</span>
                     <a
-                      href={o.source}
-                      target="_blank"
-                      rel="noopener nofollow"
+                      href={internalHref(o.source) ?? o.source}
+                      {...linkAttrs(o.source)}
                       className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-[var(--gold-ink)] hover:underline"
                     >
                       Operator info <ExternalLink className="size-3" />
@@ -141,9 +140,8 @@ export function TransportComparison({
               <p className="mt-3 text-sm text-muted-foreground">{o.stops}</p>
               <p className="mt-1 text-xs text-muted-foreground">{o.tradeOff}</p>
               <a
-                href={o.source}
-                target="_blank"
-                rel="noopener nofollow"
+                href={internalHref(o.source) ?? o.source}
+                {...linkAttrs(o.source)}
                 className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-[var(--gold-ink)] hover:underline"
               >
                 Operator info <ExternalLink className="size-3" />
@@ -176,4 +174,14 @@ export function TransportComparison({
       </p>
     </div>
   );
+}
+
+/** Links to our own pages stay followed and same-tab; outside sites keep nofollow. */
+function internalHref(url: string): string | null {
+  const m = /^https:\/\/(?:www\.)?cabslink\.com(\/[^\s]*)?$/i.exec(url);
+  if (m) return m[1] || "/";
+  return url.startsWith("/") ? url : null;
+}
+function linkAttrs(url: string) {
+  return internalHref(url) ? {} : { target: "_blank", rel: "noopener nofollow" };
 }
