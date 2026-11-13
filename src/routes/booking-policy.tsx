@@ -31,6 +31,8 @@ export const Route = createFileRoute("/booking-policy")({
       <p>You can change the pickup time, route, stops or vehicle class up to 6 hours before pickup with no admin fee. If the new journey costs more or less, we show you the new price before you confirm. Later changes are accommodated where possible; a change that increases distance, duration or vehicle class may increase the fare.</p>
 
       <h2>3. Cancelling a transfer</h2>
+      <p>{FACT_TEXT.transferCancellation} Standard bookings also qualify for a full refund within the first 24 hours after booking where cancellation is still available. Later cancellations are reviewed as partial-refund claims; the amount is confirmed by our team, not automatically fixed at half the price.</p>
+      <p>The earlier transfer schedule below does not override the cover or refund eligibility shown in Manage Booking. Contact us if an earlier confirmation quotes these terms.</p>
       <ul>
         <li><strong>More than {T.freeOverHours} hours before pickup</strong> — free cancellation, full refund of anything paid.</li>
         <li><strong>Between {T.halfToHours} and {T.halfFromHours} hours before pickup</strong> — 50% of the fare is payable.</li>
@@ -49,6 +51,7 @@ export const Route = createFileRoute("/booking-policy")({
       {/* TODO(owner): confirm which vehicle classes count as "larger vehicles" and the free waiting at cruise ports, stations and other pickups. */}
 
       <h2>4a. Cancelling a tour</h2>
+      <p>{FACT_TEXT.tourCancellation} The earlier tour schedule below does not override your booking's selected cancellation cover.</p>
       <ul>
         <li><strong>More than {TT.freeOverHours} hours before the tour starts</strong> — free cancellation, full refund of anything paid.</li>
         <li><strong>Between {TT.halfToHours} and {TT.halfFromHours} hours before the start</strong> — 50% of the price is payable.</li>

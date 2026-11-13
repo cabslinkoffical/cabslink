@@ -2,7 +2,7 @@ import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { LegalPage } from "@/components/site/LegalPage";
 import { SITE } from "@/lib/site";
-import { FACTS } from "@/lib/site-facts";
+import { FACTS, FACT_TEXT } from "@/lib/site-facts";
 
 const T = FACTS.transferCancellation;
 const TT = FACTS.tourCancellation;
@@ -22,6 +22,8 @@ export const Route = createFileRoute("/refund-policy")({
   }),
   component: () => (
     <LegalPage eyebrow="Refunds" title="Refund Policy" updated="30 August 2026">
+      <p>{FACT_TEXT.transferCancellation} Standard bookings also qualify for a full refund within the first 24 hours after booking where cancellation is still available. Later cancellations are reviewed as partial-refund claims; our team confirms the amount.</p>
+      <p>The earlier transfer and tour schedules below do not override the cancellation cover or refund eligibility shown in Manage Booking. Contact us if an earlier confirmation quotes those terms.</p>
       <h2>1. Transfers — when we refund in full</h2>
       <ul>
         <li>Bookings we are unable to fulfil.</li>

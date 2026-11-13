@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { coverDelta, coverLabel, parseCover } from "@/lib/cancellation-cover";
 import { refundTierFor } from "@/lib/manage-booking.functions";
+import { FACT_TEXT } from "@/lib/site-facts";
 
 const cfg = { nonRefundablePercent: 5, nonRefundableMinPence: 200, flexiblePercent: 10, flexibleMinPence: 300 };
 
@@ -31,6 +32,10 @@ describe("cancellation cover label", () => {
 });
 
 describe("refund entitlement follows the chosen cover", () => {
+  it("public cancellation summaries preserve the current 24-hour standard cover", () => {
+    expect(FACT_TEXT.transferCancellation).toContain("Full refund if you cancel up to 24 hours before pickup");
+    expect(FACT_TEXT.transferCancellation).not.toMatch(/50%|12 hours/);
+  });
   const base = { allowed: true, paymentStatus: "paid", withinBookingGrace: false };
   it("non-refundable paid booking gets no refund, even days ahead", () => {
     expect(refundTierFor({ ...base, cover: "non_refundable", hoursUntilPickup: 72 })).toBe("no_refund");
