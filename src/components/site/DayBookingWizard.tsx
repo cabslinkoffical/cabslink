@@ -44,7 +44,6 @@ import { PayAnotherWay } from "@/components/site/PayAnotherWay";
 import { useBookingStepScroll } from "@/components/site/useBookingStepScroll";
 import { TourLoopMap } from "@/components/site/TourLoopMap";
 import { toast } from "sonner";
-import { minutesLabel } from "@/lib/tour-quote";
 import {
   getTourBookingOptions,
   getTourStopSuggestions,
