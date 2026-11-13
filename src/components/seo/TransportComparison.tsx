@@ -7,7 +7,7 @@
  * mode it cannot verify. This section deliberately says when a public option
  * is cheaper or faster than a car.
  */
-import { Bus, Car, Info, TrainFront, ExternalLink, ParkingCircle, Clock, Ticket } from "lucide-react";
+import { Bus, Car, CarTaxiFront, Info, TrainFront, ExternalLink, ParkingCircle, Clock, Ticket } from "lucide-react";
 import type { JourneyTransportComparison, TransportModeKind } from "@/lib/seo/transport-modes";
 
 const ICONS: Record<TransportModeKind, typeof Bus> = {
@@ -17,6 +17,7 @@ const ICONS: Record<TransportModeKind, typeof Bus> = {
   tram: TrainFront,
   "park-and-ride": ParkingCircle,
   car: Car,
+  taxi: CarTaxiFront,
 };
 
 const KIND_LABEL: Record<TransportModeKind, string> = {
@@ -26,6 +27,7 @@ const KIND_LABEL: Record<TransportModeKind, string> = {
   tram: "Tram",
   "park-and-ride": "Park & ride",
   car: "Private car",
+  taxi: "Black taxi",
 };
 
 function formatChecked(iso: string) {

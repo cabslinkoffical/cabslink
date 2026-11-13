@@ -59,6 +59,16 @@ export function GuidePage({ guide: g }: { guide: GuideRecord }) {
         <section className="section-y border-t">
           <div className="container-x max-w-5xl">
             <TransportComparison data={g.comparison} routeName={g.cardTitle} />
+            {g.afterComparisonCta && (
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Button asChild variant="gold" size="lg">
+                  <Link to="/book">Get a fixed price</Link>
+                </Button>
+                <Button asChild variant="outline" size="lg">
+                  <Link to="/routes/$slug" params={{ slug: "edinburgh-airport-to-city-centre" }}>See airport to city centre prices</Link>
+                </Button>
+              </div>
+            )}
           </div>
         </section>
       )}
