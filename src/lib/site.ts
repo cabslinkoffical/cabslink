@@ -70,6 +70,7 @@ export const MENU: MenuEntry[] = [
         heading: "Transfers",
         links: [
           { to: "/airport-transfers", label: "Airport Transfers" },
+          { to: "/edinburgh-airport-taxi-prices", label: "Airport Taxi Prices" },
           { to: "/private-hire", label: "Private Hire" },
           { to: "/executive-transfers", label: "Executive Transfers" },
           { to: "/vip-transfers", label: "VIP Transfers" },
