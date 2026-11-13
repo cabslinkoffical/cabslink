@@ -197,6 +197,20 @@
       "when": 1794551403859,
       "tag": "0027_lock_google_reviews_snapshot",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1794562705523,
+      "tag": "0028_single_featured_blog_post",
+      "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1794562728435,
+      "tag": "0029_single_featured_before_trigger",
+      "breakpoints": true
     }
   ]
 }
