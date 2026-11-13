@@ -69,6 +69,7 @@ export const Route = createFileRoute("/book/")({
       { property: "og:url", content: "https://cabslink.com/book" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "robots", content: "noindex, follow" },
     ],
     links: [{ rel: "canonical", href: "https://cabslink.com/book" }],
   }),

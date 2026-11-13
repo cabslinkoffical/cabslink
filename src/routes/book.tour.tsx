@@ -47,6 +47,7 @@ export const Route = createFileRoute("/book/tour")({
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "robots", content: "noindex, follow" },
     ],
     links: [{ rel: "canonical", href: "https://cabslink.com/book/tour" }],
   }),
