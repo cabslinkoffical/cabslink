@@ -30,7 +30,7 @@ export const FAQ_GROUPS: BankGroup[] = [
       {
         n: 30,
         q: "Is the price per person or per vehicle?",
-        a: "Per vehicle. Everyone travelling in the car shares the same fixed fare.",
+        a: "Per vehicle. Everyone travelling in the car shares the same fixed price.",
       },
       {
         n: 10,

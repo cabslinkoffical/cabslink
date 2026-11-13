@@ -35,7 +35,7 @@ const routeLabel = (slug: string) =>
 
 /**
  * Phase 7 guide text as its own page band: aligned editorial rows, then the
- * live fixed fares for linked routes in a proper table (a route with no
+ * live fixed prices for linked routes in a proper table (a route with no
  * genuine fare is left out), then tour and article links.
  */
 export function PlaceGuideBlock({
@@ -52,7 +52,7 @@ export function PlaceGuideBlock({
 
       {live.length > 0 && (
         <div className="mt-12">
-          <h3 className="mb-4 font-display text-xl font-semibold text-[var(--navy)]">Live fixed fares from this page's routes</h3>
+          <h3 className="mb-4 font-display text-xl font-semibold text-[var(--navy)]">Live fixed prices from this page's routes</h3>
           <div className="overflow-x-auto rounded-2xl border border-border bg-card shadow-raised">
             <table className="w-full min-w-[34rem] text-left text-sm">
               <thead className="bg-[var(--navy)] text-[var(--navy-foreground)]">
@@ -60,7 +60,7 @@ export function PlaceGuideBlock({
                   <th scope="col" className="px-5 py-3.5 font-semibold">Route</th>
                   <th scope="col" className="px-5 py-3.5 font-semibold">Distance</th>
                   <th scope="col" className="px-5 py-3.5 font-semibold">Typical time</th>
-                  <th scope="col" className="px-5 py-3.5 text-right font-semibold">Fixed fare from</th>
+                  <th scope="col" className="px-5 py-3.5 text-right font-semibold">Fixed price from</th>
                 </tr>
               </thead>
               <tbody>

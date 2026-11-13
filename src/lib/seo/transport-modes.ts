@@ -36,7 +36,7 @@ export type TransportOption = {
   /** Service as the operator brands it, e.g. "Airlink 100". */
   service: string;
   /** Published single fare, exactly as advertised — or an honest statement
-   *  that the operator does not publish a fixed fare. */
+   *  that the operator does not publish a fixed price. */
   fare: string;
   /** Published or operator-stated journey time. */
   duration: string;
@@ -413,7 +413,7 @@ export const JOURNEY_TRANSPORT: Record<string, JourneyTransportComparison> = {
     ],
     carSuitsWhen: [
       "Arrivals with luggage that would mean changing at Buchanan Bus Station",
-      "Groups of three or more sharing one fixed fare",
+      "Groups of three or more sharing one fixed price",
       "Late arrivals and long-haul landings where a two-leg coach trip is unappealing",
       "Golf and ski groups, and anyone with oversized bags",
       "Corporate travel that needs a fixed arrival time and a receipt",

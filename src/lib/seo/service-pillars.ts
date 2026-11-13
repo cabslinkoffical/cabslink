@@ -38,10 +38,10 @@ export const SERVICE_PILLARS: Record<string, PillarContent> = {
     imageAlt: "Aerial view of Edinburgh Airport terminal, control tower and aircraft stands",
     intro: {
       title: "Pre-booked travel, priced before you get in",
-      body: "Private hire is the licensed alternative to hailing a taxi: every journey is arranged in advance, matched to a vehicle class and quoted as a fixed fare. Ideal for appointments, nights out, intercity runs and anything where arriving on time matters.",
+      body: "Private hire is the licensed alternative to hailing a taxi: every journey is arranged in advance, matched to a vehicle class and quoted as a fixed price. Ideal for appointments, nights out, intercity runs and anything where arriving on time matters.",
     },
     features: [
-      { icon: "wallet", title: "Fixed fares", desc: "Your price is agreed at booking and does not change in traffic." },
+      { icon: "wallet", title: "Fixed prices", desc: "Your price is agreed at booking and does not change in traffic." },
       { icon: "shield", title: "Licensed and insured", desc: "Every driver is licensed for private hire and every vehicle inspected." },
       { icon: "clock", title: "Booked in advance", desc: "Reserve minutes or months ahead, including recurring journeys." },
       { icon: "pin", title: "Door to door", desc: "Collected from your address and dropped at the exact entrance you need." },

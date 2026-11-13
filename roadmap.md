@@ -246,3 +246,9 @@
 - [x] Fresher white site background (alt bg #faf9f6); blog sidebar now has full booking form
 
 - [x] Blog booking panel sticks to one side while the article scrolls (fits at 639px+, scrolls inside itself on shorter screens)
+
+## SEO & AI-search brief (13 Nov 2026)
+- [x] 1 Redirect cabslink.lovable.app → cabslink.com (canonical tags already self-reference cabslink.com)
+- [x] 7 robots/sitemap/llms.txt (already in place)
+- [x] 8a "fixed fare" → "fixed price" wording
+- [ ] 2 Title/description length audit · 3 JSON-LD gaps · 4 city-centre guide rewrite · 5 off-topic pages + /stations · 6 seven landing pages · 8b CTA + What's included · 9 Seven-Seater label decision · 10 links/alt · 11–12 phone/broken-link audit

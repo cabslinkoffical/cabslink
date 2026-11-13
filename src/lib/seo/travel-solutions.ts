@@ -89,7 +89,7 @@ export const TRAVEL_SOLUTIONS: Record<string, SolutionContent> = {
       "Airport-to-campus transfers with luggage space and a fixed price parents can pay in advance.",
     breadcrumbLabel: "Student travel",
     hubTitle: "Student travel",
-    hubBlurb: "Airport-to-campus runs with luggage space and prepaid fixed fares.",
+    hubBlurb: "Airport-to-campus runs with luggage space and prepaid fixed prices.",
     metaTitle: "Student Airport Transfers — Campus Travel | Cabslink",
     metaDescription:
       "Student travel across Scotland: airport-to-campus transfers, term-start moves and end-of-term journeys with luggage space and fixed prepaid fares.",

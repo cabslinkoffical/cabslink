@@ -15,7 +15,7 @@ export function RouteFareTable({ data, routeName }: { data: RouteFareTableData; 
     <div aria-labelledby="route-fares">
       <div id="route-fares">
         <SectionHeader
-          eyebrow="Fixed fares"
+          eyebrow="Fixed prices"
           title={`${routeName} fares by vehicle class`}
           subtitle={`Fixed prices for the full ${data.distanceMiles} mile journey${data.durationMinutes ? `, typically around ${data.durationMinutes} minutes` : ""}. One-way, all-inclusive${data.taxIncluded ? ` of ${data.taxLabel}` : ""} — no meter and no airport surcharge added later.`}
         />
@@ -31,7 +31,7 @@ export function RouteFareTable({ data, routeName }: { data: RouteFareTableData; 
               <th scope="col" className="px-5 py-3.5 font-semibold">Vehicle class</th>
               <th scope="col" className="px-5 py-3.5 font-semibold">Passengers</th>
               <th scope="col" className="px-5 py-3.5 font-semibold">Luggage</th>
-              <th scope="col" className="px-5 py-3.5 text-right font-semibold">Fixed fare</th>
+              <th scope="col" className="px-5 py-3.5 text-right font-semibold">Fixed price</th>
             </tr>
           </thead>
           <tbody>

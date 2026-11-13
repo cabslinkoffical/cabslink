@@ -48,7 +48,7 @@ export const FACT_TEXT = {
   payCashOrTransfer: "Yes. Complete your booking, skip the online payment, and message us on WhatsApp with your booking reference. We'll confirm your booking and arrange payment.",
   confirmationRule: "A card booking is confirmed as soon as the payment succeeds. If you pay another way, your booking is confirmed when our team confirms it after you contact us.",
   modelsTypical: "Examples only: we guarantee your vehicle class, not the exact make or model.",
-  feesIncluded: "Your fixed fare includes road tolls and standard airport drop-off and pickup charges, so there is nothing extra to pay for them on the day.",
+  feesIncluded: "Your fixed price includes road tolls and standard airport drop-off and pickup charges, so there is nothing extra to pay for them on the day.",
   feesIncludedShort: "Tolls and airport fees included",
   flightTracking: "Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late.",
   flightNumberRequired: "Please add your flight number so we can track your flight.",

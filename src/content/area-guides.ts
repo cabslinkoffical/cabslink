@@ -3,7 +3,7 @@ import type { PlaceGuide } from "@/content/place-guides";
 /**
  * Phase 7 batch 3 — area (city and town) pages. Facts used: the page's own
  * destination row (name, council, region, the places this page links to),
- * the live fleet capacities and site-wide rules (fixed fares, card payment
+ * the live fleet capacities and site-wide rules (fixed prices, card payment
  * via Stripe or another agreed method, cancellation windows, extra stops). No area has a published
  * popular route yet, so no distances, drive times or fares are written;
  * the page's own journey-fact cards show estimates. Everything else is
@@ -44,7 +44,7 @@ const FLEET_E =
 
 const OWNER_FACTS = (name: string) => [
   `Confirmed pickup and drop-off meeting arrangements in ${name}`,
-  `Published routes with distances, drive times and fixed fares from ${name}`,
+  `Published routes with distances, drive times and fixed prices from ${name}`,
 ];
 
 export const AREA_GUIDES: PlaceGuide[] = [
@@ -265,7 +265,7 @@ export const AREA_GUIDES: PlaceGuide[] = [
         heading: "Ayr and the Ayrshire coast",
         paragraphs: [
           "Ayr is the main town of South Ayrshire, set where the River Ayr meets the Firth of Clyde. The long beach and promenade, the racecourse just outside the town and the Burns heritage of the surrounding countryside give the area a year-round calendar of visitors, and Prestwick, a few miles up the coast, has long been an airport town.",
-          "The coastal position also means changeable weather: a mild day can turn wet quickly, which is one more reason a pre-booked car with a fixed fare beats waiting at a bus stop. Golfers bound for the Ayrshire links find the same arrangement useful with a full set of clubs in the boot.",
+          "The coastal position also means changeable weather: a mild day can turn wet quickly, which is one more reason a pre-booked car with a fixed price beats waiting at a bus stop. Golfers bound for the Ayrshire links find the same arrangement useful with a full set of clubs in the boot.",
         ],
       },
       {

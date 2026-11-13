@@ -375,7 +375,7 @@ function ServicesPage() {
             <div className="max-w-xl">
               <h3 className="font-display text-2xl font-semibold text-navy-foreground">Not sure which service fits?</h3>
               <p className="mt-2 text-sm leading-relaxed text-navy-foreground/70">
-                Tell us the journey and we'll recommend the right vehicle class and quote a fixed fare.
+                Tell us the journey and we'll recommend the right vehicle class and quote a fixed price.
               </p>
             </div>
             <div className="flex flex-wrap gap-3">

@@ -81,7 +81,7 @@ export const Route = createFileRoute("/airports/$iata")({
       const name = a.display_name ?? a.name;
       const title = `${name}${iata && !name.includes(iata) ? ` (${iata})` : ""} Transfers — Fixed-Fare Airport Taxi | Cabslink`;
 
-      const desc = `Private transfers to and from ${name}. Fixed fares, meet & greet, flight tracking, 24/7 dispatch across the UK.`;
+      const desc = `Private transfers to and from ${name}. Fixed prices, meet & greet, flight tracking, 24/7 dispatch across the UK.`;
       const canonical = `${ORIGIN}/airports/${a.slug}`;
       const image = (a as { hero_image_url?: string | null }).hero_image_url || null;
       return normalizeHead({
@@ -220,7 +220,7 @@ function AirportPage() {
           <SectionHeader eyebrow="How it works" title={`Book ${shortName} transfers in three steps`} />
           <div className="mt-10 grid gap-6 md:grid-cols-3">
             {[
-              { n: "01", t: "Enter your details", d: "Pick your date, time and drop-off address. Get a fixed fare instantly." },
+              { n: "01", t: "Enter your details", d: "Pick your date, time and drop-off address. Get a fixed price instantly." },
               { n: "02", t: "Confirm your ride", d: "Choose vehicle class and add extras like meet & greet or child seats." },
               { n: "03", t: "Meet your driver", d: `Your driver greets you inside ${shortName}'s arrivals hall. ${FACT_TEXT.flightTracking}` },
             ].map((s) => (

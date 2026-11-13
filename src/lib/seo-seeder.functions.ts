@@ -39,7 +39,7 @@ export const seedSeoPagesFromEntities = createServerFn({ method: "POST" })
       const region = l.region || l.nation || "the UK";
       const title = truncate(`${l.name} Airport Transfers & Private Travel | Cabslink`, 68);
       const meta = truncate(
-        `Book reliable airport transfers and private travel in ${l.name}, ${region}. Fixed fares, 24/7 booking, flight tracking. Cabslink.`,
+        `Book reliable airport transfers and private travel in ${l.name}, ${region}. Fixed prices, 24/7 booking, flight tracking. Cabslink.`,
         170,
       );
       const { error } = await sb.from("seo_pages").insert({
@@ -51,7 +51,7 @@ export const seedSeoPagesFromEntities = createServerFn({ method: "POST" })
         seo_title: title,
         meta_description: meta,
         h1: `Private Airport Travel in ${l.name}`,
-        short_intro: `Cabslink provides premium airport transfers and private travel throughout ${l.name} and ${region}. Fixed fares, 24/7 booking, and flight-tracking as standard.`,
+        short_intro: `Cabslink provides premium airport transfers and private travel throughout ${l.name} and ${region}. Fixed prices, 24/7 booking, and flight-tracking as standard.`,
         publication_status: "draft",
       });
       if (error) errors.push(`location ${l.slug}: ${error.message}`); else created++;
@@ -69,7 +69,7 @@ export const seedSeoPagesFromEntities = createServerFn({ method: "POST" })
       if (existing) { skipped++; continue; }
       const title = truncate(`${a.name} (${a.iata_code}) Transfers | Cabslink`, 68);
       const meta = truncate(
-        `Pre-book ${a.name} (${a.iata_code}) airport transfers with Cabslink. Flight tracking, meet & greet, fixed fares. 24/7 UK-wide.`,
+        `Pre-book ${a.name} (${a.iata_code}) airport transfers with Cabslink. Flight tracking, meet & greet, fixed prices. 24/7 UK-wide.`,
         170,
       );
       const { error } = await sb.from("seo_pages").insert({

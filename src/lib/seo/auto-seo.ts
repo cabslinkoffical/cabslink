@@ -41,7 +41,7 @@ function buildAutoHeadRaw(loaded: LoadedDestination | undefined | null): HeadPay
   const description = (
     stem.length >= 110
       ? stem
-      : `${stem.replace(/\.$/, "")}. Fixed fares, flight tracking and 24/7 dispatch — quoted before you travel.`
+      : `${stem.replace(/\.$/, "")}. Fixed prices, flight tracking and 24/7 dispatch — quoted before you travel.`
   ).slice(0, 155);
 
   const canonical = `${SITE_URL}${destinationHref(d)}`;

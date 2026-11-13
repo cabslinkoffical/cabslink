@@ -143,7 +143,7 @@ function buildFaqs(loaded: LoadedDestination): Array<{ q: string; a: string }> {
   }
   items.push({
     q: `Can I add stops or a return journey?`,
-    a: `Yes. Use "Add stop" and "Add return" in the booking form; the fixed fare updates to include them before you pay.`,
+    a: `Yes. Use "Add stop" and "Add return" in the booking form; the fixed price updates to include them before you pay.`,
   });
   if (loaded.nearby.length) {
     items.push({

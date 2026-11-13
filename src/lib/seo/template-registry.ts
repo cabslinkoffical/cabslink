@@ -78,7 +78,7 @@ export const TEMPLATES: Record<DestinationType, TemplateConfig> = {
     hubLabel: "Areas We Cover",
     hubSegment: "areas",
     titleTemplate: (d) => `${d.display_name ?? d.name} Taxis & Private Transfers — Fixed Fares`,
-    descriptionStem: (d) => `Pre-booked taxis and airport transfers serving ${d.display_name ?? d.name}. Fixed fares, professional drivers, book online or by phone.`,
+    descriptionStem: (d) => `Pre-booked taxis and airport transfers serving ${d.display_name ?? d.name}. Fixed prices, professional drivers, book online or by phone.`,
     typeSchema: (d) => [serviceAreaSchema(d)],
     sections: commonSections,
   },
@@ -94,7 +94,7 @@ export const TEMPLATES: Record<DestinationType, TemplateConfig> = {
     hubLabel: "Towns",
     hubSegment: "areas",
     titleTemplate: (d) => `${d.display_name ?? d.name} Taxis & Private Transfers — Fixed Fares`,
-    descriptionStem: (d) => `Pre-booked taxis and airport transfers serving ${d.display_name ?? d.name}. Fixed fares, professional drivers, book online or by phone.`,
+    descriptionStem: (d) => `Pre-booked taxis and airport transfers serving ${d.display_name ?? d.name}. Fixed prices, professional drivers, book online or by phone.`,
     typeSchema: (d) => [serviceAreaSchema(d)],
     sections: commonSections,
   },
@@ -102,7 +102,7 @@ export const TEMPLATES: Record<DestinationType, TemplateConfig> = {
     hubLabel: "Villages",
     hubSegment: "areas",
     titleTemplate: (d) => `${d.display_name ?? d.name} Taxis & Private Transfers — Fixed Fares`,
-    descriptionStem: (d) => `Pre-booked taxis and airport transfers serving ${d.display_name ?? d.name}. Fixed fares, professional drivers, book online or by phone.`,
+    descriptionStem: (d) => `Pre-booked taxis and airport transfers serving ${d.display_name ?? d.name}. Fixed prices, professional drivers, book online or by phone.`,
     typeSchema: (d) => [serviceAreaSchema(d)],
     sections: commonSections,
   },
@@ -131,7 +131,7 @@ export const TEMPLATES: Record<DestinationType, TemplateConfig> = {
     },
     descriptionStem: (d) => {
       const m = d.meta as { from_name?: string; to_name?: string };
-      return `How much is a taxi from ${m.from_name ?? ""} to ${m.to_name ?? ""}? Fixed fares by vehicle class, flight tracking and no meter. Book online with Cabslink.`;
+      return `How much is a taxi from ${m.from_name ?? ""} to ${m.to_name ?? ""}? Fixed prices by vehicle class, flight tracking and no meter. Book online with Cabslink.`;
     },
     typeSchema: (d) => {
       const m = d.meta as { from_name?: string; to_name?: string };

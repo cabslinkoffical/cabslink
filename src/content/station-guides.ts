@@ -3,7 +3,7 @@ import type { PlaceGuide } from "@/content/place-guides";
 /**
  * Phase 7 batch 2 — station pages. Facts used: the station's own destination
  * row (town, nearby places), the live fleet capacities and site-wide rules
- * (fixed fares, card payment via Stripe, cancellation windows, extra stops).
+ * (fixed prices, card payment via Stripe, cancellation windows, extra stops).
  * No station has a published popular route yet, so no distances, drive times
  * or fares are written; the page's own journey-fact cards show estimates.
  */
@@ -14,7 +14,7 @@ const PAY =
 
 const COMMON_OWNER_FACTS = [
   "Exact driver waiting point at the station",
-  "Published routes with distances, drive times and fixed fares from this station",
+  "Published routes with distances, drive times and fixed prices from this station",
 ];
 
 export const STATION_GUIDES: PlaceGuide[] = [

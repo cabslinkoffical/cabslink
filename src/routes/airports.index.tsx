@@ -19,7 +19,7 @@ export const Route = createFileRoute("/airports/")({
       { title: "UK Airport Transfers — Every Major Airport | Cabslink" },
       { name: "description", content: "Fixed-fare private transfers to every major UK airport. Meet & greet, flight tracking, 24/7 dispatch across England, Scotland, Wales and Northern Ireland." },
       { property: "og:title", content: "UK Airport Transfers — Every Major Airport" },
-      { property: "og:description", content: "Private transfers to every major UK airport. Fixed fares, meet & greet, flight tracking." },
+      { property: "og:description", content: "Private transfers to every major UK airport. Fixed prices, meet & greet, flight tracking." },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://cabslink.com/airports" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -54,7 +54,7 @@ const AP_SECTIONS = [
     ],
   },
   {
-    title: "Fixed fares and extras",
+    title: "Fixed prices and extras",
     paragraphs: [
       "Fares are quoted per journey and cover the vehicle, the driver, the route, motorway tolls and standard airport charges. There is no meter, and heavy traffic does not change what you pay.",
       "Additional stops, extra waiting, extra luggage capacity and child seats are optional and priced separately in the quote, so you can see what each adds before confirming.",
@@ -94,7 +94,7 @@ function AirportsIndex() {
     grouped.set(key, list);
   }
   return (
-    <SiteLayout ctaSubtitle="Flight tracking, free waiting time and fixed fares to every UK airport." cta={{ heading: <>Book your <span className="text-gold">airport transfer</span></>, label: "Get an airport price", trackAs: "final_cta_airports" }}>
+    <SiteLayout ctaSubtitle="Flight tracking, free waiting time and fixed prices to every UK airport." cta={{ heading: <>Book your <span className="text-gold">airport transfer</span></>, label: "Get an airport price", trackAs: "final_cta_airports" }}>
       <PageHero
         eyebrow="Airport Transfers"
         title="Every major UK airport."

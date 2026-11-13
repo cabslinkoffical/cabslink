@@ -69,14 +69,14 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         "heading": "Glasgow Airport and the road to Loch Lomond",
         "paragraphs": [
           "Glasgow Airport (GLA) sits in Paisley, west of the city, which makes it the natural gateway for travellers heading to the west of Scotland. Our most-booked journey from here is the run to Loch Lomond: about 20 miles from the terminal to Balloch along the A82 through Dumbarton, usually about 35 minutes. It is a short enough drive to reach the loch shore within an hour of collecting your bags.",
-          "That route has a live fixed fare for every vehicle class, shown below and calculated by the same engine used at checkout."
+          "That route has a live fixed price for every vehicle class, shown below and calculated by the same engine used at checkout."
         ]
       },
       {
         "heading": "Planning a west-coast arrival",
         "paragraphs": [
           "Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late. For a Loch Lomond stay, give us the exact lodge or cottage address: the full address lets us confirm the drop-off and the fare before the day, rather than working from the town name alone.",
-          "Travelling on to Edinburgh after a few days in the west? Book that second journey at the same time and both fixed fares appear in one place, so the whole trip is costed before you leave home."
+          "Travelling on to Edinburgh after a few days in the west? Book that second journey at the same time and both fixed prices appear in one place, so the whole trip is costed before you leave home."
         ]
       },
       {
@@ -132,7 +132,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
     ],
     "needsOwnerFact": [
       "Distance and drive time from central Edinburgh",
-      "Fixed fares to/from Aberdeen Airport (no published route)",
+      "Fixed prices to/from Aberdeen Airport (no published route)",
       "Pickup point at the terminal"
     ]
   },
@@ -171,7 +171,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
     ],
     "needsOwnerFact": [
       "Distance and drive time from central Edinburgh",
-      "Fixed fares to/from Inverness Airport (no published route)",
+      "Fixed prices to/from Inverness Airport (no published route)",
       "Pickup point at the terminal"
     ]
   },
@@ -199,7 +199,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         "heading": "Connecting Dundee with Edinburgh Airport",
         "paragraphs": [
           "When a flight is not available from Dundee, many people fly from Edinburgh instead. Our Dundee to Edinburgh Airport route is about 50 miles via the A90, M90 and the Queensferry Crossing, usually around 70 minutes. Queues at Ferrytoll in the weekday morning peak are the main thing that slows it down, so early departures need a little extra time.",
-          "The fixed fares for that journey are listed below, worked out live for each vehicle class."
+          "The fixed prices for that journey are listed below, worked out live for each vehicle class."
         ]
       },
       {
@@ -235,7 +235,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
       {
         "heading": "Moving between Prestwick and Glasgow",
         "paragraphs": [
-          "Some trips start at Prestwick and finish in Glasgow, or the other way round. Glasgow Airport is linked to this page as a nearby airport, and we also drive families visiting the Queen Elizabeth University Hospital. A fixed fare is useful here because the journey crosses several council areas.",
+          "Some trips start at Prestwick and finish in Glasgow, or the other way round. Glasgow Airport is linked to this page as a nearby airport, and we also drive families visiting the Queen Elizabeth University Hospital. A fixed price is useful here because the journey crosses several council areas.",
           "Ask for a quote with the exact address and you will see the price for every vehicle class before you pay."
         ]
       },
@@ -249,7 +249,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
     ],
     "needsOwnerFact": [
       "Distance and drive time from central Edinburgh",
-      "Fixed fares to/from Prestwick Airport (no published route)",
+      "Fixed prices to/from Prestwick Airport (no published route)",
       "Pickup point at the terminal"
     ]
   },
@@ -260,14 +260,14 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         "heading": "Newcastle Airport for travellers heading north",
         "paragraphs": [
           "Newcastle Airport (NCL) serves Newcastle upon Tyne and the north-east of England. For Cabslink it is a cross-border airport: some passengers land here and travel north into Scotland, while others live in the Borders or the Lothians and find a Newcastle flight suits their plans better than one from Edinburgh.",
-          "A long drive like this is exactly where a fixed fare helps, because you know the full cost before setting off."
+          "A long drive like this is exactly where a fixed price helps, because you know the full cost before setting off."
         ]
       },
       {
         "heading": "Making a cross-border trip easy",
         "paragraphs": [
           "Long journeys are best booked early. Give your flight number and the full destination address, whether that is in Newcastle, the Scottish Borders or Edinburgh, and the quote will cover the whole drive.",
-          "If you would like a comfort break on the way, add it as a stop when booking so the driver can plan for it. Researchers visiting the BioQuarter and whisky visitors heading for Glenkinchie can book the onward journey in the same order. Every booking comes with an emailed confirmation showing the fixed fare. Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late."
+          "If you would like a comfort break on the way, add it as a stop when booking so the driver can plan for it. Researchers visiting the BioQuarter and whisky visitors heading for Glenkinchie can book the onward journey in the same order. Every booking comes with an emailed confirmation showing the fixed price. Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late."
         ]
       },
       {
@@ -287,7 +287,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
     ],
     "needsOwnerFact": [
       "Distance and drive time from central Edinburgh",
-      "Fixed fares to/from Newcastle Airport (no published route)",
+      "Fixed prices to/from Newcastle Airport (no published route)",
       "Pickup point at the terminal"
     ]
   },
@@ -305,7 +305,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         "heading": "Planning a Manchester airport run",
         "paragraphs": [
           "Choose a pickup time that leaves plenty of margin before check-in, since this is a long drive and traffic varies. Add the flight number so the driver can check its status on the day.",
-          "For a return trip, book the inbound car at the same time; your driver will meet you in arrivals with a name board, which is handy after a long-haul flight. Corporate clients can keep several staff journeys under one account. If the group grows or shrinks before travel, change the vehicle class and the price is recalculated before you confirm, so you only pay for the car you need. Every booking is confirmed by email with the full fixed fare."
+          "For a return trip, book the inbound car at the same time; your driver will meet you in arrivals with a name board, which is handy after a long-haul flight. Corporate clients can keep several staff journeys under one account. If the group grows or shrinks before travel, change the vehicle class and the price is recalculated before you confirm, so you only pay for the car you need. Every booking is confirmed by email with the full fixed price."
         ]
       },
       {
@@ -325,7 +325,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
     ],
     "needsOwnerFact": [
       "Distance and drive time from central Edinburgh",
-      "Fixed fares to/from Manchester Airport (no published route)",
+      "Fixed prices to/from Manchester Airport (no published route)",
       "Pickup point at the terminal"
     ]
   },
@@ -336,7 +336,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         "heading": "Heathrow Airport transfers",
         "paragraphs": [
           "Heathrow Airport (LHR) is in London, and we book it as a long-distance private transfer. It suits travellers who would rather sit in one car than change trains with heavy luggage, and companies moving staff to a long-haul flight on a set schedule.",
-          "Because the distance is long, the fixed fare is especially useful: it is confirmed before you pay, with no meter running in traffic."
+          "Because the distance is long, the fixed price is especially useful: it is confirmed before you pay, with no meter running in traffic."
         ]
       },
       {
@@ -370,7 +370,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
     ],
     "needsOwnerFact": [
       "Distance and drive time from central Edinburgh",
-      "Fixed fares to/from Heathrow (no published route)",
+      "Fixed prices to/from Heathrow (no published route)",
       "Terminal pickup points"
     ]
   },
@@ -408,7 +408,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
     ],
     "needsOwnerFact": [
       "Distance and drive time from central Edinburgh",
-      "Fixed fares to/from Gatwick (no published route)",
+      "Fixed prices to/from Gatwick (no published route)",
       "Terminal pickup points"
     ]
   },
@@ -446,14 +446,14 @@ export const PLACE_GUIDES: PlaceGuide[] = [
       {
         "heading": "If your plans change",
         "paragraphs": [
-          `${FACT_TEXT.transferCancellation} There is no fee to move the pickup time or address — update the booking before you travel and the fixed fare is recalculated where the route has changed.`,
+          `${FACT_TEXT.transferCancellation} There is no fee to move the pickup time or address — update the booking before you travel and the fixed price is recalculated where the route has changed.`,
           `Airport pickups include ${FACT_TEXT.airportWaitShort}, counted from the actual landing rather than the timetable, and the confirmation email lists every detail of the plan.`
         ]
       }
     ],
     "needsOwnerFact": [
       "Distance and drive time from central Edinburgh",
-      "Fixed fares to/from Birmingham Airport (no published route)",
+      "Fixed prices to/from Birmingham Airport (no published route)",
       "Pickup point at the terminal"
     ]
   },
@@ -478,7 +478,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         "heading": "Islay whisky and onward travel",
         "paragraphs": [
           "Laphroaig and Ardbeg distilleries on the Scottish island of Islay are linked from this page for visitors researching a wider trip.",
-          "Contact us before planning travel involving a ferry. This guide does not confirm a Belfast-to-Islay service or a fixed fare."
+          "Contact us before planning travel involving a ferry. This guide does not confirm a Belfast-to-Islay service or a fixed price."
         ]
       },
       {
@@ -498,7 +498,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
     ],
     "needsOwnerFact": [
       "TODO — owner to confirm whether Cabslink operates in Northern Ireland directly or via a partner",
-      "Fixed fares to/from Belfast International (no published route)",
+      "Fixed prices to/from Belfast International (no published route)",
       "Pickup point at the terminal"
     ]
   },
@@ -543,7 +543,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
     ],
     "needsOwnerFact": [
       "TODO — owner to confirm whether Cabslink operates in Northern Ireland directly or via a partner",
-      "Fixed fares to/from Belfast City Airport (no published route)",
+      "Fixed prices to/from Belfast City Airport (no published route)",
       "Pickup point at the terminal"
     ]
   },
@@ -581,7 +581,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
     ],
     "needsOwnerFact": [
       "Distance and drive time from central Edinburgh",
-      "Fixed fares to/from Leeds Bradford (no published route)",
+      "Fixed prices to/from Leeds Bradford (no published route)",
       "Pickup point at the terminal"
     ]
   },
@@ -619,7 +619,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
     ],
     "needsOwnerFact": [
       "Distance and drive time from central Edinburgh",
-      "Fixed fares to/from Liverpool Airport (no published route)",
+      "Fixed prices to/from Liverpool Airport (no published route)",
       "Pickup point at the terminal"
     ]
   },
@@ -630,7 +630,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         "heading": "Bristol Airport transfers",
         "paragraphs": [
           "Bristol Airport (BRS) serves the city of Bristol and the south-west of England. Cabslink books journeys here as pre-arranged private transfers: one driver, one car, and a fare agreed before you travel rather than a meter running at the other end.",
-          "There is no published fixed fare for this route on our site yet, so the booking form is the place to get your price. Enter both addresses and the quote is calculated for your exact journey before you pay."
+          "There is no published fixed price for this route on our site yet, so the booking form is the place to get your price. Enter both addresses and the quote is calculated for your exact journey before you pay."
         ]
       },
       {
@@ -657,7 +657,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
     ],
     "needsOwnerFact": [
       "Distance and drive time from central Edinburgh",
-      "Fixed fares to/from Bristol Airport (no published route)",
+      "Fixed prices to/from Bristol Airport (no published route)",
       "Pickup point at the terminal"
     ]
   },
@@ -681,7 +681,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
       {
         "heading": "When the weather slows the roads",
         "paragraphs": [
-          "Long drives to and from Wales are exposed to the weather, which is one reason a fixed fare suits this journey: rain, wind or roadworks do not change what you pay. Set a pickup time with a generous margin before check-in. Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late.",
+          "Long drives to and from Wales are exposed to the weather, which is one reason a fixed price suits this journey: rain, wind or roadworks do not change what you pay. Set a pickup time with a generous margin before check-in. Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late.",
           `${FACT_TEXT.transferCancellation} The booking confirmation email lists the full price, the addresses and any extras, and Manage Booking lets you review the journey online.`
         ]
       },
@@ -695,7 +695,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
     ],
     "needsOwnerFact": [
       "Distance and drive time from central Edinburgh",
-      "Fixed fares to/from Cardiff Airport (no published route)",
+      "Fixed prices to/from Cardiff Airport (no published route)",
       "Pickup point at the terminal"
     ]
   },
@@ -733,7 +733,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
     ],
     "needsOwnerFact": [
       "Distance and drive time from central Edinburgh",
-      "Fixed fares to/from East Midlands Airport (no published route)",
+      "Fixed prices to/from East Midlands Airport (no published route)",
       "Pickup point at the terminal"
     ]
   },
@@ -743,7 +743,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
       {
         "heading": "London City Airport for business travel",
         "paragraphs": [
-          "London City Airport (LCY) is a compact airport close to the heart of London's financial district, and most of our journeys to and from it are for work. Cabslink arranges these as private transfers booked in advance, with one driver and one fixed fare for the whole trip.",
+          "London City Airport (LCY) is a compact airport close to the heart of London's financial district, and most of our journeys to and from it are for work. Cabslink arranges these as private transfers booked in advance, with one driver and one fixed price for the whole trip.",
           "No published fare is listed on this page, so price your journey through the booking form. For business travellers on a schedule, the quote can be prepared the day before travel and confirmed by email."
         ]
       },
@@ -771,7 +771,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
     ],
     "needsOwnerFact": [
       "Distance and drive time from central Edinburgh",
-      "Fixed fares to/from London City Airport (no published route)",
+      "Fixed prices to/from London City Airport (no published route)",
       "Pickup point at the terminal"
     ]
   },
@@ -781,7 +781,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
       {
         "heading": "Luton Airport transfers",
         "paragraphs": [
-          "Luton Airport (LTN) is a busy base for holiday charter flights, and much of what we carry to and from it is families heading off with a season's worth of luggage. Cabslink books these journeys as private transfers, arranged in advance with a fixed fare.",
+          "Luton Airport (LTN) is a busy base for holiday charter flights, and much of what we carry to and from it is families heading off with a season's worth of luggage. Cabslink books these journeys as private transfers, arranged in advance with a fixed price.",
           "There is no published fare for this airport on the site yet, so the booking form is where your price comes from — it shows every vehicle class side by side before you pay."
         ]
       },
@@ -809,7 +809,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
     ],
     "needsOwnerFact": [
       "Distance and drive time from central Edinburgh",
-      "Fixed fares to/from Luton Airport (no published route)",
+      "Fixed prices to/from Luton Airport (no published route)",
       "Pickup point at the terminal"
     ]
   },
@@ -841,13 +841,13 @@ export const PLACE_GUIDES: PlaceGuide[] = [
         "heading": "Coming home again",
         "paragraphs": [
           `${FACT_TEXT.meetGreet} ${FACT_TEXT.airportWait}`,
-          "Book the return with the Add return option and both journeys sit under one booking reference. Manage Booking lets you review the whole trip online, and the fixed fare means the price you saw when you booked is the price you pay."
+          "Book the return with the Add return option and both journeys sit under one booking reference. Manage Booking lets you review the whole trip online, and the fixed price means the price you saw when you booked is the price you pay."
         ]
       }
     ],
     "needsOwnerFact": [
       "Distance and drive time from central Edinburgh",
-      "Fixed fares to/from Southampton Airport (no published route)",
+      "Fixed prices to/from Southampton Airport (no published route)",
       "Pickup point at the terminal"
     ]
   },
@@ -857,7 +857,7 @@ export const PLACE_GUIDES: PlaceGuide[] = [
       {
         "heading": "Stansted Airport transfers",
         "paragraphs": [
-          "Stansted Airport (STN) handles a large share of the UK's holiday flights, and Cabslink books journeys here as private transfers arranged in advance. The whole party travels together in one car, with one driver and a fixed fare agreed at booking.",
+          "Stansted Airport (STN) handles a large share of the UK's holiday flights, and Cabslink books journeys here as private transfers arranged in advance. The whole party travels together in one car, with one driver and a fixed price agreed at booking.",
           "No published fare for this airport appears on the site yet, so the booking form is the place to get your quote. Enter both addresses and the price for every vehicle class is shown before you pay."
         ]
       },
@@ -878,14 +878,14 @@ export const PLACE_GUIDES: PlaceGuide[] = [
       {
         "heading": "Plans change, and that is fine",
         "paragraphs": [
-          "There is no fee to move the pickup time or address before travel, and the fixed fare is recalculated if the route has changed. Manage Booking keeps the whole plan in one place.",
+          "There is no fee to move the pickup time or address before travel, and the fixed price is recalculated if the route has changed. Manage Booking keeps the whole plan in one place.",
           "The confirmation email follows immediately after booking with the full price, the addresses and any extras such as child seats or additional stops."
         ]
       }
     ],
     "needsOwnerFact": [
       "Distance and drive time from central Edinburgh",
-      "Fixed fares to/from Stansted Airport (no published route)",
+      "Fixed prices to/from Stansted Airport (no published route)",
       "Pickup point at the terminal"
     ]
   }
