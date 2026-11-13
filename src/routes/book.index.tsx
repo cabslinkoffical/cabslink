@@ -1518,7 +1518,7 @@ function BookingTrustBand() {
             <p className="text-sm text-foreground/80">See what customers say about us on Google.</p>
           )}
         </div>
-        <a href={data?.profileUrl ?? GOOGLE_PROFILE_URL} target="_blank" rel="noopener noreferrer nofollow" className="inline-flex items-center gap-1 self-start text-sm font-semibold text-foreground underline decoration-primary underline-offset-4">
+        <a href={data?.profileUrl ?? GOOGLE_PROFILE_URL} target="_blank" rel="noopener noreferrer nofollow" className="inline-flex min-h-6 items-center gap-1 self-start text-sm font-semibold text-foreground underline decoration-primary underline-offset-4">
           Read reviews <ArrowUpRight className="size-3.5" />
         </a>
       </aside>

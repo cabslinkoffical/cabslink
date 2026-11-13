@@ -131,7 +131,7 @@ export function Footer() {
               href={GOOGLE_PROFILE_URL}
               target="_blank"
               rel="noopener noreferrer nofollow"
-              className="hover:text-[var(--gold)]"
+              className="inline-flex min-h-6 items-center hover:text-[var(--gold)]"
             >
               Reviews on Google
             </a>
