@@ -864,12 +864,12 @@ function FleetClassesSection() {
                   </div>
 
                   {/* Models */}
-                  <div className="flex h-7 items-center gap-1.5 overflow-hidden" title={FACT_TEXT.modelsTypical}>
-                    {k.models.length > 0 && <span className="shrink-0 text-[11px] text-[var(--navy)]/70">Such as</span>}
+                  <div className="flex min-h-7 flex-wrap items-center gap-1.5" title={FACT_TEXT.modelsTypical}>
+                    {k.models.length > 0 && <span className="shrink-0 text-xs text-[var(--navy)]/70">Such as</span>}
                     {k.models.slice(0, 2).map((m) => (
                       <span
                         key={m.id}
-                        className="truncate rounded-md border border-[var(--navy)]/10 bg-[var(--navy)]/5 px-2 py-1 text-[11px] font-medium text-[var(--navy)]/80"
+                        className="rounded-md border border-[var(--navy)]/10 bg-[var(--navy)]/5 px-2 py-1 text-xs font-medium text-[var(--navy)]/80"
                       >
                         {m.name}
                       </span>
