@@ -21,8 +21,8 @@ export function BlogArticle({ post, related }: { post: BlogPostFull; related: Bl
     <SiteLayout cta={{ heading: <>Plan your trip <span className="text-gold">with Cabslink</span></>, label: "Get a fixed price", trackAs: "final_cta_blog" }}>
       <article>
         {/* Hero */}
-        <header className="hero-gradient page-hero text-[var(--navy-foreground)]" data-align="left">
-          <div className="container-x page-hero-inner page-hero-reading">
+        <header className="hero-gradient page-hero text-[var(--navy-foreground)]" data-align="center">
+          <div className="container-x page-hero-inner page-hero-reading [&_nav_ol]:justify-center">
             <Breadcrumbs
               items={[
                 { name: "Home", href: "/" },
@@ -43,7 +43,7 @@ export function BlogArticle({ post, related }: { post: BlogPostFull; related: Bl
                 {post.subtitle}
               </p>
             )}
-            <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-[var(--navy-foreground)]/70">
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-[var(--navy-foreground)]/70">
               {post.author && (
                 <span className="inline-flex items-center gap-2">
                   <User className="size-4" /> {post.author.name}
@@ -83,7 +83,7 @@ export function BlogArticle({ post, related }: { post: BlogPostFull; related: Bl
         )}
 
         {/* Content grid */}
-        <div className="container-x py-12 md:py-16 grid lg:grid-cols-[minmax(0,1fr)_340px] xl:grid-cols-[220px_minmax(0,1fr)_340px] gap-10">
+        <div className="container-x py-12 md:py-16 grid lg:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[200px_minmax(0,1fr)_360px] gap-8">
           {/* TOC */}
           <aside className="hidden xl:block">
             {post.toc.length > 0 && (
@@ -156,7 +156,7 @@ export function BlogArticle({ post, related }: { post: BlogPostFull; related: Bl
           </div>
 
           {/* Sidebar CTA */}
-          <aside className="min-w-0 space-y-6">
+          <aside className="min-w-0 w-full max-w-md mx-auto lg:max-w-none">
             <div className="booking-sticky-panel rounded-lg bg-navy text-navy-foreground p-3.5">
               <p className="text-xs uppercase tracking-[0.3em] text-[var(--gold)] mb-2">Need a car?</p>
               <p className="font-display text-lg leading-tight">Get a fixed price for your journey.</p>
