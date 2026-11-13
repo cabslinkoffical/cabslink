@@ -23,6 +23,8 @@ export type JourneyMapData = {
   polyline: string;
   /** Ordered points: pickup, each stop, dropoff. */
   points: JourneyMapPoint[];
+  /** Road distance and driving time of each leg, in order (tour loop map only). */
+  legs?: Array<{ miles: number; minutes: number }>;
 };
 
 const input = z.object({
@@ -116,7 +118,7 @@ export const getJourneyMap = createServerFn({ method: "POST" })
       push(leg.endLocation?.latLng);
     });
 
-    return { polyline, points };
+    return { polyline, points, legs };
   });
 
 /* ------------------------------------------------------------------ */
@@ -125,7 +127,9 @@ export const getJourneyMap = createServerFn({ method: "POST" })
 
 const loopInput = z.object({
   startPlaceId: placeIdSchema,
-  stopPlaceIds: z.array(placeIdSchema).min(1).max(10),
+  /** Finish somewhere else; omitted means back to the start. */
+  endPlaceId: placeIdSchema.nullish(),
+  stopPlaceIds: z.array(placeIdSchema).min(1).max(15),
 });
 
 /**
@@ -159,11 +163,11 @@ export const getTourLoopMap = createServerFn({ method: "POST" })
           "X-Connection-Api-Key": apiKey,
           "Content-Type": "application/json",
           "X-Goog-FieldMask":
-            "routes.polyline.encodedPolyline,routes.legs.startLocation.latLng,routes.legs.endLocation.latLng",
+            "routes.polyline.encodedPolyline,routes.legs.startLocation.latLng,routes.legs.endLocation.latLng,routes.legs.distanceMeters,routes.legs.duration",
         },
         body: JSON.stringify({
           origin: { placeId: data.startPlaceId },
-          destination: { placeId: data.startPlaceId },
+          destination: { placeId: data.endPlaceId || data.startPlaceId },
           intermediates: data.stopPlaceIds.map((id) => ({ placeId: id })),
           travelMode: "DRIVE",
           routingPreference: "TRAFFIC_UNAWARE",
@@ -192,12 +196,18 @@ export const getTourLoopMap = createServerFn({ method: "POST" })
         legs?: Array<{
           startLocation?: { latLng?: { latitude?: number; longitude?: number } };
           endLocation?: { latLng?: { latitude?: number; longitude?: number } };
+          distanceMeters?: number;
+          duration?: string;
         }>;
       }>;
     };
     const route = json.routes?.[0];
     const polyline = route?.polyline?.encodedPolyline ?? "";
     if (!polyline) throw new Error("We could not map a driving route around these stops.");
+    const legs = (route?.legs ?? []).map((leg) => ({
+      miles: Math.round(((leg.distanceMeters ?? 0) / 1609.344) * 10) / 10,
+      minutes: Math.round(Number.parseFloat(leg.duration ?? "0") / 60),
+    }));
 
     const points: JourneyMapPoint[] = [];
     const push = (p?: { latitude?: number; longitude?: number }) => {
@@ -210,5 +220,5 @@ export const getTourLoopMap = createServerFn({ method: "POST" })
       push(leg.endLocation?.latLng);
     });
 
-    return { polyline, points };
+    return { polyline, points, legs };
   });
