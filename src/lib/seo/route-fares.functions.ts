@@ -36,6 +36,22 @@ export type RouteFareTable = {
   fares: RouteFare[];
 };
 
+/**
+ * Display-only fare tables (route/airport/price pages) reuse one successful
+ * settings + vehicle read for 60 seconds per server instance, so a page with a
+ * dozen fare tables does one round trip instead of a dozen. Failures are never
+ * cached, and checkout quotes keep reading live rules.
+ */
+let displayInputs: { at: number; value: Promise<[any, any]> } | null = null;
+function displayPricingInputs(client: any): Promise<[Awaited<ReturnType<typeof loadQuoteSettings>>, Awaited<ReturnType<typeof loadActiveProfiles>>]> {
+  if (displayInputs && Date.now() - displayInputs.at < 60_000) return displayInputs.value;
+  const value = Promise.all([loadQuoteSettings(client), loadActiveProfiles(client)]) as Promise<[any, any]>;
+  const entry = { at: Date.now(), value };
+  displayInputs = entry;
+  value.catch(() => { if (displayInputs === entry) displayInputs = null; });
+  return value;
+}
+
 export const getRouteFares = createServerFn({ method: "GET" })
   .inputValidator((i: unknown) =>
     z
@@ -80,10 +96,7 @@ export const getRouteFares = createServerFn({ method: "GET" })
     let settings: Awaited<ReturnType<typeof loadQuoteSettings>>;
     let profiles: Awaited<ReturnType<typeof loadActiveProfiles>>;
     try {
-      [settings, profiles] = await Promise.all([
-        loadQuoteSettings(client),
-        loadActiveProfiles(client),
-      ]);
+      [settings, profiles] = await displayPricingInputs(client);
     } catch {
       return null;
     }
