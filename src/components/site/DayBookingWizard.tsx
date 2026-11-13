@@ -889,7 +889,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                       : `No single vehicle carries ${passengers} ${passengers === 1 ? "passenger" : "passengers"} and ${luggage} ${luggage === 1 ? "suitcase" : "suitcases"}. Choose more than one vehicle below.`}
                   </p>
                 )}
-                {unpricedFitting.length > 0 && (
+                {!singleFits && unpricedFitting.length > 0 && (
                   <ul className="space-y-1 text-xs text-muted-foreground">
                     {unpricedFitting.map((c) => (
                       <li key={c.id}>
