@@ -82,3 +82,10 @@ describe("HTML cache headers", () => {
     expect(cc("/fleet", html({ headers: { "cache-control": "private" } }))).toBe(ns);
   });
 });
+
+import { canonicalRequestUrl as canon2 } from "../src/lib/response-policy";
+import { test as t2, expect as e2 } from "vitest";
+t2("cabslink.lovable.app page reads move to cabslink.com, API calls stay", () => {
+  e2(canon2(new Request("https://cabslink.lovable.app/fleet"))).toBe("https://cabslink.com/fleet");
+  e2(canon2(new Request("https://cabslink.lovable.app/api/public/stripe", { method: "POST" }))).toBeUndefined();
+});
