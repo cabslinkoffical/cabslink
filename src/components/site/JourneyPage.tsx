@@ -20,6 +20,8 @@ import { TransportComparison } from "@/components/seo/TransportComparison";
 import { getJourneyTransport } from "@/lib/seo/transport-modes";
 
 import { SITE } from "@/lib/site";
+import { FACT_TEXT } from "@/lib/site-facts";
+import { GoogleReviewsSection } from "@/components/site/GoogleReviewsSection";
 import { resolveFaqs } from "@/components/site/JourneyPage.head";
 
 
@@ -33,6 +35,7 @@ export function JourneyPage({
 
   const pair = `${c.from.name} to ${c.to.name}`;
   const transport = getJourneyTransport(c.slug);
+  const airportEnd = [c.from.name, c.to.name].find((n) => /airport/i.test(n));
 
   // Carry the advertised journey into the booking form so the customer does
   // not have to retype the route this page is about.
@@ -190,11 +193,25 @@ export function JourneyPage({
         </section>
       )}
 
+      {airportEnd && (
+        <PageBand eyebrow="Airport pickup" title={`Pickup at ${airportEnd}`}>
+          <ul className="grid gap-4 md:grid-cols-2">
+            {[FACT_TEXT.flightTracking, FACT_TEXT.airportWait, FACT_TEXT.meetGreet, FACT_TEXT.feesIncluded].map((t) => (
+              <li key={t} className="flex gap-3 rounded-2xl border border-border bg-card p-5 text-sm text-muted-foreground">
+                <Check className="mt-0.5 size-5 shrink-0 text-[var(--gold-ink)]" /> {t}
+              </li>
+            ))}
+          </ul>
+        </PageBand>
+      )}
+
       {c.relatedJourneys.length > 0 && (
         <PageBand eyebrow="Other journeys" title="Related routes we run">
           <LinkCards links={[...c.relatedJourneys.map((r) => ({ href: r.to, label: r.label })), ...(c.slug === "edinburgh-airport-to-city-centre" ? [{ href: "/guides/edinburgh-airport-to-city-centre", label: "Guide: tram, bus, taxi or private transfer" }] : []), { href: "/routes", label: "All popular routes" }]} />
         </PageBand>
       )}
+
+      <GoogleReviewsSection />
 
       <FaqBand title={`${pair} — questions`} items={resolveFaqs(c, fares)}>
         <div className="mt-10 flex flex-wrap gap-3">
