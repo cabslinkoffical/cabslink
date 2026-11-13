@@ -654,8 +654,8 @@ input[type="time"] {
   scrollbar-color: color-mix(in srgb, var(--gold) 55%, transparent) transparent;
   @media (min-width: 1024px) {
     position: sticky;
-    top: 6rem;
-    max-height: calc(100vh - 7rem);
+    top: 1.5rem;
+    max-height: calc(100vh - 2.5rem);
     overflow-y: auto;
   }
 }
