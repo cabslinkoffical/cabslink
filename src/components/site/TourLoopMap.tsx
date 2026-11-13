@@ -132,6 +132,15 @@ export function TourLoopMap({ startPlaceId, startLabel, stops, endPlaceId, class
   if (!enabled) return null;
   const error = failed ?? (q.isError ? (q.error as Error).message : null);
 
+  // A map that can't load shouldn't take up the space of one.
+  if (error) {
+    return (
+      <p className={`flex items-center gap-2 rounded-xl border border-border bg-[var(--surface)] px-3 py-2 text-xs text-muted-foreground ${className}`}>
+        <MapPin className="size-3.5 text-[var(--gold-ink)]" /> {error}
+      </p>
+    );
+  }
+
   return (
     <div className={`relative overflow-hidden rounded-2xl border border-border bg-[var(--surface)] ${className}`}>
       <div className="flex items-center gap-2 border-b border-border/70 bg-card px-4 py-2.5">

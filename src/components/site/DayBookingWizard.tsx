@@ -1270,7 +1270,7 @@ function RouteTimeline({
           <span className="grid size-6 shrink-0 place-items-center rounded-full bg-[var(--gold)] text-[var(--gold-foreground)]"><Flag className="size-3" /></span>
           <span className="min-w-0">
             <span className="block text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">Start</span>
-            <span className={`block truncate font-semibold ${compact ? "text-xs" : "text-sm"}`}>{startLabel}</span>
+            <span className={`block line-clamp-2 break-words font-semibold leading-snug ${compact ? "text-xs" : "text-sm"}`}>{startLabel}</span>
           </span>
         </li>
         <Leg i={0} />
@@ -1279,7 +1279,7 @@ function RouteTimeline({
             <div className="flex items-center gap-3">
               <span className="grid size-6 shrink-0 place-items-center rounded-full bg-[var(--navy)] text-[11px] font-bold text-[var(--navy-foreground)]">{i + 1}</span>
               <span className="min-w-0 flex-1">
-                <span className={`block truncate font-semibold ${compact ? "text-xs" : "text-sm"}`}>{s.name}</span>
+                <span className={`block line-clamp-2 break-words font-semibold leading-snug ${compact ? "text-xs" : "text-sm"}`}>{s.name}</span>
                 {!onDwell && <span className="block text-[11px] text-muted-foreground">{minutesShort(s.dwellMinutes ?? minStopMinutes)} here</span>}
               </span>
               {onDwell && (
@@ -1311,7 +1311,7 @@ function RouteTimeline({
           <span className="grid size-6 shrink-0 place-items-center rounded-full border-2 border-[var(--gold)] bg-card"><Flag className="size-3 text-[var(--gold-ink)]" /></span>
           <span className="min-w-0">
             <span className="block text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">Finish</span>
-            <span className={`block truncate font-semibold ${compact ? "text-xs" : "text-sm"}`}>{finishLabel}</span>
+            <span className={`block line-clamp-2 break-words font-semibold leading-snug ${compact ? "text-xs" : "text-sm"}`}>{finishLabel}</span>
           </span>
         </li>
       </ol>
