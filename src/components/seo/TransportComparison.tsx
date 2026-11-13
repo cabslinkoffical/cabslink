@@ -27,7 +27,7 @@ const KIND_LABEL: Record<TransportModeKind, string> = {
   tram: "Tram",
   "park-and-ride": "Park & ride",
   car: "Private car",
-  taxi: "Black taxi",
+  taxi: "Taxi",
 };
 
 function formatChecked(iso: string) {
