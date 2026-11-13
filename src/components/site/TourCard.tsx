@@ -96,7 +96,7 @@ export function TourCard({ tour, decorative = false }: { tour: PublicTourListIte
             </span>
           </div>
           {tour.starting_price_pence != null && tour.price_covers && (
-            <p className="mt-1 text-right text-[11px] text-[var(--navy)]/70">{priceCoverSummary(tour.price_covers)}</p>
+            <p className="mt-1 text-right text-xs text-[var(--navy)]/70">{priceCoverSummary(tour.price_covers)}</p>
           )}
           <div className="mt-4 grid grid-cols-2 gap-3">
             <TourLink

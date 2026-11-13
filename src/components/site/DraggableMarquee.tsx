@@ -1,4 +1,5 @@
 import { useEffect, useRef, type ReactNode } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 /** Retains the existing CSS loop while scrubbing its position during a drag. */
 export function DraggableMarquee({ children, className, label }: { children: ReactNode; className: string; label: string }) {
@@ -70,5 +71,29 @@ export function DraggableMarquee({ children, className, label }: { children: Rea
       element.removeEventListener("pointerleave", leave);
     };
   }, []);
-  return <div ref={ref} role="region" aria-label={label} className={`draggable-marquee ${className}`}>{children}</div>;
+  /** Moves the loop by roughly one card so the carousel has visible controls. */
+  const step = (direction: 1 | -1) => {
+    const element = ref.current;
+    const track = element?.firstElementChild;
+    if (!element || !(track instanceof HTMLElement)) return;
+    const card = track.firstElementChild instanceof HTMLElement ? track.firstElementChild.offsetWidth : 300;
+    const gap = parseFloat(getComputedStyle(track).columnGap || "0");
+    const animation = track.getAnimations()[0];
+    const duration = Number(animation?.effect?.getTiming().duration);
+    if (animation && duration > 0) {
+      const distance = (track.scrollWidth + gap) / 2;
+      const next = Number(animation.currentTime ?? 0) + direction * (card + gap) * duration / distance;
+      animation.currentTime = ((next % duration) + duration) % duration;
+    } else element.scrollBy({ left: direction * (card + gap), behavior: "smooth" });
+  };
+  const control = "inline-flex size-11 items-center justify-center rounded-full border border-current/25 bg-background/90 text-[var(--navy)] shadow-sm transition-colors hover:bg-[var(--gold)] hover:text-[var(--gold-foreground)] focus-visible:outline-2 focus-visible:outline-[var(--gold)]";
+  return (
+    <div>
+      <div ref={ref} role="region" aria-label={label} className={`draggable-marquee ${className}`}>{children}</div>
+      <div className="container-x mt-4 flex justify-end gap-2">
+        <button type="button" className={control} aria-label={`Previous — ${label}`} onClick={() => step(-1)}><ChevronLeft className="size-5" /></button>
+        <button type="button" className={control} aria-label={`Next — ${label}`} onClick={() => step(1)}><ChevronRight className="size-5" /></button>
+      </div>
+    </div>
+  );
 }
