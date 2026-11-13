@@ -199,7 +199,7 @@ export function JourneyPage({
       <FaqBand title={`${pair} — questions`} items={resolveFaqs(c, fares)}>
         <div className="mt-10 flex flex-wrap gap-3">
           <Button asChild variant="gold" className="rounded-lg">
-            <Link to="/book" search={bookSearch}>Get a quote</Link>
+            <Link to="/book" search={bookSearch}>Get a fixed price</Link>
           </Button>
           <Button asChild variant="outline" className="rounded-lg">
             <a href={`tel:${SITE.phoneUK.replace(/\s/g, "")}`}>
