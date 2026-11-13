@@ -4,6 +4,7 @@ import { extractToc, remarkHeadingIds } from "@/lib/blog-markdown";
 import remarkGfm from "remark-gfm";
 import { Clock, Calendar, User } from "lucide-react";
 import { SiteLayout } from "./SiteLayout";
+import { BookingWidget } from "./BookingWidget";
 import { BlogPostCard } from "./BlogPostCard";
 import { FaqBlock } from "@/components/seo/FaqBlock";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
@@ -158,13 +159,10 @@ export function BlogArticle({ post, related }: { post: BlogPostFull; related: Bl
           <aside className="space-y-6">
             <div className="sticky top-24 rounded-2xl bg-[var(--navy)] text-navy-foreground p-6">
               <p className="text-xs uppercase tracking-[0.3em] text-[var(--gold)] mb-3">Need a car?</p>
-              <p className="font-display text-xl leading-tight">Book a private airport transfer in 60 seconds.</p>
-              <Link
-                to="/book"
-                className="mt-5 inline-flex w-full items-center justify-center rounded-full bg-[var(--gold)] px-5 py-3 text-sm font-semibold text-[var(--navy)] hover:opacity-90"
-              >
-                Get an instant quote
-              </Link>
+              <p className="font-display text-xl leading-tight">Get a fixed price for your journey.</p>
+              <div className="mt-5 @container">
+                <BookingWidget tone="dark" />
+              </div>
             </div>
           </aside>
         </div>
