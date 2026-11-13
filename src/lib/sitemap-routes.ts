@@ -57,7 +57,7 @@ export { fetchAllPages } from "@/lib/fetch-all-pages";
 export const PUBLIC_ROUTES = [
 
   "/", "/about", "/services", "/airport-transfers", "/vip-transfers",
-  "/glasgow-airport-transfers", "/edinburgh-chauffeur", "/highlands-private-tours", "/loch-ness-tours", "/isle-of-skye-tours", "/st-andrews-golf-transfers", "/outlander-tours",
+  "/edinburgh-airport-taxi-prices", "/glasgow-airport-transfers", "/edinburgh-chauffeur", "/highlands-private-tours", "/loch-ness-tours", "/isle-of-skye-tours", "/st-andrews-golf-transfers", "/outlander-tours",
   "/golf-transfers", "/football-transfers", "/stadium-transfers",
   "/team-sports-travel", "/vip-sports-hospitality",
   "/corporate-travel", "/tours", "/fleet", "/drive-with-us",

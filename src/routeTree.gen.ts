@@ -29,6 +29,7 @@ import { Route as CruiseTransfersRouteImport } from './routes/cruise-transfers'
 import { Route as CustomTourStatusRouteImport } from './routes/custom-tour-status'
 import { Route as DistanceRouteImport } from './routes/distance'
 import { Route as DriveWithUsRouteImport } from './routes/drive-with-us'
+import { Route as EdinburghAirportTaxiPricesRouteImport } from './routes/edinburgh-airport-taxi-prices'
 import { Route as EdinburghChauffeurRouteImport } from './routes/edinburgh-chauffeur'
 import { Route as EventTransportRouteImport } from './routes/event-transport'
 import { Route as FamilyAirportTransfersRouteImport } from './routes/family-airport-transfers'
@@ -269,6 +270,12 @@ const DriveWithUsRoute = DriveWithUsRouteImport.update({
   path: '/drive-with-us',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EdinburghAirportTaxiPricesRoute =
+  EdinburghAirportTaxiPricesRouteImport.update({
+    id: '/edinburgh-airport-taxi-prices',
+    path: '/edinburgh-airport-taxi-prices',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const EdinburghChauffeurRoute = EdinburghChauffeurRouteImport.update({
   id: '/edinburgh-chauffeur',
   path: '/edinburgh-chauffeur',
@@ -1038,6 +1045,7 @@ export interface FileRoutesByFullPath {
   '/custom-tour-status': typeof CustomTourStatusRoute
   '/distance': typeof DistanceRoute
   '/drive-with-us': typeof DriveWithUsRoute
+  '/edinburgh-airport-taxi-prices': typeof EdinburghAirportTaxiPricesRoute
   '/edinburgh-chauffeur': typeof EdinburghChauffeurRoute
   '/event-transport': typeof EventTransportRoute
   '/family-airport-transfers': typeof FamilyAirportTransfersRoute
@@ -1197,6 +1205,7 @@ export interface FileRoutesByTo {
   '/custom-tour-status': typeof CustomTourStatusRoute
   '/distance': typeof DistanceRoute
   '/drive-with-us': typeof DriveWithUsRoute
+  '/edinburgh-airport-taxi-prices': typeof EdinburghAirportTaxiPricesRoute
   '/edinburgh-chauffeur': typeof EdinburghChauffeurRoute
   '/event-transport': typeof EventTransportRoute
   '/family-airport-transfers': typeof FamilyAirportTransfersRoute
@@ -1358,6 +1367,7 @@ export interface FileRoutesById {
   '/custom-tour-status': typeof CustomTourStatusRoute
   '/distance': typeof DistanceRoute
   '/drive-with-us': typeof DriveWithUsRoute
+  '/edinburgh-airport-taxi-prices': typeof EdinburghAirportTaxiPricesRoute
   '/edinburgh-chauffeur': typeof EdinburghChauffeurRoute
   '/event-transport': typeof EventTransportRoute
   '/family-airport-transfers': typeof FamilyAirportTransfersRoute
@@ -1520,6 +1530,7 @@ export interface FileRouteTypes {
     | '/custom-tour-status'
     | '/distance'
     | '/drive-with-us'
+    | '/edinburgh-airport-taxi-prices'
     | '/edinburgh-chauffeur'
     | '/event-transport'
     | '/family-airport-transfers'
@@ -1679,6 +1690,7 @@ export interface FileRouteTypes {
     | '/custom-tour-status'
     | '/distance'
     | '/drive-with-us'
+    | '/edinburgh-airport-taxi-prices'
     | '/edinburgh-chauffeur'
     | '/event-transport'
     | '/family-airport-transfers'
@@ -1839,6 +1851,7 @@ export interface FileRouteTypes {
     | '/custom-tour-status'
     | '/distance'
     | '/drive-with-us'
+    | '/edinburgh-airport-taxi-prices'
     | '/edinburgh-chauffeur'
     | '/event-transport'
     | '/family-airport-transfers'
@@ -2001,6 +2014,7 @@ export interface RootRouteChildren {
   CustomTourStatusRoute: typeof CustomTourStatusRoute
   DistanceRoute: typeof DistanceRoute
   DriveWithUsRoute: typeof DriveWithUsRoute
+  EdinburghAirportTaxiPricesRoute: typeof EdinburghAirportTaxiPricesRoute
   EdinburghChauffeurRoute: typeof EdinburghChauffeurRoute
   EventTransportRoute: typeof EventTransportRoute
   FamilyAirportTransfersRoute: typeof FamilyAirportTransfersRoute
@@ -2231,6 +2245,13 @@ declare module '@tanstack/react-router' {
       path: '/drive-with-us'
       fullPath: '/drive-with-us'
       preLoaderRoute: typeof DriveWithUsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/edinburgh-airport-taxi-prices': {
+      id: '/edinburgh-airport-taxi-prices'
+      path: '/edinburgh-airport-taxi-prices'
+      fullPath: '/edinburgh-airport-taxi-prices'
+      preLoaderRoute: typeof EdinburghAirportTaxiPricesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/edinburgh-chauffeur': {
@@ -3421,6 +3442,7 @@ const rootRouteChildren: RootRouteChildren = {
   CustomTourStatusRoute: CustomTourStatusRoute,
   DistanceRoute: DistanceRoute,
   DriveWithUsRoute: DriveWithUsRoute,
+  EdinburghAirportTaxiPricesRoute: EdinburghAirportTaxiPricesRoute,
   EdinburghChauffeurRoute: EdinburghChauffeurRoute,
   EventTransportRoute: EventTransportRoute,
   FamilyAirportTransfersRoute: FamilyAirportTransfersRoute,
