@@ -369,13 +369,37 @@ export async function getTourDetailImpl(client: any, by: { slug: string } | { id
   const { data: template, error } = await query.maybeSingle();
   if (error || !template) return null;
 
-  const { data: joinRows } = await client
+  const tid = (template as any).id as string;
+  // Everything below depends only on the template id, so fetch it together
+  // instead of one round trip after another (tour pages were ~2s to render).
+  const [joinRes, [rates, fixed], relatedRes, reviewRes] = await Promise.all([
+    client
     .from("scenic_route_template_pois")
     .select(
       `stop_order, mandatory, default_selected, recommended, recommended_visit_minutes, points_of_interest!inner(${POI_FIELDS}, active)`,
     )
-    .eq("route_template_id", (template as any).id)
-    .order("stop_order", { ascending: true });
+    .eq("route_template_id", tid)
+    .order("stop_order", { ascending: true }),
+    Promise.all([tourClassRates(), fixedTourPrices([tid])]),
+    client
+      .from("scenic_route_templates")
+      .select("slug, name")
+      .neq("id", tid)
+      .eq("active", true)
+      .eq("published", true)
+      .order("display_order", { ascending: true })
+      .limit(3),
+    client
+      .from("tour_reviews")
+      .select("reviewer_name, review_date, stars, body, source_url")
+      .eq("template_id", tid)
+      .eq("published", true)
+      .order("review_date", { ascending: false })
+      .limit(20),
+  ]);
+  const joinRows = joinRes.data;
+  const related = relatedRes.data;
+  const reviewRows = reviewRes.data;
 
   const pois: PublicPoiCard[] = (joinRows ?? [])
     .filter((r: any) => r.points_of_interest?.active)
@@ -417,30 +441,12 @@ export async function getTourDetailImpl(client: any, by: { slug: string } | { id
   };
   // Same rule as the lists: cached price, else the hourly day rate. The cache
   // refresh runs in the background so this view never shows a different price.
-  const [rates, fixed] = await Promise.all([tourClassRates(), fixedTourPrices([t.id])]);
   const classPrices = tourClassPricesPence(t, rates, fixed);
   if (cache.price_pence == null && !classPrices.length) void refreshStartingPriceCache(t.id).catch(() => null);
   cache.price_pence = tourStartingPricePence(t, rates, fixed);
   const priceCovers = tourCoversFor(t, rates, fixed);
 
 
-  // Related slugs — up to 3 other published tours by display order.
-  const { data: related } = await client
-    .from("scenic_route_templates")
-    .select("slug, name")
-    .neq("id", t.id)
-    .eq("active", true)
-    .eq("published", true)
-    .order("display_order", { ascending: true })
-    .limit(3);
-
-  const { data: reviewRows } = await client
-    .from("tour_reviews")
-    .select("reviewer_name, review_date, stars, body, source_url")
-    .eq("template_id", t.id)
-    .eq("published", true)
-    .order("review_date", { ascending: false })
-    .limit(20);
 
   return {
     id: t.id,
