@@ -64,7 +64,7 @@ export const PUBLIC_ROUTES = [
   "/corporate-booking", "/contact", "/reviews", "/faq",
   "/booking-policy", "/refund-policy", "/accessibility",
   "/privacy", "/terms", "/cookies",
-  "/private-hire", "/executive-transfers", "/long-distance-transfers", "/group-transfers", "/minibus-hire", "/coach-hire", "/cruise-transfers", "/university-transfers", "/hospital-transfers", "/event-transport",
+  "/private-hire", "/executive-transfers", "/long-distance-transfers", "/group-transfers", "/minibus-hire", "/coach-hire", "/cruise-transfers", "/university-transfers", "/family-airport-transfers", "/hotel-transfers", "/late-night-airport-transfers", "/hospital-transfers", "/event-transport",
   "/travel-solutions", "/travel-solutions/business-travel", "/travel-solutions/student-travel", "/travel-solutions/family-travel", "/travel-solutions/group-travel", "/travel-solutions/event-travel",
   "/blog",
   "/areas", "/airports", "/stations", "/cruise-ports", "/universities",

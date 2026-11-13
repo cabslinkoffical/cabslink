@@ -187,6 +187,9 @@ const MAIN_SERVICES: MainService[] = [
       { icon: Accessibility, title: "Wheelchair Accessible", desc: "Ramp-equipped vehicles with trained drivers.", to: "/accessibility" },
       { icon: Stethoscope, title: "Hospital Transfers", desc: "Appointment and discharge travel with door-to-door assistance.", to: "/hospital-transfers" },
       { icon: GraduationCap, title: "University Transfers", desc: "Term-start, campus and student arrival transfers.", to: "/university-transfers" },
+      { icon: Users, title: "Family Airport Transfers", desc: "Vehicles sized for children and luggage, with child seats as extras.", to: "/family-airport-transfers" },
+      { icon: Hotel, title: "Hotel Transfers", desc: "Airports and stations to your hotel entrance.", to: "/hotel-transfers" },
+      { icon: Clock, title: "Late-Night Airport Transfers", desc: "Late arrivals and early flights at any hour.", to: "/late-night-airport-transfers" },
     ],
   },
 ];

@@ -13,6 +13,7 @@ import hospitalImg from "@/assets/services/hospital.jpg";
 import universityImg from "@/assets/services/university.jpg";
 import longDistanceImg from "@/assets/services/long-distance.jpg";
 import groupImg from "@/assets/services/group.jpg";
+import { PAGE_IMAGES } from "@/content/page-images";
 
 const commonIncluded = [
   "Fixed price confirmed before you travel",
@@ -317,6 +318,121 @@ export const SERVICE_PILLARS: Record<string, PillarContent> = {
       { q: "Which cruise ports do you serve?", a: "All Scottish ports including Greenock, Rosyth, Leith, South Queensferry and Invergordon, plus long-distance runs to Southampton, Liverpool and Newcastle." },
       { q: "How early should we arrive at the terminal?", a: "Cruise lines usually issue a boarding window. We aim to have you at the terminal at the start of yours, allowing for traffic on the day." },
       { q: "Can you collect us from the airport before a cruise?", a: "Yes. Fly-cruise transfers are one of our most common bookings. Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late." },
+    ],
+  },
+
+  "family-airport-transfers": {
+    id: "family-airport-transfers",
+    eyebrow: "Family travel",
+    h1: "Family airport transfers with room for children, cases and buggies.",
+    subtitle:
+      "One pre-booked vehicle for the whole family, sized for your party and luggage, with child seats available as extras when you book.",
+    breadcrumbLabel: "Family Airport Transfers",
+    metaTitle: "Family Airport Transfers Scotland | Cabslink",
+    metaDescription:
+      "Family airport transfers across Scotland. Vehicles sized for children, cases and buggies, child seats as bookable extras and a fixed price.",
+    image: PAGE_IMAGES["/family-airport-transfers"]!.src,
+    imageAlt: PAGE_IMAGES["/family-airport-transfers"]!.alt,
+    intro: {
+      title: "The whole family in one car, priced before you fly",
+      body: "Travelling with children means more bags, a buggy and less patience for queues. Tell us how many adults, children and cases are travelling and we allocate a vehicle class that fits them all: an estate, the Seven-Seater MPV or the eight-seater van. Child seats are added per seat when you book, so the seat is fitted before you land.",
+    },
+    features: [
+      { icon: "luggage", title: "Sized for your luggage", desc: "Party size and case count decide the vehicle, so the buggy fits too." },
+      { icon: "plane", title: "Flight-tracked arrivals", desc: "Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late." },
+      { icon: "card", title: "One fixed price", desc: "The price is for the whole vehicle, not per passenger." },
+      { icon: "pin", title: "Door to door", desc: "Straight from the terminal to your home, hotel or holiday let." },
+    ],
+    steps: [
+      { title: "Enter your journey", desc: "Airport, address, date and flight number." },
+      { title: "Confirm passengers and bags", desc: "Count children as passengers so every seat is planned." },
+      { title: "Add child seats", desc: "Choose the seat type for each child who needs one." },
+      { title: "Travel together", desc: "One vehicle, no changes, luggage loaded for you." },
+    ],
+    included: commonIncluded,
+    coverage: DEFAULT_COVERAGE,
+    related: ["airport-transfers", "group-transfers", "private-hire"],
+    faqs: [
+      { q: "Do you provide child seats?", a: "Yes. Child seats are bookable extras priced per seat, and you can add one seat for each child passenger when you book." },
+      { q: "Do children count as passengers?", a: "Yes. Every child, including babies in a seat, counts as a passenger, so include them when you confirm your party size." },
+      { q: "Which vehicle suits a family of five or six?", a: "The Seven-Seater MPV carries up to 6 passengers. For larger families or a lot of luggage, the eight-seater van carries up to 8." },
+      { q: "What happens if our flight is delayed?", a: "Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late. Airport pickups include 60 minutes of free waiting from the actual landing time." },
+    ],
+  },
+
+  "hotel-transfers": {
+    id: "hotel-transfers",
+    eyebrow: "Hotel travel",
+    h1: "Hotel transfers from airports and stations to your door.",
+    subtitle:
+      "Pre-booked, fixed-price journeys between airports, stations and hotels across Scotland, set to the hotel entrance rather than a postcode.",
+    breadcrumbLabel: "Hotel Transfers",
+    metaTitle: "Hotel Transfers Edinburgh & Scotland | Cabslink",
+    metaDescription:
+      "Hotel transfers in Edinburgh and across Scotland. Fixed-price pickups from airports and stations to your hotel entrance, booked online 24/7.",
+    image: PAGE_IMAGES["/hotel-transfers"]!.src,
+    imageAlt: PAGE_IMAGES["/hotel-transfers"]!.alt,
+    intro: {
+      title: "From arrivals to reception in one journey",
+      body: "Hotel transfers are point-to-point private hire: you name the hotel when you book and the driver goes to its entrance, not the nearest postcode. They work in both directions, so checkout to the airport or station is booked the same way, and hotel-to-hotel moves during a Scottish trip are priced as fixed legs.",
+    },
+    features: [
+      { icon: "pin", title: "Hotel entrance drops", desc: "We use the hotel's own entrance or the closest accessible street." },
+      { icon: "plane", title: "Airport and station pickups", desc: "Flight-tracked airport collections and timed station pickups." },
+      { icon: "card", title: "Fixed price", desc: "Agreed before you travel, with tolls and airport fees included." },
+      { icon: "luggage", title: "Space for luggage", desc: "Vehicle class chosen for your party and cases." },
+    ],
+    steps: [
+      { title: "Enter the hotel", desc: "Search the hotel name as pickup or drop-off." },
+      { title: "Add travel details", desc: "Flight number or train arrival time." },
+      { title: "Confirm your vehicle", desc: "Choose a class that fits passengers and bags." },
+      { title: "Arrive at reception", desc: "Driven straight to the hotel entrance." },
+    ],
+    included: commonIncluded,
+    coverage: DEFAULT_COVERAGE,
+    related: ["airport-transfers", "private-hire", "executive-transfers"],
+    faqs: [
+      { q: "Can I book a pickup from my hotel to the airport?", a: "Yes. Enter the hotel as your pickup and the airport as your destination; the price is fixed when you book." },
+      { q: "Do you go to hotels outside Edinburgh?", a: "Yes. Hotel transfers run across Scotland and the UK, including countryside and golf hotels." },
+      { q: "Can I add meet and greet?", a: "Meet and greet is available on every booking for a small extra charge, shown in your quote: your driver waits in arrivals with a name board." },
+    ],
+  },
+
+  "late-night-airport-transfers": {
+    id: "late-night-airport-transfers",
+    eyebrow: "Late-night travel",
+    h1: "Late-night airport transfers for late arrivals and early flights.",
+    subtitle:
+      "Pre-booked airport journeys at any hour, so a midnight landing or a 05:00 check-in does not depend on finding a taxi or the first tram.",
+    breadcrumbLabel: "Late-Night Airport Transfers",
+    metaTitle: "Late-Night Airport Transfers Scotland | Cabslink",
+    metaDescription:
+      "Late-night airport transfers across Scotland. Pre-booked pickups for late arrivals and early flights at any hour, with flight tracking and a fixed price.",
+    image: PAGE_IMAGES["/late-night-airport-transfers"]!.src,
+    imageAlt: PAGE_IMAGES["/late-night-airport-transfers"]!.alt,
+    intro: {
+      title: "Booked ahead, so the hour does not matter",
+      body: "Late arrivals and very early departures are when public transport is thinnest and taxi queues are longest. A pre-booked transfer is set against your flight: arrivals are tracked so the driver follows a delay, and early departures are collected from your door with time for check-in. The price is fixed when you book and does not change with the hour of travel on the day.",
+    },
+    features: [
+      { icon: "plane", title: "Delays followed", desc: "Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late." },
+      { icon: "card", title: "Fixed price", desc: "Confirmed before you travel, with no meter running." },
+      { icon: "pin", title: "Door to door", desc: "Home, hotel or campus, without a late-night change." },
+      { icon: "luggage", title: "Right-sized vehicle", desc: "Chosen for your passengers and bags." },
+    ],
+    steps: [
+      { title: "Book ahead", desc: "Enter your journey and flight number." },
+      { title: "We track the flight", desc: "Your pickup follows the actual landing time." },
+      { title: "Meet your driver", desc: "Add meet and greet if you want a name board in arrivals." },
+      { title: "Straight home", desc: "One journey to your door." },
+    ],
+    included: commonIncluded,
+    coverage: DEFAULT_COVERAGE,
+    related: ["airport-transfers", "private-hire", "long-distance-transfers"],
+    faqs: [
+      { q: "Can I book a pickup after midnight?", a: "Yes. Airport transfers can be booked for any time of day or night." },
+      { q: "What if my late flight lands even later?", a: "Airport pickups include 60 minutes of free waiting from the actual landing time, and your flight number lets us follow the delay." },
+      { q: "Can I book an early-morning departure?", a: "Yes. Enter your departure time and pickup address and set your collection with enough time for check-in." },
     ],
   },
 
