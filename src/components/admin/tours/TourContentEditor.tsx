@@ -8,6 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { SeoLiveCheck } from "@/components/admin/SeoLiveCheck";
+import { tourMetaDescription, tourMetaTitle } from "@/lib/seo/tour-meta";
+import { DESC_MAX } from "@/lib/seo-live-checks";
 import { listTourCategories } from "@/lib/tour-admin-tools.functions";
 import {
   updateTourContent, listTourReviews, upsertTourReview, deleteTourReview,
@@ -49,6 +52,8 @@ export function TourContentEditor({ t, onSaved }: { t: any; onSaved: () => void 
     onError: (e: any) => toast.error(e?.message ?? "Save failed"),
   });
   const total = words(t.description, f.itinerary_md, f.included_md, f.excluded_md, f.suits_md, ...faq.flatMap((x) => [x.q, x.a]));
+  const draft = { ...t, ...f, faq };
+  const body = [t.description, f.itinerary_md, f.included_md, f.excluded_md, f.suits_md, ...faq.flatMap((x) => [x.q, x.a])].filter(Boolean).join("\n\n");
   const area = (k: keyof typeof f, label: string, hint: string, rows = 5) => (
     <div className="md:col-span-2">
       <Label className="mb-1 block text-xs uppercase text-muted-foreground">{label}</Label>
@@ -59,6 +64,7 @@ export function TourContentEditor({ t, onSaved }: { t: any; onSaved: () => void 
 
   return (
     <div className="space-y-5">
+      <SeoLiveCheck path={`/tours/${t.slug}`} title={tourMetaTitle(draft)} description={tourMetaDescription(draft)} h1={t.name} slug={t.slug} body={body} />
       <p className={`text-xs ${total >= 600 ? "text-success" : "text-warning"}`}>
         {total} words of written content on this tour page{total < 600 ? " — aim for at least 600." : "."}
       </p>
@@ -77,8 +83,8 @@ export function TourContentEditor({ t, onSaved }: { t: any; onSaved: () => void 
             onChange={(e) => setF({ ...f, duration_hours: e.target.value })} />
         </div>
         <div className="md:col-span-2">
-          <Label className="mb-2 block text-xs uppercase text-muted-foreground">Google description ({f.meta_description.length} characters — aim for 110–160)</Label>
-          <Input maxLength={160} value={f.meta_description} onChange={(e) => setF({ ...f, meta_description: e.target.value })} />
+          <Label htmlFor="tour-meta-description" className="mb-2 block text-xs uppercase text-muted-foreground">Google description ({f.meta_description.length}/{DESC_MAX} characters)</Label>
+          <Input id="tour-meta-description" value={f.meta_description} onChange={(e) => setF({ ...f, meta_description: e.target.value })} />
         </div>
         <label className="flex items-center gap-3 text-sm md:col-span-2">
           <Switch checked={f.signature} onCheckedChange={(v) => setF({ ...f, signature: v })} />

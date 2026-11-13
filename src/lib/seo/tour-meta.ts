@@ -6,6 +6,7 @@
  */
 import { tourSeo } from "@/lib/seo/tour-seo";
 import { tourExtras } from "@/content/tour-extras";
+import { DESC_MAX } from "@/lib/seo-live-checks";
 
 export type TourMetaInput = {
   slug: string;
@@ -76,8 +77,8 @@ export function tourSeoChecks(t: any, stopCount: number): { checks: SeoCheck[]; 
     { id: "title", label: "Page title fits Google (60 characters or fewer)", ok: title.length <= 60, hint: `${title.length} characters` },
     {
       id: "desc",
-      label: "Own search description (110–160 characters)",
-      ok: !!t.meta_description?.trim() && desc.length >= 110 && desc.length <= 160,
+      label: `Own search description (110–${DESC_MAX} characters)`,
+      ok: !!t.meta_description?.trim() && desc.length >= 110 && desc.length <= DESC_MAX,
       hint: t.meta_description?.trim() ? `${desc.length} characters` : "Using an automatic description — write your own",
     },
     { id: "image", label: "Main photo added", ok: !!t.hero_image_url, hint: "Shown on the page and when shared" },
