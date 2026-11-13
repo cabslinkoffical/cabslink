@@ -14,7 +14,7 @@ export function GoogleReviewsStrip({ className = "" }: { className?: string }) {
         <p className="text-xs font-semibold text-foreground">
           {hasRating ? `${data.rating.toFixed(1)}/5 · ${data.reviewCount} Google reviews` : "Reviews on Google"}
         </p>
-        <a href={data?.profileUrl ?? GOOGLE_PROFILE_URL} target="_blank" rel="noopener noreferrer nofollow" className="ml-auto inline-flex items-center gap-1 text-xs font-semibold text-foreground underline decoration-primary underline-offset-4">
+        <a href={data?.profileUrl ?? GOOGLE_PROFILE_URL} target="_blank" rel="noopener noreferrer nofollow" className="ml-auto inline-flex min-h-6 items-center gap-1 text-xs font-semibold text-foreground underline decoration-primary underline-offset-4">
           Read reviews <ArrowUpRight className="size-3" />
         </a>
       </div>
