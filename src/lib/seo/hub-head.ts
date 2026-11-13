@@ -5,7 +5,8 @@ import { normalizeHead } from "@/lib/seo/page-head";
  * guarantees every hub emits the same CollectionPage + BreadcrumbList graph,
  * with an optional ItemList of the pages the hub links to.
  */
-import { collectionPageSchema } from "@/components/seo/schema";
+import { collectionPageSchema, faqSchema } from "@/components/seo/schema";
+import { HUB_CONTENT } from "@/lib/hub-content";
 import { safeJsonLd } from "@/lib/safe-json-ld";
 import { HUBS, type HubKey } from "@/lib/hub-config";
 
@@ -61,6 +62,10 @@ function hubHeadRaw(key: HubKey, items?: HubListItem[]) {
             children: safeJsonLd(itemListSchema(cfg.title, items)),
           },
         ]
+      : []),
+    // Hubs that render an FAQ block carry matching FAQPage markup.
+    ...(HUB_CONTENT[key]?.faqs?.length
+      ? [{ type: "application/ld+json", children: safeJsonLd(faqSchema(HUB_CONTENT[key].faqs)) }]
       : []),
   ];
 

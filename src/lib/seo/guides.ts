@@ -65,6 +65,8 @@ export type GuideRecord = {
   intro: string[];
   /** Optional mode-by-mode comparison table (same component as route pages). */
   comparison?: JourneyTransportComparison;
+  /** Show a "Get a fixed price" button straight after the comparison table. */
+  afterComparisonCta?: boolean;
   /** Optional day-trip listing. */
   dayTrips?: DayTripEntry[];
   /** Prose sections rendered after the comparison / listing. */
@@ -88,11 +90,31 @@ export const GUIDES: GuideRecord[] = [
       "Tram, bus and taxi compared with the operators' own published fares, journey times and first and last departures.",
     lastChecked: LAST_CHECKED,
     intro: [
+      "The cheapest way from Edinburgh Airport to the city centre is the Airlink 100 bus at £6.00, and the tram costs £7.90; both take about 30 minutes. A private car takes around 33 minutes for the 10 miles, goes door to door at any hour, and is usually the better choice for groups, heavy luggage, child seats or flights outside tram hours.",
       "Ten miles separate Edinburgh Airport from Princes Street, and there are three sensible ways to cover them: the tram, the Airlink 100 bus, or a car. This guide gives the real fares and times so you can pick on facts rather than on whoever shouts loudest in the arrivals hall.",
       "The short version: if you are travelling light between 06:30 and 22:52 and staying near the tram line, public transport is much cheaper and about as fast. The Airlink bus is the cheapest option at £6.00 and runs 24 hours. A car is worth its price when your flight is outside tram hours, when there are three or four of you, when you have a child who needs a proper seat, or when your address is up a set of Old Town steps.",
       "We run airport transfers for a living, so treat the section on when a car makes sense as what it is — our own case, stated plainly, next to the cheaper alternatives.",
     ],
-    comparison: JOURNEY_TRANSPORT["edinburgh-airport-to-city-centre"],
+    comparison: {
+      ...JOURNEY_TRANSPORT["edinburgh-airport-to-city-centre"],
+      options: [
+        ...JOURNEY_TRANSPORT["edinburgh-airport-to-city-centre"].options.filter((o) => o.kind !== "car"),
+        {
+          kind: "taxi",
+          operator: "Airport taxi rank",
+          service: "Black taxi from the rank",
+          // TODO(owner): add the published black taxi fare and journey time from Edinburgh Airport to the city centre, with its source.
+          fare: "Metered fare — not yet listed here",
+          duration: "Journey time not yet listed here",
+          frequency: "Taxi rank outside the terminal",
+          stops: "Terminal rank to your address.",
+          tradeOff: "No booking needed, but the fare runs on the meter, so traffic changes what you pay.",
+          source: "https://www.edinburghairport.com/transport-links",
+        },
+        ...JOURNEY_TRANSPORT["edinburgh-airport-to-city-centre"].options.filter((o) => o.kind === "car"),
+      ],
+    },
+    afterComparisonCta: true,
     sections: [
       {
         heading: "Where each option actually leaves you",
@@ -125,29 +147,35 @@ export const GUIDES: GuideRecord[] = [
     ],
     faqs: [
       {
-        q: "How much is the tram from Edinburgh Airport to the city centre?",
-        a: "An Airport Single is £7.90 and an Airport Open Return is £9.50. The journey takes about 30 minutes to the city centre, with trams every 7 minutes. The first tram from the airport is 06:30 and the last is 22:52.",
-      },
-      {
-        q: "How much is the Airlink bus?",
-        a: "The Airlink 100 is £6.00 for an adult single and £8.50 return, with child fares of £3.00 single and £4.25 return, and a family return at £22.00. It takes about 30 minutes to Waverley Bridge and runs 24 hours a day.",
-      },
-      {
-        q: "Is the tram or the bus better?",
-        a: "The bus is cheaper and runs all night, and it stops closer to Waverley station. The tram has level boarding, is unaffected by road traffic and serves the New Town and Leith directly. For a Waverley train, take the bus; for a New Town hotel in daylight hours, take the tram.",
-      },
-      {
-        q: "How much is a taxi from Edinburgh Airport to the city centre?",
-        a: "Cabslink quotes a fixed price per vehicle before you book, shown on our Edinburgh Airport route page. It is more than a £6.00 bus fare for a solo traveller — the case for it is groups, early or late flights, child seats and addresses the tram and bus do not reach.",
+        q: "Is the tram or a taxi better from Edinburgh Airport?",
+        a: "For one person travelling light between 06:30 and 22:52, the tram is cheaper at £7.90 and takes about 30 minutes. A pre-booked private car is better for groups, lots of luggage, child seats, flights outside tram hours or addresses away from the tram line, and you know the fixed price before you travel.",
       },
       {
         q: "How long does it take to get from Edinburgh Airport to the city centre?",
-        a: "About 30 minutes by tram, about 30 minutes by Airlink bus, and around 33 minutes by car off-peak for the 10-mile drive. Expect 45 to 60 minutes by road at rush hour or during the August festival.",
+        a: "About 30 minutes by tram, about 30 minutes by Airlink bus, and around 33 minutes by car off-peak for the 10-mile drive. Expect longer by road at rush hour or during the August festival.",
+      },
+      {
+        q: "Where do I meet my Cabslink driver at Edinburgh Airport?",
+        // TODO(owner): confirm the exact Edinburgh Airport meeting point for drivers.
+        a: "Your driver's details and the meeting arrangements are sent with your booking confirmation. With Meet & Greet, available on every booking for a small extra charge, your driver waits in arrivals with a name board.",
+      },
+      {
+        q: "What happens if my flight lands late?",
+        a: "Add your flight number when you book and our team will track your flight and adjust your pickup if it lands early or late. Waiting time of 60 minutes is free from your flight's actual landing time.",
+      },
+      {
+        q: "How much luggage can I bring?",
+        a: "Choose the vehicle that fits your bags when you book. Our saloons take up to four passengers with two large cases, the Estate Car four passengers with three cases, the Seven-Seater MPV six passengers with three cases and the Eight-Seater Van eight passengers with eight cases.",
+      },
+      {
+        q: "Can I book a child seat?",
+        a: "Yes. Add child seats as an extra when you book, one per child; each seat is priced individually and shown in your quote before you pay.",
       },
     ],
     related: [
       { label: "Edinburgh Airport transfers", to: "/airports/edinburgh-airport" },
       { label: "Airport to city centre fares", to: "/routes/edinburgh-airport-to-city-centre" },
+      { label: "Book your transfer", to: "/book" },
       { label: "Day trips from Edinburgh", to: "/guides/day-trips-from-edinburgh" },
       { label: "Private tours from Edinburgh", to: "/tours" },
     ],

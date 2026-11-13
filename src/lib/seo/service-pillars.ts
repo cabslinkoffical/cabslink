@@ -284,7 +284,7 @@ export const SERVICE_PILLARS: Record<string, PillarContent> = {
     breadcrumbLabel: "Cruise Transfers",
     metaTitle: "Cruise Port Transfers — Greenock & Rosyth | Cabslink",
     metaDescription:
-      "Private cruise transfers to Scottish and UK ports. Greenock, Rosyth, Leith, Invergordon and Southampton with cruise-luggage space and boarding-time planning.",
+      "Cruise port transfers to Greenock, Rosyth, Leith, Invergordon and Southampton, with space for cruise luggage and timed to your boarding window.",
     image: cruiseImg,
     imageAlt: "Cunard cruise ship Queen Elizabeth anchored in the Firth of Forth",
     intro: {

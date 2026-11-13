@@ -11,7 +11,7 @@ export const DEFAULT_OG_IMAGE = "https://cabslink.com/og-image.jpg";
 
 export const DEFAULT_TITLE = "Edinburgh Airport Transfers & Private Tours | Cabslink";
 export const DEFAULT_DESCRIPTION =
-  "Fixed-fare Edinburgh Airport transfers, private tours and UK private hire with Cabslink. Meet and greet, flight tracking and secure card payment by Stripe.";
+  "Fixed-price Edinburgh Airport transfers, private tours and UK private hire with Cabslink. Meet and greet, flight tracking and secure card payment by Stripe.";
 
 export type PageHeadInput = {
   title: string;

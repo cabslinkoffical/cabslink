@@ -17,7 +17,7 @@ export const Route = createFileRoute("/airports/")({
   head: () => normalizeHead({
     meta: [
       { title: "UK Airport Transfers — Every Major Airport | Cabslink" },
-      { name: "description", content: "Fixed-fare private transfers to every major UK airport. Meet & greet, flight tracking, 24/7 dispatch across England, Scotland, Wales and Northern Ireland." },
+      { name: "description", content: "Fixed-price private transfers to every major UK airport. Meet & greet, flight tracking, 24/7 dispatch across England, Scotland, Wales and Northern Ireland." },
       { property: "og:title", content: "UK Airport Transfers — Every Major Airport" },
       { property: "og:description", content: "Private transfers to every major UK airport. Fixed prices, meet & greet, flight tracking." },
       { property: "og:type", content: "website" },
@@ -98,7 +98,7 @@ function AirportsIndex() {
       <PageHero
         eyebrow="Airport Transfers"
         title="Every major UK airport."
-        subtitle="Fixed-fare private transfers with flight tracking, optional meet & greet and 24/7 dispatch."
+        subtitle="Fixed-price private transfers with flight tracking, optional meet & greet and 24/7 dispatch."
       />
       <section className="section-y">
         <div className="container-x space-y-12">

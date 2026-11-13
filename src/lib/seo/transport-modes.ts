@@ -27,7 +27,7 @@
  *  - firstbus.co.uk Glasgow Airport Express timetable (£8.50 single)
  */
 
-export type TransportModeKind = "bus" | "coach" | "train" | "tram" | "park-and-ride" | "car";
+export type TransportModeKind = "bus" | "coach" | "train" | "tram" | "park-and-ride" | "car" | "taxi";
 
 export type TransportOption = {
   kind: TransportModeKind;

@@ -76,7 +76,8 @@ export const Route = createFileRoute("/tours/$slug")({
             type: "application/ld+json",
             children: JSON.stringify({
               "@context": "https://schema.org",
-              "@type": "TouristTrip",
+              "@type": ["Service", "TouristTrip"],
+            serviceType: "Private driver tour",
               name: draft.h1,
               description: draft.metaDescription,
               touristType: "Private driver tour",
@@ -133,7 +134,8 @@ export const Route = createFileRoute("/tours/$slug")({
           type: "application/ld+json",
           children: JSON.stringify({
             "@context": "https://schema.org",
-            "@type": "TouristTrip",
+            "@type": ["Service", "TouristTrip"],
+            serviceType: "Private driver tour",
             name: seo?.h1 ?? d.name,
             description: desc,
             image: d.hero_image_url ?? undefined,
