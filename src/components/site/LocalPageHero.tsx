@@ -1,3 +1,4 @@
+import { coverPromise } from "@/lib/cancellation-cover";
 import type { ComponentType, ReactNode } from "react";
 import { BadgeCheck, Phone } from "lucide-react";
 import { FACT_TEXT } from "@/lib/site-facts";
@@ -122,6 +123,13 @@ export function LocalPageHero({
               <BadgeCheck className="size-4 shrink-0 text-[var(--gold)]" aria-hidden />
               {FACT_TEXT.feesIncludedShort}
             </p>
+            <div className="mt-3 text-xs text-[var(--navy-foreground)]" aria-label="What's included">
+              <p className="font-semibold uppercase tracking-[0.18em] text-[var(--gold)]">What's included</p>
+              <ul className="mt-1 space-y-1">
+                <li className="flex items-center gap-2"><BadgeCheck className="size-4 shrink-0 text-[var(--gold)]" aria-hidden />60 minutes free waiting from actual landing (airport pickups with a flight number)</li>
+                <li className="flex items-center gap-2"><BadgeCheck className="size-4 shrink-0 text-[var(--gold)]" aria-hidden />{coverPromise("standard")} (standard cover)</li>
+              </ul>
+            </div>
           </div>
         </div>
       </section>
