@@ -85,7 +85,7 @@ export function BlogArticle({ post, related }: { post: BlogPostFull; related: Bl
         {/* Content grid */}
         <div className="container-x py-12 md:py-16 grid lg:grid-cols-[minmax(0,1fr)_340px] xl:grid-cols-[220px_minmax(0,1fr)_340px] gap-10">
           {/* TOC */}
-          <aside className="hidden lg:block">
+          <aside className="hidden xl:block">
             {post.toc.length > 0 && (
               <div className="sticky top-24 rounded-2xl border border-[var(--navy)]/10 bg-card p-5">
                 <p className="text-xs uppercase tracking-[0.2em] text-[var(--gold-ink)] font-semibold mb-3">On this page</p>
