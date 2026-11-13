@@ -21,6 +21,17 @@ describe("tour Google title and SEO checklist", () => {
     expect(checks.find((c) => c.id === "desc")?.ok).toBe(false);
   });
 
+  it("accepts a staff description of 155 characters", () => {
+    const { checks } = tourSeoChecks({ slug: "no-such-tour", name: "T", meta_description: "a".repeat(155) }, 2);
+    expect(checks.find((c) => c.id === "desc")?.ok).toBe(true);
+  });
+
+  it("rejects a staff description of 156 characters without truncating saved text", () => {
+    const draft = { slug: "no-such-tour", name: "T", meta_description: "a".repeat(156) };
+    expect(tourMetaDescription(draft)).toHaveLength(156);
+    expect(tourSeoChecks(draft, 2).checks.find((c) => c.id === "desc")?.ok).toBe(false);
+  });
+
   it("scores a tour with no stops, photo or content below 50%", () => {
     expect(tourSeoChecks({ slug: "no-such-tour", name: "T" }, 0).score).toBeLessThan(50);
   });
