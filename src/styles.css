@@ -687,6 +687,16 @@ input[type="time"] {
   border-radius: 0.5rem;
   margin-top: 0.75rem;
 }
+@container (max-width: 279px) {
+  [data-booking-variant="compact"] [data-booking-fields] > div:has(> [data-booking-field] input[data-field]) {
+    grid-column: span 2;
+  }
+}
+@media (max-width: 1023px) {
+  .booking-sticky-panel {
+    margin-bottom: 4rem;
+  }
+}
 
 /* Hide scrollbars on horizontally scrollable mobile strips */
 @utility no-scrollbar {
