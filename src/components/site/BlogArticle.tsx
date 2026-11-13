@@ -4,6 +4,7 @@ import { extractToc, remarkHeadingIds } from "@/lib/blog-markdown";
 import remarkGfm from "remark-gfm";
 import { Clock, Calendar, User } from "lucide-react";
 import { SiteLayout } from "./SiteLayout";
+import { BookingWidget } from "./BookingWidget";
 import { BlogPostCard } from "./BlogPostCard";
 import { FaqBlock } from "@/components/seo/FaqBlock";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
@@ -82,9 +83,9 @@ export function BlogArticle({ post, related }: { post: BlogPostFull; related: Bl
         )}
 
         {/* Content grid */}
-        <div className="container-x py-12 md:py-16 grid lg:grid-cols-[240px_minmax(0,1fr)_260px] gap-10">
+        <div className="container-x py-12 md:py-16 grid lg:grid-cols-[minmax(0,1fr)_340px] xl:grid-cols-[220px_minmax(0,1fr)_340px] gap-10">
           {/* TOC */}
-          <aside className="hidden lg:block">
+          <aside className="hidden xl:block">
             {post.toc.length > 0 && (
               <div className="sticky top-24 rounded-2xl border border-[var(--navy)]/10 bg-card p-5">
                 <p className="text-xs uppercase tracking-[0.2em] text-[var(--gold-ink)] font-semibold mb-3">On this page</p>
@@ -158,13 +159,10 @@ export function BlogArticle({ post, related }: { post: BlogPostFull; related: Bl
           <aside className="space-y-6">
             <div className="sticky top-24 rounded-2xl bg-[var(--navy)] text-navy-foreground p-6">
               <p className="text-xs uppercase tracking-[0.3em] text-[var(--gold)] mb-3">Need a car?</p>
-              <p className="font-display text-xl leading-tight">Book a private airport transfer in 60 seconds.</p>
-              <Link
-                to="/book"
-                className="mt-5 inline-flex w-full items-center justify-center rounded-full bg-[var(--gold)] px-5 py-3 text-sm font-semibold text-[var(--navy)] hover:opacity-90"
-              >
-                Get an instant quote
-              </Link>
+              <p className="font-display text-xl leading-tight">Get a fixed price for your journey.</p>
+              <div className="mt-5 @container">
+                <BookingWidget tone="dark" />
+              </div>
             </div>
           </aside>
         </div>
