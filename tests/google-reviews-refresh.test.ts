@@ -11,7 +11,12 @@ vi.mock("@supabase/supabase-js", () => ({
   }),
 }));
 vi.mock("@/integrations/supabase/client.server", () => ({
-  supabaseAdmin: { from: () => ({ upsert }) },
+  supabaseAdmin: {
+    from: () => ({
+      upsert,
+      select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: row.data ? row : null, error: null }) }) }),
+    }),
+  },
 }));
 
 const googleBody = {
