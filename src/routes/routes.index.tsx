@@ -49,7 +49,7 @@ function RoutesHub() {
     <SiteLayout cta={{ heading: <>Book a <span className="text-gold">fixed-price route</span></>, label: "Get a route price", trackAs: "final_cta_routes" }}>
       <PageHero
         eyebrow="Popular routes"
-        title="UK Transfer Routes — Fixed Fares, No Surprises"
+        title="UK Transfer Routes — Fixed Prices, No Surprises"
         subtitle="Real road distances, realistic door-to-door times and a price fixed before you travel — not a meter."
         primaryLabel="Get a fixed price"
         primaryTo="/book"

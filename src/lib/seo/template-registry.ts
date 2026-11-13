@@ -77,7 +77,7 @@ export const TEMPLATES: Record<DestinationType, TemplateConfig> = {
   location: {
     hubLabel: "Areas We Cover",
     hubSegment: "areas",
-    titleTemplate: (d) => `${d.display_name ?? d.name} Taxis & Private Transfers — Fixed Fares`,
+    titleTemplate: (d) => `${d.display_name ?? d.name} Taxis & Private Transfers — Fixed Prices`,
     descriptionStem: (d) => `Pre-booked taxis and airport transfers serving ${d.display_name ?? d.name}. Fixed prices, professional drivers, book online or by phone.`,
     typeSchema: (d) => [serviceAreaSchema(d)],
     sections: commonSections,
@@ -85,7 +85,7 @@ export const TEMPLATES: Record<DestinationType, TemplateConfig> = {
   city: {
     hubLabel: "Cities",
     hubSegment: "areas",
-    titleTemplate: (d) => `${d.display_name ?? d.name} Taxis & Airport Transfers — Fixed Fares`,
+    titleTemplate: (d) => `${d.display_name ?? d.name} Taxis & Airport Transfers — Fixed Prices`,
     descriptionStem: (d) => `Pre-booked taxis, private hire and airport transfers in ${d.display_name ?? d.name}. Fixed prices by vehicle class, no meter, 24/7.`,
     typeSchema: (d) => [serviceAreaSchema(d)],
     sections: commonSections,
@@ -93,7 +93,7 @@ export const TEMPLATES: Record<DestinationType, TemplateConfig> = {
   town: {
     hubLabel: "Towns",
     hubSegment: "areas",
-    titleTemplate: (d) => `${d.display_name ?? d.name} Taxis & Private Transfers — Fixed Fares`,
+    titleTemplate: (d) => `${d.display_name ?? d.name} Taxis & Private Transfers — Fixed Prices`,
     descriptionStem: (d) => `Pre-booked taxis and airport transfers serving ${d.display_name ?? d.name}. Fixed prices, professional drivers, book online or by phone.`,
     typeSchema: (d) => [serviceAreaSchema(d)],
     sections: commonSections,
@@ -101,7 +101,7 @@ export const TEMPLATES: Record<DestinationType, TemplateConfig> = {
   village: {
     hubLabel: "Villages",
     hubSegment: "areas",
-    titleTemplate: (d) => `${d.display_name ?? d.name} Taxis & Private Transfers — Fixed Fares`,
+    titleTemplate: (d) => `${d.display_name ?? d.name} Taxis & Private Transfers — Fixed Prices`,
     descriptionStem: (d) => `Pre-booked taxis and airport transfers serving ${d.display_name ?? d.name}. Fixed prices, professional drivers, book online or by phone.`,
     typeSchema: (d) => [serviceAreaSchema(d)],
     sections: commonSections,
