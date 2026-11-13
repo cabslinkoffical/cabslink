@@ -156,12 +156,12 @@ export function BlogArticle({ post, related }: { post: BlogPostFull; related: Bl
           </div>
 
           {/* Sidebar CTA */}
-          <aside className="space-y-6">
-            <div className="sticky top-24 rounded-2xl bg-[var(--navy)] text-navy-foreground p-6">
+          <aside className="min-w-0 space-y-6">
+            <div className="rounded-lg bg-navy text-navy-foreground p-4">
               <p className="text-xs uppercase tracking-[0.3em] text-[var(--gold)] mb-3">Need a car?</p>
               <p className="font-display text-xl leading-tight">Get a fixed price for your journey.</p>
               <div className="mt-5 @container">
-                <BookingWidget tone="dark" />
+                <BookingWidget tone="dark" variant="compact" idPrefix="blog-booking" />
               </div>
             </div>
           </aside>

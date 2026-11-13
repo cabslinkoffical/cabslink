@@ -52,7 +52,7 @@ export function BookingWidget({
   idPrefix?: string;
   tone?: "dark" | "light";
   /** "hero" = clean stacked panel for local-page heroes (no tabs, no pill). */
-  variant?: "default" | "hero";
+  variant?: "default" | "hero" | "compact";
   /** Prefills the pickup field with this text and resolves it to a place. */
   initialPickupLabel?: string;
   /** Prefills the drop-off field with this text and resolves it to a place. */
@@ -226,10 +226,10 @@ export function BookingWidget({
 
 
   return (
-    <div ref={rootRef} className="@container w-full max-w-6xl mx-auto">
+    <div ref={rootRef} className="@container w-full min-w-0 max-w-6xl mx-auto">
       {/* Tabs above the pill — local pages show the clean stacked form only. */}
       {variant !== "hero" && (
-      <div className="flex items-center gap-2 mb-3 px-2 -mx-1 overflow-x-auto no-scrollbar @[420px]:mx-0">
+      <div className={variant === "compact" ? "grid grid-cols-1 @[280px]:grid-cols-2 gap-2 mb-3 [&>button]:h-11 [&>button]:w-full [&>button]:min-w-0 [&>button]:px-2 [&>button]:text-xs [&_.booking-control-icon]:hidden" : "flex items-center gap-2 mb-3 px-2 -mx-1 overflow-x-auto no-scrollbar @[420px]:mx-0"}>
         <TabButton tone={tone} active={tab === "quote"} onClick={() => setTab("quote")} icon={<Car className="w-4 h-4" />}>
           Transfers
         </TabButton>
