@@ -226,7 +226,7 @@ export function BookingWidget({
 
 
   return (
-    <div ref={rootRef} className="@container w-full min-w-0 max-w-6xl mx-auto">
+    <div ref={rootRef} data-booking-variant={variant} className="@container w-full min-w-0 max-w-6xl mx-auto">
       {/* Tabs above the pill — local pages show the clean stacked form only. */}
       {variant !== "hero" && (
       <div className={variant === "compact" ? "grid grid-cols-1 @[280px]:grid-cols-2 gap-2 mb-3 [&>button]:h-11 [&>button]:w-full [&>button]:min-w-0 [&>button]:px-2 [&>button]:text-xs [&_.booking-control-icon]:hidden" : "flex items-center gap-2 mb-3 px-2 -mx-1 overflow-x-auto no-scrollbar @[420px]:mx-0"}>
@@ -296,7 +296,7 @@ export function BookingWidget({
           <FormNotice visible={attempted} messages={hourlyErrorList} />
           <div className="bg-white shadow-[var(--shadow-elegant)] border border-black/5 rounded-3xl @[980px]:rounded-full overflow-visible p-2 @[980px]:p-1.5">
 
-            <div className="grid grid-cols-1 @[600px]:grid-cols-2 @[980px]:flex @[980px]:items-stretch gap-1 @[980px]:gap-0">
+            <div data-booking-fields className="grid grid-cols-1 @[600px]:grid-cols-2 @[980px]:flex @[980px]:items-stretch gap-1 @[980px]:gap-0">
               <div className="@[600px]:col-span-2 @[980px]:flex-1 @[980px]:min-w-0" data-invalid={attempted && !!hourlyErrors.pickup}>
                 <FieldCell icon={<MapPin className="w-4 h-4 text-[var(--gold-ink)]" />} label="Pickup" invalid={attempted && !!hourlyErrors.pickup} error={hourlyErrors.pickup}>
                   <PlaceAutocomplete
@@ -410,7 +410,7 @@ export function BookingWidget({
         {/* Main container: rounded card on mobile/tablet, horizontal pill on wide desktop (xl+) */}
 
         <div className="bg-white shadow-[var(--shadow-elegant)] border border-black/5 overflow-visible p-2 @[980px]:p-1.5 rounded-3xl @[980px]:rounded-[2rem]">
-          <div className="grid grid-cols-1 @[600px]:grid-cols-2 @[980px]:flex @[980px]:items-stretch gap-1 @[980px]:gap-0">
+          <div data-booking-fields className="grid grid-cols-1 @[600px]:grid-cols-2 @[980px]:flex @[980px]:items-stretch gap-1 @[980px]:gap-0">
             {/* Pickup */}
             <div className="@[600px]:col-span-2 @[980px]:flex-1 @[980px]:min-w-0" data-invalid={attempted && !!errors.pickup}>
               <FieldCell icon={<MapPin className="w-4 h-4 text-[var(--gold-ink)]" />} label="From" invalid={attempted && !!errors.pickup} error={errors.pickup}>
@@ -899,6 +899,7 @@ function TabButton({ active, onClick, icon, children, tone = "dark" }: { active:
 function FieldCell({ icon, label, children, compact, invalid, error }: { icon: React.ReactNode; label: string; children: React.ReactNode; compact?: boolean; invalid?: boolean; error?: string }) {
   return (
     <div
+      data-booking-field
       className={`flex items-center gap-2.5 px-4 py-2 min-w-0 flex-1 rounded-md border transition-colors ${compact ? "@[980px]:w-[152px] @[980px]:max-w-[152px] @[980px]:flex-none" : ""} ${
         invalid ? "border-destructive bg-destructive/5 ring-1 ring-destructive/60" : "border-transparent"
       }`}
