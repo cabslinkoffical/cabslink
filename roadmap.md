@@ -243,3 +243,5 @@
 - [x] Admin: replace scrolling status/filter tab bars with card grids (bookings + all other admin areas)
 
 - [x] Fresher white site background (alt bg #faf9f6); blog sidebar now has full booking form
+
+- [x] Blog booking panel sticks to one side while the article scrolls (fits at 639px+, scrolls inside itself on shorter screens)
