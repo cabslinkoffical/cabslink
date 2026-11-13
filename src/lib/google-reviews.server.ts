@@ -115,7 +115,8 @@ function publicClient() {
 }
 
 export async function readSavedSnapshot(): Promise<{ data: GoogleReviewsSnapshot; at: number } | null> {
-  const { data, error } = await publicClient()
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data, error } = await supabaseAdmin
     .from("google_reviews_snapshot")
     .select("data, fetched_at")
     .eq("id", 1)
