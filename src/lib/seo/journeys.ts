@@ -509,7 +509,7 @@ export const JOURNEYS: JourneyRecord[] = [
       },
       {
         q: "Is the coach cheaper?",
-        a: "Yes, considerably, if you are travelling alone. Ember runs hourly to the terminal and publishes live prices at ember.to, taking about 3 hours 30 minutes. A car is faster, covers flight times the coach does not, and works out closer to the coach once three or four people share one fixed fare.",
+        a: "Yes, considerably, if you are travelling alone. Ember runs hourly to the terminal and publishes live prices at ember.to, taking about 3 hours 30 minutes. A car is faster, covers flight times the coach does not, and works out closer to the coach once three or four people share one fixed price.",
       },
       {
         q: "How long does it take?",
@@ -560,7 +560,7 @@ export const JOURNEYS: JourneyRecord[] = [
     note:
       "The 131 miles from Newcastle to Edinburgh Airport run up the A1 through Morpeth, Alnwick and Berwick-upon-Tweed, then onto the A1 dual sections at Dunbar and round the city bypass to the airport. The honest caveat is the Northumberland single-carriageway stretches: they are the reason we quote about two hours 55 minutes rather than the 2 hours 43 minutes a map produces, and why an agricultural vehicle can add 20 minutes without warning. Most of these bookings are cross-border business travel or passengers connecting onto a long-haul flight Newcastle does not serve directly, so the pickup is timed from your check-in cut-off rather than from a satnav estimate.",
     planning: [
-      "Cross-border journeys are quoted as a single fixed fare with no per-mile top-up on arrival.",
+      "Cross-border journeys are quoted as a single fixed price with no per-mile top-up on arrival.",
       "Add 30 minutes for daytime travel on the A1 single-carriageway sections between Morpeth and Berwick.",
       "One comfort stop, usually Alnwick or Dunbar, is included in the quote on this length of journey.",
       "For 06:00 departures we advise a pickup no later than 01:30 and confirm the driver's route the previous evening.",
@@ -831,7 +831,7 @@ export function buildJourney(slug: string): JourneyContent | null {
 
 /** Shared so the `seo_pages` mirror can be generated from the same string. */
 export function journeyMetaDescription(j: JourneyRecord): string {
-  return `How much is a taxi from ${j.from.name} to ${j.to.name}? Fixed fares by vehicle class, flight tracking and no meter. Book online with Cabslink.`;
+  return `How much is a taxi from ${j.from.name} to ${j.to.name}? Fixed prices by vehicle class, flight tracking and no meter. Book online with Cabslink.`;
 }
 
 /** Title exactly as served, for mirror sync and tests. */

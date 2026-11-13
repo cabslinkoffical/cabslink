@@ -80,7 +80,7 @@ export function DestinationPage({
         eyebrow={d.type === "airport" ? "Airport transfers" : "Private transfers"}
         title={data.cms?.h1 || name}
         titleAccent={data.cms?.h1 ? undefined : "transfers"}
-        subtitle={`Private, pre-booked car to or from ${name}. Fixed fare confirmed before you pay, with a professional driver collecting you at the pickup address you choose.`}
+        subtitle={`Private, pre-booked car to or from ${name}. Fixed price confirmed before you pay, with a professional driver collecting you at the pickup address you choose.`}
         facts={heroFacts}
         prefill={destinationPrefill(d.type, name)}
         mapFocus={hasGeo ? { lat: d.lat as number, lng: d.lng as number, label: name } : null}
@@ -92,7 +92,7 @@ export function DestinationPage({
           heading: `Getting to ${name}`,
           body: summarySentences.length
             ? summarySentences.map((p, i) => <p key={i}>{p}</p>)
-            : <p>{`Book a private car to or from ${name} with a fixed fare confirmed before you pay.`}</p>,
+            : <p>{`Book a private car to or from ${name} with a fixed price confirmed before you pay.`}</p>,
           details: [
             ...drives.map((j) => ({
               icon: Clock,

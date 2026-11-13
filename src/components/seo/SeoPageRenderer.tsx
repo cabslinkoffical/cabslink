@@ -93,7 +93,7 @@ export function SeoPageRenderer({
           sentences={[
             ...firstSentences(page.short_intro || page.meta_description, fares?.fares.length ? 1 : 2),
             fares?.fares.length
-              ? `Fixed fares start from ${fares.currencySymbol}${Math.min(...fares.fares.map((f) => f.price)).toFixed(2)} per vehicle for the ${fares.distanceMiles}-mile journey.`
+              ? `Fixed prices start from ${fares.currencySymbol}${Math.min(...fares.fares.map((f) => f.price)).toFixed(2)} per vehicle for the ${fares.distanceMiles}-mile journey.`
               : null,
           ]}
           updated={(page as { updated_at?: string | null }).updated_at ?? null}
@@ -107,7 +107,7 @@ export function SeoPageRenderer({
 
       {/* Bands sit directly in <main> so the shared white / cream rhythm applies. */}
       {fares && fares.fares.length > 0 && (
-        <PageBand ariaLabel="Fixed fares">
+        <PageBand ariaLabel="Fixed prices">
           <RouteFareTable data={fares} routeName={page.h1.replace(/\s+—.*$/, "")} />
         </PageBand>
       )}

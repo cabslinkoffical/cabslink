@@ -31,6 +31,13 @@ export function canonicalRequestUrl(request: Request): string | undefined {
   }
   const p = url.pathname;
   const isRead = request.method === "GET" || request.method === "HEAD";
+  // Duplicate hosting address: send page reads on cabslink.lovable.app to the
+  // real domain (same path). API/webhook calls and files are left alone.
+  if (url.hostname === "cabslink.lovable.app" && isRead && !/^\/(?:api|_|@)/.test(p)) {
+    url.hostname = "cabslink.com";
+    url.protocol = "https:";
+    url.port = "";
+  }
   // Duplicate homepage aliases (/index, /index.html, /index/) → the real homepage.
   if (isRead && /^\/index(?:\.html?)?\/*$/i.test(p)) {
     url.pathname = "/";

@@ -252,12 +252,12 @@ const SERVICE_ANGLES: Record<string, ServiceAngle> = {
       `Pre-booked airport travel to and from ${n} with flight tracking, a fixed price and a driver who waits if you're delayed.`,
     metaTitle: (n) => `${n} Airport Transfers — Fixed Price Taxis | Cabslink`,
     metaDescription: (n) =>
-      `Pre-booked airport transfers in ${n}. Fixed fares, flight tracking, meet and greet and 24/7 booking for every ${n} pickup or drop-off.`,
+      `Pre-booked airport transfers in ${n}. Fixed prices, flight tracking, meet and greet and 24/7 booking for every ${n} pickup or drop-off.`,
     intro: (n) =>
       `Every ${n} airport journey is arranged in advance: we take your flight number, watch the arrival time and set the pickup so the car is there when you clear the terminal — not before you land and not an hour later.`,
     included: [
       "Flight tracking: pickup adjusted to the actual landing time",
-      "Fixed fare confirmed before you travel",
+      "Fixed price confirmed before you travel",
       "Free waiting time after landing",
       "Optional meet and greet in arrivals, small extra charge",
       "Luggage-appropriate vehicle class",
@@ -301,14 +301,14 @@ const SERVICE_ANGLES: Record<string, ServiceAngle> = {
     eyebrow: "Private hire",
     h1: (n) => `Private hire cars in ${n}.`,
     subtitle: (n) =>
-      `Licensed, pre-booked private hire in ${n} — fixed fares, no meters and the right vehicle class for your group and luggage.`,
+      `Licensed, pre-booked private hire in ${n} — fixed prices, no meters and the right vehicle class for your group and luggage.`,
     metaTitle: (n) => `Private Hire ${n} — Pre-Booked Licensed Cars | Cabslink`,
     metaDescription: (n) =>
-      `Licensed private hire in ${n}. Pre-booked journeys with fixed fares, professional drivers and vehicles sized for your group and bags.`,
+      `Licensed private hire in ${n}. Pre-booked journeys with fixed prices, professional drivers and vehicles sized for your group and bags.`,
     intro: (n) =>
       `Private hire in ${n} is booked ahead rather than hailed, which is exactly why the price is fixed: we know the route, the vehicle and the time before your driver sets off.`,
     included: [
-      "Fixed fare agreed at booking",
+      "Fixed price agreed at booking",
       "Licensed private hire driver and vehicle",
       "Door-to-door collection at a named entrance",
       "Child seats on request",
@@ -317,7 +317,7 @@ const SERVICE_ANGLES: Record<string, ServiceAngle> = {
     ],
     faqs: (n) => [
       { q: `Can I book a ${n} private hire car for the same day?`, a: `Usually yes, subject to availability. For early-morning and larger vehicles in ${n} we recommend booking at least 24 hours ahead.` },
-      { q: "Is the fare metered?", a: "No. Private hire journeys are quoted as a fixed fare before you confirm, based on distance, time of day and vehicle class." },
+      { q: "Is the fare metered?", a: "No. Private hire journeys are quoted as a fixed price before you confirm, based on distance, time of day and vehicle class." },
       { q: "Can you add stops along the way?", a: "Yes — extra stops are added at booking and priced transparently in the quote." },
     ],
     related: ["airport-transfers", "long-distance-transfers", "executive-transfers"],
