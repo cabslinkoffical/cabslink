@@ -118,7 +118,7 @@ export const getJourneyMap = createServerFn({ method: "POST" })
       push(leg.endLocation?.latLng);
     });
 
-    return { polyline, points, legs };
+    return { polyline, points };
   });
 
 /* ------------------------------------------------------------------ */
