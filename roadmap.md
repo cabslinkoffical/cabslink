@@ -242,4 +242,4 @@
 - [x] Tour routes admin: remove left tour list; full-page tour list, clicking a tour opens a full-page editor with Back
 - [x] Admin: replace scrolling status/filter tab bars with card grids (bookings + all other admin areas)
 
-- [ ] Fresher white site background (replace dull cream)
+- [x] Fresher white site background (alt bg #faf9f6); blog sidebar now has full booking form
