@@ -260,3 +260,6 @@
 - [x] Owner (13 Nov): black-taxi comparison row removed from the city-centre guide; the Cabslink row now names the fleet (Saloon, Estate, MPV, 8-seater). Guide tests pass. Remaining owner facts: exact Edinburgh Airport meeting point and same-day Skye offering.
 - [x] Cancellation copy reconciled to current booking cover: standard 24h, flexible 1h, non-refundable after confirmation; Manage Booking also retains the existing 24h booking grace period. No booking-rule change; any future move to 12h needs explicit instruction.
 - [x] 13 Nov: 8 Edinburgh Airport route pages (Glasgow, Stirling, Perth, Dundee, Aberdeen, Inverness, Fort William, Glencoe) + family, hotel, late-night service pages; [ ] pet-friendly page awaits owner confirmation of pet policy
+
+- [ ] Route pages: add airport pickup info + Google reviews sections
+- [ ] Edinburgh Airport taxi prices page (check for existing first)
