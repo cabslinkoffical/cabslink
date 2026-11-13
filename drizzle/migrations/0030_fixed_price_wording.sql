@@ -1,4 +1,3 @@
--- Owner brief: say "fixed price", never "fixed fare". Case-preserving text swap only.
 create or replace function pg_temp.fp(t text) returns text language sql as $$
   select replace(replace(replace(replace(replace(replace(t,
    'Fixed Fares','Fixed Prices'),'Fixed Fare','Fixed Price'),'fixed fares','fixed prices'),'fixed fare','fixed price'),'Fixed fares','Fixed prices'),'Fixed fare','Fixed price') $$;

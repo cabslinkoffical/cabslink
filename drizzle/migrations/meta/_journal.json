@@ -211,6 +211,13 @@
       "when": 1794562728435,
       "tag": "0029_single_featured_before_trigger",
       "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1794587357669,
+      "tag": "0030_fixed_price_wording",
+      "breakpoints": true
     }
   ]
 }
