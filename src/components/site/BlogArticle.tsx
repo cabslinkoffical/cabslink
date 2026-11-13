@@ -83,7 +83,7 @@ export function BlogArticle({ post, related }: { post: BlogPostFull; related: Bl
         )}
 
         {/* Content grid */}
-        <div className="container-x py-12 md:py-16 grid lg:grid-cols-[240px_minmax(0,1fr)_260px] gap-10">
+        <div className="container-x py-12 md:py-16 grid lg:grid-cols-[minmax(0,1fr)_340px] xl:grid-cols-[220px_minmax(0,1fr)_340px] gap-10">
           {/* TOC */}
           <aside className="hidden lg:block">
             {post.toc.length > 0 && (
