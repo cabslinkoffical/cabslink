@@ -4,8 +4,6 @@ import { LegalPage } from "@/components/site/LegalPage";
 import { SITE } from "@/lib/site";
 import { FACTS, FACT_TEXT } from "@/lib/site-facts";
 
-const T = FACTS.transferCancellation;
-const TT = FACTS.tourCancellation;
 const W = FACTS.airportWait;
 
 export const Route = createFileRoute("/booking-policy")({
@@ -32,11 +30,8 @@ export const Route = createFileRoute("/booking-policy")({
 
       <h2>3. Cancelling a transfer</h2>
       <p>{FACT_TEXT.transferCancellation} Standard bookings also qualify for a full refund within the first 24 hours after booking where cancellation is still available. Later cancellations are reviewed as partial-refund claims; the amount is confirmed by our team, not automatically fixed at half the price.</p>
-      <p>The earlier transfer schedule below does not override the cover or refund eligibility shown in Manage Booking. Contact us if an earlier confirmation quotes these terms.</p>
+      <p>Contact us if an earlier confirmation quotes different cancellation terms, so we can review the terms recorded for your booking.</p>
       <ul>
-        <li><strong>More than {T.freeOverHours} hours before pickup</strong> — free cancellation, full refund of anything paid.</li>
-        <li><strong>Between {T.halfToHours} and {T.halfFromHours} hours before pickup</strong> — 50% of the fare is payable.</li>
-        <li><strong>Less than {T.halfFromHours} hours before pickup, or after the driver has been dispatched</strong> — the full fare is payable.</li>
         <li><strong>Cancelled by us</strong> — full refund, or an alternative vehicle at no extra cost.</li>
       </ul>
       <p>Cancellations caused by a cancelled or heavily delayed flight are not charged where you tell us as soon as you know.</p>
@@ -51,12 +46,7 @@ export const Route = createFileRoute("/booking-policy")({
       {/* TODO(owner): confirm which vehicle classes count as "larger vehicles" and the free waiting at cruise ports, stations and other pickups. */}
 
       <h2>4a. Cancelling a tour</h2>
-      <p>{FACT_TEXT.tourCancellation} The earlier tour schedule below does not override your booking's selected cancellation cover.</p>
-      <ul>
-        <li><strong>More than {TT.freeOverHours} hours before the tour starts</strong> — free cancellation, full refund of anything paid.</li>
-        <li><strong>Between {TT.halfToHours} and {TT.halfFromHours} hours before the start</strong> — 50% of the price is payable.</li>
-        <li><strong>Less than {TT.halfFromHours} hours before the start, or a no-show</strong> — the full price is payable.</li>
-      </ul>
+      <p>{FACT_TEXT.tourCancellation} Manage Booking shows whether cancellation is available and the refund eligibility for your booking.</p>
 
       <h2>4b. Ways to pay</h2>
       <ul>
