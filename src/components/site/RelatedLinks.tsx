@@ -1,11 +1,12 @@
 import { Suspense } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useLocation } from "@tanstack/react-router";
-import { ArrowRight, BookOpen, MapPin, Plane, Route as RouteIcon } from "lucide-react";
+import { ArrowRight, BookOpen, MapPin, Plane, Route as RouteIcon, Sparkles } from "lucide-react";
 import { selectedRelatedLinksQuery } from "@/lib/related-links.functions";
 import { type RelatedCandidate } from "@/lib/related-links";
 import { guideFor } from "@/content/place-guides";
 import { PageBand } from "@/components/site/PageBand";
+import { specialistLinksFor } from "@/lib/seo/specialist-links";
 
 type Props = { center?: { lat: number; lng: number } | null };
 
@@ -37,12 +38,14 @@ function Inner({ center }: Props) {
   const path = useLocation({ select: (l) => l.pathname });
   const { data: picked } = useSuspenseQuery(selectedRelatedLinksQuery(path, center ?? null));
   const hasGuide = !!guideFor(path);
-  if (!picked.airports.length && !picked.areas.length && !picked.tours.length) return null;
+  const specialist = specialistLinksFor(path) as RelatedCandidate[];
+  if (!picked.airports.length && !picked.areas.length && !picked.tours.length && !specialist.length) return null;
   const groups = [
     { title: "Airports", icon: Plane, links: picked.airports },
     { title: "Areas we cover", icon: MapPin, links: picked.areas },
     ...(!hasGuide ? [{ title: "Related tours", icon: RouteIcon, links: picked.tours }] : []),
     ...(!hasGuide ? [{ title: "Related articles", icon: BookOpen, links: picked.articles ?? [] }] : []),
+    { title: "Specialist services", icon: Sparkles, links: specialist },
   ].filter((g) => g.links.length > 0);
   const cols = groups.length >= 4 ? "lg:grid-cols-4" : groups.length === 3 ? "lg:grid-cols-3" : "";
   return (
