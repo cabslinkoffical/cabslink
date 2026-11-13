@@ -7,10 +7,9 @@
  */
 import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
 import { Loader2, MapPin } from "lucide-react";
 
-import { getTourLoopMap } from "@/lib/journey-map.functions";
+import { tourLoopQuery } from "@/lib/tour-loop-query";
 import { decodePolyline } from "@/lib/polyline";
 import { loadGoogleMaps, onMapsAuthFailure } from "@/lib/maps-loader";
 
@@ -18,6 +17,8 @@ type Props = {
   startPlaceId?: string;
   startLabel?: string;
   stops: Array<{ placeId: string; name: string }>;
+  /** Finish somewhere other than the pickup. */
+  endPlaceId?: string | null;
   /** Fallback centre when there are no stops yet and the pickup has no geometry. */
   className?: string;
 };
@@ -25,8 +26,7 @@ type Props = {
 const NAVY = "#0e182c";
 const GOLD = "#dfaf26";
 
-export function TourLoopMap({ startPlaceId, startLabel, stops, className = "" }: Props) {
-  const fetchLoop = useServerFn(getTourLoopMap);
+export function TourLoopMap({ startPlaceId, startLabel, stops, endPlaceId, className = "" }: Props) {
   const holder = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<any>(null);
   const drawnRef = useRef<any[]>([]);
@@ -37,13 +37,8 @@ export function TourLoopMap({ startPlaceId, startLabel, stops, className = "" }:
   const stopsKey = stopIds.join("|");
   const enabled = !!startPlaceId;
 
-  const q = useQuery({
-    queryKey: ["tour-loop-map", startPlaceId, stopsKey],
-    enabled: enabled && stopIds.length > 0,
-    staleTime: 10 * 60 * 1000,
-    retry: false,
-    queryFn: () => fetchLoop({ data: { startPlaceId: startPlaceId!, stopPlaceIds: stopIds } }),
-  });
+  const q = useQuery(tourLoopQuery(startPlaceId, stopIds, endPlaceId));
+
 
   useEffect(() => {
     if (!enabled) return;
@@ -112,7 +107,7 @@ export function TourLoopMap({ startPlaceId, startLabel, stops, className = "" }:
       pts.forEach((p, i) => {
         const isStart = i === 0 || i === pts.length - 1;
         pin(p, {
-          title: isStart ? (startLabel ?? "Pickup and finish") : (stops[i - 1]?.name ?? `Stop ${i}`),
+          title: i === 0 ? (startLabel ?? "Pickup") : i === pts.length - 1 ? "Finish" : (stops[i - 1]?.name ?? `Stop ${i}`),
           label: isStart ? undefined : String(i),
           start: isStart,
         });
