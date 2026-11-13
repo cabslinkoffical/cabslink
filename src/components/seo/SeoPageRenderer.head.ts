@@ -4,6 +4,7 @@ import { safeJsonLd } from "@/lib/safe-json-ld";
 import type { PublicSeoPage } from "@/lib/seo-public.functions";
 import type { RelatedBundle } from "@/lib/seo-related.functions";
 import type { RouteFareTable as RouteFareTableData } from "@/lib/seo/route-fares.functions";
+import { publicSectionFaqs } from "@/lib/seo/section-faqs";
 
 function buildSeoHeadRaw(
   page: PublicSeoPage,
@@ -160,10 +161,7 @@ function buildEntityLd(page: PublicSeoPage, url: string) {
 }
 
 function buildFaqLd(page: PublicSeoPage) {
-  const faq = page.sections.find((s) => s.section_type === "faqs");
-  const items = faq && Array.isArray((faq.structured_payload as any)?.items)
-    ? (faq.structured_payload as any).items
-    : [];
+  const items = publicSectionFaqs(page.sections);
   if (!items.length) return null;
   return {
     "@type": "FAQPage",

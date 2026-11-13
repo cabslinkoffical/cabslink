@@ -10,6 +10,7 @@ import { LocalPageHero } from "@/components/site/LocalPageHero";
 import { LocalMapSection } from "@/components/site/LocalMapSection";
 import { PageBand, EditorialRows, LinkCards, GroupLabel, FaqBand } from "@/components/site/PageBand";
 import { defaultLocalImage, localEntityMapFocus } from "@/lib/local-page";
+import { publicSectionFaqs } from "@/lib/seo/section-faqs";
 
 /**
  * Renders a published seo_pages record + its sections.
@@ -165,9 +166,7 @@ function SectionBands({ sections }: { sections: PublicSeoSection[] }) {
   };
   const prose = sections.filter((s) => s.section_type !== "faqs" && !LINK_TYPES.has(s.section_type) && s.body);
   const links = sections.filter((s) => LINK_TYPES.has(s.section_type) && items(s).length > 0);
-  const faqs = sections.filter((s) => s.section_type === "faqs").flatMap((s) =>
-    items(s).map((it: any) => ({ q: String(it.question ?? ""), a: String(it.answer ?? "") })).filter((f) => f.q && f.a),
-  );
+  const faqs = publicSectionFaqs(sections).map(f => ({ q: f.question, a: f.answer }));
   return (
     <>
       {prose.length > 0 && (
