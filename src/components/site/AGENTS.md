@@ -12,3 +12,4 @@
 - Booking wizards share a step-change scroll hook; summary disclosure uses responsive visibility so mobile starts collapsed while desktop stays visible.
 - The homepage uses one shared BookingWidget instance in text–booking–vehicle source order and explicit home-scoped grid areas; this keeps visual and keyboard order consistent without duplicating booking state or altering local-page forms.
 - Narrow blog panels use BookingWidget's compact variant with wrapping booking choices and paired date/time fields; the sticky panel reserves space for floating contact controls and scrolls internally only when needed, keeping all form actions reachable.
+- SEO landing pages (Glasgow Airport, chauffeur, Highlands, Loch Ness, Skye, St Andrews golf, Outlander) are data in src/content/landing-pages.ts rendered by LandingPageView/landingHead; they list only published tours by slug so copy never names a tour that isn't live.

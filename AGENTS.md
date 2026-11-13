@@ -53,4 +53,3 @@
 - Big groups book several vehicles on one tour booking (tour_vehicles + vehicle_count); src/lib/tour-group.ts splits the party and suggests mixes, each vehicle is priced alone by quoteTourImpl and summed, and reserve_tour_booking checks every vehicle and counts each against its class daily cap.
 - Transfer continuation and submission share booking-readiness checks so unavailable or unpriced scenic journeys cannot advance.
 - Sitemap/IndexNow URLs: src/lib/sitemap-build.server.ts only (one source).
-- Owner-requested SEO landing pages (Glasgow Airport, chauffeur, Highlands, Loch Ness, Skye, St Andrews golf, Outlander) are data in src/content/landing-pages.ts rendered by LandingPageView/landingHead; they list only published tours by slug so copy never names a tour that isn't live.
