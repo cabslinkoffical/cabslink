@@ -97,22 +97,16 @@ export const GUIDES: GuideRecord[] = [
     ],
     comparison: {
       ...JOURNEY_TRANSPORT["edinburgh-airport-to-city-centre"],
-      options: [
-        ...JOURNEY_TRANSPORT["edinburgh-airport-to-city-centre"].options.filter((o) => o.kind !== "car"),
-        {
-          kind: "taxi",
-          operator: "Airport taxi rank",
-          service: "Black taxi from the rank",
-          // TODO(owner): add the published black taxi fare and journey time from Edinburgh Airport to the city centre, with its source.
-          fare: "Metered fare — not yet listed here",
-          duration: "Journey time not yet listed here",
-          frequency: "Taxi rank outside the terminal",
-          stops: "Terminal rank to your address.",
-          tradeOff: "No booking needed, but the fare runs on the meter, so traffic changes what you pay.",
-          source: "https://www.edinburghairport.com/transport-links",
-        },
-        ...JOURNEY_TRANSPORT["edinburgh-airport-to-city-centre"].options.filter((o) => o.kind === "car"),
-      ],
+      options: JOURNEY_TRANSPORT["edinburgh-airport-to-city-centre"].options.map((o) =>
+        o.kind === "car"
+          ? {
+              ...o,
+              service: "Saloon, Estate, MPV or 8-seater from our fleet",
+              stops:
+                "Terminal to your actual address, in the vehicle you booked — Saloon for up to four, Seven-Seater MPV for six, Eight-Seater Van for eight.",
+            }
+          : o,
+      ),
     },
     afterComparisonCta: true,
     sections: [
