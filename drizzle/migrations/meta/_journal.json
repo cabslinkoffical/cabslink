@@ -218,6 +218,13 @@
       "when": 1794587357669,
       "tag": "0030_fixed_price_wording",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1794587390465,
+      "tag": "0031_fixed_price_wording_json",
+      "breakpoints": true
     }
   ]
 }
