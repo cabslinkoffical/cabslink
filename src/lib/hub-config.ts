@@ -46,9 +46,9 @@ export const HUBS = {
   },
   stations: {
     type: "station" as const,
-    title: "Train Station Transfers Across the UK",
-    seoTitle: "Scotland Train Station Taxis & Transfers",
-    metaDescription: "Private transfers to UK mainline stations. Pre-booked pick-up points, train-delay tracking and fixed pricing for onward journeys with luggage.",
+    title: "Station Taxis: Edinburgh Waverley, Haymarket & Glasgow",
+    seoTitle: "Station Taxis Waverley, Haymarket & Queen Street | Cabslink",
+    metaDescription: "Station taxis from Edinburgh Waverley, Haymarket and Glasgow Queen Street. Pre-booked pickups, room for luggage and a fixed price before you travel.",
     intro: "Station transfers to every mainline UK rail hub.",
     longIntro:
       "Rail stations are the hardest places to arrange a car: taxi ranks move, drop-off bays are timed, and platforms change late. Every station page below records where our drivers wait, how long the run takes from the surrounding area, and what happens when a train is delayed or cancelled.",

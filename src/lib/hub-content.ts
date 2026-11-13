@@ -69,6 +69,13 @@ export const HUB_CONTENT: Record<string, HubContent> = {
   stations: {
     sections: [
       {
+        title: "Edinburgh Waverley, Haymarket and Glasgow Queen Street",
+        paragraphs: [
+          "Most of our station work runs through three stations. Edinburgh Waverley is the busiest arrival point for rail travellers coming into the capital, often with heavy cases and a tight onward connection. Haymarket is Edinburgh's second mainline station and sits in the west of the city, so it suits anyone staying on that side of Edinburgh or heading out of town without crossing the centre first. Glasgow Queen Street serves the Edinburgh–Glasgow line and trains north, and is a common starting point for trips on to Glasgow Airport, Loch Lomond or across to Edinburgh.",
+          "Booking a station taxi works the same way at all three. Set the station as your pickup, choose a time that matches your train, add your train service and luggage, and use the notes box to tell your driver how to find you. You see a fixed price before you pay, so a delayed train never turns into a running meter.",
+        ],
+      },
+      {
         title: "Where the driver waits",
         paragraphs: [
           "Station forecourts are the most restricted pick-up points we deal with. Many have timed drop-off bays, private taxi ranks that only licensed rank holders may use, and separate short-stay car parks for pre-booked cars.",
