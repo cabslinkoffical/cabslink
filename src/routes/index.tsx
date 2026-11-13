@@ -69,9 +69,9 @@ export const Route = createFileRoute("/")({
   head: () => normalizeHead({
     meta: [
       { title: "Edinburgh Airport Transfers & Private Tours | Cabslink" },
-      { name: "description", content: "Fixed-fare UK airport transfers, private tours and executive travel with Cabslink. Flight tracking, meet & greet and 24/7 dispatch." },
+      { name: "description", content: "Fixed-price UK airport transfers, private tours and executive travel with Cabslink. Flight tracking, meet & greet and 24/7 dispatch." },
       { property: "og:title", content: "Edinburgh Airport Transfers & Private Tours | Cabslink" },
-      { property: "og:description", content: "Fixed-fare UK airport transfers, private tours and executive travel with Cabslink. Flight tracking, meet & greet and 24/7 dispatch." },
+      { property: "og:description", content: "Fixed-price UK airport transfers, private tours and executive travel with Cabslink. Flight tracking, meet & greet and 24/7 dispatch." },
       { property: "og:url", content: "https://cabslink.com/" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -266,7 +266,7 @@ function HomePage() {
               <span className="text-gold">&amp; UK Private Hire.</span>
             </h1>
             <p className="home-hero-description text-navy-foreground/75">
-              Fixed-fare private transfers, private tours and executive travel across the UK. Flight tracked, optional meet &amp; greet, 24/7 dispatch — the calm way to travel.
+              Fixed-price private transfers, private tours and executive travel across the UK. Flight tracked, optional meet &amp; greet, 24/7 dispatch — the calm way to travel.
             </p>
           </div>
 

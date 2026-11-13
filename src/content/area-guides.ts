@@ -115,7 +115,7 @@ export const AREA_GUIDES: PlaceGuide[] = [
         heading: "The granite city and its energy traffic",
         paragraphs: [
           "Aberdeen is Scotland's third city and the capital of the North Sea energy industry, in the Aberdeen City council area. Its granite buildings and the long sweep of Union Street sit between the harbour and the beach, and the city's working life runs on shift patterns — crew changes, offshore rotations and back-to-back meeting days.",
-          "That rhythm suits pre-booked private hire. A car waiting at your door at 4am for a crew change, or holding through a delayed flight, is exactly the sort of journey our fixed-fare service is built for. The driver is confirmed the evening before, not found on the morning.",
+          "That rhythm suits pre-booked private hire. A car waiting at your door at 4am for a crew change, or holding through a delayed flight, is exactly the sort of journey our fixed-price service is built for. The driver is confirmed the evening before, not found on the morning.",
         ],
       },
       {

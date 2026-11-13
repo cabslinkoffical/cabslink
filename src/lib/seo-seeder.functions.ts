@@ -111,7 +111,7 @@ export const seedSeoPagesFromEntities = createServerFn({ method: "POST" })
       const dName = (await nameFor(r.destination_entity_type, r.destination_entity_id)) ?? r.slug;
       const title = truncate(`${oName} to ${dName} Private Transfer | Cabslink`, 68);
       const meta = truncate(
-        `Fixed-fare private transfers from ${oName} to ${dName}. Professional drivers, 24/7 booking, flight tracking. Cabslink.`,
+        `Fixed-price private transfers from ${oName} to ${dName}. Professional drivers, 24/7 booking, flight tracking. Cabslink.`,
         170,
       );
       const { error } = await sb.from("seo_pages").insert({
@@ -125,7 +125,7 @@ export const seedSeoPagesFromEntities = createServerFn({ method: "POST" })
         seo_title: title,
         meta_description: meta,
         h1: `${oName} to ${dName} — Private Transfer`,
-        short_intro: `Pre-book a fixed-fare private transfer between ${oName} and ${dName}. Professional drivers, executive vehicles, and 24/7 support.`,
+        short_intro: `Pre-book a fixed-price private transfer between ${oName} and ${dName}. Professional drivers, executive vehicles, and 24/7 support.`,
         publication_status: "draft",
       });
       if (error) errors.push(`route ${r.slug}: ${error.message}`); else created++;

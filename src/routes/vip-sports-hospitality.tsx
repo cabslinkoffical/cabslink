@@ -9,7 +9,7 @@ import { PAGE_IMAGES } from "@/content/page-images";
 
 const TITLE = "VIP Sports Hospitality Travel — Event Cars | Cabslink";
 const DESC =
-  "VIP sports hospitality travel across the UK. Executive vehicles and discreet drivers for corporate guests at The Open, Six Nations, race days and cup finals.";
+  "VIP sports hospitality travel across the UK: executive cars and discreet drivers for corporate guests at The Open, Six Nations and race days.";
 const URL = "https://cabslink.com/vip-sports-hospitality";
 
 const faqs = [

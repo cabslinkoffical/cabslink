@@ -85,7 +85,7 @@ export function HubPage({
         <div className="rounded-2xl border border-dashed border-[var(--navy)]/20 bg-card p-8 text-center shadow-raised">
           <p className="text-[var(--navy)]/70">
             We haven't published dedicated pages for this category yet, but we still
-            cover every UK postcode. Get a fixed-fare quote in under 30 seconds.
+            cover every UK postcode. Get a fixed-price quote in under 30 seconds.
           </p>
           <div className="mt-5 flex flex-wrap justify-center gap-3">
             <Link to="/book" className="rounded-full bg-[var(--gold)] px-6 py-3 font-semibold text-[var(--navy)]">

@@ -37,7 +37,7 @@ export const HUB_CONTENT: Record<string, HubContent> = {
         title: "Coverage beyond the published pages",
         paragraphs: [
           "The list below is not the limit of where we drive. We cover UK postcodes generally, including addresses with no dedicated page yet, and long-distance cross-border journeys between Scotland, England and Wales.",
-          "If your town is not listed, enter the postcode in the booking form and you will still get a quote for the same vehicle classes and the same fixed-fare terms.",
+          "If your town is not listed, enter the postcode in the booking form and you will still get a quote for the same vehicle classes and the same fixed-price terms.",
         ],
       },
       {

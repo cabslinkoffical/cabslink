@@ -25,7 +25,9 @@ export const Route = createFileRoute("/blog/category/$slug")({
   head: ({ params, loaderData }) => {
     const cat = loaderData?.category;
     const count = loaderData?.posts.length ?? 0;
-    const title = cat ? `${cat.seo_title ?? cat.name} — Cabslink Blog` : "Category — Cabslink Blog";
+    const base = cat ? cat.seo_title ?? cat.name : "Category";
+    const longTitle = `${base} — Cabslink Blog`;
+    const title = longTitle.length <= 60 ? longTitle : `${base} | Cabslink`;
     const desc = cat
       ? (cat.meta_description ?? categoryIntro(cat, count))
       : "Read the latest Cabslink guides in this category.";
