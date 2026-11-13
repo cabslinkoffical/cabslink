@@ -60,4 +60,9 @@ describe("publication checks", () => {
   it("a clean record gets no issues", () => {
     expect(buildPublicationIssues([{ id: "1", path: "/a", seo_title: "A clean unique title for one page", meta_description: "d".repeat(100), ...base }], ["1", "1", "1"])).toEqual([]);
   });
+  it("warns at 156 description characters but not at 155", () => {
+    const record = { id: "1", path: "/a", seo_title: "A clean unique title for one page", ...base };
+    expect(buildPublicationIssues([{ ...record, meta_description: "d".repeat(155) }], ["1", "1", "1"]).some(i => i.issue_type === "long_meta")).toBe(false);
+    expect(buildPublicationIssues([{ ...record, meta_description: "d".repeat(156) }], ["1", "1", "1"]).some(i => i.issue_type === "long_meta")).toBe(true);
+  });
 });
