@@ -161,11 +161,11 @@ export const LANDING_PAGES: Record<string, LandingPage> = {
     sections: [
       { title: "A private day to Loch Ness", paragraphs: [
         "Loch Ness is one of the longest day trips you can take from Edinburgh, which is exactly why a private car helps: you travel at your own pace, choose your own stops on the way and only share the car with your own group.",
-        // TODO(owner): add the road distance and typical driving time from Edinburgh to Loch Ness once confirmed.
+        "Our Loch Ness day-trip guide lists Edinburgh to Drumnadrochit via the A9 and Inverness at about 170 miles and three and a half hours each way. These are planning estimates, not guaranteed journey times; stops and traffic add to the day.",
         "We do not run a ready-made Loch Ness tour yet, so you plan it in the custom tour planner. Choose Edinburgh as your start, add Loch Ness and any stops you want along the way, and see the best order before you apply it. If a day cannot be priced instantly, request a quote and we will come back to you.",
       ] },
       { title: "Or stay a night in the Highlands", paragraphs: [
-        "Many visitors prefer not to fit Loch Ness into one day. Book a one-way transfer from Edinburgh to Inverness, spend time around the loch, then book your return separately. Edinburgh to Inverness has its own route page with fixed prices for every vehicle class.",
+        "Many visitors prefer not to fit Loch Ness into one day. Book a transfer from Edinburgh to Inverness and use Add return if you already know when you are coming back. Edinburgh to Inverness has its own route page with fixed prices for every vehicle class.",
         "Shorter on time? Our ready-made Highlands tours to Glencoe, Fort William and Glenfinnan give a full Highland day closer to Edinburgh.",
       ] },
       { title: "Vehicles and comfort", paragraphs: [
@@ -198,10 +198,12 @@ export const LANDING_PAGES: Record<string, LandingPage> = {
     sections: [
       { title: "Getting to Skye with a private driver", paragraphs: [
         "The Isle of Skye is a long way from Edinburgh and Glasgow, and the best of the island sits on single-track roads where a coach timetable leaves little time to stop. A private car lets you travel with only your own group and set your own pace.",
-        // TODO(owner): add road distance, driving time and whether same-day Skye trips are offered.
+        "Our day-trips guide places Skye around 230 miles from Edinburgh and roughly eleven hours of driving for a return journey. The exact destination on the island, stops and traffic affect the time; the guide recommends two or three days rather than a rushed day return.",
+        // TODO(owner): same-day Skye availability is not established by the published guide; do not promise it from the unapproved draft tour.
         "We do not run a ready-made Skye tour, so you plan the trip in the custom tour planner. Choose your start and finish, add the places on Skye you want to see, and see the best order before you apply it. When a trip cannot be priced instantly, request a quote and our team will reply.",
       ] },
       { title: "Breaking the journey", paragraphs: [
+        "Our Harry Potter and Highlands tour page already offers multi-day trips on request, including the Isle of Skye. Each trip is quoted individually; send your dates, party size and planned stops so the team can review the itinerary.",
         "Most travellers split the drive. Our ready-made Highlands tours already cover Glencoe, Fort William and Glenfinnan, which sit on the way west, so you can see them on one day and continue another. Edinburgh to Fort William has its own route page with fixed prices.",
         "Tell us about luggage, walking needs and child seats when you book so we send a vehicle that suits a long day.",
       ] },

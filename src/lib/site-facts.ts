@@ -4,6 +4,8 @@
  * payment or company details must read from FACTS — never hardcode them.
  * tests/site-facts.test.ts fails if these figures appear in page files.
  */
+import { coverPromise } from "@/lib/cancellation-cover";
+
 export const FACTS = {
   company: {
     legalName: "Cabslink Limited",
@@ -40,10 +42,10 @@ export const FACT_TEXT = {
   airportWait: `Airport pickups include ${FACTS.airportWait.freeMinutes} minutes of free waiting from the actual landing time. After the free period, waiting time is charged by the hour; the rate depends on the vehicle and is shown when you book.`,
   airportWaitShort: `${FACTS.airportWait.freeMinutes} minutes free from actual landing`,
   meetGreet: "Meet and greet is available on every booking for a small extra charge, shown in your quote: your driver waits in arrivals with a name board.",
-  transferCancellation: `Transfers: free cancellation more than ${FACTS.transferCancellation.freeOverHours} hours before pickup, 50% of the fare from ${FACTS.transferCancellation.halfFromHours} to ${FACTS.transferCancellation.halfToHours} hours, and the full fare under ${FACTS.transferCancellation.halfFromHours} hours.`,
-  transferCancellationShort: `Free cancellation more than ${FACTS.transferCancellation.freeOverHours} hours before pickup`,
-  tourCancellation: `Tours: free cancellation more than ${FACTS.tourCancellation.freeOverHours} hours before the start, 50% of the price from ${FACTS.tourCancellation.halfFromHours} to ${FACTS.tourCancellation.halfToHours} hours, and the full price under ${FACTS.tourCancellation.halfFromHours} hours or for a no-show.`,
-  tourCancellationShort: `Free cancellation more than ${FACTS.tourCancellation.freeOverHours} hours before the tour`,
+  transferCancellation: `Cancellation depends on the cover selected when booking. Standard: ${coverPromise("standard")}. Flexible: ${coverPromise("flexible")}. Non-refundable: ${coverPromise("non_refundable")}. Manage Booking shows the refund eligibility for your booking.`,
+  transferCancellationShort: `Standard cover: ${coverPromise("standard")}; other cover options have different terms`,
+  tourCancellation: "Check the cancellation cover and refund terms shown with your tour booking before confirming.",
+  tourCancellationShort: "Cancellation terms depend on the cover selected at booking",
   payment: `Pay online by card through Stripe at the end of the booking (${cardList}), or choose to pay another way: cash, bank transfer or another method agreed with our team. No card details are stored on cabslink.com.`,
   payCashOrTransfer: "Yes. Complete your booking, skip the online payment, and message us on WhatsApp with your booking reference. We'll confirm your booking and arrange payment.",
   confirmationRule: "A card booking is confirmed as soon as the payment succeeds. If you pay another way, your booking is confirmed when our team confirms it after you contact us.",

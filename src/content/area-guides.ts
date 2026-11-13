@@ -1,4 +1,5 @@
 import type { PlaceGuide } from "@/content/place-guides";
+import { FACT_TEXT } from "@/lib/site-facts";
 
 /**
  * Phase 7 batch 3 — area (city and town) pages. Facts used: the page's own
@@ -22,17 +23,13 @@ const PAY_C =
 const PAY_D =
   "You settle by card via Stripe when the booking is completed, with Visa, Mastercard and American Express all accepted, or arrange cash, bank transfer or another method with our team. Card details are not held on cabslink.com.";
 
-const CANCEL_A =
-  "Transfers can be cancelled free of charge more than 12 hours before pickup. Between 3 and 12 hours the charge is half the fare, and under 3 hours it is the full fare.";
-const CANCEL_B =
-  "Cancel more than 12 hours before pickup and there is no charge. From 3 to 12 hours before, half the fare is payable; under 3 hours, the full fare applies.";
-const CANCEL_C =
-  "Cancellations are free more than 12 hours before pickup; half the fare is charged between 3 and 12 hours; and the full fare applies within 3 hours.";
-const CANCEL_D =
-  "There is no cancellation charge more than 12 hours ahead of pickup. Between 3 and 12 hours before, half the fare is due, and inside 3 hours the full fare is due.";
+const CANCEL_A = FACT_TEXT.transferCancellation;
+const CANCEL_B = FACT_TEXT.transferCancellation;
+const CANCEL_C = FACT_TEXT.transferCancellation;
+const CANCEL_D = FACT_TEXT.transferCancellation;
 
 const FLEET_A =
-  "A saloon takes up to four passengers with two large cases. For more luggage, move up to the Estate Car with three cases or the Standard MPV with four. Six passengers fit the Seven-Seater MPV, seven the Premium MPV, and up to eight the Eight-Seater Van — each with a case per seat. Larger parties are sent in more than one vehicle.";
+  "A saloon takes up to four passengers with two large cases. For more luggage, move up to the Estate Car with three cases or the Standard MPV with four. Six passengers fit the Seven-Seater MPV with three large cases, seven the Premium MPV with seven, and up to eight the Eight-Seater Van with eight. Larger parties can arrange an Executive Minibus on request or more than one vehicle.";
 const FLEET_B =
   "Choose by bags as much as by people: four passengers and two large cases suit a saloon, and the Estate Car or Standard MPV take three or four cases. Six travel in the Seven-Seater MPV, seven in the Premium MPV, and up to eight in the Eight-Seater Van. If your group is bigger than that, we send more than one car.";
 const FLEET_C =

@@ -1,4 +1,5 @@
 import type { PlaceGuide } from "@/content/place-guides";
+import { FACT_TEXT } from "@/lib/site-facts";
 
 /**
  * Phase 7 batch 2 — station pages. Facts used: the station's own destination
@@ -7,8 +8,7 @@ import type { PlaceGuide } from "@/content/place-guides";
  * No station has a published popular route yet, so no distances, drive times
  * or fares are written; the page's own journey-fact cards show estimates.
  */
-const CANCEL =
-  "Transfers can be cancelled free of charge more than 12 hours before pickup. Between 3 and 12 hours the charge is half the fare, and under 3 hours it is the full fare.";
+const CANCEL = FACT_TEXT.transferCancellation;
 const PAY =
   "You pay by card through Stripe at the end of the booking, using Visa, Mastercard or American Express, or pay another way: cash, bank transfer or another method agreed with our team. No card details are stored on cabslink.com.";
 
