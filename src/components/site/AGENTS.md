@@ -11,4 +11,4 @@
 - Shared dialogs use viewport-constrained widths and dynamic-height scrolling; BookingWidget passenger editing uses this modal shell so controls remain visible and focus-managed on phones.
 - Booking wizards share a step-change scroll hook; summary disclosure uses responsive visibility so mobile starts collapsed while desktop stays visible.
 - The homepage uses one shared BookingWidget instance in text–booking–vehicle source order and explicit home-scoped grid areas; this keeps visual and keyboard order consistent without duplicating booking state or altering local-page forms.
-- Narrow blog panels use BookingWidget's compact variant with wrapping booking choices and normal page scrolling; no viewport-taller sticky form can hide controls.
+- Narrow blog panels use BookingWidget's compact variant with wrapping booking choices; the panel sticks to one side while the article scrolls and scrolls inside itself when a short viewport cannot show every control.
