@@ -16,7 +16,7 @@ export const AIRPORT_FAQS: Record<string, FaqItem[]> = {
     },
     {
       q: "Where will my driver meet me?",
-      a: "Your driver waits for you in arrivals with a name board.",
+      a: FACT_TEXT.meetGreet,
     },
     {
       q: "How do I pay?",

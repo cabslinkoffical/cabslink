@@ -1,0 +1,2 @@
+- Editorial cancellation summaries read FACT_TEXT, which derives current cover promises from cancellation-cover; older policy schedules must not override a booking's selected cover.
+- Reuse travel estimates only with their named destination and existing published source; unapproved draft itineraries do not establish service availability.

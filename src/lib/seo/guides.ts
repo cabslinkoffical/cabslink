@@ -446,7 +446,7 @@ export const GUIDES: GuideRecord[] = [
       },
       {
         q: "Is the Isle of Skye a realistic day trip from Edinburgh?",
-        a: "No. Skye is around 230 miles from Edinburgh, roughly 11 hours of driving for a return trip. We do not sell it as a day tour. Two or three days does it justice.",
+        a: "Skye is around 230 miles from Edinburgh, roughly 11 hours of driving for a return trip, so we recommend two or three days. Multi-day Highlands trips including Skye are available on request; ask our team to review your dates and itinerary rather than assuming a same-day trip is available.",
       },
       {
         q: "Which day trips can I do by train from Edinburgh?",

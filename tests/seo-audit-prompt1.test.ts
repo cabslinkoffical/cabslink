@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
+import { refundTierFor } from "@/lib/manage-booking.functions";
 
 function walk(dir: string, out: string[] = []): string[] {
   for (const f of readdirSync(dir)) {
@@ -49,11 +50,10 @@ describe("area page FAQ matches its JSON-LD", () => {
 
 describe("refund policy covers tours", () => {
   const t = read("src/routes/refund-policy.tsx");
-  it("has a Tours section with the agreed rules", () => {
-    expect(t).toMatch(/<h2>4\. Tours<\/h2>/);
-    expect(t).toMatch(/TT\.freeOverHours/);
-    expect(t).toMatch(/TT\.halfFromHours/);
-    expect(t).toMatch(/TT\.halfToHours/);
+  it("standard cover uses the current 24-hour refund boundary rather than the retired tour schedule", () => {
+    const booking = { allowed: true, paymentStatus: "paid", cover: "standard" as const, withinBookingGrace: false };
+    expect(refundTierFor({ ...booking, hoursUntilPickup: 24 })).toBe("full");
+    expect(refundTierFor({ ...booking, hoursUntilPickup: 23.99 })).toBe("partial");
   });
   it("labels the existing rules as Transfers", () => {
     expect(t).toMatch(/Transfers — when we refund in full/);
