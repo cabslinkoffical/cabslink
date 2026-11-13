@@ -5,8 +5,7 @@
  * shows the same, newest reviews and a slow or failed Google call never hides
  * them. A scheduler refreshes it hourly; page reads also refresh it when stale.
  */
-import { createClient } from "@supabase/supabase-js";
-import type { Database, Json } from "@/integrations/supabase/types";
+import type { Json } from "@/integrations/supabase/types";
 import type { UnifiedReview } from "./reviews";
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_business_profile";
