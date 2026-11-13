@@ -246,6 +246,8 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
     (c) => (template?.prices.some((p) => p.vehicle_class_id === c.id) ?? false) || Number(c.hourly_rate ?? 0) > 0,
   );
   const fittingClasses = priceableClasses.filter((c) => fitsParty(c, passengers, luggage));
+  /** Big enough, but no online price set for this day: shown honestly as price on request. */
+  const unpricedFitting = classes.filter((c) => fitsParty(c, passengers, luggage) && !priceableClasses.includes(c));
   const singleFits = fittingClasses.length > 0;
   const groupActive = groupVehicles.length > 1;
   const groupSplit = groupActive ? splitGroup(groupVehicles, classes, passengers, luggage) : null;
@@ -882,8 +884,19 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                   </div>
                 ) : (
                   <p className="rounded-xl border border-[var(--gold)]/50 bg-[var(--gold)]/10 p-3 text-sm font-semibold">
-                    No single vehicle carries {passengers} {passengers === 1 ? "passenger" : "passengers"} and {luggage} {luggage === 1 ? "suitcase" : "suitcases"}. Choose more than one vehicle below.
+                    {unpricedFitting.length
+                      ? `We can't price a single vehicle for ${passengers} ${passengers === 1 ? "passenger" : "passengers"} online for this day. Choose more than one vehicle below, ${canRequestQuote ? "request a quote" : `or call us on ${SITE.phoneUK}`}.`
+                      : `No single vehicle carries ${passengers} ${passengers === 1 ? "passenger" : "passengers"} and ${luggage} ${luggage === 1 ? "suitcase" : "suitcases"}. Choose more than one vehicle below.`}
                   </p>
+                )}
+                {unpricedFitting.length > 0 && (
+                  <ul className="space-y-1 text-xs text-muted-foreground">
+                    {unpricedFitting.map((c) => (
+                      <li key={c.id}>
+                        <span className="font-semibold text-foreground">{c.name}</span> · up to {c.max_passengers ?? "—"} passengers · price on request{canRequestQuote ? " (use Request a quote below)" : ` (call ${SITE.phoneUK})`}
+                      </li>
+                    ))}
+                  </ul>
                 )}
 
                 {/* More than one vehicle */}
