@@ -204,6 +204,13 @@
       "when": 1794562705523,
       "tag": "0028_single_featured_blog_post",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1794562728435,
+      "tag": "0029_single_featured_before_trigger",
+      "breakpoints": true
     }
   ]
 }
