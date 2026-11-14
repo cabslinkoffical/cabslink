@@ -38,7 +38,7 @@ export const listPublicExtras = createServerFn({ method: "GET" })
         .order("sort_order", { ascending: true }),
       client.from("extra_vehicle_classes").select("extra_id, vehicle_class_id, price_pence, max_quantity"),
     ]);
-    if (extras.error) return [];
+    if (extras.error || links.error) throw new Error("We couldn't load extras right now. Please try again.");
 
     const rows = (extras.data ?? []) as any[];
     const catalogue: ExtrasCatalogue = rows.map((e) => ({

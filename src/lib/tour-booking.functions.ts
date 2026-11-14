@@ -23,6 +23,10 @@ import {
   type TourQuoteResult,
 } from "@/lib/tour-quote.server";
 import type { HourTier, TourRules } from "@/lib/tour-quote";
+import { priceDayExtras } from "@/lib/day-extras";
+import { loadExtrasCatalogue } from "@/lib/extras-pricing.server";
+import { loadQuoteSettings } from "@/lib/pricing-helpers.server";
+import { coverDelta } from "@/lib/cancellation-cover";
 
 export type TourBookingOptions = {
   tiers: HourTier[];
@@ -177,6 +181,8 @@ const quoteSchema = z.object({
   stops: z.array(stopSchema).max(15).default([]),
   /** One entry per vehicle when the group needs more than one; the first is vehicleClassId. */
   vehicles: z.array(z.string().uuid()).max(6).optional(),
+  extras: z.array(z.object({ key: z.string().min(1).max(100), quantity: z.number().int().min(0).max(600) })).max(40).default([]),
+  cancellationCover: z.enum(["standard", "non_refundable", "flexible"]).default("standard"),
 });
 
 /** True when the request asks for more than one vehicle. */
@@ -184,9 +190,28 @@ const isGroup = (d: { vehicles?: string[] }) => (d.vehicles?.length ?? 0) > 1;
 
 /** Price one vehicle, or every vehicle in a group, through the same engine. */
 async function priceRequest(d: z.infer<typeof quoteSchema>): Promise<TourQuoteResult & { shares?: Array<{ vehicleClassId: string; passengers: number; luggage: number }> }> {
-  if (!isGroup(d)) return quoteTourImpl(d);
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { quoteTourGroupImpl } = await import("@/lib/tour-quote.server");
-  return quoteTourGroupImpl({ ...d, vehicleClassId: d.vehicles![0]!, vehicles: d.vehicles! });
+  const firstClassId = d.vehicles?.[0] ?? d.vehicleClassId;
+  const [result, catalogue, settings] = await Promise.all([
+    isGroup(d) && d.vehicles ? quoteTourGroupImpl({ ...d, vehicleClassId: firstClassId, vehicles: d.vehicles }) : quoteTourImpl(d),
+    loadExtrasCatalogue(supabaseAdmin),
+    loadQuoteSettings(supabaseAdmin),
+  ]);
+  const extras = priceDayExtras(catalogue, d.extras, firstClassId, d.passengers, settings.taxRate, settings.taxMode);
+  const beforeCover = Math.round((result.quote.total + extras.lines.reduce((t, e) => t + e.amount, 0)) * 100) / 100;
+  const delta = coverDelta(d.cancellationCover, beforeCover, {
+    nonRefundablePercent: settings.policyNonRefundablePercent,
+    nonRefundableMinPence: settings.policyNonRefundableMinPence,
+    flexiblePercent: settings.policyFlexiblePercent,
+    flexibleMinPence: settings.policyFlexibleMinPence,
+  });
+  return { ...result, quote: { ...result.quote,
+    lines: [...result.quote.lines, ...extras.lines, ...(delta ? [{ label: "Cancellation cover", amount: delta }] : [])],
+    total: Math.max(0, Math.round((beforeCover + delta) * 100) / 100),
+    chosen_extras: extras.choices,
+    cancellation_cover_amount: delta,
+  } };
 }
 
 export type TourQuoteRequest = z.input<typeof quoteSchema>;
@@ -351,6 +376,14 @@ export const createTourBooking = createServerFn({ method: "POST" })
       luggage: data.luggage,
       hand_luggage: 0,
       flight_number: data.flight || null,
+      pickup_place_id: data.startPlaceId,
+      dropoff_place_id: data.endPlaceId || data.startPlaceId,
+      child_seat: data.extras.some((e) => e.quantity > 0 && result.quote.chosen_extras?.some((x) => x.key === e.key && (x.category === "child_seat" || x.key === "child_seat"))),
+      child_seat_count: (result.quote.chosen_extras ?? []).filter((e) => e.category === "child_seat" || e.key === "child_seat").reduce((t, e) => t + e.quantity, 0),
+      child_seat_types: (result.quote.chosen_extras ?? []).filter((e) => e.category === "child_seat" || e.key === "child_seat").map(({ key, name, quantity }) => ({ key, name, quantity })),
+      meet_greet: (result.quote.chosen_extras ?? []).some((e) => (e.category === "meet_greet" || e.key === "meet_greet") && e.quantity > 0),
+      cancellation_cover: data.cancellationCover,
+      cancellation_cover_amount: result.quote.cancellation_cover_amount ?? 0,
       notes: [
         isHourly ? "HOURLY HIRE — car and driver by the hour" : `DAY TOUR — ${data.mode === "premade" ? "Premade tour" : "Custom day"}`,
         `Hours booked: ${data.hours}`,
