@@ -463,33 +463,33 @@ export function TourDetailView({ d, slug, enquire, preview = false }: {
           </div>
 
           {/* SIDEBAR */}
-          <aside className="lg:sticky lg:top-24 lg:self-start">
-            <div className="rounded-3xl border border-border bg-[var(--surface)] p-6 shadow-[var(--shadow-elegant)]">
+          <aside aria-label="Tour price and booking" className="min-w-0 lg:sticky lg:top-24 lg:self-start">
+            <div className="rounded-lg border border-border border-t-2 border-t-gold bg-card p-4 text-card-foreground shadow-elegant">
               <div className="flex items-baseline justify-between">
                 <p className="text-[11px] uppercase tracking-widest text-muted-foreground">
                   Private day tour
                 </p>
                 {quoteQuery.isFetching && <Loader2 className="size-3.5 animate-spin text-muted-foreground" />}
               </div>
-              <p className="font-display text-3xl font-semibold text-[var(--gold-ink)] mt-1">
+              <p className="font-display text-2xl font-semibold text-gold-ink mt-1 leading-tight">
                 {d.starting_price_pence != null
                   ? `From £${(d.starting_price_pence / 100).toFixed(0)}`
                   : "Price on request"}
               </p>
-              <p className="mt-1 text-xs text-muted-foreground">
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
                 {d.starting_price_pence != null
                   ? "Per vehicle, driver included. Your final price is confirmed before you pay."
                   : "Tell us your date, group size and stops — we'll send a tailored quote."}
               </p>
               {d.starting_price_pence != null && d.price_covers && (
-                <div className="mt-4 rounded-2xl border border-border bg-background p-4">
-                  <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--navy)]/70">What the price covers</p>
-                  <ul className="mt-2 space-y-1.5 text-sm text-[var(--navy)]/80">
+                <div className="mt-3 border-y border-border py-2">
+                  <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">What the price covers</p>
+                  <ul className="mt-2 space-y-1 text-xs leading-normal text-muted-foreground">
                     {priceCoverLines(d.price_covers).map((line) => (
                       <li key={line.text} className="flex items-start gap-2">
                         {line.covered
-                          ? <Check className="mt-0.5 size-4 shrink-0 text-[var(--gold-ink)]" aria-hidden="true" />
-                          : <Minus className="mt-0.5 size-4 shrink-0 text-[var(--navy)]/60" aria-hidden="true" />}
+                          ? <Check className="mt-0.5 size-3.5 shrink-0 text-gold-ink" aria-hidden="true" />
+                          : <Minus className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />}
                         {line.text}
                       </li>
                     ))}
@@ -499,7 +499,7 @@ export function TourDetailView({ d, slug, enquire, preview = false }: {
 
 
 
-              <Button size="lg" variant="gold" className="w-full mt-5" asChild>
+              <Button variant="gold" className="w-full min-h-11 mt-3 text-sm" asChild>
                 <Link to="/book/tour" search={{ tour: d.slug }}>
                   Book this tour <ArrowRight className="size-4 ml-1 inline" />
                 </Link>
@@ -509,18 +509,18 @@ export function TourDetailView({ d, slug, enquire, preview = false }: {
                 tour={tourForBooking}
                 autoOpen={enquire === true}
                 trigger={
-                  <Button size="lg" variant="outline" className="w-full mt-3">
+                  <Button variant="outline" className="w-full min-h-11 mt-2 whitespace-normal text-sm">
                     Ask for a tailored quote
                   </Button>
                 }
               />
 
 
-              <ul className="mt-5 space-y-2 text-sm text-muted-foreground">
-                <li className="flex items-center gap-2"><Check className="size-4 text-[var(--gold-ink)]" />{orderedStops.length || d.recommended_stop_count} stops selected</li>
-                {totalJourneySecs && <li className="flex items-center gap-2"><Check className="size-4 text-[var(--gold-ink)]" />~{formatDuration(totalJourneySecs)} total journey</li>}
-                <li className="flex items-center gap-2"><Check className="size-4 text-[var(--gold-ink)]" />Professional driver</li>
-                <li className="flex items-center gap-2"><Check className="size-4 text-[var(--gold-ink)]" />{FACT_TEXT.tourCancellationShort}</li>
+              <ul className="mt-3 space-y-1 text-xs leading-normal text-muted-foreground lg:pr-9">
+                <li className="flex items-start gap-2"><Check className="mt-0.5 size-3.5 shrink-0 text-gold-ink" />{orderedStops.length || d.recommended_stop_count} stops selected</li>
+                {totalJourneySecs && <li className="flex items-start gap-2"><Check className="mt-0.5 size-3.5 shrink-0 text-gold-ink" />~{formatDuration(totalJourneySecs)} total journey</li>}
+                <li className="flex items-start gap-2"><Check className="mt-0.5 size-3.5 shrink-0 text-gold-ink" />Professional driver</li>
+                <li className="flex items-start gap-2"><Check className="mt-0.5 size-3.5 shrink-0 text-gold-ink" />{FACT_TEXT.tourCancellationShort}</li>
               </ul>
             </div>
 
