@@ -1324,14 +1324,17 @@ function RouteTimeline({
                 {!onDwell && <span className="block text-[11px] text-muted-foreground">{minutesShort(s.dwellMinutes ?? minStopMinutes)} here</span>}
               </span>
               {onDwell && (
-                <select
-                  aria-label={`Time at ${s.name}`}
-                  value={Math.max(minStopMinutes, s.dwellMinutes ?? minStopMinutes)}
-                  onChange={(e) => onDwell(i, Number(e.target.value))}
-                  className="h-8 rounded-md border border-border bg-background px-1.5 text-xs font-semibold"
-                >
-                  {dwellChoices(s.dwellMinutes).map((m) => <option key={m} value={m}>{minutesShort(m)}</option>)}
-                </select>
+                <label className="flex shrink-0 flex-col items-end gap-0.5">
+                  <span className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Time here</span>
+                  <select
+                    aria-label={`Time at ${s.name}`}
+                    value={Math.max(minStopMinutes, s.dwellMinutes ?? minStopMinutes)}
+                    onChange={(e) => onDwell(i, Number(e.target.value))}
+                    className="h-8 rounded-md border border-border bg-background px-1.5 text-xs font-semibold"
+                  >
+                    {dwellChoices(s.dwellMinutes).map((m) => <option key={m} value={m}>{minutesShort(m)}</option>)}
+                  </select>
+                </label>
               )}
               {onMove && (
                 <span className="flex shrink-0 flex-col">
