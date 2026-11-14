@@ -116,7 +116,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
   const [groupVehicles, setGroupVehicles] = useState<string[]>([]);
   const [showGroup, setShowGroup] = useState(false);
   const [passengers, setPassengers] = useState(1);
-  const [passengersConfirmed, setPassengersConfirmed] = useState(false);
+  const [passengersConfirmed, setPassengersConfirmed] = useState(true);
   const [luggage, setLuggage] = useState(0);
   const [stops, setStops] = useState<Stop[]>([]);
   /** Keep stops in the quickest driving order automatically until the customer moves one by hand. */
