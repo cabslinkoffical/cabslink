@@ -88,3 +88,20 @@ describe("tour same-day and notice checks use UK time", () => {
     expect(tourStartProblem("2027-07-16", "00:30", strict, new Date("2027-07-15T11:29:00Z"))).toBeNull();
   });
 });
+
+describe("cancellationCoverOffered", () => {
+  it("is offered only when the tour is more than two days after the booking date", () => {
+    // Booked 14 Nov: 16 Nov is exactly two days away, so no cover choice.
+    expect(cancellationCoverOffered("2026-11-16", "2026-11-14")).toBe(false);
+    expect(cancellationCoverOffered("2026-11-15", "2026-11-14")).toBe(false);
+    expect(cancellationCoverOffered("2026-11-14", "2026-11-14")).toBe(false);
+    // 17 Nov is the first date a cover choice is offered.
+    expect(cancellationCoverOffered("2026-11-17", "2026-11-14")).toBe(true);
+    expect(cancellationCoverOffered("2027-01-10", "2026-11-14")).toBe(true);
+  });
+  it("rejects missing or unreadable dates", () => {
+    expect(cancellationCoverOffered("", "2026-11-14")).toBe(false);
+    expect(cancellationCoverOffered(null, "2026-11-14")).toBe(false);
+    expect(cancellationCoverOffered("14/11/2026", "2026-11-14")).toBe(false);
+  });
+});
