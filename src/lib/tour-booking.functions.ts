@@ -27,6 +27,7 @@ import { priceDayExtras } from "@/lib/day-extras";
 import { loadExtrasCatalogue } from "@/lib/extras-pricing.server";
 import { loadQuoteSettings } from "@/lib/pricing-helpers.server";
 import { coverDelta } from "@/lib/cancellation-cover";
+import { cancellationCoverOffered } from "@/lib/uk-time";
 
 export type TourBookingOptions = {
   tiers: HourTier[];
@@ -187,6 +188,8 @@ const quoteSchema = z.object({
   vehicles: z.array(z.string().uuid()).max(6).optional(),
   extras: z.array(z.object({ key: z.string().min(1).max(100), quantity: z.number().int().min(0).max(600) })).max(40).default([]),
   cancellationCover: z.enum(["standard", "non_refundable", "flexible"]).default("standard"),
+  /** UK tour date; cover choices only apply when it is more than two days away. */
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
 });
 
 /** True when the request asks for more than one vehicle. */
@@ -205,7 +208,9 @@ async function priceRequest(d: z.infer<typeof quoteSchema>): Promise<TourQuoteRe
   const extras = priceDayExtras(catalogue, d.extras, firstClassId, d.passengers, settings.taxRate, settings.taxMode);
   if (!(result.quote.total > 0)) throw new Error("We couldn't price this right now, please try again or call us");
   const beforeCover = Math.round((result.quote.total + extras.lines.reduce((t, e) => t + e.amount, 0)) * 100) / 100;
-  const delta = coverDelta(d.cancellationCover, beforeCover, {
+  // Cover upgrades are only sold for tours more than two days away.
+  const cover = d.date && !cancellationCoverOffered(d.date) ? "standard" : d.cancellationCover;
+  const delta = coverDelta(cover, beforeCover, {
     nonRefundablePercent: settings.policyNonRefundablePercent,
     nonRefundableMinPence: settings.policyNonRefundableMinPence,
     flexiblePercent: settings.policyFlexiblePercent,

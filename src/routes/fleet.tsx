@@ -107,13 +107,18 @@ function FleetPage() {
 
   const items = useMemo(() => classes.filter((c) => c.slug !== "unclassified"), [classes]);
   const [group, setGroup] = useState<GroupKey>("all");
+  const [minSeats, setMinSeats] = useState(0);
 
   const tabs = useMemo(
     () => GROUPS.filter((g) => g.key === "all" || items.some(g.match)),
     [items],
   );
   const active = tabs.find((t) => t.key === group) ?? tabs[0];
-  const visible = items.filter(active.match);
+  const seatOptions = useMemo(
+    () => [0, ...[...new Set(items.map((c) => c.passengers))].sort((a, b) => a - b)],
+    [items],
+  );
+  const visible = items.filter(active.match).filter((c) => c.passengers >= minSeats);
 
   const maxPax = items.reduce((m, c) => Math.max(m, c.passengers), 0);
 
@@ -180,6 +185,29 @@ function FleetPage() {
             <p className="text-xs uppercase tracking-[0.2em] text-navy-foreground/60">
               {visible.length} {visible.length === 1 ? "class" : "classes"}
             </p>
+          </div>
+
+          {/* Seats filter */}
+          <div className="mb-8 flex flex-wrap items-center gap-2">
+            <span className="mr-1 text-xs font-semibold uppercase tracking-[0.14em] text-navy-foreground/60">Seats needed</span>
+            {seatOptions.map((n) => {
+              const on = minSeats === n;
+              return (
+                <button
+                  key={n}
+                  type="button"
+                  onClick={() => setMinSeats(n)}
+                  aria-pressed={on}
+                  className={`shrink-0 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+                    on
+                      ? "border-[var(--gold)] bg-[var(--gold)] text-[var(--gold-foreground)]"
+                      : "border-navy-foreground/15 text-navy-foreground/70 hover:border-[var(--gold)]/50 hover:text-navy-foreground"
+                  }`}
+                >
+                  {n === 0 ? "Any" : `${n}+`}
+                </button>
+              );
+            })}
           </div>
 
           {visible.length === 0 ? (

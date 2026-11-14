@@ -4,10 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { coverName, coverPromise, type CancellationCover } from "@/lib/cancellation-cover";
+import { cancellationCoverOffered } from "@/lib/uk-time";
 
-export function DayBookingExtras({ classId, passengers, quantities, onChange, cover, onCover }: {
+export function DayBookingExtras({ classId, passengers, quantities, onChange, cover, onCover, pickupDate }: {
   classId: string; passengers: number; quantities: Record<string, number>;
   onChange: (key: string, quantity: number) => void; cover: CancellationCover; onCover: (v: CancellationCover) => void;
+  pickupDate: string;
 }) {
   const extras = useQuery({ queryKey: ["public-extras", classId], queryFn: () => listPublicExtras({ data: { classId } }), staleTime: 300_000 });
   const seats = (extras.data ?? []).filter((e) => e.category === "child_seat").reduce((t, e) => t + (quantities[e.key] ?? 0), 0);
@@ -31,7 +33,9 @@ export function DayBookingExtras({ classId, passengers, quantities, onChange, co
         })}</div>
       </div>;
     })}
-    <h4 className="text-sm font-semibold">Cancellation cover</h4>
-    <div className="grid gap-2">{(["standard", "flexible", "non_refundable"] as const).map((v) => <Button key={v} variant={cover === v ? "secondary" : "outline"} className="h-auto justify-start whitespace-normal py-3 text-left" aria-pressed={cover === v} onClick={() => onCover(v)}><span><span className="block font-semibold">{coverName(v)}</span><span className="block text-xs font-normal text-muted-foreground">{coverPromise(v)}</span></span></Button>)}</div>
+    {cancellationCoverOffered(pickupDate) && <>
+      <h4 className="text-sm font-semibold">Cancellation cover</h4>
+      <div className="grid gap-2">{(["standard", "flexible", "non_refundable"] as const).map((v) => <Button key={v} variant={cover === v ? "secondary" : "outline"} className="h-auto justify-start whitespace-normal py-3 text-left" aria-pressed={cover === v} onClick={() => onCover(v)}><span><span className="block font-semibold">{coverName(v)}</span><span className="block text-xs font-normal text-muted-foreground">{coverPromise(v)}</span></span></Button>)}</div>
+    </>}
   </div>;
 }

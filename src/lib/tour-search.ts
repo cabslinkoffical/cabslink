@@ -23,6 +23,22 @@ export function matchesTourSearch(tour: SearchableTour, query: string, theme = "
   return searchText(query).split(" ").filter(Boolean).every((word) => haystack.includes(word));
 }
 
+export type TourLength = "" | "half" | "full" | "long";
+
+/**
+ * Catalogue length filter. Long-day tours are flagged by admin; the rest
+ * split at six hours. A tour with no duration stays visible under every
+ * length so filters never hide a bookable tour.
+ */
+export function matchesTourLength(tour: { duration_hours: number | null; long_day: boolean }, length: TourLength) {
+  if (!length) return true;
+  if (length === "long") return tour.long_day;
+  if (tour.long_day) return false;
+  const hours = tour.duration_hours;
+  if (hours == null) return true;
+  return length === "half" ? hours <= 6 : hours > 6;
+}
+
 export function tourSearchThemes(tours: SearchableTour[]) {
   const ordered = new Map<string, number>();
   for (const tour of tours) {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { matchesTourSearch, tourSearchThemes } from "@/lib/tour-search";
+import { matchesTourLength, matchesTourSearch, tourSearchThemes } from "@/lib/tour-search";
 
 const tour = {
   name: "Stirling Castle", short_description: "Private day trip",
@@ -29,5 +29,28 @@ describe("tour catalogue search", () => {
       tour,
       { ...tour, theme_group: "Hidden", category_order: null },
     ])).toEqual(["Castles & History", "Family Days"]);
+  });
+});
+describe("tour length filter", () => {
+  const half = { duration_hours: 5, long_day: false };
+  const full = { duration_hours: 8, long_day: false };
+  const longDay = { duration_hours: 12, long_day: true };
+  const unknown = { duration_hours: null, long_day: false };
+  it("splits regular tours at six hours", () => {
+    expect(matchesTourLength(half, "half")).toBe(true);
+    expect(matchesTourLength(full, "half")).toBe(false);
+    expect(matchesTourLength(full, "full")).toBe(true);
+    expect(matchesTourLength(half, "full")).toBe(false);
+  });
+  it("long-day tours only appear under the long filter", () => {
+    expect(matchesTourLength(longDay, "long")).toBe(true);
+    expect(matchesTourLength(longDay, "half")).toBe(false);
+    expect(matchesTourLength(longDay, "full")).toBe(false);
+    expect(matchesTourLength(half, "long")).toBe(false);
+  });
+  it("empty length shows everything and unset durations are never hidden", () => {
+    expect(matchesTourLength(longDay, "")).toBe(true);
+    expect(matchesTourLength(unknown, "half")).toBe(true);
+    expect(matchesTourLength(unknown, "full")).toBe(true);
   });
 });
