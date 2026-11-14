@@ -439,6 +439,8 @@ export async function tourPoiSuggestionsImpl(args: {
   limit: number;
   /** Admin-set share of the allowance used as the search radius (default half). */
   radiusFactor?: number;
+  /** Hours booked; suggestions that can't be driven to and visited inside them go last. */
+  hours?: number;
 }): Promise<{ suggestions: TourPoiSuggestion[]; includedMiles: number; measured: boolean }> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const rows: any = await supabaseAdmin
@@ -477,6 +479,7 @@ export async function tourPoiSuggestionsImpl(args: {
       lng: lng ?? undefined,
       _sort: round ?? Number.POSITIVE_INFINITY,
       _featured: !!p.featured,
+      _reviews: 0,
     };
   });
 
@@ -513,16 +516,19 @@ export async function tourPoiSuggestionsImpl(args: {
         lng: place.lng,
         _sort: round,
         _featured: false,
+        _reviews: place.reviewCount,
       });
     }
   }
 
-  mapped.sort((a, b) => {
-    if (a.withinAllowance !== b.withinAllowance) return a.withinAllowance ? -1 : 1;
-    if (a._featured !== b._featured) return a._featured ? -1 : 1;
-    if (a.source !== b.source) return a.source === "curated" ? -1 : 1;
-    return a._sort - b._sort;
-  });
+  const { rankSuggestions } = await import("@/lib/tour-suggestion-rank");
+  const rankOf = (list: any[]) =>
+    rankSuggestions(
+      list.map((m) => ({ ...m, roundTripMiles: Number.isFinite(m._sort) ? m._sort : null, featured: m._featured, reviewCount: m._reviews, _m: m })),
+      args.includedMiles, args.hours, AVG_MPH,
+    ).map((r: any) => r._m);
+  const ranked = rankOf(mapped);
+  mapped.length = 0; mapped.push(...ranked);
 
   // Keep room for map finds, otherwise a well-curated city fills every slot and
   // the customer never sees the places we found live around their pickup.
@@ -534,13 +540,9 @@ export async function tourPoiSuggestionsImpl(args: {
     : curated;
 
   return {
-    suggestions: chosen
+    suggestions: rankOf(chosen)
       .slice(0, args.limit)
-      .sort((a, b) => {
-        if (a.withinAllowance !== b.withinAllowance) return a.withinAllowance ? -1 : 1;
-        return a._sort - b._sort;
-      })
-      .map(({ _sort, _featured, ...rest }) => rest as TourPoiSuggestion),
+      .map(({ _sort, _featured, _reviews, ...rest }: any) => rest as TourPoiSuggestion),
     includedMiles: args.includedMiles,
     measured: !!from,
   };
