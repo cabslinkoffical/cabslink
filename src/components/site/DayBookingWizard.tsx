@@ -839,8 +839,9 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                   ) : (
                     <>
                       <div className="mt-3 flex flex-wrap gap-2">
-                        {visibleTourSuggestions(suggestions.data?.suggestions ?? [], showAllSuggestions).map((p) => {
+                        {visibleTourSuggestions(suggestions.data?.suggestions ?? [], showAllSuggestions).map((p, i) => {
                           const chosen = stops.some((s) => s.poiId === p.id || s.placeId === p.placeId);
+                          const topPick = i === 0 && !chosen;
                           return (
                             <button
                               key={p.id}
@@ -855,16 +856,17 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                                 }
                               }}
                               className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
-                                chosen ? "border-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_14%,transparent)]" : "border-border hover:border-[var(--gold)]"
+                                chosen || topPick ? "border-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_14%,transparent)]" : "border-border hover:border-[var(--gold)]"
                               }`}
                               title={p.withinAllowance ? "Within your included miles" : `About ${p.roundTripMiles} miles there and back`}
                             >
                               {chosen ? <Check className="size-3.5" /> : <Plus className="size-3.5" />} {p.name}
+                              {topPick && <span className="rounded-full bg-[var(--gold)] px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[var(--navy)]">Recommended</span>}
                             </button>
                           );
                         })}
                       </div>
-                      {(suggestions.data?.suggestions.length ?? 0) > 4 && (
+                      {(suggestions.data?.suggestions.length ?? 0) > VISIBLE_SUGGESTION_COUNT && (
                         <Button type="button" variant="ghost" size="sm" className="mt-2" onClick={() => setShowAllSuggestions((v) => !v)}>
                           {showAllSuggestions ? "Show fewer" : "More places"}
                         </Button>
