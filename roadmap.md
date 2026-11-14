@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Compact tour/hourly extras (14 Nov): reduce the screenshot's oversized text and spacing without changing extras or prices; verify desktop and phone.
 - [ ] Tour/hourly vehicle choices (14 Nov): retain every priced vehicle class, recommend first, automatically select the required quantity per class and show combined capacity/price; verify both booking flows. Airport SEO proposal remains awaiting approval.
 - [x] Cancellation cover window (14 Nov): cover choices only when the tour date is more than two UK days after booking; form hides the choice and resets to standard, server forces standard cover for near dates; rule tests pass (45 checks), build OK. Live-form check blocked by sandbox Google key; nothing published.
 - [x] Page filters (14 Nov): Tours gains a length filter (only options with matching tours shown, 11 of 22 full-day verified), Blog gains in-page search + topic chips (4 articles found for "airport"), Fleet gains a seats-needed chip row beside existing class tabs; 8 tour-search checks pass, build OK, no page errors. Nothing published.
