@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Suggested-place limit (14 Nov): exactly four choices initially; remaining suggestions revealed by More places in day booking forms.
 - [ ] Premade tour improvements (14 Nov): suggested/custom stops, automatic allowed duration and live authoritative price, transfer catalogue extras, viewport-fitting price-first right summary; verify desktop/mobile and booking save.
 - [ ] Follow-up panel design (14 Nov): show tour map before pickup is selected, honest starting price at the top, clearer summary spacing; check Highlands tour at desktop and phone sizes.
 - [ ] Latest panel correction (14 Nov): price tier instead of awaiting-route text, no internal scrollbar, compact map and summary without empty space.

@@ -6,6 +6,10 @@
 
 export type WizardStepId = "tour" | "when" | "stops" | "vehicle" | "details";
 
+export function visibleTourSuggestions<T>(suggestions: T[], expanded: boolean): T[] {
+  return expanded ? suggestions : suggestions.slice(0, 4);
+}
+
 /** Ready-made tours skip the stops step (their stops are set); hourly hire has no tour choice. */
 export function wizardSteps(kind: "tour" | "hourly", mode: "premade" | "custom"): WizardStepId[] {
   if (kind === "hourly") return ["when", "stops", "vehicle", "details"];
