@@ -1168,13 +1168,14 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
             </div>
 
             {/* Price stays visible; long itineraries scroll inside the screen-height panel. */}
-            <aside aria-label="Booking summary" className="min-w-0 overflow-hidden rounded-lg border border-border bg-card shadow-raised lg:sticky lg:top-24 lg:flex lg:max-h-[calc(100dvh-7rem)] lg:flex-col">
+            <aside aria-label="Booking summary" className="min-w-0 overflow-hidden rounded-lg border border-border bg-card shadow-raised lg:sticky lg:top-24 lg:self-start">
               <div className="shrink-0 bg-navy px-5 py-4 text-navy-foreground">
-                <p className="text-xs font-semibold">Total price</p>
-                <p className="mt-1 font-display text-3xl font-bold text-gold" aria-live="polite">{priceMutation.isPending || loop.isFetching || optimiseMutation.isPending ? "Checking…" : liveQuote && !liveQuote.blockedReason && liveQuote.total > 0 ? `£${liveQuote.total.toFixed(2)}` : !start && startingPrice != null ? `From £${startingPrice.toFixed(2)}` : "Awaiting route"}</p>
+                <p className="text-xs font-semibold">{liveQuote && !liveQuote.blockedReason ? "Total price" : "Price tier"}</p>
+                <p className="mt-1 font-display text-3xl font-bold text-gold" aria-live="polite">{liveQuote && !liveQuote.blockedReason && liveQuote.total > 0 ? `£${liveQuote.total.toFixed(2)}` : startingPrice != null ? `From £${startingPrice.toFixed(2)}` : vehicle?.hourly_rate ? `£${Number(vehicle.hourly_rate).toFixed(2)}/hr` : "Price on request"}</p>
+                {(priceMutation.isPending || loop.isFetching || optimiseMutation.isPending) && <p className="text-xs text-navy-foreground/70">Updating total…</p>}
                 <p className="mt-1 text-xs text-navy-foreground/70">{FACT_TEXT.feesIncludedShort}</p>
               </div>
-              <div className="min-h-0 space-y-3 p-4 lg:overflow-y-auto">
+              <div className="space-y-3 p-4">
                 <h2 className="font-display text-lg font-bold">{template ? template.name : hourly ? "Hourly hire" : "Your own day tour"}</h2>
                 {(start || overviewPoints.length > 0) && <TourLoopMap startPlaceId={start?.placeId} startLabel={start?.label} endPlaceId={sameEnd ? null : end?.placeId} overviewPoints={overviewPoints} stops={stops.map((s) => ({ placeId: s.placeId, name: s.name }))} />}
                 <dl className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
@@ -1184,10 +1185,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                   <SummaryItem label="Passengers" value={`${passengers} · ${luggage} cases`} />
                   {vehicleLabel && <SummaryItem label={groupActive ? "Vehicles" : "Vehicle"} value={vehicleLabel} />}
                 </dl>
-                {liveQuote && !priceMutation.isPending && <ul className="space-y-2 border-t border-border pt-3 text-xs">{liveQuote.lines.map((line, i) => <li key={i} className="flex justify-between gap-3"><span className="min-w-0">{line.label}</span><span className="shrink-0 font-semibold">£{line.amount.toFixed(2)}</span></li>)}</ul>}
-                {start && <>
-                  <details className="border-t border-border pt-3"><summary className="cursor-pointer text-sm font-semibold">Your route · {stops.length} stops</summary><div className="mt-3"><RouteTimeline compact startLabel={start.label} finishLabel={finishLabel} stops={stops} legs={legs} /></div></details>
-                </>}
+                {start && <p className="border-t border-border pt-3 text-xs font-semibold">{stops.length} stops{legs ? ` · ${legs.reduce((t, l) => t + l.miles, 0).toFixed(1)} miles · ${minutesShort(legs.reduce((t, l) => t + l.minutes, 0))} driving` : ""}</p>}
               </div>
             </aside>
           </div>
