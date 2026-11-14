@@ -72,3 +72,12 @@ export function addHoursToTime(time: string, hours: number): string {
   const total = ((h ?? 0) * 60 + (m ?? 0) + Math.round(hours * 60)) % (24 * 60);
   return `${String(Math.floor(total / 60)).padStart(2, "0")}:${String(total % 60).padStart(2, "0")}`;
 }
+
+/** Smallest allowed length containing road time, visits and the configured pickup buffer.
+ * A ready-made tour never drops below its default sold length. No fitting
+ * option returns null rather than inventing a duration beyond admin limits.
+ */
+export function automaticTourHours(choices: number[], baseHours: number, driveMinutes: number, dwellMinutes: number[], minimumStopMinutes: number, pickupBufferMinutes: number): number | null {
+  const needed = driveMinutes + pickupBufferMinutes + dwellMinutes.reduce((t, m) => t + Math.max(minimumStopMinutes, m), 0);
+  return [...choices].sort((a, b) => a - b).find((h) => h >= baseHours && h * 60 >= needed) ?? null;
+}
