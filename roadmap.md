@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Tour/hourly phone booking bar (14 Nov): match transfer bottom controls with price and continuation; keep desktop controls and prevent overlap.
 - [ ] Compact tour/hourly extras (14 Nov): reduce the screenshot's oversized text and spacing without changing extras or prices; verify desktop and phone.
 - [ ] Tour/hourly vehicle choices (14 Nov): retain every priced vehicle class, recommend first, automatically select the required quantity per class and show combined capacity/price; verify both booking flows. Airport SEO proposal remains awaiting approval.
 - [x] Cancellation cover window (14 Nov): cover choices only when the tour date is more than two UK days after booking; form hides the choice and resets to standard, server forces standard cover for near dates; rule tests pass (45 checks), build OK. Live-form check blocked by sandbox Google key; nothing published.
