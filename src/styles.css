@@ -1325,50 +1325,6 @@ input[type="time"] {
  * Non-home page top section (PageHero) — mirrors the homepage hero type
  * and the closing band's buttons. Scoped classes; homepage CSS untouched.
  * ------------------------------------------------------------------ */
-/* Tour detail presentation is shared with staff previews, never booking pages. */
-.tour-detail-hero-inner {
-  min-height: 480px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 5rem;
-  padding-block: 2rem 3rem;
-}
-.tour-detail-scrim {
-  background: linear-gradient(180deg,
-    color-mix(in srgb, var(--navy) 65%, transparent) 0%,
-    color-mix(in srgb, var(--navy) 10%, transparent) 30%,
-    color-mix(in srgb, var(--navy) 84%, transparent) 100%);
-}
-.tour-detail-content h2 { line-height: 1.3; }
-.tour-detail-content :is(.rounded-2xl, .rounded-3xl) { border-radius: 8px; }
-.tour-detail-content #tour-overview > div:not(.speakable):not(:first-child) {
-  padding-top: 1.75rem;
-  border-top: 1px solid var(--border);
-}
-.tour-detail-content #tour-overview > .prose p { line-height: 1.85; }
-.tour-detail-content #tour-stops > div:first-child { align-items: flex-start; flex-wrap: wrap; }
-.tour-detail-content #tour-stops li { box-shadow: none; }
-.tour-detail-content #tour-stops li > div > div:last-child { min-width: 0; }
-.tour-detail-content #tour-stops h3 { font-size: 1rem; line-height: 1.4; }
-.tour-detail-content #tour-stops .line-clamp-2 { display: block; overflow: visible; }
-.tour-detail-price-panel { border-top: 3px solid var(--gold); }
-@media (max-width: 639px) {
-  .tour-detail-hero-inner { min-height: 400px; gap: 3rem; padding-block: 1.5rem 2rem; }
-  .tour-detail-hero h1 { font-size: 2rem; }
-  .tour-detail-content h2 { font-size: 1.25rem; }
-  .tour-detail-content #tour-stops li > div { flex-direction: column; gap: 0; }
-  .tour-detail-content .tour-stop-photo { width: 100%; height: 160px; }
-  .tour-detail-content .tour-stop-photo img { aspect-ratio: auto; }
-  .tour-detail-price-panel { padding: 1rem; }
-}
-@media (min-width: 1024px) and (max-height: 750px) {
-  .tour-detail-booking { top: 80px; }
-  .tour-detail-price-panel { padding: 1rem; }
-  .tour-detail-price-panel > ul { font-size: 0.75rem; margin-top: 0.75rem; }
-  .tour-detail-price-panel > p.text-3xl { font-size: 1.75rem; }
-  .tour-detail-price-panel > .mt-4 { margin-top: 0.75rem; padding-block: 0.75rem; }
-}
 .page-hero-inner { padding-block: 3rem 3.25rem; }
 .page-hero[data-align="center"] .page-hero-inner { text-align: center; }
 .page-hero[data-align="center"] .page-hero-title,
