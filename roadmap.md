@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Approved airport SEO (14 Nov): update two search titles/descriptions, live starting-cost answer and Royal Mile caveat; add only missing discovery links; preserve H1s/URLs/design/indexing and do not publish.
 - [x] Tour/hourly phone booking bar (14 Nov): fixed price/Back/Continue bar, native details-form submission and safe-area spacing; 390px bar verified at bottom, no sideways overflow, desktop navigation retained. No booking/payment submitted or publication.
 - [x] Compact tour/hourly extras (14 Nov): smaller heading/labels, tighter rows and quantity controls; 14px heading verified, existing extras/prices unchanged.
 - [x] Tour/hourly vehicle choices (14 Nov): all priced classes retained with minimum automatic quantity and total capacity, recommendation first, optional mixed classes. Actual tour shows 12 classes for 9 passengers and selects 3 Electric Saloons; hourly selects 4 Saloons for 13 passengers and authoritative £800 total. 86 checks pass, build OK. Airport SEO proposal remains awaiting approval; no publication.

@@ -102,7 +102,7 @@ const MAIN_SERVICES: MainService[] = [
     highlights: ["Flight tracking", "Meet & greet at arrivals", "Fixed price shown before you book. No surge pricing."],
     subs: [
       { icon: Plane, title: "Airport Transfers", desc: "All major UK airports with flight tracking and meet & greet.", to: "/airport-transfers" },
-      { icon: RouteIcon, title: "Edinburgh Airport Taxi Prices", desc: "Starting prices for our most-booked journeys from Edinburgh Airport.", to: "/edinburgh-airport-taxi-prices" },
+      { icon: RouteIcon, title: "Edinburgh Airport Taxi Prices", desc: "Starting prices for popular destinations from Edinburgh Airport.", to: "/edinburgh-airport-taxi-prices" },
       { icon: PlaneLanding, title: "Airport Directory", desc: "Terminal guides, pickup points and fares for each airport.", to: "/airports" },
       { icon: Train, title: "Train Station Transfers", desc: "Kerbside pickup at UK rail terminals, timed to your train.", to: "/stations" },
       { icon: Ship, title: "Cruise Port Transfers", desc: "Embarkation and disembarkation transfers with luggage space.", to: "/cruise-transfers" },
