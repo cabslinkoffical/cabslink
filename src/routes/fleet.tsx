@@ -115,7 +115,7 @@ function FleetPage() {
   );
   const active = tabs.find((t) => t.key === group) ?? tabs[0];
   const seatOptions = useMemo(
-    () => [0, ...new Set(items.map((c) => c.passengers))].sort((a, b) => a - b).filter((n, i, all) => n === 0 || all.indexOf(n) === i),
+    () => [0, ...[...new Set(items.map((c) => c.passengers))].sort((a, b) => a - b)],
     [items],
   );
   const visible = items.filter(active.match).filter((c) => c.passengers >= minSeats);
