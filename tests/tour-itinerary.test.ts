@@ -7,9 +7,9 @@ const stop = (poi: string, order: number, mandatory = false) => ({
 });
 
 describe("tour booking form rules", () => {
-  it("shows only four places until More places is opened", () => {
-    expect(visibleTourSuggestions([1, 2, 3, 4, 5, 6], false)).toEqual([1, 2, 3, 4]);
-    expect(visibleTourSuggestions([1, 2, 3, 4, 5, 6], true)).toEqual([1, 2, 3, 4, 5, 6]);
+  it("shows only six places until More places is opened", () => {
+    expect(visibleTourSuggestions([1, 2, 3, 4, 5, 6, 7, 8], false)).toEqual([1, 2, 3, 4, 5, 6]);
+    expect(visibleTourSuggestions([1, 2, 3, 4, 5, 6, 7, 8], true)).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
   });
   it("extra visits automatically extend an 8-hour tour to the smallest allowed length", () => {
     expect(automaticTourHours([8, 10, 12], 8, 160, [60, 60, 60, 60, 120], 10, 30)).toBe(10);

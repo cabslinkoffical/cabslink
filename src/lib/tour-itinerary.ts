@@ -6,8 +6,11 @@
 
 export type WizardStepId = "tour" | "when" | "stops" | "vehicle" | "details";
 
+/** How many suggested places show before the "More places" toggle. */
+export const VISIBLE_SUGGESTION_COUNT = 6;
+
 export function visibleTourSuggestions<T>(suggestions: T[], expanded: boolean): T[] {
-  return expanded ? suggestions : suggestions.slice(0, 4);
+  return expanded ? suggestions : suggestions.slice(0, VISIBLE_SUGGESTION_COUNT);
 }
 
 /** Ready-made tours skip the stops step (their stops are set); hourly hire has no tour choice. */

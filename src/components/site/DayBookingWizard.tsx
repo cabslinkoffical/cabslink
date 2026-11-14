@@ -27,7 +27,7 @@ import { splitGroup, suggestGroups, groupLabel, MAX_GROUP_VEHICLES } from "@/lib
 import { moveStop } from "@/lib/stop-order";
 import {
   wizardSteps, STEP_LABELS, fitsParty, templateStopsInOrder, tourHourChoices, addHoursToTime,
-  automaticTourHours, visibleTourSuggestions, type WizardStepId,
+  automaticTourHours, visibleTourSuggestions, VISIBLE_SUGGESTION_COUNT, type WizardStepId,
 } from "@/lib/tour-itinerary";
 import { DayBookingExtras } from "@/components/site/DayBookingExtras";
 import type { CancellationCover } from "@/lib/cancellation-cover";
@@ -740,8 +740,8 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                     </div>
                     <h3 className="text-sm font-semibold">Suggested places</h3>
                     {suggestions.isPending && start && <p className="text-xs text-muted-foreground">Finding places…</p>}
-                    <div aria-label="Suggested places" className="flex flex-wrap gap-2">{visibleTourSuggestions((suggestions.data?.suggestions ?? []).filter((p) => !stops.some((s) => s.placeId === p.placeId)), showAllSuggestions).map((p) => <Button key={p.id} variant="outline" size="sm" className="h-auto max-w-full whitespace-normal text-left" disabled={stops.length >= MAX_STOPS} onClick={() => addStop({ poiId: p.source === "map" ? null : p.id, placeId: p.placeId, name: p.name, dwellMinutes: Math.max(minStopMinutes, p.recommendedMinutes) })}><Plus className="size-3 shrink-0" />{p.name}</Button>)}</div>
-                    {(suggestions.data?.suggestions.filter((p) => !stops.some((s) => s.placeId === p.placeId)).length ?? 0) > 4 && <Button variant="ghost" size="sm" onClick={() => setShowAllSuggestions((v) => !v)}>{showAllSuggestions ? "Show fewer" : "More places"}</Button>}
+                    <div aria-label="Suggested places" className="flex flex-wrap gap-2">{visibleTourSuggestions((suggestions.data?.suggestions ?? []).filter((p) => !stops.some((s) => s.placeId === p.placeId)), showAllSuggestions).map((p, i) => <Button key={p.id} variant="outline" size="sm" className={`h-auto max-w-full whitespace-normal text-left ${i === 0 ? "border-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_14%,transparent)]" : ""}`} disabled={stops.length >= MAX_STOPS} onClick={() => addStop({ poiId: p.source === "map" ? null : p.id, placeId: p.placeId, name: p.name, dwellMinutes: Math.max(minStopMinutes, p.recommendedMinutes) })}><Plus className="size-3 shrink-0" />{p.name}{i === 0 && <span className="ml-1 rounded-full bg-[var(--gold)] px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[var(--navy)]">Recommended</span>}</Button>)}</div>
+                    {(suggestions.data?.suggestions.filter((p) => !stops.some((s) => s.placeId === p.placeId)).length ?? 0) > VISIBLE_SUGGESTION_COUNT && <Button variant="ghost" size="sm" onClick={() => setShowAllSuggestions((v) => !v)}>{showAllSuggestions ? "Show fewer" : "More places"}</Button>}
                     {loop.isError && <p className="text-sm text-destructive">We couldn't measure your route. Please check your stops.</p>}
                     {legs && autoHours == null && <p className="text-sm font-semibold text-destructive">These stops need more time than this tour allows. Shorten a visit or remove an added stop.</p>}
                     {quote?.quote.blockedReason && <p className="text-sm text-destructive">{quote.quote.blockedReason}</p>}
@@ -839,8 +839,9 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                   ) : (
                     <>
                       <div className="mt-3 flex flex-wrap gap-2">
-                        {visibleTourSuggestions(suggestions.data?.suggestions ?? [], showAllSuggestions).map((p) => {
+                        {visibleTourSuggestions(suggestions.data?.suggestions ?? [], showAllSuggestions).map((p, i) => {
                           const chosen = stops.some((s) => s.poiId === p.id || s.placeId === p.placeId);
+                          const topPick = i === 0 && !chosen;
                           return (
                             <button
                               key={p.id}
@@ -855,16 +856,17 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                                 }
                               }}
                               className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
-                                chosen ? "border-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_14%,transparent)]" : "border-border hover:border-[var(--gold)]"
+                                chosen || topPick ? "border-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_14%,transparent)]" : "border-border hover:border-[var(--gold)]"
                               }`}
                               title={p.withinAllowance ? "Within your included miles" : `About ${p.roundTripMiles} miles there and back`}
                             >
                               {chosen ? <Check className="size-3.5" /> : <Plus className="size-3.5" />} {p.name}
+                              {topPick && <span className="rounded-full bg-[var(--gold)] px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[var(--navy)]">Recommended</span>}
                             </button>
                           );
                         })}
                       </div>
-                      {(suggestions.data?.suggestions.length ?? 0) > 4 && (
+                      {(suggestions.data?.suggestions.length ?? 0) > VISIBLE_SUGGESTION_COUNT && (
                         <Button type="button" variant="ghost" size="sm" className="mt-2" onClick={() => setShowAllSuggestions((v) => !v)}>
                           {showAllSuggestions ? "Show fewer" : "More places"}
                         </Button>
@@ -1304,6 +1306,11 @@ function RouteTimeline({
 
   return (
     <div>
+      {onDwell && stops.length > 0 && (
+        <p className="mb-3 rounded-lg bg-muted/60 px-3 py-2 text-xs text-muted-foreground">
+          Use <span className="font-semibold text-foreground">Time here</span> to set how long you'd like to spend at each stop — the tour length and price update automatically.
+        </p>
+      )}
       <ol aria-label="Your route in order">
         <li className="flex items-center gap-3">
           <span className="grid size-6 shrink-0 place-items-center rounded-full bg-[var(--gold)] text-[var(--gold-foreground)]"><Flag className="size-3" /></span>
@@ -1322,14 +1329,17 @@ function RouteTimeline({
                 {!onDwell && <span className="block text-[11px] text-muted-foreground">{minutesShort(s.dwellMinutes ?? minStopMinutes)} here</span>}
               </span>
               {onDwell && (
-                <select
-                  aria-label={`Time at ${s.name}`}
-                  value={Math.max(minStopMinutes, s.dwellMinutes ?? minStopMinutes)}
-                  onChange={(e) => onDwell(i, Number(e.target.value))}
-                  className="h-8 rounded-md border border-border bg-background px-1.5 text-xs font-semibold"
-                >
-                  {dwellChoices(s.dwellMinutes).map((m) => <option key={m} value={m}>{minutesShort(m)}</option>)}
-                </select>
+                <label className="flex shrink-0 flex-col items-end gap-0.5">
+                  <span className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Time here</span>
+                  <select
+                    aria-label={`Time at ${s.name}`}
+                    value={Math.max(minStopMinutes, s.dwellMinutes ?? minStopMinutes)}
+                    onChange={(e) => onDwell(i, Number(e.target.value))}
+                    className="h-8 rounded-md border border-border bg-background px-1.5 text-xs font-semibold"
+                  >
+                    {dwellChoices(s.dwellMinutes).map((m) => <option key={m} value={m}>{minutesShort(m)}</option>)}
+                  </select>
+                </label>
               )}
               {onMove && (
                 <span className="flex shrink-0 flex-col">
