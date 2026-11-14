@@ -21,12 +21,13 @@ type Props = {
   endPlaceId?: string | null;
   /** Fallback centre when there are no stops yet and the pickup has no geometry. */
   className?: string;
+  overviewPoints?: Array<{ placeId: string; name: string; lat: number; lng: number }>;
 };
 
 const NAVY = "#0e182c";
 const GOLD = "#dfaf26";
 
-export function TourLoopMap({ startPlaceId, startLabel, stops, endPlaceId, className = "" }: Props) {
+export function TourLoopMap({ startPlaceId, startLabel, stops, endPlaceId, overviewPoints = [], className = "" }: Props) {
   const holder = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<any>(null);
   const drawnRef = useRef<any[]>([]);
@@ -35,7 +36,7 @@ export function TourLoopMap({ startPlaceId, startLabel, stops, endPlaceId, class
 
   const stopIds = stops.map((s) => s.placeId);
   const stopsKey = stopIds.join("|");
-  const enabled = !!startPlaceId;
+  const enabled = !!startPlaceId || overviewPoints.length > 0;
 
   const q = useQuery(tourLoopQuery(startPlaceId, stopIds, endPlaceId));
 
@@ -116,41 +117,27 @@ export function TourLoopMap({ startPlaceId, startLabel, stops, endPlaceId, class
       return;
     }
 
-    // No stops yet — centre on the pickup so the map still means something.
-    if (startPlaceId) {
-      const geocoder = new g.maps.Geocoder();
-      geocoder.geocode({ placeId: startPlaceId }, (res: any[], status: string) => {
-        if (status !== "OK" || !res?.[0]) return;
-        const loc = res[0].geometry.location;
-        pin(loc, { title: startLabel ?? "Pickup and finish", start: true });
-        map.setCenter(loc);
-        map.setZoom(11);
-      });
+    // Stored tour coordinates show the real stops before a pickup is selected.
+    // No browser Geocoding/Places calls and no invented route line.
+    if (overviewPoints.length) {
+      overviewPoints.forEach((p, i) => pin({ lat: p.lat, lng: p.lng }, { title: p.name, label: String(i + 1) }));
+      map.fitBounds(bounds, { top: 28, right: 28, bottom: 28, left: 28 });
     }
-  }, [ready, q.data, startPlaceId, startLabel, stopsKey]);
+  }, [ready, q.data, startPlaceId, startLabel, stopsKey, overviewPoints.map((p) => p.placeId).join("|")]);
 
   if (!enabled) return null;
   const error = failed ?? (q.isError ? (q.error as Error).message : null);
 
-  // A map that can't load shouldn't take up the space of one.
-  if (error) {
-    return (
-      <p className={`flex items-center gap-2 rounded-xl border border-border bg-[var(--surface)] px-3 py-2 text-xs text-muted-foreground ${className}`}>
-        <MapPin className="size-3.5 text-[var(--gold-ink)]" /> {error}
-      </p>
-    );
-  }
-
   return (
-    <div className={`relative overflow-hidden rounded-2xl border border-border bg-[var(--surface)] ${className}`}>
+    <div className={`relative overflow-hidden rounded-lg border border-border bg-surface ${className}`}>
       <div className="flex items-center gap-2 border-b border-border/70 bg-card px-4 py-2.5">
         <MapPin className="size-3.5 text-[var(--gold-ink)]" />
         <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground">
-          Your day on the map
+          {startPlaceId ? "Your route map" : "Tour map"}
           {stops.length ? ` · ${stops.length} stop${stops.length > 1 ? "s" : ""}` : " · add a stop to see the route"}
         </p>
       </div>
-      <div className="relative h-56 sm:h-72">
+      <div className="relative h-48">
         <div ref={holder} className="absolute inset-0" aria-label="Tour route map" role="img" />
         {(!ready || q.isLoading) && !error && (
           <div className="absolute inset-0 flex items-center justify-center gap-2 bg-[var(--surface)] text-xs text-muted-foreground">

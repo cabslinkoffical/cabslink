@@ -528,6 +528,12 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
   const finishLabel = sameEnd ? start?.label || "Back to your pickup" : end?.label || "Your drop-off";
   const done = !!(created || requested);
   const hourChoices = template ? tourHourChoices(template, tiers.map((t) => t.hours)) : tiers.map((t) => t.hours);
+  const overviewPoints = stops.flatMap((s) => {
+    const p = template?.stops.find((t) => t.place_id === s.placeId);
+    return p && p.lat != null && p.lng != null && Number.isFinite(p.lat) && Number.isFinite(p.lng)
+      ? [{ placeId: s.placeId, name: s.name, lat: p.lat, lng: p.lng }] : [];
+  });
+  const startingPrice = vehicleClassId ? priceFor(vehicleClassId) : template?.prices.length ? Math.min(...template.prices.map((p) => p.price)) : null;
 
   return (
     <SiteLayout hideCta>
@@ -1165,11 +1171,12 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
             <aside aria-label="Booking summary" className="min-w-0 overflow-hidden rounded-lg border border-border bg-card shadow-raised lg:sticky lg:top-24 lg:flex lg:max-h-[calc(100dvh-7rem)] lg:flex-col">
               <div className="shrink-0 bg-navy px-5 py-4 text-navy-foreground">
                 <p className="text-xs font-semibold">Total price</p>
-                <p className="mt-1 font-display text-3xl font-bold text-gold" aria-live="polite">{priceMutation.isPending || loop.isFetching || optimiseMutation.isPending ? "Checking…" : liveQuote && !liveQuote.blockedReason && liveQuote.total > 0 ? `£${liveQuote.total.toFixed(2)}` : "Awaiting route"}</p>
+                <p className="mt-1 font-display text-3xl font-bold text-gold" aria-live="polite">{priceMutation.isPending || loop.isFetching || optimiseMutation.isPending ? "Checking…" : liveQuote && !liveQuote.blockedReason && liveQuote.total > 0 ? `£${liveQuote.total.toFixed(2)}` : !start && startingPrice != null ? `From £${startingPrice.toFixed(2)}` : "Awaiting route"}</p>
                 <p className="mt-1 text-xs text-navy-foreground/70">{FACT_TEXT.feesIncludedShort}</p>
               </div>
               <div className="min-h-0 space-y-4 p-5 lg:overflow-y-auto">
                 <h2 className="font-display text-lg font-bold">{template ? template.name : hourly ? "Hourly hire" : "Your own day tour"}</h2>
+                {(start || overviewPoints.length > 0) && <TourLoopMap startPlaceId={start?.placeId} startLabel={start?.label} endPlaceId={sameEnd ? null : end?.placeId} overviewPoints={overviewPoints} stops={stops.map((s) => ({ placeId: s.placeId, name: s.name }))} />}
                 <dl className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
                   <SummaryItem label="Date" value={date || "—"} />
                   <SummaryItem label="Time" value={hours && time ? `${time}–${addHoursToTime(time, hours)}` : time || "—"} />
@@ -1180,7 +1187,6 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                 {liveQuote && !priceMutation.isPending && <ul className="space-y-2 border-t border-border pt-3 text-xs">{liveQuote.lines.map((line, i) => <li key={i} className="flex justify-between gap-3"><span className="min-w-0">{line.label}</span><span className="shrink-0 font-semibold">£{line.amount.toFixed(2)}</span></li>)}</ul>}
                 {start && <>
                   <details className="border-t border-border pt-3"><summary className="cursor-pointer text-sm font-semibold">Your route · {stops.length} stops</summary><div className="mt-3"><RouteTimeline compact startLabel={start.label} finishLabel={finishLabel} stops={stops} legs={legs} /></div></details>
-                  <TourLoopMap startPlaceId={start.placeId} startLabel={start.label} endPlaceId={sameEnd ? null : end?.placeId} stops={stops.map((s) => ({ placeId: s.placeId, name: s.name }))} />
                 </>}
               </div>
             </aside>

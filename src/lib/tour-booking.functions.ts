@@ -65,6 +65,8 @@ export type TourBookingOptions = {
       mandatory: boolean;
       default_selected: boolean;
       stop_order: number;
+      lat: number | null;
+      lng: number | null;
     }>;
   }>;
 };
@@ -97,7 +99,7 @@ export const getTourBookingOptions = createServerFn({ method: "GET" }).handler(
       const res: any = await supabaseAdmin
         .from("scenic_route_template_pois")
         .select(
-          "route_template_id, poi_id, stop_order, mandatory, default_selected, points_of_interest(id, name, place_id, image_url, recommended_visit_minutes, minimum_visit_minutes)",
+          "route_template_id, poi_id, stop_order, mandatory, default_selected, points_of_interest(id, name, place_id, image_url, recommended_visit_minutes, minimum_visit_minutes, latitude, longitude)",
         )
         .in("route_template_id", ids)
         .order("stop_order");
@@ -154,6 +156,8 @@ export const getTourBookingOptions = createServerFn({ method: "GET" }).handler(
             mandatory: !!s.mandatory,
             default_selected: s.default_selected !== false,
             stop_order: Number(s.stop_order ?? 0),
+            lat: s.points_of_interest.latitude == null ? null : Number(s.points_of_interest.latitude),
+            lng: s.points_of_interest.longitude == null ? null : Number(s.points_of_interest.longitude),
           })),
       })),
     };
