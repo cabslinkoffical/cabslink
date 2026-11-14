@@ -27,8 +27,10 @@ import { splitGroup, suggestGroups, groupLabel, MAX_GROUP_VEHICLES } from "@/lib
 import { moveStop } from "@/lib/stop-order";
 import {
   wizardSteps, STEP_LABELS, fitsParty, templateStopsInOrder, tourHourChoices, addHoursToTime,
-  type WizardStepId,
+  automaticTourHours, type WizardStepId,
 } from "@/lib/tour-itinerary";
+import { DayBookingExtras } from "@/components/site/DayBookingExtras";
+import type { CancellationCover } from "@/lib/cancellation-cover";
 import { tourLoopQuery } from "@/lib/tour-loop-query";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Button } from "@/components/ui/button";
@@ -129,6 +131,8 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
   const [phone, setPhone] = useState("");
   const [flight, setFlight] = useState("");
   const [notes, setNotes] = useState("");
+  const [extraQty, setExtraQty] = useState<Record<string, number>>({});
+  const [cover, setCover] = useState<CancellationCover>("standard");
   const [quote, setQuote] = useState<TourQuoteResult | null>(null);
   const [created, setCreated] = useState<{ bookingRef: string; total: number } | null>(null);
   /** Custom tours only: send the day to the tour team for a price instead of paying now. */
@@ -147,8 +151,8 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
   const steps = wizardSteps(kind, mode);
   const stepIndex = Math.max(0, steps.indexOf(stepId));
   const goTo = (id: WizardStepId) => setStepId(id);
-  const goNext = () => setStepId(steps[Math.min(steps.length - 1, stepIndex + 1)]!);
-  const goBack = () => setStepId(steps[Math.max(0, stepIndex - 1)]!);
+  const goNext = () => setStepId(steps[Math.min(steps.length - 1, stepIndex + 1)] ?? "details");
+  const goBack = () => setStepId(steps[Math.max(0, stepIndex - 1)] ?? "when");
 
   // Deep link from a tour page: the tour is chosen, so open on date & pickup.
   useEffect(() => {
@@ -224,7 +228,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
     if (chosen.has(poiId)) chosen.delete(poiId); else chosen.add(poiId);
     const kept = new Map(stops.map((s) => [s.poiId, s.dwellMinutes]));
     setQuote(null);
-    setStops(templateStopsInOrder(template.stops, chosen, minStopMinutes).map((s) => ({ ...s, dwellMinutes: kept.get(s.poiId) ?? s.dwellMinutes })));
+    setStops([...templateStopsInOrder(template.stops, chosen, minStopMinutes).map((s) => ({ ...s, dwellMinutes: kept.get(s.poiId) ?? s.dwellMinutes })), ...stops.filter((s) => !template.stops.some((t) => t.poi_id === s.poiId))]);
   }
 
   const includedMiles = hours ? (tiers.find((t) => t.hours === hours)?.included_miles ?? 0) : 0;
@@ -270,6 +274,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
   }
   function chooseVehicles(ids: string[]) {
     setQuote(null);
+    setExtraQty({});
     if (ids.length > 1) { setGroupVehicles(ids); setVehicleClassId(ids[0]!); return; }
     setGroupVehicles([]);
     setVehicleClassId(ids[0] ?? null);
@@ -285,6 +290,8 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
   const quoteReq = () => ({
     mode,
     templateId,
+    extras: Object.entries(extraQty).map(([key, quantity]) => ({ key, quantity })),
+    cancellationCover: cover,
     startPlaceId: start?.placeId ?? "",
     startLabel: start?.label ?? "",
     endPlaceId: sameEnd ? null : end?.placeId ?? null,
@@ -336,7 +343,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
       snapshot,
       res: await optimiseTourStops({
         data: {
-          startPlaceId: start!.placeId,
+          startPlaceId: start?.placeId ?? "",
           endPlaceId: sameEnd ? null : end?.placeId ?? null,
           stops: snapshot.map((x) => ({ placeId: x.placeId, locked: false })),
         },
@@ -346,7 +353,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
       const snapKey = snapshot.map((s) => s.placeId).join("|");
       if (snapKey !== latestKey.current) return; // stops changed meanwhile
       if (!res.changed) { orderedKey.current = snapKey; return; }
-      const next = res.order.map((idx) => snapshot[idx]!).filter(Boolean);
+      const next = res.order.map((idx) => snapshot[idx]).filter((s): s is Stop => !!s);
       orderedKey.current = next.map((s) => s.placeId).join("|");
       setOrderBeforeBest(snapshot);
       setQuote(null);
@@ -355,7 +362,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
     onError: () => { orderedKey.current = latestKey.current; },
   });
   useEffect(() => {
-    if (stepId !== "stops" || !autoOrder || !start || stops.length < 2) return;
+    if ((stepId !== "stops" && !(mode === "premade" && stepId === "when")) || !autoOrder || !start || stops.length < 2) return;
     if (orderedKey.current === stopsKey) return;
     const t = setTimeout(() => optimiseMutation.mutate(stops), 500);
     return () => clearTimeout(t);
@@ -385,7 +392,15 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
 
   // Road miles and minutes for each leg, from the same route the map draws.
   const loop = useQuery(tourLoopQuery(start?.placeId, stops.map((s) => s.placeId), sameEnd ? null : end?.placeId));
-  const legs = loop.data?.legs && loop.data.legs.length === stops.length + 1 ? loop.data.legs : null;
+  const legs = !loop.isFetching && !optimiseMutation.isPending && loop.data?.legs && loop.data.legs.length === stops.length + 1 ? loop.data.legs : null;
+  const allowedHours = template ? tourHourChoices(template, tiers.map((t) => t.hours)) : tiers.map((t) => t.hours);
+  const autoHours = template && legs && data ? automaticTourHours(allowedHours, template.default_duration_hours ?? 0,
+    legs.reduce((sum, leg) => sum + leg.minutes, 0), stops.map((s) => s.dwellMinutes ?? minStopMinutes), minStopMinutes, data.rules.pickup_buffer_minutes) : null;
+  useEffect(() => {
+    if (mode !== "premade" || autoHours == null || autoHours === hours) return;
+    setHours(autoHours);
+    setQuote(null);
+  }, [mode, autoHours, hours]);
 
   const bookMutation = useMutation({
     mutationFn: async () =>
@@ -466,35 +481,31 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
       })
     : null;
 
-  // Ask the server for a price on the vehicle step whenever the choice changes.
+  // Every itinerary/extras change invalidates the previous response immediately.
+  const priceKey = JSON.stringify(quoteReq());
   useEffect(() => {
-    if (stepId === "vehicle" && passengersConfirmed && start && hours && vehicleClassId && (!groupActive || groupSplit?.ok) && vehicleFits) {
-      priceMutation.mutate();
-    }
+    ++priceSeq.current;
+    setQuote(null);
+    if (!start || !hours || !vehicleClassId || !vehicleFits || (groupActive && !groupSplit?.ok)) return;
+    if (stepId !== "vehicle" && stepId !== "stops" && !(template && stepId === "when")) return;
+    const timer = setTimeout(() => priceMutation.mutate(), 650);
+    return () => { clearTimeout(timer); ++priceSeq.current; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stepId, passengersConfirmed, passengers, luggage, hours, vehicleClassId, groupVehicles.join("|")]);
-
-  // On the stops step, keep the miles and time meter honest as stops change.
-  useEffect(() => {
-    if (stepId !== "stops" || !start || !hours || !vehicleClassId) return;
-    const t = setTimeout(() => priceMutation.mutate(), 650);
-    return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stepId, stops, hours, vehicleClassId, sameEnd, end?.placeId]);
+  }, [priceKey, stepId]);
 
   // Curated stops that fit the mileage the chosen hours include.
   const suggestions = useQuery({
     queryKey: ["tour-stop-suggestions", start?.placeId ?? "", hours ?? 0],
-    enabled: stepId === "stops" && !!start?.placeId && !!hours,
+    enabled: (stepId === "stops" || (mode === "premade" && stepId === "when")) && !!start?.placeId && !!hours,
     staleTime: 5 * 60_000,
     queryFn: () =>
-      getTourStopSuggestions({ data: { startPlaceId: start!.placeId, hours: hours!, limit: 24 } }),
+      getTourStopSuggestions({ data: { startPlaceId: start?.placeId ?? "", hours: hours!, limit: 24 } }),
   });
 
   // A working vehicle lets the stops meter measure the day before the party is
   // confirmed; it is not shown as the customer's choice until they confirm.
   useEffect(() => {
-    if (vehicleClassId || !classes.length || passengersConfirmed) return;
+    if (vehicleClassId || !classes.length) return;
     const fit = classes.find((c) => fitsParty(c, passengers, luggage)) ?? classes[0]!;
     setVehicleClassId(fit.id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -504,11 +515,11 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
   const canNext = (() => {
     switch (stepId) {
       case "tour": return tourPicked && (mode === "custom" || !!templateId);
-      case "when": return !!start && !!date && date >= today && !!time && (sameEnd || !!end) && !!hours && fitsDay;
+      case "when": return !!start && !!date && date >= today && !!time && (sameEnd || !!end) && !!hours && fitsDay && time >= (data?.rules.earliest_start_time ?? "07:00") && (!template || (!!quote && !quote.quote.blockedReason && !priceMutation.isPending && !loop.isFetching && !optimiseMutation.isPending));
       case "stops": return hourly ? true : stops.length > 0;
       case "vehicle":
         return passengersConfirmed && !!vehicleClassId && vehicleFits && (groupActive || !!vehicle && fitsParty(vehicle, passengers, luggage))
-          && passengers > 0 && !!quote && !quote.quote.blockedReason && quote.quote.total > 0;
+          && fitsDay && !priceMutation.isPending && passengers > 0 && !!quote && !quote.quote.blockedReason && quote.quote.total > 0;
       default: return false;
     }
   })();
@@ -527,7 +538,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
           {hourly ? "Book a car and driver by the hour" : template ? `Book: ${template.name}` : "Book a private day tour"}
         </h1>
 
-        {!done && <WizardStepper steps={steps} current={stepIndex} onPick={(i) => i < stepIndex && goTo(steps[i]!)} />}
+        {!done && <WizardStepper steps={steps} current={stepIndex} onPick={(i) => i < stepIndex && goTo(steps[i] ?? "when")} />}
 
         {options.isLoading ? (
           <div className="mt-10 flex items-center gap-2 text-sm text-muted-foreground">
@@ -539,7 +550,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
           </p>
         ) : (
           <div className="mt-6 grid min-w-0 grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
-            <div className="min-w-0 rounded-2xl border border-border bg-card p-5 md:p-7">
+            <div className="min-w-0 rounded-lg border border-border bg-card p-5 md:p-7">
 
             {/* Tour: ready-made or your own */}
             {stepId === "tour" && (
@@ -638,7 +649,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
 
                 <div className="space-y-2">
                   <p className="text-sm font-semibold">{template ? "Tour length" : "How long would you like the car for?"}</p>
-                  {hourChoices.length > 1 ? (
+                  {template ? <p className="text-sm font-semibold" aria-live="polite">{hours} hours{loop.isFetching || optimiseMutation.isPending ? " · Checking route…" : ""}</p> : hourChoices.length > 1 ? (
                     <div className="flex flex-wrap gap-2">
                       {hourChoices.map((h) => {
                         const miles = tiers.find((t) => t.hours === h)?.included_miles;
@@ -681,11 +692,15 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                       finishLabel={finishLabel}
                       stops={stops}
                       legs={legs}
-                      measuring={loop.isFetching}
+                      measuring={loop.isFetching || optimiseMutation.isPending}
+                      onDwell={setDwell}
+                      onMove={moveByHand}
+                      minStopMinutes={minStopMinutes}
                       onRemove={(i) => {
                         const s = stops[i];
                         const ts = template.stops.find((x) => x.poi_id === s?.poiId);
                         if (ts && !ts.mandatory) toggleTemplateStop(ts.poi_id);
+                        else if (!ts) removeStop(i);
                       }}
                       canRemove={(s) => !template.stops.find((x) => x.poi_id === s.poiId)?.mandatory}
                     />
@@ -699,7 +714,18 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                       </div>
                     )}
                     {!start && <p className="text-xs text-muted-foreground">Add your pickup to see the miles and driving time between stops.</p>}
-                    <p className="text-xs text-muted-foreground">Taking a stop off doesn't lower the fixed tour price; it gives you longer at the others.</p>
+                    <div className="flex items-end gap-2">
+                      <div className="min-w-0 flex-1 space-y-1.5"><Label htmlFor="tw-extra-stop">Add a stop</Label><PlaceAutocomplete id="tw-extra-stop" value={newStop} onChange={setNewStop} placeholder="Castle, loch, distillery…" /></div>
+                      <Button variant="gold" disabled={!newStop || stops.length >= MAX_STOPS} onClick={() => { if (!newStop) return; addStop({ poiId: null, placeId: newStop.placeId, name: newStop.label, dwellMinutes: Math.max(minStopMinutes, 30) }); setNewStop(null); }}><Plus className="size-4" /> Add</Button>
+                    </div>
+                    <h3 className="text-sm font-semibold">Suggested places</h3>
+                    {suggestions.isPending && start && <p className="text-xs text-muted-foreground">Finding places…</p>}
+                    <div className="flex flex-wrap gap-2">{(showAllSuggestions ? suggestions.data?.suggestions : suggestions.data?.suggestions.slice(0, 8))?.filter((p) => !stops.some((s) => s.placeId === p.placeId)).map((p) => <Button key={p.id} variant="outline" size="sm" className="h-auto max-w-full whitespace-normal text-left" disabled={stops.length >= MAX_STOPS} onClick={() => addStop({ poiId: p.source === "map" ? null : p.id, placeId: p.placeId, name: p.name, dwellMinutes: Math.max(minStopMinutes, p.recommendedMinutes) })}><Plus className="size-3 shrink-0" />{p.name}</Button>)}</div>
+                    {(suggestions.data?.suggestions.length ?? 0) > 8 && <Button variant="ghost" size="sm" onClick={() => setShowAllSuggestions((v) => !v)}>{showAllSuggestions ? "Show fewer" : "More places"}</Button>}
+                    {loop.isError && <p className="text-sm text-destructive">We couldn't measure your route. Please check your stops.</p>}
+                    {legs && autoHours == null && <p className="text-sm font-semibold text-destructive">These stops need more time than this tour allows. Shorten a visit or remove an added stop.</p>}
+                    {quote?.quote.blockedReason && <p className="text-sm text-destructive">{quote.quote.blockedReason}</p>}
+                    {priceMutation.isError && <p className="text-sm text-destructive">We couldn't price this right now, please try again or call us.</p>}
                   </div>
                 )}
               </div>
@@ -942,6 +968,8 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                   </button>
                 ) : null}
 
+                {vehicleClassId && <DayBookingExtras classId={groupVehicles[0] ?? vehicleClassId} passengers={passengers} quantities={extraQty} cover={cover} onCover={(v) => { setCover(v); setQuote(null); }} onChange={(key, quantity) => { setExtraQty((prev) => ({ ...prev, [key]: quantity })); setQuote(null); }} />}
+
                 {/* Price */}
                 {vehicleFits && (
                   <PriceBox
@@ -1132,46 +1160,27 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
             )}
             </div>
 
-            {/* Running summary */}
-            <aside className="min-w-0 space-y-4 lg:sticky lg:top-24 lg:self-start">
-              <div className="rounded-2xl border border-border bg-card p-5 shadow-[0_10px_40px_-20px_rgba(14,24,44,0.25)]">
-                <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--gold-ink)]">Your booking</p>
-                <h2 className="mt-0.5 font-display text-lg font-bold">
-                  {template ? template.name : hourly ? "Hourly hire" : tourPicked ? "Your own day tour" : "Day tour"}
-                </h2>
-                <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
+            {/* Price stays visible; long itineraries scroll inside the screen-height panel. */}
+            <aside aria-label="Booking summary" className="min-w-0 overflow-hidden rounded-lg border border-border bg-card shadow-raised lg:sticky lg:top-24 lg:flex lg:max-h-[calc(100dvh-7rem)] lg:flex-col">
+              <div className="shrink-0 bg-navy px-5 py-4 text-navy-foreground">
+                <p className="text-xs font-semibold">Total price</p>
+                <p className="mt-1 font-display text-3xl font-bold text-gold" aria-live="polite">{priceMutation.isPending || loop.isFetching || optimiseMutation.isPending ? "Checking…" : liveQuote && !liveQuote.blockedReason && liveQuote.total > 0 ? `£${liveQuote.total.toFixed(2)}` : "Awaiting route"}</p>
+                <p className="mt-1 text-xs text-navy-foreground/70">{FACT_TEXT.feesIncludedShort}</p>
+              </div>
+              <div className="min-h-0 space-y-4 p-5 lg:overflow-y-auto">
+                <h2 className="font-display text-lg font-bold">{template ? template.name : hourly ? "Hourly hire" : "Your own day tour"}</h2>
+                <dl className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
                   <SummaryItem label="Date" value={date || "—"} />
                   <SummaryItem label="Time" value={hours && time ? `${time}–${addHoursToTime(time, hours)}` : time || "—"} />
                   <SummaryItem label="Length" value={hours ? `${hours} hours` : "—"} />
-                  <SummaryItem label="Stops" value={String(stops.length)} />
-                  {passengersConfirmed && <SummaryItem label="Passengers" value={`${passengers}${luggage ? ` · ${luggage} cases` : ""}`} />}
-                  {passengersConfirmed && vehicleLabel && <SummaryItem label={groupActive ? "Vehicles" : "Vehicle"} value={vehicleLabel} />}
+                  <SummaryItem label="Passengers" value={`${passengers} · ${luggage} cases`} />
+                  {vehicleLabel && <SummaryItem label={groupActive ? "Vehicles" : "Vehicle"} value={vehicleLabel} />}
                 </dl>
-
-                {start && (
-                  <>
-                    {stepId !== "stops" && !(stepId === "when" && template) && (
-                      <div className="mt-4 border-t border-border pt-4">
-                        <RouteTimeline compact startLabel={start.label} finishLabel={finishLabel} stops={stops} legs={legs} />
-                      </div>
-                    )}
-                    <TourLoopMap
-                      className="mt-4"
-                      startPlaceId={start.placeId}
-                      startLabel={start.label}
-                      endPlaceId={sameEnd ? null : end?.placeId}
-                      stops={stops.map((s) => ({ placeId: s.placeId, name: s.name }))}
-                    />
-                  </>
-                )}
-
-                {passengersConfirmed && liveQuote && !liveQuote.blockedReason && liveQuote.total > 0 && (
-                  <div className="mt-4 flex items-baseline justify-between border-t border-border pt-4">
-                    <span className="font-semibold">Total</span>
-                    <span className="font-display text-xl font-bold text-[var(--gold-ink)]">£{liveQuote.total.toFixed(2)}</span>
-                  </div>
-                )}
-                {passengersConfirmed && liveQuote && <p className="mt-1 text-xs font-semibold text-muted-foreground">{FACT_TEXT.feesIncludedShort}</p>}
+                {liveQuote && !priceMutation.isPending && <ul className="space-y-2 border-t border-border pt-3 text-xs">{liveQuote.lines.map((line, i) => <li key={i} className="flex justify-between gap-3"><span className="min-w-0">{line.label}</span><span className="shrink-0 font-semibold">£{line.amount.toFixed(2)}</span></li>)}</ul>}
+                {start && <>
+                  <details className="border-t border-border pt-3"><summary className="cursor-pointer text-sm font-semibold">Your route · {stops.length} stops</summary><div className="mt-3"><RouteTimeline compact startLabel={start.label} finishLabel={finishLabel} stops={stops} legs={legs} /></div></details>
+                  <TourLoopMap startPlaceId={start.placeId} startLabel={start.label} endPlaceId={sameEnd ? null : end?.placeId} stops={stops.map((s) => ({ placeId: s.placeId, name: s.name }))} />
+                </>}
               </div>
             </aside>
           </div>
