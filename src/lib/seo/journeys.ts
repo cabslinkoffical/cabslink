@@ -463,7 +463,11 @@ export const JOURNEYS: JourneyRecord[] = [
     faqs: [
       {
         q: "How much is a taxi from Edinburgh Airport to the city centre?",
-        a: "A taxi from Edinburgh Airport to Edinburgh city centre costs {{saloonFare}} in a standard saloon and takes about 33 minutes for the 10-mile drive. The price is fixed when you book, so festival traffic does not change what you pay.",
+        a: "A Cabslink private transfer from Edinburgh Airport to Edinburgh city centre starts from {{saloonFare}} per vehicle and takes about 33 minutes for the approximately 10-mile drive. This is a starting fare: enter your exact address, passengers, luggage and selected extras for the final fixed quote. Traffic on the day does not change the price confirmed when you book.",
+      },
+      {
+        q: "How much is a taxi from Edinburgh Airport to the Royal Mile?",
+        a: "Enter your exact Royal Mile hotel or address to get a fixed quote before you pay. The city-centre starting fare is not an exact Royal Mile quote: your address, vehicle and selected extras determine the total. Temporary street restrictions may require a nearby accessible drop-off rather than the hotel door.",
       },
       {
         q: "How long does it take?",
@@ -1023,11 +1027,13 @@ export function buildJourney(slug: string): JourneyContent | null {
 
 /** Shared so the `seo_pages` mirror can be generated from the same string. */
 export function journeyMetaDescription(j: JourneyRecord): string {
+  if (j.slug === "edinburgh-airport-to-city-centre") return "Edinburgh Airport to city centre taxi: around 10 miles and 33 minutes. Compare live vehicle fares and get a fixed quote for your exact hotel or address.";
   return `How much is a taxi from ${j.from.name} to ${j.to.name}? Fixed prices by vehicle class, flight tracking and no meter. Book online with Cabslink.`;
 }
 
 /** Title exactly as served, for mirror sync and tests. */
 export function journeyMetaTitle(j: JourneyRecord): string {
+  if (j.slug === "edinburgh-airport-to-city-centre") return "Edinburgh Airport to City Centre Taxi | Cabslink";
   const pair = `${j.from.name} to ${j.to.name}`;
   return pickWithin(60, [
     `${pair} Taxi | Fixed Price Transfer`,

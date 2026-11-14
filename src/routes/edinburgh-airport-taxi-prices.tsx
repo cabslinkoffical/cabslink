@@ -9,8 +9,8 @@ import { getRouteFares } from "@/lib/seo/route-fares.functions";
 import { FACT_TEXT } from "@/lib/site-facts";
 
 const URL = "https://cabslink.com/edinburgh-airport-taxi-prices";
-const TITLE = "Edinburgh Airport Taxi Prices | Fixed Prices | Cabslink";
-const DESC = "Edinburgh Airport taxi prices for popular routes, from the live booking system. Fixed price per vehicle, tolls and airport fees included.";
+const TITLE = "Edinburgh Airport Taxi Prices & Costs | Cabslink";
+const DESC = "Compare Edinburgh Airport taxi prices for the city centre and other destinations. View live starting fares per vehicle and get your exact fixed quote online.";
 const SLUGS = ["city-centre", "edinburgh-waverley", "glasgow", "stirling", "perth", "dundee", "st-andrews", "gleneagles", "aberdeen", "inverness", "fort-william", "glencoe"].map((s) => `edinburgh-airport-to-${s}`);
 
 const FAQS = [
@@ -50,15 +50,23 @@ export const Route = createFileRoute("/edinburgh-airport-taxi-prices")({
 
 function PricesPage() {
   const { rows } = Route.useLoaderData();
+  const cityCentre = rows.find((r) => r.slug === "edinburgh-airport-to-city-centre");
   return (
     <SiteLayout>
       <PageHero
         eyebrow="Edinburgh Airport"
         title="Edinburgh Airport taxi prices"
-        subtitle="Starting prices for our most-booked journeys from Edinburgh Airport, per vehicle and fixed before you pay."
+        subtitle="Starting prices for popular destinations from Edinburgh Airport, per vehicle and fixed before you pay."
         breadcrumbs={[{ label: "Home", to: "/" }, { label: "Edinburgh Airport taxi prices" }]}
       />
       <PageBand eyebrow="Prices" title="Popular routes from Edinburgh Airport" subtitle="Prices come from our live booking system for the smallest suitable vehicle. Larger vehicles cost more; your exact price is shown when you enter your journey.">
+        <div className="mb-6 space-y-3 text-sm leading-relaxed text-muted-foreground">
+          <p className="font-semibold text-foreground">{cityCentre?.from != null
+            ? `A Cabslink private transfer from Edinburgh Airport to Edinburgh city centre starts from ${cityCentre.sym}${cityCentre.from.toFixed(2)} per vehicle. The journey is approximately ${cityCentre.miles} miles and takes about ${cityCentre.mins} minutes, depending on traffic and your destination.`
+            : "Enter your Edinburgh Airport pickup and exact destination to get a fixed private-transfer price per vehicle before you pay."}</p>
+          <p>This is a starting fare, not an exact quote for every hotel or street. Your destination address, vehicle, passenger and luggage requirements, and selected extras determine the final quote. Optional Meet &amp; Greet and child seats are priced separately when selected.</p>
+          <p><Link to="/routes/$slug" params={{ slug: "edinburgh-airport-to-city-centre" }} className="font-semibold text-gold-ink underline underline-offset-4">Edinburgh Airport to city centre transfer</Link>{" · "}<Link to="/guides/$slug" params={{ slug: "edinburgh-airport-to-city-centre" }} className="font-semibold text-gold-ink underline underline-offset-4">Compare tram, bus and private transfer</Link></p>
+        </div>
         <div className="overflow-x-auto rounded-2xl border border-border">
           <table className="w-full text-left text-sm">
             <thead className="bg-[var(--navy)] text-[var(--navy-foreground)]">

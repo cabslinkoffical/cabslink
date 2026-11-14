@@ -207,7 +207,7 @@ export function JourneyPage({
 
       {c.relatedJourneys.length > 0 && (
         <PageBand eyebrow="Other journeys" title="Related routes we run">
-          <LinkCards links={[...c.relatedJourneys.map((r) => ({ href: r.to, label: r.label })), ...(c.slug === "edinburgh-airport-to-city-centre" ? [{ href: "/guides/edinburgh-airport-to-city-centre", label: "Guide: tram, bus, taxi or private transfer" }] : []), { href: "/routes", label: "All popular routes" }]} />
+          <LinkCards links={[...c.relatedJourneys.map((r) => ({ href: r.to, label: r.label })), ...(c.slug === "edinburgh-airport-to-city-centre" ? [{ href: "/edinburgh-airport-taxi-prices", label: "Edinburgh Airport taxi prices" }, { href: "/guides/edinburgh-airport-to-city-centre", label: "Guide: tram, bus, taxi or private transfer" }] : []), { href: "/routes", label: "All popular routes" }]} />
         </PageBand>
       )}
 
