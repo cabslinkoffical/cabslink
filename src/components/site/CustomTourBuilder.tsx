@@ -12,6 +12,8 @@ export type TourSearchControls = {
   onTheme: (value: string) => void;
   length: string;
   onLength: (value: string) => void;
+  /** Length options that actually match at least one tour. */
+  lengths: string[];
   onReset: () => void;
   themes: string[];
   resultCount: number;
@@ -61,9 +63,9 @@ export function CustomTourBuilder({ search }: { search?: TourSearchControls }) {
             <SelectTrigger id="tour-length" className="h-12 bg-background text-base"><SelectValue placeholder="Any length" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="__all__">Any length</SelectItem>
-              <SelectItem value="half">Half day (up to 6 hours)</SelectItem>
-              <SelectItem value="full">Full day (7–10 hours)</SelectItem>
-              <SelectItem value="long">Long day &amp; multi-region</SelectItem>
+              {search.lengths.includes("half") && <SelectItem value="half">Half day (up to 6 hours)</SelectItem>}
+              {search.lengths.includes("full") && <SelectItem value="full">Full day (7–10 hours)</SelectItem>}
+              {search.lengths.includes("long") && <SelectItem value="long">Long day &amp; multi-region</SelectItem>}
             </SelectContent>
           </Select>
         </div>

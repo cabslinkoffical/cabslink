@@ -117,6 +117,10 @@ function ToursPage() {
     });
 
   const themes = useMemo(() => tourSearchThemes(allTours), [allTours]);
+  const lengths = useMemo(
+    () => (["half", "full", "long"] as const).filter((l) => allTours.some((t) => matchesTourLength(t, l))),
+    [allTours],
+  );
 
   // Day trips first; long-day itineraries get their own section below so every
   // published tour page is reachable from this hub (no orphan pages).
@@ -155,6 +159,7 @@ function ToursPage() {
               onTheme: (v) => setSearch({ theme: v }),
               length,
               onLength: (v) => setSearch({ length: v as TourLength }),
+              lengths,
               onReset: () => setSearch({ q: "", theme: "", length: "" }),
               themes,
               resultCount: filtered.length,
