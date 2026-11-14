@@ -633,6 +633,8 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                     <Label htmlFor="tw-time">Start time</Label>
                     <Input id="tw-time" type="time" value={time} onChange={(e) => setTime(e.target.value)} />
                   </div>
+                  <Counter icon={<Users className="size-4" />} label="Passengers" value={passengers} min={1} max={80} onChange={(v) => changeParty(v, luggage)} />
+                  <Counter icon={<Briefcase className="size-4" />} label="Suitcases" value={luggage} min={0} max={80} onChange={(v) => changeParty(passengers, v)} />
                 </div>
 
                 <div className="space-y-2">
