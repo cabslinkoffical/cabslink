@@ -31,7 +31,6 @@ import {
 } from "@/lib/tour-itinerary";
 import { tourLoopQuery } from "@/lib/tour-loop-query";
 import { SiteLayout } from "@/components/site/SiteLayout";
-import { PassengerConfirmation } from "@/components/site/PassengerConfirmation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -117,7 +116,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
   const [groupVehicles, setGroupVehicles] = useState<string[]>([]);
   const [showGroup, setShowGroup] = useState(false);
   const [passengers, setPassengers] = useState(1);
-  const [passengersConfirmed, setPassengersConfirmed] = useState(false);
+  const [passengersConfirmed, setPassengersConfirmed] = useState(true);
   const [luggage, setLuggage] = useState(0);
   const [stops, setStops] = useState<Stop[]>([]);
   /** Keep stops in the quickest driving order automatically until the customer moves one by hand. */
@@ -831,14 +830,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
             )}
 
             {/* Vehicle & price */}
-            {stepId === "vehicle" && !passengersConfirmed && (
-              <PassengerConfirmation max={80} onConfirm={(count) => {
-                setPassengers(count);
-                pickVehiclesFor(count, luggage);
-                setPassengersConfirmed(true);
-              }} />
-            )}
-            {stepId === "vehicle" && passengersConfirmed && (
+            {stepId === "vehicle" && (
               <div className="space-y-6">
                 <StepTitle title="Choose your vehicle" />
                 <div className="grid gap-3 sm:grid-cols-2">
