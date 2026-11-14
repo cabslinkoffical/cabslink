@@ -80,8 +80,42 @@ function BlogHome() {
       />
 
       <section className="container-x py-12 md:py-16">
+        {/* Search + category filters */}
+        <div className="mb-10 border-b border-[var(--navy)]/10 pb-8">
+          <div className="max-w-xl space-y-2">
+            <Label htmlFor="blog-search">Search articles</Label>
+            <div className="relative">
+              <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input id="blog-search" type="search" maxLength={80} value={q} onChange={(e) => setQ(e.target.value)}
+                placeholder="Topic, place or keyword" className="h-12 pl-10 pr-12 text-base [&::-webkit-search-cancel-button]:appearance-none" />
+              {q && <Button type="button" size="icon" variant="ghost" aria-label="Clear article search"
+                className="absolute right-1 top-1/2 -translate-y-1/2" onClick={() => setQ("")}><X /></Button>}
+            </div>
+          </div>
+          {categories.length > 0 && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              <button type="button" aria-pressed={!category} onClick={() => setCategory("")}
+                className={`rounded-full border px-4 py-2 text-sm transition ${!category ? "border-[var(--gold)] bg-[var(--gold)]/10 font-semibold text-[var(--gold-ink)]" : "border-[var(--navy)]/15 bg-card text-[var(--navy)] hover:border-[var(--gold)] hover:text-[var(--gold-ink)]"}`}>
+                All topics
+              </button>
+              {categories.map((c) => (
+                <button key={c.id} type="button" aria-pressed={category === c.slug} onClick={() => setCategory(category === c.slug ? "" : c.slug)}
+                  className={`rounded-full border px-4 py-2 text-sm transition ${category === c.slug ? "border-[var(--gold)] bg-[var(--gold)]/10 font-semibold text-[var(--gold-ink)]" : "border-[var(--navy)]/15 bg-card text-[var(--navy)] hover:border-[var(--gold)] hover:text-[var(--gold-ink)]"}`}>
+                  {c.name}
+                </button>
+              ))}
+            </div>
+          )}
+          {filtering && (
+            <p role="status" aria-live="polite" className="mt-3 text-sm text-muted-foreground">
+              {rest.length + shownPillars.length} {rest.length + shownPillars.length === 1 ? "article" : "articles"} found
+              <Button type="button" variant="ghost" size="sm" className="ml-2" onClick={() => { setQ(""); setCategory(""); }}><X />Clear filters</Button>
+            </p>
+          )}
+        </div>
+
         {/* Featured hero */}
-        {hero && (
+        {hero && !filtering && (
           <div className="mb-14">
             <Link
               to="/blog/$slug"
