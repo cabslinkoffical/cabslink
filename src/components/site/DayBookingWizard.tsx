@@ -1306,6 +1306,11 @@ function RouteTimeline({
 
   return (
     <div>
+      {onDwell && stops.length > 0 && (
+        <p className="mb-3 rounded-lg bg-muted/60 px-3 py-2 text-xs text-muted-foreground">
+          Use <span className="font-semibold text-foreground">Time here</span> to set how long you'd like to spend at each stop — the tour length and price update automatically.
+        </p>
+      )}
       <ol aria-label="Your route in order">
         <li className="flex items-center gap-3">
           <span className="grid size-6 shrink-0 place-items-center rounded-full bg-[var(--gold)] text-[var(--gold-foreground)]"><Flag className="size-3" /></span>
