@@ -13,6 +13,7 @@
  *    slug substituted.
  */
 import { getService, serviceLocationPath } from "@/lib/seo/service-registry";
+import { FACT_TEXT } from "@/lib/site-facts";
 
 export type LocationFacts = {
   slug: string;
@@ -374,7 +375,7 @@ const COMBO_NOTES: Record<string, string> = {
   "private-hire:edinburgh":
     "Edinburgh private hire is dominated by short high-value hops: New Town hotels to Waverley, Haymarket to Murrayfield on match days, Leith to the airport. Waverley collections use the Market Street ramp rather than the taxi rank, which is faster with luggage.",
   "private-hire:glasgow":
-    "Glasgow private hire covers everything the LEZ complicates: Merchant City hotels, West End university addresses and Hampden or Ibrox on fixture days. Central Station pickups are set at Hope Street or Gordon Street depending on which platform you arrive at.",
+    "For a Merchant City hotel stay, a visit to the University of Glasgow in the West End, or a match at Hampden Park or Ibrox, enter the venue or hotel name rather than only a Glasgow postcode. Glasgow Central and Queen Street are separate stations: select the station you are using and include your train arrival time in the booking notes. Central Station collections use Hope Street or Gordon Street; your collection details identify the agreed pickup point. For SEC or OVO Hydro visits, give the venue and your planned departure time so the pickup can be arranged around event access. Glasgow's city-centre Low Emission Zone applies to road journeys, and the allocated vehicle must meet its requirements. You can also book onward travel to Glasgow Airport, Edinburgh Airport, Edinburgh or Loch Lomond. The distances and times on this page are approximate planning guidance, not guaranteed arrival times; your quote uses the journey you enter.",
   "private-hire:stirling":
     "Stirling is within 45 minutes of both Glasgow and Edinburgh airports, so a lot of local private hire is really onward travel. Old Town streets around the castle are narrow, so anything larger than a saloon collects from Corn Exchange Road.",
   "private-hire:perth":
@@ -454,6 +455,8 @@ export function buildServiceLocation(
   const service = getService(serviceId);
   const canonicalPath = serviceLocationPath(serviceId, locationSlug);
   if (!localNote || !angle || !location || !service || !canonicalPath) return null;
+  // This approved editorial update applies only to the Glasgow private-hire page.
+  const glasgowPrivateHire = key === "private-hire:glasgow";
 
   return {
     key,
@@ -463,14 +466,38 @@ export function buildServiceLocation(
     eyebrow: angle.eyebrow,
     h1: angle.h1(location.name),
     subtitle: angle.subtitle(location.name),
-    metaTitle: angle.metaTitle(location.name),
-    metaDescription: angle.metaDescription(location.name),
+    metaTitle: glasgowPrivateHire
+      ? "Glasgow Private Hire — Airport & Hotel Travel | Cabslink"
+      : angle.metaTitle(location.name),
+    metaDescription: glasgowPrivateHire
+      ? "Pre-book Glasgow private hire for airports, hotels, stations and events. Get a fixed price, choose a vehicle for passengers and bags, and add stops or a return."
+      : angle.metaDescription(location.name),
     canonicalPath,
     location,
-    intro: angle.intro(location.name),
+    intro: glasgowPrivateHire
+      ? "Book a private hire journey in Glasgow for an airport connection, hotel arrival, station pickup, business appointment or event. Unlike a taxi hailed on the street, your journey is booked in advance and the fixed price is shown before you confirm. Start with your pickup, destination and date, then confirm your passengers and luggage before choosing an available vehicle class. Add any intermediate stops and use Add return if you need the journey back. The price reflects those details, so review the complete itinerary before paying."
+      : angle.intro(location.name),
     localNote,
-    included: angle.included,
-    faqs: angle.faqs(location.name),
+    included: glasgowPrivateHire
+      ? [
+          "Fixed price shown before you confirm",
+          "Licensed private hire driver and vehicle",
+          "Vehicle class selected for passengers and luggage",
+          FACT_TEXT.feesIncludedShort,
+          "Stops and return travel included in your quote when selected",
+          "Booking confirmation with your journey details",
+        ]
+      : angle.included,
+    faqs: glasgowPrivateHire
+      ? [
+          ...angle.faqs(location.name),
+          { q: "Can I book a Glasgow hotel or station pickup?", a: "Yes. Enter the hotel, Glasgow Central or Queen Street as your pickup and select your destination. Include the hotel entrance or train arrival details in your booking notes; check your confirmation for the agreed collection details." },
+          { q: "How do I choose a vehicle for my group?", a: "Confirm every passenger and your large and cabin bags before choosing a class. Booking shows the available classes and their capacities, and the Fleet page lists the same limits. " + FACT_TEXT.modelsTypical },
+          { q: "Is meet and greet included?", a: FACT_TEXT.meetGreet },
+          { q: "How do payment and confirmation work?", a: FACT_TEXT.payment + " " + FACT_TEXT.confirmationRule },
+          { q: "Where can I check cancellation terms?", a: FACT_TEXT.transferCancellation },
+        ]
+      : angle.faqs(location.name),
     related: angle.related,
     siblings: servicePagesForLocation(locationSlug).filter((s) => s.to !== canonicalPath),
   };
