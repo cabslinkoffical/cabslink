@@ -137,7 +137,7 @@ export function TourLoopMap({ startPlaceId, startLabel, stops, endPlaceId, overv
           {stops.length ? ` · ${stops.length} stop${stops.length > 1 ? "s" : ""}` : " · add a stop to see the route"}
         </p>
       </div>
-      <div className="relative h-48">
+      <div className="relative h-40">
         <div ref={holder} className="absolute inset-0" aria-label="Tour route map" role="img" />
         {(!ready || q.isLoading) && !error && (
           <div className="absolute inset-0 flex items-center justify-center gap-2 bg-[var(--surface)] text-xs text-muted-foreground">

@@ -1174,7 +1174,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                 <p className="mt-1 font-display text-3xl font-bold text-gold" aria-live="polite">{priceMutation.isPending || loop.isFetching || optimiseMutation.isPending ? "Checking…" : liveQuote && !liveQuote.blockedReason && liveQuote.total > 0 ? `£${liveQuote.total.toFixed(2)}` : !start && startingPrice != null ? `From £${startingPrice.toFixed(2)}` : "Awaiting route"}</p>
                 <p className="mt-1 text-xs text-navy-foreground/70">{FACT_TEXT.feesIncludedShort}</p>
               </div>
-              <div className="min-h-0 space-y-4 p-5 lg:overflow-y-auto">
+              <div className="min-h-0 space-y-3 p-4 lg:overflow-y-auto">
                 <h2 className="font-display text-lg font-bold">{template ? template.name : hourly ? "Hourly hire" : "Your own day tour"}</h2>
                 {(start || overviewPoints.length > 0) && <TourLoopMap startPlaceId={start?.placeId} startLabel={start?.label} endPlaceId={sameEnd ? null : end?.placeId} overviewPoints={overviewPoints} stops={stops.map((s) => ({ placeId: s.placeId, name: s.name }))} />}
                 <dl className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
