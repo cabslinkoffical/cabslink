@@ -292,6 +292,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
     templateId,
     extras: Object.entries(extraQty).map(([key, quantity]) => ({ key, quantity })),
     cancellationCover: cover,
+    date,
     startPlaceId: start?.placeId ?? "",
     startLabel: start?.label ?? "",
     endPlaceId: sameEnd ? null : end?.placeId ?? null,
@@ -986,7 +987,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                   </button>
                 ) : null}
 
-                {vehicleClassId && <DayBookingExtras classId={groupVehicles[0] ?? vehicleClassId} passengers={passengers} quantities={extraQty} cover={cover} onCover={(v) => { setCover(v); setQuote(null); }} onChange={(key, quantity) => { setExtraQty((prev) => ({ ...prev, [key]: quantity })); setQuote(null); }} />}
+                {vehicleClassId && <DayBookingExtras classId={groupVehicles[0] ?? vehicleClassId} passengers={passengers} quantities={extraQty} cover={cover} pickupDate={date} onCover={(v) => { setCover(v); setQuote(null); }} onChange={(key, quantity) => { setExtraQty((prev) => ({ ...prev, [key]: quantity })); setQuote(null); }} />}
 
                 {/* Price */}
                 {vehicleFits && (
