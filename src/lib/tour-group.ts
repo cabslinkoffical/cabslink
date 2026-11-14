@@ -7,6 +7,16 @@
 
 export const MAX_GROUP_VEHICLES = 6;
 
+/** Minimum repeated vehicles of a class that safely carry this party. */
+export function vehiclesForClass(c: GroupClass, passengers: number, luggage: number): string[] | null {
+  const capacity = Math.max(0, Number(c.max_passengers ?? 0));
+  const bags = Math.max(0, Number(c.max_luggage ?? 0));
+  if (capacity < 1 || passengers < 1 || (luggage > 0 && bags === 0)) return null;
+  const count = Math.max(1, Math.ceil(passengers / capacity), bags > 0 ? Math.ceil(luggage / bags) : 1);
+  if (count > MAX_GROUP_VEHICLES || count > passengers) return null;
+  return Array.from({ length: count }, () => c.id);
+}
+
 export type GroupClass = {
   id: string;
   name: string;
