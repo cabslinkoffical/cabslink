@@ -464,7 +464,7 @@ export function TourDetailView({ d, slug, enquire, preview = false }: {
 
           {/* SIDEBAR */}
           <aside aria-label="Tour price and booking" className="min-w-0 lg:sticky lg:top-24 lg:self-start">
-            <div className="rounded-lg border border-border border-t-2 border-t-gold bg-card p-4 text-card-foreground shadow-elegant sm:p-5">
+            <div className="rounded-lg border border-border border-t-2 border-t-gold bg-card p-4 text-card-foreground shadow-elegant">
               <div className="flex items-baseline justify-between">
                 <p className="text-[11px] uppercase tracking-widest text-muted-foreground">
                   Private day tour
@@ -482,9 +482,9 @@ export function TourDetailView({ d, slug, enquire, preview = false }: {
                   : "Tell us your date, group size and stops — we'll send a tailored quote."}
               </p>
               {d.starting_price_pence != null && d.price_covers && (
-                <div className="mt-3 border-y border-border py-3">
+                <div className="mt-3 border-y border-border py-2">
                   <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">What the price covers</p>
-                  <ul className="mt-2 space-y-1.5 text-xs leading-relaxed text-muted-foreground">
+                  <ul className="mt-2 space-y-1 text-xs leading-normal text-muted-foreground">
                     {priceCoverLines(d.price_covers).map((line) => (
                       <li key={line.text} className="flex items-start gap-2">
                         {line.covered
@@ -516,7 +516,7 @@ export function TourDetailView({ d, slug, enquire, preview = false }: {
               />
 
 
-              <ul className="mt-3 space-y-1.5 text-xs leading-relaxed text-muted-foreground">
+              <ul className="mt-3 space-y-1 text-xs leading-normal text-muted-foreground lg:pr-9">
                 <li className="flex items-start gap-2"><Check className="mt-0.5 size-3.5 shrink-0 text-gold-ink" />{orderedStops.length || d.recommended_stop_count} stops selected</li>
                 {totalJourneySecs && <li className="flex items-start gap-2"><Check className="mt-0.5 size-3.5 shrink-0 text-gold-ink" />~{formatDuration(totalJourneySecs)} total journey</li>}
                 <li className="flex items-start gap-2"><Check className="mt-0.5 size-3.5 shrink-0 text-gold-ink" />Professional driver</li>
