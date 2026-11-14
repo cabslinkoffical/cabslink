@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Capacity recommendations (14 Nov): clearly suggest the required number of vehicles as passengers or suitcases increase; preserve real fleet capacities and verify two/three-vehicle rules.
 - [x] Short-screen summary (14 Nov): full available-height desktop panel, flexible map and compact details on shorter screens; verified at owner's 1206×639 size (80–575px, scrollHeight equals clientHeight), no 390px horizontal overflow, no runtime errors, preview build OK. Live map remains subject to authorized-origin verification; nothing published.
 - [x] Suggested-place limit (14 Nov): four choices initially; remaining suggestions under More places in both day-booking lists; concrete rule test passes.
 - [x] Premade tour improvements (14 Nov): suggested/custom stops, automatic allowed duration and authoritative price, transfer catalogue extras and cover; real Outlander flow verified 8→10h, £280→£380→£390 with Meet & Greet, unpaid reservation saved and read back with extras, then test booking removed; 81 relevant checks pass across final runs. No payment or publication.
