@@ -27,7 +27,7 @@ import { splitGroup, suggestGroups, groupLabel, MAX_GROUP_VEHICLES } from "@/lib
 import { moveStop } from "@/lib/stop-order";
 import {
   wizardSteps, STEP_LABELS, fitsParty, templateStopsInOrder, tourHourChoices, addHoursToTime,
-  automaticTourHours, visibleTourSuggestions, type WizardStepId,
+  automaticTourHours, visibleTourSuggestions, VISIBLE_SUGGESTION_COUNT, type WizardStepId,
 } from "@/lib/tour-itinerary";
 import { DayBookingExtras } from "@/components/site/DayBookingExtras";
 import type { CancellationCover } from "@/lib/cancellation-cover";
@@ -740,8 +740,8 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                     </div>
                     <h3 className="text-sm font-semibold">Suggested places</h3>
                     {suggestions.isPending && start && <p className="text-xs text-muted-foreground">Finding places…</p>}
-                    <div aria-label="Suggested places" className="flex flex-wrap gap-2">{visibleTourSuggestions((suggestions.data?.suggestions ?? []).filter((p) => !stops.some((s) => s.placeId === p.placeId)), showAllSuggestions).map((p) => <Button key={p.id} variant="outline" size="sm" className="h-auto max-w-full whitespace-normal text-left" disabled={stops.length >= MAX_STOPS} onClick={() => addStop({ poiId: p.source === "map" ? null : p.id, placeId: p.placeId, name: p.name, dwellMinutes: Math.max(minStopMinutes, p.recommendedMinutes) })}><Plus className="size-3 shrink-0" />{p.name}</Button>)}</div>
-                    {(suggestions.data?.suggestions.filter((p) => !stops.some((s) => s.placeId === p.placeId)).length ?? 0) > 4 && <Button variant="ghost" size="sm" onClick={() => setShowAllSuggestions((v) => !v)}>{showAllSuggestions ? "Show fewer" : "More places"}</Button>}
+                    <div aria-label="Suggested places" className="flex flex-wrap gap-2">{visibleTourSuggestions((suggestions.data?.suggestions ?? []).filter((p) => !stops.some((s) => s.placeId === p.placeId)), showAllSuggestions).map((p, i) => <Button key={p.id} variant="outline" size="sm" className={`h-auto max-w-full whitespace-normal text-left ${i === 0 ? "border-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_14%,transparent)]" : ""}`} disabled={stops.length >= MAX_STOPS} onClick={() => addStop({ poiId: p.source === "map" ? null : p.id, placeId: p.placeId, name: p.name, dwellMinutes: Math.max(minStopMinutes, p.recommendedMinutes) })}><Plus className="size-3 shrink-0" />{p.name}{i === 0 && <span className="ml-1 rounded-full bg-[var(--gold)] px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[var(--navy)]">Recommended</span>}</Button>)}</div>
+                    {(suggestions.data?.suggestions.filter((p) => !stops.some((s) => s.placeId === p.placeId)).length ?? 0) > VISIBLE_SUGGESTION_COUNT && <Button variant="ghost" size="sm" onClick={() => setShowAllSuggestions((v) => !v)}>{showAllSuggestions ? "Show fewer" : "More places"}</Button>}
                     {loop.isError && <p className="text-sm text-destructive">We couldn't measure your route. Please check your stops.</p>}
                     {legs && autoHours == null && <p className="text-sm font-semibold text-destructive">These stops need more time than this tour allows. Shorten a visit or remove an added stop.</p>}
                     {quote?.quote.blockedReason && <p className="text-sm text-destructive">{quote.quote.blockedReason}</p>}
