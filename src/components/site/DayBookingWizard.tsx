@@ -484,6 +484,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
   // Every itinerary/extras change invalidates the previous response immediately.
   const priceKey = JSON.stringify(quoteReq());
   useEffect(() => {
+    if (stepId === "details") return;
     ++priceSeq.current;
     setQuote(null);
     if (!start || !hours || !vehicleClassId || !vehicleFits || (groupActive && !groupSplit?.ok)) return;
@@ -499,7 +500,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
     enabled: (stepId === "stops" || (mode === "premade" && stepId === "when")) && !!start?.placeId && !!hours,
     staleTime: 5 * 60_000,
     queryFn: () =>
-      getTourStopSuggestions({ data: { startPlaceId: start?.placeId ?? "", hours: hours!, limit: 24 } }),
+      getTourStopSuggestions({ data: { startPlaceId: start?.placeId ?? "", hours: hours ?? 0, limit: 24 } }),
   });
 
   // A working vehicle lets the stops meter measure the day before the party is
