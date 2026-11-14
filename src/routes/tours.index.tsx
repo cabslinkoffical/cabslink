@@ -11,7 +11,7 @@ import { CustomTourBuilder } from "@/components/site/CustomTourBuilder";
 import { listPublishedTours, type PublicTourListItem } from "@/lib/tours.functions";
 import { collectionPageSchema } from "@/components/seo/schema";
 import { itemListSchema } from "@/lib/seo/hub-head";
-import { matchesTourSearch, tourSearchThemes } from "@/lib/tour-search";
+import { matchesTourLength, matchesTourSearch, tourSearchThemes, type TourLength } from "@/lib/tour-search";
 
 
 const toursQuery = queryOptions({
@@ -22,10 +22,11 @@ const toursQuery = queryOptions({
 
 export const Route = createFileRoute("/tours/")({
   // Keys are omitted when empty so bare `/tours` stays a 200 (no 307 rewrite).
-  validateSearch: (search: Record<string, unknown>): { q?: string; theme?: string } => {
-    const out: { q?: string; theme?: string } = {};
+  validateSearch: (search: Record<string, unknown>): { q?: string; theme?: string; length?: TourLength } => {
+    const out: { q?: string; theme?: string; length?: TourLength } = {};
     if (typeof search.q === "string" && search.q.length > 0) out.q = search.q.slice(0, 80);
     if (typeof search.theme === "string" && search.theme.length > 0) out.theme = search.theme.slice(0, 60);
+    if (search.length === "half" || search.length === "full" || search.length === "long") out.length = search.length;
     return out;
   },
   head: ({ loaderData }) => {
@@ -98,16 +99,17 @@ export const Route = createFileRoute("/tours/")({
 
 function ToursPage() {
   const { data: allTours } = useSuspenseQuery(toursQuery);
-  const { q = "", theme = "" } = Route.useSearch();
+  const { q = "", theme = "", length = "" } = Route.useSearch();
   const navigate = useNavigate({ from: "/tours/" });
 
-  const setSearch = (next: { q?: string; theme?: string }) =>
+  const setSearch = (next: { q?: string; theme?: string; length?: TourLength }) =>
     navigate({
       search: (prev) => {
         const merged = { ...prev, ...next };
         return {
           ...(merged.q ? { q: merged.q } : {}),
           ...(merged.theme ? { theme: merged.theme } : {}),
+          ...(merged.length ? { length: merged.length } : {}),
         };
       },
       replace: true,
@@ -123,13 +125,13 @@ function ToursPage() {
   const filtered = useMemo(
     () =>
       allTours.filter(
-        (t) => matchesTourSearch(t, q, theme),
+        (t) => matchesTourSearch(t, q, theme) && matchesTourLength(t, length),
       ),
-    [allTours, q, theme],
+    [allTours, q, theme, length],
   );
   const tours = filtered.filter((t) => !t.long_day).slice().sort(byFeatured);
   const longDayTours = filtered.filter((t) => t.long_day).slice().sort(byFeatured);
-  const isFiltering = !!q.trim() || !!theme;
+  const isFiltering = !!q.trim() || !!theme || !!length;
 
   return (
     <SiteLayout ctaSubtitle="Tell us your dates and we will build the itinerary and quote around you." cta={{ heading: <>Plan your <span className="text-gold">private tour</span></>, label: "Plan a tour", to: "/book/tour", trackAs: "final_cta_tours" }}>
@@ -151,7 +153,9 @@ function ToursPage() {
               onQ: (v) => setSearch({ q: v }),
               theme,
               onTheme: (v) => setSearch({ theme: v }),
-              onReset: () => setSearch({ q: "", theme: "" }),
+              length,
+              onLength: (v) => setSearch({ length: v as TourLength }),
+              onReset: () => setSearch({ q: "", theme: "", length: "" }),
               themes,
               resultCount: filtered.length,
               totalCount: allTours.length,
