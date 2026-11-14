@@ -608,19 +608,23 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                     <Label htmlFor="tw-start">Pickup address</Label>
                     <PlaceAutocomplete id="tw-start" value={start} onChange={(p) => { setStart(p); setQuote(null); }} placeholder="Hotel, home or airport" />
                   </div>
-                  <div className="space-y-1.5 md:col-span-2">
-                    <div className="flex items-center justify-between gap-2">
-                      <Label htmlFor="tw-end">Drop-off</Label>
-                      <button type="button" className="text-xs font-semibold underline" onClick={() => { setSameEnd(!sameEnd); setQuote(null); }}>
-                        {sameEnd ? "Finish somewhere else" : "Finish where we started"}
+                  {sameEnd ? (
+                    <div className="md:col-span-2">
+                      <button type="button" className="text-xs font-semibold underline" onClick={() => { setSameEnd(false); setQuote(null); }}>
+                        Finish somewhere else
                       </button>
                     </div>
-                    {sameEnd ? (
-                      <div className="flex h-10 items-center rounded-md border border-border bg-[var(--surface)] px-3 text-sm text-muted-foreground">Back to the pickup address</div>
-                    ) : (
+                  ) : (
+                    <div className="space-y-1.5 md:col-span-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <Label htmlFor="tw-end">Drop-off</Label>
+                        <button type="button" className="text-xs font-semibold underline" onClick={() => { setSameEnd(true); setEnd(null); setQuote(null); }}>
+                          Finish where we started
+                        </button>
+                      </div>
                       <PlaceAutocomplete id="tw-end" value={end} onChange={(p) => { setEnd(p); setQuote(null); }} placeholder="Different drop-off" />
-                    )}
-                  </div>
+                    </div>
+                  )}
                   <div className="space-y-1.5">
                     <Label htmlFor="tw-date">Date</Label>
                     <Input id="tw-date" type="date" min={today} value={date} onChange={(e) => setDate(e.target.value)} />
