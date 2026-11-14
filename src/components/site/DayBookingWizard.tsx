@@ -9,7 +9,7 @@
  * your own tour adds a Stops step. Stops are numbered from the start to the
  * finish, kept in driving order, and each leg shows its road miles and time.
  */
-import { ukDate } from "@/lib/uk-time";
+import { cancellationCoverOffered, ukDate } from "@/lib/uk-time";
 import { FACT_TEXT } from "@/lib/site-facts";
 import { SITE } from "@/lib/site";
 import { flightNumberError, isAirportPickup } from "@/lib/flight-number";
@@ -140,6 +140,8 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
   const [requested, setRequested] = useState<{ reference: string } | null>(null);
   useBookingStepScroll(`${stepId}:${created?.bookingRef ?? ""}:${requested?.reference ?? ""}`);
   useEffect(() => { if (stepId !== "details") setRequestMode(false); }, [stepId]);
+  // Cover upgrades only apply to tours more than two days away.
+  useEffect(() => { if (!cancellationCoverOffered(date) && cover !== "standard") { setCover("standard"); setQuote(null); } }, [date, cover]);
 
   const captcha = useCaptcha("tour-booking");
   const data = options.data;
