@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { fitsParty, templateStopsInOrder, tourHourChoices, wizardSteps, addHoursToTime } from "@/lib/tour-itinerary";
+import { fitsParty, templateStopsInOrder, tourHourChoices, wizardSteps, addHoursToTime, automaticTourHours, visibleTourSuggestions } from "@/lib/tour-itinerary";
 
 const stop = (poi: string, order: number, mandatory = false) => ({
   poi_id: poi, place_id: `p-${poi}`, name: poi, stop_order: order,
@@ -7,6 +7,20 @@ const stop = (poi: string, order: number, mandatory = false) => ({
 });
 
 describe("tour booking form rules", () => {
+  it("shows only four places until More places is opened", () => {
+    expect(visibleTourSuggestions([1, 2, 3, 4, 5, 6], false)).toEqual([1, 2, 3, 4]);
+    expect(visibleTourSuggestions([1, 2, 3, 4, 5, 6], true)).toEqual([1, 2, 3, 4, 5, 6]);
+  });
+  it("extra visits automatically extend an 8-hour tour to the smallest allowed length", () => {
+    expect(automaticTourHours([8, 10, 12], 8, 160, [60, 60, 60, 60, 120], 10, 30)).toBe(10);
+    expect(automaticTourHours([8, 10, 12], 8, 160, [60, 60, 60, 60], 10, 30)).toBe(8);
+  });
+  it("does not invent a duration when added stops exceed the tour's maximum", () => {
+    expect(automaticTourHours([8, 10], 8, 300, [180, 180], 10, 30)).toBeNull();
+  });
+  it("removing stops never discounts the default sold tour length", () => {
+    expect(automaticTourHours([4, 6, 8, 10], 8, 60, [30], 10, 30)).toBe(8);
+  });
   it("ready-made tours skip the stops step; custom tours and hourly hire keep it", () => {
     expect(wizardSteps("tour", "premade")).toEqual(["tour", "when", "vehicle", "details"]);
     expect(wizardSteps("tour", "custom")).toEqual(["tour", "when", "stops", "vehicle", "details"]);

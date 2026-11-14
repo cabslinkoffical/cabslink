@@ -66,6 +66,8 @@ export type TourQuote = {
   total: number;
   /** Set when the day cannot be booked, in the customer's words. */
   blockedReason: string | null;
+  chosen_extras?: Array<{ key: string; name: string; quantity: number; amount: number; category?: string }>;
+  cancellation_cover_amount?: number;
 };
 
 export const round2 = (n: number) => Math.round(n * 100) / 100;

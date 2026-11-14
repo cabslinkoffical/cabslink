@@ -6,6 +6,10 @@
 
 export type WizardStepId = "tour" | "when" | "stops" | "vehicle" | "details";
 
+export function visibleTourSuggestions<T>(suggestions: T[], expanded: boolean): T[] {
+  return expanded ? suggestions : suggestions.slice(0, 4);
+}
+
 /** Ready-made tours skip the stops step (their stops are set); hourly hire has no tour choice. */
 export function wizardSteps(kind: "tour" | "hourly", mode: "premade" | "custom"): WizardStepId[] {
   if (kind === "hourly") return ["when", "stops", "vehicle", "details"];
@@ -71,4 +75,14 @@ export function addHoursToTime(time: string, hours: number): string {
   const [h, m] = time.split(":").map((v) => Number(v));
   const total = ((h ?? 0) * 60 + (m ?? 0) + Math.round(hours * 60)) % (24 * 60);
   return `${String(Math.floor(total / 60)).padStart(2, "0")}:${String(total % 60).padStart(2, "0")}`;
+}
+
+/** Smallest allowed length containing road time, visits and the configured pickup buffer.
+ * A ready-made tour never drops below its default sold length. No fitting
+ * option returns null rather than inventing a duration beyond admin limits.
+ */
+export function automaticTourHours(choices: number[], baseHours: number, driveMinutes: number, dwellMinutes: number[], minimumStopMinutes: number, pickupBufferMinutes: number): number | null {
+  // The existing quote engine calls less than 20 minutes' slack "tight".
+  const needed = driveMinutes + pickupBufferMinutes + 20 + dwellMinutes.reduce((t, m) => t + Math.max(minimumStopMinutes, m), 0);
+  return [...choices].sort((a, b) => a - b).find((h) => h >= baseHours && h * 60 >= needed) ?? null;
 }

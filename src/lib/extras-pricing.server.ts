@@ -9,7 +9,7 @@ export async function loadExtrasCatalogue(client: any): Promise<ExtrasCatalogue>
     client.from("extras").select("key, name, price_pence, active, applies_to_all_classes, price_basis, max_quantity, category, id").eq("active", true),
     client.from("extra_vehicle_classes").select("extra_id, vehicle_class_id, price_pence, max_quantity"),
   ]);
-  if (extras.error) throw new Error(extras.error.message);
+  if (extras.error || links.error) throw new Error("We couldn't price this right now, please try again or call us");
 
   const byId = new Map<string, ExtrasCatalogue[number]>();
   for (const e of (extras.data ?? []) as any[]) {
