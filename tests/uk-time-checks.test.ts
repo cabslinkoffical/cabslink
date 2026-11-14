@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ukClock, ukDate, ukLocalToMs } from "@/lib/uk-time";
+import { cancellationCoverOffered, ukClock, ukDate, ukLocalToMs } from "@/lib/uk-time";
 import { matchSurcharges, type JourneyContext, type SurchargeRule } from "@/lib/pricing-rules";
 import { tourStartProblem } from "@/lib/tour-timing";
 import { pickupTimestamp } from "@/lib/manage-booking.functions";
