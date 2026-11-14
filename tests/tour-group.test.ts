@@ -32,6 +32,19 @@ describe("splitting a group between vehicles", () => {
 });
 
 describe("suggested combinations", () => {
+  it("adds a second vehicle when luggage exceeds one vehicle's limit", () => {
+    expect(suggestGroups([van], 2, 9)[0]).toEqual(["van", "van"]);
+    expect(splitGroup(["van", "van"], [van], 2, 9).ok).toBe(true);
+    expect(van.max_luggage).toBe(8);
+  });
+  it("adds a third vehicle when passengers exceed two vehicles' limits", () => {
+    expect(suggestGroups([van], 17, 0)[0]).toEqual(["van", "van", "van"]);
+    expect(splitGroup(["van", "van", "van"], [van], 17, 0).ok).toBe(true);
+    expect(van.max_passengers).toBe(8);
+  });
+  it("adds a third vehicle when luggage exceeds two vehicles' limits", () => {
+    expect(suggestGroups([van], 3, 17)[0]).toEqual(["van", "van", "van"]);
+  });
   it("picks the fewest vehicles that carry everyone", () => {
     const s = suggestGroups([van, saloon, mpv], 12, 6);
     expect(s[0]).toEqual(["van", "saloon"]);

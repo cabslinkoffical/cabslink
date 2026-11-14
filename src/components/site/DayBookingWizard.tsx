@@ -654,6 +654,16 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                   <Counter icon={<Briefcase className="size-4" />} label="Suitcases" value={luggage} min={0} max={80} onChange={(v) => changeParty(passengers, v)} />
                 </div>
 
+                {groupActive && groupSplit?.ok && (
+                  <div role="status" className="border-l-2 border-gold pl-3 text-sm">
+                    <p className="font-semibold">{groupVehicles.length} vehicles recommended for {passengers} passengers and {luggage} suitcases</p>
+                    <p className="text-muted-foreground">{vehicleLabel}</p>
+                  </div>
+                )}
+                {!singleFits && !groupSplit?.ok && (
+                  <p role="status" className="text-sm font-semibold text-destructive">No available combination fits {passengers} passengers and {luggage} suitcases online. Please call {SITE.phoneUK}.</p>
+                )}
+
                 <div className="space-y-2">
                   <p className="text-sm font-semibold">{template ? "Tour length" : "How long would you like the car for?"}</p>
                   {template ? <p className="text-sm font-semibold" aria-live="polite">{hours} hours{loop.isFetching || optimiseMutation.isPending ? " · Checking route…" : ""}</p> : hourChoices.length > 1 ? (
@@ -948,7 +958,8 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                               aria-pressed={on}
                               className={`rounded-xl border bg-card p-3 text-left text-sm ${on ? "border-[var(--gold)] ring-1 ring-[var(--gold)]" : "border-border hover:border-[var(--gold)]"}`}
                             >
-                              <span className="block font-semibold">{groupLabel(ids, classes)}</span>
+                              <span className="block font-semibold">{ids.length} vehicles</span>
+                              <span className="block text-sm">{groupLabel(ids, classes)}</span>
                               <span className="block text-xs text-muted-foreground">
                                 {list.reduce((t, c) => t + Number(c.max_passengers ?? 0), 0)} seats · {list.reduce((t, c) => t + Number(c.max_luggage ?? 0), 0)} suitcases
                               </span>
@@ -959,7 +970,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                       </div>
                     ) : (
                       <p className="text-sm font-semibold text-destructive">
-                        We can't fit {passengers} passengers into {MAX_GROUP_VEHICLES} vehicles online. Please call us on {SITE.phoneUK} and we'll plan it with you.
+                        We can't fit {passengers} passengers and {luggage} suitcases into {MAX_GROUP_VEHICLES} vehicles online. Please call us on {SITE.phoneUK} and we'll plan it with you.
                       </p>
                     )}
                     {groupActive && groupSplit && !groupSplit.ok && <p className="text-sm font-semibold text-destructive">{groupSplit.reason}</p>}
