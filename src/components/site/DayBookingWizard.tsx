@@ -896,7 +896,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                               <Loader2 className="ml-auto size-4 animate-spin text-muted-foreground" />
                             ) : (
                               <span className="block text-sm font-semibold text-[var(--gold-ink)]">
-                                {fixed != null ? `£${fixed.toFixed(2)}` : c.hourly_rate ? `£${Number(c.hourly_rate).toFixed(2)}/hr` : ""}
+                                {fixed != null ? `From £${fixed.toFixed(2)}` : c.hourly_rate ? `£${Number(c.hourly_rate).toFixed(2)}/hr` : ""}
                               </span>
                             )}
                             <span className={`mt-1 ml-auto grid size-5 place-items-center rounded-full border ${selected ? "border-[var(--gold)] bg-[var(--gold)] text-[var(--gold-foreground)]" : "border-border"}`}>

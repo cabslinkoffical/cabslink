@@ -199,6 +199,7 @@ async function priceRequest(d: z.infer<typeof quoteSchema>): Promise<TourQuoteRe
     loadQuoteSettings(supabaseAdmin),
   ]);
   const extras = priceDayExtras(catalogue, d.extras, firstClassId, d.passengers, settings.taxRate, settings.taxMode);
+  if (!(result.quote.total > 0)) throw new Error("We couldn't price this right now, please try again or call us");
   const beforeCover = Math.round((result.quote.total + extras.lines.reduce((t, e) => t + e.amount, 0)) * 100) / 100;
   const delta = coverDelta(d.cancellationCover, beforeCover, {
     nonRefundablePercent: settings.policyNonRefundablePercent,
