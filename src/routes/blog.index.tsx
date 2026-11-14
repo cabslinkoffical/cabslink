@@ -141,22 +141,6 @@ function BlogHome() {
           </div>
         )}
 
-        {/* Category chips */}
-        {categories.length > 0 && (
-          <div className="mb-12 flex flex-wrap gap-2">
-            {categories.map((c) => (
-              <Link
-                key={c.id}
-                to="/blog/category/$slug"
-                params={{ slug: c.slug }}
-                className="rounded-full border border-[var(--navy)]/15 bg-card px-4 py-2 text-sm text-[var(--navy)] hover:border-[var(--gold)] hover:text-[var(--gold-ink)] transition"
-              >
-                {c.name}
-              </Link>
-            ))}
-          </div>
-        )}
-
         {/* Latest grid */}
         {rest.length > 0 && (
           <>
@@ -168,12 +152,20 @@ function BlogHome() {
         )}
 
         {/* Pillars */}
-        {pillars.length > 0 && (
+        {shownPillars.length > 0 && (
           <div className="mt-16">
             <h2 className="font-display text-2xl md:text-3xl font-semibold text-[var(--navy)] mb-6">Cornerstone guides</h2>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {pillars.map((p) => <BlogPostCard key={p.id} post={p} compact />)}
+              {shownPillars.map((p) => <BlogPostCard key={p.id} post={p} compact />)}
             </div>
+          </div>
+        )}
+
+        {filtering && rest.length === 0 && shownPillars.length === 0 && (
+          <div className="rounded-2xl border border-dashed border-[var(--navy)]/20 p-12 text-center">
+            <h2 className="font-display text-2xl font-semibold text-[var(--navy)]">No articles match that search</h2>
+            <p className="mt-3 text-[var(--navy)]/60">Try a different word or clear the filters to see everything.</p>
+            <Button className="mt-6" onClick={() => { setQ(""); setCategory(""); }}>Clear filters</Button>
           </div>
         )}
 
