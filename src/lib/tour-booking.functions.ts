@@ -27,6 +27,7 @@ import { priceDayExtras } from "@/lib/day-extras";
 import { loadExtrasCatalogue } from "@/lib/extras-pricing.server";
 import { loadQuoteSettings } from "@/lib/pricing-helpers.server";
 import { coverDelta } from "@/lib/cancellation-cover";
+import { cancellationCoverOffered } from "@/lib/uk-time";
 
 export type TourBookingOptions = {
   tiers: HourTier[];
