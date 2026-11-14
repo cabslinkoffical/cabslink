@@ -33,7 +33,9 @@ export function DayBookingExtras({ classId, passengers, quantities, onChange, co
         })}</div>
       </div>;
     })}
-    <h4 className="text-sm font-semibold">Cancellation cover</h4>
-    <div className="grid gap-2">{(["standard", "flexible", "non_refundable"] as const).map((v) => <Button key={v} variant={cover === v ? "secondary" : "outline"} className="h-auto justify-start whitespace-normal py-3 text-left" aria-pressed={cover === v} onClick={() => onCover(v)}><span><span className="block font-semibold">{coverName(v)}</span><span className="block text-xs font-normal text-muted-foreground">{coverPromise(v)}</span></span></Button>)}</div>
+    {cancellationCoverOffered(pickupDate) && <>
+      <h4 className="text-sm font-semibold">Cancellation cover</h4>
+      <div className="grid gap-2">{(["standard", "flexible", "non_refundable"] as const).map((v) => <Button key={v} variant={cover === v ? "secondary" : "outline"} className="h-auto justify-start whitespace-normal py-3 text-left" aria-pressed={cover === v} onClick={() => onCover(v)}><span><span className="block font-semibold">{coverName(v)}</span><span className="block text-xs font-normal text-muted-foreground">{coverPromise(v)}</span></span></Button>)}</div>
+    </>}
   </div>;
 }
