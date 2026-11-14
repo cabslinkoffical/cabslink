@@ -10,6 +10,8 @@ export type TourSearchControls = {
   onQ: (value: string) => void;
   theme: string;
   onTheme: (value: string) => void;
+  length: string;
+  onLength: (value: string) => void;
   onReset: () => void;
   themes: string[];
   resultCount: number;
@@ -21,7 +23,7 @@ export function CustomTourBuilder({ search }: { search?: TourSearchControls }) {
   if (!search) return (
     <Button asChild variant="navy"><Link to="/book/tour"><Wand2 />Build a custom tour</Link></Button>
   );
-  const filtering = Boolean(search.q.trim() || search.theme);
+  const filtering = Boolean(search.q.trim() || search.theme || search.length);
   return (
     <div className="border-y border-border py-6 sm:py-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -30,7 +32,7 @@ export function CustomTourBuilder({ search }: { search?: TourSearchControls }) {
           <Link to="/book/tour"><Wand2 />Build a custom tour<ArrowRight /></Link>
         </Button>
       </div>
-      <div className="mt-5 grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(220px,320px)]">
+      <div className="mt-5 grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(180px,240px)_minmax(180px,240px)]">
         <div className="min-w-0 space-y-2">
           <Label htmlFor="tour-search">Search tours</Label>
           <div className="relative">
@@ -50,6 +52,18 @@ export function CustomTourBuilder({ search }: { search?: TourSearchControls }) {
               <SelectItem value="__all__">All themes</SelectItem>
               {search.themes.map((theme) => <SelectItem key={theme} value={theme}>{theme.replace(/[-_]/g, " ")}</SelectItem>)}
               {search.theme && !search.themes.includes(search.theme) && <SelectItem value={search.theme}>{search.theme.replace(/[-_]/g, " ")}</SelectItem>}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="min-w-0 space-y-2">
+          <Label htmlFor="tour-length">Tour length</Label>
+          <Select value={search.length || "__all__"} onValueChange={(value) => search.onLength(value === "__all__" ? "" : value)}>
+            <SelectTrigger id="tour-length" className="h-12 bg-background text-base"><SelectValue placeholder="Any length" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__all__">Any length</SelectItem>
+              <SelectItem value="half">Half day (up to 6 hours)</SelectItem>
+              <SelectItem value="full">Full day (7–10 hours)</SelectItem>
+              <SelectItem value="long">Long day &amp; multi-region</SelectItem>
             </SelectContent>
           </Select>
         </div>
