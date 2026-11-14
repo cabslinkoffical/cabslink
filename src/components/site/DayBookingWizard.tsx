@@ -1308,7 +1308,7 @@ function RouteTimeline({
     <div>
       {onDwell && stops.length > 0 && (
         <p className="mb-3 rounded-lg bg-muted/60 px-3 py-2 text-xs text-muted-foreground">
-          Use <span className="font-semibold text-foreground">Time here</span> to set how long you'd like to spend at each stop — the tour length and price update automatically.
+          Use <span className="font-semibold text-foreground">Visit time</span> to set how long you'd like to spend at each stop — the tour length and price update automatically.
         </p>
       )}
       <ol aria-label="Your route in order">
@@ -1330,7 +1330,7 @@ function RouteTimeline({
               </span>
               {onDwell && (
                 <label className="flex shrink-0 flex-col items-end gap-0.5">
-                  <span className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Time here</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Visit time</span>
                   <select
                     aria-label={`Time at ${s.name}`}
                     value={Math.max(minStopMinutes, s.dwellMinutes ?? minStopMinutes)}
