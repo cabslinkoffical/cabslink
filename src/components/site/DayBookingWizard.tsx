@@ -830,7 +830,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                 {/* Suggested stops inside the mileage the hours include */}
                 <div>
                   <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                    Popular stops within {includedMiles} miles
+                    Top scenic stops for {hours} hours ({includedMiles} miles)
                   </p>
                   {suggestions.isLoading ? (
                     <p className="mt-3 flex items-center gap-2 text-xs text-muted-foreground"><Loader2 className="size-3.5 animate-spin" /> Finding places…</p>
