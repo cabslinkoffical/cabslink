@@ -86,6 +86,15 @@ export function ukLocalToMs(date: string | null | undefined, time?: string | nul
   return asUtc - ukOffsetMinutes(new Date(first)) * 60000;
 }
 
+/**
+ * Cancellation cover is only offered when the pickup is more than two
+ * UK calendar days after the booking date; closer pickups keep the
+ * standard cover with no choice.
+ */
+export function cancellationCoverOffered(pickupDate: string | null | undefined, today: string = ukDate()): boolean {
+  return !!pickupDate && /^\d{4}-\d{2}-\d{2}$/.test(pickupDate) && pickupDate > addDays(today, 2);
+}
+
 /** UK wall-clock time (HH:MM, 24h) of an instant. */
 export function ukClock(at: Date | string | number = new Date()): string {
   return new Intl.DateTimeFormat("en-GB", { timeZone: UK_TZ, hourCycle: "h23", hour: "2-digit", minute: "2-digit" }).format(new Date(at));

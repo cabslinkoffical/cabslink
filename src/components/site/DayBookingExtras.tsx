@@ -4,10 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { coverName, coverPromise, type CancellationCover } from "@/lib/cancellation-cover";
+import { cancellationCoverOffered } from "@/lib/uk-time";
 
-export function DayBookingExtras({ classId, passengers, quantities, onChange, cover, onCover }: {
+export function DayBookingExtras({ classId, passengers, quantities, onChange, cover, onCover, pickupDate }: {
   classId: string; passengers: number; quantities: Record<string, number>;
   onChange: (key: string, quantity: number) => void; cover: CancellationCover; onCover: (v: CancellationCover) => void;
+  pickupDate: string;
 }) {
   const extras = useQuery({ queryKey: ["public-extras", classId], queryFn: () => listPublicExtras({ data: { classId } }), staleTime: 300_000 });
   const seats = (extras.data ?? []).filter((e) => e.category === "child_seat").reduce((t, e) => t + (quantities[e.key] ?? 0), 0);
