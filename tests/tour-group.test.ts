@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { splitGroup, suggestGroups, groupLabel, MAX_GROUP_VEHICLES } from "@/lib/tour-group";
+import { splitGroup, suggestGroups, groupLabel, vehiclesForClass, MAX_GROUP_VEHICLES } from "@/lib/tour-group";
 
 // Capacities as in the live fleet (passengers / large cases).
 const van = { id: "van", name: "Eight-Seater Van", max_passengers: 8, max_luggage: 8, hourly_rate: 85 };
@@ -7,6 +7,27 @@ const mini = { id: "mini", name: "Executive Minibus", max_passengers: 16, max_lu
 const saloon = { id: "saloon", name: "Saloon", max_passengers: 4, max_luggage: 2, hourly_rate: 50 };
 const mpv = { id: "mpv", name: "Standard MPV", max_passengers: 4, max_luggage: 4, hourly_rate: 55 };
 const classes = [van, mini, saloon, mpv];
+
+describe("automatic quantities for every vehicle class", () => {
+  it("keeps smaller options selectable with two vehicles", () => {
+    expect(vehiclesForClass(saloon, 5, 0)).toEqual(["saloon", "saloon"]);
+    expect(vehiclesForClass(van, 5, 0)).toEqual(["van"]);
+  });
+  it("selects three vehicles for nine passengers in four-seat cars", () => {
+    expect(vehiclesForClass(saloon, 9, 0)).toEqual(Array(3).fill("saloon"));
+  });
+  it("selects four vehicles for thirteen passengers in four-seat cars", () => {
+    expect(vehiclesForClass(saloon, 13, 0)).toEqual(Array(4).fill("saloon"));
+  });
+  it("uses luggage capacity too without increasing the vehicle limits", () => {
+    expect(vehiclesForClass(saloon, 4, 7)).toEqual(Array(4).fill("saloon"));
+    expect(saloon.max_luggage).toBe(2);
+  });
+  it("rejects quantities outside existing booking limits", () => {
+    expect(vehiclesForClass(saloon, 25, 0)).toBeNull();
+    expect(vehiclesForClass(saloon, 1, 3)).toBeNull();
+  });
+});
 
 describe("splitting a group between vehicles", () => {
   it("fills vehicles in order and gives every vehicle a passenger", () => {
