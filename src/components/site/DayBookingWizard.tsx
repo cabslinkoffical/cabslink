@@ -519,6 +519,13 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
   }, [priceableClasses.map((c) => c.id).join("|"), passengers, luggage, vehicleClassId, groupVehicles.join("|")]);
 
   const today = ukDate();
+  function continueBooking() {
+    if (stepId === "vehicle" && quote) {
+      rememberCheckout({ service_type: "tour", vehicle_class: vehicle?.name });
+      trackEvent("begin_checkout", { service_type: "tour", vehicle_class: vehicle?.name, value: quote.quote.total, currency: "GBP" });
+    }
+    goNext();
+  }
   const canNext = (() => {
     switch (stepId) {
       case "tour": return tourPicked && (mode === "custom" || !!templateId);
@@ -543,7 +550,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
 
   return (
     <SiteLayout hideCta>
-      <section className="mx-auto max-w-6xl px-4 pt-28 pb-16 md:pt-32">
+      <section className="mx-auto max-w-6xl px-4 pt-28 pb-28 lg:pb-16 md:pt-32">
         <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--gold-ink)]">
           {hourly ? "Hourly hire" : "Private day tours"}
         </p>
@@ -1084,6 +1091,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                   </>
                 ) : (
                   <form
+                    id="day-booking-details"
                     className="space-y-5"
                     noValidate
                     onSubmit={(e) => {
@@ -1142,7 +1150,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                       <Button
                         type="submit"
                         variant="gold"
-                        className="w-full sm:w-auto sm:min-w-[180px] rounded-full"
+                        className="hidden lg:inline-flex w-full sm:w-auto sm:min-w-[180px] rounded-full"
                         disabled={bookMutation.isPending || requestMutation.isPending || !captcha.ready}
                       >
                         {bookMutation.isPending || requestMutation.isPending ? (
@@ -1157,7 +1165,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
 
             {/* Navigation */}
             {!done && (
-              <div className="mt-7 flex items-center justify-between gap-3 border-t border-border pt-5">
+              <div className="mt-7 hidden lg:flex items-center justify-between gap-3 border-t border-border pt-5">
                 <Button type="button" variant="ghost" className="rounded-full" onClick={goBack} disabled={stepIndex === 0}>
                   <ArrowLeft className="size-4" /> Back
                 </Button>
@@ -1167,13 +1175,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                     variant="gold"
                     className="sm:min-w-[150px] rounded-full"
                     disabled={!canNext}
-                    onClick={() => {
-                      if (stepId === "vehicle" && quote) {
-                        rememberCheckout({ service_type: "tour", vehicle_class: vehicle?.name });
-                        trackEvent("begin_checkout", { service_type: "tour", vehicle_class: vehicle?.name, value: quote.quote.total, currency: "GBP" });
-                      }
-                      goNext();
-                    }}
+                    onClick={continueBooking}
                   >
                     Continue <ArrowRight className="size-4" />
                   </Button>
@@ -1206,6 +1208,18 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
           </div>
         )}
       </section>
+      {!done && !options.isPending && <nav aria-label="Booking controls" className="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-border bg-card/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-raised backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-center gap-3">
+          <Button variant="ghost" size="icon" aria-label="Back to previous step" disabled={stepIndex === 0} onClick={goBack}><ArrowLeft className="size-4" /></Button>
+          <div className="min-w-0 flex-1">
+            <p className="text-[10px] font-semibold text-muted-foreground">{priceMutation.isPending ? "Updating total…" : liveQuote && !liveQuote.blockedReason ? "Total price" : "Price tier"}</p>
+            <p className="truncate font-display text-lg font-bold text-foreground" aria-live="polite">{liveQuote && !liveQuote.blockedReason && liveQuote.total > 0 ? `£${liveQuote.total.toFixed(2)}` : startingPrice != null ? `From £${startingPrice.toFixed(2)}` : "Get a quote"}</p>
+          </div>
+          {stepId === "details" ? <Button type="submit" form="day-booking-details" variant="gold" className="shrink-0 rounded-full" disabled={bookMutation.isPending || requestMutation.isPending || !captcha.ready}>
+            {bookMutation.isPending || requestMutation.isPending ? <Loader2 className="size-4 animate-spin" /> : requestMode ? "Send request" : "Payment"}<ArrowRight className="size-4" />
+          </Button> : <Button variant="gold" className="shrink-0 rounded-full" disabled={!canNext} onClick={continueBooking}>Continue <ArrowRight className="size-4" /></Button>}
+        </div>
+      </nav>}
     </SiteLayout>
   );
 }
