@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { createCustomTourRequest } from "@/lib/custom-tour-requests.functions";
 import { quoteRequestReason } from "@/lib/custom-tour-requests";
-import { splitGroup, suggestGroups, groupLabel, MAX_GROUP_VEHICLES } from "@/lib/tour-group";
+import { splitGroup, suggestGroups, groupLabel, vehiclesForClass, MAX_GROUP_VEHICLES } from "@/lib/tour-group";
 import { moveStop } from "@/lib/stop-order";
 import {
   wizardSteps, STEP_LABELS, fitsParty, templateStopsInOrder, tourHourChoices, addHoursToTime,
@@ -256,7 +256,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
   const singleFits = fittingClasses.length > 0;
   const groupActive = groupVehicles.length > 1;
   const groupSplit = groupActive ? splitGroup(groupVehicles, classes, passengers, luggage) : null;
-  const vehicleFits = groupActive ? !!groupSplit?.ok : singleFits;
+  const vehicleFits = groupActive ? !!groupSplit?.ok : !!vehicle && priceableClasses.includes(vehicle) && fitsParty(vehicle, passengers, luggage);
   const groupSuggestions = useMemo(
     () => suggestGroups(priceableClasses, passengers, luggage, 3).filter((ids) => ids.length > 1),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -265,28 +265,31 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
   const vehicleLabel = groupActive ? groupLabel(groupVehicles, classes) : vehicle?.name ?? null;
   const priceFor = (classId: string) => template?.prices.find((p) => p.vehicle_class_id === classId)?.price ?? null;
 
-  /** One vehicle when one carries everyone and their bags, otherwise the best combination. */
+  const recommendedIds = suggestGroups(priceableClasses, passengers, luggage, 1)[0] ?? [];
+  const vehicleOptions = priceableClasses.map((c) => ({ c, ids: vehiclesForClass(c, passengers, luggage) }))
+    .sort((a, b) => {
+      const recommended = (ids: string[] | null) => ids?.join("|") === recommendedIds.join("|");
+      return Number(recommended(b.ids)) - Number(recommended(a.ids))
+        || (a.ids?.length ?? Infinity) - (b.ids?.length ?? Infinity)
+        || Number(a.c.hourly_rate ?? 0) - Number(b.c.hourly_rate ?? 0);
+    });
+
   function pickVehiclesFor(count: number, bags: number) {
-    setQuote(null);
-    const fit = priceableClasses.find((c) => fitsParty(c, count, bags));
-    if (fit) { setGroupVehicles([]); setVehicleClassId(fit.id); return; }
-    const best = suggestGroups(priceableClasses, count, bags, 1)[0];
-    setGroupVehicles(best && best.length > 1 ? best : []);
-    setVehicleClassId(best?.[0] ?? null);
+    chooseVehicles(suggestGroups(priceableClasses, count, bags, 1)[0] ?? []);
   }
   function chooseVehicles(ids: string[]) {
     setQuote(null);
     setExtraQty({});
-    if (ids.length > 1) { setGroupVehicles(ids); setVehicleClassId(ids[0]!); return; }
-    setGroupVehicles([]);
+    setGroupVehicles(ids.length > 1 ? ids : []);
     setVehicleClassId(ids[0] ?? null);
   }
   function changeParty(nextPassengers: number, nextLuggage: number) {
     setPassengers(nextPassengers);
     setLuggage(nextLuggage);
-    const current = classes.find((c) => c.id === vehicleClassId);
-    if (groupActive || !current || !fitsParty(current, nextPassengers, nextLuggage)) pickVehiclesFor(nextPassengers, nextLuggage);
-    else setQuote(null);
+    const current = priceableClasses.find((c) => c.id === vehicleClassId);
+    const sameClass = !groupActive || groupVehicles.every((id) => id === vehicleClassId);
+    const ids = current && sameClass ? vehiclesForClass(current, nextPassengers, nextLuggage) : null;
+    if (ids) chooseVehicles(ids); else pickVehiclesFor(nextPassengers, nextLuggage);
   }
 
   const quoteReq = () => ({
@@ -506,14 +509,14 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
       getTourStopSuggestions({ data: { startPlaceId: start?.placeId ?? "", hours: hours ?? 0, limit: 24 } }),
   });
 
-  // A working vehicle lets the stops meter measure the day before the party is
-  // confirmed; it is not shown as the customer's choice until they confirm.
+  // Reconcile handoffs and changed tour pricing without losing a valid customer choice.
   useEffect(() => {
-    if (vehicleClassId || !classes.length) return;
-    const fit = classes.find((c) => fitsParty(c, passengers, luggage)) ?? classes[0]!;
-    setVehicleClassId(fit.id);
+    const ids = groupActive ? groupVehicles : vehicleClassId ? [vehicleClassId] : [];
+    if (ids.length && ids.every((id) => priceableClasses.some((c) => c.id === id))
+      && splitGroup(ids, priceableClasses, passengers, luggage).ok) return;
+    if (priceableClasses.length) pickVehiclesFor(passengers, luggage);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [classes.length]);
+  }, [priceableClasses.map((c) => c.id).join("|"), passengers, luggage, vehicleClassId, groupVehicles.join("|")]);
 
   const today = ukDate();
   const canNext = (() => {
@@ -886,55 +889,51 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                   <Counter icon={<Briefcase className="size-4" />} label="Suitcases" value={luggage} min={0} max={80} onChange={(v) => changeParty(passengers, v)} />
                 </div>
 
-                {singleFits ? (
-                  <div className="space-y-3">
-                    {fittingClasses.map((c) => {
-                      const fixed = priceFor(c.id);
-                      const selected = !groupActive && vehicleClassId === c.id;
-                      return (
-                        <button
-                          key={c.id}
-                          type="button"
-                          onClick={() => chooseVehicles([c.id])}
-                          aria-pressed={selected}
-                          className={`flex w-full items-center gap-4 rounded-xl border p-3 text-left transition ${
-                            selected ? "border-[var(--gold)] ring-1 ring-[var(--gold)]" : "border-border hover:border-[var(--gold)]"
-                          }`}
-                        >
-                          {c.image_url ? (
-                            <img src={c.image_url} alt={c.name} loading="lazy" className="h-14 w-20 shrink-0 rounded-lg object-cover" />
-                          ) : (
-                            <span className="grid h-14 w-20 shrink-0 place-items-center rounded-lg bg-[var(--surface)]"><Car className="size-6 text-muted-foreground" /></span>
-                          )}
-                          <span className="min-w-0 flex-1">
-                            <span className="block font-semibold">{c.name}</span>
-                            <span className="block text-xs text-muted-foreground">Up to {c.max_passengers ?? "—"} passengers · {c.max_luggage ?? "—"} suitcases</span>
-                          </span>
-                          <span className="shrink-0 text-right">
-                            {selected && quote && !priceMutation.isPending && !quote.quote.blockedReason ? (
-                              <span className="block font-display text-lg font-bold text-[var(--gold-ink)]">£{quote.quote.total.toFixed(2)}</span>
-                            ) : selected && priceMutation.isPending ? (
-                              <Loader2 className="ml-auto size-4 animate-spin text-muted-foreground" />
-                            ) : (
-                              <span className="block text-sm font-semibold text-[var(--gold-ink)]">
-                                {fixed != null ? `From £${fixed.toFixed(2)}` : c.hourly_rate ? `£${Number(c.hourly_rate).toFixed(2)}/hr` : ""}
-                              </span>
-                            )}
-                            <span className={`mt-1 ml-auto grid size-5 place-items-center rounded-full border ${selected ? "border-[var(--gold)] bg-[var(--gold)] text-[var(--gold-foreground)]" : "border-border"}`}>
-                              {selected && <Check className="size-3" />}
-                            </span>
-                          </span>
-                        </button>
-                      );
-                    })}
+                {recommendedIds.length > 0 && (
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-l-2 border-gold pl-3 text-sm" role="status">
+                    <div><p className="font-semibold">Recommended: {groupLabel(recommendedIds, classes)}</p>
+                      <p className="text-xs text-muted-foreground">{recommendedIds.length} {recommendedIds.length === 1 ? "vehicle" : "vehicles"} for {passengers} passengers and {luggage} suitcases</p></div>
+                    {recommendedIds.join("|") !== (groupActive ? groupVehicles : [vehicleClassId]).join("|") &&
+                      <Button variant="outline" size="sm" onClick={() => chooseVehicles(recommendedIds)}>Use recommended</Button>}
                   </div>
-                ) : (
-                  <p className="rounded-xl border border-[var(--gold)]/50 bg-[var(--gold)]/10 p-3 text-sm font-semibold">
-                    {unpricedFitting.length
-                      ? `We can't price a single vehicle for ${passengers} ${passengers === 1 ? "passenger" : "passengers"} online for this day. Choose more than one vehicle below, ${canRequestQuote ? "request a quote" : `or call us on ${SITE.phoneUK}`}.`
-                      : `No single vehicle carries ${passengers} ${passengers === 1 ? "passenger" : "passengers"} and ${luggage} ${luggage === 1 ? "suitcase" : "suitcases"}. Choose more than one vehicle below.`}
-                  </p>
                 )}
+                <div className="space-y-2" aria-label="Vehicle options">
+                  {vehicleOptions.map(({ c, ids }) => {
+                    const selected = vehicleClassId === c.id && (!groupActive || groupVehicles.every((id) => id === c.id));
+                    const selectedCount = selected && groupActive ? groupVehicles.length : ids?.length ?? 1;
+                    const recommended = ids?.join("|") === recommendedIds.join("|");
+                    const fixed = priceFor(c.id);
+                    return <div key={c.id} className={`rounded-lg border p-3 ${selected ? "border-gold ring-1 ring-gold" : "border-border"}`}>
+                      <Button variant="ghost" disabled={!ids} aria-label={`Select ${c.name}`} aria-pressed={selected}
+                        onClick={() => { if (ids) chooseVehicles(ids); }}
+                        className="h-auto w-full justify-start gap-3 whitespace-normal p-0 text-left hover:bg-transparent">
+                        {c.image_url ? <img src={c.image_url} alt={c.name} loading="lazy" className="h-12 w-16 shrink-0 rounded object-contain" />
+                          : <Car className="size-6 shrink-0 text-muted-foreground" />}
+                        <span className="min-w-0 flex-1">
+                          <span className="block text-sm font-semibold">{c.name}{recommended && <span className="ml-2 text-xs text-gold-ink">Recommended</span>}</span>
+                          <span className="block text-xs font-normal text-muted-foreground">Per vehicle: {c.max_passengers ?? "—"} passengers · {c.max_luggage ?? "—"} suitcases</span>
+                          <span className="block text-xs font-semibold">{ids ? `${selectedCount} ${selectedCount === 1 ? "vehicle" : "vehicles"}${selected ? " selected" : " needed"}` : `Cannot fit this party within ${MAX_GROUP_VEHICLES} vehicles`}</span>
+                        </span>
+                        <span className="shrink-0 text-right text-sm text-gold-ink">
+                          {selected && quote && !priceMutation.isPending && !quote.quote.blockedReason ? `£${quote.quote.total.toFixed(2)}`
+                            : selected && priceMutation.isPending ? <Loader2 className="size-4 animate-spin" />
+                            : ids ? fixed != null ? `From £${(fixed * selectedCount).toFixed(2)}` : `£${(Number(c.hourly_rate) * selectedCount).toFixed(2)}/hr` : ""}
+                          {selected && <Check className="ml-auto mt-1 size-4" />}
+                        </span>
+                      </Button>
+                      {selected && ids && <div className="mt-2 flex flex-wrap items-center justify-between gap-2 border-t border-border pt-2">
+                        <p className="text-xs text-muted-foreground">Total capacity: {selectedCount * Number(c.max_passengers ?? 0)} passengers · {selectedCount * Number(c.max_luggage ?? 0)} suitcases</p>
+                        <div className="flex items-center gap-2">
+                          <Button variant="outline" size="icon" className="size-7" aria-label={`Fewer ${c.name} vehicles`} disabled={selectedCount <= ids.length}
+                            onClick={() => chooseVehicles(Array.from({ length: selectedCount - 1 }, () => c.id))}><Minus className="size-3" /></Button>
+                          <span className="w-5 text-center text-xs font-semibold" aria-live="polite">{selectedCount}</span>
+                          <Button variant="outline" size="icon" className="size-7" aria-label={`More ${c.name} vehicles`} disabled={selectedCount >= Math.min(MAX_GROUP_VEHICLES, passengers)}
+                            onClick={() => chooseVehicles(Array.from({ length: selectedCount + 1 }, () => c.id))}><Plus className="size-3" /></Button>
+                        </div>
+                      </div>}
+                    </div>;
+                  })}
+                </div>
                 {!singleFits && unpricedFitting.length > 0 && (
                   <ul className="space-y-1 text-xs text-muted-foreground">
                     {unpricedFitting.map((c) => (
@@ -946,7 +945,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                 )}
 
                 {/* More than one vehicle */}
-                {(!singleFits || showGroup || groupActive) ? (
+                {showGroup ? (
                   <div className="space-y-3 rounded-xl border border-border bg-[var(--surface)] p-4">
                     <p className="text-sm font-semibold">More than one vehicle</p>
                     <p className="text-xs text-muted-foreground">Each vehicle has its own driver and is priced on its own; your total adds them together.</p>
@@ -954,7 +953,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                       <div className="grid gap-2 sm:grid-cols-3">
                         {groupSuggestions.map((ids) => {
                           const on = groupActive && ids.join("|") === groupVehicles.join("|");
-                          const list = ids.map((id) => classes.find((c) => c.id === id)!).filter(Boolean);
+                          const list = ids.flatMap((id) => { const c = classes.find((c) => c.id === id); return c ? [c] : []; });
                           return (
                             <button
                               key={ids.join("|")}
@@ -987,7 +986,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                   </div>
                 ) : groupSuggestions.length > 0 ? (
                   <button type="button" className="text-xs font-semibold underline" onClick={() => setShowGroup(true)}>
-                    Travelling as a bigger group? Use more than one vehicle
+                    Choose a mix of vehicle types
                   </button>
                 ) : null}
 
