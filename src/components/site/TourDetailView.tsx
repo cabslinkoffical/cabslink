@@ -14,8 +14,8 @@ import {
   ArrowRight, Clock, MapPin, Star, Check, X, Info, Minus, Plus, Loader2,
 } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
-import { PageHero } from "@/components/site/PageHero";
-import { Reveal } from "@/components/site/Reveal";
+import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { TourBookingDialog, type TourForBooking } from "@/components/site/TourBookingDialog";
 import type { PublicPoiCard, PublicTourDetail } from "@/lib/tours.functions";
@@ -161,34 +161,49 @@ export function TourDetailView({ d, slug, enquire, preview = false }: {
           Staff preview — this is how the page will look. {preview.live ? "This tour is live." : "This tour is a draft and is not on the website yet."} Booking buttons only work once it is published.
         </div>
       )}
-      <PageHero
-        eyebrow="Private Driver Tour"
-        title={seo?.h1 ?? d.name}
-        subtitle={d.short_description ?? undefined}
-        breadcrumbs={[{ label: "Home", to: "/" }, { label: "Tours", to: "/tours" }, { label: seo?.h1 ?? d.name }]}
-      />
+      <section className="tour-detail-hero hero-gradient relative isolate overflow-hidden text-navy-foreground">
+        {d.hero_image_url && (
+          <img
+            src={tourHeroImage(d.hero_image_url).url}
+            alt={`${d.name} — private driver tour`}
+            width={tourHeroImage(d.hero_image_url).width ?? 1280}
+            height={tourHeroImage(d.hero_image_url).height ?? 720}
+            fetchPriority="high"
+            loading="eager"
+            decoding="async"
+            className="absolute inset-0 -z-20 h-full w-full object-cover"
+          />
+        )}
+        <div className="tour-detail-scrim absolute inset-0 -z-10" />
+        <div className="container-x tour-detail-hero-inner">
+          <Breadcrumbs dark items={[{ name: "Home", href: "/" }, { name: "Tours", href: "/tours" }, { name: seo?.h1 ?? d.name, href: `#tour` }]} />
+          <div className="max-w-3xl">
+            <p className="mb-3 text-xs font-semibold text-gold">Private Driver Tour</p>
+            <h1 className="font-display text-3xl font-semibold leading-tight sm:text-4xl lg:text-5xl">{seo?.h1 ?? d.name}</h1>
+            {d.short_description && <p className="mt-4 max-w-2xl text-sm leading-relaxed text-navy-foreground/90 sm:text-base">{d.short_description}</p>}
+            <div className="mt-6 flex flex-wrap gap-x-6 gap-y-3 text-sm">
+              {d.duration_hours != null && <span className="flex items-center gap-2"><Clock className="size-4 text-gold" />{d.duration_hours} hours</span>}
+              {d.origin_label && <span className="flex items-center gap-2"><MapPin className="size-4 text-gold" />{d.origin_label}</span>}
+            </div>
+          </div>
+        </div>
+      </section>
+      <nav aria-label="Tour sections" className="tour-detail-nav border-b border-border bg-card">
+        <div className="container-x flex flex-wrap gap-x-6 gap-y-3 py-4 text-xs font-semibold sm:text-sm">
+          <a href="#tour-overview" className="hover:text-gold-ink">Overview</a>
+          {d.pois.length > 0 && <a href="#tour-stops" className="hover:text-gold-ink">Itinerary</a>}
+          {d.class_prices.length > 0 && <a href="#tour-prices" className="hover:text-gold-ink">Vehicle prices</a>}
+          {allFaqs.length > 0 && <a href="#tour-questions" className="hover:text-gold-ink">Questions</a>}
+        </div>
+      </nav>
 
-      <section className="section-y">
-        <div className="container-x grid lg:grid-cols-[1fr_360px] gap-10">
+      <section className="tour-detail-content py-8 sm:py-12">
+        <div className="container-x grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-12">
           {/* MAIN */}
-          <div>
+          <div id="tour-overview" className="min-w-0 scroll-mt-28">
             {/* The editorial product name stays on the page as the H2 — the H1
                 above carries the phrase people actually search for. */}
             {seo && <h2 className="font-display text-2xl font-semibold mb-5">{d.name}</h2>}
-            {d.hero_image_url && (
-              <Reveal>
-                <img
-                  src={tourHeroImage(d.hero_image_url).url}
-                  alt={`${d.name} — private driver tour`}
-                  width={tourHeroImage(d.hero_image_url).width ?? 1280}
-                  height={tourHeroImage(d.hero_image_url).height ?? 720}
-                  fetchPriority="high"
-                  className="w-full aspect-[16/9] object-cover rounded-3xl shadow-[var(--shadow-elegant)]"
-                  loading="eager"
-                  decoding="async"
-                />
-              </Reveal>
-            )}
 
             <div className="mt-8 grid sm:grid-cols-3 gap-4 text-sm">
               {d.origin_label && d.destination_label && (
@@ -295,7 +310,7 @@ export function TourDetailView({ d, slug, enquire, preview = false }: {
             )}
 
             {d.pois.length > 0 && (
-              <div className="mt-10">
+              <div id="tour-stops" className="mt-10 scroll-mt-28">
                 <div className="flex items-baseline justify-between gap-3 mb-4">
                   <h2 className="font-display text-2xl font-semibold">Customise your itinerary</h2>
                   <p className="text-xs text-muted-foreground">
@@ -316,7 +331,7 @@ export function TourDetailView({ d, slug, enquire, preview = false }: {
                       >
                         <div className="flex gap-4">
                           {p.image_url && (
-                            <div className="w-32 sm:w-44 shrink-0 bg-navy/40">
+                            <div className="tour-stop-photo w-24 sm:w-36 shrink-0 bg-muted">
                               <img src={p.image_url} alt={p.name} width={176} height={176} loading="lazy" decoding="async" className="w-full h-full object-cover aspect-square" />
                             </div>
                           )}
@@ -332,11 +347,10 @@ export function TourDetailView({ d, slug, enquire, preview = false }: {
                                 ) : (
                                   <label className="inline-flex min-h-11 items-center gap-2 cursor-pointer select-none px-1">
                                     <span className="text-[11px] text-muted-foreground">{active ? "In tour" : "Add"}</span>
-                                    <input
-                                      type="checkbox"
+                                    <Checkbox
                                       checked={active}
-                                      onChange={() => toggle(p)}
-                                      className="size-5 shrink-0 accent-[var(--gold)] cursor-pointer"
+                                      onCheckedChange={() => toggle(p)}
+                                      className="size-5"
                                       aria-label={active ? `Remove ${p.name}` : `Add ${p.name}`}
                                     />
                                   </label>
@@ -349,26 +363,33 @@ export function TourDetailView({ d, slug, enquire, preview = false }: {
                             {p.short_description && <p className="mt-1.5 text-sm text-muted-foreground line-clamp-2">{p.short_description}</p>}
                             <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
                               {active ? (
-                                <div className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-0.5">
-                                  <button
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <span className="text-xs font-medium text-muted-foreground">Visit time</span>
+                                  <div className="inline-flex items-center rounded-md border border-border bg-card">
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
                                     type="button"
-                                    className="grid size-10 place-items-center hover:text-[var(--gold-ink)] disabled:opacity-30"
+                                    className="size-9 rounded-none"
                                     onClick={() => bumpMinutes(p, -15)}
                                     disabled={minutes <= p.minimum_visit_minutes}
                                     aria-label={`Reduce time at ${p.name}`}
                                   >
                                     <Minus className="size-4" />
-                                  </button>
+                                  </Button>
                                   <span className="min-w-[54px] text-center text-foreground"><Clock className="inline size-3 mr-1" />{minutes} min</span>
-                                  <button
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
                                     type="button"
-                                    className="grid size-10 place-items-center hover:text-[var(--gold-ink)] disabled:opacity-30"
+                                    className="size-9 rounded-none"
                                     onClick={() => bumpMinutes(p, 15)}
                                     disabled={minutes >= p.maximum_visit_minutes}
                                     aria-label={`Add time at ${p.name}`}
                                   >
                                     <Plus className="size-4" />
-                                  </button>
+                                  </Button>
+                                  </div>
                                 </div>
                               ) : (
                                 <span className="inline-flex items-center gap-1"><Clock className="size-3" />~{p.recommended_visit_minutes} min recommended</span>
@@ -415,7 +436,7 @@ export function TourDetailView({ d, slug, enquire, preview = false }: {
             )}
 
             {d.class_prices.length > 0 && (
-              <div className="mt-10">
+              <div id="tour-prices" className="mt-10 scroll-mt-28">
                 <h2 className="font-display text-2xl font-semibold mb-3">How much does this tour cost?</h2>
                 <div className="overflow-hidden rounded-2xl border border-border">
                   <table className="w-full text-sm">
@@ -435,7 +456,7 @@ export function TourDetailView({ d, slug, enquire, preview = false }: {
             )}
 
             {allFaqs.length > 0 && (
-              <div className="mt-10"><FaqBlock items={allFaqs} /></div>
+              <div id="tour-questions" className="mt-10 scroll-mt-28"><FaqBlock items={allFaqs} /></div>
             )}
 
             {d.reviews.length > 0 && (
@@ -463,8 +484,8 @@ export function TourDetailView({ d, slug, enquire, preview = false }: {
           </div>
 
           {/* SIDEBAR */}
-          <aside className="lg:sticky lg:top-24 lg:self-start">
-            <div className="rounded-3xl border border-border bg-[var(--surface)] p-6 shadow-[var(--shadow-elegant)]">
+          <aside aria-label="Tour price and booking" className="tour-detail-booking order-first min-w-0 lg:order-last lg:sticky lg:top-24 lg:self-start">
+            <div className="tour-detail-price-panel rounded-lg border border-border bg-card p-5 shadow-elegant">
               <div className="flex items-baseline justify-between">
                 <p className="text-[11px] uppercase tracking-widest text-muted-foreground">
                   Private day tour
@@ -482,7 +503,7 @@ export function TourDetailView({ d, slug, enquire, preview = false }: {
                   : "Tell us your date, group size and stops — we'll send a tailored quote."}
               </p>
               {d.starting_price_pence != null && d.price_covers && (
-                <div className="mt-4 rounded-2xl border border-border bg-background p-4">
+                <div className="mt-4 border-y border-border py-4">
                   <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--navy)]/70">What the price covers</p>
                   <ul className="mt-2 space-y-1.5 text-sm text-[var(--navy)]/80">
                     {priceCoverLines(d.price_covers).map((line) => (
