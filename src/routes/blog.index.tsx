@@ -1,9 +1,14 @@
 import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
+import { Search, X } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
 import { BlogPostCard } from "@/components/site/BlogPostCard";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { listBlogHome } from "@/lib/blog.functions";
 import { collectionPageSchema } from "@/components/seo/schema";
 
@@ -48,7 +53,22 @@ function BlogHome() {
   const { data } = useSuspenseQuery(homeQuery);
   const { latest, featured, pillars, categories } = data;
   const hero = featured[0] ?? latest[0];
-  const rest = latest.filter((p) => p.id !== hero?.id);
+  const [q, setQ] = useState("");
+  const [category, setCategory] = useState("");
+
+  const matches = useMemo(() => {
+    const words = q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    return (p: (typeof latest)[number]) => {
+      if (category && p.category?.slug !== category) return false;
+      if (!words.length) return true;
+      const haystack = [p.title, p.subtitle, p.excerpt, p.category?.name].filter(Boolean).join(" ").toLowerCase();
+      return words.every((w) => haystack.includes(w));
+    };
+  }, [q, category]);
+
+  const rest = latest.filter((p) => p.id !== hero?.id && matches(p));
+  const shownPillars = pillars.filter(matches);
+  const filtering = !!q.trim() || !!category;
 
   return (
     <SiteLayout cta={{ heading: <>Plan your trip <span className="text-gold">with Cabslink</span></>, label: "Get a fixed price", trackAs: "final_cta_blog_list" }}>
