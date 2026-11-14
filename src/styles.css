@@ -1412,3 +1412,32 @@ input[type="time"] {
   color: var(--primary-foreground) !important;
   border-color: var(--primary);
 }
+
+@media (min-width: 1024px) {
+  .day-booking-summary {
+    display: flex;
+    flex-direction: column;
+    height: calc(100dvh - 160px);
+    min-height: 440px;
+  }
+  .day-booking-summary-body {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .day-booking-summary-body > * { margin-block: 0; flex-shrink: 0; }
+  .day-booking-summary-map { display: flex; flex: 1; min-height: 100px; flex-direction: column; }
+  .day-booking-summary-map > div:last-child { height: auto; flex: 1; min-height: 60px; }
+}
+@media (min-width: 1024px) and (max-height: 750px) {
+  .day-booking-summary { top: 80px; height: calc(100dvh - 144px); }
+  .day-booking-summary > div:first-child { padding: 10px 16px; }
+  .day-booking-summary-body { padding: 12px; gap: 8px; }
+  .day-booking-summary-body h2 { font-size: 16px; line-height: 1.35; }
+  .day-booking-summary-body dl { font-size: 12px; row-gap: 4px; }
+  .day-booking-summary-body dl dt { font-size: 9px; }
+  .day-booking-summary-body > p:last-child { padding-top: 6px; }
+  .day-booking-summary-map > div:first-child { padding: 6px 10px; }
+}

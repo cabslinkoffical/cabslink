@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Short-screen summary (14 Nov): fit the complete price/map/details panel in the available desktop screen height without internal scrolling.
 - [x] Suggested-place limit (14 Nov): four choices initially; remaining suggestions under More places in both day-booking lists; concrete rule test passes.
 - [x] Premade tour improvements (14 Nov): suggested/custom stops, automatic allowed duration and authoritative price, transfer catalogue extras and cover; real Outlander flow verified 8→10h, £280→£380→£390 with Meet & Greet, unpaid reservation saved and read back with extras, then test booking removed; 81 relevant checks pass across final runs. No payment or publication.
 - [~] Follow-up panel design (14 Nov): stored tour-stop map before pickup, price tier at top, compact no-scroll summary; Highlands panel fits 1974×987 and no page overflow at 390px, no page errors. Map rendering remains unverified because Google Maps is restricted in the sandbox; validate on an authorized origin.

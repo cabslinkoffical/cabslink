@@ -1167,17 +1167,17 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
             )}
             </div>
 
-            {/* Price stays visible; long itineraries scroll inside the screen-height panel. */}
-            <aside aria-label="Booking summary" className="min-w-0 overflow-hidden rounded-lg border border-border bg-card shadow-raised lg:sticky lg:top-24 lg:self-start">
+            {/* Map takes the available space; summary never scrolls internally. */}
+            <aside aria-label="Booking summary" className="day-booking-summary min-w-0 overflow-hidden rounded-lg border border-border bg-card shadow-raised lg:sticky lg:top-24 lg:self-start">
               <div className="shrink-0 bg-navy px-5 py-4 text-navy-foreground">
                 <p className="text-xs font-semibold">{liveQuote && !liveQuote.blockedReason ? "Total price" : "Price tier"}</p>
                 <p className="mt-1 font-display text-3xl font-bold text-gold" aria-live="polite">{liveQuote && !liveQuote.blockedReason && liveQuote.total > 0 ? `£${liveQuote.total.toFixed(2)}` : startingPrice != null ? `From £${startingPrice.toFixed(2)}` : vehicle?.hourly_rate ? `£${Number(vehicle.hourly_rate).toFixed(2)}/hr` : "Price on request"}</p>
                 {(priceMutation.isPending || loop.isFetching || optimiseMutation.isPending) && <p className="text-xs text-navy-foreground/70">Updating total…</p>}
                 <p className="mt-1 text-xs text-navy-foreground/70">{FACT_TEXT.feesIncludedShort}</p>
               </div>
-              <div className="space-y-3 p-4">
+              <div className="day-booking-summary-body space-y-3 p-4">
                 <h2 className="font-display text-lg font-bold">{template ? template.name : hourly ? "Hourly hire" : "Your own day tour"}</h2>
-                {(start || overviewPoints.length > 0) && <TourLoopMap startPlaceId={start?.placeId} startLabel={start?.label} endPlaceId={sameEnd ? null : end?.placeId} overviewPoints={overviewPoints} stops={stops.map((s) => ({ placeId: s.placeId, name: s.name }))} />}
+                {(start || overviewPoints.length > 0) && <TourLoopMap className="day-booking-summary-map" startPlaceId={start?.placeId} startLabel={start?.label} endPlaceId={sameEnd ? null : end?.placeId} overviewPoints={overviewPoints} stops={stops.map((s) => ({ placeId: s.placeId, name: s.name }))} />}
                 <dl className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
                   <SummaryItem label="Date" value={date || "—"} />
                   <SummaryItem label="Time" value={hours && time ? `${time}–${addHoursToTime(time, hours)}` : time || "—"} />
