@@ -280,3 +280,5 @@
 - [x] Route pages: add airport pickup info + Google reviews sections
 - [x] Edinburgh Airport taxi prices page (check for existing first)
 - [x] Semrush audit (13 Nov): internal nofollow removed (TransportComparison), /book + /book/tour noindex,follow + fixed canonical, not in sitemap; 12 weak pages now ≥2 inbound links (src/lib/seo/specialist-links.ts); tour detail reads parallel, display fare inputs memoised 60s, airport fares start with page lookup. HSTS/asset immutable already in place. 1,253 tests pass. Not published.
+- [ ] Site-wide design consistency pass (15 Nov, owner request): audit section sizing/spacing across every page type (home, routes, airports, areas, hospitals, cruise ports, stations, universities, attractions, distilleries, corporate, services, tours, fleet, blog, guides, pricing), fix inconsistent/incorrect section sizing, verify desktop + 390px, no publication.
+- [x] Hero running strip (15 Nov): "What's included" block replaced by full-width looping navy strip with five FACT_TEXT items; duplicate "Tolls and airport fees included" line removed from booking column; verified Greenock desktop+mobile, no page errors, build OK. Not published.
