@@ -468,6 +468,63 @@ function CustomConditions({ value, onChange }: { value: AudienceFilter; onChange
   );
 }
 
+/** Conditions for a "Custom" campaign audience. Every condition set must match; emails still need permission. */
+function CustomAudience({ value, onChange, allTags }: { value: CampaignFilter; onChange: (v: CampaignFilter) => void; allTags: string[] }) {
+  const num = (v: string) => (v === "" ? null : Math.max(0, Number(v)));
+  const [emailsText, setEmailsText] = useState((value.emails ?? []).join("\n"));
+  const setEmails = (t: string) => {
+    setEmailsText(t);
+    const emails = t.split(/[\n,;\s]+/).map((e) => e.trim().toLowerCase()).filter((e) => e.includes("@"));
+    onChange({ ...value, emails: emails.length ? emails : undefined });
+  };
+  const toggleTag = (tag: string, on: boolean) => {
+    const tags = on ? [...(value.tags ?? []), tag] : (value.tags ?? []).filter((t) => t !== tag);
+    onChange({ ...value, tags: tags.length ? tags : undefined });
+  };
+  return (
+    <div className="grid gap-3 rounded-md bg-muted/40 p-3 sm:grid-cols-2">
+      <div>
+        <Label className="text-xs">Has booked</Label>
+        <Select value={value.booked ?? "any"} onValueChange={(v) => onChange({ ...value, booked: v as CampaignFilter["booked"] })}>
+          <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+          <SelectContent><SelectItem value="any">Anyone</SelectItem><SelectItem value="yes">Has booked</SelectItem><SelectItem value="no">Never booked</SelectItem></SelectContent>
+        </Select>
+      </div>
+      <div>
+        <Label className="text-xs">Came from</Label>
+        <Select value={value.source ?? "any"} onValueChange={(v) => onChange({ ...value, source: v === "any" ? null : v })}>
+          <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="any">Any form or booking</SelectItem>
+            <SelectItem value="booking">Booking</SelectItem><SelectItem value="tour">Tour enquiry</SelectItem><SelectItem value="custom_tour">Custom tour request</SelectItem>
+            <SelectItem value="contact">Contact form</SelectItem><SelectItem value="corporate">Corporate enquiry</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <div><Label className="text-xs">Completed trips, at least</Label><Input type="number" min={0} className="mt-1" value={value.min_trips ?? ""} onChange={(e) => onChange({ ...value, min_trips: num(e.target.value) })} /></div>
+      <div><Label className="text-xs">Completed trips, at most</Label><Input type="number" min={0} className="mt-1" value={value.max_trips ?? ""} onChange={(e) => onChange({ ...value, max_trips: num(e.target.value) })} /></div>
+      <div className="sm:col-span-2"><Label className="text-xs">Has spent at least (£)</Label><Input type="number" min={0} className="mt-1" value={value.min_spend ?? ""} onChange={(e) => onChange({ ...value, min_spend: num(e.target.value) })} /></div>
+      {allTags.length > 0 && (
+        <div className="sm:col-span-2">
+          <Label className="text-xs">Must have these labels</Label>
+          <div className="mt-1.5 flex flex-wrap gap-2">
+            {allTags.map((t) => (
+              <label key={t} className="flex cursor-pointer items-center gap-1.5 rounded-full border border-border bg-card px-2.5 py-1 text-xs">
+                <input type="checkbox" className="accent-primary" checked={(value.tags ?? []).includes(t)} onChange={(e) => toggleTag(t, e.target.checked)} />{t}
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
+      <div className="sm:col-span-2">
+        <Label className="text-xs">Only these email addresses (optional)</Label>
+        <Textarea className="mt-1" rows={3} placeholder={"one per line, e.g.\njane@example.com\nmark@example.com"} value={emailsText} onChange={(e) => setEmails(e.target.value)} />
+        <p className="mt-1 text-xs text-muted-foreground">If you list addresses, only they are included. Everyone still needs permission to get offers, and unsubscribed or blocked people are never emailed.</p>
+      </div>
+    </div>
+  );
+}
+
 /** Shows the designed email exactly as customers receive it, with sample name "Alex". */
 function EmailPreview({ subject, body, coupon }: { subject: string; body: string; coupon: any }) {
   const [open, setOpen] = useState(false);
