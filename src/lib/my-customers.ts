@@ -129,7 +129,7 @@ export function filterCustomers(all: MyCustomer[], f: CustomerFilter): MyCustome
   const term = String(f.q ?? "").trim().toLowerCase().slice(0, 100);
   return all.filter((c) =>
     (!term || [c.name, c.email, c.phone].some((v) => String(v ?? "").toLowerCase().includes(term))) &&
-    (!f.consent || f.consent === "all" || c.consent === f.consent) &&
+    (!f.consent || f.consent === "all" || (f.consent === "subscribed" ? c.basis !== null : f.consent === "no_consent" ? c.basis === null && c.consent === "no_consent" : c.consent === f.consent)) &&
     (!f.kind || f.kind === "all" || (f.kind === "booked" ? c.bookings > 0 : c.bookings === 0)));
 }
 
