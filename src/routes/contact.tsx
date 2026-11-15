@@ -81,8 +81,7 @@ function ContactPage() {
     const fd = new FormData(form);
     // Honeypot: any bot filling this hidden field is silently rejected.
     if ((fd.get("website") ?? "").toString().trim() !== "") {
-      offers.record({ email: parsed.data.email, name: parsed.data.name, phone: parsed.data.phone || null });
-    toast.success("Message sent — we'll respond shortly.");
+      toast.success("Message sent — we'll respond shortly.");
       form.reset();
       return;
     }
@@ -124,6 +123,7 @@ function ContactPage() {
     if (!sent) return;
     // Post-success clean-up runs outside the try so it can never trigger
     // a contradictory failure toast after the message was accepted.
+    offers.record({ email: parsed.data.email, name: parsed.data.name, phone: parsed.data.phone || null });
     toast.success("Message sent — we'll respond shortly.");
     try { trackEvent("generate_lead", { form_name: "contact" }); } catch {}
     try { form.reset(); } catch {}
