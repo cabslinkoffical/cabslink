@@ -245,7 +245,7 @@ export async function processQueue(db: Db, opts: { maxBatches?: number; onlyCamp
     if (!rows.length) break;
     const emails = [...new Set(rows.map((r) => r.email))];
     const [{ data: contacts, error: ce }, { data: mcs, error: me }] = await Promise.all([
-      db.from("contacts").select("email, marketing_consent, unsubscribed_at, suppression_reason").in("email", emails),
+      db.from("contacts").select("email, name, marketing_consent, unsubscribed_at, suppression_reason").in("email", emails),
       db.from("marketing_contacts").select("id, email, unsubscribe_token, last_marketing_at").in("email", emails),
     ]);
     if (ce || me) throw new Error((ce ?? me).message);
@@ -274,7 +274,7 @@ export async function processQueue(db: Db, opts: { maxBatches?: number; onlyCamp
         continue;
       }
       if (!coupons.has(key)) coupons.set(key, await loadCoupon(db, src.coupon_id));
-      const name = contactNameCache.get(row.email) ?? null;
+      const name = contactBy.get(row.email)?.name ?? null;
       emailedThisBatch.add(row.email);
       ready.push({ row, msg: { to: row.email, ...renderCampaign(src, { name, token: mc.unsubscribe_token }, coupons.get(key)!) } });
     }
@@ -310,9 +310,6 @@ export async function processQueue(db: Db, opts: { maxBatches?: number; onlyCamp
   return totals;
 }
 
-// First names for queued emails, filled from the customer list when a run loads it.
-const contactNameCache = new Map<string, string | null>();
-function rememberNames(customers: MyCustomer[]) { for (const c of customers) contactNameCache.set(c.email, c.name); }
 
 async function markEmailed(db: Db, emails: string[]) {
   const now = new Date().toISOString();
@@ -327,7 +324,6 @@ export async function runDueCampaigns(db: Db) {
   const { data, error } = await db.from("email_campaigns").select("*").eq("status", "active").lte("next_run_at", new Date().toISOString()).order("next_run_at");
   if (error) throw new Error(error.message);
   const customers = await loadCustomers(db);
-  rememberNames(customers);
   const results: any[] = [];
   for (const c of data ?? []) {
     try { results.push({ id: c.id, ...(await runCampaign(db, c, customers)) }); }
@@ -343,7 +339,6 @@ export async function runDueCampaigns(db: Db) {
 /** Queue a campaign now and send its first batches straight away (the rest go out every 15 minutes). */
 export async function sendCampaignImmediately(db: Db, campaign: any) {
   const customers = await loadCustomers(db);
-  rememberNames(customers);
   const { queued, skipped } = await runCampaign(db, campaign, customers);
   const r = await processQueue(db, { maxBatches: 4 });
   const { count } = await db.from("email_queue").select("id", { count: "exact", head: true }).eq("campaign_id", campaign.id).eq("status", "pending");
