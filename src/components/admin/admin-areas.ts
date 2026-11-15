@@ -2,7 +2,7 @@ import {
   LayoutDashboard, CalendarCheck, MapPin, Ban, Car, Tag, UserCog, Users,
   CreditCard, Ticket, FileText, BarChart3, Shield, Settings as SettingsIcon, History,
   Inbox, Gauge, Plane, Plus, Wrench, CircleSlash2, PencilLine, Route as RouteIcon,
-  ArrowLeftRight, Globe, UploadCloud, TrendingUp, Image as ImageIcon, Calculator, SlidersHorizontal,
+  ArrowLeftRight, Send, Globe, UploadCloud, TrendingUp, Image as ImageIcon, Calculator, SlidersHorizontal,
   type LucideIcon,
 } from "lucide-react";
 import type { SidebarEntry, NavItem } from "@/components/admin/SidebarNav";
@@ -82,7 +82,8 @@ export const ADMIN_AREAS: { id: AdminAreaId; label: string; short: string; icon:
       { to: "/cabs-booking-pannel/analytics", label: "Analytics", icon: TrendingUp },
       { to: "/cabs-booking-pannel/reports", label: "Reports", icon: BarChart3 },
       { to: "/cabs-booking-pannel/payments", label: "Payments", icon: CreditCard },
-      { to: "/cabs-booking-pannel/customers", label: "Customers", icon: Users },
+      { to: "/cabs-booking-pannel/my-customers", label: "My Customers", icon: Users },
+      { to: "/cabs-booking-pannel/email-automation", label: "Email automation", icon: Send },
       { to: "/cabs-booking-pannel/logs", label: "Activity logs", icon: History },
     ],
   },

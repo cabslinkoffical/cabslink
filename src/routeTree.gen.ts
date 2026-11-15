@@ -67,6 +67,7 @@ import { Route as TeamSportsTravelRouteImport } from './routes/team-sports-trave
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TrackBookingRouteImport } from './routes/track-booking'
 import { Route as UniversityTransfersRouteImport } from './routes/university-transfers'
+import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
 import { Route as VipSportsHospitalityRouteImport } from './routes/vip-sports-hospitality'
 import { Route as VipTransfersRouteImport } from './routes/vip-transfers'
 import { Route as WeddingTransportRouteImport } from './routes/wedding-transport'
@@ -127,10 +128,12 @@ import { Route as AuthenticatedCabsBookingPannelCustomTourRequestsRouteImport } 
 import { Route as AuthenticatedCabsBookingPannelCustomersRouteImport } from './routes/_authenticated/cabs-booking-pannel/customers'
 import { Route as AuthenticatedCabsBookingPannelDispatchRouteImport } from './routes/_authenticated/cabs-booking-pannel/dispatch'
 import { Route as AuthenticatedCabsBookingPannelDriversRouteImport } from './routes/_authenticated/cabs-booking-pannel/drivers'
+import { Route as AuthenticatedCabsBookingPannelEmailAutomationRouteImport } from './routes/_authenticated/cabs-booking-pannel/email-automation'
 import { Route as AuthenticatedCabsBookingPannelExtrasRouteImport } from './routes/_authenticated/cabs-booking-pannel/extras'
 import { Route as AuthenticatedCabsBookingPannelLogsRouteImport } from './routes/_authenticated/cabs-booking-pannel/logs'
 import { Route as AuthenticatedCabsBookingPannelMediaRouteImport } from './routes/_authenticated/cabs-booking-pannel/media'
 import { Route as AuthenticatedCabsBookingPannelMessagesRouteImport } from './routes/_authenticated/cabs-booking-pannel/messages'
+import { Route as AuthenticatedCabsBookingPannelMyCustomersRouteImport } from './routes/_authenticated/cabs-booking-pannel/my-customers'
 import { Route as AuthenticatedCabsBookingPannelPaymentsRouteImport } from './routes/_authenticated/cabs-booking-pannel/payments'
 import { Route as AuthenticatedCabsBookingPannelPoisRouteImport } from './routes/_authenticated/cabs-booking-pannel/pois'
 import { Route as AuthenticatedCabsBookingPannelPricingPreviewRouteImport } from './routes/_authenticated/cabs-booking-pannel/pricing-preview'
@@ -144,6 +147,7 @@ import { Route as AuthenticatedCabsBookingPannelTourSettingsRouteImport } from '
 import { Route as AuthenticatedCabsBookingPannelUsersRouteImport } from './routes/_authenticated/cabs-booking-pannel/users'
 import { Route as AuthenticatedTourPreviewIdRouteImport } from './routes/_authenticated/tour-preview.$id'
 import { Route as ApiPublicCollectRouteImport } from './routes/api/public/collect'
+import { Route as ApiPublicUnsubscribeRouteImport } from './routes/api/public/unsubscribe'
 import { Route as AreasALetterRouteImport } from './routes/areas.a.$letter'
 import { Route as AreasRegionSlugRouteImport } from './routes/areas.region.$slug'
 import { Route as BlogCategorySlugRouteImport } from './routes/blog.category.$slug'
@@ -165,6 +169,7 @@ import { Route as AuthenticatedCabsBookingPannelSeoRoutesRouteImport } from './r
 import { Route as AuthenticatedCabsBookingPannelSeoServicesRouteImport } from './routes/_authenticated/cabs-booking-pannel/seo.services'
 import { Route as AuthenticatedCabsBookingPannelVehicleClassesIndexRouteImport } from './routes/_authenticated/cabs-booking-pannel/vehicle-classes.index'
 import { Route as AuthenticatedCabsBookingPannelVehicleClassesIdRouteImport } from './routes/_authenticated/cabs-booking-pannel/vehicle-classes.$id'
+import { Route as ApiPublicCampaignsRunRouteImport } from './routes/api/public/campaigns/run'
 import { Route as ApiPublicDispatchDrainRouteImport } from './routes/api/public/dispatch/drain'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as ApiPublicReviewsRefreshRouteImport } from './routes/api/public/reviews/refresh'
@@ -460,6 +465,11 @@ const TrackBookingRoute = TrackBookingRouteImport.update({
 const UniversityTransfersRoute = UniversityTransfersRouteImport.update({
   id: '/university-transfers',
   path: '/university-transfers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UnsubscribeRoute = UnsubscribeRouteImport.update({
+  id: '/unsubscribe',
+  path: '/unsubscribe',
   getParentRoute: () => rootRouteImport,
 } as any)
 const VipSportsHospitalityRoute = VipSportsHospitalityRouteImport.update({
@@ -779,6 +789,12 @@ const AuthenticatedCabsBookingPannelDriversRoute =
     path: '/drivers',
     getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
+const AuthenticatedCabsBookingPannelEmailAutomationRoute =
+  AuthenticatedCabsBookingPannelEmailAutomationRouteImport.update({
+    id: '/email-automation',
+    path: '/email-automation',
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
+  } as any)
 const AuthenticatedCabsBookingPannelExtrasRoute =
   AuthenticatedCabsBookingPannelExtrasRouteImport.update({
     id: '/extras',
@@ -801,6 +817,12 @@ const AuthenticatedCabsBookingPannelMessagesRoute =
   AuthenticatedCabsBookingPannelMessagesRouteImport.update({
     id: '/messages',
     path: '/messages',
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
+  } as any)
+const AuthenticatedCabsBookingPannelMyCustomersRoute =
+  AuthenticatedCabsBookingPannelMyCustomersRouteImport.update({
+    id: '/my-customers',
+    path: '/my-customers',
     getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
 const AuthenticatedCabsBookingPannelPaymentsRoute =
@@ -878,6 +900,11 @@ const AuthenticatedTourPreviewIdRoute =
 const ApiPublicCollectRoute = ApiPublicCollectRouteImport.update({
   id: '/api/public/collect',
   path: '/api/public/collect',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicUnsubscribeRoute = ApiPublicUnsubscribeRouteImport.update({
+  id: '/api/public/unsubscribe',
+  path: '/api/public/unsubscribe',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AreasALetterRoute = AreasALetterRouteImport.update({
@@ -1002,6 +1029,11 @@ const AuthenticatedCabsBookingPannelVehicleClassesIdRoute =
     path: '/vehicle-classes/$id',
     getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
+const ApiPublicCampaignsRunRoute = ApiPublicCampaignsRunRouteImport.update({
+  id: '/api/public/campaigns/run',
+  path: '/api/public/campaigns/run',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicDispatchDrainRoute = ApiPublicDispatchDrainRouteImport.update({
   id: '/api/public/dispatch/drain',
   path: '/api/public/dispatch/drain',
@@ -1083,6 +1115,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/track-booking': typeof TrackBookingRoute
   '/university-transfers': typeof UniversityTransfersRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/vip-sports-hospitality': typeof VipSportsHospitalityRoute
   '/vip-transfers': typeof VipTransfersRoute
   '/wedding-transport': typeof WeddingTransportRoute
@@ -1142,10 +1175,12 @@ export interface FileRoutesByFullPath {
   '/cabs-booking-pannel/customers': typeof AuthenticatedCabsBookingPannelCustomersRoute
   '/cabs-booking-pannel/dispatch': typeof AuthenticatedCabsBookingPannelDispatchRoute
   '/cabs-booking-pannel/drivers': typeof AuthenticatedCabsBookingPannelDriversRoute
+  '/cabs-booking-pannel/email-automation': typeof AuthenticatedCabsBookingPannelEmailAutomationRoute
   '/cabs-booking-pannel/extras': typeof AuthenticatedCabsBookingPannelExtrasRoute
   '/cabs-booking-pannel/logs': typeof AuthenticatedCabsBookingPannelLogsRoute
   '/cabs-booking-pannel/media': typeof AuthenticatedCabsBookingPannelMediaRoute
   '/cabs-booking-pannel/messages': typeof AuthenticatedCabsBookingPannelMessagesRoute
+  '/cabs-booking-pannel/my-customers': typeof AuthenticatedCabsBookingPannelMyCustomersRoute
   '/cabs-booking-pannel/payments': typeof AuthenticatedCabsBookingPannelPaymentsRoute
   '/cabs-booking-pannel/pois': typeof AuthenticatedCabsBookingPannelPoisRoute
   '/cabs-booking-pannel/pricing-preview': typeof AuthenticatedCabsBookingPannelPricingPreviewRoute
@@ -1159,6 +1194,7 @@ export interface FileRoutesByFullPath {
   '/cabs-booking-pannel/users': typeof AuthenticatedCabsBookingPannelUsersRoute
   '/tour-preview/$id': typeof AuthenticatedTourPreviewIdRoute
   '/api/public/collect': typeof ApiPublicCollectRoute
+  '/api/public/unsubscribe': typeof ApiPublicUnsubscribeRoute
   '/areas/a/$letter': typeof AreasALetterRoute
   '/areas/region/$slug': typeof AreasRegionSlugRoute
   '/blog/category/$slug': typeof BlogCategorySlugRoute
@@ -1177,6 +1213,7 @@ export interface FileRoutesByFullPath {
   '/cabs-booking-pannel/seo/routes': typeof AuthenticatedCabsBookingPannelSeoRoutesRoute
   '/cabs-booking-pannel/seo/services': typeof AuthenticatedCabsBookingPannelSeoServicesRoute
   '/cabs-booking-pannel/vehicle-classes/$id': typeof AuthenticatedCabsBookingPannelVehicleClassesIdRoute
+  '/api/public/campaigns/run': typeof ApiPublicCampaignsRunRoute
   '/api/public/dispatch/drain': typeof ApiPublicDispatchDrainRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/reviews/refresh': typeof ApiPublicReviewsRefreshRoute
@@ -1243,6 +1280,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/track-booking': typeof TrackBookingRoute
   '/university-transfers': typeof UniversityTransfersRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/vip-sports-hospitality': typeof VipSportsHospitalityRoute
   '/vip-transfers': typeof VipTransfersRoute
   '/wedding-transport': typeof WeddingTransportRoute
@@ -1301,10 +1339,12 @@ export interface FileRoutesByTo {
   '/cabs-booking-pannel/customers': typeof AuthenticatedCabsBookingPannelCustomersRoute
   '/cabs-booking-pannel/dispatch': typeof AuthenticatedCabsBookingPannelDispatchRoute
   '/cabs-booking-pannel/drivers': typeof AuthenticatedCabsBookingPannelDriversRoute
+  '/cabs-booking-pannel/email-automation': typeof AuthenticatedCabsBookingPannelEmailAutomationRoute
   '/cabs-booking-pannel/extras': typeof AuthenticatedCabsBookingPannelExtrasRoute
   '/cabs-booking-pannel/logs': typeof AuthenticatedCabsBookingPannelLogsRoute
   '/cabs-booking-pannel/media': typeof AuthenticatedCabsBookingPannelMediaRoute
   '/cabs-booking-pannel/messages': typeof AuthenticatedCabsBookingPannelMessagesRoute
+  '/cabs-booking-pannel/my-customers': typeof AuthenticatedCabsBookingPannelMyCustomersRoute
   '/cabs-booking-pannel/payments': typeof AuthenticatedCabsBookingPannelPaymentsRoute
   '/cabs-booking-pannel/pois': typeof AuthenticatedCabsBookingPannelPoisRoute
   '/cabs-booking-pannel/pricing-preview': typeof AuthenticatedCabsBookingPannelPricingPreviewRoute
@@ -1318,6 +1358,7 @@ export interface FileRoutesByTo {
   '/cabs-booking-pannel/users': typeof AuthenticatedCabsBookingPannelUsersRoute
   '/tour-preview/$id': typeof AuthenticatedTourPreviewIdRoute
   '/api/public/collect': typeof ApiPublicCollectRoute
+  '/api/public/unsubscribe': typeof ApiPublicUnsubscribeRoute
   '/areas/a/$letter': typeof AreasALetterRoute
   '/areas/region/$slug': typeof AreasRegionSlugRoute
   '/blog/category/$slug': typeof BlogCategorySlugRoute
@@ -1336,6 +1377,7 @@ export interface FileRoutesByTo {
   '/cabs-booking-pannel/seo/routes': typeof AuthenticatedCabsBookingPannelSeoRoutesRoute
   '/cabs-booking-pannel/seo/services': typeof AuthenticatedCabsBookingPannelSeoServicesRoute
   '/cabs-booking-pannel/vehicle-classes/$id': typeof AuthenticatedCabsBookingPannelVehicleClassesIdRoute
+  '/api/public/campaigns/run': typeof ApiPublicCampaignsRunRoute
   '/api/public/dispatch/drain': typeof ApiPublicDispatchDrainRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/reviews/refresh': typeof ApiPublicReviewsRefreshRoute
@@ -1405,6 +1447,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/track-booking': typeof TrackBookingRoute
   '/university-transfers': typeof UniversityTransfersRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/vip-sports-hospitality': typeof VipSportsHospitalityRoute
   '/vip-transfers': typeof VipTransfersRoute
   '/wedding-transport': typeof WeddingTransportRoute
@@ -1464,10 +1507,12 @@ export interface FileRoutesById {
   '/_authenticated/cabs-booking-pannel/customers': typeof AuthenticatedCabsBookingPannelCustomersRoute
   '/_authenticated/cabs-booking-pannel/dispatch': typeof AuthenticatedCabsBookingPannelDispatchRoute
   '/_authenticated/cabs-booking-pannel/drivers': typeof AuthenticatedCabsBookingPannelDriversRoute
+  '/_authenticated/cabs-booking-pannel/email-automation': typeof AuthenticatedCabsBookingPannelEmailAutomationRoute
   '/_authenticated/cabs-booking-pannel/extras': typeof AuthenticatedCabsBookingPannelExtrasRoute
   '/_authenticated/cabs-booking-pannel/logs': typeof AuthenticatedCabsBookingPannelLogsRoute
   '/_authenticated/cabs-booking-pannel/media': typeof AuthenticatedCabsBookingPannelMediaRoute
   '/_authenticated/cabs-booking-pannel/messages': typeof AuthenticatedCabsBookingPannelMessagesRoute
+  '/_authenticated/cabs-booking-pannel/my-customers': typeof AuthenticatedCabsBookingPannelMyCustomersRoute
   '/_authenticated/cabs-booking-pannel/payments': typeof AuthenticatedCabsBookingPannelPaymentsRoute
   '/_authenticated/cabs-booking-pannel/pois': typeof AuthenticatedCabsBookingPannelPoisRoute
   '/_authenticated/cabs-booking-pannel/pricing-preview': typeof AuthenticatedCabsBookingPannelPricingPreviewRoute
@@ -1481,6 +1526,7 @@ export interface FileRoutesById {
   '/_authenticated/cabs-booking-pannel/users': typeof AuthenticatedCabsBookingPannelUsersRoute
   '/_authenticated/tour-preview/$id': typeof AuthenticatedTourPreviewIdRoute
   '/api/public/collect': typeof ApiPublicCollectRoute
+  '/api/public/unsubscribe': typeof ApiPublicUnsubscribeRoute
   '/areas/a/$letter': typeof AreasALetterRoute
   '/areas/region/$slug': typeof AreasRegionSlugRoute
   '/blog/category/$slug': typeof BlogCategorySlugRoute
@@ -1499,6 +1545,7 @@ export interface FileRoutesById {
   '/_authenticated/cabs-booking-pannel/seo/routes': typeof AuthenticatedCabsBookingPannelSeoRoutesRoute
   '/_authenticated/cabs-booking-pannel/seo/services': typeof AuthenticatedCabsBookingPannelSeoServicesRoute
   '/_authenticated/cabs-booking-pannel/vehicle-classes/$id': typeof AuthenticatedCabsBookingPannelVehicleClassesIdRoute
+  '/api/public/campaigns/run': typeof ApiPublicCampaignsRunRoute
   '/api/public/dispatch/drain': typeof ApiPublicDispatchDrainRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/reviews/refresh': typeof ApiPublicReviewsRefreshRoute
@@ -1568,6 +1615,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/track-booking'
     | '/university-transfers'
+    | '/unsubscribe'
     | '/vip-sports-hospitality'
     | '/vip-transfers'
     | '/wedding-transport'
@@ -1627,10 +1675,12 @@ export interface FileRouteTypes {
     | '/cabs-booking-pannel/customers'
     | '/cabs-booking-pannel/dispatch'
     | '/cabs-booking-pannel/drivers'
+    | '/cabs-booking-pannel/email-automation'
     | '/cabs-booking-pannel/extras'
     | '/cabs-booking-pannel/logs'
     | '/cabs-booking-pannel/media'
     | '/cabs-booking-pannel/messages'
+    | '/cabs-booking-pannel/my-customers'
     | '/cabs-booking-pannel/payments'
     | '/cabs-booking-pannel/pois'
     | '/cabs-booking-pannel/pricing-preview'
@@ -1644,6 +1694,7 @@ export interface FileRouteTypes {
     | '/cabs-booking-pannel/users'
     | '/tour-preview/$id'
     | '/api/public/collect'
+    | '/api/public/unsubscribe'
     | '/areas/a/$letter'
     | '/areas/region/$slug'
     | '/blog/category/$slug'
@@ -1662,6 +1713,7 @@ export interface FileRouteTypes {
     | '/cabs-booking-pannel/seo/routes'
     | '/cabs-booking-pannel/seo/services'
     | '/cabs-booking-pannel/vehicle-classes/$id'
+    | '/api/public/campaigns/run'
     | '/api/public/dispatch/drain'
     | '/api/public/payments/webhook'
     | '/api/public/reviews/refresh'
@@ -1728,6 +1780,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/track-booking'
     | '/university-transfers'
+    | '/unsubscribe'
     | '/vip-sports-hospitality'
     | '/vip-transfers'
     | '/wedding-transport'
@@ -1786,10 +1839,12 @@ export interface FileRouteTypes {
     | '/cabs-booking-pannel/customers'
     | '/cabs-booking-pannel/dispatch'
     | '/cabs-booking-pannel/drivers'
+    | '/cabs-booking-pannel/email-automation'
     | '/cabs-booking-pannel/extras'
     | '/cabs-booking-pannel/logs'
     | '/cabs-booking-pannel/media'
     | '/cabs-booking-pannel/messages'
+    | '/cabs-booking-pannel/my-customers'
     | '/cabs-booking-pannel/payments'
     | '/cabs-booking-pannel/pois'
     | '/cabs-booking-pannel/pricing-preview'
@@ -1803,6 +1858,7 @@ export interface FileRouteTypes {
     | '/cabs-booking-pannel/users'
     | '/tour-preview/$id'
     | '/api/public/collect'
+    | '/api/public/unsubscribe'
     | '/areas/a/$letter'
     | '/areas/region/$slug'
     | '/blog/category/$slug'
@@ -1821,6 +1877,7 @@ export interface FileRouteTypes {
     | '/cabs-booking-pannel/seo/routes'
     | '/cabs-booking-pannel/seo/services'
     | '/cabs-booking-pannel/vehicle-classes/$id'
+    | '/api/public/campaigns/run'
     | '/api/public/dispatch/drain'
     | '/api/public/payments/webhook'
     | '/api/public/reviews/refresh'
@@ -1889,6 +1946,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/track-booking'
     | '/university-transfers'
+    | '/unsubscribe'
     | '/vip-sports-hospitality'
     | '/vip-transfers'
     | '/wedding-transport'
@@ -1948,10 +2006,12 @@ export interface FileRouteTypes {
     | '/_authenticated/cabs-booking-pannel/customers'
     | '/_authenticated/cabs-booking-pannel/dispatch'
     | '/_authenticated/cabs-booking-pannel/drivers'
+    | '/_authenticated/cabs-booking-pannel/email-automation'
     | '/_authenticated/cabs-booking-pannel/extras'
     | '/_authenticated/cabs-booking-pannel/logs'
     | '/_authenticated/cabs-booking-pannel/media'
     | '/_authenticated/cabs-booking-pannel/messages'
+    | '/_authenticated/cabs-booking-pannel/my-customers'
     | '/_authenticated/cabs-booking-pannel/payments'
     | '/_authenticated/cabs-booking-pannel/pois'
     | '/_authenticated/cabs-booking-pannel/pricing-preview'
@@ -1965,6 +2025,7 @@ export interface FileRouteTypes {
     | '/_authenticated/cabs-booking-pannel/users'
     | '/_authenticated/tour-preview/$id'
     | '/api/public/collect'
+    | '/api/public/unsubscribe'
     | '/areas/a/$letter'
     | '/areas/region/$slug'
     | '/blog/category/$slug'
@@ -1983,6 +2044,7 @@ export interface FileRouteTypes {
     | '/_authenticated/cabs-booking-pannel/seo/routes'
     | '/_authenticated/cabs-booking-pannel/seo/services'
     | '/_authenticated/cabs-booking-pannel/vehicle-classes/$id'
+    | '/api/public/campaigns/run'
     | '/api/public/dispatch/drain'
     | '/api/public/payments/webhook'
     | '/api/public/reviews/refresh'
@@ -2052,6 +2114,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   TrackBookingRoute: typeof TrackBookingRoute
   UniversityTransfersRoute: typeof UniversityTransfersRoute
+  UnsubscribeRoute: typeof UnsubscribeRoute
   VipSportsHospitalityRoute: typeof VipSportsHospitalityRoute
   VipTransfersRoute: typeof VipTransfersRoute
   WeddingTransportRoute: typeof WeddingTransportRoute
@@ -2096,10 +2159,12 @@ export interface RootRouteChildren {
   TravelSolutionsIndexRoute: typeof TravelSolutionsIndexRoute
   UniversitiesIndexRoute: typeof UniversitiesIndexRoute
   ApiPublicCollectRoute: typeof ApiPublicCollectRoute
+  ApiPublicUnsubscribeRoute: typeof ApiPublicUnsubscribeRoute
   AreasALetterRoute: typeof AreasALetterRoute
   AreasRegionSlugRoute: typeof AreasRegionSlugRoute
   BlogCategorySlugRoute: typeof BlogCategorySlugRoute
   BlogTagSlugRoute: typeof BlogTagSlugRoute
+  ApiPublicCampaignsRunRoute: typeof ApiPublicCampaignsRunRoute
   ApiPublicDispatchDrainRoute: typeof ApiPublicDispatchDrainRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   ApiPublicReviewsRefreshRoute: typeof ApiPublicReviewsRefreshRoute
@@ -2511,6 +2576,13 @@ declare module '@tanstack/react-router' {
       path: '/university-transfers'
       fullPath: '/university-transfers'
       preLoaderRoute: typeof UniversityTransfersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/unsubscribe': {
+      id: '/unsubscribe'
+      path: '/unsubscribe'
+      fullPath: '/unsubscribe'
+      preLoaderRoute: typeof UnsubscribeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/vip-sports-hospitality': {
@@ -2933,6 +3005,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCabsBookingPannelDriversRouteImport
       parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
+    '/_authenticated/cabs-booking-pannel/email-automation': {
+      id: '/_authenticated/cabs-booking-pannel/email-automation'
+      path: '/email-automation'
+      fullPath: '/cabs-booking-pannel/email-automation'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelEmailAutomationRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
+    }
     '/_authenticated/cabs-booking-pannel/extras': {
       id: '/_authenticated/cabs-booking-pannel/extras'
       path: '/extras'
@@ -2959,6 +3038,13 @@ declare module '@tanstack/react-router' {
       path: '/messages'
       fullPath: '/cabs-booking-pannel/messages'
       preLoaderRoute: typeof AuthenticatedCabsBookingPannelMessagesRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
+    }
+    '/_authenticated/cabs-booking-pannel/my-customers': {
+      id: '/_authenticated/cabs-booking-pannel/my-customers'
+      path: '/my-customers'
+      fullPath: '/cabs-booking-pannel/my-customers'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelMyCustomersRouteImport
       parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
     '/_authenticated/cabs-booking-pannel/payments': {
@@ -3050,6 +3136,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/collect'
       fullPath: '/api/public/collect'
       preLoaderRoute: typeof ApiPublicCollectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/unsubscribe': {
+      id: '/api/public/unsubscribe'
+      path: '/api/public/unsubscribe'
+      fullPath: '/api/public/unsubscribe'
+      preLoaderRoute: typeof ApiPublicUnsubscribeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/areas/a/$letter': {
@@ -3199,6 +3292,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCabsBookingPannelVehicleClassesIdRouteImport
       parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
+    '/api/public/campaigns/run': {
+      id: '/api/public/campaigns/run'
+      path: '/api/public/campaigns/run'
+      fullPath: '/api/public/campaigns/run'
+      preLoaderRoute: typeof ApiPublicCampaignsRunRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/dispatch/drain': {
       id: '/api/public/dispatch/drain'
       path: '/api/public/dispatch/drain'
@@ -3258,10 +3358,12 @@ interface AuthenticatedCabsBookingPannelRouteRouteChildren {
   AuthenticatedCabsBookingPannelCustomersRoute: typeof AuthenticatedCabsBookingPannelCustomersRoute
   AuthenticatedCabsBookingPannelDispatchRoute: typeof AuthenticatedCabsBookingPannelDispatchRoute
   AuthenticatedCabsBookingPannelDriversRoute: typeof AuthenticatedCabsBookingPannelDriversRoute
+  AuthenticatedCabsBookingPannelEmailAutomationRoute: typeof AuthenticatedCabsBookingPannelEmailAutomationRoute
   AuthenticatedCabsBookingPannelExtrasRoute: typeof AuthenticatedCabsBookingPannelExtrasRoute
   AuthenticatedCabsBookingPannelLogsRoute: typeof AuthenticatedCabsBookingPannelLogsRoute
   AuthenticatedCabsBookingPannelMediaRoute: typeof AuthenticatedCabsBookingPannelMediaRoute
   AuthenticatedCabsBookingPannelMessagesRoute: typeof AuthenticatedCabsBookingPannelMessagesRoute
+  AuthenticatedCabsBookingPannelMyCustomersRoute: typeof AuthenticatedCabsBookingPannelMyCustomersRoute
   AuthenticatedCabsBookingPannelPaymentsRoute: typeof AuthenticatedCabsBookingPannelPaymentsRoute
   AuthenticatedCabsBookingPannelPoisRoute: typeof AuthenticatedCabsBookingPannelPoisRoute
   AuthenticatedCabsBookingPannelPricingPreviewRoute: typeof AuthenticatedCabsBookingPannelPricingPreviewRoute
@@ -3319,6 +3421,8 @@ const AuthenticatedCabsBookingPannelRouteRouteChildren: AuthenticatedCabsBooking
       AuthenticatedCabsBookingPannelDispatchRoute,
     AuthenticatedCabsBookingPannelDriversRoute:
       AuthenticatedCabsBookingPannelDriversRoute,
+    AuthenticatedCabsBookingPannelEmailAutomationRoute:
+      AuthenticatedCabsBookingPannelEmailAutomationRoute,
     AuthenticatedCabsBookingPannelExtrasRoute:
       AuthenticatedCabsBookingPannelExtrasRoute,
     AuthenticatedCabsBookingPannelLogsRoute:
@@ -3327,6 +3431,8 @@ const AuthenticatedCabsBookingPannelRouteRouteChildren: AuthenticatedCabsBooking
       AuthenticatedCabsBookingPannelMediaRoute,
     AuthenticatedCabsBookingPannelMessagesRoute:
       AuthenticatedCabsBookingPannelMessagesRoute,
+    AuthenticatedCabsBookingPannelMyCustomersRoute:
+      AuthenticatedCabsBookingPannelMyCustomersRoute,
     AuthenticatedCabsBookingPannelPaymentsRoute:
       AuthenticatedCabsBookingPannelPaymentsRoute,
     AuthenticatedCabsBookingPannelPoisRoute:
@@ -3480,6 +3586,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   TrackBookingRoute: TrackBookingRoute,
   UniversityTransfersRoute: UniversityTransfersRoute,
+  UnsubscribeRoute: UnsubscribeRoute,
   VipSportsHospitalityRoute: VipSportsHospitalityRoute,
   VipTransfersRoute: VipTransfersRoute,
   WeddingTransportRoute: WeddingTransportRoute,
@@ -3524,10 +3631,12 @@ const rootRouteChildren: RootRouteChildren = {
   TravelSolutionsIndexRoute: TravelSolutionsIndexRoute,
   UniversitiesIndexRoute: UniversitiesIndexRoute,
   ApiPublicCollectRoute: ApiPublicCollectRoute,
+  ApiPublicUnsubscribeRoute: ApiPublicUnsubscribeRoute,
   AreasALetterRoute: AreasALetterRoute,
   AreasRegionSlugRoute: AreasRegionSlugRoute,
   BlogCategorySlugRoute: BlogCategorySlugRoute,
   BlogTagSlugRoute: BlogTagSlugRoute,
+  ApiPublicCampaignsRunRoute: ApiPublicCampaignsRunRoute,
   ApiPublicDispatchDrainRoute: ApiPublicDispatchDrainRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   ApiPublicReviewsRefreshRoute: ApiPublicReviewsRefreshRoute,

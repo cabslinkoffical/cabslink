@@ -232,6 +232,13 @@
       "when": 1794751963080,
       "tag": "0032_remove_test_cancellations",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1794752699227,
+      "tag": "0033_marketing_customers_and_campaigns",
+      "breakpoints": true
     }
   ]
 }

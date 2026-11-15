@@ -39,6 +39,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { PhoneInput } from "@/components/site/PhoneInput";
 import { PlaceAutocomplete, type SelectedPlace } from "@/components/site/PlaceAutocomplete";
+import { useMarketingOptIn } from "@/components/site/MarketingOptIn";
 import { useCaptcha } from "@/components/site/Captcha";
 import { BookingCardPayment } from "@/components/site/BookingCardPayment";
 import { PayAnotherWay } from "@/components/site/PayAnotherWay";
@@ -144,6 +145,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
   useEffect(() => { if (!cancellationCoverOffered(date) && cover !== "standard") { setCover("standard"); setQuote(null); } }, [date, cover]);
 
   const captcha = useCaptcha("tour-booking");
+  const offers = useMarketingOptIn(kind === "hourly" ? "hourly_booking" : "tour_booking");
   const data = options.data;
   const tours = data?.tours ?? [];
   const classes = data?.classes ?? [];
@@ -427,6 +429,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
       }),
     onSuccess: (res) => {
       if (!res.bookingRef) return;
+      offers.record({ email, name, phone });
       setCreated({ bookingRef: res.bookingRef, total: res.total });
     },
     onError: (e: Error) => {
@@ -467,6 +470,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
     },
     onSuccess: (res) => {
       if (!res.reference) return;
+      offers.record({ email, name, phone });
       setRequested({ reference: res.reference });
       trackEvent("generate_lead", { service_type: "custom_tour_request" });
     },
@@ -1138,6 +1142,7 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                       </div>
                     </div>
 
+                    {offers.element}
                     {captcha.widget}
 
                     <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">

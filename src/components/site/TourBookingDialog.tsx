@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { submitTourEnquiry } from "@/lib/tour-enquiry.functions";
+import { useMarketingOptIn } from "@/components/site/MarketingOptIn";
 import { useCaptcha } from "@/components/site/Captcha";
 import { PhoneInput } from "@/components/site/PhoneInput";
 import { toast } from "sonner";
@@ -59,6 +60,7 @@ export function TourBookingDialog({ tour, trigger, autoOpen = false }: Props) {
   const [attempted, setAttempted] = useState(false);
 
   const captcha = useCaptcha("tour-enquiry");
+  const offers = useMarketingOptIn("tour_enquiry");
   const submit = useMutation({
     mutationFn: async () =>
       submitTourEnquiry({
@@ -85,6 +87,7 @@ export function TourBookingDialog({ tour, trigger, autoOpen = false }: Props) {
     onSuccess: (res) => {
       setBookingRef(res.bookingRef ?? "");
       setDone(true);
+      offers.record({ email, name, phone });
       trackEvent("generate_lead", { form_name: "tour_enquiry" });
       toast.success("Tour enquiry received — we'll confirm your price shortly.");
     },
@@ -305,6 +308,7 @@ export function TourBookingDialog({ tour, trigger, autoOpen = false }: Props) {
                 </div>
               </div>
 
+              {offers.element}
               {captcha.widget}
 
               <div className="flex items-center justify-between gap-3 pt-2 border-t border-border">
