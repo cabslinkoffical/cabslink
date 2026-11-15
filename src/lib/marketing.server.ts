@@ -11,10 +11,10 @@ import { ukDate, ukDayStart } from "@/lib/uk-time";
 
 type Db = any;
 
-async function all(db: Db, table: string, cols: string, extra?: (q: any) => any): Promise<any[]> {
+async function all(db: Db, table: string, cols: string, extra?: (q: any) => any, orderBy = "id"): Promise<any[]> {
   const out: any[] = [];
   for (let from = 0; ; from += 1000) {
-    let q = db.from(table).select(cols).order("id").range(from, from + 999);
+    let q = db.from(table).select(cols).order(orderBy).range(from, from + 999);
     if (extra) q = extra(q);
     const { data, error } = await q;
     if (error) throw new Error(`${table}: ${error.message}`);
@@ -34,7 +34,7 @@ export async function loadCustomers(db: Db): Promise<MyCustomer[]> {
     all(db, "booking_amendments", "id, customer_name, email, phone, created_at"),
     all(db, "marketing_contacts", "id, email, opted_in, opted_in_at, unsubscribed_at, suppressed_reason, last_marketing_at"),
     all(db, "drivers", "id, email"),
-    all(db, "contact_tags", "contact_id, tag"),
+    all(db, "contact_tags", "contact_id, tag", undefined, "contact_id"),
   ]);
   return buildCustomers({ bookings, payments, messages, customTours, cancellations, amendments, contacts, drivers, contactTags });
 }
