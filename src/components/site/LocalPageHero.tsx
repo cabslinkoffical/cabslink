@@ -142,7 +142,7 @@ export function LocalPageHero({
               <div className="local-intro-body speakable">{intro.body}</div>
               {intro.footer}
               <div className="local-intro-facts">
-                <h3 className="font-display">Booking your private car {title.replace(/^Getting to /, "to ")}</h3>
+                <h3 className="font-display">How booking works with Cabslink</h3>
                 <dl>
                   <div><dt>Fixed price</dt><dd>{FACT_TEXT.feesIncluded}</dd></div>
                   <div><dt>Flights and waiting</dt><dd>{FACT_TEXT.flightTracking} {FACT_TEXT.airportWaitShort}.</dd></div>
