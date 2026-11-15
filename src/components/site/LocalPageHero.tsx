@@ -123,13 +123,19 @@ export function LocalPageHero({
               <BadgeCheck className="size-4 shrink-0 text-[var(--gold)]" aria-hidden />
               {FACT_TEXT.feesIncludedShort}
             </p>
-            <div className="mt-3 text-xs text-[var(--navy-foreground)]" aria-label="What's included">
-              <p className="font-semibold uppercase tracking-[0.18em] text-[var(--gold)]">What's included</p>
-              <ul className="mt-1 space-y-1">
-                <li className="flex items-center gap-2"><BadgeCheck className="size-4 shrink-0 text-[var(--gold)]" aria-hidden />60 minutes free waiting from actual landing (airport pickups with a flight number)</li>
-                <li className="flex items-center gap-2"><BadgeCheck className="size-4 shrink-0 text-[var(--gold)]" aria-hidden />{coverPromise("standard")} (standard cover)</li>
+          </div>
+        </div>
+        <div className="hero-strip" aria-label="What's included">
+          <div className="hero-strip-track">
+            {[0, 1].map((copy) => (
+              <ul key={copy} className="hero-strip-list" aria-hidden={copy === 1}>
+                <li><BadgeCheck className="size-4 shrink-0 text-[var(--gold)]" aria-hidden />{FACT_TEXT.feesIncludedShort}</li>
+                <li><BadgeCheck className="size-4 shrink-0 text-[var(--gold)]" aria-hidden />60 minutes free waiting from actual landing (airport pickups with a flight number)</li>
+                <li><BadgeCheck className="size-4 shrink-0 text-[var(--gold)]" aria-hidden />{coverPromise("standard")} (standard cover)</li>
+                <li><BadgeCheck className="size-4 shrink-0 text-[var(--gold)]" aria-hidden />{FACT_TEXT.flightTracking}</li>
+                <li><BadgeCheck className="size-4 shrink-0 text-[var(--gold)]" aria-hidden />{FACT_TEXT.meetGreet}</li>
               </ul>
-            </div>
+            ))}
           </div>
         </div>
       </section>
