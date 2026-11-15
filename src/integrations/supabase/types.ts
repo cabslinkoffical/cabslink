@@ -1199,6 +1199,32 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_tags: {
+        Row: {
+          contact_id: string
+          created_at: string
+          tag: string
+        }
+        Insert: {
+          contact_id: string
+          created_at?: string
+          tag: string
+        }
+        Update: {
+          contact_id?: string
+          created_at?: string
+          tag?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_tags_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       content_blocks: {
         Row: {
           body: string | null
@@ -2159,6 +2185,7 @@ export type Database = {
           approved_at: string | null
           approved_by: string | null
           audience: string
+          audience_filter: Json
           audience_id: string | null
           body: string
           coupon_id: string | null
@@ -2185,6 +2212,7 @@ export type Database = {
           approved_at?: string | null
           approved_by?: string | null
           audience?: string
+          audience_filter?: Json
           audience_id?: string | null
           body: string
           coupon_id?: string | null
@@ -2211,6 +2239,7 @@ export type Database = {
           approved_at?: string | null
           approved_by?: string | null
           audience?: string
+          audience_filter?: Json
           audience_id?: string | null
           body?: string
           coupon_id?: string | null
