@@ -1448,9 +1448,11 @@ input[type="time"] {
   .day-booking-summary-map > div:first-child { padding: 6px 10px; }
 }
 
-.local-intro-facts { margin-top: 1.75rem; padding-top: 1.5rem; border-top: 1px solid color-mix(in srgb, var(--navy) 12%, transparent); }
+.local-intro-facts { margin-top: 2rem; }
 .local-intro-facts h3 { font-size: 1.15rem; font-weight: 700; color: var(--navy); }
-.local-intro-facts dl { margin-top: 1rem; display: grid; gap: 1rem; }
-.local-intro-facts dt { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-ink); }
-.local-intro-facts dd { margin-top: 0.25rem; font-size: 0.92rem; line-height: 1.6; color: var(--secondary-text, #536078); }
-@media (min-width: 640px) { .local-intro-facts dl { grid-template-columns: 1fr 1fr; } }
+.local-intro-facts dl { margin-top: 1.25rem; position: relative; display: grid; gap: 1.4rem; }
+.local-intro-facts dl::before { content: ""; position: absolute; left: 1.05rem; top: 0.5rem; bottom: 0.5rem; width: 2px; background: linear-gradient(var(--gold), color-mix(in srgb, var(--gold) 15%, transparent)); }
+.local-intro-facts dl > div { position: relative; display: grid; grid-template-columns: auto minmax(0,1fr); column-gap: 1rem; row-gap: 0.2rem; }
+.local-intro-fact-icon { grid-row: span 2; position: relative; z-index: 1; display: grid; place-items: center; width: 2.1rem; height: 2.1rem; border-radius: 999px; background: var(--navy); color: var(--gold); box-shadow: 0 0 0 4px var(--background); }
+.local-intro-facts dt { font-size: 0.95rem; font-weight: 700; color: var(--navy); align-self: center; }
+.local-intro-facts dd { font-size: 0.88rem; line-height: 1.6; color: color-mix(in srgb, var(--navy) 70%, transparent); }

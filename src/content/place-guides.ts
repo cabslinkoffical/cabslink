@@ -24,7 +24,7 @@ export type PlaceGuide = {
   needsOwnerFact?: string[];
 };
 
-const FLEET_LINE =
+export const FLEET_LINE =
   "Our saloons carry up to four passengers with two large cases, the Estate Car takes four passengers with three cases, the Standard MPV four passengers with four cases, the Seven-Seater MPV six passengers with three cases, the Premium MPV seven passengers with seven cases and the Eight-Seater Van eight passengers with eight cases.";
 
 export const PLACE_GUIDES: PlaceGuide[] = [

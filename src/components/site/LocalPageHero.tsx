@@ -1,6 +1,6 @@
 import { coverPromise } from "@/lib/cancellation-cover";
 import type { ComponentType, ReactNode } from "react";
-import { BadgeCheck, Phone } from "lucide-react";
+import { BadgeCheck, Phone, PoundSterling, Plane, CreditCard, CalendarClock } from "lucide-react";
 import { FACT_TEXT } from "@/lib/site-facts";
 import { Breadcrumbs, type Crumb } from "@/components/seo/Breadcrumbs";
 import { BookingWidget } from "@/components/site/BookingWidget";
@@ -144,10 +144,10 @@ export function LocalPageHero({
               <div className="local-intro-facts">
                 <h3 className="font-display">How booking works with Cabslink</h3>
                 <dl>
-                  <div><dt>Fixed price</dt><dd>{FACT_TEXT.feesIncluded}</dd></div>
-                  <div><dt>Flights and waiting</dt><dd>{FACT_TEXT.flightTracking} {FACT_TEXT.airportWaitShort}.</dd></div>
-                  <div><dt>Paying</dt><dd>{FACT_TEXT.payment}</dd></div>
-                  <div><dt>Changing plans</dt><dd>{FACT_TEXT.transferCancellationShort}.</dd></div>
+                  <div><span className="local-intro-fact-icon" aria-hidden><PoundSterling className="size-4" /></span><dt>Fixed price</dt><dd>{FACT_TEXT.feesIncluded}</dd></div>
+                  <div><span className="local-intro-fact-icon" aria-hidden><Plane className="size-4" /></span><dt>Flights and waiting</dt><dd>{FACT_TEXT.flightTracking} {FACT_TEXT.airportWaitShort}.</dd></div>
+                  <div><span className="local-intro-fact-icon" aria-hidden><CreditCard className="size-4" /></span><dt>Paying</dt><dd>{FACT_TEXT.payment}</dd></div>
+                  <div><span className="local-intro-fact-icon" aria-hidden><CalendarClock className="size-4" /></span><dt>Changing plans</dt><dd>{FACT_TEXT.transferCancellationShort}.</dd></div>
                 </dl>
               </div>
             </div>
