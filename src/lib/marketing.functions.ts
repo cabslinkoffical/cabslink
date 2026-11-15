@@ -261,8 +261,8 @@ export const saveAutomationRule = createServerFn({ method: "POST" })
     const { id, ...row } = data;
     const db = context.supabase;
     const r = id
-      ? await db.from("automation_rules").update({ ...row, coupon_id: row.coupon_id ?? null, audience_filter: row.trigger_type === "custom" ? row.audience_filter ?? {} : null }).eq("id", id).select("id").single()
-      : await db.from("automation_rules").insert({ ...row, coupon_id: row.coupon_id ?? null, audience_filter: row.trigger_type === "custom" ? row.audience_filter ?? {} : null, created_by: context.userId }).select("id").single();
+      ? await db.from("automation_rules").update({ ...row, coupon_id: row.coupon_id ?? null, audience_filter: row.trigger_type === "custom" ? row.audience_filter ?? {} : {} }).eq("id", id).select("id").single()
+      : await db.from("automation_rules").insert({ ...row, coupon_id: row.coupon_id ?? null, audience_filter: row.trigger_type === "custom" ? row.audience_filter ?? {} : {}, created_by: context.userId }).select("id").single();
     if (r.error) throw new Error(r.error.message);
     return { id: r.data.id as string };
   });
