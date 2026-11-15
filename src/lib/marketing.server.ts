@@ -210,7 +210,7 @@ export async function runRules(db: Db, customers?: MyCustomer[]) {
   for (const rule of rules) {
     const quiet = Number(rule.quiet_days ?? settings.quiet_days);
     const due = everyone
-      .map((c) => ({ c, key: ruleTriggerKey(c, { trigger_type: rule.trigger_type as TriggerType, delay_days: rule.delay_days }, today) }))
+      .map((c) => ({ c, key: ruleTriggerKey(c, { trigger_type: rule.trigger_type as TriggerType, delay_days: rule.delay_days, audience_filter: rule.audience_filter as any }, today) }))
       .filter((x): x is { c: MyCustomer; key: string } => !!x.key && quietOk(x.c.lastMarketingAt, quiet) && !queuedNow.has(x.c.email));
     if (!due.length) { results.push({ id: rule.id, queued: 0 }); continue; }
     const doneRows = await all(db, "automation_sends", "id, email, trigger_key", (q) => q.eq("rule_id", rule.id).in("email", due.map((d) => d.c.email).slice(0, 1000)));
