@@ -92,6 +92,103 @@ export type Database = {
         }
         Relationships: []
       }
+      automation_rules: {
+        Row: {
+          active: boolean
+          body: string
+          coupon_id: string | null
+          created_at: string
+          created_by: string | null
+          delay_days: number
+          id: string
+          last_run_at: string | null
+          name: string
+          subject: string
+          total_sent: number
+          trigger_type: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          body: string
+          coupon_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          delay_days?: number
+          id?: string
+          last_run_at?: string | null
+          name: string
+          subject: string
+          total_sent?: number
+          trigger_type: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          body?: string
+          coupon_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          delay_days?: number
+          id?: string
+          last_run_at?: string | null
+          name?: string
+          subject?: string
+          total_sent?: number
+          trigger_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_rules_coupon_id_fkey"
+            columns: ["coupon_id"]
+            isOneToOne: false
+            referencedRelation: "coupons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      automation_sends: {
+        Row: {
+          created_at: string
+          email: string
+          error: string | null
+          id: string
+          provider_message_id: string | null
+          rule_id: string
+          status: string
+          trigger_key: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          error?: string | null
+          id?: string
+          provider_message_id?: string | null
+          rule_id: string
+          status?: string
+          trigger_key: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          error?: string | null
+          id?: string
+          provider_message_id?: string | null
+          rule_id?: string
+          status?: string
+          trigger_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_sends_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "automation_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       availability_rules: {
         Row: {
           active: boolean
@@ -2414,11 +2511,13 @@ export type Database = {
           created_at: string
           email: string
           id: string
+          last_marketing_at: string | null
           name: string | null
           opt_in_source: string | null
           opted_in: boolean
           opted_in_at: string | null
           phone: string | null
+          suppressed_reason: string | null
           unsubscribe_token: string
           unsubscribed_at: string | null
           updated_at: string
@@ -2427,11 +2526,13 @@ export type Database = {
           created_at?: string
           email: string
           id?: string
+          last_marketing_at?: string | null
           name?: string | null
           opt_in_source?: string | null
           opted_in?: boolean
           opted_in_at?: string | null
           phone?: string | null
+          suppressed_reason?: string | null
           unsubscribe_token?: string
           unsubscribed_at?: string | null
           updated_at?: string
@@ -2440,13 +2541,39 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
+          last_marketing_at?: string | null
           name?: string | null
           opt_in_source?: string | null
           opted_in?: boolean
           opted_in_at?: string | null
           phone?: string | null
+          suppressed_reason?: string | null
           unsubscribe_token?: string
           unsubscribed_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      marketing_settings: {
+        Row: {
+          daily_cap: number
+          id: boolean
+          paused: boolean
+          quiet_days: number
+          updated_at: string
+        }
+        Insert: {
+          daily_cap?: number
+          id?: boolean
+          paused?: boolean
+          quiet_days?: number
+          updated_at?: string
+        }
+        Update: {
+          daily_cap?: number
+          id?: boolean
+          paused?: boolean
+          quiet_days?: number
           updated_at?: string
         }
         Relationships: []
