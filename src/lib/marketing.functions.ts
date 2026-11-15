@@ -237,8 +237,16 @@ export const saveMarketingSettings = createServerFn({ method: "POST" })
 const ruleSchema = z.object({
   id: z.string().uuid().optional(),
   name: z.string().trim().min(2).max(120),
-  trigger_type: z.enum(["after_trip", "lapsed", "enquiry_no_booking"]),
-  delay_days: z.number().int().min(1).max(730),
+  trigger_type: z.enum(["after_trip", "lapsed", "enquiry_no_booking", "before_trip", "anniversary", "abandoned_quote", "after_cancellation", "custom"]),
+  delay_days: z.number().int().min(0).max(730),
+  audience_filter: z.object({
+    event: z.enum(["completed_trip", "last_trip", "next_trip", "first_booking", "last_enquiry", "last_contact", "cancelled", "unfinished"]).optional(),
+    booked: z.enum(["any", "yes", "no"]).optional(),
+    min_trips: z.number().int().min(0).max(1000).nullable().optional(),
+    max_trips: z.number().int().min(0).max(1000).nullable().optional(),
+    min_spend: z.number().min(0).max(1_000_000).nullable().optional(),
+    source: z.enum(["booking", "tour", "custom_tour", "contact", "corporate"]).nullable().optional(),
+  }).nullable().optional(),
   subject: z.string().trim().min(3).max(150),
   body: z.string().trim().min(10).max(8000),
   coupon_id: z.string().uuid().nullable().optional(),
@@ -253,8 +261,8 @@ export const saveAutomationRule = createServerFn({ method: "POST" })
     const { id, ...row } = data;
     const db = context.supabase;
     const r = id
-      ? await db.from("automation_rules").update({ ...row, coupon_id: row.coupon_id ?? null }).eq("id", id).select("id").single()
-      : await db.from("automation_rules").insert({ ...row, coupon_id: row.coupon_id ?? null, created_by: context.userId }).select("id").single();
+      ? await db.from("automation_rules").update({ ...row, coupon_id: row.coupon_id ?? null, audience_filter: row.trigger_type === "custom" ? row.audience_filter ?? {} : null }).eq("id", id).select("id").single()
+      : await db.from("automation_rules").insert({ ...row, coupon_id: row.coupon_id ?? null, audience_filter: row.trigger_type === "custom" ? row.audience_filter ?? {} : null, created_by: context.userId }).select("id").single();
     if (r.error) throw new Error(r.error.message);
     return { id: r.data.id as string };
   });

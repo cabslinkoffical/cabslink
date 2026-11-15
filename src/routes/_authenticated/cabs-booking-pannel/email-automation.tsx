@@ -5,7 +5,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Plus, Send, Pause, Play, Trash2, Pencil, Mail, Users, Ticket, History, Zap, AlertTriangle, ShieldCheck } from "lucide-react";
 import { listCampaigns, saveCampaign, deleteCampaign, sendCampaignTest, sendCampaignNow, listCampaignSends, saveMarketingSettings, saveAutomationRule, deleteAutomationRule, sendRuleTest } from "@/lib/marketing.functions";
-import { EMAIL_TEMPLATES, TEMPLATE_KIND_LABELS, TRIGGER_LABELS, TRIGGER_TEMPLATE, campaignWarnings, type TriggerType } from "@/lib/email-automation";
+import { EMAIL_TEMPLATES, TEMPLATE_KIND_LABELS, TRIGGER_LABELS, TRIGGER_TEMPLATE, TRIGGER_TYPES, TRIGGER_DEFAULT_DAYS, CUSTOM_EVENT_LABELS, campaignWarnings, type TriggerType, type AudienceFilter, type CustomEvent } from "@/lib/email-automation";
+import { renderCampaign } from "@/lib/email-design";
 import { Switch } from "@/components/ui/switch";
 import { describeSchedule, WEEKDAYS, type CampaignFrequency } from "@/lib/campaign-schedule";
 import { ukDate } from "@/lib/uk-time";
@@ -52,10 +53,10 @@ const blank = (): Form => ({
   name: "", subject: "", body: "Hi {{name}},\n\n", coupon_id: null, audience: "all",
   frequency: "once", send_hour: 10, weekday: 1, month_day: 1, starts_on: ukDate(), status: "draft",
 });
-type RuleForm = { id?: string; name: string; trigger_type: TriggerType; delay_days: number; subject: string; body: string; coupon_id: string | null; active: boolean };
+type RuleForm = { id?: string; name: string; trigger_type: TriggerType; delay_days: number; subject: string; body: string; coupon_id: string | null; active: boolean; audience_filter: AudienceFilter | null };
 const blankRule = (t: TriggerType = "after_trip"): RuleForm => {
   const tpl = EMAIL_TEMPLATES.find((x) => x.id === TRIGGER_TEMPLATE[t])!;
-  return { name: tpl.name, trigger_type: t, delay_days: t === "lapsed" ? 90 : t === "after_trip" ? 3 : 2, subject: tpl.subject, body: tpl.body, coupon_id: null, active: false };
+  return { name: tpl.name, trigger_type: t, delay_days: TRIGGER_DEFAULT_DAYS[t], subject: tpl.subject, body: tpl.body, coupon_id: null, active: false, audience_filter: t === "custom" ? { event: "completed_trip", booked: "any" } : null };
 };
 
 function TemplatePicker({ onPick }: { onPick: (id: string) => void }) {
@@ -99,7 +100,7 @@ function AutomationPage() {
   const saveRuleM = useMutation({ mutationFn: useServerFn(saveAutomationRule), onSuccess: (r: any) => { refresh(); toast.success("Automatic email saved"); setRule((f) => (f ? { ...f, id: r.id } : f)); }, onError: (e: any) => toast.error(e.message) });
   const delRule = useMutation({ mutationFn: useServerFn(deleteAutomationRule), onSuccess: () => { refresh(); toast.success("Automatic email deleted"); }, onError: (e: any) => toast.error(e.message) });
   const testRule = useMutation({ mutationFn: useServerFn(sendRuleTest), onSuccess: (r: any) => toast.success(`Test email sent to ${r.to}`), onError: (e: any) => toast.error(e.message) });
-  const ruleRow = (r: any, patch: Partial<RuleForm> = {}) => ({ data: { id: r.id, name: r.name, trigger_type: r.trigger_type, delay_days: r.delay_days, subject: r.subject, body: r.body, coupon_id: r.coupon_id, active: r.active, ...patch } });
+  const ruleRow = (r: any, patch: Partial<RuleForm> = {}) => ({ data: { id: r.id, name: r.name, trigger_type: r.trigger_type, delay_days: r.delay_days, subject: r.subject, body: r.body, coupon_id: r.coupon_id, active: r.active, audience_filter: r.audience_filter ?? null, ...patch } });
 
   const [form, setForm] = useState<Form | null>(null);
   const [sendsFor, setSendsFor] = useState<any | null>(null);
@@ -218,12 +219,12 @@ function AutomationPage() {
                   {rules.map((r) => (
                     <tr key={r.id} className="border-t border-border/70 align-top">
                       <td className="px-4 py-3"><div className="font-medium">{r.name}</div><div className="text-xs text-muted-foreground">{r.subject}</div></td>
-                      <td className="px-4 py-3 text-xs">{r.delay_days} {TRIGGER_LABELS[r.trigger_type as TriggerType].toLowerCase()}</td>
+                      <td className="px-4 py-3 text-xs">{r.trigger_type === "custom" ? `${r.delay_days} days: ${(CUSTOM_EVENT_LABELS[(r.audience_filter?.event ?? "last_contact") as CustomEvent] ?? "").toLowerCase()}` : `${r.delay_days} ${(TRIGGER_LABELS[r.trigger_type as TriggerType] ?? r.trigger_type).toLowerCase()}`}</td>
                       <td className="px-4 py-3 text-xs">{couponOf(r.coupon_id)?.code ?? "None"}</td>
                       <td className="px-4 py-3 text-xs tabular-nums">{r.total_sent}{r.last_run_at ? <div className="text-muted-foreground">checked {when(r.last_run_at)}</div> : null}</td>
                       <td className="px-4 py-3"><Switch checked={r.active} aria-label={`Switch ${r.name} ${r.active ? "off" : "on"}`} onCheckedChange={(on) => saveRuleM.mutate(ruleRow(r, { active: on }) as any)} /></td>
                       <td className="px-4 py-3"><div className="flex justify-end gap-1.5">
-                        <Button size="sm" variant="ghost" aria-label="Edit" onClick={() => setRule({ id: r.id, name: r.name, trigger_type: r.trigger_type, delay_days: r.delay_days, subject: r.subject, body: r.body, coupon_id: r.coupon_id, active: r.active })}><Pencil className="size-3.5" /></Button>
+                        <Button size="sm" variant="ghost" aria-label="Edit" onClick={() => setRule({ id: r.id, name: r.name, trigger_type: r.trigger_type, delay_days: r.delay_days, subject: r.subject, body: r.body, coupon_id: r.coupon_id, active: r.active, audience_filter: r.audience_filter ?? null })}><Pencil className="size-3.5" /></Button>
                         <Button size="sm" variant="ghost" aria-label="Delete" onClick={() => { if (confirm(`Delete "${r.name}"?`)) delRule.mutate({ data: { id: r.id } } as any); }}><Trash2 className="size-3.5" /></Button>
                       </div></td>
                     </tr>
@@ -245,14 +246,16 @@ function AutomationPage() {
                   <div className="grid gap-3 sm:grid-cols-[1fr_8rem]">
                     <div>
                       <Label className="text-xs">Trigger</Label>
-                      <Select value={rule.trigger_type} onValueChange={(v) => setRule((f) => (f ? { ...f, trigger_type: v as TriggerType } : f))}>
+                      <Select value={rule.trigger_type} onValueChange={(v) => setRule((f) => (f ? { ...f, trigger_type: v as TriggerType, delay_days: TRIGGER_DEFAULT_DAYS[v as TriggerType], audience_filter: v === "custom" ? (f.audience_filter ?? { event: "completed_trip", booked: "any" }) : null } : f))}>
                         <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-                        <SelectContent>{(Object.keys(TRIGGER_LABELS) as TriggerType[]).map((t) => <SelectItem key={t} value={t}>{TRIGGER_LABELS[t]}</SelectItem>)}</SelectContent>
+                        <SelectContent>{TRIGGER_TYPES.map((t) => <SelectItem key={t} value={t}>{TRIGGER_LABELS[t]}</SelectItem>)}</SelectContent>
                       </Select>
                     </div>
-                    <div><Label htmlFor="r-days" className="text-xs">Days</Label><Input id="r-days" type="number" min={1} max={730} className="mt-1" value={rule.delay_days} onChange={(e) => setRule((f) => (f ? { ...f, delay_days: Number(e.target.value) } : f))} /></div>
+                    <div><Label htmlFor="r-days" className="text-xs">Days</Label><Input id="r-days" type="number" min={0} max={730} className="mt-1" value={rule.delay_days} onChange={(e) => setRule((f) => (f ? { ...f, delay_days: Number(e.target.value) } : f))} /></div>
                   </div>
-                  <p className="text-xs text-muted-foreground">Checked every hour. Only trips or enquiries from the last {rule.delay_days + 14} days count, so switching this on never emails people about very old trips.</p>
+                  {rule.trigger_type === "custom" && <CustomConditions value={rule.audience_filter ?? {}} onChange={(v) => setRule((f) => (f ? { ...f, audience_filter: v } : f))} />}
+                  <p className="text-xs text-muted-foreground">{TRIGGER_HELP[rule.trigger_type]} </p>
+                  <p className="text-xs text-muted-foreground">Checked every 15 minutes. Only trips or enquiries from the last {rule.delay_days + 14} days count, so switching this on never emails people about very old trips.</p>
                 </section>
                 <section className="space-y-3 rounded-lg border border-border p-4">
                   <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Message</div>
@@ -278,6 +281,7 @@ function AutomationPage() {
                     <p className="text-xs text-muted-foreground">Goes only to the admin email in Settings.</p>
                   </section>
                 )}
+                <EmailPreview subject={rule.subject} body={rule.body} coupon={couponOf(rule.coupon_id)} />
                 <Warnings list={campaignWarnings({ subject: rule.subject, body: rule.body, coupon: couponOf(rule.coupon_id) })} />
                 <div className="flex flex-col gap-2 sm:flex-row">
                   <Button variant="outline" className="flex-1" disabled={saveRuleM.isPending} onClick={() => saveRuleM.mutate({ data: rule } as any)}>Save{rule.active ? "" : " (switched off)"}</Button>
@@ -378,6 +382,7 @@ function AutomationPage() {
                   </section>
                 )}
 
+                <EmailPreview subject={form.subject} body={form.body} coupon={couponOf(form.coupon_id)} />
                 <Warnings list={campaignWarnings({ subject: form.subject, body: form.body, coupon: couponOf(form.coupon_id), audienceSize: sizes[form.audience] })} />
                 <div className="flex flex-col gap-2 sm:flex-row">
                   <Button variant="outline" className="flex-1" disabled={save.isPending} onClick={() => save.mutate(payload(form, form.status === "active" ? "active" : "draft") as any)}>Save{form.status === "active" ? " changes" : " as draft"}</Button>
@@ -407,5 +412,67 @@ function AutomationPage() {
         </SheetContent>
       </Sheet>
     </div>
+  );
+}
+
+const TRIGGER_HELP: Record<TriggerType, string> = {
+  after_trip: "Sends this many days after a trip is marked completed.",
+  lapsed: "Sends when someone has not travelled for this many days.",
+  enquiry_no_booking: "Sends this many days after a form enquiry from someone who never booked.",
+  before_trip: "Sends this many days before an upcoming confirmed trip, and never on or after the trip day.",
+  anniversary: "Sends once a year on the date of their first booking, plus this many days (0 = on the day).",
+  abandoned_quote: "Sends this many days after someone started a booking but did not pay, unless they booked again since.",
+  after_cancellation: "Sends this many days after a cancelled booking.",
+  custom: "Pick the date to count from and who it applies to. Every condition you set must match.",
+};
+
+function CustomConditions({ value, onChange }: { value: AudienceFilter; onChange: (v: AudienceFilter) => void }) {
+  const num = (v: string) => (v === "" ? null : Math.max(0, Number(v)));
+  return (
+    <div className="grid gap-3 rounded-md bg-muted/40 p-3 sm:grid-cols-2">
+      <div className="sm:col-span-2">
+        <Label className="text-xs">Count the days from</Label>
+        <Select value={value.event ?? "last_contact"} onValueChange={(v) => onChange({ ...value, event: v as CustomEvent })}>
+          <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+          <SelectContent>{(Object.keys(CUSTOM_EVENT_LABELS) as CustomEvent[]).map((e) => <SelectItem key={e} value={e}>{CUSTOM_EVENT_LABELS[e]}</SelectItem>)}</SelectContent>
+        </Select>
+      </div>
+      <div>
+        <Label className="text-xs">Has booked</Label>
+        <Select value={value.booked ?? "any"} onValueChange={(v) => onChange({ ...value, booked: v as AudienceFilter["booked"] })}>
+          <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+          <SelectContent><SelectItem value="any">Anyone</SelectItem><SelectItem value="yes">Has booked</SelectItem><SelectItem value="no">Never booked</SelectItem></SelectContent>
+        </Select>
+      </div>
+      <div>
+        <Label className="text-xs">Came from</Label>
+        <Select value={value.source ?? "any"} onValueChange={(v) => onChange({ ...value, source: v === "any" ? null : v })}>
+          <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="any">Any form or booking</SelectItem>
+            <SelectItem value="booking">Booking</SelectItem><SelectItem value="tour">Tour</SelectItem><SelectItem value="custom_tour">Custom tour request</SelectItem>
+            <SelectItem value="contact">Contact form</SelectItem><SelectItem value="corporate">Corporate enquiry</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <div><Label className="text-xs">Completed trips, at least</Label><Input type="number" min={0} className="mt-1" value={value.min_trips ?? ""} onChange={(e) => onChange({ ...value, min_trips: num(e.target.value) })} /></div>
+      <div><Label className="text-xs">Completed trips, at most</Label><Input type="number" min={0} className="mt-1" value={value.max_trips ?? ""} onChange={(e) => onChange({ ...value, max_trips: num(e.target.value) })} /></div>
+      <div className="sm:col-span-2"><Label className="text-xs">Has spent at least (£)</Label><Input type="number" min={0} className="mt-1" value={value.min_spend ?? ""} onChange={(e) => onChange({ ...value, min_spend: num(e.target.value) })} /></div>
+    </div>
+  );
+}
+
+/** Shows the designed email exactly as customers receive it, with sample name "Alex". */
+function EmailPreview({ subject, body, coupon }: { subject: string; body: string; coupon: any }) {
+  const [open, setOpen] = useState(false);
+  const info = coupon ? { code: coupon.code, offer: coupon.discount_type === "percentage" ? `${Number(coupon.discount_value)}% off` : `£${Number(coupon.discount_value).toFixed(2)} off`, expires: coupon.expires_at ?? null } : null;
+  return (
+    <section className="space-y-2 rounded-lg border border-border p-4">
+      <div className="flex items-center justify-between">
+        <div className="text-[11px] uppercase tracking-wide text-muted-foreground">How the email looks</div>
+        <Button size="sm" variant="outline" onClick={() => setOpen((o) => !o)}>{open ? "Hide preview" : "Show preview"}</Button>
+      </div>
+      {open && <iframe title="Email preview" className="h-[640px] w-full rounded-md border border-border bg-background" sandbox="" srcDoc={renderCampaign({ subject, body }, { name: "Alex Smith", token: "preview" }, info).html} />}
+    </section>
   );
 }

@@ -2,6 +2,8 @@
 // Resend, and runs scheduled campaigns. Offer emails only ever go to
 // customers who ticked "send me offers" and have not unsubscribed.
 import { SITE } from "@/lib/site";
+import { esc, renderCampaign, unsubscribeUrl, type CouponInfo } from "@/lib/email-design";
+export { renderCampaign, unsubscribeUrl, type CouponInfo };
 import { buildCustomers, campaignAudience, normEmail, type MyCustomer } from "@/lib/my-customers";
 import { nextRunAt, type CampaignFrequency } from "@/lib/campaign-schedule";
 import { quietOk, ruleTriggerKey, queueSkipReason, afterFailure, QUEUE_BATCH_SIZE, type TriggerType } from "@/lib/email-automation";
@@ -24,7 +26,7 @@ async function all(db: Db, table: string, cols: string, extra?: (q: any) => any)
 /** Every customer (drivers excluded), with marketing consent attached. */
 export async function loadCustomers(db: Db): Promise<MyCustomer[]> {
   const [bookings, payments, messages, customTours, cancellations, amendments, contacts, drivers] = await Promise.all([
-    all(db, "bookings", "id, customer_name, email, phone, price, pickup_date, status, service_type, created_at", (q) => q.is("deleted_at", null)),
+    all(db, "bookings", "id, customer_name, email, phone, price, pickup_date, status, service_type, created_at, updated_at", (q) => q.is("deleted_at", null)),
     all(db, "payments", "id, booking_id, amount, refunded_amount, status"),
     all(db, "contact_messages", "id, name, email, phone, subject, source, created_at"),
     all(db, "custom_tour_requests", "id, customer_name, email, phone, created_at"),
@@ -36,9 +38,7 @@ export async function loadCustomers(db: Db): Promise<MyCustomer[]> {
   return buildCustomers({ bookings, payments, messages, customTours, cancellations, amendments, contacts, drivers });
 }
 
-const esc = (v: unknown) => String(v ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 
-export type CouponInfo = { code: string; offer: string; expires: string | null } | null;
 
 export async function loadCoupon(db: Db, id: string | null): Promise<CouponInfo> {
   if (!id) return null;
@@ -49,39 +49,6 @@ export async function loadCoupon(db: Db, id: string | null): Promise<CouponInfo>
   return { code: data.code, offer, expires: data.expires_at ?? null };
 }
 
-function fill(text: string, name: string | null, coupon: CouponInfo): string {
-  return text
-    .replace(/\{\{\s*name\s*\}\}/gi, name?.split(" ")[0] || "there")
-    .replace(/\{\{\s*coupon_code\s*\}\}/gi, coupon?.code ?? "")
-    .replace(/\{\{\s*coupon_offer\s*\}\}/gi, coupon?.offer ?? "")
-    .replace(/\{\{\s*coupon_expiry\s*\}\}/gi, coupon?.expires ?? "");
-}
-
-export function unsubscribeUrl(token: string) {
-  return `${SITE.url}/unsubscribe?token=${encodeURIComponent(token)}`;
-}
-
-export function renderCampaign(c: { subject: string; body: string }, to: { name: string | null; token: string }, coupon: CouponInfo) {
-  const subject = fill(c.subject, to.name, coupon).replace(/[\r\n]+/g, " ").slice(0, 150);
-  const body = fill(c.body, to.name, coupon);
-  const paras = body.split(/\n{2,}/).map((p) => `<p style="margin:0 0 14px;line-height:1.6;color:#0e182c;">${esc(p).replace(/\n/g, "<br>")}</p>`).join("");
-  const unsub = unsubscribeUrl(to.token);
-  const couponHtml = coupon ? `<table role="presentation" width="100%" style="margin:8px 0 20px;border:2px dashed #dfaf26;border-radius:12px;"><tr><td style="padding:16px;text-align:center;">
-    <div style="font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#855b00;font-weight:700;">Your code — ${esc(coupon.offer)}</div>
-    <div style="font-size:26px;font-weight:800;letter-spacing:.12em;color:#0e182c;margin-top:6px;">${esc(coupon.code)}</div>
-    ${coupon.expires ? `<div style="font-size:12px;color:#536078;margin-top:6px;">Valid until ${esc(coupon.expires)}</div>` : ""}</td></tr></table>` : "";
-  const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(subject)}</title></head>
-<body style="margin:0;padding:24px 12px;background:#ffffff;font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;">
-<table role="presentation" width="100%" style="max-width:600px;margin:0 auto;border-radius:16px;overflow:hidden;border:1px solid rgba(14,24,44,.1);">
-<tr><td style="padding:22px 28px;background:#0e182c;color:#dfaf26;font-weight:800;letter-spacing:.18em;font-size:14px;text-transform:uppercase;">${esc(SITE.name)}</td></tr>
-<tr><td style="padding:28px;">${paras}${couponHtml}
-<p style="margin:8px 0 0;"><a href="${esc(SITE.url)}" style="display:inline-block;background:#dfaf26;color:#0e182c;padding:12px 22px;border-radius:8px;font-weight:700;text-decoration:none;">Book your journey</a></p></td></tr>
-<tr><td style="padding:18px 28px;color:#536078;font-size:12px;line-height:1.6;">You're receiving this because you asked ${esc(SITE.name)} to send you offers.<br>
-${esc(SITE.name)} · ${esc(SITE.address)} · ${esc(SITE.phoneUK)}<br>
-<a href="${esc(unsub)}" style="color:#536078;">Unsubscribe from offer emails</a></td></tr></table></body></html>`;
-  const text = `${body}\n\n${coupon ? `Your code (${coupon.offer}): ${coupon.code}${coupon.expires ? ` — valid until ${coupon.expires}` : ""}\n\n` : ""}Book: ${SITE.url}\n\n${SITE.name} · ${SITE.address} · ${SITE.phoneUK}\nUnsubscribe: ${unsub}`;
-  return { subject, html, text, unsub };
-}
 
 function sender() {
   const lovableKey = process.env["LOVABLE_API_KEY"];
@@ -210,7 +177,7 @@ export async function runRules(db: Db, customers?: MyCustomer[]) {
   for (const rule of rules) {
     const quiet = Number(rule.quiet_days ?? settings.quiet_days);
     const due = everyone
-      .map((c) => ({ c, key: ruleTriggerKey(c, { trigger_type: rule.trigger_type as TriggerType, delay_days: rule.delay_days }, today) }))
+      .map((c) => ({ c, key: ruleTriggerKey(c, { trigger_type: rule.trigger_type as TriggerType, delay_days: rule.delay_days, audience_filter: rule.audience_filter as any }, today) }))
       .filter((x): x is { c: MyCustomer; key: string } => !!x.key && quietOk(x.c.lastMarketingAt, quiet) && !queuedNow.has(x.c.email));
     if (!due.length) { results.push({ id: rule.id, queued: 0 }); continue; }
     const doneRows = await all(db, "automation_sends", "id, email, trigger_key", (q) => q.eq("rule_id", rule.id).in("email", due.map((d) => d.c.email).slice(0, 1000)));

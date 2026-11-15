@@ -44,34 +44,118 @@ export const EMAIL_TEMPLATES: EmailTemplate[] = [
     body: "Hi {{name}},\n\nA quick reminder that we cover airport transfers, private day tours and hourly hire across Scotland, for one to sixteen passengers.\n\nYou get a fixed price when you book, and you can manage your booking online.\n\nThank you for being a customer." },
 ];
 
-export type TriggerType = "after_trip" | "lapsed" | "enquiry_no_booking";
+export type TriggerType = "after_trip" | "lapsed" | "enquiry_no_booking" | "before_trip" | "anniversary" | "abandoned_quote" | "after_cancellation" | "custom";
+export const TRIGGER_TYPES: TriggerType[] = ["after_trip", "lapsed", "enquiry_no_booking", "before_trip", "anniversary", "abandoned_quote", "after_cancellation", "custom"];
 export const TRIGGER_LABELS: Record<TriggerType, string> = {
   after_trip: "Days after a completed trip",
   lapsed: "Days since their last trip (no new booking)",
   enquiry_no_booking: "Days after an enquiry with no booking",
+  before_trip: "Days before their trip",
+  anniversary: "Days after their booking anniversary",
+  abandoned_quote: "Days after an unfinished booking (not paid)",
+  after_cancellation: "Days after a cancelled trip",
+  custom: "Custom: my own conditions",
 };
-export const TRIGGER_TEMPLATE: Record<TriggerType, string> = { after_trip: "thank_you", lapsed: "come_back", enquiry_no_booking: "coupon" };
+export const TRIGGER_TEMPLATE: Record<TriggerType, string> = {
+  after_trip: "thank_you", lapsed: "come_back", enquiry_no_booking: "coupon",
+  before_trip: "promotion", anniversary: "thank_you", abandoned_quote: "coupon", after_cancellation: "come_back", custom: "promotion",
+};
+export const TRIGGER_DEFAULT_DAYS: Record<TriggerType, number> = {
+  after_trip: 3, lapsed: 90, enquiry_no_booking: 2, before_trip: 7, anniversary: 0, abandoned_quote: 1, after_cancellation: 14, custom: 30,
+};
+
+/** The date a custom rule counts from. */
+export type CustomEvent = "completed_trip" | "last_trip" | "next_trip" | "first_booking" | "last_enquiry" | "last_contact" | "cancelled" | "unfinished";
+export const CUSTOM_EVENT_LABELS: Record<CustomEvent, string> = {
+  completed_trip: "After their last completed trip",
+  last_trip: "After their last trip date",
+  next_trip: "Before their next trip",
+  first_booking: "After their first booking",
+  last_enquiry: "After their last enquiry",
+  last_contact: "After they last contacted us (any form or booking)",
+  cancelled: "After their last cancellation",
+  unfinished: "After an unfinished booking",
+};
+/** Conditions for a custom rule. Every set condition must match. */
+export type AudienceFilter = {
+  event?: CustomEvent;
+  booked?: "any" | "yes" | "no";
+  min_trips?: number | null;
+  max_trips?: number | null;
+  min_spend?: number | null;
+  source?: string | null;
+};
 
 /** How far back a trigger may fire, so switching a rule on never emails people about very old trips. */
 export const CATCH_UP_DAYS = 14;
+
+function eventDate(c: MyCustomer, e: CustomEvent): string | null {
+  switch (e) {
+    case "completed_trip": return c.lastCompletedPickup;
+    case "last_trip": return c.lastPickup;
+    case "next_trip": return c.nextPickup;
+    case "first_booking": return c.firstBookingAt ? ukDate(c.firstBookingAt) : null;
+    case "last_enquiry": return c.lastEnquiryAt;
+    case "last_contact": return ukDate(c.lastSeen);
+    case "cancelled": return c.lastCancelledAt;
+    case "unfinished": return c.abandonedAt;
+  }
+}
+
+/** True when the person matches every condition set on a custom rule. */
+export function matchesFilter(c: MyCustomer, f: AudienceFilter | null | undefined): boolean {
+  if (!f) return true;
+  if (f.booked === "yes" && c.bookings === 0) return false;
+  if (f.booked === "no" && c.bookings > 0) return false;
+  if (f.min_trips != null && c.completedBookings < f.min_trips) return false;
+  if (f.max_trips != null && c.completedBookings > f.max_trips) return false;
+  if (f.min_spend != null && c.spend < f.min_spend) return false;
+  if (f.source && !c.sources.includes(f.source as any)) return false;
+  return true;
+}
 
 /**
  * Returns a key identifying the event this person is due an email for
  * (so each event emails them once), or null if the rule does not apply today.
  */
-export function ruleTriggerKey(c: MyCustomer, rule: { trigger_type: TriggerType; delay_days: number }, today: string = ukDate()): string | null {
+export function ruleTriggerKey(c: MyCustomer, rule: { trigger_type: TriggerType; delay_days: number; audience_filter?: AudienceFilter | null }, today: string = ukDate()): string | null {
   if (c.basis === null) return null;
   const due = addDays(today, -rule.delay_days);
   const oldest = addDays(due, -CATCH_UP_DAYS);
   const inWindow = (d: string | null) => !!d && d.slice(0, 10) <= due && d.slice(0, 10) > oldest;
-  if (rule.trigger_type === "after_trip") return inWindow(c.lastCompletedPickup) ? `trip:${c.lastCompletedPickup}` : null;
-  if (rule.trigger_type === "lapsed") {
-    const last = c.lastPickup;
-    return c.bookings > 0 && last && last <= today && inWindow(last) ? `lapsed:${last}` : null;
-  }
-  if (rule.trigger_type === "enquiry_no_booking") {
-    const seen = ukDate(c.lastSeen);
-    return c.bookings === 0 && c.enquiries > 0 && inWindow(seen) ? `enquiry:${seen}` : null;
+  // "Before" triggers fire from N days before up to the day before the trip, never after it.
+  const beforeWindow = (d: string | null) => !!d && d > today && addDays(d, -rule.delay_days) <= today;
+  switch (rule.trigger_type) {
+    case "after_trip": return inWindow(c.lastCompletedPickup) ? `trip:${c.lastCompletedPickup}` : null;
+    case "lapsed": {
+      const last = c.lastPickup;
+      return c.bookings > 0 && last && last <= today && inWindow(last) ? `lapsed:${last}` : null;
+    }
+    case "enquiry_no_booking": {
+      const seen = ukDate(c.lastSeen);
+      return c.bookings === 0 && c.enquiries > 0 && inWindow(seen) ? `enquiry:${seen}` : null;
+    }
+    case "before_trip": return beforeWindow(c.nextPickup) ? `before:${c.nextPickup}` : null;
+    case "anniversary": {
+      if (!c.firstBookingAt) return null;
+      const first = ukDate(c.firstBookingAt);
+      for (const year of [Number(today.slice(0, 4)), Number(today.slice(0, 4)) - 1]) {
+        if (year <= Number(first.slice(0, 4))) continue;
+        const md = first.slice(5) === "02-29" ? "02-28" : first.slice(5);
+        if (inWindow(`${year}-${md}`)) return `anniversary:${year}`;
+      }
+      return null;
+    }
+    case "abandoned_quote": return inWindow(c.abandonedAt) ? `unfinished:${c.abandonedAt}` : null;
+    case "after_cancellation": return inWindow(c.lastCancelledAt) ? `cancelled:${c.lastCancelledAt}` : null;
+    case "custom": {
+      const f = rule.audience_filter ?? {};
+      const ev = f.event ?? "last_contact";
+      if (!matchesFilter(c, f)) return null;
+      const d = eventDate(c, ev);
+      const hit = ev === "next_trip" ? beforeWindow(d) : inWindow(d);
+      return hit ? `custom:${ev}:${d}` : null;
+    }
   }
   return null;
 }

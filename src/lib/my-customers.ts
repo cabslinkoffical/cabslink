@@ -1,3 +1,4 @@
+import { ukDate } from "@/lib/uk-time";
 /**
  * "My Customers": everyone who booked or filled in a form on the website,
  * merged into one row per email address. Drivers (dispatch drivers and
@@ -37,8 +38,19 @@ export type MyCustomer = {
   lastCompletedPickup: string | null;
   lastMarketingAt: string | null;
   blockedReason: string | null;
+  /** Earliest upcoming live trip date (UK), for "before their trip". */
+  nextPickup: string | null;
+  /** UK date of the latest cancelled booking. */
+  lastCancelledAt: string | null;
+  /** UK date of the latest unfinished (unpaid/expired) booking with no live booking made after it. */
+  abandonedAt: string | null;
+  /** UK date of the latest enquiry/form. */
+  lastEnquiryAt: string | null;
 };
 export type LawfulBasis = "consent" | "soft_opt_in" | null;
+
+/** Bookings started but never paid for (an abandoned quote/checkout). */
+const UNFINISHED = new Set(["pending_payment", "payment_failed", "expired"]);
 
 export const normEmail = (e: unknown) => String(e ?? "").trim().toLowerCase();
 
@@ -52,7 +64,7 @@ type In = {
   cancellations: any[]; amendments: any[]; contacts: any[]; drivers: any[];
 };
 
-export function buildCustomers(i: In): MyCustomer[] {
+export function buildCustomers(i: In, today: string = ukDate()): MyCustomer[] {
   const driverEmails = new Set<string>();
   for (const d of i.drivers) if (d.email) driverEmails.add(normEmail(d.email));
   for (const m of i.messages) if (isDriverMessage(m) && m.email) driverEmails.add(normEmail(m.email));
@@ -63,13 +75,13 @@ export function buildCustomers(i: In): MyCustomer[] {
     paidByBooking.set(p.booking_id, (paidByBooking.get(p.booking_id) ?? 0) + Number(p.amount || 0) - Number(p.refunded_amount || 0));
   }
 
-  const map = new Map<string, MyCustomer & { _nameAt: string; _phoneAt: string }>();
+  const map = new Map<string, MyCustomer & { _liveAt: string; _nameAt: string; _phoneAt: string }>();
   const touch = (email: unknown, at: string, name: unknown, phone: unknown, source: CustomerSource) => {
     const key = normEmail(email);
     if (!key || !key.includes("@") || driverEmails.has(key)) return null;
     let c = map.get(key);
     if (!c) {
-      c = { email: key, name: null, phone: null, firstSeen: at, lastSeen: at, bookings: 0, completedBookings: 0, cancelledBookings: 0, enquiries: 0, spend: 0, lastPickup: null, sources: [], consent: "no_consent", optedInAt: null, basis: null, firstBookingAt: null, lastCompletedPickup: null, lastMarketingAt: null, blockedReason: null, _nameAt: "", _phoneAt: "" };
+      c = { email: key, name: null, phone: null, firstSeen: at, lastSeen: at, bookings: 0, completedBookings: 0, cancelledBookings: 0, enquiries: 0, spend: 0, lastPickup: null, sources: [], consent: "no_consent", optedInAt: null, basis: null, firstBookingAt: null, lastCompletedPickup: null, lastMarketingAt: null, blockedReason: null, nextPickup: null, lastCancelledAt: null, abandonedAt: null, lastEnquiryAt: null, _liveAt: "", _nameAt: "", _phoneAt: "" };
       map.set(key, c);
     }
     if (at < c.firstSeen) c.firstSeen = at;
@@ -94,14 +106,26 @@ export function buildCustomers(i: In): MyCustomer[] {
     if (b.status === "cancelled" || b.status === "rejected") c.cancelledBookings += 1;
     c.spend = Math.round((c.spend + (paidByBooking.get(b.id) ?? 0)) * 100) / 100;
     if (b.pickup_date && (!c.lastPickup || b.pickup_date > c.lastPickup)) c.lastPickup = b.pickup_date;
+    const day = ukDate(b.created_at);
+    if (b.status === "cancelled") {
+      const at = ukDate(b.updated_at ?? b.created_at);
+      if (!c.lastCancelledAt || at > c.lastCancelledAt) c.lastCancelledAt = at;
+    } else if (UNFINISHED.has(b.status)) {
+      if (!c.abandonedAt || day > c.abandonedAt) c.abandonedAt = day;
+    } else if (b.status !== "rejected") {
+      if (b.created_at > c._liveAt) c._liveAt = b.created_at;
+      if (b.status !== "completed" && b.pickup_date && b.pickup_date >= today && (!c.nextPickup || b.pickup_date < c.nextPickup)) c.nextPickup = b.pickup_date;
+    }
   }
+  // An unfinished booking stops counting once they make a real booking on or after that day.
+  for (const c of map.values()) if (c.abandonedAt && c._liveAt && ukDate(c._liveAt) >= c.abandonedAt) c.abandonedAt = null;
   for (const m of i.messages) {
     if (isDriverMessage(m)) continue;
     const src: CustomerSource = m.source === "corporate" ? "corporate" : m.source === "tour" ? "tour" : "contact";
     const c = touch(m.email, m.created_at, m.name, m.phone, src);
-    if (c) c.enquiries += 1;
+    if (c) { c.enquiries += 1; const d = ukDate(m.created_at); if (!c.lastEnquiryAt || d > c.lastEnquiryAt) c.lastEnquiryAt = d; }
   }
-  for (const t of i.customTours) { const c = touch(t.email, t.created_at, t.customer_name, t.phone, "custom_tour"); if (c) c.enquiries += 1; }
+  for (const t of i.customTours) { const c = touch(t.email, t.created_at, t.customer_name, t.phone, "custom_tour"); if (c) { c.enquiries += 1; const d = ukDate(t.created_at); if (!c.lastEnquiryAt || d > c.lastEnquiryAt) c.lastEnquiryAt = d; } }
   for (const r of i.cancellations) touch(r.email, r.created_at, r.customer_name, r.phone, "cancellation");
   for (const r of i.amendments) touch(r.email, r.created_at, r.customer_name, r.phone, "change_request");
 
@@ -119,7 +143,7 @@ export function buildCustomers(i: In): MyCustomer[] {
   }
 
   return Array.from(map.values())
-    .map(({ _nameAt, _phoneAt, ...c }) => c)
+    .map(({ _nameAt, _phoneAt, _liveAt, ...c }) => c)
     .sort((a, b) => (a.lastSeen < b.lastSeen ? 1 : -1));
 }
 
