@@ -25,7 +25,7 @@ async function all(db: Db, table: string, cols: string, extra?: (q: any) => any)
 
 /** Every customer (drivers excluded), with marketing consent attached. */
 export async function loadCustomers(db: Db): Promise<MyCustomer[]> {
-  const [bookings, payments, messages, customTours, cancellations, amendments, contacts, drivers] = await Promise.all([
+  const [bookings, payments, messages, customTours, cancellations, amendments, contacts, drivers, contactTags] = await Promise.all([
     all(db, "bookings", "id, customer_name, email, phone, price, pickup_date, status, service_type, created_at, updated_at", (q) => q.is("deleted_at", null)),
     all(db, "payments", "id, booking_id, amount, refunded_amount, status"),
     all(db, "contact_messages", "id, name, email, phone, subject, source, created_at"),
@@ -34,8 +34,9 @@ export async function loadCustomers(db: Db): Promise<MyCustomer[]> {
     all(db, "booking_amendments", "id, customer_name, email, phone, created_at"),
     all(db, "marketing_contacts", "id, email, opted_in, opted_in_at, unsubscribed_at, suppressed_reason, last_marketing_at"),
     all(db, "drivers", "id, email"),
+    all(db, "contact_tags", "contact_id, tag"),
   ]);
-  return buildCustomers({ bookings, payments, messages, customTours, cancellations, amendments, contacts, drivers });
+  return buildCustomers({ bookings, payments, messages, customTours, cancellations, amendments, contacts, drivers, contactTags });
 }
 
 
@@ -142,7 +143,7 @@ export async function runCampaign(db: Db, campaign: any, customers?: MyCustomer[
   const settings = await loadSettings(db);
   if (settings.paused) throw new Error("All offer emails are paused. Switch sending back on first.");
   const runKey = campaignRunKey(campaign);
-  const people = campaignAudience(customers ?? (await loadCustomers(db)), campaign.audience);
+  const people = campaignAudience(customers ?? (await loadCustomers(db)), campaign.audience, campaign.audience_filter);
   // Never resend to anyone the older sender already reached in this run.
   const legacy = await all(db, "email_campaign_sends", "id, email", (q) => q.eq("campaign_id", campaign.id).eq("run_key", String(campaign.next_run_at ?? "")));
   const done = new Set(legacy.map((r) => normEmail(r.email)));
