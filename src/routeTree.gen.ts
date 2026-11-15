@@ -128,6 +128,7 @@ import { Route as AuthenticatedCabsBookingPannelCustomTourRequestsRouteImport } 
 import { Route as AuthenticatedCabsBookingPannelCustomersRouteImport } from './routes/_authenticated/cabs-booking-pannel/customers'
 import { Route as AuthenticatedCabsBookingPannelDispatchRouteImport } from './routes/_authenticated/cabs-booking-pannel/dispatch'
 import { Route as AuthenticatedCabsBookingPannelDriversRouteImport } from './routes/_authenticated/cabs-booking-pannel/drivers'
+import { Route as AuthenticatedCabsBookingPannelEmailAutomationRouteImport } from './routes/_authenticated/cabs-booking-pannel/email-automation'
 import { Route as AuthenticatedCabsBookingPannelExtrasRouteImport } from './routes/_authenticated/cabs-booking-pannel/extras'
 import { Route as AuthenticatedCabsBookingPannelLogsRouteImport } from './routes/_authenticated/cabs-booking-pannel/logs'
 import { Route as AuthenticatedCabsBookingPannelMediaRouteImport } from './routes/_authenticated/cabs-booking-pannel/media'
@@ -788,6 +789,12 @@ const AuthenticatedCabsBookingPannelDriversRoute =
     path: '/drivers',
     getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
+const AuthenticatedCabsBookingPannelEmailAutomationRoute =
+  AuthenticatedCabsBookingPannelEmailAutomationRouteImport.update({
+    id: '/email-automation',
+    path: '/email-automation',
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
+  } as any)
 const AuthenticatedCabsBookingPannelExtrasRoute =
   AuthenticatedCabsBookingPannelExtrasRouteImport.update({
     id: '/extras',
@@ -1168,6 +1175,7 @@ export interface FileRoutesByFullPath {
   '/cabs-booking-pannel/customers': typeof AuthenticatedCabsBookingPannelCustomersRoute
   '/cabs-booking-pannel/dispatch': typeof AuthenticatedCabsBookingPannelDispatchRoute
   '/cabs-booking-pannel/drivers': typeof AuthenticatedCabsBookingPannelDriversRoute
+  '/cabs-booking-pannel/email-automation': typeof AuthenticatedCabsBookingPannelEmailAutomationRoute
   '/cabs-booking-pannel/extras': typeof AuthenticatedCabsBookingPannelExtrasRoute
   '/cabs-booking-pannel/logs': typeof AuthenticatedCabsBookingPannelLogsRoute
   '/cabs-booking-pannel/media': typeof AuthenticatedCabsBookingPannelMediaRoute
@@ -1331,6 +1339,7 @@ export interface FileRoutesByTo {
   '/cabs-booking-pannel/customers': typeof AuthenticatedCabsBookingPannelCustomersRoute
   '/cabs-booking-pannel/dispatch': typeof AuthenticatedCabsBookingPannelDispatchRoute
   '/cabs-booking-pannel/drivers': typeof AuthenticatedCabsBookingPannelDriversRoute
+  '/cabs-booking-pannel/email-automation': typeof AuthenticatedCabsBookingPannelEmailAutomationRoute
   '/cabs-booking-pannel/extras': typeof AuthenticatedCabsBookingPannelExtrasRoute
   '/cabs-booking-pannel/logs': typeof AuthenticatedCabsBookingPannelLogsRoute
   '/cabs-booking-pannel/media': typeof AuthenticatedCabsBookingPannelMediaRoute
@@ -1498,6 +1507,7 @@ export interface FileRoutesById {
   '/_authenticated/cabs-booking-pannel/customers': typeof AuthenticatedCabsBookingPannelCustomersRoute
   '/_authenticated/cabs-booking-pannel/dispatch': typeof AuthenticatedCabsBookingPannelDispatchRoute
   '/_authenticated/cabs-booking-pannel/drivers': typeof AuthenticatedCabsBookingPannelDriversRoute
+  '/_authenticated/cabs-booking-pannel/email-automation': typeof AuthenticatedCabsBookingPannelEmailAutomationRoute
   '/_authenticated/cabs-booking-pannel/extras': typeof AuthenticatedCabsBookingPannelExtrasRoute
   '/_authenticated/cabs-booking-pannel/logs': typeof AuthenticatedCabsBookingPannelLogsRoute
   '/_authenticated/cabs-booking-pannel/media': typeof AuthenticatedCabsBookingPannelMediaRoute
@@ -1665,6 +1675,7 @@ export interface FileRouteTypes {
     | '/cabs-booking-pannel/customers'
     | '/cabs-booking-pannel/dispatch'
     | '/cabs-booking-pannel/drivers'
+    | '/cabs-booking-pannel/email-automation'
     | '/cabs-booking-pannel/extras'
     | '/cabs-booking-pannel/logs'
     | '/cabs-booking-pannel/media'
@@ -1828,6 +1839,7 @@ export interface FileRouteTypes {
     | '/cabs-booking-pannel/customers'
     | '/cabs-booking-pannel/dispatch'
     | '/cabs-booking-pannel/drivers'
+    | '/cabs-booking-pannel/email-automation'
     | '/cabs-booking-pannel/extras'
     | '/cabs-booking-pannel/logs'
     | '/cabs-booking-pannel/media'
@@ -1994,6 +2006,7 @@ export interface FileRouteTypes {
     | '/_authenticated/cabs-booking-pannel/customers'
     | '/_authenticated/cabs-booking-pannel/dispatch'
     | '/_authenticated/cabs-booking-pannel/drivers'
+    | '/_authenticated/cabs-booking-pannel/email-automation'
     | '/_authenticated/cabs-booking-pannel/extras'
     | '/_authenticated/cabs-booking-pannel/logs'
     | '/_authenticated/cabs-booking-pannel/media'
@@ -2992,6 +3005,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCabsBookingPannelDriversRouteImport
       parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
+    '/_authenticated/cabs-booking-pannel/email-automation': {
+      id: '/_authenticated/cabs-booking-pannel/email-automation'
+      path: '/email-automation'
+      fullPath: '/cabs-booking-pannel/email-automation'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelEmailAutomationRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
+    }
     '/_authenticated/cabs-booking-pannel/extras': {
       id: '/_authenticated/cabs-booking-pannel/extras'
       path: '/extras'
@@ -3338,6 +3358,7 @@ interface AuthenticatedCabsBookingPannelRouteRouteChildren {
   AuthenticatedCabsBookingPannelCustomersRoute: typeof AuthenticatedCabsBookingPannelCustomersRoute
   AuthenticatedCabsBookingPannelDispatchRoute: typeof AuthenticatedCabsBookingPannelDispatchRoute
   AuthenticatedCabsBookingPannelDriversRoute: typeof AuthenticatedCabsBookingPannelDriversRoute
+  AuthenticatedCabsBookingPannelEmailAutomationRoute: typeof AuthenticatedCabsBookingPannelEmailAutomationRoute
   AuthenticatedCabsBookingPannelExtrasRoute: typeof AuthenticatedCabsBookingPannelExtrasRoute
   AuthenticatedCabsBookingPannelLogsRoute: typeof AuthenticatedCabsBookingPannelLogsRoute
   AuthenticatedCabsBookingPannelMediaRoute: typeof AuthenticatedCabsBookingPannelMediaRoute
@@ -3400,6 +3421,8 @@ const AuthenticatedCabsBookingPannelRouteRouteChildren: AuthenticatedCabsBooking
       AuthenticatedCabsBookingPannelDispatchRoute,
     AuthenticatedCabsBookingPannelDriversRoute:
       AuthenticatedCabsBookingPannelDriversRoute,
+    AuthenticatedCabsBookingPannelEmailAutomationRoute:
+      AuthenticatedCabsBookingPannelEmailAutomationRoute,
     AuthenticatedCabsBookingPannelExtrasRoute:
       AuthenticatedCabsBookingPannelExtrasRoute,
     AuthenticatedCabsBookingPannelLogsRoute:
