@@ -165,7 +165,7 @@ function AutomationPage() {
       <EmailCalendar />
 
       <div className="grid gap-3 sm:grid-cols-3">
-        {(Object.keys(AUDIENCE_LABELS) as Audience[]).map((a) => (
+        {(["all", "booked", "not_booked"] as const).map((a) => (
           <div key={a} className="rounded-lg border border-border bg-card p-4">
             <div className="text-xs font-semibold uppercase text-muted-foreground">{AUDIENCE_LABELS[a]}</div>
             <div className="mt-1.5 font-display text-2xl font-semibold tabular-nums">{sizes[a]}</div>
