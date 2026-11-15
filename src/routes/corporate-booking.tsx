@@ -26,6 +26,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { submitCorporateInquiry } from "@/lib/corporate.functions";
+import { useMarketingOptIn } from "@/components/site/MarketingOptIn";
 import { useCaptcha } from "@/components/site/Captcha";
 import { PhoneInput } from "@/components/site/PhoneInput";
 import { FormNotice, FormField, focusFirstInvalid, zodFieldErrors, StickyFormSubmit } from "@/components/site/FormValidation";
@@ -105,6 +106,7 @@ function CorporateBookingPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const submit = useServerFn(submitCorporateInquiry);
   const captcha = useCaptcha("corporate");
+  const offers = useMarketingOptIn("corporate");
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -129,6 +131,7 @@ function CorporateBookingPage() {
     try {
       await submit({ data: { ...parsed.data, website: (fd.get("website") ?? "").toString(), captchaToken: captcha.token } });
       trackEvent("generate_lead", { form_name: "corporate_enquiry" });
+      offers.record({ email: parsed.data.email, name: parsed.data.name, phone: parsed.data.phone });
       toast.success("Enquiry sent — our team will reply within 24 hours.");
       form.reset();
       setPhone("");
@@ -193,6 +196,7 @@ function CorporateBookingPage() {
                 <label htmlFor="corp-website">Website</label>
                 <input id="corp-website" name="website" type="text" tabIndex={-1} autoComplete="off" />
               </div>
+              {offers.element}
               {captcha.widget}
               <Button type="submit" variant="gold" disabled={loading || !captcha.ready} className="rounded-full hidden lg:inline-flex">
                 {loading ? "Sending…" : <>Request proposal <ArrowRight className="size-4" /></>}
