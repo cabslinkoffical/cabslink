@@ -26,7 +26,7 @@ describe("My Customers", () => {
     });
     expect(c).toMatchObject({ email: "a@x.com", name: "Ann", bookings: 1, completedBookings: 1, enquiries: 1, spend: 50 });
   });
-  it("only subscribed customers receive campaigns", () => {
+  it("enquiry-only people need ticked consent to receive campaigns", () => {
     const rows = buildCustomers({
       ...base,
       messages: [{ email: "yes@x.com", created_at: "1" }, { email: "no@x.com", created_at: "1" }, { email: "gone@x.com", created_at: "1" }],
