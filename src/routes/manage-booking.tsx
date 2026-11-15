@@ -298,7 +298,7 @@ function ManageBookingPage() {
           {/* Result */}
           <div ref={resultRef} className="scroll-mt-24">
             {submitted ? (
-              {submitted.auto ? <UnpaidCancelled ref_={submitted.ref} /> : <CancellationDone ref_={submitted.ref} tier={submitted.tier} registeredPhone={booking?.phone ?? null} />}
+              submitted.auto ? <UnpaidCancelled ref_={submitted.ref} /> : <CancellationDone ref_={submitted.ref} tier={submitted.tier} registeredPhone={booking?.phone ?? null} />
 
             ) : booking ? (
               <>
