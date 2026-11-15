@@ -24,7 +24,7 @@ async function all(db: Db, table: string, cols: string, extra?: (q: any) => any)
 /** Every customer (drivers excluded), with marketing consent attached. */
 export async function loadCustomers(db: Db): Promise<MyCustomer[]> {
   const [bookings, payments, messages, customTours, cancellations, amendments, contacts, drivers] = await Promise.all([
-    all(db, "bookings", "id, customer_name, email, phone, price, pickup_date, status, service_type, created_at", (q) => q.is("deleted_at", null)),
+    all(db, "bookings", "id, customer_name, email, phone, price, pickup_date, status, service_type, created_at, updated_at", (q) => q.is("deleted_at", null)),
     all(db, "payments", "id, booking_id, amount, refunded_amount, status"),
     all(db, "contact_messages", "id, name, email, phone, subject, source, created_at"),
     all(db, "custom_tour_requests", "id, customer_name, email, phone, created_at"),
