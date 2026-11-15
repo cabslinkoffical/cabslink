@@ -88,6 +88,17 @@ function AutomationPage() {
   const coupons = (q.data?.coupons ?? []) as any[];
   const sizes = q.data?.audienceSizes ?? { all: 0, booked: 0, not_booked: 0 };
   const refresh = () => qc.invalidateQueries({ queryKey: ["admin", "campaigns"] });
+  const rules = ((q.data as any)?.rules ?? []) as any[];
+  const settings = (q.data as any)?.settings ?? { paused: false, daily_cap: 500, quiet_days: 7 };
+  const leftToday = (q.data as any)?.leftToday as number | null;
+  const [cfg, setCfg] = useState<{ daily_cap: number; quiet_days: number } | null>(null);
+  const [rule, setRule] = useState<RuleForm | null>(null);
+  const couponOf = (id: string | null) => coupons.find((c) => c.id === id) ?? null;
+  const saveCfg = useMutation({ mutationFn: useServerFn(saveMarketingSettings), onSuccess: () => { refresh(); setCfg(null); toast.success("Sending settings saved"); }, onError: (e: any) => toast.error(e.message) });
+  const saveRuleM = useMutation({ mutationFn: useServerFn(saveAutomationRule), onSuccess: (r: any) => { refresh(); toast.success("Automatic email saved"); setRule((f) => (f ? { ...f, id: r.id } : f)); }, onError: (e: any) => toast.error(e.message) });
+  const delRule = useMutation({ mutationFn: useServerFn(deleteAutomationRule), onSuccess: () => { refresh(); toast.success("Automatic email deleted"); }, onError: (e: any) => toast.error(e.message) });
+  const testRule = useMutation({ mutationFn: useServerFn(sendRuleTest), onSuccess: () => toast.success("Test email sent"), onError: (e: any) => toast.error(e.message) });
+  const ruleRow = (r: any, patch: Partial<RuleForm> = {}) => ({ data: { id: r.id, name: r.name, trigger_type: r.trigger_type, delay_days: r.delay_days, subject: r.subject, body: r.body, coupon_id: r.coupon_id, active: r.active, ...patch } });
 
   const [form, setForm] = useState<Form | null>(null);
   const [testTo, setTestTo] = useState("");
@@ -125,10 +136,24 @@ function AutomationPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Email automation" description="Send coupon and offer emails once or on a schedule. They only go to customers who ticked “email me offers”, and every email has an unsubscribe link.">
+      <PageHeader title="Email automation" description="Send coupon, event and offer emails once, on a schedule or automatically. They go to customers who ticked “email me offers” and to past bookers (UK soft opt-in). Every email has an unsubscribe link.">
         <Button variant="outline" asChild><Link to="/cabs-booking-pannel/my-customers"><Users className="size-4" />My Customers</Link></Button>
         <Button variant="gold" onClick={() => setForm(blank())}><Plus className="size-4" />New campaign</Button>
       </PageHeader>
+
+      <div className={`flex flex-wrap items-center gap-4 rounded-lg border p-4 ${settings.paused ? "border-destructive/40 bg-destructive/5" : "border-border bg-card"}`}>
+        <div className="flex items-center gap-2">
+          <Switch id="pause-all" checked={!settings.paused} disabled={saveCfg.isPending}
+            onCheckedChange={(on) => { if (on || confirm("Pause all offer emails? Scheduled campaigns and automatic emails stop until you switch this back on.")) saveCfg.mutate({ data: { daily_cap: settings.daily_cap, quiet_days: settings.quiet_days, paused: !on } } as any); }} />
+          <Label htmlFor="pause-all" className="font-medium">{settings.paused ? "All offer emails are paused" : "Offer emails are on"}</Label>
+        </div>
+        <div className="flex flex-wrap items-end gap-3 text-xs">
+          <div><Label htmlFor="cap" className="text-xs">Daily limit</Label><Input id="cap" type="number" min={1} max={10000} className="mt-1 h-8 w-24" value={cfg?.daily_cap ?? settings.daily_cap} onChange={(e) => setCfg({ daily_cap: Number(e.target.value), quiet_days: cfg?.quiet_days ?? settings.quiet_days })} /></div>
+          <div><Label htmlFor="quiet" className="text-xs">Days between emails to one person</Label><Input id="quiet" type="number" min={0} max={90} className="mt-1 h-8 w-24" value={cfg?.quiet_days ?? settings.quiet_days} onChange={(e) => setCfg({ quiet_days: Number(e.target.value), daily_cap: cfg?.daily_cap ?? settings.daily_cap })} /></div>
+          {cfg && <Button size="sm" variant="outline" disabled={saveCfg.isPending} onClick={() => saveCfg.mutate({ data: { ...cfg, paused: settings.paused } } as any)}>Save</Button>}
+          {leftToday != null && <span className="pb-1.5 text-muted-foreground">{leftToday} more can go out today (UK time)</span>}
+        </div>
+      </div>
 
       <div className="grid gap-3 sm:grid-cols-3">
         {(Object.keys(AUDIENCE_LABELS) as Audience[]).map((a) => (
@@ -172,6 +197,98 @@ function AutomationPage() {
           </div>
         )}
 
+      <section className="space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h2 className="flex items-center gap-2 font-display text-lg font-semibold"><Zap className="size-4" />Automatic emails</h2>
+            <p className="text-sm text-muted-foreground">Sent by themselves when something happens, such as a few days after a trip. Each person gets each one once per trip or enquiry. New ones start switched off.</p>
+          </div>
+          <Button variant="outline" onClick={() => setRule(blankRule())}><Plus className="size-4" />New automatic email</Button>
+        </div>
+        {rules.length === 0 ? <EmptyState title="No automatic emails yet" hint="Try a thank you with a code three days after each trip, or a come back offer 90 days after someone's last trip." />
+          : (
+            <div className="overflow-x-auto rounded-lg border border-border bg-card shadow-[var(--shadow-card)]">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/50 text-left text-xs uppercase tracking-wide text-muted-foreground">
+                  <tr><th className="px-4 py-2.5">Email</th><th className="px-4 py-2.5">When</th><th className="px-4 py-2.5">Coupon</th><th className="px-4 py-2.5">Sent</th><th className="px-4 py-2.5">On</th><th className="px-4 py-2.5 text-right">Actions</th></tr>
+                </thead>
+                <tbody>
+                  {rules.map((r) => (
+                    <tr key={r.id} className="border-t border-border/70 align-top">
+                      <td className="px-4 py-3"><div className="font-medium">{r.name}</div><div className="text-xs text-muted-foreground">{r.subject}</div></td>
+                      <td className="px-4 py-3 text-xs">{r.delay_days} {TRIGGER_LABELS[r.trigger_type as TriggerType].toLowerCase()}</td>
+                      <td className="px-4 py-3 text-xs">{couponOf(r.coupon_id)?.code ?? "None"}</td>
+                      <td className="px-4 py-3 text-xs tabular-nums">{r.total_sent}{r.last_run_at ? <div className="text-muted-foreground">checked {when(r.last_run_at)}</div> : null}</td>
+                      <td className="px-4 py-3"><Switch checked={r.active} aria-label={`Switch ${r.name} ${r.active ? "off" : "on"}`} onCheckedChange={(on) => saveRuleM.mutate(ruleRow(r, { active: on }) as any)} /></td>
+                      <td className="px-4 py-3"><div className="flex justify-end gap-1.5">
+                        <Button size="sm" variant="ghost" aria-label="Edit" onClick={() => setRule({ id: r.id, name: r.name, trigger_type: r.trigger_type, delay_days: r.delay_days, subject: r.subject, body: r.body, coupon_id: r.coupon_id, active: r.active })}><Pencil className="size-3.5" /></Button>
+                        <Button size="sm" variant="ghost" aria-label="Delete" onClick={() => { if (confirm(`Delete "${r.name}"?`)) delRule.mutate({ data: { id: r.id } } as any); }}><Trash2 className="size-3.5" /></Button>
+                      </div></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+      </section>
+
+      <Sheet open={!!rule} onOpenChange={(o) => !o && setRule(null)}>
+        <SheetContent className="w-full overflow-y-auto sm:max-w-2xl">
+          {rule && (
+            <>
+              <SheetHeader><SheetTitle className="flex items-center gap-2"><Zap className="size-4" />{rule.id ? "Edit automatic email" : "New automatic email"}</SheetTitle></SheetHeader>
+              <div className="mt-5 space-y-5">
+                <section className="space-y-3 rounded-lg border border-border p-4">
+                  <div className="text-[11px] uppercase tracking-wide text-muted-foreground">When it sends</div>
+                  <div className="grid gap-3 sm:grid-cols-[1fr_8rem]">
+                    <div>
+                      <Label className="text-xs">Trigger</Label>
+                      <Select value={rule.trigger_type} onValueChange={(v) => setRule((f) => (f ? { ...f, trigger_type: v as TriggerType } : f))}>
+                        <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                        <SelectContent>{(Object.keys(TRIGGER_LABELS) as TriggerType[]).map((t) => <SelectItem key={t} value={t}>{TRIGGER_LABELS[t]}</SelectItem>)}</SelectContent>
+                      </Select>
+                    </div>
+                    <div><Label htmlFor="r-days" className="text-xs">Days</Label><Input id="r-days" type="number" min={1} max={730} className="mt-1" value={rule.delay_days} onChange={(e) => setRule((f) => (f ? { ...f, delay_days: Number(e.target.value) } : f))} /></div>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Checked every hour. Only trips or enquiries from the last {rule.delay_days + 14} days count, so switching this on never emails people about very old trips.</p>
+                </section>
+                <section className="space-y-3 rounded-lg border border-border p-4">
+                  <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Message</div>
+                  <TemplatePicker onPick={(id) => { const t = EMAIL_TEMPLATES.find((x) => x.id === id); if (t) setRule((f) => (f ? { ...f, subject: t.subject, body: t.body } : f)); }} />
+                  <div><Label htmlFor="r-name" className="text-xs">Name (staff only)</Label><Input id="r-name" className="mt-1" value={rule.name} onChange={(e) => setRule((f) => (f ? { ...f, name: e.target.value } : f))} /></div>
+                  <div><Label htmlFor="r-subject" className="text-xs">Email subject</Label><Input id="r-subject" className="mt-1" value={rule.subject} onChange={(e) => setRule((f) => (f ? { ...f, subject: e.target.value } : f))} /></div>
+                  <div><Label htmlFor="r-body" className="text-xs">Email text</Label><Textarea id="r-body" className="mt-1" rows={9} value={rule.body} onChange={(e) => setRule((f) => (f ? { ...f, body: e.target.value } : f))} /></div>
+                  <div>
+                    <Label className="text-xs">Coupon (optional)</Label>
+                    <Select value={rule.coupon_id ?? "none"} onValueChange={(v) => setRule((f) => (f ? { ...f, coupon_id: v === "none" ? null : v } : f))}>
+                      <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">No coupon</SelectItem>
+                        {coupons.filter((c) => c.active).map((c) => <SelectItem key={c.id} value={c.id}>{c.code}{c.expires_at ? ` (until ${c.expires_at})` : ""}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </section>
+                {rule.id && (
+                  <section className="space-y-2 rounded-lg border border-border p-4">
+                    <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Send yourself a test</div>
+                    <div className="flex gap-2">
+                      <Input type="email" value={testTo} onChange={(e) => setTestTo(e.target.value)} placeholder="you@cabslink.com" />
+                      <Button variant="outline" disabled={testRule.isPending || !testTo} onClick={() => testRule.mutate({ data: { id: rule.id!, to: testTo } } as any)}>{testRule.isPending ? "Sending…" : "Send test"}</Button>
+                    </div>
+                  </section>
+                )}
+                <Warnings list={campaignWarnings({ subject: rule.subject, body: rule.body, coupon: couponOf(rule.coupon_id) })} />
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <Button variant="outline" className="flex-1" disabled={saveRuleM.isPending} onClick={() => saveRuleM.mutate({ data: rule } as any)}>Save{rule.active ? "" : " (switched off)"}</Button>
+                  <Button variant="gold" className="flex-1" disabled={saveRuleM.isPending} onClick={() => { saveRuleM.mutate({ data: { ...rule, active: true } } as any); setRule((f) => (f ? { ...f, active: true } : f)); }}><Zap className="size-4" />Save and switch on</Button>
+                </div>
+              </div>
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
+
       <Sheet open={!!form} onOpenChange={(o) => !o && setForm(null)}>
         <SheetContent className="w-full overflow-y-auto sm:max-w-2xl">
           {form && (
@@ -180,6 +297,7 @@ function AutomationPage() {
               <div className="mt-5 space-y-5">
                 <section className="space-y-3 rounded-lg border border-border p-4">
                   <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Message</div>
+                  <TemplatePicker onPick={(id) => { const t = EMAIL_TEMPLATES.find((x) => x.id === id); if (t) setForm((f) => (f ? { ...f, name: f.name || t.name, subject: t.subject, body: t.body } : f)); }} />
                   <div><Label htmlFor="c-name" className="text-xs">Campaign name (staff only)</Label><Input id="c-name" className="mt-1" value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="Winter airport offer" /></div>
                   <div><Label htmlFor="c-subject" className="text-xs">Email subject</Label><Input id="c-subject" className="mt-1" value={form.subject} onChange={(e) => set("subject", e.target.value)} placeholder="{{name}}, here's {{coupon_offer}} your next transfer" /></div>
                   <div>
@@ -263,6 +381,7 @@ function AutomationPage() {
                   </section>
                 )}
 
+                <Warnings list={campaignWarnings({ subject: form.subject, body: form.body, coupon: couponOf(form.coupon_id), audienceSize: sizes[form.audience] })} />
                 <div className="flex flex-col gap-2 sm:flex-row">
                   <Button variant="outline" className="flex-1" disabled={save.isPending} onClick={() => save.mutate(payload(form, form.status === "active" ? "active" : "draft") as any)}>Save{form.status === "active" ? " changes" : " as draft"}</Button>
                   <Button variant="gold" className="flex-1" disabled={save.isPending} onClick={() => { save.mutate(payload(form, "active") as any); set("status", "active"); }}><Ticket className="size-4" />Save and schedule</Button>
