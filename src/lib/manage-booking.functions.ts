@@ -435,6 +435,14 @@ export const requestBookingCancellation = createServerFn({ method: "POST" })
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
+    // Nothing was paid, so there is nothing to refund or review: cancel the
+    // booking straight away and send a friendly "see you next time" email.
+    if (facts.tier === "unpaid") {
+      const auto = await autoCancelUnpaid(supabaseAdmin, row, data);
+      if (auto) return { ok: true as const, bookingRef: row.booking_ref as string, tier: facts.tier, phone: SITE.phoneUK, autoCancelled: true as const };
+      // If the automatic cancel failed, fall through and log it for staff as before.
+    }
+
     const message = [
       `Cancellation request for booking ${row.booking_ref}.`,
       `Refund tier assessed: ${facts.tier === "unpaid" ? "NO PAYMENT TAKEN — nothing to refund" : facts.tier === "full" ? "FULL REFUND" : facts.tier === "no_refund" ? "NON-REFUNDABLE — no refund due" : "PARTIAL REFUND CLAIM"}.`,
@@ -516,6 +524,61 @@ export const requestBookingCancellation = createServerFn({ method: "POST" })
       phone: SITE.phoneUK,
     };
   });
+
+/** Cancel an unpaid booking at the customer's request and record it as an already-closed request. */
+async function autoCancelUnpaid(db: any, row: any, data: z.infer<typeof cancelInput>): Promise<boolean> {
+  const rpc: any = await db.rpc("set_booking_status", {
+    _booking_id: row.id,
+    _new_status: "cancelled",
+    _actor_id: null,
+    _reason: `Customer cancellation (unpaid): ${data.reason}`,
+    _override: true,
+  });
+  if (rpc.error) { console.error("unpaid auto-cancel failed", rpc.error); return false; }
+  const r = Array.isArray(rpc.data) ? rpc.data[0] : rpc.data;
+  const transitionId: string | null = r?.changed ? r.transition_id : null;
+  const now = new Date().toISOString();
+  const facts = cancellationFacts(row);
+  const ins = await db.from("cancellation_requests").insert({
+    booking_id: row.id ?? null,
+    booking_ref: row.booking_ref,
+    customer_name: row.customer_name,
+    email: row.email,
+    phone: row.phone ?? null,
+    reason: data.reason,
+    details: data.details || null,
+    callback_phone: data.callbackPhone || null,
+    refund_tier: "unpaid",
+    hours_until_pickup: facts.hoursUntilPickup,
+    price_at_request: row.price ?? null,
+    payment_status_at_request: row.payment_status ?? null,
+    pickup_date: row.pickup_date ?? null,
+    pickup_time: row.pickup_time ?? null,
+    pickup_address: row.pickup_address ?? null,
+    dropoff_address: row.dropoff_address ?? null,
+    status: "completed",
+    refund_amount: 0,
+    admin_notes: "Cancelled automatically: no payment had been taken, customer emailed.",
+    handled_at: now,
+  });
+  if (ins.error) console.error("unpaid auto-cancel request log failed", ins.error);
+  if (row.email) {
+    try {
+      const { notifyUnpaidCancellation } = await import("@/lib/notifications.server");
+      await notifyUnpaidCancellation({
+        bookingRef: row.booking_ref, status: "cancelled", paymentMode: "manual",
+        customerName: row.customer_name, customerEmail: row.email, customerPhone: row.phone,
+        pickupAddress: row.pickup_address, dropoffAddress: row.dropoff_address,
+        pickupDate: row.pickup_date, pickupTime: row.pickup_time, vehicleType: row.vehicle_type,
+        passengers: row.passengers, luggage: row.luggage, flightNumber: row.flight_number,
+        meetGreet: !!row.meet_greet, childSeat: !!row.child_seat,
+        returnJourney: !!row.return_journey, distanceMiles: row.distance_miles, price: row.price,
+        notes: row.notes, cancellationReason: data.reason,
+      } as any, row.id, transitionId);
+    } catch (e) { console.error("unpaid cancellation email failed", e); }
+  }
+  return true;
+}
 
 // ---------------- Amendment (customer-initiated change) ----------------
 // The customer may change a limited, safe set of details on a straightforward
