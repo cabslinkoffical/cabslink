@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 /**
- * Called hourly by the database scheduler (only when a campaign is due) to
+ * Called every 15 minutes by the database scheduler (only when something is due) to
  * send offer emails. Protected by a private token stored in the database.
  */
 export const Route = createFileRoute("/api/public/campaigns/run")({

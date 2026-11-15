@@ -65,6 +65,9 @@ export const optOutCustomer = createServerFn({ method: "POST" })
       ? await db.from("marketing_contacts").update({ opted_in: false, unsubscribed_at: now }).eq("id", row.id)
       : await db.from("marketing_contacts").insert({ email, opted_in: false, unsubscribed_at: now, opt_in_source: "staff" });
     if (r.error) throw new Error(r.error.message);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { suppress } = await import("@/lib/marketing.server");
+    await suppress(supabaseAdmin, email, "manual");
     return { ok: true };
   });
 
@@ -134,6 +137,8 @@ export const saveCampaign = createServerFn({ method: "POST" })
       const next = nextRunAt(scheduleOf(row), new Date());
       if (!next) throw new Error("That schedule has no upcoming send time. Check the date and time.");
       row.next_run_at = next.toISOString();
+      row.approved_by = context.userId;
+      row.approved_at = new Date().toISOString();
     } else row.next_run_at = null;
     if (id) {
       const { error } = await db.from("email_campaigns").update(row).eq("id", id);
@@ -155,10 +160,18 @@ export const deleteCampaign = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-/** Send a preview of a campaign to one staff address (not recorded, no consent needed: it's yourself). */
+/** The only address a test may go to: the admin notification email from private settings. */
+async function adminTestAddress(): Promise<string> {
+  const { getAdminNotificationEmail } = await import("@/lib/notifications.server");
+  const to = await getAdminNotificationEmail();
+  if (!to) throw new Error("No admin email is set. Add one in Settings first.");
+  return to;
+}
+
+/** Send a preview of a campaign to the admin email only (not recorded, not queued). */
 export const sendCampaignTest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid(), to: z.string().email().max(254) }).parse(i))
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { data: c, error } = await context.supabase.from("email_campaigns").select("*").eq("id", data.id).maybeSingle();
@@ -166,9 +179,10 @@ export const sendCampaignTest = createServerFn({ method: "POST" })
     const { renderCampaign, sendBatch, loadCoupon } = await import("@/lib/marketing.server");
     const coupon = await loadCoupon(context.supabase, c.coupon_id);
     const m = renderCampaign(c, { name: "Test", token: "00000000-0000-0000-0000-000000000000" }, coupon);
-    const [r] = await sendBatch([{ to: data.to, ...m, subject: `[Test] ${m.subject}` }]);
+    const to = await adminTestAddress();
+    const [r] = await sendBatch([{ to, ...m, subject: `[Test] ${m.subject}` }]);
     if (!r.ok) throw new Error(r.error ?? "Send failed");
-    return { ok: true };
+    return { ok: true, to };
   });
 
 /** Send an active campaign's due run right now instead of waiting for its time. */
@@ -181,10 +195,10 @@ export const sendCampaignNow = createServerFn({ method: "POST" })
     if (error || !c) throw new Error("Campaign not found");
     if (c.status === "completed") throw new Error("This campaign has finished.");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { runCampaign } = await import("@/lib/marketing.server");
+    const { sendCampaignImmediately } = await import("@/lib/marketing.server");
     const runAt = c.next_run_at && new Date(c.next_run_at) <= new Date() ? c.next_run_at : new Date().toISOString();
     if (runAt !== c.next_run_at) await supabaseAdmin.from("email_campaigns").update({ next_run_at: runAt, status: "active" }).eq("id", c.id);
-    return runCampaign(supabaseAdmin, { ...c, next_run_at: runAt, status: "active" });
+    return sendCampaignImmediately(supabaseAdmin, { ...c, next_run_at: runAt, status: "active" });
   });
 
 export const listCampaignSends = createServerFn({ method: "GET" })
@@ -192,10 +206,19 @@ export const listCampaignSends = createServerFn({ method: "GET" })
   .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    const { data: rows, error } = await context.supabase.from("email_campaign_sends")
-      .select("id, email, status, error, run_key, created_at").eq("campaign_id", data.id).order("created_at", { ascending: false }).limit(200);
-    if (error) throw new Error(error.message);
-    return rows ?? [];
+    const [old, queued] = await Promise.all([
+      context.supabase.from("email_campaign_sends")
+        .select("id, email, status, error, run_key, created_at").eq("campaign_id", data.id).order("created_at", { ascending: false }).limit(200),
+      context.supabase.from("email_queue")
+        .select("id, email, status, skip_reason, last_error, run_key, created_at, sent_at").eq("campaign_id", data.id).order("created_at", { ascending: false }).limit(200),
+    ]);
+    if (old.error || queued.error) throw new Error((old.error ?? queued.error)!.message);
+    const fromQueue = (queued.data ?? []).map((r: any) => ({
+      id: r.id, email: r.email, run_key: r.run_key, created_at: r.sent_at ?? r.created_at,
+      status: r.status === "pending" ? "queued" : r.status,
+      error: r.status === "skipped" ? `Skipped: ${String(r.skip_reason ?? "").replace(/_/g, " ")}` : r.last_error,
+    }));
+    return [...fromQueue, ...(old.data ?? [])].sort((a: any, b: any) => String(b.created_at).localeCompare(String(a.created_at))).slice(0, 200);
   });
 
 // ---------------- Settings and automatic rules ----------------
@@ -246,19 +269,20 @@ export const deleteAutomationRule = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-/** Send a preview of an automatic rule's email to one staff address. */
+/** Send a preview of an automatic rule's email to the admin email only. */
 export const sendRuleTest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid(), to: z.string().email().max(254) }).parse(i))
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { data: r, error } = await context.supabase.from("automation_rules").select("*").eq("id", data.id).maybeSingle();
     if (error || !r) throw new Error("Rule not found");
     const { renderCampaign, sendBatch, loadCoupon } = await import("@/lib/marketing.server");
     const m = renderCampaign(r, { name: "Test", token: "00000000-0000-0000-0000-000000000000" }, await loadCoupon(context.supabase, r.coupon_id));
-    const [res] = await sendBatch([{ to: data.to, ...m, subject: `[Test] ${m.subject}` }]);
+    const to = await adminTestAddress();
+    const [res] = await sendBatch([{ to, ...m, subject: `[Test] ${m.subject}` }]);
     if (!res.ok) throw new Error(res.error ?? "Send failed");
-    return { ok: true };
+    return { ok: true, to };
   });
 
 // ---------------- Public: "send me offers" tickbox ----------------
