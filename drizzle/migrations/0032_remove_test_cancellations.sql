@@ -1,0 +1,1 @@
+DELETE FROM public.cancellation_requests WHERE id IN ('2222e9d9-faca-4d39-a264-4b45f1da4ec2','0399c9b9-0d89-465b-860d-7c9068d11e6a','b9b4014d-873a-4d41-bea6-6c7a44106563');

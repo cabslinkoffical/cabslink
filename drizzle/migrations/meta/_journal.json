@@ -225,6 +225,13 @@
       "when": 1794587390465,
       "tag": "0031_fixed_price_wording_json",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1794751963080,
+      "tag": "0032_remove_test_cancellations",
+      "breakpoints": true
     }
   ]
 }
