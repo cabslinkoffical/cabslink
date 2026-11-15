@@ -95,6 +95,7 @@ export type Database = {
       automation_rules: {
         Row: {
           active: boolean
+          audience_filter: Json
           body: string
           coupon_id: string | null
           created_at: string
@@ -103,6 +104,7 @@ export type Database = {
           id: string
           last_run_at: string | null
           name: string
+          quiet_days: number
           subject: string
           total_sent: number
           trigger_type: string
@@ -110,6 +112,7 @@ export type Database = {
         }
         Insert: {
           active?: boolean
+          audience_filter?: Json
           body: string
           coupon_id?: string | null
           created_at?: string
@@ -118,6 +121,7 @@ export type Database = {
           id?: string
           last_run_at?: string | null
           name: string
+          quiet_days?: number
           subject: string
           total_sent?: number
           trigger_type: string
@@ -125,6 +129,7 @@ export type Database = {
         }
         Update: {
           active?: boolean
+          audience_filter?: Json
           body?: string
           coupon_id?: string | null
           created_at?: string
@@ -133,6 +138,7 @@ export type Database = {
           id?: string
           last_run_at?: string | null
           name?: string
+          quiet_days?: number
           subject?: string
           total_sent?: number
           trigger_type?: string
@@ -2150,11 +2156,15 @@ export type Database = {
       }
       email_campaigns: {
         Row: {
+          approved_at: string | null
+          approved_by: string | null
           audience: string
+          audience_id: string | null
           body: string
           coupon_id: string | null
           created_at: string
           created_by: string | null
+          created_by_kind: string
           frequency: string
           id: string
           last_run_at: string | null
@@ -2166,16 +2176,21 @@ export type Database = {
           starts_on: string | null
           status: string
           subject: string
+          timezone: string
           total_sent: number
           updated_at: string
           weekday: number | null
         }
         Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
           audience?: string
+          audience_id?: string | null
           body: string
           coupon_id?: string | null
           created_at?: string
           created_by?: string | null
+          created_by_kind?: string
           frequency?: string
           id?: string
           last_run_at?: string | null
@@ -2187,16 +2202,21 @@ export type Database = {
           starts_on?: string | null
           status?: string
           subject: string
+          timezone?: string
           total_sent?: number
           updated_at?: string
           weekday?: number | null
         }
         Update: {
+          approved_at?: string | null
+          approved_by?: string | null
           audience?: string
+          audience_id?: string | null
           body?: string
           coupon_id?: string | null
           created_at?: string
           created_by?: string | null
+          created_by_kind?: string
           frequency?: string
           id?: string
           last_run_at?: string | null
@@ -2208,6 +2228,7 @@ export type Database = {
           starts_on?: string | null
           status?: string
           subject?: string
+          timezone?: string
           total_sent?: number
           updated_at?: string
           weekday?: number | null
@@ -2218,6 +2239,126 @@ export type Database = {
             columns: ["coupon_id"]
             isOneToOne: false
             referencedRelation: "coupons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_events: {
+        Row: {
+          email: string | null
+          id: string
+          occurred_at: string
+          payload: Json
+          provider_event_id: string | null
+          queue_id: string | null
+          type: string
+        }
+        Insert: {
+          email?: string | null
+          id?: string
+          occurred_at?: string
+          payload?: Json
+          provider_event_id?: string | null
+          queue_id?: string | null
+          type: string
+        }
+        Update: {
+          email?: string | null
+          id?: string
+          occurred_at?: string
+          payload?: Json
+          provider_event_id?: string | null
+          queue_id?: string | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_events_queue_id_fkey"
+            columns: ["queue_id"]
+            isOneToOne: false
+            referencedRelation: "email_queue"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_queue: {
+        Row: {
+          attempts: number
+          campaign_id: string | null
+          contact_id: string
+          created_at: string
+          email: string
+          id: string
+          last_error: string | null
+          locked_at: string | null
+          next_attempt_at: string
+          provider_message_id: string | null
+          rule_id: string | null
+          run_key: string
+          scheduled_for: string
+          sent_at: string | null
+          skip_reason: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          attempts?: number
+          campaign_id?: string | null
+          contact_id: string
+          created_at?: string
+          email: string
+          id?: string
+          last_error?: string | null
+          locked_at?: string | null
+          next_attempt_at?: string
+          provider_message_id?: string | null
+          rule_id?: string | null
+          run_key: string
+          scheduled_for?: string
+          sent_at?: string | null
+          skip_reason?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          attempts?: number
+          campaign_id?: string | null
+          contact_id?: string
+          created_at?: string
+          email?: string
+          id?: string
+          last_error?: string | null
+          locked_at?: string | null
+          next_attempt_at?: string
+          provider_message_id?: string | null
+          rule_id?: string | null
+          run_key?: string
+          scheduled_for?: string
+          sent_at?: string | null
+          skip_reason?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_queue_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "email_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_queue_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_queue_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "automation_rules"
             referencedColumns: ["id"]
           },
         ]
@@ -2517,7 +2658,9 @@ export type Database = {
           opted_in: boolean
           opted_in_at: string | null
           phone: string | null
+          source: string | null
           suppressed_reason: string | null
+          tags: string[]
           unsubscribe_token: string
           unsubscribed_at: string | null
           updated_at: string
@@ -2532,7 +2675,9 @@ export type Database = {
           opted_in?: boolean
           opted_in_at?: string | null
           phone?: string | null
+          source?: string | null
           suppressed_reason?: string | null
+          tags?: string[]
           unsubscribe_token?: string
           unsubscribed_at?: string | null
           updated_at?: string
@@ -2547,7 +2692,9 @@ export type Database = {
           opted_in?: boolean
           opted_in_at?: string | null
           phone?: string | null
+          source?: string | null
           suppressed_reason?: string | null
+          tags?: string[]
           unsubscribe_token?: string
           unsubscribed_at?: string | null
           updated_at?: string
@@ -4563,6 +4710,27 @@ export type Database = {
         }
         Relationships: []
       }
+      suppression_list: {
+        Row: {
+          added_at: string
+          email: string
+          note: string | null
+          reason: string
+        }
+        Insert: {
+          added_at?: string
+          email: string
+          note?: string | null
+          reason: string
+        }
+        Update: {
+          added_at?: string
+          email?: string
+          note?: string | null
+          reason?: string
+        }
+        Relationships: []
+      }
       surcharges: {
         Row: {
           active: boolean
@@ -5344,6 +5512,24 @@ export type Database = {
       }
     }
     Views: {
+      contacts: {
+        Row: {
+          consent_date: string | null
+          consent_source: string | null
+          email: string | null
+          id: string | null
+          last_booking_date: string | null
+          last_enquiry_date: string | null
+          marketing_consent: boolean | null
+          name: string | null
+          source: string | null
+          suppression_reason: string | null
+          tags: string[] | null
+          total_bookings: number | null
+          unsubscribed_at: string | null
+        }
+        Relationships: []
+      }
       driver_current_location: {
         Row: {
           accuracy_m: number | null
@@ -5589,6 +5775,34 @@ export type Database = {
       }
       campaigns_wake_run: { Args: never; Returns: undefined }
       claim_dispatch_event: { Args: never; Returns: Json }
+      claim_email_queue: {
+        Args: { _limit: number }
+        Returns: {
+          attempts: number
+          campaign_id: string | null
+          contact_id: string
+          created_at: string
+          email: string
+          id: string
+          last_error: string | null
+          locked_at: string | null
+          next_attempt_at: string
+          provider_message_id: string | null
+          rule_id: string | null
+          run_key: string
+          scheduled_for: string
+          sent_at: string | null
+          skip_reason: string | null
+          status: string
+          updated_at: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "email_queue"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       current_driver_id: { Args: never; Returns: string }
       dispatch_wake_delivery: { Args: never; Returns: undefined }
       generate_booking_ref: { Args: never; Returns: string }
