@@ -475,8 +475,8 @@ function CancelledBookings() {
               {rows.map((b) => (
                 <tr key={b.id} className="border-t border-border/70 hover:bg-muted/30">
                   <td className="px-4 py-3">
-                    <div className="font-semibold">{b.booking_ref ?? "—"}</div>
-                    <div className="text-xs text-muted-foreground">
+                    <div className="whitespace-nowrap font-semibold">{b.booking_ref ?? "—"}</div>
+                    <div className="whitespace-nowrap text-xs text-muted-foreground">
                       {b.pickup_date ?? "—"} {formatTime12(b.pickup_time)} · {b.status === "rejected" ? "Rejected" : "Cancelled"}
                     </div>
                   </td>
