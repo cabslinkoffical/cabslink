@@ -98,11 +98,10 @@ function AutomationPage() {
   const saveCfg = useMutation({ mutationFn: useServerFn(saveMarketingSettings), onSuccess: () => { refresh(); setCfg(null); toast.success("Sending settings saved"); }, onError: (e: any) => toast.error(e.message) });
   const saveRuleM = useMutation({ mutationFn: useServerFn(saveAutomationRule), onSuccess: (r: any) => { refresh(); toast.success("Automatic email saved"); setRule((f) => (f ? { ...f, id: r.id } : f)); }, onError: (e: any) => toast.error(e.message) });
   const delRule = useMutation({ mutationFn: useServerFn(deleteAutomationRule), onSuccess: () => { refresh(); toast.success("Automatic email deleted"); }, onError: (e: any) => toast.error(e.message) });
-  const testRule = useMutation({ mutationFn: useServerFn(sendRuleTest), onSuccess: () => toast.success("Test email sent"), onError: (e: any) => toast.error(e.message) });
+  const testRule = useMutation({ mutationFn: useServerFn(sendRuleTest), onSuccess: (r: any) => toast.success(`Test email sent to ${r.to}`), onError: (e: any) => toast.error(e.message) });
   const ruleRow = (r: any, patch: Partial<RuleForm> = {}) => ({ data: { id: r.id, name: r.name, trigger_type: r.trigger_type, delay_days: r.delay_days, subject: r.subject, body: r.body, coupon_id: r.coupon_id, active: r.active, ...patch } });
 
   const [form, setForm] = useState<Form | null>(null);
-  const [testTo, setTestTo] = useState("");
   const [sendsFor, setSendsFor] = useState<any | null>(null);
   const set = <K extends keyof Form>(k: K, v: Form[K]) => setForm((f) => (f ? { ...f, [k]: v } : f));
 
@@ -112,10 +111,10 @@ function AutomationPage() {
     onError: (e: any) => toast.error(e.message),
   });
   const del = useMutation({ mutationFn: useServerFn(deleteCampaign), onSuccess: () => { refresh(); toast.success("Campaign deleted"); }, onError: (e: any) => toast.error(e.message) });
-  const test = useMutation({ mutationFn: useServerFn(sendCampaignTest), onSuccess: () => toast.success("Test email sent"), onError: (e: any) => toast.error(e.message) });
+  const test = useMutation({ mutationFn: useServerFn(sendCampaignTest), onSuccess: (r: any) => toast.success(`Test email sent to ${r.to}`), onError: (e: any) => toast.error(e.message) });
   const now = useMutation({
     mutationFn: useServerFn(sendCampaignNow),
-    onSuccess: (r: any) => { refresh(); toast.success(`Sent to ${r.sent} customer${r.sent === 1 ? "" : "s"}${r.failed ? `, ${r.failed} failed` : ""}${r.remaining ? ` — ${r.remaining} more go out within the hour` : ""}`); },
+    onSuccess: (r: any) => { refresh(); toast.success(`Sent to ${r.sent} customer${r.sent === 1 ? "" : "s"}${r.failed ? `, ${r.failed} failed` : ""}${r.remaining ? ` — ${r.remaining} more go out over the next 15 minutes` : ""}`); },
     onError: (e: any) => toast.error(e.message),
   });
   const sendsQ = useQuery({ queryKey: ["admin", "campaign-sends", sendsFor?.id], queryFn: () => listCampaignSends({ data: { id: sendsFor.id } }), enabled: !!sendsFor });
@@ -275,10 +274,8 @@ function AutomationPage() {
                 {rule.id && (
                   <section className="space-y-2 rounded-lg border border-border p-4">
                     <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Send yourself a test</div>
-                    <div className="flex gap-2">
-                      <Input type="email" value={testTo} onChange={(e) => setTestTo(e.target.value)} placeholder="you@cabslink.com" />
-                      <Button variant="outline" disabled={testRule.isPending || !testTo} onClick={() => testRule.mutate({ data: { id: rule.id!, to: testTo } } as any)}>{testRule.isPending ? "Sending…" : "Send test"}</Button>
-                    </div>
+                    <Button variant="outline" disabled={testRule.isPending} onClick={() => testRule.mutate({ data: { id: rule.id! } } as any)}>{testRule.isPending ? "Sending…" : "Send test to me"}</Button>
+                    <p className="text-xs text-muted-foreground">Goes only to the admin email in Settings.</p>
                   </section>
                 )}
                 <Warnings list={campaignWarnings({ subject: rule.subject, body: rule.body, coupon: couponOf(rule.coupon_id) })} />
@@ -370,17 +367,14 @@ function AutomationPage() {
                       <Input id="c-start" type="date" className="mt-1" value={form.starts_on} min={ukDate()} onChange={(e) => set("starts_on", e.target.value)} />
                     </div>
                   </div>
-                  <p className="text-xs text-muted-foreground">{describeSchedule({ frequency: form.frequency, sendHour: form.send_hour, weekday: form.weekday, monthDay: form.month_day, startsOn: form.starts_on })}. Emails go out within the hour after this time.</p>
+                  <p className="text-xs text-muted-foreground">{describeSchedule({ frequency: form.frequency, sendHour: form.send_hour, weekday: form.weekday, monthDay: form.month_day, startsOn: form.starts_on })}. Emails go out within 15 minutes of this time.</p>
                 </section>
 
                 {form.id && (
                   <section className="space-y-2 rounded-lg border border-border p-4">
                     <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Send yourself a test</div>
-                    <div className="flex gap-2">
-                      <Input type="email" value={testTo} onChange={(e) => setTestTo(e.target.value)} placeholder="you@cabslink.com" />
-                      <Button variant="outline" disabled={test.isPending || !testTo} onClick={() => test.mutate({ data: { id: form.id!, to: testTo } } as any)}>{test.isPending ? "Sending…" : "Send test"}</Button>
-                    </div>
-                    <p className="text-xs text-muted-foreground">Save first: the test uses the saved version.</p>
+                    <Button variant="outline" disabled={test.isPending} onClick={() => test.mutate({ data: { id: form.id! } } as any)}>{test.isPending ? "Sending…" : "Send test to me"}</Button>
+                    <p className="text-xs text-muted-foreground">Goes only to the admin email in Settings. Save first: the test uses the saved version.</p>
                   </section>
                 )}
 
