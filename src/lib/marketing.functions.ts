@@ -34,7 +34,7 @@ export const listMyCustomers = createServerFn({ method: "GET" })
     const rows = filterCustomers(everyone, data);
     const summary = {
       total: everyone.length,
-      subscribed: everyone.filter((c) => c.consent === "subscribed").length,
+      subscribed: everyone.filter((c) => c.basis !== null).length,
       unsubscribed: everyone.filter((c) => c.consent === "unsubscribed").length,
       booked: everyone.filter((c) => c.bookings > 0).length,
     };
@@ -105,7 +105,15 @@ export const listCampaigns = createServerFn({ method: "GET" })
       booked: campaignAudience(everyone, "booked").length,
       not_booked: campaignAudience(everyone, "not_booked").length,
     };
-    return { campaigns: camps.data ?? [], coupons: coupons.data ?? [], audienceSizes };
+    const [rules, settings] = await Promise.all([
+      db.from("automation_rules").select("*").order("created_at", { ascending: false }),
+      db.from("marketing_settings").select("paused, daily_cap, quiet_days").eq("id", true).maybeSingle(),
+    ]);
+    if (rules.error) throw new Error(rules.error.message);
+    const { remainingToday } = await import("@/lib/marketing.server");
+    const cfg = settings.data ?? { paused: false, daily_cap: 500, quiet_days: 7 };
+    const leftToday = await remainingToday(db, cfg.daily_cap).catch(() => null);
+    return { campaigns: camps.data ?? [], coupons: coupons.data ?? [], audienceSizes, rules: rules.data ?? [], settings: cfg, leftToday };
   });
 
 export const saveCampaign = createServerFn({ method: "POST" })
@@ -188,6 +196,69 @@ export const listCampaignSends = createServerFn({ method: "GET" })
       .select("id, email, status, error, run_key, created_at").eq("campaign_id", data.id).order("created_at", { ascending: false }).limit(200);
     if (error) throw new Error(error.message);
     return rows ?? [];
+  });
+
+// ---------------- Settings and automatic rules ----------------
+export const saveMarketingSettings = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({
+    paused: z.boolean(), daily_cap: z.number().int().min(1).max(10000), quiet_days: z.number().int().min(0).max(90),
+  }).parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { error } = await context.supabase.from("marketing_settings").upsert({ id: true, ...data, updated_at: new Date().toISOString() });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+const ruleSchema = z.object({
+  id: z.string().uuid().optional(),
+  name: z.string().trim().min(2).max(120),
+  trigger_type: z.enum(["after_trip", "lapsed", "enquiry_no_booking"]),
+  delay_days: z.number().int().min(1).max(730),
+  subject: z.string().trim().min(3).max(150),
+  body: z.string().trim().min(10).max(8000),
+  coupon_id: z.string().uuid().nullable().optional(),
+  active: z.boolean(),
+});
+
+export const saveAutomationRule = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => ruleSchema.parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { id, ...row } = data;
+    const db = context.supabase;
+    const r = id
+      ? await db.from("automation_rules").update({ ...row, coupon_id: row.coupon_id ?? null }).eq("id", id).select("id").single()
+      : await db.from("automation_rules").insert({ ...row, coupon_id: row.coupon_id ?? null, created_by: context.userId }).select("id").single();
+    if (r.error) throw new Error(r.error.message);
+    return { id: r.data.id as string };
+  });
+
+export const deleteAutomationRule = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { error } = await context.supabase.from("automation_rules").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+/** Send a preview of an automatic rule's email to one staff address. */
+export const sendRuleTest = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid(), to: z.string().email().max(254) }).parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { data: r, error } = await context.supabase.from("automation_rules").select("*").eq("id", data.id).maybeSingle();
+    if (error || !r) throw new Error("Rule not found");
+    const { renderCampaign, sendBatch, loadCoupon } = await import("@/lib/marketing.server");
+    const m = renderCampaign(r, { name: "Test", token: "00000000-0000-0000-0000-000000000000" }, await loadCoupon(context.supabase, r.coupon_id));
+    const [res] = await sendBatch([{ to: data.to, ...m, subject: `[Test] ${m.subject}` }]);
+    if (!res.ok) throw new Error(res.error ?? "Send failed");
+    return { ok: true };
   });
 
 // ---------------- Public: "send me offers" tickbox ----------------

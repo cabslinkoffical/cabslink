@@ -4,6 +4,8 @@
 import { SITE } from "@/lib/site";
 import { buildCustomers, campaignAudience, normEmail, type MyCustomer } from "@/lib/my-customers";
 import { nextRunAt, type CampaignFrequency } from "@/lib/campaign-schedule";
+import { quietOk, ruleTriggerKey, type TriggerType } from "@/lib/email-automation";
+import { ukDate, ukDayStart } from "@/lib/uk-time";
 
 type Db = any;
 
@@ -28,7 +30,7 @@ export async function loadCustomers(db: Db): Promise<MyCustomer[]> {
     all(db, "custom_tour_requests", "id, customer_name, email, phone, created_at"),
     all(db, "cancellation_requests", "id, customer_name, email, phone, created_at"),
     all(db, "booking_amendments", "id, customer_name, email, phone, created_at"),
-    all(db, "marketing_contacts", "id, email, opted_in, opted_in_at, unsubscribed_at"),
+    all(db, "marketing_contacts", "id, email, opted_in, opted_in_at, unsubscribed_at, suppressed_reason, last_marketing_at"),
     all(db, "drivers", "id, email"),
   ]);
   return buildCustomers({ bookings, payments, messages, customTours, cancellations, amendments, contacts, drivers });
@@ -118,6 +120,11 @@ export async function sendBatch(items: Outgoing[]): Promise<Array<{ ok: boolean;
 async function tokensFor(db: Db, emails: string[]): Promise<Map<string, string>> {
   const map = new Map<string, string>();
   for (let i = 0; i < emails.length; i += 500) {
+    // Past bookers (soft opt-in) may have no consent row yet; add one so they get an unsubscribe link.
+    const ins = await db.from("marketing_contacts").upsert(emails.slice(i, i + 500).map((email) => ({ email, opted_in: false, opt_in_source: "past_booking" })), { onConflict: "email", ignoreDuplicates: true });
+    if (ins.error) throw new Error(ins.error.message);
+  }
+  for (let i = 0; i < emails.length; i += 500) {
     const { data, error } = await db.from("marketing_contacts").select("email, unsubscribe_token").in("email", emails.slice(i, i + 500));
     if (error) throw new Error(error.message);
     for (const r of data ?? []) map.set(normEmail(r.email), r.unsubscribe_token);
@@ -127,14 +134,45 @@ async function tokensFor(db: Db, emails: string[]): Promise<Map<string, string>>
 
 const MAX_PER_RUN = 400;
 
+export type MarketingSettings = { paused: boolean; daily_cap: number; quiet_days: number };
+export async function loadSettings(db: Db): Promise<MarketingSettings> {
+  const { data, error } = await db.from("marketing_settings").select("paused, daily_cap, quiet_days").eq("id", true).maybeSingle();
+  if (error) throw new Error(error.message);
+  return data ?? { paused: false, daily_cap: 500, quiet_days: 7 };
+}
+
+/** How many more offer emails may go out today (UK day) under the daily cap. */
+export async function remainingToday(db: Db, cap: number): Promise<number> {
+  const since = ukDayStart(ukDate()).toISOString();
+  const [a, b] = await Promise.all([
+    db.from("email_campaign_sends").select("id", { count: "exact", head: true }).eq("status", "sent").gte("created_at", since),
+    db.from("automation_sends").select("id", { count: "exact", head: true }).eq("status", "sent").gte("created_at", since),
+  ]);
+  if (a.error || b.error) throw new Error((a.error ?? b.error).message);
+  return Math.max(0, cap - (a.count ?? 0) - (b.count ?? 0));
+}
+
+async function markEmailed(db: Db, emails: string[]) {
+  const now = new Date().toISOString();
+  for (let i = 0; i < emails.length; i += 500) {
+    await db.from("marketing_contacts").update({ last_marketing_at: now }).in("email", emails.slice(i, i + 500));
+  }
+}
+
 /** Send one campaign's current run. Returns how many went out now and whether recipients remain. */
-export async function runCampaign(db: Db, campaign: any, customers?: MyCustomer[]): Promise<{ sent: number; failed: number; remaining: number }> {
+export async function runCampaign(db: Db, campaign: any, customers?: MyCustomer[]): Promise<{ sent: number; failed: number; remaining: number; skipped: number }> {
+  const settings = await loadSettings(db);
+  if (settings.paused) throw new Error("All offer emails are paused. Switch sending back on first.");
   const runKey = String(campaign.next_run_at ?? new Date().toISOString());
   const people = campaignAudience(customers ?? (await loadCustomers(db)), campaign.audience);
   const doneRows = await all(db, "email_campaign_sends", "id, email", (q) => q.eq("campaign_id", campaign.id).eq("run_key", runKey));
   const done = new Set(doneRows.map((r) => normEmail(r.email)));
-  const todo = people.filter((p) => !done.has(p.email));
-  const slice = todo.slice(0, MAX_PER_RUN);
+  const pending = people.filter((p) => !done.has(p.email));
+  // Quiet days: people emailed recently are skipped for this run (not queued for later).
+  const todo = pending.filter((p) => quietOk(p.lastMarketingAt, settings.quiet_days));
+  const skipped = pending.length - todo.length;
+  const allowance = await remainingToday(db, settings.daily_cap);
+  const slice = todo.slice(0, Math.min(MAX_PER_RUN, allowance));
   const tokens = await tokensFor(db, slice.map((p) => p.email));
   const coupon = await loadCoupon(db, campaign.coupon_id);
   let sent = 0, failed = 0;
@@ -153,6 +191,7 @@ export async function runCampaign(db: Db, campaign: any, customers?: MyCustomer[
       status: results[k].ok ? "sent" : "failed", provider_message_id: results[k].id, error: results[k].error,
     }).eq("id", claimed.get(p.email))));
     for (const r of results) r.ok ? sent++ : failed++;
+    await markEmailed(db, mine.filter((_, k) => results[k].ok).map((p) => p.email));
     if (i + 100 < slice.length) await new Promise((r) => setTimeout(r, 600));
   }
   const remaining = Math.max(0, todo.length - slice.length);
@@ -170,20 +209,68 @@ export async function runCampaign(db: Db, campaign: any, customers?: MyCustomer[
     }
   }
   await db.from("email_campaigns").update(patch).eq("id", campaign.id);
-  return { sent, failed, remaining };
+  return { sent, failed, remaining, skipped };
+}
+
+/** Run every switched-on automatic rule once: each person gets each rule's email once per event. */
+export async function runRules(db: Db, customers?: MyCustomer[]) {
+  const settings = await loadSettings(db);
+  if (settings.paused) return [];
+  const { data: rules, error } = await db.from("automation_rules").select("*").eq("active", true);
+  if (error) throw new Error(error.message);
+  if (!rules?.length) return [];
+  const everyone = customers ?? (await loadCustomers(db));
+  const today = ukDate();
+  const results: any[] = [];
+  const emailedNow = new Set<string>();
+  for (const rule of rules) {
+    let allowance = await remainingToday(db, settings.daily_cap);
+    if (allowance <= 0) break;
+    const due = everyone
+      .map((c) => ({ c, key: ruleTriggerKey(c, { trigger_type: rule.trigger_type as TriggerType, delay_days: rule.delay_days }, today) }))
+      .filter((x): x is { c: MyCustomer; key: string } => !!x.key && quietOk(x.c.lastMarketingAt, settings.quiet_days) && !emailedNow.has(x.c.email));
+    if (!due.length) { results.push({ id: rule.id, sent: 0 }); continue; }
+    const doneRows = await all(db, "automation_sends", "id, email, trigger_key", (q) => q.eq("rule_id", rule.id).in("email", due.map((d) => d.c.email).slice(0, 1000)));
+    const done = new Set(doneRows.map((r) => `${normEmail(r.email)}|${r.trigger_key}`));
+    const todo = due.filter((d) => !done.has(`${d.c.email}|${d.key}`)).slice(0, Math.min(MAX_PER_RUN, allowance));
+    const tokens = await tokensFor(db, todo.map((d) => d.c.email));
+    const coupon = await loadCoupon(db, rule.coupon_id);
+    let sent = 0;
+    for (let i = 0; i < todo.length; i += 100) {
+      const chunk = todo.slice(i, i + 100).filter((d) => tokens.has(d.c.email));
+      const claim = await db.from("automation_sends")
+        .upsert(chunk.map((d) => ({ rule_id: rule.id, email: d.c.email, trigger_key: d.key, status: "sending" })), { onConflict: "rule_id,email,trigger_key", ignoreDuplicates: true })
+        .select("id, email");
+      if (claim.error) throw new Error(claim.error.message);
+      const claimed = new Map<string, string>((claim.data ?? []).map((r: any) => [normEmail(r.email), r.id]));
+      const mine = chunk.filter((d) => claimed.has(d.c.email));
+      const res = await sendBatch(mine.map((d) => ({ to: d.c.email, ...renderCampaign(rule, { name: d.c.name, token: tokens.get(d.c.email)! }, coupon) })));
+      await Promise.all(mine.map((d, k) => db.from("automation_sends").update({ status: res[k].ok ? "sent" : "failed", provider_message_id: res[k].id, error: res[k].error }).eq("id", claimed.get(d.c.email))));
+      const ok = mine.filter((_, k) => res[k].ok).map((d) => d.c.email);
+      ok.forEach((e) => emailedNow.add(e));
+      await markEmailed(db, ok);
+      sent += ok.length;
+      allowance -= ok.length;
+    }
+    await db.from("automation_rules").update({ total_sent: Number(rule.total_sent ?? 0) + sent, last_run_at: new Date().toISOString() }).eq("id", rule.id);
+    results.push({ id: rule.id, sent });
+  }
+  return results;
 }
 
 /** Run every active campaign whose time has come. */
 export async function runDueCampaigns(db: Db) {
+  if ((await loadSettings(db)).paused) return [];
   const { data, error } = await db.from("email_campaigns").select("*").eq("status", "active").lte("next_run_at", new Date().toISOString()).order("next_run_at");
   if (error) throw new Error(error.message);
-  if (!data?.length) return [];
   const customers = await loadCustomers(db);
-  const results = [];
-  for (const c of data) {
+  const results: any[] = [];
+  for (const c of data ?? []) {
     try { results.push({ id: c.id, ...(await runCampaign(db, c, customers)) }); }
     catch (e) { console.error("campaign run failed", c.id, e); results.push({ id: c.id, error: String(e) }); }
   }
+  try { results.push(...(await runRules(db, await loadCustomers(db)))); }
+  catch (e) { console.error("automation rules failed", e); }
   return results;
 }
 

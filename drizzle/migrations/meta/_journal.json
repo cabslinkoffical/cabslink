@@ -239,6 +239,13 @@
       "when": 1794752699227,
       "tag": "0033_marketing_customers_and_campaigns",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1794757636772,
+      "tag": "0034_email_automation_rules_and_safety",
+      "breakpoints": true
     }
   ]
 }
