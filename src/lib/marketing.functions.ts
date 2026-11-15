@@ -304,3 +304,36 @@ export const unsubscribeMarketing = createServerFn({ method: "POST" })
     const { unsubscribeToken } = await import("@/lib/marketing.server");
     return { result: await unsubscribeToken(supabaseAdmin, data.token) };
   });
+
+/** Trips plus campaign/rule rows for one month of the Email automation calendar. */
+export const getEmailCalendar = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ month: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/) }).parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const db = context.supabase;
+    const { monthRange } = await import("@/lib/email-calendar");
+    const { addDays } = await import("@/lib/uk-time");
+    const { from, to } = monthRange(data.month);
+    const [rules, camps] = await Promise.all([
+      db.from("automation_rules").select("id, name, trigger_type, delay_days, active"),
+      db.from("email_campaigns").select("id, name, status, frequency, send_hour, weekday, month_day, starts_on, last_run_at"),
+    ]);
+    if (rules.error) throw new Error(rules.error.message);
+    if (camps.error) throw new Error(camps.error.message);
+    const maxDelay = Math.min(365, Math.max(0, ...(rules.data ?? []).filter((r: any) => r.active && r.trigger_type === "after_trip").map((r: any) => r.delay_days)));
+    const trips = await db.from("bookings")
+      .select("id, booking_ref, pickup_date, pickup_time, customer_name, service_type, tour_name, status")
+      .is("deleted_at", null).gte("pickup_date", addDays(from, -maxDelay)).lte("pickup_date", to)
+      .order("pickup_date").order("pickup_time").limit(2000);
+    if (trips.error) throw new Error(trips.error.message);
+    return {
+      from, to,
+      trips: (trips.data ?? []).map((b: any) => ({
+        id: b.id, ref: b.booking_ref, date: b.pickup_date, time: b.pickup_time, name: b.customer_name ?? "",
+        kind: b.tour_name ? `Tour: ${b.tour_name}` : String(b.service_type ?? "").replace(/_/g, " "), status: b.status,
+      })),
+      rules: rules.data ?? [],
+      campaigns: (camps.data ?? []).map((c: any) => ({ id: c.id, name: c.name, status: c.status, frequency: c.frequency, sendHour: c.send_hour, weekday: c.weekday, monthDay: c.month_day, startsOn: c.starts_on, lastRunAt: c.last_run_at })),
+    };
+  });
