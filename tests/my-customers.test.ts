@@ -39,3 +39,43 @@ describe("My Customers", () => {
     expect(customersCsv(rows)).toContain("'=HYPERLINK(1)");
   });
 });
+
+describe("Custom campaign audiences", () => {
+  const rows = buildCustomers({
+    ...base,
+    bookings: [
+      { id: "b1", email: "vip@x.com", created_at: "2026-01-01", status: "completed", customer_name: "Vic" },
+      { id: "b2", email: "vip@x.com", created_at: "2026-02-01", status: "completed" },
+      { id: "b3", email: "once@x.com", created_at: "2026-01-05", status: "completed" },
+    ],
+    payments: [
+      { booking_id: "b1", status: "paid", amount: 300, refunded_amount: 0 },
+      { booking_id: "b2", status: "paid", amount: 250, refunded_amount: 0 },
+      { booking_id: "b3", status: "paid", amount: 60, refunded_amount: 0 },
+    ],
+    messages: [{ email: "corp@x.com", source: "corporate", created_at: "2026-03-01" }],
+    contacts: [
+      { id: "c1", email: "vip@x.com", opted_in: true },
+      { id: "c2", email: "once@x.com", opted_in: true },
+      { id: "c3", email: "corp@x.com", opted_in: true },
+    ],
+    contactTags: [{ contact_id: "c1", tag: "VIP" }],
+  });
+  it("matches every set condition and keeps the permission check", () => {
+    expect(campaignAudience(rows, "custom", { min_trips: 2, min_spend: 500 }).map((r) => r.email)).toEqual(["vip@x.com"]);
+    expect(campaignAudience(rows, "custom", { booked: "no" }).map((r) => r.email)).toEqual(["corp@x.com"]);
+    expect(campaignAudience(rows, "custom", { source: "corporate" }).map((r) => r.email)).toEqual(["corp@x.com"]);
+  });
+  it("filters by tags and by an explicit email list", () => {
+    expect(campaignAudience(rows, "custom", { tags: ["vip"] }).map((r) => r.email)).toEqual(["vip@x.com"]);
+    expect(campaignAudience(rows, "custom", { emails: ["Once@X.com", "nobody@x.com"] }).map((r) => r.email)).toEqual(["once@x.com"]);
+  });
+  it("never emails someone without permission, even when listed by email", () => {
+    const withBlocked = buildCustomers({
+      ...base,
+      bookings: [{ id: "b1", email: "gone@x.com", created_at: "2026-01-01", status: "completed" }],
+      contacts: [{ id: "c9", email: "gone@x.com", opted_in: true, unsubscribed_at: "2026-06-01" }],
+    });
+    expect(campaignAudience(withBlocked, "custom", { emails: ["gone@x.com"] })).toEqual([]);
+  });
+});

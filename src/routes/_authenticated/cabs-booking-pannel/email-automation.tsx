@@ -38,19 +38,20 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/email-
   component: AutomationPage,
 });
 
-type Audience = "all" | "booked" | "not_booked";
+type Audience = "all" | "booked" | "not_booked" | "custom";
+type CampaignFilter = { booked?: "any" | "yes" | "no"; source?: string | null; min_trips?: number | null; max_trips?: number | null; min_spend?: number | null; tags?: string[]; emails?: string[] };
 type Form = {
-  id?: string; name: string; subject: string; body: string; coupon_id: string | null; audience: Audience;
+  id?: string; name: string; subject: string; body: string; coupon_id: string | null; audience: Audience; audience_filter: CampaignFilter | null;
   frequency: CampaignFrequency; send_hour: number; weekday: number; month_day: number; starts_on: string; status: "draft" | "active" | "paused";
 };
-const AUDIENCE_LABELS: Record<Audience, string> = { all: "Everyone who gets offers", booked: "Customers who have booked", not_booked: "People who enquired but never booked" };
+const AUDIENCE_LABELS: Record<Audience, string> = { all: "Everyone who gets offers", booked: "Customers who have booked", not_booked: "People who enquired but never booked", custom: "Custom: choose exactly who" };
 const FREQ_LABELS: Record<CampaignFrequency, string> = { once: "Once", daily: "Daily", weekly: "Weekly", fortnightly: "Every two weeks", monthly: "Monthly" };
 const STATUS_STYLES: Record<string, string> = {
   draft: "bg-muted text-muted-foreground border-border", active: "bg-success/15 text-success border-success/30",
   paused: "bg-warning/15 text-warning border-warning/30", completed: "bg-info/15 text-info border-info/30",
 };
 const blank = (): Form => ({
-  name: "", subject: "", body: "Hi {{name}},\n\n", coupon_id: null, audience: "all",
+  name: "", subject: "", body: "Hi {{name}},\n\n", coupon_id: null, audience: "all", audience_filter: null,
   frequency: "once", send_hour: 10, weekday: 1, month_day: 1, starts_on: ukDate(), status: "draft",
 });
 type RuleForm = { id?: string; name: string; trigger_type: TriggerType; delay_days: number; subject: string; body: string; coupon_id: string | null; active: boolean; audience_filter: AudienceFilter | null };
@@ -120,18 +121,23 @@ function AutomationPage() {
   });
   const sendsQ = useQuery({ queryKey: ["admin", "campaign-sends", sendsFor?.id], queryFn: () => listCampaignSends({ data: { id: sendsFor.id } }), enabled: !!sendsFor });
 
+  const allTags = ((q.data as any)?.allTags ?? []) as string[];
+  const sizeOf = (a: Audience) => (a === "custom" ? 0 : sizes[a]);
+  const audienceSize = (c: any) => (c.audience === "custom" ? c.audience_size ?? 0 : sizeOf(c.audience as Audience));
   const payload = (f: Form, status?: Form["status"]) => ({
     data: {
-      id: f.id, name: f.name, subject: f.subject, body: f.body, coupon_id: f.coupon_id, audience: f.audience, frequency: f.frequency,
+      id: f.id, name: f.name, subject: f.subject, body: f.body, coupon_id: f.coupon_id, audience: f.audience,
+      audience_filter: f.audience === "custom" ? f.audience_filter ?? {} : null,
+      frequency: f.frequency,
       send_hour: f.send_hour, weekday: f.weekday, month_day: f.month_day, starts_on: f.starts_on || null, status: status ?? f.status,
     },
   });
   const edit = (c: any) => setForm({
-    id: c.id, name: c.name, subject: c.subject, body: c.body, coupon_id: c.coupon_id, audience: c.audience, frequency: c.frequency,
+    id: c.id, name: c.name, subject: c.subject, body: c.body, coupon_id: c.coupon_id, audience: c.audience, audience_filter: c.audience_filter ?? null, frequency: c.frequency,
     send_hour: c.send_hour, weekday: c.weekday ?? 1, month_day: c.month_day ?? 1, starts_on: c.starts_on ?? "", status: c.status === "completed" ? "draft" : c.status,
   });
   const setStatus = (c: any, status: Form["status"]) => save.mutate({
-    data: { id: c.id, name: c.name, subject: c.subject, body: c.body, coupon_id: c.coupon_id, audience: c.audience, frequency: c.frequency,
+    data: { id: c.id, name: c.name, subject: c.subject, body: c.body, coupon_id: c.coupon_id, audience: c.audience, audience_filter: c.audience_filter ?? null, frequency: c.frequency,
       send_hour: c.send_hour, weekday: c.weekday, month_day: c.month_day, starts_on: c.starts_on, status },
   } as any);
 
@@ -159,7 +165,7 @@ function AutomationPage() {
       <EmailCalendar />
 
       <div className="grid gap-3 sm:grid-cols-3">
-        {(Object.keys(AUDIENCE_LABELS) as Audience[]).map((a) => (
+        {(["all", "booked", "not_booked"] as const).map((a) => (
           <div key={a} className="rounded-lg border border-border bg-card p-4">
             <div className="text-xs font-semibold uppercase text-muted-foreground">{AUDIENCE_LABELS[a]}</div>
             <div className="mt-1.5 font-display text-2xl font-semibold tabular-nums">{sizes[a]}</div>
@@ -178,7 +184,7 @@ function AutomationPage() {
               <tbody>
                 {campaigns.map((c) => (
                   <tr key={c.id} className="border-t border-border/70 align-top">
-                    <td className="px-4 py-3"><div className="font-medium">{c.name}</div><div className="text-xs text-muted-foreground">{c.subject}</div><div className="mt-0.5 text-xs text-muted-foreground">{AUDIENCE_LABELS[c.audience as Audience]}</div></td>
+                    <td className="px-4 py-3"><div className="font-medium">{c.name}</div><div className="text-xs text-muted-foreground">{c.subject}</div><div className="mt-0.5 text-xs text-muted-foreground">{AUDIENCE_LABELS[c.audience as Audience]}{c.audience === "custom" ? ` (${c.audience_size ?? 0})` : ""}</div></td>
                     <td className="px-4 py-3 text-xs">{describeSchedule({ frequency: c.frequency, sendHour: c.send_hour, weekday: c.weekday, monthDay: c.month_day, startsOn: c.starts_on })}</td>
                     <td className="whitespace-nowrap px-4 py-3 text-xs">{c.status === "active" ? when(c.next_run_at) : "—"}</td>
                     <td className="px-4 py-3 text-xs tabular-nums">{c.total_sent}{c.last_run_at ? <div className="text-muted-foreground">last {when(c.last_run_at)}</div> : null}</td>
@@ -187,7 +193,7 @@ function AutomationPage() {
                       <div className="flex flex-wrap justify-end gap-1.5">
                         {c.status === "active" && <Button size="sm" variant="outline" onClick={() => setStatus(c, "paused")}><Pause className="size-3.5" />Pause</Button>}
                         {(c.status === "paused" || c.status === "draft") && <Button size="sm" variant="outline" onClick={() => setStatus(c, "active")}><Play className="size-3.5" />Start</Button>}
-                        {c.status !== "completed" && <Button size="sm" variant="gold" disabled={now.isPending} onClick={() => { if (confirm(`Send "${c.name}" now to ${sizes[c.audience as Audience]} customers?`)) now.mutate({ data: { id: c.id } } as any); }}><Send className="size-3.5" />Send now</Button>}
+                        {c.status !== "completed" && <Button size="sm" variant="gold" disabled={now.isPending} onClick={() => { if (confirm(`Send "${c.name}" now to ${audienceSize(c)} customers?`)) now.mutate({ data: { id: c.id } } as any); }}><Send className="size-3.5" />Send now</Button>}
                         <Button size="sm" variant="ghost" onClick={() => setSendsFor(c)} aria-label="Send history"><History className="size-3.5" /></Button>
                         <Button size="sm" variant="ghost" onClick={() => edit(c)} aria-label="Edit"><Pencil className="size-3.5" /></Button>
                         <Button size="sm" variant="ghost" onClick={() => { if (confirm(`Delete "${c.name}"?`)) del.mutate({ data: { id: c.id } } as any); }} aria-label="Delete"><Trash2 className="size-3.5" /></Button>
@@ -330,9 +336,10 @@ function AutomationPage() {
                     <Label className="text-xs">Send to</Label>
                     <Select value={form.audience} onValueChange={(v) => set("audience", v as Audience)}>
                       <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-                      <SelectContent>{(Object.keys(AUDIENCE_LABELS) as Audience[]).map((a) => <SelectItem key={a} value={a}>{AUDIENCE_LABELS[a]} ({sizes[a]})</SelectItem>)}</SelectContent>
+                      <SelectContent>{(Object.keys(AUDIENCE_LABELS) as Audience[]).map((a) => <SelectItem key={a} value={a}>{AUDIENCE_LABELS[a]}{a === "custom" ? "" : ` (${sizeOf(a)})`}</SelectItem>)}</SelectContent>
                     </Select>
                   </div>
+                  {form.audience === "custom" && <CustomAudience value={form.audience_filter ?? {}} onChange={(v) => set("audience_filter", v)} allTags={allTags} />}
                   <div className="grid gap-3 sm:grid-cols-2">
                     <div>
                       <Label className="text-xs">How often</Label>
@@ -383,7 +390,7 @@ function AutomationPage() {
                 )}
 
                 <EmailPreview subject={form.subject} body={form.body} coupon={couponOf(form.coupon_id)} />
-                <Warnings list={campaignWarnings({ subject: form.subject, body: form.body, coupon: couponOf(form.coupon_id), audienceSize: sizes[form.audience] })} />
+                <Warnings list={campaignWarnings({ subject: form.subject, body: form.body, coupon: couponOf(form.coupon_id), audienceSize: form.audience === "custom" ? (form.id ? (campaigns.find((c) => c.id === form.id)?.audience_size ?? undefined) : undefined) : sizes[form.audience] })} />
                 <div className="flex flex-col gap-2 sm:flex-row">
                   <Button variant="outline" className="flex-1" disabled={save.isPending} onClick={() => save.mutate(payload(form, form.status === "active" ? "active" : "draft") as any)}>Save{form.status === "active" ? " changes" : " as draft"}</Button>
                   <Button variant="gold" className="flex-1" disabled={save.isPending} onClick={() => { save.mutate(payload(form, "active") as any); set("status", "active"); }}><Ticket className="size-4" />Save and schedule</Button>
@@ -458,6 +465,63 @@ function CustomConditions({ value, onChange }: { value: AudienceFilter; onChange
       <div><Label className="text-xs">Completed trips, at least</Label><Input type="number" min={0} className="mt-1" value={value.min_trips ?? ""} onChange={(e) => onChange({ ...value, min_trips: num(e.target.value) })} /></div>
       <div><Label className="text-xs">Completed trips, at most</Label><Input type="number" min={0} className="mt-1" value={value.max_trips ?? ""} onChange={(e) => onChange({ ...value, max_trips: num(e.target.value) })} /></div>
       <div className="sm:col-span-2"><Label className="text-xs">Has spent at least (£)</Label><Input type="number" min={0} className="mt-1" value={value.min_spend ?? ""} onChange={(e) => onChange({ ...value, min_spend: num(e.target.value) })} /></div>
+    </div>
+  );
+}
+
+/** Conditions for a "Custom" campaign audience. Every condition set must match; emails still need permission. */
+function CustomAudience({ value, onChange, allTags }: { value: CampaignFilter; onChange: (v: CampaignFilter) => void; allTags: string[] }) {
+  const num = (v: string) => (v === "" ? null : Math.max(0, Number(v)));
+  const [emailsText, setEmailsText] = useState((value.emails ?? []).join("\n"));
+  const setEmails = (t: string) => {
+    setEmailsText(t);
+    const emails = t.split(/[\n,;\s]+/).map((e) => e.trim().toLowerCase()).filter((e) => e.includes("@"));
+    onChange({ ...value, emails: emails.length ? emails : undefined });
+  };
+  const toggleTag = (tag: string, on: boolean) => {
+    const tags = on ? [...(value.tags ?? []), tag] : (value.tags ?? []).filter((t) => t !== tag);
+    onChange({ ...value, tags: tags.length ? tags : undefined });
+  };
+  return (
+    <div className="grid gap-3 rounded-md bg-muted/40 p-3 sm:grid-cols-2">
+      <div>
+        <Label className="text-xs">Has booked</Label>
+        <Select value={value.booked ?? "any"} onValueChange={(v) => onChange({ ...value, booked: v as CampaignFilter["booked"] })}>
+          <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+          <SelectContent><SelectItem value="any">Anyone</SelectItem><SelectItem value="yes">Has booked</SelectItem><SelectItem value="no">Never booked</SelectItem></SelectContent>
+        </Select>
+      </div>
+      <div>
+        <Label className="text-xs">Came from</Label>
+        <Select value={value.source ?? "any"} onValueChange={(v) => onChange({ ...value, source: v === "any" ? null : v })}>
+          <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="any">Any form or booking</SelectItem>
+            <SelectItem value="booking">Booking</SelectItem><SelectItem value="tour">Tour enquiry</SelectItem><SelectItem value="custom_tour">Custom tour request</SelectItem>
+            <SelectItem value="contact">Contact form</SelectItem><SelectItem value="corporate">Corporate enquiry</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <div><Label className="text-xs">Completed trips, at least</Label><Input type="number" min={0} className="mt-1" value={value.min_trips ?? ""} onChange={(e) => onChange({ ...value, min_trips: num(e.target.value) })} /></div>
+      <div><Label className="text-xs">Completed trips, at most</Label><Input type="number" min={0} className="mt-1" value={value.max_trips ?? ""} onChange={(e) => onChange({ ...value, max_trips: num(e.target.value) })} /></div>
+      <div className="sm:col-span-2"><Label className="text-xs">Has spent at least (£)</Label><Input type="number" min={0} className="mt-1" value={value.min_spend ?? ""} onChange={(e) => onChange({ ...value, min_spend: num(e.target.value) })} /></div>
+      {allTags.length > 0 && (
+        <div className="sm:col-span-2">
+          <Label className="text-xs">Must have these labels</Label>
+          <div className="mt-1.5 flex flex-wrap gap-2">
+            {allTags.map((t) => (
+              <label key={t} className="flex cursor-pointer items-center gap-1.5 rounded-full border border-border bg-card px-2.5 py-1 text-xs">
+                <input type="checkbox" className="accent-primary" checked={(value.tags ?? []).includes(t)} onChange={(e) => toggleTag(t, e.target.checked)} />{t}
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
+      <div className="sm:col-span-2">
+        <Label className="text-xs">Only these email addresses (optional)</Label>
+        <Textarea className="mt-1" rows={3} placeholder={"one per line, e.g.\njane@example.com\nmark@example.com"} value={emailsText} onChange={(e) => setEmails(e.target.value)} />
+        <p className="mt-1 text-xs text-muted-foreground">If you list addresses, only they are included. Everyone still needs permission to get offers, and unsubscribed or blocked people are never emailed.</p>
+      </div>
     </div>
   );
 }
