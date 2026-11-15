@@ -15,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { EmailCalendar } from "@/components/admin/EmailCalendar";
 import { PageHeader, EmptyState, ListError } from "@/components/admin/ui";
 
 const campaignsOpts = queryOptions({ queryKey: ["admin", "campaigns"], queryFn: () => listCampaigns() });
@@ -154,6 +155,8 @@ function AutomationPage() {
           {leftToday != null && <span className="pb-1.5 text-muted-foreground">{leftToday} more can go out today (UK time)</span>}
         </div>
       </div>
+
+      <EmailCalendar />
 
       <div className="grid gap-3 sm:grid-cols-3">
         {(Object.keys(AUDIENCE_LABELS) as Audience[]).map((a) => (
