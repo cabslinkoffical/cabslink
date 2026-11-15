@@ -5,7 +5,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
-import { filterCustomers, campaignAudience, normEmail } from "@/lib/my-customers";
+import { filterCustomers, campaignAudience, normEmail, type CampaignAudienceFilter } from "@/lib/my-customers";
 import { nextRunAt, CAMPAIGN_FREQUENCIES } from "@/lib/campaign-schedule";
 import { slicePage } from "@/lib/admin-paging";
 
@@ -72,13 +72,24 @@ export const optOutCustomer = createServerFn({ method: "POST" })
   });
 
 // ---------------- Campaigns ----------------
+const audienceFilterSchema = z.object({
+  booked: z.enum(["any", "yes", "no"]).optional(),
+  source: z.enum(["booking", "tour", "contact", "corporate", "custom_tour", "cancellation", "change_request"]).nullable().optional(),
+  min_trips: z.number().int().min(0).max(1000).nullable().optional(),
+  max_trips: z.number().int().min(0).max(1000).nullable().optional(),
+  min_spend: z.number().min(0).max(1_000_000).nullable().optional(),
+  tags: z.array(z.string().trim().min(1).max(60)).max(10).optional(),
+  emails: z.array(z.string().trim().email().max(254)).max(500).optional(),
+});
+
 const campaignSchema = z.object({
   id: z.string().uuid().optional(),
   name: z.string().trim().min(2).max(120),
   subject: z.string().trim().min(3).max(150),
   body: z.string().trim().min(10).max(8000),
   coupon_id: z.string().uuid().nullable().optional(),
-  audience: z.enum(["all", "booked", "not_booked"]),
+  audience: z.enum(["all", "booked", "not_booked", "custom"]),
+  audience_filter: audienceFilterSchema.nullable().optional(),
   frequency: z.enum(CAMPAIGN_FREQUENCIES),
   send_hour: z.number().int().min(0).max(23),
   weekday: z.number().int().min(0).max(6).nullable().optional(),
@@ -108,6 +119,11 @@ export const listCampaigns = createServerFn({ method: "GET" })
       booked: campaignAudience(everyone, "booked").length,
       not_booked: campaignAudience(everyone, "not_booked").length,
     };
+    const campaigns = (camps.data ?? []).map((c: any) => ({
+      ...c,
+      audience_size: campaignAudience(everyone, c.audience, c.audience_filter as CampaignAudienceFilter | null).length,
+    }));
+    const allTags = [...new Set(everyone.flatMap((c) => c.tags))].sort();
     const [rules, settings] = await Promise.all([
       db.from("automation_rules").select("*").order("created_at", { ascending: false }),
       db.from("marketing_settings").select("paused, daily_cap, quiet_days").eq("id", true).maybeSingle(),
@@ -116,7 +132,7 @@ export const listCampaigns = createServerFn({ method: "GET" })
     const { remainingToday } = await import("@/lib/marketing.server");
     const cfg = settings.data ?? { paused: false, daily_cap: 500, quiet_days: 7 };
     const leftToday = await remainingToday(db, cfg.daily_cap).catch(() => null);
-    return { campaigns: camps.data ?? [], coupons: coupons.data ?? [], audienceSizes, rules: rules.data ?? [], settings: cfg, leftToday };
+    return { campaigns, coupons: coupons.data ?? [], audienceSizes, allTags, rules: rules.data ?? [], settings: cfg, leftToday };
   });
 
 export const saveCampaign = createServerFn({ method: "POST" })
@@ -128,6 +144,7 @@ export const saveCampaign = createServerFn({ method: "POST" })
     const { id, ...fields } = data;
     const row: any = {
       ...fields,
+      audience_filter: fields.audience === "custom" ? fields.audience_filter ?? {} : {},
       coupon_id: fields.coupon_id ?? null,
       weekday: ["weekly", "fortnightly"].includes(fields.frequency) ? fields.weekday ?? 1 : null,
       month_day: fields.frequency === "monthly" ? fields.month_day ?? 1 : null,
