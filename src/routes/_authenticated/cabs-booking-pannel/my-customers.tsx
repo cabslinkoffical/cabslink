@@ -203,7 +203,6 @@ function MyCustomersPage() {
                     <Button variant="outline" size="sm" disabled={optOut.isPending} onClick={() => optOut.mutate({ data: { email: active.email } } as any)}>Stop offer emails</Button>
                   )}
                 </div>
-                <Button variant="navy" className="w-full" asChild><Link to="/cabs-booking-pannel/bookings" search={{ tab: undefined } as any}>Open bookings</Link></Button>
               </div>
             </>
           )}

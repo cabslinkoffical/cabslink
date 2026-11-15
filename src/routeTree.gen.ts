@@ -132,6 +132,7 @@ import { Route as AuthenticatedCabsBookingPannelExtrasRouteImport } from './rout
 import { Route as AuthenticatedCabsBookingPannelLogsRouteImport } from './routes/_authenticated/cabs-booking-pannel/logs'
 import { Route as AuthenticatedCabsBookingPannelMediaRouteImport } from './routes/_authenticated/cabs-booking-pannel/media'
 import { Route as AuthenticatedCabsBookingPannelMessagesRouteImport } from './routes/_authenticated/cabs-booking-pannel/messages'
+import { Route as AuthenticatedCabsBookingPannelMyCustomersRouteImport } from './routes/_authenticated/cabs-booking-pannel/my-customers'
 import { Route as AuthenticatedCabsBookingPannelPaymentsRouteImport } from './routes/_authenticated/cabs-booking-pannel/payments'
 import { Route as AuthenticatedCabsBookingPannelPoisRouteImport } from './routes/_authenticated/cabs-booking-pannel/pois'
 import { Route as AuthenticatedCabsBookingPannelPricingPreviewRouteImport } from './routes/_authenticated/cabs-booking-pannel/pricing-preview'
@@ -811,6 +812,12 @@ const AuthenticatedCabsBookingPannelMessagesRoute =
     path: '/messages',
     getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
+const AuthenticatedCabsBookingPannelMyCustomersRoute =
+  AuthenticatedCabsBookingPannelMyCustomersRouteImport.update({
+    id: '/my-customers',
+    path: '/my-customers',
+    getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
+  } as any)
 const AuthenticatedCabsBookingPannelPaymentsRoute =
   AuthenticatedCabsBookingPannelPaymentsRouteImport.update({
     id: '/payments',
@@ -1165,6 +1172,7 @@ export interface FileRoutesByFullPath {
   '/cabs-booking-pannel/logs': typeof AuthenticatedCabsBookingPannelLogsRoute
   '/cabs-booking-pannel/media': typeof AuthenticatedCabsBookingPannelMediaRoute
   '/cabs-booking-pannel/messages': typeof AuthenticatedCabsBookingPannelMessagesRoute
+  '/cabs-booking-pannel/my-customers': typeof AuthenticatedCabsBookingPannelMyCustomersRoute
   '/cabs-booking-pannel/payments': typeof AuthenticatedCabsBookingPannelPaymentsRoute
   '/cabs-booking-pannel/pois': typeof AuthenticatedCabsBookingPannelPoisRoute
   '/cabs-booking-pannel/pricing-preview': typeof AuthenticatedCabsBookingPannelPricingPreviewRoute
@@ -1327,6 +1335,7 @@ export interface FileRoutesByTo {
   '/cabs-booking-pannel/logs': typeof AuthenticatedCabsBookingPannelLogsRoute
   '/cabs-booking-pannel/media': typeof AuthenticatedCabsBookingPannelMediaRoute
   '/cabs-booking-pannel/messages': typeof AuthenticatedCabsBookingPannelMessagesRoute
+  '/cabs-booking-pannel/my-customers': typeof AuthenticatedCabsBookingPannelMyCustomersRoute
   '/cabs-booking-pannel/payments': typeof AuthenticatedCabsBookingPannelPaymentsRoute
   '/cabs-booking-pannel/pois': typeof AuthenticatedCabsBookingPannelPoisRoute
   '/cabs-booking-pannel/pricing-preview': typeof AuthenticatedCabsBookingPannelPricingPreviewRoute
@@ -1493,6 +1502,7 @@ export interface FileRoutesById {
   '/_authenticated/cabs-booking-pannel/logs': typeof AuthenticatedCabsBookingPannelLogsRoute
   '/_authenticated/cabs-booking-pannel/media': typeof AuthenticatedCabsBookingPannelMediaRoute
   '/_authenticated/cabs-booking-pannel/messages': typeof AuthenticatedCabsBookingPannelMessagesRoute
+  '/_authenticated/cabs-booking-pannel/my-customers': typeof AuthenticatedCabsBookingPannelMyCustomersRoute
   '/_authenticated/cabs-booking-pannel/payments': typeof AuthenticatedCabsBookingPannelPaymentsRoute
   '/_authenticated/cabs-booking-pannel/pois': typeof AuthenticatedCabsBookingPannelPoisRoute
   '/_authenticated/cabs-booking-pannel/pricing-preview': typeof AuthenticatedCabsBookingPannelPricingPreviewRoute
@@ -1659,6 +1669,7 @@ export interface FileRouteTypes {
     | '/cabs-booking-pannel/logs'
     | '/cabs-booking-pannel/media'
     | '/cabs-booking-pannel/messages'
+    | '/cabs-booking-pannel/my-customers'
     | '/cabs-booking-pannel/payments'
     | '/cabs-booking-pannel/pois'
     | '/cabs-booking-pannel/pricing-preview'
@@ -1821,6 +1832,7 @@ export interface FileRouteTypes {
     | '/cabs-booking-pannel/logs'
     | '/cabs-booking-pannel/media'
     | '/cabs-booking-pannel/messages'
+    | '/cabs-booking-pannel/my-customers'
     | '/cabs-booking-pannel/payments'
     | '/cabs-booking-pannel/pois'
     | '/cabs-booking-pannel/pricing-preview'
@@ -1986,6 +1998,7 @@ export interface FileRouteTypes {
     | '/_authenticated/cabs-booking-pannel/logs'
     | '/_authenticated/cabs-booking-pannel/media'
     | '/_authenticated/cabs-booking-pannel/messages'
+    | '/_authenticated/cabs-booking-pannel/my-customers'
     | '/_authenticated/cabs-booking-pannel/payments'
     | '/_authenticated/cabs-booking-pannel/pois'
     | '/_authenticated/cabs-booking-pannel/pricing-preview'
@@ -3007,6 +3020,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCabsBookingPannelMessagesRouteImport
       parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
     }
+    '/_authenticated/cabs-booking-pannel/my-customers': {
+      id: '/_authenticated/cabs-booking-pannel/my-customers'
+      path: '/my-customers'
+      fullPath: '/cabs-booking-pannel/my-customers'
+      preLoaderRoute: typeof AuthenticatedCabsBookingPannelMyCustomersRouteImport
+      parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
+    }
     '/_authenticated/cabs-booking-pannel/payments': {
       id: '/_authenticated/cabs-booking-pannel/payments'
       path: '/payments'
@@ -3322,6 +3342,7 @@ interface AuthenticatedCabsBookingPannelRouteRouteChildren {
   AuthenticatedCabsBookingPannelLogsRoute: typeof AuthenticatedCabsBookingPannelLogsRoute
   AuthenticatedCabsBookingPannelMediaRoute: typeof AuthenticatedCabsBookingPannelMediaRoute
   AuthenticatedCabsBookingPannelMessagesRoute: typeof AuthenticatedCabsBookingPannelMessagesRoute
+  AuthenticatedCabsBookingPannelMyCustomersRoute: typeof AuthenticatedCabsBookingPannelMyCustomersRoute
   AuthenticatedCabsBookingPannelPaymentsRoute: typeof AuthenticatedCabsBookingPannelPaymentsRoute
   AuthenticatedCabsBookingPannelPoisRoute: typeof AuthenticatedCabsBookingPannelPoisRoute
   AuthenticatedCabsBookingPannelPricingPreviewRoute: typeof AuthenticatedCabsBookingPannelPricingPreviewRoute
@@ -3387,6 +3408,8 @@ const AuthenticatedCabsBookingPannelRouteRouteChildren: AuthenticatedCabsBooking
       AuthenticatedCabsBookingPannelMediaRoute,
     AuthenticatedCabsBookingPannelMessagesRoute:
       AuthenticatedCabsBookingPannelMessagesRoute,
+    AuthenticatedCabsBookingPannelMyCustomersRoute:
+      AuthenticatedCabsBookingPannelMyCustomersRoute,
     AuthenticatedCabsBookingPannelPaymentsRoute:
       AuthenticatedCabsBookingPannelPaymentsRoute,
     AuthenticatedCabsBookingPannelPoisRoute:
