@@ -144,6 +144,7 @@ import { Route as AuthenticatedCabsBookingPannelTourSettingsRouteImport } from '
 import { Route as AuthenticatedCabsBookingPannelUsersRouteImport } from './routes/_authenticated/cabs-booking-pannel/users'
 import { Route as AuthenticatedTourPreviewIdRouteImport } from './routes/_authenticated/tour-preview.$id'
 import { Route as ApiPublicCollectRouteImport } from './routes/api/public/collect'
+import { Route as ApiPublicUnsubscribeRouteImport } from './routes/api/public/unsubscribe'
 import { Route as AreasALetterRouteImport } from './routes/areas.a.$letter'
 import { Route as AreasRegionSlugRouteImport } from './routes/areas.region.$slug'
 import { Route as BlogCategorySlugRouteImport } from './routes/blog.category.$slug'
@@ -165,6 +166,7 @@ import { Route as AuthenticatedCabsBookingPannelSeoRoutesRouteImport } from './r
 import { Route as AuthenticatedCabsBookingPannelSeoServicesRouteImport } from './routes/_authenticated/cabs-booking-pannel/seo.services'
 import { Route as AuthenticatedCabsBookingPannelVehicleClassesIndexRouteImport } from './routes/_authenticated/cabs-booking-pannel/vehicle-classes.index'
 import { Route as AuthenticatedCabsBookingPannelVehicleClassesIdRouteImport } from './routes/_authenticated/cabs-booking-pannel/vehicle-classes.$id'
+import { Route as ApiPublicCampaignsRunRouteImport } from './routes/api/public/campaigns/run'
 import { Route as ApiPublicDispatchDrainRouteImport } from './routes/api/public/dispatch/drain'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as ApiPublicReviewsRefreshRouteImport } from './routes/api/public/reviews/refresh'
@@ -880,6 +882,11 @@ const ApiPublicCollectRoute = ApiPublicCollectRouteImport.update({
   path: '/api/public/collect',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicUnsubscribeRoute = ApiPublicUnsubscribeRouteImport.update({
+  id: '/api/public/unsubscribe',
+  path: '/api/public/unsubscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AreasALetterRoute = AreasALetterRouteImport.update({
   id: '/areas/a/$letter',
   path: '/areas/a/$letter',
@@ -1002,6 +1009,11 @@ const AuthenticatedCabsBookingPannelVehicleClassesIdRoute =
     path: '/vehicle-classes/$id',
     getParentRoute: () => AuthenticatedCabsBookingPannelRouteRoute,
   } as any)
+const ApiPublicCampaignsRunRoute = ApiPublicCampaignsRunRouteImport.update({
+  id: '/api/public/campaigns/run',
+  path: '/api/public/campaigns/run',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicDispatchDrainRoute = ApiPublicDispatchDrainRouteImport.update({
   id: '/api/public/dispatch/drain',
   path: '/api/public/dispatch/drain',
@@ -1159,6 +1171,7 @@ export interface FileRoutesByFullPath {
   '/cabs-booking-pannel/users': typeof AuthenticatedCabsBookingPannelUsersRoute
   '/tour-preview/$id': typeof AuthenticatedTourPreviewIdRoute
   '/api/public/collect': typeof ApiPublicCollectRoute
+  '/api/public/unsubscribe': typeof ApiPublicUnsubscribeRoute
   '/areas/a/$letter': typeof AreasALetterRoute
   '/areas/region/$slug': typeof AreasRegionSlugRoute
   '/blog/category/$slug': typeof BlogCategorySlugRoute
@@ -1177,6 +1190,7 @@ export interface FileRoutesByFullPath {
   '/cabs-booking-pannel/seo/routes': typeof AuthenticatedCabsBookingPannelSeoRoutesRoute
   '/cabs-booking-pannel/seo/services': typeof AuthenticatedCabsBookingPannelSeoServicesRoute
   '/cabs-booking-pannel/vehicle-classes/$id': typeof AuthenticatedCabsBookingPannelVehicleClassesIdRoute
+  '/api/public/campaigns/run': typeof ApiPublicCampaignsRunRoute
   '/api/public/dispatch/drain': typeof ApiPublicDispatchDrainRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/reviews/refresh': typeof ApiPublicReviewsRefreshRoute
@@ -1318,6 +1332,7 @@ export interface FileRoutesByTo {
   '/cabs-booking-pannel/users': typeof AuthenticatedCabsBookingPannelUsersRoute
   '/tour-preview/$id': typeof AuthenticatedTourPreviewIdRoute
   '/api/public/collect': typeof ApiPublicCollectRoute
+  '/api/public/unsubscribe': typeof ApiPublicUnsubscribeRoute
   '/areas/a/$letter': typeof AreasALetterRoute
   '/areas/region/$slug': typeof AreasRegionSlugRoute
   '/blog/category/$slug': typeof BlogCategorySlugRoute
@@ -1336,6 +1351,7 @@ export interface FileRoutesByTo {
   '/cabs-booking-pannel/seo/routes': typeof AuthenticatedCabsBookingPannelSeoRoutesRoute
   '/cabs-booking-pannel/seo/services': typeof AuthenticatedCabsBookingPannelSeoServicesRoute
   '/cabs-booking-pannel/vehicle-classes/$id': typeof AuthenticatedCabsBookingPannelVehicleClassesIdRoute
+  '/api/public/campaigns/run': typeof ApiPublicCampaignsRunRoute
   '/api/public/dispatch/drain': typeof ApiPublicDispatchDrainRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/reviews/refresh': typeof ApiPublicReviewsRefreshRoute
@@ -1481,6 +1497,7 @@ export interface FileRoutesById {
   '/_authenticated/cabs-booking-pannel/users': typeof AuthenticatedCabsBookingPannelUsersRoute
   '/_authenticated/tour-preview/$id': typeof AuthenticatedTourPreviewIdRoute
   '/api/public/collect': typeof ApiPublicCollectRoute
+  '/api/public/unsubscribe': typeof ApiPublicUnsubscribeRoute
   '/areas/a/$letter': typeof AreasALetterRoute
   '/areas/region/$slug': typeof AreasRegionSlugRoute
   '/blog/category/$slug': typeof BlogCategorySlugRoute
@@ -1499,6 +1516,7 @@ export interface FileRoutesById {
   '/_authenticated/cabs-booking-pannel/seo/routes': typeof AuthenticatedCabsBookingPannelSeoRoutesRoute
   '/_authenticated/cabs-booking-pannel/seo/services': typeof AuthenticatedCabsBookingPannelSeoServicesRoute
   '/_authenticated/cabs-booking-pannel/vehicle-classes/$id': typeof AuthenticatedCabsBookingPannelVehicleClassesIdRoute
+  '/api/public/campaigns/run': typeof ApiPublicCampaignsRunRoute
   '/api/public/dispatch/drain': typeof ApiPublicDispatchDrainRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/reviews/refresh': typeof ApiPublicReviewsRefreshRoute
@@ -1644,6 +1662,7 @@ export interface FileRouteTypes {
     | '/cabs-booking-pannel/users'
     | '/tour-preview/$id'
     | '/api/public/collect'
+    | '/api/public/unsubscribe'
     | '/areas/a/$letter'
     | '/areas/region/$slug'
     | '/blog/category/$slug'
@@ -1662,6 +1681,7 @@ export interface FileRouteTypes {
     | '/cabs-booking-pannel/seo/routes'
     | '/cabs-booking-pannel/seo/services'
     | '/cabs-booking-pannel/vehicle-classes/$id'
+    | '/api/public/campaigns/run'
     | '/api/public/dispatch/drain'
     | '/api/public/payments/webhook'
     | '/api/public/reviews/refresh'
@@ -1803,6 +1823,7 @@ export interface FileRouteTypes {
     | '/cabs-booking-pannel/users'
     | '/tour-preview/$id'
     | '/api/public/collect'
+    | '/api/public/unsubscribe'
     | '/areas/a/$letter'
     | '/areas/region/$slug'
     | '/blog/category/$slug'
@@ -1821,6 +1842,7 @@ export interface FileRouteTypes {
     | '/cabs-booking-pannel/seo/routes'
     | '/cabs-booking-pannel/seo/services'
     | '/cabs-booking-pannel/vehicle-classes/$id'
+    | '/api/public/campaigns/run'
     | '/api/public/dispatch/drain'
     | '/api/public/payments/webhook'
     | '/api/public/reviews/refresh'
@@ -1965,6 +1987,7 @@ export interface FileRouteTypes {
     | '/_authenticated/cabs-booking-pannel/users'
     | '/_authenticated/tour-preview/$id'
     | '/api/public/collect'
+    | '/api/public/unsubscribe'
     | '/areas/a/$letter'
     | '/areas/region/$slug'
     | '/blog/category/$slug'
@@ -1983,6 +2006,7 @@ export interface FileRouteTypes {
     | '/_authenticated/cabs-booking-pannel/seo/routes'
     | '/_authenticated/cabs-booking-pannel/seo/services'
     | '/_authenticated/cabs-booking-pannel/vehicle-classes/$id'
+    | '/api/public/campaigns/run'
     | '/api/public/dispatch/drain'
     | '/api/public/payments/webhook'
     | '/api/public/reviews/refresh'
@@ -2096,10 +2120,12 @@ export interface RootRouteChildren {
   TravelSolutionsIndexRoute: typeof TravelSolutionsIndexRoute
   UniversitiesIndexRoute: typeof UniversitiesIndexRoute
   ApiPublicCollectRoute: typeof ApiPublicCollectRoute
+  ApiPublicUnsubscribeRoute: typeof ApiPublicUnsubscribeRoute
   AreasALetterRoute: typeof AreasALetterRoute
   AreasRegionSlugRoute: typeof AreasRegionSlugRoute
   BlogCategorySlugRoute: typeof BlogCategorySlugRoute
   BlogTagSlugRoute: typeof BlogTagSlugRoute
+  ApiPublicCampaignsRunRoute: typeof ApiPublicCampaignsRunRoute
   ApiPublicDispatchDrainRoute: typeof ApiPublicDispatchDrainRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   ApiPublicReviewsRefreshRoute: typeof ApiPublicReviewsRefreshRoute
@@ -3052,6 +3078,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCollectRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/unsubscribe': {
+      id: '/api/public/unsubscribe'
+      path: '/api/public/unsubscribe'
+      fullPath: '/api/public/unsubscribe'
+      preLoaderRoute: typeof ApiPublicUnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/areas/a/$letter': {
       id: '/areas/a/$letter'
       path: '/areas/a/$letter'
@@ -3198,6 +3231,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/cabs-booking-pannel/vehicle-classes/$id'
       preLoaderRoute: typeof AuthenticatedCabsBookingPannelVehicleClassesIdRouteImport
       parentRoute: typeof AuthenticatedCabsBookingPannelRouteRoute
+    }
+    '/api/public/campaigns/run': {
+      id: '/api/public/campaigns/run'
+      path: '/api/public/campaigns/run'
+      fullPath: '/api/public/campaigns/run'
+      preLoaderRoute: typeof ApiPublicCampaignsRunRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/public/dispatch/drain': {
       id: '/api/public/dispatch/drain'
@@ -3524,10 +3564,12 @@ const rootRouteChildren: RootRouteChildren = {
   TravelSolutionsIndexRoute: TravelSolutionsIndexRoute,
   UniversitiesIndexRoute: UniversitiesIndexRoute,
   ApiPublicCollectRoute: ApiPublicCollectRoute,
+  ApiPublicUnsubscribeRoute: ApiPublicUnsubscribeRoute,
   AreasALetterRoute: AreasALetterRoute,
   AreasRegionSlugRoute: AreasRegionSlugRoute,
   BlogCategorySlugRoute: BlogCategorySlugRoute,
   BlogTagSlugRoute: BlogTagSlugRoute,
+  ApiPublicCampaignsRunRoute: ApiPublicCampaignsRunRoute,
   ApiPublicDispatchDrainRoute: ApiPublicDispatchDrainRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   ApiPublicReviewsRefreshRoute: ApiPublicReviewsRefreshRoute,
