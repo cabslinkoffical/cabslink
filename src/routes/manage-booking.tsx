@@ -95,7 +95,7 @@ function ManageBookingPage() {
   const [cancelAttempted, setCancelAttempted] = useState(false);
   const [cancelError, setCancelError] = useState<string | null>(null);
   const [cancelling, setCancelling] = useState(false);
-  const [submitted, setSubmitted] = useState<{ ref: string; tier: string } | null>(null);
+  const [submitted, setSubmitted] = useState<{ ref: string; tier: string; auto?: boolean } | null>(null);
 
   const resultRef = useRef<HTMLDivElement | null>(null);
   const lookupFn = useServerFn(findMyBooking);
@@ -161,7 +161,7 @@ function ManageBookingPage() {
           callbackPhone: "",
         },
       });
-      setSubmitted({ ref: res.bookingRef, tier: res.tier });
+      setSubmitted({ ref: res.bookingRef, tier: res.tier, auto: "autoCancelled" in res && !!res.autoCancelled });
       requestAnimationFrame(() => resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
     } catch (err: any) {
       setCancelError(err?.message ?? "We couldn't submit that request. Please call us instead.");
@@ -298,7 +298,7 @@ function ManageBookingPage() {
           {/* Result */}
           <div ref={resultRef} className="scroll-mt-24">
             {submitted ? (
-              <CancellationDone ref_={submitted.ref} tier={submitted.tier} registeredPhone={booking?.phone ?? null} />
+              {submitted.auto ? <UnpaidCancelled ref_={submitted.ref} /> : <CancellationDone ref_={submitted.ref} tier={submitted.tier} registeredPhone={booking?.phone ?? null} />}
 
             ) : booking ? (
               <>
@@ -718,6 +718,26 @@ function maskPhone(phone: string | null | undefined) {
   const match = phone.match(/^(\+\d{2})/);
   if (match) return `${match[1]}${"•".repeat(Math.max(6, digits.length - 2))}`;
   return "•".repeat(Math.max(8, digits.length));
+}
+
+function UnpaidCancelled({ ref_ }: { ref_: string }) {
+  return (
+    <div className="mt-6 overflow-hidden rounded-2xl border border-[var(--gold)]/40 bg-card shadow-raised">
+      <div className="bg-[color-mix(in_oklab,var(--gold)_12%,transparent)] px-6 py-6 text-center">
+        <CheckCircle2 className="mx-auto size-9 text-[var(--gold-ink)]" />
+        <h2 className="mt-2 font-display text-xl font-bold">Your booking is cancelled</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Reference <span className="font-mono font-bold">{ref_}</span> has been cancelled. No payment was taken, so there is nothing to refund.
+        </p>
+      </div>
+      <div className="space-y-4 p-6 text-sm">
+        <p className="text-muted-foreground">We've emailed you a confirmation. We're sorry this trip didn't work out and we look forward to looking after you on your next journey or tour.</p>
+        <Link to="/" className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--gold-ink)]">
+          <ArrowLeft className="size-4" /> Back to home
+        </Link>
+      </div>
+    </div>
+  );
 }
 
 function CancellationDone({ ref_, tier, registeredPhone }: { ref_: string; tier: string; registeredPhone: string | null }) {

@@ -178,10 +178,12 @@ export const listActivityLogsPage = createServerFn({ method: "GET" })
 const CANCEL_VIEWS: Record<string, string[] | null> = {
   open: ["pending", "in_review"], approved: ["approved"], refunded: ["refunded"], closed: ["declined", "completed"], all: null,
 };
+/** Paid = money was taken when the customer asked (anything but the "unpaid" tier). */
+const PAID_FILTER = "refund_tier.is.null,refund_tier.neq.unpaid";
 
 export const listCancellationRequestsPage = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => pageInputSchema.extend({ view: str(20, "open") }).parse(i ?? {}))
+  .inputValidator((i: unknown) => pageInputSchema.extend({ view: str(20, "open"), group: z.enum(["paid", "unpaid"]).default("paid") }).parse(i ?? {}))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { fetchAllPages } = await import("@/lib/fetch-all-pages");
@@ -189,21 +191,27 @@ export const listCancellationRequestsPage = createServerFn({ method: "GET" })
     const search = ilikeAny(["booking_ref", "customer_name", "email", "phone", "reason", "pickup_address", "dropoff_address"], data.q);
     const page = await runPaged<any>((from, to) => {
       let q = context.supabase.from("cancellation_requests").select("*", { count: "exact" });
+      q = data.group === "unpaid" ? q.eq("refund_tier", "unpaid") : q.or(PAID_FILTER);
       if (statuses) q = q.in("status", statuses as any);
       if (search) q = q.or(search);
       return q.order("created_at", { ascending: false }).order("id", { ascending: false }).range(from, to);
     }, data);
-    // Summary over every request (status and amounts only).
+    // Summary over every request (status, tier and amounts only), split paid / unpaid.
     const all = await fetchAllPages<any>((a, z) => context.supabase.from("cancellation_requests")
-      .select("id, status, refund_amount, price_at_request").order("id").range(a, z));
-    const counts: Record<string, number> = { all: all.length, open: 0 };
+      .select("id, status, refund_tier, refund_amount, price_at_request").order("id").range(a, z));
+    const blank = () => ({ all: 0, open: 0, approved: 0, refunded: 0, closed: 0 } as Record<string, number>);
+    const groups = { paid: blank(), unpaid: blank() };
     let refundDue = 0;
     for (const r of all) {
-      counts[r.status] = (counts[r.status] ?? 0) + 1;
-      if (r.status === "pending" || r.status === "in_review") counts.open += 1;
-      if (r.status === "approved") refundDue += Number(r.refund_amount ?? r.price_at_request ?? 0);
+      const g = r.refund_tier === "unpaid" ? groups.unpaid : groups.paid;
+      g.all += 1;
+      if (r.status === "pending" || r.status === "in_review") g.open += 1;
+      else if (r.status === "approved") g.approved += 1;
+      else if (r.status === "refunded") g.refunded += 1;
+      else g.closed += 1;
+      if (r.status === "approved" && r.refund_tier !== "unpaid") refundDue += Number(r.refund_amount ?? r.price_at_request ?? 0);
     }
-    return { ...page, counts, refundDue };
+    return { ...page, counts: groups[data.group], groups, refundDue };
   });
 
 /** One cancellation request by id (for opening a request that isn't on the current page). */
