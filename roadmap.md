@@ -282,3 +282,6 @@
 - [x] Semrush audit (13 Nov): internal nofollow removed (TransportComparison), /book + /book/tour noindex,follow + fixed canonical, not in sitemap; 12 weak pages now ≥2 inbound links (src/lib/seo/specialist-links.ts); tour detail reads parallel, display fare inputs memoised 60s, airport fares start with page lookup. HSTS/asset immutable already in place. 1,253 tests pass. Not published.
 - [x] Site-wide design consistency pass (15 Nov): audited 23 page types at 1280px and 390px — zero sideways overflow, zero page errors. Fixed two real inconsistencies: .local-intro bottom padding was 16/24px vs 48/72px top (now symmetric 3rem/4.5rem) and the service-location landmarks card used ad-hoc pt-8/pb-4 (now the shared PageBand with SectionHeader like every other page). Fleet/blog/tours/pricing/home/route screenshots reviewed visually — consistent. 17 tests pass, build OK. Not published.
 - [x] Hero running strip (15 Nov): "What's included" block replaced by full-width looping navy strip with five FACT_TEXT items; duplicate "Tolls and airport fees included" line removed from booking column; verified Greenock desktop+mobile, no page errors, build OK. Not published.
+
+- [ ] Branded designed HTML layout for all marketing emails
+- [x] Custom automation triggers
