@@ -972,9 +972,10 @@ input[type="time"] {
   .local-hero-title { font-size: 3.25rem; }
 }
 
-/* Local-page introduction: paragraph and key details on the left, page photo on the right. */
+/* Local-page introduction: paragraph on the left; page photo with key-detail cards on the right. */
 .local-intro { padding-block: 3rem 1rem; }
 .local-intro-grid { display: grid; gap: 2rem; align-items: start; }
+.local-intro-side { display: grid; gap: 1.25rem; align-content: start; }
 .local-intro-eyebrow {
   font-size: 11px; font-weight: 600; letter-spacing: 0.28em; text-transform: uppercase;
   color: var(--gold-ink); margin-bottom: 0.75rem;
@@ -983,17 +984,22 @@ input[type="time"] {
   font-size: 1.875rem; line-height: 1.15; font-weight: 700; color: var(--navy);
 }
 .local-intro-body { margin-top: 1rem; display: grid; gap: 0.85rem; font-size: 1rem; line-height: 1.7; color: color-mix(in srgb, var(--navy) 80%, transparent); }
+/* Key details: one navy panel with gold-icon rows, matching the booking panel style. */
 .local-intro-details {
-  margin-top: 1.75rem; display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  display: grid; gap: 0; padding: 1.25rem 1.35rem;
+  border-radius: 1.25rem; background: var(--navy); box-shadow: var(--shadow-raised);
 }
 .local-intro-details li {
-  display: flex; flex-direction: column; gap: 0.25rem; padding: 1rem 1.1rem;
-  border-radius: 1rem; border: 1px solid var(--border); background: var(--card); box-shadow: var(--shadow-raised);
+  display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 0.75rem; align-items: start;
+  padding: 0.85rem 0;
 }
-.local-intro-details li svg { margin-bottom: 0.35rem; }
-.local-intro-detail-label { font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: color-mix(in srgb, var(--navy) 65%, transparent); }
-.local-intro-detail-value { font-size: 1rem; line-height: 1.35; color: var(--navy); font-weight: 700; }
-.local-intro-detail-note { font-size: 0.75rem; line-height: 1.45; color: color-mix(in srgb, var(--navy) 70%, transparent); }
+.local-intro-details li + li { border-top: 1px solid color-mix(in srgb, var(--navy-foreground) 14%, transparent); }
+.local-intro-details li:first-child { padding-top: 0; }
+.local-intro-details li:last-child { padding-bottom: 0; }
+.local-intro-details li svg { grid-row: 1 / span 3; margin-top: 0.15rem; color: var(--gold); }
+.local-intro-detail-label { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); }
+.local-intro-detail-value { font-size: 0.95rem; line-height: 1.4; color: var(--navy-foreground); font-weight: 700; }
+.local-intro-detail-note { font-size: 0.75rem; line-height: 1.5; color: color-mix(in srgb, var(--navy-foreground) 72%, transparent); }
 .local-intro-image {
   border-radius: 1.25rem; overflow: hidden; border: 1px solid var(--border);
   box-shadow: var(--shadow-raised); background: var(--card);
@@ -1007,7 +1013,7 @@ input[type="time"] {
 @media (min-width: 1024px) {
   .local-intro { padding-block: 4.5rem 1.5rem; }
   .local-intro-grid { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 3.5rem; }
-  .local-intro-image { position: sticky; top: 6rem; }
+  .local-intro-side { position: sticky; top: 6rem; }
 }
 @media (prefers-reduced-motion: reduce) {
   .local-hero-phone { transition: none; }

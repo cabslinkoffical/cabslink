@@ -140,25 +140,29 @@ export function LocalPageHero({
               {intro.eyebrow && <p className="local-intro-eyebrow">{intro.eyebrow}</p>}
               <h2 id="local-intro-heading" className="local-intro-heading font-display">{intro.heading}</h2>
               <div className="local-intro-body speakable">{intro.body}</div>
-              {intro.details && intro.details.length > 0 && (
-                <ul className="local-intro-details">
-                  {intro.details.map((f) => (
-                    <li key={`${f.label ?? ""}-${f.value}`}>
-                      {f.icon && <f.icon className="size-5 text-[var(--gold-ink)]" />}
-                      {f.label && <span className="local-intro-detail-label">{f.label}</span>}
-                      <strong className="local-intro-detail-value">{f.value}</strong>
-                      {f.note && <span className="local-intro-detail-note">{f.note}</span>}
-                    </li>
-                  ))}
-                </ul>
-              )}
               {intro.footer}
             </div>
-            {image && (
-              <figure className="local-intro-image">
-                <img src={image} alt={imageAlt ?? title} width={1200} height={own ? 800 : 900} loading="eager" fetchPriority="high" />
-                {imageCaption && <figcaption>{imageCaption}</figcaption>}
-              </figure>
+            {(image || (intro.details && intro.details.length > 0)) && (
+              <div className="local-intro-side min-w-0">
+                {image && (
+                  <figure className="local-intro-image">
+                    <img src={image} alt={imageAlt ?? title} width={1200} height={own ? 800 : 900} loading="eager" fetchPriority="high" />
+                    {imageCaption && <figcaption>{imageCaption}</figcaption>}
+                  </figure>
+                )}
+                {intro.details && intro.details.length > 0 && (
+                  <ul className="local-intro-details">
+                    {intro.details.map((f) => (
+                      <li key={`${f.label ?? ""}-${f.value}`}>
+                        {f.icon && <f.icon className="size-5 text-[var(--gold-ink)]" />}
+                        {f.label && <span className="local-intro-detail-label">{f.label}</span>}
+                        <strong className="local-intro-detail-value">{f.value}</strong>
+                        {f.note && <span className="local-intro-detail-note">{f.note}</span>}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             )}
           </div>
         </section>
