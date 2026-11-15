@@ -464,6 +464,45 @@
   .car-wheel, .road-dash { animation: none !important; }
 }
 
+/* Hero trust strip: track is duplicated, so -50% is one full loop. */
+.hero-strip {
+  position: relative;
+  margin-top: 1.75rem;
+  border-top: 1px solid color-mix(in oklab, var(--gold) 35%, transparent);
+  background: color-mix(in oklab, var(--navy) 88%, black);
+  overflow: hidden;
+}
+.hero-strip-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-x 36s linear infinite;
+  will-change: transform;
+}
+.hero-strip:hover .hero-strip-track,
+.hero-strip:focus-within .hero-strip-track { animation-play-state: paused; }
+.hero-strip-list {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+  padding: 0.65rem 1.25rem 0.65rem 2.5rem;
+  margin: 0;
+  list-style: none;
+  white-space: nowrap;
+}
+.hero-strip-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--navy-foreground);
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-strip-track { animation: none !important; }
+  .hero-strip { overflow-x: auto; }
+  .hero-strip-list[aria-hidden="true"] { display: none; }
+}
+
 /* Vehicle-class marquee: track is duplicated, so -50% is one full loop. */
 @keyframes classMarquee {
   from { transform: translateX(0); }
