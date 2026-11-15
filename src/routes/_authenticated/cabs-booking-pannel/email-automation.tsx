@@ -183,7 +183,7 @@ function AutomationPage() {
               <tbody>
                 {campaigns.map((c) => (
                   <tr key={c.id} className="border-t border-border/70 align-top">
-                    <td className="px-4 py-3"><div className="font-medium">{c.name}</div><div className="text-xs text-muted-foreground">{c.subject}</div><div className="mt-0.5 text-xs text-muted-foreground">{AUDIENCE_LABELS[c.audience as Audience]}</div></td>
+                    <td className="px-4 py-3"><div className="font-medium">{c.name}</div><div className="text-xs text-muted-foreground">{c.subject}</div><div className="mt-0.5 text-xs text-muted-foreground">{AUDIENCE_LABELS[c.audience as Audience]}{c.audience === "custom" ? ` (${c.audience_size ?? 0})` : ""}</div></td>
                     <td className="px-4 py-3 text-xs">{describeSchedule({ frequency: c.frequency, sendHour: c.send_hour, weekday: c.weekday, monthDay: c.month_day, startsOn: c.starts_on })}</td>
                     <td className="whitespace-nowrap px-4 py-3 text-xs">{c.status === "active" ? when(c.next_run_at) : "—"}</td>
                     <td className="px-4 py-3 text-xs tabular-nums">{c.total_sent}{c.last_run_at ? <div className="text-muted-foreground">last {when(c.last_run_at)}</div> : null}</td>
@@ -192,7 +192,7 @@ function AutomationPage() {
                       <div className="flex flex-wrap justify-end gap-1.5">
                         {c.status === "active" && <Button size="sm" variant="outline" onClick={() => setStatus(c, "paused")}><Pause className="size-3.5" />Pause</Button>}
                         {(c.status === "paused" || c.status === "draft") && <Button size="sm" variant="outline" onClick={() => setStatus(c, "active")}><Play className="size-3.5" />Start</Button>}
-                        {c.status !== "completed" && <Button size="sm" variant="gold" disabled={now.isPending} onClick={() => { if (confirm(`Send "${c.name}" now to ${sizes[c.audience as Audience]} customers?`)) now.mutate({ data: { id: c.id } } as any); }}><Send className="size-3.5" />Send now</Button>}
+                        {c.status !== "completed" && <Button size="sm" variant="gold" disabled={now.isPending} onClick={() => { if (confirm(`Send "${c.name}" now to ${audienceSize(c)} customers?`)) now.mutate({ data: { id: c.id } } as any); }}><Send className="size-3.5" />Send now</Button>}
                         <Button size="sm" variant="ghost" onClick={() => setSendsFor(c)} aria-label="Send history"><History className="size-3.5" /></Button>
                         <Button size="sm" variant="ghost" onClick={() => edit(c)} aria-label="Edit"><Pencil className="size-3.5" /></Button>
                         <Button size="sm" variant="ghost" onClick={() => { if (confirm(`Delete "${c.name}"?`)) del.mutate({ data: { id: c.id } } as any); }} aria-label="Delete"><Trash2 className="size-3.5" /></Button>
@@ -335,9 +335,10 @@ function AutomationPage() {
                     <Label className="text-xs">Send to</Label>
                     <Select value={form.audience} onValueChange={(v) => set("audience", v as Audience)}>
                       <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-                      <SelectContent>{(Object.keys(AUDIENCE_LABELS) as Audience[]).map((a) => <SelectItem key={a} value={a}>{AUDIENCE_LABELS[a]} ({sizes[a]})</SelectItem>)}</SelectContent>
+                      <SelectContent>{(Object.keys(AUDIENCE_LABELS) as Audience[]).map((a) => <SelectItem key={a} value={a}>{AUDIENCE_LABELS[a]}{a === "custom" ? "" : ` (${sizes[a]})`}</SelectItem>)}</SelectContent>
                     </Select>
                   </div>
+                  {form.audience === "custom" && <CustomAudience value={form.audience_filter ?? {}} onChange={(v) => set("audience_filter", v)} allTags={allTags} />}
                   <div className="grid gap-3 sm:grid-cols-2">
                     <div>
                       <Label className="text-xs">How often</Label>
@@ -388,7 +389,7 @@ function AutomationPage() {
                 )}
 
                 <EmailPreview subject={form.subject} body={form.body} coupon={couponOf(form.coupon_id)} />
-                <Warnings list={campaignWarnings({ subject: form.subject, body: form.body, coupon: couponOf(form.coupon_id), audienceSize: sizes[form.audience] })} />
+                <Warnings list={campaignWarnings({ subject: form.subject, body: form.body, coupon: couponOf(form.coupon_id), audienceSize: form.audience === "custom" ? (form.id ? (campaigns.find((c) => c.id === form.id)?.audience_size ?? undefined) : undefined) : sizes[form.audience] })} />
                 <div className="flex flex-col gap-2 sm:flex-row">
                   <Button variant="outline" className="flex-1" disabled={save.isPending} onClick={() => save.mutate(payload(form, form.status === "active" ? "active" : "draft") as any)}>Save{form.status === "active" ? " changes" : " as draft"}</Button>
                   <Button variant="gold" className="flex-1" disabled={save.isPending} onClick={() => { save.mutate(payload(form, "active") as any); set("status", "active"); }}><Ticket className="size-4" />Save and schedule</Button>
