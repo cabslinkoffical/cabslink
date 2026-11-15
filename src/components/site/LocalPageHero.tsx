@@ -141,6 +141,15 @@ export function LocalPageHero({
               <h2 id="local-intro-heading" className="local-intro-heading font-display">{intro.heading}</h2>
               <div className="local-intro-body speakable">{intro.body}</div>
               {intro.footer}
+              <div className="local-intro-facts">
+                <h3 className="font-display">How booking works with Cabslink</h3>
+                <dl>
+                  <div><dt>Fixed price</dt><dd>{FACT_TEXT.feesIncluded}</dd></div>
+                  <div><dt>Flights and waiting</dt><dd>{FACT_TEXT.flightTracking} {FACT_TEXT.airportWaitShort}.</dd></div>
+                  <div><dt>Paying</dt><dd>{FACT_TEXT.payment}</dd></div>
+                  <div><dt>Changing plans</dt><dd>{FACT_TEXT.transferCancellationShort}.</dd></div>
+                </dl>
+              </div>
             </div>
             {(image || (intro.details && intro.details.length > 0)) && (
               <div className="local-intro-side min-w-0">
