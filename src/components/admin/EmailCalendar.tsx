@@ -16,7 +16,7 @@ function shiftMonth(m: string, by: number) {
 }
 
 const STYLE: Record<Item["kind"], string> = {
-  trip: "bg-primary/10 text-primary border-primary/20",
+  trip: "bg-primary text-primary-foreground border-primary",
   campaign: "bg-accent/20 text-foreground border-accent/40",
   auto: "bg-success/15 text-success border-success/30",
 };
@@ -71,6 +71,7 @@ export function EmailCalendar() {
             {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => <div key={d} className="bg-muted px-2 py-1 font-semibold">{d}</div>)}
             {weeks.flat().map((d, i) => {
               const items = d ? byDay.get(d) ?? [] : [];
+              if (!d) return <div key={i} className="min-h-24 bg-muted/40" />;
               return (
                 <button key={i} type="button" disabled={!d} onClick={() => d && setPicked(d)}
                   className={`min-h-24 bg-card p-1.5 text-left align-top ${!d ? "bg-muted/40" : "hover:bg-muted/50"} ${d === picked ? "ring-2 ring-inset ring-primary" : ""}`}>
