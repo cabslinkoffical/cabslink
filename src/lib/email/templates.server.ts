@@ -237,3 +237,26 @@ export function statusChangeEmail(ctx: BookingEmailContext) {
     text: textLines(ctx, `Booking ${label}`, chosen.intro.replace(/<[^>]+>/g, ""), chosen.next.replace(/<[^>]+>/g, "")),
   };
 }
+
+// ---------------- Customer: unpaid booking cancelled automatically ----------------
+/** Sent when a customer cancels a booking they had not paid for: nothing to refund, so it closes at once. */
+export function unpaidCancellationEmail(ctx: BookingEmailContext) {
+  const name = ctx.customerName ? esc(ctx.customerName) : "there";
+  const heading = "Your booking has been cancelled";
+  const intro = `Hi ${name}, as you asked, booking ${esc(ctx.bookingRef)} has been cancelled. No payment was taken, so there is nothing to refund and nothing more you need to do.`;
+  const next = `We're sorry this trip didn't work out this time, and we'd love to look after you on your next journey or tour. Whenever you're ready, you can book again at ${esc(SITE.url)} or call us on ${esc(SITE.phoneUK)}.`;
+  const html = shell(heading, `
+    <p style="margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:.2em;color:#855b00;font-weight:700;">Cancellation confirmed</p>
+    <h1 style="margin:0 0 12px;font-size:22px;">${heading}</h1>
+    <p style="margin:0 0 12px;color:#0e182c;line-height:1.55;">${intro}</p>
+    <p style="margin:0 0 20px;color:#0e182c;line-height:1.55;">${next}</p>
+    ${commonBookingRows(ctx)}
+    <p style="margin:24px 0 0;"><a href="${esc(SITE.url)}" style="display:inline-block;background:#dfaf26;color:#0e182c;padding:12px 22px;border-radius:8px;font-weight:700;text-decoration:none;">Plan your next trip</a></p>
+    <p style="margin:20px 0 0;color:#0e182c;line-height:1.55;">We look forward to welcoming you on board soon.<br>The ${esc(SITE.name)} team</p>
+  `);
+  return {
+    subject: safeSubject(`Booking ${ctx.bookingRef} cancelled — we hope to see you soon`),
+    html,
+    text: textLines(ctx, heading, intro.replace(/<[^>]+>/g, ""), `${next}\n\nWe look forward to welcoming you on board soon.`),
+  };
+}

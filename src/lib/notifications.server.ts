@@ -24,6 +24,7 @@ import {
   adminNewBookingEmail,
   customerReceivedEmail,
   statusChangeEmail,
+  unpaidCancellationEmail,
   normaliseEmail,
   type BookingEmailContext,
 } from "@/lib/email/templates.server";
@@ -303,6 +304,22 @@ export async function notifyStatusChange(
     bookingId,
     eventKey,
     notificationType: `customer_status_${status}`,
+    recipientCategory: "customer",
+    recipient: ctx.customerEmail,
+    subject: email.subject,
+    html: email.html,
+    text: email.text,
+  });
+  return { ok: res.ok, configured: res.configured };
+}
+
+/** Friendly "see you next time" email for an unpaid booking the customer cancelled. */
+export async function notifyUnpaidCancellation(ctx: BookingEmailContext, bookingId: string, transitionId: string | null) {
+  const email = unpaidCancellationEmail(ctx);
+  const res = await sendAndLog({
+    bookingId,
+    eventKey: transitionId ? `customer_status_cancelled:${transitionId}` : "customer_unpaid_cancelled",
+    notificationType: "customer_status_cancelled",
     recipientCategory: "customer",
     recipient: ctx.customerEmail,
     subject: email.subject,
