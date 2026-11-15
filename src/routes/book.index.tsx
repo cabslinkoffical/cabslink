@@ -38,6 +38,7 @@ import { PlaceAutocomplete, type SelectedPlace } from "@/components/site/PlaceAu
 import { PhoneInput } from "@/components/site/PhoneInput";
 
 import { calculateQuotes, createBooking, type QuoteCard } from "@/lib/pricing.functions";
+import { useMarketingOptIn } from "@/components/site/MarketingOptIn";
 import { useCaptcha } from "@/components/site/Captcha";
 import { track } from "@/lib/tracking";
 import { rememberCheckout, trackEvent } from "@/lib/analytics-ga";
@@ -561,6 +562,7 @@ function BookPage() {
 
   const bookFn = useServerFn(createBooking);
   const captcha = useCaptcha("booking");
+  const offers = useMarketingOptIn("booking");
   const submitBooking = async () => {
     if (inflight.current || !chosen) return;
     if (scenicProblem) { toast.error(scenicProblem); setStep("details"); return; }
@@ -621,6 +623,7 @@ function BookPage() {
           captchaToken: captcha.token,
         },
       });
+      offers.record({ email: parsed.data.email, name: parsed.data.customer_name, phone: parsed.data.phone });
       track("booking_submitted", {
         vehicle: chosen.vehicleId,
         vehicle_count: qty,
@@ -826,7 +829,7 @@ function BookPage() {
                       submitting={submitting}
                       payMethod={payMethod}
                       onPayMethodChange={setPayMethod}
-                      captchaWidget={captcha.widget}
+                      captchaWidget={<>{offers.element}{captcha.widget}</>}
                       captchaReady={captcha.ready}
                     />
                   )}
