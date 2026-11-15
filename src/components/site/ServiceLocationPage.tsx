@@ -10,7 +10,7 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { LocalMapSection } from "@/components/site/LocalMapSection";
 import { getPublicPlaceCoords } from "@/lib/seo-public.functions";
 import { useQuery } from "@tanstack/react-query";
-import { FaqBand } from "@/components/site/PageBand";
+import { FaqBand, PageBand } from "@/components/site/PageBand";
 import { SectionHeader } from "@/components/site/PageHero";
 import { LocalPageHero } from "@/components/site/LocalPageHero";
 import { serviceLocalImage, serviceLocationPrefill } from "@/lib/local-page";
@@ -78,20 +78,15 @@ export function ServiceLocationPage({ content }: { content: ServiceLocationConte
       />
 
       {loc.landmarks.length > 0 && (
-        <section className="pb-4 pt-8">
-          <div className="container-x">
-            <div className="rounded-3xl border border-border bg-card p-6 shadow-[var(--shadow-raised)]">
-              <h2 className="font-display text-lg font-semibold text-[var(--navy)]">Key pickup points in {loc.name}</h2>
-              <ul className="mt-4 grid gap-2 text-sm text-muted-foreground sm:grid-cols-2 lg:grid-cols-3">
-                {loc.landmarks.map((l) => (
-                  <li key={l} className="flex items-start gap-2">
-                    <MapPin className="mt-0.5 size-4 shrink-0 text-[var(--gold-ink)]" /> {l}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </section>
+        <PageBand title={`Key pickup points in ${loc.name}`}>
+          <ul className="grid gap-2 text-sm text-muted-foreground sm:grid-cols-2 lg:grid-cols-3">
+            {loc.landmarks.map((l) => (
+              <li key={l} className="flex items-start gap-2">
+                <MapPin className="mt-0.5 size-4 shrink-0 text-[var(--gold-ink)]" /> {l}
+              </li>
+            ))}
+          </ul>
+        </PageBand>
       )}
 
       {/* Popular journeys */}
