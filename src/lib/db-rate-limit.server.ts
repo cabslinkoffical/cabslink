@@ -71,6 +71,8 @@ export const LIMITS = {
   // Phase 2B: every public endpoint has its own counter name.
   confirmationLookup: { name: "confirmationLookup", max: 30, windowSeconds: 60 },
   contact: { name: "contact", max: 5, windowSeconds: 600 },
+  marketingOptIn: { name: "marketingOptIn", max: 10, windowSeconds: 600 },
+  unsubscribe: { name: "unsubscribe", max: 20, windowSeconds: 600 },
   corporate: { name: "corporate", max: 5, windowSeconds: 600 },
   driverApplication: { name: "driverApplication", max: 5, windowSeconds: 600 },
   tourEnquiry: { name: "tourEnquiry", max: 5, windowSeconds: 600 },
