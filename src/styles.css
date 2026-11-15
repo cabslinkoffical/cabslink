@@ -1450,9 +1450,9 @@ input[type="time"] {
 
 .local-intro-facts { margin-top: 2rem; }
 .local-intro-facts h3 { font-size: 1.15rem; font-weight: 700; color: var(--navy); }
-.local-intro-facts dl { margin-top: 1rem; display: grid; gap: 0.75rem; }
-.local-intro-facts dl > div { display: grid; grid-template-columns: auto minmax(0,1fr); column-gap: 0.85rem; row-gap: 0.2rem; align-content: start; padding: 1rem 1.1rem; background: var(--card); border: 1px solid color-mix(in srgb, var(--navy) 10%, transparent); border-top: 3px solid var(--gold); border-radius: 0.9rem; box-shadow: 0 6px 18px -12px color-mix(in srgb, var(--navy) 35%, transparent); }
-.local-intro-fact-icon { grid-row: span 2; display: grid; place-items: center; width: 2.1rem; height: 2.1rem; border-radius: 999px; background: var(--navy); color: var(--gold); }
-.local-intro-facts dt { font-size: 0.82rem; font-weight: 700; color: var(--navy); align-self: center; }
-.local-intro-facts dd { font-size: 0.85rem; line-height: 1.55; color: color-mix(in srgb, var(--navy) 70%, transparent); }
-@media (min-width: 640px) { .local-intro-facts dl { grid-template-columns: 1fr 1fr; } }
+.local-intro-facts dl { margin-top: 1.25rem; position: relative; display: grid; gap: 1.4rem; }
+.local-intro-facts dl::before { content: ""; position: absolute; left: 1.05rem; top: 0.5rem; bottom: 0.5rem; width: 2px; background: linear-gradient(var(--gold), color-mix(in srgb, var(--gold) 15%, transparent)); }
+.local-intro-facts dl > div { position: relative; display: grid; grid-template-columns: auto minmax(0,1fr); column-gap: 1rem; row-gap: 0.2rem; }
+.local-intro-fact-icon { grid-row: span 2; position: relative; z-index: 1; display: grid; place-items: center; width: 2.1rem; height: 2.1rem; border-radius: 999px; background: var(--navy); color: var(--gold); box-shadow: 0 0 0 4px var(--background); }
+.local-intro-facts dt { font-size: 0.95rem; font-weight: 700; color: var(--navy); align-self: center; }
+.local-intro-facts dd { font-size: 0.88rem; line-height: 1.6; color: color-mix(in srgb, var(--navy) 70%, transparent); }
