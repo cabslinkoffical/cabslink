@@ -122,7 +122,8 @@ function AutomationPage() {
   const sendsQ = useQuery({ queryKey: ["admin", "campaign-sends", sendsFor?.id], queryFn: () => listCampaignSends({ data: { id: sendsFor.id } }), enabled: !!sendsFor });
 
   const allTags = ((q.data as any)?.allTags ?? []) as string[];
-  const audienceSize = (c: any) => (c.audience === "custom" ? c.audience_size ?? 0 : sizes[c.audience as Audience] ?? 0);
+  const sizeOf = (a: Audience) => (a === "custom" ? 0 : sizes[a]);
+  const audienceSize = (c: any) => (c.audience === "custom" ? c.audience_size ?? 0 : sizeOf(c.audience as Audience));
   const payload = (f: Form, status?: Form["status"]) => ({
     data: {
       id: f.id, name: f.name, subject: f.subject, body: f.body, coupon_id: f.coupon_id, audience: f.audience,
@@ -335,7 +336,7 @@ function AutomationPage() {
                     <Label className="text-xs">Send to</Label>
                     <Select value={form.audience} onValueChange={(v) => set("audience", v as Audience)}>
                       <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-                      <SelectContent>{(Object.keys(AUDIENCE_LABELS) as Audience[]).map((a) => <SelectItem key={a} value={a}>{AUDIENCE_LABELS[a]}{a === "custom" ? "" : ` (${sizes[a]})`}</SelectItem>)}</SelectContent>
+                      <SelectContent>{(Object.keys(AUDIENCE_LABELS) as Audience[]).map((a) => <SelectItem key={a} value={a}>{AUDIENCE_LABELS[a]}{a === "custom" ? "" : ` (${sizeOf(a)})`}</SelectItem>)}</SelectContent>
                     </Select>
                   </div>
                   {form.audience === "custom" && <CustomAudience value={form.audience_filter ?? {}} onChange={(v) => set("audience_filter", v)} allTags={allTags} />}
