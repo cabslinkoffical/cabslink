@@ -17,6 +17,10 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { LocalPageHero } from "@/components/site/LocalPageHero";
 import { LocalMapSection } from "@/components/site/LocalMapSection";
 import { defaultLocalImage, destinationPrefill } from "@/lib/local-page";
+import { PlaceGuideBlock } from "@/components/seo/PlaceGuideBlock";
+import { FLEET_LINE, type PlaceGuide } from "@/content/place-guides";
+import { FACT_TEXT } from "@/lib/site-facts";
+import { useRouterState } from "@tanstack/react-router";
 import { MapPin, Clock, Car } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getFromFare } from "@/lib/from-fare.functions";
@@ -65,6 +69,33 @@ export function DestinationPage({
     enabled: hasGeo,
     staleTime: 10 * 60_000,
   }).data;
+
+  const path = useRouterState({ select: (st) => st.location.pathname });
+  // Pages without a hand-written guide get one built only from verified facts.
+  const autoGuide: PlaceGuide = {
+    path,
+    sections: [
+      ...(drives.length
+        ? [{
+            heading: `Journey times to ${name}`,
+            paragraphs: [
+              `${drives.map((j) => `From ${j.from} the drive is roughly ${fmtMins(j.mins)} (about ${j.miles} miles)`).join("; ")}. These are straight estimates, and traffic varies; your quote shows the exact route and fixed price before you pay.`,
+            ],
+          }]
+        : []),
+      {
+        heading: "Pickup and drop-off",
+        paragraphs: [
+          `Your driver collects you at the exact address or entrance you enter when booking and drops you at ${name}, or the other way round. Add notes such as a gate, door or ward entrance at checkout so the driver knows where to stop.`,
+        ],
+      },
+      { heading: "Choosing the right vehicle", paragraphs: [`${FLEET_LINE} Larger groups can book more than one vehicle.`] },
+      {
+        heading: "Prices, payment and changes",
+        paragraphs: [FACT_TEXT.feesIncluded, FACT_TEXT.payment, `${FACT_TEXT.transferCancellationShort}.`],
+      },
+    ],
+  };
 
   const heroFacts = [
     ...(place ? [{ label: "Location", value: place }] : []),
@@ -119,7 +150,7 @@ export function DestinationPage({
       )}
 
       {/* Bands sit directly in <main> so the shared white / cream rhythm applies. */}
-      <DestinationSections sections={sections} loaded={data}>{appendix}</DestinationSections>
+      <DestinationSections sections={sections} loaded={data}>{appendix ?? <PlaceGuideBlock guide={autoGuide} />}</DestinationSections>
       <LocalMapSection focus={hasGeo ? { lat: d.lat as number, lng: d.lng as number, label: name } : null} />
       <RelatedLinks center={typeof d.lat === "number" && typeof d.lng === "number" ? { lat: d.lat, lng: d.lng } : null} />
     </SiteLayout>
