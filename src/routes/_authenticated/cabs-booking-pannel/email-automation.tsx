@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Plus, Send, Pause, Play, Trash2, Pencil, Mail, Users, Ticket, History, Zap, AlertTriangle, ShieldCheck } from "lucide-react";
 import { listCampaigns, saveCampaign, deleteCampaign, sendCampaignTest, sendCampaignNow, listCampaignSends, saveMarketingSettings, saveAutomationRule, deleteAutomationRule, sendRuleTest } from "@/lib/marketing.functions";
 import { EMAIL_TEMPLATES, TEMPLATE_KIND_LABELS, TRIGGER_LABELS, TRIGGER_TEMPLATE, TRIGGER_TYPES, TRIGGER_DEFAULT_DAYS, CUSTOM_EVENT_LABELS, campaignWarnings, type TriggerType, type AudienceFilter, type CustomEvent } from "@/lib/email-automation";
+import { renderCampaign } from "@/lib/email-design";
 import { Switch } from "@/components/ui/switch";
 import { describeSchedule, WEEKDAYS, type CampaignFrequency } from "@/lib/campaign-schedule";
 import { ukDate } from "@/lib/uk-time";
@@ -280,6 +281,7 @@ function AutomationPage() {
                     <p className="text-xs text-muted-foreground">Goes only to the admin email in Settings.</p>
                   </section>
                 )}
+                <EmailPreview subject={rule.subject} body={rule.body} coupon={couponOf(rule.coupon_id)} />
                 <Warnings list={campaignWarnings({ subject: rule.subject, body: rule.body, coupon: couponOf(rule.coupon_id) })} />
                 <div className="flex flex-col gap-2 sm:flex-row">
                   <Button variant="outline" className="flex-1" disabled={saveRuleM.isPending} onClick={() => saveRuleM.mutate({ data: rule } as any)}>Save{rule.active ? "" : " (switched off)"}</Button>
@@ -380,6 +382,7 @@ function AutomationPage() {
                   </section>
                 )}
 
+                <EmailPreview subject={form.subject} body={form.body} coupon={couponOf(form.coupon_id)} />
                 <Warnings list={campaignWarnings({ subject: form.subject, body: form.body, coupon: couponOf(form.coupon_id), audienceSize: sizes[form.audience] })} />
                 <div className="flex flex-col gap-2 sm:flex-row">
                   <Button variant="outline" className="flex-1" disabled={save.isPending} onClick={() => save.mutate(payload(form, form.status === "active" ? "active" : "draft") as any)}>Save{form.status === "active" ? " changes" : " as draft"}</Button>
@@ -456,5 +459,20 @@ function CustomConditions({ value, onChange }: { value: AudienceFilter; onChange
       <div><Label className="text-xs">Completed trips, at most</Label><Input type="number" min={0} className="mt-1" value={value.max_trips ?? ""} onChange={(e) => onChange({ ...value, max_trips: num(e.target.value) })} /></div>
       <div className="sm:col-span-2"><Label className="text-xs">Has spent at least (£)</Label><Input type="number" min={0} className="mt-1" value={value.min_spend ?? ""} onChange={(e) => onChange({ ...value, min_spend: num(e.target.value) })} /></div>
     </div>
+  );
+}
+
+/** Shows the designed email exactly as customers receive it, with sample name "Alex". */
+function EmailPreview({ subject, body, coupon }: { subject: string; body: string; coupon: any }) {
+  const [open, setOpen] = useState(false);
+  const info = coupon ? { code: coupon.code, offer: coupon.discount_type === "percentage" ? `${Number(coupon.discount_value)}% off` : `£${Number(coupon.discount_value).toFixed(2)} off`, expires: coupon.expires_at ?? null } : null;
+  return (
+    <section className="space-y-2 rounded-lg border border-border p-4">
+      <div className="flex items-center justify-between">
+        <div className="text-[11px] uppercase tracking-wide text-muted-foreground">How the email looks</div>
+        <Button size="sm" variant="outline" onClick={() => setOpen((o) => !o)}>{open ? "Hide preview" : "Show preview"}</Button>
+      </div>
+      {open && <iframe title="Email preview" className="h-[640px] w-full rounded-md border border-border bg-background" sandbox="" srcDoc={renderCampaign({ subject, body }, { name: "Alex Smith", token: "preview" }, info).html} />}
+    </section>
   );
 }
