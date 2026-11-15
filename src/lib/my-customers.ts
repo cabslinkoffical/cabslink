@@ -46,6 +46,8 @@ export type MyCustomer = {
   abandonedAt: string | null;
   /** UK date of the latest enquiry/form. */
   lastEnquiryAt: string | null;
+  /** Staff-added labels (from contact_tags), for custom campaign audiences. */
+  tags: string[];
 };
 export type LawfulBasis = "consent" | "soft_opt_in" | null;
 
@@ -62,6 +64,7 @@ export function isDriverMessage(m: { source?: string | null; subject?: string | 
 type In = {
   bookings: any[]; payments: any[]; messages: any[]; customTours: any[];
   cancellations: any[]; amendments: any[]; contacts: any[]; drivers: any[];
+  contactTags?: any[];
 };
 
 export function buildCustomers(i: In, today: string = ukDate()): MyCustomer[] {
@@ -81,7 +84,7 @@ export function buildCustomers(i: In, today: string = ukDate()): MyCustomer[] {
     if (!key || !key.includes("@") || driverEmails.has(key)) return null;
     let c = map.get(key);
     if (!c) {
-      c = { email: key, name: null, phone: null, firstSeen: at, lastSeen: at, bookings: 0, completedBookings: 0, cancelledBookings: 0, enquiries: 0, spend: 0, lastPickup: null, sources: [], consent: "no_consent", optedInAt: null, basis: null, firstBookingAt: null, lastCompletedPickup: null, lastMarketingAt: null, blockedReason: null, nextPickup: null, lastCancelledAt: null, abandonedAt: null, lastEnquiryAt: null, _liveAt: "", _nameAt: "", _phoneAt: "" };
+      c = { email: key, name: null, phone: null, firstSeen: at, lastSeen: at, bookings: 0, completedBookings: 0, cancelledBookings: 0, enquiries: 0, spend: 0, lastPickup: null, sources: [], consent: "no_consent", optedInAt: null, basis: null, firstBookingAt: null, lastCompletedPickup: null, lastMarketingAt: null, blockedReason: null, nextPickup: null, lastCancelledAt: null, abandonedAt: null, lastEnquiryAt: null, tags: [], _liveAt: "", _nameAt: "", _phoneAt: "" };
       map.set(key, c);
     }
     if (at < c.firstSeen) c.firstSeen = at;
@@ -137,6 +140,14 @@ export function buildCustomers(i: In, today: string = ukDate()): MyCustomer[] {
     c.lastMarketingAt = mc.last_marketing_at ?? null;
     c.blockedReason = mc.suppressed_reason ?? (mc.unsubscribed_at ? "unsubscribed" : null);
   }
+  const contactIdToEmail = new Map<string, string>();
+  for (const mc of i.contacts) contactIdToEmail.set(String(mc.id), normEmail(mc.email));
+  for (const t of i.contactTags ?? []) {
+    const c = map.get(contactIdToEmail.get(String(t.contact_id)) ?? "");
+    const tag = String(t.tag ?? "").trim().toLowerCase();
+    if (c && tag && !c.tags.includes(tag)) c.tags.push(tag);
+  }
+
   for (const c of map.values()) {
     c.basis = c.consent === "subscribed" ? "consent"
       : c.consent === "no_consent" && c.bookings > c.cancelledBookings ? "soft_opt_in" : null;
@@ -165,10 +176,35 @@ export function basisLabel(c: Pick<MyCustomer, "basis" | "optedInAt" | "firstBoo
   return "No permission to email offers";
 }
 
+/** Extra conditions for a custom campaign audience. Every set condition must match. */
+export type CampaignAudienceFilter = {
+  booked?: "any" | "yes" | "no";
+  source?: CustomerSource | null;
+  min_trips?: number | null;
+  max_trips?: number | null;
+  min_spend?: number | null;
+  /** Customer must carry every listed tag. */
+  tags?: string[];
+  /** If non-empty, only these addresses (still need permission to email). */
+  emails?: string[];
+};
+
+function matchesFilter(c: MyCustomer, f: CampaignAudienceFilter): boolean {
+  if (f.emails?.length && !f.emails.map(normEmail).includes(c.email)) return false;
+  if (f.booked === "yes" && c.bookings === 0) return false;
+  if (f.booked === "no" && c.bookings > 0) return false;
+  if (f.source && !c.sources.includes(f.source)) return false;
+  if (f.min_trips != null && c.completedBookings < f.min_trips) return false;
+  if (f.max_trips != null && c.completedBookings > f.max_trips) return false;
+  if (f.min_spend != null && c.spend < f.min_spend) return false;
+  if (f.tags?.length && !f.tags.every((t) => c.tags.includes(t.trim().toLowerCase()))) return false;
+  return true;
+}
+
 /** Who a campaign audience reaches: opted in or past bookers (soft opt-in), never unsubscribed, blocked or drivers. */
-export function campaignAudience(all: MyCustomer[], audience: "all" | "booked" | "not_booked"): MyCustomer[] {
+export function campaignAudience(all: MyCustomer[], audience: "all" | "booked" | "not_booked" | "custom", filter?: CampaignAudienceFilter | null): MyCustomer[] {
   return all.filter((c) => c.basis !== null &&
-    (audience === "all" || (audience === "booked" ? c.bookings > 0 : c.bookings === 0)));
+    (audience === "all" || (audience === "booked" ? c.bookings > 0 : audience === "not_booked" ? c.bookings === 0 : matchesFilter(c, filter ?? {}))));
 }
 
 const csvCell = (v: unknown) => {
