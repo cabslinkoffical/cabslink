@@ -28,7 +28,7 @@ export async function loadCustomers(db: Db): Promise<MyCustomer[]> {
     all(db, "custom_tour_requests", "id, customer_name, email, phone, created_at"),
     all(db, "cancellation_requests", "id, customer_name, email, phone, created_at"),
     all(db, "booking_amendments", "id, customer_name, email, phone, created_at"),
-    all(db, "marketing_contacts", "id, email, opted_in, opted_in_at, unsubscribed_at"),
+    all(db, "marketing_contacts", "id, email, opted_in, opted_in_at, unsubscribed_at, suppressed_reason, last_marketing_at"),
     all(db, "drivers", "id, email"),
   ]);
   return buildCustomers({ bookings, payments, messages, customTours, cancellations, amendments, contacts, drivers });
