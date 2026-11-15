@@ -2010,6 +2010,121 @@ export type Database = {
           },
         ]
       }
+      email_campaign_sends: {
+        Row: {
+          campaign_id: string
+          created_at: string
+          email: string
+          error: string | null
+          id: string
+          provider_message_id: string | null
+          run_key: string
+          status: string
+        }
+        Insert: {
+          campaign_id: string
+          created_at?: string
+          email: string
+          error?: string | null
+          id?: string
+          provider_message_id?: string | null
+          run_key: string
+          status?: string
+        }
+        Update: {
+          campaign_id?: string
+          created_at?: string
+          email?: string
+          error?: string | null
+          id?: string
+          provider_message_id?: string | null
+          run_key?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_campaign_sends_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "email_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_campaigns: {
+        Row: {
+          audience: string
+          body: string
+          coupon_id: string | null
+          created_at: string
+          created_by: string | null
+          frequency: string
+          id: string
+          last_run_at: string | null
+          last_run_sent: number
+          month_day: number | null
+          name: string
+          next_run_at: string | null
+          send_hour: number
+          starts_on: string | null
+          status: string
+          subject: string
+          total_sent: number
+          updated_at: string
+          weekday: number | null
+        }
+        Insert: {
+          audience?: string
+          body: string
+          coupon_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          frequency?: string
+          id?: string
+          last_run_at?: string | null
+          last_run_sent?: number
+          month_day?: number | null
+          name: string
+          next_run_at?: string | null
+          send_hour?: number
+          starts_on?: string | null
+          status?: string
+          subject: string
+          total_sent?: number
+          updated_at?: string
+          weekday?: number | null
+        }
+        Update: {
+          audience?: string
+          body?: string
+          coupon_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          frequency?: string
+          id?: string
+          last_run_at?: string | null
+          last_run_sent?: number
+          month_day?: number | null
+          name?: string
+          next_run_at?: string | null
+          send_hour?: number
+          starts_on?: string | null
+          status?: string
+          subject?: string
+          total_sent?: number
+          updated_at?: string
+          weekday?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_campaigns_coupon_id_fkey"
+            columns: ["coupon_id"]
+            isOneToOne: false
+            referencedRelation: "coupons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       extra_vehicle_classes: {
         Row: {
           created_at: string
@@ -2293,6 +2408,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      marketing_contacts: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          name: string | null
+          opt_in_source: string | null
+          opted_in: boolean
+          opted_in_at: string | null
+          phone: string | null
+          unsubscribe_token: string
+          unsubscribed_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          name?: string | null
+          opt_in_source?: string | null
+          opted_in?: boolean
+          opted_in_at?: string | null
+          phone?: string | null
+          unsubscribe_token?: string
+          unsubscribed_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string | null
+          opt_in_source?: string | null
+          opted_in?: boolean
+          opted_in_at?: string | null
+          phone?: string | null
+          unsubscribe_token?: string
+          unsubscribed_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       media_assets: {
         Row: {
@@ -5303,6 +5460,7 @@ export type Database = {
         Args: { p_id: string; p_prices: Json; p_settings: Json }
         Returns: string
       }
+      campaigns_wake_run: { Args: never; Returns: undefined }
       claim_dispatch_event: { Args: never; Returns: Json }
       current_driver_id: { Args: never; Returns: string }
       dispatch_wake_delivery: { Args: never; Returns: undefined }
