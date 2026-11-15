@@ -103,3 +103,31 @@ export function campaignWarnings(input: {
   if (input.audienceSize === 0) out.push("Nobody in this audience can receive offers yet.");
   return out;
 }
+
+// ---------------- Sending queue rules ----------------
+export const QUEUE_BATCH_SIZE = 50;
+export const QUEUE_MAX_ATTEMPTS = 3;
+
+/** Minutes to wait before retrying after a failed attempt: 5, then 15, then 45. */
+export function retryDelayMinutes(attemptsSoFar: number): number {
+  return 5 * 3 ** Math.max(0, attemptsSoFar - 1);
+}
+
+/** What happens to a queued email after a failed attempt. */
+export function afterFailure(attemptsSoFar: number, now: Date = new Date()): { status: "pending" | "failed"; nextAttemptAt: string | null } {
+  if (attemptsSoFar >= QUEUE_MAX_ATTEMPTS) return { status: "failed", nextAttemptAt: null };
+  return { status: "pending", nextAttemptAt: new Date(now.getTime() + retryDelayMinutes(attemptsSoFar) * 60_000).toISOString() };
+}
+
+export type QueueContact = { marketing_consent: boolean | null; unsubscribed_at: string | null; suppression_reason: string | null } | null;
+
+/** Why a queued email must not be sent right now, or null when it may go. Checked again just before sending. */
+export function queueSkipReason(contact: QueueContact, opts: { lastMarketingAt: string | null; quietDays: number; sourceActive: boolean }, now: Date = new Date()): string | null {
+  if (!contact) return "not_a_customer";
+  if (contact.suppression_reason) return `suppressed_${contact.suppression_reason}`;
+  if (contact.unsubscribed_at) return "unsubscribed";
+  if (!contact.marketing_consent) return "no_consent";
+  if (!opts.sourceActive) return "campaign_stopped";
+  if (!quietOk(opts.lastMarketingAt, opts.quietDays, now)) return "quiet_days";
+  return null;
+}
