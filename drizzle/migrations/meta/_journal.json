@@ -253,6 +253,13 @@
       "when": 1794764138942,
       "tag": "0035_email_queue_and_suppression",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1794764862382,
+      "tag": "0036_more_automation_triggers",
+      "breakpoints": true
     }
   ]
 }
