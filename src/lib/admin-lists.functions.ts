@@ -187,7 +187,10 @@ export const listCancellationRequestsPage = createServerFn({ method: "GET" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { fetchAllPages } = await import("@/lib/fetch-all-pages");
-    const statuses = CANCEL_VIEWS[data.view] ?? null;
+    // Unpaid requests have nothing to refund, so every finished state counts as "Cancelled".
+    const statuses = data.group === "unpaid" && data.view === "closed"
+      ? ["approved", "refunded", "declined", "completed"]
+      : CANCEL_VIEWS[data.view] ?? null;
     const search = ilikeAny(["booking_ref", "customer_name", "email", "phone", "reason", "pickup_address", "dropoff_address"], data.q);
     const page = await runPaged<any>((from, to) => {
       let q = context.supabase.from("cancellation_requests").select("*", { count: "exact" });
@@ -209,6 +212,7 @@ export const listCancellationRequestsPage = createServerFn({ method: "GET" })
       else if (r.status === "approved") g.approved += 1;
       else if (r.status === "refunded") g.refunded += 1;
       else g.closed += 1;
+      if (g === groups.unpaid && r.status !== "pending" && r.status !== "in_review") g.closed += (r.status === "approved" || r.status === "refunded") ? 1 : 0;
       if (r.status === "approved" && r.refund_tier !== "unpaid") refundDue += Number(r.refund_amount ?? r.price_at_request ?? 0);
     }
     return { ...page, counts: groups[data.group], groups, refundDue };
