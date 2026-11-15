@@ -25,7 +25,7 @@ describe("custom triggers", () => {
     expect(ruleTriggerKey(c2, { trigger_type: "abandoned_quote", delay_days: 1 }, "2026-11-15")).toBeNull();
   });
   it("after_cancellation counts from the cancellation day", () => {
-    const c = one([bk({ status: "cancelled", updated_at: "2026-11-01T10:00:00Z" })]);
+    const c = one([bk({ status: "cancelled", updated_at: "2026-11-01T10:00:00Z" }), bk({ status: "completed", pickup_date: "2026-06-01" })]);
     expect(ruleTriggerKey(c, { trigger_type: "after_cancellation", delay_days: 14 }, "2026-11-15")).toBe("cancelled:2026-11-01");
   });
   it("custom rule applies only when every condition matches", () => {
