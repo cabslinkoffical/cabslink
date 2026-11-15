@@ -1,5 +1,5 @@
 import { formatTime12 } from "@/lib/time-format";
-import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
+import { redirect, createFileRoute, Link, useSearch } from "@tanstack/react-router";
 import { useMutation, useQueryClient, queryOptions, useQuery, keepPreviousData } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { updateBooking, softDeleteBooking, deleteBooking, regenerateBookingLink } from "@/lib/admin.functions";
@@ -81,6 +81,10 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/bookin
     ...(typeof s.tab === "string" && s.tab.length > 0 ? { tab: s.tab } : {}),
     ...(s.view === "tours" ? { view: "tours" as const } : {}),
   }),
+  // Every cancellation and refund is handled on the Cancellations & Refunds page.
+  beforeLoad: ({ search }) => {
+    if (search.tab === "cancelled") throw redirect({ to: "/cabs-booking-pannel/cancellations" });
+  },
   loaderDeps: ({ search }) => ({ tab: search.tab ?? "all", view: search.view ?? "bookings" }),
   loader: ({ context, deps }) => deps.view === "tours" ? undefined : Promise.all([
     context.queryClient.ensureQueryData(bookingsPageOpts(deps.tab, "", 1, DEFAULT_PAGE_SIZE)),
@@ -190,8 +194,8 @@ function BookingsPage() {
             return (
               <TabsTrigger key={t.id} value={t.id} asChild>
                 <Link
-                  to="/cabs-booking-pannel/bookings"
-                  search={{ tab: t.id }}
+                  to={t.id === "cancelled" ? "/cabs-booking-pannel/cancellations" : "/cabs-booking-pannel/bookings"}
+                  search={t.id === "cancelled" ? undefined : { tab: t.id }}
                   className="gap-2 px-3 py-2 text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                 >
                   {t.label}

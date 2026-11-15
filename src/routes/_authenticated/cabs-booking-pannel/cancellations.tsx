@@ -485,14 +485,23 @@ function CancelledBookings() {
                     <div className="text-xs text-muted-foreground">{b.email ?? "—"}</div>
                   </td>
                   <td className="px-4 py-3 max-w-[18rem]">
-                    <div className="truncate">{b.pickup_address ?? "—"}</div>
-                    <div className="truncate text-xs text-muted-foreground">→ {b.dropoff_address ?? "—"}</div>
+                    {b.tour_name ? (
+                      <>
+                        <div className="truncate">{b.tour_name}</div>
+                        <div className="truncate text-xs text-muted-foreground">{b.service_type === "hourly" ? "Hourly hire" : "Private tour"}</div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="truncate">{b.pickup_address ?? "—"}</div>
+                        <div className="truncate text-xs text-muted-foreground">→ {b.dropoff_address ?? "—"}</div>
+                      </>
+                    )}
                   </td>
-                  <td className="px-4 py-3">{money(b.price)}</td>
+                  <td className="px-4 py-3">{b.price != null ? money(b.price) : b.quoted_total != null ? money(b.quoted_total) : "Not quoted"}</td>
                   <td className="px-4 py-3 max-w-[14rem]">
-                    <div className="truncate text-xs text-muted-foreground">{b.cancellation_reason ?? "—"}</div>
+                    <div className="truncate text-xs text-muted-foreground">{b.cancellation_reason ?? "Not recorded"}</div>
                   </td>
-                  <td className={`px-4 py-3 text-xs font-medium ${!b.payment_status || b.payment_status === "unpaid" ? "text-destructive" : ""}`}>{b.payment_status ?? "unpaid"}</td>
+                  <td className={`px-4 py-3 text-xs font-medium ${!b.payment_status || b.payment_status === "unpaid" ? "text-destructive" : ""}`}>{!b.payment_status || b.payment_status === "unpaid" ? "Not paid" : b.payment_status === "refunded" ? "Refunded" : b.payment_status === "partial" ? "Part paid" : b.payment_status === "paid" ? "Paid" : b.payment_status}</td>
                 </tr>
               ))}
             </tbody>
