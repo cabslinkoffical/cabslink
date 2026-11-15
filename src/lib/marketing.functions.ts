@@ -34,7 +34,7 @@ export const listMyCustomers = createServerFn({ method: "GET" })
     const rows = filterCustomers(everyone, data);
     const summary = {
       total: everyone.length,
-      subscribed: everyone.filter((c) => c.consent === "subscribed").length,
+      subscribed: everyone.filter((c) => c.basis !== null).length,
       unsubscribed: everyone.filter((c) => c.consent === "unsubscribed").length,
       booked: everyone.filter((c) => c.bookings > 0).length,
     };

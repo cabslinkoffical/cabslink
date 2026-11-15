@@ -5,7 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Search, Download, Mail, Phone, Users, MailCheck, MailX, CalendarCheck, Send } from "lucide-react";
 import { listMyCustomers, exportMyCustomers, optOutCustomer } from "@/lib/marketing.functions";
-import { customersCsv, SOURCE_LABELS, type MyCustomer } from "@/lib/my-customers";
+import { customersCsv, SOURCE_LABELS, type MyCustomer, basisLabel } from "@/lib/my-customers";
 import { Pager, useDebounced, usePageState } from "@/components/admin/Pager";
 import { DEFAULT_PAGE_SIZE } from "@/lib/admin-paging";
 import { Input } from "@/components/ui/input";
@@ -43,9 +43,11 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/my-cus
 const money = (n: number) => `£${n.toFixed(2)}`;
 const day = (v: string | null) => (v ? new Date(v).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "—");
 
-function ConsentBadge({ c }: { c: MyCustomer["consent"] }) {
-  const cls = c === "subscribed" ? "bg-success/15 text-success border-success/30" : c === "unsubscribed" ? "bg-destructive/10 text-destructive border-destructive/30" : "bg-muted text-muted-foreground border-border";
-  return <span className={`inline-flex whitespace-nowrap rounded-full border px-2 py-0.5 text-xs font-medium ${cls}`}>{c === "subscribed" ? "Gets offers" : c === "unsubscribed" ? "Unsubscribed" : "No consent"}</span>;
+function ConsentBadge({ c }: { c: MyCustomer }) {
+  const ok = c.basis !== null;
+  const cls = ok ? "bg-success/15 text-success border-success/30" : c.consent === "unsubscribed" ? "bg-destructive/10 text-destructive border-destructive/30" : "bg-muted text-muted-foreground border-border";
+  const label = c.basis === "consent" ? "Gets offers" : c.basis === "soft_opt_in" ? "Gets offers (past booker)" : c.consent === "unsubscribed" ? "Unsubscribed" : "No permission";
+  return <span title={basisLabel(c)} className={`inline-flex whitespace-nowrap rounded-full border px-2 py-0.5 text-xs font-medium ${cls}`}>{label}</span>;
 }
 
 function MyCustomersPage() {
@@ -157,7 +159,7 @@ function MyCustomersPage() {
                       <td className="px-4 py-3 tabular-nums">{money(c.spend)}</td>
                       <td className="max-w-[14rem] px-4 py-3 text-xs text-muted-foreground">{c.sources.map((s) => SOURCE_LABELS[s]).join(", ")}</td>
                       <td className="whitespace-nowrap px-4 py-3 text-xs">{day(c.lastSeen)}</td>
-                      <td className="px-4 py-3"><ConsentBadge c={c.consent} /></td>
+                      <td className="px-4 py-3"><ConsentBadge c={c} /></td>
                     </tr>
                   ))}
                 </tbody>
@@ -196,10 +198,9 @@ function MyCustomersPage() {
                   <div className="mt-1">{active.sources.map((s) => SOURCE_LABELS[s]).join(", ")}</div>
                 </div>
                 <div className="space-y-2 rounded-lg border border-border p-4">
-                  <div className="flex items-center justify-between"><span className="text-[11px] uppercase tracking-wide text-muted-foreground">Offer emails</span><ConsentBadge c={active.consent} /></div>
-                  {active.consent === "subscribed" && <p className="text-xs text-muted-foreground">Agreed on {day(active.optedInAt)}.</p>}
-                  {active.consent === "no_consent" && <p className="text-xs text-muted-foreground">This customer hasn't agreed to offer emails, so campaigns won't reach them. Only they can opt in, by ticking the box on a form.</p>}
-                  {active.consent === "subscribed" && (
+                  <div className="flex items-center justify-between"><span className="text-[11px] uppercase tracking-wide text-muted-foreground">Offer emails</span><ConsentBadge c={active} /></div>
+                  <p className="text-xs text-muted-foreground">Reason: {basisLabel(active)}.{active.basis === "soft_opt_in" ? " Past bookers can get offers for similar trips under UK soft opt-in rules, and every email lets them unsubscribe." : ""}{active.basis === null && active.consent === "no_consent" ? " Campaigns won't reach them until they book or tick the offers box." : ""}</p>
+                  {active.basis !== null && (
                     <Button variant="outline" size="sm" disabled={optOut.isPending} onClick={() => optOut.mutate({ data: { email: active.email } } as any)}>Stop offer emails</Button>
                   )}
                 </div>
