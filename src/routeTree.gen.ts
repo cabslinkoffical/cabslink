@@ -67,6 +67,7 @@ import { Route as TeamSportsTravelRouteImport } from './routes/team-sports-trave
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TrackBookingRouteImport } from './routes/track-booking'
 import { Route as UniversityTransfersRouteImport } from './routes/university-transfers'
+import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
 import { Route as VipSportsHospitalityRouteImport } from './routes/vip-sports-hospitality'
 import { Route as VipTransfersRouteImport } from './routes/vip-transfers'
 import { Route as WeddingTransportRouteImport } from './routes/wedding-transport'
@@ -462,6 +463,11 @@ const TrackBookingRoute = TrackBookingRouteImport.update({
 const UniversityTransfersRoute = UniversityTransfersRouteImport.update({
   id: '/university-transfers',
   path: '/university-transfers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UnsubscribeRoute = UnsubscribeRouteImport.update({
+  id: '/unsubscribe',
+  path: '/unsubscribe',
   getParentRoute: () => rootRouteImport,
 } as any)
 const VipSportsHospitalityRoute = VipSportsHospitalityRouteImport.update({
@@ -1095,6 +1101,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/track-booking': typeof TrackBookingRoute
   '/university-transfers': typeof UniversityTransfersRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/vip-sports-hospitality': typeof VipSportsHospitalityRoute
   '/vip-transfers': typeof VipTransfersRoute
   '/wedding-transport': typeof WeddingTransportRoute
@@ -1257,6 +1264,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/track-booking': typeof TrackBookingRoute
   '/university-transfers': typeof UniversityTransfersRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/vip-sports-hospitality': typeof VipSportsHospitalityRoute
   '/vip-transfers': typeof VipTransfersRoute
   '/wedding-transport': typeof WeddingTransportRoute
@@ -1421,6 +1429,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/track-booking': typeof TrackBookingRoute
   '/university-transfers': typeof UniversityTransfersRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/vip-sports-hospitality': typeof VipSportsHospitalityRoute
   '/vip-transfers': typeof VipTransfersRoute
   '/wedding-transport': typeof WeddingTransportRoute
@@ -1586,6 +1595,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/track-booking'
     | '/university-transfers'
+    | '/unsubscribe'
     | '/vip-sports-hospitality'
     | '/vip-transfers'
     | '/wedding-transport'
@@ -1748,6 +1758,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/track-booking'
     | '/university-transfers'
+    | '/unsubscribe'
     | '/vip-sports-hospitality'
     | '/vip-transfers'
     | '/wedding-transport'
@@ -1911,6 +1922,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/track-booking'
     | '/university-transfers'
+    | '/unsubscribe'
     | '/vip-sports-hospitality'
     | '/vip-transfers'
     | '/wedding-transport'
@@ -2076,6 +2088,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   TrackBookingRoute: typeof TrackBookingRoute
   UniversityTransfersRoute: typeof UniversityTransfersRoute
+  UnsubscribeRoute: typeof UnsubscribeRoute
   VipSportsHospitalityRoute: typeof VipSportsHospitalityRoute
   VipTransfersRoute: typeof VipTransfersRoute
   WeddingTransportRoute: typeof WeddingTransportRoute
@@ -2537,6 +2550,13 @@ declare module '@tanstack/react-router' {
       path: '/university-transfers'
       fullPath: '/university-transfers'
       preLoaderRoute: typeof UniversityTransfersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/unsubscribe': {
+      id: '/unsubscribe'
+      path: '/unsubscribe'
+      fullPath: '/unsubscribe'
+      preLoaderRoute: typeof UnsubscribeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/vip-sports-hospitality': {
@@ -3520,6 +3540,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   TrackBookingRoute: TrackBookingRoute,
   UniversityTransfersRoute: UniversityTransfersRoute,
+  UnsubscribeRoute: UnsubscribeRoute,
   VipSportsHospitalityRoute: VipSportsHospitalityRoute,
   VipTransfersRoute: VipTransfersRoute,
   WeddingTransportRoute: WeddingTransportRoute,

@@ -15,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { SITE } from "@/lib/site";
 import { submitContactMessage } from "@/lib/contact.functions";
 import { useCaptcha } from "@/components/site/Captcha";
+import { useMarketingOptIn } from "@/components/site/MarketingOptIn";
 import { PhoneInput } from "@/components/site/PhoneInput";
 import { contactPageSchema } from "@/components/seo/schema";
 import { FormNotice, FormField, focusFirstInvalid, zodFieldErrors, StickyFormSubmit } from "@/components/site/FormValidation";
@@ -69,6 +70,7 @@ function ContactPage() {
   const inflight = useRef(false);
   const submit = useServerFn(submitContactMessage);
   const captcha = useCaptcha("contact");
+  const offers = useMarketingOptIn("contact");
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -79,7 +81,8 @@ function ContactPage() {
     const fd = new FormData(form);
     // Honeypot: any bot filling this hidden field is silently rejected.
     if ((fd.get("website") ?? "").toString().trim() !== "") {
-      toast.success("Message sent — we'll respond shortly.");
+      offers.record({ email: parsed.data.email, name: parsed.data.name, phone: parsed.data.phone || null });
+    toast.success("Message sent — we'll respond shortly.");
       form.reset();
       return;
     }
@@ -193,6 +196,7 @@ function ContactPage() {
               <FormField label="Message" htmlFor="contact-message" error={errors.message}>
                 <Textarea id="contact-message" name="message" required maxLength={1500} rows={6} aria-invalid={!!errors.message} />
               </FormField>
+              {offers.element}
               {captcha.widget}
               <Button type="submit" variant="gold" disabled={loading || !captcha.ready} className="rounded-full hidden lg:inline-flex">
                 {loading ? "Sending…" : <>Send message <ArrowRight className="size-4" /></>}
