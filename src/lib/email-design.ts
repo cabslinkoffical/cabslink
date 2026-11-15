@@ -40,7 +40,7 @@ export function renderCampaign(c: { subject: string; body: string }, to: { name:
   ${coupon.expires ? `<div style="font-size:13px;color:#ffffffcc;margin-top:12px;">Valid until ${esc(coupon.expires)}. Enter the code when you book.</div>` : `<div style="font-size:13px;color:#ffffffcc;margin-top:12px;">Enter the code when you book.</div>`}
 </td></tr></table>` : "";
   const point = (title: string, text: string) => `<td width="33%" valign="top" style="padding:0 6px;"><div style="font-family:${HEAD};font-weight:700;font-size:14px;color:${NAVY};">${title}</div><div style="font-size:13px;line-height:1.5;color:${MUTED};margin-top:4px;">${text}</div></td>`;
-  const social = Object.entries(SITE.social).map(([k, u]) => `<a href="${esc(u)}" style="color:${INK};text-decoration:none;font-weight:600;">${k[0].toUpperCase()}${k.slice(1)}</a>`).join(" &nbsp;·&nbsp; ");
+  const social = Object.entries(SITE.social).map(([k, u]) => `<a href="${esc(u)}" style="color:${INK};text-decoration:none;font-weight:600;">${({ tiktok: "TikTok", youtube: "YouTube" } as Record<string, string>)[k] ?? k[0].toUpperCase() + k.slice(1)}</a>`).join(" &nbsp;·&nbsp; ");
 
   const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>${esc(subject)}</title></head>
 <body style="margin:0;padding:0;background:${CREAM};font-family:${FONT};">
