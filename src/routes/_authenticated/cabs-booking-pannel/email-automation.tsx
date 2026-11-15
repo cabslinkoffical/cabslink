@@ -38,19 +38,20 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/email-
   component: AutomationPage,
 });
 
-type Audience = "all" | "booked" | "not_booked";
+type Audience = "all" | "booked" | "not_booked" | "custom";
+type CampaignFilter = { booked?: "any" | "yes" | "no"; source?: string | null; min_trips?: number | null; max_trips?: number | null; min_spend?: number | null; tags?: string[]; emails?: string[] };
 type Form = {
-  id?: string; name: string; subject: string; body: string; coupon_id: string | null; audience: Audience;
+  id?: string; name: string; subject: string; body: string; coupon_id: string | null; audience: Audience; audience_filter: CampaignFilter | null;
   frequency: CampaignFrequency; send_hour: number; weekday: number; month_day: number; starts_on: string; status: "draft" | "active" | "paused";
 };
-const AUDIENCE_LABELS: Record<Audience, string> = { all: "Everyone who gets offers", booked: "Customers who have booked", not_booked: "People who enquired but never booked" };
+const AUDIENCE_LABELS: Record<Audience, string> = { all: "Everyone who gets offers", booked: "Customers who have booked", not_booked: "People who enquired but never booked", custom: "Custom: choose exactly who" };
 const FREQ_LABELS: Record<CampaignFrequency, string> = { once: "Once", daily: "Daily", weekly: "Weekly", fortnightly: "Every two weeks", monthly: "Monthly" };
 const STATUS_STYLES: Record<string, string> = {
   draft: "bg-muted text-muted-foreground border-border", active: "bg-success/15 text-success border-success/30",
   paused: "bg-warning/15 text-warning border-warning/30", completed: "bg-info/15 text-info border-info/30",
 };
 const blank = (): Form => ({
-  name: "", subject: "", body: "Hi {{name}},\n\n", coupon_id: null, audience: "all",
+  name: "", subject: "", body: "Hi {{name}},\n\n", coupon_id: null, audience: "all", audience_filter: null,
   frequency: "once", send_hour: 10, weekday: 1, month_day: 1, starts_on: ukDate(), status: "draft",
 });
 type RuleForm = { id?: string; name: string; trigger_type: TriggerType; delay_days: number; subject: string; body: string; coupon_id: string | null; active: boolean; audience_filter: AudienceFilter | null };
@@ -120,18 +121,22 @@ function AutomationPage() {
   });
   const sendsQ = useQuery({ queryKey: ["admin", "campaign-sends", sendsFor?.id], queryFn: () => listCampaignSends({ data: { id: sendsFor.id } }), enabled: !!sendsFor });
 
+  const allTags = ((q.data as any)?.allTags ?? []) as string[];
+  const audienceSize = (c: any) => (c.audience === "custom" ? c.audience_size ?? 0 : sizes[c.audience as Audience] ?? 0);
   const payload = (f: Form, status?: Form["status"]) => ({
     data: {
-      id: f.id, name: f.name, subject: f.subject, body: f.body, coupon_id: f.coupon_id, audience: f.audience, frequency: f.frequency,
+      id: f.id, name: f.name, subject: f.subject, body: f.body, coupon_id: f.coupon_id, audience: f.audience,
+      audience_filter: f.audience === "custom" ? f.audience_filter ?? {} : null,
+      frequency: f.frequency,
       send_hour: f.send_hour, weekday: f.weekday, month_day: f.month_day, starts_on: f.starts_on || null, status: status ?? f.status,
     },
   });
   const edit = (c: any) => setForm({
-    id: c.id, name: c.name, subject: c.subject, body: c.body, coupon_id: c.coupon_id, audience: c.audience, frequency: c.frequency,
+    id: c.id, name: c.name, subject: c.subject, body: c.body, coupon_id: c.coupon_id, audience: c.audience, audience_filter: c.audience_filter ?? null, frequency: c.frequency,
     send_hour: c.send_hour, weekday: c.weekday ?? 1, month_day: c.month_day ?? 1, starts_on: c.starts_on ?? "", status: c.status === "completed" ? "draft" : c.status,
   });
   const setStatus = (c: any, status: Form["status"]) => save.mutate({
-    data: { id: c.id, name: c.name, subject: c.subject, body: c.body, coupon_id: c.coupon_id, audience: c.audience, frequency: c.frequency,
+    data: { id: c.id, name: c.name, subject: c.subject, body: c.body, coupon_id: c.coupon_id, audience: c.audience, audience_filter: c.audience_filter ?? null, frequency: c.frequency,
       send_hour: c.send_hour, weekday: c.weekday, month_day: c.month_day, starts_on: c.starts_on, status },
   } as any);
 
