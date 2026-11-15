@@ -3,8 +3,10 @@ import { useQuery, useMutation, useQueryClient, queryOptions } from "@tanstack/r
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus, Send, Pause, Play, Trash2, Pencil, Mail, Users, Ticket, History } from "lucide-react";
-import { listCampaigns, saveCampaign, deleteCampaign, sendCampaignTest, sendCampaignNow, listCampaignSends } from "@/lib/marketing.functions";
+import { Plus, Send, Pause, Play, Trash2, Pencil, Mail, Users, Ticket, History, Zap, AlertTriangle, ShieldCheck } from "lucide-react";
+import { listCampaigns, saveCampaign, deleteCampaign, sendCampaignTest, sendCampaignNow, listCampaignSends, saveMarketingSettings, saveAutomationRule, deleteAutomationRule, sendRuleTest } from "@/lib/marketing.functions";
+import { EMAIL_TEMPLATES, TEMPLATE_KIND_LABELS, TRIGGER_LABELS, TRIGGER_TEMPLATE, campaignWarnings, type TriggerType } from "@/lib/email-automation";
+import { Switch } from "@/components/ui/switch";
 import { describeSchedule, WEEKDAYS, type CampaignFrequency } from "@/lib/campaign-schedule";
 import { ukDate } from "@/lib/uk-time";
 import { Button } from "@/components/ui/button";
@@ -49,6 +51,34 @@ const blank = (): Form => ({
   name: "", subject: "", body: "Hi {{name}},\n\n", coupon_id: null, audience: "all",
   frequency: "once", send_hour: 10, weekday: 1, month_day: 1, starts_on: ukDate(), status: "draft",
 });
+type RuleForm = { id?: string; name: string; trigger_type: TriggerType; delay_days: number; subject: string; body: string; coupon_id: string | null; active: boolean };
+const blankRule = (t: TriggerType = "after_trip"): RuleForm => {
+  const tpl = EMAIL_TEMPLATES.find((x) => x.id === TRIGGER_TEMPLATE[t])!;
+  return { name: tpl.name, trigger_type: t, delay_days: t === "lapsed" ? 90 : t === "after_trip" ? 3 : 2, subject: tpl.subject, body: tpl.body, coupon_id: null, active: false };
+};
+
+function TemplatePicker({ onPick }: { onPick: (id: string) => void }) {
+  return (
+    <div>
+      <Label className="text-xs">Start from a ready-made template</Label>
+      <Select value="" onValueChange={onPick}>
+        <SelectTrigger className="mt-1"><SelectValue placeholder="Choose a template (fills in the subject and text)" /></SelectTrigger>
+        <SelectContent>{EMAIL_TEMPLATES.map((t) => <SelectItem key={t.id} value={t.id}>{TEMPLATE_KIND_LABELS[t.kind]}: {t.label}</SelectItem>)}</SelectContent>
+      </Select>
+    </div>
+  );
+}
+
+function Warnings({ list }: { list: string[] }) {
+  if (!list.length) return <p className="flex items-center gap-1.5 text-xs text-success"><ShieldCheck className="size-3.5" />Checks passed.</p>;
+  return (
+    <div className="rounded-lg border border-warning/40 bg-warning/10 p-3 text-xs">
+      <div className="mb-1 flex items-center gap-1.5 font-semibold"><AlertTriangle className="size-3.5" />Check before sending</div>
+      <ul className="list-disc space-y-0.5 pl-5">{list.map((w) => <li key={w}>{w}</li>)}</ul>
+    </div>
+  );
+}
+
 const when = (v: string | null) => (v ? new Date(v).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/London" }) : "—");
 
 function AutomationPage() {
