@@ -125,7 +125,7 @@ export function BlogArticle({ post, related }: { post: BlogPostFull; related: Bl
 
             {post.tags.length > 0 && (
               <div className="mt-10 flex flex-wrap gap-2">
-                {post.tags.map((t) => (
+                {post.tags.filter((t) => /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(t.slug ?? "")).map((t) => (
                   <Link
                     key={t.id}
                     to="/blog/tag/$slug"
