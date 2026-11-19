@@ -27,7 +27,9 @@ export function BlogArticle({ post, related }: { post: BlogPostFull; related: Bl
               items={[
                 { name: "Home", href: "/" },
                 { name: "Blog", href: "/blog" },
-                ...(post.category ? [{ name: post.category.name, href: `/blog/category/${post.category.slug}` }] : []),
+                ...(post.category && (post.category as { active?: boolean }).active !== false && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(post.category.slug ?? "")
+                  ? [{ name: post.category.name, href: `/blog/category/${post.category.slug}` }]
+                  : []),
                 { name: post.title, href: `/blog/${post.slug}` },
               ]}
               dark

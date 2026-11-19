@@ -1,3 +1,4 @@
+import { normalizeHead } from "@/lib/seo/page-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -8,7 +9,7 @@ import { unsubscribeMarketing } from "@/lib/marketing.functions";
 
 export const Route = createFileRoute("/unsubscribe")({
   validateSearch: (s: Record<string, unknown>): { token?: string } => (typeof s.token === "string" ? { token: s.token.slice(0, 64) } : {}),
-  head: () => ({
+  head: () => normalizeHead({
     meta: [
       { title: "Unsubscribe from offer emails | Cabslink" },
       { name: "description", content: "Stop receiving Cabslink offer and discount emails." },

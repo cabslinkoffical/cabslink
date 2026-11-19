@@ -78,7 +78,7 @@ export const Route = createFileRoute("/blog/$slug")({
           itemListElement: [
             { "@type": "ListItem", position: 1, name: "Home", item: `${BASE}/` },
             { "@type": "ListItem", position: 2, name: "Blog", item: `${BASE}/blog` },
-            ...(p.category
+            ...(p.category && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(p.category.slug ?? "") && (p.category as { active?: boolean }).active !== false
               ? [{ "@type": "ListItem", position: 3, name: p.category.name, item: `${BASE}/blog/category/${p.category.slug}` }]
               : []),
             {

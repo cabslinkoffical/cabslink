@@ -89,3 +89,29 @@ t2("cabslink.lovable.app page reads move to cabslink.com, API calls stay", () =>
   e2(canon2(new Request("https://cabslink.lovable.app/fleet"))).toBe("https://cabslink.com/fleet");
   e2(canon2(new Request("https://cabslink.lovable.app/api/public/stripe", { method: "POST" }))).toBeUndefined();
 });
+
+describe("legacy address redirects", () => {
+  const cases: Array<[string, string]> = [
+    ["/about-us.php", "/about"], ["/contact-us", "/contact"], ["/become-a-driver.php", "/drive-with-us"],
+    ["/services/executive-transfers", "/executive-transfers"], ["/index.php", "/"], ["/get-a-quote", "/book"],
+    ["/crm/", "/"], ["/wedding-transport", "/event-transport"], ["/blog/category/golf-trips", "/blog"],
+  ];
+  for (const [from, to] of cases) {
+    it(`${from} goes straight to ${to} on the real domain`, () => {
+      expect(canonicalRequestUrl(new Request(`https://www.cabslink.com${from}`))).toBe(`https://cabslink.com${to}`);
+    });
+  }
+});
+
+describe("robots.txt", () => {
+  it("lets crawlers see letter pages and blocks tracking-parameter copies in every block", async () => {
+    const { readFileSync } = await import("node:fs");
+    const txt = readFileSync("public/robots.txt", "utf8");
+    const blocks = txt.split(/\n(?=User-agent:)/).filter((b) => b.startsWith("User-agent:"));
+    expect(txt).not.toContain("Disallow: /areas/a/");
+    for (const b of blocks) {
+      expect(b).toContain("Disallow: /*?utm_");
+      expect(b).toContain("Disallow: /*?*utm_source=");
+    }
+  });
+});

@@ -51,7 +51,7 @@ export const Route = createFileRoute("/blog/")({
 
 function BlogHome() {
   const { data } = useSuspenseQuery(homeQuery);
-  const { latest, featured, pillars, categories } = data;
+  const { latest, featured, pillars, categories, all } = data;
   const hero = featured[0] ?? latest[0];
   const [q, setQ] = useState("");
   const [category, setCategory] = useState("");
@@ -167,6 +167,21 @@ function BlogHome() {
             <p className="mt-3 text-[var(--navy)]/60">Try a different word or clear the filters to see everything.</p>
             <Button className="mt-6" onClick={() => { setQ(""); setCategory(""); }}>Clear filters</Button>
           </div>
+        )}
+
+        {!filtering && all.length > 0 && (
+          <nav aria-labelledby="all-articles" className="mt-16">
+            <h2 id="all-articles" className="font-display text-2xl md:text-3xl font-semibold text-[var(--navy)] mb-6">All articles</h2>
+            <ul className="grid gap-x-8 gap-y-3 md:grid-cols-2">
+              {all.map((p) => (
+                <li key={p.slug}>
+                  <Link to="/blog/$slug" params={{ slug: p.slug }} className="text-[var(--navy)] underline-offset-4 hover:text-[var(--gold-ink)] hover:underline">
+                    {p.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
         )}
 
         {latest.length === 0 && (

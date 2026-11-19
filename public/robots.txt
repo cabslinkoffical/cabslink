@@ -1,9 +1,10 @@
 # Search and AI crawlers are welcome; private areas stay closed to all.
 
 User-agent: OAI-SearchBot
+Disallow: /*?utm_
+Disallow: /*?*utm_source=
 Allow: /
 Allow: /airports/
-Disallow: /areas/a/
 Disallow: /cabs-booking-pannel
 Disallow: /tour-preview/
 Disallow: /auth$
@@ -13,9 +14,10 @@ Disallow: /book/confirm
 Disallow: /book?
 
 User-agent: ChatGPT-User
+Disallow: /*?utm_
+Disallow: /*?*utm_source=
 Allow: /
 Allow: /airports/
-Disallow: /areas/a/
 Disallow: /cabs-booking-pannel
 Disallow: /tour-preview/
 Disallow: /auth$
@@ -25,9 +27,10 @@ Disallow: /book/confirm
 Disallow: /book?
 
 User-agent: GPTBot
+Disallow: /*?utm_
+Disallow: /*?*utm_source=
 Allow: /
 Allow: /airports/
-Disallow: /areas/a/
 Disallow: /cabs-booking-pannel
 Disallow: /tour-preview/
 Disallow: /auth$
@@ -37,9 +40,10 @@ Disallow: /book/confirm
 Disallow: /book?
 
 User-agent: ClaudeBot
+Disallow: /*?utm_
+Disallow: /*?*utm_source=
 Allow: /
 Allow: /airports/
-Disallow: /areas/a/
 Disallow: /cabs-booking-pannel
 Disallow: /tour-preview/
 Disallow: /auth$
@@ -49,9 +53,10 @@ Disallow: /book/confirm
 Disallow: /book?
 
 User-agent: Claude-User
+Disallow: /*?utm_
+Disallow: /*?*utm_source=
 Allow: /
 Allow: /airports/
-Disallow: /areas/a/
 Disallow: /cabs-booking-pannel
 Disallow: /tour-preview/
 Disallow: /auth$
@@ -61,9 +66,10 @@ Disallow: /book/confirm
 Disallow: /book?
 
 User-agent: PerplexityBot
+Disallow: /*?utm_
+Disallow: /*?*utm_source=
 Allow: /
 Allow: /airports/
-Disallow: /areas/a/
 Disallow: /cabs-booking-pannel
 Disallow: /tour-preview/
 Disallow: /auth$
@@ -73,9 +79,10 @@ Disallow: /book/confirm
 Disallow: /book?
 
 User-agent: Google-Extended
+Disallow: /*?utm_
+Disallow: /*?*utm_source=
 Allow: /
 Allow: /airports/
-Disallow: /areas/a/
 Disallow: /cabs-booking-pannel
 Disallow: /tour-preview/
 Disallow: /auth$
@@ -85,9 +92,10 @@ Disallow: /book/confirm
 Disallow: /book?
 
 User-agent: Applebot-Extended
+Disallow: /*?utm_
+Disallow: /*?*utm_source=
 Allow: /
 Allow: /airports/
-Disallow: /areas/a/
 Disallow: /cabs-booking-pannel
 Disallow: /tour-preview/
 Disallow: /auth$
@@ -97,9 +105,10 @@ Disallow: /book/confirm
 Disallow: /book?
 
 User-agent: Bingbot
+Disallow: /*?utm_
+Disallow: /*?*utm_source=
 Allow: /
 Allow: /airports/
-Disallow: /areas/a/
 Disallow: /cabs-booking-pannel
 Disallow: /tour-preview/
 Disallow: /auth$
@@ -109,9 +118,10 @@ Disallow: /book/confirm
 Disallow: /book?
 
 User-agent: *
+Disallow: /*?utm_
+Disallow: /*?*utm_source=
 Allow: /
 Allow: /airports/
-Disallow: /areas/a/
 Disallow: /cabs-booking-pannel
 Disallow: /tour-preview/
 Disallow: /auth$

@@ -22,6 +22,29 @@ export function publicHtmlCacheable(request: Request, response: Response): boole
 export const HSTS = "max-age=31536000; includeSubDomains; preload";
 const STATIC_FILE = /\.(?:js|css|woff2?|ttf|otf|png|jpe?g|webp|avif|gif|svg|ico)$/i;
 
+/**
+ * Retired addresses from the old site that Google still requests. Each one is
+ * a single permanent hop to its live page on the real domain (owner-approved, Nov 2026).
+ */
+export const LEGACY_REDIRECTS: Record<string, string> = {
+  "/about-us.php": "/about", "/about-us": "/about",
+  "/fleet.php": "/fleet", "/services.php": "/services",
+  "/contact-us.php": "/contact", "/contact-us": "/contact",
+  "/become-a-driver.php": "/drive-with-us",
+  "/services/executive-transfers": "/executive-transfers",
+  "/index": "/", "/index.php": "/",
+  "/get-a-quote": "/book", "/get-a-quote.php": "/book",
+  "/crm": "/", "/wedding-transport": "/event-transport",
+  "/blog/category/events": "/blog",
+  "/blog/category/chauffeur-executive-travel": "/blog",
+  "/blog/category/attractions": "/blog",
+  "/blog/category/family-travel": "/blog",
+  "/blog/category/golf-trips": "/blog",
+  "/blog/category/news": "/blog",
+  "/blog/category/local-area-guides": "/blog",
+  "/blog/category/university-travel": "/blog",
+};
+
 export function canonicalRequestUrl(request: Request): string | undefined {
   const url = new URL(request.url);
   const original = url.toString();
@@ -31,6 +54,10 @@ export function canonicalRequestUrl(request: Request): string | undefined {
   }
   const p = url.pathname;
   const isRead = request.method === "GET" || request.method === "HEAD";
+  const legacyKey = p.toLowerCase().replace(/\/+$/, "");
+  if (isRead && LEGACY_REDIRECTS[legacyKey]) {
+    return `https://cabslink.com${LEGACY_REDIRECTS[legacyKey]}`;
+  }
   // Duplicate hosting address: send page reads on cabslink.lovable.app to the
   // real domain (same path). API/webhook calls and files are left alone.
   if (url.hostname === "cabslink.lovable.app" && isRead && !/^\/(?:api|_|@)/.test(p)) {
