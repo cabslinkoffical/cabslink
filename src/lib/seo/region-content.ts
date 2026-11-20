@@ -9,6 +9,7 @@
 import { FACT_TEXT } from "@/lib/site-facts";
 import { estimateDrive, fmtMins, MAIN_AIRPORTS } from "@/lib/drive-estimate";
 import { JOURNEYS, journeyPath } from "@/lib/seo/journeys";
+import { regionGuide } from "@/content/region-guides";
 
 /** URL slug for a region name; the region route matches on this. */
 export function regionSlug(name: string): string {
@@ -16,7 +17,7 @@ export function regionSlug(name: string): string {
 }
 
 /** Regions outside our main market stay noindex whatever their content. */
-export const NON_MAIN_MARKET_REGIONS = ["England", "Wales", "Northern Ireland"];
+export const NON_MAIN_MARKET_REGIONS = ["Northern Ireland"];
 
 /**
  * Island regions: straight-line road estimates are meaningless across water
@@ -61,6 +62,8 @@ export type RegionContent = {
   faqs: { q: string; a: string }[];
   /** Words of region-specific text (shared policy answers excluded). */
   uniqueWords: number;
+  guideWords: number;
+  updatedAt: string | null;
   indexable: boolean;
 };
 
@@ -84,6 +87,7 @@ function listNames(names: string[], max = 6): string {
 const words = (s: string) => s.split(/\s+/).filter(Boolean).length;
 
 export function buildRegionContent(regionName: string, places: RegionPlace[]): RegionContent {
+  const guide = regionGuide(regionName, places);
   const byKind = (types: string[]) => places.filter((p) => types.includes(p.type)).map(label);
   const towns = byKind(["city", "town", "village", "location", "council"]);
   const airports = byKind(["airport"]);
@@ -92,9 +96,10 @@ export function buildRegionContent(regionName: string, places: RegionPlace[]): R
 
   // Estimated road distances to the two main Scottish airports.
   const allDistances: RegionDistanceRow[] = (ISLAND_REGIONS.includes(regionName) ? [] : places)
-    .filter((p) => p.type !== "airport" && p.lat != null && p.lng != null)
-    .map((p) => {
-      const [edi, gla] = MAIN_AIRPORTS.map((a) => estimateDrive(p.lat!, p.lng!, a));
+    .flatMap((p) => {
+      if ((!guide && p.type === "airport") || p.lat == null || p.lng == null) return [];
+      const edi = estimateDrive(p.lat, p.lng, MAIN_AIRPORTS[0]);
+      const gla = estimateDrive(p.lat, p.lng, MAIN_AIRPORTS[1]);
       return {
         name: label(p), href: p.href, kind: KIND[p.type] ?? "Place",
         edinburgh: `${edi.miles} miles · ${fmtMins(edi.mins)}`,
@@ -171,6 +176,11 @@ export function buildRegionContent(regionName: string, places: RegionPlace[]): R
     { q: "Is Meet & Greet available?", a: FACT_TEXT.meetGreet },
   ];
 
+  if (guide) {
+    intro.splice(0, intro.length, ...guide.paragraphs);
+    regionFaqs.splice(0, regionFaqs.length, ...guide.faqs);
+  }
+
   const uniqueWords =
     intro.reduce((n, s) => n + words(s), 0) +
     distances.reduce((n, r) => n + words(`${r.name} ${r.kind} ${r.edinburgh} ${r.glasgow}`), 0) +
@@ -183,7 +193,11 @@ export function buildRegionContent(regionName: string, places: RegionPlace[]): R
     (routes.length > 0 || distances.length > 0) &&
     regionFaqs.length > 0;
 
-  return { intro, distances, routes, faqs: [...regionFaqs, ...sharedFaqs], uniqueWords, indexable };
+  return {
+    intro, distances, routes, faqs: guide ? regionFaqs : [...regionFaqs, ...sharedFaqs], uniqueWords, indexable,
+    guideWords: guide ? intro.reduce((n, s) => n + words(s), 0) : 0,
+    updatedAt: guide?.updatedAt ?? null,
+  };
 }
 
 /**

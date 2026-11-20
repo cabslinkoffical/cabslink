@@ -1,6 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
 vi.mock('@tanstack/react-start', () => ({ createServerFn: () => { const b: any = { middleware: () => b, inputValidator: (v: any) => { b.validate = v; return b; }, handler: (h: any) => (args: any) => h({ ...args, data: b.validate ? b.validate(args.data) : args.data }) }; return b; } }));
 vi.mock('@/integrations/supabase/auth-middleware', () => ({ requireSupabaseAuth: {} }));
+const adminRpc = vi.hoisted(() => vi.fn());
+vi.mock('@/integrations/supabase/client.server', () => ({ supabaseAdmin: { rpc: adminRpc } }));
 import { upsertPost, listAdminPosts } from '@/lib/blog-admin.functions';
 import { upsertExtra } from '@/lib/extras.functions';
 import { deleteMedia } from '@/lib/media.functions';
@@ -40,8 +42,9 @@ describe('A01 server search', () => {
 describe('A07 extras atomic orchestration', () => {
  for(const all of [true,false]) it(`rejects replacement failure, all classes=${all}`, async()=>{
   const from=vi.fn(); const rpc=vi.fn(async(name)=>name==='has_role'?{data:true}:{error:{message:'link insert failed'}});
+  adminRpc.mockResolvedValueOnce({error:{message:'link insert failed'}});
   await expect((upsertExtra as any)({context:context(rpc,from),data:{key:'test_extra',name:'Test extra',price_pence:100,price_basis:'per_unit',max_quantity:2,applies_to_all_classes:all,active:true,sort_order:1,class_ids:[related],class_prices:{[related]:200}}})).rejects.toThrow('link insert failed');
-  expect(from).not.toHaveBeenCalled();expect(rpc.mock.calls.at(-1)![1].p_links).toEqual([{vehicle_class_id:related,price_pence:200,max_quantity:null}]);
+  expect(from).not.toHaveBeenCalled();expect(adminRpc.mock.calls.at(-1)?.[1].p_links).toEqual([{vehicle_class_id:related,price_pence:200,max_quantity:null}]);
  });
 });
 function mediaMock(failure?:string){

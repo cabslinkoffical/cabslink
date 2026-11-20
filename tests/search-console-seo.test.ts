@@ -28,20 +28,19 @@ describe("region page indexing", () => {
     expect(c.faqs.length).toBeGreaterThan(0);
   });
 
-  it("keeps a thin region with one place noindex", () => {
-    expect(buildRegionContent("Argyll", [place("Oban", "town", 56.41, -5.47)]).indexable).toBe(false);
+  it("keeps an unreviewed thin region with one place noindex", () => {
+    expect(buildRegionContent("Unreviewed", [place("Oban", "town", 56.41, -5.47)]).indexable).toBe(false);
   });
 
-  it("keeps England and Wales noindex whatever their content", () => {
-    expect(buildRegionContent("England", MANY).indexable).toBe(false);
-    expect(buildRegionContent("Wales", MANY).indexable).toBe(false);
+  it("keeps Northern Ireland noindex whatever its content", () => {
+    expect(buildRegionContent("Northern Ireland", MANY).indexable).toBe(false);
   });
 
   it("sitemap helper lists only indexable regions", () => {
     const rows = [
       ...MANY.map((p) => ({ ...p, region: "Scotland", seo_tier: 1 })),
-      ...MANY.map((p) => ({ ...p, region: "England", seo_tier: 1 })),
-      { ...place("Oban", "town", 56.41, -5.47), region: "Argyll", seo_tier: 1 },
+      ...MANY.map((p) => ({ ...p, region: "Northern Ireland", seo_tier: 1 })),
+      { ...place("Oban", "town", 56.41, -5.47), region: "Unreviewed", seo_tier: 1 },
     ];
     expect(indexableRegionPaths(rows, (p) => `/areas/${p.slug}`)).toEqual(["/areas/region/scotland"]);
   });

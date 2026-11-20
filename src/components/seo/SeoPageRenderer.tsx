@@ -11,6 +11,7 @@ import { LocalMapSection } from "@/components/site/LocalMapSection";
 import { PageBand, EditorialRows, LinkCards, GroupLabel, FaqBand } from "@/components/site/PageBand";
 import { defaultLocalImage, localEntityMapFocus } from "@/lib/local-page";
 import { publicSectionFaqs } from "@/lib/seo/section-faqs";
+import { regionSlug } from "@/lib/seo/region-content";
 
 /**
  * Renders a published seo_pages record + its sections.
@@ -70,6 +71,9 @@ export function SeoPageRenderer({
     : undefined;
   const mapFocus = localEntityMapFocus(page.entity);
   const crumbs = buildCrumbs(page).map((c) => ({ name: c.label, href: c.href }));
+  if (page.entity?.region && crumbs.length > 1) {
+    crumbs.splice(crumbs.length - 1, 0, { name: page.entity.region, href: `/areas/region/${regionSlug(page.entity.region)}` });
+  }
 
   const ctaPlace = entityName ?? page.h1;
   return (

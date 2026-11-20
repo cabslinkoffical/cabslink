@@ -1,0 +1,216 @@
+[
+  {
+    "region": "Fife",
+    "places": [
+      {
+        "name": "Dunfermline",
+        "slug": "dunfermline",
+        "type": "town",
+        "lat": 56.0719,
+        "lng": -3.4522,
+        "display_name": null,
+        "href": "/areas/dunfermline"
+      },
+      {
+        "name": "Kirkcaldy",
+        "slug": "kirkcaldy",
+        "type": "town",
+        "lat": 56.112,
+        "lng": -3.158,
+        "display_name": null,
+        "href": "/areas/kirkcaldy"
+      },
+      {
+        "name": "St Andrews",
+        "slug": "st-andrews",
+        "type": "town",
+        "lat": 56.3398,
+        "lng": -2.7967,
+        "display_name": null,
+        "href": "/areas/st-andrews"
+      },
+      {
+        "name": "University of St Andrews",
+        "slug": "university-of-st-andrews",
+        "type": "university",
+        "lat": 56.34,
+        "lng": -2.7967,
+        "display_name": null,
+        "href": "/universities/university-of-st-andrews"
+      }
+    ]
+  },
+  {
+    "region": "Argyll",
+    "places": [
+      {
+        "name": "Oban",
+        "slug": "oban",
+        "type": "town",
+        "lat": 56.4152,
+        "lng": -5.472,
+        "display_name": null,
+        "href": "/areas/oban"
+      }
+    ]
+  },
+  {
+    "region": "Lowland",
+    "places": [
+      {
+        "name": "Auchentoshan Distillery",
+        "slug": "auchentoshan",
+        "type": "distillery",
+        "lat": 55.9219,
+        "lng": -4.4392,
+        "display_name": null,
+        "href": "/distilleries/auchentoshan"
+      },
+      {
+        "name": "Glenkinchie Distillery",
+        "slug": "glenkinchie",
+        "type": "distillery",
+        "lat": 55.9067,
+        "lng": -2.8617,
+        "display_name": null,
+        "href": "/distilleries/glenkinchie"
+      }
+    ]
+  },
+  {
+    "region": "England",
+    "places": [
+      {
+        "name": "Newcastle Airport",
+        "slug": "newcastle-airport",
+        "type": "airport",
+        "lat": 55.0375,
+        "lng": -1.691667,
+        "display_name": null,
+        "href": "/airports/newcastle-airport"
+      },
+      {
+        "name": "Manchester Airport",
+        "slug": "manchester-airport",
+        "type": "airport",
+        "lat": 53.365,
+        "lng": -2.2725,
+        "display_name": null,
+        "href": "/airports/manchester-airport"
+      },
+      {
+        "name": "Birmingham Airport",
+        "slug": "birmingham-airport",
+        "type": "airport",
+        "lat": 52.453856,
+        "lng": -1.748028,
+        "display_name": null,
+        "href": "/airports/birmingham-airport"
+      },
+      {
+        "name": "Bristol Airport",
+        "slug": "bristol-airport",
+        "type": "airport",
+        "lat": 51.382669,
+        "lng": -2.719089,
+        "display_name": null,
+        "href": "/airports/bristol-airport"
+      },
+      {
+        "name": "East Midlands Airport",
+        "slug": "east-midlands-airport",
+        "type": "airport",
+        "lat": 52.831111,
+        "lng": -1.328056,
+        "display_name": null,
+        "href": "/airports/east-midlands-airport"
+      },
+      {
+        "name": "Gatwick Airport",
+        "slug": "gatwick-airport",
+        "type": "airport",
+        "lat": 51.153662,
+        "lng": -0.18222,
+        "display_name": null,
+        "href": "/airports/gatwick-airport"
+      },
+      {
+        "name": "Heathrow Airport",
+        "slug": "heathrow-airport",
+        "type": "airport",
+        "lat": 51.47002,
+        "lng": -0.454295,
+        "display_name": null,
+        "href": "/airports/heathrow-airport"
+      },
+      {
+        "name": "Leeds Bradford Airport",
+        "slug": "leeds-bradford-airport",
+        "type": "airport",
+        "lat": 53.865897,
+        "lng": -1.660531,
+        "display_name": null,
+        "href": "/airports/leeds-bradford-airport"
+      },
+      {
+        "name": "Liverpool Airport",
+        "slug": "liverpool-airport",
+        "type": "airport",
+        "lat": 53.333611,
+        "lng": -2.849722,
+        "display_name": null,
+        "href": "/airports/liverpool-airport"
+      },
+      {
+        "name": "London City Airport",
+        "slug": "london-city-airport",
+        "type": "airport",
+        "lat": 51.505278,
+        "lng": 0.055278,
+        "display_name": null,
+        "href": "/airports/london-city-airport"
+      },
+      {
+        "name": "Luton Airport",
+        "slug": "luton-airport",
+        "type": "airport",
+        "lat": 51.874722,
+        "lng": -0.368333,
+        "display_name": null,
+        "href": "/airports/luton-airport"
+      },
+      {
+        "name": "Southampton Airport",
+        "slug": "southampton-airport",
+        "type": "airport",
+        "lat": 50.950278,
+        "lng": -1.356667,
+        "display_name": null,
+        "href": "/airports/southampton-airport"
+      },
+      {
+        "name": "Stansted Airport",
+        "slug": "stansted-airport",
+        "type": "airport",
+        "lat": 51.885,
+        "lng": 0.235,
+        "display_name": null,
+        "href": "/airports/stansted-airport"
+      }
+    ]
+  },
+  {
+    "region": "Wales",
+    "places": [
+      {
+        "name": "Cardiff Airport",
+        "slug": "cardiff-airport",
+        "type": "airport",
+        "lat": 51.396667,
+        "lng": -3.343333,
+        "display_name": null,
+        "href": "/airports/cardiff-airport"
+      }
+    ]
+  }
+]

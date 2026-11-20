@@ -1,13 +1,14 @@
 /**
  * Single source for sitemap URL lists, used by /sitemap.xml, /sitemap-core.xml,
  * /sitemaps/{type}.xml and the admin "Notify search engines" submission.
- * lastmod comes only from a record's own updated_at; code-defined pages with
+ * lastmod comes from a record's own updated_at or a dated editorial revision; pages with
  * no page-specific timestamp are emitted without <lastmod>.
  */
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { PUBLIC_ROUTES, fetchAllPages, dedupeSitemapEntries } from "@/lib/sitemap-routes";
-import { indexableRegionPaths } from "@/lib/seo/region-content";
+import { indexableRegionPaths, regionSlug } from "@/lib/seo/region-content";
+import { regionGuide } from "@/content/region-guides";
 import { categoryIsIndexable } from "@/lib/blog-category-seo";
 import { destinationHref, DESTINATION_TYPES, type Destination, type DestinationType } from "@/lib/destinations.functions";
 import { evaluateQuality } from "@/lib/seo/quality";
@@ -75,7 +76,11 @@ export async function buildCoreEntries(): Promise<Array<[string, string | null]>
   for (const path of indexableRegionPaths(
     places.map((p) => ({ ...p, type: p.type as string })),
     (p) => destinationHref({ type: p.type as DestinationType, slug: p.slug }),
-  )) entries.set(path, null);
+  )) {
+    const regionPlaces = places.filter((p) => p.region && `/areas/region/${regionSlug(p.region)}` === path && p.seo_tier !== 4);
+    const name = regionPlaces[0]?.region;
+    entries.set(path, name ? isoDay(regionGuide(name, regionPlaces)?.updatedAt) : null);
+  }
   for (const t of tours) entries.set(`/tours/${t.slug}`, isoDay(t.updated_at));
   for (const r of seo) {
     if (r.robots_status.includes("noindex") || r.path.startsWith("/locations/")) continue;

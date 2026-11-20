@@ -9,6 +9,7 @@ import type { Crumb } from "@/components/seo/Breadcrumbs";
 import { destinationHref } from "@/lib/destinations.functions";
 import { getPublishedCmsHead } from "@/lib/seo-public.functions";
 import { LOCATION_HUB_CMS_HEAD_ENABLED, type CmsHead } from "@/lib/seo/cms-head";
+import { regionSlug } from "@/lib/seo/region-content";
 
 export type LoadedDestination = {
   destination: Destination;
@@ -51,7 +52,7 @@ export async function loadDestination(
 
 export function buildBreadcrumbs(d: Destination, hubHref: string, hubLabel: string): Crumb[] {
   const items: Crumb[] = [{ name: "Home", href: "/" }, { name: hubLabel, href: hubHref }];
-  if (d.region) items.push({ name: d.region, href: hubHref });
+  if (d.region) items.push({ name: d.region, href: `/areas/region/${regionSlug(d.region)}` });
   items.push({ name: d.display_name ?? d.name, href: `${hubHref}/${d.slug}` });
   return items;
 }

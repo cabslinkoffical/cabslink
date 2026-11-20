@@ -66,6 +66,7 @@ export type PublicSeoPage = {
     hero_image_url?: string | null;
     iata_code?: string | null;
     slug?: string | null;
+    region?: string | null;
     latitude?: number | null;
     longitude?: number | null;
   } | null;
@@ -81,13 +82,14 @@ async function loadEntity(
   // joining against them returned null for every page and silently disabled
   // entity-powered hero images, prefills and maps.
   const { data } = await supabase.from("destinations")
-    .select("name, display_name, type, slug, lat, lng")
+    .select("name, display_name, type, slug, region, lat, lng")
     .eq("id", entityId).maybeSingle();
   if (data) {
     return {
       kind: entityType,
       name: data.display_name ?? data.name,
       slug: data.slug,
+      region: data.region,
       // The destinations table carries no hero image; pages fall back to the
       // type's default image band.
       hero_image_url: null,

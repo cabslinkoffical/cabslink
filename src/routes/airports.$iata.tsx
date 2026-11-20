@@ -21,6 +21,7 @@ import { PlaceGuideBlock } from "@/components/seo/PlaceGuideBlock";
 import { getRouteFares } from "@/lib/seo/route-fares.functions";
 import { airportFaqFor } from "@/content/airport-faqs";
 import { faqSchema } from "@/components/seo/schema";
+import { regionSlug } from "@/lib/seo/region-content";
 
 const ORIGIN = "https://cabslink.com";
 
@@ -180,6 +181,7 @@ function AirportPage() {
         breadcrumbs={[
           { name: "Home", href: "/" },
           { name: "Airports", href: "/airports" },
+          ...(airport.region ? [{ name: airport.region, href: `/areas/region/${regionSlug(airport.region)}` }] : []),
           { name: shortName, href: `/airports/${airport.slug}` },
         ]}
         eyebrow="Airport Transfers"

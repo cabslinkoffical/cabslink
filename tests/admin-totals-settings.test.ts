@@ -9,6 +9,8 @@ vi.mock("@tanstack/react-start", () => {
   return { createServerFn: () => chain(), useServerFn: (fn: any) => fn };
 });
 vi.mock("@/integrations/supabase/auth-middleware", () => ({ requireSupabaseAuth: {} }));
+const adminRpc = vi.hoisted(() => vi.fn());
+vi.mock("@/integrations/supabase/client.server", () => ({ supabaseAdmin: { rpc: adminRpc } }));
 
 import { fetchAllPages } from "@/lib/fetch-all-pages";
 import { revenueByBucket, revenueInWindow, settlementWindowFilter } from "@/lib/revenue";
@@ -85,10 +87,11 @@ describe("A12 — settings never load half-way or save partially", () => {
   it("both groups go through one transactional call; a failure saves nothing separately", async () => {
     const rpc = vi.fn(async (n: string) => n === "has_role" ? { data: true, error: null } : { data: null, error: { message: "credentials write failed" } });
     const c = ctx({}, rpc);
+    adminRpc.mockResolvedValueOnce({ data: null, error: { message: "credentials write failed" } });
     const from = vi.spyOn(c.supabase, "from");
     const base = { company_name: "Cabslink", primary_color: "#0E182C", currency: "GBP", timezone: "Europe/London", tax_percentage: 0, maintenance_mode: false, smtp_host: "smtp.x" };
     await expect((updateSettings as any)({ data: base, context: c })).rejects.toThrow(/were not saved/);
-    expect(rpc).toHaveBeenCalledWith("admin_save_settings", expect.objectContaining({ p_credentials: { smtp_host: "smtp.x" } }));
+    expect(adminRpc).toHaveBeenCalledWith("admin_save_settings", expect.objectContaining({ p_credentials: { smtp_host: "smtp.x" } }));
     expect(from).not.toHaveBeenCalledWith("site_settings");
     expect(from).not.toHaveBeenCalledWith("site_credentials");
   });
