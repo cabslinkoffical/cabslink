@@ -7,6 +7,8 @@ import { BLOG_SEO_OVERRIDES } from "@/lib/seo/blog-seo";
 import { BlogArticle } from "@/components/site/BlogArticle";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { BUSINESS_ID } from "@/lib/seo/business-graph";
+import { getRouteFares } from "@/lib/seo/route-fares.functions";
+import { resolveSearchSnippet } from "@/lib/seo/search-snippets.head";
 
 const BASE = "https://cabslink.com";
 
@@ -20,7 +22,10 @@ export const Route = createFileRoute("/blog/$slug")({
   loader: async ({ params, context }) => {
     const res = await context.queryClient.ensureQueryData(postQuery(params.slug));
     if (!res.post) throw notFound();
-    return res as { post: BlogPostFull; related: BlogPostSummary[] };
+    const snippetFares = params.slug === "airport-to-st-andrews-full-transfer-guide"
+      ? await getRouteFares({ data: { slug: "edinburgh-airport-to-st-andrews", miles: 48, minutes: 80 } }).catch(() => null)
+      : null;
+    return { ...res as { post: BlogPostFull; related: BlogPostSummary[] }, snippetFares };
   },
   head: ({ params, loaderData }) => {
     if (!loaderData) {
@@ -29,8 +34,8 @@ export const Route = createFileRoute("/blog/$slug")({
     const p = loaderData.post;
     const url = `${BASE}/blog/${p.slug}`;
     const override = BLOG_SEO_OVERRIDES[p.slug];
-    const title = override?.title ?? p.seo_title ?? p.title;
-    const desc = override?.description ?? p.meta_description ?? p.excerpt ?? "";
+    const title = resolveSearchSnippet(override?.title ?? p.seo_title ?? p.title, loaderData.snippetFares);
+    const desc = resolveSearchSnippet(override?.description ?? p.meta_description ?? p.excerpt ?? "", loaderData.snippetFares);
     const image = blogShareImage(p.og_image_url, p.featured_image_url);
     const meta: Array<Record<string, string>> = [
       { title },

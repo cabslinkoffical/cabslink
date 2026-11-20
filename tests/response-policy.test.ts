@@ -59,6 +59,12 @@ describe("HTML cache headers", () => {
   const cc = (path: string, res = html(), reqInit: RequestInit = {}) =>
     applyResponsePolicy(new Request(`https://cabslink.com${path}`, reqInit), res).headers.get("cache-control");
 
+  it("keeps public 304 responses revalidatable and preserves validators", () => {
+    const response = applyResponsePolicy(new Request("https://cabslink.com/fleet"), new Response(null, { status: 304, headers: { "content-type": "text/html", etag: 'W/"abc"' } }));
+    expect(response.headers.get("cache-control")).toBe("public, max-age=0, s-maxage=300, stale-while-revalidate=86400");
+    expect(response.headers.get("etag")).toBe('W/"abc"');
+  });
+
   for (const path of ["/", "/services", "/fleet", "/tours", "/tours/harry-potter-highland-expedition", "/areas/edinburgh", "/routes/dundee-to-edinburgh-airport", "/airports/edinburgh-airport", "/blog", "/blog/some-post"]) {
     it(`public page ${path} gets a 5-minute shared cache`, () => {
       expect(cc(path)).toBe("public, max-age=0, s-maxage=300, stale-while-revalidate=86400");

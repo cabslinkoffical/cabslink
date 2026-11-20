@@ -2,6 +2,8 @@
 import { normalizeHead } from "@/lib/seo/page-head";
 import type { GuideRecord } from "@/lib/seo/guides";
 import { BUSINESS_ID } from "@/lib/seo/business-graph";
+import type { RouteFareTable } from "@/lib/seo/route-fares.functions";
+import { resolveSearchSnippet } from "@/lib/seo/search-snippets.head";
 
 const ORIGIN = "https://cabslink.com";
 
@@ -81,6 +83,6 @@ function guideHeadRaw(g: GuideRecord) {
 
 
 /** Same payload, upgraded to the full canonical/OG/Twitter tag set. */
-export function guideHead(g: GuideRecord) {
-  return normalizeHead(guideHeadRaw(g));
+export function guideHead(g: GuideRecord, fares?: RouteFareTable | null) {
+  return normalizeHead(guideHeadRaw({ ...g, metaTitle: resolveSearchSnippet(g.metaTitle, fares), metaDescription: resolveSearchSnippet(g.metaDescription, fares) }));
 }

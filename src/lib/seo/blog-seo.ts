@@ -5,11 +5,6 @@
  * stored metadata is too long for search results.
  */
 export const BLOG_SEO_OVERRIDES: Record<string, { title: string; description: string }> = {
-  "loch-ness-day-trip-from-edinburgh": {
-    title: "Loch Ness Day Trip from Edinburgh | Cabslink",
-    description:
-      "Plan a Loch Ness day trip from Edinburgh with a private driver: what the journey involves, where tours stop, and how to book your day out.",
-  },
   "edinburgh-airport-transfer-guide-tram-bus-taxi-or-private-hire-2026": {
     title: "Edinburgh Airport Transfers: Tram, Bus, Taxi or Car",
     description:

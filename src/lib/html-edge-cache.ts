@@ -5,7 +5,7 @@
  * several backend round-trips (4–7 s measured). We keep a rendered copy in the
  * Cloudflare edge cache and serve it instantly; copies older than FRESH_MS are
  * re-rendered in the background (stale-while-revalidate), so admin edits show
- * up within a few minutes. Browsers still get no-store HTML.
+ * up within a few minutes. Public HTML carries validators for refresh crawls.
  *
  * The cache key includes the build id, so a new deploy never serves HTML that
  * points at deleted asset files.
@@ -117,6 +117,30 @@ async function store(cache: Cache, key: Request, response: Response) {
   await cache.put(key, new Response(body, { status: 200, headers }));
 }
 
+async function withValidators(response: Response): Promise<Response> {
+  const body = await response.arrayBuffer();
+  const headers = new Headers(response.headers);
+  // Weak validator: the host may compress the same representation differently.
+  const digest = await crypto.subtle.digest("SHA-256", body);
+  headers.set("etag", `W/"${Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("")}"`);
+  if (!headers.has("last-modified")) headers.set("last-modified", new Date().toUTCString());
+  return new Response(body, { status: response.status, headers });
+}
+
+function conditionalResponse(request: Request, response: Response): Response {
+  const tag = response.headers.get("etag");
+  const condition = request.headers.get("if-none-match");
+  const modified = response.headers.get("last-modified");
+  const since = request.headers.get("if-modified-since");
+  const unchanged = condition
+    ? condition.split(",").some((value) => value.trim() === "*" || (tag && value.trim().replace(/^W\//, "") === tag.replace(/^W\//, "")))
+    : !!(modified && since && Date.parse(modified) <= Date.parse(since));
+  if (!unchanged) return response;
+  const headers = new Headers(response.headers);
+  headers.delete("content-length");
+  return new Response(null, { status: 304, headers });
+}
+
 function isPublicHtml(response: Response): boolean {
   return response.status === 200 &&
     (response.headers.get("content-type") ?? "").includes("text/html") &&
@@ -137,8 +161,9 @@ export async function serveWithEdgeCache(
   const key = keyFor(request);
 
   const refresh = async () => {
-    const fresh = await render();
+    let fresh = await render();
     if (isPublicHtml(fresh)) {
+      fresh = await withValidators(fresh);
       await store(cache, key, fresh.clone());
     }
     return fresh;
@@ -160,16 +185,17 @@ export async function serveWithEdgeCache(
     }
     const headers = new Headers(hit.headers);
     headers.delete(STAMP);
-    return new Response(hit.body, { status: 200, headers });
+    return conditionalResponse(request, new Response(hit.body, { status: 200, headers }));
   }
 
-  const fresh = await render();
+  let fresh = await render();
   if (isPublicHtml(fresh)) {
+    fresh = await withValidators(fresh);
     const copy = fresh.clone();
     if (ctx?.waitUntil) ctx.waitUntil(store(cache, key, copy).catch(() => undefined));
     else await store(cache, key, copy).catch(() => undefined);
   }
-  return fresh;
+  return isPublicHtml(fresh) ? conditionalResponse(request, fresh) : fresh;
 }
 
 /** Test helper: forget the per-isolate page copies. */

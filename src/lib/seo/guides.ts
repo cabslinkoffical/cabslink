@@ -82,9 +82,9 @@ export const GUIDES: GuideRecord[] = [
   {
     slug: "edinburgh-airport-to-city-centre",
     h1: "Edinburgh Airport to the city centre: every option, honestly compared.",
-    metaTitle: "Edinburgh Airport to City Centre: Tram, Bus or Taxi",
+    metaTitle: "Edinburgh Airport to City Centre: Taxi, Tram & Bus Costs",
     metaDescription:
-      "Tram £7.90, Airlink bus £6.00 or a fixed-price taxi — real fares, times and first/last departures for getting from Edinburgh Airport into the city centre.",
+      "Compare bus, tram and taxi costs. Private taxi {{from_fare}}, about 33 minutes, fixed price, no meter. Add your flight for tracking. Get a quote.",
     cardTitle: "Edinburgh Airport to the city centre",
     cardBlurb:
       "Tram, bus and taxi compared with the operators' own published fares, journey times and first and last departures.",

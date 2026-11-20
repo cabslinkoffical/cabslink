@@ -6,6 +6,7 @@ import { guideHead } from "@/components/site/GuidePage.head";
 import { buildAutoHead } from "@/lib/seo/auto-seo";
 import { destinationQueryOptions, HUBS } from "@/lib/hub-config";
 import { getGuide } from "@/lib/seo/guides";
+import { getRouteFares } from "@/lib/seo/route-fares.functions";
 
 /**
  * Code-defined guides in `src/lib/seo/guides.ts` take precedence over any
@@ -13,13 +14,19 @@ import { getGuide } from "@/lib/seo/guides";
  * wins and no database query is made for it.
  */
 export const Route = createFileRoute("/guides/$slug")({
-  head: ({ params, loaderData }: { params: { slug: string }, loaderData?: import("@/lib/destination-loader").LoadedDestination }) => {
+  head: ({ params, loaderData }: { params: { slug: string }; loaderData?: { destination: import("@/lib/destination-loader").LoadedDestination | undefined; fares: import("@/lib/seo/route-fares.functions").RouteFareTable | null } }) => {
     const guide = getGuide(params.slug);
-    return guide ? guideHead(guide) : buildAutoHead(loaderData);
+    return guide ? guideHead(guide, loaderData?.fares) : buildAutoHead(loaderData?.destination);
   },
-  loader: ({ params, context }: { params: { slug: string }, context: any }) => {
-    if (getGuide(params.slug)) return null;
-    return context.queryClient.ensureQueryData(destinationQueryOptions(("guides" as const), params.slug));
+  loader: async ({ params, context }) => {
+    if (getGuide(params.slug)) {
+      const fares = params.slug === "edinburgh-airport-to-city-centre"
+        ? await getRouteFares({ data: { slug: params.slug, miles: 10, minutes: 33 } }).catch(() => null)
+        : null;
+      return { destination: undefined, fares };
+    }
+    const destination = await context.queryClient.ensureQueryData(destinationQueryOptions(("guides" as const), params.slug));
+    return { destination, fares: null };
   },
   component: () => {
     const { slug } = Route.useParams();

@@ -11,7 +11,7 @@ export const PRIVATE_HTML_CACHE = "no-cache, no-store, must-revalidate";
 
 /** Only anonymous, query-free 200 pages outside booking/payment/admin/account paths get a shared cache. */
 export function publicHtmlCacheable(request: Request, response: Response): boolean {
-  return response.status === 200 &&
+  return (response.status === 200 || response.status === 304) &&
     isCacheablePageRequest(request) &&
     !response.headers.has("set-cookie") &&
     !/private|no-store/i.test(response.headers.get("cache-control") ?? "") &&

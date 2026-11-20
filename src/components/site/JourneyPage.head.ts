@@ -7,6 +7,7 @@ import { normalizeHead } from "@/lib/seo/page-head";
 import type { JourneyContent } from "@/lib/seo/journeys";
 import type { RouteFareTable as RouteFareTableData } from "@/lib/seo/route-fares.functions";
 import { BUSINESS_ID } from "@/lib/seo/business-graph";
+import { resolveSearchSnippet } from "@/lib/seo/search-snippets.head";
 
 const ORIGIN = "https://cabslink.com";
 
@@ -106,12 +107,14 @@ export function journeySchema(c: JourneyContent, fares?: RouteFareTableData | nu
 
 function journeyHeadRaw(c: JourneyContent, fares?: RouteFareTableData | null) {
   const url = `${ORIGIN}${c.canonicalPath}`;
+  const title = resolveSearchSnippet(c.metaTitle, fares);
+  const description = resolveSearchSnippet(c.metaDescription, fares);
   return {
     meta: [
-      { title: c.metaTitle },
-      { name: "description", content: c.metaDescription },
-      { property: "og:title", content: c.metaTitle },
-      { property: "og:description", content: c.metaDescription },
+      { title },
+      { name: "description", content: description },
+      { property: "og:title", content: title },
+      { property: "og:description", content: description },
       { property: "og:type", content: "website" },
       { property: "og:url", content: url },
       { name: "twitter:card", content: "summary_large_image" },

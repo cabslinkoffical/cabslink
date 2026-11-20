@@ -50,6 +50,29 @@ describe("edge cache serving", () => {
     expect(warm.headers.has("x-cabslink-cached-at")).toBe(false);
   });
 
+  it("returns validators on cold and warm HTML and 304 for a matching ETag", async () => {
+    const render = vi.fn(async () => html("public page"));
+    const first = await serveWithEdgeCache(req("/"), undefined, render);
+    const etag = first.headers.get("etag");
+    expect(etag).toMatch(/^W\/"[a-f0-9]{64}"$/);
+    expect(first.headers.get("last-modified")).toBeTruthy();
+    if (!etag) throw new Error("Missing ETag");
+    const repeat = await serveWithEdgeCache(req("/", { headers: { "if-none-match": etag } }), undefined, render);
+    expect(repeat.status).toBe(304);
+    expect(await repeat.text()).toBe("");
+    expect(repeat.headers.get("etag")).toBe(etag);
+    expect(render).toHaveBeenCalledTimes(1);
+  });
+
+  it("honours Last-Modified but a nonmatching ETag takes precedence", async () => {
+    const render = async () => html("page");
+    const first = await serveWithEdgeCache(req("/"), undefined, render);
+    const modified = first.headers.get("last-modified");
+    if (!modified) throw new Error("Missing Last-Modified");
+    expect((await serveWithEdgeCache(req("/", { headers: { "if-modified-since": modified } }), undefined, render)).status).toBe(304);
+    expect((await serveWithEdgeCache(req("/", { headers: { "if-modified-since": modified, "if-none-match": '"different"' } }), undefined, render)).status).toBe(200);
+  });
+
   it("serves stale HTML immediately and refreshes after five minutes", async () => {
     const stale = html("old page");
     stale.headers.set("x-cabslink-cached-at", String(Date.now() - 5 * 60_000 - 1));

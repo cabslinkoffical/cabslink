@@ -17,10 +17,15 @@ export const Route = createFileRoute("/routes/$slug")({
     const journey = buildJourney(params.slug);
     if (journey) {
       // Journeys carry their own verified road distance/duration.
-      const fares = await getRouteFares({
+      const [fares, savedHead] = await Promise.all([getRouteFares({
         data: { slug: params.slug, miles: journey.miles, minutes: journey.mins },
-      }).catch(() => null);
-      return { journey, page: null, related: null, fares };
+      }).catch(() => null),
+        ["glasgow-airport-to-loch-lomond", "edinburgh-airport-to-city-centre"].includes(params.slug)
+          ? getPublicSeoPageByPath({ data: { path: `/routes/${params.slug}` } }).catch(() => null)
+          : Promise.resolve(null),
+      ]);
+      const content = savedHead ? { ...journey, metaTitle: savedHead.seo_title, metaDescription: savedHead.meta_description } : journey;
+      return { journey: content, page: null, related: null, fares };
     }
 
     const page = await getPublicSeoPageByPath({ data: { path: `/routes/${params.slug}` } });
@@ -66,7 +71,8 @@ export const Route = createFileRoute("/routes/$slug")({
 function RoutePage() {
   const { journey, page, related, fares } = Route.useLoaderData();
   if (journey) return <JourneyPage content={journey} fares={fares} />;
-  return <SeoPageRenderer page={page!} related={related} fares={fares} />;
+  if (!page) return null;
+  return <SeoPageRenderer page={page} related={related} fares={fares} />;
 }
 
 
