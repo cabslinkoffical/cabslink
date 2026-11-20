@@ -9,8 +9,6 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { placeIdSchema } from "@/lib/place-id";
-import { flightNumberError } from "@/lib/flight-number";
-import { FACT_TEXT } from "@/lib/site-facts";
 import { pageInputSchema, runPaged, ilikeAny } from "@/lib/admin-paging";
 import {
   CUSTOM_TOUR_STATUSES,
@@ -50,9 +48,6 @@ export const requestSchema = z.object({
   notes: z.string().trim().max(1500).nullable().optional(),
   website: z.string().trim().max(500).optional().default(""),
   captchaToken: z.string().trim().max(4096).optional().nullable(),
-}).refine((v) => !flightNumberError(v.startLabel, v.flight), {
-  message: FACT_TEXT.flightNumberRequired,
-  path: ["flight"],
 });
 
 export type CustomTourRequestInput = z.input<typeof requestSchema>;

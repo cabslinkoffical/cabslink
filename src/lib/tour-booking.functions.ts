@@ -1,5 +1,3 @@
-import { FACT_TEXT } from "@/lib/site-facts";
-import { flightNumberError } from "@/lib/flight-number";
 import { getClientIp } from "@/lib/client-ip.server";
 /**
  * Public server functions for the day-tour booking flow.
@@ -276,9 +274,6 @@ const bookSchema = quoteSchema.extend({
   captchaToken: z.string().trim().max(4096).optional().nullable(),
   /** Hourly hire uses the same pricing and booking path, labelled as hire. */
   kind: z.enum(["tour", "hourly"]).optional().default("tour"),
-}).refine((v) => !flightNumberError(v.startLabel, v.flight), {
-  message: FACT_TEXT.flightNumberRequired,
-  path: ["flight"],
 });
 
 export type TourBookingRequest = z.input<typeof bookSchema>;

@@ -12,7 +12,7 @@
 import { cancellationCoverOffered, ukDate } from "@/lib/uk-time";
 import { FACT_TEXT } from "@/lib/site-facts";
 import { SITE } from "@/lib/site";
-import { flightNumberError, isAirportPickup } from "@/lib/flight-number";
+import { isAirportPickup } from "@/lib/flight-number";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -1104,12 +1104,6 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                         toast.error("Please add your name, email and phone number.");
                         return;
                       }
-                      const flightMissing = flightNumberError(start?.label, flight);
-                      if (flightMissing) {
-                        toast.error(flightMissing);
-                        document.getElementById("tw-flight")?.focus();
-                        return;
-                      }
                       if (requestMode) requestMutation.mutate();
                       else bookMutation.mutate();
                     }}
@@ -1132,8 +1126,8 @@ export function DayBookingWizard({ kind = "tour", search }: { kind?: DayWizardKi
                         <PhoneInput id="tw-phone" value={phone} onChange={setPhone} />
                       </div>
                       <div className="space-y-1.5">
-                        <Label htmlFor="tw-flight">{isAirportPickup(start?.label) ? "Flight number" : "Flight (optional)"}</Label>
-                        <Input id="tw-flight" required={isAirportPickup(start?.label)} value={flight} onChange={(e) => setFlight(e.target.value)} placeholder="e.g. BA1448" />
+                        <Label htmlFor="tw-flight">Flight (optional)</Label>
+                        <Input id="tw-flight" value={flight} onChange={(e) => setFlight(e.target.value)} placeholder="e.g. BA1448" />
                         {isAirportPickup(start?.label) && <p className="text-xs text-muted-foreground">{FACT_TEXT.flightTracking}</p>}
                       </div>
                       <div className="space-y-1.5 sm:col-span-2">

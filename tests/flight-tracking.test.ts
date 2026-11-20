@@ -5,13 +5,14 @@ import { FACT_TEXT } from "@/lib/site-facts";
 import { flightNumberError, isAirportPickup } from "@/lib/flight-number";
 
 describe("flight number rule", () => {
-  it("requires a flight number for airport pickups", () => {
-    expect(flightNumberError("Edinburgh Airport (EDI), Edinburgh", "")).toBe("Please add your flight number so we can track your flight.");
-    expect(flightNumberError("London Heathrow, Terminal 5", "  ")).not.toBeNull();
+  it("is optional for every pickup, including airports", () => {
+    expect(flightNumberError("Edinburgh Airport (EDI), Edinburgh", "")).toBeNull();
+    expect(flightNumberError("London Heathrow, Terminal 5", "  ")).toBeNull();
     expect(flightNumberError("Edinburgh Airport (EDI)", "BA1448")).toBeNull();
   });
 
-  it("keeps it optional for non-airport pickups", () => {
+  it("still detects airport pickups for the tracking hint", () => {
+    expect(isAirportPickup("Edinburgh Airport (EDI), Edinburgh")).toBe(true);
     expect(isAirportPickup("10 Princes Street, Edinburgh")).toBe(false);
     expect(flightNumberError("Edinburgh Waverley Station", "")).toBeNull();
   });

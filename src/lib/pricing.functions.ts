@@ -1,8 +1,6 @@
 import { returnScheduleProblem } from "@/lib/return-journey";
 import { vehicleFits } from "@/lib/vehicle-capacity";
-import { FACT_TEXT } from "@/lib/site-facts";
 import { childSeatChoices, childSeatsLabel, TOO_MANY_SEATS } from "@/lib/child-seats";
-import { flightNumberError } from "@/lib/flight-number";
 import { coverDelta, coverLabel, type CancellationCover } from "@/lib/cancellation-cover";
 import { getClientIp } from "@/lib/client-ip.server";
 import { createServerFn } from "@tanstack/react-start";
@@ -543,10 +541,6 @@ const createBookingInput = z
   .refine((v) => v.pickupPlaceId !== v.destinationPlaceId, {
     message: "Pickup and destination cannot be the same location.",
     path: ["destinationPlaceId"],
-  })
-  .refine((v) => !flightNumberError(v.pickupLabel, v.flight_number), {
-    message: FACT_TEXT.flightNumberRequired,
-    path: ["flight_number"],
   });
 
 export const createBooking = createServerFn({ method: "POST" })

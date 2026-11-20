@@ -1,9 +1,8 @@
 /**
- * Flight number rule shared by the booking form and the server: airport
- * pickups must include a flight number so the team can track the flight;
- * every other pickup keeps it optional.
+ * Flight number rule shared by the booking form and the server: the flight
+ * number is always optional (owner decision, Nov 2026). Airport pickups
+ * still show the flight-tracking hint via isAirportPickup.
  */
-import { FACT_TEXT } from "@/lib/site-facts";
 
 const AIRPORT_PICKUP = /\b(airport|aeroporto?|heathrow|gatwick|stansted)\b/i;
 
@@ -12,11 +11,10 @@ export function isAirportPickup(pickupLabel: string | null | undefined): boolean
   return !!pickupLabel && AIRPORT_PICKUP.test(pickupLabel);
 }
 
-/** Error message when an airport pickup has no flight number, otherwise null. */
+/** The flight number is optional for every pickup, so this never errors. */
 export function flightNumberError(
-  pickupLabel: string | null | undefined,
-  flightNumber: string | null | undefined,
+  _pickupLabel: string | null | undefined,
+  _flightNumber: string | null | undefined,
 ): string | null {
-  if (!isAirportPickup(pickupLabel)) return null;
-  return (flightNumber ?? "").trim() ? null : FACT_TEXT.flightNumberRequired;
+  return null;
 }
