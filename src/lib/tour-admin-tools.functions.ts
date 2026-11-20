@@ -95,7 +95,7 @@ export const duplicateTour = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    const res = await (context.supabase as any).rpc("admin_duplicate_tour", { p_id: data.id });
+    const res = await ((await import("@/integrations/supabase/client.server")).supabaseAdmin as any).rpc("admin_duplicate_tour", { p_id: data.id });
     if (res.error || !res.data) throw friendly(res.error);
     void (async () => {
       const { data: row } = await (context.supabase as any).from("scenic_route_templates").select("slug, published, active").eq("id", String(res.data)).maybeSingle();
@@ -153,7 +153,7 @@ export const saveTourDraft = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => tourDraftSchema.parse(i))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    const res = await (context.supabase as any).rpc("admin_save_tour_draft", {
+    const res = await ((await import("@/integrations/supabase/client.server")).supabaseAdmin as any).rpc("admin_save_tour_draft", {
       p_id: data.id ?? null,
       p_tour: data.tour,
       p_stops: data.stops ?? null,

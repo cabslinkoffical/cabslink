@@ -612,7 +612,7 @@ export const updateSettings = createServerFn({ method: "POST" })
     const { settings, credentials } = data;
     // Both groups are saved in one database transaction: either everything
     // is stored or nothing changes. Credentials stay in their admin-only table.
-    const { error } = await (context.supabase as any).rpc("admin_save_settings", {
+    const { error } = await ((await import("@/integrations/supabase/client.server")).supabaseAdmin as any).rpc("admin_save_settings", {
       p_settings: settings,
       p_credentials: credentials,
     });

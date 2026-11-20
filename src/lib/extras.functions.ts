@@ -102,7 +102,7 @@ export const upsertExtra = createServerFn({ method: "POST" })
     const links = class_ids === undefined ? null : [...new Set(class_ids)]
       .filter((c) => !row.applies_to_all_classes || class_prices?.[c] != null || class_max?.[c] != null)
       .map((c) => ({ vehicle_class_id: c, price_pence: class_prices?.[c] ?? null, max_quantity: class_max?.[c] ?? null }));
-    const { data: extraId, error } = await context.supabase.rpc("admin_save_extra", {
+    const { data: extraId, error } = await ((await import("@/integrations/supabase/client.server")).supabaseAdmin as any).rpc("admin_save_extra", {
       p_id: (id ?? null) as string, p_extra: row, p_links: links,
     });
     if (error) throw new Error(error.message);
