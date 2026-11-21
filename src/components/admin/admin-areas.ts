@@ -95,7 +95,6 @@ export const ADMIN_AREAS: { id: AdminAreaId; label: string; short: string; icon:
           { to: "/cabs-booking-pannel/bookings", label: "All bookings", icon: CalendarCheck, search: { view: "", tab: "" } },
           { to: "/cabs-booking-pannel/bookings", label: "Upcoming", icon: CalendarCheck, search: { view: "", tab: "upcoming" } },
           { to: "/cabs-booking-pannel/bookings", label: "Confirmed", icon: CalendarCheck, search: { view: "", tab: "confirmed" } },
-          { to: "/cabs-booking-pannel/cancellations", label: "Cancelled", icon: CircleSlash2 },
           { to: "/cabs-booking-pannel/bookings", label: "History", icon: History, search: { view: "", tab: "history" } },
           { to: "/cabs-booking-pannel/bookings", label: "Tour enquiries", icon: RouteIcon, search: { view: "tours" } },
         ],
