@@ -1,7 +1,7 @@
 import {
   LayoutDashboard, CalendarCheck, MapPin, Ban, Car, Tag, UserCog, Users,
   CreditCard, Ticket, FileText, BarChart3, Shield, Settings as SettingsIcon, History,
-  Inbox, Gauge, Plane, Plus, Wrench, CircleSlash2, Wallet, PencilLine, Route as RouteIcon,
+  Inbox, Gauge, Plane, Plus, Wrench, CircleSlash2, PencilLine, Route as RouteIcon,
   ArrowLeftRight, Send, Globe, UploadCloud, TrendingUp, Image as ImageIcon, Calculator, SlidersHorizontal,
   type LucideIcon,
 } from "lucide-react";
@@ -102,7 +102,6 @@ export const ADMIN_AREAS: { id: AdminAreaId; label: string; short: string; icon:
       { to: "/cabs-booking-pannel/custom-tour-requests", label: "Custom tour requests", icon: RouteIcon },
       { to: "/cabs-booking-pannel/amendments", label: "Change requests", icon: PencilLine },
       { to: "/cabs-booking-pannel/cancellations", label: "Cancellation requests", icon: CircleSlash2 },
-      { to: "/cabs-booking-pannel/refunds", label: "Refunds", icon: Wallet },
       { to: "/cabs-booking-pannel/messages", label: "Messages", icon: Inbox },
       { to: "/cabs-booking-pannel/drivers", label: "Driver applications", icon: UserCog },
     ],

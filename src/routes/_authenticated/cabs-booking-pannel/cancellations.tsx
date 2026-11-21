@@ -20,6 +20,7 @@ import { EmptyState, ListError } from "@/components/admin/ui";
 import { CannedEmailComposer } from "@/components/admin/CannedEmailComposer";
 import { Search, Phone, Mail, MapPin, CalendarClock, CircleSlash2, ChevronRight, History, Wallet } from "lucide-react";
 import { toast } from "sonner";
+import { RefundsList } from "@/components/admin/RefundsList";
 
 type Group = "paid" | "unpaid";
 const cancelOpts = (group: Group, view: string, q: string, page: number, pageSize: number) => queryOptions({
@@ -46,6 +47,7 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/cancel
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
+  validateSearch: (s: Record<string, unknown>): { section?: "refunds" } => (s["section"] === "refunds" ? { section: "refunds" } : {}),
   loader: ({ context }) => context.queryClient.ensureQueryData(cancelOpts("paid", "open", "", 1, DEFAULT_PAGE_SIZE)),
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error instanceof Error ? error.message : String(error)}</div>,
   notFoundComponent: () => <div className="p-8">Not found</div>,
@@ -115,7 +117,27 @@ const UNPAID_LABELS: Partial<Record<Status, string>> = {
   declined: "Declined — booking kept",
 };
 
+function SectionTabs({ section }: { section: "cancellations" | "refunds" }) {
+  const navigate = Route.useNavigate();
+  const items = [
+    { id: "cancellations" as const, label: "Cancellations (paid & unpaid)" },
+    { id: "refunds" as const, label: "Refunds" },
+  ];
+  return (
+    <div className="flex gap-1 rounded-lg border border-border bg-card p-1 w-fit" role="tablist" aria-label="Section">
+      {items.map((t) => (
+        <button key={t.id} type="button" role="tab" aria-selected={section === t.id}
+          onClick={() => navigate({ search: t.id === "refunds" ? { section: "refunds" } : {} })}
+          className={`rounded-md px-4 py-2 text-sm font-semibold transition-colors ${section === t.id ? "bg-navy text-navy-foreground" : "text-muted-foreground hover:bg-muted/50"}`}>
+          {t.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function CancellationsPage() {
+  const section = Route.useSearch().section === "refunds" ? "refunds" : "cancellations";
   const qc = useQueryClient();
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: ["admin", "cancellations"] });
@@ -183,7 +205,6 @@ function CancellationsPage() {
     : [
         { value: "open", label: "Needs review", count: counts.open ?? 0 },
         { value: "approved", label: "Refund approved", count: counts.approved ?? 0 },
-        { value: "refunded", label: "Refunded", count: counts.refunded ?? 0 },
         { value: "closed", label: "Closed", count: counts.closed ?? 0 },
         { value: "all", label: "All", count: counts.all ?? 0 },
       ];
@@ -197,8 +218,7 @@ function CancellationsPage() {
     { value: "unpaid", title: "Unpaid & cancelled", hint: "No payment taken — cancelled automatically", icon: CircleSlash2, open: groups.unpaid?.open ?? 0, total: groups.unpaid?.all ?? 0, extra: `${groups.unpaid?.closed ?? 0} closed` },
   ];
 
-  return (
-    <div className="space-y-6">
+  const pageHeader = (
       <header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="font-display text-2xl font-semibold">Cancellations & Refunds</h1>
@@ -208,6 +228,22 @@ function CancellationsPage() {
           <History className="size-4" /> Cancellation history
         </Button>
       </header>
+  );
+
+  if (section === "refunds") {
+    return (
+      <div className="space-y-6">
+        {pageHeader}
+        <SectionTabs section="refunds" />
+        <RefundsList />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {pageHeader}
+      <SectionTabs section="cancellations" />
 
       <div className="grid gap-3 sm:grid-cols-2" role="tablist" aria-label="Cancellation type">
         {groupCards.map(({ value, title, hint, icon: Icon, open, total, extra }) => {

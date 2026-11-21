@@ -84,7 +84,7 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/bookin
   // Every cancellation and refund is handled on the Cancellations & Refunds page.
   beforeLoad: ({ search }) => {
     if (search.tab === "cancelled") throw redirect({ to: "/cabs-booking-pannel/cancellations" });
-    if (search.tab === "refunded") throw redirect({ to: "/cabs-booking-pannel/refunds" });
+    if (search.tab === "refunded") throw redirect({ to: "/cabs-booking-pannel/cancellations", search: { section: "refunds" } });
   },
   loaderDeps: ({ search }) => ({ tab: search.tab ?? "all", view: search.view ?? "bookings" }),
   loader: ({ context, deps }) => deps.view === "tours" ? undefined : Promise.all([
