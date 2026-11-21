@@ -3,7 +3,7 @@ import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { getDashboardStats } from "@/lib/admin.functions";
 import {
   CalendarCheck, Car, Clock, CheckCircle2, Ban, UserCog, Users,
-  CreditCard, TrendingUp, Wallet, AlertCircle, Activity, Tag, X, MapPin,
+  CreditCard, TrendingUp, Wallet, AlertCircle, Activity, X, MapPin,
 } from "lucide-react";
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
@@ -57,7 +57,6 @@ function Dashboard() {
     { label: "Awaiting payment", value: totals.awaitingPayment, icon: CreditCard },
     { label: "Confirmed / assigned", value: totals.allocated, icon: UserCog },
     { label: "On the road", value: totals.inProgress, icon: Activity },
-    { label: "Bidding", value: totals.bidding, icon: Tag },
     { label: "Completed", value: totals.completed, icon: CheckCircle2 },
     { label: "Cancelled / rejected", value: totals.cancelled, icon: Ban },
     { label: "Tour bookings", value: totals.tours, icon: MapPin },

@@ -115,12 +115,11 @@ export const getDashboardStats = createServerFn({ method: "GET" })
         upcoming: inTab("upcoming"),
         completed: inTab("completed"),
         cancelled: inTab("cancelled"),
-        // "New" tab: new, awaiting allocation and bidding — bookings still without a driver.
+        // "New" tab: booking requests not yet confirmed.
         pendingAllocation: inTab("new"),
         awaitingPayment: inTab("awaiting_payment"),
         allocated: inTab("assigned") + inTab("confirmed"),
         inProgress: inTab("on_road"),
-        bidding: transfers.filter((b: any) => b.status === "bidding").length,
         deleted: inTab("deleted"),
         newToday,
         totalRevenue, todayRevenue, monthRevenue, pendingPayments,

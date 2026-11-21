@@ -43,9 +43,8 @@ export const STATUS_META: Record<BookingStatus, Meta> = {
   completed:          { label: "Completed",            adminSelectable: true,  notifyCustomer: true,  active: false, requiresReason: false, terminal: true  },
   cancelled:          { label: "Cancelled",            adminSelectable: true,  notifyCustomer: true,  active: false, requiresReason: true,  terminal: true  },
   rejected:           { label: "Rejected",             adminSelectable: true,  notifyCustomer: true,  active: false, requiresReason: true,  terminal: true  },
-  // Legacy / system-only states. They still exist on older rows and in the
-  // database enum, so they must render, but staff never pick them by hand
-  // because each duplicates one of the statuses above.
+  // Retired duplicates: the database refuses them now; labels stay only so
+  // any old record still reads sensibly.
   pending_allocation: { label: "Awaiting driver",       adminSelectable: false, notifyCustomer: false, active: true,  requiresReason: false, terminal: false },
   on_way:             { label: "Driver en route",       adminSelectable: false, notifyCustomer: true,  active: true,  requiresReason: false, terminal: false },
   in_progress:        { label: "Passenger on board",    adminSelectable: false, notifyCustomer: false, active: true,  requiresReason: false, terminal: false },
@@ -71,15 +70,15 @@ export const ADMIN_STATUS_OPTIONS: BookingStatus[] = [
 
 /** Allowed transitions. Kept in sync with the DB `set_booking_status` function. */
 export const ALLOWED_TRANSITIONS: Record<BookingStatus, BookingStatus[]> = {
-  new:                ["awaiting_payment", "confirmed", "assigned", "cancelled", "rejected", "pending_allocation"],
-  pending_allocation: ["awaiting_payment", "confirmed", "assigned", "cancelled", "rejected", "new"],
-  bidding:            ["awaiting_payment", "confirmed", "assigned", "cancelled", "rejected", "new", "pending_allocation"],
+  new:                ["awaiting_payment", "confirmed", "assigned", "cancelled", "rejected"],
+  pending_allocation: ["new", "awaiting_payment", "confirmed", "assigned", "cancelled", "rejected"],
+  bidding:            ["new", "awaiting_payment", "confirmed", "assigned", "cancelled", "rejected"],
   awaiting_payment:   ["confirmed", "assigned", "cancelled", "rejected"],
   confirmed:          ["assigned", "awaiting_payment", "cancelled"],
-  assigned:           ["driver_en_route", "on_way", "in_progress", "passenger_on_board", "completed", "cancelled", "confirmed"],
-  on_way:             ["driver_en_route", "passenger_on_board", "in_progress", "completed", "cancelled"],
-  driver_en_route:    ["passenger_on_board", "in_progress", "completed", "cancelled"],
-  passenger_on_board: ["in_progress", "completed"],
+  assigned:           ["driver_en_route", "passenger_on_board", "completed", "cancelled", "confirmed"],
+  on_way:             ["driver_en_route", "passenger_on_board", "completed", "cancelled"],
+  driver_en_route:    ["passenger_on_board", "completed", "cancelled"],
+  passenger_on_board: ["completed"],
   in_progress:        ["passenger_on_board", "completed"],
   completed:          [],
   cancelled:          [],

@@ -288,6 +288,13 @@
       "when": 1795274709636,
       "tag": "0040_booking_status_rules",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1795275144411,
+      "tag": "0041_retire_legacy_booking_statuses",
+      "breakpoints": true
     }
   ]
 }
