@@ -17,6 +17,7 @@ export const BOOKING_TABS = [
   { id: "on_road", label: "On the road" },
   { id: "completed", label: "Completed" },
   { id: "cancelled", label: "Cancelled" },
+  { id: "refunded", label: "Refunded" },
   { id: "history", label: "History (past)" },
   { id: "deleted", label: "Deleted" },
 ] as const;
@@ -64,6 +65,7 @@ export function applyBookingFilters<Q extends FilterBuilder<Q>>(q: Q, tabIn: str
   const searchExpr = term ? `or(${BOOKING_SEARCH_COLUMNS.map((c) => `${c}.ilike.*${term}*`).join(",")})` : null;
 
   if (tab === "history") {
+    q = q.neq("payment_status", "refunded");
     // Past pickups or finished bookings — an OR, combined with search in one expression.
     const hist = `or(pickup_date.lt.${today},status.in.(${FINAL.join(",")}))`;
     return q.or(searchExpr ? `and(${hist},${searchExpr})` : hist.slice(3, -1));
@@ -71,6 +73,9 @@ export function applyBookingFilters<Q extends FilterBuilder<Q>>(q: Q, tabIn: str
   if (searchExpr) q = q.or(searchExpr.slice(3, -1));
 
   if (tab === "deleted") return q;
+  // Fully refunded bookings live only in the Refunds panel.
+  if (tab === "refunded") return q.eq("payment_status", "refunded");
+  q = q.neq("payment_status", "refunded");
   if (tab === "cancelled") return q.in("status", CLOSED);
   q = q.not("status", "in", `(${CLOSED.join(",")})`);
   switch (tab) {
@@ -91,10 +96,12 @@ export function todayIso(now = new Date()) {
 }
 
 /** Same tab rules as applyBookingFilters, for one already-loaded booking row. */
-export function bookingInTab(b: { status: string; pickup_date?: string | null; deleted_at?: string | null; service_type?: string | null }, tab: BookingTabId, today: string): boolean {
+export function bookingInTab(b: { status: string; payment_status?: string | null; pickup_date?: string | null; deleted_at?: string | null; service_type?: string | null }, tab: BookingTabId, today: string): boolean {
   if (b.service_type === TOUR_SERVICE_TYPE) return false;
   if (tab === "deleted") return !!b.deleted_at;
   if (b.deleted_at) return false;
+  if (tab === "refunded") return b.payment_status === "refunded";
+  if (b.payment_status === "refunded") return false;
   const st = b.status;
   if (tab === "history") return (!!b.pickup_date && b.pickup_date < today) || (FINAL as string[]).includes(st);
   if (tab === "cancelled") return (CLOSED as string[]).includes(st);

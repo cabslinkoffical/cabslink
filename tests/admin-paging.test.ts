@@ -63,6 +63,12 @@ describe("booking tabs as database filters", () => {
   });
   it("unknown tab falls back to all", () => {
     const r = recorder(); applyBookingFilters(r.q, "nonsense", "", "2026-11-02");
-    expect(r.calls).toEqual(['neq:["service_type","private_tour"]', 'is:["deleted_at",null]', 'not:["status","in","(cancelled,rejected)"]']);
+    expect(r.calls).toEqual(['neq:["service_type","private_tour"]', 'is:["deleted_at",null]', 'neq:["payment_status","refunded"]', 'not:["status","in","(cancelled,rejected)"]']);
+  });
+  it("fully refunded bookings appear only in the Refunded tab", () => {
+    const r = recorder(); applyBookingFilters(r.q, "refunded", "", "2026-11-02");
+    expect(r.calls).toContain('eq:["payment_status","refunded"]');
+    const c = recorder(); applyBookingFilters(c.q, "cancelled", "", "2026-11-02");
+    expect(c.calls).toContain('neq:["payment_status","refunded"]');
   });
 });

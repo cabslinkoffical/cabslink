@@ -5,6 +5,7 @@ const LABELS: Record<string, string> = {
   bookings: "Bookings",
   "site-settings": "All settings",
   cancellations: "Cancellations & Refunds",
+  refunds: "Refunds",
   amendments: "Booking Changes",
   messages: "Messages",
   payments: "Payments",

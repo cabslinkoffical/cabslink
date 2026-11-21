@@ -84,6 +84,7 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/bookin
   // Every cancellation and refund is handled on the Cancellations & Refunds page.
   beforeLoad: ({ search }) => {
     if (search.tab === "cancelled") throw redirect({ to: "/cabs-booking-pannel/cancellations" });
+    if (search.tab === "refunded") throw redirect({ to: "/cabs-booking-pannel/refunds" });
   },
   loaderDeps: ({ search }) => ({ tab: search.tab ?? "all", view: search.view ?? "bookings" }),
   loader: ({ context, deps }) => deps.view === "tours" ? undefined : Promise.all([
@@ -194,8 +195,8 @@ function BookingsPage() {
             return (
               <TabsTrigger key={t.id} value={t.id} asChild>
                 <Link
-                  to={t.id === "cancelled" ? "/cabs-booking-pannel/cancellations" : "/cabs-booking-pannel/bookings"}
-                  search={t.id === "cancelled" ? undefined : { tab: t.id }}
+                  to={t.id === "cancelled" ? "/cabs-booking-pannel/cancellations" : t.id === "refunded" ? "/cabs-booking-pannel/refunds" : "/cabs-booking-pannel/bookings"}
+                  search={t.id === "cancelled" || t.id === "refunded" ? undefined : { tab: t.id }}
                   className="gap-2 px-3 py-2 text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                 >
                   {t.label}
