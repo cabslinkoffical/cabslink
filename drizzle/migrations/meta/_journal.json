@@ -309,6 +309,13 @@
       "when": 1795276631919,
       "tag": "0043_lock_admin_save_blog_post",
       "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "7",
+      "when": 1795276771733,
+      "tag": "0044_lock_admin_save_tour_pricing",
+      "breakpoints": true
     }
   ]
 }

@@ -1,0 +1,2 @@
+REVOKE EXECUTE ON FUNCTION public.admin_save_tour_pricing(uuid, jsonb, jsonb) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.admin_save_tour_pricing(uuid, jsonb, jsonb) TO service_role;

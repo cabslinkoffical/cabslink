@@ -285,7 +285,8 @@ export const saveTemplateTourSettings = createServerFn({ method: "POST" })
       settings.auto_price_route_miles = routeMiles;
       settings.auto_price_calculated_at = new Date().toISOString();
     }
-    const save = await (context.supabase as any).rpc("admin_save_tour_pricing", {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const save = await (supabaseAdmin as any).rpc("admin_save_tour_pricing", {
       p_id: id,
       p_settings: settings,
       p_prices: finalPrices,
