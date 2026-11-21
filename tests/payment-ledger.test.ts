@@ -90,8 +90,10 @@ describe("P05 — balances use money actually held", () => {
 
   it("a full single-charge refund marks the booking refunded", async () => {
     const db = memoryDb({ bookings: [booking({ price: 85 })], payments: [card("a", 85)], activity_logs: [] });
+    db.rpc = vi.fn(async (_fn: string, args: any) => { db.tables.bookings[0].status = args._new_status; return { data: [{ changed: true }], error: null }; });
     await handleChargeRefunded({ id: "ch", payment_intent: "pi_a", amount: 8500, amount_refunded: 8500 } as any, "live", { db });
     expect(db.tables.bookings[0].payment_status).toBe("refunded");
+    expect(db.tables.bookings[0].status).toBe("cancelled");
   });
 });
 

@@ -479,6 +479,18 @@ export async function handleSessionExpired(session: Stripe.Checkout.Session, env
   );
 }
 
+/** Moves a fully refunded, not-yet-finished booking to Cancelled (audited). */
+export async function cancelFullyRefundedBooking(db: any, bookingId: string) {
+  const res = await db.from("bookings").select("status").eq("id", bookingId).maybeSingle();
+  const status = res?.data?.status as string | undefined;
+  if (!status || ["cancelled", "completed", "rejected", "expired"].includes(status)) return;
+  const rpc: any = await db.rpc("set_booking_status", {
+    _booking_id: bookingId, _new_status: "cancelled", _actor_id: null,
+    _reason: "Payment fully refunded", _override: true,
+  });
+  if (rpc?.error) console.error("Auto-cancel after refund failed", rpc.error.message);
+}
+
 export async function handleChargeRefunded(charge: Stripe.Charge, env: StripeEnv, deps: PaymentDeps) {
   const piId = typeof charge.payment_intent === "string" ? charge.payment_intent : charge.payment_intent?.id ?? null;
   const full = charge.amount_refunded >= charge.amount;
@@ -507,7 +519,11 @@ export async function handleChargeRefunded(charge: Stripe.Charge, env: StripeEnv
   }
   // The booking reflects all money still held across every charge and cash
   // entry — refunding one charge does not refund the whole booking.
-  if (bookingId) await reconcileBookingPaymentStatus(deps.db, bookingId);
+  if (bookingId) {
+    const derived = await reconcileBookingPaymentStatus(deps.db, bookingId);
+    // A booking with every penny given back is no longer going ahead.
+    if (derived === "refunded") await cancelFullyRefundedBooking(deps.db, bookingId);
+  }
   await logPaymentActivity(deps.db, "payment_refunded", bookingId, {
     charge_id: charge.id, payment_intent_id: piId, amount_refunded_pence: charge.amount_refunded,
     amount_pence: charge.amount, full, environment: env,
