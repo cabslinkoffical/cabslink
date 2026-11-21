@@ -90,7 +90,8 @@ export const upsertPost = createServerFn({ method: "POST" })
     if (payload.status === "published" && /\|\s*TODO\s*\|/.test(payload.body_md ?? "")) {
       throw new Error("Replace every TODO in the comparison table with real figures before publishing.");
     }
-    const { data: postId, error } = await context.supabase.rpc("admin_save_blog_post", {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: postId, error } = await supabaseAdmin.rpc("admin_save_blog_post", {
       p_id: (id ?? null) as string, p_post: payload, p_tag_ids: tag_ids,
     });
     if (error) throw new Error(error.message);
