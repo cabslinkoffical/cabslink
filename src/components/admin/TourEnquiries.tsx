@@ -8,7 +8,8 @@ import { BookingTripDetails } from "@/components/admin/BookingTripDetails";
 import { listTourEnquiriesPage, setTourEnquiryPrice, type TourEnquiryRow } from "@/lib/tour-admin.functions";
 import { setBookingStatusFn } from "@/lib/booking.functions";
 import { deleteBooking, upsertPayment } from "@/lib/admin.functions";
-import { TOUR_STATUSES, TOUR_TRANSITIONS, tourStatusLabel, tourNameFrom } from "@/lib/tour-enquiries";
+import { TOUR_STATUSES, TOUR_TRANSITIONS, tourStatusLabel, tourNameFrom, tourNextOptions } from "@/lib/tour-enquiries";
+import { ukDate } from "@/lib/uk-time";
 import { isStatusLocked } from "@/lib/booking-lifecycle";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -194,12 +195,12 @@ export function TourEnquiries() {
                     <td className="px-4 py-3">
                       <Select
                         value={m.status}
-                        disabled={isStatusLocked(m.status, m.payment_status) || !(TOUR_TRANSITIONS[m.status] ?? []).length}
+                        disabled={isStatusLocked(m.status) || !tourNextOptions(m, ukDate()).length}
                         onValueChange={(v) => v !== m.status && statusMut.mutate({ id: m.id, status: v })}
                       >
                         <SelectTrigger className="w-[190px] h-9"><SelectValue>{tourStatusLabel(m.status)}</SelectValue></SelectTrigger>
                         <SelectContent>
-                          {[m.status, ...(TOUR_TRANSITIONS[m.status] ?? [])].map((s) => (
+                          {[m.status, ...tourNextOptions(m, ukDate())].map((s) => (
                             <SelectItem key={s} value={s}>{tourStatusLabel(s)}</SelectItem>
                           ))}
                         </SelectContent>
@@ -251,7 +252,7 @@ export function TourEnquiries() {
                 <div className="space-y-2">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Status</span>
-                    {isStatusLocked(active.status, active.payment_status) && !(TOUR_TRANSITIONS[active.status] ?? []).length ? (
+                    {!tourNextOptions(active, ukDate()).length ? (
                       <span className="text-sm font-medium">{tourStatusLabel(active.status)} · final</span>
                     ) : (
                       <Select
@@ -265,9 +266,7 @@ export function TourEnquiries() {
                         <SelectTrigger className="w-[220px] h-9"><SelectValue /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value={active.status}>{tourStatusLabel(active.status)}</SelectItem>
-                          {(TOUR_TRANSITIONS[active.status] ?? [])
-                            // A paid tour can only be cancelled (which starts the refund), never moved back.
-                            .filter((s) => !["paid", "partial"].includes(active.payment_status ?? "") || s === "cancelled")
+                          {tourNextOptions(active, ukDate())
                             .map((s) => (
                               <SelectItem key={s} value={s}>{tourStatusLabel(s)}</SelectItem>
                             ))}

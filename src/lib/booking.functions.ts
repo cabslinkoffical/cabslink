@@ -303,6 +303,16 @@ export const setBookingStatusFn = createServerFn({ method: "POST" })
       if (cur.data.service_type !== TOUR_SERVICE_TYPE || !isTourTransitionAllowed(cur.data.status, newStatus)) {
         throw new Error(`This booking can't move from ${String(cur.data.status).replace(/_/g, " ")} to ${newStatus.replace(/_/g, " ")}.`);
       }
+      // Overrides skip the driver steps only, never the paid or pickup-day rules.
+      const { ukDate } = await import("@/lib/uk-time");
+      const full: any = await supabaseAdmin.from("bookings").select("payment_status, pickup_date").eq("id", data.id).maybeSingle();
+      const paid = ["paid", "partial"].includes(full.data?.payment_status);
+      if (paid && (newStatus === "cancelled" || newStatus === "awaiting_payment")) {
+        throw new Error("This tour is paid. Cancel it through Cancellation requests so the refund is handled.");
+      }
+      if (newStatus === "completed" && full.data?.pickup_date && full.data.pickup_date > ukDate()) {
+        throw new Error(`This tour is on ${full.data.pickup_date}; it can't be completed before then.`);
+      }
       if ((newStatus === "cancelled" || newStatus === "rejected") && !(data.reason ?? "").trim()) {
         throw new Error("A reason is required when cancelling or rejecting a booking");
       }

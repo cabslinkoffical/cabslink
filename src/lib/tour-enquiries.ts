@@ -37,6 +37,23 @@ export const TOUR_TRANSITIONS: Record<string, readonly TourEnquiryStatus[]> = {
   confirmed: ["completed", "cancelled"],
 };
 
+/**
+ * Tour statuses staff may pick next: paid tours never go back to awaiting
+ * payment and are cancelled through Cancellations & Refunds; a tour can only
+ * be completed on or after its date (UK day).
+ */
+export function tourNextOptions(
+  b: { status: string; payment_status?: string | null; pickup_date?: string | null },
+  today: string,
+): TourEnquiryStatus[] {
+  const paid = b.payment_status === "paid" || b.payment_status === "partial";
+  return (TOUR_TRANSITIONS[b.status] ?? []).filter((s) => {
+    if (paid && (s === "awaiting_payment" || s === "cancelled")) return false;
+    if (s === "completed" && b.pickup_date && b.pickup_date > today) return false;
+    return true;
+  });
+}
+
 export function isTourTransitionAllowed(from: string, to: string): boolean {
   return from === to || (TOUR_TRANSITIONS[from] ?? []).includes(to as TourEnquiryStatus);
 }

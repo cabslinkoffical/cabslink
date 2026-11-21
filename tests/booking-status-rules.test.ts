@@ -26,3 +26,13 @@ describe("booking status rules", () => {
     expect(listLabelFor("assigned")).toBe("Driver assigned");
   });
 });
+
+import { tourNextOptions } from "@/lib/tour-enquiries";
+describe("tour status rules", () => {
+  it("a paid confirmed tour can be completed on its day but not cancelled outside refunds", () => {
+    expect(tourNextOptions({ status: "confirmed", payment_status: "paid", pickup_date: "2026-11-21" }, "2026-11-21")).toEqual(["completed"]);
+  });
+  it("a tour can't be completed before its date", () => {
+    expect(tourNextOptions({ status: "confirmed", payment_status: "unpaid", pickup_date: "2026-12-01" }, "2026-11-21")).toEqual(["cancelled"]);
+  });
+});

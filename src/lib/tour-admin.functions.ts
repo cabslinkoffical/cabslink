@@ -57,7 +57,9 @@ export const listTourEnquiriesPage = createServerFn({ method: "GET" })
           { count: "exact" },
         )
         .eq("service_type", TOUR_SERVICE_TYPE)
-        .is("deleted_at", null);
+        .is("deleted_at", null)
+        // Fully refunded tours live only in the Refunds panel.
+        .neq("payment_status", "refunded");
       if (data.status !== "all") q = q.eq("status", data.status as any);
       if (search) q = q.or(search);
       return q.order("created_at", { ascending: false }).order("id", { ascending: false }).range(from, to);
