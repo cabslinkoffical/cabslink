@@ -69,32 +69,61 @@ export const ADMIN_STATUS_OPTIONS: BookingStatus[] = [
   "rejected",
 ];
 
-/** Allowed forward transitions. Kept in sync with the DB `set_booking_status` function. */
+/** Allowed transitions. Kept in sync with the DB `set_booking_status` function. */
 export const ALLOWED_TRANSITIONS: Record<BookingStatus, BookingStatus[]> = {
   new:                ["awaiting_payment", "confirmed", "assigned", "cancelled", "rejected", "pending_allocation"],
-  pending_allocation: ["awaiting_payment", "confirmed", "assigned", "cancelled", "rejected"],
+  pending_allocation: ["awaiting_payment", "confirmed", "assigned", "cancelled", "rejected", "new"],
+  bidding:            ["awaiting_payment", "confirmed", "assigned", "cancelled", "rejected", "new", "pending_allocation"],
   awaiting_payment:   ["confirmed", "assigned", "cancelled", "rejected"],
   confirmed:          ["assigned", "awaiting_payment", "cancelled"],
-  assigned:           ["driver_en_route", "on_way", "in_progress", "passenger_on_board", "cancelled", "confirmed"],
+  assigned:           ["driver_en_route", "on_way", "in_progress", "passenger_on_board", "completed", "cancelled", "confirmed"],
   on_way:             ["driver_en_route", "passenger_on_board", "in_progress", "completed", "cancelled"],
   driver_en_route:    ["passenger_on_board", "in_progress", "completed", "cancelled"],
-  passenger_on_board: ["in_progress", "completed", "cancelled"],
-  in_progress:        ["passenger_on_board", "completed", "cancelled"],
+  passenger_on_board: ["in_progress", "completed"],
+  in_progress:        ["passenger_on_board", "completed"],
   completed:          [],
   cancelled:          [],
   rejected:           [],
-  bidding:            ["assigned", "cancelled", "rejected", "new", "pending_allocation"],
 };
 
+const UNPAID_ONLY: BookingStatus[] = ["new", "pending_allocation", "bidding", "awaiting_payment", "rejected"];
+const ON_THE_DAY: BookingStatus[] = ["driver_en_route", "on_way", "passenger_on_board", "in_progress", "completed"];
+const isPaid = (p?: string | null) => p === "paid" || p === "partial";
+
+/** Only final bookings are locked; paid bookings can still progress. */
+export function isStatusLocked(status: string | null | undefined, _paymentStatus?: string | null): boolean {
+  return status === "completed" || status === "cancelled" || status === "rejected";
+}
 
 /**
- * A booking's status is locked once it is final (completed / cancelled /
- * rejected) or once money has been taken (paid / partially paid). Kept in
- * sync with the DB `set_booking_status` guards.
+ * The statuses staff may pick next, mirroring the database rules:
+ * no going back to unpaid states once paid, paid cancellations go through
+ * Cancellations & Refunds, and on-the-day steps wait for the pickup day.
  */
-export function isStatusLocked(status: string | null | undefined, paymentStatus: string | null | undefined): boolean {
-  if (status === "completed" || status === "cancelled" || status === "rejected") return true;
-  return paymentStatus === "paid" || paymentStatus === "partial";
+export function nextStatusOptions(
+  b: { status: string | null | undefined; payment_status?: string | null; pickup_date?: string | null },
+  today: string,
+): BookingStatus[] {
+  const from = b.status as BookingStatus;
+  const allowed = ALLOWED_TRANSITIONS[from] ?? [];
+  return ADMIN_STATUS_OPTIONS.filter((s) => {
+    if (!allowed.includes(s)) return false;
+    if (isPaid(b.payment_status) && (UNPAID_ONLY.includes(s) || s === "cancelled")) return false;
+    if (ON_THE_DAY.includes(s) && b.pickup_date && b.pickup_date > today) return false;
+    return true;
+  });
+}
+
+/** Which admin list a booking belongs in after a status change. */
+export function listLabelFor(status: string, paymentStatus?: string | null): string {
+  if (paymentStatus === "refunded") return "Refunds";
+  if (status === "cancelled" || status === "rejected") return "Cancelled";
+  if (status === "completed") return "Completed";
+  if (["driver_en_route", "on_way", "passenger_on_board", "in_progress"].includes(status)) return "On the road";
+  if (status === "assigned") return "Driver assigned";
+  if (status === "confirmed") return "Confirmed";
+  if (status === "awaiting_payment") return "Awaiting payment";
+  return "New";
 }
 
 export function isValidTransition(from: BookingStatus, to: BookingStatus): boolean {

@@ -4,18 +4,18 @@ import { useMutation, useQueryClient, queryOptions, useQuery, keepPreviousData }
 import { useServerFn } from "@tanstack/react-start";
 import { updateBooking, softDeleteBooking, deleteBooking, regenerateBookingLink } from "@/lib/admin.functions";
 import { setBookingStatusFn, listBookingNotifications, retryBookingNotification } from "@/lib/booking.functions";
-import { STATUS_META, ADMIN_STATUS_OPTIONS, statusLabel, isStatusLocked, type BookingStatus } from "@/lib/booking-lifecycle";
+import { STATUS_META, statusLabel, isStatusLocked, nextStatusOptions, listLabelFor, type BookingStatus } from "@/lib/booking-lifecycle";
+import { ukDate } from "@/lib/uk-time";
 
 /**
  * Statuses staff may pick, plus the booking's own status when it is a legacy
  * one, so the dropdown always shows where the booking actually stands.
  */
-function statusOptionsFor(current?: string | null): BookingStatus[] {
-  const list = [...ADMIN_STATUS_OPTIONS];
-  if (current && !list.includes(current as BookingStatus) && current in STATUS_META) {
-    list.unshift(current as BookingStatus);
-  }
-  return list;
+/** Current status first (so the select shows it), then only valid next steps. */
+function statusOptionsFor(b: any): BookingStatus[] {
+  const cur = b?.status as BookingStatus | undefined;
+  const next = nextStatusOptions(b ?? {}, ukDate());
+  return cur && cur in STATUS_META ? [cur, ...next.filter((s) => s !== cur)] : next;
 }
 
 import { useEffect, useState } from "react";
@@ -153,7 +153,8 @@ function BookingsPage() {
         };
       });
       setReason("");
-      toast.success(res?.changed ? "Status updated" : "Status unchanged");
+      const now = res?.current ?? vars.status;
+      toast.success(res?.changed ? `Status updated — moved to ${listLabelFor(now)}` : "Status unchanged");
     },
     onError: (e: any) => toast.error(e.message),
   });
@@ -280,7 +281,7 @@ function BookingsPage() {
                     <td className="px-4 py-3 whitespace-nowrap tabular-nums">{b.price ? `£${Number(b.price).toFixed(2)}` : "—"}</td>
                     <td className="px-4 py-3">
                       <BookingStatusCell status={statusLabel(b.status)} paymentStatus={b.payment_status} locked={!b.deleted_at && isStatusLocked(b.status, b.payment_status)}>
-                      {b.deleted_at || isStatusLocked(b.status, b.payment_status) ? (
+                      {b.deleted_at || isStatusLocked(b.status) || nextStatusOptions(b, ukDate()).length === 0 ? (
                         <StatusBadge status={statusLabel(b.status)} />
                       ) : (
                         <Select
@@ -297,7 +298,7 @@ function BookingsPage() {
                         >
                           <SelectTrigger className="h-7 w-auto min-w-[100px] gap-2 text-xs" aria-label="Change status"><SelectValue /></SelectTrigger>
                           <SelectContent>
-                            {statusOptionsFor(b.status)
+                            {statusOptionsFor(b)
                               .map(s => <SelectItem key={s} value={s}>{STATUS_META[s].label}</SelectItem>)}
 
                           </SelectContent>
@@ -413,21 +414,27 @@ function BookingsPage() {
                 </Section>
 
                 <Section title="Status">
-                  {isStatusLocked(editing.status, editing.payment_status) ? (
+                  {isStatusLocked(editing.status) || nextStatusOptions(editing, ukDate()).length === 0 ? (
                     <p className="text-xs text-muted-foreground">
                       {editing.status === "completed" || editing.status === "cancelled" || editing.status === "rejected"
                         ? "This booking is final — its status can no longer be changed."
-                        : "This booking is paid — its status can no longer be changed."}
+                        : "No further status changes are available."}
                     </p>
                   ) : (
                   <Select value={effectiveStatus ?? "new"} onValueChange={v => setEditing({ ...editing, _staged_status: v })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      {statusOptionsFor(effectiveStatus)
+                      {statusOptionsFor(editing)
                         .map(s => <SelectItem key={s} value={s}>{STATUS_META[s].label}</SelectItem>)}
 
                     </SelectContent>
                    </Select>
+                  )}
+                  {!isStatusLocked(editing.status) && (editing.payment_status === "paid" || editing.payment_status === "partial") && (
+                    <p className="mt-2 text-xs text-muted-foreground">Paid booking: to cancel it, use Cancellation requests so the refund is handled.</p>
+                  )}
+                  {editing.pickup_date && editing.pickup_date > ukDate() && ["confirmed", "assigned"].includes(editing.status) && (
+                    <p className="mt-2 text-xs text-muted-foreground">On-the-day steps (en route, on board, completed) unlock on {editing.pickup_date}.</p>
                   )}
                   {needsReason && (
                     <div className="mt-2">

@@ -8,10 +8,9 @@ describe("booking status lock", () => {
     expect(isStatusLocked("rejected", "unpaid")).toBe(true);
   });
 
-  it("locks paid and partially paid bookings", () => {
-    expect(isStatusLocked("confirmed", "paid")).toBe(true);
-    expect(isStatusLocked("new", "paid")).toBe(true);
-    expect(isStatusLocked("assigned", "partial")).toBe(true);
+  it("paid bookings stay movable forward (not locked)", () => {
+    expect(isStatusLocked("confirmed", "paid")).toBe(false);
+    expect(isStatusLocked("assigned", "partial")).toBe(false);
   });
 
   it("leaves unpaid active bookings editable", () => {

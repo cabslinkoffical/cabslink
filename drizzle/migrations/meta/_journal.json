@@ -281,6 +281,13 @@
       "when": 1795163713137,
       "tag": "0039_restrict_admin_save_functions",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1795274709636,
+      "tag": "0040_booking_status_rules",
+      "breakpoints": true
     }
   ]
 }
