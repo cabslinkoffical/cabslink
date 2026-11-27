@@ -54,5 +54,4 @@
 - Transfer continuation and submission share booking-readiness checks so unavailable or unpriced scenic journeys cannot advance.
 - Sitemap/IndexNow URLs: src/lib/sitemap-build.server.ts only (one source).
 - Premade lengths use automaticTourHours; day extras use priceDayExtras and the transfer catalogue, saved in the quote snapshot to keep checkout totals consistent.
-- Marquee/strip loop copies render only after hydration (src/hooks/use-looped.ts), so page HTML lists each card once for crawlers.
-- Tour and blog photos stored in the database use self-hosted /images/... paths, never signed storage URLs (they expire); share tags prefix SITE.url.
+- DB tour/blog photos use self-hosted /images/ paths, never signed URLs (they expire).
