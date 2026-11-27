@@ -42,7 +42,7 @@ export const Route = createFileRoute("/booking-policy")({
         <li><strong>Cruise ports and rail stations</strong> — 30 minutes of free waiting.</li>
         <li><strong>All other pickups</strong> — 15 minutes of free waiting from the booked time.</li>
       </ul>
-      <p>After the free period, waiting time is charged by the hour; the rate depends on the vehicle and is shown when you book.</p>
+      <p>After the free period, waiting time is charged per minute; the per-minute rate depends on the vehicle and is shown when you book.</p>
       {/* TODO(owner): confirm which vehicle classes count as "larger vehicles" and the free waiting at cruise ports, stations and other pickups. */}
 
       <h2>4a. Cancelling a tour</h2>

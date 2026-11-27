@@ -177,6 +177,7 @@ function HomePage() {
   const [dir, setDir] = useState<1 | -1>(1);
   const [paused, setPaused] = useState(false);
   const { data: publishedTours = [] } = useSuspenseQuery(publishedToursQuery);
+  const toursLooped = useLooped();
   const popularTours = useMemo(() => {
     const featured = publishedTours.filter((t) => t.featured);
     return (featured.length >= 10 ? featured : publishedTours).slice(0, 12);
@@ -482,7 +483,7 @@ function HomePage() {
         {/* Smooth infinite marquee of featured tours */}
         <DraggableMarquee label="Popular tours" className="tour-marquee [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)]">
           <div className="tour-marquee-track flex w-max items-stretch gap-6 py-6">
-            {[...popularTours, ...popularTours].map((t, i) => (
+            {(toursLooped ? [...popularTours, ...popularTours] : popularTours).map((t, i) => (
               <div
                 key={`${t.slug}-${i}`}
                 className={`flex w-[300px] shrink-0 sm:w-[330px] ${i >= popularTours.length ? "marquee-copy" : ""}`}
@@ -762,7 +763,8 @@ function FleetClassesSection() {
 
   const visible = classes.filter((c) => c.slug !== "unclassified");
   // Duplicate the list so the marquee track loops seamlessly left → right.
-  const track = visible.length > 0 ? [...visible, ...visible] : [];
+  const looped = useLooped();
+  const track = visible.length > 0 && looped ? [...visible, ...visible] : visible;
 
   return (
     <section className="section-y navy-scene">
@@ -908,3 +910,11 @@ function FleetClassesSection() {
 
 
 
+
+/** Loop copies for marquees are added only after hydration, so the HTML
+ * Google receives lists each card once. */
+function useLooped() {
+  const [on, setOn] = useState(false);
+  useEffect(() => setOn(true), []);
+  return on;
+}

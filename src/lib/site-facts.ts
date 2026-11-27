@@ -18,16 +18,6 @@ export const FACTS = {
     // Waiting after the free period is priced per vehicle class in the Extras
     // admin and shown at booking; pages never state a rate.
   },
-  transferCancellation: {
-    freeOverHours: 12,
-    halfFromHours: 3,
-    halfToHours: 12,
-  },
-  tourCancellation: {
-    freeOverHours: 48,
-    halfFromHours: 24,
-    halfToHours: 48,
-  },
   payment: {
     cards: ["Visa", "Mastercard", "American Express"] as const,
   },
@@ -39,7 +29,7 @@ const cardList = `${cards.slice(0, -1).join(", ")} or ${cards[cards.length - 1]}
 
 /** Ready-made sentences so every page states each rule the same way. */
 export const FACT_TEXT = {
-  airportWait: `Airport pickups include ${FACTS.airportWait.freeMinutes} minutes of free waiting from the actual landing time. After the free period, waiting time is charged by the hour; the rate depends on the vehicle and is shown when you book.`,
+  airportWait: `Airport pickups include ${FACTS.airportWait.freeMinutes} minutes of free waiting from the actual landing time. After the free period, waiting time is charged per minute; the per-minute rate depends on the vehicle and is shown when you book.`,
   airportWaitShort: `${FACTS.airportWait.freeMinutes} minutes free from actual landing`,
   meetGreet: "Meet and greet is available on every booking for a small extra charge, shown in your quote: your driver waits in arrivals with a name board.",
   transferCancellation: `Cancellation depends on the cover selected when booking. Standard: ${coverPromise("standard")}. Flexible: ${coverPromise("flexible")}. Non-refundable: ${coverPromise("non_refundable")}. Manage Booking shows the refund eligibility for your booking.`,

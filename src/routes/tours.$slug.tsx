@@ -121,9 +121,10 @@ export const Route = createFileRoute("/tours/$slug")({
       { property: "og:type", content: "website" },
       { property: "og:url", content: url },
     ];
-    if (d.hero_image_url) {
-      meta.push({ property: "og:image", content: d.hero_image_url });
-      meta.push({ name: "twitter:image", content: d.hero_image_url });
+    const heroAbs = d.hero_image_url ? (d.hero_image_url.startsWith("/") ? `https://cabslink.com${d.hero_image_url}` : d.hero_image_url) : null;
+    if (heroAbs) {
+      meta.push({ property: "og:image", content: heroAbs });
+      meta.push({ name: "twitter:image", content: heroAbs });
     }
     return normalizeHead({
       meta,
@@ -138,7 +139,7 @@ export const Route = createFileRoute("/tours/$slug")({
             serviceType: "Private driver tour",
             name: seo?.h1 ?? d.name,
             description: desc,
-            image: d.hero_image_url ?? undefined,
+            image: heroAbs ?? undefined,
             touristType: "Private driver tour",
             provider: { "@id": "https://cabslink.com/#business" },
             url,

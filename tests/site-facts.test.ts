@@ -38,10 +38,9 @@ const BANNED: { label: string; re: RegExp }[] = [
 describe("FACTS is the single source of truth", () => {
   it("holds the agreed business facts", () => {
     expect(FACTS.airportWait.freeMinutes).toBe(60);
-    expect(FACT_TEXT.airportWait).toContain("waiting time is charged by the hour; the rate depends on the vehicle and is shown when you book.");
-    expect(FACT_TEXT.airportWait).not.toMatch(/per minute|\dp\b/);
-    expect(FACTS.transferCancellation).toMatchObject({ freeOverHours: 12, halfFromHours: 3 });
-    expect(FACTS.tourCancellation).toMatchObject({ freeOverHours: 48, halfFromHours: 24 });
+    expect(FACT_TEXT.airportWait).toContain("waiting time is charged per minute; the per-minute rate depends on the vehicle and is shown when you book.");
+    expect(FACT_TEXT.airportWait).not.toMatch(/\dp\b|by the hour/);
+    expect(FACTS).not.toHaveProperty("transferCancellation");
     expect(FACTS.company.companyNumber).toBe("SC814706");
     expect(FACT_TEXT.companyLine).toContain("Cabslink Limited");
   });

@@ -12,7 +12,7 @@ describe("untrue wording stays removed", () => {
   it("booking policy has no per-minute waiting rates and states the change rule", () => {
     const s = read("src/routes/booking-policy.tsx");
     expect(s).not.toMatch(/p per minute/);
-    expect(s).toContain("waiting time is charged by the hour; the rate depends on the vehicle and is shown when you book.");
+    expect(s).toContain("waiting time is charged per minute; the per-minute rate depends on the vehicle and is shown when you book.");
     expect(s).toContain("up to 6 hours before pickup with no admin fee. If the new journey costs more or less, we show you the new price before you confirm.");
     expect(s).not.toContain("free of charge up to 6 hours");
   });
