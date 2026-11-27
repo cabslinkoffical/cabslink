@@ -12,7 +12,7 @@ vi.mock("@/integrations/supabase/client.server", () => ({
 
 async function importFn() {
   vi.resetModules();
-  const mod = await import("@/lib/corporate.functions");
+  const mod = await import("@/lib/corporate.server");
   return (data: any) => mod.submitCorporateInquiryImpl(data, { ip: "1.2.3.4" });
 }
 

@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 describe("every form tags its message with a source", () => {
   it.each([
     ["src/lib/contact.functions.ts", /source: isTour \? "tour" : "contact"/],
-    ["src/lib/corporate.functions.ts", /source: "corporate"/],
+    ["src/lib/corporate.server.ts", /source: "corporate"/],
     ["src/lib/driver-application.server.ts", /source: "driver"/],
   ])("%s", (file, re) => {
     const src = readFileSync(file, "utf8");

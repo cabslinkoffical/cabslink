@@ -1,71 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
+import { corporateInput as input, type CorporateInput } from "@/lib/corporate-schema";
 
-const input = z.object({
-  company: z.string().trim().min(2).max(120),
-  name: z.string().trim().min(2).max(100),
-  email: z.string().trim().email().max(255),
-  phone: z.string().trim().min(6).max(30),
-  needs: z.string().trim().min(10).max(1500),
-  website: z.string().trim().max(500).optional().default(""),
-  /** Cloudflare Turnstile token; required only when captcha is configured. */
-  captchaToken: z.string().trim().max(4096).optional().nullable(),
-});
-
-export type CorporateInput = z.infer<typeof input>;
-
-const recent = new Map<string, number>();
-const TTL = 5 * 60_000;
-
-/** Pure handler — safe to call directly from tests. */
-export async function submitCorporateInquiryImpl(
-  data: CorporateInput,
-  opts: { ip?: string; setStatus?: (n: number) => void; rateLimited?: boolean } = {},
-): Promise<{ ok: true }> {
-  const parsed = input.parse(data);
-  if (parsed.website && parsed.website.trim() !== "") return { ok: true };
-
-  const ip = opts.ip ?? "unknown";
-  const { hitRateLimit, LIMITS } = await import("@/lib/db-rate-limit.server");
-  if (!opts.rateLimited && !(await hitRateLimit(LIMITS.corporate, ip))) {
-    try { opts.setStatus?.(429); } catch {}
-    throw new Error("Too many submissions. Please try again in a few minutes.");
-  }
-
-  const now = Date.now();
-  for (const [k, t] of recent) if (t + TTL <= now) recent.delete(k);
-  const key = `${parsed.email.toLowerCase()}|${parsed.company.toLowerCase()}|${parsed.needs.trim()}`;
-  if (recent.has(key)) return { ok: true };
-  recent.set(key, now);
-
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { error } = await supabaseAdmin.from("contact_messages").insert({
-    name: `${parsed.name} (${parsed.company})`,
-    email: parsed.email,
-    phone: parsed.phone,
-    subject: "Corporate Account Enquiry",
-    message: parsed.needs,
-    source: "corporate",
-    source_page: await (await import("@/lib/message-source.server")).sourcePageFromRequest(),
-  } as any);
-  if (error) {
-    console.error("corporate insert failed", error);
-    throw new Error("Could not submit. Please try again.");
-  }
-
-  const { notifyEnquiry } = await import("@/lib/notifications.server");
-  await notifyEnquiry({
-    kind: "corporate",
-    name: parsed.name,
-    email: parsed.email,
-    phone: parsed.phone,
-    subject: "Corporate Account Enquiry",
-    message: parsed.needs,
-    extra: [{ label: "Company", value: parsed.company }],
-  });
-
-  return { ok: true };
-}
+export type { CorporateInput };
 
 export const submitCorporateInquiry = createServerFn({ method: "POST" })
   .inputValidator((data: CorporateInput) => input.parse(data))
@@ -82,5 +18,6 @@ export const submitCorporateInquiry = createServerFn({ method: "POST" })
       throw new Error("Too many submissions. Please try again in a few minutes.");
     }
     await assertCaptcha(data.captchaToken, ip, setResponseStatus);
+    const { submitCorporateInquiryImpl } = await import("@/lib/corporate.server");
     return submitCorporateInquiryImpl(data, { ip, setStatus: setResponseStatus, rateLimited: true });
   });
