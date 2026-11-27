@@ -27,8 +27,7 @@ export function RefundsList() {
     <div className="space-y-6">
       <header className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <h2 className="font-display text-lg font-semibold">Refunds</h2>
-          <p className="mt-1 text-sm text-muted-foreground">Bookings where the full payment was given back. They appear only here, not in other booking lists.</p>
+          <p className="text-sm text-muted-foreground">Bookings where the full payment was given back. They appear only here, not in other booking lists.</p>
         </div>
         <div className="relative w-full lg:w-72">
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />

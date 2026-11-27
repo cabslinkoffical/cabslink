@@ -38,9 +38,9 @@ const cancelledBookingOpts = (q: string, page: number, pageSize: number) => quer
 export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/cancellations")({
   head: () => ({
     meta: [
-      { title: "Cancellations & Refunds — Cabslink Admin" },
+      { title: "Cancellation requests — Cabslink Admin" },
       { name: "description", content: "Cabslink staff console: cancellation and refund requests." },
-      { property: "og:title", content: "Cancellations & Refunds — Cabslink Admin" },
+      { property: "og:title", content: "Cancellation requests — Cabslink Admin" },
       { property: "og:description", content: "Cabslink staff console: cancellation and refund requests." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -61,7 +61,7 @@ const STATUS_LABELS: Record<Status, string> = {
   pending: "Pending",
   in_review: "In review",
   approved: "Refund approved",
-  refunded: "Refunded",
+  refunded: "Refund sent",
   declined: "Declined",
   completed: "Closed",
 };
@@ -107,7 +107,7 @@ function Fact({ icon, label, value }: { icon?: React.ReactNode; label: string; v
   );
 }
 
-type QueueView = "open" | "approved" | "refunded" | "closed" | "all";
+type QueueView = "open" | "approved" | "declined" | "closed" | "all";
 
 const UNPAID_STATUSES: Status[] = ["pending", "in_review", "completed", "declined"];
 const UNPAID_LABELS: Partial<Record<Status, string>> = {
@@ -120,7 +120,7 @@ const UNPAID_LABELS: Partial<Record<Status, string>> = {
 function SectionTabs({ section }: { section: "cancellations" | "refunds" }) {
   const navigate = Route.useNavigate();
   const items = [
-    { id: "cancellations" as const, label: "Cancellations (paid & unpaid)" },
+    { id: "cancellations" as const, label: "Cancellations" },
     { id: "refunds" as const, label: "Refunds" },
   ];
   return (
@@ -200,11 +200,13 @@ function CancellationsPage() {
     ? [
         { value: "open", label: "Needs action", count: counts.open ?? 0 },
         { value: "closed", label: "Cancelled", count: counts.closed ?? 0 },
+        { value: "declined", label: "Declined", count: counts.declined ?? 0 },
         { value: "all", label: "All", count: counts.all ?? 0 },
       ]
     : [
         { value: "open", label: "Needs review", count: counts.open ?? 0 },
         { value: "approved", label: "Refund approved", count: counts.approved ?? 0 },
+        { value: "declined", label: "Declined", count: counts.declined ?? 0 },
         { value: "closed", label: "Closed", count: counts.closed ?? 0 },
         { value: "all", label: "All", count: counts.all ?? 0 },
       ];
@@ -215,14 +217,14 @@ function CancellationsPage() {
 
   const groupCards: Array<{ value: Group; title: string; hint: string; icon: typeof Wallet; open: number; total: number; extra: string }> = [
     { value: "paid", title: "Paid & cancelled", hint: "Customer paid — review and refund", icon: Wallet, open: groups.paid?.open ?? 0, total: groups.paid?.all ?? 0, extra: `${money(refundDue)} approved, not yet refunded` },
-    { value: "unpaid", title: "Unpaid & cancelled", hint: "No payment taken — cancelled automatically", icon: CircleSlash2, open: groups.unpaid?.open ?? 0, total: groups.unpaid?.all ?? 0, extra: `${groups.unpaid?.closed ?? 0} closed` },
+    { value: "unpaid", title: "Unpaid & cancelled", hint: "No payment taken — cancelled automatically", icon: CircleSlash2, open: groups.unpaid?.open ?? 0, total: groups.unpaid?.all ?? 0, extra: `${groups.unpaid?.closed ?? 0} cancelled` },
   ];
 
   const pageHeader = (
       <header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="font-display text-2xl font-semibold">Cancellations & Refunds</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Paid cancellations need a refund decision. Unpaid ones close automatically and the customer is emailed.</p>
+          <h1 className="font-display text-2xl font-semibold">Cancellation requests</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Paid cancellations need a refund decision. Unpaid ones close and the customer is emailed. Fully refunded bookings move to the Refunds tab.</p>
         </div>
         <Button variant="outline" onClick={() => setHistoryOpen(true)} className="shrink-0">
           <History className="size-4" /> Cancellation history
@@ -438,12 +440,12 @@ function CancellationsPage() {
                   </div>
                   <label className="flex items-center gap-2 text-sm">
                     <input type="checkbox" checked={alsoCancel} onChange={(e) => setAlsoCancel(e.target.checked)} />
-                    Cancel the booking when {activeUnpaid ? "closed" : "approved, refunded or closed"}
+                    Cancel the booking when {activeUnpaid ? "closed" : "approved, refunded or closed"} (never when declined)
                   </label>
                   <p className="text-xs text-muted-foreground">
                     {activeUnpaid
                       ? "No payment was taken, so there is nothing to refund. Closing cancels the booking; Declined keeps it active."
-                      : "Approved cancels the booking. Refunded also sends the money back to the customer's card through Stripe (full fare if the amount is blank). Declined keeps the booking active."}
+                      : "Approved cancels the booking. Refund sent also sends the money back to the customer's card through Stripe (full fare if the amount is blank). Declined keeps the booking active."}
                   </p>
                   <Button onClick={save} disabled={upd.isPending} className="w-full">{upd.isPending ? "Saving…" : "Save decision"}</Button>
                 </div>
