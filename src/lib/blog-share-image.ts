@@ -9,7 +9,7 @@ function usable(url: string | null | undefined): string | null {
   const m = u.match(/^(?:https?:\/\/(?:www\.)?cabslink\.com)?(\/.*)$/i);
   if (m) {
     const path = m[1];
-    if (path.startsWith("/__l5e/assets-v1/") || path === "/og-image.jpg") return SITE + path;
+    if (path.startsWith("/__l5e/assets-v1/") || path.startsWith("/images/") || path === "/og-image.jpg") return SITE + path;
     return null;
   }
   return /^https:\/\//i.test(u) ? u : null;

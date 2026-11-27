@@ -4,6 +4,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { FACT_TEXT } from "@/lib/site-facts";
 import { BOOKING_STEPS as steps } from "@/lib/booking-steps";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useLooped } from "@/hooks/use-looped";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 
 import {
@@ -911,10 +912,3 @@ function FleetClassesSection() {
 
 
 
-/** Loop copies for marquees are added only after hydration, so the HTML
- * Google receives lists each card once. */
-function useLooped() {
-  const [on, setOn] = useState(false);
-  useEffect(() => setOn(true), []);
-  return on;
-}

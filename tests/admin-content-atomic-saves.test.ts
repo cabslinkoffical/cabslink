@@ -13,8 +13,9 @@ describe('A05 blog transactional orchestration', () => {
  it('round-trips related IDs and omits unmanaged IDs', async () => {
   const rpc = vi.fn(async (name, args) => ({data: name === 'has_role' ? true : id, error: null}));
   for (const extra of [{related_post_ids:[related]}, {}]) {
+   adminRpc.mockResolvedValueOnce({data:id,error:null});
    await (upsertPost as any)({context:context(rpc),data:{id,slug:'sample',title:'Sample', ...extra}});
-   const payload = rpc.mock.calls.at(-1)![1].p_post;
+   const payload = adminRpc.mock.calls.at(-1)![1].p_post;
    expect(payload.related_post_ids).toEqual((extra as any).related_post_ids);
    if (!('related_post_ids' in extra)) expect(Object.hasOwn(payload,'related_post_ids')).toBe(false);
   }
@@ -22,6 +23,7 @@ describe('A05 blog transactional orchestration', () => {
  it('rejects failed atomic save without separate article or tag writes', async () => {
   const from = vi.fn(); const previous = {title:'Old',tags:[related]};
   const rpc = vi.fn(async (name) => name === 'has_role' ? {data:true} : {error:{message:'tag insert failed'}});
+  adminRpc.mockResolvedValueOnce({error:{message:'tag insert failed'}});
   await expect((upsertPost as any)({context:context(rpc,from),data:{id,slug:'sample',title:'Changed'}})).rejects.toThrow('tag insert failed');
   expect(from).not.toHaveBeenCalled(); expect(previous).toEqual({title:'Old',tags:[related]});
  });

@@ -7,6 +7,7 @@ import { BookingWidget } from "@/components/site/BookingWidget";
 import { SITE } from "@/lib/site";
 import { useRouterState } from "@tanstack/react-router";
 import { pageImageFor } from "@/content/page-images";
+import { useLooped } from "@/hooks/use-looped";
 
 export type LocalPageFact = { label: string; value: string };
 
@@ -67,6 +68,7 @@ export function LocalPageHero({
   intro?: LocalIntro;
   children?: ReactNode;
 }) {
+  const looped = useLooped();
   // Every local page shows its own registered photograph; the template's
   // image is only a fallback for pages that have none yet.
   const path = useRouterState({ select: (st) => st.location.pathname });
@@ -123,7 +125,7 @@ export function LocalPageHero({
         </div>
         <div className="hero-strip" aria-label="What's included">
           <div className="hero-strip-track">
-            {[0, 1].map((copy) => (
+            {(looped ? [0, 1] : [0]).map((copy) => (
               <ul key={copy} className="hero-strip-list" aria-hidden={copy === 1}>
                 <li><BadgeCheck className="size-4 shrink-0 text-[var(--gold)]" aria-hidden />{FACT_TEXT.feesIncludedShort}</li>
                 <li><BadgeCheck className="size-4 shrink-0 text-[var(--gold)]" aria-hidden />60 minutes free waiting from actual landing (airport pickups with a flight number)</li>
