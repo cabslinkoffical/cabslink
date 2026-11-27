@@ -51,7 +51,7 @@
 - Custom tours run through the /book/tour wizard (custom mode); the Tours page planner only hands off start/finish/stops/party. Wizard rules: src/lib/tour-itinerary.ts; stops auto-ordered via stop-order.ts.
 - Custom tour requests (CL-CT references) live in their own admin-only tables, saved by service-role server code with a best-effort instant estimate; rules (statuses, reference format, when to offer "Request a quote") live in src/lib/custom-tour-requests.ts, and customers look up status only with reference + email, so a code alone never reveals a request.
 - Big groups book several vehicles on one tour booking (tour_vehicles + vehicle_count); src/lib/tour-group.ts splits the party and suggests mixes, each vehicle is priced alone by quoteTourImpl and summed, and reserve_tour_booking checks every vehicle and counts each against its class daily cap.
-- Transfer continuation and submission share booking-readiness checks so unavailable or unpriced scenic journeys cannot advance.
+- Transfer continue/submit share readiness checks so unpriced scenic journeys cannot advance.
 - Sitemap/IndexNow URLs: src/lib/sitemap-build.server.ts only (one source).
 - Premade lengths use automaticTourHours; day extras use priceDayExtras and the transfer catalogue, saved in the quote snapshot to keep checkout totals consistent.
-- DB tour/blog photos use self-hosted /images/ paths, never signed URLs (they expire).
+- DB photos: self-hosted /images/ paths, never signed URLs (expire).
