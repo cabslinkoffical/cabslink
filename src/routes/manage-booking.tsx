@@ -15,6 +15,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FormNotice, FormField, focusFirstInvalid } from "@/components/site/FormValidation";
+import { customerDetailRows } from "@/lib/booking-details";
+import { refundProgressLabel } from "@/lib/customer-refund";
 import { SITE } from "@/lib/site";
 import { statusLabel, type BookingStatus } from "@/lib/booking-lifecycle";
 import {
@@ -304,6 +306,7 @@ function ManageBookingPage() {
               <>
                 {isClosed(booking) && <ClosedNotice booking={booking} />}
                 <BookingCard booking={booking} />
+                {booking.refund && <div className="mt-4 border-t border-border py-5"><h2 className="font-display text-lg font-bold">{refundProgressLabel(booking.refund)}</h2><p className="mt-2 text-sm text-muted-foreground">{booking.refund.refundedPence > 0 ? `Total refunds recorded: £${(booking.refund.refundedPence / 100).toFixed(2)}. Your bank decides when a card refund appears in your account.` : "No refund has been recorded yet. We will confirm the outcome by email."}</p>{booking.refund.updatedAt && <p className="mt-2 text-xs text-muted-foreground">Updated {new Date(booking.refund.updatedAt).toLocaleString("en-GB", { timeZone: "Europe/London" })}</p>}</div>}
 
                 {mode === "pay" && (
                   <div className="mt-4 rounded-2xl border border-[var(--gold)]/40 bg-card p-5 shadow-raised">
@@ -495,7 +498,7 @@ function ClosedNotice({ booking: b }: { booking: ManagedBooking }) {
         <p className="mt-1 text-sm text-muted-foreground">Reason recorded: {b.cancellationReason}</p>
       )}
       <p className="mt-1 text-sm text-muted-foreground">{detail}</p>
-      {b.paymentStatus === "refunded" && (
+      {b.paymentStatus === "refunded" && !b.refund && (
         <p className="mt-1 text-sm text-muted-foreground">Your refund has been issued back to the card you paid with.</p>
       )}
       <div className="mt-4 flex flex-wrap items-center gap-3">
@@ -566,13 +569,13 @@ function BookingCard({ booking: b }: { booking: ManagedBooking }) {
           />
         </dl>
 
+        {b.details && <dl className="grid gap-4 sm:grid-cols-2">{customerDetailRows(b.details).map(row => <Fact key={row.label} icon={<CheckCircle2 className="size-3" />} label={row.label} value={row.value} />)}</dl>}
+
         {b.tourName ? (
           <div className="rounded-xl border border-[var(--gold)]/40 bg-[color-mix(in_oklab,var(--gold)_8%,transparent)] p-4">
             <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Tour</p>
             <p className="text-sm font-bold">{b.tourName}</p>
-            {b.tourStops.length ? (
-              <p className="mt-1 text-xs text-muted-foreground">Stops: {b.tourStops.join(" · ")}</p>
-            ) : null}
+
             {b.price == null && b.quotedTotal == null ? (
               <p className="mt-2 text-xs font-semibold">
                 Our tour desk is confirming availability and will email your fixed price shortly.

@@ -14,6 +14,8 @@ import { enforceRateLimit, LIMITS } from "@/lib/db-rate-limit.server";
 import { SITE } from "@/lib/site";
 import { ukLocalToMs } from "@/lib/uk-time";
 import { coverLabel, coverPromise, parseCover } from "@/lib/cancellation-cover";
+import { buildBookingDetails, type BookingDetails } from "@/lib/booking-details";
+import type { CustomerRefund } from "@/lib/customer-refund";
 import { amendmentMoney, type AmendmentOutcome } from "@/lib/amendment-money";
 
 /**
@@ -52,7 +54,7 @@ function genericFail(): never {
 }
 
 const SELECT =
-  "id, booking_ref, status, payment_status, customer_name, email, phone, pickup_address, dropoff_address, pickup_place_id, dropoff_place_id, pickup_date, pickup_time, passengers, luggage, hand_luggage, vehicle_type, vehicle_id, vehicle_class_name_snapshot, vehicle_capacity_snapshot, flight_number, meet_greet, child_seat, child_seat_count, return_journey, cancellation_cover, cancellation_cover_amount, notes, selected_pois, price, quoted_total, distance_miles, created_at, cancellation_reason, service_type, admin_notes, tour_slug, tour_name, tour_stops";
+  "id, booking_ref, status, payment_status, customer_name, email, phone, pickup_address, dropoff_address, pickup_place_id, dropoff_place_id, pickup_date, pickup_time, passengers, luggage, hand_luggage, vehicle_type, vehicle_id, vehicle_class_name_snapshot, vehicle_capacity_snapshot, flight_number, meet_greet, child_seat, child_seat_count, return_journey, return_date, return_time, booked_hours, hourly_hours, tour_vehicles, child_seat_types, pricing_snapshot, cancellation_cover, cancellation_cover_amount, notes, selected_pois, price, quoted_total, distance_miles, created_at, cancellation_reason, service_type, admin_notes, tour_slug, tour_name, tour_stops";
 
 function noStore() {
   try {
@@ -97,6 +99,8 @@ export type ManagedBooking = {
   childSeat: boolean;
   childSeatCount: number;
   returnJourney: boolean;
+  details?: BookingDetails;
+  refund?: CustomerRefund | null;
   notes: string | null;
   price: number | null;
   /** Fare the customer built themselves online, held server-side until paid. */
@@ -292,7 +296,9 @@ export async function findBooking(id: Identity, client?: BookingQueryClient) {
 }
 
 function project(row: any): ManagedBooking {
+  const cover = parseCover(row.cancellation_cover);
   return {
+    details: buildBookingDetails(row),
     bookingRef: row.booking_ref,
     status: row.status,
     paymentStatus: (row.payment_status ?? "unpaid") as string,
@@ -319,7 +325,7 @@ function project(row: any): ManagedBooking {
     createdAt: row.created_at,
     cancellationReason: row.cancellation_reason ?? null,
     cancellationCoverText: coverLabel(row.cancellation_cover, row.cancellation_cover_amount),
-    cancellationCoverPromise: parseCover(row.cancellation_cover) ? coverPromise(parseCover(row.cancellation_cover)!) : null,
+    cancellationCoverPromise: cover ? coverPromise(cover) : null,
     serviceType: row.service_type ?? null,
     tourName: row.tour_name ?? null,
     tourSlug: row.tour_slug ?? null,
@@ -391,7 +397,9 @@ export const findMyBooking = createServerFn({ method: "POST" })
     const { payableBookingPence } = await import("@/lib/stripe-payments.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const amountDuePence = await payableBookingPence(supabaseAdmin, row);
-    return withOpenRequest({ ...project(row), amountDuePence }, await openCancellationRequest(row.booking_ref));
+    const { loadCustomerRefund } = await import("@/lib/customer-refund.server");
+    const refund = await loadCustomerRefund(supabaseAdmin, row.id, row.booking_ref);
+    return withOpenRequest({ ...project(row), amountDuePence, refund }, await openCancellationRequest(row.booking_ref));
   });
 
 // ---------------- Cancellation request ----------------

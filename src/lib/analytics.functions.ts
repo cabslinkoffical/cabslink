@@ -10,6 +10,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 import { fetchAllPages } from "@/lib/fetch-all-pages";
 import { SETTLED_PAYMENT_STATUSES, netRevenue, revenueByBucket, settlementWindowFilter } from "@/lib/revenue";
+import { measuredQuoteFunnel, type FunnelEvent } from "@/lib/quote-funnel";
 import { ukDayStart, addDays, ukBucket } from "@/lib/uk-time";
 
 const input = z.object({
@@ -57,7 +58,7 @@ export const getSiteAnalytics = createServerFn({ method: "POST" })
       .select("id, amount, refunded_amount, status, paid_at, created_at")
       .in("status", SETTLED_PAYMENT_STATUSES as unknown as ("paid" | "partial" | "refunded")[])
       .or(settlementWindowFilter(iso(from), iso(to))));
-    const [bookings, prevBookings, payments, prevPayments, quotes, prevQuotes, messages, prevMessages] = await Promise.all([
+    const [bookings, prevBookings, payments, prevPayments, quoteEvents, prevQuoteEvents, messages, prevMessages] = await Promise.all([
       page<any>(() => supabase.from("bookings")
         .select("id, status, payment_status, service_type, vehicle_type, vehicle_class_name_snapshot, pickup_address, dropoff_address, price, created_at, quote_id")
         .is("deleted_at", null).gte("created_at", iso(start)).lte("created_at", iso(end))),
@@ -67,9 +68,9 @@ export const getSiteAnalytics = createServerFn({ method: "POST" })
       // Revenue: selected, totalled and bucketed by settlement time (paid_at, else created_at).
       settledPayments(start, end),
       settledPayments(prevStart, prevEnd),
-      page<any>(() => supabase.from("quote_calculations").select("id, final_price, created_at, final_service_type")
+      page<FunnelEvent>(() => supabase.from("site_events").select("id, created_at, name, session_id").eq("kind", "event").in("name", ["quote_start", "hourly_quote_start", "tours_interest"])
         .gte("created_at", iso(start)).lte("created_at", iso(end))),
-      page<any>(() => supabase.from("quote_calculations").select("id")
+      page<FunnelEvent>(() => supabase.from("site_events").select("id, created_at, name, session_id").eq("kind", "event").in("name", ["quote_start", "hourly_quote_start", "tours_interest"])
         .gte("created_at", iso(prevStart)).lte("created_at", iso(prevEnd))),
       page<any>(() => supabase.from("contact_messages").select("id").gte("created_at", iso(start)).lte("created_at", iso(end))),
       page<any>(() => supabase.from("contact_messages").select("id").gte("created_at", iso(prevStart)).lte("created_at", iso(prevEnd))),
@@ -87,16 +88,14 @@ export const getSiteAnalytics = createServerFn({ method: "POST" })
     const avgFare = bookings.length ? bookings.reduce((s, b) => s + num(b.price), 0) / bookings.length : 0;
     const prevAvgFare = prevBookings.length ? prevBookings.reduce((s, b) => s + num(b.price), 0) / prevBookings.length : 0;
 
-    // Quote → booking conversion (a booking carries the quote it was priced from).
-    // Cohort: of the quotes created in the window, how many were booked (whenever the booking came in).
-    const bookedQuoteIds = new Set(
-      (await page<any>(() => supabase.from("bookings").select("id, quote_id").not("quote_id", "is", null).is("deleted_at", null)))
-        .map((b: any) => b.quote_id as string),
-    );
-    const convertedCount = quotes.filter((q: any) => bookedQuoteIds.has(q.id)).length;
-    const prevConvertedCount = prevQuotes.filter((q: any) => bookedQuoteIds.has(q.id)).length;
-    const conversion = quotes.length ? (convertedCount / quotes.length) * 100 : 0;
-    const prevConversion = prevQuotes.length ? (prevConvertedCount / prevQuotes.length) * 100 : 0;
+    // Reuse the consent-aware website events, not the retired empty quote table.
+    const submissions = await page<FunnelEvent>(() => supabase.from("site_events")
+      .select("id, created_at, name, session_id").eq("kind", "event").eq("name", "booking_submitted")
+      .gte("created_at", iso(prevStart)));
+    const currentFunnel = measuredQuoteFunnel(quoteEvents, submissions);
+    const previousFunnel = measuredQuoteFunnel(prevQuoteEvents, submissions);
+    const { quotes, conversion } = currentFunnel;
+    const { quotes: prevQuotes, conversion: prevConversion } = previousFunnel;
 
     // Time series — every bucket present, even with no activity.
     const buckets = new Map<string, AnalyticsPoint>();
@@ -146,7 +145,7 @@ export const getSiteAnalytics = createServerFn({ method: "POST" })
         revenue, revenueChange: pct(revenue, prevRevenue),
         bookings: bookings.length, bookingsChange: pct(bookings.length, prevBookings.length),
         quotes: quotes.length, quotesChange: pct(quotes.length, prevQuotes.length),
-        conversion, conversionChange: pct(conversion, prevConversion),
+        conversion, conversionChange: conversion == null || prevConversion == null ? null : pct(conversion, prevConversion),
         avgFare, avgFareChange: pct(avgFare, prevAvgFare),
         completed, completedChange: pct(completed, prevCompleted),
         cancelled, cancelledChange: pct(cancelled, prevCancelled),

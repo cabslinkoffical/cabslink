@@ -10,6 +10,8 @@ import { track } from "@/lib/tracking";
 import { readCheckout, trackPurchaseOnce } from "@/lib/analytics-ga";
 import { isAwaitingConfirmation, isBookingConfirmed, paymentNextStepMessage, statusLabel, type BookingStatus, type PaymentMode } from "@/lib/booking-lifecycle";
 import { PayAnotherWay } from "@/components/site/PayAnotherWay";
+import { customerDetailRows } from "@/lib/booking-details";
+import { refundProgressLabel } from "@/lib/customer-refund";
 import { SITE } from "@/lib/site";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -98,7 +100,7 @@ function ConfirmationPage() {
 
   const fired = useRef(false);
   useEffect(() => {
-    if (fired.current || !q.data) return;
+    if (fired.current || !q.data || !isBookingConfirmed(q.data.status)) return;
     fired.current = true;
     track("booking_confirmed", {
       booking_ref: q.data.bookingRef,
@@ -171,9 +173,7 @@ function ConfirmationPage() {
     }
   };
   const extras = [
-    b.meetGreet ? "Meet & greet" : null,
-    b.childSeatsText ? `Child seats: ${b.childSeatsText}` : b.childSeat ? "Child seat" : null,
-    b.returnJourney ? "Return journey" : null,
+    b.cancellationCoverText ? `Cancellation cover: ${b.cancellationCoverText}` : null,
   ].filter(Boolean) as string[];
 
   const downloadSlip = async () => {
@@ -200,6 +200,7 @@ function ConfirmationPage() {
         price: b.price,
         paymentStatus: b.paymentStatus,
         extras,
+        detailRows: customerDetailRows(b.details),
         nextStep: nextStep,
       });
       toast.success("Booking slip downloaded");
@@ -267,7 +268,7 @@ function ConfirmationPage() {
                   <Fact icon={<User className="size-3" />} label="Booked by" value={b.customerName} />
                   <Fact icon={<Phone className="size-3" />} label="Phone" value={b.customerPhone} />
                   <Fact icon={<Mail className="size-3" />} label="Email" value={b.customerEmail} />
-                  {extras.length > 0 && <Fact icon={<BadgeCheck className="size-3" />} label="Extras" value={extras.join(" · ")} />}
+                  {customerDetailRows(b.details).map(row => <Fact key={row.label} icon={<BadgeCheck className="size-3" />} label={row.label} value={row.value} />)}
                   {b.cancellationCoverText && <Fact icon={<BadgeCheck className="size-3" />} label="Cancellation cover" value={b.cancellationCoverText} />}
                 </dl>
               </div>
@@ -282,7 +283,7 @@ function ConfirmationPage() {
                   <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">Estimated fare</p>
                   <p className="font-display text-2xl font-bold">{b.price != null ? `£${b.price.toFixed(2)}` : "—"}</p>
                   <p className="mt-0.5 text-[10px] font-semibold text-muted-foreground">
-                    {isPaid ? "Paid in full" : b.paymentStatus === "partial" ? "Part paid — balance required" : "Unpaid — payment required"}
+                    {isPaid ? "Paid in full" : b.paymentStatus === "refunded" ? "Refunded" : b.paymentStatus === "partial" ? "Part paid" : "Unpaid"}
                   </p>
                 </div>
 
@@ -307,6 +308,7 @@ function ConfirmationPage() {
             </div>
           </div>
           {/* ===== /TICKET ===== */}
+          {b.refund && <div className="mt-5 border-t border-border py-5"><h2 className="font-display text-lg font-bold">{refundProgressLabel(b.refund)}</h2><p className="mt-2 text-sm text-muted-foreground">{b.refund.refundedPence > 0 ? `Total refunds recorded: £${(b.refund.refundedPence / 100).toFixed(2)}. Your bank decides when a card refund appears in your account.` : "No refund has been recorded yet. We will confirm the outcome by email."}</p></div>}
 
           {awaiting && !isPaid && (
             <div className="mt-6 rounded-2xl border-2 border-[var(--gold)] bg-card p-5 md:p-7 shadow-sm print:hidden">
@@ -376,7 +378,7 @@ function Fact({ icon, label, value }: { icon: React.ReactNode; label: string; va
       <dt className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
         <span className="text-[var(--gold-ink)]">{icon}</span>{label}
       </dt>
-      <dd className="mt-0.5 truncate text-sm font-semibold" title={value}>{value}</dd>
+      <dd className="mt-0.5 break-words text-sm font-semibold" title={value}>{value}</dd>
     </div>
   );
 }

@@ -92,8 +92,10 @@ export function buildBookingDetails(b: BookingDetailSource): BookingDetails {
   const snap = (b.pricing_snapshot && typeof b.pricing_snapshot === "object" ? b.pricing_snapshot : {}) as { chosen_extras?: unknown };
   const extras: DetailExtra[] = Array.isArray(snap.chosen_extras)
     ? (snap.chosen_extras as any[])
-        .filter((e) => e && typeof e.name === "string" && num(e.quantity) && num(e.quantity)! > 0)
-        .map((e) => ({ name: e.name, quantity: num(e.quantity)! }))
+        .flatMap((e) => {
+          const quantity = num(e?.quantity);
+          return e && typeof e.name === "string" && quantity != null && quantity > 0 ? [{ name: e.name, quantity }] : [];
+        })
     : [];
   const seatCount = Number(b.child_seat_count ?? 0);
   return {
@@ -106,4 +108,17 @@ export function buildBookingDetails(b: BookingDetailSource): BookingDetails {
     childSeats: childSeatsLabel(parseChildSeats(b.child_seat_types), seatCount) ?? (b.child_seat ? "Yes" : null),
     cover: coverLabel(b.cancellation_cover ?? null, b.cancellation_cover_amount ?? null) ?? null,
   };
+}
+
+/** The same saved facts for confirmation, tracking and downloadable slips. */
+export function customerDetailRows(d: BookingDetails): Array<{ label: string; value: string }> {
+  const rows: Array<{ label: string; value: string }> = [];
+  if (d.returnLeg) rows.push({ label: "Return pickup", value: [d.returnLeg.date, d.returnLeg.time].filter(Boolean).join(" · ") || "Contact us to confirm the return time" });
+  if (d.stops.length) rows.push({ label: "Stops", value: d.stops.join(" · ") });
+  if (d.hours != null) rows.push({ label: "Booked hours", value: String(d.hours) });
+  if (d.vehicles.length) rows.push({ label: "Booked vehicles", value: d.vehicles.map(v => v.name).join(" · ") });
+  if (d.extras.length) rows.push({ label: "Booked extras", value: d.extras.map(e => `${e.name} × ${e.quantity}`).join(" · ") });
+  if (d.meetGreet) rows.push({ label: "Meet & Greet", value: "Booked" });
+  if (d.childSeats) rows.push({ label: "Child seats", value: d.childSeats });
+  return rows;
 }

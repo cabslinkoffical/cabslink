@@ -8,6 +8,7 @@ import { buildCustomers, campaignAudience, normEmail, type MyCustomer } from "@/
 import { nextRunAt, type CampaignFrequency } from "@/lib/campaign-schedule";
 import { quietOk, ruleTriggerKey, queueSkipReason, afterFailure, QUEUE_BATCH_SIZE, type TriggerType } from "@/lib/email-automation";
 import { ukDate, ukDayStart } from "@/lib/uk-time";
+import { deliveryEvent } from "@/lib/email-delivery";
 
 type Db = any;
 
@@ -81,7 +82,10 @@ export async function sendBatch(items: Outgoing[]): Promise<Array<{ ok: boolean;
   }
   const json: any = await res.json().catch(() => ({}));
   const ids: any[] = Array.isArray(json?.data) ? json.data : [];
-  return items.map((_, i) => ({ ok: true, id: typeof ids[i]?.id === "string" ? ids[i].id : null, error: null }));
+  return items.map((_, i) => {
+    const id = typeof ids[i]?.id === "string" ? ids[i].id : null;
+    return { ok: !!id, id, error: id ? null : "Send outcome unknown: Resend did not return a message ID; not retried to avoid a duplicate" };
+  });
 }
 
 /** Make sure every audience member has a consent row (for their id and unsubscribe token). */
@@ -247,22 +251,28 @@ export async function processQueue(db: Db, opts: { maxBatches?: number; onlyCamp
       ready.push({ row, msg: { to: row.email, ...renderCampaign(src, { name, token: mc.unsubscribe_token }, coupons.get(key)!) } });
     }
     if (ready.length) {
-      const results = await sendBatch(ready.map((r) => r.msg));
+      let results: Awaited<ReturnType<typeof sendBatch>>;
+      try { results = await sendBatch(ready.map((r) => r.msg)); }
+      catch { results = ready.map(() => ({ ok: false, id: null, error: "Send outcome unknown: connection interrupted; not retried to avoid a duplicate" })); }
       const now = new Date();
       const okEmails: string[] = [];
       const bySource = new Map<string, number>();
       await Promise.all(ready.map(async ({ row }, k) => {
-        const res = results[k];
+        const res = results[k] ?? { ok: false, id: null, error: "Send outcome unknown: missing result; not retried to avoid a duplicate" };
         if (res.ok) {
           okEmails.push(row.email);
           const key = row.campaign_id ? `c:${row.campaign_id}` : `r:${row.rule_id}`;
           bySource.set(key, (bySource.get(key) ?? 0) + 1);
+          const saved = await db.from("email_queue").update({ status: "sent", sent_at: now.toISOString(), provider_message_id: res.id, last_error: null, locked_at: null }).eq("id", row.id);
+          if (saved.error) throw new Error("Email accepted, but its status could not be saved. Queue recovery will prevent automatic duplicate sends.");
           totals.sent++;
-          return db.from("email_queue").update({ status: "sent", sent_at: now.toISOString(), provider_message_id: res.id, last_error: null, locked_at: null }).eq("id", row.id);
+          return saved;
         }
-        const next = afterFailure(row.attempts, now);
+        const next = res.error?.startsWith("Send outcome unknown") ? { status: "failed", nextAttemptAt: null } : afterFailure(row.attempts, now);
         next.status === "failed" ? totals.failed++ : totals.retrying++;
-        return db.from("email_queue").update({ status: next.status, next_attempt_at: next.nextAttemptAt ?? now.toISOString(), last_error: res.error?.slice(0, 500) ?? "Send failed", locked_at: null }).eq("id", row.id);
+        const saved = await db.from("email_queue").update({ status: next.status, next_attempt_at: next.nextAttemptAt ?? now.toISOString(), last_error: res.error?.slice(0, 500) ?? "Send failed", locked_at: null }).eq("id", row.id);
+        if (saved.error) throw new Error("The email failure could not be recorded.");
+        return saved;
       }));
       await markEmailed(db, okEmails);
       for (const [key, n] of bySource) {
@@ -288,6 +298,9 @@ async function markEmailed(db: Db, emails: string[]) {
 
 /** Every 15 minutes: queue due campaigns and automatic emails, then send what is due. */
 export async function runDueCampaigns(db: Db) {
+  // Delivery checks still run when promotional sending is paused.
+  try { await reconcileEmailDelivery(db); }
+  catch (error) { console.error("Email delivery monitoring failed", error); }
   if ((await loadSettings(db)).paused) return [];
   const { data, error } = await db.from("email_campaigns").select("*").eq("status", "active").lte("next_run_at", new Date().toISOString()).order("next_run_at");
   if (error) throw new Error(error.message);
@@ -302,6 +315,37 @@ export async function runDueCampaigns(db: Db) {
   try { results.push({ queue: await processQueue(db) }); }
   catch (e) { console.error("email queue failed", e); }
   return results;
+}
+
+/** Reuse the existing scheduler and event/suppression tables; no second automation system. */
+export async function reconcileEmailDelivery(db: Db) {
+  const now = new Date();
+  const result = await db.from("email_queue").select("id, email, provider_message_id")
+    .eq("status", "sent").not("provider_message_id", "is", null)
+    .gte("sent_at", new Date(now.getTime() - 30 * 86400000).toISOString())
+    .lt("updated_at", new Date(now.getTime() - 3600000).toISOString())
+    .order("updated_at", { ascending: true }).limit(10);
+  if (result.error) throw new Error("Email delivery records could not be loaded.");
+  if (!result.data?.length) return;
+  const s = sender();
+  for (const row of result.data) {
+    const response = await fetch(`https://connector-gateway.lovable.dev/resend/emails/${encodeURIComponent(row.provider_message_id)}`, {
+      headers: { Authorization: `Bearer ${s.lovableKey}`, "X-Connection-Api-Key": s.resendKey },
+    });
+    if (!response.ok) throw new Error(`Email delivery check failed (${response.status}).`);
+    const data: any = await response.json();
+    const type = deliveryEvent(data.last_event);
+    if (type) {
+      const saved = await db.from("email_events").upsert({ queue_id: row.id, email: row.email, type,
+        provider_event_id: `resend:${row.provider_message_id}:${type}`, payload: { via: "scheduled_delivery_check" } },
+        { onConflict: "provider_event_id", ignoreDuplicates: true });
+      if (saved.error) throw new Error("Email delivery outcome could not be recorded.");
+      if (type === "bounced" || type === "complained") await suppress(db, row.email, type);
+    }
+    const checked = await db.from("email_queue").update({ updated_at: now.toISOString() }).eq("id", row.id);
+    if (checked.error) throw new Error("Email delivery check could not be recorded.");
+    await new Promise(resolve => setTimeout(resolve, 600));
+  }
 }
 
 /** Queue a campaign now and send its first batches straight away (the rest go out every 15 minutes). */

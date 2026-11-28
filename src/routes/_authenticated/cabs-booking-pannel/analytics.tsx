@@ -27,6 +27,10 @@ export const Route = createFileRoute("/_authenticated/cabs-booking-pannel/analyt
     meta: [
       { title: "Analytics — Cabslink Admin" },
       { name: "description", content: "Cabslink staff console: performance analytics." },
+      { property: "og:title", content: "Analytics — Cabslink Admin" },
+      { property: "og:description", content: "Cabslink booking revenue and measured website journeys." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
@@ -110,7 +114,7 @@ function Page() {
 
   const csv = useMemo(() => {
     if (!r) return "";
-    const head = ["Period", "Bookings", "Quotes", "Revenue"];
+    const head = ["Period", "Bookings", "Measured quote sessions", "Revenue"];
     const rows = r.series.map(s => [s.date, String(s.bookings), String(s.quotes), s.revenue.toFixed(2)]);
     return [head, ...rows].map(row => row.map(csvCell).join(",")).join("\r\n");
   }, [r]);
@@ -181,11 +185,12 @@ function Page() {
 
       {r && k && (
         <>
+          <p className="text-sm text-muted-foreground">Quote figures count consent-bearing website sessions. Conversion counts those same sessions with a booking submission, not every booking or payment.</p>
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
             <StatCard label="Revenue collected" value={money(k.revenue)} icon={PoundSterling} hint={<Delta change={k.revenueChange} />} />
             <StatCard label="Bookings" value={k.bookings} icon={BarChart3} hint={<Delta change={k.bookingsChange} />} />
-            <StatCard label="Quotes priced" value={k.quotes} icon={FileSearch} hint={<Delta change={k.quotesChange} />} />
-            <StatCard label="Quote → booking" value={`${k.conversion.toFixed(1)}%`} icon={Percent} hint={<Delta change={k.conversionChange} />} />
+            <StatCard label="Measured quote sessions" value={k.quotes} icon={FileSearch} hint={<Delta change={k.quotesChange} />} />
+            <StatCard label="Measured quote → booking" value={k.conversion == null ? "Not measured" : `${k.conversion.toFixed(1)}%`} icon={Percent} hint={<Delta change={k.conversionChange} />} />
           </div>
 
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
@@ -208,7 +213,7 @@ function Page() {
               </ResponsiveContainer>
             </Panel>
 
-            <Panel title="Demand funnel — quotes vs bookings">
+            <Panel title="Website quote starts & booking records">
               <ResponsiveContainer width="100%" height={260}>
                 <BarChart data={r.series}>
                   <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
@@ -216,7 +221,7 @@ function Page() {
                   <YAxis fontSize={11} allowDecimals={false} />
                   <Tooltip />
                   <Legend />
-                  <Bar dataKey="quotes" name="Quotes" fill={NAVY} radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="quotes" name="Measured quote sessions" fill={NAVY} radius={[3, 3, 0, 0]} />
                   <Bar dataKey="bookings" name="Bookings" fill={GOLD} radius={[3, 3, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>

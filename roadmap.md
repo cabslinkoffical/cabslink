@@ -290,8 +290,8 @@
 - [x] Custom automation triggers
 
 ## Remaining website gaps (28 Nov)
-- [ ] Show saved return times, stops, vehicles and extras on customer booking pages and downloads.
-- [ ] Show cancellation/refund progress using existing request and payment records.
-- [ ] Replace the empty legacy quote report source with the existing measured website funnel.
-- [ ] Make email send results reliable; check delivery/bounce monitoring prerequisites.
-- [ ] Verify focused tests and populated customer/admin views, commit without publishing.
+- [x] Saved return times, stops, vehicles and extras reused on confirmation/tracking/downloads; existing return booking verified on desktop and phone, no overflow or page errors.
+- [~] Cancellation/refund projection implemented from existing requests and ledger amounts; rule tests pass. Live refund-progress flow needs an existing cancellation/refund record (none currently available); no money moved or invented record created.
+- [x] Empty legacy quote report replaced with consent-bearing site-event sessions and linked submissions; unavailable conversion is null. Populated report verified as temporary test admin (role removed).
+- [~] Send acceptance requires provider ID; uncertain outcomes stop without duplicate retry, failed status writes surface errors. Existing scheduler now checks Resend delivery and records/suppresses bounces/complaints; tests pass. Live reconciliation awaits new sends with provider IDs and publication; existing two sent rows have no provider IDs and no Resend webhook exists.
+- [x] 76 focused checks across 15 files pass, automatic build OK; existing confirmation/tracking and populated admin report verified. Commit only, not published. No new campaigns, booking/payment changes or customer-data changes.

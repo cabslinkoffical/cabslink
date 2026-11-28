@@ -1,7 +1,14 @@
 import { describe, it, expect } from "vitest";
-import { buildBookingDetails } from "@/lib/booking-details";
+import { buildBookingDetails, customerDetailRows } from "@/lib/booking-details";
 
 describe("admin booking details", () => {
+  it("makes the saved return, stops and extras available to customer pages and downloads", () => {
+    const details = buildBookingDetails({ return_journey: true, return_date: "2026-11-30", return_time: "14:30", selected_pois: [{ label: "Stirling Castle", minutes: 30 }], pricing_snapshot: { chosen_extras: [{ name: "Extra waiting", quantity: 2 }] } });
+    const rows = customerDetailRows(details);
+    expect(rows.find(r => r.label === "Return pickup")?.value).toContain("2026-11-30");
+    expect(rows.find(r => r.label === "Stops")?.value).toBe("Stirling Castle (30 min)");
+    expect(rows.find(r => r.label === "Booked extras")?.value).toBe("Extra waiting × 2");
+  });
   it("shows the return leg date and time", () => {
     const d = buildBookingDetails({ return_journey: true, return_date: "2026-11-16", return_time: "14:30" });
     expect(d.returnLeg?.date).toBe("2026-11-16");

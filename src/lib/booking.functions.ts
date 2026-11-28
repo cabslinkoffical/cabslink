@@ -2,6 +2,7 @@ import { getClientIp } from "@/lib/client-ip.server";
 // Public + admin server functions for the booking lifecycle.
 
 import { childSeatsLabel, parseChildSeats } from "@/lib/child-seats";
+import { buildBookingDetails } from "@/lib/booking-details";
 import { coverLabel } from "@/lib/cancellation-cover";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -59,9 +60,12 @@ export const getBookingByToken = createServerFn({ method: "POST" })
     const amountDuePence = await payableBookingPence(supabaseAdmin, paymentBooking);
     const seatRow: any = await supabaseAdmin
       .from("bookings")
-      .select("child_seat_types, child_seat_count, cancellation_cover, cancellation_cover_amount")
+      .select("child_seat_types, child_seat_count, cancellation_cover, cancellation_cover_amount, return_journey, return_date, return_time, selected_pois, tour_stops, tour_vehicles, booked_hours, hourly_hours, pricing_snapshot, meet_greet, child_seat")
       .eq("booking_ref", row.booking_ref)
       .maybeSingle();
+    if (seatRow.error) throw new Error("We couldn't load your trip details. Please try again.");
+    const { loadCustomerRefund } = await import("@/lib/customer-refund.server");
+    const refund = await loadCustomerRefund(supabaseAdmin, paymentBooking.id, row.booking_ref);
     const { parseChildSeats, childSeatsLabel } = await import("@/lib/child-seats");
     const childSeatsText = childSeatsLabel(
       parseChildSeats(seatRow?.data?.child_seat_types),
@@ -69,6 +73,8 @@ export const getBookingByToken = createServerFn({ method: "POST" })
     );
     // Customer-safe projection: no ids, place ids, hashes, tokens, or admin fields.
     return {
+      details: buildBookingDetails(seatRow.data ?? {}),
+      refund,
       bookingRef: row.booking_ref,
       status: row.status,
       paymentStatus: row.payment_status,

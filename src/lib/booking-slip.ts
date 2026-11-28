@@ -30,6 +30,7 @@ export type BookingSlipData = {
   price?: number | null;
   paymentStatus?: string | null;
   extras: string[];
+  detailRows?: Array<{ label: string; value: string }>;
   nextStep: string;
 };
 
@@ -50,7 +51,7 @@ export async function downloadBookingSlip(b: BookingSlipData) {
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(20);
   doc.text(
-    b.status === "confirmed" ? "Booking confirmed" : "Booking request received",
+    b.statusLabel,
     M,
     70,
   );
@@ -90,6 +91,7 @@ export async function downloadBookingSlip(b: BookingSlipData) {
     doc.setFontSize(11);
     doc.setTextColor(...NAVY);
     const lines = doc.splitTextToSize(value || "—", innerW - 150);
+    if (y + Math.max(20, lines.length * 14 + 6) > doc.internal.pageSize.getHeight() - 80) { doc.addPage(); y = 50; }
     doc.text(lines, M + 150, y);
     y += Math.max(20, lines.length * 14 + 6);
   };
@@ -101,6 +103,7 @@ export async function downloadBookingSlip(b: BookingSlipData) {
   row("Time", b.pickupTime);
   if (b.distanceMiles != null) row("Distance", `${b.distanceMiles.toFixed(1)} miles`);
   if (b.flightNumber) row("Flight", b.flightNumber);
+  for (const detail of b.detailRows ?? []) row(detail.label, detail.value);
 
   y += 10;
   heading("Vehicle & passengers");
@@ -119,7 +122,7 @@ export async function downloadBookingSlip(b: BookingSlipData) {
   y += 10;
   heading("Fare");
   row("Estimated fare", b.price != null ? `GBP ${b.price.toFixed(2)}` : "—");
-  row("Payment", `${b.paymentStatus ?? "unpaid"} · pay on arrangement`);
+  row("Payment", b.paymentStatus ?? "unpaid");
 
   // ---- Next step note ----------------------------------------------------
   y += 6;
