@@ -288,3 +288,10 @@
 
 - [x] Branded designed HTML layout for all marketing emails
 - [x] Custom automation triggers
+
+## Remaining website gaps (28 Nov)
+- [ ] Show saved return times, stops, vehicles and extras on customer booking pages and downloads.
+- [ ] Show cancellation/refund progress using existing request and payment records.
+- [ ] Replace the empty legacy quote report source with the existing measured website funnel.
+- [ ] Make email send results reliable; check delivery/bounce monitoring prerequisites.
+- [ ] Verify focused tests and populated customer/admin views, commit without publishing.
