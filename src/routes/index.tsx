@@ -17,6 +17,7 @@ import {
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { FaqAccordion } from "@/components/site/FaqAccordion";
 import { BookingWidget } from "@/components/site/BookingWidget";
+import { TransferAdvisor } from "@/components/site/TransferAdvisor";
 import { DraggableMarquee } from "@/components/site/DraggableMarquee";
 import { GoogleReviewsSection } from "@/components/site/GoogleReviewsSection";
 import { googleReviewsQuery } from "@/lib/google-reviews-query";
@@ -274,6 +275,7 @@ function HomePage() {
 
           <div id="booking" className="home-hero-booking relative z-50 min-w-0 scroll-mt-24">
             <BookingWidget tone="dark" />
+            <TransferAdvisor />
           </div>
 
           <div

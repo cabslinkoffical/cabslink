@@ -1,3 +1,4 @@
 - Customer confirmation and verified tracking reuse booking-details for saved trip facts; refund projections expose only request progress and ledger amounts after identity/token verification, never staff notes or card identifiers.
 - Business quote conversion reuses consent-bearing site_events sessions through quote-funnel, not retired quote_calculations; unavailable measurement is null, not a fabricated zero.
 - Marketing sending requires a provider message ID before recording acceptance; uncertain outcomes fail without retry to prevent duplicates. The existing scheduler checks delivery and suppresses bounces/complaints using existing tables without stopping campaigns on monitoring outages.
+- Airport AI advice reads only the public vehicle catalogue, validates model choices with vehicle-capacity, and hands unconfirmed text to existing booking; no model-generated fares, dates, reservations or private customer reads.
