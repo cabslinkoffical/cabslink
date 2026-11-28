@@ -32,14 +32,25 @@ function SearchPage() {
   const [q, setQ] = useState(initial);
   const [results, setResults] = useState<Result[]>([]);
   const [loading, setLoading] = useState(false);
+  const [searched, setSearched] = useState("");
+  const [failed, setFailed] = useState(false);
+  const latest = useRef(0);
 
   async function run(query: string) {
-    if (!query.trim()) { setResults([]); return; }
+    if (!query.trim()) { setResults([]); setSearched(""); return; }
+    const id = ++latest.current;
     setLoading(true);
+    setFailed(false);
     try {
       const res = await searchDestinations({ data: { q: query, limit: 30 } });
+      if (id !== latest.current) return;
       setResults(res);
-    } finally { setLoading(false); }
+      setSearched(query);
+    } catch {
+      if (id !== latest.current) return;
+      setResults([]);
+      setFailed(true);
+    } finally { if (id === latest.current) setLoading(false); }
   }
 
   // Run the query straight away when arriving with ?q= in the URL.
@@ -78,9 +89,15 @@ function SearchPage() {
 
       {loading && <p className="text-[var(--navy)]/60">Searching…</p>}
 
-      {!loading && results.length === 0 && q && (
-        <p className="text-[var(--navy)]/60">No matches. Try a broader term.</p>
-      )}
+      <div role="status" aria-live="polite">
+        {failed && !loading && (
+          <p className="text-[var(--navy)]/70">Search is not available right now. Please try again, or call us.</p>
+        )}
+        {!loading && !failed && searched && results.length === 0 && (
+          <p className="text-[var(--navy)]/60">No matches for "{searched}". Try a broader term.</p>
+        )}
+        {!loading && !failed && results.length > 0 && <span className="sr-only">{results.length} results found</span>}
+      </div>
 
       <ul className="space-y-2">
         {results.map((r) => (
@@ -102,7 +119,8 @@ function SearchPage() {
                 </Link>
               ) : (
                 <a
-                  href="/book"
+                  href={`/book?q=${encodeURIComponent(new URLSearchParams({ dropoffText: r.display_name ?? r.name }).toString())}`}
+                  aria-label={`Book a journey to ${r.display_name ?? r.name}`}
                   className="rounded-full bg-[var(--gold)] px-4 py-1.5 text-sm font-semibold text-[var(--navy)]"
                 >
                   Book to here

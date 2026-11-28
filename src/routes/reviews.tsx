@@ -177,6 +177,7 @@ function ReviewsPage() {
                 The latest from Trustpilot and RatingFacts.
               </p>
             </div>
+            {totals.video > 0 && (
             <div className="rounded-2xl border border-navy-foreground/12 bg-navy-foreground/[0.04] p-5">
               <p className="font-display text-4xl font-bold leading-none text-navy-foreground">
                 {totals.video}
@@ -184,20 +185,17 @@ function ReviewsPage() {
               <p className="mt-3 text-xs uppercase tracking-[0.2em] text-[var(--gold)]">
                 Video reviews
               </p>
-              <p className="mt-2 text-xs text-navy-foreground/60">
-                {totals.video === 0 ? "First clips being filmed now." : "Filmed by passengers."}
-              </p>
+              <p className="mt-2 text-xs text-navy-foreground/60">Filmed by passengers.</p>
             </div>
+            )}
             <div className="rounded-2xl border border-navy-foreground/12 bg-navy-foreground/[0.04] p-5">
               <p className="font-display text-4xl font-bold leading-none text-navy-foreground">
-                {totals.liveChannels + totals.plannedChannels}
+                {totals.liveChannels}
               </p>
               <p className="mt-3 text-xs uppercase tracking-[0.2em] text-[var(--gold)]">
                 Review channels
               </p>
-              <p className="mt-2 text-xs text-navy-foreground/60">
-                {totals.liveChannels} live, {totals.plannedChannels} on the way.
-              </p>
+              <p className="mt-2 text-xs text-navy-foreground/60">Independent sites where passengers rate us.</p>
             </div>
           </div>
         </div>
